@@ -35,6 +35,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.Action;
@@ -44,7 +45,10 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.xml.security.exceptions.Base64DecodingException;
 import org.apache.xml.security.utils.Base64;
 import org.oscarehr.PMmodule.dao.ProviderDao;
+import org.oscarehr.common.dao.ConsultationRequestArchiveDao;
 import org.oscarehr.common.dao.ConsultationRequestDao;
+import org.oscarehr.common.dao.ConsultationRequestExtArchiveDao;
+import org.oscarehr.common.dao.ConsultationRequestExtDao;
 import org.oscarehr.common.dao.DemographicExtDao;
 import org.oscarehr.common.dao.Hl7TextMessageDao;
 import org.oscarehr.common.hl7.v2.oscar_to_oscar.DataTypeUtils;
@@ -75,9 +79,20 @@ public class EctViewRequestAction extends Action {
         ParameterActionForward forward = new ParameterActionForward(mapping.findForward("success"));
 
 		EctViewRequestForm frm = (EctViewRequestForm) form;
+		
+		if (!StringUtils.isBlank(request.getParameter("archiveId"))) {
+            forward.addParameter("archiveId", request.getParameter("archiveId"));
+        }
 		if ((frm.getRequestId() == null || "".equals(frm.getRequestId())) && request.getParameter("reqId") != null){
 		    frm.setRequestId(request.getParameter("reqId"));
 		    forward.addParameter("requestId", frm.getRequestId());
+		    if (!StringUtils.isBlank(frm.getRequestId()) && StringUtils.isNumeric(frm.getRequestId())) {
+                ConsultationRequestExtDao consultationRequestExtDao = (ConsultationRequestExtDao) SpringUtils.getBean("consultationRequestExtDao");
+                String appointmentNo = consultationRequestExtDao.getConsultationRequestExtsByKey(Integer.parseInt(frm.getRequestId()), "appNo");
+                if (appointmentNo != null && !"null".equals(appointmentNo)) {
+                    forward.addParameter("appNo", appointmentNo);
+                }
+            }
         }
         request.setAttribute("id", frm.getRequestId());
 
@@ -133,11 +148,24 @@ public class EctViewRequestAction extends Action {
 	}
 
 
-        public static void fillFormValues(LoggedInInfo loggedInInfo, EctConsultationFormRequestForm thisForm, Integer requestId) {
+        public static void fillFormValues(LoggedInInfo loggedInInfo, EctConsultationFormRequestForm thisForm, Integer requestId, Integer archiveId) {
         	checkPrivilege(loggedInInfo);
         	
-            ConsultationRequestDao consultDao = (ConsultationRequestDao)SpringUtils.getBean("consultationRequestDao");
-            ConsultationRequest consult = consultDao.find(requestId);
+            ConsultationRequest consult;
+            String createdBy;
+            if (archiveId != null) {
+                ConsultationRequestArchiveDao consultationRequestArchiveDao = SpringUtils.getBean(ConsultationRequestArchiveDao.class);
+                ConsultationRequestExtArchiveDao consultationRequestExtArchiveDao = SpringUtils.getBean(ConsultationRequestExtArchiveDao.class);
+                ConsultationRequestArchive archive = consultationRequestArchiveDao.find(archiveId);
+                consult = archive.toConsultationRequest();
+
+                createdBy = consultationRequestExtArchiveDao.getConsultationRequestExtsByKey(requestId, "createdBy");
+            } else {
+                ConsultationRequestDao consultDao = (ConsultationRequestDao)SpringUtils.getBean("consultationRequestDao");
+                ConsultationRequestExtDao consultationRequestExtDao = (ConsultationRequestExtDao) SpringUtils.getBean("consultationRequestExtDao");
+                consult = consultDao.find(requestId);
+                createdBy = consultationRequestExtDao.getConsultationRequestExtsByKey(requestId, "createdBy");
+            }
 
             thisForm.setAllergies(consult.getAllergies());
             thisForm.setReasonForConsultation(consult.getReasonForReferral());

@@ -119,6 +119,8 @@ public final class EctConsultationFormRequestForm extends ActionForm {
 	private String appointmentInstructions;
 	private String appointmentInstructionsLabel;
 	
+    private String archiveId;
+	
 	public String getProfessionalSpecialistName() {
 		return (StringUtils.trimToEmpty(professionalSpecialistName));
 	}
@@ -614,4 +616,13 @@ public final class EctConsultationFormRequestForm extends ActionForm {
 		this.appointmentInstructionsLabel = appointmentInstructionsLabel;
 	}
 
+    public String getArchiveId() {
+        return archiveId;
+    }
+    public void setArchiveId(String archiveId) {
+        this.archiveId = archiveId;
+    }
+    public Boolean isArchive() {
+        return !StringUtils.isBlank(archiveId);
+    }
 }

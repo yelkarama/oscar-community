@@ -12625,3 +12625,48 @@ create table SurveillanceData (
 	transmissionDate datetime,
 	sent boolean
 );
+CREATE TABLE consultation_requests_archive (
+  `id` INT(10) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `archive_timestamp` DATETIME NOT NULL,
+  `request_id` INT(10) NOT NULL,
+  `referral_date` DATE DEFAULT NULL,
+  `service_id` INT(10) DEFAULT NULL,
+  `specialist_id` INT(10) DEFAULT NULL,
+  `appointment_date` DATE DEFAULT NULL,
+  `appointment_time` TIME DEFAULT NULL,
+  `reason` TEXT,
+  `clinical_info` TEXT,
+  `current_meds` TEXT,
+  `allergies` TEXT,
+  `provider_no` VARCHAR(6) DEFAULT NULL,
+  `demographic_id` INT(10) DEFAULT NULL,
+  `status` CHAR(2) DEFAULT NULL,
+  `status_text` TEXT,
+  `send_to` VARCHAR(20) DEFAULT NULL,
+  `concurrent_problems` TEXT,
+  `urgency` CHAR(2) DEFAULT NULL,
+  `appointment_instructions` VARCHAR(256) DEFAULT NULL,
+  `patient_will_book` TINYINT(1) DEFAULT NULL,
+  `site_name` VARCHAR(255) DEFAULT NULL,
+  `follow_up_date` DATE DEFAULT NULL,
+  `signature_img` VARCHAR(20) DEFAULT NULL,
+  `letterhead_name` VARCHAR(20) DEFAULT NULL,
+  `letterhead_address` TEXT,
+  `letterhead_phone` VARCHAR(50) DEFAULT NULL,
+  `letterhead_fax` VARCHAR(50) DEFAULT NULL,
+  `letterhead_website` VARCHAR(255) DEFAULT '',
+  `letterhead_email` VARCHAR(255) DEFAULT '',
+  `last_update_date` DATETIME NOT NULL,
+  `fdid` INT(10) DEFAULT NULL,
+  `source` VARCHAR(50) DEFAULT NULL
+);
+CREATE TABLE consultation_requests_ext_archive (
+  `id` INT(10) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `archive_id` INT(10) NOT NULL,
+  `archive_timestamp` DATETIME NOT NULL,
+  `request_id` INT(10) NOT NULL,
+  `name` VARCHAR(100) NOT NULL,
+  `value` TEXT NOT NULL,
+  `date_created` DATE NOT NULL
+);
+

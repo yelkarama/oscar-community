@@ -34,6 +34,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.List;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -51,7 +52,9 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.oscarehr.common.IsPropertiesOn;
 import org.oscarehr.common.dao.ClinicDAO;
+import org.oscarehr.common.dao.ConsultationRequestArchiveDao;
 import org.oscarehr.common.dao.ConsultationRequestDao;
+import org.oscarehr.common.dao.ConsultationRequestExtArchiveDao;
 import org.oscarehr.common.dao.ConsultationRequestExtDao;
 import org.oscarehr.common.dao.Hl7TextInfoDao;
 import org.oscarehr.common.dao.ProfessionalSpecialistDao;
@@ -59,9 +62,12 @@ import org.oscarehr.common.hl7.v2.oscar_to_oscar.OruR01;
 import org.oscarehr.common.hl7.v2.oscar_to_oscar.OruR01.ObservationData;
 import org.oscarehr.common.hl7.v2.oscar_to_oscar.RefI12;
 import org.oscarehr.common.hl7.v2.oscar_to_oscar.SendingUtils;
+import org.oscarehr.common.model.AbstractModel;
 import org.oscarehr.common.model.Clinic;
 import org.oscarehr.common.model.ConsultationRequest;
+import org.oscarehr.common.model.ConsultationRequestArchive;
 import org.oscarehr.common.model.ConsultationRequestExt;
+import org.oscarehr.common.model.ConsultationRequestExtArchive;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.DigitalSignature;
 import org.oscarehr.common.model.Hl7TextInfo;
@@ -133,7 +139,9 @@ public class EctConsultationFormRequestAction extends Action {
 	
 		
         ConsultationRequestDao consultationRequestDao=(ConsultationRequestDao)SpringUtils.getBean("consultationRequestDao");
+        ConsultationRequestArchiveDao consultationRequestArchiveDao = SpringUtils.getBean(ConsultationRequestArchiveDao.class);
         ConsultationRequestExtDao consultationRequestExtDao=(ConsultationRequestExtDao)SpringUtils.getBean("consultationRequestExtDao");
+        ConsultationRequestExtArchiveDao consultationRequestExtArchiveDao = SpringUtils.getBean(ConsultationRequestExtArchiveDao.class);
         ProfessionalSpecialistDao professionalSpecialistDao=(ProfessionalSpecialistDao)SpringUtils.getBean("professionalSpecialistDao");
         
         String[] format = new String[] {"yyyy-MM-dd","yyyy/MM/dd"};
@@ -274,6 +282,8 @@ public class EctConsultationFormRequestAction extends Action {
 				}
 				
                 ConsultationRequest consult = consultationRequestDao.find(new Integer(requestId));
+                ConsultationRequestArchive consultArchive = new ConsultationRequestArchive(consult);
+                
                 Date date = DateUtils.parseDate(frm.getReferalDate(), format);
                 consult.setReferralDate(date);
                 consult.setServiceId(new Integer(frm.getService()));
@@ -344,6 +354,16 @@ public class EctConsultationFormRequestAction extends Action {
                 }
                 
                 consultationRequestDao.merge(consult);
+                // Save archive
+                consultationRequestArchiveDao.saveEntity(consultArchive);
+
+                List<AbstractModel<?>> consultationRequestExtArchiveList = new ArrayList<>();
+                List<ConsultationRequestExt> consultationRequestExtList = consultationRequestExtDao.getConsultationRequestExts(consult.getId());
+                for (ConsultationRequestExt ext : consultationRequestExtList) {
+                    ConsultationRequestExtArchive archiveExt = new ConsultationRequestExtArchive(consultArchive.getId(), ext);
+                    archiveExt.setArchiveTimestamp(consultArchive.getArchiveTimestamp());
+                    consultationRequestExtArchiveList.add(archiveExt);
+                }
                 
                 consultationRequestExtDao.clear(Integer.parseInt(requestId));
                 Enumeration e = request.getParameterNames();
@@ -354,6 +374,9 @@ public class EctConsultationFormRequestAction extends Action {
                 		consultationRequestExtDao.persist(createExtEntry(requestId,name.substring(name.indexOf("_")+1),value));
                 	}
                 }
+                
+                // Save ext archive
+                consultationRequestExtArchiveDao.batchPersist(consultationRequestExtArchiveList, 25);
 			}
 
 			catch (ParseException e) {

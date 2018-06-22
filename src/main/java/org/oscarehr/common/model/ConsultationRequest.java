@@ -346,6 +346,8 @@ public class ConsultationRequest extends AbstractModel<Integer> implements Seria
 		this.appointmentInstructions = appointmentInstructions;
 	}
 	
+	public Date getLastUpdateDate() { return lastUpdateDate; }
+
 	@PrePersist
 	@PreUpdate
 	protected void jpa_updateLastDateUpdated() {

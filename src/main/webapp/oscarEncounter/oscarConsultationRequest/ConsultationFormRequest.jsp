@@ -116,6 +116,13 @@ if(!authed) {
 
 	String demo = request.getParameter("de");
 		String requestId = request.getParameter("requestId");
+		
+	Integer archiveId = null;
+	String archiveIdStr = request.getParameter("archiveId");
+	if (!org.apache.commons.lang.StringUtils.isBlank(archiveIdStr) 
+			&& org.apache.commons.lang.StringUtils.isNumeric(archiveIdStr)) {
+		archiveId = Integer.parseInt(archiveIdStr);
+	}
 		// segmentId is != null when viewing a remote consultation request from an hl7 source
 		String segmentId = request.getParameter("segmentId");
 		String team = request.getParameter("teamVar");
@@ -1380,8 +1387,10 @@ function hasFaxNumber() {
 }
 function updateFaxButton() {
 	var disabled = !hasFaxNumber();
+    <% if (archiveId == null) { %>
 	document.getElementById("fax_button").disabled = disabled;
 	document.getElementById("fax_button2").disabled = disabled;
+	<% } %>
 }
 </script>
 
@@ -1397,7 +1406,7 @@ function updateFaxButton() {
 
 		if (requestId != null)
 		{
-			EctViewRequestAction.fillFormValues(LoggedInInfo.getLoggedInInfoFromSession(request), thisForm, new Integer(requestId));
+			EctViewRequestAction.fillFormValues(LoggedInInfo.getLoggedInInfoFromSession(request), thisForm, new Integer(requestId), archiveId);
                 thisForm.setSiteName(consultUtil.siteName);
                 defaultSiteName = consultUtil.siteName ;
 
@@ -1443,7 +1452,7 @@ function updateFaxButton() {
        		}
 		}
 
-		if (thisForm.iseReferral())
+		if (thisForm.iseReferral() || archiveId != null)
 		{
 			%>
 				<SCRIPT LANGUAGE="JavaScript">
@@ -1610,6 +1619,7 @@ function updateFaxButton() {
 				height="100%" border=1>
 
 				<!----Start new rows here-->
+				<% if (archiveId == null) { %>
 				<tr>
 					<td class="tite4" colspan=2>
 					<% boolean faxEnabled = props.getBooleanProperty("faxEnable", "yes"); %>
@@ -1655,6 +1665,7 @@ function updateFaxButton() {
 					
 					</td>
                     </tr>
+					<% } %>
                     <tr>
 					<td>
 						<% // Determine if curUser has selected a default practitioner in preferences
@@ -2423,6 +2434,7 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 
 
 
+				<% if (archiveId == null) { %>
 				<tr>
 					<td colspan=2><input type="hidden" name="submission" value="">
 					<security:oscarSec roleName="<%=roleName$%>" objectName="_con" rights="w" reverse="false">
@@ -2463,6 +2475,7 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 					</security:oscarSec>
 					</td>
 				</tr>
+				<% } %>
 
 				<script type="text/javascript">
 

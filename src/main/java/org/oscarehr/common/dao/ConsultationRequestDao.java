@@ -136,6 +136,13 @@ public class ConsultationRequestDao extends AbstractDao<ConsultationRequest> {
             return query.getResultList();
         }
 
+        public  List<ConsultationRequest> getConsultationsByDemographicOrderByDate(Integer demographicNo) {
+            Query query = entityManager.createQuery("SELECT c FROM ConsultationRequest c WHERE c.demographicId = ? ORDER BY c.referralDate DESC");
+            query.setParameter(1,demographicNo);
+
+            List<ConsultationRequest> results = query.getResultList();
+            return results;
+        }
 
         public List<ConsultationRequest> getConsultationsByStatus(Integer demographicNo, String status) {
         	Query query = entityManager.createQuery("SELECT c FROM ConsultationRequest c where c.demographicId = ? and c.status = ?");

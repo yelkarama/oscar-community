@@ -43,32 +43,46 @@ if(!authed) {
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
-<%@page
-	import="oscar.oscarEncounter.pageUtil.*,oscar.oscarEncounter.data.*"%>
+<%@ page import="org.oscarehr.common.dao.ConsultationRequestDao" %>
+<%@ page import="org.oscarehr.util.SpringUtils" %>
+<%@ page import="org.oscarehr.common.model.ConsultationRequest" %>
+<%@ page import="java.util.List" %>
+<%@ page import="org.oscarehr.common.model.Provider" %>
+<%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.apache.commons.lang.time.DateFormatUtils" %>
+<%@ page import="org.oscarehr.common.model.ConsultationServices" %>
+<%@ page import="org.oscarehr.common.dao.ConsultationServiceDao" %>
+<%@ page import="oscar.oscarDemographic.data.DemographicData" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="org.oscarehr.common.dao.ConsultationRequestArchiveDao" %>
+<%@ page import="java.text.SimpleDateFormat" %>
+<%@ page import="java.util.Map" %>
+<%@ page import="java.util.Date" %>
 
 <%
 String demo = request.getParameter("de");
 String proNo = (String) session.getAttribute("user");
-oscar.oscarDemographic.data.DemographicData demoData=null;
-org.oscarehr.common.model.Demographic demographic=null;
+org.oscarehr.common.model.Demographic demographic = null;
 
 oscar.oscarProvider.data.ProviderData pdata = new oscar.oscarProvider.data.ProviderData(proNo);
 String team = pdata.getTeam();
 
-if (demo != null ){ 
-    demoData = new oscar.oscarDemographic.data.DemographicData();
+if (demo != null ){
+	DemographicData demoData = new oscar.oscarDemographic.data.DemographicData();
     demographic = demoData.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), demo);    
 }
 else
     response.sendRedirect("../error.jsp");
 
-oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFormRequestUtil consultUtil;
-consultUtil = new  oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFormRequestUtil();
-consultUtil.estPatient(LoggedInInfo.getLoggedInInfoFromSession(request), demo);
 
-oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctViewConsultationRequestsUtil theRequests;
-theRequests = new  oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctViewConsultationRequestsUtil();
-theRequests.estConsultationVecByDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), demo);
+ConsultationRequestDao conRequestDao = SpringUtils.getBean(ConsultationRequestDao.class);
+ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
+ConsultationServiceDao serviceDao = SpringUtils.getBean(ConsultationServiceDao.class);
+ConsultationRequestArchiveDao consultationRequestArchiveDao = SpringUtils.getBean(ConsultationRequestArchiveDao.class);
+SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm aaa");
+
+List<ConsultationRequest> conRequests = conRequestDao.getConsultationsByDemographicOrderByDate(demographic.getDemographicNo());
 %>
 
 <html:html locale="true">
@@ -168,36 +182,61 @@ function popupOscarConS(vheight,vwidth,varpage) { //open a new popup window
 						<th align="left" class="VCRheads"><bean:message
 							key="oscarEncounter.oscarConsultationRequest.DisplayDemographicConsultationRequests.msgRefDate" />
 						</th>
+						<th align="left" class="VCRheads">Revisions</th>
 					</tr>
 					<%  
-                                    for (int i = 0; i < theRequests.ids.size(); i++){
-                                    String id      = (String) theRequests.ids.elementAt(i);
-                                    String status  = (String) theRequests.status.elementAt(i);
-                                    String patient = (String) theRequests.patient.elementAt(i);
-                                    String provide = (String) theRequests.provider.elementAt(i);
-                                    String service = (String) theRequests.service.elementAt(i);
-                                    String date    = (String) theRequests.date.elementAt(i);
-                                %>
+						for (ConsultationRequest conRequest : conRequests) {
+							String id = conRequest.getId().toString();
+							String status = conRequest.getStatus();
+							String providerName = "N/A";
+							if (!StringUtils.isBlank(conRequest.getProviderNo())) {
+								Provider creatingProvider = providerDao.getProvider(conRequest.getProviderNo());
+								if (creatingProvider != null) {
+									providerName = creatingProvider.getFormattedName();
+								}
+							}
+							
+							String serviceName = "";
+							ConsultationServices service = serviceDao.find(conRequest.getServiceId());
+							if (service != null) {
+								serviceName = service.getServiceDesc();
+							}
+							
+							List<String> revisionsLinks = new ArrayList<String>();
+							Map<Integer, Date> revisions = consultationRequestArchiveDao.findArchiveIdAndDateByRequestId(conRequest.getId());
+							for (Map.Entry<Integer, Date> revision : revisions.entrySet()) {
+								String link = "<a href=\"javascript:popupOscarRx(700,960,'../../oscarEncounter/ViewRequest.do" +
+										"?de=" + demographic.getDemographicNo() + "&requestId=" 
+										+ conRequest.getId() + "&archiveId=" + revision.getKey() + "')\">";
+								link += sdf.format(revision.getValue()) + "</a>";
+								revisionsLinks.add(link);
+							}
+					%>
 					<tr>
 						<td class="stat<%=status%>" width="75">
-						<% if (status.equals("1")){ %> <bean:message
-							key="oscarEncounter.oscarConsultationRequest.DisplayDemographicConsultationRequests.msgNothingDone" />
-						<% }else if(status.equals("2")) { %> <bean:message
-							key="oscarEncounter.oscarConsultationRequest.DisplayDemographicConsultationRequests.msgSpecialistCall" />
-						<% }else if(status.equals("3")) { %> <bean:message
-							key="oscarEncounter.oscarConsultationRequest.DisplayDemographicConsultationRequests.msgPatCall" />
-						<% }else if(status.equals("4")) { %> <bean:message
-							key="oscarEncounter.oscarConsultationRequest.DisplayDemographicConsultationRequests.msgAppMade" />
+						<% if (status.equals("1")){ %>
+							<bean:message key="oscarEncounter.oscarConsultationRequest.DisplayDemographicConsultationRequests.msgNothingDone" />
+						<% } else if(status.equals("2")) { %>
+							<bean:message key="oscarEncounter.oscarConsultationRequest.DisplayDemographicConsultationRequests.msgSpecialistCall" />
+						<% } else if(status.equals("3")) { %>
+							<bean:message key="oscarEncounter.oscarConsultationRequest.DisplayDemographicConsultationRequests.msgPatCall" />
+						<% } else if(status.equals("4")) { %>
+							<bean:message key="oscarEncounter.oscarConsultationRequest.DisplayDemographicConsultationRequests.msgAppMade" />
 						<% } %>
 						</td>
-						<td class="stat<%=status%>"><a
-							href="javascript:popupOscarRx(700,960,'../../oscarEncounter/ViewRequest.do?de=<%=demo%>&requestId=<%=id%>')">
-						<%=patient%> </a></td>
-						<td class="stat<%=status%>"><%=provide%></td>
-						<td class="stat<%=status%>"><a
-							href="javascript:popupOscarRx(700,960,'../../oscarEncounter/ViewRequest.do?de=<%=demo%>&requestId=<%=id%>')">
-						<%=service%> </a></td>
-						<td class="stat<%=status%>"><%=date%></td>
+						<td class="stat<%=status%>">
+							<a href="javascript:popupOscarRx(700,960,'../../oscarEncounter/ViewRequest.do?de=<%=demo%>&requestId=<%=id%>')">
+								<%=demographic.getFormattedName()%> 
+							</a>
+						</td>
+						<td class="stat<%=status%>"><%=providerName%></td>
+						<td class="stat<%=status%>">
+							<a href="javascript:popupOscarRx(700,960,'../../oscarEncounter/ViewRequest.do?de=<%=demo%>&requestId=<%=id%>')">
+								<%=serviceName%>
+							</a>
+						</td>
+						<td class="stat<%=status%>"><%=DateFormatUtils.ISO_DATE_FORMAT.format(conRequest.getReferralDate())%></td>
+						<td class="stat<%=status%>"><%=StringUtils.join(revisionsLinks,"</br>")%></td>
 					</tr>
 					<%}%>
 				</table>
