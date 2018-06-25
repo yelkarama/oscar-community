@@ -1108,7 +1108,9 @@ public final class RxWriteScriptAction extends DispatchAction {
 							} else {
 								isNonAuthoritative = false;
 							}
-                        } else if(elem.equals("refillDuration_"+num)) {
+                        } else if(elem.equals("noSubs_"+num)) {
+							rx.setNosubs(val.equals("on"));
+						} else if(elem.equals("refillDuration_"+num)) {
                         	rx.setRefillDuration(Integer.parseInt(val));
                         } else if(elem.equals("refillQuantity_"+num)) {
                         	rx.setRefillQuantity(Integer.parseInt(val));

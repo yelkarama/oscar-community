@@ -104,6 +104,7 @@ import org.oscarehr.common.model.DemographicArchive;
 import org.oscarehr.common.model.DemographicContact;
 import org.oscarehr.common.model.DemographicPharmacy;
 import org.oscarehr.common.model.Drug;
+import org.oscarehr.common.model.DrugReason;
 import org.oscarehr.common.model.Facility;
 import org.oscarehr.common.model.MeasurementsExt;
 import org.oscarehr.common.model.PartialDate;
@@ -1850,7 +1851,7 @@ import oscar.util.UtilDateUtilities;
                     else drug.setPrn(false);
 
                     drug.setRegionalIdentifier(medArray[i].getDrugIdentificationNumber());
-                    drug.setRoute("Oral");
+                    drug.setRoute(medArray[i].getRoute());
                     drug.setDrugForm(medArray[i].getForm());
                     drug.setLongTerm(getYN(medArray[i].getLongTermMedication()).equals("Yes"));
                     drug.setPastMed(getYN(medArray[i].getPastMedications()).equals("Yes"));
@@ -1873,8 +1874,9 @@ import oscar.util.UtilDateUtilities;
                     }
 
                     drug.setETreatmentType(medArray[i].getTreatmentType());
-                    //no need: DrugReason drugReason = new DrugReason();
-                    drug.setRxStatus(medArray[i].getPrescriptionStatus());
+                    if (StringUtils.filled(medArray[i].getPrescriptionStatus())) {
+                        drug.setRxStatus(org.apache.commons.lang.StringUtils.capitalize(medArray[i].getPrescriptionStatus()));
+                    }
                     
                     drug.setNoSubs(StringUtils.noNull( medArray[i].getSubstitutionNotAllowed()).equalsIgnoreCase("Y"));
                     drug.setNonAuthoritative(StringUtils.noNull(medArray[i].getNonAuthoritativeIndicator()).equalsIgnoreCase("Y"));
@@ -1955,14 +1957,27 @@ import oscar.util.UtilDateUtilities;
                     if( drug.getProviderNo() == null ) {
                     	drug.setProviderNo("-1");
                     }
+
+                    if (medArray[i].getPrescriptionIdentifier() != null) {
+                        drug.setPrescriptionIdentifier(medArray[i].getPrescriptionIdentifier());
+                    }
+                    
+                    if (medArray[i].getPriorPrescriptionReferenceIdentifier() != null) {
+                        drug.setPriorRxRefId(medArray[i].getPriorPrescriptionReferenceIdentifier());
+                    }
+                    
+                    if (medArray[i].getProtocolIdentifier() != null) {
+                        drug.setProtocolId(medArray[i].getProtocolIdentifier());
+                    }
                     
                     drug.setPosition(0);
                     drug.setComment(medArray[i].getNotes());
                     drugDao.persist(drug);
                     addOneEntry(MEDICATION);
-
-                    /* no need:
-                    if (medArray[i].getProblemCode()!=null) {
+                   
+                    DrugReason drugReason = new DrugReason();
+                    if (medArray[i].getProblemCode() != null) {
+                        drugReason.setCodingSystem("icd9");
                         drugReason.setCode(medArray[i].getProblemCode());
                         drugReason.setDemographicNo(Integer.valueOf(demographicNo));
                         drugReason.setDrugId(drug.getId());
@@ -1971,8 +1986,6 @@ import oscar.util.UtilDateUtilities;
                         drugReason.setArchivedFlag(false);
                         drugReasonDao.persist(drugReason);
                     }
-                     *
-                     */
 
                     //partial date
                     partialDateDao.setPartialDate(PartialDate.DRUGS, drug.getId(), PartialDate.DRUGS_WRITTENDATE, writtenDateFormat);

@@ -57,7 +57,7 @@ List<RxPrescriptionData.Prescription> listRxDrugs=(List)request.getAttribute("li
 oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean)request.getSession().getAttribute("RxSessionBean");
 
 if(listRxDrugs!=null){
-  for(RxPrescriptionData.Prescription rx : listRxDrugs ){
+  for(RxPrescriptionData.Prescription rx : listRxDrugs){
          String rand            = Long.toString(rx.getRandomId());
          String instructions    = rx.getSpecial();
          String specialInstruction=rx.getSpecialInstruction();
@@ -75,6 +75,7 @@ if(listRxDrugs!=null){
          String takeMin         = rx.getTakeMinString();
          String takeMax         = rx.getTakeMaxString();
          boolean longTerm       = rx.getLongTerm();
+         boolean noSubs = rx.getNosubs();
       //   boolean isCustomNote   =rx.isCustomNote();
          String outsideProvOhip = rx.getOutsideProviderOhip();
          String brandName       = rx.getBrandName();
@@ -254,7 +255,11 @@ if(listRxDrugs!=null){
             <input type="checkbox"  name="patientComplianceN_<%=rand%>" id="patientComplianceN_<%=rand%>" <%if(patientCompliance!=null && !patientCompliance) {%> checked="true" <%}%> /><br/>
 
 		<bean:message key="WriteScript.msgNonAuthoritative"/>
-            <input type="checkbox" name="nonAuthoritativeN_<%=rand%>" id="nonAuthoritativeN_<%=rand%> " <%if(nonAuthoritative) {%> checked="true" <%}%> /><br/>
+            <input type="checkbox" name="nonAuthoritativeN_<%=rand%>" id="nonAuthoritativeN_<%=rand%> " <%if(nonAuthoritative) {%> checked="true" <%}%> />
+        
+           <bean:message key="WriteScript.noSubs"/>
+           <input type="checkbox" name="noSubs_<%=rand%>" id="noSubs_<%=rand%> " <%if(noSubs) {%> checked="true" <%}%> /><br/>
+           <br/>
 		
 
         <label style="float:left;width:80px;">Start Date:</label>
@@ -278,6 +283,7 @@ if(listRxDrugs!=null){
  				<option value="ONET" <%=eTreatmentType.equals("ONET")?"selected":""%>><bean:message key="WriteScript.msgETreatment.OneTime"/></option>
  				<option value="PRNL" <%=eTreatmentType.equals("PRNL")?"selected":""%>><bean:message key="WriteScript.msgETreatment.LongTermPRN"/></option>
  				<option value="PRNS" <%=eTreatmentType.equals("PRNS")?"selected":""%>><bean:message key="WriteScript.msgETreatment.ShortTermPRN"/></option>           </select>
+            Rx Status:
            <select name="rxStatus_<%=rand%>">
            		<option>--</option>
                          <option value="New" <%=rxStatus.equals("New")?"selected":""%>><bean:message key="WriteScript.msgRxStatus.New"/></option>
@@ -459,6 +465,7 @@ if(listRxDrugs!=null){
  				<option value="ONET" <%=eTreatmentType.equals("ONET")?"selected":""%>><bean:message key="WriteScript.msgETreatment.OneTime"/></option>
  				<option value="PRNL" <%=eTreatmentType.equals("PRNL")?"selected":""%>><bean:message key="WriteScript.msgETreatment.LongTermPRN"/></option>
  				<option value="PRNS" <%=eTreatmentType.equals("PRNS")?"selected":""%>><bean:message key="WriteScript.msgETreatment.ShortTermPRN"/></option>           </select>
+           Rx Status:
            <select name="rxStatus_<%=rand%>">
            		<option>--</option>
                          <option value="New" <%=rxStatus.equals("New")?"selected":""%>><bean:message key="WriteScript.msgRxStatus.New"/></option>

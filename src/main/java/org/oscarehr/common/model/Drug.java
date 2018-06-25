@@ -156,6 +156,12 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 	@Column(name = "start_date_unknown")
 	private boolean startDateUnknown;
 	private String comment;
+    @Column(name = "prescription_identifier")
+    private String prescriptionIdentifier;
+    @Column(name = "prior_rx_ref_id")
+    private String priorRxRefId;
+	@Column(name = "protocol_id")
+	private String protocolId;
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date lastUpdateDate;
@@ -242,13 +248,7 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 		this.refillQuantity = drug.getRefillQuantity();
 		this.dispenseInterval = drug.getDispenseInterval();
 		this.dispenseInternal = drug.getDispenseInternal();
-	}
-
-	@PreUpdate
-	@PrePersist
-	protected void autoSetUpdateTime()
-	{
-		lastUpdateDate=new Date();
+		this.prescriptionIdentifier = drug.getScript_no();
 	}
 
 	public void setId(Integer i) {
@@ -904,7 +904,29 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 		this.dispenseInternal = dispenseInternal;
 	}
 
+	public String getPrescriptionIdentifier() {
+		return prescriptionIdentifier;
+	}
 
+	public void setPrescriptionIdentifier(String prescriptionIdentifier) {
+		this.prescriptionIdentifier = prescriptionIdentifier;
+	}
+
+	public String getPriorRxRefId() {
+		return priorRxRefId;
+	}
+
+	public void setPriorRxRefId(String priorRxRefId) {
+		this.priorRxRefId = priorRxRefId;
+	}
+
+	public String getProtocolId() {
+		return protocolId;
+	}
+
+	public void setProtocolId(String protocolId) {
+		this.protocolId = protocolId;
+	}
 
 	//Sorts Ids in descending order
 	public static class ComparatorIdDesc implements Comparator<Drug> {
@@ -938,5 +960,15 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 			return (d2.rxDate.compareTo(d1.rxDate));
 		}
 	};
+
+	@PrePersist 
+	@PreUpdate
+	public void setupPreSave() {
+		lastUpdateDate = new Date();
+
+		if (scriptNo != null && (prescriptionIdentifier == null || prescriptionIdentifier.isEmpty())) {
+			prescriptionIdentifier = String.valueOf(scriptNo);
+		}
+	}
 
 }

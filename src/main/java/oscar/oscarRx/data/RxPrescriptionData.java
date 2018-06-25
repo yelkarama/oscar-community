@@ -106,7 +106,7 @@ public class RxPrescriptionData {
 		prescription.setSpecial(drug.getSpecial());
 		prescription.setGenericName(drug.getGenericName());
 		prescription.setAtcCode(drug.getAtc());
-		prescription.setScript_no(String.valueOf(drug.getScriptNo()));
+		prescription.setScript_no(drug.getPrescriptionIdentifier());
 		prescription.setRegionalIdentifier(drug.getRegionalIdentifier());
 		prescription.setUnit(drug.getUnit());
 		prescription.setUnitName(drug.getUnitName());
@@ -133,6 +133,7 @@ public class RxPrescriptionData {
 		if (drug.getDispenseInterval() != null) prescription.setDispenseInterval(drug.getDispenseInterval());
 		if (drug.getRefillDuration() != null) prescription.setRefillDuration(drug.getRefillDuration());
 		if (drug.getRefillQuantity() != null) prescription.setRefillQuantity(drug.getRefillQuantity());
+		if (drug.getProtocolId() != null) prescription.setProtocolId(drug.getProtocolId());
 
 		if (prescription.getSpecial() == null || prescription.getSpecial().length() <= 6) {
 			logger.warn("I strongly suspect something is wrong, either special is null or it appears to not contain anything useful. drugId=" + drugId + ", drug.special=" + prescription.getSpecial());
@@ -231,6 +232,7 @@ public class RxPrescriptionData {
 		if (rePrescribe.getDispenseInterval() != null) prescription.setDispenseInterval(rePrescribe.getDispenseInterval());
 		if (rePrescribe.getRefillDuration() != null) prescription.setRefillDuration(rePrescribe.getRefillDuration());
 		if (rePrescribe.getRefillQuantity() != null) prescription.setRefillQuantity(rePrescribe.getRefillQuantity());
+		if (rePrescribe.getProtocolId() != null) prescription.setProtocolId(rePrescribe.getProtocolId());
 		prescription.setDrugReferenceId(rePrescribe.getDrugId());
 		prescription.setDispenseInternal(rePrescribe.getDispenseInternal());
 		return prescription;
@@ -273,7 +275,7 @@ public class RxPrescriptionData {
 		p.setArchived(String.valueOf(drug.isArchived()));
 		p.setGenericName(drug.getGenericName());
 		p.setAtcCode(drug.getAtc());
-		p.setScript_no(ConversionUtils.toIntString(drug.getScriptNo()));
+		p.setScript_no(drug.getPrescriptionIdentifier());
 		p.setRegionalIdentifier(drug.getRegionalIdentifier());
 		p.setUnit(drug.getUnit());
 		p.setUnitName(drug.getUnitName());
@@ -299,6 +301,7 @@ public class RxPrescriptionData {
 		if (drug.getDispenseInterval() != null) p.setDispenseInterval(drug.getDispenseInterval());
 		if (drug.getRefillDuration() != null) p.setRefillDuration(drug.getRefillDuration());
 		if (drug.getRefillQuantity() != null) p.setRefillQuantity(drug.getRefillQuantity());
+		if (drug.getProtocolId() != null) p.setProtocolId(drug.getProtocolId());
 		p.setHideCpp(drug.getHideFromCpp());
 		return p;
 	}
@@ -659,6 +662,7 @@ public class RxPrescriptionData {
 		private Integer refillDuration = 0;
 		private Integer refillQuantity = 0;
 		private String dispenseInterval = "0";
+		private String protocolId = "";
 		private int position = 0;
 		private String comment = null;
 
@@ -1890,6 +1894,24 @@ public class RxPrescriptionData {
 
 		public void setDispenseInterval(String dispenseInterval) {
 			this.dispenseInterval = dispenseInterval;
+		}
+
+		/**
+		 * Getter for property protocolId.
+		 *
+		 * @return Value of property protocolId.
+		 */
+		public java.lang.String getProtocolId() {
+			return protocolId;
+		}
+
+		/**
+		 * Setter for property protocolId.
+		 *
+		 * @param protocolId New value of property protocolId.
+		 */
+		public void setProtocolId(java.lang.String protocolId) {
+			this.protocolId = protocolId;
 		}
 
 		public static final Comparator<Prescription> START_DATE_COMPARATOR = new Comparator<Prescription>() {

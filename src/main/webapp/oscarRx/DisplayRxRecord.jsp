@@ -45,18 +45,32 @@
 <%
 String id = request.getParameter("id");
 
+CodingSystemManager codingSystemManager = SpringUtils.getBean(CodingSystemManager.class);
 DrugDao drugDao = (DrugDao) SpringUtils.getBean("drugDao");
+DrugReasonDao drugReasonDao = SpringUtils.getBean(DrugReasonDao.class);
 ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
 DemographicDao demographicDao = (DemographicDao) SpringUtils.getBean("demographicDao");
 
+List<DrugReason> drugReasons = new ArrayList<DrugReason>();
 Integer drugId = Integer.parseInt(id);
 
 Drug drug = drugDao.find(drugId);
 
+if (drug != null) {
+	drugReasons = drugReasonDao.getReasonsForDrugID(drug.getId(), true);
+}
 
 %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<%@page import="org.oscarehr.util.MiscUtils"%><html>
+<%@page import="org.oscarehr.util.MiscUtils"%>
+<%@ page import="org.oscarehr.common.model.DrugReason" %>
+<%@ page import="org.oscarehr.common.dao.DrugReasonDao" %>
+<%@ page import="java.util.List" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
+<%@ page import="org.oscarehr.managers.CodingSystemManager" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
+<html>
     <head>
         <script type="text/javascript" src="<%= request.getContextPath()%>/js/global.js"></script>
         <html:base />
@@ -134,6 +148,7 @@ Drug drug = drugDao.find(drugId);
 									<%}%>
 									<br>
 									Long Term: <%= drug.getLongTerm()%><br>
+									Substitution Not Allowed: <%= drug.isNoSubs()%><br>
 									Past Med: <%= drug.getPastMed()%><br>
 									Patient Compliance: <%= drug.getPatientCompliance()%><br>
 									Last Refill: <%= drug.getLastRefillDate()%><br>
@@ -150,7 +165,47 @@ Drug drug = drugDao.find(drugId);
 									Archived Date: <%= drug.getArchivedDate()%><br>
 									
 									Comment: <%= drug.getComment()%><br>
-									
+						
+						<br/>
+						Prescription Identifier: <%=drug.getPrescriptionIdentifier()%><br/>
+						Prior Prescription Reference Identifier: <%=drug.getPriorRxRefId()%><br/>
+						Protocol Identifier: <%=drug.getProtocolId()%><br/>
+						
+						<fieldset style="height:200px; overflow:auto;">
+							<legend>Current Indications</legend>
+							<table style="font-size: x-small;">
+								<tr>
+									<th><bean:message key="SelectReason.table.codingSystem" /></th>
+									<th><bean:message key="SelectReason.table.code" /></th>
+									<th><bean:message key="SelectReason.table.description" /></th>
+									<th><bean:message key="SelectReason.table.comments" /></th>
+									<th><bean:message key="SelectReason.table.primaryReasonFlag" /></th>
+									<th><bean:message key="SelectReason.table.dateCoded" /><th>
+								</tr>
+	
+								<%for(DrugReason drugReason:drugReasons){ %>
+								<tr>
+									<td><%=drugReason.getCodingSystem() %></td>
+									<td><%=drugReason.getCode() %></td>
+									<td>
+										<%
+											String codeDescription = codingSystemManager.getCodeDescription(drugReason.getCodingSystem(), drugReason.getCode());
+											codeDescription = StringUtils.trimToEmpty(codeDescription);
+										%>
+										<%=StringEscapeUtils.escapeHtml(codeDescription) %>
+									</td>
+									<td><%=drugReason.getComments() %></td>
+									<td>
+										<%if(drugReason.getPrimaryReasonFlag()){ %>
+										True
+										<%}%>
+									</td>
+									<td><%=drugReason.getDateCoded() %></td>
+								</tr>
+								<%}%>
+							</table>
+						</fieldset>
+								<br/>
 									<%--
 									Unused Items
 									
