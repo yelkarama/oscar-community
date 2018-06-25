@@ -252,11 +252,9 @@ for (int i=0; i<sites.size(); i++) {
 				</caisi:isModuleLoad>
 			</select> <!--input type="text" name="provider_type" value="<%= provider.getProviderType() %>" maxlength="15" -->
 		</div>
-		<%  if (enableCustomTemporaryGroups) { %>
 		<label>
 			<input type="checkbox" name="has_schedule" value="true" <%=provider.getHasSchedule()?"checked=\"checked\"":""%>/>Has Schedule
 		</label>
-		<% } %>
 		</td>
 	</tr>
         <%
