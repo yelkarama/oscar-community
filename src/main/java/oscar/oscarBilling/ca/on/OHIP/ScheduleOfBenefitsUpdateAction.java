@@ -40,8 +40,11 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.oscarehr.common.dao.UserPropertyDAO;
+import org.oscarehr.common.model.UserProperty;
 import org.oscarehr.util.MiscUtils;
 
+import org.oscarehr.util.SpringUtils;
 import oscar.oscarBilling.ca.on.data.BillingCodeData;
 
 /**
@@ -160,6 +163,18 @@ public class ScheduleOfBenefitsUpdateAction extends Action {
 				}
 			}
 		}
+		UserPropertyDAO userPropertyDAO = SpringUtils.getBean(UserPropertyDAO.class);
+		UserProperty prop = userPropertyDAO.getProp("billing.sob.lastUpdated");
+		
+		if(prop == null) {
+			prop = new UserProperty();
+			prop.setProviderNo(null);
+			prop.setName("billing.sob.lastUpdated");
+		}
+		prop.setValue(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+		
+		userPropertyDAO.saveProp(prop);
+		
 		return mapping.findForward("success");
 	}
 

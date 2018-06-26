@@ -28,12 +28,20 @@
 <%
   
   //int demographic_no = Integer.parseInt(request.getParameter("demographic_no")); 
-  String demographic_no = request.getParameter("demographic_no"); 
+	UserPropertyDAO userPropertyDAO = SpringUtils.getBean(UserPropertyDAO.class);
+  String demographic_no = request.getParameter("demographic_no");
+
+	UserProperty property = userPropertyDAO.getProp("billing.sob.lastUpdated");
+	String lastUpdated = property != null && StringUtils.filled(property.getValue()) ? property.getValue() : "Unavailable";
   
   List warnings = (List) request.getAttribute("warnings"); 
 %>
 
 <%@ page import="oscar.oscarDemographic.data.*,java.util.*"%>
+<%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
+<%@ page import="org.oscarehr.util.SpringUtils" %>
+<%@ page import="oscar.util.StringUtils" %>
+<%@ page import="org.oscarehr.common.model.UserProperty" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
@@ -104,6 +112,9 @@ function checkAll(formId){
 
 
 <div class="well">
+	<div style="float: right">
+		Last Updated: <%=lastUpdated%>
+	</div>
 
 <div>
 1. Download the text file from <a href="http://www.health.gov.on.ca/english/providers/program/ohip/sob/" target="_blank">OHIP Fee Schedule</a> and save it to your computer.
