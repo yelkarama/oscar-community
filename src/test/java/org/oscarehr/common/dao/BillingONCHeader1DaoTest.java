@@ -100,7 +100,7 @@ public class BillingONCHeader1DaoTest extends DaoTestFixtures {
     @Test
     public void testFindByMagic2() {
 	    assertNotNull(dao.findByMagic2(Arrays.asList(new String[] {"PP"}), "STS_TY", "PROV_NO", 
-	    		new Date(), new Date(), 100, Arrays.asList(new String[] {"SVN_CODE"}), "DX", "VIS_TYPE",null,null,null));
+	    		new Date(), new Date(), 100, "DEMO_NAME", "DEMO_HIN", Arrays.asList(new String[] {"SVN_CODE"}), "100", "CLAIM_NO", "DX", "VIS_TYPE",null,null,null));
     }
     
     @Test
