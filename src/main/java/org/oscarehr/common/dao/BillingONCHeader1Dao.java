@@ -684,11 +684,14 @@ public class BillingONCHeader1Dao extends AbstractDao<BillingONCHeader1>{
         return rs;
     }
 
-	public List<Object[]> findByMagic2(List<String> payPrograms, String statusType, String providerNo, Date startDate, Date endDate, Integer demoNo, List<String> serviceCodes, String dx, String visitType, String visitLocation, Date paymentStartDate, Date paymentEndDate ) {
+	public List<Object[]> findByMagic2(List<String> payPrograms, String statusType, String providerNo, Date startDate, Date endDate, Integer demoNo, String demoName, String demoHin, List<String> serviceCodes, String accountingNumber, String claimNumber, String dx, String visitType, String visitLocation, Date paymentStartDate, Date paymentEndDate ) {
 		String base = "FROM BillingONCHeader1 ch1, BillingONItem bi";
 		if(paymentStartDate != null || paymentEndDate != null) {
 			base += ", BillingONPayment bp ";
 		}
+        if(claimNumber != null) {
+            base += ", RaDetail rd ";
+        }
 		ParamAppender app = new ParamAppender(base);
 		app.and("ch1.id = bi.ch1Id");
 		if(paymentStartDate != null || paymentEndDate != null) {
@@ -727,6 +730,16 @@ public class BillingONCHeader1Dao extends AbstractDao<BillingONCHeader1>{
 		if( demoNo != null && demoNo > 0 ) {
 			app.and("ch1.demographicNo = :demographicNo", "demographicNo", demoNo);
 		}
+
+        if(demoName != null) {
+		    demoName = demoName + "%";
+            app.and("ch1.demographicName like :demographicName", "demographicName", demoName);
+        }
+
+        if(demoHin != null) {
+            demoHin = demoHin + "%";
+            app.and("ch1.hin like :hin", "hin", demoHin);
+        }
 		
 		app.and("bi.dx = :dx", "dx", dx);
 		app.and("ch1.visitType = :visitType", "visitType", visitType);
@@ -738,6 +751,16 @@ public class BillingONCHeader1Dao extends AbstractDao<BillingONCHeader1>{
             else if(serviceCodes.size() > 1) {
                 app.and("bi.serviceCode in (:serviceCodes)", "serviceCodes", serviceCodes);
             }
+        }
+        
+        if (accountingNumber != null) {
+		    
+            app.and("ch1.id = :accountingNumber", "accountingNumber", Integer.valueOf(accountingNumber));
+        }
+
+        if (claimNumber != null) {
+            app.and("ch1.id = rd.billingNo");
+            app.and("rd.claimNo = :claimNumber", "claimNumber", claimNumber);
         }
 
         if (paymentStartDate!=null || paymentEndDate!=null){

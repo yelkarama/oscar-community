@@ -311,12 +311,12 @@ public class JdbcBillingReviewImpl {
 	
 
 	//invoice report	
-	public List<BillingClaimHeader1Data> getBill(String[] billType, String statusType, String providerNo, String startDate, String endDate, String demoNo, List<String> serviceCodes, String dx, String visitType, String visitLocation, String paymentStartDate, String paymentEndDate) {	
-		return getBillWithSorting(billType,statusType,providerNo,startDate,endDate,demoNo,serviceCodes,dx,visitType, visitLocation,null,null,paymentStartDate,paymentEndDate);	
+	public List<BillingClaimHeader1Data> getBill(String[] billType, String statusType, String providerNo, String startDate, String endDate, String demoNo, String demoName, String demoHin, List<String> serviceCodes, String accountingNumber, String claimNumber, String dx, String visitType, String visitLocation, String paymentStartDate, String paymentEndDate) {	
+		return getBillWithSorting(billType,statusType,providerNo,startDate,endDate,demoNo, demoName, demoHin, serviceCodes, accountingNumber, claimNumber, dx,visitType, visitLocation,null,null,paymentStartDate,paymentEndDate);	
 	}
 	
 	//invoice report
-	public List<BillingClaimHeader1Data> getBillWithSorting(String[] billType, String statusType, String providerNo, String startDate, String endDate, String demoNo, List<String> serviceCodes, String dx, String visitType, String visitLocation, String sortName, String sortOrder, String paymentStartDate, String paymentEndDate) {
+	public List<BillingClaimHeader1Data> getBillWithSorting(String[] billType, String statusType, String providerNo, String startDate, String endDate, String demoNo, String demoName, String demoHin, List<String> serviceCodes, String accountingNumber, String claimNumber, String dx, String visitType, String visitLocation, String sortName, String sortOrder, String paymentStartDate, String paymentEndDate) {
 		List<BillingClaimHeader1Data> retval = new ArrayList<BillingClaimHeader1Data>();
 
 		try {
@@ -331,7 +331,7 @@ public class JdbcBillingReviewImpl {
 			
 			List<BillingPaymentType> allPaymentTypes = billingPaymentTypeDao.findAll();
 			
-			List<Object[]> billingResults = dao.findByMagic2(Arrays.asList(billType), statusType, providerNo, ConversionUtils.fromDateString(startDate), ConversionUtils.fromDateString(endDate), ConversionUtils.fromIntString(demoNo), serviceCodes, dx, visitType, visitLocation, ConversionUtils.fromDateString(paymentStartDate),  ConversionUtils.fromDateString(paymentEndDate));
+			List<Object[]> billingResults = dao.findByMagic2(Arrays.asList(billType), statusType, providerNo, ConversionUtils.fromDateString(startDate), ConversionUtils.fromDateString(endDate), ConversionUtils.fromIntString(demoNo), demoName, demoHin, serviceCodes, accountingNumber, claimNumber, dx, visitType, visitLocation, ConversionUtils.fromDateString(paymentStartDate),  ConversionUtils.fromDateString(paymentEndDate));
 			BigDecimal currentRemainingPaidAmount = null;
 			
 			for (int billingIndex = 0; billingIndex < billingResults.size(); billingIndex++) {

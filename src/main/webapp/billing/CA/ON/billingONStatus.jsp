@@ -96,10 +96,14 @@ if (billType == null || billType.length == 0) { // no boxes checked
 	strBillType = billType;
 }
 
+String accountingNumber = StringUtils.noNull(request.getParameter("accountingNumber"));
+String claimNumber = StringUtils.noNull(request.getParameter("claimNumber"));
 String statusType = request.getParameter("statusType");
 String providerNo = request.getParameter("providerview");
 String startDate  = request.getParameter("xml_vdate"); 
 String endDate    = request.getParameter("xml_appointment_date");
+String demoHin = StringUtils.noNull(request.getParameter("demographicHin"));
+String demoName = StringUtils.noNull(request.getParameter("demographicName"));
 String demoNo     = request.getParameter("demographicNo");
 String serviceCode     = request.getParameter("serviceCode");
 String raCode     = request.getParameter("raCode");
@@ -148,7 +152,7 @@ if((serviceCode == null || billingForm == null) && dx.length()<2 && visitType.le
 	serviceCode = "%";
 } else {
 	serviceCode = (serviceCode == null || serviceCode.length()<2)? "%" : serviceCode; 
-	bList = bSearch ? sObj.getBillsWithSorting(strBillType, statusType,  providerNo, startDate,  endDate,  demoNo, serviceCode, dx, visitType, billingForm, visitLocation,sortName,sortOrder,paymentStartDate, paymentEndDate) : new ArrayList<BillingClaimHeader1Data>();
+	bList = bSearch ? sObj.getBillsWithSorting(strBillType, statusType,  providerNo, startDate,  endDate,  demoNo, demoName, demoHin, serviceCode, accountingNumber, claimNumber, dx, visitType, billingForm, visitLocation,sortName,sortOrder,paymentStartDate, paymentEndDate) : new ArrayList<BillingClaimHeader1Data>();
 }
 
 RAData raData = new RAData();
@@ -519,16 +523,37 @@ Serv. Code:<br>
 </div>
 
 <div class="span2">	
-Demographic:<br>
-<input type="text" name="demographicNo" class="span2" value="<%=demoNo%>"/>
+Invoice #:<br>
+<input type="text" name="accountingNumber" class="span2" value="<%=accountingNumber%>"/>
 </div>
 
+<div class="span2">
+	OHIP claim #:<br>
+	<input type="text" name="claimNumber" class="span2" value="<%=claimNumber%>"/>
+</div>
+	
 <div class="span2">	
 RA Code:<br>
 <input type="text" name="raCode" class="span2" value="<%=raCode%>"/>
 </div>
 </div> <!-- row -->
 
+<div class="row">
+	<div class="span2">
+		Demographic No:<br>
+		<input type="text" name="demographicNo" class="span2" value="<%=demoNo%>"/>
+	</div>
+
+	<div class="span3">
+		Demographic Name:<br>
+		<input type="text" name="demographicName" class="span3" value="<%=demoName%>"/>
+	</div>
+
+	<div class="span3">
+		Demographic HIN:<br>
+		<input type="text" name="demographicHin" class="span3" value="<%=demoHin%>"/>
+	</div>
+</div>
 <div class="row">
 <div class="span2">	
 Visit Type:<br>

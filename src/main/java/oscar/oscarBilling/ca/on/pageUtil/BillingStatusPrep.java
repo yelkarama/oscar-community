@@ -21,6 +21,7 @@ package oscar.oscarBilling.ca.on.pageUtil;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.struts.util.LabelValueBean;
 
 import oscar.oscarBilling.ca.on.data.BillingClaimHeader1Data;
@@ -57,12 +58,12 @@ public class BillingStatusPrep {
 
 	
 	public List<BillingClaimHeader1Data> getBills(String[] billType, String statusType, String providerNo, String startDate, String endDate,
-			String demoNo, String serviceCodeParams, String dx, String visitType, String billingForm, String visitLocation, String paymentStartDate, String paymentEndDate) {
-		return getBillsWithSorting(billType,statusType,providerNo,startDate,endDate,demoNo,serviceCodeParams,dx,visitType,billingForm,visitLocation,null,null, paymentStartDate,paymentEndDate);
+			String demoNo, String demoName, String demoHin, String serviceCodeParams, String accountingNumber, String claimNumber, String dx, String visitType, String billingForm, String visitLocation, String paymentStartDate, String paymentEndDate) {
+		return getBillsWithSorting(billType,statusType,providerNo,startDate,endDate,demoNo, demoName, demoHin, serviceCodeParams, accountingNumber, claimNumber, dx,visitType,billingForm,visitLocation,null,null, paymentStartDate,paymentEndDate);
 	}
 	
 	public List<BillingClaimHeader1Data> getBillsWithSorting(String[] billType, String statusType, String providerNo, String startDate, String endDate,
-			String demoNo, String serviceCodeParams, String dx, String visitType, String billingForm, String visitLocation, String sortName, String sortOrder,
+			String demoNo, String demoName, String demoHin, String serviceCodeParams, String accountingNumber, String claimNumber, String dx, String visitType, String billingForm, String visitLocation, String sortName, String sortOrder,
 			String paymentStartDate, String paymentEndDate) {
 		JdbcBillingReviewImpl bObj = new JdbcBillingReviewImpl();
 		billType = billType == null || billType.length == 0 ? null : billType;
@@ -71,10 +72,14 @@ public class BillingStatusPrep {
 		startDate = startDate == null || startDate.length() == 0 ? null : startDate;
 		endDate = endDate == null || endDate.length() == 0 ? null : endDate;
 		demoNo = demoNo == null || demoNo.length() == 0 ? null : demoNo;
+		demoName = StringUtils.trimToNull(demoName);
+		demoHin = StringUtils.trimToNull(demoHin);
 		dx = dx == null || dx.length() < 2 ? null : dx;
 		visitType = visitType == null || visitType.length() < 2 ? null : visitType;
 		serviceCodeParams = serviceCodeParams == null || serviceCodeParams.length() == 0 || serviceCodeParams.equals(ANY_SERVICE_CODE) ? null : 
 			serviceCodeParams.toUpperCase();
+		accountingNumber = StringUtils.trimToNull(accountingNumber);
+		claimNumber = StringUtils.trimToNull(claimNumber);
 		billingForm = billingForm == null || billingForm.length() == 0 || billingForm.equals(ANY_BILLING_FORM) ? null : billingForm;
 		visitLocation = visitLocation == null || visitLocation.length() == 0 || visitLocation.equals(ANY_VISIT_LOCATION) ? null : visitLocation;
 
@@ -82,7 +87,7 @@ public class BillingStatusPrep {
 		paymentEndDate = paymentEndDate == null || paymentEndDate.length() == 0 ? null : paymentEndDate;
 		
 		List<String> serviceCodeList = bObj.mergeServiceCodes(serviceCodeParams, billingForm);
-		List<BillingClaimHeader1Data> retval = bObj.getBillWithSorting(billType, statusType, providerNo, startDate, endDate, demoNo, serviceCodeList, dx, visitType, visitLocation,sortName,sortOrder,paymentStartDate,paymentEndDate);
+		List<BillingClaimHeader1Data> retval = bObj.getBillWithSorting(billType, statusType, providerNo, startDate, endDate, demoNo, demoName, demoHin, serviceCodeList, accountingNumber, claimNumber, dx, visitType, visitLocation,sortName,sortOrder,paymentStartDate,paymentEndDate);
 		return retval;
 	}
 
