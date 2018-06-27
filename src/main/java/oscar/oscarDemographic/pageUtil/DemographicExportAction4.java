@@ -1673,6 +1673,10 @@ public class DemographicExportAction4 extends Action {
 						medi.setPrescriptionIdentifier(String.valueOf(arr[p].getScript_no()));
 						mSummary = Util.addSummary(mSummary, "Prescription Identifier", String.valueOf(arr[p].getScript_no()));
 					}
+
+					if (StringUtils.filled(arr[p].getPriorRxRefId())) {
+						medi.setPriorPrescriptionReferenceIdentifier(arr[p].getPriorRxRefId());
+					}
 					
 					annotation = arr[p].getComment();
 					if (StringUtils.filled(annotation)) {
