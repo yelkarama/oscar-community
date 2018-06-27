@@ -130,6 +130,7 @@ public class HL7CreateFile {
                 String referenceRange = "";
                 String result = StringUtils.noNull(lab.getResult().getValue());
                 String resultNormalAbnormalFlag = "";
+                String testResultStatus = StringUtils.noNull(lab.getTestResultStatus());
                 String unit = StringUtils.noNull(lab.getResult().getUnitOfMeasure());
                 
                 if (lab.getResultNormalAbnormalFlag() != null) {
@@ -150,7 +151,11 @@ public class HL7CreateFile {
                 obxNo += 1;
                 String labTest = lab.getLabTestCode() + "^" + lab.getTestNameReportedByLab() + "^" + lab.getTestName();
                 
-                String obxSegment = "OBX|" + obxNo + "|ST|" + labTest+ "|Imported Test Results|" + result+ "|" +unit+ "|" + referenceRange + "|" + resultNormalAbnormalFlag+ "|||" + StringUtils.noNull(lab.getTestResultStatus()) + "|||" + collectionDate;
+                if (isFinal(testResultStatus)) {
+                    testResultStatus = "F";
+                }
+                
+                String obxSegment = "OBX|" + obxNo + "|ST|" + labTest+ "|Imported Test Results|" + result+ "|" +unit+ "|" + referenceRange + "|" + resultNormalAbnormalFlag+ "|||" + testResultStatus + "|||" + collectionDate;
                 obx.append(obxSegment).append("\n");
                 obx.append(generateNTE(lab));
             }
