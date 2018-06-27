@@ -1248,7 +1248,7 @@ public class DemographicExportAction4 extends Action {
 							alr.setPropertyOfOffendingAgent(cdsDt.PropertyOfOffendingAgent.ND);
 						} else {
 							alr.setReactionType(cdsDt.AdverseReactionType.AR);
-							if (typeCode.equals("13")) {
+							if (StringUtils.filled(regionalId) && !regionalId.trim().equalsIgnoreCase("null")) {
 								alr.setPropertyOfOffendingAgent(cdsDt.PropertyOfOffendingAgent.DR);
 							} else {
 								alr.setPropertyOfOffendingAgent(cdsDt.PropertyOfOffendingAgent.UK);
