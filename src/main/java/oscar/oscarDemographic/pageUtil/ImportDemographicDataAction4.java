@@ -898,7 +898,7 @@ import oscar.util.UtilDateUtilities;
                     if (preferredPharmacy.isSetFaxNumber()) {
                         cdsDt.PhoneNumber fax = preferredPharmacy.getFaxNumber();
                         if (fax.isSetPhoneNumber()) {
-                            tempFax = preferredPharmacy.getPhoneNumber().getPhoneNumber();
+                            tempFax = preferredPharmacy.getFaxNumber().getPhoneNumber();
                         } else {
                             if (StringUtils.filled(fax.getNumber())) {
                                 String areaCode = StringUtils.filled(fax.getAreaCode()) ? fax.getAreaCode() + "-" : "";
