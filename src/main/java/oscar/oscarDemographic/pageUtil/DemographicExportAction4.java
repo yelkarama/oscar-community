@@ -807,7 +807,6 @@ public class DemographicExportAction4 extends Action {
 						data.setContent(summary);
 						dataElementArray.add(data);
 						residualInformation.setDataElementArray((ResidualInformation.DataElement[]) dataElementArray.toArray(new ResidualInformation.DataElement[dataElementArray.size()]));
-						personalHistory.setResidualInfo(residualInformation);
 					}
 				}
 				if (exFamilyHistory) {
