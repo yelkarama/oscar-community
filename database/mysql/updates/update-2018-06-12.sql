@@ -18,10 +18,10 @@ INSERT INTO measurementType (type, typeDisplayName, typeDescription, measuringIn
 ('ACHS', 'Asthma Cough Symptoms', 'Asthma Cough Symptoms', 'frequency per week', '14', '2018-06-11 00:00:00', 'ASYM'),
 ('AWHS', 'Asthma Wheeze Symptoms', 'Asthma Wheeze Symptoms', 'frequency per week', '14', '2018-06-11 00:00:00', 'ASYM'),
 ('ACTS', 'Asthma Chest Tightness Symptoms', 'Asthma Chest Tightness Symptoms', 'frequency per week', '14', '2018-06-11 00:00:00', 'ASYM'),
-('HFFA', 'HF Fatigue Symptomss', 'HF Fatigue Symptoms', 'frequency per week', '14', '2018-06-11 00:00:00', 'SOHF'),
-('HFDI', 'HF Dizziness Symptomss', 'HF Dizziness Symptoms', 'frequency per week', '14', '2018-06-11 00:00:00', 'SOHF'),
-('HFSY', 'HF Syncope Symptomss', 'HF Syncope Symptoms', 'frequency per week', '14', '2018-06-11 00:00:00', 'SOHF'),
-('HFDE', 'HF Dyspnea on Exertion Symptomss', 'HF Dyspnea on Exertion Symptoms', 'frequency per week', '14', '2018-06-11 00:00:00', 'SOHF'),
-('HFDR', 'HF Dyspnea at Rest Symptomss', 'HF Dyspnea at Rest Symptoms', 'frequency per week', '14', '2018-06-11 00:00:00', 'SOHF'),
-('HFOR', 'HF Orthopnea Symptomss', 'HF Orthopnea Symptoms', 'frequency per week', '14', '2018-06-11 00:00:00', 'SOHF'),
-('HFPN', 'HF Paroxysmal Nocturnal Dyspnea Symptomss', 'HF Paroxysmal Nocturnal Dyspnea Symptoms', 'frequency per week', '14', '2018-06-11 00:00:00', 'SOHF');
+('HFFA', 'HF Fatigue Symptoms', 'HF Fatigue Symptoms', 'frequency per week', '14', '2018-06-11 00:00:00', 'SOHF'),
+('HFDI', 'HF Dizziness Symptoms', 'HF Dizziness Symptoms', 'frequency per week', '14', '2018-06-11 00:00:00', 'SOHF'),
+('HFSY', 'HF Syncope Symptoms', 'HF Syncope Symptoms', 'frequency per week', '14', '2018-06-11 00:00:00', 'SOHF'),
+('HFDE', 'HF Dyspnea on Exertion Symptoms', 'HF Dyspnea on Exertion Symptoms', 'frequency per week', '14', '2018-06-11 00:00:00', 'SOHF'),
+('HFDR', 'HF Dyspnea at Rest Symptoms', 'HF Dyspnea at Rest Symptoms', 'frequency per week', '14', '2018-06-11 00:00:00', 'SOHF'),
+('HFOR', 'HF Orthopnea Symptoms', 'HF Orthopnea Symptoms', 'frequency per week', '14', '2018-06-11 00:00:00', 'SOHF'),
+('HFPN', 'HF Paroxysmal Nocturnal Dyspnea Symptoms', 'HF Paroxysmal Nocturnal Dyspnea Symptoms', 'frequency per week', '14', '2018-06-11 00:00:00', 'SOHF');

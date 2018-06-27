@@ -160,33 +160,10 @@ ds_rules="diab.drl"
                   </rule>
                 </ruleset>
               </item>
-              <item measurement_type="EDNL" display_name="Education Nutrition" guideline="" graphable="no" value_name="Completed"  >
-                  <rules>
-                  <recommendation strength="warning" >
-                    <condition type="monthrange" param="EDNL" value="&gt;12" />
-                  </recommendation>
-                  <recommendation strength="warning" >
-                    <condition type="monthrange" param="EDNL" value="-1" />
-                  </recommendation>
-                </rules>
-              </item>
           </header>
           <header display_name="Smoking">
               <item measurement_type="SKST" display_name="Smoking Status" guideline="" graphable="no" value_name="Smoker" />
               <item measurement_type="POSK" display_name="Smoking Packs Per Day" guideline="" graphable="yes" value_name="Packs per day" />
-              <item measurement_type="MCCS" display_name="Motivation Counselling - Smoking Cessation" guideline="" graphable="no" value_name="Completed" >
-                  <rules>
-                  <recommendation strength="recommendation" >
-                    <condition type="monthrange" param="MCCS" value="3-6" />
-                  </recommendation>
-                  <recommendation strength="warning" >
-                    <condition type="monthrange" param="MCCS" value="&gt;6" />
-                  </recommendation>
-                  <recommendation strength="warning" >
-                    <condition type="monthrange" param="MCCS" value="-1" />
-                  </recommendation>
-                </rules>
-              </item>
           </header>
           <item measurement_type="ECG" display_name="ECG" graphable="no" value_name="ECG" />
           <item measurement_type="PSSC" display_name="Psychosocial Screening" graphable="no" value_name="Screened" />
@@ -287,31 +264,57 @@ ds_rules="diab.drl"
           </item>
           <item measurement_type="TCHL" display_name="Total Cholestorol"
                 guideline="" graphable="yes" value_name="T. Chol" />
-          <item measurement_type="MCCN" display_name="Motivation Counselling - Nutrition" guideline="" graphable="no" value_name="Completed"  >
+          <item measurement_type="DMCCS" display_name="Diabetes Motivation Counselling - Smoking Cessation" guideline="" graphable="no" value_name="Completed" >
+              <rules>
+                  <recommendation strength="recommendation" >
+                      <condition type="monthrange" param="DMCCS" value="3-6" />
+                  </recommendation>
+                  <recommendation strength="warning" >
+                      <condition type="monthrange" param="DMCCS" value="&gt;6" />
+                  </recommendation>
+                  <recommendation strength="warning" >
+                      <condition type="monthrange" param="DMCCS" value="-1" />
+                  </recommendation>
+              </rules>
+          </item>
+          <item measurement_type="DMCCN" display_name="Diabetes Motivation Counselling - Nutrition" guideline="" graphable="no" value_name="Completed"  >
             <rules>
               <recommendation strength="recommendation" >
-                <condition type="monthrange" param="MCCN" value="3-6" />
+                <condition type="monthrange" param="DMCCN" value="3-6" />
               </recommendation>
               <recommendation strength="warning" >
-                <condition type="monthrange" param="MCCN" value="&gt;6" />
+                <condition type="monthrange" param="DMCCN" value="&gt;6" />
               </recommendation>
               <recommendation strength="warning" >
-                <condition type="monthrange" param="MCCN" value="-1" />
+                <condition type="monthrange" param="DMCCN" value="-1" />
               </recommendation>
             </rules>
           </item>
-          <item measurement_type="MCCE" display_name="Motivation Counselling - Exercise" guideline="" graphable="no" value_name="Completed" >
+          <item measurement_type="DMCCE" display_name="Diabetes Motivation Counselling - Exercise" guideline="" graphable="no" value_name="Completed" >
             <rules>
               <recommendation strength="recommendation" >
-                <condition type="monthrange" param="MCCE" value="3-6" />
+                <condition type="monthrange" param="DMCCE" value="3-6" />
               </recommendation>
               <recommendation strength="warning" >
-                <condition type="monthrange" param="MCCE" value="&gt;6" />
+                <condition type="monthrange" param="DMCCE" value="&gt;6" />
               </recommendation>
               <recommendation strength="warning" >
-                <condition type="monthrange" param="MCCE" value="-1" />
+                <condition type="monthrange" param="DMCCE" value="-1" />
               </recommendation>
             </rules>
+          </item>
+          <item measurement_type="DMCCO" display_name="Diabetes Motivation Counselling - Other" guideline="" graphable="no" value_name="Completed" >
+              <rules>
+                  <recommendation strength="recommendation" >
+                      <condition type="monthrange" param="DMCCO" value="3-6" />
+                  </recommendation>
+                  <recommendation strength="warning" >
+                      <condition type="monthrange" param="DMCCO" value="&gt;6" />
+                  </recommendation>
+                  <recommendation strength="warning" >
+                      <condition type="monthrange" param="DMCCO" value="-1" />
+                  </recommendation>
+              </rules>
           </item>
           <item measurement_type="SMCD" display_name="Self Management Challenges" guideline="" graphable="no" value_name="Challenges">
             <rules>
@@ -439,36 +442,33 @@ ds_rules="diab.drl"
           <item prevention_type="Flu" display_name="Flu Vaccine" guideline="Annually" graphable="no" />
       </header>
       <header display_name="Other">
-          <item measurement_type="DMME" display_name="Diabetes Education" guideline="Assess and discuss self-management challenges" graphable="no" value_name="Discussed" >
+          <item measurement_type="DDMME" display_name="Diabetes Education - Diabetes" guideline="Assess and discuss self-management challenges" graphable="no" value_name="Discussed" >
               <rules>
               <recommendation strength="warning" >
-                <condition type="monthrange" param="DMME" value="&gt;12" />
+                <condition type="monthrange" param="DDMME" value="&gt;12" />
               </recommendation>
               <recommendation strength="warning" >
-                <condition type="monthrange" param="DMME" value="-1" />
+                <condition type="monthrange" param="DDMME" value="-1" />
               </recommendation>
             </rules>
           </item>
-          <item measurement_type="EDND" display_name="Education Nutrition (diabetes)" guideline="" graphable="no" value_name="Completed"  >
+          <item measurement_type="DEDNL" display_name="Diabetes Education - Nutrition (lipids)" guideline="Assess and discuss self-management challenges" graphable="no" value_name="Completed"  >
+              <rules>
+                  <recommendation strength="warning" >
+                      <condition type="monthrange" param="DEDNL" value="&gt;12" />
+                  </recommendation>
+                  <recommendation strength="warning" >
+                      <condition type="monthrange" param="DEDNL" value="-1" />
+                  </recommendation>
+              </rules>
+          </item>
+          <item measurement_type="DEDND" display_name="Diabetes Education - Nutrition (diabetes)" guideline="Assess and discuss self-management challenges" graphable="no" value_name="Completed"  >
               <rules>
               <recommendation strength="warning" >
-                <condition type="monthrange" param="EDND" value="&gt;12" />
+                <condition type="monthrange" param="DEDND" value="&gt;12" />
               </recommendation>
               <recommendation strength="warning" >
-                <condition type="monthrange" param="EDND" value="-1" />
-              </recommendation>
-            </rules>
-          </item>
-          <item measurement_type="MCCO" display_name="Motivation Counselling - Other" guideline="" graphable="no" value_name="Completed" >
-            <rules>
-              <recommendation strength="recommendation" >
-                <condition type="monthrange" param="MCCO" value="3-6" />
-              </recommendation>
-              <recommendation strength="warning" >
-                <condition type="monthrange" param="MCCO" value="&gt;6" />
-              </recommendation>
-              <recommendation strength="warning" >
-                <condition type="monthrange" param="MCCO" value="-1" />
+                <condition type="monthrange" param="DEDND" value="-1" />
               </recommendation>
             </rules>
           </item>
@@ -740,37 +740,32 @@ ds_rules="diab.drl"
   <measurement type="FGLC" typeDesc="Fasting glucose meter, lab comparison" typeDisplayName="Fasting Glucose meter , lab comparison" measuringInstrc="Within 20 percent">
     <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
   </measurement>
-    
-  <measurement type="DMME" typeDesc="Diabetes Education" typeDisplayName="Diabetes Education" measuringInstrc="Completed">
+
+  <measurement type="DDMME" typeDesc="Diabetes Education - Diabetes" typeDisplayName="Diabetes Education - Diabetes" measuringInstrc="Completed">
+    <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
+  </measurement>
+  <measurement type="DEDNL" typeDesc="Diabetes Education - Nutrition (lipids)" typeDisplayName="Diabetes Education - Nutrition (lipids)" measuringInstrc="Completed">
+    <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
+  </measurement>
+  <measurement type="DEDND" typeDesc="Diabetes Education - Nutrition (diabetes)" typeDisplayName="Diabetes Education - Nutrition (diabetes)" measuringInstrc="Completed">
+    <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
+  </measurement>
+  
+  <measurement type="DMCCN" typeDesc="Diabetes Motivation Counselling Completed Nutrition" typeDisplayName="Diabetes Motivation Counselling Completed Nutrition" measuringInstrc="">
     <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
   </measurement>
   
   
-  <measurement type="EDNL" typeDesc="Education Nutrition Lipids" typeDisplayName="Education Nutrition Lipids" measuringInstrc="">
+  <measurement type="DMCCE" typeDesc="Diabetes Motivation Counselling Completed Exercise" typeDisplayName="Diabetes Motivation Counselling Completed Exercise" measuringInstrc="">
     <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
   </measurement>
   
   
-  <measurement type="EDND" typeDesc="Education Nutrition Diabetes" typeDisplayName="Education Nutrition Diabetes" measuringInstrc="">
-    <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
-  </measurement>
-  
-  
-  <measurement type="MCCN" typeDesc="Motivation Counselling Completed Nutrition" typeDisplayName="Motivation Counselling Completed Nutrition" measuringInstrc="">
-    <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
-  </measurement>
-  
-  
-  <measurement type="MCCE" typeDesc="Motivation Counselling Completed Exercise" typeDisplayName="Motivation Counselling Completed Exercise" measuringInstrc="">
-    <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
-  </measurement>
-  
-  
-  <measurement type="MCCS" typeDesc="Motivation Counselling Completed Smoking Cessation" typeDisplayName="Motivation Counselling Completed Smoking Cessation" measuringInstrc="">
+  <measurement type="DMCCS" typeDesc="Diabetes Motivation Counselling Completed Smoking Cessation" typeDisplayName="Diabetes Motivation Counselling Completed Smoking Cessation" measuringInstrc="">
     <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
   </measurement>
  
-  <measurement type="MCCO" typeDesc="Motivation Counselling Completed Other" typeDisplayName="Motivation Counselling Completed Other" measuringInstrc="">
+  <measurement type="DMCCO" typeDesc="Diabetes Motivation Counselling Completed Other" typeDisplayName="Diabetes Motivation Counselling Completed Other" measuringInstrc="">
     <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
   </measurement>
  
