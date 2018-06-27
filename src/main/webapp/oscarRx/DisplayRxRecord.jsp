@@ -50,14 +50,19 @@ DrugDao drugDao = (DrugDao) SpringUtils.getBean("drugDao");
 DrugReasonDao drugReasonDao = SpringUtils.getBean(DrugReasonDao.class);
 ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
 DemographicDao demographicDao = (DemographicDao) SpringUtils.getBean("demographicDao");
+PrescriptionFaxDao prescriptionFaxDao = SpringUtils.getBean(PrescriptionFaxDao.class);
 
 List<DrugReason> drugReasons = new ArrayList<DrugReason>();
+List<PrescriptionFax> prescriptionFaxes = new ArrayList<PrescriptionFax>();
 Integer drugId = Integer.parseInt(id);
+
+SimpleDateFormat dateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 Drug drug = drugDao.find(drugId);
 
 if (drug != null) {
 	drugReasons = drugReasonDao.getReasonsForDrugID(drug.getId(), true);
+	prescriptionFaxes = prescriptionFaxDao.findFaxedByPrescriptionIdentifier(drug.getPrescriptionIdentifier());
 }
 
 %>
@@ -70,6 +75,11 @@ if (drug != null) {
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
 <%@ page import="org.oscarehr.managers.CodingSystemManager" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.oscarehr.common.model.PharmacyInfo" %>
+<%@ page import="org.oscarehr.common.dao.PharmacyInfoDao" %>
+<%@ page import="org.oscarehr.common.dao.PrescriptionFaxDao" %>
+<%@ page import="org.oscarehr.common.model.PrescriptionFax" %>
+<%@ page import="java.text.SimpleDateFormat" %>
 <html>
     <head>
         <script type="text/javascript" src="<%= request.getContextPath()%>/js/global.js"></script>
@@ -171,7 +181,7 @@ if (drug != null) {
 						Prior Prescription Reference Identifier: <%=drug.getPriorRxRefId()%><br/>
 						Protocol Identifier: <%=drug.getProtocolId()%><br/>
 						
-						<fieldset style="height:200px; overflow:auto;">
+						<fieldset style="max-height:200px; overflow:auto;">
 							<legend>Current Indications</legend>
 							<table style="font-size: x-small;">
 								<tr>
@@ -206,6 +216,39 @@ if (drug != null) {
 							</table>
 						</fieldset>
 								<br/>
+
+						<fieldset style="max-height:200px; overflow:auto;">
+							<legend>Fax History</legend>
+							<table style="font-size: x-small;">
+								<tr>
+									<th style="width: 150px;">Date/Time Faxed</th>
+									<th style="width: 250px;">Pharmacy Info</th>
+								</tr>
+
+								<%for(PrescriptionFax prescriptionFax : prescriptionFaxes){ %>
+								<tr>
+									<td><%=dateTime.format(prescriptionFax.getDateFaxed())%></td>
+									<td style="width: 250px;">
+										<%
+											PharmacyInfo pharmacyInfo = prescriptionFax.getPharmacyInfo();
+											if (pharmacyInfo != null) {
+										%>
+										<strong><%=StringUtils.trimToEmpty(pharmacyInfo.getName())%></strong> <br/>
+										<%=StringUtils.trimToEmpty(pharmacyInfo.getAddress())%> <br/>
+										<%=StringUtils.trimToNull(pharmacyInfo.getCity()) != null ? pharmacyInfo.getCity() + ", " : ""%> <%=StringUtils.trimToEmpty(pharmacyInfo.getProvince())%><br/>
+										<%=StringUtils.trimToEmpty(pharmacyInfo.getPostalCode())%> <br/>
+										Phone: <%=StringUtils.trimToEmpty(pharmacyInfo.getPhone1())%> <br/>
+										Fax: <%=StringUtils.trimToEmpty(pharmacyInfo.getFax())%> <br/>
+										Email: <%=StringUtils.trimToEmpty(pharmacyInfo.getEmail())%> <br/>
+										
+										<% } %>
+										
+									</td>
+								</tr>
+								<%}%>
+							</table>
+						</fieldset>
+						<br/>
 									<%--
 									Unused Items
 									

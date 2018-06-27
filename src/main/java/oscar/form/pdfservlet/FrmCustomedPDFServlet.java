@@ -57,13 +57,16 @@ import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperRunManager;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.FaxConfigDao;
 import org.oscarehr.common.dao.FaxJobDao;
+import org.oscarehr.common.dao.PrescriptionFaxDao;
 import org.oscarehr.common.dao.RxManageDao;
 import org.oscarehr.common.dao.UserPropertyDAO;
 import org.oscarehr.common.model.FaxConfig;
 import org.oscarehr.common.model.FaxJob;
+import org.oscarehr.common.model.PrescriptionFax;
 import org.oscarehr.common.model.RxManage;
 import org.oscarehr.common.model.UserProperty;
 import org.oscarehr.common.printing.FontSettings;
@@ -143,6 +146,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 			                String demo = req.getParameter("demographic_no");
 			                FaxJobDao faxJobDao = SpringUtils.getBean(FaxJobDao.class);
 			                FaxConfigDao faxConfigDao = SpringUtils.getBean(FaxConfigDao.class);
+							PrescriptionFaxDao prescriptionFaxDao = SpringUtils.getBean(PrescriptionFaxDao.class);
 			                List<FaxConfig> faxConfigs = faxConfigDao.findAll(null, null);
 			                String provider_no = LoggedInInfo.getLoggedInInfoFromSession(req).getLoggedInProviderNo();
 			                UserPropertyDAO userPropertyDAO = SpringUtils.getBean(UserPropertyDAO.class);
@@ -182,8 +186,9 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 			                }
 			                
 			        if( validFaxNumber ) {
+						prescriptionFaxDao.persist(new PrescriptionFax(StringUtils.trimToNull(req.getParameter("scriptId")), Integer.valueOf(req.getParameter("pharmacyId")), StringUtils.trimToNull(provider_no)));
 			        	
-			        	LogAction.addLog(provider_no, LogConst.SENT, LogConst.CON_FAX, "PRESCRIPTION " + pdfFile );
+						LogAction.addLog(provider_no, LogConst.SENT, LogConst.CON_FAX, "PRESCRIPTION " + pdfFile );
 			        	writer.println("<script>alert('Fax sent to: " + req.getParameter("pharmaName").replaceAll("\\'", "\\\\'") + " (" + req.getParameter("pharmaFax") + ")');window.parent.clearPendingFax();</script>");
 			        }
 				}

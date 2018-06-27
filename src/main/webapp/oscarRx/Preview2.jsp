@@ -463,6 +463,7 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                                             <input type="hidden" name="patientName"
                                                     value="<%= StringEscapeUtils.escapeHtml(patient.getFirstName())+ " " +StringEscapeUtils.escapeHtml(patient.getSurname()) %>" />
                                             <input type="hidden" name="patientDOB" value="<%= StringEscapeUtils.escapeHtml(patientDOBStr) %>" />
+                                            <input type="hidden" name="pharmacyId" value="<%=(StringUtils.noNull(pharmacyId)).replaceAll("null", "")%>" />
                                             <input type="hidden" name="pharmaFax" value="<%=pharmaFax%>" />
                                             <input type="hidden" name="pharmaName" value="<%=pharmaName%>" />
                                             <input type="hidden" name="pharmaTel" value="<%=pharmaTel%>" />
