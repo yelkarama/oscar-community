@@ -2017,7 +2017,9 @@ public class DemographicExportAction4 extends Action {
 							}
 						}
 						
-						Util.writeNameSimple(rpr.addNewSourceAuthorPhysician().addNewAuthorName(), edoc.getSource());
+						if (StringUtils.filled(edoc.getSource())) {
+							Util.writeNameSimple(rpr.addNewSourceAuthorPhysician().addNewAuthorName(), edoc.getSource());
+						}
 
 						if (StringUtils.filled(edoc.getSourceFacility())) rpr.setSourceFacility(edoc.getSourceFacility());
 
