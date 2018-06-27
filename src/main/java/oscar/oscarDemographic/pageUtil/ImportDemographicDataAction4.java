@@ -896,7 +896,7 @@ import oscar.util.UtilDateUtilities;
                     }
 
                     if (preferredPharmacy.isSetFaxNumber()) {
-                        cdsDt.PhoneNumber fax = preferredPharmacy.getPhoneNumber();
+                        cdsDt.PhoneNumber fax = preferredPharmacy.getFaxNumber();
                         if (fax.isSetPhoneNumber()) {
                             tempFax = preferredPharmacy.getPhoneNumber().getPhoneNumber();
                         } else {
