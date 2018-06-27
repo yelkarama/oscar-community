@@ -580,8 +580,9 @@ Add a comment to this report:<br />
 <%
 if (documentComments != null) {
 	%>Displaying <%=documentComments.size() %> comment<%=documentComments.size() != 1 ? "s" : "" %><br />
-	<% for (HRMDocumentComment comment : documentComments) { %>
-		<div class="documentComment"><strong><%=providerDao.getProviderName(comment.getProviderNo()) %> on <%=comment.getCommentTime().toString() %> wrote...</strong><br />
+	<% for (HRMDocumentComment comment : documentComments) { 
+		String commentTime = comment.getCommentTime() != null ? " on " + comment.getCommentTime().toString() : ""; %>
+		<div class="documentComment"><strong><%=providerDao.getProviderName(comment.getProviderNo()) %><%=commentTime%> wrote...</strong><br />
 		<%=comment.getComment() %><br />
 		<a href="#" onClick="deleteComment('<%=comment.getId() %>', '<%=hrmReportId %>'); return false;">(Delete this comment)</a></div>
 	<% }

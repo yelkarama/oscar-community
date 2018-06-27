@@ -555,7 +555,7 @@ public class DemographicExportAction4 extends Action {
                 familyPhysicianName.setLastName(StringUtils.noNull(lastFirstNameArray[0]));
             }
             
-            List<DemographicPharmacy> demographicPharmacies = demographicPharmacyDao.findByDemographicId(Integer.parseInt(demographicNo));
+            List<DemographicPharmacy> demographicPharmacies = demographicPharmacyDao.findByDemographicId(Integer.parseInt(demoNo));
             if (!demographicPharmacies.isEmpty() && demographicPharmacies.get(0) != null) { 
             	PharmacyInfo pharmacy = pharmacyInfoDao.getPharmacy(demographicPharmacies.get(0).getPharmacyId());
             	
@@ -2054,14 +2054,8 @@ public class DemographicExportAction4 extends Action {
 								reviewed.addNewDateTimeReportReviewed().setFullDate(reviewDate);
 							}
 
-							//Notes
-							List<HRMDocumentComment> comments = hrmDocCommentDao.getCommentsForDocument(Integer.parseInt(hrmDocumentId));
-							auditLog.add("READ HRMDocumentComment: hrmDocumentId=" + hrmDocumentId);
-							String notes = null;
-							for (HRMDocumentComment comment : comments) {
-								notes = Util.addLine(notes, comment.getComment());
-							}
-							if (StringUtils.filled(notes)) rpr.setNotes(notes);
+//							//Notes (NOT comments)
+							if (StringUtils.filled(hrmDoc.getDescription())) { rpr.setNotes(hrmDoc.getDescription()); };
 
 							//OBR Content
 							for (int j=0; j<hrm.getReportOBRContentTotal(i); j++) {

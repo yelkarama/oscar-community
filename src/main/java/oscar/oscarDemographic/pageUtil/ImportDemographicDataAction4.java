@@ -2099,8 +2099,6 @@ import oscar.util.UtilDateUtilities;
                 HRMDocumentToDemographicDao hrmDocToDemoDao = (HRMDocumentToDemographicDao) SpringUtils.getBean("HRMDocumentToDemographicDao");
 
                 Reports[] repR = patientRec.getReportsArray();
-                List<Reports> HRMreports = new ArrayList<Reports>();
-                String HRMfile = docDir + "HRM_"+UtilDateUtilities.getToday("yyyy-MM-dd.HH.mm.ss");
                 for (int i=0; i<repR.length; i++) {
                     try {
                     if (repR[i].getHRMResultStatus()!=null || repR[i].getOBRContentArray().length>0) { //HRM reports
@@ -2108,6 +2106,8 @@ import oscar.util.UtilDateUtilities;
                         HRMDocumentComment hrmDocComment = new HRMDocumentComment();
                         HRMDocumentToDemographic hrmDocToDemo = new HRMDocumentToDemographic();
 
+                        List<Reports> HRMreports = new ArrayList<Reports>();
+                        String HRMfile = docDir + "HRM_"+UtilDateUtilities.getToday("yyyy-MM-dd.HH.mm.ss") + "_" + i + ".xml";
                         hrmDoc.setReportFile(HRMfile);
                         if (repR[i].getSourceFacility()!=null) hrmDoc.setSourceFacility(repR[i].getSourceFacility());
                         if (repR[i].getReceivedDateTime()!=null) {
@@ -2118,13 +2118,8 @@ import oscar.util.UtilDateUtilities;
                         if (repR[i].getHRMResultStatus()!=null) hrmDoc.setReportStatus(repR[i].getHRMResultStatus());
                         if (repR[i].getClass1()!=null) hrmDoc.setReportType(repR[i].getClass1().toString());
                         if (repR[i].getEventDateTime()!=null) hrmDoc.setReportDate(dateTimeFPtoDate(repR[i].getEventDateTime(), timeShiftInDays));
+                        if (repR[i].getNotes() != null) { hrmDoc.setDescription(repR[i].getNotes()); };
                         hrmDocDao.persist(hrmDoc);
-
-                        if (repR[i].getNotes()!=null) {
-                            hrmDocComment.setHrmDocumentId(hrmDoc.getId());
-                            hrmDocComment.setComment(repR[i].getNotes());
-                            hrmDocCommentDao.persist(hrmDocComment);
-                        }
 
                         hrmDocToDemo.setDemographicNo(Integer.valueOf(demographicNo));
                         hrmDocToDemo.setHrmDocumentId(hrmDoc.getId());
@@ -2142,6 +2137,7 @@ import oscar.util.UtilDateUtilities;
                             hrmDocSubClassDao.persist(hrmDocSc);
                         }
                         HRMreports.add(repR[i]);
+                        CreateHRMFile.create(demo, HRMreports, HRMfile);
 
                     } else { //non-HRM reports
                         boolean binaryFormat = false;
@@ -2238,7 +2234,6 @@ import oscar.util.UtilDateUtilities;
                         err_summ.add("Error uploading HRM report " + (i + 1) + " of " + repR.length);
                     }
                 }
-                CreateHRMFile.create(demo, HRMreports, HRMfile);
 
                 //CARE ELEMENTS
                 CareElements[] careElems = patientRec.getCareElementsArray();
