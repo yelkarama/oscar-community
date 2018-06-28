@@ -138,9 +138,9 @@
 								<td nowrap="nowrap"><%=DateUtils.formatDate(rosterTermDate,request.getLocale())%></td>
 							<%}else{ %>
 								<td nowrap="nowrap"></td>
-								<td nowrap="nowrap"><%=(demoP!=null && "RO".equals(demographic.getRosterStatus()))?demoP.getFormattedName():"" %></td>
-							<%}
-							   if(StringUtils.filled(demographic.getLastUpdateUser())){ %>
+							<%} %>
+							<td nowrap="nowrap"><%=(demoP!=null && "RO".equals(demographic.getRosterStatus())?demoP.getFormattedName():"" %></td>
+							<%   if(StringUtils.filled(demographic.getLastUpdateUser())){ %>
 								<td nowrap="nowrap"><%=providerDao.getProvider(demographic.getLastUpdateUser()).getFormattedName() %></td>
 							<%}else{ %>
 								<td nowrap="nowrap">System</td>
@@ -181,7 +181,7 @@
 					                		<td nowrap="nowrap">
 					                		<%
 					                		String name = "";
-					                		if(StringUtils.filled(da.getProviderNo()) && "RO".equals(historyRS)) {
+					                		if(StringUtils.filled(da.getProviderNo()) && StringUtils.filled(historyRS)) {
 					                			Provider p  = providerDao.getProvider(da.getProviderNo());
 					                			if(p != null) {
 					                				name = p.getFormattedName();

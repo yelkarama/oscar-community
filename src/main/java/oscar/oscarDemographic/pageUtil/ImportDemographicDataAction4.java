@@ -485,10 +485,12 @@ import oscar.util.UtilDateUtilities;
 
 
         String rosterStatus=null, rosterDate=null, termDate=null, termReason=null;
+        String enrollmentPhysicianNo = "";
         String[] roster_status=new String[0],
                 roster_date=new String[0],
                 term_date=new String[0],
-                term_reason=new String[0];
+                term_reason=new String[0],
+                enrollment_physician = new String[0];
         
         if (demo.getEnrolment() != null){
             Enrolment.EnrolmentHistory[] enrolments = demo.getEnrolment().getEnrolmentHistoryArray();
@@ -497,6 +499,7 @@ import oscar.util.UtilDateUtilities;
             roster_date=new String[enrolTotal];
             term_date=new String[enrolTotal];
             term_reason=new String[enrolTotal];
+            enrollment_physician = new String[enrolTotal];
 
             String rosterInfo = null;
             Calendar enrollDate=null, currentEnrollDate=null;
@@ -509,6 +512,18 @@ import oscar.util.UtilDateUtilities;
                 term_date[i] = getCalDate(enrolments[i].getEnrollmentTerminationDate(), timeShiftInDays);
                 if (enrolments[i].getTerminationReason()!=null)
                     term_reason[i] = enrolments[i].getTerminationReason().toString();
+                
+                if (enrolments[i].isSetEnrolledToPhysician()) {
+                    Enrolment.EnrolmentHistory.EnrolledToPhysician enrolledToPhysician = enrolments[i].getEnrolledToPhysician();
+                    HashMap<String,String> personName = getPersonName(enrolledToPhysician.getName());
+                    String personOHIP = enrolledToPhysician.getOHIPPhysicianId();
+
+                    if (StringUtils.empty(personName.get("firstname"))) err_data.add("Error! No Enrolled to Physician first name");
+                    if (StringUtils.empty(personName.get("lastname"))) err_data.add("Error! No Enrolled to Physician last name");
+                    if (StringUtils.empty(personOHIP)) err_data.add("Error! No Enrolled to Physician OHIP billing number");
+                    enrollmentPhysicianNo = writeProviderData(personName.get("firstname"), personName.get("lastname"), personOHIP, null, "0");
+                }
+                enrollment_physician[i] = enrollmentPhysicianNo;
 
                 //Sort enrolments by date
                 if (enrolments[i].getEnrollmentDate()!=null) currentEnrollDate = enrolments[i].getEnrollmentDate();
@@ -525,6 +540,10 @@ import oscar.util.UtilDateUtilities;
                         rosterInfo=roster_date[j];   roster_date[j]=roster_date[i];     roster_date[i]=rosterInfo;
                         rosterInfo=term_date[j];     term_date[j]=term_date[i];         term_date[i]=rosterInfo;
                         rosterInfo=term_reason[j];   term_reason[j]=term_reason[i];     term_reason[i]=rosterInfo;
+                        
+                        rosterInfo = enrollment_physician[j];
+                        enrollment_physician[j] = enrollment_physician[i];
+                        enrollment_physician[i] = rosterInfo;
                     }
                 }
             }
@@ -534,6 +553,7 @@ import oscar.util.UtilDateUtilities;
                 rosterDate=roster_date[enrolTotal-1];
                 termDate=term_date[enrolTotal-1];
                 termReason=term_reason[enrolTotal-1];
+                enrollmentPhysicianNo = enrollment_physician[enrolTotal - 1];
             }
         }
         
@@ -821,6 +841,7 @@ import oscar.util.UtilDateUtilities;
             	demographicArchive.setRosterDate(UtilDateUtilities.StringToDate(roster_date[i]));
             	demographicArchive.setRosterTerminationDate(UtilDateUtilities.StringToDate(term_date[i]));
             	demographicArchive.setRosterTerminationReason(term_reason[i]);
+            	demographicArchive.setProviderNo(enrollment_physician[i]);
             	demoArchiveDao.persist(demographicArchive);
             }
 
