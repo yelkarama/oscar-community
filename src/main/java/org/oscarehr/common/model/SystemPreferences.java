@@ -1,13 +1,17 @@
 package org.oscarehr.common.model;
 
 import javax.persistence.*;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name="SystemPreferences")
 public class SystemPreferences extends AbstractModel<Integer>
 {
 
+    public static final List<String> SCHEDULE_PREFERENCE_KEYS = Arrays.asList("schedule_display_type", "schedule_display_custom_roster_status");
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

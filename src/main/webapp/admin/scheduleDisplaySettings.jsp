@@ -47,30 +47,32 @@
 <%@ page import="org.oscarehr.common.dao.SystemPreferencesDao" %>
 <%@ page import="org.oscarehr.common.model.SystemPreferences" %>
 <%@ page import="java.util.Date" %>
+<%@ page import="java.util.HashMap" %>
+<%@ page import="java.util.List" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="java.util.Arrays" %>
 
 <jsp:useBean id="dataBean" class="java.util.Properties"/>
 <%
     SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
 
-    if (request.getParameter("dboperation")!=null && !request.getParameter("dboperation").isEmpty())
-    {
-        if (request.getParameter("dboperation").equals("Save"))
-        {
-            SystemPreferences systemPreference = systemPreferencesDao.findPreferenceByName("schedule_display_type");
-
-            if (systemPreference!=null)
-            {
-                systemPreference.setUpdateDate(new Date());
-                systemPreference.setValue(request.getParameter("scheduleDisplayType"));
-                systemPreferencesDao.merge(systemPreference);
-            }
-            else
-            {
-                systemPreference = new SystemPreferences();
-                systemPreference.setName("schedule_display_type");
-                systemPreference.setUpdateDate(new Date());
-                systemPreference.setValue(request.getParameter("scheduleDisplayType"));
-                systemPreferencesDao.persist(systemPreference);
+    if (request.getParameter("dboperation") != null && !request.getParameter("dboperation").isEmpty() && request.getParameter("dboperation").equals("Save")) {
+        for(String key : SystemPreferences.SCHEDULE_PREFERENCE_KEYS) {
+            SystemPreferences preference = systemPreferencesDao.findPreferenceByName(key);
+            String newValue = request.getParameter(key);
+            
+            if (preference != null) {
+                if (!preference.getValue().equals(newValue)) {
+                    preference.setUpdateDate(new Date());
+                    preference.setValue(newValue);
+                    systemPreferencesDao.merge(preference);
+                }
+            } else {
+                preference = new SystemPreferences();
+                preference.setName(key);
+                preference.setUpdateDate(new Date());
+                preference.setValue(newValue);
+                systemPreferencesDao.persist(preference);
             }
         }
     }
@@ -88,10 +90,9 @@
     </head>
 
     <%
-        SystemPreferences systemPreferences = systemPreferencesDao.findPreferenceByName("schedule_display_type");
-        if (systemPreferences!=null)
-        {
-            dataBean.setProperty("scheduleDisplayType", systemPreferences.getValue());
+        List<SystemPreferences> preferences = systemPreferencesDao.findPreferencesByNames(SystemPreferences.SCHEDULE_PREFERENCE_KEYS);
+        for(SystemPreferences preference : preferences) {
+            dataBean.setProperty(preference.getName(), preference.getValue());
         }
     %>
 
@@ -101,18 +102,36 @@
         <input type="hidden" name="dboperation" value="">
         <table id="displaySettingsTable" class="table table-bordered table-striped table-hover table-condensed">
             <tbody>
-            <tr>
-                <td>Display Appointment Type on Schedules: </td>
-                <td>
-                    <input type="radio" value="true" name="scheduleDisplayType"<%=(systemPreferences!=null ? (dataBean.getProperty("scheduleDisplayType").equals("true")? "checked" : "") : "")%>/>Yes
-                    &nbsp;&nbsp;&nbsp;
-                    <input type="radio" value="false" name="scheduleDisplayType"<%=(systemPreferences!=null ? (dataBean.getProperty("scheduleDisplayType").equals("false")? "checked" : "") : "")%>/>No
-                    &nbsp;&nbsp;&nbsp;
-                    <input type="button" onclick="document.forms['displaySettingsForm'].dboperation.value='Save'; document.forms['displaySettingsForm'].submit();" name="saveDisplaySettings" value="Save"/>
-                </td>
-            </tr>
+                <tr>
+                    <td>Display Appointment Type on Schedules: </td>
+                    <td>
+                        <input id="schedule_display_type-true" type="radio" value="true" name="schedule_display_type"
+                                <%=(dataBean.getProperty("schedule_display_type", "false").equals("true")) ? "checked" : ""%> />
+                        Yes
+                        &nbsp;&nbsp;&nbsp;
+                        <input id="schedule_display_type-false" type="radio" value="false" name="schedule_display_type"
+                                <%=(dataBean.getProperty("schedule_display_type", "false").equals("false")) ? "checked" : "")%> />
+                        No
+                        &nbsp;&nbsp;&nbsp;
+                    </td>
+                </tr>
+                <tr>
+                    <td>Display custom roster status: </td>
+                    <td>
+                        <input id="schedule_display_custom_roster_status-true" type="radio" value="true" name="schedule_display_custom_roster_status"
+                                <%=(dataBean.getProperty("schedule_display_custom_roster_status", "false").equals("true")) ? "checked" : ""%> />
+                        Yes
+                        &nbsp;&nbsp;&nbsp;
+                        <input id="schedule_display_custom_roster_status-false" type="radio" value="false" name="schedule_display_custom_roster_status"
+                                <%=(dataBean.getProperty("schedule_display_custom_roster_status", "false").equals("false")) ? "checked" : ""%> />
+                        No
+                        &nbsp;&nbsp;&nbsp;
+                    </td>
+                </tr>
             </tbody>
         </table>
+
+        <input type="button" onclick="document.forms['displaySettingsForm'].dboperation.value='Save'; document.forms['displaySettingsForm'].submit();" name="saveDisplaySettings" value="Save"/>
     </form>
     </body>
 </html:html>

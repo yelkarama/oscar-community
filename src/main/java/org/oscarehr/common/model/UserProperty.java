@@ -173,6 +173,8 @@ public class UserProperty extends AbstractModel<Integer> implements Serializable
 	public static final String MCEDT_ACCOUNT_PASSWORD = "mcedt_account_password";
 
 	public static final String DASHBOARD_SHARE = "dashboard_share";
+	
+    public static final String DISPLAY_CUSTOM_ROSTER_STATUS = "schedule_display_custom_roster_status";
 
 
     @Id

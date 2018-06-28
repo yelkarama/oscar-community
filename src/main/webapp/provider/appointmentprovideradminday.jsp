@@ -471,11 +471,18 @@ if (apptDate.before(minDate)) {
     allowWeek = "No";
 }
 
-Boolean displayTypePreference = false;
+HashMap<String, Boolean> schedulePreferencesMap = new HashMap<String, Boolean>();
+
 SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
-SystemPreferences systemPreferences = systemPreferencesDao.findPreferenceByName("schedule_display_type");
-if (systemPreferences != null) {
-	displayTypePreference = Boolean.parseBoolean(systemPreferences.getValue());
+
+List<SystemPreferences> schedulePreferences = systemPreferencesDao.findPreferencesByNames(SystemPreferences.SCHEDULE_PREFERENCE_KEYS);
+for (SystemPreferences preference : schedulePreferences) {
+    schedulePreferencesMap.put(preference.getName(), Boolean.parseBoolean(preference.getValue()));
+}
+
+UserProperty customRosterStatusProperty = userPropertyDao.getProp(curUser_no, "schedule_display_custom_roster_status");
+if (customRosterStatusProperty != null) {
+    schedulePreferencesMap.put("schedule_display_custom_roster_status", Boolean.parseBoolean(customRosterStatusProperty.getValue()));
 }
 %>
 <%@page import="oscar.oscarDB.*"%>
@@ -484,6 +491,7 @@ if (systemPreferences != null) {
 <%@page import="oscar.appt.ApptUtil"%>
 <%@page import="org.oscarehr.web.AppointmentProviderAdminDayUIBean"%>
 <%@page import="org.oscarehr.common.model.EForm"%>
+<%@ page import="java.util.Date" %>
 <%@ page import="org.oscarehr.common.dao.ProviderScheduleNoteDao" %>
 <%@ page import="org.oscarehr.common.model.ProviderScheduleNote" %>
 <%@ page import="org.oscarehr.common.dao.PropertyDao" %>
@@ -2465,7 +2473,7 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
 	<a href="#" title="<bean:message key="provider.appointmentProviderAdminDay.rosterMsg"/> <%=UtilMisc.htmlEscape(roster)%>"><font color="red">$</font></a>
 <% } else if ("NR".equalsIgnoreCase(roster) || "PL".equalsIgnoreCase(roster)) { %>
 	<a href="#" title="<bean:message key="provider.appointmentProviderAdminDay.rosterMsg"/> <%=UtilMisc.htmlEscape(roster)%>"><font color="red">#</font></a>
-<% } else {%>
+<% } else if (schedulePreferencesMap.getOrDefault("schedule_display_custom_roster_status", false)) {%>
 	<a href="#" title="<bean:message key="provider.appointmentProviderAdminDay.rosterMsg"/> <%=UtilMisc.htmlEscape(roster)%>"><font color="red"><%=roster%></font></a>
 <% } %>
 <!-- /security:oscarSec -->
@@ -2516,7 +2524,7 @@ Boolean displayAppointmentReason = appointment.getReason() != null && appointmen
 	notes: <%=notes%>"
 </oscar:oscarPropertiesCheck> ><%=(view==0) ? (name.length()>len?name.substring(0,len) : name + prefName) :name + prefName%></a>
 	
-<% if(displayTypePreference && (displayAppointmentType || displayAppointmentReason)) { %>
+<% if(schedulePreferencesMap.getOrDefault("schedule_display_type", false) && (displayAppointmentType || displayAppointmentReason)) { %>
 <br>
 <% if(displayAppointmentType) { %>
 	<%= appointment.getType() %>

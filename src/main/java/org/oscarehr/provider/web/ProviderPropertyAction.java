@@ -2953,6 +2953,64 @@ public ActionForward viewEDocBrowserInDocumentReport(ActionMapping actionmapping
 
 		return actionmapping.findForward("gen");
 	}
+
+    public ActionForward viewDisplayCustomRosterStatus(ActionMapping actionmapping, ActionForm actionform, HttpServletRequest request, HttpServletResponse response) {
+        LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+        String providerNo = loggedInInfo.getLoggedInProviderNo();
+        DynaActionForm frm = (DynaActionForm)actionform;
+        UserProperty prop = this.userPropertyDAO.getProp(providerNo, UserProperty.DISPLAY_CUSTOM_ROSTER_STATUS);
+
+        if (prop == null){ prop = new UserProperty(); }
+
+        ArrayList<LabelValueBean> optionList = new ArrayList<LabelValueBean>();
+        optionList.add(new LabelValueBean("Yes", "true"));
+        optionList.add(new LabelValueBean("No", "false"));
+        request.setAttribute("dropOpts",optionList);
+
+        request.setAttribute("dateProperty",prop);
+        request.setAttribute("providertitle","provider.setDisplayCustomRosterStatus.title");
+        request.setAttribute("providermsgPrefs","provider.setDisplayCustomRosterStatus.msgPrefs");
+        request.setAttribute("providermsgProvider","provider.setDisplayCustomRosterStatus.msgDefaultText");
+        request.setAttribute("providermsgEdit","provider.setDisplayCustomRosterStatus.msgEdit");
+        request.setAttribute("providerbtnSubmit","provider.setDisplayCustomRosterStatus.btnSubmit");
+        request.setAttribute("providermsgSuccess","provider.setDisplayCustomRosterStatus.msgSuccess");
+        request.setAttribute("method","saveDisplayCustomRosterStatus");
+
+        frm.set("dateProperty", prop);
+
+        return  actionmapping.findForward("gen");
+    }
+
+    public ActionForward saveDisplayCustomRosterStatus(ActionMapping actionmapping, ActionForm actionform, HttpServletRequest request, HttpServletResponse response) {
+        LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+        String providerNo=loggedInInfo.getLoggedInProviderNo();
+
+        DynaActionForm frm = (DynaActionForm)actionform;
+        UserProperty prop = (UserProperty)frm.get("dateProperty");
+        String fmt = prop != null ? prop.getValue() : "";
+        UserProperty saveProperty = this.userPropertyDAO.getProp(providerNo,UserProperty.DISPLAY_CUSTOM_ROSTER_STATUS);
+
+        if( saveProperty == null ) {
+            saveProperty = new UserProperty();
+            saveProperty.setProviderNo(providerNo);
+            saveProperty.setName(UserProperty.DISPLAY_CUSTOM_ROSTER_STATUS);
+        }
+
+        saveProperty.setValue(fmt);
+        this.userPropertyDAO.saveProp(saveProperty);
+
+        request.setAttribute("status", "success");
+        request.setAttribute("providertitle","provider.setDisplayCustomRosterStatus.title");
+        request.setAttribute("providermsgPrefs","provider.setDisplayCustomRosterStatus.msgPrefs");
+        request.setAttribute("providermsgProvider","provider.setDisplayCustomRosterStatus.msgDefaultText");
+        request.setAttribute("providermsgEdit","provider.setDisplayCustomRosterStatus.msgEdit");
+        request.setAttribute("providerbtnSubmit","provider.setDisplayCustomRosterStatus.btnSubmit");
+        request.setAttribute("providermsgSuccess","provider.setDisplayCustomRosterStatus.msgSuccess");
+        request.setAttribute("method","saveDisplayCustomRosterStatus");
+
+        return actionmapping.findForward("gen");
+    }
+	
     /**
      * Creates a new instance of ProviderPropertyAction
      */

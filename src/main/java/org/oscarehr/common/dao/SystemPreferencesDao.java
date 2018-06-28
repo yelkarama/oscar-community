@@ -26,4 +26,12 @@ public class SystemPreferencesDao extends AbstractDao<SystemPreferences>
 
         return null;
     }
+    
+    public List<SystemPreferences> findPreferencesByNames(List<String> names) {
+        Query query = entityManager.createQuery("FROM SystemPreferences sp WHERE sp.name IN (:names)");
+        query.setParameter("names", names);
+
+        List<SystemPreferences> results = query.getResultList();
+        return results;
+    }
 }
