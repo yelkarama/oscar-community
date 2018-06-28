@@ -139,7 +139,7 @@
 							<%}else{ %>
 								<td nowrap="nowrap"></td>
 							<%} %>
-							<td nowrap="nowrap"><%=(demoP!=null && "RO".equals(demographic.getRosterStatus())?demoP.getFormattedName():"" %></td>
+							<td nowrap="nowrap"><%=(demoP!=null && "RO".equals(demographic.getRosterStatus()))?demoP.getFormattedName():"" %></td>
 							<%   if(StringUtils.filled(demographic.getLastUpdateUser())){ %>
 								<td nowrap="nowrap"><%=providerDao.getProvider(demographic.getLastUpdateUser()).getFormattedName() %></td>
 							<%}else{ %>
