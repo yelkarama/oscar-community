@@ -611,7 +611,7 @@ function validateAmountNumberic(idx) {
                     htmlPaid += "&nbsp;&nbsp;<span style='font-size:large;font-weight:bold'>Paid:</span>&nbsp;&nbsp;&nbsp;<span id='payment' style='font-size:large;font-weight:bold'>"
                     	+ ((payment.compareTo(BigDecimal.ZERO) == -1) ? "-" : "") + currency.format(payment) + "</span>";
 					htmlPaid += "&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-size:large;font-weight:bold'>Balance:</span>&nbsp;&nbsp;&nbsp;<span id='balance' style='font-size:large;font-weight:bold'>"
-						+ ((balance.compareTo(BigDecimal.ZERO) == -1) ? "-" : "") + currency.format(balance) + "</span>";
+						+ ((balance.compareTo(BigDecimal.ZERO) == -1 && refund.compareTo(BigDecimal.ZERO) == 0 ) ? "-" : "") + currency.format(balance) + "</span>";
 					htmlPaid += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href='javascript:display3rdPartyPayments()'>Payments List</a>";
 				}	
                     		payer = tProp.getProperty("billTo");

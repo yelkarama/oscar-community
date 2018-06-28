@@ -369,6 +369,7 @@ function validateDiscountNumberic(idx) {
 
 <%  BillingPaymentTypeDao paymentTypeDao = (BillingPaymentTypeDao) SpringUtils.getBean("billingPaymentTypeDao");
 	BigDecimal sum = BigDecimal.valueOf(0);
+	BigDecimal sumOfRefund = BigDecimal.ZERO;
 	BigDecimal balance = BigDecimal.valueOf(0);
 	int index = 0;
 	List<BigDecimal> balances = new ArrayList<BigDecimal>();
@@ -377,7 +378,6 @@ function validateDiscountNumberic(idx) {
 		BigDecimal total = paymentLists.get(0).getBillingONCheader1().getTotal();
 		BigDecimal sumOfPay = BigDecimal.ZERO;
 		BigDecimal sumOfDiscount = BigDecimal.ZERO;
-		BigDecimal sumOfRefund = BigDecimal.ZERO;
 		BigDecimal sumOfCredit = BigDecimal.ZERO;
 		for(int i=0;i<paymentLists.size();i++){
 			balance = BigDecimal.ZERO;
@@ -425,27 +425,33 @@ function validateDiscountNumberic(idx) {
 			</thead>
 			<tbody>
 			<logic:present name="paymentsList" scope="request">
-				<logic:iterate id="displayPayment" name="paymentsList" indexId="ctr" >
+				<% 
+					for (BillingONPayment payment : paymentLists) { 
+					    Integer ctr = paymentLists.indexOf(payment);
+				%>
 				<tr>			    
 				    <td><%= ctr+1 %></td>
-				    <td><bean:write name="displayPayment" property="total_payment" /> </td>
-				    <td><%=types.get(ctr.intValue()) %> </td>
-				    <td><bean:write name="displayPayment" property="paymentDateFormatted" /> </td>
-				    <td><bean:write name="displayPayment" property="total_discount" /> </td>
-				    <td><bean:write name="displayPayment" property="total_credit" /> </td>
-				    <td><bean:write name="displayPayment" property="total_refund" /> </td>
-					<%if(((BigDecimal)balances.get(index)).compareTo(BigDecimal.ZERO) == -1){%>
+				    <td><%=payment.getTotal_payment()%> </td>
+				    <td><%=types.get(ctr) %> </td>
+				    <td><%=payment.getPaymentDateFormatted()%> </td>
+				    <td><%=payment.getTotal_discount()%> </td>
+				    <td><%=payment.getTotal_credit()%> </td>
+				    <td><%=payment.getTotal_refund()%> </td>
+					<%if((balances.get(index)).compareTo(BigDecimal.ZERO) == -1 && payment.getTotal_refund().compareTo(BigDecimal.ZERO) == 0){%>
 				    <td><%= "-" + currency.format(balances.get(index++)) %> </td>
 				    <%}else{ %>
 				    <td><%= currency.format(balances.get(index++)) %> </td>
 				    <%} %>
-				    <td><a href="javascript:onViewPayment('<bean:write name="displayPayment" property="id" />')">view</a>
+				    <td><a href="javascript:onViewPayment('<%=payment.getId()%>')">view</a>
 				    </td>	
-				</tr>    
-				</logic:iterate>
+				</tr>
+				<% } %>
 			</logic:present>
 			<tr><td/><td/><td><b>Total:</b></td><td><b><%= currency.format(sum) %></b>
-			<%if (balance.compareTo(BigDecimal.ZERO) == -1) { %>
+			<% 
+			balance = balance.setScale(2, BigDecimal.ROUND_HALF_UP);
+			if (balance.compareTo(BigDecimal.ZERO) == -1 && sumOfRefund.compareTo(BigDecimal.ZERO) == 0) {
+			%>
 			<tr><td/><td/><td><b>Balance:</b></td><td><b><%= "-" + currency.format(balance) %></b>
 			<%} else { %>
 			<tr><td/><td/><td><b>Balance:</b></td><td><b><%= currency.format(balance) %></b>
