@@ -892,20 +892,6 @@ window.onbeforeunload = onClosing;
 </head>
 <body id="body" onload="checkNotifications();" style="margin: 0px;">
 
-	<%--
-	<caisi:isModuleLoad moduleName="eaaps.enabled">
-		<div id="eaaps" style="display: none;">
-			  <div id="basic-template">
-		      <a class="ui-notify-cross ui-notify-close" href="#">x</a>
-		      <h1>TITLE</h1>
-		      <p>text</p>
-	   </div>
-
-			<!-- jsp : include page="/eaaps/status.jsp">< / jsp : include -->
-		</div>
-	</caisi:isModuleLoad>
-	--%>
-	 
 	<div id="header">
 		<tiles:insert attribute="header" />
 	</div>

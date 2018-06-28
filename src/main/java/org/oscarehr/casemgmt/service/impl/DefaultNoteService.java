@@ -35,6 +35,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorManager;
 import org.oscarehr.caisi_integrator.ws.CachedDemographicNote;
@@ -99,6 +100,7 @@ public class DefaultNoteService implements NoteService {
 		String demoNo = "" + demographicId;
 		long startTime = System.currentTimeMillis();
 		long intTime = System.currentTimeMillis();
+		Boolean skipGetOtherNotes = false;
 
 		//Gets some of the note data, no relationships, not the note/history..just enough
 		List<Map<String, Object>> notes = caseManagementNoteDao.getRawNoteInfoMapByDemographic(demoNo);
@@ -111,6 +113,10 @@ public class DefaultNoteService implements NoteService {
 			}
 			filteredNotes.put((String) note.get("uuid"), true);
 			
+			if (!StringUtils.isBlank(criteria.getEncounterType()) && !criteria.getEncounterType().equalsIgnoreCase((String) note.get("encounter_type"))) {
+				continue;
+			}
+			
 			EChartNoteEntry e = new EChartNoteEntry();
 			e.setId(note.get("id"));
 			e.setDate((Date) note.get("observation_date"));
@@ -121,85 +127,99 @@ public class DefaultNoteService implements NoteService {
 			entries.add(e);
 		}
 
+		if (!StringUtils.isBlank(criteria.getEncounterType())) {
+			skipGetOtherNotes = true;
+		}
+
 		logger.debug("FETCHED " + notes.size() + " NOTE META IN " + (System.currentTimeMillis() - intTime) + "ms");
 		intTime = System.currentTimeMillis();
 
-		List<CachedDemographicNote> remoteNotesInfo = getRemoteNoteIds(loggedInInfo, demographicId);
-		if (remoteNotesInfo != null) {
-			for (CachedDemographicNote note : remoteNotesInfo) {
+		if (!skipGetOtherNotes) {
+			List<CachedDemographicNote> remoteNotesInfo = getRemoteNoteIds(loggedInInfo, demographicId);
+			if (remoteNotesInfo != null) {
+				for (CachedDemographicNote note : remoteNotesInfo) {
+					EChartNoteEntry e = new EChartNoteEntry();
+					e.setId(note.getCachedDemographicNoteCompositePk());
+					e.setDate(note.getObservationDate().getTime());
+					e.setProviderNo(note.getObservationCaisiProviderId());
+					e.setRole(note.getRole());
+					e.setType("remote_note");
+					entries.add(e);
+				}
+			}
+
+			if (remoteNotesInfo != null) {
+				logger.debug("FETCHED " + remoteNotesInfo.size() + " REMOTE NOTE META IN " + (System.currentTimeMillis() - intTime) + "ms");
+			}
+			intTime = System.currentTimeMillis();
+		}
+
+		if (!skipGetOtherNotes) {
+			List<GroupNoteLink> groupNotesInfo = this.getGroupNoteIds(loggedInInfo, demographicId);
+			if (groupNotesInfo != null) {
+				for (GroupNoteLink note : groupNotesInfo) {
+					EChartNoteEntry e = new EChartNoteEntry();
+					e.setId(note.getNoteId());
+					e.setDate(note.getCreated());
+					//e.setProviderNo(note.get);
+					//e.setRoleId(roleId)
+					e.setType("group_note");
+					entries.add(e);
+				}
+			}
+
+			if (groupNotesInfo != null) {
+				logger.debug("FETCHED " + groupNotesInfo.size() + " GROUP NOTES META IN " + (System.currentTimeMillis() - intTime) + "ms");
+			}
+			intTime = System.currentTimeMillis();
+		}
+
+		ArrayList<HashMap<String, ? extends Object>> eForms = new ArrayList<HashMap<String, ? extends Object>>();
+		if (!skipGetOtherNotes) {
+			String roleName = criteria.getUserRole() + "," + criteria.getUserName();
+			eForms = EFormUtil.listPatientEFormsNoData(demoNo, roleName);
+			for (HashMap<String, ? extends Object> eform : eForms) {
 				EChartNoteEntry e = new EChartNoteEntry();
-				e.setId(note.getCachedDemographicNoteCompositePk());
-				e.setDate(note.getObservationDate().getTime());
-				e.setProviderNo(note.getObservationCaisiProviderId());
-				e.setRole(note.getRole());
-				e.setType("remote_note");
+				e.setId(eform.get("fdid"));
+
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				String date = (String) eform.get("formDate") + " " + (String) eform.get("formTime");
+				try {
+					e.setDate(sdf.parse(date));
+				} catch (ParseException e1) {
+					logger.error("Unable to parse date " + date, e1);
+				}
+				e.setProviderNo((String) eform.get("providerNo"));
+				e.setType("eform");
 				entries.add(e);
 			}
+
+			logger.debug("FETCHED " + eForms.size() + " EFORMS META IN " + (System.currentTimeMillis() - intTime) + "ms");
+			intTime = System.currentTimeMillis();
 		}
 
-		if (remoteNotesInfo != null) {
-			logger.debug("FETCHED " + remoteNotesInfo.size() + " REMOTE NOTE META IN " + (System.currentTimeMillis() - intTime) + "ms");
-		}
-		intTime = System.currentTimeMillis();
-
-		List<GroupNoteLink> groupNotesInfo = this.getGroupNoteIds(loggedInInfo, demographicId);
-		if (groupNotesInfo != null) {
-			for (GroupNoteLink note : groupNotesInfo) {
+		ArrayList<PatientForm> allPatientForms = new ArrayList<PatientForm>();
+		if (!skipGetOtherNotes) {
+			allPatientForms = EctFormData.getGroupedPatientFormsFromAllTables(demographicId);
+			for (PatientForm patientForm : allPatientForms) {
 				EChartNoteEntry e = new EChartNoteEntry();
-				e.setId(note.getNoteId());
-				e.setDate(note.getCreated());
-				//e.setProviderNo(note.get);
-				//e.setRoleId(roleId)
-				e.setType("group_note");
+				e.setId(new String[]{patientForm.getFormName(), patientForm.getFormId()});
+				SimpleDateFormat sdf = new SimpleDateFormat("yy/MM/dd HH:mm:ss");
+				try {
+					e.setDate(sdf.parse(patientForm.getEdited()));
+				} catch (ParseException e1) {
+					logger.error("Unable to parse date" + patientForm.getEdited(), e1);
+				}
+				e.setType("encounter_form");
 				entries.add(e);
 			}
+
+			logger.debug("FETCHED " + allPatientForms.size() + " FORMS IN " + (System.currentTimeMillis() - intTime) + "ms");
+			intTime = System.currentTimeMillis();
 		}
-
-		if (groupNotesInfo != null) {
-			logger.debug("FETCHED " + groupNotesInfo.size() + " GROUP NOTES META IN " + (System.currentTimeMillis() - intTime) + "ms");
-		}
-		intTime = System.currentTimeMillis();
-
-		String roleName = criteria.getUserRole() + "," + criteria.getUserName();
-		ArrayList<HashMap<String, ? extends Object>> eForms = EFormUtil.listPatientEFormsNoData(demoNo, roleName);
-		for (HashMap<String, ? extends Object> eform : eForms) {
-			EChartNoteEntry e = new EChartNoteEntry();
-			e.setId(eform.get("fdid"));
-
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			String date = (String) eform.get("formDate") + " " + (String) eform.get("formTime");
-			try {
-				e.setDate(sdf.parse(date));
-			} catch (ParseException e1) {
-				logger.error("Unable to parse date " + date, e1);
-			}
-			e.setProviderNo((String) eform.get("providerNo"));
-			e.setType("eform");
-			entries.add(e);
-		}
-
-		logger.debug("FETCHED " + eForms.size() + " EFORMS META IN " + (System.currentTimeMillis() - intTime) + "ms");
-		intTime = System.currentTimeMillis();
-
-		ArrayList<PatientForm> allPatientForms = EctFormData.getGroupedPatientFormsFromAllTables(demographicId);
-		for (PatientForm patientForm : allPatientForms) {
-			EChartNoteEntry e = new EChartNoteEntry();
-			e.setId(new String[] { patientForm.getFormName(), patientForm.getFormId() });
-			SimpleDateFormat sdf = new SimpleDateFormat("yy/MM/dd HH:mm:ss");
-			try {
-				e.setDate(sdf.parse(patientForm.getEdited()));
-			} catch (ParseException e1) {
-				logger.error("Unable to parse date" + patientForm.getEdited(), e1);
-			}
-			e.setType("encounter_form");
-			entries.add(e);
-		}
-
-		logger.debug("FETCHED " + allPatientForms.size() + " FORMS IN " + (System.currentTimeMillis() - intTime) + "ms");
-		intTime = System.currentTimeMillis();
 
 		List<Map<String, Object>> bills = null;
-		if (oscar.OscarProperties.getInstance().getProperty("billregion", "").equalsIgnoreCase("ON")) {
+		if (!skipGetOtherNotes && oscar.OscarProperties.getInstance().getProperty("billregion", "").equalsIgnoreCase("ON")) {
 			bills = billingONCHeader1Dao.getInvoicesMeta(Integer.parseInt(demoNo));
 			for (Map<String, Object> h1 : bills) {
 				EChartNoteEntry e = new EChartNoteEntry();
@@ -477,6 +497,14 @@ public class DefaultNoteService implements NoteService {
 		}
 
 		return groupNoteDao.findLinksByDemographic(demographicNo);
+	}
+	
+	private List<EChartNoteEntry> applyProviderFilter(List<EChartNoteEntry> notes, String encounterType) {
+		if (!StringUtils.isBlank(encounterType)) {
+			return notes;
+		}
+		
+		return notes;
 	}
 
 	private List<EChartNoteEntry> applyProviderFilter(List<EChartNoteEntry> notes, List<String> providerNo) {

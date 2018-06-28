@@ -184,6 +184,9 @@ try
         updateParent = "true";
     }
 
+	CaseManagementNoteDAO caseManagementNoteDAO = SpringUtils.getBean(CaseManagementNoteDAO.class);
+	List<String> noteEncounterTypes = caseManagementNoteDAO.getDemographicsEncounterTypes(demographicNo);
+
 	HashMap<String, Boolean> echartPreferencesMap = new HashMap<String, Boolean>();
 
 	SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
@@ -317,7 +320,14 @@ try
 		<div id="filter" style="display:none;background-color:#ddddff;padding:8px">
 			<input type="button" value="<bean:message key="oscarEncounter.showView.title" />" onclick="return filter(false);" />
 			<input type="button" value="<bean:message key="oscarEncounter.resetFilter.title" />" onclick="return filter(true);" />
-
+			<label style="float: right;">Encounter Type: 
+				<html:select property="searchEncounterType">
+					<html:option value="">All</html:option>
+					<% for (String type : noteEncounterTypes) { %>
+					<html:option value="<%=type%>"><%=type%></html:option>
+					<% } %> 
+				</html:select>
+			</label>
 			<table style="border-collapse:collapse;width:100%;margin-left:auto;margin-right:auto">
 				<tr>
 					<td style="font-size:inherit;background-color:#bbbbff;font-weight:bold">

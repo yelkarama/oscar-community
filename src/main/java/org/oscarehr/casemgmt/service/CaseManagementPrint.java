@@ -41,6 +41,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorManager;
 import org.oscarehr.PMmodule.model.ProgramProvider;
@@ -443,6 +444,10 @@ public class CaseManagementPrint {
 
 		if (se.getAttribute("CaseManagementViewAction_filter_issues") != null) {
 			criteria.getIssues().addAll((List<String>) se.getAttribute("CaseManagementViewAction_filter_issues"));
+		}
+
+		if (!StringUtils.isBlank((String) se.getAttribute("CaseManagementViewAction_filter_encounter_type"))) {
+			criteria.setEncounterType((String) se.getAttribute("CaseManagementViewAction_filter_encounter_type"));
 		}
 
 		if (logger.isDebugEnabled()) {

@@ -1953,16 +1953,23 @@ public class CaseManagementViewAction extends BaseCaseManagementViewAction {
 		if (programId != null && !programId.trim().isEmpty()) {
 			criteria.setProgramId(programId);
 		}
-		if (caseForm != null && caseForm.getFilter_roles() != null) {
-			List<String> rs = Arrays.asList(caseForm.getFilter_roles());
-			criteria.getRoles().addAll(rs);
-			se.setAttribute("CaseManagementViewAction_filter_roles", rs);
-		}
+		if (caseForm != null) {
+			if (caseForm.getFilter_roles() != null) {
+				List<String> rs = Arrays.asList(caseForm.getFilter_roles());
+				criteria.getRoles().addAll(rs);
+				se.setAttribute("CaseManagementViewAction_filter_roles", rs);
+			}
 
-		if (caseForm != null && caseForm.getFilter_providers() != null) {
-			List<String> rs = Arrays.asList(caseForm.getFilter_providers());
-			criteria.getProviders().addAll(rs);
-			se.setAttribute("CaseManagementViewAction_filter_providers", rs);
+			if (caseForm.getFilter_providers() != null) {
+				List<String> rs = Arrays.asList(caseForm.getFilter_providers());
+				criteria.getProviders().addAll(rs);
+				se.setAttribute("CaseManagementViewAction_filter_providers", rs);
+			}
+
+			if (!StringUtils.isBlank(caseForm.getSearchEncounterType())) {
+				se.setAttribute("CaseManagementViewAction_filter_encounter_type", caseForm.getSearchEncounterType());
+				criteria.setEncounterType(caseForm.getSearchEncounterType());
+			}
 		}
 
 		String[] checkedIssues = request.getParameterValues("issues");

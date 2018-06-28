@@ -514,7 +514,7 @@ function notesLoader(offset, numToReturn, demoNo) {
     }
 
 	var params = "method=viewNotesOpt&offset=" + offset + "&numToReturn=" + numToReturn + "&demographicNo=" + demoNo;
-	var params2 = jQuery("input[name='filter_providers'],input[name='filter_roles'],input[name='issues'],input[name='note_sort']").serialize();
+	var params2 = jQuery("input[name='filter_providers'],input[name='filter_roles'],input[name='issues'],input[name='note_sort'],select[name='searchEncounterType']").serialize();
 	if(params2.length>0)
 		params = params + "&" + params2;
 	new Ajax.Updater("encMainDiv",
@@ -2365,36 +2365,6 @@ function filter(reset) {
 
 }
 
-/*function filter(reset) {
-    document.forms["caseManagementEntryForm"].method.value = "edit";
-    document.forms["caseManagementEntryForm"].note_edit.value = "new";
-    document.forms["caseManagementEntryForm"].noteId.value = "0";
-    document.forms["caseManagementEntryForm"].ajax.value = false;
-    document.forms["caseManagementEntryForm"].chain.value = "null";
-
-    document.forms["caseManagementViewForm"].method.value = "view";
-    document.forms["caseManagementViewForm"].resetFilter.value = reset;
-
-    var caseMgtEntryfrm = document.forms["caseManagementEntryForm"];
-    var caseMgtViewfrm = document.forms["caseManagementViewForm"];
-    var url = ctx + "/CaseManagementEntry.do";
-    var objAjax = new Ajax.Request (
-                    url,
-                    {
-                        method: 'post',
-                        postBody: Form.serialize(caseMgtEntryfrm),
-                        onSuccess: function(request) {
-                            caseMgtViewfrm.submit();
-                        },
-                        onFailure: function(request) {
-                            alert(request.status + " " + filterError);
-                        }
-                     }
-                   );
-
-    return false;
-}*/
-
 //find index of month
 function getMonthIdx(mnth) {
     var idx;
@@ -2859,27 +2829,6 @@ function savePage(method, chain) {
     		   }
     		 );
 
-
-    /*var frm = document.forms["caseManagementViewForm"];
-    var url = ctx + "/CaseManagementView.do";
-    var objAjax = new Ajax.Request (
-                    url,
-                    {
-                        method: 'post',
-                        postBody: Form.serialize(frm),
-                        onSuccess: function(request) {
-                            tmpSaveNeeded = false;
-                            caseMgtEntryfrm.submit();
-                        },
-                        onFailure: function(request) {
-                            if( request.status == 403 )
-                                alert(sessionExpiredError);
-                            else
-                                alert(request.status + " " + savingNoteError);
-                        }
-                     }
-                   );
-*/
     return false;
 }
 

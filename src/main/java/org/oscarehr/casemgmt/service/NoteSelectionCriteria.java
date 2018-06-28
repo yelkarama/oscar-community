@@ -40,6 +40,7 @@ public class NoteSelectionCriteria {
 	private String userName;
 	private String noteSort;
 	private String programId;
+	private String encounterType;
 	private List<String> roles = new ArrayList<String>();
 	private List<String> providers = new ArrayList<String>();
 	private List<String> issues = new ArrayList<String>();
@@ -148,6 +149,25 @@ public class NoteSelectionCriteria {
 	 */
 	public void setProgramId(String programId) {
 		this.programId = programId;
+	}
+
+	/**
+	 * Gets encounter type for the filtering out notes
+	 *
+	 * @return
+	 * 		Returns the encounter type
+	 */
+	public String getEncounterType() {
+		return encounterType;
+	}
+	/**
+	 * Sets program ID for the filtering out notes
+	 *
+	 * @param encounterType
+	 * 		Encounter type to set
+	 */
+	public void setEncounterType(String encounterType) {
+		this.encounterType = encounterType;
 	}
 
 	/**

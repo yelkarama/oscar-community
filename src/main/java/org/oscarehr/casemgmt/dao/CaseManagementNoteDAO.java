@@ -42,6 +42,7 @@ import java.util.UUID;
 
 import javax.persistence.PersistenceException;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.SQLQuery;
@@ -241,7 +242,7 @@ public class CaseManagementNoteDAO extends HibernateDaoSupport {
 	    
 	@SuppressWarnings("unchecked")
 	public List<Map<String,Object>> getRawNoteInfoMapByDemographic(String demographic_no) {
-		String hql = "select new map(cmn.id as id,cmn.observation_date as observation_date,cmn.providerNo as providerNo,cmn.program_no as program_no,cmn.reporter_caisi_role as reporter_caisi_role,cmn.uuid as uuid, cmn.update_date as update_date) from CaseManagementNote cmn where cmn.demographic_no = ? order by cmn.update_date DESC";
+		String hql = "select new map(cmn.id as id,cmn.observation_date as observation_date,cmn.providerNo as providerNo,cmn.program_no as program_no,cmn.reporter_caisi_role as reporter_caisi_role,cmn.uuid as uuid, cmn.update_date as update_date, cmn.encounter_type as encounter_type) from CaseManagementNote cmn where cmn.demographic_no = ? order by cmn.update_date DESC";
 		return getHibernateTemplate().find(hql, demographic_no);			
 	}
 	
@@ -250,6 +251,13 @@ public class CaseManagementNoteDAO extends HibernateDaoSupport {
 		String hql = "select new map(cmn.id as id,cmn.observation_date as observation_date,cmn.providerNo as providerNo,cmn.program_no as program_no,cmn.reporter_caisi_role as reporter_caisi_role,cmn.uuid as uuid, cmn.update_date as update_date) from CaseManagementNote cmn where cmn.demographic_no = ? and cmn.signed=? and cmn.id = (select max(cmn2.id) from CaseManagementNote cmn2 where cmn2.uuid = cmn.uuid) order by cmn.update_date DESC";
 		return getHibernateTemplate().find(hql, new Object[]{demographic_no,false});			
 	}
+	
+	public List<String> getDemographicsEncounterTypes(String demographicNo) {
+		// SELECT DISTINCT(encounter_type) FROM casemgmt_note WHERE encounter_type != '' AND encounter_type IS NOT NULL;
+		String hql = "SELECT DISTINCT(cmn.encounter_type) FROM CaseManagementNote cmn WHERE cmn.encounter_type != '' AND cmn.encounter_type IS NOT NULL AND cmn.demographic_no = ?";
+		return getHibernateTemplate().find(hql, new Object[]{demographicNo});
+	}
+	
 
 	@SuppressWarnings("unchecked")
     public List<CaseManagementNote> getNotesByDemographic(String demographic_no, Integer maxNotes) {
@@ -539,6 +547,10 @@ public class CaseManagementNoteDAO extends HibernateDaoSupport {
 	
 			if (searchBean.getSearchProgramId() > 0) {
 				criteria.add(Expression.eq("program_no", String.valueOf(searchBean.getSearchProgramId())));
+			}
+			
+			if (!StringUtils.isBlank(searchBean.getSearchEncounterType())) {
+				criteria.add(Expression.like("encounter_type", String.valueOf(searchBean.getSearchEncounterType())));
 			}
 	
 		

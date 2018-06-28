@@ -27,6 +27,7 @@ package org.oscarehr.casemgmt.service;
 import com.itextpdf.text.pdf.PdfReader;
 import com.lowagie.text.DocumentException;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.tika.io.IOUtils;
 import org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorManager;
@@ -562,6 +563,10 @@ public class CaseManagementFax {
 
         if (se.getAttribute("CaseManagementViewAction_filter_issues") != null) {
             criteria.getIssues().addAll((List<String>) se.getAttribute("CaseManagementViewAction_filter_issues"));
+        }
+
+        if (!StringUtils.isBlank((String) se.getAttribute("CaseManagementViewAction_filter_encounter_type"))) {
+            criteria.setEncounterType((String) se.getAttribute("CaseManagementViewAction_filter_encounter_type"));
         }
 
         if (logger.isDebugEnabled()) {
