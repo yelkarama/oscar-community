@@ -435,6 +435,8 @@ function pasteAppt(multipleSameDayGroupAppt) {
 	document.EDITAPPT.location.value = "<%=apptObj.getLocation()%>";
 	document.EDITAPPT.resources.value = "<%=apptObj.getResources()%>";
 	document.EDITAPPT.type.value = "<%=apptObj.getType()%>";
+	document.EDITAPPT.typeSel.value = "<%=apptObj.getAppointmentType()%>";
+	
 	if('<%=apptObj.getUrgency()%>' == 'critical') {
 		document.EDITAPPT.urgency.checked = "checked";
 	}

@@ -48,6 +48,7 @@ public class ApptData {
 	String providerFirstName;
 	String ohipNo;
 	String urgency;
+	String appointmentType;
 
 	public String getAppointment_date() {
 		return appointment_date;
@@ -266,6 +267,12 @@ public class ApptData {
 	public void setUrgency(String urgency) {
     	this.urgency = urgency;
     }
-	
-	
+
+	public String getAppointmentType() {
+		return appointmentType;
+	}
+
+	public void setAppointmentType(String appointmentType) {
+		this.appointmentType = appointmentType;
+	}
 }

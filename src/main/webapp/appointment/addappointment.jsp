@@ -415,6 +415,7 @@ function pasteAppt(multipleSameDayGroupAppt) {
         //document.forms[0].location.value = "<%=apptObj.getLocation()%>";
         document.forms[0].resources.value = "<%=apptObj.getResources()%>";
         document.forms[0].type.value = "<%=apptObj.getType()%>";
+        document.forms[0].typeSel.value = "<%=apptObj.getAppointmentType()%>";
         if('<%=apptObj.getUrgency()%>' == 'critical') {
                 document.forms[0].urgency.checked = "checked";
         }
