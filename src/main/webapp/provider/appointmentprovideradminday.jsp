@@ -2502,6 +2502,10 @@ if( iSm < 10 ) {
 }
 
 start_time += iSm + ":00";
+
+Boolean displayAppointmentType = (!appointment.getType().equals("") && !appointment.getType().equals("null"));
+Boolean displayAppointmentReason = appointment.getReason() != null && appointment.getReason().length() > 0;
+
 %>
 
 <a class="apptLink" href=# onClick ="popupPage(535,860,'../appointment/appointmentcontrol.jsp?appointment_no=<%=appointment.getId()%>&provider_no=<%=curProvider_no[nProvider]%>&year=<%=year%>&month=<%=month%>&day=<%=day%>&start_time=<%=iS+":"+iSm%>&demographic_no=<%=demographic_no%>&displaymode=edit&dboperation=search');return false;" 
@@ -2512,9 +2516,15 @@ start_time += iSm + ":00";
 	notes: <%=notes%>"
 </oscar:oscarPropertiesCheck> ><%=(view==0) ? (name.length()>len?name.substring(0,len) : name + prefName) :name + prefName%></a>
 	
-<% if(displayTypePreference && !appointment.getType().equals("") && !appointment.getType().equals("null")) { %>
+<% if(displayTypePreference && (displayAppointmentType || displayAppointmentReason)) { %>
 <br>
-<%= appointment.getType() %> <%= appointment.getReason().length() > 0 ? " | " + appointment.getReason() : ""%>
+<% if(displayAppointmentType) { %>
+	<%= appointment.getType() %>
+<% }
+   if(displayAppointmentReason) { %>
+	<%= " | " + appointment.getReason() %>
+<% } %>
+			  
 <br>
 <% } %>
 			  
