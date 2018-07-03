@@ -46,6 +46,7 @@
 	ProfessionalSpecialistDao professionalSpecialistDao = (ProfessionalSpecialistDao) SpringUtils.getBean("professionalSpecialistDao");
     LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
 	UserPropertyDAO propertyDao = SpringUtils.getBean(UserPropertyDAO.class);
+	Map<String, String> provinces = ProvinceNames.getDefaultProvinces();
 %>
 <jsp:useBean id="providerBean" class="java.util.Properties"
 	scope="session" />
@@ -244,8 +245,10 @@
 
 				if (demoHCTYPE.compareTo("") == 0 || demoHCTYPE == null || demoHCTYPE.length() < 2) {
 					demoHCTYPE = "ON";
-				} else {
+				} else if (provinces.containsKey(demoHCTYPE)) {
 					demoHCTYPE = demoHCTYPE.substring(0, 2).toUpperCase();
+				} else {
+					demoHCTYPE = "OT";
 				}
 
 				if ("".equals(family_doctor)) {
@@ -588,6 +591,7 @@
 <%@ page import="java.util.regex.Pattern" %>
 <%@ page import="java.util.regex.Matcher" %>
 <%@ page import="javax.swing.*" %>
+<%@ page import="oscar.oscarDemographic.data.ProvinceNames" %>
 <html>
 <head>
 <title>Ontario Billing</title>

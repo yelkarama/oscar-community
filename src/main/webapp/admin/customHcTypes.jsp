@@ -141,7 +141,7 @@
 			</tr>
 			<% } %>
 			<tr>
-				<td><input style="margin-bottom: 0;" type="text" name="new-hc-type" placeholder="Add new healthcard type" maxlength="20"></td>
+				<td><input style="margin-bottom: 0;" type="text" name="new-hc-type" placeholder="Add new healthcard type" maxlength="20" minlength="3"></td>
 				<td style="width: 20px; text-align: center;"><input type="checkbox" name="new-hc-type-enable" checked="checked"></td>
 				<td style="width: 10px"><input class="btn btn-small btn-primary" type="submit" value="Add" onclick="document.getElementById('dboperation').value = 'add-new-hc-type';"></td>
 			</tr>

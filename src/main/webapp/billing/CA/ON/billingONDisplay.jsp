@@ -72,6 +72,7 @@
 <%@page import="org.oscarehr.common.dao.ClinicNbrDao"%>
 <%@page import="org.oscarehr.common.dao.ProfessionalSpecialistDao"%>
 <%@ page import="org.oscarehr.common.dao.RaDetailDao" %>
+<%@ page import="oscar.oscarDemographic.data.ProvinceNames" %>
 
 <%GregorianCalendar now = new GregorianCalendar();
 			int curYear = now.get(Calendar.YEAR);
@@ -363,23 +364,20 @@ if(bFlag) {
 	</tr>
 	<tr class="myIvory">
 		<td width="320"><strong><bean:message
-			key="billing.billingCorrection.formHCType" />:</strong> <select
-			name="hc_type" style="font-size: 80%;">
-			<option value="ON" <%=HCTYPE.equals("ON")?"selected":""%>>ON-Ontario</option>
-			<option value="AB" <%=HCTYPE.equals("AB")?"selected":""%>>AB-Alberta</option>
-			<option value="BC" <%=HCTYPE.equals("BC")?"selected":""%>>BC-British
-			Columbia</option>
-			<option value="MB" <%=HCTYPE.equals("MB")?"selected":""%>>MB-Manitoba</option>
-			<option value="NL" <%=HCTYPE.equals("NL")?"selected":""%>>NL-Newfoundland</option>
-			<option value="NB" <%=HCTYPE.equals("NB")?"selected":""%>>NB-New
-			Brunswick</option>
-			<option value="YT" <%=HCTYPE.equals("YT")?"selected":""%>>YT-Yukon</option>
-			<option value="NS" <%=HCTYPE.equals("NS")?"selected":""%>>NS-Nova
-			Scotia</option>
-			<option value="PE" <%=HCTYPE.equals("PE")?"selected":""%>>PE-Prince
-			Edward Island</option>
-			<option value="SK" <%=HCTYPE.equals("SK")?"selected":""%>>SK-Saskatchewan</option>
-		</select></td>
+			key="billing.billingCorrection.formHCType" />:</strong>
+			<select name="hc_type" style="font-size: 80%;">
+				<option value="OT" <%=HCTYPE.equals("OT")?" selected":""%>>OT-Other</option>
+				<%	Map<String, String> provinces = ProvinceNames.getDefaultProvinces();
+					for (Map.Entry<String, String> entry : provinces.entrySet()) {
+						String shortName = entry.getKey();
+						String longName = entry.getValue();
+						Boolean selected = HCTYPE.equals(shortName);
+
+				%>
+				<option value="<%=shortName%>" <%=selected ? " selected" : ""%>><%=shortName%>-<%=longName%></option>
+				<%	} %>
+			</select>
+		</td>
 		<td width="270"><strong><bean:message
 			key="billing.billingCorrection.formManualReview" />: <input
 			type="checkbox" name="m_review" value="Y"
