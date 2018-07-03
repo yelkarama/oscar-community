@@ -78,6 +78,7 @@
 			String clinicview = bHospitalBilling ? oscarVariables.getProperty("clinic_hospital", "") : oscarVariables.getProperty("clinic_view", "");
 			String clinicNo = oscarVariables.getProperty("clinic_no", "").trim();
 			String visitType = bHospitalBilling ? "02" : oscarVariables.getProperty("visit_type", "");
+			List<BillingServiceSchedule> billingServiceSchedule = new ArrayList<BillingServiceSchedule>();
 
 			if (visitType.startsWith("00") || visitType.equals(""))	clinicview = "0000";
 			String appt_no = request.getParameter("appointment_no");
@@ -105,6 +106,7 @@
 			else {
      			provider_no = apptProvider_no;
  			}
+ 			
             CodeFilterManager codeFilterManager = SpringUtils.getBean(CodeFilterManager.class);
             DemographicManager demographicManager = SpringUtils.getBean(DemographicManager.class);
 			Demographic demo = demographicManager.getDemographic(loggedInInfo, demo_no); 
@@ -112,8 +114,13 @@
 			// True - has e-mail, False - doesn't have e-mail
 			Boolean demoEmail = demo.getEmail()!=null&&!demo.getEmail().trim().equals("");
 			java.util.Date filterDate = ConversionUtils.fromDateString(billReferenceDate);
-			if(request.getParameter("start_time") != null){
-	   			filterDate =  ConversionUtils.fromTimestampString(billReferenceDate+" "+request.getParameter("start_time"));
+			String startTime = request.getParameter("start_time");
+			if(startTime != null){
+	   			filterDate =  ConversionUtils.fromTimestampString(billReferenceDate+" "+ startTime);
+	   			if (appt_no != null) {
+					billingServiceSchedule = ScheduleBillingServiceAction.load(provider_no, filterDate);
+				}
+				
  			}
 
             //check for management fee code eligibility
@@ -592,6 +599,7 @@
 <%@ page import="java.util.regex.Matcher" %>
 <%@ page import="javax.swing.*" %>
 <%@ page import="oscar.oscarDemographic.data.ProvinceNames" %>
+<%@ page import="org.oscarehr.billing.ScheduleBillingServiceAction" %>
 <html>
 <head>
 <title>Ontario Billing</title>
@@ -1559,10 +1567,17 @@ if(checkFlag == null) checkFlag = "0";
 									</tr>
 									<tr>
 										<td nowrap width="33%" align="center" class="myPink"><b>Code
-												&nbsp; Time &nbsp;%</b><br /> <%	    for (int i = 0; i < BillingDataHlp.FIELD_SERVICE_NUM / 2; i++) { %>
+												&nbsp; Time &nbsp;%</b><br /> 
+											<% 
+												for (int i = 0; i < BillingDataHlp.FIELD_SERVICE_NUM / 2; i++) {
+												    String code = StringUtils.trimToEmpty(request.getParameter("serviceCode"+i));
+												    if (code.isEmpty() && (billingServiceSchedule.size() - 1) >= i) {
+												       code = billingServiceSchedule.get(i).getServiceCode();
+													}
+											%>
 											<input type="text" name="serviceCode<%=i%>" size="4"
 											maxlength="15"
-											value="<%=request.getParameter("serviceCode"+i)!=null?request.getParameter("serviceCode"+i):""%>"
+											value="<%=code%>"
 											onDblClick="scScriptAttach(this)" onBlur="upCaseCtrl(this)" />x
 											<input type="text" name="serviceUnit<%=i%>" size="2"
 											maxlength="4" style="width: 20px;"
@@ -1572,10 +1587,17 @@ if(checkFlag == null) checkFlag = "0";
 											value="<%=request.getParameter("serviceAt"+i)!=null?request.getParameter("serviceAt"+i):""%>" /><br />
 											<%	    } %></td>
 										<td nowrap width="33%" align="center" class="myPink"><b>Code
-												&nbsp; Time &nbsp;%</b><br /> <%	    for (int i = BillingDataHlp.FIELD_SERVICE_NUM / 2; i < BillingDataHlp.FIELD_SERVICE_NUM; i++) { %>
+												&nbsp; Time &nbsp;%</b><br /> 
+											<%	    
+												for (int i = BillingDataHlp.FIELD_SERVICE_NUM / 2; i < BillingDataHlp.FIELD_SERVICE_NUM; i++) {
+													String code = StringUtils.trimToEmpty(request.getParameter("serviceCode"+i));
+													if (code.isEmpty() && (billingServiceSchedule.size() - 1) >= i) {
+														code = billingServiceSchedule.get(i).getServiceCode();
+													}
+											%>
 											<input type="text" name="serviceCode<%=i%>" size="4"
 											maxlength="15"
-											value="<%=request.getParameter("serviceCode"+i)!=null?request.getParameter("serviceCode"+i):""%>"
+											value="<%=code%>"
 											onDblClick="scScriptAttach(this)" onBlur="upCaseCtrl(this)" />x
 											<input type="text" name="serviceUnit<%=i%>" size="2"
 											maxlength="2" style="width: 20px;"

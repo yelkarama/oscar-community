@@ -843,6 +843,8 @@ String clinicNo = OscarProperties.getInstance().getProperty("clinic_no");
 		  <option value="RTF"><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.RTF" /></option>
 	  </select>
 		  <hr/>
+		  <a href="javascript:void(0)" onClick="popupPage(400,860,'../billing/ScheduleBillingService.do?providerView=true');return false;" >Add Scheduled Premium Billing Services</a>
+		  <hr/>
 		  <label>Default Billing Form for "Other" HC</label>
 		  <select name="default_service_other">
 			  <option value="no">-- no --</option>
