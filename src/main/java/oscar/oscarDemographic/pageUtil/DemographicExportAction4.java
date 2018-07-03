@@ -31,14 +31,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -207,7 +202,8 @@ public class DemographicExportAction4 extends Action {
 
 	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 	private SimpleDateFormat dateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	
+	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+
 	Integer exportNo = 0;
 	ArrayList<String> exportError = null;
 	HashMap<String, Integer> entries = new HashMap<String, Integer>();
@@ -238,11 +234,11 @@ public class DemographicExportAction4 extends Action {
 		Provider provider = null;
 		Boolean isSet = defrm.getPatientSet() != null && defrm.getPatientSet().startsWith("set_");
 		String setName = isSet ? defrm.getPatientSet().replace("set_", "") : defrm.getPatientSet();
-		
+
 		if (!StringUtils.filled(setName)) {
 			setName = "Unmatched";
 		}
-		
+
 		if (!isSet && demographicNo==null) {
 			provider = providerDao.getProvider(setName);
 			if (provider != null) {
@@ -281,7 +277,7 @@ public class DemographicExportAction4 extends Action {
 			}
 		} else if (demographicNo==null && provider!=null) {
 			list = demographicDao.getDemographicByProvider(provider.getProviderNo(), false);
-		} else if(demographicNo!=null){ 
+		} else if(demographicNo!=null){
 			try {
 				Demographic demographic = new DemographicData().getDemographic(loggedInInfo, demographicNo);
 				Provider demographicProvider = providerDao.getProvider(demographic.getProviderNo());
@@ -546,7 +542,7 @@ public class DemographicExportAction4 extends Action {
 					primaryPhysician.setPrimaryPhysicianCPSO(mrp.getPractitionerNo());
 				}
 			}
-			
+
 			// Store referral doctor
 			String referralDoctorName = SxmlMisc.getXmlContent(StringUtils.noNull(demographic.getFamilyDoctor()),"rd");
 			if (StringUtils.filled(referralDoctorName) && referralDoctorName.contains(",")) {
@@ -566,15 +562,15 @@ public class DemographicExportAction4 extends Action {
                 familyPhysicianName.setFirstName(StringUtils.noNull(lastFirstNameArray[1]));
                 familyPhysicianName.setLastName(StringUtils.noNull(lastFirstNameArray[0]));
             }
-            
+
             List<DemographicPharmacy> demographicPharmacies = demographicPharmacyDao.findByDemographicId(Integer.parseInt(demoNo));
-            if (!demographicPharmacies.isEmpty() && demographicPharmacies.get(0) != null) { 
+            if (!demographicPharmacies.isEmpty() && demographicPharmacies.get(0) != null) {
             	PharmacyInfo pharmacy = pharmacyInfoDao.getPharmacy(demographicPharmacies.get(0).getPharmacyId());
-            	
+
             	if (pharmacy != null && StringUtils.filled(pharmacy.getName())) {
 					Demographics.PreferredPharmacy preferredPharmacy = demo.addNewPreferredPharmacy();
 					preferredPharmacy.setName(pharmacy.getName());
-					
+
 					if (StringUtils.filled(pharmacy.getAddress())) {
 						cdsDt.Address pharmacyAddress = preferredPharmacy.addNewAddress();
 						cdsDt.AddressStructured address = pharmacyAddress.addNewStructured();
@@ -588,7 +584,7 @@ public class DemographicExportAction4 extends Action {
 							address.addNewPostalZipCode().setPostalCode(StringUtils.noNull(pharmacy.getPostalCode()).replace(" ",""));
 						}
 					}
-					
+
 					if (StringUtils.filled(pharmacy.getPhone1())) {
 						cdsDt.PhoneNumber pharmacyPhone = preferredPharmacy.addNewPhoneNumber();
 						pharmacyPhone.setPhoneNumberType(cdsDt.PhoneNumberType.W);
@@ -601,7 +597,7 @@ public class DemographicExportAction4 extends Action {
 						pharmacyFax.setPhoneNumber(pharmacy.getFax());
 					}
 
-					if (StringUtils.filled(pharmacy.getEmail())) { 
+					if (StringUtils.filled(pharmacy.getEmail())) {
 						preferredPharmacy.setEmailAddress(pharmacy.getEmail());
 					}
 				}
@@ -1201,7 +1197,9 @@ public class DemographicExportAction4 extends Action {
 
 						//event datetime
 						if (cmn.getObservation_date()!=null) {
-							cNote.addNewEventDateTime().setFullDateTime(Util.calDate(cmn.getObservation_date()));
+							Calendar observationDate = Calendar.getInstance();
+							observationDate = formatDateTime(observationDate, cmn.getObservation_date().toString());
+							cNote.addNewEventDateTime().setFullDateTime(observationDate);
 						}
 
 						List<CaseManagementNote> cmn_same = cmm.getNotesByUUID(cmn.getUuid());
@@ -1220,8 +1218,11 @@ public class DemographicExportAction4 extends Action {
 
 								//note created datetime
 								cdsDt.DateTimeFullOrPartial noteCreatedDateTime = pProvider.addNewDateTimeNoteCreated();
-								if (cmn.getUpdate_date()!=null) noteCreatedDateTime.setFullDateTime(Util.calDate(cm_note.getUpdate_date()));
-								else noteCreatedDateTime.setFullDateTime(Util.calDate(new Date()));
+								Calendar updateDate = Calendar.getInstance();
+								if (cmn.getUpdate_date()!=null) {
+									updateDate = formatDateTime(updateDate, cmn.getUpdate_date().toString());
+									noteCreatedDateTime.setFullDateTime(updateDate);
+								}
 							}
 
 							//reviewing providers
@@ -1234,8 +1235,12 @@ public class DemographicExportAction4 extends Action {
 
 								//note reviewed datetime
 								cdsDt.DateTimeFullOrPartial noteReviewedDateTime = noteReviewer.addNewDateTimeNoteReviewed();
-								if (cm_note.getUpdate_date()!=null) noteReviewedDateTime.setFullDateTime(Util.calDate(cm_note.getUpdate_date()));
-								else noteReviewer.addNewDateTimeNoteReviewed().setFullDateTime(Util.calDate(new Date()));
+								Calendar reviewDate = Calendar.getInstance();
+								if (cm_note.getUpdate_date()!=null) {
+									reviewDate = formatDateTime(reviewDate, cmn.getUpdate_date().toString());
+									noteReviewedDateTime.setFullDateTime(reviewDate);
+								}
+								else noteReviewer.addNewDateTimeNoteReviewed().setFullDateTime(reviewDate);
 							}
 						}
 					}
@@ -1555,12 +1560,12 @@ public class DemographicExportAction4 extends Action {
 					}
 					addOneEntry(MEDICATION);
 
-					
+
 					List<DrugReason> drugReasons = drugReasonDao.getReasonsForDrugID(arr[p].getDrugId(), true);
 					if (!drugReasons.isEmpty()) {
 						medi.setProblemCode(drugReasons.get(0).getCode());
 					}
-					
+
 					if (StringUtils.filled(arr[p].getProtocolId())) {
 						medi.setProtocolIdentifier(arr[p].getProtocolId());
 					}
@@ -1727,7 +1732,7 @@ public class DemographicExportAction4 extends Action {
 							mSummary = Util.addSummary(mSummary, "Prescribed by", StringUtils.noNull(prvd.getFirst_name())+" "+StringUtils.noNull(prvd.getLast_name()));
 						}
 					}
-					
+
 					if (arr[p].isNonAuthoritative()) {
 						medi.setNonAuthoritativeIndicator("Y");
 						mSummary = Util.addSummary(mSummary, "Non-Authoritative", "Y");
@@ -1741,7 +1746,7 @@ public class DemographicExportAction4 extends Action {
 					if (StringUtils.filled(arr[p].getPriorRxRefId())) {
 						medi.setPriorPrescriptionReferenceIdentifier(arr[p].getPriorRxRefId());
 					}
-					
+
 					annotation = arr[p].getComment();
 					if (StringUtils.filled(annotation)) {
 						medi.setNotes(annotation);
@@ -1809,7 +1814,7 @@ public class DemographicExportAction4 extends Action {
 									labMeaValues.put("measureData", comments);
 								}
                                 labMeaValues.put("reportBlocked", h.isReportBlocked() ? "Y" : "");
-								
+
 								LaboratoryResults labResults2 = patientRec.addNewLaboratoryResults();
 								exportLabResult(labMeaValues, labResults2, demoNo);
 							}
@@ -1882,10 +1887,13 @@ public class DemographicExportAction4 extends Action {
 						exportError.add("Error! No Appointment Date ("+j+") for Patient "+demoNo);
 					}
 
-					String startTime = ConversionUtils.toTimeString(ap.getStartTime());
-					aptm.setAppointmentTime(Util.calDate(ap.getStartTime()));
+					Calendar apptStartTime = Calendar.getInstance();
+					if (ap.getStartTime() != null) {
+						apptStartTime.setTime(ap.getStartTime());
+					}
+					aptm.setAppointmentTime(apptStartTime);
 					addOneEntry(APPOINTMENT);
-					if (UtilDateUtilities.StringToDate(startTime,"HH:mm:ss")==null) {
+					if (ap.getStartTime() == null) {
 						exportError.add("Error! No Appointment Time ("+(j+1)+") for Patient "+demoNo);
 					}
 
@@ -1991,8 +1999,11 @@ public class DemographicExportAction4 extends Action {
 						} else {
 							exportError.add("Not exporting invalid Event Date (Reports) for Patient "+demoNo+" ("+(j+1)+")");
 						}
-						if (edoc.getContentDateTime()!=null) {
-							rpr.addNewReceivedDateTime().setFullDateTime(Util.calDate(edoc.getContentDateTime()));
+						Calendar dateTimeCal = Calendar.getInstance();
+						String dateTimeStamp = edoc.getDateTimeStamp();
+						dateTimeCal = formatDateTime(dateTimeCal, dateTimeStamp);
+						if (UtilDateUtilities.StringToDate(dateTimeStamp, "yyyy-MM-dd HH:mm:ss")!=null) {
+							rpr.addNewReceivedDateTime().setFullDateTime(dateTimeCal);
 						} else {
 							exportError.add("Not exporting invalid Received DateTime (Reports) for Patient "+demoNo+" ("+(j+1)+")");
 						}
@@ -2006,7 +2017,7 @@ public class DemographicExportAction4 extends Action {
 								Calendar dateTimeReviewed = Calendar.getInstance();
 								dateTimeReviewed.setTime(review.getDateTimeReviewed());
 								reportReviewed.addNewDateTimeReportReviewed().setFullDate(dateTimeReviewed);
-								
+
 								Util.writeNameSimple(reportReviewed.addNewName(), reviewer.getFormattedName());
 								String reviewerOhip = StringUtils.noNull(reviewer.getOhipNo());
 								if (reviewerOhip.length()<=6) {
@@ -2014,7 +2025,7 @@ public class DemographicExportAction4 extends Action {
 								}
 							}
 						}
-						
+
 						String recipientProviderNo = edoc.getResponsibleId();
 						if (StringUtils.filled(recipientProviderNo)) {
 							Provider recipientProvider = providerDao.getProvider(recipientProviderNo);
@@ -2024,7 +2035,7 @@ public class DemographicExportAction4 extends Action {
 								recipientName.setLastName(StringUtils.noNull(recipientProvider.getLastName()));
 							}
 						}
-						
+
 						if (StringUtils.filled(edoc.getSource())) {
 							Util.writeNameSimple(rpr.addNewSourceAuthorPhysician().addNewAuthorName(), edoc.getSource());
 						}
@@ -2148,10 +2159,14 @@ public class DemographicExportAction4 extends Action {
 							//report dates
 							if (reportDates!=null) {
 								if (reportDates.get("eventdatetime")!=null) {
-									rpr.addNewEventDateTime().setFullDateTime(reportDates.get("eventdatetime"));
+									Calendar reportDate = Calendar.getInstance();
+									reportDate = formatDateTime(reportDate, reportDates.get("eventdatetime").toString());
+									rpr.addNewEventDateTime().setFullDateTime(reportDate);
 								}
 								if (reportDates.get("receiveddatetime")!=null) {
-									rpr.addNewReceivedDateTime().setFullDateTime(reportDates.get("receiveddatetime"));
+									Calendar receivedDate = Calendar.getInstance();
+									receivedDate = formatDateTime(receivedDate, reportDates.get("receiveddatetime").toString());
+									rpr.addNewReceivedDateTime().setFullDateTime(receivedDate);
 								}
 								reviewDate = reportDates.get("revieweddatetime");
 							}
@@ -3224,11 +3239,13 @@ public class DemographicExportAction4 extends Action {
 		// lab collection datetime
 		cdsDt.DateTimeFullOrPartial collDate = labResults.addNewCollectionDateTime();
 		String sDateTime = labMea.get("datetime");
+		Calendar sDateCal = Calendar.getInstance();
+		sDateCal = formatDateTime(sDateCal, sDateTime);
 		if (StringUtils.filled(sDateTime)) {
-			collDate.setFullDateTime(Util.calDate(sDateTime));
+			collDate.setFullDateTime(sDateCal);
 		} else {
 			exportError.add("Error! No Collection Datetime for Lab Test "+labResults.getLabTestCode()+" for Patient "+demoNo);
-			collDate.setFullDate(Util.calDate("0001-01-01"));
+			collDate.setFullDate(Calendar.getInstance());
 		}
 
 		//lab normal/abnormal flag
@@ -3276,7 +3293,9 @@ public class DemographicExportAction4 extends Action {
 		//lab requisition datetime
 		
 		String reqDate = labMea.get("request_datetime");
-		if (StringUtils.filled(reqDate)) labResults.addNewLabRequisitionDateTime().setFullDateTime(Util.calDate(reqDate));
+		Calendar requestDate = Calendar.getInstance();
+		requestDate = formatDateTime(requestDate, reqDate);
+		if (StringUtils.filled(reqDate)) labResults.addNewLabRequisitionDateTime().setFullDateTime(requestDate);
 
 		//OLIS test result status
 		String olis_status = labMea.get("olis_status");
@@ -3312,7 +3331,9 @@ public class DemographicExportAction4 extends Action {
 					String lab_provider_no = (String) labRoutingInfo.get("provider_no");
 					if (!"0".equals(lab_provider_no)) {
 						LaboratoryResults.ResultReviewer reviewer = labResults.addNewResultReviewer();
-						reviewer.addNewDateTimeResultReviewed().setFullDateTime(Util.calDate(timestamp));
+						Calendar timestampCal = Calendar.getInstance();
+						timestampCal = formatDateTime(timestampCal, timestamp);
+						reviewer.addNewDateTimeResultReviewed().setFullDateTime(timestampCal);
 
 						//reviewer name
 						cdsDt.PersonNameSimple reviewerName = reviewer.addNewName();
@@ -3326,7 +3347,24 @@ public class DemographicExportAction4 extends Action {
 			}
 		}
 	}
-	
+
+	private Calendar formatDateTime(Calendar cal, String calString) {
+		try {
+			if (calString.length() > 10) {
+				cal.setTime(dateTime.parse(calString));
+			} else {
+				if (!calString.equals("")) {
+					cal.setTime(dateFormat.parse(calString));
+				}
+			}
+
+		} catch (ParseException e) {
+			System.out.println(e.getMessage());
+			return Calendar.getInstance();
+		}
+		return cal;
+	}
+
 	private Float getDosageValue(String dosage) {
 		String[] dosageBreak = getDosageMultiple1st(dosage).split(" ");
 
