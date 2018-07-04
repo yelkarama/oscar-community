@@ -92,6 +92,7 @@ boolean authed=true;
 
 <%@page import="oscar.Misc"%>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <html:html locale="true">
 <head>
 
@@ -159,7 +160,11 @@ label{margin-top:6px;margin-bottom:0px;}
 				</select>
 			</div>
 
-			<div class="span4">
+			<div class="span2">
+				<label>Demographic No:</label>
+				<input type="text" style="width: 100px;" name="demographicNo"/>
+			</div>
+			<div class="span3">
 			<label>Content Type:</label>
 			<select name="content" >
 				<option value="admin">Admin</option>
@@ -167,18 +172,20 @@ label{margin-top:6px;margin-bottom:0px;}
 			</select>
 			</div>
 		
-			<div class="span4">		
+			<div class="span3">		
 			<label>Start Date: </label>
-			<label class="input-append">
-				<input type="text" name="startDate" id="startDate1" value="<%=startDate!=null?startDate:""%>" pattern="^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$" autocomplete="off" />
+			<label class="input-append" style="margin-top: 0;">
+				<input type="text" style="width: 179px;" name="startDate" id="startDate1" 
+					   value="<%=startDate!=null?startDate:""%>" pattern="^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$" autocomplete="off" />
 				<span class="add-on"><i class="icon-calendar"></i></span>
 			</label>
 			</div>
 			
-			<div class="span4">		
+			<div class="span3">		
 			<label >End Date: </label>
-			<label class="input-append">
-				<input type="text" name="endDate" id="endDate1" value="<%=endDate!=null?endDate:""%>" pattern="^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$" autocomplete="off" />
+			<label class="input-append" style="margin-top: 0;">
+				<input type="text" style="width: 179px;" name="endDate" id="endDate1" 
+					   value="<%=endDate!=null?endDate:""%>" pattern="^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$" autocomplete="off" />
 				<span class="add-on"><i class="icon-calendar"></i></span>
 			</label>
 			</div>
@@ -205,6 +212,12 @@ label{margin-top:6px;margin-bottom:0px;}
 	  if(content.equals("login")) content = "login";
 	  if(content.equals("admin")) content = "%";
 	  
+	  String demographicNoStr = request.getParameter("demographicNo");
+		String demographicNoSql = "";
+	  if (!StringUtils.isBlank(demographicNoStr) && StringUtils.isNumeric(demographicNoStr)) {
+		  demographicNoSql = " AND demographic_no = " + demographicNoStr;
+	  }
+	  
 	  String sDate = request.getParameter("startDate");
 	  String eDate = request.getParameter("endDate");
 	  String strDbType = oscar.OscarProperties.getInstance().getProperty("db_type").trim();
@@ -216,7 +229,7 @@ label{margin-top:6px;margin-bottom:0px;}
 	  params[1]= new DBPreparedHandlerParam(MyDateFormat.getSysDate(sDate));
 
       sql = "select * from log force index (datetime) where provider_no='" + providerNo + "' and dateTime <= ?";
-      sql += " and dateTime >= ? and content like '" + content + "' order by dateTime desc ";
+      sql += " and dateTime >= ? and content like '" + content + "'" + demographicNoSql + " order by dateTime desc ";
 
       if("*".equals(providerNo)) {
 		  bAll = true;
@@ -224,11 +237,12 @@ label{margin-top:6px;margin-bottom:0px;}
 			      sql = "select * from log force index (datetime) where dateTime <= ?";
 			      sql += " and dateTime >= ? and content like '" + content + "' ";
 			      sql += "and provider_no IN (SELECT provider_no FROM providersite WHERE site_id IN (SELECT site_id from providersite where provider_no= " + curUser_no +") )";
+			      sql += demographicNoSql;
 			      sql += " order by dateTime desc ";
 		   }
 		   else {
 		      sql = "select * from log force index (datetime) where dateTime <= ?";
-		      sql += " and dateTime >= ? and content like '" + content + "' order by dateTime desc ";
+		      sql += " and dateTime >= ? and content like '" + content + "'" + demographicNoSql + " order by dateTime desc ";
 		   }
       }
       rs = dbObj.queryResults(sql, params);
