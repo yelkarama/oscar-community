@@ -167,6 +167,17 @@ public class BillingServiceDao extends AbstractDao<BillingService> {
 		return list;
 	}
 
+	public List<BillingService> searchAllCodesAndPremiums(String str, Date billingDate) {
+
+		Query query = entityManager.createQuery("select bs from BillingService bs where (bs.serviceCode like (:searchString) or bs.description like (:searchString)) and bs.billingserviceDate = (select max(b2.billingserviceDate) from BillingService b2 where b2.serviceCode = bs.serviceCode and b2.billingserviceDate <= (:billDate))");
+		query.setParameter("searchString", str);
+		query.setParameter("billDate", billingDate);
+
+
+		List<BillingService> list = query.getResultList();
+		return list;
+	}
+
 	public BillingService searchBillingCode(String str, String region) {
 		return searchBillingCode(str, region, new Date());
 	}

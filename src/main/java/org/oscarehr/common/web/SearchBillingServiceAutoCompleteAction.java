@@ -54,7 +54,7 @@ public class SearchBillingServiceAutoCompleteAction extends Action {
 
         billingDate.setTime(billDate);
         
-        List<BillingService> services = billingServiceDao.search(keyword, region, billingDate.getTime());
+        List<BillingService> services = billingServiceDao.searchAllCodesAndPremiums(keyword, billingDate.getTime());
         List<HashMap<String, String>> results = new ArrayList<HashMap<String,String>>();
 
         for(BillingService service : services){
