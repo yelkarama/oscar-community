@@ -49,6 +49,10 @@
 <%@page import="org.oscarehr.common.model.Demographic"%>
 <%@page import="org.oscarehr.common.dao.DemographicArchiveDao" %>
 <%@page import="org.oscarehr.common.model.DemographicArchive" %>
+<%@ page import="org.oscarehr.common.model.DemographicExt" %>
+<%@ page import="org.oscarehr.common.model.DemographicExtArchive" %>
+<%@ page import="org.oscarehr.common.dao.DemographicExtDao" %>
+<%@ page import="org.oscarehr.common.dao.DemographicExtArchiveDao" %>
 <%@page import="java.util.List" %>
 <%@page import="java.util.Date" %>
 <%@page import="oscar.util.DateUtils" %>
@@ -57,13 +61,38 @@
 <html:html locale="true">
 <head>
 <title>Enrollment History</title>
+<link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <link rel="stylesheet" type="text/css" href="styles.css">
 <html:base />
 <link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
+<style>
+	.table td {
+		text-align: center;
+	}
 
+	.table th {
+		text-align: center;
+	}
+
+	.patientInformation p {
+		display: inline-block;
+	}
+
+	.patientInformation {
+		margin-bottom: 30px;
+	}
+
+	.headerDiv {
+		background-color: #F5F5F5;
+		margin: auto;
+		width: 50%;
+		padding-left: 10px;
+		padding-right: 10px;
+		border-radius: 5px;
+	}
+</style>
 </head>
-
 <%
 	String demographicNo = request.getParameter("demographicNo");
 	ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
@@ -71,210 +100,101 @@
 	//load demographic
 	DemographicDao demographicDao=(DemographicDao)SpringUtils.getBean("demographicDao");
 	Demographic demographic = demographicDao.getClientByDemographicNo(Integer.valueOf(demographicNo));
+	DemographicExtDao demoExtDao = SpringUtils.getBean(DemographicExtDao.class);
+	DemographicExt demoExt = demoExtDao.getDemographicExt(Integer.parseInt(demographicNo), "enrollmentProvider");
+	DemographicArchiveDao demoArchiveDao = SpringUtils.getBean(DemographicArchiveDao.class);
 
-	//load current roster status
-	String rosterStatus = demographic.getRosterStatus();
+	Provider enrollmentProvider = providerDao.getProvider(demographic.getProviderNo());
+	if (demoExt != null) {
+	    enrollmentProvider = providerDao.getProvider(demoExt.getValue());
+	}
+	String providerOHIP = "Not Set";
+	String enrollmentProviderName = "Not Set";
+	if (enrollmentProvider != null) {
+	    enrollmentProviderName = enrollmentProvider.getFormattedName();
+		providerOHIP = enrollmentProvider.getOhipNo() == null ? "Not Set" : enrollmentProvider.getOhipNo().isEmpty() ? "Not Set" : enrollmentProvider.getOhipNo();
+	}
+
+	String enrollmentStatus = demographic.getRosterStatus();
+		enrollmentStatus = enrollmentStatus.equals("RO") ? "Yes" : "No";
 	Date rosterDate = demographic.getRosterDate();
 	Date rosterTermDate = demographic.getRosterTerminationDate();
+	String enrollmentDate = enrollmentStatus.equals("Yes") ? DateUtils.formatDate(rosterDate,request.getLocale()) : DateUtils.formatDate(rosterTermDate, request.getLocale());
+	if (enrollmentDate.isEmpty()) {
+	    enrollmentDate = "Not Set";
+	}
+	String modifiedDate = DateUtils.formatDate(demographic.getLastUpdateDate() == null ? new Date() : demographic.getLastUpdateDate(), request.getLocale());
+	String terminationReasonCode = demographic.getRosterTerminationReason() == null ? "N/A" : demographic.getRosterTerminationReason().isEmpty() ? "N/A" : demographic.getRosterTerminationReason();
 %>
 
-<body topmargin="0" leftmargin="0" vlink="#0000FF">
-<table border="0" cellpadding="0" cellspacing="0"
-	style="border-collapse: collapse" bordercolor="#111111" width="100%"
-	id="AutoNumber1" height="100%">
-	<tr>
-		<td width="100%" height="100%" valign="top"><!--Column Two Row Two-->
-		<table cellpadding="0" cellspacing="2"
-			style="border-collapse: collapse" bordercolor="#111111" width="100%"
-			height="100%">
-			<!----Start new rows here-->
-			<tr>
-				<td align="right"><span><input type="button"
-					onclick="window.print();" value="Print" class="printCell"></span>
-				</td>
-			</tr>
-			<tr>
-				<td>
-				<div class="DivContentSectionHead">Patient Information</div>
-				</td>
-			</tr>
-			<tr>
-				<td><b>Name</b>: <%=demographic.getFormattedName() %></td>
-			</tr>
-			<tr>
-				<td><b>DOB</b>: <%=demographic.getFormattedDob() %></td>
-			</tr>
-			<tr>
-				<td>&nbsp;</td>
-			</tr>
-			<tr>
-				<td>
-				<div class="DivContentSectionHead">Patient Enrollment History</div>
-				</td>
-			</tr>
-			<tr>
-				<td>
-				<table>
-					<tr>
-						<td width="100%"><!--<div class="Step1Text" style="width:100%">-->
-						<table width="100%" cellpadding="3">
-							<tr>
-								<th align="left" width="50%" nowrap="nowrap"><b>Date Changed</b></th>
-								<th align="left" width="50%" nowrap="nowrap"><b>Enrollment Status</b></th>
-								<th align="left" width="50%" nowrap="nowrap"><b>Date</b></th>
-								<th align="left" width="50%" nowrap="nowrap"><b>Enrolled To</b></th>
-								<th align="left" width="50%" nowrap="nowrap"><b>Updated By</b></th>
-								<th align="left" width="50%" nowrap="nowrap"></th>											
-							</tr>
-							
-							<tr>
-								<td nowrap="nowrap"><%=DateUtils.formatDate(demographic.getLastUpdateDate(),request.getLocale())%></td>
-								<td nowrap="nowrap"><%=viewRS(rosterStatus)%></td>
-								
-							<%Provider demoP = providerDao.getProvider(demographic.getProviderNo());
-							   if("RO".equals(rosterStatus)){ %>
-								<td nowrap="nowrap"><%=DateUtils.formatDate(rosterDate,request.getLocale())%></td>
-							<%}else if(StringUtils.filled(rosterStatus)){ %>
-								<td nowrap="nowrap"><%=DateUtils.formatDate(rosterTermDate,request.getLocale())%></td>
-							<%}else{ %>
-								<td nowrap="nowrap"></td>
-							<%} %>
-							<td nowrap="nowrap"><%=(demoP!=null && "RO".equals(demographic.getRosterStatus()))?demoP.getFormattedName():"" %></td>
-							<%   if(StringUtils.filled(demographic.getLastUpdateUser())){ %>
-								<td nowrap="nowrap"><%=providerDao.getProvider(demographic.getLastUpdateUser()).getFormattedName() %></td>
-							<%}else{ %>
-								<td nowrap="nowrap">System</td>
-							<%} %>
-							</tr>
-						<%if(!"RO".equals(rosterStatus)
-								&& demographic.getRosterTerminationReason()!=null
-								&& !demographic.getRosterTerminationReason().equals("")){ %>
-							<tr>
-								<td nowrap="nowrap">Termination Reason: </td>
-								<td colspan="5"><%=Util.rosterTermReasonProperties.getReasonByCode(demographic.getRosterTerminationReason()) %></td>
-							</tr>
-						<%} %>
-						<%
-								DemographicArchiveDao demoArchiveDao = (DemographicArchiveDao)SpringUtils.getBean("demographicArchiveDao");
-								List<DemographicArchive> DAs = demoArchiveDao.findRosterStatusHistoryByDemographicNo(Integer.valueOf(demographicNo));
-								for(int i=0;i<DAs.size();i++) {
-									DemographicArchive da = DAs.get(i);
-					                String historyRS = StringUtils.noNull(da.getRosterStatus());
-					                
-					                if (i==0) { //check history info with current
-						                Date rd = da.getRosterDate();
-						                Date td = da.getRosterTerminationDate();
-					                	if (historyRS.equals(rosterStatus) &&
-				                			DateUtils.nullSafeCompare(td, rosterDate).equals(0) &&
-				                			DateUtils.nullSafeCompare(td, rosterTermDate).equals(0))
-					                		continue;
-					                }
-					                %>
-					                	<tr>
-					                		<td nowrap="nowrap"><%=DateUtils.formatDate(da.getLastUpdateDate(),request.getLocale())%></td>
-					                		<td nowrap="nowrap"><%=viewRS(historyRS)%></td>
-				                		<%if("RO".equals(historyRS)){ %>
-											<td nowrap="nowrap"><%=DateUtils.formatDate(da.getRosterDate(),request.getLocale())%></td>
-										<%}else if( historyRS != null && !historyRS.trim().equals("")){ %>
-											<td nowrap="nowrap"><%=DateUtils.formatDate(da.getRosterTerminationDate(),request.getLocale())%></td>
-										<%}%>
-					                		<td nowrap="nowrap">
-					                		<%
-					                		String name = "";
-					                		if(StringUtils.filled(da.getProviderNo()) && StringUtils.filled(historyRS)) {
-					                			Provider p  = providerDao.getProvider(da.getProviderNo());
-					                			if(p != null) {
-					                				name = p.getFormattedName();
-					                			}
-					                		}
-					                		%>
-					                		<%=name %>
-					                		</td>
-				                		<%if(StringUtils.filled(da.getLastUpdateUser())){ %>
-				                		    <td nowrap="nowrap">
-				                		    	<%
-				                		    	name = "";
-				                		    	Provider p = providerDao.getProvider(da.getLastUpdateUser());
-				                		    	if(p != null) {
-				                		    		name = p.getFormattedName();
-				                		    	}
-				                		    	%>
-				                		    	<%=name %>
-				                		    </td>
-				                		<%}else{ %>
-				                		    <td nowrap="nowrap">System</td>
-				                		<%}%>
-					                	</tr>
-									<%if(!"RO".equals(da.getRosterStatus())
-											&& da.getRosterTerminationReason()!=null
-											&& !da.getRosterTerminationReason().equals("")){ %>
-										<tr>
-											<td nowrap="nowrap">Termination Reason: </td>
-											<td colspan="5"><%=Util.rosterTermReasonProperties.getReasonByCode(da.getRosterTerminationReason()) %></td>
-										</tr>
-									<%}
-								}
-								
-								
-								
-							%>
-						</table>
+<body>
+	<div class="headerDiv">
+		<h2 align="center">Patient Enrollment History</h2>
+		<div class="patientInformation" align="center" style="margin-bottom: 30px;">
+			<p><b>Name:</b> <%=demographic.getFormattedName()%></p> |
+			<p><b>Date of Birth:</b> <%=demographic.getFormattedDob()%></p> |
+			<input type="button" class="btn btn-success btn-small" style="display: inline-block;" value="Print" onclick="window.print();"/>
+		</div>
+	</div>
+	<table class="table">
+		<tr style="font-weight: bold;">
+			<th>Enrollment Physician</th>
+			<th>Physician OHIP #</th>
+			<th>Enrollment Status</th>
+			<th>Enrollment Date</th>
+			<th>Date Modified</th>
+			<th>Termination Reason Code</th>
+		</tr>
 
-						</div>
-						<div style="margin-top: 10px; margin-left: 20px; width: 100%">
-						<table width="100%" cellspacing=0 cellpadding=0>
-							<tr>
-								
-							</tr>
-						</table>
-						<!--</div>-->
-						</td>
-					</tr>
-				</table>
-				</td>
-			</tr>
+		<tr>
+			<td><%=enrollmentProviderName%></td>
+			<td><%=providerOHIP%></td>
+			<td><%=enrollmentStatus%></td>
+			<td><%=enrollmentDate%></td>
+			<td><%=modifiedDate%></td>
+			<td><%=terminationReasonCode%></td>
+		</tr>
+		<%
+			List<DemographicArchive> DAs = demoArchiveDao.findRosterStatusHistoryByDemographicNo(Integer.valueOf(demographicNo));
 
+			for (DemographicArchive demographicArchive : DAs) {
 
+				DemographicExtArchiveDao demographicExtArchiveDao = SpringUtils.getBean(DemographicExtArchiveDao.class);
+				DemographicExtArchive demographicExtArchive = demographicExtArchiveDao.getDemographicExtArchiveByArchiveIdAndKey(demographicArchive.getId(), "enrollmentProvider");
+				enrollmentProvider = providerDao.getProvider(demographicArchive.getProviderNo());
+				if (demographicExtArchive != null) {
+					enrollmentProvider = providerDao.getProvider(demographicExtArchive.getValue());
+				}
+				providerOHIP = "Not Set";
+				enrollmentProviderName = "Not Set";
+				if (enrollmentProvider != null) {
+					enrollmentProviderName = enrollmentProvider.getFormattedName();
+					providerOHIP = enrollmentProvider.getOhipNo() == null ? "Not Set" : enrollmentProvider.getOhipNo().isEmpty() ? "Not Set" : enrollmentProvider.getOhipNo();
+				}
 
+				enrollmentStatus = demographicArchive.getRosterStatus();
+				enrollmentStatus = enrollmentStatus.equals("RO") ? "Yes" : "No";
+				rosterDate = demographicArchive.getRosterDate();
+				rosterTermDate = demographicArchive.getRosterTerminationDate();
+				enrollmentDate = enrollmentStatus.equals("Yes") ? DateUtils.formatDate(rosterDate,request.getLocale()) : DateUtils.formatDate(rosterTermDate, request.getLocale());
+				if (enrollmentDate.isEmpty()) {
+				    enrollmentDate = "Not Set";
+				}
+				modifiedDate = DateUtils.formatDate(demographicArchive.getLastUpdateDate() == null ? new Date() : demographicArchive.getLastUpdateDate(), request.getLocale());
+				terminationReasonCode = demographicArchive.getRosterTerminationReason() == null ? "N/A" : demographicArchive.getRosterTerminationReason().isEmpty() ? "N/A" : demographicArchive.getRosterTerminationReason();
 
-
-			<!----End new rows here-->
-			<tr height="100%">
-				<td></td>
-			</tr>
-		</table>
-		</td>
-	</tr>
-
-
-
-
-
-</table>
-
-
-
-
-
+			%>
+				<tr>
+					<td><%=enrollmentProviderName%></td>
+					<td><%=providerOHIP%></td>
+					<td><%=enrollmentStatus%></td>
+					<td><%=enrollmentDate%></td>
+					<td><%=modifiedDate%></td>
+					<td><%=terminationReasonCode%></td>
+				</tr>
+			<%
+			}
+			%>
+	</table>
 </body>
 </html:html>
-
-<%! public String viewRS(String code)  {
-	if(StringUtils.empty(code)) {
-		return "&lt;Not Set&gt;";
-	}
-	if(("RO").equals(code)) {
-		return "Enrolled";
-	}
-	if(("NR").equals(code)) {
-		return "Not Enrolled";
-	}
-	if(("TE").equals(code)) {
-		return "Terminated";
-	}
-	if(("FS").equals(code)) {
-		return "Fee for Service";
-	}
-	return code;
-}
-%>

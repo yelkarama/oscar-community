@@ -1790,7 +1790,7 @@ if(oscarProps.getProperty("new_label_print") != null && oscarProps.getProperty("
 							</jsp:include>
 						<% } %>
 						<div class="demographicSection" id="clinicStatus">
-						<h3>&nbsp;<bean:message key="demographic.demographiceditdemographic.msgClinicStatus"/> (<a href="#" onclick="popup(1000, 650, 'EnrollmentHistory.jsp?demographicNo=<%=demographic_no%>', 'enrollmentHistory'); return false;"><bean:message key="demographic.demographiceditdemographic.msgEnrollmentHistory"/></a>)</h3>
+						<h3>&nbsp;<bean:message key="demographic.demographiceditdemographic.msgClinicStatus"/> (<a href="#" onclick="popup(500, 1000, 'EnrollmentHistory.jsp?demographicNo=<%=demographic_no%>', 'enrollmentHistory'); return false;"><bean:message key="demographic.demographiceditdemographic.msgEnrollmentHistory"/></a>)</h3>
 						<%
 								String rosterStatus = demographic.getRosterStatus();
 								if (rosterStatus != null && rosterStatus.equals("RO")) {
