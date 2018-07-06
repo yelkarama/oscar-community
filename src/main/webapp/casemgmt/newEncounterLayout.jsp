@@ -126,7 +126,7 @@
 <link rel="stylesheet" href="<c:out value="${ctx}"/>/css/casemgmt.css" type="text/css">
 <link rel="stylesheet" href="<c:out value="${ctx}"/>/oscarEncounter/encounterStyles.css" type="text/css">
 <link rel="stylesheet" type="text/css" href="<c:out value="${ctx}"/>/css/print.css" media="print">
-<link rel="stylesheet" type="text/css" href="<c:out value="${ctx}"/>/library/bootstrap/3.0.0/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="<c:out value="${ctx}"/>/library/bootstrap/3.0.0/css/bootstrap-glyphicons-only.min.css">
 
 <!-- 
 <script src="<c:out value="${ctx}/js/jquery.js"/>"></script>
