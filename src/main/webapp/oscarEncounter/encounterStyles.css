@@ -779,3 +779,7 @@ p.passwdErr { color: red; }
 	padding: 2px 3px;
 	cursor: pointer;
 }
+
+:root h3, :root body {
+	font-family: Verdana, Tahoma, Arial, sans-serif;
+}
