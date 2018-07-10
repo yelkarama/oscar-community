@@ -110,7 +110,7 @@
                         Yes
                         &nbsp;&nbsp;&nbsp;
                         <input id="schedule_display_type-false" type="radio" value="false" name="schedule_display_type"
-                                <%=(dataBean.getProperty("schedule_display_type", "false").equals("false")) ? "checked" : "")%> />
+                                <%=(dataBean.getProperty("schedule_display_type", "false").equals("false")) ? "checked" : ""%> />
                         No
                         &nbsp;&nbsp;&nbsp;
                     </td>
