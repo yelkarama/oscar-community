@@ -30,6 +30,8 @@
 <%@ page import="org.oscarehr.common.model.PartialDate" %>
 <%@ page import="org.oscarehr.common.dao.PartialDateDao" %>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
+<%@ page import="java.util.GregorianCalendar" %>
+<%@ page import="java.text.SimpleDateFormat" %>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
 	String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -75,6 +77,7 @@ String type = String.valueOf(request.getAttribute("type"));
 String allergyId = (String) request.getAttribute("allergyId");
 
 String reactionDescription ="";
+String entryDate = "";
 String startDate ="";
 String ageOfOnset = "";
 String severityOfReaction = "";
@@ -85,12 +88,18 @@ String reactionType = "";
 if(!addReaction){
 	PartialDateDao partialDateDao = (PartialDateDao) SpringUtils.getBean("partialDateDao");
 	reactionDescription = (String) request.getAttribute("reactionDescription");
+	entryDate = partialDateDao.getDatePartial((String) request.getAttribute("entryDate"), PartialDate.ALLERGIES, Integer.parseInt(allergyId), PartialDate.ALLERGIES_ENTRYDATE);
 	startDate = partialDateDao.getDatePartial((String) request.getAttribute("startDate"), PartialDate.ALLERGIES, Integer.parseInt(allergyId), PartialDate.ALLERGIES_STARTDATE);
 	ageOfOnset = (String) request.getAttribute("ageOfOnset");
 	severityOfReaction = (String) request.getAttribute("severityOfReaction");
 	onSetOfReaction = (String) request.getAttribute("onSetOfReaction");
 	lifeStage = (String) request.getAttribute("lifeStage");
 	reactionType = (String) request.getAttribute("reactionType") == null ? "" : (String) request.getAttribute("reactionType");
+}
+
+if (entryDate == null || entryDate.isEmpty()) {
+	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    entryDate = sdf.format(GregorianCalendar.getInstance().getTime());
 }
 %>
 <script type="text/javascript">
@@ -153,6 +162,12 @@ if(!addReaction){
 						</tr>
 
 						<tr valign="center">
+							<td colspan="2">Entry Date: <html:text
+									property="entryDate" size="10" maxlength="10" value="<%=entryDate%>"/>
+								(yyyy-mm-dd OR yyyy-mm OR yyyy)</td>
+						</tr>
+						
+						<tr valign="center">
 							<td colspan="2">Start Date: <html:text
 								property="startDate" size="10" maxlength="10" value="<%=startDate%>"/>
 							    (yyyy-mm-dd OR yyyy-mm OR yyyy)</td>
@@ -211,7 +226,7 @@ if(!addReaction){
 							<td colspan="2"><html:submit property="submit"
 								value='<%=addReaction?"Add Allergy/Adverse Reaction":"Update Allergy/Adverse Reaction"%>' styleClass="ControlPushButton" /> <input
 								type=button class="ControlPushButton"
-								onclick="javascript:document.forms.RxAddAllergyForm.reactionDescription.value='';document.forms.RxAddAllergyForm.startDate.value='';document.forms.RxAddAllergyForm.ageOfOnset.value='';document.forms.RxAddAllergyForm.reactionDescription.focus();"
+								onclick="javascript:document.forms.RxAddAllergyForm.reactionDescription.value='';document.forms.RxAddAllergyForm.entryDate.value='';document.forms.RxAddAllergyForm.startDate.value='';document.forms.RxAddAllergyForm.ageOfOnset.value='';document.forms.RxAddAllergyForm.reactionDescription.focus();"
 								value="Reset" /></td>
 						</tr>
 					</table>

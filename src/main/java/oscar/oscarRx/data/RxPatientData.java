@@ -260,11 +260,11 @@ public class RxPatientData {
 			return allergies.toArray(new org.oscarehr.common.model.Allergy[allergies.size()]);
 		}
 
-		public org.oscarehr.common.model.Allergy addAllergy(java.util.Date entryDate, org.oscarehr.common.model.Allergy allergy) {
-
-			allergy.setEntryDate(entryDate);
+		public org.oscarehr.common.model.Allergy addAllergy(org.oscarehr.common.model.Allergy allergy) {
 			allergyDao.persist(allergy);
+            partialDateDao.setPartialDate(PartialDate.ALLERGIES, allergy.getId(), PartialDate.ALLERGIES_ENTRYDATE, allergy.getEntryDateFormat());
 			partialDateDao.setPartialDate(PartialDate.ALLERGIES, allergy.getId(), PartialDate.ALLERGIES_STARTDATE, allergy.getStartDateFormat());
+			
 			return allergy;
 		}
 

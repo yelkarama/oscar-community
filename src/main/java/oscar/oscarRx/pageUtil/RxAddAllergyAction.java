@@ -26,6 +26,7 @@
 package oscar.oscarRx.pageUtil;
 
 import java.io.IOException;
+import java.util.GregorianCalendar;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -68,6 +69,7 @@ public final class RxAddAllergyAction extends Action {
             String type = request.getParameter("type");
             String description = request.getParameter("reactionDescription");
 
+            String entryDate = request.getParameter("entryDate");
             String startDate = request.getParameter("startDate");
             String ageOfOnset = request.getParameter("ageOfOnset");
             String severityOfReaction = request.getParameter("severityOfReaction");
@@ -84,13 +86,26 @@ public final class RxAddAllergyAction extends Action {
             allergy.setDescription(name);
             allergy.setTypeCode(Integer.parseInt(type));
             allergy.setReaction(description);
-
+        
+        
+        if(!entryDate.trim().equals("")){
+            String pattern = allergy.getDatePattern(entryDate);
+            allergy.setEntryDate(StringToDate(entryDate, pattern));
+            if (pattern.toUpperCase().equals(PartialDate.YEARMONTH)) {
+                allergy.setEntryDateFormat(PartialDate.YEARMONTH);
+            } else if (pattern.toUpperCase().equals(PartialDate.YEARONLY)) {
+                allergy.setEntryDateFormat(PartialDate.YEARONLY);
+            }
+        } else {
+            allergy.setEntryDate(GregorianCalendar.getInstance().getTime());
+        }
+            
             if(!startDate.trim().equals("")){
                 String pattern = allergy.getDatePattern(startDate);
                 allergy.setStartDate(StringToDate(startDate, pattern));
-                if (pattern.equals(PartialDate.YEARMONTH)) {
+                if (pattern.toUpperCase().equals(PartialDate.YEARMONTH)) {
                     allergy.setStartDateFormat(PartialDate.YEARMONTH);
-                } else if (pattern.equals(PartialDate.YEARONLY)) {
+                } else if (pattern.toUpperCase().equals(PartialDate.YEARONLY)) {
                     allergy.setStartDateFormat(PartialDate.YEARONLY);
                 }
             }
@@ -109,7 +124,7 @@ public final class RxAddAllergyAction extends Action {
             allergy.setDemographicNo(patient.getDemographicNo());
             allergy.setArchived(false);
 
-            Allergy allerg = patient.addAllergy(oscar.oscarRx.util.RxUtil.Today(), allergy);
+            Allergy allerg = patient.addAllergy(allergy);
 
             String ip = request.getRemoteAddr();
             LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.ADD, LogConst.CON_ALLERGY, ""+allerg.getAllergyId() , ip,""+patient.getDemographicNo(), allergy.getAuditString());

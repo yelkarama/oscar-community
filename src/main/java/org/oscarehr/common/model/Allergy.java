@@ -113,6 +113,9 @@ public class Allergy extends AbstractModel<Integer> {
 	@Transient
 	private boolean integratorResult;
 
+
+	@Transient
+	private String entryDateFormat;
 	@Transient
 	private String startDateFormat;
 	/**
@@ -300,6 +303,13 @@ public class Allergy extends AbstractModel<Integer> {
     	this.integratorResult = integratorResult;
     }
 
+
+	public String getEntryDateFormat() {
+		return entryDateFormat;
+	}
+	public void setEntryDateFormat(String entryDateFormat) {
+		this.entryDateFormat = entryDateFormat;
+	}
 
 	public String getStartDateFormat() {
     	return startDateFormat;
