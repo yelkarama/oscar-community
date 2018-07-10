@@ -1077,7 +1077,7 @@ for (ClinicNbr clinic : nbrs) {
 	</tr>
 </thead>
 
-<tbody>
+<tbody id="billingServices">
 <%//
         String serviceCode = "";
         String serviceDesc = "";
