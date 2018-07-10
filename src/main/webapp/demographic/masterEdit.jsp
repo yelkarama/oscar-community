@@ -592,7 +592,7 @@
 			<bean:message key="demographic.demographiceditdemographic.msgExt" />:<input
 			type="text" name="hPhoneExt" <%=getDisabled("hPhoneExt")%>
 			value="<%=StringUtils.trimToEmpty(StringUtils.trimToEmpty(demoExt.get("hPhoneExt")))%>"
-			size="4" /> <input type="hidden" name="hPhoneExtOrig"
+			size="4" maxlength="5" /> <input type="hidden" name="hPhoneExtOrig"
 			value="<%=StringUtils.trimToEmpty(StringUtils.trimToEmpty(demoExt.get("hPhoneExt")))%>" />
 		</td>
 		<td align="right"><b><bean:message
@@ -604,7 +604,7 @@
 			<bean:message key="demographic.demographiceditdemographic.msgExt" />:<input
 			type="text" name="wPhoneExt" <%=getDisabled("wPhoneExt")%>
 			value="<%=StringUtils.trimToEmpty(StringUtils.trimToEmpty(demoExt.get("wPhoneExt")))%>"
-			style="display: inline" size="4" /> <input type="hidden"
+			style="display: inline" size="4" maxlength="5" /> <input type="hidden"
 			name="wPhoneExtOrig"
 			value="<%=StringUtils.trimToEmpty(StringUtils.trimToEmpty(demoExt.get("wPhoneExt")))%>" />
 		</td>
