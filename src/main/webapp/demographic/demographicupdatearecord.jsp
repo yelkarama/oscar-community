@@ -634,6 +634,7 @@
     DemographicCust demographicCust = demographicCustDao.find(Integer.parseInt(request.getParameter("demographic_no")));
     if(demographicCust == null) {
 		demographicCust = new DemographicCust();
+		demographicCust.setId(Integer.parseInt(request.getParameter("demographic_no")));
 	}
 	demographicCust.setResident(request.getParameter("resident"));
 	demographicCust.setNurse(request.getParameter("nurse"));
