@@ -11,6 +11,7 @@ public class SystemPreferences extends AbstractModel<Integer>
 {
 
     public static final List<String> SCHEDULE_PREFERENCE_KEYS = Arrays.asList("schedule_display_type", "schedule_display_custom_roster_status");
+    public static final List<String> ECHART_PREFERENCE_KEYS = Arrays.asList("echart_hide_timer");
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

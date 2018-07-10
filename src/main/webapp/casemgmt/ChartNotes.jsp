@@ -65,6 +65,9 @@
 <%@page import="org.oscarehr.common.dao.DemographicExtDao" %>
 <%@page import="org.oscarehr.managers.ProgramManager2" %>
 <%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
+<%@ page import="org.oscarehr.casemgmt.dao.CaseManagementNoteDAO" %>
+<%@ page import="org.oscarehr.common.dao.SystemPreferencesDao" %>
+<%@ page import="java.util.HashMap" %>
 
 <c:set var="ctx" value="${pageContext.request.contextPath}" scope="request" />
 
@@ -181,6 +184,17 @@ try
         updateParent = "true";
     }
 
+	CaseManagementNoteDAO caseManagementNoteDAO = SpringUtils.getBean(CaseManagementNoteDAO.class);
+	List<String> noteEncounterTypes = caseManagementNoteDAO.getDemographicsEncounterTypes(demographicNo);
+
+	HashMap<String, Boolean> echartPreferencesMap = new HashMap<String, Boolean>();
+
+	SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+
+	List<SystemPreferences> schedulePreferences = systemPreferencesDao.findPreferencesByNames(SystemPreferences.ECHART_PREFERENCE_KEYS);
+	for (SystemPreferences preference : schedulePreferences) {
+		echartPreferencesMap.put(preference.getName(), Boolean.parseBoolean(preference.getValue()));
+	}
 %>
 
 
@@ -589,6 +603,7 @@ try
 	<div id="encMainDiv" style="width: 99%; border-top: thin groove #000000; border-right: thin groove #000000; border-left: thin groove #000000; background-color: #FFFFFF; height: 410px; overflow: auto; margin-left: 2px;">
 
 	</div>
+	<% if (!echartPreferencesMap.getOrDefault("echart_hide_timer", false)) { %>
 	<script type="text/javascript">
         jQuery(document).ready(function(){
             initTimer();
@@ -607,14 +622,16 @@ try
 			$("encMainDiv").style.height = divHeight+'px';
 		}
 	</script>
-
+	<% } %>
 	<div id='save' style="width: 99%; background-color: #CCCCFF; padding-top: 5px; margin-left: 2px; border-left: thin solid #000000; border-right: thin solid #000000; border-bottom: thin solid #000000;">
 		<security:oscarSec roleName="<%=roleName$%>" objectName="_casemgmt.notes" rights="w" reverse="false">
+			<% if (!echartPreferencesMap.getOrDefault("echart_hide_timer", false)) { %>
             <div style="text-align: center; padding-bottom: 5px;" class="echart-timer">
                 <label id="timer__display" title="Paste to encounter"></label>
                 <span id="timer__start-pause" title="Pause" class="glyphicon glyphicon-pause"></span>
                 <span id="timer__restart" title="Restart" class="glyphicon glyphicon-refresh"></span>
             </div>
+			<% } %>
             <span style="float: right; margin-right: 5px;">
 				<input type="hidden" name="updateParent" value="<%=updateParent%>"/>
 			<%
