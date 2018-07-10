@@ -117,6 +117,8 @@ import org.oscarehr.common.model.MeasurementsExt;
 import org.oscarehr.common.model.PartialDate;
 import org.oscarehr.common.model.PharmacyInfo;
 import org.oscarehr.common.model.Provider;
+import org.oscarehr.hospitalReportManager.HRMReport;
+import org.oscarehr.hospitalReportManager.HRMReportParser;
 import org.oscarehr.hospitalReportManager.dao.HRMDocumentCommentDao;
 import org.oscarehr.hospitalReportManager.dao.HRMDocumentDao;
 import org.oscarehr.hospitalReportManager.dao.HRMDocumentSubClassDao;
@@ -2255,7 +2257,22 @@ import oscar.util.UtilDateUtilities;
                         HRMDocumentToDemographic hrmDocToDemo = new HRMDocumentToDemographic();
 
                         List<Reports> HRMreports = new ArrayList<Reports>();
-                        String HRMfile = docDir + "HRM_"+UtilDateUtilities.getToday("yyyy-MM-dd.HH.mm.ss") + "_" + i + ".xml";
+                        String HRMfile = "HRM_"+UtilDateUtilities.getToday("yyyy-MM-dd.HH.mm.ss") + "_" + i + ".xml";
+                        HRMreports.add(repR[i]);
+                        CreateHRMFile.create(demo, HRMreports, HRMfile);
+                        
+                        HRMReport report = HRMReportParser.parseReport(loggedInInfo, HRMfile);
+
+                        String reportFileData = report.getFileData();
+
+                        String noMessageIdFileData = reportFileData.replaceAll("<MessageUniqueID>.*?</MessageUniqueID>", "<MessageUniqueID></MessageUniqueID>");
+                        String noTransactionInfoFileData = reportFileData.replaceAll("<TransactionInformation>.*?</TransactionInformation>", "<TransactionInformation></TransactionInformation>");
+                        String noDemographicInfoFileData = reportFileData.replaceAll("<Demographics>.*?</Demographics>", "<Demographics></Demographics").replaceAll("<MessageUniqueID>.*?</MessageUniqueID>", "<MessageUniqueID></MessageUniqueID>");
+
+                        hrmDoc.setReportHash(DigestUtils.md5Hex(noMessageIdFileData));
+                        hrmDoc.setReportLessTransactionInfoHash(DigestUtils.md5Hex(noTransactionInfoFileData));
+                        hrmDoc.setReportLessDemographicInfoHash(DigestUtils.md5Hex(noDemographicInfoFileData));
+                        
                         hrmDoc.setReportFile(HRMfile);
                         if (repR[i].getSourceFacility()!=null) hrmDoc.setSourceFacility(repR[i].getSourceFacility());
                         if (repR[i].getReceivedDateTime()!=null) {
@@ -2266,7 +2283,7 @@ import oscar.util.UtilDateUtilities;
                         if (repR[i].getHRMResultStatus()!=null) hrmDoc.setReportStatus(repR[i].getHRMResultStatus());
                         if (repR[i].getClass1()!=null) hrmDoc.setReportType(repR[i].getClass1().toString());
                         if (repR[i].getEventDateTime()!=null) hrmDoc.setReportDate(dateTimeFPtoDate(repR[i].getEventDateTime(), timeShiftInDays));
-                        if (repR[i].getNotes() != null) { hrmDoc.setDescription(repR[i].getNotes()); };
+                        if (repR[i].getNotes() != null) { hrmDoc.setDescription(repR[i].getNotes()); }
                         hrmDocDao.persist(hrmDoc);
 
                         hrmDocToDemo.setDemographicNo(Integer.valueOf(demographicNo));
@@ -2284,8 +2301,6 @@ import oscar.util.UtilDateUtilities;
                             hrmDocSc.setActive(true);
                             hrmDocSubClassDao.persist(hrmDocSc);
                         }
-                        HRMreports.add(repR[i]);
-                        CreateHRMFile.create(demo, HRMreports, HRMfile);
 
                     } else { //non-HRM reports
                         boolean binaryFormat = false;
@@ -2409,7 +2424,7 @@ import oscar.util.UtilDateUtilities;
                     }
                     } catch (Exception e) {
                         e.printStackTrace();
-                        err_summ.add("Error uploading HRM report " + (i + 1) + " of " + repR.length);
+                        err_summ.add("Error uploading report " + (i + 1) + " of " + repR.length);
                     }
                 }
 

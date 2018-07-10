@@ -81,7 +81,7 @@ import cdshrm.TransactionInformationDocument.TransactionInformation;
  */
 public class CreateHRMFile {
 
-    static public void create(DemographicsDocument.Demographics demographic, List<ReportsDocument.Reports> reports, String filepath) {
+    static public void create(DemographicsDocument.Demographics demographic, List<ReportsDocument.Reports> reports, String filepath) throws IOException {
 
         OmdCdsDocument omdCdsDoc = OmdCdsDocument.Factory.newInstance();
         OmdCds omdCds = omdCdsDoc.addNewOmdCds();
@@ -103,11 +103,8 @@ public class CreateHRMFile {
 	options.setSaveOuter();
 
         File file = new File(filepath);
-        try {
-            omdCdsDoc.save(file, options);
-        } catch (IOException ex) {
-            Logger.getLogger(CreateHRMFile.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        
+        omdCdsDoc.save(file, options);
     }
 
     static private void writeDemographics(DemographicsDocument.Demographics demo, Demographics HRMdemo) {
@@ -363,9 +360,17 @@ public class CreateHRMFile {
 
             //Content
             cdsDt.ReportContent reportContent = report.getContent();
-            if (reportContent!=null && reportContent.getTextContent()!=null) {
-                ReportContent HRMreportContent = HRMreport.addNewContent();
-                HRMreportContent.setTextContent(reportContent.getTextContent());
+            if (reportContent != null) {
+                ReportContent HRMreportContent = null;
+                if (reportContent.getTextContent() != null) {
+                    HRMreportContent = HRMreport.addNewContent();
+                    HRMreportContent.setTextContent(reportContent.getTextContent());
+                }
+                
+                if (reportContent.getMedia() != null) {
+                    HRMreportContent = HRMreport.addNewContent();
+                    HRMreportContent.setMedia(reportContent.getMedia());
+                }
             }
 
             //FileExtensionAndVersion
