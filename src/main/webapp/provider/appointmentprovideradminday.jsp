@@ -2428,7 +2428,7 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
 <%}%>	<bean:message key="provider.appointmentProviderAdminDay.notes"/>: <%=UtilMisc.htmlEscape(notes)%>" >
             .<%=(view==0&&numAvailProvider!=1)?(name.length()>len?name.substring(0,len).toUpperCase():name.toUpperCase()):name.toUpperCase()%>
             </font></a><!--Inline display of reason -->
-				<% if (!displayTypePreference) { %>
+				<% if (!schedulePreferencesMap.getOrDefault("schedule_display_type", false)) { %>
       <oscar:oscarPropertiesCheck property="SHOW_APPT_REASON" value="yes" defaultVal="true">
       <span class="reason reason_<%=isWeekView?strDate:curProvider_no[nProvider]%> ${ hideReason ? "hideReason" : "" }"><bean:message key="provider.appointmentProviderAdminDay.Reason"/>:<%=UtilMisc.htmlEscape(reason)%></span>
       </oscar:oscarPropertiesCheck></td>
@@ -2697,7 +2697,7 @@ Boolean displayAppointmentReason = appointment.getReason() != null && appointmen
 	</oscar:oscarPropertiesCheck>
 
 <% } %>
-			  <% if (!displayTypePreference) { %>
+			  <% if (!schedulePreferencesMap.getOrDefault("schedule_display_type", false)) { %>
 	<oscar:oscarPropertiesCheck property="SHOW_APPT_REASON" value="yes" defaultVal="true">
 				<span class="reason reason_<%=isWeekView?strDate:curProvider_no[nProvider]%> ${ hideReason ? "hideReason" : "" }">
 		<strong>&#124;<%=reasonCodeName==null?"":"&nbsp;" + reasonCodeName + " -"%><%=reason==null?"":"&nbsp;" + reason%></strong>
