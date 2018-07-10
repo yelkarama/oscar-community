@@ -172,6 +172,18 @@ public class ProviderPropertyAction extends DispatchAction {
             propertyDAO.saveProp(property);
         }
 
+        propertyValue = StringUtils.trimToNull(request.getParameter("coverpage"));
+        if (propertyValue != null) {
+            property = propertyDAO.getProp(providerNo, UserProperty.DEFAULT_COVER_PAGE);
+            if (property == null) {
+                property = new UserProperty();
+                property.setProviderNo(providerNo);
+                property.setName(UserProperty.DEFAULT_COVER_PAGE);
+            }
+            property.setValue(propertyValue);
+            propertyDAO.saveProp(property);
+        }
+
         propertyValue = StringUtils.trimToNull(request.getParameter("allow_online_booking"));
         if (propertyValue != null) {
             property = propertyDAO.getProp(providerNo, "allow_online_booking");
