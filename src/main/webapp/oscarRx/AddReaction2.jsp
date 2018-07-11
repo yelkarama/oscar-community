@@ -80,6 +80,7 @@ String ageOfOnset = "";
 String severityOfReaction = "";
 String onSetOfReaction = "";
 String lifeStage = "";
+String reactionType = "";
 
 if(!addReaction){
 	PartialDateDao partialDateDao = (PartialDateDao) SpringUtils.getBean("partialDateDao");
@@ -89,6 +90,7 @@ if(!addReaction){
 	severityOfReaction = (String) request.getAttribute("severityOfReaction");
 	onSetOfReaction = (String) request.getAttribute("onSetOfReaction");
 	lifeStage = (String) request.getAttribute("lifeStage");
+	reactionType = (String) request.getAttribute("reactionType") == null ? "" : (String) request.getAttribute("reactionType");
 }
 %>
 <script type="text/javascript">
@@ -199,11 +201,15 @@ if(!addReaction){
 							</html:select></td>
 
 						</tr>
-
-
+						<tr valign="center">
+							<td colspan="2">
+								<label>Allergy: <input type="radio" name="reactionType" value="AL" <%=reactionType.equals("AL") ? "checked=\"checked\"" : ""%> /></label>
+								<label>Adverse Reaction: <input type="radio" name="reactionType" value="AR"  <%=reactionType.equals("AR") ? "checked=\"checked\"" : ""%> /></label>
+							</td>
+						</tr>
 						<tr>
 							<td colspan="2"><html:submit property="submit"
-								value='<%=addReaction?"Add Allergy":"Update Allergy"%>' styleClass="ControlPushButton" /> <input
+								value='<%=addReaction?"Add Allergy/Adverse Reaction":"Update Allergy/Adverse Reaction"%>' styleClass="ControlPushButton" /> <input
 								type=button class="ControlPushButton"
 								onclick="javascript:document.forms.RxAddAllergyForm.reactionDescription.value='';document.forms.RxAddAllergyForm.startDate.value='';document.forms.RxAddAllergyForm.ageOfOnset.value='';document.forms.RxAddAllergyForm.reactionDescription.focus();"
 								value="Reset" /></td>
@@ -220,7 +226,7 @@ if(!addReaction){
                         String sBack="ShowAllergies2.jsp";
                       %> <input type=button class="ControlPushButton"
 					onclick="javascript:window.location.href='<%=sBack%>';"
-					value="Back to View Allergies" /></td>
+					value="Back to View Allergies/Adverse Reactions" /></td>
 			</tr>
 			<!----End new rows here-->
 			<tr height="100%">

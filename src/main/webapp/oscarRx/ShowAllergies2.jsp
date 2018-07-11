@@ -344,6 +344,7 @@ padding-right:6;
 								<td><b>Severity</b></td>
 								<td><b>Onset of Reaction</b></td>
 								<td><b>Reaction</b></td>
+								<td><b>Reaction Type</b></td>
 								<td><b>Start Date</b></td>
 								<td><b>Life Stage</b></td>
 								<td><img src="../images/notes.gif" border="0" width="10" height="12" alt="Annotation"></td>
@@ -411,6 +412,12 @@ padding-right:6;
 										sevColour=ColourCodesArray[intSOR];
 									}
 
+									String reactionType = allergy.getReactionType() == null ? "" : allergy.getReactionType();
+									if (reactionType.equals("AR")) {
+									    reactionType = "Adverse";
+									} else if (reactionType.equals("AL")) {
+									    reactionType = "Allergy";
+									}
 
 									if(!filterOut) {
 										String entryDate = partialDateDao.getDatePartial(allergy.getEntryDate(), PartialDate.ALLERGIES, allergy.getAllergyId(), PartialDate.ALLERGIES_ENTRYDATE);
@@ -424,7 +431,8 @@ padding-right:6;
 									<td><%=allergy.getTypeDesc() %></td>
 									<td bgcolor="<%=sevColour%>"><%=allergy.getSeverityOfReactionDesc() %></td>
 									<td><%=allergy.getOnSetOfReactionDesc() %></td>
-									<td><%=allergy.getReaction() %></td>
+									<td><%=allergy.getReaction() == null ? "" : allergy.getReaction()%></td>
+									<td><%=reactionType%></td>
 									<td><%=startDate==null ? "" : startDate %></td>
 									<td><%=allergy.getLifeStageDesc() %></td>
 									<%
@@ -493,7 +501,7 @@ padding-right:6;
 								onclick="javascript:document.forms.RxSearchAllergyForm.searchString.value='';document.forms.RxSearchAllergyForm.searchString.focus();"
 								value="Reset" />
 
-                               <input type=button class="ControlPushButton" onclick="javascript:addCustomAllergy();" value="Custom Allergy" />
+                               <input type=button class="ControlPushButton" onclick="javascript:addCustomAllergy();" value="Custom Allergy/Adverse Reaction" />
 								<input type=button class="ControlPushButton" onclick="javascript:addCustomNKDA();" value="NKDA" />
 								<input type=button class="ControlPushButton" onclick="javascript:addPenicillinAllergy();" value="Penicillin" />
 								<input type=button class="ControlPushButton" onclick="javascript:addSulfonamideAllergy();" value="Sulfa" />

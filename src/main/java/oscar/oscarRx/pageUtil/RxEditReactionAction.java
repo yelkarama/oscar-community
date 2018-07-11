@@ -60,6 +60,7 @@ public class RxEditReactionAction extends Action {
         String severityOfReaction = allergy.getSeverityOfReaction();
         String onSetOfReaction = allergy.getOnsetOfReaction();
         String lifeStage = allergy.getLifeStage();
+        String reactionType = allergy.getReactionType();
 
         request.setAttribute("action", "edit");
         request.setAttribute("allergyId",id);
@@ -71,6 +72,7 @@ public class RxEditReactionAction extends Action {
         request.setAttribute("severityOfReaction", severityOfReaction);
         request.setAttribute("onSetOfReaction", onSetOfReaction);
         request.setAttribute("lifeStage", lifeStage);
+        request.setAttribute("reactionType", reactionType);
 
         return (mapping.findForward("success"));
     }

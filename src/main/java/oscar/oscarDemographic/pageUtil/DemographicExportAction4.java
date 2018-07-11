@@ -1312,12 +1312,16 @@ public class DemographicExportAction4 extends Action {
 						aSummary = Util.addSummary(aSummary, "DIN", regionalId);
 					}
 					String typeCode = String.valueOf(allergy.getTypeCode());
-					if (StringUtils.filled(typeCode)) {
-						if (typeCode.equals("0")) {
-							alr.setReactionType(cdsDt.AdverseReactionType.AL);
+					String reactionType = allergy.getReactionType();
+					if (StringUtils.filled(reactionType)) {
+					    if (reactionType.equals("AR")) {
+                            alr.setReactionType(cdsDt.AdverseReactionType.AR);
+                        } else {
+                            alr.setReactionType(cdsDt.AdverseReactionType.AL);
+                        }
+						if (StringUtils.filled(typeCode) && typeCode.equals("0")) {
 							alr.setPropertyOfOffendingAgent(cdsDt.PropertyOfOffendingAgent.ND);
 						} else {
-							alr.setReactionType(cdsDt.AdverseReactionType.AR);
 							if (StringUtils.filled(regionalId) && !regionalId.trim().equalsIgnoreCase("null")) {
 								alr.setPropertyOfOffendingAgent(cdsDt.PropertyOfOffendingAgent.DR);
 							} else {

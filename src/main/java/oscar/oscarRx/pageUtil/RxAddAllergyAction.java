@@ -63,6 +63,7 @@ public final class RxAddAllergyAction extends Action {
                 drugId = drugId.substring(drugId.indexOf(" ") + 1);
             }
 
+		    String reactionType = request.getParameter("reactionType");
             String name = request.getParameter("name");
             String type = request.getParameter("type");
             String description = request.getParameter("reactionDescription");
@@ -98,6 +99,7 @@ public final class RxAddAllergyAction extends Action {
             allergy.setSeverityOfReaction(severityOfReaction);
             allergy.setOnsetOfReaction(onSetOfReaction);
             allergy.setLifeStage(lifeStage);
+            allergy.setReactionType(reactionType);
 
             RxDrugData.DrugMonograph drugMonograph = allergy.isDrug(Integer.parseInt(type));
             if (drugMonograph!=null){

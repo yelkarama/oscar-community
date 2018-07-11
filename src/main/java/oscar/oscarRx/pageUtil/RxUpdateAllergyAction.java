@@ -35,6 +35,7 @@ public class RxUpdateAllergyAction extends Action{
 
         int id = Integer.parseInt(request.getParameter("ID"));
 
+        String reactionType = request.getParameter("reactionType");
         RxPatientData.Patient patient = (RxPatientData.Patient)request.getSession().getAttribute("Patient");
         Allergy allergy = patient.getAllergy(id);
 
@@ -106,6 +107,11 @@ public class RxUpdateAllergyAction extends Action{
 
         if(!lifeStage.equals(allergy.getLifeStage())){
             allergy.setLifeStage(lifeStage);
+            isUpdate = true;
+        }
+
+        if (reactionType != null && !reactionType.equals(allergy.getReactionType())) {
+            allergy.setReactionType(reactionType);
             isUpdate = true;
         }
 

@@ -102,6 +102,9 @@ public class Allergy extends AbstractModel<Integer> {
 	@Column(name = "life_stage")
 	private String lifeStage;
 
+	@Column(name = "reaction_type")
+	private String reactionType;
+
 	private int position=0;
 
 	@Temporal(TemporalType.TIMESTAMP)
@@ -305,6 +308,14 @@ public class Allergy extends AbstractModel<Integer> {
 	public void setStartDateFormat(String startDateFormat) {
     	this.startDateFormat = startDateFormat;
     }
+
+	public String getReactionType() {
+		return reactionType;
+	}
+
+	public void setReactionType(String reactionType) {
+		this.reactionType = reactionType;
+	}
 
 	@PreUpdate
 	@PrePersist

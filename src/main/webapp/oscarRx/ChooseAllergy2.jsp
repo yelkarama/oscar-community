@@ -166,7 +166,7 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
 							<td><input type=button class="ControlPushButton"
 								onclick="javascript:document.forms.RxSearchAllergyForm.searchString.value='';document.forms.RxSearchAllergyForm.searchString.focus();"
 								value="Reset" />
-                               <input type=button class="ControlPushButton" onclick="javascript:addCustomAllergy();" value="Custom Allergy" />
+                               <input type=button class="ControlPushButton" onclick="javascript:addCustomAllergy();" value="Custom Allergy/Adverse Reaction" />
                                <input type=button class="ControlPushButton" onclick="javascript:addCustomNKDA();" value="NKDA" />
                                <input type=button class="ControlPushButton" onclick="javascript:addPenicillinAllergy();" value="Penicillin" />
                                <input type=button class="ControlPushButton" onclick="javascript:addSulfonamideAllergy();" value="Sulfa" />
@@ -365,7 +365,7 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
                         String sBack="ShowAllergies2.jsp";
                       %> <input type=button class="ControlPushButton"
 					onclick="javascript:window.location.href='<%=sBack%>';"
-					value="Back to View Allergies" /></td>
+					value="Back to View Allergies/Adverse Reactions" /></td>
 			</tr>
 			<!----End new rows here-->
 			<tr height="100%">
