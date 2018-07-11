@@ -61,6 +61,8 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.xmlbeans.XmlOptions;
 import org.marc.everest.rmim.uv.cdar2.pocd_mt000040uv.ClinicalDocument;
 import org.oscarehr.PMmodule.dao.ProviderDao;
+import org.oscarehr.casemgmt.dao.CaseManagementDxLinkDao;
+import org.oscarehr.casemgmt.model.CaseManagementDxLink;
 import org.oscarehr.casemgmt.model.CaseManagementIssue;
 import org.oscarehr.casemgmt.model.CaseManagementNote;
 import org.oscarehr.casemgmt.model.CaseManagementNoteExt;
@@ -75,6 +77,7 @@ import org.oscarehr.common.dao.DemographicPharmacyDao;
 import org.oscarehr.common.dao.DrugReasonDao;
 import org.oscarehr.common.dao.Hl7TextInfoDao;
 import org.oscarehr.common.dao.Hl7TextMessageDao;
+import org.oscarehr.common.dao.Icd9Dao;
 import org.oscarehr.common.dao.OscarAppointmentDao;
 import org.oscarehr.common.dao.PartialDateDao;
 import org.oscarehr.common.dao.PharmacyInfoDao;
@@ -90,6 +93,7 @@ import org.oscarehr.common.model.DemographicPharmacy;
 import org.oscarehr.common.model.DrugReason;
 import org.oscarehr.common.model.Hl7TextInfo;
 import org.oscarehr.common.model.Hl7TextMessage;
+import org.oscarehr.common.model.Icd9;
 import org.oscarehr.common.model.PartialDate;
 import org.oscarehr.common.model.PharmacyInfo;
 import org.oscarehr.common.model.ProfessionalSpecialist;
@@ -170,6 +174,8 @@ public class DemographicExportAction4 extends Action {
 	private static final HRMDocumentDao hrmDocDao = (HRMDocumentDao) SpringUtils.getBean("HRMDocumentDao");
 	private static final HRMDocumentCommentDao hrmDocCommentDao = (HRMDocumentCommentDao) SpringUtils.getBean("HRMDocumentCommentDao");
 	private static final CaseManagementManager cmm = (CaseManagementManager) SpringUtils.getBean("caseManagementManager");
+	private static final CaseManagementDxLinkDao caseManagementDxLinkDao = SpringUtils.getBean(CaseManagementDxLinkDao.class);
+	private static final Icd9Dao icd9Dao = SpringUtils.getBean(Icd9Dao.class);
 	private static final Hl7TextInfoDao hl7TxtInfoDao = (Hl7TextInfoDao)SpringUtils.getBean("hl7TextInfoDao");
 	private static final Hl7TextMessageDao hl7TxtMssgDao = (Hl7TextMessageDao)SpringUtils.getBean("hl7TextMessageDao");
 	private static final DemographicExtDao demographicExtDao = (DemographicExtDao) SpringUtils.getBean("demographicExtDao");
@@ -812,6 +818,23 @@ public class DemographicExportAction4 extends Action {
 						summary = Util.addSummary("Problem Description", famHist);
 
 						boolean diagnosisAssigned = false;
+						List<CaseManagementDxLink> dxLinks = caseManagementDxLinkDao.findByNoteId(cmn.getId());
+						for (CaseManagementDxLink dxLink : dxLinks) {
+							Icd9 icd9Code = icd9Dao.findByCode(dxLink.getId().getDxCode());
+							if (icd9Code != null) {
+								if (!diagnosisAssigned) {
+									cdsDt.StandardCoding diagnosis = fHist.addNewDiagnosisProcedureCode();
+									String code = Util.formatIcd9(dxLink.getId().getDxCode());
+									diagnosis.setStandardCodingSystem(dxLink.getId().getDxType().toString());
+									diagnosis.setStandardCode(code);
+									diagnosis.setStandardCodeDescription(icd9Code.getDescription());
+									summary = Util.addSummary(summary, "Diagnosis", diagnosis.getStandardCodeDescription());
+									diagnosisAssigned = true;
+								} else {
+									summary = Util.addSummary(summary, "Diagnosis", icd9Code.getDescription());
+								}
+							}
+						}
 						for (CaseManagementIssue isu : sisu) {
 							String codeSystem = isu.getIssue().getType();
 							if (!codeSystem.equals("system")) {
@@ -891,6 +914,23 @@ public class DemographicExportAction4 extends Action {
 						summary = Util.addSummary("Problem Description", medHist);
 
 						boolean diagnosisAssigned = false;
+						List<CaseManagementDxLink> dxLinks = caseManagementDxLinkDao.findByNoteId(cmn.getId());
+						for (CaseManagementDxLink dxLink : dxLinks) {
+							Icd9 icd9Code = icd9Dao.findByCode(dxLink.getId().getDxCode());
+							if (icd9Code != null) {
+								if (!diagnosisAssigned) {
+									cdsDt.StandardCoding diagnosis = pHealth.addNewDiagnosisProcedureCode();
+									String code = Util.formatIcd9(dxLink.getId().getDxCode());
+									diagnosis.setStandardCodingSystem(dxLink.getId().getDxType().toString());
+									diagnosis.setStandardCode(code);
+									diagnosis.setStandardCodeDescription(icd9Code.getDescription());
+									summary = Util.addSummary(summary, "Diagnosis", diagnosis.getStandardCodeDescription());
+									diagnosisAssigned = true;
+								} else {
+									summary = Util.addSummary(summary, "Diagnosis", icd9Code.getDescription());
+								}
+							}
+						}
 						for (CaseManagementIssue isu : sisu) {
 							String codeSystem = isu.getIssue().getType();
 							if (codeSystem != null && !codeSystem.equals("system")) {
@@ -972,6 +1012,23 @@ public class DemographicExportAction4 extends Action {
 						summary = Util.addSummary("Problem Diagnosis", concerns);
 
 						boolean diagnosisAssigned = false;
+						List<CaseManagementDxLink> dxLinks = caseManagementDxLinkDao.findByNoteId(cmn.getId());
+						for (CaseManagementDxLink dxLink : dxLinks) {
+							Icd9 icd9Code = icd9Dao.findByCode(dxLink.getId().getDxCode());
+							if (icd9Code != null) {
+								if (!diagnosisAssigned) {
+									cdsDt.StandardCoding diagnosis = pList.addNewDiagnosisCode();
+									String code = Util.formatIcd9(dxLink.getId().getDxCode());
+									diagnosis.setStandardCodingSystem(dxLink.getId().getDxType().toString());
+									diagnosis.setStandardCode(code);
+									diagnosis.setStandardCodeDescription(icd9Code.getDescription());
+									summary = Util.addSummary(summary, "Diagnosis", diagnosis.getStandardCodeDescription());
+									diagnosisAssigned = true;
+								} else {
+									summary = Util.addSummary(summary, "Diagnosis", icd9Code.getDescription());
+								}
+							}
+						}
 						for (CaseManagementIssue isu : sisu) {
 							String codeSystem = isu.getIssue().getType();
 							if (!codeSystem.equals("system")) {

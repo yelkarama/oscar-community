@@ -64,12 +64,14 @@ import org.oscarehr.PMmodule.model.ProgramProvider;
 import org.oscarehr.PMmodule.service.AdmissionManager;
 import org.oscarehr.PMmodule.service.ProgramManager;
 import org.oscarehr.billing.CA.dao.GstControlDao;
+import org.oscarehr.casemgmt.dao.CaseManagementDxLinkDao;
 import org.oscarehr.casemgmt.dao.CaseManagementIssueDAO;
 import org.oscarehr.casemgmt.dao.CaseManagementNoteDAO;
 import org.oscarehr.casemgmt.dao.CaseManagementNoteExtDAO;
 import org.oscarehr.casemgmt.dao.CaseManagementNoteLinkDAO;
 import org.oscarehr.casemgmt.dao.IssueDAO;
 import org.oscarehr.casemgmt.model.CaseManagementCPP;
+import org.oscarehr.casemgmt.model.CaseManagementDxLink;
 import org.oscarehr.casemgmt.model.CaseManagementIssue;
 import org.oscarehr.casemgmt.model.CaseManagementNote;
 import org.oscarehr.casemgmt.model.CaseManagementNoteExt;
@@ -84,6 +86,7 @@ import org.oscarehr.casemgmt.web.formbeans.CaseManagementEntryFormBean;
 import org.oscarehr.common.dao.BillingServiceDao;
 import org.oscarehr.common.dao.CasemgmtNoteLockDao;
 import org.oscarehr.common.dao.DemographicDao;
+import org.oscarehr.common.dao.Icd9Dao;
 import org.oscarehr.common.dao.OscarAppointmentDao;
 import org.oscarehr.common.dao.ProviderDefaultProgramDao;
 import org.oscarehr.common.model.Admission;
@@ -91,6 +94,7 @@ import org.oscarehr.common.model.Appointment;
 import org.oscarehr.common.model.CaseManagementTmpSave;
 import org.oscarehr.common.model.CasemgmtNoteLock;
 import org.oscarehr.common.model.Demographic;
+import org.oscarehr.common.model.Icd9;
 import org.oscarehr.common.model.PartialDate;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.ProviderDefaultProgram;
@@ -147,6 +151,7 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 	private CaseManagementNoteDAO caseManagementNoteDao = (CaseManagementNoteDAO) SpringUtils.getBean("caseManagementNoteDAO");
 	private CaseManagementIssueDAO caseManagementIssueDao = (CaseManagementIssueDAO) SpringUtils.getBean("caseManagementIssueDAO");
 	private CaseManagementNoteExtDAO caseManagementNoteExtDao = (CaseManagementNoteExtDAO) SpringUtils.getBean("CaseManagementNoteExtDAO");
+	private CaseManagementDxLinkDao caseManagementDxLinkDao = SpringUtils.getBean(CaseManagementDxLinkDao.class);
 	private IssueDAO issueDao = (IssueDAO) SpringUtils.getBean("IssueDAO");
 	//private AppointmentArchiveDao appointmentArchiveDao = (AppointmentArchiveDao)SpringUtils.getBean("appointmentArchiveDao");
 	private CasemgmtNoteLockDao casemgmtNoteLockDao = SpringUtils.getBean(CasemgmtNoteLockDao.class);
@@ -816,6 +821,7 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		String noteId = request.getParameter("noteId");
 		logger.debug("SAVING NOTE " + noteId + " STRING: " + strNote);
 		String issueChange = request.getParameter("issueChange");
+		String diagnosticChange = request.getParameter("diagnosticChange");
 		String archived = request.getParameter("archived");
 
 		CaseManagementNote note;
@@ -861,7 +867,10 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 
 			// if note has not changed don't save
 			note = this.caseManagementMgr.getNote(noteId);
-			if (strNote.equals(note.getNote()) && !issueChange.equals("true") && !extChanged && (archived == null || archived.equalsIgnoreCase("false"))) return null;
+			if (strNote.equals(note.getNote()) && !(issueChange.equals("true") || diagnosticChange.equals("true")) && !extChanged 
+					&& (archived == null || archived.equalsIgnoreCase("false"))) {
+				return null;
+			}
 		}
 		note.setNote(strNote);
 		note.setProviderNo(loggedInInfo.getLoggedInProviderNo());
@@ -1137,6 +1146,13 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 					caseManagementMgr.saveNoteExt(cme);
 				}
 			}
+		}
+		
+		/* Save diagnostic codes */
+		String[] diagnosticIds = request.getParameterValues("diagnostic_id");
+		for (String codeId : diagnosticIds) {
+			CaseManagementDxLink cmDxLink = new CaseManagementDxLink(note.getId(), CaseManagementDxLink.DxType.ICD9, codeId, new Date());
+			caseManagementDxLinkDao.saveEntity(cmDxLink);
 		}
 
 		/* Save annotation */
@@ -2164,6 +2180,29 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		request.setAttribute("change_flag", "false");
 		return mapping.findForward("list");
 	}
+
+	public ActionForward diagnosticList(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		HttpSession session = request.getSession();
+		if (session.getAttribute("userrole") == null) {
+			response.sendError(HttpServletResponse.SC_FORBIDDEN);
+			return null;
+		}
+
+		Icd9Dao icd9Dao = SpringUtils.getBean(Icd9Dao.class);
+		List<Icd9> icd9Results = icd9Dao.searchCode(request.getParameter("diagnosticSearch"));
+		
+		response.setContentType("text/html");
+		PrintWriter out = response.getWriter();
+		out.write("<ul>\n");
+		for (Icd9 code : icd9Results) {
+			out.write("<li id=\"" + code.getCode() + "\">");
+			out.write(code.getCode() + " " + code.getDescription());
+			out.write("</li>\n");
+		}
+		out.write("</ul>");
+		return null;
+	}
+
 
 	public ActionForward addNewIssue(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		logger.debug("addNewIssue");

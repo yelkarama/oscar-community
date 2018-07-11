@@ -872,8 +872,15 @@ function init() {
         <c:param name="providerNo" value="${providerNo}" />
         <c:param name="all" value="true" />
     </c:url>
-    var issueAutoCompleterCPP = new Ajax.Autocompleter("issueAutocompleteCPP", "issueAutocompleteListCPP", "<c:out value="${issueURLCPP}" />", {minChars: 3, indicator: 'busy2', afterUpdateElement: addIssue2CPP, onShow: autoCompleteShowMenuCPP, onHide: autoCompleteHideMenuCPP});    
-    
+    var issueAutoCompleterCPP = new Ajax.Autocompleter("issueAutocompleteCPP", "issueAutocompleteListCPP", "<c:out value="${issueURLCPP}" />", {minChars: 3, indicator: 'busy2', afterUpdateElement: addIssue2CPP, onShow: autoCompleteShowMenuCPP, onHide: autoCompleteHideMenuCPP});
+    <c:url value="/CaseManagementEntry.do" var="diagnosticURLCPP">
+    <c:param name="method" value="diagnosticList"/>
+    <c:param name="demographicNo" value="${demographicNo}" />
+    <c:param name="providerNo" value="${providerNo}" />
+    <c:param name="all" value="true" />
+    </c:url>
+    var diagnosticAutoCompleterCPP = new Ajax.Autocompleter("diagnosticAutocompleteCPP", "diagnosticAutocompleteListCPP", "<c:out value="${diagnosticURLCPP}" />", {minChars: 3, indicator: 'busy3', afterUpdateElement: addDiagnostic2CPP, onShow: autoCompleteShowMenuCPP, onHide: autoCompleteHideMenuCPP});
+
     <nested:notEmpty name="DateError">
         alert("<nested:write name="DateError"/>");
     </nested:notEmpty>
@@ -934,6 +941,7 @@ window.onbeforeunload = onClosing;
 			<input type="hidden" id="reloadUrl" name="reloadUrl" value="">
 			<input type="hidden" id="containerDiv" name="containerDiv" value="">
 			<input type="hidden" id="issueChange" name="issueChange" value="">
+			<input type="hidden" id="diagnosticChange" name="diagnosticChange" value="">
 			<input type="hidden" id="archived" name="archived" value="false">
 			<input type="hidden" id="annotation_attrib" name="annotation_attrib">
 			<input type="hidden" name="updateParent" value="<%=updateParent%>"/>
@@ -1066,7 +1074,20 @@ window.onbeforeunload = onClosing;
 				style="position: absolute;"
 				src="<c:out value="${ctx}/oscarEncounter/graphics/busy.gif"/>"
 				alt="<bean:message key="oscarEncounter.Index.btnWorking"/>"></span>
-
+			<div>
+				<div id="diagnosticNoteInfo"></div>
+				<div>
+					<div id="diagnosticListCPP" style="background-color: #FFFFFF; height: 200px; width: 350px; position: absolute; z-index: 1; display: none; overflow: auto;">
+						<div class="enTemplate_name_auto_complete" id="diagnosticAutocompleteListCPP" style="position: relative; left: 0px; display: none;"></div>
+					</div>
+					Assign ICD9 Diagnostic:&nbsp;
+					<input tabindex="101" type="text" id="diagnosticAutocompleteCPP" name="diagnosticSearch" style="z-index: 2;" size="25"/>
+					<span id="busy3" style="display: none">
+						<img style="position: absolute;" src="<c:out value="${ctx}/oscarEncounter/graphics/busy.gif"/>"
+							alt="<bean:message key="oscarEncounter.Index.btnWorking"/>">
+					</span>
+				</div>
+			</div>
 		</form>
 	</div>
 	<div id="printOps" class="printOps">

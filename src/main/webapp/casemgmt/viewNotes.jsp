@@ -45,6 +45,11 @@
 <%@ page import="java.util.MissingResourceException" %>
 <%@ page import="org.oscarehr.casemgmt.model.Issue" %>
 <%@ page import="org.oscarehr.casemgmt.service.CaseManagementManager" %>
+<%@ page import="javax.swing.*" %>
+<%@ page import="org.oscarehr.casemgmt.dao.CaseManagementDxLinkDao" %>
+<%@ page import="org.oscarehr.casemgmt.model.CaseManagementDxLink" %>
+<%@ page import="org.oscarehr.common.dao.Icd9Dao" %>
+<%@ page import="org.oscarehr.common.model.Icd9" %>
 <%
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
     boolean authed=true;
@@ -90,7 +95,7 @@
 	} 
 	if(securityManager.hasWriteAccess("_" + request.getParameter("issue_code"),roleName$)) {
 %>
-<a href="#" title='Add Item' onclick="return showEdit(event,'<%=title%>','',0,'','','','<%=request.getAttribute("addUrl")%>0', '<c:out value="${param.cmd}"/>','<%=request.getAttribute("identUrl")%>','<%=request.getAttribute("cppIssue")%>','','<c:out value="${param.demographicNo}"/>');">+</a>
+<a href="#" title='Add Item' onclick="return showEdit(event,'<%=title%>','',0,'','','','<%=request.getAttribute("addUrl")%>0', '<c:out value="${param.cmd}"/>','<%=request.getAttribute("identUrl")%>','<%=request.getAttribute("cppIssue")%>', '','','<c:out value="${param.demographicNo}"/>');">+</a>
 <% } else { %>
 	&nbsp;
 <% } %>
@@ -165,14 +170,29 @@
                         strNoteIssues.append(";");
                     }
                 }
+                
+                CaseManagementDxLinkDao caseManagementDxLinkDao = SpringUtils.getBean(CaseManagementDxLinkDao.class);
+                Icd9Dao icd9Dao = SpringUtils.getBean(Icd9Dao.class);
+                List<CaseManagementDxLink> dxLinks = caseManagementDxLinkDao.findByNoteId(note.getId());
+                StringBuffer strNoteDiagnostics = new StringBuffer();
+                for (CaseManagementDxLink dxLink : dxLinks) {
+                    Icd9 icd9 = icd9Dao.findByCode(dxLink.getId().getDxCode());
+                    if (icd9 != null) {
+                        strNoteDiagnostics.append(icd9.getCode()).append(";")
+                                .append(icd9.getCode()).append(" ").append(icd9.getDescription()).append(";");
+                    }
+                }
+                if (strNoteDiagnostics.length() > 0 && strNoteDiagnostics.charAt(strNoteDiagnostics.length() - 1) ==';') {
+                    strNoteDiagnostics.deleteCharAt(strNoteDiagnostics.length() - 1);
+                }
                 %> <span id="spanListNote<nested:write name="note" property="id"/>">
 			
 			<c:choose>
             <c:when test='${param.title == "oscarEncounter.oMeds.title" || param.title == "oscarEncounter.riskFactors.title" || param.title == "oscarEncounter.famHistory.title"|| param.noheight == "true"}'>
-                <a class="links" onmouseover="this.className='linkhover'"	onmouseout="this.className='links'" title="Rev:<nested:write name="note" property="revision"/> - Last update:<nested:write name="note" property="update_date" format="dd-MMM-yyyy"/>" id="listNote<nested:write name="note" property="id"/>" href="#" onclick="showEdit(event,'<%=title%>','<nested:write name="note" property="id"/>','<%=StringEscapeUtils.escapeJavaScript(editors.toString())%>','<nested:write name="note" property="observation_date" format="dd-MMM-yyyy"/>','<nested:write name="note" property="revision"/>','<%=noteTxt%>', '<%=request.getAttribute("addUrl")%><nested:write name="note" property="id"/>', '<c:out value="${param.cmd}"/>','<%=request.getAttribute("identUrl")%>','<%=strNoteIssues.toString()%>','<%=strNoteExts%>','<c:out value="${param.demographicNo}"/>');return false;"  style="width:100%;overflow:scroll;" >			 			
+                <a class="links" onmouseover="this.className='linkhover'"	onmouseout="this.className='links'" title="Rev:<nested:write name="note" property="revision"/> - Last update:<nested:write name="note" property="update_date" format="dd-MMM-yyyy"/>" id="listNote<nested:write name="note" property="id"/>" href="#" onclick="showEdit(event,'<%=title%>','<nested:write name="note" property="id"/>','<%=StringEscapeUtils.escapeJavaScript(editors.toString())%>','<nested:write name="note" property="observation_date" format="dd-MMM-yyyy"/>','<nested:write name="note" property="revision"/>','<%=noteTxt%>', '<%=request.getAttribute("addUrl")%><nested:write name="note" property="id"/>', '<c:out value="${param.cmd}"/>','<%=request.getAttribute("identUrl")%>','<%=strNoteIssues.toString()%>', '<%=strNoteDiagnostics.toString()%>','<%=strNoteExts%>','<c:out value="${param.demographicNo}"/>');return false;"  style="width:100%;overflow:scroll;" >			 			
             </c:when>
             <c:otherwise>
-                <a class="topLinks" onmouseover="this.className='topLinkhover'"	onmouseout="this.className='topLinks'" title="Rev:<nested:write name="note" property="revision"/> - Last update:<nested:write name="note" property="update_date" format="dd-MMM-yyyy"/>" id="listNote<nested:write name="note" property="id"/>" href="#" onclick="showEdit(event,'<%=title%>','<nested:write name="note" property="id"/>','<%=StringEscapeUtils.escapeJavaScript(editors.toString())%>','<nested:write name="note" property="observation_date" format="dd-MMM-yyyy"/>','<nested:write name="note" property="revision"/>','<%=noteTxt%>', '<%=request.getAttribute("addUrl")%><nested:write name="note" property="id"/>', '<c:out value="${param.cmd}"/>','<%=request.getAttribute("identUrl")%>','<%=strNoteIssues.toString()%>','<%=strNoteExts%>','<c:out value="${param.demographicNo}"/>');return false;"  style="width:100%;overflow:scroll;" >			 			
+                <a class="topLinks" onmouseover="this.className='topLinkhover'"	onmouseout="this.className='topLinks'" title="Rev:<nested:write name="note" property="revision"/> - Last update:<nested:write name="note" property="update_date" format="dd-MMM-yyyy"/>" id="listNote<nested:write name="note" property="id"/>" href="#" onclick="showEdit(event,'<%=title%>','<nested:write name="note" property="id"/>','<%=StringEscapeUtils.escapeJavaScript(editors.toString())%>','<nested:write name="note" property="observation_date" format="dd-MMM-yyyy"/>','<nested:write name="note" property="revision"/>','<%=noteTxt%>', '<%=request.getAttribute("addUrl")%><nested:write name="note" property="id"/>', '<c:out value="${param.cmd}"/>','<%=request.getAttribute("identUrl")%>','<%=strNoteIssues.toString()%>', '<%=strNoteDiagnostics.toString()%>','<%=strNoteExts%>','<c:out value="${param.demographicNo}"/>');return false;"  style="width:100%;overflow:scroll;" >			 			
             </c:otherwise>
         	</c:choose>                 
 			

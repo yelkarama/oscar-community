@@ -812,7 +812,7 @@ function showIntegratedNote(title, note, location, providerName, obsDate){
 }
 
 //display in place editor
-function showEdit(e,title, noteId, editors, date, revision, note, url, containerDiv, reloadUrl, noteIssues, noteExts, demoNo) {
+function showEdit(e,title, noteId, editors, date, revision, note, url, containerDiv, reloadUrl, noteIssues, noteDiagnostics, noteExts, demoNo) {
     //Event.extend(e);
     //e.stop();
 
@@ -875,10 +875,21 @@ function showEdit(e,title, noteId, editors, date, revision, note, url, container
     }
     noteIssueUl += "</ul>";
 
+
+    var noteDiagnosticUl = '<ul id="diagnosticIdList" style="list-style: none outside none; margin:0px;">';
+    if(noteDiagnostics.length > 0) {
+        var diagnosticArray = noteDiagnostics.split(";");
+        for(idx = 0,rows=0; idx < diagnosticArray.length; idx+=2, ++rows ) {
+            noteDiagnosticUl += "<li><input type='checkbox' name='diagnostic_id' checked value='" + diagnosticArray[idx] + "'>" + diagnosticArray[idx + 1] + "</li>";
+        }
+    }
+    noteDiagnosticUl += "</ul>";
+
     var noteInfo = "<div style='float:right;'><i>Encounter Date:&nbsp;" + date + "&nbsp;rev<a href='#' onclick='return showHistory(\"" + noteId + "\",event);'>"  + revision + "</a></i></div>" +
                     "<div><span style='float:left;'>Editors: </span>" + editorUl + noteIssueUl + "</div><br style='clear:both;'>";
 
     $("issueNoteInfo").update(noteInfo);
+    $("diagnosticNoteInfo").update(noteDiagnosticUl);
     $("frmIssueNotes").action = url;
     $("reloadUrl").value = reloadUrl;
     $("containerDiv").value = containerDiv;
@@ -1091,6 +1102,7 @@ function updateCPPNote() {
                                                  	  ajaxUpdateIssues("edit",sigId);
                                                       $("issueChange").value = false;
                                                  }
+                                                 $("diagnosticChange").value = false;
 
 												notifyDivLoaded($(div).id);
                                            },
@@ -2924,27 +2936,48 @@ function changeDiagnosisUnresolved(issueId) {
 
         return false;
     }
+    
+    function hasDuplicateValue(existingItems, newValue) {
+        if (typeof existingItems.length != 'undefined') {
+            var size = existingItems.length;
 
+            for( var idx = 0; idx < size; ++idx ) {
+                if( existingItems[idx].value == newValue ) {
+                    return true;
+                }
+            }
+            return false;
+        } else {
+            return existingItems.value == newValue;
+        }
+	}
+    
+    function addDiagnostic2CPP(txtField, listItem) {
+        var codeId = listItem.id;
+        var existingItems = document.forms['frmIssueNotes'].elements['diagnostic_id'];
+        var found = false;
+        
+        if (typeof existingItems != 'undefined') {
+            found = hasDuplicateValue(existingItems, codeId);
+		}
+        if(!found) {
+            var node = document.createElement('li');
+
+            var html = "<input type=\"checkbox\" name=\"diagnostic_id\" checked value=\"" + codeId + "\">" + listItem.innerHTML;
+            new Insertion.Top(node, html);
+
+            $('diagnosticIdList').appendChild(node);
+            $('diagnosticAutocompleteCPP').value = '';
+            $("diagnosticChange").value = true;
+        }
+    }
+    
 function addIssue2CPP(txtField, listItem) {
 
    var nodeId = listItem.id;
-   var size = 0;
-   var found = false;
    var curItems = document.forms["frmIssueNotes"].elements["issue_id"];
 
-   if( typeof curItems.length != "undefined" ) {
-        size = curItems.length;
-
-       for( var idx = 0; idx < size; ++idx ) {
-            if( curItems[idx].value == nodeId ) {
-                found = true;
-                break;
-            }
-       }
-   }
-   else {
-        found = curItems.value == nodeId;
-   }
+    var found = hasDuplicateValue(curItems, nodeId);
 
    if( !found ) {
        var node = document.createElement("LI");
@@ -3356,12 +3389,19 @@ function autoCompleteShowMenu(element, update){
 
 function autoCompleteHideMenuCPP(element, update){
     new Effect.Fade(update,{duration:0.15});
-    new Effect.Fade($("issueListCPP"), {duration:0.15});
-
+    if (element.id === 'issueAutocompleteCPP'){
+    	new Effect.Fade($("issueListCPP"), {duration:0.15});
+    } else if (element.id === 'diagnosticAutocompleteCPP') {
+        new Effect.Fade($("diagnosticListCPP"), {duration:0.15});
+    }
 }
 
 function autoCompleteShowMenuCPP(element, update) {
-    Effect.Appear($("issueListCPP"), {duration:0.15});
+    if (element.id === 'issueAutocompleteCPP'){
+        Effect.Appear($("issueListCPP"), {duration:0.15});
+	} else if (element.id === 'diagnosticAutocompleteCPP') {
+        Effect.Appear($("diagnosticListCPP"), {duration:0.15});
+	}
     Effect.Appear(update,{duration:0.15});
 }
 

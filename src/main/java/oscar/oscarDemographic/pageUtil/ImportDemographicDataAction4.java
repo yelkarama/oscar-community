@@ -58,6 +58,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import cdsDt.AddressType;
 import cdsDt.PersonNameSimple;
+import org.apache.commons.codec.digest.DigestUtils;
+import cdsDt.StandardCoding;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
@@ -74,7 +76,9 @@ import org.oscarehr.PMmodule.model.Program;
 import org.oscarehr.PMmodule.model.ProgramProvider;
 import org.oscarehr.PMmodule.service.AdmissionManager;
 import org.oscarehr.PMmodule.service.ProgramManager;
+import org.oscarehr.casemgmt.dao.CaseManagementDxLinkDao;
 import org.oscarehr.casemgmt.dao.IssueDAO;
+import org.oscarehr.casemgmt.model.CaseManagementDxLink;
 import org.oscarehr.casemgmt.model.CaseManagementIssue;
 import org.oscarehr.casemgmt.model.CaseManagementNote;
 import org.oscarehr.casemgmt.model.CaseManagementNoteExt;
@@ -218,6 +222,7 @@ import oscar.util.UtilDateUtilities;
     AdmissionManager admissionManager = (AdmissionManager) SpringUtils.getBean("admissionManager");
     AdmissionDao admissionDao = (AdmissionDao) SpringUtils.getBean("admissionDao");
     CaseManagementManager caseManagementManager = (CaseManagementManager) SpringUtils.getBean("caseManagementManager");
+    CaseManagementDxLinkDao caseManagementDxLinkDao = SpringUtils.getBean(CaseManagementDxLinkDao.class);
     IssueDAO issueDao = SpringUtils.getBean(IssueDAO.class);
     DrugDao drugDao = (DrugDao) SpringUtils.getBean("drugDao");
     DrugReasonDao drugReasonDao = (DrugReasonDao) SpringUtils.getBean("drugReasonDao");
@@ -1264,6 +1269,10 @@ import oscar.util.UtilDateUtilities;
                     cme.setValue(fHist[i].getLifeStage().toString());
                     caseManagementManager.saveNoteExt(cme);
                 }
+                
+                // Save diagnostic link to note
+                StandardCoding fHistDiagnosticCode = fHist[i].getDiagnosisProcedureCode();
+                saveDxLink(hostNoteId, fHistDiagnosticCode);
             }
 
             //PAST HEALTH
@@ -1350,6 +1359,10 @@ import oscar.util.UtilDateUtilities;
                         cme.setValue(pHealth[i].getLifeStage().toString());
                         caseManagementManager.saveNoteExt(cme);
                     }
+                    
+                    // Save diagnostic link to note
+                    StandardCoding pHealthDiagnosticCode = pHealth[i].getDiagnosisProcedureCode();
+                    saveDxLink(hostNoteId, pHealthDiagnosticCode);
                 } catch (Exception e) {
                     e.printStackTrace();
                     err_summ.add("Error adding Past Health item " + (i + 1) + " of " + pHealth.length);
@@ -1444,6 +1457,11 @@ import oscar.util.UtilDateUtilities;
                         cme.setValue(probList[i].getLifeStage().toString());
                         caseManagementManager.saveNoteExt(cme);
                     }
+                    
+                    // Save diagnostic link to note
+                    StandardCoding probListDiagnosticCode = probList[i].getDiagnosisCode();
+                    saveDxLink(hostNoteId, probListDiagnosticCode);
+                    
                 } catch (Exception e) {
                     e.printStackTrace();
                     err_summ.add("Error adding Concern item " + (i + 1) + " of " + probList.length);
@@ -2934,6 +2952,17 @@ import oscar.util.UtilDateUtilities;
 		codingSystem = codingSystem.replaceAll("-", "");
 		return codingSystem.equalsIgnoreCase("icd9");
 	}
+	
+	private CaseManagementDxLink saveDxLink(Long noteId, StandardCoding code) {
+		StandardCoding dxCode = code;
+		if (dxCode != null && isICD9(dxCode)) {
+			CaseManagementDxLink dxLink = new CaseManagementDxLink(noteId,
+					CaseManagementDxLink.DxType.ICD9, noDot(dxCode.getStandardCode()), new Date());
+			return caseManagementDxLinkDao.saveEntity(dxLink);
+		} else {
+			return null;
+		}
+	}
 
 	Set<CaseManagementIssue> getCMIssue(String code) {
 		CaseManagementIssue cmIssu = caseManagementManager.getIssueByIssueCode(demographicNo, code);
@@ -2968,16 +2997,6 @@ import oscar.util.UtilDateUtilities;
 		if (diagCode != null && isICD9(diagCode)) {
             cmIssu = caseManagementManager.getIssueByIssueCode(demographicNo, noDot(diagCode.getStandardCode()));
 			isu = caseManagementManager.getIssueInfoByCode(noDot(diagCode.getStandardCode()));
-			if (isu == null) {
-				isu = new Issue();
-				isu.setCode(noDot(diagCode.getStandardCode()));
-				isu.setDescription(diagCode.getStandardCodeDescription());
-				isu.setRole("doctor");
-				isu.setUpdate_date(new Date());
-				isu.setType("ICD9");
-				isu.setSortOrderId(0);
-				issueDao.saveIssue(isu);
-			}
 			if (cmIssu == null && isu != null) {
 			    String type = isu.getType();
 			    if (StringUtils.isNullOrEmpty(type)) {
