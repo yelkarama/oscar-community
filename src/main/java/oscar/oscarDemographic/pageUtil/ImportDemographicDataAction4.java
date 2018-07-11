@@ -2259,7 +2259,7 @@ import oscar.util.UtilDateUtilities;
                         List<Reports> HRMreports = new ArrayList<Reports>();
                         String HRMfile = "HRM_"+UtilDateUtilities.getToday("yyyy-MM-dd.HH.mm.ss") + "_" + i + ".xml";
                         HRMreports.add(repR[i]);
-                        CreateHRMFile.create(demo, HRMreports, HRMfile);
+                        CreateHRMFile.create(demo, HRMreports, docDir + HRMfile);
                         
                         HRMReport report = HRMReportParser.parseReport(loggedInInfo, HRMfile);
 
