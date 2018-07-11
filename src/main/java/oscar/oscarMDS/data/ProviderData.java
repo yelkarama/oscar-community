@@ -92,6 +92,14 @@ public class ProviderData {
 		}
 	}
 
+    @SuppressWarnings("unchecked")
+    public static List<Provider> getAllProviders() {
+        ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
+        List<Provider> providers = providerDao.getProvidersByType(ProviderDao.PR_TYPE_DOCTOR);
+        Collections.sort(providers, new BeanComparator("formattedName"));
+        return providers;
+    }
+	
 	@SuppressWarnings("unchecked")
 	public static ArrayList<ArrayList<String>> getProviderListWithLabNo() {
 		try {

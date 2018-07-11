@@ -30,6 +30,8 @@
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
 
 <%@ page import="oscar.oscarMDS.data.ProviderData, java.util.ArrayList, oscar.oscarLab.ForwardingRules, oscar.OscarProperties"%>
+<%@ page import="org.oscarehr.common.model.Provider" %>
+<%@ page import="java.util.List" %>
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
@@ -141,12 +143,11 @@ Please Select the provider to set forwarding rules for:
 
 <select name="providerNo" id="provider-selection">
 	<option value="0">None Selected</option>
-	<% ArrayList providers = ProviderData.getProviderList();
-                                            for (int i=0; i < providers.size(); i++) { 
-                                            String prov_no = (String) ((ArrayList) providers.get(i)).get(0);%>
-	<option value="<%= prov_no %>"
-		<% if (prov_no.equals(providerNo)) {%> <%="selected"%> <%}%>><%= (String) ((ArrayList) providers.get(i)).get(1) %>
-	<%= (String) ((ArrayList) providers.get(i)).get(2) %></option>
+	<% List<Provider> providers = ProviderData.getAllProviders();
+    for (Provider provider : providers) { %>
+	    <option value="<%= provider.getProviderNo() %>" <%= provider.getProviderNo().equals(providerNo) ? "selected" : "" %>>
+            <%= provider.getFirstName() + " " + provider.getLastName() %>
+        </option>
 	<% }%>
 </select> 
 
@@ -237,14 +238,14 @@ status = fr.getStatus(providerNo);
 				<select multiple name="providerNums" style="height: 200px">
 					<optgroup
 						label="&#160&#160Doctors&#160&#160&#160&#160&#160&#160&#160&#160">
-						<% //ArrayList providers = ProviderData.getProviderList();
-						for (int i=0; i < providers.size(); i++) { 
-							String prov_no = (String) ((ArrayList) providers.get(i)).get(0);
-							if ( !providerNo.equals(prov_no) && !frwdProviders.contains(providers.get(i))){ %>
-								<option value="<%= prov_no %>"><%= (String) ((ArrayList) providers.get(i)).get(1) %>
-									<%= (String) ((ArrayList) providers.get(i)).get(2) %></option>
-							<% }
-						} %>
+						<%
+							List<Provider> providerList = ProviderData.getActiveDoctors();
+
+							for (Provider provider : providerList) {
+								String provNo = provider.getProviderNo();
+						%> <option value="<%=provNo%>" <%=provNo.equals(providerNo)?"selected=\'selected\'":""%>><%=provider.getFormattedName()%></option> <%
+						    }
+					%>
 					</optgroup>
 				</select>
 			</div>
