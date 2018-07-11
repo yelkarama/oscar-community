@@ -64,6 +64,7 @@ if(!authed) {
   Map<String,Object> existingPrevention = null;
     
   String din = "";
+  String instructions = "";
   String lot ="";
   String provider = (String) session.getValue("user");
   String dateFmt = "yyyy-MM-dd HH:mm";
@@ -102,6 +103,7 @@ if(!authed) {
      extraData = PreventionData.getPreventionKeyValues(id);
      lot = (String) extraData.get("lot");
      din = extraData.get("din");
+     instructions = extraData.get("instructions");
      
 	CaseManagementManager cmm = (CaseManagementManager) SpringUtils.getBean("caseManagementManager");
 	List<CaseManagementNoteLink> cml = cmm.getLinkByTableId(CaseManagementNoteLink.PREVENTIONS, Long.valueOf(id));
@@ -178,13 +180,6 @@ if(!authed) {
   div.ImmSet li a:hover { text-decoration:none; color:red; }
   div.ImmSet li a:visited { text-decoration:none; color:blue;}
 
-
-  ////////
-  div.prevention {  background-color: #999999; }
-  div.prevention fieldset {width:35em; font-weight:bold; }
-  div.prevention legend {font-weight:bold; }
-
-  ////////
 </style>
 
 <SCRIPT LANGUAGE="JavaScript">
@@ -309,6 +304,10 @@ width: 90px;
 br{
 clear: left;
 }
+
+	.results input[type=text] {
+		width: 330px;
+	}
 </style>
 
 <script type="text/javascript">
@@ -498,7 +497,7 @@ function displayCloseWarning(){
                              <label for="creator" class="fields" >Creator:</label> <input type="text" name="creator" value="<%=creatorName%>" readonly/> <br/>
                          </div>
                    </fieldset>
-                   <fieldset >
+                   <fieldset class="results">
                       <legend >Result</legend>
              			 <label for="name">Name:</label> <input type="text" name="name" value="<%=str((extraData.get("name")), defaultPreventionName ? prevention : "")%>"/> <br/>
                          <label for="location">Location:</label> <input type="text" name="location" value="<%=str((extraData.get("location")),"")%>"/> <br/>
@@ -514,6 +513,7 @@ function displayCloseWarning(){
                          </select><br/>
                          <label for="manufacture">Manufacture:</label> <input type="text" name="manufacture" id="manufacture"  value="<%=str((extraData.get("manufacture")),"")%>"/><br/>
                        <label for="din">DIN:</label>  <input type="text" name="din" id="din" value="<%=str(din,"")%>" /> <br/>
+                       <label for="instructions">Instructions</label><input type="text" name="instructions" id="instructions" value="<%=str(instructions,"")%>"/>
                    </fieldset>
                    <fieldset >
                       <legend >Comments</legend>
