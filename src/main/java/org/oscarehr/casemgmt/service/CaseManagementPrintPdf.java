@@ -168,7 +168,8 @@ public class CaseManagementPrintPdf {
         clinicData.refreshClinicData();
         String[] clinic = new String[] {clinicData.getClinicName(), clinicData.getClinicAddress(),
         clinicData.getClinicCity() + ", " + clinicData.getClinicProvince(),
-        clinicData.getClinicPostal(), clinicData.getClinicPhone(), clinicData.getClinicFax()};
+        clinicData.getClinicPostal(), clinicData.getClinicPhone(),clinicData.getClinicFax(),
+        clinicData.getClinicFax()};
 
         if("true".equals(OscarProperties.getInstance().getProperty("print.useCurrentProgramInfoInHeader", "false"))) {
         	ProgramManager2 programManager2 = SpringUtils.getBean(ProgramManager2.class);
