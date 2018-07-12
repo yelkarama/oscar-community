@@ -51,6 +51,7 @@ DrugReasonDao drugReasonDao = SpringUtils.getBean(DrugReasonDao.class);
 ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
 DemographicDao demographicDao = (DemographicDao) SpringUtils.getBean("demographicDao");
 PrescriptionFaxDao prescriptionFaxDao = SpringUtils.getBean(PrescriptionFaxDao.class);
+PartialDateDao partialDateDao = SpringUtils.getBean(PartialDateDao.class);
 
 List<DrugReason> drugReasons = new ArrayList<DrugReason>();
 List<PrescriptionFax> prescriptionFaxes = new ArrayList<PrescriptionFax>();
@@ -80,6 +81,8 @@ if (drug != null) {
 <%@ page import="org.oscarehr.common.dao.PrescriptionFaxDao" %>
 <%@ page import="org.oscarehr.common.model.PrescriptionFax" %>
 <%@ page import="java.text.SimpleDateFormat" %>
+<%@ page import="org.oscarehr.common.model.PartialDate" %>
+<%@ page import="org.oscarehr.common.dao.PartialDateDao" %>
 <html>
     <head>
         <script type="text/javascript" src="<%= request.getContextPath()%>/js/global.js"></script>
@@ -120,9 +123,9 @@ if (drug != null) {
 									Drug Description: <%= drug.getCustomName()%><br>
 									<%}%>
 									<br>   
-									Rx Date: <%= drug.getRxDate() %><br>
+									Rx Date: <%= partialDateDao.getDatePartial(drug.getRxDate(), PartialDate.DRUGS, drug.getId(), PartialDate.DRUGS_START_DATE) %><br>
 									Rx End Date: <%= drug.getEndDate() %><br>
-									Written Date: <%= drug.getWrittenDate()%><br>
+									Written Date: <%= partialDateDao.getDatePartial(drug.getWrittenDate(), PartialDate.DRUGS, drug.getId(), PartialDate.DRUGS_WRITTENDATE)%><br>
 									Create Date: <%= drug.getCreateDate()%><br>
 									<br>
 									ATC: <%= drug.getAtc()%><br>

@@ -1122,7 +1122,8 @@ public final class RxWriteScriptAction extends DispatchAction {
 							if ((val == null) || (val.equals(""))) {
 								rx.setRxDate(RxUtil.StringToDate("0000-00-00", "yyyy-MM-dd"));
 							} else {
-								rx.setRxDate(RxUtil.StringToDate(val, "yyyy-MM-dd"));
+								rx.setRxDateFormat(partialDateDao.getFormat(val));
+								rx.setRxDate(partialDateDao.StringToDate(val));
 							}
                                                 } else if (elem.equals("pickupDate_" + num)) {
 							if ((val == null) || (val.equals(""))) {
@@ -1367,6 +1368,8 @@ public final class RxWriteScriptAction extends DispatchAction {
 				}
 
 				//write partial date
+				if (StringUtils.filled(rx.getRxDateFormat()))
+					partialDateDao.setPartialDate(PartialDate.DRUGS, rx.getDrugId(), PartialDate.DRUGS_START_DATE, rx.getRxDateFormat());
 				if (StringUtils.filled(rx.getWrittenDateFormat()))
 					partialDateDao.setPartialDate(PartialDate.DRUGS, rx.getDrugId(), PartialDate.DRUGS_WRITTENDATE, rx.getWrittenDateFormat());
 			} catch (Exception e) {

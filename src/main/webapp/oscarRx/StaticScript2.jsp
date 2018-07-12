@@ -206,7 +206,7 @@ oscar.oscarRx.pageUtil.RxSessionBean rxBean = null;
 						<td><%=drug.providerName%></td>
 						<td><%
 						if(!drug.startDate.equals("0001/01/01") ){
-							out.print(drug.startDate);
+							out.print(partialDateDao.getDatePartial(drug.startDate, PartialDate.DRUGS, drug.localDrugId, PartialDate.DRUGS_START_DATE));
 						}
 						%></td>
 						<td><%

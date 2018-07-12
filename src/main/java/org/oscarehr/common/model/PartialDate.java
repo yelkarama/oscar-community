@@ -83,6 +83,7 @@ public class PartialDate extends AbstractModel<Integer> implements Serializable 
 	public static final Integer ALLERGIES_ENTRYDATE = 2;
 	public static final Integer DRUGS_WRITTENDATE = 3;
 	public static final Integer DXRESEARCH_STARTDATE = 4;
+	public static final Integer DRUGS_START_DATE = 5;
 	
 	@Override
 	public Integer getId() {

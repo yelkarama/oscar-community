@@ -52,6 +52,7 @@ import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.DemographicExtDao;
 import org.oscarehr.common.dao.DxresearchDAO;
 import org.oscarehr.common.dao.OscarAppointmentDao;
+import org.oscarehr.common.dao.PartialDateDao;
 import org.oscarehr.common.dao.PreventionDao;
 import org.oscarehr.common.model.Admission;
 import org.oscarehr.common.model.Allergy;
@@ -61,6 +62,7 @@ import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.DemographicCust;
 import org.oscarehr.common.model.DemographicExt;
 import org.oscarehr.common.model.Dxresearch;
+import org.oscarehr.common.model.PartialDate;
 import org.oscarehr.common.model.Prevention;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.Tickler;
@@ -125,6 +127,7 @@ public class OscarChartPrinter {
     private PreventionDao preventionDao = (PreventionDao)SpringUtils.getBean("preventionDao");
     private DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);
     private TicklerManager ticklerManager = SpringUtils.getBean(TicklerManager.class);
+    private PartialDateDao partialDateDao = SpringUtils.getBean(PartialDateDao.class);
     
 
 	public OscarChartPrinter(HttpServletRequest request, OutputStream os) throws DocumentException,IOException {
@@ -616,7 +619,7 @@ public class OscarChartPrinter {
             if((drug.isCurrent() || OscarProperties.getInstance().isPropertyActive("use_current_rx_outside_rx_page")) && !drug.isArchived() ){
                 curFont = normal;
                 phrase = new Phrase(LEADING, "", curFont);
-                phrase.add(formatter.format(drug.getRxDate()) + " - ");
+                phrase.add(partialDateDao.getDatePartial(drug.getRxDate(), PartialDate.DRUGS, drug.getDrugId(), PartialDate.DRUGS_START_DATE) + " - ");
                 phrase.add(drug.getFullOutLine().replaceAll(";", " "));
                 p.add(phrase);
                 document.add(p);

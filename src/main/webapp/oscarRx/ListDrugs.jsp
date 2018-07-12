@@ -49,6 +49,7 @@
 <%@page import="java.util.ArrayList,oscar.util.*,java.util.*,org.oscarehr.common.model.Drug,org.oscarehr.common.dao.*"%>
 <%@page import="org.oscarehr.managers.DrugDispensingManager" %>
 <%@page import="org.oscarehr.managers.CodingSystemManager" %>
+<%@ page import="org.oscarehr.common.model.PartialDate" %>
 <bean:define id="patient" type="oscar.oscarRx.data.RxPatientData.Patient" name="Patient" />
 <logic:notPresent name="RxSessionBean" scope="session">
     <logic:redirect href="error.html" />
@@ -88,6 +89,7 @@
 	}
 	
 	CodingSystemManager codingSystemManager = SpringUtils.getBean(CodingSystemManager.class);
+	PartialDateDao partialDateDao = SpringUtils.getBean(PartialDateDao.class);
 	
 	boolean integratorEnabled = loggedInInfo.getCurrentFacility().isIntegratorEnabled();
 	String annotation_display = org.oscarehr.casemgmt.model.CaseManagementNoteLink.DISP_PRESCRIP;
@@ -204,7 +206,9 @@ if (heading != null){
             	<% if(startDateUnknown) { %>
             		
             	<% } else { %>
-            		<a id="rxDate_<%=prescriptIdInt%>"   <%=styleColor%> href="StaticScript2.jsp?regionalIdentifier=<%=prescriptDrug.getRegionalIdentifier()%>&amp;cn=<%=(prescriptDrug.getCustomName() != null) ? URLEncoder.encode(prescriptDrug.getCustomName()) : ""%>&amp;bn=<%=response.encodeURL(bn)%>&demographicNo=<%=patient.getDemographicNo()%>"><%=oscar.util.UtilDateUtilities.DateToString(prescriptDrug.getRxDate())%></a>
+            		<a id="rxDate_<%=prescriptIdInt%>"   <%=styleColor%> href="StaticScript2.jsp?regionalIdentifier=<%=prescriptDrug.getRegionalIdentifier()%>&amp;cn=<%=(prescriptDrug.getCustomName() != null) ? URLEncoder.encode(prescriptDrug.getCustomName()) : ""%>&amp;bn=<%=response.encodeURL(bn)%>&demographicNo=<%=patient.getDemographicNo()%>">
+            			<%=partialDateDao.getDatePartial(prescriptDrug.getRxDate(), PartialDate.DRUGS, prescriptDrug.getId(), PartialDate.DRUGS_START_DATE)%>
+            		</a>
             	<% } %>
             </td>
             <td valign="top">

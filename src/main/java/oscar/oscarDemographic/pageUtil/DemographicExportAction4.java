@@ -1540,8 +1540,9 @@ public class DemographicExportAction4 extends Action {
 						mSummary = Util.addSummary("Prescription Written Date", partialDateDao.getDatePartial(arr[p].getWrittenDate(), dateFormat));
 					}
 					if (arr[p].getRxDate()!=null) {
-						medi.addNewStartDate().setFullDate(Util.calDate(arr[p].getRxDate()));
-						mSummary = Util.addSummary(mSummary,"Start Date",UtilDateUtilities.DateToString(arr[p].getRxDate(),"yyyy-MM-dd"));
+						String dateFormat = partialDateDao.getFormat(PartialDate.DRUGS, arr[p].getDrugId(), PartialDate.DRUGS_START_DATE);
+						Util.putPartialDate(medi.addNewStartDate(), arr[p].getRxDate(), dateFormat);
+						mSummary = Util.addSummary(mSummary,"Start Date", partialDateDao.getDatePartial(arr[p].getRxDate(), dateFormat));
 					}
 					String regionalId = arr[p].getRegionalIdentifier();
 					if (StringUtils.filled(regionalId)) {

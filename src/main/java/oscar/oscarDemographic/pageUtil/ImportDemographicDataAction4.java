@@ -1817,7 +1817,12 @@ import oscar.util.UtilDateUtilities;
                     String writtenDateFormat = dateFPGetPartial(medArray[i].getPrescriptionWrittenDate());
 
                     drug.setRxDate(dateFPtoDate(medArray[i].getStartDate(), timeShiftInDays));
-                    if (medArray[i].getStartDate()==null) drug.setRxDate(drug.getWrittenDate());
+                    String startDateFormat = dateFPGetPartial(medArray[i].getStartDate());
+                    if (medArray[i].getStartDate() == null) {
+                        drug.setRxDate(dateTimeFPtoDate(medArray[i].getPrescriptionWrittenDate(), timeShiftInDays));
+                        startDateFormat = dateFPGetPartial(medArray[i].getPrescriptionWrittenDate());
+                    }
+                    
 
                     duration = medArray[i].getDuration();
                     if (StringUtils.filled(duration)) {
@@ -2014,6 +2019,7 @@ import oscar.util.UtilDateUtilities;
 
                     //partial date
                     partialDateDao.setPartialDate(PartialDate.DRUGS, drug.getId(), PartialDate.DRUGS_WRITTENDATE, writtenDateFormat);
+                    partialDateDao.setPartialDate(PartialDate.DRUGS, drug.getId(), PartialDate.DRUGS_START_DATE, startDateFormat);
                     
                     CaseManagementNote cmNote = prepareCMNote("2",null);
                     //to dumpsite

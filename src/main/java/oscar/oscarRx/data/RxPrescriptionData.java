@@ -606,6 +606,7 @@ public class RxPrescriptionData {
 		long randomId = 0;
 		java.util.Date rxCreatedDate = null;
 		java.util.Date rxDate = null;
+		String rxDateFormat = null;
 		java.util.Date endDate = null;
 		java.util.Date pickupDate = null;
 		java.util.Date pickupTime = null;
@@ -941,6 +942,14 @@ public class RxPrescriptionData {
 
 		public void setRxDate(java.util.Date RHS) {
 			this.rxDate = RHS;
+		}
+
+		public String getRxDateFormat() {
+			return this.rxDateFormat;
+		}
+
+		public void setRxDateFormat(String RHS) {
+			this.rxDateFormat = RHS;
 		}
 
 		public java.util.Date getPickupDate() {
