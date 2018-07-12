@@ -352,9 +352,11 @@ function printIframe(){
 				if (useWidePrint) {
 					var oldPageSize = frames['preview'].document.getElementById('pwTable').style.width;
 					frames['preview'].document.getElementById('pwTable').style.width = '690px';
+                    frames['preview'].document.getElementById('watermark').style.width = '690px';
 				}
 				preview.print();
 				frames['preview'].document.getElementById('pwTable').style.width = oldPageSize;
+                frames['preview'].document.getElementById('watermark').style.width = oldPageSize;
 
 				self.onfocus = function () {
                     self.setTimeout(

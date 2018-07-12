@@ -53,10 +53,41 @@
 	String providerNo=loggedInInfo.getLoggedInProviderNo();
 	String scriptid=request.getParameter("scriptId");
 	String rx_enhance = OscarProperties.getInstance().getProperty("rx_enhance");
+	boolean rxWaterMark = OscarProperties.getInstance().getBooleanProperty("enable_rx_watermark", "true");
+	String rx_watermark_file = OscarProperties.getInstance().getProperty("rx_watermark_file_name");
+	String imageString = "";
+	if (rxWaterMark && rx_watermark_file != null) {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		try {
+			File imageFile = new File(rx_watermark_file);
+			BufferedImage image = ImageIO.read(imageFile);
+			ImageIO.write(image, "png", baos);
+			byte[] imageBytes = baos.toByteArray();
+
+			BASE64Encoder encoder = new BASE64Encoder();
+			imageString = "data:image/png;base64," + encoder.encode(imageBytes);
+
+			baos.close();
+		} catch (IOException e) {
+			MiscUtils.getLogger().error("Could not render prescription watermark", e);
+		}
+	}
 %>	
 
 <%@page import="org.oscarehr.web.PrescriptionQrCodeUIBean"%>
 <%@ page import="org.oscarehr.integration.dashboard.model.User" %>
+<%@ page import="javax.imageio.ImageIO" %>
+<%@ page import="java.awt.*" %>
+<%@ page import="java.util.List" %>
+<%@ page import="java.io.File" %>
+<%@ page import="java.io.ByteArrayOutputStream" %>
+<%@ page import="java.awt.image.RenderedImage" %>
+<%@ page import="java.awt.image.BufferedImage" %>
+<%@ page import="java.io.IOException" %>
+<%@ page import="sun.misc.BASE64Encoder" %>
+<%@ page import="org.oscarehr.util.MiscUtilsOld" %>
+<%@ page import="org.oscarehr.util.MiscUtils" %>
+<%@ page import="oscar.util.StringUtils" %>
 <jsp:useBean id="providerBean" class="java.util.Properties" scope="session" />
 
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
@@ -110,6 +141,15 @@
             document.getElementById("preview2Form").submit();
        return true;
     }
+    <%if (rxWaterMark){ %>
+    function scaleWaterMark() {
+        var tableHeight = document.getElementById("pwTable").getHeight();
+            
+        if (tableHeight > 586) {
+            document.getElementById("watermark").style.height = tableHeight + "px";
+        }
+    }
+    <%}%>
 </script>
 
 </head>
@@ -295,7 +335,23 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
 }
 %>
 <html:form action="/form/formname" styleId="preview2Form">
-
+    
+    
+	<%if (rxWaterMark && imageString.length() > 0){ %>
+    <style type="text/css">
+        #watermark {
+            position: absolute;
+            display: block;
+            background: url(<%=imageString.replaceAll("[\r\n\\s]", "")%>) repeat;
+            width:400px;
+            height: 500px;
+            background-size: contain;
+            -webkit-print-color-adjust: exact !important;
+            z-index: -100;
+        }
+    </style>
+    <div id="watermark"></div>
+	<%} %>
 	<input type="hidden" name="demographic_no" value="<%=bean.getDemographicNo()%>"/>
     <p id="pharmInfo" style="float:left;">
     </p>

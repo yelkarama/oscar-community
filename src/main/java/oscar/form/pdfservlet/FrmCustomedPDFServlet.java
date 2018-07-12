@@ -47,6 +47,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.lowagie.text.BadElementException;
+import com.lowagie.text.pdf.PdfGState;
+import com.lowagie.text.pdf.PdfStamper;
+import com.lowagie.text.pdf.PdfTemplate;
 import org.apache.commons.io.FileUtils;
 
 import net.sf.jasperreports.engine.JRException;
@@ -96,6 +100,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 
 	public static final String HSFO_RX_DATA_KEY = "hsfo.rx.data";
 	private static Logger logger = MiscUtils.getLogger();
+	private float endPara = 0;
 
 	@Override
     public void service(HttpServletRequest req, HttpServletResponse res) throws javax.servlet.ServletException, java.io.IOException {
@@ -283,6 +288,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 		private boolean pharmaShow;
 		private String loggedInProvNo;
                 Locale locale = null;
+        
                 
 		public EndPage() {
 		}
@@ -387,7 +393,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 				float height = page.getHeight();
                 BaseFont bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
                 // get the end of paragraph
-                float endPara = writer.getVerticalPosition(true);
+                endPara = writer.getVerticalPosition(true);
                 if (writer.getPageNumber() == 1 && OscarProperties.getInstance().getBooleanProperty("queens_fax_cover_page", "true"))
                 {
                     writeDirectContent(cb, bf, 50, PdfContentByte.ALIGN_LEFT, "Fax Message", 24, page.getHeight() - 73, 0);
@@ -756,10 +762,71 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 				document.add(p);
 			}
 			document.newPage();
-
+			
 			PdfContentByte cb = writer.getDirectContent();
 
 			cb.setRGBColorStroke(0, 0, 255);
+			
+			// add water mark
+			if (OscarProperties.getInstance().getBooleanProperty("enable_rx_watermark", "true") && !"oscarRxFax".equals(req.getParameter("__method"))) {
+				Image image = null;
+				
+				float pageHeight = document.getPageSize().getHeight();
+				float opacity = Float.parseFloat(OscarProperties.getInstance().getProperty("rx_watermark_opacity", "1"));
+				if(OscarProperties.getInstance().getProperty("rx_watermark_file_name") != null ) {
+					loggedInInfo.getLoggedInProvider().getFormattedName();
+					
+					image = Image.getInstance(OscarProperties.getInstance().getProperty("rx_watermark_file_name"));
+					
+					
+					PdfGState gstate = new PdfGState();
+					gstate.setFillOpacity(opacity);
+					cb.saveState();
+					cb.setGState(gstate);
+
+					float rxWidth = 285f - 13f;
+					float rxHeight = pageSize.getHeight() - 13 - (endPara - 95f);
+					
+					
+					image.setAlignment(Image.MIDDLE | Image.UNDERLYING);
+					
+					if (image.getPlainHeight() > rxHeight) {
+						image.scaleAbsoluteHeight(rxHeight);
+						image.scaleAbsoluteWidth(rxWidth);
+					} else {
+						image.scaleToFit(rxWidth, 100);
+					}
+
+
+					int imageCount = (int) Math.ceil(rxHeight / image.getPlainHeight());
+					for (int i = 1; i <= imageCount; i++) {
+						float yPosition = pageHeight - 15 - (image.getScaledHeight() * i);
+						
+                        if (rxHeight < (image.getScaledHeight() * i)) {
+                            image = getCroppedImage(image, cb, i, rxHeight);
+                        }
+						
+						image.setAbsolutePosition(13, yPosition);
+						cb.addImage(image);
+					}
+
+					cb.restoreState();
+				} else {
+					PdfGState gstate = new PdfGState();
+					gstate.setFillOpacity(0.1f);
+					cb.saveState();
+					cb.setGState(gstate);
+					
+					Phrase providerName = new Phrase(loggedInInfo.getLoggedInProvider().getFormattedName(), new Font(bf, 40));
+					
+					int count = 15;
+					for (int i = 1; i <= count; i++) {
+						ColumnText.showTextAligned(cb, Element.ALIGN_CENTER, providerName, (37 * i), (pageHeight - (50 * i)), 37);
+					}
+					cb.restoreState();
+				}
+			}
+			
 			// render prescriptions
 			for (String rxStr : listRx) {
 				p = new Paragraph(new Phrase(rxStr, new Font(bf, 10)));
@@ -800,4 +867,38 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 		logger.debug("***END in generatePDFDocumentBytes2 FrmCustomedPDFServlet.java***");
 		return baosPDF;
 	}
+
+    /**
+     * Crops an image to fix the given element height based on the number of times the image has been printed and how much space is left to fill
+     * 
+     * @param image The image to be cropped
+     * @param cb The content bytes, used to create a PdfTemplate
+     * @param imageCount Count of what # image is being printed, used to determine how much the image has to be cropped
+     * @param rxHeight Height of the Rx area that the image has to be cropped to
+     * @return the cropped Image
+     */
+	private Image getCroppedImage(Image image, PdfContentByte cb, int imageCount, float rxHeight) {
+	    // Gets the overflow height in order to determine the new height of the image
+        float overflowHeight = (float)Math.ceil((image.getScaledHeight() * imageCount) - rxHeight);
+        // Calculates the new height that the image will be cropped to
+        float newHeight = image.getScaledHeight() - overflowHeight;
+        // Creates a new template for the image
+        PdfTemplate t = cb.createTemplate(image.getScaledWidth(), image.getScaledHeight());
+        // Creates a rectangle that will crop the image. 2 is added to the overflow height so that there isn't a small line sticking out past the bottom of the rx
+        t.rectangle(0, overflowHeight + 2, image.getScaledWidth(), newHeight);
+        t.clip();
+        t.newPath();
+        try {
+            t.addImage(image, image.getScaledWidth(), 0, 0, image.getScaledHeight(), 0, 0);
+
+            return Image.getInstance(t);
+        } catch (BadElementException e) {
+            logger.error("Could not get the instance of the cropped image", e);
+        } catch (DocumentException e) {
+            logger.error("Could not add an image to the PdfTemplate to crop", e);
+        }
+        
+        // Returns the passed image in the event that an error occurs
+        return image;
+    }
 }
