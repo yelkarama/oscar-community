@@ -41,21 +41,22 @@
 
 <%
 String user_no = (String) session.getAttribute("user");
-String userfirstname = (String) session.getAttribute("userfirstname");
-String userlastname = (String) session.getAttribute("userlastname");
 %>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
-<%@ page
-	import="java.util.*, java.io.*, java.sql.*, oscar.*, oscar.util.*, java.net.*,oscar.MyDateFormat, oscar.dms.*, oscar.dms.data.*, oscar.oscarProvider.data.ProviderData, org.oscarehr.util.SpringUtils, org.oscarehr.common.dao.CtlDocClassDao"%><%
+<%@ page import="java.util.*, oscar.util.*, oscar.dms.*, oscar.dms.data.*, org.oscarehr.util.SpringUtils, org.oscarehr.common.dao.CtlDocClassDao"%>
+<%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
+<%@ page import="org.oscarehr.common.model.Provider" %>
+<%
 String editDocumentNo = "";
 if (request.getAttribute("editDocumentNo") != null) {
     editDocumentNo = (String) request.getAttribute("editDocumentNo");
 } else {
     editDocumentNo = request.getParameter("editDocumentNo");
 }
+ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 
 String module = "";
 String moduleid = "";
@@ -101,7 +102,6 @@ if (request.getAttribute("completedForm") != null) {
     fileName = currentDoc.getFileName();
 }
 
-List<Map<String,String>> pdList = new ProviderData().getProviderList();
 ArrayList doctypes = EDocUtil.getDoctypes(formdata.getFunction());
 String annotation_display = org.oscarehr.casemgmt.model.CaseManagementNoteLink.DISP_DOCUMENT;
 String annotation_tableid = editDocumentNo;
@@ -125,6 +125,21 @@ for (String reportClass : reportClasses) {
         }
     }
 }
+	List<Provider> providerList = providerDao.getActiveProviders();
+	if (formdata.getResponsibleId() != null && !"".equals(formdata.getResponsibleId())) {
+		Boolean responsibleProviderInList = false;
+		for (Provider p : providerList) {
+			if (p.getProviderNo().equals(formdata.getResponsibleId())) {
+				responsibleProviderInList = true;
+			}
+		}
+		if (!responsibleProviderInList) {
+			Provider rProvider = providerDao.getProvider(formdata.getResponsibleId());
+			if (rProvider != null) {
+				providerList.add(0, rProvider);
+			}
+		}
+	}
 %>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
@@ -288,11 +303,11 @@ for (String reportClass : reportClasses) {
 			<td>
 			    <select name="responsibleId">
 				<option value="">---</option>
-		<% for (Map<String,String> pd : pdList) {
+		<% for (Provider p : providerList) {
 			String selected = "";
-			if (formdata.getResponsibleId().equals(pd.get("providerNo"))) selected = "selected";
+			if (p.getProviderNo().equals(formdata.getResponsibleId())) { selected = "selected"; }
 			%>
-				<option value="<%=pd.get("providerNo")%>" <%=selected%>><%=pd.get("lastName")%>, <%=pd.get("firstName")%></option>
+				<option value="<%=p.getProviderNo()%>" <%=selected%>><%=p.getLastName()%>, <%=p.getFirstName()%></option>
 		<% } %>
 			    </select>
 			</td>
