@@ -690,8 +690,8 @@ public final class RxWriteScriptAction extends DispatchAction {
 						stringBuilder.append( " / " );
 					}
 				}
-				
-				rx.setGenericName(stringBuilder.toString()); 
+
+				rx.setGenericName(stringBuilder.toString());
 			} else {
 				rx.setGenericName(dmono.name); 
 			}
@@ -1035,6 +1035,30 @@ public final class RxWriteScriptAction extends DispatchAction {
 				} else {
 					existingIndex.add(stashIndex);
 					RxPrescriptionData.Prescription rx = bean.getStashItem(stashIndex);
+					String ingredientName = request.getParameter("ingredient_name_" + num) == null ? "" : request.getParameter("ingredient_name_" + num).replaceAll(" ", "");
+					String ingredientStrength = request.getParameter("ingredient_strength_" + num) == null ? "" : request.getParameter("ingredient_strength_" + num).replaceAll(" ", "");
+					String[] ingredientNames = ingredientName.trim().split("/");
+					String[] ingredientStrengths = ingredientStrength.trim().split("/");
+					StringBuilder genericName = new StringBuilder();
+					StringBuilder dosage = new StringBuilder();
+					for (int i = 0; i < ingredientNames.length; i++) {
+						genericName.append(ingredientNames[i]);
+						genericName.append(" ");
+						if (i < ingredientStrengths.length) {
+							genericName.append(ingredientStrengths[i]);
+							dosage.append(ingredientStrengths[i]);
+							dosage.append(" ");
+						}
+						if (i < (ingredientStrengths.length - 1)) {
+							genericName.append(" / ");
+						}
+					}
+					if (ingredientStrengths.length > 0 && ingredientStrengths[0].length() > 2) {
+						String unit = ingredientStrengths[0].substring(ingredientStrengths[0].length() - 2);
+						rx.setUnit(unit);
+					}
+					rx.setGenericName(genericName.toString());
+					rx.setDosage(dosage.toString());
 
 					boolean patientComplianceY = false;
 					boolean patientComplianceN = false;
@@ -1059,7 +1083,6 @@ public final class RxWriteScriptAction extends DispatchAction {
 							if (rx.isCustom()) {
 								rx.setCustomName(val);
 								rx.setBrandName(null);
-								rx.setGenericName(null);
 							} else {
 								rx.setBrandName(val);
 							}
