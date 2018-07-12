@@ -42,22 +42,14 @@ public class RxUpdateAllergyAction extends Action{
         String name = request.getParameter("name");
         Integer type = Integer.parseInt(request.getParameter("type"));
         String reactionDescription = request.getParameter("reactionDescription");
-
-        Date startDate = null;
-        String startDateString = request.getParameter("startDate");
-        String pattern = "";
-        if(!StringUtils.isNullOrEmpty(startDateString)){
-            pattern = allergy.getDatePattern(startDateString);
-            startDate = StringToDate(startDateString, pattern);
-        }
+        String entryDate = request.getParameter("entryDate");
+        String startDate = request.getParameter("startDate");
 
         String ageOfOnset = request.getParameter("ageOfOnset");
         String severityOfReaction = request.getParameter("severityOfReaction");
         String onSetOfReaction = request.getParameter("onSetOfReaction");
         String lifeStage = request.getParameter("lifeStage");
         boolean isUpdate = false;
-
-
 
         if(!name.equals(allergy.getDescription())){
             allergy.setDescription(name);
@@ -74,22 +66,42 @@ public class RxUpdateAllergyAction extends Action{
             isUpdate = true;
         }
 
-        if(startDate!=null && !startDate.equals(allergy.getStartDate())){
-            //update when a new value is entered
-            allergy.setStartDate(startDate);
-            if (pattern.equals(PartialDate.YEARMONTH)) {
-                allergy.setStartDateFormat(PartialDate.YEARMONTH);
-            } else if (pattern.equals(PartialDate.YEARONLY)) {
-                allergy.setStartDateFormat(PartialDate.YEARONLY);
+        if(!entryDate.trim().isEmpty()) {
+            String pattern = allergy.getDatePattern(entryDate);
+            Date newEntryDate = StringToDate(entryDate, pattern);
+            if (newEntryDate != null && !newEntryDate.equals(allergy.getEntryDate())) {
+                allergy.setEntryDate(newEntryDate);
+                allergy.setEntryDateFormat(PartialDate.getPartialDateFormat(pattern));
+                isUpdate = true;
+            } else {
+                allergy.setEntryDateFormat(PartialDate.DO_NOT_UPDATE);
             }
-            isUpdate = true;
-        }
-        else if(startDate==null && allergy.getStartDate()!=null){
-            //update if value is cleared
-            allergy.setStartDate(startDate);
-            isUpdate = true;
+        } else {
+            allergy.setEntryDateFormat(PartialDate.DO_NOT_UPDATE);
         }
 
+        if(!startDate.trim().isEmpty()){
+            String pattern = allergy.getDatePattern(startDate);
+            Date newStartDate = StringToDate(startDate, pattern);
+            if (newStartDate != null && !newStartDate.equals(allergy.getStartDate())) {
+                allergy.setStartDate(newStartDate);
+                allergy.setStartDateFormat(PartialDate.getPartialDateFormat(pattern));
+                isUpdate = true;
+            } else if (newStartDate != null){
+                allergy.setStartDateFormat(PartialDate.DO_NOT_UPDATE);
+            } else {
+                allergy.setStartDate(null);
+                allergy.setStartDateFormat(null);
+                isUpdate = true;
+            }
+        } else if (!startDate.equals(allergy.getStartDate().toString())) {
+            allergy.setStartDate(null);
+            allergy.setStartDateFormat(null);
+            isUpdate = true;
+        } else {
+            allergy.setStartDateFormat(PartialDate.DO_NOT_UPDATE);
+        }
+        
         if(!ageOfOnset.equals(allergy.getAgeOfOnset())){
             allergy.setAgeOfOnset(ageOfOnset);
             isUpdate = true;

@@ -92,7 +92,7 @@ public class PartialDateDao extends AbstractDao<PartialDate> {
 	}
 
 	public void setPartialDate(Integer tableName, Integer tableId, Integer fieldName, String format) {
-		if (tableName==null || fieldName==null || tableId==null || tableId.equals(0)) return;
+		if (tableName==null || fieldName==null || tableId==null || tableId.equals(0) || PartialDate.DO_NOT_UPDATE.equals(format)) return;
 		
 		PartialDate partialDate = getPartialDate(tableName, tableId, fieldName);
 		if (partialDate==null) {

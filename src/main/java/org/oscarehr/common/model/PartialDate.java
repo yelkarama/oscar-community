@@ -73,6 +73,7 @@ public class PartialDate extends AbstractModel<Integer> implements Serializable 
 	  
 	public static final String YEARONLY = "YYYY";
 	public static final String YEARMONTH = "YYYY-MM";
+	public static final String DO_NOT_UPDATE = "DO NOT UPDATE";
 	
 	public static final Integer ALLERGIES = 1;
 	public static final Integer DRUGS = 2;
@@ -131,5 +132,16 @@ public class PartialDate extends AbstractModel<Integer> implements Serializable 
 		this.tableId = tableId;
 		this.fieldName = fieldName;
 		this.format = format;
+	}
+	
+	public static String getPartialDateFormat(String pattern) {
+		switch (pattern.toUpperCase()) {
+			case PartialDate.YEARMONTH:
+				return PartialDate.YEARMONTH;
+			case PartialDate.YEARONLY:
+				return PartialDate.YEARONLY;
+			default:
+				return null;
+		}
 	}
 }

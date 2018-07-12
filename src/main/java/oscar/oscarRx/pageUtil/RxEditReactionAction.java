@@ -55,7 +55,8 @@ public class RxEditReactionAction extends Action {
         String name = allergy.getDescription();
         Integer type = allergy.getTypeCode();
         String description = allergy.getReaction();
-        String startDate = (allergy.getStartDate()!=null)?allergy.getStartDate().toString():"";
+        String entryDate = allergy.getEntryDate() != null ? allergy.getEntryDate().toString() : "";
+        String startDate = allergy.getStartDate() != null ? allergy.getStartDate().toString():"";
         String ageOfOnset = allergy.getAgeOfOnset();
         String severityOfReaction = allergy.getSeverityOfReaction();
         String onSetOfReaction = allergy.getOnsetOfReaction();
@@ -67,6 +68,7 @@ public class RxEditReactionAction extends Action {
         request.setAttribute("name",name);
         request.setAttribute("type", type);
         request.setAttribute("reactionDescription", description);
+        request.setAttribute("entryDate", entryDate);
         request.setAttribute("startDate", startDate);
         request.setAttribute("ageOfOnset", ageOfOnset);
         request.setAttribute("severityOfReaction", severityOfReaction);
