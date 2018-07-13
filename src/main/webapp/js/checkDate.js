@@ -208,6 +208,39 @@ function checkAndValidateDate(dateStr, datePattern) {
 		}
 	}
 }
+
+function checkAndValidatePartialDate(dateStr) {
+	var dt = dateStr.split("-");
+	if (dt.length>3) {
+		jQuery(this).focus();
+		alert('Written Date wrong format! Must be yyyy or yyyy-mm or yyyy-mm-dd');
+		return false;
+	}
+
+	var dt1=1, mon1=0, yr1=parseInt(dt[0],10);
+	if (isNaN(yr1) || yr1<0 || yr1>9999) {
+		jQuery(this).focus();
+		alert('Invalid Written Date! Please check the year');
+		return false;
+	}
+	if (dt.length>1) {
+		mon1 = parseInt(dt[1],10)-1;
+		if (isNaN(mon1) || mon1<0 || mon1>11) {
+			jQuery(this).focus();
+			alert('Invalid Written Date! Please check the month');
+			return false;
+		}
+	}
+	if (dt.length>2) {
+		dt1 = parseInt(dt[2],10);
+		if (isNaN(dt1) || dt1<1 || dt1>31) {
+			jQuery(this).focus();
+			alert('Invalid Written Date! Please check the day');
+			return false;
+		}
+	}
+	return true;
+}
 	
 function check_date_format1(dateStr) {
 	//eg. checkedDate = '21-09-2007'

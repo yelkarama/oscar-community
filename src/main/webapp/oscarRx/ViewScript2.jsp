@@ -759,7 +759,7 @@ function toggleView(form) {
                                     
                                  <span>
                                  	<select id="faxNumber" name="faxNumber">
-                                 	<%	if (preferenceFaxNo != null && !preferenceFaxNo.getValue().isEmpty()) { %>
+                                 	<%	if (preferenceFaxNo != null && !StringUtils.isBlank(preferenceFaxNo.getValue())) { %>
                                  			<option value="<%=preferenceFaxNo.getValue().replaceAll("-", "")%>">Preferred Fax Number</option>
                                  	<%	}
                                  		for( FaxConfig faxConfig : faxConfigs ) { %>

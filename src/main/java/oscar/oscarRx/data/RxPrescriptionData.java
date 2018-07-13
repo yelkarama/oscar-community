@@ -1630,9 +1630,6 @@ public class RxPrescriptionData {
 
 			
 			this.position = position;
-			syncDrug(drug, ConversionUtils.fromIntString(scriptId));
-			dao.persist(drug);
-			drugId = drug.getId();
 
 			return true;
 		}

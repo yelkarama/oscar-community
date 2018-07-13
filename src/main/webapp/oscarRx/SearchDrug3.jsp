@@ -2304,7 +2304,7 @@ function updateQty(element){
           	jQuery('input[name^="rxDate_"]').each(function(){
           		var strRx  = jQuery(this).val();
 
-          		if(!checkAndValidateDate(strRx,null)) {
+          		if(!checkAndValidatePartialDate(strRx)) {
           			jQuery(this).focus();
           			rx=false;
           			return false;
@@ -2319,39 +2319,16 @@ function updateQty(element){
         jQuery('input[name^="writtenDate_"]').each(function(){
             var str1  = jQuery(this).val();
 
+            checkAndValidatePartialDate(str1);
             var dt = str1.split("-");
-            if (dt.length>3) {
-            	jQuery(this).focus();
-                alert('Written Date wrong format! Must be yyyy or yyyy-mm or yyyy-mm-dd');
-                x = false;
-                return;
-            }
-
             var dt1=1, mon1=0, yr1=parseInt(dt[0],10);
-            if (isNaN(yr1) || yr1<0 || yr1>9999) {
-            	jQuery(this).focus();
-                alert('Invalid Written Date! Please check the year');
-                x = false;
-                return;
-            }
             if (dt.length>1) {
-            	mon1 = parseInt(dt[1],10)-1;
-            	if (isNaN(mon1) || mon1<0 || mon1>11) {
-            		jQuery(this).focus();
-            		alert('Invalid Written Date! Please check the month');
-                    x = false;
-                    return;
-            	}
+                mon1 = parseInt(dt[1], 10) - 1;
             }
             if (dt.length>2) {
-            	dt1 = parseInt(dt[2],10);
-                if (isNaN(dt1) || dt1<1 || dt1>31) {
-                	jQuery(this).focus();
-                    alert('Invalid Written Date! Please check the day');
-                    x = false;
-                    return;
-                }
+                dt1 = parseInt(dt[2], 10);
             }
+            
             var date1 = new Date(yr1, mon1, dt1);
             var now  = new Date();
 
