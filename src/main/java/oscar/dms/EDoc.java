@@ -30,12 +30,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.log4j.Logger;
 import org.apache.struts.upload.FormFile;
+import org.oscarehr.common.model.DocumentReview;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.util.MiscUtils;
 
@@ -70,6 +73,7 @@ public class EDoc extends TagObject implements Comparable<EDoc> {
 	private Date contentDateTime=null;
 	private Date sentDateTime = null;
 	private String observationDate = "";
+	private List<DocumentReview> reviews = new ArrayList<>();
 	private String reviewerId = "";
 	private String reviewDateTime = null;
 	private Date reviewDateTimeDate = null;
@@ -238,11 +242,8 @@ public class EDoc extends TagObject implements Comparable<EDoc> {
 	public String getDescription() {
 		return description;
 	}
-
-	public Date getReviewDateTimeDate() {
-		return (reviewDateTimeDate);
-	}
-
+	
+	@Deprecated
 	public void setReviewDateTimeDate(Date reviewDateTimeDate) {
 		this.reviewDateTimeDate = reviewDateTimeDate;
 	}
@@ -487,31 +488,20 @@ public class EDoc extends TagObject implements Comparable<EDoc> {
 		this.dateTimeStampAsDate = dateTimeStampAsDate;
 	}
 
-	public String getReviewerId() {
-		return reviewerId;
+	public List<DocumentReview> getReviews() {
+		return reviews;
 	}
 
-	public String getReviewerName() {
-		String reviewerName = EDocUtil.getProviderName(reviewerId);
-		return reviewerName;
+	public void setReviews(List<DocumentReview> reviews) {
+		this.reviews = reviews;
 	}
-
-	public String getReviewerOhip() {
-		Provider provider = EDocUtil.getProvider(reviewerId);
-		if (provider != null) {
-			return provider.getOhipNo();
-		}
-		return "";
-	}
-
+	
+	@Deprecated
 	public void setReviewerId(String reviewerId) {
 		this.reviewerId = reviewerId;
 	}
 
-	public String getReviewDateTime() {
-		return reviewDateTime;
-	}
-
+	@Deprecated
 	public void setReviewDateTime(String reviewDateTime) {
 		this.reviewDateTime = reviewDateTime;
 	}

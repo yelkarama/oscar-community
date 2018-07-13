@@ -89,6 +89,8 @@ public class AddEditDocumentAction extends DispatchAction {
 		
 		AddEditDocumentForm fm = (AddEditDocumentForm) form;
 
+		Provider loggedInProvider = LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProvider();
+
 		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_edoc", "w", null)) {
 			throw new SecurityException("missing required security object (_edoc)");
 		}
@@ -133,7 +135,7 @@ public class AddEditDocumentAction extends DispatchAction {
 			numberOfPages = countNumOfPages(fileName);
 		}
 		newDoc.setNumberOfPages(numberOfPages);
-		String doc_no = EDocUtil.addDocumentSQL(newDoc);
+		String doc_no = EDocUtil.addDocumentSQL(newDoc, loggedInProvider.getProviderNo(), fm.getReviewDoc());
 		LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.ADD, LogConst.CON_DOCUMENT, doc_no, request.getRemoteAddr());
 		String providerId = request.getParameter("provider");
 
@@ -181,7 +183,7 @@ public class AddEditDocumentAction extends DispatchAction {
 
 	public ActionForward fastUpload(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		AddEditDocumentForm fm = (AddEditDocumentForm) form;
-		
+		Provider loggedInProvider = LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProvider();
 		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_edoc", "w", null)) {
 			throw new SecurityException("missing required security object (_edoc)");
 		}
@@ -216,7 +218,7 @@ public class AddEditDocumentAction extends DispatchAction {
                     newDoc.setNumberOfPages(numberOfPages);                        
                 }
 
-		EDocUtil.addDocumentSQL(newDoc);
+		EDocUtil.addDocumentSQL(newDoc, loggedInProvider.getProviderNo(), fm.getReviewDoc());
 
 		return mapping.findForward("fastUploadSuccess");
 	}
@@ -272,7 +274,7 @@ public class AddEditDocumentAction extends DispatchAction {
 
 	// returns true if successful
 	private boolean addDocument(AddEditDocumentForm fm, ActionMapping mapping, HttpServletRequest request) {
-
+		Provider loggedInProvider = LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProvider();
 		Hashtable errors = new Hashtable();
 		try {
 			if ((fm.getDocDesc().length() == 0) || (fm.getDocDesc().equals("Enter Title"))) {
@@ -332,7 +334,7 @@ public class AddEditDocumentAction extends DispatchAction {
 		 	
 			
 			// ---
-			String doc_no = EDocUtil.addDocumentSQL(newDoc);
+			String doc_no = EDocUtil.addDocumentSQL(newDoc, loggedInProvider.getProviderNo(), fm.getReviewDoc());
 			if(ConformanceTestHelper.enableConformanceOnlyTestFeatures){
 				storeDocumentInDatabase(file, Integer.parseInt(doc_no));
 			}
@@ -406,6 +408,7 @@ public class AddEditDocumentAction extends DispatchAction {
 	}
 
 	private ActionForward editDocument(AddEditDocumentForm fm, ActionMapping mapping, HttpServletRequest request) {
+		Provider provider = LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProvider();
 		Hashtable errors = new Hashtable();
 		
 		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_edoc", "w", null)) {
@@ -428,13 +431,10 @@ public class AddEditDocumentAction extends DispatchAction {
                         {
                             fileName=docFile.getFileName();
                         }
-                        
-			String reviewerId = filled(fm.getReviewerId()) ? fm.getReviewerId() : "";
-			String reviewDateTime = filled(fm.getReviewDateTime()) ? fm.getReviewDateTime() : "";
 
-			if (!filled(reviewerId) && fm.getReviewDoc()) {
-				reviewerId = (String) request.getSession().getAttribute("user");
-				reviewDateTime = UtilDateUtilities.DateToString(new Date(), EDocUtil.REVIEW_DATETIME_FORMAT);
+			String reviewerId = request.getSession().getAttribute("user") != null ? request.getSession().getAttribute("user").toString() : "";
+
+			if (filled(reviewerId) && fm.getReviewDoc()) {
 				if (fm.getFunction() != null && fm.getFunction().equals("demographic")) {
 					LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.REVIEWED, LogConst.CON_DOCUMENT, fm.getMode(), request.getRemoteAddr(), fm.getFunctionId());
 				} else {
@@ -442,7 +442,7 @@ public class AddEditDocumentAction extends DispatchAction {
 
 				}
 			}
-			EDoc newDoc = new EDoc(fm.getDocDesc(), fm.getDocType(), fileName, "", fm.getDocCreator(), fm.getResponsibleId(), fm.getSource(), 'A', fm.getObservationDate(), reviewerId, reviewDateTime, fm.getFunction(), fm.getFunctionId());
+			EDoc newDoc = new EDoc(fm.getDocDesc(), fm.getDocType(), fileName, "", fm.getDocCreator(), fm.getResponsibleId(), fm.getSource(), 'A', fm.getObservationDate(), null, null, fm.getFunction(), fm.getFunctionId());
 			newDoc.setSourceFacility(fm.getSourceFacility());
 			newDoc.setDocId(fm.getMode());
 			newDoc.setDocPublic(fm.getDocPublic());
@@ -474,10 +474,7 @@ public class AddEditDocumentAction extends DispatchAction {
 				errors.put("uploaderror", "dms.error.uploadError");
 				throw new FileNotFoundException();
 			}
-			if(fm.getReviewDoc()) {
-				newDoc.setReviewDateTime(UtilDateUtilities.DateToString(new Date(), EDocUtil.REVIEW_DATETIME_FORMAT));
-			}
-			EDocUtil.editDocumentSQL(newDoc, fm.getReviewDoc());
+			EDocUtil.editDocumentSQL(newDoc, provider.getProviderNo(), fm.getReviewDoc());
 
 			if (fm.getFunction() != null && fm.getFunction().equals("demographic")) {
 				LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.UPDATE, LogConst.CON_DOCUMENT, fm.getMode(), request.getRemoteAddr(), fm.getFunctionId());

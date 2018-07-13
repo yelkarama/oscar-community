@@ -1098,8 +1098,10 @@ public class CaisiIntegratorUpdateTask extends TimerTask {
 		cachedDemographicDocument.setProgramId(eDoc.getProgramId());
 		cachedDemographicDocument.setPublic1(Integer.parseInt(eDoc.getDocPublic()));
 		cachedDemographicDocument.setResponsible(eDoc.getResponsibleId());
-		cachedDemographicDocument.setReviewDateTime(DateUtils.toGregorianCalendar(eDoc.getReviewDateTimeDate()));
-		cachedDemographicDocument.setReviewer(eDoc.getReviewerId());
+		if (!eDoc.getReviews().isEmpty() && eDoc.getReviews().get(0) != null) {
+				cachedDemographicDocument.setReviewDateTime(DateUtils.toGregorianCalendar(eDoc.getReviews().get(0).getDateTimeReviewed()));
+				cachedDemographicDocument.setReviewer(eDoc.getReviews().get(0).getProviderNo());
+		}
 		cachedDemographicDocument.setSource(eDoc.getSource());
 		cachedDemographicDocument.setStatus("" + eDoc.getStatus());
 		cachedDemographicDocument.setUpdateDateTime(DateUtils.toGregorianCalendar(eDoc.getDateTimeStampAsDate()));

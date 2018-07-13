@@ -49,6 +49,7 @@ String user_no = (String) session.getAttribute("user");
 <%@ page import="java.util.*, oscar.util.*, oscar.dms.*, oscar.dms.data.*, org.oscarehr.util.SpringUtils, org.oscarehr.common.dao.CtlDocClassDao"%>
 <%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
 <%@ page import="org.oscarehr.common.model.Provider" %>
+<%@ page import="org.oscarehr.common.model.DocumentReview" %>
 <%
 String editDocumentNo = "";
 if (request.getAttribute("editDocumentNo") != null) {
@@ -79,7 +80,7 @@ if (request.getAttribute("docerrors") != null) {
 if (request.getAttribute("completedForm") != null) {
     formdata = (AddEditDocumentForm) request.getAttribute("completedForm");
     lastUpdate = EDocUtil.getDmsDateTime();
-} else if (editDocumentNo != null && !editDocumentNo.equals("")) {
+} else if (StringUtils.filled(editDocumentNo)) {
     EDoc currentDoc = EDocUtil.getDoc(editDocumentNo);
     formdata.setFunction(currentDoc.getModule());
     formdata.setFunctionId(currentDoc.getModuleId());
@@ -93,8 +94,7 @@ if (request.getAttribute("completedForm") != null) {
     formdata.setObservationDate(currentDoc.getObservationDate());
     formdata.setSource(currentDoc.getSource());
     formdata.setSourceFacility(currentDoc.getSourceFacility());
-    formdata.setReviewerId(currentDoc.getReviewerId());
-    formdata.setReviewDateTime(currentDoc.getReviewDateTime());
+    formdata.setReviews(currentDoc.getReviews());
     formdata.setContentDateTime(UtilDateUtilities.DateToString(currentDoc.getContentDateTime(),EDocUtil.CONTENT_DATETIME_FORMAT));
     formdata.setSentDateTime(UtilDateUtilities.DateToString(currentDoc.getSentDateTime(),EDocUtil.DMS_DATE_FORMAT));
     formdata.setRestrictToProgram(currentDoc.isRestrictToProgram());
@@ -212,7 +212,6 @@ for (String reportClass : reportClasses) {
             }
 	    function reviewed(ths) {
 		thisForm = ths.form;
-		thisForm.reviewerId.value = <%=user_no%>;
 		thisForm.reviewDoc.value = true;
 		thisForm.submit();
 	    }
@@ -239,8 +238,6 @@ for (String reportClass : reportClasses) {
 		value="<%=formdata.getFunctionId()%>" size="20" />
 	<input type="hidden" name="functionid" value="<%=moduleid%>" size="20" />
 	<input type="hidden" name="mode" value="<%=editDocumentNo%>" />
-	<input type="hidden" name="reviewerId" value="<%=formdata.getReviewerId()%>" />
-	<input type="hidden" name="reviewDateTime" value="<%=formdata.getReviewDateTime()%>" />
 	<input type="hidden" name="reviewDoc" value="false" />
 	<table class="layouttable">
 		<tr>
@@ -329,11 +326,11 @@ for (String reportClass : reportClasses) {
 		</tr>
 		<tr>
 			<td>Source Author:</td>
-			<td><input type="text" name="source" size="15" value="<%=formdata.getSource()%>"/></td>
+			<td><input type="text" name="source" size="15" value="<%=StringUtils.noNull(formdata.getSource())%>"/></td>
 		</tr>
 		<tr>
 			<td>Source Facility:</td>
-			<td><input type="text" name="sourceFacility" size="15" value="<%=formdata.getSourceFacility()%>"/></td>
+			<td><input type="text" name="sourceFacility" size="15" value="<%=StringUtils.noNull(formdata.getSourceFacility())%>"/></td>
 		</tr>
 		<% if (module.equals("provider")) {%>
 		<tr>
@@ -375,12 +372,30 @@ for (String reportClass : reportClasses) {
                 </tr>
                 <tr>
 		    <td colspan=2>
-			<% if (formdata.getReviewerId()!=null && !formdata.getReviewerId().equals("")) { %>
-			Reviewed: &nbsp; <%=EDocUtil.getProviderName(formdata.getReviewerId())%>
-			&nbsp; [<%=formdata.getReviewDateTime()%>]
-			<% } else { %>
-			<input type="button" value="Reviewed" title="Click to set Reviewed" onclick="reviewed(this);" />
-			<% } %>
+				Reviewers: <br>
+				<ul>
+					<%
+						boolean reviewedByLoggedInProvider = false;
+						for (DocumentReview review : formdata.getReviews()) {
+							if (!reviewedByLoggedInProvider && user_no.equals(review.getProviderNo())) {
+								reviewedByLoggedInProvider = true;
+							}
+
+							if (review.getReviewer() != null) {
+					%>
+					<li style="font-weight: <%=user_no.equals(review.getProviderNo()) ? "bold" : "normal"%>;">
+						&nbsp; <%=review.getReviewer().getFormattedName()%>
+						&nbsp; [<%=review.getDateTimeReviewedString()%>]
+					</li>
+					<%
+							}
+						}
+					%>
+				</ul>
+				
+				<% if (!reviewedByLoggedInProvider) { %>
+				<input type="button" value="Reviewed" title="Click to set Reviewed" onclick="reviewed(this);" />
+				<% } %>
 		    </td>
 		</tr>
 		<tr>

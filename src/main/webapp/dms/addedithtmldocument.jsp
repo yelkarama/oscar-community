@@ -48,7 +48,9 @@ String userlastname = (String) session.getAttribute("userlastname");
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 
 <%@ page
-	import="java.util.*, oscar.*, oscar.util.*, oscar.dms.*, oscar.dms.data.*, oscar.oscarProvider.data.ProviderData, org.oscarehr.util.SpringUtils, org.oscarehr.common.dao.CtlDocClassDao"%><%
+	import="java.util.*, oscar.*, oscar.util.*, oscar.dms.*, oscar.dms.data.*, oscar.oscarProvider.data.ProviderData, org.oscarehr.util.SpringUtils, org.oscarehr.common.dao.CtlDocClassDao"%>
+<%@ page import="org.oscarehr.common.model.DocumentReview" %>
+<%
 String mode = "";
 if (request.getAttribute("mode") != null) {
     mode = (String) request.getAttribute("mode");
@@ -90,7 +92,7 @@ if (request.getAttribute("linkhtmlerrors") != null) {
 if (request.getAttribute("completedForm") != null) {
     formdata = (AddEditDocumentForm) request.getAttribute("completedForm");
     lastUpdate = EDocUtil.getDmsDateTime();
-} else if ((editDocumentNo != null) && (!editDocumentNo.equals(""))) {
+} else if (StringUtils.filled(editDocumentNo)) {
     EDoc currentDoc = EDocUtil.getDoc(editDocumentNo);
     formdata.setFunction(currentDoc.getModule());
     formdata.setFunctionId(currentDoc.getModuleId());
@@ -104,8 +106,7 @@ if (request.getAttribute("completedForm") != null) {
     formdata.setSource(currentDoc.getSource());
     formdata.setSourceFacility(currentDoc.getSourceFacility());
     formdata.setObservationDate(currentDoc.getObservationDate());
-    formdata.setReviewerId(currentDoc.getReviewerId());
-    formdata.setReviewDateTime(currentDoc.getReviewDateTime());
+    formdata.setReviews(currentDoc.getReviews());
     formdata.setContentDateTime(UtilDateUtilities.DateToString(currentDoc.getContentDateTime(),EDocUtil.CONTENT_DATETIME_FORMAT));
     formdata.setSentDateTime(UtilDateUtilities.DateToString(currentDoc.getSentDateTime(),EDocUtil.DMS_DATE_FORMAT));
     formdata.setHtml(UtilMisc.htmlEscape(currentDoc.getHtml()));
@@ -275,8 +276,6 @@ function newDocType(){
 	<input type="hidden" name="mode" value="<%=mode%>" />
 	<input type="hidden" name="docCreator"
 		value="<%=formdata.getDocCreator()%>" />
-	<input type="hidden" name="reviewerId" value="<%=formdata.getReviewerId()%>" />
-	<input type="hidden" name="reviewDateTime" value="<%=formdata.getReviewDateTime()%>" />
 	<input type="hidden" name="reviewDoc" value="false" />
 	<input type="hidden" name="annotation_attrib" value="<%=annotation_attrib%>" />
 
@@ -378,12 +377,30 @@ for (String reportClass : reportClasses) {
 		if (oldDoc) { %>
 		<tr>
 			<td colspan="2">
-			    <% if (formdata.getReviewerId()!=null && !formdata.getReviewerId().equals("")) { %>
-			    Reviewed: &nbsp; <%=EDocUtil.getProviderName(formdata.getReviewerId())%>
-			    &nbsp; [<%=formdata.getReviewDateTime()%>]
-			    <% } else { %>
+				Reviewers: <br>
+				<ul>
+					<% 
+						boolean reviewedByLoggedInProvider = false;
+						for (DocumentReview review : formdata.getReviews()) { 
+						    if (!reviewedByLoggedInProvider && user_no.equals(review.getProviderNo())) {
+						        reviewedByLoggedInProvider = true;
+							}
+						    
+						    if (review.getReviewer() != null) {
+					%>
+					<li style="font-weight: <%=user_no.equals(review.getProviderNo()) ? "bold" : "normal"%>;">
+						&nbsp; <%=review.getReviewer().getFormattedName()%>
+						&nbsp; [<%=review.getDateTimeReviewedString()%>]
+					</li>
+					<%
+							}
+						}
+					%>
+				</ul>
+
+				<% if (!reviewedByLoggedInProvider) { %>
 			    <input type="button" value="Reviewed" title="Click to set Reviewed" onclick="reviewed(this);" />
-			    <% } %>
+				<% } %>
 			</td>
 		</tr>
 		<% } %>

@@ -1249,7 +1249,9 @@ public class ManageDocumentAction extends DispatchAction {
                     out.println("<br>"+props.getString("dms.documentBrowser.Description")+": "+curDoc.getDescription());
                     out.println("<br>"+props.getString("dms.documentBrowser.Creator")+": "+curDoc.getCreatorName());
                     out.println("<br>"+props.getString("dms.documentBrowser.Responsible")+": "+curDoc.getResponsibleName());
-                    out.println("<br>"+props.getString("dms.documentBrowser.Reviewer")+": "+curDoc.getReviewerName());
+                    if (!curDoc.getReviews().isEmpty() && curDoc.getReviews().get(0) != null && curDoc.getReviews().get(0).getReviewer() != null) {
+						out.println("<br>"+props.getString("dms.documentBrowser.Reviewer")+": "+ curDoc.getReviews().get(0).getReviewer().getFormattedName());
+					}
                     out.println("<br>"+props.getString("dms.documentBrowser.Source")+": "+curDoc.getSource());
                 }
                 

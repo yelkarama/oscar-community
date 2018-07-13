@@ -221,8 +221,13 @@ function checkAll(formId){
                         dStatus="html";
                     else
                         dStatus="active";
-		    String reviewerName = curdoc.getReviewerName();
-		    if (reviewerName.equals("")) reviewerName = "- - -";
+					String reviewerName = "";
+					if (!curdoc.getReviews().isEmpty() && curdoc.getReviews().get(0).getReviewer() != null) {
+						reviewerName = curdoc.getReviews().get(0).getReviewer().getFormattedName();
+						if (curdoc.getReviews().size() > 1) {
+							reviewerName += " (+ " + (curdoc.getReviews().size() - 1) + " more)";
+						}
+					}
                     String docId=curdoc.getDocId();
             %>
 				<tr>

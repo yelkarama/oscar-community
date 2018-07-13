@@ -27,6 +27,10 @@ package oscar.dms.data;
 
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.upload.FormFile;
+import org.oscarehr.common.model.DocumentReview;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AddEditDocumentForm extends ActionForm {
     private String function = "";
@@ -46,8 +50,8 @@ public class AddEditDocumentForm extends ActionForm {
     private String docPublic = "";
     private String mode = "";
     private String observationDate = "";
-    private String reviewerId = "";
-    private String reviewDateTime = "";
+    private List<DocumentReview> reviews = new ArrayList<DocumentReview>();
+
     private String contentDateTime = "";
     private String sentDateTime = "";
     private boolean reviewDoc = false;
@@ -171,23 +175,15 @@ public class AddEditDocumentForm extends ActionForm {
     public void setObservationDate(String observationDate) {
         this.observationDate = observationDate;
     }
-    
-    public String getReviewerId() {
-	return reviewerId;
+
+    public List<DocumentReview> getReviews() {
+        return reviews;
     }
-    
-    public void setReviewerId(String reviewerId) {
-	this.reviewerId = reviewerId;
+
+    public void setReviews(List<DocumentReview> reviews) {
+        this.reviews = reviews;
     }
-    
-    public String getReviewDateTime() {
-	return reviewDateTime;
-    }
-    
-    public void setReviewDateTime(String reviewDateTime) {
-	this.reviewDateTime = reviewDateTime;
-    }
-    
+
     public String getContentDateTime() {
 	return contentDateTime;
     }

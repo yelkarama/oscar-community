@@ -109,6 +109,7 @@ import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.DemographicArchive;
 import org.oscarehr.common.model.DemographicContact;
 import org.oscarehr.common.model.DemographicPharmacy;
+import org.oscarehr.common.model.DocumentReview;
 import org.oscarehr.common.model.Drug;
 import org.oscarehr.common.model.DrugReason;
 import org.oscarehr.common.model.Facility;
@@ -2369,10 +2370,16 @@ import oscar.util.UtilDateUtilities;
                                 }
 
                                 Reports.ReportReviewed[] reportReviewed = repR[i].getReportReviewedArray();
-                                if (reportReviewed.length>0) {
-                                    HashMap<String,String> reviewerName = getPersonName(reportReviewed[0].getName());
-                                    reviewer = writeProviderData(reviewerName.get("firstname"), reviewerName.get("lastname"), reportReviewed[0].getReviewingOHIPPhysicianId(), null, "0");
-                                    reviewDateTime = dateFPtoString(reportReviewed[0].getDateTimeReportReviewed(), timeShiftInDays);
+                                List<DocumentReview> reviews = new ArrayList<DocumentReview>();
+                                for (int j = 0; j < reportReviewed.length; j++) {
+                                    DocumentReview review = new DocumentReview();
+                                    
+                                    HashMap<String,String> reviewerName = getPersonName(reportReviewed[j].getName());
+                                    reviewer = writeProviderData(reviewerName.get("firstname"), reviewerName.get("lastname"), reportReviewed[j].getReviewingOHIPPhysicianId(), null, "0"); 
+                                    review.setProviderNo(reviewer);
+                                    review.setDateTimeReviewed(dateFPtoDate(reportReviewed[j].getDateTimeReportReviewed(), timeShiftInDays));
+                                    
+                                    reviews.add(review);
                                 }
 
                                 String recipientProviderNo = admProviderNo;
@@ -2385,7 +2392,7 @@ import oscar.util.UtilDateUtilities;
                                 updateDateTime = dateFPtoString(repR[i].getReceivedDateTime(), timeShiftInDays);
                                 contentDateTime = dateFPtoString(repR[i].getReceivedDateTime(), timeShiftInDays);
                                 String sentDateTime = dateFPtoString(repR[i].getSentDateTime(), timeShiftInDays);
-                                docNum = EDocUtil.addDocument(demographicNo,docFileName,docDesc,"",docClass,docSubClass,contentType,contentDateTime,sentDateTime, observationDate,updateDateTime,docCreator,recipientProviderNo,reviewer,reviewDateTime,source,sourceFacility);
+                                docNum = EDocUtil.addDocument(demographicNo,docFileName,docDesc,"",docClass,docSubClass,contentType,contentDateTime,sentDateTime, observationDate,updateDateTime,docCreator,recipientProviderNo,reviews,source,sourceFacility);
                                 if (docNum==null) docNum = 0;
                                 if (binaryFormat) addOneEntry(REPORTBINARY);
                                 else addOneEntry(REPORTTEXT);

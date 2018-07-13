@@ -325,7 +325,7 @@ public class SharingCenterUtil {
             DateFormat timeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             EDocUtil.addDocument(demographicId, fileName, doc.getTitle(), "others", "", "", doc.getMimetype(), dayFormat.format(cal.getTime()), timeFormat.format(cal.getTime()), providerId, "", // responsible
                     "", // reviewer
-                    null, "", // source
+                    null, // source
                     "" // sourceFacility
             );
 

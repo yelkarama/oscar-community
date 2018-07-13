@@ -33,17 +33,22 @@ package org.oscarehr.common.model;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
@@ -150,6 +155,9 @@ public class Document extends AbstractModel<Integer> implements Serializable {
     private Integer appointmentNo;
     @Column(name="abnormal")
     private Boolean abnormal;
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "document_no", insertable = false, updatable = false)
+    private List<DocumentReview> reviews = new ArrayList<DocumentReview>();
 
     private Boolean restrictToProgram=false;
     
@@ -304,18 +312,32 @@ public class Document extends AbstractModel<Integer> implements Serializable {
         this.observationdate = observationdate;
     }
 
+    /**
+     * @deprecated replacedBy <code>DocumentReview.getProviderNo()</code>.
+     */
+    @Deprecated
     public String getReviewer() {
         return reviewer;
     }
 
+    /**
+     * @deprecated replaced by replaced by <code>DocumentReview.setProviderNo(String providerNo)</code>.
+     */
+    @Deprecated
     public void setReviewer(String reviewer) {
         this.reviewer = reviewer;
     }
 
+    /**
+     * @deprecated replaced by <code>DocumentReview.getDateTimeReviewed()</code>.
+     */
     public Date getReviewdatetime() {
         return reviewdatetime;
     }
 
+    /**
+     * @deprecated replaced by <code>DocumentReview.setDateTimeReviewed(Date dateTimeReviewed)</code>.
+     */
     public void setReviewdatetime(Date reviewdatetime) {
         this.reviewdatetime = reviewdatetime;
     }
@@ -370,7 +392,15 @@ public class Document extends AbstractModel<Integer> implements Serializable {
     	this.sourceFacility = sourceFacility;
     }
 
-	/**
+    public List<DocumentReview> getReviews() {
+        return reviews;
+    }
+
+    public void setReviews(List<DocumentReview> reviews) {
+        this.reviews = reviews;
+    }
+
+    /**
 	 * @returns a string representing the path of the file on disk, i.e. document_dir+'/'+filename
 	 */
 	public String getDocumentFileFullPath()

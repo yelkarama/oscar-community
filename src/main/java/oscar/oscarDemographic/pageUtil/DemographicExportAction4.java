@@ -90,6 +90,7 @@ import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.DemographicArchive;
 import org.oscarehr.common.model.DemographicContact;
 import org.oscarehr.common.model.DemographicPharmacy;
+import org.oscarehr.common.model.DocumentReview;
 import org.oscarehr.common.model.DrugReason;
 import org.oscarehr.common.model.Hl7TextInfo;
 import org.oscarehr.common.model.Hl7TextMessage;
@@ -1998,13 +1999,20 @@ public class DemographicExportAction4 extends Action {
 						if (edoc.getSentDateTime() != null) {
 							rpr.addNewSentDateTime().setFullDateTime(Util.calDate(edoc.getSentDateTime()));
 						}
-						String reviewDateTime = edoc.getReviewDateTime();
-						if (UtilDateUtilities.StringToDate(reviewDateTime,"yyyy-MM-dd HH:mm:ss")!=null) {
-							Reports.ReportReviewed reportReviewed = rpr.addNewReportReviewed();
-							reportReviewed.addNewDateTimeReportReviewed().setFullDate(Util.calDate(reviewDateTime));
-							Util.writeNameSimple(reportReviewed.addNewName(), edoc.getReviewerName());
-							reviewDateTime = StringUtils.noNull(edoc.getReviewerOhip());
-							if (reviewDateTime.length()<=6) reportReviewed.setReviewingOHIPPhysicianId(reviewDateTime);
+						for (DocumentReview review : edoc.getReviews()) {
+							Provider reviewer = review.getReviewer();
+							if (review.getDateTimeReviewed() != null && reviewer != null) {
+								Reports.ReportReviewed reportReviewed = rpr.addNewReportReviewed();
+								Calendar dateTimeReviewed = Calendar.getInstance();
+								dateTimeReviewed.setTime(review.getDateTimeReviewed());
+								reportReviewed.addNewDateTimeReportReviewed().setFullDate(dateTimeReviewed);
+								
+								Util.writeNameSimple(reportReviewed.addNewName(), reviewer.getFormattedName());
+								String reviewerOhip = StringUtils.noNull(reviewer.getOhipNo());
+								if (reviewerOhip.length()<=6) {
+									reportReviewed.setReviewingOHIPPhysicianId(reviewerOhip);
+								}
+							}
 						}
 						
 						String recipientProviderNo = edoc.getResponsibleId();
