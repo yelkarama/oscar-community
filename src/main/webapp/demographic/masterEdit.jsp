@@ -321,6 +321,27 @@
 			</select>
 		</td>
 	</tr>
+	<% if (propertyDao.isActiveBooleanProperty("masterfile_show_reminder_preference")) { %>
+	<tr>
+		<td></td>
+		<td></td>
+		<td style="text-align: right"><b>Reminder Preference:</b></td>
+		<td style="text-align: left">
+			<select name="reminder_preference">
+				<%	DemographicReminderPreference.Types selectedReminderPreference = DemographicReminderPreference.Types.SYSTEM_DEFAULT;
+					if (!StringUtils.isBlank(demoExt.get("reminder_preference"))) {
+						selectedReminderPreference = DemographicReminderPreference.Types.valueOf(demoExt.get("reminder_preference"));
+					}
+					for (DemographicReminderPreference.Types rp : DemographicReminderPreference.Types.values()) { 
+				%>
+				<option value="<%=rp.name()%>"<%=(selectedReminderPreference == rp)?" selected=\"selected\"":""%>>
+					<%=rp.getDescription()%>
+				</option>
+				<%	} %>
+			</select>
+		</td>
+	</tr>
+	<% } %>
 	<tr valign="top">
 		<td align="right"><b><bean:message
 					key="demographic.demographiceditdemographic.formAddr" />: </b></td>

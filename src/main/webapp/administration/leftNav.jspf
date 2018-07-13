@@ -714,6 +714,7 @@ String curProvider_no = (String)session.getAttribute("user");
 					<li><a href="javascript:void(0);" class="xlink" rel="${ctx}/admin/manageRx.jsp"><bean:message key="admin.admin.manageRx"/></a></li>
 					<li><a href="javascript:void(0);" class="xlink" rel="${ctx}/admin/masterMandatoryFields.jsp"><bean:message key="admin.admin.mandatoryMasterFileFields"/></a></li>
 					<li><a href="javascript:void(0);" class="xlink" rel="${ctx}/admin/customHcTypes.jsp"><bean:message key="admin.admin.customHcTypes"/></a></li>
+					<li><a href="javascript:void(0);" class="xlink" rel="${ctx}/admin/customizeMasterfileFields.jsp"><bean:message key="admin.admin.masterFileFields"/></a></li>
 			      	<oscar:oscarPropertiesCheck property="LOGINTEST" value="yes">
 			            <li><a href='javascript:void(0);'
 			            class="xlink" rel="${ctx}/admin/uploadEntryText.jsp"><bean:message key="admin.admin.uploadEntryTxt"/></a>

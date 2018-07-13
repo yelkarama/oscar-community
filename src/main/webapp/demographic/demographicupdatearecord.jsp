@@ -116,11 +116,10 @@
 
 
 	// Update Freshbooks section
-	DemographicExtDao ded = SpringUtils.getBean(DemographicExtDao.class);
 	UserPropertyDAO propertyDao = (UserPropertyDAO) SpringUtils.getBean("UserPropertyDAO");
 	String demoNo = request.getParameter("demographic_no");
 	int demographicNo = Integer.parseInt(demoNo);
-	List<DemographicExt> demoProviders = ded.getMultipleDemographicExt(demographicNo, "freshbooksId");
+	List<DemographicExt> demoProviders = demographicExtDao.getMultipleDemographicExt(demographicNo, "freshbooksId");
 	List<Appointment> demoAppointments = appointmentDao.getAllByDemographicNo(demographicNo);
 	List<AppointmentReminder> demoReminders = new ArrayList<AppointmentReminder>();
 
@@ -348,6 +347,10 @@
 	String familyDoctorId = "";
 	String familyPhysicianId = "";
 	List<DemographicExt> extensions = new ArrayList<DemographicExt>();
+
+	if (!StringUtils.trimToEmpty(demoExt.get("reminder_preference")).equals(StringUtils.trimToEmpty(request.getParameter("reminder_preference")))) {
+		extensions.add(new DemographicExt(request.getParameter("reminder_preference"), proNo, demographicNo, "reminder_preference", request.getParameter("reminder_preference")));
+	}
 
 	if (!StringUtils.trimToEmpty(demoExt.get("insurance_company")).equals(StringUtils.trimToEmpty(request.getParameter("insurance_company")))) {
 		extensions.add(new DemographicExt(request.getParameter("insurance_company_id"), proNo, demographicNo, "insurance_company", request.getParameter("insurance_company")));

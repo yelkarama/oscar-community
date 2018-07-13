@@ -1658,6 +1658,12 @@ if(oscarProps.getProperty("new_label_print") != null && oscarProps.getProperty("
                                                     <li><span class="label"><bean:message key="demographic.demographiceditdemographic.msgDemoLanguage"/>:</span>
                                                         <span class="info"><%=StringUtils.trimToEmpty(demographic.getOfficialLanguage())%></span>
                                                     </li>
+							<% if (propertyDao.isActiveBooleanProperty("masterfile_show_reminder_preference")) { %>
+							<li>
+								<span class="label">Reminder Preference:</span>
+								<span class="info"><%=DemographicReminderPreference.Types.valueOf(StringUtils.defaultIfEmpty(demoExt.get("reminder_preference"), "SYSTEM_DEFAULT")).getDescription()%></span>
+							</li>
+							<% } %>
 						<% if (demographic.getCountryOfOrigin() != null &&  !demographic.getCountryOfOrigin().equals("") && !demographic.getCountryOfOrigin().equals("-1")){
                                                         CountryCode countryCode = ccDAO.getCountryCode(demographic.getCountryOfOrigin());
                                                         if  (countryCode != null){
