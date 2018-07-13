@@ -730,7 +730,7 @@ public class LabPDFCreator extends PdfPageEventHelper{
 								cell.setColspan(7);
 								cell.setHorizontalAlignment(Element.ALIGN_LEFT);
 								for (int l = 0; l < handler.getOBXCommentCount(j, k); l++) {
-									cell.setPhrase(new Phrase(handler.getOBXComment(j, k, l).replaceAll("<br\\s*/*>", "\n"), font));
+									cell.setPhrase(new Phrase(handler.getOBXComment(j, k, l).replaceAll("<br\\s*/*>", "\n"), lineFont));
 									table.addCell(cell);
 								}
 								cell.setPadding(3);
