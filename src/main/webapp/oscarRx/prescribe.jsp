@@ -619,7 +619,7 @@ if(listRxDrugs!=null){
        			source: function(request, response) {
        				
        				sourceid = this.element[0].id;
-       				if( sourceid.contains("_") ) {
+       				if( sourceid.includes("_") ) {
        					idindex = "_" + sourceid.split("_")[1];
        				}
        				       				
