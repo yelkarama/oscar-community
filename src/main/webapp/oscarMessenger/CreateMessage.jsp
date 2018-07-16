@@ -99,6 +99,7 @@ else if (messageText != null) {
 <%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.Provider" %>
+<%@ page import="oscar.OscarProperties" %>
 <html:html locale="true">
 <head>
 <script type="text/javascript" src="../js/jquery-1.7.1.min.js"></script>
@@ -719,8 +720,10 @@ function popupAttachDemo(demographic){ // open a new popup window
 
          }else {
              Provider provider = providerDao.getProvider(element.getAttribute("id"));
-			 String providerSpecialty = "";
-			 if (provider != null && !provider.getSpecialty().isEmpty()) { providerSpecialty = " (" + provider.getSpecialty() + ")"; }
+             String providerSpecialty = "";
+             if (OscarProperties.getInstance().isPropertyActive("queens_message_search") && provider != null && !provider.getSpecialty().isEmpty()) {
+                 providerSpecialty = " (" + provider.getSpecialty() + ")";
+             }
                if ( java.util.Arrays.binarySearch(thePros,element.getAttribute("id")) < 0 ){
                   out.print("<input type=\"checkbox\" name=provider value="+element.getAttribute("id")+"  > <font color=#0e8ef7>"+personTitler(element.getAttribute("desc"))+providerSpecialty+"</font>\n");
                }else{
