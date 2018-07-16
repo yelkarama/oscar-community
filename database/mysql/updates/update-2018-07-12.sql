@@ -5,7 +5,7 @@ create table if not exists document_review
   provider_no varchar(6) not null,
   date_reviewed datetime,
    foreign key(document_no) references document(document_no),
-   foreign key(provider_no) references provider(provider_no),
+   foreign key(provider_no) references provider(provider_no)
 );
 
 insert into document_review (document_no, provider_no, date_reviewed)
