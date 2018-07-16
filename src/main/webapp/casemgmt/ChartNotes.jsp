@@ -184,9 +184,6 @@ try
         updateParent = "true";
     }
 
-	CaseManagementNoteDAO caseManagementNoteDAO = SpringUtils.getBean(CaseManagementNoteDAO.class);
-	List<String> noteEncounterTypes = caseManagementNoteDAO.getDemographicsEncounterTypes(demographicNo);
-
 	HashMap<String, Boolean> echartPreferencesMap = new HashMap<String, Boolean>();
 
 	SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
