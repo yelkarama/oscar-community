@@ -76,9 +76,7 @@ public class ScheduleOfBenefitsUploadAction extends Action {
 
 		boolean forceUpdate = false; 
 		boolean updateAssistantFees = checkBox(request.getParameter("updateAssistantFees")); 
-		boolean updateAnaesthetistFees = checkBox(request.getParameter("updateAnaesthetistFees")); 
-		BigDecimal updateAssistantFeesValue = updateAssistantFees ? getBDValue(request.getParameter("updateAssistantFeesValue")) : null; 
-		BigDecimal updateAnaesthetistFeesValue = updateAnaesthetistFees ? getBDValue(request.getParameter("updateAnaesthetistFeesValue")) : null; 
+		boolean updateAnaesthetistFees = checkBox(request.getParameter("updateAnaesthetistFees"));
 		try{  
 
 			InputStream is = importFile.getInputStream();
@@ -92,7 +90,7 @@ public class ScheduleOfBenefitsUploadAction extends Action {
 			boolean showChangedCodes = checkBox(codeChanges);              
 			forceUpdate = checkBox(request.getParameter("forceUpdate"));
 
-			warnings = sob.processNewFeeSchedule(is,showNewCodes,showChangedCodes,forceUpdate, updateAssistantFeesValue, updateAnaesthetistFeesValue);
+			warnings = sob.processNewFeeSchedule(is, showNewCodes, showChangedCodes, forceUpdate, updateAssistantFees, updateAnaesthetistFees);
 
 		}catch(Exception e){ 
 			MiscUtils.getLogger().error("Error", e); 

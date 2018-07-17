@@ -55,7 +55,7 @@ public class ScheduleOfBenefits {
 	}
 
 
-	public List processNewFeeSchedule(InputStream is, boolean addNewCodes , boolean addChangedCodes, boolean forceUpdate, BigDecimal updateAssistantFeesValue, BigDecimal updateAnaesthetistFeesValue){
+	public List processNewFeeSchedule(InputStream is, boolean addNewCodes , boolean addChangedCodes, boolean forceUpdate, Boolean updateAssistantFees, Boolean updateAnaesthetistFees){
 		ArrayList changes = new ArrayList();
 		bc = new BillingCodeData();
 		StringBuilder codesThatHaveBothGPSpec = new StringBuilder();
@@ -92,10 +92,8 @@ public class ScheduleOfBenefits {
 
 				BillingServiceDao bsd = (BillingServiceDao)SpringUtils.getBean("billingServiceDao");
 				String defaultDescription = bsd.searchDescBillingCode((String) newPricingInfo.get("feeCode"), "ON");  
-
-				String newPrice = (String) newPricingInfo.get("gpFees");
-				double newDoub = (Double.parseDouble(newPrice))/10000;
-				BigDecimal newPriceDec = new BigDecimal(newDoub).setScale(2, BigDecimal.ROUND_HALF_UP);
+				
+				BigDecimal newPriceDec = parseFee(newPricingInfo.get("gpFees"));
 
 				if( newPriceDec.compareTo(zeroBD) == 0){
 					newPriceDec = getJBD((String) newPricingInfo.get("specFee"));
@@ -107,16 +105,16 @@ public class ScheduleOfBenefits {
 				change = processBillingCode(newPricingInfo, billingInfo, newPriceDec, "A", moreprices, defaultDescription);
 				if (change != null) { changes.add(change); }
 
-				if (updateAssistantFeesValue != null && updateAssistantFeesValue.compareTo(BigDecimal.ZERO) != 0) {
+				if (updateAssistantFees) {
 					billingInfo = bc.searchBillingCode((String) newPricingInfo.get("feeCode") + "B");
-					newPriceDec = updateAssistantFeesValue;
+					newPriceDec = parseFee(newPricingInfo.get("assistantCompFee"));
 					change = processBillingCode(newPricingInfo, billingInfo, newPriceDec, "B", moreprices, defaultDescription);
 					if (change != null) { changes.add(change); }
 				}
 
-				if (updateAnaesthetistFeesValue != null && updateAnaesthetistFeesValue.compareTo(BigDecimal.ZERO) != 0) {
+				if (updateAnaesthetistFees) {
 					billingInfo = bc.searchBillingCode((String) newPricingInfo.get("feeCode") + "C");
-					newPriceDec = updateAnaesthetistFeesValue;
+					newPriceDec = parseFee(newPricingInfo.get("anaesthetistFee"));
 					change = processBillingCode(newPricingInfo, billingInfo, newPriceDec, "C", moreprices, defaultDescription);
 					if (change != null) { changes.add(change); }
 				}
@@ -240,4 +238,9 @@ public class ScheduleOfBenefits {
 		}
 		return h;
 	}
+	
+	private BigDecimal parseFee(Object fee) {
+        double newFee = Double.parseDouble(String.valueOf(fee)) / 10000;
+        return new BigDecimal(newFee).setScale(2, BigDecimal.ROUND_HALF_UP);
+    }
 }

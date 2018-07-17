@@ -56,44 +56,9 @@
 <script type="text/javascript" LANGUAGE="JavaScript">
 
 function checkForm() {
-	var result = true;
-	if (document.getElementById("updateAssistantInput").style.display == "inline") {
-		if (!checkFee(document.getElementById("updateAssistantFeesValue").value)) {
-			alert("An invalid assistant fee was provided. Please correct it or disable update of the assistant fees.");
-			result = false;
-		}
-	}
-	if (document.getElementById("updateAnaesthetistInput").style.display == "inline") {
-		if (!checkFee(document.getElementById("updateAnaesthetistFeesValue").value)) {
-			alert("An invalid anaesthetist fee was provided. Please correct it or disable update of the anaesthetist fees.");
-			result = false;
-		}
-	}	
-	return result && displayAndDisable();	
-}
-
-function checkFee(fee) {
-	if (fee == null || fee.trim() == "") { return false; }
-	var feeFormat = /^\d+?(\.\d{0,2})$/;
-	if (fee.match(feeFormat)) {
-		return true;
-	} else {
-		return false;
-	} 
-}
-
-function toggleAnaesthetistInput(el) {
-	document.getElementById("updateAnaesthetistInput").style.display = el.checked ? "inline" : "none";
-}
-
-function toggleAssistantInput(el) {
-	document.getElementById("updateAssistantInput").style.display = el.checked ? "inline" : "none";
-}
-
-function displayAndDisable(){
-   document.forms[0].Submit.disabled = true;
-   //showHideItem('waitingMessage');
-   return true;
+    document.forms[0].Submit.disabled = true;
+    
+    return true;
 }
 
 function checkAll(formId){
@@ -132,8 +97,8 @@ enctype="multipart/form-data" onsubmit="return checkForm();">
 <input type="checkbox" name="showChangedCodes" value="on" checked tabindex="1" /><bean:message key="oscar.billing.CA.ON.billingON.sobUpload.showCodesChangedPrices" /><br>			
 <input type="checkbox" name="showNewCodes" value="on" tabindex="2" /><bean:message key="oscar.billing.CA.ON.billingON.sobUpload.showNewCodes" /><br>
 <input type="checkbox" name="forceUpdate" value="on" tabindex="3" /><bean:message key="oscar.billing.CA.ON.billingON.sobUpload.forceUpdate" /><br>				
-<input type="checkbox" name="updateAssistantFees" onclick="toggleAssistantInput(this);" value="on" tabindex="5" /><bean:message key="oscar.billing.CA.ON.billingON.sobUpload.updateAssistantFees" /><span id="updateAssistantInput" style="display:none;"><input type="text" name="updateAssistantFeesValue" id="updateAssistantFeesValue" size="7" maxlength="8" style="margin-left:30px;" tabindex="7" /></span><br/>
-<input type="checkbox" name="updateAnaesthetistFees" onclick="toggleAnaesthetistInput(this);" value="on" tabindex="6" /><bean:message key="oscar.billing.CA.ON.billingON.sobUpload.updateAnaesthetistFees" /><span id="updateAnaesthetistInput" style="display:none;"><input type="text" name="updateAnaesthetistFeesValue" id="updateAnaesthetistFeesValue" size="7" maxlength="8" style="margin-left:8px;" tabindex="8"/></span>
+<input type="checkbox" name="updateAssistantFees" value="on" tabindex="5" /><bean:message key="oscar.billing.CA.ON.billingON.sobUpload.updateAssistantFees" /><br/>
+<input type="checkbox" name="updateAnaesthetistFees" value="on" tabindex="6" /><bean:message key="oscar.billing.CA.ON.billingON.sobUpload.updateAnaesthetistFees" />
 </div>
 </html:form> 
 <% } else{ %> 
