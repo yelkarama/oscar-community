@@ -57,8 +57,8 @@ public class ScheduleOfBenefitsUpdateAction extends Action {
 	
 	public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)  {
 
-		boolean forceUpdate = request.getAttribute("forceUpdate") == null ? "true".equals(request.getParameter("forceUpdate")) : (Boolean) request.getAttribute("forceUpdate");		
-
+		boolean forceUpdate = request.getAttribute("forceUpdate") == null ? "true".equals(request.getParameter("forceUpdate")) : (Boolean) request.getAttribute("forceUpdate");
+		List<Hashtable> terminatedList = new ArrayList<>();
 		if (forceUpdate) { 
 			List codes = (List)request.getAttribute("warnings");
 			BillingCodeData bc = new BillingCodeData();
@@ -77,29 +77,26 @@ public class ScheduleOfBenefitsUpdateAction extends Action {
 					effDate = ((String)code.get("effectiveDate")).substring(0, 4) + "-" + ((String)code.get("effectiveDate")).substring(4, 6) + "-"
 							+ ((String)code.get("effectiveDate")).substring(6, 8);
 				}
-				String termDate;
-				if (((String)code.get("terminactionDate")).equals("99999999")) {
-					termDate = "9999-12-31";
-				} else {
-					termDate = ((String)code.get("terminactionDate")).substring(0, 4) + "-" + ((String)code.get("terminactionDate")).substring(4, 6) + "-";
-					if (((String)code.get("terminactionDate")).substring(6, 8).equals("00")) {
-						termDate += "01";
-					} else {
-						termDate += ((String)code.get("terminactionDate")).substring(6, 8);
-					}
-				}
+				String termDate = (String) code.get("terminactionDate");
 				try{
 					bc.insertBillingCode(code.get("newprice").toString(), (String)code.get("feeCode"), effDate, (String)code.get("description"), termDate);
 					Hashtable h = new Hashtable();
 					h.put("code", code.get("feeCode"));
 					h.put("value", code.get("newprice").toString());
-					list.add(h);
+					if ((Boolean)code.get("isTerminated")) {
+                        h.put("terminationDate", termDate);
+                        terminatedList.add(h);
+                    } else {
+                        list.add(h);
+                    }
 				}catch(Exception e) {
 					MiscUtils.getLogger().error("Error",e);
 				}
 				
 				
 			}
+			
+			request.setAttribute("terminationList", terminatedList);
 			request.setAttribute("changes", list);
 			request.setAttribute("warnings", null);
 		}
@@ -113,12 +110,13 @@ public class ScheduleOfBenefitsUpdateAction extends Action {
 				for ( int i = 0 ; i < changes.length; i++){
 					MiscUtils.getLogger().debug(changes[i]);            
 					String[] change = changes[i].split("\\|");
-					if (change != null && change.length == 5){
+					if (change.length == 6){
 						//change[0] // billing code
 						//change[1] // value
 						//change[2] //effectiveDate     
 						//change[3] //terminactionDate
 						//change[4] //description
+						// change[5] isTerminated
 	
 						String effDate;
 						if( change[2].equalsIgnoreCase("null") ) {
@@ -132,29 +130,23 @@ public class ScheduleOfBenefitsUpdateAction extends Action {
 							effDate = change[2].substring(0,4) + "-" + change[2].substring(4,6) + "-" + change[2].substring(6,8);
 						}
 	
-						String termDate;
-						if( change[3].equals("99999999") ) {
-							termDate = "9999-12-31";
-						}
-						else {
-							termDate = change[3].substring(0, 4) + "-" + change[3].substring(4,6) + "-";
-							if( change[3].substring(6,8).equals("00") ) {
-								termDate += "01";
-							}
-							else {
-								termDate += change[3].substring(6,8);
-							}
-						}
+						String termDate = change[3];
 						try {
 							bc.insertBillingCode(change[1], change[0], effDate, change[4], termDate);
 							Hashtable h = new Hashtable();
 							h.put("code",change[0]);
 							h.put("value",change[1]);
-							list.add(h);
+							if (Boolean.parseBoolean(change[5])) {
+								h.put("terminationDate", termDate);
+								terminatedList.add(h);
+							} else {
+								list.add(h);
+							}
 						}catch(Exception e) {
 							MiscUtils.getLogger().error("Error",e);
 						}
-	
+
+						request.setAttribute("terminationList", terminatedList);
 						request.setAttribute("changes",list);
 					}else{
 						MiscUtils.getLogger().debug("test was null");

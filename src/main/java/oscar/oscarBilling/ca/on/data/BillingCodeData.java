@@ -69,6 +69,7 @@ public class BillingCodeData {
 		h.put("specialty", c(bs.getSpecialty()));
 		h.put("region", c(bs.getRegion()));
 		h.put("anaesthesia", c(bs.getAnaesthesia()));
+		h.put("terminationDate", c(ConversionUtils.toDateString(bs.getTerminationDate())));
 		return h;
 	}
 
@@ -79,7 +80,7 @@ public class BillingCodeData {
 	public Hashtable<String, String> searchBillingCode(String str) {
 		Hashtable<String, String> h = null;
 
-		List<BillingService> bss = billingServiceDao.findMostRecentByServiceCode(str);
+		List<BillingService> bss = billingServiceDao.findNewestByCode(str);
 
 		for (BillingService bs : bss) {
 			h = fillCodeDataHashtable(bs);

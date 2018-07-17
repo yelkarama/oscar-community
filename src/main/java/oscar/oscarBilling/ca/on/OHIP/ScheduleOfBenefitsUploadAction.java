@@ -32,8 +32,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -91,7 +94,7 @@ public class ScheduleOfBenefitsUploadAction extends Action {
 			forceUpdate = checkBox(request.getParameter("forceUpdate"));
 
 			warnings = sob.processNewFeeSchedule(is, showNewCodes, showChangedCodes, forceUpdate, updateAssistantFees, updateAnaesthetistFees);
-
+            outcome = "success";
 		}catch(Exception e){ 
 			MiscUtils.getLogger().error("Error", e); 
 			outcome = "exception";
@@ -103,6 +106,9 @@ public class ScheduleOfBenefitsUploadAction extends Action {
 		if (forceUpdate) {    	   
 			return mapping.findForward("forceUpdate");    	   
 		}
+
+        Collections.sort(warnings, sortWarningsTerminationsFirst);
+        request.setAttribute("warnings",warnings);
 		return mapping.findForward("success");
 	}
 
@@ -113,7 +119,32 @@ public class ScheduleOfBenefitsUploadAction extends Action {
 		return new BigDecimal(value).setScale(2, BigDecimal.ROUND_HALF_UP); 
 	} 
 
-
+    /**
+     * Sorts the billing service warnings so that terminated codes appear first in the table and updated codes appear after.
+     */
+    private Comparator sortWarningsTerminationsFirst = new Comparator() {
+        @Override
+        public int compare(Object o1, Object o2) {
+            if (o1 instanceof Map && o2 instanceof Map) {
+                Map m1 = (Map)o1;
+                Map m2 = (Map) o2;
+                Boolean t1 = (Boolean) m1.get("isTerminated");
+                Boolean t2 = (Boolean) m2.get("isTerminated");
+                
+                if ((t1 && t2) || (!t1 && !t2)) {
+                    String c1 = (String) m1.get("feeCode");
+                    String c2 = (String) m2.get("feeCode");
+                    
+                    return c1.compareTo(c2);
+                } else if (t1) {
+                    return -1;
+                } else {
+                    return 1;
+                }
+            }
+            return 0;
+        }
+    };
 
 	/**
 	 * 

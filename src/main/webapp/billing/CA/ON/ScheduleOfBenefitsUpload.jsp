@@ -141,24 +141,24 @@ if(outcome != null && outcome.equals("success")){ %>
 			<th>New Price</th>
 			<th>Diff</th>
 			<th>Description</th>
-	<th>Effective Date</th>
-	<th>Termination Date</th>
+			<th>Effective Date</th>
+			<th>Termination Date</th>
 		</tr>
 		<% for (int i = 0; i < warnings.size(); i++){ 
 	Hashtable h = (Hashtable) warnings.get(i);
 
 
 	%>
-		<tr>
+		<tr <%= ((Boolean) h.get("isTerminated")) ? "style=\"color: red;\"" : ""%>>
 			<td><input type="checkbox" name="change"
-				value="<%=h.get("feeCode")%>|<%=h.get("newprice")%>|<%=h.get("effectiveDate")%>|<%=h.get("terminactionDate")%>|<%=h.get("description")%>" /></td>
+				value="<%=h.get("feeCode")%>|<%=h.get("newprice")%>|<%=h.get("effectiveDate")%>|<%=h.get("terminactionDate")%>|<%=h.get("description")%>|<%=h.get("isTerminated")%>" /></td>
 			<td><%=h.get("feeCode")%></td>
 			<td><%=h.get("oldprice")%></td>
 			<td><%=h.get("newprice")%></td>
 			<td><%=h.get("diff")%></td>
 			<td title="<%=h.get("prices")%>"><%=h.get("description")%></td>
-	<td><%=h.get("effectiveDate")%></td>
-	<td><%=h.get("terminactionDate")%></td>
+			<td><%=h.get("effectiveDate")%></td>
+			<td><%=h.get("terminactionDate")%></td>
 		</tr>
 		<%}%>
 	</table>
@@ -169,6 +169,47 @@ if(outcome != null && outcome.equals("success")){ %>
 </div><!--#4-->
 <% } %> 
 
+
+
+<%
+	List<Hashtable> terminationList = (ArrayList)request.getAttribute("terminationList");
+	if (terminationList != null && !terminationList.isEmpty()) {
+%>
+<style type="text/css">
+	#terminatedCodes th {
+		padding: 0 10px;
+		text-align: center;
+	}
+
+	#terminatedCodes td {
+		text-align: center;
+	}
+    
+    #terminatedCodes tbody tr {
+        color: red;
+    }
+</style>
+
+<table id="terminatedCodes">
+	<caption>Terminated Codes</caption>
+	<thead>
+	<tr>
+		<th>Service Code</th>
+		<th>Most Recent Fee</th>
+		<th>Termination Date</th>
+	</tr>
+	</thead>
+	<tbody>
+	<% for (Hashtable seviceCode : terminationList) { %>
+	<tr>
+		<td><%= seviceCode.get("code")%></td>
+		<td><%= seviceCode.get("value")%></td>
+		<td><%= seviceCode.get("terminationDate")%></td>
+	</tr>
+	<% } %>
+	</tbody>
+</table>
+<% } %>
 
 
 <% List l = (List) request.getAttribute("changes");

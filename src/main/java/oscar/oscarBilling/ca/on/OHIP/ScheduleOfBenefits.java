@@ -30,7 +30,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -140,7 +145,24 @@ public class ScheduleOfBenefits {
 		BigDecimal diffPriceDec = fee.subtract(oldPriceDec);
 		boolean feeChanged = oldPriceDec.compareTo(fee) != 0;
 		boolean feeNonZero = fee.compareTo(BigDecimal.ZERO) != 0;
-
+		
+		boolean isTerminated = false;
+		String terminationDate = (String) newPricingInfo.get("terminactionDate");
+		if (terminationDate.equals("99999999")) {
+			terminationDate = "9999-12-31";
+		} else {
+			terminationDate = formatDate(terminationDate);
+			String feeCode = (String) newPricingInfo.get("feeCode");
+			if (oldPricingInfo == null) {
+				isTerminated = checkIfTerminated(feeCode, terminationDate);
+			} else {
+				if (!terminationDate.equals(oldPricingInfo.get("terminationDate"))) {
+					isTerminated = checkIfTerminated(feeCode, terminationDate);
+				}
+			}
+		}
+		
+		
 		// No need to add a billing code if it doesn't exist and we're not adding new codes or forcing an update.
 		if (oldPricingInfo == null && !forceUpdate && !addNewCodes) { return null; }
 
@@ -151,7 +173,7 @@ public class ScheduleOfBenefits {
 		if (oldPricingInfo != null && !forceUpdate && !addChangedCodes) { return null; }
 
 		// No need to edit a billing code if the price hasn't changed.  
-		if (oldPricingInfo != null && addChangedCodes && !feeChanged) { return null; }
+		if (oldPricingInfo != null && addChangedCodes && !feeChanged && !isTerminated) { return null; }
 
 		// Check for date change
 		if (oldPricingInfo != null) {
@@ -165,7 +187,8 @@ public class ScheduleOfBenefits {
 		change.put("feeCode", newPricingInfo.get("feeCode") + feeType);
 		change.put("prices", moreprices);
 		change.put("effectiveDate", newPricingInfo.get("effectiveDate"));
-		change.put("terminactionDate", newPricingInfo.get("terminactionDate"));
+		change.put("terminactionDate", terminationDate);
+		change.put("isTerminated", isTerminated);
 
 		if (oldPricingInfo == null) {
 			newfees++;				
@@ -243,4 +266,45 @@ public class ScheduleOfBenefits {
         double newFee = Double.parseDouble(String.valueOf(fee)) / 10000;
         return new BigDecimal(newFee).setScale(2, BigDecimal.ROUND_HALF_UP);
     }
+    
+    private boolean checkIfTerminated(String feeCode, String newTerminationDateString) {
+		boolean isTerminated = false;
+		try {
+			Date newTerminationDate = parseDate(newTerminationDateString);
+			isTerminated = newTerminationDate.compareTo(GregorianCalendar.getInstance().getTime()) <= 0;
+			
+		} catch (ParseException e) {
+			String errorMessage = "Could not parse termination dates for code " + feeCode + System.getProperty("line.separator") +
+					"New Date: " + newTerminationDateString;
+			MiscUtils.getLogger().error(errorMessage, e);
+		}
+		
+		return isTerminated;
+	}
+	
+	private String formatDate(String dateToFormat) {
+		String year = dateToFormat.substring(0, 4);
+		String month = dateToFormat.substring(4, 6);
+		String day = dateToFormat.substring(6, 8);
+		
+		if (day.equals("00")) {
+			day = "01";
+		}
+		
+		return year + "-" + month + "-" + day;
+	}
+	
+	private Date parseDate(String newDate) throws ParseException {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		Date date = sdf.parse(newDate);
+		
+		if (newDate.endsWith("00")) {
+			Calendar cal = GregorianCalendar.getInstance();
+			cal.setTime(date);
+			cal.add(Calendar.DAY_OF_MONTH, 1);
+			date = cal.getTime();
+		}
+		
+		return date;
+	}
 }
