@@ -1601,6 +1601,19 @@ public class OLISHL7Handler implements MessageHandler {
 		return "".equals(obxName) ? " " : obxName.indexOf(":") == -1 ? obxName : obxName.substring(0, obxName.indexOf(":"));
 	}
 
+	@Override
+	public String getOBXNameLong(int i, int j) {
+		String obxNameLong = "";
+
+		try {
+			obxNameLong = getOBXField(i, j, 3, 0, 2);
+		} catch (Exception e) {
+			MiscUtils.getLogger().error("OLIS HL7 Error", e);
+		}
+		
+		return obxNameLong;
+	}
+
 	public String getOBXCEName(int i, int j) {
 		return getOBXField(i, j, 5, 0, 2);
 	}

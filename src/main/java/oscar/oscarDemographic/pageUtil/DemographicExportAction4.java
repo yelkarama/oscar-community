@@ -1800,6 +1800,7 @@ public class DemographicExportAction4 extends Action {
 								
 								labMeaValues.put("identifier", h.getOBXIdentifier(i, j));
 								labMeaValues.put("name", h.getOBXName(i, j));
+								labMeaValues.put("name_internal", StringUtils.noNull(h.getOBXNameLong(i, j)));
 								labMeaValues.put("labname", h.getPatientLocation());
 								labMeaValues.put("datetime", h.getTimeStamp(i, j));
 								labMeaValues.put("abnormal", h.getOBXAbnormalFlag(i, j));

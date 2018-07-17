@@ -3738,7 +3738,10 @@ import oscar.util.UtilDateUtilities;
                         if (result.getBlockedTestResult() != null && "Y".equals(result.getBlockedTestResult().toString())) {
                             saveMeasurementsExt(measId, "reportBlocked", "Y");
                         }
-			               
+
+                        if (result.isSetTestName()) {
+                            saveMeasurementsExt(measId, "name_internal", result.getTestName());
+                        }
 	                }
 	                
 	                String labInfo = getLabDline(labResult, 0);
