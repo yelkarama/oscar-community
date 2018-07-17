@@ -41,6 +41,7 @@ import java.util.Map;
 import org.apache.commons.collections.OrderedMapIterator;
 import org.apache.commons.collections.map.ListOrderedMap;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.drools.RuleBase;
 import org.drools.WorkingMemory;
@@ -134,17 +135,7 @@ public class MeasurementFlowSheet {
     }
 
     public String getDxTriggersString(){
-       StringBuilder sb = new StringBuilder();
-       boolean firstElement = true;
-       if (dxTriggers != null){
-           for(String s:dxTriggers){
-                if (!firstElement){
-                    sb.append(",");
-                }
-                sb.append(s);
-           }
-       }
-       return sb.toString();
+       return StringUtils.join(dxTriggers, ",");
     }
 
     public String getDxTriggersQueryBuilder(String demo, String provider){

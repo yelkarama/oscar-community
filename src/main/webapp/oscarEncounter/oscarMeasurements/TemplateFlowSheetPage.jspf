@@ -38,6 +38,9 @@
 <%@ taglib uri="/WEB-INF/rewrite-tag.tld" prefix="rewrite" %>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%@page import="oscar.OscarProperties"%>
+<%@ page import="org.oscarehr.util.SpringUtils" %>
+<%@ page import="org.oscarehr.common.dao.DrugReasonDao" %>
+<%@ page import="org.oscarehr.common.model.DrugReason" %>
 
 <%
 	if(session.getValue("user") == null) response.sendRedirect("../../logout.jsp");
@@ -548,25 +551,55 @@ div.recommendations li{
     </div>
 
     <security:oscarSec roleName="<%=roleName$%>" objectName="_rx" rights="r"  >
+        <script type="text/javascript">
+            function toggleICD9AllMessage() {
+                var message = document.getElementById("icd9AllMessage").innerHTML;
+                var nonMatchingElements = document.getElementsByName("noMatchingTrigger");
+                if (message === "Show All") {
+                    document.getElementById("icd9AllMessage").innerHTML = "ICD9 Match";
+                    for (var i = 0; i < nonMatchingElements.length; i++) {
+                        nonMatchingElements.item(i).style.display = "block";
+                    }
+                } else {
+                    document.getElementById("icd9AllMessage").innerHTML = "Show All";
+                    for (var j = 0; j < nonMatchingElements.length; j++) {
+                        nonMatchingElements.item(j).style.display = "none";
+                    }
+                }
+            }
+        </script>
         <div class="leftBox">
-            <h3>&nbsp;<bean:message key="oscarencounter.templateflowsheet.currentpatientrxlist" />  <a class="DoNotPrint" href="#" onclick="Element.toggle('rxFullListing'); return false;" style="font-size:x-small;" ><bean:message key="oscarencounter.templateflowsheet.showhide" /></a></h3>
+            <h3>&nbsp;<bean:message key="oscarencounter.templateflowsheet.currentpatientrxlist" />  <a class="DoNotPrint" href="#" onclick="Element.toggle('rxFullListing'); return false;" style="font-size:x-small;" ><bean:message key="oscarencounter.templateflowsheet.showhide" /></a> | <a class="DoNotPrint" href="#" onclick="toggleICD9AllMessage(); return false;" style="font-size:x-small;"><span id="icd9AllMessage">Show All</span></a></h3>
             <div class="wrapper" id="rxFullListing"  >
 
                 <%
+                    DrugReasonDao drugReasonDao = SpringUtils.getBean(DrugReasonDao.class);
                     oscar.oscarRx.data.RxPrescriptionData prescriptData = new oscar.oscarRx.data.RxPrescriptionData();
                     oscar.oscarRx.data.RxPrescriptionData.Prescription [] arr = {};
                     arr = prescriptData.getUniquePrescriptionsByPatient(Integer.parseInt(demographic_no));
                     if (arr.length > 0){%>
                 <ul>
                     <%for (int i = 0; i < arr.length; i++){
+                        boolean matchingDxTrigger = false;
                         String rxD = arr[i].getRxDate().toString();
                         //String rxP = arr[i].getRxDisplay();
                         String rxP = arr[i].getFullOutLine().replaceAll(";"," ") + (arr[i].getLongTerm() ? " Long Term: yes" : "");
                         rxP = rxP + "   " + arr[i].getEndDate();
-                        String styleColor = "";
+                        List<DrugReason> drugReasons = drugReasonDao.getReasonsForDrugID(arr[i].getDrugId(), true);
+                        for (String trigger : mFlowsheet.getDxTriggers()) {
+                            for (DrugReason drugReason : drugReasons) {
+                                if (matchingDxTrigger) {
+                                    continue;
+                                }
+                                String triggerValue = trigger.substring(trigger.indexOf(":") + 1);
+                                if (drugReason.getCode().equals(triggerValue)) {
+                                    matchingDxTrigger = true;
+                                }
+                            }
+                        }
                         if(arr[i].isCurrent() || OscarProperties.getInstance().isPropertyActive("use_current_rx_outside_rx_page")){
                     %>
-                    <li title="<%=rxD%> - <%=rxP%>">
+                    <li title="<%=rxD%> - <%=rxP%>" <%=matchingDxTrigger ? "name=\"matchingTrigger\"" : "name=\"noMatchingTrigger\" style=\"display: none;\""%>>
                         <oscar:oscarPropertiesCheck property="SPEC3" value="yes">
                             <a href="FlowSheetDrugAction.do?method=save&flowsheet=<%=temp%>&demographic=<%=demographic_no%>&atcCode=<%=arr[i].getAtcCode()%>">
                             </oscar:oscarPropertiesCheck>
