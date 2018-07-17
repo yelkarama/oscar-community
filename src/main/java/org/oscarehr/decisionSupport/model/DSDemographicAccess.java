@@ -793,7 +793,32 @@ public class DSDemographicAccess {
     }
 
     public boolean billedForNot(String searchStrings,Hashtable options) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED");  }
-    public boolean billedForNotall(String searchStrings,Hashtable options) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED"); }
+    public boolean billedForNotall(String searchStrings,Hashtable options) throws DecisionSupportException {
+        boolean notBilledFor = false;
+        BillingONCHeader1Dao billingONCHeader1Dao = SpringUtils.getBean(BillingONCHeader1Dao.class);
+        if(options.containsKey("payer") && options.get("payer").equals("MSP")){
+
+            String[] codes = searchStrings.replaceAll("\'","" ).split(",");
+
+            boolean inAgeRange = false;
+            String age = getAge().replaceAll("\\s[a-z*]", "");
+            if (options.containsKey("ageMin") && NumberUtils.isNumber(age)) {
+                inAgeRange = getAsInt(options,"ageMin") <= Integer.parseInt(age);
+            }
+
+            if (options.containsKey("ageMax") && inAgeRange && NumberUtils.isNumber(age)) {
+                inAgeRange = getAsInt(options,"ageMax") >= Integer.parseInt(age);
+            }
+
+            if(options.containsKey("notInDays") || options.containsKey("inDays")){
+                if (inAgeRange){
+                    notBilledFor = !billedForAll(searchStrings, options);
+                }
+            }
+        }
+
+        return notBilledFor;
+    }
     public boolean billedForNotany(String searchStrings,Hashtable options) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED"); }
 
 

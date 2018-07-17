@@ -52,6 +52,40 @@ import org.oscarehr.util.MiscUtils;
  */
 public class DSGuidelineFactory {
     private static Logger _log = MiscUtils.getLogger();
+    public List<DSGuideline> createGuidelinesFromXml(String xml) throws DecisionSupportParseException {
+        List<DSGuideline> guidelines = new ArrayList<DSGuideline>();
+        if (xml == null || xml.equals("")) throw new DecisionSupportParseException("Xml not set");
+        SAXBuilder parser = new SAXBuilder();
+        Document doc;
+        try {
+            doc = parser.build(new StringReader(xml));
+        } catch (JDOMException jdome) {
+            throw new DecisionSupportParseException("Failed to read the xml string for parsing",jdome);
+        } catch (IOException ioe) {
+            throw new DecisionSupportParseException("Failed to read the xml string for parsing",ioe);
+        }
+        //<guideline evidence="" significance="" title="Plavix Drug DS">
+        Element guidelineRoot = doc.getRootElement();
+        
+        DSGuideline dsGuideline = null;
+        if ("guidelines".equals(guidelineRoot.getName())) {
+            
+            for (Object guideline : guidelineRoot.getChildren("guideline")) {
+                dsGuideline = createGuideline((Element) guideline);
+                dsGuideline.setXml(xml);
+                dsGuideline.setParsed(true);
+                guidelines.add(dsGuideline);
+            }
+        } else {
+            dsGuideline = createGuideline(doc.getRootElement());
+            dsGuideline.setXml(xml);
+            dsGuideline.setParsed(true);
+            guidelines.add(dsGuideline);
+        }
+        
+        return guidelines;
+    }
+    
     public DSGuideline createGuidelineFromXml(String xml) throws DecisionSupportParseException {
        if (xml == null || xml.equals("")) throw new DecisionSupportParseException("Xml not set");
         SAXBuilder parser = new SAXBuilder();
@@ -64,8 +98,20 @@ public class DSGuidelineFactory {
             throw new DecisionSupportParseException("Failed to read the xml string for parsing",ioe);
         }
         //<guideline evidence="" significance="" title="Plavix Drug DS">
-        Element guidelineRoot = doc.getRootElement();
+        DSGuideline dsGuideline = createGuideline(doc.getRootElement());
+        dsGuideline.setXml(xml);
+        dsGuideline.setParsed(true);
 
+        return dsGuideline;
+    }
+
+    public DSGuideline createBlankGuideline() {
+        DSGuidelineDrools newGuideline = new DSGuidelineDrools();
+        //newGuideline.setEngine("drools");
+        return newGuideline;
+    }
+    
+    private DSGuideline createGuideline(Element guidelineRoot) throws DecisionSupportParseException {
         DSGuideline dsGuideline = this.createBlankGuideline();
 
         String guidelineTitle = guidelineRoot.getAttributeValue("title");
@@ -192,16 +238,9 @@ public class DSGuidelineFactory {
             dsConsequences.add(dsConsequence);
         }
         dsGuideline.setConsequences(dsConsequences);
-        dsGuideline.setXml(xml);
-        dsGuideline.setParsed(true);
+        
         //populate consequence here
         return dsGuideline;
-    }
-
-    public DSGuideline createBlankGuideline() {
-        DSGuidelineDrools newGuideline = new DSGuidelineDrools();
-        //newGuideline.setEngine("drools");
-        return newGuideline;
     }
 
     //i.e. valueString = icd9:4439,icd9:4438,icd10:E11,icd10:E12

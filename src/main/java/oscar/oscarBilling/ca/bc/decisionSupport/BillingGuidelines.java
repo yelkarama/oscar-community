@@ -157,8 +157,8 @@ public class BillingGuidelines  {
                     in.close();
                     DSGuidelineFactory dsFactory = new DSGuidelineFactory();
                     log.debug("xml "+sb.toString());
-                    DSGuideline guideline = dsFactory.createGuidelineFromXml(sb.toString());
-                    billingGuideLines.add(guideline);
+                    List<DSGuideline> guidelines = dsFactory.createGuidelinesFromXml(sb.toString());
+                    billingGuideLines.addAll(guidelines);
                 }catch(Exception e){
                     MiscUtils.getLogger().error("Error", e);
                 } finally {
