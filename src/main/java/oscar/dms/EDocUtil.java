@@ -415,6 +415,9 @@ public final class EDocUtil {
 				currentdoc.setDescription(d.getDocdesc());
 				currentdoc.setFileName(d.getDocfilename());
 				currentdoc.setContentType(d.getContenttype());
+				if(d.getReportMedia() != null){ 
+					currentdoc.setMediaType(d.getReportMedia()); 
+				}
 				currentdoc.setCreatorId(d.getDoccreator());
 				currentdoc.setSource(d.getSource());
 				currentdoc.setSourceFacility(d.getSourceFacility());
@@ -483,6 +486,9 @@ public final class EDocUtil {
 			currentdoc.setFileName(d.getDocfilename());
 			currentdoc.setStatus(d.getStatus());
 			currentdoc.setContentType(d.getContenttype());
+			if(d.getReportMedia() != null){
+				currentdoc.setMediaType(d.getReportMedia());
+			}
 			currentdoc.setObservationDate(d.getObservationdate());
 			currentdoc.setReviewerId(d.getReviewer());
 			currentdoc.setReviewDateTime(ConversionUtils.toTimestampString(d.getReviewdatetime()));
@@ -564,6 +570,9 @@ public final class EDocUtil {
 		currentdoc.setDescription(d.getDocdesc());
 		currentdoc.setFileName(d.getDocfilename());
 		currentdoc.setContentType(d.getContenttype());
+		if(d.getReportMedia() != null){
+			currentdoc.setMediaType(d.getReportMedia()); 
+		}
 		currentdoc.setCreatorId(d.getDoccreator());
 		currentdoc.setSource(d.getSource());
 		currentdoc.setSourceFacility(d.getSourceFacility());
@@ -615,6 +624,9 @@ public final class EDocUtil {
 			currentdoc.setFileName(d.getDocfilename());
 			currentdoc.setStatus(d.getStatus());
 			currentdoc.setContentType(d.getContenttype());
+			if(d.getReportMedia() != null){
+				currentdoc.setMediaType(d.getReportMedia());
+			}
 			currentdoc.setObservationDate(d.getObservationdate());
                         currentdoc.setContentDateTime(d.getContentdatetime());
 
@@ -686,6 +698,9 @@ public final class EDocUtil {
 			}
 			currentdoc.setDateTimeStamp(ConversionUtils.toTimestampString(d.getUpdatedatetime()));
 			currentdoc.setContentType(d.getContenttype());
+			if(d.getReportMedia() != null){
+				currentdoc.setMediaType(d.getReportMedia());
+			}
 			currentdoc.setObservationDate(d.getObservationdate());
 			currentdoc.setReviewerId(d.getReviewer());
 			currentdoc.setReviewDateTime(ConversionUtils.toTimestampString(d.getReviewdatetime()));
@@ -738,6 +753,9 @@ public final class EDocUtil {
 			currentdoc.setHtml(d.getDocxml());
 			currentdoc.setStatus(d.getStatus());
 			currentdoc.setContentType(d.getContenttype());
+			if(d.getReportMedia() != null){
+				currentdoc.setMediaType(d.getReportMedia());
+			}
 			currentdoc.setNumberOfPages(d.getNumberofpages());
             currentdoc.setContentDateTime(d.getContentdatetime());
             currentdoc.setSentDateTime(d.getSentDateTime());
@@ -843,6 +861,11 @@ public final class EDocUtil {
 	}
 
 	public static int addDocument(String demoNo, String docFileName, String docDesc, String docType, String docClass, String docSubClass, String contentType, String contentDateTime, String sentDateTime, String observationDate, String updateDateTime, String docCreator, String responsible, List<DocumentReview> reviews, String source, String sourceFacility) {
+		return addDocument(demoNo, docFileName, docDesc, docType, docClass, docSubClass, contentType, contentDateTime, null, null, observationDate, updateDateTime, docCreator, responsible, reviews, source, null);
+	}
+
+
+		public static int addDocument(String demoNo, String docFileName, String docDesc, String docType, String docClass, String docSubClass, String contentType, String contentDateTime, String mediaType, String sentDateTime, String observationDate, String updateDateTime, String docCreator, String responsible, List<DocumentReview> reviews, String source, String sourceFacility) {
 
 		Document doc = new Document();
 		doc.setDoctype(docType);
@@ -858,6 +881,7 @@ public final class EDocUtil {
 		doc.setPublic1(0);
 		doc.setObservationdate(MyDateFormat.getSysDate(observationDate));
 		doc.setContentdatetime(MyDateFormat.getSysDate(contentDateTime));
+		doc.setReportMedia(mediaType);
 		doc.setSentDateTime(MyDateFormat.getSysDate(sentDateTime));
 		doc.setSource(source);
 		doc.setSourceFacility(sourceFacility);

@@ -180,6 +180,7 @@ function verifyChecks(form){
 						<th><a href="displayHRMDocList.jsp?demographic_no=<%=demographic_no%>&orderby=form_subject&group_view=<%=groupView%>&parentAjaxId=<%=parentAjaxId%>"><bean:message	key="hrm.displayHRMDocList.reportStatus" /></a></th>
 						<th><a href="displayHRMDocList.jsp?demographic_no=<%=demographic_no%>&group_view=<%=groupView%>&parentAjaxId=<%=parentAjaxId%>"><bean:message key="hrm.displayHRMDocList.timeReceived" /></a></th>
 						<th><FONT COLOR="blue"><bean:message key="hrm.displayHRMDocList.category" /></FONT></th>
+						<th>&nbsp;</th>
 					</tr>
 					<%
 						ArrayList<HashMap<String,? extends Object>> hrmdocs;
@@ -204,7 +205,12 @@ function verifyChecks(form){
 						<td><%=curhrmdoc.get("description")%></td>
 						<td><%=curhrmdoc.get("report_status")%></td>
 						<td align='center'><%=curhrmdoc.get("time_received")%></td>
-						<td><%=curhrmdoc.get("category") != null ? ((HRMCategory)curhrmdoc.get("category")).getCategoryName() : "" %>
+						<td><%=curhrmdoc.get("category") != null ? ((HRMCategory)curhrmdoc.get("category")).getCategoryName() : "" %></td>
+						<td>
+							<a href="#" title="Annotation" onclick="window.open('<%=request.getContextPath() %>/annotation/annotation.jsp?display=HRM&table_id=<%=curhrmdoc.get("id")%>&demo=<%=demographic_no%>','anwin','width=400,height=500');"/>
+								<img src="<%=request.getContextPath()%>/images/notes.gif" border="0">
+							</a>
+						</td>
 					</tr>
 					<%
 						}

@@ -17,6 +17,7 @@ import java.util.List;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import omd.hrm.PersonNameSimple;
 import org.apache.commons.codec.binary.Base64;
 import omd.hrm.DateFullOrPartial;
 import omd.hrm.Demographics;
@@ -26,6 +27,7 @@ import omd.hrm.PersonNameStandard.LegalName.OtherName;
 import omd.hrm.ReportFormat;
 import omd.hrm.ReportsReceived.OBRContent;
 import org.oscarehr.util.MiscUtils;
+import oscar.util.StringUtils;
 
 public class HRMReport {
 
@@ -253,6 +255,17 @@ public class HRMReport {
 			return dateFP(hrmReport.getPatientRecord().getReportsReceived().get(0).getEventDateTime()).toGregorianCalendar();
 		return null;
 	}
+	
+	public String getMediaType() { 
+		String mediaType = "";
+		try {
+			mediaType = hrmReport.getPatientRecord().getReportsReceived().get(0).getMedia().value();
+		}catch(Exception e) {
+			MiscUtils.getLogger().error("error", e);
+		}
+		
+		return mediaType;
+	}
 
 	public List<String> getFirstReportAuthorPhysician() {
 		List<String> physicianName = new ArrayList<String>();
@@ -266,6 +279,20 @@ public class HRMReport {
 
 		return physicianName;
 	}
+
+	public String getSendingAuthor() {
+		String sourceAuthor = "";
+		if (hrmReport.getPatientRecord().getReportsReceived() != null && !hrmReport.getPatientRecord().getReportsReceived().isEmpty()) {
+			PersonNameSimple authorPhysician = hrmReport.getPatientRecord().getReportsReceived().get(0).getAuthorPhysician();
+			if (authorPhysician!=null) {
+				sourceAuthor = (StringUtils.noNull(authorPhysician.getFirstName()).trim() + " " + StringUtils.noNull(authorPhysician.getLastName()).trim()).trim();
+			}
+		}
+		
+
+		return sourceAuthor;
+	}
+
 
 	public String getSendingFacilityId() {
 		if (hrmReport.getPatientRecord().getReportsReceived() == null || hrmReport.getPatientRecord().getReportsReceived().isEmpty() ){

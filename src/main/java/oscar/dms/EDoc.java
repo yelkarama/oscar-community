@@ -71,6 +71,7 @@ public class EDoc extends TagObject implements Comparable<EDoc> {
 	private String docPublic = "0";
 	private String contentType = "";
 	private Date contentDateTime=null;
+	private String mediaType = "";
 	private Date sentDateTime = null;
 	private String observationDate = "";
 	private List<DocumentReview> reviews = new ArrayList<>();
@@ -387,6 +388,14 @@ public class EDoc extends TagObject implements Comparable<EDoc> {
 
 	public void setContentType(String contentType) {
 		this.contentType = contentType;
+	}
+
+	public String getMediaType() {
+		return mediaType;
+	}
+
+	public void setMediaType(String mediaType) {
+		this.mediaType = mediaType;
 	}
 
 	public String getDocPublic() {

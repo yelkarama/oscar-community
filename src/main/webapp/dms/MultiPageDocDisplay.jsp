@@ -245,6 +245,10 @@
                                     <td><%=curdoc.getDateTimeStamp()%></td>
                                 </tr>
                                 <tr>
+                                    <td>Media Type</td>
+                                    <td><%=StringUtils.noNull(curdoc.getMediaType())%></td>
+                                </tr>
+                                <tr>
                                     <td><bean:message key="inboxmanager.document.ContentType"/></td>
                                     <td><%=contentType%></td>
                                 </tr>

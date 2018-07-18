@@ -2285,6 +2285,20 @@ import oscar.util.UtilDateUtilities;
                         hrmDoc.setReportLessDemographicInfoHash(DigestUtils.md5Hex(noDemographicInfoFileData));
                         
                         hrmDoc.setReportFile(HRMfile);
+                        String sourceAuthor = "";
+                        Reports.SourceAuthorPhysician authorPhysician = repR[i].getSourceAuthorPhysician();
+                        if (authorPhysician!=null) {
+                            if (authorPhysician.getAuthorName()!=null) {
+                                HashMap<String,String> author = getPersonName(authorPhysician.getAuthorName());
+                                sourceAuthor = StringUtils.noNull(author.get("firstname")) + " " + StringUtils.noNull(author.get("lastname"));
+                            } else if (authorPhysician.getAuthorFreeText()!=null) {
+                                sourceAuthor = authorPhysician.getAuthorFreeText();
+                            }
+                        }
+                        
+                        if (StringUtils.filled(sourceAuthor)) {
+                            hrmDoc.setSourceAuthor(sourceAuthor);
+                        }
                         if (repR[i].getSourceFacility()!=null) hrmDoc.setSourceFacility(repR[i].getSourceFacility());
                         if (repR[i].getReceivedDateTime()!=null) {
                             hrmDoc.setTimeReceived(dateTimeFPtoDate(repR[i].getReceivedDateTime(), timeShiftInDays));
@@ -2294,7 +2308,8 @@ import oscar.util.UtilDateUtilities;
                         if (repR[i].getHRMResultStatus()!=null) hrmDoc.setReportStatus(repR[i].getHRMResultStatus());
                         if (repR[i].getClass1()!=null) hrmDoc.setReportType(repR[i].getClass1().toString());
                         if (repR[i].getEventDateTime()!=null) hrmDoc.setReportDate(dateTimeFPtoDate(repR[i].getEventDateTime(), timeShiftInDays));
-                        if (repR[i].getNotes() != null) { hrmDoc.setDescription(repR[i].getNotes()); }
+                        String reportNotes = repR[i].getNotes();
+                        hrmDoc.setReportMedia(repR[i].getMedia().toString());
                         hrmDocDao.persist(hrmDoc);
 
                         hrmDocToDemo.setDemographicNo(Integer.valueOf(demographicNo));
@@ -2311,6 +2326,12 @@ import oscar.util.UtilDateUtilities;
                             hrmDocSc.setHrmDocumentId(hrmDoc.getId());
                             hrmDocSc.setActive(true);
                             hrmDocSubClassDao.persist(hrmDocSc);
+                        }
+
+                        if (StringUtils.filled(reportNotes)) {
+                            CaseManagementNote rpNote = prepareCMNote("1",null);
+                            rpNote.setNote(reportNotes);
+                            saveLinkNote(rpNote, CaseManagementNoteLink.HRM, Long.valueOf(hrmDoc.getId()));
                         }
 
                     } else { //non-HRM reports
@@ -2348,6 +2369,7 @@ import oscar.util.UtilDateUtilities;
                                 String docFileName = "ImportReport"+(i+1)+"-"+UtilDateUtilities.getToday("yyyy-MM-dd.HH.mm.ss");
                                 String docClass=null, docSubClass=null, contentType="", contentDateTime=null, observationDate=null, updateDateTime=null, docCreator=admProviderNo;
                                 String reviewer=null, reviewDateTime=null, source=null, sourceFacility=null, reportExtra=null;
+                                String reportNotes = null;
                                 Integer docNum=null;
 
                                 if (StringUtils.filled(repR[i].getFileExtensionAndVersion())) {
@@ -2377,13 +2399,13 @@ import oscar.util.UtilDateUtilities;
                                 	sourceFacility = repR[i].getSourceFacility();
                                 }
 
+                                String reportMedia = "";
                                 if (repR[i].getMedia()!=null) {
+                                    reportMedia =repR[i].getMedia().toString();
                                 	reportExtra = Util.addLine(reportExtra, "Media: ", repR[i].getMedia().toString());
                                 }
                                 
-                                if(repR[i].getNotes() != null) {
-                                    reportExtra = Util.addLine(reportExtra, "Notes: ", repR[i].getNotes());
-                                }
+                                reportNotes = repR[i].getNotes();
 
                                 Reports.SourceAuthorPhysician authorPhysician = repR[i].getSourceAuthorPhysician();
                                 if (authorPhysician!=null) {
@@ -2418,7 +2440,7 @@ import oscar.util.UtilDateUtilities;
                                 updateDateTime = dateFPtoString(repR[i].getReceivedDateTime(), timeShiftInDays);
                                 contentDateTime = dateFPtoString(repR[i].getReceivedDateTime(), timeShiftInDays);
                                 String sentDateTime = dateFPtoString(repR[i].getSentDateTime(), timeShiftInDays);
-                                docNum = EDocUtil.addDocument(demographicNo,docFileName,docDesc,"",docClass,docSubClass,contentType,contentDateTime,sentDateTime, observationDate,updateDateTime,docCreator,recipientProviderNo,reviews,source,sourceFacility);
+                                docNum = EDocUtil.addDocument(demographicNo,docFileName,docDesc,"",docClass,docSubClass,contentType,contentDateTime, reportMedia, sentDateTime, observationDate,updateDateTime,docCreator,recipientProviderNo,reviews,source,sourceFacility);
                                 if (docNum==null) docNum = 0;
                                 if (binaryFormat) addOneEntry(REPORTBINARY);
                                 else addOneEntry(REPORTTEXT);
@@ -2429,6 +2451,12 @@ import oscar.util.UtilDateUtilities;
                     	            CaseManagementNote rpNote = prepareCMNote("2",null);
                     	            rpNote.setNote(reportExtra);
                     	            saveLinkNote(rpNote, CaseManagementNoteLink.DOCUMENT, Long.valueOf(docNum));
+                                }
+
+                                if (StringUtils.filled(reportNotes)) {
+                                    CaseManagementNote rpNote = prepareCMNote("1",null);
+                                    rpNote.setNote(reportNotes);
+                                    saveLinkNote(rpNote, CaseManagementNoteLink.DOCUMENT, Long.valueOf(docNum));
                                 }
                             }
                         }

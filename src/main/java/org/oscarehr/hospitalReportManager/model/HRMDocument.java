@@ -12,6 +12,7 @@ package org.oscarehr.hospitalReportManager.model;
 import java.util.Comparator;
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -33,6 +34,8 @@ public class HRMDocument extends AbstractModel<Integer> {
 	private String reportLessDemographicInfoHash;
 	private String reportStatus;
 	private String reportFile;
+	@Column(name = "source_author")
+	private String sourceAuthor;
         private String sourceFacility;
 	
 	private String unmatchedProviders;
@@ -44,6 +47,8 @@ public class HRMDocument extends AbstractModel<Integer> {
 	private Integer hrmCategoryId;
 
 	private String description = "";
+	@Column(name = "report_media")
+	private String reportMedia;
 	
 	@Override
 	public Integer getId() {
@@ -106,7 +111,15 @@ public class HRMDocument extends AbstractModel<Integer> {
 		this.reportFile = reportFile;
 	}
 
-        public String getSourceFacility() {
+	public String getSourceAuthor() {
+		return sourceAuthor;
+	}
+
+	public void setSourceAuthor(String sourceAuthor) {
+		this.sourceAuthor = sourceAuthor;
+	}
+
+	public String getSourceFacility() {
         return sourceFacility;
     }
 
@@ -163,6 +176,13 @@ public class HRMDocument extends AbstractModel<Integer> {
 		this.description = description;
 	}
 
+	public String getReportMedia() {
+		return reportMedia;
+	}
+
+	public void setReportMedia(String reportMedia) {
+		this.reportMedia = reportMedia;
+	}
 
 	/**
 	 * This comparator sorts HRM Docs ascending based on the time received

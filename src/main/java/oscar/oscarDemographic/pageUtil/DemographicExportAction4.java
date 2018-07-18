@@ -2012,6 +2012,10 @@ public class DemographicExportAction4 extends Action {
 						} else {
 							exportError.add("Not exporting invalid Received DateTime (Reports) for Patient "+demoNo+" ("+(j+1)+")");
 						}
+						cdsDt.ReportMedia.Enum reportMedia = cdsDt.ReportMedia.Enum.forString(edoc.getMediaType());
+						if (reportMedia != null) {
+							rpr.setMedia(reportMedia);
+						}
 						if (edoc.getSentDateTime() != null) {
 							rpr.addNewSentDateTime().setFullDateTime(Util.calDate(edoc.getSentDateTime()));
 						}

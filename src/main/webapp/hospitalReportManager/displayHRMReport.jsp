@@ -479,7 +479,7 @@ function popupPatientTickler(height, width, url, windowName,docId,d,n) {
 				%>
 				<i>From the Report</i><br />
 					<% for (List<Object> subClass : subClassListFromReport) { %>
-						<abbr title="Type: <%=(String) subClass.get(0) %>; Date of Observation: <%=((Date) subClass.get(3)).toString() %>">(<%=(String) subClass.get(1) %>) <%=(String) subClass.get(2) %></abbr><br />
+						<abbr title="Date of Observation: <%=((Date) subClass.get(3)).toString() %>">(<%=(String) subClass.get(0) %> : <%=(String) subClass.get(1) %>) <%=(String) subClass.get(2) %></abbr><br />
 					<% }
 				} %><br />
 				<%
@@ -487,7 +487,7 @@ function popupPatientTickler(height, width, url, windowName,docId,d,n) {
 				<i>Stored in Database</i><br />
 					<div id="subclassstatus<%=hrmReportId %>"></div>
 					<% for (HRMDocumentSubClass subClass : subClassListFromDb) { %>
-						<abbr title="Type: <%=subClass.getSubClass() %>; Date of Observation: <%=subClass.getSubClassDateTime().toString() %>">(<%=subClass.getSubClassMnemonic() %>) <%=subClass.getSubClassDescription() %></abbr>
+						<abbr title="Date of Observation: <%=subClass.getSubClassDateTime().toString() %>">(<%=subClass.getSubClass() %> : <%=subClass.getSubClassMnemonic() %>) <%=subClass.getSubClassDescription() %></abbr>
 						<% if (!subClass.isActive()) { %> (<a href="#" onclick="makeActiveSubClass('<%=hrmReportId %>', '<%=subClass.getId() %>')">make active</a>)<% } %><br />
 					<% }
 				} %>
@@ -553,6 +553,7 @@ function popupPatientTickler(height, width, url, windowName,docId,d,n) {
 					<%
 					}
 					%>
+					<input type="button" value="Annotations" onClick="popupPage(500, 400, '<%=request.getContextPath() %>/annotation/annotation.jsp?display=HRM&table_id=<%=hrmReportId%>&demo=<%=demographicNo%>')" />
 				</form>
 			</td>
 		</tr>
@@ -593,8 +594,16 @@ if (documentComments != null) {
 <div id="metadataBox">
 	<table style="border: 1px solid black;margin: 20px;">
 		<tr>
+			<th>Media</th>
+			<td><%=hrmReport.getMediaType()%></td>
+		</tr>
+		<tr>
 			<th>Message Unique ID</th>
 			<td><%=hrmReport.getMessageUniqueId() %></td>
+		</tr>
+		<tr>
+			<th>Sending Author</th>
+			<td><%=hrmReport.getSendingAuthor()%></td>
 		</tr>
 		<tr>
 			<th>Sending Facility ID</th>

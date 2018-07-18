@@ -135,6 +135,8 @@ public class Document extends AbstractModel<Integer> implements Serializable {
     @Column(name = "contentdatetime")
     @Temporal(TemporalType.TIMESTAMP)
     private Date contentdatetime;
+    @Column(name = "report_media")
+    private String reportMedia;
     @Column(name = "sent_date_time")
     @Temporal(TemporalType.TIMESTAMP)
     private Date sentDateTime;
@@ -240,7 +242,15 @@ public class Document extends AbstractModel<Integer> implements Serializable {
     public void setContentdatetime(Date contentdatetime) {
         this.contentdatetime = contentdatetime;
     }
-    
+
+    public String getReportMedia() {
+        return reportMedia;
+    }
+
+    public void setReportMedia(String reportMedia) {
+        this.reportMedia = reportMedia;
+    }
+
     public Date getSentDateTime() {
         return sentDateTime;
     }
