@@ -81,7 +81,8 @@
     
     WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
     CountryCodeDao ccDAO =  (CountryCodeDao) ctx.getBean("countryCodeDao");
-    UserPropertyDAO pref = (UserPropertyDAO) ctx.getBean("UserPropertyDAO");                       
+    UserPropertyDAO pref = (UserPropertyDAO) ctx.getBean("UserPropertyDAO");
+	PropertyDao propertyDao = new SpringUtils().getBean(PropertyDao.class);
     List<CountryCode> countryList = ccDAO.getAllCountryCodes();
 
     DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);

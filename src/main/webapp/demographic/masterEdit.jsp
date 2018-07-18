@@ -157,6 +157,7 @@
 	}
 	
     OscarProperties oscarProps = OscarProperties.getInstance();
+	PropertyDao propertyDao = new SpringUtils().getBean(PropertyDao.class);
     ProvinceNames pNames = ProvinceNames.getInstance();
 	Map<String,String> demoExt = demographicExtDao.getAllValuesForDemo(Integer.parseInt(demographic_no));
 	List<DemographicGroupLink> demographicGroupsForPatient = demographicGroupLinkDao.findByDemographicNo(demographicNoAsInt);
