@@ -2631,19 +2631,19 @@ import oscar.util.UtilDateUtilities;
                             String dataField = "Yes";
                             if (dc.getCounsellingPerformed()!=null) {
                                 if (dc.getCounsellingPerformed().equals(CounsellingPerformed.NUTRITION)) {
-                                    ImportExportMeasurements.saveMeasurements("MCCN", demographicNo, admProviderNo, dataField, dateObserved);
+                                    ImportExportMeasurements.saveMeasurements("DMCCN", demographicNo, admProviderNo, dataField, dateObserved);
                                     addOneEntry(CAREELEMENTS);
                                 }
                                 else if (dc.getCounsellingPerformed().equals(CounsellingPerformed.EXERCISE)) {
-                                    ImportExportMeasurements.saveMeasurements("MCCE", demographicNo, admProviderNo, dataField, dateObserved);
+                                    ImportExportMeasurements.saveMeasurements("DMCCE", demographicNo, admProviderNo, dataField, dateObserved);
                                     addOneEntry(CAREELEMENTS);
                                 }
                                 else if (dc.getCounsellingPerformed().equals(CounsellingPerformed.SMOKING_CESSATION)) {
-                                    ImportExportMeasurements.saveMeasurements("MCCS", demographicNo, admProviderNo, dataField, dateObserved);
+                                    ImportExportMeasurements.saveMeasurements("DMCCS", demographicNo, admProviderNo, dataField, dateObserved);
                                     addOneEntry(CAREELEMENTS);
                                 }
                                 else if (dc.getCounsellingPerformed().equals(CounsellingPerformed.OTHER)) {
-                                    ImportExportMeasurements.saveMeasurements("MCCO", demographicNo, admProviderNo, dataField, dateObserved);
+                                    ImportExportMeasurements.saveMeasurements("DMCCO", demographicNo, admProviderNo, dataField, dateObserved);
                                     addOneEntry(CAREELEMENTS);
                                 }
                             }

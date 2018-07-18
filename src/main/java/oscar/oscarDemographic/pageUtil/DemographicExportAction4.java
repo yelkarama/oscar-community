@@ -2327,7 +2327,7 @@ public class DemographicExportAction4 extends Action {
 						}
 						dsc.setChallengesIdentified(Util.yn(meas.getDataField()));
 						addOneEntry(CAREELEMENTS);
-					} else if (meas.getType().equals("MCCN")) { //Motivation Counseling Completed Nutrition
+					} else if (meas.getType().equals("DMCCN")) { //Motivation Counseling Completed Nutrition
 						cdsDt.DiabetesMotivationalCounselling dmc = careElm.addNewDiabetesMotivationalCounselling();
 						dmc.setDate(Util.calDate(meas.getDateObserved()));
 						if (meas.getDateObserved()==null) {
@@ -2338,7 +2338,7 @@ public class DemographicExportAction4 extends Action {
 							exportError.add("Patient "+demoNo+" didn't do Diabetes Counselling (Nutrition) on "+UtilDateUtilities.DateToString(meas.getDateObserved(),"yyyy-MM-dd"));
 						}
 						addOneEntry(CAREELEMENTS);
-					} else if (meas.getType().equals("MCCE")) { //Motivation Counseling Completed Exercise
+					} else if (meas.getType().equals("DMCCE")) { //Motivation Counseling Completed Exercise
 						cdsDt.DiabetesMotivationalCounselling dmc = careElm.addNewDiabetesMotivationalCounselling();
 						dmc.setDate(Util.calDate(meas.getDateObserved()));
 						if (meas.getDateObserved()==null) {
@@ -2349,7 +2349,7 @@ public class DemographicExportAction4 extends Action {
 							exportError.add("Patient "+demoNo+" didn't do Diabetes Counselling (Exercise) on "+UtilDateUtilities.DateToString(meas.getDateObserved(),"yyyy-MM-dd"));
 						}
 						addOneEntry(CAREELEMENTS);
-					} else if (meas.getType().equals("MCCS")) { //Motivation Counseling Completed Smoking Cessation
+					} else if (meas.getType().equals("DMCCS")) { //Motivation Counseling Completed Smoking Cessation
 						cdsDt.DiabetesMotivationalCounselling dmc = careElm.addNewDiabetesMotivationalCounselling();
 						dmc.setDate(Util.calDate(meas.getDateObserved()));
 						if (meas.getDateObserved()==null) {
@@ -2360,7 +2360,7 @@ public class DemographicExportAction4 extends Action {
 							exportError.add("Patient "+demoNo+" didn't do Diabetes Counselling (Smoking Cessation) on "+UtilDateUtilities.DateToString(meas.getDateObserved(),"yyyy-MM-dd"));
 						}
 						addOneEntry(CAREELEMENTS);
-					} else if (meas.getType().equals("MCCO")) { //Motivation Counseling Completed Other
+					} else if (meas.getType().equals("DMCCO")) { //Motivation Counseling Completed Other
 						cdsDt.DiabetesMotivationalCounselling dmc = careElm.addNewDiabetesMotivationalCounselling();
 						dmc.setDate(Util.calDate(meas.getDateObserved()));
 						if (meas.getDateObserved()==null) {

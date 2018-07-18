@@ -442,13 +442,13 @@ ds_rules="diab.drl"
           <item prevention_type="Flu" display_name="Flu Vaccine" guideline="Annually" graphable="no" />
       </header>
       <header display_name="Other">
-          <item measurement_type="DDMME" display_name="Diabetes Education - Diabetes" guideline="Assess and discuss self-management challenges" graphable="no" value_name="Discussed" >
+          <item measurement_type="DMME" display_name="Diabetes Education - Diabetes" guideline="Assess and discuss self-management challenges" graphable="no" value_name="Discussed" >
               <rules>
               <recommendation strength="warning" >
-                <condition type="monthrange" param="DDMME" value="&gt;12" />
+                <condition type="monthrange" param="DMME" value="&gt;12" />
               </recommendation>
               <recommendation strength="warning" >
-                <condition type="monthrange" param="DDMME" value="-1" />
+                <condition type="monthrange" param="DMME" value="-1" />
               </recommendation>
             </rules>
           </item>
@@ -741,7 +741,7 @@ ds_rules="diab.drl"
     <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
   </measurement>
 
-  <measurement type="DDMME" typeDesc="Diabetes Education - Diabetes" typeDisplayName="Diabetes Education - Diabetes" measuringInstrc="Completed">
+  <measurement type="DMME" typeDesc="Diabetes Education - Diabetes" typeDisplayName="Diabetes Education - Diabetes" measuringInstrc="Completed">
     <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
   </measurement>
   <measurement type="DEDNL" typeDesc="Diabetes Education - Nutrition (lipids)" typeDisplayName="Diabetes Education - Nutrition (lipids)" measuringInstrc="Completed">
