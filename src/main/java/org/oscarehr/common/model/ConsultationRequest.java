@@ -113,6 +113,9 @@ public class ConsultationRequest extends AbstractModel<Integer> implements Seria
     private Integer fdid = null;
     private String source;
     
+    @Column(name = "locked")
+    private Boolean locked = false;
+    
     
 	@Override
 	public Integer getId() {
@@ -396,5 +399,12 @@ public class ConsultationRequest extends AbstractModel<Integer> implements Seria
 
 	public void setSource(String source) {
 		this.source = source;
+	}
+
+	public Boolean getLocked() {
+		return locked;
+	}
+	public void setLocked(Boolean locked) {
+		this.locked = locked;
 	}
 }

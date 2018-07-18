@@ -43,7 +43,9 @@ import java.util.ArrayList;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.oscarehr.common.dao.ConsultationRequestDao;
 import org.oscarehr.common.dao.PatientLabRoutingDao;
+import org.oscarehr.common.model.ConsultationRequest;
 import org.oscarehr.common.model.PatientLabRouting;
 import org.oscarehr.common.printing.FontSettings;
 import org.oscarehr.common.printing.PdfWriterFactory;
@@ -159,6 +161,11 @@ public class EctConsultationFormRequestPrintPdf {
         // combine the recently created pdf with any pdfs that were added to the consultation request form
         combinePDFs(loggedInInfo, fileName);
 
+        //Set consultation locked after printing
+        ConsultationRequestDao consultationRequestDao = SpringUtils.getBean(ConsultationRequestDao.class);
+        ConsultationRequest printedConsultation = consultationRequestDao.find(Integer.valueOf((String) request.getAttribute("reqId")));
+        printedConsultation.setLocked(true);
+        consultationRequestDao.merge(printedConsultation);
     }
 
 

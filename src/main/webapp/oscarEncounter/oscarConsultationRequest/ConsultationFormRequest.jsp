@@ -144,6 +144,8 @@ if(!authed) {
 		
 		if (requestId != null) consultUtil.estRequestFromId(loggedInInfo, requestId);
 		if (demo == null) demo = consultUtil.demoNo;
+		
+		Boolean lockForm = archiveId != null || (consultUtil.locked && OscarProperties.getInstance().isPropertyActive("consultation_lock_on_print"));
 
 		ArrayList<String> users = (ArrayList<String>)session.getServletContext().getAttribute("CaseMgmtUsers");
 		boolean useNewCmgmt = false;
@@ -502,20 +504,20 @@ function setDisabledDateFields(form, disabled)
 	form.appointmentPm.disabled = disabled;
 }
 
-function disableEditing()
-{
-	if (disableFields)
-	{
+function disableEditing() {
+	if (disableFields) {
 		form=document.forms[0];
 
-		setDisabledDateFields(form, disableFields);
-
+		<% if (!lockForm) { %>
 		form.status[0].disabled = disableFields;
 		form.status[1].disabled = disableFields;
 		form.status[2].disabled = disableFields;
 		form.status[3].disabled = disableFields;
+		<% } %>
 
+		form.providerNo.disabled = disableFields;
 		form.referalDate.disabled = disableFields;
+		form.specialist.disabled = disableFields;
 		form.service.disabled = disableFields;
 		form.urgency.disabled = disableFields;
 		form.phone.disabled = disableFields;
@@ -524,14 +526,17 @@ function disableEditing()
 		form.patientWillBook.disabled = disableFields;
 		form.sendTo.disabled = disableFields;
 
-		form.appointmentNotes.disabled = disableFields;
 		form.reasonForConsultation.disabled = disableFields;
 		form.clinicalInformation.disabled = disableFields;
 		form.concurrentProblems.disabled = disableFields;
 		form.currentMedications.disabled = disableFields;
 		form.allergies.disabled = disableFields;
-                form.annotation.disabled = disableFields;
+		form.annotation.disabled = disableFields;
 
+		form.letterheadName.disabled = disableFields;
+		form.ext_letterheadTitle.disabled = disableFields;
+
+		disableIfExists(form.siteName, disableFields);
 		disableIfExists(form.update, disableFields);
 		disableIfExists(form.updateAndPrint, disableFields);
 		disableIfExists(form.updateAndSendElectronically, disableFields);
@@ -541,6 +546,9 @@ function disableEditing()
 		disableIfExists(form.submitAndPrint, disableFields);
 		disableIfExists(form.submitAndSendElectronically, disableFields);
 		disableIfExists(form.submitAndFax, disableFields);
+		disableIfExists(form.letterheadFax, disableFields);
+
+		document.getElementById('referalDate_cal').style.display = 'none';
 	}
 }
 
@@ -1387,7 +1395,7 @@ function hasFaxNumber() {
 }
 function updateFaxButton() {
 	var disabled = !hasFaxNumber();
-    <% if (archiveId == null) { %>
+	<% if (!lockForm) { %>
 	document.getElementById("fax_button").disabled = disabled;
 	document.getElementById("fax_button2").disabled = disabled;
 	<% } %>
@@ -1452,7 +1460,7 @@ function updateFaxButton() {
        		}
 		}
 
-		if (thisForm.iseReferral() || archiveId != null)
+		if (thisForm.iseReferral() || lockForm)
 		{
 			%>
 				<SCRIPT LANGUAGE="JavaScript">
@@ -1564,6 +1572,7 @@ function updateFaxButton() {
 						<tr>
 							<td class="stat">&nbsp;</td>
 						</tr>
+						<% if (!lockForm) { %>
 						<tr>
 							<td style="text-align: center" class="stat">
 							<%
@@ -1589,6 +1598,7 @@ function updateFaxButton() {
 							%>
 							</td>
 						</tr>
+						<% } %>
 						<tr>
 							<td style="text-align: center"><bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.curAttachDoc"/>:</td>
 						</tr>
@@ -1619,7 +1629,14 @@ function updateFaxButton() {
 				height="100%" border=1>
 
 				<!----Start new rows here-->
-				<% if (archiveId == null) { %>
+				<% if ((consultUtil.locked && OscarProperties.getInstance().isPropertyActive("consultation_lock_on_print")) && request.getAttribute("id") != null) { %>
+				<tr>
+					<td class="tite4" colspan=2>
+						<input name="updateLocked" type="button" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnUpdate"/>"
+							   onclick="document.forms[0].service.disabled = false; document.forms['EctConsultationFormRequestForm'].submit();"/>
+					</td>
+				</tr>
+				<% } else if (!lockForm) { %>
 				<tr>
 					<td class="tite4" colspan=2>
 					<% boolean faxEnabled = props.getBooleanProperty("faxEnable", "yes"); %>
@@ -1628,7 +1645,6 @@ function updateFaxButton() {
 
 						<input name="update" type="button" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnUpdate"/>" onclick="return checkForm('Update Consultation Request','EctConsultationFormRequestForm');" />
 						<input name="updateAndPrint" type="button" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnUpdateAndPrint"/>" onclick="return checkForm('Update Consultation Request And Print Preview','EctConsultationFormRequestForm');" />
-						<input name="printPreview" type="button" value="Print Preview" onclick="return checkForm('And Print Preview','EctConsultationFormRequestForm');" />
 
 						<logic:equal value="true" name="EctConsultationFormRequestForm" property="eReferral">
 							<input name="updateAndSendElectronicallyTop" type="button"
@@ -2179,6 +2195,7 @@ function updateFaxButton() {
 								<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.formClinInf" />:
 							</td>
 							<td id="clinicalInfoButtonBar">
+								<% if (!lockForm) { %>
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportSocHistory"/>" onclick="importFromEnct('SocialHistory',document.forms[0].clinicalInformation);" />&nbsp;
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportFamHistory"/>" onclick="importFromEnct('FamilyHistory',document.forms[0].clinicalInformation);" />&nbsp;
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportMedHistory"/>" onclick="importFromEnct('MedicalHistory',document.forms[0].clinicalInformation);" />&nbsp;
@@ -2186,16 +2203,17 @@ function updateFaxButton() {
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportOtherMeds"/>" onclick="importFromEnct('OtherMeds',document.forms[0].clinicalInformation);" />&nbsp;
 
 								<span id="clinicalInfoButtons"></span>
+								<% } %>
 							</td>
 						</tr>
 						<tr>
-														<td>
+							<td>
+								<% if (!lockForm) { %>
 								<input id="btnReminders" type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportReminders"/>" onclick="importFromEnct('Reminders',document.forms[0].clinicalInformation);" />&nbsp;								
 								<input id="fetchRiskFactors_clinicalInformation" type="button" class="btn clinicalData" value="Risk Factors" />&nbsp;
 								<input id="fetchMedications_clinicalInformation" type="button" class="btn clinicalData" value="Medications" />&nbsp;
 								<input id="fetchLongTermMedications_clinicalInformation" type="button" class="btn clinicalData" value="Long Term Medications" />&nbsp;
-								
-								
+								<% } %>
 							</td>
 						</tr>
 					</table>
@@ -2223,22 +2241,24 @@ function updateFaxButton() {
  %>
 							</td>
 							<td id="concurrentProblemsButtonBar">
+								<% if (!lockForm) { %>
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportSocHistory"/>" onclick="importFromEnct('SocialHistory',document.forms[0].concurrentProblems);" />&nbsp;
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportFamHistory"/>" onclick="importFromEnct('FamilyHistory',document.forms[0].concurrentProblems);" />&nbsp;
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportMedHistory"/>" onclick="importFromEnct('MedicalHistory',document.forms[0].concurrentProblems);" />&nbsp;
 								<input id="btnOngoingConcerns2" type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportConcerns"/>" onclick="importFromEnct('ongoingConcerns',document.forms[0].concurrentProblems);" />&nbsp;
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportOtherMeds"/>" onclick="importFromEnct('OtherMeds',document.forms[0].concurrentProblems);" />&nbsp;
-
+								<% } %>
 							</td>
 						</tr>
 						<tr>
 							
 							<td>
+								<% if (!lockForm) { %>
 								<input id="btnReminders2" type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportReminders"/>" onclick="importFromEnct('Reminders',document.forms[0].concurrentProblems);" />&nbsp;
 								<input id="fetchRiskFactors_concurrentProblems" type="button" class="btn clinicalData" value="Risk Factors" />&nbsp;
 								<input id="fetchMedications_concurrentProblems" type="button" class="btn clinicalData" value="Medications" />&nbsp;
 								<input id="fetchLongTermMedications_concurrentProblems" type="button" class="btn clinicalData" value="Long Term Medications" />&nbsp;
-								
+								<% } %>
 							</td>
 						</tr>
 					</table>
@@ -2276,6 +2296,7 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 								<% }  %>
 							</td>
 							<td id="medsButtonBar">
+								<% if (!lockForm) { %>
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportOtherMeds"/>" 
 								onclick="importFromEnct('OtherMeds',document.forms[0].currentMedications);" />
 								
@@ -2283,6 +2304,7 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 								<input id="fetchLongTermMedications_currentMedications" type="button" class="btn clinicalData" value="Long Term Medications" />&nbsp;
 								
 								<span id="medsButtons"></span>
+								<% } %>
 							</td>
 						</tr>
 					</table>
@@ -2301,7 +2323,9 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 							<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.formAllergies" />:
 							</td>
 							<td>
+								<% if (!lockForm) { %>
 								<input id="fetchAllergies_allergies" type="button" class="btn clinicalData" value="Allergies" />
+								<% } %>
 							</td>
 						</tr>
 						
@@ -2352,7 +2376,7 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 				</tr>
 				<% }%>
 				<%
-				if (props.isConsultationFaxEnabled()) {
+				if (props.isConsultationFaxEnabled() && !lockForm) {
 				%>
 				<tr><td colspan=2 class="tite4">Additional Fax Recipients:</td></tr>
 				<tr>
@@ -2434,7 +2458,15 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 
 
 
-				<% if (archiveId == null) { %>
+				<% if ((consultUtil.locked && OscarProperties.getInstance().isPropertyActive("consultation_lock_on_print")) && request.getAttribute("id") != null) { %>
+				<tr>
+					<td class="tite4" colspan=2>
+						<input type="hidden" name="submission" value="updateLocked"/>
+						<input name="updateLocked" type="button" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnUpdate"/>"
+							   onclick="document.forms[0].service.disabled = false; document.forms['EctConsultationFormRequestForm'].submit();"/>
+					</td>
+				</tr>
+				<% } else if (!lockForm) { %>
 				<tr>
 					<td colspan=2><input type="hidden" name="submission" value="">
 					<security:oscarSec roleName="<%=roleName$%>" objectName="_con" rights="w" reverse="false">

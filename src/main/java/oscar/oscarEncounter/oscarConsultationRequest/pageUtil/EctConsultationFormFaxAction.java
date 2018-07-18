@@ -33,6 +33,7 @@ import org.apache.tika.io.IOUtils;
 import org.oscarehr.common.dao.ConsultationRequestDao;
 import org.oscarehr.common.dao.FaxConfigDao;
 import org.oscarehr.common.dao.FaxJobDao;
+import org.oscarehr.common.model.ConsultationRequest;
 import org.oscarehr.common.model.EFormData;
 import org.oscarehr.common.model.FaxConfig;
 import org.oscarehr.common.model.FaxJob;
@@ -367,6 +368,11 @@ public class EctConsultationFormFaxAction extends Action {
 					return mapping.findForward(print);
 				}
 				else{
+					//Set consultation locked after printing
+					ConsultationRequestDao consultationRequestDao = SpringUtils.getBean(ConsultationRequestDao.class);
+					ConsultationRequest printedConsultation = consultationRequestDao.find(Integer.valueOf(reqId));
+					printedConsultation.setLocked(true);
+					consultationRequestDao.merge(printedConsultation);
 					return mapping.findForward("success");
 				}
 

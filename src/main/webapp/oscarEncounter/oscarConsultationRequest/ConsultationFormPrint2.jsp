@@ -56,7 +56,11 @@ if(!authed) {
 
 <%@page import="org.oscarehr.common.dao.SiteDao"%>
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
-<%@page import="org.oscarehr.common.model.Site"%><html:html locale="true">
+<%@page import="org.oscarehr.common.model.Site"%>
+<%@ page import="org.oscarehr.common.dao.ConsultationRequestDao" %>
+<%@ page import="org.oscarehr.util.SpringUtils" %>
+<%@ page import="org.oscarehr.common.model.ConsultationRequest" %>
+<html:html locale="true">
 
 <%
 	oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFormRequestUtil reqFrm;
@@ -166,6 +170,12 @@ if(!authed) {
 		clinic.setClinic_phone(temp5[0]);
 		clinic.setClinic_fax(temp6[0]);
 	}
+	
+	//Set consultation locked after printing
+	ConsultationRequestDao consultationRequestDao = SpringUtils.getBean(ConsultationRequestDao.class);
+	ConsultationRequest printedConsultation = consultationRequestDao.find(Integer.valueOf((String) request.getAttribute("reqId")));
+	printedConsultation.setLocked(true);
+	consultationRequestDao.merge(printedConsultation);
 %>
 <html:base/>
 

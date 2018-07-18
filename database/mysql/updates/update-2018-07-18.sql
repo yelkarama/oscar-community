@@ -1,0 +1,3 @@
+
+ALTER TABLE consultationRequests ADD COLUMN locked BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE consultation_requests_archive ADD COLUMN locked BOOLEAN NOT NULL DEFAULT FALSE;

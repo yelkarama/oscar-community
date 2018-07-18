@@ -99,6 +99,8 @@ public class EctConsultationFormRequestUtil {
 	
 	public Integer fdid;
 	
+	public Boolean locked = false;
+	
 	private ConsultationServiceDao consultationServiceDao = (ConsultationServiceDao) SpringUtils.getBean("consultationServiceDao");
 	private DemographicManager demographicManager = SpringUtils.getBean(DemographicManager.class);
 
@@ -238,6 +240,7 @@ public class EctConsultationFormRequestUtil {
 			letterheadFax = letterheadFax == null?"":letterheadFax;
 
 			signatureImg = cr.getSignatureImg();
+			locked = cr.getLocked();
 
 			appointmentNotes = cr.getStatusText();
 			if (appointmentNotes == null || appointmentNotes.equals("null")) {

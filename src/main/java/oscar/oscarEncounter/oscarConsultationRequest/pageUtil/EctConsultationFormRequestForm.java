@@ -363,32 +363,20 @@ public final class EctConsultationFormRequestForm extends ActionForm {
 			this.patientWillBook = "0";
 		}
 
-		if (service == null || service.length() == 0) {
-
-			errors.add("service", new ActionMessage("Errors.service.null"));
-
-		}
-		try {
-
-			int temp = Integer.parseInt(service);
-
-			if (temp < 0) {
-
-				errors.add("service", new ActionMessage("Errors.service.noServiceSelected"));
-
+		if (service == null || service.length() == 0) { 
+			errors.add("service", new ActionMessage("Errors.service.null")); 
+		} else {
+			try {
+				if (Integer.parseInt(service) < 0) {
+					errors.add("service", new ActionMessage("Errors.service.noServiceSelected"));
+				}
+			} catch (Exception e) {
+				errors.add("fName", new ActionMessage("Errors.service.notNum"));
 			}
 		}
 
-		catch (Exception e) {
-
-			errors.add("fName", new ActionMessage("Errors.service.notNum"));
-
-		}
-
 		if (!errors.isEmpty()) {
-
 			request.setAttribute("validateError", "blah");
-
 		}
 		return errors;
 

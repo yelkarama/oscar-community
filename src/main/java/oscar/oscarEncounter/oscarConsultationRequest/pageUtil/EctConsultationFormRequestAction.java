@@ -256,9 +256,14 @@ public class EctConsultationFormRequestAction extends Action {
 	        request.setAttribute("reqId", requestId);
 			request.setAttribute("transType", "2");
 
-		} else
-
-		if (submission.startsWith("Update")) {
+		} else if (submission.equals("updateLocked")) {
+			try {
+				updateLockedConsult(frm);
+			} catch (ParseException e) {
+				MiscUtils.getLogger().error("Invalid Date", e);
+			}
+			request.setAttribute("transType", "1");
+		} else if (submission.startsWith("Update")) {
 
 			requestId = frm.getRequestId();
 
@@ -538,6 +543,59 @@ public class EctConsultationFormRequestAction extends Action {
 	            logger.error("Unexpected error.", e);
             }	    	
 	    }
+    }
+    
+    private void updateLockedConsult(EctConsultationFormRequestForm form) throws ParseException {
+        ConsultationRequestDao consultationRequestDao = SpringUtils.getBean(ConsultationRequestDao.class);
+        ConsultationRequestArchiveDao consultationRequestArchiveDao = SpringUtils.getBean(ConsultationRequestArchiveDao.class);
+        ConsultationRequestExtDao consultationRequestExtDao = SpringUtils.getBean(ConsultationRequestExtDao.class);
+        ConsultationRequestExtArchiveDao consultationRequestExtArchiveDao = SpringUtils.getBean(ConsultationRequestExtArchiveDao.class);
+        String[] format = new String[] {"yyyy-MM-dd","yyyy/MM/dd"};
+        
+        String requestId = form.getRequestId();
+        ConsultationRequest consult = consultationRequestDao.find(new Integer(requestId));
+        ConsultationRequestArchive consultArchive = new ConsultationRequestArchive(consult);
+
+
+        if (!StringUtils.isBlank(form.getFollowUpDate())) {
+            Date appointmentDateTime = DateUtils.parseDate(form.getAppointmentDate(), format);
+            consult.setAppointmentDate(appointmentDateTime);
+            
+            String appointmentHour = form.getAppointmentHour();
+            String appointmentPm = form.getAppointmentPm();
+            if ("PM".equals(appointmentPm) && Integer.parseInt(appointmentHour) < 12) {
+                appointmentHour = Integer.toString(Integer.parseInt(appointmentHour) + 12);
+            } else if ("12".equals(appointmentHour) && "AM".equals(appointmentPm)) {
+                appointmentHour = "0";
+            }
+            if(!StringUtils.isBlank(appointmentHour) && !StringUtils.isBlank(form.getAppointmentMinute())) {
+                appointmentDateTime = DateUtils.setHours(appointmentDateTime, new Integer(appointmentHour));
+                appointmentDateTime = DateUtils.setMinutes(appointmentDateTime, new Integer(form.getAppointmentMinute()));
+                appointmentDateTime = DateUtils.setSeconds(appointmentDateTime, 0);
+                consult.setAppointmentTime(appointmentDateTime);
+            }
+        }
+        consult.setStatusText(form.getAppointmentNotes());
+        
+        if (!StringUtils.isBlank(form.getFollowUpDate())) {
+            consult.setFollowUpDate(DateUtils.parseDate(form.getFollowUpDate(), format));
+        }
+        
+        consult.setStatus(form.getStatus());
+        consultationRequestDao.saveEntity(consult);
+
+        // Save archive
+        consultationRequestArchiveDao.saveEntity(consultArchive);
+
+        List<AbstractModel<?>> consultationRequestExtArchiveList = new ArrayList<>();
+        List<ConsultationRequestExt> consultationRequestExtList = consultationRequestExtDao.getConsultationRequestExts(consult.getId());
+        for (ConsultationRequestExt ext : consultationRequestExtList) {
+            ConsultationRequestExtArchive archiveExt = new ConsultationRequestExtArchive(consultArchive.getId(), ext);
+            archiveExt.setArchiveTimestamp(consultArchive.getArchiveTimestamp());
+            consultationRequestExtArchiveList.add(archiveExt);
+        }
+        // Save ext archive
+        consultationRequestExtArchiveDao.batchPersist(consultationRequestExtArchiveList, 25);
     }
 
 }

@@ -145,6 +145,9 @@ public class ConsultationRequestArchive extends AbstractModel<Integer> implement
     @Column(name = "source")
     private String source;
 
+    @Column(name = "locked")
+    private Boolean locked = false;
+
     public ConsultationRequestArchive() {}
     public ConsultationRequestArchive(ConsultationRequest other) {
         this.archiveTimestamp = new Date();
@@ -179,6 +182,7 @@ public class ConsultationRequestArchive extends AbstractModel<Integer> implement
         this.lastUpdateDate = other.getLastUpdateDate();
         this.fdid = other.getFdid();
         this.source = other.getSource();
+        this.locked = other.getLocked();
     }
 
     @Override
@@ -409,7 +413,14 @@ public class ConsultationRequestArchive extends AbstractModel<Integer> implement
     public void setSource(String source) {
         this.source = source;
     }
-    
+
+    public Boolean getLocked() {
+        return locked;
+    }
+    public void setLocked(Boolean locked) {
+        this.locked = locked;
+    }
+
     public ConsultationRequest toConsultationRequest() {
         ConsultationRequest conRequest = new ConsultationRequest();
         conRequest.setReferralDate(this.referralDate);
@@ -442,6 +453,7 @@ public class ConsultationRequestArchive extends AbstractModel<Integer> implement
 //        conRequest.setLookupListItem(this.lookupListItem);
         conRequest.setFdid(this.fdid);
         conRequest.setSource(this.source);
+        conRequest.setLocked(this.locked);
         return conRequest;
     }
 }

@@ -29,6 +29,8 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.oscarehr.common.dao.ConsultationRequestDao;
+import org.oscarehr.common.model.ConsultationRequest;
 import org.oscarehr.common.model.EFormData;
 import org.oscarehr.fax.util.PdfCoverPageCreator;
 import org.oscarehr.hospitalReportManager.HRMPDFCreator;
@@ -208,6 +210,12 @@ public class EctConsultationFormRequestPrintAction2 extends Action {
 								+ UtilDateUtilities.getToday("yyyy-mm-dd.hh.mm.ss")
 								+ ".pdf\"");
 				response.getOutputStream().write(bos.getBytes(), 0, bos.getCount());
+				
+				//Set consultation locked after printing
+				ConsultationRequestDao consultationRequestDao = SpringUtils.getBean(ConsultationRequestDao.class);
+				ConsultationRequest printedConsultation = consultationRequestDao.find(Integer.valueOf(reqId));
+				printedConsultation.setLocked(true);
+				consultationRequestDao.merge(printedConsultation);
 			}
 
 		} catch (DocumentException de) {

@@ -41,8 +41,10 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.oscarehr.common.dao.ConsultationRequestDao;
 import org.oscarehr.common.dao.FaxClientLogDao;
 import org.oscarehr.common.dao.OscarCommLocationsDao;
+import org.oscarehr.common.model.ConsultationRequest;
 import org.oscarehr.common.model.FaxClientLog;
 import org.oscarehr.common.model.FaxJob;
 import org.oscarehr.common.model.OscarCommLocations;
@@ -258,7 +260,12 @@ public class EctConsultationFaxAction extends Action {
          return mapping.findForward(print);
       }
       else{
-         return mapping.findForward("success");
+          //Set consultation locked after printing
+          ConsultationRequestDao consultationRequestDao = SpringUtils.getBean(ConsultationRequestDao.class);
+          ConsultationRequest printedConsultation = consultationRequestDao.find(Integer.valueOf(requestId));
+          printedConsultation.setLocked(true);
+          consultationRequestDao.merge(printedConsultation);
+          return mapping.findForward("success");
       }
 
    }
