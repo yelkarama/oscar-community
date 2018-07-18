@@ -412,7 +412,7 @@ function pasteAppt(multipleSameDayGroupAppt) {
         document.forms[0].reason.value = "<%= StringEscapeUtils.escapeJavaScript(apptObj.getReason()) %>";
         document.forms[0].reasonCode.value = "<%= StringEscapeUtils.escapeJavaScript(apptObj.getReasonCode()) %>";
         document.forms[0].notes.value = "<%= StringEscapeUtils.escapeJavaScript(apptObj.getNotes()) %>";
-        //document.forms[0].location.value = "<%=apptObj.getLocation()%>";
+        document.forms[0].location.value = "<%=apptObj.getLocation()%>";
         document.forms[0].resources.value = "<%=apptObj.getResources()%>";
         document.forms[0].type.value = "<%=apptObj.getType()%>";
         document.forms[0].typeSel.value = "<%=apptObj.getAppointmentType()%>";
