@@ -124,6 +124,10 @@ public class ContactAction extends DispatchAction {
 
 		Integer demographicContactId = StringUtils.trimToNull(request.getParameter("contact_id")) != null ? Integer.parseInt(request.getParameter("contact_id")) : null;
 		String category = StringUtils.trimToEmpty(request.getParameter("contact_category"));
+		String role = StringUtils.trimToEmpty(request.getParameter("contact_role"));
+		if (role.equals("Other") && !StringUtils.trimToEmpty(request.getParameter("contact_role_other")).isEmpty()) {
+			role = StringUtils.trimToEmpty(request.getParameter("contact_role_other"));
+		}
 		Integer type = StringUtils.trimToNull(request.getParameter("contact_type")) != null ? Integer.parseInt(request.getParameter("contact_type")) : null;
 		String contactId = StringUtils.trimToNull(request.getParameter("contact_contactId"));
 
@@ -175,7 +179,7 @@ public class ContactAction extends DispatchAction {
                         demographicContact = new DemographicContact(
                                 demographicNo,
                                 contactId,
-                                StringUtils.trimToEmpty(request.getParameter("contact_role")),
+                                role,
                                 type,
                                 request.getParameter("contact_category"),
                                 StringUtils.trimToEmpty(request.getParameter("contact_sdm")),
@@ -221,7 +225,7 @@ public class ContactAction extends DispatchAction {
 						saveRelation(demographicNo, Integer.valueOf(contactId), loggedInInfo.getLoggedInProviderNo(), request);
 					}
 
-                    demographicContact.setRole(StringUtils.trimToEmpty(request.getParameter("contact_role")));
+                    demographicContact.setRole(role);
                     demographicContact.setSdm(StringUtils.trimToEmpty(request.getParameter("contact_sdm")));
                     demographicContact.setEc(StringUtils.trimToEmpty(request.getParameter("contact_ec")));
                     demographicContact.setNote(StringUtils.trimToEmpty(request.getParameter("contact_note")));

@@ -157,6 +157,10 @@ function editName() {
     }
 }
 
+function isPersonalOtherContact() {
+    return $('#contact_category').val() === 'personal' && $('#contact_role').val() === 'Other';
+}
+
 function isValid() {
     var valid = true;
     $returnMessage = "";
@@ -417,6 +421,7 @@ function setValues(contact) {
  */
 function matchContactRole(category, role) {
     var listToSearch = [];
+    var roleDescription;
     
     if (category === 'personal') {
         listToSearch = $personalRoles;
@@ -426,7 +431,17 @@ function matchContactRole(category, role) {
     
     var matchedRole = listToSearch.find(r => r.key.toLowerCase() === role.toLowerCase());
     
-    return matchedRole.description;
+    if (!matchedRole && category === 'personal') {
+        roleDescription = "Other";
+        $('#contact_role_other').show();
+        if (role && role.trim()) {
+            $('#contact_role_other').val(role.trim());
+        }
+    } else {
+        roleDescription = matchedRole.description;
+    }
+    
+    return roleDescription;
 }
 
 function updateList(listType) {

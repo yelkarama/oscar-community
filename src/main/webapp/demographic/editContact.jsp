@@ -35,7 +35,8 @@
     <div class="row">
         <div id="role_type" class="col-sm-6">
             <label>Role</label>
-            <select class="form-control input-sm" name="contact_role" id="contact_role"></select>
+            <select class="form-control input-sm" name="contact_role" id="contact_role" onchange="isPersonalOtherContact() ? $('#contact_role_other').show() : $('#contact_role_other').hide()"></select>
+            <input class="form-control input-sm" name="contact_role_other" id="contact_role_other" placeholder="Specify other relationship (optional)" value="" style="display: none;" />
         </div>
     </div>
 
