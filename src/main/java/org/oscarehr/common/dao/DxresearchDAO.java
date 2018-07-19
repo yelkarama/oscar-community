@@ -459,6 +459,14 @@ public class DxresearchDAO extends AbstractDao<Dxresearch>{
 	    return query.getResultList();
     }
 	
+	public List<Dxresearch> findActiveByDemographicNoAndCodeSystem(Integer demographicNo, String codeSystem) {
+		Query query = entityManager.createQuery("FROM Dxresearch d WHERE d.demographicNo = :dn AND d.codingSystem = :sys AND d.status = 'A'");
+		query.setParameter("dn", demographicNo);
+		query.setParameter("sys", codeSystem);
+
+		return query.getResultList();
+	}
+	
 	@NativeSql("dxresearch")
 	public List<Integer> findNewProblemsSinceDemokey(String keyName) {
 		

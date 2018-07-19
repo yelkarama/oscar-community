@@ -50,6 +50,7 @@
 <%@ page import="org.oscarehr.casemgmt.model.CaseManagementDxLink" %>
 <%@ page import="org.oscarehr.common.dao.Icd9Dao" %>
 <%@ page import="org.oscarehr.common.model.Icd9" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
     boolean authed=true;
@@ -180,6 +181,11 @@
                     if (icd9 != null) {
                         strNoteDiagnostics.append(icd9.getCode()).append(";")
                                 .append(icd9.getCode()).append(" ").append(icd9.getDescription()).append(";");
+                        if (!StringUtils.isBlank(dxLink.getCoMorbidDxCode())) {
+                            Icd9 icd9CoMorbid = icd9Dao.findByCode(dxLink.getCoMorbidDxCode());
+                            strNoteDiagnostics.append(icd9CoMorbid.getCode() + ";" + icd9CoMorbid.getDescription());
+                        }
+                        strNoteDiagnostics.append(";");
                     }
                 }
                 if (strNoteDiagnostics.length() > 0 && strNoteDiagnostics.charAt(strNoteDiagnostics.length() - 1) ==';') {

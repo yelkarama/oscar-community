@@ -879,8 +879,19 @@ function showEdit(e,title, noteId, editors, date, revision, note, url, container
     var noteDiagnosticUl = '<ul id="diagnosticIdList" style="list-style: none outside none; margin:0px;">';
     if(noteDiagnostics.length > 0) {
         var diagnosticArray = noteDiagnostics.split(";");
-        for(idx = 0,rows=0; idx < diagnosticArray.length; idx+=2, ++rows ) {
-            noteDiagnosticUl += "<li><input type='checkbox' name='diagnostic_id' checked value='" + diagnosticArray[idx] + "'>" + diagnosticArray[idx + 1] + "</li>";
+        for (idx = 0,rows=0; idx < diagnosticArray.length; idx+=4, ++rows) {
+            var diagnosticIdVal = diagnosticArray[idx];
+            if (diagnosticArray[idx + 2]) {
+                diagnosticIdVal += ';' + diagnosticArray[idx + 2];
+            }
+            noteDiagnosticUl += '<li id="cpp_note_dx_' + diagnosticArray[idx] + '">'
+                + '<input type="checkbox" name="diagnostic_id" checked value="' + diagnosticIdVal + '">' 
+                + diagnosticArray[idx + 1];
+            if (diagnosticArray[idx + 2]) {
+                noteDiagnosticUl += ' (Co-morbid: ' + diagnosticArray[idx + 2] + ' ' + diagnosticArray[idx + 3] + ')</li>';
+            } else {
+                noteDiagnosticUl += '<a class="co-morbid-link links" href="#" title="Add as co-morbid" onclick="popupPage(150,500,\'addCoMorbid\',\'' + ctx + '/casemgmt/addCoMorbidDx.jsp?noteDx=cpp_note_dx_' + diagnosticArray[idx] + '&demographicNo=' + demographicNo + '\'); return false">*</a></li>';
+            }
         }
     }
     noteDiagnosticUl += "</ul>";
@@ -2962,8 +2973,9 @@ function changeDiagnosisUnresolved(issueId) {
 		}
         if(!found) {
             var node = document.createElement('li');
-
-            var html = "<input type=\"checkbox\" name=\"diagnostic_id\" checked value=\"" + codeId + "\">" + listItem.innerHTML;
+            node.setAttribute("id", "cpp_note_dx_" + codeId);
+            var html = "<input type=\"checkbox\" name=\"diagnostic_id\" checked value=\"" + codeId + "\">" + listItem.innerHTML
+                + ' <a class="co-morbid-link links" href="#" title="Add as co-morbid" onclick="popupPage(150,500,\'addCoMorbid\',\'' + ctx + '/casemgmt/addCoMorbidDx.jsp?noteDx=cpp_note_dx_' + codeId + '&demographicNo=' + demographicNo + '\'); return false">*</a>';
             new Insertion.Top(node, html);
 
             $('diagnosticIdList').appendChild(node);

@@ -38,9 +38,14 @@
 <%@ taglib uri="/WEB-INF/rewrite-tag.tld" prefix="rewrite" %>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%@page import="oscar.OscarProperties"%>
+<%@ page import="org.oscarehr.casemgmt.model.CaseManagementDxLink" %>
+<%@ page import="org.oscarehr.casemgmt.dao.CaseManagementDxLinkDao" %>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.dao.DrugReasonDao" %>
 <%@ page import="org.oscarehr.common.model.DrugReason" %>
+<%@ page import="org.oscarehr.common.model.Icd9" %>
+<%@ page import="org.oscarehr.common.dao.Icd9Dao" %>
+<%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
 
 <%
 	if(session.getValue("user") == null) response.sendRedirect("../../logout.jsp");
@@ -127,7 +132,9 @@
 
     FlowSheetCustomizationDao flowSheetCustomizationDao = (FlowSheetCustomizationDao) ctx.getBean("flowSheetCustomizationDao");
     FlowSheetDrugDao flowSheetDrugDao = (FlowSheetDrugDao) ctx.getBean("flowSheetDrugDao");
-	FlowSheetDxDao flowSheetDxDao = (FlowSheetDxDao) ctx.getBean("flowSheetDxDao");
+    FlowSheetDxDao flowSheetDxDao = (FlowSheetDxDao) ctx.getBean("flowSheetDxDao");
+    CaseManagementDxLinkDao caseManagementDxLinkDao = SpringUtils.getBean(CaseManagementDxLinkDao.class);
+    Icd9Dao icd9Dao = SpringUtils.getBean(Icd9Dao.class);
     List<FlowSheetCustomization> custList = flowSheetCustomizationDao.getFlowSheetCustomizations( temp,(String) session.getAttribute("user"),Integer.parseInt(demographic_no));
 
     ////Start
@@ -147,6 +154,21 @@
     	mFlowsheet.getMessages(mi);
     }catch(Exception e){
     	MiscUtils.getLogger().error("Error getting messages for flowsheet ",e);
+    }
+
+    List<Icd9> coMorbidCodes = new ArrayList<Icd9>();
+    String[] dxTriggers = mFlowsheet.getDxTriggers();
+    for (String dxTrigger : dxTriggers) {
+        if (dxTrigger.startsWith("icd9:")) {
+            dxTrigger = dxTrigger.replace("icd9:", "");
+            List<CaseManagementDxLink> dxLinks = caseManagementDxLinkDao.findByDemographicNoAndCoMorbidDx(Integer.parseInt(demographic_no), "ICD9", dxTrigger);
+            for (CaseManagementDxLink dxLink : dxLinks) {
+                Icd9 matchedCode = icd9Dao.findByCode(dxLink.getId().getDxCode());
+                if (matchedCode != null && !coMorbidCodes.contains(matchedCode)) {
+                    coMorbidCodes.add(matchedCode);
+                }
+            }
+        }
     }
 
 
@@ -507,6 +529,26 @@ div.recommendations li{
     </a></p>
     <%}%>
     </security:oscarSec>
+    <% if (coMorbidCodes.size() > 0) {%>
+    <div class="leftBox">
+        <h3>
+            &nbsp;<bean:message key="oscarencounter.templateflowsheet.currentpatientcomorbiddxlist" />&nbsp;&nbsp;
+            <a class="DoNotPrint"  href="#" onclick="Element.toggle('coMorbidDxFullListing'); return false;" style="font-size:x-small;" >
+                <bean:message key="oscarencounter.templateflowsheet.showhide" /></a>
+        </h3>
+        <div class="wrapper" id="coMorbidDxFullListing">
+            <ul>
+                <%
+                    for (Icd9 coMorbidCode : coMorbidCodes) {
+                %>
+                <li>
+                    - <%=StringEscapeUtils.escapeHtml(coMorbidCode.getDescription())%>
+                </li>
+                <%    } %>
+            </ul>
+        </div>
+    </div>
+    <% } %>
     <!-- only show disease registry and prescriptions for flowsheets which aren't medical in nature -->
     <% if (mFlowsheet.isMedical()) {%>
     <div class="leftBox">

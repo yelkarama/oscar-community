@@ -28,6 +28,8 @@ import org.oscarehr.common.model.AbstractModel;
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Date;
@@ -42,6 +44,11 @@ public class CaseManagementDxLink extends AbstractModel<CaseManagementDxLinkPK> 
 
     @EmbeddedId
     private CaseManagementDxLinkPK id;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "co_morbid_dx_type")
+    private CaseManagementDxLink.DxType coMorbidDxType;
+    @Column(name = "co_morbid_dx_code")
+    private String coMorbidDxCode;
     @Column(name = "update_date")
     private Date updateDate;
 
@@ -57,6 +64,20 @@ public class CaseManagementDxLink extends AbstractModel<CaseManagementDxLinkPK> 
     }
     public void setId(CaseManagementDxLinkPK id) {
         this.id = id;
+    }
+
+    public CaseManagementDxLink.DxType getCoMorbidDxType() {
+        return coMorbidDxType;
+    }
+    public void setCoMorbidDxType(CaseManagementDxLink.DxType coMorbidDxType) {
+        this.coMorbidDxType = coMorbidDxType;
+    }
+
+    public String getCoMorbidDxCode() {
+        return coMorbidDxCode;
+    }
+    public void setCoMorbidDxCode(String coMorbidDxCode) {
+        this.coMorbidDxCode = coMorbidDxCode;
     }
 
     public Date getUpdateDate() {

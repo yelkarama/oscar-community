@@ -46,4 +46,24 @@ public class CaseManagementDxLinkDao extends AbstractDao<CaseManagementDxLink> {
         List<CaseManagementDxLink> results = query.getResultList();
         return(results);
     }
+    
+    public List<CaseManagementDxLink> findByDemographicNoAndCoMorbidDx(Integer demographicNo, String coMorbidDxType, String coMorbidDxCode) {
+        String sqlCommand = "SELECT dxl.* FROM casemgmt_dx_link dxl " + 
+                        "LEFT JOIN  casemgmt_note cmn1 ON dxl.note_id = cmn1.note_id " + 
+                        "INNER JOIN (" + 
+                            "SELECT MAX(note_id) max_note_id, uuid FROM casemgmt_note " + 
+                            "WHERE demographic_no = :demographicNo " + 
+                            "GROUP BY uuid) cmn2 " + 
+                        "ON cmn1.note_id = cmn2.max_note_id AND cmn1.uuid = cmn2.uuid " + 
+                        "WHERE cmn1.archived = 0 " + 
+                        "AND dxl.co_morbid_dx_type = :coMorbidDxType " + 
+                        "AND dxl.co_morbid_dx_code = :coMorbidDxCode";
+        Query query = entityManager.createNativeQuery(sqlCommand, modelClass);
+        query.setParameter("demographicNo", demographicNo);
+        query.setParameter("coMorbidDxType", coMorbidDxType);
+        query.setParameter("coMorbidDxCode", coMorbidDxCode);
+        @SuppressWarnings("unchecked")
+        List<CaseManagementDxLink> results = query.getResultList();
+        return(results);
+    }
 }

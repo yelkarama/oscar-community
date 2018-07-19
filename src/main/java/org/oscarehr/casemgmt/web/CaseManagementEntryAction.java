@@ -1150,8 +1150,14 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		
 		/* Save diagnostic codes */
 		String[] diagnosticIds = request.getParameterValues("diagnostic_id");
-		for (String codeId : diagnosticIds) {
-			CaseManagementDxLink cmDxLink = new CaseManagementDxLink(note.getId(), CaseManagementDxLink.DxType.ICD9, codeId, new Date());
+		for (String codeIds : diagnosticIds) {
+			// the diagnostic_id parameter is split into {the selected dx code};{the co-morbid code}
+			String[] codes = codeIds.split(";");
+			CaseManagementDxLink cmDxLink = new CaseManagementDxLink(note.getId(), CaseManagementDxLink.DxType.ICD9, codes[0], new Date());
+			if (codes.length > 1) {
+				cmDxLink.setCoMorbidDxType(CaseManagementDxLink.DxType.ICD9);
+				cmDxLink.setCoMorbidDxCode(codes[1]);
+			}
 			caseManagementDxLinkDao.saveEntity(cmDxLink);
 		}
 
