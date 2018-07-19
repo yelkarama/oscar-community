@@ -327,8 +327,9 @@ public class BillingServiceDao extends AbstractDao<BillingService> {
 	}
 
 	public List<BillingService> findNewestByCode(String serviceCode) {
-		Query query = entityManager.createQuery("SELECT b FROM BillingService b WHERE b.serviceCode LIKE :serviceCode AND b.billingserviceDate <= now() ORDER BY b.billingserviceDate DESC LIMIT 1");
+		Query query = entityManager.createQuery("SELECT b FROM BillingService b WHERE b.serviceCode LIKE :serviceCode AND b.billingserviceDate <= CURRENT_DATE ORDER BY b.billingserviceNo DESC");
 		query.setParameter("serviceCode", serviceCode + "%");
+		query.setMaxResults(1);
 		return query.getResultList();
 	}
 	
