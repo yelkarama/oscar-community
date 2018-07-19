@@ -96,7 +96,7 @@
 <%
 	String demographicNo = request.getParameter("demographicNo");
 	ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
-	
+
 	//load demographic
 	DemographicDao demographicDao=(DemographicDao)SpringUtils.getBean("demographicDao");
 	Demographic demographic = demographicDao.getClientByDemographicNo(Integer.valueOf(demographicNo));
@@ -118,13 +118,18 @@
 	String enrollmentStatus = demographic.getRosterStatus();
 		enrollmentStatus = enrollmentStatus.equals("RO") ? "Yes" : "No";
 	Date rosterDate = demographic.getRosterDate();
-	Date rosterTermDate = demographic.getRosterTerminationDate();
-	String enrollmentDate = enrollmentStatus.equals("Yes") ? DateUtils.formatDate(rosterDate,request.getLocale()) : DateUtils.formatDate(rosterTermDate, request.getLocale());
+	String rosterTermDate = DateUtils.formatDate(demographic.getRosterTerminationDate(), request.getLocale());
+	String enrollmentDate = DateUtils.formatDate(rosterDate,request.getLocale());
 	if (enrollmentDate.isEmpty()) {
 	    enrollmentDate = "Not Set";
 	}
-	String modifiedDate = DateUtils.formatDate(demographic.getLastUpdateDate() == null ? new Date() : demographic.getLastUpdateDate(), request.getLocale());
+	if (rosterTermDate.isEmpty()) {
+		rosterTermDate = "Not Set";
+	}
 	String terminationReasonCode = demographic.getRosterTerminationReason() == null ? "N/A" : demographic.getRosterTerminationReason().isEmpty() ? "N/A" : demographic.getRosterTerminationReason();
+	if (terminationReasonCode.equals("N/A")) {
+		rosterTermDate = "N/A";
+	}
 %>
 
 <body>
@@ -142,7 +147,7 @@
 			<th>Physician OHIP #</th>
 			<th>Enrollment Status</th>
 			<th>Enrollment Date</th>
-			<th>Date Modified</th>
+			<th>Termination Date</th>
 			<th>Termination Reason Code</th>
 		</tr>
 
@@ -151,7 +156,7 @@
 			<td><%=providerOHIP%></td>
 			<td><%=enrollmentStatus%></td>
 			<td><%=enrollmentDate%></td>
-			<td><%=modifiedDate%></td>
+			<td><%=rosterTermDate%></td>
 			<td><%=terminationReasonCode%></td>
 		</tr>
 		<%
@@ -161,38 +166,46 @@
 
 				DemographicExtArchiveDao demographicExtArchiveDao = SpringUtils.getBean(DemographicExtArchiveDao.class);
 				DemographicExtArchive demographicExtArchive = demographicExtArchiveDao.getDemographicExtArchiveByArchiveIdAndKey(demographicArchive.getId(), "enrollmentProvider");
-				enrollmentProvider = providerDao.getProvider(demographicArchive.getProviderNo());
+				Provider aEnrollmentProvider = providerDao.getProvider(demographicArchive.getProviderNo());
 				if (demographicExtArchive != null) {
-					enrollmentProvider = providerDao.getProvider(demographicExtArchive.getValue());
+					aEnrollmentProvider = providerDao.getProvider(demographicExtArchive.getValue());
 				}
 				providerOHIP = "Not Set";
-				enrollmentProviderName = "Not Set";
-				if (enrollmentProvider != null) {
-					enrollmentProviderName = enrollmentProvider.getFormattedName();
-					providerOHIP = enrollmentProvider.getOhipNo() == null ? "Not Set" : enrollmentProvider.getOhipNo().isEmpty() ? "Not Set" : enrollmentProvider.getOhipNo();
+				String aEnrollmentProviderName = "Not Set";
+				if (aEnrollmentProvider != null) {
+					aEnrollmentProviderName = aEnrollmentProvider.getFormattedName();
+					providerOHIP = aEnrollmentProvider.getOhipNo() == null ? "Not Set" : aEnrollmentProvider.getOhipNo().isEmpty() ? "Not Set" : aEnrollmentProvider.getOhipNo();
 				}
 
-				enrollmentStatus = demographicArchive.getRosterStatus();
-				enrollmentStatus = enrollmentStatus.equals("RO") ? "Yes" : "No";
+				String aEnrollmentStatus = demographicArchive.getRosterStatus();
+				aEnrollmentStatus = aEnrollmentStatus.equals("RO") ? "Yes" : "No";
 				rosterDate = demographicArchive.getRosterDate();
-				rosterTermDate = demographicArchive.getRosterTerminationDate();
-				enrollmentDate = enrollmentStatus.equals("Yes") ? DateUtils.formatDate(rosterDate,request.getLocale()) : DateUtils.formatDate(rosterTermDate, request.getLocale());
-				if (enrollmentDate.isEmpty()) {
-				    enrollmentDate = "Not Set";
+				String aRosterTermDate = DateUtils.formatDate(demographicArchive.getRosterTerminationDate(), request.getLocale());
+				String aEnrollmentDate = DateUtils.formatDate(rosterDate,request.getLocale());
+				if (aEnrollmentDate.isEmpty()) {
+					aEnrollmentDate = "Not Set";
 				}
-				modifiedDate = DateUtils.formatDate(demographicArchive.getLastUpdateDate() == null ? new Date() : demographicArchive.getLastUpdateDate(), request.getLocale());
-				terminationReasonCode = demographicArchive.getRosterTerminationReason() == null ? "N/A" : demographicArchive.getRosterTerminationReason().isEmpty() ? "N/A" : demographicArchive.getRosterTerminationReason();
+				if (aRosterTermDate.isEmpty()) {
+					aRosterTermDate = "Not Set";
+				}
+				String aTerminationReasonCode = demographicArchive.getRosterTerminationReason() == null ? "N/A" : demographicArchive.getRosterTerminationReason().isEmpty() ? "N/A" : demographicArchive.getRosterTerminationReason();
+				if (aTerminationReasonCode.equals("N/A")) {
+					aRosterTermDate = "N/A";
+				}
 
-			%>
-				<tr>
-					<td><%=enrollmentProviderName%></td>
-					<td><%=providerOHIP%></td>
-					<td><%=enrollmentStatus%></td>
-					<td><%=enrollmentDate%></td>
-					<td><%=modifiedDate%></td>
-					<td><%=terminationReasonCode%></td>
-				</tr>
-			<%
+				if (!aEnrollmentProviderName.equals(enrollmentProviderName) || !aEnrollmentStatus.equals(enrollmentStatus) || !aEnrollmentDate.equals(enrollmentDate)
+						|| !aRosterTermDate.equals(rosterTermDate) || !aTerminationReasonCode.equals(terminationReasonCode)) {
+		%>
+		<tr>
+			<td><%=aEnrollmentProviderName%></td>
+			<td><%=providerOHIP%></td>
+			<td><%=aEnrollmentStatus%></td>
+			<td><%=aEnrollmentDate%></td>
+			<td><%=aRosterTermDate%></td>
+			<td><%=aTerminationReasonCode%></td>
+		</tr>
+		<%
+				}
 			}
 			%>
 	</table>

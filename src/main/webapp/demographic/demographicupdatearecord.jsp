@@ -651,7 +651,7 @@
 	    }
 	}
 
-    Long archiveId = demographicArchiveDao.archiveRecord(demographic);
+    Long archiveId = demographicArchiveDao.archiveRecord(oldDemographic);
 	for (DemographicExt extension : extensions) {
 		DemographicExtArchive archive = new DemographicExtArchive(extension);
 		archive.setArchiveId(archiveId);
