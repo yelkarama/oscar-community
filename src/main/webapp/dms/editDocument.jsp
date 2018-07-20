@@ -76,6 +76,7 @@ if (request.getAttribute("docerrors") != null) {
 
    String lastUpdate = "";
    String fileName = "";
+   String media = "";
    AddEditDocumentForm formdata = new AddEditDocumentForm();
 if (request.getAttribute("completedForm") != null) {
     formdata = (AddEditDocumentForm) request.getAttribute("completedForm");
@@ -100,6 +101,7 @@ if (request.getAttribute("completedForm") != null) {
     formdata.setRestrictToProgram(currentDoc.isRestrictToProgram());
     lastUpdate = currentDoc.getDateTimeStamp();
     fileName = currentDoc.getFileName();
+    media = StringUtils.noNull(currentDoc.getMediaType());
 }
 
 ArrayList doctypes = EDocUtil.getDoctypes(formdata.getFunction());
@@ -343,6 +345,10 @@ for (String reportClass : reportClasses) {
 			<td>File Name:</td>
 			<td>
 			<div style="width: 300px; overflow: hidden; text-overflow: ellipsis;"><%=fileName%></div>
+		</tr>
+		<tr>
+			<td>Media Type</td>
+			<td><%=media%></td>
 		</tr>
 		<tr>
 			<td>Restricted to program:</td>
