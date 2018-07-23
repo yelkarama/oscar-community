@@ -211,9 +211,7 @@ boolean isMulitSites = oscarProp.getBooleanProperty("multisites", "on");
         }
     }
    
-    
-    
-	
+    Boolean showThirdPartyPaymentDate = Boolean.parseBoolean(props.getProperty("show_third_party_payment_date", "false"));
 	
 %>
 
@@ -360,14 +358,18 @@ boolean isMulitSites = oscarProp.getBooleanProperty("multisites", "on");
         <table width="100%" border="0">
             <tr>
                 <th>Service Date</th>
+                <% if (showThirdPartyPaymentDate) { %>
                 <th>Payment Date</th>
+                <% } %>
                 <th>Practitioner</th>
                 <th>Payee</th>
                 <th>Ref. Doctor</th>
             </tr>
             <tr align="center">
                 <td><%=billingDateStr%></td>
+                <% if (showThirdPartyPaymentDate) { %>
                 <td><%=paymentDate%></td>
+                <% } %>
                 <td><%=providerFormattedName%></td>
 
                 <% Properties prop = oscar.OscarProperties.getInstance();

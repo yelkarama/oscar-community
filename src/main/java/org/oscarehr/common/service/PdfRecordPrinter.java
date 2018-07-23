@@ -94,6 +94,7 @@ public class PdfRecordPrinter {
     private static Logger logger = MiscUtils.getLogger();
 
     private static final String BILLING_INVOICE_TEMPLATE_FILE = "org/oscarehr/common/web/BillingInvoiceTemplate.jrxml";
+    private static final String BILLING_INVOICE_PAYMENT_DATE_TEMPLATE_FILE = "org/oscarehr/common/web/BillingInvoiceWithPaymentDateTemplate.jrxml";
     //private static final String OSCAR_LOGO_FILE = "org/oscarehr/common/web/images/Oscar.jpg";
 
     private OutputStream os;
@@ -287,12 +288,18 @@ public class PdfRecordPrinter {
         InputStream is = null;
         InputStream imageIS = null;
         try {
+            Boolean displayPaymentDate = Boolean.parseBoolean(props.getProperty("show_third_party_payment_date", "false"));
             String templateFilepath = props.getProperty("billing_template_file","");
             //look for custom billing template file, otherwise use default.
             if (templateFilepath.isEmpty())
-                is = this.getClass().getClassLoader().getResourceAsStream(BILLING_INVOICE_TEMPLATE_FILE);
-            else 
+                if (!displayPaymentDate) {
+                    is = this.getClass().getClassLoader().getResourceAsStream(BILLING_INVOICE_PAYMENT_DATE_TEMPLATE_FILE);
+                } else {
+                    is = this.getClass().getClassLoader().getResourceAsStream(BILLING_INVOICE_TEMPLATE_FILE);
+                }
+            else {
                 is = new FileInputStream(templateFilepath);
+            }
             //get Jasper Report
             
             JasperReport jasperReport = JasperCompileManager.compileReport(is);
