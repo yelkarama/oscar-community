@@ -1149,7 +1149,7 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		}
 		
 		/* Save diagnostic codes */
-		String[] diagnosticIds = request.getParameterValues("diagnostic_id");
+		String[] diagnosticIds = request.getParameterValues("diagnostic_id") != null ? request.getParameterValues("diagnostic_id") : new String[0];
 		for (String codeIds : diagnosticIds) {
 			// the diagnostic_id parameter is split into {the selected dx code};{the co-morbid code}
 			String[] codes = codeIds.split(";");
