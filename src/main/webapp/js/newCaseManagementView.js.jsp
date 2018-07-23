@@ -26,7 +26,7 @@
 <%@page import="org.oscarehr.casemgmt.common.Colour"%>
 <%@page import=" oscar.OscarProperties" %>
 <%@ page import="java.util.List"%>
-<%@ page import="java.util.Collections"%>
+<%@ page import="java.util.Collections"%><%@ page import="org.oscarehr.common.model.Property"%><%@ page import="org.oscarehr.common.dao.PropertyDao"%><%@ page import="org.oscarehr.util.SpringUtils"%><%@ page import="org.oscarehr.util.LoggedInInfo"%><%@ page import="org.oscarehr.provider.web.CppPreferencesUIBean"%><%@ page import="org.apache.xpath.operations.Bool"%>
 
 	var numNotes = 0;   //How many saved notes do we have?
     var ctx;        //url context
@@ -596,19 +596,42 @@ function navBarLoader() {
             var rightNavBar = [
                   ctx + "/oscarEncounter/displayAllergy.do?hC=" + Colour.allergy,
                   ctx + "/oscarEncounter/displayRx.do?hC=" + Colour.rx + "&numToDisplay=12",
-                  ctx + "/CaseManagementView.do?hc=" + Colour.omed + "&method=listNotes&providerNo=" + providerNo + "&demographicNo=" + demographicNo + "&issue_code=OMeds&title=" + oMedsLabel + "&cmd=OMeds" + "&appointment_no="+appointmentNo,
-                  ctx + "/CaseManagementView.do?hc=" + Colour.riskFactors + "&method=listNotes&providerNo=" + providerNo + "&demographicNo=" + demographicNo + "&issue_code=RiskFactors&title=" + riskFactorsLabel + "&cmd=RiskFactors"+ "&appointment_no="+appointmentNo,
-                  ctx + "/CaseManagementView.do?hc=" + Colour.familyHistory + "&method=listNotes&providerNo=" + providerNo + "&demographicNo=" + demographicNo + "&issue_code=FamHistory&title=" + famHistoryLabel + "&cmd=FamHistory"+ "&appointment_no="+appointmentNo,
+                  ctx + "/CaseManagementView.do?hc=" + Colour.omed + "&method=listNotes&providerNo=" + providerNo + "&demographicNo=" + demographicNo + "&issue_code=OMeds&title=" + oMedsLabel + "&cmd=OMeds" + "&appointment_no="+appointmentNo
+            ];
+            var additionalRightItems = [
                   ctx + "/oscarEncounter/displayIssues.do?hC=" + Colour.unresolvedIssues,
                   ctx + "/oscarEncounter/displayResolvedIssues.do?hC=" + Colour.resolvedIssues,
                   ctx + "/oscarEncounter/displayDecisionSupportAlerts.do?providerNo=" + providerNo + "&demographicNo=" + demographicNo,                                       
                   ctx + "/oscarEncounter/displayEpisodes.do?hC=" + Colour.episode,
                   ctx + "/oscarEncounter/displayPregnancies.do?hC="+ Colour.episode,
                   ctx + "/oscarEncounter/displayContacts.do?hC=" + Colour.contacts
-              ];
+            ];
 
-            var rightNavBarTitles = [ "allergies", "Rx", "OMeds", "RiskFactors", "FamHistory", "unresolvedIssues", "resolvedIssues", "Guidelines","episode","pregnancy","contacts"];
-
+            var rightNavBarTitles = [ "allergies", "Rx", "OMeds"] 
+            var additionalRightItemTitles = ["unresolvedIssues", "resolvedIssues", "Guidelines","episode","pregnancy","contacts"];
+            
+        <%
+            LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+	        
+            PropertyDao propertyDao = SpringUtils.getBean(PropertyDao.class);
+            List<Property> hideRiskFactors = propertyDao.findByNameAndProvider(CppPreferencesUIBean.RISK_FACTORS_HIDE, loggedInInfo.getLoggedInProviderNo());
+            List<Property> hideFamilyHistory = propertyDao.findByNameAndProvider(CppPreferencesUIBean.FAMILY_HISTORY_HIDE, loggedInInfo.getLoggedInProviderNo());
+            
+            if (hideRiskFactors.isEmpty() || !"on".equals(hideRiskFactors.get(0).getValue())) {
+        %>
+            rightNavBar.push(ctx + "/CaseManagementView.do?hc=" + Colour.riskFactors + "&method=listNotes&providerNo=" + providerNo + "&demographicNo=" + demographicNo + "&issue_code=RiskFactors&title=" + riskFactorsLabel + "&cmd=RiskFactors"+ "&appointment_no="+appointmentNo);
+            rightNavBarTitles.push("RiskFactors");
+        <% }
+        
+            if (hideFamilyHistory.isEmpty() || !"on".equals(hideFamilyHistory.get(0).getValue())) {
+        %>
+            rightNavBar.push(ctx + "/CaseManagementView.do?hc=" + Colour.familyHistory + "&method=listNotes&providerNo=" + providerNo + "&demographicNo=" + demographicNo + "&issue_code=FamHistory&title=" + famHistoryLabel + "&cmd=FamHistory"+ "&appointment_no="+appointmentNo);
+            rightNavBarTitles.push("FamHistory");
+        <% } %>
+            
+            rightNavBar = rightNavBar.concat(additionalRightItems);
+            rightNavBarTitles = rightNavBarTitles.concat(additionalRightItemTitles);
+            
         <%	if (OscarProperties.getInstance().isPropertyActive("echart_show_relations")) { %>
 			rightNavBar.push(ctx + "/oscarEncounter/displayRelations.do?hC=FF9933");
 			rightNavBarTitles.push("Relations")

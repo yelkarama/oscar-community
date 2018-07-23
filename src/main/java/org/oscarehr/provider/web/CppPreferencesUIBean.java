@@ -49,6 +49,8 @@ public class CppPreferencesUIBean {
 	public static final String ONGOING_PROBLEM_STATUS = "cpp.ongoing_concerns.problem_status";
 	public static final String REMINDERS_START_DATE = "cpp.reminders.start_date";
 	public static final String REMINDERS_RES_DATE = "cpp.reminders.res_date";
+	public static final String RISK_FACTORS_HIDE = "cpp.risk_factors.hide";
+	public static final String FAMILY_HISTORY_HIDE = "cpp.family_history.hide";
 	
 	public static final String ENABLE = "cpp.pref.enable";
 	
@@ -73,6 +75,8 @@ public class CppPreferencesUIBean {
 	private String remindersStartDate;
 	private String remindersResDate;
 	private String enable;
+	private String hideRiskFactors;
+	private String hideFamilyHistory;
 	
 	public Map<String,String> serialize() {
 		Map<String,String> map = new HashMap<String,String>();
@@ -91,6 +95,8 @@ public class CppPreferencesUIBean {
 		map.put(ONGOING_PROBLEM_STATUS,this.getOngoingConcernsProblemStatus());
 		map.put(REMINDERS_START_DATE,this.getRemindersStartDate());
 		map.put(REMINDERS_RES_DATE,this.getRemindersResDate());
+		map.put(RISK_FACTORS_HIDE, this.getHideRiskFactors());
+		map.put(FAMILY_HISTORY_HIDE, this.getHideFamilyHistory());
 		map.put(ENABLE,this.getEnable());
 		return map;
 	}
@@ -124,6 +130,12 @@ public class CppPreferencesUIBean {
 			setRemindersResDate(map.get(REMINDERS_RES_DATE)[0]);
 		if(map.get(ENABLE)!=null)
 			setEnable(map.get(ENABLE)[0]);
+		if(map.get(RISK_FACTORS_HIDE) != null) {
+			setHideRiskFactors(map.get(RISK_FACTORS_HIDE)[0]);
+		}
+		if(map.get(FAMILY_HISTORY_HIDE) != null) {
+			setHideFamilyHistory(map.get(FAMILY_HISTORY_HIDE)[0]);
+		}
 	}
 	
 	public void deserialize(Map<String,String> map) {
@@ -159,6 +171,12 @@ public class CppPreferencesUIBean {
 			setRemindersResDate(map.get(REMINDERS_RES_DATE));
 		if(map.get(ENABLE)!=null)
 			setEnable(map.get(ENABLE));
+		if(map.get(RISK_FACTORS_HIDE) != null) {
+			setHideRiskFactors(map.get(RISK_FACTORS_HIDE));
+		}
+		if(map.get(FAMILY_HISTORY_HIDE) != null) {
+			setHideFamilyHistory(map.get(FAMILY_HISTORY_HIDE));
+		}
 	}
 	
 	public CppPreferencesUIBean(String providerNo) {
@@ -295,6 +313,20 @@ public class CppPreferencesUIBean {
 	public void setEnable(String enable) {
     	this.enable = enable;
     }
+
+	public String getHideRiskFactors() {
+		return hideRiskFactors;
+	}
+	public void setHideRiskFactors(String hideRiskFactors) {
+		this.hideRiskFactors = hideRiskFactors;
+	}
+
+	public String getHideFamilyHistory() {
+		return hideFamilyHistory;
+	}
+	public void setHideFamilyHistory(String hideFamilyHistory) {
+		this.hideFamilyHistory = hideFamilyHistory;
+	}
 
 	public static String getPositionSelect(String currentValue) {
 		StringBuilder sb = new StringBuilder();

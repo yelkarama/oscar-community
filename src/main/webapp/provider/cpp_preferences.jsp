@@ -146,6 +146,18 @@
 					</td>											
 				</tr>																	
 												
+				<tr>
+					<td>Risk Factors</td>
+					<td>
+						<%=CppPreferencesUIBean.getCheckbox("Hide Risk Factors",CppPreferencesUIBean.RISK_FACTORS_HIDE,bean.getHideRiskFactors()) %>
+					</td>
+				</tr>
+				<tr>
+					<td>Family History</td>
+					<td>
+						<%=CppPreferencesUIBean.getCheckbox("Hide Family History",CppPreferencesUIBean.FAMILY_HISTORY_HIDE,bean.getHideFamilyHistory()) %>
+					</td>
+				</tr>
 			</table>
 			<input type="submit" value="Save Changes"/>
 			</form>
