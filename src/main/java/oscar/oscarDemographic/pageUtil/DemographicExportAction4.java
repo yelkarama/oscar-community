@@ -495,9 +495,9 @@ public class DemographicExportAction4 extends Action {
 
 				enrolmentHistory = enrolment.addNewEnrolmentHistory();
 				enrolmentHistory.setEnrollmentStatus(cdsDt.EnrollmentStatus.Enum.forString(historyRS));
-				if (historyRS.equals("1")) {
-					if (historyRD!=null) enrolmentHistory.setEnrollmentDate(Util.calDate(historyRD));
-				} else {
+				if (historyRD!=null) enrolmentHistory.setEnrollmentDate(Util.calDate(historyRD));
+
+				 if (!historyRS.equals("1")) {
 					if (historyTD!=null)
 						enrolmentHistory.setEnrollmentTerminationDate(Util.calDate(historyTD));
 					String termReason = DAs.get(i).getRosterTerminationReason();
