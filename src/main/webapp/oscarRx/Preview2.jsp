@@ -571,7 +571,7 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
 				<td id="demographicInfoCell" colspan=2 align=left valign=top height="75px">
 					<div style="width: 100%;">
 						<div style="text-align: right;">
-						<b><%= oscar.oscarRx.util.RxUtil.DateToString(rxDate, "MMMM d, yyyy",request.getLocale()) %></b>
+						<b>Written Date: <%= oscar.oscarRx.util.RxUtil.DateToString(rxDate, "MMMM d, yyyy",request.getLocale()) %></b>
 						</div>
 						<div style="display: table-cell">
 							<span><%= patient.getFirstName() %> <%= patient.getSurname() %> <%if(showPatientDOB){%>&nbsp;&nbsp; DOB:<%= StringEscapeUtils.escapeHtml(patientDOBStr) %> <%}%></span><br/>
@@ -611,7 +611,7 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                                                             Logger.getLogger("preview_jsp").error("drug full outline was null");
                                                                             fullOutLine="<span style=\"color:red;font-size:16;font-weight:bold\">An error occurred, please write a new prescription.</span><br />"+fullOutLine;
                                                                     }
-				strRx += rx.getFullOutLine() + ";;";
+				strRx += rx.getFullOutLine() + "; Start Date: " + oscar.oscarRx.util.RxUtil.DateToString(rx.getRxDate(), "MMMM d, yyyy",request.getLocale()) + ";;";
                                             if (rxShowEndDatesPref) {
                                                 strRx += "; End Date: " + oscar.oscarRx.util.RxUtil.DateToString(rx.getEndDate(), "MMMM d, yyyy",request.getLocale());
                                             }
@@ -621,7 +621,8 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
 			<tr valign=top>
 				<td colspan="2" <%=(i==0)?"style=\"border-top: 1px #808080 inset;\"":""%>>
 					<div>
-						<%=fullOutLine%>
+						<%=fullOutLine%><br/>
+						Start Date: <%= oscar.oscarRx.util.RxUtil.DateToString(rx.getRxDate(), "MMMM d, yyyy",request.getLocale())%>
                         <%=(rxShowEndDatesPref) ? "<br/>End Date: " + oscar.oscarRx.util.RxUtil.DateToString(rx.getEndDate(), "MMMM d, yyyy",request.getLocale()) : ""%>
 						<hr/>
 					</div>
