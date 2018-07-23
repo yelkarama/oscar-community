@@ -143,6 +143,10 @@
 	ProgramDao programDao = (ProgramDao)SpringUtils.getBean("programDao");
 	List<Provider> providers = providerDao.getActiveProviders();
 	List<Provider> doctors = providerDao.getActiveProvidersByRole("doctor");
+	Provider importMRPMatch = demographic.getProvider();
+	if (importMRPMatch != null) {
+	    doctors.add(importMRPMatch);
+	}
 	List<Provider> nurses;
 	List<Provider> midwifes;	
 	if (oscarVariables.getProperty("queens_resident_tagging") != null)
@@ -160,6 +164,11 @@
 	PropertyDao propertyDao = new SpringUtils().getBean(PropertyDao.class);
     ProvinceNames pNames = ProvinceNames.getInstance();
 	Map<String,String> demoExt = demographicExtDao.getAllValuesForDemo(Integer.parseInt(demographic_no));
+	String enrollmentProvider = demoExt.get("enrollmentProvider");
+	if (enrollmentProvider != null && !enrollmentProvider.equals("")) {
+	    Provider enrollmentProviderRecord = providerDao.getProvider(enrollmentProvider);
+	    doctors.add(enrollmentProviderRecord);
+	}
 	List<DemographicGroupLink> demographicGroupsForPatient = demographicGroupLinkDao.findByDemographicNo(demographicNoAsInt);
 
     PatientTypeDao patientTypeDao = (PatientTypeDao) SpringUtils.getBean("patientTypeDao");
@@ -1127,7 +1136,6 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 				<select name="enrollmentProvider" id="enrollmentProvider" style="width: 200px" <%=!notMrp ? "disabled" : ""%>>
 					<option value=""></option>
 					<%
-						String enrollmentProvider = demoExt.get("enrollmentProvider");
 						for(Provider p : doctors) {
 							if (enrollmentProvider == null) {
 								enrollmentProvider = demographic.getProviderNo();

@@ -831,6 +831,8 @@ import oscar.util.UtilDateUtilities;
             demographic.setHin(hin);
             demographic.setVer(versionCode);
             demographic.setRosterStatus(rosterStatus);
+            demographic.setProviderNo(primaryPhysician);
+            demographicExtDao.saveDemographicExt(demographic.getDemographicNo(), "enrollmentProvider", enrollmentPhysicianNo);
             
             Date dDate;
             try {
@@ -889,6 +891,9 @@ import oscar.util.UtilDateUtilities;
             demoRes = dd.addDemographic(loggedInInfo, title, lastName, firstName, prefName, address, city, province, postalCode, homePhone, workPhone, year_of_birth, month_of_birth, date_of_birth, hin, versionCode, rosterStatus, rosterDate, termDate, termReason, patient_status, psDate, ""/*date_joined*/, chart_no, official_lang, spoken_lang, primaryPhysician, sex, ""/*end_date*/, ""/*eff_date*/, ""/*pcn_indicator*/, hc_type, hc_renew_date, ""/*family_doctor*/, email, ""/*pin*/, ""/*alias*/, 
                     ""/*previousAddress*/, ""/*children*/, ""/*sourceOfIncome*/, ""/*citizenship*/, sin, familyDoctorXml, familyPhysicianXml);
             demographicNo = demoRes.getId();
+            if (demographicNo != null) {
+                demographicExtDao.saveDemographicExt(Integer.parseInt(demographicNo), "enrollmentProvider", enrollmentPhysicianNo);
+            }
         }
 
         if (StringUtils.filled(demographicNo))
