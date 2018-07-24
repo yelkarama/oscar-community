@@ -2175,11 +2175,11 @@ import oscar.util.UtilDateUtilities;
                 //APPOINTMENTS
                 Appointments[] appArray = patientRec.getAppointmentsArray();
                 AppointmentStatusDao appointmentStatusDao = SpringUtils.getBean(AppointmentStatusDao.class);
-                Date appointmentDate = null;
-                String notes="", reason="", status="", startTime="", endTime="", apptProvider="";
                 List<AppointmentStatus> allStatuses = appointmentStatusDao.findActive();
 
             for (int i=0; i<appArray.length; i++) {
+                Date appointmentDate = null;
+                String notes="", reason="", status="", startTime="", endTime="", apptProvider="";
                 try {
                     String apptDateStr = dateFPtoString(appArray[i].getAppointmentDate(), timeShiftInDays);
                     if (StringUtils.filled(apptDateStr)) {
