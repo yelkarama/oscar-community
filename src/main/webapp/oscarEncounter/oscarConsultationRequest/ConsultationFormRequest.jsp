@@ -523,7 +523,6 @@ function disableEditing() {
 		form.phone.disabled = disableFields;
 		form.fax.disabled = disableFields;
 		form.address.disabled = disableFields;
-		form.patientWillBook.disabled = disableFields;
 		form.sendTo.disabled = disableFields;
 
 		form.reasonForConsultation.disabled = disableFields;
@@ -536,6 +535,7 @@ function disableEditing() {
 		form.letterheadName.disabled = disableFields;
 		form.ext_letterheadTitle.disabled = disableFields;
 
+		disableIfExists(form.patientWillBook, disableFields);
 		disableIfExists(form.siteName, disableFields);
 		disableIfExists(form.update, disableFields);
 		disableIfExists(form.updateAndPrint, disableFields);
