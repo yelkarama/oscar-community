@@ -158,13 +158,13 @@
 				<% if (OscarProperties.getInstance().isPropertyActive("use_fdb")) { %>
 				<a id="toggle-interaction-descriptions" href="javascript:void(0);" onclick="toggleInteractionDescriptions();">Show Description</a>
 				<div id="interaction-descriptions" style="display: none;">
-					SEVERITY LEVEL LOW:  Contraindicated Drug Combination: This drug combination
+					SEVERITY LEVEL LOW:  Moderate Interaction: Assess the risk to the patient and
+					take action as needed.<br/>
+					SEVERITY LEVEL MEDIUM:  Severe Interaction: Action is required to reduce the risk
+					of severe adverse interaction.<br/>
+					SEVERITY LEVEL HIGH:  Contraindicated Drug Combination: This drug combination
 					is contraindicated and generally should not be dispensed or administered to
 					the same patient.<br/>
-					SEVERITY LEVEL MEDIUM:  Moderate Interaction: Assess the risk to the patient and
-					take action as needed.<br/>
-					SEVERITY LEVEL HIGH:  Severe Interaction: Action is required to reduce the risk
-					of severe adverse interaction.
 				</div>
 				<script>
 					function  toggleInteractionDescriptions() {

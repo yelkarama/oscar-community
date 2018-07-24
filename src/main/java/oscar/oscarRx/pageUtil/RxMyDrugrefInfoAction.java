@@ -211,18 +211,18 @@ public final class RxMyDrugrefInfoAction extends DispatchAction {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
                 displayInteraction.put("updated_at", sdf.parse(drugInteraction.get("update_date")));
                 // FDB's significance levels don't correspond to drugrefs increasing levels of severity
-                /*  SEVERITY LEVEL:  2-Severe Interaction: Action is required to reduce the risk 
+                /*  SEVERITY LEVEL:  1-Contraindicated Drug Combination: This drug combination 
+                    is contraindicated and generally should not be dispensed or administered to 
+                    the same patient.
+                    SEVERITY LEVEL:  2-Severe Interaction: Action is required to reduce the risk 
                     of severe adverse interaction.
                     SEVERITY LEVEL:  3-Moderate Interaction: Assess the risk to the patient and 
                     take action as needed.
-                    SEVERITY LEVEL:  1-Contraindicated Drug Combination: This drug combination 
-                    is contraindicated and generally should not be dispensed or administered to 
-                    the same patient.
                  */
-                if ("2".equals(drugInteraction.get("significance"))) {
+                if ("3".equals(drugInteraction.get("significance"))) {
+                    displayInteraction.put("significance", "1");
+                } else if ("1".equals(drugInteraction.get("significance"))) {
                     displayInteraction.put("significance", "3");
-                } else if ("3".equals(drugInteraction.get("significance"))) {
-                    displayInteraction.put("significance", "2");
                 } else {
                     displayInteraction.put("significance", drugInteraction.get("significance"));
                 }
