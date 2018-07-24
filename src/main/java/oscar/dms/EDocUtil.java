@@ -702,9 +702,7 @@ public final class EDocUtil {
 				currentdoc.setMediaType(d.getReportMedia());
 			}
 			currentdoc.setObservationDate(d.getObservationdate());
-			currentdoc.setReviewerId(d.getReviewer());
-			currentdoc.setReviewDateTime(ConversionUtils.toTimestampString(d.getReviewdatetime()));
-			currentdoc.setReviewDateTimeDate(d.getReviewdatetime());
+			currentdoc.setReviews(d.getReviews());
 			currentdoc.setContentDateTime(d.getContentdatetime());
 			currentdoc.setSentDateTime(d.getSentDateTime());
 			resultDocs.add(currentdoc);
