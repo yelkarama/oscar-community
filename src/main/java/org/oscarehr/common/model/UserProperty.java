@@ -73,6 +73,8 @@ public class UserProperty extends AbstractModel<Integer> implements Serializable
     public static final String OFFICIAL_OLIS_IDTYPE="official_olis_idtype";
     public static final String OSCAR_MSG_RECVD="oscarMsgRecvd";
     
+    public static final String CLINICALCONNECT_DISABLE_CLOSE_WINDOW = "clinicalConnectDisableCloseWindow";
+    public static final String CLINICALCONNECT_DISABLE_LOGOUT_WARNING = "clinicalConnectDisableLogoutWarning";
     
     public final static String HIDE_NO_SHOWS_AND_CANCELLATIONS="hideNoShowsAndCancellations";
     public final static String HIDE_NO_SHOWS_AND_CANCELLATIONS_NO_SHOW="N";

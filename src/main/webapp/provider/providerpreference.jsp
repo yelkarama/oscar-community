@@ -1120,6 +1120,10 @@ String clinicNo = OscarProperties.getInstance().getProperty("clinic_no");
 <tr>
     	<td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewDashboardPrefs');return false;"><bean:message key="provider.btnViewDashboardPrefs"/></a></td>
     </tr>
+    
+    <tr>
+    	<td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewClinicalConnectPrefs');return false;"><bean:message key="provider.btnViewClinicalConnectPrefs"/></a></td>
+    </tr>
 
 	<tr>
 		<td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewDisplayCustomRosterStatus');return false;">Set to display custom roster status on the scedule</a></td>

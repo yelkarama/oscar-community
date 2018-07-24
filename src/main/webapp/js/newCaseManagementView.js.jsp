@@ -22,6 +22,11 @@
     Toronto, Ontario, Canada
 
 --%>
+<%@page import="org.oscarehr.common.model.UserProperty"%>
+<%@page import="org.oscarehr.util.LoggedInInfo"%>
+<%@page import="org.oscarehr.util.SpringUtils"%>
+<%@page import="org.oscarehr.common.dao.UserPropertyDAO"%>
+<%@page import="oscar.OscarProperties"%>
 <%@page contentType="application/javascript"%>
 <%@page import="org.oscarehr.casemgmt.common.Colour"%>
 <%@page import=" oscar.OscarProperties" %>
@@ -62,6 +67,12 @@
 		var updateDivTimer = null;
 		var reloadDivUrl;
 		var reloadDiv;
+		var activeCCWindows = [];
+	
+	function openCCEHRWindow(url,demographicNo) {
+		var w = window.open(url,'CC_EHR_' + demographicNo,'width=800,height=650');
+		activeCCWindows.push(w);
+	}
 		
 		function checkLengthofObject(o) {
 			var c = 0;
@@ -571,10 +582,11 @@ function navBarLoader() {
                   ctx + "/oscarEncounter/displayConsultation.do?hC=" + Colour.consultation,
                   ctx + "/oscarEncounter/displayHRM.do?hC=",
                   ctx + "/eaaps/displayEctEaaps.do?hC=",
-                  ctx + "/oscarEncounter/displayEconsultation.do?hC="
+                  ctx + "/oscarEncounter/displayEconsultation.do?hC=",
+                  ctx + "/oscarEncounter/displayEHR.do?hC="
               ];
 
-            var leftNavBarTitles = [ "preventions", "tickler", "Dx", "forms", "eforms", "docs","labs", "msgs", "measurements", "consultation", "HRM", "eaaps", "eConsult"];
+            var leftNavBarTitles = [ "preventions", "tickler", "Dx", "forms", "eforms", "docs","labs", "msgs", "measurements", "consultation", "HRM", "eaaps", "eConsult","ehr"];
 
             <%
             if (OscarProperties.getInstance().getBooleanProperty("MY_OSCAR", "yes")) { %>
@@ -4150,3 +4162,21 @@ function assignNoteAjax(method, chain,programId,demographicNo) {
 			}
 		}
 	}
+	
+<%
+	UserPropertyDAO userPropertyDAO = SpringUtils.getBean(UserPropertyDAO.class);
+	UserProperty prop = userPropertyDAO.getProp(LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo(), "clinicalConnectDisableCloseWindow");
+	if(prop != null && "true".equals(prop.getValue()) ) {
+		
+	} else {
+%>
+	window.addEventListener("beforeunload", function(){
+		for(var x=0;x<activeCCWindows.length;x++) {
+			activeCCWindows[x].close();
+		}
+	});
+<%		
+	}
+	
+%>
+
