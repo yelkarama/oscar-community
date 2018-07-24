@@ -43,6 +43,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -529,6 +530,29 @@ public class Util {
             	}
             }
         }
+    }
+
+    public static cdsDt.ResidualInformation fillResidualInfo(String name, String dataType, String content) {
+        List<cdsDt.ResidualInformation.DataElement> dataElementArray = new ArrayList<cdsDt.ResidualInformation.DataElement>();
+        cdsDt.ResidualInformation residualInformation = cdsDt.ResidualInformation.Factory.newInstance();
+        
+        cdsDt.ResidualInformation.DataElement data = residualInformation.addNewDataElement();
+        data.setName(name);
+        data.setDataType(dataType);
+        data.setContent(content);
+        dataElementArray.add(data);
+        residualInformation.setDataElementArray((cdsDt.ResidualInformation.DataElement[]) dataElementArray.toArray(new cdsDt.ResidualInformation.DataElement[dataElementArray.size()]));
+        return residualInformation;
+    }
+
+    public static cdsDt.ResidualInformation fillResidualInfoSummary(String content) {
+       cdsDt.ResidualInformation residualInformation = null;
+
+        if (StringUtils.filled(content)) {
+            residualInformation = fillResidualInfo("Summary", "String", content);
+        }
+
+        return residualInformation;
     }
     
     static public String getImmunizationType(String preventionType) {

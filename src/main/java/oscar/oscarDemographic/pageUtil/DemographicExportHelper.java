@@ -99,30 +99,24 @@ public class DemographicExportHelper {
 		arr = prescriptData.getPrescriptionsByPatient(Integer.parseInt(demoNo));
 		for (int p = 0; p < arr.length; p++) {
 			MedicationsAndTreatments medi = patientRec.addNewMedicationsAndTreatments();
-			String mSummary = "";
 			if (arr[p].getWrittenDate() != null) {
 				String dateFormat = partialDateDao.getFormat(PartialDate.DRUGS, arr[p].getDrugId(), PartialDate.DRUGS_WRITTENDATE);
 				Util.putPartialDate(medi.addNewPrescriptionWrittenDate(), arr[p].getWrittenDate(), dateFormat);
-				mSummary = Util.addSummary("Prescription Written Date", partialDateDao.getDatePartial(arr[p].getWrittenDate(), dateFormat));
 			}
 			if (arr[p].getRxDate() != null) {
 				medi.addNewStartDate().setFullDate(Util.calDate(arr[p].getRxDate()));
-				mSummary = Util.addSummary(mSummary, "Start Date", UtilDateUtilities.DateToString(arr[p].getRxDate(), "yyyy-MM-dd"));
 			}
 			String regionalId = arr[p].getRegionalIdentifier();
 			if (StringUtils.filled(regionalId)) {
 				medi.setDrugIdentificationNumber(regionalId);
-				mSummary = Util.addSummary(mSummary, "DIN", regionalId);
 			}
 			String drugName = arr[p].getBrandName();
 			if (StringUtils.filled(drugName)) {
 				medi.setDrugName(drugName);
-				mSummary = Util.addSummary(mSummary, "Drug Name", drugName);
 			} else {
 				drugName = arr[p].getCustomName();
 				if (StringUtils.filled(drugName)) {
 					medi.setDrugDescription(drugName);
-					mSummary = Util.addSummary(mSummary, "Drug Description", drugName);
 				} else {
 					exportErrors.add("Error! No medication name for Patient " + demoNo + " (" + (p + 1) + ")");
 				}
@@ -161,13 +155,11 @@ public class DemographicExportHelper {
 						drugM.setUnitOfMeasure(Util.trailingTxt(strength[0]));
 					}
 				}
-				mSummary = Util.addSummary(mSummary, "Strength", drugM.getAmount() + " " + drugM.getUnitOfMeasure());
 			}
 
 			String drugForm = arr[p].getDrugForm();
 			if (StringUtils.filled(drugForm)) {
 				medi.setForm(drugForm);
-				mSummary = Util.addSummary(mSummary, "Form", drugForm);
 			}
 
 			//Process dosage export
@@ -201,20 +193,16 @@ public class DemographicExportHelper {
 			//export dosage
 			medi.setDosage(dosageValue.toString());
 			if (StringUtils.filled(drugUnit)) medi.setDosageUnitOfMeasure(drugUnit);
-			mSummary = Util.addSummary(mSummary, "Dosage", dosageValue + " " + drugUnit);
 
 			if (StringUtils.filled(arr[p].getSpecialInstruction())) {
 				medi.setPrescriptionInstructions(arr[p].getSpecialInstruction());
-				mSummary = Util.addSummary(mSummary, "Prescription Instructions", arr[p].getSpecialInstruction());
 			}
 
 			if (StringUtils.filled(arr[p].getRoute())) {
 				medi.setRoute(arr[p].getRoute());
-				mSummary = Util.addSummary(mSummary, "Route", arr[p].getRoute());
 			}
 			if (StringUtils.filled(arr[p].getFreqDisplay())) {
 				medi.setFrequency(arr[p].getFreqDisplay());
-				mSummary = Util.addSummary(mSummary, "Frequency", arr[p].getFreqDisplay());
 			}
 			String duration = arr[p].getDuration();
 			if (StringUtils.filled(duration)) {
@@ -226,41 +214,32 @@ public class DemographicExportHelper {
 				if (NumberUtils.isDigits(duration)) {
 					duration = String.valueOf(Integer.parseInt(duration) * fctr);
 					medi.setDuration(duration);
-					mSummary = Util.addSummary(mSummary, "Duration", duration + " Day(s)");
 				}
 			}
 			if (StringUtils.filled(arr[p].getQuantity())) {
 				medi.setQuantity(arr[p].getQuantity());
-				mSummary = Util.addSummary(mSummary, "Quantity", arr[p].getQuantity());
 			}
 			if (StringUtils.filled(medi.getDrugName()) || StringUtils.filled(medi.getDrugIdentificationNumber())) {
 				medi.setNumberOfRefills(String.valueOf(arr[p].getRepeat()));
-				mSummary = Util.addSummary(mSummary, "Number of Refills", String.valueOf(arr[p].getRepeat()));
 			}
 			if (StringUtils.filled(arr[p].getETreatmentType())) {
 				medi.setTreatmentType(arr[p].getETreatmentType());
-				mSummary = Util.addSummary(mSummary, "Treatment Type", arr[p].getETreatmentType());
 			}
 			if (arr[p].getRefillDuration() != null) {
 				medi.setRefillDuration(String.valueOf(arr[p].getRefillDuration()));
-				mSummary = Util.addSummary(mSummary, "Refill Duration", arr[p].getRefillDuration().toString());
 			}
 			if (arr[p].getRefillQuantity() != null) {
 				medi.setRefillQuantity(String.valueOf(arr[p].getRefillQuantity()));
-				mSummary = Util.addSummary(mSummary, "Refill Quantity", arr[p].getRefillQuantity().toString());
 			}
 
 			medi.addNewLongTermMedication().setBoolean(arr[p].getLongTerm());
-			mSummary = Util.addSummary(mSummary, "Long Term Medication", arr[p].getLongTerm() ? "Yes" : "No");
 
 			medi.addNewPastMedications().setBoolean(arr[p].getPastMed());
-			mSummary = Util.addSummary(mSummary, "Past Medcation", arr[p].getPastMed() ? "Yes" : "No");
 
 			cdsDt.YnIndicator pc = medi.addNewPatientCompliance();
 			if (arr[p].getPatientCompliance() != null) {
 				String patientCompliance = arr[p].getPatientCompliance() ? "Yes" : "No";
 				pc.setBoolean(arr[p].getPatientCompliance());
-				mSummary = Util.addSummary(mSummary, "Patient Compliance", patientCompliance);
 			}
 
 			String outsideProviderName = arr[p].getOutsideProviderName();
@@ -269,7 +248,6 @@ public class DemographicExportHelper {
 				String ohip = arr[p].getOutsideProviderOhip();
 				if (ohip != null && ohip.trim().length() <= 6) pcb.setOHIPPhysicianId(ohip.trim());
 				Util.writeNameSimple(pcb.addNewName(), outsideProviderName);
-				mSummary = Util.addSummary(mSummary, "Prescribed by", StringUtils.noNull(outsideProviderName));
 			} else {
 				String prescribeProvider = arr[p].getProviderNo();
 				if (StringUtils.filled(prescribeProvider)) {
@@ -280,14 +258,12 @@ public class DemographicExportHelper {
 						pcb.setOHIPPhysicianId(ohip.trim());
 					}
 					Util.writeNameSimple(pcb.addNewName(), prvd.getFirstName(), prvd.getLastName());
-					mSummary = Util.addSummary(mSummary, "Prescribed by", StringUtils.noNull(prvd.getFirstName()) + " " + StringUtils.noNull(prvd.getLastName()));
 				}
 			}
 
 			annotation = getNonDumpNote(CaseManagementNoteLink.DRUGS, (long) arr[p].getDrugId(), null);
 			if (StringUtils.filled(annotation)) {
 				medi.setNotes(annotation);
-				mSummary = Util.addSummary(mSummary, "Notes", annotation);
 			}
 		}
 	}
