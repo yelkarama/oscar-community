@@ -890,7 +890,7 @@ function showEdit(e,title, noteId, editors, date, revision, note, url, container
             if (diagnosticArray[idx + 2]) {
                 noteDiagnosticUl += ' (Co-morbid: ' + diagnosticArray[idx + 2] + ' ' + diagnosticArray[idx + 3] + ')</li>';
             } else {
-                noteDiagnosticUl += '<a class="co-morbid-link links" href="#" title="Add as co-morbid" onclick="popupPage(150,500,\'addCoMorbid\',\'' + ctx + '/casemgmt/addCoMorbidDx.jsp?noteDx=cpp_note_dx_' + diagnosticArray[idx] + '&demographicNo=' + demographicNo + '\'); return false">*</a></li>';
+                noteDiagnosticUl += ' <a class="co-morbid-link links" href="#" title="Add as co-morbid" onclick="popupPage(150,500,\'addCoMorbid\',\'' + ctx + '/casemgmt/addCoMorbidDx.jsp?noteDx=cpp_note_dx_' + diagnosticArray[idx] + '&demographicNo=' + demographicNo + '\'); return false">(Add as co-morbid)</a></li>';
             }
         }
     }
@@ -2975,7 +2975,7 @@ function changeDiagnosisUnresolved(issueId) {
             var node = document.createElement('li');
             node.setAttribute("id", "cpp_note_dx_" + codeId);
             var html = "<input type=\"checkbox\" name=\"diagnostic_id\" checked value=\"" + codeId + "\">" + listItem.innerHTML
-                + ' <a class="co-morbid-link links" href="#" title="Add as co-morbid" onclick="popupPage(150,500,\'addCoMorbid\',\'' + ctx + '/casemgmt/addCoMorbidDx.jsp?noteDx=cpp_note_dx_' + codeId + '&demographicNo=' + demographicNo + '\'); return false">*</a>';
+                + ' <a class="co-morbid-link links" href="#" title="Add as co-morbid" onclick="popupPage(150,500,\'addCoMorbid\',\'' + ctx + '/casemgmt/addCoMorbidDx.jsp?noteDx=cpp_note_dx_' + codeId + '&demographicNo=' + demographicNo + '\'); return false">(Add as co-morbid)</a>';
             new Insertion.Top(node, html);
 
             $('diagnosticIdList').appendChild(node);

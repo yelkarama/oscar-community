@@ -46,6 +46,8 @@
 <%@ page import="org.oscarehr.common.model.Icd9" %>
 <%@ page import="org.oscarehr.common.dao.Icd9Dao" %>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
+<%@ page import="org.oscarehr.casemgmt.dao.CaseManagementNoteDAO" %>
+<%@ page import="org.oscarehr.casemgmt.model.CaseManagementNote" %>
 
 <%
 	if(session.getValue("user") == null) response.sendRedirect("../../logout.jsp");
@@ -134,6 +136,7 @@
     FlowSheetDrugDao flowSheetDrugDao = (FlowSheetDrugDao) ctx.getBean("flowSheetDrugDao");
     FlowSheetDxDao flowSheetDxDao = (FlowSheetDxDao) ctx.getBean("flowSheetDxDao");
     CaseManagementDxLinkDao caseManagementDxLinkDao = SpringUtils.getBean(CaseManagementDxLinkDao.class);
+    CaseManagementNoteDAO caseManagementNoteDAO = SpringUtils.getBean(CaseManagementNoteDAO.class);
     Icd9Dao icd9Dao = SpringUtils.getBean(Icd9Dao.class);
     List<FlowSheetCustomization> custList = flowSheetCustomizationDao.getFlowSheetCustomizations( temp,(String) session.getAttribute("user"),Integer.parseInt(demographic_no));
 
@@ -157,17 +160,12 @@
     }
 
     List<Icd9> coMorbidCodes = new ArrayList<Icd9>();
+    List<CaseManagementDxLink> dxLinks = new ArrayList<CaseManagementDxLink>();
     String[] dxTriggers = mFlowsheet.getDxTriggers();
     for (String dxTrigger : dxTriggers) {
         if (dxTrigger.startsWith("icd9:")) {
             dxTrigger = dxTrigger.replace("icd9:", "");
-            List<CaseManagementDxLink> dxLinks = caseManagementDxLinkDao.findByDemographicNoAndCoMorbidDx(Integer.parseInt(demographic_no), "ICD9", dxTrigger);
-            for (CaseManagementDxLink dxLink : dxLinks) {
-                Icd9 matchedCode = icd9Dao.findByCode(dxLink.getId().getDxCode());
-                if (matchedCode != null && !coMorbidCodes.contains(matchedCode)) {
-                    coMorbidCodes.add(matchedCode);
-                }
-            }
+            dxLinks.addAll(caseManagementDxLinkDao.findByDemographicNoAndCoMorbidDx(Integer.parseInt(demographic_no), "ICD9", dxTrigger));
         }
     }
 
@@ -529,7 +527,7 @@ div.recommendations li{
     </a></p>
     <%}%>
     </security:oscarSec>
-    <% if (coMorbidCodes.size() > 0) {%>
+    <% if (dxLinks.size() > 0) {%>
     <div class="leftBox">
         <h3>
             &nbsp;<bean:message key="oscarencounter.templateflowsheet.currentpatientcomorbiddxlist" />&nbsp;&nbsp;
@@ -539,12 +537,18 @@ div.recommendations li{
         <div class="wrapper" id="coMorbidDxFullListing">
             <ul>
                 <%
-                    for (Icd9 coMorbidCode : coMorbidCodes) {
+                    for (CaseManagementDxLink dxLink : dxLinks) {
+                        // Get note Text
+                        Icd9 matchedCode = icd9Dao.findByCode(dxLink.getId().getDxCode());
+                        if (matchedCode != null && !coMorbidCodes.contains(matchedCode)) {
+                            CaseManagementNote note = caseManagementNoteDAO.getNote(dxLink.getId().getNoteId());
+                            String noteText = "Note text: " + ((note != null) ? note.getNote() : "");
                 %>
                 <li>
-                    - <%=StringEscapeUtils.escapeHtml(coMorbidCode.getDescription())%>
+                    <span title="<%=noteText%>"> - <%=StringEscapeUtils.escapeHtml(matchedCode.getDescription())%></span>
                 </li>
-                <%    } %>
+                <%      } 
+                    } %>
             </ul>
         </div>
     </div>
