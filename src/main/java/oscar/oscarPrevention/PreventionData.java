@@ -42,9 +42,11 @@ import org.oscarehr.PMmodule.caisi_integrator.IntegratorFallBackManager;
 import org.oscarehr.PMmodule.caisi_integrator.RemotePreventionHelper;
 import org.oscarehr.caisi_integrator.ws.CachedDemographicPrevention;
 import org.oscarehr.caisi_integrator.ws.CachedFacility;
+import org.oscarehr.common.dao.PartialDateDao;
 import org.oscarehr.common.dao.PreventionDao;
 import org.oscarehr.common.dao.PreventionExtDao;
 import org.oscarehr.common.model.Demographic;
+import org.oscarehr.common.model.PartialDate;
 import org.oscarehr.common.model.Prevention;
 import org.oscarehr.common.model.PreventionExt;
 import org.oscarehr.managers.DemographicManager;
@@ -61,6 +63,7 @@ public class PreventionData {
 	private static Logger log = MiscUtils.getLogger();
 	private static PreventionDao preventionDao = (PreventionDao) SpringUtils.getBean("preventionDao");
 	private static PreventionExtDao preventionExtDao = (PreventionExtDao) SpringUtils.getBean("preventionExtDao");
+	private static PartialDateDao partialDateDao = SpringUtils.getBean(PartialDateDao.class);
 
 	private PreventionData() {
 		// prevent instantiation
@@ -72,7 +75,7 @@ public class PreventionData {
 			Prevention prevention = new Prevention();
 			prevention.setCreatorProviderNo(creator);
 			prevention.setDemographicId(Integer.valueOf(demoNo));
-			prevention.setPreventionDate(UtilDateUtilities.StringToDate(date, "yyyy-MM-dd HH:mm"));
+			prevention.setPreventionDate(partialDateDao.StringToDate(date));
 			prevention.setProviderName(providerName);
 			prevention.setProviderNo(providerNo);
 			prevention.setPreventionType(preventionType);
@@ -84,6 +87,11 @@ public class PreventionData {
 
 			preventionDao.persist(prevention);
 			if (prevention.getId() == null) return insertId;
+
+			String preventionDateFormat = partialDateDao.getFormat(date);
+			if (oscar.util.StringUtils.filled(preventionDateFormat)) {
+				partialDateDao.setPartialDate(PartialDate.PREVENTION, prevention.getId(), PartialDate.PREVENTION_DATE, preventionDateFormat);
+			}
 
 			insertId = prevention.getId();
 			for (int i = 0; i < list.size(); i++) {
@@ -100,12 +108,12 @@ public class PreventionData {
 		return insertId;
 	}
 
-	public static Integer insertPreventionDataReturnError(String creator, String demoNo, String date, String providerNo, String providerName, String preventionType, String refused, String nextDate, String neverWarn, ArrayList<Map<String, String>> list) throws Exception {
+	public static Integer insertPreventionDataReturnError(String creator, String demoNo, Date preventionDate, String providerNo, String providerName, String preventionType, String refused, String nextDate, String neverWarn, ArrayList<Map<String, String>> list) throws Exception {
 		Integer insertId = -1;
 		Prevention prevention = new Prevention();
 		prevention.setCreatorProviderNo(creator);
 		prevention.setDemographicId(Integer.valueOf(demoNo));
-		prevention.setPreventionDate(UtilDateUtilities.StringToDate(date, "yyyy-MM-dd HH:mm"));
+		prevention.setPreventionDate(preventionDate);
 		prevention.setProviderName(providerName);
 		prevention.setProviderNo(providerNo);
 		prevention.setPreventionType(preventionType);
@@ -295,11 +303,11 @@ public class PreventionData {
 				h.put("type", prevention.getPreventionType());
 				h.put("provider_no", prevention.getProviderNo());
 				h.put("provider_name", prevention.getProviderName()!=null&&prevention.getProviderName().trim().length()>0?prevention.getProviderName():ProviderData.getProviderName(prevention.getProviderNo()));
-
+  
 				Date pDate = prevention.getPreventionDate();
-				h.put("prevention_date", blankIfNull(UtilDateUtilities.DateToString(pDate, "yyyy-MM-dd HH:mm")));
+				h.put("prevention_date", partialDateDao.getDatePartial(pDate, PartialDate.PREVENTION, prevention.getId(), PartialDate.PREVENTION_DATE));
 				h.put("prevention_date_asDate", pDate);
-				h.put("prevention_date_no_time", blankIfNull(UtilDateUtilities.DateToString(pDate, "yyyy-MM-dd")));
+				h.put("prevention_date_no_time", partialDateDao.getDatePartial(pDate, PartialDate.PREVENTION, prevention.getId(), PartialDate.PREVENTION_DATE));
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 				h.put("next_date", (prevention.getNextDate() != null ? sdf.format(prevention.getNextDate()) : null));
 
@@ -499,7 +507,7 @@ public class PreventionData {
 			if (prevention != null) {
 				h = new HashMap<String, Object>();
 				String providerName = prevention.getProviderName()!=null&&prevention.getProviderName().trim().length()>0?prevention.getProviderName():ProviderData.getProviderName(prevention.getProviderNo());
-				String preventionDate = UtilDateUtilities.DateToString(prevention.getPreventionDate(), "yyyy-MM-dd HH:mm");
+				String preventionDate = partialDateDao.getDatePartial(prevention.getPreventionDate(), PartialDate.PREVENTION, prevention.getId(), PartialDate.PREVENTION_DATE);
 				String lastUpdateDate = UtilDateUtilities.DateToString(prevention.getLastUpdateDate(), "yyyy-MM-dd");
 				@SuppressWarnings("deprecation")
 				String creatorName = ProviderData.getProviderName(prevention.getCreatorProviderNo());

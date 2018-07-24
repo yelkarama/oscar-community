@@ -2056,7 +2056,8 @@ import oscar.util.UtilDateUtilities;
             Immunizations[] immuArray = patientRec.getImmunizationsArray();
             for (int i=0; i<immuArray.length; i++) {
                 try {
-                    String preventionDate="", refused="0";
+                    Date preventionDate = null;
+                    String refused="0";
                     String preventionType=null, immExtra=null;
                     ArrayList<Map<String,String>> preventionExt = new ArrayList<Map<String,String>>();
 
@@ -2121,10 +2122,8 @@ import oscar.util.UtilDateUtilities;
                         preventionExt.add(ht);
                     }
 
-                    preventionDate = dateFPtoString(immuArray[i].getDate(), timeShiftInDays);
-                    if (!StringUtils.isNullOrEmpty(preventionDate) && !preventionDate.contains(":")){
-                        preventionDate = preventionDate.trim() + " 00:00";
-                    }
+                    preventionDate = dateTimeFPtoDate(immuArray[i].getDate(), timeShiftInDays);
+                    String preventionDateFormat = dateFPGetPartial(immuArray[i].getDate());
                     
                     refused = getYN(immuArray[i].getRefusedFlag()).equals("Yes") ? "1" : "0";
                     if (immuArray[i].getRefusedFlag()==null) err_data.add("Error! No Refused Flag for Immunizations ("+(i+1)+")");
@@ -2151,6 +2150,10 @@ import oscar.util.UtilDateUtilities;
                     Integer preventionId = PreventionData.insertPreventionDataReturnError(admProviderNo, demographicNo, preventionDate, defaultProviderNo(), "", preventionType, refused, "", "", preventionExt);
                     addOneEntry(IMMUNIZATION);
 
+                    if (preventionDate != null && preventionId>=0) {
+                        partialDateDao.setPartialDate(PartialDate.PREVENTION, preventionId, PartialDate.PREVENTION_DATE, preventionDateFormat);
+                    }
+                    
                     //to dumpsite: Extra immunization data
                     if (StringUtils.filled(immExtra) && preventionId>=0) {
         	            immExtra = Util.addLine("imported.cms5.2017.06", immExtra);

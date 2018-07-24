@@ -1330,9 +1330,11 @@ public class DemographicExportAction4 extends Action {
 						phSummary = null;
 						PastHealth pHealth = patientRec.addNewPastHealth();
 						
-						String preventionDate = (String) prevMap.get("prevention_date");
-						if (UtilDateUtilities.StringToDate(preventionDate)!=null) {
-							pHealth.addNewProcedureDate().setFullDate(Util.calDate(preventionDate));
+						Date preventionDate = (Date) prevMap.get("prevention_date_asDate");
+						if (preventionDate != null) {
+							String dateFormat = partialDateDao.getFormat(PartialDate.PREVENTION, Integer.valueOf((String) prevMap.get("id")), PartialDate.PREVENTION_DATE);
+							Util.putPartialDate(pHealth.addNewProcedureDate(), preventionDate, dateFormat);
+							phSummary = Util.addSummary(phSummary, "Date", (String) prevMap.get("prevention_date"));
 						}
 						
 						String description = prevType;
@@ -1414,9 +1416,11 @@ public class DemographicExportAction4 extends Action {
 						immu.addNewRefusedFlag().setBoolean(Util.convert10toboolean(refused));
 					}
 
-					String preventionDate = (String) prevMap.get("prevention_date");
-					if (UtilDateUtilities.StringToDate(preventionDate)!=null) {
-						immu.addNewDate().setFullDate(Util.calDate(preventionDate));
+					Date preventionDate = (Date) prevMap.get("prevention_date_asDate");
+					if (preventionDate != null) {
+						String dateFormat = partialDateDao.getFormat(PartialDate.PREVENTION, Integer.valueOf((String) prevMap.get("id")), PartialDate.PREVENTION_DATE);
+						Util.putPartialDate(immu.addNewDate(), preventionDate, dateFormat);
+						imSummary = Util.addSummary(imSummary, "Date", (String) prevMap.get("prevention_date"));
 					}
 					
 					ResidualInformation residualInformation = Util.fillResidualInfoSummary(imSummary);

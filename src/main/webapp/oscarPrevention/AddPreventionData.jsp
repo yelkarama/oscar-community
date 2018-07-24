@@ -141,9 +141,8 @@ if(!authed) {
   
   //calc age at time of prevention
   Date dob = PreventionData.getDemographicDateOfBirth(LoggedInInfo.getLoggedInInfoFromSession(request), Integer.valueOf(demographic_no));
-  SimpleDateFormat fmt = new SimpleDateFormat(dateFmt);
-  Date dateOfPrev = fmt.parse(prevDate);
-  String age = UtilDateUtilities.calcAgeAtDate(dob, dateOfPrev);
+  Date preventionAsDate = (existingPrevention != null) ? (Date) existingPrevention.get("prevention_date_asDate") : new Date();
+  String age = UtilDateUtilities.calcAgeAtDate(dob, preventionAsDate);
   DemographicData demoData = new DemographicData();
   String[] demoInfo = demoData.getNameAgeSexArray(LoggedInInfo.getLoggedInInfoFromSession(request), Integer.valueOf(demographic_no));
   String nameage = demoInfo[0] + ", " + demoInfo[1] + " " + demoInfo[2] + " " + age;
@@ -170,6 +169,7 @@ if(!authed) {
 <script type="text/javascript" src="../share/calendar/lang/<bean:message key="global.javascript.calendar"/>" ></script>
 <script type="text/javascript" src="../share/calendar/calendar-setup.js" ></script>
 <script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.9.1.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath() %>/js/checkDate.js"></script>
 
 <style type="text/css">
   div.ImmSet { background-color: #ffffff; }
@@ -403,6 +403,15 @@ function displayCloseWarning(){
 		return 'Are you sure you want to close this window?';
 	}
 }
+
+function validateInput() {
+	var date = document.forms[0].prevDate.value;
+	if (!checkAndValidatePartialDateTime(date)) {
+		return false;
+	}
+	cancelCloseWarning();
+	return true;
+}
 </script>
 </head>
 
@@ -449,7 +458,7 @@ function displayCloseWarning(){
 -->
             </td>
             <td valign="top" class="MainTableRightColumn">
-               <html:form action="/oscarPrevention/AddPrevention" onsubmit="return cancelCloseWarning()">
+               <html:form action="/oscarPrevention/AddPrevention" onsubmit="return validateInput()">
                <input type="hidden" name="prevention" value="<%=prevention%>"/>
                <input type="hidden" name="demographic_no" value="<%=demographic_no%>"/>
                <% if ( id != null ) { %>
@@ -478,7 +487,7 @@ function displayCloseWarning(){
                          </div>
                          <div>&nbsp;</div>
                          <div style="margin-left:30px;">
-                            <label for="prevDate" class="fields" >Date:</label>    <input readonly='readonly' type="text" name="prevDate" id="prevDate" value="<%=prevDate%>" size="15" > <a id="date"><img title="Calendar" src="../images/cal.gif" alt="Calendar" border="0" /></a> <br>
+                            <label for="prevDate" class="fields" >Date:</label>    <input type="text" name="prevDate" id="prevDate" value="<%=prevDate%>" size="15" > <a id="date"><img title="Calendar" src="../images/cal.gif" alt="Calendar" border="0" /></a> <br>
                             <label for="provider" class="fields">Provider:</label> <input type="text" name="providerName" id="providerName" value="<%=providerName%>"/>
                                   <select onchange="javascript:hideExtraName(this);" id="providerDrop" name="provider">
                                       <%
