@@ -328,6 +328,7 @@
 		<td></td>
 		<td style="text-align: right"><b>Reminder Preference:</b></td>
 		<td style="text-align: left">
+			<input type="hidden" name=reminder_preference_id" value="<%=demoExt.get("reminder_preference_id")%>"/>
 			<select name="reminder_preference">
 				<%	DemographicReminderPreference.Types selectedReminderPreference = DemographicReminderPreference.Types.SYSTEM_DEFAULT;
 					if (!StringUtils.isBlank(demoExt.get("reminder_preference"))) {

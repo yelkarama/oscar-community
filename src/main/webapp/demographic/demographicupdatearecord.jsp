@@ -349,7 +349,7 @@
 	List<DemographicExt> extensions = new ArrayList<DemographicExt>();
 
 	if (!StringUtils.trimToEmpty(demoExt.get("reminder_preference")).equals(StringUtils.trimToEmpty(request.getParameter("reminder_preference")))) {
-		extensions.add(new DemographicExt(request.getParameter("reminder_preference"), proNo, demographicNo, "reminder_preference", request.getParameter("reminder_preference")));
+		extensions.add(new DemographicExt(request.getParameter("reminder_preference_id"), proNo, demographicNo, "reminder_preference", request.getParameter("reminder_preference")));
 	}
 
 	if (!StringUtils.trimToEmpty(demoExt.get("insurance_company")).equals(StringUtils.trimToEmpty(request.getParameter("insurance_company")))) {
