@@ -174,28 +174,25 @@ public class ProviderPropertyAction extends DispatchAction {
         }
 
         propertyValue = StringUtils.trimToNull(request.getParameter("coverpage"));
-        if (propertyValue != null) {
-            property = propertyDAO.getProp(providerNo, UserProperty.DEFAULT_COVER_PAGE);
-            if (property == null) {
-                property = new UserProperty();
-                property.setProviderNo(providerNo);
-                property.setName(UserProperty.DEFAULT_COVER_PAGE);
-            }
-            property.setValue(propertyValue);
-            propertyDAO.saveProp(property);
+        property = propertyDAO.getProp(providerNo, UserProperty.DEFAULT_COVER_PAGE);
+        if (property == null) {
+            property = new UserProperty();
+            property.setProviderNo(providerNo);
+            property.setName(UserProperty.DEFAULT_COVER_PAGE);
         }
+        property.setValue("on".equals(propertyValue) ? "on" : "off");
+        propertyDAO.saveProp(property);
 
         propertyValue = StringUtils.trimToNull(request.getParameter("allow_online_booking"));
-        if (propertyValue != null) {
-            property = propertyDAO.getProp(providerNo, "allow_online_booking");
-            if (property == null) {
-                property = new UserProperty();
-                property.setProviderNo(providerNo);
-                property.setName("allow_online_booking");
-            }
-            property.setValue(propertyValue.equalsIgnoreCase("on") ? "true" : "false");
-            propertyDAO.saveProp(property);
+        property = propertyDAO.getProp(providerNo, "allow_online_booking");
+        if (property == null) {
+            property = new UserProperty();
+            property.setProviderNo(providerNo);
+            property.setName("allow_online_booking");
         }
+        property.setValue("on".equals(propertyValue) ? "true" : "false");
+        propertyDAO.saveProp(property);
+        
 
         propertyValue = StringUtils.trimToNull(request.getParameter("ticklerDefaultRecipient"));
         property = propertyDAO.getProp(providerNo, UserProperty.TICKLER_DEFAULT_RECIPIENT);
