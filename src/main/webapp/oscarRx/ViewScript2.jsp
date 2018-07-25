@@ -219,6 +219,15 @@ String pharmacyInfoOnLoad = "";
 if(prefPharmacy.length() > 0 && prefPharmacyId.length() > 0){
 	pharmacyInfoOnLoad = autoprintRxPharmacyInfo ? "onload=\"printPharmacy(\'" + prefPharmacyId + "\',\'" + prefPharmacy + "')\"" : "";
 }
+
+SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+List<SystemPreferences> rxPreferences = systemPreferencesDao.findPreferencesByNames(SystemPreferences.RX_PREFERENCE_KEYS);
+HashMap<String, Boolean> rxPreferencesMap = new HashMap<String, Boolean>();
+
+
+for (SystemPreferences preference : rxPreferences) {
+    rxPreferencesMap.put(preference.getName(), Boolean.parseBoolean(preference.getValue()));
+}
 %>
 <link rel="stylesheet" type="text/css" href="styles.css" />
 <link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
@@ -352,7 +361,9 @@ function printPaste2Parent(print){
       <% if (props.isPropertyActive("rx_paste_asterisk")) { %>
 	   text += "**********************************************************************************\n";
      <% } %>
+	   <% if (rxPreferencesMap.getOrDefault("rx_paste_provider_to_echart", false)) { %>
       text += "Prescribed and printed by <%= loggedInInfo.getLoggedInProvider().getFormattedName() %>\n";
+      <% } %>
       if (document.all){
          text += preview.document.forms[0].rx_no_newlines.value
       } else {

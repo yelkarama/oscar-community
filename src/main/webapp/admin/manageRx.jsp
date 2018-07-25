@@ -50,6 +50,10 @@
 <%@ page import="org.oscarehr.common.model.Provider" %>
 <%@ page import="org.oscarehr.common.dao.RxManageDao" %>
 <%@ page import="org.oscarehr.common.model.RxManage" %>
+<%@ page import="org.oscarehr.common.dao.SystemPreferencesDao" %>
+<%@ page import="org.oscarehr.common.model.SystemPreferences" %>
+<%@ page import="java.util.Date" %>
+<%@ page import="java.util.List" %>
 
 <jsp:useBean id="dataBean" class="java.util.Properties" scope="page" />
 <%
@@ -57,25 +61,41 @@
     Provider provider = loggedInInfo.getLoggedInProvider();
 
     RxManageDao rxManageDao = SpringUtils.getBean(RxManageDao.class);
+    SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
     
-    if (request.getParameter("dboperation")!=null && !request.getParameter("dboperation").isEmpty())
-    {
-        if (request.getParameter("dboperation").equals("Save"))
+    if (request.getParameter("dboperation") != null && !request.getParameter("dboperation").isEmpty() && request.getParameter("dboperation").equals("Save")) {
+        RxManage rxManage = rxManageDao.getRxManageAttributes();
+        
+        if (rxManage!=null)
         {
-            RxManage rxManage = rxManageDao.getRxManageAttributes();
-            
-            if (rxManage!=null)
-            {
-                rxManage.setMrpOnRx(Boolean.parseBoolean(request.getParameter("mrpPresc")));
-                rxManageDao.merge(rxManage);
+            rxManage.setMrpOnRx(Boolean.parseBoolean(request.getParameter("mrpPresc")));
+            rxManageDao.merge(rxManage);
+        }
+        else
+        {
+            rxManage = new RxManage();
+            rxManage.setMrpOnRx(Boolean.parseBoolean(request.getParameter("mrpPresc")));
+            rxManageDao.persist(rxManage); 
+        }
+
+        for(String key : SystemPreferences.RX_PREFERENCE_KEYS) {
+            SystemPreferences preference = systemPreferencesDao.findPreferenceByName(key);
+            String newValue = request.getParameter(key);
+
+            if (preference != null) {
+                if (!preference.getValue().equals(newValue)) {
+                    preference.setUpdateDate(new Date());
+                    preference.setValue(newValue);
+                    systemPreferencesDao.merge(preference);
+                }
+            } else {
+                preference = new SystemPreferences();
+                preference.setName(key);
+                preference.setUpdateDate(new Date());
+                preference.setValue(newValue);
+                systemPreferencesDao.persist(preference);
             }
-            else
-            {
-                rxManage = new RxManage();
-                rxManage.setMrpOnRx(Boolean.parseBoolean(request.getParameter("mrpPresc")));
-                rxManageDao.persist(rxManage); 
-            }
-        } 
+        }
     }
     
 %>
@@ -96,26 +116,43 @@
         {
             dataBean.setProperty("mrpOnRx", String.valueOf(rxManage.getMrpOnRx())); 
         }
+
+        List<SystemPreferences> preferences = systemPreferencesDao.findPreferencesByNames(SystemPreferences.RX_PREFERENCE_KEYS);
+        for(SystemPreferences preference : preferences) {
+            if (preference.getValue() != null) {
+                dataBean.setProperty(preference.getName(), preference.getValue());
+            }
+        }
     %>
 
     <body vlink="#0000FF" class="BodyStyle">
-    <h4>Manage Job Types</h4>
-    <form name="mrpPrescriptionForm" method="post" action="manageRx.jsp">
+    <h4>Rx Settings</h4>
+    <form name="rx-settings" method="post" action="manageRx.jsp">
         <input type="hidden" name="dboperation" value="">
-    <table id="manageRxTable" name="manageRxTable" class="table table-bordered table-striped table-hover table-condensed">
-        <tbody>
-        <tr>
-            <td>Add MRP to Prescriptions: </td>
-            <td>
-            <input type="radio" value="true" name="mrpPresc"<%=(rxManage!=null ? (dataBean.getProperty("mrpOnRx").equals("true")? "checked" : "") : "")%>/>Yes
-                &nbsp;&nbsp;&nbsp;
-            <input type="radio" value="false" name="mrpPresc"<%=(rxManage!=null ? (dataBean.getProperty("mrpOnRx").equals("false")? "checked" : "") : "")%>/>No
-                &nbsp;&nbsp;&nbsp;
-            <input type="button" onclick="document.forms['mrpPrescriptionForm'].dboperation.value='Save'; document.forms['mrpPrescriptionForm'].submit();" name="mrpPrescButton" value="Save"/>     
-            </td>
-        </tr>
-        </tbody>
-    </table>
+        <table id="manageRxTable" name="manageRxTable" class="table table-bordered table-striped table-hover table-condensed">
+            <tbody>
+            <tr>
+                <td>Add MRP to Prescriptions: </td>
+                <td>
+                <input type="radio" value="true" name="mrpPresc"<%=(rxManage!=null ? (dataBean.getProperty("mrpOnRx").equals("true")? "checked" : "") : "")%>/>Yes
+                    &nbsp;&nbsp;&nbsp;
+                <input type="radio" value="false" name="mrpPresc"<%=(rxManage!=null ? (dataBean.getProperty("mrpOnRx").equals("false")? "checked" : "") : "")%>/>No
+                    &nbsp;&nbsp;&nbsp;
+                </td>
+            </tr>
+            <tr>
+                <td>Display provider name when pasting Rx to echart: </td>
+                <td>
+                    <input type="radio" value="true" name="rx_paste_provider_to_echart" <%= (dataBean.getProperty("rx_paste_provider_to_echart", "false").equals("true") ? "checked" : "") %> /> Yes
+                    &nbsp;&nbsp;&nbsp;
+                    <input type="radio" value="false" name="rx_paste_provider_to_echart" <%= (dataBean.getProperty("rx_paste_provider_to_echart", "false").equals("false") ? "checked" : "") %> /> No
+                    &nbsp;&nbsp;&nbsp;
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <input type="button" onclick="document.forms['rx-settings'].dboperation.value='Save'; document.forms['rx-settings'].submit();" name="mrpPrescButton" value="Save"/>
     </form>
     </body>
 </html:html>
