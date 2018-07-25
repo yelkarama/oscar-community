@@ -1247,12 +1247,14 @@ public class DemographicExportAction4 extends Action {
 					String typeCode = String.valueOf(allergy.getTypeCode());
 					String reactionType = allergy.getReactionType();
 					if (StringUtils.filled(reactionType)) {
-					    if (reactionType.equals("AR")) {
-                            alr.setReactionType(cdsDt.AdverseReactionType.AR);
-                        } else {
-                            alr.setReactionType(cdsDt.AdverseReactionType.AL);
-                        }
-						if (StringUtils.filled(typeCode) && typeCode.equals("0")) {
+						if (reactionType.equals("AR")) {
+							alr.setReactionType(cdsDt.AdverseReactionType.AR);
+						} else {
+							alr.setReactionType(cdsDt.AdverseReactionType.AL);
+						}
+					}
+					if (StringUtils.filled(typeCode)) {
+						if (typeCode.equals("0")) {
 							alr.setPropertyOfOffendingAgent(cdsDt.PropertyOfOffendingAgent.ND);
 						} else {
 							if (StringUtils.filled(regionalId) && !regionalId.trim().equalsIgnoreCase("null")) {
