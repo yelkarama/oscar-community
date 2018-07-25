@@ -1047,14 +1047,10 @@ public class DemographicExportAction4 extends Action {
 							pList.setNotes(annotation);
 						}
 
-						ResidualInformation residualInformation = pList.addNewResidualInfo();
-						List<ResidualInformation.DataElement> dataElementArray = new ArrayList<ResidualInformation.DataElement>();
-						ResidualInformation.DataElement data = residualInformation.addNewDataElement();
-						data.setName("Summary");
-						data.setDataType("String");
-						data.setContent(summary);
-						dataElementArray.add(data);
-						residualInformation.setDataElementArray((ResidualInformation.DataElement[]) dataElementArray.toArray(new ResidualInformation.DataElement[dataElementArray.size()]));
+						ResidualInformation residualInformation = Util.fillResidualInfoSummary(summary);
+						if (residualInformation != null) {
+							pList.addNewResidualInfo().set(residualInformation);
+						}
 					}
 				}
 				if (exRiskFactors) {
@@ -1110,14 +1106,10 @@ public class DemographicExportAction4 extends Action {
 							}
 						}
 
-						ResidualInformation residualInformation = rFact.addNewResidualInfo();
-						List<ResidualInformation.DataElement> dataElementArray = new ArrayList<ResidualInformation.DataElement>();
-						ResidualInformation.DataElement data = residualInformation.addNewDataElement();
-						data.setName("Summary");
-						data.setDataType("String");
-						data.setContent(summary);
-						dataElementArray.add(data);
-						residualInformation.setDataElementArray((ResidualInformation.DataElement[]) dataElementArray.toArray(new ResidualInformation.DataElement[dataElementArray.size()]));
+						ResidualInformation residualInformation = Util.fillResidualInfoSummary(summary);
+						if (residualInformation != null) {
+							rFact.addNewResidualInfo().set(residualInformation);
+						}
 					}
 				}
 
@@ -1224,14 +1216,10 @@ public class DemographicExportAction4 extends Action {
 							alerts.setNotes(annotation);
 						}
 
-						ResidualInformation residualInformation = alerts.addNewResidualInfo();
-						List<ResidualInformation.DataElement> dataElementArray = new ArrayList<ResidualInformation.DataElement>();
-						ResidualInformation.DataElement data = residualInformation.addNewDataElement();
-						data.setName("Summary");
-						data.setDataType("String");
-						data.setContent(summary);
-						dataElementArray.add(data);
-						residualInformation.setDataElementArray((ResidualInformation.DataElement[]) dataElementArray.toArray(new ResidualInformation.DataElement[dataElementArray.size()]));
+						ResidualInformation residualInformation = Util.fillResidualInfoSummary(summary);
+						if (residualInformation != null) {
+							alerts.addNewResidualInfo().set(residualInformation);
+						}
 					}
 				}
 			}
@@ -1419,8 +1407,7 @@ public class DemographicExportAction4 extends Action {
 					Date preventionDate = (Date) prevMap.get("prevention_date_asDate");
 					if (preventionDate != null) {
 						String dateFormat = partialDateDao.getFormat(PartialDate.PREVENTION, Integer.valueOf((String) prevMap.get("id")), PartialDate.PREVENTION_DATE);
-						Util.putPartialDate(immu.addNewDate(), preventionDate, dateFormat);
-						imSummary = Util.addSummary(imSummary, "Date", (String) prevMap.get("prevention_date"));
+						Util.putPartialDate(immu.addNewDate(), preventionDate, dateFormat); 
 					}
 					
 					ResidualInformation residualInformation = Util.fillResidualInfoSummary(imSummary);
