@@ -400,10 +400,12 @@ public class JdbcBillingClaimImpl {
     		BillingPaymentType type = billingPaymentTypeDao.find(Integer.parseInt(paymentTypeParam));
     		BillingONPayment payment = null;
     		
-    		if(paymentSumParam != null) {
+    		BigDecimal sum = BigDecimal.valueOf(Double.parseDouble(paymentSumParam));
+			BigDecimal discount = BigDecimal.valueOf(Double.parseDouble(mVal.get("total_discount")));
+    		if(sum.compareTo(BigDecimal.ZERO) != 0 || discount.compareTo(BigDecimal.ZERO) != 0) {
 		    	payment = new BillingONPayment();
-	    		payment.setTotal_payment(BigDecimal.valueOf(Double.parseDouble(paymentSumParam)));
-	    		payment.setTotal_discount(BigDecimal.valueOf(Double.parseDouble(mVal.get("total_discount"))));
+	    		payment.setTotal_payment(sum);
+	    		payment.setTotal_discount(discount);
 	    		payment.setTotal_refund(new BigDecimal(0));
 				payment.setPaymentDate(paymentDate);
 		    	payment.setBillingOnCheader1(ch1);

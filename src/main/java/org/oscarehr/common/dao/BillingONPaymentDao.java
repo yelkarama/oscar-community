@@ -78,21 +78,21 @@ public class BillingONPaymentDao extends AbstractDao<BillingONPayment>{
     }
     
     public List<BillingONPayment> listPaymentsByBillingNo(Integer billingNo){
-        Query query = entityManager.createQuery("select bp from BillingONPayment bp where bp.billingNo = :billingNo");
+        Query query = entityManager.createQuery("select bp from BillingONPayment bp where bp.billingNo = :billingNo and bp.active = true");
         query.setParameter("billingNo", billingNo);
         List<BillingONPayment> payments = query.getResultList();
         return payments;
     }
 
     public List<BillingONPayment> listPaymentsByBillingNoDesc(Integer billingNo){
-        Query query = entityManager.createQuery("select bp from BillingONPayment bp where bp.billingNo = :billingNo order by bp.id desc");
+        Query query = entityManager.createQuery("select bp from BillingONPayment bp where bp.billingNo = :billingNo and bp.active = true order by bp.id desc");
         query.setParameter("billingNo", billingNo);
         List<BillingONPayment> payments = query.getResultList();
         return payments;
     }
 
     public BigDecimal getPaymentsSumByBillingNo(Integer billingNo){
-        Query query = entityManager.createQuery("select sum(bp.total_payment) from BillingONPayment bp where bp.billingNo = :billingNo and total_payment>0 group by bp.billingONCheader1");
+        Query query = entityManager.createQuery("select sum(bp.total_payment) from BillingONPayment bp where bp.billingNo = :billingNo and total_payment>0 and bp.active = true group by bp.billingONCheader1");
         query.setParameter("billingNo", billingNo);
         BigDecimal paymentsSum = null;
         try {
@@ -104,7 +104,7 @@ public class BillingONPaymentDao extends AbstractDao<BillingONPayment>{
     }
     
     public BigDecimal getPaymentsRefundByBillingNo(Integer billingNo){
-        Query query = entityManager.createQuery("select sum(bp.total_refund) from BillingONPayment bp where bp.billingNo = :billingNo and total_refund>0 group by bp.billingONCheader1");
+        Query query = entityManager.createQuery("select sum(bp.total_refund) from BillingONPayment bp where bp.billingNo = :billingNo and total_refund>0 and bp.active = true group by bp.billingONCheader1");
         query.setParameter("billingNo", billingNo);
         BigDecimal paymentsSum = null;
         try {
@@ -115,7 +115,7 @@ public class BillingONPaymentDao extends AbstractDao<BillingONPayment>{
         return paymentsSum;
     }
     public BigDecimal getPaymentsDiscountByBillingNo(Integer billingNo){
-        Query query = entityManager.createQuery("select sum(bp.total_discount) from BillingONPayment bp where bp.billingNo = :billingNo and total_discount>0 group by bp.billingONCheader1");
+        Query query = entityManager.createQuery("select sum(bp.total_discount) from BillingONPayment bp where bp.billingNo = :billingNo and total_discount>0 and bp.active = true group by bp.billingONCheader1");
         query.setParameter("billingNo", billingNo);
         BigDecimal paymentsSum = null;
         try {
@@ -127,7 +127,7 @@ public class BillingONPaymentDao extends AbstractDao<BillingONPayment>{
     }
     
     public String getTotalSumByBillingNoWeb(String billingNo){
-        Query query = entityManager.createQuery("select sum(bp.total_payment) from BillingONPayment bp where bp.billingNo = :billingNo group by bp.billingONCheader1");
+        Query query = entityManager.createQuery("select sum(bp.total_payment) from BillingONPayment bp where bp.billingNo = :billingNo and bp.active = true group by bp.billingONCheader1");
         BigDecimal paymentsSum = null;
         try {
         	query.setParameter("billingNo", Integer.parseInt(billingNo));
@@ -140,7 +140,7 @@ public class BillingONPaymentDao extends AbstractDao<BillingONPayment>{
     }
     
     public String getPaymentsRefundByBillingNoWeb(String billingNo){
-        Query query = entityManager.createQuery("select -sum(bp.total_payment) from BillingONPayment bp where bp.billingNo = :billingNo and total_payment<0 group by bp.billingONCheader1");
+        Query query = entityManager.createQuery("select -sum(bp.total_payment) from BillingONPayment bp where bp.billingNo = :billingNo and total_payment<0 and bp.active = true group by bp.billingONCheader1");
         BigDecimal paymentsSum = null;
         try {
         	query.setParameter("billingNo", Integer.parseInt(billingNo));   
@@ -152,7 +152,7 @@ public class BillingONPaymentDao extends AbstractDao<BillingONPayment>{
         return currency.format(paymentsSum);
     }
     public int getPaymentIdByBillingNo(int billingNo){
-    	Query query = entityManager.createQuery("select bp.id from BillingONPayment bp where bp.billingNo = :billingNo");
+    	Query query = entityManager.createQuery("select bp.id from BillingONPayment bp where bp.billingNo = :billingNo and bp.active = true");
     	try {
     		query.setParameter("billingNo", Integer.valueOf(billingNo));
     		return (Integer) query.getSingleResult();
@@ -161,7 +161,7 @@ public class BillingONPaymentDao extends AbstractDao<BillingONPayment>{
     	}
     }
     public int getCountOfPaymentByPaymentTypeId(int paymentTypeId) {
-    	Query query = entityManager.createQuery("select count(bp.id) from BillingONPayment bp where bp.paymentTypeId = ?1");
+    	Query query = entityManager.createQuery("select count(bp.id) from BillingONPayment bp where bp.paymentTypeId = ?1 and bp.active = true");
     	query.setParameter(1, paymentTypeId);
     	Number countResult=(Number) query.getSingleResult();
     	return countResult.intValue();
@@ -178,7 +178,7 @@ public class BillingONPaymentDao extends AbstractDao<BillingONPayment>{
 
 
     public List<BillingONPayment> find3rdPartyPayRecordsByBill(BillingONCHeader1 bCh1) {
-        String sql = "select bPay from BillingONPayment bPay where bPay.billingNo= ?1";
+        String sql = "select bPay from BillingONPayment bPay where bPay.billingNo= ?1 and bPay.active = true";
         Query query = entityManager.createQuery(sql);
         query.setParameter(1, bCh1.getId());    
                  
@@ -190,7 +190,7 @@ public class BillingONPaymentDao extends AbstractDao<BillingONPayment>{
     }
     
     public List<Integer> find3rdPartyPayments(Integer billingNo) {
-    	String sql = "select bPay.id from BillingONPayment bPay where bPay.billingNo = ?1";
+    	String sql = "select bPay.id from BillingONPayment bPay where bPay.billingNo = ?1 and bPay.active = true";
     	Query query = entityManager.createQuery(sql);
     	query.setParameter(1, billingNo);    
         
@@ -201,7 +201,7 @@ public class BillingONPaymentDao extends AbstractDao<BillingONPayment>{
     }
     
     public List<BillingONPayment> find3rdPartyPaymentsByBillingNo(Integer billingNo) {
-    	String sql = "select bPay from BillingONPayment bPay where bPay.billingNo = ?1 order by bPay.id asc";
+    	String sql = "select bPay from BillingONPayment bPay where bPay.billingNo = ?1 and bPay.active = true order by bPay.id asc";
     	Query query = entityManager.createQuery(sql);
     	query.setParameter(1, billingNo);    
         
@@ -222,7 +222,7 @@ public class BillingONPaymentDao extends AbstractDao<BillingONPayment>{
     }
     
     public List<BillingONPayment> find3rdPartyPayRecordsByBill(BillingONCHeader1 bCh1, Date startDate, Date endDate) {
-        String sql = "select bPay from BillingONPayment bPay where bPay.billingNo = ? and bPay.paymentdate >= ? and bPay.paymentdate < ? order by bPay.paymentdate";
+        String sql = "select bPay from BillingONPayment bPay where bPay.billingNo = ? and bPay.paymentdate >= ? and bPay.paymentdate < ? and bPay.active = true order by bPay.paymentdate";
         Query query = entityManager.createQuery(sql);
         query.setParameter(1, bCh1.getId());    
         query.setParameter(2, startDate);
@@ -237,7 +237,7 @@ public class BillingONPaymentDao extends AbstractDao<BillingONPayment>{
 
     public List<BillingONPayment> findByFreshbooksId (String freshbooksId)
     {
-        String sql = "SELECT b FROM BillingONPayment b WHERE b.freshbooksId = ?";
+        String sql = "SELECT b FROM BillingONPayment b WHERE b.freshbooksId = ? and bp.active = true";
         Query query = entityManager.createQuery(sql);
         query.setParameter(1, freshbooksId);
 

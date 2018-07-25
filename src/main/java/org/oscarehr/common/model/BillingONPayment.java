@@ -78,6 +78,7 @@ public class BillingONPayment extends AbstractModel<Integer> implements Serializ
 	private Integer paymentTypeId; 
 	
 	private String freshbooksId;
+	private Boolean active = true;
 
 	public int getPaymentTypeId() {
 		if(paymentTypeId == null) {
@@ -157,8 +158,20 @@ public class BillingONPayment extends AbstractModel<Integer> implements Serializ
 	public String getFreshbooksId() {return freshbooksId;}
 
 	public void setFreshbooksId(String freshbooksId) {this.freshbooksId = freshbooksId;}
-                        
-        public List<BillingONExt> getBillingONExtItems() {
+
+	public Boolean getActive() {
+		return active;
+	}
+
+	public void setActive(Boolean active) {
+		this.active = active;
+	}
+
+	public Boolean isActive() {
+		return getActive();
+	}
+
+	public List<BillingONExt> getBillingONExtItems() {
             return this.billingONExtItems;
         }
                

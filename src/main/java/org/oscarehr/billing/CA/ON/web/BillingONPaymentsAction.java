@@ -426,7 +426,8 @@ public class BillingONPaymentsAction extends DispatchAction {
 			BillingONCHeader1 ch1 = payment.getBillingONCheader1();
 			Integer billingNo = payment.getBillingONCheader1().getId();
 
-			billingONPaymentDao.remove(paymentId);
+			payment.setActive(false);
+			billingONPaymentDao.merge(payment);
 
 			BigDecimal paid = billingONPaymentDao.getPaymentsSumByBillingNo(billingNo);
 			BigDecimal refund = billingONPaymentDao.getPaymentsRefundByBillingNo(billingNo).negate();
