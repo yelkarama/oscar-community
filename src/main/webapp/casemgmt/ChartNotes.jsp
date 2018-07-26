@@ -600,12 +600,13 @@ try
 	<div id="encMainDiv" style="width: 99%; border-top: thin groove #000000; border-right: thin groove #000000; border-left: thin groove #000000; background-color: #FFFFFF; height: 410px; overflow: auto; margin-left: 2px;">
 
 	</div>
-	<% if (!echartPreferencesMap.getOrDefault("echart_hide_timer", false)) { %>
+	
 	<script type="text/javascript">
+        <% if (!echartPreferencesMap.getOrDefault("echart_hide_timer", false)) { %>
         jQuery(document).ready(function(){
             initTimer();
         });
-        
+        <% } %>
 		if (parseInt(navigator.appVersion)>3) {
 			var windowHeight=750;
 			if (navigator.appName=="Netscape") {
@@ -619,7 +620,7 @@ try
 			$("encMainDiv").style.height = divHeight+'px';
 		}
 	</script>
-	<% } %>
+	
 	<div id='save' style="width: 99%; background-color: #CCCCFF; padding-top: 5px; margin-left: 2px; border-left: thin solid #000000; border-right: thin solid #000000; border-bottom: thin solid #000000;">
 		<security:oscarSec roleName="<%=roleName$%>" objectName="_casemgmt.notes" rights="w" reverse="false">
 			<% if (!echartPreferencesMap.getOrDefault("echart_hide_timer", false)) { %>
