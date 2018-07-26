@@ -540,7 +540,8 @@ function validateAmountNumberic(idx) {
                  for (RaDetail ra : raDetails) {
                      if ((ra.getProviderOhipNo().equals(bCh1.getProviderOhipNo()))) {
                          if (ra.getHin() != null) {
-                             if (ra.getHin().length() >= 10 && ra.getHin().substring(0,10).equals(sdemo.getHin().substring(0,10))) {
+                             String raHin = (ra.getHin().length() >= 10 ? ra.getHin().substring(0,10) : ra.getHin()).trim();
+                             if (raHin.equals(sdemo.getHin().trim())) {
                                  claimNo = ra.getClaimNo();
                              }
                          }
