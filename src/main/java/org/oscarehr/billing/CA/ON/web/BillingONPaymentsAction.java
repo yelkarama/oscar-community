@@ -23,6 +23,7 @@
 
 package org.oscarehr.billing.CA.ON.web;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.NumberFormat;
@@ -30,6 +31,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,11 +40,14 @@ import javax.servlet.http.HttpServletResponse;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
+import org.codehaus.stax2.ri.typed.NumberUtil;
 import org.oscarehr.common.dao.BillingONCHeader1Dao;
 import org.oscarehr.common.dao.BillingONExtDao;
 import org.oscarehr.common.dao.BillingONItemDao;
@@ -57,6 +62,7 @@ import org.oscarehr.common.model.BillingONPayment;
 import org.oscarehr.common.model.BillingOnItemPayment;
 import org.oscarehr.common.model.BillingOnTransaction;
 import org.oscarehr.common.model.BillingPaymentType;
+import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -444,6 +450,34 @@ public class BillingONPaymentsAction extends DispatchAction {
 
 		return listPayments(actionMapping, actionForm, request, response);
 
+	}
+	
+	public ActionForward updatePaymentType(ActionMapping actionMapping, ActionForm actionForm, HttpServletRequest request, HttpServletResponse response) {
+		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+		//HashMap<String, Object> returnObject = new HashMap<String, Object>();
+		Boolean success = false;
+		JSONObject jsonObject = new JSONObject();
+
+		try {
+			if (NumberUtils.isNumber(request.getParameter("paymentId")) && NumberUtils.isNumber(request.getParameter("paymentTypeId"))) {
+				BillingONPayment payment = billingONPaymentDao.find(Integer.parseInt(request.getParameter("paymentId")));
+				payment.setPaymentTypeId(Integer.parseInt(request.getParameter("paymentTypeId")));
+				
+				billingONPaymentDao.merge(payment);
+				success = true;
+			}
+		} catch (Exception e) {
+			logger.error(e);
+		} finally {
+			jsonObject.put("success", success);
+		}
+
+		try {
+			jsonObject.write(response.getWriter());
+		} catch (IOException e) {
+			MiscUtils.getLogger().error("JSON WRITER ERROR", e);
+		}
+		return null;
 	}
 	
 	public ActionForward viewPayment(ActionMapping actionMapping,

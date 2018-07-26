@@ -87,6 +87,7 @@ List<String> errors = new ArrayList<String>();
 	List<String> mgrSites = new ArrayList<String>();
 	List<BillingItemData> items = (List<BillingItemData>)request.getAttribute("itemDataList");
 	List<BillingONPayment> paymentLists = (List<BillingONPayment>)request.getAttribute("paymentsList");
+	List<BillingPaymentType> paymentTypeList = request.getAttribute("paymentTypeList") != null ? (List<BillingPaymentType>) request.getAttribute("paymentTypeList") : new ArrayList<BillingPaymentType>();
 %>
 <security:oscarSec objectName="_team_billing_only" roleName="<%= roleName$ %>" rights="r" reverse="false">
 	<% isTeamBillingOnly=true; %>
@@ -122,12 +123,15 @@ if(billingNo == null) errors.add("Wrong parameters");
 <head>
 <link rel="stylesheet" type="text/css" media="all"
 	href="../../../share/calendar/calendar.css" title="win2k-cold-1" />
+	<link rel="stylesheet" href="<%=request.getContextPath()%>/css/alertify.core.css" type="text/css">
+	<link rel="stylesheet" href="<%=request.getContextPath()%>/css/alertify.default.css" type="text/css">
 
 <script type="text/javascript" src="../../../share/calendar/calendar.js"></script>
 <script type="text/javascript"
 	src="../../../share/calendar/lang/<bean:message key="global.javascript.calendar"/>"></script>
 <script type="text/javascript" src="../../../share/calendar/calendar-setup.js"></script>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery-1.7.1.min.js"></script>
+	<script type="text/javascript" src="<%=request.getContextPath()%>/js/alertify.js"></script>
 <script type="text/javascript">
 
 function popupPage(vheight,vwidth,varpage) {
@@ -226,6 +230,33 @@ function setStatus(selIndex, idx){
 	}
 }
 
+function updatePaymentType(paymentTypes, paymentId) {
+    var url = "<%=request.getContextPath()%>/billing/CA/ON/billingON3rdPayments.do?method=updatePaymentType";
+    var typeId = paymentTypes[paymentTypes.selectedIndex].value;
+    
+	$.ajax({
+        method: 'POST',
+        dataType: 'json',
+        url: url,
+        async: false,
+        data: {
+            paymentId: paymentId,
+			paymentTypeId: typeId
+        },
+        success: function (data) {
+            if (data && data.success) {
+                alertify.success("Updated payment type");
+            } else {
+                alertify.error("Error updating payment type");
+            }
+        },
+		error: function (data) {
+            alertify.error("Error updating payment type");
+        }
+    });
+
+    return false;
+}
 
 function validatePaymentNumberic(idx) {
 	var oldVal = "0.00";
@@ -432,7 +463,15 @@ function validateDiscountNumberic(idx) {
 				<tr>			    
 				    <td><%= ctr+1 %></td>
 				    <td><%=payment.getTotal_payment()%> </td>
-				    <td><%=types.get(ctr) %> </td>
+				    <td>
+						<select id="payment_type<%=payment.getId()%>" name="payment_type<%=payment.getId()%>" onchange="updatePaymentType(this, '<%=payment.getId()%>')">
+							<% for (BillingPaymentType billingPaymentType : paymentTypeList) { %>
+								<option value="<%=billingPaymentType.getId()%>" <%=(billingPaymentType.getId()==payment.getPaymentTypeId() ? "selected='selected'" : "")%> >
+									<%=billingPaymentType.getPaymentType()%>
+								</option>
+							<% } %>
+						</select>
+					</td>
 				    <td><%=payment.getPaymentDateFormatted()%> </td>
 				    <td><%=payment.getTotal_discount()%> </td>
 				    <td><%=payment.getTotal_credit()%> </td>
