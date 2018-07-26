@@ -77,7 +77,7 @@ public class ClinicalConnectUtil {
 		if (demographicNo!=null) {
 			Demographic demo = demographicDao.getDemographic(demographicNo);
 			patientHCN = demo.getHin();
-			LogAction.addLog(loggedInInfo, "Sent to ClinicalConnect", "Patient HCN", patientHCN, demographicNo, null);
+			LogAction.addLog(loggedInInfo, "Sent to ClinicalConnect", "Patient HCN", patientHCN, demographicNo, "");
 		}
 		return ClinicalConnectSSO.getLaunchURL(getServiceUserName(), getServicePassword(), getServiceLocation(), getUsername(providerNo), getAuthType(providerNo), patientHCN);
 	}

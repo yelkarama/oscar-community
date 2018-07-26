@@ -1131,7 +1131,7 @@
 	<dependency>
 		<groupId>com.medseek</groupId>
 		<artifactId>SSOClinicalConnect</artifactId>
-		<version>20161017</version>
+		<version>20171101</version>
 	</dependency>
 
 	<dependency>
