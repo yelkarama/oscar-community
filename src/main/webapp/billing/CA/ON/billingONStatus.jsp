@@ -966,12 +966,23 @@ if(statusType.equals("_")) { %>
              <td align="center"><a href=#  onclick="popupPage(800,700,'billingONCorrection.jsp?billing_no=<%=ch1Obj.getId()%>','BillCorrection<%=ch1Obj.getId()%>');nav_colour_swap(this.id, <%=bList.size()%>);return false;"><%=ch1Obj.getId()%></a></td><!--ACCOUNT-->
              <td class="highlightBox"><a id="A<%=i%>" href=#  onclick="popupPage(800,700,'billingONCorrection.jsp?billing_no=<%=ch1Obj.getId()%>','BillCorrection<%=ch1Obj.getId()%>');nav_colour_swap(this.id, <%=bList.size()%>);return false;">Edit</a> <%=errorCode%></td><!--MESSAGES-->
              <td align="center">
-				 <% for (Map.Entry<Integer, BigDecimal> payment : paymentTotals.entrySet()){
-				 	if (payment.getValue()!=null){%>
-
-				 <%=paymentTypeDao.find(payment.getKey()).getPaymentType()%><br/>
-
-				 <%}}%>
+				 <%
+					 StringBuilder paymentMethod = new StringBuilder(payProgram);
+					 if (payProgram.matches("PAT|OCF|ODS|CPP|STD|IFH")) {
+						 paymentMethod = new StringBuilder();
+						 for (Map.Entry<Integer, BigDecimal> payment : paymentTotals.entrySet()){ 
+							 if (payment.getValue()!=null){
+							     paymentMethod.append(paymentTypeDao.find(payment.getKey()).getPaymentType()).append("<br/>");
+							 } else if (amountPaid == null || amountPaid.equals("0.00")){
+							     paymentMethod = new StringBuilder("------");
+							 }
+						 }
+					 } else {
+					     paymentMethod.append("<br/>");
+					 }
+				 %>
+				 
+				 <%=paymentMethod.toString()%>
 			 </td>
              <td align="center"><%=qty %></td>
              <td align="center"><%=ch1Obj.getProviderName() %></td>
