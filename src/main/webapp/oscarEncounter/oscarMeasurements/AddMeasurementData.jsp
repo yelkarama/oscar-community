@@ -385,7 +385,7 @@ clear: left;
                                 <%}%>
                                 <option value="Yes"  <%=sel("Yes", val)%>>Yes</option>
                                 <option value="No"   <%=sel("No", val)%>>No</option>
-                                
+
                                 <% if(mtypeBean.getValidationName().equals("Yes/No/Maybe")){ %>
                                 <option value="Maybe" <%=sel("Maybe", val)%>>Maybe</option>                                
                                 <%}else{ %>
@@ -393,9 +393,25 @@ clear: left;
                                 <%} %>
                                 
                             </select>
-                            <%}else{%>
-                            <input type="text" id="<%= "value(inputValue-" + ctr + ")" %>" name="<%= "value(inputValue-" + ctr + ")" %>" size="5" value="<%=val%>" /> <br/>
-                            <%}%>
+                            <% } else if (measurement.equals("COPD")) { %>
+                                <select id="<%= "value(inputValue-" + ctr + ")" %>" name="<%= "value(inputValue-" + ctr + ")" %>">
+                                    <option value="Mild" <%=sel("Mild", val)%>>Mild</option>
+                                    <option value="Moderate" <%=sel("Moderate", val)%>>Moderate</option>
+                                    <option value="Severe" <%=sel("Severe", val)%>>Severe</option>
+                                    <option value="Very Severe" <%=sel("Very Severe", val)%>>Very Severe</option>
+                                </select>
+
+                                 <p id="copdClassification"></p>
+                                 <ul style="font-weight: normal;">
+                                     <li style="list-style: none; font-weight: bold;">COPD Classifications: </li>
+                                     <li>Mild: FEV1 >= 80% predicted;</li>
+                                     <li>Moderate: 50% <= FEV1 < 80% predicted;</li>
+                                     <li>Severe: 30% <= FEV1 < 50% predicted;</li>
+                                     <li>Very Severe: FEV1 < 30% predicted;</li>
+                                 </ul>
+                            <%} else {%>
+                                <input type="text" id="<%= "value(inputValue-" + ctr + ")" %>" name="<%= "value(inputValue-" + ctr + ")" %>" size="5" value="<%=val%>"/> <br/>
+                             <%}%>
                          </div>
                           <br/>
                          <fieldset >

@@ -4,7 +4,12 @@
     <indicator key="LOW" colour="#9999FF" />
     <indicator key="HIGH" colour="orange" />
     <indicator key="HIGH 1" colour="#E00000" />
-    
+
+    <item measurement_type="COPD" display_name="COPD Classification" guideline="COPD Status based on results of FEV1% measurement." graphable="no" value_name="COPD Classification" />
+    <measurement type="COPD" typeDesc="COPD Status based on results of FEV1% measurement." typeDisplayName="COPD Classification" measuringInstrc="">
+        <validationRule name="No Validations" maxValue="" minValue="" isDate="" isNumeric="" regularExp="" maxLength="" minLength="" />
+    </measurement>
+
     <item measurement_type="FEV1" display_name="FEV1 (before puff) -(personal best of 3)" guideline="FEV 1 percent of Predicted" graphable="no" value_name="Value" />
     <measurement type="FEV1" typeDesc="Forced Expiratory Volume -the volume of air that has been exhaled by the patient at the end of the first second of forced expiration." typeDisplayName="" measuringInstrc="Forced Expiratory Volume 1 Second">
         <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
