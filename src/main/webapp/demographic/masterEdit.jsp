@@ -144,7 +144,7 @@
 	List<Provider> providers = providerDao.getActiveProviders();
 	List<Provider> doctors = providerDao.getActiveProvidersByRole("doctor");
 	Provider importMRPMatch = demographic.getProvider();
-	if (importMRPMatch != null) {
+	if (importMRPMatch != null && !doctors.contains(importMRPMatch)) {
 	    doctors.add(importMRPMatch);
 	}
 	List<Provider> nurses;
@@ -167,7 +167,9 @@
 	String enrollmentProvider = demoExt.get("enrollmentProvider");
 	if (enrollmentProvider != null && !enrollmentProvider.equals("")) {
 	    Provider enrollmentProviderRecord = providerDao.getProvider(enrollmentProvider);
-	    doctors.add(enrollmentProviderRecord);
+	    if (!doctors.contains(enrollmentProviderRecord)) {
+			doctors.add(enrollmentProviderRecord);
+		}
 	}
 	List<DemographicGroupLink> demographicGroupsForPatient = demographicGroupLinkDao.findByDemographicNo(demographicNoAsInt);
 
