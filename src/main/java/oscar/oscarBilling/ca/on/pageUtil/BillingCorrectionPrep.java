@@ -233,16 +233,18 @@ public class BillingCorrectionPrep {
 		lItemObj.remove(0);
 
 		Vector<String> vecName = new Vector<String>();
+		Vector<String> vecDx = new Vector<String>();
 		Vector<String> vecUnit = new Vector<String>();
 		Vector<String> vecFee = new Vector<String>();
 		Vector<String> vecStatus = new Vector<String>();
-		String dx = request.getParameter("xml_diagnostic_detail");
-		dx = dx.length() > 2 ? dx.substring(0, 3) : dx;
 		String serviceDate = request.getParameter("xml_appointment_date");
 
 		for (int i = 0; i < BillingDataHlp.FIELD_MAX_SERVICE_NUM; i++) {
 			String code = request.getParameter("servicecode" + i);
 			vecName.add(code);
+			String dx = StringUtils.noNull(request.getParameter("dxCode" + i));
+			dx = dx.length() > 2 ? dx.substring(0, 3) : dx;
+			vecDx.add(dx);
 			if (code == null || code.isEmpty()) {
 				vecUnit.add(null);
 				vecFee.add(null);
@@ -263,12 +265,13 @@ public class BillingCorrectionPrep {
 		String claimId = "0";
 		for (int i = 0; i < lItemObj.size(); i++) {
 			BillingItemData iObj = (BillingItemData) lItemObj.get(i);
-			BillingONItem billOnItem = changeItem(ch1Obj, iObj, updateProviderNo, dx, serviceDate,
+			BillingONItem billOnItem = changeItem(ch1Obj, iObj, updateProviderNo, vecDx.get(i), serviceDate,
 					vecName.get(i), vecUnit.get(i), vecFee.get(i), vecStatus.get(i));
 			//claimId = iObj.getCh1_id();
 			if (billOnItem != null) {
 				// this condition indicates one service code item was changed
 				iObj.setService_code(billOnItem.getServiceCode());
+				iObj.setDx(billOnItem.getDx());
 				iObj.setFee(billOnItem.getFee());
 				iObj.setSer_num(billOnItem.getServiceCount());
 			}
@@ -284,6 +287,7 @@ public class BillingCorrectionPrep {
 				continue;
 			}
 			String sName = vecName.get(i);
+			String sDx = vecDx.get(i);
 			String sUnit = vecUnit.get(i);
 			if (sUnit == null || sUnit.trim().isEmpty()) {
 				sUnit = "1";
@@ -295,7 +299,7 @@ public class BillingCorrectionPrep {
 				vecFee.set(i,  sFee);
 			}
 			String sStatus = vecStatus.get(i);
-			ret = addItem(ch1Obj, lItemObj, updateProviderNo, dx, serviceDate,
+			ret = addItem(ch1Obj, lItemObj, updateProviderNo, sDx, serviceDate,
 					sName, sUnit, sFee, sStatus);
 			_logger.info(sName + " lItemObj(value = " + ret);
 		}
@@ -303,7 +307,7 @@ public class BillingCorrectionPrep {
 		// recalculate amount
 		String newAmount = sumFee(vecFee);
 		_logger.info(" lItemObj(newAmount = " + newAmount);
-		updateAmount(newAmount, ch1Obj.getId(), updateProviderNo, dx);
+		updateAmount(newAmount, ch1Obj.getId(), updateProviderNo, "");
 
 		// update total field in billing_on_ext if pay_program is 3rd party
 		if (ch1Obj.getPay_program().matches(

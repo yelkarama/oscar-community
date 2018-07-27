@@ -426,12 +426,6 @@ public class BillingCorrectionAction extends DispatchAction{
     
     private void updateBillingItems(BillingONCHeader1 bCh1, HttpServletRequest request) {
         
-        String dx = request.getParameter("xml_diagnostic_detail");
-	
-        if (dx.length() > 2) {
-            dx = dx.substring(0, 3);
-        }
-        
         String serviceDateStr = request.getParameter("xml_appointment_date");
         
         Date serviceDate = null;
@@ -459,6 +453,8 @@ public class BillingCorrectionAction extends DispatchAction{
 
             String serviceCodeId = request.getParameter("servicecode"+ row);
             if ((serviceCodeId != null) && (serviceCodeId.length() > 0)) { // == 5
+                String dx = StringUtils.noNull(request.getParameter("dxCode" + row));
+                dx = dx.length() > 2 ? dx.substring(0, 3) : dx;
                 
                 String itemStatus = "O";
                 if (request.getParameter("itemStatus" + row) != null)
@@ -530,7 +526,7 @@ public class BillingCorrectionAction extends DispatchAction{
                 
                 if (!bItemExisting.getServiceCount().equals(unit)
                  || !bItemExisting.getFee().equals(fee)
-                 || !bItemExisting.getDx().equals(dx)
+                 || !bItemExisting.getDx().equals(bItemCurrent.getDx())
                  || (bItemExisting.getServiceDate().compareTo(serviceDate) != 0)
                  || statusChanged) {
 
@@ -549,7 +545,7 @@ public class BillingCorrectionAction extends DispatchAction{
                 bItemExisting.setServiceCount(unit);
                 bItemExisting.setFee(fee);
                 bItemExisting.setServiceDate(bItemCurrent.getServiceDate());
-                bItemExisting.setDx(dx);
+                bItemExisting.setDx(bItemCurrent.getDx());
                 bItemExisting.setStatus(bItemCurrent.getStatus());                                             
             } 
             else {                

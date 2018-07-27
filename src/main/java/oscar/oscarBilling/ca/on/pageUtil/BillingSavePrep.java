@@ -34,6 +34,7 @@ import oscar.oscarBilling.ca.on.data.BillingDataHlp;
 import oscar.oscarBilling.ca.on.data.BillingItemData;
 import oscar.oscarBilling.ca.on.data.JdbcBillingClaimImpl;
 import oscar.oscarBilling.ca.on.data.JdbcBillingPageUtil;
+import oscar.util.StringUtils;
 import oscar.util.UtilDateUtilities;
 
 public class BillingSavePrep {
@@ -240,9 +241,10 @@ public class BillingSavePrep {
 			claimItem[i].setFee(val.getParameter("percCodeSubtotal_" + i));
 			claimItem[i].setSer_num(getDefaultUnit(val.getParameter("xserviceUnit_" + i)));
 			claimItem[i].setService_date(val.getParameter("service_date"));
-			claimItem[i].setDx(val.getParameter("dxCode"));
-			claimItem[i].setDx1(val.getParameter("dxCode1"));
-			claimItem[i].setDx2(val.getParameter("dxCode2"));
+			
+			String itemDx = val.getParameter("itemDx_" + i) != null ? val.getParameter("itemDx_" + i) : val.getParameter("dxCode");
+			claimItem[i].setDx(StringUtils.noNull(itemDx).trim());
+			
 			if(val.getParameter("paid_"+i)!=null){
 				claimItem[i].setPaid(val.getParameter("paid_"+i));
 			}else{

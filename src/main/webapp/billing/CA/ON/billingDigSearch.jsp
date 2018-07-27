@@ -52,7 +52,9 @@ function CodeAttach(File2) {
       if (self.opener.callChangeCodeDesc) self.opener.callChangeCodeDesc();
 
       <%if(request.getParameter("name2")!=null) {%>
-      self.opener.<%=request.getParameter("name2")%> = File2.substring(0,3);
+	var includeDescription = <%=Boolean.parseBoolean(request.getParameter("includeDescription"))%>;
+	
+      self.opener.<%=request.getParameter("name2")%> = includeDescription ? File2 : File2.substring(0,3);
       <%} else {%>
       self.opener.document.forms[1].xml_diagnostic_detail.value = File2;
       <%}%>

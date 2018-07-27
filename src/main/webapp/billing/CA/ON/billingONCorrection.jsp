@@ -214,12 +214,10 @@ function unlinkReferralDoctor(){
     document.forms[1].elements['rdohip'].value = "";
 }
 var awnd=null;
-function ScriptAttach() {
-	f0 = escape(document.forms[1].xml_diagnostic_detail.value);
-	f1 = document.forms[1].xml_dig_search1.value;
-	// f2 = escape(document.serviceform.elements["File2Data"].value);
-	// fname = escape(document.Compose.elements["FName"].value);
-	awnd=rs('att','billingDigSearch.jsp?name='+f0 + '&search=' + f1,600,600,1);
+function ScriptAttach(nameField) {
+	f0 = escape(document.forms[1].elements[nameField].value);
+	f1 = escape("document.forms[1].elements[\'"+nameField+ "\'].value")
+	awnd=rs('att','billingDigSearch.jsp?name='+f0 + '&search=&name2=' + f1 + '&includeDescription=true',600,600,1);
 	awnd.focus();
 }
 function referralScriptAttach2(elementName, name2) {
@@ -244,16 +242,23 @@ function scScriptAttachNew(elementName) {
     row += 1;
 
     $('#billingServices').append('<tr id="billingService'+ row +'"> ' +
-        '<th width="25%">' +
+        '<td width="25%">' +
         '<input type="hidden" name="xml_service_code'+ row +'" value="">' +
         '<input type="hidden" name="row" value="'+ row +'">' +
-        '<div class="input-append"> <input type="text" name="servicecode'+ row +'" value="">' +
-        '<a href="javascript:scScriptAttach(\'servicecode'+ row +')" class="btn"><i class="icon icon-search"></i></a></div></th>' +
-        '<th><font size="-1"></font></th>' +
-        '<th><input type="hidden" name="xml_billing_unit'+ row +'" value=""> ' +
-        '<input type="text" style="width: 100%" name="billingunit'+ row +'" value="1" size="5" maxlength="5"></th>' +
-        '<th align="right"><input type="hidden" name="xml_billing_amount'+ row +'" value="<">' +
-        '<input type="text" style="width: 100%" size="5" maxlength="7" id="billingamount'+ row +'" name="billingamount'+ row +'" value="" onblur="parseTwoDecimalPlaces(this)" onchange="javascript:validateNum(this)"></th>' +
+        '<div class="input-append" style="max-width: 120px;"> <input type="text" name="servicecode'+ row +'" value="" style="max-width: 100px;" />' +
+        '<a href="javascript:scScriptAttach(\'servicecode'+ row +')" class="btn"><i class="icon icon-search"></i></a></div></td>' +
+        '<td><font size="-1"></font></td>' +
+        '<td width="20%">' +
+        '   <input type="hidden" name="xml_diagnostic_code'+ row +'" value="" />' +
+        '   <div class="input-append" style="max-width: 100px;">' +
+        '       <input type="text"  name="dxCode'+ row +'" value="" maxlength="4" style="max-width: 90px;"/>' +
+        '       <a href="javascript:ScriptAttach(\'dxCode'+ row +'\')" class="btn"><i class="icon icon-search"></i></a>' +
+        '   </div>' +
+        '</td>' +
+        '<td><input type="hidden" name="xml_billing_unit'+ row +'" value=""> ' +
+        '<input type="text" style="width: 100%" name="billingunit'+ row +'" value="1" size="5" maxlength="2"></td>' +
+        '<td align="right"><input type="hidden" name="xml_billing_amount'+ row +'" value="<">' +
+        '<input type="text" style="width: 100%" size="5" maxlength="7" id="billingamount'+ row +'" name="billingamount'+ row +'" value="" onblur="parseTwoDecimalPlaces(this)" onchange="javascript:validateNum(this)"></td>' +
         '<td style="text-align: center"><input type="checkbox" name="itemStatus'+ row +'" id="itemStatus'+ row +'" value="S"></td>' +
         '<td> <a href="javascript:removeService('+ row +')" class="btn" title="Remove"><i class="icon icon-remove"></i></a></td></tr>'
     );
@@ -1065,6 +1070,7 @@ for (ClinicNbr clinic : nbrs) {
 	<tr>
         <th><bean:message key="billing.billingCorrection.formServiceCode" /></th>
         <th><bean:message key="billing.billingCorrection.formDescription" /></th>
+        <th><bean:message key="billing.billingCorrection.formDiagnosticCode" /></th>
         <th><bean:message key="billing.billingCorrection.formUnit" /></th>
         <th align="right"><bean:message key="billing.billingCorrection.formFee" /></th>
         <th style="text-align: center">Settle</th>
@@ -1121,25 +1127,33 @@ for (ClinicNbr clinic : nbrs) {
 %>
 
 <tr id="billingService<%=rowCount%>">
-    <th width="25%">
+    <td width="25%">
         <input type="hidden" name="xml_service_code<%=rowCount%>" value="<%=serviceCode%>">
         <input type="hidden" name="row" value="<%=rowCount%>">
 
-        <div class="input-append">
-            <input type="text" name="servicecode<%=rowCount-1%>" value="<%=serviceCode%>">
+        <div class="input-append" style="max-width: 120px;">
+            <input type="text" name="servicecode<%=rowCount-1%>" value="<%=serviceCode%>" style="max-width: 100px;" />
             <a href="javascript:scScriptAttach('servicecode<%=rowCount-1%>')" class="btn"><i class="icon icon-search"></i></a>
         </div>
-    </th>
-    <th><font size="-1"><%=serviceDesc%></font></th>
-    <th>
+    </td>
+    <td><font size="-1"><%=serviceDesc%></font></td>
+    <td width="20%">
+        <input type="hidden" name="xml_diagnostic_code<%=rowCount-1%>" value="<%=diagCode%>" />
+
+        <div class="input-append" style="max-width: 100px;">
+            <input type="text"  name="dxCode<%=rowCount-1%>" value="<%=diagCode%>" maxlength="4" style="max-width: 90px;"/>
+            <a href="javascript:ScriptAttach('dxCode<%=rowCount-1%>')" class="btn"><i class="icon icon-search"></i></a>
+        </div>
+    </td>
+    <td>
         <input type="hidden" name="xml_billing_unit<%=rowCount%>" value="<%=billingunit%>">
-        <input type="text" style="width: 100%" name="billingunit<%=rowCount-1%>" value="<%=billingunit%>" size="5" maxlength="5">
-    </th>
-    <th align="right">
+        <input type="text" style="width: 100%" name="billingunit<%=rowCount-1%>" value="<%=billingunit%>" size="5" maxlength="2">
+    </td>
+    <td align="right">
         <input type="hidden" name="xml_billing_amount<%=rowCount%>" value="<%=billAmount%>">
         <input type="text" style="width: 100%" size="5" maxlength="7" id="billingamount<%=rowCount-1%>" name="billingamount<%=rowCount-1%>"
                value="<%=billAmount%>" onblur="parseTwoDecimalPlaces(this)" onchange="javascript:validateNum(this)">
-    </th>
+    </td>
     <td style="text-align: center">
         <input type="checkbox" name="itemStatus<%=rowCount-1%>" id="itemStatus<%=rowCount-1%>" value="S" <%=itemStatus %>>
     </td>
@@ -1164,23 +1178,7 @@ for (ClinicNbr clinic : nbrs) {
             <input type="text"  name="newServiceCode" value="" class="span8">
             <a href="javascript:scScriptAttachNew('newServiceCode')" class="btn"><i class="icon icon-search"></i></a>
         </div>
-
     </div>
-    <br/>
-<div class="span12">
-
-<b> <bean:message key="billing.billingCorrection.formDiagnosticCode" /></b>
-<br>
-	
-<input type="hidden" name="xml_diagnostic_code"	value="<%=diagCode%>"> 
-<input type="hidden" name="xml_dig_search1"> 
-
-<div class="input-append">
-<input type="text"  name="xml_diagnostic_detail" value="<%=diagCode%>" class="span8"> 
-<a href="javascript:ScriptAttach()" class="btn"><i class="icon icon-search"></i></a>
-</div>
-
-</div>
 </div>
 	
 <div class="row well well-small">

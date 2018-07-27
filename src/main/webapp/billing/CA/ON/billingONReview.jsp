@@ -696,6 +696,8 @@ window.onload=function(){
 
     //validation of diagnostic code (dxcode)
     String dxCodeValue = null;
+    String headerDx = "";
+    Map<String, String> dxCodes = new HashMap<String, String>();
     for (int i = 0; i < 3; i++) {
 	if (i==0) dxCodeValue=request.getParameter("dxCode");
 	else dxCodeValue=request.getParameter("dxCode" + i);
@@ -709,7 +711,12 @@ window.onload=function(){
 		    Diagnostic code "<%=dxCodeValue%>" is invalid. Please go back to correct it.
 		</td></tr>
 		<%
-	    }
+	    } else {
+		    if (i == 0) {
+		        headerDx = dxCodeValue.trim();
+			}
+		    dxCodes.put(dxCodeValue.trim(), StringUtils.noNull(dcodes.get(0).getDescription()));
+		}
 	}
     }
 
@@ -718,10 +725,10 @@ window.onload=function(){
 			<%--= msg --%>
 			<tr class="myYellow">
 				<td colspan='3'>Calculation</td>
-				<%if(!"PAT".equals(billType)){%>
-				<td>Description</td>
-				<%}else{%>
-				<td width="14%">Description</td>
+				<td<%="PAT".equals(billType) ? " width=\"14%\"" : ""%>>Description</td>
+				<td width="155px">Dx</td>
+				
+				<%if("PAT".equals(billType)){%>
 				<td colspan='2'>
 					Payment
 					<span style="float: right"><input type="checkbox" id="calc_paid_all" name="calc_paid_all" onchange="updatePayment()"/></span>
@@ -786,15 +793,25 @@ window.onload=function(){
 				<input type="hidden" id="xserviceUnit_<%=i %>" name="xserviceUnit_<%=i %>" value="<%=codeUnit %>" />
                     </span>
 				</td>
-				<%if(!"PAT".equals(billType)){%>
-					<td width='25%'><%=propCodeDesc.getProperty(codeName, "") %></td>
-				<%}else{
+				<td width='<%="PAT".equals(billType) ? "14%" : "25%"%>'><%="PAT".equals(billType) ? propCodeDesc.getProperty(codeName, "") : codeDescription %></td>
+				<td>
+					<select name="itemDx_<%=i%>" style="width: 100%;max-width:155px;">
+						<%
+							for (Map.Entry<String, String> dx : dxCodes.entrySet()) {
+						%>
+						<option value="<%=dx.getKey()%>" <%=headerDx.equals(dx.getKey()) ? "selected=selected" : ""%>><%=dx.getKey() + " - " + dx.getValue()%></option>
+						<%
+							}
+						%>
+					</select>
+				</td>
+				<%
+				if("PAT".equals(billType)){
 				String paid_value = "0.00";
 				%>
 				<oscar:oscarPropertiesCheck property="BILLING_REVIEW_AUTO_PAYMENT" value="yes">
 				<%paid_value = codeTotal; %>
 				</oscar:oscarPropertiesCheck>
-				<td nowrap width='14%'><pre><%=codeDescription%></pre></td>
 				<td nowrap width='3%'><input type="text" id="paid_<%=i%>" name="paid_<%=i %>" value="<%=paid_value%>" onBlur="calculatePayment();" ondblclick="this.value = '<%=codeTotal%>'" onchange="validatePaymentNumberic(<%=i %>)"/></td>
 				<td><input type="checkbox" id="calc_paid_<%=i%>" name="calc_paid_<%=i %>" onchange="updatePayment(<%=i%>)" style="float: right"/></td>
 				<td nowrap width='3%'><input type="text" id="discount_<%=i%>" name="discount_<%=i %>" value="0.00" onBlur="calculateDiscount();" onchange="validateDiscountNumberic(<%=i %>)"/></td>
