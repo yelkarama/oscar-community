@@ -743,6 +743,7 @@ public final class RxWriteScriptAction extends DispatchAction {
             }
 			rx.setGCN_SEQNO(Integer.parseInt(drugId));
 			rx.setRegionalIdentifier(dmono.regionalIdentifier);
+			rx.setNaturalProductNumber(dmono.naturalProductNumber);
 			String atcCode = dmono.atc;
 			rx.setAtcCode(atcCode);
 			RxUtil.setSpecialQuantityRepeat(rx);

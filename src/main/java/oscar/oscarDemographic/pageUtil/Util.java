@@ -49,6 +49,7 @@ import java.util.zip.ZipOutputStream;
 
 import javax.servlet.http.HttpServletResponse;
 
+import cds.MedicationsAndTreatmentsDocument.MedicationsAndTreatments;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.XmlCalendar;
 import org.oscarehr.casemgmt.model.CaseManagementNote;
@@ -553,6 +554,20 @@ public class Util {
         }
 
         return residualInformation;
+    }
+
+    public static void addToResidualInfo(MedicationsAndTreatments medication, String name, String dataType, String content) {
+        if (StringUtils.filled(content)) {
+            cdsDt.ResidualInformation residualInfo = medication.getResidualInfo();
+            if (residualInfo == null) {
+                residualInfo = medication.addNewResidualInfo();
+            }
+
+            cdsDt.ResidualInformation.DataElement data = residualInfo.addNewDataElement();
+            data.setName(name);
+            data.setDataType(dataType);
+            data.setContent(content);
+        }
     }
     
     static public String getImmunizationType(String preventionType) {

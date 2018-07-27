@@ -108,6 +108,7 @@ public class RxPrescriptionData {
 		prescription.setAtcCode(drug.getAtc());
 		prescription.setScript_no(drug.getPrescriptionIdentifier());
 		prescription.setRegionalIdentifier(drug.getRegionalIdentifier());
+		prescription.setNaturalProductNumber(drug.getNaturalProductNumber());
 		prescription.setUnit(drug.getUnit());
 		prescription.setUnitName(drug.getUnitName());
 		prescription.setMethod(drug.getMethod());
@@ -211,6 +212,7 @@ public class RxPrescriptionData {
 		prescription.setAtcCode(rePrescribe.getAtcCode());
 		prescription.setScript_no(rePrescribe.getScript_no());
 		prescription.setRegionalIdentifier(rePrescribe.getRegionalIdentifier());
+		prescription.setNaturalProductNumber(rePrescribe.getNaturalProductNumber());
 		prescription.setUnit(rePrescribe.getUnit());
 		prescription.setUnitName(rePrescribe.getUnitName());
 		prescription.setMethod(rePrescribe.getMethod());
@@ -278,6 +280,7 @@ public class RxPrescriptionData {
 		p.setAtcCode(drug.getAtc());
 		p.setScript_no(drug.getPrescriptionIdentifier());
 		p.setRegionalIdentifier(drug.getRegionalIdentifier());
+		p.setNaturalProductNumber(drug.getNaturalProductNumber());
 		p.setUnit(drug.getUnit());
 		p.setUnitName(drug.getUnitName());
 		p.setMethod(drug.getMethod());
@@ -638,6 +641,7 @@ public class RxPrescriptionData {
 		String atcCode = null;
 		String script_no = null;
 		String regionalIdentifier = null;
+		String naturalProductNumber = null;
 		String method = null;
 		String unit = null;
 		String unitName = null;
@@ -1660,6 +1664,7 @@ public class RxPrescriptionData {
 			drug.setScriptNo(scriptId);
 			drug.setAtc(atcCode);
 			drug.setRegionalIdentifier(regionalIdentifier);
+			drug.setNaturalProductNumber(naturalProductNumber);
 			drug.setUnit(getUnit());
 			drug.setMethod(getMethod());
 			drug.setRoute(getRoute());
@@ -1750,6 +1755,13 @@ public class RxPrescriptionData {
 		 */
 		public void setRegionalIdentifier(java.lang.String regionalIdentifier) {
 			this.regionalIdentifier = regionalIdentifier;
+		}
+
+		public String getNaturalProductNumber() {
+			return naturalProductNumber;
+		}
+		public void setNaturalProductNumber(String naturalProductNumber) {
+			this.naturalProductNumber = naturalProductNumber;
 		}
 
 		/**

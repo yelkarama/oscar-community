@@ -81,6 +81,8 @@ public class RxDrugData {
 		public LactationUse lactationUse;
 		public RenalImpairment renalImpairment;
 		public HepaticImpairment hepaticImpairment;
+
+		public String naturalProductNumber;
 		
 		public DrugMonograph(){
 			//default
@@ -92,6 +94,7 @@ public class RxDrugData {
 			atc     = (String) hash.get("atc");
 			product = (String) hash.get("product");
 			regionalIdentifier = (String) hash.get("regional_identifier");
+			naturalProductNumber = (String) hash.get("npn");
 			drugForm = (String)hash.get("drugForm");
 			
 			Vector drugRoute=(Vector)hash.get("drugRoute");

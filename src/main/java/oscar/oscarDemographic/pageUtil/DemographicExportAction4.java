@@ -1627,10 +1627,10 @@ public class DemographicExportAction4 extends Action {
 
 					if (StringUtils.empty(mSummary)) exportError.add("Error! No Category Summary Line (Medications & Treatments) for Patient "+demoNo+" ("+(p+1)+")");
 					
-					ResidualInformation residualInformation = Util.fillResidualInfoSummary(mSummary);
-					if (residualInformation != null) {
-						medi.addNewResidualInfo().set(residualInformation);
-					}
+					Util.addToResidualInfo(medi, "Summary", "String", mSummary);
+
+					String naturalProductNumber = arr[p].getNaturalProductNumber();
+					Util.addToResidualInfo(medi, "NaturalProductNumber", "String", naturalProductNumber);
 				}
 				arr = null;
 			}

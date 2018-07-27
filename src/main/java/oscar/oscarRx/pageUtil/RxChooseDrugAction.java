@@ -96,6 +96,7 @@ public final class RxChooseDrugAction extends Action {
               //      p("f.name: "+f.name+"f.atc: "+f.atc+"f.product: "+f.product+ "f.regionalIdentifier: "+f.regionalIdentifier);
               //      p("f.components: "+f.components.toString());
                     rx.setRegionalIdentifier(f.regionalIdentifier);
+                    rx.setNaturalProductNumber(f.naturalProductNumber);
                
                     request.setAttribute("components", f.components);
                     String dosage = "";	

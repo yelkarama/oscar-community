@@ -110,6 +110,8 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 	private Integer scriptNo = 0;
 	@Column(name = "regional_identifier")
 	private String regionalIdentifier = null;
+	@Column(name = "natural_product_number")
+	private String naturalProductNumber = null;
 	private String unit = null;
 	private String method = null;
 	private String route = null;
@@ -227,6 +229,7 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 		if (drug.getScript_no() == null || drug.getScript_no().trim().length() == 0) this.scriptNo = null;
 		else this.scriptNo = Integer.parseInt(drug.getScript_no());
 		this.regionalIdentifier = drug.getRegionalIdentifier();
+		this.naturalProductNumber = drug.getNaturalProductNumber();
 		this.unit = drug.getUnit();
 		this.method = drug.getMethod();
 		this.route = drug.getRoute();
@@ -588,6 +591,13 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 
 	public void setRegionalIdentifier(String regionalIdentifier) {
 		this.regionalIdentifier = StringUtils.trimToNull(regionalIdentifier);
+	}
+
+	public String getNaturalProductNumber() {
+		return naturalProductNumber;
+	}
+	public void setNaturalProductNumber(String naturalProductNumber) {
+		this.naturalProductNumber = naturalProductNumber;
 	}
 
 	public String getUnit() {

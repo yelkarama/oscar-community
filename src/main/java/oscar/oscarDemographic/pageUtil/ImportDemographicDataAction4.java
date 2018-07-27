@@ -11,7 +11,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU General Publdruic License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
@@ -58,6 +58,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import cdsDt.AddressType;
 import cdsDt.PersonNameSimple;
+import cdsDt.ResidualInformation;
 import org.apache.commons.codec.digest.DigestUtils;
 import cdsDt.StandardCoding;
 import org.apache.commons.io.IOUtils;
