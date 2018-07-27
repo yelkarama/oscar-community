@@ -233,8 +233,8 @@ function checkAndValidatePartialDateTime(dateStr) {
 		}
 	}
 	if (dt.length>2) {
-		dt1 = parseInt(dt[2],10);
-		if (isNaN(dt1) || dt1<1 || dt1>31 || dt[2].match(/[^$,.\d]/)) {
+		dt1 = parseInt(dt[2].substr(0, 2),10);
+		if (isNaN(dt1) || dt1<1 || dt1>31 || dt[2].substr(0, 2).match(/[^$,.\d]/)) {
 			jQuery(this).focus();
 			alert('Invalid Written Date! Please check the day');
 			return false;
