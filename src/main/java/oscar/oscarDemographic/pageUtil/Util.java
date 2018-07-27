@@ -556,18 +556,12 @@ public class Util {
         return residualInformation;
     }
 
-    public static void addToResidualInfo(MedicationsAndTreatments medication, String name, String dataType, String content) {
-        if (StringUtils.filled(content)) {
-            cdsDt.ResidualInformation residualInfo = medication.getResidualInfo();
-            if (residualInfo == null) {
-                residualInfo = medication.addNewResidualInfo();
-            }
-
-            cdsDt.ResidualInformation.DataElement data = residualInfo.addNewDataElement();
-            data.setName(name);
-            data.setDataType(dataType);
-            data.setContent(content);
-        }
+    public static cdsDt.ResidualInformation.DataElement createResidualDataElement(String name, String dataType, String content) {
+        cdsDt.ResidualInformation.DataElement data = cdsDt.ResidualInformation.DataElement.Factory.newInstance();
+        data.setName(name);
+        data.setDataType(dataType);
+        data.setContent(content);
+        return data;
     }
     
     static public String getImmunizationType(String preventionType) {

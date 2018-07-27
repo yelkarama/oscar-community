@@ -1624,13 +1624,23 @@ public class DemographicExportAction4 extends Action {
 					if (StringUtils.filled(annotation)) {
 						medi.setNotes(annotation);
 					}
-
-					if (StringUtils.empty(mSummary)) exportError.add("Error! No Category Summary Line (Medications & Treatments) for Patient "+demoNo+" ("+(p+1)+")");
 					
-					Util.addToResidualInfo(medi, "Summary", "String", mSummary);
+					List<ResidualInformation.DataElement> residualData = new ArrayList<ResidualInformation.DataElement>();
 
+					if (StringUtils.empty(mSummary)) {
+						exportError.add("Error! No Category Summary Line (Medications & Treatments) for Patient " + demoNo + " (" + (p + 1) + ")");
+					} else {
+						residualData.add(Util.createResidualDataElement("Summary", "String", mSummary));
+					}
+					
 					String naturalProductNumber = arr[p].getNaturalProductNumber();
-					Util.addToResidualInfo(medi, "NaturalProductNumber", "String", naturalProductNumber);
+					if (StringUtils.filled(naturalProductNumber)) {
+						residualData.add(Util.createResidualDataElement("NaturalProductNumber", "String", naturalProductNumber));
+					}
+					
+					if (!residualData.isEmpty()) {
+						medi.addNewResidualInfo().setDataElementArray(residualData.toArray(new ResidualInformation.DataElement[] {}));
+					}
 				}
 				arr = null;
 			}
