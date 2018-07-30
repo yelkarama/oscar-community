@@ -2717,7 +2717,7 @@ public class DemographicExportAction4 extends Action {
 		for (CaseManagementNoteLink cml : cmll) {
 			CaseManagementNote n = cmm.getNote(cml.getNoteId().toString());
 			auditLog.add("READ | " + dateTime.format(new Date()) + " | CaseManagementNote: noteId=" + cml.getNoteId());
-			if (n.getNote()!=null && !n.getNote().startsWith("imported.cms") && !n.getNote().matches("^\\bDocument\\b\\s\\w+\\s\\bcreated at\\b.*$")) {//not from dumpsite
+			if (n.getNote()!=null && !n.getNote().startsWith("imported.cms") && !n.getNote().matches("^\\bDocument\\b\\s.*\\s\\bcreated at\\b.*$")) {//not from dumpsite
 				note = n.getNote();
 				break;
 			}
