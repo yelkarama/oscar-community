@@ -1792,6 +1792,15 @@ if(oscarProps.getProperty("new_label_print") != null && oscarProps.getProperty("
 						<div class="demographicSection" id="clinicStatus">
 						<h3>&nbsp;<bean:message key="demographic.demographiceditdemographic.msgClinicStatus"/> (<a href="#" onclick="popup(500, 1000, 'EnrollmentHistory.jsp?demographicNo=<%=demographic_no%>', 'enrollmentHistory'); return false;"><bean:message key="demographic.demographiceditdemographic.msgEnrollmentHistory"/></a>)</h3>
 						<%
+							String enrollmentProviderNo = demoExt.get("enrollmentProvider");
+							Provider enrollmentProvider = null;
+							if (enrollmentProviderNo != null && !enrollmentProviderNo.isEmpty()) {
+								enrollmentProvider = providerDao.getProvider(enrollmentProviderNo);
+							}
+							if (enrollmentProvider == null) {
+								enrollmentProvider = demographic.getProvider();
+							}
+							
 								String rosterStatus = demographic.getRosterStatus();
 								if (rosterStatus != null && rosterStatus.equals("RO")) {
 								    rosterStatus = "EN";
@@ -1800,6 +1809,12 @@ if(oscarProps.getProperty("new_label_print") != null && oscarProps.getProperty("
 								}
 						%>
 						<ul>
+							<% if (enrollmentProvider != null) { %>
+							<li>
+								<span class="label"><bean:message key="demographic.demographiceditdemographic.formEnrollmentDoctor"/>:</span>
+								<span class="info"><%=StringUtils.trimToEmpty(enrollmentProvider.getFormattedName())%></span>
+							</li>
+							<% } %>
                                                     <li><span class="label"><bean:message
                                                             key="demographic.demographiceditdemographic.formRosterStatus" />:</span>
                                                         <span class="info"><%=StringUtils.trimToEmpty(rosterStatus)%></span>
@@ -2316,9 +2331,15 @@ if ( Dead.equals(PatStat) ) {%>
                             <% if (demographic.getProviderNo()!=null) { %>
                             <li>
 <% if(oscarProps.getProperty("demographicLabelDoctor") != null) { out.print(oscarProps.getProperty("demographicLabelDoctor","")); } else { %>
-                            <bean:message
-                                key="demographic.demographiceditdemographic.formDoctor" />
-                            <% } %>: <b><%=providerBean.getProperty(demographic.getProviderNo(),"")%></b>
+                            <bean:message key="demographic.demographiceditdemographic.formDoctor" />
+                            <% } %>: 
+                                <% if(demographic != null && demographic.getProviderNo() != null) {
+                                    Provider mrp = providerDao.getProvider(demographic.getProviderNo());
+                                    if (mrp != null) {
+                                %>
+                                    <b><%=mrp.getFormattedName()%></b>
+                                <% }
+                                } %>
                         <% // ===== quick appointment booking for doctor =====
                         if (provMap.get("doctor") != null) {
 				%><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<%
@@ -2463,12 +2484,15 @@ if ( Dead.equals(PatStat) ) {%>
 						<ul>
                                                     <li><span class="label">
 							<% if(oscarProps.getProperty("demographicLabelDoctor") != null) { out.print(oscarProps.getProperty("demographicLabelDoctor","")); } else { %>
-							<bean:message
-								key="demographic.demographiceditdemographic.formDoctor" />
+							<bean:message key="demographic.demographiceditdemographic.formDoctor" />
                                                     <% } %>:</span><span class="info">
-                                                    <%if(demographic != null && demographic.getProviderNo() != null){%>	
-                                                           <%=providerBean.getProperty(demographic.getProviderNo(),"")%>
-                                                    <%}%>
+                                                    <% if(demographic != null && demographic.getProviderNo() != null) {
+                                                        Provider mrp = providerDao.getProvider(demographic.getProviderNo());
+                                                        if (mrp != null) {
+                                                    %>    
+                                                           <%=mrp.getFormattedName()%>
+                                                    <% } 
+                                                    } %>
                                                     </span>
 							</li>
                                                     <li><span class="label"><bean:message
