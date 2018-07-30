@@ -837,6 +837,7 @@ document.updatedelete.r_doctor_ohip.value = refNo;
  %>
 			</td>
 		</tr>
+		<% if (OscarProperties.getInstance().isPropertyActive("show_referral_date")) { %>
 		<tr>
 			<td align="right">
 				<b>Referral Date:</b>
@@ -850,6 +851,7 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 				</script>
 			</td>
 		</tr>
+        <% } %>
 
 	</oscar:oscarPropertiesCheck>
 	<%-- END TOGGLE OFF PATIENT CLINIC STATUS --%>

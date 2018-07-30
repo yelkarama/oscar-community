@@ -502,14 +502,16 @@
 	    extensions.add(new DemographicExt(request.getParameter("referral_source_id"), proNo, demographicNo, "referral_source", referralSourceString));
 	}
 
-	String referralDate = "";
-	
-	if (request.getParameter("referral-date")!=null && !request.getParameter("referral-date").isEmpty()){
-		referralDate = request.getParameter("referral-date");
-	}
-	if (!StringUtils.trimToEmpty(demoExt.get("referralDate")).equals(StringUtils.trimToEmpty(includeEmailOnConsults))) {
-		extensions.add(new DemographicExt(request.getParameter("referral-date-id"), proNo, demographicNo, "referralDate", referralDate));
-	}
+    if (OscarProperties.getInstance().isPropertyActive("show_referral_date")) {
+        String referralDate = "";
+
+        if (request.getParameter("referral-date") != null && !request.getParameter("referral-date").isEmpty()) {
+            referralDate = request.getParameter("referral-date");
+        }
+        if (!StringUtils.trimToEmpty(demoExt.get("referralDate")).equals(StringUtils.trimToEmpty(includeEmailOnConsults))) {
+            extensions.add(new DemographicExt(request.getParameter("referral-date-id"), proNo, demographicNo, "referralDate", referralDate));
+        }
+    }
 	
 	// Demographic Groups
 	int demographicNoAsInt = 0;

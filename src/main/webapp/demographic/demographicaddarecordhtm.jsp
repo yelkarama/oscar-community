@@ -1282,6 +1282,7 @@ document.forms[1].r_doctor_ohip.value = refNo;
 								#</a> <% } %>
 				</td>
 			</tr>
+	<% if (props.isPropertyActive("show_referral_date")) {%>
 			<tr>
 				<td align="right">
 					<b>Referral Date:</b>
@@ -1294,6 +1295,7 @@ document.forms[1].r_doctor_ohip.value = refNo;
 					</script>
 				</td>
 			</tr>
+	<% } %>
             <tr valign="top">
                 <td align="right" height="10"><b><bean:message
                         key="demographic.demographicaddrecordhtm.formFamilyDoctor" />:</b></td>

@@ -2420,10 +2420,12 @@ if ( Dead.equals(PatStat) ) {%>
 							<li><span class="label">Referral Doctor Fax #:</span> <span class="info" id="refDocFax"></span></li>
 							<li><span class="label">Referral Doctor Private Phone #:</span> <span class="info" id="refDocPrivPhone"></span></li>
 							<li><span class="label">Referral Doctor Address:</span> <span class="info" id="refDocAddress"></span></li>
+							<% if (oscarProps.isPropertyActive("show_referral_date")) { %>
 							<li>
 								<span class="label">Referral Date:</span>
 								<span class="info"><%=demoExt.get("referralDate")%></span>
 							</li>
+							<% } %>
                             <li><span class="label"><bean:message
                                     key="demographic.demographiceditdemographic.formFamDoc" />:</span><span class="info"><%=fam_doc_name%></span>
                             </li>

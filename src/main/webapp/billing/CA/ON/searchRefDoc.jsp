@@ -152,6 +152,7 @@
 
 <%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%@ page import="org.apache.commons.lang.WordUtils"%>
+<%@ page import="oscar.OscarProperties" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <html:html locale="true">
@@ -194,7 +195,7 @@
 			<% } %>
 			opener.<%=param%> = data1;
 			opener.<%=param2%> = data2;
-			<% if (referralDateParam != null) { %>
+			<% if (OscarProperties.getInstance().isPropertyActive("show_referral_date") && referralDateParam != null) { %>
                 opener.<%=referralDateParam%> = new Date().toISOString().slice(0, 10);
             <% } %>
 			
