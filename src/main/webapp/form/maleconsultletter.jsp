@@ -731,6 +731,19 @@ function onSave() {
     }*/
     return true;
 }
+
+function print() {
+    document.forms[0].action = "";
+    document.forms[0].submit.value="";
+    popupFixedPage(1000, 1000, 'maleconsultletterPrint.jsp?formId=' + <%= formId %> + '&demographic_no=' + <%= demographicNo %>);
+}
+
+function popupFixedPage(vheight,vwidth,varpage) {
+    var page = "" + varpage;
+    windowprop = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=10,screenY=0,top=0,left=0";
+    var popup=window.open(page, "planner", windowprop);
+}
+
 </script>
 
 <BODY>
@@ -754,6 +767,7 @@ function onSave() {
 			<input type="submit" value="Save and Exit" onclick="javascript:return onSaveExit();" />
 			<input type="submit" value="Exit" onclick="javascript:return onExit();" /> 
 			<input type="submit" value="Save and Print Preview" onclick="javascript:return onPrint(false);" />
+			<input type="submit" value="Print Preview" onclick="javascript:return print();" />
 		</td>
 	</tr>
 	<tr height="2px"><td></td></tr>
