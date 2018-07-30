@@ -292,7 +292,7 @@ public class PdfRecordPrinter {
             String templateFilepath = props.getProperty("billing_template_file","");
             //look for custom billing template file, otherwise use default.
             if (templateFilepath.isEmpty())
-                if (!displayPaymentDate) {
+                if (displayPaymentDate) {
                     is = this.getClass().getClassLoader().getResourceAsStream(BILLING_INVOICE_PAYMENT_DATE_TEMPLATE_FILE);
                 } else {
                     is = this.getClass().getClassLoader().getResourceAsStream(BILLING_INVOICE_TEMPLATE_FILE);
