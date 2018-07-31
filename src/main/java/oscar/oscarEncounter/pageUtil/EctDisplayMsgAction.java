@@ -34,10 +34,13 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.struts.util.MessageResources;
+import org.oscarehr.common.dao.MessageTblDao;
+import org.oscarehr.common.model.MessageTbl;
 import org.oscarehr.common.model.OscarMsgType;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 
+import org.oscarehr.util.SpringUtils;
 import oscar.oscarMessenger.data.MsgMessageData;
 import oscar.oscarMessenger.util.MsgDemoMap;
 import oscar.util.DateUtils;
@@ -65,43 +68,39 @@ public class EctDisplayMsgAction extends EctDisplayAction {
             url = "popupPage(700,960,'" + winName + "','"+ request.getContextPath() + "/oscarMessenger/SendDemoMessage.do?demographic_no=" + bean.demographicNo + "'); return false;";
             Dao.setRightURL(url);
             Dao.setRightHeadingID(cmd);  //no menu so set div id to unique id for this action
-                                  
-            MsgDemoMap msgDemoMap = new MsgDemoMap();
-            List<String> msgList = msgDemoMap.getMsgList(bean.demographicNo, OscarMsgType.GENERAL_TYPE);
-            MsgMessageData msgData; 
-            String msgId;
+            
+            MessageTblDao dao = SpringUtils.getBean(MessageTblDao.class);
+            List<MessageTbl> messageTbls = dao.getByDemographicNo(bean.demographicNo);
             String msgSubject;
-            String msgDate;
-            String dbFormat = "yyyy-MM-dd";
+            Date msgDate;
             int hash;
-            Date date;
-            for( int i=0; i<msgList.size(); i++) {    
-                msgId = (String) msgList.get(i);
-                msgData = new MsgMessageData(msgId);
-                msgSubject = StringUtils.maxLenString(msgData.getSubject(), MAX_LEN_TITLE, CROP_LEN_TITLE, ELLIPSES);
-                msgDate = msgData.getDate();
-                NavBarDisplayDAO.Item item = NavBarDisplayDAO.Item();
-                try {                 
-                    DateFormat formatter = new SimpleDateFormat(dbFormat);                                        
-                    date = formatter.parse(msgDate);
-                    msgDate = DateUtils.formatDate(date, request.getLocale());                                                                                
+            int position = 0;
+            for(MessageTbl message : messageTbls) {
+                if (message.getType().equals(OscarMsgType.GENERAL_TYPE)) {
+                    msgSubject = StringUtils.maxLenString(message.getSubject(), MAX_LEN_TITLE, CROP_LEN_TITLE, ELLIPSES);
+                    msgDate = message.getDate();
+                    NavBarDisplayDAO.Item item = NavBarDisplayDAO.Item();
+
+                    item.setDate(msgDate);
+                    hash = winName.hashCode();
+                    hash = hash < 0 ? hash * -1 : hash;
+                    url = "popupPage(600,900,'" + hash + "','" + request.getContextPath() + "/oscarMessenger/ViewMessage.do?from=encounter&orderBy=!date&demographic_no=" + bean.demographicNo + "&messagePosition=" + position + "&messageID=" + message.getId() + "'); return false;";
+                    item.setURL(url);
+                    item.setTitle(msgSubject);
+                    item.setLinkTitle(message.getSubject() + " " + msgDate);
+                    Dao.addItem(item);
                 }
-                catch(ParseException e ) {
-                        MiscUtils.getLogger().debug("EctDisplayMsgAction: Error creating date " + e.getMessage());
-                        msgDate = "Error";
-                        date = null;
-                }                
                 
-                item.setDate(date);
-                hash = winName.hashCode();
-                hash = hash < 0 ? hash * -1 : hash;
-                url = "popupPage(600,900,'" + hash + "','" + request.getContextPath() + "/oscarMessenger/ViewMessageByPosition.do?from=encounter&orderBy=!date&demographic_no=" + bean.demographicNo + "&messagePosition="+i + "'); return false;";
-                item.setURL(url);                
-                item.setTitle(msgSubject);
-                item.setLinkTitle(msgData.getSubject() + " " + msgDate);
-                Dao.addItem(item);
+                position++;
             }
-   
+
+            oscar.oscarMessenger.pageUtil.MsgSessionBean messageBean = new oscar.oscarMessenger.pageUtil.MsgSessionBean();
+            messageBean.setProviderNo((String) request.getSession().getAttribute("user"));
+            messageBean.setUserName(request.getSession().getAttribute("userfirstname") + " " + (String) request.getSession().getAttribute("userlastname"));
+            messageBean.setDemographic_no(bean.demographicNo);
+
+            request.getSession().setAttribute("msgSessionBean", messageBean);
+            
            return true;
       	}
   }

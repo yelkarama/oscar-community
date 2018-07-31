@@ -161,4 +161,19 @@ public class MessageTblDao extends AbstractDao<MessageTbl>{
         
         return sql.toString();
     }
+    
+    public List<MessageTbl> getByDemographicNo(String demographicNo) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT m.* FROM messagetbl m ");
+        sql.append("LEFT JOIN msgDemoMap d ON d.messageID = m.messageid ");
+        sql.append("WHERE d.demographic_no = :demographicNo ");
+        sql.append("ORDER BY m.thedate DESC, m.theime DESC");
+        
+        Query query = entityManager.createNativeQuery(sql.toString(), MessageTbl.class);
+        query.setParameter("demographicNo", demographicNo);
+
+        List<MessageTbl> messages = query.getResultList();
+	    
+	    return messages;
+    }
 }
