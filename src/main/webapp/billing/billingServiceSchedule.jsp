@@ -67,6 +67,7 @@
     <div class="row">
         <div class="col-sm-12">
             Setup service codes that will automatically populate into an invoices when billing from the schedule after a designated time for the clinic. <br/>
+            These will populate for appointments before 8:00am the next day. <br/>
         </div>
 
         <div class="col-sm-12">

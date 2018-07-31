@@ -191,7 +191,8 @@ public class ScheduleBillingServiceAction extends DispatchAction {
                     billingTime.set(Calendar.DAY_OF_MONTH, appointmentTime.get(Calendar.DAY_OF_MONTH));
                     billingTime.set(Calendar.MONTH, appointmentTime.get(Calendar.MONTH));
                     billingTime.set(Calendar.YEAR, appointmentTime.get(Calendar.YEAR));
-                    if (appointmentTime.getTimeInMillis() - billingTime.getTimeInMillis() >= 0) {
+                    
+                    if (appointmentTime.getTimeInMillis() - billingTime.getTimeInMillis() >= 0 || appointmentTime.get(Calendar.HOUR_OF_DAY) < 8) {
                         billingServiceSchedule.add(schedule);
                     }
                 } catch (ParseException pe) {
