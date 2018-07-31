@@ -77,7 +77,7 @@ public class ProviderData {
 		try {
 			ArrayList<ArrayList<String>> result = new ArrayList<ArrayList<String>>();
 			ProviderDao dao = SpringUtils.getBean(ProviderDao.class);
-			List<Provider> providers = dao.getActiveProvidersByType(ProviderDao.PR_TYPE_DOCTOR);
+			List<Provider> providers = getActiveDoctorsAndResidents();
 			Collections.sort(providers, new BeanComparator("formattedName"));
 			for (Provider p : providers) {
 				ArrayList<String> provider = new ArrayList<String>();
