@@ -58,8 +58,8 @@ public final class RxAddAllergyAction extends Action {
 		if (!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_allergy", "w", null)) {
 			throw new RuntimeException("missing required security object (_allergy)");
 		}
-
-		    String drugId = request.getParameter("ID");
+    	
+            String drugId = request.getParameter("ID");
             if (drugId.contains(" ")) {
                 drugId = drugId.substring(drugId.indexOf(" ") + 1);
             }
@@ -110,9 +110,11 @@ public final class RxAddAllergyAction extends Action {
             allergy.setLifeStage(lifeStage);
             allergy.setReactionType(reactionType);
 
-            RxDrugData.DrugMonograph drugMonograph = allergy.isDrug(Integer.parseInt(type));
-            if (drugMonograph!=null){
-                allergy.setRegionalIdentifier(drugMonograph.regionalIdentifier);
+            if (allergy.getTypeCode() != 8) {
+                RxDrugData.DrugMonograph drugMonograph = allergy.isDrug(Integer.parseInt(type));
+                if (drugMonograph != null) {
+                    allergy.setRegionalIdentifier(drugMonograph.regionalIdentifier);
+                }
             }
 
             allergy.setDemographicNo(patient.getDemographicNo());

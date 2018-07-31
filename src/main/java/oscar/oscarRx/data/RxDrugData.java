@@ -825,11 +825,17 @@ public class RxDrugData {
 	 */
 	public Allergy[] getAllergyWarnings(String atcCode,Allergy[] allerg) throws Exception{
 		Vector vec = new Vector();
-		for (int i =0; i < allerg.length; i++){
+		for (int i = 0; i < allerg.length; i++) {
 			Hashtable h = new Hashtable();
-			h.put("id",""+i);
-			h.put("description",allerg[i].getDescription());
-			h.put("type",""+allerg[i].getTypeCode());
+			h.put("id", "" + i);
+			h.put("description", allerg[i].getDescription());
+			h.put("type", "" + allerg[i].getTypeCode());
+			if (allerg[i].getRegionalIdentifier() != null) {
+				h.put("din", allerg[i].getRegionalIdentifier());
+			}
+			if (allerg[i].getTypeCode() == 8) {
+				h.put("atc", allerg[i].getDrugrefId());
+			}
 			vec.add(h);
 		}
 		RxDrugRef d = new RxDrugRef();
