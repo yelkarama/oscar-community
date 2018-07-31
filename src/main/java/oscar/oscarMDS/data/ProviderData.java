@@ -25,6 +25,7 @@
 package oscar.oscarMDS.data;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -92,14 +93,20 @@ public class ProviderData {
 		}
 	}
 
-    @SuppressWarnings("unchecked")
-    public static List<Provider> getAllProviders() {
-        ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
-        List<Provider> providers = providerDao.getProvidersByType(ProviderDao.PR_TYPE_DOCTOR);
-        Collections.sort(providers, new BeanComparator("formattedName"));
-        return providers;
-    }
-	
+	@SuppressWarnings("unchecked")
+	public static List<Provider> getAllProviders() {
+		ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
+		List<Provider> providers = providerDao.getProvidersByTypes(Arrays.asList(ProviderDao.PR_TYPE_DOCTOR, ProviderDao.PR_TYPE_RESIDENT));
+		Collections.sort(providers, new BeanComparator("formattedName"));
+		return providers;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static List<Provider> getActiveDoctorsAndResidents() {
+		ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
+		return providerDao.getActiveProvidersByTypes(Arrays.asList(ProviderDao.PR_TYPE_DOCTOR, ProviderDao.PR_TYPE_RESIDENT));
+	}
+
 	@SuppressWarnings("unchecked")
 	public static ArrayList<ArrayList<String>> getProviderListWithLabNo() {
 		try {

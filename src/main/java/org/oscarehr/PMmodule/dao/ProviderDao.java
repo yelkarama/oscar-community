@@ -53,6 +53,7 @@ import com.quatro.model.security.SecProvider;
 public class ProviderDao extends HibernateDaoSupport {
 	
 	public static final String PR_TYPE_DOCTOR = "doctor";
+	public static final String PR_TYPE_RESIDENT = "resident";
 	
 	private static Logger log = MiscUtils.getLogger();
 
@@ -373,6 +374,15 @@ public class ProviderDao extends HibernateDaoSupport {
                 "from Provider p where p.ProviderType = ? AND p.Status = '1' order by last_name", type);
         return results;
     }
+
+	public List<Provider> getActiveProvidersByTypes(List<String> types) {
+		Query query = getSession().createQuery("SELECT p FROM Provider p WHERE p.ProviderType IN (:providerTypes) AND p.Status = '1' ORDER BY last_name");
+		query.setParameterList("providerTypes", types);
+		List<Provider> results = query.list();
+
+		return results;
+	}
+    
 	public List<Provider> getProvidersByType(String type) {
 		
 		List<Provider> results = this.getHibernateTemplate().find(
@@ -380,6 +390,20 @@ public class ProviderDao extends HibernateDaoSupport {
 
 		if (log.isDebugEnabled()) {
 			log.debug("getProvidersByType: type=" + type + ",# of results="
+					+ results.size());
+		}
+
+		return results;
+	}
+
+	public List<Provider> getProvidersByTypes(List<String> types) {
+		Query query = getSession().createQuery("SELECT p FROM Provider p WHERE p.ProviderType IN (:providerTypes) ORDER BY last_name");
+		query.setParameterList("providerTypes", types);
+
+		List<Provider> results = query.list();
+
+		if (log.isDebugEnabled()) {
+			log.debug("getProvidersByTypes: types=" + types.toString() + ",# of results="
 					+ results.size());
 		}
 

@@ -239,7 +239,7 @@ status = fr.getStatus(providerNo);
 					<optgroup
 						label="&#160&#160Doctors&#160&#160&#160&#160&#160&#160&#160&#160">
 						<%
-							List<Provider> providerList = ProviderData.getActiveDoctors();
+							List<Provider> providerList = ProviderData.getActiveDoctorsAndResidents();
 
 							for (Provider provider : providerList) {
 								String provNo = provider.getProviderNo();
