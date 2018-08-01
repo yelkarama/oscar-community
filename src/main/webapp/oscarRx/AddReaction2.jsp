@@ -88,7 +88,7 @@ String reactionType = "";
 if(!addReaction){
 	PartialDateDao partialDateDao = (PartialDateDao) SpringUtils.getBean("partialDateDao");
 	reactionDescription = (String) request.getAttribute("reactionDescription");
-	entryDate = partialDateDao.getDatePartial((String) request.getAttribute("entryDate"), PartialDate.ALLERGIES, Integer.parseInt(allergyId), PartialDate.ALLERGIES_ENTRYDATE);
+	entryDate = (String) request.getAttribute("entryDate");
 	startDate = partialDateDao.getDatePartial((String) request.getAttribute("startDate"), PartialDate.ALLERGIES, Integer.parseInt(allergyId), PartialDate.ALLERGIES_STARTDATE);
 	ageOfOnset = (String) request.getAttribute("ageOfOnset");
 	severityOfReaction = (String) request.getAttribute("severityOfReaction");
@@ -164,7 +164,7 @@ if (entryDate == null || entryDate.isEmpty()) {
 						<tr valign="center">
 							<td colspan="2">Entry Date: <html:text
 									property="entryDate" size="10" maxlength="10" value="<%=entryDate%>"/>
-								(yyyy-mm-dd OR yyyy-mm OR yyyy)</td>
+								(yyyy-mm-dd)</td>
 						</tr>
 						
 						<tr valign="center">

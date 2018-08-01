@@ -71,13 +71,7 @@ public class RxUpdateAllergyAction extends Action{
             Date newEntryDate = StringToDate(entryDate, pattern);
             if (newEntryDate != null && !newEntryDate.equals(allergy.getEntryDate())) {
                 allergy.setEntryDate(newEntryDate);
-                allergy.setEntryDateFormat(PartialDate.getPartialDateFormat(pattern));
-                isUpdate = true;
-            } else {
-                allergy.setEntryDateFormat(PartialDate.DO_NOT_UPDATE);
             }
-        } else {
-            allergy.setEntryDateFormat(PartialDate.DO_NOT_UPDATE);
         }
 
         if(!startDate.trim().isEmpty()){

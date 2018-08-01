@@ -86,20 +86,14 @@ public final class RxAddAllergyAction extends Action {
             allergy.setDescription(name);
             allergy.setTypeCode(Integer.parseInt(type));
             allergy.setReaction(description);
-        
-        
-        if(!entryDate.trim().equals("")){
-            String pattern = allergy.getDatePattern(entryDate);
-            allergy.setEntryDate(StringToDate(entryDate, pattern));
-            if (pattern.toUpperCase().equals(PartialDate.YEARMONTH)) {
-                allergy.setEntryDateFormat(PartialDate.YEARMONTH);
-            } else if (pattern.toUpperCase().equals(PartialDate.YEARONLY)) {
-                allergy.setEntryDateFormat(PartialDate.YEARONLY);
-            }
-        } else {
-            allergy.setEntryDate(GregorianCalendar.getInstance().getTime());
-        }
             
+            if(!entryDate.trim().equals("")){
+                String pattern = allergy.getDatePattern(entryDate);
+                allergy.setEntryDate(StringToDate(entryDate, pattern));
+            } else {
+                allergy.setEntryDate(GregorianCalendar.getInstance().getTime());
+            }
+                
             if(!startDate.trim().equals("")){
                 String pattern = allergy.getDatePattern(startDate);
                 allergy.setStartDate(StringToDate(startDate, pattern));

@@ -262,7 +262,6 @@ public class RxPatientData {
 
 		public org.oscarehr.common.model.Allergy addAllergy(org.oscarehr.common.model.Allergy allergy) {
 			allergyDao.persist(allergy);
-            partialDateDao.setPartialDate(PartialDate.ALLERGIES, allergy.getId(), PartialDate.ALLERGIES_ENTRYDATE, allergy.getEntryDateFormat());
 			partialDateDao.setPartialDate(PartialDate.ALLERGIES, allergy.getId(), PartialDate.ALLERGIES_STARTDATE, allergy.getStartDateFormat());
 			
 			return allergy;
@@ -271,7 +270,6 @@ public class RxPatientData {
 		public org.oscarehr.common.model.Allergy updateAllergy(java.util.Date lastUpdateDate, org.oscarehr.common.model.Allergy allergy) {
 			allergy.setLastUpdateDate(lastUpdateDate);
 			allergyDao.saveEntity(allergy);
-			partialDateDao.setPartialDate(PartialDate.ALLERGIES, allergy.getId(), PartialDate.ALLERGIES_ENTRYDATE, allergy.getEntryDateFormat());
 			partialDateDao.setPartialDate(PartialDate.ALLERGIES, allergy.getId(), PartialDate.ALLERGIES_STARTDATE, allergy.getStartDateFormat());
 			return allergy;
 		}
