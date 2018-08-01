@@ -70,6 +70,7 @@ public class EctSessionBean implements java.io.Serializable {
     public String check;
     public String patientFirstName;
     public String patientLastName;
+    public String patientPreferredName;
     public String patientSex;
     public String patientAge;
     public String familyDoctorNo;
@@ -147,6 +148,7 @@ public class EctSessionBean implements java.io.Serializable {
         
         patientLastName = d.getLastName();
         patientFirstName = d.getFirstName();
+        patientPreferredName = d.getPrefName() != null ? d.getPrefName() : "";
         address = d.getAddress();
         city = d.getCity();
         postal = d.getPostal();
