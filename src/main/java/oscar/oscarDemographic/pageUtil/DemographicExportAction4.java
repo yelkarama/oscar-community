@@ -1315,7 +1315,8 @@ public class DemographicExportAction4 extends Action {
 				extraData.putAll(PreventionData.getPreventionById((String) prevMap.get("id")));
 
 				String prevType = (String)prevMap.get("type");
-				if (Util.isNonImmunizationPrevention(prevType)) {
+				Boolean exportPastHealth = Boolean.valueOf((String)prevMap.get("export_past_health"));
+				if (Util.isNonImmunizationPrevention(prevType) && exportPastHealth) {
 					if (exPastHealth) {
 						phSummary = null;
 						PastHealth pHealth = patientRec.addNewPastHealth();

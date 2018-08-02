@@ -63,6 +63,7 @@ if(!authed) {
   String id = request.getParameter("id");
   Map<String,Object> existingPrevention = null;
     
+  Boolean exportPathHealth = false;
   String din = "";
   String instructions = "";
   String lot ="";
@@ -101,6 +102,7 @@ if(!authed) {
      summary = (String) existingPrevention.get("summary");
      providerName = (String) existingPrevention.get("providerName");
      extraData = PreventionData.getPreventionKeyValues(id);
+     exportPathHealth = Boolean.valueOf(extraData.get("export_past_health"));
      lot = (String) extraData.get("lot");
      din = extraData.get("din");
      instructions = extraData.get("instructions");
@@ -164,6 +166,7 @@ if(!authed) {
 </title><!--I18n-->
 <link rel="stylesheet" type="text/css" href="../share/css/OscarStandardLayout.css">
 <link rel="stylesheet" type="text/css" media="all" href="../share/calendar/calendar.css" title="win2k-cold-1" />
+<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css" />
 
 <script type="text/javascript" src="../share/calendar/calendar.js" ></script>
 <script type="text/javascript" src="../share/calendar/lang/<bean:message key="global.javascript.calendar"/>" ></script>
@@ -727,6 +730,17 @@ function validateInput() {
                         </div>
                    </fieldset>
                </div>
+                   <br/>
+                   <%if (!layoutType.equals("injection")) {%>
+                   <div>
+                       
+                       <input type="checkbox" id="export_past_health" name="export_past_health" <%=exportPathHealth ? "checked=\"checked\"" : ""%>/>
+                       <label for="export_past_health" style="width: 200px;"> 
+                           Include with Past Health
+                           <i class="icon icon-info-sign" title="When exporting the related demographic, &#013;include this non-immunization entry with the &#013;Past Health (Medical History) CPP items" style="color: #337ab7;cursor:help;margin: 2px;"></i>
+                       </label>
+                   </div>
+                   <%}%>
                <br/>
                <input type="submit" value="Save">
                <% if ( id != null ) { %>

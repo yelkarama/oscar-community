@@ -312,6 +312,9 @@ public class PreventionData {
 				h.put("next_date", (prevention.getNextDate() != null ? sdf.format(prevention.getNextDate()) : null));
 
 				Map<String, String> preventionExt = getPreventionKeyValues(prevention.getId().toString());
+				String exportPastHealthValue = preventionExt.containsKey("export_past_health") && !preventionExt.get("export_past_health").trim().equals("") ? preventionExt.get("export_past_health") : "false";
+				h.put("export_past_health", exportPastHealthValue);
+
 				if (preventionExt.containsKey("result")) {
 					h.put("isImmunization", "false");
 				} else {
@@ -525,11 +528,15 @@ public class PreventionData {
 				addToHashIfNotNull(h, "next_date", UtilDateUtilities.DateToString(prevention.getNextDate(), "yyyy-MM-dd"));
 				addToHashIfNotNull(h, "never", prevention.isNever() ? "1" : "0");
 				addToHashIfNotNull(h, "creator", prevention.getCreatorProviderNo());
+				
 
 				String summary = "Prevention " + prevention.getPreventionType() + " provided by " + providerName + " on " + preventionDate;
 				summary = summary + " entered by " + creatorName + " on " + lastUpdateDate;
 				Map<String, String> ext = getPreventionKeyValues(prevention.getId().toString());
 
+				String exportPastHealthValue = ext.containsKey("export_past_health") && !ext.get("export_past_health").trim().equals("") ? ext.get("export_past_health") : "false";
+				h.put("export_past_health", exportPastHealthValue);
+				
 				if (ext.containsKey("result")) { //This is a preventive Test
 					addToHashIfNotNull(h, "result", ext.get("result"));
 					summary += "\nResult: " + ext.get("result");

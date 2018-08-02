@@ -147,7 +147,10 @@ public class AddPreventionAction  extends Action {
          addHashtoArray(extraData,request.getParameter("poultryworker"),"poultryworker");
          addHashtoArray(extraData,request.getParameter("firstnations"),"firstnations");
          addHashtoArray(extraData,request.getParameter("name"),"name");
-                                                                                                                           
+         if ("on".equals(request.getParameter("export_past_health"))) {
+            addHashtoArray(extraData,"true","export_past_health");
+         }
+            
          if (id == null || id.equals("null")){ //New                                             
         	 PreventionData.insertPreventionData(sessionUser,demographic_no,prevDate,providerNo,providerName,preventionType,refused,nextDate,neverWarn,extraData);            
          }else if (id != null &&  delete != null  ){  // Delete
