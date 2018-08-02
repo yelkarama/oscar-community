@@ -1624,7 +1624,10 @@ function changeLt(drugId, isLongTerm){
          new Ajax.Request(url,{method: 'post',postBody:data,onSuccess:function(transport){
                  var json=transport.responseText.evalJSON();
                  if(json!=null&&json.DESCRIPTION!=null&&json.reaction!=null){
-                      var str = "<font color='red'>Allergy:</font> "+ json.DESCRIPTION + " <font color='red'>Reaction:</font> "+json.reaction;
+                      var str = "<font color='red'>Allergy:</font> " + json.DESCRIPTION;
+                      str += " <font color='red'>Reaction:</font> " + json.reaction;
+                      str += " <font color='red'>Severity:</font> " + json.severity;
+
                       $('alleg_'+json.id).innerHTML = str;
                       document.getElementById('alleg_tbl_'+json.id).style.display='block';
                  }
