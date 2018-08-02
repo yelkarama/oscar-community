@@ -90,6 +90,9 @@ if(!addReaction){
 	reactionDescription = (String) request.getAttribute("reactionDescription");
 	entryDate = (String) request.getAttribute("entryDate");
 	startDate = partialDateDao.getDatePartial((String) request.getAttribute("startDate"), PartialDate.ALLERGIES, Integer.parseInt(allergyId), PartialDate.ALLERGIES_STARTDATE);
+	if (startDate != null && startDate.length() > 10) {
+	    startDate = startDate.substring(0, 10);
+	}
 	ageOfOnset = (String) request.getAttribute("ageOfOnset");
 	severityOfReaction = (String) request.getAttribute("severityOfReaction");
 	onSetOfReaction = (String) request.getAttribute("onSetOfReaction");

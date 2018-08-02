@@ -11,6 +11,7 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.oscarehr.common.dao.PartialDateDao;
 import org.oscarehr.common.model.Allergy;
 import org.oscarehr.common.model.PartialDate;
 import org.oscarehr.managers.SecurityInfoManager;
@@ -73,11 +74,13 @@ public class RxUpdateAllergyAction extends Action{
                 allergy.setEntryDate(newEntryDate);
             }
         }
-
+        PartialDateDao partialDateDao = SpringUtils.getBean(PartialDateDao.class);
         if(!startDate.trim().isEmpty()){
             String pattern = allergy.getDatePattern(startDate);
+            String existingStartDate = partialDateDao.getDatePartial(allergy.getStartDate(), PartialDate.ALLERGIES, allergy.getId(), PartialDate.ALLERGIES_STARTDATE);
+            
             Date newStartDate = StringToDate(startDate, pattern);
-            if (newStartDate != null && !newStartDate.equals(allergy.getStartDate())) {
+            if (!startDate.equals(existingStartDate)) {
                 allergy.setStartDate(newStartDate);
                 allergy.setStartDateFormat(PartialDate.getPartialDateFormat(pattern));
                 isUpdate = true;
@@ -88,12 +91,10 @@ public class RxUpdateAllergyAction extends Action{
                 allergy.setStartDateFormat(null);
                 isUpdate = true;
             }
-        } else if (!startDate.equals(allergy.getStartDate().toString())) {
+        } else if (allergy.getStartDate() != null) {
             allergy.setStartDate(null);
             allergy.setStartDateFormat(null);
             isUpdate = true;
-        } else {
-            allergy.setStartDateFormat(PartialDate.DO_NOT_UPDATE);
         }
         
         if(!ageOfOnset.equals(allergy.getAgeOfOnset())){
