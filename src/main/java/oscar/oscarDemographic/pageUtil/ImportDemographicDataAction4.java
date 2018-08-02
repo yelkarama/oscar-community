@@ -3777,14 +3777,16 @@ import oscar.util.UtilDateUtilities;
                         if(result.isSetReferenceRange()) {
                             if (StringUtils.filled(result.getReferenceRange().getReferenceRangeText())) {
                                 saveMeasurementsExt(measId, "range", result.getReferenceRange().getReferenceRangeText());
-                            } else if (result.getReferenceRange().isSetLowLimit() || result.getReferenceRange().isSetHighLimit()) {
-                                if (StringUtils.filled(result.getReferenceRange().getLowLimit())) {
-                                    saveMeasurementsExt(measId, "minimum", result.getReferenceRange().getLowLimit());
-                                }
+                            }
 
-                                if (StringUtils.filled(result.getReferenceRange().getHighLimit())) {
-                                    saveMeasurementsExt(measId, "maximum", result.getReferenceRange().getHighLimit());
-                                }
+                            if (StringUtils.filled(result.getReferenceRange().getLowLimit()) && StringUtils.filled(result.getReferenceRange().getHighLimit())) {
+                                saveMeasurementsExt(measId, "range", result.getReferenceRange().getLowLimit() + "-" + result.getReferenceRange().getHighLimit());
+                                saveMeasurementsExt(measId, "minimum", result.getReferenceRange().getLowLimit());
+                                saveMeasurementsExt(measId, "maximum", result.getReferenceRange().getHighLimit());
+                            } else if (StringUtils.filled(result.getReferenceRange().getLowLimit())) {
+                                saveMeasurementsExt(measId, "minimum", result.getReferenceRange().getLowLimit());
+                            } else if (StringUtils.filled(result.getReferenceRange().getHighLimit())) {
+                                saveMeasurementsExt(measId, "maximum", result.getReferenceRange().getHighLimit());
                             }
                         }
 	                }
