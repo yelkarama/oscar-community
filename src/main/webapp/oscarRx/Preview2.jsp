@@ -571,7 +571,7 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
 				<td id="demographicInfoCell" colspan=2 align=left valign=top height="75px">
 					<div style="width: 100%;">
 						<div style="text-align: right;">
-						<b>Written Date: <%= oscar.oscarRx.util.RxUtil.DateToString(rxDate, "MMMM d, yyyy",request.getLocale()) %></b>
+						<b>Written Date: <%= oscar.oscarRx.util.RxUtil.DateToString(new Date(), "MMMM d, yyyy",request.getLocale()) %></b>
 						</div>
 						<div style="display: table-cell">
 							<span><%= patient.getFirstName() %> <%= patient.getSurname() %> <%if(showPatientDOB){%>&nbsp;&nbsp; DOB:<%= StringEscapeUtils.escapeHtml(patientDOBStr) %> <%}%></span><br/>
