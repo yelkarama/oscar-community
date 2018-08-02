@@ -945,19 +945,30 @@ if(statusType.equals("_")) { %>
              <td align="right"><%=getStdCurr(ch1Obj.getTotal())%></td><!--BILLED-->
              <td align="right">
 				 <%
-					 if (raList.size() > 0) { %>
-				 		<%=amountPaid%>
-					 <% } else if (!amountPaid.equals("0.00") && !paymentTotals.entrySet().isEmpty()){
-						 for (Map.Entry<Integer, BigDecimal> payment : paymentTotals.entrySet()){
-							if (payment.getValue()!=null){%>
-								<%=payment.getValue()%><br/>
-					 <%		}
-						 }
-					} else {%>
+					 if (b3rdParty) { 
+					     if (!amountPaid.equals("0.00") && !paymentTotals.entrySet().isEmpty()){ 
+					         for (Map.Entry<Integer, BigDecimal> payment : paymentTotals.entrySet()){ 
+					             if (payment.getValue()!=null){
+				 %>
+				 <a href="javascript: function myFunction() {return false; }"  onclick="javascript:popupPage(800,860,'billingON3rdPayments.do?method=listPayments&billingNo=<%=ch1Obj.getId()%>','RAView<%=ch1Obj.getId()%>');return false;">
+					 <%=payment.getValue()%>
+				 </a><br/>
+				 <%
+					             } 
+					         }
+						} else {
+				 %>
+				 <a href="javascript: function myFunction() {return false; }"  onclick="javascript:popupPage(800,860,'billingON3rdPayments.do?method=listPayments&billingNo=<%=ch1Obj.getId()%>','RAView<%=ch1Obj.getId()%>');return false;">
+					 <%=amountPaid%> <br/>
+				 </a>
+				 <%
+					     }
+					 } else {
+				 %>
 				 <a href="javascript: function myFunction() {return false; }"  onclick="javascript:popupPage(800,860,'billingRAView.jsp?billing_no=<%=ch1Obj.getId()%>','RAView<%=ch1Obj.getId()%>');return false;">
 					 <%=amountPaid%>
 				 </a>
-					 <%}%>
+				 <% } %>
 			 </td><!--PAID-->
              <td align="center"><%=adj.toString()%></td> <!--SETTLE DATE-->
              <td align="center"><%=getHtmlSpace(ch1Obj.getRec_id())%></td><!--DX1-->
