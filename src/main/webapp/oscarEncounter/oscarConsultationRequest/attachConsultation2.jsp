@@ -353,6 +353,10 @@ function toggleSelectAll() {
 	                         labDisplayName = result.getDiscipline();
 	                     }	                     
 	                     
+	                     if(!org.apache.commons.lang.StringUtils.isEmpty(result.getLabel())) {
+	                    	 labDisplayName = result.getLabel();
+	                     }
+	                     
 	                     if (onIPad) {
 	                         truncatedDisplayName = labDisplayName;
 	                     }
