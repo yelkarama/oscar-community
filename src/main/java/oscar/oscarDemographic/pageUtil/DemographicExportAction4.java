@@ -87,9 +87,8 @@ import org.oscarehr.common.model.DemographicContact;
 import org.oscarehr.common.model.DemographicPharmacy;
 import org.oscarehr.common.model.DocumentReview;
 import org.oscarehr.common.model.DrugReason;
-import org.oscarehr.common.model.Hl7TextInfo;
-import org.oscarehr.common.model.Hl7TextMessage;
 import org.oscarehr.common.model.Icd9;
+import org.oscarehr.common.model.MeasurementsExt;
 import org.oscarehr.common.model.PartialDate;
 import org.oscarehr.common.model.PharmacyInfo;
 import org.oscarehr.common.model.ProfessionalSpecialist;
@@ -139,6 +138,7 @@ import oscar.oscarClinic.ClinicData;
 import oscar.oscarDemographic.data.DemographicData;
 import oscar.oscarDemographic.data.DemographicRelationship;
 import oscar.oscarEncounter.oscarMeasurements.data.ImportExportMeasurements;
+import oscar.oscarEncounter.oscarMeasurements.data.LabMeasurements;
 import oscar.oscarEncounter.oscarMeasurements.data.Measurements;
 import oscar.oscarLab.ca.all.parsers.Factory;
 import oscar.oscarLab.ca.all.parsers.MessageHandler;
@@ -1648,108 +1648,28 @@ public class DemographicExportAction4 extends Action {
 
 			if (exLaboratoryResults) {
 				// LABORATORY RESULTS
+				List<LabMeasurements> labMeasurements = ImportExportMeasurements.getLabMeasurements(demoNo);
+				auditLog.add("READ | " + dateTime.format(new Date()) + " | measurements: demographicId=" + demoNo);
 				
-				//get lab readings from hl7 tables
-				List<Object[]> infos = hl7TxtInfoDao.findByDemographicId(Integer.valueOf(demoNo));
-				auditLog.add("READ | " + dateTime.format(new Date()) + " | hl7TextInfo: demographicNo=" + demoNo);
-				for (Object[] info : infos) {
-					Hl7TextInfo hl7TxtInfo = (Hl7TextInfo)info[0];
-					Hl7TextMessage hl7TextMessage = hl7TxtMssgDao.find(hl7TxtInfo.getLabNumber());
-					auditLog.add("READ | " + dateTime.format(new Date()) + " | hl7TextMessage: lab_id=" + hl7TxtInfo.getLabNumber());
-					if (hl7TextMessage==null) continue;
+				for (LabMeasurements labMeasurement : labMeasurements) {
+					HashMap<String, String> labMeaValues = new HashMap<String, String>();
+					Measurements measurement = labMeasurement.getMeasure();
+					List<MeasurementsExt> measurementsExts = labMeasurement.getExts();
 					
-					String hl7Body = new String(Base64.decodeBase64(hl7TextMessage.getBase64EncodedeMessage()));
-					if (!StringUtils.filled(hl7Body)) continue;
-					
-					MessageHandler h = Factory.getHandler(hl7TextMessage.getType(), hl7Body);
-					if (h==null) continue;
-					
-					for (int i=0; i<h.getOBRCount(); i++) {
-						for (int j=0; j<h.getOBXCount(i); j++) {
-							String result = h.getOBXResult(i, j);
-							String comments = null;
-							for (int k=0; k<h.getOBXCommentCount(i, j); k++) {
-								comments = Util.addLine(comments, h.getOBXComment(i, j, k));
-							}
-							
-							if (StringUtils.filled(result) || StringUtils.filled(comments)) {
-								HashMap<String,String> labMeaValues = new HashMap<String,String>();
-								
-								labMeaValues.put("identifier", h.getOBXIdentifier(i, j));
-								labMeaValues.put("name", h.getOBXName(i, j));
-								labMeaValues.put("name_internal", StringUtils.noNull(h.getOBXNameLong(i, j)));
-								labMeaValues.put("labname", h.getPatientLocation());
-								labMeaValues.put("datetime", h.getTimeStamp(i, j));
-								labMeaValues.put("abnormal", h.getOBXAbnormalFlag(i, j));
-								labMeaValues.put("unit", h.getOBXUnits(i, j));
-								labMeaValues.put("accession", h.getAccessionNum());
-								labMeaValues.put("range", h.getOBXReferenceRange(i, j));
-								labMeaValues.put("request_datetime", h.getRequestDate(i));
-								labMeaValues.put("olis_status", h.getOBXResultStatus(i, j));
-								labMeaValues.put("lab_no", String.valueOf(hl7TxtInfo.getLabNumber()));
-								labMeaValues.put("other_id", i+"-"+j);
-								
-								if (StringUtils.filled(result)) {
-									labMeaValues.put("measureData", result);
-									labMeaValues.put("comments", comments);
-								} else {
-									labMeaValues.put("measureData", comments);
-								}
-                                labMeaValues.put("reportBlocked", h.isReportBlocked() ? "Y" : "");
-
-								LaboratoryResults labResults2 = patientRec.addNewLaboratoryResults();
-								exportLabResult(labMeaValues, labResults2, demoNo);
-							}
-						}
+					if (StringUtils.filled(measurement.getDataField())) {
+						labMeaValues.put("measureData", measurement.getDataField());
+						labMeaValues.put("comments", measurement.getComments());
+					} else {
+						labMeaValues.put("measureData", measurement.getComments());
 					}
-				}
-				
-				/*
-				//get lab readings from measurements table
-				List<LabMeasurements> labMeaList = ImportExportMeasurements.getLabMeasurements(demoNo);
-				for (LabMeasurements labMea : labMeaList) {
-					LaboratoryResults labResults = patientRec.addNewLaboratoryResults();
-					exportLabResult(labMea, labResults, demoNo);
 					
-					String lab_no = labMea.getExtVal("lab_no");
-					if (StringUtils.filled(lab_no)) {
-						Hl7TextMessage hl7TextMessage = hl7TxtMssgDao.find(Integer.valueOf(lab_no));
-						String hl7Body = new String(Base64.decodeBase64(hl7TextMessage.getBase64EncodedeMessage()));
-						MessageHandler h = Factory.getHandler(hl7TextMessage.getType(), hl7Body);
-						for (int i=0; i<h.getOBRCount(); i++) {
-							for (int j=0; j<h.getOBXCount(i); j++) {
-								if (StringUtils.filled(h.getOBXResult(i, j))) continue; //skip entries with result
-								
-								String commentAsResult = null;
-								for (int k=0; k<h.getOBXCommentCount(i, j); k++) {
-									commentAsResult = Util.addLine(commentAsResult, h.getOBXComment(i, j, k));
-								}
-								
-								if (StringUtils.filled(commentAsResult)) {
-									HashMap<String,String> labMeaValues = new HashMap<String,String>();
-									
-									labMeaValues.put("identifier", h.getOBXIdentifier(i, j));
-									labMeaValues.put("name", h.getOBXName(i, j));
-									labMeaValues.put("labname", h.getPatientLocation());
-									labMeaValues.put("datetime", h.getTimeStamp(i, j));
-									labMeaValues.put("abnormal", h.getOBXAbnormalFlag(i, j));
-									labMeaValues.put("measureData", commentAsResult);
-									labMeaValues.put("unit", h.getOBXUnits(i, j));
-									labMeaValues.put("accession", h.getAccessionNum());
-									labMeaValues.put("range", h.getOBXReferenceRange(i, j));
-									labMeaValues.put("request_datetime", h.getRequestDate(i));
-									labMeaValues.put("olis_status", h.getOBXResultStatus(i, j));
-									labMeaValues.put("lab_no", lab_no);
-									labMeaValues.put("other_id", i+"-"+j);
-									
-									LaboratoryResults labResults2 = patientRec.addNewLaboratoryResults();
-									exportLabResult(labMeaValues, labResults2, demoNo);
-								}
-							}
-						}
+					for (MeasurementsExt ext : measurementsExts) {
+						labMeaValues.put(ext.getKeyVal(), ext.getVal());
 					}
+					
+					LaboratoryResults labResults2 = patientRec.addNewLaboratoryResults();
+					exportLabResult(labMeaValues, labResults2, demoNo);
 				}
-				*/
 			}
 
 			if (exAppointments) {
@@ -3074,32 +2994,6 @@ public class DemographicExportAction4 extends Action {
 		}
 		return extensionTooLong;
 	}
-
-	/*
-	private void exportLabResult(LabMeasurements labMea, LaboratoryResults labResults, String demoNo) {
-		HashMap<String,String> labMeaValues = new HashMap<String,String>();
-		
-		labMeaValues.put("identifier", labMea.getExtVal("identifier"));
-		labMeaValues.put("name_internal", labMea.getExtVal("name_internal"));
-		labMeaValues.put("name", labMea.getExtVal("name"));
-		labMeaValues.put("labname", labMea.getExtVal("labname"));
-		labMeaValues.put("datetime", labMea.getExtVal("datetime"));
-		labMeaValues.put("abnormal", labMea.getExtVal("abnormal"));
-		labMeaValues.put("measureData", labMea.getMeasure().getDataField());
-		labMeaValues.put("unit", labMea.getExtVal("unit"));
-		labMeaValues.put("accession", labMea.getExtVal("accession"));
-		labMeaValues.put("comments", labMea.getExtVal("comments"));
-		labMeaValues.put("range", labMea.getExtVal("range"));
-		labMeaValues.put("minimum", labMea.getExtVal("minimum"));
-		labMeaValues.put("maximum", labMea.getExtVal("maximum"));
-		labMeaValues.put("request_datetime", labMea.getExtVal("request_datetime"));
-		labMeaValues.put("olis_status", labMea.getExtVal("olis_status"));
-		labMeaValues.put("lab_no", labMea.getExtVal("lab_no"));
-		labMeaValues.put("other_id", labMea.getExtVal("other_id"));
-		
-		exportLabResult(labMeaValues, labResults, demoNo);
-	}
-	*/
 	
 	private void exportLabResult(HashMap<String,String> labMea, LaboratoryResults labResults, String demoNo) {
 
@@ -3169,9 +3063,10 @@ public class DemographicExportAction4 extends Action {
 		String range = StringUtils.noNull(labMea.get("range"));
 		String min = StringUtils.noNull(labMea.get("minimum"));
 		String max = StringUtils.noNull(labMea.get("maximum"));
-		LaboratoryResults.ReferenceRange refRange = labResults.addNewReferenceRange();
-		if (StringUtils.filled(range)) refRange.setReferenceRangeText(range);
-		else {
+		if (StringUtils.filled(range)) {
+			labResults.addNewReferenceRange().setReferenceRangeText(range);
+		} else if (StringUtils.filled(min) || StringUtils.filled(max)) {
+			LaboratoryResults.ReferenceRange refRange = labResults.addNewReferenceRange();
 			if (StringUtils.filled(min)) refRange.setLowLimit(min);
 			if (StringUtils.filled(max)) refRange.setHighLimit(max);
 		}

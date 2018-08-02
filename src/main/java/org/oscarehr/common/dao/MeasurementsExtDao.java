@@ -47,6 +47,18 @@ public class MeasurementsExtDao extends AbstractDao<MeasurementsExt>{
 
 		return rs;
 	}
+
+	public List<MeasurementsExt> getMeasurementsExtByMeasurementIdLabOnly(Integer measurementId) {
+		String queryStr = "select m.* FROM measurementsExt m " +
+				"inner join measurementsExt m2 on m.measurement_id = m2.measurement_id " +
+				"WHERE m.measurement_id = ? " +
+				"and m2.keyval = 'lab_no'";
+		Query q = entityManager.createNativeQuery(queryStr, MeasurementsExt.class);
+		q.setParameter(1, measurementId);
+
+		List<MeasurementsExt> rs = q.getResultList();
+		return rs;
+	}
 	
 	public MeasurementsExt getMeasurementsExtByMeasurementIdAndKeyVal(Integer measurementId, String keyVal) {
 		String queryStr = "select m FROM MeasurementsExt m WHERE m.measurementId = ?1 AND m.keyVal = ?2";

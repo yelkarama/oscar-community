@@ -48,7 +48,7 @@ public class ImportExportMeasurements {
 		List<Measurements> measList = new ArrayList<Measurements>();
 		if (filled(demoNo)) {
 	
-			List<Measurement> ms = measurementDao.findByDemographicId(Integer.parseInt(demoNo));
+			List<Measurement> ms = measurementDao.findByDemographicNo(Integer.parseInt(demoNo));
 			for(Measurement m:ms) {
 				Measurements meas = new Measurements(Long.valueOf(demoNo));
 				meas.setId(m.getId().longValue());
@@ -70,7 +70,7 @@ public class ImportExportMeasurements {
 	
 		List<Measurements> measList = getMeasurements(demoNo);
 		for (Measurements ms : measList) {
-		    List<MeasurementsExt> mExt = getMeasurementsExt(ms.getId());
+		    List<MeasurementsExt> mExt = getLabMeasurementsExt(ms.getId());
 		    if (!mExt.isEmpty()) {
 			LabMeasurements labm = new LabMeasurements();
 			labm.setMeasure(ms);
@@ -132,22 +132,34 @@ public class ImportExportMeasurements {
     }
 
     public static void saveMeasurementsExt(MeasurementsExt mExt) {
-    	MeasurementsExt m = new MeasurementsExt();
-    	m.setMeasurementId( mExt.getMeasurementId());
-    	m.setKeyVal(mExt.getKeyVal());
+    	MeasurementsExt m = measurementsExtDao.getMeasurementsExtByMeasurementIdAndKeyVal(mExt.getMeasurementId(), mExt.getKeyVal());
+    	
+    	if (m == null) {
+    		m = new MeasurementsExt();
+			m.setMeasurementId( mExt.getMeasurementId());
+			m.setKeyVal(mExt.getKeyVal());
+		}
     	m.setVal(mExt.getVal());
     	
-    	measurementsExtDao.persist(m);
+    	measurementsExtDao.saveEntity(m);
     	mExt.setId(m.getId());
 
     }
 
-    public static List<MeasurementsExt> getMeasurementsExt(Long measurementId) {
+	public static List<MeasurementsExt> getLabMeasurementsExt(Long measurementId) {
+		List<MeasurementsExt> mes = new ArrayList<MeasurementsExt>();
 		if (measurementId!=null) {
-			List<MeasurementsExt> mes = measurementsExtDao.getMeasurementsExtByMeasurementId(measurementId.intValue());
-			return mes;
+			mes = measurementsExtDao.getMeasurementsExtByMeasurementIdLabOnly(measurementId.intValue());
 		}
-		return new ArrayList<MeasurementsExt>();
+		return mes;
+	}
+
+    public static List<MeasurementsExt> getMeasurementsExt(Long measurementId) {
+		List<MeasurementsExt> mes = new ArrayList<MeasurementsExt>();
+		if (measurementId!=null) {
+			mes = measurementsExtDao.getMeasurementsExtByMeasurementId(measurementId.intValue());
+		}
+		return mes;
     }
 
     public static MeasurementsExt getMeasurementsExtByKeyval(Long measurementId, String keyval) {

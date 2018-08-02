@@ -3773,6 +3773,20 @@ import oscar.util.UtilDateUtilities;
                         if (result.isSetTestName()) {
                             saveMeasurementsExt(measId, "name_internal", result.getTestName());
                         }
+
+                        if(result.isSetReferenceRange()) {
+                            if (StringUtils.filled(result.getReferenceRange().getReferenceRangeText())) {
+                                saveMeasurementsExt(measId, "range", result.getReferenceRange().getReferenceRangeText());
+                            } else if (result.getReferenceRange().isSetLowLimit() || result.getReferenceRange().isSetHighLimit()) {
+                                if (StringUtils.filled(result.getReferenceRange().getLowLimit())) {
+                                    saveMeasurementsExt(measId, "minimum", result.getReferenceRange().getLowLimit());
+                                }
+
+                                if (StringUtils.filled(result.getReferenceRange().getHighLimit())) {
+                                    saveMeasurementsExt(measId, "maximum", result.getReferenceRange().getHighLimit());
+                                }
+                            }
+                        }
 	                }
 	                
 	                String labInfo = getLabDline(labResult, 0);
