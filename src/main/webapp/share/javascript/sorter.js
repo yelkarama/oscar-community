@@ -63,7 +63,7 @@ function _rotater(e) {
 
 function _resizeui() {
 	$("#buildercontainer").height($(window).height() - 80);
-	$("#picker").height($(window).height());
+	$("#picker").height($(window).height() - 80);
 }
 
 function _zoom(d) {
