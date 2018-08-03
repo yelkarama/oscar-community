@@ -1485,7 +1485,40 @@ function updateStatusDate(patientOrRoster){
 	</oscar:oscarPropertiesCheck>
 	<%-- END TOGGLE OFF PROGRAM ADMISSIONS --%>
 
-	<%
+	<% // customized key + "Has Primary Care Physician" & "Employment Status"
+		boolean hasHasPrimary = Boolean.parseBoolean(request.getParameter("hasHasPrimary"));
+		String hasPrimary = request.getParameter("hasPrimary");
+		String hasPrimaryCarePhysician = request.getParameter("hasPrimaryCarePhysician");
+		boolean hasEmpStatus = Boolean.parseBoolean(request.getParameter("hasEmpStatus"));
+		String empStatus = request.getParameter("empStatus");
+		String employmentStatus = request.getParameter("employmentStatus");
+		if (hasHasPrimary || hasEmpStatus) {
+	%>							<tr valign="top" bgcolor="#CCCCFF">
+	<%		if (hasHasPrimary) {
+	%>								<td><b><%=hasPrimary.replace(" ", "&nbsp;")%>:</b></td>
+	<td>
+	<select name="<%=hasPrimary.replace(" ", "")%>">
+	<option value="N/A" <%="N/A".equals(hasPrimaryCarePhysician)?"selected":""%>>N/A</option>
+	<option value="Yes" <%="Yes".equals(hasPrimaryCarePhysician)?"selected":""%>>Yes</option>
+	<option value="No" <%="No".equals(hasPrimaryCarePhysician)?"selected":""%>>No</option>
+	</select>
+	</td>
+	<%		}
+		if (hasEmpStatus) {
+	%>								<td><b><%=empStatus.replace(" ", "&nbsp;")%>:</b></td>
+	<td>
+	<select name="<%=empStatus.replace(" ", "")%>">
+	<option value="N/A" <%="N/A".equals(employmentStatus)?"selected":""%>>N/A</option>
+	<option value="FULL TIME" <%="FULL TIME".equals(employmentStatus)?"selected":""%>>FULL TIME</option>
+	<option value="ODSP" <%="ODSP".equals(employmentStatus)?"selected":""%>>ODSP</option>
+	<option value="OW" <%="OW".equals(employmentStatus)?"selected":""%>>OW</option>
+	<option value="PART TIME" <%="PART TIME".equals(employmentStatus)?"selected":""%>>PART TIME</option>
+	<option value="UNEMPLOYED" <%="UNEMPLOYED".equals(employmentStatus)?"selected":""%>>UNEMPLOYED</option>
+	</select>
+	</td>
+	</tr>
+	<%		}
+	}
 		// customized key
 		if (oscarVariables.getProperty("demographicExt") != null) {
 			boolean bExtForm = oscarVariables.getProperty("demographicExtForm") != null ? true : false;

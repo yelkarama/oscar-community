@@ -563,10 +563,16 @@
 			}
 		}
 	}
+
+
+	if (!StringUtils.trimToEmpty(demoExt.get("HasPrimaryCarePhysician")).equals(StringUtils.trimToEmpty(request.getParameter("HasPrimaryCarePhysician")))) {
+		extensions.add(new DemographicExt(request.getParameter("HasPrimaryCarePhysician_id"), proNo, demographicNo, "HasPrimaryCarePhysician", request.getParameter("HasPrimaryCarePhysician")));
+	}
+
+	if (!StringUtils.trimToEmpty(demoExt.get("EmploymentStatus")).equals(StringUtils.trimToEmpty(request.getParameter("EmploymentStatus")))) {
+		extensions.add(new DemographicExt(request.getParameter("EmploymentStatus_id"), proNo, demographicNo, "EmploymentStatus", request.getParameter("EmploymentStatus")));
+	}
 	
-	
-	extensions.add(new DemographicExt(request.getParameter("HasPrimaryCarePhysician_id"), proNo, demographicNo, "HasPrimaryCarePhysician", request.getParameter("HasPrimaryCarePhysician")));
-	extensions.add(new DemographicExt(request.getParameter("EmploymentStatus_id"), proNo, demographicNo, "EmploymentStatus", request.getParameter("EmploymentStatus")));
 	
 	// customized key
 	if(oscarVariables.getProperty("demographicExt") != null) {

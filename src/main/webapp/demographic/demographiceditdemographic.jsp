@@ -193,7 +193,7 @@ if(!authed) {
 	String nurseMessageKey = "demographic.demographiceditdemographic.formNurse";
 	String midwifeMessageKey = "demographic.demographiceditdemographic.formMidwife";
 	String residentMessageKey = "demographic.demographiceditdemographic.formResident";
-	if (oscarVariables.getProperty("queens_resident_tagging") != null)
+	if (oscarProps.getProperty("queens_resident_tagging") != null)
 	{
 		nurseMessageKey = "demographic.demographiceditdemographic.formAltProvider1";
 		midwifeMessageKey = "demographic.demographiceditdemographic.formAltProvider2";
@@ -2559,6 +2559,13 @@ if ( Dead.equals(PatStat) ) {%>
 							<jsp:param name="bookingAlert" value="<%= bookingAlert %>" />
 							<jsp:param name="chartAlertText" value="<%= chartAlertText %>" />
 							<jsp:param name="notes" value="<%= notes %>" />
+                            <jsp:param name="hasHasPrimary" value="<%=hasHasPrimary%>" />
+                            <jsp:param name="hasPrimary" value="<%=hasPrimary%>" />
+                            <jsp:param name="hasPrimaryCarePhysician" value="<%=hasPrimaryCarePhysician%>" />
+                            <jsp:param name="hasEmpStatus" value="<%=hasEmpStatus%>" />
+                            <jsp:param name="empStatus" value="<%=empStatus%>" />
+                            <jsp:param name="employmentStatus" value="<%=employmentStatus%>" />
+                            
 						</jsp:include>
 						
 
