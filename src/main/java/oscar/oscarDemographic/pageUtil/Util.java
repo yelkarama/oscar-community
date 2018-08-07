@@ -44,6 +44,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -254,6 +256,11 @@ public class Util {
 	
     static public String setCountrySubDivCode(String countrySubDivCode) {
 	countrySubDivCode = countrySubDivCode.trim();
+	if (countrySubDivCode.contains("-")) {
+        Pattern p = Pattern.compile("-\\w*");
+        Matcher m = p.matcher(countrySubDivCode);
+        countrySubDivCode = m.replaceAll("");
+    }
 	if (StringUtils.filled(countrySubDivCode)) {
 	    if (countrySubDivCode.equals("OT")) return "Other";
 	    if (!countrySubDivCode.startsWith("US")) return "CA-"+countrySubDivCode;
