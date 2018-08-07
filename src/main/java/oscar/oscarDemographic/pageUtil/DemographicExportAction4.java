@@ -3063,18 +3063,17 @@ public class DemographicExportAction4 extends Action {
 		String range = StringUtils.noNull(labMea.get("range"));
 		String min = StringUtils.noNull(labMea.get("minimum"));
 		String max = StringUtils.noNull(labMea.get("maximum"));
-		if (StringUtils.filled(range) || StringUtils.filled(min) || StringUtils.filled(max)) {
+		if (StringUtils.filled(min) || StringUtils.filled(max)) {
 			LaboratoryResults.ReferenceRange refRange = labResults.addNewReferenceRange();
-			if (StringUtils.filled(range)) { 
-				refRange.setReferenceRangeText(range); 
-			}
 			if (StringUtils.filled(min)) {
 				refRange.setLowLimit(min);
 			}
 			if (StringUtils.filled(max)) {
 				refRange.setHighLimit(max);
 			}
-		}
+		} else if (StringUtils.filled(range)) {
+            labResults.addNewReferenceRange().setReferenceRangeText(range);
+        }
 
 		//lab requisition datetime
 		
