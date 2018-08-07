@@ -169,6 +169,9 @@
 	    PatientConsentManager patientConsentManager = SpringUtils.getBean( PatientConsentManager.class );
 		pageContext.setAttribute( "consentTypes", patientConsentManager.getConsentTypes() );
 	}
+	
+	SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+	Map<String, Boolean> masterFilePreferences = systemPreferencesDao.findByKeysAsMap(SystemPreferences.MASTER_FILE_PREFERENCE_KEYS);
 %>
 <html:html locale="true">
 <head>
@@ -347,7 +350,6 @@ function referralScriptAttach2(refDoctorNoElement, refDoctorNameElement, refDoct
 	 }
 
 <%
-	SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
 	SystemPreferences systemPreferences = systemPreferencesDao.findPreferenceByName("referring_physician_mandatory");
 	boolean refPhysicianMandatory = false;
 	if (systemPreferences != null && Boolean.parseBoolean(systemPreferences.getValue())) {
@@ -722,8 +724,17 @@ function ignoreDuplicates() {
 		<td id="prefName" align="left">
 			<input type="text" name="pref_name" id="pref_name" onBlur="upCaseCtrl(this)" size=30 value="">
 		</td>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
+		<% if (masterFilePreferences.getOrDefault("display_former_name", false)) { %>
+		<td align="right">
+			<b>
+				<bean:message key="demographic.demographicaddrecordhtm.formFormerName"/>
+				<font color="red">:</font>
+			</b>
+		</td>
+		<td id="formerName" align="left">
+			<input type="text" name="former_name" id="former_name" onBlur="upCaseCtrl(this)" size=30 value="">
+		</td>
+		<% } %>
 	</tr>
     <tr>
 	<td id="languageLbl" align="right"><b><bean:message key="demographic.demographicaddrecordhtm.msgDemoLanguage"/><font color="red">:</font></b></td>

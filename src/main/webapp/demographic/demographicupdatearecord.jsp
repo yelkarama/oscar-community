@@ -114,7 +114,9 @@
 		 family = demographicDao.getDemographicFamilyMembers(String.valueOf(demographic.getDemographicNo()));
 	}
 
-
+	SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+	Map<String, Boolean> masterFilePreferences = systemPreferencesDao.findByKeysAsMap(SystemPreferences.MASTER_FILE_PREFERENCE_KEYS);
+	
 	// Update Freshbooks section
 	UserPropertyDAO propertyDao = (UserPropertyDAO) SpringUtils.getBean("UserPropertyDAO");
 	String demoNo = request.getParameter("demographic_no");
@@ -512,6 +514,14 @@
             extensions.add(new DemographicExt(request.getParameter("referral-date-id"), proNo, demographicNo, "referralDate", referralDate));
         }
     }
+	
+	
+	if (masterFilePreferences.getOrDefault("display_former_name", false)) {
+		String formerName = request.getParameter("former_name") != null ? request.getParameter("former_name") : "";
+		if (!StringUtils.trimToEmpty(demoExt.get("former_name")).equals(StringUtils.trimToEmpty(formerName))) {
+			extensions.add(new DemographicExt(request.getParameter("former_name_id"), proNo, demographicNo, "former_name", formerName));
+		}
+	}
 	
 	// Demographic Groups
 	int demographicNoAsInt = 0;

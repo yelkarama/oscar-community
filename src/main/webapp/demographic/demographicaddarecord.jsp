@@ -71,6 +71,8 @@
 <%@page import="org.oscarehr.common.model.Consent" %>
 <%@page import="org.oscarehr.common.model.ConsentType" %>
 <%@page import="oscar.OscarProperties" %>
+<%@ page import="org.oscarehr.common.dao.SystemPreferencesDao" %>
+<%@ page import="org.oscarehr.common.model.SystemPreferences" %>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -93,6 +95,8 @@
 	DemographicExtArchiveDao demographicExtArchiveDao = SpringUtils.getBean(DemographicExtArchiveDao.class);
 	DemographicArchiveDao demographicArchiveDao = (DemographicArchiveDao)SpringUtils.getBean("demographicArchiveDao");
 		
+	SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+	Map<String, Boolean> masterFilePreferences = systemPreferencesDao.findByKeysAsMap(SystemPreferences.MASTER_FILE_PREFERENCE_KEYS);
 %>
 
 <html:html locale="true">
@@ -330,6 +334,11 @@
        if (OscarProperties.getInstance().isPropertyActive("show_referral_date")) {
 		   demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "referralDate", request.getParameter("referral-date") != null ? request.getParameter("referral-date") : "");
 	   }
+
+		if (masterFilePreferences.getOrDefault("display_former_name", false)) {
+			demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "former_name", request.getParameter("former_name") != null ? request.getParameter("former_name") : "");
+		}
+		
 		// Demographic Groups
 		String[] groups = request.getParameterValues("demographicGroups");
 	

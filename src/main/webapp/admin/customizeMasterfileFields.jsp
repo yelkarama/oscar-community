@@ -50,9 +50,14 @@
 <%@ page import="org.oscarehr.util.LoggedInInfo" %>
 <%@ page import="org.oscarehr.common.dao.PropertyDao" %>
 <%@ page import="org.oscarehr.common.model.Property" %>
+<%@ page import="org.oscarehr.common.dao.SystemPreferencesDao" %>
+<%@ page import="org.oscarehr.common.model.SystemPreferences" %>
+<%@ page import="java.util.Date" %>
+<%@ page import="java.util.List" %>
 
 <jsp:useBean id="dataBean" class="java.util.Properties"/>
 <%
+	SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
 	PropertyDao propertyDao = SpringUtils.getBean(PropertyDao.class);
 	
 	Provider loggedInProvider = LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProvider();
@@ -65,15 +70,37 @@
 		masterfileShowReminderPreference.setValue("false");
 	}
 
-	if (request.getParameter("dboperation") != null && !request.getParameter("dboperation").isEmpty()) {
-		if (request.getParameter("dboperation").equals("save")) {
-			String masterfileShowReminderPreferenceStr = request.getParameter("masterfile_show_reminder_preference");
-			masterfileShowReminderPreference.setValue(Boolean.valueOf(masterfileShowReminderPreferenceStr).toString());
-			propertyDao.saveEntity(masterfileShowReminderPreference);
+	if (request.getParameter("dboperation") != null && !request.getParameter("dboperation").isEmpty() && request.getParameter("dboperation").equals("save")) {
+		String masterfileShowReminderPreferenceStr = request.getParameter("masterfile_show_reminder_preference");
+		masterfileShowReminderPreference.setValue(Boolean.valueOf(masterfileShowReminderPreferenceStr).toString());
+		propertyDao.saveEntity(masterfileShowReminderPreference);
+
+		for(String key : SystemPreferences.MASTER_FILE_PREFERENCE_KEYS) {
+			SystemPreferences preference = systemPreferencesDao.findPreferenceByName(key);
+			String newValue = request.getParameter(key) != null ? request.getParameter(key) : "false";
+
+			if (preference != null) {
+				if (!preference.getValueAsBoolean().equals(Boolean.parseBoolean(newValue))) {
+					preference.setUpdateDate(new Date());
+					preference.setValue(newValue);
+					systemPreferencesDao.merge(preference);
+				}
+			} else {
+				preference = new SystemPreferences();
+				preference.setName(key);
+				preference.setUpdateDate(new Date());
+				preference.setValue(newValue);
+				systemPreferencesDao.persist(preference);
+			}
 		}
 	}
 	
 	Boolean masterfileShowReminderPreferenceActive = Boolean.valueOf(masterfileShowReminderPreference.getValue());
+
+	List<SystemPreferences> preferences = systemPreferencesDao.findPreferencesByNames(SystemPreferences.MASTER_FILE_PREFERENCE_KEYS);
+	for(SystemPreferences preference : preferences) {
+		dataBean.setProperty(preference.getName(), preference.getValueAsBoolean().toString());
+	}
 %>
 <html:html locale="true">
 	<head>
@@ -100,6 +127,10 @@
 			<tr>
 				<td>Reminder Preference</td>
 				<td style="width: 20px; text-align: center;"><input type="checkbox" name="masterfile_show_reminder_preference" value="true"<%=masterfileShowReminderPreferenceActive?" checked=\"checked\"":""%>></td>
+			</tr>
+			<tr>
+				<td>Display Former Name</td>
+				<td style="width: 20px; text-align: center;"><input type="checkbox" name="display_former_name" value="true"<%= dataBean.getProperty("display_former_name", "false").equals("true") ? " checked=\"checked\"":""%>></td>
 			</tr>
 		</table>
 		<input class="btn btn-primary" type="submit" value="Save"/>

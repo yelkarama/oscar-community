@@ -194,8 +194,9 @@
 		currentReferralSource = demographicExt.getValue();
 	}
 	List<String> referralSources = demographicExtDao.findAllDistinctValuesByKey("referral_source");
-	
-	
+
+	SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+	Map<String, Boolean> masterFilePreferences = systemPreferencesDao.findByKeysAsMap(SystemPreferences.MASTER_FILE_PREFERENCE_KEYS);
 %>
 <%!
 	public String getDisabled(String fieldName) {
@@ -248,7 +249,17 @@
 			<%=getDisabled("pref_name")%> size="30"
 			value="<%=StringEscapeUtils.escapeHtml(demographic.getPrefName())%>"
 			onBlur="upCaseCtrl(this)"></td>
-	
+
+		<% if (masterFilePreferences.getOrDefault("display_former_name", false)) { %>
+		<td align="right"><b><bean:message key="demographic.demographiceditdemographic.formFormerName" />: </b></td>
+		<td align="left">
+			<input type="hidden" name="former_name_id" size="10" maxlength="10" value="<%=demoExt.get("former_name_id")%>">
+			<input type="text" name="former_name" size="30" onBlur="upCaseCtrl(this)"
+			value="<%=StringEscapeUtils.escapeHtml(demoExt.getOrDefault("former_name", ""))%>">
+		</td>
+		<% } %>
+	</tr>
+	<tr>
 		<td align="right"><b><bean:message
 					key="demographic.demographiceditdemographic.msgDemoTitle" />: </b></td>
 		<td align="left">

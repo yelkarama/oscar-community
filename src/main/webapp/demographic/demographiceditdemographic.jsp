@@ -308,6 +308,8 @@ if(!authed) {
 	List<String> updatedFamily = (List<String>) session.getAttribute("updatedFamily");
 	session.removeAttribute("updatedFamily");
 
+	SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+	Map<String, Boolean> masterFilePreferences = systemPreferencesDao.findByKeysAsMap(SystemPreferences.MASTER_FILE_PREFERENCE_KEYS);
 %>
 
 <%@page import="org.apache.commons.lang.StringUtils"%>
@@ -1645,6 +1647,11 @@ if(oscarProps.getProperty("new_label_print") != null && oscarProps.getProperty("
 													<li><span class="label"><bean:message key="demographic.demographiceditdemographic.formPrefName" />:</span>
 															<span class="info"><%=demographic.getPrefName()%></span>
 													</li>
+													<% if (masterFilePreferences.getOrDefault("display_former_name", false)) { %>
+													<li><span class="label"><bean:message key="demographic.demographiceditdemographic.formFormerName" />:</span>
+														<span class="info"><%= StringUtils.trimToEmpty(demoExt.get("former_name")) %></span>
+													</li>
+													<% } %>
                                                     <li><span class="label"><bean:message key="demographic.demographiceditdemographic.msgDemoTitle"/>:</span>
                                                         <span class="info"><%=StringUtils.trimToEmpty(demographic.getTitle())%></span>
 							</li>
