@@ -1018,6 +1018,12 @@ public class RxUtil {
 		m = p.matcher(special);
 		special = m.replaceAll("");
 
+		//remove Refill Duration:num Refill from special
+		String refillDurationRegex = "Refill Duration:\\s*[0-9]*\\.?[0-9]*\\s*Refill\\s*";
+		p = Pattern.compile(refillDurationRegex);
+		m = p.matcher(special);
+		special = m.replaceAll("");
+
 		//remove brand name
 		String regex3 = rx.getBrandName();
 		if (regex3 != null) {
