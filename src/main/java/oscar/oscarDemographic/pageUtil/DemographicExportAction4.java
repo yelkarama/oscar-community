@@ -518,7 +518,9 @@ public class DemographicExportAction4 extends Action {
 					}
 				}
 
-				enrolmentHistoryArray.add(enrolmentHistory);
+				if (!historyRS.isEmpty()) {
+					enrolmentHistoryArray.add(enrolmentHistory);
+				}
 			}
 			
 			if (enrolment != null && !enrolmentHistoryArray.isEmpty()) {
