@@ -1792,12 +1792,13 @@ if(oscarProps.getProperty("new_label_print") != null && oscarProps.getProperty("
 						<div class="demographicSection" id="clinicStatus">
 						<h3>&nbsp;<bean:message key="demographic.demographiceditdemographic.msgClinicStatus"/> (<a href="#" onclick="popup(500, 1000, 'EnrollmentHistory.jsp?demographicNo=<%=demographic_no%>', 'enrollmentHistory'); return false;"><bean:message key="demographic.demographiceditdemographic.msgEnrollmentHistory"/></a>)</h3>
 						<%
+							DemographicExt notMrp = demographicExtDao.getDemographicExt(demographicNoAsInt, "notMrp");
 							String enrollmentProviderNo = demoExt.get("enrollmentProvider");
 							Provider enrollmentProvider = null;
 							if (enrollmentProviderNo != null && !enrollmentProviderNo.isEmpty()) {
 								enrollmentProvider = providerDao.getProvider(enrollmentProviderNo);
 							}
-							if (enrollmentProvider == null) {
+							if (enrollmentProvider == null && notMrp != null && notMrp.getValue().equalsIgnoreCase("off")) {
 								enrollmentProvider = demographic.getProvider();
 							}
 							

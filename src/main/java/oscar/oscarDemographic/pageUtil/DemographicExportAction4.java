@@ -471,8 +471,8 @@ public class DemographicExportAction4 extends Action {
 				}
 				historyRS = StringUtils.noNull(DAs.get(i).getRosterStatus());
 				historyRS1 = i<DAs.size()-1 ? StringUtils.noNull(DAs.get(i+1).getRosterStatus()) : "-1";
-				historyRS = historyRS.equalsIgnoreCase("RO") ? "1" : "0";
-				historyRS1 = historyRS1.equalsIgnoreCase("RO") ? "1" : "0";
+				historyRS = historyRS.equalsIgnoreCase("RO") ? "1" : historyRS.isEmpty() ? "" : "0";
+				historyRS1 = historyRS1.equalsIgnoreCase("RO") ? "1" : historyRS1.isEmpty() ? "" : "0";
 
 				historyRD = DAs.get(i).getRosterDate();
 				historyRD1 = i<DAs.size()-1 ? DAs.get(i+1).getRosterDate() : null;

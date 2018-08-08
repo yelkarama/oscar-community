@@ -872,7 +872,9 @@
 
 		<script>
 			function updateEnrollmentProvider(providerElement) {
-			    jQuery_3_1_0('#enrollmentProvider').val(providerElement.value);
+			    if (!jQuery_3_1_0('#notMrp')[0].checked) {
+                    jQuery_3_1_0('#enrollmentProvider').val(providerElement.value);
+				}
 			}
 		</script>
 		<tr valign="top">
