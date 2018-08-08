@@ -385,6 +385,10 @@ function popperup(vheight,vwidth,varpage,pageName) { //open a new popup window
      		
 }
 
+function goToChart(url) {
+    window.location.replace(url);
+}
+
 var fullChart = "false";
 function viewFullChart(displayFullChart) {
 

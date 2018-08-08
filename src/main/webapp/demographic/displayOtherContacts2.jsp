@@ -215,8 +215,8 @@
                 <td><%=dContact.getRole()%></td>
                 <td>&nbsp;<%=dContact.getContactName()%>
                     <% if (dContact.getType() == DemographicContact.TYPE_DEMOGRAPHIC) { %>
-                    <a href="javascript: return false;" onClick="popupPage(710, 1024, '<%=request.getContextPath()%>/demographic/demographiccontrol.jsp?demographic_no=<%=dContact.getContactId()%>&displaymode=edit&dboperation=search_detail')">M</a>
-                    <a href="javascript: return false;" onClick="popupEChart(710,1024,'<%=request.getContextPath()%>/oscarEncounter/IncomingEncounter.do?demographicNo=<%=dContact.getContactId()%>&providerNo=<%=curProviderNo%>&appointmentNo=&curProviderNo=&reason=&appointmentDate=&startTime=&status=&userName=<%=URLEncoder.encode(userFirstName + " " + userLastName)%>&curDate=<%=curYear%>-<%=curMonth%>-<%=curDay%>')">E</a>
+                    <a href="javascript: return false;" onClick="goToPage(window.name, '<%=request.getContextPath()%>/demographic/demographiccontrol.jsp?demographic_no=<%=dContact.getContactId()%>&displaymode=edit&dboperation=search_detail')">M</a>
+                    <a href="javascript: return false;" onClick="goToPage('encounter','<%=request.getContextPath()%>/oscarEncounter/IncomingEncounter.do?demographicNo=<%=dContact.getContactId()%>&providerNo=<%=curProviderNo%>&appointmentNo=&curProviderNo=&reason=&appointmentDate=&startTime=&status=&userName=<%=URLEncoder.encode(userFirstName + " " + userLastName)%>&curDate=<%=curYear%>-<%=curMonth%>-<%=curDay%>')">E</a>
                     <% } %> </td>
                 <td>&nbsp;<%=preferredContact%></td>
                 <td class="text-warning" style="font-weight: bold;">&nbsp;<%=responsibility%></td>

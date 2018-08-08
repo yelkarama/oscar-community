@@ -81,6 +81,11 @@ function popupEChart(vheight,vwidth,varpage) { //open a new popup window
     popup.focus();
   }
 }
+    function goToPage(name, varpage) { //open a new popup window
+        window.name = name;
+        window.location.replace(varpage);
+    }
+
 function popupOscarRx(vheight,vwidth,varpage) { //open a new popup window
   var page = varpage;
   windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=0,screenY=0,top=0,left=0";

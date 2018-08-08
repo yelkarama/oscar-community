@@ -96,7 +96,7 @@ public class EctDisplayRelationsAction extends EctDisplayAction {
                 item.setLinkTitle(winName);
                 hash = Math.abs(winName.hashCode());
                 // Use 'popperup()' as opposed to 'popupPage()' to prevent reload links from being added
-                String url = "popperup(700,1000,'" + contextPath + "/oscarEncounter/IncomingEncounter.do?providerNo=" + providerNo + "&demographicNo=" + demographic.getDemographicNo() + "&reason=Tel-Progress+Note&encType=&curDate=2018-3-15','" + hash + "');return false;";
+                String url = "goToChart('" + contextPath + "/oscarEncounter/IncomingEncounter.do?providerNo=" + providerNo + "&demographicNo=" + demographic.getDemographicNo() + "&reason=Tel-Progress+Note&encType=&curDate=2018-3-15','" + hash + "');return false;";
                 item.setURL(url);
                 displayDAO.addItem(item);
             }
@@ -121,7 +121,7 @@ public class EctDisplayRelationsAction extends EctDisplayAction {
                 item.setLinkTitle(winName);
                 hash = Math.abs(winName.hashCode());
                 // Use 'popperup()' as opposed to 'popupPage()' to prevent reload links from being added
-                String url = "popperup(700,1000,'" + contextPath + "/oscarEncounter/IncomingEncounter.do?providerNo=" + providerNo + "&demographicNo=" + demographic.getDemographicNo() + "&reason=Tel-Progress+Note&encType=&curDate=2018-3-15','" + hash + "');return false;";
+                String url = "goToChart('" + contextPath + "/oscarEncounter/IncomingEncounter.do?providerNo=" + providerNo + "&demographicNo=" + demographic.getDemographicNo() + "&reason=Tel-Progress+Note&encType=&curDate=2018-3-15','" + hash + "');return false;";
                 item.setURL(url);
                 displayDAO.addItem(item);
             }

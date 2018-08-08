@@ -107,8 +107,7 @@ public class RxProviderData {
         	if(prop != null && prop.getValue()!=null && prop.getValue().length()>0) {
         		clinicFax = prop.getValue();
         	}
-        
-        	prop = userPropertyDao.getProp(providerNo, "rxPhone");
+            prop = userPropertyDao.getProp(providerNo, "rxPhone");
         	if(prop != null && prop.getValue()!=null && prop.getValue().length()>0) {
         		clinicPhone = prop.getValue();
         	}
