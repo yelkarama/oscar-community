@@ -474,9 +474,6 @@ public class DemographicExportAction4 extends Action {
 			String historyRS, historyRS1, historyProviderNo;
 			Date historyRD, historyRD1, historyTD, historyTD1;
 			for (int i=0; i<DAs.size(); i++) {
-				if (enrolment == null) {
-					enrolment = demo.addNewEnrolment();
-				}
 				historyRS = StringUtils.noNull(DAs.get(i).getRosterStatus());
 				historyRS1 = i<DAs.size()-1 ? StringUtils.noNull(DAs.get(i+1).getRosterStatus()) : "-1";
 				historyRS = historyRS.equalsIgnoreCase("RO") ? "1" : historyRS.isEmpty() ? "" : "0";
@@ -486,6 +483,10 @@ public class DemographicExportAction4 extends Action {
 				historyRD1 = i<DAs.size()-1 ? DAs.get(i+1).getRosterDate() : null;
 				historyTD = DAs.get(i).getRosterTerminationDate();
 				historyTD1 = i<DAs.size()-1 ? DAs.get(i+1).getRosterTerminationDate() : null;
+
+                if (enrolment == null && !historyRS.isEmpty()) {
+                    enrolment = demo.addNewEnrolment();
+                }
 				
 				historyProviderNo = DAs.get(i).getProviderNo();
 
@@ -518,6 +519,10 @@ public class DemographicExportAction4 extends Action {
 				DemographicExtArchive enrollmentProviderExtArchive = demographicExtArchiveDao.getDemographicExtArchiveByArchiveIdAndKey(DAs.get(i).getId(), "enrollmentProvider");
 				if (enrollmentProviderExtArchive != null && enrollmentProviderExtArchive.getValue() != null && !enrollmentProviderExtArchive.getValue().isEmpty()) {
 					archiveEnrollmentProvider = providerDao.getProvider(enrollmentProviderExtArchive.getValue());
+				}
+
+				if (archiveEnrollmentProvider == null) {
+					archiveEnrollmentProvider = providerDao.getProvider(DAs.get(i).getProviderNo());
 				}
 				if (archiveEnrollmentProvider != null) {
 					Demographics.Enrolment.EnrolmentHistory.EnrolledToPhysician primaryPhysician = enrolmentHistory.addNewEnrolledToPhysician();
