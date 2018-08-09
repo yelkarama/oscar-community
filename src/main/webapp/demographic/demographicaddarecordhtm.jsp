@@ -466,6 +466,80 @@ function checkSex() {
 	return(true);
 }
 
+function checkEnrollmentFields() {
+    var provider = jQuery_3_1_0('#enrollmentProvider')[0].value;
+    var status = jQuery_3_1_0('#roster_status')[0].value;
+    var date = jQuery_3_1_0('#roster_date')[0].value;
+
+    if (provider === "" && status === "" && date === "") {
+        return true;
+    }
+
+    if ((provider !== "" && status === "") || (status !== "" && provider === "") || (provider === "" && status === "")) {
+        var message = "You must enter both an enrollment provider and an enrollment status";
+        if (date !== "") {
+            message += " when entering an enrollment date";
+        }
+        alert (message);
+        return false;
+    }
+
+    if (provider !== "" && status !== "") {
+        if (date !== "") {
+            return validEnrollmentDateCheck(date);
+        }
+
+        return true;
+    }
+    return false;
+}
+
+// From checkDate.js - Line 421
+function validEnrollmentDateCheck(dateStr)
+{
+    //default is yyyy-mm-dd
+    var datePat = /^(\d{4})(\/|-)(\d{1,2})(\/|-)(\d{1,2})$/;
+
+    var matchArray = dateStr.match(datePat); // is the format ok?
+
+    if (matchArray == null) {
+        alert("Please enter the date as yyyy-mm-dd. Your current selection reads: " + datePat);
+        return false;
+    }
+
+    var dateArr = dateStr.split('-');
+
+    var year = dateArr[0];
+    var month = dateArr[1]; // parse date into variables
+    var day = dateArr[2];
+
+    if (month < 1 || month > 12) { // check month range
+        alert("Enrollment Month must be between 1 and 12.");
+        return false;
+    }
+
+    if (day < 1 || day > 31) {
+        alert("Enrollment Day must be between 1 and 31.");
+        return false;
+    }
+
+    if ((month==4 || month==6 || month==9 || month==11) && day==31) {
+        alert("Enrollment Month "+month+" doesn't have 31 days!")
+        return false
+    }
+
+    if (month == 2) { // check for february 29th
+        var isleap = (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0));
+
+        if (day>29 || (day==29 && !isleap)) {
+            alert("February " + year + " doesn't have " + day + " days!");
+            return false;
+        }
+    }
+
+    return true;  // date is valid
+}
+
 
 function checkResidentStatus(){
     var rs = document.adddemographic.rsid.value;
@@ -529,6 +603,7 @@ function checkFormTypeIn() {
 	if ( document.adddemographic.hc_type.value !== "ON" ) {
 		if ( !checkOOPHin() ) return false;
 	}
+	if ( !checkEnrollmentFields() ) return false;
 	if ( !checkSex() ) return false;
 	if ( !checkResidentStatus() ) return false;
 	if ( !checkAllDate() ) return false;

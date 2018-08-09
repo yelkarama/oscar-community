@@ -77,6 +77,7 @@ import org.oscarehr.common.dao.OscarAppointmentDao;
 import org.oscarehr.common.dao.PartialDateDao;
 import org.oscarehr.common.dao.PharmacyInfoDao;
 import org.oscarehr.common.dao.ProfessionalSpecialistDao;
+import org.oscarehr.common.dao.DemographicExtArchiveDao;
 import org.oscarehr.common.exception.PatientDirectiveException;
 import org.oscarehr.common.model.Allergy;
 import org.oscarehr.common.model.Appointment;
@@ -93,6 +94,8 @@ import org.oscarehr.common.model.PartialDate;
 import org.oscarehr.common.model.PharmacyInfo;
 import org.oscarehr.common.model.ProfessionalSpecialist;
 import org.oscarehr.common.model.Provider;
+import org.oscarehr.common.model.DemographicExt;
+import org.oscarehr.common.model.DemographicExtArchive;
 import org.oscarehr.e2e.director.E2ECreator;
 import org.oscarehr.e2e.util.EverestUtils;
 import org.oscarehr.hospitalReportManager.dao.HRMDocumentCommentDao;
@@ -445,16 +448,21 @@ public class DemographicExportAction4 extends Action {
 					if (StringUtils.filled(termReason))
 						enrolmentHistory.setTerminationReason(cdsDt.TerminationReasonCode.Enum.forString(termReason));
 				}
-				Provider mrp = providerDao.getProvider(demographic.getProviderNo());
-				if (mrp != null) {
+				Provider enrollmentProvider = null;
+				DemographicExt enrollmentProviderExt = demographicExtDao.getDemographicExt(Integer.parseInt(demographicNo), "enrollmentProvider");
+				if (enrollmentProviderExt != null && enrollmentProviderExt.getValue() != null && !enrollmentProviderExt.getValue().isEmpty()) {
+					enrollmentProvider = providerDao.getProvider(enrollmentProviderExt.getValue());
+				}
+
+				if (enrollmentProvider != null) {
 					Demographics.Enrolment.EnrolmentHistory.EnrolledToPhysician primaryPhysician = enrolmentHistory.addNewEnrolledToPhysician();
 					PersonNameSimple physicianName = primaryPhysician.addNewName();
 
-					physicianName.setFirstName(StringUtils.noNull(mrp.getFirstName()));
-					physicianName.setLastName(StringUtils.noNull(mrp.getLastName()));
+					physicianName.setFirstName(StringUtils.noNull(enrollmentProvider.getFirstName()));
+					physicianName.setLastName(StringUtils.noNull(enrollmentProvider.getLastName()));
 
-					if (StringUtils.filled(mrp.getOhipNo())) {
-						primaryPhysician.setOHIPPhysicianId(mrp.getOhipNo());
+					if (StringUtils.filled(enrollmentProvider.getOhipNo())) {
+						primaryPhysician.setOHIPPhysicianId(enrollmentProvider.getOhipNo());
 					}
 				}
 				enrolmentHistoryArray.add(enrolmentHistory);
@@ -504,17 +512,22 @@ public class DemographicExportAction4 extends Action {
 					if (StringUtils.filled(termReason))
 						enrolmentHistory.setTerminationReason(cdsDt.TerminationReasonCode.Enum.forString(termReason));
 				}
-				
-				Provider historyMrp = providerDao.getProvider(historyProviderNo);
-				if (historyMrp != null) {
+
+				Provider archiveEnrollmentProvider = null;
+				DemographicExtArchiveDao demographicExtArchiveDao = SpringUtils.getBean(DemographicExtArchiveDao.class);
+				DemographicExtArchive enrollmentProviderExtArchive = demographicExtArchiveDao.getDemographicExtArchiveByArchiveIdAndKey(DAs.get(i).getId(), "enrollmentProvider");
+				if (enrollmentProviderExtArchive != null && enrollmentProviderExtArchive.getValue() != null && !enrollmentProviderExtArchive.getValue().isEmpty()) {
+					archiveEnrollmentProvider = providerDao.getProvider(enrollmentProviderExtArchive.getValue());
+				}
+				if (archiveEnrollmentProvider != null) {
 					Demographics.Enrolment.EnrolmentHistory.EnrolledToPhysician primaryPhysician = enrolmentHistory.addNewEnrolledToPhysician();
 					PersonNameSimple physicianName = primaryPhysician.addNewName();
 
-					physicianName.setFirstName(StringUtils.noNull(historyMrp.getFirstName()));
-					physicianName.setLastName(StringUtils.noNull(historyMrp.getLastName()));
+					physicianName.setFirstName(StringUtils.noNull(archiveEnrollmentProvider.getFirstName()));
+					physicianName.setLastName(StringUtils.noNull(archiveEnrollmentProvider.getLastName()));
 
-					if (StringUtils.filled(historyMrp.getOhipNo())) {
-						primaryPhysician.setOHIPPhysicianId(historyMrp.getOhipNo());
+					if (StringUtils.filled(archiveEnrollmentProvider.getOhipNo())) {
+						primaryPhysician.setOHIPPhysicianId(archiveEnrollmentProvider.getOhipNo());
 					}
 				}
 
