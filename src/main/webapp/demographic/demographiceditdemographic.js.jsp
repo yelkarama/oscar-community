@@ -175,10 +175,11 @@ function checkSex() {
 
 function checkEnrollmentFields() {
     var provider = jQuery_3_1_0('#enrollmentProvider')[0].value;
+    var notMrpSelected = jQuery_3_1_0('#notMrp')[0].checked;
     var status = jQuery_3_1_0('#roster_status')[0].value;
     var date = jQuery_3_1_0('#roster_date')[0].value;
 
-    if (provider === "" && status === "" && date === "") {
+    if ((provider === "" || !notMrpSelected) && status === "" && date === "") {
         return true;
     }
 
