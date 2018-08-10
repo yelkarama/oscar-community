@@ -140,3 +140,8 @@ div.Title3   { font-weight: bolder; font-size: 12pt; color: black; font-family:
 div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                Verdana, Arial, Helvetica }
 .smallButton { font-size: 8pt; }
+.labReqDate {
+    color: #ffffff;
+    float: right;
+    margin-right: 10px;
+}

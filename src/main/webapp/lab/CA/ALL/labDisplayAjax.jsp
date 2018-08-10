@@ -43,6 +43,7 @@
 		javax.swing.text.rtf.RTFEditorKit,
 		java.io.ByteArrayInputStream"%>
 <%@ page import="java.net.URLEncoder" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
@@ -776,7 +777,12 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
                                <%--<td align="right" bgcolor="#FFCC00" width="100">&nbsp;</td>--%>
                                <td width="9">&nbsp;</td>
                                <td width="9">&nbsp;</td>
-                               <td width="*">&nbsp;</td>
+                               <td width="*" class="labReqDate">
+                                   <% if (StringUtils.isNotEmpty(handler.getRequestDate(i))) { %>
+                                   <b><bean:message key="oscarMDS.createLab.labReqDate" /></b><br/>
+                                   <%=handler.getRequestDate(i)%>
+                                   <% } %>
+                               </td>
                            </tr>
                        </table>
                        <table width="100%" border="0" cellspacing="0" cellpadding="2" bgcolor="#CCCCFF" bordercolor="#9966FF" bordercolordark="#bfcbe3" name="tblDiscs" id="tblDiscs">
@@ -832,7 +838,12 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
 	                               <%--<td align="right" bgcolor="#FFCC00" width="100">&nbsp;</td>--%>
 	                               <td width="9">&nbsp;</td>
 	                               <td width="9">&nbsp;</td>
-	                               <td width="*">&nbsp;</td>
+                                   <td width="*" class="labReqDate">
+                                       <% if (StringUtils.isNotEmpty(handler.getRequestDate(i))) { %>
+                                       <b><bean:message key="oscarMDS.createLab.labReqDate" /></b><br/>
+                                       <%=handler.getRequestDate(i)%>
+                                       <% } %>
+                                   </td>
 	                           </tr>
 	                       </table>
 							<% if (handler.getMsgType().equals("MEDITECH")){ %>

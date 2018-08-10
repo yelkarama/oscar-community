@@ -391,6 +391,11 @@ div.Title2 a:active { color: black }
 .PageLink a:visited { font-size: 9pt; color: yellow }
 .PageLink a:active { font-size: 12pt; color: yellow }
 .PageLink    { font-family: Verdana }
+.labReqDate {
+    color: #ffffff;
+    float: right;
+    margin-right: 10px;
+}
 .text1       { font-size: 8pt; color: black; font-family: Verdana, Arial, Helvetica }
 div.txt1     { font-size: 8pt; color: black; font-family: Verdana, Arial }
 div.txt2     { font-weight: bolder; font-size: 6pt; color: black; font-family: Verdana, Arial }
@@ -1203,7 +1208,12 @@ pre {
                                <%--<td align="right" bgcolor="#FFCC00" width="100">&nbsp;</td>--%>
                                <td width="9">&nbsp;</td>
                                <td width="9">&nbsp;</td>
-                               <td width="*">&nbsp;</td>
+                               <td width="*" class="labReqDate">
+                                   <% if (StringUtils.isNotEmpty(handler.getRequestDate(i))) { %>
+                                   <b><bean:message key="oscarMDS.createLab.labReqDate" /></b><br/>
+                                   <%=handler.getRequestDate(i)%>
+                                   <% } %>
+                               </td>
                            </tr>
                        </table>
                        <table width="100%" border="0" cellspacing="0" cellpadding="2" bgcolor="#CCCCFF" bordercolor="#9966FF" bordercolordark="#bfcbe3" name="tblDiscs" id="tblDiscs">
@@ -1260,7 +1270,7 @@ pre {
 	                               <td colspan="4" height="7">&nbsp;</td>
 	                           </tr>
 	                           <tr>
-	                               <td bgcolor="#FFCC00" width="300" valign="bottom">
+	                               <td style="background: #FFCC00" width="300" valign="bottom">
 	                                   <div class="Title2">
 	                                       <%=headers.get(i)%>
 	                                   </div>
@@ -1268,7 +1278,12 @@ pre {
 	                               <%--<td align="right" bgcolor="#FFCC00" width="100">&nbsp;</td>--%>
 	                               <td width="9">&nbsp;</td>
 	                               <td width="9">&nbsp;</td>
-	                               <td width="*">&nbsp;</td>
+                                   <td width="*" class="labReqDate">
+                                       <% if (StringUtils.isNotEmpty(handler.getRequestDate(i))) { %>
+                                       <b><bean:message key="oscarMDS.createLab.labReqDate" /></b><br/>
+                                       <%=handler.getRequestDate(i)%>
+                                       <% } %>
+                                   </td>
 	                           </tr>
 	                       </table>
 	                   <% if ( ( handler.getMsgType().equals("MEDITECH") && isUnstructuredDoc) || 
