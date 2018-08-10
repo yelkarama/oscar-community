@@ -484,59 +484,58 @@ public class DemographicExportAction4 extends Action {
 				historyTD = DAs.get(i).getRosterTerminationDate();
 				historyTD1 = i<DAs.size()-1 ? DAs.get(i+1).getRosterTerminationDate() : null;
 
-                if (enrolment == null && !historyRS.isEmpty()) {
-                    enrolment = demo.addNewEnrolment();
-                }
-				
-				historyProviderNo = DAs.get(i).getProviderNo();
-
-				if (i==0) { //check history info with current
-					String rd = UtilDateUtilities.DateToString(historyRD);
-					String td = UtilDateUtilities.DateToString(historyTD);
-					if (historyRS.equals(rosterStatus) && rd.equals(rosterDate) && td.equals(rosterTermDate))
-						continue;
-				} else { //check history info with next
-					if (historyRS.equals(historyRS1) &&
-						UtilDateUtilities.nullSafeCompare(historyRD, historyRD1) == 0 &&
-						UtilDateUtilities.nullSafeCompare(historyTD, historyTD1) == 0 )
-						continue;
-				}
-
-				enrolmentHistory = enrolment.addNewEnrolmentHistory();
-				enrolmentHistory.setEnrollmentStatus(cdsDt.EnrollmentStatus.Enum.forString(historyRS));
-				if (historyRD!=null) enrolmentHistory.setEnrollmentDate(Util.calDate(historyRD));
-
-				 if (!historyRS.equals("1")) {
-					if (historyTD!=null)
-						enrolmentHistory.setEnrollmentTerminationDate(Util.calDate(historyTD));
-					String termReason = DAs.get(i).getRosterTerminationReason();
-					if (StringUtils.filled(termReason))
-						enrolmentHistory.setTerminationReason(cdsDt.TerminationReasonCode.Enum.forString(termReason));
-				}
-
-				Provider archiveEnrollmentProvider = null;
-				DemographicExtArchiveDao demographicExtArchiveDao = SpringUtils.getBean(DemographicExtArchiveDao.class);
-				DemographicExtArchive enrollmentProviderExtArchive = demographicExtArchiveDao.getDemographicExtArchiveByArchiveIdAndKey(DAs.get(i).getId(), "enrollmentProvider");
-				if (enrollmentProviderExtArchive != null && enrollmentProviderExtArchive.getValue() != null && !enrollmentProviderExtArchive.getValue().isEmpty()) {
-					archiveEnrollmentProvider = providerDao.getProvider(enrollmentProviderExtArchive.getValue());
-				}
-
-				if (archiveEnrollmentProvider == null) {
-					archiveEnrollmentProvider = providerDao.getProvider(DAs.get(i).getProviderNo());
-				}
-				if (archiveEnrollmentProvider != null) {
-					Demographics.Enrolment.EnrolmentHistory.EnrolledToPhysician primaryPhysician = enrolmentHistory.addNewEnrolledToPhysician();
-					PersonNameSimple physicianName = primaryPhysician.addNewName();
-
-					physicianName.setFirstName(StringUtils.noNull(archiveEnrollmentProvider.getFirstName()));
-					physicianName.setLastName(StringUtils.noNull(archiveEnrollmentProvider.getLastName()));
-
-					if (StringUtils.filled(archiveEnrollmentProvider.getOhipNo())) {
-						primaryPhysician.setOHIPPhysicianId(archiveEnrollmentProvider.getOhipNo());
-					}
-				}
-
 				if (!historyRS.isEmpty()) {
+					if (enrolment == null) {
+						enrolment = demo.addNewEnrolment();
+					}
+				
+					historyProviderNo = DAs.get(i).getProviderNo();
+	
+					if (i==0) { //check history info with current
+						String rd = UtilDateUtilities.DateToString(historyRD);
+						String td = UtilDateUtilities.DateToString(historyTD);
+						if (historyRS.equals(rosterStatus) && rd.equals(rosterDate) && td.equals(rosterTermDate))
+							continue;
+					} else { //check history info with next
+						if (historyRS.equals(historyRS1) &&
+							UtilDateUtilities.nullSafeCompare(historyRD, historyRD1) == 0 &&
+							UtilDateUtilities.nullSafeCompare(historyTD, historyTD1) == 0 )
+							continue;
+					}
+	
+					enrolmentHistory = enrolment.addNewEnrolmentHistory();
+					enrolmentHistory.setEnrollmentStatus(cdsDt.EnrollmentStatus.Enum.forString(historyRS));
+					if (historyRD!=null) enrolmentHistory.setEnrollmentDate(Util.calDate(historyRD));
+	
+					 if (!historyRS.equals("1")) {
+						if (historyTD!=null)
+							enrolmentHistory.setEnrollmentTerminationDate(Util.calDate(historyTD));
+						String termReason = DAs.get(i).getRosterTerminationReason();
+						if (StringUtils.filled(termReason))
+							enrolmentHistory.setTerminationReason(cdsDt.TerminationReasonCode.Enum.forString(termReason));
+					}
+	
+					Provider archiveEnrollmentProvider = null;
+					DemographicExtArchiveDao demographicExtArchiveDao = SpringUtils.getBean(DemographicExtArchiveDao.class);
+					DemographicExtArchive enrollmentProviderExtArchive = demographicExtArchiveDao.getDemographicExtArchiveByArchiveIdAndKey(DAs.get(i).getId(), "enrollmentProvider");
+					if (enrollmentProviderExtArchive != null && enrollmentProviderExtArchive.getValue() != null && !enrollmentProviderExtArchive.getValue().isEmpty()) {
+						archiveEnrollmentProvider = providerDao.getProvider(enrollmentProviderExtArchive.getValue());
+					}
+	
+					if (archiveEnrollmentProvider == null) {
+						archiveEnrollmentProvider = providerDao.getProvider(DAs.get(i).getProviderNo());
+					}
+					if (archiveEnrollmentProvider != null) {
+						Demographics.Enrolment.EnrolmentHistory.EnrolledToPhysician primaryPhysician = enrolmentHistory.addNewEnrolledToPhysician();
+						PersonNameSimple physicianName = primaryPhysician.addNewName();
+	
+						physicianName.setFirstName(StringUtils.noNull(archiveEnrollmentProvider.getFirstName()));
+						physicianName.setLastName(StringUtils.noNull(archiveEnrollmentProvider.getLastName()));
+	
+						if (StringUtils.filled(archiveEnrollmentProvider.getOhipNo())) {
+							primaryPhysician.setOHIPPhysicianId(archiveEnrollmentProvider.getOhipNo());
+						}
+					}
 					enrolmentHistoryArray.add(enrolmentHistory);
 				}
 			}

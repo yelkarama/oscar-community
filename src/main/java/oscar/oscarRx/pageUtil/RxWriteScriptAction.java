@@ -1038,28 +1038,30 @@ public final class RxWriteScriptAction extends DispatchAction {
 					RxPrescriptionData.Prescription rx = bean.getStashItem(stashIndex);
 					String ingredientName = request.getParameter("ingredient_name_" + num) == null ? "" : request.getParameter("ingredient_name_" + num).replaceAll(" ", "");
 					String ingredientStrength = request.getParameter("ingredient_strength_" + num) == null ? "" : request.getParameter("ingredient_strength_" + num).replaceAll(" ", "");
-					String[] ingredientNames = ingredientName.trim().split("/");
-					String[] ingredientStrengths = ingredientStrength.trim().split("/");
-					StringBuilder genericName = new StringBuilder();
-					StringBuilder dosage = new StringBuilder();
-					for (int i = 0; i < ingredientNames.length; i++) {
-						genericName.append(ingredientNames[i]);
-						genericName.append(" ");
-						if (i < ingredientStrengths.length) {
-							genericName.append(ingredientStrengths[i]);
-							dosage.append(ingredientStrengths[i]);
-							dosage.append(" ");
+					if (!ingredientName.isEmpty()) {
+						String[] ingredientNames = ingredientName.trim().split("/");
+						String[] ingredientStrengths = ingredientStrength.trim().split("/");
+						StringBuilder genericName = new StringBuilder();
+						StringBuilder dosage = new StringBuilder();
+						for (int i = 0; i < ingredientNames.length; i++) {
+							genericName.append(ingredientNames[i]);
+							genericName.append(" ");
+							if (i < ingredientStrengths.length) {
+								genericName.append(ingredientStrengths[i]);
+								dosage.append(ingredientStrengths[i]);
+								dosage.append(" ");
+							}
+							if (i < (ingredientStrengths.length - 1)) {
+								genericName.append(" / ");
+							}
 						}
-						if (i < (ingredientStrengths.length - 1)) {
-							genericName.append(" / ");
+						if (ingredientStrengths.length > 0 && ingredientStrengths[0].length() > 2) {
+							String unit = ingredientStrengths[0].substring(ingredientStrengths[0].length() - 2);
+							rx.setUnit(unit);
 						}
+						rx.setGenericName(genericName.toString());
+						rx.setDosage(dosage.toString());
 					}
-					if (ingredientStrengths.length > 0 && ingredientStrengths[0].length() > 2) {
-						String unit = ingredientStrengths[0].substring(ingredientStrengths[0].length() - 2);
-						rx.setUnit(unit);
-					}
-					rx.setGenericName(genericName.toString());
-					rx.setDosage(dosage.toString());
 
 					boolean patientComplianceY = false;
 					boolean patientComplianceN = false;
