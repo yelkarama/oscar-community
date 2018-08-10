@@ -122,7 +122,7 @@ public class ReadHRMFile {
         String sendingFacility = rp.getSendingFacility();
         String sendingFacilityRptNum = rp.getSendingFacilityReportNumber();
 
-        if (rptClass!=null) strings.put("class", rptClass.toString());
+        if (rptClass!=null) strings.put("class", rptClass.value());
         if (subClass!=null) strings.put("subclass", subClass);
         if (ext!=null) strings.put("fileextension&version", ext);
         if (format!=null) strings.put("format", format.toString());

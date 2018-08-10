@@ -301,6 +301,10 @@ public class DemographicExportAction4 extends Action {
 		}
 	String ffwd = "fail";
 	String tmpDir = oscarProperties.getProperty("TMP_DIR");
+	String docDir = Util.fixDirName(oscarProperties.getProperty("DOCUMENT_DIR"));
+	if (!Util.checkDir(docDir)) {
+		logger.debug("Error! Cannot write to DOCUMENT_DIR - Check oscar.properties or dir permissions.");
+	}
 	
 	// Sharing Center - holds the ID that will 'potentially' be exported.
 	int documentExportId = 0;
@@ -1879,7 +1883,7 @@ public class DemographicExportAction4 extends Action {
 					List<HRMDocument> hrmDocs = hrmDocDao.findById(Integer.valueOf(hrmDocumentId));
 					auditLog.add("READ | " + dateTime.format(new Date()) + " | HRMDocument: id=" + hrmDocumentId);
 					for (HRMDocument hrmDoc : hrmDocs) {
-						String reportFile = hrmDoc.getReportFile();
+						String reportFile = docDir + hrmDoc.getReportFile();
 						if (StringUtils.empty(reportFile)) continue;
 
 						File hrmFile = new File(reportFile);
@@ -2006,14 +2010,8 @@ public class DemographicExportAction4 extends Action {
 								reviewed.addNewDateTimeReportReviewed().setFullDate(reviewDate);
 							}
 
-							//Notes
-							List<HRMDocumentComment> comments = hrmDocCommentDao.getCommentsForDocument(Integer.parseInt(hrmDocumentId));
-							auditLog.add("READ | " + dateTime.format(new Date()) + " | HRMDocumentComment: hrmDocumentId=" + hrmDocumentId);
-							String notes = null;
-							for (HRMDocumentComment comment : comments) {
-								notes = Util.addLine(notes, comment.getComment());
-							}
-							if (StringUtils.filled(notes)) rpr.setNotes(notes);
+//							//Notes (NOT comments)
+							if (StringUtils.filled(hrmDoc.getDescription())) { rpr.setNotes(hrmDoc.getDescription()); }
 
 							//OBR Content
 							for (int j=0; j<hrm.getReportOBRContentTotal(i); j++) {
@@ -2676,7 +2674,6 @@ public class DemographicExportAction4 extends Action {
 			}
 		}
 
-		if (hrmEnumF.equals("Medical Records Report")) hrmEnumF = "Medical Record Report"; //HRM & CDS class names not match
 		return hrmEnumF;
 	}
 
