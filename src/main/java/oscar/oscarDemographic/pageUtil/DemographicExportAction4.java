@@ -1832,9 +1832,6 @@ public class DemographicExportAction4 extends Action {
 						if (reportMedia != null) {
 							rpr.setMedia(reportMedia);
 						}
-						if (edoc.getSentDateTime() != null) {
-							rpr.addNewSentDateTime().setFullDateTime(Util.calDate(edoc.getSentDateTime()));
-						}
 						for (DocumentReview review : edoc.getReviews()) {
 							Provider reviewer = review.getReviewer();
 							if (review.getDateTimeReviewed() != null && reviewer != null) {
@@ -1848,16 +1845,6 @@ public class DemographicExportAction4 extends Action {
 								if (reviewerOhip.length()<=6) {
 									reportReviewed.setReviewingOHIPPhysicianId(reviewerOhip);
 								}
-							}
-						}
-
-						String recipientProviderNo = edoc.getResponsibleId();
-						if (StringUtils.filled(recipientProviderNo)) {
-							Provider recipientProvider = providerDao.getProvider(recipientProviderNo);
-							if (recipientProvider != null) {
-								PersonNameSimple recipientName = rpr.addNewRecipientName();
-								recipientName.setFirstName(StringUtils.noNull(recipientProvider.getFirstName()));
-								recipientName.setLastName(StringUtils.noNull(recipientProvider.getLastName()));
 							}
 						}
 
