@@ -35,6 +35,7 @@
 <%@page import="org.oscarehr.common.model.PreventionsLotNrs" %>
 <%@ page import="org.oscarehr.common.dao.PartialDateDao" %>
 <%@ page import="org.oscarehr.common.model.Provider" %>
+<%@ page import="oscar.OscarProperties" %>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
@@ -150,6 +151,8 @@ if(!authed) {
   genders.put("M", "Male");
   genders.put("F", "Female");
   genders.put("U", "Unknown");
+  
+  Boolean defaultPreventionName = OscarProperties.getInstance().getBooleanProperty("default_prevention_name", "true");
 %>
 
 
@@ -496,7 +499,7 @@ function displayCloseWarning(){
                    </fieldset>
                    <fieldset >
                       <legend >Result</legend>
-             			 <label for="name">Name:</label> <input type="text" name="name" value="<%=str((extraData.get("name")),prevention)%>"/> <br/>
+             			 <label for="name">Name:</label> <input type="text" name="name" value="<%=str((extraData.get("name")), defaultPreventionName ? prevention : "")%>"/> <br/>
                          <label for="location">Location:</label> <input type="text" name="location" value="<%=str((extraData.get("location")),"")%>"/> <br/>
                          <label for="route">Route:</label> <input type="text" name="route"   value="<%=str((extraData.get("route")),"")%>"/><br/>
                          <label for="dose">Dose:</label> <input type="text" name="dose"  value="<%=str((extraData.get("dose")),"")%>"/><br/>
