@@ -84,7 +84,7 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 	private String duration = null;
 	@Column(name = "durunit")
 	private String durUnit = null;
-	private String quantity = null;
+	private String quantity = "";
 	private String dispensingUnits = null;
 	@Column(name = "`repeat`")
 	private Integer repeat = 0;
@@ -978,6 +978,10 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 
 		if (scriptNo != null && (prescriptionIdentifier == null || prescriptionIdentifier.isEmpty())) {
 			prescriptionIdentifier = String.valueOf(scriptNo);
+		}
+		
+		if (quantity == null) {
+			quantity = "";
 		}
 	}
 
