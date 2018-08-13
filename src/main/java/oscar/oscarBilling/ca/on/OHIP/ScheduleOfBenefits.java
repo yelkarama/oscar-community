@@ -145,7 +145,8 @@ public class ScheduleOfBenefits {
 		BigDecimal diffPriceDec = fee.subtract(oldPriceDec);
 		boolean feeChanged = oldPriceDec.compareTo(fee) != 0;
 		boolean feeNonZero = fee.compareTo(BigDecimal.ZERO) != 0;
-		
+
+		boolean isNew = oldPricingInfo == null;
 		boolean isTerminated = false;
 		String terminationDate = (String) newPricingInfo.get("terminactionDate");
 		if (terminationDate.equals("99999999")) {
@@ -180,7 +181,10 @@ public class ScheduleOfBenefits {
 			String oldServiceDate = (String)oldPricingInfo.get("billingservice_date");
 			oldServiceDate = oldServiceDate.replace("-",  "");
 			String newServiceDate = (String)newPricingInfo.get("effectiveDate");
-			if(oldServiceDate.equals(newServiceDate)) {return null; }
+
+			String oldTerminationDate = (String)oldPricingInfo.get("billingservice_date");
+			oldServiceDate = oldServiceDate.replace("-",  "");
+			if(oldServiceDate.equals(newServiceDate) && oldTerminationDate.equals(terminationDate)) {return null; }
 		}
 
 		change.put("newprice", fee);
@@ -189,6 +193,7 @@ public class ScheduleOfBenefits {
 		change.put("effectiveDate", newPricingInfo.get("effectiveDate"));
 		change.put("terminactionDate", terminationDate);
 		change.put("isTerminated", isTerminated);
+		change.put("isNew", isNew);
 
 		if (oldPricingInfo == null) {
 			newfees++;				

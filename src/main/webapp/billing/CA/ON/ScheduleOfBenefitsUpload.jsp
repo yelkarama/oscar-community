@@ -94,7 +94,7 @@ enctype="multipart/form-data" onsubmit="return checkForm();">
 <input type="file" name="importFile" value="/root/apr05sob.001">
 <input class="btn btn-primary" type="submit" name="Submit" value="Import">
 <div>			
-<input type="checkbox" name="showChangedCodes" value="on" checked tabindex="1" /><bean:message key="oscar.billing.CA.ON.billingON.sobUpload.showCodesChangedPrices" /><br>			
+<input type="checkbox" name="showChangedCodes" value="on" checked tabindex="1" /> Show changed codes <br>
 <input type="checkbox" name="showNewCodes" value="on" tabindex="2" /><bean:message key="oscar.billing.CA.ON.billingON.sobUpload.showNewCodes" /><br>
 <input type="checkbox" name="forceUpdate" value="on" tabindex="3" /><bean:message key="oscar.billing.CA.ON.billingON.sobUpload.forceUpdate" /><br>				
 <input type="checkbox" name="updateAssistantFees" value="on" tabindex="5" /><bean:message key="oscar.billing.CA.ON.billingON.sobUpload.updateAssistantFees" /><br/>
@@ -188,6 +188,11 @@ if(outcome != null && outcome.equals("success")){ %>
     #terminatedCodes tbody tr {
         color: red;
     }
+	
+	.newCode {
+		color: #468847;
+		font-weight: 600;
+	}
 </style>
 
 <table id="terminatedCodes">
@@ -217,7 +222,7 @@ if ( l != null) {          %>
 <ul>
 	<% for (int i = 0; i < l.size(); i++){ 
       Hashtable h = (Hashtable) l.get(i); %>
-	<li><%=h.get("code")%> value updated to : <%=h.get("value")%></li>
+	<li><%=h.get("code")%> fee : <%=h.get("value")%> , effective : <%=h.get("effectiveDate")%> <%=(Boolean)h.get("isNew") ? " <sup class=\"newCode\">NEW</sup> " : ""%></li>
 	<%}%>
 </ul>
 <% }%>

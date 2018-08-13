@@ -58,6 +58,7 @@ public class ScheduleOfBenefitsUpdateAction extends Action {
 	public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)  {
 
 		boolean forceUpdate = request.getAttribute("forceUpdate") == null ? "true".equals(request.getParameter("forceUpdate")) : (Boolean) request.getAttribute("forceUpdate");
+		List<Hashtable> newCodes = new ArrayList<Hashtable>();
 		List<Hashtable> terminatedList = new ArrayList<>();
 		if (forceUpdate) { 
 			List codes = (List)request.getAttribute("warnings");
@@ -83,6 +84,8 @@ public class ScheduleOfBenefitsUpdateAction extends Action {
 					Hashtable h = new Hashtable();
 					h.put("code", code.get("feeCode"));
 					h.put("value", code.get("newprice").toString());
+					h.put("isNew", code.get("isNew"));
+					h.put("effectiveDate", effDate);
 					if ((Boolean)code.get("isTerminated")) {
                         h.put("terminationDate", termDate);
                         terminatedList.add(h);
@@ -92,10 +95,8 @@ public class ScheduleOfBenefitsUpdateAction extends Action {
 				}catch(Exception e) {
 					MiscUtils.getLogger().error("Error",e);
 				}
-				
-				
 			}
-			
+			request.setAttribute("newCodes", newCodes);
 			request.setAttribute("terminationList", terminatedList);
 			request.setAttribute("changes", list);
 			request.setAttribute("warnings", null);
