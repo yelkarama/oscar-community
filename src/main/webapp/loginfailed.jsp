@@ -32,6 +32,7 @@
 
 <%
     String errormsg = request.getParameter("errormsg");
+    String customText = OscarProperties.getInstance().getProperty("custom_lock_text", "");
 %>
 
 <html:html locale="true">
@@ -42,6 +43,7 @@
 </head>
 <body style="font-family: Helvetica, Arial">
 <h4><%=errormsg%></h4>
+<% if (customText.isEmpty()) { %>
 <h4>KAI Tips:</h4>
 <ul>
     <%if (errormsg!=null && errormsg.contains("Your account is expired.")){ %>
@@ -53,5 +55,8 @@
     <%}%>
     <li>If you have forgotten your password all together, please email KAI Support: <a href="mailto:support@kaiinnovations.com">support@kaiinnovations.com</a> to have it reset.</li>
 </ul>
+<% } else { %>
+<h4><%= customText %></h4>
+<% } %>
 </body>
 </html:html>
