@@ -201,6 +201,7 @@ if(outcome != null && outcome.equals("success")){ %>
 	<tr>
 		<th>Service Code</th>
 		<th>Most Recent Fee</th>
+		<th>Effective Date</th>
 		<th>Termination Date</th>
 	</tr>
 	</thead>
@@ -209,6 +210,7 @@ if(outcome != null && outcome.equals("success")){ %>
 	<tr>
 		<td><%= seviceCode.get("code")%></td>
 		<td><%= seviceCode.get("value")%></td>
+		<td><%= seviceCode.get("effectiveDate")%></td>
 		<td><%= seviceCode.get("terminationDate")%></td>
 	</tr>
 	<% } %>
