@@ -1167,7 +1167,7 @@ for (Provider p : prList) {
 	    String clinic_no = "clinic_" + clinic.getClinicNo();
 %>
 		providerData['<%=clinic_no%>'] = new Object();
-		providerData['<%=clinic_no%>'].address = "<%=clinic.getClinicAddress()%>";
+		providerData['<%=clinic_no%>'].address = "<%=(clinic.getClinicAddress() + "   " + clinic.getClinicCity() + "   " + clinic.getClinicProvince() + "  " + clinic.getClinicPostal()).trim()%>" ;
 		providerData['<%=clinic_no%>'].phone = "<%=clinic.getClinicPhone().trim()%>";
 		providerData['<%=clinic_no%>'].fax = "<%=clinic.getClinicFax().trim()%>";
 <%
