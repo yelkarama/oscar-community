@@ -1141,7 +1141,7 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 					<option value=""></option>
 					<%
 						for(Provider p : doctors) {
-							if (enrollmentProvider == null) {
+							if (enrollmentProvider == null && !notMrp) {
 								enrollmentProvider = demographic.getProviderNo();
 							}
 					%>

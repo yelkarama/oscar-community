@@ -528,7 +528,10 @@
 	    extensions.add(new DemographicExt(request.getParameter("referral_source_id"), proNo, demographicNo, "referral_source", referralSourceString));
 	}
 
-	if (!StringUtils.trimToEmpty(demoExt.get("enrollmentProvider")).equals(StringUtils.trimToEmpty(request.getParameter("enrollmentProvider")))) {
+	if ((!StringUtils.trimToEmpty(demoExt.get("enrollmentProvider")).equals(StringUtils.trimToEmpty(request.getParameter("enrollmentProvider"))))
+			|| (!request.getParameter("roster_status").equalsIgnoreCase(oldDemographic.getRosterStatus())) || ((rosterDate == null ? "" : rosterDate).equals(oldDemographic.getRosterDate() == null ? "" : oldDemographic.getRosterDate().toString()))
+			|| ((rosterTerminationDate == null ? "" : rosterTerminationDate).equalsIgnoreCase(oldDemographic.getRosterTerminationDate() == null ? "" : oldDemographic.getRosterTerminationDate().toString()))
+			|| (!request.getParameter("roster_termination_reason").equalsIgnoreCase(oldDemographic.getRosterTerminationReason()))) {
 		extensions.add(new DemographicExt(request.getParameter("enrollmentProvider_id"), proNo, demographicNo, "enrollmentProvider", request.getParameter("enrollmentProvider") == null ? "" : request.getParameter("enrollmentProvider")));
 	}
 
