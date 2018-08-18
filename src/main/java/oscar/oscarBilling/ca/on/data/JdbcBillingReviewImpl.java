@@ -476,7 +476,11 @@ public class JdbcBillingReviewImpl {
 		return getBillingHist(demoNo, iPageSize, iOffSet, dateRange, false);
 	}
 
-	public List<Object> getBillingHist(String demoNo, int iPageSize, int iOffSet, DateRange dateRange, Boolean showDeleted)  {
+	public List<Object> getBillingHist(String demoNo, int iPageSize, int iOffSet, DateRange dateRange, Boolean showDeleted) {
+		return getBillingHist(demoNo, iPageSize, iOffSet, null, null, dateRange, showDeleted);
+	}
+
+	public List<Object> getBillingHist(String demoNo, Integer iPageSize, Integer iOffSet, String providerNo, String serviceCode, DateRange dateRange, Boolean showDeleted)  {
 		List<Object> retval = new ArrayList<Object>();
 		int iRow = 0;
 
@@ -488,9 +492,9 @@ public class JdbcBillingReviewImpl {
 
 		List<BillingONCHeader1> hs = null;
 		if (dateRange == null) {
-			hs = dao.findByDemoNo(ConversionUtils.fromIntString(demoNo), iOffSet, iPageSize, showDeleted);
+			hs = dao.findByDemoNo(ConversionUtils.fromIntString(demoNo), iOffSet, iPageSize, providerNo, serviceCode, showDeleted);
 		} else {
-			hs = dao.findByDemoNoAndDates(ConversionUtils.fromIntString(demoNo), dateRange, iOffSet, iPageSize, showDeleted);
+			hs = dao.findByDemoNoAndDates(ConversionUtils.fromIntString(demoNo), dateRange, iOffSet, iPageSize, providerNo, serviceCode, showDeleted);
 		}
 
 		try {

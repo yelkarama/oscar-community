@@ -756,15 +756,33 @@ public class BillingONCHeader1Dao extends AbstractDao<BillingONCHeader1>{
     }
 
     public List<BillingONCHeader1> findByDemoNo(Integer demoNo, int iOffSet, int pageSize, Boolean showDeleted) {
+        return findByDemoNo(demoNo, iOffSet, pageSize, null, null, showDeleted);
+    }
+
+    public List<BillingONCHeader1> findByDemoNo(Integer demoNo, Integer iOffSet, Integer pageSize, String providerNo, String serviceCode, Boolean showDeleted) {
         String sql = "FROM BillingONCHeader1 b WHERE b.demographicNo = :demoNo ";
 
-                if (!showDeleted) {
-                    sql += "AND b.status != 'D' ";
-                }
+        if (StringUtils.trimToNull(providerNo) != null) {
+            sql += "and b.providerNo = :providerNo ";
+        }
+        
+        if (StringUtils.trimToNull(serviceCode) != null) {
+            sql += "and exists(select i FROM BillingONItem i where b.id = i.ch1Id and i.serviceCode like :serviceCode " + (showDeleted ? "" : "and i.status != 'D'") + ") ";
+        }
+        
+        if (!showDeleted) {
+            sql += "AND b.status != 'D' ";
+        }
 
-                sql += "ORDER BY b.billingDate DESC, b.billingTime DESC, b.id DESC";
+        sql += "ORDER BY b.billingDate DESC, b.billingTime DESC, b.id DESC";
         Query query = entityManager.createQuery(sql);
         query.setParameter("demoNo", demoNo);
+        if (StringUtils.trimToNull(providerNo) != null) {
+            query.setParameter("providerNo", providerNo);
+        }
+        if (StringUtils.trimToNull(serviceCode) != null) {
+            query.setParameter("serviceCode", serviceCode + "%");
+        }
         query.setFirstResult(iOffSet);
         if(pageSize >= 0){
             query.setMaxResults(pageSize);
@@ -777,19 +795,37 @@ public class BillingONCHeader1Dao extends AbstractDao<BillingONCHeader1>{
     }
 
     public List<BillingONCHeader1> findByDemoNoAndDates(Integer demoNo, DateRange dateRange, int iOffSet, int pageSize, Boolean showDeleted) {
+       return findByDemoNoAndDates(demoNo, dateRange, iOffSet, pageSize, null, null, showDeleted);
+    }
+
+    public List<BillingONCHeader1> findByDemoNoAndDates(Integer demoNo, DateRange dateRange, int iOffSet, int pageSize, String providerNo, String serviceCode, Boolean showDeleted) {
         String sql = "FROM BillingONCHeader1 b WHERE b.demographicNo = :demoNo " +
                 "AND b.billingDate >= :dateStart " +
                 "AND b.billingDate <= :dateEnd ";
 
-                if (!showDeleted) {
-                    sql += "AND b.status != 'D' ";
-                }
+        if (StringUtils.trimToNull(providerNo) != null) {
+            sql += "and b.providerNo = :providerNo ";
+        }
 
-                sql += "ORDER BY b.billingDate DESC, b.billingTime DESC, b.id DESC";
+        if (StringUtils.trimToNull(serviceCode) != null) {
+            sql += "exists(select * FROM billing_on_item i where b.id = i.ch1_id and i.service_code like 'Z%') ";
+        }
+        
+        if (!showDeleted) {
+            sql += "AND b.status != 'D' ";
+        }
+
+        sql += "ORDER BY b.billingDate DESC, b.billingTime DESC, b.id DESC";
         Query query = entityManager.createQuery(sql);
         query.setParameter("demoNo", demoNo);
         query.setParameter("dateStart", (new SimpleDateFormat("yyyy-MM-dd")).format(dateRange.getFrom()));
         query.setParameter("dateEnd", (new SimpleDateFormat("yyyy-MM-dd")).format(dateRange.getTo()));
+        if (StringUtils.trimToNull(providerNo) != null) {
+            query.setParameter("providerNo", providerNo);
+        }
+        if (StringUtils.trimToNull(serviceCode) != null) {
+            query.setParameter("serviceCode", serviceCode + "%");
+        }
         query.setFirstResult(iOffSet);
         if(pageSize >= 0){
             query.setMaxResults(pageSize);

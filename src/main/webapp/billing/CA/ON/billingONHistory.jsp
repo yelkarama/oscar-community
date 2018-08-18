@@ -33,6 +33,8 @@
   int pageNumber = request.getParameter("freshbooksPage")==null?1:Integer.parseInt(request.getParameter("freshbooksPage"));
   boolean invoiceRefresh = request.getParameter("invoiceRefresh")==null?true:Boolean.parseBoolean(request.getParameter("invoiceRefresh"));
   boolean showDeleted = "true".equalsIgnoreCase(request.getParameter("showDeleted"));
+  String serviceCode = StringUtils.noNull(request.getParameter("serviceCode"));
+  String providerNo = StringUtils.noNull(request.getParameter("providerNo"));
   String demographicNo = request.getParameter("demographic_no");
 	UserPropertyDAO userPropertyDAO = SpringUtils.getBean(UserPropertyDAO.class);
 	UserProperty prop;
@@ -54,6 +56,7 @@
 <%@ page import="org.oscarehr.common.dao.*" %>
 <%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
 <%@ page import="org.oscarehr.common.model.*" %>
+<%@ page import="oscar.util.StringUtils" %>
 <%
 	BillingONPaymentDao billingOnPaymentDao = SpringUtils.getBean(BillingONPaymentDao.class);
 	BillingONCHeader1Dao bCh1Dao = SpringUtils.getBean(BillingONCHeader1Dao.class);
@@ -74,6 +77,7 @@
 	LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
 	ProviderDao pd = SpringUtils.getBean(ProviderDao.class);
 	List<Provider> providers = pd.getActiveProviders();
+	List<Provider> billableProviders = pd.getAllBillableProviders();
 	FreshbooksService fs = new FreshbooksService();
 
 	if (invoiceRefresh)
@@ -113,7 +117,17 @@ function popUpClosed() {
 }
 
 function refreshBillHistory() {
-    window.location = "billinghistory.jsp?last_name=<%=URLEncoder.encode(request.getParameter("last_name")) %>&first_name=<%=URLEncoder.encode(request.getParameter("first_name")) %>&demographic_no=<%=request.getParameter("demographic_no")%>&displaymode=<%=request.getParameter("displaymode")%>&dboperation=<%=request.getParameter("dboperation")%>&orderby=<%=request.getParameter("orderby")%>&limit1=<%=strLimit1%>&limit2=<%=strLimit2%>&invoiceRefresh=false&showDeleted=<%=!showDeleted%>"
+    var showDeleted = jQuery("#showDeleted").attr('checked') === 'checked';
+    var serviceCode = "";
+    if (jQuery("#serviceCode") && jQuery("#serviceCode").val() != null) {
+        serviceCode = jQuery("#serviceCode").val();
+	}
+    var providerNo = "";
+    if (jQuery("#providerNo") && jQuery("#providerNo").val() != null) {
+        providerNo = jQuery("#providerNo").val();
+    }
+    
+    window.location = "billinghistory.jsp?last_name=<%=URLEncoder.encode(request.getParameter("last_name")) %>&first_name=<%=URLEncoder.encode(request.getParameter("first_name")) %>&demographic_no=<%=request.getParameter("demographic_no")%>&displaymode=<%=request.getParameter("displaymode")%>&dboperation=<%=request.getParameter("dboperation")%>&orderby=<%=request.getParameter("orderby")%>&limit1=<%=strLimit1%>&limit2=<%=strLimit2%>&invoiceRefresh=false&showDeleted="+showDeleted+"&providerNo="+providerNo+"&serviceCode=" + serviceCode;
 }
 </SCRIPT>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery.js"></script>
@@ -133,13 +147,27 @@ function refreshBillHistory() {
 
 <table width="95%" border="0">
 	<tr>
-		<td align="left"><i>Results for Demographic</i> :<%=request.getParameter("last_name")%>,<%=request.getParameter("first_name")%>
+		<td align="left" colspan="3"><i>Results for Demographic</i> :<%=request.getParameter("last_name")%>,<%=request.getParameter("first_name")%>
 		(<%=request.getParameter("demographic_no")%>)</td>
 	</tr>
 
 	<tr>
-		<td align="center">
+		<td>
 			<label><input type="checkbox" name="showDeleted" id="showDeleted" <%=showDeleted ? "checked" : ""%> onchange="refreshBillHistory()">Show Deleted</label><br/>
+		</td>
+		<td>
+			<label for="providerNo">
+				Billing Provider
+				<select name="providerNo" id="providerNo" onchange="refreshBillHistory();">
+					<option value="">-- All Providers --</option>
+					<% for (Provider provider : billableProviders) { %>
+					<option value="<%=provider.getProviderNo()%>" <%=(providerNo.equals(provider.getProviderNo()) ? "selected='selected'" : "")%>><%=provider.getFormattedName()%></option>
+					<% } %>
+				</select>
+			</label>
+		</td>
+		<td>
+			<label for="serviceCode">Service Code <input type="text" name="serviceCode" id="serviceCode" value="<%=serviceCode%>"/> <button onclick="refreshBillHistory()">Go</button></label>
 		</td>
 	</tr>
 </table>
@@ -160,7 +188,7 @@ function refreshBillHistory() {
 JdbcBillingReviewImpl dbObj = new JdbcBillingReviewImpl();
 BillingONExtDao billingOnExtDao = (BillingONExtDao)SpringUtils.getBean(BillingONExtDao.class);
 String limit = " limit " + strLimit1 + "," + strLimit2;
-List aL = dbObj.getBillingHist(request.getParameter("demographic_no"), Integer.parseInt(strLimit2), Integer.parseInt(strLimit1), null, showDeleted);
+List aL = dbObj.getBillingHist(request.getParameter("demographic_no"), Integer.parseInt(strLimit2), Integer.parseInt(strLimit1), request.getParameter("providerNo"), request.getParameter("serviceCode"), null, showDeleted);
 int nItems=0;
 for(int i=0; i<aL.size(); i=i+2) {
 	nItems++;
@@ -290,12 +318,12 @@ for(int i=0; i<aL.size(); i=i+2) {
   nLastPage=Integer.parseInt(strLimit1)-Integer.parseInt(strLimit2);
   if(nLastPage>=0) {
 %> <a
-	href="billinghistory.jsp?last_name=<%=URLEncoder.encode(request.getParameter("last_name")) %>&first_name=<%=URLEncoder.encode(request.getParameter("first_name")) %>&demographic_no=<%=request.getParameter("demographic_no")%>&displaymode=<%=request.getParameter("displaymode")%>&dboperation=<%=request.getParameter("dboperation")%>&orderby=<%=request.getParameter("orderby")%>&limit1=<%=nLastPage%>&limit2=<%=strLimit2%>&invoiceRefresh=false&showDeleted=<%=showDeleted%>">Last
+	href="billinghistory.jsp?last_name=<%=URLEncoder.encode(request.getParameter("last_name")) %>&first_name=<%=URLEncoder.encode(request.getParameter("first_name")) %>&demographic_no=<%=request.getParameter("demographic_no")%>&displaymode=<%=request.getParameter("displaymode")%>&dboperation=<%=request.getParameter("dboperation")%>&orderby=<%=request.getParameter("orderby")%>&limit1=<%=nLastPage%>&limit2=<%=strLimit2%>&invoiceRefresh=false&showDeleted=<%=showDeleted%>&providerNo=<%=providerNo%>&serviceCode=<%=serviceCode%>">Last
 Page</a> | <%
   }
   if(nItems==Integer.parseInt(strLimit2)) {
 %> <a
-	href="billinghistory.jsp?last_name=<%=URLEncoder.encode(request.getParameter("last_name")) %>&first_name=<%=URLEncoder.encode(request.getParameter("first_name")) %>&demographic_no=<%=request.getParameter("demographic_no")%>&displaymode=<%=request.getParameter("displaymode")%>&dboperation=<%=request.getParameter("dboperation")%>&orderby=<%=request.getParameter("orderby")%>&limit1=<%=nNextPage%>&limit2=<%=strLimit2%>&freshbooksPage=<%=(pageNumber+1)%>&invoiceRefresh=true&showDeleted=<%=showDeleted%>">
+	href="billinghistory.jsp?last_name=<%=URLEncoder.encode(request.getParameter("last_name")) %>&first_name=<%=URLEncoder.encode(request.getParameter("first_name")) %>&demographic_no=<%=request.getParameter("demographic_no")%>&displaymode=<%=request.getParameter("displaymode")%>&dboperation=<%=request.getParameter("dboperation")%>&orderby=<%=request.getParameter("orderby")%>&limit1=<%=nNextPage%>&limit2=<%=strLimit2%>&freshbooksPage=<%=(pageNumber+1)%>&invoiceRefresh=true&showDeleted=<%=showDeleted%>&providerNo=<%=providerNo%>&serviceCode=<%=serviceCode%>">
 Next Page</a> <%
 }
 
