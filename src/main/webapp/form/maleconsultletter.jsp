@@ -767,7 +767,9 @@ function popupFixedPage(vheight,vwidth,varpage) {
 			<input type="submit" value="Save and Exit" onclick="javascript:return onSaveExit();" />
 			<input type="submit" value="Exit" onclick="javascript:return onExit();" /> 
 			<input type="submit" value="Save and Print Preview" onclick="javascript:return onPrint(false);" />
+            <% if (!formId.equals("0")) { %>
 			<input type="submit" value="Print Preview" onclick="javascript:return print();" />
+            <% } %>
 		</td>
 	</tr>
 	<tr height="2px"><td></td></tr>
