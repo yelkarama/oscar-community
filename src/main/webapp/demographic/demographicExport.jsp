@@ -212,7 +212,6 @@ if (!userRole.toLowerCase().contains("admin")) { %>
 
 <div class="span2">
 	<% if (demographicNo== null) { %>
-	<a href="diabetesExport.jsp"><bean:message key="demographic.demographicexport.diabetesexport" /></a><br>
 	<a href='<c:out value="${ctx}/demographic/cihiExportOMD4.do"></c:out>'><bean:message key="demographic.demographicexport.cihiexport" /></a><br>
 	<a href='<c:out value="${ctx}/demographic/eRourkeExport.do"></c:out>'><bean:message key="demographic.demographicexport.rourke2009export" /></a>
 	<%} %>
