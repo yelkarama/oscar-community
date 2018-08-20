@@ -93,6 +93,8 @@ String remoteLabKey = request.getParameter("remoteLabKey");
 String demographicID = request.getParameter("demographicId");
 String showAllstr = request.getParameter("all");
 
+List<String> allLicenseNames = new ArrayList<String>();
+String lastLicenseNo = null, currentLicenseNo = null;
 
 if(providerNo == null) {
 	providerNo = loggedInInfo.getLoggedInProviderNo();
@@ -419,8 +421,7 @@ input[type=button], button, input[id^='acklabel_']{ font-size:12px !important;pa
             var popup=window.open(varpage, windowname, windowprops);
         }
         function getComment(action, segmentId) {
-       
-            var ret = true;
+       		var ret = true;
             var comment = "";
             var text = providerNo + "_" + segmentId + "commentText";
             if( $(text) != null ) {
@@ -934,7 +935,11 @@ input[type=button], button, input[id^='acklabel_']{ font-size:12px !important;pa
                                                                 <tr>
                                                                     <td nowrap>
                                                                         <div align="left" class="FieldData">
+                                                                         <% if ("ExcellerisON".equals(handler.getMsgType())) { %>
+                                                                         	<strong>Reported by:</strong>
+                                                                         <% } else { %>
                                                                             <strong><bean:message key="oscarMDS.segmentDisplay.formPatientLocation"/>: </strong>
+                                                                         <% } %>
                                                                         </div>
                                                                     </td>
                                                                     <td nowrap>
@@ -1024,6 +1029,20 @@ input[type=button], button, input[id^='acklabel_']{ font-size:12px !important;pa
                                                 </div>
                                             </td>
                                         </tr>
+                                        <% if (handler.getMsgType().equals("ExcellerisON") && !((ExcellerisOntarioHandler)handler).getAlternativePatientIdentifier().isEmpty()) {  %>
+                                          <tr>
+                                            <td>
+                                                <div class="FieldData">
+                                                    <strong>Reference #:</strong>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="FieldData" nowrap="nowrap">
+                                                    <%= ((ExcellerisOntarioHandler)handler).getAlternativePatientIdentifier()%>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <% } %>  
                                         <% if (handler.getMsgType().equals("MEDVUE")) {  %>
                                         <tr>
                                         	<td>
@@ -1354,6 +1373,10 @@ input[type=button], button, input[id^='acklabel_']{ font-size:12px !important;pa
 							   <% } %>
                                <td width="6%" align="middle" valign="bottom" class="Cell"><bean:message key="oscarMDS.segmentDisplay.formNew"/></td>
                           	   <td width="6%" align="middle" valign="bottom" class="Cell"><bean:message key="oscarMDS.segmentDisplay.formAnnotate"/></td>
+                          	   <% if ("ExcellerisON".equals(handler.getMsgType())) { %>
+                          	   	<td width="6%" align="middle" valign="bottom" class="Cell">License #</td>
+                          	   </tr>
+                          	   <% } %>
                            </tr>
                            
  							<%
@@ -1635,13 +1658,19 @@ input[type=button], button, input[id^='acklabel_']{ font-size:12px !important;pa
                                            <%
                                        			lastObxSetId = ((AlphaHandler)handler).getObxSetId(j,k);
                                     	  
+                                           } else if(handler instanceof PATHL7Handler && "FT".equals(handler.getOBXValueType(j, k)) && (handler.getOBXReferenceRange(j,k).isEmpty() && handler.getOBXUnits(j,k).isEmpty())){ 
+                                        	  %> <td colspan="4"><%= handler.getOBXResult( j, k) %></td> <%
                                            } else { %> 
                                            <%
                                            	String align = "right";
                                           	//for pathl7, if it is an SG/CDC result greater than 100 characters, left justify it
-                                           	if((handler.getOBXResult(j, k).length() > 100) && (isSGorCDC)){
+                                           	if((handler.getOBXResult(j, k) != null && handler.getOBXResult(j, k).length() > 100) && (isSGorCDC)){
                                            		align="left";
-                                           	}%>
+                                           	}
+                                           	if(handler instanceof PATHL7Handler && "FT".equals(handler.getOBXValueType(j, k))) {
+                                           		align="left";
+                                           	}
+                                           	%>
                  	
                                            	<%
                                            		//CLS textual results - use 4 columns.
@@ -1670,9 +1699,22 @@ input[type=button], button, input[id^='acklabel_']{ font-size:12px !important;pa
                                            		} 
                                            		// else {
                                            	%>
-
+											
+											<%
+												if((handler.getMsgType().equals("ExcellerisON") || handler.getMsgType().equals("PATHL7")) && handler.getOBXValueType(j,k).equals("ED")) {
+													String legacy = "";
+													if(handler.getMsgType().equals("PATHL7") && ((PATHL7Handler)handler).isLegacy(j,k) ) {
+														legacy ="&legacy=true";
+													}
+												
+												%>	
+													 <td align="<%=align%>"><a href="<%=request.getContextPath() %>/lab/DownloadEmbeddedDocumentFromLab.do?labNo=<%=segmentID%>&segment=<%=j%>&group=<%=k%><%=legacy%>">PDF Report</a></td>
+													 <%
+												} else {
+											%>
                                            <td align="<%=align%>"><%= handler.getOBXResult( j, k) %></td>
                                           
+                                          	<% } %>
                                            <td align="center">
                                                    <%= handler.getOBXAbnormalFlag(j, k)%>
                                            </td>
@@ -1687,6 +1729,17 @@ input[type=button], button, input[id^='acklabel_']{ font-size:12px !important;pa
 	                                                	<%if(!isPrevAnnotation){ %><img src="../../../images/notes.gif" alt="rxAnnotation" height="16" width="13" border="0"/><%}else{ %><img src="../../../images/filledNotes.gif" alt="rxAnnotation" height="16" width="13" border="0"/> <%} %>
 	                                                </a>
                                                 </td>
+                                                
+                                            <% if ("ExcellerisON".equals(handler.getMsgType())) { 
+                                            	lastLicenseNo = currentLicenseNo;
+                        						currentLicenseNo = ((ExcellerisOntarioHandler)handler).getLabLicenseNo(j, k);
+                        						String licenseName = ((ExcellerisOntarioHandler)handler).getLabLicenseName(j, k);
+                        						if(!allLicenseNames.contains(licenseName)) {
+                        							allLicenseNames.add(licenseName);
+                        						}
+                                            %>
+                                            	<td><%= !currentLicenseNo.equals(lastLicenseNo)?currentLicenseNo:""%></td>
+                                            <% } %>
                                        </tr>
 
 										<%}
@@ -1735,7 +1788,8 @@ input[type=button], button, input[id^='acklabel_']{ font-size:12px !important;pa
                                        <%obrFlag = true;
                                    }%>
                                <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="NormalRes">
-                                   <td valign="top" align="left" colspan="8"><pre  style="margin:0px 0px 0px 100px;"><%=handler.getOBRComment(j, k)%></pre></td>
+                              	 <td valign="top" align="left" colspan="1"></td>
+                                   <td valign="top" align="left" colspan="7"><pre  style="margin:0px 0px 0px 0px;"><%=handler.getOBRComment(j, k)%></pre></td>
                                </tr>
                                <% if  (!handler.getMsgType().equals("HHSEMR") || !handler.getMsgType().equals("TRUENORTH")) {
                                		if(handler.getOBXName(j,k).equals("")){
@@ -1820,6 +1874,18 @@ input[type=button], button, input[id^='acklabel_']{ font-size:12px !important;pa
 								<% } %>
                                 </td>
                             </tr>
+                        </table>
+                        
+                        <br/>
+                        <table>
+                        	<%
+                        		for(String lName : allLicenseNames) {
+                        	%>
+                        	<tr>
+                        		<td><%=lName %></td>
+                        	</tr>
+                        	
+                        	<% } %>
                         </table>
                     </td>
                 </tr>
