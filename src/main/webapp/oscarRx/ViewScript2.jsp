@@ -152,7 +152,7 @@ if(bMultisites) {
 		Site s = sites.get(i);
         vecAddressName.add(s.getName());
         String faxNo = s.getFax();
-        if (preferenceFaxNo != null && !preferenceFaxNo.getValue().isEmpty()) {
+        if (preferenceFaxNo != null && !StringUtils.isBlank(preferenceFaxNo.getValue())) {
             faxNo = preferenceFaxNo.getValue().replaceAll("-", "");
 		}
 		String phoneNo = s.getPhone();
