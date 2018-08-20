@@ -150,6 +150,7 @@
         <ViolationValue>/src/main/java/oscar/oscarDemographic/PrintDemoAddressLabelAction.java:HashMap parameters = new HashMap();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarDemographic/data/DemographicNameAgeString.java:h = new Hashtable();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarDemographic/data/DemographicNameAgeString.java:static Hashtable hashtable = new Hashtable();</ViolationValue>
+        <ViolationValue>/src/main/java/oscar/oscarDemographic/pageUtil/ImportDemographicDataAction4.java:List c = new ArrayList();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarEncounter/immunization/config/data/EctImmImmunizationSetData.java:createDateVec = new Vector();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarEncounter/immunization/config/data/EctImmImmunizationSetData.java:setIdVec = new Vector();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarEncounter/immunization/config/data/EctImmImmunizationSetData.java:setNameVec = new Vector();</ViolationValue>
@@ -1122,11 +1123,6 @@
         <ViolationValue>/src/main/java/org/oscarehr/common/dao/UserDSMessagePrefsDao.java:Hashtable&lt;String, Long&gt; retHash = new Hashtable&lt;String, Long&gt;();</ViolationValue>
         <ViolationValue>/src/main/java/org/oscarehr/common/dao/UserDSMessagePrefsDao.java:import java.util.Hashtable;</ViolationValue>
         <ViolationValue>/src/main/java/org/oscarehr/common/dao/UserDSMessagePrefsDao.java:public Hashtable&lt;String, Long&gt; getHashofMessages(String providerNo, String name) {</ViolationValue>
-        <ViolationValue>/src/main/java/org/oscarehr/common/model/Demographic.java:demographicExtendedProperties = new Hashtable&lt;String, String&gt;();</ViolationValue>
-        <ViolationValue>/src/main/java/org/oscarehr/common/model/Demographic.java:import java.util.Hashtable;</ViolationValue>
-        <ViolationValue>/src/main/java/org/oscarehr/common/model/Demographic.java:private Hashtable&lt;String, String&gt; demographicExtendedProperties;</ViolationValue>
-        <ViolationValue>/src/main/java/org/oscarehr/common/model/Demographic.java:public Hashtable&lt;String, String&gt; getDemographicExtendedProperties() {</ViolationValue>
-        <ViolationValue>/src/main/java/org/oscarehr/common/model/Demographic.java:public void setDemographicExtendedProperties( Hashtable&lt;String, String&gt; demographicExtendedProperties ) {</ViolationValue>
         <ViolationValue>/src/main/java/org/oscarehr/common/web/FlowSheetCustomAction.java:Hashtable&lt;String,String&gt; h = new Hashtable&lt;String,String&gt;();</ViolationValue>
         <ViolationValue>/src/main/java/org/oscarehr/common/web/FlowSheetCustomAction.java:import java.util.Hashtable;</ViolationValue>
         <ViolationValue>/src/main/java/org/oscarehr/common/web/SearchProviderAutoCompleteAction.java:Hashtable d=new Hashtable();</ViolationValue>
@@ -1178,8 +1174,6 @@
         <ViolationValue>/src/main/java/org/oscarehr/inbox/InboxManagerResponse.java:public void setPatientIdNames(Hashtable patientIdNames) {</ViolationValue>
         <ViolationValue>/src/main/java/org/oscarehr/inbox/InboxManagerResponse.java:public void setPatientNumDoc(Hashtable patientNumDoc) {</ViolationValue>
         <ViolationValue>/src/main/java/org/oscarehr/inbox/InboxManagerResponse.java:public void setTypeDocLab(Hashtable&lt;String, List&lt;String&gt;&gt; typeDocLab) {</ViolationValue>
-        <ViolationValue>/src/main/java/org/oscarehr/integration/fhir/manager/OscarFhirResourceManager.java:demographic.setDemographicExtendedProperties(new Hashtable&lt;String,String&gt;());</ViolationValue>
-        <ViolationValue>/src/main/java/org/oscarehr/integration/fhir/manager/OscarFhirResourceManager.java:import java.util.Hashtable;</ViolationValue>
         <ViolationValue>/src/main/java/org/oscarehr/managers/DrugLookUpManager.java:Hashtable drug = dr.getDrug2(id, true);</ViolationValue>
         <ViolationValue>/src/main/java/org/oscarehr/managers/DrugLookUpManager.java:Hashtable generic = dr.getGenericName(id);</ViolationValue>
         <ViolationValue>/src/main/java/org/oscarehr/managers/DrugLookUpManager.java:Vector&lt;Hashtable&lt;String, Object&gt;&gt; components = (Vector&lt;Hashtable&lt;String, Object&gt;&gt;) h.get("components");</ViolationValue>

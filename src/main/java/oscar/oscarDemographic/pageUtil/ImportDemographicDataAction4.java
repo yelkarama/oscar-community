@@ -376,9 +376,8 @@ import oscar.util.UtilDateUtilities;
         	opts.setErrorListener(c);
         	opts.setDocumentType(OmdCdsDocument.Factory.newInstance().schemaType()); 
         	omdCds = OmdCdsDocument.Factory.parse(xmlF,opts).getOmdCds();
-        	
 
-        	System.out.println("validate = "+ omdCds.validate(opts));
+        	omdCds.validate(opts);
         	
            
         } catch (IOException ex) {logger.error("Error", ex);
