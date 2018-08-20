@@ -71,11 +71,18 @@
 	desc2 = "%" + codeName2 + "%";
 }
 
+boolean selectOne = Boolean.parseBoolean(request.getParameter("selectOne"));
 %>
 <html>
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Service Code Search</title>
+	<style>
+		.service-code:hover {
+			cursor: pointer;
+			background-color: pink;
+		}
+	</style>
 <script LANGUAGE="JavaScript">
 <!--
 function CodeAttach(File0, File1) {
@@ -108,9 +115,11 @@ if(request.getParameter("nameF") != null) {
 <table border="0" cellspacing="0" cellpadding="0" width="100%">
 	<tr bgcolor="#486ebd">
 		<th align=CENTER NOWRAP bgcolor="#CCCCFF"><font face="Helvetica"
-			color="#000000">Service Code Search </font><font
-			face="Arial, Helvetica, sans-serif" color="#FF0000">(Maximum 3
-		selections)</font></th>
+			color="#000000">Service Code Search </font>
+			<% if (!selectOne) { %>
+			<font face="Arial, Helvetica, sans-serif" color="#FF0000">(Maximum 3 selections)</font>
+			<% } %>
+		</th>
 	</tr>
 </table>
 <form name="servicecode" id="servicecode" method="post"
@@ -155,12 +164,24 @@ for (BillingService bss : billingServiceDao.search_service_code(codeName,codeNam
  %>
 
 	<tr bgcolor="<%=color%>">
-		<td width="12%"><font face="Arial, Helvetica, sans-serif"
-			size="2">
-		<% if (Dcode.compareTo(xcodeName)==0 || Dcode.compareTo(xcodeName1)==0 || Dcode.compareTo(xcodeName2)==0){ %><input
-			type="checkbox" name="code_<%=Dcode%>" checked>
-		<%}else{%><input type="checkbox" name="code_<%=Dcode%>">
-		<%}%><%=Dcode%></font></td>
+		<% if (!selectOne) { %>
+		<td width="12%">
+			<font face="Arial, Helvetica, sans-serif" size="2">
+				<% if (Dcode.compareTo(xcodeName)==0 || Dcode.compareTo(xcodeName1)==0 || Dcode.compareTo(xcodeName2)==0){ %>
+					<input type="checkbox" name="code_<%=Dcode%>" checked>
+				<%}else{%>
+					<input type="checkbox" name="code_<%=Dcode%>">
+				<%}%>
+				<%=Dcode%>
+			</font>
+		</td>
+		<% } else { %>
+		<td width="12%" class="service-code" onclick="CodeAttach('<%=Dcode%>', '<%=fee%>')">
+			<font face="Arial, Helvetica, sans-serif" size="2">
+				<%=Dcode%>
+			</font>
+		</td>
+		<% } %>
 		<td width="88%"><font face="Arial, Helvetica, sans-serif"
 			size="2"><input type="hidden" name="codedesc_<%=Dcode%>"
 			value="<%=DcodeDesc%>"><input type="text" name="<%=Dcode%>"

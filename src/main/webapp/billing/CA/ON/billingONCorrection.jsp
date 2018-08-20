@@ -237,9 +237,8 @@ function scScriptAttach(nameF) {
 function scScriptAttachNew(elementName) {
     var row = 0;
     if ($('#billingServices').find("tr:last").length > 0) {
-        row = parseInt($('#billingServices').find("tr:last")[0].id.replace('billingService', ''));
+        row = parseInt($('#billingServices').find("tr:last")[0].id.replace('billingService', '')) + 1;
     }
-    row += 1;
 
     $('#billingServices').append('<tr id="billingService'+ row +'"> ' +
         '<td width="25%">' +
@@ -265,7 +264,7 @@ function scScriptAttachNew(elementName) {
 
     var searchValue = document.forms[1].elements[elementName].value;
     var pasteInto = escape("document.forms[1].elements[\'servicecode"+row+ "\'].value");
-    awnd=rs('att','billingCodeSearch.jsp?name='+searchValue + '&search=&name1=&name2=&nameF='+pasteInto,600,600,1);
+    awnd=rs('att','billingCodeSearch.jsp?name='+searchValue + '&search=&name1=&name2=&nameF='+pasteInto+'&selectOne=true',600,600,1);
     awnd.focus();
 
     var searchValue = document.forms[1].elements[elementName].value = "";
