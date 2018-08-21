@@ -369,29 +369,24 @@ function popupOscarRx(vheight,vwidth,varpage) { //open a new popup window
 //<!--/oscarMessenger code block -->
 
 
-    function selectprovider(s) {
-		//remove providers and groups parameter's from url
-		var url = self.location.href;
-		var params = url.substr(url.indexOf("?")+1).split(/\?|&/);
-		url = url.substr(0, url.indexOf("?"));
-		//remove mygroup_no and providerview params and rebuild with existing params
-		for (var i = params.size()-1; i>=0; i--) {
-			var param = params[i];
-			if (param.includes("mygroup_no") || param.includes("providerview")) {
-				params.splice(i, 1);
-			} else {
-				url += (url.includes("?")?"&":"?") + param;
-			}
-		}
-		//determine which view to switch to
-		if (s.options[s.selectedIndex].value.includes("_grp_")) {
-			self.location.href = url + "&mygroup_no=" + s.options[s.selectedIndex].value.substring(5);
+	function changeGroup(s) {
+		var newGroupNo = s.options[s.selectedIndex].value;
+		if (newGroupNo.indexOf("_grp_") != -1) {
+			newGroupNo = s.options[s.selectedIndex].value.substring(5);
 		} else {
-			self.location.href = url + "&providerview=" + s.options[s.selectedIndex].value;
+			newGroupNo = s.options[s.selectedIndex].value;
 		}
-    }
+		<%if (org.oscarehr.common.IsPropertiesOn.isCaisiEnable() && org.oscarehr.common.IsPropertiesOn.isTicklerPlusEnable()){%>
+			//Disable schedule view associated with the program
+			var programId = 0;
+			var programId_forCME = document.getElementById("bedprogram_no").value;
 
-
+			popupPage(10,10, "providercontrol.jsp?provider_no=<%=curUser_no%>&start_hour=<%=startHour%>&end_hour=<%=endHour%>&every_min=<%=everyMin%>&new_tickler_warning_window=<%=newticklerwarningwindow%>&default_pmm=<%=default_pmm%>&color_template=deepblue&dboperation=updatepreference&displaymode=updatepreference&mygroup_no="+newGroupNo+"&programId_oscarView="+programId+"&case_program_id="+programId_forCME + "<%=eformIds.toString()%><%=ectFormNames.toString()%>");
+		<%} else {%>
+			var programId=0;
+			popupPage(10,10, "providercontrol.jsp?provider_no=<%=curUser_no%>&start_hour=<%=startHour%>&end_hour=<%=endHour%>&every_min=<%=everyMin%>&color_template=deepblue&dboperation=updatepreference&displaymode=updatepreference&mygroup_no="+newGroupNo+"&programId_oscarView="+programId + "<%=eformIds.toString()%><%=ectFormNames.toString()%>");
+		<% } %>
+	}
   
 function refresh1() {
   var u = self.location.href;
@@ -688,7 +683,7 @@ function refreshTabAlerts(id) {
     	<% } %>
     	</select>
 <%} %>    	
-				<select name="provider_no" onChange="selectprovider(this)">
+				<select name="provider_no" onChange="changeGroup(this)">
 					<option value="all" <%=providerview.equals("all")?"selected":""%>><bean:message
 						key="provider.appointmentprovideradminmonth.formAllProviders" /></option>
 <security:oscarSec roleName="<%=roleName$%>"
