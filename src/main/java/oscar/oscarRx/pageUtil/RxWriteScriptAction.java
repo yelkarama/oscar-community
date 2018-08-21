@@ -767,6 +767,7 @@ public final class RxWriteScriptAction extends DispatchAction {
 			rx.setRxDate(tod);
 			rx.setWrittenDate(tod);
 			rx.setDiscontinuedLatest(RxUtil.checkDiscontinuedBefore(rx));// check and set if rx was discontinued before.
+			rx.setProtocolId("icd9");
 			request.setAttribute("listRxDrugs", listRxDrugs);
 
 			if (request.getAttribute("existingPrescription") != null) {

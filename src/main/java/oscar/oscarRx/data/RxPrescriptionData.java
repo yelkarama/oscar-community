@@ -235,7 +235,7 @@ public class RxPrescriptionData {
 		if (rePrescribe.getDispenseInterval() != null) prescription.setDispenseInterval(rePrescribe.getDispenseInterval());
 		if (rePrescribe.getRefillDuration() != null) prescription.setRefillDuration(rePrescribe.getRefillDuration());
 		if (rePrescribe.getRefillQuantity() != null) prescription.setRefillQuantity(rePrescribe.getRefillQuantity());
-		if (rePrescribe.getProtocolId() != null) prescription.setProtocolId(rePrescribe.getProtocolId());
+		prescription.setProtocolId((rePrescribe.getProtocolId() != null) ? rePrescribe.getProtocolId() : "icd9");
 		prescription.setDrugReferenceId(rePrescribe.getDrugId());
 		prescription.setDispenseInternal(rePrescribe.getDispenseInternal());
 		return prescription;
@@ -670,7 +670,7 @@ public class RxPrescriptionData {
 		private Integer refillQuantity = 0;
 		private String dispenseInterval = "0";
 		private String priorRxRefId = "";
-		private String protocolId = "";
+		private String protocolId = "icd9";
 		private int position = 0;
 		private String comment = null;
 
@@ -1692,6 +1692,7 @@ public class RxPrescriptionData {
 			drug.setComment(getComment());
 			drug.setStartDateUnknown(getStartDateUnknown());
 			drug.setDispenseInternal(getDispenseInternal());
+			drug.setProtocolId(getProtocolId());
 		}
 
 		public boolean SetLongTermAndSave(boolean lt) {

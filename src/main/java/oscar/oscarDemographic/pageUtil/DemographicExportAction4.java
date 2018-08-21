@@ -1493,9 +1493,6 @@ public class DemographicExportAction4 extends Action {
 					List<DrugReason> drugReasons = drugReasonDao.getReasonsForDrugID(arr[p].getDrugId(), true);
 					if (!drugReasons.isEmpty()) {
 						medi.setProblemCode(drugReasons.get(0).getCode());
-					}
-
-					if (StringUtils.filled(arr[p].getProtocolId())) {
 						medi.setProtocolIdentifier(arr[p].getProtocolId());
 					}
 
