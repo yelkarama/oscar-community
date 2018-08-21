@@ -2564,6 +2564,9 @@ function toggleHeight(heightuomctrl,inchCtrl){
 				<input type="submit" value="Save and Exit" onclick="javascript:return onSaveExit();" />
 				<input type="submit" value="Exit" onclick="javascript:return onExit();" /> 
 				<input type="submit" value="Save and Print Preview" onclick="javascript:return onPrint(false);" />
+				<% if (formId != 0) { %>
+				<input type="submit" value="Print Preview" onclick="javascript:return print();" />
+				<% } %>
 			</td>
 		</tr>
 		
