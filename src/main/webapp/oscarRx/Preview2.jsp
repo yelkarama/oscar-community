@@ -350,8 +350,8 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
             z-index: -100;
         }
     </style>
-    <div id="watermark"></div>
 	<%} %>
+	<div id="watermark"></div>
 	<input type="hidden" name="demographic_no" value="<%=bean.getDemographicNo()%>"/>
     <p id="pharmInfo" style="float:left;">
     </p>
