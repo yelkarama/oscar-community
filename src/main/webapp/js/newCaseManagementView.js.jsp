@@ -1334,11 +1334,12 @@ function loadDiv(div,url,limit) {
     }
 
     var encounterNotesReadyCheckInterval;
-    function pasteToEncounterNoteWhenReady(txt) {
+    if (window.rxToPaste != null) {
         encounterNotesReadyCheckInterval = setInterval(function() {
             if ($(caseNote) != null) {
                 clearInterval(encounterNotesReadyCheckInterval);
-                pasteToEncounterNote(txt);
+                pasteToEncounterNote(window.rxToPaste);
+                window.rxToPaste = null;
             }
         }, 100);
     }

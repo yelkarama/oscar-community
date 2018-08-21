@@ -344,6 +344,9 @@ function printIframe(){
 	            {
 	                window.print();
 	            }
+                if(rxToPaste != null) {
+                    pasteRxToEchart();
+                }
 			}
 			else
 			{
@@ -358,6 +361,10 @@ function printIframe(){
 				frames['preview'].document.getElementById('pwTable').style.width = oldPageSize;
                 frames['preview'].document.getElementById('watermark').style.width = oldPageSize;
 
+                if(rxToPaste != null) {
+                    pasteRxToEchart();
+				}
+                
 				self.onfocus = function () {
                     self.setTimeout(
                         function(){
@@ -367,8 +374,7 @@ function printIframe(){
 				self.focus();
 			}
 	}
-var readyStateCheckInterval;
-var encounterWindow;
+
 function printPaste2Parent(print){
     //console.log("in printPaste2Parent");
    try{
@@ -409,15 +415,10 @@ function printPaste2Parent(print){
       }else if( window.parent.opener.document.getElementById(noteEditor) != undefined ){
     	window.parent.opener.document.getElementById(noteEditor).value = window.parent.opener.document.getElementById(noteEditor).value + text; 
       } else {
-			var windowprops = "height=710,width=1024,location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=50,screenY=50,top=20,left=20";
-			var currentDate = new Date().toISOString().substring(0, 10);
-			encounterWindow = window.open("../oscarEncounter/IncomingEncounter.do?providerNo=<%= bean.getProviderNo() %>&demographicNo=<%= bean.getDemographicNo() %>&curProviderNo=<%= bean.getProviderNo() %>&userName=<%=ProviderData.getProviderName(bean.getProviderNo())%>&curDate=" + currentDate, "encounter", windowprops);
-			readyStateCheckInterval = setInterval(function() {
-			    if (encounterWindow.document.readyState === "complete") {
-			        clearInterval(readyStateCheckInterval);
-			        encounterWindow.pasteToEncounterNoteWhenReady(text);
-				}
-			}, 100);
+			rxToPaste = text;
+			if (!print) {
+			    pasteRxToEchart();
+            }
       }
       
    }catch (e){
@@ -428,8 +429,14 @@ function printPaste2Parent(print){
    
 }
 
+var rxToPaste = null;
 
-
+function pasteRxToEchart() {
+    var windowprops = "height=710,width=1024,location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=50,screenY=50,top=20,left=20";
+    var currentDate = new Date().toISOString().substring(0, 10);
+    var encounterWindow = window.open("../oscarEncounter/IncomingEncounter.do?providerNo=<%= bean.getProviderNo() %>&demographicNo=<%= bean.getDemographicNo() %>&curProviderNo=<%= bean.getProviderNo() %>&userName=<%=ProviderData.getProviderName(bean.getProviderNo())%>&curDate=" + currentDate, "encounter", windowprops);
+    encounterWindow.rxToPaste = rxToPaste;
+}
 
 function addressSelect() {
    <% if(vecAddressName != null) {
