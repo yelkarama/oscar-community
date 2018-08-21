@@ -1125,10 +1125,10 @@ for (ClinicNbr clinic : nbrs) {
                     rowCount = rowCount + 1;
 %>
 
-<tr id="billingService<%=rowCount%>">
+<tr id="billingService<%=rowCount-1%>">
     <td width="25%">
-        <input type="hidden" name="xml_service_code<%=rowCount%>" value="<%=serviceCode%>">
-        <input type="hidden" name="row" value="<%=rowCount%>">
+        <input type="hidden" name="xml_service_code<%=rowCount-1%>" value="<%=serviceCode%>">
+        <input type="hidden" name="row" value="<%=rowCount-1%>">
 
         <div class="input-append" style="max-width: 120px;">
             <input type="text" name="servicecode<%=rowCount-1%>" value="<%=serviceCode%>" style="max-width: 100px;" />
