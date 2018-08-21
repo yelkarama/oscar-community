@@ -24,6 +24,9 @@
 
 --%>
 <%@page import="oscar.OscarProperties" contentType="application/javascript"%>
+<%@ page import="org.oscarehr.common.dao.SystemPreferencesDao"%>
+<%@ page import="org.oscarehr.util.SpringUtils"%>
+<%@ page import="org.oscarehr.common.model.SystemPreferences"%>
 function rs(n,u,w,h,x) {
   args="width="+w+",height="+h+",resizable=yes,scrollbars=yes,status=0,top=360,left=30";
   remote=window.open(u,n,args);
@@ -81,9 +84,21 @@ function popupEChart(vheight,vwidth,varpage) { //open a new popup window
     popup.focus();
   }
 }
-    function goToPage(name, varpage) { //open a new popup window
+    function goToPage(name, url) {
+    <% 
+        SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+        SystemPreferences systemPreference = systemPreferencesDao.findPreferenceByName("redirect_for_contact");
+        if (systemPreference != null && systemPreference.getValueAsBoolean()) {
+    %>
         window.name = name;
-        window.location.replace(varpage);
+        window.location.replace(url);
+        <% } else { %>
+        if (name === 'encounter') {
+            popupEChart(710, 1024, url);
+        } else {
+            popupPage(710, 1024, url);
+        }
+        <% } %>
     }
 
 function popupOscarRx(vheight,vwidth,varpage) { //open a new popup window

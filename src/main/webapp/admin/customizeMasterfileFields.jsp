@@ -132,6 +132,10 @@
 				<td>Display Former Name</td>
 				<td style="width: 20px; text-align: center;"><input type="checkbox" name="display_former_name" value="true"<%= dataBean.getProperty("display_former_name", "false").equals("true") ? " checked=\"checked\"":""%>></td>
 			</tr>
+			<tr>
+				<td>Redirect when clicking M or E for contacts (also affects contacts in the eChart)</td>
+				<td style="width: 20px; text-align: center;"><input type="checkbox" name="redirect_for_contact" value="true"<%= dataBean.getProperty("redirect_for_contact", "false").equals("true") ? " checked=\"checked\"":""%>></td>
+			</tr>
 		</table>
 		<input class="btn btn-primary" type="submit" value="Save"/>
 	</form>

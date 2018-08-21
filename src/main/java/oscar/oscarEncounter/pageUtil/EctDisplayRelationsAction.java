@@ -29,9 +29,11 @@ import org.apache.struts.util.MessageResources;
 import org.oscarehr.common.dao.DemographicContactDao;
 import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.RelationshipsDao;
+import org.oscarehr.common.dao.SystemPreferencesDao;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.DemographicContact;
 import org.oscarehr.common.model.Relationships;
+import org.oscarehr.common.model.SystemPreferences;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -83,6 +85,10 @@ public class EctDisplayRelationsAction extends EctDisplayAction {
     private void addRelationshipsEntries(NavBarDisplayDAO displayDAO, String demographicNo, String providerNo) {
         RelationshipsDao relationshipsDao = SpringUtils.getBean(RelationshipsDao.class);
         DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
+        SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+        SystemPreferences systemPreference = systemPreferencesDao.findPreferenceByName("redirect_for_contact");
+        boolean redirectToContacts = systemPreference != null && systemPreference.getValueAsBoolean();
+        
         String winName;
         Integer hash;
 	    
@@ -95,9 +101,16 @@ public class EctDisplayRelationsAction extends EctDisplayAction {
                 item.setTitle(winName);
                 item.setLinkTitle(winName);
                 hash = Math.abs(winName.hashCode());
+                
+                String url = contextPath + "/oscarEncounter/IncomingEncounter.do?providerNo=" + providerNo + "&demographicNo=" + demographic.getDemographicNo() + "&reason=Tel-Progress+Note&encType=&curDate=2018-3-15','" + hash;
                 // Use 'popperup()' as opposed to 'popupPage()' to prevent reload links from being added
-                String url = "goToChart('" + contextPath + "/oscarEncounter/IncomingEncounter.do?providerNo=" + providerNo + "&demographicNo=" + demographic.getDemographicNo() + "&reason=Tel-Progress+Note&encType=&curDate=2018-3-15','" + hash + "');return false;";
-                item.setURL(url);
+                String functionCall = "popperup(700,1000,'" + url + "');return false;";
+                
+                if (redirectToContacts) {
+                    functionCall = "goToChart('" + url + "');return false;";
+                }
+                 
+                item.setURL(functionCall);
                 displayDAO.addItem(item);
             }
         }
@@ -106,6 +119,9 @@ public class EctDisplayRelationsAction extends EctDisplayAction {
     private void addDemographicContactsEntries(NavBarDisplayDAO displayDAO, String demographicNo, String providerNo) {
         DemographicContactDao demographicContactDao = SpringUtils.getBean(DemographicContactDao.class);
         DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
+        SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+        SystemPreferences systemPreference = systemPreferencesDao.findPreferenceByName("redirect_for_contact");
+        boolean redirectToContacts = systemPreference != null && systemPreference.getValueAsBoolean();
         String winName;
         Integer hash;
 
@@ -120,8 +136,15 @@ public class EctDisplayRelationsAction extends EctDisplayAction {
                 item.setTitle(winName);
                 item.setLinkTitle(winName);
                 hash = Math.abs(winName.hashCode());
+                String path = contextPath + "/oscarEncounter/IncomingEncounter.do?providerNo=" + providerNo + "&demographicNo=" + demographic.getDemographicNo() + "&reason=Tel-Progress+Note&encType=&curDate=2018-3-15','" + hash;
+                
                 // Use 'popperup()' as opposed to 'popupPage()' to prevent reload links from being added
-                String url = "goToChart('" + contextPath + "/oscarEncounter/IncomingEncounter.do?providerNo=" + providerNo + "&demographicNo=" + demographic.getDemographicNo() + "&reason=Tel-Progress+Note&encType=&curDate=2018-3-15','" + hash + "');return false;";
+                String url = "popperup(700,1000,'" + path + "');return false;";
+                
+                if (redirectToContacts) {
+                    url = "goToChart('" + path + "');return false;";
+                }
+                
                 item.setURL(url);
                 displayDAO.addItem(item);
             }
