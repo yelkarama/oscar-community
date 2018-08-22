@@ -108,6 +108,13 @@ if (request.getParameter("view") != null) {
 } else if (request.getAttribute("view") != null) {
     view = (String) request.getAttribute("view");
 }
+
+boolean addExceptRx = OscarProperties.getInstance().isPropertyActive("enable_except_rx_document_filter");
+
+String exceptRxT = "ALL EXCEPT prescription"; 
+if (view.equals(exceptRxT)){
+    view = "all";
+}
 //preliminary JSP code
 
 // "Module" and "function" is the same thing (old dms module)
@@ -150,7 +157,10 @@ if (sortRequest != null) {
     else if (sortRequest.equals("reviewer")) sort = EDocUtil.EDocSort.REVIEWER;
 }
 
-ArrayList doctypes = EDocUtil.getActiveDocTypes(module);
+ArrayList<String> doctypes = EDocUtil.getActiveDocTypes(module);
+if (addExceptRx && doctypes.contains("prescription")) {
+    doctypes.add(exceptRxT);
+}
 
 //Retrieve encounter id for updating encounter navbar if info this page changes anything
 String parentAjaxId;
@@ -369,17 +379,34 @@ function popup1(height, width, url, windowName){
       <div class="documentLists"><%-- STUFF TO DISPLAY --%> <%
                 ArrayList categories = new ArrayList();
                 ArrayList categoryKeys = new ArrayList();
-                ArrayList privatedocs = new ArrayList();
+                ArrayList<EDoc> privatedocs = new ArrayList();
 
                 MiscUtils.getLogger().debug("module="+module+", moduleid="+moduleid+", view="+view+", EDocUtil.PRIVATE="+EDocUtil.PRIVATE+", sort="+sort+", viewstatus="+viewstatus);
                 privatedocs = EDocUtil.listDocs(loggedInInfo, module, moduleid, view, EDocUtil.PRIVATE, sort, viewstatus);
                 MiscUtils.getLogger().debug("privatedocs:"+privatedocs.size());
 
+                if (addExceptRx && !privatedocs.isEmpty()){
+                    ArrayList<EDoc> docList = new ArrayList<EDoc>();
+                    for (EDoc doc : privatedocs){
+                        if (!doc.getType().equals("prescription")) docList.add(doc);
+                    }
+                    privatedocs = docList;
+                }
                 categories.add(privatedocs);
                 categoryKeys.add(moduleName + "'s Private Documents");
+                
+                
                 if (module.equals("provider")) {
-                    ArrayList publicdocs = new ArrayList();
+                    ArrayList<EDoc> publicdocs = new ArrayList();
                     publicdocs = EDocUtil.listDocs(loggedInInfo, module, moduleid, view, EDocUtil.PUBLIC, sort, viewstatus);
+                    
+                    if (addExceptRx && !publicdocs.isEmpty()){
+                        ArrayList<EDoc> docList = new ArrayList<EDoc>();
+                        for (EDoc doc : publicdocs){
+                            if (!doc.getType().equals("prescription")) docList.add(doc);
+                        }
+                        publicdocs = docList;
+                    }
                     categories.add(publicdocs);
                     categoryKeys.add("Public Documents");
                 }
@@ -426,8 +453,7 @@ function popup1(height, width, url, windowName){
         <%
                  for (int i3=0; i3<doctypes.size(); i3++) {
                            String doctype = (String) doctypes.get(i3); %>
-        <option value="<%= doctype%>"
-        <%=(view.equalsIgnoreCase(doctype))? "selected":""%>><%= doctype%></option>
+        <option value="<%= doctype%>"<%=view.equalsIgnoreCase(doctype) || (addExceptRx && doctype.equals(exceptRxT)) ? "selected":""%>><%= doctype%></option>
         <%}%>
       
       </select>
