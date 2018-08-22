@@ -69,7 +69,7 @@ public class DemographicArchiveDao extends AbstractDao<DemographicArchive> {
         List<DemographicArchive> results = query.getResultList();
 
         //Remove entries with identical rosterStatus
-        String this_rs, next_rs;
+        String this_rs, next_rs, this_trc, next_trc;
         Date this_rd, next_rd, this_td, next_td;
         DemographicExtArchive thisEnrollmentProvider, nextEnrollmentProvider;
         String enrollmentProviderValue, nextEnrollmentProviderValue;
@@ -80,6 +80,8 @@ public class DemographicArchiveDao extends AbstractDao<DemographicArchive> {
             next_rd = results.get(i+1).getRosterDate();
             this_td = results.get(i).getRosterTerminationDate();
             next_td = results.get(i+1).getRosterTerminationDate();
+            this_trc = StringUtils.noNull(results.get(i).getRosterTerminationReason());
+            next_trc = StringUtils.noNull(results.get(i+1).getRosterTerminationReason());
             thisEnrollmentProvider = demographicExtArchiveDao.getDemographicExtArchiveByArchiveIdAndKey(results.get(i).getId(), "enrollmentProvider");
             nextEnrollmentProvider = demographicExtArchiveDao.getDemographicExtArchiveByArchiveIdAndKey(results.get(i+1).getId(), "enrollmentProvider");
             enrollmentProviderValue = thisEnrollmentProvider == null ? "" : thisEnrollmentProvider.getValue();
@@ -88,7 +90,8 @@ public class DemographicArchiveDao extends AbstractDao<DemographicArchive> {
             if (this_rs.equalsIgnoreCase(next_rs) &&
         		UtilDateUtilities.nullSafeCompare(this_rd, next_rd) == 0 &&
         		UtilDateUtilities.nullSafeCompare(this_td, next_td) == 0 &&
-                enrollmentProviderValue.equalsIgnoreCase(nextEnrollmentProviderValue)) {
+                enrollmentProviderValue.equalsIgnoreCase(nextEnrollmentProviderValue) &&
+                this_trc.equals(next_trc)) {
                 results.remove(i);
                 i--;
             }
