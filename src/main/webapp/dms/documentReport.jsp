@@ -101,18 +101,21 @@ if (request.getParameter("undelDocumentNo") != null) {
     EDocUtil.undeleteDocument(request.getParameter("undelDocumentNo"));
 }
 
+boolean addExceptRx = OscarProperties.getInstance().isPropertyActive("enable_except_rx_document_filter");
+String exceptRxT = "ALL EXCEPT prescription";
+
 //view  - tabs
-String view = "all";
+String view = !addExceptRx ? "all" : exceptRxT;
 if (request.getParameter("view") != null) {
     view = request.getParameter("view");
 } else if (request.getAttribute("view") != null) {
     view = (String) request.getAttribute("view");
 }
 
-boolean addExceptRx = OscarProperties.getInstance().isPropertyActive("enable_except_rx_document_filter");
-
-String exceptRxT = "ALL EXCEPT prescription"; 
+boolean exceptRx = false;
+ 
 if (view.equals(exceptRxT)){
+    exceptRx = true;
     view = "all";
 }
 //preliminary JSP code
@@ -385,7 +388,7 @@ function popup1(height, width, url, windowName){
                 privatedocs = EDocUtil.listDocs(loggedInInfo, module, moduleid, view, EDocUtil.PRIVATE, sort, viewstatus);
                 MiscUtils.getLogger().debug("privatedocs:"+privatedocs.size());
 
-                if (addExceptRx && !privatedocs.isEmpty()){
+                if (exceptRx && !privatedocs.isEmpty()){
                     ArrayList<EDoc> docList = new ArrayList<EDoc>();
                     for (EDoc doc : privatedocs){
                         if (!doc.getType().equals("prescription")) docList.add(doc);
@@ -400,7 +403,7 @@ function popup1(height, width, url, windowName){
                     ArrayList<EDoc> publicdocs = new ArrayList();
                     publicdocs = EDocUtil.listDocs(loggedInInfo, module, moduleid, view, EDocUtil.PUBLIC, sort, viewstatus);
                     
-                    if (addExceptRx && !publicdocs.isEmpty()){
+                    if (exceptRx && !publicdocs.isEmpty()){
                         ArrayList<EDoc> docList = new ArrayList<EDoc>();
                         for (EDoc doc : publicdocs){
                             if (!doc.getType().equals("prescription")) docList.add(doc);
@@ -453,7 +456,7 @@ function popup1(height, width, url, windowName){
         <%
                  for (int i3=0; i3<doctypes.size(); i3++) {
                            String doctype = (String) doctypes.get(i3); %>
-        <option value="<%= doctype%>"<%=view.equalsIgnoreCase(doctype) || (addExceptRx && doctype.equals(exceptRxT)) ? "selected":""%>><%= doctype%></option>
+        <option value="<%= doctype%>"<%=view.equalsIgnoreCase(doctype) || (exceptRx && doctype.equals(exceptRxT)) ? "selected":""%>><%= doctype%></option>
         <%}%>
       
       </select>
