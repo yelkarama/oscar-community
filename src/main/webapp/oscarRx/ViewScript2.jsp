@@ -153,12 +153,12 @@ if(bMultisites) {
         vecAddressName.add(s.getName());
         String faxNo = s.getFax();
         if (preferenceFaxNo != null && !StringUtils.isBlank(preferenceFaxNo.getValue())) {
-            faxNo = preferenceFaxNo.getValue().replaceAll("-", "");
+            faxNo = preferenceFaxNo.getValue();
 		}
 		String phoneNo = s.getPhone();
 		UserProperty userPhoneNo = userPropertyDAO.getProp(provider.getProviderNo(), "rxPhone");
 		if (userPhoneNo != null && !userPhoneNo.getValue().isEmpty()) {
-			phoneNo = userPhoneNo.getValue().replaceAll("-", "");
+			phoneNo = userPhoneNo.getValue();
 		}
         vecAddress.add("<b>"+doctorName+"</b><br>"+s.getFullName()+"<br>"+s.getAddress() + "<br>" + s.getCity() + ", " + s.getProvince() + " " + s.getPostal() + "<br>"+rb.getString("RxPreview.msgTel")+": " + phoneNo + "<br>"+rb.getString("RxPreview.msgFax")+": " + faxNo);
         if (s.getName().equals(location))
