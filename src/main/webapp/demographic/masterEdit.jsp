@@ -871,11 +871,14 @@
 		property="DEMOGRAPHIC_PATIENT_CLINIC_STATUS" value="true">
 
 		<script>
-			function updateEnrollmentProvider(providerElement) {
-			    if (!jQuery_3_1_0('#notMrp')[0].checked) {
+            function updateEnrollmentProvider(providerElement) {
+                if (!jQuery_3_1_0('#notMrp')[0].checked) {
+                    if (jQuery_3_1_0('#enrollmentProvider').prop('disabled')) {
+                        jQuery_3_1_0('#hiddenEnrollmentProvider').val(providerElement.value);
+                    }
                     jQuery_3_1_0('#enrollmentProvider').val(providerElement.value);
-				}
-			}
+                }
+            }
 		</script>
 		<tr valign="top">
 			<td align="right" nowrap><b> <% if(oscarProps.getProperty("demographicLabelDoctor") != null) { out.print(oscarProps.getProperty("demographicLabelDoctor","")); } else { %>
@@ -1150,7 +1153,7 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 							</option>
 					<% } %>
 				</select>
-				<input name="enrollmentProvider" id="hiddenEnrollmentProvider" type="hidden" value=""/>
+				<input name="enrollmentProvider" id="hiddenEnrollmentProvider" type="hidden" value="<%=enrollmentProvider%>"/>
 				<input type="checkbox" id="notMrp" name="notMrp" onclick="toggleNotMrp(this)" <%=notMrp ? "checked" : ""%>/>
 				<b>Not MRP</b>
 			</td>

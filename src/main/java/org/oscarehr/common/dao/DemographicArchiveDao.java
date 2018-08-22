@@ -30,6 +30,8 @@ import javax.persistence.Query;
 
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.DemographicArchive;
+import org.oscarehr.common.model.DemographicExtArchive;
+import org.oscarehr.util.SpringUtils;
 import org.springframework.stereotype.Repository;
 
 import oscar.util.StringUtils;
@@ -57,6 +59,7 @@ public class DemographicArchiveDao extends AbstractDao<DemographicArchive> {
 
     public List<DemographicArchive> findRosterStatusHistoryByDemographicNo(Integer demographicNo) {
 
+        DemographicExtArchiveDao demographicExtArchiveDao = SpringUtils.getBean(DemographicExtArchiveDao.class);
     	String sqlCommand = "select x from DemographicArchive x where x.demographicNo=?1 order by x.id desc";
 
         Query query = entityManager.createQuery(sqlCommand);
@@ -68,6 +71,8 @@ public class DemographicArchiveDao extends AbstractDao<DemographicArchive> {
         //Remove entries with identical rosterStatus
         String this_rs, next_rs;
         Date this_rd, next_rd, this_td, next_td;
+        DemographicExtArchive thisEnrollmentProvider, nextEnrollmentProvider;
+        String enrollmentProviderValue, nextEnrollmentProviderValue;
         for (int i=0; i<results.size()-1; i++) {
             this_rs = StringUtils.noNull(results.get(i).getRosterStatus());
             next_rs = StringUtils.noNull(results.get(i+1).getRosterStatus());
@@ -75,10 +80,15 @@ public class DemographicArchiveDao extends AbstractDao<DemographicArchive> {
             next_rd = results.get(i+1).getRosterDate();
             this_td = results.get(i).getRosterTerminationDate();
             next_td = results.get(i+1).getRosterTerminationDate();
+            thisEnrollmentProvider = demographicExtArchiveDao.getDemographicExtArchiveByArchiveIdAndKey(results.get(i).getId(), "enrollmentProvider");
+            nextEnrollmentProvider = demographicExtArchiveDao.getDemographicExtArchiveByArchiveIdAndKey(results.get(i+1).getId(), "enrollmentProvider");
+            enrollmentProviderValue = thisEnrollmentProvider == null ? "" : thisEnrollmentProvider.getValue();
+            nextEnrollmentProviderValue = nextEnrollmentProvider == null ? "" : nextEnrollmentProvider.getValue();
 
             if (this_rs.equalsIgnoreCase(next_rs) &&
         		UtilDateUtilities.nullSafeCompare(this_rd, next_rd) == 0 &&
-        		UtilDateUtilities.nullSafeCompare(this_td, next_td) == 0) {
+        		UtilDateUtilities.nullSafeCompare(this_td, next_td) == 0 &&
+                enrollmentProviderValue.equalsIgnoreCase(nextEnrollmentProviderValue)) {
                 results.remove(i);
                 i--;
             }

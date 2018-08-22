@@ -151,15 +151,18 @@
 			<th>Termination Reason Code</th>
 		</tr>
 
-		<tr>
-			<td><%=enrollmentProviderName%></td>
-			<td><%=providerOHIP%></td>
-			<td><%=enrollmentStatus%></td>
-			<td><%=enrollmentDate%></td>
-			<td><%=rosterTermDate%></td>
-			<td><%=terminationReasonCode%></td>
-		</tr>
+		<% if (!enrollmentProviderName.equalsIgnoreCase("Not Set") || !providerOHIP.equalsIgnoreCase("Not Set") || !enrollmentStatus.equalsIgnoreCase("No") || !enrollmentDate.equalsIgnoreCase("Not Set") || !rosterTermDate.equalsIgnoreCase("N/A") || !terminationReasonCode.equalsIgnoreCase("N/A")) { %>
+
+			<tr>
+				<td><%=enrollmentProviderName%></td>
+				<td><%=providerOHIP%></td>
+				<td><%=enrollmentStatus%></td>
+				<td><%=enrollmentDate%></td>
+				<td><%=rosterTermDate%></td>
+				<td><%=terminationReasonCode%></td>
+			</tr>
 		<%
+		}
 			List<DemographicArchive> DAs = demoArchiveDao.findRosterStatusHistoryByDemographicNo(Integer.valueOf(demographicNo));
 
 			for (DemographicArchive demographicArchive : DAs) {
@@ -193,8 +196,9 @@
 					aRosterTermDate = "N/A";
 				}
 
-				if (!aEnrollmentProviderName.equals(enrollmentProviderName) || !aEnrollmentStatus.equals(enrollmentStatus) || !aEnrollmentDate.equals(enrollmentDate)
-						|| !aRosterTermDate.equals(rosterTermDate) || !aTerminationReasonCode.equals(terminationReasonCode)) {
+				if (!aEnrollmentProviderName.equals(enrollmentProviderName) || !aEnrollmentStatus.equals(enrollmentStatus)
+					|| !aEnrollmentDate.equals(enrollmentDate) || !aRosterTermDate.equals(rosterTermDate) || !aTerminationReasonCode.equals(terminationReasonCode)) {
+				    if (!aEnrollmentProviderName.equalsIgnoreCase("Not Set") || !providerOHIP.equalsIgnoreCase("Not Set") || !aEnrollmentStatus.equalsIgnoreCase("No") || !aEnrollmentDate.equalsIgnoreCase("Not Set") || !aRosterTermDate.equalsIgnoreCase("N/A") || !aTerminationReasonCode.equalsIgnoreCase("N/A")) {
 		%>
 		<tr>
 			<td><%=aEnrollmentProviderName%></td>
@@ -205,6 +209,7 @@
 			<td><%=aTerminationReasonCode%></td>
 		</tr>
 		<%
+				    }
 				}
 			}
 			%>

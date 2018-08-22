@@ -78,7 +78,7 @@
 	OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
 	DemographicGroupLinkDao demographicGroupLinkDao = SpringUtils.getBean(DemographicGroupLinkDao.class);
 	AppointmentReminderDao appointmentReminderDao = SpringUtils.getBean(AppointmentReminderDao.class);
-	
+
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 	
 	
@@ -116,7 +116,7 @@
 
 	SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
 	Map<String, Boolean> masterFilePreferences = systemPreferencesDao.findByKeysAsMap(SystemPreferences.MASTER_FILE_PREFERENCE_KEYS);
-	
+
 	// Update Freshbooks section
 	UserPropertyDAO propertyDao = (UserPropertyDAO) SpringUtils.getBean("UserPropertyDAO");
 	String demoNo = request.getParameter("demographic_no");
@@ -357,6 +357,7 @@
 	String familyDoctorId = "";
 	String familyPhysicianId = "";
 	List<DemographicExt> extensions = new ArrayList<DemographicExt>();
+	List<DemographicExt> oldExtensions = demographicExtDao.getDemographicExtByDemographicNo(oldDemographic.getDemographicNo());
 
 	if (!StringUtils.trimToEmpty(demoExt.get("reminder_preference")).equals(StringUtils.trimToEmpty(request.getParameter("reminder_preference")))) {
 		extensions.add(new DemographicExt(request.getParameter("reminder_preference_id"), proNo, demographicNo, "reminder_preference", request.getParameter("reminder_preference")));
@@ -557,7 +558,7 @@
 			extensions.add(new DemographicExt(request.getParameter("former_name_id"), proNo, demographicNo, "former_name", formerName));
 		}
 	}
-	
+
 	// Demographic Groups
 	int demographicNoAsInt = 0;
 	try {
@@ -655,11 +656,11 @@
 	}
 
     Long archiveId = demographicArchiveDao.archiveRecord(oldDemographic);
-	for (DemographicExt extension : extensions) {
+	for (DemographicExt extension : oldExtensions) {
 		DemographicExtArchive archive = new DemographicExtArchive(extension);
 		archive.setArchiveId(archiveId);
 		//String oldValue = request.getParameter(archive.getKey() + "Orig");
-		archive.setValue(request.getParameter(archive.getKey()));
+		archive.setValue(archive.getValue());
 		demographicExtArchiveDao.saveEntity(archive);	
 	}
 

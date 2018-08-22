@@ -432,6 +432,12 @@ public class DemographicExportAction4 extends Action {
 			if(demographic.getRosterTerminationDate() != null)
 				rosterTermDate = formatter.format(demographic.getRosterTerminationDate());
 
+			Provider enrollmentProvider = null;
+			DemographicExt enrollmentProviderExt = demographicExtDao.getDemographicExt(Integer.parseInt(demographicNo), "enrollmentProvider");
+			if (enrollmentProviderExt != null && enrollmentProviderExt.getValue() != null && !enrollmentProviderExt.getValue().isEmpty()) {
+				enrollmentProvider = providerDao.getProvider(enrollmentProviderExt.getValue());
+			}
+
 			if (StringUtils.filled(rosterStatus)) {
 				rosterStatus = rosterStatus.equalsIgnoreCase("RO") ? "1" : "0";
 				enrolment = demo.addNewEnrolment();
@@ -447,11 +453,6 @@ public class DemographicExportAction4 extends Action {
 					String termReason = demographic.getRosterTerminationReason();
 					if (StringUtils.filled(termReason))
 						enrolmentHistory.setTerminationReason(cdsDt.TerminationReasonCode.Enum.forString(termReason));
-				}
-				Provider enrollmentProvider = null;
-				DemographicExt enrollmentProviderExt = demographicExtDao.getDemographicExt(Integer.parseInt(demographicNo), "enrollmentProvider");
-				if (enrollmentProviderExt != null && enrollmentProviderExt.getValue() != null && !enrollmentProviderExt.getValue().isEmpty()) {
-					enrollmentProvider = providerDao.getProvider(enrollmentProviderExt.getValue());
 				}
 
 				if (enrollmentProvider != null) {
@@ -471,7 +472,7 @@ public class DemographicExportAction4 extends Action {
 			//Enrolment Status history
 			List<DemographicArchive> DAs = demoArchiveDao.findRosterStatusHistoryByDemographicNo(Integer.valueOf(demoNo));
 			auditLog.add("READ | " + dateTime.format(new Date()) + " | demographicArchive: demographicNo=" + demoNo);
-			String historyRS, historyRS1, historyProviderNo;
+			String historyRS, historyRS1, historyTRC, historyTRC1;
 			Date historyRD, historyRD1, historyTD, historyTD1;
 			for (int i=0; i<DAs.size(); i++) {
 				historyRS = StringUtils.noNull(DAs.get(i).getRosterStatus());
@@ -484,22 +485,41 @@ public class DemographicExportAction4 extends Action {
 				historyTD = DAs.get(i).getRosterTerminationDate();
 				historyTD1 = i<DAs.size()-1 ? DAs.get(i+1).getRosterTerminationDate() : null;
 
+				historyTRC = StringUtils.noNull(DAs.get(i).getRosterTerminationReason());
+				historyTRC1 = i < DAs.size() - 1 ? StringUtils.noNull(DAs.get(i + 1).getRosterTerminationReason()) : "";
+
 				if (!historyRS.isEmpty()) {
 					if (enrolment == null) {
 						enrolment = demo.addNewEnrolment();
 					}
-				
-					historyProviderNo = DAs.get(i).getProviderNo();
-	
+
+					Provider archiveEnrollmentProvider = providerDao.getProvider(DAs.get(i).getProviderNo());
+					DemographicExtArchiveDao demographicExtArchiveDao = SpringUtils.getBean(DemographicExtArchiveDao.class);
+					DemographicExtArchive enrollmentProviderExtArchive = demographicExtArchiveDao.getDemographicExtArchiveByArchiveIdAndKey(DAs.get(i).getId(), "enrollmentProvider");
+					if (enrollmentProviderExtArchive != null && enrollmentProviderExtArchive.getValue() != null && !enrollmentProviderExtArchive.getValue().isEmpty()) {
+						archiveEnrollmentProvider = providerDao.getProvider(enrollmentProviderExtArchive.getValue());
+					}
+
+					Provider nextArchiveEnrollmentProvider = providerDao.getProvider(DAs.get(i).getProviderNo());
+					if (i < DAs.size() - 1) {
+						DemographicExtArchive nextEnrollmentProviderExtArchive = demographicExtArchiveDao.getDemographicExtArchiveByArchiveIdAndKey(DAs.get(i+1).getId(), "enrollmentProvider");
+						if (nextEnrollmentProviderExtArchive != null && nextEnrollmentProviderExtArchive.getValue() != null && !nextEnrollmentProviderExtArchive.getValue().isEmpty()) {
+							nextArchiveEnrollmentProvider = providerDao.getProvider(nextEnrollmentProviderExtArchive.getValue());
+						}
+					}
+
 					if (i==0) { //check history info with current
 						String rd = UtilDateUtilities.DateToString(historyRD);
 						String td = UtilDateUtilities.DateToString(historyTD);
-						if (historyRS.equals(rosterStatus) && rd.equals(rosterDate) && td.equals(rosterTermDate))
+						String demographicTermReason = demographic.getRosterTerminationReason() == null ? "" : demographic.getRosterTerminationReason();
+						if (historyRS.equals(rosterStatus) && rd.equals(rosterDate) && td.equals(rosterTermDate) && archiveEnrollmentProvider.equals(enrollmentProvider) && historyTRC.equals(demographicTermReason))
 							continue;
 					} else { //check history info with next
 						if (historyRS.equals(historyRS1) &&
 							UtilDateUtilities.nullSafeCompare(historyRD, historyRD1) == 0 &&
-							UtilDateUtilities.nullSafeCompare(historyTD, historyTD1) == 0 )
+							UtilDateUtilities.nullSafeCompare(historyTD, historyTD1) == 0 &&
+							archiveEnrollmentProvider.equals(nextArchiveEnrollmentProvider) &&
+                            historyTRC.equals(historyTRC1))
 							continue;
 					}
 	
@@ -514,17 +534,7 @@ public class DemographicExportAction4 extends Action {
 						if (StringUtils.filled(termReason))
 							enrolmentHistory.setTerminationReason(cdsDt.TerminationReasonCode.Enum.forString(termReason));
 					}
-	
-					Provider archiveEnrollmentProvider = null;
-					DemographicExtArchiveDao demographicExtArchiveDao = SpringUtils.getBean(DemographicExtArchiveDao.class);
-					DemographicExtArchive enrollmentProviderExtArchive = demographicExtArchiveDao.getDemographicExtArchiveByArchiveIdAndKey(DAs.get(i).getId(), "enrollmentProvider");
-					if (enrollmentProviderExtArchive != null && enrollmentProviderExtArchive.getValue() != null && !enrollmentProviderExtArchive.getValue().isEmpty()) {
-						archiveEnrollmentProvider = providerDao.getProvider(enrollmentProviderExtArchive.getValue());
-					}
-	
-					if (archiveEnrollmentProvider == null) {
-						archiveEnrollmentProvider = providerDao.getProvider(DAs.get(i).getProviderNo());
-					}
+
 					if (archiveEnrollmentProvider != null) {
 						Demographics.Enrolment.EnrolmentHistory.EnrolledToPhysician primaryPhysician = enrolmentHistory.addNewEnrolledToPhysician();
 						PersonNameSimple physicianName = primaryPhysician.addNewName();
