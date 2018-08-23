@@ -34,6 +34,7 @@ import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionRedirect;
 import org.apache.struts.actions.DispatchAction;
 import org.jdom.Element;
 import org.jdom.output.Format;
@@ -428,6 +429,33 @@ public class FlowSheetCustomAction extends DispatchAction {
         request.setAttribute("demographic",demographicNo);
         request.setAttribute("flowsheet", flowsheet);
         return mapping.findForward("success");
+    }
+
+    public ActionForward addForceShowToDemographic(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+        String measurementCode = request.getParameter("measurementCode");
+        String flowSheet = request.getParameter("flowSheet");
+        String demographicNo = request.getParameter("demographic");
+        
+        if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_demographic", "w", demographicNo)) {
+            throw new SecurityException("missing required security object (_demographic)");
+        }
+
+        FlowSheetCustomization customization = new FlowSheetCustomization();
+        customization.setAction(FlowSheetCustomization.FORCE_SHOW);
+        customization.setFlowsheet(flowSheet);
+        customization.setMeasurement(measurementCode);
+        customization.setProviderNo((String) request.getSession().getAttribute("user"));
+        customization.setDemographicNo(demographicNo);
+        customization.setCreateDate(new Date());
+        flowSheetCustomizationDao.saveEntity(customization);
+        
+
+        request.setAttribute("demographic",demographicNo);
+        request.setAttribute("flowsheet", flowSheet);
+        ActionRedirect redirect = new ActionRedirect(mapping.findForward("successAndRedirect"));
+        redirect.addParameter("flowsheet", flowSheet);
+        redirect.addParameter("demographic", demographicNo);
+        return redirect;
     }
 
 

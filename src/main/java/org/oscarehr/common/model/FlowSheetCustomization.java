@@ -53,6 +53,8 @@ public class FlowSheetCustomization extends AbstractModel<Integer>{
     public static final String DELETE = "delete";
 	@Transient
     public static final String UPDATE = "update";
+    @Transient
+    public static final String FORCE_SHOW = "force show";
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

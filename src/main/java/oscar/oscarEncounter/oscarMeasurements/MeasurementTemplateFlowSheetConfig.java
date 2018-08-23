@@ -791,6 +791,8 @@ public class MeasurementTemplateFlowSheetConfig implements InitializingBean {
                 }else if(FlowSheetCustomization.DELETE.equals(cust.getAction())){
                     personalizedFlowsheet.deleteMeasurement(cust.getMeasurement());
                     log.debug(" CUST DELETE");
+                } else if (FlowSheetCustomization.FORCE_SHOW.equals(cust.getAction())){
+                    // Do nothing, measurement will be included as normal
                 }else{
                     log.debug("ERR"+cust);
                 }

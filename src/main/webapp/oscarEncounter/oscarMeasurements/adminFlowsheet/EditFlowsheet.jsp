@@ -280,11 +280,11 @@ Flowsheet: <span style="font-weight:normal"><%=flowsheet.toUpperCase()%></span>
 
 	<%if (demographic!=null) { %>
 		<div class="alert alert-info">
-			Any changes made to this flowsheet will be applied to this patient <strong><%=demo.getLastName()%>, <%=demo.getFirstName()%></strong> for you only.
+			Any changes made to this flowsheet will be applied to this patient <strong><%=demo.getLastName()%>, <%=demo.getFirstName()%></strong> for all providers.
 		</div>
 	 <%}else{%>
 		<div class="alert">
-			Any changes made to this flowsheet will be applied to all of <u>your</u> patients.
+			Any changes made to this flowsheet will be applied to all patients when you view them.
 		</div>
 	 <%}%>
  
@@ -383,7 +383,7 @@ Flowsheet: <span style="font-weight:normal"><%=flowsheet.toUpperCase()%></span>
 	
 	<div class="tab-pane" id="custom">
 		
-		<div class="span4">
+		<div class="span8">
 		<!--right sidebar-->
 		
 			<!-- Custom List -->
@@ -410,40 +410,41 @@ Flowsheet: <span style="font-weight:normal"><%=flowsheet.toUpperCase()%></span>
 		    	
 		    	
 
-		    	try{
-                    FlowSheetItem item = mfc.getItemFromString(cust.getPayload());
-                    
-                    if(item.getMeasurementType() != null){
-                        mtype = item.getMeasurementType();
-		    	    }
-		    	} catch (Exception e){
-	                //do nothing
-	            }
+				FlowSheetItem item = mfc.getItemFromString(cust.getPayload());
+				
+				if(item != null && item.getMeasurementType() != null){
+					mtype = item.getMeasurementType();
+				}
 		    %>
-		       <tr><td><a href="FlowSheetCustomAction.do?method=archiveMod&id=<%=cust.getId()%>&flowsheet=<%=flowsheet%><%=demographicStr%><%=htQueryString%>" class="action-icon"><i class="icon-trash"></i></a> </td> 
-		       
-		       <td><%=cust.getAction()%></td>
-		       
-		       <%if(cust.getAction().equals("add")){ %>
-		       <td><%if(mtype!=null){out.print(mtype);} %> 
-		       
-		       <%if(cust.getMeasurement()!=null){%>
-		       after <em><%=cust.getMeasurement()%></em> 
-		       <%}%>
-
-		       </td> 
-		       
-		       <%}else{ %>
-		       <td><%=cust.getMeasurement()%></td> 
-		       <%} %>
-		       <td><%=cust.getProviderNo()%> </td> <td> 
-		       
-		       <%if(cust.getDemographicNo().equals("0")){ %>
-		       All Patients
-		       <%}else{ %>
-		       <a href="<%=request.getContextPath() %>/demographic/demographiccontrol.jsp?demographic_no=<%=cust.getDemographicNo()%>&displaymode=edit&dboperation=search_detail" target="_blank"><%=cust.getDemographicNo()%></a>
-		       <%} %>
-		       </td></tr>
+			<tr>
+				<td>
+					<a href="FlowSheetCustomAction.do?method=archiveMod&id=<%=cust.getId()%>&flowsheet=<%=flowsheet%><%=demographicStr%><%=htQueryString%>" class="action-icon"><i class="icon-trash"></i></a>
+				</td>
+				<td><%=cust.getAction()%></td>
+				<% if (cust.getAction().equals("add")) { %>
+				<td>
+					<% if (mtype!=null) { out.print(mtype); } %>
+					<% if (cust.getMeasurement()!=null) { %>
+					after <em><%=cust.getMeasurement()%></em>
+					<% } %>
+				</td>
+				<% } else { %>
+				<td><%=cust.getMeasurement()%></td>
+				<% } %>
+				<td><%=cust.getProviderNo()%></td>
+				<td>
+					<% if (cust.getDemographicNo().equals("0")) { %>
+					All Patients
+					<% } else { %>
+					<a href="<%=request.getContextPath() %>/demographic/demographiccontrol.jsp?demographic_no=<%=cust.getDemographicNo()%>&displaymode=edit&dboperation=search_detail" target="_blank"><%=cust.getDemographicNo()%></a>
+					<% } %>
+				</td>
+				<td>
+					<% if (cust.getAction().equals(FlowSheetCustomization.DELETE) && cust.getDemographicNo().equals("0") && demographic != null) { %>
+					<a href="FlowSheetCustomAction.do?method=addForceShowToDemographic&measurementCode=<%=cust.getMeasurement()%>&flowSheet=<%=flowsheet%><%=demographicStr%>">Add back to this demographic</a>
+					<% } %>
+				</td>
+			</tr>
 		    <%
 		    	}
 		    %>

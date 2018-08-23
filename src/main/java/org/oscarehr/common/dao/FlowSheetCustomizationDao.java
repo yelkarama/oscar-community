@@ -25,6 +25,8 @@
 
 package org.oscarehr.common.dao;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import javax.persistence.Query;
@@ -43,15 +45,25 @@ public class FlowSheetCustomizationDao extends AbstractDao<FlowSheetCustomizatio
     	return this.find(id);
     }
 
-    public List<FlowSheetCustomization> getFlowSheetCustomizations(String flowsheet,String provider,Integer demographic){
-    	Query query = entityManager.createQuery("SELECT fd FROM FlowSheetCustomization fd WHERE fd.flowsheet = :flowsheet and fd.archived=0 and ((fd.universal = FALSE AND fd.providerNo = :providerNo) OR fd.universal = TRUE) AND (fd.demographicNo = 0 or fd.demographicNo = :demographicNo) ORDER BY fd.demographicNo, fd.universal DESC, fd.id");
-    	query.setParameter("flowsheet", flowsheet);
-    	query.setParameter("demographicNo", String.valueOf(demographic));
-        query.setParameter("providerNo", String.valueOf(provider));
+    /**
+     * Gets a list of flowsheet customizations for the given flowsheet, providerNo, and demographicNo.
+     * Note: a demographic's customizations takeprecedencee over a provider's
+     * @param flowSheet The flowsheets short name
+     * @param providerNo The provider's customizations to find
+     * @param demographicNo The demographic's customizations to find
+     * @return a list of the customizations
+     */
+    public List<FlowSheetCustomization> getFlowSheetCustomizations(String flowSheet, String providerNo, Integer demographicNo){
+        LinkedHashMap<String, FlowSheetCustomization> providersCustomizations = getProviderLevelFlowSheetCustomizations(flowSheet, providerNo);
+        LinkedHashMap<String, FlowSheetCustomization> demographicsCustomizations = getDemographicLevelFlowSheetCustomizations(flowSheet, demographicNo);
 
-        @SuppressWarnings("unchecked")
-        List<FlowSheetCustomization> list = query.getResultList();
-        return list;
+        LinkedHashMap<String, FlowSheetCustomization> prioritizedCustomizations = new LinkedHashMap<String, FlowSheetCustomization>();
+        // Add all provider's customizations
+        prioritizedCustomizations.putAll(providersCustomizations);
+        // Add all demographic's customizations, overwriting any duplicates
+        prioritizedCustomizations.putAll(demographicsCustomizations);
+        
+        return new ArrayList<FlowSheetCustomization>(prioritizedCustomizations.values());
     }
     
     public List<FlowSheetCustomization> getFlowSheetCustomizations(String flowsheet,String provider){
@@ -62,5 +74,40 @@ public class FlowSheetCustomizationDao extends AbstractDao<FlowSheetCustomizatio
         @SuppressWarnings("unchecked")
         List<FlowSheetCustomization> list = query.getResultList();
         return list;
+    }
+
+    public LinkedHashMap<String, FlowSheetCustomization> getDemographicLevelFlowSheetCustomizations(String flowSheet, Integer demographic){
+        Query query = entityManager.createQuery("SELECT fd FROM FlowSheetCustomization fd WHERE fd.flowsheet = :flowSheet and fd.archived=0 AND fd.demographicNo = :demographicNo ORDER BY fd.demographicNo DESC, fd.id");
+        query.setParameter("flowSheet", flowSheet);
+        query.setParameter("demographicNo", String.valueOf(demographic));
+
+        @SuppressWarnings("unchecked")
+        List<FlowSheetCustomization> resultList = query.getResultList();
+        LinkedHashMap<String, FlowSheetCustomization> resultMap = new LinkedHashMap<String, FlowSheetCustomization>();
+        
+        for (FlowSheetCustomization result : resultList) {
+            if (result.getMeasurement() != null) {
+                resultMap.put(result.getMeasurement(), result);
+            } else if (result.getPayload() != null) {
+                resultMap.put(result.getPayload(), result);
+            }
+        }
+        return resultMap;
+    }
+    public LinkedHashMap<String, FlowSheetCustomization> getProviderLevelFlowSheetCustomizations(String flowSheet, String providerNo){
+        Query query = entityManager.createQuery("SELECT fd FROM FlowSheetCustomization fd WHERE fd.flowsheet = :flowSheet and fd.archived=0 " +
+                "AND (fd.demographicNo = 0 OR fd.demographicNo IS NULL) " +
+                "AND fd.providerNo = :providerNo ORDER BY fd.demographicNo DESC, fd.id");
+        query.setParameter("flowSheet", flowSheet);
+        query.setParameter("providerNo", providerNo);
+        
+        @SuppressWarnings("unchecked")
+        List<FlowSheetCustomization> resultList = query.getResultList();
+        LinkedHashMap<String, FlowSheetCustomization> resultMap = new LinkedHashMap<String, FlowSheetCustomization>();
+        
+        for (FlowSheetCustomization result : resultList) {
+            resultMap.put(result.getMeasurement(), result);
+        }
+        return resultMap;
     }
 }

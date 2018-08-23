@@ -2610,6 +2610,7 @@
 
 		<action path="/oscarEncounter/oscarMeasurements/adminFlowsheet/FlowSheetCustomAction" name="FrmForm" type="org.oscarehr.common.web.FlowSheetCustomAction" parameter="method" scope="request">
 			<forward name="success" path="/oscarEncounter/oscarMeasurements/adminFlowsheet/EditFlowsheet.jsp" />
+			<forward name="successAndRedirect" path="/oscarEncounter/oscarMeasurements/adminFlowsheet/EditFlowsheet.jsp" redirect="true"/>
 			<forward name="newflowsheet" path="/oscarEncounter/oscarMeasurements/adminFlowsheet/NewFlowsheet.jsp" />
 		</action>
 
