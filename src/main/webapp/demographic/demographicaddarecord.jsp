@@ -73,6 +73,8 @@
 <%@page import="oscar.OscarProperties" %>
 <%@ page import="org.oscarehr.common.dao.SystemPreferencesDao" %>
 <%@ page import="org.oscarehr.common.model.SystemPreferences" %>
+<%@ page import="org.oscarehr.common.model.Alert" %>
+<%@ page import="org.oscarehr.common.dao.AlertDao" %>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -338,6 +340,14 @@
 		if (masterFilePreferences.getOrDefault("display_former_name", false)) {
 			demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "former_name", request.getParameter("former_name") != null ? request.getParameter("former_name") : "");
 		}
+
+		String chartAlertText = request.getParameter("chartAlertText");
+		if (!StringUtils.isBlank(chartAlertText)) {
+			Alert chartAlert = new Alert(demographic.getDemographicNo(), Alert.AlertType.CHART, chartAlertText);
+			AlertDao alertDao = SpringUtils.getBean(AlertDao.class);
+			alertDao.saveEntity(chartAlert);
+		}
+		
 		
 		// Demographic Groups
 		String[] groups = request.getParameterValues("demographicGroups");

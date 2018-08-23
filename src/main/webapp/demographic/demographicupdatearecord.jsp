@@ -660,11 +660,15 @@
 
 
 	String newChartAlertText = request.getParameter("chartAlertText");
-	if (!StringUtils.isBlank(newChartAlertText) && newChartAlertText.length() <= 200) {
-		Alert oldChartAlert = alertDao.findLatestEnabledByDemographicNoAndType(demographicNo, Alert.AlertType.CHART);
-		// Compare encoded text for any changes
-		if ((oldChartAlert != null && !newChartAlertText.equals(Encode.forHtmlContent(oldChartAlert.getMessage())))
-				|| oldChartAlert == null) {
+	Alert oldChartAlert = alertDao.findLatestEnabledByDemographicNoAndType(demographicNo, Alert.AlertType.CHART);
+	
+	if ((oldChartAlert == null || !newChartAlertText.equals(Encode.forHtmlContent(oldChartAlert.getMessage())))) {
+	    if (oldChartAlert != null) {
+	        oldChartAlert.setEnabled(false);
+	        alertDao.saveEntity(oldChartAlert);
+		}
+	    
+		if (!StringUtils.isBlank(newChartAlertText) && newChartAlertText.length() <= 200) {
 			Alert newChartAlert = new Alert(demographicNo, Alert.AlertType.CHART, newChartAlertText);
 			alertDao.saveEntity(newChartAlert);
 		}

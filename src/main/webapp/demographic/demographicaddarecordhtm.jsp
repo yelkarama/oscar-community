@@ -1689,6 +1689,12 @@ if(oscarVariables.getProperty("demographicExtJScript") != null) { out.println(os
 						</td>
 					</tr>
 					<tr>
+						<td width="7%" align="right"><font color="#FF0000"><b> Chart Alert: </b></font></td>
+						<td>
+							<textarea name="chartAlertText" style="width: 100%" cols="80" rows="2" maxlength="200"></textarea>
+						</td>
+					</tr>
+					<tr>
 						<td id="notesLbl" align="right"><b><bean:message
 							key="demographic.demographicaddrecordhtm.formNotes" /> : </b></td>
 						<td id="notesCell"><textarea id="content" name="content" style="width: 100%" rows="2"></textarea>
