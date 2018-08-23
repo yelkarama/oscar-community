@@ -63,7 +63,7 @@ if(listRxDrugs!=null){
          String specialInstruction=rx.getSpecialInstruction();
          String startDate       = RxUtil.DateToString(rx.getRxDate(), "yyyy-MM-dd");
          String lastRefillDate  = RxUtil.DateToString(rx.getLastRefillDate(), "yyyy-MM-dd");
-         String today           = RxUtil.DateToString(new Date(), "yyyy-MM-dd");
+         String todayDateString           = RxUtil.DateToString(new Date(), "yyyy-MM-dd");
          int gcn=rx.getGCN_SEQNO();//if gcn is 0, rx is customed drug.
          String customName      = rx.getCustomName();
          Boolean patientCompliance  = rx.getPatientCompliance();
@@ -274,7 +274,7 @@ if(listRxDrugs!=null){
            <input type="text" id="lastRefillDate_<%=rand%>"  name="lastRefillDate_<%=rand%>" value="<%=lastRefillDate%>" />
 	<br/>
         <label style="float:left;width:80px;">Written Date:</label>
-           <input type="text" id="writtenDate_<%=rand%>"  name="writtenDate_<%=rand%>" value="<%=today%>" disabled/>
+           <input type="text" id="writtenDate_<%=rand%>"  name="writtenDate_<%=rand%>" value="<%=todayDateString%>" disabled/>
            <a href="javascript:void(0);" style="float:right;margin-top:0px;padding-top:0px;"  title="Add to Favorites" onclick="addFav('<%=rand%>','<%=drugName%>');return false;">Add to Favorite</a>
        </div>
        
@@ -456,7 +456,7 @@ if(listRxDrugs!=null){
            <input type="text" id="lastRefillDate_<%=rand%>"  name="lastRefillDate_<%=rand%>" value="<%=lastRefillDate%>" />
 	<br/>
         <label style="float:left;width:80px;">Written Date:</label>
-           <input type="text" id="writtenDate_<%=rand%>"  name="writtenDate_<%=rand%>" value="<%=today%>" disabled/>
+           <input type="text" id="writtenDate_<%=rand%>"  name="writtenDate_<%=rand%>" value="<%=todayDateString%>" disabled/>
            <a href="javascript:void(0);" style="float:right;margin-top:0px;padding-top:0px;" onclick="addFav('<%=rand%>','<%=drugName%>');return false;">Add to Favorite</a>
        
            <br />
