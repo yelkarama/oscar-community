@@ -870,23 +870,13 @@
 	<oscar:oscarPropertiesCheck
 		property="DEMOGRAPHIC_PATIENT_CLINIC_STATUS" value="true">
 
-		<script>
-            function updateEnrollmentProvider(providerElement) {
-                if (!jQuery_3_1_0('#notMrp')[0].checked) {
-                    if (jQuery_3_1_0('#enrollmentProvider').prop('disabled')) {
-                        jQuery_3_1_0('#hiddenEnrollmentProvider').val(providerElement.value);
-                    }
-                    jQuery_3_1_0('#enrollmentProvider').val(providerElement.value);
-                }
-            }
-		</script>
 		<tr valign="top">
 			<td align="right" nowrap><b> <% if(oscarProps.getProperty("demographicLabelDoctor") != null) { out.print(oscarProps.getProperty("demographicLabelDoctor","")); } else { %>
 					<bean:message
 						key="demographic.demographiceditdemographic.formDoctor" /> <% } %>:
 			</b></td>
 			<td align="left"><select name="provider_no" id="provider_no"
-				<%=getDisabled("provider_no")%> style="width: 200px" onchange="updateEnrollmentProvider(this)">
+				<%=getDisabled("provider_no")%> style="width: 200px">
 				<option value=""></option>
 					<%
 							for(Provider p : doctors) {
@@ -1117,45 +1107,28 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 			<td align="right" nowrap></td>
 			<td></td>
 		</tr>
-		<% }
-			boolean notMrp = false;
-
-			if (demoExt.get("notMrp") != null && demoExt.get("notMrp").equals("on")) {
-			    notMrp = true;
-			}
-		%>
+        <% } %>
 		<script>
-			function toggleNotMrp(element) {
-                if (!element.checked) {
-                    jQuery_3_1_0('#enrollmentProvider').val(jQuery_3_1_0('#provider_no').val());
-                    jQuery_3_1_0('#enrollmentProvider').attr('disabled', 'disabled');
-                    jQuery_3_1_0('#hiddenEnrollmentProvider').val(jQuery_3_1_0('#enrollmentProvider').val());
-                } else {
-                    jQuery_3_1_0('#enrollmentProvider').removeAttr('disabled');
-				}
-			}
+            function toggleSameAsMRP() {
+                jQuery_3_1_0('#enrollmentProvider').val(jQuery_3_1_0('#provider_no').val());
+            }
 		</script>
 		<tr valign="top">
 			<td align="right">
 				<b><bean:message key="demographic.demographiceditdemographic.formEnrollmentDoctor" />: </b>
 			</td>
 			<td align="left">
-				<select name="enrollmentProvider" id="enrollmentProvider" style="width: 200px" <%=!notMrp ? "disabled" : ""%>>
+				<select name="enrollmentProvider" id="enrollmentProvider" style="width: 200px">
 					<option value=""></option>
 					<%
 						for(Provider p : doctors) {
-							if (enrollmentProvider == null && !notMrp) {
-								enrollmentProvider = demographic.getProviderNo();
-							}
 					%>
 							<option value="<%=p.getProviderNo()%>" <%=p.getProviderNo().equals(enrollmentProvider)?"selected":""%>>
 								<%=Misc.getShortStr((p.getLastName() + "," + p.getFirstName()), "", nStrShowLen)%>
 							</option>
 					<% } %>
 				</select>
-				<input name="enrollmentProvider" id="hiddenEnrollmentProvider" type="hidden" value="<%=enrollmentProvider%>"/>
-				<input type="checkbox" id="notMrp" name="notMrp" onclick="toggleNotMrp(this)" <%=notMrp ? "checked" : ""%>/>
-				<b>Not MRP</b>
+				<input type="button" value="Same as MRP" onclick="toggleSameAsMRP(this)"/>
 			</td>
 		</tr>
 		<tr valign="top">

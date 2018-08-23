@@ -1373,17 +1373,12 @@ function ignoreDuplicates() {
 
 	</td>
     </tr>
-    <script>
-        function updateEnrollmentProvider(providerElement) {
-            jQuery_3_1_0('#enrollmentProvider').val(providerElement.value);
-        }
-    </script>
     <tr valign="top">
       <td id="demoDoctorLbl" align="right"><b><% if(oscarProps.getProperty("demographicLabelDoctor") != null) { out.print(oscarProps.getProperty("demographicLabelDoctor","")); } else { %>
                                                 <bean:message key="demographic.demographicaddrecordhtm.formDoctor"/><% } %>
                                                 : </b></td>
       <td id="demoDoctorCell" align="left" >
-        <select name="staff" id="provider_no" onchange="updateEnrollmentProvider(this)">
+        <select name="staff" id="provider_no">
 					<option value=""></option>
 					<%
 					    String defaultDoctor = ((ProviderPreference)session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER_PREFERENCE)).getDefaultDoctor(); 
@@ -1592,14 +1587,8 @@ document.forms[1].r_doctor_ohip.value = refNo;
                 </td>
             </tr>
             <script>
-                function toggleNotMrp(element) {
-                    if (!element.checked) {
-                        jQuery_3_1_0('#enrollmentProvider').val(jQuery_3_1_0('#provider_no').val());
-                        jQuery_3_1_0('#enrollmentProvider').attr('disabled', 'disabled');
-                        jQuery_3_1_0('#hiddenEnrollmentProvider').val(jQuery_3_1_0('#enrollmentProvider').val());
-                    } else {
-                        jQuery_3_1_0('#enrollmentProvider').removeAttr('disabled');
-                    }
+                function toggleSameAsMRP() {
+                    jQuery_3_1_0('#enrollmentProvider').val(jQuery_3_1_0('#provider_no').val());
                 }
             </script>
             <tr valign="top">
@@ -1618,8 +1607,7 @@ document.forms[1].r_doctor_ohip.value = refNo;
                         <% } %>
                     </select>
                     <input name="enrollmentProvider" id="hiddenEnrollmentProvider" type="hidden" value=""/>
-                    <input type="checkbox" id="notMrp" name="notMrp" onclick="toggleNotMrp(this)" />
-                    <b>Not MRP</b>
+                    <input type="button" value="Same as MRP" onclick="toggleSameAsMRP(this)" />
                 </td>
             </tr>
 			<tr valign="top">
