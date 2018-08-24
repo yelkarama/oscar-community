@@ -734,7 +734,7 @@ function onNext() {
 	if (codeToAdd.indexOf(dxCode)>=0 || codeMatch!=null) {
 		var dxCodeMatch = codeMatch==null ? dxCode : codeMatch;
 <%for (String pcode : patientDx) {%>
-		if (dxCodeMatch==<%=pcode%>) dxCode = -1;
+		if (dxCodeMatch==<%=pcode.matches("^[0-9.]+$") ? pcode : "'" + pcode + "'"%>) dxCode = -1;
 <%}%>
 		if (dxCode!=-1 && codeMatch!=null) {
 			document.titlesearch.codeMatchToPatientDx.value = codeMatch;
