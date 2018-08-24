@@ -433,7 +433,7 @@ public class DemographicExportAction4 extends Action {
 				rosterTermDate = formatter.format(demographic.getRosterTerminationDate());
 
 			Provider enrollmentProvider = null;
-			DemographicExt enrollmentProviderExt = demographicExtDao.getDemographicExt(Integer.parseInt(demographicNo), "enrollmentProvider");
+			DemographicExt enrollmentProviderExt = demographicExtDao.getDemographicExt(Integer.parseInt(demographicNo == null ? demoNo : demographicNo), "enrollmentProvider");
 			if (enrollmentProviderExt != null && enrollmentProviderExt.getValue() != null && !enrollmentProviderExt.getValue().isEmpty()) {
 				enrollmentProvider = providerDao.getProvider(enrollmentProviderExt.getValue());
 			}
