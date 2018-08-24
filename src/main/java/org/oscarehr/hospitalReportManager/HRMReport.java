@@ -9,9 +9,11 @@
 
 package org.oscarehr.hospitalReportManager;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -337,16 +339,21 @@ public class HRMReport {
 		return subclassList;
 	}
 	
-	public Calendar getFirstAccompanyingSubClassDateTime() {
+	public String getFirstAccompanyingSubClassDateTime() {
 		if (hrmReport.getPatientRecord().getReportsReceived() != null &&
 				!hrmReport.getPatientRecord().getReportsReceived().isEmpty() &&
 				hrmReport.getPatientRecord().getReportsReceived().get(0).getOBRContent() != null && 
 				hrmReport.getPatientRecord().getReportsReceived().get(0).getOBRContent().get(0) != null &&
 				hrmReport.getPatientRecord().getReportsReceived().get(0).getOBRContent().get(0).getObservationDateTime() != null) {
-			return dateFP(hrmReport.getPatientRecord().getReportsReceived().get(0).getOBRContent().get(0).getObservationDateTime()).toGregorianCalendar();
+
+			GregorianCalendar calendar = dateFP(hrmReport.getPatientRecord().getReportsReceived().get(0).getOBRContent().get(0).getObservationDateTime()).toGregorianCalendar();
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			sdf.setTimeZone(calendar.getTimeZone());
+			
+			return sdf.format(calendar.getTime());
 		}
 		
-		return null;
+		return "";
 	}
 
 	public String getFirstAccompanyingSubClass() {

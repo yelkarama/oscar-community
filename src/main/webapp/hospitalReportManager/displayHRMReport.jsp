@@ -403,7 +403,7 @@ function popupPatientTickler(height, width, url, windowName,docId,d,n) {
 		<tr>
 			<th>Report Date</th>
 			<td><%=(hrmReport.getFirstReportEventTime() != null ? hrmReport.getFirstReportEventTime().getTime().toString() : 
-					((hrmReport.getFirstAccompanyingSubClassDateTime() != null ? hrmReport.getFirstAccompanyingSubClassDateTime().getTime().toString() : ""))) %></td>
+					hrmReport.getFirstAccompanyingSubClassDateTime()) %></td>
 		</tr>
 		<tr>
 			<th>Demographic Info</th>
