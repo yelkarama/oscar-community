@@ -134,6 +134,7 @@
 	demographic.setHin(request.getParameter("hin"));
 	demographic.setVer(request.getParameter("ver"));
 	demographic.setRosterStatus(request.getParameter("roster_status"));
+	demographic.setRosterEnrolledTo(request.getParameter("roster_enrolled_to"));
 	demographic.setPatientStatus(request.getParameter("patient_status"));
 	demographic.setChartNo(request.getParameter("chart_no"));
 	demographic.setProviderNo(request.getParameter("provider_no"));

@@ -132,6 +132,7 @@ import cds.CareElementsDocument.CareElements;
 import cds.ClinicalNotesDocument.ClinicalNotes;
 import cds.DemographicsDocument.Demographics;
 import cds.DemographicsDocument.Demographics.Enrolment.EnrolmentHistory;
+import cds.DemographicsDocument.Demographics.Enrolment.EnrolmentHistory.EnrolledToPhysician;
 import cds.FamilyHistoryDocument.FamilyHistory;
 import cds.ImmunizationsDocument.Immunizations;
 import cds.LaboratoryResultsDocument.LaboratoryResults;
@@ -146,9 +147,12 @@ import cds.ReportsDocument.Reports;
 import cds.ReportsDocument.Reports.OBRContent;
 import cds.ReportsDocument.Reports.SourceAuthorPhysician;
 import cds.RiskFactorsDocument.RiskFactors;
+import cdsDt.AddressType;
 import cdsDt.DateTimeFullOrPartial;
 import cdsDt.DiabetesComplicationScreening.ExamCode;
 import cdsDt.DiabetesMotivationalCounselling.CounsellingPerformed;
+import cdsDt.PersonNamePartQualifierCode;
+import cdsDt.PersonNamePartTypeCode;
 import cdsDt.PersonNameStandard.LegalName;
 import cdsDt.PersonNameStandard.OtherNames;
 import oscar.OscarProperties;
@@ -238,7 +242,7 @@ import oscar.util.UtilDateUtilities;
         }
 
         ImportDemographicDataForm frm = (ImportDemographicDataForm) form;
-        logger.info("import to course id "  + frm.getCourseId() + " using timeshift value " + frm.getTimeshiftInDays());
+        logger.debug("import to course id "  + frm.getCourseId() + " using timeshift value " + frm.getTimeshiftInDays());
         List<Provider> students = new ArrayList<Provider>();
         int courseId = 0;
         if(frm.getCourseId()!=null && frm.getCourseId().length()>0) {
@@ -254,7 +258,7 @@ import oscar.util.UtilDateUtilities;
                 }
             }
         }
-        logger.info("apply this patient to " + students.size() + " students");
+        logger.debug("apply this patient to " + students.size() + " students");
         matchProviderNames = frm.getMatchProviderNames();
         FormFile imp = frm.getImportFile();
         String ifile = tmpDir + imp.getFileName();
@@ -285,9 +289,14 @@ import oscar.util.UtilDateUtilities;
                     String ofile = tmpDir + entryName;
                     if (matchFileExt(ofile, "xml")) {
                         noXML = false;
-                        OutputStream out = new FileOutputStream(ofile);
-                        while ((len=in.read(buf)) > 0) out.write(buf,0,len);
-                        out.close();
+                        OutputStream out = null;    
+                        try {
+	                        out = new FileOutputStream(ofile);
+	                        while ((len=in.read(buf)) > 0) out.write(buf,0,len);
+	                        out.close();
+	                    } finally {
+	                    	IOUtils.closeQuietly(out);
+	                    }
                         logs.add(importXML(LoggedInInfo.getLoggedInInfoFromSession(request) , ofile, warnings, request,frm.getTimeshiftInDays(),students,courseId));
                         importNo++;
                         demographicNo=null;
@@ -409,13 +418,17 @@ import oscar.util.UtilDateUtilities;
         }
 
         //other names
-        String legalOtherNameTxt=null, otherNameTxt=null;
+        String  otherNameTxt=null;
 
         LegalName.OtherName[] legalOtherNames = legalName.getOtherNameArray();
+        String middleNames = "";
+        
         for (LegalName.OtherName otherName : legalOtherNames) {
-            if (legalOtherNameTxt==null) legalOtherNameTxt = otherName.getPart();
-            else legalOtherNameTxt += ", "+otherName.getPart();
+            if(otherName.getPartQualifier() == PersonNamePartQualifierCode.CL && otherName.getPartType() == PersonNamePartTypeCode.GIV) {
+            	middleNames += (otherName.getPart() + " ");
+            }
         }
+        middleNames = middleNames.trim();
 
         OtherNames[] otherNames = demo.getNames().getOtherNamesArray();
         for (OtherNames otherName : otherNames) {
@@ -428,7 +441,7 @@ import oscar.util.UtilDateUtilities;
         		otherNameTxt = Util.addLine(mapNamePurpose(otherName.getNamePurpose())+": ", otherNameTxt);
         	}
         }
-        otherNameTxt = Util.addLine(legalOtherNameTxt, otherNameTxt);
+        otherNameTxt = Util.addLine("", otherNameTxt);
 
         String title = demo.getNames().getNamePrefix()!=null ? demo.getNames().getNamePrefix().toString() : "";
         String suffix = demo.getNames().getLastNameSuffix()!=null ? demo.getNames().getLastNameSuffix().toString() : "";
@@ -494,8 +507,9 @@ import oscar.util.UtilDateUtilities;
         String[] roster_status=new String[enrolTotal],
         		 roster_date=new String[enrolTotal],
         		 term_date=new String[enrolTotal],
-        		 term_reason=new String[enrolTotal];
-
+        		 term_reason=new String[enrolTotal],
+        		 roster_enrolledTo = new String[enrolTotal];
+        		
         String rosterInfo = null;
         Calendar enrollDate=null, currentEnrollDate=null;
 
@@ -507,6 +521,17 @@ import oscar.util.UtilDateUtilities;
             term_date[i] = getCalDate(enrolments[i].getEnrollmentTerminationDate(), timeShiftInDays);
             if (enrolments[i].getTerminationReason()!=null)
             	term_reason[i] = enrolments[i].getTerminationReason().toString();
+            if(enrolments[i].getEnrolledToPhysician() != null) {
+            	EnrolledToPhysician enrolledToPhysician = enrolments[i].getEnrolledToPhysician();
+            	
+            	HashMap<String,String> personName = getPersonName(enrolledToPhysician.getName());
+                String personOHIP = enrolledToPhysician.getOHIPPhysicianId();
+                if (StringUtils.empty(personName.get("firstname"))) err_data.add("Error! No Enrolled To Physician first name");
+                if (StringUtils.empty(personName.get("lastname"))) err_data.add("Error! No Enrolled To Physician last name");
+                if (StringUtils.empty(personOHIP)) err_data.add("Error! No Enrolled To Physician OHIP billing number");
+               
+                roster_enrolledTo[i] = writeProviderData(personName.get("firstname"), personName.get("lastname"), personOHIP, null);
+            }
 
             //Sort enrolments by date
             if (enrolments[i].getEnrollmentDate()!=null) currentEnrollDate = enrolments[i].getEnrollmentDate();
@@ -523,16 +548,18 @@ import oscar.util.UtilDateUtilities;
                     rosterInfo=roster_date[j];   roster_date[j]=roster_date[i];     roster_date[i]=rosterInfo;
             		rosterInfo=term_date[j];     term_date[j]=term_date[i];         term_date[i]=rosterInfo;
     				rosterInfo=term_reason[j];   term_reason[j]=term_reason[i];     term_reason[i]=rosterInfo;
+    				rosterInfo=roster_enrolledTo[j];	roster_enrolledTo[j]=roster_enrolledTo[i];	roster_enrolledTo[i]=rosterInfo;
                 }
             }
         }
 
-        String rosterStatus=null, rosterDate=null, termDate=null, termReason=null;
+        String rosterStatus=null, rosterDate=null, termDate=null, termReason=null, rosterEnrolledTo=null;
         if (enrolTotal>0) {
         	rosterStatus=roster_status[enrolTotal-1];
         	rosterDate=roster_date[enrolTotal-1];
         	termDate=term_date[enrolTotal-1];
         	termReason=term_reason[enrolTotal-1];
+        	rosterEnrolledTo = roster_enrolledTo[enrolTotal-1];
         }
 
         String sin = StringUtils.noNull(demo.getSIN());
@@ -579,22 +606,47 @@ import oscar.util.UtilDateUtilities;
         }
 
         String address="", city="", province="", postalCode="";
-        if (demo.getAddressArray().length>0) {
-            cdsDt.Address addr = demo.getAddressArray(0);	//only get 1st address, other ignored
-            if (addr!=null) {
-                if (StringUtils.filled(addr.getFormatted())) {
-                    address = addr.getFormatted();
-                } else {
-                    cdsDt.AddressStructured addrStr = addr.getStructured();
-                    if (addrStr!=null) {
-                        address = StringUtils.noNull(addrStr.getLine1()) + StringUtils.noNull(addrStr.getLine2()) + StringUtils.noNull(addrStr.getLine3());
-                        city = StringUtils.noNull(addrStr.getCity());
-                        province = getCountrySubDivCode(addrStr.getCountrySubdivisionCode());
-                        cdsDt.PostalZipCode postalZip = addrStr.getPostalZipCode();
-                        if (postalZip!=null) postalCode = StringUtils.noNull(postalZip.getPostalCode());
-                    }
-                }
-            }
+        if(demo.getAddressArray()!= null) {
+	        for (cdsDt.Address addr :demo.getAddressArray()) {
+	        	if(addr.getAddressType() == AddressType.R) {
+	                if (StringUtils.filled(addr.getFormatted())) {
+	                    address = addr.getFormatted();
+	                } else {
+	                    cdsDt.AddressStructured addrStr = addr.getStructured();
+	                    if (addrStr!=null) {
+	                        address = StringUtils.noNull(addrStr.getLine1()) + StringUtils.noNull(addrStr.getLine2()) + StringUtils.noNull(addrStr.getLine3());
+	                        city = StringUtils.noNull(addrStr.getCity());
+	                        province = getCountrySubDivCode(addrStr.getCountrySubdivisionCode());
+	                        cdsDt.PostalZipCode postalZip = addrStr.getPostalZipCode();
+	                        if (postalZip!=null) postalCode = StringUtils.noNull(postalZip.getPostalCode());
+	                    }
+	                }
+	        	} else {
+	        		String mailingAddress="", mailingCity="",mailingProvince="",mailingPostalCode="";
+	        		
+	        		//there's an address we don't support
+	        		 if (StringUtils.filled(addr.getFormatted())) {
+		                    mailingAddress = addr.getFormatted();
+		                    extra = Util.addLine(extra, "Mailing Address: ", mailingAddress);
+		                } else {
+		                    cdsDt.AddressStructured addrStr = addr.getStructured();
+		                    if (addrStr!=null) {
+		                        mailingAddress = StringUtils.noNull(addrStr.getLine1()) + StringUtils.noNull(addrStr.getLine2()) + StringUtils.noNull(addrStr.getLine3());
+		                        mailingCity = StringUtils.noNull(addrStr.getCity());
+		                        mailingProvince = getCountrySubDivCode(addrStr.getCountrySubdivisionCode());
+		                        cdsDt.PostalZipCode mailingPostalZip = addrStr.getPostalZipCode();
+		                        if (mailingPostalZip!=null)
+		                        	mailingPostalCode = StringUtils.noNull(mailingPostalZip.getPostalCode());
+		                        
+		                        extra = Util.addLine(extra, "Mailing Address: ", mailingAddress);
+		                        extra = Util.addLine(extra, "Mailing City: ", mailingCity);
+		                        extra = Util.addLine(extra, "Mailing Province: ", mailingProvince);
+		                        extra = Util.addLine(extra, "Mailing Postal Code: ", mailingPostalCode);
+		                    }
+		                
+		              }
+	        	}   	
+	        }
         }
         cdsDt.PhoneNumber[] pn = demo.getPhoneNumberArray();
         String workPhone="", workExt="", homePhone="", homeExt="", cellPhone="", ext="", patientPhone="";
@@ -671,6 +723,7 @@ import oscar.util.UtilDateUtilities;
         	//found contact-only demo, replace!
         	SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
             demographic.setTitle(title);
+            demographic.setMiddleNames(middleNames);
             demographic.setAddress(address);
             demographic.setCity(city);
             demographic.setProvince(province);
@@ -681,6 +734,7 @@ import oscar.util.UtilDateUtilities;
             demographic.setHin(hin);
             demographic.setVer(versionCode);
             demographic.setRosterStatus(rosterStatus);
+            demographic.setRosterEnrolledTo(rosterEnrolledTo);
             
             Date dDate;
             try {
@@ -732,7 +786,7 @@ import oscar.util.UtilDateUtilities;
             err_note.add("Replaced Contact-only patient "+patientName+" (Demo no="+demographicNo+")");
 
         } else { //add patient!
-            demoRes = dd.addDemographic(loggedInInfo, title, lastName, firstName, address, city, province, postalCode, homePhone, workPhone, year_of_birth, month_of_birth, date_of_birth, hin, versionCode, rosterStatus, rosterDate, termDate, termReason, patient_status, psDate, ""/*date_joined*/, chart_no, official_lang, spoken_lang, primaryPhysician, sex, ""/*end_date*/, ""/*eff_date*/, ""/*pcn_indicator*/, hc_type, hc_renew_date, ""/*family_doctor*/, email, ""/*pin*/, ""/*alias*/, ""/*previousAddress*/, ""/*children*/, ""/*sourceOfIncome*/, ""/*citizenship*/, sin);
+            demoRes = dd.addDemographic(loggedInInfo, title, lastName, firstName, middleNames, address, city, province, postalCode, homePhone, workPhone, year_of_birth, month_of_birth, date_of_birth, hin, versionCode, rosterStatus, rosterDate, termDate, termReason, rosterEnrolledTo, patient_status, psDate, ""/*date_joined*/, chart_no, official_lang, spoken_lang, primaryPhysician, sex, ""/*end_date*/, ""/*eff_date*/, ""/*pcn_indicator*/, hc_type, hc_renew_date, ""/*family_doctor*/, email, ""/*pin*/, ""/*alias*/, ""/*previousAddress*/, ""/*children*/, ""/*sourceOfIncome*/, ""/*citizenship*/, sin);
             demographicNo = demoRes.getId();
         }
 
@@ -756,6 +810,7 @@ import oscar.util.UtilDateUtilities;
             	demographicArchive.setRosterDate(UtilDateUtilities.StringToDate(roster_date[i]));
             	demographicArchive.setRosterTerminationDate(UtilDateUtilities.StringToDate(term_date[i]));
             	demographicArchive.setRosterTerminationReason(term_reason[i]);
+            	demographicArchive.setRosterEnrolledTo(roster_enrolledTo[i]);
             	demoArchiveDao.persist(demographicArchive);
             }
 
@@ -817,8 +872,8 @@ import oscar.util.UtilDateUtilities;
                 String cPatient = cLastName+","+cFirstName;
                 if (StringUtils.empty(cDemoNo)) {   //add new demographic as contact
                     psDate = UtilDateUtilities.DateToString(new Date(),"yyyy-MM-dd");
-                    demoRes = dd.addDemographic(loggedInInfo, ""/*title*/, cLastName, cFirstName, ""/*address*/, ""/*city*/, ""/*province*/, ""/*postal*/,
-                    			homePhone, workPhone, ""/*year_of_birth*/, ""/*month_*/, ""/*date_*/, ""/*hin*/, ""/*ver*/, ""/*roster_status*/, "", "", "",
+                    demoRes = dd.addDemographic(loggedInInfo, ""/*title*/, cLastName, cFirstName,"" /*middleNames*/, ""/*address*/, ""/*city*/, ""/*province*/, ""/*postal*/,
+                    			homePhone, workPhone, ""/*year_of_birth*/, ""/*month_*/, ""/*date_*/, ""/*hin*/, ""/*ver*/, ""/*roster_status*/, "", "", "",null,
                     			"Contact-only", psDate, ""/*date_joined*/, ""/*chart_no*/, ""/*official_lang*/, ""/*spoken_lang*/, ""/*provider_no*/,
                     			"F", ""/*end_date*/, ""/*eff_date*/, ""/*pcn_indicator*/, ""/*hc_type*/, ""/*hc_renew_date*/, ""/*family_doctor*/,
                     			cEmail, "", "", "", "", "", "", "");
@@ -873,6 +928,7 @@ import oscar.util.UtilDateUtilities;
                             demoContact.setEc(emc);
                             demoContact.setSdm(sdm);
                             demoContact.setNote(contactNote);
+                            demoContact.setCreator(loggedInInfo.getLoggedInProviderNo());
                         	contactDao.persist(demoContact);
 
                         	//clear emc, sdm, contactNote after 1st save
@@ -2334,7 +2390,7 @@ import oscar.util.UtilDateUtilities;
 		String[] csdc = countrySubDivCode.split("-");
 		if (csdc.length==2) {
 			if (csdc[0].trim().equals("CA")) return csdc[1].trim(); //return w/o "CA-"
-			if (csdc[1].trim().equals("US")) return countrySubDivCode.trim(); //return w/ "US-"
+			if (csdc[0].trim().equals("US")) return countrySubDivCode.trim(); //return w/ "US-"
 		}
 		return "OT"; //Other
 	}
