@@ -64,6 +64,8 @@ if(!authed) {
   String eformSearch = (String) request.getAttribute("eformSearch");
   //EfmData efData = new EfmData();
   BillingONCHeader1Dao bCh1Dao = (BillingONCHeader1Dao)SpringUtils.getBean("billingONCHeader1Dao");
+  
+  boolean hideExcluded = Boolean.parseBoolean(request.getParameter("hideExcluded"));
 %>
 
 <html:html locale="true">
@@ -290,12 +292,6 @@ function saveContacts() {
 	}
 
 
-label{
-float: left;
-width: 120px;
-font-weight: bold;
-}
-
 span.labelLook{
 font-weight:bold;
 
@@ -416,9 +412,10 @@ table.ele thead {
                <div>
                   As of:
                     <html:text property="asofDate" size="9" styleId="asofDate" /> <a id="date"><img title="Calendar" src="../images/cal.gif" alt="Calendar" border="0" /></a> <br>
-
-
-
+               </div>
+               <div>
+                   <label for="hideExcluded">Hide excluded patients</label>
+                   <input type="checkbox" id="hideExcluded" name="hideExcluded" value="true" <%= hideExcluded ? "checked=\"checked\"" : "" %> />
                </div>
                <input type="submit" />
                </html:form>

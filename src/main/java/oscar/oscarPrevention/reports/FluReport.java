@@ -484,4 +484,9 @@ public class FluReport implements PreventionReport {
        }
        return null;
    }
+
+    @Override
+    public String getExclusionCode() {
+        return null;
+    }
 }

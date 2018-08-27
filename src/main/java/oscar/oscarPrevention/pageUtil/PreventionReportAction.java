@@ -77,6 +77,7 @@ public class PreventionReportAction extends Action {
  		  throw new SecurityException("missing required security object (_report)");
  	  }
        
+ 	  boolean hideExcluded = Boolean.parseBoolean(request.getParameter("hideExcluded"));
        String setName = request.getParameter("patientSet");
        String prevention  = request.getParameter("prevention");
 	   if (prevention.equals("-1") || setName.equals("-1")) {	// "-1" is unselected
@@ -91,8 +92,11 @@ public class PreventionReportAction extends Action {
        frm = demoL.queryLoader(frm);
        frm.addDemoIfNotPresent();
        frm.setAsofDate(request.getParameter("asofDate"));
+
+       PreventionReport report = PreventionReportFactory.getPreventionReport(prevention);
        RptDemographicQueryBuilder demoQ = new RptDemographicQueryBuilder();
-       ArrayList<ArrayList<String>> list = demoQ.buildQuery(loggedInInfo, frm,request.getParameter("asofDate"));
+
+       ArrayList<ArrayList<String>> list = demoQ.buildQuery(loggedInInfo, frm,request.getParameter("asofDate"), report.getExclusionCode(), hideExcluded);
 
        log.debug("set size "+list.size());
 
@@ -101,7 +105,10 @@ public class PreventionReportAction extends Action {
           asofDate = today.getTime();
        }
        request.setAttribute("asDate",asofDate);
-       PreventionReport report = PreventionReportFactory.getPreventionReport(prevention);
+
+       if ("ChildImmunizations".equals(prevention)) {
+           request.setAttribute("ReportType", prevention);
+       }
 
        Hashtable h =report.runReport(loggedInInfo, list,asofDate);
        request.setAttribute("up2date",h.get("up2date"));

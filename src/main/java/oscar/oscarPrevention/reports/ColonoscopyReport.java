@@ -40,6 +40,7 @@ import java.util.*;
 
 public class ColonoscopyReport implements PreventionReport {
     private static Logger log = MiscUtils.getLogger();
+    private String exclusionCode = "Q142A";
     /** Creates a new instance of ColonoscopyReport */
     public ColonoscopyReport() {
     }
@@ -56,11 +57,12 @@ public class ColonoscopyReport implements PreventionReport {
             ArrayList<Map<String,Object>>  prevs = PreventionData.getPreventionData(loggedInInfo, "COLONOSCOPY", demo);
             PreventionData.addRemotePreventions(loggedInInfo, prevs, demo,"COLONOSCOPY",null);
             ArrayList<Map<String,Object>> noFutureItems =  removeFutureItems(prevs, asofDate);
+            boolean excluded = Boolean.parseBoolean(fieldList.get(fieldList.size() - 1));
             PreventionReportDisplay prd = new PreventionReportDisplay();
             prd.demographicNo = demo;
             prd.bonusStatus = "N";
             prd.billStatus = "N";
-            if(ineligible(prevs)){
+            if(excluded || ineligible(prevs)){
                 prd.rank = 5;
                 prd.lastDate = "------";
                 prd.state = "Ineligible";
@@ -375,5 +377,9 @@ public class ColonoscopyReport implements PreventionReport {
         }
         return null;
     }
-
+    
+    @Override
+    public String getExclusionCode() {
+        return exclusionCode;
+    }
 }

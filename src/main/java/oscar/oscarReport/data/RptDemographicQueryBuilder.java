@@ -69,6 +69,9 @@ public class RptDemographicQueryBuilder {
 	}
 
 	public java.util.ArrayList<ArrayList<String>> buildQuery(LoggedInInfo loggedInInfo, RptDemographicReportForm frm, String asofRosterDate) {
+		return buildQuery(loggedInInfo, frm, asofRosterDate, null, false);
+	}
+	public java.util.ArrayList<ArrayList<String>> buildQuery(LoggedInInfo loggedInInfo, RptDemographicReportForm frm, String asofRosterDate, String exclusionCode, boolean hideExcluded) {
 		MiscUtils.getLogger().debug("in buildQuery");
 
 		String[] select = frm.getSelect();
@@ -143,53 +146,28 @@ public class RptDemographicQueryBuilder {
 					stringBuffer.append(" d." + select[i] + ", ");
 				}
 			}
-
+		}
+		
+		if (exclusionCode != null) {
+			stringBuffer.append(", IF(COUNT(i.service_code) > 0, 'true',  'false') as excluded");
 		}
 
 		stringBuffer.append(" from demographic d ");
 		if (getprovider) {
-			stringBuffer.append(", provider p");
+			stringBuffer.append("LEFT JOIN provider p ON d.provider_no = p.provider_no");
 		}
+		
+		if (exclusionCode != null) {
+			stringBuffer.append("LEFT JOIN billing_on_cheader1 b ON b.demographic_no = d.demographic_no ");
+			stringBuffer.append("LEFT JOIN billing_on_item i ON i.ch1_id = b.id AND i.service_code = '").append(exclusionCode).append("'");
+		}
+		
 		int yStyle = 0;
 		try {
 			yStyle = Integer.parseInt(yearStyle);
 		} catch (Exception e) {
 			//empty
 		}
-
-		// value="0"> nothing specified
-		// value="1">born before
-		// value="2">born after
-		// value="3">born in
-		// value="4">born between
-
-		/*switch (yStyle){
-		    case 1:
-		        whereClause();
-		        stringBuffer.append(" ( year_of_birth < "+startYear+"  )");
-		        theFirstFlag = 1;
-		        break;
-		    case 2:
-		        whereClause();
-		        stringBuffer.append(" ( year_of_birth > "+startYear+"  )");
-		        theFirstFlag = 1;
-		        break;
-		    case 3:
-		        whereClause();
-		        stringBuffer.append(" ( year_of_birth = "+startYear+"  )");
-		        theFirstFlag = 1;
-		        break;
-		    case 4:
-		        whereClause();
-		        stringBuffer.append(" ( year_of_birth > "+startYear+" and year_of_birth < "+endYear+" ) ");
-		        theFirstFlag = 1;
-		        break;
-		}*/
-		// value="0"> nothing specified
-		// value="1">born before
-		// value="2">born after
-		// value="3">born in
-		// value="4">born between
 
 		MiscUtils.getLogger().debug("date style" + yStyle);
 		switch (yStyle) {
@@ -332,12 +310,6 @@ public class RptDemographicQueryBuilder {
 		}
 
 		//removed roster_status condition in place more complex check below
-
-		if (getprovider) {
-			whereClause();
-			firstClause();
-			stringBuffer.append(" ( d.provider_no = p.provider_no )");
-		}
 		
 		List<Integer> demoIds = frm.getDemographicIds();
 		if (!demoIds.isEmpty()) {
@@ -355,8 +327,23 @@ public class RptDemographicQueryBuilder {
 				stringBuffer.append("d.demographic_no = " + i);
 			}
 			stringBuffer.append(")");
+			theFirstFlag = 1;
 		}
 
+		if (exclusionCode != null) {
+			whereClause();
+			firstClause();
+			stringBuffer.append("(i.service_date IS NULL OR i.service_date <= ").append(asofDate).append(")");
+			theFirstFlag = 1;
+		}
+		
+		if (exclusionCode != null) {
+			stringBuffer.append(" GROUP BY d.demographic_no");
+			if (hideExcluded) {
+				stringBuffer.append(" HAVING excluded = 'false'");
+			}
+		}
+		
 		if (!"0".equals(orderBy)) {
 			stringBuffer.append(" order by " + demoCols.getColumnName(orderBy) + " ");
 		}
@@ -400,6 +387,10 @@ public class RptDemographicQueryBuilder {
 					}
 				}
 
+				if (exclusionCode != null) {
+					tempArr.add(String.valueOf(o[o.length - 1]));
+				}
+				
 				// need to check if they were rostered at this point to this provider  (asofRosterDate is only set if this is being called from prevention reports)
 				if (demoNo != null && asofRosterDate != null && providers != null && providers.length > 0) {
 					try {

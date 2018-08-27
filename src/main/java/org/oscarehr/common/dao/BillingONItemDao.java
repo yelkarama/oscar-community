@@ -23,6 +23,7 @@
  */
 package org.oscarehr.common.dao;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -106,4 +107,30 @@ public class BillingONItemDao extends AbstractDao<BillingONItem>{
         return rs;
     }
 	
+    public List<String> getPreventionExclusionsByDemographicNo(Integer demographicNo) {
+	    String sql = "SELECT i.* FROM billing_on_item i LEFT JOIN billing_on_cheader1 c ON i.ch1_id = c.id "
+                + "WHERE c.demographic_no = :demographicNo AND i.service_code IN ('Q140A', 'Q141A', 'Q142A')";
+	    Query query = entityManager.createNativeQuery(sql, BillingONItem.class);
+	    query.setParameter("demographicNo", demographicNo);
+	    List<BillingONItem> billedItems = query.getResultList();
+	    
+	    List<String> exclusions = new ArrayList<>();
+	    
+	    for(BillingONItem billedItem : billedItems) {
+	        switch (billedItem.getServiceCode()) {
+                case "Q140A":
+                    exclusions.add("PAP");
+                    break;
+                case "Q141A":
+                    exclusions.add("MAM");
+                    break;
+                case "Q142A":
+                    exclusions.add("FOBT");
+                    exclusions.add("COLONOSCOPY");
+                    break;
+            }
+        }
+        
+        return exclusions;
+    }
 }

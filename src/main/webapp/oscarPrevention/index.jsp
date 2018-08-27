@@ -102,11 +102,16 @@ if(!authed) {
 
   Prevention p = PreventionData.getPrevention(loggedInInfo, Integer.valueOf(demographic_no));
 
+	BillingONItemDao billingONItemDao = SpringUtils.getBean(BillingONItemDao.class);
+	List<String> exclusions = billingONItemDao.getPreventionExclusionsByDemographicNo(Integer.valueOf(demographic_no));
+  
   Integer demographicId=Integer.parseInt(demographic_no);
   PreventionData.addRemotePreventions(loggedInInfo, p, demographicId);
   Date demographicDateOfBirth=PreventionData.getDemographicDateOfBirth(loggedInInfo, Integer.valueOf(demographic_no));
   String demographicDob = oscar.util.UtilDateUtilities.DateToString(demographicDateOfBirth);
 
+  
+  
   PreventionDS pf = SpringUtils.getBean(PreventionDS.class);
 
 
@@ -141,6 +146,7 @@ if(!authed) {
 <%@ page import="oscar.log.LogAction" %>
 <%@ page import="oscar.log.LogConst" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.oscarehr.common.dao.BillingONItemDao" %>
 <html:html
 	locale="true">
 
@@ -619,12 +625,14 @@ text-align:left;
 			<%  Object[] keysObjs = warnings.keySet().toArray();
 				String[] warningKeys = Arrays.copyOf(keysObjs, keysObjs.length, String[].class);
 				for (int i = 0 ;i < warnings.size(); i++){
+				    if (!exclusions.contains(warningKeys[i])) {
 					String warn = "";
 					if (!preventionManager.hideItem(warningKeys[i])) {
                        warn = (String) warnings.get(warningKeys[i]);
 					} %>
 			<li style="color: red;"><%=warn%></li>
-			<%}%>
+			<%		}
+				} %>
 			<% for (int i = 0 ;i < recomendations.size(); i++){
                        String warn = (String) recomendations.get(i);%>
 			<li style="color: black;"><%=warn%></li>

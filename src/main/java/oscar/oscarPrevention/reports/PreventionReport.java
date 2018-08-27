@@ -37,4 +37,12 @@ import org.oscarehr.util.LoggedInInfo;
  */
 public interface PreventionReport {
     public Hashtable runReport(LoggedInInfo loggedInInfo, ArrayList<ArrayList<String>> list,Date asofDate);
+
+    /**
+     * Gets the exclusion code, if one exists, for the report. This will make it so that when running a prevention report, 
+     * it will indicate which demographics are excluded from requiring the prevention
+     * 
+     * @return exclusionCode if there is one for the report or <code>null</code> if there isn't
+     */
+    String getExclusionCode();
 }

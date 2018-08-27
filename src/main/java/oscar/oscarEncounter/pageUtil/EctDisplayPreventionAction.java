@@ -29,11 +29,14 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.struts.util.MessageResources;
+import org.oscarehr.common.dao.BillingONItemDao;
+import org.oscarehr.common.model.BillingONItem;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.SpringUtils;
 
@@ -83,7 +86,8 @@ public class EctDisplayPreventionAction extends EctDisplayAction {
         ArrayList<HashMap<String,String>> prevList = pdc.getPreventions();
         Map warningTable = p.getWarningMsgs();
 
-
+        BillingONItemDao billingONItemDao = SpringUtils.getBean(BillingONItemDao.class);
+        List<String> exclusions = billingONItemDao.getPreventionExclusionsByDemographicNo(Integer.valueOf(bean.demographicNo));
 
         String abnormalColour = "#EE5F5B";
         String highliteColour = "#FF0000";
@@ -145,7 +149,7 @@ public class EctDisplayPreventionAction extends EctDisplayAction {
                 item.setURL(url);
 
                 //if there's a warning associated with this prevention set item apart
-                if( warningTable.containsKey(prevName) ){
+                if( warningTable.containsKey(prevName) && !exclusions.contains(prevName)){
                     item.setColour(highliteColour);
                     warnings.add(item);
                 }

@@ -54,7 +54,7 @@ import oscar.util.UtilDateUtilities;
  */
 public class FOBTReport implements PreventionReport{
     private static Logger log = MiscUtils.getLogger();
-
+    String exclusionCode = "Q142A";
 
     /** Creates a new instance of MammogramReport */
     public FOBTReport() {
@@ -75,12 +75,13 @@ public class FOBTReport implements PreventionReport{
              PreventionData.addRemotePreventions(loggedInInfo,prevs, demo,"FOBT",null);
              ArrayList<Map<String,Object>> colonoscopys = PreventionData.getPreventionData(loggedInInfo, "COLONOSCOPY",demo);
              PreventionData.addRemotePreventions(loggedInInfo,colonoscopys, demo,"COLONOSCOPY",null);
+             boolean excluded = Boolean.parseBoolean(fieldList.get(fieldList.size() - 1));
              PreventionReportDisplay prd = new PreventionReportDisplay();
              prd.demographicNo = demo;
              prd.bonusStatus = "N";
              prd.billStatus = "N";
              Date prevDate = null;
-             if(ineligible(prevs) || colonoscopywith10(colonoscopys,asofDate)){
+             if(excluded || ineligible(prevs) || colonoscopywith10(colonoscopys,asofDate)){
                 prd.rank = 5;
                 prd.lastDate = "------";
                 prd.state = "Ineligible";
@@ -452,6 +453,10 @@ public class FOBTReport implements PreventionReport{
        return null;
    }
 
+    @Override
+    public String getExclusionCode() {
+        return exclusionCode;
+    }
 }
 
 

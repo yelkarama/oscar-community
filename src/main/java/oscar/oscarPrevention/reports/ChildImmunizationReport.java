@@ -426,5 +426,8 @@ public class ChildImmunizationReport implements PreventionReport{
        return null;
    }
 
-
+    @Override
+    public String getExclusionCode() {
+        return null;
+    }
 }
