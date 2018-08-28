@@ -62,6 +62,7 @@ import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
 import oscar.util.ConversionUtils;
+import oscar.util.StringUtils;
 
 public class JdbcBillingReviewImpl {
 	private static final Logger _logger = Logger.getLogger(JdbcBillingReviewImpl.class);
@@ -527,7 +528,7 @@ public class JdbcBillingReviewImpl {
 
 				retval.add(ch1Obj);
 
-				String dx = "";
+				List<String> dx = new ArrayList<>();
 				Set<String> serviceCodeSet = new HashSet<String>();
 
 				String strServiceDate = "";
@@ -538,7 +539,7 @@ public class JdbcBillingReviewImpl {
 
 				for (BillingONItem i : itemDao.findByCh1IdAndStatusNotEqual(h.getId(), "D")) {
 					String strService = i.getServiceCode() + " x " + i.getServiceCount() + ", ";
-					dx = i.getDx();
+					dx.add(i.getDx());
 					strServiceDate = ConversionUtils.toDateString(i.getServiceDate());
 
 					serviceCodeSet.add(strService);
@@ -553,7 +554,7 @@ public class JdbcBillingReviewImpl {
 					codeBuf.deleteCharAt(codeBuf.length() - 1);
 				}
 				itObj.setService_code(codeBuf.toString());
-				itObj.setDx(dx);
+				itObj.setDx(StringUtils.join(dx, ", "));
 				itObj.setService_date(strServiceDate);
 
 				List<BillingONPayment> payment = payDao.find3rdPartyPaymentsByBillingNo(h.getId());
