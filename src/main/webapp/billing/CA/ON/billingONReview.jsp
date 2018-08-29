@@ -852,6 +852,17 @@ window.onload=function(){
 				</td>
 				<td width='25%'><%=propCodeDesc.getProperty(codeName, "") %>
 				</td>
+				<td>
+					<select name="itemDx_<%=i%>" style="width: 100%;max-width:155px;">
+						<%
+							for (Map.Entry<String, String> dx : dxCodes.entrySet()) {
+						%>
+						<option value="<%=dx.getKey()%>" <%=headerDx.equals(dx.getKey()) ? "selected=selected" : ""%>><%=dx.getKey() + " - " + dx.getValue()%></option>
+						<%
+							}
+						%>
+					</select>
+				</td>
 			</tr>
 			<%
                                 }
