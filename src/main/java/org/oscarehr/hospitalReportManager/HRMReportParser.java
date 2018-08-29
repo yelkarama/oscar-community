@@ -13,7 +13,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -398,6 +400,18 @@ public class HRMReportParser {
 		}
 	}
 
+	public static String getAppropriateDateStringFromReport(HRMReport report) {
+		if (report.getFirstReportClass().equalsIgnoreCase("Diagnostic Imaging Report") || report.getFirstReportClass().equalsIgnoreCase("Cardio Respiratory Report")) {
+			return (String) report.getAccompanyingSubclassList().get(0).get(4);
+		}
+
+		Calendar calendar = report.getFirstReportEventTime();
+		SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
+		sdf.setTimeZone(calendar.getTimeZone());
+		
+		return sdf.format(calendar.getTime());
+	}
+	
 	public static Date getAppropriateDateFromReport(HRMReport report) {
 		if (report.getFirstReportClass().equalsIgnoreCase("Diagnostic Imaging Report") || report.getFirstReportClass().equalsIgnoreCase("Cardio Respiratory Report")) {
 			return ((Date) (report.getAccompanyingSubclassList().get(0).get(3)));

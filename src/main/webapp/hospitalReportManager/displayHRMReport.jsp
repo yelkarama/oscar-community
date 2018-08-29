@@ -479,7 +479,7 @@ function popupPatientTickler(height, width, url, windowName,docId,d,n) {
 				%>
 				<i>From the Report</i><br />
 					<% for (List<Object> subClass : subClassListFromReport) { %>
-						<abbr title="Date of Observation: <%=((Date) subClass.get(3)).toString() %>">(<%=(String) subClass.get(0) %> : <%=(String) subClass.get(1) %>) <%=(String) subClass.get(2) %></abbr><br />
+						<abbr title="Date of Observation: <%=((String)subClass.get(4)) %>">(<%=(String) subClass.get(0) %> : <%=(String) subClass.get(1) %>) <%=(String) subClass.get(2) %></abbr><br />
 					<% }
 				} %><br />
 				<%
@@ -615,7 +615,7 @@ if (documentComments != null) {
 		</tr>
 		<tr>
 			<th>Date and Time of Report</th>
-			<td><%=HRMReportParser.getAppropriateDateFromReport(hrmReport) %></td>
+			<td><%=HRMReportParser.getAppropriateDateStringFromReport(hrmReport) %></td>
 		</tr>
 		<tr>
 			<th>Result Status</th>

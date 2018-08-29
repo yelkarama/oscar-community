@@ -256,7 +256,7 @@ public class HRMPDFCreator extends PdfPageEventHelper {
         cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
         metaDataBox.addCell(cell);
 
-        cell.setPhrase(new Phrase(HRMReportParser.getAppropriateDateFromReport(hrmReport).toString(), font));
+        cell.setPhrase(new Phrase(HRMReportParser.getAppropriateDateStringFromReport(hrmReport), font));
         cell.setHorizontalAlignment(Element.ALIGN_LEFT);
         metaDataBox.addCell(cell);
 

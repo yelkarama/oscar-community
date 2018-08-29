@@ -329,8 +329,15 @@ public class HRMReport {
 				obrContentList.add(o.getAccompanyingDescription());
 
 							if (o.getObservationDateTime()!=null) {
-								Date date = dateFP(o.getObservationDateTime()).toGregorianCalendar().getTime();
+								GregorianCalendar calendar = dateFP(o.getObservationDateTime()).toGregorianCalendar();
+								SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
+								sdf.setTimeZone(calendar.getTimeZone());
+								
+								Date date = calendar.getTime();
+								String formattedDate = sdf.format(calendar.getTime());
+								
 								obrContentList.add(date);
+								obrContentList.add(formattedDate);
 							}
 				
 				subclassList.add(obrContentList);
@@ -347,7 +354,7 @@ public class HRMReport {
 				hrmReport.getPatientRecord().getReportsReceived().get(0).getOBRContent().get(0).getObservationDateTime() != null) {
 
 			GregorianCalendar calendar = dateFP(hrmReport.getPatientRecord().getReportsReceived().get(0).getOBRContent().get(0).getObservationDateTime()).toGregorianCalendar();
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
 			sdf.setTimeZone(calendar.getTimeZone());
 			
 			return sdf.format(calendar.getTime());
