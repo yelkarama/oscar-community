@@ -114,6 +114,7 @@
 					</select>
 	            			           
 	            	<input type="hidden" name="contact_<%=id%>.contactId" value="0"/>
+	            	<input type="hidden" name="contact_<%=id%>.category" value="personal"/>
 		             <input type="text" name="contact_<%=id%>.contactName" id="contact_<%=id%>.contactName" size="20" readonly="readonly"/>		             
 		             <a href="#" onclick="doPersonalSearch('<%=id%>');return false;">${param.search}</a>
 		             
