@@ -87,12 +87,12 @@ public class GenerateReportAction extends Action {
         	for(Secobjprivilege entry: entries) {
         		if(entry.getPrivilege_code().equals("r") || entry.getPrivilege_code().equals("w") || entry.getPrivilege_code().equals("x")) {
         			deny=false;
-        			break;
+        			return;
         		}
         		
         		if(entry.getPrivilege_code().equals("o")) {
         			deny=true;
-        			break;
+        			continue;
         		}
         	}
         	
