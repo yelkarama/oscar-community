@@ -23,32 +23,75 @@
     Ontario, Canada
 
 --%>
+<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@ page import="java.sql.*, oscar.eform.data.*"%>
 <%
-	String id = request.getParameter("fid");
+	//String id = request.getParameter("fid");
+	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+   	String providerName = "";
+   	if(null != loggedInInfo){
+   		providerName = loggedInInfo.getLoggedInProvider().getFullName();
+   	}
+	String id = request.getParameter("fdid");
 	String messageOnFailure = "No eform or appointment is available";
-  if (id == null) {  // form exists in patient
-      id = request.getParameter("fdid");
+	String setDocName = "<script type=\"text/javascript\"> var setDocName='" + providerName + "';</script>";
+	out.print(setDocName);
+  if (id != null) {  // form exists in patient
+      //id = request.getParameter("fdid");
       String appointmentNo = request.getParameter("appointment");
       String eformLink = request.getParameter("eform_link");
 
       EForm eForm = new EForm(id);
+      
+      String setEformName = "<script type=\"text/javascript\"> var setEformName='" + eForm.getFormName() + "';</script>";
+  	  out.print(setEformName);
+      
       eForm.setContextPath(request.getContextPath());
       eForm.setOscarOPEN(request.getRequestURI());
-      if ( appointmentNo != null ) eForm.setAppointmentNo(appointmentNo);
+      if ( appointmentNo != null ) {
+    	  eForm.setAppointmentNo(appointmentNo);
+    	  eForm.setupAppointmentNo(appointmentNo);
+      }
       if ( eformLink != null ) eForm.setEformLink(eformLink);
 
       String parentAjaxId = request.getParameter("parentAjaxId");
       if( parentAjaxId != null ) eForm.setAction(parentAjaxId);
+      String setWhite = "<div id=\"root\" style=\"background-color:#ffffff\">";
+      eForm.setFormHtml(eForm.getFormHtml().replace("<div id=\"root\">",setWhite));
+      String oscarJS = request.getContextPath() + "/share/javascript/";
+      String path_js = "<script type=\"text/javascript\" src=\"" + oscarJS + "eforms/printControl.js\"></script>";
+      
+      String replaceJs = "<script type=\"text/javascript\" src=\""+oscarJS+"eforms/jspdf.debug.js\"></script>"
+    			+ "<script type=\"text/javascript\" src=\""+oscarJS+"eforms/html2canvas.js\"></script>"
+    			+ "<script type=\"text/javascript\" src=\""+oscarJS+"eforms/dom-to-image.js\"></script>"
+    			+ "<script type=\"text/javascript\" src=\""+oscarJS+"eforms/renderPDF.js\"></script>"
+    			+ "<script type=\"text/javascript\" src=\""+oscarJS+"eforms/printControl.js\"></script>"	;
+    			eForm.setFormHtml(eForm.getFormHtml().replace(path_js,replaceJs));
       out.print(eForm.getFormHtml());
   } else {  //if form is viewed from admin screen
+	  id = request.getParameter("fid");
       EForm eForm = new EForm(id, "-1"); //form cannot be submitted, demographic_no "-1" indicate this specialty
+      String setEformName = "<script type=\"text/javascript\"> var setEformName='" + eForm.getFormName() + "';</script>";
+  	  out.print(setEformName);
+  	  
       eForm.setContextPath(request.getContextPath());
       eForm.setupInputFields();
       eForm.setOscarOPEN(request.getRequestURI());
       eForm.setImagePath();
+      String setWhite = "<div id=\"root\" style=\"background-color:#ffffff\">";
+      eForm.setFormHtml(eForm.getFormHtml().replace("<div id=\"root\">",setWhite));
+      String oscarJS = request.getContextPath() + "/share/javascript/";
+      String path_js = "<script type=\"text/javascript\" src=\"" + oscarJS + "eforms/printControl.js\"></script>";
+      
+      String replaceJs = "<script type=\"text/javascript\" src=\""+oscarJS+"eforms/jspdf.debug.js\"></script>"
+    			+ "<script type=\"text/javascript\" src=\""+oscarJS+"eforms/html2canvas.js\"></script>"
+    			+ "<script type=\"text/javascript\" src=\""+oscarJS+"eforms/dom-to-image.js\"></script>"
+    			+ "<script type=\"text/javascript\" src=\""+oscarJS+"eforms/renderPDF.js\"></script>"
+    			+ "<script type=\"text/javascript\" src=\""+oscarJS+"eforms/printControl.js\"></script>"	;
+    			eForm.setFormHtml(eForm.getFormHtml().replace(path_js,replaceJs));
       out.print(eForm.getFormHtml());
   }
+  
 %>
 <%
 String iframeResize = (String) session.getAttribute("useIframeResizing");

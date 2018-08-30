@@ -30,6 +30,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -89,9 +91,14 @@ public class AddEFormAction extends Action {
 		ArrayList<String> paramNames = new ArrayList<String>();  //holds "fieldname, ...."
 		ArrayList<String> paramValues = new ArrayList<String>(); //holds "myval, ...."
 		String fid = request.getParameter("efmfid");
+		String efname = request.getParameter("efname");
+		if (efname!=null && efname.length()>0) {
+			request.setAttribute("efname", efname);
+		}
 		String demographic_no = request.getParameter("efmdemographic_no");
 		String eform_link = request.getParameter("eform_link");
 		String subject = request.getParameter("subject");
+		String appointmentNo = request.getParameter("appointmentNo");
 
 		boolean doDatabaseUpdate = false;
 
@@ -158,7 +165,7 @@ public class AddEFormAction extends Action {
 			curField = paramNamesE.nextElement();
 			if( curField.equalsIgnoreCase("parentAjaxId"))
 				continue;
-			if(request.getParameter(curField) != null && (!request.getParameter(curField).trim().equals("")) )
+			if(request.getParameter(curField) != null && (!request.getParameter(curField).trim().equals("") || curField.startsWith("m$cardiac_")) )
 			{
 				paramNames.add(curField);
 				paramValues.add(request.getParameter(curField));
@@ -167,6 +174,7 @@ public class AddEFormAction extends Action {
 		}
 
 		EForm curForm = new EForm(fid, demographic_no, providerNo);
+		curForm.setAppointmentNo(appointmentNo);
 
 		//add eform_link value from session attribute
 		ArrayList<String> openerNames = curForm.getOpenerNames();
@@ -213,7 +221,7 @@ public class AddEFormAction extends Action {
 			EFormUtil.addEFormValues(paramNames, paramValues, new Integer(fdid), new Integer(fid), new Integer(demographic_no)); //adds parsed values
 
 			//post fdid to {eform_link} attribute
-			if (eform_link!=null) {
+			if (eform_link!=null && !eform_link.equalsIgnoreCase("null")) {
 				se.setAttribute(eform_link, fdid);
 			}
 			
@@ -266,6 +274,62 @@ public class AddEFormAction extends Action {
 
 		return(mapping.findForward("close"));
 	}
+	
+	 private String getFieldType(String fieldHeader) {
+         if(fieldHeader.length()>=9) {
+        	 if (fieldHeader.substring(1, 9).equalsIgnoreCase("textarea")) 
+        		 return "textarea";
+         }
+         
+         if(fieldHeader.length() >= 7) {
+        	 if (fieldHeader.substring(1, 7).equalsIgnoreCase("select")) 
+        		 return "select";
+         }
+			String type = EFormUtil.removeQuotes(EFormUtil.getAttribute("type", fieldHeader));
+
+			if(null == type) {
+				// Browsers should default to text if type is missing
+				type = "text";
+			}
+
+         return type;
+     }
+	
+	private int getFieldIndex(String html, int from) {
+		if (html == null) return -1;
+		Pattern p = Pattern.compile("<input|<select|<textarea|<div");
+		Matcher matcher = p.matcher(html);
+		if (matcher.find(from)) {
+			int start = matcher.start();
+			//org.oscarehr.util.MiscUtils.getLogger().info("New code shows: " + start);
+			return start;
+		} else {
+			//org.oscarehr.util.MiscUtils.getLogger().info("New code shows: " + -1);
+
+			return -1;
+		}
+
+	}
+	
+	private String getFieldHeader(String html, int fieldIndex) {
+        //fieldHeader: <input name=... type=... ... >, <select name=... ...>, etc.
+	if (html == null || fieldIndex < 0) return "";
+	if (html.charAt(fieldIndex) != '<') return ""; // field header must be "<...>"
+
+	// look for char '>' which is NOT inside quotes ("..." or '...')
+	int end = fieldIndex;
+	boolean quoteOpen = false, quote2Open = false;
+	for (int i = fieldIndex + 1; i < html.length(); i++) {
+		char c = html.charAt(i);
+		if (c == '"' && !quoteOpen) quote2Open = !quote2Open;
+		if (c == '\'' && !quote2Open) quoteOpen = !quoteOpen;
+		if (!quoteOpen && !quote2Open && c == '>') {
+			end = i + 1;
+			break;
+		}
+	}
+	return html.substring(fieldIndex, end);
+}
 
 	private EFormData toEFormData(EForm eForm) {
 		EFormData eFormData=new EFormData();

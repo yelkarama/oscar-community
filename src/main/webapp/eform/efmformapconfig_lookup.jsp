@@ -18,7 +18,7 @@ String provider_no = (String) session.getValue("user");
 String demographic_no = request.getParameter("demographic_no"); 
 String fid = request.getParameter("fid");
 EForm form = null;
-form = new EForm("1", demographic_no);
+form = new EForm(fid, demographic_no);
 form.setProviderNo(provider_no);  //needs provider for the action
 form.setAppointmentNo(request.getParameter("appointment"));		
 //form.setApptProvider(request.getParameter("apptProvider"));

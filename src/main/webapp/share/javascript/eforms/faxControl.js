@@ -1,8 +1,8 @@
 if (typeof jQuery == "undefined") { alert("The faxControl library requires jQuery. Please ensure that it is loaded first"); }
 
 var faxControlPlaceholder = "<br/>Fax Recipients:<br/><div id='faxForm'>Loading fax options..</div>";
-var faxControlFaxButton     = "<span>&nbsp;</span><input value='Fax' name='FaxButton' id='fax_button' disabled type='button' onclick='submitFaxButtonAjax(false)'>";
-var faxControlFaxSaveButton = "<span>&nbsp;</span><input value='Submit & Fax' name='FaxSaveButton' id='faxSave_button' disabled type='button' onclick='submitFaxButtonAjax(true)'>";
+var faxControlFaxButton     = "<span>&nbsp;</span><input value='Fax & Close' name='FaxButton' id='fax_button' disabled type='button' onclick='paste2Note();submitFaxButtonAjax(false)'>";
+var faxControlFaxSaveButton = "<span>&nbsp;</span><input value='Submit & Fax' name='FaxSaveButton' id='faxSave_button' disabled type='button' onclick='paste2Note();submitFaxButtonAjax(true)'>";
 var faxControlMemoryInput = "<input value='false' name='faxEForm' id='faxEForm' type='hidden' />";	
 var faxControl = {
 	initialize: function () {
@@ -27,12 +27,10 @@ var faxControl = {
 			url:"../eform/efmformfax_form.jsp",
 			data:"demographicNo=" + demoNo,
 			success: function(data) {
-				
 				if (data == null || data.trim() == "") {
 					placeholder.html("");
 					console.log("Error loading fax control, please contact an administrator.");
-				}
-				else { 
+				}else { 
 					placeholder.html(data);					
 					var buttonLocation = jQuery("input[name='SubmitButton']");
 					if (buttonLocation.size() != 0) { 
@@ -54,6 +52,11 @@ var faxControl = {
 					}
 					if (buttonLocation == null) { alert("Unable to find form or save button please check this is a proper eform."); return; }					
 					
+					doNotPrint = jQuery(".DoNotPrint");
+					var selected = jQuery("#otherFaxSelect option:selected");
+					if(selected.val().length ==0 || selected.val() == null){
+						doNotPrint.hide();
+					}
 					updateFaxButton();
 				}
 			}
@@ -66,8 +69,7 @@ jQuery(document).ready(function() {
 });
 
 
-function getSearchValue(name, url)
-{
+function getSearchValue(name, url) {
 	if (url == null) { url = window.location.href; }
 	name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
 	var regexS = "[\\?&]"+name+"=([^&#]*)";
@@ -78,15 +80,15 @@ function getSearchValue(name, url)
 }
 
 function AddOtherFaxProvider() {
-	var selected = jQuery("#otherFaxSelect option:selected"); 
+	var selected = jQuery("#otherFaxSelect option:selected");
 	_AddOtherFax(selected.text(),selected.val());
 }
+
 function AddOtherFax() {
 	var number = jQuery("#otherFaxInput").val();
 	if (checkPhone(number)) {
 		_AddOtherFax(number,number);
-	}
-	else {
+	}else {
 		alert("The fax number you entered is invalid.");
 	}
 }
@@ -99,8 +101,7 @@ function _AddOtherFax(name, number) {
 	updateFaxButton();
 }
 
-function checkPhone(str) 
-{
+function checkPhone(str) {
 	var phone =  /^((\+\d{1,3}(-| )?\(?\d\)?(-| )?\d{1,5})|(\(?\d{2,6}\)?))(-| )?(\d{3,4})(-| )?(\d{4})(( x| ext)\d{1,5}){0,1}$/;
 	if (str.match(phone)) {
    		return true;
@@ -126,6 +127,125 @@ function hasFaxNumber() {
 }
 
 function submitFaxButtonAjax(save) {
+	if($('iframe[id^="eformiframe"]').length > 0){
+		var obj = $('iframe[id^="eformiframe"]');
+		var allname = new Array();
+		for(i=0;i<obj.length;i++){
+			var myDate = new Date();
+		    var currentdate = myDate.getTime();
+		    var content = $("#eformiframe"+i).contents().find("#eform-preview .page");
+		    var nodes = content.toArray();
+		    var height = content.height();
+		    var width = content.width();
+		    var filename = "Eform-" + currentdate + ".pdf";
+		    generatePDF(nodes, "a4", width, height, filename, "2", function(existfilename){
+		    	allname.push(existfilename);
+		    	if(allname.length==obj.length){
+		    		var formsrc = jQuery("form").attr("action");
+		    		if(formsrc.indexOf("&efname=") > -1){
+		    			formsrc = formsrc.substring(0, formsrc.indexOf("&efname=")) + '&efname='+allname;
+		    		}else{
+		    			formsrc = formsrc +'&efname='+allname;
+		    		}
+			    	jQuery("form").attr("action",formsrc);
+		    	}
+		    });
+		}
+	}
+	
+	return configsubmitFaxButtonAjax(save);
+}
+
+function configsubmitFaxButtonAjax(save) {
+	if (saveSig != null&&saveSig!="isformConsultant") {
+		saveSig();
+	}
+	if(document.getElementById("root") || saveSig == "isformConsultant"){
+		var myDate = new Date();
+	    var currentdate = myDate.getTime();
+	    var filename = "Eform-" + currentdate + ".pdf";
+	    if(saveSig == "isformConsultant"){
+	    	filename = "Letterhead-" + currentdate + ".pdf";
+	    }
+	    var content = "";
+	    if(saveSig == "isformConsultant"){
+	    	content = jQuery("#printPDF");
+	    }else{
+	    	content = jQuery("#eform-preview .page");
+	    }
+	    var nodes = content.toArray();
+	    var height = content.height();
+	    var width = content.width();
+	    
+	    generatePDF(nodes, "a4", width, height, filename, "1", function(existfilename){
+	    	for(var i = 0;i < nodes.length;i ++){
+	        	$(nodes[i]).css("border","1px solid");
+	    	}
+	    	jQuery("form").append("<input id='existfilename' type='hidden' name='existfilename' value='"+existfilename+"' >");
+	    	
+	    	if (save && releaseDirtyFlag != null) {
+				releaseDirtyFlag();
+			}
+			document.getElementById('faxEForm').value=true;
+			
+			var saveHolder = jQuery("#saveHolder");
+			if (saveHolder == null || saveHolder.size() == 0) {
+				jQuery("form").append("<input id='saveHolder' type='hidden' name='skipSave' value='"+!save+"' >");
+			}
+			saveHolder = jQuery("#saveHolder");
+			saveHolder.val(!save);
+			needToConfirm=false;
+		
+			if (document.getElementById('Letter') == null) {
+				if(saveSig=="isformConsultant"){
+					var faxRecipients = "";
+					for(var i = 0;i < document.getElementsByName("faxRecipients").length;i ++){
+						if(i==document.getElementsByName("faxRecipients").length-1){
+							faxRecipients += document.getElementsByName("faxRecipients")[i].value;
+						} else {
+							faxRecipients += document.getElementsByName("faxRecipients")[i].value + ",";
+						}
+						
+					}
+					var demographic_no = document.getElementsByName("demographic_no")[0].value;
+					var formId = document.getElementsByName("formId")[0].value;
+					var siteFaxNo = document.getElementsByName("siteFaxNo")[0].value;
+					var providerId = document.getElementsByName("provider_no")[0].value;
+					if(save){
+						jQuery("#savebut").click();
+					}					
+					window.open("../form/fmformfax_send.jsp?existfilename="+existfilename + "&faxRecipients=" + faxRecipients + "&formId=" + formId + "&providerId=" + providerId +"&demographic_no="+demographic_no+"&siteFaxNo="+siteFaxNo);
+					window.close();
+				}
+				//jQuery("form").submit();
+				SubmitButton.click();
+			}else {
+				var form = $("form[name='RichTextLetter']");
+				form.attr("target", "_blank");
+				document.getElementById('Letter').value=editControlContents('edit');
+				//window.close();
+				$.ajax({
+					 type: "POST",  
+					 url: form.attr("action"),  
+					 data: form.serialize(),  
+					 success: function() {  
+					    alert("Fax sent successfully");
+					    window.close(); 
+					 },
+					 error: function() {
+						 alert("An error occured while attempting to send your fax, please contact an administrator.");
+					 } 
+				});
+			}
+			document.getElementById('faxEForm').value=false;
+	    });
+	    
+		return;
+	}
+
+	if (save && releaseDirtyFlag != null) {
+		releaseDirtyFlag();
+	}
 	document.getElementById('faxEForm').value=true;
 	
 	var saveHolder = jQuery("#saveHolder");
@@ -137,8 +257,7 @@ function submitFaxButtonAjax(save) {
 	needToConfirm=false;
 	if (document.getElementById('Letter') == null) {
 		jQuery("form").submit();
-	}
-	else {
+	}else {
 		var form = $("form[name='RichTextLetter']");
 		form.attr("target", "_blank");
 		document.getElementById('Letter').value=editControlContents('edit');
@@ -149,7 +268,8 @@ function submitFaxButtonAjax(save) {
 			 data: form.serialize(),  
 			 success: function() {  
 			    alert("Fax sent successfully");
-			    if (save) { window.close(); }
+			    //if (save) { window.close(); }
+			    window.close();
 			 },
 			 error: function() {
 				 alert("An error occured while attempting to send your fax, please contact an administrator.");

@@ -26,6 +26,8 @@
 
 <%@ page import="oscar.util.*, oscar.eform.data.*"%>
 <%@ page import="java.util.*"%>
+<%@page import="org.oscarehr.util.SpringUtils"%>
+<%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
 <%@taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%
   if (request.getAttribute("page_errors") != null) {
@@ -57,8 +59,7 @@ function hideDiv() {
   String fid = request.getParameter("fid");
   String eform_link = request.getParameter("eform_link");
   String source = request.getParameter("source");
-  
-
+   	
   EForm thisEForm = null;
   if (fid == null || demographic_no == null) {
       //if the info is in the request attribute
@@ -68,17 +69,48 @@ function hideDiv() {
       thisEForm = new EForm(fid, demographic_no);
       thisEForm.setProviderNo(provider_no);  //needs provider for the action
   }
-
-  if (appointment_no!=null) thisEForm.setAppointmentNo(appointment_no);
+	  
+  if (appointment_no!=null) {
+	  thisEForm.setAppointmentNo(appointment_no);
+	  thisEForm.setupAppointmentNo(appointment_no);
+  }
   if (eform_link!=null) thisEForm.setEformLink(eform_link);
   thisEForm.setContextPath(request.getContextPath());
   thisEForm.setupInputFields();
+  
+  thisEForm.setNewDatabaseAps();
+  
+  String setWhite = "<div id=\"root\" style=\"background-color:#ffffff\">";
+  thisEForm.setFormHtml(thisEForm.getFormHtml().replace("<div id=\"root\">",setWhite));
+  String oscarJS = request.getContextPath() + "/share/javascript/";
+  String path_js = "<script type=\"text/javascript\" src=\"" + oscarJS + "eforms/printControl.js\"></script>";
+  
+  String replaceJs = "<script type=\"text/javascript\" src=\""+oscarJS+"eforms/jspdf.debug.js\"></script>"
+			+ "<script type=\"text/javascript\" src=\""+oscarJS+"eforms/html2canvas.js\"></script>"
+			+ "<script type=\"text/javascript\" src=\""+oscarJS+"eforms/dom-to-image.js\"></script>"
+			+ "<script type=\"text/javascript\" src=\""+oscarJS+"eforms/renderPDF.js\"></script>"
+			+ "<script type=\"text/javascript\" src=\""+oscarJS+"eforms/printControl.js\"></script>"	;
+  thisEForm.setFormHtml(thisEForm.getFormHtml().replace(path_js,replaceJs));
+  
   thisEForm.setImagePath();
   thisEForm.setDatabaseAPs();
   thisEForm.setOscarOPEN(request.getRequestURI());
   thisEForm.setAction();
   thisEForm.setSource(source);
   out.print(thisEForm.getFormHtml());
+  
+  
+
+  	String providerName = "";
+	if(null != provider_no){
+		ProviderDao proDao = SpringUtils.getBean(ProviderDao.class); 
+		providerName = proDao.getProviderName(provider_no);
+	}
+	String setDocName = "<script type=\"text/javascript\"> var setDocName='" + providerName + "';</script>";
+	out.print(setDocName);
+
+	String setEformName = "<script type=\"text/javascript\"> var setEformName='" + thisEForm.getFormName() + "';</script>";
+	out.print(setEformName);
 %>
 <%
 String iframeResize = (String) session.getAttribute("useIframeResizing");

@@ -86,10 +86,30 @@ public class EFormExportZip {
             String directoryName = eForm.getFormName().replaceAll("\\s", "") + "/"; //formName with all spaces removed
             String html = eForm.getFormHtml();
             properties.setProperty("form.htmlFilename", fileName);
-            if (eForm.getFormName()!=null && !eForm.getFormName().equals("")) properties.setProperty("form.name", eForm.getFormName());
-            if (eForm.getFormSubject()!=null && !eForm.getFormSubject().equals("")) properties.setProperty("form.details", eForm.getFormSubject());
-            if (eForm.getFormCreator()!=null && !eForm.getFormCreator().equals("")) properties.setProperty("form.creator", eForm.getFormCreator());
-            if (eForm.getFormDate()!=null && !eForm.getFormDate().equals("")) properties.setProperty("form.date", eForm.getFormDate());
+            if (eForm.getFormName()!=null && !eForm.getFormName().equals("")){ 
+            	properties.setProperty("form.name", eForm.getFormName());
+            }else{
+            	properties.setProperty("form.name", "");
+            }
+            if (eForm.getFormSubject()!=null && !eForm.getFormSubject().equals("")){
+            	properties.setProperty("form.details", eForm.getFormSubject());
+            }else{
+            	properties.setProperty("form.details", "");
+            }
+            if (eForm.getFormCreator()!=null && !eForm.getFormCreator().equals("")){
+            	properties.setProperty("form.creator", eForm.getFormCreator());
+            }else{
+            	properties.setProperty("form.creator", "");
+            }
+            if (eForm.getFormDate()!=null && !eForm.getFormDate().equals("")) {
+            	properties.setProperty("form.date", eForm.getFormDate());
+            }else{
+            	properties.setProperty("form.date", "");
+            }
+            properties.setProperty("eform.ver", "1.0");
+            properties.setProperty("eform.keywords", "");
+            properties.setProperty("eform.htmlImages", "");
+            
             if (eForm.isShowLatestFormOnly()) properties.setProperty("form.showLatestFormOnly", "true");
             if (eForm.isPatientIndependent()) properties.setProperty("form.patientIndependent", "true");
 
@@ -120,6 +140,50 @@ public class EFormExportZip {
                 start = matcher.end();
                 int length = "${oscar_image_path}".length();
                 String imageFileName = match.substring(length, match.length()-1);
+                if(imageFileName.substring(imageFileName.lastIndexOf(".") + 1).equals("gz")){
+                	continue;
+                }
+                if(imageFileName.equals(eForm.getFormName().replaceAll("\\s", "") + ".js")){
+                	File jsFile = DisplayImageAction.getImageFile(imageFileName);
+                	FileInputStream in = new FileInputStream(jsFile);
+                	ByteArrayOutputStream outStream = new ByteArrayOutputStream();  
+        	        byte[] buffer = new byte[1024];  
+        	        int len = 0;  
+        	        while( (len=in.read(buffer)) != -1 ){  
+        	            outStream.write(buffer, 0, len);  
+        	        }
+        	        in.close();  
+        	        String ret = outStream.toString();
+        	        while(ret.indexOf("uri") != -1){
+        	        	int startUri = ret.indexOf("uri");
+        	        	if(startUri < (ret.length() + 3)){
+        	        		startUri = startUri + 6;
+        	        	}
+        	        	ret = ret.substring(startUri);
+        	        	
+        	        	int endUri = ret.indexOf("\",\"id");
+        	        	String imgFile = "";
+        	        	if(endUri > 0){
+        	        		imgFile = ret.substring(0, endUri);
+        	        	}
+        	        	if(imgFile.length() > 0){
+	        	        	File img = DisplayImageAction.getImageFile(imgFile);
+	        	        	if(img.exists()){
+	        	        		MiscUtils.getLogger().debug("Image Name: " + imgFile);
+	        	        		try {
+	        	                    FileInputStream fis = new FileInputStream(img);  //should error out if image not found, in this case, skip the image
+	        	                    ZipEntry imageZipEntry = new ZipEntry(directoryName + imgFile);
+	        	                    zos.putNextEntry(imageZipEntry);
+	        	                    outputToInput(zos, fis);
+	        	                    zos.closeEntry();
+	        	                } catch (FileNotFoundException fnfe) {
+	        	                     continue;
+	        	                }
+	        	        	}
+        	        	}
+        	        }
+                }
+                
                 MiscUtils.getLogger().debug("Image Name: " + imageFileName);
                 File imageFile = DisplayImageAction.getImageFile(imageFileName);
                 try {
@@ -271,11 +335,26 @@ public class EFormExportZip {
     public EForm createEFormFromProperties(Properties properties) throws Exception {
         EForm eForm = new EForm();
         eForm.setFormName(properties.getProperty("form.name"));
+        if(eForm.getFormName() == null){
+        	eForm.setFormName(properties.getProperty("eform.name"));
+        }
         if (eForm.getFormName() == null) throw new Exception("Error, form.name property cannot be found in eform.properties");
         eForm.setFormSubject(properties.getProperty("form.details"));
+        if(eForm.getFormSubject() == null){
+        	eForm.setFormSubject(properties.getProperty("eform.desc"));
+        }
         eForm.setFormFileName(properties.getProperty("form.htmlFilename"));
+        if(eForm.getFormFileName() == null){
+        	eForm.setFormFileName(properties.getProperty("eform.htmlFilename"));
+        }
         eForm.setFormCreator(properties.getProperty("form.creator"));
+        if(eForm.getFormCreator() == null){
+        	eForm.setFormCreator(properties.getProperty("eform.creator"));
+        }
         eForm.setFormDate(properties.getProperty("form.date"));
+        if(eForm.getFormDate() == null){
+        	eForm.setFormDate(properties.getProperty("eform.date"));
+        }
         eForm.setShowLatestFormOnly(Boolean.valueOf(properties.getProperty("form.showLatestFormOnly")));
 		eForm.setPatientIndependent(Boolean.valueOf(properties.getProperty("form.patientIndependent")));
         return eForm;

@@ -25,6 +25,13 @@
 
 package oscar.eform.data;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -33,6 +40,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -46,6 +54,7 @@ import org.oscarehr.util.DigitalSignatureUtils;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
+import oscar.OscarProperties;
 import oscar.eform.EFormLoader;
 import oscar.eform.EFormUtil;
 import oscar.oscarEncounter.oscarMeasurements.bean.EctMeasurementsDataBeanHandler;
@@ -113,7 +122,7 @@ public class EForm extends EFormBase {
 	}
 
 	public void loadEForm(String fid, String demographicNo) {
-		HashMap loaded = EFormUtil.loadEForm(fid);
+		HashMap<String, Object> loaded = EFormUtil.loadEForm(fid);
 		this.fid = fid;
 		this.formName = (String) loaded.get("formName");
 		this.formHtml = (String) loaded.get("formHtml");
@@ -132,6 +141,13 @@ public class EForm extends EFormBase {
 	}
 	public void setAppointmentNo(String appt_no) {
             this.appointment_no = StringUtils.isBlank(appt_no) ? "-1" : appt_no;
+	}
+	public void setupAppointmentNo(String appt_no) {
+		StringBuilder html = new StringBuilder(this.formHtml);
+		int formEndLoc = StringBuilderUtils.indexOfIgnoreCase(html, "</form>", 0);
+		if (formEndLoc > 0 && !StringUtils.isBlank(appt_no)) {
+			this.formHtml = html.insert(formEndLoc - 1, "<input type='hidden' name='appointmentNo' value='"+appt_no+"'>").toString();
+		}
 	}
 
 	public String getEformLink() {
@@ -205,7 +221,7 @@ public class EForm extends EFormBase {
 
                 String val = values.get(i);
                 pointer = nextSpot(html, pointer);
-                html = putValue(val, getFieldType(fieldHeader), pointer, html);
+                html = putValue(fieldName, val, getFieldType(fieldHeader), pointer, html);
             }
             this.formHtml = html.toString();
 	}
@@ -235,9 +251,120 @@ public class EForm extends EFormBase {
                             int valueEnd = nextSpot(html, pointer);
                             html.delete(pointer-1, valueEnd);
                         }
-                        html = putValue(values.get(i), OPENER_VALUE, pointer, html);
+                        html = putValue(fieldName, values.get(i), OPENER_VALUE, pointer, html);
                 }
                 formHtml = html.toString();
+	}
+	
+	// --------------------------Setting new APs utilities----------------------------------------
+	public void setNewDatabaseAps(){
+		if(this.demographicNo == null){
+			return;
+		}
+			
+		EFormLoader.getInstance();
+		String html = this.formHtml;
+		String js_name = "";
+		String temp = "";
+		if(html.lastIndexOf("${oscar_image_path}") > -1){
+			String sub_str = "${oscar_image_path}" + this.formName + ".js";
+			if(html.lastIndexOf(sub_str) > -1) {
+				temp = html.substring(0, html.lastIndexOf(sub_str) + sub_str.length());
+				js_name = temp.substring(temp.lastIndexOf("${oscar_image_path}") + "${oscar_image_path}".length() , temp.length());
+			}
+		}else{
+			return;
+		}
+		
+		if(js_name.length() > 0){
+			File file = null;
+			String home_dir = OscarProperties.getInstance().getProperty("eform_image");
+			File directory = new File(home_dir);
+			try{
+	           if(!directory.exists()){
+	              throw new Exception("Directory:  "+home_dir+ " does not exist");
+	           }
+	           
+	           file = new File(directory,js_name);
+	           if(!file.exists()){
+	        	   throw new Exception("File:  "+ file.getName() + " does not exist");
+	           }
+	           InputStream is = new FileInputStream(file);
+	           BufferedReader in = new BufferedReader(new InputStreamReader(is));
+	           StringBuffer buffer = new StringBuffer();
+	           String line = "";
+	           while ((line = in.readLine()) != null){
+	        	   buffer.append(line);
+	           }
+	           String change_data = buffer.toString();
+	           change_data = change_data.substring("data=".length(), change_data.length());
+	           JSONObject obj = JSONObject.fromObject(change_data);
+	           JSONObject obj2 = obj.getJSONObject("eform");
+	           JSONObject obj3 = obj2.getJSONObject("pages");
+	           
+	           JSONObject obj_eform = new JSONObject();
+	           JSONObject obj_page1 = new JSONObject();
+	           JSONObject obj_page2 = new JSONObject();
+	           
+	           JSONArray arr = (JSONArray)obj3.get("pages");
+	           JSONArray arr_page = new JSONArray();
+	           for(int i = 0;i < arr.size();i ++){
+	        	   JSONObject items = arr.getJSONObject(i);
+	        	   JSONObject page_item = new JSONObject();
+	        	   
+	        	   JSONArray item = items.getJSONArray("items");
+	        	   JSONArray item_new = new JSONArray();
+	        	   for(int j = 0;j < item.size();j ++){
+	        		   JSONObject emr = item.getJSONObject(j);
+	        		   if(emr.get("type").equals("emr")){
+	        			   JSONObject emr_data = emr.getJSONObject("data");
+	        			   String emr_name = emr_data.getString("name");
+	        			   
+	        			   //获取oscarDB对应的值 
+	        			   EFormLoader.getInstance();
+						   DatabaseAP curAP = EFormLoader.getAP(emr_name);
+						   String emr_value = "";
+						   if(null != curAP){
+							   emr_value = putOscarDataFromAP(curAP);
+						   }
+						   
+						   emr.put("text", emr_value);
+						   emr.put("data", emr_data);
+	        		   }
+	        		   
+	        		   item_new.add(emr);
+	        	   }
+	        	   
+	        	   page_item.put("items", item_new);
+	        	   page_item.put("uri", items.get("uri"));
+	        	   page_item.put("id", items.get("id"));
+	        	   arr_page.add(page_item);
+	           }
+	           obj_page2.put("pages", arr_page);
+	           obj_page1.put("pages", obj_page2);
+	           obj_page1.put("name", obj2.get("name"));
+	           obj_page1.put("date", obj2.get("date"));
+	           obj_page1.put("id", obj2.get("id"));
+	           
+	           obj_eform.put("eform", obj_page1);
+	           obj_eform.put("width", obj.get("width"));
+	           obj_eform.put("height", obj.get("height"));
+	           
+	           String js_data = "data=" + obj_eform.toString();
+	           //重新写入数据js
+	           ByteArrayInputStream stream = new ByteArrayInputStream(js_data.getBytes());
+	           FileOutputStream fos=new FileOutputStream(file);
+	           int bytesRead = 0;
+	           byte[] buf = new byte[8192];
+	           while ((bytesRead = stream.read(buf, 0, 8192)) != -1) {
+	        	   fos.write(buf, 0, bytesRead);
+	           }
+	           fos.close();
+	           stream.close();
+			}catch(Exception e){
+				MiscUtils.getLogger().info(e.toString());
+			}
+		}
 	}
 
 	// --------------------------Setting APs utilities----------------------------------------
@@ -270,6 +397,7 @@ public class EForm extends EFormBase {
 				if (!fieldType.equals("textarea")) {
 					pointer += apNameLen;
 				}
+				
 				EFormLoader.getInstance();
 				DatabaseAP curAP = EFormLoader.getAP(apName);
 				
@@ -290,6 +418,48 @@ public class EForm extends EFormBase {
 			if (needValueInForm > 0) setAP2nd = true;
 			else i = 2;
 		}
+	}
+	
+	// The  get oscar data  button  
+	public void setOscarData() {
+		EFormLoader.getInstance();
+		StringBuilder changeHtml = new StringBuilder(this.formHtml.replaceAll("<br>", " <br>"));
+				log.debug("===============START CYCLE===========");
+				OscarDataQuery oscarDataQuery = new OscarDataQuery();
+				while("0".equals((oscarDataQuery = getStringindex(changeHtml)).getStatus())){
+					//get value
+				
+					String apName = oscarDataQuery.getApname();
+					int start = oscarDataQuery.getStart();
+					int end = oscarDataQuery.getEnd();
+					   apName = EFormUtil.removeQuotes(apName);
+						
+						if (StringUtils.isBlank(apName)) {
+							return;
+						}
+						
+						apName = EFormUtil.removeQuotes(apName);
+
+						log.debug("AP ==== " + apName);
+						if (setAP2nd && !apName.startsWith("e$")) continue; // ignore non-e$ oscarDB on 2nd run
+						
+						EFormLoader.getInstance();
+						DatabaseAP curAP = EFormLoader.getAP(apName);
+						if (curAP == null){
+							String fieldHeader = getFieldHeader(changeHtml, changeHtml.indexOf("<"));
+							curAP = getAPExtra(apName, fieldHeader);
+						}
+						if(curAP == null)changeHtml.replace(start,end," ");
+						else {
+							curAP.setApJsonOutput(false);
+							changeHtml.replace(start,end,putOscarDataFromAP(curAP)+" ");
+							}
+//						changeHtml.append(putOscarDataFromAP(curAP)+" ");
+						
+						log.debug("=================End Cycle==============");
+				}
+				
+				this.formHtml = changeHtml.toString().replaceAll("\r\n", "<br/>").replaceAll("\n", "<br/>");
 	}
 
 	// Gets all the fields that are "input" (i.e. write-to-database) fields.
@@ -362,7 +532,7 @@ public class EForm extends EFormBase {
                         } else {
                             pointer = nextSpot(html, markerLoc+pointer);
                         }
-                        html = putValue(onclick, type, pointer, html);
+                        html = putValue(fieldName, onclick, type, pointer, html);
 
                         log.debug("Opener ==== " + markerLoc);
                         log.debug("=================End Opener Cycle==============");
@@ -376,7 +546,7 @@ public class EForm extends EFormBase {
 	}
 
 	public ActionMessages setMeasurements(ArrayList<String> names, ArrayList<String> values) {
-		return (WriteNewMeasurements.addMeasurements(names, values, this.demographicNo, this.providerNo));
+		return (WriteNewMeasurements.addMeasurements(names, values, this.demographicNo, this.providerNo, this.appointment_no));
 	}
 
 	public void setContextPath(String contextPath) {
@@ -446,6 +616,12 @@ public class EForm extends EFormBase {
 		String module = apName.substring(0, apName.indexOf("$"));
 		String type = apName.substring(apName.indexOf("$") + 1, apName.indexOf("#"));
 		String field = apName.substring(apName.indexOf("#") + 1, apName.length());
+		if(field.contains("</")){
+			field=field.split("</")[0];
+		}
+		if(apName.contains("</")){
+			apName=apName.split("</")[0];
+		}
 		DatabaseAP curAP = null;
 		if (module.equals("m")) {
 			log.debug("SWITCHING TO MEASUREMENTS");
@@ -525,8 +701,9 @@ public class EForm extends EFormBase {
 		return curAP;
 	}
 
-	private StringBuilder putValue(String value, String type, int pointer, StringBuilder html) {
+	private StringBuilder putValue(String name, String value, String type, int pointer, StringBuilder html) {
 		// inserts value= into tag or textarea
+		if(type==null) return html;
                 if (type.equals("onclick") || type.equals("onclick_append")) {
                         if (type.equals("onclick_append")) {
                             if (html.charAt(pointer-1)=='"') pointer -= 1;
@@ -545,7 +722,13 @@ public class EForm extends EFormBase {
 			html.delete(pointer, endPointer);
 			html.insert(pointer, value);
 		} else if (type.equals("checkbox")) {
-			html.insert(pointer, " checked");
+			if (!name.startsWith("m$cardiac_") || !value.trim().isEmpty()) {
+				html.insert(pointer, " checked");
+				if (html.indexOf("checked>")>0) {
+					String myhtml = html.toString().replace("checked>", ">");
+					html = new StringBuilder(myhtml);
+				} 
+			}
 		} else if (type.equals("select")) {
 			int endindex = StringBuilderUtils.indexOfIgnoreCase(html, "</select>", pointer);
 			if (endindex < 0) return html; // if closing tag not found
@@ -562,10 +745,31 @@ public class EForm extends EFormBase {
 
 			valindexS += 7;
 			if (html.charAt(valindexS) == '"') valindexS++;
-			int valindexE = valindexS + value.length();
+			int valindexE = nextIndex(html, "\"", "\"", valindexS);
+			if (valindexE < 0 || valindexE > endindex) {
+				return html;
+			}
 			if (html.substring(valindexS, valindexE).equals(value)) {
-				pointer = nextSpot(html, valindexE);
-				html.insert(pointer, " checked");
+//				pointer = nextSpot(html, valindexE);
+				html.insert(valindexE + 1, " checked");
+			}else{
+				String sub_html = html.substring(0, endindex + 1);
+				int filedHeads = sub_html.lastIndexOf("<");
+				sub_html = sub_html.substring(filedHeads, sub_html.length());
+				int startSearch = html.indexOf(sub_html);
+				if(sub_html.indexOf("checked") > 0){
+					if(sub_html.indexOf("checked=\"\"") > 0){
+						int start = html.indexOf("checked=\"\"",startSearch);
+						html = html.replace(start, start + "checked=\"\"".length(), "");
+					}else if(sub_html.indexOf("checked=\"checked\"") > 0){
+						int start = html.indexOf("checked=\"checked\"", startSearch);
+						html = html.replace(start, start + "checked=\"checked\"".length(), "");
+					}else{
+						int start = html.indexOf("checked", startSearch);
+						html = html.replace(start, start + "checked".length(), "");
+					}
+				}
+				
 			}
 		}
 		return html;
@@ -653,11 +857,46 @@ public class EForm extends EFormBase {
 	}
  *
  */
+        
+private String putOscarDataFromAP(DatabaseAP ap) {
+            //prepare all sql & output
+	String sql = ap.getApSQL();
+	String output = ap.getApOutput();
+	if (!StringUtils.isBlank(sql)) {
+		sql = replaceAllFields(sql);
+		log.debug("SQL----" + sql);
+		ArrayList<String> names = DatabaseAP.parserGetNames(output); // a list of ${apName} --> apName
+		sql = DatabaseAP.parserClean(sql); // replaces all other ${apName} expressions with 'apName'
+		
+		if (ap.isJsonOutput()) {
+			JSONArray values = EFormUtil.getJsonValues(names, sql);
+			output = values.toString(); //in case of JsonOutput, return the whole JSONArray and let the javascript deal with it
+		}
+		else {
+			ArrayList<String> values = EFormUtil.getValues(names, sql);
+			if (values.size() != names.size()) {
+				output = "";
+			} else {
+				for (int i = 0; i < names.size(); i++) {
+					output = DatabaseAP.parserReplace( names.get(i), values.get(i), output);
+				}
+			}
+		}
+		return output;
+	}else{
+		if(output.length() > 0){
+			return output;
+		}
+	}
+	return "";
+   }
 
 	private StringBuilder putValuesFromAP(DatabaseAP ap, String type, int pointer, StringBuilder html) {
                 //prepare all sql & output
 		String sql = ap.getApSQL();
 		String output = ap.getApOutput();
+		if(output == null)
+			output = "";
 		if (!StringUtils.isBlank(sql)) {
 			sql = replaceAllFields(sql);
 			log.debug("SQL----" + sql);
@@ -775,6 +1014,56 @@ public class EForm extends EFormBase {
 		return min;
 		*/
 	}
+	
+	private OscarDataQuery getStringindex(StringBuilder html) {
+//		Map<String,String> map = new HashMap<String,String>();
+		String marker = EFormLoader.getMarker(); // default: marker: "oscarDB="
+		OscarDataQuery oscarDataQuery = null;
+		Pattern p = Pattern.compile("oscarDB=\\w+");
+		Matcher matcher = p.matcher(html);
+		
+		if (matcher.find()) {
+			oscarDataQuery = new OscarDataQuery();
+			int keysplit = matcher.group().indexOf("=");
+			if(keysplit <0){
+				return null;
+			}
+			int start = matcher.start();
+			int end = matcher.end();
+			if(matcher.group().substring(keysplit + 1, matcher.group().length()).equals("m")){
+				p = Pattern.compile("\\b[^\\s'\"=>]+[ ]*=[ ]*\"[^\"]*\"|\\b[^\\s'\"=>]+[ ]*=[ ]*'[^']*'|\\b[^\\s'\"=>]+[ ]*=[ ]*[^ >]*|\\b[^\\s>]+", Pattern.CASE_INSENSITIVE);
+				matcher = p.matcher(html);
+				 while (matcher.find()) {
+					int keysplit2 = matcher.group().indexOf("=");
+					if (keysplit2 < 0) keysplit2 = matcher.group().length();
+
+					String keypart = matcher.group().substring(0, keysplit2).trim().toLowerCase();
+					String key = marker.trim().toLowerCase();
+					if (keypart.equals(key)) {
+						start = matcher.start();
+						end = matcher.end();
+						oscarDataQuery.setStart(start);
+						oscarDataQuery.setEnd(end);
+						oscarDataQuery.setStatus("0");
+						oscarDataQuery.setApname(matcher.group().substring(keysplit2 + 1, matcher.group().length()));
+						return oscarDataQuery;
+					}
+				}
+			}
+			
+			oscarDataQuery.setStart(start);
+			oscarDataQuery.setEnd(end);
+			oscarDataQuery.setStatus("0");
+			oscarDataQuery.setApname(matcher.group().substring(keysplit + 1, matcher.group().length()));
+			return oscarDataQuery;
+			//org.oscarehr.util.MiscUtils.getLogger().info("New code shows: " + start);
+		}
+		oscarDataQuery = new OscarDataQuery();
+		oscarDataQuery.setStatus("-1");
+		return oscarDataQuery;
+	}
+	
+
 
 	private String getFieldName(StringBuilder html, int pointer) {
 		//pointer can be any place in the tag - isolates tag and sends back field type

@@ -143,7 +143,27 @@ public class EFormUtil {
 
 	public static String saveEForm(String formName, String formSubject, String fileName, String htmlStr, String creator, boolean showLatestFormOnly, boolean patientIndependent, String roleType) {
 		// called by the upload action, puts the uploaded form into DB		
-
+		String nowDate = UtilDateUtilities.DateToString(UtilDateUtilities.now(), "yyyy-MM-dd");
+		String nowTime = UtilDateUtilities.DateToString(UtilDateUtilities.now(), "HH:mm:ss");
+		htmlStr = "\n" + org.apache.commons.lang.StringEscapeUtils.escapeSql(htmlStr);
+		formName = org.apache.commons.lang.StringEscapeUtils.escapeSql(formName);
+		formSubject = org.apache.commons.lang.StringEscapeUtils.escapeSql(formSubject);
+		fileName = org.apache.commons.lang.StringEscapeUtils.escapeSql(fileName);
+		roleType = org.apache.commons.lang.StringEscapeUtils.escapeSql(roleType);
+		if (creator == null) {
+			creator = "";
+		}
+		
+		// why add single quote mark around creator? Removed the single quote mark by lingmin.zhou 2013-11-22?
+		// else creator = "'" + creator + "'";
+		
+		if (roleType == null) {
+			roleType = "";
+		}
+		
+		// why add single quote mark around roleTye? Removed the single quote mark by lingmin.zhou 2013-11-22
+		//else roleType = "'" + roleType + "'";
+		
 		org.oscarehr.common.model.EForm eform = new org.oscarehr.common.model.EForm();
 		eform.setFormName(formName);
 		eform.setFileName(fileName);
@@ -447,16 +467,16 @@ public class EFormUtil {
 
 		// must have FID and form_name otherwise throws null pointer on the hashtable
 		curht.put("fid", eform.getId());
-		curht.put("formName", eform.getFormName());
-		curht.put("formSubject", eform.getSubject());
-		curht.put("formFileName", eform.getFileName());
+		curht.put("formName", StringUtils.replace(eform.getFormName(), "''", "'"));
+		curht.put("formSubject", StringUtils.replace(eform.getSubject(), "''", "'"));
+		curht.put("formFileName", StringUtils.replace(eform.getFileName(), "''", "'"));
 		curht.put("formDate", eform.getFormDate().toString());
 		curht.put("formTime", eform.getFormTime().toString());
 		curht.put("formCreator", eform.getCreator());
-		curht.put("formHtml", eform.getFormHtml());
+		curht.put("formHtml", StringUtils.replace(eform.getFormHtml(), "''", "'"));
 		curht.put("showLatestFormOnly", eform.isShowLatestFormOnly());
 		curht.put("patientIndependent", eform.isPatientIndependent());
-		curht.put("roleType", eform.getRoleType());
+		curht.put("roleType", StringUtils.replace(eform.getRoleType(), "''", "'"));
 
 		return (curht);
 	}

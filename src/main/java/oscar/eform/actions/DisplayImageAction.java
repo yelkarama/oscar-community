@@ -25,8 +25,17 @@
 
 package oscar.eform.actions;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.zip.GZIPInputStream;
 
 import javax.activation.MimetypesFileTypeMap;
 import javax.servlet.http.HttpServletRequest;
@@ -58,8 +67,13 @@ public class DisplayImageAction extends DownloadAction{
     	
     	   	
         String fileName = request.getParameter("imagefile");
+        String need_change_js_path = request.getParameter("need_change_js_path");
+        String js_path = request.getParameter("js_path");
         //if (fileName.indexOf('/') != -1) return null;  //prevents navigating away from the page.
         String home_dir = OscarProperties.getInstance().getProperty("eform_image");
+        if(null != need_change_js_path && need_change_js_path.equals("true")){
+        	home_dir = home_dir + "/" + js_path;
+        }
 
         response.setHeader("Content-disposition","inline; filename=" + fileName);
 
@@ -137,6 +151,46 @@ public class DisplayImageAction extends DownloadAction{
                     contentType = "text/css";
                 }else if(extension(file.getName()).equalsIgnoreCase("rtl") || extension(file.getName()).equalsIgnoreCase("html") || extension(file.getName()).equalsIgnoreCase("htm")){ // for HTML
                     contentType = "text/html";
+                }else if(extension(file.getName()).equalsIgnoreCase("gzjs")){ // for GIF
+                	contentType = "text/javascript";
+                    response.setHeader("Content-Encoding", "gzip");
+                }else if(extension(file.getName()).equalsIgnoreCase("gz")){ // for GIF
+                	contentType = "text/javascript";
+                    
+                    String  browserDetails  =   request.getHeader("User-Agent").toLowerCase();
+                    if(browserDetails.contains("safari")){
+						File newJs = new File(home_dir + file.getName().substring(0, file.getName().indexOf(".")) + ".js");
+						if(newJs.exists()){
+							file = newJs;
+						}else{
+							InputStream targetStream = new FileInputStream(file);
+							GZIPInputStream gzipIn = new GZIPInputStream(targetStream);
+							InputStreamReader isr = new InputStreamReader(gzipIn);
+							BufferedReader br = new BufferedReader(isr);
+							StringBuilder sb = new StringBuilder();
+							String tempbf;
+							while ((tempbf = br.readLine()) != null) {
+							sb.append(tempbf);
+							sb.append("/r/n");
+							}
+							isr.close();
+							gzipIn.close();
+							
+							ByteArrayInputStream stream = new ByteArrayInputStream(sb.toString().getBytes());
+							OutputStream os = new FileOutputStream(newJs);
+							int bytesRead = 0;
+							byte[] buffer = new byte[8192];
+							while ((bytesRead = stream.read(buffer, 0, 8192)) != -1) {
+								os.write(buffer, 0, bytesRead);
+							}
+							os.close();
+							stream.close();
+							
+							file = newJs;
+						}
+                    }else{
+                    	response.setHeader("Content-Encoding", "gzip");
+                    }
                 }else{
                     throw new Exception("please check the file type or update mimetypes.default file to include the "+"."+extension(file.getName()));
                 }
@@ -190,12 +244,17 @@ public class DisplayImageAction extends DownloadAction{
      */
     public String[] visitAllFiles(File dir) {
     	String[] children=null;
-    	if (dir.isDirectory()) {
+    	if (dir != null && dir.isDirectory()) {
     		children = dir.list();
     		for (int i=0; i<children.length; i++) {
     			visitAllFiles(new File(dir, children[i]));
     		}
     	}
+    	if (children == null) {
+    		children = new String[]{};
+    	} else {
+		Arrays.sort(children);
+	}
     	return children;
     }
     

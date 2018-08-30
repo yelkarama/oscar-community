@@ -25,24 +25,30 @@
 
 package oscar.eform.actions;
 
+import java.io.File;
 import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.apache.struts.upload.FormFile;
+import org.oscarehr.common.dao.EFormDao;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 import org.oscarehr.util.WebUtils;
 
+import oscar.OscarProperties;
 import oscar.eform.EFormUtil;
 import oscar.eform.data.EFormBase;
 import oscar.eform.data.HtmlEditForm;
+import oscar.util.StringUtils;
 
 
 public class HtmlEditAction extends Action {
@@ -63,11 +69,47 @@ public class HtmlEditAction extends Action {
             String formSubject = fm.getFormSubject();
             String formFileName = fm.getFormFileName();
             String formHtml = fm.getFormHtml();
+            FormFile uploadFile = fm.getUploadFile();
             boolean showLatestFormOnly = WebUtils.isChecked(request, "showLatestFormOnly");
             boolean patientIndependent = WebUtils.isChecked(request, "patientIndependent");
             String roleType = fm.getRoleType();
             
+            //change js name
+            if(null != fid && fid.length() > 0){
+	            String old_js_name = "";
+	            String new_js_name = "<script src=\"${oscar_image_path}" + formName + ".js\"></script>";
+	            EFormDao dao = SpringUtils.getBean(EFormDao.class);
+	    		org.oscarehr.common.model.EForm eform = dao.find(Integer.parseInt(fid));
+	    		if(!formName.equals(eform.getFormName())){
+		    		old_js_name = "<script src=\"${oscar_image_path}" + eform.getFormName() + ".js\"></script>";
+		    		if(formHtml.indexOf(old_js_name) > 0){
+		    			formHtml = formHtml.replace(old_js_name, new_js_name);
+		    		}
+		    		String home_dir = OscarProperties.getInstance().getProperty("eform_image");
+		    		File oldJs = new File(home_dir, eform.getFormName() + ".js");
+		    		if(oldJs.exists()){
+			    		File newJs = new File(home_dir, formName + ".js");
+			    		FileUtils.copyFile(oldJs, newJs);
+			    		oldJs.delete();
+		    		}
+	    		}
+            }
+            
             HashMap<String, String> errors = new HashMap<String, String>();
+            if (request.getParameter("uploadMarker").equals("true")) {
+                //if uploading file
+                String readstream = StringUtils.readFileStream(uploadFile);
+                if (readstream.length() == 0) {
+                    errors.put("uploadError", "eform.errors.upload.failed");
+                } else {
+                    formHtml = org.apache.commons.lang.StringEscapeUtils.escapeJava(readstream);
+                    formFileName = uploadFile.getFileName();
+                }
+                HashMap<String, Object> curht = createHashMap(fid, formName, formSubject, formFileName, formHtml, showLatestFormOnly, patientIndependent, roleType);
+                request.setAttribute("submitted", curht);
+                request.setAttribute("errors", errors);
+                return(mapping.findForward("success"));
+            }
             EFormBase updatedform = new EFormBase(fid, formName, formSubject, formFileName, formHtml, showLatestFormOnly, patientIndependent, roleType); //property container (bean)
             //validation...
             if ((formName == null) || (formName.length() == 0)) {
@@ -84,7 +126,8 @@ public class HtmlEditAction extends Action {
                 request.setAttribute("success", "true");
             }
             
-            HashMap<String, Object> curht = createHashMap(fid, formName, formSubject, formFileName, formHtml, showLatestFormOnly, patientIndependent, roleType);
+            HashMap<String, Object> curht = createHashMap(fid, formName, formSubject, formFileName, 
+            		org.apache.commons.lang.StringEscapeUtils.escapeJava(formHtml), showLatestFormOnly, patientIndependent, roleType);
             request.setAttribute("submitted", curht);
             
             request.setAttribute("errors", errors);

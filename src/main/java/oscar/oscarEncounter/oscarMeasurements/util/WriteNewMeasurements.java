@@ -51,7 +51,7 @@ public class WriteNewMeasurements {
 	private static MeasurementTypeDao measurementTypeDao = SpringUtils.getBean(MeasurementTypeDao.class);
 	private static MeasurementDao dao = SpringUtils.getBean(MeasurementDao.class);
 
-    public static ActionMessages addMeasurements(ArrayList names, ArrayList values, String demographicNo, String providerNo) {
+    public static ActionMessages addMeasurements(ArrayList names, ArrayList values, String demographicNo, String providerNo, String appointmentNo) {
             //must be called on the same eform object because it retrieves some of its properties
         Vector measures = new Vector();
         for (int i=0; i<names.size(); i++) {
