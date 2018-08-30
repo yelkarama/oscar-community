@@ -97,7 +97,7 @@
 					</select>
 				
 	            	&nbsp;
-	            			           
+					<input type="hidden" name="contact_<%=id%>.category" value="professional"/>	            			           
 	            	<input type="hidden" name="procontact_<%=id%>.contactId" value="0"/>
 		             <input type="text" name="procontact_<%=id%>.contactName" id="procontact_<%=id%>.contactName" size="20" readonly="readonly"/>		             
 		             <a href="#" onclick="doProfessionalSearch('<%=id%>');return false;">${param.search}</a>		             
