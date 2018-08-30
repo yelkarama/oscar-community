@@ -24,6 +24,8 @@
 
 --%>
 
+<%@page import="org.oscarehr.util.SessionConstants"%>
+<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="java.util.Date"%>
 <%@page import="org.oscarehr.util.MiscUtils"%>
 <%@page import="java.text.ParseException"%>
@@ -45,6 +47,17 @@
     }catch(ParseException e) {
     	MiscUtils.getLogger().error("Error parsing date",e);
     }
+
+    //we need to check to see if we've been saved before.
+    boolean firstSave = true;
+    if(propertyExists(providerNo, "createdBy")) {
+    	firstSave = false;
+    }
+    
+    if(firstSave) {
+		saveOrUpdateProperty(providerNo,LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo(),"createdBy");
+		saveOrUpdateProperty(providerNo,(String)session.getAttribute(SessionConstants.CURRENT_PROGRAM_ID),"createdByProgram");
+	}
     
     //series level attributes
     String seriesName = request.getParameter("seriesName");
@@ -58,8 +71,7 @@
     saveOrUpdateProperty(providerNo,seriesNote,"seriesNote");
 	saveOrUpdateCompleted(providerNo,completed);
 	saveOrUpdateDropIn(providerNo,dropIn);
-    
-    
+	
     //session level attributes
     String facilitator = request.getParameter("facilitator");
     String facilitator2 = request.getParameter("facilitator2");
@@ -162,6 +174,15 @@
 		}
 		up.setValue(value);
 		userPropertyDao.saveEntity(up);
+	}
+
+	boolean propertyExists(String providerNo, String propertyName) {
+		UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
+		UserProperty up = userPropertyDao.getProp(providerNo, propertyName);
+		if(up == null) {
+			return false;
+		}
+		return true;
 	}
 
 	void saveOrUpdateCompleted(String providerNo, String completed) {
