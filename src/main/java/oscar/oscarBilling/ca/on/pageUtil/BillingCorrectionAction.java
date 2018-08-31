@@ -188,7 +188,7 @@ public class BillingCorrectionAction extends DispatchAction{
         if (request.getParameter("billTo") != null) {           
             BillingONExt billExt = billExtDao.getBillTo(bCh1);
             String oldValue = "";
-            if (billExt != null && !billExt.getValue().equals(request.getParameter("billTo"))) {
+            if (billExt != null && billExt.getValue() != null && !billExt.getValue().equals(request.getParameter("billTo"))) {
                 oldValue = billExt.getValue();
                 billExt.setValue(request.getParameter("billTo"));
                 billExtDao.merge(billExt);
@@ -354,7 +354,7 @@ public class BillingCorrectionAction extends DispatchAction{
             }
             
             ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
-            Provider provider = providerDao.getProvider(bCh1.getProviderNo());
+            Provider provider = providerDao.getProvider(request.getParameter("provider_no"));
                                                            
             bCh1.setStatus(status);
             bCh1.setPayProgram(payProgram);
