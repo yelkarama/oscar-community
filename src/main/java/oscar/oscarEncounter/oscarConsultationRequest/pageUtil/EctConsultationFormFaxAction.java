@@ -341,10 +341,16 @@ public class EctConsultationFormFaxAction extends Action {
 				    	}
 				    }
 				    
+				    if (!validFaxNumber && faxConfigs.size() > 0) {
+						faxJob.setStatus(FaxJob.STATUS.SENT);
+						faxJob.setUser(faxConfigs.get(0).getFaxUser());
+						validFaxNumber = true;
+					}
+				    
 				    if( !validFaxNumber ) {
 				    	
 				    	faxJob.setStatus(FaxJob.STATUS.ERROR);
-				    	logger.error("PROBLEM CREATING FAX JOB", new DocumentException("Document outgoing fax number '"+faxNumber+"' is invalid."));
+				    	logger.error("PROBLEM CREATING FAX JOB", new DocumentException("There are no fax configurations setup for this clinic."));
 				    }
 				    else {
 				    	

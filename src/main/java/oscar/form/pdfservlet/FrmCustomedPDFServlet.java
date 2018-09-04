@@ -172,6 +172,13 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 			                			break;
 			                		}
 			                	}
+
+								if (!validFaxNumber && faxConfigs.size() > 0) {
+									faxJob.setStatus(FaxJob.STATUS.SENT);
+									faxJob.setUser(faxConfigs.get(0).getFaxUser());
+									faxJobDao.persist(faxJob);
+									validFaxNumber = true;
+								}
 			                }
 			                
 			        if( validFaxNumber ) {

@@ -146,6 +146,12 @@ public final class FaxAction {
 					}
 				}
 
+				if (!validFaxNumber && faxConfigs.size() > 0) {
+					faxJob.setStatus(FaxJob.STATUS.SENT);
+					faxJob.setUser(faxConfigs.get(0).getFaxUser());
+					validFaxNumber = true;
+				}
+				
 				// Creating text file with the specialists fax number.
 				fos = new FileOutputStream(tempTxt);				
 				PrintWriter pw = new PrintWriter(fos);
@@ -165,7 +171,7 @@ public final class FaxAction {
                 faxJob.setNumPages(1);
 				if( !validFaxNumber ) {
 					faxJob.setStatus(FaxJob.STATUS.ERROR);
-					logger.error("PROBLEM CREATING FAX JOB", new DocumentException("Document outgoing fax number '"+faxNo+"' is invalid."));
+					logger.error("PROBLEM CREATING FAX JOB", new DocumentException("There are no fax configurations setup for this clinic."));
 				}
 				else {
 					faxJob.setStatus(FaxJob.STATUS.SENT);
