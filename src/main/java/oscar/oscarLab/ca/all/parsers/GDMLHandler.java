@@ -745,7 +745,7 @@ public class GDMLHandler implements MessageHandler {
 		return ret;
 	}    
     
-    private ArrayList<String> getMatchingGDMLLabs(String hl7Body) {
+    protected ArrayList<String> getMatchingGDMLLabs(String hl7Body) {
 		Base64 base64 = new Base64(0);
 		ArrayList<String> ret = new ArrayList<String>();
 		int monthsBetween = 0;
@@ -872,4 +872,18 @@ public class GDMLHandler implements MessageHandler {
     		return "";
     	}
     }
+    
+    public boolean isTestResultBlocked(int i, int j){
+
+        try{
+            Segment obxSeg = (( obrSegMap.get(obrSegKeySet.get(i))).get(j));
+            String status = getString(getComponent(obxSeg, 17, 0, 1));
+
+            return "BLOCKED".equals(status);
+        }catch(Exception e){
+            logger.error("error returning obx identifier", e);
+            return false;
+        }
+    }
+
 }

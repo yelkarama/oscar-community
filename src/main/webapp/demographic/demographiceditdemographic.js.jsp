@@ -93,20 +93,32 @@ function popupS(varpage) {
 	window.open(href, "fullwin", ',type=fullWindow,fullscreen,scrollbars=yes');
 	return false;
 }
+
+
 function checkRosterStatus() {
 	if (rosterStatusChangedNotBlank()) {
 		if (document.updatedelete.roster_status.value=="RO") { //Patient rostered
 			if (!rosterStatusDateValid(false)) return false;
-		}
-		else {
+			if (!rosterEnrolledToValid(false)) return false;
+			if(rosterStatusTerminationDateFilled() || rosterStatusTerminationReasonFilled() ) {
+				alert('Please clear the roster termination date and roster termination reason fields');
+				return false;
+			}
+			return true;
+		} else if(document.updatedelete.roster_status.value=="TE") {
+			if (!rosterStatusDateValid(false)) return false;
 			if (!rosterStatusTerminationDateValid(false)) return false;
 			if (!rosterStatusTerminationReasonNotBlank()) return false;
+			return true;
+		} else {
+			return true;
 		}
 	}
 
 	if (rosterStatusDateAllowed()) {
 		if (document.updatedelete.roster_status.value=="RO") { //Patient rostered
 			if (!rosterStatusDateValid(false)) return false;
+			if (!rosterEnrolledToValid(false)) return false;
 		}
 		else {
 			if (!rosterStatusTerminationDateValid(true)) return false;
@@ -114,8 +126,10 @@ function checkRosterStatus() {
 	} else {
 		return false;
 	}
+	
 	if (!rosterStatusDateValid(true)) return false;
 	if (!rosterStatusTerminationDateValid(true)) return false;
+	if (!rosterEnrolledToValid(true)) return false;
 	return true;
 }
 

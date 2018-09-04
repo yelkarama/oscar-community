@@ -145,6 +145,11 @@ public class DemographicArchive extends AbstractModel<Long> implements Serializa
 	@Column(name = "lastUpdateDate")
 	@Temporal(TemporalType.DATE)
 	private Date lastUpdateDate = null;
+	
+	private String middleNames;
+	@Column(name="roster_enrolled_to")
+	private String rosterEnrolledTo;
+	
 
 	public DemographicArchive() {}
 	
@@ -195,6 +200,8 @@ public class DemographicArchive extends AbstractModel<Long> implements Serializa
 		this.title = demographic.getTitle();
 		this.ver = demographic.getVer();
 		this.yearOfBirth = demographic.getYearOfBirth();
+		this.middleNames = demographic.getMiddleNames();
+		this.rosterEnrolledTo = demographic.getRosterEnrolledTo();
 	}
 
 	public Integer getDemographicNo() {
@@ -521,6 +528,24 @@ public class DemographicArchive extends AbstractModel<Long> implements Serializa
 		}
 		public void setLastUpdateDate(Date d) {
 		    this.lastUpdateDate = d;
+		}
+		
+		
+
+		public String getMiddleNames() {
+			return middleNames;
+		}
+
+		public void setMiddleNames(String middleNames) {
+			this.middleNames = middleNames;
+		}
+
+		public String getRosterEnrolledTo() {
+			return rosterEnrolledTo;
+		}
+
+		public void setRosterEnrolledTo(String rosterEnrolledTo) {
+			this.rosterEnrolledTo = rosterEnrolledTo;
 		}
 
 		@Override

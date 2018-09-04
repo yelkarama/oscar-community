@@ -156,15 +156,15 @@ public final class MessageUploader {
 				List<String> docNames = ((SpireHandler)h).getDocNames();
 				//logger.debug("docNames:");
 	            for (int i=0; i < docNames.size(); i++) {
-					logger.info(i + " " + docNames.get(i));
+					logger.debug(i + " " + docNames.get(i));
 				}
             	if (docNames != null) {
 					docNums = findProvidersForSpireLab(docNames);
 				}
             }
-            logger.info("docNums:");
+            logger.debug("docNums:");
             for (int i=0; i < docNums.size(); i++) {
-				logger.info(i + " " + docNums.get(i));
+				logger.debug(i + " " + docNums.get(i));
 			}
 
 			try {

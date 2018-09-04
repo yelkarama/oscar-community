@@ -68,6 +68,7 @@ import org.oscarehr.PMmodule.model.Program;
 import org.oscarehr.PMmodule.model.ProgramProvider;
 import org.oscarehr.PMmodule.service.AdmissionManager;
 import org.oscarehr.PMmodule.service.ProgramManager;
+import org.oscarehr.casemgmt.dao.IssueDAO;
 import org.oscarehr.casemgmt.model.CaseManagementIssue;
 import org.oscarehr.casemgmt.model.CaseManagementNote;
 import org.oscarehr.casemgmt.model.CaseManagementNoteExt;
@@ -132,6 +133,7 @@ import cds.CareElementsDocument.CareElements;
 import cds.ClinicalNotesDocument.ClinicalNotes;
 import cds.DemographicsDocument.Demographics;
 import cds.DemographicsDocument.Demographics.Enrolment.EnrolmentHistory;
+import cds.DemographicsDocument.Demographics.Enrolment.EnrolmentHistory.EnrolledToPhysician;
 import cds.FamilyHistoryDocument.FamilyHistory;
 import cds.ImmunizationsDocument.Immunizations;
 import cds.LaboratoryResultsDocument.LaboratoryResults;
@@ -146,11 +148,15 @@ import cds.ReportsDocument.Reports;
 import cds.ReportsDocument.Reports.OBRContent;
 import cds.ReportsDocument.Reports.SourceAuthorPhysician;
 import cds.RiskFactorsDocument.RiskFactors;
+import cdsDt.AddressType;
 import cdsDt.DateTimeFullOrPartial;
 import cdsDt.DiabetesComplicationScreening.ExamCode;
 import cdsDt.DiabetesMotivationalCounselling.CounsellingPerformed;
+import cdsDt.PersonNamePartQualifierCode;
+import cdsDt.PersonNamePartTypeCode;
 import cdsDt.PersonNameStandard.LegalName;
 import cdsDt.PersonNameStandard.OtherNames;
+import cdsDt.YIndicator;
 import oscar.OscarProperties;
 import oscar.appt.ApptStatusData;
 import oscar.dms.EDocUtil;
@@ -168,6 +174,8 @@ import oscar.oscarLab.ca.all.util.Utilities;
 import oscar.oscarLab.ca.on.LabResultImport;
 import oscar.oscarPrevention.PreventionData;
 import oscar.oscarProvider.data.ProviderData;
+import oscar.oscarRx.data.RxDrugData;
+import oscar.oscarRx.data.RxDrugData.DrugMonograph;
 import oscar.util.ConversionUtils;
 import oscar.util.StringUtils;
 import oscar.util.UtilDateUtilities;
@@ -221,6 +229,8 @@ import oscar.util.UtilDateUtilities;
     OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
     ProviderLabRoutingDao providerLabRoutingDao = SpringUtils.getBean(ProviderLabRoutingDao.class);
     MeasurementsExtDao measurementsExtDao = SpringUtils.getBean(MeasurementsExtDao.class);
+    IssueDAO issueDao = SpringUtils.getBean(IssueDAO.class);
+	
 
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception  {
@@ -238,7 +248,7 @@ import oscar.util.UtilDateUtilities;
         }
 
         ImportDemographicDataForm frm = (ImportDemographicDataForm) form;
-        logger.info("import to course id "  + frm.getCourseId() + " using timeshift value " + frm.getTimeshiftInDays());
+        logger.debug("import to course id "  + frm.getCourseId() + " using timeshift value " + frm.getTimeshiftInDays());
         List<Provider> students = new ArrayList<Provider>();
         int courseId = 0;
         if(frm.getCourseId()!=null && frm.getCourseId().length()>0) {
@@ -254,7 +264,7 @@ import oscar.util.UtilDateUtilities;
                 }
             }
         }
-        logger.info("apply this patient to " + students.size() + " students");
+        logger.debug("apply this patient to " + students.size() + " students");
         matchProviderNames = frm.getMatchProviderNames();
         FormFile imp = frm.getImportFile();
         String ifile = tmpDir + imp.getFileName();
@@ -285,9 +295,14 @@ import oscar.util.UtilDateUtilities;
                     String ofile = tmpDir + entryName;
                     if (matchFileExt(ofile, "xml")) {
                         noXML = false;
-                        OutputStream out = new FileOutputStream(ofile);
-                        while ((len=in.read(buf)) > 0) out.write(buf,0,len);
-                        out.close();
+                        OutputStream out = null;    
+                        try {
+	                        out = new FileOutputStream(ofile);
+	                        while ((len=in.read(buf)) > 0) out.write(buf,0,len);
+	                        out.close();
+	                    } finally {
+	                    	IOUtils.closeQuietly(out);
+	                    }
                         logs.add(importXML(LoggedInInfo.getLoggedInInfoFromSession(request) , ofile, warnings, request,frm.getTimeshiftInDays(),students,courseId));
                         importNo++;
                         demographicNo=null;
@@ -376,9 +391,8 @@ import oscar.util.UtilDateUtilities;
         	opts.setErrorListener(c);
         	opts.setDocumentType(OmdCdsDocument.Factory.newInstance().schemaType()); 
         	omdCds = OmdCdsDocument.Factory.parse(xmlF,opts).getOmdCds();
-        	
 
-        	System.out.println("validate = "+ omdCds.validate(opts));
+        	omdCds.validate(opts);
         	
            
         } catch (IOException ex) {logger.error("Error", ex);
@@ -410,13 +424,17 @@ import oscar.util.UtilDateUtilities;
         }
 
         //other names
-        String legalOtherNameTxt=null, otherNameTxt=null;
+        String  otherNameTxt=null;
 
         LegalName.OtherName[] legalOtherNames = legalName.getOtherNameArray();
+        String middleNames = "";
+        
         for (LegalName.OtherName otherName : legalOtherNames) {
-            if (legalOtherNameTxt==null) legalOtherNameTxt = otherName.getPart();
-            else legalOtherNameTxt += ", "+otherName.getPart();
+            if(otherName.getPartQualifier() == PersonNamePartQualifierCode.CL && otherName.getPartType() == PersonNamePartTypeCode.GIV) {
+            	middleNames += (otherName.getPart() + " ");
+            }
         }
+        middleNames = middleNames.trim();
 
         OtherNames[] otherNames = demo.getNames().getOtherNamesArray();
         for (OtherNames otherName : otherNames) {
@@ -429,7 +447,7 @@ import oscar.util.UtilDateUtilities;
         		otherNameTxt = Util.addLine(mapNamePurpose(otherName.getNamePurpose())+": ", otherNameTxt);
         	}
         }
-        otherNameTxt = Util.addLine(legalOtherNameTxt, otherNameTxt);
+        otherNameTxt = Util.addLine("", otherNameTxt);
 
         String title = demo.getNames().getNamePrefix()!=null ? demo.getNames().getNamePrefix().toString() : "";
         String suffix = demo.getNames().getLastNameSuffix()!=null ? demo.getNames().getLastNameSuffix().toString() : "";
@@ -495,8 +513,9 @@ import oscar.util.UtilDateUtilities;
         String[] roster_status=new String[enrolTotal],
         		 roster_date=new String[enrolTotal],
         		 term_date=new String[enrolTotal],
-        		 term_reason=new String[enrolTotal];
-
+        		 term_reason=new String[enrolTotal],
+        		 roster_enrolledTo = new String[enrolTotal];
+        		
         String rosterInfo = null;
         Calendar enrollDate=null, currentEnrollDate=null;
 
@@ -508,6 +527,17 @@ import oscar.util.UtilDateUtilities;
             term_date[i] = getCalDate(enrolments[i].getEnrollmentTerminationDate(), timeShiftInDays);
             if (enrolments[i].getTerminationReason()!=null)
             	term_reason[i] = enrolments[i].getTerminationReason().toString();
+            if(enrolments[i].getEnrolledToPhysician() != null) {
+            	EnrolledToPhysician enrolledToPhysician = enrolments[i].getEnrolledToPhysician();
+            	
+            	HashMap<String,String> personName = getPersonName(enrolledToPhysician.getName());
+                String personOHIP = enrolledToPhysician.getOHIPPhysicianId();
+                if (StringUtils.empty(personName.get("firstname"))) err_data.add("Error! No Enrolled To Physician first name");
+                if (StringUtils.empty(personName.get("lastname"))) err_data.add("Error! No Enrolled To Physician last name");
+                if (StringUtils.empty(personOHIP)) err_data.add("Error! No Enrolled To Physician OHIP billing number");
+               
+                roster_enrolledTo[i] = writeProviderData(personName.get("firstname"), personName.get("lastname"), personOHIP, null);
+            }
 
             //Sort enrolments by date
             if (enrolments[i].getEnrollmentDate()!=null) currentEnrollDate = enrolments[i].getEnrollmentDate();
@@ -524,16 +554,18 @@ import oscar.util.UtilDateUtilities;
                     rosterInfo=roster_date[j];   roster_date[j]=roster_date[i];     roster_date[i]=rosterInfo;
             		rosterInfo=term_date[j];     term_date[j]=term_date[i];         term_date[i]=rosterInfo;
     				rosterInfo=term_reason[j];   term_reason[j]=term_reason[i];     term_reason[i]=rosterInfo;
+    				rosterInfo=roster_enrolledTo[j];	roster_enrolledTo[j]=roster_enrolledTo[i];	roster_enrolledTo[i]=rosterInfo;
                 }
             }
         }
 
-        String rosterStatus=null, rosterDate=null, termDate=null, termReason=null;
+        String rosterStatus=null, rosterDate=null, termDate=null, termReason=null, rosterEnrolledTo=null;
         if (enrolTotal>0) {
         	rosterStatus=roster_status[enrolTotal-1];
         	rosterDate=roster_date[enrolTotal-1];
         	termDate=term_date[enrolTotal-1];
         	termReason=term_reason[enrolTotal-1];
+        	rosterEnrolledTo = roster_enrolledTo[enrolTotal-1];
         }
 
         String sin = StringUtils.noNull(demo.getSIN());
@@ -580,22 +612,47 @@ import oscar.util.UtilDateUtilities;
         }
 
         String address="", city="", province="", postalCode="";
-        if (demo.getAddressArray().length>0) {
-            cdsDt.Address addr = demo.getAddressArray(0);	//only get 1st address, other ignored
-            if (addr!=null) {
-                if (StringUtils.filled(addr.getFormatted())) {
-                    address = addr.getFormatted();
-                } else {
-                    cdsDt.AddressStructured addrStr = addr.getStructured();
-                    if (addrStr!=null) {
-                        address = StringUtils.noNull(addrStr.getLine1()) + StringUtils.noNull(addrStr.getLine2()) + StringUtils.noNull(addrStr.getLine3());
-                        city = StringUtils.noNull(addrStr.getCity());
-                        province = getCountrySubDivCode(addrStr.getCountrySubdivisionCode());
-                        cdsDt.PostalZipCode postalZip = addrStr.getPostalZipCode();
-                        if (postalZip!=null) postalCode = StringUtils.noNull(postalZip.getPostalCode());
-                    }
-                }
-            }
+        if(demo.getAddressArray()!= null) {
+	        for (cdsDt.Address addr :demo.getAddressArray()) {
+	        	if(addr.getAddressType() == AddressType.R) {
+	                if (StringUtils.filled(addr.getFormatted())) {
+	                    address = addr.getFormatted();
+	                } else {
+	                    cdsDt.AddressStructured addrStr = addr.getStructured();
+	                    if (addrStr!=null) {
+	                        address = StringUtils.noNull(addrStr.getLine1()) + StringUtils.noNull(addrStr.getLine2()) + StringUtils.noNull(addrStr.getLine3());
+	                        city = StringUtils.noNull(addrStr.getCity());
+	                        province = getCountrySubDivCode(addrStr.getCountrySubdivisionCode());
+	                        cdsDt.PostalZipCode postalZip = addrStr.getPostalZipCode();
+	                        if (postalZip!=null) postalCode = StringUtils.noNull(postalZip.getPostalCode());
+	                    }
+	                }
+	        	} else {
+	        		String mailingAddress="", mailingCity="",mailingProvince="",mailingPostalCode="";
+	        		
+	        		//there's an address we don't support
+	        		 if (StringUtils.filled(addr.getFormatted())) {
+		                    mailingAddress = addr.getFormatted();
+		                    extra = Util.addLine(extra, "Mailing Address: ", mailingAddress);
+		                } else {
+		                    cdsDt.AddressStructured addrStr = addr.getStructured();
+		                    if (addrStr!=null) {
+		                        mailingAddress = StringUtils.noNull(addrStr.getLine1()) + StringUtils.noNull(addrStr.getLine2()) + StringUtils.noNull(addrStr.getLine3());
+		                        mailingCity = StringUtils.noNull(addrStr.getCity());
+		                        mailingProvince = getCountrySubDivCode(addrStr.getCountrySubdivisionCode());
+		                        cdsDt.PostalZipCode mailingPostalZip = addrStr.getPostalZipCode();
+		                        if (mailingPostalZip!=null)
+		                        	mailingPostalCode = StringUtils.noNull(mailingPostalZip.getPostalCode());
+		                        
+		                        extra = Util.addLine(extra, "Mailing Address: ", mailingAddress);
+		                        extra = Util.addLine(extra, "Mailing City: ", mailingCity);
+		                        extra = Util.addLine(extra, "Mailing Province: ", mailingProvince);
+		                        extra = Util.addLine(extra, "Mailing Postal Code: ", mailingPostalCode);
+		                    }
+		                
+		              }
+	        	}   	
+	        }
         }
         cdsDt.PhoneNumber[] pn = demo.getPhoneNumberArray();
         String workPhone="", workExt="", homePhone="", homeExt="", cellPhone="", ext="", patientPhone="";
@@ -672,6 +729,7 @@ import oscar.util.UtilDateUtilities;
         	//found contact-only demo, replace!
         	SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
             demographic.setTitle(title);
+            demographic.setMiddleNames(middleNames);
             demographic.setAddress(address);
             demographic.setCity(city);
             demographic.setProvince(province);
@@ -682,6 +740,7 @@ import oscar.util.UtilDateUtilities;
             demographic.setHin(hin);
             demographic.setVer(versionCode);
             demographic.setRosterStatus(rosterStatus);
+            demographic.setRosterEnrolledTo(rosterEnrolledTo);
             
             Date dDate;
             try {
@@ -733,7 +792,7 @@ import oscar.util.UtilDateUtilities;
             err_note.add("Replaced Contact-only patient "+patientName+" (Demo no="+demographicNo+")");
 
         } else { //add patient!
-            demoRes = dd.addDemographic(loggedInInfo, title, lastName, firstName, address, city, province, postalCode, homePhone, workPhone, year_of_birth, month_of_birth, date_of_birth, hin, versionCode, rosterStatus, rosterDate, termDate, termReason, patient_status, psDate, ""/*date_joined*/, chart_no, official_lang, spoken_lang, primaryPhysician, sex, ""/*end_date*/, ""/*eff_date*/, ""/*pcn_indicator*/, hc_type, hc_renew_date, ""/*family_doctor*/, email, ""/*pin*/, ""/*alias*/, ""/*previousAddress*/, ""/*children*/, ""/*sourceOfIncome*/, ""/*citizenship*/, sin);
+            demoRes = dd.addDemographic(loggedInInfo, title, lastName, firstName, middleNames, address, city, province, postalCode, homePhone, workPhone, year_of_birth, month_of_birth, date_of_birth, hin, versionCode, rosterStatus, rosterDate, termDate, termReason, rosterEnrolledTo, patient_status, psDate, ""/*date_joined*/, chart_no, official_lang, spoken_lang, primaryPhysician, sex, ""/*end_date*/, ""/*eff_date*/, ""/*pcn_indicator*/, hc_type, hc_renew_date, ""/*family_doctor*/, email, ""/*pin*/, ""/*alias*/, ""/*previousAddress*/, ""/*children*/, ""/*sourceOfIncome*/, ""/*citizenship*/, sin);
             demographicNo = demoRes.getId();
         }
 
@@ -757,6 +816,7 @@ import oscar.util.UtilDateUtilities;
             	demographicArchive.setRosterDate(UtilDateUtilities.StringToDate(roster_date[i]));
             	demographicArchive.setRosterTerminationDate(UtilDateUtilities.StringToDate(term_date[i]));
             	demographicArchive.setRosterTerminationReason(term_reason[i]);
+            	demographicArchive.setRosterEnrolledTo(roster_enrolledTo[i]);
             	demoArchiveDao.persist(demographicArchive);
             }
 
@@ -818,8 +878,8 @@ import oscar.util.UtilDateUtilities;
                 String cPatient = cLastName+","+cFirstName;
                 if (StringUtils.empty(cDemoNo)) {   //add new demographic as contact
                     psDate = UtilDateUtilities.DateToString(new Date(),"yyyy-MM-dd");
-                    demoRes = dd.addDemographic(loggedInInfo, ""/*title*/, cLastName, cFirstName, ""/*address*/, ""/*city*/, ""/*province*/, ""/*postal*/,
-                    			homePhone, workPhone, ""/*year_of_birth*/, ""/*month_*/, ""/*date_*/, ""/*hin*/, ""/*ver*/, ""/*roster_status*/, "", "", "",
+                    demoRes = dd.addDemographic(loggedInInfo, ""/*title*/, cLastName, cFirstName,"" /*middleNames*/, ""/*address*/, ""/*city*/, ""/*province*/, ""/*postal*/,
+                    			homePhone, workPhone, ""/*year_of_birth*/, ""/*month_*/, ""/*date_*/, ""/*hin*/, ""/*ver*/, ""/*roster_status*/, "", "", "",null,
                     			"Contact-only", psDate, ""/*date_joined*/, ""/*chart_no*/, ""/*official_lang*/, ""/*spoken_lang*/, ""/*provider_no*/,
                     			"F", ""/*end_date*/, ""/*eff_date*/, ""/*pcn_indicator*/, ""/*hc_type*/, ""/*hc_renew_date*/, ""/*family_doctor*/,
                     			cEmail, "", "", "", "", "", "", "");
@@ -874,6 +934,7 @@ import oscar.util.UtilDateUtilities;
                             demoContact.setEc(emc);
                             demoContact.setSdm(sdm);
                             demoContact.setNote(contactNote);
+                            demoContact.setCreator(loggedInInfo.getLoggedInProviderNo());
                         	contactDao.persist(demoContact);
 
                         	//clear emc, sdm, contactNote after 1st save
@@ -937,11 +998,16 @@ import oscar.util.UtilDateUtilities;
                 if (fHist[i].getDiagnosisProcedureCode()==null) {
                     cmNote.setIssues(scmi);
                 } else {
-                    cmNote.setIssues(getCMIssue("FamHistory", fHist[i].getDiagnosisProcedureCode()));
+                    cmNote.setIssues(getCMIssue("FamHistory", fHist[i].getDiagnosisProcedureCode(),false));
                 }
 
                 //main field
                 String familyHist = fHist[i].getProblemDiagnosisProcedureDescription();
+                if (StringUtils.empty(familyHist)) {
+                	if(fHist[i].isSetDiagnosisProcedureCode()) {
+                		familyHist = fHist[i].getDiagnosisProcedureCode().getStandardCodeDescription();
+                	}
+                }
                 if (StringUtils.empty(familyHist)) familyHist = "Imported Family History";
                 cmNote.setNote(familyHist);
                 caseManagementManager.saveNoteSimple(cmNote);
@@ -963,8 +1029,8 @@ import oscar.util.UtilDateUtilities;
                 }
                 dump = Util.addLine(dump, summary);
                 */
-                String diagCode = getCode(fHist[i].getDiagnosisProcedureCode(),"Diagnosis/Procedure");
-                dump = Util.addLine(dump, diagCode);
+                //String diagCode = getCode(fHist[i].getDiagnosisProcedureCode(),"Diagnosis/Procedure");
+                //dump = Util.addLine(dump, diagCode);
                 dump = Util.addLine(dump, getResidual(fHist[i].getResidualInfo()));
                 cmNote = prepareCMNote("2",null);
                 cmNote.setNote(dump);
@@ -1015,11 +1081,17 @@ import oscar.util.UtilDateUtilities;
                 if (pHealth[i].getDiagnosisProcedureCode()==null) {
                     cmNote.setIssues(scmi);
                 } else {
-                    cmNote.setIssues(getCMIssue("MedHistory", pHealth[i].getDiagnosisProcedureCode()));
+                    cmNote.setIssues(getCMIssue("MedHistory", pHealth[i].getDiagnosisProcedureCode(),pHealth[i].isSetResolvedDate()));
+                   
                 }
 
                 //main field
                 String medicalHist = pHealth[i].getPastHealthProblemDescriptionOrProcedures();
+                if (StringUtils.empty(medicalHist)) {
+                	if(pHealth[i].isSetDiagnosisProcedureCode()) {
+                		medicalHist = pHealth[i].getDiagnosisProcedureCode().getStandardCodeDescription();
+                	}
+                }
                 if (StringUtils.empty(medicalHist)) medicalHist = "Imported Medical History";
                 cmNote.setNote(medicalHist);
                 caseManagementManager.saveNoteSimple(cmNote);
@@ -1042,7 +1114,7 @@ import oscar.util.UtilDateUtilities;
                 }
                 dump = Util.addLine(dump, summary);
                 */
-                String diagCode = isICD9(pHealth[i].getDiagnosisProcedureCode()) ? null : getCode(pHealth[i].getDiagnosisProcedureCode(),"Diagnosis/Procedure");
+                String diagCode = isICD9(pHealth[i].getDiagnosisProcedureCode()) || isICD9CM(pHealth[i].getDiagnosisProcedureCode()) || isICD10(pHealth[i].getDiagnosisProcedureCode()) ? null : getCode(pHealth[i].getDiagnosisProcedureCode(),"Diagnosis/Procedure");
                 dump = Util.addLine(dump, diagCode);
                 dump = Util.addLine(dump, getResidual(pHealth[i].getResidualInfo()));
                 cmNote = prepareCMNote("2",null);
@@ -1076,6 +1148,12 @@ import oscar.util.UtilDateUtilities;
                         cme.setValue(pHealth[i].getLifeStage().toString());
                         caseManagementManager.saveNoteExt(cme);
                     }
+                    if (StringUtils.filled(pHealth[i].getProblemStatus())) {
+                        cme.setKeyVal(CaseManagementNoteExt.PROBLEMSTATUS);
+                        cme.setDateValue((Date)null);
+                        cme.setValue(pHealth[i].getProblemStatus());
+                        caseManagementManager.saveNoteExt(cme);
+                    }
                 }
 
                 //PROBLEM LIST
@@ -1088,11 +1166,16 @@ import oscar.util.UtilDateUtilities;
                     if (probList[i].getDiagnosisCode()==null) {
                         cmNote.setIssues(scmi);
                     } else {
-                        cmNote.setIssues(getCMIssue("Concerns", probList[i].getDiagnosisCode()));
+                        cmNote.setIssues(getCMIssue("Concerns", probList[i].getDiagnosisCode(),probList[i].isSetResolutionDate()));
                     }
 
                     //main field
                     String ongConcerns = probList[i].getProblemDiagnosisDescription();
+                    if (StringUtils.empty(ongConcerns)) {
+                    	if(probList[i].isSetDiagnosisCode()) {
+                    		ongConcerns = probList[i].getDiagnosisCode().getStandardCodeDescription();
+                    	}
+                    }
                     if (StringUtils.empty(ongConcerns)) ongConcerns = "Imported Concern";
                     cmNote.setNote(ongConcerns);
                     caseManagementManager.saveNoteSimple(cmNote);
@@ -1115,7 +1198,7 @@ import oscar.util.UtilDateUtilities;
                     }
                     dump = Util.addLine(dump, summary);
                     */
-                    String diagCode = isICD9(probList[i].getDiagnosisCode()) ? null : getCode(probList[i].getDiagnosisCode(),"Diagnosis");
+                    String diagCode = isICD9(probList[i].getDiagnosisCode()) || isICD9CM(probList[i].getDiagnosisCode()) || isICD10(probList[i].getDiagnosisCode())? null : getCode(probList[i].getDiagnosisCode(),"Diagnosis");
                     dump = Util.addLine(dump, diagCode);
                     dump = Util.addLine(dump, getResidual(probList[i].getResidualInfo()));
                     cmNote = prepareCMNote("2",null);
@@ -1420,13 +1503,13 @@ import oscar.util.UtilDateUtilities;
                     else startDateFormat = dateFPGetPartial(aaReactArray[i].getStartDate());
 
                     if (aaReactArray[i].getCode()!=null) regionalId = StringUtils.noNull(aaReactArray[i].getCode().getCodeValue());
-                    alg_extra = Util.addLine(alg_extra,"Offending Agent Description: ",aaReactArray[i].getOffendingAgentDescription());
+                  //  alg_extra = Util.addLine(alg_extra,"Offending Agent Description: ",aaReactArray[i].getOffendingAgentDescription());
                     if (aaReactArray[i].getReactionType()!=null) alg_extra = Util.addLine(alg_extra,"Reaction Type: ",aaReactArray[i].getReactionType().toString());
 
                     if (typeCode.equals("") && aaReactArray[i].getPropertyOfOffendingAgent()!=null) {
                         if (aaReactArray[i].getPropertyOfOffendingAgent()==cdsDt.PropertyOfOffendingAgent.DR) typeCode="13"; //drug
                         else if (aaReactArray[i].getPropertyOfOffendingAgent()==cdsDt.PropertyOfOffendingAgent.ND) typeCode="0"; //non-drug
-                    else if (aaReactArray[i].getPropertyOfOffendingAgent()==cdsDt.PropertyOfOffendingAgent.UK) typeCode="0"; //unknown
+                        else if (aaReactArray[i].getPropertyOfOffendingAgent()==cdsDt.PropertyOfOffendingAgent.UK) typeCode="0"; //unknown
                     }
                     if (aaReactArray[i].getSeverity()!=null) {
                         if (aaReactArray[i].getSeverity()==cdsDt.AdverseReactionSeverity.MI) severity="1"; //mild
@@ -1475,8 +1558,8 @@ import oscar.util.UtilDateUtilities;
 
                 //MEDICATIONS & TREATMENTS
                 MedicationsAndTreatments[] medArray = patientRec.getMedicationsAndTreatmentsArray();
-                String duration, quantity, dosage, special;
                 for (int i=0; i<medArray.length; i++) {
+                	String duration, quantity, dosage, special;
                     Drug drug = new Drug();
                     drug.setCreateDate(new Date());
                     drug.setWrittenDate(dateTimeFPtoDate(medArray[i].getPrescriptionWrittenDate(), timeShiftInDays));
@@ -1566,7 +1649,7 @@ import oscar.util.UtilDateUtilities;
                     if (sep>0) drug.setTakeMax(Util.leadingNumF(take.substring(sep+1)));
                     else drug.setTakeMax(drug.getTakeMin());
                     drug.setUnit(medArray[i].getDosageUnitOfMeasure());
-                    if ("table".equalsIgnoreCase(drug.getUnit())) drug.setUnit("tab");
+                    if ("table".equalsIgnoreCase(drug.getUnit()) || "tablet".equalsIgnoreCase(drug.getUnit())) drug.setUnit("tab");
 
                     drug.setDemographicId(Integer.valueOf(demographicNo));
                     drug.setArchived(false);
@@ -1618,6 +1701,7 @@ import oscar.util.UtilDateUtilities;
                     if (medArray[i].getPrescribedBy()!=null) {
                         HashMap<String,String> personName = getPersonName(medArray[i].getPrescribedBy().getName());
                         String personOHIP = medArray[i].getPrescribedBy().getOHIPPhysicianId();
+                       // writeProviderData(personName.get("firstname"), personName.get("lastname"), personOHIP, null);
                         ProviderData pd = getProviderByOhip(personOHIP);
                         if (pd!=null && Integer.valueOf(pd.getProviderNo())>-1000) drug.setProviderNo(pd.getProviderNo());
                         else { //outside provider
@@ -1635,6 +1719,20 @@ import oscar.util.UtilDateUtilities;
                     
                     drug.setPosition(0);
                     drug.setDispenseInterval(0);
+
+                    //use drugref to add more info to the record
+                    if(!StringUtils.isNullOrEmpty(drug.getRegionalIdentifier())) {
+                    	RxDrugData rxDrugData = new RxDrugData();
+                    	DrugMonograph dm = rxDrugData.getDrugByDIN(drug.getRegionalIdentifier());
+                    	if(dm != null) {
+                    		drug.setAtc(dm.getAtc());
+                    		if(dm.drugCode != null) {
+                    			drug.setGcnSeqNo(Integer.parseInt(dm.drugCode));
+                    		}
+                    	}
+                    }
+                    
+                    
                     drugDao.persist(drug);
                     addOneEntry(MEDICATION);
 
@@ -2335,7 +2433,7 @@ import oscar.util.UtilDateUtilities;
 		String[] csdc = countrySubDivCode.split("-");
 		if (csdc.length==2) {
 			if (csdc[0].trim().equals("CA")) return csdc[1].trim(); //return w/o "CA-"
-			if (csdc[1].trim().equals("US")) return countrySubDivCode.trim(); //return w/ "US-"
+			if (csdc[0].trim().equals("US")) return countrySubDivCode.trim(); //return w/ "US-"
 		}
 		return "OT"; //Other
 	}
@@ -2449,15 +2547,52 @@ import oscar.util.UtilDateUtilities;
                 if (diagCode==null) return false;
 
                 String codingSystem = StringUtils.noNull(diagCode.getStandardCodingSystem()).toLowerCase();
-		return (codingSystem.contains("icd") && codingSystem.contains("9"));
+                
+                return codingSystem.equals("icd-9");
+	//	return (codingSystem.contains("icd") && codingSystem.contains("9"));
         }
 
         boolean isICD9(cdsDt.Code diagCode) {
                 if (diagCode==null) return false;
 
                 String codingSystem = StringUtils.noNull(diagCode.getCodingSystem()).toLowerCase();
-		return (codingSystem.contains("icd") && codingSystem.contains("9"));
+                return codingSystem.equals("icd-9");
+                //return (codingSystem.contains("icd") && codingSystem.contains("9"));
         }
+        
+        
+        boolean isICD10(cdsDt.StandardCoding diagCode) {
+            if (diagCode==null) return false;
+
+            String codingSystem = StringUtils.noNull(diagCode.getStandardCodingSystem()).toLowerCase();
+            //return (codingSystem.contains("icd") && codingSystem.contains("10"));
+            return codingSystem.equals("icd-10");
+        }
+
+        boolean isICD10(cdsDt.Code diagCode) {
+            if (diagCode==null) return false;
+
+            String codingSystem = StringUtils.noNull(diagCode.getCodingSystem()).toLowerCase();
+            //return (codingSystem.contains("icd") && codingSystem.contains("10"));
+            return codingSystem.equals("icd-10");
+        }
+    
+        boolean isICD9CM(cdsDt.StandardCoding diagCode) {
+            if (diagCode==null) return false;
+
+            String codingSystem = StringUtils.noNull(diagCode.getStandardCodingSystem()).toLowerCase();
+            //return (codingSystem.contains("icd") && codingSystem.contains("10"));
+            return codingSystem.equals("icd-9-cm");
+        }
+
+        boolean isICD9CM(cdsDt.Code diagCode) {
+            if (diagCode==null) return false;
+
+            String codingSystem = StringUtils.noNull(diagCode.getCodingSystem()).toLowerCase();
+            //return (codingSystem.contains("icd") && codingSystem.contains("10"));
+            return codingSystem.equals("icd-9-cm");
+        }
+    
 
 	Set<CaseManagementIssue> getCMIssue(String code) {
 		CaseManagementIssue cmIssu = new CaseManagementIssue();
@@ -2472,7 +2607,7 @@ import oscar.util.UtilDateUtilities;
 		return sCmIssu;
 	}
 
-	Set<CaseManagementIssue> getCMIssue(String issueCode, cdsDt.StandardCoding diagCode) {
+	Set<CaseManagementIssue> getCMIssue(String issueCode, cdsDt.StandardCoding diagCode, boolean resolved) {
 		Set<CaseManagementIssue> sCmIssu = new HashSet<CaseManagementIssue>();
 		Issue isu = caseManagementManager.getIssueInfoByCode(StringUtils.noNull(issueCode));
 		if (isu!=null) {
@@ -2480,20 +2615,45 @@ import oscar.util.UtilDateUtilities;
 			cmIssu.setDemographic_no(Integer.valueOf(demographicNo));
 			cmIssu.setIssue_id(isu.getId());
 			cmIssu.setType(isu.getType());
+			cmIssu.setResolved(resolved);
 			caseManagementManager.saveCaseIssue(cmIssu);
 			sCmIssu.add(cmIssu);
 		}
-		if (isICD9(diagCode)) {
-			isu = caseManagementManager.getIssueInfoByCode(noDot(diagCode.getStandardCode()));
-			if (isu!=null) {
+		if (isICD9(diagCode) || isICD10(diagCode) || isICD9CM(diagCode)) {
+			//TODO: find issue by the code AND the type!!!!!!!!!!!!!!!!
+			String type = null;
+			if(isICD9(diagCode)) {
+				type = "icd9";
+			}
+			if(isICD9CM(diagCode)) {
+				type = "icd9cm";
+			}
+			if(isICD10(diagCode)) {
+				type = "icd10";
+			}
+			isu = caseManagementManager.getIssueInfoByTypeAndCode(type,noDot(diagCode.getStandardCode()));
+			if(isu == null) {
+				isu = new Issue();
+				isu.setCode(noDot(diagCode.getStandardCode()));
+				isu.setDescription(diagCode.getStandardCodeDescription());
+				isu.setRole("doctor");
+				
+				isu.setType(type);
+				isu.setUpdate_date(new Date());
+				issueDao.saveIssue(isu);
+			}
+			if (isu!=null && isu.getId() != null) {
 				CaseManagementIssue cmIssu = new CaseManagementIssue();
 				cmIssu.setDemographic_no(Integer.valueOf(demographicNo));
 				cmIssu.setIssue_id(isu.getId());
 				cmIssu.setType(isu.getType());
+				cmIssu.setResolved(resolved);
 				caseManagementManager.saveCaseIssue(cmIssu);
+				cmIssu.setIssue(isu);
 				sCmIssu.add(cmIssu);
 			}
 		}
+		
 		return sCmIssu;
 	}
 
@@ -2508,17 +2668,39 @@ import oscar.util.UtilDateUtilities;
 			caseManagementManager.saveCaseIssue(cmIssu);
 			sCmIssu.add(cmIssu);
 		}
-                if (isICD9(diagCode)) {
-			isu = caseManagementManager.getIssueInfoByCode(StringUtils.noNull(diagCode.getValue()));
-			if (isu!=null) {
+		if (isICD9(diagCode) || isICD10(diagCode) || isICD9CM(diagCode)) {
+			isu = caseManagementManager.getIssueInfoByCode(noDot(diagCode.getValue()));
+			if(isu == null) {
+				isu = new Issue();
+				isu.setCode(noDot(diagCode.getValue()));
+				isu.setDescription(diagCode.getDescription());
+				isu.setRole("doctor");
+				String type = null;
+				if(isICD9(diagCode)) {
+					type = "icd9";
+				}
+				if(isICD9CM(diagCode)) {
+					type = "icd9cm";
+				}
+				if(isICD10(diagCode)) {
+					type = "icd10";
+				}
+				isu.setType(type);
+				isu.setUpdate_date(new Date());
+				issueDao.saveIssue(isu);
+			}
+			if (isu!=null && isu.getId() != null) {
 				CaseManagementIssue cmIssu = new CaseManagementIssue();
 				cmIssu.setDemographic_no(Integer.valueOf(demographicNo));
 				cmIssu.setIssue_id(isu.getId());
 				cmIssu.setType(isu.getType());
+				//cmIssu.setResolved(resolved);
 				caseManagementManager.saveCaseIssue(cmIssu);
+				cmIssu.setIssue(isu);
 				sCmIssu.add(cmIssu);
 			}
 		}
+      
 		return sCmIssu;
 	}
 
@@ -3141,7 +3323,7 @@ import oscar.util.UtilDateUtilities;
 					obr.getUniversalServiceIdentifier().getIdentifier().setValue(result.getLabTestCode());
 					obr.getUniversalServiceIdentifier().getText().setValue(result.getTestNameReportedByLab());
 					obr.getUniversalServiceIdentifier().getNameOfCodingSystem().setValue("0000");
-					obr.getUniversalServiceIdentifier().getAlternateIdentifier().setValue("Imported Test Results");
+					obr.getUniversalServiceIdentifier().getAlternateIdentifier().setValue(result.getTestNameReportedByLab());
 					obr.getPriority().setValue("R"); //hard coded..not in OMD spec
 					
 					Calendar cal = Calendar.getInstance();
@@ -3165,6 +3347,8 @@ import oscar.util.UtilDateUtilities;
 								cal.get(Calendar.MONTH)+1, cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND));
 					}
 					
+					//obr-16 requesting
+					
 					//NOTE: obr-17 lost - ordering physician
 					
 					//OBX
@@ -3185,7 +3369,8 @@ import oscar.util.UtilDateUtilities;
 					
 					
 					if(result != null && result.getResult() != null && result.getResult().getUnitOfMeasure() != null) {
-						obx.getObx6_Units().getCe2_Text().setValue(result.getResult().getUnitOfMeasure());
+					//	obx.getObx6_Units().getCe2_Text().setValue(result.getResult().getUnitOfMeasure());
+						obx.getObx6_Units().getCe1_Identifier().setValue(result.getResult().getUnitOfMeasure());
 					}
 					
 					if(result.getReferenceRange() != null) {
@@ -3194,7 +3379,16 @@ import oscar.util.UtilDateUtilities;
 					
 					if(result.getResultNormalAbnormalFlag() != null) {
 						ID abnormalFlags = obx.insertAbnormalFlags(0);
-						abnormalFlags.setValue(result.getResultNormalAbnormalFlag().toString());
+						if(result.getResultNormalAbnormalFlag().isSetResultNormalAbnormalFlagAsPlainText()) {
+							abnormalFlags.setValue(result.getResultNormalAbnormalFlag().getResultNormalAbnormalFlagAsPlainText());
+						} else {
+							abnormalFlags.setValue(result.getResultNormalAbnormalFlag().getResultNormalAbnormalFlagAsEnum().toString());
+						}
+					
+					}
+					
+					if(result.getBlockedTestResult() != null && result.getBlockedTestResult() == YIndicator.Y) {
+						obx.insertObx17_ObservationMethod(0).getCe1_Identifier().setValue("BLOCKED");						
 					}
 					
 				}
@@ -3254,7 +3448,7 @@ import oscar.util.UtilDateUtilities;
 			        	String status = StringUtils.filled(reviewer) ? "A" : "N";
 	                    reviewer = status.equals("A") ? reviewer : "0";
 	                 
-	                    LabResultImport.saveProviderLabRouting(reviewer, labNo.toString() , status, "", reviewDate);
+	                    LabResultImport.updateProviderLabRouting(reviewer, labNo.toString() , status, "", reviewDate,"HL7");
 	                    
 	                   
 			        }

@@ -83,6 +83,8 @@ public class RxDrugData {
 		public RenalImpairment renalImpairment;
 		public HepaticImpairment hepaticImpairment;
 		
+		public String drugCode;
+		
 		public DrugMonograph(){
 			//default
 		}
@@ -94,6 +96,9 @@ public class RxDrugData {
 			product = (String) hash.get("product");
 			regionalIdentifier = (String) hash.get("regional_identifier");
 			drugForm = (String)hash.get("drugForm");
+			if(hash.get("drugCode") != null) {
+				drugCode = (String)hash.get("drugCode");
+			}
 			
 			Vector drugRoute=(Vector)hash.get("drugRoute");
 			if(drugRoute!=null){

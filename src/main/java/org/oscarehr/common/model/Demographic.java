@@ -122,6 +122,9 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
     private String countryOfOrigin;
     private String newsletter;
 
+    private String middleNames;
+    private String rosterEnrolledTo;
+    
         public String getTitle() {
         	return title;
         }
@@ -1123,6 +1126,26 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
     	this.newsletter = newsletter;
     }
 
+	public String getMiddleNames() {
+		return middleNames;
+	}
+
+	public void setMiddleNames(String middleNames) {
+		this.middleNames = middleNames;
+	}
+
+	
+
+	public String getRosterEnrolledTo() {
+		return rosterEnrolledTo;
+	}
+
+	public void setRosterEnrolledTo(String rosterEnrolledTo) {
+		this.rosterEnrolledTo = rosterEnrolledTo;
+	}
+
+
+
 	public static final Comparator<Demographic> FormattedNameComparator = new Comparator<Demographic>() {	
         @Override	
         public int compare(Demographic dm1, Demographic dm2) {	
@@ -1221,4 +1244,22 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 		return this.getDemographicNo();
 	}
 	
+	
+	public String getRosterStatusDisplay() {
+		String rs = StringUtils.trimToNull(this.getRosterStatus());
+		if(rs != null) {
+			if("RO".equals(rs)) {
+				return "ROSTERED";
+			}
+			if("TE".equals(rs)) {
+				return "TERMINATED";
+			}
+			if("FS".equals(rs)) {
+				return "FEE FOR SERVICE";
+			}
+			return rs;
+		}else {
+			return "";
+		}
+	}
 }

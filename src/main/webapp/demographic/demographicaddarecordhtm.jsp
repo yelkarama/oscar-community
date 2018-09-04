@@ -173,6 +173,25 @@
   				if ( !isPostalCode() ) return false;
   			<% } %>
   
+  			var rosterStatus = document.adddemographic.roster_status.value;
+  			if(rosterStatus == 'RO') {
+  				var rosterEnrolledTo = document.adddemographic.roster_enrolled_to.value;
+  				var rosterDateYear = document.adddemographic.roster_date_year.value;
+  	  			var rosterDateMonth = document.adddemographic.roster_date_month.value;
+  	  			var rosterDateDate = document.adddemographic.roster_date_date.value;
+			
+  	  			if(rosterEnrolledTo == '') {
+  	  				alert('You must choose a valid Enrolled To physician');
+  	  				return false;
+  	  			}
+  	  			
+  	  			if(rosterDateYear == '' || rosterDateMonth == '' || rosterDateDate == '') {
+	  				alert('You must choose a valid Date Rostered');
+	  				return false;
+	  			}
+  				
+  			}
+  			
             return true;
         }        
         
@@ -693,6 +712,15 @@ function consentClearBtn(radioBtnName)
       </td>
     </tr>
     <tr>
+    	<td align="right"> <b><bean:message key="demographic.demographicaddrecordhtm.formMiddleNames"/>: </b></td>
+      <td id="lastName" align="left">
+        <input type="text" name="middleNames" id="middleNames" onBlur="upCaseCtrl(this)" size=50 value="">
+
+      </td>
+      <td align="right"></td>
+      <td id="lastName" align="left"></td>
+    </tr>
+    <tr>
 	<td id="languageLbl" align="right"><b><bean:message key="demographic.demographicaddrecordhtm.msgDemoLanguage"/><font color="red">:</font></b></td>
 	<td id="languageCell" align="left">
 	    <select id="official_lang" name="official_lang">
@@ -703,7 +731,7 @@ function consentClearBtn(radioBtnName)
 	<td id="titleLbl" align="right"><b><bean:message key="demographic.demographicaddrecordhtm.msgDemoTitle"/><font color="red">:</font></b></td>
 	<td id="titleCell" align="left">
 	    <select id="title" name="title" onchange="checkTitleSex(value);">
-                <option value=""><bean:message key="demographic.demographicaddrecordhtm.msgNotSet"/></option>
+                <option value=""><bean:message key="demographic.demographicaddrecordhtm.msgNotSet"/></option>                    
                 <option value="DR"><bean:message key="demographic.demographicaddrecordhtm.msgDr"/></option>
                 <option value="MS"><bean:message key="demographic.demographicaddrecordhtm.msgMs"/></option>
                 <option value="MISS"><bean:message key="demographic.demographicaddrecordhtm.msgMiss"/></option>
@@ -717,6 +745,21 @@ function consentClearBtn(radioBtnName)
                 <option value="SEN"><bean:message key="demographic.demographicaddrecordhtm.msgSen"/></option>
                 <option value="SGT"><bean:message key="demographic.demographicaddrecordhtm.msgSgt"/></option>
                 <option value="SR"><bean:message key="demographic.demographicaddrecordhtm.msgSr"/></option>
+                
+                 <option value="MADAM"><bean:message key="demographic.demographicaddrecordhtm.msgMadam"/></option>
+                 <option value="MME"><bean:message key="demographic.demographicaddrecordhtm.msgMme"/></option>
+                 <option value="MLLE"><bean:message key="demographic.demographicaddrecordhtm.msgMlle"/></option>
+                 <option value="MAJOR"><bean:message key="demographic.demographicaddrecordhtm.msgMajor"/></option>
+                 <option value="MAYOR"><bean:message key="demographic.demographicaddrecordhtm.msgMayor"/></option>
+                
+                 <option value="BRO"><bean:message key="demographic.demographicaddrecordhtm.msgBro"/></option>
+                 <option value="CAPT"><bean:message key="demographic.demographicaddrecordhtm.msgCapt"/></option>
+                 <option value="Chief"><bean:message key="demographic.demographicaddrecordhtm.msgChief"/></option>
+                 <option value="Cst"><bean:message key="demographic.demographicaddrecordhtm.msgCst"/></option>
+                 <option value="Corp"><bean:message key="demographic.demographicaddrecordhtm.msgCorp"/></option>
+                 <option value="FR"><bean:message key="demographic.demographicaddrecordhtm.msgFr"/></option>
+                 <option value="HON"><bean:message key="demographic.demographicaddrecordhtm.msgHon"/></option>
+                 <option value="LT"><bean:message key="demographic.demographicaddrecordhtm.msgLt"/></option>
 	    </select>
 	</td>
     </tr>
@@ -1290,9 +1333,12 @@ document.forms[1].r_doctor_ohip.value = refNo;
 				<select id="roster_status"  name="roster_status" style="width: 160">
 					<option value=""></option>
 					<option value="RO"><bean:message key="demographic.demographicaddrecordhtm.RO-rostered" /></option>
+<!-- 
 					<option value="NR"><bean:message key="demographic.demographicaddrecordhtm.NR-notrostered" /></option>
 					<option value="TE"><bean:message key="demographic.demographicaddrecordhtm.TE-terminated" /></option>
+-->
 					<option value="FS"><bean:message key="demographic.demographicaddrecordhtm.FS-feeforservice" /></option>
+
 					<% 
 					for(String status : demographicDao.getRosterStatuses()) {%>
 					<option value="<%=status%>"><%=status%></option>
@@ -1305,6 +1351,26 @@ document.forms[1].r_doctor_ohip.value = refNo;
 					size="4" maxlength="4"> <input type="text"
 					name="roster_date_month" size="2" maxlength="2"> <input
 					type="text" name="roster_date_date" size="2" maxlength="2">
+				</td>
+			</tr>
+			<tr valign="top">
+				<td align="right" id="rosterEnrolledToLbl" nowrap><b><bean:message
+					key="demographic.demographicaddrecordhtm.formRosterEnrolledTo" />: </b></td>
+				<td id="rosterEnrolledTo" align="left"><!--input type="text" name="roster_status" onBlur="upCaseCtrl(this)"-->
+				<select id="roster_enrolled_to"  name="roster_enrolled_to" style="width: 160">
+					<option value=""></option>
+					<%
+						for (Provider p : providerDao.getActiveProvidersByRole("doctor")) {
+								String docProviderNo = p.getProviderNo();
+					%>
+					<option id="<%=docProviderNo%>" value="<%=docProviderNo%>"><%=Misc.getShortStr((p.getFormattedName()), "", 12)%></option>
+					<%
+						}
+					%>
+					<option value=""></option>
+				</td>
+				<td align="right" nowrap><b></b></td>
+				<td id="rosterDateCell" align="left">
 				</td>
 			</tr>
 			<tr valign="top">

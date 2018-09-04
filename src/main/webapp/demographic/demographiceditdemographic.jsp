@@ -347,6 +347,7 @@ function checkName() {
     }
 	return typeInOK;
 }
+
 function checkDate(yyyy,mm,dd,err_msg) {
 
 	var typeInOK = false;
@@ -409,11 +410,13 @@ function checkHin() {
 
 function rosterStatusChangedNotBlank() {
 	if (rosterStatusChanged()) {
+		
 		if (document.updatedelete.roster_status.value=="") {
 			alert ("<bean:message key="demographic.demographiceditdemographic.msgBlankRoster"/>");
 			document.updatedelete.roster_status.focus();
 			return false;
 		}
+		
 		return true;
 	}
 	return false;
@@ -445,6 +448,48 @@ function rosterStatusDateValid(trueIfBlank) {
     	if (yyyy=="" && mm=="" && dd=="") return true;
     }
     return checkDate(yyyy,mm,dd,errMsg);
+}
+
+
+function rosterEnrolledToValid(trueIfBlank) {
+	var val = document.updatedelete.roster_enrolled_to.value.trim();
+	
+    if (trueIfBlank) {
+    	errMsg += "\n<bean:message key="demographic.search.msgLeaveBlank"/>";
+    	if (val=="") return true;
+    }
+    
+    var errMsg = '';
+    
+    if(val == "") {
+    	errMsg += "<bean:message key="demographic.search.msgWrongRosterEnrolledTo"/>";
+    }
+    
+    if(errMsg != '') {
+    	 alert (errMsg);
+    	 return false;
+    }
+    return true;
+}
+
+function rosterStatusTerminationDateFilled() {
+	yyyy = document.updatedelete.roster_termination_date_year.value.trim();
+    mm = document.updatedelete.roster_termination_date_month.value.trim();
+    dd = document.updatedelete.roster_termination_date_day.value.trim();
+    
+    if(yyyy != '' || mm != '' || dd != '') {
+    	return true;
+    }
+    return false;
+}
+
+function rosterStatusTerminationReasonFilled() {
+	reason = document.updatedelete.roster_termination_reason.value;
+	
+	if(reason != '') {
+    	return true;
+    }
+    return false;
 }
 
 function rosterStatusTerminationDateValid(trueIfBlank) {
@@ -1496,6 +1541,13 @@ if(oscarProps.getProperty("new_label_print") != null && oscarProps.getProperty("
 							</li>
 						<% } %>
 						
+						<% String sin = demographic.getSin();
+						   if (sin!=null && sin.length()>0) { %>
+                                               <li><span class="label"><bean:message key="demographic.demographiceditdemographic.msgSIN"/>:</span>
+                                                   <span class="info"><%=sin%></span>
+							</li>
+						<% } %>
+						
 						<% String aboriginal = StringUtils.trimToEmpty(demoExt.get("aboriginal"));
 						   if (aboriginal!=null && aboriginal.length()>0) { %>
                                                <li><span class="label"><bean:message key="demographic.demographiceditdemographic.aboriginal"/>:</span>
@@ -1561,13 +1613,17 @@ if(oscarProps.getProperty("new_label_print") != null && oscarProps.getProperty("
 							for(DemographicContact dContact:dContacts) {
 								String sdm = (dContact.getSdm()!=null && dContact.getSdm().equals("true"))?"<span title=\"SDM\" >/SDM</span>":"";
 								String ec = (dContact.getEc()!=null && dContact.getEc().equals("true"))?"<span title=\"Emergency Contact\" >/EC</span>":"";
-						%>
+								String masterLink=null;
+								if(DemographicContact.CATEGORY_PERSONAL.equals(dContact.getCategory()) && DemographicContact.TYPE_DEMOGRAPHIC == dContact.getType() ) {
+									 masterLink = "<a target=\"demographic"+dContact.getContactId()+"\" href=\"" + request.getContextPath() + "/demographic/demographiccontrol.jsp?demographic_no="+dContact.getContactId()+"&displaymode=edit&dboperation=search_detail\">M</a>";
+								}
+%>
 
 								<li><span class="label"><%=dContact.getRole()%>:</span>
-                                                            <span class="info"><%=dContact.getContactName() %><%=sdm%><%=ec%></span>
+                                                            <span class="info"><%=dContact.getContactName() %><%=sdm%><%=ec%> <%=masterLink!=null?masterLink:"" %></span>
                                                         </li>
 
-						<%  } %>
+						<%}   %>
 
 						</ul>
 						</div>
@@ -1578,12 +1634,32 @@ if(oscarProps.getProperty("new_label_print") != null && oscarProps.getProperty("
 						<ul>
                                                     <li><span class="label"><bean:message
                                                             key="demographic.demographiceditdemographic.formRosterStatus" />:</span>
-                                                        <span class="info"><%=StringUtils.trimToEmpty(demographic.getRosterStatus())%></span>
+                                                        <span class="info"><%=demographic.getRosterStatusDisplay()%></span>
                                                     </li>
+                                                    <%if("RO".equals(demographic.getRosterStatus()) || "TE".equals(demographic.getRosterStatus())) { %>
                                                     <li><span class="label"><bean:message
                                                             key="demographic.demographiceditdemographic.DateJoined" />:</span>
                                                         <span class="info"><%=MyDateFormat.getMyStandardDate(demographic.getRosterDate())%></span>
                                                     </li>
+                                                    <% } %>
+                                                    <%if("RO".equals(demographic.getRosterStatus())) { %>
+                                                    <li><span class="label"><bean:message
+                                                            key="demographic.demographiceditdemographic.RosterEnrolledTo" />:</span>
+                                                        <span class="info">
+                                                        <%
+                                                        String enrolledTo = "";
+                                                        if(demographic.getRosterEnrolledTo()!=null) {
+                                                        	Provider enrolledToProvider = providerDao.getProvider(demographic.getRosterEnrolledTo());
+                                                        	if(enrolledToProvider != null) {
+                                                        		enrolledTo = enrolledToProvider.getFormattedName();
+                                                        	}
+                                                        }
+                                                        %>
+                                                        <%=enrolledTo %>
+                                                        </span>
+                                                    </li>
+                                                    <% } %>
+                                                    <%if("TE".equals(demographic.getRosterStatus())) { %>
                                                     <li><span class="label"><bean:message
                                                             key="demographic.demographiceditdemographic.RosterTerminationDate" />:</span>
                                                         <span class="info"><%=MyDateFormat.getMyStandardDate(demographic.getRosterTerminationDate())%></span>
@@ -1593,7 +1669,8 @@ if(oscarProps.getProperty("new_label_print") != null && oscarProps.getProperty("
                                                             key="demographic.demographiceditdemographic.RosterTerminationReason" />:</span>
                                                         <span class="info"><%=Util.rosterTermReasonProperties.getReasonByCode(demographic.getRosterTerminationReason()) %></span>
                                                     </li>
-<%} %>
+<%} }%>
+                                        
                                                     <li><span class="label"><bean:message
 								key="demographic.demographiceditdemographic.formPatientStatus" />:</span>
                                                         <span class="info">
@@ -2313,16 +2390,13 @@ if ( Dead.equals(PatStat) ) {%>
 									onBlur="upCaseCtrl(this)"></td>
 							</tr>
 							<tr>
-							  <td align="right"><b><bean:message key="demographic.demographiceditdemographic.msgDemoLanguage"/>: </b> </td>
-							    <td align="left">
-					<% String lang = oscar.util.StringUtils.noNull(demographic.getOfficialLanguage()); %>
-								<select name="official_lang" <%=getDisabled("official_lang")%>>
-								    <option value="English" <%=lang.equals("English")?"selected":""%> ><bean:message key="demographic.demographiceditdemographic.msgEnglish"/></option>
-								    <option value="French" <%=lang.equals("French")?"selected":""%> ><bean:message key="demographic.demographiceditdemographic.msgFrench"/></option>
-								    <option value="Other" <%=lang.equals("Other")?"selected":""%> ><bean:message key="demographic.demographiceditdemographic.optOther"/></option>
-								</select>
-								</td>
-							  <td align="right"> <b><bean:message key="demographic.demographiceditdemographic.msgDemoTitle"/>: </b></td>
+							<td align="right"><b><bean:message
+									key="demographic.demographiceditdemographic.formMiddleNames" />:
+								</b></td>
+							<td align="left"><input type="text" name="middleNames" <%=getDisabled("middleNames")%>
+									size="30" value="<%=StringEscapeUtils.escapeHtml(demographic.getMiddleNames())%>"
+									onBlur="upCaseCtrl(this)"></td>
+							 <td align="right"> <b><bean:message key="demographic.demographiceditdemographic.msgDemoTitle"/>: </b></td>
 							    <td align="left">
 					<%
 						String title = demographic.getTitle();
@@ -2345,12 +2419,36 @@ if ( Dead.equals(PatStat) ) {%>
 								    <option value="SEN" <%=title.equalsIgnoreCase("SEN")?"selected":""%> ><bean:message key="demographic.demographiceditdemographic.msgSen"/></option>
 								    <option value="SGT" <%=title.equalsIgnoreCase("SGT")?"selected":""%> ><bean:message key="demographic.demographiceditdemographic.msgSgt"/></option>
 								    <option value="SR" <%=title.equalsIgnoreCase("SR")?"selected":""%> ><bean:message key="demographic.demographiceditdemographic.msgSr"/></option>
-								    <option value="DR" <%=title.equalsIgnoreCase("DR")?"selected":""%> ><bean:message key="demographic.demographiceditdemographic.msgDr"/></option>
+								    
+								    <option value="MADAM" <%=title.equalsIgnoreCase("MADAM")?"selected":""%> ><bean:message key="demographic.demographiceditdemographic.msgMadam"/></option>
+								    <option value="MME" <%=title.equalsIgnoreCase("MME")?"selected":""%> ><bean:message key="demographic.demographiceditdemographic.msgMme"/></option>
+								    <option value="MLLE" <%=title.equalsIgnoreCase("MLLE")?"selected":""%> ><bean:message key="demographic.demographiceditdemographic.msgMlle"/></option>
+								    <option value="MAJOR" <%=title.equalsIgnoreCase("MAJOR")?"selected":""%> ><bean:message key="demographic.demographiceditdemographic.msgMajor"/></option>
+								    <option value="MAYOR" <%=title.equalsIgnoreCase("MAYOR")?"selected":""%> ><bean:message key="demographic.demographiceditdemographic.msgMayor"/></option>
+								    
+								    <option value="BRO" <%=title.equalsIgnoreCase("BRO")?"selected":""%> ><bean:message key="demographic.demographiceditdemographic.msgBro"/></option>
+								    <option value="CAPT" <%=title.equalsIgnoreCase("CAPT")?"selected":""%> ><bean:message key="demographic.demographiceditdemographic.msgCapt"/></option>
+								    <option value="CHIEF" <%=title.equalsIgnoreCase("CHIEF")?"selected":""%> ><bean:message key="demographic.demographiceditdemographic.msgChief"/></option>
+								    <option value="CST" <%=title.equalsIgnoreCase("CST")?"selected":""%> ><bean:message key="demographic.demographiceditdemographic.msgCst"/></option>
+								    <option value="CORP" <%=title.equalsIgnoreCase("CORP")?"selected":""%> ><bean:message key="demographic.demographiceditdemographic.msgCorp"/></option>
+								    <option value="FR" <%=title.equalsIgnoreCase("FR")?"selected":""%> ><bean:message key="demographic.demographiceditdemographic.msgFr"/></option>
+								    <option value="HON" <%=title.equalsIgnoreCase("HON")?"selected":""%> ><bean:message key="demographic.demographiceditdemographic.msgHon"/></option>
+								    <option value="LT" <%=title.equalsIgnoreCase("LT")?"selected":""%> ><bean:message key="demographic.demographiceditdemographic.msgLt"/></option>
+								    
 								</select>
 							    </td>
 							</tr>
 							<tr>
-                                <td align="right">
+							  <td align="right"><b><bean:message key="demographic.demographiceditdemographic.msgDemoLanguage"/>: </b> </td>
+							    <td align="left">
+					<% String lang = oscar.util.StringUtils.noNull(demographic.getOfficialLanguage()); %>
+								<select name="official_lang" <%=getDisabled("official_lang")%>>
+								    <option value="English" <%=lang.equals("English")?"selected":""%> ><bean:message key="demographic.demographiceditdemographic.msgEnglish"/></option>
+								    <option value="French" <%=lang.equals("French")?"selected":""%> ><bean:message key="demographic.demographiceditdemographic.msgFrench"/></option>
+								    <option value="Other" <%=lang.equals("Other")?"selected":""%> ><bean:message key="demographic.demographiceditdemographic.optOther"/></option>
+								</select>
+								</td>
+							                                <td align="right">
 							    <b><bean:message key="demographic.demographiceditdemographic.msgSpoken"/>: </b>
 							    </td>
 							    <td>
@@ -2361,9 +2459,8 @@ if ( Dead.equals(PatStat) ) {%>
 <%} %>
 									</select>
 							    </td>
-							    <td colspan="2">&nbsp;</td>
 							</tr>
-
+							
 							<tr valign="top">
 								<td align="right"><b><bean:message
 									key="demographic.demographiceditdemographic.formAddr" />: </b></td>
@@ -2956,12 +3053,15 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 									<option value="RO"
 										<%="RO".equals(rosterStatus)?" selected":""%>>
 									<bean:message key="demographic.demographiceditdemographic.optRostered"/></option>
+									<!-- 
 									<option value="NR"
 										<%=rosterStatus.equals("NR")?" selected":""%>>
 									<bean:message key="demographic.demographiceditdemographic.optNotRostered"/></option>
+									-->
 									<option value="TE"
 										<%=rosterStatus.equals("TE")?" selected":""%>>
 									<bean:message key="demographic.demographiceditdemographic.optTerminated"/></option>
+									
 									<option value="FS"
 										<%=rosterStatus.equals("FS")?" selected":""%>>
 									<bean:message key="demographic.demographiceditdemographic.optFeeService"/></option>
@@ -3021,9 +3121,46 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 								</td>
 							</tr>
 							
-							
-							<%--
 							<tr valign="top">
+								<td align="right" nowrap><b><bean:message
+									key="demographic.demographiceditdemographic.RosterEnrolledTo" />:
+								</b></td>
+								<td align="left">
+									<!-- select box here -->
+									<select name="roster_enrolled_to" <%=getDisabled("roster_enrolled_to")%>
+									style="width: 200px">
+									<option value=""></option>
+									<%
+									for(Provider p : doctors) {
+                         
+                     			   %>
+									<option value="<%=p.getProviderNo()%>"
+										<%=p.getProviderNo().equals(demographic.getRosterEnrolledTo())?"selected":""%>>
+									<%=Misc.getShortStr( (p.getLastName()+","+p.getFirstName()),"",nStrShowLen)%></option>
+									<% } %>
+								</select>
+								
+								
+								</td>
+                                                                   
+								<td align="right" nowrap><b></b></td>
+								<td align="left" colspan="3">
+								
+								</td>
+							</tr>							
+
+
+							<tr valign="top">
+
+								<td align="right" nowrap><b><bean:message
+									key="demographic.demographiceditdemographic.RosterTerminationDate" />: </b></td>
+								<td align="left">
+									<input  type="text" name="roster_termination_date_year" size="4" maxlength="4" value="<%=rosterTerminationDateYear%>">
+									<input  type="text" name="roster_termination_date_month" size="2" maxlength="2" value="<%=rosterTerminationDateMonth%>">
+									<input  type="text" name="roster_termination_date_day" size="2" maxlength="2" value="<%=rosterTerminationDateDay%>">
+								</td>
+																
+                                                                   
 								<td align="right" nowrap><b><bean:message
 									key="demographic.demographiceditdemographic.RosterTerminationReason" />: </b></td>
 								<td align="left" colspan="3">
@@ -3035,8 +3172,7 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 									</select>
 								</td>
 							</tr>
-							--%>
-
+														
 </oscar:oscarPropertiesCheck>														
 <%-- END TOGGLE OFF PATIENT ROSTERING --%>
 

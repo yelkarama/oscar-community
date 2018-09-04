@@ -66,13 +66,25 @@ public class PreventionData {
 		// prevent instantiation
 	}
 
+	private static Date stringToDate(String date) {
+		if(date == null)
+			return null;
+		Date ret = UtilDateUtilities.StringToDate(date, "yyyy-MM-dd HH:mm");
+		if(ret != null) {
+			return ret;
+		}
+		ret = UtilDateUtilities.StringToDate(date, "yyyy-MM-dd");
+		
+		return ret;
+		
+	}
 	public static Integer insertPreventionData(String creator, String demoNo, String date, String providerNo, String providerName, String preventionType, String refused, String nextDate, String neverWarn, ArrayList<Map<String, String>> list, String snomedId) {
 		Integer insertId = -1;
 		try {
 			Prevention prevention = new Prevention();
 			prevention.setCreatorProviderNo(creator);
 			prevention.setDemographicId(Integer.valueOf(demoNo));
-			prevention.setPreventionDate(UtilDateUtilities.StringToDate(date, "yyyy-MM-dd HH:mm"));
+			prevention.setPreventionDate(stringToDate(date));
 			prevention.setProviderNo(providerNo);
 			prevention.setPreventionType(preventionType);
 			prevention.setNextDate(UtilDateUtilities.StringToDate(nextDate, "yyyy-MM-dd"));
