@@ -2421,7 +2421,7 @@ if ( Dead.equals(PatStat) ) {%>
 							<li><span class="label">Referral Source:</span><span class="info"><%=(demoExt.get("referral_source") != null?demoExt.get("referral_source"):"")%></span></li>
 							<% } %>
                                                     <li><span class="label"><bean:message
-                                                            key="demographic.demographiceditdemographic.formRefDoc" />:</span><span class="info"><%=rd%></span>
+                                                            key="demographic.demographiceditdemographic.formRefDoc" />:</span><span class="info"><%=rd%> <%= rdohip.isEmpty() ? "" : "(" + rdohip + ")"%></span>
 							</li>
 							<li><span class="label">Referral Doctor Phone #:</span> <span class="info" id="refDocPhone"></span></li>
 							<li><span class="label">Referral Doctor Fax #:</span> <span class="info" id="refDocFax"></span></li>
