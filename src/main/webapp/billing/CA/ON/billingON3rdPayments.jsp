@@ -222,6 +222,24 @@ function checkInput() {
 	}
 }
 
+function deletePayment(id) {
+    $.ajax({
+        type: 'POST',
+        url: '<%= request.getContextPath() %>/billing/CA/ON/billingON3rdPayments.do',
+		data: {
+            id: id,
+            method: 'deletePayment'
+		},
+        async: false,
+        dataType: 'json',
+        success: function(data) {
+            window.location = "<%=request.getContextPath()%>/billing/CA/ON/billingON3rdPayments.do?method=listPayments&billingNo=<%=billingNo%>";
+        }, error: function (data) {
+            alertify.error("Error deleting payment");
+        }
+    });
+}
+
 function setStatus(selIndex, idx){
 	if (selIndex == 0) {
 		document.getElementById("discount" + idx).disabled=false;
@@ -481,7 +499,9 @@ function validateDiscountNumberic(idx) {
 				    <%}else{ %>
 				    <td><%= currency.format(balances.get(index++)) %> </td>
 				    <%} %>
-				    <td><a href="javascript:onViewPayment('<%=payment.getId()%>')">view</a>
+				    <td>
+						<a href="javascript:onViewPayment('<%=payment.getId()%>')">view</a> |
+						<a href="javascript:deletePayment('<%=payment.getId()%>')">Del</a>
 				    </td>	
 				</tr>
 				<% } %>

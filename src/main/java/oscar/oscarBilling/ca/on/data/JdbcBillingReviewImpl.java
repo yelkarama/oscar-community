@@ -235,6 +235,7 @@ public class JdbcBillingReviewImpl {
 				ch1Obj.setApptProvider_no(h.getApptProviderNo());
 				ch1Obj.setUpdate_datetime(ConversionUtils.toDateString(h.getTimestamp()));
 				ch1Obj.setTotal(String.valueOf(h.getTotal().doubleValue()));
+				ch1Obj.setTotalDeleted(h.getTotalDeleted().toString());
 				ch1Obj.setPay_program(h.getPayProgram());
 				ch1Obj.setPaid(String.valueOf(h.getPaid().doubleValue()));
 				ch1Obj.setClinic(h.getClinic());
@@ -357,7 +358,9 @@ public class JdbcBillingReviewImpl {
 				
 				if("PAT".equals(ch1.getPayProgram()) ){ 
 					BigDecimal amountPaid = billOnItemPaymentDao.getAmountPaidByItemId(bi.getId());
+					BigDecimal amountDeleted = billOnItemPaymentDao.getAmountDeletedByItemId(bi.getId());
 					ch1Obj.setPaid(amountPaid != null ? amountPaid.toString() : ch1.getPaid().toString());
+					ch1Obj.setTotalDeleted(amountDeleted != null ? amountDeleted.toString() : "0.00");
 					ch1Obj.setBilling_on_item_id(bi.getId().toString());
 				} else {
 					if( prevId==null && prevPaid==null) {
@@ -520,6 +523,7 @@ public class JdbcBillingReviewImpl {
 				ch1Obj.setAdmission_date(ConversionUtils.toDateString(h.getAdmissionDate()));
 				ch1Obj.setFacilty_num(h.getFaciltyNum());
 				ch1Obj.setTotal(h.getTotal().toString());
+				ch1Obj.setTotalDeleted(h.getTotalDeleted().toString());
 
 				Provider provider = providerdao.getProvider(h.getProviderNo());
 				ch1Obj.setLast_name(provider!=null?provider.getLastName():"");
@@ -613,6 +617,7 @@ public class JdbcBillingReviewImpl {
 				ch1Obj.setAdmission_date(ConversionUtils.toDateString(h.getAdmissionDate()));
 				ch1Obj.setFacilty_num(h.getFaciltyNum());
 				ch1Obj.setTotal(h.getTotal().toString());
+				ch1Obj.setTotalDeleted(h.getTotalDeleted().toString());
 				
 				Provider provider = providerdao.getProvider(h.getProviderNo());
 				ch1Obj.setLast_name(provider.getLastName());
@@ -741,6 +746,7 @@ public class JdbcBillingReviewImpl {
 				ch1Obj.setDemographic_name(h.getDemographicName());
 				ch1Obj.setDemographic_no("" + h.getDemographicNo());
 				ch1Obj.setTotal(String.valueOf(h.getTotal().doubleValue()));
+				ch1Obj.setTotalDeleted(h.getTotalDeleted().toString());
 				retval.add(ch1Obj);
 				
 				String dx = null;

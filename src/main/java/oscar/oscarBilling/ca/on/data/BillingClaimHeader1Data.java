@@ -55,6 +55,7 @@ public class BillingClaimHeader1Data {
 	String billing_time;
         private String settle_date;
 	String total;
+	String totalDeleted = "0.00";
 	String paid;
 	String status;
 	String comment;
@@ -363,6 +364,14 @@ public class BillingClaimHeader1Data {
 		this.total = total;
 	}
 
+	public String getTotalDeleted() {
+		return totalDeleted;
+	}
+
+	public void setTotalDeleted(String totalDeleted) {
+		this.totalDeleted = totalDeleted;
+	}
+
 	public String getTransc_id() {
 		return transc_id;
 	}
@@ -462,6 +471,7 @@ public class BillingClaimHeader1Data {
 	    this.settle_date = ch1Data.getSettle_date();
 		this.total = ch1Data.getTotal();
 		this.paid = ch1Data.getPaid();
+		this.totalDeleted = ch1Data.getTotalDeleted();
 		this.status = ch1Data.getStatus();
 		this.comment = ch1Data.getComment();
 		this.visittype = ch1Data.getVisittype();

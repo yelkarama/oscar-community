@@ -157,6 +157,7 @@ BigDecimal total = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
 BigDecimal feeTotal = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
 BigDecimal paidTotal = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
 BigDecimal adjTotal = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
+BigDecimal delTotal = (BigDecimal.ZERO).setScale(2, BigDecimal.ROUND_HALF_UP);
 
 
 NumberFormat formatter = new DecimalFormat("#0.00");
@@ -807,6 +808,7 @@ if(statusType.equals("_")) { %>
              <th title="Amount Billed">BILLED</th>
              <th title="Amount Paid"  >PAID</th>
              <th title="Adjustments">ADJ</th>
+             <th title="Deleted">DEL</th>
              <th>DX</th>
              <!--th>DX1</th-->
              <th>TYPE</th>
@@ -882,10 +884,13 @@ if(statusType.equals("_")) { %>
 	       
 	       BigDecimal bTemp;
 	       BigDecimal adj;
+		   BigDecimal del;
+		  
 	       try {
 		   		bTemp = (new BigDecimal(amountPaid.trim())).setScale(2,BigDecimal.ROUND_HALF_UP);
-			    adj = (new BigDecimal(ch1Obj.getTotal())).setScale(2,BigDecimal.ROUND_HALF_UP);               
-	       }
+			    adj = (new BigDecimal(ch1Obj.getTotal())).setScale(2,BigDecimal.ROUND_HALF_UP);
+			    del = (new BigDecimal(ch1Obj.getTotalDeleted())).setScale(2,BigDecimal.ROUND_HALF_UP);
+		   }
 	       catch(NumberFormatException e ) {		   		
 		   		MiscUtils.getLogger().error("Could not parse amount paid for invoice " + ch1Obj.getId(), e);
 		   		throw e;
@@ -894,6 +899,7 @@ if(statusType.equals("_")) { %>
 	       paidTotal = paidTotal.add(bTemp);
            adj = adj.subtract(bTemp);
            adjTotal = adjTotal.add(adj);
+           delTotal = delTotal.add(del);
 	       
            String color = "";
                
@@ -970,7 +976,8 @@ if(statusType.equals("_")) { %>
 				 </a>
 				 <% } %>
 			 </td><!--PAID-->
-             <td align="center"><%=adj.toString()%></td> <!--SETTLE DATE-->
+             <td align="center"><%=adj.toString()%></td> <!--ADJ-->
+			  <td align="center"><%=del.toString()%></td> <!--DEL-->
              <td align="center"><%=getHtmlSpace(ch1Obj.getRec_id())%></td><!--DX1-->
              <!--td>&nbsp;</td--><!--DX2-->
              <td align="center"><%=payProgram%></td>
@@ -998,7 +1005,7 @@ if(statusType.equals("_")) { %>
              <td align="center"><%=qty %></td>
              <td align="center"><%=ch1Obj.getProviderName() %></td>
              <% if (bMultisites) {%>
-				 <td "<%=(ch1Obj.getClinic()== null || ch1Obj.getClinic().equalsIgnoreCase("null") ? "" : "bgcolor='" + siteBgColor.get(ch1Obj.getClinic()) + "'")%>">
+				 <td> "<%=(ch1Obj.getClinic()== null || ch1Obj.getClinic().equalsIgnoreCase("null") ? "" : "bgcolor='" + siteBgColor.get(ch1Obj.getClinic()) + "'")%>">
 				 	<%=(ch1Obj.getClinic()== null || ch1Obj.getClinic().equalsIgnoreCase("null") ? "" : siteShortName.get(ch1Obj.getClinic()))%>
 				 </td>     <!--SITE-->          
         	<% }%>   
@@ -1021,7 +1028,8 @@ if(statusType.equals("_")) { %>
              <td>Total:</td><!--CODE-->
              <td align="right"><%=total.toString()%></td><!--BILLED-->
              <td align="right"><%=paidTotal.toString()%></td><!--PAID-->
-             <td align="right"><%=adjTotal.toString()%></td><!--ADJUSTMENTS-->
+             <td align="right"><%=adjTotal.toString()%></td>
+			  <td align="right"><%=delTotal.toString()%></td><!--ADJUSTMENTS-->
              <td>&nbsp;</td><!--DX-->
              <td>&nbsp;</td><!--TYPE-->
              <td>&nbsp;</td><!--ACCOUNT-->

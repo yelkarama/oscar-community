@@ -93,6 +93,8 @@ public class BillingONCHeader1 extends AbstractModel<Integer> implements Seriali
 	private String billingTime = "00:00:00"; //time format
 	private BigDecimal total = null;
 	private BigDecimal paid = null;
+	@Column(name = "total_deleted")
+	private BigDecimal totalDeleted = BigDecimal.ZERO;
 	private String status = null;
 	@Column(name = "comment1")
 	private String comment = null;
@@ -146,6 +148,7 @@ public class BillingONCHeader1 extends AbstractModel<Integer> implements Seriali
         this.billingTime = bONCH.billingTime;
         this.total = bONCH.getTotal();
         this.paid = bONCH.getPaid();
+        this.totalDeleted = bONCH.getTotalDeleted();
         this.status = bONCH.getStatus();
         this.comment = bONCH.getComment();
         this.visitType = bONCH.getVisitType();
@@ -195,6 +198,7 @@ public class BillingONCHeader1 extends AbstractModel<Integer> implements Seriali
 		this.billingTime = df.format(billingTime);
 		this.total = BigDecimal.ZERO;
 		this.paid = BigDecimal.ZERO;
+		this.totalDeleted = BigDecimal.ZERO;
 		this.status = status;
 		this.comment = comment;
 		this.visitType = visitType;
@@ -244,6 +248,7 @@ public class BillingONCHeader1 extends AbstractModel<Integer> implements Seriali
 		this.billingTime = df.format(billingTime);
 		this.total = BigDecimal.ZERO;
 		this.paid = BigDecimal.ZERO;
+		this.totalDeleted = BigDecimal.ZERO;
 		this.status = status;
 		this.comment = comment;
 		this.visitType = visitType;
@@ -467,6 +472,14 @@ public class BillingONCHeader1 extends AbstractModel<Integer> implements Seriali
 
 	public void setPaid(BigDecimal paid) {
 		this.paid = paid;
+	}
+
+	public BigDecimal getTotalDeleted() {
+		return totalDeleted;
+	}
+
+	public void setTotalDeleted(BigDecimal totalDeleted) {
+		this.totalDeleted = totalDeleted;
 	}
 
 	public String getStatus() {

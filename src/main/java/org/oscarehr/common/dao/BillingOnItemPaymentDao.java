@@ -56,6 +56,20 @@ public class BillingOnItemPaymentDao extends AbstractDao<BillingOnItemPayment>{
 		query.setParameter(1, paymentId);
 		return query.getResultList();
 	}
+
+	public BigDecimal getAmountDeletedByItemId(int itemId) {
+		Query query = entityManager.createQuery("select (SUM(boip.paid)+SUM(boip.refund)+SUM(boip.credit)+SUM(boip.discount)) AS Total " +
+				" from BillingOnItemPayment boip where boip.billingOnItemId = ?1 and exists (select p FROM BillingONPayment p where p.id = boip.billingOnPaymentId and p.active = false) ");
+		query.setParameter(1, itemId);
+
+		BigDecimal deletedAmount = null;
+		try {
+			deletedAmount = (BigDecimal) query.getSingleResult();
+		} catch (Exception e) {
+		}
+
+		return deletedAmount;
+	}
 	
 	public BigDecimal getAmountPaidByItemId(int itemId) {
 		Query query = entityManager.createQuery("select sum(boip.paid) from BillingOnItemPayment boip where boip.billingOnItemId = ?1");

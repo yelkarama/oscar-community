@@ -423,16 +423,18 @@ public class BillingONPaymentsAction extends DispatchAction {
 		try {
 			Integer paymentId = Integer.parseInt(request.getParameter("id"));
 			BillingONPayment payment = billingONPaymentDao.find(paymentId);
-			BillingONCHeader1 ch1 = payment.getBillingONCheader1();
-			Integer billingNo = payment.getBillingONCheader1().getId();
+			BillingONCHeader1 ch1 = billingClaimDAO.find(payment.getBillingNo());
+			Integer billingNo = ch1.getId();
 
 			payment.setActive(false);
 			billingONPaymentDao.merge(payment);
 
+			BigDecimal originalPaidAmount = ch1.getPaid();
 			BigDecimal paid = billingONPaymentDao.getPaymentsSumByBillingNo(billingNo);
 			BigDecimal refund = billingONPaymentDao.getPaymentsRefundByBillingNo(billingNo).negate();
 			NumberFormat currency = NumberFormat.getCurrencyInstance();
 			ch1.setPaid(paid.subtract(refund));
+			ch1.setTotalDeleted(originalPaidAmount.subtract(ch1.getPaid()));
 			billingClaimDAO.merge(ch1);
 
 			billingONExtDao.setExtItem(billingNo, ch1.getDemographicNo(),
@@ -449,7 +451,7 @@ public class BillingONPaymentsAction extends DispatchAction {
 			return actionMapping.findForward("failure");
 		}
 
-		return listPayments(actionMapping, actionForm, request, response);
+		return null;
 
 	}
 	
