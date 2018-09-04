@@ -712,6 +712,10 @@ public class CaseManagementManager {
 	public Issue getIssueInfoByCode(String code) {
 		return issueDAO.findIssueByCode(code);
 	}
+	
+	public Issue getIssueInfoByTypeAndCode(String type, String code) {
+		return issueDAO.findIssueByTypeAndCode(type, code);
+	}
 
 	public List<Issue> getIssueInfoBySearch(String providerNo, String search, List accessRight) {
 		List<Issue> issList = issueDAO.findIssueBySearch(search);
