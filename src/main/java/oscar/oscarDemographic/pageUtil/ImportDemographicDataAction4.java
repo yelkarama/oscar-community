@@ -126,6 +126,7 @@ import ca.uhn.hl7v2.model.v23.segment.MSH;
 import ca.uhn.hl7v2.model.v23.segment.OBR;
 import ca.uhn.hl7v2.model.v23.segment.OBX;
 import ca.uhn.hl7v2.model.v23.segment.PID;
+import ca.uhn.hl7v2.util.Terser;
 import cds.AlertsAndSpecialNeedsDocument.AlertsAndSpecialNeeds;
 import cds.AllergiesAndAdverseReactionsDocument.AllergiesAndAdverseReactions;
 import cds.AppointmentsDocument.Appointments;
@@ -3353,7 +3354,7 @@ import oscar.util.UtilDateUtilities;
 					
 					//OBX
 					OBX obx = grp.getOBSERVATION().getOBX();
-					obx.getSetIDOBX().setValue("1");
+					obx.getSetIDOBX().setValue(String.valueOf(x));
 					
 					obx.getObx2_ValueType().setValue("ST");
 					obx.getObx3_ObservationIdentifier().getIdentifier().setValue(result.getLabTestCode());
@@ -3374,7 +3375,20 @@ import oscar.util.UtilDateUtilities;
 					}
 					
 					if(result.getReferenceRange() != null) {
-						obx.getObx7_ReferencesRange().setValue(result.getReferenceRange().getReferenceRangeText());
+						String refRange = "";
+						if(result.getReferenceRange().isSetReferenceRangeText()) {
+							refRange = result.getReferenceRange().getReferenceRangeText();
+						}
+						
+						if(result.getReferenceRange().isSetLowLimit()) {
+							refRange = result.getReferenceRange().getLowLimit();
+						}
+
+						if(result.getReferenceRange().isSetHighLimit()) {
+							refRange += ("-" + result.getReferenceRange().getHighLimit());
+						}
+
+						obx.getObx7_ReferencesRange().setValue(refRange);
 					}
 					
 					if(result.getResultNormalAbnormalFlag() != null) {
@@ -3388,7 +3402,16 @@ import oscar.util.UtilDateUtilities;
 					}
 					
 					if(result.getBlockedTestResult() != null && result.getBlockedTestResult() == YIndicator.Y) {
-						obx.insertObx17_ObservationMethod(0).getCe1_Identifier().setValue("BLOCKED");						
+						Terser.set(obx, 17, 0, 1, 1, "BLOCKED");
+					}
+					
+					
+					if(!StringUtils.isNullOrEmpty(result.getTestResultStatus())) {
+						obx.getNatureOfAbnormalTest().setValue(result.getTestResultStatus());
+					}
+					
+					if(!StringUtils.isNullOrEmpty(result.getLaboratoryName())) {
+						obr.insertObr39_CollectorSComment(0).getCe1_Identifier().setValue(result.getLaboratoryName());
 					}
 					
 				}
@@ -3461,12 +3484,13 @@ import oscar.util.UtilDateUtilities;
 	                		saveMeasurementsExt(measId, "comments", result.getNotesFromLab());
 	                	}
 	                	
+	                	
 	                	String annotation = labResult.getPhysiciansNotes();
 		                if (StringUtils.filled(annotation)) {
 		                    saveMeasurementsExt(measId, "other_id", "0-0");
 		                    CaseManagementNote cmNote = prepareCMNote("2",null);
 		                    cmNote.setNote(annotation);
-		                    saveLinkNote(cmNote, CaseManagementNoteLink.LABTEST2, labNo.longValue(), "0-0");
+		                    saveLinkNote(cmNote, CaseManagementNoteLink.LABTEST, labNo.longValue(), "0-0");
 		                }
 
 						String olis_status = result.getTestResultStatus();
@@ -3478,13 +3502,18 @@ import oscar.util.UtilDateUtilities;
 			               
 	                }
 	                
-	                String testResultsInfo = labResult.getTestResultsInformationReportedByTheLab();
-	                if (StringUtils.filled(testResultsInfo)) {
-	                    String dump = Util.addLine("imported.cms4.2011.06", "Test Results Info: ", testResultsInfo);
-	                    CaseManagementNote cmNote = prepareCMNote("2",null);
-	                    cmNote.setNote(dump);
-	                    saveLinkNote(cmNote, CaseManagementNoteLink.LABTEST2, labNo.longValue(), "0-0");
-	                }
+			        
+			 
+			        String dump =  Util.addLine("imported.cms4.2011.06", "Notes from Lab:  ",org.apache.commons.lang.StringUtils.trimToEmpty(labResult.getNotesFromLab()));
+			        dump = Util.addLine(dump,  "Physician Notes: ", org.apache.commons.lang.StringUtils.trimToEmpty(labResult.getPhysiciansNotes()));
+			        dump = Util.addLine(dump,  "Test Results Info: ", org.apache.commons.lang.StringUtils.trimToEmpty(labResult.getTestResultsInformationReportedByTheLab()));
+			        dump = Util.addLine(dump,  "Test Code: ", org.apache.commons.lang.StringUtils.trimToEmpty(labResult.getLabTestCode()));
+			        dump = Util.addLine(dump,  "Test Name: ", org.apache.commons.lang.StringUtils.trimToEmpty(labResult.getTestName()));
+			        dump = Util.addLine(dump,  "Lab Requisition DateTime: ", org.apache.commons.lang.StringUtils.trimToEmpty((dateFPtoString(labResult.getLabRequisitionDateTime(),0))));
+
+			        CaseManagementNote cmNote = prepareCMNote("2",null);
+                    cmNote.setNote(dump);
+                    saveLinkNote(cmNote, CaseManagementNoteLink.LABTEST, labNo.longValue(), "0-0");
 		        }
                   
 			}catch(Exception e) {

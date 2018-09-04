@@ -1724,7 +1724,19 @@ input[type=button], button, input[id^='acklabel_']{ font-size:12px !important;pa
                                            <%}%>
                                            
                                            <td align="center"><%= handler.getTimeStamp(j, k) %></td>
-                                           <td align="center"><%= handler.getOBXResultStatus( j, k) %></td>
+                                           <td align="center">
+                                           	<%
+                                           		String status = handler.getOBXResultStatus( j, k);
+                                           		if("GDML".equals(handler.getMsgType()) && ((GDMLHandler)handler).isTestResultBlocked(j, k) ) {
+                                           			if(!StringUtils.isEmpty(status)) {
+                                           				status += "/";
+                                           			}
+                                           			status += "BLOCKED";
+                                           		}
+                                           	%>
+                                           	<%=status %>
+                                           	
+                                           	</td>
                                       		<td align="center" valign="top">                                           <a href="javascript:void(0);" title="Annotation" onclick="window.open('<%=request.getContextPath()%>/annotation/annotation.jsp?display=<%=annotation_display%>&amp;table_id=<%=segmentID%>&amp;demo=<%=demographicID%>&amp;other_id=<%=String.valueOf(j) + "-" + String.valueOf(k) %>','anwin','width=400,height=500');">
 	                                                	<%if(!isPrevAnnotation){ %><img src="../../../images/notes.gif" alt="rxAnnotation" height="16" width="13" border="0"/><%}else{ %><img src="../../../images/filledNotes.gif" alt="rxAnnotation" height="16" width="13" border="0"/> <%} %>
 	                                                </a>
