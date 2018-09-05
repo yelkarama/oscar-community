@@ -77,6 +77,7 @@ import org.oscarehr.casemgmt.model.Issue;
 import org.oscarehr.casemgmt.service.CaseManagementManager;
 import org.oscarehr.common.dao.AdmissionDao;
 import org.oscarehr.common.dao.AllergyDao;
+import org.oscarehr.common.dao.AppointmentStatusDao;
 import org.oscarehr.common.dao.DemographicArchiveDao;
 import org.oscarehr.common.dao.DemographicContactDao;
 import org.oscarehr.common.dao.DemographicDao;
@@ -91,6 +92,7 @@ import org.oscarehr.common.dao.ProviderLabRoutingDao;
 import org.oscarehr.common.model.Admission;
 import org.oscarehr.common.model.Allergy;
 import org.oscarehr.common.model.Appointment;
+import org.oscarehr.common.model.AppointmentStatus;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.DemographicArchive;
 import org.oscarehr.common.model.DemographicContact;
@@ -159,7 +161,6 @@ import cdsDt.PersonNameStandard.LegalName;
 import cdsDt.PersonNameStandard.OtherNames;
 import cdsDt.YIndicator;
 import oscar.OscarProperties;
-import oscar.appt.ApptStatusData;
 import oscar.dms.EDocUtil;
 import oscar.oscarDemographic.data.DemographicAddResult;
 import oscar.oscarDemographic.data.DemographicData;
@@ -1800,6 +1801,10 @@ import oscar.util.UtilDateUtilities;
                     	err_note.add("Cannot map Immunization Type, "+immuArray[i].getImmunizationName()+" mapped to Other Layout A");
                     }
 
+                    Map<String,String> iht = new HashMap<String,String>();
+                    iht.put("imported","true");
+                    preventionExt.add(iht);
+                    
                     if (StringUtils.filled(immuArray[i].getManufacturer())) {
                         Map<String,String> ht = new HashMap<String,String>();
                         ht.put("manufacture", immuArray[i].getManufacturer());
@@ -1874,13 +1879,17 @@ import oscar.util.UtilDateUtilities;
 
                 //APPOINTMENTS
                 Appointments[] appArray = patientRec.getAppointmentsArray();
-                Date appointmentDate = null;
-                String notes="", reason="", status="", startTime="", endTime="", apptProvider="";
-                ApptStatusData asd = new ApptStatusData();
-                String[] allStatus = asd.getAllStatus();
-                String[] allTitle = asd.getAllTitle();
+                //   ApptStatusData asd = new ApptStatusData();
+             //   String[] allStatus = asd.getAllStatus();
+             //   String[] allTitle = asd.getAllTitle();
+                AppointmentStatusDao appointmentStatusDao = SpringUtils.getBean(AppointmentStatusDao.class);
+                List<AppointmentStatus> appointmentStautsList = appointmentStatusDao.findAll();                
 
                 for (int i=0; i<appArray.length; i++) {
+                	Date appointmentDate = null;
+                    String notes="", reason="", status="", startTime="", endTime="", apptProvider="";
+                 
+                    
                     String apptDateStr = dateFPtoString(appArray[i].getAppointmentDate(), timeShiftInDays);
                     if (StringUtils.filled(apptDateStr)) {
                         appointmentDate = UtilDateUtilities.StringToDate(apptDateStr);
@@ -1907,22 +1916,23 @@ import oscar.util.UtilDateUtilities;
                         notes = appArray[i].getAppointmentNotes();
                     }
                     String apptStatus = appArray[i].getAppointmentStatus();
+                   
+                    boolean failedToMapStatus = false;
+            		
                     if (apptStatus!=null) {
-                        for (int j=1; j<allStatus.length; j++) {
-                            String msg = getResources(request).getMessage(allTitle[j]);
-                            if (apptStatus.trim().equalsIgnoreCase(msg)) {
-                                status = allStatus[j];
-                                apptStatus = null;
-                                break;
-                            }
-                        }
-                        if (StringUtils.empty(status)) {
-                        	status = allStatus[0];
-//                        	err_note.add("Cannot map appointment status ["+apptStatus+"]. Appointment Status set to [To Do]");
-                        }
-
+                    	for(AppointmentStatus as : appointmentStautsList) {
+                    		if(isMappedStatus(as,apptStatus) != null) {
+                    			status = as.getStatus();
+                    			break;
+                    		}
+                    	}
+                    	 if (StringUtils.empty(status)) {
+                         	status = getImportStatus();
+                         	err_note.add("Cannot map appointment status ["+apptStatus+"]. Appointment Status set to [Imported]");
+                         	failedToMapStatus=true;
+                         }
                     }
-
+                   
                     reason = StringUtils.noNull(appArray[i].getAppointmentPurpose());
                     if (appArray[i].getProvider()!=null) {
                         HashMap<String,String> providerName = getPersonName(appArray[i].getProvider().getName());
@@ -1945,10 +1955,22 @@ import oscar.util.UtilDateUtilities;
                     appt.setReason(reason);
                     appt.setStatus(status);
                     appt.setImportedStatus(apptStatus);
-                    
+                    appt.setLocation("");
+                    appt.setCreator(LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProvider().getFormattedName());
+                    appt.setLastUpdateUser(LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo());
+                    appt.setResources("");
+                    appt.setType("");
                     appointmentDao.persist(appt);
                     
                     addOneEntry(APPOINTMENT);
+                    
+                    if(failedToMapStatus) {
+	                	String dump = Util.addLine("imported.cms4.2011.06", "Appointment Status:",apptStatus);
+	    	            CaseManagementNote imNote = prepareCMNote("2",null);
+	    	            imNote.setNote(dump);
+	    	            saveLinkNote(imNote, CaseManagementNoteLink.APPOINTMENT, Long.valueOf(appt.getId()));
+                    }
+                    
                 }
 
                 //REPORTS RECEIVED
@@ -3520,5 +3542,50 @@ import oscar.util.UtilDateUtilities;
 				logger.error("error", e);
 			}
 		}
+	}
+	
+	//"Confirmed, Cancelled, No-Show, No-Cancellation Allowed and other descriptors possible"
+	protected String isMappedStatus(AppointmentStatus as, String status) {
+		
+		if(status.equals(as.getDescription())) {
+			return as.getStatus();
+		}
+		
+		if("Confirmed".equals(status) && "Here".equals(as.getDescription())) {
+			return as.getStatus();
+		}
+		
+		if("No-Show".equals(status) && "No Show".equals(as.getDescription())) {
+			return as.getStatus();
+		}
+		
+		return null;
+	}
+	
+	protected String getImportStatus() {
+		//create if necessary
+		 AppointmentStatusDao appointmentStatusDao = SpringUtils.getBean(AppointmentStatusDao.class);
+		 AppointmentStatus importedStatus = null;
+		 for(AppointmentStatus as : appointmentStatusDao.findAll()) {
+			 if(as.getDescription().equals("Imported")) {
+				 importedStatus = as;
+				 break;
+			 }
+		 }
+		 if(importedStatus == null) {
+			 importedStatus = new AppointmentStatus();
+			 importedStatus.setActive(1);
+			 importedStatus.setColor("#DDDDDD");
+			 importedStatus.setDescription("Imported");
+			 importedStatus.setEditable(1);
+			 importedStatus.setIcon("5.gif");
+			 if(appointmentStatusDao.findByStatus("i") == null) {
+				 importedStatus.setStatus("i");
+			 } else {
+				 importedStatus.setStatus("I");
+			 }
+			 appointmentStatusDao.persist(importedStatus);
+		 }
+		return importedStatus.getStatus();
 	}
 }
