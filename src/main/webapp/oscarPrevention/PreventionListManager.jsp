@@ -99,9 +99,10 @@ if(propertyExists){
 String prevId = null;
 String prevName = null;
 String prevDesc = null;
+String regex = "[`~!@#$%^&*()=+\\[{\\]}\\\\|;:'\",<.>/?\\s]";
 for (int e = 0 ; e < prevList.size(); e++){ 
 	HashMap<String,String> h = prevList.get(e);
-		prevId = h.get("name").replaceAll("\\s+","");
+		prevId = h.get("name").replaceAll(regex,"");
 		prevName = h.get("name");
 		prevDesc = h.get("desc");             	
 %>
@@ -176,15 +177,16 @@ function indicatorDisplay(id, name){
 }
 
 function indicatorAllDisplay(items){
+    var regex = /[`~!@#$%^&*()+=\[{\]}\\|;:'",<.>\/?\s]/g;
 	preventions = items.split(',');
 	n = preventions.length;
 	if(n>1){
 		for(i=0;i<n;i++){
-			id = preventions[i].replace(/\s/g, "");
+			id = preventions[i].replace(regex, "");
 			indicatorDisplay(id, preventions[i]);
 		}
 	}else{			
-		id = items.replace(/\s/g, "");
+		id = items.replace(regex, "");
 		indicatorDisplay(id, items);
 	}
 }
