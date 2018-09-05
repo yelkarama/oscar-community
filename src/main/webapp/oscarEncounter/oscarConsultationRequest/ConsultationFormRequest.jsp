@@ -2311,24 +2311,28 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 				</tr>
 				<tr>
 					<td colspan=2>
-
+						<%
+							UserProperty signatureProperty = null;
+							if (OscarProperties.getInstance().isPropertyActive("consult_auto_load_signature")) {
+								signatureProperty = userPropertyDAO.getProp(providerNo,UserProperty.PROVIDER_CONSULT_SIGNATURE);
+							}
+							boolean signWithStamp = signatureProperty != null && requestId == null;
+						%>
 						<input type="hidden" name="newSignature" id="newSignature" value="<%=String.valueOf(consultUtil.signatureImg == null)%>" />
 						<input type="hidden" name="signatureImg" id="signatureImg" value="<%=(consultUtil.signatureImg != null ? consultUtil.signatureImg : "") %>" />
 						<input type="hidden" name="newSignatureImg" id="newSignatureImg" value="<%=signatureRequestId %>" />
+						<input type="hidden" name="signedWithStamp" id="signedWithStamp" value="<%=signWithStamp%>" />
 
 						<div id="signatureShow" style="display: none;">
 							<img id="signatureImgTag" src="" />
 						</div>
 
 						<%
-						UserProperty signatureProperty = null;
-						if (OscarProperties.getInstance().isPropertyActive("consult_auto_load_signature")) {
-							signatureProperty = userPropertyDAO.getProp(providerNo,UserProperty.PROVIDER_CONSULT_SIGNATURE);
-						}
+						
 						if (OscarProperties.getInstance().getBooleanProperty("topaz_enabled", "true")) { %>
 						<input type="button" id="clickToSign" onclick="requestSignature()" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.formClickToSign" />" />
-						<% } else if (signatureProperty != null) { %>
-						<img src="<%=request.getContextPath()%>/eform/displayImage.do?imagefile=<%=signatureProperty.getValue()%>"/>
+						<% } else if (signWithStamp) { %>
+						<img id="signatureFrame" src="<%=request.getContextPath()%>/eform/displayImage.do?imagefile=<%=signatureProperty.getValue()%>"/>
 						<% } else { %>
 						<iframe style="width:500px; height:132px;"id="signatureFrame" src="<%= request.getContextPath() %>/signature_pad/tabletSignature.jsp?inWindow=true&<%=DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY%>=<%=signatureRequestId%>" ></iframe>
 						<% } %>

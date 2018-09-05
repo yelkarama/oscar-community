@@ -128,6 +128,8 @@ public class EctConsultationFormRequestAction extends Action {
 			if(signatureImg ==null) 
 				signatureImg = "";
 		}
+		
+		boolean signedWithStamp = Boolean.parseBoolean(request.getParameter("signedWithStamp"));
 	
 		
         ConsultationRequestDao consultationRequestDao=(ConsultationRequestDao)SpringUtils.getBean("consultationRequestDao");
@@ -140,7 +142,12 @@ public class EctConsultationFormRequestAction extends Action {
 
 			try {				
 								if (newSignature) {
-									DigitalSignature signature = DigitalSignatureUtils.storeDigitalSignatureFromTempFileToDB(loggedInInfo, signatureImg, Integer.parseInt(demographicNo));
+									DigitalSignature signature;
+									if(!signedWithStamp) {
+										 signature = DigitalSignatureUtils.storeDigitalSignatureFromTempFileToDB(loggedInInfo, signatureImg, Integer.parseInt(demographicNo));
+									} else {
+										signature = DigitalSignatureUtils.storeSignatureStamp(loggedInInfo, Integer.parseInt(demographicNo));
+									}
 									if (signature != null) { signatureId = "" + signature.getId(); }
 								}
 				
@@ -250,7 +257,13 @@ public class EctConsultationFormRequestAction extends Action {
 			try {				     
 				
 				if (newSignature) {
-					DigitalSignature signature = DigitalSignatureUtils.storeDigitalSignatureFromTempFileToDB(loggedInInfo, signatureImg, Integer.parseInt(demographicNo));
+					DigitalSignature signature;
+                    if(!signedWithStamp) {
+                        signature = DigitalSignatureUtils.storeDigitalSignatureFromTempFileToDB(loggedInInfo, signatureImg, Integer.parseInt(demographicNo));
+                    } else {
+                        signature = DigitalSignatureUtils.storeSignatureStamp(loggedInInfo, Integer.parseInt(demographicNo));
+                    }
+                    
 					if (signature != null) {
 						signatureId = "" + signature.getId();
 					} else {

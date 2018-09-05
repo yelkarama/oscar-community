@@ -30,7 +30,10 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.DigitalSignatureDao;
+import org.oscarehr.common.dao.UserPropertyDAO;
 import org.oscarehr.common.model.DigitalSignature;
+import org.oscarehr.common.model.UserProperty;
+import oscar.OscarProperties;
 
 public class DigitalSignatureUtils {
 
@@ -56,42 +59,63 @@ public class DigitalSignatureUtils {
 		DigitalSignature digitalSignature = null;
 
 		if (loggedInInfo.getCurrentFacility().isEnableDigitalSignatures()) {
-			FileInputStream fileInputStream = null;
-			try {
-				String filename = DigitalSignatureUtils.getTempFilePath(signatureRequestId);
-				fileInputStream = new FileInputStream(filename);
-				byte[] image = new byte[1024 * 256];
-				fileInputStream.read(image);
-
-				digitalSignature = new DigitalSignature();
-				digitalSignature.setDateSigned(new Date());
-				digitalSignature.setDemographicId(demographicId);
-				digitalSignature.setFacilityId(loggedInInfo.getCurrentFacility().getId());
-				digitalSignature.setProviderNo(loggedInInfo.getLoggedInProviderNo());
-				digitalSignature.setSignatureImage(image);
-
-				DigitalSignatureDao digitalSignatureDao = (DigitalSignatureDao) SpringUtils.getBean("digitalSignatureDao");
-				digitalSignatureDao.persist(digitalSignature);
-
-				return (digitalSignature);
-			} catch (FileNotFoundException e) {
-	            logger.debug("Signature file not found. User probably didn't collect a signature.", e);
-	            return null;
-			} catch (Exception e) {
-	            logger.error("UnexpectedError.", e);
-	            return null;
-			} finally {
-				if (fileInputStream != null) {
-					try {
-						fileInputStream.close();
-					} catch (IOException e) {
-						logger.error("Unexpected error.", e);
-					}
-				}
-			}
+			String filename = DigitalSignatureUtils.getTempFilePath(signatureRequestId);
+			digitalSignature = saveSignature(loggedInInfo, filename, demographicId);
 		}
 
 		return (digitalSignature);
+	}
+	
+	public static DigitalSignature storeSignatureStamp(LoggedInInfo loggedInInfo, int demographicId) {
+		DigitalSignature digitalSignature = null;
+		
+		if (loggedInInfo.getCurrentFacility().isEnableDigitalSignatures()) {
+			UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
+			UserProperty signatureProperty = userPropertyDao.getProp(loggedInInfo.getLoggedInProviderNo(), UserProperty.PROVIDER_CONSULT_SIGNATURE);
+			if (signatureProperty != null) {
+				String filepath = OscarProperties.getInstance().getProperty("eform_image");
+				String filename = filepath + signatureProperty.getValue();
+				
+				digitalSignature = saveSignature(loggedInInfo, filename, demographicId);
+			}
+		}
+		
+		return digitalSignature;
+	}
+	
+	private static DigitalSignature saveSignature(LoggedInInfo loggedInInfo, String filename, int demographicId) {
+		FileInputStream fileInputStream = null;
+		try {
+			fileInputStream = new FileInputStream(filename);
+			byte[] image = new byte[1024 * 256];
+			fileInputStream.read(image);
+
+			DigitalSignature digitalSignature = new DigitalSignature();
+			digitalSignature.setDateSigned(new Date());
+			digitalSignature.setDemographicId(demographicId);
+			digitalSignature.setFacilityId(loggedInInfo.getCurrentFacility().getId());
+			digitalSignature.setProviderNo(loggedInInfo.getLoggedInProviderNo());
+			digitalSignature.setSignatureImage(image);
+
+			DigitalSignatureDao digitalSignatureDao = (DigitalSignatureDao) SpringUtils.getBean("digitalSignatureDao");
+			digitalSignatureDao.persist(digitalSignature);
+
+			return (digitalSignature);
+		} catch (FileNotFoundException e) {
+			logger.debug("Signature file not found. User probably didn't collect a signature.", e);
+			return null;
+		} catch (Exception e) {
+			logger.error("UnexpectedError.", e);
+			return null;
+		} finally {
+			if (fileInputStream != null) {
+				try {
+					fileInputStream.close();
+				} catch (IOException e) {
+					logger.error("Unexpected error.", e);
+				}
+			}
+		}
 	}
 
 }
