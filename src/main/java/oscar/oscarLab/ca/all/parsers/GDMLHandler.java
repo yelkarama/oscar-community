@@ -505,6 +505,13 @@ public class GDMLHandler implements MessageHandler {
     }
 
     public String getPatientLocation(){
+    	try {
+	    	if(msg.getRESPONSE().getORDER_OBSERVATION(0).getOBR().getObr39_CollectorSCommentReps() != 0) {
+	            return(getString(msg.getRESPONSE().getORDER_OBSERVATION(0).getOBR().getObr39_CollectorSComment(0).getCe1_Identifier().getValue())); 
+	    	}
+    	}catch(HL7Exception e) {
+    		logger.error("Error",e);
+    	}
         return(getString(msg.getMSH().getSendingFacility().getNamespaceID().getValue()));
     }
 
@@ -728,7 +735,7 @@ public class GDMLHandler implements MessageHandler {
 				}
 				
 				if(hl7Body.equals(new String(base64.decode(l.message.getBytes("ASCII")), "ASCII"))){
-					logger.error("same message ");
+					//logger.error("same message ");
 					break;
 				}
 			}
@@ -873,6 +880,9 @@ public class GDMLHandler implements MessageHandler {
     	}
     }
     
+    /*
+     * for OMD validation (imported files)
+     */
     public boolean isTestResultBlocked(int i, int j){
 
         try{

@@ -149,6 +149,9 @@ public class LabResultImport {
 		if(timestamp != null) {
 			ts = ConversionUtils.fromTimestampString(timestamp);
 		}
+		if(ts == null) {
+			ts = ConversionUtils.fromDateString(timestamp);
+		}
 		
 		
 		ProviderLabRoutingModel plr = new ProviderLabRoutingModel();
@@ -156,9 +159,12 @@ public class LabResultImport {
 		plr.setLabNo(Integer.parseInt(lab_no));
 		plr.setStatus(status);
 		plr.setComment(comment);
-		plr.setTimestamp(ts);
+		//plr.setTimestamp(ts);
 		plr.setLabType(labType);
 		providerLabRoutingDao.persist(plr);
+		
+		plr.setTimestamp(ts);
+		providerLabRoutingDao.merge(plr);
 		
 		return plr.getId().longValue();
     	
