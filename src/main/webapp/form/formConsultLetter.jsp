@@ -2123,11 +2123,13 @@ function toggleHeight(heightuomctrl,inchCtrl){
 			;toggleControl(document.forms[0].pe_weight,document.forms[0].pe_weight_uom_t)"
 				<%=props.getProperty("pe_weight", "")%>>Wt&nbsp;&nbsp;<input
 				name="pe_weight_t" type="text" maxlength="15" <%= getdisablestatus(props,"pe_weight") %>
-				value="<%=props.getProperty("pe_weight_t", "")%>"> &nbsp;<select
-				name="pe_weight_uom_t"  <%= getdisablestatus(props,"pe_weight") %> value="<%=props.getProperty("pe_weight_uom_t", "")%>">
-				<option value="lb">lb
-				<option value="kg">kg
-			</select> <br>
+				value="<%=props.getProperty("pe_weight_t", "")%>"> &nbsp;
+				<select name="pe_weight_uom_t"  <%= getdisablestatus(props,"pe_weight") %> 
+						value="<%=props.getProperty("pe_weight_uom_t", "")%>">
+					<option value="lb">lb</option>
+					<option value="kg" <%=props.getProperty("pe_weight_uom_t", "").equals("kg") ? "selected" : ""%>>kg</option>
+				</select>
+				<br>
 			<input type="checkbox" name="pe_bmi" onchange="toggleControl(document.forms[0].pe_bmi,document.forms[0].pe_bmi_t)"
 				<%=props.getProperty("pe_bmi", "")%>>BMI&nbsp;&nbsp;<input
 				name="pe_bmi_t" type="text" maxlength="15"  <%= getdisablestatus(props,"pe_bmi") %>
