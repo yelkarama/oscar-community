@@ -216,6 +216,10 @@ UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 			<%
 		}
 		%>
+		
+		<%if(dropInUp != null && "true".equals(dropInUp.getValue())) {%>
+			jQuery("#dropIn").val('on');
+		<%}%>
 	});
 	
 	jQuery(document).ready(function(){
@@ -728,7 +732,7 @@ UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 					}
 				%>
 					<input name="dropIn1" type="checkbox" <%=checked1 %> <%=readonly %> id="dropInCheckbox" onChange="updateDropIn()"/>
-					<input type="hidden" name="dropIn" value="on" id="dropIn" />
+					<input type="hidden" name="dropIn" value="" id="dropIn" />
 					
 				</td>
 			</tr>
