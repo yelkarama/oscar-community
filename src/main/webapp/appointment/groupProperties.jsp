@@ -23,6 +23,7 @@
     Ontario, Canada
 
 --%>
+<%@page import="org.apache.commons.lang.StringUtils"%>
 <%@page import="org.oscarehr.common.dao.OscarAppointmentDao"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="org.oscarehr.common.model.ScheduleDate"%>
@@ -131,6 +132,8 @@ UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 			}
 		}
 	}
+	
+	String message = request.getParameter("message");
 	
 %>
 <html:html locale="true">
@@ -558,16 +561,20 @@ UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 	}
 	
 	function cancelSession() {
+		if(confirm('Are you sure you want to cancel the current session? Doing so will cancel all existing appointments for the day and session information will be LOST')) {
 		jQuery.post("<%=request.getContextPath()%>/groupAppointment.do" , {method: 'cancelSession',currentSession:'<%=sessionDateStr%>',providerNo:'<%=targetProviderNo%>'},
-	            function(xml)
-	            {
-					if(xml.error) {
-						alert("ERROR:" + xml.error);
-					} else {
-						window.close();
-					}
-	            }, "json"
-		);
+		            function(xml)
+		            {
+						if(xml.error) {
+							alert("ERROR:" + xml.error);
+						} else {
+							//window.close();
+							window.location.href='<%=request.getContextPath()%>/appointment/groupProperties.jsp?provider_no=<%=targetProviderNo%>&message=Session+Cancelled';
+	
+						}
+		            }, "json"
+			);
+		}
 	}
 	
 	function transferParticipants() {
@@ -654,6 +661,10 @@ UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 <body bgproperties="fixed"  topmargin="0"leftmargin="0" rightmargin="0" style="font-family:sans-serif">
 
 <%if(errorStr == null) { %>
+
+	<%if(!StringUtils.isEmpty(message)) { %>
+	<h2 style="background-color:lightblue"><%=message %></h2>
+	<% } %>
 	<FORM NAME = "myForm" id="myForm" METHOD="post" ACTION="groupPropertiesSave.jsp">
 	<input type="hidden" id="topics_num" name="topics_num" value="0"/>
 	<input type="hidden" id="trackers_num" name="trackers_num" value="0"/>
@@ -958,7 +969,6 @@ UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 		
 		<input name="close" type="button" value="Close Window" onClick="window.close()"/>
 		
-		<input name="generateAttendanceReport" type="button" value="Attendance Report"/>
 		
 	</FORM>
 

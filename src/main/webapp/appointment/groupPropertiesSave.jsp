@@ -273,7 +273,8 @@
 <html>
 <head>
 <script>
-window.close();
+window.location.href='<%=request.getContextPath()%>/appointment/groupProperties.jsp?provider_no=<%=providerNo%>&date=<%=sessionDateStr%>&message=Saved';
+
 </script>
 </head>
 <body></body>
