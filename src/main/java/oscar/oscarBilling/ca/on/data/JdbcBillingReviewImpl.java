@@ -539,7 +539,9 @@ public class JdbcBillingReviewImpl {
 
 				for (BillingONItem i : itemDao.findByCh1IdAndStatusNotEqual(h.getId(), "D")) {
 					String strService = i.getServiceCode() + " x " + i.getServiceCount() + ", ";
-					dx.add(i.getDx());
+					if (!i.getDx().equals("") && !dx.contains(i.getDx())) {
+						dx.add(i.getDx());
+					}
 					strServiceDate = ConversionUtils.toDateString(i.getServiceDate());
 
 					serviceCodeSet.add(strService);
@@ -554,7 +556,11 @@ public class JdbcBillingReviewImpl {
 					codeBuf.deleteCharAt(codeBuf.length() - 1);
 				}
 				itObj.setService_code(codeBuf.toString());
+				
 				itObj.setDx(StringUtils.join(dx, ", "));
+				
+				String dxCodeToBill = dx.size() == 1 ? dx.get(0) : "";
+				itObj.setDxToBill(dxCodeToBill);
 				itObj.setService_date(strServiceDate);
 
 				List<BillingONPayment> payment = payDao.find3rdPartyPaymentsByBillingNo(h.getId());

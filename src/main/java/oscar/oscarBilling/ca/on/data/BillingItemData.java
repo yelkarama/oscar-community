@@ -39,6 +39,7 @@ public class BillingItemData {
 	String timestamp;
 	String location;
 	String patientName;
+	String dxToBill;
         /*
          *Default Constructor
          */
@@ -198,6 +199,11 @@ public class BillingItemData {
 	public void setPatientName(String patientName) {
 		this.patientName = patientName;
 	}
-	
-	
+
+	public String getDxToBill() {
+		return dxToBill;
+	}
+	public void setDxToBill(String dxToBill) {
+		this.dxToBill = dxToBill;
+	}
 }

@@ -305,7 +305,7 @@
 				propHist.setProperty("visitLocation", StringUtils.trimToEmpty(obj.getFacilty_num()));
 				vecHist.add(propHist);
 				//propHist.setProperty("service_code", serCode);
-				propHist.setProperty("diagnostic_code", iobj.getDx());
+				propHist.setProperty("diagnostic_code", iobj.getDxToBill());
 				vecHistD.add(propHist);
 			}
 
@@ -2270,7 +2270,7 @@ function changeSite(sel) {
 						<td class="smallFont"><%=obj.getBilling_date()%></td>
 						<td class="smallFont"><%=iobj.getService_date()%></td>
 						<td class="smallFont"><%=iobj.getService_code()%></td>
-						<td class="smallFont"><%=iobj.getDx()%></td>
+						<td class="smallFont"><%=iobj.getDxToBill()%></td>
 						<td class="smallFont"><%=obj.getUpdate_datetime().substring(0, 10)%></td>
 					</tr>
 					<%

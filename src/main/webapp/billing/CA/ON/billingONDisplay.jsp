@@ -547,7 +547,7 @@ if(bFlag) {
 							serviceCode = itemObj.getService_code();
 							serviceDesc = obj.getBillingCodeDesc(serviceCode);
 							billAmount = itemObj.getFee();
-							diagCode = itemObj.getDx();
+							diagCode = itemObj.getDxToBill();
 							billingunit = itemObj.getSer_num();
 							rowCount = rowCount + 1;
 							itemStatus = itemObj.getStatus().equals("S") ? "checked" : "";
