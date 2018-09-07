@@ -257,12 +257,15 @@ public class HRMReport {
 	public List<String> getFirstReportAuthorPhysician() {
 		List<String> physicianName = new ArrayList<String>();
 		String physicianHL7String = hrmReport.getPatientRecord().getReportsReceived().get(0).getAuthorPhysician().getLastName();
-		String[] physicianNameArray = physicianHL7String.split("^");
-		physicianName.add(physicianNameArray[0]);
-		physicianName.add(physicianNameArray[1]);
-		physicianName.add(physicianNameArray[2]);
-		physicianName.add(physicianNameArray[3]);
-		physicianName.add(physicianNameArray[6]);
+		for(String n:physicianHL7String.split("\\^")) {
+			physicianName.add(n);
+		}
+		
+		physicianHL7String = hrmReport.getPatientRecord().getReportsReceived().get(0).getAuthorPhysician().getFirstName();
+		for(String n:physicianHL7String.split("\\^")) {
+			physicianName.add(n);
+		}
+		
 
 		return physicianName;
 	}

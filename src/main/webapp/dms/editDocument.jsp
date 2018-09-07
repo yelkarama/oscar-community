@@ -24,6 +24,7 @@
 
 --%>
 
+<%@page import="org.apache.commons.lang.StringUtils"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -301,11 +302,11 @@ for (String reportClass : reportClasses) {
 		</tr>
 		<tr>
 			<td>Source Author:</td>
-			<td><input type="text" name="source" size="15" value="<%=formdata.getSource()%>"/></td>
+			<td><input type="text" name="source" size="15" value="<%=StringUtils.trimToEmpty(formdata.getSource())%>"/></td>
 		</tr>
 		<tr>
 			<td>Source Facility:</td>
-			<td><input type="text" name="sourceFacility" size="15" value="<%=formdata.getSourceFacility()%>"/></td>
+			<td><input type="text" name="sourceFacility" size="15" value="<%=StringUtils.trimToEmpty(formdata.getSourceFacility())%>"/></td>
 		</tr>
 		<% if (module.equals("provider")) {%>
 		<tr>

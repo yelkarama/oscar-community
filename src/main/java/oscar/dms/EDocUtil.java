@@ -867,7 +867,6 @@ public final class EDocUtil {
 		doc.setNumberofpages(1);
 		documentDao.persist(doc);
 
-		int key = 0;
 		if (doc.getDocumentNo() > 0) {
 			CtlDocumentPK cdpk = new CtlDocumentPK();
 			CtlDocument cd = new CtlDocument();
@@ -877,9 +876,9 @@ public final class EDocUtil {
 			cd.getId().setModuleId(ConversionUtils.fromIntString(demoNo));
 			cd.setStatus(String.valueOf('A'));
 			ctlDocumentDao.persist(cd);
-			key = 1;
+			
 		}
-		return key;
+		return doc.getDocumentNo() != null ? doc.getDocumentNo() : 0;
 	}
 
 	// private static String getLastDocumentNo() {
