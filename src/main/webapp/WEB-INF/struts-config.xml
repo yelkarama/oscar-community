@@ -1920,6 +1920,8 @@
 		</action>
 		<action name="FrmForm" path="/provider/SearchProvider" scope="request" parameter="method" type="org.oscarehr.common.web.SearchProviderAutoCompleteAction">
 		</action>
+		<action name="FrmForm" path="/professionalSpecialist/Search" scope="request" parameter="method" type="org.oscarehr.common.web.SearchSpecialistAutoCompleteAction">
+		</action>
 
 		<action input="/demographic/AddAlternateContact.jsp" name="FrmForm" path="/demographic/AddRelation" scope="request" type="oscar.oscarDemographic.pageUtil.AddDemographicRelationshipAction">
 			<forward name="success" path="/demographic/AddAlternateContact.jsp" />

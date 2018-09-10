@@ -69,6 +69,7 @@
             UserPropertyDAO userPropertyDAO = (UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
             OscarAppointmentDao appointmentDao = SpringUtils.getBean(OscarAppointmentDao.class);
             ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
+            ProfessionalSpecialistDao professionalSpecialistDao = SpringUtils.getBean(ProfessionalSpecialistDao.class);
                
             String providerNo = request.getParameter("providerNo");
             UserProperty uProp = userPropertyDAO.getProp(providerNo, UserProperty.LAB_ACK_COMMENT);                        
@@ -169,6 +170,7 @@
     DemographicData demoData = null;
     Demographic demographic = null;
     String familyDoctor = null;
+    ProfessionalSpecialist familySpecialist = null;
     String rdohip = "";
 
     if (demoNo != null) {
@@ -180,7 +182,10 @@
         familyDoctor = demographic.getFamilyDoctor();
         if (familyDoctor != null && familyDoctor.trim().length() > 0) {
             rdohip = SxmlMisc.getXmlContent(familyDoctor, "rdohip");
-            rdohip = rdohip == null ? "" : rdohip.trim();
+            if (rdohip != null) {
+                rdohip = rdohip.trim();
+                familySpecialist = professionalSpecialistDao.getByReferralNo(rdohip);
+            }
         }
     }
 %>
@@ -747,36 +752,8 @@
                                             Referral Doctor:
                                         </td>
                                         <td>
-                                            <select id="otherFaxSelect" style="margin-left: 5px;max-width: 300px;min-width:150px;">
-                                                <%
-                                                    String rdName = "";
-                                                    String rdFaxNo = "";
-                                                    for (int i=0;i < displayServiceUtil.specIdVec.size(); i++) {
-                                                        String  specId     =  displayServiceUtil.specIdVec.elementAt(i);
-                                                        String  fName      =  displayServiceUtil.fNameVec.elementAt(i);
-                                                        String  lName      =  displayServiceUtil.lNameVec.elementAt(i);
-                                                        String  proLetters =  displayServiceUtil.proLettersVec.elementAt(i);
-                                                        String  address    =  displayServiceUtil.addressVec.elementAt(i);
-                                                        String  phone      =  displayServiceUtil.phoneVec.elementAt(i);
-                                                        String  fax        =  displayServiceUtil.faxVec.elementAt(i);
-                                                        String  referralNo = "";
-                                                        if (rdohip != null && !"".equals(rdohip) && rdohip.equals(referralNo)) {
-                                                            rdName = String.format("%s, %s", lName, fName);
-                                                            rdFaxNo = fax;
-                                                        }
-                                                        if (!"".equals(fax)) {
-                                                %>
-
-                                                <option value="<%= fax %>"> <%= String.format("%s, %s", lName, fName) %> </option>
-                                                <%
-                                                        }
-                                                    }
-                                                %>
-
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <input type="submit" value="Add" onclick="addOtherFaxProvider(); return false;">
+                                            <input type="text" id="autocompletereferral<%=docId%>" name="referralKeyword"/>
+                                            <div id="autocomplete_choicesreferral<%=docId%>" class="autocomplete"></div>
                                         </td>
                                     </tr>
 
@@ -793,15 +770,6 @@
                                     <div>
 
                                         <ul id="faxRecipients">
-                                            <%
-                                                if (!"".equals(rdName) && !"".equals(rdFaxNo)) {
-                                            %>
-
-                                            <input type="hidden" name="faxRecipients" value="<%= rdFaxNo %>" />
-
-                                            <%
-                                                }
-                                            %>
                                         </ul>
                                     </div>
                                     <div style="margin-top: 5px; text-align: center">
@@ -942,6 +910,30 @@
       
         jQuery(setupProviderAutoCompletion());
         
+
+    function setupReferralDoctorAutoCompletion() {
+        var url = "<%=request.getContextPath()%>/professionalSpecialist/Search.do";
+
+        jQuery("#autocompletereferral<%=docId%>").autocomplete({
+            source: url,
+            minLength: 2,
+            focus: function( event, ui ) {
+                jQuery("#autocompletereferral<%=docId%>").val("");
+                return false;
+            },
+            select: function(event, ui) {
+                jQuery("#autocompletereferral<%=docId%>").val("");
+                jQuery("#autocomplete_choicesreferral<%=docId%>").val("");
+                addRecipient(ui.item.label, ui.item.value);
+                return false;
+            }
+        });
+    }
+    jQuery(setupReferralDoctorAutoCompletion());
+
+    <%  if (familySpecialist != null) { %>
+    addRecipient(<%=familySpecialist.getFirstName()%> + ', ' + <%=familySpecialist.getLastName()%>, <%=familySpecialist.getFaxNumber()%>);
+    <%  } %>
 
 </script>
 <% if (request.getParameter("inWindow") != null && request.getParameter("inWindow").equalsIgnoreCase("true")) {  %>
