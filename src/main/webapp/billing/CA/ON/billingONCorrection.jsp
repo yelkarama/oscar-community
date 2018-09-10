@@ -255,7 +255,7 @@ function scScriptAttachNew(elementName) {
         '   </div>' +
         '</td>' +
         '<td><input type="hidden" name="xml_billing_unit'+ row +'" value=""> ' +
-        '<input type="text" style="width: 100%" name="billingunit'+ row +'" value="1" size="5" maxlength="2"></td>' +
+        '<input type="text" style="width: 100%" name="billingunit'+ row +'" value="1" size="5" maxlength="4" /></td>' +
         '<td align="right"><input type="hidden" name="xml_billing_amount'+ row +'" value="<">' +
         '<input type="text" style="width: 100%" size="5" maxlength="7" id="billingamount'+ row +'" name="billingamount'+ row +'" value="" onblur="parseTwoDecimalPlaces(this)" onchange="javascript:validateNum(this)"></td>' +
         '<td style="text-align: center"><input type="checkbox" name="itemStatus'+ row +'" id="itemStatus'+ row +'" value="S"></td>' +
@@ -1146,7 +1146,7 @@ for (ClinicNbr clinic : nbrs) {
     </td>
     <td>
         <input type="hidden" name="xml_billing_unit<%=rowCount%>" value="<%=billingunit%>">
-        <input type="text" style="width: 100%" name="billingunit<%=rowCount-1%>" value="<%=billingunit%>" size="5" maxlength="2">
+        <input type="text" style="width: 100%" name="billingunit<%=rowCount-1%>" value="<%=billingunit%>" size="5" maxlength="4" />
     </td>
     <td align="right">
         <input type="hidden" name="xml_billing_amount<%=rowCount%>" value="<%=billAmount%>">

@@ -66,6 +66,7 @@ import oscar.util.ConversionUtils;
 public class JdbcBillingCreateBillingFile {
 
 	private static final Logger _logger = Logger.getLogger(JdbcBillingCreateBillingFile.class);
+	private static final Integer MAX_ITEM_COUNT = 99; // MOH technical specifications allow for only two digits for service count
 
 	public String errorFatalMsg = "";
 	private BillingBatchHeaderData bhObj = null;
@@ -344,9 +345,21 @@ public class JdbcBillingCreateBillingFile {
 	}
 
 	private String buildItem() {
-		String ret = itemObj.getTransc_id() + itemObj.getRec_id() + itemObj.getService_code() + space(2) + rightJustify("0", 6, itemObj.getFee().replaceAll("\\.", "")) + rightJustify("0", 2, itemObj.getSer_num().replaceAll("\\.", "")) + itemObj.getService_date().replaceAll("-", "") + leftJustify(" ", 4, itemObj.getDx()) + space(11) + space(5) + space(2) + space(6) + space(25);
-		if (ret.length() != 79) errorFatalMsg += ch1Obj.getId() + " - Item length wrong!<br>";
-		return "\n" + ret + "\r";
+		StringBuilder itemLines = new StringBuilder();
+		Integer totalUnits = Integer.parseInt(itemObj.getSer_num());
+		
+		while (totalUnits >= 0) {
+			String units =  totalUnits < MAX_ITEM_COUNT ? totalUnits.toString() : MAX_ITEM_COUNT.toString();
+
+			String ret = itemObj.getTransc_id() + itemObj.getRec_id() + itemObj.getService_code() + space(2) + rightJustify("0", 6, itemObj.getFee().replaceAll("\\.", "")) + rightJustify("0", 2, units.replaceAll("\\.", "")) + itemObj.getService_date().replaceAll("-", "") + leftJustify(" ", 4, itemObj.getDx()) + space(11) + space(5) + space(2) + space(6) + space(25);
+			if (ret.length() != 79) errorFatalMsg += ch1Obj.getId() + " - Item length wrong!<br>";
+			
+			itemLines.append("\n" + ret + "\r");
+			
+			totalUnits = totalUnits - MAX_ITEM_COUNT;
+		}
+		
+		return itemLines.toString();
 	}
 
 	private String buildTrailer() {
