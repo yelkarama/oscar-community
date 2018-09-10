@@ -206,7 +206,25 @@ oscarUrl.setLength(urlLength);
 			.panel-body {
 			    padding: 10px 40px 40px;
 			}
-            
+
+			.panel-danger {
+				border-color: #ebccd1;
+			}
+			.panel-danger > .panel-heading {
+				color: #a94442;
+				background-color: #f2dede;
+				border-color: #ebccd1;
+			}
+			.panel-danger > .panel-heading + .panel-collapse > .panel-body {
+				border-top-color: #ebccd1;
+			}
+			.panel-danger > .panel-heading .badge {
+				color: #f2dede;
+				background-color: #a94442;
+			}
+			.panel-danger > .panel-footer + .panel-collapse > .panel-body {
+				border-bottom-color: #ebccd1;
+			}
             .panel-default {
            		border-color: #ddd;
             }
@@ -450,12 +468,18 @@ oscarUrl.setLength(urlLength);
 	        	<h1>OSCAR EMR Login</h1>
 	        	
 	        	<h4><%=ssoLoginMessage%></h4>
-	        	<%String key = "loginApplication.formLabel" ;
-                    if(request.getParameter("login")!=null && request.getParameter("login").equals("failed") ){
-                    key = "loginApplication.formFailedLabel" ;
-                    login_error="has-error";
-                    }
-                    %>
+	        	<%
+					if(request.getParameter("login")!=null && request.getParameter("login").equals("failed") ){
+						login_error="has-error";
+				%>
+				<div class="panel panel-danger">
+					<div class="panel-heading">
+						Login failed. Username or Password is incorrect.
+					</div>
+				</div>
+				<%
+					}
+				%>
 
     			  	<div class="panel-body">
     			    	<div class="leftinput" border="0" width="100%" ng-app="indexApp" ng-controller="indexCtrl"> <!-- id="loginText" -->
