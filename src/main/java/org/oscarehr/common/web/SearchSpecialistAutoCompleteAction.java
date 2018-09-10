@@ -59,16 +59,19 @@ public class SearchSpecialistAutoCompleteAction extends DispatchAction{
         StringBuilder searchResults = new StringBuilder("[");
         
         if (specialists != null) {
-            for (ProfessionalSpecialist specialist : specialists) {
+            for (int i = 0; i < specialists.size(); i++) {
+                ProfessionalSpecialist specialist = specialists.get(i);
                 String specialistInfo = String.format("{\"label\":\"%s, %s\",\"value\":\"%s\"}", specialist.getLastName(), specialist.getFirstName(), specialist.getFaxNumber());
                 searchResults.append(specialistInfo);
+                if (i < specialists.size() - 1) {
+                    searchResults.append(", ");
+                }
             }
         }
 
         searchResults.append("]");
 
         response.setContentType("text/x-json");
-        MiscUtils.getLogger().info(searchResults.toString());
         response.getWriter().write(searchResults.toString());
         
         return null;
