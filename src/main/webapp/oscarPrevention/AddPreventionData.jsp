@@ -839,6 +839,7 @@ function changeSite(el) {
                          <br>
                           <label for="doseUnit">Dose Unit:</label>
                           <select name="doseUnit">
+							<option value="" <%="".equals(d2)?"selected=\"selected\" ":"" %>></option>
 							<option value="mL" <%="mL".equals(d2)?"selected=\"selected\" ":"" %>>mL</option>
 							<option value="mg" <%="mg".equals(d2)?"selected=\"selected\" ":"" %>>mg</option>
 							<option value="g" <%="g".equals(d2)?"selected=\"selected\" ":"" %>>g</option>

@@ -148,6 +148,7 @@ import cds.ImmunizationsDocument.Immunizations;
 import cds.LaboratoryResultsDocument.LaboratoryResults;
 import cds.LaboratoryResultsDocument.LaboratoryResults.ResultReviewer;
 import cds.MedicationsAndTreatmentsDocument.MedicationsAndTreatments;
+import cds.NewCategoryDocument.NewCategory;
 import cds.OmdCdsDocument;
 import cds.PastHealthDocument.PastHealth;
 import cds.PatientRecordDocument.PatientRecord;
@@ -1826,13 +1827,17 @@ import oscar.util.UtilDateUtilities;
                     }
                     if (StringUtils.filled(immuArray[i].getRoute())) {
                         Map<String,String> ht = new HashMap<String,String>();
-                        ht.put("route", immuArray[i].getRoute());
+                        ht.put("route", tryToMapRoute(immuArray[i].getRoute()));
                         preventionExt.add(ht);
                     }
                     if (StringUtils.filled(immuArray[i].getSite())) {
                         Map<String,String> ht = new HashMap<String,String>();
-                        ht.put("location", immuArray[i].getSite());
+                        ht.put("location", "Other");
                         preventionExt.add(ht);
+                        
+                        Map<String,String> ht2 = new HashMap<String,String>();
+                        ht2.put("location2", immuArray[i].getSite());
+                        preventionExt.add(ht2);
                     }
                     if (StringUtils.filled(immuArray[i].getDose())) {
                         Map<String,String> ht = new HashMap<String,String>();
@@ -1869,6 +1874,10 @@ import oscar.util.UtilDateUtilities;
                     immExtra = Util.addLine(immExtra, "Instructions: ", immuArray[i].getInstructions());
                     immExtra = Util.addLine(immExtra, getResidual(immuArray[i].getResidualInfo()));
 
+                    if("".equals(tryToMapRoute(immuArray[i].getRoute()))) {
+                    	immExtra = Util.addLine(immExtra, "Unmapped Route: ",immuArray[i].getRoute());  
+                    }
+                    
                     Integer preventionId = PreventionData.insertPreventionData(admProviderNo, demographicNo, preventionDate, defaultProviderNo(), "", preventionType, refused, "", "", preventionExt,null);
                     addOneEntry(IMMUNIZATION);
 
@@ -2354,6 +2363,16 @@ import oscar.util.UtilDateUtilities;
                         addOneEntry(CAREELEMENTS);
                     }
                 }
+                
+                //NEW CATEGORY - data that doesn't fit into other categories
+                NewCategory[] newCategories = patientRec.getNewCategoryArray();
+                for (int i=0; i<newCategories.length; i++) {
+                	NewCategory ce = newCategories[i];  
+                	ce.getCategoryDescription();
+                	ce.getCategoryName();
+                	ce.getResidualInfoArray();
+                }
+                
             }
             if(demoRes != null) {
                 err_demo.addAll(demoRes.getWarningsCollection());
@@ -3677,5 +3696,24 @@ import oscar.util.UtilDateUtilities;
 			 appointmentStatusDao.persist(importedStatus);
 		 }
 		return importedStatus.getStatus();
+	}
+	
+	String tryToMapRoute(String route) {
+		String ret = "";
+		
+		if("Oral".equals(route)) {
+			ret = "PO";
+		}
+		else if("Intramuscular".equals(route)) {
+			ret = "IM";
+		} else if("Intradermal".equals(route)) {
+			ret = "ID";
+		} else if("Intranasal".equals(route)) {
+			ret = "IN";
+		} else if("Subcutaneous".equals(route)) {
+			ret = "SC";
+		}
+		
+		return ret;
 	}
 }
