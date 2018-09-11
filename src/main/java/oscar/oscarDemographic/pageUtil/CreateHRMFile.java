@@ -32,6 +32,7 @@ package oscar.oscarDemographic.pageUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -368,8 +369,14 @@ public class CreateHRMFile {
             //Content
             cdsDt.ReportContent reportContent = report.getContent();
             if (reportContent!=null && reportContent.getTextContent()!=null) {
-                ReportContent HRMreportContent = HRMreport.addNewContent();
-                HRMreportContent.setTextContent(reportContent.getTextContent());
+            	if(report.getFormat() == cdsDt.ReportFormat.BINARY) {
+            		ReportContent HRMreportContent = HRMreport.addNewContent();
+            		HRMreportContent.setMedia(Base64.getDecoder().decode(reportContent.getTextContent()));
+            	} else {
+            		ReportContent HRMreportContent = HRMreport.addNewContent();
+            		HRMreportContent.setTextContent(reportContent.getTextContent());
+            	}
+              
             }
 
             //FileExtensionAndVersion
@@ -429,7 +436,8 @@ public class CreateHRMFile {
             if (report.getMessageUniqueID()!=null) transactionInfo.setMessageUniqueID(report.getMessageUniqueID());
             else transactionInfo.setMessageUniqueID("");
             transactionInfo.setDeliverToUserID("");
-            PersonNameSimple physician = transactionInfo.addNewPhysician();
+            PersonNameSimple physician = transactionInfo.addNewProvider();
+           // PersonNameSimple physician = transactionInfo.addNewPhysician();
         }
     }
 

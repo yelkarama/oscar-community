@@ -36,6 +36,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -53,6 +54,7 @@ import java.util.zip.ZipInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
@@ -101,14 +103,18 @@ import org.oscarehr.common.model.Facility;
 import org.oscarehr.common.model.MeasurementsExt;
 import org.oscarehr.common.model.PartialDate;
 import org.oscarehr.common.model.Provider;
+import org.oscarehr.hospitalReportManager.HRMReport;
+import org.oscarehr.hospitalReportManager.HRMReportParser;
 import org.oscarehr.hospitalReportManager.dao.HRMDocumentCommentDao;
 import org.oscarehr.hospitalReportManager.dao.HRMDocumentDao;
 import org.oscarehr.hospitalReportManager.dao.HRMDocumentSubClassDao;
 import org.oscarehr.hospitalReportManager.dao.HRMDocumentToDemographicDao;
+import org.oscarehr.hospitalReportManager.dao.HRMDocumentToProviderDao;
 import org.oscarehr.hospitalReportManager.model.HRMDocument;
 import org.oscarehr.hospitalReportManager.model.HRMDocumentComment;
 import org.oscarehr.hospitalReportManager.model.HRMDocumentSubClass;
 import org.oscarehr.hospitalReportManager.model.HRMDocumentToDemographic;
+import org.oscarehr.hospitalReportManager.model.HRMDocumentToProvider;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -142,6 +148,7 @@ import cds.ImmunizationsDocument.Immunizations;
 import cds.LaboratoryResultsDocument.LaboratoryResults;
 import cds.LaboratoryResultsDocument.LaboratoryResults.ResultReviewer;
 import cds.MedicationsAndTreatmentsDocument.MedicationsAndTreatments;
+import cds.NewCategoryDocument.NewCategory;
 import cds.OmdCdsDocument;
 import cds.PastHealthDocument.PastHealth;
 import cds.PatientRecordDocument.PatientRecord;
@@ -157,6 +164,7 @@ import cdsDt.DiabetesComplicationScreening.ExamCode;
 import cdsDt.DiabetesMotivationalCounselling.CounsellingPerformed;
 import cdsDt.PersonNamePartQualifierCode;
 import cdsDt.PersonNamePartTypeCode;
+import cdsDt.PersonNameSimple;
 import cdsDt.PersonNameStandard.LegalName;
 import cdsDt.PersonNameStandard.OtherNames;
 import cdsDt.YIndicator;
@@ -1376,9 +1384,11 @@ import oscar.util.UtilDateUtilities;
                     //encounter note
                     String encounter = cNotes[i].getMyClinicalNotesContent();
                     if (StringUtils.empty(encounter)) {
-                    	err_data.add("Empty clinical note - not added ("+(i+1)+")");
-                    	continue;
+                    	err_data.add("Empty clinical note ("+(i+1)+")");
+                    	//continue;
+                    	encounter = org.apache.commons.lang.StringUtils.trimToEmpty(encounter);
                     }
+                    
 
                     //create date
                     /*
@@ -1394,7 +1404,7 @@ import oscar.util.UtilDateUtilities;
                     	//if (cNotes[i].getEnteredDateTime()==null) createDate = observeDate;
 
                     }
-
+                    //NOTE: sets the createdate and observationdate to current datetime if they are not set in XML. 
                     CaseManagementNote cmNote = prepareCMNote("1",null);
                     cmNote.setCreate_date(createDate);
                     cmNote.setObservation_date(observeDate);
@@ -1817,13 +1827,17 @@ import oscar.util.UtilDateUtilities;
                     }
                     if (StringUtils.filled(immuArray[i].getRoute())) {
                         Map<String,String> ht = new HashMap<String,String>();
-                        ht.put("route", immuArray[i].getRoute());
+                        ht.put("route", tryToMapRoute(immuArray[i].getRoute()));
                         preventionExt.add(ht);
                     }
                     if (StringUtils.filled(immuArray[i].getSite())) {
                         Map<String,String> ht = new HashMap<String,String>();
-                        ht.put("location", immuArray[i].getSite());
+                        ht.put("location", "Other");
                         preventionExt.add(ht);
+                        
+                        Map<String,String> ht2 = new HashMap<String,String>();
+                        ht2.put("location2", immuArray[i].getSite());
+                        preventionExt.add(ht2);
                     }
                     if (StringUtils.filled(immuArray[i].getDose())) {
                         Map<String,String> ht = new HashMap<String,String>();
@@ -1860,6 +1874,10 @@ import oscar.util.UtilDateUtilities;
                     immExtra = Util.addLine(immExtra, "Instructions: ", immuArray[i].getInstructions());
                     immExtra = Util.addLine(immExtra, getResidual(immuArray[i].getResidualInfo()));
 
+                    if("".equals(tryToMapRoute(immuArray[i].getRoute()))) {
+                    	immExtra = Util.addLine(immExtra, "Unmapped Route: ",immuArray[i].getRoute());  
+                    }
+                    
                     Integer preventionId = PreventionData.insertPreventionData(admProviderNo, demographicNo, preventionDate, defaultProviderNo(), "", preventionType, refused, "", "", preventionExt,null);
                     addOneEntry(IMMUNIZATION);
 
@@ -1982,10 +2000,11 @@ import oscar.util.UtilDateUtilities;
 
                 Reports[] repR = patientRec.getReportsArray();
                 List<Reports> HRMreports = new ArrayList<Reports>();
-                String HRMfile = docDir + "HRM_"+UtilDateUtilities.getToday("yyyy-MM-dd.HH.mm.ss");
                 for (int i=0; i<repR.length; i++) {
 
                     if (repR[i].getHRMResultStatus()!=null || repR[i].getOBRContentArray().length>0) { //HRM reports
+                    	String HRMfile = docDir + "HRM_"+UtilDateUtilities.getToday("yyyy-MM-dd.HH.mm.ss") + "_" + repR[i].getSendingFacilityId() + "_" + repR[i].getSendingFacilityReport() + ".xml";
+                        
                         HRMDocument hrmDoc = new HRMDocument();
                         HRMDocumentComment hrmDocComment = new HRMDocumentComment();
                         HRMDocumentToDemographic hrmDocToDemo = new HRMDocumentToDemographic();
@@ -2000,6 +2019,8 @@ import oscar.util.UtilDateUtilities;
                         if (repR[i].getHRMResultStatus()!=null) hrmDoc.setReportStatus(repR[i].getHRMResultStatus());
                         if (repR[i].getClass1()!=null) hrmDoc.setReportType(repR[i].getClass1().toString());
                         if (repR[i].getEventDateTime()!=null) hrmDoc.setReportDate(dateTimeFPtoDate(repR[i].getEventDateTime(), timeShiftInDays));
+                       
+                		
                         hrmDocDao.persist(hrmDoc);
 
                         if (repR[i].getNotes()!=null) {
@@ -2012,6 +2033,34 @@ import oscar.util.UtilDateUtilities;
                         hrmDocToDemo.setHrmDocumentId(hrmDoc.getId().toString());
                         hrmDocToDemoDao.persist(hrmDocToDemo);
 
+                        for(Reports.ReportReviewed reportReviewed : repR[i].getReportReviewedArray()) {
+                        	
+                        	HashMap<String,String> reviewerName = getPersonName(reportReviewed.getName());
+                        	String reviewer = writeProviderData(reviewerName.get("firstname"), reviewerName.get("lastname"), reportReviewed.getReviewingOHIPPhysicianId());
+                        	String reviewDateTime = dateFPtoString(reportReviewed.getDateTimeReportReviewed(), timeShiftInDays);
+                        	
+                        	HRMDocumentToProvider hrmDocProvider = new HRMDocumentToProvider();
+                        	hrmDocProvider.setHrmDocumentId(hrmDoc.getId().toString());
+                        	hrmDocProvider.setProviderNo(reviewer);
+                        	hrmDocProvider.setSignedOff(1);
+                        	
+                        	SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
+                    		
+                        	try {
+                        		hrmDocProvider.setSignedOffTimestamp(f.parse(reviewDateTime));
+                        	}catch(ParseException e) {
+                        		
+                        	}
+                        	
+                        	HRMDocumentToProviderDao hRMDocumentToProviderDao = SpringUtils.getBean(HRMDocumentToProviderDao.class);
+                        	hRMDocumentToProviderDao.persist(hrmDocProvider);
+                        }
+                      
+                        if(repR[i].getRecipientName() != null) {
+                        	PersonNameSimple recipient = repR[i].getRecipientName();
+                        	recipient.getLastName();
+                        	recipient.getFirstName();
+                        }
                         OBRContent[] obr = repR[i].getOBRContentArray();
                         for (int j=0; j<obr.length; j++) {
                             HRMDocumentSubClass hrmDocSc = new HRMDocumentSubClass();
@@ -2023,8 +2072,27 @@ import oscar.util.UtilDateUtilities;
                             hrmDocSc.setActive(true);
                             hrmDocSubClassDao.persist(hrmDocSc);
                         }
+                        HRMreports.clear();
                         HRMreports.add(repR[i]);
+                        CreateHRMFile.create(demo, HRMreports, HRMfile);
 
+                        HRMReport report = HRMReportParser.parseReport(loggedInInfo, hrmDoc.getReportFile());
+                        
+                        String reportFileData = report.getFileData();
+
+                		String noMessageIdFileData = reportFileData.replaceAll("<MessageUniqueID>.*?</MessageUniqueID>", "<MessageUniqueID></MessageUniqueID>");
+                		String noTransactionInfoFileData = reportFileData.replaceAll("<TransactionInformation>.*?</TransactionInformation>", "<TransactionInformation></TransactionInformation>");
+                		String noDemograhpicInfoFileData = reportFileData.replaceAll("<Demographics>.*?</Demographics>", "<Demographics></Demographics").replaceAll("<MessageUniqueID>.*?</MessageUniqueID>", "<MessageUniqueID></MessageUniqueID>");
+
+                		String noMessageIdHash = DigestUtils.md5Hex(noMessageIdFileData);
+                		String noTransactionInfoHash = DigestUtils.md5Hex(noTransactionInfoFileData);
+                		String noDemographicInfoHash = DigestUtils.md5Hex(noDemograhpicInfoFileData);
+
+                		hrmDoc.setReportHash(noMessageIdHash);
+                		hrmDoc.setReportLessTransactionInfoHash(noTransactionInfoHash);
+                		hrmDoc.setReportLessDemographicInfoHash(noDemographicInfoHash);
+
+                		hrmDocDao.merge(hrmDoc);
                     } else { //non-HRM reports
                         boolean binaryFormat = false;
                         if (repR[i].getFormat()!=null) {
@@ -2095,11 +2163,24 @@ import oscar.util.UtilDateUtilities;
                                 observationDate = dateFPtoString(repR[i].getEventDateTime(), timeShiftInDays);
                                 updateDateTime = dateFPtoString(repR[i].getReceivedDateTime(), timeShiftInDays);
                                 contentDateTime= dateFPtoString(repR[i].getReceivedDateTime(), timeShiftInDays);
-                                docNum = EDocUtil.addDocument(demographicNo,docFileName,docDesc,"",docClass,docSubClass,contentType,contentDateTime,observationDate,updateDateTime,docCreator,admProviderNo,reviewer,reviewDateTime,source,sourceFacility);
+                                
+                                String responsibleId = admProviderNo;
+                              //  DemographicDao dDao = SpringUtils.getBean(DemographicDao.class);
+                              //  Demographic demographic =dDao.getDemographic(demographicNo);
+                                if(demographic != null && !StringUtils.isNullOrEmpty(demographic.getProviderNo())) {
+                                	responsibleId = demographic.getProviderNo();
+                                }
+                                docNum = EDocUtil.addDocument(demographicNo,docFileName,docDesc,"",docClass,docSubClass,mapContentType(contentType),contentDateTime,observationDate,updateDateTime,docCreator,responsibleId,reviewer,reviewDateTime,source,sourceFacility);
                                 if (docNum==null) docNum = 0;
                                 if (binaryFormat) addOneEntry(REPORTBINARY);
                                 else addOneEntry(REPORTTEXT);
 
+                                
+                                String notes = Util.addLine("Report Notes:", repR[i].getNotes());
+                                CaseManagementNote rpNote1 = prepareCMNote("2",null);
+                	            rpNote1.setNote(notes);
+                	            saveLinkNote(rpNote1, CaseManagementNoteLink.DOCUMENT, Long.valueOf(docNum));
+                	            
                                 //to dumpsite: Extra report data
                                 if (StringUtils.filled(reportExtra)) {
                     	            reportExtra = Util.addLine("imported.cms4.2011.06", reportExtra);
@@ -2111,8 +2192,7 @@ import oscar.util.UtilDateUtilities;
                         }
                     }
                 }
-                CreateHRMFile.create(demo, HRMreports, HRMfile);
-
+               
                 //CARE ELEMENTS
                 CareElements[] careElems = patientRec.getCareElementsArray();
                 for (int i=0; i<careElems.length; i++) {
@@ -2283,6 +2363,26 @@ import oscar.util.UtilDateUtilities;
                         addOneEntry(CAREELEMENTS);
                     }
                 }
+                
+                //NEW CATEGORY - data that doesn't fit into other categories
+                NewCategory[] newCategories = patientRec.getNewCategoryArray();
+                String extraCategoryData = "";
+                for (int i=0; i<newCategories.length; i++) {
+                	NewCategory ce = newCategories[i];  
+                	
+                	Util.addLine("Uncategorized Data: ", ce.getCategoryName() + " : " + ce.getCategoryDescription());
+                	for(int x=0;x<ce.getResidualInfoArray().length;x++) {
+                		Util.addLine(extraCategoryData, getResidual(ce.getResidualInfoArray(x)));
+                	}
+                }
+                if (StringUtils.filled(extraCategoryData)) {
+    	            extra = Util.addLine("imported.cms4.2011.06", extra);
+    	            CaseManagementNote dmNote = prepareCMNote("2",null);
+    	            dmNote.setNote(extra);
+    	            saveLinkNote(dmNote, CaseManagementNoteLink.DEMOGRAPHIC, Long.valueOf(demographicNo));
+                }
+
+                
             }
             if(demoRes != null) {
                 err_demo.addAll(demoRes.getWarningsCollection());
@@ -2293,6 +2393,25 @@ import oscar.util.UtilDateUtilities;
 	}
 
 
+    protected String mapContentType(String contentType) {
+    	
+    	if(".jpeg".equals(contentType)) {
+    		return "image/jpeg";
+    	}
+    	if(".doc".equals(contentType)) {
+    		return "application/msword";
+    	}
+    	if(".pdf".equals(contentType)) {
+    		return "application/pdf";
+    	}
+    	if(".txt".equals(contentType)) {
+    		return "text/plain";
+    	}
+    	if(".html".equals(contentType)) {
+    		return "text/html";
+    	}
+    	return contentType;
+    }
 	File makeImportLog(ArrayList<String[]> demo, String dir) throws IOException {
 		String[][] keyword = new String[2][16];
 		keyword[0][0] = PATIENTID;
@@ -3587,5 +3706,24 @@ import oscar.util.UtilDateUtilities;
 			 appointmentStatusDao.persist(importedStatus);
 		 }
 		return importedStatus.getStatus();
+	}
+	
+	String tryToMapRoute(String route) {
+		String ret = "";
+		
+		if("Oral".equals(route)) {
+			ret = "PO";
+		}
+		else if("Intramuscular".equals(route)) {
+			ret = "IM";
+		} else if("Intradermal".equals(route)) {
+			ret = "ID";
+		} else if("Intranasal".equals(route)) {
+			ret = "IN";
+		} else if("Subcutaneous".equals(route)) {
+			ret = "SC";
+		}
+		
+		return ret;
 	}
 }

@@ -529,6 +529,24 @@ String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 			</td>
 		</tr>
 		<tr>
+			<th>Source Facility:</th>
+			<td>
+				<%=hrmDocument.getSourceFacility() %>
+			</td>
+		</tr>
+		<tr>
+			<th>Source Author(s):</th>
+			<td>
+				
+					<%
+						for(String author: hrmReport.getFirstReportAuthorPhysician()) {
+					%>
+						<%=author %>&nbsp;
+					<%} %>
+				
+			</td>
+		</tr>
+		<tr>
 			<td colspan=2>
 				<input type="button" value="Print" onClick="window.print()" />
 				<input type="button" style="display: none;" value="Save" id="save<%=hrmReportId %>hrm" />
@@ -573,7 +591,7 @@ List<HRMDocumentComment> documentComments = (List<HRMDocumentComment>) request.g
 if (documentComments != null) {
 	%>Displaying <%=documentComments.size() %> comment<%=documentComments.size() != 1 ? "s" : "" %><br />
 	<% for (HRMDocumentComment comment : documentComments) { %>
-		<div class="documentComment"><strong><%=providerDao.getProviderName(comment.getProviderNo()) %> on <%=comment.getCommentTime().toString() %> wrote...</strong><br />
+		<div class="documentComment"><strong><%=providerDao.getProviderName(comment.getProviderNo()) %> <%=comment.getCommentTime()!=null ? ("on " +comment.getCommentTime().toString()):"" %> wrote...</strong><br />
 		<%=comment.getComment() %><br />
 		<a href="#" onClick="deleteComment('<%=comment.getId() %>', '<%=hrmReportId %>'); return false;">(Delete this comment)</a></div>
 	<% }
@@ -584,23 +602,23 @@ if (documentComments != null) {
 <div id="metadataBox">
 	<table style="border: 1px solid black;margin: 20px;">
 		<tr>
-			<th>Message Unique ID</th>
+			<th>Message Unique ID:</th>
 			<td><%=hrmReport.getMessageUniqueId() %></td>
 		</tr>
 		<tr>
-			<th>Sending Facility ID</th>
+			<th>Sending Facility ID:</th>
 			<td><%=hrmReport.getSendingFacilityId() %></td>
 		</tr>
 		<tr>
-			<th>Sending Facility Report No.</th>
+			<th>Sending Facility Report No.:</th>
 			<td><%=hrmReport.getSendingFacilityReportNo() %></td>
 		</tr>
 		<tr>
-			<th>Date and Time of Report</th>
+			<th>Date and Time of Report:</th>
 			<td><%=HRMReportParser.getAppropriateDateFromReport(hrmReport) %></td>
 		</tr>
 		<tr>
-			<th>Result Status</th>
+			<th>Result Status:</th>
 			<td><%=(hrmReport.getResultStatus() != null && hrmReport.getResultStatus().equalsIgnoreCase("C")) ? "Cancelled" : "Signed by the responsible author and Released by health records"  %></td>
 		</tr>
 	</table>
