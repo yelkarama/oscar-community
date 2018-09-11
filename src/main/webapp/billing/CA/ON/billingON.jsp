@@ -594,6 +594,8 @@
 
 			// create msg
 			msg += errorMsg + warningMsg;
+           
+           boolean hideDxBoxes = Boolean.parseBoolean(oscarVariables.getProperty("hide_extra_dx_codes"));
 %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -1534,14 +1536,14 @@ if(checkFlag == null) checkFlag = "0";
 													</td>
 												</tr>
 												
-												<tr hidden="hidden"> <!-- Hidden by Ronnie Cheng 2017-05-26 -->
+												<tr <%= hideDxBoxes ? "hidden=\"hidden\"" : "" %>>
 													<td>dx1</td>
 													<td><input type="text" name="dxCode1" size="5"
 														maxlength="5" ondblClick="dxScriptAttach('dxCode1')"
 														value="<%=request.getParameter("dxCode1")!=null?request.getParameter("dxCode1"):""%>" />
 														<a href=# onclick="dxScriptAttach('dxCode1')">Search</a></td>
 												</tr>
-												<tr hidden="hidden"> <!-- Hidden by Ronnie Cheng 2017-05-26 -->
+												<tr <%= hideDxBoxes ? "hidden=\"hidden\"" : "" %>>
 													<td>dx2</td>
 													<td><input type="text" name="dxCode2" size="5"
 														maxlength="5" ondblClick="dxScriptAttach('dxCode2')"

@@ -70,6 +70,8 @@
 			String color = "";
 			String premiumFlag = "";
 			String service_form = "";
+			
+	boolean addDxOnSave = Boolean.parseBoolean(props.getProperty("add_dx_on_bill"));
 %>
 
 <%
@@ -153,77 +155,76 @@ boolean dupServiceCode = false;
         Properties propCodeDesc = (new JdbcBillingCodeImpl()).getCodeDescByNames(vecServiceParam[0]);
 		String demo_no = request.getParameter("demographic_no");
 		String dxCode = request.getParameter("dxCode");
-		if (dxCode!=null) dxCode = dxCode.trim();
-		
 		String icd9Code = "";
 		String icd9Desc = "";
-		if (dxCode!=null && !dxCode.isEmpty()) {
+		if (addDxOnSave) {
+			if (dxCode != null) dxCode = dxCode.trim();
+
 			
-			UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
-			DxresearchDAO dxresearchDao = SpringUtils.getBean(DxresearchDAO.class);
-			Icd9Dao icd9Dao = SpringUtils.getBean(Icd9Dao.class);
-			DemographicExtDao demoExtDao = SpringUtils.getBean(DemographicExtDao.class);
-			
-			//load codelists to add to patientDx
-			UserProperty codeListProp = userPropertyDao.getProp(UserProperty.CODE_TO_ADD_PATIENTDX);
-			if (codeListProp!=null) {
-				String codeList = codeListProp.getValue();
-				if (codeList!=null) {
-					String[] codes = codeList.replace(" ","").split(","); //remove spaces & split
-					if (Arrays.asList(codes).contains(dxCode)) icd9Code = dxCode;
-				}
-			}
-			if (icd9Code.isEmpty()) {
-				codeListProp = userPropertyDao.getProp(UserProperty.CODE_TO_MATCH_PATIENTDX);
-				if (codeListProp!=null) {
+			if (dxCode != null && !dxCode.isEmpty()) {
+
+				UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
+				DxresearchDAO dxresearchDao = SpringUtils.getBean(DxresearchDAO.class);
+				Icd9Dao icd9Dao = SpringUtils.getBean(Icd9Dao.class);
+				DemographicExtDao demoExtDao = SpringUtils.getBean(DemographicExtDao.class);
+
+				//load codelists to add to patientDx
+				UserProperty codeListProp = userPropertyDao.getProp(UserProperty.CODE_TO_ADD_PATIENTDX);
+				if (codeListProp != null) {
 					String codeList = codeListProp.getValue();
-					if (codeList!=null) {
-						String[] codes = codeList.replace(" ","").split(","); //remove spaces & split
-						for (String codePair : codes) {
-							String[] code = codePair.split(":");
-							if (dxCode.equals(code[0])) {
-								icd9Code = code[1]; break;
+					if (codeList != null) {
+						String[] codes = codeList.replace(" ", "").split(","); //remove spaces & split
+						if (Arrays.asList(codes).contains(dxCode)) icd9Code = dxCode;
+					}
+				}
+				if (icd9Code.isEmpty()) {
+					codeListProp = userPropertyDao.getProp(UserProperty.CODE_TO_MATCH_PATIENTDX);
+					if (codeListProp != null) {
+						String codeList = codeListProp.getValue();
+						if (codeList != null) {
+							String[] codes = codeList.replace(" ", "").split(","); //remove spaces & split
+							for (String codePair : codes) {
+								String[] code = codePair.split(":");
+								if (dxCode.equals(code[0])) {
+									icd9Code = code[1];
+									break;
+								}
 							}
 						}
 					}
 				}
-			}
-			
-			//match previously not-approved list
-			if (! icd9Code.isEmpty()) {
 				
-// 				codeListProp = userPropertyDao.getProp(user_no, UserProperty.CODE_TO_AVOID_PATIENTDX);
-// 				if (codeListProp!=null) {
-// 					String codeList = codeListProp.getValue();
+				if (!icd9Code.isEmpty()) {
 
-				DemographicExt demoExt = demoExtDao.getDemographicExt(Integer.parseInt(demo_no), "code_to_avoid_patientDx");
-				if (demoExt!=null) {
-					String codeList = demoExt.getValue();
-					
-					if (codeList!=null) {
-						String[] codes = codeList.replace(" ","").split(","); //remove spaces & split
-						if (Arrays.asList(codes).contains(icd9Code+"x3")) icd9Code = "";
+					DemographicExt demoExt = demoExtDao.getDemographicExt(Integer.parseInt(demo_no), "code_to_avoid_patientDx");
+					if (demoExt != null) {
+						String codeList = demoExt.getValue();
+
+						if (codeList != null) {
+							String[] codes = codeList.replace(" ", "").split(","); //remove spaces & split
+							if (Arrays.asList(codes).contains(icd9Code + "x3")) icd9Code = "";
+						}
 					}
 				}
-			}
-			
-			//match patientDx
-			if (! icd9Code.isEmpty()) {
-				List<Dxresearch> dxList = dxresearchDao.getByDemographicNo(Integer.parseInt(demo_no));
-				for (Dxresearch dx : dxList) {
-					if ("icd9".equals(dx.getCodingSystem()) && icd9Code.equals(dx.getDxresearchCode())) {
-						icd9Code = ""; break;
+
+				//match patientDx
+				if (!icd9Code.isEmpty()) {
+					List<Dxresearch> dxList = dxresearchDao.getByDemographicNo(Integer.parseInt(demo_no));
+					for (Dxresearch dx : dxList) {
+						if ("icd9".equals(dx.getCodingSystem()) && icd9Code.equals(dx.getDxresearchCode())) {
+							icd9Code = "";
+							break;
+						}
 					}
 				}
-			}
-			
-			//load icd9 description
-			if (! icd9Code.isEmpty()) {
-				Icd9 icd9 = icd9Dao.findByCode(icd9Code);
-				if (icd9!=null) icd9Desc = icd9.getDescription();
+
+				//load icd9 description
+				if (!icd9Code.isEmpty()) {
+					Icd9 icd9 = icd9Dao.findByCode(icd9Code);
+					if (icd9 != null) icd9Desc = icd9.getDescription();
+				}
 			}
 		}
-			
 			String dxDesc = prepObj.getDxDescription(dxCode);
 			String clinicview = oscarVariables.getProperty("clinic_view", "");
 			String clinicNo = oscarVariables.getProperty("clinic_no", "");
@@ -327,7 +328,8 @@ boolean dupServiceCode = false;
 
 			// create msg
 			String wrongMsg = errorMsg + warningMsg;
-
+			
+			boolean disableAddToRegistry = Boolean.parseBoolean(oscarVariables.getProperty("disable_add_to_registry"));
 			%>
 <c:set var="ctx" value="${pageContext.request.contextPath}" scope="request"/>
 <c:set var="demographicNo" value="${param.demographic_no}" scope="request"/>
@@ -351,8 +353,9 @@ boolean dupServiceCode = false;
 		var bClick = false;
 	    
 		function onSave() {
+		    <% if (addDxOnSave) { %>
 			addToDiseaseRegistry();
-			
+			<% } %>
 			var value=jQuery("#payee").val();
 			jQuery("#payeename").val(value);
             var ret = checkTotal();
@@ -630,7 +633,7 @@ window.onload=function(){
 
 </head>
 
-<body topmargin="0" onload="showtotal(),calculatePayment(), confirmDialog()">
+<body topmargin="0" onload="showtotal();calculatePayment(); <%= addDxOnSave ? "confirmDialog()" : "" %>">
 
 <form method="post" name="titlesearch" action="billingONSave.jsp" onsubmit="return onSave();">
     <input type="hidden" name="url_back" value="<%=request.getParameter("url_back")%>">
@@ -1367,9 +1370,11 @@ function validateItems(){
 			break;
 		}
 	}
-// Ronnie 2017-06-13: disabled upon client request
-// 	if (!ret) alert("Error: Nothing was selected");
-// 	else ret = confirm("Are you sure to add to the patient's disease registry?");
+	
+	<% if (disableAddToRegistry) { %>
+	if (!ret) alert("Error: Nothing was selected");
+	else ret = confirm("Are you sure to add to the patient's disease registry?");
+	<% } %>
 	return ret;
 }
 
@@ -1409,7 +1414,8 @@ function noAddToPatientDx(){
 
 
 <oscar:oscarPropertiesCheck property="DX_QUICK_LIST_BILLING_REVIEW" value="yes">
-
+	
+<% if (addDxOnSave) { %>
 <div id="confirmDialog" style="position:absolute; left:29%; top:30%; z-index:99; background-color:white; padding:50px; border:solid grey; border-width:1px 4px 4px 1px; font-size:medium">
 	Do you want to add [item] to the Disease Registry?
 	<br/><br/>
@@ -1418,6 +1424,7 @@ function noAddToPatientDx(){
 		<input type="button" value="No" onclick="noAddToPatientDx()"/>
 	</div>
 </div>
+<% } %>
 
 <div class="dxBox">
 	<h3>
@@ -1445,8 +1452,9 @@ function noAddToPatientDx(){
 				<jsp:param name="demographicNo" value="<%=demo_no%>"/>
 			</jsp:include>
 		</div>
-<!-- Ronnie 2017-06-13: disabled upon client request
-		<input type="button" value="Add To Disease Registry" onclick="addToDiseaseRegistry()"/> -->
+		<% if (disableAddToRegistry) { %>
+		<input type="button" value="Add To Disease Registry" onclick="addToDiseaseRegistry()"/>
+		<% } %>
 	</form>
 </div>
 
