@@ -2366,12 +2366,22 @@ import oscar.util.UtilDateUtilities;
                 
                 //NEW CATEGORY - data that doesn't fit into other categories
                 NewCategory[] newCategories = patientRec.getNewCategoryArray();
+                String extraCategoryData = "";
                 for (int i=0; i<newCategories.length; i++) {
                 	NewCategory ce = newCategories[i];  
-                	ce.getCategoryDescription();
-                	ce.getCategoryName();
-                	ce.getResidualInfoArray();
+                	
+                	Util.addLine("Uncategorized Data: ", ce.getCategoryName() + " : " + ce.getCategoryDescription());
+                	for(int x=0;x<ce.getResidualInfoArray().length;x++) {
+                		Util.addLine(extraCategoryData, getResidual(ce.getResidualInfoArray(x)));
+                	}
                 }
+                if (StringUtils.filled(extraCategoryData)) {
+    	            extra = Util.addLine("imported.cms4.2011.06", extra);
+    	            CaseManagementNote dmNote = prepareCMNote("2",null);
+    	            dmNote.setNote(extra);
+    	            saveLinkNote(dmNote, CaseManagementNoteLink.DEMOGRAPHIC, Long.valueOf(demographicNo));
+                }
+
                 
             }
             if(demoRes != null) {
