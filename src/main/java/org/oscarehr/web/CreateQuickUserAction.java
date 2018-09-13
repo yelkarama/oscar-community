@@ -161,11 +161,11 @@ public class CreateQuickUserAction extends DispatchAction {
 		p.setEmail("");
 		p.setLastUpdateUser(loggedInInfo.getLoggedInProviderNo());
 		p.setLastUpdateDate(new Date());
-		p.setBillingNo(userForm.getBillingNo());
+		p.setOhipNo(userForm.getBillingNo());
 		p.setRmaNo(userForm.getThirdPartyBillingNo());
 		
 		if(userForm.isGenerateBillingNo()) {
-			p.setBillingNo(generateBillingNo());
+			p.setOhipNo(generateBillingNo());
 		}
 		if(userForm.isGenerateThirdPartyBillingNo()) {
 			p.setRmaNo(generateThirdPartyBillingNo());
