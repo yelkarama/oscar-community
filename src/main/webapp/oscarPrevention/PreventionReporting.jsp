@@ -667,25 +667,25 @@ table.ele thead {
                   <% if ( firstLetter.size() > 0 ) {
                         String queryStr = getUrlParamList(firstLetter, "demo");
                         %>
-                    <a target="_blank" href="../report/GenerateLetters.jsp?<%=queryStr%>&amp;message=<%=java.net.URLEncoder.encode("Letter 1 Reminder Letter sent for :"+request.getAttribute("prevType"),"UTF-8")%>&amp;followupType=<%=followUpType%>&amp;followupValue=L1">Generate First Letter</a>
+                    <a target="_blank" href="../report/GenerateLetters.jsp?<%=queryStr%>&amp;message=<%=java.net.URLEncoder.encode("Letter 1 Reminder Letter sent for :"+request.getAttribute("prevType"),"UTF-8")%>&amp;prevention=<%= request.getParameter("prevention") %>&amp;followupType=<%=followUpType%>&amp;followupValue=L1">Generate First Letter</a>
                   <%}%>
 
                   <% if ( secondLetter.size() > 0 ) {
                         String queryStr = getUrlParamList(secondLetter, "demo");
                         %>
-                    <a target="_blank" href="../report/GenerateLetters.jsp?<%=queryStr%>&amp;message=<%=java.net.URLEncoder.encode("Letter 2 Reminder Letter sent for :"+request.getAttribute("prevType"),"UTF-8")%>&amp;followupType=<%=followUpType%>&amp;followupValue=L2">Generate Second Letter</a>
+                    <a target="_blank" href="../report/GenerateLetters.jsp?<%=queryStr%>&amp;message=<%=java.net.URLEncoder.encode("Letter 2 Reminder Letter sent for :"+request.getAttribute("prevType"),"UTF-8")%>&amp;prevention=<%= request.getParameter("prevention") %>&amp;followupType=<%=followUpType%>&amp;followupValue=L2">Generate Second Letter</a>
                   <%}%>
 
                     <% if ( !(firstLetter.size() > 0 && secondLetter.size() > 0) && otherLetter.size() > 0 ) {
                         String queryStr = getUrlParamList(otherLetter, "demo");
                     %>
-                    <a target="_blank" href="../report/GenerateLetters.jsp?<%=queryStr%>&amp;message=<%=java.net.URLEncoder.encode("Letter 1 Reminder Letter sent for :"+request.getAttribute("prevType"),"UTF-8")%>&amp;followupType=<%=followUpType%>&amp;followupValue=L1">Generate Other Letter</a>
+                    <a target="_blank" href="../report/GenerateLetters.jsp?<%=queryStr%>&amp;message=<%=java.net.URLEncoder.encode("Letter 1 Reminder Letter sent for :"+request.getAttribute("prevType"),"UTF-8")%>&amp;prevention=<%= request.getParameter("prevention") %>&amp;followupType=<%=followUpType%>&amp;followupValue=L1">Generate Other Letter</a>
                     <%}%>
 
                   <% if ( refusedLetter.size() > 0 ) {
                         String queryStr = getUrlParamList(refusedLetter, "demo");
                         %>
-                    <a target="_blank" href="../report/GenerateLetters.jsp?<%=queryStr%>&amp;message=<%=java.net.URLEncoder.encode("Letter 1 Reminder Letter sent for :"+request.getAttribute("prevType"),"UTF-8")%>&amp;followupType=<%=followUpType%>&amp;followupValue=L1">Generate Refused Letter</a>
+                    <a target="_blank" href="../report/GenerateLetters.jsp?<%=queryStr%>&amp;message=<%=java.net.URLEncoder.encode("Letter 1 Reminder Letter sent for :"+request.getAttribute("prevType"),"UTF-8")%>&amp;prevention=<%= request.getParameter("prevention") %>&amp;followupType=<%=followUpType%>&amp;followupValue=L1">Generate Refused Letter</a>
                   <%}%>
 
 

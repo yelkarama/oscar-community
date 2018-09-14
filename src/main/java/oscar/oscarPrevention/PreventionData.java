@@ -24,8 +24,10 @@
 
 package oscar.oscarPrevention;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -37,6 +39,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.log4j.Logger;
+import org.opensaml.xml.signature.P;
 import org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorManager;
 import org.oscarehr.PMmodule.caisi_integrator.IntegratorFallBackManager;
 import org.oscarehr.PMmodule.caisi_integrator.RemotePreventionHelper;
@@ -281,6 +284,28 @@ public class PreventionData {
 		return getPreventionData(loggedInInfo, null, demoNo);
 	}
 
+	public static Map<String, String> getLastPreventionDateForDemographics (String preventionType, String[] demographicNos) {
+		Map<String, String> preventionDates = new HashMap<>();
+		if (preventionType != null) {
+
+			Integer[] parsedDemographicNos = new Integer[demographicNos.length];
+			for (int i = 0; i < demographicNos.length; i++) {
+				parsedDemographicNos[i] = Integer.valueOf(demographicNos[i]);
+			}
+			List<Integer> demographicNoList = new ArrayList<Integer>(Arrays.asList(parsedDemographicNos));
+
+			List<Prevention> preventions = preventionDao.findByTypeAndDemoNos(preventionType, demographicNoList);
+			
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+			for (Prevention prevention : preventions) {
+				String preventionDate = partialDateDao.getDatePartial(sdf.format(prevention.getPreventionDate()), PartialDate.PREVENTION, prevention.getId(), PartialDate.PREVENTION_DATE);
+				preventionDates.put(prevention.getDemographicId().toString(), preventionDate);
+			}
+		}
+		return preventionDates;
+	}
+	
 	public static ArrayList<Map<String, Object>> getPreventionData(LoggedInInfo loggedInInfo, String preventionType, Integer demographicId) {
 		ArrayList<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 

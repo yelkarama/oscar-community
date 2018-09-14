@@ -75,6 +75,14 @@ if(!authed) {
         <script type="text/javascript" src="../js/demographicProviderAutocomplete.js"></script>
         
 <script type="text/javascript">
+    function addRecipient(name, number) {
+        var remove = "<a href='javascript:void(0);' onclick='removeRecipient(this)'>remove</a>";
+        var html = "<li>"+name+"<b>, Fax No: </b>"+number+ " " +remove+"<input type='hidden' name='faxRecipients' value='"+number+"'></input></li>";
+        jQuery("#faxRecipients").append(jQuery(html));
+        updateFaxButton();
+    }
+    
+    
     function faxDocument(docId, demographicNo){
 
         var faxRecipients = "";

@@ -131,6 +131,17 @@ public class PreventionDao extends AbstractDao<Prevention> {
 		return (results);
 	}
 
+	public List<Prevention> findNotDeletedByDemographicIds(List<Integer> demographicIds) {
+		Query query = entityManager.createQuery("select x from "+modelClass.getSimpleName()+" x where demographicId IN (:demogrpahicNos) and deleted=:deleted");
+		query.setParameter("demographicNos", demographicIds);
+		query.setParameter("deleted", '0');
+
+		@SuppressWarnings("unchecked")
+		List<Prevention> results = query.getResultList();
+
+		return (results);
+	}
+
 	public List<Prevention> findByTypeAndDate(String preventionType, Date startDate, Date endDate) {
 		Query query = entityManager.createQuery("select x from "+modelClass.getSimpleName()+" x where preventionType=?1 and preventionDate>=?2 and preventionDate<=?3 and deleted='0' and refused='0' order by preventionDate");
 		query.setParameter(1, preventionType);
@@ -143,13 +154,23 @@ public class PreventionDao extends AbstractDao<Prevention> {
 		return (results);
 	}
 
+	public List<Prevention> findByTypeAndDemoNos(String preventionType, List<Integer> demoNos) {
+		Query query = entityManager.createNativeQuery("SELECT id, demographic_no, creation_date, MAX(prevention_date) AS prevention_date, provider_no, provider_name, prevention_type, deleted, refused, never, next_date, creator, lastUpdateDate FROM preventions x where prevention_type=:preventionType AND demographic_no IN (:demographicNos) AND deleted='0' GROUP BY demographic_no ORDER BY prevention_date", Prevention.class);
+		query.setParameter("preventionType", preventionType);
+		query.setParameter("demographicNos", demoNos);
+		
+		@SuppressWarnings("unchecked")
+        List<Prevention> results = query.getResultList();
+		return (results);
+	}
+
 	public List<Prevention> findByTypeAndDemoNo(String preventionType, Integer demoNo) {
 		Query query = entityManager.createQuery("select x from "+modelClass.getSimpleName()+" x where preventionType=?1 and demographicId=?2 and deleted='0' order by preventionDate");
 		query.setParameter(1, preventionType);
 		query.setParameter(2, demoNo);
-		
+
 		@SuppressWarnings("unchecked")
-        List<Prevention> results = query.getResultList();
+		List<Prevention> results = query.getResultList();
 		return (results);
 	}
 

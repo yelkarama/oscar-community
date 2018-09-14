@@ -222,6 +222,7 @@ function disableifchecked(ele,nextDate){
 				value="ON" checked /> <input type="hidden" name="followupType"
 				value="<%=followUpType%>" /> <input type="hidden"
 				name="followupValue" value="<%=followUpValue%>" /> <%}%>
+				<input type="hidden" name="prevention" value="<%=request.getParameter("prevention")%>">
 			</div>
 
 			<input type="submit" value="Generate Letters" />

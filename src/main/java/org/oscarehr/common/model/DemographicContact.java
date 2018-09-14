@@ -55,6 +55,8 @@ public class DemographicContact extends AbstractModel<Integer> {
 	public static final String CATEGORY_PERSONAL = "personal";
 	public static final String CATEGORY_PROFESSIONAL = "professional";
 
+	public static final String ROLE_GUARDIAN = "Guardian";
+	
     public static final String CONTACT_CELL = "cell";
     public static final String CONTACT_EMAIL = "email";
     public static final String CONTACT_PHONE = "phone";
