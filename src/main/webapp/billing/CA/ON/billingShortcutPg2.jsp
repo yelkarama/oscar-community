@@ -270,11 +270,12 @@
 	for(int i=0; i<vecServiceCodePrice.size(); i++) {
     	BigDecimal price = new BigDecimal(Double.parseDouble((String)vecServiceCodePrice.get(i))).setScale(2, BigDecimal.ROUND_HALF_UP);
     	BigDecimal unit = new BigDecimal(Double.parseDouble((String)vecServiceCodeUnit.get(i))).setScale(2, BigDecimal.ROUND_HALF_UP);
-    	bdTotal = bdTotal.add(price.multiply(unit).setScale(2, BigDecimal.ROUND_HALF_UP));
+    	BigDecimal itemTotal = price.multiply(unit).setScale(2, BigDecimal.ROUND_HALF_UP);
+    	bdTotal = bdTotal.add(itemTotal);
     	if(i==rulePercLabelNum) {
             bdPercBase = bdTotal;
         }
-		msg += "<tr bgcolor='#EEEEFF'><td align='right' width='20%'>" + vecServiceCode.get(i) + " ("+Math.round(unit.floatValue())+")</td><td align='right'>" + (i==0?"":" + ") + price + " x " + unit + " = " + bdTotal + "</td></tr>";
+		msg += "<tr bgcolor='#EEEEFF'><td align='right' width='20%'>" + vecServiceCode.get(i) + " ("+Math.round(unit.floatValue())+")</td><td align='right'>" + (i==0?"":" + ") + price + " x " + unit + " = " + itemTotal + "</td></tr>";
 	}
 
 		// calculate perc base
@@ -286,8 +287,26 @@
         for( int idx3 = 0; idx3 < size; ++idx3) {
 		// calculate perc
 		BigDecimal perc = new BigDecimal(Double.parseDouble((String)vecServiceCodePerc.get(codeIdx))).setScale(2, BigDecimal.ROUND_HALF_UP);
-		bdPerc = bdPercBase.multiply(perc).setScale(2, BigDecimal.ROUND_HALF_UP);
-		msg += "<tr bgcolor='#EEEEFF'><td align='right'>"+vecServiceCodePerc.get(codeIdx-1)+" (1)</td><td align='right'>Percentage : " + bdPercBase + " x " + perc + " = " + bdPerc + "</td></tr>";
+		BigDecimal percCodeVal = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
+		
+		msg += "<tr bgcolor='#EEEEFF'><td align='right'>"+vecServiceCodePerc.get(codeIdx-1)+" (1)</td><td align='right'>";
+			for(int i=0; i<vecServiceCodePrice.size(); i++) {
+			    
+				
+				BigDecimal unit = new BigDecimal(Double.parseDouble((String)vecServiceCodeUnit.get(i))).setScale(2, BigDecimal.ROUND_HALF_UP);
+				BigDecimal price = new BigDecimal(Double.parseDouble((String)vecServiceCodePrice.get(i))).setScale(2, BigDecimal.ROUND_HALF_UP);
+				price = price.multiply(unit).setScale(2, BigDecimal.ROUND_HALF_UP);
+				
+				percCodeVal = perc.multiply(price).setScale(2, BigDecimal.ROUND_HALF_UP);
+				
+				if(request.getParameter("percCode_" + i) != null) {
+					bdPerc = bdPerc.add(percCodeVal);
+				}
+				
+				msg += (i>0? " | " : "") + "<input type='checkbox' name='percCode_" + i + "' value='" + percCodeVal + "' onclick='onCheckMaster();'/>" +
+						percCodeVal + "<span style='font-size:small;'>("+ price + " x " + perc + " x 1)</span>";
+			}
+			msg += "<br/><span style='float:right'> = <span id='percTotal'>" + bdPerc + "</span></span></td></tr>";
 		// adjust perc by min/max
 		
 		if (aMaxFee[idx3] != null && !aMaxFee[idx3].equals("") && bdPerc.compareTo(new BigDecimal(Double.parseDouble(aMaxFee[idx3]))) > 0) {
@@ -305,7 +324,7 @@
 	}
 
     total = "" + bdTotal;
-		msg += "<tr><td align='right' colspan='2'>Total: " + bdTotal + "</td></tr>";
+		msg += "<tr><td align='right' colspan='2'>Total: <span id='total'> " + bdTotal + "</span></td></tr>";
 	// referral
     content = "";
     String referalCode = (request.getParameter("referralCode")!=null&&request.getParameter("referralCode").length()==6)?request.getParameter("referralCode"):null;
@@ -463,6 +482,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
+	<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery.js"></script>
 <title>OscarBilling</title>
 <script language="JavaScript">
 	<!--
@@ -476,6 +496,25 @@
 	        return ret;
 	    }
 	//-->
+
+    function onCheckMaster() {
+		var totalEle = jQuery('#total')[0];
+		var total = parseFloat('<%=total%>');
+		var percentTotal = 0;
+		
+		var checkedPerc = jQuery("input[name^=percCode_]:checked");
+
+		if (checkedPerc != null) {
+            checkedPerc.each(function () {
+                percentTotal += parseFloat(jQuery(this).val());
+            });
+		}
+		
+		total += percentTotal;
+
+        jQuery('#percTotal')[0].innerText = (percentTotal).toFixed(2);
+        totalEle.innerText = (total).toFixed(2);
+	}
 	</script>
 </head>
 
