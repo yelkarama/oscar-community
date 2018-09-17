@@ -1965,6 +1965,7 @@ insert into `secObjPrivilege` values('doctor','_allergy','x',0,'999998');
 insert into `secObjPrivilege` values('doctor','_eyeform','x',0,'999998');
 insert into `secObjPrivilege` values('doctor','_phr','x',0,'999998');
 insert into `secObjPrivilege` values('doctor','_admin.document','x',0,'999998');
+insert into `secObjPrivilege` values('doctor','_rx.editPharmacy','x',0,'999998');
 
 insert into `secObjPrivilege` values('admin', '_admin', 'x', 0, '999998');
 insert into `secObjPrivilege` values('admin','_masterLink','x',0,999998);

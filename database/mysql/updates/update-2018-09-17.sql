@@ -1,0 +1,1 @@
+INSERT INTO `secObjPrivilege` VALUES('doctor', '_rx.editPharmacy', 'x', 0, '999998');

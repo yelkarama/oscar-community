@@ -430,10 +430,12 @@ function returnToRx(){
 							<td class="postalCode" ><%=ph.getPostalCode()%></td>
 							<td class="phone" ><%=ph.getPhone1()%></td>
 							<td class="fax" ><%=ph.getFax()%></td>
+							<security:oscarSec roleName="<%=roleName$%>" objectName="_rx.editPharmacy" rights="w" reverse="false">
 							<td onclick='event.stopPropagation();return false;'><a href="#"  onclick="editPharmacy(<%=ph.getId()%>);"><bean:message
 								key="SelectPharmacy.editLink" /></a></td>
 							<td onclick='event.stopPropagation();return false;'><a href="#" class="deletePharm"><bean:message
 								key="SelectPharmacy.deleteLink" /></a></td>
+							</security:oscarSec>
 						</tr>
 						<% } %>
 					</table>
