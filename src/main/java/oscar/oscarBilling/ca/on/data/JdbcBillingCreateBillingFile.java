@@ -1139,38 +1139,40 @@ public class JdbcBillingCreateBillingFile {
             File downloadFolder = new File(OscarProperties.getInstance().getProperty("HOME_DIR"));
             File[] files = downloadFolder.listFiles();
             for (File file : files) {
-                try {
-                    if (file.isFile()) {
-                        if (file.getName().endsWith(".html")) {
-                            BillingONFilename matchedFile = billingONFilenameDao.findByFilename(file.getName());
-                            if (matchedFile != null) {
-                                String fileYear = matchedFile.getTimestamp().toString().substring(0, 4);
-                                File directory = new File(downloadFolder.getPath() + "/" + fileYear);
-                                Files.createDirectories(directory.toPath());
-                                directory.setReadable(true, false);
-                                directory.setWritable(true, false);
-                                directory.setExecutable(true, false);
-                                File newLocation = new File(directory.getPath() + "/" + matchedFile.getHtmlFilename());
-                                Files.move(file.toPath(), newLocation.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                            }
-                        } else {
-                            BillingONDiskName matchedFile = billingONDiskNameDao.findLatestByOhipFilename(file.getName());
-                            if (matchedFile != null) {
-                                String fileYear = matchedFile.getTimestamp().toString().substring(0, 4);
-                                File directory = new File(downloadFolder.getPath() + "/" + fileYear);
-                                Files.createDirectories(directory.toPath());
-                                directory.setReadable(true, false);
-                                directory.setWritable(true, false);
-                                directory.setExecutable(true, false);
-                                File newLocation = new File(directory.getPath() + "/" + matchedFile.getOhipFilename());
-                                Files.move(file.toPath(), newLocation.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                            }
-                        }
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+				if (file.isFile()) {
+					if (file.getName().endsWith(".html")) {
+						BillingONFilename matchedFile = billingONFilenameDao.findByFilename(file.getName());
+						if (matchedFile != null) {
+							String fileYear = matchedFile.getTimestamp().toString().substring(0, 4);
+							moveOhipFile(file, downloadFolder, fileYear);
+						} else {
+							moveOhipFile(file, downloadFolder, "unmatched");
+						}
+					} else {
+						BillingONDiskName matchedFile = billingONDiskNameDao.findLatestByOhipFilename(file.getName());
+						if (matchedFile != null) {
+							String fileYear = matchedFile.getTimestamp().toString().substring(0, 4);
+							moveOhipFile(file, downloadFolder, fileYear);
+						} else {
+							moveOhipFile(file, downloadFolder, "unmatched");
+						}
+					}
+				}
             }
         }
     }
+    
+    private static void moveOhipFile(File file, File downloadFolder, String destinationFolder) {
+		try {
+			File directory = new File(downloadFolder.getPath() + "/" + destinationFolder);
+			Files.createDirectories(directory.toPath());
+			directory.setReadable(true, false);
+			directory.setWritable(true, false);
+			directory.setExecutable(true, false);
+			File newLocation = new File(directory.getPath() + "/" + file.getName());
+			Files.move(file.toPath(), newLocation.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }
