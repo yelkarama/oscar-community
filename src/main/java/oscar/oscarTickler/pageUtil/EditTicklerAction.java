@@ -252,7 +252,12 @@ public class EditTicklerAction extends DispatchAction{
             // Create new note
             CaseManagementManager caseManagementMgr = (CaseManagementManager) SpringUtils.getBean("caseManagementManager");
             CaseManagementNote note = new CaseManagementNote();
-            String noteBody = "["+t.getUpdateDate()+" .: Tickler]\n\n"+newMessage;
+            String noteBody = "["+t.getUpdateDate()+" .: Tickler]\n\n";
+            noteBody += t.getMessage() + "\n\n";
+            for (TicklerComment comment : t.getComments()) {
+                noteBody += comment.getMessage() + "\n\n";
+            }
+            
             Date today = new Date();
             note.setObservation_date(today);
             note.setUpdate_date(today);
