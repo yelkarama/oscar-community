@@ -2436,7 +2436,7 @@ VALUES
         ('eyeformProblem', 'Problem List Item for Eyeform', 'nurse', NOW(), NULL, 'system',0);
 
 
-insert into HRMCategory values (null, 'General Oscar Lab', 'DEFAULT');
+insert into HRMCategory values (null, 'Oscar HRM Category Uncategorized', 'DEFAULT');
 insert into HRMCategory values (null, 'Oscar HRM Category CT:ABDW' ,'CT:ABDW');
 insert into HRMCategory values (null, 'Oscar HRM Category RAD:CSP5' ,'RAD:CSP5');
 insert into HRMCategory values (null, 'Oscar HRM Category NM:THYSAN' ,'NM:THYSAN');
