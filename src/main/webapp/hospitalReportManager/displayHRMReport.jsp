@@ -531,7 +531,7 @@ String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 		<tr>
 			<th>Source Facility:</th>
 			<td>
-				<%=hrmDocument.getSourceFacility() %>
+				<%=StringUtils.trimToEmpty(hrmDocument.getSourceFacility()) %>
 			</td>
 		</tr>
 		<tr>
