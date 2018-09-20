@@ -23,6 +23,7 @@
     Ontario, Canada
 
 --%>
+<%@page import="java.util.Date"%>
 <%@page import="org.apache.commons.lang.StringUtils"%>
 <%@page import="org.oscarehr.common.dao.OscarAppointmentDao"%>
 <%@page import="java.text.SimpleDateFormat"%>
@@ -56,6 +57,8 @@ UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 
 
 <%
+	SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
+
 	String targetProviderNo = request.getParameter("provider_no");
 	Provider provider = null;
 	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
@@ -155,6 +158,24 @@ UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 
 	<script>jQuery.noConflict();</script>
 
+	<script>
+	function popupEChart9(vheight,vwidth,varpage,flag) { //open a new popup window
+		
+		  var page = "" + varpage;
+		  windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=50,screenY=50,top=20,left=20";
+		  
+		  
+		  
+		  var popup=window.open(page, "encounter", windowprops);
+		  if (popup != null) {
+		    if (popup.opener == null) {
+		      popup.opener = self;
+		    }
+		    popup.focus();
+		  }
+		}
+	</script>
+	
 	<script>
 	function addTopic() {
 		var total = jQuery("#topics_num").val();
@@ -466,9 +487,12 @@ UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 	                    	   	}
 	                    	   %>
 	                    	   
+
+	                    	   var click = "popupEChart9(710,1024,'<%=request.getContextPath()%>/oscarEncounter/IncomingEncounter.do?providerNo=<%=LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo()%>&appointmentNo="+a.appointmentNo+"&demographicNo="+a.demographicNo+"&curProviderNo=&reason=&encType=&curDate=<%=fmt.format(new Date())%>&appointmentDate=<%=sessionDateStr%>&startTime=&status=',false);return false;";
+	                    	   
 	                    	   
 	                    	   var newData = "<tr><td><a href='javascript:void()' onClick='deleteParticipant("+a.appointmentNo+",\""+a.name+"\")'><img src='../images/close16.png' border='0'></a><input type='checkbox' id='checked_"+a.appointmentNo+"' name='checked' value='"+a.appointmentNo+"' onChange='updateCheckbox(this)'/></td>" + 
-	                    	   "<td style='width:20%'>" +a.name + "</td>";
+	                    	   "<td style='width:20%'>" +a.name + "</td><td><a href=\"#\" onClick=\""+ click + "\" >E</a></td>";
 	                    	   
 	                    	   <%
 	                    	   if(!dropIn) { %>
@@ -895,6 +919,7 @@ UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 			<thead style="background-color:<%=deepcolor%>;text-align:left">
 				<th width="1%"><input type="checkbox" id="check_all"/></th>
 				<th>Name</th>
+				<th style="width:1%"></th>
 				<%if(!dropIn) { %>
 				<th>Attendance Status</th>
 				<th>Group Status</th>

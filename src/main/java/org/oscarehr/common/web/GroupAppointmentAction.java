@@ -145,6 +145,7 @@ public class GroupAppointmentAction extends DispatchAction {
 				a.put("appointmentNo", appt.getId());
 				a.put("name", appt.getName());
 				a.put("status", appt.getStatus());
+				a.put("demographicNo", appt.getDemographicNo());
 				
 				for(UserProperty tracker:trackers) {
 					String ccName = CaseUtils.toCamelCase(tracker.getValue().split("\\|")[0],false);	
