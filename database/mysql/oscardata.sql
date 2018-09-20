@@ -1488,7 +1488,32 @@ INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `me
 ( 'WBC', 'WBC', 'White Cell Count', 'x10 9/L Range 4-11', '14', '2014-05-09 00:00:00'),
 ( 'WHR', 'Waist:Hip', 'Waist Hip Ratio', 'Range:0.5-2 Interval:3mo.', '2', '2013-02-01 00:00:00'),
 ( 'WKED', 'Work/Education', 'NULL', 'Review', '16', '2013-12-30 13:00:00'),
-( 'WT', 'WT', 'Weight', 'in kg', '5', '2013-02-01 00:00:00');
+( 'WT', 'WT', 'Weight', 'in kg', '5', '2013-02-01 00:00:00'),
+( 'UMS', 'Urinary Microalbumin Screen', 'Urinary Microalbumin Screen', 'Records the value of the Urinary Microalbumin test: mg/L', '14', '2018-09-14 00:00:00'),
+( 'FEV1BF', 'FEV1 (before puff)', 'FEV1 (before puff)', 'Forced Expiratory Volume: the volume of air that has been exhaled by the patient at the end of the first second of forced expiration', '14', '2018-09-14 00:00:00'),
+( 'FVCBF', 'FVC (before puff)', 'FVC (before puff)', 'Forced Vital Capacity: the volume of air that has been forcibly and maximally exhaled out by the patient until no more can be expired', '14', '2018-09-14 00:00:00'),
+( 'FEV1PCBF', 'FEV1% (before puff)', 'FEV1% (before puff)', 'The ratio of FEV1 to FVC calculated for the patient', '14', '2018-09-14 00:00:00'),
+( 'FEV1PRE', 'FEV1 predicted', 'FEV1 predicted', 'The FEV1 calculated in the population with similar characteristics (e.g. height, age, sex, race, weight, etc.)', '14', '2018-09-14 00:00:00'),
+( 'FVCPRE', 'FVC predicted', 'FVC predicted', 'Forced Vital Capacity predicted: calculated in the population with similar characteristics (height, age, sex, and sometimes race and weight)', '14', '2018-09-14 00:00:00'),
+( 'FEV1PCPRE', 'FEV1% predicted', 'FEV1% predicted', 'The ratio of FEV1 predicted to FVC predicted, calculated in the population with similar characteristics (height, age, sex, and sometimes race and weight)', '14', '2018-09-14 00:00:00'),
+( 'FEV1PCOFPREBF', 'FEV1% of predicted (before puff)', 'FEV1% of predicted (before puff)', 'FEV1% (before puff) of the patient divided by the average FEV1% predicted in the population with similar characteristics (e.g. height, age, sex, race, weight, etc.)', '14', '2018-09-14 00:00:00'),
+( 'FVCRTBF', 'FVC ratio (before puff)', 'FVC ratio (before puff)', 'FVC actual (before puff) / FVC predicted', '14', '2018-09-14 00:00:00'),
+( 'FEV1FVCRTBF', 'FEV1 / FVC ratio (before puff)', 'FEV1 / FVC ratio (before puff)', 'FEV1 / FVC (before puff) actual divided by FEV1 / FVC predicted', '14', '2018-09-14 00:00:00'),
+( 'PEFRBF', 'PEF personal (before puff)', 'PEF personal (before puff)', 'Peak Expiratory Flow: the maximal flow (or speed) achieved during the maximally forced expiration initiated at full inspiration', '14', '2018-09-14 00:00:00'),
+( 'FEV1AFT', 'FEV1 (after puff)', 'FEV1 (after puff)', 'Forced Expiratory Volume: the volume of air that has been exhaled by the patient at the end of the first second of forced expiration', '14', '2018-09-14 00:00:00'),
+( 'FVCAFT', 'FVC (after puff)', 'FVC (after puff)', 'Forced Vital Capacity: the volume of air that has been forcibly and maximally exhaled out by the patient until no more can be expired', '14', '2018-09-14 00:00:00'),
+( 'FEV1PCAFT', 'FEV1% (after puff)', 'FEV1% (after puff)', 'The ratio of FEV1 to FVC calculated for the patient', '14', '2018-09-14 00:00:00'),
+( 'FEV1PCOFPREAFT', 'FEV1% of predicted (after puff)', 'FEV1% of predicted (after puff)', 'FEV1% (after puff) of the patient divided by the average FEV1% predicted in the population with similar characteristics (e.g. height, age, sex, race, weight, etc.)', '14', '2018-09-14 00:00:00'),
+( 'FVCRTAFT', 'FVC ratio (after puff)', 'FVC ratio (after puff)', 'FVC actual (after puff) / FVC predicted', '14', '2018-09-14 00:00:00'),
+( 'FEV1FVCRTAFT', 'FEV1 / FVC ratio (after puff)', 'FEV1 / FVC ratio (after puff)', 'FEV1 / FVC (after puff) actual divided by FEV1 / FVC predicted', '14', '2018-09-14 00:00:00'),
+( 'PEFRAFT', 'PEF personal (after puff)', 'PEF personal (after puff)', 'Peak Expiratory Flow: the maximal flow (or speed) achieved during the maximally forced expiration initiated at full inspiration', '14', '2018-09-14 00:00:00'),
+
+( 'ANELV', 'Asthma: # Of Exacerbations Requiring Clinical Evaluation since last assessment', 'Asthma: # Of Exacerbations Requiring Clinical Evaluation since last assessment', 'The number of exacerbations since the last assessment requiring clinical evaluations reported by the patient', '14', '2018-09-14 00:00:00'),
+( 'CNOLE', 'COPD: # of Exacerbations since last assessment', 'COPD: # of Exacerbations since last assessment', 'The number of exacerbations due to COPD since last visit, as reported by the patient', '14', '2018-09-14 00:00:00'),
+( 'WHE', 'Wheezing', 'Wheezing', 'Records whether the patient is wheezing or not', '18', '2018-09-14 00:00:00'),
+( 'HFMR', 'HF Medication Review', 'Heart Failure Medication Review', 'Records whether medication adherence for Heart Failure 
+purpose has been discussed with the patient', '18', '2018-09-14 00:00:00');
+
 
 --
 -- Dumping data for table 'measurementCSSLocation'
@@ -1710,7 +1735,8 @@ INSERT INTO `validations` (`id`, `name`, `regularExp`, `maxValue1`, `minValue`, 
 (14,'Numeric Value greater than or equal to 0',NULL,0,0,0,0,1,NULL,0),
 (15, 'Yes/No/Maybe', 'YES|yes|Yes|Y|NO|no|No|N|MAYBE|maybe|Maybe', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (16, 'Review', 'REVIEWED|reviewed|Reviewed', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(17,'pos or neg', 'pos|neg|positive|negative', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+(17,'pos or neg', 'pos|neg|positive|negative', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(18,'Yes/No', 'YES|yes|Yes|Y|NO|no|No|N', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 
 insert into `secRole` values(1, 'receptionist', 'receptionist');

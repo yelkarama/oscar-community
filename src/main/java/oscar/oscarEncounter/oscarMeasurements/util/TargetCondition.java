@@ -97,7 +97,7 @@ public class TargetCondition {
                 toParse = toParse.replaceFirst("<","");
                 double lt = Double.parseDouble(toParse.trim());
                 list.add(new DSCondition("getDataAsDouble", "", "<=", ""+lt));
-            }else if (!toParse.equals("")){ // less than style
+            }else if (!toParse.equals("")){ // equal style
                 double eq = Double.parseDouble(toParse.trim());
                 list.add(new DSCondition("getDataAsDouble", "", "==", ""+eq));
             }
@@ -154,7 +154,7 @@ public class TargetCondition {
                         toParse = toParse.replaceFirst("<","");
                         int lt = Integer.parseInt(toParse);
                         list.add(new DSCondition("getNumberFromSplit(\"/\","+i+")", param, "<=", ""+lt));
-                    }else if (!toParse.equals("")){ // less than style
+                    }else if (!toParse.equals("")){ // equal style
                         int eq = Integer.parseInt(toParse);
                         list.add(new DSCondition("getNumberFromSplit(\"/\","+i+")", param, "==", ""+eq));
                     }
