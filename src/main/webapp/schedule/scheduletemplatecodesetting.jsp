@@ -243,7 +243,7 @@ function checkInput() {
 					<%=(bEdit? (dataBean.getProperty("confirm").equals("Day")? "checked" : "") : "checked")%>>Same Day
 				<input type="radio" name="confirm" value="Wk"
 					<%=(bEdit? (dataBean.getProperty("confirm").equals("Wk")? "checked" : "") : "checked")%>>Same Week
-					<% if (Boolean.parseBoolean(OscarProperties.getInstance().getProperty("OnCallClinic"))) { %>
+					<% if (OscarProperties.getInstance().isPropertyActive("OnCallClinic")) { %>
 			   <input type="radio" name="confirm" value="Onc"
 					<%=(bEdit? (dataBean.getProperty("confirm").equals("Onc")? "checked" : "") : "checked")%>>On-Call Urgent
 					<% } %>
