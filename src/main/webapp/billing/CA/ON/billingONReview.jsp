@@ -1371,7 +1371,7 @@ function validateItems(){
 		}
 	}
 	
-	<% if (disableAddToRegistry) { %>
+	<% if (!disableAddToRegistry) { %>
 	if (!ret) alert("Error: Nothing was selected");
 	else ret = confirm("Are you sure to add to the patient's disease registry?");
 	<% } %>
@@ -1452,7 +1452,7 @@ function noAddToPatientDx(){
 				<jsp:param name="demographicNo" value="<%=demo_no%>"/>
 			</jsp:include>
 		</div>
-		<% if (disableAddToRegistry) { %>
+		<% if (!disableAddToRegistry) { %>
 		<input type="button" value="Add To Disease Registry" onclick="addToDiseaseRegistry()"/>
 		<% } %>
 	</form>
