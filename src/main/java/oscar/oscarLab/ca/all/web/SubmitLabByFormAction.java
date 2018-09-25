@@ -223,9 +223,9 @@ public class SubmitLabByFormAction extends DispatchAction {
 				if(x>0)ccString.append("~");
 				ccString.append(idName[0]);
 				ccString.append("^");
-				ccString.append(idName[1]);
+				ccString.append(idName.length>1 ? idName[1] : "");
 				ccString.append("^");
-				ccString.append(idName[2]);
+				ccString.append(idName.length>2 ? idName[2] : "");
 			}
 		}
 		return "OBR|1|||UR^General Lab^L1^GENERAL LAB||"+sdf.format(lab.getLabReqDate())+"|"+sdf.format(lab.getTests().get(0).getDate())+"|||||||"+sdf.format(lab.getLabReqDate())+"||"+lab.getBillingNo()+"^"+lab.getProviderLastName()+"^"+lab.getProviderFirstName()+"||||||"+sdf.format(lab.getTests().get(0).getDate())+"||LAB|F|||"+ccString.toString();
