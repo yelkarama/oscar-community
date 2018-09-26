@@ -715,17 +715,17 @@
                         <fieldset id="faxFields_<%=docId%>"  <%=faxEnabled?"":"style='display:none'"%>  >
                             <script type="text/javascript">
                                 jQuery.noConflict();
-                                function faxDocument(docId){
+                                function faxDocument(docId, demographicNo){
 
                                     var faxRecipients = "";
-                                    if($("faxRecipients").children.length <= 0){
+                                    if($("faxRecipients_<%=docId%>").children.length <= 0){
                                         alert("Please select at least one Fax Recipient");
                                         return false;
                                     }
                                     else{
-                                        for(var i=0; i<$("faxRecipients").children.length; i++){
+                                        for(var i=0; i<$("faxRecipients_<%=docId%>").children.length; i++){
                                             var separator = "&faxRecipients=";
-                                            if (i === ($("faxRecipients").children.length - 1)) {
+                                            if (i === ($("faxRecipients_<%=docId%>").children.length - 1)) {
                                                 separator = "";
                                             }
                                             faxRecipients += document.getElementsByName('faxRecipients')[i].value + separator;
@@ -735,7 +735,7 @@
                                     jQuery.ajax({
                                         type: "POST",
                                         url: "<%=request.getContextPath() %>/dms/ManageDocument.do",
-                                        data: "method=fax&docId=" + docId + "&faxRecipients=" + faxRecipients + "&demoNo=<%=demographicID%>&docType=DOC",
+                                        data: "method=fax&docId=" + docId + "&faxRecipients=" + faxRecipients + "&demoNo=" + demographicNo + "&docType=DOC",
                                         success: function(data) {
                                             if (data != null)
                                                 location.reload();
@@ -769,11 +769,11 @@
                                 <div id="faxOps">
                                     <div>
 
-                                        <ul id="faxRecipients">
+                                        <ul id="faxRecipients_<%=docId%>">
                                         </ul>
                                     </div>
                                     <div style="margin-top: 5px; text-align: center">
-                                        <input type="submit" onclick="faxDocument('<%=docId%>');" value="Send"/>
+                                        <input type="submit" onclick="faxDocument('<%=docId%>', '<%=demographicID%>');" value="Send"/>
                                     </div>
                                 </div>
 
@@ -924,7 +924,7 @@
             select: function(event, ui) {
                 jQuery("#autocompletereferral<%=docId%>").val("");
                 jQuery("#autocomplete_choicesreferral<%=docId%>").val("");
-                addRecipient(ui.item.label, ui.item.value);
+                addRecipientToDocument(ui.item.label, ui.item.value, <%=docId%>);
                 return false;
             }
         });
@@ -932,7 +932,7 @@
     jQuery(setupReferralDoctorAutoCompletion());
 
     <%  if (familySpecialist != null) { %>
-    addRecipient(<%=familySpecialist.getFirstName()%> + ', ' + <%=familySpecialist.getLastName()%>, <%=familySpecialist.getFaxNumber()%>);
+    addRecipientToDocument(<%=familySpecialist.getFirstName()%> + ', ' + <%=familySpecialist.getLastName()%>, <%=familySpecialist.getFaxNumber()%>);
     <%  } %>
 
 </script>

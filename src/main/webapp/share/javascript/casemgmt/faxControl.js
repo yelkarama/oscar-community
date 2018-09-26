@@ -25,6 +25,13 @@ function addRecipient(name, number) {
     updateFaxButton();
 }
 
+function addRecipientToDocument(name, number, documentId) {
+    var remove = "<a href='javascript:void(0);' onclick='removeRecipient(this)'>remove</a>";
+    var html = "<li>"+name+"<b>, Fax No: </b>"+number+ " " +remove+"<input type='hidden' name='faxRecipients' value='"+number+"'></input></li>";
+    jQuery("#faxRecipients_" + documentId).append(jQuery(html));
+    updateFaxButton();
+}
+
 function checkPhone(str)
 {
     var phone =  /^((\+\d{1,3}(-| )?\(?\d\)?(-| )?\d{1,5})|(\(?\d{2,6}\)?))(-| )?(\d{3,4})(-| )?(\d{4})(( x| ext)\d{1,5}){0,1}$/

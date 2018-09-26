@@ -67,8 +67,6 @@ if(!authed) {
 <script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/effects.js"></script>
 <script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/Oscar.js"></script>
 
-        <script type="text/javascript" src="../share/javascript/controls.js"></script>
-
         <script type="text/javascript" src="../share/yui/js/yahoo-dom-event.js"></script>
         <script type="text/javascript" src="../share/yui/js/connection-min.js"></script>
         <script type="text/javascript" src="../share/yui/js/animation-min.js"></script>
@@ -77,7 +75,40 @@ if(!authed) {
         <script type="text/javascript" src="../js/demographicProviderAutocomplete.js"></script>
         
 <script type="text/javascript">
+    function addRecipientToDocument(name, number, documentId) {
+        var remove = "<a href='javascript:void(0);' onclick='removeRecipient(this)'>remove</a>";
+        var html = "<li>"+name+"<b>, Fax No: </b>"+number+ " " +remove+"<input type='hidden' name='faxRecipients_" + documentId + "' value='"+number+"'></input></li>";
+        jQuery("#faxRecipients_" + documentId).append(jQuery(html));
+    }
 
+    function faxDocument(docId, demographicNo){
+
+        var faxRecipients = "";
+        if($("faxRecipients_" + docId).children.length <= 0){
+            alert("Please select at least one Fax Recipient");
+            return false;
+        }
+        else{
+            for(var i=0; i<$("faxRecipients_" + docId).children.length; i++){
+                var separator = "&faxRecipients=";
+                if (i === ($("faxRecipients_" + docId).children.length - 1)) {
+                    separator = "";
+                }
+                faxRecipients += document.getElementsByName('faxRecipients_' + docId)[i].value + separator;
+            }
+            document.getElementsByName('faxRecipients_' + docId).length
+        }
+        jQuery.ajax({
+            type: "POST",
+            url: "<%=request.getContextPath() %>/dms/ManageDocument.do",
+            data: "method=fax&docId=" + docId + "&faxRecipients=" + faxRecipients + "&demoNo=" + demographicNo + "&docType=DOC",
+            success: function(data) {
+                if (data != null)
+                    location.reload();
+            }
+        });
+    }
+    
 var contextpath = "<%=request.getContextPath()%>";
 
 function removeLink(docType, docId, providerNo, e) {
