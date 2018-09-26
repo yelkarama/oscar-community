@@ -192,7 +192,7 @@ public class SubmitLabByFormAction extends DispatchAction {
 		sb.append(generateOBR(lab)).append("\n");
 
 		for(LabTest test:lab.getTests()) {
-			sb.append(generateTest(test));
+			sb.append(generateTest(test)).append("\n");
 
 		}
 		return sb.toString();
