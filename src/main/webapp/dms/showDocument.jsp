@@ -759,9 +759,9 @@
 
                                     <tr>
                                         <td>Fax Number:</td>
-                                        <td><input type="text" id="otherFaxInput" name="otherFaxInput" style="margin-left: 5px;max-width: 300px;min-width:150px;" value=""/></td>
+                                        <td><input type="text" id="otherFaxInput_<%=docId%>" name="otherFaxInput" style="margin-left: 5px;max-width: 300px;min-width:150px;" value=""/></td>
                                         <td>
-                                            <input type="submit"  value="Add" onclick="addOtherFax(); return false;">
+                                            <input type="submit"  value="Add" onclick="addOtherFaxToDocument(<%=docId%>); return false;">
                                         </td>
                                     </tr>
                                     </tbody>

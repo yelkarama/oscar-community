@@ -66,7 +66,7 @@ if(!authed) {
 <script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/prototype.js"></script>
 <script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/effects.js"></script>
 <script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/Oscar.js"></script>
-
+<script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/casemgmt/faxControl.js"></script>
         <script type="text/javascript" src="../share/yui/js/yahoo-dom-event.js"></script>
         <script type="text/javascript" src="../share/yui/js/connection-min.js"></script>
         <script type="text/javascript" src="../share/yui/js/animation-min.js"></script>
@@ -75,12 +75,6 @@ if(!authed) {
         <script type="text/javascript" src="../js/demographicProviderAutocomplete.js"></script>
         
 <script type="text/javascript">
-    function addRecipientToDocument(name, number, documentId) {
-        var remove = "<a href='javascript:void(0);' onclick='removeRecipient(this)'>remove</a>";
-        var html = "<li>"+name+"<b>, Fax No: </b>"+number+ " " +remove+"<input type='hidden' name='faxRecipients_" + documentId + "' value='"+number+"'></input></li>";
-        jQuery("#faxRecipients_" + documentId).append(jQuery(html));
-    }
-
     function faxDocument(docId, demographicNo){
 
         var faxRecipients = "";
@@ -104,11 +98,10 @@ if(!authed) {
             data: "method=fax&docId=" + docId + "&faxRecipients=" + faxRecipients + "&demoNo=" + demographicNo + "&docType=DOC",
             success: function(data) {
                 if (data != null)
-                    location.reload();
+                    alert("Fax sent successfully!");
             }
         });
     }
-    
 var contextpath = "<%=request.getContextPath()%>";
 
 function removeLink(docType, docId, providerNo, e) {
