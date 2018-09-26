@@ -1606,7 +1606,7 @@ function changeLt(drugId){
                      document.getElementById('alleg_tbl_'+json.id).style.display='block';
                  }
                  if(json!=null&&json.DESCRIPTION!=null&&json.reaction!=null){
-                      var str = "<font color='red'>Allergy:</font> "+ json.DESCRIPTION + " <font color='red'>Reaction:</font> "+json.reaction;
+                      var str = "<font color='red'>Allergy:</font> "+ json.DESCRIPTION + " <font color='red'>Reaction:</font> "+json.reaction + " <font color='red'>Severity of Reaction:</font> "+json.severity;
                       $('alleg_'+json.id).innerHTML = str;
                       document.getElementById('alleg_tbl_'+json.id).style.display='block';
                  }
