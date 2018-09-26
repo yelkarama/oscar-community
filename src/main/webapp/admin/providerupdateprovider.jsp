@@ -421,6 +421,7 @@ for (int i=0; i<sites.size(); i++) {
 		<%
 		UserPropertyDAO userPropertyDAO = (UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
 		%>
+		<% if(OscarProperties.getInstance().isPropertyActive("enable_clinical_connect")) { %>
 		<tr>
 			<td align="right"><bean:message key="admin.provider.formClinicalConnectId" />:</td>
 			<td><input type="text" name="clinicalConnectId" value="<%=StringUtils.trimToEmpty(userPropertyDAO.getStringValue(provider_no, UserProperty.CLINICALCONNECT_ID))%>" maxlength="255"></td>
@@ -437,6 +438,7 @@ for (int i=0; i<sites.size(); i++) {
 				</select>
 			</td>
 		</tr>
+		<% } %>
 		<tr>
 			<td align="right"><bean:message key="admin.provider.formOfficialFirstName" />:</td>
 			<td><input type="text" name="officialFirstName" value="<%=StringUtils.trimToEmpty(userPropertyDAO.getStringValue(provider_no, UserProperty.OFFICIAL_FIRST_NAME))%>" maxlength="255"></td>
