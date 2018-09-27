@@ -1069,6 +1069,10 @@ List<String> OTHERS = Arrays.asList(new String[]{"DTaP-Hib","TdP-IPV-Hib","HBTmf
 		            	Map<String,Object> hdata = alist.get(k);
                                 Map<String,String> hExt = PreventionData.getPreventionKeyValues((String)hdata.get("id"));
 		    %>
+		    
+		<input type="hidden" id="preventProcedureProvider<%=i%>-<%=k%>"
+			name="preventProcedureProvider<%=i%>-<%=k%>" value="<%=hdata.get("provider_name")%>"/>
+			
 		<input type="hidden" id="preventProcedureStatus<%=i%>-<%=k%>"
 			name="preventProcedureStatus<%=i%>-<%=k%>"
 			value="<%=hdata.get("refused")%>">

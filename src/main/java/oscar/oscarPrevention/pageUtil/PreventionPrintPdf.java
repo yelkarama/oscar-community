@@ -203,6 +203,7 @@ public class PreventionPrintPdf {
                 procedureStatus = request.getParameter("preventProcedureStatus" + headerIds[idx] + "-" + subIdx);
                 procedureStatus = readableStatuses.get(procedureStatus);              
                 
+                String providerName = request.getParameter("preventProcedureProvider" + headerIds[idx] + "-"+ subIdx);
                 if( procedureStatus == null ) {
                 	procedureStatus = "N/A";
                 }
@@ -220,6 +221,11 @@ public class PreventionPrintPdf {
                 //Status
                 procedure.add("Status:");
                 procedure.add(new Chunk(procedureStatus, FontFactory.getFont(FontFactory.HELVETICA, 9, Font.NORMAL, Color.BLACK)));
+                procedure.add(Chunk.NEWLINE);
+                
+                //Provider
+                procedure.add("Provider:");
+                procedure.add(new Chunk(providerName, FontFactory.getFont(FontFactory.HELVETICA, 9, Font.NORMAL, Color.BLACK)));
                 procedure.add(Chunk.NEWLINE);
                 
                 String procedureComments = null;
