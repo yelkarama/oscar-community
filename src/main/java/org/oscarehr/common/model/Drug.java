@@ -163,6 +163,7 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 	
 	private Boolean dispenseInternal = false;
 
+	private String protocol = null;
 	// ///
 	@Transient
 	private String remoteFacilityName = null;
@@ -243,6 +244,7 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 		this.refillQuantity = drug.getRefillQuantity();
 		this.dispenseInterval = drug.getDispenseInterval();
 		this.dispenseInternal = drug.getDispenseInternal();
+		this.protocol = drug.getProtocol();
 	}
 
 	@PreUpdate
@@ -897,6 +899,18 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 	public void setDispenseInternal(Boolean dispenseInternal) {
 		this.dispenseInternal = dispenseInternal;
 	}
+
+
+	
+
+	public String getProtocol() {
+		return protocol;
+	}
+
+	public void setProtocol(String protocol) {
+		this.protocol = protocol;
+	}
+
 
 
 

@@ -299,6 +299,12 @@ SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
                         		<td><%= StringUtils.trimToEmpty(drug.getArchivedReason()) %></td>
               				</tr>
               				<% } %>
+              				
+              				<tr>
+              					<td class="label">Protocol Reference:</td>
+                        		<td><%= StringUtils.trimToEmpty(drug.getProtocol()) %></td>
+              				</tr>
+              				
               				<tr style="height:15px">
               				
               				</tr>

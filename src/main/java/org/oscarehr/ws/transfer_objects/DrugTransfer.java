@@ -87,6 +87,7 @@ public class DrugTransfer {
 	private boolean startDateUnknown;
 	private String comment;
 	private Date lastUpdateDate;
+	private String protocol;
 
 	public Integer getId() {
 		return (id);
@@ -518,6 +519,14 @@ public class DrugTransfer {
 
 	public void setComment(String comment) {
 		this.comment = comment;
+	}
+
+	public String getProtocol() {
+		return protocol;
+	}
+
+	public void setProtocol(String protocol) {
+		this.protocol = protocol;
 	}
 
 	public Date getLastUpdateDate() {

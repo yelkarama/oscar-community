@@ -88,6 +88,7 @@ if(listRxDrugs!=null){
          String pickupTime      = RxUtil.DateToString(rx.getPickupTime(), "hh:mm");
          String eTreatmentType  = rx.getETreatmentType()!=null ? rx.getETreatmentType() : "";
          String rxStatus        = rx.getRxStatus()!=null ? rx.getRxStatus() : "";
+         String protocol		= rx.getProtocol()!=null ? rx.getProtocol() : "";
          String drugForm		= rx.getDrugForm();
          //remove from the rerx list
          int DrugReferenceId = rx.getDrugReferenceId();
@@ -440,6 +441,12 @@ if(listRxDrugs!=null){
            <a href="javascript:void(0);" style="float:right;margin-top:0px;padding-top:0px;" onclick="addFav('<%=rand%>','<%=drugName%>');return false;">Add to Favorite</a>
        
            <br />
+           
+           
+           <bean:message key="WriteScript.msgProtocolReference"/>: 
+           <input type="text" id="protocol_<%=rand%>"  name="protocol_<%=rand%>" value="<%=protocol%>" />
+           
+           <br/>
            
            <bean:message key="WriteScript.msgPickUpDate"/>: 
            <input type="text" id="pickupDate_<%=rand%>"  name="pickupDate_<%=rand%>" value="<%=pickupDate%>" onchange="if (!isValidDate(this.value)) {this.value=null}" />
