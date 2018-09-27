@@ -126,6 +126,7 @@ public class RxPrescriptionData {
 		prescription.setSpecialInstruction(drug.getSpecialInstruction());
 		prescription.setPickupDate(drug.getPickUpDateTime());
 		prescription.setPickupTime(drug.getPickUpDateTime());
+		prescription.setProtocol(drug.getProtocol());
 		prescription.setETreatmentType(drug.getETreatmentType());
 		prescription.setRxStatus(drug.getRxStatus());
 		if (drug.getDispenseInterval() != null) prescription.setDispenseInterval(drug.getDispenseInterval());
@@ -229,6 +230,7 @@ public class RxPrescriptionData {
 		if (rePrescribe.getRefillQuantity() != null) prescription.setRefillQuantity(rePrescribe.getRefillQuantity());
 		prescription.setDrugReferenceId(rePrescribe.getDrugId());
 		prescription.setDispenseInternal(rePrescribe.getDispenseInternal());
+		prescription.setProtocol(rePrescribe.getProtocol());
 		return prescription;
 	}
 
@@ -289,6 +291,7 @@ public class RxPrescriptionData {
 		p.setOutsideProviderOhip(drug.getOutsideProviderOhip());
 		p.setPickupDate(drug.getPickUpDateTime());
 		p.setPickupTime(drug.getPickUpDateTime());
+		p.setProtocol(drug.getProtocol());
 		p.setETreatmentType(drug.getETreatmentType());
 		p.setRxStatus(drug.getRxStatus());
 		if (drug.getDispenseInterval() != null) p.setDispenseInterval(drug.getDispenseInterval());
@@ -655,6 +658,8 @@ public class RxPrescriptionData {
 		private String drugReasonCode;
 		private String drugReasonCodeSystem;
 
+		private String protocol;
+		
 		public String getDrugReasonCode() {
 			return drugReasonCode;
 		}
@@ -957,6 +962,14 @@ public class RxPrescriptionData {
 
 		public void setWrittenDateFormat(String RHS) {
 			this.writtenDateFormat = RHS;
+		}
+
+		public String getProtocol() {
+			return protocol;
+		}
+
+		public void setProtocol(String protocol) {
+			this.protocol = protocol;
 		}
 
 		/*
@@ -1643,6 +1656,7 @@ public class RxPrescriptionData {
 			drug.setComment(getComment());
 			drug.setStartDateUnknown(getStartDateUnknown());
 			drug.setDispenseInternal(getDispenseInternal());
+			drug.setProtocol(protocol);
 		}
 
 		public boolean AddToFavorites(String providerNo, String favoriteName) {
