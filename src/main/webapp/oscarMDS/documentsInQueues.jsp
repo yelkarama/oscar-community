@@ -83,14 +83,15 @@ if(!authed) {
             return false;
         }
         else{
-            for(var i=0; i<$("faxRecipients_" + docId).children.length; i++){
+            var recipients = document.getElementById('faxRecipients_' + docId).querySelectorAll('[name="faxRecipients"]');
+            for(var i=0; i < recipients.length; i++){
                 var separator = "&faxRecipients=";
-                if (i === ($("faxRecipients_" + docId).children.length - 1)) {
+                if (i === (recipients.length - 1)) {
                     separator = "";
                 }
-                faxRecipients += document.getElementsByName('faxRecipients_' + docId)[i].value + separator;
+                
+                faxRecipients += recipients[i].value + separator;
             }
-            document.getElementsByName('faxRecipients_' + docId).length
         }
         jQuery.ajax({
             type: "POST",
