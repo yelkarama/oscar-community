@@ -821,6 +821,10 @@ function changeSite(el) {
                          		<option value="SC" <%="SC".equals(str((extraData.get("route")),"")) ? routeSelected : "" %>>Subcutaneous: SC</option>
                          	</select>
                          	<br/>
+                         	
+                         	<label for="route">DIN:</label> 
+                         	<input type="text" name="din" id="din" value="<%=str((extraData.get("din")),"")%>"/> 
+             			 	<br/>
                          	<%
                          		String dose = str((extraData.get("dose")),"");
                          		String d1 = "";
