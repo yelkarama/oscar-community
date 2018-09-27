@@ -144,6 +144,8 @@ public class AddPreventionAction  extends Action {
                   
          addHashtoArray(extraData,request.getParameter("location"),"location");
          addHashtoArray(extraData,request.getParameter("location2"),"location2");
+        
+         addHashtoArray(extraData,request.getParameter("din"),"din");
          
          String lotItem = request.getParameter("lotItem");
          if (lotItem != null && !lotItem.equals("-1") && !lotItem.equals("0"))
