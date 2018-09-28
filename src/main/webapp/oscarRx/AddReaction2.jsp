@@ -73,6 +73,7 @@ String ageOfOnset = new String();
 String lifeStage = new String();
 String severity = new String();
 String onsetOfReaction = new String();
+boolean intolerance = false;
 
 if (allergyToArchive!=null && !allergyToArchive.isEmpty()) {
 	org.oscarehr.common.model.Allergy a = patient.getAllergy(Integer.parseInt(allergyToArchive));
@@ -83,6 +84,9 @@ if (allergyToArchive!=null && !allergyToArchive.isEmpty()) {
 		lifeStage = a.getLifeStage();
 		severity = a.getSeverityOfReaction();
 		onsetOfReaction = a.getOnsetOfReaction();
+		if(a.isIntolerance()) {
+			intolerance = true;
+		}
 	}
 	if (a.getArchived() && nkdaId!=null) allergyToArchive = nkdaId;
 } else {
@@ -236,6 +240,7 @@ boolean isNKDA = "No Known Drug Allergies".equals(name);
 								<html:option value="1">Mild</html:option>
 								<html:option value="2">Moderate</html:option>
 								<html:option value="3">Severe</html:option>
+								<html:option value="5">No Reaction</html:option>
 							</html:select></td>
 						</tr>
 
@@ -247,6 +252,12 @@ boolean isNKDA = "No Known Drug Allergies".equals(name);
 								<html:option value="2">Gradual</html:option>
 								<html:option value="3">Slow</html:option>
 							</html:select></td>
+						</tr>
+						
+						<tr valign="center">
+							<td><span class="label">Intolerance:</span>
+							<input type="checkbox" name="intolerance" value="on" <%=intolerance? " checked=\"checked\" ":"" %>/>
+							</td>
 						</tr>
 <% } %>
 

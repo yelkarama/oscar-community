@@ -69,6 +69,8 @@ public final class RxAddAllergyAction extends Action {
             String lifeStage = request.getParameter("lifeStage");
             String allergyToArchive = request.getParameter("allergyToArchive");
             
+            String intolerance = request.getParameter("intolerance");
+            
             RxPatientData.Patient patient = (RxPatientData.Patient)request.getSession().getAttribute("Patient");
             Allergy allergy = new Allergy();
             allergy.setDrugrefId(String.valueOf(id));
@@ -89,6 +91,13 @@ public final class RxAddAllergyAction extends Action {
             allergy.setSeverityOfReaction(severityOfReaction);
             allergy.setOnsetOfReaction(onSetOfReaction);
             allergy.setLifeStage(lifeStage);
+            
+            if(intolerance != null && "on".equals(intolerance)) {
+            	allergy.setIntolerance(true);
+            } else {
+            	allergy.setIntolerance(false);
+            }
+            	
 
             if (type != null && type.equals("13")){
                 RxDrugData drugData = new RxDrugData();

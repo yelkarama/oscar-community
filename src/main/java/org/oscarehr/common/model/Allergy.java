@@ -64,6 +64,9 @@ public class Allergy extends AbstractModel<Integer> {
 	private String reaction;
 	
 	private boolean archived=false;
+	
+	private boolean intolerance=false;
+	
 
 	@Column(name = "HICL_SEQNO")
 	private Integer hiclSeqno;
@@ -419,6 +422,7 @@ public class Allergy extends AbstractModel<Integer> {
         if ("1".equals(severityCode)) return("Mild");
         if ("2".equals(severityCode)) return("Moderate");
         if ("3".equals(severityCode)) return("Severe");
+        if ("5".equals(severityCode)) return("No Reaction");
         else return("Unknown");
     }
 
@@ -430,4 +434,13 @@ public class Allergy extends AbstractModel<Integer> {
         return this.getDescription() + " (" + getTypeDesc(getTypeCode()) + ")";
     }
 
+	public boolean isIntolerance() {
+		return intolerance;
+	}
+
+	public void setIntolerance(boolean intolerance) {
+		this.intolerance = intolerance;
+	}
+
+    
 }
