@@ -855,6 +855,12 @@ window.onbeforeunload = onClosing;
 					<td><input type="text" id="resolutiondate"
 						name="resolutiondate" value="" size="12"> (YYYY-MM-DD)</td>
 				</tr>
+				<tr id="Itemprocedure">
+					<td><bean:message
+							key="oscarEncounter.procedure.title" />:</td>
+					<td><input type="text" id="procedure"
+						name="procedure" value=""></td>
+				</tr>
 				<tr id="Itemageatonset">
 					<td><bean:message key="oscarEncounter.ageAtOnset.title" />:</td>
 					<td><input type="text" id="ageatonset" name="ageatonset"
