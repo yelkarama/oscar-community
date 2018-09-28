@@ -1233,6 +1233,10 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
  	<span>eConsult</span></a>
 </li>
 </oscar:oscarPropertiesCheck>
+<li id="clinical_connect">
+	<a href="#" onclick ="popupOscarRx(625, 1024, '../clinicalConnectEHRViewer.do?method=launchNonPatientContext')" title="clinical connect EHR viewer">
+ 	<span>ClinicalConnect</span></a>
+</li>
 <security:oscarSec roleName="<%=roleName$%>" objectName="_pref" rights="r">
 <li>    <!-- remove this and let providerpreference check -->
     <caisi:isModuleLoad moduleName="ticklerplus">
