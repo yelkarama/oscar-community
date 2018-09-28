@@ -48,6 +48,9 @@ public class PharmacyInfo extends AbstractModel<Integer> implements Comparable<P
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name="recordID")
 	private Integer id;
+	
+    @Column(name="ID")
+    private Integer pammId;
 
 	private String name;
 
@@ -88,6 +91,13 @@ public class PharmacyInfo extends AbstractModel<Integer> implements Comparable<P
 
 	public void setId(Integer id) {
     	this.id = id;
+    }
+
+    public Integer getPammId() {
+        return pammId;
+    }
+    public void setPammId(Integer pammId) {
+        this.pammId = pammId;
     }
 
 	public String getName() {

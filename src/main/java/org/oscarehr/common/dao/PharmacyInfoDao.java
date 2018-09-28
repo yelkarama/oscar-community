@@ -43,7 +43,7 @@ public class PharmacyInfoDao extends AbstractDao<PharmacyInfo>{
 
     synchronized public void addPharmacy(String name,String address,String city,String province,String postalCode, String phone1, String phone2, String fax, String email,String serviceLocationIdentifier, String notes) {
     	PharmacyInfo pharmacyInfo = new PharmacyInfo();
-    	
+    	pharmacyInfo.setPammId(getMaxUniquePammID() + 1);
     	pharmacyInfo.setName(name);
     	pharmacyInfo.setAddress(address);
     	pharmacyInfo.setCity(city);
@@ -149,6 +149,16 @@ public class PharmacyInfoDao extends AbstractDao<PharmacyInfo>{
     	
     	return query.getResultList();
     	
+    }
+    
+    private Integer getMaxUniquePammID() {
+        String sql = "SELECT MAX(x.pammId) from PharmacyInfo x";
+        Query query = entityManager.createQuery(sql);
+        Integer result = (Integer) query.getSingleResult();
+        if (result == null) {
+            result = 0;
+        }
+        return result;
     }
 
 }
