@@ -448,11 +448,12 @@ for(i=0;i<navArray.length;i++)
 }
 //1 mild 2 moderate 3 severe 4 unknown
 
-String[] ColourCodesArray=new String[5];
+String[] ColourCodesArray=new String[6];
 ColourCodesArray[1]="#F5F5F5"; // Mild Was set to yellow (#FFFF33) SJHH requested not to flag mild
 ColourCodesArray[2]="#FF6600"; // Moderate
 ColourCodesArray[3]="#CC0000"; // Severe
 ColourCodesArray[4]="#E0E0E0"; // unknown
+ColourCodesArray[5]="#FFFFFF"; // no reaction
 
 String allergy_colour_codes = "<table class='allergy_legend' cellspacing='0'><tr><td><b>Legend:</b></td> <td > <table class='colour_codes' bgcolor='"+ColourCodesArray[1]+"'><td> </td></table></td> <td >Mild</td> <td > <table class='colour_codes' bgcolor='"+ColourCodesArray[2]+"'><td> </td></table></td> <td >Moderate</td><td > <table class='colour_codes' bgcolor='"+ColourCodesArray[3]+"'><td> </td></table></td> <td >Severe</td> </tr></table>";
 %>
@@ -495,6 +496,7 @@ if (MyOscarUtils.isMyOscarEnabled((String) session.getAttribute("user")))
 							<td><b>Entry Date</b></td>
 							<td><b>Description</b></td>
 							<td><b>Allergy Type</b></td>
+							<td><b>Intolerance</b></td>
 							<td><b>Severity</b></td>
 							<td><b>Onset of Reaction</b></td>
 							<td><b>Reaction</b></td>
@@ -579,6 +581,7 @@ for(org.oscarehr.common.model.Allergy allergy : patient.getAllergies(LoggedInInf
 							<td><%=entryDate==null ? "" : entryDate %></td>
 							<td <%=title%> ><%=allergy.getDescription() %></td>
 							<td><%=allergy.getTypeDesc() %></td>
+							<td><%=allergy.isIntolerance() ? "Yes" : "No" %></td>
 							<td bgcolor="<%=sevColour%>"><%=allergy.getSeverityOfReactionDesc() %></td>
 							<td><%=allergy.getOnSetOfReactionDesc() %></td>
 							<td><%=allergy.getReaction()!=null?allergy.getReaction():"" %></td>
