@@ -2803,4 +2803,9 @@ public class OLISHL7Handler implements MessageHandler {
 		}
 
 	}
+    
+    //for OMD validation
+    public boolean isTestResultBlocked(int i, int j) {
+    	return false;
+    }
 }

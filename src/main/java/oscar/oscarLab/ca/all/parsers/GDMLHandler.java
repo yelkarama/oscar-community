@@ -884,10 +884,9 @@ public class GDMLHandler implements MessageHandler {
      * for OMD validation (imported files)
      */
     public boolean isTestResultBlocked(int i, int j){
-
         try{
             Segment obxSeg = (( obrSegMap.get(obrSegKeySet.get(i))).get(j));
-            String status = getString(getComponent(obxSeg, 17, 0, 1));
+            String status = getString(getComponent(obxSeg, 13, 0, 1));
 
             return "BLOCKED".equals(status);
         }catch(Exception e){

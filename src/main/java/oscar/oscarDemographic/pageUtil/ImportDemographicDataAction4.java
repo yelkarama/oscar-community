@@ -134,7 +134,6 @@ import ca.uhn.hl7v2.model.v23.segment.MSH;
 import ca.uhn.hl7v2.model.v23.segment.OBR;
 import ca.uhn.hl7v2.model.v23.segment.OBX;
 import ca.uhn.hl7v2.model.v23.segment.PID;
-import ca.uhn.hl7v2.util.Terser;
 import cds.AlertsAndSpecialNeedsDocument.AlertsAndSpecialNeeds;
 import cds.AllergiesAndAdverseReactionsDocument.AllergiesAndAdverseReactions;
 import cds.AppointmentsDocument.Appointments;
@@ -3543,7 +3542,7 @@ import oscar.util.UtilDateUtilities;
 					}
 					
 					if(result.getBlockedTestResult() != null && result.getBlockedTestResult() == YIndicator.Y) {
-						Terser.set(obx, 17, 0, 1, 1, "BLOCKED");
+						obx.getUserDefinedAccessChecks().setValue("BLOCKED");
 					}
 					
 					
