@@ -370,6 +370,64 @@ public class Util {
         return false;
     }
 
+    static public boolean zipFiles(ArrayList<File> files, ArrayList<String> dirs, String zipFileName, String dirName) throws Exception {
+        try {
+            if (files == null) {
+            	logger.error("Error! No source file for zipping");
+                return false;
+            }
+            if (!StringUtils.filled(zipFileName)) {
+            	logger.error("Error! Zip filename not given");
+                return false;
+            }
+            if (!checkDir(dirName)) {
+                return false;
+            }
+            dirName = fixDirName(dirName);
+            byte[] buf = new byte[1024];
+            ZipOutputStream zout = new ZipOutputStream(new FileOutputStream(dirName + zipFileName));
+            for(String dir: dirs) {
+            	if(!dir.isEmpty()) {
+                	zout.putNextEntry(new ZipEntry(dir + "/"));
+                }
+            }
+            
+            for (int x=0;x<files.size();x++) {
+            	File f = files.get(x);
+                if (f == null) continue;
+
+                
+                FileInputStream fin = new FileInputStream(f.getAbsolutePath());
+
+                String dir = dirs.get(x);
+                
+                if(dir.isEmpty()) {
+                
+	                // Add ZIP entry to output stream
+	                zout.putNextEntry(new ZipEntry(f.getName()));
+
+                } else {
+                	 zout.putNextEntry(new ZipEntry(dir + "/" + f.getName()));
+
+                }
+                // Transfer bytes from the input files to the ZIP file
+                int len;
+                while ((len = fin.read(buf)) > 0) {
+                    zout.write(buf, 0, len);
+                }
+
+                // Complete the entry
+                zout.closeEntry();
+                fin.close();
+            }
+            // Complete the ZIP file
+            zout.close();
+            return true;
+
+        } catch (IOException ex) {logger.error("Error", ex);
+        }
+        return false;
+    }
     static public void putPartialDate(cdsDt.DateFullOrPartial dfp, CaseManagementNoteExt cme) {
     	putPartialDate(dfp, cme.getDateValue(), cme.getValue());
     }
@@ -388,7 +446,7 @@ public class Util {
     }
 
     static public void putPartialDate(cdsDt.DateTimeFullOrPartial dfp, Date dateValue, String format) {
-        if (dateValue!=null) {
+        if (dateValue!=null) { 
             if (PartialDate.YEARONLY.equals(format)) dfp.setYearOnly(calDate(dateValue));
             else if (PartialDate.YEARMONTH.equals(format)) dfp.setYearMonth(calDate(dateValue));
             else dfp.setFullDate(calDate(dateValue));
