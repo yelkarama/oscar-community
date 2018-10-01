@@ -276,7 +276,7 @@ if (!userRole.toLowerCase().contains("admin")) { %>
 <html:hidden property="pgpReady" value="<%=pgp_ready%>" />
 		
 <%  boolean pgpReady = pgp_ready.equals("Yes") ? true : false;
-    pgpReady = true; //To be removed after CMS4
+//    pgpReady = true; //To be removed after CMS4
     if (!pgpReady) { %>
                    
     <div class="alert alert-block alert-error">

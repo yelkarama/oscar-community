@@ -2075,16 +2075,24 @@ public class DemographicExportAction4 extends Action {
 				request.getSession().setAttribute("pgp_ready", "No");
 			}
 		} else {
-			logger.info("Warning: PGP Encryption NOT available - unencrypted file exported!");
 			
-			// Sharing Center - Skip download if sharing with affinity domain
-			if (request.getParameter("SendToAffinityDomain") == null) {
-				Util.downloadFile(zipName, tmpDir, response);
-				ffwd = "success";
+			if(!"true".equals(OscarProperties.getInstance().getProperty("demographic.export.encryptedOnly","false"))) {
+				logger.info("Warning: PGP Encryption NOT available - unencrypted file exported!");
+				
+				// Sharing Center - Skip download if sharing with affinity domain
+				if (request.getParameter("SendToAffinityDomain") == null) {
+					Util.downloadFile(zipName, tmpDir, response);
+					ffwd = "success";
+				} else {
+					// Sharing Center - Change the forward (redirect) to the affinity domain export page
+					ffwd = "sendToAffinityDomain";
+				}
 			} else {
-				// Sharing Center - Change the forward (redirect) to the affinity domain export page
-				ffwd = "sendToAffinityDomain";
+				request.getSession().setAttribute("pgp_ready","No");
+				ffwd="fail";
 			}
+			
+			
 			
 		}
 		
