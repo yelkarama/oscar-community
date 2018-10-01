@@ -53,6 +53,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.xmlbeans.XmlOptions;
 import org.marc.everest.rmim.uv.cdar2.pocd_mt000040uv.ClinicalDocument;
+import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.casemgmt.model.CaseManagementIssue;
 import org.oscarehr.casemgmt.model.CaseManagementNote;
 import org.oscarehr.casemgmt.model.CaseManagementNoteExt;
@@ -262,6 +263,7 @@ public class DemographicExportAction4 extends Action {
 		options.setSaveOuter();
 
 		ArrayList<File> files = new ArrayList<File>();
+		ArrayList<String> dirs = new ArrayList<String>();
 		exportError = new ArrayList<String>();
 		for (String demoNo : list) {
 			if (StringUtils.empty(demoNo)) {
@@ -2034,6 +2036,7 @@ public class DemographicExportAction4 extends Action {
 				expFile += "_"+demoNo;
 				expFile += "_"+demographic.getDateOfBirth()+demographic.getMonthOfBirth()+demographic.getYearOfBirth();
 				files.add(new File(directory, expFile+".xml"));
+				dirs.add(getProviderName(demographic.getProviderNo()));
 			}catch(Exception e){
 				logger.error("Error", e);
 			}
@@ -2046,13 +2049,15 @@ public class DemographicExportAction4 extends Action {
 
 	//create ReadMe.txt & ExportEvent.log
 		files.add(makeReadMe(files));
+		dirs.add("");
 		files.add(makeExportLog(files.get(0).getParentFile()));
+		dirs.add("");
 
 	//zip all export files
-		String zipName = files.get(0).getName().replace(".xml", ".zip");
+	String zipName = files.get(0).getName().replace(".xml", ".zip");
 	if (setName!=null) zipName = "export_"+setName.replace(" ","")+"_"+UtilDateUtilities.getToday("yyyyMMddHHmmss")+".zip";
 //	if (setName!=null) zipName = "export_"+setName.replace(" ","")+"_"+UtilDateUtilities.getToday("yyyyMMddHHmmss")+".pgp";
-	if (!Util.zipFiles(files, zipName, tmpDir)) {
+	if (!Util.zipFiles(files, dirs, zipName, tmpDir)) {
 			logger.debug("Error! Failed to zip export files");
 	}
 
@@ -2792,5 +2797,20 @@ public class DemographicExportAction4 extends Action {
 
 		String[] dosageMultiple = dosage.split("/");
 		return dosageMultiple[0].trim();
+	}
+	
+	private String getProviderName(String providerNo) {
+		if(StringUtils.isNullOrEmpty(providerNo)) {
+			return "";
+		} 
+		ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
+		
+		Provider p = providerDao.getProvider(providerNo);
+		
+		if(p == null) {
+			return "";
+		}
+		
+		return p.getFirstName() + "_" + p.getLastName() + "_" + p.getOhipNo();
 	}
 }
