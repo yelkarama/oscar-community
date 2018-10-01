@@ -51,10 +51,12 @@
 <%
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 	String providerNo=loggedInInfo.getLoggedInProviderNo();
+	SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
 	String scriptid=request.getParameter("scriptId");
 	String rx_enhance = OscarProperties.getInstance().getProperty("rx_enhance");
 	boolean rxWaterMark = OscarProperties.getInstance().getBooleanProperty("enable_rx_watermark", "true");
 	String rx_watermark_file = OscarProperties.getInstance().getProperty("rx_watermark_file_name");
+	boolean rxShowEndDatesPref = systemPreferencesDao.isReadBooleanPreference("rx_show_end_dates");
 	String imageString = "";
 	if (rxWaterMark && rx_watermark_file != null) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -609,12 +611,17 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                                                             fullOutLine="<span style=\"color:red;font-size:16;font-weight:bold\">An error occurred, please write a new prescription.</span><br />"+fullOutLine;
                                                                     }
 				strRx += rx.getFullOutLine() + ";;";
+                                            if (rxShowEndDatesPref) {
+                                                strRx += "; End Date: " + oscar.oscarRx.util.RxUtil.DateToString(rx.getEndDate(), "MMMM d, yyyy",request.getLocale());
+                                            }
+                                            strRx += ";;";
 				strRxNoNewLines.append(rx.getFullOutLine().replaceAll(";"," ")+ "\n");
 		%>
 			<tr valign=top>
 				<td colspan="2" <%=(i==0)?"style=\"border-top: 1px #808080 inset;\"":""%>>
 					<div>
 						<%=fullOutLine%>
+                        <%=(rxShowEndDatesPref) ? "<br/>End Date: " + oscar.oscarRx.util.RxUtil.DateToString(rx.getEndDate(), "MMMM d, yyyy",request.getLocale()) : ""%>
 						<hr/>
 					</div>
 				</td>

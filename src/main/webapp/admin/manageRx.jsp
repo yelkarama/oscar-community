@@ -134,9 +134,9 @@
             <tr>
                 <td>Add MRP to Prescriptions: </td>
                 <td>
-                <input type="radio" value="true" name="mrpPresc"<%=(rxManage!=null ? (dataBean.getProperty("mrpOnRx").equals("true")? "checked" : "") : "")%>/>Yes
+                <input type="radio" value="true" name="mrpPresc"<%=(rxManage!=null ? (dataBean.getProperty("mrpOnRx").equals("true")? "checked" : "") : "")%>/> Yes
                     &nbsp;&nbsp;&nbsp;
-                <input type="radio" value="false" name="mrpPresc"<%=(rxManage!=null ? (dataBean.getProperty("mrpOnRx").equals("false")? "checked" : "") : "")%>/>No
+                <input type="radio" value="false" name="mrpPresc"<%=(rxManage!=null ? (dataBean.getProperty("mrpOnRx").equals("false")? "checked" : "") : "")%>/> No
                     &nbsp;&nbsp;&nbsp;
                 </td>
             </tr>
@@ -149,6 +149,18 @@
                     &nbsp;&nbsp;&nbsp;
                 </td>
             </tr>
+			<tr>
+				<td>Show end date of drugs on prescriptions: </td>
+				<td>
+					<label style="display: inline">
+						<input type="radio" value="true" name="rx_show_end_dates" <%= (dataBean.getProperty("rx_show_end_dates", "false").equals("true") ? "checked" : "") %> /> Yes
+					</label>
+					&nbsp;&nbsp;&nbsp;
+					<label style="display: inline">
+						<input type="radio" value="false" name="rx_show_end_dates" <%= (dataBean.getProperty("rx_show_end_dates", "false").equals("false") ? "checked" : "") %> /> No
+					</label>
+				</td>
+			</tr>
             </tbody>
         </table>
 

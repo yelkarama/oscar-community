@@ -52,4 +52,9 @@ public class SystemPreferencesDao extends AbstractDao<SystemPreferences>
         
         return preferenceMap;
     }
+    
+    public boolean isReadBooleanPreference(String name) {
+        SystemPreferences preference = findPreferenceByName(name);
+        return (preference != null && Boolean.parseBoolean(preference.getValue()));
+    }
 }

@@ -10,7 +10,7 @@ import java.util.List;
 public class SystemPreferences extends AbstractModel<Integer>
 {
 
-    public static final List<String> RX_PREFERENCE_KEYS = Arrays.asList("rx_paste_provider_to_echart");
+    public static final List<String> RX_PREFERENCE_KEYS = Arrays.asList("rx_paste_provider_to_echart", "rx_show_end_dates");
     public static final List<String> SCHEDULE_PREFERENCE_KEYS = Arrays.asList("schedule_display_type", "schedule_display_custom_roster_status");
     public static final List<String> ECHART_PREFERENCE_KEYS = Arrays.asList("echart_hide_timer");
     public static final List<String> MASTER_FILE_PREFERENCE_KEYS = Arrays.asList("display_former_name", "redirect_for_contact");
