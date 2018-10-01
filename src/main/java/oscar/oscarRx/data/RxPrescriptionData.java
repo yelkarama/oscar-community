@@ -430,6 +430,9 @@ public class RxPrescriptionData {
 
 		for (Drug drug : drugList) {
 
+			if(drug.isDeleted())
+				continue;
+			
 			boolean isCustomName = true;
 
 			for (Prescription p : result) {
