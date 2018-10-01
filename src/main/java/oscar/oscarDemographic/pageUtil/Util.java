@@ -43,6 +43,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -386,7 +387,11 @@ public class Util {
             dirName = fixDirName(dirName);
             byte[] buf = new byte[1024];
             ZipOutputStream zout = new ZipOutputStream(new FileOutputStream(dirName + zipFileName));
+            Map<String,Boolean> dirMap = new HashMap<String,Boolean>();
             for(String dir: dirs) {
+            	dirMap.put(dir, true);
+            }
+            for(String dir: dirMap.keySet()) {
             	if(!dir.isEmpty()) {
                 	zout.putNextEntry(new ZipEntry(dir + "/"));
                 }

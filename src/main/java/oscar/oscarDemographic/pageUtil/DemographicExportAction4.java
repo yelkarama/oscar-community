@@ -61,6 +61,7 @@ import org.oscarehr.casemgmt.model.CaseManagementNoteLink;
 import org.oscarehr.casemgmt.service.CaseManagementManager;
 import org.oscarehr.common.dao.DemographicArchiveDao;
 import org.oscarehr.common.dao.DemographicContactDao;
+import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.DemographicExtDao;
 import org.oscarehr.common.dao.Hl7TextInfoDao;
 import org.oscarehr.common.dao.Hl7TextMessageDao;
@@ -211,11 +212,13 @@ public class DemographicExportAction4 extends Action {
 		boolean exReportsReceived = WebUtils.isChecked(request, "exReportsReceived");
 		boolean exAlertsAndSpecialNeeds = WebUtils.isChecked(request, "exAlertsAndSpecialNeeds");
 		boolean exCareElements = WebUtils.isChecked(request, "exCareElements");
+		
+		String providerNoMRP = defrm.getProviderNo();
 
 		List<String> list = new ArrayList<String>();
 		if (demographicNo==null) {
 			list = new DemographicSets().getDemographicSet(setName);
-		if (list.isEmpty()) {
+		if (list.isEmpty() && !setName.isEmpty() && !"-1".equals(setName)) {
 			Date asofDate = new Date();
 			RptDemographicReportForm frm = new RptDemographicReportForm ();
 			frm.setSavedQuery(setName);
@@ -229,6 +232,14 @@ public class DemographicExportAction4 extends Action {
 				list.add(listDemo.get(0));
 			}
 		}
+		if(list.isEmpty() && !providerNoMRP.isEmpty() && !"-1".equals(providerNoMRP)) {
+			DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
+			List<Integer> demographicNos = demographicDao.getDemographicNosByProvider(providerNoMRP,true);
+			for(Integer dn:demographicNos) {
+				list.add(String.valueOf(dn));
+			}
+		}
+		
 	} else {
 		list.add(demographicNo);
 	}
@@ -2055,7 +2066,14 @@ public class DemographicExportAction4 extends Action {
 
 	//zip all export files
 	String zipName = files.get(0).getName().replace(".xml", ".zip");
-	if (setName!=null) zipName = "export_"+setName.replace(" ","")+"_"+UtilDateUtilities.getToday("yyyyMMddHHmmss")+".zip";
+	if (setName!=null && !setName.isEmpty() && !setName.equals("-1")) zipName = "export_"+setName.replace(" ","")+"_"+UtilDateUtilities.getToday("yyyyMMddHHmmss")+".zip";
+	if (providerNoMRP!=null && !providerNoMRP.isEmpty() && !providerNoMRP.equals("-1")) {
+		ProviderDao providerDao= SpringUtils.getBean(ProviderDao.class);
+		Provider p = providerDao.getProvider(providerNoMRP);
+		String name = p.getFirstName() + "_" + p.getLastName() + "_" + p.getOhipNo();
+		zipName = "export_"+name+"_"+UtilDateUtilities.getToday("yyyyMMddHHmmss")+".zip";
+	}
+//	
 //	if (setName!=null) zipName = "export_"+setName.replace(" ","")+"_"+UtilDateUtilities.getToday("yyyyMMddHHmmss")+".pgp";
 	if (!Util.zipFiles(files, dirs, zipName, tmpDir)) {
 			logger.debug("Error! Failed to zip export files");
