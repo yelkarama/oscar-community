@@ -25,6 +25,8 @@
 
 --%>
 
+<%@page import="org.oscarehr.common.model.Provider"%>
+<%@page import="org.oscarehr.PMmodule.dao.ProviderDao"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -133,6 +135,23 @@ function checkSelect(slct) {
     else return true;
 }
 
+function checkValidOptions() {
+	var pt = document.getElementById("patientSet").value;
+	var pn = document.getElementById("providerNo").value;
+	
+	if(pt != -1 && pn != -1) {
+		alert("Please choose either a Patient Set or a Provider");
+		return false;
+	}
+	
+	if(pt == -1 && pn == -1) {
+		alert("Please choose either a Patient Set or a Provider");
+		return false;
+	}
+
+	return true;
+}
+
 function checkAll(all) {
     var frm = document.DemographicExportForm;
     if (all) {
@@ -219,14 +238,14 @@ if (!userRole.toLowerCase().contains("admin")) { %>
 
 <div class="span4">
 
-<html:form action="/demographic/DemographicExport" method="get" onsubmit="return checkSelect(patientSet.value);">
+<html:form action="/demographic/DemographicExport" method="get" onsubmit="return checkValidOptions();">
 
 	<% if (demographicNo!= null) { %>
 	<html:hidden property="demographicNo" value="<%=demographicNo%>" />
 	<bean:message key="demographic.demographicexport.exportingdemographicno" /><%=demographicNo%>
 	<%} else {%>
 	<bean:message key="demographic.demographicexport.patientset" /><br>
-	<html:select style="width: 189px" property="patientSet">
+	<html:select style="width: 189px" property="patientSet" styleId="patientSet">
 	    <html:option value="-1"><bean:message key="demographic.demographicexport.selectset" /></html:option>
 	<%
 	/*			    for (int i =0 ; i < queryArray.size(); i++){
@@ -243,6 +262,28 @@ if (!userRole.toLowerCase().contains("admin")) { %>
 	<%}%>
 
 	<br>	   
+
+<bean:message key="demographic.demographicexport.providers" /><br>
+	<html:select style="width: 189px" property="providerNo" styleId="providerNo">
+	    <html:option value="-1"><bean:message key="demographic.demographicexport.selectProvider" /></html:option>
+	<%
+	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
+	List<Provider> providers = providerDao.getActiveProviders();
+	/*			    for (int i =0 ; i < queryArray.size(); i++){
+	RptSearchData.SearchCriteria sc = (RptSearchData.SearchCriteria) queryArray.get(i);
+	String qId = sc.id;
+	String qName = sc.queryName;
+	*/
+	for (int i=0; i<providers.size(); i++) {
+	Provider p = providers.get(i);
+	%>
+	<html:option value="<%=p.getProviderNo()%>"><%=p.getFormattedName()%></html:option>
+	<%}%>
+	</html:select>
+	
+
+	<br>	   
+
 
 	<bean:message key="demographic.demographicexport.exporttemplate" /><br>
 	<html:select style="width: 189px" property="template">
