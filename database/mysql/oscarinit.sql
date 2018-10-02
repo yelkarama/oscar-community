@@ -541,6 +541,10 @@ CREATE TABLE demographic (
   anonymous varchar(32),
   lastUpdateUser varchar(6),
   lastUpdateDate datetime not null,
+  mailingAddress varchar(60),
+  mailingCity varchar(50),
+  mailingProvince varchar(20),
+  mailingPostal varchar(9),
   PRIMARY KEY  (demographic_no),
   KEY hin (hin),
   KEY name (last_name,first_name),
@@ -8912,7 +8916,11 @@ CREATE TABLE demographicArchive (
   newsletter varchar(32),
   anonymous varchar(32),
   lastUpdateUser varchar(6),
-  lastUpdateDate date
+  lastUpdateDate date,
+  mailingAddress varchar(60),
+  mailingCity varchar(50),
+  mailingProvince varchar(20),
+  mailingPostal varchar(9)
 );
 
 CREATE TABLE providerArchive (
