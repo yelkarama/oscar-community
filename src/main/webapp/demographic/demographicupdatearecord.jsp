@@ -124,6 +124,10 @@
 	demographic.setCity(request.getParameter("city"));
 	demographic.setProvince(request.getParameter("province"));
 	demographic.setPostal(request.getParameter("postal"));
+	demographic.setMailingAddress(request.getParameter("mailingAddress"));
+	demographic.setMailingCity(request.getParameter("mailingCity"));
+	demographic.setMailingProvince(request.getParameter("mailingProvince"));
+	demographic.setMailingPostal(request.getParameter("mailingPostal"));
 	demographic.setPhone(request.getParameter("phone"));
 	demographic.setPhone2(request.getParameter("phone2"));
 	demographic.setEmail(request.getParameter("email"));

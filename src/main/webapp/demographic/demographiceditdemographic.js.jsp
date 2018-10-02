@@ -233,6 +233,24 @@ function isPostalCode()
 return true;
 }
 
+function isPostalCode2()
+{
+    if(isCanadian()){
+         e = document.updatedelete.mailingPostal;
+         postalcode = e.value;
+        	
+         rePC = new RegExp(/(^s*([a-z](\s)?\d(\s)?){3}$)s*/i);
+    
+         if (!rePC.test(postalcode)) {
+              e.focus();
+              alert("The entered mailing Postal Code is not valid");
+              return false;
+         }
+    }//end cdn check
+
+return true;
+}
+
 function isCanadian(){
 	e = document.updatedelete.province;
     var province = e.options[e.selectedIndex].value;

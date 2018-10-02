@@ -125,6 +125,12 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
     private String middleNames;
     private String rosterEnrolledTo;
     
+    private String mailingAddress;
+    private String mailingCity;
+	private String mailingProvince;
+	private String mailingPostal;
+	
+    
         public String getTitle() {
         	return title;
         }
@@ -1262,4 +1268,38 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 			return "";
 		}
 	}
+
+	public String getMailingAddress() {
+		return mailingAddress;
+	}
+
+	public void setMailingAddress(String mailingAddress) {
+		this.mailingAddress = mailingAddress;
+	}
+
+	public String getMailingCity() {
+		return mailingCity;
+	}
+
+	public void setMailingCity(String mailingCity) {
+		this.mailingCity = mailingCity;
+	}
+
+	public String getMailingProvince() {
+		return mailingProvince;
+	}
+
+	public void setMailingProvince(String mailingProvince) {
+		this.mailingProvince = mailingProvince;
+	}
+
+	public String getMailingPostal() {
+		return mailingPostal;
+	}
+
+	public void setMailingPostal(String mailingPostal) {
+		this.mailingPostal = mailingPostal;
+	}
+	
+	
 }
