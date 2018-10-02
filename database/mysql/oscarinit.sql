@@ -692,6 +692,8 @@ CREATE TABLE document (
   number_of_pages int(6),
   appointment_no int(11) default NULL,
   restrictToProgram tinyint(1) NOT NULL,
+  receivedDate date default NULL,
+  abnormal int(1) NOT NULL default '0',
   PRIMARY KEY  (document_no)
 ) ;
 
