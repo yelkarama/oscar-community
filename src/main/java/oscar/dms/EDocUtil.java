@@ -312,6 +312,9 @@ public final class EDocUtil {
 				doc.setContenttype(newDocument.getContentType());
                                 doc.setContentdatetime(newDocument.getContentDateTime());
 			}
+			
+			doc.setAbnormal(ConversionUtils.fromIntString(newDocument.getAbnormal()));
+			doc.setReceivedDate(MyDateFormat.getSysDate(newDocument.getReceivedDate()));
 			documentDao.merge(doc);
 		}
 	}
@@ -745,6 +748,8 @@ public final class EDocUtil {
 			currentdoc.setNumberOfPages(d.getNumberofpages());
             currentdoc.setContentDateTime(d.getContentdatetime());
             
+            currentdoc.setAbnormal("" + d.getAbnormal());
+            currentdoc.setReceivedDate(d.getReceivedDate());
             if(d.isRestrictToProgram() != null){
             	currentdoc.setRestrictToProgram(d.isRestrictToProgram());
             }

@@ -447,6 +447,8 @@ public class AddEditDocumentAction extends DispatchAction {
 			newDoc.setAppointmentNo(Integer.parseInt(fm.getAppointmentNo()));
             newDoc.setDocClass(fm.getDocClass());
             newDoc.setDocSubClass(fm.getDocSubClass());
+            newDoc.setAbnormal(fm.getAbnormal());
+            newDoc.setReceivedDate(fm.getReceivedDate());
             String programIdStr = (String) request.getSession().getAttribute(SessionConstants.CURRENT_PROGRAM_ID);
             if (programIdStr != null) newDoc.setProgramId(Integer.valueOf(programIdStr));
 

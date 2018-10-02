@@ -55,6 +55,8 @@ public class AddEditDocumentForm extends ActionForm {
     private String appointmentNo = "0";
     
     private boolean restrictToProgram = false;
+    private String receivedDate = "";
+    private String abnormal = "";
     
     public AddEditDocumentForm() {
     }
@@ -233,6 +235,22 @@ public class AddEditDocumentForm extends ActionForm {
 
 	public void setRestrictToProgram(boolean restrictToProgram) {
 		this.restrictToProgram = restrictToProgram;
+	}
+
+	public String getReceivedDate() {
+		return receivedDate;
+	}
+
+	public void setReceivedDate(String receivedDate) {
+		this.receivedDate = receivedDate;
+	}
+
+	public String getAbnormal() {
+		return abnormal;
+	}
+
+	public void setAbnormal(String abnormal) {
+		this.abnormal = abnormal;
 	}
     
     

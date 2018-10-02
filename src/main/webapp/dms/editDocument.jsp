@@ -99,6 +99,8 @@ if (request.getAttribute("completedForm") != null) {
     formdata.setRestrictToProgram(currentDoc.isRestrictToProgram());
     lastUpdate = currentDoc.getDateTimeStamp();
     fileName = currentDoc.getFileName();
+    formdata.setAbnormal((currentDoc.getAbnormal().equals("1"))?"checked":"");
+    formdata.setReceivedDate(currentDoc.getReceivedDate());
 }
 
 List<Map<String,String>> pdList = new ProviderData().getProviderList();
@@ -328,6 +330,20 @@ for (String reportClass : reportClasses) {
 		</tr>
 		
 		<tr>
+			<td>Date Received:</td>
+			<td><input id="receivedDate" name="receivedDate"
+				type="text" value="<%=formdata.getReceivedDate()%>"><a
+				id="rdate"><img title="Calendar" src="../images/cal.gif"
+				alt="Calendar" border="0" /></a></td>
+		</tr>
+		
+		<tr>
+			<td>Abnormal Result(s):</td>
+			<td><input type="checkbox" name="abnormal"
+				<%=formdata.getAbnormal() + " "%> value="checked"></td>
+		</tr>
+		
+		<tr>
                 <% boolean updatableContent=false; %>
                 <oscar:oscarPropertiesCheck property="ALLOW_UPDATE_DOCUMENT_CONTENT" value="true" defaultVal="false">
                     <% updatableContent=true; %>
@@ -374,6 +390,7 @@ for (String reportClass : reportClasses) {
 	</table>
 </html:form> <script type="text/javascript">
                Calendar.setup( { inputField : "observationDate", ifFormat : "%Y/%m/%d", showsTime :false, button : "obsdate", singleClick : true, step : 1 } );
+               Calendar.setup( { inputField : "receivedDate", ifFormat : "%Y/%m/%d", showsTime :false, button : "rdate", singleClick : true, step : 1 } );
            </script></div>
 </body>
 </html>
