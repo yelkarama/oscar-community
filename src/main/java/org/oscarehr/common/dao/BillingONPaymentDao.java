@@ -237,7 +237,7 @@ public class BillingONPaymentDao extends AbstractDao<BillingONPayment>{
 
     public List<BillingONPayment> findByFreshbooksId (String freshbooksId)
     {
-        String sql = "SELECT b FROM BillingONPayment b WHERE b.freshbooksId = ? and bp.active = true";
+        String sql = "SELECT b FROM BillingONPayment b WHERE b.freshbooksId = ? and b.active = true";
         Query query = entityManager.createQuery(sql);
         query.setParameter(1, freshbooksId);
 
