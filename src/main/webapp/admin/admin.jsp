@@ -497,9 +497,7 @@ div.logoutBox {
 				onclick='popupPage(600,1000,&quot;<html:rewrite page="/oscarReport/obec.jsp"/>&quot;);return false;'><bean:message
 				key="admin.admin.btnOvernightChecking" /></a></li>
 
-			<li><a href="#"
-				onclick="popupPage(600,900,&quot;<html:rewrite page="/oscarSurveillance/ReportSurveillance.jsp"/>&quot;)"><bean:message
-				key="admin.admin.report.SurveillanceReport" /></a></li>
+	
 			<li><a href="#"
 				onclick="popupPage(600,900,&quot;<html:rewrite page="/oscarReport/oscarReportRehabStudy.jsp"/>&quot;)"><bean:message key="admin.admin.rehabStudy"/></a></li>
 			<li><a href="#"
@@ -661,7 +659,7 @@ div.logoutBox {
 <caisi:isModuleLoad moduleName="TORONTO_RFQ" reverse="true">
 
 <!-- #Schedule Management -->
-	<security:oscarSec roleName="<%=roleName$%>" objectName="_admin,_admin.schedule" rights="r" reverse="<%=false%>">
+	<security:oscarSec roleName="<%=roleName$%>" objectName="_admin,_admin.schedule,_admin.schedule.curprovider_only" rights="r" reverse="<%=false%>">
 		<div class="adminBox">
 		<h3>&nbsp;<bean:message key="admin.admin.ScheduleManagement" /></h3>
 		<ul>
@@ -669,6 +667,7 @@ div.logoutBox {
 				onclick='popupPage(550,800,&quot;<html:rewrite page="/schedule/scheduletemplatesetting.jsp"/>&quot;);return false;'
 				title="<bean:message key="admin.admin.scheduleSettingTitle"/>"><bean:message
 				key="admin.admin.scheduleSetting" /></a></li>
+		<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.schedule.curprovider_only" rights="r" reverse="<%=true%>">
 			<oscar:oscarPropertiesCheck property="ENABLE_EDIT_APPT_STATUS"
 				value="yes">
 				<li><a href="#"
@@ -692,6 +691,7 @@ div.logoutBox {
                         <li><a href="#"
 				onclick='popupPage(360,600,&quot;<html:rewrite page="/admin/groupPreferences.jsp"/>&quot;)'><bean:message key="admin.admin.btnGroupPreference" /></a></li>
 			<li><a href="#" onclick='popupPage(800, 700,&quot;<html:rewrite page="/oscarPrevention/PreventionManager.jsp"/>&quot;);return false;' title="Customize prevention notifications."><bean:message key="admin.admin.preventionNotification.title" /></a></li>
+		</security:oscarSec>
 		</ul>
 		</div>
 	</security:oscarSec>

@@ -23,8 +23,10 @@
  */
 package org.oscarehr.dashboard.display.beans;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.oscarehr.dashboard.query.DrillDownAction;
 import org.oscarehr.dashboard.query.Parameter;
 import org.oscarehr.dashboard.query.RangeInterface;
 
@@ -36,6 +38,8 @@ public abstract class AbstractDataDisplayBean {
 	private String name;
 	private String category;
 	private String subCategory;
+	private String metricSetName;
+	private String metricLabel;
 	private String framework;
 	private String frameworkVersion;
 	private String definition;
@@ -43,8 +47,11 @@ public abstract class AbstractDataDisplayBean {
 	private boolean active;
 	private boolean locked;
 	private String xmlTemplate;
+	private String dxUpdateICD9Code = null;
 
 	private List<Parameter> parameters;
+	private List<DrillDownAction> actions;
+	private List<String> actionIds;
 	private List<RangeInterface> ranges;
 	private String rangeString;
 	private String queryString;
@@ -97,7 +104,23 @@ public abstract class AbstractDataDisplayBean {
 	public void setSubCategory(String subCategory) {
 		this.subCategory = subCategory;
 	}
+		
+	public String getMetricSetName() {
+		return metricSetName;
+	}
 
+	public void setMetricSetName(String metricSetName) {
+		this.metricSetName = metricSetName;
+	}
+	
+	public String getMetricLabel() {
+		return metricLabel;
+	}
+
+	public void setMetricLabel(String metricLabel) {
+		this.metricLabel = metricLabel;
+	}
+	
 	public String getFramework() {
 		return framework;
 	}
@@ -160,6 +183,36 @@ public abstract class AbstractDataDisplayBean {
 
 	public void setParameters(List<Parameter> parameters) {
 		this.parameters = parameters;
+	}
+	
+	public List<DrillDownAction> getActions() {
+		return actions;
+	}
+	
+	public void setActions(List<DrillDownAction> actions) {
+		this.actions = actions;
+		this.actionIds = new ArrayList<String>();
+
+		if (actions != null && !actions.isEmpty()) {
+			for (DrillDownAction action: actions) {
+				actionIds.add(action.getId());
+				if ("dxUpdate".equals(action.getId())) {
+					setDxUpdateICD9Code(action.getValue());
+				}
+			}
+		}
+	}
+
+	public List<String> getActionIds() {
+		return actionIds;
+	}
+
+	public void setDxUpdateICD9Code(String dxUpdateICD9Code) {
+		this.dxUpdateICD9Code = dxUpdateICD9Code;
+	}
+	
+	public String getDxUpdateICD9Code() {
+		return dxUpdateICD9Code;
 	}
 
 	public String getRangeString() {

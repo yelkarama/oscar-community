@@ -28,9 +28,11 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.oscarehr.common.dao.MockDrugDao;
+import org.oscarehr.common.dao.DrugDao;
 import org.oscarehr.common.exception.AccessDeniedException;
+import org.oscarehr.common.model.AbstractModel;
 import org.oscarehr.common.model.Drug;
+import org.oscarehr.common.model.Prescription;
 import org.oscarehr.util.LoggedInInfo;
 
 import java.util.ArrayList;
@@ -44,24 +46,22 @@ import static org.junit.Assert.*;
 public class RxManagerTest extends RxManager {
 
     //Helper variables for testing.
-	protected MockSecurityInfoManager mockSecurityInfoManager;
-    
+
+    Drug old = null;
+    int daoAddNewDrugCalled = 0;
     @Before
     public void before() {
         this.drugDao = new MockDrugDao();
-        mockSecurityInfoManager = new MockSecurityInfoManager();
-        this.securityInfoManager = mockSecurityInfoManager;
-        mockSecurityInfoManager.setPrivilege(true);
+        this.securityInfoManager = new MockSecurityInfoManager();
         this.prescriptionManager = new MockPrescriptionManager();
-        MockDrugDao.old = null;
-        MockDrugDao.daoAddNewDrugCalled = 0;
+        this.old = null;
+        this.daoAddNewDrugCalled = 0;
     }
 
     @After
     public void after() {
         this.drugDao = null;
-        MockDrugDao.old = null;
-        MockDrugDao.daoAddNewDrugCalled = 0;
+        this.old = null;
     }
 
     @Test
@@ -69,12 +69,12 @@ public class RxManagerTest extends RxManager {
 
         LoggedInInfo info = new LoggedInInfo();
 
-        mockSecurityInfoManager.setPrivilege(true);
-        
+        // We know that MockSecurityInfoManager.hasPrivledge()
+        // will return true if demographicNo = 1.
+
         try {
             this.readCheck(info, 1);
         } catch (RuntimeException rte) {
-        	rte.printStackTrace();
             fail();
         }
 
@@ -85,7 +85,8 @@ public class RxManagerTest extends RxManager {
 
         LoggedInInfo info = new LoggedInInfo();
 
-        mockSecurityInfoManager.setPrivilege(false);
+        // We know that MockSecurityInfoManager.hasPrivledge()
+        // will return true if demographicNo > 5, false otherwise.
 
         this.readCheck(info, 10);
 
@@ -138,7 +139,8 @@ public class RxManagerTest extends RxManager {
 
         LoggedInInfo info = new LoggedInInfo();
 
-        mockSecurityInfoManager.setPrivilege(false);
+        // The MockSecurityInfoManager.hasPrivledge()
+        // will return false for demographicNo > 5
 
         this.writeCheck(info, 6);
 
@@ -150,7 +152,8 @@ public class RxManagerTest extends RxManager {
         LoggedInInfo info = new LoggedInInfo();
 
 
-        mockSecurityInfoManager.setPrivilege(true);
+        // MockSecurityInfoManager.hasPriviledge() will
+        // return true for demographicNo <=5
 
         try {
             this.writeCheck(info, 1);
@@ -216,8 +219,8 @@ public class RxManagerTest extends RxManager {
 
         // merge() should have adjusted the this.old variable
         // to have archived status
-        assertTrue(MockDrugDao.old.isArchived());
-        assertEquals("represcribed", MockDrugDao.old.getArchivedReason());
+        assertTrue(old.isArchived());
+        assertEquals("represcribed", old.getArchivedReason());
 
     }
 
@@ -237,7 +240,7 @@ public class RxManagerTest extends RxManager {
         assertNull(result);
 
         // should not have created a new "old" drug.
-        assertNull(MockDrugDao.old);
+        assertNull(old);
 
 
     }
@@ -348,11 +351,9 @@ public class RxManagerTest extends RxManager {
     public void testPrescribeBasic() {
 
         List<Drug> drugs = new ArrayList<Drug>();
-        drugs.add(MockDrugDao.getTestDrug());
+        drugs.add(getTestDrug());
 
         LoggedInInfo info = new LoggedInInfo();
-        
-        
 
         PrescriptionDrugs pd = prescribe(info, drugs, 1);
 
@@ -366,9 +367,9 @@ public class RxManagerTest extends RxManager {
     public void testPrescribeBasicMultiple(){
 
         List<Drug> drugs = new ArrayList<Drug>();
-        drugs.add(MockDrugDao.getTestDrug());
-        drugs.add(MockDrugDao.getTestDrug());
-        drugs.add(MockDrugDao.getTestDrug());
+        drugs.add(getTestDrug());
+        drugs.add(getTestDrug());
+        drugs.add(getTestDrug());
 
         LoggedInInfo info = new LoggedInInfo();
 
@@ -384,7 +385,7 @@ public class RxManagerTest extends RxManager {
     public void testShouldReturnNullOnNullInfo(){
 
         List<Drug> drugs = new ArrayList<Drug>();
-        drugs.add(MockDrugDao.getTestDrug());
+        drugs.add(getTestDrug());
         PrescriptionDrugs pd = prescribe(null, drugs, 1);
         assertNull(pd);
 
@@ -413,7 +414,7 @@ public class RxManagerTest extends RxManager {
     public void testShouldReturnNullOnInvalidDemoNo(){
 
         List<Drug> drugs = new ArrayList<Drug>();
-        drugs.add(MockDrugDao.getTestDrug());
+        drugs.add(getTestDrug());
         LoggedInInfo info = new LoggedInInfo();
         PrescriptionDrugs pd = prescribe(info, drugs, -1);
         assertNull(pd);
@@ -424,7 +425,7 @@ public class RxManagerTest extends RxManager {
     public void testShouldReturnNullOnDrugThatCannotBePrescribed(){
 
         List<Drug> drugs = new ArrayList<Drug>();
-        Drug d = MockDrugDao.getTestDrug();
+        Drug d = getTestDrug();
         d.setProviderNo(""); // will cause check to fail.
         drugs.add(d);
 
@@ -437,10 +438,9 @@ public class RxManagerTest extends RxManager {
     @Test(expected = AccessDeniedException.class)
     public void testShouldDenyAcess(){
         List<Drug> drugs = new ArrayList<Drug>();
-        Drug d = MockDrugDao.getTestDrug();
+        Drug d = getTestDrug();
         drugs.add(d);
         LoggedInInfo info = new LoggedInInfo();
-        this.mockSecurityInfoManager.setPrivilege(false);
         PrescriptionDrugs pd = prescribe(info, drugs, 10);
     }
 
@@ -448,7 +448,7 @@ public class RxManagerTest extends RxManager {
     public void testShouldAttemptToAddDrugIfDoesNotExist(){
 
         List<Drug> drugs = new ArrayList<Drug>();
-        Drug d = MockDrugDao.getTestDrug();
+        Drug d = getTestDrug();
         d.setId(3); //result in MockDrugDao.find() failing.
         d.setGenericName("ASA"); // allowed to add in test MockDrugDao.addNewDrug
         drugs.add(d);
@@ -456,7 +456,7 @@ public class RxManagerTest extends RxManager {
         PrescriptionDrugs pd = prescribe(info, drugs, 1);
 
         assertNotNull(pd);
-        assertEquals(MockDrugDao.daoAddNewDrugCalled, 1);
+        assertEquals(daoAddNewDrugCalled, 1);
         assertEquals(pd.drugs.get(0).getGenericName(), "ASA");
 
     }
@@ -465,7 +465,7 @@ public class RxManagerTest extends RxManager {
     public void testShouldReturnNullIfAddingANewDrugFails(){
 
         List<Drug> drugs = new ArrayList<Drug>();
-        Drug d = MockDrugDao.getTestDrug();
+        Drug d = getTestDrug();
         d.setId(3); //result in MockDrugDao.find() failing.
         d.setGenericName("NOT ASA"); // fail to add in test MockDrugDao.addNewDrug
         drugs.add(d);
@@ -473,13 +473,13 @@ public class RxManagerTest extends RxManager {
         PrescriptionDrugs pd = prescribe(info, drugs, 1);
 
         assertNull(pd);
-        assertEquals(MockDrugDao.daoAddNewDrugCalled, 1);
+        assertEquals(daoAddNewDrugCalled, 1);
 
     }
 
     @Test
     public void testCanPrescribeBasic(){
-        Drug d = MockDrugDao.getTestDrug();
+        Drug d = getTestDrug();
         assertTrue(canPrescribe(d));
     }
 
@@ -490,49 +490,49 @@ public class RxManagerTest extends RxManager {
 
     @Test
     public void testCanPrescribeIsFalseNullProvider(){
-        Drug d = MockDrugDao.getTestDrug();
+        Drug d = getTestDrug();
         d.setProviderNo(null);
         assertFalse(canPrescribe(d));
     }
 
     @Test
     public void testCanPrescribeIsFalseEmptyStringProvider(){
-        Drug d = MockDrugDao.getTestDrug();
+        Drug d = getTestDrug();
         d.setProviderNo("");
         assertFalse(canPrescribe(d));
     }
 
     @Test
     public void testCanPrescribeIsFalseNullDemographic(){
-        Drug d = MockDrugDao.getTestDrug();
+        Drug d = getTestDrug();
         d.setDemographicId(null);
         assertFalse(canPrescribe(d));
     }
 
     @Test
     public void testCanPrescribeIsFalseInvalidDemographic(){
-        Drug d = MockDrugDao.getTestDrug();
+        Drug d = getTestDrug();
         d.setDemographicId(-1);
         assertFalse(canPrescribe(d));
     }
 
     @Test
     public void testCanPrescribeIsFalseOnNullStartDate(){
-        Drug d = MockDrugDao.getTestDrug();
+        Drug d = getTestDrug();
         d.setRxDate(null);
         assertFalse(canPrescribe(d));
     }
 
     @Test
     public void testCanPrescribeIsFalseOnNullEndDate(){
-        Drug d = MockDrugDao.getTestDrug();
+        Drug d = getTestDrug();
         d.setEndDate(null);
         assertFalse(canPrescribe(d));
     }
 
     @Test
     public void testCanPrescribeIsFalseOnBadDateSequence(){
-        Drug d = MockDrugDao.getTestDrug();
+        Drug d = getTestDrug();
 
         // start after end date.
         d.setEndDate(new Date(100000000));
@@ -543,14 +543,14 @@ public class RxManagerTest extends RxManager {
 
     @Test
     public void testCanPrescribeIsFalseOnNullInstructions(){
-        Drug d = MockDrugDao.getTestDrug();
+        Drug d = getTestDrug();
         d.setSpecial(null);
         assertFalse(canPrescribe(d));
     }
 
     @Test
     public void testCanPrescribeIsFalseOnEmptyStringInstructions(){
-        Drug d = MockDrugDao.getTestDrug();
+        Drug d = getTestDrug();
         d.setSpecial("");
         assertFalse(canPrescribe(d));
     }
@@ -584,8 +584,7 @@ public class RxManagerTest extends RxManager {
 
         LoggedInInfo info = new LoggedInInfo();
 
-        this.mockSecurityInfoManager.setPrivilege(false);
-        
+        // MockSecurityManager will fail the access check for demo > 5
         List<Drug> drugs = getHistory(1, info, 6);
 
     }
@@ -593,6 +592,55 @@ public class RxManagerTest extends RxManager {
 
     // =========== TEST HELPER METHODS =================
 
+    public Drug getTestDrug() {
+
+        Date startDate = new Date();
+        Date endDate = new Date();
+        Date archivedDate = new Date();
+
+        Drug d = new Drug();
+
+        d.setId(1);
+        d.setDemographicId(1);
+        d.setProviderNo("1");
+        d.setBrandName("Aspirin");
+        d.setGenericName("ASA");
+        d.setRegionalIdentifier("12345");
+        d.setAtc("abcde");
+        d.setTakeMax(2);
+        d.setTakeMin(1);
+        d.setRxDate((Date) startDate.clone());
+        d.setEndDate((Date) endDate.clone());
+        d.setFreqCode("BID");
+        d.setDuration("28");
+        d.setDurUnit("D");
+        d.setRoute("PO");
+        d.setDrugForm("TAB");
+        d.setPrn(true);
+        d.setMethod("Take");
+        d.setRepeat(5);
+        d.setSpecial("some string");
+        d.setArchived(false);
+        d.setArchivedDate((Date) archivedDate.clone());
+        d.setArchivedReason("reason");
+
+        return d;
+
+    }
+
+    public Prescription getTestPrescription(){
+
+        Prescription p = new Prescription();
+
+        p.setDemographicId(1);
+        p.setProviderNo("1");
+        p.setTextView("PRESCRIPTION TEXT");
+        p.setDatePrescribed( new Date());
+        p.setComments("COMMENT TEXT");
+
+        return p;
+
+    }
 
 
     protected void executeValidDiscontinueByReason(String reason) {
@@ -602,9 +650,165 @@ public class RxManagerTest extends RxManager {
         boolean r = this.discontinue(info, 1, 1, reason);
 
         assertTrue(r);
-        assertEquals(reason, MockDrugDao.old.getArchivedReason());
-        assertTrue(MockDrugDao.old.isArchived());
-        Assert.assertNotNull(MockDrugDao.old.getArchivedDate());
+        assertEquals(reason, old.getArchivedReason());
+        assertTrue(old.isArchived());
+        Assert.assertNotNull(old.getArchivedDate());
 
     }
+
+    // =========== TESTING SUPPORT CLASSES =============
+    // Uses to mock objects to get around dependancy injection
+    // allows for more control over exactly what is tested.
+
+    public class MockPrescriptionManager extends PrescriptionManager{
+
+        public MockPrescriptionManager(){
+            super();
+        }
+
+        public Prescription createNewPrescription(LoggedInInfo info, List<Drug> drugs, Integer demographicNo) {
+
+            if(demographicNo > 10) return null;
+            else return getTestPrescription();
+
+        }
+
+    }
+
+
+    public class MockDrugDao extends DrugDao {
+
+        List<Drug> drugs;
+
+        public MockDrugDao() {
+
+            Drug d;
+
+            drugs = new ArrayList<Drug>();
+
+            d = new Drug();
+            d.setId(1);
+            d.setDemographicId(1);
+            d.setGenericName("ASA");
+            d.setBrandName("Aspirin");
+            d.setArchived(true);
+            d.setArchivedDate(new Date());
+            d.setArchivedReason("allergy");
+            drugs.add(d);
+
+            d = new Drug();
+            d.setId(2);
+            d.setDemographicId(1);
+            d.setGenericName("Acetaminophen");
+            d.setBrandName("Tylenol");
+            d.setArchived(false);
+            drugs.add(d);
+
+        }
+
+        public List<Drug> findByDemographicId(Integer demographicId) {
+            return this.drugs;
+        }
+
+        public List<Drug> findByDemographicId(Integer demographicId, Boolean archived) {
+
+            List<Drug> toReturn = new ArrayList<Drug>();
+
+            for (Drug d : this.drugs) {
+
+                if (d.isArchived() == archived) {
+                    toReturn.add(d);
+                }
+
+            }
+
+            return toReturn;
+
+        }
+
+        public List<Drug> findByDemographicIdAndDrugId(int demographicNo, Integer drugId) {
+
+            if(drugId > 5) {
+                return new ArrayList<Drug>();
+            } else{
+                List<Drug> drugs = new ArrayList<Drug>();
+                Drug d = getTestDrug();
+                d.setId(drugId);
+                d.setDemographicId(demographicNo);
+                drugs.add(d);
+                return drugs;
+            }
+
+        }
+
+        public List<Drug> findByAtc(String atc) {
+
+            if(atc.equals("BAD_ATC")){
+                return new ArrayList<Drug>();
+            }else{
+                List<Drug> drugs = new ArrayList<Drug>();
+                Drug d = getTestDrug();
+                drugs.add(d);
+                return drugs;
+            }
+        }
+
+
+        public boolean addNewDrug(Drug d) {
+
+            // For testing purposes we only return
+            // a drug if the drug matches out ASA drug in the test data.
+            // Write tests to take advantage of this fact...
+
+            daoAddNewDrugCalled++;
+
+            if (d.getGenericName().equals("ASA")) {
+                d.setId(1);
+                return true;
+            }
+
+            return false;
+
+        }
+
+        public void persist(Drug d) {
+            return;
+        }
+
+        /**
+         * Mock find() method that searches that test data
+         * for a drug with appropriate ID.
+         *
+         * @param i
+         *
+         * @return
+         */
+        public Drug find(Object i) {
+
+            int j = (Integer) i;
+
+            for (Drug d : this.drugs) {
+                if (j == d.getId()) return d;
+            }
+
+            return null;
+        }
+
+        /**
+         * Override method for testing purposes.
+         */
+        public void merge(AbstractModel<?> o) {
+
+            // Sets this in the parent class so that we
+            // can check it after the test.
+            old = (Drug) o;
+
+            return;
+
+        }
+
+
+
+    }
+
 }

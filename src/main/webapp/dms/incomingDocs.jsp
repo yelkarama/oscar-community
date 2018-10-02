@@ -988,7 +988,7 @@
                                                         
                                                     Provider sortedprovider = (Provider) m.getValue();
                                                     if (sortedprovider != null) {
-                                                        pname = sortedprovider.getLastName() + " " + sortedprovider.getFirstName();
+                                                        pname = (sortedprovider.getLastName() + " " + sortedprovider.getFirstName()).trim();
                                                         StringBuilder sbInitials = new StringBuilder();
                                                         String[] nameParts = pname.split(" ");
                                                         for (String part : nameParts) {

@@ -128,9 +128,8 @@ param[20]=request.getParameter("program_id");
 	a.setCreateDateTime(ConversionUtils.fromTimestampString(createDateTime));
 	a.setCreator(request.getParameter("creator"));
 	a.setRemarks(request.getParameter("remarks"));
-	a.setReasonCode(Integer.parseInt(request.getParameter("reasonCode")));
-	if(!StringUtils.isEmpty(request.getParameter("program_id"))) {
-		a.setProgramId(Integer.parseInt(request.getParameter("program_id")));
+	if(!StringUtils.isEmpty(request.getParameter("reasonCode"))) {
+		a.setReasonCode(Integer.parseInt(request.getParameter("reasonCode")));
 	}
 	//the keyword(name) must match the demographic_no if it has been changed
     demo = null;

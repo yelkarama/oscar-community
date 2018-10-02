@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import javax.activation.DataHandler;
 import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -53,7 +54,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
@@ -925,7 +926,9 @@ public class ManageDocumentAction extends DispatchAction {
 		
 		String temp = request.getParameter("remoteFacilityId");
 		Integer remoteFacilityId = null;
-		if (temp != null) remoteFacilityId = Integer.parseInt(temp);
+		if (temp != null) {
+			remoteFacilityId = Integer.parseInt(temp);
+		}
 
 		String doc_no = request.getParameter("doc_no");
 		log.debug("Document No :" + doc_no);
@@ -958,13 +961,11 @@ public class ManageDocumentAction extends DispatchAction {
 			File file = new File(documentDir, d.getDocfilename());
 			filename = d.getDocfilename();
                         
-                        if (contentType != null && !contentType.trim().equals("text/html")) {
-                            if (file.exists()) {
-                            	contentBytes = FileUtils.readFileToByteArray(file);
-                            } else {
-                            	throw new IllegalStateException("Local document doesn't exist for eDoc (ID " + d.getId() + "): " + file.getAbsolutePath());
-                            }
-                        }
+            if (contentType != null) {
+                if (file.exists()) {
+                	contentBytes = FileUtils.readFileToByteArray(file);
+                } 
+            }
 		} else // remote document
 		{
 			FacilityIdIntegerCompositePk remotePk = new FacilityIdIntegerCompositePk();
@@ -974,7 +975,7 @@ public class ManageDocumentAction extends DispatchAction {
 			
 			CachedDemographicDocument remoteDocument = null;
 			CachedDemographicDocumentContents remoteDocumentContents = null;
-
+			
 			try {
 				if (!CaisiIntegratorManager.isIntegratorOffline(request.getSession())){
 					DemographicWs demographicWs = CaisiIntegratorManager.getDemographicWs(loggedInInfo, loggedInInfo.getCurrentFacility());
@@ -1004,10 +1005,15 @@ public class ManageDocumentAction extends DispatchAction {
 			docxml = remoteDocument.getDocXml();
 			contentType = remoteDocument.getContentType();
 			filename = remoteDocument.getDocFilename();
-			contentBytes = remoteDocumentContents.getFileContents();
+			
+			//TODO improvements with how this streams are needed. This is a quick patch to take advantage of the new MTOM in Integrator.
+			DataHandler dataHandler = remoteDocumentContents.getFileContents();
+			contentBytes = IOUtils.toByteArray(dataHandler.getInputStream());
 		}
 
 		if (docxml != null && !docxml.trim().equals("")) {
+			response.setHeader("Content-Disposition","attachment; filename="+filename+";");
+			
 			ServletOutputStream outs = response.getOutputStream();
 			outs.write(docxml.getBytes());
 			outs.flush();
@@ -1017,12 +1023,19 @@ public class ManageDocumentAction extends DispatchAction {
 
 		// TODO: Right now this assumes it's a pdf which it shouldn't
 		if (contentType == null) {
-			contentType = "application/pdf";
+			contentType = "application/octet-stream";
 		}
 
 		response.setContentType(contentType);
 		response.setContentLength(contentBytes.length);
+		
+		
 		response.setHeader("Content-Disposition", "inline; filename=" + filename);
+        
+        if(contentType.equals("text/html")) {
+                response.setHeader("Content-Disposition","attachment; filename="+filename+";");
+        }
+
 		log.debug("about to Print to stream");
 		ServletOutputStream outs = response.getOutputStream();
 		outs.write(contentBytes);

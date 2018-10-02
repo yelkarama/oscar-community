@@ -129,13 +129,6 @@
 <link rel="stylesheet" href="<%=ctx%>/css/cupertino/jquery-ui-1.8.18.custom.css">
 <link rel="stylesheet" href="<%=ctx%>/css/fg.menu.css">
 
-<script>
-	$(document).ready(function(){	
-		window.moveTo(0, 0);
-		window.resizeTo(screen.availWidth, screen.availHeight);
-	});
-</script>
-
 <style type="text/css">
 body{
 margin: 0;
@@ -1692,6 +1685,7 @@ $(document).ready(function(){
 			fancyBoxFundal();
 		});
 		
+		//$("#fundalImage").attr('src',getFundalImageUrl());
 		getFundalImageUrl();
 		
 		if(isFundalHeightOffTarget()) {

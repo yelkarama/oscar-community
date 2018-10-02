@@ -24,6 +24,7 @@
 package org.oscarehr.dashboard.handler;
 
 import static org.junit.Assert.*;
+import  org.junit.Assert;
 
 import java.io.IOException;
 import java.net.URL;
@@ -31,10 +32,10 @@ import java.net.URL;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import org.eclipse.jdt.internal.core.Assert;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.oscarehr.dashboard.query.DrillDownAction;
 import org.oscarehr.dashboard.query.RangeInterface;
 import org.oscarehr.dashboard.query.RangeInterface.Limit;
 import org.w3c.dom.Document;
@@ -119,7 +120,7 @@ public class IndicatorTemplateXMLTest {
 
 	@Test
 	public void testGetIndicatorQuery() {
-		Assert.isNotNull(indicatorTemplateXML.getIndicatorQuery());
+		Assert.assertNotNull(indicatorTemplateXML.getIndicatorQuery());
 	}
 
 	@Test
@@ -128,13 +129,18 @@ public class IndicatorTemplateXMLTest {
 	}
 	
 	@Test
+	public void testGetIndicatorParametersExcludedDemos() {
+		assertEquals("excludedPatient", indicatorTemplateXML.getIndicatorParameters().get(3).getId());
+	}
+	
+	@Test
 	public void testGetIndicatorParametersSize() {
-		assertEquals(3, indicatorTemplateXML.getIndicatorParameters().size() );
+		assertEquals(4, indicatorTemplateXML.getIndicatorParameters().size() );
 	}
 
 	@Test
 	public void testGetDrillDownQuery() {
-		Assert.isNotNull( indicatorTemplateXML.getDrilldownQuery() );
+		Assert.assertNotNull( indicatorTemplateXML.getDrilldownQuery() );
 	}
 	
 	@Test
@@ -144,12 +150,17 @@ public class IndicatorTemplateXMLTest {
 	
 	@Test
 	public void testGetDrilldownParameters() {
-		assertEquals( "provider", indicatorTemplateXML.getDrilldownParameters().get(0).getId() );
+		assertEquals( "provider", indicatorTemplateXML.getDrilldownParameters("null").get(0).getId() );
+	}
+	
+	@Test
+	public void testGetDrilldownParametersExcludedDemos() {
+		assertEquals("excludedPatient", indicatorTemplateXML.getDrilldownParameters("null").get(3).getId());
 	}
 	
 	@Test
 	public void testGetDrilldownParametersSize() {
-		assertEquals(3, indicatorTemplateXML.getDrilldownParameters().size() );
+		assertEquals(4, indicatorTemplateXML.getDrilldownParameters("null").size() );
 	}
 	
 	@Test
@@ -210,5 +221,20 @@ public class IndicatorTemplateXMLTest {
 		assertTrue( verify );
 	}
 
+	@Test
+	public void testGetDrilldownActions() {
+		Boolean verify = Boolean.FALSE;
+		for( DrillDownAction action : indicatorTemplateXML.getDrilldownActions() ) {
+			if( "dxUpdate".equals( action.getId() ) && "250".equals( action.getValue()) ) {
+				verify = Boolean.TRUE;
+			}
+		}
+		assertTrue( verify );
+	}
+	
+	@Test
+	public void testGetDrilldownActionsSize() {
+		assertEquals(  3, indicatorTemplateXML.getDrilldownActions().size() );
+	}
 
 }

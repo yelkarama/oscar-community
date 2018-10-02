@@ -371,9 +371,6 @@ String pageToShow=request.getParameter("load");
 								key="admin.admin.btnFluBillingReport" /></a></li>
 					<li><a href="${ctx}/oscarReport/obec.jsp" class="contentLink">Overnight
 							Batch</a></li>
-					<li><a href="${ctx}/oscarSurveillance/ReportSurveillance.jsp"
-						class="contentLink"><bean:message
-								key="admin.admin.report.SurveillanceReport" /></a></li>
 					<li><a href="${ctx}/oscarReport/oscarReportRehabStudy.jsp" class="contentLink"><bean:message
 								key="admin.admin.rehabStudy" /></a></li>
 								
@@ -490,7 +487,7 @@ String pageToShow=request.getParameter("load");
 <!-- #ECHART END-->	
 
 <!-- #Schedule Management -->
-	<security:oscarSec roleName="<%=roleName$%>" objectName="_admin,_admin.schedule" rights="r" reverse="<%=false%>">
+	<security:oscarSec roleName="<%=roleName$%>" objectName="_admin,_admin.schedule,_admin.schedule.curprovider_only" rights="r" reverse="<%=false%>">
 				<div class="accordion-heading">
 				<a class="accordion-toggle" data-toggle="collapse" data-parent="#adminNav" href="#scheduleMenu">
 				<bean:message key="admin.admin.ScheduleManagement" />
@@ -505,6 +502,7 @@ String pageToShow=request.getParameter("load");
 						class="xlink" rel="${ctx}/schedule/scheduletemplatesetting.jsp"
 						title="<bean:message key="admin.admin.scheduleSettingTitle"/>"><bean:message
 						key="admin.admin.scheduleSetting" /></a></li>
+				<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.schedule.curprovider_only" rights="r" reverse="<%=true%>">
 					<oscar:oscarPropertiesCheck property="ENABLE_EDIT_APPT_STATUS"
 						value="yes">
 						<li><a href="javascript:void(0);"
@@ -525,9 +523,15 @@ String pageToShow=request.getParameter("load");
 					<li><a href="javascript:void(0);"
 						class="xlink" rel="${ctx}/admin/groupnoacl.jsp"><bean:message
 						key="admin.admin.btnGroupNoAcl" /></a></li>
-		                        <li><a href='javascript:void(0);'
+		            <oscar:oscarPropertiesCheck property="billregion" value="ON">
+		           
+		            <li><a href='javascript:void(0);'
 						class="xlink" rel="${ctx}/admin/groupPreferences.jsp"><bean:message key="admin.admin.btnGroupPreference" /></a></li>
+						
+					</oscar:oscarPropertiesCheck>
+					
 					<li><a href="javascript:void(0);" class="xlink" rel="${ctx}/oscarPrevention/PreventionManager.jsp" title="Customize prevention notifications."><bean:message key="admin.admin.preventionNotification.title" /></a></li>
+				</security:oscarSec>
 				</ul>
 				</div>
 				</div>
@@ -839,6 +843,8 @@ String pageToShow=request.getParameter("load");
 						<li>&nbsp;<a href='javascript:void(0);' class="xlink" rel="${ctx}/admin/api/clients.jsp">REST Clients</a></li>
 						</ul>
 					</li>
+					<li><a  href='javascript:void(0);' class="xlink" rel="${ctx}/admin/integratorStatus.jsp">Integrator Status</a></li>
+					
 					<li><a href='javascript:void(0);' class="xlink" rel='${ctx}/setProviderStaleDate.do?method=viewIntegratorProperties'><bean:message key="provider.btnSetIntegratorPreferences" /></a></li>
 					<li><a href='javascript:void(0);' class="xlink" rel='${ctx}/lab/CA/ALL/sendOruR01.jsp'><bean:message key="admin.admin.sendOruR01" /></a></li>
 					<li><a href='javascript:void(0);' class="xlink" rel="${ctx}/hospitalReportManager/hospitalReportManager.jsp">Hospital Report Manager (HRM) Status</a></li>
@@ -911,7 +917,8 @@ String pageToShow=request.getParameter("load");
 		                        %>		
 			
 					<li><a href="javascript:void(0);" class="xlink" rel="${ctx}/admin/updateDrugref.jsp" ><bean:message key="admin.admin.UpdateDrugref"/></a></li>	
-					<li><a href="javascript:void(0);" class="xlink" rel="${ctx}/admin/Know2actConfiguration.jsp" ><bean:message key="admin.admin.Know2ActConfig"/></a></li>		
+					<li><a href="javascript:void(0);" class="xlink" rel="${ctx}/admin/Know2actConfiguration.jsp" ><bean:message key="admin.admin.Know2ActConfig"/></a></li>
+					<li><a href="javascript:void(0);" class="xlink" rel="${ctx}/admin/surveillanceConfiguration.jsp" ><bean:message key="admin.admin.surveillanceConfig"/></a></li>		
 					<li><a  href='javascript:void(0);' class="xlink" rel="${ctx}/admin/integratorPushStatus.jsp"><bean:message key="admin.admin.integratorPush" /></a></li>
 					<li><a  href='javascript:void(0);' class="xlink" rel="${ctx}/admin/born.jsp"><bean:message key="admin.admin.born" /></a></li>
 					<li><a href='javascript:void(0);' class="xlink" rel="${ctx}/admin/clinicalconnect.jsp"><bean:message key="admin.admin.ClinicalConnectConfig" /></a></li>
@@ -952,7 +959,13 @@ String pageToShow=request.getParameter("load");
 				   <% if (OscarProperties.getInstance().getProperty("NEW_CONTACTS_UI","false").equals("true")) { %>
 		            	<li><a href='javascript:void(0);' class="xlink" rel="${ctx}/demographic/migrate_demographic_contacts.jsp"><bean:message key="admin.admin.migrate_contacts"/></a></li>
 		            <% } %>
+						<li><a href='javascript:void(0);'
+						class="xlink" rel="${ctx}/admin/fixRolesOnNotes.jsp"><bean:message
+						key="admin.admin.btnFixNotes" /></a></li>
 						
+					<li><a href='javascript:void(0);'
+						class="xlink" rel="${ctx}/admin/auditLogPurge.jsp"><bean:message
+						key="admin.admin.btnAuditLogPurge" /></a></li>
 				</ul>
 				</div>
 				</div>
@@ -1042,6 +1055,7 @@ String pageToShow=request.getParameter("load");
 				<div class="accordion-inner">
 				<li><a href='javascript:void(0);'
 						class="xlink" rel="${ctx}/pregnancy/migrateToSplitOnArEnhancedForm.jsp"><bean:message key="admin.admin.updates.migrate_onarenhanced"/></a></li>
+						
 				</ul>
 				</div>
 				</div>

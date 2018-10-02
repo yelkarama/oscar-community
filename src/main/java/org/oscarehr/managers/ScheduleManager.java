@@ -24,12 +24,17 @@
 
 package org.oscarehr.managers;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TreeMap;
+
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
@@ -91,11 +96,8 @@ public class ScheduleManager {
 	private AppointmentStatusDao appointmentStatusDao;
 	
 	@Autowired
-	private MyGroupDao myGroupDao;
-	
-	@Autowired
-	private MyGroupProgramDao myGroupProgramDao;
-	
+	private SecurityInfoManager securityInfoManager;
+
 
 	/*Right now the date object passed is converted to a local time.  
 	*
@@ -291,40 +293,46 @@ public class ScheduleManager {
 
 		return (results);
 	}
+
+	public List<Object[]> listAppointmentsByPeriodProvider(LoggedInInfo loggedInInfo, Date sDate, Date eDate, String providers) {
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+		LogAction.addLogSynchronous(loggedInInfo, "listAppointmentsByPeriodProvider", "/" + df.format(sDate)
+			+ "/" + df.format(eDate) + "/"+providers);
+
+		if (!securityInfoManager.hasPrivilege(loggedInInfo, "_appointment", "r", null)) {
+			throw new RuntimeException("Access Denied");
+		}
+
+		List<Integer> providerNos = new ArrayList<Integer>();
+		String[] providersArray = providers.split(",");
+		for(String prv : providersArray) {
+			providerNos.add(Integer.parseInt(prv));
+		}
 	
-	public List<String> getMyGroups() {
-		return myGroupDao.getGroups();
+		List<Object[]> apptsExt = oscarAppointmentDao.listAppointmentsByPeriodProvider(sDate, eDate, providerNos);
+
+		return apptsExt;
 	}
-	
-	public List<String> getMyGroupsByProgramNo(Integer programNo) {
-		List<MyGroupProgram> gpList =  myGroupProgramDao.findByProgramNo(programNo);
-		List<String> groups = new ArrayList<String>();
-		
-		for(MyGroupProgram gp:gpList) {
-			groups.add(gp.getMyGroupNo());
+
+	public List<Object[]> listProviderAppointmentCounts(LoggedInInfo loggedInInfo, String sDateStr, String eDateStr) {
+		LogAction.addLogSynchronous(loggedInInfo, "listProviderAppointmentCounts", "sDateStr=" + sDateStr +", eDateStr="+eDateStr);
+
+		if (!securityInfoManager.hasPrivilege(loggedInInfo, "_appointment", "r", null)) {
+			throw new RuntimeException("Access Denied");
 		}
 		
-		return groups;
-	}
-	
-	public void replaceMyGroupProgram(Integer programNo, String[] groups) {
-		myGroupProgramDao.removeByProgramNo(programNo);
-		
-		if(groups != null) {
-			for(String g:groups) {
-				MyGroupProgram e = new MyGroupProgram();
-				e.setMyGroupNo(g);
-				e.setProgramNo(programNo);
-				myGroupProgramDao.persist(e);
-			}
+		Date sDate = null;
+		Date eDate = null;
+		try {
+			sDate = org.apache.tools.ant.util.DateUtils.parseIso8601Date(sDateStr);
+			eDate = org.apache.tools.ant.util.DateUtils.parseIso8601Date(eDateStr);
+		} catch(Exception e) {
+			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity("Path parameter has the wrong format").build());			
 		}
+
+		List<Object[]> providerCounts = oscarAppointmentDao.listProviderAppointmentCounts(sDate, eDate);
+
+		return providerCounts;
 	}
-	
-	public List<String> getMyGroups(LoggedInInfo loggedInInfo, List<Integer> programDomain) {
-		
-		List<String> groups =  myGroupProgramDao.findByProgramNos(programDomain);
-		
-		
-		return groups;
-	}
+
 }

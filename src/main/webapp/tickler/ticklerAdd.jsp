@@ -24,6 +24,8 @@
 
 --%>
 
+<%@page import="org.oscarehr.common.dao.DemographicDao"%>
+<%@page import="org.oscarehr.common.model.Demographic"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -52,6 +54,12 @@ if (request.getParameter("bFirstDisp")!=null) bFirstDisp= (request.getParameter(
 String ChartNo;
 String demoNo = "";
 String demoName = request.getParameter("name");
+
+DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
+Demographic demographic = demographicDao.getDemographic(request.getParameter("demographic_no"));
+if(demographic != null) {
+	demoName = demographic.getFormattedName();
+}
 if ( request.getAttribute("demographic_no") != null){
     demoNo = (String) request.getAttribute("demographic_no");
     demoName = (String) request.getAttribute("demoName");
@@ -71,6 +79,13 @@ if( request.getParameter("updateParent") != null )
     updateParent = request.getParameter("updateParent");
 else
     updateParent = "true";  
+
+boolean recall = false;
+String taskTo = user_no; //default current user
+String priority = "Normal";
+if(request.getParameter("taskTo")!=null) taskTo = request.getParameter("taskTo");
+if(request.getParameter("priority")!=null) priority = request.getParameter("priority");
+if(request.getParameter("recall")!=null) recall = true;
 
 %>
 <%@ page import="java.util.*, java.sql.*, oscar.*, java.net.*, oscar.oscarEncounter.pageUtil.EctSessionBean" %>
@@ -122,7 +137,55 @@ GregorianCalendar now=new GregorianCalendar();
 -->
 </style>
       <script language="JavaScript">
-<!--
+
+    Date.prototype.addDays = function(days) {
+    	  var dat = new Date(this.valueOf());
+    	  dat.setDate(dat.getDate() + days);
+    	  return dat;
+    }
+
+    Date.prototype.addMonths = function(months) {
+  	  var dat = new Date(this.valueOf());
+  	  dat.setMonth(dat.getMonth() + months);
+  	  return dat;
+  }
+
+    function addMonths(months) {
+  	  var d = new Date();
+  	  d = d.addMonths(months);
+  	  var mth = ((d.getMonth()+1)<10)? ("0"+(d.getMonth()+1)) : (d.getMonth()+1);
+  	  var day =  d.getDate() > 10 ? d.getDate() : ("0" + d.getDate());
+  	  var newD = d.getFullYear() + "-" + mth + "-" + day;
+        document.serviceform.xml_appointment_date.value = newD;
+    }
+    
+      
+      function addDays(numDays) {
+    	  var d = new Date();
+    	  d = d.addDays(numDays);  
+    	  var mth = ((d.getMonth()+1)<10)? ("0"+(d.getMonth()+1)) : (d.getMonth()+1);
+    	  var day =  d.getDate() > 10 ? d.getDate() : ("0" + d.getDate());
+    	  var newD = d.getFullYear() + "-" + mth + "-" + day;
+          document.serviceform.xml_appointment_date.value = newD;
+      }
+
+      function toggleQuickPickDateDisplay(linkToggle)
+      {
+          var options = document.getElementById("quickPickDateOptions");
+          if (options.style.display === "none")
+          {
+                options.style.display = "block";
+                linkToggle.innerHTML = "<bean:message key="tickler.ticklerAdd.btnHideQuickpick"/>";
+          }
+          else
+          {
+                options.style.display = "none";
+                linkToggle.innerHTML = "<bean:message key="tickler.ticklerAdd.btnShowQuickpick"/>";
+          }
+      }
+
+      
+      <!--
 function popupPage(vheight,vwidth,varpage) { //open a new popup window
   var page = "" + varpage;
   windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes";
@@ -185,65 +248,6 @@ function refresh() {
     history.go(0);
   }
 }
-
-
-
-
-
-function DateAdd(startDate, numDays, numMonths, numYears)
-{
-	var returnDate = new Date(startDate.getTime());
-	var yearsToAdd = numYears;
-	
-	var month = returnDate.getMonth()	+ numMonths;
-	if (month > 11)
-	{
-		yearsToAdd = Math.floor((month+1)/12);
-		month -= 12*yearsToAdd;
-		yearsToAdd += numYears;
-	}
-	returnDate.setMonth(month);
-	returnDate.setFullYear(returnDate.getFullYear()	+ yearsToAdd);
-	
-	returnDate.setTime(returnDate.getTime()+60000*60*24*numDays);
-	
-	return returnDate;
-
-}
-
-function YearAdd(startDate, numYears)
-{
-		return DateAdd(startDate,0,0,numYears);
-}
-
-function MonthAdd(startDate, numMonths)
-{
-		return DateAdd(startDate,0,numMonths,0);
-}
-
-function DayAdd(startDate, numDays)
-{
-		return DateAdd(startDate,numDays,0,0);
-}
-
-
-function addMonth(no)
-{       var gCurrentDate = new Date();
-	var newDate = DateAdd(gCurrentDate, 0, no,0 );
-var newYear = newDate.getFullYear() 
-var newMonth = newDate.getMonth()+1;
-var newDay = newDate.getDate();
-var newD = newYear + "-" + newMonth + "-" + newDay;
-	document.serviceform.xml_appointment_date.value = newD;
-}
-
-
-
-
-
-
-
-
 
 //-->
 </script>
@@ -320,25 +324,49 @@ var newD = newYear + "-" + newMonth + "-" + newDay;
       <td><font color="#003366" size="2" face="Verdana, Arial, Helvetica, sans-serif"><strong><bean:message key="tickler.ticklerAdd.formServiceDate"/>:</strong></font></td>
       <td><input type="text" name="xml_appointment_date" value="<%=xml_appointment_date%>"> 
         <font color="#003366" size="1" face="Verdana, Arial, Helvetica, sans-serif">
-        <a href="#" onClick="openBrWindow('../billing/billingCalendarPopup.jsp?type=end&amp;year=<%=curYear%>&amp;month=<%=curMonth%>','','width=300,height=300')"><bean:message key="tickler.ticklerAdd.btnCalendarLookup"/></a> &nbsp; &nbsp; 
-        <a href="#" onClick="addMonth(6)"><bean:message key="tickler.ticklerAdd.btn6Month"/></a>&nbsp; &nbsp;
-        <a href="#" onClick="addMonth(12)"><bean:message key="tickler.ticklerAdd.btn1Year"/></a></font> </td>
+        <a href="#" onClick="openBrWindow('../billing/billingCalendarPopup.jsp?type=end&amp;year=<%=curYear%>&amp;month=<%=curMonth%>','','width=300,height=300')" title="<bean:message key="tickler.ticklerAdd.btnCalendarLookup"/>">
+            <input type="image" src="../images/cal.gif" width="25" height="22" border="0" align="top" alt="<bean:message key="tickler.ticklerAdd.btnCalendarLookup"/>"/>
+        </a>
+        <a href="#" onClick="toggleQuickPickDateDisplay(this)" title="<bean:message key="tickler.ticklerAdd.btnToggleQuickpickDates"/>" style="padding-left:5px; vertical-align: middle;"><bean:message key="tickler.ticklerAdd.btnShowQuickpick"/></a>
+        <div id="quickPickDateOptions"  style="display:none;">
+         <a href="#" onClick="addDays(14)">14d</a>&nbsp; &nbsp;
+        <a href="#" onClick="addMonths(1)">1m</a>&nbsp; &nbsp;
+        <a href="#" onClick="addMonths(2)">2m</a>&nbsp; &nbsp;
+        <a href="#" onClick="addMonths(3)">3m</a>&nbsp; &nbsp;
+        <a href="#" onClick="addMonths(4)">4m</a>&nbsp; &nbsp;
+        <a href="#" onClick="addMonths(5)">5m</a>&nbsp; &nbsp;
+        <a href="#" onClick="addMonths(6)">6m</a>&nbsp; &nbsp;
+         <a href="#" onClick="addMonths(7)">7m</a>&nbsp; &nbsp;
+         <a href="#" onClick="addMonths(8)">8m</a>&nbsp; &nbsp;
+        <a href="#" onClick="addMonths(9)">9m</a>&nbsp; &nbsp;
+        <a href="#" onClick="addMonths(10)">10m</a>&nbsp; &nbsp;
+        <a href="#" onClick="addMonths(11)">11m</a>&nbsp; &nbsp;
+        <a href="#" onClick="addMonths(12)">1yr</a>&nbsp; &nbsp;
+        <a href="#" onClick="addMonths(24)">2yr</a>&nbsp; &nbsp;
+        <a href="#" onClick="addMonths(36)">3yr</a>&nbsp; &nbsp;
+        <a href="#" onClick="addMonths(60)">5yr</a>&nbsp; &nbsp;
+        <a href="#" onClick="addMonths(96)">8yr</a>&nbsp; &nbsp;
+        <a href="#" onClick="addMonths(120)">10yr</a>
+        </div>
+        </font> </td>
+        
+        
       <td>&nbsp;</td>
     </tr>
     <tr> 
-      <td height="21" valign="top"><font color="#003366" size="2" face="Verdana, Arial, Helvetica, sans-serif"><strong><bean:message key="tickler.ticklerMain.Priority"/></strong></font></td>
+      <td height="21" valign="top"><font color="#003366" size="2" face="Verdana, Arial, Helvetica, sans-serif"><strong><bean:message key="tickler.ticklerMain.Priority"/>:</strong></font></td>
       <td valign="top"> 
 	<select name="priority" style="font-face:Verdana, Arial, Helvetica, sans-serif">
- 	<option value="<bean:message key="tickler.ticklerMain.priority.high"/>"><bean:message key="tickler.ticklerMain.priority.high"/>
-	<option value="<bean:message key="tickler.ticklerMain.priority.normal"/>" SELECTED><bean:message key="tickler.ticklerMain.priority.normal"/>
-	<option value="<bean:message key="tickler.ticklerMain.priority.low"/>"><bean:message key="tickler.ticklerMain.priority.low"/>	
+ 	<option value="<bean:message key="tickler.ticklerMain.priority.high"/>" <%=priority.equals("High")?"selected":""%>><bean:message key="tickler.ticklerMain.priority.high"/>
+	<option value="<bean:message key="tickler.ticklerMain.priority.normal"/>" <%=priority.equals("Normal")?"selected":""%>><bean:message key="tickler.ticklerMain.priority.normal"/>
+	<option value="<bean:message key="tickler.ticklerMain.priority.low"/>" <%=priority.equals("Low")?"selected":""%>><bean:message key="tickler.ticklerMain.priority.low"/>	
      	</select>
       </td>
       <td>&nbsp;</td>
     </tr>
 
     <tr> 
-      <td height="21" valign="top"><font color="#003366" size="2" face="Verdana, Arial, Helvetica, sans-serif"><strong><bean:message key="tickler.ticklerMain.taskAssignedTo"/></strong></font></td>
+      <td height="21" valign="top"><font color="#003366" size="2" face="Verdana, Arial, Helvetica, sans-serif"><strong><bean:message key="tickler.ticklerMain.taskAssignedTo"/>:</strong></font></td>
       <td valign="top"> <font face="Verdana, Arial, Helvetica, sans-serif" size="2" color="#333333">
 <% if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) 
 { // multisite start ==========================================
@@ -371,6 +399,7 @@ function changeSite(sel) {
 	sel.form.task_assigned_to.innerHTML=sel.value=="none"?"":_providers[sel.value];
 }
       </script>
+ 
       	<select id="site" name="site" onchange="changeSite(this)">
       		<option value="none">---select clinic---</option>
       	<%
@@ -387,7 +416,8 @@ function changeSite(sel) {
 <% // multisite end ==========================================
 } else {
 %>
-      <select name="task_assigned_to">           
+  
+      <select name="task_assigned_to">        
             <%  String proFirst="";
                 String proLast="";
                 String proOHIP="";
@@ -399,7 +429,7 @@ function changeSite(sel) {
                     proOHIP = p.getProviderNo();
 
             %> 
-            <option value="<%=proOHIP%>" <%=user_no.equals(proOHIP)?"selected":""%>><%=proLast%>, <%=proFirst%></option>
+            <option value="<%=proOHIP%>" <%=taskTo.equals(proOHIP)?"selected":""%>><%=proLast%>, <%=proFirst%></option>
             <%
                 }
             %>

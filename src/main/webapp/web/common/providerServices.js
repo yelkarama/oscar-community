@@ -31,10 +31,10 @@ angular.module("providerServices", [])
 		configHeadersWithCache: {headers: {"Content-Type": "application/json","Accept":"application/json"},cache: true},
         getMe: function(){
         	var deferred = $q.defer();
-        	 $http.get(this.apiPath+'/provider/me',this.configHeaders).success(function(data){
-            	console.log("me "+data);
-            	deferred.resolve(data);
-            }).error(function(){
+        	 $http.get(this.apiPath+'/provider/me',this.configHeaders).then(function(response){
+            	console.log("me "+response.data);
+            	deferred.resolve(response.data);
+            },function(){
             	console.log("error fetching myself");
             	deferred.reject("An error occured while getting user data");
             });
@@ -43,10 +43,10 @@ angular.module("providerServices", [])
         },
 		getProvider: function(id){
 			var deferred = $q.defer();
-			$http.get(this.apiPath+'/provider/'+id,this.configHeaders).success(function(data){
-				console.log("get provider: "+data);
-				deferred.resolve(data);
-			}).error(function(){
+			$http.get(this.apiPath+'/provider/'+id,this.configHeaders).then(function (response){
+				console.log("get provider: "+response.data);
+				deferred.resolve(response.data);
+			},function(){
 				console.log("error fetching provider "+id);
 				deferred.reject("An error occured while getting user data");
 			});
@@ -61,9 +61,9 @@ angular.module("providerServices", [])
                 method: "POST",
                 data: JSON.stringify(filter),
                 headers: {'Content-Type': 'application/json'}
-             }).success(function (data, status, headers, config) {
-            	 deferred.resolve(data.content);
-             }).error(function (data, status, headers, config) {
+             }).then(function (response){
+            	 deferred.resolve(response.data.content);
+             },function (data, status, headers, config) {
             	 deferred.reject("An error occured while fetching provider list");
              });
 
@@ -75,10 +75,9 @@ angular.module("providerServices", [])
             $http({
                 url: this.apiPath+'/settings/get',
                 method: "GET"
-             }).success(function (data, status, headers, config) {
-            	 console.log("got settings" + JSON.stringify(data));
-            	 deferred.resolve(data.content[0]);
-             }).error(function (data, status, headers, config) {
+             }).then(function (response){
+            	 deferred.resolve(response.data.content[0]);
+             },function (data, status, headers, config) {
             	 deferred.reject("An error occured while fetching provider settings");
              });
 
@@ -92,10 +91,9 @@ angular.module("providerServices", [])
                 method: "POST",
                 data: JSON.stringify(settings),
                 headers: {'Content-Type': 'application/json'}
-             }).success(function (data, status, headers, config) {
-            	 console.log("saved settings" + JSON.stringify(data));
-            	 deferred.resolve(data);
-             }).error(function (data, status, headers, config) {
+             }).then(function (response){
+            	 deferred.resolve(response.data);
+             },function (data, status, headers, config) {
             	 deferred.reject("An error occured while saving settings");
              });
 
@@ -107,13 +105,27 @@ angular.module("providerServices", [])
             $http({
                 url: this.apiPath+'/getActiveTeams',
                 method: "GET"
-             }).success(function (data, status, headers, config) {
-            	 deferred.resolve(data.content);
-             }).error(function (data, status, headers, config) {
+             }).then(function (response){
+            	 deferred.resolve(response.data.content);
+             },function (data, status, headers, config) {
             	 deferred.reject("An error occured while fetching provider teams");
              });
 
           return deferred.promise;
+        },
+        getAllActiveProviders: function(){
+        		var deferred = $q.defer();
+            
+            $http({
+                url: this.apiPath+'/providers_json',
+                method: "GET"
+             }).then(function (data, status, headers, config) {
+            	 	deferred.resolve(data.content);
+             },function (data, status, headers, config) {
+            	 	deferred.reject("An error occured while fetching provider teams");
+             });
+
+            return deferred.promise;
         }
     };
 });

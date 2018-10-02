@@ -355,8 +355,7 @@ $scope.$on('$destroy', function () { clearInterval(myVar); });
 			
 			var dt = new Date($scope.page.appointment.appointmentDate);
 			apptDate = dt.getFullYear()+"-"+zero(dt.getMonth()+1)+"-"+zero(dt.getDate());
-			dt = new Date($scope.page.appointment.startTime);
-			apptStartTime = zero(dt.getHours())+":"+zero(dt.getMinutes())+":"+zero(dt.getSeconds());
+			apptStartTime = $scope.page.appointment.startTime;
 		}
 		
 		var url = "../billing.do?billRegion="+encodeURIComponent($scope.page.billregion);
@@ -438,11 +437,9 @@ $scope.$on('$destroy', function () { clearInterval(myVar); });
 	 }
 	 
 	 $scope.insertTemplate = function(item, model, label) {
-		 
 		 uxService.getTemplate({name:model}).then(function(data){
 			 if(data.templates != null) {
-//				 $scope.page.encounterNote.note = $scope.page.encounterNote.note + "\n\n" + data.templates.encounterTemplateValue;
-				 $scope.page.encounterNote.note = $scope.page.encounterNote.note + data.templates.encounterTemplateValue;
+				 $scope.page.encounterNote.note = $scope.page.encounterNote.note + data.templates[0].encounterTemplateValue;
 				 $scope.options= {magicVal:''};
 			 }
 			

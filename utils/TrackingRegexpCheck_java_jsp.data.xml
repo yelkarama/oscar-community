@@ -170,6 +170,7 @@
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarConsultationRequest/config/pageUtil/EctConShowAllServicesUtil.java:serviceIdVec = new Vector();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarConsultationRequest/pageUtil/ConsultationPrintDocsAction.java:ArrayList alist = new ArrayList();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarConsultationRequest/pageUtil/EctConsultationFormRequestUtil.java:teamVec = new Vector();</ViolationValue>
+        <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarConsultationRequest/pageUtil/EctViewConsultationRequestsUtil.java:consultProvider = new Vector();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarConsultationRequest/pageUtil/EctViewConsultationRequestsUtil.java:providerNo = new Vector();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarMeasurements/MeasurementFlowSheet.java://Hashtable dsRulesHash = new Hashtable();   //Each items Rules ** Not sure what to do with yet</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarMeasurements/MeasurementFlowSheet.java:public Hashtable&lt;String,String&gt; getIndicatorHashtable(){</ViolationValue>
@@ -202,6 +203,8 @@
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarMeasurements/bean/EctValidationsBeanHandler.java:Vector validationsVector = new Vector();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarMeasurements/bean/EctValidationsBeanHandler.java:public Collection getValidationsVector() {</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarMeasurements/pageUtil/EctAddMeasurementGroupForm.java:/*    private final Map values = new HashMap();</ViolationValue>
+        <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarMeasurements/pageUtil/EctAddMeasuringInstructionAction.java:Collection typeDisplayNameList = typeHd.getTypeDisplayNameVector();</ViolationValue>
+        <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarMeasurements/pageUtil/EctAddMeasuringInstructionAction.java:Collection validationsList = validationHd.getValidationsVector();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarMeasurements/pageUtil/EctEditMeasurementGroupForm.java:/*    private final Map values = new HashMap();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarMeasurements/pageUtil/EctMeasurementsForm.java:public final Map values = new HashMap();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarMeasurements/pageUtil/EctSelectMeasurementGroupAction.java:Collection allStyleSheets = sshd.getStyleSheetNameVector();</ViolationValue>
@@ -385,10 +388,12 @@
         <ViolationValue>/src/main/java/oscar/oscarRx/pageUtil/RxSearchDrugAction.java:Vector catVec = new Vector();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarRx/pageUtil/RxSessionBean.java:// private ArrayList stash=new ArrayList();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarRx/pageUtil/RxSessionBean.java:allergyWarnings = new Hashtable();</ViolationValue>
+        <ViolationValue>/src/main/java/oscar/oscarRx/pageUtil/RxSessionBean.java:missingAllergyWarnings = new Hashtable();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarRx/pageUtil/RxSessionBean.java:private ArrayList attributeNames = new ArrayList();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarRx/pageUtil/RxSessionBean.java:private ArrayList&lt;RxPrescriptionData.Prescription&gt; stash = new ArrayList();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarRx/pageUtil/RxSessionBean.java:private HashMap randomIdDrugIdPair=new HashMap();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarRx/pageUtil/RxSessionBean.java:private Hashtable allergyWarnings = new Hashtable();</ViolationValue>
+        <ViolationValue>/src/main/java/oscar/oscarRx/pageUtil/RxSessionBean.java:private Hashtable missingAllergyWarnings = new Hashtable();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarRx/pageUtil/RxSessionBean.java:private Hashtable workingAllergyWarnings = new Hashtable();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarRx/pageUtil/RxSessionBean.java:private List&lt;HashMap&lt;String,String&gt;&gt; listMedHistory=new ArrayList();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarRx/pageUtil/RxSessionBean.java:private List&lt;String&gt; reRxDrugIdList=new ArrayList();</ViolationValue>
@@ -1595,10 +1600,12 @@
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarConsultationRequest/config/pageUtil/EctConShowAllServicesUtil.java:public void estServicesVectors()</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarConsultationRequest/config/pageUtil/EctConShowAllServicesUtil.java:serviceDescVec = new Vector();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarConsultationRequest/config/pageUtil/EctConShowAllServicesUtil.java:serviceIdVec = new Vector();</ViolationValue>
+        <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarConsultationRequest/pageUtil/EConsultAction.java:StringBuffer oscarUrl = request.getRequestURL();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarConsultationRequest/pageUtil/EctConsultationFormRequestUtil.java:import java.util.Vector;</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarConsultationRequest/pageUtil/EctConsultationFormRequestUtil.java:public Vector teamVec;</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarConsultationRequest/pageUtil/EctConsultationFormRequestUtil.java:teamVec = new Vector();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarConsultationRequest/pageUtil/EctViewConsultationRequestsUtil.java:apptDate = new Vector&lt;String&gt;();</ViolationValue>
+        <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarConsultationRequest/pageUtil/EctViewConsultationRequestsUtil.java:consultProvider = new Vector();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarConsultationRequest/pageUtil/EctViewConsultationRequestsUtil.java:date = new Vector&lt;String&gt;();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarConsultationRequest/pageUtil/EctViewConsultationRequestsUtil.java:demographicNo = new Vector&lt;String&gt;();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarConsultationRequest/pageUtil/EctViewConsultationRequestsUtil.java:followUpDate = new Vector&lt;String&gt;();</ViolationValue>
@@ -1607,6 +1614,7 @@
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarConsultationRequest/pageUtil/EctViewConsultationRequestsUtil.java:patient = new Vector&lt;String&gt;();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarConsultationRequest/pageUtil/EctViewConsultationRequestsUtil.java:provider = new Vector&lt;String&gt;();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarConsultationRequest/pageUtil/EctViewConsultationRequestsUtil.java:providerNo = new Vector();</ViolationValue>
+        <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarConsultationRequest/pageUtil/EctViewConsultationRequestsUtil.java:public Vector consultProvider;</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarConsultationRequest/pageUtil/EctViewConsultationRequestsUtil.java:public Vector&lt;String&gt; apptDate;</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarConsultationRequest/pageUtil/EctViewConsultationRequestsUtil.java:public Vector&lt;String&gt; date;</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarConsultationRequest/pageUtil/EctViewConsultationRequestsUtil.java:public Vector&lt;String&gt; demographicNo;</ViolationValue>
@@ -1728,6 +1736,8 @@
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarMeasurements/data/MeasurementMapConfig.java:public ArrayList&lt;Hashtable&lt;String,Object&gt;&gt; getUnmappedMeasurements(String type) {</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarMeasurements/data/MeasurementMapConfig.java:public Hashtable&lt;String, Hashtable&lt;String,String&gt;&gt; getMappedCodesFromLoincCodesHash(String loincCode) {</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarMeasurements/data/MeasurementMapConfig.java:public List&lt;Hashtable&lt;String,String&gt;&gt; getMappedCodesFromLoincCodes(String loincCode) {</ViolationValue>
+        <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarMeasurements/pageUtil/EctAddMeasuringInstructionAction.java:Collection typeDisplayNameList = typeHd.getTypeDisplayNameVector();</ViolationValue>
+        <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarMeasurements/pageUtil/EctAddMeasuringInstructionAction.java:Collection validationsList = validationHd.getValidationsVector();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarMeasurements/pageUtil/EctSelectMeasurementGroupAction.java:Collection allStyleSheets = sshd.getStyleSheetNameVector();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarMeasurements/pageUtil/EctSetupAddMeasurementGroupAction.java:Collection allTypeDisplayName = hd.getTypeDisplayNameVector();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarEncounter/oscarMeasurements/pageUtil/EctSetupAddMeasurementGroupAction.java:Collection existingTypeDisplayName = hd.getTypeDisplayNameVector();</ViolationValue>
@@ -2214,6 +2224,7 @@
         <ViolationValue>/src/main/java/oscar/oscarRx/data/RxDrugData.java:Hashtable&lt;String, Object&gt; returnVal = drugRef.getDrugByDIN(DIN, Boolean.TRUE);</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarRx/data/RxDrugData.java:MinDrug(Hashtable h){</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarRx/data/RxDrugData.java:Vector alli = (Vector) hashObject.get("warnings");</ViolationValue>
+        <ViolationValue>/src/main/java/oscar/oscarRx/data/RxDrugData.java:Vector allmissing = (Vector) hashObject.get("missing");</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarRx/data/RxDrugData.java:Vector comps = (Vector) hash.get("components");</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarRx/data/RxDrugData.java:Vector drugRoute=(Vector)hash.get("drugRoute");</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarRx/data/RxDrugData.java:Vector res = d.getAlergyWarnings(atcCode, vec);</ViolationValue>
@@ -2321,7 +2332,9 @@
         <ViolationValue>/src/main/java/oscar/oscarRx/pageUtil/RxSessionBean.java:allergyWarnings = new Hashtable();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarRx/pageUtil/RxSessionBean.java:import java.util.Hashtable;</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarRx/pageUtil/RxSessionBean.java:import java.util.Vector;</ViolationValue>
+        <ViolationValue>/src/main/java/oscar/oscarRx/pageUtil/RxSessionBean.java:missingAllergyWarnings = new Hashtable();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarRx/pageUtil/RxSessionBean.java:private Hashtable allergyWarnings = new Hashtable();</ViolationValue>
+        <ViolationValue>/src/main/java/oscar/oscarRx/pageUtil/RxSessionBean.java:private Hashtable missingAllergyWarnings = new Hashtable();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarRx/pageUtil/RxSessionBean.java:private Hashtable workingAllergyWarnings = new Hashtable();</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarRx/pageUtil/RxSessionBean.java:public Vector getAtcCodes(){</ViolationValue>
         <ViolationValue>/src/main/java/oscar/oscarRx/pageUtil/RxWriteScriptAction.java:Vector comps = dmono.components;</ViolationValue>
@@ -2714,6 +2727,7 @@
         <ViolationValue>/src/main/webapp/form/formselect.jsp:&lt;html:options collection="formHiddenVector" property="formName"</ViolationValue>
         <ViolationValue>/src/main/webapp/form/formselect.jsp:&lt;html:options collection="formShownVector" property="formName"</ViolationValue>
         <ViolationValue>/src/main/webapp/form/study/ar2ping.jsp:StringBuffer sb = new StringBuffer(N);</ViolationValue>
+        <ViolationValue>/src/main/webapp/index.jsp:StringBuffer oscarUrl = request.getRequestURL();</ViolationValue>
         <ViolationValue>/src/main/webapp/lab/CA/ON/labValuesGraph.jsp:Hashtable h = new Hashtable();</ViolationValue>
         <ViolationValue>/src/main/webapp/lab/CA/ON/labValuesGraph.jsp:String getChecked(Hashtable h,String reg){</ViolationValue>
         <ViolationValue>/src/main/webapp/lab/CA/ON/labValuesGraph.jsp:StringBuffer sb = new StringBuffer();</ViolationValue>
@@ -2739,6 +2753,7 @@
         <ViolationValue>/src/main/webapp/lab/LinkReq.jsp:Vector&lt;String&gt; req_id      = new Vector&lt;String&gt;();</ViolationValue>
         <ViolationValue>/src/main/webapp/lab/LinkReq.jsp:java.util.Hashtable,</ViolationValue>
         <ViolationValue>/src/main/webapp/lab/LinkReq.jsp:java.util.Vector,</ViolationValue>
+        <ViolationValue>/src/main/webapp/logoutSSO.jsp:StringBuffer oscarUrl = request.getRequestURL();</ViolationValue>
         <ViolationValue>/src/main/webapp/oscarEncounter/Index2.jsp:Vector splitChart = ectSplitChart.getSplitCharts(demoNo);</ViolationValue>
         <ViolationValue>/src/main/webapp/oscarEncounter/immunization/ScheduleConfig.jsp:Vector cfgId = new EctImmConfigData().getImmunizationConfigId();</ViolationValue>
         <ViolationValue>/src/main/webapp/oscarEncounter/immunization/ScheduleConfig.jsp:Vector cfgSet = new EctImmConfigData().getImmunizationConfigName();</ViolationValue>
@@ -3025,6 +3040,7 @@
         <ViolationValue>/src/main/webapp/oscarWorkflow/WorkFlowList.jsp:Hashtable h = (Hashtable) workList.get(j);</ViolationValue>
         <ViolationValue>/src/main/webapp/provider/appointmentprovideradminday.jsp:&lt;jsp:useBean id="dateTimeCodeBean" class="java.util.Hashtable" scope="page" /&gt;</ViolationValue>
         <ViolationValue>/src/main/webapp/provider/appointmentprovideradminday.jsp:StringBuffer hourmin = null;</ViolationValue>
+        <ViolationValue>/src/main/webapp/provider/appointmentprovideradminday.jsp:StringBuffer oscarUrl = request.getRequestURL();</ViolationValue>
         <ViolationValue>/src/main/webapp/provider/appointmentprovideradminday.jsp:StringBuffer study_no=null, study_link=null,studyDescription=null;</ViolationValue>
         <ViolationValue>/src/main/webapp/provider/appointmentprovideradminday.jsp:hourmin = new StringBuffer(dateTimeCodeBean.get(curProvider_no[nProvider])!=null?((String) dateTimeCodeBean.get(curProvider_no[nProvider])).substring(ratio,ratio+1):" " );</ViolationValue>
         <ViolationValue>/src/main/webapp/provider/appointmentprovideradminday.jsp:studyDescription = new StringBuffer("");</ViolationValue>

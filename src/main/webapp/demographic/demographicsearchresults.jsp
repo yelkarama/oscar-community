@@ -647,6 +647,7 @@ jQuery(document).ready(function() {
 
 			if (head != null && !head.equals(dem_no)) {
 				//skip non head records
+				nItems++;
 				continue;
 			}
 			
@@ -673,7 +674,7 @@ jQuery(document).ready(function() {
 
 		if (fromMessenger) {
 	%>
-		<a href="demographiccontrol.jsp?keyword=<%=StringEscapeUtils.escapeJavaScript(Misc.toUpperLowerCase(demo.getLastName()+", "+demo.getFirstName()))%>&demographic_no=<%= dem_no %>&displaymode=linkMsg2Demo&dboperation=search_detail" ><%=demo.getDemographicNo()%></a></td>
+		<a href="demographiccontrol.jsp?keyword=<%=URLEncoder.encode(Misc.toUpperLowerCase(demo.getLastName()+", "+demo.getFirstName()))%>&demographic_no=<%= dem_no %>&displaymode=linkMsg2Demo&dboperation=search_detail" ><%=demo.getDemographicNo()%></a></td>
 	<%	
 		} else { 
 	%>
@@ -775,11 +776,13 @@ jQuery(document).ready(function() {
 </a>
 </div>
 
+<caisi:isModuleLoad moduleName="caisi">
 <div class="goBackToSchedule">
 <a href="../provider/providercontrol.jsp" title="<bean:message key="demographic.search.btnReturnToSchedule" />">
 <bean:message key="demographic.search.btnReturnToSchedule" />
 </a>
 </div>
+</caisi:isModuleLoad>
 
 
 </div>

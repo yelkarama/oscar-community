@@ -24,23 +24,39 @@
 package org.oscarehr.common.model;
 
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.joda.time.Days;
+import org.oscarehr.caisi_integrator.util.MiscUtils;
+import org.oscarehr.integration.fhir.interfaces.ImmunizationInterface;
 
 @Entity
 @Table(name = "preventions")
-public class Prevention extends AbstractModel<Integer> implements Serializable {
+public class Prevention extends AbstractModel<Integer> implements Serializable, ImmunizationInterface {
 
+	private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id = null;
@@ -78,12 +94,25 @@ public class Prevention extends AbstractModel<Integer> implements Serializable {
 	private Boolean restrictToProgram = false;
 	private Integer programNo;
 
-	public Integer getDemographicId() {
-		return demographicId;
+	// This is a bi-directional relationship
+	@OneToMany(mappedBy="prevention", fetch=FetchType.EAGER)
+	private List<PreventionExt> preventionExts;
+	
+	@Transient
+	private HashMap<String, String> preventionExtendedProperties;
+
+	public Prevention() {
+		this.preventionExts = new ArrayList<PreventionExt>();
 	}
+
+	private String snomedId = null;
 
 	public void setDemographicId(Integer demographicId) {
 		this.demographicId = demographicId;
+	}
+
+	public Integer getDemographicId() {
+		return this.demographicId;
 	}
 
 	public Date getPreventionDate() {
@@ -125,6 +154,10 @@ public class Prevention extends AbstractModel<Integer> implements Serializable {
 	public boolean isIneligible(){
 		return refused == '2';
 	}
+	
+	public boolean isCompletedExternally() {
+		return refused == '3';
+	}
 
 	public void setRefused(boolean refused) {
 		this.refused = refused ? '1' : '0';
@@ -132,6 +165,10 @@ public class Prevention extends AbstractModel<Integer> implements Serializable {
 	
 	public void setIneligible(boolean ineligible){
 		this.refused = ineligible ? '2' : '0';
+	}
+	
+	public void setCompletedExternally(boolean completedExternally) {
+		this.refused = completedExternally ? '3' : '0';
 	}
 
 	public Date getNextDate() {
@@ -166,6 +203,14 @@ public class Prevention extends AbstractModel<Integer> implements Serializable {
 		this.lastUpdateDate = lastUpdateDate;
 	}
 
+	public String getSnomedId() {
+		return snomedId;
+	}
+
+	public void setSnomedId(String snomedId) {
+		this.snomedId = snomedId;
+	}
+
 	@Override
     public Integer getId() {
 		return id;
@@ -186,21 +231,283 @@ public class Prevention extends AbstractModel<Integer> implements Serializable {
 		return String.valueOf(deleted);
 	}
 
-	public Boolean getRestrictToProgram() {
-		return restrictToProgram;
+	public List<PreventionExt> getPreventionExts() {
+		return this.preventionExts;
 	}
 
-	public void setRestrictToProgram(Boolean restrictToProgram) {
-		this.restrictToProgram = restrictToProgram;
+	public void setPreventionExts(List<PreventionExt> preventionExts) {
+		this.preventionExts = preventionExts;
 	}
 
-	public Integer getProgramNo() {
-		return programNo;
+	public PreventionExt addPreventionExt(PreventionExt preventionExt) {
+		getPreventionExts().add(preventionExt);
+		preventionExt.setPrevention(this);
+
+		return preventionExt;
 	}
 
-	public void setProgramNo(Integer programNo) {
-		this.programNo = programNo;
+	public void addPreventionExt( ImmunizationProperty key, String value ) {
+		PreventionExt preventionExt = new PreventionExt();
+		preventionExt.setKeyval( key.name() );
+		preventionExt.setVal( value );
+
+		addPreventionExt(preventionExt);
+	}
+
+	public PreventionExt removePreventionExt(PreventionExt preventionExt) {
+		getPreventionExts().remove(preventionExt);
+		preventionExt.setPrevention(null);
+
+		return preventionExt;
+	}
+
+	public HashMap<String, String> getPreventionExtendedProperties() {
+		if(this.preventionExtendedProperties == null) {
+			this.preventionExtendedProperties = new HashMap<String, String>();
+		}
+		return this.preventionExtendedProperties;
+	}
+
+	/**
+	 * There is no listener for this method. 
+	 * This method needs to be invoked "manually" after this entity is instantiated and loaded 
+	 * ie: Prevention.setPreventionExtendedProperties()
+	 */
+	public void setPreventionExtendedProperties() {		
+		if( this.getPreventionExts() != null ) {
+			for( PreventionExt property : preventionExts ) {
+				setPreventionExtendedProperty( property );
+			}
+		}
 	}
 	
+	public void setPreventionExtendedProperty( PreventionExt property ) {		
+		getPreventionExtendedProperties().put( property.getkeyval(), property.getVal() );
+	}
 	
+	@Override
+	public String getImmunizationProperty( ImmunizationProperty immunizationProperty ) {
+		return getPreventionExtendedProperties().get( immunizationProperty.name() );
+	}
+
+	@Override
+	public String getLotNo() {		
+		return getImmunizationProperty( ImmunizationProperty.lot );
+	}
+
+
+	@Override
+	public void setLotNo(String lotNo) {
+		addPreventionExt( ImmunizationProperty.lot, lotNo );	
+	}
+
+
+	@Override
+	public String getRoute() {
+		return getImmunizationProperty( ImmunizationProperty.route );
+	}
+
+
+	@Override
+	public void setRoute(String route) {
+		addPreventionExt( ImmunizationProperty.route, route );
+	}
+
+
+	@Override
+	public String getDose() {
+		return getImmunizationProperty( ImmunizationProperty.dose );
+	}
+
+
+	@Override
+	public void setDose(String dose) {
+		addPreventionExt( ImmunizationProperty.dose, dose );
+	}
+
+
+	@Override
+	public String getComment() {
+		return getImmunizationProperty( ImmunizationProperty.comments );
+	}
+
+
+	@Override
+	public void setComment(String comment) {
+		addPreventionExt( ImmunizationProperty.comments, comment );
+	}
+	
+	@Override
+	public void setImmunizationRefused(boolean refused) {
+		this.setRefused(refused);		
+	}
+
+	@Override
+	public boolean getImmunizationRefused() {
+		return this.isRefused();
+	}
+
+
+	@Override
+	public String getImmunizationRefusedReason() {
+		return getImmunizationProperty( ImmunizationProperty.neverReason );
+	}
+
+
+	@Override
+	public void setImmunizationRefusedReason(String reason) {
+		addPreventionExt( ImmunizationProperty.neverReason, reason );
+	}
+
+
+	@Override
+	public String getManufacture() {
+		return getImmunizationProperty( ImmunizationProperty.manufacture );
+	}
+
+
+	@Override
+	public void setManufacture(String manufacture) {
+		addPreventionExt( ImmunizationProperty.manufacture, manufacture );
+	}
+
+
+	@Override
+	public String getName() {
+		return getImmunizationProperty( ImmunizationProperty.name );
+	}
+
+
+	@Override
+	public void setName(String name) {
+		addPreventionExt( ImmunizationProperty.name, name );
+	}
+
+
+	@Override
+	public String getImmunizationType() {
+		return this.preventionType;
+	}
+
+
+	@Override
+	public void setImmunizationType(String immunizationType) {
+		this.setPreventionType(immunizationType);
+	}
+
+
+	@Override
+	public java.util.Date getImmunizationDate() {
+		return this.getPreventionDate();
+	}
+
+	
+	@Override
+	public void setImmunizationDate(java.util.Date immunizationDate) {
+		this.setPreventionDate(immunizationDate);
+	}
+
+	@Override
+	public String getSite() {
+		return getImmunizationProperty( ImmunizationProperty.location );
+	}
+
+	@Override
+	public void setSite(String site) {
+		addPreventionExt( ImmunizationProperty.location, site );
+	}
+
+	
+	
+	@Override
+	public String getVaccineCode2() {
+		String brandSnomedId = getImmunizationProperty(ImmunizationProperty.brandSnomedId);
+		if(!StringUtils.isEmpty(brandSnomedId)) {
+			return brandSnomedId;
+		}
+		return null;
+	}
+
+	@Override
+	public void setVaccineCode2(String vaccineCode) {
+		addPreventionExt( ImmunizationProperty.brandSnomedId,vaccineCode );
+	}
+	
+	@Override
+	public String getVaccineCode() {
+		
+		return getSnomedId();
+	}
+
+	@Override
+	public void setVaccineCode(String vaccineCode) {
+		setSnomedId( vaccineCode );		
+	}
+
+	@Override
+	public boolean isPrimarySource() {
+		return !isCompletedExternally();
+	}
+
+	@Override
+	public void setPrimarySource(boolean truefalse) {
+		setCompletedExternally( !truefalse );	
+	}
+
+	@Override
+	public java.util.Date getExpiryDate() {
+		String datestring = getImmunizationProperty( ImmunizationProperty.expiryDate );
+		Date date = null;
+		
+		if( datestring != null ) {
+			try {
+				date = dateFormat.parse( datestring );
+			} catch (ParseException e) {
+				MiscUtils.getLogger().warn( "Given Immunization expiry date [" + datestring + "] was not parsable into a Date object" );
+			} 
+		}
+		
+		return date;
+	}
+
+	@Override
+	public void setExpiryDate( java.util.Date expiryDate ) {
+		String datestring = "";
+		if( expiryDate != null ) {
+			datestring = dateFormat.format( expiryDate );
+		} 
+		addPreventionExt( ImmunizationProperty.expiryDate, datestring );		
+	}
+
+	/**
+	 * So far, only immunizations have the "dose" key.
+	 */
+	@Override
+	public boolean isImmunization() {
+		return ( getSnomedId() != null && ! getSnomedId().isEmpty() );
+	}
+
+	@Override
+	public boolean isComplete() {
+		return ( ! isNever() && ! isRefused() );
+	}
+
+	@Override
+	public String getProviderName() {
+		return getImmunizationProperty( ImmunizationProperty.providerName );
+	}
+
+
+	@Override
+	public void setProviderName(String providerName) {
+		addPreventionExt( ImmunizationProperty.providerName,providerName );
+	}
+	
+	@Override
+	public boolean isHistorical(int days) {
+		DateTime immunizationDate = new DateTime( getImmunizationDate() );
+		DateTime submissionDate =  new DateTime( System.currentTimeMillis() );		
+		int daysBetween = Days.daysBetween(immunizationDate, submissionDate).getDays();		
+		return ( daysBetween > days );
+	}
 }

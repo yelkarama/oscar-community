@@ -1,13 +1,16 @@
 
 CREATE TABLE `surveyData` (
   surveyDataId int(10) NOT NULL auto_increment,
-  surveyId varchar(5) default NULL,
+  surveyId varchar(40) default NULL,
   demographic_no int(10) default NULL,
   provider_no varchar(6) default NULL,
   status char(2) default NULL,
   survey_date date default NULL,
   answer varchar(10) default NULL,
   processed int(10) default NULL,
+  period int(10),
+  randomness int(10),
+  version int(10),
   INDEX `surveyId_index` (surveyId(5)),
   INDEX `demographic_no_index` (demographic_no),
   INDEX `provider_no_index` (provider_no(6)),
@@ -161,7 +164,7 @@ CREATE TABLE billing (
   clinic_ref_code varchar(10) default NULL,
   content text,
   total varchar(6) default NULL,
-  status char(1) default NULL,
+  status varchar(1) default NULL,
   dob varchar(8) default NULL,
   visitdate date default NULL,
   visittype char(2) default NULL,
@@ -6912,7 +6915,7 @@ CREATE TABLE measurementsDeleted(
   type varchar(4) NOT NULL,
   demographicNo int(10) NOT NULL default '0',
   providerNo varchar(6) NOT NULL default '',
-  dataField  varchar(10) NOT NULL,
+  dataField  varchar(255) NOT NULL,
   measuringInstruction varchar(255) NOT NULL,
   comments varchar(255) NOT NULL,
   dateObserved datetime NOT NULL,
@@ -7211,6 +7214,7 @@ CREATE TABLE provider (
   `lastUpdateUser` varchar(6) default NULL,
   `lastUpdateDate` datetime not null,
   `signed_confidentiality` datetime,
+  `practitionerNoType` varchar(255),
   PRIMARY KEY  (provider_no)
 );
 
@@ -7508,6 +7512,30 @@ CREATE TABLE scheduletemplatecode (
 
 CREATE TABLE security (
   security_no int(6) NOT NULL auto_increment,
+  user_name varchar(30) NOT NULL default '',
+  password varchar(255) NOT NULL default '',
+  provider_no varchar(6) default NULL,
+  pin varchar(255) default NULL,
+  forcePasswordReset tinyint(1),
+  passwordUpdateDate datetime,
+  pinUpdateDate datetime,
+  lastUpdateUser varchar(20),
+  lastUpdateDate timestamp,
+  oneIdKey VARCHAR(255),
+  oneIdEmail VARCHAR(255),
+  delegateOneIdEmail VARCHAR(255),
+  PRIMARY KEY  (security_no),
+  UNIQUE user_name (user_name)
+) ;
+
+alter table `security` add b_RemoteLockSet int(1) default 1 after pin;
+alter table `security` add b_LocalLockSet int(1) default 1 after pin;
+alter table `security` add date_ExpireDate date default '2100-01-01' after pin;
+alter table `security` add b_ExpireSet int(1) default 1 after pin;
+
+CREATE TABLE `SecurityArchive` (
+ `id` int(11) NOT NULL auto_increment,
+  security_no int(6) NOT NULL,
   user_name varchar(30) NOT NULL,
   password varchar(255) NOT NULL,
   provider_no varchar(6) default NULL,
@@ -7722,7 +7750,7 @@ CREATE TABLE `log` (
   `dateTime` datetime not null,
   `provider_no` varchar(10),
   index datetime (`dateTime`, `provider_no`),
-  `action` varchar(64),
+  `action` varchar(100),
   INDEX `action` (`action`),
   `content` varchar(80),
   INDEX `content` (`content`),
@@ -7742,15 +7770,14 @@ CREATE TABLE preventions (
   prevention_date datetime default NULL,
   provider_no varchar(6) NOT NULL default '',
   provider_name varchar(255) default NULL,
-  prevention_type varchar(20) default NULL,
+  prevention_type varchar(255) default NULL,
   deleted char(1) default '0',
   refused char(1) default '0',
   next_date date default NULL,
   never char(1) default '0',
   creator int(10) default NULL,
   lastUpdateDate datetime NOT NULL,
-  restrictToProgram tinyint(1),
-  programNo int,
+  snomedId varchar(255),
   INDEX `preventions_demographic_no` (`demographic_no`),
   INDEX `preventions_provider_no` (provider_no(6)),
   INDEX `preventions_prevention_type` (prevention_type(10)),
@@ -8754,6 +8781,7 @@ CREATE TABLE `view` (
   `name` varchar(255) NOT NULL default '',
   `value` text,
   `role` varchar(255) NOT NULL default '',
+  `providerNo` varchar(6),
   PRIMARY KEY  (`id`)
 );
 
@@ -8930,7 +8958,8 @@ CREATE TABLE providerArchive (
   `title` varchar(20),
   `lastUpdateUser` varchar(6),
   `lastUpdateDate` date,
-  `signed_confidentiality` date
+  `signed_confidentiality` date,
+  `practitionerNoType` varchar(255)
 );
 
 CREATE TABLE appointmentArchive (
@@ -9953,7 +9982,14 @@ create table BornTransmissionLog(
         id integer not null auto_increment,
         submitDateTime timestamp not null,
         success tinyint(1) default 0,
-        filename varchar(100) not null,
+        filename varchar(100),
+	demographicNo int,
+	type varchar(20),
+	httpCode varchar(20),
+	httpResult mediumtext,
+	httpHeaders text,
+	hialTransactionId varchar(255),
+	contentLocation varchar(255),
         primary key(id)
 );
 
@@ -12111,9 +12147,12 @@ CREATE TABLE `ResourceStorage` (
   `uuid` varchar(40),
   `fileContents` mediumblob,
   `uploadDate` datetime,
+  `update_date` datetime,
+  `reference_date` datetime,
   `active` tinyint(1),
   PRIMARY KEY (`id`),
-  KEY `ResourceStorage_resourceType_active` (`resourceType`(10),`active`)
+  KEY `ResourceStorage_resourceType_active` (`resourceType`(10),`active`),
+  KEY `ResourceStorage_resourceType_uuid` (`uuid`)
 );
 
 
@@ -12134,6 +12173,7 @@ CREATE TABLE `Consent` (
   `consent_date` datetime,
   `optout_date` datetime,
   `edit_date` datetime,
+  `deleted` tinyint(1),
   PRIMARY KEY (`id`)
 );
 
@@ -12196,6 +12236,9 @@ CREATE TABLE `indicatorTemplate` (
   `active` bit(1),
   `locked` bit(1),
   `shared` tinyint(1),
+  `metricSetName` varchar(255),
+  `metricLabel` varchar(255),
+
   PRIMARY KEY (`id`)
 );
 
@@ -12264,23 +12307,90 @@ CREATE TABLE `onCallClinicDates` (
   PRIMARY KEY (`id`)
 );
 
-CREATE TABLE resident_oscarMsg (
-    id int(11) auto_increment,
-    supervisor_no varchar(6),
-    resident_no varchar(6),
-    demographic_no int(11),
-    appointment_no int(11),    
-    note_id int(10),
-    complete int(1),
-    create_time timestamp,
-    complete_time timestamp,
-    PRIMARY KEY(id),
-    index note_id_idx (note_id)
+
+create table SurveillanceData (
+	id int(10)  NOT NULL auto_increment primary key,
+	surveyId varchar(50),
+	data mediumblob,
+	createDate datetime,
+	lastUpdateDate datetime,
+	transmissionDate datetime,
+	sent boolean
 );
 
-CREATE TABLE oscar_msg_type (
-    type int(10),
-    description varchar(255),
-    PRIMARY KEY(type)
+CREATE TABLE IntegratorFileLog (
+    id int(11) auto_increment,
+    filename varchar(255),
+    checksum varchar(255),
+    lastDateUpdated datetime,
+    currentDate datetime,
+    integratorStatus varchar(100),
+    dateCreated timestamp,
+    PRIMARY KEY(id)
+);
+
+CREATE TABLE CVCMedication (
+  `id` int(11) NOT NULL auto_increment,
+  `versionId` integer,
+  `din` integer,
+  `dinDisplayName` varchar(255),
+  `snomedCode` varchar(255),
+  `snomedDisplay` varchar(255),
+  `status` varchar(40),
+  `isBrand` tinyint(1),
+  `manufacturerId` integer,
+  `manufacturerDisplay` varchar(255),
+  PRIMARY KEY  (`id`)
+);
+
+CREATE TABLE CVCMedicationGTIN (
+  `id` int(11) NOT NULL auto_increment,
+  `cvcMedicationId` integer NOT NULL,
+  `gtin` varchar(255) NOT NULL,
+  PRIMARY KEY  (`id`)
+);
+
+CREATE TABLE CVCMedicationLotNumber (
+  `id` int(11) NOT NULL auto_increment,
+  `cvcMedicationId` integer NOT NULL,
+  `lotNumber` varchar(255) NOT NULL,
+  `expiryDate` date,
+  PRIMARY KEY  (`id`)
+);
+
+CREATE TABLE CVCImmunization (
+  `id` int(11) NOT NULL auto_increment,
+  `versionId` integer,
+  `snomedConceptId` varchar(255),
+  `displayName` varchar(255),
+  `picklistName` varchar(255),
+  `generic` tinyint(1),
+  `prevalence` int,
+  `parentConceptId` varchar(255),
+  `ispa` tinyint(1),
+  PRIMARY KEY  (`id`)
+);
+
+CREATE TABLE `CVCMapping` (
+   `id` int(10) NOT NULL auto_increment,
+   `oscarName` varchar(255),
+   `cvcSnomedId` varchar(255),
+   `preferCVC` tinyint(1),
+  PRIMARY KEY (`id`)
+);
+
+CREATE TABLE DHIRSubmissionLog (
+    id int(11) auto_increment,
+    demographicNo int,
+    preventionId int,
+    submitterProviderNo varchar(255),
+    status varchar(255),
+    dateCreated datetime,
+    transactionId varchar(100),
+    bundleId varchar(255),
+    response mediumtext,
+    clientRequestId varchar(100),
+    clientResponseId varchar(100),
+    PRIMARY KEY(id)
 );
 

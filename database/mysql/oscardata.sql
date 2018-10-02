@@ -1583,7 +1583,7 @@ insert into ProviderPreference (providerNo, startHour, endHour, everyMin, myGrou
 -- Dumping data for table 'provider'
 --
 
-INSERT INTO provider VALUES ('999998','oscardoc','doctor','doctor',null,'','','','0001-01-01','','','','','','','','1','','','','','','','','',now(),'0001-01-01');
+INSERT INTO provider VALUES ('999998','oscardoc','doctor','doctor',null,'','','','0001-01-01','','','','','','','','1','','','','','','','','',now(),'0001-01-01','');
 
 --
 -- Dumping data for table 'quickList'
@@ -1896,6 +1896,7 @@ insert into `secObjectName` (`objectName`) values ('_allergy');
 insert into `secObjectName` (`objectName`) values ('_eyeform');
 insert into `secObjectName` (`objectName`) values ('_appDefinition');
 insert into `secObjectName` (`objectName`) values ('_phr');
+insert into `secObjectName` (`objectName`) values ('_ehr');
 
 insert into `secObjectName` (`objectName`) values ('_pmm');
 insert into `secObjectName` (`objectName`) values ('_pmm.editProgram.schedules');
@@ -1907,6 +1908,8 @@ insert into `secObjectName`  (`objectName`,`description`,`orgapplicable`) values
 insert into `secObjectName` (`objectName`) values ('_dashboardManager');
 insert into `secObjectName` (`objectName`) values ('_dashboardDisplay');
 insert into `secObjectName` (`objectName`) values ('_dashboardDrilldown');
+
+insert into `secObjectName` (`objectName`) values ('_admin.demographic');
 
 insert into `secObjPrivilege` values('receptionist', '_appointment', 'x', 0, '999998');
 insert into `secObjPrivilege` values('receptionist', '_demographic', 'x', 0, '999998');
@@ -2022,6 +2025,7 @@ insert into `secObjPrivilege` values('doctor','_phr','x',0,'999998');
 insert into `secObjPrivilege` values('doctor','_admin.document','x',0,'999998');
 insert into `secObjPrivilege` values('doctor','_pmm','x',0,'999998');
 
+
 insert into `secObjPrivilege` values('admin', '_admin', 'x', 0, '999998');
 insert into `secObjPrivilege` values('admin','_masterLink','x',0,999998);
 insert into `secObjPrivilege` values('admin', '_casemgmt.issues', 'x', 0, '999998');
@@ -2094,14 +2098,13 @@ insert into `secObjPrivilege` values('admin','_pmm_agencyList','x',0,'999998');
 insert into `secObjPrivilege` values('admin','_newCasemgmt.apptHistory','x',0,'999998');
 insert into `secObjPrivilege` values('admin','_newCasemgmt.doctorName','x',0,'999998');
 
+
 insert into `secObjPrivilege` values('doctor','_admin.traceability','x',0,'999998');
 insert into `secObjPrivilege` values('admin','_admin.traceability','x',0,'999998');
 insert into `secObjPrivilege` values('admin','_appDefinition','x',0,'999998');
 insert into `secObjPrivilege` values('admin','_demographicExport','x',0,'999998');
-insert into `secObjPrivilege` values('admin', '_pmm.editProgram.schedules', 'x', 0, '999998');
-insert into `secObjPrivilege` values('admin', '_admin.consult', 'x', 0, '999998');
-insert into `secObjPrivilege` values('admin', '_admin.document', 'x', 0, '999998');
-
+insert into `secObjPrivilege` values('admin','_admin.document','x',0,'999998');
+insert into `secObjPrivilege` values('admin','_admin.demographic','u',0,'999998');
 
 
 
@@ -2829,6 +2832,7 @@ INSERT INTO LookupList(name, description, categoryId, active, createdBy, dateCre
 
 SET @lookupListId:=LAST_INSERT_ID();
 
+INSERT INTO LookupListItem(lookupListId, `value`, label, displayOrder, active, createdBy, dateCreated) VALUES(@lookupListId, 'Others'						 , 'Others'						   , 99, 1, 'oscar', CURRENT_TIMESTAMP);
 INSERT INTO LookupListItem(lookupListId, `value`, label, displayOrder, active, createdBy, dateCreated) VALUES(@lookupListId, 'Contraception'                 , 'Contraception'                 , 1 , 1, 'oscar', CURRENT_TIMESTAMP);
 INSERT INTO LookupListItem(lookupListId, `value`, label, displayOrder, active, createdBy, dateCreated) VALUES(@lookupListId, 'Counselling'                   , 'Counselling'                   , 2 , 1, 'oscar', CURRENT_TIMESTAMP);
 INSERT INTO LookupListItem(lookupListId, `value`, label, displayOrder, active, createdBy, dateCreated) VALUES(@lookupListId, 'ECP'                           , 'ECP'                           , 3 , 1, 'oscar', CURRENT_TIMESTAMP);
@@ -2845,7 +2849,6 @@ INSERT INTO LookupListItem(lookupListId, `value`, label, displayOrder, active, c
 INSERT INTO LookupListItem(lookupListId, `value`, label, displayOrder, active, createdBy, dateCreated) VALUES(@lookupListId, 'STI Exam'                      , 'STI Exam'                      , 14, 1, 'oscar', CURRENT_TIMESTAMP);
 INSERT INTO LookupListItem(lookupListId, `value`, label, displayOrder, active, createdBy, dateCreated) VALUES(@lookupListId, 'STI Prescription/Treatment'    , 'STI Prescription/Treatment'    , 15, 1, 'oscar', CURRENT_TIMESTAMP);
 INSERT INTO LookupListItem(lookupListId, `value`, label, displayOrder, active, createdBy, dateCreated) VALUES(@lookupListId, 'Therapeutic Abortion Follow-Up', 'Therapeutic Abortion Follow-Up', 16, 1, 'oscar', CURRENT_TIMESTAMP);
-INSERT INTO LookupListItem(lookupListId, `value`, label, displayOrder, active, createdBy, dateCreated) VALUES(@lookupListId, 'Others'						 , 'Others'						   , 99, 1, 'oscar', CURRENT_TIMESTAMP);
 
 insert into issue (code,description,role,update_date,type,sortOrderId) values ('TicklerNote','Tickler Note', 'nurse',now(),'system', 0);
 
@@ -2863,11 +2866,10 @@ insert into `secObjPrivilege` values('doctor','_rx.dispense','x',0,'999998');
 
 insert into ProductLocation (name) values ('Default');
 
-INSERT INTO `consentType` VALUES ('1', 'integrator_patient_consent', 'Sunshiner frailty network', 'Patient Permissions for Integrator enabled sharing of: Chart notes, RXes, eforms, allergies, documents (e.g.photos) Discussed with patient (and/or their representative) and they have consented to integrator enabled sharing of their information with Sunshiners Frailty Network', '1');
+INSERT INTO `OscarJobType` VALUES (null,'OSCAR MSG REVIEW','Sends OSCAR Messages to Residents Supervisors when charts need to be reviewed','org.oscarehr.jobs.OscarMsgReviewSender',0,now());
+INSERT INTO `OscarJob` VALUES (null,'OSCAR Message Review','',(select id from OscarJobType where name = 'OSCAR MSG REVIEW') ,'0 0/30 * * * *','999998',0,now());
+INSERT INTO `consentType` VALUES ('1', 'default_consent_entry', 'Demonstraton Consent', 'This is a demonstration consent. Modify the consentType and Consent tables to replace this message with a desired consent description, or to add new consents.', '1');
 
-insert into EncounterType (value,global) VALUES ('face to face encounter with client',1),('telephone encounter with client',1),('email encounter with client',1),('encounter without client',1),('group face to face encounter',0),('group telephone encounter',0),('group encounter with client',0),('group encounter without group',0);
-
-INSERT INTO `tickler_category` VALUES ('1', 'To Call In', 'Call this patient in for a follow-up visit', b'1'), ('2', 'Reminder Note', 'Send a reminder note to this patient', b'1'), ('3', 'Follow-up Billing', 'Follow-up Additional Billing', b'1');
 
 insert into `secObjectName` (`objectName`) values ('_newCasemgmt.clearTempNotes');
 insert into `secObjPrivilege` values('admin','_newCasemgmt.clearTempNotes','x',0,'999998');
@@ -2884,5 +2886,14 @@ insert into OscarJobType Values(null,'OSCAR ON CALL CLINIC', 'Notifies MRP if pa
 
 insert into OscarJob Values(null,'OSCAR On-Call Clinic',null,(select id from OscarJobType where name = 'OSCAR ON CALL CLINIC'),'0 0 4 * * *','999998',false,now());
 
-INSERT INTO `OscarJobType` VALUES (null,'OSCAR MSG REVIEW','Sends OSCAR Messages to Residents Supervisors when charts need to be reviewed','org.oscarehr.jobs.OscarMsgReviewSender',0,now());
-INSERT INTO `OscarJob` VALUES (null,'OSCAR Message Review','',(select id from OscarJobType where name = 'OSCAR MSG REVIEW') ,'0 0/30 * * * *','999998',0,now());
+insert into `secObjectName` (`objectName`) values ('_dashboardCommonLink');
+insert into `secObjPrivilege` values('doctor','_dashboardCommonLink','o',0,'999998');
+insert into `secObjPrivilege` values('admin','_dashboardCommonLink','o',0,'999998');
+
+
+insert into `secObjectName` (`objectName`) values ('_admin.auditLogPurge');
+
+INSERT INTO `tickler_category` VALUES (\N, 'To Call In', 'Call this patient in for a follow-up visit', b'1'), (\N, 'Reminder Note', 'Send a reminder note to this patient', b'1'), (\N, 'Follow-up Billing', 'Follow-up Additional Billing', b'1');
+
+insert into `secObjectName` (`objectName`, `description`, `orgapplicable`) values ('_admin.schedule.curprovider_only','allow provider with non-admin role to create schedule templates and assign to themselves', 0);
+

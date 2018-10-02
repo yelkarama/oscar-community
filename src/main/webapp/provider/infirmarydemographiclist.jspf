@@ -5,7 +5,7 @@
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security" %>
-<%@ taglib uri="/WEB-INF/caisi-tag.tld" prefix="caisi"%>
+<%@ taglib uri="/WEB-INF/caisi-tag.tld" prefix="caisi" %>
 
 <%@ page import="oscar.*, org.oscarehr.util.*,oscar.util.*,java.net.URLEncoder"%>
 
@@ -139,7 +139,6 @@ if ((k/2)*2==k){ %>
 					onclick="location.href='../PMmodule/ClientManager.do?id=<%=demographic_no%>'">
 				<%=de.getLabel()%></a> <!-- doctor code block --> <% if(bShowEncounterLink) {
 		String eURL= base_eURL +"&appointmentNo="+rsAppointNO+"&demographicNo="+demographic_no + "&reason="+URLEncoder.encode(reason) + "&startTime="+apptime.getHours()+":"+apptime.getMinutes()+"&status="+status;
-		
 	%>
 				<!-- open CME in current window
         <a href="#" onclick="location.href='../oscarSurveillance/CheckSurveillance.do?demographicNo=<%=demographic_no%>&proceed=<%=URLEncoder.encode(eURL)%>'" title="<bean:message key="global.encounter"/>">  

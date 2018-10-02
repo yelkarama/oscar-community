@@ -57,6 +57,11 @@
 			<id>oscar_repo</id>
 			<url>http://oscarmcmaster.sourceforge.net/m2</url>
 		</repository>
+
+		<repository>
+			<id>new_oscar_repo</id>
+			<url>http://mvn.oscar-emr.com/repository</url>
+		</repository>
 		
 		<!-- MARC-HI (Everest & SHIC) -->
 		<repository>
@@ -405,9 +410,13 @@
 					<groupId>org.bouncycastle</groupId>
 					<artifactId>bctsp-jdk14</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>eclipse</groupId>
+					<artifactId>jdtcore</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
-        <dependency>
+        	<dependency>
 			<groupId>net.sf.jasperreports</groupId>
 			<artifactId>jasperreports-fonts</artifactId>
 			<version>4.0.0</version>
@@ -416,6 +425,11 @@
 			<groupId>net.sourceforge.barbecue</groupId>
 			<artifactId>barbecue</artifactId>
 			<version>1.0.6b</version>
+		</dependency>
+	        <dependency>
+			<groupId>eclipse</groupId>
+			<artifactId>jdtcore</artifactId>
+			<version>3.2.0.v_658</version>
 		</dependency>
 
 		<!-- joda time -->
@@ -429,7 +443,7 @@
 		<dependency>
 			<groupId>org.oscarehr.caisi_integrator</groupId>
 			<artifactId>caisi_integrator_client_stubs</artifactId>
-			<version>0.2</version>
+			<version>1.1</version>
 		</dependency>
 
 		<!-- macplus -->
@@ -450,7 +464,7 @@
 		<dependency>
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>
-			<version>1.4</version>
+			<version>1.7</version>
 		</dependency>
 
 		<!-- indivo -->
@@ -574,7 +588,7 @@
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
-			<version>4.2.6</version>
+			<version>4.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
@@ -948,16 +962,16 @@
 		    <artifactId>woodstox-core-asl</artifactId>
 		    <version>4.4.1</version>
 		</dependency>
-<dependency>
-    <groupId>org.apache.cxf</groupId>
-    <artifactId>cxf-rt-frontend-jaxws</artifactId>
-    <version>2.7.11</version>
-</dependency>
-<dependency>
-    <groupId>org.apache.cxf</groupId>
-    <artifactId>cxf-rt-transports-http</artifactId>
-    <version>2.7.11</version>
-</dependency>
+		<dependency>
+    		<groupId>org.apache.cxf</groupId>
+    		<artifactId>cxf-rt-frontend-jaxws</artifactId>
+    		<version>2.7.11</version>
+		</dependency>
+		<dependency>
+    		<groupId>org.apache.cxf</groupId>
+    		<artifactId>cxf-rt-transports-http</artifactId>
+    		<version>2.7.11</version>
+		</dependency>
 		
 
 		<dependency>
@@ -1057,6 +1071,12 @@
             <artifactId>tika-core</artifactId>
             <version>1.5</version>
         </dependency>
+        
+        <dependency>
+    			<groupId>com.atlassian.commonmark</groupId>
+    			<artifactId>commonmark</artifactId>
+    			<version>0.10.0</version>
+		</dependency>
 		
 		<!--tagsoup-->
 		<dependency>
@@ -1106,9 +1126,9 @@
 	</dependency>
 
 	<dependency>
-		<groupId>com.medseek</groupId>
+		<groupId>com.medseek.clinical.service</groupId>
 		<artifactId>SSOClinicalConnect</artifactId>
-		<version>20161017</version>
+		<version>20171101</version>
 	</dependency>
 
 	<dependency>
@@ -1122,11 +1142,59 @@
 	    <version>1.8</version>
 	</dependency>
 
+
+	<!-- Caisi Integrator -->
 	<dependency>
-		<groupId>org.xhtmlrenderer</groupId>
-		<artifactId>flying-saucer-pdf</artifactId>
-		<version>9.1.1</version>
+	  <groupId>org.oscarehr.caisi_integrator</groupId>
+	  <artifactId>integrator-objects</artifactId>
+	  <version>0.0.4</version>
 	</dependency>
+	
+	<!-- This is a dependency for the Caisi Integrator Objects. Only required until
+	OpenJPA is no longer needed in Integrator. -->
+    <dependency>
+          <groupId>org.apache.openjpa</groupId>
+          <artifactId>openjpa</artifactId>
+          <version>2.4.2</version>
+    </dependency>
+
+	<dependency>
+	    <groupId>org.apache.commons</groupId>
+	    <artifactId>commons-compress</artifactId>
+	    <version>1.14</version>
+	</dependency>
+
+
+	<dependency>
+	    <groupId>net.rgielen</groupId>
+	    <artifactId>struts1filter</artifactId>
+	    <version>1.0.1-SNAPSHOT</version>
+	</dependency>
+
+<dependency>
+   <groupId>ca.uhn.hapi.fhir</groupId>
+   <artifactId>hapi-fhir-base</artifactId>
+   <version>2.5</version>
+                       <exclusions>
+                               <exclusion>
+                                        <groupId>org.slf4j</groupId>
+                                        <artifactId>jcl-over-slf4j</artifactId>
+                                </exclusion>
+                        </exclusions>
+
+
+</dependency>
+<dependency>
+   <groupId>ca.uhn.hapi.fhir</groupId>
+   <artifactId>hapi-fhir-structures-dstu2</artifactId>
+   <version>2.5</version>
+</dependency>
+<dependency>
+   <groupId>ca.uhn.hapi.fhir</groupId>
+   <artifactId>hapi-fhir-structures-dstu3</artifactId>
+   <version>2.5</version>
+</dependency>
+
 	</dependencies>
 
 	<build>

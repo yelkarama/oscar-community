@@ -45,10 +45,10 @@ public class DrilldownBeanFactory {
 	private DrilldownQueryHandler drilldownQueryHandler = SpringUtils.getBean( DrilldownQueryHandler.class );
 	
 	public DrilldownBeanFactory( LoggedInInfo loggedInInfo, IndicatorTemplate indicatorTemplate ) {
-		this(loggedInInfo, indicatorTemplate, null);
+		this(loggedInInfo, indicatorTemplate, null, null);
 	}
 	
-	public DrilldownBeanFactory( LoggedInInfo loggedInInfo, IndicatorTemplate indicatorTemplate, String providerNo ) {
+	public DrilldownBeanFactory( LoggedInInfo loggedInInfo, IndicatorTemplate indicatorTemplate, String providerNo, String metricLabel ) {
 		
 		logger.info("Building Drilldown Bean for Indicator ID: " + indicatorTemplate.getId() );
 		
@@ -57,12 +57,14 @@ public class DrilldownBeanFactory {
 		setIndicatorTemplateHandler( new IndicatorTemplateHandler( loggedInInfo, indicatorTemplateXML.getBytes() ) );
 		IndicatorTemplateXML indicatorTemplateXmlObj = getIndicatorTemplateHandler().getIndicatorTemplateXML();
 		indicatorTemplateXmlObj.setProviderNo(providerNo);
+		indicatorTemplateXmlObj.setSharedMetricLabel(metricLabel);
 		setIndicatorTemplateXML( indicatorTemplateXmlObj );
-
-		drilldownQueryHandler.setLoggedInInfo( loggedInInfo );
-		drilldownQueryHandler.setParameters( getIndicatorTemplateXML().getDrilldownParameters() );
+		
+		drilldownQueryHandler.setLoggedInInfo( loggedInInfo );		
+		drilldownQueryHandler.setParameters( getIndicatorTemplateXML().getDrilldownParameters(metricLabel) );
 		drilldownQueryHandler.setColumns( getIndicatorTemplateXML().getDrilldownDisplayColumns() );
 		drilldownQueryHandler.setRanges( getIndicatorTemplateXML().getDrilldownRanges() );
+		drilldownQueryHandler.setActions( getIndicatorTemplateXML().getDrilldownActions());
 
 		setDrilldownBean( new DrilldownBean() );
 	}
@@ -121,6 +123,7 @@ public class DrilldownBeanFactory {
 			drilldownBean.setDisplayColumns( getDrilldownQueryHandler().getColumns() );
 			drilldownBean.setParameters( getDrilldownQueryHandler().getParameters() );
 			drilldownBean.setRanges( getDrilldownQueryHandler().getRanges() );
+			drilldownBean.setActions( getDrilldownQueryHandler().getActions());
 			drilldownBean.setTable( getDrilldownQueryHandler().getTable() );
 			
 		} else {

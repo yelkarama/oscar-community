@@ -744,7 +744,10 @@ Event.observe('rxInteractionWarningLevel', 'change', function(event) {
       	</tr>
       	<tr>
           <td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewCommentLab');return false;"><bean:message key="provider.btnDisableAckCommentLab"/></a></td>
-      </tr>
+        </tr>
+        <tr>
+          <td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewLabRecall');return false;"><bean:message key="provider.btnLabRecallSettings"/></a></td>
+        </tr>
        <tr>
           <td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewEncounterWindowSize');return false;"><bean:message key="provider.btnEditDefaultEncounterWindowSize"/></a></td>
       </tr>
@@ -856,15 +859,15 @@ Event.observe('rxInteractionWarningLevel', 'change', function(event) {
           </tr>
         </security:oscarSec>
   </oscar:oscarPropertiesCheck>
-
-<oscar:oscarPropertiesCheck property="tickler_email_provider_enabled" value="true">
-		<tr>
-        	<td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewTicklerProviderEmailPrefs');return false;"><bean:message key="provider.btnTicklerEmailProviderPrefs"/></a></td>
-        </tr>
-</oscar:oscarPropertiesCheck>
-      
- <tr>
+ 	<tr>
     	<td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewDashboardPrefs');return false;"><bean:message key="provider.btnViewDashboardPrefs"/></a></td>
+    </tr>
+ 	<tr>
+    	<td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewPreventionPrefs');return false;"><bean:message key="provider.btnViewPreventionPrefs"/></a></td>
+    </tr>
+    
+    <tr>
+    	<td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewClinicalConnectPrefs');return false;"><bean:message key="provider.btnViewClinicalConnectPrefs"/></a></td>
     </tr>
 
 </table>

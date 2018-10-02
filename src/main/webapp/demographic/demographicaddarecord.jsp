@@ -247,6 +247,19 @@
 		}  
 	}
     
+    if(demographic.getMyOscarUserName() != null && !demographic.getMyOscarUserName().trim().isEmpty()){ 
+     	Demographic myoscarDemographic = demographicDao.getDemographicByMyOscarUserName(demographic.getMyOscarUserName());
+     	if(myoscarDemographic != null){
+
+%>
+			***<font color='red'><bean:message key="demographic.demographicaddarecord.msgDuplicatedPHR" /></font>
+			***<br><br><a href=# onClick="history.go(-1);return false;"><b>&lt;-<bean:message key="global.btnBack" /></b></a> 
+<% 
+			return;
+     	}
+
+    } 
+    
     bufName = new StringBuilder(request.getParameter("last_name")+ ","+ request.getParameter("first_name") );
     bufNo = new StringBuilder( (StringUtils.trimToEmpty("demographic_no")) );
     bufChart = new StringBuilder(StringUtils.trimToEmpty("chart_no"));
@@ -302,20 +315,24 @@
 
        dem = demographic.getDemographicNo().toString();
        
-       // Save the patient consent values.
-	   if( OscarProperties.getInstance().getBooleanProperty("USE_NEW_PATIENT_CONSENT_MODULE", "true") ) {
-	
+		if( OscarProperties.getInstance().getBooleanProperty("USE_NEW_PATIENT_CONSENT_MODULE", "true") ) {
+			// Retrieve and set patient consents.
 			PatientConsentManager patientConsentManager = SpringUtils.getBean( PatientConsentManager.class );
-			List<ConsentType> consentTypes = patientConsentManager.getConsentTypes();
-			String consentTypeId = null;
-			int patientConsentIdInt = 0; 
+			List<ConsentType> consentTypes = patientConsentManager.getActiveConsentTypes();			
+			boolean explicitConsent = Boolean.TRUE;	
+					
+			for( ConsentType consentType : consentTypes ) 
+			{
+				String type = consentType.getType();
+				String consentRecord = request.getParameter(type);
+
+				if( consentRecord != null )
+				{
+					//either opt-in or opt-out is selected
+					boolean optOut = Integer.parseInt(consentRecord) == 1;
+					patientConsentManager.addEditConsentRecord(loggedInInfo, demographic.getDemographicNo(), consentType.getId(), explicitConsent, optOut);
+				} 
 			
-			for( ConsentType consentType : consentTypes ) {
-				consentTypeId = request.getParameter( consentType.getType() );
-				// checked box means add or edit consent. 
-				if( consentTypeId != null ) {		
-					patientConsentManager.addConsent(loggedInInfo, demographic.getDemographicNo(), Integer.parseInt( consentTypeId ) );
-				} 	
 			}
 		}
 
@@ -347,17 +364,7 @@
 
        demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "HasPrimaryCarePhysician", request.getParameter("HasPrimaryCarePhysician"), "");
        demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "EmploymentStatus", request.getParameter("EmploymentStatus"), "");
-       demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "recipientLocation", request.getParameter("recipientLocation"), "");
-       demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "lhinConsumerResides", request.getParameter("lhinConsumerResides"), "");
-       demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "address2", request.getParameter("address2"), "");
-       demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "middleName", request.getParameter("middleName"), "");
-       demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "lastNameAtBirth", request.getParameter("lastNameAtBirth"), "");
-       demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "preferredName", request.getParameter("preferredName"), "");
-       demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "maritalStatus", request.getParameter("maritalStatus"), "");
-      
-       demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "fNationFamilyNumber",    request.getParameter("fNationFamilyNumber"),    "");
-       demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "fNationFamilyPosition",    request.getParameter("fNationFamilyPosition"),    "");
-
+       demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "PHU", request.getParameter("PHU"), "");
        //for the IBD clinic
 		OtherIdManager.saveIdDemographic(dem, "meditech_id", request.getParameter("meditech_id"));
 

@@ -266,7 +266,7 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 
 		logger.debug("NoteId " + nId);
 
-		String maxTmpSave = oscar.OscarProperties.getInstance().getProperty("maxTmpSave", "");
+		String maxTmpSave = oscar.OscarProperties.getInstance().getProperty("maxTmpSave", "off");
 		logger.debug("maxTmpSave " + maxTmpSave);
 		// set date 2 weeks in past so we retrieve more recent saved notes
 		Calendar cal = Calendar.getInstance();
@@ -2892,12 +2892,14 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		
 		String pStartDate = null;
 		String pEndDate = null;
+		String pType = null;
 		
 		Calendar cStartDate = null;
 		Calendar cEndDate = null;
 		
 		pStartDate = request.getParameter("pStartDate");
 		pEndDate = request.getParameter("pEndDate");
+		pType = request.getParameter("pType");
 		
 		SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy");
 		
@@ -2923,9 +2925,11 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		boolean printCPP  = request.getParameter("printCPP").equalsIgnoreCase("true");
 		boolean printRx   = request.getParameter("printRx").equalsIgnoreCase("true");
 		boolean printLabs = request.getParameter("printLabs") != null && request.getParameter("printLabs").equalsIgnoreCase("true");		
+		boolean printPreventions = request.getParameter("printPreventions") != null && request.getParameter("printPreventions").equalsIgnoreCase("true");		
+		
 		
 		CaseManagementPrint cmp = new CaseManagementPrint();
-		cmp.doPrint(loggedInInfo,demographicNo, printAllNotes,noteIds,printCPP,printRx,printLabs,cStartDate,cEndDate,request, response.getOutputStream());
+		cmp.doPrint(loggedInInfo,demographicNo, printAllNotes,noteIds,printCPP,printRx,printLabs,printPreventions,(pType != null && "dates".equals(pType))?true:false,cStartDate,cEndDate,request, response.getOutputStream());
 		
 		return null;
 	}
@@ -3198,7 +3202,15 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		String encounterText = "";
 		String apptDate = request.getParameter("appointmentDate");
 		String reason = request.getParameter("reason");
-
+		String appointmentNo = request.getParameter("appointmentNo");
+		
+		if(appointmentNo != null && !appointmentNo.isEmpty() && !"null".equals(appointmentNo)) {
+			OscarAppointmentDao apptDao = SpringUtils.getBean(OscarAppointmentDao.class);
+			Appointment appt = apptDao.find(Integer.parseInt(appointmentNo));
+			if(appt != null) {
+				reason = appt.getReason();
+			}
+		}
 		if (reason == null) {
 			reason = "";
 		}

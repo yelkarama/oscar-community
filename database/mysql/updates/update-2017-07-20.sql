@@ -1,3 +1,1 @@
-alter table issue add archived tinyint(1) not null;
-update issue set archived=0;
-
+alter table measurementsDeleted change column dataField dataField varchar(255);

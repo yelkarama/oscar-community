@@ -383,6 +383,17 @@ if(!authed) {
 				</div>
 			</div>
 			<div class="span3">
+				<%
+					String faxServicePassword = "";
+					
+					if(faxConfigList != null && !faxConfigList.isEmpty() && faxConfigList.get(count) != null && faxConfigList.get(count).getPasswd() != null
+							&& faxConfigList.get(count).getPasswd().length() > 0) {
+						faxServicePassword="**********";
+					}
+					
+				%>
+						
+				<input class="span3" id="faxServicePasswd" type="password" name="sitePasswd" value="<%=faxServicePassword%>" />
 			</div>
 		</div>
 		<div id="content" class="row">
@@ -407,7 +418,7 @@ if(!authed) {
 						<%
 						String faxPassword = "";
 						
-						if(faxConfigList != null && faxConfigList.get(count) != null && faxConfigList.get(count).getFaxPasswd() != null
+						if(faxConfigList != null && !faxConfigList.isEmpty() && faxConfigList.get(count) != null && faxConfigList.get(count).getFaxPasswd() != null
 								&& faxConfigList.get(count).getFaxPasswd().length() > 0) {
 							faxPassword="**********";
 						}

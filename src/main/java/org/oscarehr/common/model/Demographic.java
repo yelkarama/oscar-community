@@ -44,7 +44,7 @@ import org.oscarehr.util.MiscUtils;
 /**
  * This is the object class that relates to the demographic table. Any customizations belong here.
  */
-public class Demographic implements Serializable {
+public class Demographic extends AbstractModel<Integer> implements Serializable {
 
 	private static final String DEFAULT_MONTH = "01";
 	private static final String DEFAULT_DATE = "01";
@@ -121,7 +121,6 @@ public class Demographic implements Serializable {
 
     private String countryOfOrigin;
     private String newsletter;
-    
 
         public String getTitle() {
         	return title;
@@ -218,16 +217,12 @@ public class Demographic implements Serializable {
 		demographic.setYearOfBirth(yearOfBirth);
 		demographic.setHin(hin);
 		demographic.setVer(ver);
-
 		demographic.setHcType(DEFAULT_HEATH_CARD_TYPE);
 		demographic.setPatientStatus(DEFAULT_PATIENT_STATUS);
-                demographic.setPatientStatusDate(new Date());
+        demographic.setPatientStatusDate(new Date());
 		demographic.setSex(gender == null || gender.length() == 0 ? DEFAULT_SEX : gender.substring(0, 1).toUpperCase());
-
 		demographic.setDateJoined(new Date());
-		//demographic.setEffDate(new Date());
 		demographic.setEndDate(DateTimeFormatUtils.getDateFromString(DEFAULT_FUTURE_DATE));
-		//demographic.setHcRenewDate(DateTimeFormatUtils.getDateFromString(DEFAULT_FUTURE_DATE));
 
 		return demographic;
 	}
@@ -895,8 +890,10 @@ public class Demographic implements Serializable {
 	@Override
 	public int hashCode() {
 		if (Integer.MIN_VALUE == this.hashCode) {
-			if (null == this.getDemographicNo()) return super.hashCode();
-			else {
+			if ( null == this.getDemographicNo() ) {
+				// do nothing, warn everyone.
+				MiscUtils.getLogger().warn(OBJECT_NOT_YET_PERISTED, new Exception());
+			} else {
 				String hashStr = this.getClass().getName() + ":" + this.getDemographicNo().hashCode();
 				this.hashCode = hashStr.hashCode();
 			}
@@ -931,22 +928,6 @@ public class Demographic implements Serializable {
 		return Utility.calcAgeAtDate(Utility.calcDate(Utility.convertToReplaceStrIfEmptyStr(getYearOfBirth(), DEFAULT_YEAR), Utility.convertToReplaceStrIfEmptyStr(getMonthOfBirth(), DEFAULT_MONTH), Utility.convertToReplaceStrIfEmptyStr(getDateOfBirth(), DEFAULT_DATE)), asofDate);
 	}
 
-
-        //NEED TO IMPLEMENT
-
-//            public long getAgeInDays(){
-//           return UtilDateUtilities.getNumDays(UtilDateUtilities.calcDate(year_of_birth,month_of_birth,date_of_birth),Calendar.getInstance().getTime());
-//        }
-//
-//
-//        public int getAgeInMonths(){
-//           return UtilDateUtilities.getNumMonths(UtilDateUtilities.calcDate(year_of_birth,month_of_birth,date_of_birth),Calendar.getInstance().getTime());
-//        }
-//
-//        public int getAgeInMonthsAsOf(Date asofDate){
-//           return UtilDateUtilities.getNumMonths(UtilDateUtilities.calcDate(year_of_birth,month_of_birth,date_of_birth),asofDate);
-//        }
-
 	public int getAgeInYears() {
 		return Utility.getNumYears(Utility.calcDate(Utility.convertToReplaceStrIfEmptyStr(getYearOfBirth(), DEFAULT_YEAR), Utility.convertToReplaceStrIfEmptyStr(getMonthOfBirth(), DEFAULT_MONTH), Utility.convertToReplaceStrIfEmptyStr(getDateOfBirth(), DEFAULT_DATE)), Calendar.getInstance().getTime());
 	}
@@ -977,14 +958,6 @@ public class Demographic implements Serializable {
 		}
 
 	}
-
-//      Implement?
-//      public String getDob() {
-//           return addZero(year_of_birth,4)+addZero(month_of_birth,2)+addZero(date_of_birth,2);
-//      }
-//      public String getDob(String seperator){
-//	   return this.getYearOfBirth() + seperator + this.getMonthOfBirth() + seperator + this.getDateOfBirth();
-//	}
 
 	public String getFormattedLinks() {
 		StringBuilder response = new StringBuilder();
@@ -1150,7 +1123,7 @@ public class Demographic implements Serializable {
     	this.newsletter = newsletter;
     }
 
-    public static final Comparator<Demographic> FormattedNameComparator = new Comparator<Demographic>() {	
+	public static final Comparator<Demographic> FormattedNameComparator = new Comparator<Demographic>() {	
         @Override	
         public int compare(Demographic dm1, Demographic dm2) {	
             return dm1.getFormattedName().compareToIgnoreCase(dm2.getFormattedName());	
@@ -1241,6 +1214,11 @@ public class Demographic implements Serializable {
 			sb.append("</b>");
 		}
 		return sb.toString();
+	}
+
+	@Override
+	public Integer getId() {
+		return this.getDemographicNo();
 	}
 	
 }

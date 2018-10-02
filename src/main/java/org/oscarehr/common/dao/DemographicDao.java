@@ -27,6 +27,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1225,7 +1226,7 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 		try {
 			c = DbConnectionFilter.getThreadLocalDbConnection();
 			PreparedStatement ps = c.prepareStatement("SELECT DISTINCT demographic_no FROM log WHERE dateTime >= ? and action != 'read'");
-			ps.setDate(1, new java.sql.Date(value.getTime()));
+			ps.setTimestamp(1, new Timestamp(value.getTime()));
 			ResultSet rs = ps.executeQuery();
 			ArrayList<Integer> results = new ArrayList<Integer>();
 			while (rs.next()) {
@@ -2398,7 +2399,7 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 	public List<Integer> getBORNKidsMissingExtKey(String keyName) {
 		Calendar cal = Calendar.getInstance();
 		//TODO: change this to use a similar AGE calculation like in RptDemographicQueryBuilder
-		int year = cal.get(Calendar.YEAR) - 8;
+		int year = cal.get(Calendar.YEAR) - 18;
 		Session session = getSession();
 		try {
 			SQLQuery sqlQuery = session.createSQLQuery("select distinct d.demographic_no from demographic d where d.year_of_birth >= :year1 and  d.demographic_no not in (select distinct d.demographic_no from demographic d, demographicExt e where d.demographic_no = e.demographic_no and d.year_of_birth >= :year2 and key_val=:key)");

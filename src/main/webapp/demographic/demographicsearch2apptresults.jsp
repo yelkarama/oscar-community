@@ -354,9 +354,9 @@ $(document).ready(function(){
                 <option value="search_chart_no" <%=request.getParameter("search_mode").equals("search_chart_no")?"selected":""%>>
                     <bean:message key="demographic.demographicsearch2apptresults.optChart"/>
                 </option>
-                <option value="search_program_no" <%=searchMode.equals("search_program_no")?"selected":""%>>
-                	<bean:message key="demographic.zdemographicfulltitlesearch.formProgram" />
-            	</option>
+		<option value="search_demographic_no" <%=request.getParameter("search_mode").equals("search_demographic_no")?"selected":""%>>
+                    <bean:message key="demographic.demographicsearch2apptresults.demographicId"/>
+                </option>
             </select>
         </li>
         <li>
@@ -405,6 +405,7 @@ $(document).ready(function(){
 		<input type="hidden" name="appointment_date" value="<%=request.getParameter("appointment_date")%>">
 		<input type="hidden" name="notes" value="<%=request.getParameter("notes")%>">
 		<input type="hidden" name="reason" value="<%=request.getParameter("reason")%>">
+		<input type="hidden" name="reasonCode" value="<%=request.getParameter("reasonCode")%>">
 		<input type="hidden" name="location" value="<%=request.getParameter("location")%>">
 		<input type="hidden" name="resources" value="<%=request.getParameter("resources")%>">
 		<input type="hidden" name="type" value="<%=request.getParameter("type")%>">
@@ -566,42 +567,77 @@ function addNameCaisi(demographic_no,lastname,firstname,chartno,messageID) {
                 demoList.add(demographicDao.getDemographicById(r));
             }
         } else {
-        	//there's a list of searchMode/keyword doubles
-        	List<String> searchModes = new ArrayList<String>();
-        	List<String> keywords = new ArrayList<String>();
-        	searchModes.add(searchMode);
-			keywords.add(keyword);
-			
-			String strMax = request.getParameter("max_search_clause");
-			int max = 1;
-			try {
-				max = Integer.parseInt(strMax);
-			}catch(NumberFormatException e) {
-				
-			}
-			
-			for(int x=2;x<=max;x++) {
-        		String isActive = request.getParameter("search_" + x);
-            	if(isActive != null && "true".equals(isActive)) {
-            		String searchModeX = request.getParameter("search_mode_" + x);
-    				String keywordX = request.getParameter("keyword_"+x);
-    				String programKeywordX = request.getParameter("programKeyword_"+x);
-    				
-    				if("search_program_no".equals(searchModeX)) {
-    					if(programKeywordX != null && !programKeywordX.equals("")) {
-        					searchModes.add(searchModeX);
-        					keywords.add(programKeywordX);
-        				}
-    				} else {
-	    				if(keywordX != null && !keywordX.equals("")) {
-	    					searchModes.add(searchModeX);
-	    					keywords.add(keywordX);
-	    				}
-    				}
-            	}
-        	}
-			String orderBy = "last_name";
-            demoList = doSearch(demographicDao,searchModes,ptstatus,keywords,limit,offset,orderBy,providerNo,outOfDomain);	
+            
+	if( "".equals(ptstatus) ) {
+		if(searchMode.equals("search_name")) {
+			demoList = demographicDao.searchDemographicByName(keyword, limit, offset,providerNo,outOfDomain);
+		}
+		else if(searchMode.equals("search_phone")) {
+			demoList = demographicDao.searchDemographicByPhone(keyword, limit, offset,providerNo,outOfDomain);
+		}
+		else if(searchMode.equals("search_dob")) {
+			demoList = demographicDao.searchDemographicByDOB(keyword, limit, offset,providerNo,outOfDomain);
+		}
+		else if(searchMode.equals("search_address")) {
+			demoList = demographicDao.searchDemographicByAddress(keyword, limit, offset,providerNo,outOfDomain);
+		}
+		else if(searchMode.equals("search_hin")) {
+			demoList = demographicDao.searchDemographicByHIN(keyword, limit, offset,providerNo,outOfDomain);
+		}
+		else if(searchMode.equals("search_chart_no")) {
+			demoList = demographicDao.findDemographicByChartNo(keyword, limit, offset,providerNo,outOfDomain);
+		}
+                else if(searchMode.equals("search_demographic_no")) {
+                        demoList = demographicDao.findDemographicByDemographicNo(keyword, limit, offset,providerNo,outOfDomain);
+                }
+
+	}
+	else if( "active".equals(ptstatus) ) {
+	    if(searchMode.equals("search_name")) {
+			demoList = demographicDao.searchDemographicByNameAndNotStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
+		}
+	    else if(searchMode.equals("search_phone")) {
+			demoList = demographicDao.searchDemographicByPhoneAndNotStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
+		}
+		else if(searchMode.equals("search_dob")) {
+			demoList = demographicDao.searchDemographicByDOBAndNotStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
+		}
+		else if(searchMode.equals("search_address")) {
+			demoList = demographicDao.searchDemographicByAddressAndNotStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
+		}
+		else if(searchMode.equals("search_hin")) {
+			demoList = demographicDao.searchDemographicByHINAndNotStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
+		}
+		else if(searchMode.equals("search_chart_no")) {
+			demoList = demographicDao.findDemographicByChartNoAndNotStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
+		}
+		else if(searchMode.equals("search_demographic_no")) {
+			demoList = demographicDao.findDemographicByDemographicNoAndNotStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
+		}
+	}
+	else if( "inactive".equals(ptstatus) ) {
+	    if(searchMode.equals("search_name")) {
+			demoList = demographicDao.searchDemographicByNameAndStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
+		}
+	    else if(searchMode.equals("search_phone")) {
+			demoList = demographicDao.searchDemographicByPhoneAndStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
+		}
+		else if(searchMode.equals("search_dob")) {
+			demoList = demographicDao.searchDemographicByDOBAndStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
+		}
+		else if(searchMode.equals("search_address")) {
+			demoList = demographicDao.searchDemographicByAddressAndStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
+		}
+		else if(searchMode.equals("search_hin")) {
+			demoList = demographicDao.searchDemographicByHINAndStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
+		}
+		else if(searchMode.equals("search_chart_no")) {
+			demoList = demographicDao.findDemographicByChartNoAndStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
+		}
+		else if(searchMode.equals("search_demographic_no")) {
+			demoList = demographicDao.findDemographicByDemographicNoAndStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
+		}
+	}
         }
 	
 	if(demoList == null) {
@@ -730,6 +766,7 @@ function addNameCaisi(demographic_no,lastname,firstname,chartno,messageID) {
   		params.put("appointment_date", request.getParameter("appointment_date"));  		
   		params.put("notes", request.getParameter("notes"));
   		params.put("reason", request.getParameter("reason"));
+  		params.put("reasonCode", request.getParameter("reasonCode"));
   		params.put("location", request.getParameter("location"));
   		params.put("resources", request.getParameter("resources"));
   		params.put("apptType", request.getParameter("type"));
@@ -763,7 +800,7 @@ function addNameCaisi(demographic_no,lastname,firstname,chartno,messageID) {
         } else {
 %>
   <div class="createNew">
-		<a href="../demographic/demographicaddarecordhtm.jsp?fromAppt=1&originalPage=<%=request.getParameter("originalPage")%>&search_mode=<%=request.getParameter("search_mode")%>&keyword=<%=request.getParameter("keyword")%>&notes=<%=request.getParameter("notes")%>&appointment_date=<%=request.getParameter("appointment_date")%>&year=<%=request.getParameter("year")%>&month=<%=request.getParameter("month")%>&day=<%=request.getParameter("day")%>&start_time=<%=request.getParameter("start_time")%>&end_time=<%=request.getParameter("end_time")%>&duration=<%=request.getParameter("duration")%>&bFirstDisp=false&provider_no=<%=request.getParameter("provider_no")%>&notes=<%=request.getParameter("notes")%>&reason=<%=request.getParameter("reason")%>&location=<%=request.getParameter("location")%>&resources=<%=request.getParameter("resources")%>&type=<%=request.getParameter("type")%>&style=<%=request.getParameter("style")%>&billing=<%=request.getParameter("billing")%>&status=<%=request.getParameter("status")%>&createdatetime=<%=request.getParameter("createdatetime")%>&creator=<%=request.getParameter("creator")%>&remarks=<%=request.getParameter("remarks")%>">
+		<a href="../demographic/demographicaddarecordhtm.jsp?fromAppt=1&originalPage=<%=request.getParameter("originalPage")%>&search_mode=<%=request.getParameter("search_mode")%>&keyword=<%=request.getParameter("keyword")%>&notes=<%=request.getParameter("notes")%>&appointment_date=<%=request.getParameter("appointment_date")%>&year=<%=request.getParameter("year")%>&month=<%=request.getParameter("month")%>&day=<%=request.getParameter("day")%>&start_time=<%=request.getParameter("start_time")%>&end_time=<%=request.getParameter("end_time")%>&duration=<%=request.getParameter("duration")%>&bFirstDisp=false&provider_no=<%=request.getParameter("provider_no")%>&notes=<%=request.getParameter("notes")%>&reason=<%=request.getParameter("reason")%>&reasonCode=<%=request.getParameter("reasonCode")%>&location=<%=request.getParameter("location")%>&resources=<%=request.getParameter("resources")%>&type=<%=request.getParameter("type")%>&style=<%=request.getParameter("style")%>&billing=<%=request.getParameter("billing")%>&status=<%=request.getParameter("status")%>&createdatetime=<%=request.getParameter("createdatetime")%>&creator=<%=request.getParameter("creator")%>&remarks=<%=request.getParameter("remarks")%>">
 		<bean:message key="demographic.search.btnCreateNew" /></a>
     </div>    
 <%

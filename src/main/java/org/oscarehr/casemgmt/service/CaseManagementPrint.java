@@ -1,5 +1,7 @@
 package org.oscarehr.casemgmt.service;
 
+import java.io.File;
+
 /**
  * Copyright (c) 2001-2002. Department of Family Medicine, McMaster University. All Rights Reserved.
  * This software is published under the GPL GNU General Public License.
@@ -53,10 +55,14 @@ import org.oscarehr.casemgmt.model.Issue;
 import org.oscarehr.casemgmt.util.ExtPrint;
 import org.oscarehr.casemgmt.web.NoteDisplay;
 import org.oscarehr.casemgmt.web.NoteDisplayLocal;
+import org.oscarehr.common.model.Prevention;
+import org.oscarehr.managers.PreventionManager;
 import org.oscarehr.managers.ProgramManager2;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
+
+import com.lowagie.text.DocumentException;
 
 import oscar.OscarProperties;
 import oscar.oscarLab.ca.all.pageUtil.LabPDFCreator;
@@ -66,9 +72,6 @@ import oscar.oscarLab.ca.on.CommonLabResultData;
 import oscar.oscarLab.ca.on.LabResultData;
 import oscar.util.ConcatPDF;
 import oscar.util.ConversionUtils;
-
-import com.lowagie.text.DocumentException;
-import java.io.File;
 
 public class CaseManagementPrint {
 	
@@ -85,18 +88,23 @@ public class CaseManagementPrint {
 	
 	private ProgramManager programMgr = SpringUtils.getBean(ProgramManager.class);
 
+	private PreventionManager preventionManager = SpringUtils.getBean(PreventionManager.class);
 
 	/*
 	 *This method was in CaseManagementEntryAction but has been moved out so that both the classic Echart and the flat echart can use the same printing method.
 	 * 
 	 */
-	public void doPrint(LoggedInInfo loggedInInfo,Integer demographicNo, boolean printAllNotes,String[] noteIds,boolean printCPP,boolean printRx,boolean printLabs, Calendar startDate, Calendar endDate,   HttpServletRequest request, OutputStream os) throws IOException, DocumentException {
+	public void doPrint(LoggedInInfo loggedInInfo,Integer demographicNo, boolean printAllNotes,String[] noteIds,boolean printCPP,boolean printRx,boolean printLabs, boolean printPreventions, boolean useDateRange, Calendar startDate, Calendar endDate,   HttpServletRequest request, OutputStream os) throws IOException, DocumentException {
 		
 		String providerNo=loggedInInfo.getLoggedInProviderNo();
 
 		
 		if (printAllNotes) {
 			noteIds = getAllNoteIds(loggedInInfo,request,""+demographicNo);
+		}
+		
+		if(useDateRange) {
+			noteIds = getAllNoteIdsWithinDateRange(loggedInInfo,request,""+demographicNo,startDate.getTime(),endDate.getTime());
 		}
 		logger.debug("NOTES2PRINT: " + noteIds);
 
@@ -151,7 +159,7 @@ public class CaseManagementPrint {
 		}
 		
 		//How should i filter out observation dates?
-		if(startDate != null && endDate != null){
+		if(!printAllNotes && (startDate != null && endDate != null)){
 			List<CaseManagementNote> dateFilteredList = new ArrayList<CaseManagementNote>();
 			logger.debug("start date "+startDate);
 			logger.debug("end date "+endDate);
@@ -207,6 +215,11 @@ public class CaseManagementPrint {
 				othermeds = cpp.get("OMeds");
 			}
 		}
+		
+		List<Prevention> preventions = null;
+		if(printPreventions) {
+			preventions = preventionManager.getPreventionsByDemographicNo(loggedInInfo, Integer.parseInt(demono));
+		}
 
 		SimpleDateFormat headerFormat = new SimpleDateFormat("yyyy-MM-dd.hh.mm.ss");
 	    Date now = new Date();
@@ -220,6 +233,7 @@ public class CaseManagementPrint {
                 File file2=null;
                 FileOutputStream os2=null;
                 
+                FileOutputStream fos = null;
                 try {
                 file= new File(fileName);
 		out = new FileOutputStream(file);
@@ -228,6 +242,7 @@ public class CaseManagementPrint {
 		printer.printDocHeaderFooter();
 		printer.printCPP(cpp);
 		printer.printRx(demoNo, othermeds);
+		printer.printPreventions(preventions);
 		printer.printNotes(notes);
 
 		/* check extensions */
@@ -252,6 +267,9 @@ public class CaseManagementPrint {
 			// get the labs which fall into the date range which are attached to this patient
 			CommonLabResultData comLab = new CommonLabResultData();
 			ArrayList<LabResultData> labs = comLab.populateLabResultsData(loggedInInfo, "", demono, "", "", "", "U");
+			
+			Collections.sort(labs);
+			
 			LinkedHashMap<String, LabResultData> accessionMap = new LinkedHashMap<String, LabResultData>();
 			for (int i = 0; i < labs.size(); i++) {
 				LabResultData result = labs.get(i);
@@ -263,6 +281,7 @@ public class CaseManagementPrint {
 					}
 				}
 			}
+			
 			for (LabResultData result : accessionMap.values()) {
 				//Date d = result.getDateObj();
 				// TODO:filter out the ones which aren't in our date range if there's a date range????
@@ -273,7 +292,16 @@ public class CaseManagementPrint {
 				os2 = new FileOutputStream(file2);
 				LabPDFCreator pdfCreator = new LabPDFCreator(os2, segmentId, loggedInInfo.getLoggedInProviderNo());
 				pdfCreator.printPdf();
-				pdfDocs.add(fileName2);
+				os2.close();
+				
+				String fileName3 = OscarProperties.getInstance().getProperty("DOCUMENT_DIR") + "//" + handler.getPatientName().replaceAll("\\s", "_") + "_" + handler.getMsgDate() + "_LabReport.1.pdf";
+                File file3= new File(fileName3);
+                
+                fos = new FileOutputStream(file3);
+				pdfCreator.addEmbeddedDocuments(file2,fos);
+				
+				
+				pdfDocs.add(fileName3);
 			}
 
 		}
@@ -289,6 +317,9 @@ public class CaseManagementPrint {
                   }
                   if (os2!=null) {
                       os2.close();
+                  }
+                  if (fos!=null) {
+                      fos.close();
                   }
                   if (file!=null) {
                       file.delete();
@@ -319,6 +350,67 @@ public class CaseManagementPrint {
 	}
 	
 	
+	@SuppressWarnings("unchecked")
+    private String[] getAllNoteIdsWithinDateRange(LoggedInInfo loggedInInfo,HttpServletRequest request,String demoNo, Date startDate, Date endDate) {
+		
+		HttpSession se = loggedInInfo.getSession();
+		
+		ProgramProvider pp = programManager2.getCurrentProgramInDomain(loggedInInfo,loggedInInfo.getLoggedInProviderNo());
+		String programId = null;
+		
+		if(pp !=null && pp.getProgramId() != null){
+			programId = ""+pp.getProgramId();
+		}else{
+			programId = String.valueOf(programMgr.getProgramIdByProgramName("OSCAR")); //Default to the oscar program if provider hasn't been assigned to a program
+		}
+			
+		NoteSelectionCriteria criteria = new NoteSelectionCriteria();
+		criteria.setStartDate(startDate);
+		criteria.setEndDate(endDate);
+		criteria.setMaxResults(Integer.MAX_VALUE);
+		criteria.setDemographicId(ConversionUtils.fromIntString(demoNo));
+		criteria.setUserRole((String) request.getSession().getAttribute("userrole"));
+		criteria.setUserName((String) request.getSession().getAttribute("user"));
+		if (request.getParameter("note_sort") != null && request.getParameter("note_sort").length() > 0) {
+			criteria.setNoteSort(request.getParameter("note_sort"));
+		}
+		if (programId != null && !programId.trim().isEmpty()) {
+			criteria.setProgramId(programId);
+		}
+		
+		
+		if (se.getAttribute("CaseManagementViewAction_filter_roles") != null) {
+			criteria.getRoles().addAll((List<String>) se.getAttribute("CaseManagementViewAction_filter_roles"));
+		}
+		
+		if (se.getAttribute("CaseManagementViewAction_filter_providers") != null) {
+			criteria.getProviders().addAll((List<String>) se.getAttribute("CaseManagementViewAction_filter_providers"));
+		}
+
+		if (se.getAttribute("CaseManagementViewAction_filter_providers") != null) {
+			criteria.getIssues().addAll((List<String>) se.getAttribute("CaseManagementViewAction_filter_issues"));
+		}
+		
+		
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("SEARCHING FOR NOTES WITH CRITERIA: " + criteria);
+		}
+		
+		NoteSelectionResult result = noteService.findNotes(loggedInInfo, criteria);
+		
+		
+		List<String>  buf = new ArrayList<String>();
+		for(NoteDisplay nd : result.getNotes()) {
+			if (!(nd instanceof NoteDisplayLocal)) {
+				continue;
+			}
+			buf.add(nd.getNoteId().toString());
+		}
+		
+		
+		return buf.toArray(new String[0]);
+    }
 	@SuppressWarnings("unchecked")
     private String[] getAllNoteIds(LoggedInInfo loggedInInfo,HttpServletRequest request,String demoNo) {
 		
@@ -354,7 +446,7 @@ public class CaseManagementPrint {
 			criteria.getProviders().addAll((List<String>) se.getAttribute("CaseManagementViewAction_filter_providers"));
 		}
 
-		if (se.getAttribute("CaseManagementViewAction_filter_providers") != null) {
+		if (se.getAttribute("CaseManagementViewAction_filter_issues") != null) {
 			criteria.getIssues().addAll((List<String>) se.getAttribute("CaseManagementViewAction_filter_issues"));
 		}
 

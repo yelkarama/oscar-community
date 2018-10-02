@@ -94,8 +94,6 @@ public class DrugTo1 implements Serializable {
     private String externalProvider;
 
     private Boolean longTerm;
-    
-    private Boolean shortTerm;
 
     private Boolean noSubstitutions;
 
@@ -121,14 +119,6 @@ public class DrugTo1 implements Serializable {
 
     public void setLongTerm(Boolean longTerm) {
         this.longTerm = longTerm;
-    }
-    
-    public Boolean getShortTerm() {
-        return shortTerm;
-    }
-
-    public void setShortTerm(Boolean shortTerm) {
-        this.shortTerm = shortTerm;
     }
 
     public String getExternalProvider() {
@@ -321,14 +311,6 @@ public class DrugTo1 implements Serializable {
 
     public void setArchivedDate(Date archivedDate) {
         this.archivedDate = archivedDate;
-    }
-
-    public Boolean getPrn() {
-        return prn;
-    }
-
-    public Boolean getArchived() {
-        return archived;
     }
 
     public Float getStrength() {

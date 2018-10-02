@@ -85,7 +85,15 @@ public class Security extends AbstractModel<Integer> {
 	@Column(name="forcePasswordReset")
 	private Boolean forcePasswordReset = true;
 	
-	private int storageVersion = 2;
+	@Column(name="oneIdKey")
+	private String oneIdKey = "";
+	
+	@Column(name = "oneIdEmail")
+	private String oneIdEmail = "";
+	
+	@Column(name = "delegateOneIdEmail")
+	private String delagateOneIdEmail = "";
+	
 
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date passwordUpdateDate;
@@ -307,9 +315,32 @@ public class Security extends AbstractModel<Integer> {
 		this.lastUpdateDate = lastUpdateDate;
 	}
 
-	public Boolean getForcePasswordReset() {
-		return forcePasswordReset;
-	} 
-	
-	
+	public String getLastUpdateUser() {
+		return lastUpdateUser;
+	}
+
+	public void setLastUpdateUser(String lastUpdateUser) {
+		this.lastUpdateUser = lastUpdateUser;
+	}
+
+	public String getOneIdKey() {
+		return oneIdKey;
+	}
+	public void setOneIdKey(String oneIdKey) {
+		this.oneIdKey = oneIdKey;
+	}
+
+	public String getOneIdEmail() {
+		return oneIdEmail;
+	}
+	public void setOneIdEmail(String oneIdEmail) {
+		this.oneIdEmail = oneIdEmail;
+	}
+
+	public String getDelagateOneIdEmail() {
+		return delagateOneIdEmail;
+	}
+	public void setDelagateOneIdEmail(String delagateOneIdEmail) {
+		this.delagateOneIdEmail = delagateOneIdEmail;
+	}
 }

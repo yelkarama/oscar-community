@@ -51,6 +51,7 @@ import org.oscarehr.common.dao.CustomFilterDao;
 import org.oscarehr.common.dao.TicklerCategoryDao;
 import org.oscarehr.common.dao.TicklerCommentDao;
 import org.oscarehr.common.dao.TicklerDao;
+import org.oscarehr.common.dao.TicklerLinkDao;
 import org.oscarehr.common.dao.TicklerTextSuggestDao;
 import org.oscarehr.common.dao.TicklerUpdateDao;
 import org.oscarehr.common.dao.UserPropertyDAO;
@@ -80,14 +81,15 @@ import oscar.log.LogAction;
 @Service
 public class TicklerManager {
 	   
-    	public static final String DEMOGRAPHIC_NAME = "demographic_name";
-        public static final String CREATOR = "creator";
-        public static final String SERVICE_DATE = "service_date";
-        public static final String CREATION_DATE = "creation_date";
-        public static final String PRIORITY = "priority";
-        public static final String TASK_ASSIGNED_TO = "task_assigned_to";
-        public static final String SORT_ASC = "asc";
-        public static final String SORT_DESC = "desc";
+    	public static String DEMOGRAPHIC_NAME = "demographic_name";
+        public static String CREATOR = "creator";
+        public static String SERVICE_DATE = "service_date";
+        public static String CREATION_DATE = "creation_date";
+        public static String PRIORITY = "priority";
+        public static String TASK_ASSIGNED_TO = "task_assigned_to";
+        public static String STATUS = "status";
+        public static String SORT_ASC = "asc";
+        public static String SORT_DESC = "desc";
         
 	private static final String TICKLER_EMAIL_TEMPLATE_FILE="/tickler_email_notification_template.txt";
 	private static final String TICKLER_EMAIL_PROVIDER_TEMPLATE_FILE="/tickler_email_provider_notification_template.txt";
@@ -103,6 +105,9 @@ public class TicklerManager {
 	 
 	@Autowired
 	private TicklerDao ticklerDao;
+	
+	@Autowired
+	private TicklerLinkDao ticklerLinkDao;
 	
 	@Autowired
 	private TicklerCommentDao ticklerCommentDao;
@@ -319,6 +324,25 @@ public class TicklerManager {
         
         return(results);
     }
+
+    public List<Tickler> getTicklerByLabId(LoggedInInfo loggedInInfo, int labId, Integer demoNo){
+    	checkPrivilege(loggedInInfo, PRIVILEGE_READ);
+    	String providerNo = loggedInInfo.getLoggedInProviderNo();
+    	
+    	List<TicklerLink> links = ticklerLinkDao.getLinkByTableId("HL7", Long.valueOf(labId));
+    	
+    	ArrayList<Tickler> results = new ArrayList<Tickler>();
+    	
+    	for(TicklerLink link:links){
+    		List<Tickler> ticklers = ticklerDao.findByTicklerNoAssignedTo(link.getTicklerNo(), providerNo, demoNo);
+    		for(Tickler tickler:ticklers){
+    			results.add(tickler);
+    		}
+    	}
+    	
+    	Collections.sort(results, Tickler.StatusAscComparator);
+    	return results;
+    }
     
     protected List<Tickler> ticklerFacilityFiltering(LoggedInInfo loggedInInfo, List<Tickler> ticklers) {
         ArrayList<Tickler> results = new ArrayList<Tickler>();
@@ -472,6 +496,7 @@ public class TicklerManager {
       	
         return tickler;
     }
+    
     
 	public void addComment(LoggedInInfo loggedInInfo, Integer tickler_id, String provider, String message) {
     	checkPrivilege(loggedInInfo, PRIVILEGE_UPDATE);

@@ -359,7 +359,7 @@ function fillItems(itemsToFill){
 	for (var i = 0; i < itemsToFill.length; i++) {
 		console.log(itemsToFill[i].summaryCode);
 		summaryLists[itemsToFill[i].summaryCode] = itemsToFill[i];
-	 
+                summaryLists[itemsToFill[i].summaryCode].status = "loading";
 		summaryService.getFullSummary($stateParams.demographicNo,itemsToFill[i].summaryCode).then(function(data){
 			console.log("FullSummary returned ",data);
 				if(angular.isDefined(data.summaryItem)){
@@ -368,10 +368,12 @@ function fillItems(itemsToFill){
 	 				}else{
 	 					summaryLists[data.summaryCode].summaryItem = [data.summaryItem];
 	 				}
+				        summaryLists[data.summaryCode].status = 'ok';
 				}
 			},
-			function(errorMessage){
-				console.log("fillItems"+errorMessage); 
+			function(error){
+			        summaryLists[error.summaryCode].status = "error";
+				console.log("fillItems"+error.msg);
 			}
 			 
 		);
@@ -827,11 +829,14 @@ RecordPrintCtrl = function($scope,$modal,$modalInstance,mod,action,$stateParams,
 		if($scope.pageOptions.cpp){
 			queryString = queryString + '&printCPP=true';
 		}
-		if($scope.pageOptions.cpp){
+		if($scope.pageOptions.rx){
 			queryString = queryString + '&printRx=true';
 		}
-		if($scope.pageOptions.cpp){
+		if($scope.pageOptions.labs){
 			queryString = queryString + '&printLabs=true';
+		}
+		if($scope.pageOptions.preventions){
+			queryString = queryString + '&printPreventions=true';
 		}
 		console.log("QS"+queryString);
 		

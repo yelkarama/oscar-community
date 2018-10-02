@@ -152,6 +152,7 @@ if(!authed) {
 	Provider provider = providerDao.getProvider(request.getParameter("provider_no"));
 	ProviderArchive pa = new ProviderArchive();
 	BeanUtils.copyProperties(pa, provider);
+	pa.setId(null);
 	providerArchiveDao.persist(pa);
 
 
@@ -177,6 +178,7 @@ if(!authed) {
 		  p.setComments(SxmlMisc.createXmlDataString(request,"xml_p"));
 		  p.setProviderActivity(request.getParameter("provider_activity"));
 		  p.setPractitionerNo(request.getParameter("practitionerNo"));
+		  p.setPractitionerNoType(request.getParameter("practitionerNoType"));
 		  p.setLastUpdateUser((String)session.getAttribute("user"));
 		  p.setLastUpdateDate(new java.util.Date());
                   String supervisor = request.getParameter("supervisor");

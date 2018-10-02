@@ -24,12 +24,12 @@
 
 package org.oscarehr.managers;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.log4j.Logger;
@@ -61,6 +61,7 @@ import org.oscarehr.common.model.Provider;
 import org.oscarehr.util.HealthCareTeamCreator;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
+import org.oscarehr.util.SpringUtils;
 import org.oscarehr.ws.rest.to.model.DemographicSearchRequest;
 import org.oscarehr.ws.rest.to.model.DemographicSearchResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -215,113 +216,8 @@ public class DemographicManager {
 		return result;
 	}
 	
-	public List<Demographic> findInactiveDemographicByBandNumber( LoggedInInfo loggedInInfo, String bandNumber,  
-			List<String> stati, int limit, int offset, String providerNo, Boolean outOfDomain ) {
-		return findDemographicByBandNumber( loggedInInfo, bandNumber, stati, limit, offset, providerNo, outOfDomain, true);
-	}
-	
-	public List<Demographic> findActiveDemographicByBandNumber( LoggedInInfo loggedInInfo, String bandNumber,  
-			List<String> stati, int limit, int offset, String providerNo, Boolean outOfDomain ) {
-		return findDemographicByBandNumber( loggedInInfo, bandNumber, stati, limit, offset, providerNo, outOfDomain, false);
-	}
-	
-	public List<Demographic> findAllDemographicByBandNumber( LoggedInInfo loggedInInfo, String bandNumber, 
-			int limit, int offset, String providerNo, Boolean outOfDomain) {
-		return findDemographicByBandNumber( loggedInInfo, bandNumber, null, limit, offset, providerNo, outOfDomain, true);
-	}
-	
-	/*
-	 * A work-around/hack.
-	 */
-	public List<String> findDemographicNumbersByBandNumber( LoggedInInfo loggedInInfo, String searchStrs, 
-			int limit, int offset, String providerNo, Boolean outOfDomain, boolean active, boolean inactive ) {
-		
-		List<Demographic> demographics = null;
-		List<String> demographicNumbers = null;
-		List<String> stati = new ArrayList<String>();
-		stati.add( Demographic.PatientStatus.AC.name() );
-		
-		if( active && inactive ) {
-			
-			logger.debug( "Searching all demographics with band number " +  searchStrs );
-			
-			demographics = findAllDemographicByBandNumber( loggedInInfo, searchStrs, limit, offset, providerNo, outOfDomain );			
-		} else if ( active ) {
-			
-			logger.debug( "Searching active demographics with band number " +  searchStrs );
-			
-			demographics = findActiveDemographicByBandNumber( loggedInInfo, searchStrs, stati, limit, offset, providerNo, outOfDomain );			
-		} else if ( inactive ) {
-			
-			logger.debug( "Searching inactive demographics with band number " +  searchStrs );
-			
-			demographics = findInactiveDemographicByBandNumber( loggedInInfo, searchStrs, stati, limit, offset, providerNo, outOfDomain );
-		}
-		
-		if( demographics != null ) {
-			for( Demographic demographic : demographics ) {
-				if( demographicNumbers == null ) {
-					demographicNumbers = new ArrayList<String>();
-				}
-				String demographicNumber = demographic.getDemographicNo() + "";
-				if( ! demographicNumbers.contains(demographicNumber) ) {
-					demographicNumbers.add(demographicNumber);
-				}
-			}
-		}
-
-		return demographicNumbers;
-	}
-	
-	public List<Demographic> findDemographicByBandNumber( LoggedInInfo loggedInInfo, String bandNumber,  
-			List<String> statuses, int limit, int offset, String providerNo, Boolean outOfDomain, boolean ignoreStatuses ) {
-		
-		checkPrivilege(loggedInInfo, SecurityInfoManager.READ);
-		
-		// It is assumed that a band number search will be for the commonly used DemographicExt key "statusNum"
-		List<DemographicExt> bandNumbers = null;		
-		List<Demographic> demographicList = null;
-		List<Demographic> demographics = null;
-
-		List<DemographicExt> bandNumberList = demographicExtDao.searchDemographicExtByKeyAndValue( DemographicExt.FIRST_NATION_KEY.statusNum.toString(), bandNumber );
-		
-		if( bandNumberList != null ) {
-			bandNumbers = new ArrayList<DemographicExt>();
-			bandNumbers.addAll( bandNumberList );
-		}
-
-		LogAction.addLogSynchronous(loggedInInfo, "DemographicManager.findDemographicByBandNumber", "Searching for band number " + bandNumber );
-		
-		if( bandNumbers != null ) {
-			
-			logger.debug( "Located " + bandNumbers.size() + " bandnumbers with search string " + bandNumber );
-
-			for(DemographicExt demographicExt : bandNumbers) {
-				if( demographicList == null ) {
-					demographicList = new ArrayList<Demographic>();
-				}
-				demographicList.addAll( 
-						demographicDao.findDemographicByDemographicNoAndStatus( demographicExt.getDemographicNo()+"", 
-								statuses, limit, offset, providerNo, outOfDomain, ignoreStatuses ) 
-				);
-			}			
-		}
- 
-		if( demographicList != null ) {
-			
-			for( Demographic demographic : demographicList ) {
-				if( demographics == null ) {
-					demographics = new ArrayList<Demographic>();
-				}
-				if( ! demographics.contains(demographic) ) {
-					demographics.add( demographic );
-				}
-			}
-			
-			logger.debug( "Located " + demographics.size() + " demographics with search string " + bandNumber );
-		}
-		
-		return demographics;
+	public DemographicExt getDemographicExt(LoggedInInfo loggedInInfo, Integer demographicNo, DemographicExt.DemographicProperty key) {
+		return getDemographicExt(loggedInInfo, demographicNo, key.name());
 	}
 
 	public DemographicExt getDemographicExt(LoggedInInfo loggedInInfo, Integer demographicNo, String key) {
@@ -419,6 +315,32 @@ public class DemographicManager {
 			}
 		}
 		return result;
+	}
+	
+	/**
+	 * Returns a list of all the internal providers assigned to this demographic.
+	 */
+	public List<Provider> getDemographicMostResponsibleProviders(LoggedInInfo loggedInInfo, int demographicNo) {
+		checkPrivilege(loggedInInfo, SecurityInfoManager.READ);
+		List<DemographicContact> demographicContacts = demographicContactDao.findAllByDemographicNoAndCategoryAndType(demographicNo, "professional", 0);
+		ProviderManager2 providerManager = SpringUtils.getBean(ProviderManager2.class);
+		List<Provider> providerList = null;
+		
+		for(DemographicContact demographicContact : demographicContacts) {			
+			Provider provider = providerManager.getProvider(loggedInInfo, demographicContact.getContactId());
+			if(providerList == null) {
+				providerList = new ArrayList<Provider>();
+			}
+			if(provider != null) {
+				providerList.add(provider);
+			}
+		}
+		
+		if(providerList == null) {
+			providerList = Collections.emptyList();
+		}
+		
+		return providerList;
 	}
 
 	public List<Demographic> getDemographicsByProvider(LoggedInInfo loggedInInfo, Provider provider) {
@@ -550,7 +472,7 @@ public class DemographicManager {
 		//TODO: this needs a loggedInInfo
 		if (ext != null && ext.getId() != null) {
 			DemographicExt prevExt = demographicExtDao.find(ext.getId());
-			if (!(ext.getKey().equals(prevExt.getKey()) && ext.getValue().equals(prevExt.getValue()))) {
+			if (!(ext.getKey().equals(prevExt.getKey()) && Objects.equals(ext.getValue(),prevExt.getValue()))) {
 				demographicExtArchiveDao.archiveDemographicExt(prevExt);
 			}
 		}

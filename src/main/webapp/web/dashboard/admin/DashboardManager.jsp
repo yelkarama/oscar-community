@@ -150,9 +150,11 @@
 				<th>Disable/Enable</th>
 				<th></th>
 				<th>Dashboard</th>
+				<th>Shared</th>
 				<th>Name</th>
 				<th>Category</th>
 				<th>Sub Category</th>
+				<th>Metric Label</th>
 				<th>Framework</th>
 				<th>Framework Version</th>
 			</tr>
@@ -163,9 +165,11 @@
 				<th></th>
 				<th></th>
 				<th>Dashboard</th>
+				<th>Shared</th>
 				<th>Name</th>
 				<th>Category</th>
 				<th>Sub Category</th>
+				<th>Metric Label</th>
 				<th>Framework</th>
 				<th>Framework Version</th>
 			</tr>
@@ -181,11 +185,15 @@
 						</label>
 					</td>
 					<td>
-						<button class="btn btn-default exportTemplate text-center" id="exportTemplate_${ indicator.id }" type="button">
-							<span class="glyphicon glyphicon-download" aria-hidden="true"></span>
-							Export
-						</button>
+						<form action="${ pageContext.request.contextPath }/web/dashboard/admin/DashboardManager.do?method=exportTemplate"
+							method="POST" class="inlineForm">
 
+							<input type="hidden" name="indicatorId" value="${ indicator.id }">
+							<button class="btn btn-default exportTemplate text-center" id="exportTemplate_${ indicator.id }" type="submit">
+								<span class="glyphicon glyphicon-download" aria-hidden="true"></span>
+								Export
+							</button>
+						</form>
 					</td>
 
 					<td>
@@ -204,10 +212,11 @@
 						</select>
 						
 					</td>
-					
+					<td><c:out value="${ indicator.shared }" /></td>
 					<td><c:out value="${ indicator.name }" /></td>
 					<td><c:out value="${ indicator.category }" /></td>
 					<td><c:out value="${ indicator.subCategory }" /></td>
+					<td><c:out value="${ indicator.metricLabel }" /></td>
 					<td><c:out value="${ indicator.framework }" /></td>
 					<td><c:out value="${ indicator.frameworkVersion }" /></td>
 
