@@ -195,8 +195,8 @@
 							<td><%=getRosterStatusDisplay(iRosterStatus) %></td>
 							<td><%=enrolledToProvider != null ? enrolledToProvider.getFormattedName() : "N/A" %></td>
 							<td><%=DateUtils.formatDate(iRosterDate,request.getLocale())%></td>
-							<td><%=DateUtils.formatDate(iRosterTermination,request.getLocale())%></td>
-							<td><%=Util.rosterTermReasonProperties.getReasonByCode(iRosterTerminationReason) != null ? Util.rosterTermReasonProperties.getReasonByCode(iRosterTerminationReason) : "" %></td>
+							<td><%=iRosterTermination != null ? DateUtils.formatDate(iRosterTermination,request.getLocale()) : ""%></td>
+							<td><%=iRosterTerminationReason != null && Util.rosterTermReasonProperties.getReasonByCode(iRosterTerminationReason) != null ? Util.rosterTermReasonProperties.getReasonByCode(iRosterTerminationReason) : "" %></td>
 						</tr>
 						<%
 					}
