@@ -259,8 +259,7 @@ if (!userRole.toLowerCase().contains("admin")) { %>
 	<html:option value="<%=setName%>"><%=setName%></html:option>
 	<%}%>
 	</html:select>
-	<%}%>
-
+	
 	<br>	   
 
 <bean:message key="demographic.demographicexport.providers" /><br>
@@ -280,6 +279,8 @@ if (!userRole.toLowerCase().contains("admin")) { %>
 	<html:option value="<%=p.getProviderNo()%>"><%=p.getFormattedName()%></html:option>
 	<%}%>
 	</html:select>
+	
+	<%}%>
 	
 
 	<br>	   
@@ -327,7 +328,7 @@ if (!userRole.toLowerCase().contains("admin")) { %>
 
 <%  } %>
 
-<input class="btn btn-primary" type="submit" value="<bean:message key="export" />"<%=pgpReady?"":"disabled"%> />
+<input class="btn btn-primary" type="submit" value="<bean:message key="export" />"/>
 
 <%	if (isSharingCenterEnabled) { %>
 	<!-- Sharing Center Submission -->
