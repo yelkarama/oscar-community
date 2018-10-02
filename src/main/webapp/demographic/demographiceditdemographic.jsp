@@ -2319,6 +2319,9 @@ if ( Dead.equals(PatStat) ) {%>
 		                    <img src="../images/notes.gif" align="right" alt="Extra data from Import" height="16" width="13" border="0"> </a>
 <%} %>
 
+		                <input type="button" onclick="window.open('demographicAudit.jsp?demographic_no=<%=demographic_no %>','dawin','width=800,height=1000');" value="Audit Information"/>
+		                
+
 
 						</div>
 						
