@@ -141,6 +141,7 @@ public class HRMReportParser {
 		document.setReportStatus(report.getResultStatus());
 		document.setReportType(report.getFirstReportClass());
 		document.setTimeReceived(new Date());
+		document.setSourceFacility(report.getSendingFacilityId());
 
 		String reportFileData = report.getFileData();
 
