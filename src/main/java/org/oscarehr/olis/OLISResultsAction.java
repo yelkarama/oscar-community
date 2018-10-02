@@ -49,6 +49,7 @@ public class OLISResultsAction extends DispatchAction {
 		
 		try {
 			String olisResultString = (String) request.getAttribute("olisResponseContent");			
+			olisResultString = (String)request.getSession().getAttribute("olisResponseContent");
 			if(olisResultString == null) {
 				olisResultString = oscar.Misc.getStr(request.getParameter("olisResponseContent"), "");
 				request.setAttribute("olisResponseContent", olisResultString);
