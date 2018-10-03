@@ -118,6 +118,8 @@
 	if (request.getParameter("updateParent")!=null){
 		updateParent = request.getParameter("updateParent");
 	}
+
+	String rtlId = OscarProperties.getInstance().getProperty("echart_rtl_id", "");
 %>
 
 <html:html locale="true">
@@ -404,6 +406,11 @@ function checkNotifications(){
         <%}%>
 
         var savedNoteId=0;
+
+		function openRtl() {
+			var url = '/oscar/eform/efmformadd_data.jsp?fid=<%=rtlId%>&demographic_no=<%=demoNo%>&appointment=' + appointmentNo;
+			popupPage(800, 1020, 'RTL', url);
+		}
    </script>
 
 <script language="JavaScript" src='<c:out value="${ctx}"/>/jspspellcheck/spellcheck-caller.js'></script>
@@ -1114,7 +1121,11 @@ window.onbeforeunload = onClosing;
 							key="oscarEncounter.Rx.title" /></td>
 				</tr>
 				<tr>
-					<td></td>
+					<td>
+                        <% if (!rtlId.isEmpty()) { %>
+                            <a href="javascript:return false;" onclick="openRtl()">Open current note in RTL</a>
+                        <% } %>
+                    </td>
 					<td><img style="cursor: pointer;"
 						title="<bean:message key="oscarEncounter.print.title"/>"
 						id='imgPrintLabs'
