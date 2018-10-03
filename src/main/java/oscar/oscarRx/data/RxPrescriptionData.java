@@ -1374,7 +1374,11 @@ public class RxPrescriptionData {
 		}
 
 		public String getFullOutLine() {
-			return (RxPrescriptionData.getFullOutLine(getSpecial()));
+			String extra = "";
+			if((getRefillQuantity() != null && getRefillQuantity() > 0) || (getRefillDuration() != null && getRefillDuration() > 0)) {
+				extra = "Refill: Qty:" + (getRefillQuantity() != null ? getRefillQuantity() : "0") + " Duration:" + (getRefillDuration() != null ? getRefillDuration() : "0") + " Days";
+			}
+			return (RxPrescriptionData.getFullOutLine(getSpecial() + "\n" + extra));
 		}
 
 		public String getDosageDisplay() {
