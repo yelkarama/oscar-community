@@ -1468,6 +1468,7 @@ public class DemographicExportAction4 extends Action {
 								labMeaValues.put("request_datetime", h.getRequestDate(i));
 								labMeaValues.put("olis_status", h.getOBXResultStatus(i, j));
 								labMeaValues.put("lab_no", String.valueOf(hl7TxtInfo.getLabNumber()));
+								labMeaValues.put("blocked", h.isTestResultBlocked(i, j) ? "BLOCKED" : "");
 								labMeaValues.put("other_id", i+"-"+j);
 								
 								if (StringUtils.filled(result)) {
@@ -2748,14 +2749,18 @@ public class DemographicExportAction4 extends Action {
 		}
 
 		//lab requisition datetime
-		
 		String reqDate = labMea.get("request_datetime");
 		if (StringUtils.filled(reqDate)) labResults.addNewLabRequisitionDateTime().setFullDateTime(Util.calDate(reqDate));
 
 		//OLIS test result status
 		String olis_status = labMea.get("olis_status");
 		if (StringUtils.filled(olis_status)) labResults.setTestResultStatus(olis_status);
-
+		
+		//
+		if ("BLOCKED".equals(labMea.get("blocked"))) {
+			labResults.setBlockedTestResult(cdsDt.YIndicator.Y);
+		}
+		
 		Integer labTable = CaseManagementNoteLink.LABTEST;
 		String lab_no = labMea.get("lab_no");
 		if (StringUtils.empty(lab_no)) {
