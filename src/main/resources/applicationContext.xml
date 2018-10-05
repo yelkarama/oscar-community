@@ -34,6 +34,11 @@
 	<import resource="classpath:spring_ws.xml" />
 
 	<bean id="hl7HandlerMSHMappingDao" class="org.oscarehr.common.dao.HL7HandlerMSHMappingDao" autowire="byName" />
+	<!-- PCDS DAO -->
+	<bean id="demoExpListDao" class="org.oscarehr.common.dao.DemographicToExportPCDS_Dao" autowire="byName" />
+    <bean id="diseaseRegistryPCDSDao" class="org.oscarehr.common.dao.DiseaseRegistryPCDS_Dao" autowire="byName" />
+	
+	
 	<!-- hibernated DAO -->
         <bean id="gstControlDao" class="org.oscarehr.billing.CA.dao.GstControlDao" autowire="byName" />
 	<bean id="programDao" class="org.oscarehr.PMmodule.dao.ProgramDao" autowire="byName" />
