@@ -32,6 +32,9 @@
 
 	<!-- setup CXF -->
 	<import resource="classpath:spring_ws.xml" />
+	<!-- PCDS DAO -->
+	<bean id="demoExpListDao" class="org.oscarehr.common.dao.DemographicToExportPCDS_Dao" autowire="byName" />
+    <bean id="diseaseRegistryPCDSDao" class="org.oscarehr.common.dao.DiseaseRegistryPCDS_Dao" autowire="byName" />
 
 	<bean id="hl7HandlerMSHMappingDao" class="org.oscarehr.common.dao.HL7HandlerMSHMappingDao" autowire="byName" />
 	<!-- hibernated DAO -->
