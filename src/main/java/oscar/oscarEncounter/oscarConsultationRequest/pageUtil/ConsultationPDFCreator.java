@@ -492,19 +492,14 @@ public class ConsultationPDFCreator extends PdfPageEventHelper {
         {
             infoTable.addCell(setFooterCell(cell, getResource("msgReqPhysician"), reqFrm.getProviderName(pro.getProviderNo()) + ((getlen(ohipNo) > 0) ? " (" + ohipNo + ")" : "")));
         }
-
-        UserProperty signatureProperty = null;
-        if (OscarProperties.getInstance().isPropertyActive("consult_auto_load_signature")) {
-            UserPropertyDAO userPropertyDAO = SpringUtils.getBean(UserPropertyDAO.class);
-            signatureProperty = userPropertyDAO.getProp(reqFrm.providerNo,UserProperty.PROVIDER_CONSULT_SIGNATURE);
-        }
-		if (getlen(reqFrm.signatureImg) > 0 || signatureProperty != null) {
-			addSignature(infoTable, signatureProperty);
+        
+		if (getlen(reqFrm.signatureImg) > 0) {
+			addSignature(infoTable);
 		}
 		return infoTable;
 	}
 
-private void addSignature(PdfPTable infoTable, UserProperty signatureProperty) {
+private void addSignature(PdfPTable infoTable) {
 		float[] tableWidths;
 		PdfPCell cell;
 		tableWidths = new float[]{ 0.55f, 2.75f };
@@ -514,44 +509,23 @@ private void addSignature(PdfPTable infoTable, UserProperty signatureProperty) {
 		cell.setHorizontalAlignment(PdfPCell.ALIGN_BOTTOM);
 		table.addCell(cell);
 		try {
-            if (signatureProperty != null) {
-                File signatureFolder = new File(OscarProperties.getInstance().getProperty("eform_image"));
-                File file = new File(signatureFolder.toString() + "/" + signatureProperty.getValue());
-                FileInputStream fileInputStream = new FileInputStream(file);
-                byte[] imageBtyes = new byte[1024 * 256];
-                fileInputStream.read(imageBtyes);
-                Image image = Image.getInstance(imageBtyes);
-                image.scalePercent(80f);
-                image.setBorder(0);
-                cell = new PdfPCell(image);
-                cell.setBorder(0);
-                table.addCell(cell);
-                cell = new PdfPCell(table);
-                cell.setBorder(0);
-                cell.setPadding(0);
-                cell.setColspan(1);
-                infoTable.addCell(cell);
-                return;
-            } else {
-                DigitalSignatureDao digitalSignatureDao = (DigitalSignatureDao) SpringUtils.getBean("digitalSignatureDao");
-                DigitalSignature digitalSignature = digitalSignatureDao.find(Integer.parseInt(reqFrm.signatureImg));
-                if (digitalSignature != null) {
-                    Image image = Image.getInstance(digitalSignature.getSignatureImage());
-                    image.scalePercent(80f);
-                    image.setBorder(0);
-                    cell = new PdfPCell(image);
-                    cell.setBorder(0);
-                    table.addCell(cell);
-                    cell = new PdfPCell(table);
-                    cell.setBorder(0);
-                    cell.setPadding(0);
-                    cell.setColspan(1);
-                    infoTable.addCell(cell);
-
-
-                    return;
-                }
-            }
+			DigitalSignatureDao digitalSignatureDao = (DigitalSignatureDao) SpringUtils.getBean("digitalSignatureDao");
+			DigitalSignature digitalSignature = digitalSignatureDao.find(Integer.parseInt(reqFrm.signatureImg));
+			if (digitalSignature != null) {
+				Image image = Image.getInstance(digitalSignature.getSignatureImage());
+				image.scalePercent(80f);
+				image.setBorder(0);
+				cell = new PdfPCell(image);
+				cell.setBorder(0);
+				table.addCell(cell);
+				cell = new PdfPCell(table);
+				cell.setBorder(0);
+				cell.setPadding(0);
+				cell.setColspan(1);
+				infoTable.addCell(cell);
+				
+				return;
+			}
 		} catch (Exception e) {
 			logger.error("Unexpected error.", e);
 		}
