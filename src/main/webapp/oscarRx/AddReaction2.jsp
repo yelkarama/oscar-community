@@ -74,6 +74,7 @@ String lifeStage = new String();
 String severity = new String();
 String onsetOfReaction = new String();
 boolean intolerance = false;
+boolean nonDrug = false;
 
 if (allergyToArchive!=null && !allergyToArchive.isEmpty()) {
 	org.oscarehr.common.model.Allergy a = patient.getAllergy(Integer.parseInt(allergyToArchive));
@@ -86,6 +87,9 @@ if (allergyToArchive!=null && !allergyToArchive.isEmpty()) {
 		onsetOfReaction = a.getOnsetOfReaction();
 		if(a.isIntolerance()) {
 			intolerance = true;
+		}
+		if(a.isNonDrug()) {
+			nonDrug = true;
 		}
 	}
 	if (a.getArchived() && nkdaId!=null) allergyToArchive = nkdaId;
@@ -181,18 +185,9 @@ boolean isNKDA = "No Known Drug Allergies".equals(name);
 								<html:hidden property="allergyToArchive" value="<%=allergyToArchive%>" />
 							</td>
 						</tr>
-<% if ((type.equals("0") || type.equals("-1")) && !isNKDA) { %>
-						<tr valign="center">
-							<td> <span class="label">Custom Allergy Type:</span> 
-	                                <html:select property="type" value="<%=type%>">
-	                                	<html:option value="0">Allergy</html:option>
-	                                	<html:option value="-1">Intolerance</html:option>
-	                                </html:select>
-	                        </td>
-						</tr>
-<% } else { %>
+
 						<html:hidden property="type" value="<%=type%>" />
-<% } %>
+
 						<tr valign="center">
 							<td>
 								<link rel="stylesheet" type="text/css" media="all" href="<%= request.getContextPath() %>/share/calendar/calendar.css" title="win2k-cold-1" />
@@ -257,6 +252,12 @@ boolean isNKDA = "No Known Drug Allergies".equals(name);
 						<tr valign="center">
 							<td><span class="label">Intolerance:</span>
 							<input type="checkbox" name="intolerance" value="on" <%=intolerance? " checked=\"checked\" ":"" %>/>
+							</td>
+						</tr>
+						
+						<tr valign="center">
+							<td><span class="label">Non Drug:</span>
+							<input type="checkbox" name="nonDrug" value="on" <%=nonDrug? " checked=\"checked\" ":"" %>/>
 							</td>
 						</tr>
 <% } %>

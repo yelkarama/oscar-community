@@ -870,6 +870,7 @@ public final class EDocUtil {
 		doc.setSource(source);
 		doc.setSourceFacility(sourceFacility);
 		doc.setNumberofpages(1);
+		
 		documentDao.persist(doc);
 
 		if (doc.getDocumentNo() > 0) {

@@ -497,6 +497,7 @@ if (MyOscarUtils.isMyOscarEnabled((String) session.getAttribute("user")))
 							<td><b>Description</b></td>
 							<td><b>Allergy Type</b></td>
 							<td><b>Intolerance</b></td>
+							<td><b>Non-Drug</b></td>
 							<td><b>Severity</b></td>
 							<td><b>Onset of Reaction</b></td>
 							<td><b>Reaction</b></td>
@@ -582,6 +583,7 @@ for(org.oscarehr.common.model.Allergy allergy : patient.getAllergies(LoggedInInf
 							<td <%=title%> ><%=allergy.getDescription() %></td>
 							<td><%=allergy.getTypeDesc() %></td>
 							<td><%=allergy.isIntolerance() ? "Yes" : "No" %></td>
+							<td><%=allergy.isNonDrug() ? "*" : "" %></td>
 							<td bgcolor="<%=sevColour%>"><%=allergy.getSeverityOfReactionDesc() %></td>
 							<td><%=allergy.getOnSetOfReactionDesc() %></td>
 							<td><%=allergy.getReaction()!=null?allergy.getReaction():"" %></td>

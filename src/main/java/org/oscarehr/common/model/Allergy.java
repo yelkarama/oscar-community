@@ -67,7 +67,9 @@ public class Allergy extends AbstractModel<Integer> {
 	
 	private boolean intolerance=false;
 	
-
+	private boolean nonDrug=false;
+	
+	
 	@Column(name = "HICL_SEQNO")
 	private Integer hiclSeqno;
 
@@ -440,6 +442,14 @@ public class Allergy extends AbstractModel<Integer> {
 
 	public void setIntolerance(boolean intolerance) {
 		this.intolerance = intolerance;
+	}
+
+	public boolean isNonDrug() {
+		return nonDrug;
+	}
+
+	public void setNonDrug(boolean nonDrug) {
+		this.nonDrug = nonDrug;
 	}
 
     

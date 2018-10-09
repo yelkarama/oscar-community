@@ -124,13 +124,14 @@ public class DrugDao extends AbstractDao<Drug> {
 	 */
 	public List<Drug> findByDemographicIdOrderByPosition(Integer demographicId, Boolean archived) {
 		// build sql string
-		String sqlCommand = "select x from Drug x where x.demographicId=?1 " + (archived == null ? "" : "and x.archived=?2") + " order by x.position desc, x.rxDate desc, x.id desc";
+		String sqlCommand = "select x from Drug x where x.demographicId=?1 " + (archived == null ? "" : "and x.archived=?2 and x.archivedReason != ?3") + " order by x.position desc, x.rxDate desc, x.id desc";
 
 		// set parameters
 		Query query = entityManager.createQuery(sqlCommand);
 		query.setParameter(1, demographicId);
 		if (archived != null) {
 			query.setParameter(2, archived);
+			query.setParameter(3, "deleted");
 		}
 		// run query
 		@SuppressWarnings("unchecked")

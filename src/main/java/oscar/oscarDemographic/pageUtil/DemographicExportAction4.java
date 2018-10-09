@@ -34,6 +34,7 @@ import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -46,6 +47,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
@@ -63,17 +65,22 @@ import org.oscarehr.common.dao.DemographicArchiveDao;
 import org.oscarehr.common.dao.DemographicContactDao;
 import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.DemographicExtDao;
+import org.oscarehr.common.dao.DemographicPharmacyDao;
 import org.oscarehr.common.dao.Hl7TextInfoDao;
 import org.oscarehr.common.dao.Hl7TextMessageDao;
 import org.oscarehr.common.dao.OscarAppointmentDao;
 import org.oscarehr.common.dao.PartialDateDao;
+import org.oscarehr.common.dao.PharmacyInfoDao;
 import org.oscarehr.common.model.Allergy;
 import org.oscarehr.common.model.Appointment;
+import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.DemographicArchive;
 import org.oscarehr.common.model.DemographicContact;
+import org.oscarehr.common.model.DemographicPharmacy;
 import org.oscarehr.common.model.Hl7TextInfo;
 import org.oscarehr.common.model.Hl7TextMessage;
 import org.oscarehr.common.model.PartialDate;
+import org.oscarehr.common.model.PharmacyInfo;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.e2e.director.E2ECreator;
 import org.oscarehr.e2e.util.EverestUtils;
@@ -98,8 +105,11 @@ import cds.AllergiesAndAdverseReactionsDocument.AllergiesAndAdverseReactions;
 import cds.AppointmentsDocument.Appointments;
 import cds.CareElementsDocument.CareElements;
 import cds.ClinicalNotesDocument.ClinicalNotes;
+import cds.DemographicsDocument;
 import cds.DemographicsDocument.Demographics;
 import cds.DemographicsDocument.Demographics.Enrolment.EnrolmentHistory;
+import cds.DemographicsDocument.Demographics.Enrolment.EnrolmentHistory.EnrolledToPhysician;
+import cds.DemographicsDocument.Demographics.PreferredPharmacy;
 import cds.FamilyHistoryDocument.FamilyHistory;
 import cds.ImmunizationsDocument.Immunizations;
 import cds.LaboratoryResultsDocument.LaboratoryResults;
@@ -112,6 +122,12 @@ import cds.ReportsDocument.Reports;
 import cds.ReportsDocument.Reports.OBRContent;
 import cds.ReportsDocument.Reports.ReportReviewed;
 import cds.RiskFactorsDocument.RiskFactors;
+import cdsDt.AdverseReactionType;
+import cdsDt.EnrollmentStatus;
+import cdsDt.PersonNamePurposeCode;
+import cdsDt.PersonNameSimple;
+import cdsDt.PhoneNumber;
+import cdsDt.ResultNormalAbnormalFlag;
 import oscar.OscarProperties;
 import oscar.appt.ApptStatusData;
 import oscar.dms.EDoc;
@@ -281,6 +297,9 @@ public class DemographicExportAction4 extends Action {
 				exportError.add("Error! No Demographic Number");
 				continue;
 			}
+			
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+			
 
 			// DEMOGRAPHICS
 			DemographicData d = new DemographicData();
@@ -322,9 +341,37 @@ public class DemographicExportAction4 extends Action {
 			} else {
 				exportError.add("Error! No Last Name for Patient "+demoNo);
 			}
+			
+			name = StringUtils.noNull(demographic.getMiddleNames());
+			if (StringUtils.filled(name)) {
+				cdsDt.PersonNameStandard.OtherNames otherNames = personName.addNewOtherNames();
+				otherNames.setNamePurpose(PersonNamePurposeCode.L);
+				cdsDt.PersonNameStandard.OtherNames.OtherName otherName = otherNames.addNewOtherName();
+				otherName.setPart(name);
+				otherName.setPartType(cdsDt.PersonNamePartTypeCode.GIV);
+				otherName.setPartQualifier(cdsDt.PersonNamePartQualifierCode.CL);
+			} 
+			
 
 			String title = demographic.getTitle();
 			if (StringUtils.filled(title)) {
+				if (title.equalsIgnoreCase("DR")) personName.setNamePrefix(cdsDt.PersonNamePrefixCode.DR);
+				if (title.equalsIgnoreCase("MISS")) personName.setNamePrefix(cdsDt.PersonNamePrefixCode.MISS);
+				if (title.equalsIgnoreCase("MADAM")) personName.setNamePrefix(cdsDt.PersonNamePrefixCode.MADAM);
+				if (title.equalsIgnoreCase("MME")) personName.setNamePrefix(cdsDt.PersonNamePrefixCode.MME);
+				if (title.equalsIgnoreCase("MLLE")) personName.setNamePrefix(cdsDt.PersonNamePrefixCode.MLLE);
+				if (title.equalsIgnoreCase("MAJOR")) personName.setNamePrefix(cdsDt.PersonNamePrefixCode.MAJOR);
+				if (title.equalsIgnoreCase("MAYOR")) personName.setNamePrefix(cdsDt.PersonNamePrefixCode.MAYOR);
+				if (title.equalsIgnoreCase("BRO")) personName.setNamePrefix(cdsDt.PersonNamePrefixCode.BRO);
+				if (title.equalsIgnoreCase("CAPT")) personName.setNamePrefix(cdsDt.PersonNamePrefixCode.CAPT);
+				if (title.equalsIgnoreCase("Chief")) personName.setNamePrefix(cdsDt.PersonNamePrefixCode.CHIEF);
+				if (title.equalsIgnoreCase("Cst")) personName.setNamePrefix(cdsDt.PersonNamePrefixCode.CST);
+				if (title.equalsIgnoreCase("Corp")) personName.setNamePrefix(cdsDt.PersonNamePrefixCode.CORP);
+				if (title.equalsIgnoreCase("FR")) personName.setNamePrefix(cdsDt.PersonNamePrefixCode.FR);
+				if (title.equalsIgnoreCase("HON")) personName.setNamePrefix(cdsDt.PersonNamePrefixCode.HON);
+				if (title.equalsIgnoreCase("LT")) personName.setNamePrefix(cdsDt.PersonNamePrefixCode.LT);
+				
+				
 				if (title.equalsIgnoreCase("MISS")) personName.setNamePrefix(cdsDt.PersonNamePrefixCode.MISS);
 				if (title.equalsIgnoreCase("MR")) personName.setNamePrefix(cdsDt.PersonNamePrefixCode.MR);
 				if (title.equalsIgnoreCase("MRS")) personName.setNamePrefix(cdsDt.PersonNamePrefixCode.MRS);
@@ -359,83 +406,98 @@ public class DemographicExportAction4 extends Action {
 				exportError.add("Error! No Gender for Patient "+demoNo);
 			}
 
-			String sin = demographic.getSin();
+			String sin = demographic.getSin().replaceAll("\\-", "");
 			if (StringUtils.filled(sin) && sin.length()==9) {
 				demo.setSIN(sin);
 			}
+			
 
-			//Enrolment Status (Roster Status)
-			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-			Demographics.Enrolment enrolmentP;
-			String rosterStatus = demographic.getRosterStatus();
-			String rosterDate = "";
-			if(demographic.getRosterDate() != null)
-				rosterDate = formatter.format(demographic.getRosterDate());
-			String rosterTermDate = "";
-			if(demographic.getRosterTerminationDate() != null)
-				rosterTermDate = formatter.format(demographic.getRosterTerminationDate());
-
-			if (StringUtils.filled(rosterStatus)) {
-				rosterStatus = rosterStatus.equalsIgnoreCase("RO") ? "1" : "0";
-				enrolmentP = demo.addNewEnrolment();
-				EnrolmentHistory enrolment = enrolmentP.addNewEnrolmentHistory();
-				enrolment.setEnrollmentStatus(cdsDt.EnrollmentStatus.Enum.forString(rosterStatus));
-				if (rosterStatus.equals("1")) {
-					if (UtilDateUtilities.StringToDate(rosterDate)!=null) {
-						enrolment.setEnrollmentDate(Util.calDate(rosterDate));
-					}
-				} else {
-					if (UtilDateUtilities.StringToDate(rosterTermDate)!=null)
-						enrolment.setEnrollmentTerminationDate(Util.calDate(rosterTermDate));
-					String termReason = demographic.getRosterTerminationReason();
-					if (StringUtils.filled(termReason))
-						enrolment.setTerminationReason(cdsDt.TerminationReasonCode.Enum.forString(termReason));
-					
-					//EnrolmentHistory eh = enrolmentP.addNewEnrolmentHistory();
-					
-				}
-			}
-
-			//Enrolment Status history
 			List<DemographicArchive> DAs = demoArchiveDao.findRosterStatusHistoryByDemographicNo(Integer.valueOf(demoNo));
-			String historyRS, historyRS1;
-			Date historyRD, historyRD1, historyTD, historyTD1;
-			for (int i=0; i<DAs.size(); i++) {
-				historyRS = StringUtils.noNull(DAs.get(i).getRosterStatus());
-				historyRS1 = i<DAs.size()-1 ? StringUtils.noNull(DAs.get(i+1).getRosterStatus()) : "-1";
-				historyRS = historyRS.equalsIgnoreCase("RO") ? "1" : "0";
-				historyRS1 = historyRS1.equalsIgnoreCase("RO") ? "1" : "0";
-
-				historyRD = DAs.get(i).getRosterDate();
-				historyRD1 = i<DAs.size()-1 ? DAs.get(i+1).getRosterDate() : null;
-				historyTD = DAs.get(i).getRosterTerminationDate();
-				historyTD1 = i<DAs.size()-1 ? DAs.get(i+1).getRosterTerminationDate() : null;
-
-				if (i==0) { //check history info with current
-					String rd = UtilDateUtilities.DateToString(historyRD);
-					String td = UtilDateUtilities.DateToString(historyTD);
-					if (historyRS.equals(rosterStatus) && rd.equals(rosterDate) && td.equals(rosterTermDate))
-						continue;
-				} else { //check history info with next
-					if (historyRS.equals(historyRS1) &&
-						UtilDateUtilities.nullSafeCompare(historyRD, historyRD1) == 0 &&
-						UtilDateUtilities.nullSafeCompare(historyTD, historyTD1) == 0 )
-						continue;
-				}
-
-				EnrolmentHistory enrolment = demo.addNewEnrolment().addNewEnrolmentHistory();
+			Collections.reverse(DAs);
+			
+			List<Enrolment> enList = new ArrayList<Enrolment>();
+			Enrolment en = null;
+			for(DemographicArchive da:DAs) {
 				
-				enrolment.setEnrollmentStatus(cdsDt.EnrollmentStatus.Enum.forString(historyRS));
-				if (historyRS.equals("1")) {
-					if (historyRD!=null) enrolment.setEnrollmentDate(Util.calDate(historyRD));
-				} else {
-					if (historyTD!=null)
-						enrolment.setEnrollmentTerminationDate(Util.calDate(historyTD));
-					String termReason = DAs.get(i).getRosterTerminationReason();
-					if (StringUtils.filled(termReason))
-						enrolment.setTerminationReason(cdsDt.TerminationReasonCode.Enum.forString(termReason));
+				if(!"".equals(da.getRosterStatus())) {
+					//no previous record
+					if(en == null) {
+						en = new Enrolment();
+						en.status = da.getRosterStatus();
+						en.enrolledTo = da.getRosterEnrolledTo();
+						en.date = da.getRosterDate();
+						en.terminationDate = da.getRosterTerminationDate();
+						en.terminationReason = da.getRosterTerminationReason();
+					} else {
+						//is it the same record?
+						if(sameEnrolment(da,en)) {
+							//update the record
+							en.status = da.getRosterStatus();
+							en.enrolledTo = da.getRosterEnrolledTo();
+							en.date = da.getRosterDate();
+							en.terminationDate = da.getRosterTerminationDate();
+							en.terminationReason = da.getRosterTerminationReason();
+						} else {
+							enList.add(en);
+							en = new Enrolment();
+							en.status = da.getRosterStatus();
+							en.enrolledTo = da.getRosterEnrolledTo();
+							en.date = da.getRosterDate();
+							en.terminationDate = da.getRosterTerminationDate();
+							en.terminationReason = da.getRosterTerminationReason();
+						}
+					}
 				}
 			}
+		
+			if(!"".equals(demographic.getRosterStatus())) {
+				if(sameEnrolment(demographic,en)) {
+					en.status = demographic.getRosterStatus();
+					en.enrolledTo = demographic.getRosterEnrolledTo();
+					en.date = demographic.getRosterDate();
+					en.terminationDate = demographic.getRosterTerminationDate();
+					en.terminationReason = demographic.getRosterTerminationReason();
+				} else {
+					enList.add(en);
+					en = new Enrolment();
+					en.status = demographic.getRosterStatus();
+					en.enrolledTo = demographic.getRosterEnrolledTo();
+					en.date = demographic.getRosterDate();
+					en.terminationDate = demographic.getRosterTerminationDate();
+					en.terminationReason = demographic.getRosterTerminationReason();
+				}
+			}
+			if(en != null) {
+				enList.add(en);
+			}
+			
+			if(enList.size()>0) {
+				DemographicsDocument.Demographics.Enrolment demoEnrolment = demo.addNewEnrolment();
+				for(int x=0;x<enList.size();x++) {
+					EnrolmentHistory ehx = demoEnrolment.addNewEnrolmentHistory();
+					Enrolment enrolment = enList.get(x);
+					
+					ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
+					Provider p = providerDao.getProvider(enrolment.enrolledTo);
+					
+					EnrolledToPhysician etp = ehx.addNewEnrolledToPhysician();
+					PersonNameSimple pns = etp.addNewName();
+					pns.setFirstName(p.getFirstName());
+					pns.setLastName(p.getLastName());
+					etp.setOHIPPhysicianId(p.getOhipNo());
+					
+					ehx.setEnrollmentDate(toCal(enrolment.date));
+						
+					if(enrolment.terminationDate != null) {
+						ehx.setEnrollmentTerminationDate(toCal(enrolment.terminationDate));
+						ehx.setTerminationReason(cdsDt.TerminationReasonCode.Enum.forString(enrolment.terminationReason));
+						ehx.setEnrollmentStatus(EnrollmentStatus.X_0);
+					} else {
+						ehx.setEnrollmentStatus(EnrollmentStatus.X_1);
+					}
+				}
+			}
+
 
 			//Person Status (Patient Status)
 			String patientStatus = StringUtils.noNull(demographic.getPatientStatus());
@@ -485,10 +547,6 @@ public class DemographicExportAction4 extends Action {
 				if (cpso!=null && cpso.length()==5) pph.setPrimaryPhysicianCPSO(cpso);
 			}
 
-			if(StringUtils.filled(demographic.getSin())) {
-				demo.setSIN(demographic.getSin());
-			}
-
 			if (StringUtils.filled(demographic.getHin())) {
 				cdsDt.HealthCard healthCard = demo.addNewHealthCard();
 
@@ -516,6 +574,19 @@ public class DemographicExportAction4 extends Action {
 					address.setCity(StringUtils.noNull(demographic.getCity()));
 					address.setCountrySubdivisionCode(Util.setCountrySubDivCode(demographic.getProvince()));
 					address.addNewPostalZipCode().setPostalCode(StringUtils.noNull(demographic.getPostal()).replace(" ",""));
+				}
+			}
+			
+			if (StringUtils.filled(demographic.getMailingAddress())) {
+				cdsDt.Address addr = demo.addNewAddress();
+				cdsDt.AddressStructured address = addr.addNewStructured();
+
+				addr.setAddressType(cdsDt.AddressType.M);
+				address.setLine1(demographic.getMailingAddress());
+				if (StringUtils.filled(demographic.getMailingCity()) || StringUtils.filled(demographic.getMailingProvince()) || StringUtils.filled(demographic.getMailingPostal())) {
+					address.setCity(StringUtils.noNull(demographic.getMailingCity()));
+					address.setCountrySubdivisionCode(Util.setCountrySubDivCode(demographic.getMailingProvince()));
+					address.addNewPostalZipCode().setPostalCode(StringUtils.noNull(demographic.getMailingPostal()).replace(" ",""));
 				}
 			}
 
@@ -594,6 +665,39 @@ public class DemographicExportAction4 extends Action {
 				annotation = getNonDumpNote(CaseManagementNoteLink.CASEMGMTNOTE, cmn.getId(), null);
 				List<CaseManagementNoteExt> cmeList = cmm.getExtByNote(cmn.getId());
 
+				DemographicPharmacyDao demographicPharmacyDao = SpringUtils.getBean(DemographicPharmacyDao.class);
+				PharmacyInfoDao pharmacyInfoDao = SpringUtils.getBean(PharmacyInfoDao.class);
+				
+				List<DemographicPharmacy> dpList = demographicPharmacyDao.findByDemographicId(demographic.getDemographicNo());
+				if(dpList.size()>0) {
+					DemographicPharmacy dp = dpList.get(0);
+					PharmacyInfo pi = pharmacyInfoDao.find(dp.getPharmacyId());
+					if(pi != null) {
+						PreferredPharmacy preferredPharmacy = demo.addNewPreferredPharmacy();
+						PhoneNumber pn =  preferredPharmacy.addNewPhoneNumber();
+						addPhone(pi.getFax(), "", cdsDt.PhoneNumberType.W,pn);
+						
+						
+						cdsDt.Address addr = preferredPharmacy.addNewAddress();
+						cdsDt.AddressStructured address = addr.addNewStructured();
+
+						addr.setAddressType(cdsDt.AddressType.R);
+						address.setLine1(pi.getAddress());
+						if (StringUtils.filled(pi.getCity()) || StringUtils.filled(pi.getProvince()) || StringUtils.filled(pi.getPostalCode())) {
+							address.setCity(StringUtils.noNull(pi.getCity()));
+							address.setCountrySubdivisionCode(Util.setCountrySubDivCode(pi.getProvince()));
+							address.addNewPostalZipCode().setPostalCode(StringUtils.noNull(pi.getPostalCode()).replace(" ",""));
+						}
+						
+						
+						preferredPharmacy.setEmailAddress(pi.getEmail());
+						preferredPharmacy.setName(pi.getName());
+						
+					}
+				}
+				
+				
+				
 				if (exPersonalHistory) {
 					// PERSONAL HISTORY (SocHistory)
 					if (StringUtils.filled(socHist)) {
@@ -721,7 +825,7 @@ public class DemographicExportAction4 extends Action {
 							}
 						}
 						addOneEntry(PASTHEALTH);
-						boolean bSTARTDATE=false, bRESOLUTIONDATE=false, bPROCEDUREDATE=false, bLIFESTAGE=false;
+						boolean bSTARTDATE=false, bRESOLUTIONDATE=false, bPROCEDUREDATE=false, bLIFESTAGE=false, bPROBLEMSTATUS=false;
 						for (CaseManagementNoteExt cme : cmeList) {
 							if (cme.getKeyVal().equals(CaseManagementNoteExt.STARTDATE)) {
 								if (bSTARTDATE) continue;
@@ -751,6 +855,14 @@ public class DemographicExportAction4 extends Action {
 									summary = Util.addSummary(summary, CaseManagementNoteExt.LIFESTAGE, cme.getValue());
 								}
 								bLIFESTAGE = true;
+						
+							} else if (cme.getKeyVal().equals(CaseManagementNoteExt.PROBLEMSTATUS)) {
+								if (bPROBLEMSTATUS) continue;
+								if (StringUtils.filled(cme.getValue())) {
+									pHealth.setProblemStatus(cme.getValue());
+									summary = Util.addSummary(summary, CaseManagementNoteExt.PROBLEMSTATUS, cme.getValue());
+								}
+								bPROBLEMSTATUS = true;
 							}
 						}
 						pHealth.setPastHealthProblemDescriptionOrProcedures(medHist);
@@ -828,6 +940,7 @@ public class DemographicExportAction4 extends Action {
 							}
 						}
 
+						annotation = getNonDumpNote(CaseManagementNoteLink.CASEMGMTNOTE, cmn.getId(), null);
 						if (StringUtils.filled(annotation)) {
 							pList.setNotes(annotation);
 							summary = Util.addSummary(summary, "Notes", annotation);
@@ -1043,6 +1156,7 @@ public class DemographicExportAction4 extends Action {
 						aSummary = Util.addSummary(aSummary, "Reaction", allergyReaction);
 					}
 					String severity = allergy.getSeverityOfReaction();
+					
 					if (StringUtils.filled(severity)) {
 						if (severity.equals("1")) {
 							alr.setSeverity(cdsDt.AdverseReactionSeverity.MI);
@@ -1050,10 +1164,20 @@ public class DemographicExportAction4 extends Action {
 							alr.setSeverity(cdsDt.AdverseReactionSeverity.MO);
 						} else if (severity.equals("3")) {
 							alr.setSeverity(cdsDt.AdverseReactionSeverity.LT);
+						} else if (severity.equals("5")) {
+							alr.setSeverity(cdsDt.AdverseReactionSeverity.NO);
 						}
 						if (alr.getSeverity()!=null)
 							aSummary = Util.addSummary(aSummary,"Adverse Reaction Severity",alr.getSeverity().toString());
 					}
+					
+					if(allergy.isIntolerance()) {
+						alr.setReactionType(AdverseReactionType.AR);
+					} else {
+						alr.setReactionType(AdverseReactionType.AL);
+					}
+					
+					
 					if (allergy.getStartDate()!=null) {
 						dateFormat = partialDateDao.getFormat(PartialDate.ALLERGIES, allergies[j].getAllergyId(), PartialDate.ALLERGIES_STARTDATE);
 						Util.putPartialDate(alr.addNewStartDate(), allergy.getStartDate(), dateFormat);
@@ -2402,6 +2526,32 @@ public class DemographicExportAction4 extends Action {
 
 	//------------------------------------------------------------
 
+	private boolean sameEnrolment(Demographic demographic,Enrolment en) {
+		if(en != null) {
+			//if(demographic.getRosterStatus().equals(en.status)) {
+				if(DateUtils.isSameDay(demographic.getRosterDate(),en.date)) {
+					if(demographic.getRosterEnrolledTo().equals(en.enrolledTo)) {
+						return true;
+					}
+				}
+			//}
+		}
+		return false;
+	}
+	
+	private boolean sameEnrolment(DemographicArchive demographic,Enrolment en) {
+		if(en != null) {
+			//if(demographic.getRosterStatus().equals(en.status)) {
+				if(DateUtils.isSameDay(demographic.getRosterDate(),en.date)) {
+					if(demographic.getRosterEnrolledTo().equals(en.enrolledTo)) {
+						return true;
+					}
+				}
+			//}
+		}
+		return false;
+	}
+	
 	private String getIDInExportFilename(String filename) {
 		if (filename==null) return null;
 
@@ -2736,6 +2886,10 @@ public class DemographicExportAction4 extends Action {
 		if (StringUtils.filled(labComments)) {
 			labResults.setNotesFromLab(Util.replaceTags(labComments));
 		}
+				
+		ResultNormalAbnormalFlag rnaf = labResults.addNewResultNormalAbnormalFlag();
+		rnaf.setResultNormalAbnormalFlagAsPlainText(labMea.get("abnormal"));
+		//labResults.setResultNormalAbnormalFlag(rnaf);
 
 		//lab reference range
 		String range = StringUtils.noNull(labMea.get("range"));
@@ -2835,5 +2989,23 @@ public class DemographicExportAction4 extends Action {
 		}
 		
 		return p.getFirstName() + "_" + p.getLastName() + "_" + p.getOhipNo();
+	}
+
+	private Calendar toCal(Date d) {
+		Calendar c = Calendar.getInstance();
+		c.setTime(d);
+		return c;
+	}
+}
+
+class Enrolment {
+	public String status;
+	public Date date;
+	public String enrolledTo;
+	public Date terminationDate;
+	public String terminationReason;
+	
+	public String toString() {
+		return "Enrolment: status=" + status + ",date=" + date + ",enroledTo=" + enrolledTo + ",terminationDate="+ terminationDate + ",terminationReason=" + terminationReason;
 	}
 }

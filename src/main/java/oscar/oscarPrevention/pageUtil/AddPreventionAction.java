@@ -207,7 +207,7 @@ public class AddPreventionAction  extends Action {
          String operation = null;
          
          if (id == null || id.equals("null")){ //New                                             
-        	 preventionId = PreventionData.insertPreventionData(sessionUser,demographic_no,prevDate,providerNo,providerName,preventionType,refused,nextDate,neverWarn,extraData,snomedId);
+        	 preventionId = PreventionData.insertPreventionData(sessionUser,demographic_no,prevDate,providerNo,providerName,preventionType,refused,nextDate,neverWarn,extraData,snomedId,null);
         	 operation="new_prevention";
          }else if (id != null &&  delete != null  ){  // Delete
         	 PreventionData.deletePreventionData(id);    

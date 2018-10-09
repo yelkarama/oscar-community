@@ -305,6 +305,11 @@ SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
                         		<td><%= StringUtils.trimToEmpty(drug.getProtocol()) %></td>
               				</tr>
               				
+              				<tr>
+              					<td class="label">Non Authorative:</td>
+                        		<td><%= StringUtils.trimToEmpty(drug.isNonAuthoritative()) %></td>
+              				</tr>
+              				
               				<tr style="height:15px">
               				
               				</tr>

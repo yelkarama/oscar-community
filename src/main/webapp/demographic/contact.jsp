@@ -56,6 +56,7 @@
 						<option value="Uncle">Uncle</option>
 						<option value="GrandFather">GrandFather</option>
 						<option value="GrandMother">GrandMother</option>
+						<option value="Neighbour">Neighbour</option>
 						<option value="Guardian">Guardian</option>
                                                 <option value="Foster Parent">Foster Parent</option>
                                                 <option value="Next of Kin">Next of Kin</option>

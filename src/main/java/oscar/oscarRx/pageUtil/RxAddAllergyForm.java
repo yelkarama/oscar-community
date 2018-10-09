@@ -46,7 +46,8 @@ public final class RxAddAllergyForm extends ActionForm {
     String allergyToArchive = null;
 	String ID = null; //drugref_id
 	String intolerance = null;
-    
+	String nonDrug = null;
+	    
     public String getLifeStage() {
     	return lifeStage;
     }
@@ -185,6 +186,12 @@ public final class RxAddAllergyForm extends ActionForm {
 	}
 	public void setIntolerance(String intolerance) {
 		this.intolerance = intolerance;
+	}
+	public String getNonDrug() {
+		return nonDrug;
+	}
+	public void setNonDrug(String nonDrug) {
+		this.nonDrug = nonDrug;
 	}
     
     

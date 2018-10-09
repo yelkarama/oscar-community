@@ -62,6 +62,7 @@ CREATE TABLE allergies (
   lastUpdateDate datetime not null,
   providerNo varchar(6),
   intolerance tinyint(1),
+  nonDrug tinyint(1),
   PRIMARY KEY  (allergyid)
 ) ;
 
@@ -747,7 +748,7 @@ CREATE TABLE drugs (
   regional_identifier varchar(100) default NULL,
   unit varchar(5) default 'tab',
   method varchar(5) default 'Take',
-  route varchar(5) default 'PO',
+  route varchar(50) default 'PO',
   drug_form varchar(50),
   create_date datetime,
   dosage text,
