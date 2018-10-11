@@ -175,25 +175,21 @@ public class PrintLabsAction extends Action{
             os = response.getOutputStream();
             if (!labIds.isEmpty()){
                 for (String segmentId : labIds){
-                    List<String> labs = Arrays.asList(Hl7textResultsData.getMatchingLabs(segmentId).split(","));
-
                     MessageHandler handler = Factory.getHandler(segmentId);
                     response.setContentType("application/pdf");
                     response.setHeader("Content-Disposition", "attachment;filename=" + handler.getPatientName().replaceAll("\\s", "_") + "_" + handler.getMsgDate() + "_MultiLabReport.pdf");
 
-                    for (String result : labs) {
-                        String fileName = OscarProperties.getInstance().getProperty("DOCUMENT_DIR") + "//" + handler.getPatientName().replaceAll("\\s", "_") + "_" + handler.getMsgDate() + "_LabReport.pdf";
-                        fileTemp = new File(fileName);
-                        osTemp = new FileOutputStream(fileTemp);
-                        if (handler instanceof OLISHL7Handler) {
-                            OLISLabPDFCreator olisLabPdfCreator = new OLISLabPDFCreator(osTemp, request, result);
-                            olisLabPdfCreator.printPdf();
-                        } else {
-                            LabPDFCreator pdfCreator = new LabPDFCreator(osTemp, result, loggedInInfo.getLoggedInProviderNo());
-                            pdfCreator.printPdf();
-                        }
-                        pdfDocs.add(fileName);
+                    String fileName = OscarProperties.getInstance().getProperty("DOCUMENT_DIR") + "//" + handler.getPatientName().replaceAll("\\s", "_") + "_" + handler.getMsgDate() + "_LabReport.pdf";
+                    fileTemp = new File(fileName);
+                    osTemp = new FileOutputStream(fileTemp);
+                    if (handler instanceof OLISHL7Handler) {
+                        OLISLabPDFCreator olisLabPdfCreator = new OLISLabPDFCreator(osTemp, request, segmentId);
+                        olisLabPdfCreator.printPdf();
+                    } else {
+                        LabPDFCreator pdfCreator = new LabPDFCreator(osTemp, segmentId, loggedInInfo.getLoggedInProviderNo());
+                        pdfCreator.printPdf();
                     }
+                    pdfDocs.add(fileName);
                 }
                 ConcatPDF.concat(pdfDocs, os);
             }
