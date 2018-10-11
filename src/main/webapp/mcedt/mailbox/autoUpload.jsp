@@ -43,6 +43,7 @@ String fileUpload = (String) ((session.getAttribute("uploadFileName") != null )?
 List<ResponseResult> uploadResults = (List<ResponseResult>) session.getAttribute("uploadResponseResult");
 List<ResponseResult> submitResults = (List<ResponseResult>) session.getAttribute("submitResponseResult");
 String connection = ((request.getParameter("connection")==null ||request.getParameter("connection").equals(""))?"":request.getParameter("connection"));
+boolean isUploaded = Boolean.parseBoolean(request.getParameter("isUploaded")); 
 %>
 <html>
 <head>
@@ -215,6 +216,12 @@ String connection = ((request.getParameter("connection")==null ||request.getPara
 				<input id="method" name="method" type="hidden" value="" />
 				</html:form> --%>
 				<div>
+					<% if (isUploaded) { %>
+					<div class="alert alert-success" id="alert_message">
+						Files successfully uploaded!
+					</div>
+					<% } %>
+					
 					<html:form action="/mcedt/autoUpload.do" method="post" styleId="form">
 						<jsp:include page="../messages.jsp" />
 						<jsp:include page="spinner.jsp" flush="true"/>			
