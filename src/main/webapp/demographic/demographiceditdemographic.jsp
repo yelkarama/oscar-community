@@ -2571,7 +2571,9 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 										<%=rosterStatus.equals("FS")?" selected":""%>>
 									<bean:message key="demographic.demographiceditdemographic.optFeeService"/></option>
 									<% 
-									for(String status: demographicDao.getRosterStatuses()) {
+									List<String> rosterStatuses = demographicDao.getRosterStatuses();
+									Collections.sort(rosterStatuses);
+									for(String status: rosterStatuses) {
 									%>
 									<option
 										<%=rosterStatus.equals(status)?" selected":""%>><%=status%></option>
