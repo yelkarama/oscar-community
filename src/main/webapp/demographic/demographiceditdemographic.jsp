@@ -310,6 +310,8 @@ if(!authed) {
 
 	SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
 	Map<String, Boolean> masterFilePreferences = systemPreferencesDao.findByKeysAsMap(SystemPreferences.MASTER_FILE_PREFERENCE_KEYS);
+	Map<String, Boolean> generalSettingsMap = systemPreferencesDao.findByKeysAsMap(SystemPreferences.GENERAL_SETTINGS_KEYS);
+	boolean replaceNameWithPreferred = generalSettingsMap.getOrDefault("replace_demographic_name_with_preferred", false);
 %>
 
 <%@page import="org.apache.commons.lang.StringUtils"%>
@@ -1067,9 +1069,17 @@ jQuery(document).ready(function() {
 														}
 													}
 												}
+												
+											StringBuilder patientName = new StringBuilder();
+											patientName.append(demographic.getLastName()).append(", ");
+											if (replaceNameWithPreferred && StringUtils.isNotEmpty(demographic.getPrefName())) {
+											    patientName.append(demographic.getPrefName());
+											} else {
+											    patientName.append(demographic.getFirstName());
+											}
 
-                        %> <%=demographic.getLastName()%>,
-				<%=demographic.getFirstName()%> <%=demographic.getSex()%>
+                        %> 
+				<%= patientName.toString()%> <%=demographic.getSex()%>
 				<%=age%> years &nbsp;
 				<oscar:phrverification demographicNo='<%=demographic.getDemographicNo().toString()%>' ><bean:message key="phr.verification.link"/></oscar:phrverification>
 

@@ -488,6 +488,9 @@ UserProperty customRosterStatusProperty = userPropertyDao.getProp(curUser_no, "s
 if (customRosterStatusProperty != null) {
     schedulePreferencesMap.put("schedule_display_custom_roster_status", Boolean.parseBoolean(customRosterStatusProperty.getValue()));
 }
+
+    Map<String, Boolean> generalSettingsMap = systemPreferencesDao.findByKeysAsMap(SystemPreferences.GENERAL_SETTINGS_KEYS);
+    boolean replaceNameWithPreferred = generalSettingsMap.getOrDefault("replace_demographic_name_with_preferred", false);
 %>
 <%@page import="oscar.oscarDB.*"%>
 
@@ -2233,10 +2236,14 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
                   String prefName = "";
                   if ((demographic_no != 0)&& (demographicDao != null)) {
                         Demographic demo = demographicDao.getDemographic(String.valueOf(demographic_no));
-                        if (demo.getPrefName().length()>0) { prefName = " (" + demo.getPrefName() + ")"; }
                         nameSb.append(demo.getLastName())
-                              .append(",")
-                              .append(demo.getFirstName());
+                              .append(",");
+                        if (replaceNameWithPreferred && StringUtils.isNotEmpty(demo.getPrefName())) {
+                            nameSb.append(demo.getPrefName());
+                        } else {
+                              nameSb.append(demo.getFirstName());
+                              if (demo.getPrefName().length()>0) { prefName = " (" + demo.getPrefName() + ")"; }
+						}
                   }
                   else {
                         nameSb.append(String.valueOf(appointment.getName()));
