@@ -117,7 +117,7 @@ function popUpClosed() {
 }
 
 function refreshBillHistory() {
-    var showDeleted = jQuery("#showDeleted").attr('checked') === 'checked';
+    var showDeleted = jQuery("#showDeleted").attr('checked');
     var serviceCode = "";
     if (jQuery("#serviceCode") && jQuery("#serviceCode").val() != null) {
         serviceCode = jQuery("#serviceCode").val();
