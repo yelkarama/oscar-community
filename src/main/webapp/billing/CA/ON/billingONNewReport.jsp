@@ -79,7 +79,7 @@ if("unbilled".equals(action)) {
     
     sql = "select * from appointment where provider_no like '" + sqlProviderView + "' and appointment_date >='" + xml_vdate   
             + "' and appointment_date<='" + xml_appointment_date 
-            + "' and (BINARY status NOT LIKE 'B%' AND BINARY status NOT LIKE 'C%' AND BINARY status NOT LIKE 'N%')"
+            + "' and (BINARY status NOT LIKE 'B%' AND BINARY status NOT LIKE 'C%' AND BINARY status NOT LIKE 'N%' AND BINARY status NOT LIKE 't%')"
             + " and demographic_no != 0 order by appointment_date , start_time ";
     
     rs = dbObj.searchDBRecord(sql);
