@@ -222,7 +222,11 @@ function onButDelete() {
 function onButUpdate() {
   saveTemp=2;
 }
-
+function onButUpdateCancel() {
+	  saveTemp=2;
+	  document.EDITAPPT.status.value='C';
+}
+	
 function onButCancel(){
    var aptStat = document.EDITAPPT.status.value;
    if (aptStat.indexOf('B') == 0){
@@ -953,6 +957,10 @@ if (bMultisites) { %>
 			onclick="document.forms['EDITAPPT'].displaymode.value='Delete Appt'; onButDelete();"
 			value="<bean:message key="appointment.editappointment.btnDeleteAppointment"/>">
 		
+		<input type="submit" class="rightButton blueButton top" id="updateCancelButton"
+			onclick="document.forms['EDITAPPT'].displaymode.value='Update Appt'; onButUpdate();"
+			value="Update and Cancel">
+			
 		<input type="button" name="buttoncancel" id="cancelButton"
 			value="<bean:message key="appointment.editappointment.btnCancelAppointment"/>"
 			onClick="onButCancel();"> 
