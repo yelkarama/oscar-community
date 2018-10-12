@@ -728,6 +728,9 @@ public final class RxWriteScriptAction extends DispatchAction {
 			}
 			rx.setDosage(removeExtraChars(dosage));
 			rx.setUnit(removeExtraChars(unit));
+			if (drugId.contains("+")) {
+			    drugId = drugId.substring(drugId.indexOf("+") + 1);
+            }
 			rx.setGCN_SEQNO(Integer.parseInt(drugId));
 			rx.setRegionalIdentifier(dmono.regionalIdentifier);
 			String atcCode = dmono.atc;
