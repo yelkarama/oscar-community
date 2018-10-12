@@ -103,7 +103,7 @@
         <table id="displaySettingsTable" class="table table-bordered table-striped table-hover table-condensed">
             <tbody>
             <tr>
-                <td>Display replace demographic name with preferred name: </td>
+                <td>Display preferred name instead of demographic name: </td>
                 <td>
                     <input id="replace_demographic_name_with_preferred-true" type="radio" value="true" name="replace_demographic_name_with_preferred"
                             <%=(dataBean.getProperty("replace_demographic_name_with_preferred", "false").equals("true")) ? "checked" : ""%> />
