@@ -697,6 +697,7 @@ public class HRMAction extends DispatchAction {
 		
 		boolean isHrmAdmin = securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_hrm.administrator", "r", null);
 		boolean isHrm = securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_hrm", "r", null);
+		boolean isAdmin = securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_admin.hrm", "r", null);
 		
 
 		String start = request.getParameter("start");
@@ -715,7 +716,7 @@ public class HRMAction extends DispatchAction {
 		if(isHrmAdmin &&  "ALL".equals(providerNo)) {
 			providerNo = null;
 		}
-		if(!isHrmAdmin) {
+		if(!isHrmAdmin && !isAdmin) {
 			providerNo = LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo();
 		}
 
