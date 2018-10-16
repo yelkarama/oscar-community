@@ -39,6 +39,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
@@ -578,7 +579,8 @@ public final class SSOLoginAction extends MappingDispatchAction {
 	    try {
 	      String[] parts = data.split(":");
 
-	      IvParameterSpec iv = new IvParameterSpec(java.util.Base64.getDecoder().decode(parts[1]));
+	      IvParameterSpec iv = new IvParameterSpec( Base64.decodeBase64(parts[1]) );
+	  //    IvParameterSpec iv = new IvParameterSpec(java.util.Base64.getDecoder().decode(parts[1]));
 	      SecretKeySpec secretKey = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
 
 	      Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
