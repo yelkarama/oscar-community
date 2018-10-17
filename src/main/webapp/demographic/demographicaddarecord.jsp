@@ -23,6 +23,7 @@
     Ontario, Canada
 
 --%>
+<%@page import="java.text.SimpleDateFormat"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -219,7 +220,17 @@
 	demographic.setSpokenLanguage(request.getParameter("spoken_lang"));
 	demographic.setLastUpdateUser(curUser_no);
 	demographic.setLastUpdateDate(new java.util.Date());
-	demographic.setPatientStatusDate(new java.util.Date());
+	
+	if(request.getParameter("patient_status_date") != null) {
+		SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
+		try {
+			demographic.setPatientStatusDate(fmt.parse(request.getParameter("patient_status_date")));
+		}catch(Exception e) {
+			demographic.setPatientStatusDate(new java.util.Date());
+		}
+	} else {
+		demographic.setPatientStatusDate(new java.util.Date());
+	}
 	
 	
 	
