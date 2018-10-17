@@ -23,6 +23,8 @@
     Ontario, Canada
 
 --%>
+<%@page import="java.text.SimpleDateFormat"%>
+<%@page import="java.util.Date"%>
 <%@page import="org.oscarehr.managers.LookupListManager"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
@@ -151,6 +153,10 @@
 	    PatientConsentManager patientConsentManager = SpringUtils.getBean( PatientConsentManager.class );
 		pageContext.setAttribute( "consentTypes", patientConsentManager.getConsentTypes() );
 	}
+	
+	
+	SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
+	String today = fmt.format(new Date());
 %>
 <html:html locale="true">
 <head>
@@ -1477,7 +1483,10 @@ document.forms[1].r_doctor_ohip.value = refNo;
 					%>
 					<option value=""></option>
 				</td>
-				<td align="right" nowrap><b></b></td>
+				<td id="chartNoLbl" align="right"><b><bean:message
+					key="demographic.demographicaddrecordhtm.formChartNo" />:</b></td>
+				<td id="chartNo" align="left"><input type="text" id="chart_no" name="chart_no" value="<%=StringEscapeUtils.escapeHtml(chartNoVal)%>">
+				</td>
 				<td id="rosterDateCell" align="left">
 				</td>
 			</tr>
@@ -1499,9 +1508,14 @@ document.forms[1].r_doctor_ohip.value = refNo;
 					key="demographic.demographicaddrecordhtm.AddNewPatient"/> ">
 				
 				</td>
-				<td id="chartNoLbl" align="right"><b><bean:message
-					key="demographic.demographicaddrecordhtm.formChartNo" />:</b></td>
-				<td id="chartNo" align="left"><input type="text" id="chart_no" name="chart_no" value="<%=StringEscapeUtils.escapeHtml(chartNoVal)%>">
+				<td align="right" nowrap>
+					<b>Patient Status Date:</b>
+				</td>
+				<td align="left">
+					<input type="text"
+							name="patient_status_date" id="patient_status_date"
+							value="<%=today %>" size="12"> <img
+							src="../images/cal.gif" id="patient_status_date_cal">(yyyy-mm-dd)
 				</td>
 			</tr>
 			
@@ -1888,6 +1902,7 @@ if(oscarVariables.getProperty("demographicExtJScript") != null) { out.println(os
 
 <script type="text/javascript">
 Calendar.setup({ inputField : "waiting_list_referral_date", ifFormat : "%Y-%m-%d", showsTime :false, button : "referral_date_cal", singleClick : true, step : 1 });
+Calendar.setup({ inputField : "patient_status_date", ifFormat : "%Y-%m-%d", showsTime :false, button : "patient_status_date_cal", singleClick : true, step : 1 });
 
 <%
 if (privateConsentEnabled) {
