@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.log4j.Logger;
 import org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorManager;
@@ -278,7 +279,16 @@ public class PreventionData {
 				h.put("refused", prevention.isRefused() ? "1" : prevention.isIneligible() ? "2" : prevention.isCompletedExternally() ? "3" : "0");
 				h.put("type", prevention.getPreventionType());
 				h.put("provider_no", prevention.getProviderNo());
-				h.put("provider_name", ProviderData.getProviderName(prevention.getProviderNo()));
+				if(!StringUtils.isEmpty(prevention.getProviderNo())) {
+					if("-1".equals(prevention.getProviderNo())) {
+						prevention.setPreventionExtendedProperties();
+						h.put("provider_name", prevention.getPreventionExtendedProperties().get("providerName"));
+					} else {
+						h.put("provider_name", ProviderData.getProviderName(prevention.getProviderNo()));
+					}
+				}
+				
+				
 
 				Date pDate = prevention.getPreventionDate();
 				h.put("prevention_date", blankIfNull(UtilDateUtilities.DateToString(pDate, "yyyy-MM-dd HH:mm")));
