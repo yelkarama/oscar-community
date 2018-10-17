@@ -74,7 +74,7 @@ public class DigitalSignatureUtils {
 			UserProperty signatureProperty = userPropertyDao.getProp(loggedInInfo.getLoggedInProviderNo(), UserProperty.PROVIDER_CONSULT_SIGNATURE);
 			if (signatureProperty != null) {
 				String filepath = OscarProperties.getInstance().getProperty("eform_image");
-				String filename = filepath + signatureProperty.getValue();
+				String filename = filepath + (!filepath.endsWith("/") ? "/" : "") +  signatureProperty.getValue();
 				
 				digitalSignature = saveSignature(loggedInInfo, filename, demographicId);
 			}
