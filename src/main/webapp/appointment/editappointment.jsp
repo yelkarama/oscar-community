@@ -958,7 +958,7 @@ if (bMultisites) { %>
 			value="<bean:message key="appointment.editappointment.btnDeleteAppointment"/>">
 		
 		<input type="submit" class="rightButton blueButton top" id="updateCancelButton"
-			onclick="document.forms['EDITAPPT'].displaymode.value='Update Appt'; onButUpdate();"
+			onclick="document.forms['EDITAPPT'].displaymode.value='Update Appt'; onButUpdateCancel();"
 			value="Update and Cancel">
 			
 		<input type="button" name="buttoncancel" id="cancelButton"
