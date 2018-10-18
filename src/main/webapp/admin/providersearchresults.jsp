@@ -98,6 +98,8 @@
 			}
 		}
 		
+		String groupProvidersOnly = request.getParameter("search_group_only");
+		
 		int offset = Integer.parseInt(strOffset);
 		int limit = Integer.parseInt(strLimit);
 %>
@@ -129,7 +131,13 @@
 			<bean:message key="admin.providersearch.formActiveStatus" /><br />
 		<input type="checkbox" name="search_status" value="0"
 			<%=request.getParameter("search_status")!=null?(request.getParameter("search_status").equals("0")?"checked":""):""%>>
-			<bean:message key="admin.providersearch.formInactiveStatus" /> </font></td>
+			<bean:message key="admin.providersearch.formInactiveStatus" /> 
+		<br />
+		<input type="checkbox" name="search_group_only" value="0"
+			<%=request.getParameter("search_group_only")!=null?(request.getParameter("search_group_only").equals("0")?"checked":""):""%>>
+			Group Providers Only
+			
+			</font></td>
 		<td valign="middle" rowspan="2" ALIGN="left"><input type="text"
 			NAME="keyword" SIZE="17" MAXLENGTH="100"> <INPUT
 			TYPE="hidden" NAME="orderby" VALUE="last_name"> <INPUT
@@ -178,7 +186,7 @@
 	ProviderDataDao providerDao = SpringUtils.getBean(ProviderDataDao.class);
 	
 	if(searchMode.equals("search_name")) {
-		providerList = providerDao.findByProviderName(keyword, searchStatus, limit, offset);
+		providerList = providerDao.findByProviderName(keyword, searchStatus, groupProvidersOnly,limit, offset);
 	}
 	else if(searchMode.equals("search_providerno")) {
 		providerList = providerDao.findByProviderNo(keyword, searchStatus, limit, offset);

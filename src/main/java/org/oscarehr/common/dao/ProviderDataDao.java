@@ -96,9 +96,15 @@ public class ProviderDataDao extends AbstractDao<ProviderData> {
 	}
 
 	public  List<ProviderData> findByProviderName(String searchStr, String status, int limit, int offset) {
+		return findByProviderName(searchStr,status,null,limit,offset);
+	}
+	
+	public  List<ProviderData> findByProviderName(String searchStr, String status, String groupOnly, int limit, int offset) {
 		
-		String queryString = "From ProviderData p where p.lastName like :lastName ";
-		
+		String queryString = "SELECT p From ProviderData p where  p.lastName like :lastName ";
+		if(groupOnly != null && "0".equals(groupOnly)) {
+			queryString = "SELECT p From ProviderData p , UserProperty x where x.providerNo = p.id AND x.name = 'groupModule' AND x.value='true' AND p.lastName like :lastName ";
+		}
 
 		String[] name = searchStr.split(",");
 		if(name.length==2)
@@ -106,6 +112,7 @@ public class ProviderDataDao extends AbstractDao<ProviderData> {
 
 		if(status != null) 
 			queryString += " and p.status = :status ";
+			
 		
 		Query query = entityManager.createQuery(queryString);
 		query.setFirstResult(offset);

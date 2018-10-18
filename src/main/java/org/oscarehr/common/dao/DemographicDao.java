@@ -2437,4 +2437,35 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 	}
 
 	
+	public Integer searchForDuplicate(String lastName, String firstName, String dob, String gender) {
+		
+		if(dob==null) {
+			logger.warn("no DOB passed");
+			return -1;
+		}
+		String[] dobParts = dob.split("-");
+		
+		if(dobParts.length!=3) {
+			logger.warn("invalid DOB passed");
+			return -1;
+		}
+		
+		String demographicQuery = "select count(*) from demographic d where d.last_name = :lastName AND d.first_name = :firstName AND d.year_of_birth = :yearOfBirth AND d.month_of_birth = :monthOfBirth AND d.date_of_birth = :dateOfBirth AND d.sex = :sex";
+		 
+		Session session = getSession();
+		try {
+			SQLQuery sqlQuery = session.createSQLQuery(demographicQuery);
+			sqlQuery.setParameter("lastName", lastName);
+			sqlQuery.setParameter("firstName", firstName);
+			sqlQuery.setParameter("yearOfBirth", dobParts[0]);
+			sqlQuery.setParameter("monthOfBirth", dobParts[1]);
+			sqlQuery.setParameter("dateOfBirth", dobParts[2]);
+			sqlQuery.setParameter("sex", gender);
+			
+			Integer result = ((BigInteger)sqlQuery.uniqueResult()).intValue();
+			return result;
+		} finally {
+			this.releaseSession(session);
+		}
+	}
 }
