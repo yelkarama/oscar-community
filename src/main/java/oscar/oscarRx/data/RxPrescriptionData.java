@@ -245,6 +245,18 @@ public class RxPrescriptionData {
 
 		return lst.toArray(new Prescription[lst.size()]);
 	}
+	
+	public Prescription[] getPrescriptionsByPatientForExport(int demographicNo) {
+		List<Prescription> lst = new ArrayList<Prescription>();
+
+		DrugDao dao = SpringUtils.getBean(DrugDao.class);
+		for (Drug drug : dao.findByDemographicIdOrderByPositionForExport(demographicNo, false)) {
+			Prescription p = toPrescription(drug, demographicNo);
+			lst.add(p);
+		}
+
+		return lst.toArray(new Prescription[lst.size()]);
+	}
 
 	public Prescription toPrescription(Drug drug, int demographicNo) {
 		Prescription p = new Prescription(drug.getId(), drug.getProviderNo(), demographicNo);
