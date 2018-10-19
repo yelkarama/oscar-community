@@ -26,6 +26,7 @@ package org.oscarehr.common.web;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -67,6 +68,86 @@ public class DemographicAction extends DispatchAction  {
 	
 	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 	private ProviderManager providerManager = SpringUtils.getBean(ProviderManager.class);
+	
+	public ActionForward saveCreatePatient(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)  {
+		String lastName = request.getParameter("lastName");
+		String firstName = request.getParameter("firstName");
+		String dob = request.getParameter("dob");
+		String gender = request.getParameter("gender");
+		
+		
+		Demographic demographic = new Demographic();
+		demographic.setLastName(lastName);
+		demographic.setFirstName(firstName);
+		demographic.setSex(gender);
+		
+		String[] dobParts = dob.split("-");
+		
+		demographic.setYearOfBirth(dobParts[0]);
+		demographic.setMonthOfBirth(dobParts[1]);
+		demographic.setDateOfBirth(dobParts[2]);
+		demographic.setProvince("ON");
+		demographic.setPatientStatus("AC");
+		demographic.setDateJoined(new Date());
+		demographic.setHin("");
+		demographic.setVer("");
+		demographic.setOfficialLanguage("English");
+		demographic.setHcType("ON");
+		demographic.setFamilyDoctor("<rdohip></rdohip><rd></rd>");
+		demographic.setSin("");
+		demographic.setCountryOfOrigin("-1");
+		demographic.setNewsletter("Unknown");
+		demographic.setLastUpdateDate(new Date());
+		demographic.setLastUpdateUser(LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo());
+		demographic.setTitle("");
+		demographic.setAddress("");
+		demographic.setCity("");
+		demographic.setPostal("");
+		demographic.setPhone("");
+		demographic.setPhone2("");
+		demographic.setEmail("");
+		
+		demographicDao.save(demographic);
+		
+		JSONObject result = new JSONObject();
+		result.put("demographicNo", demographic.getDemographicNo());
+	
+        try {
+            JSONObject json = JSONObject.fromObject(result);
+            json.write(response.getWriter());
+        }catch (IOException e) {        
+        	log.error(e.getMessage(), e);
+        }
+        
+        return null;
+	}
+	
+	public ActionForward checkForDuplicatesWithGender(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)  {
+	
+		String lastName = request.getParameter("lastName");
+		String firstName = request.getParameter("firstName");
+		String dob = request.getParameter("dob");
+		String gender = request.getParameter("gender");
+		
+		
+		int count = demographicDao.searchForDuplicate(lastName,firstName,dob,gender);
+		
+		
+		JSONObject result = new JSONObject();
+		result.put("hasDuplicates", false);
+		if(count>0) {
+			result.put("hasDuplicates", true);
+		}
+		
+        try {
+            JSONObject json = JSONObject.fromObject(result);
+            json.write(response.getWriter());
+        }catch (IOException e) {        
+        	log.error(e.getMessage(), e);
+        }
+        
+        return null;
+	}
 	
 	
 	public ActionForward getAddressAndPhoneHistoryAsJson(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) 

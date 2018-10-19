@@ -678,6 +678,91 @@ UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 			jQuery("#dropInCheckbox").prop("checked", !jQuery("#dropInCheckbox").prop("checked"));
 		}
 	}
+	
+	function createAndAdd() {
+		var createLastName = jQuery("#createLastName").val();
+		var createFirstName = jQuery("#createFirstName").val();
+		var createDOB = jQuery("#createDOB").val();
+		var createGender = jQuery("#createGender").val();
+		var error = '';
+		
+		if(createLastName.length == 0) {
+			error += 'Last Name is required\n';
+		}
+		if(createFirstName.length == 0) {
+			error += 'First Name is required\n';
+		}
+		if(createDOB.length == 0) {
+			error += 'DOB is required\n';
+		}
+		if(createDOB.length > 0) {
+			var x = /^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$/;
+			if(!x.test(createDOB)) {
+				error += 'DOB is invalid. Use yyyy-mm-dd\n';
+			};
+		} 
+		
+		if(createGender.length == 0) {
+			error += 'Gender is required\n';
+		}
+		createGender = createGender.toUpperCase();
+		
+		if(createGender.length > 0 && (createGender != 'M' && createGender != 'F'  && createGender != 'T' && createGender != 'O' && createGender != 'U')) {
+			error += 'Gender is invalid and must be either M,F,T,O,U\n';
+		}
+		
+		if(error.length>0) {
+			alert(error.trim());
+			return false;
+		} 
+		
+		//do a check for the patient
+		jQuery.ajax({
+	        type: "POST",
+	        url:  '../demographicSupport.do',
+	        data: 'method=checkForDuplicatesWithGender&lastName='+createLastName+'&firstName='+createFirstName+'&dob='+createDOB+'&gender='+createGender,
+	        dataType: 'json',
+	        success: function (data) {
+	        	if(data.hasDuplicates) {
+	        		if(confirm("There is already a patient in the system with matching information. Are you sure you want to continue?")) {
+	        			//
+	        			saveCreatePatientAndAdd();
+	        		}
+	        	} else {
+	        		//
+	        		saveCreatePatientAndAdd();
+	        	}
+	        }
+		});
+		
+		return true;
+	}
+	
+	function saveCreatePatientAndAdd() {
+		var createLastName = jQuery("#createLastName").val();
+		var createFirstName = jQuery("#createFirstName").val();
+		var createDOB = jQuery("#createDOB").val();
+		var createGender = jQuery("#createGender").val();
+	
+		jQuery.ajax({
+	        type: "POST",
+	        url:  '../demographicSupport.do',
+	        data: 'method=saveCreatePatient&lastName='+createLastName+'&firstName='+createFirstName+'&dob='+createDOB+'&gender='+createGender,
+	        dataType: 'json',
+	        success: function (data) {
+	        	var demo = data.demographicNo;
+	        	
+	        	jQuery("#createLastName").val('');
+	        	jQuery("#createFirstName").val('');
+	        	jQuery("#createDOB").val('');
+	        	jQuery("#createGender").val('');
+	        	
+	        	addDemographicToSession(demo);
+	        	
+	        }
+		});
+		
+	}
 	</script>
 </head>
 
@@ -940,6 +1025,15 @@ UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 			</tr>
 			<tr>
 				<td colspan="2">Add new participant: <input type="hidden" name="demographic_no" id="demographic_no" value="" /><input type="text" name="demo" id="demo" size="35"/></td>
+			</tr>
+			
+			<tr>
+				<td>
+				Create And Add: 
+				<input type="text" name="createLastName" id="createLastName" placeholder="Last Name"/>&nbsp;<input type="text" name="createFirstName" id="createFirstName" placeholder="First Name"/>&nbsp;
+				<input type="text" name="createDOB" id="createDOB" placeholder="DOB (yyyy-mm-dd)"/>&nbsp;<input type="text" name="createGender" id="createGender" placeholder="Gender" size="2"/>&nbsp;
+				<input type="button" value="Save/Add" onClick="createAndAdd()"/>
+				</td>
 			</tr>
 			<tr>
 				<td colspan="2">Transfer participant(s) to:
