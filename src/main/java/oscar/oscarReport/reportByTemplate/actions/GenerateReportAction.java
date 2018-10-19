@@ -85,7 +85,7 @@ public class GenerateReportAction extends Action {
     	if(!entries.isEmpty()) {
     		boolean deny=false;
         	for(Secobjprivilege entry: entries) {
-        		if(entry.getPrivilege_code().equals("r") || entry.getPrivilege_code().equals("w") || entry.getPrivilege_code().equals("x")) {
+        		if(entry.getPrivilege_code().indexOf("r") != -1 || entry.getPrivilege_code().indexOf("w") != -1 || entry.getPrivilege_code().indexOf("x") != -1) {
         			deny=false;
         			return;
         		}
