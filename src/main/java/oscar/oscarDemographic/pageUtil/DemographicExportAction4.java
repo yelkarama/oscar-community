@@ -486,10 +486,11 @@ public class DemographicExportAction4 extends Action {
 					pns.setLastName(p.getLastName());
 					etp.setOHIPPhysicianId(p.getOhipNo());
 					
-					ehx.setEnrollmentDate(toCal(enrolment.date));
-						
+					ehx.setEnrollmentDate(Util.calDate(enrolment.date));
+					
+					
 					if(enrolment.terminationDate != null) {
-						ehx.setEnrollmentTerminationDate(toCal(enrolment.terminationDate));
+						ehx.setEnrollmentTerminationDate(Util.calDate(enrolment.terminationDate));
 						ehx.setTerminationReason(cdsDt.TerminationReasonCode.Enum.forString(enrolment.terminationReason));
 						ehx.setEnrollmentStatus(EnrollmentStatus.X_0);
 					} else {
@@ -2991,11 +2992,6 @@ public class DemographicExportAction4 extends Action {
 		return p.getFirstName() + "_" + p.getLastName() + "_" + p.getOhipNo();
 	}
 
-	private Calendar toCal(Date d) {
-		Calendar c = Calendar.getInstance();
-		c.setTime(d);
-		return c;
-	}
 }
 
 class Enrolment {

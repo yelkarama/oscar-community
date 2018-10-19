@@ -92,6 +92,13 @@ com.quatro.service.security.SecurityManager securityManager = new com.quatro.ser
 </style>
 <script type="text/javascript">
 
+function checkIntolerance() {
+	var nonDrug = $("#nonDrug").is(":checked");
+	if(!nonDrug) {
+		$("#intolerance").attr("checked",false);
+	}
+}
+
 function submitSearchForm() {
 	$("#searchStringButton").click();
 	return false;
@@ -582,7 +589,7 @@ for(org.oscarehr.common.model.Allergy allergy : patient.getAllergies(LoggedInInf
 							<td><%=entryDate==null ? "" : entryDate %></td>
 							<td <%=title%> ><%=allergy.getDescription() %></td>
 							<td><%=allergy.getTypeDesc() %></td>
-							<td><%=allergy.isIntolerance() ? "Yes" : "No" %></td>
+							<td><%=allergy.isIntolerance() ? "*" : "" %></td>
 							<td><%=allergy.isNonDrug() ? "*" : "" %></td>
 							<td bgcolor="<%=sevColour%>"><%=allergy.getSeverityOfReactionDesc() %></td>
 							<td><%=allergy.getOnSetOfReactionDesc() %></td>

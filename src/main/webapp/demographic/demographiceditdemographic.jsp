@@ -1512,7 +1512,7 @@ if(oscarProps.getProperty("new_label_print") != null && oscarProps.getProperty("
                                                         <span class="info"><%=demographic.getFirstName()%></span>
 							</li>
 							   <li><span class="label"><bean:message
-                                                            key="demographic.demographiceditdemographic.formMiddleName" />:</span>
+                                                            key="demographic.demographiceditdemographic.formMiddleNames" />:</span>
                                                         <span class="info"><%=demographic.getMiddleNames()%></span>
                                                     </li>
                                                     <li><span class="label"><bean:message key="demographic.demographiceditdemographic.msgDemoTitle"/>:</span>
@@ -2281,7 +2281,7 @@ if ( Dead.equals(PatStat) ) {%>
                                                     <li><span class="label">
 							<% if(oscarProps.getProperty("demographicLabelDoctor") != null) { out.print(oscarProps.getProperty("demographicLabelDoctor","")); } else { %>
 							<bean:message
-								key="demographic.demographiceditdemographic.formDoctor" />
+								key="demographic.demographiceditdemographic.formMRP" />
                                                     <% } %>:</span><span class="info">
                                                     <%if(demographic != null && demographic.getProviderNo() != null){%>	
                                                            <%=providerBean.getProperty(demographic.getProviderNo(),"")%>
@@ -3053,7 +3053,7 @@ if ( Dead.equals(PatStat) ) {%>
 								<td align="right" nowrap><b>
 								<% if(oscarProps.getProperty("demographicLabelDoctor") != null) { out.print(oscarProps.getProperty("demographicLabelDoctor","")); } else { %>
 								<bean:message
-									key="demographic.demographiceditdemographic.formDoctor" />
+									key="demographic.demographiceditdemographic.formMRP" />
 								<% } %>: </b></td>
 								<td align="left"><select name="provider_no" <%=getDisabled("provider_no")%>
 									style="width: 200px">
