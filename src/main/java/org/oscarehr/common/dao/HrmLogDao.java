@@ -27,22 +27,33 @@ import java.util.List;
 
 import javax.persistence.Query;
 
-import org.oscarehr.common.model.OscarJob;
-import org.oscarehr.common.model.OscarJobType;
+import org.oscarehr.common.model.HrmLog;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class OscarJobDao extends AbstractDao<OscarJob> {
+public class HrmLogDao  extends AbstractDao<HrmLog> {
 
-	public OscarJobDao() {
-		super(OscarJob.class);
+	public HrmLogDao() {
+		super(HrmLog.class);
 	}
 	
 	@SuppressWarnings("unchecked")
-    public List<OscarJob> findByType(OscarJobType oscarJobType) {
-		Query query = entityManager.createQuery("FROM OscarJob d WHERE d.oscarJobType = :oscarJobType");
-		query.setParameter("oscarJobType", oscarJobType);
+    public List<HrmLog> query(int start, int length, String orderColumn, String orderDirection, String providerNo) {
+		
+		String sql = "FROM HrmLog d ";
+		
+		if(providerNo != null) {
+			sql += " WHERE d.initiatingProviderNo = ?1";
+		}
+		Query query = entityManager.createQuery(sql + " order by d."+orderColumn+" " + orderDirection);
+		
+		if(providerNo != null) {
+			query.setParameter(1, providerNo);
+		}
+		query.setFirstResult(start);
+		query.setMaxResults(length);
 		
 	    return query.getResultList();
     }
+	
 }

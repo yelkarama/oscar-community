@@ -2237,7 +2237,7 @@ import oscar.util.UtilDateUtilities;
                             if (obr[j].getAccompanyingMnemonic()!=null) hrmDocSc.setSubClassMnemonic(obr[j].getAccompanyingMnemonic());
                             if (obr[j].getObservationDateTime()!=null) hrmDocSc.setSubClassDateTime(dateTimeFPtoDate(obr[j].getObservationDateTime(), timeShiftInDays));
                             hrmDocSc.setHrmDocumentId(hrmDoc.getId());
-                            hrmDocSc.setActive(true);
+                            hrmDocSc.setActive(j == 0 ? true: false);
                             hrmDocSubClassDao.persist(hrmDocSc);
                         }
                         HRMreports.clear();

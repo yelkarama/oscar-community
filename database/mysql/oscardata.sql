@@ -2906,3 +2906,9 @@ INSERT INTO `tickler_category` VALUES (\N, 'To Call In', 'Call this patient in f
 
 insert into `secObjectName` (`objectName`, `description`, `orgapplicable`) values ('_admin.schedule.curprovider_only','allow provider with non-admin role to create schedule templates and assign to themselves', 0);
 
+insert into secObjectName values ('_admin.hrm',NULL,0);
+insert into secObjectName values ('_hrm.administrator',NULL,0);
+insert into secObjPrivilege values('admin','_admin.hrm','x',0,'999998');
+insert into secRole values(\N,'HRMAdmin','HRM Administator');
+insert into secObjPrivilege values('HRMAdmin','_hrm.administrator','x',0,'999998');
+
