@@ -57,8 +57,12 @@ public final class RxAddAllergyAction extends Action {
 		if (!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_allergy", "w", null)) {
 			throw new RuntimeException("missing required security object (_allergy)");
 		}
-    	
-            int id = Integer.parseInt(request.getParameter("ID"));
+
+		    String drugId = request.getParameter("ID");
+            if (drugId.contains(" ")) {
+                drugId = drugId.substring(drugId.indexOf(" ") + 1);
+            }
+            int id = Integer.parseInt(drugId);
 
             String name = request.getParameter("name");
             String type = request.getParameter("type");
