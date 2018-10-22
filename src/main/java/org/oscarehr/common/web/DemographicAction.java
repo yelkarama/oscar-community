@@ -45,6 +45,7 @@ import org.oscarehr.common.model.DemographicArchive;
 import org.oscarehr.common.model.DemographicExtArchive;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
+import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
 import net.sf.json.JSONArray;
@@ -78,7 +79,7 @@ public class DemographicAction extends DispatchAction  {
 			String theString = IOUtils.toString(in, "UTF-8");
 			obj = new org.codehaus.jettison.json.JSONObject(theString);
 		}catch(Exception e) {
-			e.printStackTrace();
+			MiscUtils.getLogger().warn("Warning", e);
 		}
 		
 		if(obj != null) {	
@@ -126,7 +127,7 @@ public class DemographicAction extends DispatchAction  {
 			String theString = IOUtils.toString(in, "UTF-8");
 			obj = new org.codehaus.jettison.json.JSONObject(theString);
 		}catch(Exception e) {
-			e.printStackTrace();
+			MiscUtils.getLogger().warn("Warning", e);
 		}
 		
 		if(obj != null) {
