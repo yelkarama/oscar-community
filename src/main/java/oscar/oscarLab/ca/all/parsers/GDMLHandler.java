@@ -379,6 +379,7 @@ public class GDMLHandler implements MessageHandler {
     /**
      *  Methods to get information from observation notes
      */
+/*
     public int getOBXCommentCount(int i, int j){
         int count = 0;
         try{
@@ -414,6 +415,27 @@ public class GDMLHandler implements MessageHandler {
         }
         return getString(comment).replaceAll("\\\\\\.br\\\\", "<br />");
     }
+  */  
+    public int getOBXCommentCount(int i, int j){
+        try {
+            if ( !getOBXComment(i, j, 0).equals("") ){
+                return(1);
+            }else{
+                return(0);
+            }
+        } catch (Exception e) {
+            return(0);
+        }
+    }
+
+    public String getOBXComment(int i, int j, int k){
+        try {
+            return(getString(msg.getRESPONSE(0).getORDER_OBSERVATION(i).getOBSERVATION(j).getNTE(k).getComment(0).getValue()));
+        } catch (Exception e) {
+            return("");
+        }
+    }
+
 
 
     /**

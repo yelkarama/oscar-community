@@ -41,10 +41,12 @@ import org.oscarehr.PMmodule.caisi_integrator.IntegratorFallBackManager;
 import org.oscarehr.PMmodule.caisi_integrator.RemotePreventionHelper;
 import org.oscarehr.caisi_integrator.ws.CachedDemographicPrevention;
 import org.oscarehr.caisi_integrator.ws.CachedFacility;
+import org.oscarehr.common.dao.PartialDateDao;
 import org.oscarehr.common.dao.PreventionDao;
 import org.oscarehr.common.dao.PreventionExtDao;
 import org.oscarehr.common.model.DHIRSubmissionLog;
 import org.oscarehr.common.model.Demographic;
+import org.oscarehr.common.model.PartialDate;
 import org.oscarehr.common.model.Prevention;
 import org.oscarehr.common.model.PreventionExt;
 import org.oscarehr.managers.DHIRSubmissionManager;
@@ -62,7 +64,7 @@ public class PreventionData {
 	private static Logger log = MiscUtils.getLogger();
 	private static PreventionDao preventionDao = (PreventionDao) SpringUtils.getBean("preventionDao");
 	private static PreventionExtDao preventionExtDao = (PreventionExtDao) SpringUtils.getBean("preventionExtDao");
-
+	private static PartialDateDao partialDateDao = SpringUtils.getBean(PartialDateDao.class);
 	private PreventionData() {
 		// prevent instantiation
 	}
@@ -79,13 +81,37 @@ public class PreventionData {
 		return ret;
 		
 	}
+	
+	private static PartialDate setPreventionDate(Prevention prevention, String date) {
+		PartialDate pd = null;
+		if(date.length() == 4) {
+			pd = new PartialDate();
+			pd.setTableName(PartialDate.PREVENTION);
+			pd.setTableId(prevention.getId());
+			pd.setFieldName(PartialDate.PREVENTION_PREVENTIONDATE);
+			pd.setFormat("YYYY");
+			//partialDateDao.persist(pd);
+			date = date + "-01-01 00:00";
+		} else if(date.length() == 7) {
+			pd = new PartialDate();
+			pd.setTableName(PartialDate.PREVENTION);
+			pd.setTableId(prevention.getId());
+			pd.setFieldName(PartialDate.PREVENTION_PREVENTIONDATE);
+			pd.setFormat("YYYY-MM");
+			//partialDateDao.persist(pd);
+			date = date + "-01 00:00";
+		}
+		prevention.setPreventionDate(stringToDate(date));
+		return pd;
+	}
+	
 	public static Integer insertPreventionData(String creator, String demoNo, String date, String providerNo, String providerName, String preventionType, String refused, String nextDate, String neverWarn, ArrayList<Map<String, String>> list, String snomedId, String din) {
 		Integer insertId = -1;
 		try {
 			Prevention prevention = new Prevention();
 			prevention.setCreatorProviderNo(creator);
 			prevention.setDemographicId(Integer.valueOf(demoNo));
-			prevention.setPreventionDate(stringToDate(date));
+			PartialDate pd = setPreventionDate(prevention,date);
 			prevention.setProviderNo(providerNo);
 			prevention.setPreventionType(preventionType);
 			prevention.setNextDate(UtilDateUtilities.StringToDate(nextDate, "yyyy-MM-dd"));
@@ -95,6 +121,10 @@ public class PreventionData {
 			else if (refused.trim().equals("3")) prevention.setCompletedExternally(true);
 			prevention.setSnomedId(snomedId);
 			preventionDao.persist(prevention);
+			if(pd != null) {
+				pd.setTableId(prevention.getId());
+				partialDateDao.persist(pd);
+			}
 			if (prevention.getId() == null) return insertId;
 
 			insertId = prevention.getId();
@@ -291,10 +321,18 @@ public class PreventionData {
 				
 
 				Date pDate = prevention.getPreventionDate();
-				h.put("prevention_date", blankIfNull(UtilDateUtilities.DateToString(pDate, "yyyy-MM-dd HH:mm")));
-				h.put("prevention_date_asDate", pDate);
-				h.put("prevention_date_no_time", blankIfNull(UtilDateUtilities.DateToString(pDate, "yyyy-MM-dd")));
+				String d1 = UtilDateUtilities.DateToString(pDate, "yyyy-MM-dd HH:mm");
+				String d2 = UtilDateUtilities.DateToString(pDate, "yyyy-MM-dd");
 				
+				d1 = partialDateDao.getDatePartial(d1, PartialDate.PREVENTION,  prevention.getId(), PartialDate.PREVENTION_PREVENTIONDATE);
+				d2 = partialDateDao.getDatePartial(d2, PartialDate.PREVENTION,  prevention.getId(), PartialDate.PREVENTION_PREVENTIONDATE);
+			     
+				
+				h.put("prevention_date", blankIfNull(d1));
+				h.put("prevention_date_asDate", pDate);
+				h.put("prevention_date_no_time", blankIfNull(d2));
+				
+				h.put("comments", "");
 				String age = "N/A";
 				if (pDate != null) {
 					age = UtilDateUtilities.calcAgeAtDate(dob, pDate);

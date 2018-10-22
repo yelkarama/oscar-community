@@ -24,6 +24,7 @@
 
 --%>
 
+<%@page import="org.oscarehr.common.model.PartialDate"%>
 <%@page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%@page import="org.oscarehr.casemgmt.web.PrescriptDrug"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
@@ -78,6 +79,8 @@
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 	com.quatro.service.security.SecurityManager securityManager = new com.quatro.service.security.SecurityManager();
 	oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean) pageContext.findAttribute("bean");
+	PartialDateDao partialDateDao = SpringUtils.getBean(PartialDateDao.class);
+	
 	boolean showall = false;
 	if (request.getParameter("show") != null) {
 	    if (request.getParameter("show").equals("all")) {
@@ -200,8 +203,11 @@ if (heading != null){
             <td valign="top">
             	<% if(startDateUnknown) { %>
             		
-            	<% } else { %>
-            		<a id="rxDate_<%=prescriptIdInt%>"   <%=styleColor%> href="StaticScript2.jsp?regionalIdentifier=<%=prescriptDrug.getRegionalIdentifier()%>&amp;cn=<%=response.encodeURL(prescriptDrug.getCustomName())%>&amp;bn=<%=response.encodeURL(bn)%>"><%=oscar.util.UtilDateUtilities.DateToString(prescriptDrug.getRxDate())%></a>
+            	<% } else { 
+            		String startDate = oscar.util.UtilDateUtilities.DateToString(prescriptDrug.getRxDate());
+            		startDate = partialDateDao.getDatePartial(startDate, PartialDate.DRUGS,  prescriptDrug.getId(), PartialDate.DRUGS_STARTDATE);
+            	%>
+            		<a id="rxDate_<%=prescriptIdInt%>"   <%=styleColor%> href="StaticScript2.jsp?regionalIdentifier=<%=prescriptDrug.getRegionalIdentifier()%>&amp;cn=<%=response.encodeURL(prescriptDrug.getCustomName())%>&amp;bn=<%=response.encodeURL(bn)%>"><%=startDate%></a>
             	<% } %>
             </td>
             <td valign="top">

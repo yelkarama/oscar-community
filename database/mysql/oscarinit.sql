@@ -767,7 +767,7 @@ CREATE TABLE drugs (
   hide_from_drug_profile tinyint(1) default '0',
   eTreatmentType varchar(20),
   rxStatus varchar(20),
-  dispense_interval int(10),
+  dispense_interval varchar(100),
   refill_duration int(10),
   refill_quantity int(10),
   hide_cpp tinyint(1),
@@ -777,6 +777,7 @@ CREATE TABLE drugs (
   lastUpdateDate datetime not null,
   dispenseInternal tinyint(1) not null,
   protocol varchar(255),
+  priorRxProtocol varchar(255),
   PRIMARY KEY  (drugid)
 ) ;
 
