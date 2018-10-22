@@ -44,6 +44,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -68,6 +69,7 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.upload.FormFile;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
+import org.codehaus.jettison.json.JSONObject;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.PMmodule.model.Program;
 import org.oscarehr.PMmodule.model.ProgramProvider;
@@ -2752,12 +2754,96 @@ import oscar.util.UtilDateUtilities;
 		return f.format(c.getTime());
 	}
 
+	
+	Map<String,List<JSONObject>> map = null;
+	
+	boolean verifyISO3661(String value) {
+		if(map == null) {
+			JSONObject obj = null;
+			try {
+				InputStream  in = getClass().getClassLoader()
+	                    .getResourceAsStream("iso-3166-2.json");
+				String theString = IOUtils.toString(in, "UTF-8");
+				obj = new org.codehaus.jettison.json.JSONObject(theString);
+			}catch(Exception e) {
+				MiscUtils.getLogger().error("Error",e);
+				return false;
+			}
+			
+			map = new HashMap<String,List<JSONObject>>();
+			try {
+				if(obj != null) {				
+					Iterator iter =  obj.keys();
+					while(iter.hasNext()) {
+						String countryCode = (String)iter.next();
+						//String countryName = ((org.codehaus.jettison.json.JSONObject)obj.get(countryCode)).getString("name");
+						//org.codehaus.jettison.json.JSONObject divisions = ((org.codehaus.jettison.json.JSONObject)obj.get(countryCode)).get("divisions");
+						JSONObject divisions = obj.getJSONObject(countryCode).getJSONObject("divisions");
+						Iterator iter2 =  divisions.keys();
+						List<JSONObject> rList = new ArrayList<JSONObject>();
+						while(iter2.hasNext()) {
+							String divisionCode = (String)iter2.next();
+							String divisionName = divisions.getString(divisionCode);
+							org.codehaus.jettison.json.JSONObject r = new org.codehaus.jettison.json.JSONObject();
+							r.put("value", divisionCode);
+							r.put("label", divisionName);
+							rList.add(r);
+						}
+						map.put(countryCode,rList);
+					}
+				}
+			}catch(Exception e) {
+				MiscUtils.getLogger().error("Error",e);
+				return false;
+			}
+		}
+		
+		if(map == null) {
+			return false;
+		}
+		
+		String[] csdc = value.split("-");
+		
+		if(csdc.length == 2) {
+			String country = csdc[0];
+		//	String province = csdc[1];
+			
+			List<JSONObject> divisions = 
+					map.get(country);
+			
+			if(divisions == null) {
+				return false;
+			}
+			
+			for(JSONObject rI : divisions) {
+				try {
+					if(rI.has("value") && value.equals(rI.getString("value"))) {
+						return true;
+					}
+				}catch(Exception e) {
+					MiscUtils.getLogger().error("Error",e);
+				}
+			}
+		} else {
+			return false;
+		}
+		
+		return false;
+		
+	}
 	String getCountrySubDivCode(String countrySubDivCode) {
 		if (StringUtils.empty(countrySubDivCode)) return "";
+		
+		
+		//use full ISO 3661-2
+		if(!verifyISO3661(countrySubDivCode)) {
+			return "OT";
+		}
+		
 		String[] csdc = countrySubDivCode.split("-");
 		if (csdc.length==2) {
 			if (csdc[0].trim().equals("CA")) return csdc[1].trim(); //return w/o "CA-"
-			if (csdc[0].trim().equals("US")) return countrySubDivCode.trim(); //return w/ "US-"
+			return countrySubDivCode;
 		}
 		return "OT"; //Other
 	}

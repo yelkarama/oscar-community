@@ -23,6 +23,9 @@
     Ontario, Canada
 
 --%>
+<%@page import="org.codehaus.jettison.json.JSONObject"%>
+<%@page import="org.apache.commons.io.IOUtils"%>
+<%@page import="java.io.InputStream"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="java.util.Date"%>
 <%@page import="org.oscarehr.managers.LookupListManager"%>
@@ -615,6 +618,75 @@ function consentClearBtn(radioBtnName)
 
 	}
 }
+
+<%
+if("true".equals(OscarProperties.getInstance().getProperty("iso3166.2.enabled","false"))) { 	
+%>
+jQuery(document).ready(function(){
+	
+	jQuery("#country").bind('change',function(){
+		updateProvinces('');
+	});
+	
+    jQuery.ajax({
+        type: "POST",
+        url:  '../demographicSupport.do',
+        data: 'method=getCountryAndProvinceCodes',
+        dataType: 'json',
+        success: function (data) {
+        	jQuery.each(data, function(i, value) {
+                 jQuery('#country').append(jQuery('<option>').text(value.label).attr('value', value.value));
+             });
+        	
+        	var defaultProvince = '<%=OscarProperties.getInstance().getProperty("demographic.default_province","")%>';
+        	var defaultCountry = '';
+        	
+        	if(defaultProvince == '' && defaultCountry == '') {
+        		defaultProvince = 'CA-ON';
+        	}
+        	defaultCountry = defaultProvince.substring(0,defaultProvince.indexOf('-'));
+        	
+        	jQuery("#country").val(defaultCountry);
+        	
+        	updateProvinces(defaultProvince);
+        	
+        }
+	});
+    
+	
+	
+});
+
+
+function updateProvinces(province) {
+	var country = jQuery("#country").val();
+	
+	console.log('country=' + country);
+	
+	jQuery.ajax({
+        type: "POST",
+        url:  '../demographicSupport.do',
+        data: 'method=getCountryAndProvinceCodes&country=' + country,
+        dataType: 'json',
+        success: function (data) {
+        	jQuery('#province').empty();
+        	 
+        	jQuery.each(data, function(i, value) {
+                 jQuery('#province').append(jQuery('<option>').text(value.label).attr('value', value.value));
+             });
+        	
+        	
+        	if(province != null) {
+        		jQuery("#province").val(province);
+        	}
+        	
+        	
+        }
+	});
+}
+<% }  %>
+
+
 </script>
 </head>
 <!-- Databases have alias for today. It is not necessary give the current date -->
@@ -799,6 +871,14 @@ function consentClearBtn(radioBtnName)
           			out.print(oscarProps.getProperty("demographicLabelProvince"));
       	 		} %> : </b></td>
 				<td id="provCell" align="left">
+				<%
+					if("true".equals(OscarProperties.getInstance().getProperty("iso3166.2.enabled","false"))) { 	
+				%>
+					<select name="province" id="province"></select> 
+					<br/>
+					Filter by Country: <select name="country" id="country" ></select>
+							
+				<% } else  {  %>
 				<select id="province" name="province">
 					<option value="OT"
 						<%=defaultProvince.equals("")||defaultProvince.equals("OT")?" selected":""%>>Other</option>
@@ -882,6 +962,7 @@ function consentClearBtn(radioBtnName)
 					<option value="US-WY" <%=defaultProvince.equals("US-WY")?" selected":""%>>US-WY-Wyoming</option>
 					<% } %>
 				</select>
+				<% } %>
 				</td>
 				<td id="postalLbl" align="right"><b> <% if(oscarProps.getProperty("demographicLabelPostal") == null) { %>
 				<bean:message key="demographic.demographicaddrecordhtm.formPostal" />
