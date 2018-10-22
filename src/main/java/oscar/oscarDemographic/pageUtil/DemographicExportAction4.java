@@ -1324,7 +1324,7 @@ public class DemographicExportAction4 extends Action {
 				RxPrescriptionData prescriptData = new RxPrescriptionData();
 				RxPrescriptionData.Prescription[] arr = null;
 				String annotation = null;
-				arr = prescriptData.getPrescriptionsByPatient(Integer.parseInt(demoNo));
+				arr = prescriptData.getPrescriptionsByPatientForExport(Integer.parseInt(demoNo));
 				for (int p = 0; p < arr.length; p++){
 					MedicationsAndTreatments medi = patientRec.addNewMedicationsAndTreatments();
 					String mSummary = "";

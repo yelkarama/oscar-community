@@ -151,7 +151,7 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 	@Column(name = "refill_quantity")
 	private Integer refillQuantity;
 	@Column(name = "dispense_interval")
-	private Integer dispenseInterval;
+	private String dispenseInterval;
 	@Column(name = "position")
 	private Integer position;
 	@Column(name = "start_date_unknown")
@@ -164,6 +164,8 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 	private Boolean dispenseInternal = false;
 
 	private String protocol = null;
+	private String priorRxProtocol = null;
+	
 	// ///
 	@Transient
 	private String remoteFacilityName = null;
@@ -344,11 +346,11 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 		this.refillQuantity = refillQuantity;
 	}
 
-	public Integer getDispenseInterval() {
+	public String getDispenseInterval() {
 		return dispenseInterval;
 	}
 
-	public void setDispenseInterval(int dispenseInterval) {
+	public void setDispenseInterval(String dispenseInterval) {
 		this.dispenseInterval = dispenseInterval;
 	}
 
@@ -899,10 +901,7 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 	public void setDispenseInternal(Boolean dispenseInternal) {
 		this.dispenseInternal = dispenseInternal;
 	}
-
-
 	
-
 	public String getProtocol() {
 		return protocol;
 	}
@@ -911,8 +910,13 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 		this.protocol = protocol;
 	}
 
+	public String getPriorRxProtocol() {
+		return priorRxProtocol;
+	}
 
-
+	public void setPriorRxProtocol(String priorRxProtocol) {
+		this.priorRxProtocol = priorRxProtocol;
+	}
 
 	//Sorts Ids in descending order
 	public static class ComparatorIdDesc implements Comparator<Drug> {

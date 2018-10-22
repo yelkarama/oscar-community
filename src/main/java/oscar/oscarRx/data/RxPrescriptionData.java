@@ -127,6 +127,7 @@ public class RxPrescriptionData {
 		prescription.setPickupDate(drug.getPickUpDateTime());
 		prescription.setPickupTime(drug.getPickUpDateTime());
 		prescription.setProtocol(drug.getProtocol());
+		prescription.setPriorRxProtocol(drug.getPriorRxProtocol());
 		prescription.setETreatmentType(drug.getETreatmentType());
 		prescription.setRxStatus(drug.getRxStatus());
 		if (drug.getDispenseInterval() != null) prescription.setDispenseInterval(drug.getDispenseInterval());
@@ -231,6 +232,7 @@ public class RxPrescriptionData {
 		prescription.setDrugReferenceId(rePrescribe.getDrugId());
 		prescription.setDispenseInternal(rePrescribe.getDispenseInternal());
 		prescription.setProtocol(rePrescribe.getProtocol());
+		prescription.setPriorRxProtocol(rePrescribe.getPriorRxProtocol());
 		return prescription;
 	}
 
@@ -239,6 +241,18 @@ public class RxPrescriptionData {
 
 		DrugDao dao = SpringUtils.getBean(DrugDao.class);
 		for (Drug drug : dao.findByDemographicIdOrderByPosition(demographicNo, false)) {
+			Prescription p = toPrescription(drug, demographicNo);
+			lst.add(p);
+		}
+
+		return lst.toArray(new Prescription[lst.size()]);
+	}
+	
+	public Prescription[] getPrescriptionsByPatientForExport(int demographicNo) {
+		List<Prescription> lst = new ArrayList<Prescription>();
+
+		DrugDao dao = SpringUtils.getBean(DrugDao.class);
+		for (Drug drug : dao.findByDemographicIdOrderByPositionForExport(demographicNo, false)) {
 			Prescription p = toPrescription(drug, demographicNo);
 			lst.add(p);
 		}
@@ -292,6 +306,7 @@ public class RxPrescriptionData {
 		p.setPickupDate(drug.getPickUpDateTime());
 		p.setPickupTime(drug.getPickUpDateTime());
 		p.setProtocol(drug.getProtocol());
+		p.setPriorRxProtocol(drug.getPriorRxProtocol());
 		p.setETreatmentType(drug.getETreatmentType());
 		p.setRxStatus(drug.getRxStatus());
 		if (drug.getDispenseInterval() != null) p.setDispenseInterval(drug.getDispenseInterval());
@@ -646,7 +661,7 @@ public class RxPrescriptionData {
 		String rxStatus = null;
 		private Integer refillDuration = 0;
 		private Integer refillQuantity = 0;
-		private Integer dispenseInterval = 0;
+		private String dispenseInterval = "";
 		private int position = 0;
 		private String comment = null;
 
@@ -662,6 +677,7 @@ public class RxPrescriptionData {
 		private String drugReasonCodeSystem;
 
 		private String protocol;
+		private String priorRxProtocol;
 		
 		public String getDrugReasonCode() {
 			return drugReasonCode;
@@ -973,6 +989,15 @@ public class RxPrescriptionData {
 
 		public void setProtocol(String protocol) {
 			this.protocol = protocol;
+		}
+
+
+		public String getPriorRxProtocol() {
+			return priorRxProtocol;
+		}
+
+		public void setPriorRxProtocol(String priorRxProtocol) {
+			this.priorRxProtocol = priorRxProtocol;
 		}
 
 		/*
@@ -1664,6 +1689,7 @@ public class RxPrescriptionData {
 			drug.setStartDateUnknown(getStartDateUnknown());
 			drug.setDispenseInternal(getDispenseInternal());
 			drug.setProtocol(protocol);
+			drug.setPriorRxProtocol(priorRxProtocol);
 		}
 
 		public boolean AddToFavorites(String providerNo, String favoriteName) {
@@ -1865,11 +1891,11 @@ public class RxPrescriptionData {
 			this.refillQuantity = refillQuantity;
 		}
 
-		public Integer getDispenseInterval() {
+		public String getDispenseInterval() {
 			return dispenseInterval;
 		}
 
-		public void setDispenseInterval(int dispenseInterval) {
+		public void setDispenseInterval(String dispenseInterval) {
 			this.dispenseInterval = dispenseInterval;
 		}
 

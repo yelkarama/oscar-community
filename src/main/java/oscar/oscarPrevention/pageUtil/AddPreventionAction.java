@@ -57,7 +57,6 @@ import org.oscarehr.util.SpringUtils;
 
 import oscar.oscarPrevention.PreventionData;
 import oscar.oscarPrevention.PreventionDisplayConfig;
-import oscar.util.UtilDateUtilities;
 /**
  *
  * @author Jay Gallagher
@@ -285,9 +284,9 @@ public class AddPreventionAction  extends Action {
 		  }
 	  }
 	  
-	  if(UtilDateUtilities.StringToDate(prevDate, "yyyy-MM-dd HH:mm") == null) {
-		  result.add("Prevention date not valid");
-	  }
+//	  if(UtilDateUtilities.StringToDate(prevDate, "yyyy-MM-dd HH:mm") == null) {
+//		  result.add("Prevention date not valid");
+//	  }
 	  
 	  
 	  return result;

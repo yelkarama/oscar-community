@@ -109,6 +109,7 @@ import org.oscarehr.common.model.DemographicArchive;
 import org.oscarehr.common.model.DemographicContact;
 import org.oscarehr.common.model.DemographicPharmacy;
 import org.oscarehr.common.model.Drug;
+import org.oscarehr.common.model.DrugReason;
 import org.oscarehr.common.model.Facility;
 import org.oscarehr.common.model.MeasurementsExt;
 import org.oscarehr.common.model.PartialDate;
@@ -142,9 +143,11 @@ import ca.uhn.hl7v2.model.v23.datatype.XTN;
 import ca.uhn.hl7v2.model.v23.group.ORU_R01_ORDER_OBSERVATION;
 import ca.uhn.hl7v2.model.v23.message.ORU_R01;
 import ca.uhn.hl7v2.model.v23.segment.MSH;
+import ca.uhn.hl7v2.model.v23.segment.NTE;
 import ca.uhn.hl7v2.model.v23.segment.OBR;
 import ca.uhn.hl7v2.model.v23.segment.OBX;
 import ca.uhn.hl7v2.model.v23.segment.PID;
+import ca.uhn.hl7v2.util.Terser;
 import cds.AlertsAndSpecialNeedsDocument.AlertsAndSpecialNeeds;
 import cds.AllergiesAndAdverseReactionsDocument.AllergiesAndAdverseReactions;
 import cds.AppointmentsDocument.Appointments;
@@ -1712,11 +1715,7 @@ import oscar.util.UtilDateUtilities;
                     dump = Util.addLine(dump, alg_extra);
                     dump = Util.addLine(dump, getResidual(aaReactArray[i].getResidualInfo()));
                     
-                    if(aaReactArray[i].getRecordedDate() != null) {
-                    	String dt = dateFPtoString(aaReactArray[i].getRecordedDate(),0);
-                    	dump = Util.addLine(dump,"Recorded Date:" ,dt);
-                        
-                    }
+                
                     cmNote = prepareCMNote("2",null);
                     cmNote.setNote(dump);
                     saveLinkNote(cmNote, CaseManagementNoteLink.ALLERGIES, Long.valueOf(allergyId));
@@ -1733,6 +1732,8 @@ import oscar.util.UtilDateUtilities;
                     String writtenDateFormat = dateFPGetPartial(medArray[i].getPrescriptionWrittenDate());
 
                     drug.setRxDate(dateFPtoDate(medArray[i].getStartDate(), timeShiftInDays));
+                    
+                    
                     if (medArray[i].getStartDate()==null) drug.setRxDate(drug.getWrittenDate());
 
                     duration = medArray[i].getDuration();
@@ -1808,12 +1809,17 @@ import oscar.util.UtilDateUtilities;
                     if (non_auth!=null && "Y".equals(non_auth)) drug.setNonAuthoritative(non_auth.equalsIgnoreCase("Y"));
                   //  else  err_data.add("Error! No non-authoritative indicator for Medications & Treatments ("+(i+1)+")");
 
-                    if (NumberUtils.isDigits(medArray[i].getDispenseInterval())) drug.setDispenseInterval(Integer.parseInt(medArray[i].getDispenseInterval()));
+                   drug.setDispenseInterval(medArray[i].getDispenseInterval());
                   //  else err_data.add("Error! Invalid Dispense Interval for Medications & Treatments ("+(i+1)+")");
 
                     String protocolIdentifier = medArray[i].getProtocolIdentifier();
                     if(protocolIdentifier != null) {
                     	drug.setProtocol(protocolIdentifier);
+                    }
+                    
+                    String priorRxProtocol = medArray[i].getPriorPrescriptionReferenceIdentifier();
+                    if(priorRxProtocol != null) {
+                    	drug.setPriorRxProtocol(priorRxProtocol);
                     }
                     
                     String take = StringUtils.noNull(medArray[i].getDosage()).trim();
@@ -1891,7 +1897,7 @@ import oscar.util.UtilDateUtilities;
                     }
                     
                     drug.setPosition(0);
-                    drug.setDispenseInterval(0);
+                   // drug.setDispenseInterval("");
 
                     //use drugref to add more info to the record
                     if(!StringUtils.isNullOrEmpty(drug.getRegionalIdentifier())) {
@@ -1911,10 +1917,16 @@ import oscar.util.UtilDateUtilities;
                     
                     
                     drugDao.persist(drug);
+                             
+                    if (!StringUtils.isNullOrEmpty( dateFPGetPartial(medArray[i].getPrescriptionWrittenDate()))) partialDateDao.setPartialDate(PartialDate.DRUGS, drug.getId(), PartialDate.DRUGS_WRITTENDATE, dateFPGetPartial(medArray[i].getPrescriptionWrittenDate()));
+                    if (!StringUtils.isNullOrEmpty( dateFPGetPartial(medArray[i].getStartDate()))) partialDateDao.setPartialDate(PartialDate.DRUGS, drug.getId(), PartialDate.DRUGS_STARTDATE, dateFPGetPartial(medArray[i].getStartDate()));
+                      
                     addOneEntry(MEDICATION);
 
-                    /* no need:
+                   
                     if (medArray[i].getProblemCode()!=null) {
+                    	DrugReason drugReason = new DrugReason();
+                    	drugReason.setCodingSystem("icd9"); //a guess here
                         drugReason.setCode(medArray[i].getProblemCode());
                         drugReason.setDemographicNo(Integer.valueOf(demographicNo));
                         drugReason.setDrugId(drug.getId());
@@ -1923,8 +1935,7 @@ import oscar.util.UtilDateUtilities;
                         drugReason.setArchivedFlag(false);
                         drugReasonDao.persist(drugReason);
                     }
-                     *
-                     */
+                   
 
                     //partial date
                     partialDateDao.setPartialDate(PartialDate.DRUGS, drug.getId(), PartialDate.DRUGS_WRITTENDATE, writtenDateFormat);
@@ -2018,26 +2029,18 @@ import oscar.util.UtilDateUtilities;
                     
 
                     preventionDate = dateFPtoString(immuArray[i].getDate(), timeShiftInDays);
+                    
+                   
+                    
                     refused = getYN(immuArray[i].getRefusedFlag()).equals("Yes") ? "1" : "0";
                     if (immuArray[i].getRefusedFlag()==null) err_data.add("Error! No Refused Flag for Immunizations ("+(i+1)+")");
-/*
-                    String iSummary="";
-                    if (immuArray[i].getCategorySummaryLine()!=null) {
-                        iSummary = immuArray[i].getCategorySummaryLine().trim();
-                    } else {
-                        err_summ.add("No Summary for Immunizations ("+(i+1)+")");
-                    }
 
-
-                    if (StringUtils.filled(iSummary)) {
-                        comments = Util.addLine(comments, "Summary: ", iSummary);
-                        err_note.add("Immunization Summary imported in [comments] ("+(i+1)+")");
-                    }
- *
- */
                     String din = null;
                     if(immuArray[i].getImmunizationCode() != null && "DIN".equals(immuArray[i].getImmunizationCode().getCodingSystem())) {
                     	din = immuArray[i].getImmunizationCode().getValue();
+                    	 Map<String,String> ht = new HashMap<String,String>();
+                         ht.put("din",din);
+                         preventionExt.add(ht);
                     }
                     
                     immExtra = Util.addLine(immExtra, getCode(immuArray[i].getImmunizationCode(),"Immunization Code"));
@@ -2049,6 +2052,10 @@ import oscar.util.UtilDateUtilities;
                     }
                     
                     Integer preventionId = PreventionData.insertPreventionData(admProviderNo, demographicNo, preventionDate, defaultProviderNo(), "", preventionType, refused, "", "", preventionExt,null,din);
+                    
+                    if (!StringUtils.isNullOrEmpty( dateFPGetPartial(immuArray[i].getDate()))) partialDateDao.setPartialDate(PartialDate.PREVENTION, preventionId, PartialDate.PREVENTION_PREVENTIONDATE, dateFPGetPartial(immuArray[i].getDate()));
+                    
+                    
                     addOneEntry(IMMUNIZATION);
 
                     //to dumpsite: Extra immunization data
@@ -2239,7 +2246,7 @@ import oscar.util.UtilDateUtilities;
                             if (obr[j].getAccompanyingMnemonic()!=null) hrmDocSc.setSubClassMnemonic(obr[j].getAccompanyingMnemonic());
                             if (obr[j].getObservationDateTime()!=null) hrmDocSc.setSubClassDateTime(dateTimeFPtoDate(obr[j].getObservationDateTime(), timeShiftInDays));
                             hrmDocSc.setHrmDocumentId(hrmDoc.getId());
-                            hrmDocSc.setActive(true);
+                            hrmDocSc.setActive(j == 0 ? true: false);
                             hrmDocSubClassDao.persist(hrmDocSc);
                         }
                         HRMreports.clear();
@@ -3817,6 +3824,12 @@ import oscar.util.UtilDateUtilities;
 						obr.insertObr39_CollectorSComment(0).getCe1_Identifier().setValue(result.getLaboratoryName());
 					}
 					
+					if(!StringUtils.isNullOrEmpty(result.getNotesFromLab())) {
+						NTE nte = grp.getOBSERVATION().insertNTE(0);
+						nte.getNte1_SetIDNotesAndComments().setValue(obx.getSetIDOBX().getValue());
+						Terser.set(nte, 3, 0, 1, 1, result.getNotesFromLab());
+					}
+					
 				}
 				
 		        InputStream formFileIs=null;
@@ -3907,12 +3920,11 @@ import oscar.util.UtilDateUtilities;
 	                
 			        
 			 
-			        String dump =  Util.addLine("imported.cms4.2011.06", "Notes from Lab:  ",org.apache.commons.lang.StringUtils.trimToEmpty(labResult.getNotesFromLab()));
-			        dump = Util.addLine(dump,  "Physician Notes: ", org.apache.commons.lang.StringUtils.trimToEmpty(labResult.getPhysiciansNotes()));
+			        String dump = Util.addLine("imported.cms4.2011.06",  "Physician Notes: ", org.apache.commons.lang.StringUtils.trimToEmpty(labResult.getPhysiciansNotes()));
 			        dump = Util.addLine(dump,  "Test Results Info: ", org.apache.commons.lang.StringUtils.trimToEmpty(labResult.getTestResultsInformationReportedByTheLab()));
 			        dump = Util.addLine(dump,  "Test Code: ", org.apache.commons.lang.StringUtils.trimToEmpty(labResult.getLabTestCode()));
 			        dump = Util.addLine(dump,  "Test Name: ", org.apache.commons.lang.StringUtils.trimToEmpty(labResult.getTestName()));
-			        dump = Util.addLine(dump,  "Lab Requisition DateTime: ", org.apache.commons.lang.StringUtils.trimToEmpty((dateFPtoString(labResult.getLabRequisitionDateTime(),0))));
+			     //   dump = Util.addLine(dump,  "Lab Requisition DateTime: ", org.apache.commons.lang.StringUtils.trimToEmpty((dateFPtoString(labResult.getLabRequisitionDateTime(),0))));
 
 			        CaseManagementNote cmNote = prepareCMNote("2",null);
                     cmNote.setNote(dump);

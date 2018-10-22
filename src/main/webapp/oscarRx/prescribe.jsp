@@ -89,6 +89,7 @@ if(listRxDrugs!=null){
          String eTreatmentType  = rx.getETreatmentType()!=null ? rx.getETreatmentType() : "";
          String rxStatus        = rx.getRxStatus()!=null ? rx.getRxStatus() : "";
          String protocol		= rx.getProtocol()!=null ? rx.getProtocol() : "";
+         String priorRxProtocol	= rx.getPiorRxProtocol()!=null ? rx.getPiorRxProtocol() : "";
          String drugForm		= rx.getDrugForm();
          //remove from the rerx list
          int DrugReferenceId = rx.getDrugReferenceId();
@@ -139,7 +140,7 @@ if(listRxDrugs!=null){
          boolean isOutsideProvider ;
          int refillQuantity=rx.getRefillQuantity();
          int refillDuration=rx.getRefillDuration();
-         int dispenseInterval=rx.getDispenseInterval();
+         String dispenseInterval=rx.getDispenseInterval();
          if(isDiscontinuedLatest){
                 archivedReason=rx.getLastArchReason();
                 archivedDate=rx.getLastArchDate();
@@ -445,6 +446,11 @@ if(listRxDrugs!=null){
            
            <bean:message key="WriteScript.msgProtocolReference"/>: 
            <input type="text" id="protocol_<%=rand%>"  name="protocol_<%=rand%>" value="<%=protocol%>" />
+           
+           <br/>
+           
+          Prior Rx Protocol: 
+           <input type="text" id="protocol_<%=rand%>"  name="priorRxProtocol_<%=rand%>" value="<%=priorRxProtocol%>" />
            
            <br/>
            

@@ -101,6 +101,7 @@ boolean isNKDA = "No Known Drug Allergies".equals(name);
 %>
 
 <link rel="stylesheet" type="text/css" href="styles.css">
+
 </head>
 <body topmargin="0" leftmargin="0" vlink="#0000FF">
 
@@ -249,17 +250,21 @@ boolean isNKDA = "No Known Drug Allergies".equals(name);
 							</html:select></td>
 						</tr>
 						
+						<%if(drugrefId == null || "0".equals(drugrefId)){ %>
 						<tr valign="center">
-							<td><span class="label">Intolerance:</span>
-							<input type="checkbox" name="intolerance" value="on" <%=intolerance? " checked=\"checked\" ":"" %>/>
+							<td><span class="label">Non Drug:</span>
+							<input type="checkbox" name="nonDrug" id="nonDrug" value="on" <%=nonDrug? " checked=\"checked\" ":"" %> onClick="checkIntolerance()"/>
 							</td>
 						</tr>
 						
 						<tr valign="center">
-							<td><span class="label">Non Drug:</span>
-							<input type="checkbox" name="nonDrug" value="on" <%=nonDrug? " checked=\"checked\" ":"" %>/>
+							<td><span class="label">Intolerance:</span>
+							<input type="checkbox" name="intolerance" id="intolerance" value="on" <%=intolerance? " checked=\"checked\" ":"" %>/>
 							</td>
 						</tr>
+						<%} %>
+						
+						
 <% } %>
 
 						<tr>

@@ -23,6 +23,10 @@
     Ontario, Canada
 
 --%>
+<%@page import="org.oscarehr.common.model.DrugReason"%>
+<%@page import="org.oscarehr.common.dao.DrugReasonDao"%>
+<%@page import="org.oscarehr.common.model.PartialDate"%>
+<%@page import="org.oscarehr.common.dao.PartialDateDao"%>
 <%@page import="org.oscarehr.casemgmt.model.CaseManagementNoteLink"%>
 <%@page import="org.oscarehr.casemgmt.service.CaseManagementManager"%>
 <%@page import="java.text.SimpleDateFormat"%>
@@ -60,6 +64,8 @@ Drug drug = drugDao.find(drugId);
 
 SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
+PartialDateDao partialDateDao = SpringUtils.getBean(PartialDateDao.class);
+DrugReasonDao drugReasonDao = SpringUtils.getBean(DrugReasonDao.class);
 %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <%@page import="org.oscarehr.util.MiscUtils"%><html>
@@ -134,7 +140,7 @@ SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
               				</tr>
               				<tr>
               					<td class="label">Rx Date:</td>
-                        		<td> <%= drug.getRxDate() %></td>
+                        		<td> <%=partialDateDao.getDatePartial(oscar.util.UtilDateUtilities.DateToString(drug.getRxDate()), PartialDate.DRUGS,  drug.getId(), PartialDate.DRUGS_STARTDATE) %></td>
               				</tr>
               				<tr>
               					<td class="label">Rx End Date:</td>
@@ -142,7 +148,7 @@ SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
               				</tr>
               				<tr>
               					<td class="label">Written Date:</td>
-                        		<td> <%= drug.getWrittenDate() %></td>
+                        		<td><%=partialDateDao.getDatePartial(oscar.util.UtilDateUtilities.DateToString(drug.getWrittenDate()), PartialDate.DRUGS,  drug.getId(), PartialDate.DRUGS_WRITTENDATE) %></td>
               				</tr>
               				<tr>
               					<td class="label">Create Date:</td>
@@ -305,11 +311,33 @@ SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
                         		<td><%= StringUtils.trimToEmpty(drug.getProtocol()) %></td>
               				</tr>
               				
+              				
               				<tr>
-              					<td class="label">Non Authorative:</td>
-                        		<td><%= StringUtils.trimToEmpty(drug.isNonAuthoritative()) %></td>
+              					<td class="label">Prior Prescription Reference:</td>
+                        		<td><%= StringUtils.trimToEmpty(drug.getPriorRxProtocol()) %></td>
               				</tr>
               				
+              				<tr>
+              					<td class="label">Non Authorative:</td>
+                        		<td><%= StringUtils.trimToEmpty(drug.isNonAuthoritative() != null ? drug.isNonAuthoritative().toString() : "") %></td>
+              				</tr>
+              				
+              				<tr>
+              					<td class="label">Substitution Not Allowed:</td>
+                        		<td><%=drug.isNoSubs() %></td>
+              				</tr>
+              				
+              				<tr>
+              					<td class="label">Problem Code:</td>
+              					<td>
+              						<%
+              							for(DrugReason dr:  drugReasonDao.getReasonsForDrugID(drug.getId(), true)) {
+              								out.print(dr.getCode() + "&nbsp;");
+              							}
+              						
+              						%>
+              					</td>
+              				</tr>
               				<tr style="height:15px">
               				
               				</tr>

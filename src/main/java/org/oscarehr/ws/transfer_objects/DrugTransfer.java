@@ -82,12 +82,14 @@ public class DrugTransfer {
 	private boolean hideFromCpp;
 	private Integer refillDuration;
 	private Integer refillQuantity;
-	private Integer dispenseInterval;
+	private String dispenseInterval;
 	private Integer position;
 	private boolean startDateUnknown;
 	private String comment;
 	private Date lastUpdateDate;
 	private String protocol;
+	private String priorRxProtocol;
+	
 
 	public Integer getId() {
 		return (id);
@@ -489,11 +491,11 @@ public class DrugTransfer {
 		this.refillQuantity = refillQuantity;
 	}
 
-	public Integer getDispenseInterval() {
+	public String getDispenseInterval() {
 		return (dispenseInterval);
 	}
 
-	public void setDispenseInterval(Integer dispenseInterval) {
+	public void setDispenseInterval(String dispenseInterval) {
 		this.dispenseInterval = dispenseInterval;
 	}
 
@@ -527,6 +529,14 @@ public class DrugTransfer {
 
 	public void setProtocol(String protocol) {
 		this.protocol = protocol;
+	}
+
+	public String getPriorRxProtocol() {
+		return priorRxProtocol;
+	}
+
+	public void setPriorRxProtocol(String priorRxProtocol) {
+		this.priorRxProtocol = priorRxProtocol;
 	}
 
 	public Date getLastUpdateDate() {

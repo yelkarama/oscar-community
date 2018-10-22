@@ -24,6 +24,9 @@
 
 --%>
 
+<%@page import="java.text.ParseException"%>
+<%@page import="org.oscarehr.common.model.PartialDate"%>
+<%@page import="org.oscarehr.common.dao.PartialDateDao"%>
 <%@page import="oscar.OscarProperties"%>
 <%@page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%@page import="org.oscarehr.common.model.Consent"%>
@@ -68,6 +71,7 @@ if(!authed) {
   CanadianVaccineCatalogueManager cvcManager = SpringUtils.getBean(CanadianVaccineCatalogueManager.class);
   CVCMappingDao cvcMappingDao = SpringUtils.getBean(CVCMappingDao.class);
   CVCImmunizationDao cvcImmunizationDao = SpringUtils.getBean(CVCImmunizationDao.class);
+  PartialDateDao partialDateDao = SpringUtils.getBean(PartialDateDao.class);
   
    LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
   
@@ -106,6 +110,8 @@ if(!authed) {
      existingPrevention = PreventionData.getPreventionById(id);
 
      prevDate = (String) existingPrevention.get("preventionDate");
+     prevDate = partialDateDao.getDatePartial(prevDate, PartialDate.PREVENTION,  Integer.parseInt(id), PartialDate.PREVENTION_PREVENTIONDATE);
+     
      providerName = (String) existingPrevention.get("providerName");
      provider = (String) existingPrevention.get("provider_no");
      creatorProviderNo = (String) existingPrevention.get("creator");
@@ -218,8 +224,7 @@ if(!authed) {
   
   //calc age at time of prevention
   Date dob = PreventionData.getDemographicDateOfBirth(LoggedInInfo.getLoggedInInfoFromSession(request), Integer.valueOf(demographic_no));
-  SimpleDateFormat fmt = new SimpleDateFormat(dateFmt);
-  Date dateOfPrev = fmt.parse(prevDate);
+  Date dateOfPrev = parseDate(prevDate);
   String age = UtilDateUtilities.calcAgeAtDate(dob, dateOfPrev);
   DemographicData demoData = new DemographicData();
   String[] demoInfo = demoData.getNameAgeSexArray(LoggedInInfo.getLoggedInInfoFromSession(request), Integer.valueOf(demographic_no));
@@ -1147,5 +1152,28 @@ String checked(String first,String second){
        }
     }
     return ret;
+  }
+
+  Date parseDate(String dt) {
+	SimpleDateFormat fmt = null;
+			
+	if(dt.length() == 4) {
+		fmt = new SimpleDateFormat("yyyy");
+	} else if(dt.length() == 7) {
+		fmt = new SimpleDateFormat("yyyy-MM");
+	} else if(dt.length() == 10) {
+		fmt = new SimpleDateFormat("yyyy-MM-dd");
+	} else if(dt.length() == 16) {
+		fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+	}
+	
+	if(fmt != null) {
+		try {
+			return fmt.parse(dt);
+		}catch(ParseException e) {
+			return null;
+		}
+	}
+	return null;
   }
 %>
