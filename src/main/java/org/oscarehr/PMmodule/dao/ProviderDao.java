@@ -39,9 +39,11 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.oscarehr.common.NativeSql;
 import org.oscarehr.common.dao.ProviderFacilityDao;
+import org.oscarehr.common.dao.UserPropertyDAO;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.ProviderFacility;
 import org.oscarehr.common.model.ProviderFacilityPK;
+import org.oscarehr.common.model.UserProperty;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -724,5 +726,22 @@ public class ProviderDao extends HibernateDaoSupport {
         }finally {
             this.releaseSession(session);
         }
+    }
+
+
+    public Provider getProviderByPractitionerNoAndOlisType(String practitionerNo, String olisIdentifierType) {
+        UserPropertyDAO userPropertyDAO = SpringUtils.getBean(UserPropertyDAO.class);
+        String sql = "FROM Provider p WHERE p.practitionerNo=?";
+        
+        List<Provider> providers = getHibernateTemplate().find(sql, practitionerNo);
+
+        if (!providers.isEmpty()) {
+            Provider provider = providers.get(0);
+            String olisType = userPropertyDAO.getStringValue(provider.getProviderNo(), UserProperty.OFFICIAL_OLIS_IDTYPE);
+            if (olisIdentifierType.equals(olisType)) {
+                return providers.get(0);
+            }
+        }
+        return null;
     }
 }

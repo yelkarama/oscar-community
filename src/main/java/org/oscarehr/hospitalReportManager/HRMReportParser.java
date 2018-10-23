@@ -433,24 +433,23 @@ public class HRMReportParser {
 		ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao"); 
 		IncomingLabRulesDao incomingLabRulesDao = (IncomingLabRulesDao) SpringUtils.getBean("IncomingLabRulesDao");
 
-		String providerNo = report.getDeliverToUserId().substring(1); // We have to remove the first "D"
-		//		String providerLastName = report.getDeliverToUserIdLastName();
-		//		String providerFirstName = report.getDeliverToUserIdFirstName();
+		String practitionerNo = report.getDeliverToUserId();
+		
+		Provider sendToProvider = null;
+		if (OscarProperties.getInstance().isPropertyActive("OMD_match_using_OLIS_identifier_type")) {
+			if (practitionerNo.startsWith("D")) {
+				sendToProvider = providerDao.getProviderByPractitionerNoAndOlisType(practitionerNo.substring(1), "MDL");
+			} else if (practitionerNo.startsWith("N")) {
+				sendToProvider = providerDao.getProviderByPractitionerNoAndOlisType(practitionerNo.substring(1), "NPL");
+			}
+		} else {
+			sendToProvider = providerDao.getProviderByPractitionerNo(practitionerNo.substring(1));
+		}
 
-		Provider sendToProvider = providerDao.getProviderByPractitionerNo(providerNo);
 		List<Provider> sendToProviderList = new LinkedList<Provider>();
-		//		if (sendToProvider == null) {
-		//			// Check to see if there's a match with first and last name
-		//			List<Provider> potentialProviderMatchList = providerDao.getProviderLikeFirstLastName(providerFirstName, providerLastName);
-		//			if (potentialProviderMatchList != null && potentialProviderMatchList.size() >= 1) {
-		//				for (Provider p : potentialProviderMatchList)
-		//					sendToProviderList.add(p);
-		//			}
-		//		} else {
 		if (sendToProvider != null) {	
 			sendToProviderList.add(sendToProvider);
 		}
-		//		}
 
 		if (OscarProperties.getInstance().isPropertyActive("queens_resident_tagging")) {
 			DemographicDao demographicDao = (DemographicDao) SpringUtils.getBean("demographicDao");
