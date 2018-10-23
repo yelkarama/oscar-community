@@ -88,20 +88,6 @@ public class ForwardingRulesAction extends Action{
             	providerNums = new String[0];
             }
             String status = request.getParameter("status");
-
-            List<IncomingLabRules> circularForwardRules = findCircularForwardRules(providerNo, Arrays.asList(providerNums));
-            if (!circularForwardRules.isEmpty()) {
-                ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
-                StringBuilder errorMessage = new StringBuilder();
-                errorMessage.append("Circular forwarding detected for new forwarding rule, " +
-                        "provider(s) that forwards back to source: \n");
-                for (IncomingLabRules rule : circularForwardRules) {
-                    String name = providerDao.getProviderNameLastFirst(rule.getProviderNo());
-                    errorMessage.append(name).append("\n");
-                }
-                request.setAttribute("errorMessage", errorMessage.toString());
-                return mapping.findForward("success");
-            }
             
             logger.info("Updating Rules for providers " + Arrays.toString(providerNums) + "; Status is " + status);
             try{
