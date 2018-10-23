@@ -1872,6 +1872,7 @@ import oscar.util.UtilDateUtilities;
                     //no need: special = Util.addLine(special, "Prescription Id: ", medArray[i].getPrescriptionIdentifier());
                     //no need: special = Util.addLine(special, "Prior Prescription Id: ", medArray[i].getPriorPrescriptionReferenceIdentifier());
 
+                    //TODO: getPrescriptionIdentifier, 
 
                     if (StringUtils.filled(medArray[i].getPrescriptionInstructions())) {
                     	drug.setSpecialInstruction(medArray[i].getPrescriptionInstructions());
@@ -2178,9 +2179,10 @@ import oscar.util.UtilDateUtilities;
                 Reports[] repR = patientRec.getReportsArray();
                 List<Reports> HRMreports = new ArrayList<Reports>();
                 for (int i=0; i<repR.length; i++) {
-
+                	Reports reportItem = repR[i];
+                	
                     if (repR[i].getHRMResultStatus()!=null || repR[i].getOBRContentArray().length>0) { //HRM reports
-                    	String HRMfile = docDir + "HRM_"+UtilDateUtilities.getToday("yyyy-MM-dd.HH.mm.ss") + "_" + repR[i].getSendingFacilityId() + "_" + repR[i].getSendingFacilityReport() + ".xml";
+                    	String HRMfile = "HRM_"+UtilDateUtilities.getToday("yyyy-MM-dd.HH.mm.ss") + "_" + repR[i].getSendingFacilityId() + "_" + repR[i].getSendingFacilityReport() + ".xml";
                         
                         HRMDocument hrmDoc = new HRMDocument();
                         HRMDocumentComment hrmDocComment = new HRMDocumentComment();
@@ -2197,7 +2199,24 @@ import oscar.util.UtilDateUtilities;
                         if (repR[i].getClass1()!=null) hrmDoc.setReportType(repR[i].getClass1().toString());
                         if (repR[i].getEventDateTime()!=null) hrmDoc.setReportDate(dateTimeFPtoDate(repR[i].getEventDateTime(), timeShiftInDays));
                        
-                		
+                        
+                        hrmDoc.setSourceFacility(repR[i].getSourceFacility());
+                        hrmDoc.setDescription("");
+                        hrmDoc.setFormattedName(demographic.getFormattedName());
+                        hrmDoc.setDob(demographic.getFormattedDob());
+                        hrmDoc.setGender(demographic.getSex());
+                        hrmDoc.setHcn(demographic.getHin());
+                        
+                        hrmDoc.setClassName(reportItem.getClass1().toString());
+                        hrmDoc.setSubClassName(reportItem.getSubClass());
+                        
+                        hrmDoc.setRecipientId("");
+                        hrmDoc.setRecipientName("");
+                      
+                    //    hrmDoc.setHrmCategoryId(hrmCategoryId);
+                        
+                    //    hrmDoc.setSourceFacilityReportNo(repR[i].getSendingFacilityReport());
+                        
                         hrmDocDao.persist(hrmDoc);
 
                         if (repR[i].getNotes()!=null) {

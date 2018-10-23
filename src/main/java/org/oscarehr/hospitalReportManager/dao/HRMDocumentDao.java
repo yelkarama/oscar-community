@@ -142,9 +142,9 @@ public class HRMDocumentDao extends AbstractDao<HRMDocument> {
 		
 		String sql = "select x from " + this.modelClass.getName() + " x   ";
 
-		if(providerNo != null || providerUnmatched) {
+	//	if(providerNo != null || providerUnmatched) {
 			sql += " inner JOIN x.matchedProviders p ";
-		} 
+	//	} 
 		
 		sql += " WHERE x.parentReport IS NULL  ";
 		

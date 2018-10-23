@@ -775,10 +775,34 @@ public class HRMAction extends DispatchAction {
 				data1.put("patient_dob", d.getDob());
 				data1.put("patient_hcn", d.getHcn());
 				data1.put("patient_gender", d.getGender());
-				data1.put("report_date", fmt.format(d.getReportDate()));
+				
+				String reportDate = "";
+				if(d.getReportDate() != null) {
+					reportDate = fmt.format(d.getReportDate());
+				} else if(!d.getAccompanyingSubClasses().isEmpty()) {
+					for(HRMDocumentSubClass hdsc: d.getAccompanyingSubClasses()) {
+						if(hdsc.isActive() && hdsc.getSubClassDateTime() != null) {
+							reportDate = fmt.format(hdsc.getSubClassDateTime());
+						}
+					}
+				}
+				
+				data1.put("report_date", reportDate != null ? reportDate : "");
+				
+				
 				data1.put("sending_facility", d.getSourceFacility());
 				if(!StringUtils.isEmpty(d.getClassName()) && !StringUtils.isEmpty(d.getSubClassName())) {
-					data1.put("class_subclass", d.getClassName() + (d.getSubClassName()!=null?":"+d.getSubClassName().split("\\^")[1]:""));
+					String className = d.getClassName();
+					String subClassName = d.getSubClassName();
+					String displaySubClass = "";
+					if(subClassName != null) {
+						if(subClassName.indexOf("^") != -1) {
+							displaySubClass = subClassName.split("\\^")[1];
+						} else {
+							displaySubClass = subClassName;
+						}
+					}
+					data1.put("class_subclass", className + (displaySubClass.length()>0?":"+displaySubClass:""));
 				}
 				if(!StringUtils.isEmpty(d.getClassName()) && !d.getAccompanyingSubClasses().isEmpty()) {
 					for(HRMDocumentSubClass sc: d.getAccompanyingSubClasses()) {
