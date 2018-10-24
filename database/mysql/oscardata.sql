@@ -1148,7 +1148,7 @@ INSERT INTO ichppccode VALUES ('203','650','Uncomplicated Pregnancy, normal deli
 --
 
 INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `measuringInstruction`, `validation`, `createDate`) VALUES
-( '02', 'Oxygen Saturatifn', 'Oxygen Saturation', 'percent', '4', '2013-02-01 00:00:00'),
+( '02', 'Oxygen Saturation', 'Oxygen Saturation', 'percent', '4', '2013-02-01 00:00:00'),
 ( '24UA', '24 hour urine albumin', '24 hour urine albumin', 'mg/24h (nnn.n) Range:0-500 Interval:12mo.', '14', '2013-02-01 00:00:00'),
 ( '24UR', '24-hr Urine cr clearance & albuminuria', 'Renal 24-hr Urine cr clearance & albuminuria', 'q 6-12 months, unit mg', '3', '2013-02-01 00:00:00'),
 ( '5DAA', '5 Day Adherence if on ART', '5 Day Adherence if on ART', 'number', '4', '2013-02-01 00:00:00'),
@@ -1183,6 +1183,7 @@ INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `me
 ( 'AST', 'AST', 'AST', 'in U/L', '4', '2013-02-01 00:00:00'),
 ( 'ASTA', 'Asthma Trigger Avoidance', 'Asthma Trigger Avoidance', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'ASWA', 'Asthma Absence School Work', 'Asthma Absence School Work', 'Yes/No', '7', '2013-02-01 00:00:00'),
+( 'ASWAN', 'Asthma # of School Work Absence', 'Asthma # of School Work Absence', 'Numeric Value greater than or equal to 0', '14', '2018-10-01 00:00:00'),
 ( 'ASYM', 'Asthma Symptoms', 'Asthma Symptoms', 'frequency per week', '14', '2013-02-01 00:00:00'),
 ( 'BCTR', 'Birth Control', 'Birth Control', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'BG', 'Blood Glucose', 'Blood Glucose', 'in mmol/L (nn.n) Range:1.5-30.0', '7', '2013-02-01 00:00:00'),
@@ -1220,7 +1221,8 @@ INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `me
 ( 'Clpl', 'Chloride', 'Chloride', 'mmol/L Range 98-106', '5', '2014-05-09 00:00:00'),
 ( 'CMBS', 'Coombs', 'Coombs', 'test result', '17', '2014-05-09 00:00:00'),
 ( 'CMVI', 'CMV IgG', 'CMV IgG', 'Positive', '7', '2013-02-01 00:00:00'),
-( 'CODC', 'COD Classification', 'COD Classification', 'null', '11', '2013-02-01 00:00:00'),
+( 'CODC', 'COD Classification', 'COD Classification', '', '11', '2013-02-01 00:00:00'),
+( 'COPDC', 'COPD Classification', 'COPD Classification', 'Mild/Moderate/Severe/Very Severe', '20', '2018-10-18 00:00:00'),
 ( 'COGA', 'Cognitive Assessment', 'NULL', 'Yes/No', '7', '2013-10-25 13:00:00'),
 ( 'COPE', 'Provide COP Education Materials ', 'Provide COP Education Materials ', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'COPM', 'Review COP Med use and Side effects', 'Review COP Med use and Side effects', 'Yes/No', '7', '2013-02-01 00:00:00'),
@@ -1265,6 +1267,7 @@ INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `me
 ( 'EGFR', 'EGFR', 'EGFR', 'in ml/min', '4', '2013-02-01 00:00:00'),
 ( 'ENA', 'ENA', 'Extractable Nuclear Antigens', 'result', '11', '2014-05-09 00:00:00'),
 ( 'EPR', 'Exacerbation plan in place or reviewed', 'Exacerbation plan in place or reviewed', 'Yes/No', '7', '2013-02-01 00:00:00'),
+( 'EPR2', 'Exacerbation plan in place', 'Exacerbation plan in place', 'Provided/Revised/Reviewed', '19', '2018-10-18 00:00:00'),
 ( 'ESR', 'ESR', 'Erythrocyte sedimentation rate', 'mm/h Range under 20', '14', '2014-05-09 00:00:00'),
 ( 'EXE', 'Exercise', 'Exercise', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'ExeC', 'Exercise Counseling Given', 'Exercise Counseling Given', 'Yes/No', '7', '2013-02-01 00:00:00'),
@@ -1425,6 +1428,7 @@ INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `me
 ( 'PXAM', 'Physical Exam', 'NULL', 'Review', '16', '2013-12-30 13:00:00'),
 ( 'QDSH', 'QuickDASH Score', 'Disabilities of the Arm, Shoulder and Hand - Score', 'number', '5', '2013-02-01 00:00:00'),
 ( 'RABG', 'Recommend ABG', 'Recommend ABG', 'Yes/No', '7', '2013-02-01 00:00:00'),
+( 'RABG2', 'Recommend ABG', 'Recommend ABG', 'Yes/Not Applicable', '7', '2018-10-18 00:00:00'),
 ( 'REBG', 'Review Blood Glucose Records', 'Review Glucose Records', 'Reviewed', '7', '2013-02-01 00:00:00'),
 ( 'RESP', 'RR', 'Respiratory Rate', 'Breaths per minute', '4', '2013-02-01 00:00:00'),
 ( 'RETI', 'Retinopathy', 'null', 'Discussed', '7', '2013-02-01 00:00:00'),
@@ -1456,7 +1460,15 @@ INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `me
 ( 'SmkS', 'Cigarette Smoking Status', 'Cigarette Smoking Status', '[cig/day 0-80]', '4', '2013-02-01 00:00:00'),
 ( 'SODI', 'Salt Intake', 'Salt Intake', 'On Low Sodium Diet', '7', '2013-02-01 00:00:00'),
 ( 'SOHF', 'Symptoms of Heart Failure', 'Symptoms of Heart Failure', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'SPIR', 'Spirometry', 'Spirometry', 'null', '14', '2013-02-01 00:00:00'),
+( 'HFSFT', 'Heart Failure Symptom: Fatigue', 'Heart Failure Symptom: Fatigue', 'Frequency/week', '14', '2018-10-18 00:00:00'),
+( 'HFSDZ', 'Heart Failure Symptom: Dizziness', 'Heart Failure Symptom: Dizziness', 'Frequency/week', '14', '2018-10-18 00:00:00'),
+( 'HFSSC', 'Heart Failure Symptom: Syncope', 'Heart Failure Symptom: Syncope', 'Frequency/week', '14', '2018-10-18 00:00:00'),
+( 'HFSDE', 'Heart Failure Symptom: Dyspnea on Exertion', 'Heart Failure Symptom: Dyspnea on Exertion', 'Frequency/week', '14', '2018-10-18 00:00:00'),
+( 'HFSDR', 'Heart Failure Symptom: Dyspnea at Rest', 'Heart Failure Symptom: Dyspnea at Rest', 'Frequency/week', '14', '2018-10-18 00:00:00'),
+( 'HFSON', 'Heart Failure Symptom: Orthopnea', 'Heart Failure Symptom: Orthopnea', 'Frequency/week', '14', '2018-10-18 00:00:00'),
+( 'HFSDP', 'Heart Failure Symptom: Paroxysmal Nocturnal Dyspnea', 'Heart Failure Symptom: Paroxysmal Nocturnal Dyspnea', 'Frequency/week', '14', '2018-10-18 00:00:00'),
+( 'SPIR', 'Spirometry', 'Spirometry', '', '14', '2013-02-01 00:00:00'),
+( 'SPIRT', 'Spirometry Test', 'Spirometry Test', 'Yes or none', '22', '2018-10-18 00:00:00'),
 ( 'SSEX', 'Practicing Safe Sex', 'Practicing Safe Sex', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'SSXC', 'Safe Sex Counselling', 'NULL', 'Review', '16', '2014-01-23 13:00:00'),
 ( 'STIS', 'STI Screening', 'Sexual Transmitted Infections', 'Review', '16', '2014-01-23 13:00:00'),
@@ -1736,7 +1748,11 @@ INSERT INTO `validations` (`id`, `name`, `regularExp`, `maxValue1`, `minValue`, 
 (15, 'Yes/No/Maybe', 'YES|yes|Yes|Y|NO|no|No|N|MAYBE|maybe|Maybe', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (16, 'Review', 'REVIEWED|reviewed|Reviewed', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (17,'pos or neg', 'pos|neg|positive|negative', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(18,'Yes/No', 'YES|yes|Yes|Y|NO|no|No|N', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+(18,'Yes/No', 'YES|yes|Yes|Y|NO|no|No|N', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(19,'Provided/Revised/Reviewed', 'Provided|Revised|Reviewed', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(20,'Mild/Moderate/Severe/Very Severe', 'Mild|Moderate|Severe|Very Severe', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(21,'Yes/Not Applicable', 'Yes|Not Applicable', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(22,'Yes', 'Yes', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 
 insert into `secRole` values(1, 'receptionist', 'receptionist');
