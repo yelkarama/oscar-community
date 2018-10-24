@@ -1634,7 +1634,7 @@ function changeLt(drugId, isLongTerm){
         var url="<c:out value="${ctx}"/>" + "/oscarRx/getInactiveDate.jsp"  ;
          var data="din="+dinNumber+"&id="+id +"&rand=" +  Math.floor(Math.random()*10001);
        if (fdbProdNum != null) {
-           data += "&fdbProdNum=" + fdbProdNum;
+           data += "&fdbProdNum=" + encodeURIComponent(fdbProdNum);
        }
          new Ajax.Request(url,{method: 'post',postBody:data,onSuccess:function(transport){
                  var json=transport.responseText.evalJSON();

@@ -783,7 +783,7 @@ function changeLt(drugId){
    }
    function checkIfInactive(id,dinNumber){
         var url=ctx + "/oscarRx/getInactiveDate.jsp"  ;
-         var data="din="+dinNumber+"&id="+id +"&rand=" +  Math.floor(Math.random()*10001);
+         var data="din="+dinNumber+"&id="+ encodeURIComponent(id) +"&rand=" +  Math.floor(Math.random()*10001);
          new Ajax.Request(url,{method: 'post',postBody:data,onSuccess:function(transport){
                  var json=transport.responseText.evalJSON();
                 if(json!=null){
