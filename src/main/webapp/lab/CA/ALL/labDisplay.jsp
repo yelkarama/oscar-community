@@ -973,15 +973,26 @@ input[type=button], button, input[id^='acklabel_']{ font-size:12px !important;pa
                                                     <%= handler.getServiceDate() %>
                                                 </div>
                                             </td>
+                                        </tr> 
+                                        
+                                         <tr>
+                                            <td>
+                                                <div class="FieldData">
+                                               <strong>Date of Request:</strong>
+											
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="FieldData" nowrap="nowrap">
+                                                    <%= handler.getRequestDate(0) %>
+                                                </div>
+                                            </td>
                                         </tr>
                                         <tr>
                                         	<td>
                                         		<div class="FieldData">
-                                                <% if ("CLS".equals(handler.getMsgType())) { %>
                                                     <strong><bean:message key="oscarMDS.segmentDisplay.formDateReceivedCLS"/>:</strong>
-												<% } else { %>
-                                                    <strong><bean:message key="oscarMDS.segmentDisplay.formDateReceived"/>:</strong>
-												<% } %>
+												
                                                 </div>
                                             </td>
                                             <td>

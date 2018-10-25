@@ -25,6 +25,7 @@
 
 package oscar.oscarDemographic.pageUtil;
 
+import java.awt.Color;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -1864,16 +1865,8 @@ import oscar.util.UtilDateUtilities;
                     if (drug.getDuration()!=null) {
                     	special = addSpaced(special, "for "+drug.getDuration()+" days");
                     }
-                    drug.setSpecial(special);
-
-                    //no need: special = Util.addLine(special, "Prescription Status: ", medArray[i].getPrescriptionStatus());
-                    //no need: special = Util.addLine(special, "Dispense Interval: ", medArray[i].getDispenseInterval());
-                    //no need: special = Util.addLine(special, "Protocol Id: ", medArray[i].getProtocolIdentifier());
-                    //no need: special = Util.addLine(special, "Prescription Id: ", medArray[i].getPrescriptionIdentifier());
-                    //no need: special = Util.addLine(special, "Prior Prescription Id: ", medArray[i].getPriorPrescriptionReferenceIdentifier());
-
-                    //TODO: getPrescriptionIdentifier, 
-
+                    drug.setSpecial(special);   
+                    
                     if (StringUtils.filled(medArray[i].getPrescriptionInstructions())) {
                     	drug.setSpecialInstruction(medArray[i].getPrescriptionInstructions());
                     }
@@ -1898,8 +1891,7 @@ import oscar.util.UtilDateUtilities;
                     }
                     
                     drug.setPosition(0);
-                   // drug.setDispenseInterval("");
-
+               
                     //use drugref to add more info to the record
                     if(!StringUtils.isNullOrEmpty(drug.getRegionalIdentifier())) {
                     	try {
@@ -1949,15 +1941,9 @@ import oscar.util.UtilDateUtilities;
 
                     //to dumpsite
                     String dump = "imported.cms4.2011.06";
-                    /*
-                    String summary = medArray[i].getCategorySummaryLine();
-                    if (StringUtils.empty(summary)) {
-                        err_summ.add("No Summary for Medications & Treatments ("+(i+1)+")");
-                    }
-                    dump = Util.addLine(dump, summary);
-                    */
                     dump = Util.addLine(dump, getResidual(medArray[i].getResidualInfo()));
-
+                    dump = Util.addLine(dump, "Prescription Id: ", medArray[i].getPrescriptionIdentifier());
+                    
                     cmNote = prepareCMNote("2",null);
                     cmNote.setNote(dump);
                     saveLinkNote(cmNote, CaseManagementNoteLink.DRUGS, (long)drug.getId());
@@ -2079,7 +2065,7 @@ import oscar.util.UtilDateUtilities;
              //   String[] allStatus = asd.getAllStatus();
              //   String[] allTitle = asd.getAllTitle();
                 AppointmentStatusDao appointmentStatusDao = SpringUtils.getBean(AppointmentStatusDao.class);
-                List<AppointmentStatus> appointmentStautsList = appointmentStatusDao.findAll();                
+                List<AppointmentStatus> appointmentStatusList = appointmentStatusDao.findAll();                
 
                 for (int i=0; i<appArray.length; i++) {
                 	Date appointmentDate = null;
@@ -2116,17 +2102,21 @@ import oscar.util.UtilDateUtilities;
                     boolean failedToMapStatus = false;
             		
                     if (apptStatus!=null) {
-                    	for(AppointmentStatus as : appointmentStautsList) {
+                    	for(AppointmentStatus as : appointmentStatusList) {
                     		if(isMappedStatus(as,apptStatus) != null) {
                     			status = as.getStatus();
                     			break;
                     		}
                     	}
                     	 if (StringUtils.empty(status)) {
-                         	status = getImportStatus();
-                         	err_note.add("Cannot map appointment status ["+apptStatus+"]. Appointment Status set to [Imported]");
-                         	failedToMapStatus=true;
+                    		AppointmentStatus tmp =  createNewAppointmentStatus(apptStatus);
+                    		 
+                         	status = tmp.getStatus();
+                         //	err_note.add("Cannot map appointment status ["+apptStatus+"]. Appointment Status set to [Imported]");
+                         //	failedToMapStatus=true;
                          }
+                    }else {
+                    	status = "t";
                     }
                    
                     reason = StringUtils.noNull(appArray[i].getAppointmentPurpose());
@@ -3759,22 +3749,29 @@ import oscar.util.UtilDateUtilities;
 					Calendar cal = Calendar.getInstance();
 					if(result.getCollectionDateTime().isSetFullDate()) {
 						cal = result.getCollectionDateTime().getFullDate();
+						obr.getObservationDateTime().getTimeOfAnEvent().setDatePrecision(cal.get(Calendar.YEAR),
+								cal.get(Calendar.MONTH)+1, cal.get(Calendar.DAY_OF_MONTH));
+						
 					} else {
 						cal = result.getCollectionDateTime().getFullDateTime();
+						obr.getObservationDateTime().getTimeOfAnEvent().setDateSecondPrecision(cal.get(Calendar.YEAR),
+								cal.get(Calendar.MONTH)+1, cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND));
+						
 					}
 					
-					obr.getObservationDateTime().getTimeOfAnEvent().setDateSecondPrecision(cal.get(Calendar.YEAR),
-							cal.get(Calendar.MONTH)+1, cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND));
-					
+				
 					if(result.getLabRequisitionDateTime() != null) {
 						if(result.getLabRequisitionDateTime().isSetFullDate()) {
 							cal = result.getLabRequisitionDateTime().getFullDate();
+							obr.getRequestedDateTime().getTimeOfAnEvent().setDatePrecision(cal.get(Calendar.YEAR),
+									cal.get(Calendar.MONTH)+1, cal.get(Calendar.DAY_OF_MONTH));
 						} else {
 							cal = result.getLabRequisitionDateTime().getFullDateTime();
+							obr.getRequestedDateTime().getTimeOfAnEvent().setDateSecondPrecision(cal.get(Calendar.YEAR),
+									cal.get(Calendar.MONTH)+1, cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND));
 						}
 						
-						obr.getRequestedDateTime().getTimeOfAnEvent().setDateSecondPrecision(cal.get(Calendar.YEAR),
-								cal.get(Calendar.MONTH)+1, cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND));
+						
 					}
 					
 					//obr-16 requesting
@@ -3962,16 +3959,71 @@ import oscar.util.UtilDateUtilities;
 		if(status.equals(as.getDescription())) {
 			return as.getStatus();
 		}
-		
+/*		
 		if("Confirmed".equals(status) && "Here".equals(as.getDescription())) {
 			return as.getStatus();
 		}
-		
+*/		
 		if("No-Show".equals(status) && "No Show".equals(as.getDescription())) {
 			return as.getStatus();
 		}
 		
 		return null;
+	}
+
+	protected AppointmentStatus createNewAppointmentStatus(String description) {
+		AppointmentStatusDao appointmentStatusDao = SpringUtils.getBean(AppointmentStatusDao.class);
+		List<String> usedStatusCodes = new ArrayList<String>();
+		for(AppointmentStatus as : appointmentStatusDao.findAll()) {
+			 if(description.equals(as.getDescription())) {
+				 return as;
+			 }
+			 usedStatusCodes.add(as.getStatus());
+		 }
+		
+		 AppointmentStatus importedStatus = new AppointmentStatus();
+		 importedStatus.setActive(1);
+		 importedStatus.setDescription(description);
+		 importedStatus.setEditable(1);
+		 importedStatus.setIcon("5.gif");
+		
+		 
+		 
+		 importedStatus.setStatus(findStatus(usedStatusCodes));
+		 importedStatus.setColor(generateRandomColor());
+		 
+		 appointmentStatusDao.persist(importedStatus);
+		 
+		 return importedStatus;
+	}
+	
+	String findStatus(List<String> usedStatusCodes) {
+		String alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		for(char c: alpha.toCharArray()) {
+			if(!usedStatusCodes.contains(String.valueOf(c))) {
+				return String.valueOf(c);
+			}
+		}
+		return null;
+	}
+	
+	String generateRandomColor() {
+		int R = (int)(Math.random()*256);
+		int G = (int)(Math.random()*256);
+		int B= (int)(Math.random()*256);
+		Color color = new Color(R, G, B); 
+		return getHTMLColorString(color);
+	}
+	
+	public String getHTMLColorString(Color color) {
+	    String red = Integer.toHexString(color.getRed());
+	    String green = Integer.toHexString(color.getGreen());
+	    String blue = Integer.toHexString(color.getBlue());
+
+	    return "#" + 
+	            (red.length() == 1? "0" + red : red) +
+	            (green.length() == 1? "0" + green : green) +
+	            (blue.length() == 1? "0" + blue : blue);        
 	}
 	
 	protected String getImportStatus() {

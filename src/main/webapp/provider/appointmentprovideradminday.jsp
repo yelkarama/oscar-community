@@ -1797,7 +1797,8 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
 			 <%} %>
 
             <%
-                String nextStatus = as.getNextStatus();
+                String nextStatus =null;
+            try {as.getNextStatus();} catch(Exception e){}
 			    if (nextStatus != null && !nextStatus.equals("")) {
             %>
 			<!-- Short letters -->
