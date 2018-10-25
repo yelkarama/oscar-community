@@ -1,7 +1,21 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
+<%@ taglib prefix="security" uri="/oscarSecuritytag" %>
+<%@ taglib prefix="caisi" uri="http://www.caisi.ca" %>
 <%@ page import="oscar.*, org.oscarehr.util.*"%>
-
+<%@ page import="org.oscarehr.common.model.Tickler" %>
+<%@ page import="oscar.util.UtilMisc" %>
+<%@ page import="org.oscarehr.managers.TicklerManager" %>
+<%@ page import="java.net.URLEncoder" %>
+<jsp:useBean id="as" class="oscar.appt.ApptStatusData" scope="page" />
 <logic:equal name="infirmaryView_isOscar" value="false">
 
+	<%!
+		private boolean isBirthday(String schedDate, String demBday){
+			return schedDate.equals(demBday);
+		}
+	%>
+	
 <%
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 	session.setAttribute("case_program_id", session.getAttribute(SessionConstants.CURRENT_PROGRAM_ID));
@@ -10,6 +24,30 @@
 	todayDate.setHours(23);
 	todayDate.setMinutes(59);
 	todayDate.setSeconds(59);
+
+	boolean userAvail = Boolean.parseBoolean(request.getParameter("userAvail"));
+	String tickler_no = request.getParameter("tickler_no");
+	String tickler_note = request.getParameter("tickler_note");
+	String strDate = request.getParameter("strDate");
+	String studyColor = request.getParameter("studyColor");
+	String curUser_no = request.getParameter("curUser_no");
+	String[] curProvider_no = request.getParameter("curProvider_no").split(", ");
+	String userfirstname = request.getParameter("userfirstname");
+	String userlastname = request.getParameter("userlastname");
+	String roleName$ = request.getParameter("roleName$");
+	String studySymbol = request.getParameter("studySymbol");
+	Integer nProvider = Integer.parseInt(request.getParameter("nProvider"));
+	Integer curYear = Integer.parseInt(request.getParameter("curYear"));
+	Integer curMonth = Integer.parseInt(request.getParameter("curMonth"));
+	Integer curDay = Integer.parseInt(request.getParameter("curDay"));
+	Integer year = Integer.parseInt(request.getParameter("year"));
+	Integer month = Integer.parseInt(request.getParameter("month"));
+	Integer day = Integer.parseInt(request.getParameter("day"));
+	String monthDay = request.getParameter("monthDay");
+	String demBday = request.getParameter("demBday");
+	boolean bShowDocLink = Boolean.parseBoolean(request.getParameter("bShowDocLink"));
+	boolean bShowEncounterLink = Boolean.parseBoolean(request.getParameter("bShowEncounterLink"));
+	TicklerManager ticklerManager= SpringUtils.getBean(TicklerManager.class);
 	
 	if (((String)session.getAttribute(SessionConstants.CURRENT_PROGRAM_ID)).equalsIgnoreCase("0"))
 	{%>
@@ -73,15 +111,15 @@ for(Tickler t: ticklerManager.search_tickler(loggedInInfo,demographic_no,MyDateF
 
 %></c:if><%
 
-ver = "";
-roster = "";
-study_no = new StringBuffer("");
-study_link = new StringBuffer("");
-studyDescription = new StringBuffer("");
+String ver = "";
+String roster = "";
+StringBuffer study_no = new StringBuffer("");
+StringBuffer study_link = new StringBuffer("");
+StringBuffer studyDescription = new StringBuffer("");
 String reason ="";
 String notes = "";
 String status = "T";
-bFirstTimeRs=true;
+boolean bFirstTimeRs=true;
 as.setApptStatus(status);
 
 String rsAppointNO="0";
@@ -140,7 +178,10 @@ if ((k/2)*2==k){ %>
 					rights="r">
 
 					<%String appointment_no=rsAppointNO;%>
-					<%@include file="appointmentFormsLinks.jspf" %>
+					<jsp:include page="appointmentFormsLinks.jspf">
+						<jsp:param name="appointment_no" value="appointment_no" />
+						<jsp:param name="demographic_no" value="demographic_no" />
+					</jsp:include>
  
 				</security:oscarSec> <!-- billing code block --> <security:oscarSec
 					roleName="<%=roleName$%>" objectName="_masterLink" rights="r">

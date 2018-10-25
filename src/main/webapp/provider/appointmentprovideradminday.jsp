@@ -1756,7 +1756,9 @@ if (curProvider_no[provIndex].equals(provNum)) {
 <!-- caisi infirmary view extension add fffffffffffff-->
 <caisi:isModuleLoad moduleName="caisi">
 
-	<jsp:include page="infirmaryviewprogramlist.jspf"/>
+	<jsp:include page="infirmaryviewprogramlist.jspf">
+		<jsp:param value="<%=curUser_no%>" name="curUser_no"/>
+	</jsp:include>
 
 </caisi:isModuleLoad>
 <!-- caisi infirmary view extension add end fffffffffffff-->
@@ -2108,7 +2110,31 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
 <!-- caisi infirmary view exteion add -->
 <!--  fffffffffffffffffffffffffffffffffffffffffff-->
 <caisi:isModuleLoad moduleName="caisi">
-<jsp:include page="infirmarydemographiclist.jspf"/>
+<jsp:include page="infirmarydemographiclist.jspf">
+	<jsp:param value="<%=userAvail%>" name="userAvail" />
+	<jsp:param value="<%=tickler_no%>" name="tickler_no" />
+	<jsp:param value="<%=tickler_note%>" name="tickler_note" />
+	<jsp:param value="<%=strDate%>" name="strDate" />
+	<jsp:param value="<%=bShowDocLink%>" name="bShowDocLink" />
+	<jsp:param value="<%=studyColor%>" name="studyColor" />
+	<jsp:param value="<%=bShowEncounterLink%>" name="bShowEncounterLink" />
+	<jsp:param value="<%=curUser_no%>" name="curUser_no" />
+	<jsp:param value="<%=Arrays.toString(curProvider_no)%>" name="curProvider_no" />
+	<jsp:param value="<%=nProvider%>" name="nProvider" />
+	<jsp:param value="<%=userlastname%>" name="userlastname" />
+	<jsp:param value="<%=userfirstname%>" name="userfirstname" />
+	<jsp:param value="<%=curYear%>" name="curYear" />
+	<jsp:param value="<%=curMonth%>" name="curMonth" />
+	<jsp:param value="<%=curDay%>" name="curDay" />
+	<jsp:param value="<%=year%>" name="year" />
+	<jsp:param value="<%=month%>" name="month" />
+	<jsp:param value="<%=day%>" name="day" />
+	<jsp:param value="<%=roleName$%>" name="roleName$" />
+	<jsp:param value="<%=studySymbol%>" name="studySymbol" />
+	<jsp:param value="<%=monthDay%>" name="monthDay" />
+	<jsp:param value="<%=demBday%>" name="demBday" />
+	
+</jsp:include>
 </caisi:isModuleLoad>
 <logic:notEqual name="infirmaryView_isOscar" value="false">
 <!-- caisi infirmary view exteion add end ffffffffffffffffff-->
