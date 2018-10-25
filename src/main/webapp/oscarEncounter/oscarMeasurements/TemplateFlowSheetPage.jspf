@@ -50,7 +50,6 @@
     
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 %>
-<oscar:oscarPropertiesCheck property="SPEC3" value="yes">
     <security:oscarSec roleName="<%=roleName$%>" objectName="_flowsheet" rights="r" reverse="<%=true%>">
         "You have no right to access this page!"
         <%
@@ -58,7 +57,6 @@
             response.sendRedirect("../../noRights.html");
     %>
     </security:oscarSec>
-</oscar:oscarPropertiesCheck>
 
 <%
 	if (OscarProperties.getInstance().getBooleanProperty("new_flowsheet_enabled", "true")) {
@@ -446,7 +444,6 @@ div.recommendations li{
             <tr>
                 <td colspan="3">
                     <oscar:nameage demographicNo="<%=demographic_no%>"/>
-                    <oscar:oscarPropertiesCheck property="SPEC3" value="yes">
                     <span class="DoNotPrint">
                     <security:oscarSec roleName="<%=roleName$%>" objectName="_flowsheet" rights="x">
                     <a href="adminFlowsheet/EditFlowsheet.jsp?flowsheet=<%=temp%>&demographic=<%=demographic_no%>">Edit</a>
@@ -471,7 +468,6 @@ div.recommendations li{
                     End Date <input type="text" size="10"id="flowsheetEndDate"/>
                     <input type="button" value="go" onclick="javascript: loadDifferentElements()"/>
                     </span>
-                    </oscar:oscarPropertiesCheck>
                 </td>
                 <td>
                 &nbsp;
@@ -517,21 +513,17 @@ div.recommendations li{
 
             %>
             <li>
-                <oscar:oscarPropertiesCheck property="SPEC3" value="yes">
                     <% if (pDx == null){ %>
                      <a href="FlowSheetDrugAction.do?method=dxSave&flowsheet=<%=temp%>&demographic=<%=demographic_no%>&dxCode=<%=code.getDxSearchCode()%>&dxCodeType=<%=code.getType()%>">
                     <%}else{%>
                      <span title="<%=code.getDescription()%>"  style="background-color: yellow;">
                     <%}%>
-                </oscar:oscarPropertiesCheck>
                 - <%=desc%>
-                <oscar:oscarPropertiesCheck property="SPEC3" value="yes">
                     <% if (pDx == null){ %>
                      </a>
                     <%}else{%>
                      </span>
                     <%}%>
-                </oscar:oscarPropertiesCheck>
             </li>
             <%  }%>
             </ul>
@@ -558,13 +550,9 @@ div.recommendations li{
                         if(arr[i].isCurrent()){
                     %>
                     <li title="<%=rxD%> - <%=rxP%>">
-                        <oscar:oscarPropertiesCheck property="SPEC3" value="yes">
                             <a href="FlowSheetDrugAction.do?method=save&flowsheet=<%=temp%>&demographic=<%=demographic_no%>&atcCode=<%=arr[i].getAtcCode()%>">
-                            </oscar:oscarPropertiesCheck>
                             - <%= org.apache.commons.lang.StringUtils.abbreviate(rxP, 12)%>
-                            <oscar:oscarPropertiesCheck property="SPEC3" value="yes">
                             </a>
-                        </oscar:oscarPropertiesCheck>
                     </li>
                     <%  }
                     }%>
