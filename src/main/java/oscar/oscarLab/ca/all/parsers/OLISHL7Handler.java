@@ -350,6 +350,51 @@ public class OLISHL7Handler implements MessageHandler {
 		}
 		return null;
 	}
+	
+	public String getTestResultStatuses() {
+		List<String> vals = new ArrayList<String>();
+		
+		for(int x=0;x<getOBRCount();x++) {
+			for(int y=0;y<getOBXCount(x);y++) {
+				String value = getOBXField(x, y, 11, 0, 1);
+				if(!vals.contains(value)) {
+					vals.add(value);
+				}
+			}
+		}
+		
+		return StringUtils.join(vals, ',');
+	}
+	
+	public String getTestRequestStatuses() {
+		List<String> vals = new ArrayList<String>();
+		
+		for(int x=0;x<getOBRCount();x++) {
+			
+			int i = 1;
+			Segment test;
+			try {
+
+				test = terser.getSegment("/.OBR");
+				while (test != null) {
+					i++;
+					test = (Segment) terser.getFinder().getRoot().get("OBR" + i);
+					if(test != null) {
+						String value =  getString(Terser.get(test, 25, 0, 1, 1));
+						if(!vals.contains(value)) {
+							vals.add(value);
+						}
+					}
+				}
+
+			} catch (Exception e) {
+				// ignore exceptions
+			}
+		
+		}
+		
+		return StringUtils.join(vals, ',');
+	}
 
 	public String getCategoryList() {
 		String result = "";
@@ -1257,7 +1302,7 @@ public class OLISHL7Handler implements MessageHandler {
 		}
 	}
 
-	public String getTestResultStatusMessage(char status) {
+	public static String getTestResultStatusMessage(char status) {
 		switch (status) {
 		case 'C':
 			return "Amended";
@@ -1278,7 +1323,7 @@ public class OLISHL7Handler implements MessageHandler {
 		}
 	}
 
-	public String getTestRequestStatusMessage(char status) {
+	public static String getTestRequestStatusMessage(char status) {
 		switch (status) {
 		case 'A':
 			return "Some, but not all, results available";
@@ -2253,7 +2298,7 @@ public class OLISHL7Handler implements MessageHandler {
 	public String getOrderStatus() {
 		return isCorrected ? "C" : isFinal ? "F" : "P";
 	}
-
+	
 	@Override
 	public String getClientRef() {
 		try {
@@ -2334,6 +2379,28 @@ public class OLISHL7Handler implements MessageHandler {
 		}
 	}
 
+	public String getTestRequestCode() {
+		try {
+			String code = getString(terser.get("/.OBR-4-1"));
+			return code;
+		} catch (HL7Exception e) {
+			MiscUtils.getLogger().error("OLIS HL7 Error", e);
+		}
+		return "";
+	}
+	
+	public boolean hasAbnormalResult() {
+		for(int x=0;x<getOBRCount();x++) {
+			for(int y=0;y<getOBXCount(x);y++) {
+				if(isOBXAbnormal(x,y)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	
 	@Override
 	public ArrayList<String> getDocNums() {
 		ArrayList<String> nums = new ArrayList<String>();

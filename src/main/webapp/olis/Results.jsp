@@ -8,6 +8,8 @@
     and "gnu.org/licenses/gpl-2.0.html".
 
 --%>
+<%@page import="org.oscarehr.olis.model.OLISRequestNomenclature"%>
+<%@page import="org.oscarehr.olis.dao.OLISRequestNomenclatureDao"%>
 <%@ page language="java" contentType="text/html;" %>
 <%@page import="com.indivica.olis.queries.*,org.oscarehr.olis.OLISSearchAction,java.util.*,oscar.oscarLab.ca.all.parsers.Factory, oscar.oscarLab.ca.all.parsers.OLISHL7Handler, oscar.oscarLab.ca.all.parsers.OLISHL7Handler.OLISError, org.oscarehr.olis.OLISResultsAction, org.oscarehr.util.SpringUtils" %>
 <%@page import="org.oscarehr.util.MiscUtils" %>
@@ -23,8 +25,15 @@
 <link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/share/css/OscarStandardLayout.css">
 <script type="text/javascript" src="<%=request.getContextPath()%>/share/javascript/Oscar.js"></script>
 <script type="text/javascript" src="<%=request.getContextPath()%>/share/javascript/oscarMDSIndex.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath()%>/share/javascript/sortable.js"></script>
 	
 <script type="text/javascript">
+image_path = '<%=request.getContextPath()%>/images/';
+image_up = 'arrow_up.png';
+image_down = 'arrow_down.png';
+image_none = 'arrow_off.png';
+
+
 function addToInbox(uuid) {
 	jQuery(uuid).attr("disabled", "disabled");
 	jQuery.ajax({
@@ -63,23 +72,58 @@ function ack(uuid) {
 
 var patientFilter = "";
 var labFilter = "";
+var hcnFilter = "";
+var categoryFilter = "";
+var performingLabFilter = "";
+var abnormalFilter = "";
+var testRequestCodeFilter = "";
+var testRequestStatusFilter = "";
+var resultStatusFilter = "";
+
 function filterResults(select) {
 	if (select.name == "labFilter") {
 		labFilter = select.value;
 	} else if(select.name == "patientFilter") {
 		patientFilter = select.value;
+	} else if(select.name == "hcnFilter") {
+		hcnFilter = select.value;
+	} else if(select.name == "categoryFilter") {
+		categoryFilter = select.value;
+	} else if(select.name == "performingLabFilter") {
+		performingLabFilter = select.value;
+	} else if(select.name == "abnormalFilter") {
+		abnormalFilter = select.value;
+	}  else if(select.name == "testRequestCodeFilter") {
+		testRequestCodeFilter = select.value;
+	} else if(select.name == "testRequestStatusFilter") {
+		testRequestStatusFilter = select.value;
+	} else if(select.name == "resultStatusFilter") {
+		resultStatusFilter = select.value;
 	}
+	
 	var performFilter = function() {
 		var visible = (patientFilter == "" || jQuery(this).attr("patientName") == patientFilter)
-				   && (labFilter == "" || jQuery(this).attr("reportingLaboratory") == labFilter);
-		if (visible) { jQuery(this).show(); }
-		else { jQuery(this).hide(); }
+				   && (labFilter == "" || jQuery(this).attr("reportingLaboratory") == labFilter)
+				    && (hcnFilter == "" || jQuery(this).attr("hcn") == hcnFilter)
+				    && (categoryFilter == "" || jQuery(this).attr("category") == categoryFilter) 
+				    && (performingLabFilter == "" || jQuery(this).attr("performingLaboratory") == performingLabFilter)
+				    && (abnormalFilter == "" || jQuery(this).attr("abnormal") == abnormalFilter) 
+				    && (testRequestCodeFilter == "" || jQuery(this).attr("testRequestCode") == testRequestCodeFilter)
+				     && (testRequestStatusFilter == "" || jQuery(this).attr("testRequestStatus") == testRequestStatusFilter)
+				     && (resultStatusFilter == "" || jQuery(this).attr("resultStatus").indexOf(resultStatusFilter) != -1);
+		
+		
+		if (visible) { 
+			jQuery(this).show(); 
+		} else { 
+			jQuery(this).hide(); 
+		}
 	};
+	
 	jQuery(".evenLine").each(performFilter);
 	jQuery(".oddLine").each(performFilter);
 }
 </script>
-<script type="text/javascript" src="<%=request.getContextPath()%>/share/javascript/sortable.js"></script>
 <style type="text/css">
 .oddLine { 
 	background-color: #cccccc;
@@ -95,6 +139,10 @@ function filterResults(select) {
 }
 </style>
 	
+<%
+	OLISRequestNomenclatureDao olisRequestNomenclatureDao = SpringUtils.getBean(OLISRequestNomenclatureDao.class);
+
+%>
 <title>OLIS Search Results</title>
 </head>
 <body>
@@ -177,67 +225,200 @@ function filterResults(select) {
 			%>
 			<table>
 				<tr>
-					<td colspan=8>Showing <%=resultList.size() %> result(s)</td>
+					<td colspan="6"><%=resultList.size() %> result(s) found</td>
 				</tr>
-				<% if (resultList.size() > 0) { %>
+				<tr>
+					<td colspan="6" style="height:10px"></td>
+				</tr>
+				<% if (resultList.size() > 0) { 
+					List<String> names = new ArrayList<String>();
+					List<String> hcns = new ArrayList<String>();
+					List<String> labs = new ArrayList<String>();
+					List<String> categories = new ArrayList<String>();
+					
+					List<String> performingLabs = new ArrayList<String>();
+					List<String> resultStatuses = new ArrayList<String>();
+					List<String> abnormals = new ArrayList<String>();
+					List<String> testRequestCodes = new ArrayList<String>();
+					List<String> testRequestStatuses = new ArrayList<String>();
+					
+					OLISHL7Handler result;
+					
+					for (String resultUuid : resultList) {
+						 result = OLISResultsAction.searchResultsMap.get(resultUuid);
+						String hcn = oscar.Misc.getStr(result.getHealthNum(), "").trim();
+						if (!hcn.equals("")) { hcns.add(hcn);}
+						String name = oscar.Misc.getStr(result.getPatientName(), "").trim();
+						if (!name.equals("")) { names.add(name); }
+						String reportingLab = oscar.Misc.getStr(result.getReportingFacilityName(), "").trim();
+						if (!reportingLab.equals("")) { labs.add(reportingLab); }
+						String category = oscar.Misc.getStr(result.getCategoryList(), "").trim();
+						if (!category.equals("")) { categories.add(category); }
+						String performingLab = oscar.Misc.getStr(result.getPerformingFacilityNameOnly(), "").trim();
+						if (!performingLab.equals("")) { performingLabs.add(performingLab); }
+						String testRequestCode = oscar.Misc.getStr(result.getTestRequestCode(), "").trim();
+						if (!testRequestCode.equals("")) { testRequestCodes.add(testRequestCode); }
+						String abnormal = oscar.Misc.getStr(result.hasAbnormalResult() ? "true" : "false", "").trim();
+						if (!abnormal.equals("")) { abnormals.add(abnormal); }
+						
+						String resultStatus = oscar.Misc.getStr(result.getTestResultStatuses(),"").trim();
+						for(String rs:resultStatus.split(",")) {
+							if (!rs.equals("")) { resultStatuses.add(rs); }
+						}
+						
+						String orderStatus = oscar.Misc.getStr(result.getOrderStatus(), "").trim();
+						for(String rs:orderStatus.split(",")) {
+							if (!rs.equals("")) { testRequestStatuses.add(rs); }
+						}
+					//	if (!orderStatus.equals("")) { testRequestStatuses.add(orderStatus); }
+						
+						
+						
+					}
+				
+				%>
 					<tr>
-						<td colspan="4">
-						Filter by patient name:
-						<select name="patientFilter" onChange="filterResults(this)">
-							<option value="">All Patients</option>
-							<%  List<String> names = new ArrayList<String>();
-								OLISHL7Handler result;
-								String name;
-								for (String resultUuid : resultList) {
-									result = OLISResultsAction.searchResultsMap.get(resultUuid);
-									name = oscar.Misc.getStr(result.getPatientName(), "").trim();
-									if (!name.equals("")) { names.add(name); }
-								}
-								for (String tmp: new HashSet<String>(names)) {
-							%>
-								<option value="<%=tmp%>"><%=tmp%></option>
-							<% } %>
-						</select>
+						<td style="text-align:right"><b>Patient:</b></td>
+						<td>
+							<select name="patientFilter" onChange="filterResults(this)">
+								<option value="">All Patients</option>
+								<%  
+									for (String tmp: new HashSet<String>(names)) {
+								%>
+									<option value="<%=tmp%>"><%=tmp%></option>
+								<% } %>
+							</select>
 						</td>
-						<td colspan="5">
-						Filter by reporting laboratory:
-						<select name="labFilter" onChange="filterResults(this)">
-							<option value="">All Labs</option>
-							<%  List<String> labs = new ArrayList<String>();
-								for (String resultUuid : resultList) {
-									result = OLISResultsAction.searchResultsMap.get(resultUuid);
-									name = oscar.Misc.getStr(result.getReportingFacilityName(), "").trim();
-									if (!name.equals("")) { labs.add(name); }
-								}
-								for (String tmp: new HashSet<String>(labs)) {
-							%>
-								<option value="<%=tmp%>"><%=tmp%></option>
-							<% } %>
-						</select>
+						<td style="text-align:right"><b>HCN:</b></td>
+						<td>
+							<select name="hcnFilter" onChange="filterResults(this)">
+								<option value="">All HCNs</option>
+								<% 
+									for (String tmp: new HashSet<String>(hcns)) {
+								%>
+									<option value="<%=tmp%>"><%=tmp%></option>
+								<% } %>
+							</select>
+						</td>
+						<td style="text-align:right"><b>Category:</b></td>
+						<td>
+							<select name="categoryFilter" onChange="filterResults(this)">
+								<option value="">All Categories</option>
+								<% 
+									for (String tmp: new HashSet<String>(categories)) {
+								%>
+									<option value="<%=tmp%>"><%=tmp%></option>
+								<% } %>
+							</select>
 						</td>
 					</tr>
-					<tr><td colspan="10">
+					
+					<tr>
+						<td style="text-align:right"><b>Reporting Lab:</b></td>
+						<td>	
+							<select name="labFilter" onChange="filterResults(this)">
+								<option value="">All Reporting Labs</option>
+								<% 
+									for (String tmp: new HashSet<String>(labs)) {
+								%>
+									<option value="<%=tmp%>"><%=tmp%></option>
+								<% } %>
+							</select>
+						</td>
+						<td style="text-align:right"><b>Performing Lab:</b></td>
+						<td>
+							<select name="performingLabFilter" onChange="filterResults(this)">
+								<option value="">All Performing Labs</option>
+								<% 
+									for (String tmp: new HashSet<String>(performingLabs)) {
+								%>
+									<option value="<%=tmp%>"><%=tmp%></option>
+								<% } %>
+							</select>
+						</td>
+						<td style="text-align:right"><b>Result Status:</b></td>
+						<td>
+							<select name="resultStatusFilter" onChange="filterResults(this)">
+								<option value="">All Result Statuses</option>
+								<% 
+									for (String tmp: new HashSet<String>(resultStatuses)) {
+								%>
+									<option value="<%=tmp%>">
+									<%=	OLISHL7Handler.getTestResultStatusMessage(tmp.charAt(0))%>
+									</option>
+								<% } %>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td style="text-align:right"><b>Abnormal:</b></td>
+						<td>
+							
+							<select name="abnormalFilter" onChange="filterResults(this)">
+								<option value="">All Normal and Abnormal</option>
+								<% 
+									for (String tmp: new HashSet<String>(abnormals)) {
+								%>
+									<option value="<%=tmp%>">
+									<%if("true".equals(tmp)) { out.print("Abnormal"); } if("false".equals(tmp)) { out.print("Normal"); } %>
+									</option>
+								<% } %>
+							</select>
+						</td>
+						<td style="text-align:right"><b>Test Request Code:</b></td>
+						<td>
+							
+							<select name="testRequestCodeFilter" onChange="filterResults(this)">
+								<option value="">All Test Request Codes</option>
+								<% 
+									for (String tmp: new HashSet<String>(testRequestCodes)) {
+										OLISRequestNomenclature item =  olisRequestNomenclatureDao.findByNameId(tmp);
+										
+										
+								%>
+									<option value="<%=tmp%>"><%=item!=null?item.getName():tmp%></option>
+								<% } %>
+							</select>
+						</td>
+						<td style="text-align:right"><b>Test Request Status:</b></td>
+						<td>
+							
+							<select name="testRequestStatusFilter" onChange="filterResults(this)">
+								<option value="">All Test Request Statuses</option>
+								<% 
+									for (String tmp: new HashSet<String>(testRequestStatuses)) {
+								%>
+									<option value="<%=tmp%>"><%=OLISHL7Handler.getTestRequestStatusMessage(tmp.charAt(0))%></option>
+								<% } %>
+							</select>
+						</td>
+					</tr>
+					<tr><td colspan="6">
 					<table class="sortable" id="resultsTable">
-					<tr><th class="unsortable"></th>
-						<th class="unsortable"></th>
-						<th class="unsortable"></th>
-						<th class="unsortable"></th>
-						<th>Health Number</th>
-						<th>Patient Name</th>
-						<th>Sex</th>
-						<th>Date of Test</th>
-						<th>Discipline</th>
-						<th>Tests</th>
-						<th>Status</th>
-						<th>Ordering Practitioner</th>
-						<th>Admitting Practitioner</th>
+					<tr><th class="unsortable" style="white-space: nowrap;"></th>
+						<th class="unsortable" style="white-space: nowrap;"></th>
+						<th class="unsortable" style="white-space: nowrap;"></th>
+						<th class="unsortable" style="white-space: nowrap;"></th>
+						<th style="white-space: nowrap;">Health Number</th>
+						<th style="white-space: nowrap;">Patient Name</th>
+						<th style="white-space: nowrap;">Sex</th>
+						<th style="white-space: nowrap;">Date of Test</th>
+						<th style="white-space: nowrap;">Discipline</th>
+						<th style="white-space: nowrap;">Tests</th>
+						<th style="white-space: nowrap;">Status</th>
+						<th style="white-space: nowrap;">Abnormal</th>
+						<th style="white-space: nowrap;">Ordering Practitioner</th>
+						<th style="white-space: nowrap;">Admitting Practitioner</th>
 					</tr>
 					
 					<%  int lineNum = 0;
 						for (String resultUuid : resultList) {
 						result = OLISResultsAction.searchResultsMap.get(resultUuid);
 					%>
-					<tr class="<%=++lineNum % 2 == 1 ? "oddLine" : "evenLine"%>" patientName="<%=result.getPatientName()%>" reportingLaboratory="<%=result.getReportingFacilityName()%>">
+					<tr class="<%=++lineNum % 2 == 1 ? "oddLine" : "evenLine"%>" patientName="<%=result.getPatientName()%>" reportingLaboratory="<%=result.getReportingFacilityName()%>" 
+						hcn="<%=result.getHealthNum()%>" category="<%=result.getCategoryList()%>" performingLaboratory="<%=result.getPerformingFacilityNameOnly()%>"
+						abnormal="<%=result.hasAbnormalResult()%>" testRequestCode="<%=result.getTestRequestCode()%>" testRequestStatus="<%=result.getOrderStatus()%>"
+						resultStatus="<%=result.getTestResultStatuses()%>">
 						<td>
 							<div id="<%=resultUuid %>_result"></div>
 							<input type="button" onClick="addToInbox('<%=resultUuid %>'); return false;" id="<%=resultUuid %>" value="Add to Inbox" />
@@ -259,22 +440,10 @@ function filterResults(select) {
 						<td><%=result.getPatientName() %></td>
 						<td align="center"><%=result.getSex() %></td>
 						<td><%=result.getSpecimenReceivedDateTime() %></td>
-						<td style="width:200px;">
-						<%
-						String discipline = result.getCategoryList();
-						%>
-						<%=discipline %>
-						</td>
-						
-						<td style="width:200px;">
-						<%
-						Integer obrCount = result.getOBRCount();
-						String tests = result.getTestList();
-						%>
-						
-						<%=tests %>
-						</td>
+						<td style="width:200px;"><%=result.getCategoryList() %></td>
+						<td style="width:200px;"><%=result.getTestList() %></td>
 						<td><%= ( (String) ( result.getOrderStatus().equals("F") ? "Final" : result.getOrderStatus().equals("C") ? "Corrected" : "Partial") )%></td>
+						<td><%=result.hasAbnormalResult() ?  "<span style='color:red'>Abnormal</span>" : "" %></td>
 						<td> <%=result.getShortDocName() %> </td>
 						<td> <%=result.getAdmittingProviderNameShort()%></td>
 						 

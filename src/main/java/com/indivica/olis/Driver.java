@@ -83,19 +83,30 @@ public class Driver {
 
 	private static OscarLogDao logDao = (OscarLogDao) SpringUtils.getBean("oscarLogDao");
 
-	public static String submitOLISQuery(HttpServletRequest request, Query query) {
+	public static String submitOLISQuery(LoggedInInfo loggedInInfo, HttpServletRequest request, Query query) {
 		try {
-			OLISMessage message = new OLISMessage(query);
+			OLISMessage message = new OLISMessage(loggedInInfo.getLoggedInProvider(), query);
 
-			System.setProperty("javax.net.ssl.trustStore", OscarProperties.getInstance().getProperty("olis_truststore").trim());
-			System.setProperty("javax.net.ssl.trustStorePassword", OscarProperties.getInstance().getProperty("olis_truststore_password").trim());
+			if(OscarProperties.getInstance().getProperty("olis_truststore") != null) {
+				System.setProperty("javax.net.ssl.trustStore", OscarProperties.getInstance().getProperty("olis_truststore").trim());
+			} else {
+				MiscUtils.getLogger().warn("OLIS requires a truststore to be setup. check olis_truststore property");
+			}
+			
+			if(OscarProperties.getInstance().getProperty("olis_truststore_password") != null) {
+				System.setProperty("javax.net.ssl.trustStorePassword", OscarProperties.getInstance().getProperty("olis_truststore_password").trim());
+			} else {
+				MiscUtils.getLogger().warn("OLIS requires a truststore to be setup. check olis_truststore_password property");
+			}
 			
 			OLISRequest olisRequest = new OLISRequest();
 			olisRequest.setHIALRequest(new HIALRequest());
 			String olisRequestURL = OscarProperties.getInstance().getProperty("olis_request_url", "https://olis.ssha.ca/ssha.olis.webservices.ER7/OLIS.asmx");
 			OLISStub olis = new OLISStub(olisRequestURL);
-			olis._getServiceClient().getOptions().setProperty(HTTPConstants.CUSTOM_PROTOCOL_HANDLER, new Protocol("https",(ProtocolSocketFactory)  new OLISProtocolSocketFactory(),443));
 			
+			if (OscarProperties.getInstance().getProperty("olis_simulate", "no").equals("no")) {
+				olis._getServiceClient().getOptions().setProperty(HTTPConstants.CUSTOM_PROTOCOL_HANDLER, new Protocol("https",(ProtocolSocketFactory)  new OLISProtocolSocketFactory(),443));
+			}
 			olisRequest.getHIALRequest().setClientTransactionID(message.getTransactionId());
 			olisRequest.getHIALRequest().setSignedRequest(new HIALRequestSignedRequest());
 
@@ -118,7 +129,7 @@ public class Driver {
 				logItem.setContent("query");
 				logItem.setData(olisHL7String);
 
-				logItem.setProviderNo("-1");
+				logItem.setProviderNo(loggedInInfo.getLoggedInProviderNo());
 
 				logDao.persist(logItem);
 
@@ -127,10 +138,14 @@ public class Driver {
 			}
 
 			if (OscarProperties.getInstance().getProperty("olis_simulate", "no").equals("yes")) {
-				String response = (String) request.getSession().getAttribute("olisResponseContent");
-				request.setAttribute("olisResponseContent", response);
-				request.getSession().setAttribute("olisResponseContent", null);
-				return response;
+				if(request != null) {
+					String response = (String) request.getSession().getAttribute("olisResponseContent");
+					request.setAttribute("olisResponseContent", response);
+					request.getSession().setAttribute("olisResponseContent", response);
+					return response;
+				}
+				//this only happens for auto-polling when simulate is enabled
+				return "";
 			} else {
 				OLISRequestResponse olisResponse = olis.oLISRequest(olisRequest);
 
@@ -148,7 +163,7 @@ public class Driver {
 				}
 
 				writeToFile(unsignedData);
-				readResponseFromXML(request, unsignedData);
+				readResponseFromXML(loggedInInfo, request, unsignedData);
 
 				return unsignedData;
 
@@ -159,13 +174,12 @@ public class Driver {
 				request.setAttribute("searchException", e);
 			}
 
-			LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 			notifyOlisError(loggedInInfo.getLoggedInProvider(), e.getMessage());
 			return "";
 		}
 	}
 
-	public static void readResponseFromXML(HttpServletRequest request, String olisResponse) {
+	public static void readResponseFromXML(LoggedInInfo loggedInInfo, HttpServletRequest request, String olisResponse) {
 
 		olisResponse = olisResponse.replaceAll("<Content", "<Content xmlns=\"\" ");
 		olisResponse = olisResponse.replaceAll("<Errors", "<Errors xmlns=\"\" ");
@@ -210,8 +224,6 @@ public class Driver {
 			}
 		} catch (Exception e) {
 			MiscUtils.getLogger().error("Couldn't read XML from OLIS response.", e);
-			
-			LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 			notifyOlisError(loggedInInfo.getLoggedInProvider(), "Couldn't read XML from OLIS response." + "\n" + e);
 		}
 	}
@@ -364,7 +376,7 @@ public class Driver {
 			result = new String(signedDataB64);
 
 		} catch (Exception e) {
-			MiscUtils.getLogger().error("Can't sign HL7 message for OLIS", e);
+			MiscUtils.getLogger().warn("Can't sign HL7 message for OLIS. No valid keystore defined!");
 		}
 		return result;
 	}

@@ -57,7 +57,7 @@ public class OLISResultsAction extends DispatchAction {
 				String olisXmlResponse = oscar.Misc.getStr(request.getParameter("olisXmlResponse"), "");
 				if (olisResultString.trim().equalsIgnoreCase("")) {
 					if (!olisXmlResponse.trim().equalsIgnoreCase("")) {
-						Driver.readResponseFromXML(request, olisXmlResponse);
+						Driver.readResponseFromXML(LoggedInInfo.getLoggedInInfoFromSession(request), request, olisXmlResponse);
 					}
 					
 					List<String> resultList = new LinkedList<String>();

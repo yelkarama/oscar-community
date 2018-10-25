@@ -491,6 +491,96 @@ public final class MessageUploader {
 	private static void providerRouteReport(String labId, ArrayList docNums, Connection conn, String altProviderNo, String labType) throws Exception {
 		providerRouteReport(labId, docNums, conn, altProviderNo, labType, null, null, false);
 	}
+	
+	
+	public static Integer willLabReportMatch(LoggedInInfo loggedInInfo, String lastName, String firstName, String sex, String dob, String hin) {
+		Connection conn = null;
+		PatientLabRoutingResult result = null;
+		
+	
+		String sql = null;
+		String demo = "0";
+		String provider_no = "0";
+		// 19481015
+		String dobYear = "%";
+		String dobMonth = "%";
+		String dobDay = "%";
+		String hinMod = null;
+	
+		try {
+			conn = DbConnectionFilter.getThreadLocalDbConnection();
+			if (hin != null) {
+				hinMod = new String(hin);
+				if (hinMod.length() == 12) {
+					hinMod = hinMod.substring(0, 10);
+				}
+			}
+
+			if (dob != null && !dob.equals("")) {
+				String[] dobArray = dob.trim().split("-");
+				dobYear = dobArray[0];
+				dobMonth = dobArray[1];
+				dobDay = dobArray[2];
+			}
+
+			// only the first letter of names
+			if (!firstName.equals("")) firstName = firstName.substring(0, 1);
+			if (!lastName.equals("")) lastName = lastName.substring(0, 1);
+
+	
+			// HIN is ALWAYS required for lab matching. Please do not revert this code. Previous iterations have caused fatal patient miss-matches.				
+			if( hinMod != null ) {
+				if (OscarProperties.getInstance().getBooleanProperty("LAB_NOMATCH_NAMES", "yes")) {
+					sql = "select demographic_no, provider_no from demographic where hin='" + hinMod + "' and " + " year_of_birth like '" + dobYear + "' and " + " month_of_birth like '" + dobMonth + "' and " + " date_of_birth like '" + dobDay + "' and " + " sex like '" + sex + "%' ";
+				} else {
+					sql = "select demographic_no, provider_no from demographic where hin='" + hinMod + "' and " + " last_name like '" + lastName + "%' and " + " first_name like '" + firstName + "%' and " + " year_of_birth like '" + dobYear + "' and " + " month_of_birth like '" + dobMonth + "' and " + " date_of_birth like '" + dobDay + "' and " + " sex like '" + sex + "%' ";
+				}
+			}
+			
+			if( sql != null ) {
+				logger.debug(sql);
+				PreparedStatement pstmt = conn.prepareStatement(sql);
+				ResultSet rs = pstmt.executeQuery();
+				int count = 0;
+				
+				while (rs.next()) {
+					result = new PatientLabRoutingResult();
+					demo = oscar.Misc.getString(rs, "demographic_no");
+					provider_no = oscar.Misc.getString(rs, "provider_no");
+					result.setDemographicNo(Integer.parseInt(demo));
+					result.setProviderNo(provider_no);
+					count++;
+				}
+				rs.close();
+				pstmt.close();
+				if(count > 1) {
+					result = null;
+				}
+			}
+		} catch (SQLException sqlE) {
+			return null;
+		} finally {
+			DbConnectionFilter.releaseThreadLocalDbConnection();
+		}
+		 
+		if(result != null) {
+			DemographicMerged dm = new DemographicMerged();
+			Integer headDemo = dm.getHead(result.getDemographicNo());
+			if(headDemo != null && headDemo.intValue() != result.getDemographicNo()) {
+				Demographic demoTmp = demographicManager.getDemographic(loggedInInfo, headDemo);
+				if(demoTmp != null) {
+					result.setDemographicNo(demoTmp.getDemographicNo());
+					result.setProviderNo(demoTmp.getProviderNo());
+				} else {
+					logger.info("Unable to load the head record of this patient record. (" + result.getDemographicNo()  + ")");
+					result = null;
+				}
+			}
+		} 
+	
+		
+		return result != null ? result.getDemographicNo() : null;
+	}
 
 	/**
 	 * Attempt to match the patient from the lab to a demographic, return the patients provider which is to be used then no other provider can be found to match the patient to.
