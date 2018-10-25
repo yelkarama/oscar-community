@@ -260,3 +260,109 @@ function isCanadian(){
     }
     return true;
 }
+
+
+function setProvince(sdCode) {
+	jQuery("#country").bind('change',function(){
+		updateProvinces('');
+	});
+	
+    jQuery.ajax({
+        type: "POST",
+        url:  '../demographicSupport.do',
+        data: 'method=getCountryAndProvinceCodes',
+        dataType: 'json',
+        success: function (data) {
+        	jQuery.each(data, function(i, value) {
+                 jQuery('#country').append(jQuery('<option>').text(value.label).attr('value', value.value));
+             });
+        	
+        	 if(sdCode.indexOf('-') != -1) {
+            	 jQuery("#country").val(sdCode.split("-")[0]);
+             } else {
+           	  jQuery("#country").val('CA');
+             }
+        	
+        	updateProvinces(sdCode);
+        }
+	});
+  }
+
+
+function updateProvinces(province) {
+	var country = jQuery("#country").val();
+	
+	jQuery.ajax({
+        type: "POST",
+        url:  '../demographicSupport.do',
+        data: 'method=getCountryAndProvinceCodes&country=' + country,
+        dataType: 'json',
+        success: function (data) {
+        	jQuery('#province').empty();
+        	 
+        	jQuery.each(data, function(i, value) {
+                 jQuery('#province').append(jQuery('<option>').text(value.label).attr('value', value.value));
+             });
+        	
+        	
+        	if(province != null) {
+        		jQuery("#province").val(province);
+        	}
+        	
+        	
+        }
+	});
+}
+
+
+function setMailingProvince(sdCode) {
+	jQuery("#mailingCountry").bind('change',function(){
+		updateMailingProvinces('');
+	});
+	
+    jQuery.ajax({
+        type: "POST",
+        url:  '../demographicSupport.do',
+        data: 'method=getCountryAndProvinceCodes',
+        dataType: 'json',
+        success: function (data) {
+        	jQuery.each(data, function(i, value) {
+                 jQuery('#mailingCountry').append(jQuery('<option>').text(value.label).attr('value', value.value));
+             });
+             
+             if(sdCode.indexOf('-') != -1) {
+            	 jQuery("#mailingCountry").val(sdCode.split("-")[0]);
+             } else {
+           	  jQuery("#mailingCountry").val('CA');
+             }
+        	
+        	updateMailingProvinces(sdCode);
+        }
+	});
+  }
+
+
+function updateMailingProvinces(province) {
+	var country = jQuery("#mailingCountry").val();
+	
+	jQuery.ajax({
+        type: "POST",
+        url:  '../demographicSupport.do',
+        data: 'method=getCountryAndProvinceCodes&country=' + country,
+        dataType: 'json',
+        success: function (data) {
+        	jQuery('#mailingProvince').empty();
+        	 
+        	jQuery.each(data, function(i, value) {
+                 jQuery('#mailingProvince').append(jQuery('<option>').text(value.label).attr('value', value.value));
+             });
+        	
+        	
+        	if(province != null) {
+        		jQuery("#mailingProvince").val(province);
+        	}
+        	
+        	
+        }
+	});
+}

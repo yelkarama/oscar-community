@@ -24,6 +24,7 @@
 
 --%>
 
+<%@page import="org.oscarehr.common.ISO36612"%>
 <%@page import="org.oscarehr.managers.LookupListManager"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
@@ -859,25 +860,37 @@ function consentClearBtn(radioBtnName)
 	    }
 	}
 }
+
+<%
+Demographic demographic = demographicDao.getDemographic(demographic_no);
+List<DemographicArchive> archives = demographicArchiveDao.findByDemographicNo(Integer.parseInt(demographic_no));
+List<DemographicExtArchive> extArchives = demographicExtArchiveDao.getDemographicExtArchiveByDemoAndKey(Integer.parseInt(demographic_no), "demo_cell");
+
+AdmissionManager admissionManager = SpringUtils.getBean(AdmissionManager.class);  
+	Admission bedAdmission = admissionManager.getCurrentBedProgramAdmission(demographic.getDemographicNo());
+	Admission communityAdmission = admissionManager.getCurrentCommunityProgramAdmission(demographic.getDemographicNo());
+	List<Admission> serviceAdmissions = admissionManager.getCurrentServiceProgramAdmission(demographic.getDemographicNo());
+	if(serviceAdmissions == null) {
+		serviceAdmissions = new ArrayList<Admission>();
+	}
+
+%>
+
+
+<%
+if("true".equals(OscarProperties.getInstance().getProperty("iso3166.2.enabled","false"))) { 	
+%>
+jQuery(document).ready(function(){
+	setProvince('<%=demographic.getProvince()%>');
+	setMailingProvince('<%=demographic.getMailingProvince()%>');
+});
+<% } %>
 </script>
 
 </head>
 <body onLoad="setfocus(); checkONReferralNo(); formatPhoneNum(); checkRosterStatus2();"
 	topmargin="0" leftmargin="0" rightmargin="0" id="demographiceditdemographic">
-<%
-       Demographic demographic = demographicDao.getDemographic(demographic_no);
-       List<DemographicArchive> archives = demographicArchiveDao.findByDemographicNo(Integer.parseInt(demographic_no));
-       List<DemographicExtArchive> extArchives = demographicExtArchiveDao.getDemographicExtArchiveByDemoAndKey(Integer.parseInt(demographic_no), "demo_cell");
-       
-       AdmissionManager admissionManager = SpringUtils.getBean(AdmissionManager.class);  
-     	Admission bedAdmission = admissionManager.getCurrentBedProgramAdmission(demographic.getDemographicNo());
-     	Admission communityAdmission = admissionManager.getCurrentCommunityProgramAdmission(demographic.getDemographicNo());
-     	List<Admission> serviceAdmissions = admissionManager.getCurrentServiceProgramAdmission(demographic.getDemographicNo());
-     	if(serviceAdmissions == null) {
-     		serviceAdmissions = new ArrayList<Admission>();
-     	}
 
-%>
 <table class="MainTable" id="scrollNumber1" name="encounterTable">
 	<tr class="MainTableTopRow">
 		<td class="MainTableTopRowLeftColumn"><bean:message
@@ -1905,7 +1918,7 @@ if ( Dead.equals(PatStat) ) {%>
 								key="demographic.demographiceditdemographic.formProcvince" /> <% } else {
 			                                  out.print(oscarProps.getProperty("demographicLabelProvince"));
                                                                                } %>:</span>
-                                                        <span class="info"><%=StringUtils.trimToEmpty(demographic.getProvince())%></span></li>
+                                                        <span class="info"><%=StringUtils.trimToEmpty(ISO36612.getInstance().translateCodeToHumanReadableString(demographic.getProvince()))%></span></li>
                                                     <li><span class="label">
 							<% if(oscarProps.getProperty("demographicLabelPostal") == null) { %>
 							<bean:message
@@ -1926,7 +1939,7 @@ if ( Dead.equals(PatStat) ) {%>
                                                     </li>
                                                     <li><span class="label">
 														<bean:message key="demographic.demographiceditdemographic.formMailingProvince" />:</span>
-                                                        <span class="info"><%=StringUtils.trimToEmpty(demographic.getMailingProvince())%></span></li>
+                                                        <span class="info"><%=StringUtils.trimToEmpty(ISO36612.getInstance().translateCodeToHumanReadableString(demographic.getMailingProvince()))%></span></li>
                                                     <li><span class="label">
 							
 							<bean:message
@@ -2506,9 +2519,16 @@ if ( Dead.equals(PatStat) ) {%>
 									key="demographic.demographiceditdemographic.formProcvince" /> <% } else {
                                   out.print(oscarProps.getProperty("demographicLabelProvince"));
                               	 } %> : </b></td>
-								<td align="left">
-								
-								<% String province = demographic.getProvince(); %> 
+								<td align="left">			
+								<% String province = demographic.getProvince(); %>
+								<%
+					if("true".equals(OscarProperties.getInstance().getProperty("iso3166.2.enabled","false"))) { 	
+				%>
+					<select name="province" id="province"></select> 
+					<br/>
+					Filter by Country: <select name="country" id="country" ></select>
+							
+						<% } else { %> 
 								<select name="province" style="width: 200px" <%=getDisabled("province")%>>
 									<option value="OT"
 										<%=(province==null || province.equals("OT") || province.equals("") || province.length() > 2)?" selected":""%>>Other</option>
@@ -2591,6 +2611,8 @@ if ( Dead.equals(PatStat) ) {%>
 									<option value="US-WY" <%="US-WY".equals(province)?" selected":""%>>US-WY-Wyoming</option>
 									<% } %>
 								</select>
+								
+								<% } %>
 								</td>
 								<td align="right"><b> <% if(oscarProps.getProperty("demographicLabelPostal") == null) { %>
 								<bean:message
@@ -2623,6 +2645,15 @@ if ( Dead.equals(PatStat) ) {%>
 								<td align="left">
 								
 								<% String mailingProvince = demographic.getMailingProvince(); %> 
+				<%
+					if("true".equals(OscarProperties.getInstance().getProperty("iso3166.2.enabled","false"))) { 	
+				%>
+					<select name="mailingProvince" id="mailingProvince"></select> 
+					<br/>
+					Filter by Country: <select name="mailingCountry" id="mailingCountry" ></select>
+							
+						<% } else { %> 
+
 								<select name="mailingProvince" style="width: 200px" <%=getDisabled("mailingProvince")%>>
 									<option value="OT"
 										<%=(mailingProvince==null || mailingProvince.equals("OT") || mailingProvince.equals("") || mailingProvince.length() > 2)?" selected":""%>>Other</option>
@@ -2705,6 +2736,7 @@ if ( Dead.equals(PatStat) ) {%>
 									<option value="US-WY" <%="US-WY".equals(mailingProvince)?" selected":""%>>US-WY-Wyoming</option>
 									<% } %>
 								</select>
+					<% } %>
 								</td>
 								<td align="right"><b>
 								<bean:message
