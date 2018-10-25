@@ -19,9 +19,9 @@
 	<indicator key="HIGH" colour="orange" />
 	<indicator key="LOW" colour="#9999FF" />
 	
-	<item measurement_type="NYHA" display_name="HYNA Functional Capacity Classification" guideline="Record class 1 - 4" graphable="no" value_name="Class" />
+	<item measurement_type="NYHA" display_name="NYHA Functional Capacity Classification" guideline="Record class 1 - 4" graphable="no" value_name="Class" />
 	<measurement type="NYHA" typeDesc="NYHA Functional Capacity Classification" typeDisplayName="NYHA Functional Capacity Classification" measuringInstrc="">
-		<validationRule name="Numeric Value: 0 to 4" maxValue="4" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
+		<validationRule name="Integer: 1 to 4" maxValue="4" minValue="1" isDate="" isNumeric="1" regularExp="" maxLength="1" minLength="" />
 	</measurement>
 	
 	<item measurement_type="Kpl" display_name="Potasium" guideline="" graphable="yes" value_name="Value" />
@@ -72,9 +72,39 @@
 		<validationRule name="Numeric Value: 0 to 500" maxValue="500" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
 	</measurement>
 	
-	<item measurement_type="SOHF" display_name="Symptoms of Heart Failure" guideline="list signs in comments: Fatigue, Dizziness and/or syncope, Dyspnea on exertion, Dyspnea at rest, Orthopnea, Paroxysmal nocturnal dyspnea" graphable="no" value_name="Reviewed" />
-	<measurement type="SOHF" typeDesc="Symptoms of Heart Failure" typeDisplayName="Symptoms of Heart Failure" measuringInstrc="">
-		<validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
+	<item measurement_type="HFSFT" display_name="Heart Failure Symptom: Fatigue" guideline="Frequency/week" graphable="yes" value_name="Fatigue" />
+	<measurement type="HFSFT" typeDesc="Heart Failure Symptom: Fatigue" typeDisplayName="Heart Failure Symptom: Fatigue" measuringInstrc="">
+		<validationRule name="Numeric Value greater than or equal to 0" maxValue="" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength=""/>
+	</measurement>
+	
+	<item measurement_type="HFSDZ" display_name="Heart Failure Symptom: Dizziness" guideline="Frequency/week" graphable="yes" value_name="Dizziness" />
+	<measurement type="HFSDZ" typeDesc="Heart Failure Symptom: Dizziness" typeDisplayName="Heart Failure Symptom: Dizziness" measuringInstrc="">
+		<validationRule name="Numeric Value greater than or equal to 0" maxValue="" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength=""/>
+	</measurement>
+	
+	<item measurement_type="HFSSC" display_name="Heart Failure Symptom: Syncope" guideline="Frequency/week" graphable="yes" value_name="Dizziness" />
+	<measurement type="HFSSC" typeDesc="Heart Failure Symptom: Syncope" typeDisplayName="Heart Failure Symptom: Syncope" measuringInstrc="">
+		<validationRule name="Numeric Value greater than or equal to 0" maxValue="" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength=""/>
+	</measurement>
+	
+	<item measurement_type="HFSDE" display_name="Heart Failure Symptom: Dyspnea on Exertion" guideline="Frequency/week" graphable="yes" value_name="Dizziness" />
+	<measurement type="HFSDE" typeDesc="Heart Failure Symptom: Dyspnea on Exertion" typeDisplayName="Heart Failure Symptom: Dyspnea on Exertion" measuringInstrc="">
+		<validationRule name="Numeric Value greater than or equal to 0" maxValue="" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength=""/>
+	</measurement>
+	
+	<item measurement_type="HFSDR" display_name="Heart Failure Symptom: Dyspnea at Rest" guideline="Frequency/week" graphable="yes" value_name="Dizziness" />
+	<measurement type="HFSDR" typeDesc="Heart Failure Symptom: Dyspnea at Rest" typeDisplayName="Heart Failure Symptom: Dyspnea at Rest" measuringInstrc="">
+		<validationRule name="Numeric Value greater than or equal to 0" maxValue="" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength=""/>
+	</measurement>
+	
+	<item measurement_type="HFSON" display_name="Heart Failure Symptom: Orthopnea" guideline="Frequency/week" graphable="yes" value_name="Dizziness" />
+	<measurement type="HFSON" typeDesc="Heart Failure Symptom: Orthopnea" typeDisplayName="Heart Failure Symptom: Orthopnea" measuringInstrc="">
+		<validationRule name="Numeric Value greater than or equal to 0" maxValue="" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength=""/>
+	</measurement>
+	
+	<item measurement_type="HFSDP" display_name="Heart Failure Symptom: Paroxysmal Nocturnal Dyspnea" guideline="Frequency/week" graphable="yes" value_name="Dizziness" />
+	<measurement type="HFSDP" typeDesc="Heart Failure Symptom: Paroxysmal Nocturnal Dyspnea" typeDisplayName="Heart Failure Symptom: Paroxysmal Nocturnal Dyspnea" measuringInstrc="">
+		<validationRule name="Numeric Value greater than or equal to 0" maxValue="" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength=""/>
 	</measurement>
 	
 	<item measurement_type="WT" display_name="Weight" guideline="" graphable="yes" value_name="Value" />
@@ -308,8 +338,8 @@
 		<validationRule name="No Validations" maxValue="" minValue="" isDate="" isNumeric="" regularExp="" maxLength="" minLength="" />
 	</measurement>
 	
-	<item measurement_type="CASA" display_name="Consider ASA" guideline="" graphable="no" value_name="Considered" />
-	<measurement type="CASA" typeDesc="Consider ASA" typeDisplayName="Consider ASA" measuringInstrc="">
+	<item measurement_type="ASAU" display_name="ASA Use" guideline="" graphable="no" value_name="Used" />
+	<measurement type="ASAU" typeDesc="ASA Use" typeDisplayName="ASA Use" measuringInstrc="">
 		<validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
-	</measurement> 
+	</measurement>    
 </flowsheet>

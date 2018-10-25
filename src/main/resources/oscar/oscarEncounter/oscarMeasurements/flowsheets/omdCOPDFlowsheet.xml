@@ -19,24 +19,24 @@
 	<indicator key="HIGH" colour="orange" />
 	<indicator key="HIGH 1" colour="#E00000" />
 	
-	<item measurement_type="FEV1" display_name="Spirometry Results" guideline="FEV 1 percent of Predicted" graphable="no" value_name="Value" />
-	<measurement type="FEV1" typeDesc="Forced Expiratory Volume 1 Second" typeDisplayName="" measuringInstrc="Forced Expiratory Volume 1 Second">
-		<validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
+	<item measurement_type="SPIRT" display_name="Spirometry Test" guideline="" graphable="no" value_name="Spirometry" />
+	<measurement type="SPIRT" typeDesc="Spirometry Test" typeDisplayName="Spirometry Test" measuringInstrc="">
+		<validationRule name="Yes" maxValue="" minValue="" isDate="" isNumeric="" regularExp="Yes" maxLength="" minLength="" />
 	</measurement>
 	
-	<item measurement_type="CODC" display_name="COD Classification" guideline="" graphable="no" value_name="Class" />
-	<measurement type="CODC" typeDesc="COD Classification" typeDisplayName="COD Classification" measuringInstrc="">
-		<validationRule name="No Validations" maxValue="" minValue="" isDate="" isNumeric="" regularExp="" maxLength="" minLength="" />
+	<item measurement_type="COPDC" display_name="COD Classification" guideline="" graphable="no" value_name="Class" />
+	<measurement type="COPDC" typeDesc="COD Classification" typeDisplayName="COD Classification" measuringInstrc="">
+		<validationRule name="Mild/Moderate/Severe/Very Severe" maxValue="" minValue="" isDate="" isNumeric="" regularExp="Mild|Moderate|Severe|Very Severe" maxLength="" minLength="" />
 	</measurement>
 		
-	<item measurement_type="02SA" display_name="02 Saturation" guideline="" graphable="yes" value_name="Percent" />
-	<measurement type="02SA" typeDesc="Oxygen Saturation" typeDisplayName="Oxygen Saturation" measuringInstrc="">
+	<item measurement_type="02" display_name="O2 Saturation" guideline="" graphable="yes" value_name="Percent" />
+	<measurement type="02" typeDesc="Oxygen Saturation" typeDisplayName="Oxygen Saturation" measuringInstrc="">
 		<validationRule name="Numeric Value: 0 to 100" maxValue="100" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
 	</measurement>
 		
-	<item measurement_type="RABG" display_name="Recommend ABG" guideline="Aterial Blood Gas" graphable="no" value_name="Recommended" />
-	<measurement type="RABG" typeDesc="Recommend ABG" typeDisplayName="Recommend ABG" measuringInstrc="">
-		<validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
+	<item measurement_type="RABG2" display_name="Recommend ABG" guideline="Aterial Blood Gas" graphable="no" value_name="Recommended" />
+	<measurement type="RABG2" typeDesc="Recommend ABG" typeDisplayName="Recommend ABG" measuringInstrc="">
+		<validationRule name="Yes/Not Applicable" maxValue="" minValue="" isDate="" isNumeric="" regularExp="Yes|Not Applicable" maxLength="" minLength="" />
 	</measurement>
 		
 	<item measurement_type="SKST" display_name="Smoking Status" guideline="" graphable="no" value_name="Smoker" />
@@ -65,7 +65,7 @@
 		<validationRule name="Numeric Value: 0 to 100" maxValue="100" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
 	</measurement>
 		
-	<item measurement_type="SUO2" display_name="Need For Supplemental 02" guideline="" graphable="no" value_name="Reviewed" >
+	<item measurement_type="SUO2" display_name="Need For Supplemental O2" guideline="" graphable="no" value_name="Reviewed" >
 		<rules>
 			<recommendation strength="warning" >
 				<condition type="monthrange"  value="&gt;12" />
@@ -98,8 +98,8 @@
 		<validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
 	</measurement>
 		
-	<item measurement_type="COPS" display_name="Specialist Referral" guideline="" graphable="no" value_name="Referred" />
-	<measurement type="COPS" typeDesc="COP Specialist Referral" typeDisplayName="COP Specialist Referral" measuringInstrc="">
+	<item measurement_type="ASPR" display_name="Specialist Referral" guideline="" graphable="yes" value_name="Referred" />
+	<measurement type="ASPR" typeDesc="COPD Specialist Referral" typeDisplayName="COPD Specialist Referral" measuringInstrc="">
 		<validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
 	</measurement>
 		
@@ -155,7 +155,7 @@
 		<validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
 	</measurement>
 		
-	<item measurement_type="EPR" display_name="Exacerbations plan in place/reviewed" guideline="" graphable="no" value_name="Review/in place" >
+	<item measurement_type="EPR2" display_name="Exacerbations plan in place" guideline="" graphable="no" value_name="Review/in place" >
 		<rules>
 			<recommendation strength="warning" >
 				<condition type="monthrange" param="EPR" value="&gt;6" />
@@ -165,8 +165,8 @@
 			</recommendation>
 		</rules>
 	</item>
-	<measurement type="EPR" typeDesc="Exacerbation plan in place or reviewed" typeDisplayName="Exacerbation plan in place or reviewed" measuringInstrc="">
-		<validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
+	<measurement type="EPR2" typeDesc="Exacerbation plan in place" typeDisplayName="Exacerbation plan in place" measuringInstrc="">
+		<validationRule name="Provided/Revised/Reviewed" maxValue="" minValue="" isDate="" isNumeric="" regularExp="Provided|Revised|Reviewed" maxLength="" minLength="" />
 	</measurement>
 		
 	<item measurement_type="DOLE" display_name="Date of last Exacerbation" guideline="" graphable="no" value_name="Date" />

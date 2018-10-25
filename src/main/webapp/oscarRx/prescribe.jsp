@@ -89,7 +89,7 @@ if(listRxDrugs!=null){
          String eTreatmentType  = rx.getETreatmentType()!=null ? rx.getETreatmentType() : "";
          String rxStatus        = rx.getRxStatus()!=null ? rx.getRxStatus() : "";
          String protocol		= rx.getProtocol()!=null ? rx.getProtocol() : "";
-         String priorRxProtocol	= rx.getPiorRxProtocol()!=null ? rx.getPiorRxProtocol() : "";
+         String priorRxProtocol	= rx.getPriorRxProtocol()!=null ? rx.getPriorRxProtocol() : "";
          String drugForm		= rx.getDrugForm();
          //remove from the rerx list
          int DrugReferenceId = rx.getDrugReferenceId();

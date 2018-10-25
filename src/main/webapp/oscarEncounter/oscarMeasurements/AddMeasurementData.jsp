@@ -398,20 +398,26 @@ clear: left;
 							<br />
 
   						<label for="<%="value(inputValue-"+ctr+")"%>" class="fields"><%=h2.get("value_name")%>:</label>
-                            <% if ( mtypeBean.getValidationName() != null && (mtypeBean.getValidationName().equals("Yes/No") || mtypeBean.getValidationName().equals("Yes/No/NA") || mtypeBean.getValidationName().equals("Yes/No/Maybe"))){ %>
+                            <% if ( mtypeBean.getValidationName() != null && (mtypeBean.getValidationName().contains("/") || mtypeBean.getValidationName().equals("Yes")) ){ %>
                             <select  id="<%= "value(inputValue-" + ctr + ")" %>" name="<%= "value(inputValue-" + ctr + ")" %>" >
-                                <%if (measurements.length > 1){ %>
-                                <option value="" >Not Answered</option>
-                                <%}%>
-                                <option value="Yes"  <%=sel("Yes", val)%>>Yes</option>
-                                <option value="No"   <%=sel("No", val)%>>No</option>
-                                
-                                <% if(mtypeBean.getValidationName().equals("Yes/No/Maybe")){ %>
-                                <option value="Maybe" <%=sel("Maybe", val)%>>Maybe</option>                                
-                                <%}else{ %>
-                                <option value="NotApplicable" <%=sel("NotApplicable", val)%>>Not Applicable</option>
-                                <%} %>
-                                
+                                <option value=""></option>
+                                <%	String[] opts = mtypeBean.getValidationName().split("/");
+                                	for (String opt : opts) {%>
+                                		<option value="<%=opt%>"  <%=sel(opt, val)%>><%=opt%></option>
+                                <%	}%>
+                            </select>
+                            <%}else if (mtypeBean.getValidationName()!=null && mtypeBean.getValidationName().startsWith("Integer")){ %>
+                            <select  id="<%= "value(inputValue-" + ctr + ")" %>" name="<%= "value(inputValue-" + ctr + ")" %>" >
+                            	<option value=""></option>
+                            	<option value="1" <%=sel("1", val)%>>1</option>
+                            	<option value="2" <%=sel("2", val)%>>2</option>
+                            	<option value="3" <%=sel("3", val)%>>3</option>
+                            	<%if (mtypeBean.getValidationName().equals("Integer: 1 to 4") || mtypeBean.getValidationName().equals("Integer: 1 to 5")){%>
+                            	<option value="4" <%=sel("4", val)%>>4</option>
+                            	<%}%>
+                            	<%if (mtypeBean.getValidationName().equals("Integer: 1 to 5")){%>
+                            	<option value="5" <%=sel("5", val)%>>5</option>
+                            	<%}%>
                             </select>
                             <%}else{%>
                             <input type="text" id="<%= "value(inputValue-" + ctr + ")" %>" name="<%= "value(inputValue-" + ctr + ")" %>" size="5" value="<%=val%>" /> <br/>
