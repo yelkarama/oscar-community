@@ -62,7 +62,6 @@ public final class RxAddAllergyAction extends Action {
             if (drugId.contains(" ")) {
                 drugId = drugId.substring(drugId.indexOf(" ") + 1);
             }
-            int id = Integer.parseInt(drugId);
 
             String name = request.getParameter("name");
             String type = request.getParameter("type");
@@ -77,7 +76,7 @@ public final class RxAddAllergyAction extends Action {
             RxPatientData.Patient patient = (RxPatientData.Patient)request.getSession().getAttribute("Patient");
             
             Allergy allergy = new Allergy();
-            allergy.setDrugrefId(String.valueOf(id));
+            allergy.setDrugrefId(drugId);
             if (name != null && name.length() > 50) {
                 name = name.substring(0, 50);
             }
