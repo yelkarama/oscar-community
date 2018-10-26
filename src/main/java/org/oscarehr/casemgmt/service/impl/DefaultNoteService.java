@@ -41,6 +41,7 @@ import org.oscarehr.caisi_integrator.ws.CachedDemographicNote;
 import org.oscarehr.caisi_integrator.ws.CachedDemographicNoteCompositePk;
 import org.oscarehr.casemgmt.common.EChartNoteEntry;
 import org.oscarehr.casemgmt.dao.CaseManagementNoteDAO;
+import org.oscarehr.casemgmt.model.CaseManagementIssue;
 import org.oscarehr.casemgmt.model.CaseManagementNote;
 import org.oscarehr.casemgmt.service.CaseManagementManager;
 import org.oscarehr.casemgmt.service.NoteSelectionCriteria;
@@ -564,9 +565,21 @@ public class DefaultNoteService implements NoteService {
 		if (issueId.isEmpty() || issueId.contains("a")) {
 			return notes;
 		}
-
+		
 		List<EChartNoteEntry> filteredNotes = new ArrayList<EChartNoteEntry>();
 
+		
+		if(issueId.contains("n")) {
+			for(EChartNoteEntry e:notes) {
+				List<CaseManagementIssue> issues = cmeIssueNotesDao.getNoteIssues((Integer.valueOf(e.getId().toString())));
+				if(issues.size() == 0 ) {
+					filteredNotes.add(e);
+				}
+			}
+			return filteredNotes;
+		}
+
+		
 		List<Integer> noteIds = cmeIssueNotesDao.getNoteIdsWhichHaveIssues(issueId.toArray(new String[] {}));
 
 		//Integer

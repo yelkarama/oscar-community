@@ -942,15 +942,21 @@ public class CaseManagementViewAction extends BaseCaseManagementViewAction {
 		// if no filter return everything
 		if (Arrays.binarySearch(issueId, "a") >= 0) return notes;
 
+		boolean none =  (Arrays.binarySearch(issueId, "n") >= 0) ? true : false;
+		
 		List<CaseManagementNote> filteredNotes = new ArrayList<CaseManagementNote>();
 
 		for (Iterator<CaseManagementNote> iter = notes.listIterator(); iter.hasNext();) {
 			CaseManagementNote note = iter.next();
 			List<CaseManagementIssue> issues = cmeIssueNotesDao.getNoteIssues((Integer.valueOf(note.getId().toString())));
-			for (CaseManagementIssue issue : issues) {
-				if (Arrays.binarySearch(issueId, String.valueOf(issue.getId())) >= 0) {
-					filteredNotes.add(note);
-					break;
+			if(issues.size()==0 && none) {
+				filteredNotes.add(note);
+			} else {
+				for (CaseManagementIssue issue : issues) {
+					if (Arrays.binarySearch(issueId, String.valueOf(issue.getId())) >= 0) {
+						filteredNotes.add(note);
+						break;
+					}
 				}
 			}
 		}
