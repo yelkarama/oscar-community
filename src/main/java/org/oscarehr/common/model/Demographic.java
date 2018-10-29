@@ -82,7 +82,7 @@ public class Demographic implements Serializable {
     private String familyPhysician;
 	private String city;
 	private String firstName;
-	private String prefName;
+	private String prefName = "";
 	private String postal;
 	private Date hcRenewDate;
 	private String phone2;
