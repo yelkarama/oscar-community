@@ -57,6 +57,7 @@ import ca.ontario.health.edt.UploadData;
 import oscar.OscarProperties;
 import oscar.log.LogAction;
 import oscar.log.LogConst;
+import oscar.util.ParameterActionForward;
 
 public class UploadAction extends DispatchAction {
 	
@@ -98,7 +99,9 @@ public class UploadAction extends DispatchAction {
 		ActionUtils.removeUploadResponseResults(request);
 		ActionUtils.removeSubmitResponseResults(request);
 
-		return mapping.findForward("success");
+		ParameterActionForward paf = new ParameterActionForward(mapping.findForward("success"));
+		paf.addParameter("isUploaded", true);
+		return paf;
 	}
 	
 	public ActionForward cancelUpload(ActionMapping mapping, ActionForm form, 

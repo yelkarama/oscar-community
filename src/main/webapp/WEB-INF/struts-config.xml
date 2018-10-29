@@ -2931,7 +2931,7 @@
 			<forward name="success" path="/mcedt/mailbox/autoUpload.jsp" />
 		</action>
 		<action path="/mcedt/autoUpload" input="/mcedt/mailbox/autoUpload.jsp" type="org.oscarehr.integration.mcedt.mailbox.UploadAction" name="kaiedtAutoUploadForm" parameter="method" validate="false" >			
-			<forward name="success" path="/mcedt/mailbox/autoUpload.jsp?isUploaded=true" />
+			<forward name="success" path="/mcedt/mailbox/autoUpload.jsp" />
 			<forward name="failure" path="/mcedt/mailbox/autoUpload.jsp?connection=failed" />
 			<forward name="cancel" path="/mcedt/kaimcedt.do" redirect="true" />
 		</action>
