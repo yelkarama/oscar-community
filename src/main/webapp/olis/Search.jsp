@@ -68,6 +68,7 @@
 
         <link rel="stylesheet" type="text/css" href="../share/yui/css/fonts-min.css"/>
         <link rel="stylesheet" type="text/css" href="../share/yui/css/autocomplete.css"/>
+        
 	
 	
 	<script type="text/javascript">
@@ -103,6 +104,19 @@
 		    	}
 		    	return true;
 		    }
+		    
+		    $(document).ready(function(){
+		    	<%if(request.getParameter("requestingHIC")!= null && !request.getParameter("requestingHIC").isEmpty()) {
+		    		 %>
+		    		  
+		    		 $("input[name='requestingHic']").each(function(){
+		    			 console.log($(this));
+		    		 });
+		    		
+		    		 <%
+		    		
+		    	}%>
+		    });
 		</script>
 		
 		<style type="text/css">
@@ -249,13 +263,17 @@ List<OLISRequestNomenclature> requestNomenclatureList = requestDao.findAll();
 
 	<select id="queryType" onchange="displaySearch(this)" style="margin-left:30px;">
 		<option value="Z01">Z01 - Retrieve Laboratory Information for Patient</option>
+		<!-- 
 		<option value="Z02">Z02 - Retrieve Laboratory Information for Order ID</option>
+		-->
 		<option value="Z04">Z04 - Retrieve Laboratory Information Updates for Practitioner</option>
+		<!-- 
 		<option value="Z05">Z05 - Retrieve Laboratory Information Updates for Destination Laboratory</option>
 		<option value="Z06">Z06 - Retrieve Laboratory Information Updates for Ordering Facility</option>
 		<option value="Z07">Z07 - Retrieve Test Results Reportable to Public Health</option>
 		<option value="Z08">Z08 - Retrieve Test Results Reportable to Cancer Care Ontario</option>
 		<option value="Z50">Z50 - Identify Patient by Name, Sex, and Date of Birth</option>
+		-->
 	</select>
 
 	<form action="<%=request.getContextPath() %>/olis/Search.do" method="POST" onSubmit="checkBlockedConsent('Z01')" name="Z01_form">
@@ -668,39 +686,6 @@ List<OLISRequestNomenclature> requestNomenclatureList = requestDao.findAll();
 </select></td>		
 		</tr>
 		
-		<tr>
-			<td colspan="4"><hr></td>
-		</tr>
-		<tr>
-			<td colspan="4">
-				<table>
-					<tbody><tr>
-						<th width="20%">Test Result Code (max. 200)</th>
-						<td><input type="text"><br><select multiple="multiple" style="width:300px;" name="testResultCode" id="testResultCode">
-						<%
-						
-						for (OLISResultNomenclature nomenclature : resultNomenclatureList) {
-						%>
-							<option value="<%=nomenclature.getId() %>"><%=nomenclature.getName().trim() %></option>
-					    <%
-						}
-						%>
-						</select></td>
-						<th width="20%">Test Request Code (max. 100)</th>
-						<td><input type="text"><br><select multiple="multiple" style="width:300px;" name="testRequestCode" id="testRequestCode">
-						<%
-						
-						for (OLISRequestNomenclature nomenclature : requestNomenclatureList) {
-						%>
-							<option value="<%=nomenclature.getId() %>"><%=nomenclature.getName().trim() %></option>
-					    <%
-						}
-						%>
-						</select></td>
-					</tr>
-				</tbody></table>
-			</td>
-		</tr>
 		<tr>
 			<td colspan=2><input type="submit" name="submit" value="Search" /></td>
 		</tr>

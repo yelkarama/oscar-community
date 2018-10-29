@@ -8,6 +8,13 @@
     and "gnu.org/licenses/gpl-2.0.html".
 
 --%>
+<%@page import="oscar.log.LogAction"%>
+<%@page import="org.oscarehr.common.model.OscarLog"%>
+<%@page import="java.io.File"%>
+<%@page import="org.oscarehr.olis.OLISUtils"%>
+<%@page import="oscar.oscarLab.FileUploadCheck"%>
+<%@page import="org.oscarehr.util.LoggedInInfo"%>
+<%@page import="oscar.oscarLab.ca.all.upload.MessageUploader"%>
 <%@page import="org.oscarehr.olis.model.OLISRequestNomenclature"%>
 <%@page import="org.oscarehr.olis.dao.OLISRequestNomenclatureDao"%>
 <%@ page language="java" contentType="text/html;" %>
@@ -26,7 +33,8 @@
 <script type="text/javascript" src="<%=request.getContextPath()%>/share/javascript/Oscar.js"></script>
 <script type="text/javascript" src="<%=request.getContextPath()%>/share/javascript/oscarMDSIndex.js"></script>
 <script type="text/javascript" src="<%=request.getContextPath()%>/share/javascript/sortable.js"></script>
-	
+
+
 <script type="text/javascript">
 image_path = '<%=request.getContextPath()%>/images/';
 image_up = 'arrow_up.png';
@@ -34,13 +42,141 @@ image_down = 'arrow_down.png';
 image_none = 'arrow_off.png';
 
 
+function bulkAddToInbox() {
+	var checkedItems='';
+	var reqData = {};
+	var items = [];
+	reqData.items = items;
+	
+	
+	jQuery("input[name='result_checked']:checked").each(function() {
+		if(checkedItems.length>0) {checkedItems+=",";}
+		checkedItems += jQuery(this).val();
+		var item = {};
+		item.uuid = jQuery(this).val();
+		item.addToInbox = jQuery("input[name='addToInbox_"+item.uuid+"']").is(":checked");
+		item.acknowledge= jQuery("input[name='acknowledge_"+item.uuid+"']").is(":checked");
+		items.push(item);
+	});	
+	if(checkedItems.length==0) {
+		alert('You must check ALL labs you would like to add to inbox');
+		return false;
+	}
+	
+	jQuery.ajax({
+		url: "<%=request.getContextPath() %>/olis/AddToInbox.do",
+		method: "POST",
+		data: "method=bulkAddToInbox&data=" + btoa(JSON.stringify(reqData)),
+		dataType: 'json',
+		success: function(data) {
+			console.log(JSON.stringify(data));
+			if(data.successIds) {
+				for(var x=0;x<data.successIds.length;x++) {
+					console.log(data.successIds[x]);
+					jQuery("#resultsTable tr[uuid='"+data.successIds[x]+"']").remove();
+					
+				}
+				alternate(document.getElementById("resultsTable"));
+			}
+		}
+	});
+}
+
+function bulkAcknowledge() {
+	var checkedItems='';
+	jQuery("input[name='result_checked']:checked").each(function() {
+		if(checkedItems.length>0) {checkedItems+=",";}
+		checkedItems += jQuery(this).val();
+	});	
+	if(checkedItems.length==0) {
+		alert('You must check ALL labs you would like to add to inbox');
+		return false;
+	}
+	jQuery.ajax({
+		url: "<%=request.getContextPath() %>/olis/AddToInbox.do",
+		data: "uuids=" + checkedItems + "&method=bulkAddToInbox&ack=true",
+		dataType: 'json',
+		success: function(data) {
+			console.log(JSON.stringify(data));
+			if(data.successIds) {
+				for(var x=0;x<data.successIds.length;x++) {
+					console.log(data.successIds[x]);
+					jQuery("#resultsTable tr[uuid='"+data.successIds[x]+"']").remove();
+					
+				}
+				alternate(document.getElementById("resultsTable"));
+			}
+		}
+	});
+}
+
+function bulkRemove() {
+	var checkedItems='';
+	jQuery("input[name='result_checked']:checked").each(function() {
+		if(checkedItems.length>0) {checkedItems+=",";}
+		checkedItems += jQuery(this).val();
+	});	
+	if(checkedItems.length==0) {
+		alert('You must check ALL labs you would like to add to inbox');
+		return false;
+	}
+	jQuery.ajax({
+		url: "<%=request.getContextPath() %>/olis/AddToInbox.do",
+		data: "uuids=" + checkedItems + "&method=bulkRemove",
+		dataType: 'json',
+		success: function(data) {
+			console.log(JSON.stringify(data));
+			if(data.successIds) {
+				for(var x=0;x<data.successIds.length;x++) {
+					console.log(data.successIds[x]);
+					jQuery("#resultsTable tr[uuid='"+data.successIds[x]+"']").remove();
+					
+				}
+				alternate(document.getElementById("resultsTable"));
+			}
+		}
+	});
+}
+
+function showMatch(name,uuid) {
+	popupPage(800,1000,'http://localhost:8080/oscar_revalidation/oscarMDS/SearchPatient.do?labType=HL7&from=olis&segmentID='+uuid+'&name=' + encodeURIComponent(name) );
+}
+
+function updateLabDemoStatus2(uuid,demo) {
+	
+	jQuery.ajax({
+		url: "<%=request.getContextPath() %>/olis/AddToInbox.do?method=saveMatch",
+		data: "uuid=" + uuid + "&demographicNo=" + demo,
+		success: function(data) {
+			var ptName = jQuery("#resultsTable tbody tr[uuid='"+uuid+"']").attr('patientName');
+			jQuery("#name_" + uuid).html("<a href='javascript:void(0)' onClick='openPatient("+demo+")'>"+ptName+"</a>");
+		}
+	});
+	
+	
+}
+function remove(uuid) {
+	jQuery(uuid).attr("disabled", "disabled");
+	jQuery.ajax({
+		url: "<%=request.getContextPath() %>/olis/AddToInbox.do?method=remove",
+		data: "uuid=" + uuid,
+		success: function(data) {
+			jQuery("#action_result").html(data);
+			jQuery("#resultsTable tr[uuid='"+uuid+"']").remove();
+			alternate(document.getElementById("resultsTable"));
+		}
+	});
+}
+
 function addToInbox(uuid) {
 	jQuery(uuid).attr("disabled", "disabled");
 	jQuery.ajax({
 		url: "<%=request.getContextPath() %>/olis/AddToInbox.do",
 		data: "uuid=" + uuid,
 		success: function(data) {
-			jQuery("#" + uuid + "_result").html(data);
+			jQuery("#action_result").html(data);
+			jQuery("#resultsTable tr[uuid='"+uuid+"']").remove();
+			alternate(document.getElementById("resultsTable"));
 		}
 	});
 }
@@ -52,9 +188,11 @@ function save(uuid) {
 	jQuery(uuid).attr("disabled", "disabled");
 	jQuery.ajax({
 		url: "<%=request.getContextPath() %>/olis/AddToInbox.do",
-		data: "uuid=" + uuid + "&file=true",
+		data: "uuid=" + uuid + "&addToMyInbox=false",
 		success: function(data) {
-			jQuery("#" + uuid + "_result").html(data);
+			jQuery("#action_result").html(data);
+			jQuery("#resultsTable tr[uuid='"+uuid+"']").remove();
+			alternate(document.getElementById("resultsTable"));
 		}
 	});
 }
@@ -105,7 +243,7 @@ function filterResults(select) {
 		var visible = (patientFilter == "" || jQuery(this).attr("patientName") == patientFilter)
 				   && (labFilter == "" || jQuery(this).attr("reportingLaboratory") == labFilter)
 				    && (hcnFilter == "" || jQuery(this).attr("hcn") == hcnFilter)
-				    && (categoryFilter == "" || jQuery(this).attr("category") == categoryFilter) 
+				    && (categoryFilter == "" || jQuery(this).attr("category").indexOf(categoryFilter) != -1) 
 				    && (performingLabFilter == "" || jQuery(this).attr("performingLaboratory") == performingLabFilter)
 				    && (abnormalFilter == "" || jQuery(this).attr("abnormal") == abnormalFilter) 
 				    && (testRequestCodeFilter == "" || jQuery(this).attr("testRequestCode") == testRequestCodeFilter)
@@ -122,13 +260,55 @@ function filterResults(select) {
 	
 	jQuery(".evenLine").each(performFilter);
 	jQuery(".oddLine").each(performFilter);
+	
+}
+
+function popupPage(vheight,vwidth,varpage) { //open a new popup window
+    var page = "" + varpage;
+    windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=0,screenY=0,top=0,left=0";//360,680
+    var popup=window.open(page, "groupno", windowprops);
+    if (popup != null) {
+      if (popup.opener == null) {
+        popup.opener = self;
+      }
+      popup.focus();
+    }
+}
+
+function openPatient(demographicNo) {
+popupPage(700,1200,'../demographic/demographiccontrol.jsp?demographic_no='+demographicNo+'&displaymode=edit&dboperation=search_detail');
+
+}
+
+jQuery(document).ready(function(){
+	alternate(document.getElementById("resultsTable"));
+});
+
+function checkUncheckAll(id) {
+	var checked = jQuery("#"+id).is(":checked");
+	if(checked) {
+		jQuery("input[name='result_checked']").each(function() {
+			jQuery(this).attr("checked","checked");
+		});	
+		jQuery("input[name='check_all']").each(function() {
+			jQuery(this).attr("checked","checked");
+		});
+	} else {
+		jQuery("input[name='result_checked']").each(function() {
+			jQuery(this).attr("checked","");
+		});
+		jQuery("input[name='check_all']").each(function() {
+			jQuery(this).attr("checked","");
+		});
+	}
 }
 </script>
+
 <style type="text/css">
 .oddLine { 
-	background-color: #cccccc;
+	background-color: #eee;
 }
-.evenLine { } 
+.evenLine {background-color: #fff; } 
 
 .error {
 	border: 1px solid red;
@@ -137,6 +317,7 @@ function filterResults(select) {
 	margin: 10px;
 	padding: 10px;
 }
+
 </style>
 	
 <%
@@ -147,7 +328,7 @@ function filterResults(select) {
 </head>
 <body>
 
-<table style="width:600px;" class="MainTable" align="left">
+<table style="width:100%;" class="MainTable" align="left">
 	<tbody><tr class="MainTableTopRow">
 		<td class="MainTableTopRowLeftColumn" width="175">OLIS</td>
 		<td class="MainTableTopRowRightColumn">
@@ -155,7 +336,7 @@ function filterResults(select) {
 			<tbody><tr>
 				<td>Results</td>
 				<td>&nbsp;</td>
-				<td style="text-align: right"><a href="javascript:popupStart(300,400,'Help.jsp')"><u>H</u>elp</a> | <a href="javascript:popupStart(300,400,'About.jsp')">About</a> | <a href="javascript:popupStart(300,400,'License.jsp')">License</a></td>
+				<td style="text-align: right"><a href="javascript:void(0)" onClick="popupPage(800,1000,'log.jsp')">OLIS Log</a>
 			</tr>
 			</tbody>
 		</table>
@@ -223,13 +404,8 @@ function filterResults(select) {
 			
 			if (resultList != null) {
 			%>
-			<table>
-				<tr>
-					<td colspan="6"><%=resultList.size() %> result(s) found</td>
-				</tr>
-				<tr>
-					<td colspan="6" style="height:10px"></td>
-				</tr>
+			<table style="width:90%">
+				
 				<% if (resultList.size() > 0) { 
 					List<String> names = new ArrayList<String>();
 					List<String> hcns = new ArrayList<String>();
@@ -244,16 +420,31 @@ function filterResults(select) {
 					
 					OLISHL7Handler result;
 					
+					Map<String,Boolean> duplicates = new HashMap<String,Boolean>();
+					
+					
 					for (String resultUuid : resultList) {
 						 result = OLISResultsAction.searchResultsMap.get(resultUuid);
+						 
+						 //is there an OLIS duplicate. Have we gotten this before?
+						boolean dup1 = FileUploadCheck.hasFileBeenUploadedByFileLocation(System.getProperty("java.io.tmpdir") + "/olis_" + resultUuid + ".response");
+						boolean dup2 = OLISUtils.isDuplicate(LoggedInInfo.getLoggedInInfoFromSession(request), new File(System.getProperty("java.io.tmpdir") + "/olis_" + resultUuid + ".response"));
+						
+						if(dup1 || dup2) {
+							duplicates.put(resultUuid,true);
+							continue;
+						}
+							
 						String hcn = oscar.Misc.getStr(result.getHealthNum(), "").trim();
 						if (!hcn.equals("")) { hcns.add(hcn);}
 						String name = oscar.Misc.getStr(result.getPatientName(), "").trim();
 						if (!name.equals("")) { names.add(name); }
 						String reportingLab = oscar.Misc.getStr(result.getReportingFacilityName(), "").trim();
 						if (!reportingLab.equals("")) { labs.add(reportingLab); }
-						String category = oscar.Misc.getStr(result.getCategoryList(), "").trim();
-						if (!category.equals("")) { categories.add(category); }
+						String[] category = result.getCategoryList(",").split(",");
+						for(String c:category) {
+							if (!c.equals("")) { categories.add(c); }
+						}
 						String performingLab = oscar.Misc.getStr(result.getPerformingFacilityNameOnly(), "").trim();
 						if (!performingLab.equals("")) { performingLabs.add(performingLab); }
 						String testRequestCode = oscar.Misc.getStr(result.getTestRequestCode(), "").trim();
@@ -388,67 +579,162 @@ function filterResults(select) {
 								<% 
 									for (String tmp: new HashSet<String>(testRequestStatuses)) {
 								%>
-									<option value="<%=tmp%>"><%=OLISHL7Handler.getTestRequestStatusMessage(tmp.charAt(0))%></option>
+									<option value="<%=tmp%>"><%=OLISHL7Handler.getTestRequestStatusMessageShort(tmp.charAt(0))%></option>
 								<% } %>
 							</select>
 						</td>
 					</tr>
+					<tr>
+					<td colspan="3"><div id="action_result"  style="font-size:12px;color:blue" /></td>
+				
+					<td colspan="3" style="text-align:right"><%=resultList.size()-duplicates.keySet().size() %> result(s) found</td>
+				</tr>
+				<tr>
+					<td colspan="6"></td>
+				</tr>
+				<tr>
+					<td colspan="6" style="height:10px"></td>
+				</tr>
+				
 					<tr><td colspan="6">
-					<table class="sortable" id="resultsTable">
-					<tr><th class="unsortable" style="white-space: nowrap;"></th>
-						<th class="unsortable" style="white-space: nowrap;"></th>
-						<th class="unsortable" style="white-space: nowrap;"></th>
-						<th class="unsortable" style="white-space: nowrap;"></th>
-						<th style="white-space: nowrap;">Health Number</th>
-						<th style="white-space: nowrap;">Patient Name</th>
-						<th style="white-space: nowrap;">Sex</th>
-						<th style="white-space: nowrap;">Date of Test</th>
-						<th style="white-space: nowrap;">Discipline</th>
-						<th style="white-space: nowrap;">Tests</th>
-						<th style="white-space: nowrap;">Status</th>
-						<th style="white-space: nowrap;">Abnormal</th>
-						<th style="white-space: nowrap;">Ordering Practitioner</th>
-						<th style="white-space: nowrap;">Admitting Practitioner</th>
-					</tr>
-					
+					<table class="sortable" id="resultsTable" style="width:100%">
+					<thead>
+						<tr><th class="unsortable" style="white-space: nowrap;"><input type="checkbox" id="all1" name="check_all" value="all" onClick="checkUncheckAll('all1')"/></th>
+							<th class="unsortable" style="white-space: nowrap;"></th>
+							<th class="unsortable" style="white-space: nowrap;"></th>
+							<th class="unsortable" style="white-space: nowrap;"></th>
+							<th class="unsortable" style="white-space: nowrap;" title="Add to my inbox"><img src="../images/icons/103.png" border="0"/></th>
+							<th class="unsortable" style="white-space: nowrap;" title="Sign-off"><img src="../images/icons/114.png" border="0"/></th>
+							<th style="white-space: nowrap;">Health Number</th>
+							<th style="white-space: nowrap;">Patient Name</th>
+							<th style="white-space: nowrap;">DOB</th>
+							<th style="white-space: nowrap;">Sex</th>
+							<th style="white-space: nowrap;">Date of Test</th>
+							<th style="white-space: nowrap;">Discipline</th>
+							<th style="white-space: nowrap;">Tests</th> <!-- test request name -->
+							<th style="white-space: nowrap;">Status</th><!-- test request status -->
+							<th style="white-space: nowrap;">Abnormal</th>
+							<th style="white-space: nowrap;">Ordering Practitioner</th>
+							<th style="white-space: nowrap;">Admitting Practitioner</th>
+							<th style="white-space: nowrap;">CC'ed Practitioner(s)</th>
+						</tr>
+					</thead>
+					<tbody>
 					<%  int lineNum = 0;
 						for (String resultUuid : resultList) {
 						result = OLISResultsAction.searchResultsMap.get(resultUuid);
+						if(duplicates.get(resultUuid) != null && duplicates.get(resultUuid) == true) {
+							LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), "OLIS","duplicate", resultUuid, "","");
+							continue;
+						}
 					%>
-					<tr class="<%=++lineNum % 2 == 1 ? "oddLine" : "evenLine"%>" patientName="<%=result.getPatientName()%>" reportingLaboratory="<%=result.getReportingFacilityName()%>" 
+					<tr class="oddLine" patientName="<%=result.getPatientName()%>" reportingLaboratory="<%=result.getReportingFacilityName()%>" 
 						hcn="<%=result.getHealthNum()%>" category="<%=result.getCategoryList()%>" performingLaboratory="<%=result.getPerformingFacilityNameOnly()%>"
 						abnormal="<%=result.hasAbnormalResult()%>" testRequestCode="<%=result.getTestRequestCode()%>" testRequestStatus="<%=result.getOrderStatus()%>"
-						resultStatus="<%=result.getTestResultStatuses()%>">
+						resultStatus="<%=result.getTestResultStatuses()%>" uuid="<%=resultUuid%>">
+						<td>
+							<input type="checkbox" name="result_checked" value="<%=resultUuid %>"/>
+						</td>
 						<td>
 							<div id="<%=resultUuid %>_result"></div>
-							<input type="button" onClick="addToInbox('<%=resultUuid %>'); return false;" id="<%=resultUuid %>" value="Add to Inbox" />
+							<a href="javascript:void(0)" onClick="preview('<%=resultUuid %>'); return false;" title="Preview full report"><img src="../images/icons/172.png" border="0"/></a>
 						</td>
+						<td>	
+							<a href="javascript:void(0)" onClick="remove('<%=resultUuid %>');return false;" title="Remove from results"><img src="../images/icons/101.png" border="0"/></a>	
+						</td>
+						
 						<td>
-							
-							<input type="button" onClick="preview('<%=resultUuid %>'); return false;" id="<%=resultUuid %>_preview" value="Preview" />
+							<a href="javascript:void(0)" onClick="save('<%=resultUuid %>'); return false;" title="Save"><img src="../images/Save16.png" border="0"/></a>
 						</td>
 						
-						<td>							
-							<input type="button" onClick="save('<%=resultUuid %>'); return false;" id="<%=resultUuid %>_save" value="Save/File" />
-						</td>
+						<td><input title="Add to my inbox" type="checkbox" name="addToInbox_<%=resultUuid%>"/></td>
+						<td><input title="Sign-off" type="checkbox" name="acknowledge_<%=resultUuid%>"/></td>
 						
-						<td>							
-							<input type="button" onClick="ack('<%=resultUuid %>'); return false;" id="<%=resultUuid %>_ack" value="Acknowledge" />
-						</td>
+						
 						
 						<td><%=result.getHealthNum() %></td>
-						<td><%=result.getPatientName() %></td>
+						<td id="name_<%=resultUuid%>">
+							<%
+							Integer demId = MessageUploader.willOLISLabReportMatch(LoggedInInfo.getLoggedInInfoFromSession(request), result.getLastName(), result.getFirstName(), result.getSex(), result.getDOB(), result.getHealthNum());
+							if(demId != null) {%>
+								<a href="javascript:void(0)" onClick="openPatient('<%=demId%>')"><%=result.getPatientName() %></a>
+							<%} else {%>
+								<%=result.getPatientName() %><a href="javascript:void(0)" onClick="showMatch('<%=result.getLastName() + "," + result.getFirstName() %>','<%=resultUuid%>')"><img src="../images/here.gif" border="0"/></a>
+							<% } %>
+						</td>
+						<td align="center" style="white-space: nowrap;"><%=result.getDOB() %></td>
 						<td align="center"><%=result.getSex() %></td>
-						<td><%=result.getSpecimenReceivedDateTime() %></td>
-						<td style="width:200px;"><%=result.getCategoryList() %></td>
-						<td style="width:200px;"><%=result.getTestList() %></td>
-						<td><%= ( (String) ( result.getOrderStatus().equals("F") ? "Final" : result.getOrderStatus().equals("C") ? "Corrected" : "Partial") )%></td>
+						<td style="white-space: nowrap;"><%=result.getSpecimenReceivedDateTime() %></td>
+						<td style="white-space: nowrap;">
+							<ul>
+							<%
+								String[] categories1 = result.getCategoryList(",").split(",");
+								if(categories1.length == 1) {
+									%><%=categories1[0]%><%
+								} else {
+								for(String category: categories1) {
+							%>
+									<li><%=category %></li>
+							<% } } %>
+							</ul>
+						</td>
+						<td style="white-space: nowrap;">
+							<ul>
+								<%
+									String[] tests = result.getTestList(",").split(",");
+								if(tests.length == 1) {%>
+									<%=tests[0]%>
+									
+								<%} else {for(String i :tests) {  %>
+									<li><%=i %></li>
+								<% } }%>
+							</ul>
+						</td>
+						<td style="white-space: nowrap;">
+							<%
+							String[] testRequestStatuses1 =  result.getTestRequestStatuses().split(",");
+							if(testRequestStatuses1.length==1) {
+								%><%=!testRequestStatuses1[0].isEmpty() ? OLISHL7Handler.getTestRequestStatusMessageShort(testRequestStatuses1[0].charAt(0))  : ""%><%
+							} else if(testRequestStatuses1.length>1) {
+							%>
+							<ul>
+							<%for(String testRequestStatus: testRequestStatuses1) { %>
+								<li><%=!testRequestStatus.isEmpty() ? OLISHL7Handler.getTestRequestStatusMessageShort(testRequestStatus.charAt(0)) : ""%></li>
+							<% } } %>
+							</ul>
+						</td>
 						<td><%=result.hasAbnormalResult() ?  "<span style='color:red'>Abnormal</span>" : "" %></td>
 						<td> <%=result.getShortDocName() %> </td>
 						<td> <%=result.getAdmittingProviderNameShort()%></td>
+						<td>
+							
+							<%
+							String[] ccDocs =  result.getCCDocs().split(",");
+							if(ccDocs.length==1) {
+								%><%=ccDocs[0] %><%
+							} else if(ccDocs.length>1) {
+							%>
+							<ul>
+							<%for(String ccDoc: ccDocs) { %>
+								<li><%=ccDoc.trim() %></li>
+							<% } } %>
+							</ul>
+							
+						</td>
 						 
-					</tr>					
+					</tr>	
+									
 					<% } %>
+					</tbody>
+					<tfoot>
+						<tr>
+							<td colspan="18">
+								
+							<input type="button" value="Save all selected" onClick="bulkAddToInbox()"/>&nbsp;
+							&nbsp;<input type="button" value="Remove all selected" onClick="bulkRemove()"/>
+							</td>
+						</tr>
+					</tfoot>
 					</table></td></tr>
 				<% } %>
 			</table>
@@ -461,5 +747,7 @@ function filterResults(select) {
 <!-- RAW HL7 ERP
 <%=request.getAttribute("unsignedResponse") %>
 -->
+
+
 </body>
 </html>

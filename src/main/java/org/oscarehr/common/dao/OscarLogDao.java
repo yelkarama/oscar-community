@@ -96,6 +96,19 @@ public class OscarLogDao extends AbstractDao<OscarLog> {
 	    return results;
     }
     
+    public List<OscarLog> findByAction(String action, int start, int length, String orderBy, String orderByDirection) {
+    	String sqlCommand="select x from "+modelClass.getSimpleName()+" x where x.action = ?1 order by x."+orderBy+" " + orderByDirection;
+    	Query query = entityManager.createQuery(sqlCommand);
+		query.setParameter(1, action);
+		query.setFirstResult(start);
+		query.setMaxResults(length);
+		
+	    @SuppressWarnings("unchecked")
+		List<OscarLog> results=query.getResultList();
+	    
+	    return results;
+    }
+    
     
     public List<OscarLog> findByActionContentAndDemographicId(String action, String content, Integer demographicId) {
 

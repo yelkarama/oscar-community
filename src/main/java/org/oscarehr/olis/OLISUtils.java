@@ -23,6 +23,9 @@ package org.oscarehr.olis;
  * Ontario, Canada
  */
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.util.List;
@@ -35,6 +38,7 @@ import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.SchemaFactory;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.Hl7TextInfoDao;
 import org.oscarehr.common.model.Hl7TextInfo;
@@ -92,6 +96,18 @@ public class OLISUtils {
 	public static boolean isDuplicate(LoggedInInfo loggedInInfo, String msg) {
 		oscar.oscarLab.ca.all.parsers.OLISHL7Handler h = (oscar.oscarLab.ca.all.parsers.OLISHL7Handler) Factory.getHandler("OLIS_HL7", msg);
 		return isDuplicate(loggedInInfo, h,msg);
+	}
+	
+	public static boolean isDuplicate(LoggedInInfo loggedInInfo, File file) throws FileNotFoundException, IOException {
+		String msg = null;
+		InputStream in = null;
+		try {
+			in = new FileInputStream(file);
+			msg = IOUtils.toString(in);
+		} finally {
+			IOUtils.closeQuietly(in);
+		}
+		return isDuplicate(loggedInInfo, msg);
 	}
 	
 	

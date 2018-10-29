@@ -282,7 +282,7 @@ public final class MessageUploader {
 			Connection c = null;
 			try {
 				c = DbConnectionFilter.getThreadLocalDbConnection();
-				demProviderNo = patientRouteReport(loggedInInfo, insertID, lastName, firstName, sex, dob, hin, c);
+				demProviderNo = patientRouteReport(loggedInInfo, type, insertID, lastName, firstName, sex, dob, hin, c);
 			} finally {
 				try {
 					c.close();
@@ -493,29 +493,26 @@ public final class MessageUploader {
 	}
 	
 	
-	public static Integer willLabReportMatch(LoggedInInfo loggedInInfo, String lastName, String firstName, String sex, String dob, String hin) {
+	public static Integer willOLISLabReportMatch(LoggedInInfo loggedInInfo, String lastName, String firstName, String sex, String dob, String hin) {
 		Connection conn = null;
 		PatientLabRoutingResult result = null;
-		
-	
 		String sql = null;
 		String demo = "0";
 		String provider_no = "0";
-		// 19481015
-		String dobYear = "%";
-		String dobMonth = "%";
-		String dobDay = "%";
+		String dobYear = null;
+		String dobMonth = null;
+		String dobDay = null;
 		String hinMod = null;
-	
-		try {
+
+		try {	
 			conn = DbConnectionFilter.getThreadLocalDbConnection();
+			
 			if (hin != null) {
 				hinMod = new String(hin);
 				if (hinMod.length() == 12) {
 					hinMod = hinMod.substring(0, 10);
 				}
 			}
-
 			if (dob != null && !dob.equals("")) {
 				String[] dobArray = dob.trim().split("-");
 				dobYear = dobArray[0];
@@ -523,40 +520,31 @@ public final class MessageUploader {
 				dobDay = dobArray[2];
 			}
 
-			// only the first letter of names
-			if (!firstName.equals("")) firstName = firstName.substring(0, 1);
-			if (!lastName.equals("")) lastName = lastName.substring(0, 1);
-
-	
-			// HIN is ALWAYS required for lab matching. Please do not revert this code. Previous iterations have caused fatal patient miss-matches.				
-			if( hinMod != null ) {
-				if (OscarProperties.getInstance().getBooleanProperty("LAB_NOMATCH_NAMES", "yes")) {
-					sql = "select demographic_no, provider_no from demographic where hin='" + hinMod + "' and " + " year_of_birth like '" + dobYear + "' and " + " month_of_birth like '" + dobMonth + "' and " + " date_of_birth like '" + dobDay + "' and " + " sex like '" + sex + "%' ";
-				} else {
-					sql = "select demographic_no, provider_no from demographic where hin='" + hinMod + "' and " + " last_name like '" + lastName + "%' and " + " first_name like '" + firstName + "%' and " + " year_of_birth like '" + dobYear + "' and " + " month_of_birth like '" + dobMonth + "' and " + " date_of_birth like '" + dobDay + "' and " + " sex like '" + sex + "%' ";
-				}
+			if(hinMod == null || dobYear == null || dobMonth == null || dobDay == null) {
+				return null;
 			}
 			
-			if( sql != null ) {
-				logger.debug(sql);
-				PreparedStatement pstmt = conn.prepareStatement(sql);
-				ResultSet rs = pstmt.executeQuery();
-				int count = 0;
-				
-				while (rs.next()) {
-					result = new PatientLabRoutingResult();
-					demo = oscar.Misc.getString(rs, "demographic_no");
-					provider_no = oscar.Misc.getString(rs, "provider_no");
-					result.setDemographicNo(Integer.parseInt(demo));
-					result.setProviderNo(provider_no);
-					count++;
-				}
-				rs.close();
-				pstmt.close();
-				if(count > 1) {
-					result = null;
-				}
+			sql = "select demographic_no, provider_no from demographic where hin='" + hinMod + "' and " + " last_name = '" + lastName + "' and " + " year_of_birth = '" + dobYear + "' and " + " month_of_birth = '" + dobMonth + "' and " + " date_of_birth = '" + dobDay + "' and " + " sex = '" + sex + "' ";	
+			
+			logger.debug(sql);
+			PreparedStatement pstmt = conn.prepareStatement(sql);
+			ResultSet rs = pstmt.executeQuery();
+			int count = 0;
+			
+			while (rs.next()) {
+				result = new PatientLabRoutingResult();
+				demo = oscar.Misc.getString(rs, "demographic_no");
+				provider_no = oscar.Misc.getString(rs, "provider_no");
+				result.setDemographicNo(Integer.parseInt(demo));
+				result.setProviderNo(provider_no);
+				count++;
 			}
+			rs.close();
+			pstmt.close();
+			if(count > 1) {
+				result = null;
+			}
+			
 		} catch (SQLException sqlE) {
 			return null;
 		} finally {
@@ -582,10 +570,122 @@ public final class MessageUploader {
 		return result != null ? result.getDemographicNo() : null;
 	}
 
+	
+	private static String patientRouteReportOLIS(LoggedInInfo loggedInInfo, int labId, String lastName, String sex, String dob, String hin, Connection conn) throws SQLException {
+		PatientLabRoutingResult result = null;
+		
+			String sql = null;
+			String demo = "0";
+			String provider_no = "0";
+			String dobYear = null;
+			String dobMonth = null;
+			String dobDay = null;
+			String hinMod = null;
+
+			try {	
+				if (hin != null) {
+					hinMod = new String(hin);
+					if (hinMod.length() == 12) {
+						hinMod = hinMod.substring(0, 10);
+					}
+				}
+				if (dob != null && !dob.equals("")) {
+					String[] dobArray = dob.trim().split("-");
+					dobYear = dobArray[0];
+					dobMonth = dobArray[1];
+					dobDay = dobArray[2];
+				}
+	
+				if(hinMod == null || dobYear == null || dobMonth == null || dobDay == null) {
+					return null;
+				}
+				
+				sql = "select demographic_no, provider_no from demographic where hin='" + hinMod + "' and " + " last_name = '" + lastName + "' and " + " year_of_birth = '" + dobYear + "' and " + " month_of_birth = '" + dobMonth + "' and " + " date_of_birth = '" + dobDay + "' and " + " sex = '" + sex + "' ";	
+				
+				logger.debug(sql);
+				PreparedStatement pstmt = conn.prepareStatement(sql);
+				ResultSet rs = pstmt.executeQuery();
+				int count = 0;
+				
+				while (rs.next()) {
+					result = new PatientLabRoutingResult();
+					demo = oscar.Misc.getString(rs, "demographic_no");
+					provider_no = oscar.Misc.getString(rs, "provider_no");
+					result.setDemographicNo(Integer.parseInt(demo));
+					result.setProviderNo(provider_no);
+					count++;
+				}
+				rs.close();
+				pstmt.close();
+				if(count > 1) {
+					result = null;
+				}
+				
+			} catch (SQLException sqlE) {
+				throw sqlE;
+			}
+
+		
+		try {
+			//did this link a merged patient? if so, we need to make sure we are the head record, or update
+			//result to be the head record.
+			if(result != null) {
+				DemographicMerged dm = new DemographicMerged();
+				Integer headDemo = dm.getHead(result.getDemographicNo());
+				if(headDemo != null && headDemo.intValue() != result.getDemographicNo()) {
+					Demographic demoTmp = demographicManager.getDemographic(loggedInInfo, headDemo);
+					if(demoTmp != null) {
+						result.setDemographicNo(demoTmp.getDemographicNo());
+						result.setProviderNo(demoTmp.getProviderNo());
+					} else {
+						logger.info("Unable to load the head record of this patient record. (" + result.getDemographicNo()  + ")");
+						result = null;
+					}
+				}
+			}
+			
+			
+			if (result == null) {
+				logger.info("Could not find patient for lab: " + labId);
+			} else {
+				Hl7textResultsData.populateMeasurementsTable("" + labId, result.getDemographicNo().toString());
+			}
+
+			if(result != null) {
+				sql = "insert into patientLabRouting (demographic_no, lab_no,lab_type,dateModified,created) values ('" + ((result != null && result.getDemographicNo()!=null)?result.getDemographicNo().toString():"0") + "', '" + labId + "','HL7',now(),now())";
+				Connection c = null;
+				PreparedStatement pstmt = null;
+				try {
+					c = DbConnectionFilter.getThreadLocalDbConnection();
+					pstmt = c.prepareStatement(sql);
+					pstmt.executeUpdate();
+				
+				} finally {
+					try {
+						pstmt.close();	
+						c.close();
+					}catch(SQLException e) {
+						
+					}
+				}
+				
+			}
+		} catch (SQLException sqlE) {
+			logger.info("NO MATCHING PATIENT FOR LAB id =" + labId);
+			throw sqlE;
+		}
+
+		return (result != null)?result.getProviderNo():"0";
+	}
+	
 	/**
 	 * Attempt to match the patient from the lab to a demographic, return the patients provider which is to be used then no other provider can be found to match the patient to.
 	 */
-	private static String patientRouteReport(LoggedInInfo loggedInInfo, int labId, String lastName, String firstName, String sex, String dob, String hin, Connection conn) throws SQLException {
+	private static String patientRouteReport(LoggedInInfo loggedInInfo, String labType, int labId, String lastName, String firstName, String sex, String dob, String hin, Connection conn) throws SQLException {
+		
+		if("OLIS_HL7".equals(labType)) {
+			return patientRouteReportOLIS(loggedInInfo, labId, lastName, sex,dob,hin,conn);
+		}
 		PatientLabRoutingResult result = null;
 		
 			String sql = null;

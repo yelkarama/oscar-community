@@ -119,7 +119,7 @@ for (String tempId : multiLabId.split(",")) {
 
 
 if(preview) {
-	demographicIDThatWillMatch = MessageUploader.willLabReportMatch(LoggedInInfo.getLoggedInInfoFromSession(request), handler.getLastName(), handler.getFirstName(), handler.getSex(), handler.getDOB(), handler.getHealthNum());
+	demographicIDThatWillMatch = MessageUploader.willOLISLabReportMatch(LoggedInInfo.getLoggedInInfoFromSession(request), handler.getLastName(), handler.getFirstName(), handler.getSex(), handler.getDOB(), handler.getHealthNum());
 }
 
 // check for errors printing

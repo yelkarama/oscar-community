@@ -397,6 +397,10 @@ public class OLISHL7Handler implements MessageHandler {
 	}
 
 	public String getCategoryList() {
+		return getCategoryList(" / ");
+	}
+	
+	public String getCategoryList(String delimeter) {
 		String result = "";
 		ArrayList<String> categories = new ArrayList<String>();
 		for (int i = 0; i < getOBRCount(); i++) {
@@ -406,18 +410,23 @@ public class OLISHL7Handler implements MessageHandler {
 		Arrays.sort(uniqueCategories);
 		int count = 0;
 		for (String category : uniqueCategories) {
-			result += (count++ > 0 ? " / " : "") + category;
+			result += (count++ > 0 ? delimeter : "") + category;
 		}
 		return result;
 	}
 
+	/* Test Request Name */
 	public String getTestList() {
+		return getTestList(" / ");
+	}
+	
+	public String getTestList(String delimeter) {
 		String result = "";
 		String[] uniqueTests = new HashSet<String>(headers).toArray(new String[0]);
 		Arrays.sort(uniqueTests);
 		int count = 0;
 		for (String test : uniqueTests) {
-			result += (count++ > 0 ? " / " : "") + test;
+			result += (count++ > 0 ? delimeter : "") + test;
 		}
 		return result;
 	}
@@ -1341,6 +1350,29 @@ public class OLISHL7Handler implements MessageHandler {
 			return "Preliminary: A verified early result is available, final results not yet obtained.";
 		case 'X':
 			return "No results available; Order canceled";
+		default:
+			return "";
+		}
+	}
+	
+	public static String getTestRequestStatusMessageShort(char status) {
+		switch (status) {
+		case 'A':
+			return "Partial";
+		case 'C':
+			return "Correction";
+		case 'E':
+			return "Expired";
+		case 'F':
+			return "Final";
+		case 'I':
+			return "Not Available";
+		case 'O':
+			return "Order received";
+		case 'P':
+			return "Preliminary";
+		case 'X':
+			return "No results";
 		default:
 			return "";
 		}
