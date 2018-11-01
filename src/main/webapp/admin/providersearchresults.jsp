@@ -24,6 +24,7 @@
 
 --%>
 
+<%@page import="org.oscarehr.common.dao.UserPropertyDAO"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 
@@ -47,6 +48,10 @@
 	}
 %>
 
+<%
+UserPropertyDAO userPropertyDAO = SpringUtils.getBean(UserPropertyDAO.class);
+
+%>
 	
 <html:html locale="true">
 <head>
@@ -62,7 +67,28 @@
 		var keyword = document.searchprovider.keyword.value;
 		var keywordLowerCase = keyword.toLowerCase();
 		document.searchprovider.keyword.value = keywordLowerCase;
+	}
+	
+	function popupPage(vheight,vwidth,varpage) {
+		var page = "" + varpage;
+		windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=50,screenY=50,top=0,left=0";
+		var popup=window.open(page, "<bean:message key="provider.appointmentProviderAdminDay.apptProvider"/>", windowprops);
+		if (popup != null) {
+			if (popup.opener == null) {
+				popup.opener = self;
+			}
+			popup.focus();
+		}
+	}
 
+
+	
+	function launchGroupProperties(s) {
+		popupPage(800,1000,"../appointment/groupProperties.jsp?provider_no="+s);
+	}
+	
+	function launchClone(s) {
+		popupPage(800,1000,"groupClone.jsp?provider_no="+s);
 	}
 </script>
 </head>
@@ -180,6 +206,7 @@
 			<bean:message key="admin.providersearchresults.phone" /></B></TH>
 		<TH align="center" width="15%"><b>
 			<bean:message key="admin.provider.formStatus" /></B></TH>
+		<TH></td>
 	</tr>
 <%
 	List<ProviderData> providerList = null;
@@ -224,6 +251,19 @@
 		<td align="center"><%= provider.getSex() %></td>
 		<td><%= provider.getPhone() %></td>
 		<td><%= provider.getStatus().equals("1")?"Active":"Inactive" %></td>
+		<td>
+			<%
+			String groupModuleUser = userPropertyDAO.getStringValue(provider.getId(), "groupModule");
+			if("true".equals(groupModuleUser)) {
+				%>
+				
+					<input type="button" value="G" onClick="launchGroupProperties('<%=provider.getId()%>')"/>
+					&nbsp;
+					<input type="button" value="Clone" onClick="launchClone('<%=provider.getId()%>')"/>
+				<%
+			}
+			%>
+		</td>
 	</tr>
 	<%
     }
