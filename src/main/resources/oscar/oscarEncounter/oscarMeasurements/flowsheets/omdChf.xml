@@ -24,7 +24,7 @@
 		<validationRule name="Integer: 1 to 4" maxValue="4" minValue="1" isDate="" isNumeric="1" regularExp="" maxLength="1" minLength="" />
 	</measurement>
 	
-	<item measurement_type="Kpl" display_name="Potasium" guideline="" graphable="yes" value_name="Value" />
+	<item measurement_type="Kpl" display_name="Potassium" guideline="" graphable="yes" value_name="Value" />
 	<measurement type="Kpl" typeDesc="Potassium" typeDisplayName="Potassium" measuringInstrc="">
 		<validationRule name="Numeric Value greater than or equal to 0" maxValue="" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength=""/>
 	</measurement>
@@ -50,7 +50,7 @@
 		<validationRule name="Numeric Value: 0 to 1200" maxValue="1200" minValue="0" isDate="0" isNumeric="1" regularExp="" maxLength="0" minLength="0"/>
 	</measurement>
 	
-	<item measurement_type="EGFR" display_name="EGFR" guideline="" graphable="yes" value_name="EGFR" >
+	<item measurement_type="EGFR" display_name="eGFR" guideline="" graphable="yes" value_name="EGFR" >
 		<rules>
 			<recommendation strength="recommendation" >
 				<condition type="monthrange" param="EGFR" value="10-12" />
@@ -107,10 +107,12 @@
 		<validationRule name="Numeric Value greater than or equal to 0" maxValue="" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength=""/>
 	</measurement>
 	
+	<!-- 
 	<item measurement_type="WT" display_name="Weight" guideline="" graphable="yes" value_name="Value" />
 	<measurement type="WT" typeDesc="Weight" typeDisplayName="WT" measuringInstrc="in BMI">
 		<validationRule name="Numeric Value: 0 to 100" maxValue="100" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength=""/>
 	</measurement>
+	-->
 	
 	<item measurement_type="HR" display_name="HR" guideline="" graphable="yes" value_name="Heart Rate" />
 	<measurement type="HR" typeDesc="Heart Rate" typeDisplayName="P" measuringInstrc="in bpm (nnn) Range:40-180">
@@ -174,12 +176,14 @@
 	
 	<!-- NEW MEAS AREA-->
 	
+	<!-- 
 	<item measurement_type="DEPR" display_name="Feeling down, depressed or hopeless?" guideline="Yearly or As Needed" graphable="no" value_name="Depressed" />
 	<measurement type="DEPR" typeDesc="Depression" typeDisplayName="Depression">
 		<validationRule name="Yes/No" regularExp="YES|yes|Yes|Y|NO|no|No|N"/>
 	</measurement>
+	-->
 	
-	<!-- Alcoholic drinks per week -->
+	<!-- Alcoholic drinks per week
 	<item measurement_type="DRPW" display_name="Drinks per Week"
 			guideline="" graphable="no" value_name="# drinks per week" >
 	<ruleset>
@@ -197,14 +201,17 @@
 			typeDisplayName="Drinks per Week" measuringInstrc="Number of Drinks per week">
 		<validationRule name="Numeric Value: 0 to 100"
 				maxValue="300" minValue="0" isNumeric="1" />
-	</measurement>  
+	</measurement>
+	-->
 	
 	<!--NEW MEAS AREA continue-->
 	
+	<!-- 
 	<item measurement_type="SKST" display_name="Smoking Status" guideline="" graphable="no" value_name="Smoker" />
 	<measurement type="SKST" typeDesc="Smoking Status" typeDisplayName="Smoking Status" measuringInstrc="Yes/No">
 		<validationRule name="Yes/No/NA" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N|NotApplicable|NA" maxLength="" minLength="" />
 	</measurement> 
+	-->
 	
 	<item measurement_type="HFMR" display_name="HF Medication Review" guideline="" graphable="no" value_name="HF Medication Review" />
 	<measurement type="HFMR" typeDesc="HF Medication Review" typeDisplayName="Heart Failure Medication Review" measuringInstrc="Records whether medication adherence for Heart Failure purpose has been discussed with the patient">
@@ -214,6 +221,7 @@
 	<item prevention_type="Flu" display_name="Flu Vaccine" guideline="Annually" graphable="no" />
 	<item prevention_type="Pneumovax" display_name="Pneumococcal vaccine" guideline="" graphable="no" />
 	
+	<!-- 
 	<item measurement_type="HDL" display_name="HDL" guideline="" graphable="yes" value_name="HDL" >
 		<rules>
 			<recommendation strength="warning" >
@@ -246,7 +254,7 @@
 	<measurement type="LDL" typeDesc="Low Density Lipid" typeDisplayName="LDL" measuringInstrc="in mmol/L (nn.n) Range:0.5-10  Target:&lt;2.5 Interval:6-12mo.">
 		<validationRule name="Numeric Value: 0.5 to 10" maxValue="10" minValue="0.5" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
 	</measurement>
-	
+		
 	<item measurement_type="TG" display_name="Triglycerides" guideline="Target: &lt; 2.0 mmol/L" graphable="yes" value_name="TG" >
 		<rules>
 			<recommendation strength="warning" >
@@ -289,6 +297,7 @@
 	<measurement type="ECG" typeDesc="ECG" typeDisplayName="ECG">
 		<validationRule name="Yes/No" regularExp="YES|yes|Yes|Y|NO|no|No|N"/>
 	</measurement>
+	-->
 	
 	<!--ECHO-->
 	

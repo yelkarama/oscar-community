@@ -36,10 +36,11 @@
 			</rule>
 		</ruleset>
 	</item>
-	<measurement type="ANR" typeDesc="Asthma Needs Reliever   " typeDisplayName="Asthma Needs Reliever   " measuringInstrc="frequency per week">
+	<measurement type="ANR" typeDesc="Asthma Needs Reliever" typeDisplayName="Asthma Needs Reliever   " measuringInstrc="frequency per week">
 		<validationRule name="Numeric Value: 0 to 2500" maxValue="2500" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
 	</measurement>
 	
+	<!-- 
 	<item measurement_type="ASYM" display_name="Asthma Symptoms" guideline="dyspnea, cough, wheeze, chest tightness" graphable="yes" value_name="Frequency/Week">
 		<ruleset>
 			<rule indicationColor="HIGH">
@@ -50,6 +51,7 @@
 	<measurement type="ASYM" typeDesc="Asthma Symptoms" typeDisplayName="Asthma Symptoms" measuringInstrc="frequency per week">
 		<validationRule name="Numeric Value: 0 to 2500" maxValue="2500" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
 	</measurement>
+	-->
 	
 	<item measurement_type="ASWA" display_name="Absence since last office visit" guideline="School/Work" graphable="yes" value_name="Has Absence" >
 		<ruleset>
@@ -83,7 +85,8 @@
 	<measurement type="ANSY" typeDesc="Asthma Night Time Symtoms" typeDisplayName="Asthma Night Time Symtoms" measuringInstrc="frequency per week">
 		<validationRule name="Numeric Value: 0 to 2500" maxValue="2500" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
 	</measurement>
-		
+	
+	<!-- 
 	<item measurement_type="AELV" display_name="Exacerbations since last visit" guideline="Requiring clinical evaluations" graphable="yes" value_name="Has" >
 		<ruleset>
 			<rule indicationColor="HIGH">
@@ -94,16 +97,19 @@
 	<measurement type="AELV" typeDesc="Exacerbations since last visit requiring clincal evaluation" typeDisplayName="Exacerbations since last visit requiring clincal evaluation" measuringInstrc="">
 		<validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
 	</measurement>
-		
+	-->
+	
 	<item measurement_type="SPIRT" display_name="Spirometry Test" guideline="" graphable="no" value_name="Spirometry" />
 	<measurement type="SPIRT" typeDesc="Spirometry Test" typeDisplayName="Spirometry Test" measuringInstrc="">
 		<validationRule name="Yes" maxValue="" minValue="" isDate="" isNumeric="" regularExp="Yes" maxLength="" minLength="" />
 	</measurement>
-		
+	
+	<!-- 
 	<item measurement_type="PEFR" display_name="PEFR value" guideline="best of 3" graphable="yes" value_name="PEFR value" />
 	<measurement type="PEFR" typeDesc="PEFR value" typeDisplayName="PEFR value" measuringInstrc="">
 		<validationRule name="Numeric Value: 0 to 2500" maxValue="2500" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
 	</measurement>
+	-->
 		
 	<item measurement_type="ARAD" display_name="Asthma Definition" guideline="" graphable="yes" value_name="Reviewed" />
 	<measurement type="ARAD" typeDesc="Review Asthma Definition" typeDisplayName="" measuringInstrc="Review Asthma Definition">
@@ -154,16 +160,18 @@
 	<measurement type="ASPR" typeDesc="Asthma Specialist Referral" typeDisplayName="Asthma Specialist Referral" measuringInstrc="">
 		<validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
 	</measurement>
-		
+	
+	<!--
 	<item measurement_type="LHAD" display_name="Lung Related Hospital Admission" guideline="" value_name="Admission" />
 	<measurement type="LHAD" typeDesc="Lung Related Hospital Admission" typeDisplayName="Lung Related Hospital Admission" measuringInstrc="">
 		<validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
 	</measurement>
-		
+	
 	<item measurement_type="OUTR" display_name="Outside Spirometry Referral" guideline="" value_name="Referred" />
 	<measurement type="OUTR" typeDesc="Outside Spirometry Referral" typeDisplayName="Outside Spirometry Referral" measuringInstrc="">
 		<validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
 	</measurement>
+	-->
 	
 	<item measurement_type="FEV1BF" display_name="FEV1 (before puff)" guideline="" graphable="yes" value_name="FEV1 (before puff)" />
 	<measurement type="FEV1BF" typeDesc="FEV1 (before puff)" typeDisplayName="FEV1 (before puff)" measuringInstrc="Forced Expiratory Volume: the volume of air that has been exhaled by the patient at the end of the first second of forced expiration">
@@ -259,5 +267,25 @@
 	</item>
 	<measurement type="ANELV" typeDesc="Asthma: # Of Exacerbations Requiring Clinical Evaluation since last assessment" typeDisplayName="Asthma: # Of Exacerbations Requiring Clinical Evaluation since last assessment" measuringInstrc="The number of exacerbations since the last assessment requiring clinical evaluations reported by the patient">
 		<validationRule name="Numeric Value greater than or equal to 0" maxValue="" minValue="" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
+	</measurement>
+	
+	<item measurement_type="CODPW" display_name="cough (days/week)" guideline="Target: &lt;4 days/week" graphable="yes" value_name="cough (days/week)" />
+	<measurement type="CODPW" typeDesc="cough (days/week)" typeDisplayName="cough (days/week)" measuringInstrc="">
+		<validationRule name="Integer: 0 to 7" maxValue="7" minValue="0" isDate="" isNumeric="" regularExp="" maxLength="1" minLength="" />
+	</measurement>
+	
+	<item measurement_type="CTDPW" display_name="chest tightness (days/week)" guideline="Target: &lt;4 days/week" graphable="yes" value_name="chest tightness (days/week)" />
+	<measurement type="CTDPW" typeDesc="chest tightness (days/week)" typeDisplayName="chest tightness (days/week)" measuringInstrc="">
+		<validationRule name="Integer: 0 to 7" maxValue="7" minValue="0" isDate="" isNumeric="" regularExp="" maxLength="1" minLength="" />
+	</measurement>
+	
+	<item measurement_type="DYDPW" display_name="dyspnea (days/week)" guideline="Target: &lt;4 days/week" graphable="yes" value_name="dyspnea (days/week)" />
+	<measurement type="DYDPW" typeDesc="dyspnea (days/week)" typeDisplayName="dyspnea (days/week)" measuringInstrc="">
+		<validationRule name="Integer: 0 to 7" maxValue="7" minValue="0" isDate="" isNumeric="" regularExp="" maxLength="1" minLength="" />
+	</measurement>
+	
+	<item measurement_type="WHDPW" display_name="wheeze (days/week)" guideline="Target: &lt;4 days/week" graphable="yes" value_name="wheeze (days/week)" />
+	<measurement type="WHDPW" typeDesc="wheeze (days/week)" typeDisplayName="wheeze (days/week)" measuringInstrc="">
+		<validationRule name="Integer: 0 to 7" maxValue="7" minValue="0" isDate="" isNumeric="" regularExp="" maxLength="1" minLength="" />
 	</measurement>
 </flowsheet>

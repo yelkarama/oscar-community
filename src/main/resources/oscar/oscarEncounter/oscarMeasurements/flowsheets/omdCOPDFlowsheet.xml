@@ -24,8 +24,8 @@
 		<validationRule name="Yes" maxValue="" minValue="" isDate="" isNumeric="" regularExp="Yes" maxLength="" minLength="" />
 	</measurement>
 	
-	<item measurement_type="COPDC" display_name="COD Classification" guideline="" graphable="no" value_name="Class" />
-	<measurement type="COPDC" typeDesc="COD Classification" typeDisplayName="COD Classification" measuringInstrc="">
+	<item measurement_type="COPDC" display_name="COPD Classification" guideline="" graphable="no" value_name="Class" />
+	<measurement type="COPDC" typeDesc="COPD Classification" typeDisplayName="COD Classification" measuringInstrc="">
 		<validationRule name="Mild/Moderate/Severe/Very Severe" maxValue="" minValue="" isDate="" isNumeric="" regularExp="Mild|Moderate|Severe|Very Severe" maxLength="" minLength="" />
 	</measurement>
 		
@@ -78,11 +78,6 @@
 	<measurement type="SUO2" typeDesc="Need for supplemental oxygen" typeDisplayName="Need for supplemental oxygen" measuringInstrc="">
 		<validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
 	</measurement>
-	
-	<item measurement_type="O2" display_name="Oxygen Saturation" guideline="" graphable="yes" value_name="Oxygen Saturation" />
-	<measurement type="O2" typeDesc="Oxygen Saturation" typeDisplayName="Oxygen Saturation" measuringInstrc="percent">
-		<validationRule name="Numeric Value: 0 to 100" maxValue="100" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
-	</measurement>
 		
 	<item measurement_type="NOVS" display_name="Need for Nocturnal Ventilated Support" guideline="" graphable="no" value_name="Reviewed" >
 		<rules>
@@ -98,8 +93,8 @@
 		<validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
 	</measurement>
 		
-	<item measurement_type="ASPR" display_name="Specialist Referral" guideline="" graphable="yes" value_name="Referred" />
-	<measurement type="ASPR" typeDesc="COPD Specialist Referral" typeDisplayName="COPD Specialist Referral" measuringInstrc="">
+	<item measurement_type="COPS" display_name="Specialist Referral" guideline="" graphable="yes" value_name="Referred" />
+	<measurement type="COPS" typeDesc="COPD Specialist Referral" typeDisplayName="COPD Specialist Referral" measuringInstrc="">
 		<validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
 	</measurement>
 		

@@ -92,7 +92,7 @@ public class ISO36612 {
 	}
 	
 	public static void main(String args[]) {
-			System.out.println(ISO36612.getInstance().translateCodeToHumanReadableString("ON"));
+			MiscUtils.getLogger().info(ISO36612.getInstance().translateCodeToHumanReadableString("ON"));
 		
 		
 	}

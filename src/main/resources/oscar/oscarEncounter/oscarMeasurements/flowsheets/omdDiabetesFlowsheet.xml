@@ -28,8 +28,8 @@
 	
 	<header display_name="Vitals">
 		<item measurement_type="BP" display_name="BP" guideline="Target &gt; 130/80" graphable="yes" value_name="BP" ds_rules="diab-BP.drl" />
-		<item measurement_type="WT" display_name="Weight kg" guideline="" graphable="yes" value_name="Weight" />
-		<item measurement_type="HT" display_name="Height cm" guideline="" graphable="yes" value_name="Height" />
+		<item measurement_type="WT" display_name="Weight" guideline="" graphable="yes" value_name="Weight" />
+		<item measurement_type="HT" display_name="Height" guideline="" graphable="yes" value_name="Height" />
 		<item measurement_type="BMI" display_name="BMI" guideline="Target: 18.5 - 24.9 (kg/m&lt;sup&gt;2&lt;/sup&gt;)" graphable="yes" value_name="BMI" >
 			<rules>
 				<recommendation strength="recommendation" >
@@ -51,7 +51,7 @@
 				</rule>
 			</ruleset>
 		</item>
-		<item measurement_type="WAIS" display_name="Waist Circ " guideline="" graphable="yes" value_name="Waist Circ" >
+		<item measurement_type="WAIS" display_name="Waist Circumference" guideline="" graphable="yes" value_name="Waist Circ" >
 			<rules>
 				<recommendation strength="recommendation" >
 					<condition type="monthrange" param="WAIS" value="3-6" />
@@ -74,6 +74,7 @@
 				</rule>
 			</ruleset>
 		</item>
+		<!-- 
 		<item measurement_type="WHR" display_name="Waist to Hip Ratio" guideline="" graphable="yes" value_name="Waist to Hip Ratio" >
 			<rules>
 				<recommendation strength="recommendation" >
@@ -97,6 +98,7 @@
 				</rule>
 			</ruleset>
 		</item>
+		-->
 	</header>
 	<header display_name="Cardiovascular">
 		<header display_name="Lipids">
@@ -155,7 +157,7 @@
 					</rule>
 				</ruleset>
 			</item>
-			<item measurement_type="EDNL" display_name="Education Nutrition" guideline="" graphable="no" value_name="Completed"  >
+			<item measurement_type="EDNL" display_name="Education Lipids" guideline="" graphable="no" value_name="Completed"  >
 				<rules>
 					<recommendation strength="warning" >
 						<condition type="monthrange" param="EDNL" value="&gt;12" />
@@ -186,10 +188,14 @@
 		</header>
 		<item measurement_type="ECG" display_name="ECG" graphable="no" value_name="ECG" />
 		<item measurement_type="PSSC" display_name="Psychosocial Screening" graphable="no" value_name="Screened" />
+		<!-- 
 		<item measurement_type="STRE" display_name="Stress Testing" graphable="no" value_name="StressTesting"/>
+		-->
 	</header>
 	<header display_name="Glycemic">
+		<!-- 
 		<item measurement_type="DTYP" display_name="Diabetes Type" guideline="1 or 2" graphable="no" value_name="type"/>
+		-->
 		<item measurement_type="A1C" display_name="A1C" guideline="Target &gt; 7.0%" graphable="yes" value_name="A1C"  >
 			<rules>
 				<recommendation strength="warning" >
@@ -265,7 +271,9 @@
 				</recommendation>
 			</rules>
 		</item>
+		<!-- 
 		<item measurement_type="HYPM" display_name="Hypoglycemic Management" guideline="discussed" graphable="no" value_name="Reviewed" />
+		-->
 		<item measurement_type="HYPE" display_name="# of Hypoglycemic Episodes" guideline="Since last assessed" graphable="yes" value_name="# of episodes" >
 			<rules>
 				<recommendation strength="warning" >
@@ -321,10 +329,12 @@
 			</rules>
 		</item>                    
 	</header>
+	<!-- 
 	<header display_name="Mental Health">
 		<item measurement_type="DEPR" display_name="Feeling down, depressed or hopeless?" guideline="Yearly or As Needed" graphable="no" value_name="Depressed" />
 		<item measurement_type="LETH" display_name="Little interest or pleasure in doing things?" guideline="Yearly or As Needed" graphable="no" value_name="Lethargic" />
 	</header>
+	-->
 	<header display_name="Nephropathy">
 		<item measurement_type="ACR" display_name="Alb: creat ratio" guideline="Target: &lt; 2.0 M : &lt;2.8 F" graphable="yes" value_name="ACR" >
 			<rules>
@@ -346,6 +356,7 @@
 				</rule>
 			</ruleset>
 		</item>
+		<!-- 
 		<item measurement_type="SCR" display_name="Serum Creatinine" guideline="" graphable="yes" value_name="Serum Creatinine" >
 			<rules>
 				<recommendation strength="warning" >
@@ -356,6 +367,7 @@
 				</recommendation>
 			</rules>
 		</item>
+		-->
 		<item measurement_type="EGFR" display_name="eGFR" guideline="" graphable="yes" value_name="eGFR" >
 			<rules>
 				<recommendation strength="warning" >
@@ -371,10 +383,9 @@
 				</rule>
 			</ruleset>            
 		</item>
-		<item measurement_type="AORA" display_name="ACE-I OR ARB" guideline="Yes No" graphable="no" value_name="ACE-I OR ARB" />
 		<!-- 
+		<item measurement_type="AORA" display_name="ACE-I OR ARB" guideline="Yes No" graphable="no" value_name="ACE-I OR ARB" />
 		<item measurement_type="SKD" display_name="Signs of Kidney Damage" guideline="Yes No" graphable="no" value_name="Signs of Kidney Damage" />
-		-->
 		<item measurement_type="CRCL" display_name="Creatinine Clearance" guideline="" graphable="yes" value_name="Creatinine Clearance" >
 			<rules>
 				<recommendation strength="warning" >
@@ -385,9 +396,13 @@
 				</recommendation>
 			</rules>
 		</item>
+		-->
 	</header>
 	<header display_name="Neuropathy">
+		
+		<!-- 
 		<item measurement_type="EDGI" display_name="Autonomic Neuropathy" guideline="Erectile Dysfunction, gastrointestinal disturbance" graphable="no" value_name="Present" />
+		-->
 		<header display_name="Peripheral">
 			<item measurement_type="FTLS" display_name="Monofilament 10g" guideline="Check for peripheral anesthesia with 10g monofilament or 128 Hz tuning fork" graphable="no" value_name="Normal"  >
 			<rules>
@@ -399,8 +414,10 @@
 				</recommendation>
 			</rules>
 			</item>
+			<!-- 
 			<item measurement_type="PANE" display_name="Painful Neuropathy" guideline="" graphable="no" value_name="Present" />
-			<item measurement_type="FTE" display_name="Foot Exam" guideline="Foot Care" graphable="no" value_name="Normal"  >
+			-->
+			<item measurement_type="FTE" display_name="Foot Exam" guideline="Foot Exam" graphable="no" value_name="Normal"  >
 				<rules>
 					<recommendation strength="warning" >
 						<condition type="monthrange" param="FTE" value="&gt;12" />
@@ -413,7 +430,9 @@
 		</header>
 		<header display_name="Sexual Health">
 			<item measurement_type="EDF" display_name="Erectile Dysfunction" guideline="Yes No" graphable="no" value_name="Dysfunction" />
+			<!-- 
 			<item measurement_type="BCTR" display_name="Birth Control" guideline="On Birth Control" graphable="no" value_name="Birth Control" />
+			-->
 		</header>
 	</header>
 	<header display_name="Retinopathy">
@@ -443,7 +462,7 @@
 				</recommendation>
 			</rules>
 		</item>
-		<item measurement_type="EDND" display_name="Education Nutrition (diabetes)" guideline="" graphable="no" value_name="Completed"  >
+		<item measurement_type="EDND" display_name="Education Nutrition" guideline="" graphable="no" value_name="Completed"  >
 			<rules>
 				<recommendation strength="warning" >
 					<condition type="monthrange" param="EDND" value="&gt;12" />
@@ -480,6 +499,8 @@
 			</rules>
 		</item>
 		<item measurement_type="ASAU" display_name="ASA Use" guideline="" graphable="no" value_name="Used" />
+		
+		<!-- 
 		<item measurement_type="AST" display_name="AST" guideline="" graphable="yes" value_name="AST" >
 			<rules>
 				<recommendation strength="warning" >
@@ -500,6 +521,7 @@
 				</recommendation>
 			</rules>
 		</item>
+		-->
 	</header>
 	
 	
