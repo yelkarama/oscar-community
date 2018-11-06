@@ -81,6 +81,7 @@ public class FlowSheetCustomAction extends DispatchAction {
         if (request.getParameter("demographic")!=null){
         	demographicNo = request.getParameter("demographic");
         }
+        String scope = request.getParameter("scope");
 
         if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_demographic", "w", demographicNo)) {
         	throw new SecurityException("missing required security object (_demographic)");
@@ -141,7 +142,7 @@ public class FlowSheetCustomAction extends DispatchAction {
                 cust.setPayload(outp.outputString(va));
                 cust.setFlowsheet(flowsheet);
                 cust.setMeasurement(prevItem);//THIS THE MEASUREMENT TO SET THIS AFTER!
-                cust.setProviderNo((String) request.getSession().getAttribute("user"));
+                cust.setProviderNo("clinic".equals(scope) ? "" : (String) request.getSession().getAttribute("user"));
                 cust.setDemographicNo(demographicNo);
                 cust.setCreateDate(new Date());
 
@@ -164,6 +165,7 @@ public class FlowSheetCustomAction extends DispatchAction {
         if (request.getParameter("demographic")!=null){
         	demographicNo = request.getParameter("demographic");
         }
+        String scope = request.getParameter("scope");
         
         if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_demographic", "w", demographicNo)) {
         	throw new SecurityException("missing required security object (_demographic)");
@@ -314,7 +316,13 @@ public class FlowSheetCustomAction extends DispatchAction {
                cust.setDemographicNo(demographicNo);
             }
             cust.setMeasurement(item.getItemName());//THIS THE MEASUREMENT TO SET THIS AFTER!
-            cust.setProviderNo((String) request.getSession().getAttribute("user"));
+            
+            logger.info("Ronnie: scope ["+scope+"]");
+            
+            cust.setProviderNo("clinic".equals(scope) ? "" : (String) request.getSession().getAttribute("user"));
+            
+            logger.info("ronnie: providerNo ["+cust.getProviderNo()+"]");
+            
             logger.debug("UPDATE "+cust);
 
             flowSheetCustomizationDao.persist(cust);
@@ -333,6 +341,7 @@ public class FlowSheetCustomAction extends DispatchAction {
         if (request.getParameter("demographic")!=null){
         	demographicNo = request.getParameter("demographic");
         }
+        String scope = request.getParameter("scope");
         
         if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_demographic", "w", demographicNo)) {
         	throw new SecurityException("missing required security object (_demographic)");
@@ -342,7 +351,7 @@ public class FlowSheetCustomAction extends DispatchAction {
         cust.setAction(FlowSheetCustomization.DELETE);
         cust.setFlowsheet(flowsheet);
         cust.setMeasurement(measurement);
-        cust.setProviderNo((String) request.getSession().getAttribute("user"));
+        cust.setProviderNo("clinic".equals(scope) ? "" : (String) request.getSession().getAttribute("user"));
         cust.setDemographicNo(demographicNo);
 
         flowSheetCustomizationDao.persist(cust);
