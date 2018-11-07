@@ -266,6 +266,10 @@ public class ProviderDao extends HibernateDaoSupport {
 		return getHibernateTemplate().find("FROM  Provider p WHERE p.Status='1' AND p.HasSchedule = TRUE ORDER BY p.LastName");
 	}
 
+    public List<Provider> getActiveProvidersThatReceivesTicklers() {
+        return getHibernateTemplate().find("FROM  Provider p WHERE p.Status='1' AND p.ReceivesTicklers = TRUE ORDER BY p.LastName");
+    }
+
 	public List<Provider> getDoctorsWithOhip(){
 		return getHibernateTemplate().find(
 				"FROM Provider p " + 

@@ -96,6 +96,7 @@ p.setLastName(request.getParameter("last_name"));
 p.setFirstName(request.getParameter("first_name"));
 p.setProviderType(request.getParameter("provider_type"));
 p.setHasSchedule("true".equals(request.getParameter("has_schedule")));
+p.setReceivesTicklers("true".equals(request.getParameter("receives_ticklers")));
 p.setSpecialty(request.getParameter("specialty"));
 p.setCredentials(request.getParameter("credentials"));
 p.setTeam(request.getParameter("team"));

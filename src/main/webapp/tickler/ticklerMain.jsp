@@ -80,6 +80,8 @@
 
 <%
 	TicklerManager ticklerManager = SpringUtils.getBean(TicklerManager.class);
+	ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
+	List<Provider> providersThatReceiveTicklers = providerDao.getActiveProvidersThatReceivesTicklers();
 
 	String labReqVer = oscar.OscarProperties.getInstance().getProperty("onare_labreqver","07");
 	if(labReqVer.equals("")) {labReqVer="07";}
@@ -661,28 +663,18 @@ var beginD = "1900-01-01"
         &nbsp; &nbsp; <font face="Verdana, Arial, Helvetica, sans-serif" size="2" color="#333333"><b>MRP</b></font> 
         <select id="mrpview" name="mrpview">
         <option value="all" <%=mrpview.equals("all")?"selected":""%>><bean:message key="tickler.ticklerMain.formAllProviders"/></option>
-        <%
-        	ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
-                                List<Provider> providers = providerDao.getActiveProviders(); 
-                                for (Provider p : providers) {
-        %>
+        <% for (Provider p : providersThatReceiveTicklers) { %>
         <option value="<%=p.getProviderNo()%>" <%=mrpview.equals(p.getProviderNo())?"selected":""%>><%=p.getLastName()%>,<%=p.getFirstName()%></option>
-        <%
-        	}
-        %>
+        <% } %>
           </select>
         
         &nbsp; &nbsp; <font face="Verdana, Arial, Helvetica, sans-serif" size="2" color="#333333"><b><bean:message key="tickler.ticklerMain.msgCreator"/> </b></font>
 
         <select id="providerview" name="providerview">
         <option value="all" <%=providerview.equals("all")?"selected":""%>><bean:message key="tickler.ticklerMain.formAllProviders"/></option>
-        <%
-        	for (Provider p : providers) {
-        %>
+        <% for (Provider p : providersThatReceiveTicklers) { %>
         <option value="<%=p.getProviderNo()%>" <%=providerview.equals(p.getProviderNo())?"selected":""%>><%=p.getLastName()%>,<%=p.getFirstName()%></option>
-        <%
-        	}
-        %>
+        <% } %>
           </select>
 
 			<% if (caisiEnabled) { %>

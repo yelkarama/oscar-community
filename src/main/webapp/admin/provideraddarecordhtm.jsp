@@ -249,11 +249,26 @@ for (int i=0; i<sites.size(); i++) {
 					</caisi:isModuleLoad>
 				</select>
 			</div>
-			<%  if (enableCustomTemporaryGroups) { %>
-			<label>
-				<input type="checkbox" name="has_schedule" value="true" checked="checked"/>Has Schedule
-			</label>
-			<% } %>
+		</td>
+	</tr>
+	<tr>
+		<td></td>
+		<td>
+			<div style="display: inline-block; min-width: 173px;">
+				<label>
+					<input type="checkbox" name="has_schedule" value="true" checked="checked"/>Has Schedule
+				</label>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td></td>
+		<td>
+			<div style="display: inline-block; min-width: 173px;">
+				<label>
+					<input type="checkbox" name="receives_ticklers" value="true" checked="checked"/>Receives Ticklers
+				</label>
+			</div>
 		</td>
 	</tr>
         <%

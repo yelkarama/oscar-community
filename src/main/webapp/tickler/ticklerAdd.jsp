@@ -398,7 +398,9 @@ Site site = null;
 for (int i=0; i<sites.size(); i++) {
     List<Provider> sortedProviderList = new ArrayList<Provider>();
     for(Provider provider : sites.get(i).getProviders()){
-        sortedProviderList.add(provider);
+        if (provider.getReceivesTicklers()) {
+        	sortedProviderList.add(provider);
+        }
     }
     Collections.sort(sortedProviderList, Provider.LastNameComparator); %>
 	_providers["<%= sites.get(i).getSiteId() %>"]="<% Iterator<Provider> iter = sortedProviderList.iterator();
@@ -440,7 +442,7 @@ function changeSite(sel) {
                     selectProvider = prop.getValue();
                 }
 				
-                for(Provider p : providerDao.getActiveProviders()) {
+                for(Provider p : providerDao.getActiveProvidersThatReceivesTicklers()) {
                
                     proFirst =p.getFirstName();
                     proLast = p.getLastName();

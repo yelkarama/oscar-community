@@ -12716,3 +12716,16 @@ CREATE TABLE consultation_requests_ext_archive (
   `date_created` DATE NOT NULL
 );
 
+
+create table SurveillanceData (
+	id int(10)  NOT NULL auto_increment primary key,
+	surveyId varchar(50),
+	data mediumblob,
+	createDate datetime,
+	lastUpdateDate datetime,
+	transmissionDate datetime,
+	sent boolean
+);
+
+
+ALTER TABLE provider ADD COLUMN receives_ticklers BOOLEAN DEFAULT TRUE NOT NULL AFTER has_shedule;

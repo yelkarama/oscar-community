@@ -104,7 +104,9 @@ public class ProviderData extends AbstractModel<String> implements Serializable 
         @Column(name = "supervisor")
         private String supervisor;
     @Column(name = "has_schedule")
-    private Boolean hasSchedule;
+    private Boolean hasSchedule = true;
+    @Column(name = "receives_ticklers")
+    private boolean receivesTicklers = true;
       
 	public ProviderData() {}
 	
@@ -330,6 +332,13 @@ public class ProviderData extends AbstractModel<String> implements Serializable 
     }
     public void setHasSchedule(Boolean hasSchedule) {
         this.hasSchedule = hasSchedule;
+    }
+
+    public boolean getReceivesTicklers() {
+        return receivesTicklers;
+    }
+    public void setReceivesTicklers(boolean receivesTicklers) {
+        this.receivesTicklers = receivesTicklers;
     }
 
     public static final Comparator<ProviderData> LastNameComparator = new Comparator<ProviderData>() {

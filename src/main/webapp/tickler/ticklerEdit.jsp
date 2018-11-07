@@ -325,7 +325,7 @@
                         <select name="assignedToProviders">
                             <%
                                 ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
-                                List<Provider> providers = providerDao.getActiveProviders(); 
+                                List<Provider> providers = providerDao.getActiveProvidersThatReceivesTicklers(); 
                                 for (Provider p: providers) {
                                     
                                     if (p.equals(t.getAssignee())){
