@@ -120,7 +120,7 @@ public class GroupProviderUtil {
 		DateTime startDate1 = pattern.parseDateTime(startDate);
 		DateTime endDate1 = pattern.parseDateTime(endDate);
 
-		while (startDate1.isBefore(endDate1)){
+		while (startDate1.isBefore(endDate1) || startDate1.equals(endDate1)){
 		    if ( contains(daysOfWeek,startDate1.getDayOfWeek())){
 		    	ScheduleDate sd = new ScheduleDate();
 		    	sd.setDate(startDate1.toDate());
