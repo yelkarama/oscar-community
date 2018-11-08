@@ -21,7 +21,7 @@
 	
 	<item measurement_type="NYHA" display_name="NYHA Functional Capacity Classification" guideline="Record class I-IV" graphable="no" value_name="Class" />
 	<measurement type="NYHA" typeDesc="NYHA Functional Capacity Classification" typeDisplayName="NYHA Functional Capacity Classification" measuringInstrc="">
-		<validationRule name="Integer: 1 to 4" maxValue="4" minValue="1" isDate="" isNumeric="1" regularExp="" maxLength="1" minLength="" />
+		<validationRule name="NYHA Class I-IV" maxValue="" minValue="" isDate="" isNumeric="" regularExp="Class I - no symptoms|Class II - symptoms with ordinary activity|Class III - symptoms with less than ordinary activity|Class IV - symptoms at rest" maxLength="" minLength="" />
 	</measurement>
 	
 	<item measurement_type="Kpl" display_name="Potassium" guideline="" graphable="yes" value_name="Value" />

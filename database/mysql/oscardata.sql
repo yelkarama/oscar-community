@@ -1397,7 +1397,7 @@ INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `me
 ( 'NOSK', 'Number of Cigarettes per day', 'Smoking', 'Cigarettes per day', '5', '2013-02-01 00:00:00'),
 ( 'NOVS', 'Need for nocturnal ventilated support', 'Need for nocturnal ventilated support', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'NtrC', 'Diet/Nutrition Counseling Given', 'Diet/Nutrition Counseling Given', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'NYHA', 'NYHA Functional Capacity Classification', 'NYHA Functional Capacity Classification', 'Class I-IV', '9', '2018-11-08 00:00:00'),
+( 'NYHA', 'NYHA Functional Capacity Classification', 'NYHA Functional Capacity Classification', 'Class I-IV', '24', '2018-11-08 00:00:00'),
 ( 'OPAE', 'Opioid Adverse Effects', 'Opioid Adverse Effects', 'null', '17', '2014-11-27 13:00:00'),
 ( 'OPAB', 'Opioid Aberrant Behaviour', 'Opioid Aberrant Behaviour', 'null', '17', '2014-11-27 13:00:00'),
 ( 'OPUS', 'Opioid Urine Drug Screen', 'Opioid Urine Drug Screen', 'null', '17', '2014-11-27 13:00:00'),

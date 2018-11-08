@@ -27,7 +27,7 @@
 <%@page import="oscar.oscarDemographic.data.*,java.util.*,oscar.oscarPrevention.*,oscar.oscarProvider.data.*,oscar.util.*,oscar.oscarEncounter.oscarMeasurements.*,oscar.oscarEncounter.oscarMeasurements.bean.*,oscar.oscarEncounter.oscarMeasurements.pageUtil.*"%>
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
 <%@page import="org.springframework.web.context.WebApplicationContext"%>
-<%@page import="org.oscarehr.common.dao.*,org.oscarehr.common.model.FlowSheetCustomization"%>
+<%@page import="org.oscarehr.common.dao.*,org.oscarehr.common.model.FlowSheetCustomization,org.oscarehr.common.model.Validations"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
@@ -42,6 +42,7 @@
 
   WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
   FlowSheetCustomizationDao flowSheetCustomizationDao = (FlowSheetCustomizationDao) ctx.getBean("flowSheetCustomizationDao");
+  ValidationsDao validationsDao = (ValidationsDao) ctx.getBean("validationsDao");
   MeasurementTemplateFlowSheetConfig templateConfig = MeasurementTemplateFlowSheetConfig.getInstance();
 
 
@@ -353,6 +354,8 @@ clear: left;
                     Map h2 = mFlowsheet.getMeasurementFlowSheetInfo(measurement);
 
                 EctMeasurementTypesBean mtypeBean = mType.getMeasurementType(measurement);
+                Validations validations = validationsDao.find(Integer.parseInt(mtypeBean.getValidation()));
+                
                 if(ectMeasurementsForm != null && !ectMeasurementsForm.isEmpty()){
 
                    h = new Hashtable(ectMeasurementsForm.values);
@@ -360,12 +363,6 @@ clear: left;
                    prevDate = (String) h.get("date-"+ctr);
                    val = (String) h.get("inputValue-" + ctr);
                    comment = (String) h.get("comments-" + ctr);
-
-
-
-
-
-
                 }
                 %>
 
@@ -398,26 +395,20 @@ clear: left;
 							<br />
 
   						<label for="<%="value(inputValue-"+ctr+")"%>" class="fields"><%=h2.get("value_name")%>:</label>
-                            <% if ( mtypeBean.getValidationName() != null && (mtypeBean.getValidationName().contains("/") || mtypeBean.getValidationName().equals("Yes")) ){ %>
+                            <% if ( validations!=null && validations.getRegularExp()!=null && (validations.getRegularExp().contains("|") || validations.getRegularExp().equals("Yes")) ){ %>
                             <select  id="<%= "value(inputValue-" + ctr + ")" %>" name="<%= "value(inputValue-" + ctr + ")" %>" >
                                 <option value=""></option>
-                                <%	String[] opts = mtypeBean.getValidationName().split("/");
+                                <%	String[] opts = validations.getName().contains("/") ? validations.getName().split("/") : validations.getRegularExp().split("\\|");
                                 	for (String opt : opts) {%>
                                 		<option value="<%=opt%>"  <%=sel(opt, val)%>><%=opt%></option>
                                 <%	}%>
                             </select>
-                            <%}else if (mtypeBean.getValidationName()!=null && mtypeBean.getValidationName().startsWith("Integer")){ %>
+                            <%}else if (validations!=null && validations.getName().startsWith("Integer")){ %>
                             <select  id="<%= "value(inputValue-" + ctr + ")" %>" name="<%= "value(inputValue-" + ctr + ")" %>" >
                             	<option value=""></option>
-                            	<option value="1" <%=sel("1", val)%>>1</option>
-                            	<option value="2" <%=sel("2", val)%>>2</option>
-                            	<option value="3" <%=sel("3", val)%>>3</option>
-                            	<%if (mtypeBean.getValidationName().equals("Integer: 1 to 4") || mtypeBean.getValidationName().equals("Integer: 1 to 5")){%>
-                            	<option value="4" <%=sel("4", val)%>>4</option>
-                            	<%}%>
-                            	<%if (mtypeBean.getValidationName().equals("Integer: 1 to 5")){%>
-                            	<option value="5" <%=sel("5", val)%>>5</option>
-                            	<%}%>
+                            	<%for (int v=validations.getMinValue().intValue(); v<=validations.getMaxValue().intValue(); v++){ %>
+                            	<option value="<%=v%>" <%=sel(""+v, val)%>><%=v%></option>
+                            	<%} %>
                             </select>
                             <%}else{%>
                             <input type="text" id="<%= "value(inputValue-" + ctr + ")" %>" name="<%= "value(inputValue-" + ctr + ")" %>" size="5" value="<%=val%>" /> <br/>
