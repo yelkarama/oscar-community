@@ -148,7 +148,7 @@
 		
 	<item measurement_type="AACP" display_name="Action Plan" guideline="" graphable="yes" value_name="Provided/Revised/Reviewed" />
 	<measurement type="AACP" typeDesc="Asthma Action Plan " typeDisplayName="Asthma Action Plan " measuringInstrc="">
-		<validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
+		<validationRule name="Provided/Revised/Reviewed" maxValue="" minValue="" isDate="" isNumeric="" regularExp="Provided|Revised|Reviewed" maxLength="" minLength="" />
 	</measurement>
 		
 	<item measurement_type="AEDR" display_name="Education Referral" guideline="" graphable="yes" value_name="Referred" />

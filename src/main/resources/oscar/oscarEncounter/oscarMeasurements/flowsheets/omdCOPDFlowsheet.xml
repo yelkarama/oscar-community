@@ -93,8 +93,8 @@
 		<validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
 	</measurement>
 		
-	<item measurement_type="COPS" display_name="Specialist Referral" guideline="" graphable="yes" value_name="Referred" />
-	<measurement type="COPS" typeDesc="COPD Specialist Referral" typeDisplayName="COPD Specialist Referral" measuringInstrc="">
+	<item measurement_type="ASPR" display_name="Specialist Referral" guideline="" graphable="yes" value_name="Referred" />
+	<measurement type="ASPR" typeDesc="Specialist Referral" typeDisplayName="Specialist Referral" measuringInstrc="">
 		<validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
 	</measurement>
 		

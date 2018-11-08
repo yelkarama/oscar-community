@@ -1153,7 +1153,7 @@ INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `me
 ( '24UR', '24-hr Urine cr clearance & albuminuria', 'Renal 24-hr Urine cr clearance & albuminuria', 'q 6-12 months, unit mg', '3', '2013-02-01 00:00:00'),
 ( '5DAA', '5 Day Adherence if on ART', '5 Day Adherence if on ART', 'number', '4', '2013-02-01 00:00:00'),
 ( 'A1C', 'A1C', 'A1C', 'Range:0.040-0.200', '3', '2013-02-01 00:00:00'),
-( 'AACP', 'Asthma Action Plan ', 'Asthma Action Plan ', 'Yes/No', '7', '2013-02-01 00:00:00'),
+( 'AACP', 'Asthma Action Plan ', 'Asthma Action Plan ', 'Provided/Revised/Reviewed', '19', '2018-11-08 00:00:00'),
 ( 'ABO', 'Blood Group', 'ABO RhD blood type group', 'Blood Type', '11', '2014-05-09 00:00:00'),
 ( 'ACOS', 'Asthma Coping Strategies', 'Asthma Coping Strategies', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'ACR', 'Alb creat ratio', 'ACR', 'in mg/mmol', '5', '2013-02-01 00:00:00'),
@@ -1397,7 +1397,7 @@ INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `me
 ( 'NOSK', 'Number of Cigarettes per day', 'Smoking', 'Cigarettes per day', '5', '2013-02-01 00:00:00'),
 ( 'NOVS', 'Need for nocturnal ventilated support', 'Need for nocturnal ventilated support', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'NtrC', 'Diet/Nutrition Counseling Given', 'Diet/Nutrition Counseling Given', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'NYHA', 'NYHA Functional Capacity Classification', 'NYHA Functional Capacity Classification', 'Class 1-4', '9', '2013-02-01 00:00:00'),
+( 'NYHA', 'NYHA Functional Capacity Classification', 'NYHA Functional Capacity Classification', 'Class I-IV', '9', '2018-11-08 00:00:00'),
 ( 'OPAE', 'Opioid Adverse Effects', 'Opioid Adverse Effects', 'null', '17', '2014-11-27 13:00:00'),
 ( 'OPAB', 'Opioid Aberrant Behaviour', 'Opioid Aberrant Behaviour', 'null', '17', '2014-11-27 13:00:00'),
 ( 'OPUS', 'Opioid Urine Drug Screen', 'Opioid Urine Drug Screen', 'null', '17', '2014-11-27 13:00:00'),
@@ -1757,7 +1757,9 @@ INSERT INTO `validations` (`id`, `name`, `regularExp`, `maxValue1`, `minValue`, 
 (20,'Mild/Moderate/Severe/Very Severe', 'Mild|Moderate|Severe|Very Severe', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (21,'Yes/Not Applicable', 'Yes|Not Applicable', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (22,'Yes', 'Yes', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(23, 'Integer: 0 to 7', NULL, 7, 0, 1, NULL, NULL, NULL, NULL);
+(23, 'Integer: 0 to 7', NULL, 7, 0, 1, NULL, NULL, NULL, NULL),
+(24,'NYHA Class I-IV', 'Class I - no symptoms|Class II - symptoms with ordinary activity|Class III - symptoms with less than ordinary activity|Class IV - symptoms at rest', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+
 
 
 insert into `secRole` values(1, 'receptionist', 'receptionist');

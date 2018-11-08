@@ -19,7 +19,7 @@
 	<indicator key="HIGH" colour="orange" />
 	<indicator key="LOW" colour="#9999FF" />
 	
-	<item measurement_type="NYHA" display_name="NYHA Functional Capacity Classification" guideline="Record class 1 - 4" graphable="no" value_name="Class" />
+	<item measurement_type="NYHA" display_name="NYHA Functional Capacity Classification" guideline="Record class I-IV" graphable="no" value_name="Class" />
 	<measurement type="NYHA" typeDesc="NYHA Functional Capacity Classification" typeDisplayName="NYHA Functional Capacity Classification" measuringInstrc="">
 		<validationRule name="Integer: 1 to 4" maxValue="4" minValue="1" isDate="" isNumeric="1" regularExp="" maxLength="1" minLength="" />
 	</measurement>
@@ -107,12 +107,10 @@
 		<validationRule name="Numeric Value greater than or equal to 0" maxValue="" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength=""/>
 	</measurement>
 	
-	<!-- 
 	<item measurement_type="WT" display_name="Weight" guideline="" graphable="yes" value_name="Value" />
 	<measurement type="WT" typeDesc="Weight" typeDisplayName="WT" measuringInstrc="in BMI">
 		<validationRule name="Numeric Value: 0 to 100" maxValue="100" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength=""/>
 	</measurement>
-	-->
 	
 	<item measurement_type="HR" display_name="HR" guideline="" graphable="yes" value_name="Heart Rate" />
 	<measurement type="HR" typeDesc="Heart Rate" typeDisplayName="P" measuringInstrc="in bpm (nnn) Range:40-180">
