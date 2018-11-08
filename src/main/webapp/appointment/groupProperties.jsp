@@ -23,6 +23,8 @@
     Ontario, Canada
 
 --%>
+<%@page import="org.oscarehr.PMmodule.model.Program"%>
+<%@page import="org.oscarehr.PMmodule.dao.ProgramDao"%>
 <%@page import="java.util.Date"%>
 <%@page import="org.apache.commons.lang.StringUtils"%>
 <%@page import="org.oscarehr.common.dao.OscarAppointmentDao"%>
@@ -75,10 +77,18 @@ UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 	UserProperty completedUp = userPropertyDao.getProp(targetProviderNo,"completed");
 	UserProperty dropInUp = userPropertyDao.getProp(targetProviderNo,"dropIn");
 	
+	UserProperty bedProgramUp = userPropertyDao.getProp(targetProviderNo,"bed_program");
+	UserProperty serviceProgramsUp = userPropertyDao.getProp(targetProviderNo,"service_programs");
+	
 	//is this a drop in
 	boolean dropIn=false;
 	if(dropInUp != null) {
 		dropIn = Boolean.valueOf(dropInUp.getValue());
+	}
+	
+	String[] servicePrograms = null;
+	if(serviceProgramsUp!=null) {
+		servicePrograms = serviceProgramsUp.getValue().split(",");
 	}
 			
 	//setup dates for this series
@@ -138,6 +148,8 @@ UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 	
 	String message = request.getParameter("message");
 	
+	ProgramDao programDao = SpringUtils.getBean(ProgramDao.class);
+	List<Program> programs =  programDao.getAllActivePrograms();
 %>
 <html:html locale="true">
 
@@ -743,11 +755,11 @@ UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 		var createFirstName = jQuery("#createFirstName").val();
 		var createDOB = jQuery("#createDOB").val();
 		var createGender = jQuery("#createGender").val();
-	
+		
 		jQuery.ajax({
 	        type: "POST",
 	        url:  '../demographicSupport.do',
-	        data: 'method=saveCreatePatient&lastName='+createLastName+'&firstName='+createFirstName+'&dob='+createDOB+'&gender='+createGender,
+	        data: 'method=saveCreatePatient&lastName='+createLastName+'&firstName='+createFirstName+'&dob='+createDOB+'&gender='+createGender + '&targetProviderNo=<%=targetProviderNo%>',
 	        dataType: 'json',
 	        success: function (data) {
 	        	var demo = data.demographicNo;
@@ -876,6 +888,41 @@ UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 			</tr>		
 			
 			
+			<tr>
+				<td>Registration:</td>
+				<td>
+							<br/>
+					
+								<select name="bed_program">
+									<option value="-1">Bed program</option>
+								<%for(Program p:programs) {
+									if(p.getType().equals("Bed")) {	
+										String selected = "";
+										if(bedProgramUp != null && p.getId().toString().equals(bedProgramUp.getValue())) {
+											selected = " selected=\"selected\"  ";
+										}
+								%>
+									<option value="<%=p.getId()%>" <%=selected%>><%=p.getName() %></option>
+								<% } } %>
+								</select>
+							<br/><br/>
+								<%for(Program p:programs) {
+									if(p.getType().equals("Service")) {	
+										String checked2="";
+										if(servicePrograms != null) {
+											for(String sp:servicePrograms) {
+												if(sp.equals(p.getId().toString())) {
+													checked2 = " checked=\"checked\"  ";
+												}
+											}
+										}
+								%>
+									<input type="checkbox" name="service_program" value="<%=p.getId()%>" <%=checked2%>/>&nbsp;<%=p.getName() %><br/>
+								<% } } %>
+							
+				
+				</td>
+			</tr>
 		
 		</table>
 		
@@ -1085,6 +1132,10 @@ UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 		
 		<input type="button" value="Cancel Session" onClick="cancelSession()"/>
 		
+		&nbsp;&nbsp;
+		
+		<input type="button" value="Reports" onClick="location.href='<%=request.getContextPath()%>/report/reportindex.jsp'"/>
+		<br/><br/>
 		
 		<input name="close" type="button" value="Close Window" onClick="window.close()"/>
 		

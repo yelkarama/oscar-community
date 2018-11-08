@@ -24,6 +24,7 @@
 
 --%>
 
+<%@page import="org.apache.commons.lang3.StringUtils"%>
 <%@page import="org.oscarehr.util.SessionConstants"%>
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="java.util.Date"%>
@@ -107,6 +108,17 @@
  		}
 	}
 
+    //programs
+    saveOrUpdateProperty(providerNo,request.getParameter("bed_program"),"bed_program");
+
+    String[] servicePrograms = request.getParameterValues("service_program");
+    if(servicePrograms != null) {
+    	saveOrUpdateProperty(providerNo,String.join(",", servicePrograms),"service_programs");
+    } else {
+    	saveOrUpdateProperty(providerNo,"","service_programs");
+    }
+    
+    
    	//handle removes
    	String[] ids = request.getParameterValues("topic.delete");
    	if(ids != null) {

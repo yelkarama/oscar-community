@@ -170,6 +170,11 @@ public class AdmissionManager {
 		processAdmission(demographicNo, providerNo, program, dischargeNotes, admissionNotes, false, null, false);
 	}
 	*/
+	
+	public void processAdmission(LoggedInInfo loggedInInfo, Integer demographicNo, Program program,String admissionNotes) throws ProgramFullException, AdmissionException, ServiceRestrictionException, FunctionalCentreDischargeException {
+		processAdmission(loggedInInfo, demographicNo, null, program, null, admissionNotes, false, null, false,null);
+	}
+	
 	public void processAdmission(LoggedInInfo loggedInInfo, Integer demographicNo, String providerNo, Program program, String dischargeNotes, String admissionNotes) throws ProgramFullException, AdmissionException, ServiceRestrictionException, FunctionalCentreDischargeException {
 		processAdmission(loggedInInfo, demographicNo, providerNo, program, dischargeNotes, admissionNotes, false, null, false,null);
 	}

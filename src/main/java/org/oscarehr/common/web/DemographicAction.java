@@ -37,15 +37,20 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
+import org.oscarehr.PMmodule.dao.ProgramDao;
+import org.oscarehr.PMmodule.model.Program;
+import org.oscarehr.PMmodule.service.AdmissionManager;
 import org.oscarehr.PMmodule.service.ProviderManager;
 import org.oscarehr.common.dao.DemographicArchiveDao;
 import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.DemographicExtArchiveDao;
 import org.oscarehr.common.dao.DemographicExtDao;
+import org.oscarehr.common.dao.UserPropertyDAO;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.DemographicArchive;
 import org.oscarehr.common.model.DemographicExt;
 import org.oscarehr.common.model.DemographicExtArchive;
+import org.oscarehr.common.model.UserProperty;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.SpringUtils;
@@ -68,13 +73,18 @@ public class DemographicAction extends DispatchAction  {
 	
 	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 	private ProviderManager providerManager = SpringUtils.getBean(ProviderManager.class);
+	private AdmissionManager admissionManager = (AdmissionManager)SpringUtils.getBean(AdmissionManager.class);
+	private ProgramDao programDao = SpringUtils.getBean(ProgramDao.class);
+	
+	private UserPropertyDAO userPropertyDAO = SpringUtils.getBean(UserPropertyDAO.class);
 	
 	public ActionForward saveCreatePatient(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)  {
+		LoggedInInfo loggedInInfo =  LoggedInInfo.getLoggedInInfoFromSession(request);
 		String lastName = request.getParameter("lastName");
 		String firstName = request.getParameter("firstName");
 		String dob = request.getParameter("dob");
 		String gender = request.getParameter("gender");
-		
+		String targetProviderNo = request.getParameter("targetProviderNo");
 		
 		Demographic demographic = new Demographic();
 		demographic.setLastName(lastName);
@@ -112,6 +122,35 @@ public class DemographicAction extends DispatchAction  {
 		JSONObject result = new JSONObject();
 		result.put("demographicNo", demographic.getDemographicNo());
 	
+		//admit to program(s)
+		UserProperty bedProgramUp = userPropertyDAO.getProp(targetProviderNo, "bed_program");
+		UserProperty serviceProgramsUp = userPropertyDAO.getProp(targetProviderNo, "service_programs");
+		
+		if(bedProgramUp != null && !bedProgramUp.getValue().isEmpty()) {
+			Program p = programDao.getProgram(Integer.parseInt(bedProgramUp.getValue()));
+			if(p != null) {
+				try {
+					admissionManager.processAdmission(loggedInInfo,demographic.getDemographicNo(),loggedInInfo.getLoggedInProviderNo(),p,null,"Admitted through group interface");
+				}catch(Exception e) {
+					log.error("Error",e);
+				}	
+			}
+		}
+		
+		if(serviceProgramsUp != null && !serviceProgramsUp.getValue().isEmpty()) {
+			String[] ids = serviceProgramsUp.getValue().split(",");
+			for(String programId : ids) {
+				Program p = programDao.getProgram(Integer.parseInt(programId));
+				if(p != null) {
+					try {
+						admissionManager.processAdmission(loggedInInfo,demographic.getDemographicNo(),loggedInInfo.getLoggedInProviderNo(),p,null,"Admitted through group interface");
+					}catch(Exception e) {
+						log.error("Error",e);
+					}	
+				}
+			}
+		}
+		
         try {
             JSONObject json = JSONObject.fromObject(result);
             json.write(response.getWriter());
