@@ -39,9 +39,11 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.DemographicMergedDao;
 import org.oscarehr.common.dao.RecycleBinDao;
 import org.oscarehr.common.dao.SecObjPrivilegeDao;
+import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.RecycleBin;
 import org.oscarehr.common.model.SecObjPrivilege;
 import org.oscarehr.common.model.SecObjPrivilegePrimaryKey;
@@ -61,6 +63,7 @@ public class DemographicMerged {
     private DemographicMergedDao dao = SpringUtils.getBean(DemographicMergedDao.class);
     private SecObjPrivilegeDao secObjPrivilegeDao = SpringUtils.getBean(SecObjPrivilegeDao.class);
     private RecycleBinDao recycleBinDao = SpringUtils.getBean(RecycleBinDao.class);
+    private DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
     
     public DemographicMerged() {
     }
@@ -71,7 +74,7 @@ public class DemographicMerged {
     	
     	 // always merge the head of records that have already been merged to the new head
         String record_head = getHead(demographic_no);
-        if (record_head == null)
+        if (record_head == null) 
             dm.setDemographicNo(Integer.parseInt( demographic_no ));
         else
             dm.setDemographicNo(Integer.parseInt(record_head));
@@ -81,6 +84,12 @@ public class DemographicMerged {
         dm.setLastUpdateUser(loggedInInfo.getLoggedInProviderNo());
         dm.setLastUpdateDate(new Date());
         dao.persist(dm);
+        
+        Demographic demo = demographicDao.getDemographic(demographic_no);
+        if(demo != null) {
+        	demo.setPatientStatus("IN");
+        	demographicDao.save(demo);
+        }
         
         //only if it doesn't exist
         if(secObjPrivilegeDao.find(new SecObjPrivilegePrimaryKey("_all","_eChart$"+demographic_no)) == null) {

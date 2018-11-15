@@ -365,7 +365,7 @@ UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 			return;
 		}
 		
-		jQuery.post("<%=request.getContextPath()%>/groupAppointment.do" , {method: 'saveGroupNote',appointmentNos:appts,note:note},
+		jQuery.post("<%=request.getContextPath()%>/groupAppointment.do" , {method: 'saveGroupNote',appointmentNos:appts,note:note,targetProviderNo:'<%=targetProviderNo%>',date: '<%=sessionDateStr%>'},
 	            function(xml)
 	            {
 					if(xml.error) {
