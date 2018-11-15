@@ -25,8 +25,8 @@
 	</measurement>
 	
 	<item measurement_type="COPDC" display_name="COPD Classification" guideline="" graphable="no" value_name="Class" />
-	<measurement type="COPDC" typeDesc="COPD Classification" typeDisplayName="COD Classification" measuringInstrc="">
-		<validationRule name="Mild/Moderate/Severe/Very Severe" maxValue="" minValue="" isDate="" isNumeric="" regularExp="Mild|Moderate|Severe|Very Severe" maxLength="" minLength="" />
+	<measurement type="COPDC" typeDesc="COPD Classification" typeDisplayName="COPD Classification" measuringInstrc="">
+		<validationRule name="COPD Classification" maxValue="" minValue="" isDate="" isNumeric="" regularExp="Mild: FEV1 &gt;= 80% predicted|Moderate:50% &lt;= FEV1 &lt; 80% predicted|Severe:30% &lt;= FEV1 &lt; 50% predicted|Very Severe : FEV1 &lt; 30% predicted" maxLength="" minLength="" />
 	</measurement>
 		
 	<item measurement_type="02" display_name="O2 Saturation" guideline="" graphable="yes" value_name="Percent" />

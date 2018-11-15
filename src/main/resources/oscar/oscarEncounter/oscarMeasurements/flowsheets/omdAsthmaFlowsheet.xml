@@ -269,23 +269,23 @@
 		<validationRule name="Numeric Value greater than or equal to 0" maxValue="" minValue="" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
 	</measurement>
 	
-	<item measurement_type="CODPW" display_name="cough (days/week)" guideline="Target: &lt;4 days/week" graphable="yes" value_name="cough (days/week)" />
-	<measurement type="CODPW" typeDesc="cough (days/week)" typeDisplayName="cough (days/week)" measuringInstrc="">
-		<validationRule name="Integer: 0 to 7" maxValue="7" minValue="0" isDate="" isNumeric="" regularExp="" maxLength="1" minLength="" />
+	<item measurement_type="ACOSY" display_name="cough" guideline="Target: &lt;4 days/week" graphable="yes" value_name="cough" />
+	<measurement type="ACOSY" typeDesc="cough" typeDisplayName="cough" measuringInstrc="">
+		<validationRule name="Numeric Value greater than or equal to 0" maxValue="" minValue="" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
 	</measurement>
 	
-	<item measurement_type="CTDPW" display_name="chest tightness (days/week)" guideline="Target: &lt;4 days/week" graphable="yes" value_name="chest tightness (days/week)" />
-	<measurement type="CTDPW" typeDesc="chest tightness (days/week)" typeDisplayName="chest tightness (days/week)" measuringInstrc="">
-		<validationRule name="Integer: 0 to 7" maxValue="7" minValue="0" isDate="" isNumeric="" regularExp="" maxLength="1" minLength="" />
+	<item measurement_type="ACTSY" display_name="chest tightness" guideline="Target: &lt;4 days/week" graphable="yes" value_name="chest tightness" />
+	<measurement type="ACTSY" typeDesc="chest tightness" typeDisplayName="chest tightness" measuringInstrc="">
+		<validationRule name="Numeric Value greater than or equal to 0" maxValue="" minValue="" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
 	</measurement>
 	
-	<item measurement_type="DYDPW" display_name="dyspnea (days/week)" guideline="Target: &lt;4 days/week" graphable="yes" value_name="dyspnea (days/week)" />
-	<measurement type="DYDPW" typeDesc="dyspnea (days/week)" typeDisplayName="dyspnea (days/week)" measuringInstrc="">
-		<validationRule name="Integer: 0 to 7" maxValue="7" minValue="0" isDate="" isNumeric="" regularExp="" maxLength="1" minLength="" />
+	<item measurement_type="ADYSY" display_name="dyspnea" guideline="Target: &lt;4 days/week" graphable="yes" value_name="dyspnea" />
+	<measurement type="ADYSY" typeDesc="dyspnea" typeDisplayName="dyspnea" measuringInstrc="">
+		<validationRule name="Numeric Value greater than or equal to 0" maxValue="" minValue="" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
 	</measurement>
 	
-	<item measurement_type="WHDPW" display_name="wheeze (days/week)" guideline="Target: &lt;4 days/week" graphable="yes" value_name="wheeze (days/week)" />
-	<measurement type="WHDPW" typeDesc="wheeze (days/week)" typeDisplayName="wheeze (days/week)" measuringInstrc="">
-		<validationRule name="Integer: 0 to 7" maxValue="7" minValue="0" isDate="" isNumeric="" regularExp="" maxLength="1" minLength="" />
+	<item measurement_type="AWHSY" display_name="wheeze" guideline="Target: &lt;4 days/week" graphable="yes" value_name="wheeze" />
+	<measurement type="AWHSY" typeDesc="wheeze" typeDisplayName="wheeze" measuringInstrc="">
+		<validationRule name="Numeric Value greater than or equal to 0" maxValue="" minValue="" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
 	</measurement>
 </flowsheet>

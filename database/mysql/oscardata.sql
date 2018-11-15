@@ -1222,8 +1222,8 @@ INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `me
 ( 'CMBS', 'Coombs', 'Coombs', 'test result', '17', '2014-05-09 00:00:00'),
 ( 'CMVI', 'CMV IgG', 'CMV IgG', 'Positive', '7', '2013-02-01 00:00:00'),
 ( 'CODC', 'COD Classification', 'COD Classification', '', '11', '2013-02-01 00:00:00'),
-( 'CODPW', 'Cough (days/week)', 'Cough (days/week)', 'days/week', '23', '2018-10-31 00:00:00'),
-( 'COPDC', 'COPD Classification', 'COPD Classification', 'Mild/Moderate/Severe/Very Severe', '20', '2018-10-18 00:00:00'),
+( 'ACOSY', 'Cough', 'Cough', 'frequency/week', '14', '2018-11-15 00:00:00'),
+( 'COPDC', 'COPD Classification', 'COPD Classification', 'COPD Classification', '25', '2018-11-15 00:00:00'),
 ( 'COGA', 'Cognitive Assessment', 'NULL', 'Yes/No', '7', '2013-10-25 13:00:00'),
 ( 'COPE', 'Provide COP Education Materials ', 'Provide COP Education Materials ', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'COPM', 'Review COP Med use and Side effects', 'Review COP Med use and Side effects', 'Yes/No', '7', '2013-02-01 00:00:00'),
@@ -1231,7 +1231,7 @@ INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `me
 ( 'COUM', 'Warfarin Weekly Dose', 'WarfarinDose', 'Total mg Warfarin per week', '5', '2013-02-01 00:00:00'),
 ( 'CRCL', 'Creatinine Clearance', 'Creatinine Clearance', 'in ml/h', '5', '2013-02-01 00:00:00'),
 ( 'CRP', 'CRP', 'C reactive protein', 'mg/L', '14', '2014-05-09 00:00:00'),
-( 'CTDPW', 'Chest tightness (days/week)', 'Chest tightness (days/week)', 'days/week', '23', '2018-10-31 00:00:00'),
+( 'ACTSY', 'Chest tightness', 'Chest tightness', 'frequency/week', '14', '2018-11-15 00:00:00'),
 ( 'CVD', 'CVD', 'Cerebrovascular disease', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'CXR', 'CXR', 'CXR', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'DARB', 'ACE AARB', 'ACE AARB', 'Yes/No', '7', '2013-02-01 00:00:00'),
@@ -1258,7 +1258,7 @@ INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `me
 ( 'DT1', 'Type I', 'Diabetes Type 1', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'DT2', 'Type II', 'Diabetes Type 2', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'DTYP', 'Diabetes Type', 'Diabetes Type', '1 or 2', '10', '2013-02-01 00:00:00'),
-( 'DYDPW', 'Dyspnea (days/week)', 'Dyspnea (days/week)', 'days/week', '23', '2018-10-31 00:00:00'),
+( 'ADYSY', 'Dyspnea', 'Dyspnea', 'frequency/week', '14', '2018-11-15 00:00:00'),
 ( 'ECG', 'ECG', 'ECG', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'ECHK', 'Do you have your eyes regularly checked?', 'NULL', 'Yes/No', '7', '2013-12-20 13:00:00'),
 ( 'EDC', 'EDC', 'Expected Date of Confinement', 'yyyy-mm-dd', '13', '2013-02-01 00:00:00'),
@@ -1501,7 +1501,7 @@ INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `me
 ( 'VZV', 'Zoster', 'Varicella Zoster', 'result', '17', '2014-05-09 00:00:00'),
 ( 'WAIS', 'Waist', 'Waist', 'Waist Circum in cm', '5', '2013-02-01 00:00:00'),
 ( 'WBC', 'WBC', 'White Cell Count', 'x10 9/L Range 4-11', '14', '2014-05-09 00:00:00'),
-( 'WHDPW', 'Wheeze (days/week)', 'Wheeze (days/week)', 'days/week', '23', '2018-10-31 00:00:00'),
+( 'AWHSY', 'Wheeze', 'Wheeze', 'frequency/week', '14', '2018-10-31 00:00:00'),
 ( 'WHR', 'Waist:Hip', 'Waist Hip Ratio', 'Range:0.5-2 Interval:3mo.', '2', '2013-02-01 00:00:00'),
 ( 'WKED', 'Work/Education', 'NULL', 'Review', '16', '2013-12-30 13:00:00'),
 ( 'WT', 'WT', 'Weight', 'in kg', '5', '2013-02-01 00:00:00'),
@@ -1758,7 +1758,8 @@ INSERT INTO `validations` (`id`, `name`, `regularExp`, `maxValue1`, `minValue`, 
 (21,'Yes/Not Applicable', 'Yes|Not Applicable', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (22,'Yes', 'Yes', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (23, 'Integer: 0 to 7', NULL, 7, 0, 1, NULL, NULL, NULL, NULL),
-(24,'NYHA Class I-IV', 'Class I - no symptoms|Class II - symptoms with ordinary activity|Class III - symptoms with less than ordinary activity|Class IV - symptoms at rest', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+(24,'NYHA Class I-IV', 'Class I - no symptoms|Class II - symptoms with ordinary activity|Class III - symptoms with less than ordinary activity|Class IV - symptoms at rest', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(25,'COPD Classification', 'Mild: FEV1 >= 80% predicted|Moderate:50% <= FEV1 < 80% predicted|Severe:30% <= FEV1 < 50% predicted|Very Severe : FEV1 < 30% predicted', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 
 
