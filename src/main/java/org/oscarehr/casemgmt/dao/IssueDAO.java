@@ -49,7 +49,7 @@ public class IssueDAO extends HibernateDaoSupport {
     }
 
     public List<Issue> getIssues() {
-        return this.getHibernateTemplate().find("from Issue i WHERE i.archived = 0");
+        return this.getHibernateTemplate().find("from Issue i WHERE i.archived = 0 ORDER BY i.code ASC");
     }
 
     public List<Issue> findIssueByCode(String[] codes) {

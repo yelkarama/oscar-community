@@ -55,11 +55,14 @@ import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.DemographicExtDao;
 import org.oscarehr.common.dao.OscarAppointmentDao;
 import org.oscarehr.common.dao.ScheduleDateDao;
+import org.oscarehr.common.dao.ScheduleTemplateCodeDao;
+import org.oscarehr.common.dao.ScheduleTemplateDao;
 import org.oscarehr.common.dao.UserPropertyDAO;
 import org.oscarehr.common.model.Appointment;
 import org.oscarehr.common.model.DemographicExt;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.ScheduleDate;
+import org.oscarehr.common.model.ScheduleTemplate;
 import org.oscarehr.common.model.UserProperty;
 import org.oscarehr.managers.AppointmentManager;
 import org.oscarehr.managers.SecurityInfoManager;
@@ -83,6 +86,8 @@ public class GroupAppointmentAction extends DispatchAction {
 	CaseManagementManager cmManager = SpringUtils.getBean(CaseManagementManager.class);
 	ProgramProviderDAO programProviderDao = SpringUtils.getBean(ProgramProviderDAO.class);
 	UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
+	ScheduleTemplateDao scheduleTemplateDao = SpringUtils.getBean(ScheduleTemplateDao.class);
+	ScheduleTemplateCodeDao scheduleTemplatecodeDao = SpringUtils.getBean(ScheduleTemplateCodeDao.class);
 	
 	public ActionForward getNumParticipantsForSeries(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		JSONObject response1 = new JSONObject();
@@ -231,14 +236,38 @@ public class GroupAppointmentAction extends DispatchAction {
 		String appointmentNos = getRequiredParameter(request, "appointmentNos", response1);
 		String note = getRequiredParameter(request, "note", response1);
 		
+		String targetProviderNo = getRequiredParameter(request, "targetProviderNo", response1);
+		String sessionDate = getRequiredParameter(request, "date", response1);
+		
 		SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-YYYY");
 		SimpleDateFormat formatter2 = new SimpleDateFormat("dd-MMM-YYYY HH:mm");
+		SimpleDateFormat formatter3 = new SimpleDateFormat("yyyy-MM-dd");
 		
 		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_appointment", "w", null)) {
         	response1.put("error","missing required security object (_appointment)");
         }
 		
+		
+		
+		
 		if(response1.get("error") == null && appointmentNos != null) {
+			Calendar encounterCal = null;
+			ScheduleDate sd = scheduleDateDao.findByProviderNoAndDate(targetProviderNo, formatter3.parse(sessionDate));
+			if(sd != null) {
+				List<ScheduleTemplate> stList = scheduleTemplateDao.findByProviderNoAndName(targetProviderNo,sd.getHour());
+				if(!stList.isEmpty()) {
+					ScheduleTemplate st = stList.get(0);
+					String timeCode = st.getTimecode();
+					int pos = timeCode.indexOf("G");
+					if(pos != -1) {
+						encounterCal = Calendar.getInstance();
+						encounterCal.setTime(formatter3.parse(sessionDate));
+						encounterCal.set(Calendar.HOUR_OF_DAY, pos/4);
+						encounterCal.set(Calendar.MINUTE, (pos % 4 ) * 15);
+					}
+				}
+			}
+			
 			for(String an : appointmentNos.split(",")) {
 				
 				Appointment appt = null;
@@ -256,7 +285,10 @@ public class GroupAppointmentAction extends DispatchAction {
 					
 					CaseManagementNote cNote = new CaseManagementNote();
 					cNote.setUpdate_date(now);
-					cNote.setObservation_date(appt.getStartTimeAsFullDate());
+					if(encounterCal != null) {
+						cNote.setObservation_date(encounterCal.getTime());
+					}
+					//cNote.setObservation_date(appt.getStartTimeAsFullDate());
 					cNote.setDemographic_no(String.valueOf(appt.getDemographicNo()));
 					cNote.setProviderNo(loggedInInfo.getLoggedInProviderNo());
 					cNote.setNote(noteData);
