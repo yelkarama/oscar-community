@@ -4,8 +4,6 @@ update measurementType set measuringInstruction='COPD Classification', validatio
 (select id from validations where name='COPD Classification' limit 1)
 where type='COPDC';
 
-typeDisplayName             | typeDescription
-
 update measurementType set type='ACOSY', typeDisplayName='Cough', typeDescription='Cough', measuringInstruction='frequency/week',
 validation=(select id from validations where name='Numeric Value greater than or equal to 0' limit 1)
 where type='CODPW';
