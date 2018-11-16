@@ -78,7 +78,7 @@
 	<item measurement_type="ANSY" display_name="Night Time Symptoms" guideline="" graphable="yes" value_name="Frequency/Week" >
 		<ruleset>
 			<rule indicationColor="HIGH">
-				<condition type="getDataAsDouble" value="&gt;0" /> <!--  param="ANSY" -->
+				<condition type="getDataAsDouble" param="ANSY" value="&gt;3" />
 			</rule>
 		</ruleset>
 	</item>
@@ -269,22 +269,46 @@
 		<validationRule name="Numeric Value greater than or equal to 0" maxValue="" minValue="" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
 	</measurement>
 	
-	<item measurement_type="ACOSY" display_name="cough" guideline="Target: &lt;4 days/week" graphable="yes" value_name="cough" />
+	<item measurement_type="ACOSY" display_name="cough" guideline="Target: &lt;4 days/week" graphable="yes" value_name="cough">
+		<ruleset>
+			<rule indicationColor="HIGH">
+				<condition type="getDataAsDouble" param="ACOSY" value="&gt;3" />
+			</rule>
+		</ruleset>
+	</item>
 	<measurement type="ACOSY" typeDesc="cough" typeDisplayName="cough" measuringInstrc="">
 		<validationRule name="Numeric Value greater than or equal to 0" maxValue="" minValue="" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
 	</measurement>
 	
-	<item measurement_type="ACTSY" display_name="chest tightness" guideline="Target: &lt;4 days/week" graphable="yes" value_name="chest tightness" />
+	<item measurement_type="ACTSY" display_name="chest tightness" guideline="Target: &lt;4 days/week" graphable="yes" value_name="chest tightness">
+		<ruleset>
+			<rule indicationColor="HIGH">
+				<condition type="getDataAsDouble" param="ACTSY" value="&gt;3" />
+			</rule>
+		</ruleset>
+	</item>
 	<measurement type="ACTSY" typeDesc="chest tightness" typeDisplayName="chest tightness" measuringInstrc="">
 		<validationRule name="Numeric Value greater than or equal to 0" maxValue="" minValue="" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
 	</measurement>
 	
-	<item measurement_type="ADYSY" display_name="dyspnea" guideline="Target: &lt;4 days/week" graphable="yes" value_name="dyspnea" />
+	<item measurement_type="ADYSY" display_name="dyspnea" guideline="Target: &lt;4 days/week" graphable="yes" value_name="dyspnea">
+		<ruleset>
+			<rule indicationColor="HIGH">
+				<condition type="getDataAsDouble" param="ADYSY" value="&gt;3" />
+			</rule>
+		</ruleset>
+	</item>
 	<measurement type="ADYSY" typeDesc="dyspnea" typeDisplayName="dyspnea" measuringInstrc="">
 		<validationRule name="Numeric Value greater than or equal to 0" maxValue="" minValue="" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
 	</measurement>
 	
-	<item measurement_type="AWHSY" display_name="wheeze" guideline="Target: &lt;4 days/week" graphable="yes" value_name="wheeze" />
+	<item measurement_type="AWHSY" display_name="wheeze" guideline="Target: &lt;4 days/week" graphable="yes" value_name="wheeze">
+		<ruleset>
+			<rule indicationColor="HIGH">
+				<condition type="getDataAsDouble" param="AWHSY" value="&gt;3" />
+			</rule>
+		</ruleset>
+	</item>
 	<measurement type="AWHSY" typeDesc="wheeze" typeDisplayName="wheeze" measuringInstrc="">
 		<validationRule name="Numeric Value greater than or equal to 0" maxValue="" minValue="" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
 	</measurement>
