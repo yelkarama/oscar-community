@@ -85,10 +85,14 @@ if(!authed2) {
     WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
     FlowSheetCustomizationDao flowSheetCustomizationDao = (FlowSheetCustomizationDao) ctx.getBean("flowSheetCustomizationDao");
     List<FlowSheetCustomization> custList = null;
-    if(demographic == null || demographic.isEmpty()) {
-    	custList = flowSheetCustomizationDao.getFlowSheetCustomizations( flowsheet,(String) session.getAttribute("user"));
+    if("clinic".equals(scope)) {
+    	custList = flowSheetCustomizationDao.getFlowSheetCustomizations(flowsheet);
     } else {
-    	custList = flowSheetCustomizationDao.getFlowSheetCustomizations( flowsheet,(String) session.getAttribute("user"),Integer.parseInt(demographic));
+	    if(demographic == null || demographic.isEmpty()) {
+	    	custList = flowSheetCustomizationDao.getFlowSheetCustomizations( flowsheet,(String) session.getAttribute("user"));
+	    } else {
+	    	custList = flowSheetCustomizationDao.getFlowSheetCustomizationsForPatient(flowsheet,demographic);
+	    }
     }
     Enumeration en = flowsheetNames.keys();
 
@@ -332,6 +336,7 @@ Flowsheet: <span style="font-weight:normal"><%=flowsheet.toUpperCase()%></span>
 		            
 		            if (measurements != null) {
 		                for (String mstring : measurements) {
+		                	
 		               %>
 		                <tr>
 		         		<td>
@@ -341,6 +346,13 @@ Flowsheet: <span style="font-weight:normal"><%=flowsheet.toUpperCase()%></span>
 		                <a href="UpdateFlowsheet.jsp?flowsheet=<%=temp%>&measurement=<%=mstring%><%=demographicStr%><%=htQueryString%><%=scope==null?"":"&scope="+scope%>" title="Edit" class="action-icon"><i class="icon-pencil"></i></a>
 		                <%}%>
 		                <a href="FlowSheetCustomAction.do?method=delete&flowsheet=<%=temp%>&measurement=<%=mstring%><%=demographicStr%><%=htQueryString%><%=scope==null?"":"&scope="+scope%>" title="Delete" class="action-icon"><i class="icon-trash"></i></a>
+		               <%
+		                if(mFlowsheet.getFlowSheetItem(mstring).isHide()){
+		               %>
+		               	<a href="FlowSheetCustomAction.do?method=restore&flowsheet=<%=temp%>&measurement=<%=mstring%><%=demographicStr%><%=htQueryString%><%=scope==null?"":"&scope="+scope%>">RESTORE</a>
+		               <% } %>
+		                	
+						
 		                </td>
 		                <td><%=counter%></td>
 		                <td><%=mstring%></td>
@@ -384,16 +396,19 @@ Flowsheet: <span style="font-weight:normal"><%=flowsheet.toUpperCase()%></span>
 		     
 		    for (FlowSheetCustomization cust :custList){
 		    	
+		    	if("delete".equals(cust.getAction())) {
+		    		continue;
+		    	}
 		    	
 		    	MeasurementTemplateFlowSheetConfig mfc = MeasurementTemplateFlowSheetConfig.getInstance() ;
 		    	
 		    	FlowSheetItem item = mfc.getItemFromString(cust.getPayload());
 
 		    	try{
-		    	if(item.getMeasurementType()!=null){
-		    	mtype=item.getMeasurementType();
-		    	//out.print(mtype);
-		    	}
+		    		if(item.getMeasurementType()!=null){
+		    			mtype=item.getMeasurementType();
+		    			//out.print(mtype);
+		    		}
 		    	}catch(Exception e){
 	             //do nothing   
 	            }
