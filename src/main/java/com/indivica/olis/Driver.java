@@ -58,6 +58,7 @@ import org.bouncycastle.util.Store;
 import org.bouncycastle.util.encoders.Base64;
 import org.oscarehr.common.dao.OscarLogDao;
 import org.oscarehr.common.model.OscarLog;
+import org.oscarehr.common.model.OscarMsgType;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.olis.OLISProtocolSocketFactory;
 import org.oscarehr.util.LoggedInInfo;
@@ -65,8 +66,8 @@ import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 import org.xml.sax.InputSource;
 
-import oscar.OscarProperties;
-import oscar.oscarMessenger.data.MsgProviderData;
+import com.indivica.olis.queries.Query;
+
 import ca.ssha._2005.hial.ArrayOfError;
 import ca.ssha._2005.hial.ArrayOfString;
 import ca.ssha._2005.hial.Response;
@@ -75,15 +76,18 @@ import ca.ssha.www._2005.hial.OLISStub.HIALRequest;
 import ca.ssha.www._2005.hial.OLISStub.HIALRequestSignedRequest;
 import ca.ssha.www._2005.hial.OLISStub.OLISRequest;
 import ca.ssha.www._2005.hial.OLISStub.OLISRequestResponse;
-
-import com.indivica.olis.queries.Query;
-import org.oscarehr.common.model.OscarMsgType;
+import oscar.OscarProperties;
+import oscar.oscarMessenger.data.MsgProviderData;
 
 public class Driver {
 
 	private static OscarLogDao logDao = (OscarLogDao) SpringUtils.getBean("oscarLogDao");
+//	private static OLISResultsDao olisResultsDao = SpringUtils.getBean(OLISResultsDao.class);
+	
+	
 
 	public static String submitOLISQuery(LoggedInInfo loggedInInfo, HttpServletRequest request, Query query) {
+		
 		try {
 			OLISMessage message = new OLISMessage(loggedInInfo.getLoggedInProvider(), query);
 
@@ -142,6 +146,7 @@ public class Driver {
 					String response = (String) request.getSession().getAttribute("olisResponseContent");
 					request.setAttribute("olisResponseContent", response);
 					request.getSession().setAttribute("olisResponseContent", response);
+					request.getSession().setAttribute("olisResponseQuery", query);
 					return response;
 				}
 				//this only happens for auto-polling when simulate is enabled
@@ -151,18 +156,16 @@ public class Driver {
 
 				String signedData = olisResponse.getHIALResponse().getSignedResponse().getSignedData();
 				String unsignedData = Driver.unsignData(signedData);
-				//MiscUtils.getLogger().info(msgInXML);
-				//MiscUtils.getLogger().info("---------------------------------");			
-				//MiscUtils.getLogger().info(unsignedData);
-
+				
 				if (request != null) {
+					//these seem to just be for the checkOlis.jsp
 					request.setAttribute("msgInXML", msgInXML);
 					request.setAttribute("signedRequest", signedRequest);
 					request.setAttribute("signedData", signedData);
 					request.setAttribute("unsignedResponse", unsignedData);
 				}
 
-				writeToFile(unsignedData);
+				writeToFile(unsignedData);	//not sure the point of this, other than debugging maybe
 				readResponseFromXML(loggedInInfo, request, unsignedData);
 
 				return unsignedData;

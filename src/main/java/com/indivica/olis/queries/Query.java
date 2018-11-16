@@ -37,4 +37,15 @@ public abstract class Query implements Cloneable {
 	        throw new InternalError(e.toString());
 	    }
 	}	
+	 
+	 
+	 public String getRequestingHICProviderNo() {
+		 if(this instanceof Z04Query) {
+			 return ((Z04Query)this).getRequestingHicIdNumber();
+		 }
+		 if(this instanceof Z01Query) {
+			 return ((Z01Query)this).getRequestingHicIdNumber();
+		 }
+		 return null;
+	 }
 }

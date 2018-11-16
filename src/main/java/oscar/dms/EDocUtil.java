@@ -58,6 +58,7 @@ import org.oscarehr.common.dao.CtlDocumentDao;
 import org.oscarehr.common.dao.DocumentDao;
 import org.oscarehr.common.dao.DocumentDao.Module;
 import org.oscarehr.common.dao.IndivoDocsDao;
+import org.oscarehr.common.dao.PartialDateDao;
 import org.oscarehr.common.dao.TicklerLinkDao;
 import org.oscarehr.common.model.ConsultDocs;
 import org.oscarehr.common.model.CtlDocType;
@@ -66,6 +67,7 @@ import org.oscarehr.common.model.CtlDocumentPK;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Document;
 import org.oscarehr.common.model.IndivoDocs;
+import org.oscarehr.common.model.PartialDate;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.Tickler;
 import org.oscarehr.common.model.TicklerLink;
@@ -92,7 +94,8 @@ public final class EDocUtil {
 	private static IndivoDocsDao indivoDocsDao = (IndivoDocsDao) SpringUtils.getBean(IndivoDocsDao.class);
 	private static Logger logger = MiscUtils.getLogger();
 	private static ProgramManager2 programManager2 = SpringUtils.getBean(ProgramManager2.class);
-	
+	private static final PartialDateDao partialDateDao = (PartialDateDao)SpringUtils.getBean("partialDateDao");
+
 	
 	public static final String PUBLIC = "public";
 	public static final String PRIVATE = "private";
@@ -842,14 +845,14 @@ public final class EDocUtil {
 	}
 
 	public static int addDocument(String demoNo, String docFileName, String docDesc, String docType, String docClass, String docSubClass, String contentType, String contentDateTime, String observationDate, String updateDateTime, String docCreator, String responsible, String reviewer, String reviewDateTime) {
-		return addDocument(demoNo, docFileName, docDesc, docType, docClass, docSubClass, contentType, contentDateTime, observationDate, updateDateTime, docCreator, responsible, reviewer, reviewDateTime, null, null);
+		return addDocument(demoNo, docFileName, docDesc, docType, docClass, docSubClass, contentType, contentDateTime, observationDate, updateDateTime, docCreator, responsible, reviewer, reviewDateTime, null, null, null);
 	}
 
 	public static int addDocument(String demoNo, String docFileName, String docDesc, String docType, String docClass, String docSubClass, String contentType, String contentDateTime, String observationDate, String updateDateTime, String docCreator, String responsible, String reviewer, String reviewDateTime, String source) {
-		return addDocument(demoNo, docFileName, docDesc, docType, docClass, docSubClass, contentType, contentDateTime, observationDate, updateDateTime, docCreator, responsible, reviewer, reviewDateTime, source, null);
+		return addDocument(demoNo, docFileName, docDesc, docType, docClass, docSubClass, contentType, contentDateTime, observationDate, updateDateTime, docCreator, responsible, reviewer, reviewDateTime, source, null,null);
 	}
 
-	public static int addDocument(String demoNo, String docFileName, String docDesc, String docType, String docClass, String docSubClass, String contentType, String contentDateTime, String observationDate, String updateDateTime, String docCreator, String responsible, String reviewer, String reviewDateTime, String source, String sourceFacility) {
+	public static int addDocument(String demoNo, String docFileName, String docDesc, String docType, String docClass, String docSubClass, String contentType, String contentDateTime, String observationDate, String updateDateTime, String docCreator, String responsible, String reviewer, String reviewDateTime, String source, String sourceFacility, String receivedDate) {
 
 		Document doc = new Document();
 		doc.setDoctype(docType);
@@ -870,9 +873,13 @@ public final class EDocUtil {
 		doc.setSource(source);
 		doc.setSourceFacility(sourceFacility);
 		doc.setNumberofpages(1);
+		doc.setReceivedDate(partialDateDao.StringToDate(receivedDate));
 		
 		documentDao.persist(doc);
 
+		partialDateDao.setPartialDate(PartialDate.DOC, doc.getId(), PartialDate.DOC_RECEIVEDDATE, partialDateDao.getFormat(receivedDate));
+		
+		
 		if (doc.getDocumentNo() > 0) {
 			CtlDocumentPK cdpk = new CtlDocumentPK();
 			CtlDocument cd = new CtlDocument();

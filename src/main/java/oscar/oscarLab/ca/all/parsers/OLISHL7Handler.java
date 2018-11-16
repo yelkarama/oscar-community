@@ -366,6 +366,30 @@ public class OLISHL7Handler implements MessageHandler {
 		return StringUtils.join(vals, ',');
 	}
 	
+	public List<String[]> getTestResultInfo() {
+		List<String[]> vals = new ArrayList<String[]>();
+		
+		for(int x=0;x<getOBRCount();x++) {
+			for(int y=0;y<getOBXCount(x);y++) {
+				String type = getOBXField(x,y,2,0,1);
+				String name = getOBXField(x,y,3,0,1);
+				String value = "";
+				if(type.equals("SN")) {
+					value = getOBXField(x,y,5,0,1) +  getOBXField(x,y,5,0,2);
+				} else {
+					value = getOBXField(x,y,5,0,1);
+				}
+				 
+				String units = getOBXField(x,y,6,0,1);
+				String abnormal = getOBXField(x,y,8,0,1);
+				String status = getOBXField(x,y,11,0,1);
+				vals.add(new String[] {name,value,units,abnormal,status});
+			}
+		}
+		
+		return vals;
+	}
+	
 	public String getTestRequestStatuses() {
 		List<String> vals = new ArrayList<String>();
 		
@@ -2373,6 +2397,47 @@ public class OLISHL7Handler implements MessageHandler {
 		return "";
 	}
 
+	
+	public List<String> getAllPractitioners() {
+		List<String> docs = new ArrayList<String>();
+		
+		try {
+			String ordering = getShortName("/.OBR-16-");
+			String admitting = getShortName("/.OBR-17-");
+			String attending = getShortName("/.OBR-7-");
+			
+			String cc = getShortName("/.OBR-28(0)-");
+			int i = 1;
+			String nextDoc = getShortName("/.OBR-28(" + i + ")-");
+
+			while (!nextDoc.equals("")) {
+				cc = cc + "," + nextDoc;
+				i++;
+				nextDoc = getShortName("/.OBR-28(" + i + ")-");
+			}
+	
+			if(!StringUtils.isEmpty(ordering)) {
+				docs.add(ordering);
+			}
+			if(!StringUtils.isEmpty(admitting)) {
+				docs.add(admitting);
+			}
+			if(!StringUtils.isEmpty(attending)) {
+				docs.add(attending);
+			}
+			if(!StringUtils.isEmpty(cc)) {
+				for(String c : cc.split(",")) {
+					docs.add(c);
+				}
+			}
+			
+		} catch (Exception e) {
+			return new ArrayList<String>();
+		}
+		
+		return docs;
+	}
+	
 	@Override
 	public String getDocName() {
 		try {
@@ -2516,6 +2581,7 @@ public class OLISHL7Handler implements MessageHandler {
 		return segments.length - 1;
 	}
 
+	
 	private String getFullDocName(String docSeg) throws HL7Exception {
 		String docName = "";
 		String temp;

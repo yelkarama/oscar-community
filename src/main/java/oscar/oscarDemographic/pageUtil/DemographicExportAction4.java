@@ -61,6 +61,7 @@ import org.oscarehr.casemgmt.model.CaseManagementNote;
 import org.oscarehr.casemgmt.model.CaseManagementNoteExt;
 import org.oscarehr.casemgmt.model.CaseManagementNoteLink;
 import org.oscarehr.casemgmt.service.CaseManagementManager;
+import org.oscarehr.common.dao.ContactDao;
 import org.oscarehr.common.dao.DemographicArchiveDao;
 import org.oscarehr.common.dao.DemographicContactDao;
 import org.oscarehr.common.dao.DemographicDao;
@@ -71,8 +72,10 @@ import org.oscarehr.common.dao.Hl7TextMessageDao;
 import org.oscarehr.common.dao.OscarAppointmentDao;
 import org.oscarehr.common.dao.PartialDateDao;
 import org.oscarehr.common.dao.PharmacyInfoDao;
+import org.oscarehr.common.dao.ProfessionalSpecialistDao;
 import org.oscarehr.common.model.Allergy;
 import org.oscarehr.common.model.Appointment;
+import org.oscarehr.common.model.Contact;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.DemographicArchive;
 import org.oscarehr.common.model.DemographicContact;
@@ -81,6 +84,7 @@ import org.oscarehr.common.model.Hl7TextInfo;
 import org.oscarehr.common.model.Hl7TextMessage;
 import org.oscarehr.common.model.PartialDate;
 import org.oscarehr.common.model.PharmacyInfo;
+import org.oscarehr.common.model.ProfessionalSpecialist;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.e2e.director.E2ECreator;
 import org.oscarehr.e2e.util.EverestUtils;
@@ -617,6 +621,39 @@ public class DemographicExportAction4 extends Action {
 				addDemographicRelationships(loggedInInfo, demoNo, demo);
 			}
 
+			DemographicPharmacyDao demographicPharmacyDao = SpringUtils.getBean(DemographicPharmacyDao.class);
+			PharmacyInfoDao pharmacyInfoDao = SpringUtils.getBean(PharmacyInfoDao.class);
+			
+			List<DemographicPharmacy> dpList = demographicPharmacyDao.findByDemographicId(demographic.getDemographicNo());
+			if(dpList.size()>0) {
+				DemographicPharmacy dp = dpList.get(0);
+				PharmacyInfo pi = pharmacyInfoDao.find(dp.getPharmacyId());
+				if(pi != null) {
+					PreferredPharmacy preferredPharmacy = demo.addNewPreferredPharmacy();
+					PhoneNumber pn =  preferredPharmacy.addNewPhoneNumber();
+					addPhone(pi.getFax(), "", cdsDt.PhoneNumberType.W,pn);
+					
+					
+					cdsDt.Address addr = preferredPharmacy.addNewAddress();
+					cdsDt.AddressStructured address = addr.addNewStructured();
+
+					addr.setAddressType(cdsDt.AddressType.R);
+					address.setLine1(pi.getAddress());
+					if (StringUtils.filled(pi.getCity()) || StringUtils.filled(pi.getProvince()) || StringUtils.filled(pi.getPostalCode())) {
+						address.setCity(StringUtils.noNull(pi.getCity()));
+						address.setCountrySubdivisionCode(Util.setCountrySubDivCode(pi.getProvince()));
+						address.addNewPostalZipCode().setPostalCode(StringUtils.noNull(pi.getPostalCode()).replace(" ",""));
+					}
+					
+					
+					preferredPharmacy.setEmailAddress(pi.getEmail());
+					preferredPharmacy.setName(pi.getName());
+					
+				}
+			}
+			
+			addReferringAndFamilyDoctor(loggedInInfo,demographic.getDemographicNo(),demo);
+			
 			List<CaseManagementNote> lcmn = cmm.getNotes(demoNo);
 
 			//find all "header"; cms4 only
@@ -665,38 +702,6 @@ public class DemographicExportAction4 extends Action {
 
 				annotation = getNonDumpNote(CaseManagementNoteLink.CASEMGMTNOTE, cmn.getId(), null);
 				List<CaseManagementNoteExt> cmeList = cmm.getExtByNote(cmn.getId());
-
-				DemographicPharmacyDao demographicPharmacyDao = SpringUtils.getBean(DemographicPharmacyDao.class);
-				PharmacyInfoDao pharmacyInfoDao = SpringUtils.getBean(PharmacyInfoDao.class);
-				
-				List<DemographicPharmacy> dpList = demographicPharmacyDao.findByDemographicId(demographic.getDemographicNo());
-				if(dpList.size()>0) {
-					DemographicPharmacy dp = dpList.get(0);
-					PharmacyInfo pi = pharmacyInfoDao.find(dp.getPharmacyId());
-					if(pi != null) {
-						PreferredPharmacy preferredPharmacy = demo.addNewPreferredPharmacy();
-						PhoneNumber pn =  preferredPharmacy.addNewPhoneNumber();
-						addPhone(pi.getFax(), "", cdsDt.PhoneNumberType.W,pn);
-						
-						
-						cdsDt.Address addr = preferredPharmacy.addNewAddress();
-						cdsDt.AddressStructured address = addr.addNewStructured();
-
-						addr.setAddressType(cdsDt.AddressType.R);
-						address.setLine1(pi.getAddress());
-						if (StringUtils.filled(pi.getCity()) || StringUtils.filled(pi.getProvince()) || StringUtils.filled(pi.getPostalCode())) {
-							address.setCity(StringUtils.noNull(pi.getCity()));
-							address.setCountrySubdivisionCode(Util.setCountrySubDivCode(pi.getProvince()));
-							address.addNewPostalZipCode().setPostalCode(StringUtils.noNull(pi.getPostalCode()).replace(" ",""));
-						}
-						
-						
-						preferredPharmacy.setEmailAddress(pi.getEmail());
-						preferredPharmacy.setName(pi.getName());
-						
-					}
-				}
-				
 				
 				
 				if (exPersonalHistory) {
@@ -2623,9 +2628,53 @@ public class DemographicExportAction4 extends Action {
 		if (hrmEnumF.equals("Medical Records Report")) hrmEnumF = "Medical Record Report"; //HRM & CDS class names not match
 		return hrmEnumF;
 	}
+	
+	protected void addReferringAndFamilyDoctor(LoggedInInfo loggedInInfo, Integer demoNo, Demographics demo) {
+		ProfessionalSpecialistDao professionalSpecialistDao = SpringUtils.getBean(ProfessionalSpecialistDao.class);
+		ContactDao cDao = SpringUtils.getBean(ContactDao.class);
+		
+		
+		List<DemographicContact> demoContacts = contactDao.findByDemographicNoAndCategory(demoNo,"professional");
+		for(DemographicContact dc : demoContacts) {
+			if("Referring Doctor".equals(dc.getRole())) {
+				if(dc.getType() == DemographicContact.TYPE_PROFESSIONALSPECIALIST) {
+					ProfessionalSpecialist ps = professionalSpecialistDao.find(Integer.parseInt(dc.getContactId()));
+					if(ps != null) {
+						PersonNameSimple pns = demo.addNewReferredPhysician();
+						pns.setFirstName(ps.getFirstName());
+						pns.setLastName(ps.getLastName());
+					}
+				}
+				if(dc.getType() == DemographicContact.TYPE_CONTACT) {
+					Contact c = cDao.find(Integer.parseInt(dc.getContactId()));
+					PersonNameSimple pns = demo.addNewReferredPhysician();
+					pns.setFirstName(c.getFirstName());
+					pns.setLastName(c.getLastName());
+				}
+				
+			}
+			if("Family Doctor".equals(dc.getRole())) {
+				if(dc.getType() == DemographicContact.TYPE_PROFESSIONALSPECIALIST) {
+					ProfessionalSpecialist ps = professionalSpecialistDao.find(Integer.parseInt(dc.getContactId()));
+					if(ps != null) {
+						PersonNameSimple pns = demo.addNewFamilyPhysician();
+						pns.setFirstName(ps.getFirstName());
+						pns.setLastName(ps.getLastName());
+					}
+				}
+				if(dc.getType() == DemographicContact.TYPE_CONTACT) {
+					Contact c = cDao.find(Integer.parseInt(dc.getContactId()));
+					PersonNameSimple pns = demo.addNewFamilyPhysician();
+					pns.setFirstName(c.getFirstName());
+					pns.setLastName(c.getLastName());
+				}
+				
+			}
+		}
+	}
 
 	private void addDemographicContacts(LoggedInInfo loggedInInfo, String demoNo, Demographics demo) {
-		List<DemographicContact> demoContacts = contactDao.findByDemographicNo(Integer.valueOf(demoNo));
+		List<DemographicContact> demoContacts = contactDao.findByDemographicNoAndCategory(Integer.valueOf(demoNo),"personal");
 		DemographicContact demoContact;
 
 		//create a list of contactIds

@@ -8,6 +8,7 @@
     and "gnu.org/licenses/gpl-2.0.html".
 
 --%>
+<%@page import="org.apache.commons.lang3.StringUtils"%>
 <%@page contentType="text/html"%>
 	<%@page import="java.util.*,org.oscarehr.common.dao.DemographicDao, 
 		org.oscarehr.common.model.Demographic, org.oscarehr.PMmodule.dao.ProviderDao, org.oscarehr.common.model.Provider,
@@ -22,6 +23,18 @@
 	<% 
 	if(session.getValue("user") == null) response.sendRedirect("../../logout.jsp");
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+	DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
+	
+	String demographicNoParam = request.getParameter("demographicNo");
+	String demographicNo = null;
+	String demographicKeyword = null;
+	if(!StringUtils.isEmpty(demographicNoParam)) {
+		Demographic demographic =  demographicDao.getDemographic(demographicNoParam);
+		if(demographic != null) {
+			demographicNo = demographic.getDemographicNo().toString();
+			demographicKeyword = demographic.getFormattedName() + "(" + demographic.getBirthDayAsString() + ")";
+		}
+	}
 	%>
 
 
@@ -106,16 +119,20 @@
 		    }
 		    
 		    $(document).ready(function(){
-		    	<%if(request.getParameter("requestingHIC")!= null && !request.getParameter("requestingHIC").isEmpty()) {
-		    		 %>
 		    		  
-		    		 $("input[name='requestingHic']").each(function(){
-		    			 console.log($(this));
+		    		 $("[name='requestingHic']").each(function(){
+		    			$(this).val('<%=loggedInInfo.getLoggedInProviderNo()%>');
 		    		 });
 		    		
-		    		 <%
-		    		
-		    	}%>
+		    		<%if(demographicNo != null && demographicKeyword != null) {%>
+		    			 $("[name='demographic']").each(function(){
+				    			$(this).val('<%=demographicNo %>');
+				    	 });
+		    			 $("[name='demographicKeyword']").each(function(){
+				    			$(this).val('<%=demographicKeyword%>');
+				    	 });
+		    		<% } %>	 
+		    		 
 		    });
 		</script>
 		

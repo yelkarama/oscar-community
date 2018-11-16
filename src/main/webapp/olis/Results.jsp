@@ -8,6 +8,11 @@
     and "gnu.org/licenses/gpl-2.0.html".
 
 --%>
+<%@page import="org.apache.commons.lang.StringEscapeUtils"%>
+<%@page import="org.oscarehr.olis.model.OLISResultNomenclature"%>
+<%@page import="org.oscarehr.olis.dao.OLISResultNomenclatureDao"%>
+<%@page import="org.oscarehr.common.model.OLISResults"%>
+<%@page import="org.oscarehr.common.dao.OLISResultsDao"%>
 <%@page import="oscar.log.LogAction"%>
 <%@page import="org.oscarehr.common.model.OscarLog"%>
 <%@page import="java.io.File"%>
@@ -21,6 +26,9 @@
 <%@page import="com.indivica.olis.queries.*,org.oscarehr.olis.OLISSearchAction,java.util.*,oscar.oscarLab.ca.all.parsers.Factory, oscar.oscarLab.ca.all.parsers.OLISHL7Handler, oscar.oscarLab.ca.all.parsers.OLISHL7Handler.OLISError, org.oscarehr.olis.OLISResultsAction, org.oscarehr.util.SpringUtils" %>
 <%@page import="org.oscarehr.util.MiscUtils" %>
 	
+<%
+ OLISResultsDao olisResultsDao = SpringUtils.getBean(OLISResultsDao.class);
+%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -276,32 +284,110 @@ function popupPage(vheight,vwidth,varpage) { //open a new popup window
 }
 
 function openPatient(demographicNo) {
-popupPage(700,1200,'../demographic/demographiccontrol.jsp?demographic_no='+demographicNo+'&displaymode=edit&dboperation=search_detail');
-
+	popupPage(700,1200,'../demographic/demographiccontrol.jsp?demographic_no='+demographicNo+'&displaymode=edit&dboperation=search_detail');
 }
 
 jQuery(document).ready(function(){
 	alternate(document.getElementById("resultsTable"));
+	
+	jQuery("input[name^='remove_']").bind('change',function(){
+		var uuid = (jQuery(this).attr('uuid'));
+		if(jQuery(this).is(":checked")) {
+			jQuery("input[name^='addToInbox_"+uuid+"']").attr("checked","");
+			jQuery("input[name^='acknowledge_"+uuid+"']").attr("checked","");
+		}
+	});
+	
+	jQuery("input[name^='addToInbox_']").bind('change',function(){
+		var uuid = (jQuery(this).attr('uuid'));
+		if(jQuery(this).is(":checked")) {
+			jQuery("input[name^='remove_"+uuid+"']").attr("checked","");
+			jQuery("input[name^='acknowledge_"+uuid+"']").attr("checked","");
+		}
+	});
+	
+	jQuery("input[name^='acknowledge_']").bind('change',function(){
+		var uuid = (jQuery(this).attr('uuid'));
+		if(jQuery(this).is(":checked")) {
+			jQuery("input[name^='remove_"+uuid+"']").attr("checked","");
+			jQuery("input[name^='addToInbox_"+uuid+"']").attr("checked","");
+		}
+	});
 });
 
-function checkUncheckAll(id) {
-	var checked = jQuery("#"+id).is(":checked");
-	if(checked) {
-		jQuery("input[name='result_checked']").each(function() {
-			jQuery(this).attr("checked","checked");
-		});	
-		jQuery("input[name='check_all']").each(function() {
-			jQuery(this).attr("checked","checked");
-		});
-	} else {
-		jQuery("input[name='result_checked']").each(function() {
-			jQuery(this).attr("checked","");
-		});
-		jQuery("input[name='check_all']").each(function() {
-			jQuery(this).attr("checked","");
-		});
-	}
+function checkAllRemoved() {
+	jQuery("input[name^='remove_']").each(function() {
+		jQuery(this).attr("checked","checked");
+		var uuid = (jQuery(this).attr('uuid'));
+		jQuery("input[name^='addToInbox_"+uuid+"']").attr("checked","");
+		jQuery("input[name^='acknowledge_"+uuid+"']").attr("checked","");
+	});	
 }
+
+function checkAllAddToInbox() {
+	jQuery("input[name^='addToInbox_']").each(function() {
+		jQuery(this).attr("checked","checked");
+		var uuid = (jQuery(this).attr('uuid'));
+		jQuery("input[name^='remove_"+uuid+"']").attr("checked","");
+		jQuery("input[name^='acknowledge_"+uuid+"']").attr("checked","");
+	});	
+}
+
+function checkAllAcknowledge() {
+	jQuery("input[name^='acknowledge_']").each(function() {
+		jQuery(this).attr("checked","checked");
+		var uuid = (jQuery(this).attr('uuid'));
+		jQuery("input[name^='addToInbox_"+uuid+"']").attr("checked","");
+		jQuery("input[name^='remove_"+uuid+"']").attr("checked","");
+	});	
+}
+
+function bulkProcess() {
+	var reqData = {};
+	var items = [];
+	reqData.items = items;
+	
+	jQuery("input[name^='addToInbox_']:checked").each(function() {
+		var item = {};
+		item.uuid = jQuery(this).attr('uuid');
+		item.type='addToInbox';
+		items.push(item);
+	});
+	
+	jQuery("input[name^='acknowledge_']:checked").each(function() {
+		var item = {};
+		item.uuid = jQuery(this).attr('uuid');
+		item.type='acknowledge';
+		items.push(item);
+	});	
+	
+	jQuery("input[name^='remove_']:checked").each(function() {
+		var item = {};
+		item.uuid = jQuery(this).attr('uuid');
+		item.type='remove';
+		items.push(item);
+	});	
+	
+	jQuery.ajax({
+		url: "<%=request.getContextPath() %>/olis/AddToInbox.do",
+		method: "POST",
+		data: "method=bulkProcess&data=" + btoa(JSON.stringify(reqData)),
+		dataType: 'json',
+		success: function(data) {
+			console.log(JSON.stringify(data));
+			if(data.successIds) {
+				for(var x=0;x<data.successIds.length;x++) {
+					console.log(data.successIds[x]);
+					jQuery("#resultsTable tr[uuid='"+data.successIds[x]+"']").remove();
+					
+				}
+				alternate(document.getElementById("resultsTable"));
+			}
+		}
+	});
+	
+}
+
 </script>
 
 <style type="text/css">
@@ -322,7 +408,7 @@ function checkUncheckAll(id) {
 	
 <%
 	OLISRequestNomenclatureDao olisRequestNomenclatureDao = SpringUtils.getBean(OLISRequestNomenclatureDao.class);
-
+	OLISResultNomenclatureDao olisResultNomenclatureDao = SpringUtils.getBean(OLISResultNomenclatureDao.class);
 %>
 <title>OLIS Search Results</title>
 </head>
@@ -427,13 +513,13 @@ function checkUncheckAll(id) {
 						 result = OLISResultsAction.searchResultsMap.get(resultUuid);
 						 
 						 //is there an OLIS duplicate. Have we gotten this before?
-						boolean dup1 = FileUploadCheck.hasFileBeenUploadedByFileLocation(System.getProperty("java.io.tmpdir") + "/olis_" + resultUuid + ".response");
-						boolean dup2 = OLISUtils.isDuplicate(LoggedInInfo.getLoggedInInfoFromSession(request), new File(System.getProperty("java.io.tmpdir") + "/olis_" + resultUuid + ".response"));
+						//boolean dup1 = FileUploadCheck.hasFileBeenUploadedByFileLocation(System.getProperty("java.io.tmpdir") + "/olis_" + resultUuid + ".response");
+					//	boolean dup2 = OLISUtils.isDuplicate(LoggedInInfo.getLoggedInInfoFromSession(request), new File(System.getProperty("java.io.tmpdir") + "/olis_" + resultUuid + ".response"));
 						
-						if(dup1 || dup2) {
-							duplicates.put(resultUuid,true);
-							continue;
-						}
+					//	if(dup2) {
+					//		duplicates.put(resultUuid,true);
+					//		continue;
+					//	}
 							
 						String hcn = oscar.Misc.getStr(result.getHealthNum(), "").trim();
 						if (!hcn.equals("")) { hcns.add(hcn);}
@@ -599,24 +685,30 @@ function checkUncheckAll(id) {
 					<tr><td colspan="6">
 					<table class="sortable" id="resultsTable" style="width:100%">
 					<thead>
-						<tr><th class="unsortable" style="white-space: nowrap;"><input type="checkbox" id="all1" name="check_all" value="all" onClick="checkUncheckAll('all1')"/></th>
+						<tr>
+							<th class="unsortable" style="white-space: nowrap;" title="Add to inbox"><a href="javascript:void(0)" onClick="checkAllAddToInbox()"><img src="../images/icons/103.png" border="0"/></a></th>
+							<th class="unsortable" style="white-space: nowrap;" title="Add to Inbox and Acknowledge"><a href="javascript:void(0)" onClick="checkAllAcknowledge()"><img src="../images/icons/114.png" border="0"/></a></th>
+							<th class="unsortable" style="white-space: nowrap;" title="Remove/Reject"><a href="javascript:void(0)" onClick="checkAllRemoved()"><img src="../images/icons/104.png" border="0"/></a></th>
+							
+							<th class="unsortable" style="white-space: nowrap;"></th>
+							
+							<th class="unsortable" style="white-space: nowrap;"></th>
+						<!-- 
 							<th class="unsortable" style="white-space: nowrap;"></th>
 							<th class="unsortable" style="white-space: nowrap;"></th>
-							<th class="unsortable" style="white-space: nowrap;"></th>
-							<th class="unsortable" style="white-space: nowrap;" title="Add to my inbox"><img src="../images/icons/103.png" border="0"/></th>
-							<th class="unsortable" style="white-space: nowrap;" title="Sign-off"><img src="../images/icons/114.png" border="0"/></th>
-							<th style="white-space: nowrap;">Health Number</th>
+						-->
 							<th style="white-space: nowrap;">Patient Name</th>
+							<th style="white-space: nowrap;">Health Number</th>
 							<th style="white-space: nowrap;">DOB</th>
 							<th style="white-space: nowrap;">Sex</th>
 							<th style="white-space: nowrap;">Date of Test</th>
 							<th style="white-space: nowrap;">Discipline</th>
 							<th style="white-space: nowrap;">Tests</th> <!-- test request name -->
 							<th style="white-space: nowrap;">Status</th><!-- test request status -->
+							<th style="white-space: nowrap;width:30%">Results</th>
 							<th style="white-space: nowrap;">Abnormal</th>
-							<th style="white-space: nowrap;">Ordering Practitioner</th>
-							<th style="white-space: nowrap;">Admitting Practitioner</th>
-							<th style="white-space: nowrap;">CC'ed Practitioner(s)</th>
+							<th style="white-space: nowrap;">Practitioners</th>
+							
 						</tr>
 					</thead>
 					<tbody>
@@ -632,13 +724,19 @@ function checkUncheckAll(id) {
 						hcn="<%=result.getHealthNum()%>" category="<%=result.getCategoryList()%>" performingLaboratory="<%=result.getPerformingFacilityNameOnly()%>"
 						abnormal="<%=result.hasAbnormalResult()%>" testRequestCode="<%=result.getTestRequestCode()%>" testRequestStatus="<%=result.getOrderStatus()%>"
 						resultStatus="<%=result.getTestResultStatuses()%>" uuid="<%=resultUuid%>">
-						<td>
-							<input type="checkbox" name="result_checked" value="<%=resultUuid %>"/>
-						</td>
+						
+						<td><input title="Add to my inbox" type="checkbox" name="addToInbox_<%=resultUuid%>" uuid="<%=resultUuid%>"/></td>
+						<td><input title="Sign-off" type="checkbox" name="acknowledge_<%=resultUuid%>" uuid="<%=resultUuid%>"/></td>
+						<td><input title="Remove/Reject" type="checkbox" name="remove_<%=resultUuid%>" uuid="<%=resultUuid%>"/</td>
+						
+						<td>&nbsp;</td>
+						
 						<td>
 							<div id="<%=resultUuid %>_result"></div>
 							<a href="javascript:void(0)" onClick="preview('<%=resultUuid %>'); return false;" title="Preview full report"><img src="../images/icons/172.png" border="0"/></a>
 						</td>
+						
+						<!-- 
 						<td>	
 							<a href="javascript:void(0)" onClick="remove('<%=resultUuid %>');return false;" title="Remove from results"><img src="../images/icons/101.png" border="0"/></a>	
 						</td>
@@ -647,21 +745,21 @@ function checkUncheckAll(id) {
 							<a href="javascript:void(0)" onClick="save('<%=resultUuid %>'); return false;" title="Save"><img src="../images/Save16.png" border="0"/></a>
 						</td>
 						
-						<td><input title="Add to my inbox" type="checkbox" name="addToInbox_<%=resultUuid%>"/></td>
-						<td><input title="Sign-off" type="checkbox" name="acknowledge_<%=resultUuid%>"/></td>
+						-->
 						
 						
-						
-						<td><%=result.getHealthNum() %></td>
 						<td id="name_<%=resultUuid%>">
 							<%
-							Integer demId = MessageUploader.willOLISLabReportMatch(LoggedInInfo.getLoggedInInfoFromSession(request), result.getLastName(), result.getFirstName(), result.getSex(), result.getDOB(), result.getHealthNum());
+							OLISResults r = olisResultsDao.findByUUID(resultUuid);			
+							Integer demId = r.getDemographicNo();
 							if(demId != null) {%>
 								<a href="javascript:void(0)" onClick="openPatient('<%=demId%>')"><%=result.getPatientName() %></a>
 							<%} else {%>
 								<%=result.getPatientName() %><a href="javascript:void(0)" onClick="showMatch('<%=result.getLastName() + "," + result.getFirstName() %>','<%=resultUuid%>')"><img src="../images/here.gif" border="0"/></a>
 							<% } %>
 						</td>
+						<td><%=result.getHealthNum() %></td>
+					
 						<td align="center" style="white-space: nowrap;"><%=result.getDOB() %></td>
 						<td align="center"><%=result.getSex() %></td>
 						<td style="white-space: nowrap;"><%=result.getSpecimenReceivedDateTime() %></td>
@@ -703,25 +801,47 @@ function checkUncheckAll(id) {
 							<% } } %>
 							</ul>
 						</td>
-						<td><%=result.hasAbnormalResult() ?  "<span style='color:red'>Abnormal</span>" : "" %></td>
-						<td> <%=result.getShortDocName() %> </td>
-						<td> <%=result.getAdmittingProviderNameShort()%></td>
 						<td>
 							
 							<%
-							String[] ccDocs =  result.getCCDocs().split(",");
-							if(ccDocs.length==1) {
-								%><%=ccDocs[0] %><%
-							} else if(ccDocs.length>1) {
+							List<String[]> testResultInfo =  result.getTestResultInfo();
 							%>
-							<ul>
-							<%for(String ccDoc: ccDocs) { %>
-								<li><%=ccDoc.trim() %></li>
-							<% } } %>
-							</ul>
-							
+							<table width="100%">
+								<%for(String[] item : testResultInfo) { 
+									OLISResultNomenclature orn = olisResultNomenclatureDao.findByNameId(item[0]);
+								%>
+								<tr>
+									<td><%=orn!=null?orn.getName() : item[0] %></td>
+									<%if(!item[3].equals("N") && !item[3].isEmpty()) { %>
+										<td style="color:red"><%=StringEscapeUtils.escapeHtml(item[1]) %>(<%=item[3] %>)</td>
+									<% } else { %>
+										<td><%=StringEscapeUtils.escapeHtml(item[1]) %></td>
+									<% } %>
+									
+									<td><%=StringEscapeUtils.escapeHtml(item[2]) %></td>
+									<td><%=item[4] != null && !item[4].isEmpty() ? OLISHL7Handler.getTestResultStatusMessage(item[4].charAt(0)) : item[4] %></td>
+								</tr>
+								<% } %>
+							</table>
 						</td>
-						 
+						 <td><%=result.hasAbnormalResult() ?  "<span style='color:red'>Abnormal</span>" : "" %></td>
+						<td> 
+						
+							<%
+								List<String> docs = result.getAllPractitioners();
+								if(docs.size() == 1) {
+									%><%=docs.get(0) %><%
+								} else {
+									%><%
+									for(String doc:docs) {
+							%> 
+									<%=doc %><br/>
+							<% } %>
+								
+							<% }%>
+						
+						</td>
+						
 					</tr>	
 									
 					<% } %>
@@ -730,8 +850,7 @@ function checkUncheckAll(id) {
 						<tr>
 							<td colspan="18">
 								
-							<input type="button" value="Save all selected" onClick="bulkAddToInbox()"/>&nbsp;
-							&nbsp;<input type="button" value="Remove all selected" onClick="bulkRemove()"/>
+							<input type="button" value="Process Changes" onClick="bulkProcess()"/>
 							</td>
 						</tr>
 					</tfoot>

@@ -790,6 +790,7 @@ public class OLISSearchAction extends DispatchAction {
 			String searchUuid = UUID.randomUUID().toString();
 			searchQueryMap.put(searchUuid, query);
 			request.setAttribute("searchUuid", searchUuid);
+
 			if(queryType.equals("Z04") && request.getParameterValues("requestingHic") != null && request.getParameterValues("requestingHic").length>1) {
 				for(String providerNo:request.getParameterValues("requestingHic")) {
 					Provider provider = providerDao.getProvider(providerNo);
@@ -818,4 +819,6 @@ public class OLISSearchAction extends DispatchAction {
 		c.set(Calendar.SECOND,59);
 		return c.getTime();
 	}
+	
+	
 }

@@ -59,7 +59,7 @@ public class OLISUtils {
 	
 	static Hl7TextInfoDao hl7TextInfoDao = SpringUtils.getBean(Hl7TextInfoDao.class);
 	
-	static final public String CMLIndentifier = "2.16.840.1.113883.3.59.1:5047";// Canadian Medical Laboratories
+	static final public String CMLIndentifier = "2.16.840.1.113883.3.59.1:5407";// Canadian Medical Laboratories
 	static final public String GammaDyancareIndentifier = "2.16.840.1.113883.3.59.1:5552";// Gamma Dynacare
 	static final public String LifeLabsIndentifier = "2.16.840.1.113883.3.59.1:5687";// LifeLabs
 	static final public String AlphaLabsIndetifier = "2.16.840.1.113883.3.59.1:5254";// Alpha Laboratories"

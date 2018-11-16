@@ -10,6 +10,7 @@ package org.oscarehr.olis;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
@@ -23,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
@@ -35,9 +36,11 @@ import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.dao.DemographicDao;
+import org.oscarehr.common.dao.OLISResultsDao;
 import org.oscarehr.common.dao.OscarLogDao;
 import org.oscarehr.common.dao.PatientLabRoutingDao;
 import org.oscarehr.common.model.Demographic;
+import org.oscarehr.common.model.OLISResults;
 import org.oscarehr.common.model.OscarLog;
 import org.oscarehr.common.model.PatientLabRouting;
 import org.oscarehr.common.model.Provider;
@@ -55,11 +58,20 @@ import oscar.oscarLab.ca.on.CommonLabResultData;
 public class OLISAddToInboxAction extends DispatchAction {
 
 	static Logger logger = MiscUtils.getLogger();
+	
+	private OLISResultsDao olisResultsDao = SpringUtils.getBean(OLISResultsDao.class);
 
 	public ActionForward saveMatch(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)  {
 
 		String uuid = request.getParameter("uuid");
 		String demographicNo = request.getParameter("demographicNo");
+		
+		OLISResults result = olisResultsDao.findByUUID(uuid);
+		if(result != null) {
+			result.setDemographicNo(Integer.parseInt(demographicNo));
+			olisResultsDao.merge(result);
+		}
+		/*
 		
 		Map<String,String> patientSaveMap = (Map<String,String>)request.getSession().getAttribute("olisPatientMatches");
 		if(patientSaveMap == null) {
@@ -70,7 +82,7 @@ public class OLISAddToInboxAction extends DispatchAction {
 		
 		request.getSession().setAttribute("olisPatientMatches", patientSaveMap);
 		
-		
+		*/
 		return null;
 	}
 	
@@ -90,61 +102,7 @@ public class OLISAddToInboxAction extends DispatchAction {
 			JSONObject item = arr.getJSONObject(x);
 			String uuidToAdd = item.getString("uuid");
 			
-			String fileLocation = System.getProperty("java.io.tmpdir") + "/olis_" + item.getString("uuid") + ".response";
-			File file = new File(fileLocation);
-			OLISHL7Handler msgHandler = (OLISHL7Handler) HandlerClassFactory.getHandler("OLIS_HL7");	
 			
-			InputStream is = null;
-			try {
-				is = new FileInputStream(fileLocation);
-				int check = FileUploadCheck.addFile(file.getName(), is, providerNo);
-				String successMessage = "";
-				
-				if (check != FileUploadCheck.UNSUCCESSFUL_SAVE) {
-					if (msgHandler.parse(loggedInInfo, "OLIS_HL7", fileLocation, check, item.getBoolean("addToInbox")) != null) {
-						successMessage = "Successully added lab to EMR.";
-						request.setAttribute("result", "Success");
-						
-						Map<String,String> patientSaveMap = (Map<String,String>)request.getSession().getAttribute("olisPatientMatches");
-						if(patientSaveMap != null && patientSaveMap.get(uuidToAdd) != null) {
-							//match the patient
-							PatientLabRouting plr = new PatientLabRouting();
-							plr.setCreated(new Date());
-							plr.setDateModified(new Date());
-							plr.setDemographicNo(Integer.parseInt(patientSaveMap.get(uuidToAdd)));
-							plr.setLabNo(msgHandler.getLastSegmentId());
-							plr.setLabType("HL7");
-							PatientLabRoutingDao plrDao = SpringUtils.getBean(PatientLabRoutingDao.class);
-							plrDao.persist(plr);
-							
-						}
-						if (item.getBoolean("acknowledge")) {
-							String demographicID = getDemographicIdFromLab("HL7", msgHandler.getLastSegmentId());
-							LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.ACK, LogConst.CON_HL7_LAB, "" + msgHandler.getLastSegmentId(), request.getRemoteAddr(), demographicID);
-							CommonLabResultData.updateReportStatus(msgHandler.getLastSegmentId(), providerNo, 'A', "Sign-off from OLIS inbox", "HL7");
-							successMessage = "Successully added lab to EMR and acknowledged lab in inbox.";
-
-						}
-						
-						request.setAttribute("result",successMessage);
-						successful.add(uuidToAdd);
-					} else {
-						errors.add("Error adding Lab to EMR");
-					}
-				} else {
-					errors.add("Lab already Added");
-				}
-
-			} catch (Exception e) {
-				MiscUtils.getLogger().error("Couldn't add requested OLIS lab to Inbox.", e);
-				errors.add(e.getMessage());
-			} finally {
-				try {
-					is.close();
-				} catch (IOException e) {
-					//ignore
-				}
-			}
 
 		}
 		
@@ -154,55 +112,6 @@ public class OLISAddToInboxAction extends DispatchAction {
 		
 		return null;
 	}
-
-	public ActionForward bulkRemove(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws JSONException, IOException {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String providerNo=loggedInInfo.getLoggedInProviderNo();
-		String uuidsToAdd = request.getParameter("uuids");
-
-		List<String> errors = new ArrayList<String>();
-		List<String> successful = new ArrayList<String>();
-		
-		
-		for(String uuidToAdd : uuidsToAdd.split(",")) {
-			String fileLocation = System.getProperty("java.io.tmpdir") + "/olis_" + uuidToAdd + ".response";
-			File file = new File(fileLocation);
-			OLISHL7Handler msgHandler = (OLISHL7Handler) HandlerClassFactory.getHandler("OLIS_HL7");	
-			
-			LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), "OLIS","rejected", uuidToAdd, "","");
-			successful.add(uuidToAdd);
-
-		}
-		
-		JSONObject obj = new JSONObject();
-		obj.put("successIds", successful);
-		
-		obj.write(response.getWriter());
-		
-		return null;
-	}
-
-	public ActionForward remove(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)  {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String providerNo=loggedInInfo.getLoggedInProviderNo();
-		String uuid = request.getParameter("uuid");
-
-		
-		List<String> errors = new ArrayList<String>();
-		List<String> successful = new ArrayList<String>();
-		
-		
-		String fileLocation = System.getProperty("java.io.tmpdir") + "/olis_" + uuid + ".response";
-		File file = new File(fileLocation);
-		OLISHL7Handler msgHandler = (OLISHL7Handler) HandlerClassFactory.getHandler("OLIS_HL7");	
-		
-		LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), "OLIS","rejected", uuid, "","");
-		successful.add(uuid);
-		
-		request.setAttribute("result", "Successfully removed item");
-		return null;
-	}
-
 	
 	@Override
 	protected ActionForward unspecified(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)  {
@@ -211,21 +120,30 @@ public class OLISAddToInboxAction extends DispatchAction {
 		String providerNo=loggedInInfo.getLoggedInProviderNo();
 		
 		String uuidToAdd = request.getParameter("uuid");
-		String pFile = request.getParameter("file");
 		String pAck = request.getParameter("ack");
 		String addToMyInboxParameter = request.getParameter("addToMyInbox");
 		boolean doNotAddToMyInbox = addToMyInboxParameter!= null && "false".equals(addToMyInboxParameter);
 				
-		boolean doFile = false, doAck = false;
-		if (pFile != null && pFile.equals("true")) {
-			doFile = true;
-		}
+		boolean doAck = false;
 		if (pAck != null && pAck.equals("true")) {
 			doAck = true;
 		}
-
+		
+		OLISResults result = olisResultsDao.findByUUID(uuidToAdd);
 		String fileLocation = System.getProperty("java.io.tmpdir") + "/olis_" + uuidToAdd + ".response";
 		File file = new File(fileLocation);
+	
+		FileWriter fw = null;
+		try {
+			fw = new FileWriter(file);
+			IOUtils.write(result.getResults(), fw);
+		}catch(IOException e) {
+			logger.error("Error",e);
+		} finally {
+			IOUtils.closeQuietly(fw);
+		}
+		
+		
 		OLISHL7Handler msgHandler = (OLISHL7Handler) HandlerClassFactory.getHandler("OLIS_HL7");
 
 		InputStream is = null;
@@ -238,13 +156,7 @@ public class OLISAddToInboxAction extends DispatchAction {
 				if (msgHandler.parse(loggedInInfo, "OLIS_HL7", fileLocation, check, !doNotAddToMyInbox) != null) {
 					successMessage = "Successully added lab to EMR.";
 					request.setAttribute("result", "Success");
-					if (doFile) {
-						ArrayList<String[]> labsToFile = new ArrayList<String[]>();
-						String item[] = new String[] { String.valueOf(msgHandler.getLastSegmentId()), "HL7" };
-						labsToFile.add(item);
-						CommonLabResultData.fileLabs(labsToFile, providerNo);
-						successMessage = "Successully added lab to EMR and filed lab in inbox.";
-					}
+					
 					if (doAck) {
 						String demographicID = getDemographicIdFromLab("HL7", msgHandler.getLastSegmentId());
 						LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.ACK, LogConst.CON_HL7_LAB, "" + msgHandler.getLastSegmentId(), request.getRemoteAddr(), demographicID);
@@ -252,6 +164,12 @@ public class OLISAddToInboxAction extends DispatchAction {
 						successMessage = "Successully added lab to EMR and acknowledged lab in inbox.";
 
 					}
+					
+					if(result != null) {
+						result.setStatus("added");
+						olisResultsDao.merge(result);
+					}
+					
 					request.setAttribute("result",successMessage);
 				} else {
 					request.setAttribute("result", "Error adding Lab to EMR");
@@ -264,21 +182,10 @@ public class OLISAddToInboxAction extends DispatchAction {
 			MiscUtils.getLogger().error("Couldn't add requested OLIS lab to Inbox.", e);
 			request.setAttribute("result", "Error");
 		} finally {
-			try {
-				is.close();
-			} catch (IOException e) {
-				//ignore
-			}
+			IOUtils.closeQuietly(is);
 		}
 
 		return mapping.findForward("ajax");
-	}
-	
-
-	private static String getDemographicIdFromLab(String labType, int labNo) {
-		PatientLabRoutingDao dao = SpringUtils.getBean(PatientLabRoutingDao.class);
-		PatientLabRouting routing = dao.findDemographics(labType, labNo);
-		return routing == null ? "" : String.valueOf(routing.getDemographicNo());
 	}
 	
 	
@@ -316,7 +223,9 @@ public class OLISAddToInboxAction extends DispatchAction {
 		}
 		
 		OscarLogDao logDao = SpringUtils.getBean(OscarLogDao.class);
-		List<OscarLog> logs = logDao.findByAction("OLIS",Integer.parseInt(start), Integer.parseInt(length), StringEscapeUtils.escapeSql(orderBy), StringEscapeUtils.escapeSql(orderingColumnDirection));
+		//List<OscarLog> logs = logDao.findByAction("OLIS",Integer.parseInt(start), Integer.parseInt(length), StringEscapeUtils.escapeSql(orderBy), StringEscapeUtils.escapeSql(orderingColumnDirection));
+		List<OscarLog> logs = logDao.findByAction("OLIS",Integer.parseInt(start), Integer.parseInt(length), "created", "desc");
+		
 		int draw = 0;
 
 		JSONArray data = new JSONArray();
@@ -359,7 +268,173 @@ public class OLISAddToInboxAction extends DispatchAction {
 
 		return null;
 	}
+	
+	public ActionForward remove(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)  {
+		String uuid = request.getParameter("uuid");
+
+		List<String> successful = new ArrayList<String>();
+		
+		OLISResults result = olisResultsDao.findByUUID(uuid);
+		if(result != null) {
+			result.setStatus("removed");
+			olisResultsDao.merge(result);
+		}
+		
+		LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), "OLIS","rejected", uuid, "","");
+		successful.add(uuid);
+		
+		request.setAttribute("result", "Successfully removed item");
+		return null;
+	}
+	
+	public ActionForward bulkRemove(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws JSONException, IOException {
+		String uuidsToAdd = request.getParameter("uuids");
+
+		List<String> successful = new ArrayList<String>();
+		
+		for(String uuid : uuidsToAdd.split(",")) {
+			OLISResults result = olisResultsDao.findByUUID(uuid);
+			if(result != null) {
+				result.setStatus("removed");
+				olisResultsDao.merge(result);
+			}
+			LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), "OLIS","rejected", uuid, "","");
+			successful.add(uuid);
+
+		}
+		
+		JSONObject obj = new JSONObject();
+		obj.put("successIds", successful);
+		obj.write(response.getWriter());
+		
+		return null;
+	}
+	
+	public ActionForward bulkProcess(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws JSONException, IOException {
+		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+		String encodedData = request.getParameter("data");
+		String data = new String(Base64.decodeBase64(encodedData));
+		JSONObject obj = new JSONObject(data);
+		JSONArray arr = obj.getJSONArray("items");
+		
+		List<String> errors = new ArrayList<String>();
+		List<String> successful = new ArrayList<String>();
+
+		for(int x=0;x<arr.length();x++) {
+			JSONObject item = arr.getJSONObject(x);
+			String uuid = item.getString("uuid");
+			String type = item.getString("type");
+			
+			if("addToInbox".equals(type)) {
+				addToInbox(loggedInInfo,uuid,false,successful,errors);
+			} else if("acknowledge".equals(type)) {
+				addToInbox(loggedInInfo,uuid,true,successful,errors);
+			} else if("remove".equals(type)) {
+				remove(loggedInInfo,uuid,successful,errors);
+			}
+		}
+		
+		
+		JSONObject obj2 = new JSONObject();
+		obj2.put("successIds", successful);
+		obj2.put("errorIds", errors);
+		obj2.write(response.getWriter());
+		
+		return null;
+	}
+	
+	
+	private static String getDemographicIdFromLab(String labType, int labNo) {
+		PatientLabRoutingDao dao = SpringUtils.getBean(PatientLabRoutingDao.class);
+		PatientLabRouting routing = dao.findDemographics(labType, labNo);
+		return routing == null ? "" : String.valueOf(routing.getDemographicNo());
+	}
+	
+	private void addToInbox(LoggedInInfo loggedInInfo, String uuidToAdd, boolean acknowledge, List<String> successful, List<String> errors) {
+		logger.info("AddToInbox:"+uuidToAdd +", ack=" + acknowledge);
+		
+		String providerNo = loggedInInfo.getLoggedInProviderNo();
+		
+		OLISResults result = olisResultsDao.findByUUID(uuidToAdd);
+		String fileLocation = System.getProperty("java.io.tmpdir") + "/olis_" + uuidToAdd + ".response";
+		File file = new File(fileLocation);
+	
+		FileWriter fw = null;
+		try {
+			fw = new FileWriter(file);
+			IOUtils.write(result.getResults(), fw);
+		}catch(IOException e) {
+			logger.error("Error",e);
+		} finally {
+			IOUtils.closeQuietly(fw);
+		}
+		OLISHL7Handler msgHandler = (OLISHL7Handler) HandlerClassFactory.getHandler("OLIS_HL7");	
+		
+		InputStream is = null;
+		try {
+			is = new FileInputStream(fileLocation);
+			int check = FileUploadCheck.addFile(file.getName(), is, providerNo);
+			
+			if (check != FileUploadCheck.UNSUCCESSFUL_SAVE) {
+				if (msgHandler.parse(loggedInInfo, "OLIS_HL7", fileLocation, check, null) != null) {
+					
+					if(result.getDemographicNo() != null) {
+						//match the patient
+						PatientLabRouting plr = new PatientLabRouting();
+						plr.setCreated(new Date());
+						plr.setDateModified(new Date());
+						plr.setDemographicNo(result.getDemographicNo());
+						plr.setLabNo(msgHandler.getLastSegmentId());
+						plr.setLabType("HL7");
+						PatientLabRoutingDao plrDao = SpringUtils.getBean(PatientLabRoutingDao.class);
+						plrDao.persist(plr);
+						
+					}
+					if (acknowledge) {
+						String demographicID = getDemographicIdFromLab("HL7", msgHandler.getLastSegmentId());
+						LogAction.addLog(providerNo, LogConst.ACK, LogConst.CON_HL7_LAB, "" + msgHandler.getLastSegmentId(), null, demographicID);
+						CommonLabResultData.updateReportStatus(msgHandler.getLastSegmentId(), providerNo, 'A', "Sign-off from OLIS inbox", "HL7");
+					}
+					
+					if(result != null) {
+						result.setStatus("added");
+						olisResultsDao.merge(result);
+					}
+					
+					successful.add(uuidToAdd);
+				} else {
+					errors.add(result.getUuid());
+				}
+			} else {
+				LogAction.addLog(providerNo, "OLIS","DUPLICATE", uuidToAdd , null);
+				
+				errors.add(result.getUuid());
+			}
+
+		} catch (Exception e) {
+			MiscUtils.getLogger().error("Couldn't add requested OLIS lab to Inbox.", e);
+			errors.add(result.getUuid());
+		} finally {
+			IOUtils.closeQuietly(is);
+		}
+	}
+	
+	private void remove(LoggedInInfo loggedInInfo, String uuid, List<String> successful, List<String> errors) {
+		logger.info("remove:"+uuid);
+		
+		
+		OLISResults result = olisResultsDao.findByUUID(uuid);
+		if(result != null) {
+			result.setStatus("removed");
+			olisResultsDao.merge(result);
+		}
+		
+		LogAction.addLog(loggedInInfo, "OLIS","rejected", uuid, "","");
+		successful.add(uuid);
+	}
 }
+
+
 class ColumnInfo {
 	private int index;
 	private String data;

@@ -234,12 +234,13 @@ public class Util {
     }
 	
     static public String setCountrySubDivCode(String countrySubDivCode) {
-	countrySubDivCode = countrySubDivCode.trim();
-	if (StringUtils.filled(countrySubDivCode)) {
-	    if (countrySubDivCode.equals("OT")) return "Other";
-	    if (!countrySubDivCode.startsWith("US")) return "CA-"+countrySubDivCode;
-	}
-	return "";
+		countrySubDivCode = countrySubDivCode.trim();
+		if (StringUtils.filled(countrySubDivCode)) {
+		    if (countrySubDivCode.equals("OT")) return "Other";
+		    if (countrySubDivCode.indexOf("-") == -1) return "CA-"+countrySubDivCode;
+		    return countrySubDivCode;
+		}
+		return "";
     }
 
     static public String onlyNum(String s) {

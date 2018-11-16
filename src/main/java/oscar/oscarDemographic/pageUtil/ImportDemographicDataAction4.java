@@ -2357,13 +2357,15 @@ import oscar.util.UtilDateUtilities;
                                 updateDateTime = dateFPtoString(repR[i].getReceivedDateTime(), timeShiftInDays);
                                 contentDateTime= dateFPtoString(repR[i].getReceivedDateTime(), timeShiftInDays);
                                 
+                                String receivedDate = dateFPtoString(repR[i].getReceivedDateTime(), timeShiftInDays);
+                                
                                 String responsibleId = admProviderNo;
                               //  DemographicDao dDao = SpringUtils.getBean(DemographicDao.class);
                               //  Demographic demographic =dDao.getDemographic(demographicNo);
                                 if(demographic != null && !StringUtils.isNullOrEmpty(demographic.getProviderNo())) {
                                 	responsibleId = demographic.getProviderNo();
                                 }
-                                docNum = EDocUtil.addDocument(demographicNo,docFileName,docDesc,"",docClass,docSubClass,mapContentType(contentType),contentDateTime,observationDate,updateDateTime,docCreator,responsibleId,reviewer,reviewDateTime,source,sourceFacility);
+                                docNum = EDocUtil.addDocument(demographicNo,docFileName,docDesc,"",docClass,docSubClass,mapContentType(contentType),contentDateTime,observationDate,updateDateTime,docCreator,responsibleId,reviewer,reviewDateTime,source,sourceFacility,receivedDate);
                                 if (docNum==null) docNum = 0;
                                 if (binaryFormat) addOneEntry(REPORTBINARY);
                                 else addOneEntry(REPORTTEXT);
@@ -2588,7 +2590,7 @@ import oscar.util.UtilDateUtilities;
 
     protected String mapContentType(String contentType) {
     	
-    	if(".jpeg".equals(contentType)) {
+    	if(".jpeg".equals(contentType) || ".jpg".equals(contentType)) {
     		return "image/jpeg";
     	}
     	if(".doc".equals(contentType)) {
@@ -2602,6 +2604,9 @@ import oscar.util.UtilDateUtilities;
     	}
     	if(".html".equals(contentType)) {
     		return "text/html";
+    	}
+    	if(".rtf".equals(contentType)) {
+    		return "application/rtf";
     	}
     	return contentType;
     }
