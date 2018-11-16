@@ -548,9 +548,7 @@ Varicella Immunoglobulin	VarIg
 		name="H1N1" layout="h1n1"
         minAge="0" 
         atc="J07BB02" 
-		healthCanadaType="H1N1"	
-
-/>
+		healthCanadaType="H1N1" />
 
 	<item
 		resultDesc=""
@@ -584,6 +582,20 @@ Varicella Immunoglobulin	VarIg
 		desc= "Periodic Health Visit"
 		name="PHV"		
 		layout="history"	
+		showIfMinRecordNum="1" />
+
+	<item
+		resultDesc=""
+		desc= "Annual Physical"
+		name="Annual Physical"
+		layout="history"
+		showIfMinRecordNum="1" />
+
+	<item
+		resultDesc=""
+		desc= "Obesity"
+		name="Obesity"
+		layout="history"
 		showIfMinRecordNum="1" />
 
 </preventions>
