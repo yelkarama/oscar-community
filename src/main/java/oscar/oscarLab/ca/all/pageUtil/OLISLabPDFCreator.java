@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -14,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.Hl7TextMessageDao;
 import org.oscarehr.common.model.Hl7TextMessage;
+import org.oscarehr.common.model.Provider;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -56,6 +58,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
     private String[] multiID;
     private String id;
 
+    private Provider printingProvider;
     private Document document;
     private BaseFont bf;
     private BaseFont cf;
@@ -102,6 +105,9 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		}
 		this.versionNum = i+1;
 
+        LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+        printingProvider = loggedInInfo.getLoggedInProvider();
+
         if(!segmentId.equals("0")){ // OLIS lab that is stored in chart has a segmentID that is not 0
 			//Need date lab was received by OSCAR
 			Hl7TextMessageDao hl7TxtMsgDao = (Hl7TextMessageDao)SpringUtils.getBean("hl7TextMessageDao");
@@ -114,7 +120,6 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 			this.handler = (OLISHL7Handler) Factory.getHandler(id);
 		}
 		else{ // OLIS lab not saved to chart has a segmentId of 0
-			LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 
 			String uuidToAdd = request.getParameter("uuid");
 			String fileName = System.getProperty("java.io.tmpdir") + "/olis_" + uuidToAdd + ".response";
@@ -150,9 +155,6 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         // check that we have data to print
         if (handler == null)
             throw new DocumentException();
-
-        //response.setContentType("application/pdf");  //octet-stream
-        //response.setHeader("Content-Disposition", "attachment; filename=\""+handler.getPatientName().replaceAll("\\s", "_")+"_LabReport.pdf\"");
 
         //Create the document we are going to write to
         document = new Document();
@@ -196,21 +198,6 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         		addOLISLabCategory(headers.get(obr), obr);
         	}
         }
-
-        /*// add end of report table
-        PdfPTable table = new PdfPTable(1);
-        table.setWidthPercentage(100);
-        PdfPCell cell = new PdfPCell();
-        cell.setBorder(0);
-        cell.setPhrase(new Phrase("  "));
-        table.addCell(cell);
-        cell.setBorder(15);
-        cell.setBackgroundColor(new Color(210, 212, 255));
-        cell.setPhrase(new Phrase("END OF REPORT", boldFont));
-        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-        table.addCell(cell);
-        document.add(table);*/
 
         document.close();
 
@@ -1102,13 +1089,15 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
             float height = page.getHeight();
 
             //add patient name header for every page but the first.
+            cb.beginText();
+            cb.setFontAndSize(bf, 8);
+            String headerText = "";
             if (pageNum > 1){
-                cb.beginText();
-                cb.setFontAndSize(bf, 8);
-                cb.showTextAligned(PdfContentByte.ALIGN_RIGHT, handler.getPatientName(), 575, height - 30, 0);
-                cb.endText();
-
+                headerText += handler.getPatientName() + "    ";
             }
+            headerText += "Generated from OLIS on " + handler.getMsgDate() + " by user " + printingProvider.getFirstName() + " " + printingProvider.getLastName();
+            cb.showTextAligned(PdfContentByte.ALIGN_RIGHT, headerText, 575, height - 30, 0);
+            cb.endText();
 
             //add footer for every page
             cb.beginText();
