@@ -21,6 +21,7 @@ import java.security.Security;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -39,6 +40,7 @@ import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.SchemaFactory;
 
+import com.indivica.olis.queries.QueryType;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
@@ -58,8 +60,10 @@ import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder;
 import org.bouncycastle.util.Store;
 import org.bouncycastle.util.encoders.Base64;
 import org.oscarehr.common.dao.OscarLogDao;
+import org.oscarehr.common.dao.SystemPreferencesDao;
 import org.oscarehr.common.model.OscarLog;
 import org.oscarehr.common.model.Provider;
+import org.oscarehr.common.model.SystemPreferences;
 import org.oscarehr.olis.OLISPoller;
 import org.oscarehr.olis.OLISProtocolSocketFactory;
 import org.oscarehr.util.LoggedInInfo;
@@ -104,6 +108,7 @@ public class Driver {
 			String olisHL7String = message.getOlisHL7String().replaceAll("\n", "\r");
 			String msgInXML = String.format("<Request xmlns=\"http://www.ssha.ca/2005/HIAL\"><Content><![CDATA[%s]]></Content></Request>", olisHL7String);
 
+			String requestLogXml = "Send Xml:\n" + msgInXML;
 			String signedRequest = null;
 
 			if (OscarProperties.getInstance().getProperty("olis_returned_cert") != null) {
@@ -150,7 +155,13 @@ public class Driver {
 					request.setAttribute("unsignedResponse", unsignedData);
 				}
 
-				writeToFile(unsignedData);
+                requestLogXml += "\n\nReceived Response:\n" + unsignedData;
+                SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+                SystemPreferences saveQueryProp = systemPreferencesDao.findPreferenceByName("olis_save_queries");
+                if (saveQueryProp != null && Boolean.valueOf(saveQueryProp.getValue())) {
+                    logOlisRequestToFile(requestLogXml, query.getQueryType());
+                }
+                
 				readResponseFromXML(request, unsignedData);
 
 				return unsignedData;
@@ -412,9 +423,12 @@ public class Driver {
 		messageData.sendMessage2(message, "OLIS Retrieval Error", "System", sentToString, "-1", sendToProviderListData, null, null, OscarMsgType.GENERAL_TYPE);
 	}
 
-	static void writeToFile(String data) {
+	static void logOlisRequestToFile(String data, QueryType queryType) {
 		try {
-			File tempFile = new File(System.getProperty("java.io.tmpdir") + (Math.random() * 100) + ".xml");
+            String logPath = OscarProperties.getInstance().getProperty("olis_dir") + "/log/";
+            new File(logPath).mkdirs();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            File tempFile = new File(logPath + queryType.name() + "_" + sdf.format(new Date())+ ".xml");
 			PrintWriter pw = new PrintWriter(new FileWriter(tempFile));
 			pw.println(data);
 			pw.flush();
