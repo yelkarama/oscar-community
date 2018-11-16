@@ -316,12 +316,7 @@ public class FlowSheetCustomAction extends DispatchAction {
                cust.setDemographicNo(demographicNo);
             }
             cust.setMeasurement(item.getItemName());//THIS THE MEASUREMENT TO SET THIS AFTER!
-            
-            logger.info("Ronnie: scope ["+scope+"]");
-            
             cust.setProviderNo("clinic".equals(scope) ? "" : (String) request.getSession().getAttribute("user"));
-            
-            logger.info("ronnie: providerNo ["+cust.getProviderNo()+"]");
             
             logger.debug("UPDATE "+cust);
 

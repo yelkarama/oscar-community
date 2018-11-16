@@ -872,9 +872,7 @@ public class MeasurementTemplateFlowSheetConfig implements InitializingBean {
         FlowSheetItem item = null;
         try {
             SAXBuilder parser = new SAXBuilder();
-            StringReader sr = new StringReader("Ronnie Cheng");
-            sr = new StringReader(s);
-            Document doc = parser.build(sr);
+            Document doc = parser.build(new StringReader(s));
             Element root = doc.getRootElement();
 
             List<Attribute> attr = root.getAttributes();
