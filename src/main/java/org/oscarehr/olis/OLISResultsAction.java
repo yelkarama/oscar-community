@@ -9,7 +9,9 @@
 package org.oscarehr.olis;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,7 +25,10 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
+import org.oscarehr.common.dao.SystemPreferencesDao;
 import org.oscarehr.managers.SecurityInfoManager;
+import org.oscarehr.olis.model.OlisLabResultListDisplay;
+import org.oscarehr.olis.model.OlisLabResults;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -31,14 +36,16 @@ import org.oscarehr.util.SpringUtils;
 import com.indivica.olis.Driver;
 
 import oscar.oscarLab.ca.all.parsers.Factory;
-import oscar.oscarLab.ca.all.parsers.MessageHandler;
 import oscar.oscarLab.ca.all.parsers.OLISHL7Handler;
 import oscar.oscarLab.ca.all.util.Utilities;
+
+import static org.oscarehr.olis.model.OlisLabResultListDisplay.DEFAULT_OLIS_SORT_COMPARATOR;
 
 public class OLISResultsAction extends DispatchAction {
 
 	public static HashMap<String, OLISHL7Handler> searchResultsMap = new HashMap<String, OLISHL7Handler>();
 	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
+	private SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
 	 
 	@Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
@@ -46,6 +53,8 @@ public class OLISResultsAction extends DispatchAction {
 		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_lab", "r", null)) {
         	throw new SecurityException("missing required security object (_lab)");
         }
+
+        OlisLabResults olisLabResults = new OlisLabResults();
 		
 		try {
 			String olisResultString = (String) request.getAttribute("olisResponseContent");			
@@ -70,9 +79,17 @@ public class OLISResultsAction extends DispatchAction {
 			File tempFile = new File(System.getProperty("java.io.tmpdir") + "/olis_" + uuid.toString() + ".response");
 			FileUtils.writeStringToFile(tempFile, olisResultString);
 
+            OLISHL7Handler reportHandler = (OLISHL7Handler) Factory.getHandler("OLIS_HL7", olisResultString);
+            if(reportHandler != null) {
+                List<OLISHL7Handler.OLISError> errors = reportHandler.getReportErrors();
+                if (errors.size() > 0) {
+                    olisLabResults.setErrors(errors);
+                }
+                olisLabResults.setHasBlockedContent(reportHandler.isReportBlocked());
+            }
 			
 			@SuppressWarnings("unchecked")
-            ArrayList<String> messages = Utilities.separateMessages(System.getProperty("java.io.tmpdir") + "/olis_" + uuid.toString() + ".response");
+            ArrayList<String> messages = Utilities.separateMessagesFromResponse(olisResultString);
 			
 			List<String> resultList = new LinkedList<String>();
 			
@@ -85,19 +102,23 @@ public class OLISResultsAction extends DispatchAction {
 					FileUtils.writeStringToFile(tempFile, message);
 					
 					// Parse the HL7 string...
-					MessageHandler h = Factory.getHandler("OLIS_HL7", message);
-					if (h.getOBRCount() == 0) {
+                    OLISHL7Handler olisResultHandler = (OLISHL7Handler) Factory.getHandler("OLIS_HL7", message);
+					if (olisResultHandler.getOBRCount() == 0) {
 						continue;
 					}
 					
-					searchResultsMap.put(resultUuid, (OLISHL7Handler)h);
+					searchResultsMap.put(resultUuid, olisResultHandler);
 					resultList.add(resultUuid);
-				}
-				
-				request.setAttribute("resultList", resultList);
-			}
 
-		} catch (Exception e) {
+                    olisLabResults.getResultList().addAll(OlisLabResultListDisplay.getListFromHandler(olisResultHandler, resultUuid));
+				}
+			}
+            request.setAttribute("resultList", resultList);
+			
+            Collections.sort(olisLabResults.getResultList(), DEFAULT_OLIS_SORT_COMPARATOR);
+            request.setAttribute("olisLabResults", olisLabResults);
+
+		} catch (IOException | NullPointerException e) {
 			MiscUtils.getLogger().error("Can't pull out messages from OLIS response.", e);
 		}
 		return mapping.findForward("results");

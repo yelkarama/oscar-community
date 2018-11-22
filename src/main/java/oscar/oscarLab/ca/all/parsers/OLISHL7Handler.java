@@ -396,6 +396,25 @@ public class OLISHL7Handler implements MessageHandler {
 		return null;
 	}
 
+    public String getZBR11(int obrIndex) {
+        Segment zbr = null;
+        try {
+            if ((obrIndex + 1) == 1) {
+                zbr = terser.getSegment("/.ZBR");
+            } else {
+                zbr = (Segment) terser.getFinder().getRoot().get("ZBR" + (obrIndex + 1));
+            }
+            return getString(Terser.get(zbr, 11, 0, 1, 1));
+        } catch (HL7Exception e) {
+            if (zbr == null) {
+                MiscUtils.getLogger().error("OLIS HL7 Error", e);
+            } else {
+                MiscUtils.getLogger().error("OLIS HL7 Error in segment" + zbr.getName(), e);
+            }
+        }
+        return null;
+    }
+
 	public String getPerformingFacilityNameOnly() {
 		try {
 			String value = getString(terser.get("/.ZBR-6-1"));

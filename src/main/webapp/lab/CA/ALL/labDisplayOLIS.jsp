@@ -87,6 +87,7 @@ ArrayList ackList = preview ? null : AcknowledgementData.getAcknowledgements(seg
 Factory f;
 MessageHandler handlerMain;
 String hl7 = "";
+Integer resultObrIndex = null;
 
 if (!preview) {
 
@@ -104,6 +105,9 @@ if (!preview) {
 
 } else {
 	String resultUuid = oscar.Misc.getStr(request.getParameter("uuid"), "");
+	if (request.getParameter("obrIndex") != null) {
+		resultObrIndex = Integer.parseInt(request.getParameter("obrIndex"));
+	}
 	handlerMain = OLISResultsAction.searchResultsMap.get(resultUuid);
 }
 
@@ -731,20 +735,6 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                 </td>
                                 <td bgcolor="white" valign="top">
                                     <table width="100%" border="0" cellspacing="0" cellpadding="1">
-                                        <%--
-                                        <tr>
-                                            <td>
-                                                <div class="FieldData">
-                                                    <strong><bean:message key="oscarMDS.segmentDisplay.formDateService"/>:</strong>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div class="FieldData">
-                                                    <%= handler.getServiceDate() %>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                         --%>
                                         <tr>
                                             <td valign="top">
                                                 <div class="FieldData">
@@ -1178,7 +1168,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                         for(i=0;i<headers.size();i++) {
                         	obr = handler.getMappedOBR(i);
                             linenum = obr + 1;
-                            if (handler.isChildOBR(linenum)) {
+                            if (handler.isChildOBR(linenum) || (resultObrIndex != null && !resultObrIndex.equals(i))) {
                             	continue;
                             }
                         %>

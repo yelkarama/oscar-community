@@ -230,6 +230,24 @@
 		}
 	
 	}
+	
+	function setTimePeriod(timeSpan) {
+	    let startDateElement = document.getElementById('startTimePeriod');
+        let endDateElement = document.getElementById('endTimePeriod');
+        let now = new Date();
+        endDateElement.value = now.toISOString().slice(0, 10);
+        let then = new Date(now);
+		if (timeSpan === 'week') {
+            then.setDate(then.getDate() - 7);
+            startDateElement.value = then.toISOString().slice(0, 10);
+		} else if (timeSpan === 'month') {
+            then.setMonth(then.getMonth() - 1);
+            startDateElement.value = then.toISOString().slice(0, 10);
+		} else if (timeSpan === 'year') {
+            then.setFullYear(then.getFullYear() - 1);
+            startDateElement.value = then.toISOString().slice(0, 10);
+        }
+    }
 
 	</script>
 
@@ -298,6 +316,9 @@
 			<td width="30%">
 				<input style="width:150px" type="text" name="startTimePeriod" id="startTimePeriod" value="<%=startTimePeriod%>"> to 
 				<input style="width:150px" name="endTimePeriod" type="text" id="endTimePeriod" value="<%=endTimePeriod%>">
+				&nbsp;<input type="button" value="One Week Ago" onclick="setTimePeriod('week')"/>
+				&nbsp;<input type="button" value="One Month Ago" onclick="setTimePeriod('month')"/>
+				&nbsp;<input type="button" value="One Year Ago" onclick="setTimePeriod('year')"/>
 			</td>
 		</tr><tr>
 			<th width="20%">Observation Date &amp; Time Period<br />(yyyy-mm-dd)</th>
@@ -664,7 +685,14 @@
 		</tr>
 		<tr>
 			<th width="20%">Date &amp; Time Period to Search<br />(yyyy-mm-dd)</th>
-			<td width="30%"><input style="width:150px" type="text" name="startTimePeriod" id="startTimePeriod" value="" > to <input style="width:150px" name="endTimePeriod" type="text" id="endTimePeriod" ></td>
+			<td width="30%">
+				<input style="width:150px" type="text" name="startTimePeriod" id="startTimePeriod" value="" >
+				to 
+				<input style="width:150px" name="endTimePeriod" type="text" id="endTimePeriod" value="">
+				&nbsp;<input type="button" value="One Week Ago" onclick="setTimePeriod('week')"/>
+				&nbsp;<input type="button" value="One Month Ago" onclick="setTimePeriod('month')"/>
+				&nbsp;<input type="button" value="One Year Ago" onclick="setTimePeriod('year')"/>
+			</td>
 			<th width="20%"><input class="checkbox" type="checkbox" name="quantityLimitedQuery" id="quantityLimitedQuery"> Quantity Limit?</th>
 			<td width="30%">Quantity<br><input type="text" id="quantityLimit" name="quantityLimit"></td>
 		</tr>
@@ -675,13 +703,9 @@
 			<td width="20%"><span>Requesting HIC</span></td><td><select multiple="multiple" name="requestingHic" id="requestingHic">
 			
 			<option value=""></option>
-			<%
-			for (Provider provider : allProvidersList) {
-				%>
+			<% for (Provider provider : allProvidersList) { %>
 				<option value="<%=provider.getProviderNo() %>">[<%=provider.getProviderNo()%>] <%=provider.getLastName() %>, <%=provider.getFirstName() %></option>
-			<%	
-			}
-			%>
+			<% } %>
 </select></td>		
 		</tr>
 		
