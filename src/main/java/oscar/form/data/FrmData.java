@@ -222,9 +222,11 @@ public class FrmData {
                    }
                 }
             }
-
-   
-        } else if("".equals(table)){
+        } else if ( formName.equals("ON Perinatal Record 2017")){
+            sql = "SELECT ID FROM " + table + " WHERE demographic_no=" + demoNo +" order by create_date desc limit 0,1";
+            rs = DBHandler.GetSQL(sql);
+        }
+        else if("".equals(table)){
         	rs = null;
             ret[1] = "0";
         } 

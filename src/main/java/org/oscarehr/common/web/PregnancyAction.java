@@ -329,7 +329,7 @@ public class PregnancyAction extends DispatchAction {
 		List<Drug> drugs = drugDao.findByDemographicId(demographicNo, false);
 		StringBuilder output = new StringBuilder();
 		for(Drug drug:drugs) {
-			if(drug.isArchived() || drug.isDeleted() || drug.isDiscontinued() || drug.isExpired()) {
+			if(drug.isArchived() || drug.isDeleted() || drug.isDiscontinued()) {
 				continue;
 			}
 			if(drug.getBrandName() != null && drug.getBrandName().length()>0) {

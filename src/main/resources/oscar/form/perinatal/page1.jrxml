@@ -1,0 +1,2181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 4.5.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="perinatal" pageWidth="612" pageHeight="792" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<parameter name="background_image" class="java.lang.String">
+		<parameterDescription><![CDATA[The background image of the current page]]></parameterDescription>
+	</parameter>
+	<parameter name="c_lastName" class="java.lang.String">
+		<parameterDescription><![CDATA[Last name of the patient]]></parameterDescription>
+	</parameter>
+	<parameter name="c_firstName" class="java.lang.String">
+		<parameterDescription><![CDATA[First name of the patient]]></parameterDescription>
+	</parameter>
+	<parameter name="c_address" class="java.lang.String"/>
+	<parameter name="c_apt" class="java.lang.String"/>
+	<parameter name="c_buzzer" class="java.lang.String"/>
+	<parameter name="c_city" class="java.lang.String"/>
+	<parameter name="c_province" class="java.lang.String"/>
+	<parameter name="c_postal" class="java.lang.String"/>
+	<parameter name="c_partnerFirstName" class="java.lang.String"/>
+	<parameter name="c_partnerLastName" class="java.lang.String"/>
+	<parameter name="c_contactPreferred" class="java.lang.String"/>
+	<parameter name="c_contactLeaveMessage" class="java.lang.String"/>
+	<parameter name="c_contactAlt" class="java.lang.String"/>
+	<parameter name="c_partnerOccupation" class="java.lang.String"/>
+	<parameter name="c_partnerEduLevel" class="java.lang.String"/>
+	<parameter name="c_partnerAge" class="java.lang.String"/>
+	<parameter name="c_dateOfBirth" class="java.lang.String"/>
+	<parameter name="c_age" class="java.lang.String"/>
+	<parameter name="c_interpreter" class="java.lang.String"/>
+	<parameter name="c_language" class="java.lang.String"/>
+	<parameter name="c_occupation" class="java.lang.String"/>
+	<parameter name="c_eduLevel" class="java.lang.String"/>
+	<parameter name="c_maritalStatus" class="java.lang.String"/>
+	<parameter name="c_sexualOrientation" class="java.lang.String"/>
+	<parameter name="c_hin" class="java.lang.String"/>
+	<parameter name="c_fileNo" class="java.lang.String"/>
+	<parameter name="c_disability" class="java.lang.String"/>
+	<parameter name="c_birthPlace" class="java.lang.String"/>
+	<parameter name="c_ba" class="java.lang.String"/>
+	<parameter name="c_newbornCareHospital" class="java.lang.String"/>
+	<parameter name="c_newbornCareCommunity" class="java.lang.String"/>
+	<parameter name="c_famPhys" class="java.lang.String"/>
+	<parameter name="c_allergies" class="java.lang.String"/>
+	<parameter name="c_meds" class="java.lang.String"/>
+	<parameter name="Parameter1" class="java.lang.String"/>
+	<parameter name="ps_lmp" class="java.lang.String"/>
+	<parameter name="ps_menCycle" class="java.lang.String"/>
+	<parameter name="ps_certain" class="java.lang.String"/>
+	<parameter name="ps_regular" class="java.lang.String"/>
+	<parameter name="ps_planned" class="java.lang.String"/>
+	<parameter name="ps_contracep" class="java.lang.String"/>
+	<parameter name="ps_lastUsed" class="java.lang.String"/>
+	<parameter name="ps_concep_assist" class="java.lang.String"/>
+	<parameter name="ps_concep_details" class="java.lang.String"/>
+	<parameter name="ps_edb" class="java.lang.String"/>
+	<parameter name="ps_edb_final" class="java.lang.String"/>
+	<parameter name="ps_edbByT1" class="java.lang.String"/>
+	<parameter name="ps_edbByT2" class="java.lang.String"/>
+	<parameter name="ps_edbByLMP" class="java.lang.String"/>
+	<parameter name="ps_edbByIUI" class="java.lang.String"/>
+	<parameter name="ps_iuiDate" class="java.lang.String"/>
+	<parameter name="ps_edbByEt" class="java.lang.String"/>
+	<parameter name="ps_etDate" class="java.lang.String"/>
+	<parameter name="ps_edbByOther" class="java.lang.String"/>
+	<parameter name="c_gravida" class="java.lang.String"/>
+	<parameter name="c_term" class="java.lang.String"/>
+	<parameter name="c_prem" class="java.lang.String"/>
+	<parameter name="c_abort" class="java.lang.String"/>
+	<parameter name="c_living" class="java.lang.String"/>
+	<parameter name="c_stillbirth" class="java.lang.String"/>
+	<parameter name="c_neonatal" class="java.lang.String"/>
+	<parameter name="oh_yearMonth1" class="java.lang.String"/>
+	<parameter name="oh_place1" class="java.lang.String"/>
+	<parameter name="oh_gest1" class="java.lang.String"/>
+	<parameter name="oh_length1" class="java.lang.String"/>
+	<parameter name="oh_birth_type1" class="java.lang.String"/>
+	<parameter name="oh_comments1" class="java.lang.String"/>
+	<parameter name="oh_sex1" class="java.lang.String"/>
+	<parameter name="oh_weight1" class="java.lang.String"/>
+	<parameter name="oh_breastfed1" class="java.lang.String"/>
+	<parameter name="oh_health1" class="java.lang.String"/>
+	<parameter name="oh_yearMonth2" class="java.lang.String"/>
+	<parameter name="oh_place2" class="java.lang.String"/>
+	<parameter name="oh_gest2" class="java.lang.String"/>
+	<parameter name="oh_length2" class="java.lang.String"/>
+	<parameter name="oh_birth_type2" class="java.lang.String"/>
+	<parameter name="oh_comments2" class="java.lang.String"/>
+	<parameter name="oh_sex2" class="java.lang.String"/>
+	<parameter name="oh_weight2" class="java.lang.String"/>
+	<parameter name="oh_breastfed2" class="java.lang.String"/>
+	<parameter name="oh_health2" class="java.lang.String"/>
+	<parameter name="oh_yearMonth3" class="java.lang.String"/>
+	<parameter name="oh_place3" class="java.lang.String"/>
+	<parameter name="oh_gest3" class="java.lang.String"/>
+	<parameter name="oh_length3" class="java.lang.String"/>
+	<parameter name="oh_birth_type3" class="java.lang.String"/>
+	<parameter name="oh_comments3" class="java.lang.String"/>
+	<parameter name="oh_sex3" class="java.lang.String"/>
+	<parameter name="oh_weight3" class="java.lang.String"/>
+	<parameter name="oh_breastfed3" class="java.lang.String"/>
+	<parameter name="oh_health3" class="java.lang.String"/>
+	<parameter name="oh_yearMonth4" class="java.lang.String"/>
+	<parameter name="oh_place4" class="java.lang.String"/>
+	<parameter name="oh_gest4" class="java.lang.String"/>
+	<parameter name="oh_length4" class="java.lang.String"/>
+	<parameter name="oh_birth_type4" class="java.lang.String"/>
+	<parameter name="oh_comments4" class="java.lang.String"/>
+	<parameter name="oh_sex4" class="java.lang.String"/>
+	<parameter name="oh_weight4" class="java.lang.String"/>
+	<parameter name="oh_breastfed4" class="java.lang.String"/>
+	<parameter name="oh_health4" class="java.lang.String"/>
+	<parameter name="oh_yearMonth5" class="java.lang.String"/>
+	<parameter name="oh_place5" class="java.lang.String"/>
+	<parameter name="oh_gest5" class="java.lang.String"/>
+	<parameter name="oh_length5" class="java.lang.String"/>
+	<parameter name="oh_birth_type5" class="java.lang.String"/>
+	<parameter name="oh_comments5" class="java.lang.String"/>
+	<parameter name="oh_sex5" class="java.lang.String"/>
+	<parameter name="oh_weight5" class="java.lang.String"/>
+	<parameter name="oh_breastfed5" class="java.lang.String"/>
+	<parameter name="oh_health5" class="java.lang.String"/>
+	<parameter name="oh_yearMonth6" class="java.lang.String"/>
+	<parameter name="oh_place6" class="java.lang.String"/>
+	<parameter name="oh_gest6" class="java.lang.String"/>
+	<parameter name="oh_length6" class="java.lang.String"/>
+	<parameter name="oh_birth_type6" class="java.lang.String"/>
+	<parameter name="oh_comments6" class="java.lang.String"/>
+	<parameter name="oh_sex6" class="java.lang.String"/>
+	<parameter name="oh_weight6" class="java.lang.String"/>
+	<parameter name="oh_breastfed6" class="java.lang.String"/>
+	<parameter name="oh_health6" class="java.lang.String"/>
+	<parameter name="oh_yearMonth7" class="java.lang.String"/>
+	<parameter name="oh_place7" class="java.lang.String"/>
+	<parameter name="oh_gest7" class="java.lang.String"/>
+	<parameter name="oh_length7" class="java.lang.String"/>
+	<parameter name="oh_birth_type7" class="java.lang.String"/>
+	<parameter name="oh_comments7" class="java.lang.String"/>
+	<parameter name="oh_sex7" class="java.lang.String"/>
+	<parameter name="oh_weight7" class="java.lang.String"/>
+	<parameter name="oh_breastfed7" class="java.lang.String"/>
+	<parameter name="oh_health7" class="java.lang.String"/>
+	<parameter name="mh_1" class="java.lang.String"/>
+	<parameter name="mh_2" class="java.lang.String"/>
+	<parameter name="mh_3" class="java.lang.String"/>
+	<parameter name="mh_4" class="java.lang.String"/>
+	<parameter name="mh_5" class="java.lang.String"/>
+	<parameter name="mh_6" class="java.lang.String"/>
+	<parameter name="mh_7" class="java.lang.String"/>
+	<parameter name="mh_8" class="java.lang.String"/>
+	<parameter name="mh_9" class="java.lang.String"/>
+	<parameter name="mh_10" class="java.lang.String"/>
+	<parameter name="mh_11" class="java.lang.String"/>
+	<parameter name="mh_12" class="java.lang.String"/>
+	<parameter name="mh_13" class="java.lang.String"/>
+	<parameter name="mh_14" class="java.lang.String"/>
+	<parameter name="mh_15" class="java.lang.String"/>
+	<parameter name="mh_16" class="java.lang.String"/>
+	<parameter name="mh_17" class="java.lang.String"/>
+	<parameter name="mh_18" class="java.lang.String"/>
+	<parameter name="mh_19" class="java.lang.String"/>
+	<parameter name="mh_20" class="java.lang.String"/>
+	<parameter name="mh_21" class="java.lang.String"/>
+	<parameter name="mh_22" class="java.lang.String"/>
+	<parameter name="mh_23" class="java.lang.String"/>
+	<parameter name="mh_24" class="java.lang.String"/>
+	<parameter name="mh_24_other" class="java.lang.String"/>
+	<parameter name="mh_25" class="java.lang.String"/>
+	<parameter name="mh_26_egg" class="java.lang.String"/>
+	<parameter name="mh_26_age" class="java.lang.String"/>
+	<parameter name="mh_26_sperm" class="java.lang.String"/>
+	<parameter name="mh_27" class="java.lang.String"/>
+	<parameter name="mh_27_2" class="java.lang.String"/>
+	<parameter name="mh_27_3" class="java.lang.String"/>
+	<parameter name="mh_27_4" class="java.lang.String"/>
+	<parameter name="mh_28" class="java.lang.String"/>
+	<parameter name="mh_28_2" class="java.lang.String"/>
+	<parameter name="mh_28_3" class="java.lang.String"/>
+	<parameter name="mh_29" class="java.lang.String"/>
+	<parameter name="mh_30" class="java.lang.String"/>
+	<parameter name="mh_31" class="java.lang.String"/>
+	<parameter name="mh_32" class="java.lang.String"/>
+	<parameter name="mh_32_2" class="java.lang.String"/>
+	<parameter name="mh_33" class="java.lang.String"/>
+	<parameter name="mh_34" class="java.lang.String"/>
+	<parameter name="mh_35" class="java.lang.String"/>
+	<parameter name="mh_35_other" class="java.lang.String"/>
+	<parameter name="mh_36" class="java.lang.String"/>
+	<parameter name="mh_36_2" class="java.lang.String"/>
+	<parameter name="mh_36_gad" class="java.lang.String"/>
+	<parameter name="mh_37" class="java.lang.String"/>
+	<parameter name="mh_37_2" class="java.lang.String"/>
+	<parameter name="mh_37_phq" class="java.lang.String"/>
+	<parameter name="mh_38" class="java.lang.String"/>
+	<parameter name="mh_39" class="java.lang.String"/>
+	<parameter name="mh_40" class="java.lang.String"/>
+	<parameter name="mh_41" class="java.lang.String"/>
+	<parameter name="mh_42" class="java.lang.String"/>
+	<parameter name="mh_42_cigs" class="java.lang.String"/>
+	<parameter name="mh_43" class="java.lang.String"/>
+	<parameter name="mh_43_2" class="java.lang.String"/>
+	<parameter name="mh_43_3" class="java.lang.String"/>
+	<parameter name="mh_43_4" class="java.lang.String"/>
+	<parameter name="mh_44" class="java.lang.String"/>
+	<parameter name="mh_45" class="java.lang.String"/>
+	<parameter name="mh_46" class="java.lang.String"/>
+	<parameter name="mh_47" class="java.lang.String"/>
+	<parameter name="mh_48" class="java.lang.String"/>
+	<parameter name="mh_49" class="java.lang.String"/>
+	<parameter name="mh_50" class="java.lang.String"/>
+	<parameter name="mh_51" class="java.lang.String"/>
+	<parameter name="mh_52" class="java.lang.String"/>
+	<parameter name="mh_53_other" class="java.lang.String"/>
+	<parameter name="mh_53" class="java.lang.String"/>
+	<parameter name="pg1_comments" class="java.lang.String"/>
+	<parameter name="pg1_completedBy" class="java.lang.String"/>
+	<parameter name="pg1_reviewedBy" class="java.lang.String"/>
+	<parameter name="pg1_signature" class="java.lang.String"/>
+	<parameter name="pg1_formDate" class="java.lang.String"/>
+	<parameter name="pg1_signature_mrp" class="java.lang.String"/>
+	<parameter name="pg1_formDate2" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<background>
+		<band height="792" splitType="Stretch">
+			<image>
+				<reportElement mode="Transparent" x="0" y="0" width="612" height="792" isRemoveLineWhenBlank="true" backcolor="#000000"/>
+				<imageExpression><![CDATA["D:\\OSCAR\\Development\\Perinatal\\page1.png"]]></imageExpression>
+			</image>
+			<textField isBlankWhenNull="true">
+				<reportElement x="45" y="72" width="148" height="13"/>
+				<textFieldExpression><![CDATA[$P{c_lastName}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="198" y="72" width="160" height="13"/>
+				<textFieldExpression><![CDATA[$P{c_firstName}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="45" y="92" width="191" height="15"/>
+				<textFieldExpression><![CDATA[$P{c_address}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="241" y="93" width="62" height="13"/>
+				<textFieldExpression><![CDATA[$P{c_apt}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="45" y="114" width="118" height="14"/>
+				<textFieldExpression><![CDATA[$P{c_city}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="167" y="114" width="78" height="14"/>
+				<textFieldExpression><![CDATA[$P{c_province}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="247" y="114" width="72" height="14"/>
+				<textFieldExpression><![CDATA[$P{c_postal}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="324" y="115" width="129" height="13"/>
+				<textFieldExpression><![CDATA[$P{c_partnerFirstName}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="456" y="115" width="136" height="13"/>
+				<textFieldExpression><![CDATA[$P{c_partnerLastName}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="45" y="157" width="57" height="15" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{c_dateOfBirth}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="145" y="158" width="103" height="14"/>
+				<textFieldExpression><![CDATA[$P{c_language}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="324" y="136" width="129" height="13"/>
+				<textFieldExpression><![CDATA[$P{c_partnerOccupation}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="456" y="136" width="110" height="13"/>
+				<textFieldExpression><![CDATA[$P{c_partnerEduLevel}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="570" y="136" width="22" height="13"/>
+				<textFieldExpression><![CDATA[$P{c_partnerAge}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="306" y="93" width="53" height="13"/>
+				<textFieldExpression><![CDATA[$P{c_buzzer}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="45" y="136" width="119" height="13"/>
+				<textFieldExpression><![CDATA[$P{c_contactPreferred}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="223" y="136" width="96" height="14"/>
+				<textFieldExpression><![CDATA[$P{c_contactAlt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="176" y="140" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{c_contactLeaveMessage}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="195" y="140" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{c_contactLeaveMessage}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="324" y="158" width="65" height="14"/>
+				<textFieldExpression><![CDATA[$P{c_occupation}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="390" y="158" width="63" height="14"/>
+				<textFieldExpression><![CDATA[$P{c_eduLevel}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="456" y="158" width="76" height="14"/>
+				<textFieldExpression><![CDATA[$P{c_maritalStatus}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="534" y="158" width="58" height="14"/>
+				<textFieldExpression><![CDATA[$P{c_sexualOrientation}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="104" y="158" width="38" height="14" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{c_age}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="45" y="180" width="89" height="14" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{c_hin}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="269" y="162" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{c_interpreter}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="288" y="162" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{c_interpreter}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="137" y="180" width="93" height="14" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{c_fileNo}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="324" y="180" width="129" height="14" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{c_birthPlace}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="80" y="200" width="100" height="14" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{c_newbornCareHospital}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="232" y="200" width="86" height="14" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{c_newbornCareCommunity}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="45" y="222" width="274" height="13" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="5"/>
+					<paragraph lineSpacingSize="1.0"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{c_allergies}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="324" y="200" width="268" height="14" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{c_famPhys}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="324" y="222" width="268" height="13" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="5"/>
+					<paragraph lineSpacingSize="1.0"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{c_meds}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="456" y="180" width="136" height="14" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{c_ba}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="287" y="183" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{c_disability}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="306" y="183" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{c_disability}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="61" y="246" width="71" height="13" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{ps_lmp}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="44" y="295" width="68" height="13" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{c_gravida}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="114" y="295" width="77" height="13" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{c_term}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="196" y="295" width="76" height="13" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{c_prem}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="275" y="295" width="76" height="13" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{c_abort}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="356" y="295" width="77" height="13" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{c_living}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="436" y="295" width="83" height="13" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{c_stillbirth}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="523" y="295" width="70" height="13" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{c_neonatal}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="290" y="259" width="49" height="13" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{ps_lastUsed}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="342" y="274" width="74" height="13" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{ps_edb_final}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="342" y="252" width="74" height="13" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{ps_edb}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="439" y="263" width="45" height="13" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{ps_iuiDate}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="550" y="263" width="43" height="13" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{ps_etDate}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="161" y="244" width="22" height="11" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{ps_menCycle}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="229" y="248" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{ps_certain}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="246" y="248" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{ps_certain}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="307" y="248" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{ps_regular}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="322" y="248" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{ps_regular}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="90" y="263" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{ps_planned}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="105" y="263" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{ps_planned}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="114" y="274" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{ps_concep_assist}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="129" y="274" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{ps_concep_assist}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="423" y="256" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{ps_edbByT1}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="455" y="256" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{ps_edbByT2}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="486" y="256" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{ps_edbByLMP}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="423" y="267" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{ps_edbByIUI}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="423" y="277" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{ps_edbByOther}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="490" y="266" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{ps_edbByEt}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="183" y="259" width="71" height="13" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{ps_contracep}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="176" y="272" width="163" height="15" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{ps_concep_details}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="44" y="335" width="26" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_yearMonth1}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="71" y="335" width="32" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_place1}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="105" y="335" width="19" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_gest1}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="126" y="335" width="24" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_length1}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="152" y="334" width="28" height="11" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_birth_type1}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="181" y="335" width="270" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_comments1}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="453" y="335" width="14" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_sex1}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="468" y="335" width="31" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_weight1}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="502" y="335" width="37" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_breastfed1}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="541" y="335" width="52" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_health1}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="44" y="346" width="26" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_yearMonth2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="71" y="346" width="32" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_place2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="105" y="346" width="19" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_gest2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="126" y="346" width="24" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_length2}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="152" y="345" width="28" height="11" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_birth_type2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="181" y="346" width="270" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_comments2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="453" y="346" width="14" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_sex2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="468" y="346" width="31" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_weight2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="502" y="346" width="37" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_breastfed2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="541" y="346" width="52" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_health2}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="44" y="357" width="26" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_yearMonth3}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="71" y="357" width="32" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_place3}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="105" y="357" width="19" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_gest3}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="126" y="357" width="24" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_length3}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="152" y="356" width="28" height="11" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_birth_type3}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="181" y="357" width="270" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_comments3}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="453" y="357" width="14" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_sex3}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="468" y="357" width="31" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_weight3}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="502" y="357" width="37" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_breastfed3}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="541" y="357" width="52" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_health3}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="44" y="368" width="26" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_yearMonth4}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="71" y="368" width="32" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_place4}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="105" y="368" width="19" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_gest4}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="126" y="368" width="24" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_length4}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="152" y="367" width="28" height="11" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_birth_type4}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="181" y="368" width="270" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_comments4}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="453" y="368" width="14" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_sex4}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="468" y="368" width="31" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_weight4}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="502" y="368" width="37" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_breastfed4}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="541" y="368" width="52" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_health4}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="44" y="379" width="26" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_yearMonth5}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="71" y="379" width="32" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_place5}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="105" y="379" width="19" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_gest5}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="126" y="379" width="24" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_length5}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="152" y="378" width="28" height="11" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_birth_type5}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="181" y="379" width="270" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_comments5}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="453" y="379" width="14" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_sex5}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="468" y="379" width="31" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_weight5}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="502" y="379" width="37" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_breastfed5}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="541" y="379" width="52" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_health5}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="44" y="390" width="26" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_yearMonth6}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="71" y="390" width="32" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_place6}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="105" y="390" width="19" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_gest6}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="126" y="390" width="24" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_length6}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="152" y="389" width="28" height="11" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_birth_type6}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="181" y="390" width="270" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_comments6}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="453" y="390" width="14" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_sex6}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="468" y="390" width="31" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_weight6}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="502" y="390" width="37" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_breastfed6}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="541" y="390" width="52" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_health6}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="44" y="400" width="26" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_yearMonth7}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="71" y="400" width="32" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_place7}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="105" y="400" width="19" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_gest7}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="126" y="400" width="24" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_length7}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="152" y="399" width="28" height="11" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_birth_type7}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="181" y="400" width="270" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_comments7}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="453" y="400" width="14" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_sex7}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="468" y="400" width="31" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_weight7}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="502" y="400" width="37" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_breastfed7}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="541" y="400" width="52" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{oh_health7}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="157" y="433" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_1}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="174" y="433" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_1}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="157" y="441" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_2}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="174" y="441" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_2}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="157" y="449" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_3}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="174" y="449" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_3}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="157" y="467" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_4}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="174" y="467" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_4}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="157" y="475" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_5}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="174" y="475" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_5}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="157" y="484" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_6}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="174" y="484" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_6}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="157" y="492" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_7}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="174" y="492" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_7}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="157" y="500" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_8}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="174" y="500" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_8}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="157" y="509" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_9}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="174" y="509" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_9}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="157" y="528" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_10}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="174" y="528" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_10}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="157" y="536" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_11}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="174" y="536" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_11}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="157" y="556" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_12}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="174" y="556" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_12}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="157" y="564" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_13}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="174" y="564" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_13}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="174" y="573" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_14}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="157" y="573" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_14}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="157" y="581" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_15}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="174" y="581" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_15}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="174" y="589" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_16}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="157" y="589" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_16}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="157" y="598" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_17}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="174" y="598" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_17}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="174" y="607" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_18}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="157" y="607" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_18}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="157" y="615" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_19}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="174" y="615" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_19}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="174" y="624" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_20}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="157" y="624" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_20}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="157" y="632" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_21}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="174" y="632" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_21}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="174" y="640" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_22}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="157" y="640" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_22}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="157" y="648" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_23}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="174" y="648" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_23}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="157" y="657" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_24}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="174" y="657" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_24}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="407" y="433" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_1}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="390" y="433" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_1}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="77" y="655" width="75" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{mh_24_other}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="224" y="472" width="75" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{mh_26_egg}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="224" y="481" width="75" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{mh_26_sperm}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="318" y="472" width="33" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{mh_26_age}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="389" y="492" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_27}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="406" y="492" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_27}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="389" y="501" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_27_2}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="406" y="501" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_27_2}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="390" y="517" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_27_3}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="407" y="517" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_27_3}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="388" y="534" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_27_4}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="405" y="534" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_27_4}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="389" y="551" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_28}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="406" y="551" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_28}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="390" y="567" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_28_2}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="407" y="567" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_28_2}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="390" y="584" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_28_3}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="407" y="584" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_28_3}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="390" y="605" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_29}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="407" y="605" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_29}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="390" y="614" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_30}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="407" y="614" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_30}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="390" y="623" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_31}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="407" y="623" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_31}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="235" y="632" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_32}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="252" y="632" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_32}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="297" y="632" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_32_2}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="314" y="632" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_32_2}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="389" y="641" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_33}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="406" y="641" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_33}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="390" y="650" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_34}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="407" y="650" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_34}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="389" y="659" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_35}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="406" y="659" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_35}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="225" y="656" width="155" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{mh_35_other}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="486" y="433" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_36}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="503" y="433" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_36}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="564" y="433" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_36_2}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="581" y="433" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_36_2}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="546" y="438" width="46" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{mh_36_gad}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="486" y="449" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_37}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="503" y="449" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_37}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="564" y="449" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_37_2}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="581" y="449" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_37_2}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="546" y="455" width="46" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{mh_37_phq}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="564" y="466" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_38}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="581" y="466" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_38}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="581" y="475" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_39}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="564" y="475" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_39}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="564" y="483" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_40}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="581" y="483" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_40}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="581" y="491" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_41}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="564" y="491" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_41}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="564" y="508" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_42}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="581" y="508" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_42}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="546" y="513" width="24" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{mh_42_cigs}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="564" y="525" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_43}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="581" y="525" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_43}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="546" y="530" width="46" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{mh_43_2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="539" y="539" width="24" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{mh_43_3}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="546" y="547" width="46" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{mh_43_4}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="564" y="567" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_44}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="581" y="567" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_44}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="581" y="559" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_45}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="564" y="559" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_45}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="564" y="587" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_46}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="581" y="587" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_46}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="581" y="596" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_47}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="564" y="596" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_47}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="563" y="605" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_48}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="580" y="605" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_48}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="581" y="614" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_49}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="564" y="614" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_49}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="564" y="623" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_50}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="581" y="623" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_50}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="581" y="632" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_51}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="564" y="632" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_51}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="564" y="641" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_52}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="581" y="641" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_52}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="564" y="659" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_53}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="581" y="659" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{mh_53}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="451" y="656" width="99" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{mh_53_other}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="43" y="676" width="551" height="68" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{pg1_comments}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="95" y="744" width="221" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{pg1_completedBy}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="370" y="744" width="222" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{pg1_reviewedBy}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="77" y="760" width="128" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{pg1_signature}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="367" y="760" width="113" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{pg1_signature_mrp}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="500" y="760" width="92" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{pg1_formDate2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="223" y="760" width="92" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{pg1_formDate}]]></textFieldExpression>
+			</textField>
+		</band>
+	</background>
+</jasperReport>

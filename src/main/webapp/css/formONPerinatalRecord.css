@@ -1,0 +1,160 @@
+body {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    height: 100%;
+    max-height: 100%;
+}
+
+* html body {
+    padding: 0 0 0 200px;
+}
+
+* html #maincontent {
+    height: 100%;
+    width: 100%;
+}
+
+input[ondblclick]:enabled {
+    background-color: #ccccff;
+}
+
+label {
+    font-weight: normal;
+}
+
+ul.inline-list li{
+    display: inline;
+    margin-right: 50px;
+}
+
+#framecontent {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 190px;
+    height: 100%;
+    overflow: hidden;
+    background: #000080;
+    color: #fff;
+}
+
+#maincontent {
+    position: fixed;
+    top: 0;
+    left: 190px;
+    right: 0;
+    bottom: 0;
+    overflow: auto;
+    background-color: #d5eff8;
+}
+
+#info {
+    background-color: #bd486e;
+}
+
+#print-log-dialog {
+    background-color: #fff;
+}
+
+#prompts {
+    background-color: #6ebd48;
+}
+
+#warnings {
+    background-color: #bd486e;
+}
+
+#visitChecklist {
+    background-color: #bd486e;
+}
+
+.characterCount {
+    text-align: right;
+}
+
+.fg-menu {
+    overflow:scroll;
+    overflow-x: hidden;
+    max-height:400px;
+}
+
+
+.innertube {
+    margin: 5px;
+}
+
+.menu {
+    border: 1px solid #0000;
+    width: 100%;
+    color: #0000;
+}
+
+.no-border-sides,
+.no-border-sides>td,
+.no-border-sides>th,
+.no-border-sides>tr>td,
+.no-border-sides>tr>th {
+    border-left: none;
+    border-right: none;
+}
+
+.sectionHeader,
+.sectionHeader>th {
+    background-color: #dbdbdb;
+    font-weight: bold;
+    text-align: center;
+    width: -webkit-fill-available;
+}
+
+
+.subsection,
+.subsection>th {
+    background-color: #ededed;
+    border-bottom: 1px solid;
+    border-top: 1px solid;
+    font-weight: bold;
+    text-align: center;
+}
+
+.title {
+    background-color: #486ebd;
+    color: #fff;
+    font-weight: bold;
+}
+
+.title, 
+.title th {
+    text-align: center;
+}
+
+.text-small table,
+.text-small td,
+div.text-small,
+label.text-small,
+span.text-small,
+tbody.text-small {
+    font-size: 9pt;
+}
+
+.ui-widget-overlay {
+    background: #000;
+    opacity: .7;
+    -moz-opacity: 0.7;
+    filter: alpha(opacity=70);
+}
+
+.ultrasound-3 {
+    display: flex;
+    flex-flow: row nowrap;
+}
+
+.ultrasound-3 > input {
+    width: 33.33%;
+}
+
+.ultrasound-3 > input + input {
+    margin-left: 5px;
+}

@@ -1,0 +1,2270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 4.5.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="perinatal" pageWidth="612" pageHeight="792" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<parameter name="background_image" class="java.lang.String">
+		<parameterDescription><![CDATA[The background image of the current page]]></parameterDescription>
+	</parameter>
+	<parameter name="c_lastName" class="java.lang.String">
+		<parameterDescription><![CDATA[Last name of the patient]]></parameterDescription>
+	</parameter>
+	<parameter name="c_firstName" class="java.lang.String">
+		<parameterDescription><![CDATA[First name of the patient]]></parameterDescription>
+	</parameter>
+	<parameter name="c_ba" class="java.lang.String"/>
+	<parameter name="c_newbornCareHospital" class="java.lang.String"/>
+	<parameter name="c_newbornCareCommunity" class="java.lang.String"/>
+	<parameter name="c_allergies" class="java.lang.String"/>
+	<parameter name="c_gravida" class="java.lang.String"/>
+	<parameter name="c_term" class="java.lang.String"/>
+	<parameter name="c_prem" class="java.lang.String"/>
+	<parameter name="c_abort" class="java.lang.String"/>
+	<parameter name="c_living" class="java.lang.String"/>
+	<parameter name="c_stillbirth" class="java.lang.String"/>
+	<parameter name="ps_edb_final" class="java.lang.String"/>
+	<parameter name="c_famPhys" class="java.lang.String"/>
+	<parameter name="c_meds" class="java.lang.String"/>
+	<parameter name="rf_issues1" class="java.lang.String"/>
+	<parameter name="rf_plan1" class="java.lang.String"/>
+	<parameter name="rf_issues2" class="java.lang.String"/>
+	<parameter name="rf_plan2" class="java.lang.String"/>
+	<parameter name="rf_issues3" class="java.lang.String"/>
+	<parameter name="rf_plan3" class="java.lang.String"/>
+	<parameter name="rf_issues4" class="java.lang.String"/>
+	<parameter name="rf_plan4" class="java.lang.String"/>
+	<parameter name="rf_issues5" class="java.lang.String"/>
+	<parameter name="rf_plan5" class="java.lang.String"/>
+	<parameter name="rf_issues6" class="java.lang.String"/>
+	<parameter name="rf_plan6" class="java.lang.String"/>
+	<parameter name="sc_lowASA" class="java.lang.String"/>
+	<parameter name="sc_ptb" class="java.lang.String"/>
+	<parameter name="sc_hsv" class="java.lang.String"/>
+	<parameter name="gbi_swab" class="java.lang.String"/>
+	<parameter name="gbi_other" class="java.lang.String"/>
+	<parameter name="sc_social" class="java.lang.String"/>
+	<parameter name="ri_rhNeg" class="java.lang.String"/>
+	<parameter name="ri_rh_given" class="java.lang.String"/>
+	<parameter name="ri_rh_given2" class="java.lang.String"/>
+	<parameter name="ri_flu_discussed" class="java.lang.String"/>
+	<parameter name="ri_flu" class="java.lang.String"/>
+	<parameter name="ri_per_discussed" class="java.lang.String"/>
+	<parameter name="ri_per_utd" class="java.lang.String"/>
+	<parameter name="ri_per_utdYear" class="java.lang.String"/>
+	<parameter name="ri_per" class="java.lang.String"/>
+	<parameter name="ri_ppv_rub" class="java.lang.String"/>
+	<parameter name="ri_ppv_other" class="java.lang.String"/>
+	<parameter name="ri_ppv_other_name" class="java.lang.String"/>
+	<parameter name="ri_nn_hb" class="java.lang.String"/>
+	<parameter name="ri_nn_other" class="java.lang.String"/>
+	<parameter name="pe_wt" class="java.lang.String"/>
+	<parameter name="pe_bmi" class="java.lang.String"/>
+	<parameter name="sv_date" class="java.lang.String"/>
+	<parameter name="sv_ga" class="java.lang.String"/>
+	<parameter name="sv_wt" class="java.lang.String"/>
+	<parameter name="sv_bp" class="java.lang.String"/>
+	<parameter name="sv_urine" class="java.lang.String"/>
+	<parameter name="sv_sfh" class="java.lang.String"/>
+	<parameter name="sv_pres" class="java.lang.String"/>
+	<parameter name="sv_fhr" class="java.lang.String"/>
+	<parameter name="sv_fm" class="java.lang.String"/>
+	<parameter name="sv_comments" class="java.lang.String"/>
+	<parameter name="sv_next" class="java.lang.String"/>
+	<parameter name="sv_initial" class="java.lang.String"/>
+	<parameter name="sv_date1" class="java.lang.String"/>
+	<parameter name="sv_ga1" class="java.lang.String"/>
+	<parameter name="sv_wt1" class="java.lang.String"/>
+	<parameter name="sv_bp1" class="java.lang.String"/>
+	<parameter name="sv_urine1" class="java.lang.String"/>
+	<parameter name="sv_sfh1" class="java.lang.String"/>
+	<parameter name="sv_pres1" class="java.lang.String"/>
+	<parameter name="sv_fhr1" class="java.lang.String"/>
+	<parameter name="sv_fm1" class="java.lang.String"/>
+	<parameter name="sv_comments1" class="java.lang.String"/>
+	<parameter name="sv_next1" class="java.lang.String"/>
+	<parameter name="sv_initial1" class="java.lang.String"/>
+	<parameter name="sv_date2" class="java.lang.String"/>
+	<parameter name="sv_ga2" class="java.lang.String"/>
+	<parameter name="sv_wt2" class="java.lang.String"/>
+	<parameter name="sv_bp2" class="java.lang.String"/>
+	<parameter name="sv_urine2" class="java.lang.String"/>
+	<parameter name="sv_sfh2" class="java.lang.String"/>
+	<parameter name="sv_pres2" class="java.lang.String"/>
+	<parameter name="sv_fhr2" class="java.lang.String"/>
+	<parameter name="sv_fm2" class="java.lang.String"/>
+	<parameter name="sv_comments2" class="java.lang.String"/>
+	<parameter name="sv_next2" class="java.lang.String"/>
+	<parameter name="sv_initial2" class="java.lang.String"/>
+	<parameter name="sv_date3" class="java.lang.String"/>
+	<parameter name="sv_ga3" class="java.lang.String"/>
+	<parameter name="sv_wt3" class="java.lang.String"/>
+	<parameter name="sv_bp3" class="java.lang.String"/>
+	<parameter name="sv_urine3" class="java.lang.String"/>
+	<parameter name="sv_sfh3" class="java.lang.String"/>
+	<parameter name="sv_pres3" class="java.lang.String"/>
+	<parameter name="sv_fhr3" class="java.lang.String"/>
+	<parameter name="sv_fm3" class="java.lang.String"/>
+	<parameter name="sv_comments3" class="java.lang.String"/>
+	<parameter name="sv_next3" class="java.lang.String"/>
+	<parameter name="sv_initial3" class="java.lang.String"/>
+	<parameter name="sv_date4" class="java.lang.String"/>
+	<parameter name="sv_ga4" class="java.lang.String"/>
+	<parameter name="sv_wt4" class="java.lang.String"/>
+	<parameter name="sv_bp4" class="java.lang.String"/>
+	<parameter name="sv_urine4" class="java.lang.String"/>
+	<parameter name="sv_sfh4" class="java.lang.String"/>
+	<parameter name="sv_pres4" class="java.lang.String"/>
+	<parameter name="sv_fhr4" class="java.lang.String"/>
+	<parameter name="sv_fm4" class="java.lang.String"/>
+	<parameter name="sv_comments4" class="java.lang.String"/>
+	<parameter name="sv_next4" class="java.lang.String"/>
+	<parameter name="sv_initial4" class="java.lang.String"/>
+	<parameter name="sv_date5" class="java.lang.String"/>
+	<parameter name="sv_ga5" class="java.lang.String"/>
+	<parameter name="sv_wt5" class="java.lang.String"/>
+	<parameter name="sv_bp5" class="java.lang.String"/>
+	<parameter name="sv_urine5" class="java.lang.String"/>
+	<parameter name="sv_sfh5" class="java.lang.String"/>
+	<parameter name="sv_pres5" class="java.lang.String"/>
+	<parameter name="sv_fhr5" class="java.lang.String"/>
+	<parameter name="sv_fm5" class="java.lang.String"/>
+	<parameter name="sv_comments5" class="java.lang.String"/>
+	<parameter name="sv_next5" class="java.lang.String"/>
+	<parameter name="sv_initial5" class="java.lang.String"/>
+	<parameter name="sv_date6" class="java.lang.String"/>
+	<parameter name="sv_ga6" class="java.lang.String"/>
+	<parameter name="sv_wt6" class="java.lang.String"/>
+	<parameter name="sv_bp6" class="java.lang.String"/>
+	<parameter name="sv_urine6" class="java.lang.String"/>
+	<parameter name="sv_sfh6" class="java.lang.String"/>
+	<parameter name="sv_pres6" class="java.lang.String"/>
+	<parameter name="sv_fhr6" class="java.lang.String"/>
+	<parameter name="sv_fm6" class="java.lang.String"/>
+	<parameter name="sv_comments6" class="java.lang.String"/>
+	<parameter name="sv_next6" class="java.lang.String"/>
+	<parameter name="sv_initial6" class="java.lang.String"/>
+	<parameter name="sv_date7" class="java.lang.String"/>
+	<parameter name="sv_ga7" class="java.lang.String"/>
+	<parameter name="sv_wt7" class="java.lang.String"/>
+	<parameter name="sv_bp7" class="java.lang.String"/>
+	<parameter name="sv_urine7" class="java.lang.String"/>
+	<parameter name="sv_sfh7" class="java.lang.String"/>
+	<parameter name="sv_pres7" class="java.lang.String"/>
+	<parameter name="sv_fhr7" class="java.lang.String"/>
+	<parameter name="sv_fm7" class="java.lang.String"/>
+	<parameter name="sv_comments7" class="java.lang.String"/>
+	<parameter name="sv_next7" class="java.lang.String"/>
+	<parameter name="sv_initial7" class="java.lang.String"/>
+	<parameter name="sv_date8" class="java.lang.String"/>
+	<parameter name="sv_ga8" class="java.lang.String"/>
+	<parameter name="sv_wt8" class="java.lang.String"/>
+	<parameter name="sv_bp8" class="java.lang.String"/>
+	<parameter name="sv_urine8" class="java.lang.String"/>
+	<parameter name="sv_sfh8" class="java.lang.String"/>
+	<parameter name="sv_pres8" class="java.lang.String"/>
+	<parameter name="sv_fhr8" class="java.lang.String"/>
+	<parameter name="sv_fm8" class="java.lang.String"/>
+	<parameter name="sv_comments8" class="java.lang.String"/>
+	<parameter name="sv_next8" class="java.lang.String"/>
+	<parameter name="sv_initial8" class="java.lang.String"/>
+	<parameter name="sv_date9" class="java.lang.String"/>
+	<parameter name="sv_ga9" class="java.lang.String"/>
+	<parameter name="sv_wt9" class="java.lang.String"/>
+	<parameter name="sv_bp9" class="java.lang.String"/>
+	<parameter name="sv_urine9" class="java.lang.String"/>
+	<parameter name="sv_sfh9" class="java.lang.String"/>
+	<parameter name="sv_pres9" class="java.lang.String"/>
+	<parameter name="sv_fhr9" class="java.lang.String"/>
+	<parameter name="sv_fm9" class="java.lang.String"/>
+	<parameter name="sv_comments9" class="java.lang.String"/>
+	<parameter name="sv_next9" class="java.lang.String"/>
+	<parameter name="sv_initial9" class="java.lang.String"/>
+	<parameter name="sv_date10" class="java.lang.String"/>
+	<parameter name="sv_ga10" class="java.lang.String"/>
+	<parameter name="sv_wt10" class="java.lang.String"/>
+	<parameter name="sv_bp10" class="java.lang.String"/>
+	<parameter name="sv_urine10" class="java.lang.String"/>
+	<parameter name="sv_sfh10" class="java.lang.String"/>
+	<parameter name="sv_pres10" class="java.lang.String"/>
+	<parameter name="sv_fhr10" class="java.lang.String"/>
+	<parameter name="sv_fm10" class="java.lang.String"/>
+	<parameter name="sv_comments10" class="java.lang.String"/>
+	<parameter name="sv_next10" class="java.lang.String"/>
+	<parameter name="sv_initial10" class="java.lang.String"/>
+	<parameter name="sv_date11" class="java.lang.String"/>
+	<parameter name="sv_ga11" class="java.lang.String"/>
+	<parameter name="sv_wt11" class="java.lang.String"/>
+	<parameter name="sv_bp11" class="java.lang.String"/>
+	<parameter name="sv_urine11" class="java.lang.String"/>
+	<parameter name="sv_sfh11" class="java.lang.String"/>
+	<parameter name="sv_pres11" class="java.lang.String"/>
+	<parameter name="sv_fhr11" class="java.lang.String"/>
+	<parameter name="sv_fm11" class="java.lang.String"/>
+	<parameter name="sv_comments11" class="java.lang.String"/>
+	<parameter name="sv_next11" class="java.lang.String"/>
+	<parameter name="sv_initial11" class="java.lang.String"/>
+	<parameter name="sv_date12" class="java.lang.String"/>
+	<parameter name="sv_ga12" class="java.lang.String"/>
+	<parameter name="sv_wt12" class="java.lang.String"/>
+	<parameter name="sv_bp12" class="java.lang.String"/>
+	<parameter name="sv_urine12" class="java.lang.String"/>
+	<parameter name="sv_sfh12" class="java.lang.String"/>
+	<parameter name="sv_pres12" class="java.lang.String"/>
+	<parameter name="sv_fhr12" class="java.lang.String"/>
+	<parameter name="sv_fm12" class="java.lang.String"/>
+	<parameter name="sv_comments12" class="java.lang.String"/>
+	<parameter name="sv_next12" class="java.lang.String"/>
+	<parameter name="sv_initial12" class="java.lang.String"/>
+	<parameter name="sv_date13" class="java.lang.String"/>
+	<parameter name="sv_ga13" class="java.lang.String"/>
+	<parameter name="sv_wt13" class="java.lang.String"/>
+	<parameter name="sv_bp13" class="java.lang.String"/>
+	<parameter name="sv_urine13" class="java.lang.String"/>
+	<parameter name="sv_sfh13" class="java.lang.String"/>
+	<parameter name="sv_pres13" class="java.lang.String"/>
+	<parameter name="sv_fhr13" class="java.lang.String"/>
+	<parameter name="sv_fm13" class="java.lang.String"/>
+	<parameter name="sv_comments13" class="java.lang.String"/>
+	<parameter name="sv_next13" class="java.lang.String"/>
+	<parameter name="sv_initial13" class="java.lang.String"/>
+	<parameter name="sv_date14" class="java.lang.String"/>
+	<parameter name="sv_ga14" class="java.lang.String"/>
+	<parameter name="sv_wt14" class="java.lang.String"/>
+	<parameter name="sv_bp14" class="java.lang.String"/>
+	<parameter name="sv_urine14" class="java.lang.String"/>
+	<parameter name="sv_sfh14" class="java.lang.String"/>
+	<parameter name="sv_pres14" class="java.lang.String"/>
+	<parameter name="sv_fhr14" class="java.lang.String"/>
+	<parameter name="sv_fm14" class="java.lang.String"/>
+	<parameter name="sv_comments14" class="java.lang.String"/>
+	<parameter name="sv_next14" class="java.lang.String"/>
+	<parameter name="sv_initial14" class="java.lang.String"/>
+	<parameter name="sv_date15" class="java.lang.String"/>
+	<parameter name="sv_ga15" class="java.lang.String"/>
+	<parameter name="sv_wt15" class="java.lang.String"/>
+	<parameter name="sv_bp15" class="java.lang.String"/>
+	<parameter name="sv_urine15" class="java.lang.String"/>
+	<parameter name="sv_sfh15" class="java.lang.String"/>
+	<parameter name="sv_pres15" class="java.lang.String"/>
+	<parameter name="sv_fhr15" class="java.lang.String"/>
+	<parameter name="sv_fm15" class="java.lang.String"/>
+	<parameter name="sv_comments15" class="java.lang.String"/>
+	<parameter name="sv_next15" class="java.lang.String"/>
+	<parameter name="sv_initial15" class="java.lang.String"/>
+	<parameter name="sv_date16" class="java.lang.String"/>
+	<parameter name="sv_ga16" class="java.lang.String"/>
+	<parameter name="sv_wt16" class="java.lang.String"/>
+	<parameter name="sv_bp16" class="java.lang.String"/>
+	<parameter name="sv_urine16" class="java.lang.String"/>
+	<parameter name="sv_sfh16" class="java.lang.String"/>
+	<parameter name="sv_pres16" class="java.lang.String"/>
+	<parameter name="sv_fhr16" class="java.lang.String"/>
+	<parameter name="sv_fm16" class="java.lang.String"/>
+	<parameter name="sv_comments16" class="java.lang.String"/>
+	<parameter name="sv_next16" class="java.lang.String"/>
+	<parameter name="sv_initial16" class="java.lang.String"/>
+	<parameter name="trim1_nausea" class="java.lang.String"/>
+	<parameter name="trim1_routineCare" class="java.lang.String"/>
+	<parameter name="trim1_safety" class="java.lang.String"/>
+	<parameter name="trim1_weightGain" class="java.lang.String"/>
+	<parameter name="trim1_bf" class="java.lang.String"/>
+	<parameter name="trim1_activity" class="java.lang.String"/>
+	<parameter name="trim1_travel" class="java.lang.String"/>
+	<parameter name="trim1_seatbelt" class="java.lang.String"/>
+	<parameter name="trim1_qis" class="java.lang.String"/>
+	<parameter name="trim1_sexualActi" class="java.lang.String"/>
+	<parameter name="trim1_vbac" class="java.lang.String"/>
+	<parameter name="trim2_classes" class="java.lang.String"/>
+	<parameter name="trim2_preterm" class="java.lang.String"/>
+	<parameter name="trim2_prom" class="java.lang.String"/>
+	<parameter name="trim2_bleed" class="java.lang.String"/>
+	<parameter name="trim2_fetalMove" class="java.lang.String"/>
+	<parameter name="trim2_mental" class="java.lang.String"/>
+	<parameter name="trim2_vbac" class="java.lang.String"/>
+	<parameter name="trim3_fetalMove" class="java.lang.String"/>
+	<parameter name="trim3_workPlan" class="java.lang.String"/>
+	<parameter name="trim3_birthPlan" class="java.lang.String"/>
+	<parameter name="trim3_tob" class="java.lang.String"/>
+	<parameter name="trim3_admission" class="java.lang.String"/>
+	<parameter name="trim3_mental" class="java.lang.String"/>
+	<parameter name="trim3_bf" class="java.lang.String"/>
+	<parameter name="trim3_contra" class="java.lang.String"/>
+	<parameter name="trim3_care" class="java.lang.String"/>
+	<parameter name="trim3_planning" class="java.lang.String"/>
+	<parameter name="trim3_postpartum" class="java.lang.String"/>
+	<parameter name="pg3_comments" class="java.lang.String"/>
+	<parameter name="hospitalCopy" class="java.lang.String"/>
+	<parameter name="ptCopy" class="java.lang.String"/>
+	<parameter name="name1" class="java.lang.String"/>
+	<parameter name="name2" class="java.lang.String"/>
+	<parameter name="name3" class="java.lang.String"/>
+	<parameter name="name4" class="java.lang.String"/>
+	<parameter name="name5" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<background>
+		<band height="792" splitType="Stretch">
+			<image>
+				<reportElement mode="Transparent" x="0" y="0" width="612" height="792" isRemoveLineWhenBlank="true" backcolor="#000000"/>
+				<imageExpression><![CDATA[$P{background_image}]]></imageExpression>
+			</image>
+			<textField isBlankWhenNull="true">
+				<reportElement x="46" y="74" width="145" height="13"/>
+				<textFieldExpression><![CDATA[$P{c_lastName}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="193" y="74" width="166" height="13"/>
+				<textFieldExpression><![CDATA[$P{c_firstName}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="44" y="94" width="314" height="14" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{c_ba}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="85" y="116" width="102" height="14" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{c_newbornCareHospital}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="240" y="116" width="76" height="14" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{c_newbornCareCommunity}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="44" y="138" width="272" height="14" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{c_famPhys}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="44" y="160" width="29" height="13" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{c_gravida}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="75" y="160" width="35" height="13" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{c_term}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="112" y="160" width="35" height="13" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{c_prem}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="148" y="160" width="35" height="13" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{c_abort}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="185" y="160" width="34" height="13" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{c_living}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="222" y="160" width="31" height="13" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{c_stillbirth}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="258" y="162" width="57" height="11" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{ps_edb_final}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="134" y="288" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{sc_lowASA}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="318" y="118" width="272" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{c_allergies}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="318" y="140" width="272" height="32" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{c_meds}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="44" y="187" width="212" height="14" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{rf_issues1}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="259" y="187" width="332" height="14" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{rf_plan1}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="259" y="200" width="332" height="14" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{rf_plan2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="44" y="200" width="212" height="14" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{rf_issues2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="259" y="214" width="332" height="14" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{rf_plan3}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="44" y="214" width="212" height="14" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{rf_issues3}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="259" y="227" width="332" height="14" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{rf_plan4}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="44" y="227" width="212" height="14" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{rf_issues4}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="259" y="241" width="332" height="14" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{rf_plan5}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="44" y="241" width="212" height="14" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{rf_issues5}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="259" y="254" width="332" height="14" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{rf_plan6}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="44" y="254" width="212" height="14" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{rf_issues6}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="297" y="288" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{sc_ptb}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="404" y="288" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{sc_hsv}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="514" y="290" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{gbi_swab}.equals("pos")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="538" y="290" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{gbi_swab}.equals("neg")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="562" y="303" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{gbi_other}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="579" y="303" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{gbi_other}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="45" y="304" width="398" height="14" backcolor="#FFFFFF"/>
+				<textFieldExpression><![CDATA[$P{sc_social}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="84" y="336" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{ri_rhNeg}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="100" y="341" width="58" height="11" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{ri_rh_given}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="120" y="350" width="54" height="11" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{ri_rh_given2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="183" y="349" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{ri_flu}.equals("r")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="229" y="349" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{ri_flu}.equals("d")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="256" y="338" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{ri_flu_discussed}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="319" y="344" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{ri_per_utd}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="334" y="344" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{ri_per_utd}.equals("N")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="352" y="335" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{ri_per_discussed}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="361" y="353" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{ri_per}.equals("d")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="315" y="353" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{ri_per}.equals("r")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="367" y="341" width="30" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{ri_per_utdYear}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="404" y="344" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{ri_ppv_rub}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="404" y="353" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{ri_ppv_other}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="521" y="343" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{ri_nn_hb}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="521" y="352" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{ri_nn_other}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="430" y="350" width="84" height="10" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{ri_ppv_other_name}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="45" y="396" width="56" height="11" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_date1}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="102" y="395" width="32" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_ga1}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="137" y="395" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_wt1}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="165" y="395" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_bp1}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="193" y="395" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_urine1}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="222" y="395" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_sfh1}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="250" y="395" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_pres1}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="278" y="395" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_fhr1}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="306" y="395" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_fm1}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="335" y="395" width="194" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_comments1}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="531" y="395" width="28" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_next1}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="562" y="395" width="30" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_initial1}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="45" y="409" width="56" height="11" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_date2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="102" y="408" width="32" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_ga2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="137" y="408" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_wt2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="165" y="408" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_bp2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="193" y="408" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_urine2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="222" y="408" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_sfh2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="250" y="408" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_pres2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="278" y="408" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_fhr2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="306" y="408" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_fm2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="335" y="408" width="194" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_comments2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="531" y="408" width="28" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_next2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="562" y="408" width="30" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_initial2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="45" y="422" width="56" height="11" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_date3}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="102" y="421" width="32" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_ga3}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="137" y="421" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_wt3}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="165" y="421" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_bp3}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="193" y="421" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_urine3}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="222" y="421" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_sfh3}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="250" y="421" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_pres3}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="278" y="421" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_fhr3}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="306" y="421" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_fm3}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="335" y="421" width="194" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_comments3}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="531" y="421" width="28" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_next3}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="562" y="421" width="30" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_initial3}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="45" y="435" width="56" height="11" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_date4}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="102" y="435" width="32" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_ga4}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="137" y="435" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_wt4}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="165" y="435" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_bp4}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="193" y="435" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_urine4}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="222" y="435" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_sfh4}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="250" y="435" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_pres4}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="278" y="435" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_fhr4}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="306" y="435" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_fm4}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="335" y="435" width="194" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_comments4}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="531" y="435" width="28" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_next4}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="562" y="435" width="30" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_initial4}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="45" y="449" width="56" height="11" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_date5}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="102" y="448" width="32" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_ga5}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="137" y="448" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_wt5}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="165" y="448" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_bp5}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="193" y="448" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_urine5}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="222" y="448" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_sfh5}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="250" y="448" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_pres5}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="278" y="448" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_fhr5}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="306" y="448" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_fm5}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="335" y="448" width="194" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_comments5}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="531" y="448" width="28" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_next5}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="562" y="448" width="30" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_initial5}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="45" y="462" width="56" height="11" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_date6}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="102" y="461" width="32" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_ga6}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="137" y="461" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_wt6}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="165" y="461" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_bp6}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="193" y="461" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_urine6}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="222" y="461" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_sfh6}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="250" y="461" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_pres6}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="278" y="461" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_fhr6}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="306" y="461" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_fm6}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="335" y="461" width="194" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_comments6}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="531" y="461" width="28" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_next6}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="562" y="461" width="30" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_initial6}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="45" y="475" width="56" height="11" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_date7}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="102" y="475" width="32" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_ga7}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="137" y="475" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_wt7}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="165" y="475" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_bp7}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="193" y="475" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_urine7}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="222" y="475" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_sfh7}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="250" y="475" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_pres7}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="278" y="475" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_fhr7}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="306" y="475" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_fm7}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="335" y="475" width="194" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_comments7}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="531" y="475" width="28" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_next7}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="562" y="475" width="30" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_initial7}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="45" y="489" width="56" height="11" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_date8}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="102" y="488" width="32" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_ga8}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="137" y="488" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_wt8}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="165" y="488" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_bp8}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="193" y="488" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_urine8}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="222" y="488" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_sfh8}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="250" y="488" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_pres8}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="278" y="488" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_fhr8}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="306" y="488" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_fm8}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="335" y="488" width="194" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_comments8}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="531" y="488" width="28" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_next8}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="562" y="488" width="30" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_initial8}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="45" y="502" width="56" height="11" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_date9}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="102" y="502" width="32" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_ga9}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="137" y="502" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_wt9}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="165" y="502" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_bp9}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="193" y="502" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_urine9}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="222" y="502" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_sfh9}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="250" y="502" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_pres9}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="278" y="502" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_fhr9}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="306" y="502" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_fm9}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="335" y="502" width="194" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_comments9}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="531" y="502" width="28" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_next9}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="562" y="502" width="30" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_initial9}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="45" y="515" width="56" height="11" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_date10}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="102" y="515" width="32" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_ga10}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="137" y="515" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_wt10}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="165" y="515" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_bp10}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="193" y="515" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_urine10}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="222" y="515" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_sfh10}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="250" y="515" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_pres10}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="278" y="515" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_fhr10}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="306" y="515" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_fm10}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="335" y="515" width="194" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_comments10}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="531" y="515" width="28" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_next10}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="562" y="515" width="30" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_initial10}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="45" y="529" width="56" height="11" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_date11}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="102" y="528" width="32" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_ga11}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="137" y="528" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_wt11}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="165" y="528" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_bp11}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="193" y="528" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_urine11}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="222" y="528" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_sfh11}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="250" y="528" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_pres11}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="278" y="528" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_fhr11}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="306" y="528" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_fm11}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="335" y="528" width="194" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_comments11}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="531" y="528" width="28" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_next11}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="562" y="528" width="30" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_initial11}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="45" y="542" width="56" height="11" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_date12}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="102" y="541" width="32" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_ga12}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="137" y="541" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_wt12}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="165" y="541" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_bp12}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="193" y="541" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_urine12}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="222" y="541" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_sfh12}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="250" y="541" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_pres12}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="278" y="541" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_fhr12}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="306" y="541" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_fm12}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="335" y="541" width="194" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_comments12}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="531" y="541" width="28" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_next12}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="562" y="541" width="30" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_initial12}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="45" y="555" width="56" height="11" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_date13}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="102" y="555" width="32" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_ga13}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="137" y="555" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_wt13}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="165" y="555" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_bp13}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="193" y="555" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_urine13}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="222" y="555" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_sfh13}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="250" y="555" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_pres13}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="278" y="555" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_fhr13}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="306" y="555" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_fm13}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="335" y="555" width="194" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_comments13}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="531" y="555" width="28" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_next13}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="562" y="555" width="30" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_initial13}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="45" y="568" width="56" height="11" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_date14}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="102" y="568" width="32" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_ga14}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="137" y="568" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_wt14}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="165" y="568" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_bp14}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="193" y="568" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_urine14}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="222" y="568" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_sfh14}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="250" y="568" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_pres14}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="278" y="568" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_fhr14}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="306" y="568" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_fm14}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="335" y="568" width="194" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_comments14}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="531" y="568" width="28" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_next14}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="562" y="568" width="30" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_initial14}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="45" y="582" width="56" height="11" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_date15}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="102" y="582" width="32" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_ga15}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="137" y="582" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_wt15}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="165" y="582" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_bp15}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="193" y="582" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_urine15}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="222" y="582" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_sfh15}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="250" y="582" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_pres15}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="278" y="582" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_fhr15}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="306" y="582" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_fm15}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="335" y="582" width="194" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_comments15}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="531" y="582" width="28" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_next15}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="562" y="582" width="30" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_initial15}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="45" y="595" width="56" height="11" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_date16}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="102" y="594" width="32" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_ga16}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="137" y="594" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_wt16}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="165" y="594" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_bp16}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="193" y="594" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_urine16}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="222" y="594" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_sfh16}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="250" y="594" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_pres16}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="278" y="594" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_fhr16}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="306" y="594" width="26" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_fm16}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="335" y="594" width="194" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_comments16}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="531" y="594" width="28" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_next16}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="562" y="594" width="30" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sv_initial16}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="46" y="637" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{trim1_nausea}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="114" y="363" width="42" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{pe_wt}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="204" y="363" width="36" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{pe_bmi}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="46" y="646" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{trim1_routineCare}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="46" y="656" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{trim1_safety}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="46" y="665" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{trim1_weightGain}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="46" y="675" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{trim1_activity}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="46" y="685" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{trim1_seatbelt}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="46" y="695" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{trim1_sexualActi}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="262" y="636" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{trim2_classes}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="262" y="646" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{trim2_preterm}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="262" y="656" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{trim2_prom}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="262" y="666" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{trim2_bleed}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="262" y="676" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{trim2_fetalMove}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="262" y="686" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{trim2_mental}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="262" y="696" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{trim2_vbac}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="332" y="636" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{trim3_fetalMove}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="332" y="646" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{trim3_birthPlan}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="332" y="656" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{trim3_tob}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="332" y="666" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{trim3_admission}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="332" y="676" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{trim3_bf}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="332" y="686" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{trim3_care}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="332" y="696" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{trim3_planning}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="154" y="665" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{trim1_bf}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="154" y="675" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{trim1_travel}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="154" y="685" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{trim1_qis}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="154" y="695" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{trim1_vbac}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="486" y="666" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{trim3_mental}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="486" y="676" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{trim3_contra}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="486" y="696" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{trim3_postpartum}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="486" y="636" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{trim3_workPlan}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="44" y="713" width="549" height="20" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{pg3_comments}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="502" y="739" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{hospitalCopy}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="581" y="739" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{ptCopy}.equals("checked")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="44" y="760" width="108" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{name1}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="155" y="760" width="108" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{name2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="265" y="760" width="108" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{name3}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="375" y="760" width="108" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{name4}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="485" y="760" width="108" height="12" backcolor="#FFFFFF"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{name5}]]></textFieldExpression>
+			</textField>
+		</band>
+	</background>
+</jasperReport>

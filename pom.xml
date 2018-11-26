@@ -399,7 +399,7 @@
 		<dependency>
 			<groupId>net.sf.jasperreports</groupId>
 			<artifactId>jasperreports</artifactId>
-			<version>4.1.2</version>
+			<version>6.8.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>bouncycastle</groupId>
@@ -428,6 +428,13 @@
 			<groupId>net.sourceforge.barbecue</groupId>
 			<artifactId>barbecue</artifactId>
 			<version>1.0.6b</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/eclipse/jdtcore -->
+		<dependency>
+			<groupId>eclipse</groupId>
+			<artifactId>jdtcore</artifactId>
+			<version>3.1.0</version>
 		</dependency>
 
 		<!-- joda time -->

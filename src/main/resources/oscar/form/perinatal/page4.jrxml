@@ -1,0 +1,603 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 4.5.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="perinatal" pageWidth="612" pageHeight="792" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<parameter name="background_image" class="java.lang.String">
+		<parameterDescription><![CDATA[The background image of the current page]]></parameterDescription>
+	</parameter>
+	<parameter name="c_lastName" class="java.lang.String">
+		<parameterDescription><![CDATA[Last name of the patient]]></parameterDescription>
+	</parameter>
+	<parameter name="c_firstName" class="java.lang.String">
+		<parameterDescription><![CDATA[First name of the patient]]></parameterDescription>
+	</parameter>
+	<parameter name="gad_date" class="java.lang.String"/>
+	<parameter name="phq_date" class="java.lang.String"/>
+	<parameter name="gad_1" class="java.lang.String"/>
+	<parameter name="phq_1" class="java.lang.String"/>
+	<parameter name="gad_2" class="java.lang.String"/>
+	<parameter name="phq_2" class="java.lang.String"/>
+	<parameter name="gad_total" class="java.lang.String"/>
+	<parameter name="phq_total" class="java.lang.String"/>
+	<parameter name="tace_date" class="java.lang.String"/>
+	<parameter name="tace_1" class="java.lang.String"/>
+	<parameter name="tace_2" class="java.lang.String"/>
+	<parameter name="tace_3" class="java.lang.String"/>
+	<parameter name="tace_4" class="java.lang.String"/>
+	<parameter name="tace_total" class="java.lang.String"/>
+	<parameter name="epds_date" class="java.lang.String"/>
+	<parameter name="epds_1" class="java.lang.String"/>
+	<parameter name="epds_2" class="java.lang.String"/>
+	<parameter name="epds_3" class="java.lang.String"/>
+	<parameter name="epds_4" class="java.lang.String"/>
+	<parameter name="epds_5" class="java.lang.String"/>
+	<parameter name="epds_6" class="java.lang.String"/>
+	<parameter name="epds_7" class="java.lang.String"/>
+	<parameter name="epds_8" class="java.lang.String"/>
+	<parameter name="epds_9" class="java.lang.String"/>
+	<parameter name="epds_10" class="java.lang.String"/>
+	<parameter name="epds_total" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<background>
+		<band height="792" splitType="Stretch">
+			<image>
+				<reportElement mode="Transparent" x="0" y="0" width="612" height="792" isRemoveLineWhenBlank="true" backcolor="#000000"/>
+				<imageExpression><![CDATA[$P{background_image}]]></imageExpression>
+			</image>
+			<textField isBlankWhenNull="true">
+				<reportElement x="44" y="94" width="147" height="13"/>
+				<textFieldExpression><![CDATA[$P{c_lastName}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="194" y="94" width="165" height="13"/>
+				<textFieldExpression><![CDATA[$P{c_firstName}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="260" y="127" width="57" height="13" />
+				<textFieldExpression><![CDATA[$P{gad_date}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="207" y="177" width="14" height="9" isPrintWhenDetailOverflows="true" backcolor="#FFFFFF">
+					<printWhenExpression><![CDATA[$P{gad_1}.equals("0")]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="234" y="177" width="14" height="9" isPrintWhenDetailOverflows="true" backcolor="#FFFFFF">
+					<printWhenExpression><![CDATA[$P{gad_1}.equals("1")]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="266" y="177" width="14" height="9" isPrintWhenDetailOverflows="true" backcolor="#FFFFFF">
+					<printWhenExpression><![CDATA[$P{gad_1}.equals("2")]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="298" y="177" width="14" height="9" isPrintWhenDetailOverflows="true" backcolor="#FFFFFF">
+					<printWhenExpression><![CDATA[$P{gad_1}.equals("3")]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="207" y="191" width="14" height="9" isPrintWhenDetailOverflows="true" backcolor="#FFFFFF">
+					<printWhenExpression><![CDATA[$P{gad_2}.equals("0")]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="234" y="191" width="14" height="9" isPrintWhenDetailOverflows="true" backcolor="#FFFFFF">
+					<printWhenExpression><![CDATA[$P{gad_2}.equals("1")]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="266" y="191" width="14" height="9" isPrintWhenDetailOverflows="true" backcolor="#FFFFFF">
+					<printWhenExpression><![CDATA[$P{gad_2}.equals("2")]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="298" y="191" width="14" height="9" isPrintWhenDetailOverflows="true" backcolor="#FFFFFF">
+					<printWhenExpression><![CDATA[$P{gad_2}.equals("3")]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="483" y="177" width="14" height="9" isPrintWhenDetailOverflows="true" backcolor="#FFFFFF">
+					<printWhenExpression><![CDATA[$P{phq_1}.equals("0")]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="509" y="177" width="14" height="9" isPrintWhenDetailOverflows="true" backcolor="#FFFFFF">
+					<printWhenExpression><![CDATA[$P{phq_1}.equals("1")]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="540" y="177" width="14" height="9" isPrintWhenDetailOverflows="true" backcolor="#FFFFFF">
+					<printWhenExpression><![CDATA[$P{phq_1}.equals("2")]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="572" y="177" width="14" height="9" isPrintWhenDetailOverflows="true" backcolor="#FFFFFF">
+					<printWhenExpression><![CDATA[$P{phq_1}.equals("3")]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="483" y="191" width="14" height="9" isPrintWhenDetailOverflows="true" backcolor="#FFFFFF">
+					<printWhenExpression><![CDATA[$P{phq_2}.equals("0")]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="509" y="191" width="14" height="9" isPrintWhenDetailOverflows="true" backcolor="#FFFFFF">
+					<printWhenExpression><![CDATA[$P{phq_2}.equals("1")]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="540" y="191" width="14" height="9" isPrintWhenDetailOverflows="true" backcolor="#FFFFFF">
+					<printWhenExpression><![CDATA[$P{phq_2}.equals("2")]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="572" y="191" width="14" height="9" isPrintWhenDetailOverflows="true" backcolor="#FFFFFF">
+					<printWhenExpression><![CDATA[$P{phq_2}.equals("3")]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="457" y="296" width="52" height="12" isPrintWhenDetailOverflows="true" backcolor="#FFFFFF">
+					<printWhenExpression><![CDATA[$P{tace_1}.equals("0")]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="532" y="296" width="52" height="12" isPrintWhenDetailOverflows="true" backcolor="#FFFFFF">
+					<printWhenExpression><![CDATA[$P{tace_1}.equals("1")]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="457" y="310" width="52" height="12" isPrintWhenDetailOverflows="true" backcolor="#FFFFFF">
+					<printWhenExpression><![CDATA[$P{tace_2}.equals("0")]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="532" y="310" width="52" height="12" isPrintWhenDetailOverflows="true" backcolor="#FFFFFF">
+					<printWhenExpression><![CDATA[$P{tace_2}.equals("1")]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="457" y="325" width="52" height="12" isPrintWhenDetailOverflows="true" backcolor="#FFFFFF">
+					<printWhenExpression><![CDATA[$P{tace_3}.equals("0")]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="532" y="325" width="52" height="12" isPrintWhenDetailOverflows="true" backcolor="#FFFFFF">
+					<printWhenExpression><![CDATA[$P{tace_3}.equals("1")]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="457" y="339" width="52" height="12" isPrintWhenDetailOverflows="true" backcolor="#FFFFFF">
+					<printWhenExpression><![CDATA[$P{tace_4}.equals("0")]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="532" y="339" width="52" height="12" isPrintWhenDetailOverflows="true" backcolor="#FFFFFF">
+					<printWhenExpression><![CDATA[$P{tace_4}.equals("1")]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="300" y="411" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_1}.equals("0")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="300" y="422" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_1}.equals("1")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="444" y="411" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_1}.equals("2")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="444" y="422" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_1}.equals("3")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="300" y="434" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_2}.equals("0")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="300" y="444" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_2}.equals("1")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="444" y="434" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_2}.equals("2")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="444" y="444" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_2}.equals("3")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="300" y="456" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_3}.equals("0")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="300" y="467" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_3}.equals("1")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="444" y="456" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_3}.equals("2")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="444" y="467" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_3}.equals("3")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="300" y="479" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_4}.equals("0")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="300" y="490" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_4}.equals("1")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="444" y="479" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_4}.equals("2")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="444" y="490" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_4}.equals("3")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="300" y="502" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_5}.equals("0")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="300" y="513" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_5}.equals("1")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="444" y="502" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_5}.equals("2")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="444" y="513" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_5}.equals("3")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="203" y="524" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_6}.equals("0")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="203" y="535" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_6}.equals("1")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="374" y="524" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_6}.equals("2")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="374" y="535" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_6}.equals("3")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="300" y="547" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_7}.equals("0")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="300" y="558" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_7}.equals("1")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="444" y="547" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_7}.equals("2")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="444" y="558" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_7}.equals("3")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="300" y="570" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_8}.equals("0")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="300" y="581" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_8}.equals("1")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="444" y="570" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_8}.equals("2")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="444" y="581" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_8}.equals("3")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="300" y="592" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_9}.equals("0")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="300" y="603" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_9}.equals("1")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="444" y="592" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_9}.equals("2")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="444" y="603" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_9}.equals("3")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="300" y="615" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_10}.equals("0")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="300" y="626" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_10}.equals("1")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="444" y="615" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_10}.equals("2")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="444" y="626" width="5" height="5" backcolor="#000000">
+					<printWhenExpression><![CDATA[$P{epds_10}.equals("3")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="536" y="127" width="55" height="13" />
+				<textFieldExpression><![CDATA[$P{phq_date}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="472" y="262" width="55" height="13"/>
+				<textFieldExpression><![CDATA[$P{tace_date}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="289" y="218" width="20" height="13"/>
+				<textFieldExpression><![CDATA[$P{gad_total}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="564" y="218" width="20" height="13"/>
+				<textFieldExpression><![CDATA[$P{phq_total}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="484" y="359" width="20" height="13"/>
+				<textFieldExpression><![CDATA[$P{tace_total}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="76" y="649" width="22" height="13"/>
+				<textFieldExpression><![CDATA[$P{epds_total}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="473" y="392" width="55" height="13"/>
+				<textFieldExpression><![CDATA[$P{epds_date}]]></textFieldExpression>
+			</textField>
+		</band>
+	</background>
+</jasperReport>

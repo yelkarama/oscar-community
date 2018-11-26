@@ -248,6 +248,8 @@
 
 	<!-- Encounter Form DAO -->
 	<bean id="Rourke2009DAO" class="oscar.form.dao.Rourke2009DAO" autowire="byName"/>
+	<bean id="Perinatal2017Dao" class="oscar.form.dao.ONPerinatal2017Dao" autowire="byName"/>
+	<bean id="Perinatal2017CommentDao" class="oscar.form.dao.ONPerinatal2017CommentDao" autowire="byName"/>
 
 
         <!--Email Support -->

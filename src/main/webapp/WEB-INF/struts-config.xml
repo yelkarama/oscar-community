@@ -2828,6 +2828,14 @@
 			<forward name="migrate" path="/pregnancy/migrate.jsp" />
 			<forward name="pre-migrate" path="/pregnancy/premigrate.jsp" />
 		</action>
+		<action name="FrmForm" path="/form/ONPerinatal" scope="request" type="oscar.form.FrmONPerinatalAction" parameter="method">
+			<forward name="pg1" path="/form/formONPerinatalRecord1.jsp" />
+			<forward name="pg2" path="/form/formONPerinatalRecord2.jsp" />
+			<forward name="pg3" path="/form/formONPerinatalRecord3.jsp" />
+			<forward name="pg4" path="/form/formONPerinatalResources.jsp" />
+			<forward name="pg5" path="/form/formONPerinatalPostnatal.jsp" />
+			<forward name="exit" path="/oscarEncounter/close.jsp" />
+		</action>
 
 
 		 <action path="/PageMonitoringService" scope="request" type="org.oscarehr.common.web.PageMonitoringAction" parameter="method" />

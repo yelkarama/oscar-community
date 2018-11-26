@@ -12729,3 +12729,27 @@ create table SurveillanceData (
 
 
 ALTER TABLE provider ADD COLUMN receives_ticklers BOOLEAN DEFAULT TRUE NOT NULL AFTER has_shedule;
+
+CREATE TABLE IF NOT EXISTS `form_on_perinatal_2017` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `form_id` int(10) NOT NULL,
+  `demographic_no` int(10) NOT NULL,
+  `provider_no` varchar(6) NOT NULL,
+  `page_no` int(1) NOT NULL,
+  `field` varchar(255) NOT NULL,
+  `val` varchar(255) NOT NULL DEFAULT '',
+  `create_date` date DEFAULT NULL,
+  `active` tinyint(1) DEFAULT '1',
+  formCreated DATE,
+  formEdited TIMESTAMP NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
+  UNIQUE KEY `id` (`id`),
+  UNIQUE KEY `form_entry` (`form_id`,`field`)
+);
+
+CREATE TABLE IF NOT EXISTS `form_on_perinatal_2017_comment` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `form_id` int(10) NOT NULL,
+  `field` varchar(255) NOT NULL,
+  `val` text NOT NULL,
+  PRIMARY KEY (`id`)
+);
