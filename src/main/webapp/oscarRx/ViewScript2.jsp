@@ -103,10 +103,11 @@ vecPageSizeValues.add("PageSize.Letter");
 //String reprint = (String)request.getAttribute("rePrint") != null ? (String)request.getAttribute("rePrint") : "false";
 
 String reprint = (String)request.getSession().getAttribute("rePrint") != null ? (String)request.getSession().getAttribute("rePrint") : "false";
-
+String providerNo = bean.getProviderNo();
 String createAnewRx;
 if(reprint.equalsIgnoreCase("true") ) {
     bean = (oscar.oscarRx.pageUtil.RxSessionBean)session.getAttribute("tmpBeanRX");
+    providerNo = bean.getStashItem(0).getProviderNo();
     createAnewRx = "window.location.href = '" + request.getContextPath() + "/oscarRx/SearchDrug.jsp'";
 }
 else
@@ -126,12 +127,12 @@ if(bMultisites) {
 		if (result!=null) location = result.getLocation();
 	}
 
-    oscar.oscarRx.data.RxProviderData.Provider provider = new oscar.oscarRx.data.RxProviderData().getProvider(bean.getProviderNo());
+    oscar.oscarRx.data.RxProviderData.Provider provider = new oscar.oscarRx.data.RxProviderData().getProvider(providerNo);
     ProSignatureData sig = new ProSignatureData();
-    boolean hasSig = sig.hasSignature(bean.getProviderNo());
+    boolean hasSig = sig.hasSignature(providerNo);
     String doctorName = "";
     if (hasSig){
-       doctorName = sig.getSignature(bean.getProviderNo());
+       doctorName = sig.getSignature(providerNo);
     }else{
        doctorName = (provider.getFirstName() + ' ' + provider.getSurname());
     }
