@@ -190,10 +190,10 @@ function displayTemplate(s) {
                                             while( $(div).firstChild )
                                                 $(div).removeChild($(div).firstChild);
 
-                                            if( navigator.userAgent.indexOf("AppleWebKit") > -1 )
+                                			$(div).update(request.responseText);
+                                            if( navigator.userAgent.indexOf("AppleWebKit") > -1 ) {
                                                 $(div).updateSafari(request.responseText);
-                                            else
-                                                $(div).update(request.responseText);
+                                            }
                                        },
                             onFailure: function(request) {
                                             $(div).innerHTML = "<h3>Error:</h3>" + request.status;
