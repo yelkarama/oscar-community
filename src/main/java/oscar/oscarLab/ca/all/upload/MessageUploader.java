@@ -134,7 +134,8 @@ public final class MessageUploader {
 			String sendingFacility = h.getPatientLocation();
 			ArrayList<?> docNums = h.getDocNums();
 			int finalResultCount = h.getOBXFinalResultCount();
-			String obrDate = h.getMsgDate();
+			//String obrDate = h.getMsgDate();
+			String obrDate = h.getTimeStamp(0,0);
 
 			if(h instanceof HHSEmrDownloadHandler) {
 				try{

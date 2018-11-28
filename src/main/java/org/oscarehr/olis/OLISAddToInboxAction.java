@@ -36,10 +36,12 @@ import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.dao.DemographicDao;
+import org.oscarehr.common.dao.OLISQueryLogDao;
 import org.oscarehr.common.dao.OLISResultsDao;
 import org.oscarehr.common.dao.OscarLogDao;
 import org.oscarehr.common.dao.PatientLabRoutingDao;
 import org.oscarehr.common.model.Demographic;
+import org.oscarehr.common.model.OLISQueryLog;
 import org.oscarehr.common.model.OLISResults;
 import org.oscarehr.common.model.OscarLog;
 import org.oscarehr.common.model.PatientLabRouting;
@@ -51,6 +53,7 @@ import org.oscarehr.util.SpringUtils;
 import oscar.log.LogAction;
 import oscar.log.LogConst;
 import oscar.oscarLab.FileUploadCheck;
+import oscar.oscarLab.ca.all.parsers.Factory;
 import oscar.oscarLab.ca.all.upload.HandlerClassFactory;
 import oscar.oscarLab.ca.all.upload.handlers.OLISHL7Handler;
 import oscar.oscarLab.ca.on.CommonLabResultData;
@@ -60,7 +63,9 @@ public class OLISAddToInboxAction extends DispatchAction {
 	static Logger logger = MiscUtils.getLogger();
 	
 	private OLISResultsDao olisResultsDao = SpringUtils.getBean(OLISResultsDao.class);
-
+	private ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
+	private OLISQueryLogDao olisQueryLogDao = SpringUtils.getBean(OLISQueryLogDao.class);
+	
 	public ActionForward saveMatch(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)  {
 
 		String uuid = request.getParameter("uuid");
@@ -71,18 +76,7 @@ public class OLISAddToInboxAction extends DispatchAction {
 			result.setDemographicNo(Integer.parseInt(demographicNo));
 			olisResultsDao.merge(result);
 		}
-		/*
 		
-		Map<String,String> patientSaveMap = (Map<String,String>)request.getSession().getAttribute("olisPatientMatches");
-		if(patientSaveMap == null) {
-			patientSaveMap = new HashMap<String,String>();
-		}
-		
-		patientSaveMap.put(uuid, demographicNo);
-		
-		request.getSession().setAttribute("olisPatientMatches", patientSaveMap);
-		
-		*/
 		return null;
 	}
 	
@@ -224,7 +218,7 @@ public class OLISAddToInboxAction extends DispatchAction {
 		
 		OscarLogDao logDao = SpringUtils.getBean(OscarLogDao.class);
 		//List<OscarLog> logs = logDao.findByAction("OLIS",Integer.parseInt(start), Integer.parseInt(length), StringEscapeUtils.escapeSql(orderBy), StringEscapeUtils.escapeSql(orderingColumnDirection));
-		List<OscarLog> logs = logDao.findByAction("OLIS",Integer.parseInt(start), Integer.parseInt(length), "created", "desc");
+		List<OscarLog> logs = logDao.findByAction("OLIS",Integer.parseInt(start), Integer.parseInt(length), "created", "desc, x.id desc");
 		
 		int draw = 0;
 
@@ -429,8 +423,61 @@ public class OLISAddToInboxAction extends DispatchAction {
 			olisResultsDao.merge(result);
 		}
 		
-		LogAction.addLog(loggedInInfo, "OLIS","rejected", uuid, "","");
+		OLISQueryLog olisQueryLog = olisQueryLogDao.findByUUID(result.getQueryUuid());
+		
+		
+		//LogAction.addLog(loggedInInfo, "OLIS","rejected", uuid, "","");
+		logOLISRemoval(loggedInInfo, olisQueryLog , result.getResults(), uuid);
 		successful.add(uuid);
+	}
+	
+	public void logOLISRemoval(LoggedInInfo loggedInInfo, OLISQueryLog queryLog, String message, String resultUuid) {
+
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		
+		StringBuilder data = new StringBuilder();
+		data.append("Query Date:" + formatter.format(queryLog.getQueryExecutionDate()) + "\n");
+		data.append("Query Type:" + queryLog.getQueryType() + "\n");
+		
+		if(!StringUtils.isEmpty(queryLog.getRequestingHIC())) {
+			Provider reqHic = providerDao.getProviderByPractitionerNo( queryLog.getRequestingHIC());
+			if(reqHic != null) {
+				data.append("Requesting HIC:" + reqHic.getFormattedName() + "\n");
+			}
+		}
+		data.append("Initiating Provider: " + providerDao.getProvider(queryLog.getInitiatingProviderNo()).getFormattedName() + "\n");
+		data.append("Removing User:" + providerDao.getProvider(loggedInInfo.getLoggedInProviderNo()).getFormattedName() + "\n");
+		data.append("Removing Date: " + formatter.format(new Date()) + "\n");
+		data.append("Removing Reason: Worklist Management\n");
+		data.append("Removing Type: User\n");
+		
+		
+		oscar.oscarLab.ca.all.parsers.OLISHL7Handler h = (oscar.oscarLab.ca.all.parsers.OLISHL7Handler) Factory.getHandler("OLIS_HL7", message);
+		if(h != null) {
+			data.append("Accession: " + h.getAccessionNum() + "\n");
+			data.append("Test Request(s): " +  h.getTestList(",") + "\n");
+			for(int x=0;x<h.getOBRCount();x++) {
+				data.append("Collection Date:" + h.getTimeStamp(x, 1) + "\n");
+			}
+			for(int x=0;x<h.getOBRCount();x++) {
+				data.append("LastUpdate Date:" + h.getLastUpdateDate(x, 1) + "\n");
+			}
+			
+		}
+		
+		OscarLog oscarLog = new OscarLog();
+		oscarLog.setAction("OLIS");
+		oscarLog.setContent("REMOVE");
+		oscarLog.setContentId(resultUuid);
+		oscarLog.setProviderNo(loggedInInfo.getLoggedInProviderNo());
+		oscarLog.setData(data.toString());
+		
+		if("Z01".equals(queryLog.getQueryType().toString())) {
+			//oscarLog.setDemographicId( Integer.parseInt(((Z01Query)query).getDemographicNo()));
+		}
+		
+		LogAction.addLogSynchronous(oscarLog);
+		
 	}
 }
 

@@ -9,5 +9,6 @@ CREATE TABLE OLISResults (
     uuid varchar(255),
     query varchar(255),
     demographicNo integer,
+    queryUuid varchar(255),
     PRIMARY KEY(id)
 );

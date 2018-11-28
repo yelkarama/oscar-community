@@ -66,7 +66,9 @@
 		            { "data": "initiating_provider" },
 		            { "data": "content" },
 		            { "data": "contentId" },
-		            { "data": "data" },
+		            { "data": "data", render: function(data, type, full, meta) {
+		            	return data.replace(/[\r\n]+/g,"<br/>") ;
+		            } },
 		            { "data": "demographic" }
 		           
 		        ]

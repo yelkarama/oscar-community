@@ -435,7 +435,7 @@ public class ProviderDao extends HibernateDaoSupport {
 
 	public Provider getProviderByPractitionerNo(String practitionerNo) {
 		if (practitionerNo == null || practitionerNo.length() <= 0) {
-			throw new IllegalArgumentException();
+			return null;
 		}
 
 		List<Provider> providerList = getHibernateTemplate().find("From Provider p where p.practitionerNo=?",new Object[]{practitionerNo});

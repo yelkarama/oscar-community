@@ -22,51 +22,48 @@
  * Ontario, Canada
  */
 package org.oscarehr.common.model;
+import java.util.Date;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 @Entity
-public class OLISResults extends AbstractModel<Integer> {
+public class OLISQueryLog extends AbstractModel<Integer> {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 	
-	private String requestingHICProviderNo;
+	private String initiatingProviderNo;
 	
 	private String queryType;
 	
-	private String results;
-	
-	private String hash;
-	
-	private String status;
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date queryExecutionDate;
 	
 	private String uuid;
-	
-	private String query;
-	
-	private String providerNo;
+
+	private String requestingHIC;
 	
 	private Integer demographicNo;
 	
-	private String queryUuid;
-	
+
 	public Integer getId() {
 		return id;
 	}
 
 
-	public String getProviderNo() {
-		return providerNo;
+	public String getInitiatingProviderNo() {
+		return initiatingProviderNo;
 	}
 
 
-	public void setProviderNo(String providerNo) {
-		this.providerNo = providerNo;
+	public void setInitiatingProviderNo(String initiatingProviderNo) {
+		this.initiatingProviderNo = initiatingProviderNo;
 	}
 
 
@@ -80,33 +77,13 @@ public class OLISResults extends AbstractModel<Integer> {
 	}
 
 
-	public String getResults() {
-		return results;
+	public Date getQueryExecutionDate() {
+		return queryExecutionDate;
 	}
 
 
-	public void setResults(String results) {
-		this.results = results;
-	}
-
-
-	public String getHash() {
-		return hash;
-	}
-
-
-	public void setHash(String hash) {
-		this.hash = hash;
-	}
-
-
-	public String getStatus() {
-		return status;
-	}
-
-
-	public void setStatus(String status) {
-		this.status = status;
+	public void setQueryExecutionDate(Date queryExecutionDate) {
+		this.queryExecutionDate = queryExecutionDate;
 	}
 
 
@@ -120,23 +97,13 @@ public class OLISResults extends AbstractModel<Integer> {
 	}
 
 
-	public String getQuery() {
-		return query;
+	public String getRequestingHIC() {
+		return requestingHIC;
 	}
 
 
-	public void setQuery(String query) {
-		this.query = query;
-	}
-
-
-	public String getRequestingHICProviderNo() {
-		return requestingHICProviderNo;
-	}
-
-
-	public void setRequestingHICProviderNo(String requestingHICProviderNo) {
-		this.requestingHICProviderNo = requestingHICProviderNo;
+	public void setRequestingHIC(String requestingHIC) {
+		this.requestingHIC = requestingHIC;
 	}
 
 
@@ -148,17 +115,6 @@ public class OLISResults extends AbstractModel<Integer> {
 	public void setDemographicNo(Integer demographicNo) {
 		this.demographicNo = demographicNo;
 	}
-
-
-	public String getQueryUuid() {
-		return queryUuid;
-	}
-
-
-	public void setQueryUuid(String queryUuid) {
-		this.queryUuid = queryUuid;
-	}
-	
 	
 	
 }

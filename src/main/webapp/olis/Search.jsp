@@ -309,7 +309,9 @@ List<OLISRequestNomenclature> requestNomenclatureList = requestDao.findAll();
 		<tr>
 			<th width="20%"><input class="checkbox" type="checkbox" name="quantityLimitedQuery" id="quantityLimitedQuery"> Quantity Limit?</th>
 			<td width="30%">Quantity<br><input type="text" id="quantityLimit" name="quantityLimit"></td>
-		</tr><tr>
+		</tr>
+		<!-- 
+		<tr>
 			<th width="20%">Consent to View Blocked Information?</th>
 			<td width="30%"><select id="blockedInformationConsent" name="blockedInformationConsent"><option value="">(none)</option>
 			<option value="Z">Temporary </option>
@@ -322,6 +324,7 @@ List<OLISRequestNomenclature> requestNomenclatureList = requestDao.findAll();
 		<tr>
 			<td width="20%" colspan=4><span><input class="checkbox" type="checkbox" name="consentBlockAllIndicator" id="consentBlockAllIndicator"> Enable Patient Consent Block-All Indicator?</span></td>
 		</tr>
+		-->
 		<tr>
 			<th width="20%">Specimen Collector</th>
 			<td width="30%"><select id="specimenCollector" name="specimenCollector">

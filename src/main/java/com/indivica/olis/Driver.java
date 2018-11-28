@@ -56,7 +56,9 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder;
 import org.bouncycastle.util.Store;
 import org.bouncycastle.util.encoders.Base64;
+import org.oscarehr.common.dao.OLISQueryLogDao;
 import org.oscarehr.common.dao.OscarLogDao;
+import org.oscarehr.common.model.OLISQueryLog;
 import org.oscarehr.common.model.OscarLog;
 import org.oscarehr.common.model.OscarMsgType;
 import org.oscarehr.common.model.Provider;
@@ -83,12 +85,15 @@ public class Driver {
 
 	private static OscarLogDao logDao = (OscarLogDao) SpringUtils.getBean("oscarLogDao");
 //	private static OLISResultsDao olisResultsDao = SpringUtils.getBean(OLISResultsDao.class);
-	
+	private static OLISQueryLogDao olisQueryLogDao = SpringUtils.getBean(OLISQueryLogDao.class);
 	
 
 	public static String submitOLISQuery(LoggedInInfo loggedInInfo, HttpServletRequest request, Query query) {
 		
 		try {
+			query.setQueryExecutionDate(new Date());
+			query.setInitiatingProviderNo(loggedInInfo.getLoggedInProviderNo());
+			
 			OLISMessage message = new OLISMessage(loggedInInfo.getLoggedInProvider(), query);
 
 			if(OscarProperties.getInstance().getProperty("olis_truststore") != null) {
@@ -136,6 +141,16 @@ public class Driver {
 				logItem.setProviderNo(loggedInInfo.getLoggedInProviderNo());
 
 				logDao.persist(logItem);
+				
+				OLISQueryLog olisQueryLog = new OLISQueryLog();
+				olisQueryLog.setInitiatingProviderNo(loggedInInfo.getLoggedInProviderNo());
+				olisQueryLog.setQueryExecutionDate(new Date());
+				olisQueryLog.setQueryType(query.getQueryType().toString());
+				olisQueryLog.setUuid(query.getUuid());
+				olisQueryLog.setDemographicNo(query.getDemographicNo() != null ? Integer.parseInt(query.getDemographicNo()) : null);
+				olisQueryLog.setRequestingHIC(query.getRequestingHICProviderNo());
+				
+				olisQueryLogDao.persist(olisQueryLog);
 
 			} catch (Exception e) {
 				MiscUtils.getLogger().error("Couldn't write log message for OLIS query", e);

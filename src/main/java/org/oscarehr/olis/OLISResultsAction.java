@@ -9,7 +9,9 @@
 package org.oscarehr.olis;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,14 +20,17 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
+import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.dao.OLISResultsDao;
 import org.oscarehr.common.model.OLISResults;
+import org.oscarehr.common.model.OscarLog;
+import org.oscarehr.common.model.Provider;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -33,6 +38,8 @@ import org.oscarehr.util.SpringUtils;
 
 import com.indivica.olis.Driver;
 import com.indivica.olis.queries.Query;
+import com.indivica.olis.queries.QueryType;
+import com.indivica.olis.queries.Z01Query;
 
 import oscar.log.LogAction;
 import oscar.oscarLab.ca.all.parsers.Factory;
@@ -46,6 +53,7 @@ public class OLISResultsAction extends DispatchAction {
 	public static HashMap<String, OLISHL7Handler> searchResultsMap = new HashMap<String, OLISHL7Handler>();
 	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 	protected OLISResultsDao olisResultsDao = SpringUtils.getBean(OLISResultsDao.class);
+	protected ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 	
 	@Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
@@ -95,14 +103,18 @@ public class OLISResultsAction extends DispatchAction {
 					FileUtils.writeStringToFile(tempFile, message);
 					
 					
-					String messageNoMSH = message.replaceAll("^MSH.*[\\r\\n]+", "");
-					String hash = DigestUtils.md5Hex(messageNoMSH); //need to remove the MSH line i guess
-					if(!olisResultsDao.hasExistingResult(query.getRequestingHICProviderNo() != null ? query.getRequestingHICProviderNo() : LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo(), query.getQueryType().toString(), hash)) {
+					//String messageNoMSH = message.replaceAll("^MSH.*[\\r\\n]+", "");
+					//String hash = DigestUtils.md5Hex(messageNoMSH); //need to remove the MSH line i guess
+					
+					MessageHandler h = Factory.getHandler("OLIS_HL7", message);
+					
+					
+					if(!olisResultsDao.hasExistingResult(query.getRequestingHICProviderNo() != null ? query.getRequestingHICProviderNo() : LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo(), query.getQueryType().toString(), h.getAccessionNum())) {
 						
 						boolean dup2 = OLISUtils.isDuplicate(LoggedInInfo.getLoggedInInfoFromSession(request), new File(System.getProperty("java.io.tmpdir") + "/olis_" + resultUuid + ".response"));
 						if(!dup2) {
 							OLISResults result = new OLISResults();
-							result.setHash(hash);
+							result.setHash(h.getAccessionNum());
 							result.setProviderNo(LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo());
 							result.setQuery(query.getQueryHL7String());
 							result.setQueryType(query.getQueryType().toString());
@@ -114,20 +126,21 @@ public class OLISResultsAction extends DispatchAction {
 							else
 								result.setRequestingHICProviderNo(result.getProviderNo());
 							
-							MessageHandler h = Factory.getHandler("OLIS_HL7", result.getResults());
 							
 							Integer demId = MessageUploader.willOLISLabReportMatch(LoggedInInfo.getLoggedInInfoFromSession(request), h.getLastName(),h.getFirstName(), h.getSex(), h.getDOB(), h.getHealthNum());
 							if(demId != null) {
 								result.setDemographicNo(demId);
 							}
+							result.setQueryUuid(query.getUuid());
 							olisResultsDao.persist(result);
 						} else {
 							//duplicate from community lab already in OSCAR
-							LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo(), "OLIS","DUPLICATE (Community Lab)", uuid.toString() , null);
+						//	LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo(), "OLIS","DUPLICATE (Community Lab)", uuid.toString() , null);
+							logOLISDuplicate(LoggedInInfo.getLoggedInInfoFromSession(request), query, message, uuid.toString());
 						}
 					} else {
-						//duplicate from OLIS
-						LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo(), "OLIS","DUPLICATE (OLIS)", uuid.toString() , null);
+						//duplicate from OLIS - system auto removes/rejects
+						logOLISDuplicate(LoggedInInfo.getLoggedInInfoFromSession(request), query, message, uuid.toString());
 					}
 					 
 				}
@@ -147,5 +160,57 @@ public class OLISResultsAction extends DispatchAction {
 			MiscUtils.getLogger().error("Can't pull out messages from OLIS response.", e);
 		}
 		return mapping.findForward("results");
+	}
+	
+	public void logOLISDuplicate(LoggedInInfo loggedInInfo, Query query, String message, String resultUuid) {
+
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		
+		StringBuilder data = new StringBuilder();
+		data.append("Query Date:" + formatter.format(query.getQueryExecutionDate()) + "\n");
+		data.append("Query Type:" + query.getQueryType().toString() + "\n");
+		
+		if(!StringUtils.isEmpty(query.getRequestingHICProviderNo())) {
+			Provider reqHic = providerDao.getProviderByPractitionerNo( query.getRequestingHICProviderNo());
+			if(reqHic != null) {
+				data.append("Requesting HIC:" + reqHic.getFormattedName() + "\n");
+			}
+		}
+		data.append("Initiating Provider: " + providerDao.getProvider(query.getInitiatingProviderNo()).getFormattedName() + "\n");
+		data.append("Rejecting User: System (automatic)" + "\n");
+		data.append("Rejection Date: " + formatter.format(new Date()) + "\n");
+		data.append("Rejection Reason: Duplicate\n");
+		data.append("Rejection Type: System\n");
+		
+		
+		OLISHL7Handler h = (OLISHL7Handler) Factory.getHandler("OLIS_HL7", message);
+		if(h != null) {
+			data.append("Accession: " + h.getAccessionNum() + "\n");
+			data.append("Test Request(s): " +  h.getTestList(",") + "\n");
+			for(int x=0;x<h.getOBRCount();x++) {
+				data.append("Collection Date:" + h.getTimeStamp(x, 1) + "\n");
+			}
+			for(int x=0;x<h.getOBRCount();x++) {
+				data.append("LastUpdate Date:" + h.getLastUpdateDate(x, 1) + "\n");
+			}
+			
+		}
+		
+		OscarLog oscarLog = new OscarLog();
+		oscarLog.setAction("OLIS");
+		oscarLog.setContent("DUPLICATE (OLIS)");
+		oscarLog.setContentId(resultUuid);
+		oscarLog.setProviderNo(loggedInInfo.getLoggedInProviderNo());
+		oscarLog.setData(data.toString());
+		
+		if(query.getQueryType() == QueryType.Z01) {
+			String demographicNo = ((Z01Query)query).getDemographicNo();
+			if(!StringUtils.isEmpty(demographicNo)) {
+				oscarLog.setDemographicId( Integer.parseInt(demographicNo));
+			}
+		}
+		
+		LogAction.addLogSynchronous(oscarLog);
+		
 	}
 }

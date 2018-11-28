@@ -1607,6 +1607,22 @@ public class OLISHL7Handler implements MessageHandler {
 			return ("");
 		}
 	}
+	
+	public String getLastUpdateDate(int i, int j) {
+		String timeStamp;
+		i++;
+		try {
+			if (i == 1) {
+				timeStamp = formatDateTime(getString(terser.get("/.OBR-22-1")));
+			} else {
+				Segment obrSeg = (Segment) terser.getFinder().getRoot().get("OBR" + i);
+				timeStamp = formatDateTime(getString(Terser.get(obrSeg, 22, 0, 1, 1)));
+			}
+			return (timeStamp);
+		} catch (Exception e) {
+			return ("");
+		}
+	}
 
 	@Override
 	public boolean isOBXAbnormal(int i, int j) {
