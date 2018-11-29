@@ -498,12 +498,14 @@ jQuery(document).ready(function() {
 	
 	List<Demographic> demoList = null;
       if(request.getParameter("keyword")!=null && request.getParameter("keyword").length()==0) {
-            int mostRecentPatientListSize=Integer.parseInt(OscarProperties.getInstance().getProperty("MOST_RECENT_PATIENT_LIST_SIZE","3"));
-            List<Integer> results = oscarLogDao.getRecentDemographicsAccessedByProvider(providerNo,  0, mostRecentPatientListSize);
-            demoList = new ArrayList<Demographic>();
-            for(Integer r : results) {
-                demoList.add(demographicDao.getDemographicById(r));
-            }
+    	  if("true".equals(OscarProperties.getInstance().getProperty("search.most_recent_on_empty","true"))) {
+	            int mostRecentPatientListSize=Integer.parseInt(OscarProperties.getInstance().getProperty("MOST_RECENT_PATIENT_LIST_SIZE","3"));
+	            List<Integer> results = oscarLogDao.getRecentDemographicsAccessedByProvider(providerNo,  0, mostRecentPatientListSize);
+	            demoList = new ArrayList<Demographic>();
+	            for(Integer r : results) {
+	                demoList.add(demographicDao.getDemographicById(r));
+	            }
+    	  }
         } else {
 
         	//there's a list of searchMode/keyword doubles

@@ -68,7 +68,7 @@ public class RoleCache {
 	public static boolean hasAccess(String accessTypeName, long roleId) {
 		Integer accessTypeId = accessTypeMap.get(accessTypeName);
 		if(accessTypeId == null) {
-			MiscUtils.getLogger().warn("Access Type not found:"+accessTypeName);
+			MiscUtils.getLogger().debug("Access Type not found:"+accessTypeName);
 			return false;
 		}
 		Collection<Long> roles = defaultRoleAccessMap.getCollection(accessTypeId.longValue());
