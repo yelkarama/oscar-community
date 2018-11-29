@@ -1073,7 +1073,7 @@ UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 			<tr>
 				<td colspan="2">Add new participant: <input type="hidden" name="demographic_no" id="demographic_no" value="" /><input type="text" name="demo" id="demo" size="35"/></td>
 			</tr>
-			
+			<!-- 
 			<tr>
 				<td>
 				Create And Add: 
@@ -1082,6 +1082,7 @@ UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 				<input type="button" value="Save/Add" onClick="createAndAdd()"/>
 				</td>
 			</tr>
+			-->
 			<tr>
 				<td colspan="2">Transfer participant(s) to:
 					&nbsp; 
