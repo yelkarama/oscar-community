@@ -356,6 +356,7 @@ if (heading != null){
 	           	if(securityManager.hasWriteAccess("_rx",roleName$,true)) {            		
            	%>
             <td width="20px" align="center" valign="top">
+            	<%if("true".equals(OscarProperties.getInstance().getProperty("rx.allow_rerx","true"))) { %>
                 <%if (prescriptDrug.getRemoteFacilityName() == null) {%>
                 <input id="reRxCheckBox_<%=prescriptIdInt%>" type=CHECKBOX onclick="updateReRxDrugId(this.id)" <%if(reRxDrugList.contains(prescriptIdInt.toString())){%>checked<%}%> name="checkBox_<%=prescriptIdInt%>">
                 <a name="rePrescribe" style="vertical-align:top" id="reRx_<%=prescriptIdInt%>" <%=styleColor%> href="javascript:void(0)" onclick="represcribe(this, <%=prescriptIdInt%>)">ReRx</a>
@@ -365,7 +366,8 @@ if (heading != null){
                     <input type="hidden" name="searchString" value="<%=getName(prescriptDrug)%>" />
                     <input type="submit" class="ControlPushButton" value="Search to Re-prescribe" />
                 </form>
-                <%}%>
+                <%} } %>
+                
             </td>
 			<%if(!OscarProperties.getInstance().getProperty("rx.delete_drug.hide","false").equals("true")) { %>
             <td width="20px" align="center" valign="top">
