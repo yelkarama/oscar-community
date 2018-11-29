@@ -150,7 +150,7 @@ public class NextAppointmentSearchHelper {
 		//load up the schedule
 		ScheduleDate sd = scheduleDateDao.findByProviderNoAndDate(providerNo, day);
 		if(sd == null) {
-			logger.warn("no schedule found for provider " + providerNo + " on day " + day);
+			logger.debug("no schedule found for provider " + providerNo + " on day " + day);
 			return results;
 		}
 		//we have a schedule..lets check what template to use

@@ -77,7 +77,7 @@ public class GenericIntakeDAO extends HibernateDaoSupport {
 
 		List<Intake> intakes = getIntakesByFacility(node, clientId, programId, facilityId);
 		Intake intake = !intakes.isEmpty() ? intakes.get(0) : null;
-		LOG.info("get latest intake: " + intake);
+		LOG.debug("get latest intake: " + intake);
 
 		return intake;
 	}
@@ -159,7 +159,7 @@ public class GenericIntakeDAO extends HibernateDaoSupport {
 				new Object[] { node, clientId, facilityId });
 		List<Intake> intakes = convertToIntakes(results, programId);
 
-		LOG.info("get intakes: " + intakes.size());
+		LOG.debug("get intakes: " + intakes.size());
 
 		return intakes;
 	}
