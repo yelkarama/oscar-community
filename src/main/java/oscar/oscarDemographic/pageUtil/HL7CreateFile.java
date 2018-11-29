@@ -125,40 +125,42 @@ public class HL7CreateFile {
         StringBuilder obx = new StringBuilder();
 
         for (LaboratoryResultsDocument.LaboratoryResults lab : labs) {
+            String result = "";
+            String unit = "";
             if (lab.getResult() != null) {
-                String collectionDate = getDateTime(lab.getCollectionDateTime());
-                String referenceRange = "";
-                String result = StringUtils.noNull(lab.getResult().getValue());
-                String resultNormalAbnormalFlag = "";
-                String testResultStatus = StringUtils.noNull(lab.getTestResultStatus());
-                String unit = StringUtils.noNull(lab.getResult().getUnitOfMeasure());
-                
-                if (lab.getResultNormalAbnormalFlag() != null) {
-                    if(lab.getResultNormalAbnormalFlag().isSetResultNormalAbnormalFlagAsPlainText()) {
-                        resultNormalAbnormalFlag = lab.getResultNormalAbnormalFlag().getResultNormalAbnormalFlagAsPlainText();
-                    } else if (lab.getResultNormalAbnormalFlag().isSetResultNormalAbnormalFlagAsEnum()) {
-                        resultNormalAbnormalFlag = lab.getResultNormalAbnormalFlag().getResultNormalAbnormalFlagAsEnum().toString();
-                    }
-                }
-                if (lab.getReferenceRange() != null) {
-                    if (lab.getReferenceRange().getReferenceRangeText() != null) {
-                        referenceRange = lab.getReferenceRange().getReferenceRangeText();
-                    } else if (lab.getReferenceRange().getLowLimit() != null && lab.getReferenceRange().getHighLimit() != null){
-                        referenceRange = lab.getReferenceRange().getLowLimit() + "-" + lab.getReferenceRange().getHighLimit();
-                    }
-                }
-                
-                obxNo += 1;
-                String labTest = lab.getLabTestCode() + "^" + lab.getTestNameReportedByLab() + "^" + lab.getTestName();
-                
-                if (isFinal(testResultStatus)) {
-                    testResultStatus = "F";
-                }
-                
-                String obxSegment = "OBX|" + obxNo + "|ST|" + labTest+ "|Imported Test Results|" + result+ "|" +unit+ "|" + referenceRange + "|" + resultNormalAbnormalFlag+ "|||" + testResultStatus + "|||" + collectionDate;
-                obx.append(obxSegment).append("\n");
-                obx.append(generateNTE(lab));
+                result = StringUtils.noNull(lab.getResult().getValue());
+                unit = StringUtils.noNull(lab.getResult().getUnitOfMeasure());
             }
+            String collectionDate = getDateTime(lab.getCollectionDateTime());
+            String referenceRange = "";
+            String resultNormalAbnormalFlag = "";
+            String testResultStatus = StringUtils.noNull(lab.getTestResultStatus());
+            
+            if (lab.getResultNormalAbnormalFlag() != null) {
+                if(lab.getResultNormalAbnormalFlag().isSetResultNormalAbnormalFlagAsPlainText()) {
+                    resultNormalAbnormalFlag = lab.getResultNormalAbnormalFlag().getResultNormalAbnormalFlagAsPlainText();
+                } else if (lab.getResultNormalAbnormalFlag().isSetResultNormalAbnormalFlagAsEnum()) {
+                    resultNormalAbnormalFlag = lab.getResultNormalAbnormalFlag().getResultNormalAbnormalFlagAsEnum().toString();
+                }
+            }
+            if (lab.getReferenceRange() != null) {
+                if (lab.getReferenceRange().getReferenceRangeText() != null) {
+                    referenceRange = lab.getReferenceRange().getReferenceRangeText();
+                } else if (lab.getReferenceRange().getLowLimit() != null && lab.getReferenceRange().getHighLimit() != null){
+                    referenceRange = lab.getReferenceRange().getLowLimit() + "-" + lab.getReferenceRange().getHighLimit();
+                }
+            }
+            
+            obxNo += 1;
+            String labTest = lab.getLabTestCode() + "^" + lab.getTestNameReportedByLab() + "^" + lab.getTestName();
+            
+            if (isFinal(testResultStatus)) {
+                testResultStatus = "F";
+            }
+            
+            String obxSegment = "OBX|" + obxNo + "|ST|" + labTest+ "|Imported Test Results|" + result+ "|" +unit+ "|" + referenceRange + "|" + resultNormalAbnormalFlag+ "|||" + testResultStatus + "|||" + collectionDate;
+            obx.append(obxSegment).append("\n");
+            obx.append(generateNTE(lab));
         }
 
         return obx.toString();
