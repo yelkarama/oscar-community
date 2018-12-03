@@ -122,6 +122,22 @@ function resetSorting() {
 #resultsSummaryTable td.hidden, #resultsSummaryTable th.hidden {
 	display: none;
 }
+
+#patientInfoTable {
+	width: 100%;
+	border-collapse: collapse;
+	border: solid 1px #444444;
+}
+#patientInfoTable tr td {
+	padding: 3px;
+}
+#patientInfoTable tr td.label {
+	text-align: right;
+	width: 25%;
+}
+#patientInfoTable tr td.info {
+	width: 25%;
+}
 </style>
 	
 <title>OLIS Search Results</title>
@@ -142,6 +158,37 @@ function resetSorting() {
 			</tr>
 			</tbody>
 		</table>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2" id="patientInfo">
+			<%
+				String sex = olisLabResults.getDemographicSex();
+				if (!("F".equals(sex) || "M".equals(sex))) {
+				    sex = "U";
+				}
+			%>
+			<table id="patientInfoTable">
+				<tr>
+					<td colspan="4" style="background-color: #9999CC; text-align: center; border: solid 1px #444444;">Patient Info</td>
+				</tr>
+				<tr>
+					<td class="label">Name:</td>
+					<td class="info"><%=olisLabResults.getDemographicName()%></td>
+					<td class="label">Health Card Number:</td>
+					<td class="info"><%=olisLabResults.getDemographicHin()%></td>
+				</tr>
+				<tr>
+					<td class="label">Sex:</td>
+					<td class="info"><%=sex%></td>
+					<td class="label">Date of Birth:</td>
+					<td class="info"><%=olisLabResults.getDemographicDob()%></td>
+				</tr>
+				<tr>
+					<td class="label">Medical Record Number:</td>
+					<td colspan="3" class="info"><%=olisLabResults.getDemographicMrn()%></td>
+				</tr>
+			</table>
 		</td>
 	</tr>
 	<tr>
@@ -187,26 +234,12 @@ function resetSorting() {
 			if (olisResultList.size() > 0) { %>
 			<p style="margin: 0">Showing <%=olisResultList.size() %> result(s)</p>
 			<div>
-				Filter by patient name:
-				<select name="patientFilter" onChange="filterResults(this)">
-					<option value="">All Patients</option>
-					<%  List<String> names = new ArrayList<String>();
-						OLISHL7Handler result;
-						String name;
-						for (String resultUuid : resultList) {
-							result = OLISResultsAction.searchResultsMap.get(resultUuid);
-							name = oscar.Misc.getStr(result.getPatientName(), "").trim();
-							if (!name.equals("")) { names.add(name); }
-						}
-						for (String tmp: new HashSet<String>(names)) {
-					%>
-					<option value="<%=tmp%>"><%=tmp%></option>
-					<% } %>
-				</select>
 				Filter by reporting laboratory:
 				<select name="labFilter" onChange="filterResults(this)">
 					<option value="">All Labs</option>
 					<%  List<String> labs = new ArrayList<String>();
+						OLISHL7Handler result;
+						String name;
 						for (String resultUuid : resultList) {
 							result = OLISResultsAction.searchResultsMap.get(resultUuid);
 							name = oscar.Misc.getStr(result.getReportingFacilityName(), "").trim();
@@ -223,9 +256,6 @@ function resetSorting() {
 				<thead>
 				<tr>
 					<th style="min-width: 175px;">Actions</th>
-					<th>Health Number &#8597;</th>
-					<th>Patient Name &#8597;</th>
-					<th>Sex &#8597;</th>
 					<th>Test Requst Name &#8597;</th>
 					<th>Status &#8597;</th>
 					<th>Specimen Type &#8597;</th>
@@ -246,9 +276,6 @@ function resetSorting() {
 						<input type="button" onClick="addToInbox('<%=resultUuid %>'); return false;" id="<%=resultUuid %>" value="Add to Inbox" />
 						<input type="button" onClick="preview('<%=resultUuid %>', '<%=resultDisplay.getLabObrIndex()%>'); return false;" id="<%=resultUuid %>_preview" value="Preview" />
 					</td>
-					<td><%=resultDisplay.getPatientHealthNumber()%></td>
-					<td><%=resultDisplay.getPatientName()%></td>
-					<td><%=resultDisplay.getPatientSex()%></td>
 					<td>
 						<% if (resultDisplay.getTestRequestName().length() > 40) { %>
 						<span title="<%=resultDisplay.getTestRequestName()%>">

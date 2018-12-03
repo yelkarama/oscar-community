@@ -80,7 +80,19 @@ public class OLISResultsAction extends DispatchAction {
 			FileUtils.writeStringToFile(tempFile, olisResultString);
 
             OLISHL7Handler reportHandler = (OLISHL7Handler) Factory.getHandler("OLIS_HL7", olisResultString);
-            if(reportHandler != null) {
+            if (reportHandler != null) {
+                olisLabResults.setDemographicName(reportHandler.getPatientName());
+                if (reportHandler.getPatientIdentifier("JHN").length > 0) {
+                    olisLabResults.setDemographicHin(reportHandler.getPatientIdentifier("JHN")[0]);
+                }
+                if (reportHandler.getPatientIdentifier("MR").length > 1) {
+                    String[] identifiers = reportHandler.getPatientIdentifier("MR");
+                    String hospital = reportHandler.getSourceOrganization(identifiers[1]);
+                    olisLabResults.setDemographicMrn(identifiers[0] + " " + hospital + " (Lab " + identifiers[1] + ")");
+                }
+                olisLabResults.setDemographicSex(reportHandler.getSex());
+                olisLabResults.setDemographicDob(reportHandler.getDOB());
+                
                 List<OLISHL7Handler.OLISError> errors = reportHandler.getReportErrors();
                 if (errors.size() > 0) {
                     olisLabResults.setErrors(errors);
