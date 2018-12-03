@@ -19,10 +19,12 @@
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery.js"></script>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery.tablesorter.js"></script>
+<script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery.tablesorter.pager.js"></script>
 <script type="text/javascript">
     jQuery.noConflict();
 </script>
 <link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/share/css/OscarStandardLayout.css">
+<link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/css/tablesorter/jquery.tablesorter.pager.css"/>
 <script type="text/javascript" src="<%=request.getContextPath()%>/share/javascript/Oscar.js"></script>
 <script type="text/javascript" src="<%=request.getContextPath()%>/share/javascript/oscarMDSIndex.js"></script>
 	
@@ -232,8 +234,7 @@ function resetSorting() {
 			List<OlisLabResultListDisplay> olisResultList = olisLabResults.getResultList();
 			
 			if (olisResultList.size() > 0) { %>
-			<p style="margin: 0">Showing <%=olisResultList.size() %> result(s)</p>
-			<div>
+			<div class="pager" style="padding: 0;">
 				Filter by reporting laboratory:
 				<select name="labFilter" onChange="filterResults(this)">
 					<option value="">All Labs</option>
@@ -251,6 +252,24 @@ function resetSorting() {
 					<% } %>
 				</select>
 				<input type="button" onclick="resetSorting(); return false;" value="Reset Sorting">
+				<label>Jump to page
+					<select class="gotoPage" title="Select page number"></select>
+				</label>
+				<label>Results per page
+					<select class="pagesize" title="Select page size">
+						<option selected="selected" value="10">10</option>
+						<option value="20">20</option>
+						<option value="30">30</option>
+						<option value="40">40</option>
+					</select>
+				</label>
+				<div style="float: right">
+					<img src="<%=request.getContextPath()%>/css/tablesorter/icons/first.png" class="first"/>
+					<img src="<%=request.getContextPath()%>/css/tablesorter/icons/prev.png" class="prev"/>
+					<span class="pagedisplay"></span>
+					<img src="<%=request.getContextPath()%>/css/tablesorter/icons/next.png" class="next"/>
+					<img src="<%=request.getContextPath()%>/css/tablesorter/icons/last.png" class="last"/>
+				</div>
 			</div>
 			<table style="min-width: 1200px;" id="resultsSummaryTable" class="tablesorter">
 				<thead>
@@ -305,6 +324,13 @@ function resetSorting() {
 				<% } %>
 				</tbody>
 			</table>
+			<div class="pager" style="float: right;">
+				<img src="<%=request.getContextPath()%>/css/tablesorter/icons/first.png" class="first"/>
+				<img src="<%=request.getContextPath()%>/css/tablesorter/icons/prev.png" class="prev"/>
+				<span class="pagedisplay"></span>
+				<img src="<%=request.getContextPath()%>/css/tablesorter/icons/next.png" class="next"/>
+				<img src="<%=request.getContextPath()%>/css/tablesorter/icons/last.png" class="last"/>
+			</div>
 			<% } %>
 		</td>
 	</tr></tbody>
@@ -312,6 +338,28 @@ function resetSorting() {
 <script type="application/javascript">
     jQuery("#resultsSummaryTable").tablesorter({
         sortList:[]
+    }).tablesorterPager({
+        container: jQuery(".pager"),
+        ajaxUrl: null,
+        ajaxProcessing: function(ajax) {
+            if (ajax && ajax.hasOwnProperty('data')) {
+                return [ajax.data, ajax.total_rows];
+            }
+        },
+        output: '{startRow} - {endRow} of {totalRows} items',
+        updateArrows: true,
+        page: 0,
+        size: 20,
+        fixedHeight: true,
+        removeRows: false,
+        cssNext: '.next',
+        cssPrev: '.prev',
+        cssFirst: '.first',
+        cssLast: '.last',
+        cssGoto: '.gotoPage',
+        cssPageDisplay: '.pagedisplay',
+        cssPageSize: '.pagesize',
+        cssDisabled: 'disabled'
     });
 </script>
 <!-- RAW HL7 ERP
