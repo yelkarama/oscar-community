@@ -468,7 +468,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                                                     </td>
                                                                     <td>
                                                                         <div class="FieldData">
-                                                                            <%=handler.getHealthNum()%>
+                                                                            <%=handler.getFormattedHealthNumber()%>
                                                                         </div>
                                                                     </td>
 

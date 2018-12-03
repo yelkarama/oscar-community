@@ -2232,6 +2232,15 @@ public class OLISHL7Handler implements MessageHandler {
 		return ("");
 	}
 
+	public String getFormattedHealthNumber() {
+		String formattedPatientHealthNumber = StringUtils.trimToEmpty(getHealthNum());
+		
+		if (formattedPatientHealthNumber.length() == 10) {
+			formattedPatientHealthNumber = formattedPatientHealthNumber.substring(0, 4) + " " + formattedPatientHealthNumber.substring(4, 7) + " " + formattedPatientHealthNumber.substring(7);
+		}
+		return formattedPatientHealthNumber;
+	}
+
 	@Override
 	public String getHomePhone() {
 		try {

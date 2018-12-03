@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -802,8 +803,41 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         PdfPTable pInfoTable = new PdfPTable(pInfoWidths);
         cell.setPhrase(new Phrase("Health #: ", boldFont));
         pInfoTable.addCell(cell);
-        cell.setPhrase(new Phrase(handler.getHealthNum(), font));
+        cell.setPhrase(new Phrase(handler.getFormattedHealthNumber(), font));
         pInfoTable.addCell(cell);
+
+		Set<String> patientIdentifiers = handler.getPatientIdentifiers();
+		for (String identifier : patientIdentifiers) {
+			// Skip the health number (displayed above)
+			if (identifier.equals("JHN")) {
+				continue;
+			}
+			String[] identifiers = handler.getPatientIdentifier(identifier);
+			String identifierVal = identifiers[0];
+			String identifierAttrib = identifiers[1];
+			String identifierAttribName = null;
+			
+			if (identifierAttrib != null) {
+				identifierAttribName = handler.getSourceOrganization(identifierAttrib);
+			}
+			cell.setPhrase(new Phrase(handler.getNameOfIdentifier(identifier) + ": ", boldFont));
+			pInfoTable.addCell(cell);
+			
+			
+			//StringBuilder identifierDisplay = new StringBuilder(identifierVal);
+			Phrase identifierPhrase = new Phrase();
+
+			identifierPhrase.setFont(font);
+			identifierPhrase.add(identifierVal);
+			
+			if (identifierAttribName != null) {
+				identifierPhrase.setFont(subscriptFont);
+				identifierPhrase.add(identifierAttribName + " (Lab " + identifierAttrib + ")");
+			}
+			
+			cell.setPhrase(identifierPhrase);
+			pInfoTable.addCell(cell);
+		}
         
         cell.setPhrase(new Phrase("Patient Name: ", boldFont));
         pInfoTable.addCell(cell);
