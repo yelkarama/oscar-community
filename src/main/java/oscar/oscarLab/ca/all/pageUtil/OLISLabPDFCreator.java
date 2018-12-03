@@ -1134,6 +1134,11 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
             cb.endText();
 
             //add footer for every page
+			cb.beginText();
+			cb.setFontAndSize(BaseFont.createFont(BaseFont.HELVETICA_OBLIQUE, BaseFont.CP1252, BaseFont.NOT_EMBEDDED), 8);
+			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, "CONFIDENTIAL - report contains Personal Health Information", 35, 30, 0);
+			cb.endText();
+			
             cb.beginText();
             cb.setFontAndSize(bf, 8);
             cb.showTextAligned(PdfContentByte.ALIGN_CENTER, "-"+pageNum+"-", width/2, 30, 0);
