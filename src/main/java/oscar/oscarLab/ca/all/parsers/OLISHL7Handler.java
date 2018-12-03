@@ -2461,33 +2461,49 @@ public class OLISHL7Handler implements MessageHandler {
 	private String getFullDocName(String docSeg) throws HL7Exception {
 		String docName = "";
 		String temp;
-
-		// get name prefix ie/ DR.
-		temp = terser.get(docSeg + "6");
+		
+		// get last name
+		temp = terser.get(docSeg + "2");
 		if (temp != null) docName = temp;
-
+		
+		if (StringUtils.isNotEmpty(docName)) {
+			if (terser.get(docSeg + "5") != null) {
+				docName = docName + " " + terser.get(docSeg + "5");
+			}
+			if (terser.get(docSeg + "7") != null) {
+				docName = docName + " " + terser.get(docSeg + "7");
+			}
+		}
+		
 		// get the name
 		temp = terser.get(docSeg + "3");
 		if (temp != null) {
-			if (docName.equals("")) {
+			// get name prefix ie/ DR.
+			String prefix = terser.get(docSeg + "6");
+			if (prefix != null) {
+				if (StringUtils.isEmpty(docName)) {
+					docName = prefix;
+				} else {
+					docName = docName + ", " + prefix;
+				}
+			}
+			
+			if (StringUtils.isEmpty(docName)) {
 				docName = temp;
-			} else {
+			} else if (docName.contains(",")){
 				docName = docName + " " + temp;
+			} else {
+				docName = docName + ", " + temp;
+			}
+			
+			
+			// get the middle name/initial
+			String middle = terser.get(docSeg + "4");
+			if (middle != null) {
+				docName = docName + " " + middle;
 			}
 		}
-
-		if (terser.get(docSeg + "4") != null) {
-			docName = docName + " " + terser.get(docSeg + "4");
-		}
-		if (terser.get(docSeg + "2") != null) {
-			docName = docName + " " + terser.get(docSeg + "2");
-		}
-		if (terser.get(docSeg + "5") != null) {
-			docName = docName + " " + terser.get(docSeg + "5");
-		}
-		if (terser.get(docSeg + "7") != null) {
-			docName = docName + " " + terser.get(docSeg + "7");
-		}
+		
 		String modifier = "";
 		if (terser.get(docSeg + "13") != null) {
 			modifier = terser.get(docSeg + "13").toUpperCase();
@@ -2506,7 +2522,13 @@ public class OLISHL7Handler implements MessageHandler {
 
 		}
 		if (terser.get(docSeg + "1") != null) {
-			docName = docName + " " + "<span style=\"margin-left:15px; font-size:8px; color:#333333;\">" + modifier + " " + terser.get(docSeg + "1") + "</span>";
+			String jurisdiction = terser.get(docSeg + "22-1");
+			String jurisdictionVal = "";
+			if (jurisdiction != null && !jurisdiction.equals("ON") && terser.get(docSeg + "22-2") != null) {
+				jurisdictionVal =  " (" + terser.get(docSeg + "22-2") + ")";
+			}
+
+			docName = docName + " " + "<span style=\"margin-left:15px; font-size:8px; color:#333333;\">" + modifier + " " + terser.get(docSeg + "1") + jurisdictionVal + "</span>";
 		}
 
 		return (docName);
