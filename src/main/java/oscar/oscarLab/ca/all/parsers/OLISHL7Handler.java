@@ -1297,24 +1297,38 @@ public class OLISHL7Handler implements MessageHandler {
 		}
 	}
 
+	/**
+	 * Returns a descriptions of the passed Test Request Status.
+	 * The statuses match to the following as follows:
+	 *  F - Final
+	 *  O - Ordered
+	 *  I - Pending
+	 *  X - Cancelled
+	 *  P - Preliminary
+	 *  C - Amended
+	 *  A - Partial
+	 * 
+	 * @param status Status of the test request
+	 * @return Description of the provided status
+	 */
 	public String getTestRequestStatusMessage(char status) {
 		switch (status) {
 		case 'A':
-			return "Some, but not all, results available";
+			return "partial";
 		case 'C':
-			return "Correction to results";
+			return "amended";
 		case 'E':
 			return "OLIS has expired the test request because no activity has occurred within a reasonable amount of time.";
 		case 'F':
-			return "Final results; results stored and verified. Can only be changed with a corrected result.";
+			return "Final";
 		case 'I':
-			return "No results available; specimen received, procedure incomplete.";
+			return "pending";
 		case 'O':
-			return "Order received; specimen not yet received. ";
+			return "specimen not yet collected";
 		case 'P':
-			return "Preliminary: A verified early result is available, final results not yet obtained.";
+			return "preliminary";
 		case 'X':
-			return "No results available; Order canceled";
+			return "test was cancelled";
 		default:
 			return "";
 		}
@@ -1336,6 +1350,24 @@ public class OLISHL7Handler implements MessageHandler {
 		return "";
 	}
 
+	public boolean isObrStatusFinal(int i) {
+		i++;
+		String status = "";
+		try {
+			Segment obr;
+			if (i == 1) {
+				obr = terser.getSegment("/.OBR");
+			} else {
+				obr = (Segment) terser.getFinder().getRoot().get("OBR" + i);
+			}
+			status = getString(Terser.get(obr, 25, 0, 1, 1));
+		} catch (Exception e) {
+			MiscUtils.getLogger().error("OLIS HL7 Error", e);
+		}
+		
+		return status.equals("F");
+	}
+	
 	@Override
 	public String getMsgType() {
 		return (null);

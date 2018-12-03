@@ -1198,7 +1198,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                             <tr>
                                 <td bgcolor="#FFCC00" width="300" valign="top">
                                     <div class="Title2">
-                                        <%=headers.get(obr)%>
+                                        <%=headers.get(obr)%> <span <%= !handler.isObrStatusFinal(obr) ? "style=\"color: red\"" : "" %>><%= " (" +handler.getObrStatus(obr) + ")"%></span>
                                         <%
                                         String poc = handler.getPointOfCare(obr);
                                         if (!stringIsNullOrEmpty(poc)) {
@@ -1221,7 +1221,6 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                 		<% if (!handler.getObrSpecimenSource(obr).equals("")) { %>
                                 			<tr> <td> Specimen Source: </td><td><%=handler.getObrSpecimenSource(obr) %></td> </tr>
                                 		<% } %>
-                                		<tr> <td> Request Status: </td><td> <%=handler.getObrStatus(obr) %></td></tr>
                                 	</table>
 
                                 	</div>

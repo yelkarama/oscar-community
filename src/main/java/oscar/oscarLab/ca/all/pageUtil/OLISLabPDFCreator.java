@@ -62,6 +62,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
     private Provider printingProvider;
     private Document document;
     private BaseFont bf;
+	private BaseFont bfBold;
     private BaseFont cf;
     private Font font;
     private Font boldFont;
@@ -172,9 +173,10 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 
         //Create the fonts that we are going to use
         bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+		bfBold = BaseFont.createFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
         cf = BaseFont.createFont(BaseFont.COURIER, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
         font = new Font(bf, 9, Font.NORMAL);
-        boldFont = new Font(bf, 9, Font.BOLD);
+        boldFont = new Font(bfBold, 9, Font.NORMAL);
         redFont = new Font(bf, 9, Font.NORMAL, Color.RED);
         blueFont = new Font(bf, 9, Font.NORMAL, Color.BLUE);
         categoryHeadFont = new Font(bf, 12, Font.BOLD);
@@ -263,13 +265,27 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		cell.setBorder(0);
 		Phrase categoryPhrase = new Phrase();
 		categoryPhrase.setFont(boldFont);
-		//Replaces 
+		//Replaces breakpoints in the header and adds it to the phrase
 		categoryPhrase.add(header.replaceAll("<br\\s*/*>", "\n"));
+		// Checks if the status colour should be red
+		if (!handler.isObrStatusFinal(obr)) {
+			categoryPhrase.setFont(redFont);
+		}
+		//Adds the obr status to the phrase so it appears beside the test request/header
+		categoryPhrase.add(" (" + handler.getObrStatus(obr) + ")");
+
+		/*cell.setBorder(0);
+		//Outputs the request status
+		cell.setPhrase(new Phrase("Request Status: ", boldFont));
+		specimenTable.addCell(cell);
+		cell.setPhrase(new Phrase(handler.getObrStatus(obr), font));
+		specimenTable.addCell(cell);*/
+		
 		//Gets the point of care and outputs message if it exists
 		String poc = handler.getPointOfCare(obr);
 		if (!stringIsNullOrEmpty(poc)){
 			categoryPhrase.setFont(subscriptFont);
-			categoryPhrase.add("\n\nTest perofrmed at patient location");
+			categoryPhrase.add("\n\nTest performed at patient location");
 		}
 		
 		//Checks if the OBR is blocked
@@ -293,13 +309,6 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 			specimenTable.addCell(cell);
 			cell.setBorder(0);
 		}
-		
-		cell.setBorder(0);
-		//Outputs the request status
-		cell.setPhrase(new Phrase("Request Status: ", boldFont));
-		specimenTable.addCell(cell);
-		cell.setPhrase(new Phrase(handler.getObrStatus(obr), font));
-		specimenTable.addCell(cell);
 		
 		//Adds the specimen table to the category table
 		cell = new PdfPCell(specimenTable);
