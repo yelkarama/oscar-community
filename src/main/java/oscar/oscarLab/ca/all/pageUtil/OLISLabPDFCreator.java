@@ -167,6 +167,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         writer.setPageEvent(this);
 
         document.setPageSize(PageSize.LETTER);
+        document.setMargins(35, 35, 45, 40);
         document.addTitle("Title of the Document");
         document.addCreator("OSCAR");
         document.open();
@@ -1127,19 +1128,29 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
             Rectangle page = document.getPageSize();
             PdfContentByte cb = writer.getDirectContent();
             BaseFont bf = BaseFont.createFont(BaseFont.TIMES_ROMAN, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+			BaseFont boldFont = BaseFont.createFont(BaseFont.TIMES_BOLD, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
             int pageNum = document.getPageNumber();
             float width = page.getWidth();
             float height = page.getHeight();
 
-            //add patient name header for every page but the first.
+            // Add patient information header
             cb.beginText();
-            cb.setFontAndSize(bf, 8);
-            String headerText = "";
-            if (pageNum > 1){
-                headerText += handler.getPatientName() + "    ";
-            }
-            headerText += "Generated from OLIS on " + handler.getMsgDate() + " by user " + printingProvider.getFirstName() + " " + printingProvider.getLastName();
-            cb.showTextAligned(PdfContentByte.ALIGN_RIGHT, headerText, 575, height - 30, 0);
+            cb.setFontAndSize(bf, 9);
+            String patientInformation = "Patient: " + handler.getPatientName()  + " | Health Number: " + handler.getFormattedHealthNumber();
+            cb.showTextAligned(PdfContentByte.ALIGN_LEFT, patientInformation, 35, height - 15, 0);
+            
+            // Adds text describing the report is from OLIS and the ministry of health
+            cb.setFontAndSize(boldFont, 9);
+            String disclaimer = "Ministry of Health and Long-Term Care";
+            cb.showTextAligned(PdfContentByte.ALIGN_LEFT, disclaimer, 35, height - 30, 0);
+            
+            String disclaimerLineTwo = "Ontario Laboratories Information System (OLIS)";
+            cb.showTextAligned(PdfContentByte.ALIGN_LEFT, disclaimerLineTwo, 35, height - 40, 0);
+ 
+            // Sets the generated message
+            cb.setFontAndSize(bf, 9);
+            String generatedMessage = "Generated from OLIS on " + handler.getMsgDate() + " by user " + printingProvider.getFirstName() + " " + printingProvider.getLastName();
+            cb.showTextAligned(PdfContentByte.ALIGN_RIGHT, generatedMessage, 575, height - 40, 0);
             cb.endText();
 
             //add footer for every page
