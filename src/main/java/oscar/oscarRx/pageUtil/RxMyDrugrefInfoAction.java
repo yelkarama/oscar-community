@@ -196,21 +196,21 @@ public final class RxMyDrugrefInfoAction extends DispatchAction {
 
             RxDrugRef drugRef = new RxDrugRef();
             Hashtable<String, Vector> fdbInteractions = drugRef.getInteractionsUsingFdb(dinCodes);
-
-            for (Object drugInteractionObj : fdbInteractions.get("First Databank Service")) {
-                Hashtable<String, String> drugInteraction = (Hashtable<String, String>) drugInteractionObj;
-                Hashtable<String, Object> displayInteraction = new Hashtable<String, Object>();
-                displayInteraction.put("is_fdb", "true");
-                displayInteraction.put("id", drugInteraction.get("interaction_id"));
-                displayInteraction.put("name", drugInteraction.get("interaction_name"));
-                displayInteraction.put("author", "First Databank Service");
-                displayInteraction.put("created_by", "First Databank Service");
-                displayInteraction.put("trusted", true);
-                displayInteraction.put("body", drugInteraction.get("comment"));
-                displayInteraction.put("comments", new Vector<>());
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-                displayInteraction.put("updated_at", sdf.parse(drugInteraction.get("update_date")));
-                // FDB's significance levels don't correspond to drugrefs increasing levels of severity
+            if (!fdbInteractions.isEmpty()) {
+                for (Object drugInteractionObj : fdbInteractions.get("First Databank Service")) {
+                    Hashtable<String, String> drugInteraction = (Hashtable<String, String>) drugInteractionObj;
+                    Hashtable<String, Object> displayInteraction = new Hashtable<String, Object>();
+                    displayInteraction.put("is_fdb", "true");
+                    displayInteraction.put("id", drugInteraction.get("interaction_id"));
+                    displayInteraction.put("name", drugInteraction.get("interaction_name"));
+                    displayInteraction.put("author", "First Databank Service");
+                    displayInteraction.put("created_by", "First Databank Service");
+                    displayInteraction.put("trusted", true);
+                    displayInteraction.put("body", drugInteraction.get("comment"));
+                    displayInteraction.put("comments", new Vector<>());
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+                    displayInteraction.put("updated_at", sdf.parse(drugInteraction.get("update_date")));
+                    // FDB's significance levels don't correspond to drugrefs increasing levels of severity
                 /*  SEVERITY LEVEL:  1-Contraindicated Drug Combination: This drug combination 
                     is contraindicated and generally should not be dispensed or administered to 
                     the same patient.
@@ -219,14 +219,15 @@ public final class RxMyDrugrefInfoAction extends DispatchAction {
                     SEVERITY LEVEL:  3-Moderate Interaction: Assess the risk to the patient and 
                     take action as needed.
                  */
-                if ("3".equals(drugInteraction.get("significance"))) {
-                    displayInteraction.put("significance", "1");
-                } else if ("1".equals(drugInteraction.get("significance"))) {
-                    displayInteraction.put("significance", "3");
-                } else {
-                    displayInteraction.put("significance", drugInteraction.get("significance"));
+                    if ("3".equals(drugInteraction.get("significance"))) {
+                        displayInteraction.put("significance", "1");
+                    } else if ("1".equals(drugInteraction.get("significance"))) {
+                        displayInteraction.put("significance", "3");
+                    } else {
+                        displayInteraction.put("significance", drugInteraction.get("significance"));
+                    }
+                    all.add(displayInteraction);
                 }
-                all.add(displayInteraction);
             }
         } else if (OscarProperties.getInstance().isPropertyActive("rx_show_dchan_warnings")) {
             str.add("atcfetch/getInteractions");
