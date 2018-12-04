@@ -7,7 +7,7 @@ import java.util.List;
 
 public class OlisLabResults {
 
-    private List<OlisLabResultListDisplay> resultList = new ArrayList<OlisLabResultListDisplay>();
+    private List<OlisLabResultDisplay> resultList = new ArrayList<OlisLabResultDisplay>();
     private List<OLISHL7Handler.OLISError> errors =  new ArrayList<OLISHL7Handler.OLISError>();
     private boolean hasBlockedContent = false;
     
@@ -19,11 +19,19 @@ public class OlisLabResults {
 
     public OlisLabResults() { }
 
-    public List<OlisLabResultListDisplay> getResultList() {
+    public List<OlisLabResultDisplay> getResultList() {
         return resultList;
     }
-    public void setResultList(List<OlisLabResultListDisplay> resultList) {
+    public void setResultList(List<OlisLabResultDisplay> resultList) {
         this.resultList = resultList;
+    }
+
+    public List<OlisMeasurementsResultDisplay> getAllMeasurements() {
+        List<OlisMeasurementsResultDisplay> results = new ArrayList<OlisMeasurementsResultDisplay>();
+        for (OlisLabResultDisplay olisLabResultDisplay : getResultList()) {
+            results.addAll(olisLabResultDisplay.getMeasurements());
+        }
+        return results;
     }
 
     public List<OLISHL7Handler.OLISError> getErrors() {
@@ -73,5 +81,19 @@ public class OlisLabResults {
     }
     public void setDemographicDob(String demographicDob) {
         this.demographicDob = demographicDob;
+    }
+    
+    public void setDemographicInfo(OLISHL7Handler reportHandler) {
+        this.setDemographicName(reportHandler.getPatientName());
+        if (reportHandler.getPatientIdentifier("JHN").length > 0) {
+            this.setDemographicHin(reportHandler.getPatientIdentifier("JHN")[0]);
+        }
+        if (reportHandler.getPatientIdentifier("MR").length > 1) {
+            String[] identifiers = reportHandler.getPatientIdentifier("MR");
+            String hospital = reportHandler.getSourceOrganization(identifiers[1]);
+            this.setDemographicMrn(identifiers[0] + " " + hospital + " (Lab " + identifiers[1] + ")");
+        }
+        this.setDemographicSex(reportHandler.getSex());
+        this.setDemographicDob(reportHandler.getDOB());
     }
 }

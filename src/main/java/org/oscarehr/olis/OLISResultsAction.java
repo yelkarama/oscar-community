@@ -27,7 +27,7 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
 import org.oscarehr.common.dao.SystemPreferencesDao;
 import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.olis.model.OlisLabResultListDisplay;
+import org.oscarehr.olis.model.OlisLabResultDisplay;
 import org.oscarehr.olis.model.OlisLabResults;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -39,7 +39,7 @@ import oscar.oscarLab.ca.all.parsers.Factory;
 import oscar.oscarLab.ca.all.parsers.OLISHL7Handler;
 import oscar.oscarLab.ca.all.util.Utilities;
 
-import static org.oscarehr.olis.model.OlisLabResultListDisplay.DEFAULT_OLIS_SORT_COMPARATOR;
+import static org.oscarehr.olis.model.OlisLabResultDisplay.DEFAULT_OLIS_SORT_COMPARATOR;
 
 public class OLISResultsAction extends DispatchAction {
 
@@ -74,24 +74,13 @@ public class OLISResultsAction extends DispatchAction {
 				}
 			}
 			
-			UUID uuid = UUID.randomUUID();
-
-			File tempFile = new File(System.getProperty("java.io.tmpdir") + "/olis_" + uuid.toString() + ".response");
-			FileUtils.writeStringToFile(tempFile, olisResultString);
+			UUID olisResultFileUuid = UUID.randomUUID();
+			File olisResultFile = new File(System.getProperty("java.io.tmpdir") + "/olis_" + olisResultFileUuid.toString() + ".response");
+			FileUtils.writeStringToFile(olisResultFile, olisResultString);
 
             OLISHL7Handler reportHandler = (OLISHL7Handler) Factory.getHandler("OLIS_HL7", olisResultString);
             if (reportHandler != null) {
-                olisLabResults.setDemographicName(reportHandler.getPatientName());
-                if (reportHandler.getPatientIdentifier("JHN").length > 0) {
-                    olisLabResults.setDemographicHin(reportHandler.getPatientIdentifier("JHN")[0]);
-                }
-                if (reportHandler.getPatientIdentifier("MR").length > 1) {
-                    String[] identifiers = reportHandler.getPatientIdentifier("MR");
-                    String hospital = reportHandler.getSourceOrganization(identifiers[1]);
-                    olisLabResults.setDemographicMrn(identifiers[0] + " " + hospital + " (Lab " + identifiers[1] + ")");
-                }
-                olisLabResults.setDemographicSex(reportHandler.getSex());
-                olisLabResults.setDemographicDob(reportHandler.getDOB());
+                olisLabResults.setDemographicInfo(reportHandler);
                 
                 List<OLISHL7Handler.OLISError> errors = reportHandler.getReportErrors();
                 if (errors.size() > 0) {
@@ -109,9 +98,9 @@ public class OLISResultsAction extends DispatchAction {
 				for (String message : messages) {
 					
 					String resultUuid = UUID.randomUUID().toString();
-										
-					tempFile = new File(System.getProperty("java.io.tmpdir") + "/olis_" + resultUuid.toString() + ".response");
-					FileUtils.writeStringToFile(tempFile, message);
+
+                    olisResultFile = new File(System.getProperty("java.io.tmpdir") + "/olis_" + resultUuid + ".response");
+					FileUtils.writeStringToFile(olisResultFile, message);
 					
 					// Parse the HL7 string...
                     OLISHL7Handler olisResultHandler = (OLISHL7Handler) Factory.getHandler("OLIS_HL7", message);
@@ -122,7 +111,7 @@ public class OLISResultsAction extends DispatchAction {
 					searchResultsMap.put(resultUuid, olisResultHandler);
 					resultList.add(resultUuid);
 
-                    olisLabResults.getResultList().addAll(OlisLabResultListDisplay.getListFromHandler(olisResultHandler, resultUuid));
+                    olisLabResults.getResultList().addAll(OlisLabResultDisplay.getListFromHandler(olisResultHandler, resultUuid));
 				}
 			}
             request.setAttribute("resultList", resultList);

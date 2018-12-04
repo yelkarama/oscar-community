@@ -6,33 +6,27 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public class OlisLabResultListDisplay {
+public class OlisLabResultDisplay {
     
     private String labUuid;
     private int labObrIndex;
-    
-    
     private String placerGroupNo;
     private String testRequestSortKey;
-
-    private String patientHealthNumber = "";
-    private String patientName = "";
-    private String patientSex = "";
-    
     private String testRequestName;
     private String status;
-    private String specimentType;
+    private String specimenType;
     private String resultsIndicator;
-    
     private String orderingPractitioner;
+    private String orderingPractitionerFull;
     private String admittingPractitioner;
-    
     private String reportingFacilityName = "";
-    
     private String olisLastUpdated;
     private String collectionDate;
+    private String collectorsComment;
+    
+    private List<OlisMeasurementsResultDisplay> measurements = new ArrayList<OlisMeasurementsResultDisplay>();
 
-    public OlisLabResultListDisplay() { }
+    public OlisLabResultDisplay() { }
 
     public String getLabUuid() {
         return labUuid;
@@ -62,27 +56,6 @@ public class OlisLabResultListDisplay {
         this.testRequestSortKey = testRequestSortKey;
     }
 
-    public String getPatientHealthNumber() {
-        return patientHealthNumber;
-    }
-    public void setPatientHealthNumber(String patientHealthNumber) {
-        this.patientHealthNumber = patientHealthNumber;
-    }
-
-    public String getPatientName() {
-        return patientName;
-    }
-    public void setPatientName(String patientName) {
-        this.patientName = patientName;
-    }
-
-    public String getPatientSex() {
-        return patientSex;
-    }
-    public void setPatientSex(String patientSex) {
-        this.patientSex = patientSex;
-    }
-
     public String getTestRequestName() {
         return testRequestName;
     }
@@ -97,11 +70,11 @@ public class OlisLabResultListDisplay {
         this.status = status;
     }
 
-    public String getSpecimentType() {
-        return specimentType;
+    public String getSpecimenType() {
+        return specimenType;
     }
-    public void setSpecimentType(String specimentType) {
-        this.specimentType = specimentType;
+    public void setSpecimenType(String specimentType) {
+        this.specimenType = specimentType;
     }
 
     public String getResultsIndicator() {
@@ -125,6 +98,13 @@ public class OlisLabResultListDisplay {
         this.orderingPractitioner = orderingPractitioner;
     }
 
+    public String getOrderingPractitionerFull() {
+        return orderingPractitionerFull;
+    }
+    public void setOrderingPractitionerFull(String orderingPractitionerFull) {
+        this.orderingPractitionerFull = orderingPractitionerFull;
+    }
+
     public String getAdmittingPractitioner() {
         return admittingPractitioner;
     }
@@ -146,8 +126,22 @@ public class OlisLabResultListDisplay {
         this.collectionDate = collectionDate;
     }
 
-    public static List<OlisLabResultListDisplay> getListFromHandler(OLISHL7Handler olisHandler, String resultUuid) {
-        List<OlisLabResultListDisplay> results = new ArrayList<OlisLabResultListDisplay>();
+    public String getCollectorsComment() {
+        return collectorsComment;
+    }
+    public void setCollectorsComment(String collectorsComment) {
+        this.collectorsComment = collectorsComment;
+    }
+
+    public List<OlisMeasurementsResultDisplay> getMeasurements() {
+        return measurements;
+    }
+    public void setMeasurements(List<OlisMeasurementsResultDisplay> measurements) {
+        this.measurements = measurements;
+    }
+
+    public static List<OlisLabResultDisplay> getListFromHandler(OLISHL7Handler olisHandler, String resultUuid) {
+        List<OlisLabResultDisplay> results = new ArrayList<OlisLabResultDisplay>();
         
         ArrayList headers = olisHandler.getHeaders();
         for (int i = 0; i < headers.size(); i++) {
@@ -158,22 +152,21 @@ public class OlisLabResultListDisplay {
                 continue;
             }
 
-            OlisLabResultListDisplay labResult = new OlisLabResultListDisplay();
+            OlisLabResultDisplay labResult = new OlisLabResultDisplay();
 
             // Lab specific values
             labResult.setLabUuid(resultUuid);
             labResult.setLabObrIndex(obr);
             labResult.setTestRequestName(olisHandler.getOBRName(obr));
             labResult.setStatus(olisHandler.getObrStatus(obr));
-            labResult.setSpecimentType(olisHandler.getObrSpecimenSource(obr));
+            labResult.setSpecimenType(olisHandler.getObrSpecimenSource(obr));
             labResult.setResultsIndicator(olisHandler.getObrStatus(obr));
             labResult.setTestRequestSortKey(olisHandler.getZBR11(obr));
+            labResult.setCollectorsComment(olisHandler.getCollectorsComment(obr));
             
             // Report level values
-            labResult.setPatientHealthNumber(olisHandler.getHealthNum());
-            labResult.setPatientName(olisHandler.getPatientName());
-            labResult.setPatientSex(olisHandler.getSex());
             labResult.setOrderingPractitioner(olisHandler.getShortDocName());
+            labResult.setOrderingPractitionerFull(olisHandler.getDocName());
             labResult.setAdmittingPractitioner(olisHandler.getAdmittingProviderNameShort());
             labResult.setOlisLastUpdated(olisHandler.getLastUpdateInOLIS());
             labResult.setReportingFacilityName(olisHandler.getReportingFacilityName());
@@ -194,6 +187,28 @@ public class OlisLabResultListDisplay {
             }
             
             labResult.setPlacerGroupNo(olisHandler.getAccessionNum());
+
+            for (int obx = 0; obx < olisHandler.getOBXCount(obr); obx++) {
+                OlisMeasurementsResultDisplay measurement = new OlisMeasurementsResultDisplay();
+                measurement.setMeasurementObxIndex(obx);
+                measurement.setParentLab(labResult);
+                measurement.setTestResultName(olisHandler.getOBXName(obr, obx));
+                measurement.setStatus(olisHandler.getTestResultStatusMessage(olisHandler.getOBXResultStatus(obr, obx).charAt(0)));
+                measurement.setResultValue(olisHandler.getOBXResult(obr, obx));
+                measurement.setFlag(olisHandler.getOBXAbnormalFlag(obr, obx));
+                measurement.setReferenceRange(olisHandler.getOBXReferenceRange(obr, obx));
+                measurement.setUnits(olisHandler.getOBXUnits(obr, obx));
+                String abnormal = olisHandler.getOBXAbnormalFlag(obr, obx);
+                measurement.setAbnormal(abnormal != null && (abnormal.equals("A") || abnormal.startsWith("H") || olisHandler.isOBXAbnormal(obr, obx)));
+                measurement.setNatureOfAbnormalText(olisHandler.getNatureOfAbnormalTest(obr, obx));
+                measurement.setIsAttachment("ED".equals(olisHandler.getOBXValueType(obr, obx).trim()));
+
+                for (int commentIndex = 0; commentIndex < olisHandler.getOBXCommentCount(obr, obx); commentIndex++) {
+                    measurement.getComments().add(olisHandler.getOBXComment(obr, obx, commentIndex));
+                }
+                
+                labResult.getMeasurements().add(measurement);
+            }
             
             results.add(labResult);
         }
@@ -201,9 +216,9 @@ public class OlisLabResultListDisplay {
         return results;
     }
 
-    public static final Comparator<OlisLabResultListDisplay> DEFAULT_OLIS_SORT_COMPARATOR = new Comparator<OlisLabResultListDisplay>() {
+    public static final Comparator<OlisLabResultDisplay> DEFAULT_OLIS_SORT_COMPARATOR = new Comparator<OlisLabResultDisplay>() {
         @Override
-        public int compare(OlisLabResultListDisplay o1, OlisLabResultListDisplay o2) {
+        public int compare(OlisLabResultDisplay o1, OlisLabResultDisplay o2) {
             int placerGroupNoCompare = o1.getPlacerGroupNo().compareTo(o2.getPlacerGroupNo());
             int requestSortKeyCompare = o1.getTestRequestSortKey().compareTo(o2.getTestRequestSortKey());
             
