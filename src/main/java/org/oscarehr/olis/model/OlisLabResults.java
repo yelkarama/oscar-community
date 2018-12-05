@@ -85,10 +85,10 @@ public class OlisLabResults {
     
     public void setDemographicInfo(OLISHL7Handler reportHandler) {
         this.setDemographicName(reportHandler.getPatientName());
-        if (reportHandler.getPatientIdentifier("JHN").length > 0) {
+        if (reportHandler.getPatientIdentifier("JHN") != null && reportHandler.getPatientIdentifier("JHN").length > 0) {
             this.setDemographicHin(reportHandler.getPatientIdentifier("JHN")[0]);
         }
-        if (reportHandler.getPatientIdentifier("MR").length > 1) {
+        if (reportHandler.getPatientIdentifier("MR") != null && reportHandler.getPatientIdentifier("MR").length > 1) {
             String[] identifiers = reportHandler.getPatientIdentifier("MR");
             String hospital = reportHandler.getSourceOrganization(identifiers[1]);
             this.setDemographicMrn(identifiers[0] + " " + hospital + " (Lab " + identifiers[1] + ")");
