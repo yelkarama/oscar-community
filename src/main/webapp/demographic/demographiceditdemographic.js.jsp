@@ -273,6 +273,7 @@ function setProvince(sdCode) {
         data: 'method=getCountryAndProvinceCodes',
         dataType: 'json',
         success: function (data) {
+        	jQuery('#country').append(jQuery('<option>').text('').attr('value', ''));
         	jQuery.each(data, function(i, value) {
                  jQuery('#country').append(jQuery('<option>').text(value.label).attr('value', value.value));
              });
@@ -280,7 +281,7 @@ function setProvince(sdCode) {
         	 if(sdCode.indexOf('-') != -1) {
             	 jQuery("#country").val(sdCode.split("-")[0]);
              } else {
-           	  jQuery("#country").val('CA');
+           	//  jQuery("#country").val('CA');
              }
         	
         	updateProvinces(sdCode);
@@ -291,6 +292,11 @@ function setProvince(sdCode) {
 
 function updateProvinces(province) {
 	var country = jQuery("#country").val();
+	console.log('country is ' + country );
+	if(country == '') {
+		console.log('t1');
+		return;
+	}
 	
 	jQuery.ajax({
         type: "POST",
@@ -299,7 +305,6 @@ function updateProvinces(province) {
         dataType: 'json',
         success: function (data) {
         	jQuery('#province').empty();
-        	 
         	jQuery.each(data, function(i, value) {
                  jQuery('#province').append(jQuery('<option>').text(value.label).attr('value', value.value));
              });
@@ -326,6 +331,7 @@ function setMailingProvince(sdCode) {
         data: 'method=getCountryAndProvinceCodes',
         dataType: 'json',
         success: function (data) {
+        	jQuery('#mailingCountry').append(jQuery('<option>').text('').attr('value', ''));
         	jQuery.each(data, function(i, value) {
                  jQuery('#mailingCountry').append(jQuery('<option>').text(value.label).attr('value', value.value));
              });
@@ -333,7 +339,7 @@ function setMailingProvince(sdCode) {
              if(sdCode.indexOf('-') != -1) {
             	 jQuery("#mailingCountry").val(sdCode.split("-")[0]);
              } else {
-           	  jQuery("#mailingCountry").val('CA');
+           	//  jQuery("#mailingCountry").val('CA');
              }
         	
         	updateMailingProvinces(sdCode);
@@ -344,7 +350,9 @@ function setMailingProvince(sdCode) {
 
 function updateMailingProvinces(province) {
 	var country = jQuery("#mailingCountry").val();
-	
+	if(country == '') {
+		return;
+	}
 	jQuery.ajax({
         type: "POST",
         url:  '../demographicSupport.do',

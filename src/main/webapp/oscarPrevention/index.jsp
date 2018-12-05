@@ -265,12 +265,25 @@ function EnablePrint(button) {
         display(checkboxes);
         var spaces = document.getElementsByName("printSp");
         display(spaces);
-        button.form.sendToPhrButton.style.display = 'block';
+        if(button.form.sendToPhrButton != null) {
+        	button.form.sendToPhrButton.style.display = 'block';
+        }
+        showImmunizationOnlyPrintButton();
     }
     else {
         if( onPrint() )
             document.printFrm.submit();
     }
+}
+
+function printImmOnly() { 
+	 document.printFrm.immunizationOnly.value = "true";
+	 document.printFrm.submit();
+}
+
+function showImmunizationOnlyPrintButton() {
+		console.log("test");
+		$("#print_buttons").append("<input type=\"button\" class=\"noPrint\" name=\"printImmButton\" onclick=\"printImmOnly()\" value=\"Print Immunizations Only\">");
 }
 
 function onPrint() {
@@ -682,6 +695,7 @@ List<String> OTHERS = Arrays.asList(new String[]{"DTaP-Hib","TdP-IPV-Hib","HBTmf
 
 		<form name="printFrm" method="post" onsubmit="return onPrint();"
 			action="<rewrite:reWrite jspPage="printPrevention.do"/>">
+			<input type="hidden" name="immunizationOnly" value="false"/>
 		<td valign="top" class="MainTableRightColumn">
 		
 		<%if(dhirEnabled && !isSSOLoggedIn && !hideSSOWarning) {%>
@@ -1045,7 +1059,9 @@ List<String> OTHERS = Arrays.asList(new String[]{"DTaP-Hib","TdP-IPV-Hib","HBTmf
 	</tr>
 	<tr>
 		<td class="MainTableBottomRowLeftColumn">
-			<input type="button" class="noPrint" name="printButton" onclick="EnablePrint(this)" value="Enable Print">
+			<span id="print_buttons">
+				<input type="button" class="noPrint" name="printButton" onclick="EnablePrint(this)" value="Enable Print">
+			</input>
 <!--
 			<br>
 			<input type="button" name="sendToPhrButton" value="Send To MyOscar (PDF)" style="display: none;" onclick="sendToPhr(this)">

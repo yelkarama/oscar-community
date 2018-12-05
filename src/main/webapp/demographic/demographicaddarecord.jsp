@@ -149,11 +149,19 @@
 	demographic.setMiddleNames(request.getParameter("middleNames").trim());
 	demographic.setAddress(request.getParameter("address"));
 	demographic.setCity(request.getParameter("city"));
-	demographic.setProvince(request.getParameter("province"));
+	if(request.getParameter("province") != null) {
+		demographic.setProvince(request.getParameter("province"));
+	} else {
+		demographic.setProvince("");
+	}
 	demographic.setPostal(request.getParameter("postal"));
 	demographic.setMailingAddress(request.getParameter("mailingAddress"));
 	demographic.setMailingCity(request.getParameter("mailingCity"));
-	demographic.setMailingProvince(request.getParameter("mailingProvince"));
+	if(request.getParameter("mailingProvince") != null) {
+		demographic.setMailingProvince(request.getParameter("mailingProvince"));
+	} else {
+		demographic.setMailingProvince("");
+	}
 	demographic.setMailingPostal(request.getParameter("mailingPostal"));
 	demographic.setPhone(request.getParameter("phone"));
 	demographic.setPhone2(request.getParameter("phone2"));

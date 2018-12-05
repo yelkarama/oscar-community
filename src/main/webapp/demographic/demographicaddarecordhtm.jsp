@@ -628,12 +628,17 @@ jQuery(document).ready(function(){
 		updateProvinces('');
 	});
 	
+	jQuery("#mailingCountry").bind('change',function(){
+		updateMailingProvinces('');
+	});
+	
     jQuery.ajax({
         type: "POST",
         url:  '../demographicSupport.do',
         data: 'method=getCountryAndProvinceCodes',
         dataType: 'json',
         success: function (data) {
+        	jQuery('#country').append(jQuery('<option>').text('').attr('value', ''));
         	jQuery.each(data, function(i, value) {
                  jQuery('#country').append(jQuery('<option>').text(value.label).attr('value', value.value));
              });
@@ -649,6 +654,32 @@ jQuery(document).ready(function(){
         	jQuery("#country").val(defaultCountry);
         	
         	updateProvinces(defaultProvince);
+        	
+        }
+	});
+    
+    jQuery.ajax({
+        type: "POST",
+        url:  '../demographicSupport.do',
+        data: 'method=getCountryAndProvinceCodes',
+        dataType: 'json',
+        success: function (data) {
+        	jQuery('#mailingCountry').append(jQuery('<option>').text('').attr('value', ''));
+        	jQuery.each(data, function(i, value) {
+                 jQuery('#mailingCountry').append(jQuery('<option>').text(value.label).attr('value', value.value));
+             });
+        	
+        	var defaultProvince = '<%=OscarProperties.getInstance().getProperty("demographic.default_province","")%>';
+        	var defaultCountry = '';
+        	
+        	if(defaultProvince == '' && defaultCountry == '') {
+        		defaultProvince = 'CA-ON';
+        	}
+        	defaultCountry = defaultProvince.substring(0,defaultProvince.indexOf('-'));
+        	
+        	jQuery("#mailingCountry").val(defaultCountry);
+        	
+        	updateMailingProvinces(defaultProvince);
         	
         }
 	});
@@ -678,6 +709,33 @@ function updateProvinces(province) {
         	
         	if(province != null) {
         		jQuery("#province").val(province);
+        	}
+        	
+        	
+        }
+	});
+}
+
+
+function updateMailingProvinces(province) {
+	var country = jQuery("#mailingCountry").val();
+	
+	
+	jQuery.ajax({
+        type: "POST",
+        url:  '../demographicSupport.do',
+        data: 'method=getCountryAndProvinceCodes&country=' + country,
+        dataType: 'json',
+        success: function (data) {
+        	jQuery('#mailingProvince').empty();
+        	 
+        	jQuery.each(data, function(i, value) {
+                 jQuery('#mailingProvince').append(jQuery('<option>').text(value.label).attr('value', value.value));
+             });
+        	
+        	
+        	if(province != null) {
+        		jQuery("#mailingProvince").val(province);
         	}
         	
         	
@@ -994,6 +1052,14 @@ function updateProvinces(province) {
 				<td id="provLbl" align="right"><b> 
 				<bean:message key="demographic.demographicaddrecordhtm.formMailingProvince" />  : </b></td>
 				<td id="provCell" align="left">
+				<%
+					if("true".equals(OscarProperties.getInstance().getProperty("iso3166.2.enabled","false"))) { 	
+				%>
+					<select name="mailingProvince" id="mailingProvince"></select> 
+					<br/>
+					Filter by Country: <select name="mailingCountry" id="mailingCountry" ></select>
+							
+				<% } else { %>			
 				<select id="mailingProvince" name="mailingProvince">
 					<option value="OT"
 						<%=defaultProvince.equals("")||defaultProvince.equals("OT")?" selected":""%>>Other</option>
@@ -1077,6 +1143,7 @@ function updateProvinces(province) {
 					<option value="US-WY" <%=defaultProvince.equals("US-WY")?" selected":""%>>US-WY-Wyoming</option>
 					<% } %>
 				</select>
+				<% } %>
 				</td>
 				<td id="postalLbl" align="right"><b>
 				<bean:message key="demographic.demographicaddrecordhtm.formMailingPostal" />

@@ -142,7 +142,9 @@ public class DemographicAction extends DispatchAction  {
 					r.put("label", countryName);
 					results.put(r);
 				}
-			} else {
+			} else if ("".equals(selectedCountry)) {
+			
+			}else {
 				org.codehaus.jettison.json.JSONObject country = (org.codehaus.jettison.json.JSONObject)obj.get(selectedCountry);
 				org.codehaus.jettison.json.JSONObject divisions = (org.codehaus.jettison.json.JSONObject)country.get("divisions");
 				Iterator iter =  divisions.keys();

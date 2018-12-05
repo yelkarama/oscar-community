@@ -609,6 +609,7 @@ public class RxPrescriptionData {
 		java.util.Date pickupTime = null;
 		java.util.Date writtenDate = null;
 		String writtenDateFormat = null;
+		String rxDateFormat = null;
 		java.util.Date printDate = null;
 		int numPrints = 0;
 		String BN = null; // regular
@@ -981,6 +982,14 @@ public class RxPrescriptionData {
 
 		public void setWrittenDateFormat(String RHS) {
 			this.writtenDateFormat = RHS;
+		}
+		
+		public String getRxDateFormat() {
+			return this.rxDateFormat;
+		}
+
+		public void setRxDateFormat(String RHS) {
+			this.rxDateFormat = RHS;
 		}
 
 		public String getProtocol() {

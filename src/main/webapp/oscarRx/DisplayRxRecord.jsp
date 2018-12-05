@@ -85,6 +85,30 @@ DrugReasonDao drugReasonDao = SpringUtils.getBean(DrugReasonDao.class);
         	///annotation/annotation.jsp?display=Prescriptions&table_id=173&demo=185&drugSpecial=HYZAAR%2012.5MG/100MG%20take%201%20OD%20for%2030%20days%20Qty:30%20Repeats:0	
         		
         	}
+        	
+        	function updateForm() {
+        		popup(250,500,'<%=request.getContextPath()%>/oscarRx/updateForm.jsp?id=<%=drugId%>','<%=drugId%>');
+        	}
+        	
+        	function popup(height, width, url, windowName) {
+        		  return popup2(height, width, 0, 0, url, windowName);
+        		}
+
+
+        	function popup2(height, width, top, left, url, windowName){
+        	  var page = url;
+        	  windowprops = "height="+height+",width="+width+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=0,screenY=0,top=" + top + ",left=" + left;
+        	  var popup=window.open(url, windowName, windowprops);
+        	  if (popup != null){
+        	    if (popup.opener == null){
+        	      popup.opener = self;
+        	    }
+        	  }
+        	  popup.focus();
+        	  return false;
+        	}
+
+        	
         </script>
     </head>
     
@@ -236,7 +260,7 @@ DrugReasonDao drugReasonDao = SpringUtils.getBean(DrugReasonDao.class);
               				</tr>
               				<tr>
               					<td class="label">Form:</td>
-                        		<td><%= StringUtils.trimToEmpty(drug.getDrugForm()) %></td>
+                        		<td><%= StringUtils.trimToEmpty(drug.getDrugForm()) %> &nbsp; (<a href="javascript:void()" onClick="updateForm();return false;">Update</a>)</td>
               				</tr>
               				<tr>
               					<td class="label">Strength:</td>

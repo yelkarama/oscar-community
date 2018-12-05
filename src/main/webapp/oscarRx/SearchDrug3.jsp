@@ -673,6 +673,7 @@ function checkFav(){
     }
 
     function emptyWrittenDate(rand){
+    	/*
     	var cb = document.getElementById('pastMed_'+rand);
     	var txt = document.getElementById('writtenDate_'+rand);
 
@@ -683,7 +684,7 @@ function checkFav(){
     		txt.disabled=false;
 
     	}
-
+	*/
     }
 
     //this is a SJHH specific feature
@@ -2219,21 +2220,60 @@ function updateQty(element){
              var params="randomId="+randomId+"&din="+din;
              new Ajax.Updater(divId,url,{method:'get',parameters:params,insertion:Insertion.Bottom,asynchronous:true});
          }
+         
+         function validateRxDate() {
+         	var x = true;
+             jQuery('input[name^="rxDate__"]').each(function(){
+                 var str1  = jQuery(this).val();
 
-      function validateRxDate() {
-          	var rx=true;
-          	jQuery('input[name^="rxDate_"]').each(function(){
-          		var strRx  = jQuery(this).val();
+                 var dt = str1.split("-");
+                 if (dt.length>3) {
+                 	jQuery(this).focus();
+                     alert('Start Date wrong format! Must be yyyy or yyyy-mm or yyyy-mm-dd');
+                     x = false;
+                     return;
+                 }
 
-          		if(!checkAndValidateDate(strRx,null)) {
-          			jQuery(this).focus();
-          			rx=false;
-          			return false;
-          		}
+                 var dt1=1, mon1=0, yr1=parseInt(dt[0],10);
+                 if (isNaN(yr1) || yr1<0 || yr1>9999) {
+                 	jQuery(this).focus();
+                     alert('Invalid Start Date! Please check the year');
+                     x = false;
+                     return;
+                 }
+                 if (dt.length>1) {
+                 	mon1 = parseInt(dt[1],10)-1;
+                 	if (isNaN(mon1) || mon1<0 || mon1>11) {
+                 		jQuery(this).focus();
+                 		alert('Invalid Start Date! Please check the month');
+                         x = false;
+                         return;
+                 	}
+                 }
+                 if (dt.length>2) {
+                 	dt1 = parseInt(dt[2],10);
+                     if (isNaN(dt1) || dt1<1 || dt1>31) {
+                     	jQuery(this).focus();
+                         alert('Invalid Start Date! Please check the day');
+                         x = false;
+                         return;
+                     }
+                 }
+                 var date1 = new Date(yr1, mon1, dt1);
+                 var now  = new Date();
 
-          	});
-          	return rx;
-     }
+                 if(date1 > now) {
+                 	jQuery(this).focus();
+                     alert('Start Date cannot be in the future. (' + str1 +')');
+                     x = false;
+                     return;
+     	        }
+             });
+             return x;
+         }
+
+         
+
 
     function validateWrittenDate() {
     	var x = true;

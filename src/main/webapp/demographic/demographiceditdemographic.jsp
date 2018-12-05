@@ -881,7 +881,7 @@ AdmissionManager admissionManager = SpringUtils.getBean(AdmissionManager.class);
 if("true".equals(OscarProperties.getInstance().getProperty("iso3166.2.enabled","false"))) { 	
 %>
 jQuery(document).ready(function(){
-	setProvince('<%=demographic.getProvince()%>');
+	setProvince('<%=StringUtils.trimToEmpty(demographic.getProvince())%>');
 	setMailingProvince('<%=demographic.getMailingProvince()%>');
 });
 <% } %>
