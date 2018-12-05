@@ -491,7 +491,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 				String abnormalNature = handler.getNatureOfAbnormalTest(obr, obx);
 				if (!stringIsNullOrEmpty(abnormalNature)){
 					obxDisplayName.setFont(subscriptFont);
-					obxDisplayName.add("\t\t" + abnormalNature);
+					obxDisplayName.add("\n(" + abnormalNature + ")");
 				}
 				
 				
