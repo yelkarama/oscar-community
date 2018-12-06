@@ -487,7 +487,7 @@ public class ManageDocumentAction extends DispatchAction {
 
 		Long note_id = cmm.saveNoteSimpleReturnID(cmn);
 		// Debugging purposes on the live server
-		MiscUtils.getLogger().info("Document Note ID: "+note_id.toString());
+		MiscUtils.getLogger().debug("Document Note ID: "+note_id.toString());
 		
 		// Add a noteLink to casemgmt_note_link
 		CaseManagementNoteLink cmnl = new CaseManagementNoteLink();
