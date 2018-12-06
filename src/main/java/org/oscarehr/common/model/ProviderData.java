@@ -52,6 +52,8 @@ public class ProviderData extends AbstractModel<String> implements Serializable 
 	private String providerType = null;
 	@Column(name = "specialty")
 	private String specialty = null;
+	@Column(name = "credentials")
+	private String credentials = "";
 	@Column(name = "team")
 	private String team = null;
 	@Column(name = "sex")
@@ -140,6 +142,13 @@ public class ProviderData extends AbstractModel<String> implements Serializable 
 	}
 	public void setSpecialty(String s) {
 		specialty = s;
+	}
+
+	public String getCredentials() {
+		return credentials;
+	}
+	public void setCredentials(String credentials) {
+		this.credentials = credentials;
 	}
 
 	public String getTeam() {

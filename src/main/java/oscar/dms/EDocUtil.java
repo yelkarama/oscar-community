@@ -33,12 +33,17 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import com.itextpdf.text.pdf.PdfReader;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -61,6 +66,8 @@ import org.oscarehr.common.dao.DocumentDao;
 import org.oscarehr.common.dao.DocumentDao.Module;
 import org.oscarehr.common.dao.DocumentReviewDao;
 import org.oscarehr.common.dao.IndivoDocsDao;
+import org.oscarehr.common.dao.PatientLabRoutingDao;
+import org.oscarehr.common.dao.ProviderInboxRoutingDao;
 import org.oscarehr.common.dao.TicklerLinkDao;
 import org.oscarehr.common.model.ConsultDocs;
 import org.oscarehr.common.model.CtlDocType;
@@ -70,6 +77,7 @@ import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Document;
 import org.oscarehr.common.model.DocumentReview;
 import org.oscarehr.common.model.IndivoDocs;
+import org.oscarehr.common.model.PatientLabRouting;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.Tickler;
 import org.oscarehr.common.model.TicklerLink;
@@ -1234,5 +1242,60 @@ public final class EDocUtil {
     			}
     		}
         }
+
+	/**
+	 * Saves the provided RTL file to the demographic and routes it to the provider
+	 * The RTL will appear in the patient's echart under documents
+	 *
+	 * @param file PDF to that will be added to the patient
+	 * @param provider Provider that the new document record will be routed to
+	 * @param demographic Demographic that the document will be added to
+	 * @param request Request to retrieve information for logging from
+	 */
+	public static void saveRtlToPatient(File file, Provider provider, Demographic demographic, HttpServletRequest request) {
+		int numberOfPages = 0;
+		String user = provider.getProviderNo();
+
+		String fileName = file.getName();
+		fileName = fileName.substring(0, fileName.indexOf("-")) + ".pdf";
+		// Creates source and destination paths to move the file
+		Path source = Paths.get(file.getPath());
+		Path destination = Paths.get(oscar.OscarProperties.getInstance().getProperty("DOCUMENT_DIR") + "/" + fileName);
+		String description = provider.getProviderNo() + " RTL " + fileName.substring(fileName.indexOf(".") + 1, fileName.lastIndexOf("."));
+		
+		try {
+			// Copies the file to the destination
+			Files.copy(source, destination);
+			// Gets the number of pages
+			PdfReader reader = new PdfReader(destination.toString());
+			numberOfPages = reader.getNumberOfPages();
+			reader.close();
+		} catch (IOException e) {
+			logger.error("An error occurred when trying to copy the letter pdf to the document directory and counting the pages.");
+		}
+
+		EDoc newDoc = new EDoc(description, "", fileName, "", user, user, "", 'A', org.oscarehr.util.DateUtils.getIsoDate(GregorianCalendar.getInstance()), "",
+				"", "demographic", demographic.getDemographicNo().toString(), numberOfPages);
+
+		// Sets the fileName again so that it doesn't have the timestamp in front of it
+		newDoc.setFileName(fileName);
+		newDoc.setDocPublic("0");
+		newDoc.setContentType("application/pdf");
+
+		// Saves the document
+		String doc_no = addDocumentSQL(newDoc);
+
+		// Logs the creation of the RTL
+		LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.ADD, LogConst.CON_DOCUMENT, doc_no, request.getRemoteAddr());
+
+		// Adds a patient routing for the document
+		PatientLabRoutingDao patientLabRoutingDao = SpringUtils.getBean(PatientLabRoutingDao.class);
+		PatientLabRouting patientLabRouting = new PatientLabRouting(Integer.parseInt(doc_no), "DOC", demographic.getDemographicNo());
+		patientLabRoutingDao.persist(patientLabRouting);
+
+		// Adds the document to the provider's inbox
+		ProviderInboxRoutingDao providerInboxRoutingDao = SpringUtils.getBean(ProviderInboxRoutingDao.class);
+		providerInboxRoutingDao.addToProviderInbox(provider.getProviderNo(), Integer.parseInt(doc_no), "DOC");
+	}
 
 	}

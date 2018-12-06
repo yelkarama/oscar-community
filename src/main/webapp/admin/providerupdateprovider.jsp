@@ -287,6 +287,11 @@ for (int i=0; i<sites.size(); i++) {
 				value="<%= provider.getSpecialty() %>" maxlength="40"></td>
 		</tr>
 		<tr>
+			<td align="right">Credentials:</td>
+			<td><input type="text" name="credentials"
+				value="<%= provider.getCredentials() %>" maxlength="100"></td>
+		</tr>
+		<tr>
 			<td align="right"><bean:message key="admin.provider.formTeam" />:
 			</td>
 			<td><input type="text" name="team"

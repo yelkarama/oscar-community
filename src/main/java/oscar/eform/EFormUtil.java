@@ -24,7 +24,15 @@
 
 package oscar.eform;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -45,7 +53,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.persistence.PersistenceException;
+import javax.servlet.http.HttpServletRequest;
 
+import com.lowagie.text.DocumentException;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
@@ -59,21 +70,25 @@ import org.oscarehr.casemgmt.model.CaseManagementNoteLink;
 import org.oscarehr.casemgmt.model.Issue;
 import org.oscarehr.casemgmt.service.CaseManagementManager;
 import org.oscarehr.common.dao.ConsultationRequestDao;
+import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.EFormDao;
 import org.oscarehr.common.dao.EFormDao.EFormSortOrder;
 import org.oscarehr.common.dao.EFormDataDao;
 import org.oscarehr.common.dao.EFormGroupDao;
 import org.oscarehr.common.dao.EFormValueDao;
 import org.oscarehr.common.dao.ProfessionalSpecialistDao;
+import org.oscarehr.common.dao.PropertyDao;
 import org.oscarehr.common.dao.SecRoleDao;
 import org.oscarehr.common.dao.TicklerDao;
 import org.oscarehr.common.model.AbstractModel;
 import org.oscarehr.common.model.ConsultationRequest;
+import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.EFormData;
 import org.oscarehr.common.model.EFormGroup;
 import org.oscarehr.common.model.EFormValue;
 import org.oscarehr.common.model.Prevention;
 import org.oscarehr.common.model.ProfessionalSpecialist;
+import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.SecRole;
 import org.oscarehr.common.model.Tickler;
 import org.oscarehr.managers.PreventionManager;
@@ -88,6 +103,7 @@ import com.quatro.model.security.Secobjprivilege;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.oscarehr.common.model.OscarMsgType;
+import org.xhtmlrenderer.pdf.ITextRenderer;
 import oscar.OscarProperties;
 import oscar.dms.EDoc;
 import oscar.dms.EDocUtil;
@@ -1254,6 +1270,110 @@ public class EFormUtil {
     }
 
 	
+	/**
+	 * Prints the RTL with the custom template that allows for headers and footers
+	 *
+	 * @param eformData The eform record that will be used to generate the print version of the RTL
+	 * @param tempFile The temporary file that will be used to save the generated PDF
+	 * @throws DocumentException Thrown when the pdf could not be generated
+	 * @throws RuntimeException Thrown when data is missing for the rtl content, the provider, or the demographic
+	 * @throws IOException Thrown when an error occurs creating the output stream for the pdf or when preparing the template
+	 */
+	public static void printRtlWithTemplate(EFormData eformData, File tempFile, boolean skipAddToChart, HttpServletRequest request) throws DocumentException, RuntimeException, IOException {
+		// Gets the required DAOs and provider and demographic objects
+		DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
+		ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
+		EFormValueDao eFormValueDao = SpringUtils.getBean(EFormValueDao.class);
+		Demographic demographic = demographicDao.getDemographic(eformData.getDemographicId().toString());
+
+		// Gets the contents of the RTL
+		EFormValue rtlContentData  = eFormValueDao.findByFormDataIdAndKey(eformData.getId(), "Letter");
+		EFormValue providerNoData = eFormValueDao.findByFormDataIdAndKey(eformData.getId(), "providerNo");
+
+		if (rtlContentData != null && providerNoData != null) {
+			// Gets the values of the rtlContent and providerNo extensions
+			String rtlContent = rtlContentData.getVarValue();
+			String providerNo = providerNoData.getVarValue();
+			// Gets the provider associated with the stored provider number
+			Provider provider = providerDao.getProvider(providerNo);
+			if (provider != null && demographic != null) {
+				// Creates a new output stream for writing the pdf to
+				try (OutputStream os = new FileOutputStream(tempFile)) {
+					// Prepares the RTL template
+					String templateUri = prepareTemplate(eformData.getId().toString(), rtlContent, provider, demographic);
+					if (!templateUri.isEmpty()) {
+						// Creates the renderer and creates the PDF using the populated template at the given uri
+						ITextRenderer renderer = new ITextRenderer();
+						renderer.setDocument(templateUri);
+						renderer.layout();
+						renderer.createPDF(os);
+						if (!skipAddToChart) {
+                            // Saves the RTL to the patient and adds a routes the pdf to the provider
+                            EDocUtil.saveRtlToPatient(tempFile, provider, demographic, request);
+                        }
+					}
+				} catch (DocumentException e) {
+					logger.error("Could not generate the rich text letter with the id " + eformData.getId(), e);
+					throw e;
+				}
+			} else {
+				String errorMessage = provider == null ? "The providerNo property associated with eform " + eformData.getId() + " does not exist" : "";
+				if (demographic == null) {
+					errorMessage += errorMessage.length() > 0 ? System.lineSeparator() : "";
+					errorMessage += "The demographic associated with the id " + eformData.getDemographicId() + " for the eform id " + eformData.getId() + " could not be found";
+				}
+				throw new RuntimeException(errorMessage);
+			}
+		} else {
+			String errorMessage = "Eform " + eformData.getId() + " must have associated 'Letter' and 'providerNo' values in the eform_values table";
+			throw new RuntimeException(errorMessage);
+		}
+	}
+
+	/**
+	 * Prepares the template for RTL printing using FlyingSaucer's XML to PDF generation. 
+	 * Sets various predetermined tags to their associated data
+	 *
+	 * @param formId Id of the form that will be printed
+	 * @param rtl Content of the RTL that was created
+	 * @param provider Provider associated with the RTL
+	 * @param demographic Demographic associated with the RTL
+	 * @return Uri of the populated uri's temporary file
+	 * @throws IOException Thrown when the populated template could not be saved as a file
+	 */
+	private static String prepareTemplate(String formId, String rtl, Provider provider, Demographic demographic) throws IOException {
+		PropertyDao propertyDao = SpringUtils.getBean(PropertyDao.class);
+		String letterUri = "";
+
+		// Gets the path for the template file
+		String templateUrl = OscarProperties.getInstance().getProperty("rtl_template_url", "");
+		File templateFile = new File(templateUrl);
+		// Gets the contents of the template as a string so that special tags can be replaces with appropriate data
+		String rtlTemplate = IOUtils.toString(new FileInputStream(templateFile));
+		// Fixes any <br> elements to be XHTML valid
+		rtl = rtl.replaceAll("<br>", "<br />");
+		// Replaces the body tag with the saved RTL contents
+		rtlTemplate = rtlTemplate.replaceAll("\\$\\{rtlBody}", rtl);
+
+		// Replaces field in the header with the appropriate data
+		rtlTemplate = rtlTemplate.replaceAll("\\$\\{formattedPatientName}", demographic.getFormattedName());
+		rtlTemplate = rtlTemplate.replaceAll("\\$\\{formattedDob}", demographic.getFormattedDob());
+		rtlTemplate = rtlTemplate.replaceAll("\\$\\{fullProviderName}", provider.getFullName());
+		rtlTemplate = rtlTemplate.replaceAll("\\$\\{credentials}", provider.getCredentials());
+		rtlTemplate = rtlTemplate.replaceAll("\\$\\{specialty}", provider.getSpecialty());
+
+		// Creates a temporary file for the populated template
+		File populatedTemplate = File.createTempFile("eform." + formId + ".header", ".html");
+
+		// Creates a writer to write the pdf to in UTF-8 encoding
+		try (Writer tempFile = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(populatedTemplate), StandardCharsets.UTF_8))) {
+			tempFile.write(rtlTemplate);
+			letterUri = populatedTemplate.toURI().toURL().toString();
+		}
+
+		return letterUri;
+	}
+    
 	
 	@Deprecated
 	private static ResultSet getSQL(String sql) {

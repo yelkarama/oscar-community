@@ -284,6 +284,10 @@ for (int i=0; i<sites.size(); i++) {
 				onBlur="upCaseCtrl(this)" maxlength="40"></td>
 		</tr>
 		<tr>
+			<td align="right">Credentials:</td>
+			<td><input type="text" name="credentials" maxlength="100"/></td>
+		</tr>
+		<tr>
 			<td align="right"><bean:message key="admin.provider.formTeam" />:
 			</td>
 			<td><input type="text" name="team" maxlength="20"></td>

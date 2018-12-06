@@ -17,6 +17,7 @@ import java.io.InputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.lowagie.text.DocumentException;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
@@ -32,6 +33,7 @@ import org.oscarehr.util.SpringUtils;
 import org.oscarehr.util.WKHtmlToPdfUtils;
 
 import oscar.OscarProperties;
+import oscar.eform.EFormUtil;
 import oscar.util.UtilDateUtilities;
 
 import com.sun.xml.messaging.saaj.util.ByteOutputStream;
@@ -45,6 +47,7 @@ public class PrintAction extends Action {
 	private boolean skipSave = false;
 	
 	private HttpServletResponse response;
+	private HttpServletRequest request;
 	
 	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 
@@ -57,6 +60,7 @@ public class PrintAction extends Action {
 		
 		localUri = getEformRequestUrl(request);
 		this.response = response;
+		this.request = request;
 		String id  = (String)request.getAttribute("fdid");
 		String providerId = request.getParameter("providerId");
 		skipSave = "true".equals(request.getParameter("skipSave"));
@@ -111,12 +115,19 @@ public class PrintAction extends Action {
 		try {
 			logger.info("Generating PDF for eform with fdid = " + formId);
 
-			tempFile = File.createTempFile("EFormPrint." + formId, ".pdf");
-			//tempFile.deleteOnExit();
+			EFormDataDao eFormDataDao = SpringUtils.getBean(EFormDataDao.class);
+			EFormData eFormData = eFormDataDao.find(Integer.parseInt(formId));
 
 			// convert to PDF
 			String viewUri = localUri + formId;
-			WKHtmlToPdfUtils.convertToPdf(viewUri, tempFile);
+			boolean isRichTextLetter = eFormData.getFormId().toString().equals(OscarProperties.getInstance().getProperty("rtl_template_id", ""));
+			if (isRichTextLetter) {
+				tempFile = File.createTempFile( "templatedRtl."  + formId + "-", ".pdf");
+				EFormUtil.printRtlWithTemplate(eFormData, tempFile, skipSave, request);
+			} else {
+				tempFile = File.createTempFile("EFormPrint." + formId, ".pdf");
+				WKHtmlToPdfUtils.convertToPdf(viewUri, tempFile);
+			}
 			logger.info("Writing pdf to : "+tempFile.getCanonicalPath());
 			
 			
@@ -133,7 +144,11 @@ public class PrintAction extends Action {
 			// byte[] pdf = HtmlToPdfServlet.appendFooter(bos.getBytes());
 			byte[] pdf;
             try {
-	            pdf = HtmlToPdfServlet.stamp(bos.getBytes());
+            	if (isRichTextLetter) {
+            		pdf = bos.getBytes();
+				} else {
+					pdf = HtmlToPdfServlet.stamp(bos.getBytes());
+				}
             } catch (Exception e) {
             	throw new RuntimeException(e);
             }
@@ -153,14 +168,13 @@ public class PrintAction extends Action {
 			
 			// Removing the eform
 			if (skipSave) {
-	        	 EFormDataDao eFormDataDao=(EFormDataDao) SpringUtils.getBean("EFormDataDao");
-	        	 EFormData eFormData=eFormDataDao.find(Integer.parseInt(formId));
+	        	 eFormDataDao=(EFormDataDao) SpringUtils.getBean("EFormDataDao");
+	        	 eFormData=eFormDataDao.find(Integer.parseInt(formId));
 	        	 eFormData.setCurrent(false);
 	        	 eFormDataDao.merge(eFormData);
 			}
-		} catch (IOException e) {
-			//logger.error("Error converting and sending eform. id=" + eFormId, e);
-			MiscUtils.getLogger().error("",e);
+		} catch (IOException | RuntimeException | DocumentException e) {
+			MiscUtils.getLogger().error("", e);
 		}
 	}
 

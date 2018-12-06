@@ -62,7 +62,7 @@ function finishPage(secs){
 				String demographic_no = request.getParameter("efmdemographic_no");
 				FaxAction bean=new FaxAction(request);
 				try { 
-					bean.faxForms(s,id,providerId, demographic_no);
+					bean.faxForms(s,id,providerId, demographic_no, request);
 					%>
 					Fax has been sent successfully.	
 					<%

@@ -26,6 +26,7 @@
 		<property column="sex" length="1" name="Sex" not-null="true" type="string" />
 		<property column="ohip_no" length="20" name="OhipNo" not-null="false" type="string" />
 		<property column="specialty" length="20" name="Specialty" not-null="true" type="string" />
+		<property column="credentials" length="100" name="Credentials" not-null="true" type="string" />
 		<property column="dob" length="10" name="Dob" not-null="false" type="date" />
 		<property column="hso_no" length="10" name="HsoNo" not-null="false" type="string" />
 		<property column="provider_activity" length="3" name="ProviderActivity" not-null="false" type="string" />

@@ -56,6 +56,7 @@ public class Provider implements Serializable, Comparable<Provider>{
 	private String sex;
 	private String ohipNo;
 	private String specialty;
+	private String credentials = "";
 	private Date dob;
 	private String hsoNo;
 	private String providerActivity;
@@ -117,6 +118,7 @@ public class Provider implements Serializable, Comparable<Provider>{
 		sex = provider.sex;
 		ohipNo = provider.ohipNo;
 		specialty = provider.specialty;
+		credentials = provider.credentials;
 		dob = provider.dob;
 		hsoNo = provider.hsoNo;
 		providerActivity = provider.providerActivity;
@@ -266,6 +268,13 @@ public class Provider implements Serializable, Comparable<Provider>{
 
 	public void setSpecialty(String specialty) {
 		this.specialty = specialty;
+	}
+
+	public String getCredentials() {
+		return credentials;
+	}
+	public void setCredentials(String credentials) {
+		this.credentials = credentials;
 	}
 
 	public java.util.Date getDob() {

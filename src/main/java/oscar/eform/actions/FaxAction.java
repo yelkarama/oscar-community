@@ -31,6 +31,7 @@ import org.oscarehr.util.WKHtmlToPdfUtils;
 import oscar.OscarProperties;
 
 import com.lowagie.text.DocumentException;
+import oscar.eform.EFormUtil;
 
 public final class FaxAction {
 
@@ -76,7 +77,7 @@ public final class FaxAction {
 	 * This method will take eforms and send them to a PHR.
 	 * @throws DocumentException 
 	 */
-	public void faxForms(String[] numbers, String formId, String providerId, String demographicNo) throws DocumentException {
+	public void faxForms(String[] numbers, String formId, String providerId, String demographicNo, HttpServletRequest request) throws DocumentException {
 		
 		File tempFile = null;
 
@@ -90,12 +91,20 @@ public final class FaxAction {
 
 			logger.info("Generating PDF for eform with fdid = " + formId);
 
-			tempFile = File.createTempFile("EForm." + formId, ".pdf");
+			
+			
 			//tempFile.deleteOnExit();
 
 			// convert to PDF
 			String viewUri = localUri + formId;
-			WKHtmlToPdfUtils.convertToPdf(viewUri, tempFile);
+			boolean isRichTextLetter = eFormData.getFormId().toString().equals(OscarProperties.getInstance().getProperty("rtl_template_id", ""));
+			if (isRichTextLetter) {
+				tempFile = File.createTempFile("generatedEform." + formId + "-", ".pdf");
+				EFormUtil.printRtlWithTemplate(eFormData, tempFile, skipSave, request);
+			} else {
+				tempFile = File.createTempFile("EForm." + formId, ".pdf");
+				WKHtmlToPdfUtils.convertToPdf(viewUri, tempFile);
+			}
 			logger.info("Writing pdf to : "+tempFile.getCanonicalPath());
             // Copying the fax pdf.
             FileUtils.copyFile(tempFile, new File(OscarProperties.getInstance().getProperty("DOCUMENT_DIR") + "/" + tempFile.getName()));

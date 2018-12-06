@@ -170,6 +170,7 @@ if(!authed) {
 		  p.setProviderType(request.getParameter("provider_type"));
 		  p.setHasSchedule("true".equals(request.getParameter("has_schedule")));
 		  p.setSpecialty(request.getParameter("specialty"));
+		  p.setCredentials(request.getParameter("credentials"));
 		  p.setTeam(request.getParameter("team"));
 		  p.setSex(request.getParameter("sex"));
 		  p.setDob(MyDateFormat.getSysDate(request.getParameter("dob")));
