@@ -1978,6 +1978,23 @@ public class OLISHL7Handler implements MessageHandler {
 			return ("");
 		}
 	}
+	
+    public String getReportCommentForPdf(int j) {
+        try {
+            String[] segments = terser.getFinder().getRoot().getNames();
+            int k = getNTELocation(-1, -1);
+            if (j > 0) {
+                k = indexOfNextNTE(segments, k + 1, j);
+            }
+            Structure[] nteSegs = terser.getFinder().getRoot().getAll(segments[k]);
+            Segment nteSeg = (Segment) nteSegs[0];
+            return getString(Terser.get(nteSeg, 3, 0, 1, 1));
+
+        } catch (Exception e) {
+            logger.error("Could not retrieve OBR comments", e);
+            return ("");
+        }
+    }
 
 	public String getReportSourceOrganization(int j) {
 		try {
@@ -2790,9 +2807,15 @@ public class OLISHL7Handler implements MessageHandler {
 				opInt--;
 			}
 		} else if (operator.equals("IN")) {
-			// TODO: Implement
+			while (opInt > 0) {
+				result += "&emsp;";
+				opInt--;
+			}
 		} else if (operator.equals("TI")) {
-			// TODO: Implement
+			while (opInt > 0) {
+				result += "&ensp;";
+				opInt--;
+			}
 		} else if (operator.equals("SK")) {
 			while (opInt > 0) {
 				result += "&nbsp;";

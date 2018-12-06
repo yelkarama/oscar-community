@@ -6,10 +6,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -1064,16 +1065,45 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         cell.setColspan(1);
         cell.setPhrase(new Phrase("Report Comments: ", boldFont));
         commentTable.addCell(cell);
-        for (int comment = 0; comment < handler.getReportCommentCount(); comment++){
-        	commentPhrase.clear();
-        	
-        	cell.setPaddingLeft(10);
-        	commentPhrase.setFont(font);
-        	commentPhrase.add(handler.formatString(handler.getReportComment(comment)).replaceAll("<br\\s*/*>", "\n"));
-        	commentPhrase.setFont(subscriptFont);
-        	commentPhrase.add("\t\t" + handler.getReportSourceOrganization(comment));
-        	cell.setPhrase(commentPhrase);
-        	commentTable.addCell(cell);
+        for (int commentIndex = 0; commentIndex < handler.getReportCommentCount(); commentIndex++){
+            
+            String comment = handler.getReportCommentForPdf(commentIndex);
+
+            // Replace repeatable encoded characters with their pdf equivalent replacements
+            comment = OLISLabPDFUtils.Hl7EncodedRepeatableCharacter.performReplacement(comment);
+            
+            // Split comment on \.ce\ (center tag span) markup, due to the fact that adding centered text requires cell-level alignment
+            Pattern pattern = Pattern.compile("\\\\\\.ce\\\\(.+?)\n");
+            Matcher matcher = pattern.matcher(comment);
+            while (matcher.find()) {
+                String beforeSpan = comment.substring(0, matcher.start());
+                String spanContent = matcher.group(1);
+                String afterSpan = comment.substring(matcher.end());
+                
+                // Create cell for comment before center tag
+                cell = new PdfPCell(OLISLabPDFUtils.createPhraseFromHl7(beforeSpan, font));
+                cell.setPaddingLeft(10);
+                cell.setBorder(0);
+                commentTable.addCell(cell);
+                
+                // Create cell for comment within center tag
+                cell = new PdfPCell(OLISLabPDFUtils.createPhraseFromHl7(spanContent, font));
+                cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                cell.setPaddingLeft(10);
+                cell.setBorder(0);
+                commentTable.addCell(cell);
+
+                // Set comment to remaining comment text
+                comment = afterSpan;
+            }
+            
+            commentPhrase = OLISLabPDFUtils.createPhraseFromHl7(comment, font);
+            commentPhrase.setFont(subscriptFont);
+            commentPhrase.add("\t\t" + handler.getReportSourceOrganization(commentIndex));
+            cell = new PdfPCell(commentPhrase);
+            cell.setPaddingLeft(10);
+            cell.setBorder(0);
+            commentTable.addCell(cell);
         }
         
 
