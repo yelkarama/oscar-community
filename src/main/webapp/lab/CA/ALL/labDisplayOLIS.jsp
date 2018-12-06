@@ -1023,28 +1023,6 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                     </table>
                                 </td>
                             </tr>
-
-                            <tr>
-                                <td bgcolor="white" colspan="2">
-                                    <table width="100%" border="0" cellpadding="0" cellspacing="0" bordercolor="#CCCCCC">
-                                        <tr>
-                                            <%-- <td bgcolor="white">
-                                    <div class="FieldData">
-                                        <strong><bean:message key="oscarMDS.segmentDisplay.formReportToClient"/>: </strong>
-                                            <%= No admitting Doctor for CML messages%>
-                                    </div>
-                                </td> --%>
-                                            <td bgcolor="white" align="right" colspan="2">
-                                                <div class="FieldData">
-                                                    <strong><bean:message key="oscarMDS.segmentDisplay.formCCClient"/>: </strong>
-                                                    <%= handler.getCCDocs()%>
-
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </td>
-                            </tr>
                             <tr>
                                 <td align="center" bgcolor="white" colspan="2">
                                     <%String[] multiID = multiLabId.split(",");
@@ -1677,6 +1655,79 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                         <% // end for headers
                         }  // for i=0... (headers) line 625 %>
 
+                        <% 
+                            List<HashMap<String, String>> formattedDoctors = handler.getFormattedCcDocs();
+                            int cellCount = 0;
+                        %>
+                <table style="width: 100%;">
+                    <tr>
+                        <td colspan="3" class="Cell"><div class="Field2">CC List</div></td>
+                    </tr>
+                    <tr>
+                        <% for (HashMap<String, String> doctorMap : formattedDoctors) {
+                            cellCount++;
+                        %>
+                        
+                        <td bgcolor="white">
+                            <table width="100%" border="0" cellpadding="0" cellspacing="0" bordercolor="#CCCCCC">
+                                <tr>
+                                    <td bgcolor="white" style="width:30%">
+                                        <div class="FieldData" style="font-weight: bold">
+                                            Name:
+                                        </div>
+                                    </td>
+                                    <td bgcolor="white">
+                                        <div class="FieldData">
+                                            <%= doctorMap.get("name") %>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td bgcolor="white" style="width:30%; padding-bottom:5px;" >
+                                        <div class="FieldData" style="font-weight: bold">
+                                            <%= doctorMap.get("licenceType") %> #:
+                                        </div>
+                                    </td>
+                                    <td bgcolor="white" style="padding-bottom:5px;">
+                                        <div class="FieldData">
+                                            <%= doctorMap.get("licenceNumber") %>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                            <% if (cellCount % 3 == 0) {%>
+                    </tr>
+                    <tr style="margin-top: 5px;">
+                            <% } %>
+                        <% } %>
+                    </tr>
+                    <tr>
+                        <td class="Cell"><div class="Field2">Ordering Facility</div></td>
+                        <td class="Cell"><div class="Field2">Admitting Provider</div></td>
+                        <td class="Cell"><div class="Field2">Attending Provider</div></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <%=handler.getOrderingFacilityName()%><br />
+                            <% if (address != null && address.size() > 0) {
+                            String city = displayAddressFieldIfNotNullOrEmpty(address, "City", false);
+                            String province = displayAddressFieldIfNotNullOrEmpty(address, "Province", false);
+                            %>
+                            <br/>
+                            <strong>Address:</strong><br/>
+                            <%= displayAddressFieldIfNotNullOrEmpty(address, "Street Address") %>
+                            <%= displayAddressFieldIfNotNullOrEmpty(address, "Other Designation") %>
+                            <%= displayAddressFieldIfNotNullOrEmpty(address, "Postal Code") %>
+                            <%= city + ("".equals(city) || "".equals(province) ? "" : ", ") + province + ("".equals(city) && "".equals(province) ? "" : "<br/>") %>
+                            <%= displayAddressFieldIfNotNullOrEmpty(address, "Country") %>
+                            <% } %>
+                        </td>
+                        <td><%=handler.getAdmittingProviderName()%></td>
+                        <td><%=handler.getAttendingProviderName()%></td>
+                    </tr>
+                </table>
+                        
                         <table width="100%" border="0" cellspacing="0" cellpadding="3" class="MainTableBottomRowRightColumn" bgcolor="#003399">
                             <tr>
                                 <td align="left" width="50%">

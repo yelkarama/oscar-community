@@ -2424,6 +2424,48 @@ public class OLISHL7Handler implements MessageHandler {
 		}
 	}
 
+	public List<HashMap<String, String>> getFormattedCcDocs() {
+		List<HashMap<String, String>> formattedCcDoctors = new ArrayList<>();
+		
+		String[] allCcDocs = getCCDocs().split(">, ");
+		
+		HashMap<String, String> doctorMap;
+		
+		for (String doctor : allCcDocs) {
+			formattedCcDoctors.add(parseDoctor(doctor));
+		}
+		
+		return formattedCcDoctors;
+	}
+	
+	public HashMap<String, String> parseDoctor(String doctor) {
+		int openSpanStart = doctor.indexOf("<");
+		String licence = "";
+		String licenceType = "";
+		String licenceNumber = "";
+
+		if (openSpanStart != -1){
+			int openSpanEnd = doctor.indexOf(">");
+			int closeSpanStart = doctor.indexOf("<", openSpanEnd);
+
+			licence = doctor.substring(openSpanEnd + 1, closeSpanStart);
+			// Checks if the mdNumber string starts with MD, if so, removes it and trims any remaining whitespace
+			int separatorIndex = licence.indexOf(" ");
+
+			licenceType = licence.substring(0, separatorIndex);
+			licenceNumber = licence.substring(separatorIndex + 1);
+
+			doctor = doctor.substring(0, openSpanStart);
+		}
+
+		HashMap<String, String> doctorMap = new HashMap<>();
+		doctorMap.put("name", doctor);
+		doctorMap.put("licenceType", licenceType);
+		doctorMap.put("licenceNumber", licenceNumber);
+		
+		return doctorMap;
+	}
+	
 	@Override
 	public ArrayList<String> getDocNums() {
 		ArrayList<String> nums = new ArrayList<String>();

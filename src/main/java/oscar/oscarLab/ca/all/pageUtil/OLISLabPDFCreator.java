@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -204,6 +205,8 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         	}
         }
 
+        createClientTable();
+        
         document.close();
 
         os.flush();
@@ -1049,14 +1052,6 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         	}
         }
         
-        
-        //Create client table
-        PdfPTable clientTable = new PdfPTable(1);
-
-        cell.setPhrase(getCCDocNamesPhrase(handler.getCCDocs()));
-        cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-        clientTable.addCell(cell);
-        
         //Create comment table
         Phrase commentPhrase = new Phrase();
         PdfPTable commentTable = new PdfPTable(1);
@@ -1128,22 +1123,168 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         // add the created tables to the document
         table = addTableToTable(table, pInfoTable, 1);
         table = addTableToTable(table, rInfoTable, 1);
-        table = addTableToTable(table, clientTable, 2);
         table = addTableToTable(table, commentTable, 2);
 
         table.setWidthPercentage(100);
 
         document.add(table);
     }
+
+	/**
+	 * Creates the client table which is displayed at the end of the report
+	 * 
+	 * @throws DocumentException Throws DocumentException when the client table cannot be added to the document
+	 */
+	private void createClientTable() throws DocumentException {
+    	float[] clientTableWidths = {1f, 1f, 1f};
+		PdfPTable clientTable = new PdfPTable(clientTableWidths);
+		clientTable.setWidthPercentage(100);
+		
+		PdfPCell header = new PdfPCell();
+		header.setBackgroundColor(new Color(210, 212, 255));
+		header.setPadding(5);
+		// Adds the CC header and list to the table, spanning 3 columns
+		header.setPhrase(new Phrase("CC List", boldFont));
+		header.setColspan(3);
+		clientTable.addCell(header);
+		PdfPTable ccTable = getCcTable();
+		// Adds the ccTable to the client table with no padding and a border 
+		addTableToTable(clientTable, ccTable, 3, true, false);
+		
+		// Returns the colspan of the header cell to 1
+		header.setColspan(1);
+		
+		//Sets the headers for the remaining tables
+		header.setPhrase(new Phrase("Ordering Facility", boldFont));
+		clientTable.addCell(header);
+		header.setPhrase(new Phrase("Admitting Provider", boldFont));
+		clientTable.addCell(header);
+		header.setPhrase(new Phrase("Attending Provider", boldFont));
+		clientTable.addCell(header);
+		
+		// Adds the ordering facility table to the client table
+		PdfPTable orderingTable = getOrderingFacilityTable();
+		addTableToTable(clientTable, orderingTable, 1);
+
+		// Adds the admitting provider table to the client table
+		PdfPTable admittingTable = new PdfPTable(1);
+		addProviderToTable(admittingTable, handler.parseDoctor(handler.getAdmittingProviderName()));
+		addTableToTable(clientTable, admittingTable, 1, true, false);
+
+		// Adds the attenting provider table to the client table
+		PdfPTable attendingTable = new PdfPTable(1);
+		addProviderToTable(attendingTable, handler.parseDoctor(handler.getAttendingProviderName()));
+		addTableToTable(clientTable, attendingTable, 1, true, false);
+		
+		// Adds the client table to the document
+		document.add(clientTable);
+	}
+
+	/**
+	 * Gets the CC List tables
+	 * 
+	 * @return A table with all CC recipients
+	 */
+	private PdfPTable getCcTable() {
+		
+    	PdfPTable ccTable = new PdfPTable(new float[]{1, 1, 1});
+    	
+    	// Sets the ordering provider's name first
+    	addProviderToTable(ccTable, handler.parseDoctor(handler.getDocName()));
+    	
+    	List<HashMap<String, String>> formattdDoctors = handler.getFormattedCcDocs();
+		for (HashMap<String, String> doctorMap : formattdDoctors) {
+			addProviderToTable(ccTable, doctorMap);
+		}
+		
+		return ccTable;
+	}
+
+	/**
+	 * Generates the ordering facility table, displaying the ordering facility's names and address
+	 * 
+	 * @return Table containing the ordering facility information
+	 */
+	private PdfPTable getOrderingFacilityTable() {
+		PdfPTable orderingFacilityTable = new PdfPTable(new float[]{1, 2});
+
+		PdfPCell cell = new PdfPCell();
+		cell.setBorder(0);
+		cell.setPaddingTop(10);
+		
+		cell.setColspan(2);
+		cell.setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
+		cell.setPhrase(new Phrase(handler.getOrderingFacilityName(), font));
+		orderingFacilityTable.addCell(cell);
+		
+		cell.setPaddingTop(3);
+		cell.setColspan(1);
+		cell.setHorizontalAlignment(PdfPCell.ALIGN_LEFT);
+		cell.setPhrase(new Phrase("Address: ", boldFont));
+		orderingFacilityTable.addCell(cell);
+
+		HashMap<String, String> addressMap = handler.getOrderingFacilityAddress();
+		
+		String formattedAddress = "";
+		formattedAddress += getAddressFieldIfNotNullOrEmpty(addressMap, "Street Address");
+		formattedAddress += getAddressFieldIfNotNullOrEmpty(addressMap, "Other Designation");
+		formattedAddress += getAddressFieldIfNotNullOrEmpty(addressMap, "Postal Code", false);
+		formattedAddress += ", " + getAddressFieldIfNotNullOrEmpty(addressMap, "City", false);
+		formattedAddress += ", " + getAddressFieldIfNotNullOrEmpty(addressMap, "Province", false);
+		formattedAddress += ", " + getAddressFieldIfNotNullOrEmpty(addressMap, "Country", false);
+		
+		cell.setPhrase(new Phrase(formattedAddress, font));
+		orderingFacilityTable.addCell(cell);
+		
+		return orderingFacilityTable;
+	}
+
+	/**
+	 * Parses a name string and outputs it on two rows, identifying the name and their license type and number 
+	 * 
+	 * @param table Table to add the doctor to
+	 * @param doctorMap Map with elements relating to the doctor's name and licence type and number
+	 */
+	private void addProviderToTable(PdfPTable table, HashMap<String, String> doctorMap) {
+    	PdfPTable doctorTable = new PdfPTable(new float[] {1, 2});
+		PdfPCell cell = new PdfPCell();
+		cell.setBorder(0);
+		
+		cell.setPaddingTop(5);
+		cell.setPhrase(new Phrase("Name: ", boldFont));
+		doctorTable.addCell(cell);
+		cell.setPhrase(new Phrase(doctorMap.get("name"), font));
+		doctorTable.addCell(cell);
+		cell.setPaddingTop(0);
+		cell.setPhrase(new Phrase(doctorMap.get("licenceType") + " #: ", boldFont));
+		doctorTable.addCell(cell);
+		cell.setPhrase(new Phrase(doctorMap.get("licenceNumber"), font));
+		doctorTable.addCell(cell);
+		
+		addTableToTable(table, doctorTable, 1, false, true);
+	}
+	
     
-    /*
-     *  addTableToTable(PdfPTable main, PdfPTable add) adds the table 'add' as
-     *  a cell spanning 'colspan' columns to the table main.
-     */
     private PdfPTable addTableToTable(PdfPTable main, PdfPTable add, int colspan){
+    	return addTableToTable(main, add, colspan, true, false);
+	}
+	
+	/*
+	 *  addTableToTable(PdfPTable main, PdfPTable add) adds the table 'add' as
+	 *  a cell spanning 'colspan' columns to the table main.
+	 */
+    private PdfPTable addTableToTable(PdfPTable main, PdfPTable add, int colspan, boolean noPadding, boolean hideBorder){
         PdfPCell cell = new PdfPCell(add);
-        cell.setPadding(3);
-        cell.setColspan(colspan);
+		cell.setColspan(colspan);
+		
+        if (!noPadding) {
+			cell.setPadding(3);
+		}
+		
+        if (hideBorder) {
+        	cell.setBorder(0);
+		}
+		
         main.addCell(cell);
         return main;
     }
