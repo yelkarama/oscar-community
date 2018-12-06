@@ -65,7 +65,7 @@ public class GenericIntakeNodeDAO extends HibernateDaoSupport {
 				IntakeNode.class, intakeNodeId);
 		getChildren(intakeNode);
 
-		LOG.info("getIntakeNode : " + intakeNodeId);
+		LOG.debug("getIntakeNode : " + intakeNodeId);
 
 		return intakeNode;
 	}
