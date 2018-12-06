@@ -257,6 +257,10 @@ public class NextAppointmentSearchHelper {
     	//we are wanting to make sure no appointments have overlapping time
     	boolean booked=false;
     	for(Appointment a:rs) {
+    		if("C".equals(a.getStatus())) {
+    			//cancelled
+    			continue;
+    		}
     		Date apptStartDate = fixDate(date,a.getStartTime());
     		Date apptEndDate = fixDate(date,a.getEndTime());
     		//MiscUtils.getLogger().info("\tappt found @ startTime:"+apptStartDate + ",endTime="+apptEndDate);
