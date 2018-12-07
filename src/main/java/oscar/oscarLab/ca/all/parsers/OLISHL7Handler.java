@@ -1630,7 +1630,7 @@ public class OLISHL7Handler implements MessageHandler {
 			OLISRequestNomenclatureDao requestDao = (OLISRequestNomenclatureDao) SpringUtils.getBean("OLISRequestNomenclatureDao");
 			OLISRequestNomenclature requestNomenclature = requestDao.findByNameId(obxCategory);
 			if(requestNomenclature != null) {
-				return StringUtils.trimToEmpty(requestNomenclature.getName());
+				return StringUtils.trimToEmpty(requestNomenclature.getCategory());
 			} else {
 				logger.warn("Missing OLIS nomenclature value ("+obxCategory+"). Are you sure you ran olisinit.sql and it successfully completed?");
 				return obxCategory;

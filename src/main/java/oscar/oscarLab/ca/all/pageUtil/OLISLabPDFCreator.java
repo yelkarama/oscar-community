@@ -249,6 +249,9 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		
 		//If it is a different category, then add a new category header to the category table
 		if (!category.equals(newCategory)){
+			if (newCategory.contains("Microbiology")) {
+				newCategory = "Microbiology";
+			}
 			categoryTable.addCell(separator);
 			//Adds the Category name to the table
 			cell = new PdfPCell();
@@ -666,14 +669,14 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 							
 							//Column Headers
 							cell.setColspan(1);
+							//Enables the borders with the bitwise combination of 11 (1 top, 2 bottom, 8 right)
+							cell.setBorder(11);
+							cell.setPhrase(new Phrase("Sensitivity", boldFont));
+							ceTable.addCell(cell);
 							//Enables the borders with the bitwise combination of 7 (1 top, 2 bottom, 4 left)
 							cell.setBorder(7);
 							cell.setHorizontalAlignment(Element.ALIGN_CENTER);
 							cell.setPhrase(new Phrase("Agent", boldFont));
-							ceTable.addCell(cell);
-							//Enables the borders with the bitwise combination of 11 (1 top, 2 bottom, 8 right)
-							cell.setBorder(11);
-							cell.setPhrase(new Phrase("Sensitivity", boldFont));
 							ceTable.addCell(cell);
 							cell.setBorder(12);
 							
@@ -697,10 +700,11 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
                                     }
                                     ceName.add(handler.getOBXCESensitivity(childOBR,ceIndex));
                                     ceSense.add(handler.getOBXName(childOBR,ceIndex));
+									cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+									cell.setPhrase(ceSense);
+									ceTable.addCell(cell);
+									cell.setHorizontalAlignment(Element.ALIGN_CENTER);
                                     cell.setPhrase(ceName);
-                                    ceTable.addCell(cell);
-                                    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-                                    cell.setPhrase(ceSense);
                                     ceTable.addCell(cell);
                                     
                                     cell.setHorizontalAlignment(Element.ALIGN_LEFT);
@@ -711,15 +715,15 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 							cell = new PdfPCell(ceTable);
 							cell.setBorder(12);
 					        cell.setColspan(6);
-					        //For the table, sets the padding to 
-					        cell.setPaddingLeft(220);
-					        cell.setPaddingRight(220);
+					        //For the table, sets the padding to
+					        cell.setPaddingLeft(50);
+					        cell.setPaddingRight(20);
 					        table.addCell(cell);
 					        //Sets the padding back to 0
 					        cell.setPaddingLeft(0);
 					        cell.setPaddingRight(0);
 					        
-					        if (category.toUpperCase().trim().equals("MICROBIOLOGY")){
+					        if (category.contains("Microbiology")){
 					        	cell.setHorizontalAlignment(Element.ALIGN_CENTER);
 					        	cell.setPhrase(new Phrase("S=Sensitive R=Resistant I=Intermediate MS=Moderately Sensitive VS=Very Sensitive", font));
 					        	table.addCell(cell);
