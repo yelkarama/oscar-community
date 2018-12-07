@@ -887,7 +887,7 @@ UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 				</td>
 			</tr>		
 			
-			
+		<!--
 			<tr>
 				<td>Registration:</td>
 				<td>
@@ -923,7 +923,7 @@ UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 				
 				</td>
 			</tr>
-		
+		-->
 		</table>
 		
 		<div style="background-color:white;height:20px"></div>
