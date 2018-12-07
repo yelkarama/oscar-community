@@ -364,7 +364,7 @@ public class CppPreferencesUIBean {
 	public static String getPositionSelect(String currentValue) {
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append(printOption("None","",currentValue));
+		sb.append(printOption("Hide","",currentValue));
 		sb.append(printOption("Row 1, Column 1","R1I1",currentValue));
 		sb.append(printOption("Row 1, Column 2","R1I2",currentValue));
 		sb.append(printOption("Row 2, Column 1","R2I1",currentValue));
@@ -375,7 +375,7 @@ public class CppPreferencesUIBean {
 	public static String getDisplaySelect(String currentValue) {
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append(printOption("None","",currentValue));
+		sb.append(printOption("Hide","",currentValue));
 		sb.append(printOption("Show","SHOW",currentValue));
 		return sb.toString();
 	}
