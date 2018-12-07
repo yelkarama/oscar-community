@@ -1,6 +1,9 @@
 package org.oscarehr.olis.model;
 
+import org.apache.commons.lang.builder.CompareToBuilder;
+
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class OlisMeasurementsResultDisplay {
@@ -104,4 +107,14 @@ public class OlisMeasurementsResultDisplay {
     public void setIsAttachment(boolean attachment) {
         isAttachment = attachment;
     }
+    
+    public static final Comparator<OlisMeasurementsResultDisplay> DEFAULT_OLIS_SORT_COMPARATOR = new Comparator<OlisMeasurementsResultDisplay>() {
+        @Override
+        public int compare(OlisMeasurementsResultDisplay o1, OlisMeasurementsResultDisplay o2) {
+            return new CompareToBuilder().append(o2.getParentLab().getCollectionDateAsDate(), o1.getParentLab().getCollectionDateAsDate())
+                    .append(o1.getParentLab().getPlacerGroupNo(), o2.getParentLab().getPlacerGroupNo())
+                    .append(o1.getParentLab().getTestRequestSortKey(), o2.getParentLab().getTestRequestSortKey())
+                    .toComparison();
+        }
+    };
 }

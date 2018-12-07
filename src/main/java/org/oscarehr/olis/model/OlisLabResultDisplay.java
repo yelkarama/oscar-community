@@ -1,9 +1,13 @@
 package org.oscarehr.olis.model;
 
+import org.apache.commons.lang.builder.CompareToBuilder;
 import oscar.oscarLab.ca.all.parsers.OLISHL7Handler;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 public class OlisLabResultDisplay {
@@ -25,6 +29,8 @@ public class OlisLabResultDisplay {
     private String collectorsComment;
     
     private List<OlisMeasurementsResultDisplay> measurements = new ArrayList<OlisMeasurementsResultDisplay>();
+    
+    private static SimpleDateFormat collectionDateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
 
     public OlisLabResultDisplay() { }
 
@@ -119,6 +125,13 @@ public class OlisLabResultDisplay {
         this.olisLastUpdated = olisLastUpdated;
     }
 
+    public Date getCollectionDateAsDate() {
+        try {
+            return collectionDateTimeFormatter.parse(collectionDate);
+        } catch (ParseException e) {
+            return null;
+        }
+    }
     public String getCollectionDate() {
         return collectionDate;
     }
@@ -219,14 +232,10 @@ public class OlisLabResultDisplay {
     public static final Comparator<OlisLabResultDisplay> DEFAULT_OLIS_SORT_COMPARATOR = new Comparator<OlisLabResultDisplay>() {
         @Override
         public int compare(OlisLabResultDisplay o1, OlisLabResultDisplay o2) {
-            int placerGroupNoCompare = o1.getPlacerGroupNo().compareTo(o2.getPlacerGroupNo());
-            int requestSortKeyCompare = o1.getTestRequestSortKey().compareTo(o2.getTestRequestSortKey());
-            
-            if (placerGroupNoCompare == 0) {
-                return ((requestSortKeyCompare == 0) ? placerGroupNoCompare : requestSortKeyCompare);
-            } else {
-                return placerGroupNoCompare;
-            }
+            return new CompareToBuilder().append(o2.getCollectionDateAsDate(), o1.getCollectionDateAsDate())
+                    .append(o1.getPlacerGroupNo(), o2.getPlacerGroupNo())
+                    .append(o1.getTestRequestSortKey(), o2.getTestRequestSortKey())
+                    .toComparison();
         }
     };
 }

@@ -3,7 +3,10 @@ package org.oscarehr.olis.model;
 import oscar.oscarLab.ca.all.parsers.OLISHL7Handler;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import static org.oscarehr.olis.model.OlisMeasurementsResultDisplay.DEFAULT_OLIS_SORT_COMPARATOR;
 
 public class OlisLabResults {
 
@@ -31,6 +34,7 @@ public class OlisLabResults {
         for (OlisLabResultDisplay olisLabResultDisplay : getResultList()) {
             results.addAll(olisLabResultDisplay.getMeasurements());
         }
+        Collections.sort(results, DEFAULT_OLIS_SORT_COMPARATOR);
         return results;
     }
 

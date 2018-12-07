@@ -85,7 +85,7 @@ function filterResults(select) {
 }
 
 function resetSorting() {
-    jQuery("#resultsSummaryTable").trigger("sorton", [ [[11, 0],[12, 0]] ]);
+    jQuery("#resultsSummaryTable").trigger("sorton", [[[7, 1], [11, 0], [12, 0]]]);
 }
 
 function showView(viewName) {
@@ -329,7 +329,7 @@ function showView(viewName) {
 					<td>
 						<div id="<%=resultUuid%>_result"></div>
 						<input type="button" onClick="addToInbox('<%=resultUuid %>'); return false;" id="<%=resultUuid %>" value="Add to Inbox" />
-						<input type="button" onClick="preview('<%=resultUuid %>', '<%=resultDisplay.getLabObrIndex()%>'); return false;" id="<%=resultUuid %>_preview" value="Preview" />
+						<input type="button" onClick="preview('<%=resultUuid %>'); return false;" id="<%=resultUuid %>_preview" value="Preview" />
 					</td>
 					<td>
 						<% if (resultDisplay.getTestRequestName().length() > 30) { %>
@@ -483,7 +483,7 @@ function showView(viewName) {
 						<% } %>
 					</td>
 					<td>
-						<input type="button" onClick="preview('<%=parentLab.getLabUuid()%>', '<%=parentLab.getLabObrIndex()%>'); return false;" id="<%=parentLab.getLabUuid()%>_preview" value="View" />
+						<input type="button" onClick="preview('<%=parentLab.getLabUuid()%>'); return false;" id="<%=parentLab.getLabUuid()%>_preview" value="View" />
 					</td>
 					<td><%=parentLab.getOrderingPractitionerFull()%></td>
 				</tr>
