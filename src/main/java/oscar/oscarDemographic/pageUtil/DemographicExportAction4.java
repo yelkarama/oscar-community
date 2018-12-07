@@ -1271,6 +1271,12 @@ public class DemographicExportAction4 extends Action {
 
 					if (StringUtils.filled((String)extraData.get("manufacture"))) immu.setManufacturer((String)extraData.get("manufacture"));
 					if (StringUtils.filled((String)extraData.get("lot"))) immu.setLotNumber((String)extraData.get("lot"));
+					if (StringUtils.filled((String)extraData.get("din"))) {
+						cdsDt.Code immuCode = immu.addNewImmunizationCode();
+						immuCode.setCodingSystem("DIN");
+						immuCode.setValue((String)extraData.get("din"));
+						imSummary = Util.addSummary(imSummary, "DIN", (String)extraData.get("din"));
+					}
 					if (StringUtils.filled((String)extraData.get("route"))) immu.setRoute((String)extraData.get("route"));
 					if (StringUtils.filled((String)extraData.get("location"))) immu.setSite((String)extraData.get("location"));
 					if (StringUtils.filled((String)extraData.get("dose"))) immu.setDose((String)extraData.get("dose"));
