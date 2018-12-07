@@ -142,9 +142,54 @@
 						</select>
 						<br/>
 						<%=CppPreferencesUIBean.getCheckbox("Show Start Date",CppPreferencesUIBean.REMINDERS_START_DATE,bean.getRemindersStartDate()) %>
-						<%=CppPreferencesUIBean.getCheckbox("Show Resolution Date",CppPreferencesUIBean.REMINDERS_RES_DATE,bean.getRemindersResDate()) %>													
-					</td>											
-				</tr>																	
+						<%=CppPreferencesUIBean.getCheckbox("Show Resolution Date",CppPreferencesUIBean.REMINDERS_RES_DATE,bean.getRemindersResDate()) %>
+					</td>
+				</tr>
+				
+				<tr>
+					<td>Allergies</td>
+					<td>
+						<select name="<%=CppPreferencesUIBean.ALLERGIES_DSP%>">
+							<%=CppPreferencesUIBean.getDisplaySelect(bean.getAllergiesDisplay()) %>
+						</select>
+					</td>
+				</tr>
+				
+				<tr>
+					<td>Medications</td>
+					<td>
+						<select name="<%=CppPreferencesUIBean.MEDICATIONS_DSP%>">
+							<%=CppPreferencesUIBean.getDisplaySelect(bean.getMedicationsDisplay()) %>
+						</select>
+					</td>
+				</tr>
+				
+				<tr>
+					<td>Other Meds</td>
+					<td>
+						<select name="<%=CppPreferencesUIBean.OTHER_MEDS_DSP%>">
+							<%=CppPreferencesUIBean.getDisplaySelect(bean.getOtherMedsDisplay()) %>
+						</select>
+					</td>
+				</tr>
+				
+				<tr>
+					<td>Risk Factors</td>
+					<td>
+						<select name="<%=CppPreferencesUIBean.RISK_FACTORS_DSP%>">
+							<%=CppPreferencesUIBean.getDisplaySelect(bean.getRiskFactorsDisplay()) %>
+						</select>
+					</td>
+				</tr>
+				
+				<tr>
+					<td>Family History</td>
+					<td>
+						<select name="<%=CppPreferencesUIBean.FAMILY_HISTORY_DSP%>">
+							<%=CppPreferencesUIBean.getDisplaySelect(bean.getFamilyHxDisplay()) %>
+						</select>
+					</td>
+				</tr>
 												
 			</table>
 			<input type="submit" value="Save Changes"/>

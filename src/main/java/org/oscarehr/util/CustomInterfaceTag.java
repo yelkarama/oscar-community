@@ -151,6 +151,14 @@ public class CustomInterfaceTag extends TagSupport {
 		if(!row2) {	sb.append("removeCppRow(2);");}
 		
 		sb.append("init();");
+		
+		//show/hide Cpp items
+		if ("".equals(bean.getAllergiesDisplay())) { sb.append("hideCpp('allergies');"); }
+		if ("".equals(bean.getMedicationsDisplay())) { sb.append("hideCpp('Rx');"); }
+		if ("".equals(bean.getOtherMedsDisplay())) { sb.append("hideCpp('OMeds');"); }
+		if ("".equals(bean.getRiskFactorsDisplay())) { sb.append("hideCpp('RiskFactors');"); }
+		if ("".equals(bean.getFamilyHxDisplay())) { sb.append("hideCpp('FamHistory');"); }
+		
 		sb.append("});");
 		sb.append("function notifyIssueUpdate() {}");
 		sb.append("function notifyDivLoaded(divId) {}");

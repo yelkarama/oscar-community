@@ -252,6 +252,10 @@ LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
    function removeCppRow(rowNumber) {
 	   jQuery("#divR"+rowNumber).remove();
    }
+   
+   function hideCpp(title) {
+	   jQuery("#"+title).remove();
+   }
 
    function popColumn(url,div,params, navBar, navBarObj) {
 	   params = "reloadURL=" + url + "&numToDisplay=6&cmd=" + params;
@@ -373,7 +377,6 @@ LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 	}
 %>
 <oscar:customInterface section="cme" />
-
 <style type="text/css">
 
 /*CPP Format */
