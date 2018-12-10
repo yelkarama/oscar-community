@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.bouncycastle.util.encoders.Base64;
+import org.json.JSONObject;
 import org.oscarehr.olis.dao.OLISRequestNomenclatureDao;
 import org.oscarehr.olis.dao.OLISResultNomenclatureDao;
 import org.oscarehr.olis.model.OLISRequestNomenclature;
@@ -66,10 +67,15 @@ public class OLISHL7Handler implements MessageHandler {
 	protected Terser terser;
 	protected ArrayList<ArrayList<Segment>> obrGroups = null;
 	private ArrayList<String> obrSpecimenSource;
+	private ArrayList<JSONObject> obrHeaders;
 	private ArrayList<String> obrStatus;
 	private HashMap<String, String> sourceOrganizations;
 
 	private HashMap<String, String> defaultSourceOrganizations;
+	
+	public static final String OBR_SPECIMEN_TYPE = "specimenType";
+	public static final String OBR_SPECIMEN_RECEIVED_DATETIME = "specimenReceived";
+	public static final String OBR_SITE_MODIFIER = "siteModifier";
 
 	private void initDefaultSourceOrganizations() {
 		defaultSourceOrganizations = new HashMap<String, String>();
@@ -95,6 +101,10 @@ public class OLISHL7Handler implements MessageHandler {
 
 	public String getObrSpecimenSource(int index) {
 		return obrSpecimenSource.get(index);
+	}
+
+	public JSONObject getObrHeader(int index) {
+		return obrHeaders.get(index);
 	}
 
 	private ArrayList<String> headers = null;
@@ -602,6 +612,27 @@ public class OLISHL7Handler implements MessageHandler {
 		}
 	}
 
+	public String getOrderingFacilityOrganization() {
+		try {
+			String key = getString(terser.get("/.ORC-21-6-2"));
+			String ident = "";
+			if (key != null && key.indexOf(":") > 0) {
+				ident = key.substring(0, key.indexOf(":"));
+				ident = getOrganizationType(ident);
+				key = key.substring(key.indexOf(":") + 1);
+			} else {
+				key = "";
+			}
+			if (key == null || "".equals(key.trim())) {
+				return "";
+			}
+			return String.format("(%s %s)", ident, key);
+		} catch (Exception e) {
+			MiscUtils.getLogger().error("OLIS HL7 Error", e);
+		}
+		return "";
+	}
+
 	public String getOrderingProviderName() {
 		try {
 			return (getString(terser.get("/.ORC-21-1")));
@@ -854,6 +885,7 @@ public class OLISHL7Handler implements MessageHandler {
 
 		sourceOrganizations = new HashMap<String, String>();
 		obrSpecimenSource = new ArrayList<String>();
+		obrHeaders = new ArrayList<>();
 		obrStatus = new ArrayList<String>();
 		Parser p = new PipeParser();
 
@@ -936,14 +968,21 @@ public class OLISHL7Handler implements MessageHandler {
 								}
 							}
 						}
-
-						String s1 = getString(Terser.get(obr, 15, 0, 1, 2)); // getString(terser.get("/.OBR-15-1-2"));
+						JSONObject obrHeader = new JSONObject();
+						
+						String specimenReceivedDateTime = formatDateTime(Terser.get(obr, 14, 0, 1, 1));
+						obrHeader.accumulate(OLISHL7Handler.OBR_SPECIMEN_RECEIVED_DATETIME, specimenReceivedDateTime);
+						
+						String specimen = getString(Terser.get(obr, 15, 0, 1, 2)); // getString(terser.get("/.OBR-15-1-2"));
 						if(Terser.get(obr, 15, 0, 1, 2) == null && weirdFixToGetObr1512 != null) {
-							s1 = weirdFixToGetObr1512;
+							specimen = weirdFixToGetObr1512;
 						}
-						String s2 = getString(Terser.get(obr, 15, 0, 5, 2)); // getString(terser.get("/.OBR-15-5-2"));
-						String specimen = String.format("%s%s%s", s1, s1.equals("") || s2.equals("") ? "" : " ", s2);
 						obrSpecimenSource.add(specimen);
+						obrHeader.accumulate(OLISHL7Handler.OBR_SPECIMEN_TYPE, specimen);
+						
+						String siteModifier = getString(Terser.get(obr, 15, 0, 5, 2)); // getString(terser.get("/.OBR-15-5-2"));
+						obrHeader.accumulate(OLISHL7Handler.OBR_SITE_MODIFIER, siteModifier);
+						
 						char status = getString(Terser.get(obr, 25, 0, 1, 1)).charAt(0);
 						isFinal &= isStatusFinal(status);
 						isCorrected |= status == 'C';
@@ -953,6 +992,7 @@ public class OLISHL7Handler implements MessageHandler {
 						if (!"".equals(parent)) {
 							obrParentMap.put(parent, String.valueOf(obrNum));
 						}
+						obrHeaders.add(obrHeader);
 
 					} else if (segmentName.equals("DG1")) {
 						Structure[] segs = terser.getFinder().getRoot().getAll(segments[k]);

@@ -17,6 +17,7 @@
 <%@ page import="oscar.oscarEncounter.data.EctFormData" %>
 <%@ page import="org.oscarehr.util.LoggedInInfo" %>
 <%@ page import="oscar.OscarProperties" %>
+<%@ page import="org.json.JSONObject" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
@@ -197,12 +198,6 @@ public String strikeOutInvalidContent(String content, String status) {
 .NormalRes a:hover { color: black }
 .NormalRes a:visited { color: black }
 .NormalRes a:active { color: black }
-.HiLoRes     { font-weight: bold; font-size: 8pt; color: blue; font-family:
-               Verdana, Arial, Helvetica }
-.HiLoRes a:link { color: blue }
-.HiLoRes a:hover { color: blue }
-.HiLoRes a:visited { color: blue }
-.HiLoRes a:active { color: blue }
 .CorrectedRes { font-weight: bold; font-size: 8pt; color: #E000D0; font-family:
                Verdana, Arial, Helvetica }
 .CorrectedRes a:link { color: #6da997 }
@@ -743,7 +738,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                             </td>
                                             <td>
                                                 <div class="FieldData">
-                                                    <%= ( (String) ( handler.getOrderStatus().equals("F") ? "Final" : handler.getOrderStatus().equals("C") ? "Corrected" : "Partial") )%>
+                                                    <%= handler.getObrStatus(0)%>
                                                 </div>
                                             </td>
                                         </tr>
@@ -805,6 +800,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                             <td valign="top">
                                                 <div class="FieldData">
                                                     <%= specimenReceived %>
+                                                    <span style="font-size: 9px; color: #333333; display: block;">(unless otherwise specified)</span>
                                                 </div>
                                             </td>
                                         </tr>
@@ -1142,9 +1138,11 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                         String newCategory = "";
 
                         int obr;
-
+                        JSONObject obrHeader;
                         for(i=0;i<headers.size();i++) {
                         	obr = handler.getMappedOBR(i);
+                        	// Gets the obrHeader JSON related to the current obr
+                        	obrHeader = handler.getObrHeader(i);
                             linenum = obr + 1;
                             if (handler.isChildOBR(linenum) || (resultObrIndex != null && !resultObrIndex.equals(i))) {
                             	continue;
@@ -1174,6 +1172,52 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                 <td colspan="4" height="7">&nbsp;</td>
                             </tr>
                             <tr>
+                                <td bgcolor="#FFCC00" colspan="2">
+                                    <%
+                                        // Gets information needed for the specimen/collection table and prints it out in table format
+                                        String collectionDateTime = handler.getCollectionDateTime(obr);
+                                        String specimenCollectedBy = handler.getSpecimenCollectedBy(obr);
+                                        String collectionVolume = handler.getCollectionVolume(obr);
+                                        String noOfSampleContainers = handler.getNoOfSampleContainers(obr);
+                                        String siteModifier = obrHeader.getString(OLISHL7Handler.OBR_SITE_MODIFIER);
+                                        
+                                        String specimenReceivedDate = obrHeader.getString(OLISHL7Handler.OBR_SPECIMEN_RECEIVED_DATETIME);
+                                        specimenReceivedDate = specimenReceivedDate.equals(specimenReceived) ? "" : specimenReceivedDate;
+                                    %>
+                                    <table width="100%">
+                                        <tr>
+                                            <th width="30%"> Specimen Type: </th>
+                                            <th width="30%"><%= !stringIsNullOrEmpty(collectionDateTime) ? "Collection Date/Time" : "" %></th>
+                                            <th width="30%"><%= !stringIsNullOrEmpty(specimenCollectedBy) ? "Specimen Collected By" : "" %></th>
+                                        </tr>
+                                        <tr>
+                                            <td align="center"><%= obrHeader.getString(OLISHL7Handler.OBR_SPECIMEN_TYPE) %></td>
+                                            <td align="center"><%=collectionDateTime%></td>
+                                            <td align="center"><%=specimenCollectedBy%></td>
+                                        </tr>
+                                        <% if (!siteModifier.isEmpty()) { %>
+                                        <tr>
+                                            <th width="33%">Site Modifier</th>
+                                        </tr>
+                                        <tr>
+                                            <td align="center"><%= siteModifier %></td>
+                                        </tr>
+                                        <% } %>
+                                        <tr>
+                                            <th width="30%"><%= !stringIsNullOrEmpty(collectionVolume) ? "Collection Volume" : "" %></th>
+                                            <th width="30%"><%= !stringIsNullOrEmpty(noOfSampleContainers) ? "No. of Sample Containers" : "" %></th>
+                                            <th width="30%"><%= !specimenReceivedDate.isEmpty() ? "Specimen Received Date/Time" : "" %></th>
+                                        </tr>
+                                        <tr>
+                                            <td align="center"><%=collectionVolume%></td>
+                                            <td align="center"><%=noOfSampleContainers%></td>
+                                            <td align="center"><%=specimenReceivedDate%></td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            
+                            <tr>
                                 <td bgcolor="#FFCC00" width="300" valign="top">
                                     <div class="Title2">
                                         <%=headers.get(obr)%> <span <%= !handler.isObrStatusFinal(obr) ? "style=\"color: red\"" : "" %>><%= " (" +handler.getObrStatus(obr) + ")"%></span>
@@ -1193,69 +1237,11 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                     </div>
                                 </td>
                                 <%--<td align="right" bgcolor="#FFCC00" width="100">&nbsp;</td>--%>
-                                <td  bgcolor="#FFCC00" width="500">
-                                	<div class="Title2">
-                                	<table>
-                                		<% if (!handler.getObrSpecimenSource(obr).equals("")) { %>
-                                			<tr> <td> Specimen Source: </td><td><%=handler.getObrSpecimenSource(obr) %></td> </tr>
-                                		<% } %>
-                                	</table>
-
-                                	</div>
+                                <td  bgcolor="#FFCC00" width="500">&nbsp;
                                 </td>
                                 <td width="9">&nbsp;</td>
                                 <td width="*">&nbsp;</td>
                             </tr>
-                            <tr>
-                            <%--
-
-                              Collection Date/Time
-                              Specimen Collected By
-                              Collection Volume
-                              No. of Sample Containers
-
-
-                             --%>
-                             <%
-                             HashMap<String,String> parameters = new HashMap<String,String>();
-
-                             String collectionDateTime = handler.getCollectionDateTime(obr);
-                             String specimenCollectedBy = handler.getSpecimenCollectedBy(obr);
-                             String collectionVolume = handler.getCollectionVolume(obr);
-							 String noOfSampleContainers = handler.getNoOfSampleContainers(obr);
-
-							 if (!stringIsNullOrEmpty(collectionDateTime)) {
-								 parameters.put("Collection Date/Time", collectionDateTime);
-							 }
-
-							 if (!stringIsNullOrEmpty(specimenCollectedBy)) {
-								 parameters.put("Specimen Collected By", specimenCollectedBy);
-							 }
-
-							 if (!stringIsNullOrEmpty(collectionVolume)) {
-								 parameters.put("Collection Volume", collectionVolume);
-							 }
-
-							 if (!stringIsNullOrEmpty(noOfSampleContainers)) {
-								 parameters.put("No. of Sample Containers", noOfSampleContainers);
-							 }
-
-							 for (String key : parameters.keySet()) {
-
-							 }
-                             %>
-								<td bgcolor="#FFCC00" colspan="2">
-								<table width="100%">
-									<tr><% if (!stringIsNullOrEmpty(collectionDateTime)) { %><th width="50%"> Collection Date/Time </th><% } %><% if (!stringIsNullOrEmpty(specimenCollectedBy)) { %><th width="50%">Specimen Collected By</th><% } %></tr>
-									<tr><% if (!stringIsNullOrEmpty(collectionDateTime)) { %><td align="center"><%=collectionDateTime%></td><% } %><% if (!stringIsNullOrEmpty(specimenCollectedBy)) { %><td align="center"><%=specimenCollectedBy%></td><% } %></tr>
-									<tr><% if (!stringIsNullOrEmpty(collectionVolume)) { %><th> Collection Volume </th><% } %><% if (!stringIsNullOrEmpty(noOfSampleContainers)) { %><th>No. of Sample Containers</th><% } %></tr>
-									<tr><% if (!stringIsNullOrEmpty(collectionVolume)) { %><td align="center"><%=collectionVolume%></td><% } %><% if (!stringIsNullOrEmpty(noOfSampleContainers)) { %><td align="center"><%=noOfSampleContainers%></td><% } %></tr>
-								</table>
-
-								</td>
-								<td width="9">&nbsp;</td>
-                                <td width="*">&nbsp;</td>
-							</tr>
 							<%
 							String performingFacility = handler.getOBRPerformingFacilityName(obr);
 							if (!primaryFacility.equals(performingFacility) && !performingFacility.equals("")) {
@@ -1442,9 +1428,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
 
                                         String lineClass = "NormalRes";
                                         String abnormal = handler.getOBXAbnormalFlag(obr, obx);
-                                        if ( abnormal != null && abnormal.startsWith("L")){
-                                            lineClass = "HiLoRes";
-                                        } else if ( abnormal != null && ( abnormal.equals("A") || abnormal.startsWith("H") || handler.isOBXAbnormal(obr, obx) ) ){
+                                        if ( abnormal != null && (abnormal.startsWith("L") ||  abnormal.equals("A") || abnormal.startsWith("H") || handler.isOBXAbnormal(obr, obx) ) ){
                                             lineClass = "AbnormalRes";
                                         }
                                         String obxValueType = handler.getOBXValueType(obr,obx).trim();
@@ -1709,7 +1693,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                     </tr>
                     <tr>
                         <td>
-                            <%=handler.getOrderingFacilityName()%><br />
+                            <%=handler.getOrderingFacilityName()%> <span style="font-size: 8px; color: #333333;"><%= handler.getOrderingFacilityOrganization()%></span><br />
                             <% if (address != null && address.size() > 0) {
                             String city = displayAddressFieldIfNotNullOrEmpty(address, "City", false);
                             String province = displayAddressFieldIfNotNullOrEmpty(address, "Province", false);

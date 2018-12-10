@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
+import org.json.JSONObject;
 import org.oscarehr.common.dao.Hl7TextMessageDao;
 import org.oscarehr.common.model.Hl7TextMessage;
 import org.oscarehr.common.model.Provider;
@@ -69,7 +70,6 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
     private Font font;
     private Font boldFont;
     private Font redFont;
-    private Font blueFont;
     private Font categoryHeadFont;
     private Font commentFont;
     private Font subscriptFont;
@@ -181,7 +181,6 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         font = new Font(bf, 9, Font.NORMAL);
         boldFont = new Font(bfBold, 9, Font.NORMAL);
         redFont = new Font(bf, 9, Font.NORMAL, Color.RED);
-        blueFont = new Font(bf, 9, Font.NORMAL, Color.BLUE);
         categoryHeadFont = new Font(bf, 12, Font.BOLD);
         commentFont = new Font(cf, 9, Font.NORMAL);
         subscriptFont = new Font(bf, 6, Font.NORMAL);
@@ -302,26 +301,16 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 			categoryPhrase.setFont(new Font(bf, 7, Font.NORMAL, Color.RED));
 			categoryPhrase.add("\n\n(Do Not Disclose Without Explicit Patient Consent");
 		}
-		
+		//Creates the collection table and adds it to the category table
+		PdfPTable collectionTable = createCollectionTable(obr);
+		cell = new PdfPCell(collectionTable);
+		cell.setBorder(0);
+		cell.setColspan(2);
+		categoryTable.addCell(cell);
+
 		cell.setPhrase(categoryPhrase);
 		categoryTable.addCell(cell);
 		cell.setBorder(0);
-		//Sets the specimen source and request status
-		float[] specimenTableWidths = {1f, 4f}; 
-		PdfPTable specimenTable = new PdfPTable(specimenTableWidths);
-		//If there is a specimen source
-		if (!stringIsNullOrEmpty(handler.getObrSpecimenSource(obr))){
-			cell.setPhrase(new Phrase("Specimen Source: ", boldFont));
-			specimenTable.addCell(cell);
-			cell.setPhrase(new Phrase(handler.getObrSpecimenSource(obr), font));
-			specimenTable.addCell(cell);
-			cell.setBorder(0);
-		}
-		
-		//Adds the specimen table to the category table
-		cell = new PdfPCell(specimenTable);
-		cell.setBorder(0);
-		categoryTable.addCell(cell);
 		
 		//Adds a small separator between the top row and the collection table
 		cell = new PdfPCell();
@@ -330,12 +319,6 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		cell.setFixedHeight(1f);
 		categoryTable.addCell(cell);
 		
-		//Creates the collection table and adds it to the category table
-		PdfPTable collectionTable = createCollectionTable(obr);
-		cell = new PdfPCell(collectionTable);
-		cell.setBorder(0);
-		cell.setColspan(2);
-		categoryTable.addCell(cell);
 		
 		cell = new PdfPCell();
 		cell.setBorder(0);
@@ -475,11 +458,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 				String abnormal = handler.getOBXAbnormalFlag(obr, obx);
 				
 				//If the abnormal status starts with L then the font color is blue
-				if (abnormal!= null && abnormal.startsWith("L")){
-					lineFont = blueFont;
-				}
-				//If the abnormal status starts with an A, H, or isOBXAbnormal returns true then the font color is blue 
-				else if (abnormal != null && (abnormal.equals("A") || abnormal.startsWith("H") || handler.isOBXAbnormal(obr, obx))){
+				if (abnormal!= null && (abnormal.startsWith("L") || abnormal.equals("A") || abnormal.startsWith("H") || handler.isOBXAbnormal(obr, obx))){
 					lineFont = redFont;
 				}
 				
@@ -927,7 +906,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         PdfPTable rInfoTable = new PdfPTable(2);
         cell.setPhrase(new Phrase("Report Status: ", boldFont));
         rInfoTable.addCell(cell);
-        cell.setPhrase(new Phrase(handler.getOrderStatus() == FINAL_CODE ? REPORT_FINAL : REPORT_PARTIAL, font));
+        cell.setPhrase(new Phrase(handler.getObrStatus(0), font));
         rInfoTable.addCell(cell);
         
         cell.setPhrase(new Phrase("Order Id: ", boldFont));
@@ -956,7 +935,10 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         if(!stringIsNullOrEmpty(handler.getSpecimenReceivedDateTime())){
 	        cell.setPhrase(new Phrase("Specimen Received: ", boldFont));
 	        rInfoTable.addCell(cell);
-	        cell.setPhrase(new Phrase(handler.getSpecimenReceivedDateTime(), font));
+	        Phrase specimentReceived = new Phrase(handler.getSpecimenReceivedDateTime(), font);
+	        specimentReceived.setFont(subscriptFont);
+	        specimentReceived.add("\n (unless otherwise specified)");
+	        cell.setPhrase(specimentReceived);
 	        rInfoTable.addCell(cell);
         }
         
@@ -1218,7 +1200,10 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		
 		cell.setColspan(2);
 		cell.setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
-		cell.setPhrase(new Phrase(handler.getOrderingFacilityName(), font));
+		Phrase orderingFacility = new Phrase(handler.getOrderingFacilityName(), font);
+		orderingFacility.setFont(subscriptFont);
+		orderingFacility.add("\t" + handler.getOrderingFacilityOrganization());
+		cell.setPhrase(orderingFacility);
 		orderingFacilityTable.addCell(cell);
 		
 		cell.setPaddingTop(3);
@@ -1421,87 +1406,64 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
     }
     
 	public PdfPTable createCollectionTable(Integer obr){
-    	PdfPTable collectionTable = new PdfPTable(2);
+    	PdfPTable collectionTable = new PdfPTable(3);
     	//Sets the default cell's border to 0 in case completeRow() needs to add in a cell
     	collectionTable.getDefaultCell().setBorder(0);
-    	//Declares innerTable to keep nice spacing in the cells 
-    	PdfPTable innerTable = new PdfPTable(1);
-    	//Declares a collectionCell to be used only to add the innerTable to the collection table
-    	PdfPCell collectionCell;
-    	//Normal cell to be used for addition to the innerTable
-    	PdfPCell cell = new PdfPCell();
-    	cell.setBorder(0);
-    	cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-    	
     	//Gets the data from the handler
+        JSONObject obrHeader = handler.getObrHeader(obr);
+		String specimenType = obrHeader.getString(OLISHL7Handler.OBR_SPECIMEN_TYPE);
+		String siteModifier = obrHeader.getString(OLISHL7Handler.OBR_SITE_MODIFIER);
     	String collectionDateTime = handler.getCollectionDateTime(obr);
         String specimenCollectedBy = handler.getSpecimenCollectedBy(obr);
         String collectionVolume = handler.getCollectionVolume(obr);
         String noOfSampleContainers = handler.getNoOfSampleContainers(obr);
+		String specimenReceivedDate = obrHeader.getString(OLISHL7Handler.OBR_SPECIMEN_RECEIVED_DATETIME);
+		specimenReceivedDate = specimenReceivedDate.equals(handler.getSpecimenReceivedDateTime()) ? "" : specimenReceivedDate;
         
-        //Checks if the collectionDateTime string is not null
-        if (!stringIsNullOrEmpty(collectionDateTime)) {
-        	//Adds the header and the value of the collection date time
-        	cell.setPhrase(new Phrase("Collection Date/Time", boldFont));
-        	innerTable.addCell(cell);
-        	cell.setPhrase(new Phrase(collectionDateTime, font));
-        	innerTable.addCell(cell);
-        	//Adds the inner table to the collectionCell
-        	collectionCell = new PdfPCell(innerTable);
-        	collectionCell.setBorder(0);
-        	//Adds the collectionCell to the collectionTable
-        	collectionTable.addCell(collectionCell);
-        }
-        //Checks if the specimen collected by string is not null
-        if (!stringIsNullOrEmpty(specimenCollectedBy)) {
-        	//Resets the inner table
-        	innerTable = new PdfPTable(1);
-        	//Adds the header and the value of the specimen collected by
-        	cell.setPhrase(new Phrase("Specimen Collected By", boldFont));
-        	innerTable.addCell(cell);
-        	cell.setPhrase(new Phrase(specimenCollectedBy, font));
-        	innerTable.addCell(cell);
-        	//Adds the inner table to the collectionCell
-        	collectionCell = new PdfPCell(innerTable);
-        	collectionCell.setBorder(0);
-        	//Adds the collectionCell to the collectionTable
-        	collectionTable.addCell(collectionCell);
-        }
-        //Checks if the collection volume string is not null
-        if (!stringIsNullOrEmpty(collectionVolume)) {
-        	//Resets the inner table
-        	innerTable = new PdfPTable(1);
-        	//Adds the header and the value of the collection volume
-        	cell.setPhrase(new Phrase("Collection Volume", boldFont));
-        	innerTable.addCell(cell);
-        	cell.setPhrase(new Phrase(collectionVolume, font));
-        	innerTable.addCell(cell);
-        	//Adds the inner table to the collectionCell
-        	collectionCell = new PdfPCell(innerTable);
-        	collectionCell.setBorder(0);
-        	//Adds the collectionCell to the collectionTable
-        	collectionTable.addCell(collectionCell);
-        }
-        //Checks if the no. of sample containers string is not null
-        if (!stringIsNullOrEmpty(noOfSampleContainers)) {
-        	//Resets the inner table
-        	innerTable = new PdfPTable(1);
-        	//Adds the header and the value of the no. of sample containers
-        	cell.setPhrase(new Phrase("No. of Sample Containers", boldFont));
-        	innerTable.addCell(cell);
-        	cell.setPhrase(new Phrase(noOfSampleContainers, font));
-        	innerTable.addCell(cell);
-        	//Adds the inner table to the collectionCell
-        	collectionCell = new PdfPCell(innerTable);
-        	collectionCell.setBorder(0);
-        	//Adds the collectionCell to the collectionTable
-        	collectionTable.addCell(collectionCell);
-        }
-        //Completes the current row in case there is only one cell in it
-        collectionTable.completeRow();
+        // Adds each item for the collection table using the addCollectionItem function
+		addCollectionItem(collectionTable, "Specimen Type", specimenType);
+		addCollectionItem(collectionTable, "Collection Date/Time", collectionDateTime);
+		addCollectionItem(collectionTable, "Specimen Collected By", specimenCollectedBy);
+		if (!siteModifier.isEmpty()) {
+			addCollectionItem(collectionTable, "Site Modifier", siteModifier);
+			collectionTable.completeRow();
+		}
+		addCollectionItem(collectionTable, "Collection Volume", collectionVolume);
+		addCollectionItem(collectionTable, "No. of Sample Containers", noOfSampleContainers);
+		addCollectionItem(collectionTable, "Specimen Received Date/Time", specimenReceivedDate);
+		
         //Returns the collection table
         return collectionTable;
     }
+
+	/**
+	 * Adds an item for the collection header to the given collection table. If the value is empty, then it adds an empty pace to the collection table to retain formatting
+	 * @param collectionTable Collection table to add the title and value to
+	 * @param title Title of the section
+	 * @param value Value that matches with the title
+	 */
+	private void addCollectionItem(PdfPTable collectionTable, String title, String value) {
+    	// Instantiates a new innerTable and cell
+		PdfPTable innerTable = new PdfPTable((1));
+		PdfPCell cell = new PdfPCell();
+		cell.setBorder(0);
+		cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+		
+		// Checks if the value is empty. If so, then skips adding the title/value
+		if (!stringIsNullOrEmpty(value)) {
+			//Adds the header and the value of the collection date time
+			cell.setPhrase(new Phrase(title, boldFont));
+			innerTable.addCell(cell);
+			cell.setPhrase(new Phrase(value, font));
+			innerTable.addCell(cell);
+		}
+		
+		//Adds the inner table to the collectionCell
+		PdfPCell collectionCell = new PdfPCell(innerTable);
+		collectionCell.setBorder(0);
+		//Adds the collectionCell to the collectionTable
+		collectionTable.addCell(collectionCell);
+	}
     
     /**
      * Takes a string of docNames, specifically the one returned from handler.getCCDocNames()
