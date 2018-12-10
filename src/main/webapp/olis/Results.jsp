@@ -312,9 +312,9 @@ function showView(viewName) {
 				<tr>
 					<th style="min-width: 175px;">Actions</th>
 					<th>Test Requst Name &#8597;</th>
-					<th>Status &#8597;</th>
 					<th>Specimen Type &#8597;</th>
 					<th>Collection Date/Time &#8597;</th>
+					<th>Last Updated in OLIS &#8597;</th>
 					<th>Results Indicator &#8597;</th>
 					<th>Ordering Practitioner &#8597;</th>
 					<th>Admitting Practitioner &#8597;</th>
@@ -340,9 +340,9 @@ function showView(viewName) {
 						<%=resultDisplay.getTestRequestName()%>
 						<% } %>
 					</td>
-					<td><%=resultDisplay.getStatus()%></td>
 					<td><%=resultDisplay.getSpecimenType()%></td>
 					<td><%=resultDisplay.getCollectionDate()%></td>
+					<td><%=resultDisplay.getOlisLastUpdated()%></td>
 					<td>
 						<% if (resultDisplay.getResultsIndicator().length() > 40) { %>
 						<span title="<%=resultDisplay.getResultsIndicator()%>">

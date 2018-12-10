@@ -159,7 +159,7 @@ public class OlisLabResultDisplay {
             labResult.setLabObrIndex(obr);
             labResult.setTestRequestName(olisHandler.getOBRName(obr));
             labResult.setStatus(olisHandler.getObrStatus(obr));
-            labResult.setSpecimenType(olisHandler.getObrSpecimenSource(obr));
+            labResult.setSpecimenType(olisHandler.getOBRSpecimentType(obr));
             labResult.setResultsIndicator(olisHandler.getObrStatus(obr));
             labResult.setTestRequestSortKey(olisHandler.getZBR11(obr));
             labResult.setCollectorsComment(olisHandler.getCollectorsComment(obr));

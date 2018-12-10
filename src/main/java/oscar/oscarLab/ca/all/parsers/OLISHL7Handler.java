@@ -1640,6 +1640,21 @@ public class OLISHL7Handler implements MessageHandler {
 		}
 		return "";
 	}
+	
+	public String getOBRSpecimentType(int obrIndex) {
+		try {
+			Segment obr;
+			if (obrIndex == 1) { 
+				obr = terser.getSegment("/.OBR");
+			} else {
+				obr = (Segment) terser.getFinder().getRoot().get("OBR" + obrIndex);
+			}
+			return getString(Terser.get(obr, 15, 0, 1, 2));
+		} catch (HL7Exception e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
 
 	@Override
 	public String getOBXName(int i, int j) {
