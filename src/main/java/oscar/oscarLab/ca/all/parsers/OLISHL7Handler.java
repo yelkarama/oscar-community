@@ -1389,23 +1389,26 @@ public class OLISHL7Handler implements MessageHandler {
 		}
 		return "";
 	}
+	
+	public String getObrStatusFinal(int obrIndex) {
+        obrIndex++;
+        String status = "";
+        try {
+            Segment obr;
+            if (obrIndex == 1) {
+                obr = terser.getSegment("/.OBR");
+            } else {
+                obr = (Segment) terser.getFinder().getRoot().get("OBR" + obrIndex);
+            }
+            status = getString(Terser.get(obr, 25, 0, 1, 1));
+        } catch (Exception e) {
+            MiscUtils.getLogger().error("OLIS HL7 Error", e);
+        }
+        return status;
+    }
 
 	public boolean isObrStatusFinal(int i) {
-		i++;
-		String status = "";
-		try {
-			Segment obr;
-			if (i == 1) {
-				obr = terser.getSegment("/.OBR");
-			} else {
-				obr = (Segment) terser.getFinder().getRoot().get("OBR" + i);
-			}
-			status = getString(Terser.get(obr, 25, 0, 1, 1));
-		} catch (Exception e) {
-			MiscUtils.getLogger().error("OLIS HL7 Error", e);
-		}
-		
-		return status.equals("F");
+		return getObrStatusFinal(i).equals("F");
 	}
 	
 	@Override
@@ -1682,6 +1685,7 @@ public class OLISHL7Handler implements MessageHandler {
 	}
 	
 	public String getOBRSpecimentType(int obrIndex) {
+        obrIndex++;
 		try {
 			Segment obr;
 			if (obrIndex == 1) { 

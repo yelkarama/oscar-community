@@ -107,6 +107,12 @@ function showView(viewName) {
         labsDisplay.style.display = 'table-cell';
 	}
 }
+function popupNotesWindow(noteDiv) {
+    let windowProps = "height=300,width=600,location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes";
+    let notesWindow = window.open("", "notes", windowProps);
+    notesWindow.document.body.innerHTML = '';
+    notesWindow.document.write(noteDiv.html());
+}
 </script>
 <script type="text/javascript" src="<%=request.getContextPath()%>/share/javascript/sortable.js"></script>
 <style type="text/css">
@@ -132,6 +138,9 @@ function showView(viewName) {
 }
 .abnormal {
 	color: red;
+}
+.line-through {
+	text-decoration: line-through;
 }
 .resultsTable thead tr th, .resultsTable tbody tr td {
 	border-right: solid 1px #444444;
@@ -398,12 +407,12 @@ function showView(viewName) {
 				<tr>
 					<th class="small-text" style="min-width: 75px;">Last Updated In OLIS &#8597;</th>
 					<th class="small-text">Test Request Name &#8597;</th>
-					<th class="small-text">Status &#8597;</th>
+					<th class="small-text">Test Request Status &#8597;</th>
 					<th class="small-text">Specimen Type &#8597;</th>
 					<th class="small-text" style="min-width: 75px;">Collection Date/Time &#8597;</th>
 					<th class="small-text">Collector's Comments &#8597;</th>
 					<th class="small-text">Test Result Name &#8597;</th>
-					<th class="small-text">Status &#8597;</th>
+					<th class="small-text">Test Result Status &#8597;</th>
 					<th class="small-text">Result Value &#8597;</th>
 					<th class="small-text">Flag &#8597;</th>
 					<th class="small-text">Reference Range &#8597;</th>
@@ -422,6 +431,11 @@ function showView(viewName) {
 					if (measurementDisplay.isAbnormal()) {
 					    valueDisplayClass = "abnormal";
 					}
+					String statusDisplayClass = "";
+					if (measurementDisplay.getStatus().equalsIgnoreCase("Invalid") || measurementDisplay.getStatus().equalsIgnoreCase("Amended")) {
+						statusDisplayClass = "abnormal";
+					}
+					String lineThroughCss = "Invalid".equalsIgnoreCase(measurementDisplay.getStatus()) ? "line-through" : "";
 				%>
 				<tr>
 					<td><%=parentLab.getOlisLastUpdated()%></td>
@@ -434,7 +448,7 @@ function showView(viewName) {
 						<%=parentLab.getTestRequestName()%>
 						<% } %>
 					</td>
-					<td><%=parentLab.getStatus()%></td>
+					<td><%=parentLab.getRequestStatus()%></td>
 					<td><%=parentLab.getSpecimenType()%></td>
 					<td><%=parentLab.getCollectionDate()%></td>
 					<td>
@@ -447,8 +461,8 @@ function showView(viewName) {
 						<% } %>
 					</td>
 					<td><%=measurementDisplay.getTestResultName()%></td>
-					<td><%=measurementDisplay.getStatus()%></td>
-					<td class="<%=valueDisplayClass%>">
+					<td class="<%=statusDisplayClass%>"><%=measurementDisplay.getStatus()%></td>
+					<td class="<%=valueDisplayClass%> <%=lineThroughCss%>">
 						<% if (measurementDisplay.getResultValue().length() > 30) { %>
 						<span title="<%=measurementDisplay.getResultValue()%>">
 							<%=measurementDisplay.getResultValue().substring(0, 30)%>...
@@ -457,23 +471,21 @@ function showView(viewName) {
 						<%=measurementDisplay.getResultValue()%>
 						<% } %>
 					</td>
-					<td class="<%=valueDisplayClass%>"><%=measurementDisplay.getFlag()%></td>
-					<td class="<%=valueDisplayClass%>"><%=measurementDisplay.getReferenceRange()%></td>
-					<td class="<%=valueDisplayClass%>"><%=measurementDisplay.getUnits()%></td>
-					<td class="<%=valueDisplayClass%>"><%=measurementDisplay.getNatureOfAbnormalText()%></td>
+					<td class="<%=valueDisplayClass%> <%=lineThroughCss%>"><%=measurementDisplay.getFlag()%></td>
+					<td class="<%=valueDisplayClass%> <%=lineThroughCss%>"><%=measurementDisplay.getReferenceRange()%></td>
+					<td class="<%=valueDisplayClass%> <%=lineThroughCss%>"><%=measurementDisplay.getUnits()%></td>
+					<td class="<%=valueDisplayClass%> <%=lineThroughCss%>"><%=measurementDisplay.getNatureOfAbnormalText()%></td>
 					<td>
-						<% 
-						StringBuilder comments = new StringBuilder();
-						for (String comment : measurementDisplay.getComments()) {
-							comments.append(comment).append("<br/>");
-						}
-						if (comments.length() > 30) { %>
-						<span title="<%=comments.toString()%>">
-							<%=comments.toString().substring(0, 30)%>...
-						</span>
-						<% } else { %>
-						<%=comments.toString()%>
-						<% } %>
+						<%
+							StringBuilder comments = new StringBuilder();
+							for (String comment : measurementDisplay.getComments()) {
+								comments.append(comment).append("<br/>");
+							}
+							if (!comments.toString().isEmpty()) { %>
+
+						<a href="#" onclick="popupNotesWindow(jQuery('#measurementNotes<%=parentLab.getLabUuid()%>_<%=parentLab.getLabObrIndex()%>_<%=measurementDisplay.getMeasurementObxIndex()%>'));">view notes</a>
+						<div style="display: none" id="measurementNotes<%=parentLab.getLabUuid()%>_<%=parentLab.getLabObrIndex()%>_<%=measurementDisplay.getMeasurementObxIndex()%>"><%=comments.toString()%></div>
+						<%  } %>
 					</td>
 					<td>
 						<% if (measurementDisplay.isAttachment()) { %>

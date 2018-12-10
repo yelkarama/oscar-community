@@ -17,7 +17,7 @@ public class OlisLabResultDisplay {
     private String placerGroupNo;
     private String testRequestSortKey;
     private String testRequestName;
-    private String status;
+    private String requestStatus;
     private String specimenType;
     private String resultsIndicator;
     private String orderingPractitioner;
@@ -69,11 +69,11 @@ public class OlisLabResultDisplay {
         this.testRequestName = testRequestName;
     }
 
-    public String getStatus() {
-        return status;
+    public String getRequestStatus() {
+        return requestStatus;
     }
-    public void setStatus(String status) {
-        this.status = status;
+    public void setRequestStatus(String requestStatus) {
+        this.requestStatus = requestStatus;
     }
 
     public String getSpecimenType() {
@@ -171,7 +171,7 @@ public class OlisLabResultDisplay {
             labResult.setLabUuid(resultUuid);
             labResult.setLabObrIndex(obr);
             labResult.setTestRequestName(olisHandler.getOBRName(obr));
-            labResult.setStatus(olisHandler.getObrStatus(obr));
+            labResult.setRequestStatus(olisHandler.getTestRequestStatusMessage(olisHandler.getObrStatusFinal(obr).charAt(0)));
             labResult.setSpecimenType(olisHandler.getOBRSpecimentType(obr));
             labResult.setResultsIndicator(olisHandler.getObrStatus(obr));
             labResult.setTestRequestSortKey(olisHandler.getZBR11(obr));
@@ -189,15 +189,6 @@ public class OlisLabResultDisplay {
                 collectionDate = collectionDate.substring(0, collectionDate.indexOf(" - "));
             }
             labResult.setCollectionDate(collectionDate);
-            
-            String orderStatusCode = olisHandler.getOrderStatus();
-            if ("P".equals(orderStatusCode)) {
-                labResult.setStatus("Partial");
-            } else if ("F".equals(orderStatusCode)) {
-                labResult.setStatus("Final");
-            } else if ("C".equals(orderStatusCode)) {
-                labResult.setStatus("Corrected");
-            }
             
             labResult.setPlacerGroupNo(olisHandler.getAccessionNum());
 
