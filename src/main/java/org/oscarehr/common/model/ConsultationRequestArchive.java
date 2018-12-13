@@ -177,8 +177,6 @@ public class ConsultationRequestArchive extends AbstractModel<Integer> implement
         this.letterheadAddress = other.getLetterheadAddress();
         this.letterheadPhone = other.getLetterheadPhone();
         this.letterheadFax = other.getLetterheadFax();
-        this.letterheadWebsite = other.getLetterheadWebsite();
-        this.letterheadEmail = other.getLetterheadEmail();
         this.lastUpdateDate = other.getLastUpdateDate();
         this.fdid = other.getFdid();
         this.source = other.getSource();
@@ -448,8 +446,6 @@ public class ConsultationRequestArchive extends AbstractModel<Integer> implement
         conRequest.setLetterheadAddress(this.letterheadAddress);
         conRequest.setLetterheadPhone(this.letterheadPhone);
         conRequest.setLetterheadFax(this.letterheadFax);
-        conRequest.setLetterheadWebsite(this.letterheadWebsite);
-        conRequest.setLetterheadEmail(this.letterheadEmail);
 //        conRequest.setLookupListItem(this.lookupListItem);
         conRequest.setFdid(this.fdid);
         conRequest.setSource(this.source);

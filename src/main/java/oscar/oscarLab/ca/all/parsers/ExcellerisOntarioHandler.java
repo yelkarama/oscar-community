@@ -71,7 +71,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
 	
 	public static final String VIHARTF = "CELLPATHR";
 	public static enum OBX_DATA_TYPES {NM,ST,CE,TX,FT} // Numeric, String, Coded Element, Text, String
-
+    private boolean reportBlocked = false;
     /** Creates a new instance */
     public ExcellerisOntarioHandler() {
     }
@@ -524,6 +524,14 @@ X = deleted (available on request; not always preceded by non-X OBRs in an earli
         }
     }
 
+
+    public String getOBXNameLong(int i, int j){
+        try{
+            return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getObservationIdentifier().getText().getValue()));
+        }catch(Exception e){
+            return("");
+        }
+    }
     
     public String getOBXResult(int i, int j){
         try{
@@ -817,5 +825,8 @@ X = deleted (available on request; not always preceded by non-X OBRs in an earli
 		return ( OBX_DATA_TYPES.TX.name().equals( getOBXValueType(0, 0) ) 
 				|| OBX_DATA_TYPES.FT.name().equals( getOBXValueType(0, 0) )  );		
 	}
-    
+
+    public Boolean isReportBlocked(){
+        return reportBlocked;
+    }
 }
