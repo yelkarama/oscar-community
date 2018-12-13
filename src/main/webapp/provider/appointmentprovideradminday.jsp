@@ -99,15 +99,14 @@
 	ProgramManager2 programManager = SpringUtils.getBean(ProgramManager2.class);
 	AppManager appManager = SpringUtils.getBean(AppManager.class);
 	ProviderScheduleNoteDao providerScheduleNoteDao = SpringUtils.getBean(ProviderScheduleNoteDao.class);
-	UserAcceptanceDao userAcceptanceDao = SpringUtils.getBean(UserAcceptanceDao.class);
-
+	
 	LookupListManager lookupListManager = SpringUtils.getBean(LookupListManager.class);
 	LookupList reasonCodes = lookupListManager.findLookupListByName(loggedInInfo1, "reasonCode");
 	Map<Integer,LookupListItem> reasonCodesMap = new  HashMap<Integer,LookupListItem>();
 	for(LookupListItem lli:reasonCodes.getItems()) {
 		reasonCodesMap.put(lli.getId(),lli);	
 	}
-
+	
 	Boolean enableCustomTemporaryGroups = propertyDao.isActiveBooleanProperty("enable_custom_temporary_groups");
 
 	String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -476,8 +475,6 @@ if (apptDate.before(minDate)) {
     allowWeek = "No";
 }
 
-UserAcceptance userAcceptance = userAcceptanceDao.getByProviderNo(curUser_no);
-
 HashMap<String, Boolean> schedulePreferencesMap = new HashMap<String, Boolean>();
 
 SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
@@ -527,8 +524,7 @@ if (isMobileOptimized) {
 <%
 	}
 %>
-	<link rel="stylesheet" href="../css/alertify.core.css" type="text/css">
-	<link rel="stylesheet" href="../css/alertify.default.css" type="text/css">
+
 <%
 	if (!caseload) {
 %>
@@ -554,7 +550,6 @@ if (isMobileOptimized) {
 <script type="application/javascript">
 	var jQuery_3_1_0 = jQuery.noConflict(true);
 </script>
-<script type="text/javascript" src="<%=request.getContextPath()%>/js/alertify.js"></script>
 
 
 <script type="text/javascript">
@@ -830,32 +825,6 @@ function goSearchView(s) {
 	popupPage(600,650,"../appointment/appointmentsearch.jsp?provider_no="+s);
 }
 
-function displayKaiMessage()
-{
-    alertify.set({labels: {ok:'I Understand', cancel:'Remind Me Later'} });
-    alertify.confirm("Arjuns message here! (<i>To Be Written</i>)<br/><br/><a href=\"#\" onclick='popupPage(800,900,\"https://www.google.ca\")' style='color: blue;'>Click here to learn more</a>", function (accepted)
-	{
-	    if (accepted)
-		{
-            var url = "<%=request.getContextPath()%>/KaiMessageAction.do";
-            var data = "providerNo=<%=curUser_no%>";
-
-            new Ajax.Request(url,{method:'post', parameters:data, onSuccess:function()
-            {
-               alertify.success("Accepted!");
-            },
-            onFailure:function()
-            {
-                alertify.error("There was an error saving your response, please try again or contact Kai Support.");
-            }});
-		}
-		else
-		{
-		    alertify.error("You will be reminded next time you visit the schedule screen.");
-		}
-	});
-}
-
 //popup a new tickler warning window
 function load() {
 	var ocan = "<%=ocanWarningWindow%>";
@@ -954,23 +923,16 @@ function getParameter(paramName) {
 
 </head>
 <%
-	String onLoadString = "";
-
-	if (org.oscarehr.common.IsPropertiesOn.isCaisiEnable()) {
-	    onLoadString += "load();";
-	} else {
-	 	onLoadString += "refreshAllTabAlerts();scrollOnLoad();";
-	}
-
-	if (userAcceptance != null && !userAcceptance.isAccepted()) {
-	    onLoadString += "displayKaiMessage();";
-	}
-	else if (userAcceptance == null) {
-		onLoadString += "displayKaiMessage();";
+	if (org.oscarehr.common.IsPropertiesOn.isCaisiEnable()){
+%>
+<body bgcolor="#259145" onload="load();" topmargin="0" leftmargin="0" rightmargin="0"> <!-- bgcolor="#EEEEFF" -->
+<%
+	}else{
+%>
+<body bgcolor="#259145" onLoad="refreshAllTabAlerts();scrollOnLoad();" topmargin="0" leftmargin="0" rightmargin="0"> <!-- bgcolor="#EEEEFF" -->
+<%
 	}
 %>
-
-<body bgcolor="#259145" onLoad="<%=onLoadString%>" topmargin="0" leftmargin="0" rightmargin="0">
 
 <%
 	boolean isTeamScheduleOnly = false;
