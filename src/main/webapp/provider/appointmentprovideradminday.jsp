@@ -840,9 +840,9 @@ function goSearchView(s) {
 function displayKaiMessage()
 {
     <%
-    	boolean hideOscarClassic = Boolean.parseBoolean(oscarProperties.getProperty("hide_oscar_classic"));
+    	boolean showOscarClassic = Boolean.parseBoolean(oscarProperties.getProperty("show_oscar_classic"));
     %>
-    var hideOscarClassic = <%=hideOscarClassic%>
+    var showOscarClassic = <%=showOscarClassic%>
     alertify.set({buttons: {ok:'I Understand', cancel:'Remind Me Later'} });
     alertify.confirm("<h2>Kai Enhanced Terms and Conditions</h2><br/><div id=\"termsAndConditionsDiv\" style=\"overflow-y: auto; height: 250px; border-style: solid;\"><%=termsOfAgreement%></div><br/><input type=\"checkbox\" id=\"termsCheck\"/>I have read and agree with all Terms and Conditions<br/><br/><a href=\"#\" onclick='popupPage(800,900,\"https://www.google.ca\")' style='color: blue;'>Click here to learn more</a>", function (accepted)
 	{
@@ -858,13 +858,13 @@ function displayKaiMessage()
                        refresh();
 				   });
 			   } else if (response === "classic") {
-				   if (hideOscarClassic) {
-                       alertify.alert("You have chosen not to accept the Terms and Conditions. You will be logged out, but may try again.", function () {
-                           window.location.href = '/oscar/logout.jsp';
-                       });
-                   } else {
+				   if (showOscarClassic) {
                        alertify.alert("You have been reverted to OSCAR Classic. You will be re-prompted next time you sign in with Kai Enhanced.", function () {
                            refresh();
+                       });
+                   } else {
+                       alertify.alert("You have chosen not to accept the Terms and Conditions. You will be logged out, but may try again.", function () {
+                           window.location.href = '/oscar/logout.jsp';
                        });
 				   }
 			   } else {
@@ -2696,9 +2696,9 @@ Boolean displayAppointmentReason = appointment.getReason() != null && appointmen
 	    if (enhancedOrClassic == null || (enhancedOrClassic != null && enhancedOrClassic.getValue() != null && enhancedOrClassic.getValue().equals("C"))) {
 	%>
 		&#124; <a href=# onClick='popupPage(755,1200, "../billing.do?billRegion=<%=URLEncoder.encode(prov)%>&billForm=<%=URLEncoder.encode(oscarVariables.getProperty("default_view"))%>&hotclick=<%=URLEncoder.encode("")%>&appointment_no=<%=appointment.getId()%>&demographic_name=<%=URLEncoder.encode(name)%>&status=<%=status%>&demographic_no=<%=demographic_no%>&providerview=<%=curProvider_no[nProvider]%>&user_no=<%=curUser_no%>&apptProvider_no=<%=curProvider_no[nProvider]%>&appointment_date=<%=year+"-"+month+"-"+day%>&start_time=<%=start_time%>&bNewForm=1");return false;' title="<bean:message key="global.billingtag"/>"><bean:message key="provider.appointmentProviderAdminDay.btnB"/></a>
-    <% } if (enhancedOrClassic != null && enhancedOrClassic.getValue() != null && enhancedOrClassic.getValue().equals("E")) { %>
-    &#124; <a href=# onClick='popupPage(755,1200, "/kaiemr/app/components/billing/?demographicNo=<%=demographic_no%>&appointmentNo=<%=appointment.getId()%>");return false;' title="<bean:message key="global.billingtag"/>">B2</a>
-    <% } %>
+			  <% } if (OscarProperties.getInstance().getBooleanProperty("new_billing", "true") && enhancedOrClassic != null && enhancedOrClassic.getValue() != null && enhancedOrClassic.getValue().equals("E")) { %>
+			  &#124; <a href=# onClick='popupPage(755,1200, "../billing.do?billRegion=<%=URLEncoder.encode(prov)%>&billForm=<%=URLEncoder.encode(oscarVariables.getProperty("default_view"))%>&hotclick=<%=URLEncoder.encode("")%>&appointment_no=<%=appointment.getId()%>&demographic_name=<%=URLEncoder.encode(name)%>&status=<%=status%>&demographic_no=<%=demographic_no%>&providerview=<%=curProvider_no[nProvider]%>&user_no=<%=curUser_no%>&apptProvider_no=<%=curProvider_no[nProvider]%>&appointment_date=<%=year+"-"+month+"-"+day%>&start_time=<%=start_time%>&bNewForm=1");return false;' title="<bean:message key="global.billingtag"/>">B2</a>
+			  <% } %>
 	<% 
 	}
 	else 

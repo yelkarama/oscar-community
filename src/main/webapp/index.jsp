@@ -486,7 +486,7 @@ oscarUrl.setLength(urlLength);
 
     	                        <input type=hidden name='propname' value='<bean:message key="loginApplication.propertyFile"/>' />
 								<div id="buttonContainer">
-									<% if (!Boolean.parseBoolean(OscarProperties.getInstance().getProperty("hide_oscar_classic"))) { %>
+									<% if (Boolean.parseBoolean(OscarProperties.getInstance().getProperty("show_oscar_classic"))) { %>
 									<input class="btn btn-oscar btn-block" name="submit" type="submit" onclick="enhancedOrClassic('C');" value="<bean:message key="index.OSCARClassic"/>" />
 									<% } %>
 									<input class="btn btn-primary btn-block" name="submit" type="submit" onclick="enhancedOrClassic('E');" value="<bean:message key="index.KaiEnhanced"/>" />
