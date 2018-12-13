@@ -1865,6 +1865,24 @@ public class OLISHL7Handler implements MessageHandler {
 		}
 	}
 
+	public String getOBRCommentString(int i, int j) {
+		try {
+			String[] segments = terser.getFinder().getRoot().getNames();
+			int k = getNTELocation(i, -1);
+			if (j > 0) {
+				k = indexOfNextNTE(segments, k + 1, j);
+			}
+			Structure[] nteSegs = terser.getFinder().getRoot().getAll(segments[k]);
+			Segment nteSeg = (Segment) nteSegs[0];
+			return getString(Terser.get(nteSeg, 3, 0, 1, 1));
+
+		} catch (Exception e) {
+			logger.error("Could not retrieve OBR comments", e);
+
+			return ("");
+		}
+	}
+
 	public String getOBRSourceOrganization(int i, int j) {
 		try {
 			String[] segments = terser.getFinder().getRoot().getNames();
@@ -2160,6 +2178,24 @@ public class OLISHL7Handler implements MessageHandler {
 			return ("");
 		}
 	}
+	
+    public String getOBXCommentNoFormat(int i, int j, int nteNum) {
+        try {
+            String[] segments = terser.getFinder().getRoot().getNames();
+            int k = getNTELocation(i, j);
+            if (nteNum > 0) {
+                k = indexOfNextNTE(segments, k, nteNum + 1);
+            }
+            Structure[] nteSegs = terser.getFinder().getRoot().getAll(segments[k]);
+            Segment nteSeg = (Segment) nteSegs[0];
+            return getString(Terser.get(nteSeg, 3, 0, 1, 1));
+
+        } catch (Exception e) {
+            logger.error("Could not retrieve OBX comments", e);
+
+            return ("");
+        }
+    }
 
 	public String getOBXSourceOrganization(int i, int j, int nteNum) {
 		try {

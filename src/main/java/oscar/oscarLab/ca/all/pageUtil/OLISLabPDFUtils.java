@@ -1,8 +1,11 @@
 package oscar.oscarLab.ca.all.pageUtil;
 
 import com.lowagie.text.Chunk;
+import com.lowagie.text.Element;
 import com.lowagie.text.Font;
 import com.lowagie.text.Phrase;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -123,5 +126,65 @@ public class OLISLabPDFUtils {
         phrase.addAll(Hl7EncodedSpan.createChunksFromText(hl7Text));
 
         return phrase;
+    }
+    
+    public static List<PdfPCell> createCellsFromHl7(String hl7Text, Font font, PdfPCell templateCell) {
+        List<PdfPCell> formattedCells = new ArrayList<PdfPCell>();
+        PdfPCell cell;
+
+        // Replace repeatable encoded characters with their pdf equivalent replacements
+        hl7Text = OLISLabPDFUtils.Hl7EncodedRepeatableCharacter.performReplacement(hl7Text);
+        
+        // Split comment on \.ce\ (center tag span) markup, due to the fact that adding centered text requires cell-level alignment
+        Pattern pattern = Pattern.compile("\\\\\\.ce\\\\(.+?)(?:\n|$)");
+        Matcher matcher = pattern.matcher(hl7Text);
+        while (matcher.find()) {
+            String beforeSpan = hl7Text.substring(0, matcher.start());
+            String spanContent = matcher.group(1);
+            String afterSpan = hl7Text.substring(matcher.end());
+
+            // Create cell for comment before center tag
+            cell = createCellWithCopiedProperties(templateCell);
+            cell.setPhrase(OLISLabPDFUtils.createPhraseFromHl7(beforeSpan, font));
+            formattedCells.add(cell);
+
+            // Create cell for comment within center tag
+            cell = createCellWithCopiedProperties(templateCell);
+            cell.setPhrase(OLISLabPDFUtils.createPhraseFromHl7(spanContent, font));
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            formattedCells.add(cell);
+
+            // Set comment to remaining comment text
+            hl7Text = afterSpan;
+        }
+
+        cell = createCellWithCopiedProperties(templateCell);
+        cell.setPhrase(OLISLabPDFUtils.createPhraseFromHl7(hl7Text, font));
+        formattedCells.add(cell);
+        
+        return formattedCells;
+    }
+    
+    public static void addAllCellsToTable(PdfPTable table, List<PdfPCell> cells) {
+        for (PdfPCell cell : cells) {
+            table.addCell(cell);
+        }
+    }
+    
+    public static PdfPCell createCellWithCopiedProperties(PdfPCell templateCell) {
+        PdfPCell cell = new PdfPCell();
+        cell.setColspan(templateCell.getColspan());
+        cell.setRowspan(templateCell.getRowspan());
+        cell.setBorder(templateCell.getBorder());
+        cell.setPaddingLeft(templateCell.getPaddingLeft());
+        cell.setPaddingRight(templateCell.getPaddingRight());
+        cell.setPaddingTop(templateCell.getPaddingTop());
+        cell.setPaddingBottom(templateCell.getPaddingBottom());
+        cell.setFixedHeight(templateCell.getFixedHeight());
+        cell.setHorizontalAlignment(templateCell.getHorizontalAlignment());
+        cell.setVerticalAlignment(templateCell.getVerticalAlignment());
+        cell.setBackgroundColor(templateCell.getBackgroundColor());
+        cell.setBorderColor(templateCell.getBorderColor());
+        return cell;
     }
 }
