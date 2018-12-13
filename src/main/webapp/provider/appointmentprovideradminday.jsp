@@ -476,14 +476,7 @@ if (apptDate.before(minDate)) {
     allowWeek = "No";
 }
 
-String termsOfAgreement = "<br/><h3>Example Terms</h3><p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus</p><br/><p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus</p><br/><p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus</p><br/><p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus</p><br/><p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus</p><br/><p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus</p><br/><p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus</p><br/><p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus</p><br/><p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus</p>";
 UserAcceptance userAcceptance = userAcceptanceDao.getByProviderNo(curUser_no);
-boolean showAgreement = true;
-UserProperty enhancedOrClassic = propDao.getProp(curUser_no, UserProperty.ENHANCED_OR_CLASSIC);
-
-if (enhancedOrClassic != null && enhancedOrClassic.getValue() != null && enhancedOrClassic.getValue().equals("C")) {
-    showAgreement = false;
-}
 
 HashMap<String, Boolean> schedulePreferencesMap = new HashMap<String, Boolean>();
 
@@ -839,40 +832,26 @@ function goSearchView(s) {
 
 function displayKaiMessage()
 {
-    alertify.set({buttons: {ok:'I Understand', cancel:'Remind Me Later'} });
-    alertify.confirm("<h2>Kai Enhanced Terms and Conditions</h2><br/><div id=\"termsAndConditionsDiv\" style=\"overflow-y: auto; height: 250px; border-style: solid;\"><%=termsOfAgreement%></div><br/><input type=\"checkbox\" id=\"termsCheck\"/>I have read and agree with all Terms and Conditions<br/><br/><a href=\"#\" onclick='popupPage(800,900,\"https://www.google.ca\")' style='color: blue;'>Click here to learn more</a>", function (accepted)
+    alertify.set({labels: {ok:'I Understand', cancel:'Remind Me Later'} });
+    alertify.confirm("Arjuns message here! (<i>To Be Written</i>)<br/><br/><a href=\"#\" onclick='popupPage(800,900,\"https://www.google.ca\")' style='color: blue;'>Click here to learn more</a>", function (accepted)
 	{
+	    if (accepted)
+		{
             var url = "<%=request.getContextPath()%>/KaiMessageAction.do";
-            var data = "providerNo=<%=curUser_no%>&accepted=" + accepted;
+            var data = "providerNo=<%=curUser_no%>";
 
-            new Ajax.Request(url,{method:'post', parameters:data, onSuccess:function(transport)
+            new Ajax.Request(url,{method:'post', parameters:data, onSuccess:function()
             {
-               var response = transport.responseText;
-
-               if (response === "enhanced") {
-                   alertify.alert("You successfully agreed to our Terms and Conditions! You will now enter Kai Enhanced.", function () {
-                       refresh();
-				   });
-			   } else if (response === "classic") {
-                   alertify.alert("You have been reverted to OSCAR Classic. You will be re-prompted next time you sign in with Kai Enhanced.", function () {
-						refresh();
-				   });
-			   } else {
-                   alertify.error("There was an error saving your response, please try again or contact Kai Support.");
-			   }
+               alertify.success("Accepted!");
+            },
+            onFailure:function()
+            {
+                alertify.error("There was an error saving your response, please try again or contact Kai Support.");
             }});
-	}).set('modal', false);
-
-    document.getElementById('alertify-ok').disabled = true;
-    document.getElementById('alertify-ok').style.background="#B0B0B0";
-
-    jQuery('#termsCheck').change(function () {
-        if (this.checked) {
-            document.getElementById('alertify-ok').disabled = false;
-            document.getElementById('alertify-ok').style.background="#5CB811";
-		} else {
-            document.getElementById('alertify-ok').disabled = true;
-            document.getElementById('alertify-ok').style.background="#B0B0B0";
+		}
+		else
+		{
+		    alertify.error("You will be reminded next time you visit the schedule screen.");
 		}
 	});
 }
@@ -983,10 +962,10 @@ function getParameter(paramName) {
 	 	onLoadString += "refreshAllTabAlerts();scrollOnLoad();";
 	}
 
-	if (userAcceptance != null && !userAcceptance.isAccepted() && showAgreement) {
+	if (userAcceptance != null && !userAcceptance.isAccepted()) {
 	    onLoadString += "displayKaiMessage();";
 	}
-	else if (userAcceptance == null && showAgreement) {
+	else if (userAcceptance == null) {
 		onLoadString += "displayKaiMessage();";
 	}
 %>
@@ -1420,7 +1399,7 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 	</li>		
 
 </security:oscarSec>
-<% if (OscarProperties.getInstance().hasProperty("kaiemr_lab_queue_url") && enhancedOrClassic != null && enhancedOrClassic.getValue() != null && enhancedOrClassic.getValue().equals("E")) { %>
+<% if (OscarProperties.getInstance().hasProperty("kaiemr_lab_queue_url")) { %>			
 	<li>
 		<a href="javascript:void(0)" id="work_lab_button" title='Lab Queue' onclick="popupPage2('<%=OscarProperties.getInstance().getProperty("kaiemr_lab_queue_url")%>','work_queue', 700, 1215)">Lab Queue</a>
 	</li>
@@ -1437,7 +1416,7 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 		}
 	}
 
-   if (OscarProperties.getInstance().hasProperty("allow_online_booking") && OscarProperties.getInstance().getBooleanProperty("allow_online_booking", "true") && providerAllowOnlineBooking && enhancedOrClassic != null && enhancedOrClassic.getValue() != null && enhancedOrClassic.getValue().equals("E")) { %>
+   if (OscarProperties.getInstance().hasProperty("allow_online_booking") && OscarProperties.getInstance().getBooleanProperty("allow_online_booking", "true") && providerAllowOnlineBooking) { %>
 	<li>
 		<a href="javascript:void(0)" id="online_booking_button" title='Online Booking' onclick="popupPage2('/kaiemr/app/components/onlinebooking/#!/patientModule','work_queue', 700, 1215)">Online Booking</a>
 	</li>
@@ -2677,14 +2656,11 @@ Boolean displayAppointmentReason = appointment.getReason() != null && appointmen
 	{ 
 	%>
 		&#124; <a href=# onClick='popupPage(755,1200, "../billing.do?billRegion=<%=URLEncoder.encode(prov)%>&billForm=<%=URLEncoder.encode(oscarVariables.getProperty("default_view"))%>&hotclick=<%=URLEncoder.encode("")%>&appointment_no=<%=appointment.getId()%>&demographic_name=<%=URLEncoder.encode(name)%>&status=<%=status%>&demographic_no=<%=demographic_no%>&providerview=<%=curProvider_no[nProvider]%>&user_no=<%=curUser_no%>&apptProvider_no=<%=curProvider_no[nProvider]%>&appointment_date=<%=year+"-"+month+"-"+day%>&start_time=<%=start_time%>&bNewForm=1");return false;' title="<bean:message key="global.billingtag"/>"><bean:message key="provider.appointmentProviderAdminDay.btnB"/></a>
-			  <% if (OscarProperties.getInstance().getBooleanProperty("new_billing", "true") && enhancedOrClassic != null && enhancedOrClassic.getValue() != null && enhancedOrClassic.getValue().equals("E")) { %>
-			  &#124; <a href=# onClick='popupPage(755,1200, "../billing.do?billRegion=<%=URLEncoder.encode(prov)%>&billForm=<%=URLEncoder.encode(oscarVariables.getProperty("default_view"))%>&hotclick=<%=URLEncoder.encode("")%>&appointment_no=<%=appointment.getId()%>&demographic_name=<%=URLEncoder.encode(name)%>&status=<%=status%>&demographic_no=<%=demographic_no%>&providerview=<%=curProvider_no[nProvider]%>&user_no=<%=curUser_no%>&apptProvider_no=<%=curProvider_no[nProvider]%>&appointment_date=<%=year+"-"+month+"-"+day%>&start_time=<%=start_time%>&bNewForm=1");return false;' title="<bean:message key="global.billingtag"/>">B2</a>
-			  <% } %>
 	<% 
 	}
 	else 
 	{
-		if(caisiBillingPreferenceNotDelete!=null && caisiBillingPreferenceNotDelete.equals("1"))
+		if(caisiBillingPreferenceNotDelete!=null && caisiBillingPreferenceNotDelete.equals("1")) 
 		{
 	%>
 			&#124; <a href=# onClick='onUpdatebill("../billing/CA/ON/billingEditWithApptNo.jsp?billRegion=<%=URLEncoder.encode(prov)%>&billForm=<%=URLEncoder.encode(oscarVariables.getProperty("default_view"))%>&hotclick=<%=URLEncoder.encode("")%>&appointment_no=<%=appointment.getId()%>&demographic_name=<%=URLEncoder.encode(name)%>&status=<%=status%>&demographic_no=<%=demographic_no%>&providerview=<%=curProvider_no[nProvider]%>&user_no=<%=curUser_no%>&apptProvider_no=<%=curProvider_no[nProvider]%>&appointment_date=<%=year+"-"+month+"-"+day%>&start_time=<%=iS+":"+iSm%>&bNewForm=1");return false;' title="<bean:message key="global.billingtag"/>">=<bean:message key="provider.appointmentProviderAdminDay.btnB"/></a>

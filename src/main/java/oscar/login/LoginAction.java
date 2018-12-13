@@ -47,8 +47,17 @@ import org.apache.struts.actions.DispatchAction;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.PMmodule.service.ProviderManager;
 import org.oscarehr.PMmodule.web.OcanForm;
-import org.oscarehr.common.dao.*;
-import org.oscarehr.common.model.*;
+import org.oscarehr.common.dao.FacilityDao;
+import org.oscarehr.common.dao.ProviderPreferenceDao;
+import org.oscarehr.common.dao.SecurityDao;
+import org.oscarehr.common.dao.ServiceRequestTokenDao;
+import org.oscarehr.common.dao.UserPropertyDAO;
+import org.oscarehr.common.model.Facility;
+import org.oscarehr.common.model.Provider;
+import org.oscarehr.common.model.ProviderPreference;
+import org.oscarehr.common.model.Security;
+import org.oscarehr.common.model.ServiceRequestToken;
+import org.oscarehr.common.model.UserProperty;
 import org.oscarehr.decisionSupport.service.DSService;
 import org.oscarehr.managers.AppManager;
 import org.oscarehr.phr.util.MyOscarUtils;
@@ -100,7 +109,6 @@ public final class LoginAction extends DispatchAction {
 		}
     	
         LoginCheckLogin cl = new LoginCheckLogin();
-        String loginType = request.getParameter("loginType");
         String oneIdKey = request.getParameter("nameId");
         String oneIdEmail = request.getParameter("email");
         String userName = "";
@@ -439,18 +447,6 @@ public final class LoginAction extends DispatchAction {
             if(prop != null && prop.getValue() != null && prop.getValue().equals("yes")) {
             	where="cobalt";
             }
-
-			prop = propDao.getProp(provider.getProviderNo(), UserProperty.ENHANCED_OR_CLASSIC);
-			if (prop != null && prop.getValue() != null) {
-				prop.setValue(loginType);
-				propDao.saveProp(prop);
-			} else if (prop == null || prop.getValue() == null) {
-				UserProperty property = new UserProperty();
-				property.setName(UserProperty.ENHANCED_OR_CLASSIC);
-				property.setProviderNo(provider.getProviderNo());
-				property.setValue(loginType);
-				propDao.saveProp(property);
-			}
         }
         // expired password
         else if (strAuth != null && strAuth.length == 1 && strAuth[0].equals("expired")) {
