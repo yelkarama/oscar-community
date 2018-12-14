@@ -646,7 +646,7 @@ public class DemographicExportAction4 extends Action {
 						if (StringUtils.filled(pi.getProvince()) && pi.getProvince().length() == 2) {
 							address.setCountrySubdivisionCode(Util.setCountrySubDivCode(pi.getProvince()));
 						}
-						if(StringUtils.filled(pi.getProvince()) && "ontario".equals(pi.getProvince().toLowerCase())) {
+						if(StringUtils.filled(pi.getProvince()) && "ontario".equals(pi.getProvince().toLowerCase().trim())) {
 							address.setCountrySubdivisionCode(Util.setCountrySubDivCode("ON"));
 						}
 						// END OF HACK.
@@ -3003,18 +3003,17 @@ public class DemographicExportAction4 extends Action {
 				labRoutingInfo.putAll(ProviderLabRouting.getInfo(lab_no, "CML"));
 
 			String timestamp = labRoutingInfo.get("timestamp").toString();
-			if (UtilDateUtilities.StringToDate(timestamp,"yyyy-MM-dd HH:mm:ss")!=null) {
+			String lab_provider_no = (String)labRoutingInfo.get("provider_no");
+			
+			if (UtilDateUtilities.StringToDate(timestamp,"yyyy-MM-dd HH:mm:ss")!=null &&
+					!"0".equals(lab_provider_no)) {
 				LaboratoryResults.ResultReviewer reviewer = labResults.addNewResultReviewer();
 				reviewer.addNewDateTimeResultReviewed().setFullDateTime(Util.calDate(timestamp));
-
 				//reviewer name
 				cdsDt.PersonNameSimple reviewerName = reviewer.addNewName();
-				String lab_provider_no = (String)labRoutingInfo.get("provider_no");
-				if (!"0".equals(lab_provider_no)) {
-					ProviderData pvd = new ProviderData(lab_provider_no);
-					Util.writeNameSimple(reviewerName, pvd.getFirst_name(), pvd.getLast_name());
-					if (StringUtils.noNull(pvd.getOhip_no()).length()<=6) reviewer.setOHIPPhysicianId(pvd.getOhip_no());
-				}
+				ProviderData pvd = new ProviderData(lab_provider_no);
+				Util.writeNameSimple(reviewerName, pvd.getFirst_name(), pvd.getLast_name());
+				if (StringUtils.noNull(pvd.getOhip_no()).length()<=6) reviewer.setOHIPPhysicianId(pvd.getOhip_no());
 			}
 		}
 	}
