@@ -641,12 +641,20 @@ public class DemographicExportAction4 extends Action {
 					address.setLine1(pi.getAddress());
 					if (StringUtils.filled(pi.getCity()) || StringUtils.filled(pi.getProvince()) || StringUtils.filled(pi.getPostalCode())) {
 						address.setCity(StringUtils.noNull(pi.getCity()));
-						address.setCountrySubdivisionCode(Util.setCountrySubDivCode(pi.getProvince()));
+						//TODO: A proper fix is needed here!!!
+						// pi.getProvince() should be 2 characters, i.e., like "ON" rather than "Ontario" for instance.
+						if (StringUtils.filled(pi.getProvince()) && pi.getProvince().length() == 2) {
+							address.setCountrySubdivisionCode(Util.setCountrySubDivCode(pi.getProvince()));
+						}
+						if(StringUtils.filled(pi.getProvince()) && "ontario".equals(pi.getProvince().toLowerCase())) {
+							address.setCountrySubdivisionCode(Util.setCountrySubDivCode("ON"));
+						}
+						// END OF HACK.
 						address.addNewPostalZipCode().setPostalCode(StringUtils.noNull(pi.getPostalCode()).replace(" ",""));
 					}
 					
 					
-					preferredPharmacy.setEmailAddress(pi.getEmail());
+					if (StringUtils.filled(pi.getEmail()) && pi.getEmail().contains("@")) preferredPharmacy.setEmailAddress(pi.getEmail());
 					preferredPharmacy.setName(pi.getName());
 					
 				}
