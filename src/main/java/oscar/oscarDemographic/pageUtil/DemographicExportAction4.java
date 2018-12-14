@@ -1608,7 +1608,9 @@ public class DemographicExportAction4 extends Action {
 								labMeaValues.put("abnormal", h.getOBXAbnormalFlag(i, j));
 								labMeaValues.put("unit", h.getOBXUnits(i, j));
 								labMeaValues.put("accession", h.getAccessionNum());
-								labMeaValues.put("range", h.getOBXReferenceRange(i, j));
+								if ( !"-".equals(h.getOBXReferenceRange(i, j)) ) {
+									labMeaValues.put("range", h.getOBXReferenceRange(i, j));
+								}
 								labMeaValues.put("request_datetime", h.getRequestDate(i));
 								labMeaValues.put("olis_status", h.getOBXResultStatus(i, j));
 								labMeaValues.put("lab_no", String.valueOf(hl7TxtInfo.getLabNumber()));
@@ -1621,6 +1623,15 @@ public class DemographicExportAction4 extends Action {
 								} else {
 									labMeaValues.put("measureData", comments);
 								}
+								
+	                    		String range = labMeaValues.get("range");
+	                    		if( StringUtils.filled(range)) {
+	                    			String rangeLimits[] = range.split("-");
+	                    			if( rangeLimits.length == 2 ) {
+	                    				labMeaValues.put("minimum", rangeLimits[0]);
+	                        			labMeaValues.put("maximum", rangeLimits[1]);
+	                    			}
+	                    		}
 								
 								LaboratoryResults labResults2 = patientRec.addNewLaboratoryResults();
 								exportLabResult(labMeaValues, labResults2, demoNo);
@@ -2899,6 +2910,7 @@ public class DemographicExportAction4 extends Action {
 
 		//lab test code, test name, test name reported by lab
 		if (StringUtils.filled(labMea.get("identifier"))) labResults.setLabTestCode(labMea.get("identifier"));
+		// TODO: populate TestName as maintained by EMR properly.  The key "name_internal" isn't used anywhere.
 		if (StringUtils.filled(labMea.get("name_internal"))) labResults.setTestName(labMea.get("name_internal"));
 		if (StringUtils.filled(labMea.get("name"))) labResults.setTestNameReportedByLab(labMea.get("name"));
 
@@ -2959,11 +2971,14 @@ public class DemographicExportAction4 extends Action {
 		String range = StringUtils.noNull(labMea.get("range"));
 		String min = StringUtils.noNull(labMea.get("minimum"));
 		String max = StringUtils.noNull(labMea.get("maximum"));
-		LaboratoryResults.ReferenceRange refRange = labResults.addNewReferenceRange();
-		if (StringUtils.filled(range)) refRange.setReferenceRangeText(range);
-		else {
-			if (StringUtils.filled(min)) refRange.setLowLimit(min);
-			if (StringUtils.filled(max)) refRange.setHighLimit(max);
+		if (StringUtils.filled(range)) {
+			LaboratoryResults.ReferenceRange refRange = labResults.addNewReferenceRange();
+			if (StringUtils.filled(min) && StringUtils.filled(max)) {
+				refRange.setLowLimit(min);
+				refRange.setHighLimit(max);
+			} else {
+				refRange.setReferenceRangeText(range);
+			}
 		}
 
 		//lab requisition datetime
@@ -3005,6 +3020,7 @@ public class DemographicExportAction4 extends Action {
 			String timestamp = labRoutingInfo.get("timestamp").toString();
 			String lab_provider_no = (String)labRoutingInfo.get("provider_no");
 			
+			// ProviderLabRoutingDao assigns UNCLAIMED_PROVIDER = "0" 
 			if (UtilDateUtilities.StringToDate(timestamp,"yyyy-MM-dd HH:mm:ss")!=null &&
 					!"0".equals(lab_provider_no)) {
 				LaboratoryResults.ResultReviewer reviewer = labResults.addNewResultReviewer();
