@@ -147,6 +147,87 @@
 				</tr>
 				
 				<tr>
+					<td>Preventions</td>
+					<td>
+						<select name="<%=CppPreferencesUIBean.PREVENTIONS_DSP%>">
+							<%=CppPreferencesUIBean.getDisplaySelect(bean.getPreventionsDisplay()) %>
+						</select>
+					</td>
+				</tr>
+				
+				<tr>
+					<td>Disease Registry</td>
+					<td>
+						<select name="<%=CppPreferencesUIBean.DX_REGISTRY_DSP%>">
+							<%=CppPreferencesUIBean.getDisplaySelect(bean.getDxRegistryDisplay()) %>
+						</select>
+					</td>
+				</tr>
+				
+				<tr>
+					<td>Forms</td>
+					<td>
+						<select name="<%=CppPreferencesUIBean.FORMS_DSP%>">
+							<%=CppPreferencesUIBean.getDisplaySelect(bean.getFormsDisplay()) %>
+						</select>
+					</td>
+				</tr>
+				
+				<tr>
+					<td>eForms</td>
+					<td>
+						<select name="<%=CppPreferencesUIBean.EFORMS_DSP%>">
+							<%=CppPreferencesUIBean.getDisplaySelect(bean.getEformsDisplay()) %>
+						</select>
+					</td>
+				</tr>
+				
+				<tr>
+					<td>Documents</td>
+					<td>
+						<select name="<%=CppPreferencesUIBean.DOCUMENTS_DSP%>">
+							<%=CppPreferencesUIBean.getDisplaySelect(bean.getDocumentsDisplay()) %>
+						</select>
+					</td>
+				</tr>
+				
+				<tr>
+					<td>Lab Result</td>
+					<td>
+						<select name="<%=CppPreferencesUIBean.LABS_DSP%>">
+							<%=CppPreferencesUIBean.getDisplaySelect(bean.getLabsDisplay()) %>
+						</select>
+					</td>
+				</tr>
+				
+				<tr>
+					<td>Measurements</td>
+					<td>
+						<select name="<%=CppPreferencesUIBean.MEASUREMENTS_DSP%>">
+							<%=CppPreferencesUIBean.getDisplaySelect(bean.getMeasurementsDisplay()) %>
+						</select>
+					</td>
+				</tr>
+				
+				<tr>
+					<td>Consultations</td>
+					<td>
+						<select name="<%=CppPreferencesUIBean.CONSULTATIONS_DSP%>">
+							<%=CppPreferencesUIBean.getDisplaySelect(bean.getConsultationsDisplay()) %>
+						</select>
+					</td>
+				</tr>
+				
+				<tr>
+					<td>HRM Documents</td>
+					<td>
+						<select name="<%=CppPreferencesUIBean.HRM_DSP%>">
+							<%=CppPreferencesUIBean.getDisplaySelect(bean.getHrmDisplay()) %>
+						</select>
+					</td>
+				</tr>
+				
+				<tr>
 					<td>Allergies</td>
 					<td>
 						<select name="<%=CppPreferencesUIBean.ALLERGIES_DSP%>">
@@ -190,7 +271,33 @@
 						</select>
 					</td>
 				</tr>
-												
+				
+				<tr>
+					<td>Unresolved Issues</td>
+					<td>
+						<select name="<%=CppPreferencesUIBean.UNRESOLVED_ISSUES_DSP%>">
+							<%=CppPreferencesUIBean.getDisplaySelect(bean.getUnresolvedIssuesDisplay()) %>
+						</select>
+					</td>
+				</tr>
+				
+				<tr>
+					<td>Resolved Issues</td>
+					<td>
+						<select name="<%=CppPreferencesUIBean.RESOLVED_ISSUES_DSP%>">
+							<%=CppPreferencesUIBean.getDisplaySelect(bean.getResolvedIssuesDisplay()) %>
+						</select>
+					</td>
+				</tr>
+				
+				<tr>
+					<td>Episodes</td>
+					<td>
+						<select name="<%=CppPreferencesUIBean.EPISODES_DSP%>">
+							<%=CppPreferencesUIBean.getDisplaySelect(bean.getEpisodesDisplay()) %>
+						</select>
+					</td>
+				</tr>
 			</table>
 			<input type="submit" value="Save Changes"/>
 			</form>

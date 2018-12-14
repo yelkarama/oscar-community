@@ -38,11 +38,24 @@ public class CppPreferencesUIBean {
 	public static final String ONGOING_CONCERNS_POS = "cpp.ongoing_concerns.position";
 	public static final String REMINDERS_POS = "cpp.reminders.position";
 	
+	public static final String PREVENTIONS_DSP = "cpp.preventions.display";
+	public static final String DX_REGISTRY_DSP = "cpp.dx.display";
+	public static final String FORMS_DSP = "cpp.forms.display";
+	public static final String EFORMS_DSP = "cpp.eforms.display";
+	public static final String DOCUMENTS_DSP = "cpp.docs.display";
+	public static final String LABS_DSP = "cpp.labs.display";
+	public static final String MEASUREMENTS_DSP = "cpp.measurements.display";
+	public static final String CONSULTATIONS_DSP = "cpp.consultations.display";
+	public static final String HRM_DSP = "cpp.hrm.display";
+	
 	public static final String ALLERGIES_DSP = "cpp.allergies.display";
 	public static final String MEDICATIONS_DSP = "cpp.medications.display";
 	public static final String OTHER_MEDS_DSP = "cpp.other_meds.display";
 	public static final String RISK_FACTORS_DSP = "cpp.risk_factors.display";
 	public static final String FAMILY_HISTORY_DSP = "cpp.family_hx.display";
+	public static final String UNRESOLVED_ISSUES_DSP = "cpp.unresolved_issues.display";
+	public static final String RESOLVED_ISSUES_DSP = "cpp.resolved_issues.display";
+	public static final String EPISODES_DSP = "cpp.episodes.display";
 
 	public static final String SOC_HX_START_DATE = "cpp.social_hx.start_date";
 	public static final String SOC_HX_RES_DATE = "cpp.social_hx.res_date";
@@ -67,11 +80,24 @@ public class CppPreferencesUIBean {
 	private String ongoingConcernsPosition = "R2I1";
 	private String remindersPosition = "R2I2";
 	
+	private String preventionsDisplay = "SHOW";
+	private String dxRegistryDisplay = "SHOW";
+	private String formsDisplay = "SHOW";
+	private String eformsDisplay = "SHOW";
+	private String documentsDisplay = "SHOW";
+	private String labsDisplay = "SHOW";
+	private String measurementsDisplay = "SHOW";
+	private String consultationsDisplay = "SHOW";
+	private String hrmDisplay = "SHOW";
+	
 	private String allergiesDisplay = "SHOW";
 	private String medicationsDisplay = "SHOW";
 	private String otherMedsDisplay = "SHOW";
 	private String riskFactorsDisplay = "SHOW";
 	private String familyHxDisplay = "SHOW";
+	private String unresolvedIssuesDisplay = "SHOW";
+	private String resolvedIssuesDisplay = "SHOW";
+	private String episodesDisplay = "SHOW";
 	
 	private String socialHxStartDate;
 	private String socialHxResDate;
@@ -92,11 +118,25 @@ public class CppPreferencesUIBean {
 		map.put(MEDICAL_HISTORY_POS, this.getMedicalHxPosition());
 		map.put(ONGOING_CONCERNS_POS, this.getOngoingConcernsPosition());
 		map.put(REMINDERS_POS, this.getRemindersPosition());
+		
+		map.put(PREVENTIONS_DSP, this.getPreventionsDisplay());
+		map.put(DX_REGISTRY_DSP, this.getDxRegistryDisplay());
+		map.put(FORMS_DSP, this.getFormsDisplay());
+		map.put(EFORMS_DSP, this.getEformsDisplay());
+		map.put(DOCUMENTS_DSP, this.getDocumentsDisplay());
+		map.put(LABS_DSP, this.getLabsDisplay());
+		map.put(MEASUREMENTS_DSP, this.getMeasurementsDisplay());
+		map.put(CONSULTATIONS_DSP, this.getConsultationsDisplay());
+		map.put(HRM_DSP, this.getHrmDisplay());
+		
 		map.put(ALLERGIES_DSP, this.getAllergiesDisplay());
 		map.put(MEDICATIONS_DSP, this.getMedicationsDisplay());
 		map.put(OTHER_MEDS_DSP, this.getOtherMedsDisplay());
 		map.put(RISK_FACTORS_DSP, this.getRiskFactorsDisplay());
 		map.put(FAMILY_HISTORY_DSP, this.getFamilyHxDisplay());
+		map.put(UNRESOLVED_ISSUES_DSP, this.getUnresolvedIssuesDisplay());
+		map.put(RESOLVED_ISSUES_DSP, this.getResolvedIssuesDisplay());
+		map.put(EPISODES_DSP, this.getEpisodesDisplay());
 		
 		map.put(SOC_HX_START_DATE,this.getSocialHxStartDate());
 		map.put(SOC_HX_RES_DATE,this.getSocialHxResDate());
@@ -118,11 +158,25 @@ public class CppPreferencesUIBean {
 		setMedicalHxPosition(map.get(MEDICAL_HISTORY_POS)[0]);
 		setOngoingConcernsPosition(map.get(ONGOING_CONCERNS_POS)[0]);
 		setRemindersPosition(map.get(REMINDERS_POS)[0]);
+		
+		setPreventionsDisplay(map.get(PREVENTIONS_DSP)[0]);
+		setDxRegistryDisplay(map.get(DX_REGISTRY_DSP)[0]);
+		setFormsDisplay(map.get(FORMS_DSP)[0]);
+		setEformsDisplay(map.get(EFORMS_DSP)[0]);
+		setDocumentsDisplay(map.get(DOCUMENTS_DSP)[0]);
+		setLabsDisplay(map.get(LABS_DSP)[0]);
+		setMeasurementsDisplay(map.get(MEASUREMENTS_DSP)[0]);
+		setConsultationsDisplay(map.get(CONSULTATIONS_DSP)[0]);
+		setHrmDisplay(map.get(HRM_DSP)[0]);
+		
 		setAllergiesDisplay(map.get(ALLERGIES_DSP)[0]);
 		setMedicationsDisplay(map.get(MEDICATIONS_DSP)[0]);
 		setOtherMedsDisplay(map.get(OTHER_MEDS_DSP)[0]);
 		setRiskFactorsDisplay(map.get(RISK_FACTORS_DSP)[0]);
 		setFamilyHxDisplay(map.get(FAMILY_HISTORY_DSP)[0]);
+		setUnresolvedIssuesDisplay(map.get(UNRESOLVED_ISSUES_DSP)[0]);
+		setResolvedIssuesDisplay(map.get(RESOLVED_ISSUES_DSP)[0]);
+		setEpisodesDisplay(map.get(EPISODES_DSP)[0]);
 		
 		if(map.get(SOC_HX_START_DATE)!=null)
 			setSocialHxStartDate(map.get(SOC_HX_START_DATE)[0]);
@@ -159,6 +213,26 @@ public class CppPreferencesUIBean {
 			setOngoingConcernsPosition(map.get(ONGOING_CONCERNS_POS));
 		if(map.get(REMINDERS_POS)!=null)		
 			setRemindersPosition(map.get(REMINDERS_POS));
+		
+		if(map.get(PREVENTIONS_DSP)!=null)
+			setPreventionsDisplay(map.get(PREVENTIONS_DSP));
+		if(map.get(DX_REGISTRY_DSP)!=null)
+			setDxRegistryDisplay(map.get(DX_REGISTRY_DSP));
+		if(map.get(FORMS_DSP)!=null)
+			setFormsDisplay(map.get(FORMS_DSP));
+		if(map.get(EFORMS_DSP)!=null)
+			setEformsDisplay(map.get(EFORMS_DSP));
+		if(map.get(DOCUMENTS_DSP)!=null)
+			setDocumentsDisplay(map.get(DOCUMENTS_DSP));
+		if(map.get(LABS_DSP)!=null)
+			setLabsDisplay(map.get(LABS_DSP));
+		if(map.get(MEASUREMENTS_DSP)!=null)
+			setMeasurementsDisplay(map.get(MEASUREMENTS_DSP));
+		if(map.get(CONSULTATIONS_DSP)!=null)
+			setConsultationsDisplay(map.get(CONSULTATIONS_DSP));
+		if(map.get(HRM_DSP)!=null)
+			setHrmDisplay(map.get(HRM_DSP));
+		
 		if(map.get(ALLERGIES_DSP)!=null)
 			setAllergiesDisplay(map.get(ALLERGIES_DSP));
 		if(map.get(MEDICATIONS_DSP)!=null)
@@ -169,6 +243,13 @@ public class CppPreferencesUIBean {
 			setRiskFactorsDisplay(map.get(RISK_FACTORS_DSP));
 		if(map.get(FAMILY_HISTORY_DSP)!=null)
 			setFamilyHxDisplay(map.get(FAMILY_HISTORY_DSP));
+		if(map.get(UNRESOLVED_ISSUES_DSP)!=null)
+			setUnresolvedIssuesDisplay(map.get(UNRESOLVED_ISSUES_DSP));
+		if(map.get(RESOLVED_ISSUES_DSP)!=null)
+			setResolvedIssuesDisplay(map.get(RESOLVED_ISSUES_DSP));
+		if(map.get(EPISODES_DSP)!=null)
+			setEpisodesDisplay(map.get(EPISODES_DSP));
+		
 		if(map.get(SOC_HX_START_DATE)!=null)
 			setSocialHxStartDate(map.get(SOC_HX_START_DATE));
 		if(map.get(SOC_HX_RES_DATE)!=null)
@@ -234,6 +315,60 @@ public class CppPreferencesUIBean {
     	this.remindersPosition = remindersPosition;
     }
 	
+	public String getPreventionsDisplay() {
+		return preventionsDisplay;
+	}
+	public void setPreventionsDisplay(String preventionsDisplay) {
+		this.preventionsDisplay = preventionsDisplay;
+	}
+	public String getDxRegistryDisplay() {
+		return dxRegistryDisplay;
+	}
+	public void setDxRegistryDisplay(String dxRegistryDisplay) {
+		this.dxRegistryDisplay = dxRegistryDisplay;
+	}
+	public String getFormsDisplay() {
+		return formsDisplay;
+	}
+	public void setFormsDisplay(String formsDisplay) {
+		this.formsDisplay = formsDisplay;
+	}
+	public String getEformsDisplay() {
+		return eformsDisplay;
+	}
+	public void setEformsDisplay(String eformsDisplay) {
+		this.eformsDisplay = eformsDisplay;
+	}
+	public String getDocumentsDisplay() {
+		return documentsDisplay;
+	}
+	public void setDocumentsDisplay(String documentsDisplay) {
+		this.documentsDisplay = documentsDisplay;
+	}
+	public String getLabsDisplay() {
+		return labsDisplay;
+	}
+	public void setLabsDisplay(String labsDisplay) {
+		this.labsDisplay = labsDisplay;
+	}
+	public String getMeasurementsDisplay() {
+		return measurementsDisplay;
+	}
+	public void setMeasurementsDisplay(String measurementsDisplay) {
+		this.measurementsDisplay = measurementsDisplay;
+	}
+	public String getConsultationsDisplay() {
+		return consultationsDisplay;
+	}
+	public void setConsultationsDisplay(String consultationsDisplay) {
+		this.consultationsDisplay = consultationsDisplay;
+	}
+	public String getHrmDisplay() {
+		return hrmDisplay;
+	}
+	public void setHrmDisplay(String hrmDisplay) {
+		this.hrmDisplay = hrmDisplay;
+	}
 	public String getAllergiesDisplay() {
     	return allergiesDisplay;
     }
@@ -264,6 +399,24 @@ public class CppPreferencesUIBean {
 	public void setFamilyHxDisplay(String familyHxDisplay) {
     	this.familyHxDisplay = familyHxDisplay;
     }
+	public String getUnresolvedIssuesDisplay() {
+		return unresolvedIssuesDisplay;
+	}
+	public void setUnresolvedIssuesDisplay(String unresolvedIssuesDisplay) {
+		this.unresolvedIssuesDisplay = unresolvedIssuesDisplay;
+	}
+	public String getResolvedIssuesDisplay() {
+		return resolvedIssuesDisplay;
+	}
+	public void setResolvedIssuesDisplay(String resolvedIssuesDisplay) {
+		this.resolvedIssuesDisplay = resolvedIssuesDisplay;
+	}
+	public String getEpisodesDisplay() {
+		return episodesDisplay;
+	}
+	public void setEpisodesDisplay(String episodesDisplay) {
+		this.episodesDisplay = episodesDisplay;
+	}
 	
 	public String getSocialHxStartDate() {
     	return socialHxStartDate;
