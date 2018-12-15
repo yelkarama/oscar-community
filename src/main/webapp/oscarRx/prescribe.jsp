@@ -88,7 +88,8 @@ if(listRxDrugs!=null){
          String pickupTime      = RxUtil.DateToString(rx.getPickupTime(), "hh:mm");
          String eTreatmentType  = rx.getETreatmentType()!=null ? rx.getETreatmentType() : "";
          String rxStatus        = rx.getRxStatus()!=null ? rx.getRxStatus() : "";
-         String protocol		= rx.getProtocol()!=null ? rx.getProtocol() : "";
+		/*  Field not required. Commented out because it may be reactivated in the future.     
+		String protocol		= rx.getProtocol()!=null ? rx.getProtocol() : ""; */
          String priorRxProtocol	= rx.getPriorRxProtocol()!=null ? rx.getPriorRxProtocol() : "";
          String drugForm		= rx.getDrugForm();
          //remove from the rerx list
@@ -444,10 +445,10 @@ if(listRxDrugs!=null){
            <br />
            
            
-           <bean:message key="WriteScript.msgProtocolReference"/>: 
-           <input type="text" id="protocol_<%=rand%>"  name="protocol_<%=rand%>" value="<%=protocol%>" />
-           
-           <br/>
+			<%--  OMD Revalidation: field not required currently. Commented out as this may be used again in the future.            
+			<bean:message key="WriteScript.msgProtocolReference"/>: 
+           <input type="text" id="protocol_<%=rand%>"  name="protocol_<%=rand%>" value="<%=protocol%>" />          
+           <br/> --%>
            
           Prior Rx Protocol: 
            <input type="text" id="protocol_<%=rand%>"  name="priorRxProtocol_<%=rand%>" value="<%=priorRxProtocol%>" />

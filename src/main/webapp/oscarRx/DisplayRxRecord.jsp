@@ -330,12 +330,13 @@ DrugReasonDao drugReasonDao = SpringUtils.getBean(DrugReasonDao.class);
               				</tr>
               				<% } %>
               				
+							<%-- Commented out during OMD Revalidation. This field may be used again in the future.           				
               				<tr>
               					<td class="label">Protocol Reference:</td>
                         		<td><%= StringUtils.trimToEmpty(drug.getProtocol()) %></td>
               				</tr>
               				
-              				
+              				 --%>
               				<tr>
               					<td class="label">Prior Prescription Reference:</td>
                         		<td><%= StringUtils.trimToEmpty(drug.getPriorRxProtocol()) %></td>
