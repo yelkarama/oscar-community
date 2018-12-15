@@ -641,12 +641,20 @@ public class DemographicExportAction4 extends Action {
 					address.setLine1(pi.getAddress());
 					if (StringUtils.filled(pi.getCity()) || StringUtils.filled(pi.getProvince()) || StringUtils.filled(pi.getPostalCode())) {
 						address.setCity(StringUtils.noNull(pi.getCity()));
-						address.setCountrySubdivisionCode(Util.setCountrySubDivCode(pi.getProvince()));
+						//TODO: A proper fix is needed here!!!
+						// pi.getProvince() should be 2 characters, i.e., like "ON" rather than "Ontario" for instance.
+						if (StringUtils.filled(pi.getProvince()) && pi.getProvince().length() == 2) {
+							address.setCountrySubdivisionCode(Util.setCountrySubDivCode(pi.getProvince()));
+						}
+						if(StringUtils.filled(pi.getProvince()) && "ontario".equals(pi.getProvince().toLowerCase().trim())) {
+							address.setCountrySubdivisionCode(Util.setCountrySubDivCode("ON"));
+						}
+						// END OF HACK.
 						address.addNewPostalZipCode().setPostalCode(StringUtils.noNull(pi.getPostalCode()).replace(" ",""));
 					}
 					
 					
-					preferredPharmacy.setEmailAddress(pi.getEmail());
+					if (StringUtils.filled(pi.getEmail()) && pi.getEmail().contains("@")) preferredPharmacy.setEmailAddress(pi.getEmail());
 					preferredPharmacy.setName(pi.getName());
 					
 				}
@@ -1600,7 +1608,9 @@ public class DemographicExportAction4 extends Action {
 								labMeaValues.put("abnormal", h.getOBXAbnormalFlag(i, j));
 								labMeaValues.put("unit", h.getOBXUnits(i, j));
 								labMeaValues.put("accession", h.getAccessionNum());
-								labMeaValues.put("range", h.getOBXReferenceRange(i, j));
+								if ( !"-".equals(h.getOBXReferenceRange(i, j)) ) {
+									labMeaValues.put("range", h.getOBXReferenceRange(i, j));
+								}
 								labMeaValues.put("request_datetime", h.getRequestDate(i));
 								labMeaValues.put("olis_status", h.getOBXResultStatus(i, j));
 								labMeaValues.put("lab_no", String.valueOf(hl7TxtInfo.getLabNumber()));
@@ -1613,6 +1623,15 @@ public class DemographicExportAction4 extends Action {
 								} else {
 									labMeaValues.put("measureData", comments);
 								}
+								
+	                    		String range = labMeaValues.get("range");
+	                    		if( StringUtils.filled(range)) {
+	                    			String rangeLimits[] = range.split("-");
+	                    			if( rangeLimits.length == 2 ) {
+	                    				labMeaValues.put("minimum", rangeLimits[0]);
+	                        			labMeaValues.put("maximum", rangeLimits[1]);
+	                    			}
+	                    		}
 								
 								LaboratoryResults labResults2 = patientRec.addNewLaboratoryResults();
 								exportLabResult(labMeaValues, labResults2, demoNo);
@@ -2891,6 +2910,7 @@ public class DemographicExportAction4 extends Action {
 
 		//lab test code, test name, test name reported by lab
 		if (StringUtils.filled(labMea.get("identifier"))) labResults.setLabTestCode(labMea.get("identifier"));
+		// TODO: populate TestName as maintained by EMR properly.  The key "name_internal" isn't used anywhere.
 		if (StringUtils.filled(labMea.get("name_internal"))) labResults.setTestName(labMea.get("name_internal"));
 		if (StringUtils.filled(labMea.get("name"))) labResults.setTestNameReportedByLab(labMea.get("name"));
 
@@ -2951,11 +2971,14 @@ public class DemographicExportAction4 extends Action {
 		String range = StringUtils.noNull(labMea.get("range"));
 		String min = StringUtils.noNull(labMea.get("minimum"));
 		String max = StringUtils.noNull(labMea.get("maximum"));
-		LaboratoryResults.ReferenceRange refRange = labResults.addNewReferenceRange();
-		if (StringUtils.filled(range)) refRange.setReferenceRangeText(range);
-		else {
-			if (StringUtils.filled(min)) refRange.setLowLimit(min);
-			if (StringUtils.filled(max)) refRange.setHighLimit(max);
+		if (StringUtils.filled(range)) {
+			LaboratoryResults.ReferenceRange refRange = labResults.addNewReferenceRange();
+			if (StringUtils.filled(min) && StringUtils.filled(max)) {
+				refRange.setLowLimit(min);
+				refRange.setHighLimit(max);
+			} else {
+				refRange.setReferenceRangeText(range);
+			}
 		}
 
 		//lab requisition datetime
@@ -2995,18 +3018,18 @@ public class DemographicExportAction4 extends Action {
 				labRoutingInfo.putAll(ProviderLabRouting.getInfo(lab_no, "CML"));
 
 			String timestamp = labRoutingInfo.get("timestamp").toString();
-			if (UtilDateUtilities.StringToDate(timestamp,"yyyy-MM-dd HH:mm:ss")!=null) {
+			String lab_provider_no = (String)labRoutingInfo.get("provider_no");
+			
+			// ProviderLabRoutingDao assigns UNCLAIMED_PROVIDER = "0" 
+			if (UtilDateUtilities.StringToDate(timestamp,"yyyy-MM-dd HH:mm:ss")!=null &&
+					!"0".equals(lab_provider_no)) {
 				LaboratoryResults.ResultReviewer reviewer = labResults.addNewResultReviewer();
 				reviewer.addNewDateTimeResultReviewed().setFullDateTime(Util.calDate(timestamp));
-
 				//reviewer name
 				cdsDt.PersonNameSimple reviewerName = reviewer.addNewName();
-				String lab_provider_no = (String)labRoutingInfo.get("provider_no");
-				if (!"0".equals(lab_provider_no)) {
-					ProviderData pvd = new ProviderData(lab_provider_no);
-					Util.writeNameSimple(reviewerName, pvd.getFirst_name(), pvd.getLast_name());
-					if (StringUtils.noNull(pvd.getOhip_no()).length()<=6) reviewer.setOHIPPhysicianId(pvd.getOhip_no());
-				}
+				ProviderData pvd = new ProviderData(lab_provider_no);
+				Util.writeNameSimple(reviewerName, pvd.getFirst_name(), pvd.getLast_name());
+				if (StringUtils.noNull(pvd.getOhip_no()).length()<=6) reviewer.setOHIPPhysicianId(pvd.getOhip_no());
 			}
 		}
 	}
