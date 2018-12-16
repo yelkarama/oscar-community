@@ -27,6 +27,7 @@
 <%@page import="org.oscarehr.common.dao.DrugReasonDao"%>
 <%@page import="org.oscarehr.common.model.PartialDate"%>
 <%@page import="org.oscarehr.common.dao.PartialDateDao"%>
+<%@page import="org.oscarehr.managers.CodingSystemManager"%>
 <%@page import="org.oscarehr.casemgmt.model.CaseManagementNoteLink"%>
 <%@page import="org.oscarehr.casemgmt.service.CaseManagementManager"%>
 <%@page import="java.text.SimpleDateFormat"%>
@@ -66,6 +67,46 @@ SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
 PartialDateDao partialDateDao = SpringUtils.getBean(PartialDateDao.class);
 DrugReasonDao drugReasonDao = SpringUtils.getBean(DrugReasonDao.class);
+
+/**
+* Define value for the ProblemCode field.
+*/
+CodingSystemManager codingSystemManager = SpringUtils.getBean(CodingSystemManager.class);
+List<DrugReason> drugReasonList = drugReasonDao.getReasonsForDrugID(drug.getId(), true);
+StringBuilder stringBuilder = null;
+
+for(DrugReason dr : drugReasonList) {          								
+	String codeSystem = dr.getCodingSystem();
+	String code = dr.getCode();
+	String codeDescription = codingSystemManager.getCodeDescription(codeSystem, code);
+
+	if(stringBuilder == null) {
+		stringBuilder = new StringBuilder("");
+	}
+	
+	if(codeDescription == null || codeDescription.isEmpty()) {
+		codeDescription = dr.getComments();
+	}
+	
+	stringBuilder.append(codeDescription);
+	
+	if(codeSystem != null && ! codeSystem.isEmpty() && code != null && ! code.isEmpty()) {	
+		stringBuilder.append(" (");
+		stringBuilder.append(codeSystem);
+		stringBuilder.append(":");
+		stringBuilder.append(code);
+		stringBuilder.append(")");
+	}
+
+	if(drugReasonList.size() > 1 && ) {
+		stringBuilder.append("<br>");
+	}
+}
+
+if(stringBuilder != null) {
+	pageContext.setAttribute("ProblemCode", stringBuilder.toString());
+}
+
 %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <%@page import="org.oscarehr.util.MiscUtils"%><html>
@@ -338,7 +379,7 @@ DrugReasonDao drugReasonDao = SpringUtils.getBean(DrugReasonDao.class);
               				
               				 --%>
               				<tr>
-              					<td class="label">Prior Prescription Reference:</td>
+              					<td class="label" style="vertical-align:top;">Prior Prescription Reference:</td>
                         		<td><%= StringUtils.trimToEmpty(drug.getPriorRxProtocol()) %></td>
               				</tr>
               				
@@ -355,12 +396,7 @@ DrugReasonDao drugReasonDao = SpringUtils.getBean(DrugReasonDao.class);
               				<tr>
               					<td class="label">Problem Code:</td>
               					<td>
-              						<%
-              							for(DrugReason dr:  drugReasonDao.getReasonsForDrugID(drug.getId(), true)) {
-              								out.print(dr.getCode() + "&nbsp;");
-              							}
-              						
-              						%>
+									${ ProblemCode }
               					</td>
               				</tr>
               				<tr style="height:15px">
