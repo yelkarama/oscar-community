@@ -25,7 +25,7 @@
 --%>
 <%@page import="com.indivica.olis.parameters.*,com.indivica.olis.*,com.indivica.olis.queries.*,org.apache.commons.lang.time.DateUtils"%><%@page 
 import="oscar.OscarProperties,java.net.InetAddress,java.io.*,java.util.List,java.util.*,javax.net.ssl.*,java.security.*,java.security.cert.*"%><%@page
-import="org.oscarehr.util.DbConnectionFilter,java.sql.*,org.oscarehr.util.SpringUtils" %><%@ taglib uri="/WEB-INF/security.tld" prefix="security"%><%
+import="org.oscarehr.util.DbConnectionFilter,java.sql.*,org.oscarehr.util.SpringUtils,org.oscarehr.util.LoggedInInfo" %><%@ taglib uri="/WEB-INF/security.tld" prefix="security"%><%
 if(session.getAttribute("userrole") == null ){
 	
 	response.sendRedirect("../logout.jsp");
@@ -181,8 +181,9 @@ public String tryZ01Query(int patientNum,String cpso,String lastName,String firs
 
 		((Z01Query) query).setRequestingHic(zrp1);
 	
+		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 				
-		com.indivica.olis.Driver.submitOLISQuery(request, query);
+		com.indivica.olis.Driver.submitOLISQuery(loggedInInfo, request, query);
 		String msgInXML = (String) request.getAttribute("msgInXML");
 		String signedRequest = (String) request.getAttribute("signedRequest");
 		String signedData = (String) request.getAttribute("signedData");
