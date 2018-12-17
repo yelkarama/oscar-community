@@ -51,6 +51,13 @@ public class ProgramProvider implements Serializable {
 	public ProgramProvider () {
 		initialize();
 	}
+	
+	public ProgramProvider (Long programId, String providerNo, Long roleId) {
+		this();
+		setProgramId(programId);
+		setProviderNo(providerNo);
+		setRoleId(roleId);
+	}
 
     /**
 	 * Constructor for primary key

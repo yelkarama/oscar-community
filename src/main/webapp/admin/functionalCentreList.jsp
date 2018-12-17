@@ -151,7 +151,7 @@ br {
 		<td class="MainTableTopRowRightColumn">
 			<table class="TopStatusBar" style="width: 100%;">
 				<tr>
-					<td>Facilities</td>
+					<td>Manage Functional Centres</td>
 				</tr>
 			</table>
 		</td>
@@ -160,52 +160,37 @@ br {
 		
 		<td class="MainTableRightColumn" valign="top">
 		
-      
-      <html:form action="/FacilityManager.do">
+<html:form action="/FunctionalCentreManager.do">
 	<display:table class="simple" cellspacing="2" cellpadding="3"
-		id="facility" name="facilities" export="false" pagesize="0"
-		requestURI="/FacilityManager.do">
+		id="functionalCentre" name="functionalCentres" export="false" pagesize="0"
+		requestURI="/PMmodule/FunctionalCentreManager.do">
 		<display:setProperty name="paging.banner.placement" value="bottom" />
 		<display:setProperty name="paging.banner.item_name" value="agency" />
 		<display:setProperty name="paging.banner.items_name"
-			value="facilities" />
+			value="functionalCentres" />
 		<display:setProperty name="basic.msg.empty_list"
-			value="No facilities found." />
+			value="No Functional Centres found." />
 
+		
 		<display:column sortable="false" title="">
 			<a
-				href="<html:rewrite action="/FacilityManager.do"/>?method=view&id=<c:out value="${facility.id}" />">
-			Details </a>
-		</display:column>
-		<display:column sortable="false" title="">
-			<a
-				href="<html:rewrite action="/FacilityManager.do"/>?method=edit&id=<c:out value="${facility.id}" />">
+				href="<%=request.getContextPath() %>/FunctionalCentreManager.do?method=edit&id=<c:out value="${functionalCentre.accountId}" />">
 			Edit </a>
 		</display:column>
-		<display:column sortable="false" title="">
-			<a
-				onclick="return ConfirmDelete('<c:out value="${facility.name}"/>')"
-				href="<html:rewrite action="/FacilityManager.do"/>?method=delete&id=<c:out value="${facility.id}"/>&name=<c:out value="${facility.name}"/>">
-			Disable </a>
-		</display:column>
-
-
-		<display:column property="name" sortable="false" title="Name" />
+		
+		<display:column property="accountId" sortable="false" title="Functional Centre ID" />
 		<display:column property="description" sortable="false"
 			title="Description" />
-		<display:column property="contactName" sortable="false"
-			title="Contact name" />
-		<display:column property="hic" sortable="false" title="HIC" />
-		
+		<display:column property="enableCbiForm" sortable="false"
+			title="CBI Form Enabled" />
 	</display:table>
 </html:form>
 <div>
 <p>
-<input type="button" value="Add New" onClick="location.href='<%=request.getContextPath()%>/FacilityManager.do?method=add'"/>
+<input type="button" value="Add New" onClick="window.location.href='<html:rewrite action="/FunctionalCentreManager.do"/>?method=add'"/>
 </p>
 </div>
-
-
+		
 		</td>
 	</tr>
 	<tr>

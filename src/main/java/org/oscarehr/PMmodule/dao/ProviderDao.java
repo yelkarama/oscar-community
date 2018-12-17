@@ -395,7 +395,8 @@ public class ProviderDao extends HibernateDaoSupport {
 	public static void removeProviderFromFacility(String provider_no,
 			int facilityId) {
 		ProviderFacilityDao dao = SpringUtils.getBean(ProviderFacilityDao.class);
-		for(ProviderFacility p:dao.findByProviderNoAndFacilityId(provider_no,facilityId)) {
+		ProviderFacility p = dao.findByProviderNoAndFacilityId(provider_no,facilityId);
+		if(p != null) {
 			dao.remove(p.getId());
 		}
 	}

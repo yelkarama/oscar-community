@@ -76,6 +76,9 @@ String curProvider_no = (String)session.getAttribute("user");
 					<li><a href='javascript:void(0);' class="xlink" rel="${ctx}/admin/providerRole.jsp">
 					<bean:message key="admin.admin.assignRole"/></a></li>
 						
+					<li><a href='javascript:void(0);' class="xlink" rel="${ctx}/admin/providerProgram.jsp">
+					<bean:message key="admin.admin.assignProgram"/></a></li>
+					
 					<security:oscarSec roleName="<%=roleName$%>"
 						objectName="_admin,_admin.unlockAccount" rights="r">
 						<li><a href='javascript:void(0);' class="xlink" rel="${ctx}/admin/unLock.jsp">
@@ -693,6 +696,8 @@ String curProvider_no = (String)session.getAttribute("user");
 					<security:oscarSec roleName="<%=roleName$%>" objectName="_admin" rights="r" reverse="<%=false%>">
 					<li><a href='javascript:void(0);' class="xlink" rel="${ctx}/admin/keygen/keyManager.jsp"><bean:message key="admin.admin.keyPairGen" /></a></li>
 					<li><a href='javascript:void(0);' class="xlink" rel="${ctx}/FacilityManager.do"><bean:message key="admin.admin.manageFacilities" /></a></li>
+					<li><a href='javascript:void(0);' class="xlink" rel="${ctx}/FunctionalCentreManager.do"><bean:message key="admin.admin.manageFunctionalCentres" /></a></li>
+					<li><a href='javascript:void(0);' class="xlink" rel="${ctx}/ProgramManager.do"><bean:message key="admin.admin.managePrograms" /></a></li>
 					<li><a href='javascript:void(0);' class="xlink" rel="${ctx}/oscarEncounter/oscarMeasurements/adminFlowsheet/NewFlowsheet.jsp">Create New Flowsheet</a></li>
 					<li><a href='javascript:void(0);' class="xlink" rel="${ctx}/admin/manageFlowsheets.jsp"><bean:message key="admin.admin.flowsheetManager"/></a></li>
 			      	<li><a href='javascript:void(0);' class="xlink" rel="${ctx}/admin/lotnraddrecordhtm.jsp"><bean:message key="admin.admin.add_lot_nr.title"/></a></li>

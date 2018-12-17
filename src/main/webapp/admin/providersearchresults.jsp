@@ -153,6 +153,7 @@
 <table width="100%" cellspacing="2" cellpadding="2" border="0"
 	bgcolor="ivory">
 	<tr bgcolor="<%=deepcolor%>">
+		<TH>&nbsp;</TH>
 		<TH align="center" width="10%"><b><a
 			href="providersearchresults.jsp?keyword=<%=keyword%>&search_mode=<%=searchMode%>&orderby=provider_no&limit1=0&limit2=10">
 			<bean:message key="admin.providersearchresults.ID" /></a></b></TH>
@@ -208,6 +209,7 @@
 %>
 
 	<tr bgcolor="<%=toggleLine?"white":weakcolor%>">
+		<td><input type="button" value="Assign Programs" onClick="location.href='<%=request.getContextPath()%>/admin/providerProgram.jsp?providerNo=<%=provider.getId()%>'"/></td>
 		<td align="center"><a href='providerupdateprovider.jsp?keyword=<%=provider.getId()%>'><%= provider.getId() %></a></td>
 		<td><%= provider.getFirstName() %></td>
 		<td><%= provider.getLastName() %></td>

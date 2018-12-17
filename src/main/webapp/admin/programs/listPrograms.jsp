@@ -142,16 +142,37 @@ br {
 	clear: left;
 }
 </style>
+
+<script>
+	function updateView() {
+		var sel = document.myForm.elements['filterType'];
+		var val = sel.options[sel.selectedIndex].value;
+		window.location.href='<%=request.getContextPath()%>/ProgramManager.do?filterType=' + val;
+	}
+</script>
 </head>
 
+<%
+	String filterType = (String)request.getAttribute("filterType");
+%>
 <body vlink="#0000FF" class="BodyStyle">
 
+   <form action="<%=request.getContextPath() %>/ProgramManager.do" name="myForm">
+    
 <table class="MainTable">
 	<tr class="MainTableTopRow">
 		<td class="MainTableTopRowRightColumn">
 			<table class="TopStatusBar" style="width: 100%;">
 				<tr>
-					<td>Facilities</td>
+					<td>Programs
+					&nbsp;&nbsp;
+					<select name="filterType" onChange="updateView()">
+						<option value="bs" <%=("bs".equals(filterType))?" selected=\"selected\" ":"" %>>Bed & Service only</option>
+						<option value="c" <%=("c".equals(filterType))?" selected=\"selected\" ":"" %>>Community only</option>
+						<option value="" <%=("".equals(filterType))?" selected=\"selected\" ":"" %>>All</option>
+					</select>
+					
+					</td>
 				</tr>
 			</table>
 		</td>
@@ -161,47 +182,35 @@ br {
 		<td class="MainTableRightColumn" valign="top">
 		
       
-      <html:form action="/FacilityManager.do">
+     
+      
 	<display:table class="simple" cellspacing="2" cellpadding="3"
-		id="facility" name="facilities" export="false" pagesize="0"
-		requestURI="/FacilityManager.do">
+		id="program" name="programs" export="false" pagesize="0"
+		>
 		<display:setProperty name="paging.banner.placement" value="bottom" />
-		<display:setProperty name="paging.banner.item_name" value="agency" />
+		<display:setProperty name="paging.banner.item_name" value="program" />
 		<display:setProperty name="paging.banner.items_name"
-			value="facilities" />
+			value="programs" />
 		<display:setProperty name="basic.msg.empty_list"
-			value="No facilities found." />
-
+			value="No programs found." />
 		<display:column sortable="false" title="">
-			<a
-				href="<html:rewrite action="/FacilityManager.do"/>?method=view&id=<c:out value="${facility.id}" />">
-			Details </a>
+			<input type="button" value="Edit" onClick="location.href='<%=request.getContextPath()%>/ProgramManager.do?method=edit&id=<c:out value="${program.id}" />'"/>
+			<input type="button" value="Delete" onClick="location.href='<%=request.getContextPath()%>/ProgramManager.do?method=delete&id=<c:out value="${program.id}" />'"/>
 		</display:column>
-		<display:column sortable="false" title="">
-			<a
-				href="<html:rewrite action="/FacilityManager.do"/>?method=edit&id=<c:out value="${facility.id}" />">
-			Edit </a>
-		</display:column>
-		<display:column sortable="false" title="">
-			<a
-				onclick="return ConfirmDelete('<c:out value="${facility.name}"/>')"
-				href="<html:rewrite action="/FacilityManager.do"/>?method=delete&id=<c:out value="${facility.id}"/>&name=<c:out value="${facility.name}"/>">
-			Disable </a>
-		</display:column>
-
-
 		<display:column property="name" sortable="false" title="Name" />
-		<display:column property="description" sortable="false"
-			title="Description" />
-		<display:column property="contactName" sortable="false"
-			title="Contact name" />
-		<display:column property="hic" sortable="false" title="HIC" />
-		
+		<display:column property="description" sortable="false" title="Description" />
+		<display:column property="type" sortable="false" title="Type" />
+		<display:column property="programStatus" sortable="false" title="Status" />
+		<display:column property="location" sortable="false" title="Location" />
+		<display:column  sortable="false" title="Participation" >
+		<c:out value="${program.numOfMembers}" />/<c:out
+			value="${program.maxAllowed}" />&nbsp;(<c:out
+			value="${program.queueSize}" /> waiting)
+		</display:column>
 	</display:table>
-</html:form>
-<div>
+		<div>
 <p>
-<input type="button" value="Add New" onClick="location.href='<%=request.getContextPath()%>/FacilityManager.do?method=add'"/>
+<input type="button" value="Add New" onClick="location.href='<%=request.getContextPath()%>/ProgramManager.do?method=add'"/>
 </p>
 </div>
 
@@ -212,5 +221,8 @@ br {
 		
 		<td class="MainTableBottomRowRightColumn">&nbsp;</td>
 	</tr>
+	
+</form>
+	
 </table>
 </html:html>

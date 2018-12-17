@@ -369,7 +369,7 @@
 		</form-bean>
 		<form-bean name="bedManagerForm" type="org.oscarehr.PMmodule.web.admin.BedManagerForm" />
 		<form-bean name="facilityManagerForm" type="org.oscarehr.PMmodule.web.admin.FacilityManagerForm" />
-		<form-bean name="oscarFacilityManagerForm" type="oscar.facility.FacilityManagerForm" />
+		<form-bean name="functionalCentreManagerForm" type="org.oscarehr.PMmodule.web.admin.FunctionalCentreManagerForm" />
 		<form-bean name="clientSearchForm2" type="org.apache.struts.validator.DynaValidatorForm">
 			<form-property name="criteria" type="org.oscarehr.PMmodule.web.formbean.ClientSearchFormBean" />
 		</form-bean>
@@ -2180,14 +2180,15 @@
 		<action path="/PMmodule/BedManager" type="org.springframework.web.struts.DelegatingActionProxy" parameter="method" name="bedManagerForm" scope="session">
 			<forward name="manage" path="page.pmm.admin.beds.manage" />
 		</action>
-		<action path="/PMmodule/FacilityManager" type="org.springframework.web.struts.DelegatingActionProxy" parameter="method" name="facilityManagerForm" scope="session">
-			<forward name="list" path="page.pmm.admin.facility.list" />
-			<forward name="edit" path="page.pmm.admin.facility.edit" />
-			<forward name="view" path="page.pmm.admin.facility.view" />
-		</action>
-		<action path="/FacilityManager" type="org.springframework.web.struts.DelegatingActionProxy" parameter="method" name="oscarFacilityManagerForm" scope="session">
+		
+		<action path="/FacilityManager" type="oscar.facility.FacilityManagerAction" parameter="method" name="facilityManagerForm" scope="session">
 			<forward name="list" path="/admin/facility/ListFacilities.jsp" />
 			<forward name="edit" path="/admin/facility/EditFacility.jsp" />
+			<forward name="view" path="/admin/facility/ViewFacility.jsp" />
+		</action>
+		<action path="/FunctionalCentreManager" type="org.oscarehr.PMmodule.web.admin.FunctionalCentreManagerAction" parameter="method" name="functionalCentreManagerForm" scope="session">
+			<forward name="list" path="/admin/functionalCentreList.jsp" />
+			<forward name="edit" path="/admin/functionalCentreEdit.jsp"/>			
 		</action>
 		<action path="/PMmodule/ProviderSearch" type="org.springframework.web.struts.DelegatingActionProxy">
 			<forward name="results" path="/PMmodule/ProviderSearch.jsp" />
@@ -2957,6 +2958,13 @@
 		</action>
 		
 		
+		<action path="/Provider" type="org.oscarehr.admin.web.ProviderAction" parameter="method">
+			<forward name="program" path="/admin/providerProgram.jsp" />
+		</action>
+		<action path="/ProgramManager" type="org.oscarehr.admin.web.ProgramManagerAction" parameter="method" name="programManagerForm" scope="request">
+			<forward name="list" path="/admin/programs/listPrograms.jsp" />
+			<forward name="edit" path="/admin/programs/editProgram.jsp" />
+		</action>
 	</action-mappings>
 	<controller processorClass="org.apache.struts.tiles.TilesRequestProcessor" maxFileSize="100M" />
 	<message-resources parameter="oscarResources" null="false" />

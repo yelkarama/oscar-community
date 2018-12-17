@@ -63,6 +63,17 @@ if(!authed) {
 	src="<%=request.getContextPath() %>/share/javascript/prototype.js"></script>
 <script type="text/javascript" language="JavaScript"
 	src="<%=request.getContextPath() %>/share/javascript/Oscar.js"></script>
+<script type="text/javascript">
+	function validateForm()
+	{
+		if (bCancel == true)
+			return true;
+		var isOk = false;
+		isOk = validateRequiredField('functionalCentreId', 'functionalCentreId', 32);
+		if (isOk) isOk = validateRequiredField('functionalCentreName', 'functionalCentreName', 70);
+		return isOk;
+	}
+</script>
 
 <style type="text/css">
 table.outline {
@@ -151,7 +162,7 @@ br {
 		<td class="MainTableTopRowRightColumn">
 			<table class="TopStatusBar" style="width: 100%;">
 				<tr>
-					<td>Facilities</td>
+					<td>Manage Clinic Details</td>
 				</tr>
 			</table>
 		</td>
@@ -160,52 +171,35 @@ br {
 		
 		<td class="MainTableRightColumn" valign="top">
 		
-      
-      <html:form action="/FacilityManager.do">
-	<display:table class="simple" cellspacing="2" cellpadding="3"
-		id="facility" name="facilities" export="false" pagesize="0"
-		requestURI="/FacilityManager.do">
-		<display:setProperty name="paging.banner.placement" value="bottom" />
-		<display:setProperty name="paging.banner.item_name" value="agency" />
-		<display:setProperty name="paging.banner.items_name"
-			value="facilities" />
-		<display:setProperty name="basic.msg.empty_list"
-			value="No facilities found." />
 
-		<display:column sortable="false" title="">
-			<a
-				href="<html:rewrite action="/FacilityManager.do"/>?method=view&id=<c:out value="${facility.id}" />">
-			Details </a>
-		</display:column>
-		<display:column sortable="false" title="">
-			<a
-				href="<html:rewrite action="/FacilityManager.do"/>?method=edit&id=<c:out value="${facility.id}" />">
-			Edit </a>
-		</display:column>
-		<display:column sortable="false" title="">
-			<a
-				onclick="return ConfirmDelete('<c:out value="${facility.name}"/>')"
-				href="<html:rewrite action="/FacilityManager.do"/>?method=delete&id=<c:out value="${facility.id}"/>&name=<c:out value="${facility.name}"/>">
-			Disable </a>
-		</display:column>
+<html:form action="/FunctionalCentreManager.do"
+	onsubmit="return validateForm();">
+	<input type="hidden" name="method" value="save" />
+	<table width="100%" border="1" cellspacing="2" cellpadding="3">
+		<tr class="b">
+			<td width="20%">Functional Centre Id:</td>
+			<td><html:text property="functionalCentre.accountId" size="32" maxlength="32"
+				styleId="functionalCentreId" /></td>
 
-
-		<display:column property="name" sortable="false" title="Name" />
-		<display:column property="description" sortable="false"
-			title="Description" />
-		<display:column property="contactName" sortable="false"
-			title="Contact name" />
-		<display:column property="hic" sortable="false" title="HIC" />
+		</tr>
+		<tr class="b">
+			<td width="20%">Functional Centre Name:</td>
+			<td><html:text property="functionalCentre.description" size="70" maxlength="70"
+				styleId="functionalCentreName" /></td>
+		</tr>		
 		
-	</display:table>
+		<tr class="b">
+			<td width="20%">Enable CBI Form:</td>
+			<td><html:checkbox property="functionalCentre.enableCbiForm" /></td>
+		</tr>
+		
+		<tr>
+			<td colspan="2"><html:submit property="submit.save" onclick="bCancel=false;">Save</html:submit>
+			<html:cancel>Cancel</html:cancel></td>
+		</tr>
+	</table>
 </html:form>
-<div>
-<p>
-<input type="button" value="Add New" onClick="location.href='<%=request.getContextPath()%>/FacilityManager.do?method=add'"/>
-</p>
-</div>
-
-
+		
 		</td>
 	</tr>
 	<tr>
@@ -214,3 +208,7 @@ br {
 	</tr>
 </table>
 </html:html>
+
+
+
+

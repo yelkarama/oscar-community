@@ -380,6 +380,20 @@ public class Facility extends AbstractModel<Integer> implements Serializable {
 		this.assignRejectedVacancyApplicant = assignRejectedVacancyApplicant;
 	}
 
+	public void setIntegratorU(String username) {
+		setIntegratorUser(username);
+	}
 	
+	public String getIntegratorU() {
+		return getIntegratorUser();
+	}
+	
+	public void setIntegratorP(String password) {
+		setIntegratorUser(password);
+	}
+	
+	public String getIntegratorP() {
+		return getIntegratorPassword();
+	}
 	
 }

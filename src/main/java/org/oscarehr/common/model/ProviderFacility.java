@@ -36,6 +36,15 @@ public class ProviderFacility extends AbstractModel<ProviderFacilityPK> {
 	@EmbeddedId
 	ProviderFacilityPK id;
 
+	public ProviderFacility() {
+		
+	}
+	
+	public ProviderFacility(String providerNo, Integer facilityId) {
+		id = new ProviderFacilityPK();
+		id.setProviderNo(providerNo);
+		id.setFacilityId(facilityId);
+	}
 	public ProviderFacilityPK getId() {
     	return id;
     }
