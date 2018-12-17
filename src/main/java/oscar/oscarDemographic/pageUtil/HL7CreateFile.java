@@ -129,6 +129,7 @@ public class HL7CreateFile {
             String unit = "";
             if (lab.getResult() != null) {
                 result = StringUtils.noNull(lab.getResult().getValue());
+                result = result.replaceAll("\\n", "<br \\\\>");
                 unit = StringUtils.noNull(lab.getResult().getUnitOfMeasure());
             }
             String collectionDate = getDateTime(lab.getCollectionDateTime());
