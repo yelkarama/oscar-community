@@ -123,6 +123,7 @@ if(listRxDrugs!=null){
          boolean dispenseInternal = rx.getDispenseInternal();
          boolean startDateUnknown	= rx.getStartDateUnknown();
          boolean nonAuthoritative   = rx.isNonAuthoritative();
+         boolean nosubs = rx.getNosubs();
          String quantity            = rx.getQuantity();
          String quantityText="";
          String unitName=rx.getUnitName();
@@ -324,16 +325,16 @@ if(listRxDrugs!=null){
     <input tabindex="-1" type="text" id="drugName_<%=rand%>"  name="drugName_<%=rand%>"  size="30" <%if(gcn==0){%> onkeyup="saveCustomName(this);" value="<%=drugName%>"<%} else{%> value='<%=drugName%>'  onchange="changeDrugName('<%=rand%>','<%=drugName%>');" <%}%> TITLE="<%=drugName%>"/>&nbsp;<span id="inactive_<%=rand%>" style="color:red;"></span>
 
 	<!-- Allergy Alert Table-->
-	<table width="570px" border="1" bordercolor="#CCCCCC" cellspacing="0" cellpadding="0" style="border-collapse: collapse;display: none;" id="alleg_tbl_<%=rand%>">
+	<table style="border-collapse: collapse;display: none; width: 100%; margin-top:10px; border:whitesmoke thin solid;" id="alleg_tbl_<%=rand%>">
 		<tr>
-			<td bgcolor="#CCCCCC" height="10px">
+			<td bgcolor="grey" height="10px">
 				<!--spacer cell-->
 			</td>
 		</tr>
 	
 		<tr>
-			<td>    
-	    		<span id="alleg_<%=rand%>" style="font-size:11px;"></span>
+			<td style="padding:5px;" >    
+	    		<span id="alleg_<%=rand%>" style="font-size:11px;padding:10px 5px;"></span>
 			</td>
 		</tr>
 	</table> 
@@ -386,6 +387,7 @@ if(listRxDrugs!=null){
            <input id="rx_save_updates_<%=rand%>" type="button" value="Save Changes" onclick="saveLinks('<%=rand%>')"/>
        </div>
        <div id="rx_more_<%=rand%>" style="display:none;padding:2px;">
+        <div>
        	  <bean:message key="WriteScript.msgPrescribedRefill"/>:
        	  &nbsp;
        	  <bean:message key="WriteScript.msgPrescribedRefillDuration"/>
@@ -394,75 +396,80 @@ if(listRxDrugs!=null){
        	  &nbsp;       	  
        	  <bean:message key="WriteScript.msgPrescribedRefillQuantity"/>
        	  <input type="text" size="6" id="refillQuantity_<%=rand%>" name="refillQuantity_<%=rand%>" value="<%=refillQuantity%>" />
-       	  <br/> 
+       	  </div><div> 
     	  
        	  <bean:message key="WriteScript.msgPrescribedDispenseInterval"/>
        	  <input type="text" size="6" id="dispenseInterval_<%=rand%>" name="dispenseInterval_<%=rand%>" value="<%=dispenseInterval%>" />
-       	  <br/>
+       	  </div>
        	  
 	     <%if(OscarProperties.getInstance().getProperty("rx.enable_internal_dispensing","false").equals("true")) {%>  
+	       <div>
 	       	   <bean:message key="WriteScript.msgDispenseInternal"/>	
-			  <input type="checkbox" name="dispenseInternal_<%=rand%>" id="dispenseInternal_<%=rand%>" <%if(dispenseInternal) {%> checked="true" <%}%> />
-      	 <br/>
+			  <input type="checkbox" name="dispenseInternal_<%=rand%>" id="dispenseInternal_<%=rand%>" <%if(dispenseInternal) {%> checked="checked" <%}%> />
+      	 </div>
       	 <% } %>
-
+		<div>
           <bean:message key="WriteScript.msgPrescribedByOutsideProvider"/>
-          <input type="checkbox" id="ocheck_<%=rand%>" name="ocheck_<%=rand%>" onclick="$('otext_<%=rand%>').toggle();" <%if(isOutsideProvider){%> checked="true" <%}else{}%>/>
+          <input type="checkbox" id="ocheck_<%=rand%>" name="ocheck_<%=rand%>" onclick="$('otext_<%=rand%>').toggle();" <%if(isOutsideProvider){%> checked="checked" <%}else{}%>/>
           <div id="otext_<%=rand%>" <%if(isOutsideProvider){%>style="display:table;padding:2px;"<%}else{%>style="display:none;padding:2px;"<%}%> >
                 <b><label style="float:left;width:80px;">Name :</label></b> <input type="text" id="outsideProviderName_<%=rand%>" name="outsideProviderName_<%=rand%>" <%if(outsideProvName!=null){%> value="<%=outsideProvName%>"<%}else {%> value=""<%}%> />
                 <b><label style="width:80px;">OHIP No:</label></b> <input type="text" id="outsideProviderOhip_<%=rand%>" name="outsideProviderOhip_<%=rand%>"  <%if(outsideProvOhip!=null){%>value="<%=outsideProvOhip%>"<%}else {%> value=""<%}%>/>
-          </div><br/>
+          </div>
+          </div><div>
 
         <label title="Medications taken at home that were previously ordered."><bean:message key="WriteScript.msgPastMedication" />
-            <input  type="checkbox" name="pastMed_<%=rand%>" id="pastMed_<%=rand%>" <%if(pastMed) {%> checked="true" <%}%> onclick="emptyWrittenDate('<%=rand%>');" /></label>
+            <input  type="checkbox" name="pastMed_<%=rand%>" id="pastMed_<%=rand%>" <%if(pastMed) {%> checked="checked" <%}%> onclick="emptyWrittenDate('<%=rand%>');" /></label>
                   
-	<Br/>
+	</div><div>
 	
 	<bean:message key="WriteScript.msgPatientCompliance"/>:
           <bean:message key="WriteScript.msgYes"/>
-            <input type="checkbox"  name="patientComplianceY_<%=rand%>" id="patientComplianceY_<%=rand%>" <%if(patientCompliance!=null && patientCompliance) {%> checked="true" <%}%> />
+            <input type="checkbox"  name="patientComplianceY_<%=rand%>" id="patientComplianceY_<%=rand%>" <%if(patientCompliance!=null && patientCompliance) {%> checked="checked" <%}%> />
 
           <bean:message key="WriteScript.msgNo"/>
-            <input type="checkbox"  name="patientComplianceN_<%=rand%>" id="patientComplianceN_<%=rand%>" <%if(patientCompliance!=null && !patientCompliance) {%> checked="true" <%}%> />
-
+            <input type="checkbox"  name="patientComplianceN_<%=rand%>" id="patientComplianceN_<%=rand%>" <%if(patientCompliance!=null && !patientCompliance) {%> checked="checked" <%}%> />
+	</div><div>
           <bean:message key="WriteScript.msgNonAuthoritative"/>
-            <input type="checkbox" name="nonAuthoritativeN_<%=rand%>" id="nonAuthoritativeN_<%=rand%> " <%if(nonAuthoritative) {%> checked="true" <%}%> /><br/>
-
+            <input type="checkbox" name="nonAuthoritativeN_<%=rand%>" id="nonAuthoritativeN_<%=rand%>" <%if(nonAuthoritative) {%> checked="checked" <%}%> />
+    </div><div>
+    
+    		<bean:message key="WriteScript.msgSubNotAllowed"/>
+    		<input type="checkbox" name="nosubs_<%=rand%>" id="nosubs_<%=rand%>" <%if(nosubs) {%> checked="checked" <%}%> />
+    </div><div>
 
         <label style="float:left;width:80px;">Start Date:</label>
            <input type="text" id="rxDate_<%=rand%>" name="rxDate_<%=rand%>" value="<%=startDate%>" <%if(startDateUnknown) {%> disabled="disabled" <%}%>/>
         <bean:message key="WriteScript.msgUnknown"/>
-           <input  type="checkbox" name="startDateUnknown_<%=rand%>" id="startDateUnknown_<%=rand%>" <%if(startDateUnknown) {%> checked="true" <%}%> onclick="toggleStartDateUnknown('<%=rand%>');"/>
+           <input  type="checkbox" name="startDateUnknown_<%=rand%>" id="startDateUnknown_<%=rand%>" <%if(startDateUnknown) {%> checked="checked" <%}%> onclick="toggleStartDateUnknown('<%=rand%>');"/>
            
-           <br/>
+           </div><div>
 	<label style="">Last Refill Date:</label>
            <input type="text" id="lastRefillDate_<%=rand%>"  name="lastRefillDate_<%=rand%>" value="<%=lastRefillDate%>" />
-	<br/>
+	</div><div>
         <label style="float:left;width:80px;">Written Date:</label>
            <input type="text" id="writtenDate_<%=rand%>"  name="writtenDate_<%=rand%>" value="<%=writtenDate%>" />
            <a href="javascript:void(0);" style="float:right;margin-top:0px;padding-top:0px;" onclick="addFav('<%=rand%>','<%=drugName%>');return false;">Add to Favorite</a>
        
-           <br />
+           </div><div>
            
            
 			<%--  OMD Revalidation: field not required currently. Commented out as this may be used again in the future.            
 			<bean:message key="WriteScript.msgProtocolReference"/>: 
            <input type="text" id="protocol_<%=rand%>"  name="protocol_<%=rand%>" value="<%=protocol%>" />          
            <br/> --%>
-           
-          Prior Rx Protocol: 
+          <label style="">Prior Rx Protocol:</label>
            <input type="text" id="protocol_<%=rand%>"  name="priorRxProtocol_<%=rand%>" value="<%=priorRxProtocol%>" />
            
-           <br/>
+           </div><div>
            
            <bean:message key="WriteScript.msgPickUpDate"/>: 
            <input type="text" id="pickupDate_<%=rand%>"  name="pickupDate_<%=rand%>" value="<%=pickupDate%>" onchange="if (!isValidDate(this.value)) {this.value=null}" />
            <bean:message key="WriteScript.msgPickUpTime"/>: 
            <input type="text" id="pickupTime_<%=rand%>"  name="pickupTime_<%=rand%>" value="<%=pickupTime%>" onchange="if (!isValidTime(this.value)) {this.value=null}" />
-           <br/>
+           </div><div>
            <bean:message key="WriteScript.msgComment"/>:
            <input type="text" id="comment_<%=rand%>" name="comment_<%=rand%>" value="<%=comment%>" size="60"/>
-           <br/>  
+           </div><div>  
            <bean:message key="WriteScript.msgETreatmentType"/>:     
            <select name="eTreatmentType_<%=rand%>">
            		<option>--</option>
@@ -481,7 +488,7 @@ if(listRxDrugs!=null){
                          <option value="Obsolete" <%=rxStatus.equals("Obsolete")?"selected":""%>><bean:message key="WriteScript.msgRxStatus.Obsolete"/></option>
                          <option value="Nullified" <%=rxStatus.equals("Nullified")?"selected":""%>><bean:message key="WriteScript.msgRxStatus.Nullified"/></option>
            </select>
-                <br/>                
+                </div><div>                
                 <bean:message key="WriteScript.msgDrugForm"/>: 
                 <%if(rx.getDrugFormList()!=null && rx.getDrugFormList().indexOf(",")!=-1){ %>
                 <select name="drugForm_<%=rand%>">
@@ -499,17 +506,18 @@ if(listRxDrugs!=null){
 
 
 
-       </div>
+       			</div>
        
            <div id="renalDosing_<%=rand%>" ></div>
-           <div id="luc_<%=rand%>" style="margin-top:2px;"/>
+           <div id="luc_<%=rand%>" style="margin-top:2px;" >
            <oscar:oscarPropertiesCheck property="RENAL_DOSING_DS" value="yes">
             <script type="text/javascript">getRenalDosingInformation('renalDosing_<%=rand%>','<%=rx.getAtcCode()%>');</script>
             </oscar:oscarPropertiesCheck>
            <oscar:oscarPropertiesCheck property="billregion" value="ON" >
                <script type="text/javascript">getLUC('luc_<%=rand%>','<%=rand%>','<%=rx.getRegionalIdentifier()%>');</script>
             </oscar:oscarPropertiesCheck>
-
+			</div>
+</div>
 
 </fieldset>
 <%}%>

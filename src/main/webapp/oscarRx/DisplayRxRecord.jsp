@@ -98,7 +98,7 @@ for(DrugReason dr : drugReasonList) {
 		stringBuilder.append(")");
 	}
 
-	if(drugReasonList.size() > 1 && ) {
+	if(drugReasonList.size() > 1) {
 		stringBuilder.append("<br>");
 	}
 }

@@ -907,6 +907,7 @@ public final class RxWriteScriptAction extends DispatchAction {
 					boolean isDispenseInternal=false;
 					boolean isStartDateUnknown = false;
 	                boolean isNonAuthoritative = false;
+	                boolean nosubs = false;
 	                Date pickupDate;
 	                Date pickupTime;
                     int dispenseInterval;
@@ -975,6 +976,8 @@ public final class RxWriteScriptAction extends DispatchAction {
 							} else {
 								isNonAuthoritative = false;
 							}
+                        } else if (elem.equals("nosubs_" + num)) {
+							nosubs = "on".equals(val);
                         } else if(elem.equals("refillDuration_"+num)) {
                         	rx.setRefillDuration(Integer.parseInt(val));
                         } else if(elem.equals("refillQuantity_"+num)) {
@@ -1087,7 +1090,8 @@ public final class RxWriteScriptAction extends DispatchAction {
 					rx.setStartDateUnknown(isStartDateUnknown);
 					rx.setLongTerm(isLongTerm);
 					rx.setShortTerm(isShortTerm);
-                                        rx.setNonAuthoritative(isNonAuthoritative);
+                    rx.setNonAuthoritative(isNonAuthoritative);
+                    rx.setNosubs(nosubs);
 					String newline = System.getProperty("line.separator");
 					rx.setPatientCompliance(patientComplianceY, patientComplianceN);
 					String special;
