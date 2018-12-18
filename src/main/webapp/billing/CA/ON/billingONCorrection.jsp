@@ -1145,11 +1145,11 @@ for (ClinicNbr clinic : nbrs) {
         </div>
     </td>
     <td>
-        <input type="hidden" name="xml_billing_unit<%=rowCount%>" value="<%=billingunit%>">
+        <input type="hidden" name="xml_billing_unit<%=rowCount-1%>" value="<%=billingunit%>">
         <input type="text" style="width: 100%" name="billingunit<%=rowCount-1%>" value="<%=billingunit%>" size="5" maxlength="4" />
     </td>
     <td align="right">
-        <input type="hidden" name="xml_billing_amount<%=rowCount%>" value="<%=billAmount%>">
+        <input type="hidden" name="xml_billing_amount<%=rowCount-1%>" value="<%=billAmount%>">
         <input type="text" style="width: 100%" size="5" maxlength="7" id="billingamount<%=rowCount-1%>" name="billingamount<%=rowCount-1%>"
                value="<%=billAmount%>" onblur="parseTwoDecimalPlaces(this)" onchange="javascript:validateNum(this)">
     </td>
@@ -1157,7 +1157,7 @@ for (ClinicNbr clinic : nbrs) {
         <input type="checkbox" name="itemStatus<%=rowCount-1%>" id="itemStatus<%=rowCount-1%>" value="S" <%=itemStatus %>>
     </td>
     <td>
-        <a href="javascript:removeService(<%=rowCount%>);" class="btn" title="Remove"><i class="icon icon-remove"></i></a>
+        <a href="javascript:removeService(<%=rowCount-1%>);" class="btn" title="Remove"><i class="icon icon-remove"></i></a>
     </td>
 </tr>
 <%		
