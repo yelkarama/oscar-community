@@ -757,5 +757,54 @@ public class OscarAppointmentDao extends AbstractDao<Appointment> {
 		
 		return demographicNumbers;
 	}
+
+    /**
+     * Gets the appointment counts for given providers as a HashMap. Counts all appointments between two given dates and
+     * tied to the associate site (if applicable)
+     * 
+     * @param startDate The date the appoinmtnet's date has to be on or after
+     * @param endDate The date the appointment's date has to be before or on
+     * @param providerNos Provider numbers to get the appointments for
+     * @param selectedSite The selected site, pass null it isn't multisite
+     * @return {@code HashMap} of the appointment counts, grouped by date first then provider 
+     */
+	public HashMap<String, HashMap<String, String>> getAppointmentCountsForProvidersAsMap(Date startDate, Date endDate, List<String> providerNos, String selectedSite) {
+		HashMap<String, HashMap<String, String>> appointmentMap = new HashMap<>();
+		String siteSql = "";
+		// Adds additional SQL if there is a site selected
+		if (selectedSite != null) {
+			siteSql = " AND location = :site ";
+		}
+		// Creates the SQL statement to query by
+		String sql = "SELECT appointment_date, provider_no, COUNT(*) \n" +
+					 "FROM appointment \n" +
+					 "WHERE appointment_date >= :startDate AND appointment_date <= :endDate AND provider_no IN (:providerNos) \n" +
+					 " AND status <> 'C' AND status <> 'N' \n" +
+					 siteSql +
+					 "GROUP BY appointment_date, provider_no";
+		Query query = entityManager.createNativeQuery(sql);
+		// Sets the parameters of the query
+		query.setParameter("startDate", startDate);
+		query.setParameter("endDate", endDate);
+		query.setParameter("providerNos", providerNos);
+		if (selectedSite != null) {
+			query.setParameter("site", selectedSite);
+		}
+		
+		List<Object[]> appointmentData = query.getResultList();
+		
+		for(Object[] appointmentInfo : appointmentData) {
+		    // Gets the required data from the respective index of the object array
+			String appointmentDate = appointmentInfo[0].toString();
+			String providerNo = appointmentInfo[1].toString();
+			String appointmentCount = appointmentInfo[2].toString();
+			// Adds each provider's appointment count for each day returned
+			HashMap<String, String> countMap = appointmentMap.getOrDefault(appointmentDate, new HashMap<String, String>());
+			countMap.put(providerNo, appointmentCount);
+			appointmentMap.put(appointmentDate, countMap);
+		}
+		
+		return appointmentMap;
+	}
 	
 }

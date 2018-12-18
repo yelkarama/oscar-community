@@ -37,6 +37,7 @@
     ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
     ScheduleDateDao scheduleDateDao = SpringUtils.getBean(ScheduleDateDao.class);
     ProviderSiteDao providerSiteDao = SpringUtils.getBean(ProviderSiteDao.class);
+    OscarAppointmentDao appointmentDao = SpringUtils.getBean(OscarAppointmentDao.class);
 %>
 
 <%!
@@ -774,7 +775,8 @@ function refreshTabAlerts(id) {
    	GregorianCalendar cal = new GregorianCalendar(year,(month-1),1);
    	cal.add(GregorianCalendar.MONTH,1);
 
-   		
+    Date startDate = ConversionUtils.fromDateString(year+"-"+month+"-"+"01");
+    Date endDate = ConversionUtils.fromDateString(cal.get(Calendar.YEAR)+"-"+(cal.get(Calendar.MONTH)+1)+"-"+"01");
 
    	List<ScheduleDate> sds = null;
    	if (isTeamOnly && (providerview.equals("all") || providerview.startsWith("_grp_"))) {
@@ -785,18 +787,18 @@ function refreshTabAlerts(id) {
         
         List<String> ps = providerDao.getProvidersInTeam(providerDao.getProvider(curUser_no).getTeam());
         ps.add(curUser_no);
-        sds = scheduleDateDao.search_scheduledate_teamp(ConversionUtils.fromDateString(year+"-"+month+"-"+"01"),ConversionUtils.fromDateString(cal.get(Calendar.YEAR)+"-"+(cal.get(Calendar.MONTH)+1)+"-"+"01"),"A",ps);   
+        sds = scheduleDateDao.search_scheduledate_teamp(startDate, endDate,"A",ps);   
    		
    	} else
     if(providerview.equals("all") || providerview.startsWith("_grp_",0)) {
 	      param[0] = year+"-"+month+"-"+"1";
 	      param[1] = cal.get(Calendar.YEAR)+"-"+(cal.get(Calendar.MONTH)+1)+"-"+"1";
 		  if (selectedSite == null) {  
-		      sds = scheduleDateDao.search_scheduledate_datep(ConversionUtils.fromDateString(year+"-"+month+"-"+"01"),ConversionUtils.fromDateString(cal.get(Calendar.YEAR)+"-"+(cal.get(Calendar.MONTH)+1)+"-"+"01"),"A");
+		      sds = scheduleDateDao.search_scheduledate_datep(startDate, endDate,"A");
 	    	}
 	    	else	{
 	    	  List<String> ps = providerSiteDao.findByProviderNoBySiteName(selectedSite);
-	    	  sds = scheduleDateDao.search_scheduledate_teamp(ConversionUtils.fromDateString(year+"-"+month+"-"+"01"),ConversionUtils.fromDateString(cal.get(Calendar.YEAR)+"-"+(cal.get(Calendar.MONTH)+1)+"-"+"01"),"A",ps);   
+	    	  sds = scheduleDateDao.search_scheduledate_teamp(startDate, endDate,"A",ps);   
 	     		
 	      }
     } else {
@@ -804,10 +806,21 @@ function refreshTabAlerts(id) {
       param1[0] = year+"-"+month+"-"+"1";
       param1[1] = cal.get(Calendar.YEAR)+"-"+(cal.get(Calendar.MONTH)+1)+"-"+"1";
       param1[2] = providerview;
-      sds = scheduleDateDao.search_scheduledate_teamp(ConversionUtils.fromDateString(year+"-"+month+"-"+"01"),ConversionUtils.fromDateString(cal.get(Calendar.YEAR)+"-"+(cal.get(Calendar.MONTH)+1)+"-"+"01"),"A",Arrays.asList(new String[]{providerview}));   
+      sds = scheduleDateDao.search_scheduledate_teamp(startDate, endDate,"A",Arrays.asList(new String[]{providerview}));   
    	
     }
-
+    
+    List<String> providerNumbers;
+    if (myGrpBean.size() > 0) {
+        // Gets all the provider numbers in the group as a list 
+    	providerNumbers = Arrays.asList(myGrpBean.keySet().toArray(new String[0]));
+	} else {
+        // Converts the single provider number to a list in order to utilize the same function
+		providerNumbers = Arrays.asList(providerview);
+	}
+    
+    HashMap<String, HashMap<String, String>> appointmentMap = appointmentDao.getAppointmentCountsForProvidersAsMap(startDate, endDate, providerNumbers, selectedSite);
+    
 	Iterator<ScheduleDate> it = sds.iterator();
 	ScheduleDate date = null;
 	Date monthDayDate = null;
@@ -818,7 +831,10 @@ function refreshTabAlerts(id) {
 			if (dateGrid[i][j] == 0) { 
 			    out.println("<td></td>");
 			} else {
-				monthDayDate = sdf.parse(year + "-" + MyDateFormat.getDigitalXX(month) + "-" + MyDateFormat.getDigitalXX(dateGrid[i][j]));
+				String currentDate = year + "-" + MyDateFormat.getDigitalXX(month) + "-" + MyDateFormat.getDigitalXX(dateGrid[i][j]);
+				monthDayDate = sdf.parse(currentDate);
+				// Gets the map of the appointment counts
+				HashMap<String, String> countMap = appointmentMap.getOrDefault(currentDate, new HashMap<String, String>());
 				bgcolor = new StringBuffer("ivory"); //default color for absence
 				strHour = new StringBuffer();
 				strReason = new StringBuffer();
@@ -838,10 +854,12 @@ function refreshTabAlerts(id) {
 						if (!providerNosWithAppointmentsOnDate.isEmpty()) { %>
 							<a href='providercontrol.jsp?year=<%=year%>&month=<%=MyDateFormat.getDigitalXX(month)%>&day=<%=MyDateFormat.getDigitalXX(dateGrid[i][j])%>&displaymode=day&dboperation=searchappointmentday&viewall=1'>
 							<% for (String providerNo : providerNosWithAppointmentsOnDate) {
+							    // Gets the appointment count for the current provider
+								String count = countMap.getOrDefault(providerNo, "0");
 								Provider provider = providerDao.getProvider(providerNo);
 								if (!providerview.startsWith("_grp_", 0) || myGrpBean.containsKey(provider.getProviderNo())) { %>
 									<br/>
-									<span class='datepname'>&nbsp;<%=providerNameBean.getShortDef(provider.getProviderNo(), "", NameMaxLen)%></span>
+									<span class='datepname'>&nbsp;<%=providerNameBean.getShortDef(provider.getProviderNo(), "", NameMaxLen)%><%= "(" + count + ")" %></span>
 								<% }
 							} %>
 							</a>
@@ -849,6 +867,8 @@ function refreshTabAlerts(id) {
 					} else {
 						while (bFistEntry ? it.hasNext() : true) {
 							date = bFistEntry ? it.next() : date;
+							// Gets the appointment count for the current provider
+							String count = countMap.getOrDefault(date.getProviderNo(), "0");
 							String _scheduleDate = sdf.format(monthDayDate);
 							if (!ConversionUtils.toDateString(date.getDate()).equals(_scheduleDate)) {
 								bFistEntry = false;
@@ -860,7 +880,7 @@ function refreshTabAlerts(id) {
 							if (isTeamOnly || !providerview.startsWith("_grp_", 0) || myGrpBean.containsKey(date.getProviderNo())) { %>
 								<a href='providercontrol.jsp?year=<%=year%>&month=<%=MyDateFormat.getDigitalXX(month)%>&day=<%=MyDateFormat.getDigitalXX(dateGrid[i][j])%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+request.getParameter("curProviderName"))%>&displaymode=day&dboperation=searchappointmentday'>
 								<br>
-									<span class='datepname'>&nbsp;<%=providerNameBean.getShortDef(date.getProviderNo(), "", NameMaxLen)%></span>
+									<span class='datepname'>&nbsp;<%=providerNameBean.getShortDef(date.getProviderNo(), "", NameMaxLen)%><%= "(" + count + ")" %></span>
 									<span class='datephour'><%=date.getHour() %></span>
 									<% if (bMultisites && CurrentSiteMap.get(date.getReason()) != null && (selectedSite == null || "NONE".equals(date.getReason()) || selectedSite.equals(date.getReason()))) {
 										if (bMultisites) {
