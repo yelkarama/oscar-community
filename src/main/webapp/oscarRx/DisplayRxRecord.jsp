@@ -370,18 +370,18 @@ if(stringBuilder != null) {
                         		<td><%= StringUtils.trimToEmpty(drug.getArchivedReason()) %></td>
               				</tr>
               				<% } %>
-              				
-							<%-- Commented out during OMD Revalidation. This field may be used again in the future.           				
+              											         				
               				<tr>
               					<td class="label">Protocol Reference:</td>
                         		<td><%= StringUtils.trimToEmpty(drug.getProtocol()) %></td>
               				</tr>
-              				
-              				 --%>
+              				            				
+              				 <%-- Commented out during OMD Revalidation. This field may be used again in the future.  
               				<tr>
               					<td class="label" style="vertical-align:top;">Prior Prescription Reference:</td>
                         		<td><%= StringUtils.trimToEmpty(drug.getPriorRxProtocol()) %></td>
               				</tr>
+              				 --%>
               				
               				<tr>
               					<td class="label">Non Authorative:</td>

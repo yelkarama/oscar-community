@@ -87,10 +87,11 @@ if(listRxDrugs!=null){
          String pickupDate      = RxUtil.DateToString(rx.getPickupDate(), "yyyy-MM-dd");
          String pickupTime      = RxUtil.DateToString(rx.getPickupTime(), "hh:mm");
          String eTreatmentType  = rx.getETreatmentType()!=null ? rx.getETreatmentType() : "";
-         String rxStatus        = rx.getRxStatus()!=null ? rx.getRxStatus() : "";
-		/*  Field not required. Commented out because it may be reactivated in the future.     
-		String protocol		= rx.getProtocol()!=null ? rx.getProtocol() : ""; */
+         String rxStatus        = rx.getRxStatus()!=null ? rx.getRxStatus() : "";		    
+		String protocol		= rx.getProtocol()!=null ? rx.getProtocol() : ""; 
+		/*  Field not required. Commented out because it may be reactivated in the future. 
          String priorRxProtocol	= rx.getPriorRxProtocol()!=null ? rx.getPriorRxProtocol() : "";
+         */
          String drugForm		= rx.getDrugForm();
          //remove from the rerx list
          int DrugReferenceId = rx.getDrugReferenceId();
@@ -451,15 +452,15 @@ if(listRxDrugs!=null){
            <a href="javascript:void(0);" style="float:right;margin-top:0px;padding-top:0px;" onclick="addFav('<%=rand%>','<%=drugName%>');return false;">Add to Favorite</a>
        
            </div><div>
-           
-           
-			<%--  OMD Revalidation: field not required currently. Commented out as this may be used again in the future.            
+           			           
 			<bean:message key="WriteScript.msgProtocolReference"/>: 
            <input type="text" id="protocol_<%=rand%>"  name="protocol_<%=rand%>" value="<%=protocol%>" />          
-           <br/> --%>
+
+           <%--  OMD Revalidation: field not required currently. Commented out as this may be used again in the future. 
           <label style="">Prior Rx Protocol:</label>
            <input type="text" id="protocol_<%=rand%>"  name="priorRxProtocol_<%=rand%>" value="<%=priorRxProtocol%>" />
-           
+            --%>
+            
            </div><div>
            
            <bean:message key="WriteScript.msgPickUpDate"/>: 
