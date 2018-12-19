@@ -900,7 +900,7 @@ public final class RxWriteScriptAction extends DispatchAction {
 
 					Boolean patientCompliance = null;
 					boolean isOutsideProvider = false;
-					boolean isLongTerm = false;
+					Boolean isLongTerm = null;
 					boolean isShortTerm = false;
 					boolean isPastMed = false;
 					boolean isDispenseInternal=false;
@@ -958,11 +958,11 @@ public final class RxWriteScriptAction extends DispatchAction {
 								}
 							}
 						} else if (elem.equals("longTerm_" + num)) {
-							if (val.equals("on")) {
+							if ("yes".equals(val)) {
 								isLongTerm = true;
-							} else {
+							} else if("no".equals(val)) {
 								isLongTerm = false;
-							}
+							} 
 						} else if (elem.equals("shortTerm_" + num)) {
 							if (val.equals("on")) {
 								isShortTerm = true;

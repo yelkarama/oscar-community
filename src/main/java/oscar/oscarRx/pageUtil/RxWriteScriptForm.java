@@ -54,7 +54,7 @@ public final class RxWriteScriptForm extends ActionForm {
     boolean nosubs = false;
     boolean prn = false;
     boolean customInstr = false;
-    boolean longTerm = false;
+    Boolean longTerm = null;
     boolean shortTerm = false;
     boolean pastMed = false;
     boolean dispenseInternal = false;
@@ -269,12 +269,12 @@ public final class RxWriteScriptForm extends ActionForm {
         this.customInstr = c;        
     }
     
-    public boolean getLongTerm() {
-	return this.longTerm;
+    public Boolean getLongTerm() {
+    	return this.longTerm;
     }
     
-    public void setLongTerm(boolean l) {
-	this.longTerm = l;
+    public void setLongTerm(Boolean trueFalseNull) {
+    	this.longTerm = trueFalseNull;
     }
     
     public boolean getShortTerm() {
@@ -342,7 +342,7 @@ public final class RxWriteScriptForm extends ActionForm {
         this.special = null;
         this.unitName = null;
         this.customInstr = false;
-	this.longTerm = false;
+	this.longTerm = null;
 	this.shortTerm = false;
 	this.pastMed = false;
 	this.patientCompliance = null;

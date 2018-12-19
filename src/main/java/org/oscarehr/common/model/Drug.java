@@ -122,7 +122,7 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 	private boolean customInstructions;
 	private String unitName = null;
 	@Column(name = "long_term")
-	private Boolean longTerm = false;
+	private Boolean longTerm = null;
 	@Column(name = "short_term")
 	private Boolean shortTerm = false;
 	@Column(name = "past_med")
@@ -232,7 +232,7 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 		this.dosage = drug.getDosage();
 		this.customInstructions = drug.getCustomInstr();
 		this.unitName = drug.getUnitName();
-		this.longTerm = drug.isLongTerm();
+		this.longTerm = drug.getLongTerm();
 		this.shortTerm = drug.getShortTerm();
 		this.pastMed = drug.isPastMed();
 		this.patientCompliance = drug.getPatientCompliance();
@@ -644,13 +644,16 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 	}
 
 	public Boolean getLongTerm() {
-		if (longTerm == null) longTerm = false;
 		return longTerm;
 	}
 
-	public Boolean isLongTerm() {
-		if (longTerm == null) longTerm = false;
-		return longTerm;
+	@Transient
+	public boolean isLongTerm() {
+		boolean trueFalse = Boolean.FALSE;
+		if (longTerm != null) {
+			trueFalse = longTerm;
+		} 
+		return trueFalse;
 	}
 
 	public void setLongTerm(Boolean longTerm) {

@@ -112,7 +112,7 @@ public class RxPrescriptionData {
 		prescription.setDrugForm(drug.getDrugForm());
 		prescription.setCustomInstr(drug.isCustomInstructions());
 		prescription.setDosage(drug.getDosage());
-		prescription.setLongTerm(drug.isLongTerm());
+		prescription.setLongTerm(drug.getLongTerm());
 		prescription.setShortTerm(drug.getShortTerm());
 		prescription.setCustomNote(drug.isCustomNote());
 		prescription.setPastMed(drug.getPastMed());
@@ -623,7 +623,7 @@ public class RxPrescriptionData {
 		java.util.Date lastRefillDate = null;
 		boolean nosubs = false;
 		boolean prn = false;
-		boolean longTerm = false;
+		Boolean longTerm = null;
 		boolean shortTerm = false;
 		boolean pastMed = false;
 		boolean startDateUnknown = false;
@@ -805,7 +805,11 @@ public class RxPrescriptionData {
 		}
 
 		public boolean isLongTerm() {
-			return longTerm;
+			boolean trueFalse = Boolean.FALSE;
+			if (longTerm != null) {
+				trueFalse = longTerm;
+			} 
+			return trueFalse;
 		}
 
 		public boolean isDiscontinuedLatest() {
@@ -1252,12 +1256,12 @@ public class RxPrescriptionData {
 			}
 		}
 
-		public boolean getLongTerm() {
+		public Boolean getLongTerm() {
 			return this.longTerm;
 		}
 
-		public void setLongTerm(boolean lt) {
-			this.longTerm = lt;
+		public void setLongTerm(Boolean trueFalseNull) {
+			this.longTerm = trueFalseNull;
 		}
 		
 		public boolean getShortTerm() {
@@ -1619,7 +1623,7 @@ public class RxPrescriptionData {
 			DrugDao dao = SpringUtils.getBean(DrugDao.class);
 			// double check if we don't h
 			Drug drug = dao.findByEverything(this.getProviderNo(), this.getDemographicNo(), this.getRxDate(), this.getEndDate(), this.getWrittenDate(), this.getBrandName(), this.getGCN_SEQNO(), this.getCustomName(), this.getTakeMin(), this.getTakeMax(), this.getFrequencyCode(), this.getDuration(), this.getDurationUnit(), this.getQuantity(), this.getUnitName(), this.getRepeat(), this.getLastRefillDate(), this.getNosubs(), this.getPrn(), escapedSpecial, this.getOutsideProviderName(),
-			        this.getOutsideProviderOhip(), this.getCustomInstr(), this.getLongTerm(), this.isCustomNote(), this.getPastMed(), this.getPatientCompliance(), this.getSpecialInstruction(), this.getComment(), this.getStartDateUnknown());
+			        this.getOutsideProviderOhip(), this.getCustomInstr(), this.isLongTerm(), this.isCustomNote(), this.getPastMed(), this.getPatientCompliance(), this.getSpecialInstruction(), this.getComment(), this.getStartDateUnknown());
 
 			drug = new Drug();
 
