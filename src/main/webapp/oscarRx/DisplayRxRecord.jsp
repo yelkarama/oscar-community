@@ -330,7 +330,16 @@ if(stringBuilder != null) {
               				</tr>
               				<tr>
               					<td class="label">Patient Compliance:</td>
-                        		<td><%= drug.getPatientCompliance() != null ? drug.getPatientCompliance() : "" %></td>
+                        		<td>                      		
+                        		<% if( drug.getPatientCompliance() == null) { %>                        		
+                        			<bean:message key="WriteScript.msgUnset"/>
+                        		<% } else if(drug.getPatientCompliance()) { %>
+                        			<bean:message key="WriteScript.msgYes"/>                       		
+                        		<% } else { %>
+                        			<bean:message key="WriteScript.msgNo"/> 
+                        		<% } %>
+                        		</td>
+                        	
               				</tr>
               				<tr>
               					<td class="label">Last Refill:</td>

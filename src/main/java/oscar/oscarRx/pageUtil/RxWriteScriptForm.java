@@ -58,8 +58,7 @@ public final class RxWriteScriptForm extends ActionForm {
     boolean shortTerm = false;
     boolean pastMed = false;
     boolean dispenseInternal = false;
-    boolean patientComplianceY=false;
-    boolean patientComplianceN=false;
+    Boolean patientCompliance=null;
     String special = null;
     String atcCode = null;
     String regionalIdentifier = null;
@@ -306,20 +305,12 @@ public final class RxWriteScriptForm extends ActionForm {
     	this.dispenseInternal = dispenseInternal;
     }
     
-    public boolean getPatientComplianceY() {
-	return this.patientComplianceY;
+    public Boolean getPatientCompliance() {
+    	return this.patientCompliance;
     }
     
-    public void setPatientComplianceY(boolean c) {
-	this.patientComplianceY = c;
-    }
-    
-    public boolean getPatientComplianceN() {
-	return this.patientComplianceN;
-    }
-    
-    public void setPatientComplianceN(boolean c) {
-	this.patientComplianceN = c;
+    public void setPatientCompliance(Boolean trueFalseNull) {
+    	this.patientCompliance = trueFalseNull;
     }
     
     /**
@@ -354,8 +345,7 @@ public final class RxWriteScriptForm extends ActionForm {
 	this.longTerm = false;
 	this.shortTerm = false;
 	this.pastMed = false;
-	this.patientComplianceY = false;
-	this.patientComplianceN = false;
+	this.patientCompliance = null;
 	this.outsideProviderName = null;
 	this.outsideProviderOhip = null;
     }

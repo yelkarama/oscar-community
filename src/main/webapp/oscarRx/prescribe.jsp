@@ -285,11 +285,15 @@ if(listRxDrugs!=null){
 	</div><div>
 	
 	<bean:message key="WriteScript.msgPatientCompliance"/>:
-          <bean:message key="WriteScript.msgYes"/>
-            <input type="checkbox"  name="patientComplianceY_<%=rand%>" id="patientComplianceY_<%=rand%>" <%if(patientCompliance!=null && patientCompliance) {%> checked="checked" <%}%> />
+	
+         <label for="patientComplianceY_<%=rand%>"><bean:message key="WriteScript.msgYes"/></label> 
+            <input type="radio" value="yes" name="patientCompliance_<%=rand%>" id="patientComplianceY_<%=rand%>" <%if(patientCompliance!=null && patientCompliance) {%> checked="checked" <%}%> />
 
-          <bean:message key="WriteScript.msgNo"/>
-            <input type="checkbox"  name="patientComplianceN_<%=rand%>" id="patientComplianceN_<%=rand%>" <%if(patientCompliance!=null && !patientCompliance) {%> checked="checked" <%}%> />
+          <label for="patientComplianceN_<%=rand%>"><bean:message key="WriteScript.msgNo"/></label>
+            <input type="radio" value="no" name="patientCompliance_<%=rand%>" id="patientComplianceN_<%=rand%>" <%if(patientCompliance!=null && !patientCompliance) {%> checked="checked" <%}%> />
+	
+		<label for="patientComplianceE_<%=rand%>"><bean:message key="WriteScript.msgUnset"/></label>
+            <input type="radio" value="unset" name="patientCompliance_<%=rand%>" id="patientComplianceE_<%=rand%>" <%if(patientCompliance==null) {%> checked="checked" <%}%> />
 	</div><div>
           <bean:message key="WriteScript.msgNonAuthoritative"/>
             <input type="checkbox" name="nonAuthoritativeN_<%=rand%>" id="nonAuthoritativeN_<%=rand%>" <%if(nonAuthoritative) {%> checked="checked" <%}%> />

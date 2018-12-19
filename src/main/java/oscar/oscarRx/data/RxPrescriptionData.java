@@ -119,8 +119,7 @@ public class RxPrescriptionData {
 		prescription.setDispenseInternal(drug.getDispenseInternal());
 		prescription.setStartDateUnknown(drug.getStartDateUnknown());
 		prescription.setComment(drug.getComment());
-		if (drug.getPatientCompliance() == null) prescription.setPatientCompliance(null);
-		else prescription.setPatientCompliance(drug.getPatientCompliance());
+		prescription.setPatientCompliance(drug.getPatientCompliance());
 		prescription.setOutsideProviderName(drug.getOutsideProviderName());
 		prescription.setOutsideProviderOhip(drug.getOutsideProviderOhip());
 		prescription.setSpecialInstruction(drug.getSpecialInstruction());
@@ -298,9 +297,8 @@ public class RxPrescriptionData {
 		p.setCustomNote(drug.isCustomNote());
 		p.setPastMed(drug.getPastMed());
 		p.setStartDateUnknown(drug.getStartDateUnknown());
-		p.setComment(drug.getComment());
-		if (drug.getPatientCompliance() == null) p.setPatientCompliance(null);
-		else p.setPatientCompliance(drug.getPatientCompliance());
+		p.setComment(drug.getComment());	
+		p.setPatientCompliance(drug.getPatientCompliance());
 		p.setOutsideProviderName(drug.getOutsideProviderName());
 		p.setOutsideProviderOhip(drug.getOutsideProviderOhip());
 		p.setPickupDate(drug.getPickUpDateTime());
@@ -1306,22 +1304,8 @@ public class RxPrescriptionData {
 			return this.patientCompliance;
 		}
 
-		public void setPatientCompliance(Boolean pc) {
-			this.patientCompliance = pc;
-		}
-
-		public boolean getPatientCompliance(String YN) {
-			if (YN == null || getPatientCompliance() == null) return false;
-
-			if (YN.equalsIgnoreCase("Y")) return getPatientCompliance().equals(true);
-			if (YN.equalsIgnoreCase("N")) return getPatientCompliance().equals(false);
-			return false;
-		}
-
-		public void setPatientCompliance(boolean Y, boolean N) {
-			if (Y) setPatientCompliance(true);
-			else if (N) setPatientCompliance(false);
-			else setPatientCompliance(null);
+		public void setPatientCompliance(Boolean trueFalseNull) {
+			this.patientCompliance = trueFalseNull;
 		}
 
 		public String getSpecial() {
