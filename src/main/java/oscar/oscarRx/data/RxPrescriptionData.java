@@ -1409,6 +1409,10 @@ public class RxPrescriptionData {
 
 		public String getFullOutLine() {
 			String extra = "";
+			
+			if(getNosubs()) {
+				extra += "SUBSTITUTION NOT ALLOWED";
+			}			
 			if((getRefillQuantity() != null && getRefillQuantity() > 0) || (getRefillDuration() != null && getRefillDuration() > 0)) {
 				extra = "Refill: Qty:" + (getRefillQuantity() != null ? getRefillQuantity() : "0") + " Duration:" + (getRefillDuration() != null ? getRefillDuration() : "0") + " Days";
 			}
