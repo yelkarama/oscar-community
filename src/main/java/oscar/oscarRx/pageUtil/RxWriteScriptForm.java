@@ -56,7 +56,7 @@ public final class RxWriteScriptForm extends ActionForm {
     boolean customInstr = false;
     Boolean longTerm = null;
     boolean shortTerm = false;
-    boolean pastMed = false;
+    Boolean pastMed = null;
     boolean dispenseInternal = false;
     Boolean patientCompliance=null;
     String special = null;
@@ -285,12 +285,12 @@ public final class RxWriteScriptForm extends ActionForm {
 	this.shortTerm = st;
     }
     
-    public boolean getPastMed() {
+    public Boolean getPastMed() {
 	return this.pastMed;
     }
     
-    public void setPastMed(boolean p) {
-	this.pastMed = p;
+    public void setPastMed(Boolean trueFalseNull) {
+	this.pastMed = trueFalseNull;
     }
     
     public boolean getDispenseInternal() {	
@@ -344,7 +344,7 @@ public final class RxWriteScriptForm extends ActionForm {
         this.customInstr = false;
 	this.longTerm = null;
 	this.shortTerm = false;
-	this.pastMed = false;
+	this.pastMed = null;
 	this.patientCompliance = null;
 	this.outsideProviderName = null;
 	this.outsideProviderOhip = null;
