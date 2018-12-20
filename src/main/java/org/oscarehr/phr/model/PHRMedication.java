@@ -434,7 +434,7 @@ public class PHRMedication extends PHRDocument {
 
 			medType.setCustomInstructions(drug.isCustomInstructions());
 			medType.setCustomNote(drug.isCustomNote());
-			medType.setLongTerm(drug.isLongTerm());
+			medType.setLongTerm(drug.getLongTerm());
 			medType.setPastMed(drug.isPastMed());
 			medType.setPatientCompliance(drug.getPatientCompliance());
 			medType.setOutsideProviderName(drug.getOutsideProviderName());

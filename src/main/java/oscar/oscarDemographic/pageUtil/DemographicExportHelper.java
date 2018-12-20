@@ -249,9 +249,17 @@ public class DemographicExportHelper {
 				medi.setRefillQuantity(String.valueOf(arr[p].getRefillQuantity()));
 				mSummary = Util.addSummary(mSummary, "Refill Quantity", arr[p].getRefillQuantity().toString());
 			}
+			
+			Boolean isLongTerm = arr[p].getLongTerm();
+			String longTerm =  "No";
+			if(isLongTerm == null) {
+				longTerm = "Unknown";
+			} else if(isLongTerm) {
+				longTerm = "Yes";
+			}
 
-			medi.addNewLongTermMedication().setBoolean(arr[p].getLongTerm());
-			mSummary = Util.addSummary(mSummary, "Long Term Medication", arr[p].getLongTerm() ? "Yes" : "No");
+			medi.addNewLongTermMedication().setBoolean(arr[p].isLongTerm());
+			mSummary = Util.addSummary(mSummary, "Long Term Medication", longTerm);
 
 			
 			Boolean isPastMed = arr[p].getPastMed();

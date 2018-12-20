@@ -1307,6 +1307,14 @@ public class RxPrescriptionData {
 		public void setDispenseInternal(boolean dispenseInternal) {
 			this.dispenseInternal = dispenseInternal;
 		}
+		
+		public boolean isPatientCompliance() {
+			boolean trueFalse = Boolean.FALSE;
+			if (this.patientCompliance != null) {
+				trueFalse = this.patientCompliance;
+			} 
+			return trueFalse;
+		}
 
 		public Boolean getPatientCompliance() {
 			return this.patientCompliance;
