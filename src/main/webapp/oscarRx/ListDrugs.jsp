@@ -327,10 +327,17 @@ if (heading != null){
   <%-- END DRUG REASON --%> 		
             <%
             Boolean past_med = prescriptDrug.getPastMed();
-            if( past_med == null ) {
-            	past_med = false;
-            } %>
-            <td align="center" valign="top"><%=(past_med)?"yes":"no" %></td>
+            %>
+            
+            <td align="center" valign="top">
+               	<% if( past_med == null) { %>                        		
+        			unk
+        		<% } else if(past_med) { %>
+        			yes                       		
+        		<% } else { %>
+        			no
+        		<% } %>
+            </td>
 
 			<%if(securityManager.hasWriteAccess("_rx",roleName$,true)) {%>
             <td width="10px" align="center" valign="top">

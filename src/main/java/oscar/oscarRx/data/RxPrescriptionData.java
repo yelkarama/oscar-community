@@ -112,15 +112,14 @@ public class RxPrescriptionData {
 		prescription.setDrugForm(drug.getDrugForm());
 		prescription.setCustomInstr(drug.isCustomInstructions());
 		prescription.setDosage(drug.getDosage());
-		prescription.setLongTerm(drug.isLongTerm());
+		prescription.setLongTerm(drug.getLongTerm());
 		prescription.setShortTerm(drug.getShortTerm());
 		prescription.setCustomNote(drug.isCustomNote());
 		prescription.setPastMed(drug.getPastMed());
 		prescription.setDispenseInternal(drug.getDispenseInternal());
 		prescription.setStartDateUnknown(drug.getStartDateUnknown());
 		prescription.setComment(drug.getComment());
-		if (drug.getPatientCompliance() == null) prescription.setPatientCompliance(null);
-		else prescription.setPatientCompliance(drug.getPatientCompliance());
+		prescription.setPatientCompliance(drug.getPatientCompliance());
 		prescription.setOutsideProviderName(drug.getOutsideProviderName());
 		prescription.setOutsideProviderOhip(drug.getOutsideProviderOhip());
 		prescription.setSpecialInstruction(drug.getSpecialInstruction());
@@ -298,9 +297,8 @@ public class RxPrescriptionData {
 		p.setCustomNote(drug.isCustomNote());
 		p.setPastMed(drug.getPastMed());
 		p.setStartDateUnknown(drug.getStartDateUnknown());
-		p.setComment(drug.getComment());
-		if (drug.getPatientCompliance() == null) p.setPatientCompliance(null);
-		else p.setPatientCompliance(drug.getPatientCompliance());
+		p.setComment(drug.getComment());	
+		p.setPatientCompliance(drug.getPatientCompliance());
 		p.setOutsideProviderName(drug.getOutsideProviderName());
 		p.setOutsideProviderOhip(drug.getOutsideProviderOhip());
 		p.setPickupDate(drug.getPickUpDateTime());
@@ -625,9 +623,9 @@ public class RxPrescriptionData {
 		java.util.Date lastRefillDate = null;
 		boolean nosubs = false;
 		boolean prn = false;
-		boolean longTerm = false;
+		Boolean longTerm = null;
 		boolean shortTerm = false;
-		boolean pastMed = false;
+		Boolean pastMed = null;
 		boolean startDateUnknown = false;
 		Boolean patientCompliance = null;
 		String special = null;
@@ -807,7 +805,11 @@ public class RxPrescriptionData {
 		}
 
 		public boolean isLongTerm() {
-			return longTerm;
+			boolean trueFalse = Boolean.FALSE;
+			if (longTerm != null) {
+				trueFalse = longTerm;
+			} 
+			return trueFalse;
 		}
 
 		public boolean isDiscontinuedLatest() {
@@ -1254,12 +1256,12 @@ public class RxPrescriptionData {
 			}
 		}
 
-		public boolean getLongTerm() {
+		public Boolean getLongTerm() {
 			return this.longTerm;
 		}
 
-		public void setLongTerm(boolean lt) {
-			this.longTerm = lt;
+		public void setLongTerm(Boolean trueFalseNull) {
+			this.longTerm = trueFalseNull;
 		}
 		
 		public boolean getShortTerm() {
@@ -1279,15 +1281,19 @@ public class RxPrescriptionData {
 		}
 
 		public boolean isPastMed() {
+			boolean trueFalse = Boolean.FALSE;
+			if (this.pastMed != null) {
+				trueFalse = this.pastMed;
+			} 
+			return trueFalse;
+		}
+
+		public Boolean getPastMed() {
 			return this.pastMed;
 		}
 
-		public boolean getPastMed() {
-			return this.pastMed;
-		}
-
-		public void setPastMed(boolean pm) {
-			this.pastMed = pm;
+		public void setPastMed(Boolean trueFalseNull) {
+			this.pastMed = trueFalseNull;
 		}
 
 		public boolean getDispenseInternal() {
@@ -1306,22 +1312,8 @@ public class RxPrescriptionData {
 			return this.patientCompliance;
 		}
 
-		public void setPatientCompliance(Boolean pc) {
-			this.patientCompliance = pc;
-		}
-
-		public boolean getPatientCompliance(String YN) {
-			if (YN == null || getPatientCompliance() == null) return false;
-
-			if (YN.equalsIgnoreCase("Y")) return getPatientCompliance().equals(true);
-			if (YN.equalsIgnoreCase("N")) return getPatientCompliance().equals(false);
-			return false;
-		}
-
-		public void setPatientCompliance(boolean Y, boolean N) {
-			if (Y) setPatientCompliance(true);
-			else if (N) setPatientCompliance(false);
-			else setPatientCompliance(null);
+		public void setPatientCompliance(Boolean trueFalseNull) {
+			this.patientCompliance = trueFalseNull;
 		}
 
 		public String getSpecial() {
@@ -1635,7 +1627,7 @@ public class RxPrescriptionData {
 			DrugDao dao = SpringUtils.getBean(DrugDao.class);
 			// double check if we don't h
 			Drug drug = dao.findByEverything(this.getProviderNo(), this.getDemographicNo(), this.getRxDate(), this.getEndDate(), this.getWrittenDate(), this.getBrandName(), this.getGCN_SEQNO(), this.getCustomName(), this.getTakeMin(), this.getTakeMax(), this.getFrequencyCode(), this.getDuration(), this.getDurationUnit(), this.getQuantity(), this.getUnitName(), this.getRepeat(), this.getLastRefillDate(), this.getNosubs(), this.getPrn(), escapedSpecial, this.getOutsideProviderName(),
-			        this.getOutsideProviderOhip(), this.getCustomInstr(), this.getLongTerm(), this.isCustomNote(), this.getPastMed(), this.getPatientCompliance(), this.getSpecialInstruction(), this.getComment(), this.getStartDateUnknown());
+			        this.getOutsideProviderOhip(), this.getCustomInstr(), this.isLongTerm(), this.isCustomNote(), this.getPastMed(), this.getPatientCompliance(), this.getSpecialInstruction(), this.getComment(), this.getStartDateUnknown());
 
 			drug = new Drug();
 

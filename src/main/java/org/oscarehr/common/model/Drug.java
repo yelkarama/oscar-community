@@ -122,11 +122,11 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 	private boolean customInstructions;
 	private String unitName = null;
 	@Column(name = "long_term")
-	private Boolean longTerm = false;
+	private Boolean longTerm = null;
 	@Column(name = "short_term")
 	private Boolean shortTerm = false;
 	@Column(name = "past_med")
-	private boolean pastMed;
+	private Boolean pastMed = null;
 	@Column(name = "patient_compliance")
 	private Boolean patientCompliance = null;
 	@Column(name = "outside_provider_name")
@@ -232,9 +232,9 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 		this.dosage = drug.getDosage();
 		this.customInstructions = drug.getCustomInstr();
 		this.unitName = drug.getUnitName();
-		this.longTerm = drug.isLongTerm();
+		this.longTerm = drug.getLongTerm();
 		this.shortTerm = drug.getShortTerm();
-		this.pastMed = drug.isPastMed();
+		this.pastMed = drug.getPastMed();
 		this.patientCompliance = drug.getPatientCompliance();
 		this.outsideProviderName = drug.getOutsideProviderName();
 		this.outsideProviderOhip = drug.getOutsideProviderOhip();
@@ -644,13 +644,16 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 	}
 
 	public Boolean getLongTerm() {
-		if (longTerm == null) longTerm = false;
 		return longTerm;
 	}
 
-	public Boolean isLongTerm() {
-		if (longTerm == null) longTerm = false;
-		return longTerm;
+	@Transient
+	public boolean isLongTerm() {
+		boolean trueFalse = Boolean.FALSE;
+		if (longTerm != null) {
+			trueFalse = longTerm;
+		} 
+		return trueFalse;
 	}
 
 	public void setLongTerm(Boolean longTerm) {
@@ -675,12 +678,21 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 		this.customNote = c;
 	}
 
-	public boolean getPastMed() {		
+	public Boolean getPastMed() {		
 		return pastMed;
 	}
 
 	public void setPastMed(Boolean pastMed) {
 		this.pastMed = pastMed;
+	}
+	
+	@Transient
+	public boolean isPastMed() {
+		boolean trueFalse = Boolean.FALSE;
+		if (this.pastMed != null) {
+			trueFalse = this.pastMed;
+		} 
+		return trueFalse;
 	}
 
 	public Boolean getPatientCompliance() {

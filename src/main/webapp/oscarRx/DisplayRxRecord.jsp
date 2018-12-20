@@ -318,7 +318,15 @@ if(stringBuilder != null) {
               				</tr>
               				<tr>
               					<td class="label">Long Term:</td>
-                        		<td><%= drug.getLongTerm() != null ? drug.getLongTerm() : "" %></td>
+              					<td>
+              					<% if( drug.getLongTerm() == null) { %>                        		
+                        			<bean:message key="WriteScript.msgUnset"/>
+                        		<% } else if(drug.getLongTerm()) { %>
+                        			<bean:message key="WriteScript.msgYes"/>                       		
+                        		<% } else { %>
+                        			<bean:message key="WriteScript.msgNo"/> 
+                        		<% } %>
+                        		</td>
               				</tr>
               				<tr>
               					<td class="label">Short Term:</td>
@@ -326,11 +334,28 @@ if(stringBuilder != null) {
               				</tr>
               				<tr>
               					<td class="label">Past Medication:</td>
-                        		<td><%= drug.getPastMed() %></td>
+              					<td>
+                        		<% if( drug.getPastMed() == null) { %>                        		
+                        			<bean:message key="WriteScript.msgUnset"/>
+                        		<% } else if(drug.getPastMed()) { %>
+                        			<bean:message key="WriteScript.msgYes"/>                       		
+                        		<% } else { %>
+                        			<bean:message key="WriteScript.msgNo"/> 
+                        		<% } %>
+                        		</td>
               				</tr>
               				<tr>
               					<td class="label">Patient Compliance:</td>
-                        		<td><%= drug.getPatientCompliance() != null ? drug.getPatientCompliance() : "" %></td>
+                        		<td>                      		
+                        		<% if( drug.getPatientCompliance() == null) { %>                        		
+                        			<bean:message key="WriteScript.msgUnset"/>
+                        		<% } else if(drug.getPatientCompliance()) { %>
+                        			<bean:message key="WriteScript.msgYes"/>                       		
+                        		<% } else { %>
+                        			<bean:message key="WriteScript.msgNo"/> 
+                        		<% } %>
+                        		</td>
+                        	
               				</tr>
               				<tr>
               					<td class="label">Last Refill:</td>

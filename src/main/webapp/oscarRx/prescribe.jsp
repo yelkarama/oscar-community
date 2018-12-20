@@ -74,7 +74,7 @@ if(listRxDrugs!=null){
          String repeats         = Integer.toString(rx.getRepeat());
          String takeMin         = rx.getTakeMinString();
          String takeMax         = rx.getTakeMaxString();
-         boolean longTerm       = rx.getLongTerm();
+         Boolean longTerm       = rx.getLongTerm();
          boolean shortTerm		= rx.getShortTerm();
       //   boolean isCustomNote   =rx.isCustomNote();
          String outsideProvOhip = rx.getOutsideProviderOhip();
@@ -120,7 +120,7 @@ if(listRxDrugs!=null){
          if(rx.getComment() == null) {
         	 comment = "";
          }
-         boolean pastMed            = rx.getPastMed();
+         Boolean pastMed            = rx.getPastMed();
          boolean dispenseInternal = rx.getDispenseInternal();
          boolean startDateUnknown	= rx.getStartDateUnknown();
          boolean nonAuthoritative   = rx.isNonAuthoritative();
@@ -223,14 +223,26 @@ if(listRxDrugs!=null){
            </div>
               	<br><br>         
         </div>
-
+		<div>
         <label id="labelQuantity_<%=rand%>"  style="float:left;width:80px;">Qty/Mitte:</label><input size="8" <%if(rx.isCustomNote()){%> disabled <%}%> type="text" id="quantity_<%=rand%>"     name="quantity_<%=rand%>"     value="<%=quantityText%>" onblur="updateQty(this);" />
         <label style="">Repeats:</label><input type="text" size="5" id="repeats_<%=rand%>"  <%if(rx.isCustomNote()){%> disabled <%}%>    name="repeats_<%=rand%>"   value="<%=repeats%>" />
+		</div>
+		<div id="medTerm_<%=rand%>">
+			<label><bean:message key="WriteScript.msgLongTermMedication" />: </label>
+			<span>
+				<label for="longTermY_<%=rand%>" ><bean:message key="WriteScript.msgYes" /> </label>
+			  	<input type="radio" id="longTermY_<%=rand%>"  name="longTerm_<%=rand%>" value="yes" class="med-term" <%if(longTerm != null && longTerm) {%> checked="checked" <%}%> />
+			  	
+			  	<label for="longTermN_<%=rand%>" ><bean:message key="WriteScript.msgNo" /> </label>
+			  	<input type="radio" id="longTermN_<%=rand%>"  name="longTerm_<%=rand%>" value="no" class="med-term" <%if(longTerm != null && ! longTerm) {%> checked="checked" <%}%> />
+			  	
+			  	<label for="longTermE_<%=rand%>" ><bean:message key="WriteScript.msgUnset" /> </label>
+			  	<input type="radio" id="longTermE_<%=rand%>"  name="longTerm_<%=rand%>" value="unset" class="med-term" <%if(longTerm == null) {%> checked="checked" <%}%> />
 
-		<span id="medTerm_<%=rand%>">
-        <input  type="checkbox" id="longTerm_<%=rand%>"  name="longTerm_<%=rand%>" class="med-term" <%if(longTerm) {%> checked="true" <%}%> />Long Term Med
-        <input  type="checkbox" id="shortTerm_<%=rand%>"  name="shortTerm_<%=rand%>" class="med-term" <%if(shortTerm) {%> checked="true" <%}%> />Short Term Med
-		</span>
+				<label for="shortTerm_<%=rand%>" ><bean:message key="WriteScript.msgSortTermMedication"/> </label> 
+	        	<input  type="checkbox" id="shortTerm_<%=rand%>"  name="shortTerm_<%=rand%>" class="med-term" <%if(shortTerm) {%> checked="checked" <%}%> />
+	        </span>
+		</div>
         
         <%if(genericName!=null&&!genericName.equalsIgnoreCase("null")){%>
         <div><a>Ingredient:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<%=genericName%></a></div><%}%>
@@ -277,19 +289,33 @@ if(listRxDrugs!=null){
                 <b><label style="float:left;width:80px;">Name :</label></b> <input type="text" id="outsideProviderName_<%=rand%>" name="outsideProviderName_<%=rand%>" <%if(outsideProvName!=null){%> value="<%=outsideProvName%>"<%}else {%> value=""<%}%> />
                 <b><label style="width:80px;">OHIP No:</label></b> <input type="text" id="outsideProviderOhip_<%=rand%>" name="outsideProviderOhip_<%=rand%>"  <%if(outsideProvOhip!=null){%>value="<%=outsideProvOhip%>"<%}else {%> value=""<%}%>/>
           </div>
-          </div><div>
+    </div><div>
 
-        <label title="Medications taken at home that were previously ordered."><bean:message key="WriteScript.msgPastMedication" />
-            <input  type="checkbox" name="pastMed_<%=rand%>" id="pastMed_<%=rand%>" <%if(pastMed) {%> checked="checked" <%}%> onclick="emptyWrittenDate('<%=rand%>');" /></label>
-                  
+        <label for="pastMedSelection" title="Medications taken at home that were previously ordered."><bean:message key="WriteScript.msgPastMedication" /></label>
+        
+        <span id="pastMedSelection">
+        	<label for="pastMedY_<%=rand%>"><bean:message key="WriteScript.msgYes"/></label> 
+            <input  type="radio" value="yes" name="pastMed_<%=rand%>" id="pastMedY_<%=rand%>" <%if(pastMed != null && pastMed) {%> checked="checked" <%}%>  />
+            
+            <label for="pastMedN_<%=rand%>"><bean:message key="WriteScript.msgNo"/></label> 
+            <input  type="radio" value="no" name="pastMed_<%=rand%>" id="pastMedN_<%=rand%>" <%if(pastMed != null && ! pastMed) {%> checked="checked" <%}%>  />
+            
+            <label for="pastMedE_<%=rand%>"><bean:message key="WriteScript.msgUnknown"/></label> 
+            <input  type="radio" value="unset" name="pastMed_<%=rand%>" id="pastMedE_<%=rand%>" <%if(pastMed == null) {%> checked="checked" <%}%>  />
+         </span>         
 	</div><div>
 	
-	<bean:message key="WriteScript.msgPatientCompliance"/>:
-          <bean:message key="WriteScript.msgYes"/>
-            <input type="checkbox"  name="patientComplianceY_<%=rand%>" id="patientComplianceY_<%=rand%>" <%if(patientCompliance!=null && patientCompliance) {%> checked="checked" <%}%> />
+	<label for="patientCompliantSelection"><bean:message key="WriteScript.msgPatientCompliance"/>:</label>
+	<span id="patientCompliantSelection">
+         <label for="patientComplianceY_<%=rand%>"><bean:message key="WriteScript.msgYes"/></label> 
+            <input type="radio" value="yes" name="patientCompliance_<%=rand%>" id="patientComplianceY_<%=rand%>" <%if(patientCompliance!=null && patientCompliance) {%> checked="checked" <%}%> />
 
-          <bean:message key="WriteScript.msgNo"/>
-            <input type="checkbox"  name="patientComplianceN_<%=rand%>" id="patientComplianceN_<%=rand%>" <%if(patientCompliance!=null && !patientCompliance) {%> checked="checked" <%}%> />
+          <label for="patientComplianceN_<%=rand%>"><bean:message key="WriteScript.msgNo"/></label>
+            <input type="radio" value="no" name="patientCompliance_<%=rand%>" id="patientComplianceN_<%=rand%>" <%if(patientCompliance!=null && !patientCompliance) {%> checked="checked" <%}%> />
+	
+		<label for="patientComplianceE_<%=rand%>"><bean:message key="WriteScript.msgUnset"/></label>
+            <input type="radio" value="unset" name="patientCompliance_<%=rand%>" id="patientComplianceE_<%=rand%>" <%if(patientCompliance==null) {%> checked="checked" <%}%> />
+    </span>
 	</div><div>
           <bean:message key="WriteScript.msgNonAuthoritative"/>
             <input type="checkbox" name="nonAuthoritativeN_<%=rand%>" id="nonAuthoritativeN_<%=rand%>" <%if(nonAuthoritative) {%> checked="checked" <%}%> />
@@ -523,14 +549,18 @@ if(listRxDrugs!=null){
        		})
 
 		
-          jQuery("input[id^='repeats_']").keyup(function(){
+
+		<%--   Removed during OMD Re-Evaluation.  This function auto set the LongTerm field
+		if number of refills more than 0.  This is not a definitive Long Term drug.        
+			jQuery("input[id^='repeats_']").keyup(function(){
             	var rand = <%=rand%>;
             	var repeatsVal = this.value;
             	if(repeatsVal>0){
             		jQuery("#longTerm_"+rand).attr("checked","checked");
             		jQuery(".med-term").trigger('change');
             	}
-            });
+            }); --%>
+      
 		  
        });
 </script>

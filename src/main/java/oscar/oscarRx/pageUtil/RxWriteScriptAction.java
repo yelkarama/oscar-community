@@ -154,7 +154,7 @@ public final class RxWriteScriptAction extends DispatchAction {
 			rx.setLongTerm(frm.getLongTerm());
 			rx.setShortTerm(frm.getShortTerm());
 			rx.setPastMed(frm.getPastMed());
-			rx.setPatientCompliance(frm.getPatientComplianceY(), frm.getPatientComplianceN());
+			rx.setPatientCompliance(frm.getPatientCompliance());
 
 			try {
 				rx.setDrugForm(drugData.getDrugForm(String.valueOf(frm.getGCN_SEQNO())));
@@ -898,12 +898,11 @@ public final class RxWriteScriptAction extends DispatchAction {
 					existingIndex.add(stashIndex);
 					RxPrescriptionData.Prescription rx = bean.getStashItem(stashIndex);
 
-					boolean patientComplianceY = false;
-					boolean patientComplianceN = false;
+					Boolean patientCompliance = null;
 					boolean isOutsideProvider = false;
-					boolean isLongTerm = false;
+					Boolean isLongTerm = null;
 					boolean isShortTerm = false;
-					boolean isPastMed = false;
+					Boolean isPastMed = null;
 					boolean isDispenseInternal=false;
 					boolean isStartDateUnknown = false;
 	                boolean isNonAuthoritative = false;
@@ -959,11 +958,11 @@ public final class RxWriteScriptAction extends DispatchAction {
 								}
 							}
 						} else if (elem.equals("longTerm_" + num)) {
-							if (val.equals("on")) {
+							if ("yes".equals(val)) {
 								isLongTerm = true;
-							} else {
+							} else if("no".equals(val)) {
 								isLongTerm = false;
-							}
+							} 
 						} else if (elem.equals("shortTerm_" + num)) {
 							if (val.equals("on")) {
 								isShortTerm = true;
@@ -1032,11 +1031,11 @@ public final class RxWriteScriptAction extends DispatchAction {
 								isOutsideProvider = false;
 							}
 						} else if (elem.equals("pastMed_" + num)) {
-							if (val.equals("on")) {
+							if ("yes".equals(val)) {
 								isPastMed = true;
-							} else {
+							} else if("no".equals(val)) {
 								isPastMed = false;
-							}
+							} 
 						} else if (elem.equals("dispenseInternal_" + num)) {
 							if (val.equals("on")) {
 								isDispenseInternal = true;
@@ -1051,17 +1050,11 @@ public final class RxWriteScriptAction extends DispatchAction {
 							}
 						} else if (elem.equals("comment_" + num)) {
 							rx.setComment(val);
-						} else if (elem.equals("patientComplianceY_" + num)) {
-							if (val.equals("on")) {
-								patientComplianceY = true;
-							} else {
-								patientComplianceY = false;
-							}
-						} else if (elem.equals("patientComplianceN_" + num)) {
-							if (val.equals("on")) {
-								patientComplianceN = true;
-							} else {
-								patientComplianceN = false;
+						} else if (elem.equals("patientCompliance_" + num)) {
+							if ("yes".equals(val)) {
+								patientCompliance = true;
+							} else if ("no".equals(val)) {
+								patientCompliance = false;
 							}
 						} else if (elem.equals("eTreatmentType_"+num)){
 							if("--".equals(val)){
@@ -1087,13 +1080,14 @@ public final class RxWriteScriptAction extends DispatchAction {
 					}
 					rx.setPastMed(isPastMed);
 					rx.setDispenseInternal(isDispenseInternal);
+					rx.setPatientCompliance(patientCompliance);
 					rx.setStartDateUnknown(isStartDateUnknown);
 					rx.setLongTerm(isLongTerm);
 					rx.setShortTerm(isShortTerm);
                     rx.setNonAuthoritative(isNonAuthoritative);
                     rx.setNosubs(nosubs);
 					String newline = System.getProperty("line.separator");
-					rx.setPatientCompliance(patientComplianceY, patientComplianceN);
+
 					String special;
 					if (rx.isCustomNote()) {
 						rx.setQuantity(null);

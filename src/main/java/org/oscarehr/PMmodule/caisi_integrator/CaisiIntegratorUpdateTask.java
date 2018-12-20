@@ -1623,7 +1623,7 @@ public class CaisiIntegratorUpdateTask extends TimerTask {
 				cachedDemographicDrug.setLongTerm(drug.getLongTerm());
 				cachedDemographicDrug.setMethod(drug.getMethod());
 				cachedDemographicDrug.setNoSubs(drug.isNoSubs());
-				cachedDemographicDrug.setPastMed(drug.getPastMed());
+				cachedDemographicDrug.setPastMed(drug.isPastMed());
 				cachedDemographicDrug.setPatientCompliance(drug.getPatientCompliance());
 				cachedDemographicDrug.setPrn(drug.isPrn());
 				cachedDemographicDrug.setQuantity(drug.getQuantity());
