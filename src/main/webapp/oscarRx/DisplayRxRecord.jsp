@@ -334,7 +334,15 @@ if(stringBuilder != null) {
               				</tr>
               				<tr>
               					<td class="label">Past Medication:</td>
-                        		<td><%= drug.getPastMed() %></td>
+              					<td>
+                        		<% if( drug.getPastMed() == null) { %>                        		
+                        			<bean:message key="WriteScript.msgUnset"/>
+                        		<% } else if(drug.getPastMed()) { %>
+                        			<bean:message key="WriteScript.msgYes"/>                       		
+                        		<% } else { %>
+                        			<bean:message key="WriteScript.msgNo"/> 
+                        		<% } %>
+                        		</td>
               				</tr>
               				<tr>
               					<td class="label">Patient Compliance:</td>

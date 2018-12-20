@@ -902,7 +902,7 @@ public final class RxWriteScriptAction extends DispatchAction {
 					boolean isOutsideProvider = false;
 					Boolean isLongTerm = null;
 					boolean isShortTerm = false;
-					boolean isPastMed = false;
+					Boolean isPastMed = null;
 					boolean isDispenseInternal=false;
 					boolean isStartDateUnknown = false;
 	                boolean isNonAuthoritative = false;
@@ -1031,11 +1031,11 @@ public final class RxWriteScriptAction extends DispatchAction {
 								isOutsideProvider = false;
 							}
 						} else if (elem.equals("pastMed_" + num)) {
-							if (val.equals("on")) {
+							if ("yes".equals(val)) {
 								isPastMed = true;
-							} else {
+							} else if("no".equals(val)) {
 								isPastMed = false;
-							}
+							} 
 						} else if (elem.equals("dispenseInternal_" + num)) {
 							if (val.equals("on")) {
 								isDispenseInternal = true;

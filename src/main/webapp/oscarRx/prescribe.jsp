@@ -120,7 +120,7 @@ if(listRxDrugs!=null){
          if(rx.getComment() == null) {
         	 comment = "";
          }
-         boolean pastMed            = rx.getPastMed();
+         Boolean pastMed            = rx.getPastMed();
          boolean dispenseInternal = rx.getDispenseInternal();
          boolean startDateUnknown	= rx.getStartDateUnknown();
          boolean nonAuthoritative   = rx.isNonAuthoritative();
@@ -289,15 +289,24 @@ if(listRxDrugs!=null){
                 <b><label style="float:left;width:80px;">Name :</label></b> <input type="text" id="outsideProviderName_<%=rand%>" name="outsideProviderName_<%=rand%>" <%if(outsideProvName!=null){%> value="<%=outsideProvName%>"<%}else {%> value=""<%}%> />
                 <b><label style="width:80px;">OHIP No:</label></b> <input type="text" id="outsideProviderOhip_<%=rand%>" name="outsideProviderOhip_<%=rand%>"  <%if(outsideProvOhip!=null){%>value="<%=outsideProvOhip%>"<%}else {%> value=""<%}%>/>
           </div>
-          </div><div>
+    </div><div>
 
-        <label title="Medications taken at home that were previously ordered."><bean:message key="WriteScript.msgPastMedication" />
-            <input  type="checkbox" name="pastMed_<%=rand%>" id="pastMed_<%=rand%>" <%if(pastMed) {%> checked="checked" <%}%> onclick="emptyWrittenDate('<%=rand%>');" /></label>
-                  
+        <label for="pastMedSelection" title="Medications taken at home that were previously ordered."><bean:message key="WriteScript.msgPastMedication" /></label>
+        
+        <span id="pastMedSelection">
+        	<label for="pastMedY_<%=rand%>"><bean:message key="WriteScript.msgYes"/></label> 
+            <input  type="radio" value="yes" name="pastMed_<%=rand%>" id="pastMedY_<%=rand%>" <%if(pastMed != null && pastMed) {%> checked="checked" <%}%>  />
+            
+            <label for="pastMedN_<%=rand%>"><bean:message key="WriteScript.msgNo"/></label> 
+            <input  type="radio" value="no" name="pastMed_<%=rand%>" id="pastMedN_<%=rand%>" <%if(pastMed != null && ! pastMed) {%> checked="checked" <%}%>  />
+            
+            <label for="pastMedE_<%=rand%>"><bean:message key="WriteScript.msgUnknown"/></label> 
+            <input  type="radio" value="unset" name="pastMed_<%=rand%>" id="pastMedE_<%=rand%>" <%if(pastMed == null) {%> checked="checked" <%}%>  />
+         </span>         
 	</div><div>
 	
-	<bean:message key="WriteScript.msgPatientCompliance"/>:
-	
+	<label for="patientCompliantSelection"><bean:message key="WriteScript.msgPatientCompliance"/>:</label>
+	<span id="patientCompliantSelection">
          <label for="patientComplianceY_<%=rand%>"><bean:message key="WriteScript.msgYes"/></label> 
             <input type="radio" value="yes" name="patientCompliance_<%=rand%>" id="patientComplianceY_<%=rand%>" <%if(patientCompliance!=null && patientCompliance) {%> checked="checked" <%}%> />
 
@@ -306,6 +315,7 @@ if(listRxDrugs!=null){
 	
 		<label for="patientComplianceE_<%=rand%>"><bean:message key="WriteScript.msgUnset"/></label>
             <input type="radio" value="unset" name="patientCompliance_<%=rand%>" id="patientComplianceE_<%=rand%>" <%if(patientCompliance==null) {%> checked="checked" <%}%> />
+    </span>
 	</div><div>
           <bean:message key="WriteScript.msgNonAuthoritative"/>
             <input type="checkbox" name="nonAuthoritativeN_<%=rand%>" id="nonAuthoritativeN_<%=rand%>" <%if(nonAuthoritative) {%> checked="checked" <%}%> />

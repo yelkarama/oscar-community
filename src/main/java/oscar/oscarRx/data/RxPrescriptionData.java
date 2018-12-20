@@ -625,7 +625,7 @@ public class RxPrescriptionData {
 		boolean prn = false;
 		Boolean longTerm = null;
 		boolean shortTerm = false;
-		boolean pastMed = false;
+		Boolean pastMed = null;
 		boolean startDateUnknown = false;
 		Boolean patientCompliance = null;
 		String special = null;
@@ -1281,15 +1281,19 @@ public class RxPrescriptionData {
 		}
 
 		public boolean isPastMed() {
+			boolean trueFalse = Boolean.FALSE;
+			if (this.pastMed != null) {
+				trueFalse = this.pastMed;
+			} 
+			return trueFalse;
+		}
+
+		public Boolean getPastMed() {
 			return this.pastMed;
 		}
 
-		public boolean getPastMed() {
-			return this.pastMed;
-		}
-
-		public void setPastMed(boolean pm) {
-			this.pastMed = pm;
+		public void setPastMed(Boolean trueFalseNull) {
+			this.pastMed = trueFalseNull;
 		}
 
 		public boolean getDispenseInternal() {

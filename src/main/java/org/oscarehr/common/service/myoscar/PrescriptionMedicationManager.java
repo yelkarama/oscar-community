@@ -253,7 +253,16 @@ public final class PrescriptionMedicationManager {
 		XmlUtils.appendChildToRootIgnoreNull(doc, "Method", drug.getMethod());
 		XmlUtils.appendChildToRootIgnoreNull(doc, "DrugForm", drug.getDrugForm());
 		XmlUtils.appendChildToRootIgnoreNull(doc, "LongTerm", String.valueOf(drug.getLongTerm()));
-		XmlUtils.appendChildToRootIgnoreNull(doc, "PastMed", String.valueOf(drug.getPastMed()));
+		
+		Boolean isPastMed = drug.getPastMed();
+		String pastMed =  "No";
+		if(isPastMed == null) {
+			pastMed = "Unknown";
+		} else if(isPastMed) {
+			pastMed = "Yes";
+		}
+		
+		XmlUtils.appendChildToRootIgnoreNull(doc, "PastMed", pastMed);		
 		XmlUtils.appendChildToRootIgnoreNull(doc, "PatientCompliance", String.valueOf(drug.getPatientCompliance()));
 
 		return (doc);

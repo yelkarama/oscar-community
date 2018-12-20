@@ -1518,8 +1518,16 @@ public class DemographicExportAction4 extends Action {
 					medi.addNewLongTermMedication().setBoolean(arr[p].getLongTerm());
 					mSummary = Util.addSummary(mSummary, "Long Term Medication",arr[p].getLongTerm()?"Yes":"No");
 
-					medi.addNewPastMedications().setBoolean(arr[p].getPastMed());
-					mSummary = Util.addSummary(mSummary, "Past Medcation",arr[p].getPastMed()?"Yes":"No");
+					Boolean isPastMed = arr[p].getPastMed();
+					String pastMed =  "No";
+					if(isPastMed == null) {
+						pastMed = "Unknown";
+					} else if(isPastMed) {
+						pastMed = "Yes";
+					}
+					//TODO change the library class so that it can handle null values.
+					medi.addNewPastMedications().setBoolean(arr[p].isPastMed());
+					mSummary = Util.addSummary(mSummary, "Past Medcation",pastMed);
 /*
 					cdsDt.YnIndicatorAndBlank pc = medi.addNewPatientCompliance();
 					if (arr[p].getPatientCompliance()==null) {
