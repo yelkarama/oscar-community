@@ -1216,6 +1216,28 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                     </table>
                                 </td>
                             </tr>
+                            <%
+                                String collectorsComment = handler.getCollectorsComment(obr);
+                                if (collectorsComment != null && !collectorsComment.equals("")) {
+                            %>
+                            
+                            <tr>
+                                <td valign="top" bgcolor="#FFCC00" align="left" colspan="2">
+                                    <table>
+                                        <tr>
+                                            <th style="text-align: left; padding-left: 10px">Collector's Comment</th>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div style="margin-left: 15px; width:700px">
+                                                    <%=handler.formatString(collectorsComment)%>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <% } %>
                             
                             <tr>
                                 <td bgcolor="#FFCC00" width="300" valign="top">
@@ -1314,22 +1336,8 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                             </tr>
 
                             <%
-
-
-
                                 boolean obrFlag = false;
                                 int obxCount = handler.getOBXCount(obr);
-                                String collectorsComment = handler.getCollectorsComment(obr); // TODO: get collector attribution
-                                if (collectorsComment != null && !collectorsComment.equals("")) {
-                                	 %>
-                                     <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="NormalRes">
-                                         <td valign="top" align="left" colspan="7"><div style="margin-left:15px; width:700px">
-                                         <strong>Comments:</strong> <%=handler.formatString(collectorsComment)%>
-                                         <span style="margin-left:15px;font-size:8px; color:#333333;"><%=handler.getCollectorsCommentSourceOrganization(obr)%></span>
-                                         </div></td>
-                                     </tr>
-                                     <%
-                                }
 
                                 if (handler.getObservationHeader(obr, 0).equals(headers.get(obr))) {
                                 	int cc = handler.getOBRCommentCount(obr);
