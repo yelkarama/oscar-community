@@ -1126,21 +1126,22 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 	}
 
 	/**
-	 * Gets the CC List tables
+	 * Gets the CC List table
 	 * 
 	 * @return A table with all CC recipients
 	 */
 	private PdfPTable getCcTable() {
-		
     	PdfPTable ccTable = new PdfPTable(new float[]{1, 1, 1});
-    	
-    	// Sets the ordering provider's name first
-    	addProviderToTable(ccTable, handler.parseDoctor(handler.getDocName()));
-    	
-    	List<HashMap<String, String>> formattdDoctors = handler.getFormattedCcDocs();
-		for (HashMap<String, String> doctorMap : formattdDoctors) {
+    	// Gets the CC doctors in a map format
+    	List<HashMap<String, String>> formattedCcDoctors = handler.getFormattedCcDocs();
+    	// Loops through each formatted CC doctor and adds them to the table
+		for (HashMap<String, String> doctorMap : formattedCcDoctors) {
 			addProviderToTable(ccTable, doctorMap);
 		}
+		// Sets the default cell's border to 0
+		ccTable.getDefaultCell().setBorder(0);
+		// Fills any remaining spaces in the row with the default cell
+		ccTable.completeRow();
 		
 		return ccTable;
 	}

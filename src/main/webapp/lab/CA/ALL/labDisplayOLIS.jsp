@@ -1694,21 +1694,55 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                     <tr>
                         <td>
                             <%=handler.getOrderingFacilityName()%> <span style="font-size: 8px; color: #333333;"><%= handler.getOrderingFacilityOrganization()%></span><br />
-                            <% if (address != null && address.size() > 0) {
-                            String city = displayAddressFieldIfNotNullOrEmpty(address, "City", false);
-                            String province = displayAddressFieldIfNotNullOrEmpty(address, "Province", false);
+                            <%
+                                address = handler.getOrderingFacilityAddress();
+                                if (address != null && address.size() > 0) {
+                                    String city = displayAddressFieldIfNotNullOrEmpty(address, "City", false);
+                                    String province = displayAddressFieldIfNotNullOrEmpty(address, "Province", false);
                             %>
                             <br/>
-                            <strong>Address:</strong><br/>
-                            <%= displayAddressFieldIfNotNullOrEmpty(address, "Street Address") %>
-                            <%= displayAddressFieldIfNotNullOrEmpty(address, "Other Designation") %>
-                            <%= displayAddressFieldIfNotNullOrEmpty(address, "Postal Code") %>
-                            <%= city + ("".equals(city) || "".equals(province) ? "" : ", ") + province + ("".equals(city) && "".equals(province) ? "" : "<br/>") %>
-                            <%= displayAddressFieldIfNotNullOrEmpty(address, "Country") %>
-                            <% } %>
+                            <table>
+                                <tr>
+                                    <td style="vertical-align: top;">
+                                        <strong>Address:</strong>
+                                    </td>
+                                    <td>
+                                        <%= displayAddressFieldIfNotNullOrEmpty(address, "Street Address") %>
+                                        <%= displayAddressFieldIfNotNullOrEmpty(address, "Other Designation") %>
+                                        <%= displayAddressFieldIfNotNullOrEmpty(address, "Postal Code", false) %>
+                                        <%= city + ("".equals(city) || "".equals(province) ? "" : ", ") + province %>
+                                        <%= displayAddressFieldIfNotNullOrEmpty(address, "Country", false) %>
+                                    </td>
+                                </tr>
+                            </table>
+                            <%  } %>
                         </td>
-                        <td><%=handler.getAdmittingProviderName()%></td>
-                        <td><%=handler.getAttendingProviderName()%></td>
+                        <td style="vertical-align: top">
+                            <% HashMap<String, String> doctorMap = handler.parseDoctor(handler.getAdmittingProviderName()); %>
+                            <table>
+                                <tr>
+                                    <td><strong>Name:</strong></td>
+                                    <td><%=doctorMap.get("name")%></td>
+                                </tr>
+                                <tr>
+                                    <td><strong><%=doctorMap.get("licenceType")%> #:</strong></td>
+                                    <td><%=doctorMap.get("licenceNumber")%></td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td style="vertical-align: top">
+                            <% doctorMap = handler.parseDoctor(handler.getAttendingProviderName()); %>
+                            <table>
+                                <tr>
+                                    <td><strong>Name:</strong></td>
+                                    <td><%=doctorMap.get("name")%></td>
+                                </tr>
+                                <tr>
+                                    <td><strong><%=doctorMap.get("licenceType")%> #:</strong></td>
+                                    <td><%=doctorMap.get("licenceNumber")%></td>
+                                </tr>
+                            </table>
+                        </td>
                     </tr>
                 </table>
                         
