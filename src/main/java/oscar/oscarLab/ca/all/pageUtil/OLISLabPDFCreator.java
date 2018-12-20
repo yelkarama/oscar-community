@@ -865,7 +865,8 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         PdfPTable rInfoTable = new PdfPTable(2);
         cell.setPhrase(new Phrase("Report Status: ", boldFont));
         rInfoTable.addCell(cell);
-        cell.setPhrase(new Phrase(handler.getObrStatus(0), font));
+        String reportStatus = handler.getReportStatusDescription();
+        cell.setPhrase(new Phrase(reportStatus, handler.isReportNormal() ? font : redFont));
         rInfoTable.addCell(cell);
         
         cell.setPhrase(new Phrase("Order Id: ", boldFont));

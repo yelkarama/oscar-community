@@ -73,6 +73,9 @@ public class OLISHL7Handler implements MessageHandler {
 
 	private HashMap<String, String> defaultSourceOrganizations;
 	
+	private String reportStatus = "";
+	private String reportStatusDescription = "Final";
+	
 	public static final String OBR_SPECIMEN_TYPE = "specimenType";
 	public static final String OBR_SPECIMEN_RECEIVED_DATETIME = "specimenReceived";
 	public static final String OBR_SITE_MODIFIER = "siteModifier";
@@ -162,6 +165,14 @@ public class OLISHL7Handler implements MessageHandler {
 		return patientIdentifierNames.get(ident);
 	}
 
+	public String getReportStatusDescription() {
+		return this.reportStatusDescription;
+	}
+	
+	public boolean isReportNormal() {
+		return reportStatus.isEmpty();
+	}
+	
 	HashMap<String, String[]> patientIdentifiers;
 	HashMap<String, String> patientIdentifierNames;
 
@@ -939,6 +950,7 @@ public class OLISHL7Handler implements MessageHandler {
 						Structure[] segs = terser.getFinder().getRoot().getAll(segments[k]);
 						for (int l = 0; l < segs.length; l++) {
 							Segment obxSeg = (Segment) segs[l];
+							parseObxStatus(obxSeg);
 							obxSegs.add(obxSeg);
 						}
 
@@ -984,9 +996,11 @@ public class OLISHL7Handler implements MessageHandler {
 						obrHeader.accumulate(OLISHL7Handler.OBR_SITE_MODIFIER, siteModifier);
 						
 						char status = getString(Terser.get(obr, 25, 0, 1, 1)).charAt(0);
+						parseObrStatus(String.valueOf(status));
 						isFinal &= isStatusFinal(status);
 						isCorrected |= status == 'C';
 						obrStatus.add(getTestRequestStatusMessage(status));
+						
 
 						String parent = getString(Terser.get(obr, 26, 0, 2, 1));
 						if (!"".equals(parent)) {
@@ -1026,6 +1040,13 @@ public class OLISHL7Handler implements MessageHandler {
 			} else {
 				zbr = (Segment) terser.getFinder().getRoot().get("ZBR" + zbrNum);
 			}
+			
+			String status = Terser.get(zbr, 13, 0, 1, 1);
+			if (status.equals("Y") && !reportStatus.equals("Y")) {
+				reportStatus = status;
+				reportStatusDescription = "Full Replace Amendment";
+			}
+			
 			int[] indexes = { 2, 3, 4, 6, 8 };
 			for (int index : indexes) {
 				if (getString(Terser.get(zbr, index, 0, 6, 2)).equals("")) {
@@ -2969,6 +2990,30 @@ public class OLISHL7Handler implements MessageHandler {
 		return result;
 	}
 
+	private void parseObxStatus(Segment segment) {
+		try {
+			String obxStatus = Terser.get(segment, 11, 0, 1, 1);
+			if (!obxStatus.isEmpty() && !obxStatus.equals("F") && !reportStatus.equals("Y")) {
+				if (obxStatus.equals("W")) {
+					reportStatus = obxStatus;
+					reportStatusDescription = "Amended/Invalidation Report";
+				} else if (!reportStatus.equals("W")) {
+					reportStatus = obxStatus;
+					reportStatusDescription = "Amended Report";
+				}
+			}
+		} catch (HL7Exception e) {
+			logger.error("Could not parse OBX status", e);
+		}
+	}
+
+	private void parseObrStatus(String status) {
+		if (status.equals("C") && !reportStatus.equals("W") && !reportStatus.equals("Y")) {
+			reportStatus = status;
+			reportStatusDescription = "Amended Report";
+		}
+	}
+	
 	public class OLISError {
 		public OLISError(String segment, String sequence, String field, String indentifer, String text) {
 			super();

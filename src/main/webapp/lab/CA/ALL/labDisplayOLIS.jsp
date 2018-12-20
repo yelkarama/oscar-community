@@ -737,8 +737,8 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                                 </div>
                                             </td>
                                             <td>
-                                                <div class="FieldData">
-                                                    <%= handler.getObrStatus(0)%>
+                                                <div class="FieldData" <%=handler.isReportNormal() ? "" : "style=\"color: red\""%>>
+                                                    <%= handler.getReportStatusDescription()%>
                                                 </div>
                                             </td>
                                         </tr>
