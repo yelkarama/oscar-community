@@ -186,14 +186,12 @@ public String strikeOutInvalidContent(String content, String status) {
 .CorrectedRollRes a:hover { color: yellow }
 .CorrectedRollRes a:visited { color: yellow }
 .CorrectedRollRes a:active { color: yellow }
-.AbnormalRes { font-weight: bold; font-size: 8pt; color: red; font-family:
-               Verdana, Arial, Helvetica }
+.AbnormalRes { font-weight: bold; font-size: 8pt; color: red; }
 .AbnormalRes a:link { color: red }
 .AbnormalRes a:hover { color: red }
 .AbnormalRes a:visited { color: red }
 .AbnormalRes a:active { color: red }
-.NormalRes   { font-weight: bold; font-size: 8pt; color: black; font-family:
-               Verdana, Arial, Helvetica }
+.NormalRes   { font-weight: bold; font-size: 8pt; color: black; }
 .NormalRes a:link { color: black }
 .NormalRes a:hover { color: black }
 .NormalRes a:visited { color: black }
@@ -226,7 +224,7 @@ div.Title a:hover { color: white }
 div.Title a:visited { color: white }
 div.Title a:active { color: white }
 div.Title2   { font-weight: bolder; font-size: 11pt; color: black; text-indent: 5pt;
-               font-family: Verdana, Arial, Helvetica; padding: 5px 15pt 5px 2pt}
+	font-family: Courier, monospace !important; padding: 5px 15pt 5px 2pt}
 div.Title2 a:link { color: black }
 div.Title2 a:hover { color: black }
 div.Title2 a:visited { color: black }
@@ -263,6 +261,9 @@ div.Title3   { font-weight: bolder; font-size: 12pt; color: black; font-family:
 .title1      { font-size: 9pt; color: black; font-family: Verdana, Arial }
 div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                Verdana, Arial, Helvetica }
+.monospaced {
+	font-family: Courier, monospace !important;
+}
             -->
         </style>
         <script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery.js"></script>
@@ -1084,7 +1085,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                     <table width="100%" border="0" cellpadding="0" cellspacing="0" bordercolor="#CCCCCC">
                                         <tr>
                                             <td bgcolor="white">
-                                                <div class="FieldData">
+                                                <div class="FieldData monospaced">
                                                 <% if (handler.isReportBlocked()) { %>
                                                 <%
                                                 boolean hasBlockedTest=false;
@@ -1107,11 +1108,11 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                         </tr>
                                         <tr>
                                             <td bgcolor="white" align="left">
-                                                <div class="FieldData" style="width:700px;">
+                                                <div class="FieldData monospaced" style="width:700px;">
 
                                                     <% for (int i = 0, j = handler.getReportCommentCount(); i < j; i++) { %>
                                                     <span style="margin-left:15px; width: 700px; word-wrap: break-word;">
-                                                    <%= (i > 0 ? "<br/>" : "") + handler.getReportComment(i) %>
+                                                    <%= (i > 0 ? "<br/>" : "") + handler.getReportComment(i).replaceAll("(?<=\\s)\\s", "&nbsp;") %>
                                                     </span>
                                                     <span style="margin-left:15px; font-size:8px; color:#333333;">
                                                     <%= handler.getReportSourceOrganization(i) %>
@@ -1148,7 +1149,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                             	continue;
                             }
                         %>
-                        <table style="page-break-inside:avoid;" bgcolor="#003399" border="0" cellpadding="0" cellspacing="0" width="100%">
+                        <table style="page-break-inside:avoid;" bgcolor="#003399" border="0" cellpadding="0" cellspacing="0" width="100%" class="monospaced">
                             <%
                             	newCategory = handler.getOBRCategory(obr);
                             	if (!category.equals(newCategory)) {
@@ -1230,7 +1231,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                         <tr>
                                             <td>
                                                 <div style="margin-left: 15px; width:700px">
-                                                    <%=handler.formatString(collectorsComment)%>
+                                                    <%=handler.formatString(collectorsComment).replaceAll("(?<=\\s)\\s", "&nbsp;")%>
                                                 </div>
                                             </td>
                                         </tr>
@@ -1281,7 +1282,9 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                         <% } %>
                         </table>
 
-                        <table width="100%" border="0" cellspacing="0" cellpadding="2" bgcolor="#CCCCFF" bordercolor="#9966FF" bordercolordark="#bfcbe3" name="tblDiscs" id="tblDiscs">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="2" 
+							   bgcolor="#CCCCFF" bordercolor="#9966FF" bordercolordark="#bfcbe3" name="tblDiscs" id="tblDiscs"
+								class="monospaced">
                             <tr class="Field2">
                                 <td width="25%" align="middle" valign="bottom" class="Cell"><bean:message key="oscarMDS.segmentDisplay.formTestName"/></td>
                                 <td width="15%" align="middle" valign="bottom" class="Cell"><bean:message key="oscarMDS.segmentDisplay.formResult"/></td>
@@ -1341,7 +1344,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                 <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="NormalRes">
                                     <td valign="top" align="left" colspan="7">
                                     <div  style="margin-left:15px;width: 700px;">
-                                    	<%=obrComment%>
+                                    	<%=obrComment.replaceAll("(?<=\\s)\\s", "&nbsp;")%>
                                     	<span style="margin-left:15px;font-size:8px; color:#333333;"><%=sourceOrg%></span>
                                    	</div>
                                     </td>
@@ -1484,7 +1487,9 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                         		<td align="left" colspan="7"><b><%= obxDisplayName %></b></td>
                                         	</tr>
                                         	<tr  bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-                                        	<td align="left" colspan="6"><b><%= strikeOutInvalidContent(handler.formatString(handler.getOBXResult(obr, obx)), status) %></b></td>
+                                        	<td align="left" colspan="6">
+												<b><%= strikeOutInvalidContent(handler.formatString(handler.getOBXResult(obr, obx)), status).replaceAll("(?<=\\s)\\s", "&nbsp;") %></b>
+											</td>
                                         	<td align="center"> <%=statusMsg %></td>
                                         	</tr>
                                         	<%
