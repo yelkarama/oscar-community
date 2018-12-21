@@ -475,7 +475,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                                                 Set<String> patientIdentifiers = handler.getPatientIdentifiers();
                                                                 for (String ident : patientIdentifiers) {
                                                                 	// The health number is displayed in a seperate location.
-                                                                	if (ident.equals("JHN")) { continue; }
+                                                                	if (ident.equals("JHN") || (ident.equals("MR") && !handler.getHealthNum().isEmpty())) { continue; }
                                                                 	String[] values = handler.getPatientIdentifier(ident);
                                                                 	String value = values[0];
                                                                 	String attrib = values[1];

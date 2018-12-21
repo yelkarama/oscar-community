@@ -218,7 +218,7 @@ function popupNotesWindow(noteDiv) {
 				<tr>
 					<td class="label">Name:</td>
 					<td class="info"><%=olisLabResults.getDemographicName()%></td>
-					<td class="label">Health Card Number:</td>
+					<td class="label">Ontario Health Number:</td>
 					<td class="info"><%=olisLabResults.getDemographicHin()%></td>
 				</tr>
 				<tr>
@@ -227,10 +227,12 @@ function popupNotesWindow(noteDiv) {
 					<td class="label">Date of Birth:</td>
 					<td class="info"><%=olisLabResults.getDemographicDob()%></td>
 				</tr>
+				<% if (olisLabResults.getDemographicHin().isEmpty()) { %>
 				<tr>
 					<td class="label">Medical Record Number:</td>
 					<td colspan="3" class="info"><%=olisLabResults.getDemographicMrn()%></td>
 				</tr>
+				<% } %>
 			</table>
 		</td>
 	</tr>

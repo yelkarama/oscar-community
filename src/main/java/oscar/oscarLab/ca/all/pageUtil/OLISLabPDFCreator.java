@@ -777,7 +777,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         cell.setBorder(0);
         float[] pInfoWidths = {2f, 3f};
         PdfPTable pInfoTable = new PdfPTable(pInfoWidths);
-        cell.setPhrase(new Phrase("Health #: ", boldFont));
+        cell.setPhrase(new Phrase("Ontario Health Number: ", boldFont));
         pInfoTable.addCell(cell);
         cell.setPhrase(new Phrase(handler.getFormattedHealthNumber(), font));
         pInfoTable.addCell(cell);
@@ -785,7 +785,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		Set<String> patientIdentifiers = handler.getPatientIdentifiers();
 		for (String identifier : patientIdentifiers) {
 			// Skip the health number (displayed above)
-			if (identifier.equals("JHN")) {
+			if (identifier.equals("JHN") || (identifier.equals("MR") && !handler.getHealthNum().isEmpty())) {
 				continue;
 			}
 			String[] identifiers = handler.getPatientIdentifier(identifier);
