@@ -225,8 +225,8 @@ div.Title a:link { color: white }
 div.Title a:hover { color: white }
 div.Title a:visited { color: white }
 div.Title a:active { color: white }
-div.Title2   { font-weight: bolder; font-size: 9pt; color: black; text-indent: 5pt;
-               font-family: Verdana, Arial, Helvetica; padding: 10pt 15pt 2pt 2pt}
+div.Title2   { font-weight: bolder; font-size: 11pt; color: black; text-indent: 5pt;
+               font-family: Verdana, Arial, Helvetica; padding: 5px 15pt 5px 2pt}
 div.Title2 a:link { color: black }
 div.Title2 a:hover { color: black }
 div.Title2 a:visited { color: black }
@@ -1237,36 +1237,10 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                     </table>
                                 </td>
                             </tr>
-                            <% } %>
-                            
-                            <tr>
-                                <td bgcolor="#FFCC00" width="300" valign="top">
-                                    <div class="Title2">
-                                        <%=headers.get(obr)%> <span <%= !handler.isObrStatusFinal(obr) ? "style=\"color: red\"" : "" %>><%= " (" +handler.getObrStatus(obr) + ")"%></span>
-                                        <%
-                                        String poc = handler.getPointOfCare(obr);
-                                        if (!stringIsNullOrEmpty(poc)) {
-                                        %>
-                                        <br/>
-                                        <span style="font-size:8px; color:#333333;">Test performed at patient location</span>
-                                        <% } %>
-                                        <%
-                                        boolean blocked = handler.isOBRBlocked(obr);
-                                        if (blocked) {
-                                        %>
-                                        <span style="font-size:8px; color:red;">(Do Not Disclose Without Explicit Patient Consent)</span>
-                                        <% } %>
-                                    </div>
-                                </td>
-                                <%--<td align="right" bgcolor="#FFCC00" width="100">&nbsp;</td>--%>
-                                <td  bgcolor="#FFCC00" width="500">&nbsp;
-                                </td>
-                                <td width="9">&nbsp;</td>
-                                <td width="*">&nbsp;</td>
-                            </tr>
-							<%
-							String performingFacility = handler.getOBRPerformingFacilityName(obr);
-							if (!primaryFacility.equals(performingFacility) && !performingFacility.equals("")) {
+                            <% } 
+                                
+                                String performingFacility = handler.getOBRPerformingFacilityName(obr);
+                                if (!primaryFacility.equals(performingFacility) && !performingFacility.equals("")) {
 
                             %>
                                         <tr>
@@ -1305,19 +1279,6 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                             </td>
                                         </tr>
                                         <% } %>
-                                        <%
-                                        String diagnosis = handler.getDiagnosis(obr);
-                                        if (!stringIsNullOrEmpty(diagnosis)) {
-                                        %>
-                                        <tr>
-                                            <td bgcolor="#FFCC00" colspan="2">
-                                                <div class="FieldData">
-                                                    <strong>Diagnosis:</strong><br/>
-                                                    <%=diagnosis%>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <% } %>
                         </table>
 
                         <table width="100%" border="0" cellspacing="0" cellpadding="2" bgcolor="#CCCCFF" bordercolor="#9966FF" bordercolordark="#bfcbe3" name="tblDiscs" id="tblDiscs">
@@ -1334,7 +1295,26 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                 </td>
                                 <td width="6%" align="middle" valign="bottom" class="Cell"><bean:message key="oscarMDS.segmentDisplay.formNew"/></td>
                             </tr>
-
+                            <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>">
+                                <td valign="top" colspan="7">
+                                    <div class="Title2">
+                                        <%=headers.get(obr)%> <span <%= !handler.isObrStatusFinal(obr) ? "style=\"color: red\"" : "" %>><%= " (" +handler.getObrStatus(obr) + ")"%></span>
+                                        <%
+                                            String poc = handler.getPointOfCare(obr);
+                                            if (!stringIsNullOrEmpty(poc)) {
+                                        %>
+                                        <br/>
+                                        <span style="font-size:9px; color:#333333;">(Test performed at point of care)</span>
+                                        <% } %>
+                                        <%
+                                            boolean blocked = handler.isOBRBlocked(obr);
+                                            if (blocked) {
+                                        %>
+                                        <span style="font-size:9px; color:red;">(Do Not Disclose Without Explicit Patient Consent)</span>
+                                        <% } %>
+                                    </div>
+                                </td>
+                            </tr>
                             <%
                                 boolean obrFlag = false;
                                 int obxCount = handler.getOBXCount(obr);
@@ -1370,6 +1350,18 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
 
                                 }//end for k=0
                             	}//end if handler.getObservation..
+                                
+                                String diagnosis = handler.getDiagnosis(obr);
+                                if (!stringIsNullOrEmpty(diagnosis)) {
+                                %>
+                                <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>">
+                                    <td colspan="7" style="padding-top: 10px;">
+                                        <div class="FieldData">
+                                            <strong>Diagnosis:</strong> <%=diagnosis%>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }
 
                                 for (int k=0; k < obxCount; k++){
                                 	obx = handler.getMappedOBX(obr, k);

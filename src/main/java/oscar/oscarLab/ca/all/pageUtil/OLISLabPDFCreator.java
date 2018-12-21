@@ -268,40 +268,23 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		//Adds a separator
 		categoryTable.addCell(separator);
 		
-		//Renews the cell so that it is clean
-		cell = new PdfPCell();
-		cell.setBorder(0);
-		String categoryPhrase = header.replaceAll("<br\\s*/*>", "\n");
-		Font font = boldFont;
-		//Replaces breakpoints in the header and adds it to the phrase
-		// Checks if the status colour should be red
-		if (!handler.isObrStatusFinal(obr)) {
-			font = redFont;
-		}
-		//Adds the obr status to the phrase so it appears beside the test request/header
-		categoryPhrase += " (" + handler.getObrStatus(obr) + ")";
-		
-		//Gets the point of care and outputs message if it exists
-		String poc = handler.getPointOfCare(obr);
-		if (!stringIsNullOrEmpty(poc)){
-			font = subscriptFont;
-			categoryPhrase += "\n\nTest performed at patient location";
-		}
-		
-		//Checks if the OBR is blocked
-		Boolean blocked = handler.isOBRBlocked(obr);
-		if (blocked){
-			font = new Font(bf, 7, Font.NORMAL, Color.RED);
-			categoryPhrase += "\n\n(Do Not Disclose Without Explicit Patient Consent";
-		}
 		//Creates the collection table and adds it to the category table
 		PdfPTable collectionTable = createCollectionTable(obr);
 		cell = new PdfPCell(collectionTable);
 		cell.setBorder(0);
 		cell.setColspan(2);
 		categoryTable.addCell(cell);
-        OLISLabPDFUtils.addAllCellsToTable(categoryTable, OLISLabPDFUtils.createCellsFromHl7(categoryPhrase, font, cell));
-		cell.setBorder(0);
+		
+		String collectorsComment = handler.getCollectorsComment(obr);
+		if (!stringIsNullOrEmpty(collectorsComment)){
+			cell = new PdfPCell();
+			cell.setBorder(0);
+			cell.setColspan(2);
+			cell.setPhrase(new Phrase("Collector's Comments", boldFont));
+			categoryTable.addCell(cell);
+			String collectorsCommentPhrase = collectorsComment;
+			OLISLabPDFUtils.addAllCellsToTable(categoryTable, OLISLabPDFUtils.createCellsFromHl7(collectorsCommentPhrase, this.font, cell));
+		}
 		
 		//Adds a small separator between the top row and the collection table
 		cell = new PdfPCell();
@@ -325,13 +308,6 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 			cell.setPhrase(new Phrase(getFullAddress(handler.getPerformingFacilityAddress(obr)), font));
 			categoryTable.addCell(cell);
 		}
-		String diagnosis = handler.getDiagnosis(obr);
-		if (!stringIsNullOrEmpty(diagnosis)){
-			cell.setPhrase(new Phrase("Diagnosis: ", font));
-			categoryTable.addCell(cell);
-			cell.setPhrase(new Phrase(diagnosis, font));
-			categoryTable.addCell(cell);
-		}
 		
 		cell = new PdfPCell();
 		//Column Headers
@@ -352,24 +328,48 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		cell.setPhrase(new Phrase("Status", boldFont));
 		table.addCell(cell);
 
+		//Renews the cell so that it is clean
+		cell = new PdfPCell();
+		cell.setColspan(6);
+		cell.setPaddingBottom(5);
+		cell.setBorder(12);
+		
+		Phrase categoryPhrase = new Phrase();
+		categoryPhrase.setFont(new Font(bfBold, 11, Font.NORMAL));
+		categoryPhrase.add(header.replaceAll("<br\\s*/*>", "\n"));
+		
+		//Replaces breakpoints in the header and adds it to the phrase
+		// Checks if the status colour should be red
+		if (!handler.isObrStatusFinal(obr)) {
+			categoryPhrase.setFont(redFont);
+		}
+		//Adds the obr status to the phrase so it appears beside the test request/header
+		categoryPhrase.add(" (" + handler.getObrStatus(obr) + ")");
+		
+		//Gets the point of care and outputs message if it exists
+		String poc = handler.getPointOfCare(obr);
+		if (!stringIsNullOrEmpty(poc)){
+			categoryPhrase.setFont(new Font(bf, 8, Font.NORMAL));
+			categoryPhrase.add("\n(Test performed at point of care)");
+		}
+
+		//Checks if the OBR is blocked
+		boolean blocked = handler.isOBRBlocked(obr);
+		if (blocked){
+			categoryPhrase.setFont(new Font(bf, 8, Font.NORMAL, Color.RED));
+			categoryPhrase.add("\n\n(Do Not Disclose Without Explicit Patient Consent");
+		}
+
+		cell.setPhrase(categoryPhrase);
+		table.addCell(cell);
+		
 		cell.setBorder(12);
 		cell.setBorderColor(Color.BLACK); // cell.setBorderColor(Color.WHITE);
 		cell.setBackgroundColor(new Color(255, 255, 255));
 		
 		boolean obrFlag = false;
 		int obxCount = handler.getOBXCount(obr);
-		String collectorsComment = handler.getCollectorsComment(obr);
 		int obx = 0;
-		
-		if (!stringIsNullOrEmpty(collectorsComment)){
-			cell.setColspan(7);
-			String collectorsCommentPhrase = "Comments: " + collectorsComment;
-			collectorsCommentPhrase += "\t\t" + handler.getCollectorsCommentSourceOrganization(obr);
-            OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(collectorsCommentPhrase, font, cell));
-			
-			cell.setColspan(1);
-		}
-		
 		
 		if (handler.getObservationHeader(obr, 0).equals(header)){
 			int commentCount = handler.getOBRCommentCount(obr);
@@ -391,6 +391,18 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 				String obrCommentPhrase = obrComment + "\t\t" + sourceOrg;
                 OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(obrCommentPhrase, font, cell));
 			}
+		}
+
+		String diagnosis = handler.getDiagnosis(obr);
+		if (!stringIsNullOrEmpty(diagnosis)){
+			cell.setColspan(6);
+			Phrase diagnosisPhrase = new Phrase();
+			diagnosisPhrase.setFont(boldFont);
+			diagnosisPhrase.add("Diagnosis: ");
+			diagnosisPhrase.setFont(font);
+			diagnosisPhrase.add(diagnosis);
+			cell.setPhrase(diagnosisPhrase);
+			table.addCell(cell);
 		}
 		
 		for (int count = 0; count < obxCount; count++){
