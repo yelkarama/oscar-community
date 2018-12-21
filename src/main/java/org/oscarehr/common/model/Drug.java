@@ -140,7 +140,7 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 	@Column(name = "non_authoritative")
 	private Boolean nonAuthoritative = false;
 	@Column(name = "pickup_datetime")
-	@Temporal(javax.persistence.TemporalType.DATE)
+	@Temporal(javax.persistence.TemporalType.TIMESTAMP)
 	private Date pickupDateTime;
 	private String eTreatmentType = null;
 	private String rxStatus = null;

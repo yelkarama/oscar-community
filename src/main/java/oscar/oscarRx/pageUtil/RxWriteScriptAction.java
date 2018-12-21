@@ -907,11 +907,8 @@ public final class RxWriteScriptAction extends DispatchAction {
 					boolean isStartDateUnknown = false;
 	                boolean isNonAuthoritative = false;
 	                boolean nosubs = false;
-	                Date pickupDate;
-	                Date pickupTime;
-                    int dispenseInterval;
-                    int refillDuration;
-                    int refillQuantity;
+	                Date pickupDate = null;
+	                Date pickupTime = null;
 
 					em = request.getParameterNames();
 					while (em.hasMoreElements()) {
@@ -995,19 +992,15 @@ public final class RxWriteScriptAction extends DispatchAction {
 							} else {
 								rx.setRxDateFormat(partialDateDao.getFormat(val));
 								rx.setRxDate(partialDateDao.StringToDate(val));
-								//rx.setRxDate(RxUtil.StringToDate(val, "yyyy-MM-dd"));
-							}
+							}							
                         } else if (elem.equals("pickupDate_" + num)) {
-							if ((val == null) || (val.equals(""))) {
-								rx.setPickupDate(null);
-                                rx.setPickupTime(null);
-							} else {
-								rx.setPickupDate(RxUtil.StringToDate(val, "yyyy-MM-dd"));
-							}
+							if ((val != null) && (! val.equals(""))) {
+								pickupDate = RxUtil.StringToDate(val, "yyyy-MM-dd");
+							} 														
                        } else if (elem.equals("pickupTime_" + num)) {
 							if ((val != null) && (!val.equals(""))) {
-								rx.setPickupTime(RxUtil.StringToDate(val, "hh:mm"));
-							}
+								pickupTime = RxUtil.StringToDate(val, "hh:mm");
+							}							
 						} else if (elem.equals("writtenDate_" + num)) {
 							if (val == null || (val.equals(""))) {
 								rx.setWrittenDate(RxUtil.StringToDate("0000-00-00", "yyyy-MM-dd"));
@@ -1087,6 +1080,14 @@ public final class RxWriteScriptAction extends DispatchAction {
                     rx.setNonAuthoritative(isNonAuthoritative);
                     rx.setNosubs(nosubs);
 					String newline = System.getProperty("line.separator");
+					
+					if( pickupDate != null && pickupTime != null ) {
+						rx.setPickupDate(RxUtil.combineDateTime(pickupDate, pickupTime));
+					} else if(pickupTime != null) {
+						rx.setPickupDate(RxUtil.combineDateTime(new Date(), pickupTime));
+					} else {
+						rx.setPickupDate(pickupDate);
+					}
 
 					String special;
 					if (rx.isCustomNote()) {

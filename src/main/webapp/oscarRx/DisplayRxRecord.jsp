@@ -284,7 +284,7 @@ if(stringBuilder != null) {
                         		<td><%= drug.getDispenseInterval() %></td>
               				</tr>
               				<tr>
-              					<td class="label">Pickup Date:</td>
+              					<td class="label">Pickup Date/Time:</td>
                         		<td><%=drug.getPickUpDateTime() != null ? dateTimeFormatter.format(drug.getPickUpDateTime()) : ""%></td>
               				</tr>
               				<tr>

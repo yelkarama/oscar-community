@@ -1651,4 +1651,20 @@ public class RxUtil {
 	public static void p(String str) {
 		MiscUtils.getLogger().debug(str);
 	}
+	
+    public static final java.util.Date combineDateTime(final java.util.Date date, 
+            final java.util.Date time) {
+	
+	    Calendar cdate = Calendar.getInstance();
+	    Calendar timeMerge = Calendar.getInstance();
+	    
+	    cdate.setTime(date);
+	    timeMerge.setTime(time);
+	    
+	    cdate.set(Calendar.HOUR_OF_DAY, timeMerge.get(Calendar.HOUR_OF_DAY));
+	    cdate.set(Calendar.MINUTE, timeMerge.get(Calendar.MINUTE));
+	    cdate.set(Calendar.SECOND, 00);
+	    
+	    return cdate.getTime();
+	}
 }
