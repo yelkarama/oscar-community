@@ -246,7 +246,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		//Main Table Variables
 		float[] mainTableWidths;
 		//Unused column is 3f
-		mainTableWidths = new float[] {8f, 3f, 1f, 3f, 2f, 2f };
+		mainTableWidths = new float[] {8f, 3f, 1f, 3f, 2f};
 		PdfPTable table = new PdfPTable(mainTableWidths);
 		table.setWidthPercentage(100);
 		
@@ -333,8 +333,6 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		table.addCell(cell);
 		cell.setPhrase(new Phrase("Units", boldFont));
 		table.addCell(cell);
-		cell.setPhrase(new Phrase("Status", boldFont));
-		table.addCell(cell);
 
 		//Renews the cell so that it is clean
 		cell = new PdfPCell();
@@ -394,7 +392,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 				String obrComment = handler.getOBRCommentString(obr, comment).replaceAll("<br\\s*/*>", "\n");
 				String sourceOrg = handler.getOBRSourceOrganization(obr, comment);
 				
-				cell.setColspan(6);
+				cell.setColspan(5);
 				cell.setHorizontalAlignment(Element.ALIGN_LEFT);
 				String obrCommentPhrase = obrComment + "\t\t" + sourceOrg;
                 OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(obrCommentPhrase, commentFont, cell));
@@ -403,7 +401,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 
 		String diagnosis = handler.getDiagnosis(obr);
 		if (!stringIsNullOrEmpty(diagnosis)){
-			cell.setColspan(6);
+			cell.setColspan(5);
 			Phrase diagnosisPhrase = new Phrase();
 			diagnosisPhrase.setFont(commentBoldFont);
 			diagnosisPhrase.add("Diagnosis: ");
@@ -444,7 +442,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 				}
 				
 				String status = handler.getOBXResultStatus(obr, obx).trim();
-				String statusMsg = "";
+				String statusMsg;
 				try{
 					statusMsg = handler.getTestResultStatusMessage(handler.getOBXResultStatus(obr, obx).charAt(0));
 				}
@@ -452,28 +450,44 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 					statusMsg = "";
 				}
 
+				
 				//Creates a new font used on the line
 				Font lineFont = new Font(commentFont);
 				String abnormal = handler.getOBXAbnormalFlag(obr, obx);
 				
 				//If the abnormal status starts with L then the font color is blue
 				if (abnormal!= null && (abnormal.startsWith("L") || abnormal.equals("A") || abnormal.startsWith("H") || handler.isOBXAbnormal(obr, obx))){
-					lineFont = commentRedFont;
+					lineFont = new Font(commentRedFont);
 				}
 				
 				Font statusMsgFont = new Font(lineFont);
-				
+                
+                
+                Font testFont = new Font(commentBoldFont);
 				//Gets the font style to be used in the table according to the status
-				if (status != null && status.startsWith("W")){
+				if (status.startsWith("W")){
+                    testFont.setStyle(Font.STRIKETHRU);
 					lineFont.setStyle(Font.STRIKETHRU);
 				}
 				//Creates a new phrase to hold the display name
 				String obxDisplayName = obxName.replaceAll("<br\\s*/*>", "\n");
+
+                Phrase obxDisplayNamePhrase = new Phrase();
+				obxDisplayNamePhrase.setFont(testFont);
+				obxDisplayNamePhrase.add(obxDisplayName);
+
+				// Adds the status of the result if it is not Final
+				if (!statusMsg.isEmpty()) {
+				    obxDisplayNamePhrase.setFont(commentRedFont);
+				    obxDisplayNamePhrase.add("(" + statusMsg + ")");
+                }
+
+                obxDisplayNamePhrase.setFont(commentBoldFont);
 				
 				//Checks the abnormal nature of the test and adds the necessary portion to the displayName
 				String abnormalNature = handler.getNatureOfAbnormalTest(obr, obx);
 				if (!stringIsNullOrEmpty(abnormalNature)){
-					obxDisplayName += "\n(" + abnormalNature + ")";
+					obxDisplayNamePhrase.add(System.lineSeparator() + "(" + abnormalNature + ")");
 				}
 				
 				
@@ -495,7 +509,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 				if (obxValueType.equals("NM") || obxValueType.equals("ST") || obxValueType.equals("SN")){
 					//Checks if it is Ancillary and obxValueType is not SN, adds Patient Observation row to table
 					if (handler.isAncillary(obr, obx) && !obxValueType.equals("SN")){
-						cell.setColspan(6);
+						cell.setColspan(5);
 						cell.setPhrase(new Phrase("Patient Observation", commentFont));
 						table.addCell(cell);
 					}
@@ -504,7 +518,8 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 					//Adds the columns for the current Value Type
 					cell.setVerticalAlignment(Element.ALIGN_TOP);
 					cell.setHorizontalAlignment(Element.ALIGN_LEFT);
-                    OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(obxDisplayName, commentFont, cell));
+					cell.setPhrase(obxDisplayNamePhrase);
+					table.addCell(cell);
 					
 					 
 					cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -526,16 +541,14 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 					
 					cell.setHorizontalAlignment(Element.ALIGN_LEFT);
                     OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(handler.getOBXUnits(obr, obx), lineFont, cell));
-					
-					cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(statusMsg, statusMsgFont, cell));
 				}
 				else if (obxValueType.equals("TX") || obxValueType.equals("FT")){
 					//Adds the columns for the current Value Type
 					cell.setVerticalAlignment(Element.ALIGN_TOP);
 					cell.setHorizontalAlignment(Element.ALIGN_LEFT);
-					cell.setColspan(6);
-                    OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(obxDisplayName, lineFont, cell));
+					cell.setColspan(5);
+                    cell.setPhrase(obxDisplayNamePhrase);
+                    table.addCell(cell);
 					
 					cell.setColspan(5);
 					cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
@@ -551,7 +564,6 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
                         cell.setColspan(1);
                         cell.setRowspan(numberOfCommentCells);
                         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-                        OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(statusMsg, statusMsgFont, cell));
                         cell.setRowspan(1);
 
                         for (PdfPCell commentCell : commentCells) {
@@ -566,7 +578,6 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
                         OLISLabPDFUtils.addAllCellsToTable(table, commentCells);
                         cell.setColspan(1);
                         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-                        OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(statusMsg, statusMsgFont, cell));
                     }
 				}
 				//Combines the TM, DT, and TS displays into one to reduce redundant code since the only difference between them is the OBX Results that are retrieved
@@ -575,7 +586,8 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 					//Adds the columns for the current Value Type
 					cell.setVerticalAlignment(Element.ALIGN_TOP);
 					cell.setHorizontalAlignment(Element.ALIGN_LEFT);
-                    OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(obxDisplayName, lineFont, cell));
+                    cell.setPhrase(obxDisplayNamePhrase);
+                    table.addCell(cell);
 					
 					cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 					cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -594,17 +606,14 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 					cell.setColspan(3);
 					cell.setPhrase(new Phrase("", lineFont));
 					table.addCell(cell);
-					
-					cell.setColspan(1);
-					cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(statusMsg, statusMsgFont, cell));
 				}
 				else if (obxValueType.equals("ED")){
 					//Adds the columns for the current row
 					cell.setColspan(1);
 					cell.setVerticalAlignment(Element.ALIGN_TOP);
 					cell.setHorizontalAlignment(Element.ALIGN_LEFT);
-                    OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(obxDisplayName, lineFont, cell));
+                    cell.setPhrase(obxDisplayNamePhrase);
+                    table.addCell(cell);
 					
 					cell.setColspan(3);
 					cell.setPhrase(new Phrase("", lineFont));
@@ -614,10 +623,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 					cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
                     OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(handler.getOBXUnits(obr, obx), lineFont, cell));
 					
-					cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(statusMsg, statusMsgFont, cell));
-					
-					cell.setColspan(6);
+					cell.setColspan(5);
 					cell.setHorizontalAlignment(Element.ALIGN_LEFT);
 					cell.setPhrase(new Phrase("Attachment omitted from printing", lineFont));
 					table.addCell(cell);
@@ -625,18 +631,15 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 				}
 				else if(obxValueType.equals("CE")){
 					//Adds the columns for the current Value Type
-					cell.setColspan(6);
+					cell.setColspan(1);
 					cell.setVerticalAlignment(Element.ALIGN_TOP);
 					cell.setHorizontalAlignment(Element.ALIGN_LEFT);
-                    OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(obxDisplayName, lineFont, cell));
+                    cell.setPhrase(obxDisplayNamePhrase);
+                    table.addCell(cell);
 					
-					cell.setColspan(5);
+					cell.setColspan(4);
 					cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
                     OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(handler.getOBXCEName(obr, obx), font, cell));
-					
-					cell.setColspan(1);
-					cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(statusMsg, statusMsgFont, cell));
 					
 					//If the status is final
 					if(handler.isStatusFinal(handler.getOBXResultStatus(obr, obx).charAt(0))){
@@ -684,7 +687,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 							//Adds the ceTable to the main table
 							cell = new PdfPCell(ceTable);
 							cell.setBorder(12);
-					        cell.setColspan(6);
+					        cell.setColspan(5);
 					        //For the table, sets the padding to
 					        cell.setPaddingLeft(50);
 					        cell.setPaddingRight(20);
@@ -707,7 +710,8 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 					cell.setColspan(1);
 					cell.setVerticalAlignment(Element.ALIGN_TOP);
 					cell.setHorizontalAlignment(Element.ALIGN_LEFT);
-                    OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(obxDisplayName, lineFont, cell));
+                    cell.setPhrase(obxDisplayNamePhrase);
+                    table.addCell(cell);
 					
 					 
 					cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -721,27 +725,24 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 					
 					cell.setHorizontalAlignment(Element.ALIGN_LEFT);
                     OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(handler.getOBXUnits(obr, obx), lineFont, cell));
-					
-					cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(statusMsg, statusMsgFont, cell));
 				}
 				cell.setHorizontalAlignment(Element.ALIGN_LEFT);
 				//If there is an obs method, outputs it
 				String obsMethod = handler.getOBXObservationMethod(obr, obx);
 				if (!stringIsNullOrEmpty(obsMethod)){
-					cell.setColspan(6);
+					cell.setColspan(5);
                     OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7("Observation Method: " + obsMethod, commentFont, cell));
 					cell.setColspan(0);
 				}
 				//If there is an obsDate, outputs it
 				String obsDate = handler.getOBXObservationDate(obr, obx);
 				if (!stringIsNullOrEmpty(obsDate)){
-					cell.setColspan(6);
+					cell.setColspan(5);
                     OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7("Observation Date: " + obsDate, commentFont, cell));
 					cell.setColspan(0);
 				}
 				
-				cell.setColspan(6);
+				cell.setColspan(5);
 				cell.setBorder(12);
 				//For each comment, outputs it
 				for(int commentCount = 0; commentCount < handler.getOBXCommentCount(obr, obx); commentCount++){

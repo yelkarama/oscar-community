@@ -1339,22 +1339,18 @@ public class OLISHL7Handler implements MessageHandler {
 
 	public String getTestResultStatusMessage(char status) {
 		switch (status) {
-		case 'C':
-			return "Amended";
-		case 'F':
-			return "Final";
-		case 'P':
-			return "Preliminary";
-		case 'X':
-			return "Could not obtain results";
-		case 'W':
-			return "Invalid";
-		case 'Z':
-			return "Ancillary information";
-		case 'N':
-			return "Not performed";
-		default:
-			return "";
+			case 'C':
+				return "Amended";
+			case 'P':
+				return "Preliminary";
+			case 'X':
+				return "Could not obtain result";
+			case 'W':
+				return "Invalid result";
+			case 'N':
+				return "Test not performed";
+			default:
+				return "";
 		}
 	}
 

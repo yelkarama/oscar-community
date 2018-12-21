@@ -186,11 +186,12 @@ public String strikeOutInvalidContent(String content, String status) {
 .CorrectedRollRes a:hover { color: yellow }
 .CorrectedRollRes a:visited { color: yellow }
 .CorrectedRollRes a:active { color: yellow }
-.AbnormalRes { font-weight: bold; font-size: 8pt; color: red; }
-.AbnormalRes a:link { color: red }
-.AbnormalRes a:hover { color: red }
-.AbnormalRes a:visited { color: red }
-.AbnormalRes a:active { color: red }
+tr.AbnormalRes { font-weight: bold; }
+tr.AbnormalRes td ~ td { color: red; }
+tr.AbnormalRes td ~ td a:link { color: red }
+tr.AbnormalRes td ~ td a:hover { color: red }
+tr.AbnormalRes td ~ td a:visited { color: red }
+tr.AbnormalRes td ~ td a:active { color: red }
 .NormalRes   { font-weight: bold; font-size: 8pt; color: black; }
 .NormalRes a:link { color: black }
 .NormalRes a:hover { color: black }
@@ -1163,7 +1164,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                          	%>
 
                         	<tr>
-                        		 <td colspan="7" align="center" bgcolor="#FFCC00"><span style="font-size: large;"><%=newCategory%></span><td>
+                        		 <td colspan="4" align="center" bgcolor="#FFCC00"><span style="font-size: large;"><%=newCategory%></span><td>
                         	</tr>
                             		<%
                             	}
@@ -1286,20 +1287,14 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
 							   bgcolor="#CCCCFF" bordercolor="#9966FF" bordercolordark="#bfcbe3" name="tblDiscs" id="tblDiscs"
 								class="monospaced">
                             <tr class="Field2">
-                                <td width="25%" align="middle" valign="bottom" class="Cell"><bean:message key="oscarMDS.segmentDisplay.formTestName"/></td>
-                                <td width="15%" align="middle" valign="bottom" class="Cell"><bean:message key="oscarMDS.segmentDisplay.formResult"/></td>
+                                <td width="35%" align="middle" valign="bottom" class="Cell"><bean:message key="oscarMDS.segmentDisplay.formTestName"/></td>
+                                <td width="30%" align="middle" valign="bottom" class="Cell"><bean:message key="oscarMDS.segmentDisplay.formResult"/></td>
                                 <td width="5%" align="middle" valign="bottom" class="Cell"><bean:message key="oscarMDS.segmentDisplay.formAbn"/></td>
-                                <td width="15%" align="middle" valign="bottom" class="Cell"><bean:message key="oscarMDS.segmentDisplay.formReferenceRange"/></td>
+                                <td width="20%" align="middle" valign="bottom" class="Cell"><bean:message key="oscarMDS.segmentDisplay.formReferenceRange"/></td>
                                 <td width="10%" align="middle" valign="bottom" class="Cell"><bean:message key="oscarMDS.segmentDisplay.formUnits"/></td>
-                                <td width="15%" align="middle" valign="bottom" class="Cell">
-                                 <%--
-                                 <bean:message key="oscarMDS.segmentDisplay.formDateTimeCompleted"/>
-                                 --%>
-                                </td>
-                                <td width="6%" align="middle" valign="bottom" class="Cell"><bean:message key="oscarMDS.segmentDisplay.formNew"/></td>
                             </tr>
                             <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>">
-                                <td valign="top" colspan="7">
+                                <td valign="top" colspan="5">
                                     <div class="Title2">
                                         <%=headers.get(obr)%> <span <%= !handler.isObrStatusFinal(obr) ? "style=\"color: red\"" : "" %>><%= " (" +handler.getObrStatus(obr) + ")"%></span>
                                         <%
@@ -1333,7 +1328,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                         <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" >
                                             <td valign="top" align="left"><%=handler.getOBRName(comment)%></td>
                                             <td valign="top" align="left"><%=handler.getObrSpecimenSource(comment) %></td>
-                                            <td colspan="5">&nbsp;</td>
+                                            <td colspan="3">&nbsp;</td>
                                         </tr>
                                         <%obrFlag = true;
                                     }
@@ -1342,7 +1337,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                     String sourceOrg = handler.getOBRSourceOrganization(obr, comment);
                                     %>
                                 <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="NormalRes">
-                                    <td valign="top" align="left" colspan="7">
+                                    <td valign="top" align="left" colspan="5">
                                     <div  style="margin-left:15px;width: 700px;">
                                     	<%=obrComment.replaceAll("(?<=\\s)\\s", "&nbsp;")%>
                                     	<span style="margin-left:15px;font-size:8px; color:#333333;"><%=sourceOrg%></span>
@@ -1358,7 +1353,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                 if (!stringIsNullOrEmpty(diagnosis)) {
                                 %>
                                 <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>">
-                                    <td colspan="7" style="padding-top: 10px;">
+                                    <td colspan="5" style="padding-top: 10px;">
                                         <div class="FieldData">
                                             <strong>Diagnosis:</strong> <%=diagnosis%>
                                         </div>
@@ -1408,7 +1403,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                         }
 
                                         String status = handler.getOBXResultStatus(obr, obx).trim();
-                                        String statusMsg = "";
+                                        String statusMsg;
                                         try {
                                         	 statusMsg = handler.getTestResultStatusMessage(handler.getOBXResultStatus(obr, obx).charAt(0));
                                         }
@@ -1449,103 +1444,107 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                         	if (handler.isAncillary(obr,obx)) {
                                             %>
                                             <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-                                            	<td colspan="7">Patient Observation</td>
+                                            	<td colspan="5">Patient Observation</td>
                                            	</tr>
                                             <% } %>
                                             <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-                                                <td valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))"><%=obxDisplayName %></a></td>
+                                                <td valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))"><%=obxDisplayName %></a>
+                                                    <%= statusMsg.isEmpty() ? "" : "(<font color=\"red\">" + statusMsg + "</font>)" %>
+                                                </td>
                                                 <td align="right"><%= strikeOutInvalidContent(handler.getOBXResult(obr, obx), status) %></td>
                                                 <td align="center">
                                                         <%= strikeOutInvalidContent(handler.getOBXAbnormalFlag(obr, obx), status)%>
                                                 </td>
                                                 <td align="left"><%=strikeOutInvalidContent(handler.getOBXReferenceRange(obr, obx), status)%></td>
                                                 <td align="left"><%=strikeOutInvalidContent(handler.formatString(handler.getOBXUnits(obr, obx)), status) %></td>
-                                                <td align="center">
-                                                <%--<%= strikeOutInvalidContent(handler.getTimeStamp(obr, obx), status) --%>
-                                                </td>
-                                                <td align="center"><%=statusMsg %></td>
                                             </tr>
                                             <%
                                         } else if (obxValueType.equals("SN")) { // or Structured Numeric
 	                                              %>
 	                                              <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-	                                                  <td valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))"><%=obxDisplayName %></a></td>
+	                                                  <td valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))"><%=obxDisplayName %></a>
+                                                          <%= statusMsg.isEmpty() ? "" : "(<font color=\"red\">" + statusMsg + "</font>)" %>
+                                                      </td>
 	                                                  <td align="right"><%= strikeOutInvalidContent(handler.getOBXSNResult(obr, obx), status) %></td>
 	                                                  <td align="center">
 	                                                          <%= strikeOutInvalidContent(handler.getOBXAbnormalFlag(obr, obx), status)%>
 	                                                  </td>
 	                                                  <td align="left"><%=strikeOutInvalidContent(handler.getOBXReferenceRange(obr, obx), status)%></td>
 	                                                  <td align="left"><%=strikeOutInvalidContent(handler.getOBXUnits(obr, obx), status) %></td>
-	                                                  <td align="center"><%-- strikeOutInvalidContent(handler.getTimeStamp(obr, obx), status) --%></td>
-	                                                  <td align="center"><%=statusMsg %></td>
 	                                              </tr>
 	                                              <%
                                         } else if (obxValueType.equals("TX") // Text Data (Display)
 		                                        || obxValueType.equals("FT")) {  // Formatted Text (Display)
                                         	%>
                                         	<tr  bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-                                        		<td align="left" colspan="7"><b><%= obxDisplayName %></b></td>
+                                        		<td align="left" colspan="5"><b><%= obxDisplayName %></b>
+                                                    <%= statusMsg.isEmpty() ? "" : "(<font color=\"red\">" + statusMsg + "</font>)" %>
+                                                </td>
                                         	</tr>
                                         	<tr  bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-                                        	<td align="left" colspan="6">
-												<b><%= strikeOutInvalidContent(handler.formatString(handler.getOBXResult(obr, obx)), status).replaceAll("(?<=\\s)\\s", "&nbsp;") %></b>
-											</td>
-                                        	<td align="center"> <%=statusMsg %></td>
+                                                <td align="left" colspan="5">
+                                                    <b><%= strikeOutInvalidContent(handler.formatString(handler.getOBXResult(obr, obx)), status).replaceAll("(?<=\\s)\\s", "&nbsp;") %></b>
+                                                </td>
                                         	</tr>
                                         	<%
 
 										} else if (obxValueType.equals("TM")) { // Time
 											%>
                                             <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-                                                <td valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))"><%=obxDisplayName %></a></td>
+                                                <td valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))"><%=obxDisplayName %></a>
+                                                    <%= statusMsg.isEmpty() ? "" : "(<font color=\"red\">" + statusMsg + "</font>)" %>
+                                                </td>
                                                 <td align="right"><%= strikeOutInvalidContent(handler.getOBXTMResult(obr, obx), status) %></td>
-                                                <td align="center" colspan="4"></td>
-                                                <td align="center"><%=statusMsg %></td>
+                                                <td align="center" colspan="3"></td>
                                             </tr>
                                             <%
 										} else if (obxValueType.equals("DT")) { // Date
 											%>
                                             <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-                                                <td valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))"><%=obxDisplayName %></a></td>
+                                                <td valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))"><%=obxDisplayName %></a>
+                                                    <%= statusMsg.isEmpty() ? "" : "(<font color=\"red\">" + statusMsg + "</font>)" %>
+                                                </td>
                                                 <td align="right"><%= strikeOutInvalidContent(handler.getOBXDTResult(obr, obx), status) %></td>
-                                                <td align="center" colspan="4"></td>
-                                                <td align="center"><%=statusMsg%></td>
+                                                <td align="center" colspan="3"></td>
                                             </tr>
                                             <%
 										} else if (obxValueType.equals("TS")) { // Time Stamp (Date & Time)
 											%>
                                             <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-                                                <td valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))"><%=obxDisplayName %></a></td>
+                                                <td valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))"><%=obxDisplayName %></a>
+                                                    <%= statusMsg.isEmpty() ? "" : "(<font color=\"red\">" + statusMsg + "</font>)" %>
+                                                </td>
                                                 <td align="right"><%= strikeOutInvalidContent(handler.getOBXTSResult(obr, obx), status) %></td>
-                                                <td align="center" colspan="4"></td>
-                                                <td align="center"><%=statusMsg %></td>
+                                                <td align="center" colspan="3"></td>
                                             </tr>
                                             <%
    										} else if (obxValueType.equals("ED")) { // Encapsulated Data
    											%>
    											<tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-												<td colspan="7" valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))"><%=obxDisplayName %></a></td>
+												<td colspan="5" valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))"><%=obxDisplayName %></a>
+                                                    <%= statusMsg.isEmpty() ? "" : "(<font color=\"red\">" + statusMsg + "</font>)" %>
+                                                </td>
    											</tr>
    											<tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
    											<%if(!preview) { %>
-   												<td colspan="4" valign="left"><a href="PrintOLIS.do?segmentID=<%=segmentID%>&obr=<%=obr%>&obx=<%=obx%>" style="margin-left: 30px;">Click to view attachment.</a>
+   												<td colspan="3" valign="left"><a href="PrintOLIS.do?segmentID=<%=segmentID%>&obr=<%=obr%>&obx=<%=obx%>" style="margin-left: 30px;">Click to view attachment.</a>
    											<% } else { %>
-   												<td colspan="4" valign="left"><a href="PrintOLIS.do?uuid=<%=oscar.Misc.getStr(request.getParameter("uuid"), "")%>&obr=<%=obr%>&obx=<%=obx%>" style="margin-left: 30px;">Click to view attachment.</a>   											
+   												<td colspan="3" valign="left"><a href="PrintOLIS.do?uuid=<%=oscar.Misc.getStr(request.getParameter("uuid"), "")%>&obr=<%=obr%>&obx=<%=obx%>" style="margin-left: 30px;">Click to view attachment.</a>   											
    											<% } %>
    												</td>
    												<td align="left" colspan="2"><%=strikeOutInvalidContent(handler.getOBXUnits(obr, obx), status) %></td>
-   												<td align="center"><%=statusMsg %></td>
    											</tr>
    											<%
    										} else if (obxValueType.equals("CE")) { // Coded Entry
 
    											%>
    											<tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-												<td colspan="7" valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))"><%=obxDisplayName %></a></td>
+												<td colspan="5" valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))"><%=obxDisplayName %></a>
+                                                    <%= statusMsg.isEmpty() ? "" : "(<font color=\"red\">" + statusMsg + "</font>)" %>
+                                                </td>
    											</tr>
    											<tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-   												<td colspan="6" valign="left"><span  style="margin-left:15px;"><%=handler.getOBXCEName(obr,obx) %></span></td>
-   												<td align="center"><%=statusMsg %></td>
+   												<td colspan="5" valign="left"><span  style="margin-left:15px;"><%=handler.getOBXCEName(obr,obx) %></span></td>
    											</tr>
    											<%
    											if (handler.isStatusFinal(handler.getOBXResultStatus(obr, obx).charAt(0))) {
@@ -1553,7 +1552,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
   												if (!stringIsNullOrEmpty(parentId)) {
    											%>
    											<tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-   												<td colspan="7" align="center">
+   												<td colspan="5" align="center">
    													<table style="border: 1px solid black; margin-left 30px;">
    														<tr><th>Agent</th><th>Sensitivity</th> </tr>
    												    <%
@@ -1577,7 +1576,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
   											</tr>
    											<% 		if (category.toUpperCase().trim().equals("MICROBIOLOGY")) {%>
    											<tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-   												<td align="center" colspan="7">
+   												<td align="center" colspan="5">
    														S=Sensitive R=Resistant I=Intermediate MS=Moderately Sensitive VS=Very Sensitive
 
    												</td>
@@ -1589,18 +1588,15 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                         } else {
                                         	%>
                                             <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-                                                <td valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))"><%=obxDisplayName %></a></td>
+                                                <td valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))"><%=obxDisplayName %></a>
+                                                    <%= statusMsg.isEmpty() ? "" : "(<font color=\"red\">" + statusMsg + "</font>)" %>
+                                                </td>
                                                 <td align="right"><%= strikeOutInvalidContent(handler.getOBXResult(obr, obx), status) %></td>
                                                 <td align="center">
                                                         <%= strikeOutInvalidContent(handler.getOBXAbnormalFlag(obr, obx), status)%>
                                                 </td>
                                                 <td align="left"><%=strikeOutInvalidContent(handler.getOBXReferenceRange(obr, obx), status)%></td>
                                                 <td align="left"><%=strikeOutInvalidContent(handler.getOBXUnits(obr, obx), status) %></td>
-                                                <td align="center"><%-- strikeOutInvalidContent(handler.getTimeStamp(obr, obx), status) --%></td>
-                                                <td align="center"><%=statusMsg %></td>
-                                                <%--
-                                                <td align="center"><%= handler.getOBXValueType(j, k) %></td>
-                                                 --%>
                                             </tr>
                                             <%
                                         }
@@ -1608,7 +1604,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                         if (obsMethod != null && (obsMethod = obsMethod.trim()).length() > 0) {
                                         	%>
                                         	<tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="NormalRes">
-                                                <td valign="top" align="left" colspan="7"><span style="margin-left:15px;">Observation Method: <%=obsMethod%></span></td>
+                                                <td valign="top" align="left" colspan="5"><span style="margin-left:15px;">Observation Method: <%=obsMethod%></span></td>
                                             </tr>
                                         	<%
                                         }
@@ -1616,13 +1612,13 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                         if (obsDate != null && (obsDate = obsDate.trim()).length() > 0) {
                                         	%>
                                         	<tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="NormalRes">
-                                                <td valign="top" align="left" colspan="7"><span style="margin-left:15px;">Observation Date: <%=obsDate%></span></td>
+                                                <td valign="top" align="left" colspan="5"><span style="margin-left:15px;">Observation Date: <%=obsDate%></span></td>
                                             </tr>
                                         	<%
                                         }
                                         for (l=0; l < handler.getOBXCommentCount(obr, obx); l++){%>
                                             <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="NormalRes">
-                                                <td valign="top" align="left" colspan="7" style="font-family:courier;">
+                                                <td valign="top" align="left" colspan="5" style="font-family:courier;">
                                                 <div style="width:700px">
                                                 	<%=handler.getOBXComment(obr, obx, l)%><span style="margin-left:15px;font-size:8px; color:#333333;word-break:normal;"><%=handler.getOBXSourceOrganization(obr, obx, l)%></span>
                                                 </div>
