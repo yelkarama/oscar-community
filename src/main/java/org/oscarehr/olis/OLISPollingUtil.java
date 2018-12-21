@@ -130,7 +130,7 @@ public class OLISPollingUtil {
 				// Setting HIC for Z04 Request
 				ZRP1 zrp1 = new ZRP1(provider.getPractitionerNo(), userPropertyDAO.getStringValue(provider.getProviderNo(),UserProperty.OFFICIAL_OLIS_IDTYPE), "ON", "HL70347",officialLastName,officialfirstName,officialSecondName);
 				providerQuery.setRequestingHic(zrp1);
-				String response = Driver.submitOLISQuery(null, providerQuery);
+				String response = Driver.submitOLISQuery(null, providerQuery, loggedInInfo.getLoggedInProvider());
 				
 				if(!response.startsWith("<Response")){
 					logger.error("response does not match, aborting "+response);
@@ -186,7 +186,7 @@ public class OLISPollingUtil {
 	    	orc21.setValue(6, 3, "^ISO");    	
 	    	facilityQuery.setOrderingFacilityId(orc21);
 	    	
-	    	String response = Driver.submitOLISQuery(null, facilityQuery);
+	    	String response = Driver.submitOLISQuery(null, facilityQuery, loggedInInfo.getLoggedInProvider());
 	    	
 	    	if(!response.startsWith("<Response")){
 	    		logger.debug("Didn't equal response.  Returning "+response);

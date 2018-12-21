@@ -30,7 +30,9 @@ public class OLISMessage {
 		this.provider = provider;
 	}
 
-	public OLISMessage(Query query) {
+	OLISMessage(Query query, Provider provider) {
+		this.provider = provider;
+		
 		mshSegment = new MSHSegment(query.getQueryType());
 		zshSegment = new ZSHSegment(provider);
 		sprSegment = new SPRSegment(query.getQueryType(), query);

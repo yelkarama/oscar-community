@@ -112,7 +112,7 @@ public class OLISSearchAction extends DispatchAction {
 				logDao.persist(logItem);
 
 			}
-			Driver.submitOLISQuery(request, q);
+			Driver.submitOLISQuery(request, q, loggedInInfo.getLoggedInProvider());
 			
 		}
 		else if (queryType != null) {
@@ -798,10 +798,10 @@ public class OLISSearchAction extends DispatchAction {
 							userPropertyDAO.getStringValue(provider.getProviderNo(),UserProperty.OFFICIAL_FIRST_NAME), 
 							userPropertyDAO.getStringValue(provider.getProviderNo(),UserProperty.OFFICIAL_SECOND_NAME));
 					((Z04Query) query).setRequestingHic(zrp1);
-					Driver.submitOLISQuery(request, query);
+					Driver.submitOLISQuery(request, query, loggedInInfo.getLoggedInProvider());
 				}
 			} else {
-				Driver.submitOLISQuery(request, query);
+				Driver.submitOLISQuery(request, query, loggedInInfo.getLoggedInProvider());
 			}
 
 		}

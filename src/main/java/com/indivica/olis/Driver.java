@@ -89,9 +89,9 @@ public class Driver {
 
 	private static OscarLogDao logDao = (OscarLogDao) SpringUtils.getBean("oscarLogDao");
 
-	public static String submitOLISQuery(HttpServletRequest request, Query query) {
+	public static String submitOLISQuery(HttpServletRequest request, Query query, Provider provider) {
 		try {
-			OLISMessage message = new OLISMessage(query);
+			OLISMessage message = new OLISMessage(query, provider);
 
 			System.setProperty("javax.net.ssl.trustStore", OscarProperties.getInstance().getProperty("olis_truststore").trim());
 			System.setProperty("javax.net.ssl.trustStorePassword", OscarProperties.getInstance().getProperty("olis_truststore_password").trim());
