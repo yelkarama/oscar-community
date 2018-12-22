@@ -138,6 +138,7 @@ public class RxPrescriptionData {
 			logger.warn("data from db is : " + drug.getSpecial());
 		}
 		prescription.setDispenseInternal(drug.getDispenseInternal());
+		prescription.setPharmacyId(drug.getPharmacyId());
 		return prescription;
 	}
 
@@ -311,6 +312,7 @@ public class RxPrescriptionData {
 		if (drug.getRefillDuration() != null) p.setRefillDuration(drug.getRefillDuration());
 		if (drug.getRefillQuantity() != null) p.setRefillQuantity(drug.getRefillQuantity());
 		p.setHideCpp(drug.getHideFromCpp());
+		p.setPharmacyId(drug.getPharmacyId());
 		return p;
 	}
 
@@ -677,6 +679,7 @@ public class RxPrescriptionData {
 
 		private String protocol;
 		private String priorRxProtocol;
+		private Integer pharmacyId;
 		
 		public String getDrugReasonCode() {
 			return drugReasonCode;
@@ -1009,6 +1012,14 @@ public class RxPrescriptionData {
 
 		public void setPriorRxProtocol(String priorRxProtocol) {
 			this.priorRxProtocol = priorRxProtocol;
+		}
+
+		public Integer getPharmacyId() {
+			return pharmacyId;
+		}
+
+		public void setPharmacyId(Integer pharmacyId) {
+			this.pharmacyId = pharmacyId;
 		}
 
 		/*
@@ -1703,6 +1714,7 @@ public class RxPrescriptionData {
 			drug.setDispenseInternal(getDispenseInternal());
 			drug.setProtocol(protocol);
 			drug.setPriorRxProtocol(priorRxProtocol);
+			drug.setPharmacyId(getPharmacyId());
 		}
 
 		public boolean AddToFavorites(String providerNo, String favoriteName) {

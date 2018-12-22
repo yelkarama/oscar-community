@@ -869,9 +869,9 @@ public final class RxWriteScriptAction extends DispatchAction {
 		
 		oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean) request.getSession().getAttribute("RxSessionBean");
 		request.getSession().setAttribute("rePrint", null);// set to print.
-		List<String> paramList = new ArrayList();
+		List<String> paramList = new ArrayList<String>();
 		Enumeration em = request.getParameterNames();
-		List<String> randNum = new ArrayList();
+		List<String> randNum = new ArrayList<String>();
 		while (em.hasMoreElements()) {
 			String ele = em.nextElement().toString();
 			paramList.add(ele);
@@ -923,7 +923,10 @@ public final class RxWriteScriptAction extends DispatchAction {
 							} else {
 								rx.setBrandName(val);
 							}
-							
+						} else if("rxPharmacyId".equals(elem)) {
+							if(val != null && ! val.isEmpty()) {
+								rx.setPharmacyId(Integer.parseInt(val));
+							}
 						} else if (elem.equals("repeats_" + num)) {
 							if (val.equals("") || val == null) {
 								rx.setRepeat(0);

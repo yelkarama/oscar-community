@@ -166,6 +166,9 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 	private String protocol = null;
 	private String priorRxProtocol = null;
 	
+	@Column(name = "pharmacyId")
+	private Integer pharmacyId;
+	
 	// ///
 	@Transient
 	private String remoteFacilityName = null;
@@ -247,6 +250,7 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 		this.dispenseInterval = drug.getDispenseInterval();
 		this.dispenseInternal = drug.getDispenseInternal();
 		this.protocol = drug.getProtocol();
+		this.pharmacyId = drug.getPharmacyId();
 	}
 
 	@PreUpdate
@@ -928,6 +932,14 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 
 	public void setPriorRxProtocol(String priorRxProtocol) {
 		this.priorRxProtocol = priorRxProtocol;
+	}
+
+	public Integer getPharmacyId() {
+		return pharmacyId;
+	}
+
+	public void setPharmacyId(Integer pharmacyId) {
+		this.pharmacyId = pharmacyId;
 	}
 
 	//Sorts Ids in descending order
