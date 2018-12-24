@@ -625,7 +625,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 					
 					cell.setColspan(5);
 					cell.setHorizontalAlignment(Element.ALIGN_LEFT);
-					cell.setPhrase(new Phrase("Attachment omitted from printing", lineFont));
+					cell.setPhrase(new Phrase("** Test result has an attachment **", lineFont));
 					table.addCell(cell);
 					
 				}

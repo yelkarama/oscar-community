@@ -2613,7 +2613,7 @@ public class OLISHL7Handler implements MessageHandler {
     	return "";
     }
 
-	protected String getOBXField(int i, int j, int field, int rep, int comp) {
+	public String getOBXField(int i, int j, int field, int rep, int comp) {
 		ArrayList<Segment> obxSegs = obrGroups.get(i);
 
 		try {
@@ -2624,7 +2624,7 @@ public class OLISHL7Handler implements MessageHandler {
 		}
 	}
 
-	protected String getOBXEDField(int i, int j, int field, int rep, int comp) {
+    public String getOBXEDField(int i, int j, int field, int rep, int comp) {
 		ArrayList<Segment> obxSegs = obrGroups.get(i);
 
 		try {

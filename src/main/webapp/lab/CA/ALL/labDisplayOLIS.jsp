@@ -314,8 +314,12 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
             return ret;
         }
 
-        function printPDF(){
-            document.acknowledgeForm.action="PrintOLISLab.do?uuid=<%=request.getParameter("uuid")%>";
+        function printPDF(zipAttachments) {
+            if (typeof zipAttachments !== 'undefined' && zipAttachments === true) {
+                document.acknowledgeForm.action="PrintOLISLab.do?uuid=<%=request.getParameter("uuid")%>&includeAttachmentsInZip=true";
+            } else {
+                document.acknowledgeForm.action="PrintOLISLab.do?uuid=<%=request.getParameter("uuid")%>";
+            }
             document.acknowledgeForm.submit();
         }
 
@@ -375,6 +379,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                     <input type="button" class="smallButton" value="<bean:message key="oscarMDS.index.btnForward"/>" onClick="popupStart(397, 700, '../../../oscarMDS/SelectProvider.jsp?docId=<%=segmentID%>&labDisplay=true', 'providerselect')">
                                     <input type="button" value=" <bean:message key="global.btnClose"/> " onClick="window.close()">
                                     <input type="button" value=" <bean:message key="global.btnPrint"/> " onClick="printPDF()">
+									<input type="button" value="Print with Attachments" onClick="printPDF(true)">
                                     <% if ( demographicID != null && !demographicID.equals("") && !demographicID.equalsIgnoreCase("null")){
                                         String demographicName = demographicDao.getDemographic(demographicID).getFormattedName();
                                         String demographicProvider = demographicDao.getDemographic(demographicID).getProviderNo()!=null?demographicDao.getDemographic(demographicID).getProviderNo():"";
@@ -1756,6 +1761,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                     <input type="button" class="smallButton" value="<bean:message key="oscarMDS.index.btnForward"/>" onClick="popupStart(397, 700, '../../../oscarMDS/SelectProvider.jsp?docId=<%=segmentID%>&labDisplay=true', 'providerselect')">
                                     <input type="button" value=" <bean:message key="global.btnClose"/> " onClick="window.close()">
                                     <input type="button" value=" <bean:message key="global.btnPrint"/> " onClick="printPDF()">
+									<input type="button" value="Print with Attachments" onClick="printPDF(true)">
                                         <indivo:indivoRegistered demographic="<%=demographicID%>" provider="<%=providerNo%>">
                                         <input type="button" value="<bean:message key="global.btnSendToPHR"/>" onClick="sendToPHR('<%=segmentID%>', '<%=demographicID%>')">
                                         </indivo:indivoRegistered>
