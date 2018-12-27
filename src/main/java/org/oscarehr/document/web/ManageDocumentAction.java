@@ -56,6 +56,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.lowagie.text.DocumentException;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.io.FileUtils;
@@ -716,6 +717,29 @@ public class ManageDocumentAction extends DispatchAction {
 
 		return outfile;
 
+	}
+
+	public ActionForward searchDocumentDescriptions(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response) throws IOException {
+		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_edoc", "w", null)) {
+			throw new SecurityException("missing required security object (_edoc)");
+		}
+		
+		String keyword = request.getParameter("term");
+		
+		List<String> descriptions = documentDao.findDocumentDescriptions(keyword);
+		JSONObject jsonObject  = new JSONObject();
+		JSONArray jsonArray = new JSONArray();
+		for (String desc : descriptions) {
+			jsonObject.put("label", desc);
+			jsonArray.add(jsonObject);
+		}
+		
+		MiscUtils.getLogger().info(jsonArray.toString());
+		response.setContentType("text/x-json");
+		response.getWriter().print(jsonArray.toString());
+		response.getWriter().flush();
+
+		return null;
 	}
 
 	public ActionForward showPage(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {

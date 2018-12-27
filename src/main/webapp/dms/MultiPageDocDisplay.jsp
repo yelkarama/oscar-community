@@ -172,8 +172,10 @@
         <script type="text/javascript" src="../share/yui/js/animation-min.js"></script>
         <script type="text/javascript" src="../share/yui/js/datasource-min.js"></script>
         <script type="text/javascript" src="../share/yui/js/autocomplete-min.js"></script>
-        <script type="text/javascript" src="../js/demographicProviderAutocomplete.js"></script> 
-        <script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/jquery/jquery-1.4.2.js"></script>
+        <script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery-1.9.1.js"></script>
+        <script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery-ui-1.10.2.custom.min.js"></script>
+        <script type="text/javascript" src="../js/demographicProviderAutocomplete.js"></script>
+        <script type="text/javascript" src="../js/documentDescriptionTypeahead.js"></script>
         <script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/casemgmt/faxControl.js"> </script>
 
         <link rel="stylesheet" type="text/css" href="../share/yui/css/fonts-min.css"/>
@@ -201,7 +203,7 @@
             <% }
             request.getSession().removeAttribute("faxSuccessful");
             }  %>
-
+                var contextpath = "<%=request.getContextPath()%>";
         </script>
     </head>
     <body >
@@ -279,7 +281,10 @@
                                     </tr>
                                     <tr>
                                         <td><bean:message key="dms.documentReport.msgDocDesc" />:</td>
-                                        <td><input tabindex="<%=tabindex++%>"  type="text" name="documentDescription" value="<%=curdoc.getDescription()%>" /></td>
+                                        <td>
+                                            <input id="docDesc_<%=docId%>" tabindex="<%=tabindex++%>"  type="text" name="documentDescription" value="<%=curdoc.getDescription()%>" />
+                                            <div id="docDescTypeahead_<%=docId%>" class="autocomplete"></div>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td>Observation Date:</td>
@@ -742,6 +747,7 @@ function sendMRP(ele){
                             }
                             return true;
                           }
+                                            jQuery(setupDocDescriptionTypeahead(<%=docId%>));
 
                                             </script>
                                             <div id="providerList<%=docId%>"></div>

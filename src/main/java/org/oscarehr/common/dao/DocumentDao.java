@@ -400,4 +400,11 @@ public class DocumentDao extends AbstractDao<Document> {
 		return query.getResultList();
 		
 	}
+	
+	public List<String> findDocumentDescriptions(String keyword) {
+		Query query = entityManager.createQuery("SELECT DISTINCT d.docdesc FROM Document d WHERE d.docdesc like :keyword ORDER BY d.docdesc");
+		query.setParameter("keyword", keyword+"%");
+
+		return query.getResultList();
+	}
 }
