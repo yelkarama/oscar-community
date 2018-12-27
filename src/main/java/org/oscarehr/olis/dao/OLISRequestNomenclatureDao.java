@@ -8,7 +8,9 @@
  */
 package org.oscarehr.olis.dao;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Query;
 
@@ -25,7 +27,7 @@ public class OLISRequestNomenclatureDao extends AbstractDao<OLISRequestNomenclat
     }
 
 	public OLISRequestNomenclature findByNameId(String id) {
-		String sql = "select x from "+ this.modelClass.getName() + " x where x.nameId=?";
+        String sql = "select x from "+ this.modelClass.getName() + " x where x.requestCode=?";
 		Query query = entityManager.createQuery(sql);
 		query.setParameter(1, id);
 
@@ -39,4 +41,15 @@ public class OLISRequestNomenclatureDao extends AbstractDao<OLISRequestNomenclat
 		return query.getResultList();
 	}
 	
+	public Map<String, OLISRequestNomenclature> findByOlisTestRequestCodes(List<String> requestCodes) {
+	    Query q = entityManager.createQuery("SELECT x FROM " + this.modelClass.getName() + " x WHERE x.requestCode IN (:requestCodes)");
+	    q.setParameter("requestCodes", requestCodes);
+	    List<OLISRequestNomenclature> resultsList = q.getResultList();
+
+        Map<String, OLISRequestNomenclature> resultsMap = new HashMap<String, OLISRequestNomenclature>();
+        for (OLISRequestNomenclature olisRequestNomenclature : resultsList) {
+            resultsMap.put(olisRequestNomenclature.getRequestCode(), olisRequestNomenclature);
+        }
+        return resultsMap;
+    }
 }

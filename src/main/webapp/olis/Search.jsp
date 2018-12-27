@@ -557,7 +557,7 @@
 						
 						for (OLISRequestNomenclature nomenclature : requestNomenclatureList) {
 						%>
-							<option value="<%=nomenclature.getId() %>"><%=oscar.Misc.getStr(nomenclature.getName(),"").trim() %></option>
+							<option value="<%=nomenclature.getId() %>"><%=oscar.Misc.getStr(nomenclature.getTestRequestName(),"").trim() %></option>
 					    <%
 						}
 						%>
@@ -733,7 +733,7 @@
 						
 						for (OLISRequestNomenclature nomenclature : requestNomenclatureList) {
 						%>
-							<option value="<%=nomenclature.getId() %>"><%=nomenclature.getName().trim() %></option>
+							<option value="<%=nomenclature.getId() %>"><%=nomenclature.getTestRequestName().trim() %></option>
 					    <%
 						}
 						%>

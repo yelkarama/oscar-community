@@ -113,7 +113,7 @@ public class OlisMeasurementsResultDisplay {
         public int compare(OlisMeasurementsResultDisplay o1, OlisMeasurementsResultDisplay o2) {
             return new CompareToBuilder().append(o2.getParentLab().getCollectionDateAsDate(), o1.getParentLab().getCollectionDateAsDate())
                     .append(o1.getParentLab().getPlacerGroupNo(), o2.getParentLab().getPlacerGroupNo())
-                    .append(o1.getParentLab().getTestRequestSortKey(), o2.getParentLab().getTestRequestSortKey())
+                    .append(o1.getParentLab().getTestRequestZbr11(), o2.getParentLab().getTestRequestZbr11())
                     .toComparison();
         }
     };

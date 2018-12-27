@@ -330,7 +330,10 @@ function popupNotesWindow(noteDiv) {
 					<th>Ordering Practitioner &#8597;</th>
 					<th>Admitting Practitioner &#8597;</th>
 					<th class="hidden">Placer Group</th>
-					<th class="hidden">Test Request Sort Key</th>
+					<th class="hidden">ZBR.11</th>
+					<th class="hidden">Sort Key</th>
+					<th class="hidden">Alternate Name 1</th>
+					<th class="hidden">Lab Obr Index</th>
 				</tr>
 				</thead>
 				<tbody>
@@ -366,7 +369,10 @@ function popupNotesWindow(noteDiv) {
 					<td><%=resultDisplay.getOrderingPractitioner()%></td>
 					<td><%=resultDisplay.getAdmittingPractitioner()%></td>
 					<td class="hidden"><%=resultDisplay.getPlacerGroupNo()%></td>
-					<td class="hidden"><%=resultDisplay.getTestRequestSortKey()%></td>
+					<td class="hidden"><%=resultDisplay.getTestRequestZbr11()%></td>
+					<td class="hidden"><%=resultDisplay.getNomenclature().getSortKey()%></td>
+					<td class="hidden"><%=resultDisplay.getNomenclature().getRequestAlternateName1()%></td>
+					<td class="hidden"><%=resultDisplay.getLabObrIndex()%></td>
 				</tr>
 				<% } %>
 				</tbody>
@@ -424,6 +430,8 @@ function popupNotesWindow(noteDiv) {
 					<th class="small-text">Attachments &#8597;</th>
 					<th class="small-text">Full Report &#8597;</th>
 					<th class="small-text">Ordering Provider &#8597;</th>
+					<th class="hidden">Placer Group</th>
+					<th class="hidden">ZBR.11</th>
 				</tr>
 				</thead>
 				<tbody>
@@ -500,6 +508,8 @@ function popupNotesWindow(noteDiv) {
 						<input type="button" onClick="preview('<%=parentLab.getLabUuid()%>'); return false;" id="<%=parentLab.getLabUuid()%>_preview" value="View" />
 					</td>
 					<td><%=parentLab.getOrderingPractitionerFull()%></td>
+					<td class="hidden"><%=parentLab.getPlacerGroupNo()%></td>
+					<td class="hidden"><%=parentLab.getTestRequestZbr11()%></td>
 				</tr>
 				<% } %>
 				</tbody>

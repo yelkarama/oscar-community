@@ -1,5 +1,6 @@
 package org.oscarehr.olis.model;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import oscar.oscarLab.ca.all.parsers.OLISHL7Handler;
 
@@ -9,13 +10,14 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class OlisLabResultDisplay {
     
     private String labUuid;
     private int labObrIndex;
     private String placerGroupNo;
-    private String testRequestSortKey;
+    private String testRequestZbr11;
     private String testRequestName;
     private String requestStatus;
     private String specimenType;
@@ -27,6 +29,7 @@ public class OlisLabResultDisplay {
     private String olisLastUpdated;
     private String collectionDate;
     private String collectorsComment;
+    private OLISRequestNomenclature nomenclature;
     
     private List<OlisMeasurementsResultDisplay> measurements = new ArrayList<OlisMeasurementsResultDisplay>();
     
@@ -55,11 +58,11 @@ public class OlisLabResultDisplay {
         this.placerGroupNo = placerGroupNo;
     }
 
-    public String getTestRequestSortKey() {
-        return testRequestSortKey;
+    public String getTestRequestZbr11() {
+        return testRequestZbr11;
     }
-    public void setTestRequestSortKey(String testRequestSortKey) {
-        this.testRequestSortKey = testRequestSortKey;
+    public void setTestRequestZbr11(String testRequestZbr11) {
+        this.testRequestZbr11 = testRequestZbr11;
     }
 
     public String getTestRequestName() {
@@ -146,6 +149,13 @@ public class OlisLabResultDisplay {
         this.collectorsComment = collectorsComment;
     }
 
+    public OLISRequestNomenclature getNomenclature() {
+        return nomenclature;
+    }
+    public void setNomenclature(OLISRequestNomenclature nomenclature) {
+        this.nomenclature = nomenclature;
+    }
+
     public List<OlisMeasurementsResultDisplay> getMeasurements() {
         return measurements;
     }
@@ -155,6 +165,9 @@ public class OlisLabResultDisplay {
 
     public static List<OlisLabResultDisplay> getListFromHandler(OLISHL7Handler olisHandler, String resultUuid) {
         List<OlisLabResultDisplay> results = new ArrayList<OlisLabResultDisplay>();
+        
+        // Get OLIS Request Nomenclature for lab results for adding to results
+        Map<String, OLISRequestNomenclature> nomenclatureMap = olisHandler.getOlisRequestNomenclatureMap();
         
         ArrayList headers = olisHandler.getHeaders();
         for (int i = 0; i < headers.size(); i++) {
@@ -174,8 +187,9 @@ public class OlisLabResultDisplay {
             labResult.setRequestStatus(olisHandler.getTestRequestStatusMessage(olisHandler.getObrStatusFinal(obr).charAt(0)));
             labResult.setSpecimenType(olisHandler.getOBRSpecimentType(obr));
             labResult.setResultsIndicator(olisHandler.getObrStatus(obr));
-            labResult.setTestRequestSortKey(olisHandler.getZBR11(obr));
+            labResult.setTestRequestZbr11(olisHandler.getZBR11(obr));
             labResult.setCollectorsComment(olisHandler.getCollectorsComment(obr));
+            labResult.setNomenclature(nomenclatureMap.get(olisHandler.getNomenclatureRequestCode(obr)));
             
             // Report level values
             labResult.setOrderingPractitioner(olisHandler.getShortDocName());
@@ -223,10 +237,24 @@ public class OlisLabResultDisplay {
     public static final Comparator<OlisLabResultDisplay> DEFAULT_OLIS_SORT_COMPARATOR = new Comparator<OlisLabResultDisplay>() {
         @Override
         public int compare(OlisLabResultDisplay o1, OlisLabResultDisplay o2) {
-            return new CompareToBuilder().append(o2.getCollectionDateAsDate(), o1.getCollectionDateAsDate())
-                    .append(o1.getPlacerGroupNo(), o2.getPlacerGroupNo())
-                    .append(o1.getTestRequestSortKey(), o2.getTestRequestSortKey())
-                    .toComparison();
+            CompareToBuilder compareToBuilder = new CompareToBuilder();
+            compareToBuilder.append(o2.getCollectionDateAsDate(), o1.getCollectionDateAsDate());
+            compareToBuilder.append(o1.getPlacerGroupNo(), o2.getPlacerGroupNo());
+
+            if (!StringUtils.isEmpty(o1.getTestRequestZbr11()) && !StringUtils.isEmpty(o2.getTestRequestZbr11())) {
+                compareToBuilder.append(o1.getTestRequestZbr11(), o2.getTestRequestZbr11());
+            }
+            if (o1.getNomenclature() != null && o2.getNomenclature() != null) {
+                if (!StringUtils.isEmpty(o1.getNomenclature().getSortKey()) && !StringUtils.isEmpty(o2.getNomenclature().getSortKey())) {
+                    compareToBuilder.append(o1.getNomenclature().getSortKey(), o2.getNomenclature().getSortKey());
+                }
+                if (!StringUtils.isEmpty(o1.getNomenclature().getRequestAlternateName1()) && !StringUtils.isEmpty(o1.getNomenclature().getRequestAlternateName1())) {
+                    compareToBuilder.append(o1.getNomenclature().getRequestAlternateName1(), o2.getNomenclature().getRequestAlternateName1());
+                }
+            }
+            compareToBuilder.append(o1.getLabObrIndex(), o2.getLabObrIndex());
+            
+            return compareToBuilder.toComparison();
         }
     };
 }

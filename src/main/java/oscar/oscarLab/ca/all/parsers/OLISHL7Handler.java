@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -1675,6 +1676,35 @@ public class OLISHL7Handler implements MessageHandler {
 			return "";
 		}
 	}
+	
+	public Map<String, OLISRequestNomenclature> getOlisRequestNomenclatureMap() {
+	    List<String> requestCodes = new ArrayList<String>();
+        for (int obr = 0; obr < getHeaders().size(); obr++) {
+            String requestCode = getNomenclatureRequestCode(obr);
+            if (!StringUtils.isEmpty(requestCode)) {
+                requestCodes.add(requestCode);
+            }
+        }
+        // Get OLIS Request Nomenclature for lab results
+        OLISRequestNomenclatureDao requestDao = (OLISRequestNomenclatureDao) SpringUtils.getBean("OLISRequestNomenclatureDao");
+        return requestDao.findByOlisTestRequestCodes(requestCodes);
+    }
+    
+    public String getNomenclatureRequestCode(int obr) {
+	    obr++;
+        try {
+            Segment obrSegment;
+            if (obr == 1) {
+                obrSegment = terser.getSegment("/.OBR");
+            } else {
+                obrSegment = (Segment) terser.getFinder().getRoot().get("OBR" + obr);
+            }
+            return Terser.get(obrSegment, 4, 0, 1, 1);
+        } catch (HL7Exception e) {
+            MiscUtils.getLogger().error("OLIS HL7 Error", e);
+        }
+        return "";
+    }
 
 	public String getOBRCategory(int i) {
 		i++;
