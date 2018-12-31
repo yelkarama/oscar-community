@@ -770,10 +770,48 @@
                                         <td>
                                             Referral Doctor:
                                         </td>
+                                        <% 
+                                           boolean useFaxDropdown = preferenceMap.getOrDefault("inbox_use_fax_dropdown", false);
+                                           String rdName = "";
+                                           String rdFaxNo = "";
+                                           if (useFaxDropdown) { %>
+                                        <td>
+                                            <select id="otherFaxSelect" style="margin-left: 5px;max-width: 300px;min-width:150px;">
+                                                <%
+                                                    
+                                                    for (int i=0;i < displayServiceUtil.specIdVec.size(); i++) {
+                                                        String  specId     =  displayServiceUtil.specIdVec.elementAt(i);
+                                                        String  fName      =  displayServiceUtil.fNameVec.elementAt(i);
+                                                        String  lName      =  displayServiceUtil.lNameVec.elementAt(i);
+                                                        String  proLetters =  displayServiceUtil.proLettersVec.elementAt(i);
+                                                        String  address    =  displayServiceUtil.addressVec.elementAt(i);
+                                                        String  phone      =  displayServiceUtil.phoneVec.elementAt(i);
+                                                        String  fax        =  displayServiceUtil.faxVec.elementAt(i);
+                                                        String  referralNo = "";
+                                                        if (rdohip != null && !"".equals(rdohip) && rdohip.equals(referralNo)) {
+                                                            rdName = String.format("%s, %s", lName, fName);
+                                                            rdFaxNo = fax;
+                                                        }
+                                                        if (!"".equals(fax)) {
+                                                %>
+
+                                                <option value="<%= fax %>"> <%= String.format("%s, %s", lName, fName) %> </option>
+                                                <%
+                                                        }
+                                                    }
+                                                %>
+
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="submit" value="Add" onclick="addOtherFaxProvider(); return false;">
+                                        </td>
+                                        <% } else { %>
                                         <td>
                                             <input type="text" id="autocompletereferral<%=docId%>" name="referralKeyword"/>
                                             <div id="autocomplete_choicesreferral<%=docId%>" class="autocomplete"></div>
                                         </td>
+                                        <% } %>
                                     </tr>
 
                                     <tr>
@@ -788,7 +826,7 @@
                                 <div id="faxOps">
                                     <div>
 
-                                        <ul id="faxRecipients_<%=docId%>">
+                                        <ul id="faxRecipients<%= useFaxDropdown ? "" : "_" + docId%>">
                                         </ul>
                                     </div>
                                     <div style="margin-top: 5px; text-align: center">

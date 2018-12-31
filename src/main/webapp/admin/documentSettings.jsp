@@ -115,6 +115,13 @@
                     &nbsp;&nbsp;&nbsp;
                 </td>
             </tr>
+            <tr>
+                <td>Use dropdown for document faxing in the inbox: </td>
+                <td>
+                    <input id="inbox_use_fax_dropdown" type="checkbox" value="true" name="inbox_use_fax_dropdown"
+                            <%=(dataBean.getProperty("inbox_use_fax_dropdown", "false").equals("true")) ? "checked='checked'" : ""%> />
+                </td>
+            </tr>
             </tbody>
         </table>
 
