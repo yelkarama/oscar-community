@@ -299,7 +299,7 @@ public final class MessageUploader {
 					search = "provider_no";
 				}
 				
-				if( "MEDITECH".equals(type) ) {
+				if( "MEDITECH".equals(type) || "ExcellerisON".equals(type)) {
 					search = "practitionerNo";
 				}
 				
