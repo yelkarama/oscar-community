@@ -37,7 +37,11 @@
 <%@page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.dao.AppointmentReminderDao" %>
 <%@ page import="org.oscarehr.common.model.AppointmentReminder" %>
+<%@ page import="org.oscarehr.util.LoggedInInfo" %>
+<%@ page import="oscar.log.LogAction" %>
+<%@ page import="oscar.log.LogConst" %>
 <%
+	LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
 	AppointmentArchiveDao appointmentArchiveDao = (AppointmentArchiveDao)SpringUtils.getBean("appointmentArchiveDao");
 	AppointmentReminderDao appointmentReminderDao = SpringUtils.getBean(AppointmentReminderDao.class);
 	OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
@@ -70,6 +74,7 @@
 	if(appt != null) {
 		appointmentDao.remove(appt.getId());
 		rowsAffected=1;
+		LogAction.addLog(loggedInInfo.getLoggedInProviderNo(), LogConst.DELETE, LogConst.CON_APPT, "appointment_no="+appt.getId(), request.getRemoteAddr(), String.valueOf(appt.getDemographicNo()), "appointment cut record");
 	}
 	if (rowsAffected == 1) {
 %>
