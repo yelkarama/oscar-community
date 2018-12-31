@@ -59,18 +59,27 @@ if(!authed) {
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
   String demo = request.getParameter("demo") ;
   String requestId = request.getParameter("requestId");
+  String user = loggedInInfo.getLoggedInProviderNo();
 %>
 <ul id="attachedList"
 	style="background-color: white; padding-left: 20px; list-style-position: outside; list-style-type: lower-roman;">
 	<%
             ArrayList privatedocs = new ArrayList();
             privatedocs = EDocUtil.listDocs(loggedInInfo, demo, requestId, EDocUtil.ATTACHED);
-            EDoc curDoc;                                        
+            EDoc curDoc;
+            String url = "";
             for(int idx = 0; idx < privatedocs.size(); ++idx)
             {                    
-                curDoc = (EDoc)privatedocs.get(idx);                                            
-        %>
-	<li class="doc"><%=StringUtils.maxLenString(curDoc.getDescription(),19,16,"...")%></li>
+                curDoc = (EDoc)privatedocs.get(idx);
+
+                if( curDoc.getRemoteFacilityId()==null && (curDoc.isPDF() || curDoc.isImage())) {
+                    url = request.getContextPath() + "/dms/MultiPageDocDisplay.jsp?segmentID=" + curDoc.getDocId() + "&providerNo=" + user + "&searchProviderNo=" + user + "&status=A";
+                }
+                else {
+                    url = request.getContextPath() + "/dms/ManageDocument.do?method=display&doc_no=" + curDoc.getDocId() + "&providerNo=" + user + (curDoc.getRemoteFacilityId()!=null?"&remoteFacilityId="+curDoc.getRemoteFacilityId():"");
+                }
+    %>
+	<li class="doc" onclick="<%="javascript:popup('" + url + "');"%>"><%=StringUtils.maxLenString(curDoc.getDescription(),19,16,"...")%></li>
 	<%                                           
             }
 
@@ -80,8 +89,9 @@ if(!authed) {
                 for(int idx = 0; idx < labs.size(); ++idx) 
                 {
                     resData = (LabResultData)labs.get(idx);
+                    url = request.getContextPath() +"/lab/CA/ALL/labDisplay.jsp?demographicId="+demo+"&segmentID="+resData.getSegmentID();
         %>
-	<li class="lab"><%=StringUtils.maxLenString(resData.getDiscipline(), 14, 11, "") + " " + resData.getDateTime()%></li>
+	<li class="lab" onclick="<%="javascript:popup('" + url + "');"%>"><%=StringUtils.maxLenString(resData.getDiscipline(), 14, 11, "") + " " + resData.getDateTime()%></li>
 	<%
                 }
                 //Gets the DAOs for HRMDocumentToDemographic and HRMDocument
@@ -106,15 +116,18 @@ if(!authed) {
                 	}
                 	
                 	//Outputs the list item
-                %>	
-					<li class="hrm"><%=truncatedDisplayName%></li>
+                    url = request.getContextPath() +"/hospitalReportManager/Display.do?id="+hrmDocumentToDemographic.getHrmDocumentId()+"&segmentID="+hrmDocumentToDemographic.getHrmDocumentId();
+    %>	
+					<li class="hrm" onclick="<%="javascript:popup('" + url + "');"%>"><%=truncatedDisplayName%></li>
                 <%
                 }
 
 				//Get attached eForms
 				List<EFormData> eForms = EFormUtil.listPatientEformsCurrentAttachedToConsult(requestId);
-				for (EFormData eForm : eForms) { %>
-					<li class="eForm"><%=(eForm.getFormName().length()>14)?eForm.getFormName().substring(0, 11)+"...":eForm.getFormName()%></li>
+				for (EFormData eForm : eForms) {
+                    url = request.getContextPath() +"/eform/efmshowform_data.jsp?fdid="+eForm.getId()+"&appointment=&parentAjaxId=eforms";
+                %>
+					<li class="eForm" onclick="<%="javascript:popup('" + url + "');"%>"><%=(eForm.getFormName().length()>14)?eForm.getFormName().substring(0, 11)+"...":eForm.getFormName()%></li>
 				<%
 				}
         %>
