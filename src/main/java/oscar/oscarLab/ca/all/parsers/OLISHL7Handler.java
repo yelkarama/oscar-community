@@ -76,6 +76,8 @@ public class OLISHL7Handler implements MessageHandler {
 	
 	private String reportStatus = "";
 	private String reportStatusDescription = "Final";
+
+    private Map<String, OLISResultNomenclature> olisResultNomenclatureMap = null;
 	
 	public static final String OBR_SPECIMEN_TYPE = "specimenType";
 	public static final String OBR_SPECIMEN_RECEIVED_DATETIME = "specimenReceived";
@@ -1689,6 +1691,35 @@ public class OLISHL7Handler implements MessageHandler {
         OLISRequestNomenclatureDao requestDao = (OLISRequestNomenclatureDao) SpringUtils.getBean("OLISRequestNomenclatureDao");
         return requestDao.findByOlisTestRequestCodes(requestCodes);
     }
+
+    /**
+     * Gets a map of the current report's loinc codes retrieved from OBX.3.1
+     * 
+     * @return Map of the loinc codes and their matching result nomenclatures
+     */
+    private Map<String, OLISResultNomenclature> getOlisResultNomenclatureMap() {
+        List<String> loincCodes = new ArrayList<String>();
+        // Initializes the current OBX to 0
+        int headerObxCount = 0;
+        //Loops through each header and gets the number of obx fields in each
+        for (int obr = 0; obr < getHeaders().size(); obr++) {
+            int obxCount = getOBXCount(obr);
+            // Loops through each obx field and gets the loinc code for each one
+            for (int obx = 0; obx < obxCount; obx++) {
+                // Gets the loinc code for each obx. The obx is identified by the obx count from the previous headers + the obx index
+                String resultCode = getNomenclatureResultLoincCode(headerObxCount + obx);
+                if (!StringUtils.isEmpty(resultCode)) {
+                    loincCodes.add(resultCode);
+                }
+            }
+            // Sets adds the current header's obxCount to the headerObxCount variable so that the number can be kept track of for subsequent headers
+            headerObxCount += obxCount;
+        }
+        
+        // Get OLIS Request Nomenclature for lab results
+        OLISResultNomenclatureDao resultDao = (OLISResultNomenclatureDao) SpringUtils.getBean("OLISResultNomenclatureDao");
+        return resultDao.findByOlisTestLoincCodes(loincCodes);
+    }
     
     public String getNomenclatureRequestCode(int obr) {
 	    obr++;
@@ -1700,6 +1731,28 @@ public class OLISHL7Handler implements MessageHandler {
                 obrSegment = (Segment) terser.getFinder().getRoot().get("OBR" + obr);
             }
             return Terser.get(obrSegment, 4, 0, 1, 1);
+        } catch (HL7Exception e) {
+            MiscUtils.getLogger().error("OLIS HL7 Error", e);
+        }
+        return "";
+    }
+
+    /**
+     * Gets the loincCode from the given obx
+     * 
+     * @param obx The number of the obx that the loinc code is to be retrieved from
+     * @return the loinc code for the given obx
+     */
+    public String getNomenclatureResultLoincCode(int obx) {
+        obx++;
+        try {
+            Segment obrSegment;
+            if (obx == 1) {
+                obrSegment = terser.getSegment("/.OBX");
+            } else {
+                obrSegment = (Segment) terser.getFinder().getRoot().get("OBX" + obx);
+            }
+            return Terser.get(obrSegment, 3, 0, 1, 1);
         } catch (HL7Exception e) {
             MiscUtils.getLogger().error("OLIS HL7 Error", e);
         }
@@ -1749,23 +1802,31 @@ public class OLISHL7Handler implements MessageHandler {
 
 	@Override
 	public String getOBXName(int i, int j) {
-		String obxName = getOBXField(i, j, 3, 0, 1);
+	    if (olisResultNomenclatureMap == null) {
+            olisResultNomenclatureMap = getOlisResultNomenclatureMap();
+        }
+        
+		String loincCode = getOBXField(i, j, 3, 0, 1);
 
+		String obxName = "";
 		try {
-			OLISResultNomenclatureDao resultDao = (OLISResultNomenclatureDao) SpringUtils.getBean("OLISResultNomenclatureDao");
-			OLISResultNomenclature resultNomenclature = resultDao.findByNameId(obxName);
+			OLISResultNomenclature resultNomenclature = olisResultNomenclatureMap.get(loincCode);
 			if(resultNomenclature != null) {
-				return StringUtils.trimToEmpty(resultNomenclature.getName());
+				obxName = StringUtils.trimToEmpty(resultNomenclature.getResultAlternateName1());
 			} else {
-				logger.warn("Missing OLIS nomenclature value ("+obxName+"). Are you sure you ran olisinit.sql and it successfully completed?");
-				return obxName;
+				logger.warn("Missing OLIS nomenclature for loinc code: " + loincCode);
 			}
 		} catch (Exception e) {
 			MiscUtils.getLogger().error("OLIS HL7 Error", e);
 		}
-		// If we're unable to find a LOINC match for the identifier then try to parse out the obx name.
-		obxName = getOBXField(i, j, 3, 0, 2);
-		return "".equals(obxName) ? " " : obxName.indexOf(":") == -1 ? obxName : obxName.substring(0, obxName.indexOf(":"));
+
+        // If we're unable to find a LOINC match for the identifier then try to parse out the obx name.
+		if (obxName.isEmpty()) {
+            obxName = getOBXField(i, j, 3, 0, 2);
+            obxName = "".equals(obxName) ? " " : obxName.contains(":") ? obxName : obxName.substring(0, obxName.indexOf(":"));
+        }
+		
+        return obxName;
 	}
 
 	@Override

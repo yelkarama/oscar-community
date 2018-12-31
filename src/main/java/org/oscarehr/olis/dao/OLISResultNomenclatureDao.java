@@ -8,7 +8,9 @@
  */
 package org.oscarehr.olis.dao;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Query;
 
@@ -24,10 +26,10 @@ public class OLISResultNomenclatureDao extends AbstractDao<OLISResultNomenclatur
 	    super(OLISResultNomenclature.class);
     }
 
-	public OLISResultNomenclature findByNameId(String id) {
-		String sql = "select x from "+ this.modelClass.getName() + " x where x.nameId=?";
+	public OLISResultNomenclature findByLoincCode(String code) {
+		String sql = "select x from "+ this.modelClass.getName() + " x where x.loincCode = :loincCode";
 		Query query = entityManager.createQuery(sql);
-		query.setParameter(1, id);		
+		query.setParameter("loincCode", code);
 		
 		return getSingleResultOrNull(query);
 	}
@@ -37,5 +39,17 @@ public class OLISResultNomenclatureDao extends AbstractDao<OLISResultNomenclatur
 		String sql = "select x from " + this.modelClass.getName() + " x";
 		Query query = entityManager.createQuery(sql);
 		return query.getResultList();
+	}
+
+	public Map<String, OLISResultNomenclature> findByOlisTestLoincCodes(List<String> requestCodes) {
+		Query q = entityManager.createQuery("SELECT x FROM " + this.modelClass.getName() + " x WHERE x.loincCode IN (:requestCodes)");
+		q.setParameter("requestCodes", requestCodes);
+		List<OLISResultNomenclature> resultsList = q.getResultList();
+
+		Map<String, OLISResultNomenclature> resultsMap = new HashMap<String, OLISResultNomenclature>();
+		for (OLISResultNomenclature olisRequestNomenclature : resultsList) {
+			resultsMap.put(olisRequestNomenclature.getLoincCode(), olisRequestNomenclature);
+		}
+		return resultsMap;
 	}
 }
