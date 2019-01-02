@@ -31,8 +31,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -43,6 +45,14 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
@@ -103,6 +113,9 @@ import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 import org.oscarehr.util.WebUtils;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 import cds.AlertsAndSpecialNeedsDocument.AlertsAndSpecialNeeds;
 import cds.AllergiesAndAdverseReactionsDocument.AllergiesAndAdverseReactions;
@@ -198,6 +211,7 @@ public class DemographicExportAction4 extends Action {
 	ArrayList<String> exportError = null;
 	HashMap<String, Integer> entries = new HashMap<String, Integer>();
 	OscarProperties oscarProperties = OscarProperties.getInstance();
+	
 
 	@Override
 	public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -641,13 +655,12 @@ public class DemographicExportAction4 extends Action {
 					address.setLine1(pi.getAddress());
 					if (StringUtils.filled(pi.getCity()) || StringUtils.filled(pi.getProvince()) || StringUtils.filled(pi.getPostalCode())) {
 						address.setCity(StringUtils.noNull(pi.getCity()));
-						//TODO: A proper fix is needed here!!!
-						// pi.getProvince() should be 2 characters, i.e., like "ON" rather than "Ontario" for instance.
-						if (StringUtils.filled(pi.getProvince()) && pi.getProvince().length() == 2) {
-							address.setCountrySubdivisionCode(Util.setCountrySubDivCode(pi.getProvince()));
-						}
-						if(StringUtils.filled(pi.getProvince()) && "ontario".equals(pi.getProvince().toLowerCase().trim())) {
-							address.setCountrySubdivisionCode(Util.setCountrySubDivCode("ON"));
+						//TODO: A better fix is needed here!!!  Only valid 2 character province codes should be stored
+						//      in the database.  For instance, "AB" rather than "Alberta", "Atla." or "Alb.", etc.
+						if (StringUtils.filled(pi.getProvince())) {
+							if (Arrays.asList("ON","ONTARIO","ONT","ONT.").contains(pi.getProvince().trim().toUpperCase())) {
+								address.setCountrySubdivisionCode(Util.setCountrySubDivCode("ON"));	
+							}
 						}
 						// END OF HACK.
 						address.addNewPostalZipCode().setPostalCode(StringUtils.noNull(pi.getPostalCode()).replace(" ",""));
@@ -2230,6 +2243,17 @@ public class DemographicExportAction4 extends Action {
 		}
 	}
 
+	// Validate export against xsd
+	for (File f: files) {
+		Boolean valid = validateExport(f);
+		if (!valid) {
+			logger.warn("Exported file " + f.getName() + " fails OntarioMD XSD validation");
+		} else {
+			logger.info("Exported file " + f.getName() + " is valid");
+		}
+
+	}
+		
 	//create ReadMe.txt & ExportEvent.log
 		files.add(makeReadMe(files));
 		dirs.add("");
@@ -3084,6 +3108,60 @@ public class DemographicExportAction4 extends Action {
 		}
 		
 		return p.getFirstName() + "_" + p.getLastName() + "_" + p.getOhipNo();
+	}
+	
+	public Boolean validateExport(File f) {
+		Boolean result = true;
+
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		factory.setNamespaceAware(true);
+		DocumentBuilder builder = null;
+		try {
+			builder = factory.newDocumentBuilder();
+		} catch (ParserConfigurationException e1) {
+			e1.printStackTrace();
+			return false;
+		}
+
+		URL url = getClass().getResource("/omdDataMigration/EMR_Data_Migration_Schema.xsd");
+		String constant = XMLConstants.W3C_XML_SCHEMA_NS_URI;
+		SchemaFactory xsdFactory = SchemaFactory.newInstance(constant);
+		Schema schema = null;
+		try {
+			schema = xsdFactory.newSchema(url);
+		} catch (SAXException e) {
+			e.printStackTrace();
+			return false;
+		}  
+		factory.setSchema(schema);
+
+
+		Document doc = null;
+		try {
+			doc = builder.parse(f);
+		} catch (SAXException e) {
+			e.printStackTrace();
+			return false;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+
+		// Check whether document is valid; validation stops at first error detected.
+		Validator validator = schema.newValidator();
+		try {
+			validator.validate(new DOMSource(doc));
+		} catch (SAXException e) {
+			//e.printStackTrace();
+			logger.warn("In file '" + f.getName() + "': "+ e.getMessage());
+			return false;
+		} catch (IOException e) {
+			//e.printStackTrace();
+			logger.warn("In file '" + f.getName() + "': " + e.getMessage());
+			return false;
+		}
+		return result;
+
 	}
 
 }
