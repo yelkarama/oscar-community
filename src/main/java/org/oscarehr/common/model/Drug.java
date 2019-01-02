@@ -586,6 +586,9 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 	}
 
 	public String getRegionalIdentifier() {
+		if (regionalIdentifier != null && regionalIdentifier.equalsIgnoreCase("null")) {
+			regionalIdentifier = null;
+		}
 		return regionalIdentifier;
 	}
 

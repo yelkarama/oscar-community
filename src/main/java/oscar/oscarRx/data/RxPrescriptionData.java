@@ -2350,6 +2350,9 @@ public class RxPrescriptionData {
 		 * @return Value of property regionalIdentifier.
 		 */
 		public java.lang.String getRegionalIdentifier() {
+			if (regionalIdentifier != null && regionalIdentifier.equalsIgnoreCase("null")) {
+				regionalIdentifier = null;
+			}
 			return regionalIdentifier;
 		}
 

@@ -402,7 +402,7 @@ public class RxSessionBean  implements java.io.Serializable {
         RxPrescriptionData.Prescription rx;
         for(int i=0;i<this.getStashSize(); i++) {
            rx = this.getStashItem(i);
-           if (!rx.getRegionalIdentifier().isEmpty()) {
+           if (rx.getRegionalIdentifier() != null && !rx.getRegionalIdentifier().isEmpty()) {
                regionalIdentifierCodes.add(rx.getRegionalIdentifier());
            }
         }
