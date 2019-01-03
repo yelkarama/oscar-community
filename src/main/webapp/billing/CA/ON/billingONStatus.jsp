@@ -183,7 +183,7 @@ NumberFormat formatter = new DecimalFormat("#0.00");
         
 		<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.9.1.min.js"></script>
 		<script src="<%=request.getContextPath() %>/js/bootstrap.min.js"></script>
-		<script type="text/javascript" src="<%=request.getContextPath() %>/js/bootstrap-datepicker.js"></script>
+		<script type="text/javascript" src="<%=request.getContextPath() %>/library/bootstrap2-datepicker/bootstrap-datepicker.js"></script>
 		<script type="text/javascript" src="<%=request.getContextPath() %>/js/excellentexport.min.js"></script>
 		<link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
 		<link href="<%=request.getContextPath() %>/css/datepicker.css" rel="stylesheet" type="text/css">
@@ -1060,11 +1060,27 @@ if(statusType.equals("_")) { %>
 </div>
 
 <script language='javascript'>
-    var startDate = $("#xml_vdate").datepicker({format : "yyyy-mm-dd"});
-	var endDate = $("#xml_appointment_date").datepicker({format : "yyyy-mm-dd"});
+    var startDate = $("#xml_vdate").datepicker({
+		format : "yyyy-mm-dd",
+		todayBtn: 'linked',
+		autoclose: true,
+	});
+	var endDate = $("#xml_appointment_date").datepicker({
+		format : "yyyy-mm-dd",
+		todayBtn: 'linked',
+		autoclose: true,
+	});
 	
-	var paymentStartDate = $("#paymentStartDate").datepicker({format : "yyyy-mm-dd"});
-	var paymentEndDate = $("#paymentEndDate").datepicker({format : "yyyy-mm-dd"});
+	var paymentStartDate = $("#paymentStartDate").datepicker({
+		format : "yyyy-mm-dd",
+		todayBtn: 'linked',
+		autoclose: true,
+	});
+	var paymentEndDate = $("#paymentEndDate").datepicker({
+		format : "yyyy-mm-dd",
+		todayBtn: 'linked',
+		autoclose: true,
+	});
 	
     $( document ).ready(function() {
     	parent.parent.resizeIframe($('html').height());

@@ -172,9 +172,9 @@
         
 		<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.9.1.min.js"></script>
 		<script src="<%=request.getContextPath() %>/js/bootstrap.min.js"></script>
-		<script type="text/javascript" src="<%=request.getContextPath() %>/js/bootstrap-datepicker.js"></script>
-		
-		<link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
+        <script type="text/javascript" src="<%=request.getContextPath() %>/library/bootstrap2-datepicker/bootstrap-datepicker.js"></script>
+
+        <link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
 		<link href="<%=request.getContextPath() %>/css/datepicker.css" rel="stylesheet" type="text/css">
 		<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
         
@@ -666,8 +666,16 @@ table td,th{font-size:12px;}
 </div><!--container-->
 
         <script type="text/javascript">                       
-	        var startDate = $("#startDateText").datepicker({format : "yyyy-mm-dd"});
-	        var endDate = $("#endDateText").datepicker({format : "yyyy-mm-dd"});
+	        var startDate = $("#startDateText").datepicker({
+                format : "yyyy-mm-dd",
+                todayBtn: 'linked',
+                autoclose: true,
+            });
+	        var endDate = $("#endDateText").datepicker({
+                format : "yyyy-mm-dd",
+                todayBtn: 'linked',
+                autoclose: true,
+            });
         </script>
   
     </body>

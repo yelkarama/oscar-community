@@ -408,11 +408,15 @@ Select Provider<br>
 registerFormSubmit('serviceform', 'dynamic-content');
 
 var startDate = $("#xml_vdate").datepicker({
-	format : "yyyy-mm-dd"
+	format : "yyyy-mm-dd",
+	todayBtn: 'linked',
+	autoclose: true,
 });
 
 var endDate = $("#xml_appointment_date").datepicker({
-	format : "yyyy-mm-dd"
+	format : "yyyy-mm-dd",
+	todayBtn: 'linked',
+	autoclose: true,
 });
 
 //open a new popup window

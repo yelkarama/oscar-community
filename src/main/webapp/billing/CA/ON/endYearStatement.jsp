@@ -225,8 +225,16 @@ name=request.getParameter("firstNameParam")+" "+request.getParameter("lastNamePa
 </div><!--container-->
 </body>
 <script type="text/javascript">
-	var startDate = $("#fromDateParam").datepicker({format : "yyyy-mm-dd"});
-	var endDate = $("#toDateParam").datepicker({format : "yyyy-mm-dd"});
+	var startDate = $("#fromDateParam").datepicker({
+		format : "yyyy-mm-dd",
+		todayBtn: 'linked',
+		autoclose: true,
+	});
+	var endDate = $("#toDateParam").datepicker({
+		format : "yyyy-mm-dd",
+		todayBtn: 'linked',
+		autoclose: true,
+	});
 
 </script>
 </html>

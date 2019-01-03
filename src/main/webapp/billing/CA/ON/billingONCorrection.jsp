@@ -175,7 +175,7 @@
 
 <script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.9.1.min.js"></script>
 <script src="<%=request.getContextPath() %>/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="<%=request.getContextPath() %>/js/bootstrap-datepicker.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath() %>/library/bootstrap2-datepicker/bootstrap-datepicker.js"></script>
 
 <link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
 <link href="<%=request.getContextPath() %>/css/datepicker.css" rel="stylesheet" type="text/css">
@@ -1268,7 +1268,9 @@ for (ClinicNbr clinic : nbrs) {
 <% if (thirdParty && bCh1 != null && OscarProperties.getInstance().hasProperty("invoice_due_date")) { %>
 <script type="text/javascript">
     var startDate = $("#invoiceDueDate").datepicker({
-    	format : "yyyy-mm-dd"
+    	format : "yyyy-mm-dd",
+        todayBtn: 'linked',
+        autoclose: true,
     });
 </script>
 <% } %>
@@ -1283,10 +1285,14 @@ for (ClinicNbr clinic : nbrs) {
 </body>
 <script type="text/javascript">
     var startDate = $("#xml_appointment_date").datepicker({
-    	format : "yyyy-mm-dd"
+        format : "yyyy-mm-dd",
+        todayBtn: 'linked',
+        autoclose: true,
     });
     var startDate = $("#xml_vdate").datepicker({
-    	format : "yyyy-mm-dd"
+        format : "yyyy-mm-dd",
+        todayBtn: 'linked',
+        autoclose: true,
     });
 
     window.setTimeout(function() {
@@ -1300,8 +1306,6 @@ for (ClinicNbr clinic : nbrs) {
 
     });
 
-Calendar.setup( { inputField : "xml_appointment_date", ifFormat : "%Y-%m-%d", showsTime :false, button : "xml_appointment_date_cal", singleClick : true, step : 1 } );
-Calendar.setup( { inputField : "xml_vdate", ifFormat : "%Y-%m-%d", showsTime :false, button : "xml_vdate_cal", singleClick : true, step : 1 } );
 function display3rdPartyPayments() {
     popupPage('800', '860', 'billingON3rdPayments.do?method=listPayments&billingNo=<%= billNo %>');
 }

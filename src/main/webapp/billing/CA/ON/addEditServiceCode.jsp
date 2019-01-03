@@ -559,11 +559,15 @@ Fee <small> e.g. 18.20</small><br>
 </div>
 <script type="text/javascript">
 var startDate = $("#billingservice_date").datepicker({
-	format : "yyyy-mm-dd"
+	format : "yyyy-mm-dd",
+	todayBtn: 'linked',
+	autoclose: true,
 });
 
 var endDate = $("#termination_date").datepicker({
-	format : "yyyy-mm-dd"
+	format : "yyyy-mm-dd",
+	todayBtn: 'linked',
+	autoclose: true,
 });
 </script>
 
