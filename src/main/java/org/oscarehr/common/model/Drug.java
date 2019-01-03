@@ -140,7 +140,7 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 	@Column(name = "non_authoritative")
 	private Boolean nonAuthoritative = false;
 	@Column(name = "pickup_datetime")
-	@Temporal(javax.persistence.TemporalType.DATE)
+	@Temporal(javax.persistence.TemporalType.TIMESTAMP)
 	private Date pickupDateTime;
 	private String eTreatmentType = null;
 	private String rxStatus = null;
@@ -165,6 +165,9 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 
 	private String protocol = null;
 	private String priorRxProtocol = null;
+	
+	@Column(name = "pharmacyId")
+	private Integer pharmacyId;
 	
 	// ///
 	@Transient
@@ -247,6 +250,7 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 		this.dispenseInterval = drug.getDispenseInterval();
 		this.dispenseInternal = drug.getDispenseInternal();
 		this.protocol = drug.getProtocol();
+		this.pharmacyId = drug.getPharmacyId();
 	}
 
 	@PreUpdate
@@ -928,6 +932,14 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 
 	public void setPriorRxProtocol(String priorRxProtocol) {
 		this.priorRxProtocol = priorRxProtocol;
+	}
+
+	public Integer getPharmacyId() {
+		return pharmacyId;
+	}
+
+	public void setPharmacyId(Integer pharmacyId) {
+		this.pharmacyId = pharmacyId;
 	}
 
 	//Sorts Ids in descending order

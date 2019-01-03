@@ -85,7 +85,7 @@ if(listRxDrugs!=null){
          String dosage = rx.getDosage();
  
          String pickupDate      = RxUtil.DateToString(rx.getPickupDate(), "yyyy-MM-dd");
-         String pickupTime      = RxUtil.DateToString(rx.getPickupTime(), "hh:mm");
+         String pickupTime      = RxUtil.DateToString(rx.getPickupTime(), "HH:mm");
          String eTreatmentType  = rx.getETreatmentType()!=null ? rx.getETreatmentType() : "";
          String rxStatus        = rx.getRxStatus()!=null ? rx.getRxStatus() : "";		    
 		String protocol		= rx.getProtocol()!=null ? rx.getProtocol() : ""; 

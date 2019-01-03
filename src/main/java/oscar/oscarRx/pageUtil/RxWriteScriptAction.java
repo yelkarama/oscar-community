@@ -869,9 +869,9 @@ public final class RxWriteScriptAction extends DispatchAction {
 		
 		oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean) request.getSession().getAttribute("RxSessionBean");
 		request.getSession().setAttribute("rePrint", null);// set to print.
-		List<String> paramList = new ArrayList();
+		List<String> paramList = new ArrayList<String>();
 		Enumeration em = request.getParameterNames();
-		List<String> randNum = new ArrayList();
+		List<String> randNum = new ArrayList<String>();
 		while (em.hasMoreElements()) {
 			String ele = em.nextElement().toString();
 			paramList.add(ele);
@@ -907,11 +907,8 @@ public final class RxWriteScriptAction extends DispatchAction {
 					boolean isStartDateUnknown = false;
 	                boolean isNonAuthoritative = false;
 	                boolean nosubs = false;
-	                Date pickupDate;
-	                Date pickupTime;
-                    int dispenseInterval;
-                    int refillDuration;
-                    int refillQuantity;
+	                Date pickupDate = null;
+	                Date pickupTime = null;
 
 					em = request.getParameterNames();
 					while (em.hasMoreElements()) {
@@ -926,7 +923,10 @@ public final class RxWriteScriptAction extends DispatchAction {
 							} else {
 								rx.setBrandName(val);
 							}
-							
+						} else if("rxPharmacyId".equals(elem)) {
+							if(val != null && ! val.isEmpty()) {
+								rx.setPharmacyId(Integer.parseInt(val));
+							}
 						} else if (elem.equals("repeats_" + num)) {
 							if (val.equals("") || val == null) {
 								rx.setRepeat(0);
@@ -995,19 +995,15 @@ public final class RxWriteScriptAction extends DispatchAction {
 							} else {
 								rx.setRxDateFormat(partialDateDao.getFormat(val));
 								rx.setRxDate(partialDateDao.StringToDate(val));
-								//rx.setRxDate(RxUtil.StringToDate(val, "yyyy-MM-dd"));
-							}
+							}							
                         } else if (elem.equals("pickupDate_" + num)) {
-							if ((val == null) || (val.equals(""))) {
-								rx.setPickupDate(null);
-                                rx.setPickupTime(null);
-							} else {
-								rx.setPickupDate(RxUtil.StringToDate(val, "yyyy-MM-dd"));
-							}
+							if ((val != null) && (! val.equals(""))) {
+								pickupDate = RxUtil.StringToDate(val, "yyyy-MM-dd");
+							} 														
                        } else if (elem.equals("pickupTime_" + num)) {
 							if ((val != null) && (!val.equals(""))) {
-								rx.setPickupTime(RxUtil.StringToDate(val, "hh:mm"));
-							}
+								pickupTime = RxUtil.StringToDate(val, "hh:mm");
+							}							
 						} else if (elem.equals("writtenDate_" + num)) {
 							if (val == null || (val.equals(""))) {
 								rx.setWrittenDate(RxUtil.StringToDate("0000-00-00", "yyyy-MM-dd"));
@@ -1087,6 +1083,14 @@ public final class RxWriteScriptAction extends DispatchAction {
                     rx.setNonAuthoritative(isNonAuthoritative);
                     rx.setNosubs(nosubs);
 					String newline = System.getProperty("line.separator");
+					
+					if( pickupDate != null && pickupTime != null ) {
+						rx.setPickupDate(RxUtil.combineDateTime(pickupDate, pickupTime));
+					} else if(pickupTime != null) {
+						rx.setPickupDate(RxUtil.combineDateTime(new Date(), pickupTime));
+					} else {
+						rx.setPickupDate(pickupDate);
+					}
 
 					String special;
 					if (rx.isCustomNote()) {

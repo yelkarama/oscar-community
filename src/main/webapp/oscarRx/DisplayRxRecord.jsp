@@ -28,8 +28,11 @@
 <%@page import="org.oscarehr.common.model.PartialDate"%>
 <%@page import="org.oscarehr.common.dao.PartialDateDao"%>
 <%@page import="org.oscarehr.managers.CodingSystemManager"%>
+<%@page import="org.oscarehr.managers.PharmacyManager"%>
 <%@page import="org.oscarehr.casemgmt.model.CaseManagementNoteLink"%>
 <%@page import="org.oscarehr.casemgmt.service.CaseManagementManager"%>
+<%@page import="org.oscarehr.common.model.PharmacyInfo"%>
+<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="java.util.List"%>
 <%@page import="org.apache.commons.lang.StringUtils"%>
@@ -54,7 +57,7 @@
 
 <%
 String id = request.getParameter("id");
-
+LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 DrugDao drugDao = (DrugDao) SpringUtils.getBean("drugDao");
 ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
 DemographicDao demographicDao = (DemographicDao) SpringUtils.getBean("demographicDao");
@@ -106,6 +109,14 @@ for(DrugReason dr : drugReasonList) {
 if(stringBuilder != null) {
 	pageContext.setAttribute("ProblemCode", stringBuilder.toString());
 }
+
+// Get the pharmacy information for this drug.
+PharmacyManager pharmacyManager = SpringUtils.getBean(PharmacyManager.class);
+PharmacyInfo pharmacy = null;
+if(drug.getPharmacyId() != null) {
+	pharmacy = pharmacyManager.getPharmacy(loggedInInfo, drug.getPharmacyId());
+}
+pageContext.setAttribute("pharmacy", pharmacy);
 
 %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
@@ -221,7 +232,13 @@ if(stringBuilder != null) {
               				</tr>       				
               				<tr style="height:15px">
               				
-              				</tr>  
+              				</tr> 
+              				<tr>
+              					<td class="label">Preferred Pharmacy:</td>
+                        		<td> 
+                        			${ pharmacy.name }
+                        		</td>
+              				</tr> 
 							<tr>
               					<td class="label">ATC:</td>
                         		<td><%= StringUtils.trimToEmpty(drug.getAtc())%></td>
@@ -284,7 +301,7 @@ if(stringBuilder != null) {
                         		<td><%= drug.getDispenseInterval() %></td>
               				</tr>
               				<tr>
-              					<td class="label">Pickup Date:</td>
+              					<td class="label">Pickup Date/Time:</td>
                         		<td><%=drug.getPickUpDateTime() != null ? dateTimeFormatter.format(drug.getPickUpDateTime()) : ""%></td>
               				</tr>
               				<tr>

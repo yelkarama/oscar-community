@@ -138,6 +138,7 @@ public class RxPrescriptionData {
 			logger.warn("data from db is : " + drug.getSpecial());
 		}
 		prescription.setDispenseInternal(drug.getDispenseInternal());
+		prescription.setPharmacyId(drug.getPharmacyId());
 		return prescription;
 	}
 
@@ -311,6 +312,7 @@ public class RxPrescriptionData {
 		if (drug.getRefillDuration() != null) p.setRefillDuration(drug.getRefillDuration());
 		if (drug.getRefillQuantity() != null) p.setRefillQuantity(drug.getRefillQuantity());
 		p.setHideCpp(drug.getHideFromCpp());
+		p.setPharmacyId(drug.getPharmacyId());
 		return p;
 	}
 
@@ -677,6 +679,7 @@ public class RxPrescriptionData {
 
 		private String protocol;
 		private String priorRxProtocol;
+		private Integer pharmacyId;
 		
 		public String getDrugReasonCode() {
 			return drugReasonCode;
@@ -1009,6 +1012,14 @@ public class RxPrescriptionData {
 
 		public void setPriorRxProtocol(String priorRxProtocol) {
 			this.priorRxProtocol = priorRxProtocol;
+		}
+
+		public Integer getPharmacyId() {
+			return pharmacyId;
+		}
+
+		public void setPharmacyId(Integer pharmacyId) {
+			this.pharmacyId = pharmacyId;
 		}
 
 		/*
@@ -1616,31 +1627,14 @@ public class RxPrescriptionData {
 
 			if (getSpecial() == null || getSpecial().length() < 6) logger.warn("drug special appears to be null or empty : " + getSpecial());
 
-			//  String parsedSpecial = RxUtil.replace(this.getSpecial(), "'", "");//a bug?
 			String escapedSpecial = StringEscapeUtils.escapeSql(this.getSpecial());
 
 			if (escapedSpecial == null || escapedSpecial.length() < 6) logger.warn("drug special after escaping appears to be null or empty : " + escapedSpecial);
 
-			// check to see if there is an identitical prescription in
-			// the database. If there is we'll return that drugid instead
-			// of adding a new prescription.
-			/*
-						String endDate;
-						if (this.getEndDate() == null) {
-							endDate = "0001-01-01";
-						} else {
-							endDate = RxUtil.DateToString(this.getEndDate());
-						}
-			*/
 			DrugDao dao = SpringUtils.getBean(DrugDao.class);
-			// double check if we don't h
-			Drug drug = dao.findByEverything(this.getProviderNo(), this.getDemographicNo(), this.getRxDate(), this.getEndDate(), this.getWrittenDate(), this.getBrandName(), this.getGCN_SEQNO(), this.getCustomName(), this.getTakeMin(), this.getTakeMax(), this.getFrequencyCode(), this.getDuration(), this.getDurationUnit(), this.getQuantity(), this.getUnitName(), this.getRepeat(), this.getLastRefillDate(), this.getNosubs(), this.getPrn(), escapedSpecial, this.getOutsideProviderName(),
-			        this.getOutsideProviderOhip(), this.getCustomInstr(), this.getLongTerm(), this.isCustomNote(), this.getPastMed(), this.getPatientCompliance(), this.getSpecialInstruction(), this.getComment(), this.getStartDateUnknown());
+			Drug drug = new Drug();
 
-			drug = new Drug();
-
-			int position = this.getNextPosition();
-			this.position = position;
+			this.position = this.getNextPosition();
 			syncDrug(drug, ConversionUtils.fromIntString(scriptId));
 			dao.persist(drug);
 			drugId = drug.getId();
@@ -1703,6 +1697,7 @@ public class RxPrescriptionData {
 			drug.setDispenseInternal(getDispenseInternal());
 			drug.setProtocol(protocol);
 			drug.setPriorRxProtocol(priorRxProtocol);
+			drug.setPharmacyId(getPharmacyId());
 		}
 
 		public boolean AddToFavorites(String providerNo, String favoriteName) {

@@ -856,7 +856,8 @@ THEME 2*/
                                     <div id="interactingDrugErrorMsg" style="display:none"></div>
                                     <div id="rxText" style="float:left;"></div><br style="clear:left;">
                                     <input type="hidden" id="deleteOnCloseRxBox" value="false">
-
+                                    <input type="hidden" id="rxPharmacyId" name="rxPharmacyId" value="" />
+                                    
                                     <html:hidden property="demographicNo" value="<%=new Integer(patient.getDemographicNo()).toString()%>" />
                                     <table border="0">
                                         <tr valign="top">
@@ -2339,7 +2340,7 @@ function updateQty(element){
 			return false;
 		}
 		<%}%>
-		
+		setPharmacyId();
         var data=Form.serialize($('drugForm'));
         var url= "<c:out value="${ctx}"/>" + "/oscarRx/WriteScript.do?parameterValue=updateSaveAllDrugs&rand="+ Math.floor(Math.random()*10001);
         new Ajax.Request(url,
@@ -2366,7 +2367,7 @@ function updateQty(element){
 			return false;
 		}
 		<%}%>		
-		
+		setPharmacyId();
         var data=Form.serialize($('drugForm'));
         var url= "<c:out value="${ctx}"/>" + "/oscarRx/WriteScript.do?parameterValue=updateSaveAllDrugs&rand="+ Math.floor(Math.random()*10001);
         new Ajax.Request(url,
@@ -2377,6 +2378,20 @@ function updateQty(element){
                 resetStash();
             }});
         return false;
+    }
+    
+    /**
+    * Gets the selected preferred pharmacy id and then sets it into the 
+    * rxPharmacyId hidden input for submission with each drug in 
+    * a prescription. 
+    */
+    function setPharmacyId() {
+    	var selectedPharmacy = jQuery("#Calcs option:selected").val();
+    	var selectedPharmacyId = "";
+    	if(selectedPharmacy) {
+    		selectedPharmacyId = JSON.parse(selectedPharmacy).id;
+    	}
+    	jQuery("#rxPharmacyId").val(selectedPharmacyId);	
     }
 
 function checkEnterSendRx(){
