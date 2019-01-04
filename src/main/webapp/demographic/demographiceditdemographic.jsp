@@ -319,6 +319,7 @@ if(!authed) {
 <%@ page import="org.oscarehr.util.AgeCalculator" %>
 <%@ page import="org.oscarehr.util.Age" %>
 <%@ page import="org.owasp.encoder.Encode" %>
+<%@ page import="oscar.util.UtilMisc" %>
 <html:html locale="true">
 
 <head>
@@ -1648,15 +1649,15 @@ if(oscarProps.getProperty("new_label_print") != null && oscarProps.getProperty("
 						<ul>
                                                     <li><span class="label"><bean:message
                                                             key="demographic.demographiceditdemographic.formLastName" />:</span>
-                                                        <span class="info"><%=demographic.getLastName()%></span>
+                                                        <span class="info"><%=UtilMisc.toUpperLowerCase(demographic.getLastName())%></span>
                                                     </li>
                                                     <li><span class="label">
 							<bean:message
                                                                 key="demographic.demographiceditdemographic.formFirstName" />:</span>
-                                                        <span class="info"><%=demographic.getFirstName()%></span>
+                                                        <span class="info"><%=UtilMisc.toUpperLowerCase(demographic.getFirstName())%></span>
 							</li>
 													<li><span class="label"><bean:message key="demographic.demographiceditdemographic.formPrefName" />:</span>
-															<span class="info"><%=demographic.getPrefName()%></span>
+															<span class="info"><%=UtilMisc.toUpperLowerCase(demographic.getPrefName())%></span>
 													</li>
 													<% if (masterFilePreferences.getOrDefault("display_former_name", false)) { %>
 													<li><span class="label"><bean:message key="demographic.demographiceditdemographic.formFormerName" />:</span>
@@ -1664,7 +1665,7 @@ if(oscarProps.getProperty("new_label_print") != null && oscarProps.getProperty("
 													</li>
 													<% } %>
                                                     <li><span class="label"><bean:message key="demographic.demographiceditdemographic.msgDemoTitle"/>:</span>
-                                                        <span class="info"><%=StringUtils.trimToEmpty(demographic.getTitle())%></span>
+                                                        <span class="info"><%=UtilMisc.toUpperLowerCase(StringUtils.trimToEmpty(demographic.getTitle()))%></span>
 							</li>
                                                     <li><span class="label"><bean:message key="demographic.demographiceditdemographic.formSex" />:</span>
                                                         <span class="info"><%=demographic.getSex()%></span>
