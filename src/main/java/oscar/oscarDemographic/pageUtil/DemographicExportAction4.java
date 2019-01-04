@@ -2635,7 +2635,7 @@ public class DemographicExportAction4 extends Action {
 
 	private String cutExt(String filename) {
 	if (StringUtils.empty(filename)) return "";
-	String[] parts = filename.split(".");
+	String[] parts = filename.split("[.]");
 	if (parts.length>1) return "."+parts[parts.length-1];
 	else return "";
 	}
