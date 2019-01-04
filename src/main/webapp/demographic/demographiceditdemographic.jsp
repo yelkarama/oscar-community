@@ -1672,7 +1672,10 @@ if(oscarProps.getProperty("new_label_print") != null && oscarProps.getProperty("
                                                     <li><span class="label"><bean:message key="demographic.demographiceditdemographic.msgDemoAge"/>:</span>
                                                         <span class="info"><%=age%>&nbsp;(<bean:message
                                                             key="demographic.demographiceditdemographic.formDOB" />: <%=birthYear%>-<%=birthMonth%>-<%=birthDate%>)
+                                                            <small>(yyyy-mm-dd)</small>
                                                         </span>
+
+
                                                     </li>
 							<% if (showSin) { %>
 							<li>
