@@ -327,6 +327,15 @@
         <ap-json-output>true</ap-json-output>
     </databaseap>
     <databaseap>
+        <ap-name>recent_note</ap-name>
+        <ap-sql>SELECT n.note as note FROM casemgmt_note n
+            where not exists(select l.note_id from casemgmt_note_link l where n.note_id = l.note_id and l.table_name != 1)
+            and not exists(select i.note_id from casemgmt_issue_notes i where n.note_id = i.note_id)
+            and n.demographic_no= ${demographic}
+            order by n.note_id desc limit 1;</ap-sql>
+        <ap-output>${note}</ap-output>
+    </databaseap>
+    <databaseap>
     	<ap-name>dxregistry</ap-name>
     	<ap-sql>SELECT GROUP_CONCAT(icd9.description SEPARATOR ', ') AS dxlist FROM icd9, dxresearch WHERE status='A' AND coding_system='icd9' AND icd9.icd9=dxresearch.dxresearch_code AND demographic_no=${demographic};</ap-sql>
     	<ap-output>${dxlist}</ap-output>
