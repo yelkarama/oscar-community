@@ -276,6 +276,13 @@ public class DxresearchDAO extends AbstractDao<Dxresearch>{
 
 		return items;
 	}
+	
+    public List<String> getCodesByDemographicNo(int demographicNo) {
+        String hql = "select d.dxresearchCode from Dxresearch d where d.demographicNo=? and d.status='A'";
+        Query query = entityManager.createQuery(hql);
+        query.setParameter(1, demographicNo);
+        return query.getResultList();
+    }
 
 	public List<Dxresearch> find(int demographicNo, String codeType, String code) {
 		String hql = "select d from Dxresearch d where d.demographicNo=? and d.codingSystem=? and d.dxresearchCode=? order by d.updateDate desc";
