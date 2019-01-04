@@ -28,6 +28,8 @@ String curUser_no = (String) session.getAttribute("user");
 <%@page import="org.oscarehr.util.SpringUtils" %>
 <%@page import="org.oscarehr.common.dao.BillingDao" %>
 <%@page import="org.oscarehr.common.model.Billing" %>
+<%@ page import="oscar.log.LogAction" %>
+<%@ page import="oscar.log.LogConst" %>
 <%
 	BillingDao billingDao = SpringUtils.getBean(BillingDao.class);
 %>
@@ -65,16 +67,19 @@ if (billCode.substring(0,1).compareTo("B") == 0) {
 
 <%
 } else{
+	String billNo = request.getParameter("billing_no");
 	int rowsAffected=0;
 	OscarProperties props = OscarProperties.getInstance();
 	if(props.getProperty("isNewONbilling", "").equals("true")) {
 		BillingCorrectionPrep dbObj = new BillingCorrectionPrep();
 		rowsAffected = dbObj.deleteBilling(request.getParameter("billing_no"),"D", curUser_no)? 1 : 0;
 	} else {
-		 Billing b = billingDao.find(Integer.parseInt(request.getParameter("billing_no")));
+		 Billing b = billingDao.find(Integer.parseInt(billNo));
 		   if(b != null) {
 			   b.setStatus("D");
 			   billingDao.merge(b);
+			   LogAction.addLog(curUser_no, "unbill", LogConst.CON_BILL,
+					   "billingId=" + billNo, String.valueOf(b.getDemographicNo()), "");
 		   }
 	}
 %>

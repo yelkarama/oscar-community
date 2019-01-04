@@ -43,6 +43,8 @@ import org.oscarehr.common.model.BillingOnItemPayment;
 import org.oscarehr.common.model.BillingOnTransaction;
 import org.oscarehr.common.model.RaDetail;
 import org.oscarehr.util.SpringUtils;
+import oscar.log.LogAction;
+import oscar.log.LogConst;
 
 
 public class JdbcBillingCorrection {
@@ -150,12 +152,14 @@ public class JdbcBillingCorrection {
 			h.setStatus(status);
 			billingHeaderDao.merge(h);
 			dbLog.addBillingLog(providerNo, "updateBillingStatus", "", id);
+			LogAction.addLog(providerNo, "updateBillingStatus", LogConst.CON_BILL, "billingId=" + id);
 			
 			List<BillingONItem> items = billingItemDao.getBillingItemByCh1Id(Integer.valueOf(id));
 			for(BillingONItem i:items) {
 				i.setStatus(status);
 			}
 			 dbLog.addBillingLog(providerNo, "updateBillingStatus-items", "", id);
+			LogAction.addLog(providerNo, "updateBillingStatus-items", LogConst.CON_BILL, "billingId=" + id);
 			return true;
 		} else {
 			return false;
