@@ -658,8 +658,16 @@ public class DemographicExportAction4 extends Action {
 						//TODO: A better fix is needed here!!!  Only valid 2 character province codes should be stored
 						//      in the database.  For instance, "AB" rather than "Alberta", "Atla." or "Alb.", etc.
 						if (StringUtils.filled(pi.getProvince())) {
-							if (Arrays.asList("ON","ONTARIO","ONT","ONT.").contains(pi.getProvince().trim().toUpperCase())) {
+							String prov = pi.getProvince().trim();
+							if (prov.length() == 2) { // ON, BC, etc.
+								address.setCountrySubdivisionCode(Util.setCountrySubDivCode(prov.toUpperCase()));
+							} else if (Arrays.asList("ONTARIO","ONT","ONT.").contains(prov.toUpperCase())) {
 								address.setCountrySubdivisionCode(Util.setCountrySubDivCode("ON"));	
+							} else {
+								exportError.add("Preferred pharmacy countrySubdivisionCode '" + prov +
+										"' for Patient ID '" + demoNo + "' may not conform to ISO 3166-2.");
+								// Omit call to Util.setCountrySubDivCode(); prov isn't a 2-character Canadian province code
+								address.setCountrySubdivisionCode(prov);
 							}
 						}
 						// END OF HACK.
@@ -2247,7 +2255,9 @@ public class DemographicExportAction4 extends Action {
 	for (File f: files) {
 		Boolean valid = validateExport(f);
 		if (!valid) {
-			logger.warn("Exported file " + f.getName() + " fails OntarioMD XSD validation");
+			String msg = "Exported file " + f.getName() + " fails OntarioMD XSD validation";
+			logger.warn(msg);
+			exportError.add(msg);
 		} else {
 			logger.info("Exported file " + f.getName() + " is valid");
 		}
