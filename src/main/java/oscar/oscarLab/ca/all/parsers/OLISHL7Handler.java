@@ -72,11 +72,13 @@ public class OLISHL7Handler implements MessageHandler {
 	private ArrayList<String> obrStatus;
 	private HashMap<String, String> sourceOrganizations;
 
+	private int obrCount = 0;
 	private HashMap<String, String> defaultSourceOrganizations;
 	
 	private String reportStatus = "";
 	private String reportStatusDescription = "Final";
 
+    private Map<String, OLISRequestNomenclature> olisRequestNomenclatureMap = null;
     private Map<String, OLISResultNomenclature> olisResultNomenclatureMap = null;
 	
 	public static final String OBR_SPECIMEN_TYPE = "specimenType";
@@ -909,7 +911,7 @@ public class OLISHL7Handler implements MessageHandler {
 		headers = new ArrayList<String>();
 		terser = new Terser(msg);
 		int zbrNum = 1;
-		int obrCount = getOBRCount();
+		this.obrCount = getOBRCount();
 		int obrNum = 1;
 		boolean obrFlag;
 		String segmentName;
@@ -918,7 +920,7 @@ public class OLISHL7Handler implements MessageHandler {
 		int k = 0;
 
 		// We only need to parse a few segments if there are no OBRs.
-		if (obrCount == 0) {
+		if (this.obrCount == 0) {
 			for (; k < segments.length; k++) {
 				segmentName = segments[k].substring(0, 3);
 				if (segmentName.equals("ZPD")) {
@@ -930,7 +932,7 @@ public class OLISHL7Handler implements MessageHandler {
 			}
 			return;
 		}
-		for (int i = 0; i < obrCount; i++) {
+		for (int i = 0; i < this.obrCount; i++) {
 			ArrayList<Segment> obxSegs = new ArrayList<Segment>();
 
 			headers.add(getOBRName(i));
@@ -1581,27 +1583,35 @@ public class OLISHL7Handler implements MessageHandler {
 
 	@Override
 	public String getOBRName(int i) {
-
-		String obrName;
-		i++;
-		try {
-			if (i == 1) {
-
-				obrName = getString(terser.get("/.OBR-4-2"));
-				if (obrName.equals("")) obrName = getString(terser.get("/.OBR-4-1"));
-
-			} else {
-				Segment obrSeg = (Segment) terser.getFinder().getRoot().get("OBR" + i);
-				obrName = getString(Terser.get(obrSeg, 4, 0, 2, 1));
-				if (obrName.equals("")) obrName = getString(Terser.get(obrSeg, 4, 0, 1, 1));
-
-			}
-
-			return (obrName);
-
-		} catch (Exception e) {
-			return ("");
+		if (olisRequestNomenclatureMap == null) {
+			this.olisRequestNomenclatureMap = getOlisRequestNomenclatureMap();
 		}
+		i++;
+		String obrName = "";
+		try {
+			Segment obrSeg;
+			if (i == 1) {
+				obrSeg = (Segment) terser.getFinder().getRoot().get("OBR");
+			} else {
+				obrSeg = (Segment) terser.getFinder().getRoot().get("OBR" + i);
+			}
+			String loincCode = getString(Terser.get(obrSeg, 4, 0, 1, 1));
+
+			OLISRequestNomenclature requestNomenclature = this.olisRequestNomenclatureMap.get(loincCode);
+			if (requestNomenclature != null) {
+				obrName = requestNomenclature.getRequestAlternateName1();
+			} else {
+				logger.warn("Missing OLIS request nomenclature for loinc code: " + loincCode);
+			}
+			
+			if (obrName.isEmpty()) {
+				obrName = getString(Terser.get(obrSeg, 4, 0, 2, 1));
+			}
+		} catch(HL7Exception e) {
+			logger.error("Could not retrieve or parse OBR " + i);
+		}
+		
+		return obrName;
 	}
 
 	@Override
@@ -1681,7 +1691,7 @@ public class OLISHL7Handler implements MessageHandler {
 	
 	public Map<String, OLISRequestNomenclature> getOlisRequestNomenclatureMap() {
 	    List<String> requestCodes = new ArrayList<String>();
-        for (int obr = 0; obr < getHeaders().size(); obr++) {
+        for (int obr = 0; obr < this.obrCount; obr++) {
             String requestCode = getNomenclatureRequestCode(obr);
             if (!StringUtils.isEmpty(requestCode)) {
                 requestCodes.add(requestCode);
