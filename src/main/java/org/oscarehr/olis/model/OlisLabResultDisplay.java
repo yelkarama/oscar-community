@@ -209,11 +209,13 @@ public class OlisLabResultDisplay {
             int obxCount = olisHandler.getOBXCount(obr);
             if (obxCount > 0) {
                 for (int obx = 0; obx < obxCount; obx++) {
+                    String resultStatus = olisHandler.getOBXResultStatus(obr, obx).trim();
+                    
                     OlisMeasurementsResultDisplay measurement = new OlisMeasurementsResultDisplay();
                     measurement.setMeasurementObxIndex(obx);
                     measurement.setParentLab(labResult);
                     measurement.setTestResultName(olisHandler.getOBXName(obr, obx));
-                    measurement.setStatus(olisHandler.getTestResultStatusMessage(olisHandler.getOBXResultStatus(obr, obx).charAt(0)));
+                    measurement.setStatus(olisHandler.getTestResultStatusMessage(resultStatus.charAt(0)));
                     measurement.setResultValue(olisHandler.getOBXResult(obr, obx));
                     measurement.setFlag(olisHandler.getOBXAbnormalFlag(obr, obx));
                     measurement.setReferenceRange(olisHandler.getOBXReferenceRange(obr, obx));
@@ -227,6 +229,11 @@ public class OlisLabResultDisplay {
                         measurement.getComments().add(olisHandler.getOBXComment(obr, obx, commentIndex));
                     }
 
+                    // Checks if the results is invalid, a status of W, and if it is, sets the flag
+                    if (resultStatus.equalsIgnoreCase("W")) {
+                        measurement.setInvalid(true);
+                    }
+                    
                     labResult.getMeasurements().add(measurement);
                 }
             } else {

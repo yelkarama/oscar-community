@@ -21,6 +21,7 @@ public class OlisMeasurementsResultDisplay {
     private String natureOfAbnormalText = "";
     private List<String> comments = new ArrayList<>();
     private boolean isAttachment = false;
+    private boolean isInvalid = false;
             
     OlisMeasurementsResultDisplay() { }
 
@@ -107,7 +108,14 @@ public class OlisMeasurementsResultDisplay {
     public void setIsAttachment(boolean attachment) {
         isAttachment = attachment;
     }
-    
+
+    public boolean isInvalid() {
+        return isInvalid;
+    }
+    public void setInvalid(boolean invalid) {
+        isInvalid = invalid;
+    }
+
     public static final Comparator<OlisMeasurementsResultDisplay> DEFAULT_OLIS_SORT_COMPARATOR = new Comparator<OlisMeasurementsResultDisplay>() {
         @Override
         public int compare(OlisMeasurementsResultDisplay o1, OlisMeasurementsResultDisplay o2) {
