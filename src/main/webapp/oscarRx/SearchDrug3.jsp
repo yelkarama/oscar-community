@@ -269,15 +269,16 @@ if (rx_enhance!=null && rx_enhance.equals("true")) {
 
 	        function handleEnter(inField, ev){
 	            var charCode;
-	            if(ev && ev.which)
+	            if(ev && ev.which) {
 	                charCode=ev.which;
-	            else if(window.event){
+	            }else if(window.event){
 	                ev=window.event;
 	                charCode=ev.keyCode;
 	            }
 	            var id=inField.id.split("_")[1];
-	            if(charCode==13)
+	            if(charCode==13) {
 	                showHideSpecInst('siAutoComplete_'+id);
+	            }
 	        }
 
         //has to be in here, not prescribe.jsp for it to work in IE 6/7 and probably 8.

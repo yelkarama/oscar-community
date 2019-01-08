@@ -648,16 +648,11 @@ public final class RxWriteScriptAction extends DispatchAction {
 		}
 		logger.debug("=============END createNewRx RxWriteScriptAction.java===============");
 
-//		Place holder for new Medication Module proposal.
-//		if( OscarProperties.getInstance().getBooleanProperty("ENABLE_RX4", "yes") && 
-//				( ! BooleanUtils.toBoolean(propUseRx3.getValue()) ) ) {
-//			success = "newRx4";
-//		}
-	
 		return ( mapping.findForward(success) );
 	}
 
-	public ActionForward updateDrug(ActionMapping mapping, ActionForm aform, HttpServletRequest request, HttpServletResponse response) throws IOException {
+	@SuppressWarnings("unused")
+	public ActionForward updateDrug(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
 		checkPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), PRIVILEGE_WRITE);
 		
 		oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean) request.getSession().getAttribute("RxSessionBean");
@@ -668,11 +663,10 @@ public final class RxWriteScriptAction extends DispatchAction {
 
 		String action = request.getParameter("action");
 
-		if (action != null && action.equals("parseInstructions")) {
+		if ("parseInstructions".equals(action)) {
 
 			try {
 				String randomId = request.getParameter("randomId");
-				// p("randomId from request",randomId);
 				RxPrescriptionData.Prescription rx = bean.getStashItem2(Integer.parseInt(randomId));
 				if (rx == null) {
 					logger.error("rx is null", new NullPointerException());
@@ -684,7 +678,8 @@ public final class RxWriteScriptAction extends DispatchAction {
 				RxUtil.instrucParser(rx);
 				bean.addAttributeName(rx.getAtcCode() + "-" + String.valueOf(bean.getIndexFromRx(Integer.parseInt(randomId))));
 				bean.setStashItem(bean.getIndexFromRx(Integer.parseInt(randomId)), rx);
-				HashMap hm = new HashMap();
+				
+				HashMap<String, Object> hm = new HashMap<String, Object>();
 
 				if (rx.getRoute() == null || rx.getRoute().equalsIgnoreCase("null")) {
 					rx.setRoute("");
@@ -707,8 +702,9 @@ public final class RxWriteScriptAction extends DispatchAction {
 			} catch (Exception e) {
 				logger.error("Error", e);
 			}
-			return null;
-		} else if (action != null && action.equals("updateQty")) {
+			
+		} else if ("updateQty".equals(action)) {
+			
 			try {
 				String quantity = request.getParameter("quantity");
 				String randomId = request.getParameter("randomId");
@@ -769,11 +765,11 @@ public final class RxWriteScriptAction extends DispatchAction {
 				}
 				bean.addAttributeName(rx.getAtcCode() + "-" + String.valueOf(bean.getIndexFromRx(Integer.parseInt(randomId))));
 				bean.setStashItem(bean.getIndexFromRx(Integer.parseInt(randomId)), rx);
-				// RxUtil.printStashContent(bean);
+
 				if (rx.getRoute() == null) {
 					rx.setRoute("");
 				}
-				HashMap hm = new HashMap();
+				HashMap<String, Object> hm = new HashMap<String, Object>();
 				hm.put("method", rx.getMethod());
 				hm.put("takeMin", rx.getTakeMin());
 				hm.put("takeMax", rx.getTakeMax());
@@ -789,10 +785,10 @@ public final class RxWriteScriptAction extends DispatchAction {
 			} catch (Exception e) {
 				logger.error("Error", e);
 			}
-			return null;
-		} else {
-			return null;
-		}
+		} 
+			
+		return null;
+
 	}
 
 	public ActionForward iterateStash(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)  {
