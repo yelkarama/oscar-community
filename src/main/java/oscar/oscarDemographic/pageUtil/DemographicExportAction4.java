@@ -115,7 +115,6 @@ import org.oscarehr.util.SpringUtils;
 import org.oscarehr.util.WebUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
 
 import cds.AlertsAndSpecialNeedsDocument.AlertsAndSpecialNeeds;
 import cds.AllergiesAndAdverseReactionsDocument.AllergiesAndAdverseReactions;
@@ -3129,7 +3128,7 @@ public class DemographicExportAction4 extends Action {
 		try {
 			builder = factory.newDocumentBuilder();
 		} catch (ParserConfigurationException e1) {
-			e1.printStackTrace();
+			logger.error("Parse exception", e1);
 			return false;
 		}
 
@@ -3140,7 +3139,7 @@ public class DemographicExportAction4 extends Action {
 		try {
 			schema = xsdFactory.newSchema(url);
 		} catch (SAXException e) {
-			e.printStackTrace();
+			logger.error("Parse exception", e);
 			return false;
 		}  
 		factory.setSchema(schema);
@@ -3150,10 +3149,10 @@ public class DemographicExportAction4 extends Action {
 		try {
 			doc = builder.parse(f);
 		} catch (SAXException e) {
-			e.printStackTrace();
+			logger.error("Parse exception", e);
 			return false;
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("Parse exception", e);
 			return false;
 		}
 
@@ -3162,12 +3161,10 @@ public class DemographicExportAction4 extends Action {
 		try {
 			validator.validate(new DOMSource(doc));
 		} catch (SAXException e) {
-			//e.printStackTrace();
-			logger.warn("In file '" + f.getName() + "': "+ e.getMessage());
+			logger.error("In file '" + f.getName() + "': "+ e.getMessage());
 			return false;
 		} catch (IOException e) {
-			//e.printStackTrace();
-			logger.warn("In file '" + f.getName() + "': " + e.getMessage());
+			logger.error("In file '" + f.getName() + "': " + e.getMessage());
 			return false;
 		}
 		return result;
