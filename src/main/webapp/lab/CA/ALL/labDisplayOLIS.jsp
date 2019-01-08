@@ -1149,7 +1149,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                         for(i=0;i<headers.size();i++) {
                         	obr = handler.getMappedOBR(i);
                         	// Gets the obrHeader JSON related to the current obr
-                        	obrHeader = handler.getObrHeader(i);
+                        	obrHeader = handler.getObrHeader(obr);
                             linenum = obr + 1;
                             if (handler.isChildOBR(linenum) || (resultObrIndex != null && !resultObrIndex.equals(i))) {
                             	continue;

@@ -206,26 +206,40 @@ public class OlisLabResultDisplay {
             
             labResult.setPlacerGroupNo(olisHandler.getAccessionNum());
 
-            for (int obx = 0; obx < olisHandler.getOBXCount(obr); obx++) {
-                OlisMeasurementsResultDisplay measurement = new OlisMeasurementsResultDisplay();
-                measurement.setMeasurementObxIndex(obx);
-                measurement.setParentLab(labResult);
-                measurement.setTestResultName(olisHandler.getOBXName(obr, obx));
-                measurement.setStatus(olisHandler.getTestResultStatusMessage(olisHandler.getOBXResultStatus(obr, obx).charAt(0)));
-                measurement.setResultValue(olisHandler.getOBXResult(obr, obx));
-                measurement.setFlag(olisHandler.getOBXAbnormalFlag(obr, obx));
-                measurement.setReferenceRange(olisHandler.getOBXReferenceRange(obr, obx));
-                measurement.setUnits(olisHandler.getOBXUnits(obr, obx));
-                String abnormal = olisHandler.getOBXAbnormalFlag(obr, obx);
-                measurement.setAbnormal(abnormal != null && (abnormal.equals("A") || abnormal.startsWith("H") || olisHandler.isOBXAbnormal(obr, obx)));
-                measurement.setNatureOfAbnormalText(olisHandler.getNatureOfAbnormalTest(obr, obx));
-                measurement.setIsAttachment("ED".equals(olisHandler.getOBXValueType(obr, obx).trim()));
+            int obxCount = olisHandler.getOBXCount(obr);
+            if (obxCount > 0) {
+                for (int obx = 0; obx < obxCount; obx++) {
+                    OlisMeasurementsResultDisplay measurement = new OlisMeasurementsResultDisplay();
+                    measurement.setMeasurementObxIndex(obx);
+                    measurement.setParentLab(labResult);
+                    measurement.setTestResultName(olisHandler.getOBXName(obr, obx));
+                    measurement.setStatus(olisHandler.getTestResultStatusMessage(olisHandler.getOBXResultStatus(obr, obx).charAt(0)));
+                    measurement.setResultValue(olisHandler.getOBXResult(obr, obx));
+                    measurement.setFlag(olisHandler.getOBXAbnormalFlag(obr, obx));
+                    measurement.setReferenceRange(olisHandler.getOBXReferenceRange(obr, obx));
+                    measurement.setUnits(olisHandler.getOBXUnits(obr, obx));
+                    String abnormal = olisHandler.getOBXAbnormalFlag(obr, obx);
+                    measurement.setAbnormal(abnormal != null && (abnormal.equals("A") || abnormal.startsWith("H") || olisHandler.isOBXAbnormal(obr, obx)));
+                    measurement.setNatureOfAbnormalText(olisHandler.getNatureOfAbnormalTest(obr, obx));
+                    measurement.setIsAttachment("ED".equals(olisHandler.getOBXValueType(obr, obx).trim()));
 
-                for (int commentIndex = 0; commentIndex < olisHandler.getOBXCommentCount(obr, obx); commentIndex++) {
-                    measurement.getComments().add(olisHandler.getOBXComment(obr, obx, commentIndex));
+                    for (int commentIndex = 0; commentIndex < olisHandler.getOBXCommentCount(obr, obx); commentIndex++) {
+                        measurement.getComments().add(olisHandler.getOBXComment(obr, obx, commentIndex));
+                    }
+
+                    labResult.getMeasurements().add(measurement);
                 }
-                
-                labResult.getMeasurements().add(measurement);
+            } else {
+                int commentCount = olisHandler.getOBRCommentCount(obr);
+                for (int cc = 0; cc < commentCount; cc++) {
+                    String comment = olisHandler.getOBRComment(obr, cc);
+                    
+                    OlisMeasurementsResultDisplay result = new OlisMeasurementsResultDisplay();
+                    result.setMeasurementObxIndex(0);
+                    result.setParentLab(labResult);
+                    result.getComments().add(comment);
+                    labResult.getMeasurements().add(result);
+                }
             }
             
             results.add(labResult);
