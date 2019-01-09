@@ -346,7 +346,7 @@ public class FlowSheetCustomAction extends DispatchAction {
         cust.setAction(FlowSheetCustomization.DELETE);
         cust.setFlowsheet(flowsheet);
         cust.setMeasurement(measurement);
-        cust.setProviderNo("clinic".equals(scope) ? "" : (String) request.getSession().getAttribute("user"));
+        cust.setProviderNo("clinic".equals(scope) || demographicNo != null ? "" : (String) request.getSession().getAttribute("user"));
         cust.setDemographicNo(demographicNo);
 
         flowSheetCustomizationDao.persist(cust);

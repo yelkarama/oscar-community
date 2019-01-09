@@ -132,6 +132,9 @@ public class EctDisplayMeasurementsAction extends EctDisplayAction {
 			dxResearchBeanHandler dxRes = new dxResearchBeanHandler(bean.demographicNo);
 			Vector dxCodes = dxRes.getActiveCodeListWithCodingSystem();
 			flowsheets = MeasurementTemplateFlowSheetConfig.getInstance().getFlowsheetsFromDxCodes(dxCodes);
+			
+			//let's figure out which ones to show
+			
 			for (int f = 0; f < flowsheets.size(); f++) {
 				NavBarDisplayDAO.Item item = NavBarDisplayDAO.Item();
 				String flowsheetName = flowsheets.get(f);
