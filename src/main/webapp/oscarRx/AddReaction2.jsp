@@ -75,6 +75,7 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
 String name = (String) request.getAttribute("name");
 String type = String.valueOf(request.getAttribute("type"));
 String allergyId = (String) request.getAttribute("allergyId");
+String atc = (String) request.getAttribute("atc");
 
 String reactionDescription ="";
 String entryDate = "";
@@ -152,16 +153,17 @@ if (entryDate == null || entryDate.isEmpty()) {
 				</td>
 			</tr>
 			<tr>
-				<td><html:form action='<%=addReaction?"/oscarRx/addAllergy2":"/oscarRx/updateAllergy"%>'
-					focus="reactionDescription">
+				<td><html:form action='<%=addReaction?"/oscarRx/addAllergy2":"/oscarRx/updateAllergy"%>' focus="reactionDescription">
 					<table>
 						<tr valign="center">
 
-							<td colspan="2"><html:textarea
-								property="reactionDescription" cols="40" rows="3" value="<%=reactionDescription%>" /> <html:hidden
-								property="ID" value="<%=allergyId%>" /> <html:hidden
-								property="name" value="<%=name%>" /> <html:hidden
-								property="type" value="<%=type%>" /></td>
+							<td colspan="2">
+								<html:textarea property="reactionDescription" cols="40" rows="3" value="<%=reactionDescription%>" />
+								<html:hidden property="ID" value="<%=allergyId%>" /> 
+								<html:hidden property="name" value="<%=name%>" />
+								<html:hidden property="atc" value="<%=atc%>" />
+								<html:hidden property="type" value="<%=type%>" />
+							</td>
 						</tr>
 
 						<tr valign="center">

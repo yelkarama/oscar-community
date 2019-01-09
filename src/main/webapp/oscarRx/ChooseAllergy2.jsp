@@ -274,7 +274,7 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
 								%><div id="8_content"><%
 								for(Allergy allergy:allergyResults.get(8)) {
 									%>
-									<a href="addReaction.do?ID=<%=URLEncoder.encode(allergy.getDrugrefId(), "UTF-8")%>&name=<%=java.net.URLEncoder.encode(allergy.getDescription())%>&type=<%=allergy.getTypeCode()%>"><%=allergy.getDescription()%></a>
+									<a href="addReaction.do?ID=<%=URLEncoder.encode(allergy.getDrugrefId(), "UTF-8")%>&name=<%=java.net.URLEncoder.encode(allergy.getDescription())%>&type=<%=allergy.getTypeCode()%>&atc=<%=allergy.getAtc()%>"><%=allergy.getDescription()%></a>
 									<br/>
 									<%
 								}
@@ -298,19 +298,7 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
 								%><div id="13_content"><%
 								for(Allergy allergy:allergyResults.get(13)) {
 									%>
-									<a href="addReaction.do?ID=<%=URLEncoder.encode(allergy.getDrugrefId(), "UTF-8")%>&name=<%=java.net.URLEncoder.encode(allergy.getDescription())%>&type=<%=allergy.getTypeCode()%>"><%=allergy.getDescription() %></a>
-									<%
-	                                    java.util.Vector vect = (Vector) drugClassHash.get(""+allergy.getDrugrefId());
-	                                    if (vect != null){
-	                                        for (int k = 0; k < vect.size() ; k++){
-	                                        	String[] drugClassPair = (String[]) vect.get(k);
-	                                    %>
-	                                    &nbsp;&nbsp;&nbsp;
-                                        <a style="color: orange" href="addReaction.do?ID=<%=drugClassPair[0] %>&name=<%=java.net.URLEncoder.encode(drugClassPair[1])%>&type=10"><%=drugClassPair[1] %></a>
-                                        <%
-                                        	}
-                                        }
-                                        %>
+									<a href="addReaction.do?ID=<%=URLEncoder.encode(allergy.getDrugrefId(), "UTF-8")%>&name=<%=java.net.URLEncoder.encode(allergy.getDescription())%>&type=<%=allergy.getTypeCode()%>&atc=<%=allergy.getAtc()%>"><%=allergy.getDescription()%></a>
 									<br/>
 									<%
 								}
@@ -323,7 +311,7 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
 								%><div id="11_content" style="display:none"><%
 								for(Allergy allergy:allergyResults.get(11)) {
 									%>
-									<a href="addReaction.do?ID=<%=URLEncoder.encode(allergy.getDrugrefId(), "UTF-8")%>&name=<%=java.net.URLEncoder.encode(allergy.getDescription())%>&type=<%=allergy.getTypeCode()%>"><%=allergy.getDescription() %></a>
+									<a href="addReaction.do?ID=<%=URLEncoder.encode(allergy.getDrugrefId(), "UTF-8")%>&name=<%=java.net.URLEncoder.encode(allergy.getDescription())%>&type=<%=allergy.getTypeCode()%>&atc=<%=allergy.getAtc()%>"><%=allergy.getDescription() %></a>
 									<br/>
 									<%
 								}
@@ -335,7 +323,7 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
 								%><div id="12_content" style="display:none"><%
 								for(Allergy allergy:allergyResults.get(12)) {
 									%>
-									<a href="addReaction.do?ID=<%=URLEncoder.encode(allergy.getDrugrefId(), "UTF-8")%>&name=<%=java.net.URLEncoder.encode(allergy.getDescription())%>&type=<%=allergy.getTypeCode()%>"><%=allergy.getDescription() %></a>
+									<a href="addReaction.do?ID=<%=URLEncoder.encode(allergy.getDrugrefId(), "UTF-8")%>&name=<%=java.net.URLEncoder.encode(allergy.getDescription())%>&type=<%=allergy.getTypeCode()%>&atc=<%=allergy.getAtc()%>"><%=allergy.getDescription() %></a>
 									<br/>
 									<%
 								}
@@ -348,7 +336,7 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
 								%><div id="14_content"><%
 								for(Allergy allergy:allergyResults.get(14)) {
 									%>
-									<a href="addReaction.do?ID=<%=URLEncoder.encode(allergy.getDrugrefId(), "UTF-8")%>&name=<%=java.net.URLEncoder.encode(allergy.getDescription())%>&type=<%=allergy.getTypeCode()%>"><%=allergy.getDescription() %></a>
+									<a href="addReaction.do?ID=<%=URLEncoder.encode(allergy.getDrugrefId(), "UTF-8")%>&name=<%=java.net.URLEncoder.encode(allergy.getDescription())%>&type=<%=allergy.getTypeCode()%>&atc=<%=allergy.getAtc()%>"><%=allergy.getDescription() %></a>
 									<br/>
 									<%
 								}

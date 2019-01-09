@@ -67,6 +67,7 @@ public final class RxAddAllergyAction extends Action {
 		    String reactionType = request.getParameter("reactionType");
             String name = request.getParameter("name");
             String type = request.getParameter("type");
+            String atc = request.getParameter("atc");
             String description = request.getParameter("reactionDescription");
 
             String entryDate = request.getParameter("entryDate");
@@ -85,6 +86,9 @@ public final class RxAddAllergyAction extends Action {
             }
             allergy.setDescription(name);
             allergy.setTypeCode(Integer.parseInt(type));
+            if (!"null".equals(atc) && !"".equals(atc)) {
+                allergy.setAtc(atc);
+            }
             allergy.setReaction(description);
             
             if(!entryDate.trim().equals("")){

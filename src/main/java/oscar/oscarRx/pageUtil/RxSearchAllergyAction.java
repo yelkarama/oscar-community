@@ -51,6 +51,7 @@ import org.oscarehr.util.SpringUtils;
 
 import oscar.OscarProperties;
 import oscar.oscarRx.data.RxAllergyData;
+import oscar.oscarRx.util.DrugRefCategories;
 import oscar.oscarRx.util.RxDrugRef;
 
 public final class RxSearchAllergyAction extends Action {
@@ -139,12 +140,12 @@ public final class RxSearchAllergyAction extends Action {
 
         //we want to categorize the search results.
         Map<Integer,List<Allergy>> allergyResults = new HashMap<Integer,List<Allergy>>();
-        allergyResults.put(8, new ArrayList<Allergy>());
-        allergyResults.put(10, new ArrayList<Allergy>());
-        allergyResults.put(11, new ArrayList<Allergy>());
-        allergyResults.put(12, new ArrayList<Allergy>());
-        allergyResults.put(13, new ArrayList<Allergy>());
-        allergyResults.put(14, new ArrayList<Allergy>());
+        allergyResults.put(DrugRefCategories.ANATOMICAL_CLASS, new ArrayList<Allergy>());
+        allergyResults.put(DrugRefCategories.THERAPEUTIC_CLASS, new ArrayList<Allergy>());
+        allergyResults.put(DrugRefCategories.GENERIC, new ArrayList<Allergy>());
+        allergyResults.put(DrugRefCategories.COMPOSITE_GENERIC, new ArrayList<Allergy>());
+        allergyResults.put(DrugRefCategories.BRANDED_PRODUCT, new ArrayList<Allergy>());
+        allergyResults.put(DrugRefCategories.INGREDIENT, new ArrayList<Allergy>());
 
         Map<Integer,Allergy> classResults = new HashMap<Integer,Allergy>();
 
@@ -164,6 +165,10 @@ public final class RxSearchAllergyAction extends Action {
 
                 if( arr[i].getTypeCode() == 13){
                     classVec.add(""+arr[i].getDrugrefId());
+                }
+                
+                if (hash.containsKey("atc") && !((String) hash.get("atc")).isEmpty()) {
+                    arr[i].setAtc((String) hash.get("atc"));
                 }
 
                 allergyResults.get(hash.get("category")).add(arr[i]);

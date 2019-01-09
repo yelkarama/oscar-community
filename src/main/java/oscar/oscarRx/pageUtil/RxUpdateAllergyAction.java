@@ -42,6 +42,7 @@ public class RxUpdateAllergyAction extends Action{
 
         String name = request.getParameter("name");
         Integer type = Integer.parseInt(request.getParameter("type"));
+        String atc = request.getParameter("atc");
         String reactionDescription = request.getParameter("reactionDescription");
         String entryDate = request.getParameter("entryDate");
         String startDate = request.getParameter("startDate");
@@ -64,6 +65,11 @@ public class RxUpdateAllergyAction extends Action{
 
         if(!reactionDescription.equals(allergy.getReaction())){
             allergy.setReaction(reactionDescription);
+            isUpdate = true;
+        }
+        
+        if (!"null".equals(atc) && !atc.equals(allergy.getAtc())) {
+            allergy.setAtc(atc);
             isUpdate = true;
         }
 

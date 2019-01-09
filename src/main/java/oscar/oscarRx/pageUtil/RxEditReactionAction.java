@@ -26,7 +26,6 @@
 package oscar.oscarRx.pageUtil;
 
 import java.io.IOException;
-import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -38,7 +37,6 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.oscarehr.common.dao.PartialDateDao;
 import org.oscarehr.common.model.Allergy;
-import org.oscarehr.common.model.PartialDate;
 import oscar.oscarRx.data.RxPatientData;
 
 
@@ -54,6 +52,7 @@ public class RxEditReactionAction extends Action {
 
         String name = allergy.getDescription();
         Integer type = allergy.getTypeCode();
+        String atc = allergy.getAtc();
         String description = allergy.getReaction();
         String entryDate = allergy.getEntryDate() != null ? allergy.getEntryDate().toString() : "";
         String startDate = allergy.getStartDate() != null ? allergy.getStartDate().toString():"";
@@ -67,6 +66,7 @@ public class RxEditReactionAction extends Action {
         request.setAttribute("allergyId",id);
         request.setAttribute("name",name);
         request.setAttribute("type", type);
+        request.setAttribute("atc", atc);
         request.setAttribute("reactionDescription", description);
         request.setAttribute("entryDate", entryDate);
         request.setAttribute("startDate", startDate);

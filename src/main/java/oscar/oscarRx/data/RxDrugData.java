@@ -836,7 +836,9 @@ public class RxDrugData {
 			if (allerg[i].getRegionalIdentifier() != null) {
 				h.put("din", allerg[i].getRegionalIdentifier());
 			}
-			if (allerg[i].getTypeCode() == 8) {
+			if (allerg[i].getAtc() != null) {
+				h.put("atc", allerg[i].getAtc());
+			} else if (allerg[i].getTypeCode() == 8) {
 				h.put("atc", allerg[i].getDrugrefId());
 			}
 			vec.add(h);

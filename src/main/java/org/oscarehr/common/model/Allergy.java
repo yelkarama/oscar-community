@@ -99,6 +99,9 @@ public class Allergy extends AbstractModel<Integer> {
 	@Column(name = "regional_identifier")
 	private String regionalIdentifier;
 
+	@Column(name = "atc")
+	private String atc;
+
 	@Column(name = "life_stage")
 	private String lifeStage;
 
@@ -258,6 +261,14 @@ public class Allergy extends AbstractModel<Integer> {
 
 	public void setRegionalIdentifier(String regionalIdentifier) {
 		this.regionalIdentifier = StringUtils.trimToNull(regionalIdentifier);
+	}
+
+	public String getAtc() {
+		return atc;
+	}
+
+	public void setAtc(String atc) {
+		this.atc = atc;
 	}
 
 	public String getLifeStage() {

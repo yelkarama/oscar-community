@@ -39,6 +39,7 @@ public final class RxAddAllergyForm extends ActionForm {
     String reactionDescription = null;
     String name =null;
     String type = null;
+    private String atc = null;
     String startDate = null;
     String ageOfOnset = null;
     String lifeStage = null;
@@ -74,7 +75,14 @@ public final class RxAddAllergyForm extends ActionForm {
     public void setType(String type){
         this.type = type;
     }
-   
+
+    public String getAtc() {
+        return atc;
+    }
+
+    public void setAtc(String atc) {
+        this.atc = atc;
+    }
 
     /**
      * Reset all properties to their default values.
