@@ -211,12 +211,23 @@ public class OlisLabResultDisplay {
                 for (int obx = 0; obx < obxCount; obx++) {
                     String resultStatus = olisHandler.getOBXResultStatus(obr, obx).trim();
                     
+                    // Gets the OBX value type
+                    String valueType = olisHandler.getOBXValueType(obr,obx).trim();
+                    String resultValue;
+                    // If the value type is a coded entry, it needs to get OBX 5.2
+                    // If it isn't a coded entry, then gets OBX 5.1
+                    if (valueType.equals("CE")) {
+                        resultValue = olisHandler.getOBXCEName(obr, obx);
+                    } else {
+                        resultValue = olisHandler.getOBXResult(obr, obx);
+                    }
+                    
                     OlisMeasurementsResultDisplay measurement = new OlisMeasurementsResultDisplay();
                     measurement.setMeasurementObxIndex(obx);
                     measurement.setParentLab(labResult);
                     measurement.setTestResultName(olisHandler.getOBXName(obr, obx));
                     measurement.setStatus(olisHandler.getTestResultStatusMessage(resultStatus.charAt(0)));
-                    measurement.setResultValue(olisHandler.getOBXResult(obr, obx));
+                    measurement.setResultValue(resultValue);
                     measurement.setFlag(olisHandler.getOBXAbnormalFlag(obr, obx));
                     measurement.setReferenceRange(olisHandler.getOBXReferenceRange(obr, obx));
                     measurement.setUnits(olisHandler.getOBXUnits(obr, obx));
