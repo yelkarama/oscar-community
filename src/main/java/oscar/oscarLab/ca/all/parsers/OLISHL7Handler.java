@@ -20,6 +20,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,6 +41,7 @@ import org.oscarehr.olis.dao.OLISRequestNomenclatureDao;
 import org.oscarehr.olis.dao.OLISResultNomenclatureDao;
 import org.oscarehr.olis.model.OLISRequestNomenclature;
 import org.oscarehr.olis.model.OLISResultNomenclature;
+import org.oscarehr.olis.model.OlisLabResultSortable;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -80,7 +82,9 @@ public class OLISHL7Handler implements MessageHandler {
 
     private Map<String, OLISRequestNomenclature> olisRequestNomenclatureMap = null;
     private Map<String, OLISResultNomenclature> olisResultNomenclatureMap = null;
-	
+
+	private HashMap<Integer, List<OlisLabResultSortable>> obxSortMap;
+    
 	public static final String OBR_SPECIMEN_TYPE = "specimenType";
 	public static final String OBR_SPECIMEN_RECEIVED_DATETIME = "specimenReceived";
 	public static final String OBR_SITE_MODIFIER = "siteModifier";
@@ -847,9 +851,10 @@ public class OLISHL7Handler implements MessageHandler {
 
 	public int getMappedOBX(int obr, int obx) {
 		try {
-			String[] keys = obxSortMap.get(obr).keySet().toArray(new String[0]);
-			Arrays.sort(keys);
-			return obxSortMap.get(obr).get(keys[obx]);
+		    // Gets the list of sorted results for the given obr
+			List<OlisLabResultSortable> obxResults = obxSortMap.get(obr);
+			// Returns the matching set id minus 1 so it matches the indexing used to get the result details
+			return obxResults.get(obx).getSetId() - 1;
 		} catch (Exception e) {
 			MiscUtils.getLogger().error("OLIS HL7 Error", e);
 		}
@@ -1026,7 +1031,7 @@ public class OLISHL7Handler implements MessageHandler {
 			}
 			obrGroups.add(obxSegs);
 		}
-		obxSortMap = new HashMap<Integer, HashMap<String, Integer>>();
+		obxSortMap = new HashMap<Integer, List<OlisLabResultSortable>>();
 		obrSortMap = new HashMap<String, Integer>();
 		mapOBRSortKeys();
 
@@ -1258,31 +1263,57 @@ public class OLISHL7Handler implements MessageHandler {
 		}
 	}
 
-	HashMap<Integer, HashMap<String, Integer>> obxSortMap;
-
-	private void mapOBXSortKey(int obr) {
-		HashMap<String, Integer> obxMap = null;
+    private void mapOBXSortKey(int obr) {
+        if (this.olisResultNomenclatureMap == null) {
+            this.olisResultNomenclatureMap = getOlisResultNomenclatureMap();
+        }
 		int k;
-		String tempKey;
-		obxMap = new HashMap<String, Integer>();
-		for (int i = 0; i < getOBXCount(obr); i++) {
+        List<OlisLabResultSortable> resultList = new ArrayList<>();
 
-			try {
-				k = getZBXLocation(obr, i);
-				String[] segments = terser.getFinder().getRoot().getNames();
-				if (!segments[k].startsWith("ZBX")) {
-					continue;
-				}
-				Structure[] zbxSegs = terser.getFinder().getRoot().getAll(segments[k]);
-				Segment zbxSeg = (Segment) zbxSegs[0];
-				tempKey = getString(Terser.get(zbxSeg, 2, 0, 1, 1));
-				obxMap.put(tempKey.equals("") ? String.valueOf(i) : tempKey, i);
+		String[] segments = terser.getFinder().getRoot().getNames();
+		List<Segment> obxSegments = obrGroups.get(obr);
+        
+        try {
+            // For each OBX Segment
+            for (Segment obxSegment : obxSegments) {
+                // Gets the set id, the sub id, the result status, and the loinc code from the OBX segment
+                int setId = Integer.parseInt(Terser.get(obxSegment, 1, 0, 1, 1));
+                String subId = StringUtils.trimToEmpty(Terser.get(obxSegment, 4, 0, 1, 1));
+                String resultStatus = getOBXResultStatus(obr, setId - 1);
+                String loincCode = getObxLoincCode(obxSegment);
+                // Gets the related nomenclature if it exists
+                OLISResultNomenclature nomenclature = olisResultNomenclatureMap.get(loincCode);
 
-			} catch (Exception e) {
-				MiscUtils.getLogger().error("OLIS HL7 Error", e);
-			}
-		}
-		obxSortMap.put(obr, obxMap);
+                
+                String zbxSortKey = "";
+                Date releaseDate = null;
+                k = getZBXLocation(obr, setId - 1);
+                // If the segment is ZBX, gets the sort key and the release date
+                if (segments[k].startsWith("ZBX")) {
+                    Structure[] zbxSegs = terser.getFinder().getRoot().getAll(segments[k]);
+                    // Gets the segment for the current ZBX
+                    Segment zbxSeg = (Segment) zbxSegs[0];
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmssz");
+                    // Gets the sort key and the release date for sorting
+                    zbxSortKey= getString(Terser.get(zbxSeg, 2, 0, 1, 1));
+                    releaseDate = sdf.parse(Terser.get(zbxSeg, 1, 0, 1, 1));
+                }
+                
+                // Creates a new OlisLabResultSortable object and adds it to the result list
+                OlisLabResultSortable labResult = new OlisLabResultSortable(setId, subId, nomenclature.getSortKey(), nomenclature.getResultAlternateName1(), resultStatus.equals("Z"), releaseDate, zbxSortKey);
+                resultList.add(labResult);
+            }
+        } catch (Exception e) {
+            MiscUtils.getLogger().error("OLIS HL7 Error", e);
+        }
+
+        // Sorts the results and adds them to the map
+		Collections.sort(resultList, OlisLabResultSortable.olisResultComparator);
+        obxSortMap.put(obr, resultList);
+    }
+	
+	private String getObxLoincCode(Segment segment) throws HL7Exception {
+		return Terser.get(segment, 3, 0, 1, 1);
 	}
 
 	private int getZBXLocation(int i, int j) {
