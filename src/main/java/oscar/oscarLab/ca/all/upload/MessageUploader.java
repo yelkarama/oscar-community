@@ -169,9 +169,14 @@ public final class MessageUploader {
 			}
 
 			try {
-				// reformat date
-				String format = "yyyy-MM-dd HH:mm:ss".substring(0, obrDate.length() - 1);
-				obrDate = UtilDateUtilities.DateToString(UtilDateUtilities.StringToDate(obrDate, format), "yyyy-MM-dd HH:mm:ss");
+				// reformat date 2012-01-20 00:00:00 EST
+				if(obrDate.length() == 23) {
+					//obrDate = obrDate.substring(0, 19);
+					obrDate = UtilDateUtilities.DateToString(UtilDateUtilities.StringToDate(obrDate, "yyyy-MM-dd HH:mm:ss z"), "yyyy-MM-dd HH:mm:ss z");
+				} else {
+					String format = "yyyy-MM-dd HH:mm:ss".substring(0, obrDate.length() - 1);
+					obrDate = UtilDateUtilities.DateToString(UtilDateUtilities.StringToDate(obrDate, format), "yyyy-MM-dd HH:mm:ss");
+				}
 			} catch (Exception e) {				
 				logger.error("Error parsing obr date : ", e);
 				throw e;
