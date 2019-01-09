@@ -178,11 +178,15 @@ function checkEnrollmentFields() {
     var status = jQuery_3_1_0('#roster_status')[0].value;
     var date = jQuery_3_1_0('#roster_date')[0].value;
 
-    if (provider === "" && status === "" && date === "") {
+    if (provider === "" && status !== "EN" && date === "") {
         return true;
     }
 
-    if ((provider !== "" && status === "") || (status !== "" && provider === "") || (provider === "" && status === "")) {
+    if (date !== "" && status !== "EN") {
+        return true;
+    }
+
+    if ((provider !== "" && status === "") || (status === "EN" && provider === "") || (provider === "" && status === "")) {
         var message = "You must enter both an enrollment provider and an enrollment status";
         if (date !== "") {
             message += " when entering an enrollment date";
