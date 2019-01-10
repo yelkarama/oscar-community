@@ -1529,7 +1529,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
    											<tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
    												<td colspan="5" align="center">
    													<table style="border: 1px solid black; margin-left 30px;">
-   														<tr><th>Agent</th><th>Sensitivity</th> </tr>
+   														<tr><th>Name</th><th>Result</th> </tr>
    												    <%
 
    												    int childOBR = handler.getChildOBR(parentId) - 1;

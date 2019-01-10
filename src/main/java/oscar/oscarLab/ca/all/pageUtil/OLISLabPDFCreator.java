@@ -672,12 +672,12 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 							cell.setColspan(1);
 							//Enables the borders with the bitwise combination of 11 (1 top, 2 bottom, 8 right)
 							cell.setBorder(11);
-							cell.setPhrase(new Phrase("Sensitivity", commentBoldFont));
+							cell.setPhrase(new Phrase("Name", commentBoldFont));
 							ceTable.addCell(cell);
 							//Enables the borders with the bitwise combination of 7 (1 top, 2 bottom, 4 left)
 							cell.setBorder(7);
 							cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-							cell.setPhrase(new Phrase("Agent", commentBoldFont));
+							cell.setPhrase(new Phrase("Result", commentBoldFont));
 							ceTable.addCell(cell);
 							cell.setBorder(12);
 							
