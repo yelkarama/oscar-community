@@ -101,12 +101,10 @@ public final class RxMyDrugrefInfoAction extends DispatchAction {
         UserPropertyDAO  propDAO =  (UserPropertyDAO) ctx.getBean("UserPropertyDAO");
         String provider = (String) request.getSession().getAttribute("user");
 
-        String retStr=RxUtil.findInterDrugStr(propDAO,provider,bean);
-
-        bean.setInteractingDrugList(retStr);
-          /*  int pp=23;
-            if(pp==23)
-                throw new Exception();*/
+        if (!OscarProperties.getInstance().isPropertyActive("use_fdb")) {
+            String retStr = RxUtil.findInterDrugStr(propDAO, provider, bean);
+            bean.setInteractingDrugList(retStr);
+        }
      }catch(Exception e){
         MiscUtils.getLogger().error("Error", e);
         ResourceBundle prop = ResourceBundle.getBundle("oscarResources");
