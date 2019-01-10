@@ -1373,7 +1373,7 @@ public class OLISHL7Handler implements MessageHandler {
 		case 'A':
 			return "An age-based population";
 		case 'N':
-			return "None ‚Äì generic normal range";
+			return "None‚ A generic normal range";
 		case 'R':
 			return "A race-based population";
 		case 'S':
