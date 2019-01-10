@@ -442,12 +442,17 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                             <tr>
                                 <td align="middle" class="Cell">
                                     <div class="Field2">
-                                        <bean:message key="oscarMDS.segmentDisplay.formDetailResults"/>
+                                        <bean:message key="oscarMDS.segmentDisplay.olis.patientInfo"/>
                                     </div>
                                 </td>
                                 <td align="middle" class="Cell">
                                     <div class="Field2">
-                                        <bean:message key="oscarMDS.segmentDisplay.formResultsInfo"/>
+                                        <bean:message key="oscarMDS.segmentDisplay.olis.providerInfo"/>
+                                    </div>
+                                </td>
+                                <td align="middle" class="Cell">
+                                    <div class="Field2">
+                                        <bean:message key="oscarMDS.segmentDisplay.olis.reportDetails"/>
                                     </div>
                                 </td>
                             </tr>
@@ -736,6 +741,43 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                     </table>
                                 </td>
                                 <td bgcolor="white" valign="top">
+                                    <table width="100%" border="0" cellspacing="0" cellpadding="2">
+                                        <% HashMap<String, String> orderingProviderMap = handler.parseDoctor(handler.getDocName()); %>
+                                        <tr>
+                                            <td><div class="FieldData"><strong>Ordered By:</strong></div></td>
+                                            <td><%=orderingProviderMap.get("name")%></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong><%=orderingProviderMap.get("licenceType")%> #:</strong></td>
+                                            <td><%=orderingProviderMap.get("licenceNumber")%></td>
+                                        </tr>
+                                        <%  HashMap<String,String> address = handler.getOrderingProviderAddress();
+                                            if (address != null && address.size() > 0) {
+                                                String formattedAddress = handler.getFormattedAddress(address, true);
+                                        %>
+                                        <tr>
+                                            <td style="vertical-align: top">
+                                                <div class="FieldData"><strong>Address:</strong></div>
+                                            </td>
+                                            <td>
+                                                <%= formattedAddress %>
+                                            </td>
+                                        </tr>
+                                        <%  } %>
+                                        <%
+                                            ArrayList<HashMap<String,String>> phones = handler.getOrderingProviderPhones();
+                                            for(HashMap<String, String> phone : phones) {
+                                        %>
+                                        <tr>
+                                            <td><div class="FieldData"><strong><%=phone.get("useCode")%>:</strong></div></td>
+                                            <td><%= phone.get("telecom") %></td>
+                                        </tr>
+                                        <%
+                                            }
+                                        %>
+                                    </table>
+                                </td>
+                                <td bgcolor="white" valign="top">
                                     <table width="100%" border="0" cellspacing="0" cellpadding="1">
                                         <tr>
                                             <td valign="top">
@@ -828,7 +870,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                                 <div class="FieldData">
                                                     <%= handler.getOrderingFacilityName() %>
                                                     <%
-                                                    HashMap<String,String> address = handler.getOrderingFacilityAddress();
+                                                    address = handler.getOrderingFacilityAddress();
                                                     if (address != null && address.size() > 0) {
                                                     	String city = displayAddressFieldIfNotNullOrEmpty(address, "City", false);
                                                     	String province = displayAddressFieldIfNotNullOrEmpty(address, "Province", false);
@@ -845,80 +887,6 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                             </td>
                                         </tr>
                                         <% } %>
-                                        <tr>
-                                            <td bgcolor="white" colspan="2">
-                                                <div class="FieldData">
-                                                    <strong>Ordering Provider: </strong>
-                                                </div>
-                                             </td>
-
-                                        </tr>
-                                        <tr>
-                                            <td colspan="2">
-                                                <div class="FieldData">
-                                                    <%= handler.getDocName()%>
-                                                    <%
-                                                    HashMap<String,String> address = handler.getOrderingProviderAddress();
-                                                    if (address != null && address.size() > 0) {
-                                                    	String city = displayAddressFieldIfNotNullOrEmpty(address, "City", false);
-                                                    	String province = displayAddressFieldIfNotNullOrEmpty(address, "Province", false);
-                                                    %>
-                                                    <br/>
-                                                    <strong>Address:</strong><br/>
-                                                    <%= displayAddressFieldIfNotNullOrEmpty(address, "Street Address") %>
-                                                    <%= displayAddressFieldIfNotNullOrEmpty(address, "Other Designation") %>
-                                                    <%= displayAddressFieldIfNotNullOrEmpty(address, "Postal Code") %>
-                                                    <%= city + ("".equals(city) || "".equals(province) ? "" : ", ") + province + ("".equals(city) && "".equals(province) ? "" : "<br/>") %>
-                                                    <%= displayAddressFieldIfNotNullOrEmpty(address, "Country", false) %>
-                                                    <% } %>
-                                                    <%
-                                                                ArrayList<HashMap<String,String>> phones = handler.getOrderingProviderPhones();
-                                                                for(HashMap<String, String> phone : phones) {
-                                                                %>
-
-                                                                    	<br />
-                                                                        <strong> <%=phone.get("useCode")%></strong>
-                                                                        <br/>
-
-                                                                        	<%
-                                                                        	if (phone.get("email") != null) {
-                                                                        	%>
-                                                                        		<%=phone.get("email")%>
-                                                                       		<%
-                                                                       		} else {
-
-                                                                       			String countryCode = phone.get("countryCode");
-                                                                       			if (stringIsNullOrEmpty(countryCode)) {
-                                                                       				countryCode = "";
-                                                                       			}
-
-                                                                       			String localNumber = phone.get("localNumber");
-                                                                       			if (!stringIsNullOrEmpty(localNumber) && localNumber.length() > 4) {
-                                                                       				localNumber = localNumber.substring(0,3) + "-" + localNumber.substring(3);
-                                                                       			}
-                                                                       			else { localNumber = ""; }
-                                                                       			String areaCode = phone.get("areaCode");
-                                                                       			if (!stringIsNullOrEmpty(areaCode)) {
-                                                                       				areaCode = " ("+areaCode+") ";
-                                                                       			}
-                                                                       			else { areaCode = ""; }
-                                                                       			String extension = phone.get("extension");
-                                                                       			if (!stringIsNullOrEmpty(extension)) {
-                                                                       				extension = " x" + extension;
-                                                                       			}
-                                                                       			else { extension = ""; }
-                                                                    		%>
-                                                                    			<%= countryCode + areaCode + localNumber + extension %>
-                                                                    		<%
-                                                                       		}
-                                                                       		%>
-
-                                                                <% }
-
-                                                                %>
-                                                </div>
-                                            </td>
-                                        </tr>
                                         <% if (!"".equals(handler.getAttendingProviderName())) { %>
                                         <tr>
 
@@ -1027,7 +995,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                 </td>
                             </tr>
                             <tr>
-                                <td align="center" bgcolor="white" colspan="2">
+                                <td align="center" bgcolor="white" colspan="3">
                                     <%String[] multiID = multiLabId.split(",");
                                     ReportStatus report;
                                     boolean startFlag = false;
@@ -1087,7 +1055,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                 </td>
                             </tr>
                             <tr>
-                                <td bgcolor="white" colspan="2">
+                                <td bgcolor="white" colspan="3">
                                     <table width="100%" border="0" cellpadding="0" cellspacing="0" bordercolor="#CCCCCC">
                                         <tr>
                                             <td bgcolor="white">

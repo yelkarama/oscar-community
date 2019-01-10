@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -777,11 +779,11 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         PdfPCell cell = new PdfPCell();
         cell.setBorder(0);
         float[] pInfoWidths = {2f, 3f};
-        PdfPTable pInfoTable = new PdfPTable(pInfoWidths);
+        PdfPTable patientInfoTable = new PdfPTable(pInfoWidths);
         cell.setPhrase(new Phrase("Ontario Health Number: ", boldFont));
-        pInfoTable.addCell(cell);
+        patientInfoTable.addCell(cell);
         cell.setPhrase(new Phrase(handler.getFormattedHealthNumber(), font));
-        pInfoTable.addCell(cell);
+        patientInfoTable.addCell(cell);
 
 		Set<String> patientIdentifiers = handler.getPatientIdentifiers();
 		for (String identifier : patientIdentifiers) {
@@ -798,7 +800,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 				identifierAttribName = handler.getSourceOrganization(identifierAttrib);
 			}
 			cell.setPhrase(new Phrase(handler.getNameOfIdentifier(identifier) + ": ", boldFont));
-			pInfoTable.addCell(cell);
+			patientInfoTable.addCell(cell);
 			
 			
 			//StringBuilder identifierDisplay = new StringBuilder(identifierVal);
@@ -813,39 +815,39 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 			}
 			
 			cell.setPhrase(identifierPhrase);
-			pInfoTable.addCell(cell);
+			patientInfoTable.addCell(cell);
 		}
         
         cell.setPhrase(new Phrase("Patient Name: ", boldFont));
-        pInfoTable.addCell(cell);
+        patientInfoTable.addCell(cell);
         cell.setPhrase(new Phrase(handler.getPatientName(), font));
-        pInfoTable.addCell(cell);
+        patientInfoTable.addCell(cell);
         
         cell.setPhrase(new Phrase("Date of Birth: ", boldFont));
-        pInfoTable.addCell(cell);
+        patientInfoTable.addCell(cell);
         cell.setPhrase(new Phrase(handler.getDOB(), font));
-        pInfoTable.addCell(cell);
+        patientInfoTable.addCell(cell);
         
         cell.setPhrase(new Phrase("Age: ", boldFont));
-        pInfoTable.addCell(cell);
+        patientInfoTable.addCell(cell);
         cell.setPhrase(new Phrase(handler.getAge(), font));
-        pInfoTable.addCell(cell);
+        patientInfoTable.addCell(cell);
         
         cell.setPhrase(new Phrase("Sex: ", boldFont));
-        pInfoTable.addCell(cell);
+        patientInfoTable.addCell(cell);
         cell.setPhrase(new Phrase(handler.getSex(), font));
-        pInfoTable.addCell(cell);
+        patientInfoTable.addCell(cell);
         
         //Patient Address
     	for (HashMap<String, String> address : handler.getPatientAddresses()){
     		//Adds the address type to the table
     		cell.setPhrase(new Phrase(address.get("Address Type") + ": ", boldFont));
-            pInfoTable.addCell(cell);
+            patientInfoTable.addCell(cell);
             //Gets the full address
             fullAddress = getFullAddress(address);
             //Sets the cell's phrase and adds the cell to the table
             cell.setPhrase(new Phrase(fullAddress, font));
-            pInfoTable.addCell(cell);
+            patientInfoTable.addCell(cell);
     	}
     	//Patient Home Phone
         ArrayList<HashMap<String,String>> homePhones = handler.getPatientHomeTelecom();
@@ -853,7 +855,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         	Phrase phonePhrase = new Phrase();
         	//Adds the phone's use
         	cell.setPhrase(new Phrase("Home: ", boldFont));
-        	pInfoTable.addCell(cell);
+        	patientInfoTable.addCell(cell);
         	
         	//Adds the phone number and useCode to the phrase
         	phonePhrase.setFont(font);
@@ -862,7 +864,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         	phonePhrase.add(homePhone.get("useCode"));
         	//Adds the phrase to the table
         	cell.setPhrase(phonePhrase);
-        	pInfoTable.addCell(cell);
+        	patientInfoTable.addCell(cell);
         }
     	//Patient Work Telephone
         ArrayList<HashMap<String, String>> workPhones = handler.getPatientWorkTelecom();
@@ -870,7 +872,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         	Phrase phonePhrase = new Phrase();
         	//Adds the phone's use
         	cell.setPhrase(new Phrase("Work: ", boldFont));
-        	pInfoTable.addCell(cell);
+        	patientInfoTable.addCell(cell);
         	//Adds the phone number and useCode
         	phonePhrase.setFont(font);
         	phonePhrase.add(getPhone(workPhone));
@@ -878,104 +880,114 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         	phonePhrase.add(workPhone.get("useCode"));
         	//Adds the phrase to the table
         	cell.setPhrase(phonePhrase);
-        	pInfoTable.addCell(cell);
+        	patientInfoTable.addCell(cell);
         }
         
         
+        // Creates the ordering provider table with 2 columns
+        PdfPTable orderingproviderTable = new PdfPTable(new float[]{2, 3});
+        // Gets the parsed doctor information map
+        HashMap<String, String> orderingProviderMap = handler.parseDoctor(handler.getDocName());
+        // Sets the ordering provider's name
+        cell.setPhrase(new Phrase("Ordered By:", boldFont));
+        orderingproviderTable.addCell(cell);
+        cell.setPhrase(new Phrase(orderingProviderMap.get("name"), font));
+		orderingproviderTable.addCell(cell);
+		// Sets the ordering provider's licence type and number
+        cell.setPhrase(new Phrase(orderingProviderMap.get("licenceType") + " #:", boldFont));
+		orderingproviderTable.addCell(cell);
+		cell.setPhrase(new Phrase(orderingProviderMap.get("licenceNumber"), font));
+		orderingproviderTable.addCell(cell);
+
+		// Sets the ordering provider's address
+		HashMap<String,String> orderingProviderAddressMap = handler.getOrderingProviderAddress();
+		if (orderingProviderAddressMap != null && orderingProviderAddressMap.size() > 0) {
+			cell.setPhrase(new Phrase("Address: ", boldFont));
+			orderingproviderTable.addCell(cell);
+			// Formats the address and adds it to the table
+			String formattedAddress = handler.getFormattedAddress(orderingProviderAddressMap);
+			cell.setPhrase(new Phrase(formattedAddress, font));
+			orderingproviderTable.addCell(cell);
+		}
+
+		for(HashMap<String, String> telecomMap : handler.getOrderingProviderPhones()){
+			// Gets the use code for the telecommunication
+			cell.setPhrase(new Phrase(telecomMap.get("useCode") + ": ", boldFont));
+			orderingproviderTable.addCell(cell);
+			// Gets the telecommunication information (Phone number or Email)
+			cell.setPhrase(new Phrase(telecomMap.get("telecom"), font));
+			orderingproviderTable.addCell(cell);
+		}
+
+
         //Create results info table
-        PdfPTable rInfoTable = new PdfPTable(2);
+        PdfPTable reportDetailsTable = new PdfPTable(2);
         cell.setPhrase(new Phrase("Report Status: ", boldFont));
-        rInfoTable.addCell(cell);
+        reportDetailsTable.addCell(cell);
         String reportStatus = handler.getReportStatusDescription();
         cell.setPhrase(new Phrase(reportStatus, handler.isReportNormal() ? font : redFont));
-        rInfoTable.addCell(cell);
+        reportDetailsTable.addCell(cell);
         
         cell.setPhrase(new Phrase("Order Id: ", boldFont));
-        rInfoTable.addCell(cell);
+        reportDetailsTable.addCell(cell);
         Phrase orderIdPhrase = new Phrase();
         orderIdPhrase.setFont(font);
         orderIdPhrase.add(handler.getAccessionNum());
         orderIdPhrase.setFont(subscriptFont);
         orderIdPhrase.add("\t\t" + handler.getAccessionNumSourceOrganization());
-        
+
         cell.setPhrase(orderIdPhrase);
-        rInfoTable.addCell(cell);
-        
+        reportDetailsTable.addCell(cell);
+
         cell.setPhrase(new Phrase("Order Date: ", boldFont));
-        rInfoTable.addCell(cell);
+        reportDetailsTable.addCell(cell);
         cell.setPhrase(new Phrase(handler.getOrderDate(), font));
-        rInfoTable.addCell(cell);
-        
+        reportDetailsTable.addCell(cell);
+
         if(!stringIsNullOrEmpty(handler.getLastUpdateInOLISUnformated())){
 	        cell.setPhrase(new Phrase("Last Updated In OLIS: ", boldFont));
-	        rInfoTable.addCell(cell);
+	        reportDetailsTable.addCell(cell);
 	        cell.setPhrase(new Phrase(handler.getLastUpdateInOLIS(), font));
-	        rInfoTable.addCell(cell);
+	        reportDetailsTable.addCell(cell);
         }
-        
+
         if(!stringIsNullOrEmpty(handler.getSpecimenReceivedDateTime())){
 	        cell.setPhrase(new Phrase("Specimen Received: ", boldFont));
-	        rInfoTable.addCell(cell);
+	        reportDetailsTable.addCell(cell);
 	        Phrase specimentReceived = new Phrase(handler.getSpecimenReceivedDateTime(), font);
 	        specimentReceived.setFont(subscriptFont);
 	        specimentReceived.add("\n (unless otherwise specified)");
 	        cell.setPhrase(specimentReceived);
-	        rInfoTable.addCell(cell);
+	        reportDetailsTable.addCell(cell);
         }
         
-        HashMap<String,String> address;
-        address = handler.getOrderingFacilityAddress();
+        HashMap<String, String> address = handler.getOrderingFacilityAddress();
         if (!stringIsNullOrEmpty(handler.getOrderingFacilityName())){
 	        cell.setPhrase(new Phrase("Ordering Facility: ", boldFont));
-	        rInfoTable.addCell(cell);
+	        reportDetailsTable.addCell(cell);
 	        cell.setPhrase(new Phrase(handler.getOrderingFacilityName(), font));
-	        rInfoTable.addCell(cell);
+	        reportDetailsTable.addCell(cell);
 	        
 	        if (address != null && address.size() > 0){
 		        cell.setPhrase(new Phrase("Address: ", boldFont));
-		        rInfoTable.addCell(cell);
+		        reportDetailsTable.addCell(cell);
 		        cell.setPhrase(new Phrase(getFullAddress(handler.getOrderingFacilityAddress()), font));
-		        rInfoTable.addCell(cell);
+		        reportDetailsTable.addCell(cell);
 	        }
-        }
-        
-        cell.setPhrase(new Phrase("Ordering Provider: ", boldFont));
-        rInfoTable.addCell(cell);   
-        cell.setPhrase(getDoctorNamePhrase(handler.getDocName()));
-        rInfoTable.addCell(cell);
-        
-        address = handler.getOrderingProviderAddress(); 
-        if (address != null && address.size() > 0){
-	        cell.setPhrase(new Phrase("Address: ", boldFont));
-	    	rInfoTable.addCell(cell);
-	        fullAddress = getFullAddress(handler.getOrderingProviderAddress());
-	        cell.setPhrase(new Phrase(fullAddress, font));
-	        rInfoTable.addCell(cell);
-        }
-        
-        for(HashMap<String, String> phone : handler.getOrderingProviderPhones()){
-        	String phoneNumber = "";
-        	//Adds the phone's use
-        	cell.setPhrase(new Phrase(phone.get("useCode") + ": ", boldFont));
-        	rInfoTable.addCell(cell);
-        	//Adds the phone number
-        	phoneNumber = getPhone(phone);
-        	cell.setPhrase(new Phrase(phoneNumber, font));
-        	rInfoTable.addCell(cell);
         }
         
         if (!stringIsNullOrEmpty(handler.getAttendingProviderName())){
         	cell.setPhrase(new Phrase("Attending Provider: ", boldFont));
-        	rInfoTable.addCell(cell);
+        	reportDetailsTable.addCell(cell);
             cell.setPhrase(getDoctorNamePhrase(handler.getAttendingProviderName()));
-            rInfoTable.addCell(cell);
+            reportDetailsTable.addCell(cell);
         }
         
         if (!stringIsNullOrEmpty(handler.getAdmittingProviderName())){
         	cell.setPhrase(new Phrase("Admitting Provider: ", boldFont));
-        	rInfoTable.addCell(cell);
+        	reportDetailsTable.addCell(cell);
             cell.setPhrase(getDoctorNamePhrase(handler.getAdmittingProviderName()));
-            rInfoTable.addCell(cell);
+            reportDetailsTable.addCell(cell);
         }
     
         String primaryFacility = handler.getPerformingFacilityName();
@@ -985,37 +997,37 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         	//Determines if the performing facility is also the reporting facility and adds it and the name
         	String facilityRole = "Performing " + (primaryFacility.equals(reportingFacility) ? "and Reporting " : "") + "Facility: ";
         	cell.setPhrase(new Phrase(facilityRole, boldFont));
-        	rInfoTable.addCell(cell);
+        	reportDetailsTable.addCell(cell);
         	cell.setPhrase(new Phrase(primaryFacility, font));
-        	rInfoTable.addCell(cell);
+        	reportDetailsTable.addCell(cell);
         	//Creates the format for the address and adds it
         	address = handler.getPerformingFacilityAddress();
         	if (address != null && address.size() > 0){
         		cell.setPhrase(new Phrase("Address: ", boldFont));
-            	rInfoTable.addCell(cell);
+            	reportDetailsTable.addCell(cell);
         		fullAddress = getFullAddress(address);
         		cell.setPhrase(new Phrase(fullAddress, font));
-        		rInfoTable.addCell(cell);
+        		reportDetailsTable.addCell(cell);
         	}
         }
         
         if (!stringIsNullOrEmpty(reportingFacility) && !reportingFacility.equals(primaryFacility)){
         	//Adds reporting facility name
         	cell.setPhrase(new Phrase("Reporting Facility: ", boldFont));
-        	rInfoTable.addCell(cell);
+        	reportDetailsTable.addCell(cell);
         	cell.setPhrase(new Phrase(reportingFacility, font));
-        	rInfoTable.addCell(cell);
+        	reportDetailsTable.addCell(cell);
         	
         	
         	//Creates the format for the address and adds it
         	address = handler.getReportingFacilityAddress();
         	if (address != null && address.size() > 0){
         		cell.setPhrase(new Phrase("Address: ", boldFont));
-            	rInfoTable.addCell(cell);
+            	reportDetailsTable.addCell(cell);
             	
         		fullAddress = getFullAddress(address);
         		cell.setPhrase(new Phrase(fullAddress, font));
-        		rInfoTable.addCell(cell);;
+        		reportDetailsTable.addCell(cell);;
         	}
         }
         
@@ -1071,7 +1083,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 
         
         //Create header info table
-        float[] tableWidths = {2f, 3f};
+        float[] tableWidths = {2f, 2f, 2f};
         PdfPTable table = new PdfPTable(tableWidths);
         if (multiID.length > 1){
             cell = new PdfPCell(new Phrase("Version: "+versionNum+" of "+multiID.length, boldFont));
@@ -1080,17 +1092,20 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
             cell.setColspan(2);
             table.addCell(cell);
         }
-        cell = new PdfPCell(new Phrase("Detail Results: Patient Info", boldFont));
+        cell = new PdfPCell(new Phrase("Patient", boldFont));
         cell.setBackgroundColor(new Color(210, 212, 255));
         cell.setPadding(5);
         table.addCell(cell);
-        cell.setPhrase(new Phrase("Results Info", boldFont));
+        cell.setPhrase(new Phrase("Provider", boldFont));
+        table.addCell(cell);
+        cell.setPhrase(new Phrase("Report Details", boldFont));
         table.addCell(cell);
 
         // add the created tables to the document
-        table = addTableToTable(table, pInfoTable, 1);
-        table = addTableToTable(table, rInfoTable, 1);
-        table = addTableToTable(table, commentTable, 2);
+        table = addTableToTable(table, patientInfoTable, 1);
+        table = addTableToTable(table, orderingproviderTable, 1);
+        table = addTableToTable(table, reportDetailsTable, 1);
+        table = addTableToTable(table, commentTable, 3);
 
         table.setWidthPercentage(100);
 
@@ -1196,13 +1211,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 
 		HashMap<String, String> addressMap = handler.getOrderingFacilityAddress();
 		
-		String formattedAddress = "";
-		formattedAddress += getAddressFieldIfNotNullOrEmpty(addressMap, "Street Address");
-		formattedAddress += getAddressFieldIfNotNullOrEmpty(addressMap, "Other Designation");
-		formattedAddress += getAddressFieldIfNotNullOrEmpty(addressMap, "Postal Code", false);
-		formattedAddress += ", " + getAddressFieldIfNotNullOrEmpty(addressMap, "City", false);
-		formattedAddress += ", " + getAddressFieldIfNotNullOrEmpty(addressMap, "Province", false);
-		formattedAddress += ", " + getAddressFieldIfNotNullOrEmpty(addressMap, "Country", false);
+		String formattedAddress = handler.getFormattedAddress(addressMap);
 		
 		cell.setPhrase(new Phrase(formattedAddress, font));
 		orderingFacilityTable.addCell(cell);

@@ -222,7 +222,7 @@ public class OLISHL7Handler implements MessageHandler {
 		telecomUseCode.put("VHN", "Vacation Home Number");
 		telecomUseCode.put("ASN", "Answering Service Number");
 		telecomUseCode.put("EMR", "Emergency Number");
-		telecomUseCode.put("NET", "Network (email) Address");
+		telecomUseCode.put("NET", "Email");
 	}
 
 	private void initTelecomEquipTypes() {
@@ -711,45 +711,55 @@ public class OLISHL7Handler implements MessageHandler {
 		ArrayList<HashMap<String, String>> results = new ArrayList<HashMap<String, String>>();
 		try {
 			int rep = -1;
-
-			String value;
-			HashMap<String, String> telecom;
+			
+			HashMap<String, String> telecomMap;
 			String identifier;
 			while (!"".equals((identifier = getString(terser.get("/.OBR-17(" + (++rep) + ")-2"))))) {
-				telecom = new HashMap<String, String>();
-				value = getString(terser.get("/.OBR-17(" + (rep) + ")-1"));
-				if (stringIsNotNullOrEmpty(value)) {
-					telecom.put("phoneNumber", value);
-				}
-				value = getString(terser.get("/.OBR-17(" + (rep) + ")-3"));
-				if (stringIsNotNullOrEmpty(value)) {
-					value = telecomEquipType.get(value);
-					if (stringIsNotNullOrEmpty(value)) {
-						telecom.put("equipType", value);
+				telecomMap = new HashMap<>();
+				StringBuilder telecom = new StringBuilder();
+				// If the telecommunication type is Email
+				if (identifier.equals("NET")) {
+					String email = getString(terser.get("/.OBR-17(" + (rep) + ")-4"));
+					if (stringIsNotNullOrEmpty(email)) {
+						telecom.append(email);
+					}
+				} else {
+					String phoneNumber = getString(terser.get("/.OBR-17(" + (rep) + ")-1"));
+					String countryCode = getString(terser.get("/.OBR-17(" + (rep) + ")-5"));
+					String areaCode = getString(terser.get("/.OBR-17(" + (rep) + ")-6"));
+					String localNumber = getString(terser.get("/.OBR-17(" + (rep) + ")-7"));
+					String extension = getString(terser.get("/.OBR-17(" + (rep) + ")-8"));
+					
+					// Appends the country code if it exists
+					if (stringIsNotNullOrEmpty(countryCode)) {
+						telecom.append(countryCode);
+					}
+					// Appends the area code if it exists
+					if (stringIsNotNullOrEmpty(areaCode)) {
+						telecom.append(" (").append(areaCode).append(")");
+					}
+					// Appends the phone number, if it exists, with a dash after the first 3 numbers
+					if (stringIsNotNullOrEmpty(localNumber)) {
+						telecom.append(" ").append(localNumber.substring(0, 3)).append("-").append(localNumber.substring((3)));
+					}
+					// Appends the phone extension if it exists
+					if (stringIsNotNullOrEmpty(extension)) {
+						telecom.append(" x").append(extension);
 					}
 				}
-				value = getString(terser.get("/.OBR-17(" + (rep) + ")-4"));
-				if (stringIsNotNullOrEmpty(value)) {
-					telecom.put("email", value);
+				
+				telecomMap.put("telecom", telecom.toString());
+				
+				String equipmentType = getString(terser.get("/.OBR-17(" + (rep) + ")-3"));
+				if (stringIsNotNullOrEmpty(equipmentType)) {
+					equipmentType = telecomEquipType.get(equipmentType);
+					if (stringIsNotNullOrEmpty(equipmentType)) {
+						telecomMap.put("equipType", equipmentType);
+					}
 				}
-				value = getString(terser.get("/.OBR-17(" + (rep) + ")-5"));
-				if (stringIsNotNullOrEmpty(value)) {
-					telecom.put("countryCode", value);
-				}
-				value = getString(terser.get("/.OBR-17(" + (rep) + ")-6"));
-				if (stringIsNotNullOrEmpty(value)) {
-					telecom.put("areaCode", value);
-				}
-				value = getString(terser.get("/.OBR-17(" + (rep) + ")-7"));
-				if (stringIsNotNullOrEmpty(value)) {
-					telecom.put("localNumber", value);
-				}
-				value = getString(terser.get("/.OBR-17(" + (rep) + ")-8"));
-				if (stringIsNotNullOrEmpty(value)) {
-					telecom.put("extension", value);
-				}
-				telecom.put("useCode", telecomUseCode.get(identifier));
-				results.add(telecom);
+				
+				telecomMap.put("useCode", telecomUseCode.get(identifier));
+				results.add(telecomMap);
 			}
 
 			return results;
@@ -3146,6 +3156,92 @@ public class OLISHL7Handler implements MessageHandler {
 			reportStatusDescription = "Amended Report";
 		}
 	}
+
+    /**
+     * Gets the formatted address for non-html uses
+     * The address is in the following format:
+     * <pre>
+     * address1
+     * address2
+     * postalCode, city, province, country
+     * </pre>
+     * @param addressMap The address map to format
+     * @return String of the formatted address
+     */
+	public String getFormattedAddress(HashMap<String, String> addressMap) {
+	    return getFormattedAddress(addressMap, false);
+    }
+
+    /**
+     * Formats the provided map of address parts into a single string of the following format:
+     * <pre>
+     * address1
+     * address2
+     * postalCode, city, province, country
+     * </pre>
+     * @param addressMap A map of address parts to be formatted
+     * @param isHtml Flag for if the formatted address will be used in HTML,
+     *              if <code>true</code>, uses &lt;br /&gt; for line separations
+     * @return String of the formatted address
+     */
+	public String getFormattedAddress(HashMap<String, String> addressMap, boolean isHtml) {
+	    boolean addComma = false;
+	    // If it is for HTML use, uses <br /> instead of the system line separators
+	    String newLine = isHtml ? "<br />" : System.lineSeparator();
+	    StringBuilder formattedAddress = new StringBuilder();
+	    
+	    // Gets each part of the address
+	    String address1 = addressMap.get("Street Address");
+	    String address2 = addressMap.get("Other Destination");
+	    String postalCode = addressMap.get("Postal Code");
+	    String city = addressMap.get("City");
+	    String province = addressMap.get("Province");
+	    String country = addressMap.get("Country");
+	    
+	    // Appends the first address line
+	    if (StringUtils.isNotEmpty(address1)) {
+	        formattedAddress.append(address1).append(newLine);
+        }
+	    
+	    // Appends the second address line
+	    if (StringUtils.isNotEmpty(address2)) {
+	        formattedAddress.append(address2).append(newLine);
+        }
+	    
+	    // Appends the postal code
+	    if (StringUtils.isNotEmpty(postalCode)) {
+	        formattedAddress.append(postalCode);
+            addComma = true;
+        }
+	    
+	    // Appends the city, separated with a comma if needed
+	    if (StringUtils.isNotEmpty(city)) {
+	        if (addComma) {
+	            formattedAddress.append(", ");
+            }
+	        formattedAddress.append(city);
+	        addComma = true;
+        }
+	    
+        // Appends the city, separated with a comma if needed
+	    if (StringUtils.isNotEmpty(province)) {
+            if (addComma) {
+                formattedAddress.append(", ");
+            }
+	        formattedAddress.append(province);
+            addComma = true;
+        }
+	    
+        // Appends the city, separated with a comma if needed
+	    if (StringUtils.isNotEmpty(country)) {
+            if (addComma) {
+                formattedAddress.append(", ");
+            }
+	        formattedAddress.append(country);
+        }
+	    
+        return formattedAddress.toString();
+    }
 	
 	public class OLISError {
 		public OLISError(String segment, String sequence, String field, String indentifer, String text) {
