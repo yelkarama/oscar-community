@@ -80,7 +80,8 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
     private Font commentRedFont;
     private Font subscriptFont;
     private String dateLabReceived;
-    
+    private Font underlineFont;
+
     private String category = "";
 	private String newCategory = "";
 
@@ -195,7 +196,8 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         commentSubscriptFont = new Font(cfBold, 6, Font.NORMAL);
         commentRedFont = new Font(cfBold, 9, Font.NORMAL, Color.RED);
         subscriptFont = new Font(bf, 6, Font.NORMAL);
-        
+        underlineFont = new Font(cfBold, 10, Font.UNDERLINE);
+
 
         // add the header table containing the patient and lab info to the document
         createInfoTable();
@@ -851,37 +853,11 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
     	}
     	//Patient Home Phone
         ArrayList<HashMap<String,String>> homePhones = handler.getPatientHomeTelecom();
-    	for(HashMap<String, String> homePhone : homePhones){
-        	Phrase phonePhrase = new Phrase();
-        	//Adds the phone's use
-        	cell.setPhrase(new Phrase("Home: ", boldFont));
-        	patientInfoTable.addCell(cell);
-        	
-        	//Adds the phone number and useCode to the phrase
-        	phonePhrase.setFont(font);
-        	phonePhrase.add(getPhone(homePhone));
-        	phonePhrase.setFont(subscriptFont);
-        	phonePhrase.add(homePhone.get("useCode"));
-        	//Adds the phrase to the table
-        	cell.setPhrase(phonePhrase);
-        	patientInfoTable.addCell(cell);
-        }
+		printTelecomInfo(homePhones, patientInfoTable, cell, "Home");
+
     	//Patient Work Telephone
         ArrayList<HashMap<String, String>> workPhones = handler.getPatientWorkTelecom();
-        for (HashMap<String, String> workPhone : workPhones){
-        	Phrase phonePhrase = new Phrase();
-        	//Adds the phone's use
-        	cell.setPhrase(new Phrase("Work: ", boldFont));
-        	patientInfoTable.addCell(cell);
-        	//Adds the phone number and useCode
-        	phonePhrase.setFont(font);
-        	phonePhrase.add(getPhone(workPhone));
-        	phonePhrase.setFont(subscriptFont);
-        	phonePhrase.add(workPhone.get("useCode"));
-        	//Adds the phrase to the table
-        	cell.setPhrase(phonePhrase);
-        	patientInfoTable.addCell(cell);
-        }
+		printTelecomInfo(workPhones, patientInfoTable, cell, "Work");
         
         
         // Creates the ordering provider table with 2 columns
@@ -1111,6 +1087,28 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 
         document.add(table);
     }
+
+    private void printTelecomInfo(ArrayList<HashMap<String, String>> telecoms, PdfPTable pInfoTable, PdfPCell cell, String type) {
+    	cell.setPhrase(new Phrase(type + ":", underlineFont));
+    	pInfoTable.addCell(cell);
+    	cell.setPhrase(new Phrase());
+    	pInfoTable.addCell(cell);
+		for(HashMap<String, String> telecom : telecoms){
+			Phrase phonePhrase = new Phrase();
+			//Adds the phone's use
+			cell.setPhrase(new Phrase(telecom.get("equipType")+ ": ", boldFont));
+			pInfoTable.addCell(cell);
+
+			//Adds the phone number and useCode to the phrase
+			phonePhrase.setFont(font);
+			phonePhrase.add(getPhone(telecom));
+			phonePhrase.setFont(subscriptFont);
+			phonePhrase.add(telecom.get("useCode"));
+			//Adds the phrase to the table
+			cell.setPhrase(phonePhrase);
+			pInfoTable.addCell(cell);
+		}
+	}
 
 	/**
 	 * Creates the client table which is displayed at the end of the report
