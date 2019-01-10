@@ -40,6 +40,7 @@ public final class RxAddAllergyForm extends ActionForm {
     String name =null;
     String type = null;
     private String atc = null;
+    private String regionalIdentifier = null;
     String startDate = null;
     String ageOfOnset = null;
     String lifeStage = null;
@@ -82,6 +83,14 @@ public final class RxAddAllergyForm extends ActionForm {
 
     public void setAtc(String atc) {
         this.atc = atc;
+    }
+
+    public String getRegionalIdentifier() {
+        return regionalIdentifier;
+    }
+
+    public void setRegionalIdentifier(String regionalIdentifier) {
+        this.regionalIdentifier = regionalIdentifier;
     }
 
     /**

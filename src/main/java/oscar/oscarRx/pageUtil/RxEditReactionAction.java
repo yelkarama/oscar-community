@@ -53,6 +53,7 @@ public class RxEditReactionAction extends Action {
         String name = allergy.getDescription();
         Integer type = allergy.getTypeCode();
         String atc = allergy.getAtc();
+        String regionalIdentifier = allergy.getRegionalIdentifier();
         String description = allergy.getReaction();
         String entryDate = allergy.getEntryDate() != null ? allergy.getEntryDate().toString() : "";
         String startDate = allergy.getStartDate() != null ? allergy.getStartDate().toString():"";
@@ -67,6 +68,7 @@ public class RxEditReactionAction extends Action {
         request.setAttribute("name",name);
         request.setAttribute("type", type);
         request.setAttribute("atc", atc);
+        request.setAttribute("regionalIdentifier", regionalIdentifier);
         request.setAttribute("reactionDescription", description);
         request.setAttribute("entryDate", entryDate);
         request.setAttribute("startDate", startDate);

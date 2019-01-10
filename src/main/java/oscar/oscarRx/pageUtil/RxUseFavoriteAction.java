@@ -27,14 +27,13 @@ package oscar.oscarRx.pageUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
-import java.util.Vector;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -47,7 +46,7 @@ import org.oscarehr.util.SpringUtils;
 
 import oscar.oscarRx.data.RxPatientData;
 import oscar.oscarRx.data.RxPrescriptionData;
-import oscar.oscarRx.util.RxDrugRef;
+import oscar.oscarRx.util.DrugRefCategories;
 import oscar.oscarRx.util.RxUtil;
 
 
@@ -179,25 +178,23 @@ public final class RxUseFavoriteAction extends DispatchAction {
             
             // Checks if the drug has a brand name, if it doesn't then it is a custom drug and the drug and category ids remain 0 
             if (fav.getBN() != null) {
-                try {
-                    // Gets the drug information based on the brand name 
-                    Vector vec = new RxDrugRef().list_drug_element(fav.getBN());
-                    // Sets the Ids and drug name for a brand name drug 
-                    categoryId = Integer.parseInt(((Hashtable) vec.get(0)).get("category").toString());
-                    drugId = fav.getGCN_SEQNO();
-                    drugName = fav.getBN();
-                } catch (Exception e) {
-                    MiscUtils.getLogger().error("Error fetching category information for " + fav.getGCN_SEQNO());
-                }
-            } else {
+                // Sets the Ids and drug name for a brand name drug 
+                categoryId = DrugRefCategories.BRANDED_PRODUCT;
+                drugId = fav.getGCN_SEQNO();
+                drugName = fav.getBN();
+            } else if (!StringUtils.isEmpty(fav.getCustomName())) {
                 // Sets the custom name for the drug name since it is a custom drug
                 drugName = fav.getCustomName();
+            } else {
+                drugName = fav.getFavoriteName();
             }
             
             ActionRedirect redirect = new ActionRedirect(mapping.findForward("addAllergy"));
             redirect.addParameter("ID", drugId);
             redirect.addParameter("name", drugName);
             redirect.addParameter("type", categoryId);
+            redirect.addParameter("atc", fav.getAtcCode());
+            redirect.addParameter("regionalIdentifier", fav.getRegionalIdentifier());
             
             return redirect;
         } catch (NumberFormatException e) {

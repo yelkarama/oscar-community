@@ -68,6 +68,7 @@ public final class RxAddAllergyAction extends Action {
             String name = request.getParameter("name");
             String type = request.getParameter("type");
             String atc = request.getParameter("atc");
+            String regionalIdentifier = request.getParameter("regionalIdentifier");
             String description = request.getParameter("reactionDescription");
 
             String entryDate = request.getParameter("entryDate");
@@ -113,13 +114,7 @@ public final class RxAddAllergyAction extends Action {
             allergy.setOnsetOfReaction(onSetOfReaction);
             allergy.setLifeStage(lifeStage);
             allergy.setReactionType(reactionType);
-
-            if (allergy.getTypeCode() != 8) {
-                RxDrugData.DrugMonograph drugMonograph = allergy.isDrug(Integer.parseInt(type));
-                if (drugMonograph != null) {
-                    allergy.setRegionalIdentifier(drugMonograph.regionalIdentifier);
-                }
-            }
+            allergy.setRegionalIdentifier(regionalIdentifier);
 
             allergy.setDemographicNo(patient.getDemographicNo());
             allergy.setArchived(false);

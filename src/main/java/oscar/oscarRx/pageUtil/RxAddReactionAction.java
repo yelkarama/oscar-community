@@ -57,6 +57,7 @@ public final class RxAddReactionAction extends Action {
             request.setAttribute("name",name);
             request.setAttribute("type", type);
             request.setAttribute("atc", atc);
+            request.setAttribute("regionalIdentifier", request.getParameter("regionalIdentifier"));
             
 
             return (mapping.findForward("success"));

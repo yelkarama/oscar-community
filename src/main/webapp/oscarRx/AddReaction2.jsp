@@ -76,6 +76,7 @@ String name = (String) request.getAttribute("name");
 String type = String.valueOf(request.getAttribute("type"));
 String allergyId = (String) request.getAttribute("allergyId");
 String atc = (String) request.getAttribute("atc");
+String regionalIdentifier = (String) request.getAttribute("regionalIdentifier");
 
 String reactionDescription ="";
 String entryDate = "";
@@ -162,6 +163,7 @@ if (entryDate == null || entryDate.isEmpty()) {
 								<html:hidden property="ID" value="<%=allergyId%>" /> 
 								<html:hidden property="name" value="<%=name%>" />
 								<html:hidden property="atc" value="<%=atc%>" />
+								<html:hidden property="regionalIdentifier" value="<%=regionalIdentifier%>" />
 								<html:hidden property="type" value="<%=type%>" />
 							</td>
 						</tr>

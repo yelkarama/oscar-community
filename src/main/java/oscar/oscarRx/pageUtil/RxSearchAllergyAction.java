@@ -170,6 +170,10 @@ public final class RxSearchAllergyAction extends Action {
                 if (hash.containsKey("atc") && !((String) hash.get("atc")).isEmpty()) {
                     arr[i].setAtc((String) hash.get("atc"));
                 }
+                
+                if (hash.containsKey("din") && !((String) hash.get("din")).isEmpty()) {
+                    arr[i].setRegionalIdentifier((String) hash.get("din"));
+                }
 
                 allergyResults.get(hash.get("category")).add(arr[i]);
                 if(flatList.get(arr[i].getDescription()) == null) {
