@@ -1105,7 +1105,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
 
                         int obx = 0;
                         int l=0;
-                        int linenum=0;
+                        int linenum = 0;
                         String highlight = "#E0E0FF";
                         ArrayList headers = handler.getHeaders();
                         int OBRCount = handler.getOBRCount();
@@ -1118,8 +1118,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                         	obr = handler.getMappedOBR(i);
                         	// Gets the obrHeader JSON related to the current obr
                         	obrHeader = handler.getObrHeader(obr);
-                            linenum = obr + 1;
-                            if (handler.isChildOBR(linenum) || (resultObrIndex != null && !resultObrIndex.equals(i))) {
+                            if (handler.isChildOBR(obr + 1) || (resultObrIndex != null && !resultObrIndex.equals(i))) {
                             	continue;
                             }
                         %>
@@ -1297,7 +1296,9 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                     // set already which will only have occured if the
                                     // obx name is "" or if it is the same as the obr name
                                     String obxNN = handler.getOBXName(obr,0);
-                                    if(!obrFlag && obxNN.equals("")){%>
+                                    
+                                    if(!obrFlag && obxNN.equals("")){
+										linenum++; %>
                                         <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" >
                                             <td valign="top" align="left"><%=handler.getOBRName(comment)%></td>
                                             <td valign="top" align="left"><%=handler.getObrSpecimenSource(comment) %></td>
@@ -1335,6 +1336,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                             <% }
 
                                 for (int k=0; k < obxCount; k++){
+									linenum++;
                                 	obx = handler.getMappedOBX(obr, k);
                                     String obxName = handler.getOBXName(obr, obx);
                                     boolean b1=false, b2=false, b3=false;

@@ -380,10 +380,17 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		boolean obrFlag = false;
 		int obxCount = handler.getOBXCount(obr);
 		int obx = 0;
+		int lineIndex = 0;
 		
 		if (handler.getObservationHeader(obr, 0).equals(header)){
 			int commentCount = handler.getOBRCommentCount(obr);
 			for (int comment = 0; comment < commentCount; comment++){
+                lineIndex++;
+			    if (lineIndex % 2 == 1) {
+                    cell.setBackgroundColor(new Color(255, 255, 255));
+                } else {
+                    cell.setBackgroundColor(new Color(232, 232, 232));
+                }
 				String obxNN = handler.getOBXName(obr, 0);
 				if (!obrFlag && obxNN.equals("")){
                     OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(handler.getOBRName(comment), commentFont, cell));
@@ -416,6 +423,12 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		}
 		
 		for (int count = 0; count < obxCount; count++){
+            lineIndex++;
+            if (lineIndex % 2 == 1) {
+                cell.setBackgroundColor(new Color(255, 255, 255));
+            } else {
+                cell.setBackgroundColor(new Color(232, 232, 232));
+            }
 			obx = handler.getMappedOBX(obr, count);
 			String obxName = handler.getOBXName(obr, obx);
 			boolean b1 = false;
