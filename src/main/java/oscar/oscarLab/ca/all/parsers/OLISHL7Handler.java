@@ -1395,6 +1395,8 @@ public class OLISHL7Handler implements MessageHandler {
 				return "Invalid result";
 			case 'N':
 				return "Test not performed";
+			case 'Z':
+				return "Patient Observation";
 			default:
 				return "";
 		}
