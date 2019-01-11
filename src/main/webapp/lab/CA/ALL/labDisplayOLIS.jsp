@@ -1554,7 +1554,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
    											%>
    											<tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
    												<td colspan="5" align="center">
-   													<table style="border: 1px solid black; margin-left 30px;">
+   													<table style="border: 1px solid black; margin-left: 30px;" cellspacing="0" cellpadding="2">
    														<tr><th>Name</th><th>Result</th> </tr>
    												    <%
 
@@ -1568,7 +1568,21 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
 	   	   			                                        ceName = ceStrikeout ? "<s>" + ceName + "</s>" : ceName;
 	   	   			                                        String ceSense = handler.getOBXCESensitivity(childOBR,ceIndex);
 	   	   			                                        ceSense = ceStrikeout ? "<s>" + ceSense + "</s>" : ceSense;
-	   												    	%><tr><td><%=ceName%></td><td align="center"><%=ceSense%></td></tr><%
+                                                            int commentCount = handler.getOBXCommentCount(childOBR, ceIndex);
+	   												    	%>
+                                                        <tr bgcolor="<%=(ceIndex % 2 == 1 ? highlight : "#ccccff")%>" >
+                                                            <td><%=ceName%></td>
+                                                            <td align="center"><%=ceSense%></td>
+                                                        </tr>
+                                                        <% for (int comment = 0; comment < commentCount; comment++) { %>
+                                                        <tr bgcolor="<%=(ceIndex % 2 == 1 ? highlight : "#ccccff")%>">
+                                                            <td colspan="2">
+                                                                <div style="width:700px">
+                                                                <%=handler.getOBXComment(childOBR, ceIndex, comment)%><span style="margin-left:15px;font-size:8px; color:#333333;word-break:normal;"><%=handler.getOBXSourceOrganization(childOBR, ceIndex, comment)%></span>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        <%}
 	   													}
    												    }
    													%>

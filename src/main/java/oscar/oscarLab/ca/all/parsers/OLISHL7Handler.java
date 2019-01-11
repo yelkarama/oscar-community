@@ -39,9 +39,11 @@ import org.bouncycastle.util.encoders.Base64;
 import org.json.JSONObject;
 import org.oscarehr.olis.dao.OLISRequestNomenclatureDao;
 import org.oscarehr.olis.dao.OLISResultNomenclatureDao;
+import org.oscarehr.olis.dao.OlisMicroorganismNomenclatureDao;
 import org.oscarehr.olis.model.OLISRequestNomenclature;
 import org.oscarehr.olis.model.OLISResultNomenclature;
 import org.oscarehr.olis.model.OlisLabResultSortable;
+import org.oscarehr.olis.model.OlisMicroorganismNomenclature;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -73,7 +75,7 @@ public class OLISHL7Handler implements MessageHandler {
 	private ArrayList<JSONObject> obrHeaders;
 	private ArrayList<String> obrStatus;
 	private HashMap<String, String> sourceOrganizations;
-
+	private List<String> microorganismCodes = new ArrayList<>();
 	private int obrCount = 0;
 	private HashMap<String, String> defaultSourceOrganizations;
 	
@@ -82,6 +84,7 @@ public class OLISHL7Handler implements MessageHandler {
 
     private Map<String, OLISRequestNomenclature> olisRequestNomenclatureMap = null;
     private Map<String, OLISResultNomenclature> olisResultNomenclatureMap = null;
+    private Map<String, OlisMicroorganismNomenclature> olisMicroorganismNomenclatureMap = new HashMap<>();
 
 	private HashMap<Integer, List<OlisLabResultSortable>> obxSortMap;
     
@@ -972,6 +975,12 @@ public class OLISHL7Handler implements MessageHandler {
 							Segment obxSeg = (Segment) segs[l];
 							parseObxStatus(obxSeg);
 							obxSegs.add(obxSeg);
+							
+							// Gets the microorganism code and if one exists, adds it to the list
+							String microorganismCode = getMicroorganismCode(obxSeg);
+							if (!microorganismCode.isEmpty()) {
+								this.microorganismCodes.add(microorganismCode);
+							}
 						}
 
 					} else if (obrFlag && segmentName.equals("OBR")) {
@@ -1043,6 +1052,7 @@ public class OLISHL7Handler implements MessageHandler {
 		}
 		obxSortMap = new HashMap<Integer, List<OlisLabResultSortable>>();
 		obrSortMap = new HashMap<String, Integer>();
+		getOlisMicroorganismNomenclatureMap();
 		mapOBRSortKeys();
 
 		disciplines = new ArrayList<String>();
@@ -1710,6 +1720,17 @@ public class OLISHL7Handler implements MessageHandler {
 		return (getOBXField(i, j, 2, 0, 1));
 	}
 
+	private String getObxValueType(Segment segment) {
+		String valueType = "";
+		try {
+			valueType = Terser.get(segment, 2, 0, 1, 1);
+		} catch (HL7Exception e) {
+			logger.error("Could not get the value type for a segment");
+		}
+		
+		return StringUtils.trimToEmpty(valueType);
+	}
+	
 	@Override
 	public String getOBXIdentifier(int i, int j) {
 		return (getOBXField(i, j, 3, 0, 1));
@@ -1812,6 +1833,17 @@ public class OLISHL7Handler implements MessageHandler {
         return "";
     }
 
+    /**
+     * Gets a map for the OLIS microorganism nomenclature using the retrieved codes
+     */
+    public void getOlisMicroorganismNomenclatureMap() {
+		// Get OLIS Request Nomenclature for lab results
+		OlisMicroorganismNomenclatureDao microorganismNomenclatureDao = SpringUtils.getBean(OlisMicroorganismNomenclatureDao.class);
+		if (!microorganismCodes.isEmpty()) {
+			this.olisMicroorganismNomenclatureMap = microorganismNomenclatureDao.findAllByMicroorganismCodes(microorganismCodes);
+		}
+	}
+    
 	public String getOBRCategory(int i) {
 		i++;
 		try {
@@ -1895,8 +1927,25 @@ public class OLISHL7Handler implements MessageHandler {
 		return obxNameLong;
 	}
 
-	public String getOBXCEName(int i, int j) {
-		return getOBXField(i, j, 5, 0, 2);
+	public String getOBXCEName(int obr, int obx) {
+    	String ceName = "";
+    	// Tries to get the microorganism code to see if the result is a microorganism 
+		String microorganismCode = getMicroorganismCode(obr, obx);
+		// If a code was found, it is a microorganism
+    	if (!microorganismCode.isEmpty()) {
+    	    // Gets the related nomenclature for the code and uses the alternate name for display
+    		OlisMicroorganismNomenclature nomenclature = olisMicroorganismNomenclatureMap.get(microorganismCode);
+    		if (nomenclature != null) {
+				ceName = nomenclature.getAlternateName1();
+			}
+		}
+
+    	// If the result is not a microorganism or an error occurred
+    	if (ceName.isEmpty()) {
+			ceName = getOBXField(obr, obx, 5, 0, 2);
+		}
+    	
+		return ceName;
 	}
 
 	public boolean renderAsFT(int i, int j) {
@@ -3244,7 +3293,63 @@ public class OLISHL7Handler implements MessageHandler {
 	    
         return formattedAddress.toString();
     }
-	
+
+	/**
+	 * Gets the microorganism code for the given obx segment if it's value type is a Coded Entry and the coding system is HL79905
+	 * @param obxSegment Segment to get the microorganism code from 
+	 * @return The retrieved microorganism code, empty if it's not a CE or the code system doesn't match
+	 */
+	private String getMicroorganismCode(Segment obxSegment) {
+		String microorganismCode = "";
+		try {
+		    // Checks if the result is a microorganism 
+			if (checkIfMicroorganism(obxSegment)) {
+			    // Gets the microorganism code from OBX5.1
+				microorganismCode = StringUtils.trimToEmpty(Terser.get(obxSegment, 5, 0, 1, 1));
+			}
+		} catch (HL7Exception e) {
+			logger.error("Could not retrieve CE", e);
+		}
+
+		return microorganismCode;
+	}
+
+	/**
+	 * Gets the microorganism code for the given OBR and OBX indexes
+	 * @param obr The OBR that the obx is under
+	 * @param obx The OBX segment to check
+	 * @return the microorganism code
+	 */
+	private String getMicroorganismCode(int obr, int obx) {
+		ArrayList<Segment> obxSegments = obrGroups.get(obr);
+		Segment obxSegment = obxSegments.get(obx);
+		return getMicroorganismCode(obxSegment);
+	}
+
+    /**
+     * Checks if the provided OBX segment is a microorganism
+     * @param obxSegment The result to check
+     * @return {@code true} if the obx is a microorganism, {@code false} if it isn't or an error occurs
+     */
+	private boolean checkIfMicroorganism(Segment obxSegment) {
+		boolean isMicroorganism = false;
+		try {
+		    // Gets the value type to check if it is a Coded Entry
+			String valueType = getObxValueType(obxSegment);
+			if (valueType.equals("CE")) {
+			    //Gets the code system from OBX5.3 and checks to see if it is HL79905
+				String codeSystem = StringUtils.trimToEmpty(Terser.get(obxSegment, 5, 0, 3, 1));
+				if (codeSystem.equals("HL79905")) {
+					isMicroorganism = true;
+				}
+			}
+		} catch (HL7Exception e) {
+			logger.error("ObxSegment could not be properly checked if it is a microorganism", e);
+		}
+
+		return isMicroorganism;
+	}
+    
 	public class OLISError {
 		public OLISError(String segment, String sequence, String field, String indentifer, String text) {
 			super();

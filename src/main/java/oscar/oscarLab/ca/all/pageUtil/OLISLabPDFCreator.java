@@ -422,12 +422,15 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 			table.addCell(cell);
 		}
 		
+		Color white = new Color(255, 255, 255);
+		Color grey = new Color(232, 232, 232);
+		
 		for (int count = 0; count < obxCount; count++){
             lineIndex++;
             if (lineIndex % 2 == 1) {
-                cell.setBackgroundColor(new Color(255, 255, 255));
+                cell.setBackgroundColor(white);
             } else {
-                cell.setBackgroundColor(new Color(232, 232, 232));
+                cell.setBackgroundColor(grey);
             }
 			obx = handler.getMappedOBX(obr, count);
 			String obxName = handler.getOBXName(obr, obx);
@@ -739,16 +742,44 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 								//Gets the Gets the childOBR length
 								int childLength = handler.getOBXCount(childOBR);
 								//For each child obr, outputs it
+								PdfPCell microorganismCell = new PdfPCell();
 								for (int ceIndex = 0; ceIndex < childLength; ceIndex++){
+									microorganismCell.setBorder(12);
+									int commentCount = handler.getOBXCommentCount(childOBR, ceIndex);
 									Font strikeoutFont = new Font(cfBold, 9, Font.STRIKETHRU);
 									String ceStatus = handler.getOBXResultStatus(childOBR, ceIndex).trim();
-                                    boolean ceStrikeout = ceStatus != null && ceStatus.startsWith("W");
-									cell.setHorizontalAlignment(Element.ALIGN_LEFT);
-                                    OLISLabPDFUtils.addAllCellsToTable(ceTable, OLISLabPDFUtils.createCellsFromHl7(handler.getOBXName(childOBR,ceIndex), (ceStrikeout ? strikeoutFont : commentFont), cell));
-									cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-                                    OLISLabPDFUtils.addAllCellsToTable(ceTable, OLISLabPDFUtils.createCellsFromHl7(handler.getOBXCESensitivity(childOBR,ceIndex), (ceStrikeout ? strikeoutFont : commentFont), cell));
-                                    
-                                    cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+									boolean ceStrikeout = ceStatus != null && ceStatus.startsWith("W");
+									
+									if (ceIndex % 2 == 1) {
+										microorganismCell.setBackgroundColor(white);
+									} else {
+										microorganismCell.setBackgroundColor(grey);
+									}
+									
+									if (ceIndex == childLength - 1 && commentCount == 0) {
+										microorganismCell.setBorder(14);
+									}
+									
+									microorganismCell.setHorizontalAlignment(Element.ALIGN_LEFT);
+                                    OLISLabPDFUtils.addAllCellsToTable(ceTable, OLISLabPDFUtils.createCellsFromHl7(handler.getOBXName(childOBR,ceIndex), (ceStrikeout ? strikeoutFont : commentFont), microorganismCell));
+									microorganismCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                                    OLISLabPDFUtils.addAllCellsToTable(ceTable, OLISLabPDFUtils.createCellsFromHl7(handler.getOBXCESensitivity(childOBR,ceIndex), (ceStrikeout ? strikeoutFont : commentFont), microorganismCell));
+
+									
+									if (commentCount > 0) {
+										microorganismCell.setColspan(2);
+										microorganismCell.setHorizontalAlignment(Element.ALIGN_LEFT);
+										for (int commentIndex = 0; commentIndex < commentCount; commentIndex++) {
+											if (ceIndex == childLength - 1 && commentIndex == commentCount - 1) {
+												microorganismCell.setBorder(14);
+											}
+											OLISLabPDFUtils.addAllCellsToTable(ceTable, OLISLabPDFUtils.createCellsFromHl7(handler.getOBXCommentNoFormat(childOBR, ceIndex, commentIndex) + " " + handler.getOBXSourceOrganization(childOBR, ceIndex, commentIndex), commentFont, microorganismCell));
+											
+										}
+										
+										microorganismCell.setColspan(1);
+									}
+                                    microorganismCell.setHorizontalAlignment(Element.ALIGN_LEFT);
 								}
 							}
 							
