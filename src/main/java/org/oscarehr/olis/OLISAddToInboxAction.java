@@ -50,6 +50,8 @@ import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
+import com.indivica.olis.queries.QueryType;
+
 import oscar.log.LogAction;
 import oscar.log.LogConst;
 import oscar.oscarLab.FileUploadCheck;
@@ -95,9 +97,6 @@ public class OLISAddToInboxAction extends DispatchAction {
 		for(int x=0;x<arr.length();x++) {
 			JSONObject item = arr.getJSONObject(x);
 			String uuidToAdd = item.getString("uuid");
-			
-			
-
 		}
 		
 		JSONObject obj2 = new JSONObject();
@@ -364,6 +363,21 @@ public class OLISAddToInboxAction extends DispatchAction {
 		}
 		OLISHL7Handler msgHandler = (OLISHL7Handler) HandlerClassFactory.getHandler("OLIS_HL7");	
 		
+		try {
+			boolean dup2 = OLISUtils.isDuplicate(loggedInInfo, new File(System.getProperty("java.io.tmpdir") + "/olis_" + uuidToAdd + ".response"));
+			if(dup2) {
+				OLISQueryLog query = olisQueryLogDao.findByUUID(result.getQueryUuid());
+				logOLISDuplicate(loggedInInfo, query.getQueryExecutionDate(), query.getQueryType(), query.getRequestingHIC(), query.getInitiatingProviderNo(), query.getDemographicNo(), result.getResults(), uuidToAdd);
+				result.setStatus("duplicate");
+				olisResultsDao.merge(result);
+				successful.add(uuidToAdd);
+				return;
+			}
+		}catch(Exception e) {
+			logger.error("error",e);
+			return;
+		}
+		
 		InputStream is = null;
 		try {
 			is = new FileInputStream(fileLocation);
@@ -400,8 +414,9 @@ public class OLISAddToInboxAction extends DispatchAction {
 					errors.add(result.getUuid());
 				}
 			} else {
-				LogAction.addLog(providerNo, "OLIS","DUPLICATE", uuidToAdd , null);
-				
+				//LogAction.addLog(providerNo, "OLIS","DUPLICATE", uuidToAdd , null);
+				OLISQueryLog query = olisQueryLogDao.findByUUID(result.getQueryUuid());
+				logOLISDuplicate(loggedInInfo, query.getQueryExecutionDate(), query.getQueryType(), query.getRequestingHIC(), query.getInitiatingProviderNo(), query.getDemographicNo(), result.getResults(), uuidToAdd);
 				errors.add(result.getUuid());
 			}
 
@@ -474,6 +489,64 @@ public class OLISAddToInboxAction extends DispatchAction {
 		
 		if("Z01".equals(queryLog.getQueryType().toString())) {
 			//oscarLog.setDemographicId( Integer.parseInt(((Z01Query)query).getDemographicNo()));
+		}
+		
+		LogAction.addLogSynchronous(oscarLog);
+		
+	}
+	
+	public void logOLISDuplicate(LoggedInInfo loggedInInfo, Date queryExecutionDate, String queryTypeStr, String queryRequestingHIC, String queryInitiatingProviderNo, Integer queryDemographicNo, String message, String resultUuid) {
+
+		QueryType queryType = null;
+		if(queryTypeStr.equals("Z01")) {
+			queryType = QueryType.Z01;
+		}
+		if(queryTypeStr.equals("Z04")) {
+			queryType = QueryType.Z04;
+		}
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		
+		StringBuilder data = new StringBuilder();
+		data.append("Query Date:" + formatter.format(queryExecutionDate) + "\n");
+		data.append("Query Type:" + queryType + "\n");
+		
+		if(!StringUtils.isEmpty(queryRequestingHIC)) {
+			Provider reqHic = providerDao.getProviderByPractitionerNo(queryRequestingHIC);
+			if(reqHic != null) {
+				data.append("Requesting HIC:" + reqHic.getFormattedName() + "\n");
+			}
+		}
+		data.append("Initiating Provider: " + providerDao.getProvider(queryInitiatingProviderNo).getFormattedName() + "\n");
+		data.append("Rejecting User: System (automatic)" + "\n");
+		data.append("Rejection Date: " + formatter.format(new Date()) + "\n");
+		data.append("Rejection Reason: Duplicate\n");
+		data.append("Rejection Type: System\n");
+		
+		
+		oscar.oscarLab.ca.all.parsers.OLISHL7Handler h = (oscar.oscarLab.ca.all.parsers.OLISHL7Handler) Factory.getHandler("OLIS_HL7", message);
+		if(h != null) {
+			data.append("Accession: " + h.getAccessionNum() + "\n");
+			data.append("Test Request(s): " +  h.getTestList(",") + "\n");
+			for(int x=0;x<h.getOBRCount();x++) {
+				data.append("Collection Date:" + h.getTimeStamp(x, 1) + "\n");
+			}
+			for(int x=0;x<h.getOBRCount();x++) {
+				data.append("LastUpdate Date:" + h.getLastUpdateDate(x, 1) + "\n");
+			}
+			
+		}
+		
+		OscarLog oscarLog = new OscarLog();
+		oscarLog.setAction("OLIS");
+		oscarLog.setContent("DUPLICATE (OLIS)");
+		oscarLog.setContentId(resultUuid);
+		oscarLog.setProviderNo(loggedInInfo.getLoggedInProviderNo());
+		oscarLog.setData(data.toString());
+		
+		if(queryType == QueryType.Z01) {
+			if(queryDemographicNo != null) {
+				oscarLog.setDemographicId( queryDemographicNo);
+			}
 		}
 		
 		LogAction.addLogSynchronous(oscarLog);

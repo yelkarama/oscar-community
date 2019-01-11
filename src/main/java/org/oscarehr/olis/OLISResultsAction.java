@@ -41,6 +41,7 @@ import com.indivica.olis.queries.Query;
 import com.indivica.olis.queries.QueryType;
 import com.indivica.olis.queries.Z01Query;
 
+import oscar.OscarProperties;
 import oscar.log.LogAction;
 import oscar.oscarLab.ca.all.parsers.Factory;
 import oscar.oscarLab.ca.all.parsers.MessageHandler;
@@ -65,7 +66,7 @@ public class OLISResultsAction extends DispatchAction {
 		try {
 			String olisResultString = (String) request.getAttribute("olisResponseContent");			
 			olisResultString = (String)request.getSession().getAttribute("olisResponseContent");
-			if(olisResultString == null) {
+			if(olisResultString == null && "no".equals(OscarProperties.getInstance().getProperty("olis_simulate","no"))) {
 				olisResultString = oscar.Misc.getStr(request.getParameter("olisResponseContent"), "");
 				request.setAttribute("olisResponseContent", olisResultString);
 				
@@ -97,6 +98,9 @@ public class OLISResultsAction extends DispatchAction {
 			if (messages != null) {
 				for (String message : messages) {
 					
+					if(StringUtils.isEmpty(message)) {
+						continue;
+					}
 					String resultUuid = UUID.randomUUID().toString();
 										
 					tempFile = new File(System.getProperty("java.io.tmpdir") + "/olis_" + resultUuid.toString() + ".response");
@@ -153,6 +157,7 @@ public class OLISResultsAction extends DispatchAction {
 					resultList.add(result.getUuid());
 				}
 				
+				request.getSession().setAttribute("olisResponseContent", null);
 				request.setAttribute("resultList", resultList);
 			}
 

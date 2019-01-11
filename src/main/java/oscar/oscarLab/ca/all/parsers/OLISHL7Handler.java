@@ -2986,7 +2986,12 @@ public class OLISHL7Handler implements MessageHandler {
 	}
     
     //for OMD validation
-    public boolean isTestResultBlocked(int i, int j) {
+    public boolean isTestResultBlocked(int i, int j) { 
+    	int obr = getMappedOBR(i);
+    	if(isOBRBlocked(obr)) {
+    		return true;
+    	}
+       
     	return false;
     }
 }

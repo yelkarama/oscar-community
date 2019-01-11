@@ -855,7 +855,11 @@ function bulkProcess() {
 						</tr>
 					</tfoot>
 					</table></td></tr>
-				<% } %>
+				<% } else {
+				%>
+					<p>No results found</p>
+				<%
+			}%>
 			</table>
 			<%
 			}

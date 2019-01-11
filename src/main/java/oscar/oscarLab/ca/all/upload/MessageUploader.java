@@ -255,7 +255,7 @@ public final class MessageUploader {
 				hl7TextInfo.setHealthNumber(hin);
 				hl7TextInfo.setResultStatus(resultStatus);
 				hl7TextInfo.setFinalResultCount(finalResultCount);
-				hl7TextInfo.setObrDate(obrDate);
+				hl7TextInfo.setObrDate(obrDate.trim());
 				hl7TextInfo.setPriority(priority);
 				hl7TextInfo.setRequestingProvider(requestingClient);
 				hl7TextInfo.setDiscipline(discipline);
