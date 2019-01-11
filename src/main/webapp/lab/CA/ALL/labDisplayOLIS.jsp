@@ -1487,7 +1487,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                                 <td valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))"><%=obxDisplayName %></a>
                                                     <%= statusMsg.isEmpty() ? "" : "(<font color=\"red\">" + statusMsg + "</font>)" %>
                                                 </td>
-                                                <td align="right"><%= strikeOutInvalidContent(handler.getOBXResult(obr, obx), status) %></td>
+                                                <td align="right"><%= strikeOutInvalidContent(handler.getOBXResult(obr, obx), status).replaceAll("\\\\\\.br\\\\", "<br/>") %></td>
                                                 <td align="center">
                                                         <%= strikeOutInvalidContent(handler.getOBXAbnormalFlag(obr, obx), status)%>
                                                 </td>
@@ -1501,7 +1501,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
 	                                                  <td valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))"><%=obxDisplayName %></a>
                                                           <%= statusMsg.isEmpty() ? "" : "(<font color=\"red\">" + statusMsg + "</font>)" %>
                                                       </td>
-	                                                  <td align="right"><%= strikeOutInvalidContent(handler.getOBXSNResult(obr, obx), status) %></td>
+	                                                  <td align="right"><%= strikeOutInvalidContent(handler.getOBXSNResult(obr, obx), status).replaceAll("\\\\\\.br\\\\", "<br/>")%></td>
 	                                                  <td align="center">
 	                                                          <%= strikeOutInvalidContent(handler.getOBXAbnormalFlag(obr, obx), status)%>
 	                                                  </td>
@@ -1530,7 +1530,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                                 <td valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))"><%=obxDisplayName %></a>
                                                     <%= statusMsg.isEmpty() ? "" : "(<font color=\"red\">" + statusMsg + "</font>)" %>
                                                 </td>
-                                                <td align="right"><%= strikeOutInvalidContent(handler.getOBXTMResult(obr, obx), status) %></td>
+                                                <td align="right"><%= strikeOutInvalidContent(handler.getOBXTMResult(obr, obx), status).replaceAll("\\\\\\.br\\\\", "<br/>") %></td>
                                                 <td align="center" colspan="3"></td>
                                             </tr>
                                             <%
@@ -1540,7 +1540,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                                 <td valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))"><%=obxDisplayName %></a>
                                                     <%= statusMsg.isEmpty() ? "" : "(<font color=\"red\">" + statusMsg + "</font>)" %>
                                                 </td>
-                                                <td align="right"><%= strikeOutInvalidContent(handler.getOBXDTResult(obr, obx), status) %></td>
+                                                <td align="right"><%= strikeOutInvalidContent(handler.getOBXDTResult(obr, obx), status).replaceAll("\\\\\\.br\\\\", "<br/>") %></td>
                                                 <td align="center" colspan="3"></td>
                                             </tr>
                                             <%
@@ -1550,7 +1550,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                                 <td valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))"><%=obxDisplayName %></a>
                                                     <%= statusMsg.isEmpty() ? "" : "(<font color=\"red\">" + statusMsg + "</font>)" %>
                                                 </td>
-                                                <td align="right"><%= strikeOutInvalidContent(handler.getOBXTSResult(obr, obx), status) %></td>
+                                                <td align="right"><%= strikeOutInvalidContent(handler.getOBXTSResult(obr, obx), status).replaceAll("\\\\\\.br\\\\", "<br/>") %></td>
                                                 <td align="center" colspan="3"></td>
                                             </tr>
                                             <%
@@ -1641,7 +1641,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                                 <td valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))"><%=obxDisplayName %></a>
                                                     <%= statusMsg.isEmpty() ? "" : "(<font color=\"red\">" + statusMsg + "</font>)" %>
                                                 </td>
-                                                <td align="right"><%= strikeOutInvalidContent(handler.getOBXResult(obr, obx), status) %></td>
+                                                <td align="right"><%= strikeOutInvalidContent(handler.getOBXResult(obr, obx), status).replaceAll("\\\\\\.br\\\\", "<br/>") %></td>
                                                 <td align="center">
                                                         <%= strikeOutInvalidContent(handler.getOBXAbnormalFlag(obr, obx), status)%>
                                                 </td>

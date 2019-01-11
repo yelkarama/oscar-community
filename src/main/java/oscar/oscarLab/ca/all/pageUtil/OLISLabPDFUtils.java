@@ -22,11 +22,11 @@ public class OLISLabPDFUtils {
         SKIP_SPACE("sk", " "),
         TEMPORARY_INDENT("ti", " ");
         
-        public static final String TAG_REGEX = "\\\\\\.%s(?:([ +-])(\\d))*\\\\";
+        public static final String TAG_REGEX = "\\\\\\.%s[ ]?(?:([ +-])(\\d))*\\\\";
         private String hl7Tag;
         private String pdfReplacement;
 
-        Hl7EncodedRepeatableCharacter(String hl7Tag, String pdfReplacement) {
+        Hl7EncodedRepeatableCharacter(String hl7Tag, String pdfReplacement) { 
             this.hl7Tag = hl7Tag;
             this.pdfReplacement = pdfReplacement;
         }

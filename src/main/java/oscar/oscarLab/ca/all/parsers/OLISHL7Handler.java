@@ -3147,7 +3147,7 @@ public class OLISHL7Handler implements MessageHandler {
 
 		if (!matchFound) {
 			// If we haven't already matched a command, look for a command with a parameter.
-			String patternStr = "\\.(SP|IN|TI|SK)\\s*(\\d*)\\s*";
+			String patternStr = "\\.(SP|IN|TI|SK)\\s*[+]?(\\d*)\\s*";
 			Pattern pattern = Pattern.compile(patternStr);
 			Matcher matcher = pattern.matcher(piece.toUpperCase());
 			matchFound = matcher.find();
@@ -3182,7 +3182,7 @@ public class OLISHL7Handler implements MessageHandler {
 			}
 		} else if (operator.equals("TI")) {
 			while (opInt > 0) {
-				result += "&ensp;";
+				result += "&nbsp;";
 				opInt--;
 			}
 		} else if (operator.equals("SK")) {

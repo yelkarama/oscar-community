@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
 import com.lowagie.text.pdf.PdfTemplate;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
@@ -600,23 +601,32 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 
 						cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
 
+						String ObxAbnormalFlag = handler.getOBXAbnormalFlag(obr, obx);
+						String ObxeferenceRange = handler.getOBXReferenceRange(obr, obx);
+						String ObxUnits = handler.getOBXUnits(obr, obx);
+
+						// If the OBX does not a Abnormal Flag, Reference Range, or Units, increase the size of the resukt cell
+						if (StringUtils.isEmpty(ObxAbnormalFlag) && StringUtils.isEmpty(ObxeferenceRange) && StringUtils.isEmpty(ObxUnits)) {
+							cell.setColspan(4);
+						}
 						//If the type does not equal SN, then outputs normal OBX result, if it is SN then outputs SNResult
 						if (!obxValueType.equals("SN")) {
-//                        cell.setPhrase(OLISLabPDFUtils.createPhraseFromHl7(OLISLabPDFUtils.Hl7EncodedRepeatableCharacter.performReplacement(handler.getOBXResult(obr, obx)).replaceAll("<br\\s*/*>", "\n"), lineFont));
 							OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(handler.getOBXResult(obr, obx), lineFont, cell));
 						} else {
-//                        cell.setPhrase(OLISLabPDFUtils.createPhraseFromHl7(OLISLabPDFUtils.Hl7EncodedRepeatableCharacter.performReplacement(handler.getOBXSNResult(obr, obx)).replaceAll("<br\\s*/*>", "\n"), lineFont));
 							OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(handler.getOBXSNResult(obr, obx), lineFont, cell));
 						}
 
-						cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-						OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(handler.getOBXAbnormalFlag(obr, obx), lineFont, cell));
+						if (!(StringUtils.isEmpty(ObxAbnormalFlag) && StringUtils.isEmpty(ObxeferenceRange) && StringUtils.isEmpty(ObxUnits))) {
+							cell.setColspan(1);
+							cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+							OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(handler.getOBXAbnormalFlag(obr, obx), lineFont, cell));
 
-						cell.setHorizontalAlignment(Element.ALIGN_LEFT);
-						OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(handler.getOBXReferenceRange(obr, obx), lineFont, cell));
+							cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+							OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(handler.getOBXReferenceRange(obr, obx), lineFont, cell));
 
-						cell.setHorizontalAlignment(Element.ALIGN_LEFT);
-						OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(handler.getOBXUnits(obr, obx), lineFont, cell));
+							cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+							OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(handler.getOBXUnits(obr, obx), lineFont, cell));
+						}
 					}
 				}
 				else if (obxValueType.equals("TX") || obxValueType.equals("FT")){
