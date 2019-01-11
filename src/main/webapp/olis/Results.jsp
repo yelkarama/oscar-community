@@ -471,7 +471,7 @@ function popupNotesWindow(noteDiv) {
 						<% } %>
 					</td>
 					<td class="<%=lineThroughCss%>"><%=measurementDisplay.getTestResultName()%></td>
-					<td class="<%=statusDisplayClass%> <%=lineThroughCss%>"><%=measurementDisplay.getStatus()%></td>
+					<td class="<%=statusDisplayClass%> <%=lineThroughCss%>"><%=measurementDisplay.getStatus() != null && measurementDisplay.getStatus().isEmpty() ? "Final" : measurementDisplay.getStatus()%></td>
 					<td class="<%=valueDisplayClass%> <%=lineThroughCss%>">
 						<% if (measurementDisplay.getResultValue().length() > 30) { %>
 						<span title="<%=measurementDisplay.getResultValue()%>">
