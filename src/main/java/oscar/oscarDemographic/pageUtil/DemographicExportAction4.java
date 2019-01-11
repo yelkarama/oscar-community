@@ -1057,6 +1057,7 @@ public class DemographicExportAction4 extends Action {
 							}
 						}
 						cNote.setMyClinicalNotesContent(encounter);
+						cNote.setNoteType("Physician Progress Note");
 						addOneEntry(CLINICALNOTE);
 
 						Date createDate = cmn.getCreate_date();
