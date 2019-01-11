@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.lowagie.text.pdf.PdfTemplate;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.oscarehr.common.dao.Hl7TextMessageDao;
@@ -66,6 +67,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 
     private Provider printingProvider;
     private Document document;
+    private PdfTemplate pageTotalTemplate;
     private BaseFont bf;
 	private BaseFont bfBold;
     private BaseFont cf;
@@ -198,6 +200,8 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         subscriptFont = new Font(bf, 6, Font.NORMAL);
         underlineFont = new Font(cfBold, 10, Font.UNDERLINE);
 
+        pageTotalTemplate = writer.getDirectContent().createTemplate(100, 100);
+        pageTotalTemplate.setBoundingBox(new Rectangle(-40, -40, 100, 100));
 
         // add the header table containing the patient and lab info to the document
         createInfoTable();
@@ -1406,7 +1410,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 			
             cb.beginText();
             cb.setFontAndSize(bf, 8);
-            cb.showTextAligned(PdfContentByte.ALIGN_CENTER, "-"+pageNum+"-", width/2, 30, 0);
+            cb.showTextAligned(PdfContentByte.ALIGN_CENTER, pageNum + " of ", width/2, 30, 0);
             cb.endText();
 
 
@@ -1418,10 +1422,22 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
                 cb.endText();
             }
 
+            cb.addTemplate(pageTotalTemplate, width/2 + 8, 30);
+
         // throw any exceptions
         } catch (Exception e) {
             throw new ExceptionConverter(e);
         }
+    }
+    
+    @Override
+    public void onCloseDocument(PdfWriter writer, Document document) {
+        super.onCloseDocument(writer, document);
+        pageTotalTemplate.beginText();
+        pageTotalTemplate.setFontAndSize(bf, 8);
+        pageTotalTemplate.setTextMatrix(0, 0);
+        pageTotalTemplate.showText(String.valueOf(writer.getPageNumber() - 1));
+        pageTotalTemplate.endText();
     }
     
     public String getAddressFieldIfNotNullOrEmpty(HashMap<String,String> address, String key) {
