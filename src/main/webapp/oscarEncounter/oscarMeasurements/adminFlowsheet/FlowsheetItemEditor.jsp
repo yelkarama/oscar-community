@@ -154,7 +154,7 @@ function loadTargets() {
 		
 		for(var x=0;x<xml.rules.length;x++) {
 			var i = xml.rules[x];
-			$("#targetTable tbody").append("<tr><td><a href=\"javascript:void(0)\" onClick=\"removeTarget('"+i.hash+"')\"><img src=\"<%=request.getContextPath()%>/images/icons/101.png\" border=\"0\"/></a></td><td>"+i.indicator+"</td><td>"+i.type+"</td><td>"+i.parameter+"</td><td>"+i.value+"</td></tr>");
+			$("#targetTable tbody").append("<tr><td><a href=\"javascript:void(0)\" onClick=\"removeTarget('"+i.hash+"')\"><img src=\"<%=request.getContextPath()%>/images/icons/101.png\" border=\"0\"/></a></td><td>"+i.indicator+"</td><td>"+i.type+"</td><td>"+i.param+"</td><td>"+i.value+"</td></tr>");
 		}
     });
 }

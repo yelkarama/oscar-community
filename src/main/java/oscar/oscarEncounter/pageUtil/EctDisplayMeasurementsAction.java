@@ -34,9 +34,11 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 import org.apache.struts.util.MessageResources;
 import org.oscarehr.common.dao.AdmissionDao;
+import org.oscarehr.common.dao.FlowSheetUserCreatedDao;
 import org.oscarehr.common.dao.FlowsheetDao;
 import org.oscarehr.common.dao.MeasurementGroupStyleDao;
 import org.oscarehr.common.model.Admission;
+import org.oscarehr.common.model.FlowSheetUserCreated;
 import org.oscarehr.common.model.Flowsheet;
 import org.oscarehr.common.model.MeasurementGroupStyle;
 import org.oscarehr.util.LoggedInInfo;
@@ -157,7 +159,32 @@ public class EctDisplayMeasurementsAction extends EctDisplayAction {
 					Dao.addItem(item);
 				}
 			}
+/*
+			FlowSheetUserCreatedDao flowsheetUserCreatedDao = SpringUtils.getBean(FlowSheetUserCreatedDao.class);
+			List<FlowSheetUserCreated> customFlowsheets = flowsheetUserCreatedDao.findActiveNoTemplate();
+			for(FlowSheetUserCreated cf : customFlowsheets) {
+				NavBarDisplayDAO.Item item = NavBarDisplayDAO.Item();
+				String flowsheetName = cf.getName();
+				if (securityMgr.hasReadAccess("_flowsheet." + flowsheetName, roleName$)) {
+					Flowsheet fs = null;
+					if ((fs = flowsheetDao.findByName(flowsheetName)) != null) {
+						if (!fs.isEnabled()) {
+							continue;
+						}
+					}
+					String dispname = cf.getDisplayName();
 
+					winName = flowsheetName + bean.demographicNo;
+					hash = Math.abs(winName.hashCode());
+					url = "popupPage(700,1000,'" + hash + "','" + request.getContextPath() + "/oscarEncounter/oscarMeasurements/TemplateFlowSheet.jsp?demographic_no=" + bean.demographicNo + "&name=" + flowsheetName + "');return false;";
+					item.setLinkTitle(dispname);
+					dispname = StringUtils.maxLenString(dispname, MAX_LEN_TITLE, CROP_LEN_TITLE, ELLIPSES);
+					item.setTitle(dispname);
+					item.setURL(url);
+					Dao.addItem(item);
+				}
+			}
+*/			
 			//next we add program based flowsheets
 			List<String> programs = new ArrayList<String>();
 			AdmissionDao admissionDao = (AdmissionDao) SpringUtils.getBean("admissionDao");

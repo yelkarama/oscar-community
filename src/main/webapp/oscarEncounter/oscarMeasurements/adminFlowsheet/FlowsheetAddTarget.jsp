@@ -111,7 +111,6 @@ function loadIndicators() {
 
 
 function saveItem() {
-	alert('save');
 	jQuery.post('<%=request.getContextPath()%>/admin/Flowsheet.do?method=saveFlowsheetItemTarget',
    		jQuery('#theForm').serialize(),
    		function(data){

@@ -287,7 +287,7 @@ public class FlowsheetAction extends DispatchAction {
 			//check that we havn't already added this type
 			for(int x=0;x<flowsheet.getHeaderArray(0).getItemArray().length;x++) {
 				Item i = flowsheet.getHeaderArray(0).getItemArray(x);
-				if(i.getMeasurementType().equals(measurementType.getType())) {
+				if(i.getMeasurementType() != null && i.getMeasurementType().equals(measurementType.getType())) {
 					return;
 				}
 			}
@@ -501,6 +501,9 @@ public class FlowsheetAction extends DispatchAction {
 		obj.put("success", true);
 		obj.put("id", fsuc.getId());
 		obj.write(response.getWriter());
+		
+		MeasurementTemplateFlowSheetConfig.getInstance().reloadFlowsheets();            
+		
 		return null;
 	}
 	
@@ -513,6 +516,9 @@ public class FlowsheetAction extends DispatchAction {
 		obj.put("success", true);
 		obj.put("id", id);
 		obj.write(response.getWriter());
+		
+		MeasurementTemplateFlowSheetConfig.getInstance().reloadFlowsheets();            
+		
 		return null;
 	}
 	

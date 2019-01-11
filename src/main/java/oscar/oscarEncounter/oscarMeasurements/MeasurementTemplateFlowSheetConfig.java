@@ -597,6 +597,7 @@ public class MeasurementTemplateFlowSheetConfig implements InitializingBean {
         d.loadRuleBase();
         return d;
     }
+    
 
     public MeasurementFlowSheet validateFlowsheet(String data) {
     	InputStream is = null;
@@ -862,7 +863,7 @@ public class MeasurementTemplateFlowSheetConfig implements InitializingBean {
         
         if(fsuc != null) {
         	//use custom flowsheet
-            InputStream targetStream = IOUtils.toInputStream(fsuc.getXmlContent());
+            InputStream targetStream = IOUtils.toInputStream(fsuc.getXmlContent().replaceAll("<flowsheet xmlns=\"flowsheets.oscarehr.org\"", "<flowsheet"));
             EctMeasurementTypeBeanHandler mType = new EctMeasurementTypeBeanHandler();
             m = createflowsheet(mType, targetStream);
           
@@ -870,6 +871,33 @@ public class MeasurementTemplateFlowSheetConfig implements InitializingBean {
         	//use out of the box flowsheet
         	m = getFlowSheet(flowsheetName);
         }
+        
+        return m;
+    }
+
+    public MeasurementFlowSheet getFlowSheetByName(String flowsheetName, String providerNo, Integer demographicNo) {
+    	FlowSheetUserCreatedDao flowSheetUserCreatedDao = (FlowSheetUserCreatedDao) SpringUtils.getBean("flowSheetUserCreatedDao");
+
+        MeasurementFlowSheet m = null;
+        FlowSheetUserCreated fsuc = null;
+        
+        if(demographicNo != null) {
+        	fsuc = flowSheetUserCreatedDao.findByPatientScopeName(flowsheetName,demographicNo);
+        	if(fsuc == null) {
+        		fsuc = flowSheetUserCreatedDao.findByProviderScopeName(flowsheetName, providerNo);
+        		if(fsuc == null) {
+        			fsuc = flowSheetUserCreatedDao.findByClinicScopeName(flowsheetName);
+        		}
+        	}
+        }
+        
+        if(fsuc != null) {
+        	//use custom flowsheet
+            InputStream targetStream = IOUtils.toInputStream(fsuc.getXmlContent().replaceAll("<flowsheet xmlns=\"flowsheets.oscarehr.org\"", "<flowsheet"));
+            EctMeasurementTypeBeanHandler mType = new EctMeasurementTypeBeanHandler();
+            m = createflowsheet(mType, targetStream);
+          
+        } 
         
         return m;
     }
