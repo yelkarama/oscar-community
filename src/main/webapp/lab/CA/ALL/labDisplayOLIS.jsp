@@ -1416,12 +1416,38 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
 
                                         if (obxValueType.equals("NM") 		// Numeric
                                         	|| obxValueType.equals("ST")) { // String Data
-                                        	if (handler.isAncillary(obr,obx)) {
-                                            %>
+                                        	if (handler.isAncillary(obr,obx)) { %>
                                             <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-                                            	<td colspan="5">Patient Observation</td>
+                                                <td><div class="FieldData"><strong>Patient Observation</strong></div></td>
+                                                <td colspan="4">
+                                                    <a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))">
+                                                        <%=obxDisplayName %>
+                                                    </a>
+                                                    <%= statusMsg.isEmpty() ? "" : "(<font color=\"red\">" + statusMsg + "</font>)" %>
+                                                </td>
                                            	</tr>
-                                            <% } %>
+                                            <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
+                                                <td><div class="FieldData"><strong>Result:</strong></div></td>
+                                                <td align="left" colspan="4"><%= strikeOutInvalidContent(handler.getOBXResult(obr, obx), status) %></td>
+                                            </tr>
+                                            <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
+                                                <td><div class="FieldData"><strong>Flag:</strong></div></td>
+                                                <td align="left" colspan="4"><%= strikeOutInvalidContent(handler.getOBXAbnormalFlag(obr, obx), status)%></td>
+                                            </tr>
+                                            <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
+                                                <td><div class="FieldData"><strong>Reference Range:</strong></div></td>
+                                                <td align="left" colspan="4"><%=strikeOutInvalidContent(handler.getOBXReferenceRange(obr, obx), status)%></td>
+                                            </tr>
+                                            <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
+                                                <td><div class="FieldData"><strong>Units:</strong></div></td>
+                                                <td align="left" colspan="4"><%=strikeOutInvalidContent(handler.formatString(handler.getOBXUnits(obr, obx)), status) %></td>
+                                            </tr>
+                                            <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
+                                                <td><div class="FieldData"><strong>Observation Date/Time:</strong></div></td>
+                                                <td align="left" colspan="4"><%=strikeOutInvalidContent(handler.getOBXObservationDate(obr, obx), status) %></td>
+                                            </tr>
+                                            
+                                            <% } else { %>
                                             <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
                                                 <td valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))"><%=obxDisplayName %></a>
                                                     <%= statusMsg.isEmpty() ? "" : "(<font color=\"red\">" + statusMsg + "</font>)" %>
@@ -1433,7 +1459,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                                 <td align="left"><%=strikeOutInvalidContent(handler.getOBXReferenceRange(obr, obx), status)%></td>
                                                 <td align="left"><%=strikeOutInvalidContent(handler.formatString(handler.getOBXUnits(obr, obx)), status) %></td>
                                             </tr>
-                                            <%
+                                            <% }
                                         } else if (obxValueType.equals("SN")) { // or Structured Numeric
 	                                              %>
 	                                              <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
@@ -1584,7 +1610,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                         	<%
                                         }
                                         String obsDate = handler.getOBXObservationDate(obr, obx);
-                                        if (obsDate != null && (obsDate = obsDate.trim()).length() > 0) {
+                                        if (obsDate != null && (obsDate = obsDate.trim()).length() > 0 && !handler.isAncillary(obr, obx)) {
                                         	%>
                                         	<tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="NormalRes">
                                                 <td valign="top" align="left" colspan="5"><span style="margin-left:15px;">Observation Date: <%=obsDate%></span></td>
