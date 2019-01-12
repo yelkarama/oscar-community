@@ -1895,6 +1895,41 @@ public class CaseManagementViewAction extends BaseCaseManagementViewAction {
 				sb.append("Treatment:" + getNoteExt(noteId, "Treatment", noteExts));
 			}
 		}
+		
+		if (issueCodeArr[1].equals("RiskFactors")) {
+			if (prefsBean.getRiskFactorsStartDate().equals("on")) {
+				sb.append("Start Date:" + getNoteExt(noteId, "Start Date", noteExts));
+			}
+			if (prefsBean.getRiskFactorsResDate().equals("on")) {
+				sb.append("Resolution Date:" + getNoteExt(noteId, "Resolution Date", noteExts));
+			}
+		}
+		
+		if (issueCodeArr[1].equals("OMeds")) {
+			if (prefsBean.getOtherMedsStartDate().equals("on")) {
+				sb.append("Start Date:" + getNoteExt(noteId, "Start Date", noteExts));
+			}
+			if (prefsBean.getOtherMedsResDate().equals("on")) {
+				sb.append("Resolution Date:" + getNoteExt(noteId, "Resolution Date", noteExts));
+			}
+		}
+		
+		if (issueCodeArr[1].equals("FamHistory")) {
+			if (prefsBean.getFamilyHistoryStartDate().equals("on")) {
+				sb.append("Start Date:" + getNoteExt(noteId, "Start Date", noteExts));
+			}
+			if (prefsBean.getFamilyHistoryResDate().equals("on")) {
+				sb.append("Resolution Date:" + getNoteExt(noteId, "Resolution Date", noteExts));
+			}
+			if (prefsBean.getFamilyHistoryTreatment().equals("on")) {
+				sb.append("Treatment:" + getNoteExt(noteId, "Treatment", noteExts));
+			}
+			if (prefsBean.getFamilyHistoryRelationship().equals("on")) {
+				sb.append("Relationship:" + getNoteExt(noteId, "Relationship", noteExts));
+			}
+		}
+		
+		
 		if (sb.length() > 0) {
 			sb.insert(0, " (");
 			sb.append(")");

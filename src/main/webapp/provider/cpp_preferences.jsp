@@ -233,6 +233,10 @@
 						<select name="<%=CppPreferencesUIBean.ALLERGIES_DSP%>">
 							<%=CppPreferencesUIBean.getDisplaySelect(bean.getAllergiesDisplay()) %>
 						</select>
+						<br/>
+						<%=CppPreferencesUIBean.getCheckbox("Show Start Date",CppPreferencesUIBean.ALLERGY_START_DATE,bean.getAllergyStartDate()) %>
+						<%=CppPreferencesUIBean.getCheckbox("Show Severity",CppPreferencesUIBean.ALLERGY_SEVERITY,bean.getAllergySeverity()) %>										
+						
 					</td>
 				</tr>
 				
@@ -242,6 +246,12 @@
 						<select name="<%=CppPreferencesUIBean.MEDICATIONS_DSP%>">
 							<%=CppPreferencesUIBean.getDisplaySelect(bean.getMedicationsDisplay()) %>
 						</select>
+						<br/>
+						<%=CppPreferencesUIBean.getCheckbox("Show Start Date",CppPreferencesUIBean.MEDICATION_START_DATE,bean.getMedicationStartDate()) %>
+						<%=CppPreferencesUIBean.getCheckbox("Show End Date",CppPreferencesUIBean.MEDICATION_END_DATE,bean.getMedicationEndDate()) %>
+						<%=CppPreferencesUIBean.getCheckbox("Show Qty",CppPreferencesUIBean.MEDICATION_QTY,bean.getMedicationQty()) %>
+						<%=CppPreferencesUIBean.getCheckbox("Show Repeats",CppPreferencesUIBean.MEDICATION_REPEATS,bean.getMedicationRepeats()) %>
+						
 					</td>
 				</tr>
 				
@@ -251,6 +261,9 @@
 						<select name="<%=CppPreferencesUIBean.OTHER_MEDS_DSP%>">
 							<%=CppPreferencesUIBean.getDisplaySelect(bean.getOtherMedsDisplay()) %>
 						</select>
+						<br/>
+						<%=CppPreferencesUIBean.getCheckbox("Show Start Date",CppPreferencesUIBean.OTHER_MEDS_START_DATE,bean.getOtherMedsStartDate()) %>
+						<%=CppPreferencesUIBean.getCheckbox("Show Resolution Date",CppPreferencesUIBean.OTHER_MEDS_RES_DATE,bean.getOtherMedsResDate()) %>										
 					</td>
 				</tr>
 				
@@ -260,7 +273,11 @@
 						<select name="<%=CppPreferencesUIBean.RISK_FACTORS_DSP%>">
 							<%=CppPreferencesUIBean.getDisplaySelect(bean.getRiskFactorsDisplay()) %>
 						</select>
-					</td>
+						<br/>
+						<%=CppPreferencesUIBean.getCheckbox("Show Start Date",CppPreferencesUIBean.RISK_FACTORS_START_DATE,bean.getRiskFactorsStartDate()) %>
+						<%=CppPreferencesUIBean.getCheckbox("Show Resolution Date",CppPreferencesUIBean.RISK_FACTORS_RES_DATE,bean.getRiskFactorsResDate()) %>													
+					</td>											
+					
 				</tr>
 				
 				<tr>
@@ -269,6 +286,12 @@
 						<select name="<%=CppPreferencesUIBean.FAMILY_HISTORY_DSP%>">
 							<%=CppPreferencesUIBean.getDisplaySelect(bean.getFamilyHxDisplay()) %>
 						</select>
+						<br/>
+						<%=CppPreferencesUIBean.getCheckbox("Show Start Date",CppPreferencesUIBean.FAMILY_HISTORY_START_DATE,bean.getFamilyHistoryStartDate()) %>
+						<%=CppPreferencesUIBean.getCheckbox("Show Resolution Date",CppPreferencesUIBean.FAMILY_HISTORY_RES_DATE,bean.getFamilyHistoryResDate()) %>										
+						<%=CppPreferencesUIBean.getCheckbox("Show Treatment",CppPreferencesUIBean.FAMILY_HISTORY_TREATMENT,bean.getFamilyHistoryTreatment()) %>
+						<%=CppPreferencesUIBean.getCheckbox("Show Relationship",CppPreferencesUIBean.FAMILY_HISTORY_RELATIONSHIP,bean.getFamilyHistoryRelationship()) %>										
+						
 					</td>
 				</tr>
 				

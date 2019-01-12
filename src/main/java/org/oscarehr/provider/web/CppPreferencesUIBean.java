@@ -69,6 +69,25 @@ public class CppPreferencesUIBean {
 	public static final String REMINDERS_START_DATE = "cpp.reminders.start_date";
 	public static final String REMINDERS_RES_DATE = "cpp.reminders.res_date";
 	
+	public static final String RISK_FACTORS_START_DATE = "cpp.risk_factors.start_date";
+	public static final String RISK_FACTORS_RES_DATE = "cpp.risk_factors.res_date";
+	public static final String OTHER_MEDS_START_DATE = "cpp.other_meds.start_date";
+	public static final String OTHER_MEDS_RES_DATE = "cpp.other_meds.res_date";
+	public static final String FAMILY_HISTORY_START_DATE = "cpp.family_history.start_date";
+	public static final String FAMILY_HISTORY_RES_DATE = "cpp.family_history.res_date";
+	public static final String FAMILY_HISTORY_TREATMENT = "cpp.family_history.treatment";
+	public static final String FAMILY_HISTORY_RELATIONSHIP = "cpp.family_history.relationship";
+	
+	public static final String ALLERGY_START_DATE = "cpp.allergy.start_date";
+	public static final String ALLERGY_SEVERITY = "cpp.allergy.severity";
+	
+	public static final String MEDICATION_START_DATE = "cpp.medication.start_date";
+	public static final String MEDICATION_END_DATE = "cpp.medication.end_date";
+	public static final String MEDICATION_QTY = "cpp.medication.qty";
+	public static final String MEDICATION_REPEATS = "cpp.medication.repeats";
+	public static final String MEDICATION_INSTRUCTIONS = "cpp.medication.instructions";
+	
+	
 	public static final String ENABLE = "cpp.pref.enable";
 	
 	protected UserPropertyDAO userPropertyDao = (UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
@@ -112,6 +131,24 @@ public class CppPreferencesUIBean {
 	private String remindersResDate;
 	private String enable;
 	
+	private String riskFactorsStartDate;
+	private String riskFactorsResDate;
+	private String otherMedsStartDate;
+	private String otherMedsResDate;
+	private String familyHistoryStartDate;
+	private String familyHistoryResDate;
+	private String familyHistoryTreatment;
+	private String familyHistoryRelationship;
+	
+	private String allergyStartDate;
+	private String allergySeverity;
+	
+	private String medicationStartDate;
+	private String medicationEndDate;
+	private String medicationQty;
+	private String medicationRepeats;
+	private String medicationInstructions;
+	
 	public Map<String,String> serialize() {
 		Map<String,String> map = new HashMap<String,String>();
 		map.put(SOCIAL_HISTORY_POS, this.getSocialHxPosition());
@@ -150,6 +187,24 @@ public class CppPreferencesUIBean {
 		map.put(REMINDERS_START_DATE,this.getRemindersStartDate());
 		map.put(REMINDERS_RES_DATE,this.getRemindersResDate());
 		map.put(ENABLE,this.getEnable());
+		
+		map.put(RISK_FACTORS_START_DATE,this.getRiskFactorsStartDate());
+		map.put(RISK_FACTORS_RES_DATE,this.getRiskFactorsResDate());
+		map.put(OTHER_MEDS_START_DATE,this.getOtherMedsStartDate());
+		map.put(OTHER_MEDS_RES_DATE,this.getOtherMedsResDate());
+		map.put(FAMILY_HISTORY_START_DATE,this.getFamilyHistoryStartDate());
+		map.put(FAMILY_HISTORY_RES_DATE,this.getFamilyHistoryResDate());
+		map.put(FAMILY_HISTORY_TREATMENT,this.getFamilyHistoryTreatment());
+		map.put(FAMILY_HISTORY_RELATIONSHIP,this.getFamilyHistoryRelationship());
+		
+		map.put(ALLERGY_START_DATE, this.getAllergyStartDate());
+		map.put(ALLERGY_SEVERITY, this.getAllergySeverity());
+		
+		map.put(MEDICATION_START_DATE, this.getMedicationStartDate());
+		map.put(MEDICATION_END_DATE, this.getMedicationEndDate());
+		map.put(MEDICATION_QTY, this.getMedicationQty());
+		map.put(MEDICATION_REPEATS, this.getMedicationRepeats());
+		map.put(MEDICATION_INSTRUCTIONS, this.getMedicationInstructions());
 		return map;
 	}
 	
@@ -202,6 +257,50 @@ public class CppPreferencesUIBean {
 			setRemindersResDate(map.get(REMINDERS_RES_DATE)[0]);
 		if(map.get(ENABLE)!=null)
 			setEnable(map.get(ENABLE)[0]);
+		
+		if(map.get(RISK_FACTORS_START_DATE)!=null)
+			setRiskFactorsStartDate(map.get(RISK_FACTORS_START_DATE)[0]);
+		if(map.get(RISK_FACTORS_RES_DATE)!=null)
+			setRiskFactorsResDate(map.get(RISK_FACTORS_RES_DATE)[0]);
+		
+		if(map.get(OTHER_MEDS_START_DATE)!=null)
+			setOtherMedsStartDate(map.get(OTHER_MEDS_START_DATE)[0]);
+		if(map.get(OTHER_MEDS_RES_DATE)!=null)
+			setOtherMedsResDate(map.get(OTHER_MEDS_RES_DATE)[0]);
+		
+		if(map.get(FAMILY_HISTORY_START_DATE)!=null)
+			setFamilyHistoryStartDate(map.get(FAMILY_HISTORY_START_DATE)[0]);
+		if(map.get(FAMILY_HISTORY_RES_DATE)!=null)
+			setFamilyHistoryResDate(map.get(FAMILY_HISTORY_RES_DATE)[0]);
+		if(map.get(FAMILY_HISTORY_TREATMENT)!=null)
+			setFamilyHistoryTreatment(map.get(FAMILY_HISTORY_TREATMENT)[0]);
+		if(map.get(FAMILY_HISTORY_RELATIONSHIP)!=null)
+			setFamilyHistoryRelationship(map.get(FAMILY_HISTORY_RELATIONSHIP)[0]);
+		
+		if(map.get(ALLERGY_START_DATE) != null) {
+			setAllergyStartDate(map.get(ALLERGY_START_DATE)[0]);
+		}
+		if(map.get(ALLERGY_SEVERITY) != null) {
+			setAllergySeverity(map.get(ALLERGY_SEVERITY)[0]);
+		}
+		
+		if(map.get(MEDICATION_START_DATE) != null) {
+			setMedicationStartDate(map.get(MEDICATION_START_DATE)[0]);
+		}
+		if(map.get(MEDICATION_END_DATE) != null) {
+			setMedicationEndDate(map.get(MEDICATION_END_DATE)[0]);
+		}
+		if(map.get(MEDICATION_QTY) != null) {
+			setMedicationQty(map.get(MEDICATION_QTY)[0]);
+		}
+		if(map.get(MEDICATION_REPEATS) != null) {
+			setMedicationRepeats(map.get(MEDICATION_REPEATS)[0]);
+		}
+		if(map.get(MEDICATION_INSTRUCTIONS) != null) {
+			setMedicationInstructions(map.get(MEDICATION_INSTRUCTIONS)[0]);
+		}
+		
+		
 	}
 	
 	public void deserialize(Map<String,String> map) {
@@ -274,6 +373,41 @@ public class CppPreferencesUIBean {
 			setRemindersResDate(map.get(REMINDERS_RES_DATE));
 		if(map.get(ENABLE)!=null)
 			setEnable(map.get(ENABLE));
+		
+		if(map.get(RISK_FACTORS_START_DATE)!=null)
+			setRiskFactorsStartDate(map.get(RISK_FACTORS_START_DATE));
+		if(map.get(RISK_FACTORS_RES_DATE)!=null)
+			setRiskFactorsResDate(map.get(RISK_FACTORS_RES_DATE));
+		
+		if(map.get(OTHER_MEDS_START_DATE)!=null)
+			setOtherMedsStartDate(map.get(OTHER_MEDS_START_DATE));
+		if(map.get(OTHER_MEDS_RES_DATE)!=null)
+			setOtherMedsResDate(map.get(OTHER_MEDS_RES_DATE));
+		
+		if(map.get(FAMILY_HISTORY_START_DATE)!=null)
+			setFamilyHistoryStartDate(map.get(FAMILY_HISTORY_START_DATE));
+		if(map.get(FAMILY_HISTORY_RES_DATE)!=null)
+			setFamilyHistoryResDate(map.get(FAMILY_HISTORY_RES_DATE));
+		if(map.get(FAMILY_HISTORY_TREATMENT)!=null)
+			setFamilyHistoryTreatment(map.get(FAMILY_HISTORY_TREATMENT));
+		if(map.get(FAMILY_HISTORY_RELATIONSHIP)!=null)
+			setFamilyHistoryRelationship(map.get(FAMILY_HISTORY_RELATIONSHIP));
+		
+		if(map.get(ALLERGY_START_DATE)!=null)
+			setAllergyStartDate(map.get(ALLERGY_START_DATE));
+		if(map.get(ALLERGY_SEVERITY)!=null)
+			setAllergySeverity(map.get(ALLERGY_SEVERITY));
+		
+		if(map.get(MEDICATION_START_DATE)!=null)
+			setMedicationStartDate(map.get(MEDICATION_START_DATE));
+		if(map.get(MEDICATION_END_DATE)!=null)
+			setMedicationEndDate(map.get(MEDICATION_END_DATE));
+		if(map.get(MEDICATION_QTY)!=null)
+			setMedicationQty(map.get(MEDICATION_QTY));
+		if(map.get(MEDICATION_REPEATS)!=null)
+			setMedicationRepeats(map.get(MEDICATION_REPEATS));
+		if(map.get(MEDICATION_INSTRUCTIONS)!=null)
+			setMedicationInstructions(map.get(MEDICATION_INSTRUCTIONS));
 	}
 	
 	public CppPreferencesUIBean(String providerNo) {
@@ -513,6 +647,126 @@ public class CppPreferencesUIBean {
 	public void setEnable(String enable) {
     	this.enable = enable;
     }
+	
+	public String getRiskFactorsStartDate() {
+		return riskFactorsStartDate;
+	}
+
+	public void setRiskFactorsStartDate(String riskFactorsStartDate) {
+		this.riskFactorsStartDate = riskFactorsStartDate;
+	}
+
+	public String getRiskFactorsResDate() {
+		return riskFactorsResDate;
+	}
+
+	public void setRiskFactorsResDate(String riskFactorsResDate) {
+		this.riskFactorsResDate = riskFactorsResDate;
+	}
+	
+	public String getOtherMedsStartDate() {
+		return otherMedsStartDate;
+	}
+
+	public void setOtherMedsStartDate(String otherMedsStartDate) {
+		this.otherMedsStartDate = otherMedsStartDate;
+	}
+
+	public String getOtherMedsResDate() {
+		return otherMedsResDate;
+	}
+
+	public void setOtherMedsResDate(String otherMedsResDate) {
+		this.otherMedsResDate = otherMedsResDate;
+	}
+
+	public String getFamilyHistoryStartDate() {
+		return familyHistoryStartDate;
+	}
+
+	public void setFamilyHistoryStartDate(String familyHistoryStartDate) {
+		this.familyHistoryStartDate = familyHistoryStartDate;
+	}
+
+	public String getFamilyHistoryResDate() {
+		return familyHistoryResDate;
+	}
+
+	public void setFamilyHistoryResDate(String familyHistoryResDate) {
+		this.familyHistoryResDate = familyHistoryResDate;
+	}
+
+	public String getFamilyHistoryTreatment() {
+		return familyHistoryTreatment;
+	}
+
+	public void setFamilyHistoryTreatment(String familyHistoryTreatment) {
+		this.familyHistoryTreatment = familyHistoryTreatment;
+	}
+
+	public String getFamilyHistoryRelationship() {
+		return familyHistoryRelationship;
+	}
+
+	public void setFamilyHistoryRelationship(String familyHistoryRelationship) {
+		this.familyHistoryRelationship = familyHistoryRelationship;
+	}
+	
+	public String getAllergyStartDate() {
+		return allergyStartDate;
+	}
+
+	public void setAllergyStartDate(String allergyStartDate) {
+		this.allergyStartDate = allergyStartDate;
+	}
+
+	public String getAllergySeverity() {
+		return allergySeverity;
+	}
+
+	public void setAllergySeverity(String allergySeverity) {
+		this.allergySeverity = allergySeverity;
+	}
+
+	public String getMedicationStartDate() {
+		return medicationStartDate;
+	}
+
+	public void setMedicationStartDate(String medicationStartDate) {
+		this.medicationStartDate = medicationStartDate;
+	}
+
+	public String getMedicationEndDate() {
+		return medicationEndDate;
+	}
+
+	public void setMedicationEndDate(String medicationEndDate) {
+		this.medicationEndDate = medicationEndDate;
+	}
+
+	public String getMedicationQty() {
+		return medicationQty;
+	}
+
+	public void setMedicationQty(String medicationQty) {
+		this.medicationQty = medicationQty;
+	}
+
+	public String getMedicationRepeats() {
+		return medicationRepeats;
+	}
+
+	public void setMedicationRepeats(String medicationRepeats) {
+		this.medicationRepeats = medicationRepeats;
+	}
+
+	public String getMedicationInstructions() {
+		return medicationInstructions;
+	}
+
+	public void setMedicationInstructions(String medicationInstructions) {
+		this.medicationInstructions = medicationInstructions;
+	}
 
 	public static String getPositionSelect(String currentValue) {
 		StringBuilder sb = new StringBuilder();
@@ -552,5 +806,7 @@ public class CppPreferencesUIBean {
 		sb.append("<input type=\"checkbox\" name=\""+value+"\" "+checked+" />" + label);
 		return sb.toString();
 	}
+	
+	
 	
 }
