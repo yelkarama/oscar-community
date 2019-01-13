@@ -23,6 +23,12 @@
     Ontario, Canada
 
 --%>
+<%@page import="javax.swing.Spring"%>
+<%@page import="org.oscarehr.common.dao.DrugDao"%>
+<%@page import="org.oscarehr.common.model.Drug"%>
+<%@page import="org.oscarehr.common.model.DrugReason"%>
+<%@page import="org.oscarehr.common.dao.DrugReasonDao"%>
+<%@page import="org.apache.commons.lang3.StringUtils"%>
 <%@page import="org.oscarehr.util.SpringUtils"%>
 <%long startTime = System.currentTimeMillis();%>
 <%@page import="oscar.oscarRx.data.RxPatientData"%>
@@ -48,7 +54,7 @@
     String demographic_no = request.getParameter("demographic_no");
     String providerNo = (String) session.getAttribute("user");
     String temp = request.getParameter("template");
-    
+     
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 %>
     <security:oscarSec roleName="<%=roleName$%>" objectName="_flowsheet" rights="r" reverse="<%=true%>">
@@ -61,7 +67,7 @@
 
 <%
 	if (OscarProperties.getInstance().getBooleanProperty("new_flowsheet_enabled", "true")) {
-		if (temp.equals("diab3") || (request.getAttribute("temp") != null && request.getAttribute("temp").equals("diab3"))) {
+		if (temp != null && temp.equals("diab3") || (request.getAttribute("temp") != null && request.getAttribute("temp").equals("diab3"))) {
 	%>
 		<jsp:forward page="DiabFlowSheet.jsp" />
 	<%
@@ -107,8 +113,10 @@
   
     MeasurementTemplateFlowSheetConfig templateConfig = MeasurementTemplateFlowSheetConfig.getInstance();
     
-    MeasurementFlowSheet mFlowsheet = templateConfig.getFlowSheet(temp,loggedInInfo.getLoggedInProviderNo(),Integer.parseInt(demographic_no));
-
+    MeasurementFlowSheet mFlowsheet = null;
+    
+    mFlowsheet = templateConfig.getFlowSheet(temp,loggedInInfo.getLoggedInProviderNo(),Integer.parseInt(demographic_no));
+    
     MeasurementInfo mi = new MeasurementInfo(demographic_no);
     List<String> measurementLs = mFlowsheet.getMeasurementList();
     ArrayList<String> measurements = new ArrayList(measurementLs);
@@ -432,13 +440,12 @@ div.recommendations li{
                 <td colspan="3">
                     <oscar:nameage demographicNo="<%=demographic_no%>"/>
                     <span class="DoNotPrint">
-                    <security:oscarSec roleName="<%=roleName$%>" objectName="_flowsheet" rights="x">
-                    <a href="adminFlowsheet/EditFlowsheet.jsp?flowsheet=<%=temp%>&demographic=<%=demographic_no%>">Edit</a>
-                    &nbsp;
-                    </security:oscarSec>
+                    
                     <a href="TemplateFlowSheet.jsp?demographic_no=<%=demographic_no%>&template=<%=temp%>&show=lastOnly">Last Only</a>
                     &nbsp;
                     <a href="TemplateFlowSheet.jsp?demographic_no=<%=demographic_no%>&template=<%=temp%>&show=outOfRange">Only out of Range</a>
+                     &nbsp;
+                    <a href="TemplateFlowSheet.jsp?demographic_no=<%=demographic_no%>&template=<%=temp%>&show=overdue">Only overdue</a>
                     &nbsp;
                     <a href="TemplateFlowSheet.jsp?demographic_no=<%=demographic_no%>&template=<%=temp%>">All</a>
                     &nbsp;
@@ -631,6 +638,7 @@ div.recommendations li{
             hidden= "display:none;";
         }
 
+       
         if (h2.get("measurement_type") != null ){
             Hashtable h = new Hashtable();
             EctMeasurementTypesBean mtypeBean = mType.getMeasurementType(measure);//mFlowsheet.getMeasurementInfo(measure);
@@ -653,6 +661,12 @@ div.recommendations li{
             }else if(mi.hasWarning(measure)){
                 extraColour = "style=\"background-color: "+mFlowsheet.getWarningColour()+"\" ";
             }
+            
+            if (request.getParameter("show") !=null && request.getParameter("show").equals("overdue") && StringUtils.isEmpty(extraColour) ){
+                hidden= "display:none;";
+             }
+             
+            
             //measurement_type="EDGI"
             //display_name="Autonomic Neuropathy"
             //guideline="Erectile Dysfunction, hastrointestinal disturbance"
@@ -842,6 +856,74 @@ function createAddAll(d,t,h){
 <%}%>
 
 </div>
+<%
+if(temp.equals("diab2") || temp.equals("chf")) {
+%>
+
+<br style="clear:left;"/>
+<div style="margin-top: 20px;">
+	<!-- drug reason -->
+	 <h3>Associated Rx History</h3>
+	 <br/>
+<%
+	String code = "";
+	if(temp.equals("diab2"))
+		code = "250";
+	if(temp.equals("chf")) 
+		code = "428";
+	DrugReasonDao drugReasonDao = SpringUtils.getBean(DrugReasonDao.class);
+	DrugDao drugDao = SpringUtils.getBean(DrugDao.class);
+	List<DrugReason> reasons = drugReasonDao.getReasonsByIcd9CodeAndDemographicNo(code,demographic_no);
+	//group them by drug
+	Map<String,Drug> uniqueDrugs = new HashMap<String,Drug>();
+	List<Drug> allDrugs = new ArrayList<Drug>();
+	for(DrugReason reason : reasons) {
+		Drug d = drugDao.find(reason.getDrugId());
+		allDrugs.add(d);
+		if(!StringUtils.isEmpty(d.getRegionalIdentifier())) {
+			uniqueDrugs.put(d.getRegionalIdentifier(),d);
+		} else if(!StringUtils.isEmpty(d.getCustomName())) {
+			uniqueDrugs.put(d.getCustomName(),d);
+		}
+	}
+	%><table width="50%"><%
+	for(String key : uniqueDrugs.keySet()) {
+		%>
+			<tr>
+				<td>
+					
+					<!-- get all drugs of this type in our list, and sort by rx date -->
+					<%
+						List<Drug> thisDrug = new ArrayList<Drug>();
+						for(Drug d : allDrugs) {
+							if(d.getRegionalIdentifier() != null && key.equals(d.getRegionalIdentifier()) || d.getCustomName() != null && key.equals(d.getCustomName())) {
+								thisDrug.add(d);
+							}
+						}
+					%>
+					<%=thisDrug.get(0).getBrandName() != null ? thisDrug.get(0).getBrandName() : thisDrug.get(0).getCustomName() %>
+					<br/>
+					<ul>
+					<%
+						thisDrug.sort(new Drug.RxDateCompator());
+						Collections.reverse(thisDrug);
+						for(Drug d : thisDrug) {
+							%>
+								<li><%=d.getRxDate() %></li>
+							<%
+						}
+					%>
+					</ul>
+				</td>
+			</tr>
+		<%
+	}
+	
+	%></table><%
+%>
+</div>
+
+<% } %>
 <br style="clear:left;"/>
 <div style="margin-top: 20px;">
     <h3>Comments</h3>

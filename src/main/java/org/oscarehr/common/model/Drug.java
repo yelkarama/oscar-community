@@ -958,5 +958,14 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 			
 		}
 	}
+	
+	public static class RxDateCompator  implements Comparator<Drug> {
+		  public int compare(Drug o1, Drug o2) {
+		    Date d1 = o1.getRxDate();
+		    Date d2 = o2.getRxDate();
+		    
+		    return d1.compareTo(d2);
+		  }
+		} ///:~
 
 }

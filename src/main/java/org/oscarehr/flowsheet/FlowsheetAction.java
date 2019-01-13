@@ -30,6 +30,7 @@ import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +78,7 @@ import org.oscarehr.util.SpringUtils;
 
 import oscar.oscarEncounter.oscarMeasurements.MeasurementFlowSheet;
 import oscar.oscarEncounter.oscarMeasurements.MeasurementTemplateFlowSheetConfig;
+import oscar.oscarPrevention.PreventionDisplayConfig;
 
 public class FlowsheetAction extends DispatchAction {
 
@@ -347,6 +349,59 @@ public class FlowsheetAction extends DispatchAction {
 		
 	}
 	
+	private void addPrevention(FlowSheetUserCreated fsuc, String preventionType) {
+		FlowsheetDocument fd = null;
+		Flowsheet flowsheet = null;
+		try {
+			 fd = FlowsheetDocument.Factory.parse(new StringReader(fsuc.getXmlContent()));
+			flowsheet = fd.getFlowsheet();
+		}catch (Exception e) {
+			MiscUtils.getLogger().error("Error",e);
+		}
+		
+		if(flowsheet != null) {
+			
+			//check that we havn't already added this type
+			for(int x=0;x<flowsheet.getHeaderArray(0).getItemArray().length;x++) {
+				Item i = flowsheet.getHeaderArray(0).getItemArray(x);
+				if(i.getPreventionType() != null && i.getPreventionType().equals(preventionType)) {
+					return;
+				}
+			}
+			
+			Item item = flowsheet.getHeaderArray(0).addNewItem();
+			item.setPreventionType(preventionType);
+			item.setDisplayName(preventionType);
+			item.setGuideline("");
+			item.setGraphable("no");
+			item.setValueName("");	
+			
+			XmlOptions options = new XmlOptions();
+			options.setSavePrettyPrint();
+			options.setCharacterEncoding("UTF-8");
+			options.setUseDefaultNamespace();
+			
+			Map<String,String> dnsMap = new java.util.HashMap<String,String>();
+			dnsMap.put("", "flowsheets.oscarehr.org");
+			options.setSaveImplicitNamespaces(dnsMap);
+		       
+		    String data = null;
+			try {
+				StringWriter writer = new StringWriter();
+				fd.save(writer, options);
+				data = writer.toString();
+			} catch(IOException e) {
+				MiscUtils.getLogger().error("Error",e);
+			}
+			
+			if(data != null) {
+				fsuc.setXmlContent("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + data.replaceAll("<flowsheet ", "<flowsheet xmlns=\"flowsheets.oscarehr.org\" "));
+				flowsheetUserCreatedDao.merge(fsuc);
+			}
+		}
+		
+	}
+	
 	public ActionForward getTemplateDetails(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws JSONException,IOException {
 		String template = request.getParameter("template");
 		
@@ -380,6 +435,24 @@ public class FlowsheetAction extends DispatchAction {
 		}
 		
 		addMeasurement(fsuc,measurementType);
+		
+		
+		return null;
+	}
+	
+	public ActionForward addPrevention(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+		String flowsheetId = request.getParameter("flowsheetId");
+		String preventionType = request.getParameter("preventionType");
+
+		FlowSheetUserCreated fsuc = flowsheetUserCreatedDao.find(Integer.parseInt(flowsheetId));
+		
+		String xmlData = fsuc.getXmlContent();
+		
+		if(xmlData == null) {
+			fsuc = create(fsuc);
+		}
+		
+		addPrevention(fsuc,preventionType);
 		
 		
 		return null;
@@ -429,6 +502,27 @@ public class FlowsheetAction extends DispatchAction {
 				Validations v = validationsDao.find(Integer.parseInt(mt.getValidation()));
 				i.put("validation", v.getName());
 			}
+			respArr.put(i);
+		}
+		resp.put("results", respArr);
+		
+		resp.write(response.getWriter());
+		
+		return null;
+	}
+	
+	public ActionForward getPreventionTypes(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException, JSONException  {
+
+		PreventionDisplayConfig pdc = PreventionDisplayConfig.getInstance();
+		ArrayList<HashMap<String,String>> prevList = pdc.getPreventions();
+
+		JSONObject resp = new JSONObject();
+		JSONArray respArr = new JSONArray();
+		
+		for(HashMap<String,String> item : prevList) {
+			JSONObject i = new JSONObject();
+			i.put("id", item.get("name"));
+			i.put("displayName", item.get("name"));
 			respArr.put(i);
 		}
 		resp.put("results", respArr);
@@ -735,19 +829,24 @@ public class FlowsheetAction extends DispatchAction {
 			if(item != null) {
 				Ruleset ruleSet = item.getRuleset();
 				if(ruleSet != null) {
-					List<Rule> newRules = new ArrayList<Rule>();
+					//List<Rule> newRules = new ArrayList<Rule>();
 					for(int x=0;x<ruleSet.getRuleArray().length;x++) {
 						Rule r = ruleSet.getRuleArray(x);
+						
 						for(int y=0;y<r.getConditionArray().length;y++) {
 							
 							String sha256hex = DigestUtils.sha256Hex(r.getIndicationColor() + ":" + r.getConditionArray()[y].getType() + ":" +  r.getConditionArray()[y].getParam() + ":" +  r.getConditionArray()[y].getValue() );
 							
-							if(!hash.equals(sha256hex)) {
-								newRules.add(r);
+							if(hash.equals(sha256hex)) {
+								r.removeCondition(y);
+							//	newRules.add(r);
 							}
 						}
+						if(r.getConditionArray().length == 0) {
+							ruleSet.removeRule(x);
+						}
 					}
-					ruleSet.setRuleArray(newRules.toArray(new Rule[newRules.size()]));
+				//	ruleSet.setRuleArray(newRules.toArray(new Rule[newRules.size()]));
 				}
 			}
 			
@@ -1200,6 +1299,7 @@ public class FlowsheetAction extends DispatchAction {
 				Item item = flowsheet.getHeaderArray(0).getItemArray(x);
 				JSONObject i = new JSONObject();
 				i.put("measurementType", item.getMeasurementType());
+				i.put("preventionType", item.getPreventionType());
 				i.put("displayName", item.getDisplayName());
 				i.put("guideline", item.getGuideline());
 				i.put("graphable", item.isSetGraphable());

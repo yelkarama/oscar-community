@@ -49,7 +49,6 @@
 
 
   MeasurementFlowSheet mFlowsheet = templateConfig.getFlowSheet(temp, LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo(),Integer.parseInt(demographic_no));
-
   EctMeasurementTypeBeanHandler mType = new EctMeasurementTypeBeanHandler();
 
 

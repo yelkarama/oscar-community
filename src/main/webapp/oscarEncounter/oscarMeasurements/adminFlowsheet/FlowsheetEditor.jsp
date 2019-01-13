@@ -87,6 +87,7 @@
 $(document).ready(function(){
 	loadFlowsheet();
 	loadTypes();
+	loadPreventionTypes();
 });
 
 function editItem(flowsheetId, measurementType) {
@@ -117,7 +118,19 @@ function loadFlowsheet() {
 		
 		for(var x=0;x<xml.items.length;x++) {
 			var i = xml.items[x];
-			$("#itemTable tbody").append("<tr><td><a href=\"javascript:void(0)\" onClick=\"removeItem('"+i.measurementType+"')\"><img src=\"<%=request.getContextPath()%>/images/icons/101.png\" border=\"0\"/></a>&nbsp;<a href=\"javascript:void(0)\" onClick=\"editItem(<%=id%>,'"+i.measurementType+"')\"><img src=\"<%=request.getContextPath()%>/images/edit.png\" border=\"0\"/></a>&nbsp;<a href=\"javascript:void(0)\" onClick=\"sortItem('"+i.measurementType+"','up')\"><img src=\"<%=request.getContextPath()%>/images/icon_up_sort_arrow.png\" border=\"0\"/></a>&nbsp;<a href=\"javascript:void(0)\" onClick=\"sortItem('"+i.measurementType+"','down')\"><img src=\"<%=request.getContextPath()%>/images/icon_down_sort_arrow.png\" border=\"0\"/></a></td><td>"+i.measurementType+"</td><td>"+i.displayName+"</td><td>"+i.guideline+"</td><td>"+i.graphable+"</td><td>"+i.measuringInstruction+"</td><td>"+i.validation+"</td></tr>");
+			var type = i.measurementType;
+			if(i.measurementType === undefined) {
+				type = i.preventionType;
+			}
+			var measuringInst = i.measuringInstruction;
+			if(measuringInst === undefined) {
+				measuringInst = "";
+			}
+			var validation = i.validation;
+			if(i.validation === undefined) {
+				validation = "";
+			}
+			$("#itemTable tbody").append("<tr><td><a href=\"javascript:void(0)\" onClick=\"removeItem('"+type+"')\"><img src=\"<%=request.getContextPath()%>/images/icons/101.png\" border=\"0\"/></a>&nbsp;<a href=\"javascript:void(0)\" onClick=\"editItem(<%=id%>,'"+type+"')\"><img src=\"<%=request.getContextPath()%>/images/edit.png\" border=\"0\"/></a>&nbsp;<a href=\"javascript:void(0)\" onClick=\"sortItem('"+type+"','up')\"><img src=\"<%=request.getContextPath()%>/images/icon_up_sort_arrow.png\" border=\"0\"/></a>&nbsp;<a href=\"javascript:void(0)\" onClick=\"sortItem('"+type+"','down')\"><img src=\"<%=request.getContextPath()%>/images/icon_down_sort_arrow.png\" border=\"0\"/></a></td><td>"+type+"</td><td>"+i.displayName+"</td><td>"+i.guideline+"</td><td>"+i.graphable+"</td><td>"+measuringInst+"</td><td>"+validation+"</td></tr>");
 		}
     });
 }
@@ -138,10 +151,36 @@ function loadTypes() {
     });
 }
 
+
+function loadPreventionTypes() {
+	jQuery.getJSON("<%=request.getContextPath()%>/admin/Flowsheet.do?method=getPreventionTypes", {},
+    function(xml) {
+		var arr = new Array();
+		if(xml.results instanceof Array) {
+			arr = xml.results;
+		} else {
+			arr[0] =xml.results;
+		}
+		
+		for(var i=0;i<arr.length;i++) {
+			jQuery('#preventionTypes').append("<option value="+arr[i].id +">"+arr[i].displayName+"</option>");
+		}
+    });
+}
+
+
 function addMeasurement() {
 	var typeId = $("#types").val();
 	
     $.post('<%=request.getContextPath()%>/admin/Flowsheet.do?method=addMeasurement',{flowsheetId:<%=id%>,measurementTypeId:typeId},function(data){
+        loadFlowsheet();
+	});
+}
+
+function addPrevention() {
+	var typeId = $("#preventionTypes").val();
+	
+    $.post('<%=request.getContextPath()%>/admin/Flowsheet.do?method=addPrevention',{flowsheetId:<%=id%>,preventionType:typeId},function(data){
         loadFlowsheet();
 	});
 }
@@ -191,13 +230,20 @@ Add new measurement type to flowsheet :
 <select id="types" onChange="addMeasurement()">
 	<option value="0">Select Below</option>
 </select>
+ 
+&nbsp;&nbsp;&nbsp;
+
+<select id="preventionTypes" onChange="addPrevention()">
+	<option value="0">Select Below</option>
+</select>
+
 <br/>
 
 <table id="itemTable" name="itemTable" class="table table-bordered table-striped table-hover table-condensed">
 	<thead>
 		<tr>
 			<th></th>
-			<th>Measurement Type</th>
+			<th>Type</th>
 			<th>Display Name</th>
 			<th>Guideline</th>
 			<th>Graphable</th>
