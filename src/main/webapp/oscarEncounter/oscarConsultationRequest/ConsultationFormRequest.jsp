@@ -1303,6 +1303,34 @@ function updateFaxButton() {
 }
 </script>
 
+<script>
+
+jQuery(document).ready(function(){
+	var val = jQuery("input[name='status']:checked").val();
+	statusChanged(parseInt(val));
+});
+
+function statusChanged(val) {
+	
+	if(val == 4) {
+		//lock fields
+	//	alert(jQuery("#reasonForConsultation").val());
+	
+		jQuery("#reasonForConsultation").attr('readonly','readonly');
+		jQuery("#clinicalInformation").attr('readonly','readonly');
+		jQuery("#concurrentProblems").attr('readonly','readonly');
+		jQuery("#currentMedications").attr('readonly','readonly');
+		jQuery("#allergies").attr('readonly','readonly');
+	} else {
+		//unlock fields
+		jQuery("#reasonForConsultation").attr('readonly','');
+		jQuery("#clinicalInformation").attr('readonly','');
+		jQuery("#concurrentProblems").attr('readonly','');
+		jQuery("#currentMedications").attr('readonly','');
+		jQuery("#allergies").attr('readonly','');
+	}
+}
+</script>
 <%=WebUtilsOld.popErrorMessagesAsAlert(session)%>
 <link rel="stylesheet" type="text/css" href="../encounterStyles.css">
 <body topmargin="0" leftmargin="0" vlink="#0000FF" 
@@ -1427,7 +1455,7 @@ function updateFaxButton() {
 					<td class="tite4" colspan="2">
 					<table>
 						<tr>
-							<td class="stat"><html:radio property="status" value="1" />
+							<td class="stat"><html:radio property="status" value="1" onclick="statusChanged(1)"/>
 							</td>
 							<td class="stat"><bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.msgNoth" />:
 							</td>
@@ -1439,7 +1467,7 @@ function updateFaxButton() {
 					<td class="tite4" colspan="2">
 					<table>
 						<tr>
-							<td class="stat"><html:radio property="status" value="2" />
+							<td class="stat"><html:radio property="status" value="2" onclick="statusChanged(2)"/>
 							</td>
 							<td class="stat"><bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.msgSpecCall" />
 							</td>
@@ -1451,7 +1479,7 @@ function updateFaxButton() {
 					<td class="tite4" colspan="2">
 					<table>
 						<tr>
-							<td class="stat"><html:radio property="status" value="3" />
+							<td class="stat"><html:radio property="status" value="3" onclick="statusChanged(3)" />
 							</td>
 							<td class="stat"><bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.msgPatCall" />
 							</td>
@@ -1463,7 +1491,7 @@ function updateFaxButton() {
 					<td class="tite4" colspan="2">
 					<table>
 						<tr>
-							<td class="stat"><html:radio property="status" value="4" />
+							<td class="stat"><html:radio property="status" value="4" onclick="statusChanged(4)"/>
 							</td>
 							<td class="stat"><bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.msgCompleted" /></td>
 						</tr>
@@ -2024,7 +2052,7 @@ function updateFaxButton() {
 					</td>
 				</tr>
 				<tr>
-					<td colspan=2><html:textarea property="reasonForConsultation"
+					<td colspan=2><html:textarea property="reasonForConsultation" styleId="reasonForConsultation"
 						cols="90" rows="6"></html:textarea></td>
 				</tr>
 				<tr>
