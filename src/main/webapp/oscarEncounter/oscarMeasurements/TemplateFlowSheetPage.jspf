@@ -268,14 +268,27 @@ div.headPrevention p {
         var numEle = $('numEle').value;
         var sdate = $('flowsheetStartDate').value;
         var edate = $('flowsheetEndDate').value;
+        
+        //get selected elements
+        var selectedItems = [];
+        jQuery("input[name='selected_item']:checked").each( function () {
+      		selectedItems.push( jQuery(this).val());
+  		});
+        var selectedItemsStr = "";
+        
+        if(selectedItems.length>0) {
+        	selectedItemsStr = "&selectedItems=" + encodeURIComponent(selectedItems.join(','));
+        }
+        
+        
         if( !numEle.blank()){
-            window.location = 'TemplateFlowSheet.jsp?demographic_no=<%=demographic_no%>&template=<%=temp%>&numEle='+numEle;
+            window.location = 'TemplateFlowSheet.jsp?demographic_no=<%=demographic_no%>&template=<%=temp%>&numEle='+numEle + selectedItemsStr;
             //console.log("one");
         }else if (!sdate.blank() && !edate.blank()){
-            window.location = 'TemplateFlowSheet.jsp?demographic_no=<%=demographic_no%>&template=<%=temp%>&sdate='+sdate+'&edate='+edate;
+            window.location = 'TemplateFlowSheet.jsp?demographic_no=<%=demographic_no%>&template=<%=temp%>&sdate='+sdate+'&edate='+edate + selectedItemsStr;
             //console.log("two");
         }else{
-            window.location = 'TemplateFlowSheet.jsp?demographic_no=<%=demographic_no%>&template=<%=temp%>';
+            window.location = 'TemplateFlowSheet.jsp?demographic_no=<%=demographic_no%>&template=<%=temp%>' + selectedItemsStr;
         }
 
     }
@@ -664,8 +677,16 @@ div.recommendations li{
             
             if (request.getParameter("show") !=null && request.getParameter("show").equals("overdue") && StringUtils.isEmpty(extraColour) ){
                 hidden= "display:none;";
-             }
-             
+            }
+            
+            if(request.getParameter("selectedItems") !=null) {
+            	String selectedItems = request.getParameter("selectedItems");
+            	List<String> selectedItemsArray = Arrays.asList(selectedItems.split(","));
+            	if(!selectedItemsArray.contains(prevName)) {
+            		 hidden= "display:none;";
+            	}
+            	
+            }
             
             //measurement_type="EDGI"
             //display_name="Autonomic Neuropathy"
@@ -677,6 +698,7 @@ div.recommendations li{
     <div class="headPrevention">
 
         <p class="noborder" <%=extraColour%> title="fade=[on] header=[<%=h2.get("display_name")%>] body=[<%=wrapWithSpanIfNotNull(mi.getWarning(measure),"red")%><%=wrapWithSpanIfNotNull(mi.getRecommendation(measure),"red")%><%=h2.get("guideline")%>]"   >
+        <input type="checkbox" name="selected_item" value="<%= h.get("name")%>"/>
             <%if(h2.get("graphable") != null && ((String) h2.get("graphable")).equals("yes")){%>
             <%if (alist != null && alist.size() > 1) { %>
                <img class="DoNotPrint" src="img/chart.gif" alt="Plot"  onclick="window.open('../../oscarEncounter/GraphMeasurements.do?demographic_no=<%=demographic_no%>&type=<%=measure%>');"/>
