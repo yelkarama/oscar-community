@@ -509,9 +509,11 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
                 obxDisplayNamePhrase.setFont(commentBoldFont);
 				
 				//Checks the abnormal nature of the test and adds the necessary portion to the displayName
-				String abnormalNature = handler.getNatureOfAbnormalTest(obr, obx);
-				if (!stringIsNullOrEmpty(abnormalNature)){
-					obxDisplayNamePhrase.add(System.lineSeparator() + "(" + abnormalNature + ")");
+				List<String> abnormalNatures = handler.getNatureOfAbnormalTestList(obr, obx);
+				for (String abnormalNature : abnormalNatures) {
+					if (!handler.getNatureOfAbnormalTest(abnormalNature.charAt(0)).isEmpty()) {
+						obxDisplayNamePhrase.add(System.lineSeparator() + "(" + handler.getNatureOfAbnormalTest(abnormalNature.charAt(0)) + ")");
+					}
 				}
 				
 				

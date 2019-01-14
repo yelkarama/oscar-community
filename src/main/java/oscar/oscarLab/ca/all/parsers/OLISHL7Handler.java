@@ -1377,6 +1377,18 @@ public class OLISHL7Handler implements MessageHandler {
 		String nature = getString(getOBXField(obr, obx, 10, 0, 1));
 		return stringIsNotNullOrEmpty(nature) ? getNatureOfAbnormalTest(nature.charAt(0)) : "";
 	}
+	
+	public List<String> getNatureOfAbnormalTestList(int obr, int obx) {
+		List<String> results = new ArrayList<String>();
+		int index = 0;
+		String abnormalResult = getOBXField(obr, obx, 10, index, 1);
+		while (!abnormalResult.isEmpty()) {
+			results.add(abnormalResult);
+			index++;
+			abnormalResult = getOBXField(obr, obx, 10, index, 1);
+		}
+		return results;
+	}
 
 	public String getNatureOfAbnormalTest(char nature) {
 		switch (nature) {

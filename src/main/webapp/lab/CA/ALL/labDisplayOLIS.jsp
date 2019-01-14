@@ -1423,11 +1423,16 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
 											pre = "<s>" + pre;
 											post = post + "</s>";
                                         }
-                                        String abnormalNature = handler.getNatureOfAbnormalTest(obr, obx);
-                                        if (!stringIsNullOrEmpty(abnormalNature)) {
-                                        	abnormalNature = " <span style=\"font-size:8px; color:#333333;\">"+abnormalNature+"</span>";
+                                        List<String> abnormalNatures = handler.getNatureOfAbnormalTestList(obr, obx);
+                                        StringBuilder abnormalNatureString = new StringBuilder();
+                                        for (String abnormalNature : abnormalNatures) {
+                                            if (!handler.getNatureOfAbnormalTest(abnormalNature.charAt(0)).isEmpty()) {
+                                                abnormalNatureString.append("</br><span style=\"font-size:8px; color:#333333;\">(")
+                                                        .append(handler.getNatureOfAbnormalTest(abnormalNature.charAt(0)))
+                                                        .append(")</span>");
+                                            }
                                         }
-                                        obxDisplayName = pre + obxName + post + abnormalNature;
+                                        obxDisplayName = pre + obxName + post + abnormalNatureString.toString();
 
                                         String lineClass = "NormalRes";
                                         String abnormal = handler.getOBXAbnormalFlag(obr, obx);
