@@ -288,6 +288,10 @@ public class PreventionData {
 		return getPreventionData(loggedInInfo, null, demoNo);
 	}
 
+	public static List<Prevention> getPrevention(LoggedInInfo loggedInInfo, String preventionType, Integer demographicId) {
+		return preventionDao.findByTypeAndDemoNo(preventionType, demographicId);
+	}
+	
 	public static ArrayList<Map<String, Object>> getPreventionData(LoggedInInfo loggedInInfo, String preventionType, Integer demographicId) {
 		ArrayList<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 
@@ -452,6 +456,23 @@ public class PreventionData {
 		return (prevention);
 	}
 
+	public static List<Prevention> addRemotePreventions(LoggedInInfo loggedInInfo, List<Prevention> preventions, Integer demographicId, String preventionType, Date demographicDateOfBirth) {
+		List<CachedDemographicPrevention> remotePreventions = getRemotePreventions(loggedInInfo, demographicId);
+		for (CachedDemographicPrevention cachedDemographicPrevention : remotePreventions) {
+			if (preventionType.equals(cachedDemographicPrevention.getPreventionType())) {
+				Prevention prevention = new Prevention();
+				prevention.setPreventionDate(cachedDemographicPrevention.getPreventionDate().getTime());
+				prevention.setPreventionType(preventionType);
+				prevention.setCompletedExternally(true);
+				prevention.setProviderNo("r:"+cachedDemographicPrevention.getCaisiProviderId());
+				preventions.add(prevention);
+			}
+
+			Collections.sort(preventions, new PreventionComparator());
+		}
+		return preventions; 
+	}
+	
 	public static ArrayList<Map<String, Object>> addRemotePreventions(LoggedInInfo loggedInInfo, ArrayList<Map<String, Object>> preventions, Integer demographicId, String preventionType, Date demographicDateOfBirth) {
 		List<CachedDemographicPrevention> remotePreventions = getRemotePreventions(loggedInInfo, demographicId);
 		return addRemotePreventions(loggedInInfo, remotePreventions, preventions, preventionType, demographicDateOfBirth);
@@ -510,6 +531,20 @@ public class PreventionData {
 					date2 = ((Calendar) date2).getTime();
 				}
 
+				return (date1.compareTo(date2));
+			} else {
+				return (0);
+			}
+		}
+	}
+	
+	public static class PreventionComparator implements Comparator<Prevention> {
+		public int compare(Prevention o1, Prevention o2) {
+			Date date1 =  o1.getPreventionDate();
+			Date date2 =  o2.getPreventionDate();
+
+			if (date1 != null && date2 != null) {
+				
 				return (date1.compareTo(date2));
 			} else {
 				return (0);
