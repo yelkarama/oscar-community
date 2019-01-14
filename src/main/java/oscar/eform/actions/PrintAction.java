@@ -80,7 +80,7 @@ public class PrintAction extends Action {
 	 */
     public static String getEformRequestUrl(HttpServletRequest request) {
 		StringBuilder url = new StringBuilder();
-		String scheme = request.getScheme();
+		String scheme = "http";
 		Integer port;
 		try { port = new Integer(OscarProperties.getInstance().getProperty("oscar_port")); }
 	    catch (Exception e) { port = 8443; }
