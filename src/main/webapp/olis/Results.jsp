@@ -442,14 +442,14 @@ function popupNotesWindow(noteDiv) {
 					    valueDisplayClass = "abnormal";
 					}
 					String statusDisplayClass = "";
-					if (measurementDisplay.getStatus().equalsIgnoreCase("Invalid") || measurementDisplay.getStatus().equalsIgnoreCase("Amended")) {
+					if (measurementDisplay.isInvalid() || measurementDisplay.getStatus().equalsIgnoreCase("Amended")) {
 						statusDisplayClass = "abnormal";
 					}
 					String lineThroughCss = measurementDisplay.isInvalid() ? "line-through" : "";
 				%>
 				<tr>
-					<td class="<%=lineThroughCss%>"><%=parentLab.getOlisLastUpdated()%></td>
-					<td class="<%=lineThroughCss%>">
+					<td><%=parentLab.getOlisLastUpdated()%></td>
+					<td>
 						<% if (parentLab.getTestRequestName().length() > 40) { %>
 						<span title="<%=parentLab.getTestRequestName()%>">
 							<%=parentLab.getTestRequestName().substring(0, 40)%>...
@@ -458,10 +458,10 @@ function popupNotesWindow(noteDiv) {
 						<%=parentLab.getTestRequestName()%>
 						<% } %>
 					</td>
-					<td class="<%=lineThroughCss%>"><%=parentLab.getRequestStatus()%></td>
-					<td class="<%=lineThroughCss%>"><%=parentLab.getSpecimenType()%></td>
-					<td class="<%=lineThroughCss%>"><%=parentLab.getCollectionDate()%></td>
-					<td class="<%=lineThroughCss%>">
+					<td><%=parentLab.getRequestStatus()%></td>
+					<td><%=parentLab.getSpecimenType()%></td>
+					<td><%=parentLab.getCollectionDate()%></td>
+					<td>
 						<% if (parentLab.getCollectorsComment().length() > 20) { %>
 						<span title="<%=parentLab.getCollectorsComment()%>">
 							<%=parentLab.getCollectorsComment().substring(0, 20)%>...
@@ -471,7 +471,7 @@ function popupNotesWindow(noteDiv) {
 						<% } %>
 					</td>
 					<td class="<%=lineThroughCss%>"><%=measurementDisplay.getTestResultName()%></td>
-					<td class="<%=statusDisplayClass%> <%=lineThroughCss%>"><%=measurementDisplay.getStatus() != null && measurementDisplay.getStatus().isEmpty() ? "Final" : measurementDisplay.getStatus()%></td>
+					<td class="<%=statusDisplayClass%>"><%=measurementDisplay.getStatus() != null && measurementDisplay.getStatus().isEmpty() ? "Final" : measurementDisplay.getStatus()%></td>
 					<td class="<%=valueDisplayClass%> <%=lineThroughCss%>">
 						<% if (measurementDisplay.getResultValue().length() > 30) { %>
 						<span title="<%=measurementDisplay.getResultValue()%>">

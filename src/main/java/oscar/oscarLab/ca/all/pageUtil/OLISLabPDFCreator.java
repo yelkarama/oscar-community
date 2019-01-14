@@ -620,7 +620,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 					
 					cell.setColspan(5);
 					cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-                    List<PdfPCell> commentCells = OLISLabPDFUtils.createCellsFromHl7(handler.getOBXResult(obr, obx).replaceAll("<br\\s*/*>", "\n"), lineFont, cell);
+                    List<PdfPCell> commentCells = OLISLabPDFUtils.createCellsFromHl7(handler.getOBXResult(obr, obx).replaceAll("<br\\s*/*>", "\n"), commentFont, cell);
                     if (commentCells.size() > 1) {
                         int numberOfCommentCells = commentCells.size();
                         PdfPCell firstCell = commentCells.remove(0);

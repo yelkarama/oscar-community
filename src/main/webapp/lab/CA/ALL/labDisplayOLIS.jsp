@@ -1484,7 +1484,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                         	</tr>
                                         	<tr  bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
                                                 <td align="left" colspan="5">
-                                                    <b><%= strikeOutInvalidContent(handler.formatString(handler.getOBXResult(obr, obx)), status).replaceAll("(?<=\\s)\\s", "&nbsp;") %></b>
+                                                    <b><%= handler.formatString(handler.getOBXResult(obr, obx)).replaceAll("(?<=\\s)\\s", "&nbsp;") %></b>
                                                 </td>
                                         	</tr>
                                         	<%
