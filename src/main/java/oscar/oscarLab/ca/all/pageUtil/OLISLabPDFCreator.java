@@ -502,7 +502,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 				obxDisplayNamePhrase.add(obxDisplayName);
 
 				// Adds the status of the result if it is not Final
-				if (!statusMsg.isEmpty()) {
+				if (!statusMsg.isEmpty() && !handler.isAncillary(obr, obx)) {
 				    obxDisplayNamePhrase.setFont(commentRedFont);
 				    obxDisplayNamePhrase.add("(" + statusMsg + ")");
                 }

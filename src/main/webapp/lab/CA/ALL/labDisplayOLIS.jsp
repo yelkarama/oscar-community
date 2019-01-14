@@ -1458,7 +1458,6 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                                     <a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))">
                                                         <%=obxDisplayName %>
                                                     </a>
-                                                    <%= statusMsg.isEmpty() ? "" : "(<font color=\"red\">" + statusMsg + "</font>)" %>
                                                 </td>
                                            	</tr>
                                             <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
