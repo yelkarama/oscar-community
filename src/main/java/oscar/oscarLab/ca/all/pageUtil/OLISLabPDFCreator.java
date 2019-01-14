@@ -213,7 +213,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         	//If the current lineNum is not a childOBR
         	if (!handler.isChildOBR(lineNum)){
         		//Calls on the addOLISLabCategory function passing the header at the current obr, and the obr itself
-        		addOLISLabCategory(headers.get(obr), obr);
+        		addOLISLabCategory(headers.get(obr), obr, i);
         	}
         }
 
@@ -228,7 +228,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 	 * Given the name of a lab category this method will add the category
 	 * header, the test result headers and the test results for that category.
 	 */
-	private void addOLISLabCategory(String header, Integer obr) throws DocumentException {	
+	private void addOLISLabCategory(String header, Integer obr, int position) throws DocumentException {
 		Color categoryBackground = new Color(255, 204, 0);
 		Color separatorColour = new Color(0, 51, 153);
 		
@@ -281,7 +281,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		categoryTable.addCell(separator);
 		
 		//Creates the collection table and adds it to the category table
-		PdfPTable collectionTable = createCollectionTable(obr);
+		PdfPTable collectionTable = createCollectionTable(obr, position);
 		cell = new PdfPCell(collectionTable);
 		cell.setBorder(0);
 		cell.setColspan(2);
@@ -1490,7 +1490,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
     	return phoneNumber;
     }
     
-	public PdfPTable createCollectionTable(Integer obr){
+	public PdfPTable createCollectionTable(Integer obr, int position){
     	PdfPTable collectionTable = new PdfPTable(3);
     	//Sets the default cell's border to 0 in case completeRow() needs to add in a cell
     	collectionTable.getDefaultCell().setBorder(0);
@@ -1504,18 +1504,47 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         String noOfSampleContainers = handler.getNoOfSampleContainers(obr);
 		String specimenReceivedDate = obrHeader.getString(OLISHL7Handler.OBR_SPECIMEN_RECEIVED_DATETIME);
 		specimenReceivedDate = specimenReceivedDate.equals(handler.getSpecimenReceivedDateTime()) ? "" : specimenReceivedDate;
-        
-        // Adds each item for the collection table using the addCollectionItem function
-		addCollectionItem(collectionTable, "Specimen Type", specimenType);
-		addCollectionItem(collectionTable, "Collection Date/Time", collectionDateTime);
-		addCollectionItem(collectionTable, "Specimen Collected By", specimenCollectedBy);
-		if (!siteModifier.isEmpty()) {
-			addCollectionItem(collectionTable, "Site Modifier", siteModifier);
-			collectionTable.completeRow();
+
+		int previousObr;
+		boolean previousMatch = false;
+		JSONObject previousObrHeader;
+		String previousCollectionDateTime;
+		String previousSpecimenCollectedBy;
+		String previousSpecimenType;
+		String previousSpecimenReceivedDateTime;
+		String previousSiteModifier;
+		String previousCollectionVolume;
+		String previousNoOfSampleContainers;
+
+		if (position != 0) {
+			previousObr = handler.getMappedOBR(position - 1);
+			previousObrHeader = handler.getObrHeader(previousObr);
+			previousCollectionDateTime = handler.getCollectionDateTime(previousObr);
+			previousSpecimenCollectedBy = handler.getSpecimenCollectedBy(previousObr);
+			previousSpecimenType = previousObrHeader.getString(OLISHL7Handler.OBR_SPECIMEN_TYPE);
+			previousSpecimenReceivedDateTime = obrHeader.getString(OLISHL7Handler.OBR_SPECIMEN_RECEIVED_DATETIME);
+			previousCollectionVolume = handler.getCollectionVolume(previousObr);
+			previousNoOfSampleContainers = handler.getNoOfSampleContainers(previousObr);
+			previousSiteModifier = previousObrHeader.getString(OLISHL7Handler.OBR_SITE_MODIFIER);
+
+			if (previousCollectionDateTime.equals(collectionDateTime) && previousSpecimenCollectedBy.equals(specimenCollectedBy) && previousSpecimenType.equals(obrHeader.getString(OLISHL7Handler.OBR_SPECIMEN_TYPE)) && previousSpecimenReceivedDateTime.equals(specimenReceivedDate) && previousCollectionVolume.equals(collectionVolume) && previousNoOfSampleContainers.equals(noOfSampleContainers) && previousSiteModifier.equals(siteModifier)) {
+				previousMatch = true;
+			}
 		}
-		addCollectionItem(collectionTable, "Collection Volume", collectionVolume);
-		addCollectionItem(collectionTable, "No. of Sample Containers", noOfSampleContainers);
-		addCollectionItem(collectionTable, "Specimen Received Date/Time", specimenReceivedDate);
+
+		if (!previousMatch) {
+			// Adds each item for the collection table using the addCollectionItem function
+			addCollectionItem(collectionTable, "Specimen Type", specimenType);
+			addCollectionItem(collectionTable, "Collection Date/Time", collectionDateTime);
+			addCollectionItem(collectionTable, "Specimen Collected By", specimenCollectedBy);
+			if (!siteModifier.isEmpty()) {
+				addCollectionItem(collectionTable, "Site Modifier", siteModifier);
+				collectionTable.completeRow();
+			}
+			addCollectionItem(collectionTable, "Collection Volume", collectionVolume);
+			addCollectionItem(collectionTable, "No. of Sample Containers", noOfSampleContainers);
+			addCollectionItem(collectionTable, "Specimen Received Date/Time", specimenReceivedDate);
+		}
 		
         //Returns the collection table
         return collectionTable;

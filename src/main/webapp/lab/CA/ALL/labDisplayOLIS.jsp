@@ -1157,37 +1157,67 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                         
                                         String specimenReceivedDate = obrHeader.getString(OLISHL7Handler.OBR_SPECIMEN_RECEIVED_DATETIME);
                                         specimenReceivedDate = specimenReceivedDate.equals(specimenReceived) ? "" : specimenReceivedDate;
+
+                                        int previousObr;
+                                        boolean previousMatch = false;
+                                        JSONObject previousObrHeader;
+                                        String previousCollectionDateTime;
+                                        String previousSpecimenCollectedBy;
+                                        String previousSpecimenType;
+                                        String previousSpecimenReceivedDateTime;
+                                        String previousSiteModifier;
+                                        String previousCollectionVolume;
+                                        String previousNoOfSampleContainers;
+
+                                        if (i != 0) {
+                                            previousObr = handler.getMappedOBR(i - 1);
+                                            previousObrHeader = handler.getObrHeader(previousObr);
+                                            previousCollectionDateTime = handler.getCollectionDateTime(previousObr);
+                                            previousSpecimenCollectedBy = handler.getSpecimenCollectedBy(previousObr);
+                                            previousSpecimenType = previousObrHeader.getString(OLISHL7Handler.OBR_SPECIMEN_TYPE);
+                                            previousSpecimenReceivedDateTime = obrHeader.getString(OLISHL7Handler.OBR_SPECIMEN_RECEIVED_DATETIME);
+                                            previousCollectionVolume = handler.getCollectionVolume(previousObr);
+                                            previousNoOfSampleContainers = handler.getNoOfSampleContainers(previousObr);
+                                            previousSiteModifier = previousObrHeader.getString(OLISHL7Handler.OBR_SITE_MODIFIER);
+
+                                            if (previousCollectionDateTime.equals(collectionDateTime) && previousSpecimenCollectedBy.equals(specimenCollectedBy) && previousSpecimenType.equals(obrHeader.getString(OLISHL7Handler.OBR_SPECIMEN_TYPE)) && previousSpecimenReceivedDateTime.equals(specimenReceivedDate) && previousCollectionVolume.equals(collectionVolume) && previousNoOfSampleContainers.equals(noOfSampleContainers) && previousSiteModifier.equals(siteModifier)) {
+                                                previousMatch = true;
+                                            }
+                                        }
+
+                                        if (!previousMatch) {
                                     %>
-                                    <table width="100%">
-                                        <tr>
-                                            <th width="30%"> Specimen Type: </th>
-                                            <th width="30%"><%= !stringIsNullOrEmpty(collectionDateTime) ? "Collection Date/Time" : "" %></th>
-                                            <th width="30%"><%= !stringIsNullOrEmpty(specimenCollectedBy) ? "Specimen Collected By" : "" %></th>
-                                        </tr>
-                                        <tr>
-                                            <td align="center"><%= obrHeader.getString(OLISHL7Handler.OBR_SPECIMEN_TYPE) %></td>
-                                            <td align="center"><%=collectionDateTime%></td>
-                                            <td align="center"><%=specimenCollectedBy%></td>
-                                        </tr>
-                                        <% if (!siteModifier.isEmpty()) { %>
-                                        <tr>
-                                            <th width="33%">Site Modifier</th>
-                                        </tr>
-                                        <tr>
-                                            <td align="center"><%= siteModifier %></td>
-                                        </tr>
-                                        <% } %>
-                                        <tr>
-                                            <th width="30%"><%= !stringIsNullOrEmpty(collectionVolume) ? "Collection Volume" : "" %></th>
-                                            <th width="30%"><%= !stringIsNullOrEmpty(noOfSampleContainers) ? "No. of Sample Containers" : "" %></th>
-                                            <th width="30%"><%= !specimenReceivedDate.isEmpty() ? "Specimen Received Date/Time" : "" %></th>
-                                        </tr>
-                                        <tr>
-                                            <td align="center"><%=collectionVolume%></td>
-                                            <td align="center"><%=noOfSampleContainers%></td>
-                                            <td align="center"><%=specimenReceivedDate%></td>
-                                        </tr>
-                                    </table>
+                                            <table width="100%">
+                                                <tr>
+                                                    <th width="30%"> Specimen Type: </th>
+                                                    <th width="30%"><%= !stringIsNullOrEmpty(collectionDateTime) ? "Collection Date/Time" : "" %></th>
+                                                    <th width="30%"><%= !stringIsNullOrEmpty(specimenCollectedBy) ? "Specimen Collected By" : "" %></th>
+                                                </tr>
+                                                <tr>
+                                                    <td align="center"><%= obrHeader.getString(OLISHL7Handler.OBR_SPECIMEN_TYPE) %></td>
+                                                    <td align="center"><%=collectionDateTime%></td>
+                                                    <td align="center"><%=specimenCollectedBy%></td>
+                                                </tr>
+                                                <% if (!siteModifier.isEmpty()) { %>
+                                                <tr>
+                                                    <th width="33%">Site Modifier</th>
+                                                </tr>
+                                                <tr>
+                                                    <td align="center"><%= siteModifier %></td>
+                                                </tr>
+                                                <% } %>
+                                                <tr>
+                                                    <th width="30%"><%= !stringIsNullOrEmpty(collectionVolume) ? "Collection Volume" : "" %></th>
+                                                    <th width="30%"><%= !stringIsNullOrEmpty(noOfSampleContainers) ? "No. of Sample Containers" : "" %></th>
+                                                    <th width="30%"><%= !specimenReceivedDate.isEmpty() ? "Specimen Received Date/Time" : "" %></th>
+                                                </tr>
+                                                <tr>
+                                                    <td align="center"><%=collectionVolume%></td>
+                                                    <td align="center"><%=noOfSampleContainers%></td>
+                                                    <td align="center"><%=specimenReceivedDate%></td>
+                                                </tr>
+                                            </table>
+                                    <% } %>
                                 </td>
                             </tr>
                             <%
