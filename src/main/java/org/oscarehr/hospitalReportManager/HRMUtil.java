@@ -74,13 +74,20 @@ public class HRMUtil {
 			HashMap<String, Object> curht = new HashMap<String, Object>();
 			curht.put("id", hrmDocument.getId());
 			curht.put("time_received", hrmDocument.getTimeReceived().toString());
-			curht.put("report_date", hrmDocument.getReportDate().toString());
+			curht.put("report_date", hrmDocument.getReportDate() != null ? hrmDocument.getReportDate().toString() : "");
 			curht.put("report_type", hrmDocument.getReportType());
 			curht.put("report_status", hrmDocument.getReportStatus());
 			curht.put("category", category!=null?category.getCategoryName():"");
 			curht.put("description", hrmDocument.getDescription());
 			if(!StringUtils.isEmpty(hrmDocument.getClassName()) && !StringUtils.isEmpty(hrmDocument.getSubClassName())) {
-				curht.put("class_subclass", hrmDocument.getClassName() + (hrmDocument.getSubClassName()!=null?":"+hrmDocument.getSubClassName().split("\\^")[1]:""));
+				String subClassName = "";
+				if(hrmDocument.getSubClassName().indexOf("^") != -1) {
+					subClassName = hrmDocument.getSubClassName().split("\\^")[1];
+				}
+				else {
+					subClassName = hrmDocument.getSubClassName();
+				}
+				curht.put("class_subclass", hrmDocument.getClassName() + " " + subClassName);
 			}
 			if(!StringUtils.isEmpty(hrmDocument.getClassName()) && !hrmDocument.getAccompanyingSubClasses().isEmpty()) {
 				for(HRMDocumentSubClass sc: hrmDocument.getAccompanyingSubClasses()) {
