@@ -891,6 +891,11 @@ public final class EDocUtil {
 			ctlDocumentDao.persist(cd);
 			
 		}
+		
+		if (!EDocUtil.getDoctypes("demographic").contains(docType)){ 
+	 		EDocUtil.addDocTypeSQL(docType,"demographic");
+	 	} 
+		
 		return doc.getDocumentNo() != null ? doc.getDocumentNo() : 0;
 	}
 

@@ -2289,6 +2289,7 @@ import oscar.util.UtilDateUtilities;
                         cdsDt.ReportContent repCt = repR[i].getContent();
                         String filePath = repR[i].getFilePath();
                         if (repCt!=null || filePath != null) {
+                        	
                             byte[] b = null;
                             if (repCt != null && repCt.getMedia()!=null) b = repCt.getMedia();
                             else if (repCt != null && repCt.getTextContent()!=null) b = repCt.getTextContent().getBytes();
@@ -2299,6 +2300,7 @@ import oscar.util.UtilDateUtilities;
                                 String docClass=null, docSubClass=null, contentType="", contentDateTime=null, observationDate=null, updateDateTime=null, docCreator=admProviderNo;
                                 String reviewer=null, reviewDateTime=null, source=null, sourceFacility=null, reportExtra=null;
                                 Integer docNum=null;
+                                String docType = repR[i].getMedia().toString();
 
                                 if (StringUtils.filled(repR[i].getFileExtensionAndVersion())) {
                                     contentType = repR[i].getFileExtensionAndVersion();
@@ -2355,7 +2357,7 @@ import oscar.util.UtilDateUtilities;
 
                                 observationDate = dateFPtoString(repR[i].getEventDateTime(), timeShiftInDays);
                                 updateDateTime = dateFPtoString(repR[i].getReceivedDateTime(), timeShiftInDays);
-                                contentDateTime= dateFPtoString(repR[i].getReceivedDateTime(), timeShiftInDays);
+                                contentDateTime= dateFPtoString(repR[i].getEventDateTime(), timeShiftInDays);
                                 
                                 String receivedDate = dateFPtoString(repR[i].getReceivedDateTime(), timeShiftInDays);
                                 
@@ -2365,7 +2367,7 @@ import oscar.util.UtilDateUtilities;
                                 if(demographic != null && !StringUtils.isNullOrEmpty(demographic.getProviderNo())) {
                                 	responsibleId = demographic.getProviderNo();
                                 }
-                                docNum = EDocUtil.addDocument(demographicNo,docFileName,docDesc,"",docClass,docSubClass,mapContentType(contentType),contentDateTime,observationDate,updateDateTime,docCreator,responsibleId,reviewer,reviewDateTime,source,sourceFacility,receivedDate);
+                                docNum = EDocUtil.addDocument(demographicNo,docFileName,docDesc,docType,docClass,docSubClass,mapContentType(contentType),contentDateTime,observationDate,updateDateTime,docCreator,responsibleId,reviewer,reviewDateTime,source,sourceFacility,receivedDate);
                                 if (docNum==null) docNum = 0;
                                 if (binaryFormat) addOneEntry(REPORTBINARY);
                                 else addOneEntry(REPORTTEXT);
