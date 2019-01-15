@@ -39,8 +39,6 @@ import oscar.oscarLab.ca.all.parsers.Factory;
 import oscar.oscarLab.ca.all.parsers.OLISHL7Handler;
 import oscar.oscarLab.ca.all.util.Utilities;
 
-import static org.oscarehr.olis.model.OlisLabResultDisplay.DEFAULT_OLIS_SORT_COMPARATOR;
-
 public class OLISResultsAction extends DispatchAction {
 
 	public static HashMap<String, OLISHL7Handler> searchResultsMap = new HashMap<String, OLISHL7Handler>();
@@ -118,7 +116,6 @@ public class OLISResultsAction extends DispatchAction {
 			}
             request.setAttribute("resultList", resultList);
 			
-            Collections.sort(olisLabResults.getResultList(), DEFAULT_OLIS_SORT_COMPARATOR);
             request.setAttribute("olisLabResults", olisLabResults);
 
 		} catch (IOException | NullPointerException e) {

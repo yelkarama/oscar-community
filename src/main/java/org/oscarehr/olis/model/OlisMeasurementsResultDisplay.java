@@ -115,14 +115,4 @@ public class OlisMeasurementsResultDisplay {
     public void setInvalid(boolean invalid) {
         isInvalid = invalid;
     }
-
-    public static final Comparator<OlisMeasurementsResultDisplay> DEFAULT_OLIS_SORT_COMPARATOR = new Comparator<OlisMeasurementsResultDisplay>() {
-        @Override
-        public int compare(OlisMeasurementsResultDisplay o1, OlisMeasurementsResultDisplay o2) {
-            return new CompareToBuilder().append(o2.getParentLab().getCollectionDateAsDate(), o1.getParentLab().getCollectionDateAsDate())
-                    .append(o1.getParentLab().getPlacerGroupNo(), o2.getParentLab().getPlacerGroupNo())
-                    .append(o1.getParentLab().getTestRequestZbr11(), o2.getParentLab().getTestRequestZbr11())
-                    .toComparison();
-        }
-    };
 }

@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.oscarehr.olis.model.OlisMeasurementsResultDisplay.DEFAULT_OLIS_SORT_COMPARATOR;
-
 public class OlisLabResults {
 
     private List<OlisLabResultDisplay> resultList = new ArrayList<OlisLabResultDisplay>();
@@ -34,7 +32,7 @@ public class OlisLabResults {
         for (OlisLabResultDisplay olisLabResultDisplay : getResultList()) {
             results.addAll(olisLabResultDisplay.getMeasurements());
         }
-        Collections.sort(results, DEFAULT_OLIS_SORT_COMPARATOR);
+
         return results;
     }
 

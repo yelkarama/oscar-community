@@ -265,28 +265,4 @@ public class OlisLabResultDisplay {
         
         return results;
     }
-
-    public static final Comparator<OlisLabResultDisplay> DEFAULT_OLIS_SORT_COMPARATOR = new Comparator<OlisLabResultDisplay>() {
-        @Override
-        public int compare(OlisLabResultDisplay o1, OlisLabResultDisplay o2) {
-            CompareToBuilder compareToBuilder = new CompareToBuilder();
-            compareToBuilder.append(o2.getCollectionDateAsDate(), o1.getCollectionDateAsDate());
-            compareToBuilder.append(o1.getPlacerGroupNo(), o2.getPlacerGroupNo());
-
-            if (!StringUtils.isEmpty(o1.getTestRequestZbr11()) && !StringUtils.isEmpty(o2.getTestRequestZbr11())) {
-                compareToBuilder.append(o1.getTestRequestZbr11(), o2.getTestRequestZbr11());
-            }
-            if (o1.getNomenclature() != null && o2.getNomenclature() != null) {
-                if (!StringUtils.isEmpty(o1.getNomenclature().getSortKey()) && !StringUtils.isEmpty(o2.getNomenclature().getSortKey())) {
-                    compareToBuilder.append(o1.getNomenclature().getSortKey(), o2.getNomenclature().getSortKey());
-                }
-                if (!StringUtils.isEmpty(o1.getNomenclature().getRequestAlternateName1()) && !StringUtils.isEmpty(o1.getNomenclature().getRequestAlternateName1())) {
-                    compareToBuilder.append(o1.getNomenclature().getRequestAlternateName1(), o2.getNomenclature().getRequestAlternateName1());
-                }
-            }
-            compareToBuilder.append(o1.getLabObrIndex(), o2.getLabObrIndex());
-            
-            return compareToBuilder.toComparison();
-        }
-    };
 }
