@@ -252,7 +252,7 @@ public class RxPrescriptionData {
 		List<Prescription> lst = new ArrayList<Prescription>();
 
 		DrugDao dao = SpringUtils.getBean(DrugDao.class);
-		for (Drug drug : dao.findByDemographicIdOrderByPositionForExport(demographicNo, false)) {
+		for (Drug drug : dao.findByDemographicIdOrderByPositionForExport(demographicNo, null)) {
 			Prescription p = toPrescription(drug, demographicNo);
 			lst.add(p);
 		}
