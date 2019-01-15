@@ -126,7 +126,9 @@
  */
 -->
 
-<%@page import="org.oscarehr.util.MiscUtils"%><html:html locale="true">
+<%@page import="org.oscarehr.util.MiscUtils"%>
+<%@ page import="oscar.form.util.FormUtil" %>
+<html:html locale="true">
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Rh Immune Globulin Injection Reporting Form</title>
@@ -399,20 +401,20 @@ History</legend> <label>G</label> <input type="text" name="obsHisG" size="2"
 	value="<%=props.getProperty("obsHisL","")%>" /> <br />
 
 <input type="checkbox" name="obsHisTubMolPregYes"
-	<%=props.getProperty("obsHisTubMolPregYes","")%>>Yes</input> <input
+	<%=FormUtil.getCheckedHtml(props.getProperty("obsHisTubMolPregYes",""))%>>Yes</input> <input
 	type="checkbox" name="obsHisTubMolPregNo"
-	<%=props.getProperty("obsHisTubMolPregNo","")%>>No</input> <label>Any
+	<%=FormUtil.getCheckedHtml(props.getProperty("obsHisTubMolPregNo",""))%>>No</input> <label>Any
 previous tubal or molar pregnancy?</label> <br />
 <input type="checkbox" name="obsHisMisAbortionYes"
-	<%=props.getProperty("obsHisMisAbortionYes","")%>>Yes</input> <input
+	<%=FormUtil.getCheckedHtml(props.getProperty("obsHisMisAbortionYes",""))%>>Yes</input> <input
 	type="checkbox" name="obsHisMisAbortionNo"
-	<%=props.getProperty("obsHisMisAbortionNo","")%>>No</input> <label
+	<%=FormUtil.getCheckedHtml(props.getProperty("obsHisMisAbortionNo",""))%>>No</input> <label
 	style="float: none;">Any previous miscarriage, pregnancy loss,
 or therapeutic abortions?</label> <br />
 <input type="checkbox" name="obsHisReceiveAntiDYes"
-	<%=props.getProperty("obsHisReceiveAntiDYes","")%>>Yes</input> <input
+	<%=FormUtil.getCheckedHtml(props.getProperty("obsHisReceiveAntiDYes",""))%>>Yes</input> <input
 	type="checkbox" name="obsHisReceiveAntiDNo"
-	<%=props.getProperty("obsHisReceiveAntiDNo","")%>>No</input> <label>Did
+	<%=FormUtil.getCheckedHtml(props.getProperty("obsHisReceiveAntiDNo",""))%>>No</input> <label>Did
 you receive Anti-D during each of these pregnancies or following the
 pregnancy loss?</label> <br />
 
@@ -424,16 +426,16 @@ pregnancy loss?</label> <br />
 
 <fieldset class="obsHist"><legend>Past Medical
 History</legend> <input type="checkbox" name="pmHisBlClDisordersYes"
-	<%=props.getProperty("pmHisBlClDisordersYes","")%>>Yes</input> <input
+	<%=FormUtil.getCheckedHtml(props.getProperty("pmHisBlClDisordersYes",""))%>>Yes</input> <input
 	type="checkbox" name="pmHisBlClDisordersNo"
-	<%=props.getProperty("pmHisBlClDisordersNo","")%>>No</input> <label>Do
+	<%=FormUtil.getCheckedHtml(props.getProperty("pmHisBlClDisordersNo",""))%>>No</input> <label>Do
 you have any bleeding or clotting disorders?</label> If yes, describe<input
 	type="text" name="pmHisBlClDisordersComment"
 	value="<%=props.getProperty("pmHisBlClDisordersComment","")%>" /> <br />
 <input type="checkbox" name="pmHisBlPlTransfusYes"
-	<%=props.getProperty("pmHisBlPlTransfusYes","")%>>Yes</input> <input
+	<%=FormUtil.getCheckedHtml(props.getProperty("pmHisBlPlTransfusYes",""))%>>Yes</input> <input
 	type="checkbox" name="pmHisBlPlTransfusNo"
-	<%=props.getProperty("pmHisBlPlTransfusNo","")%>>No</input> <label>Have
+	<%=FormUtil.getCheckedHtml(props.getProperty("pmHisBlPlTransfusNo",""))%>>No</input> <label>Have
 you had any blood or platelet transfusions?</label> If yes, when<input
 	type="text" name="pmHisBlPlTransfusComment"
 	value="<%=props.getProperty("pmHisBlPlTransfusComment","")%>" /></fieldset>
@@ -441,9 +443,9 @@ you had any blood or platelet transfusions?</label> If yes, when<input
 
 <fieldset class="obsHist"><legend>Allergies</legend> <input
 	type="checkbox" name="allReactionsYes"
-	<%=props.getProperty("allReactionsYes","")%>>Yes</input> <input
+	<%=FormUtil.getCheckedHtml(props.getProperty("allReactionsYes",""))%>>Yes</input> <input
 	type="checkbox" name="allReactionsNo"
-	<%=props.getProperty("allReactionsNo","")%>>No</input> <label>Any
+	<%=FormUtil.getCheckedHtml(props.getProperty("allReactionsNo",""))%>>No</input> <label>Any
 adverse reactions to previous immune globulin or other blood products?</label>
 If yes, describe<input type="text" name="allReactionsComment"
 	value="<%=props.getProperty("allReactionsComment","")%>" /> <br />
@@ -475,61 +477,60 @@ If yes, describe<input type="text" name="allReactionsComment"
 </select> <br />
 
 <input type="checkbox" name="curPregDueDateChangeYes"
-	<%=props.getProperty("curPregDueDateChangeYes","")%>>Yes</input> <input
+	<%=FormUtil.getCheckedHtml(props.getProperty("curPregDueDateChangeYes",""))%>>Yes</input> <input
 	type="checkbox" name="curPregDueDateChangeNo"
-	<%=props.getProperty("curPregDueDateChangeNo","")%>>No</input> <label>Has
+	<%=FormUtil.getCheckedHtml(props.getProperty("curPregDueDateChangeNo",""))%>>No</input> <label>Has
 your due date changed during this pregnancy?</label> Comment<input type="text"
 	name="curPregDueDateChangeComment"
 	value="<%=props.getProperty("curPregDueDateChangeComment","")%>" /> <br />
 
-<input type="checkbox" name="curPregProceduresYes"
-	<%=props.getProperty("curPregProceduresYes","")%>>Yes</input> <input
-	type="checkbox" name="curPregProceduresNo"
-	<%=props.getProperty("curPregProceduresNo","")%>>No</input> <label>Any
+	<input type="checkbox" name="curPregProceduresYes" <%=FormUtil.getCheckedHtml(props.getProperty("curPregProceduresYes",""))%>>Yes</input>
+	<input type="checkbox" name="curPregProceduresNo" <%=FormUtil.getCheckedHtml(props.getProperty("curPregProceduresNo",""))%>>No</input>
+	<label>Any
 procedures during this pregnancy such as amniocentesis, chorionic
 villous sampling, cordocentesis, or external cephalic version?</label> If yes,
 when<input type="text" name="curPregProceduresComment"
 	value="<%=props.getProperty("curPregProceduresComment","")%>" /> <br />
 
 <input type="checkbox" name="curPregBleedingYes"
-	<%=props.getProperty("curPregBleedingYes","")%>>Yes</input> <input
+	<%=FormUtil.getCheckedHtml(props.getProperty("curPregBleedingYes",""))%>>Yes</input> <input
 	type="checkbox" name="curPregBleedingNo"
-	<%=props.getProperty("curPregBleedingNo","")%>>No</input> <label>Any
+	<%=FormUtil.getCheckedHtml(props.getProperty("curPregBleedingNo",""))%>>No</input> <label>Any
 bleeding or threatened miscarriage during this pregnancy?</label> <br />
 If yes, when<input type="text" name="curPregBleedingComment"
 	value="<%=props.getProperty("curPregBleedingComment","")%>" /> <br />
 
 <input type="checkbox" name="curPregBleedingContYes"
-	<%=props.getProperty("curPregBleedingContYes","")%>>Yes</input> <input
+	<%=FormUtil.getCheckedHtml(props.getProperty("curPregBleedingContYes",""))%>>Yes</input> <input
 	type="checkbox" name="curPregBleedingContNo"
-	<%=props.getProperty("curPregBleedingContNo","")%>>No</input> <label>Has
+	<%=FormUtil.getCheckedHtml(props.getProperty("curPregBleedingContNo",""))%>>No</input> <label>Has
 the bleeding continued?</label> <br />
 
 
 <input type="checkbox" name="curPregTraumaYes"
-	<%=props.getProperty("curPregTraumaYes","")%>>Yes</input> <input
+	<%=FormUtil.getCheckedHtml(props.getProperty("curPregTraumaYes",""))%>>Yes</input> <input
 	type="checkbox" name="curPregTraumaNo"
-	<%=props.getProperty("curPregTraumaNo","")%>>No</input> <label>Any
+	<%=FormUtil.getCheckedHtml(props.getProperty("curPregTraumaNo",""))%>>No</input> <label>Any
 abdominal trauma, serious fall or car accident?</label> <br />
 
 <input type="checkbox" name="curPregAntiDYes"
-	<%=props.getProperty("curPregAntiDYes","")%>>Yes</input> <input
+	<%=FormUtil.getCheckedHtml(props.getProperty("curPregAntiDYes",""))%>>Yes</input> <input
 	type="checkbox" name="curPregAntiDNo"
-	<%=props.getProperty("curPregAntiDNo","")%>>No</input> <label>Have
+	<%=FormUtil.getCheckedHtml(props.getProperty("curPregAntiDNo",""))%>>No</input> <label>Have
 you received any Anti-D during this pregnancy?</label> If yes, when<input
 	type="text" name="curPregAntiDComment"
 	value="<%=props.getProperty("curPregAntiDComment","")%>" /> <br />
 
 <input type="checkbox" name="curPregAntiDReactionYes"
-	<%=props.getProperty("curPregAntiDReactionYes","")%>>Yes</input> <input
+	<%=FormUtil.getCheckedHtml(props.getProperty("curPregAntiDReactionYes",""))%>>Yes</input> <input
 	type="checkbox" name="curPregAntiDReactionNo"
-	<%=props.getProperty("curPregAntiDReactionNo","")%>>No</input> <label>Any
+	<%=FormUtil.getCheckedHtml(props.getProperty("curPregAntiDReactionNo",""))%>>No</input> <label>Any
 adverse reaction?</label> <br />
 
 <input type="checkbox" name="curPregBloodDrawnYes"
-	<%=props.getProperty("curPregBloodDrawnYes","")%>>Yes</input> <input
+	<%=FormUtil.getCheckedHtml(props.getProperty("curPregBloodDrawnYes",""))%>>Yes</input> <input
 	type="checkbox" name="curPregBloodDrawnNo"
-	<%=props.getProperty("curPregBloodDrawnNo","")%>>No</input> <label>Blood
+	<%=FormUtil.getCheckedHtml(props.getProperty("curPregBloodDrawnNo",""))%>>No</input> <label>Blood
 sample drawn?</label></fieldset>
 
 
