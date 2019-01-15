@@ -807,9 +807,9 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 					        cell.setPaddingLeft(50);
 					        cell.setPaddingRight(20);
 					        table.addCell(cell);
-					        //Sets the padding back to 0
-					        cell.setPaddingLeft(0);
-					        cell.setPaddingRight(0);
+
+							cell.setPadding(2);
+							cell.setPaddingBottom(5);
 					        
 					        if (category.contains("Microbiology")){
 					        	cell.setHorizontalAlignment(Element.ALIGN_CENTER);

@@ -15,6 +15,7 @@ import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.Security;
@@ -262,7 +263,7 @@ public class Driver {
 
 			CMSProcessableByteArray cpb = (CMSProcessableByteArray) s.getSignedContent();
 			byte[] signedContent = (byte[]) cpb.getContent();
-			String content = new String(signedContent);
+			String content = new String(signedContent, StandardCharsets.ISO_8859_1);
 			return content;
 		} catch (Exception e) {
 			MiscUtils.getLogger().error("error", e);
