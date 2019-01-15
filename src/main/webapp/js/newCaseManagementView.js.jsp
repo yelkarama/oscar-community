@@ -582,12 +582,18 @@ function navBarLoader() {
                   ctx + "/oscarEncounter/displayConsultation.do?hC=" + Colour.consultation,
                   ctx + "/oscarEncounter/displayHRM.do?hC=",
                   ctx + "/eaaps/displayEctEaaps.do?hC=",
-                  ctx + "/oscarEncounter/displayEconsultation.do?hC=",
-                  ctx + "/oscarEncounter/displayEHR.do?hC="
+                  ctx + "/oscarEncounter/displayEconsultation.do?hC="
               ];
 
-            var leftNavBarTitles = [ "preventions", "tickler", "Dx", "forms", "eforms", "docs","labs", "msgs", "measurements", "consultation", "HRM", "eaaps", "eConsult","ehr"];
+            
+            
+            var leftNavBarTitles = [ "preventions", "tickler", "Dx", "forms", "eforms", "docs","labs", "msgs", "measurements", "consultation", "HRM", "eaaps", "eConsult"];
 
+            <% if (!OscarProperties.getInstance().getProperty("clinicalConnect.CMS.url", "").isEmpty()) { %>
+                leftNavBar.push(ctx + "/oscarEncounter/displayEHR.do?hC=");
+                leftNavBarTitles.push("ehr");
+            <% } %>
+            
             <%
             if (OscarProperties.getInstance().getBooleanProperty("MY_OSCAR", "yes")) { %>
                 leftNavBar.push(ctx + '/oscarEncounter/displayMyOscar.do?hC=');
