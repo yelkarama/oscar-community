@@ -50,6 +50,9 @@ public class PreventionSearchTo1 {
 	private List<String> exclusionCodes;
 	private List<String> trackingCodes;
 	
+	private Date billingCodeStart;
+	private Date billingCodeEnd; 
+	
 	/*
 	FLU
 	flu prevention by Jan 31st of patients that are 65> by Dec 31st
@@ -196,5 +199,21 @@ public class PreventionSearchTo1 {
 
 	public void setMeasurementTrackingType(String measurementTrackingType) {
 		this.measurementTrackingType = measurementTrackingType;
+	}
+
+	public Date getBillingCodeStart() {
+		return billingCodeStart;
+	}
+
+	public void setBillingCodeStart(Date billingCodeStart) {
+		this.billingCodeStart = billingCodeStart;
+	}
+
+	public Date getBillingCodeEnd() {
+		return billingCodeEnd;
+	}
+
+	public void setBillingCodeEnd(Date billingCodeEnd) {
+		this.billingCodeEnd = billingCodeEnd;
 	}
 }

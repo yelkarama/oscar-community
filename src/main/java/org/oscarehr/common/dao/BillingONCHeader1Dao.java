@@ -296,15 +296,16 @@ public class BillingONCHeader1Dao extends AbstractDao<BillingONCHeader1>{
         return total.toString();
     }
 
-    public boolean billedBetweenTheseDays(String serviceCode, Integer demographicNo,Calendar startDate, Calendar endDate) {
+    public boolean billedBetweenTheseDays(String serviceCode, Integer demographicNo,Date startDate, Date endDate) {
     		boolean hasBeenBilled = false;
         String sql = "select b from BillingONCHeader1 h1, BillingONItem b where b.ch1Id = h1.id and b.serviceCode = :code and" +
-                " h1.demographicNo = :demo and h1.status != 'D' and h1.billingDate => :startDate and h1.billingDate <= :endDate order by h1.billingDate desc limit 1";
+                " h1.demographicNo = :demo and h1.status != 'D' and h1.billingDate >= :startDate and h1.billingDate <= :endDate order by h1.billingDate desc limit 1";
         Query q = entityManager.createQuery(sql);
         q.setParameter("code", serviceCode);
         q.setParameter("demo", demographicNo);
-        q.setParameter("startDate", startDate);
-        q.setParameter("endDate", endDate);
+        q.setParameter("startDate",(new SimpleDateFormat("yyyy-MM-dd")).format(startDate));
+        q.setParameter("endDate", (new SimpleDateFormat("yyyy-MM-dd")).format(endDate));
+
         List<BillingONItem> billingClaims = q.getResultList();
 
         if( billingClaims.size() > 0 ) {
