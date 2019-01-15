@@ -114,7 +114,9 @@ public final class RxAddAllergyAction extends Action {
             allergy.setOnsetOfReaction(onSetOfReaction);
             allergy.setLifeStage(lifeStage);
             allergy.setReactionType(reactionType);
-            allergy.setRegionalIdentifier(regionalIdentifier);
+            if (regionalIdentifier != null && !"null".equals(regionalIdentifier)) {
+                allergy.setRegionalIdentifier(regionalIdentifier);
+            }
 
             allergy.setDemographicNo(patient.getDemographicNo());
             allergy.setArchived(false);

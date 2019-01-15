@@ -1622,14 +1622,20 @@ function changeLt(drugId, isLongTerm){
          var url="<c:out value="${ctx}"/>" + "/oscarRx/getAllergyData.jsp"  ;
          var data="atcCode="+atcCode+"&id="+id +"&rand="+ Math.floor(Math.random()*10001);
          new Ajax.Request(url,{method: 'post',postBody:data,onSuccess:function(transport){
-                 var json=transport.responseText.evalJSON();
-                 if(json!=null&&json.DESCRIPTION!=null&&json.reaction!=null){
-                      var str = "<font color='red'>Allergy:</font> " + json.DESCRIPTION;
-                      str += " <font color='red'>Reaction:</font> " + json.reaction;
-                      str += " <font color='red'>Severity:</font> " + json.severity;
-
-                      $('alleg_'+json.id).innerHTML = str;
-                      document.getElementById('alleg_tbl_'+json.id).style.display='block';
+                 var jsonResults = transport.responseText.evalJSON();
+                 if (jsonResults != null && jsonResults.results.length !== 0) {
+                     let resultHtml = "</br>";
+                     for (let i = 0; i < jsonResults.results.length; i++) {
+                         let result = jsonResults.results[i];
+                         resultHtml += "<font color='red'>Allergy:</font> " + result.DESCRIPTION;
+                         resultHtml += " <font color='red'>Reaction:</font> " + result.reaction;
+                         resultHtml += " <font color='red'>Severity:</font> " + result.severity;
+                         if (i + 1 < jsonResults.results.length) {
+                             resultHtml += "</br>";
+                         }
+                     }
+                     $('alleg_' + jsonResults.id).innerHTML = resultHtml;
+                     document.getElementById('alleg_tbl_' + jsonResults.id).style.display = 'block';
                  }
             }});
    }
