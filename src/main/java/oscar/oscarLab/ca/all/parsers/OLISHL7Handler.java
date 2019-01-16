@@ -185,8 +185,8 @@ public class OLISHL7Handler implements MessageHandler {
 		return reportStatus.isEmpty();
 	}
 	
-	HashMap<String, String[]> patientIdentifiers;
-	HashMap<String, String> patientIdentifierNames;
+	HashMap<String, String[]> patientIdentifiers = new HashMap<>();
+	HashMap<String, String> patientIdentifierNames = new HashMap<>();
 
 	private void initPatientIdentifierNames() {
 		patientIdentifierNames.put("ANON", "Non Nominal Identifier");
