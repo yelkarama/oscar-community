@@ -277,7 +277,8 @@ function setBillingCenter( providerNo ) {
 			Collections.sort(listedGroupNos, String.CASE_INSENSITIVE_ORDER);
 			providers.removeAll(providersToRemove);
 			
-			if(providers.size() > 1) { %>
+			// If the size of group numbers and provider numbers is greater than one, display All Providers
+			if((listedGroupNos.size() + providers.size()) > 1) { %>
 				<option value="all">All Providers</option>
 			<% }
 			for (String groupNo : listedGroupNos) { %>
