@@ -39,6 +39,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.xmlbeans.XmlOptions;
+import org.oscarehr.caisi_integrator.util.MiscUtils;
 
 import cds.DemographicsDocument;
 import cds.DemographicsDocument.Demographics.Enrolment.EnrolmentHistory;
@@ -79,6 +80,7 @@ import cdshrm.PatientRecordDocument.PatientRecord;
 import cdshrm.ReportsReceivedDocument.ReportsReceived;
 import cdshrm.ReportsReceivedDocument.ReportsReceived.ResultStatus;
 import cdshrm.TransactionInformationDocument.TransactionInformation;
+import oscar.OscarProperties;
 
 /**
  *
@@ -107,12 +109,17 @@ public class CreateHRMFile {
         options.setSaveSuggestedPrefixes(suggestedPrefix);
 	options.setSaveOuter();
 
+	if(!filepath.contains(File.separator)) {
+		filepath = OscarProperties.getInstance().getProperty("DOCUMENT_DIR") + File.separator + filepath;
+	}
         File file = new File(filepath);
         try {
             omdCdsDoc.save(file, options);
         } catch (IOException ex) {
             Logger.getLogger(CreateHRMFile.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+        MiscUtils.getLogger().info("saved HRM file: " + filepath);
     }
 
     static private void writeDemographics(DemographicsDocument.Demographics demo, Demographics HRMdemo) {

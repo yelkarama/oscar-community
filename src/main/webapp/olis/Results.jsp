@@ -147,7 +147,7 @@ function bulkRemove() {
 }
 
 function showMatch(name,uuid) {
-	popupPage(800,1000,'http://localhost:8080/oscar_revalidation/oscarMDS/SearchPatient.do?labType=HL7&from=olis&segmentID='+uuid+'&name=' + encodeURIComponent(name) );
+	popupPage(800,1000,'<%=request.getContextPath()%>/oscarMDS/SearchPatient.do?labType=HL7&from=olis&segmentID='+uuid+'&name=' + encodeURIComponent(name) );
 }
 
 function updateLabDemoStatus2(uuid,demo) {

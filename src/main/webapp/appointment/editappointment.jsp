@@ -526,6 +526,7 @@ function setType(typeSel,reasonSel,locSel,durSel,notesSel,resSel) {
                 displayStyle="display:block";
             }
 %>
+
 <div id="tooManySameDayGroupApptWarning" style="<%=displayStyle%>">
     <table width="98%" BGCOLOR="red" border=1 align='center'>
         <tr>
@@ -553,6 +554,24 @@ function setType(typeSel,reasonSel,locSel,durSel,notesSel,resSel) {
         doctorNo = request.getParameter("doctor_no");
     }
 %>
+
+<div>
+    <table width="100%" BGCOLOR="lightblue" border=1 align='center'>
+        <tr>
+            <th>
+                <font>
+                    <%
+                    	ProviderData prov = providerDao.find(appt.getProviderNo());
+                  		String providerName = prov.getLastName() + ","+ prov.getFirstName(); 
+                    
+                    %>
+                    <%=providerName %>
+                </font>
+            </th>
+        </tr>
+    </table>
+</div>
+
 <div class="panel">
     <ul>
         <li class="row weak">
