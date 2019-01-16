@@ -3248,61 +3248,62 @@ public class OLISHL7Handler implements MessageHandler {
      * @return String of the formatted address
      */
 	public String getFormattedAddress(HashMap<String, String> addressMap, boolean isHtml) {
-	    boolean addComma = false;
-	    // If it is for HTML use, uses <br /> instead of the system line separators
-	    String newLine = isHtml ? "<br />" : System.lineSeparator();
-	    StringBuilder formattedAddress = new StringBuilder();
-	    
-	    // Gets each part of the address
-	    String address1 = addressMap.get("Street Address");
-	    String address2 = addressMap.get("Other Destination");
-	    String postalCode = addressMap.get("Postal Code");
-	    String city = addressMap.get("City");
-	    String province = addressMap.get("Province");
-	    String country = addressMap.get("Country");
-	    
-	    // Appends the first address line
-	    if (StringUtils.isNotEmpty(address1)) {
-	        formattedAddress.append(address1).append(newLine);
-        }
-	    
-	    // Appends the second address line
-	    if (StringUtils.isNotEmpty(address2)) {
-	        formattedAddress.append(address2).append(newLine);
-        }
-	    
-	    // Appends the postal code
-	    if (StringUtils.isNotEmpty(postalCode)) {
-	        formattedAddress.append(postalCode);
-            addComma = true;
-        }
-	    
-	    // Appends the city, separated with a comma if needed
-	    if (StringUtils.isNotEmpty(city)) {
-	        if (addComma) {
-	            formattedAddress.append(", ");
+        StringBuilder formattedAddress = new StringBuilder();
+	    if (addressMap != null) {
+            boolean addComma = false;
+            // If it is for HTML use, uses <br /> instead of the system line separators
+            String newLine = isHtml ? "<br />" : System.lineSeparator();
+
+            // Gets each part of the address
+            String address1 = addressMap.get("Street Address");
+            String address2 = addressMap.get("Other Destination");
+            String postalCode = addressMap.get("Postal Code");
+            String city = addressMap.get("City");
+            String province = addressMap.get("Province");
+            String country = addressMap.get("Country");
+
+            // Appends the first address line
+            if (StringUtils.isNotEmpty(address1)) {
+                formattedAddress.append(address1).append(newLine);
             }
-	        formattedAddress.append(city);
-	        addComma = true;
-        }
-	    
-        // Appends the city, separated with a comma if needed
-	    if (StringUtils.isNotEmpty(province)) {
-            if (addComma) {
-                formattedAddress.append(", ");
+
+            // Appends the second address line
+            if (StringUtils.isNotEmpty(address2)) {
+                formattedAddress.append(address2).append(newLine);
             }
-	        formattedAddress.append(province);
-            addComma = true;
-        }
-	    
-        // Appends the city, separated with a comma if needed
-	    if (StringUtils.isNotEmpty(country)) {
-            if (addComma) {
-                formattedAddress.append(", ");
+
+            // Appends the postal code
+            if (StringUtils.isNotEmpty(postalCode)) {
+                formattedAddress.append(postalCode);
+                addComma = true;
             }
-	        formattedAddress.append(country);
+
+            // Appends the city, separated with a comma if needed
+            if (StringUtils.isNotEmpty(city)) {
+                if (addComma) {
+                    formattedAddress.append(", ");
+                }
+                formattedAddress.append(city);
+                addComma = true;
+            }
+
+            // Appends the city, separated with a comma if needed
+            if (StringUtils.isNotEmpty(province)) {
+                if (addComma) {
+                    formattedAddress.append(", ");
+                }
+                formattedAddress.append(province);
+                addComma = true;
+            }
+
+            // Appends the city, separated with a comma if needed
+            if (StringUtils.isNotEmpty(country)) {
+                if (addComma) {
+                    formattedAddress.append(", ");
+                }
+                formattedAddress.append(country);
+            }
         }
-	    
         return formattedAddress.toString();
     }
 
