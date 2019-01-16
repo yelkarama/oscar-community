@@ -42,7 +42,8 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.lang3.StringUtils;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
@@ -286,19 +287,18 @@ public final class SSOLoginAction extends MappingDispatchAction {
     	//Gets the ssoKey parameter
     	oneIdKey = request.getParameter("nameId");
     	oneIdEmail = request.getParameter("email");
-        requestStartTime = request.getParameter("ts");
+        requestStartTime = request.getParameter("loginStart");
         String encryptedOneIdToken = request.getParameter("encryptedOneIdToken");
         
         String signature = request.getParameter("signature");
-        String ts = request.getParameter("ts");
-        
+  
         if(!StringUtils.isEmpty(signature)) {
         	logger.info("Found signature " + signature);
         	try {
         		Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
         		SecretKeySpec secret_key = new SecretKeySpec(OscarProperties.getInstance().getProperty("oneid.encryptionKey").getBytes("UTF-8"), "HmacSHA256");
         		sha256_HMAC.init(secret_key);
-        		String ourSig = Hex.encodeHexString(sha256_HMAC.doFinal((oneIdKey + oneIdEmail + encryptedOneIdToken + ts).getBytes("UTF-8")));
+        		String ourSig = Hex.encodeHexString(sha256_HMAC.doFinal((oneIdKey + oneIdEmail + encryptedOneIdToken).getBytes("UTF-8")));
         		if(!ourSig.equals(signature)) {
         			logger.warn("SSO Login: invalid HMAC signature");
                 	ActionRedirect redirect = new ActionRedirect(mapping.findForward("ssoLoginError"));

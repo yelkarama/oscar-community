@@ -138,7 +138,7 @@ public class ClinicalConnectViewerAction extends DispatchAction {
 				
 				logger.info("successfully deleted contextSessionID in CMS");
 				request.getSession().setAttribute("CC_EHR_LOADED", true);
-				LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request),"Launch CMS EHR Viewer","launch","success",null,null);
+				LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request),"Launch CMS EHR Viewer","launch","success","","");
 		
 				response.sendRedirect(redirectURL);
 				
@@ -148,7 +148,7 @@ public class ClinicalConnectViewerAction extends DispatchAction {
 			} else if( httpResponse2.getStatusLine().getStatusCode()  == 404) {
 				//it was previously deleted..same as OK really
 				request.getSession().setAttribute("CC_EHR_LOADED", true);
-				LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request),"Launch CMS EHR Viewer","launch","success",null,null);
+				LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request),"Launch CMS EHR Viewer","launch","success", "", "");
 		
 				response.sendRedirect(redirectURL);
 				
