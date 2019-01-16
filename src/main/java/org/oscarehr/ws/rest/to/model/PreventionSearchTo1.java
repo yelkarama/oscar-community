@@ -43,6 +43,11 @@ public class PreventionSearchTo1 {
 	private Date rosterAsOf;
 	private String measurementTrackingType;
 	
+	private boolean letter1 = false;
+	private boolean letter2 = false;
+	private boolean phone1 = false;
+
+	
 		    
 	private Integer sex;
 	
@@ -215,5 +220,29 @@ public class PreventionSearchTo1 {
 
 	public void setBillingCodeEnd(Date billingCodeEnd) {
 		this.billingCodeEnd = billingCodeEnd;
+	}
+
+	public boolean isLetter1() {
+		return letter1;
+	}
+
+	public void setLetter1(boolean letter1) {
+		this.letter1 = letter1;
+	}
+
+	public boolean isLetter2() {
+		return letter2;
+	}
+
+	public void setLetter2(boolean letter2) {
+		this.letter2 = letter2;
+	}
+
+	public boolean isPhone1() {
+		return phone1;
+	}
+
+	public void setPhone1(boolean phone1) {
+		this.phone1 = phone1;
 	}
 }

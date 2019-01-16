@@ -128,6 +128,36 @@ if(!authed) {
 						</select>
 				  	</div>
 				</div>
+				<div class="col-sm-2">                     
+               		<div class="form-group">
+				    		<label for="provider">Prevention Follow</label>
+				    		<select class="form-control" ng-model="newReport.measurementTrackingType">
+					   		<option value="CIMF">CIMF - Child Imms</option>
+                        		<option value="FLUF">FLUF - Flu</option>
+                        		<option value="PAPF">PAPF - Pap</option>
+                        		<option value="MAMF">MAMF - Mam</option>
+                        		<option value="FOBF">FOBF - FOBT</option>
+						</select>
+				  	</div>
+				  	<div class="checkbox">
+					  <label>
+					    <input type="checkbox" value="L1" ng-model="newReport.letter1">
+					    Letter 1
+					  </label>
+					</div>
+					<div class="checkbox">
+					  <label>
+					    <input type="checkbox" value="L2" ng-model="newReport.letter2">
+					    Letter 2
+					  </label>
+					</div>
+					<div class="checkbox">
+					  <label>
+					    <input type="checkbox" value="P1" ng-model="newReport.phone1">
+					    Phone 1
+					  </label>
+					</div>
+				</div>
 
                 
                   
@@ -415,12 +445,12 @@ if(!authed) {
   				<td>{{line.email}}</td>
   				<td>{{line.address}}</td>
   				<td>{{line.nextAppt}}</td>
-  				<td>{{line.state}} {{line.rank}}</td>
+  				<td title="{{line.rank}}">{{line.state}}</td>
   				<td>{{line.bonusStatus}}</td>
   				<td>{{line.numMonths}}</td>
   				<td>{{line.lastDate | date }}</td>
-  				<td>{{line.lastFollowup}}</td>
-  				<td>DOB6</td>
+  				<td>{{line.lastFollowup | date}} - {{link.lastFollupProcedure}}</td>
+  				<td>{{line.nextSuggestedProcedure}}</td>
   				<td>DOB7</td>
   				<td>{{line.rosteringDoc}}</td>
   				<td>Bill</td>

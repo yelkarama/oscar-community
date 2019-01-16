@@ -54,9 +54,9 @@ public class ReportItem implements Comparable<ReportItem> {
 	public String billStatus = "N";
    
    //FollowUp Data
-	public Date lastFollowup = null;
-	public String lastFollupProcedure =null;
-	public String nextSuggestedProcedure=null;
+	private Date lastFollowup = null;
+	private String lastFollupProcedure =null;
+	private String nextSuggestedProcedure=null;
 	
 	
 	public Integer getDemographicNo() {
@@ -181,6 +181,24 @@ public class ReportItem implements Comparable<ReportItem> {
 	      // If this < o, return a negative value
 	      // If this = o, return 0
 	      // If this > o, return a positive value
+	}
+	public Date getLastFollowup() {
+		return lastFollowup;
+	}
+	public void setLastFollowup(Date lastFollowup) {
+		this.lastFollowup = lastFollowup;
+	}
+	public String getLastFollupProcedure() {
+		return lastFollupProcedure;
+	}
+	public void setLastFollupProcedure(String lastFollupProcedure) {
+		this.lastFollupProcedure = lastFollupProcedure;
+	}
+	public String getNextSuggestedProcedure() {
+		return nextSuggestedProcedure;
+	}
+	public void setNextSuggestedProcedure(String nextSuggestedProcedure) {
+		this.nextSuggestedProcedure = nextSuggestedProcedure;
 	}
 	
 	
