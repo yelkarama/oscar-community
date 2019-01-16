@@ -166,6 +166,19 @@ if(!authed) {
 						<li ng-repeat="code in newReport.trackingCodes">{{code}}<a ng-click="deleteElement(newReport.trackingCodes,$index)">-del-</a></li>
 					</ul>
 				</div>
+				<div class="col-sm-3">
+					<div class="form-group">
+					    <label for="provider">Exclusion and Tracking Code Start Date</label>
+						<input type="date" ng-model="newReport.billingCodeStart" class="form-control"/>
+					</div>
+				</div>
+				<div class="col-sm-3">
+					<div class="form-group">
+					    <label for="provider">Exclusion and Tracking Code End Date</label>
+						<input type="date" ng-model="newReport.billingCodeEnd" class="form-control"/>
+					</div>
+				</div>
+				
 				<div class="col-sm-8">
 					<div class="form-group">
 					    <label for="provider">Preventions <button ng-click="addPrevention(newPrevReport)" class="btn btn-xs btn-default">Add</button></label>
@@ -309,14 +322,16 @@ if(!authed) {
 					    
 					</div>
 				<br>
-				<ul>
+				<%-- ul>
 					<li ng-repeat="preve in newReport.preventions">{{preventionSummary(preve)}} <a ng-click="deleteElement(newReport.preventions,$index)">-del-</a></li>
 				</ul>	
-				
+				--%>
 				</div>
 				
 			</div>
-			
+			<ul>
+					<li ng-repeat="preve in newReport.preventions">{{preventionSummary(preve)}} <a ng-click="deleteElement(newReport.preventions,$index)">-del-</a></li>
+				</ul>
 			<button ng-click="saveReport(newReport)" class="btn btn-default">Save Report</button>
 		</div>
 		<!-- manage report end -->
@@ -446,11 +461,16 @@ if(!authed) {
 					
 					var d2 = new Date();
 					d2.setTime(data.rosterAsOf);
-					$scope.newReport.rosterAsOf = d2;				
+					$scope.newReport.rosterAsOf = d2;	
 					
 					
-					//$scope.newReport.reportName = data.reportName;
-        				
+					var d3 = new Date();
+					d3.setTime(data.billingCodeStart);
+					$scope.newReport.billingCodeStart = d3;
+					
+					var d4 = new Date();
+					d4.setTime(data.billingCodeEnd);
+					$scope.newReport.billingCodeEnd = d4;
 					 
 					console.log("after get report ",$scope.newReport);
 					//$scope.$apply();

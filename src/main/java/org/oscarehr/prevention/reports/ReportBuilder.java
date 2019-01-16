@@ -106,39 +106,11 @@ public class ReportBuilder {
 		
 	}
 	
-	/*
-	private ArrayList<Map<String,Object>> getPreventionData(LoggedInInfo loggedInInfo,PreventionSearchConfigTo1 preventionSearchConfig,Integer demographicNo ){
-		ArrayList<Map<String,Object>>  prevs = PreventionData.getPreventionData(loggedInInfo, preventionSearchConfig.getName(),demographicNo);
-        PreventionData.addRemotePreventions(loggedInInfo, prevs, demographicNo,preventionSearchConfig.getName(),null);
-        return prevs;
-	}
-	*/
 	private List<Prevention> getPreventionData(LoggedInInfo loggedInInfo,PreventionSearchConfigTo1 preventionSearchConfig,Integer demographicNo ){
 		List<Prevention>  prevs = PreventionData.getPrevention(loggedInInfo, preventionSearchConfig.getName(),demographicNo);
         PreventionData.addRemotePreventions(loggedInInfo, prevs, demographicNo,preventionSearchConfig.getName(),null);
         return prevs;
 	}
-	/*
-	private ArrayList<Map<String,Object>> removeFutureItems(ArrayList<Map<String,Object>> list,Date asOfDate){
-	       ArrayList<Map<String,Object>> noFutureItems = new ArrayList<Map<String,Object>>();
-	       DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-	       for (int i =0; i < list.size(); i ++){
-	    	   Map<String,Object> h = list.get(i);
-	            String prevDateStr = (String) h.get("prevention_date");
-	            Date prevDate = null;
-	            try{
-	                prevDate = formatter.parse(prevDateStr);
-	            }catch (Exception e){
-	            	//empty
-	            }
-
-	            if (prevDate != null && prevDate.before(asOfDate)){
-	               noFutureItems.add(h);
-	            }
-	       }
-	       return noFutureItems;
-	   }
-	*/
 	
 	private List<Prevention> removeFutureItems(List<Prevention> list,Date asOfDate){
 		List<Prevention> noFutureItems = new ArrayList<Prevention>();
@@ -152,34 +124,7 @@ public class ReportBuilder {
 	      return noFutureItems;
 	}
 	    
-	/*
-	boolean ineligible(Map<String,Object> h){
-	       boolean ret =false;
-	       if ( h.get("refused") != null && ((String) h.get("refused")).equals("2")){
-	          ret = true;
-	       }
-	       return ret;
-	   }
 	
-	boolean ineligible(ArrayList<Map<String,Object>> list){
-	       for (int i =0; i < list.size(); i ++){
-	    	   Map<String,Object> h = list.get(i);
-	           if (ineligible(h)){
-	               return true;
-	           }
-	       }
-	       return false;
-	   }
-	
-	boolean ineligible(List<ArrayList<Map<String,Object>>> prevs){
-	       for (ArrayList<Map<String,Object>> prev: prevs){
-	    	   	  if (ineligible(prev)){
-	               return true;
-	          }
-	       }
-	       return false;
-	   }
-	*/
 	private void setNoInfo(ReportItem item) {
 		item.setRank(1);
 		item.setState("No Info");
@@ -212,9 +157,6 @@ public class ReportBuilder {
 	}
 	
 	
-	
-	
-	
 	private ReportItem processForNumerator(LoggedInInfo loggedInInfo,PreventionSearchTo1 searchConfig,String providerNo,Integer demographicNo,Report report){
 		ReportItem item = new ReportItem();
 		item.setDemographicNo(demographicNo);
@@ -225,8 +167,9 @@ public class ReportBuilder {
 		if(searchConfig.getExclusionCodes() != null && !searchConfig.getExclusionCodes().isEmpty()) {
 			//Need to search billing for the exclusion Code
 			//If found return as ineligible, if not continue on.
-			Calendar startDate = null;  //???????
-			Calendar endDate = null;
+			
+			Date startDate = searchConfig.getBillingCodeStart();
+			Date endDate = searchConfig.getBillingCodeEnd();
 			boolean exclusionCodeFound = false;
 			for(String serviceCode:searchConfig.getExclusionCodes()) {
 				if(billingONCHeader1Dao.billedBetweenTheseDays(serviceCode,demographicNo, startDate,  endDate)) {
@@ -236,6 +179,7 @@ public class ReportBuilder {
 			if(exclusionCodeFound) { 
 				report.incrementIneligiblePatients();
 				setIneligible(item);
+				return item;
 			}
 		}
 		
@@ -243,8 +187,8 @@ public class ReportBuilder {
 			//Need to search billing for the tracking Codes
 			//If found return as up to date, if not continue on.
 			
-			Calendar startDate = null;  //???????
-			Calendar endDate = null;
+			Date startDate = searchConfig.getBillingCodeStart();
+			Date endDate = searchConfig.getBillingCodeEnd();
 			boolean trackingCodeFound = false;
 			for(String serviceCode:searchConfig.getTrackingCodes()) {
 				if(billingONCHeader1Dao.billedBetweenTheseDays(serviceCode,demographicNo, startDate,  endDate)) {
@@ -254,6 +198,7 @@ public class ReportBuilder {
 			if(trackingCodeFound) { 
 				report.incrementUp2Date();
 				setUptoDate(item);
+				return item;
 			}
 			
 		}
