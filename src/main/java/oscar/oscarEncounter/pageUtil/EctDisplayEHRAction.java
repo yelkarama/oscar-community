@@ -43,9 +43,9 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.struts.util.MessageResources;
 import org.codehaus.jettison.json.JSONObject;
-import org.oscarehr.caisi_integrator.util.MiscUtils;
 import org.oscarehr.util.LoggedInInfo;
 
+import org.oscarehr.util.MiscUtils;
 import oscar.OscarProperties;
 
 public class EctDisplayEHRAction extends EctDisplayAction {
