@@ -576,8 +576,5 @@ function popupNotesWindow(noteDiv) {
         cssDisabled: 'disabled'
     });
 </script>
-<!-- RAW HL7 ERP
-<%=request.getAttribute("unsignedResponse") %>
--->
 </body>
 </html>
