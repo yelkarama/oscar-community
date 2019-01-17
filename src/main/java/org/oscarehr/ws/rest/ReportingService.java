@@ -33,7 +33,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Response.ResponseBuilder;
 
 import net.sf.json.JSONObject;
 
@@ -61,8 +60,6 @@ import org.oscarehr.ws.rest.to.model.MenuItemTo1;
 import org.oscarehr.ws.rest.to.model.PreventionSearchTo1;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import com.sun.mail.iap.Response;
 
 @Path("/reporting/")
 @Component

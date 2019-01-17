@@ -34,7 +34,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.BillingONCHeader1Dao;
@@ -452,7 +451,7 @@ public class ReportBuilder {
 	              EctMeasurementsDataBeanHandler measurementDataHandler = new EctMeasurementsDataBeanHandler(item.getDemographicNo(),measurementType);
 	              logger.debug("getting followup data for "+item.getDemographicNo());
 
-	              Collection followupData = measurementDataHandler.getMeasurementsDataVector();
+	              Collection<EctMeasurementsDataBean> followupData = measurementDataHandler.getMeasurementsDataCollection();
 	              //NO Contact
 	              logger.debug("number of follow up "+followupData.size());
 	              if ( followupData.size() == 0 ){
@@ -534,7 +533,7 @@ public class ReportBuilder {
 	                //prd.lastDate = "-----";
 	              EctMeasurementsDataBeanHandler measurementDataHandler = new EctMeasurementsDataBeanHandler(item.getDemographicNo(),measurementType);
 	              logger.debug("getting followup data for "+item.getDemographicNo());
-	              Collection followupData = measurementDataHandler.getMeasurementsDataVector();
+	              Collection followupData = measurementDataHandler.getMeasurementsDataCollection();
 	              if ( followupData.size() > 0 ){
 	                  EctMeasurementsDataBean measurementData = (EctMeasurementsDataBean) followupData.iterator().next();
 	                  item.setLastFollowup(measurementData.getDateObservedAsDate());
@@ -549,7 +548,7 @@ public class ReportBuilder {
 	                //Do nothing
 	              EctMeasurementsDataBeanHandler measurementDataHandler = new EctMeasurementsDataBeanHandler(item.getDemographicNo(),measurementType);
 	              logger.debug("getting followup data for "+item.getDemographicNo());
-	              Collection followupData = measurementDataHandler.getMeasurementsDataVector();
+	              Collection followupData = measurementDataHandler.getMeasurementsDataCollection();
 
 	              if ( followupData.size() > 0 ){
 	                  EctMeasurementsDataBean measurementData = (EctMeasurementsDataBean) followupData.iterator().next();
