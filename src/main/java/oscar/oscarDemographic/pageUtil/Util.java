@@ -100,10 +100,21 @@ public class Util {
     }
     
     static public XmlCalendar calDate(Date inDate) {
+    	return calDate(inDate, true);
+    }
+    
+    static public XmlCalendar calDate(Date inDate, Boolean includeTZD) {
 		String date = UtilDateUtilities.DateToString(inDate, "yyyy-MM-dd");
 		String time = UtilDateUtilities.DateToString(inDate, "HH:mm:ss");
+		String tzd;
+		if (includeTZD) {
+			tzd = UtilDateUtilities.DateToString(inDate, "Z");
+			tzd = new StringBuffer(tzd).insert(tzd.length()-2, ":").toString();
+		} else {
+			tzd = "";
+		}
 		try {
-			XmlCalendar x = new XmlCalendar(date+"T"+time);
+			XmlCalendar x = new XmlCalendar(date+"T"+time+tzd);
 			return x;
 		} catch (Exception ex) {
 			XmlCalendar x = new XmlCalendar("0001-01-01T00:00:00");
@@ -113,6 +124,9 @@ public class Util {
 
 	static public XmlCalendar calDate(String inDate) {
 		Date dateTime = UtilDateUtilities.StringToDate(inDate,"yyyy-MM-dd HH:mm:ss");
+		if (dateTime!=null) {
+			return calDate(dateTime, true); // add timezone
+		}
 		if (dateTime==null) {
 			dateTime = UtilDateUtilities.StringToDate(inDate,"yyyy-MM-dd");
 		}
@@ -125,7 +139,7 @@ public class Util {
 				return x;
 			}
 		} else {
-			return calDate(dateTime);
+			return calDate(dateTime, false);
 		}
 	}
 
@@ -445,17 +459,17 @@ public class Util {
 
     static public void putPartialDate(cdsDt.DateFullOrPartial dfp, Date dateValue, String format) {
         if (dateValue!=null) {
-            if (PartialDate.YEARONLY.equals(format)) dfp.setYearOnly(calDate(dateValue));
-            else if (PartialDate.YEARMONTH.equals(format)) dfp.setYearMonth(calDate(dateValue));
-            else dfp.setFullDate(calDate(dateValue));
+            if (PartialDate.YEARONLY.equals(format)) dfp.setYearOnly(calDate(dateValue, false));
+            else if (PartialDate.YEARMONTH.equals(format)) dfp.setYearMonth(calDate(dateValue, false));
+            else dfp.setFullDate(calDate(dateValue, false));
         }
     }
 
     static public void putPartialDate(cdsDt.DateTimeFullOrPartial dfp, Date dateValue, String format) {
         if (dateValue!=null) { 
-            if (PartialDate.YEARONLY.equals(format)) dfp.setYearOnly(calDate(dateValue));
-            else if (PartialDate.YEARMONTH.equals(format)) dfp.setYearMonth(calDate(dateValue));
-            else dfp.setFullDate(calDate(dateValue));
+            if (PartialDate.YEARONLY.equals(format)) dfp.setYearOnly(calDate(dateValue, false));
+            else if (PartialDate.YEARMONTH.equals(format)) dfp.setYearMonth(calDate(dateValue, false));
+            else dfp.setFullDate(calDate(dateValue, false));
         }
     }
 
@@ -472,9 +486,9 @@ public class Util {
 
     static public void putPartialDate(cdsDtCihi.DateFullOrPartial dfp, Date dateValue, String format) {
         if (dateValue!=null) {
-            if (PartialDate.YEARONLY.equals(format)) dfp.setYearOnly(calDate(dateValue));
-            else if (PartialDate.YEARMONTH.equals(format)) dfp.setYearMonth(calDate(dateValue));
-            else dfp.setFullDate(calDate(dateValue));
+            if (PartialDate.YEARONLY.equals(format)) dfp.setYearOnly(calDate(dateValue, false));
+            else if (PartialDate.YEARMONTH.equals(format)) dfp.setYearMonth(calDate(dateValue, false));
+            else dfp.setFullDate(calDate(dateValue, false));
         }
     }
     

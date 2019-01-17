@@ -1374,7 +1374,7 @@ public class DemographicExportAction4 extends Action {
 						mSummary = Util.addSummary("Prescription Written Date", partialDateDao.getDatePartial(arr[p].getWrittenDate(), dateFormat));
 					}
 					if (arr[p].getRxDate()!=null) {
-						medi.addNewStartDate().setFullDate(Util.calDate(arr[p].getRxDate()));
+						medi.addNewStartDate().setFullDate(Util.calDate(arr[p].getRxDate(), false));
 						mSummary = Util.addSummary(mSummary,"Start Date",UtilDateUtilities.DateToString(arr[p].getRxDate(),"yyyy-MM-dd"));
 					}
 					String regionalId = arr[p].getRegionalIdentifier();
@@ -1736,7 +1736,7 @@ public class DemographicExportAction4 extends Action {
 					
 					Appointments aptm = patientRec.addNewAppointments();
 					cdsDt.DateFullOrPartial apDate = aptm.addNewAppointmentDate();
-					apDate.setFullDate(Util.calDate(ap.getAppointmentDate()));
+					apDate.setFullDate(Util.calDate(ap.getAppointmentDate(), false));
 					if (ap.getAppointmentDate()==null) {
 						exportError.add("Error! No Appointment Date ("+j+") for Patient "+demoNo);
 					}
@@ -1838,7 +1838,7 @@ public class DemographicExportAction4 extends Action {
 						String obsDateStr = edoc.getObservationDate();
 						Date observationDate = UtilDateUtilities.StringToDate(obsDateStr, "yyyy/MM/dd");
 						if (observationDate!=null) {
-							rpr.addNewEventDateTime().setFullDate(Util.calDate(observationDate));
+							rpr.addNewEventDateTime().setFullDate(Util.calDate(observationDate, false));
 						} else {
 							exportError.add("Not exporting invalid Event Date (Reports) for Patient "+demoNo+" ("+(j+1)+")");
 						}
@@ -1848,13 +1848,13 @@ public class DemographicExportAction4 extends Action {
 						} else {
 							exportError.add("Not exporting invalid Received DateTime (Reports) for Patient "+demoNo+" ("+(j+1)+")");
 						}
-						String reviewDateTime = edoc.getReviewDateTime();
-						if (UtilDateUtilities.StringToDate(reviewDateTime,"yyyy-MM-dd HH:mm:ss")!=null) {
+						Date reviewDateTime = edoc.getReviewDateTimeDate();
+						if (reviewDateTime!=null) {
 							ReportReviewed reportReviewed = rpr.addNewReportReviewed();
-							reportReviewed.addNewDateTimeReportReviewed().setFullDate(Util.calDate(reviewDateTime));
+							reportReviewed.addNewDateTimeReportReviewed().setFullDate(Util.calDate(reviewDateTime, false));
 							Util.writeNameSimple(reportReviewed.addNewName(), edoc.getReviewerName());
-							reviewDateTime = StringUtils.noNull(edoc.getReviewerOhip());
-							if (reviewDateTime.length()<=6) reportReviewed.setReviewingOHIPPhysicianId(reviewDateTime);
+							String ohipNo = StringUtils.noNull(edoc.getReviewerOhip());
+							if (ohipNo.length()<=6) reportReviewed.setReviewingOHIPPhysicianId(ohipNo);
 						}
 						Util.writeNameSimple(rpr.addNewSourceAuthorPhysician().addNewAuthorName(), edoc.getSource());
 
