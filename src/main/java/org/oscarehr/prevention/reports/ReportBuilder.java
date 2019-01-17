@@ -74,6 +74,7 @@ public class ReportBuilder {
 		logger.error("remove but "+demographicList.size());
 	    
 		Report report = new Report();
+		report.setSearchConfig(searchConfig);
 		List<ReportItem> items = new ArrayList<ReportItem>();
 		//Circle through the denominator to see if they match the criteria
 		for(Integer demographicNo:demographicList) {

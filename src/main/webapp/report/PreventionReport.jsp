@@ -50,6 +50,7 @@ if(!authed) {
 	<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 	<script type="text/javascript" src="<%=request.getContextPath() %>/library/angular.min.js"></script>	
 	<script src="<%=request.getContextPath() %>/web/common/preventionReportServices.js"></script>	
+	<script src="<%=request.getContextPath() %>/js/jquery.js"></script>
 </head>
 
 <body vlink="#0000FF" class="BodyStyle" >
@@ -457,9 +458,20 @@ if(!authed) {
   			</tr>
   			
 		</table>
+		<div class="row">
+			 <div class="col-sm-3">
+				This is where the links go!
+				<a ng-if="letter1.length > 0" ng-click='openLetterScreen("L1",letter1)'>Send Letter One</a>
+				<a ng-if="letter2.length > 0" ng-click='openLetterScreen("L1",letter2)'>Send Letter Two</a>
+				</div>
+		<%--  a ng-if="phone1.length > 0" ng-click='openLetterScreen("L1",phone1)'>Send Letter One</a> --%>
+		
+		</div>
 		</div>
 	</div>
 	</div>
+	<br>
+	<br>
 	<script>
 		var app = angular.module("preventionReport", ['preventionReportServices']);
 		
@@ -476,6 +488,10 @@ if(!authed) {
 			$scope.reportData = {};
 			
 			$scope.newPrevReport = {};
+			
+			$scope.letter1 = [];
+			$scope.letter2 = [];
+			$scope.phone1 = [];
 			
 			$scope.editReport = function(selectedReport){
 				console.log("selectedReport",selectedReport);
@@ -582,6 +598,7 @@ if(!authed) {
 				preventionReportService.getList().then(function(data){
 					console.log("data coming back",data);
 					$scope.reports = data;
+					
 				});
 			
 			}
@@ -603,6 +620,23 @@ if(!authed) {
 				preventionReportService.runReport(selectedReport,selectedProvider).then(function(data){
 					console.log("data coming back",data);
 					$scope.reportData = data;
+					
+					for (line in $scope.reportData.items) {
+						console.log("lin --- e",line,$scope.reportData.items[line].nextSuggestedProcedure)
+						if($scope.reportData.items[line].nextSuggestedProcedure === "L1"){
+							$scope.letter1.push($scope.reportData.items[line].demographicNo);
+						}else if($scope.reportData.items[line].nextSuggestedProcedure === "L2"){
+							$scope.letter2.push($scope.reportData.items[line].demographicNo);
+						}else if($scope.reportData.items[line].nextSuggestedProcedure === "P1"){
+							$scope.phone1.push($scope.reportData.items[line].demographicNo);
+						}
+						
+					}
+					
+					console.log("$scope.letter1 "+$scope.letter1.length+" $scope.letter2 "+$scope.letter2);
+					
+				
+					
 				});
 			}
 			
@@ -636,6 +670,15 @@ if(!authed) {
 					return	"Require "+newPrevReport.howManyPreventions+" "+ newPrevReport.name + " preventions by age "+newPrevReport.byAge+" months";
 				}
 				return "N/A";
+			}
+			
+			$scope.openLetterScreen = function(followupType,demoarr){
+				//<a target="_blank" href="../report
+				 console.log("$scope.reportData.",$scope.reportData);
+				var urlToOpen = "GenerateLetters.jsp?"+ $.param({demo: demoarr,message: "Reminder Letter",followUpType: $scope.reportData.searchConfig.measurementTrackingType,followupValue:followupType});
+				window.open(urlToOpen);
+				
+				<%-- <%=queryStr%>&amp;message=Letter 1 Reminder Letter sent for :"+request.getAttribute("prevType"),"UTF-8")%>&amp;followupType=<%=followUpType%>&amp;followupValue=L1">Generate First Letter</a>*/ --%>
 			}
 		
 		});
