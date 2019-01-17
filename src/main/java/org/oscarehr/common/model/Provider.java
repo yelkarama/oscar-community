@@ -168,7 +168,7 @@ public class Provider implements Serializable, Comparable<Provider>{
 	
 	public String getBillingGroupNo() {
 		String groupNo = SxmlMisc.getXmlContent(comments, "<xml_p_billinggroup_no>", "</xml_p_billinggroup_no>");
-		groupNo = StringUtils.isBlank(groupNo) ? null : groupNo;
+		groupNo = StringUtils.isBlank(groupNo) || groupNo.equals("0000") ? null : groupNo;
 		return groupNo;
 	}
 	public String getSpecialtyCode() {
