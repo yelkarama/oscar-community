@@ -376,7 +376,9 @@ if(!authed) {
 		    <label for="report">Report</label>
 		    <select class="form-control" ng-model="selectedReport">
 			  <option ng-repeat="report in reports" value="{{report.id}}">{{report.label}}</option>
-			</select> <a class="pull-right" ng-click="editReport(selectedReport)" ng-if="selectedReport != undefined">-edit-</a>
+			</select> 			
+			<a class="pull-right" ng-click="editReport(selectedReport)" ng-if="selectedReport != undefined">-edit-</a>
+			<a class="pull-right" ng-click="dectivateReport(selectedReport)" ng-if="selectedReport != undefined">-dectivate-</a>
 		  </div>
 		  </div>
 		  <div class="col-sm-3">
@@ -459,8 +461,10 @@ if(!authed) {
   				<td>{{line.bonusStatus}}</td>
   				<td>{{line.numMonths}}</td>
   				<td>{{line.lastDate | date }}</td>
-  				<td>{{line.lastFollupProcedure}} - {{line.lastFollowup | date}}</td>
-  				<td>{{line.nextSuggestedProcedure}}</td>
+  				<td ng-if="reportData.active">{{line.lastFollupProcedure}} - {{line.lastFollowup | date}}</td>
+  				<td bgcolor="grey" ng-if="!reportData.active">-----</td>
+  				<td ng-if="reportData.active">{{line.nextSuggestedProcedure}}</td>
+  				<td bgcolor="grey" ng-if="!reportData.active">-----</td>
   				<%-- td>DOB7</td --%>
   				<td>{{line.rosteringDoc}}</td>
   				<td>Bill</td>
@@ -470,8 +474,8 @@ if(!authed) {
 		<div class="row" >
 			 <div class="col-sm-3">
 				Recall letters: 
-				<a ng-if="letter1.length > 0" ng-click='openLetterScreen("L1",letter1)'>Send Letter One</a>
-				<a ng-if="letter2.length > 0" ng-click='openLetterScreen("L1",letter2)'>Send Letter Two</a>
+				<a ng-if="letter1.length > 0 && reportData.active" ng-click='openLetterScreen("L1",letter1)'>Send Letter One</a>
+				<a ng-if="letter2.length > 0 && reportData.active" ng-click='openLetterScreen("L1",letter2)'>Send Letter Two</a>
 				</div>
 		<%--  a ng-if="phone1.length > 0" ng-click='openLetterScreen("L1",phone1)'>Send Letter One</a> --%>
 		
@@ -501,6 +505,16 @@ if(!authed) {
 			$scope.letter1 = [];
 			$scope.letter2 = [];
 			$scope.phone1 = [];
+			
+			$scope.dectivateReport = function(selectedReport){
+				console.log("selectedReport",selectedReport);
+				
+				preventionReportService.dectivateReport(selectedReport).then(function(data){
+					getList();
+				});
+				
+			}
+				
 			
 			$scope.editReport = function(selectedReport){
 				console.log("selectedReport",selectedReport);

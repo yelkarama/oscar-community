@@ -94,7 +94,19 @@ angular.module("preventionReportServices", [])
            });
     
          return deferred.promise;
-        }
-	
+        },
+        dectivateReport: function(id){
+           	var deferred = $q.defer();
+           	 $http.post(this.apiPath+'/reporting/preventionReport/dectivateReport/'+id,this.configHeaders).then(function(response){
+               	console.log("returned from /dectivateReport",response.data);
+               	deferred.resolve(response.data);
+               },function(){
+               	console.log("error initializing k2a");
+               	deferred.reject("An error occured while trying to initialize k2a");
+               });
+        
+             return deferred.promise;
+            }
+        
     };
 });
