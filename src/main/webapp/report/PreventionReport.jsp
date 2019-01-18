@@ -57,9 +57,9 @@ if(!authed) {
 <body vlink="#0000FF" class="BodyStyle" >
 	<div ng-controller="preventionReport">
 		<div class="page-header">
-			<h4><bean:message key="oscarprevention.index.oscarpreventiontitre" /> <small>Manage reports</small></h4>
+			<h4><bean:message key="oscarprevention.index.oscarpreventiontitre" /> <small><a ng-click="manageReportShowHide()">Manage reports</a></small></h4>
 		</div>
-		<div class="container-fluid" style="margin-left:15px;margin-right:15px;">
+		<div class="container-fluid" style="margin-left:15px;margin-right:15px;" ng-if="showManageReport">
 		<!-- manage report start -->
 		<div class="row">
 				<h3>Manage Report</h3>
@@ -365,11 +365,12 @@ if(!authed) {
 					<li ng-repeat="preve in newReport.preventions">{{preventionSummary(preve)}} <a ng-click="deleteElement(newReport.preventions,$index)">-del-</a></li>
 				</ul>
 			<button ng-click="saveReport(newReport)" class="btn btn-default">Save Report</button>
+			<hr>
 		</div>
 		<!-- manage report end -->
 		<fieldset>
 		<form>
-		<hr>
+		
 		<div class="container-fluid" style="margin-left:15px;margin-right:15px;">
 		<div class="row" >
 		  <div class="col-sm-3">
@@ -378,8 +379,8 @@ if(!authed) {
 		    <select class="form-control" ng-model="selectedReport">
 			  <option ng-repeat="report in reports" value="{{report.id}}">{{report.label}}</option>
 			</select> 			
-			<a class="pull-right" ng-click="editReport(selectedReport)" ng-if="selectedReport != undefined">-edit-</a>
-			<a class="pull-right" ng-click="dectivateReport(selectedReport)" ng-if="selectedReport != undefined">-dectivate-</a>
+			<a class="pull-right" ng-click="editReport(selectedReport)" ng-if="selectedReport != undefined">-edit-</a>&nbsp;
+			<a class="pull-right" ng-click="dectivateReport(selectedReport)" ng-if="selectedReport != undefined">-deactivate-</a>
 		  </div>
 		  </div>
 		  <div class="col-sm-3">
@@ -393,9 +394,13 @@ if(!authed) {
 		  </div>
 		  
 		  <div class="row" >
-		  	<div class="col-sm-3">
+		  	<div class="col-sm-1">
 		  		<button type="submit" class="btn btn-default" ng-click="runReport(selectedReport,selectedProvider);">Submit</button>
 		  	</div>
+		  	<div class="col-sm-7 well" ng-if="selectedReport"> 
+		  		<pre>{{summarySearchConfig(reportData)}}</pre> 
+		  	</div>
+		  	 
 		  </div>
 		  </div>
 		</form>
@@ -472,6 +477,9 @@ if(!authed) {
   				<%-- td>DOB7</td --%>
   				<td>{{line.rosteringDoc}}</td>
   				<td>
+  				
+  				<a ng-if="reportData.searchConfig.trackingCodes.length > 0" ng-click="openBill(line.demographicNo,reportData.searchConfig.trackingCodes[0])">Track</a>
+  				<a ng-if="reportData.searchConfig.exclusionCodes.length > 0" ng-click="openBill(line.demographicNo,reportData.searchConfig.exclusionCodes[0])">Exclude</a>
   				<%--
   					<div class="btn-group">
 					  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -533,6 +541,16 @@ if(!authed) {
 				});
 				
 			}
+			
+			$scope.showManageReport = false;
+			
+			$scope.manageReportShowHide = function(){
+				if($scope.showManageReport){
+					$scope.showManageReport = false;
+				}else{
+					$scope.showManageReport = true;
+				}
+			}
 				
 			
 			$scope.editReport = function(selectedReport){
@@ -561,6 +579,7 @@ if(!authed) {
 					$scope.newReport.billingCodeEnd = d4;
 					 
 					console.log("after get report ",$scope.newReport);
+					$scope.showManageReport = true;
 					//$scope.$apply();
 				});
 			}
@@ -722,7 +741,96 @@ if(!authed) {
 				
 				<%-- <%=queryStr%>&amp;message=Letter 1 Reminder Letter sent for :"+request.getAttribute("prevType"),"UTF-8")%>&amp;followupType=<%=followUpType%>&amp;followupValue=L1">Generate First Letter</a>*/ --%>
 			}
-		
+			
+			$scope.openBill = function(demographicNo,billingCode){
+			
+			    var d = new Date();
+			       month = '' + (d.getMonth() + 1);
+			       day = '' + d.getDate();
+			       year = d.getFullYear();
+
+			    if (month.length < 2) month = '0' + month;
+			    if (day.length < 2) day = '0' + day;
+
+			    var today =  [year, month, day].join('-');
+			
+				var urlToOpen = "../billing/CA/ON/billingOB.jsp?billRegion=ON&billForm=GP&hotclick=&appointment_no=0&demographic_name=&demographic_no="+demographicNo+"&providerview=&user_no=&apptProvider_no=none&appointment_date="+today+"&start_time=00:00:00&bNewForm=1&status=t&serviceUnit0=1&serviceCode0="+billingCode;
+				console.log("urlToOpen",urlToOpen);
+				
+				window.open(urlToOpen);
+			}		
+			
+			$scope.summarySearchConfig = function(report){
+				if(!angular.isDefined(report.searchConfig)){
+					console.log("report.searchConfig not defined");
+					return "";
+				}
+				console.log("");
+				var reportStr = "Report Name: "+report.searchConfig.reportName+"\n"
+				
+				//{"id":null,"reportName":"Pap 5",
+				reportStr = reportStr+"Age: ";
+					if(report.searchConfig.ageStyle === 1){
+						reportStr = reportStr+"Younger than : "+report.searchConfig.age1;
+					}else if(report.searchConfig.ageStyle === 2){
+						reportStr = reportStr+"Older than : "+report.searchConfig.age1;
+					}else if(report.searchConfig.ageStyle === 3){
+						reportStr = reportStr+"Equal too : "+report.searchConfig.age1;
+					}else if(report.searchConfig.ageStyle === 4){
+						reportStr = reportStr+"Ages Between: "+report.searchConfig.age1+" and "+report.searchConfig.age2;
+					}
+				
+				if(report.searchConfig.ageCalc == 0){
+					reportStr = reportStr+" As of today "
+				}else{
+					reportStr = reportStr+" As of: "+$filter('date')(report.searchConfig.ageAsOf);
+				}
+				
+				
+				
+				//	"ageStyle":2,"age1":"2","age2":null,"ageCalc":1,"ageAsOf":1554004800000,
+				reportStr = reportStr+"\nRoster Status: "+report.searchConfig.rosterStat+" as of "+$filter('date')(report.searchConfig.rosterAsOf)+"\n";	
+				//	"rosterStat":"RO","rosterAsOf":1554004800000,
+				reportStr = reportStr+"Measurement Tracking:"+report.searchConfig.measurementTrackingType;
+				//	"measurementTrackingType":"PAPF","letter1":true,"letter2":true,"phone1":true,"sex":1,
+				reportStr = reportStr+"\nPreventions:\n";
+//				"preventions":[{"name":"PAP","dateCalcType":1,"asOfDate":1554004800000,"cutoffTimefromAsOfDate":42,"cuttoffTimeType":"M","byAge":0,"byAgeTimeType":"M","howManyPreventions":1}],				
+				for(prev in report.searchConfig.preventions){
+					console.log("prev",prev);
+					reportStr = reportStr + $scope.preventionSummary(report.searchConfig.preventions[prev]) + "\n";
+				}
+				
+//				"exclusionCodes":["Q140A"],"trackingCodes":["Q011A"],"billingCodeStart":157766400000,"billingCodeEnd":1640995200000} 
+				reportStr = reportStr+"Exclusion Codes:";
+				exFirst = false;
+				for(prev in report.searchConfig.exclusionCodes){
+					console.log("prev",prev);
+					if(exFirst){
+						reportStr = reportStr + ",";
+					}
+					exFirst = true;
+					reportStr = reportStr + report.searchConfig.exclusionCodes[prev] + "\n";
+					
+				}
+				
+				reportStr = reportStr+"Tracking Codes:";
+				exFirst = false;
+				for(prev in report.searchConfig.trackingCodes){
+					console.log("prev",prev);
+					if(exFirst){
+						reportStr = reportStr + ",";
+					}
+					exFirst = true;
+					reportStr = reportStr + report.searchConfig.trackingCodes[prev] + "\n";
+					
+				}
+				
+				reportStr=reportStr + "Billing Code Range: "+$filter('date')(report.searchConfig.billingCodeStart)+" to "+$filter('date')(report.searchConfig.billingCodeEnd)+"\n";
+				
+				
+				
+				return reportStr;
+			}
 		});
 	
 	</script>
