@@ -69,6 +69,9 @@ public class ReportBuilder {
 		//Does it need anything else?
 		//First get Denominator of patients that the report wants to look at.
 		PreventionSearchTo1 searchConfig = preventionSearchTo1;
+		if(searchConfig.getAgeAsOf() == null) {
+			searchConfig.setAgeAsOf(new Date());
+		}
 		List<Integer> demographicList = getDemographicDenominator( loggedInInfo,searchConfig, providerNo);
 		
 		logger.error("remove but "+demographicList.size());

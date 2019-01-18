@@ -414,7 +414,7 @@ if(!authed) {
   			<tr>
   				<th>Demographic</th>
   				<th>DOB</th>
-  				<th>Age as of {{reportData.ageAsOf | date}}</th>
+  				<th>Age as of {{reportData.searchConfig.ageAsOf | date}}</th>
   				<th>Sex</th>
   				<th>Lastname</th>
   				<th>Firstname</th>
