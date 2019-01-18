@@ -49,6 +49,8 @@ public class ReportEvaluator {
     int numeratorCount = 0;
     Denominator denominator = null;
     Numerator numerator = null;
+    Numerator numerator2 = null;
+    
     private ArrayList<Hashtable<String,Object>> reportResultList = null;
 
 
@@ -56,22 +58,35 @@ public class ReportEvaluator {
     }
 
     public void evaluate(LoggedInInfo loggedInInfo, Denominator deno, Numerator numer){
-        evaluate(loggedInInfo, deno,numer,null);
+        evaluate(loggedInInfo, deno,numer,null,null);
+    }
+    
+    public void evaluate(LoggedInInfo loggedInInfo, Denominator deno, Numerator numer, Numerator numer2){
+        evaluate(loggedInInfo, deno,numer,numer2,null);
+    }
+    
+    public void evaluate(LoggedInInfo loggedInInfo, Denominator deno, Numerator numer,List<KeyValue> additionalFields){
+    	evaluate(loggedInInfo,deno,numer,null,additionalFields);
     }
 
-    public void evaluate(LoggedInInfo loggedInInfo, Denominator deno, Numerator numer,List<KeyValue> additionalFields){
+    public void evaluate(LoggedInInfo loggedInInfo, Denominator deno, Numerator numer, Numerator numer2,List<KeyValue> additionalFields){
         denominator = deno;
         numerator = numer;
+        numerator2 = numer2;
         List demoList = deno.getDenominatorList();
         denominatorCount = demoList.size();
         setReportResultList(new ArrayList<Hashtable<String,Object>>());
         for (int i = 0; i < demoList.size(); i++){
             String demo = (String) demoList.get(i);
             boolean bool = numer.evaluate(loggedInInfo, demo);
+            boolean bool2 = true;
+            if(numer2 != null) {
+            	 bool2 = numer2.evaluate(loggedInInfo, demo);
+            }
             //Object obj = numer.getOutputValues();  // PROBLEM IS THAT THIS WILL ALWAYS HAVE A VALUE
             Hashtable<String,Object> h = new Hashtable<String,Object>();
             h.put("_demographic_no",demo);
-            h.put("_report_result",new Boolean(bool));
+            h.put("_report_result",new Boolean(bool && bool2));
 
             if (additionalFields != null){
                 for(KeyValue field:additionalFields){
@@ -95,7 +110,7 @@ public class ReportEvaluator {
 //            if (obj != null){
 //                getReportResultList().add(obj);
 //            }
-            if (bool){
+            if (bool && bool2){
                 numeratorCount++;
             }
 

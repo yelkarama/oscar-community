@@ -66,7 +66,8 @@ public class RunClinicalReportAction extends Action {
     	
         String numeratorId = request.getParameter("numerator");
         String denominatorId = request.getParameter("denominator");
-         
+        String numerator2Id = request.getParameter("numerator2");
+        
         MiscUtils.getLogger().debug("numerator "+numeratorId+" denominator "+denominatorId);    
         ClinicalReportManager reports = ClinicalReportManager.getInstance();
     
@@ -95,14 +96,10 @@ public class RunClinicalReportAction extends Action {
             d.setReplaceableValues(h);
         }
         
-        
-        
-        
-        
        
         Numerator   n = reports.getNumeratorById(numeratorId);
         MiscUtils.getLogger().debug("n"+n+" "+n.hasReplaceableValues());
-        if (n.hasReplaceableValues()){
+        if (n.hasReplaceableValues()) {
             String[] denomReplaceKeys = n.getReplaceableKeys();
             Hashtable h = new Hashtable();
             String keyValue;
@@ -129,6 +126,36 @@ public class RunClinicalReportAction extends Action {
         }
         
         
+        Numerator   n2 = reports.getNumeratorById(numerator2Id);
+        if(n2 != null) {
+	        MiscUtils.getLogger().debug("n2"+n2+" "+n2.hasReplaceableValues());
+	        if (n2.hasReplaceableValues()) {
+	            String[] denomReplaceKeys = n2.getReplaceableKeys();
+	            Hashtable h = new Hashtable();
+	            String keyValue;
+	            if ( denomReplaceKeys != null){
+	                for (int i = 0; i < denomReplaceKeys.length; i++){
+	                    MiscUtils.getLogger().debug("The sought after key would be "+request.getParameterValues("numerator2_"+denomReplaceKeys[i]) );
+	                    String[] keyValues = request.getParameterValues("numerator2_"+denomReplaceKeys[i]);
+	                    if (keyValues == null) {
+	                        keyValue = "";                        
+	                    }
+	                    if( keyValues.length == 1 ) {
+	                        h.put(denomReplaceKeys[i],keyValues[0]);   
+	                        request.setAttribute("numerator2_"+denomReplaceKeys[i],request.getParameter("numerator2_"+denomReplaceKeys[i]));
+	                    }
+	                    else {
+	                        for( int idx = 0; idx < keyValues.length; ++idx ) {
+	                            h.put(denomReplaceKeys[i] + String.valueOf(idx), keyValues[idx]);
+	                        }
+	                    }
+	                }
+	            }
+	            MiscUtils.getLogger().debug("setting replaceable values with a size of "+h.size());
+	            n2.setReplaceableValues(h);
+	        }
+        }
+        
         
         
         List<KeyValue> extraVal = null;
@@ -153,7 +180,7 @@ public class RunClinicalReportAction extends Action {
         
         
         ReportEvaluator re  = new ReportEvaluator();
-        re.evaluate(LoggedInInfo.getLoggedInInfoFromSession(request), d,n,extraVal);
+        re.evaluate(LoggedInInfo.getLoggedInInfoFromSession(request), d,n,n2,extraVal);
         
         int num = re.getNumeratorCount();
         int denom = re.getDenominatorCount();
@@ -173,6 +200,7 @@ public class RunClinicalReportAction extends Action {
         request.setAttribute("numerator",Integer.toString(num));
         request.setAttribute("denominator",Integer.toString(denom));
         request.setAttribute("numeratorId",numeratorId);
+        request.setAttribute("numerator2Id",numerator2Id);
         request.setAttribute("denominatorId",denominatorId);
         request.setAttribute("percentage",Integer.toString(new Float(percentage).intValue()));
         request.setAttribute("csv",re.getCSV());

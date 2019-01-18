@@ -51,6 +51,7 @@ if(!authed) {
             String provider = (String) session.getValue("user");
 
             String numeratorId = (String) request.getAttribute("numeratorId");
+            String numerator2Id = (String) request.getAttribute("numerator2Id");
             String denominatorId = (String) request.getAttribute("denominatorId");
 
             ClinicalReportManager reports = ClinicalReportManager.getInstance();
@@ -60,6 +61,7 @@ if(!authed) {
 
             Hashtable rep = new Hashtable();
             Hashtable repNum = new Hashtable();
+            Hashtable repNum2 = new Hashtable();
 
             if (request.getParameter("clear") != null && request.getParameter("clear").equals("yes")) {
                 session.removeAttribute("ClinicalReports");
@@ -221,6 +223,35 @@ if(!authed) {
             }
 
 
+            var numerator2_fields = new Array ();
+            var numer2_xtras;
+            numerator2_fields[numerator2_fields.length] = "numerator2_measurements";
+            numerator2_fields[1] = "numerator2_value";
+
+
+            function processExtraFieldsNumerator2(t){
+                var currentDenom = t.options[t.selectedIndex].value;
+                //console.log(currentDenom);
+                //Hide all extra denom fields
+                for (  i = 0 ; i < numerator2_fields.length; i++) {
+                    document.getElementById(numerator2_fields[i]).style.display = 'none';
+                }
+                try{
+                    var fields_to_turn_on = numer2_xtras[currentDenom];
+                    //console.log("fields to turn on " + fields_to_turn_on[0]);
+                    //get list of extra
+                    for (  i = 0 ; i < fields_to_turn_on.length; i++) {
+                        //console.log(i+" "+document.getElementById(fields_to_turn_on[i]).style.display);
+                        document.getElementById(fields_to_turn_on[i]).style.display = '';
+                        //console.log(i+" "+document.getElementById(fields_to_turn_on[i]).style.display);
+                    }
+                }catch(e){
+
+                }
+
+                //console.log("going out");
+            }
+
 
         </script>
 
@@ -304,6 +335,39 @@ if(!authed) {
                                     }
                                     %>
                                     <bean:message key="report.ClinicalReports.msgValue"/> : <input type="text" name="numerator_value" value="<%=numer_val%>"><br>
+
+                                </div>
+
+                                <br/>
+                            </fieldset>
+                            
+                            <fieldset>
+                                <legend><bean:message key="report.ClinicalReports.msgNumerator"/></legend>
+
+                                <select name="numerator2" id="numerator2" onchange="javascript:processExtraFieldsNumerator2(this)">
+                                	<option value="">Select Below</option>
+                                    <%for (Numerator n : numeratorList) {
+                                        if (n.hasReplaceableValues()) {
+                                            repNum2.put(n.getId(), n.getReplaceableKeys());
+                                        }
+
+                                        %>
+                                    <option value="<%=n.getId()%>"  <%=sel(numerator2Id, n.getId())%> ><%=n.getNumeratorName()%></option>
+                                    <%}%>
+                                </select>
+
+                                <select  id="numerator2_measurements" name="numerator2_measurements">
+                                    <% for (EctMeasurementTypesBean measurementTypes : vec) {%>
+                                    <option value="<%=measurementTypes.getType()%>"  <%=sel(measurementTypes.getType(), "" + request.getAttribute("numerator2_measurements"))%>   ><%=measurementTypes.getTypeDisplayName()%> (<%=measurementTypes.getType()%>) </option>
+                                    <% }%>
+                                </select>
+                                <div id="numerator2_value" >
+                                    <%Object numer2_val = "";
+                                    if (request.getAttribute("numerator2_value") != null){
+                                        numer2_val =  request.getAttribute("numerator2_value") ;
+                                    }
+                                    %>
+                                    <bean:message key="report.ClinicalReports.msgValue"/> : <input type="text" name="numerator2_value" value="<%=numer2_val%>"><br>
 
                                 </div>
 
@@ -487,6 +551,7 @@ if(!authed) {
         //Calendar.setup( { inputField : "asOfDate", ifFormat : "%Y-%m-%d", showsTime :false, button : "date", singleClick : true, step : 1 } );
         denom_xtras = new Array();
         numer_xtras = new Array();
+        numer2_xtras = new Array();
 <% Enumeration e = rep.keys();
    while (e.hasMoreElements()) {
     String key = (String) e.nextElement();
@@ -509,9 +574,21 @@ if(!authed) {
     numer_xtras['<%=key%>']= repNumVal<%=key%>;
 <% }%>
 
+<% Enumeration e3 = repNum2.keys();
+while (e3.hasMoreElements()) {
+ String key = (String) e3.nextElement();
+ String[] repNumValues = (String[]) repNum2.get(key);%>
+ var repNumVal<%=key%> = new Array();
+ <%for (int i = 0; i < repNumValues.length; i++) {%>
+     repNumVal<%=key%>[<%=i%>] = "numerator2_<%=repNumValues[i]%>";
+ <%}%>
+ numer2_xtras['<%=key%>']= repNumVal<%=key%>;
+<% }%>
+
 
         processExtraFields(document.getElementById('denominator'));
         processExtraFieldsNumerator(document.getElementById('numerator'));
+        processExtraFieldsNumerator2(document.getElementById('numerator2'));
 
     </script>
     <script language="javascript" src="../commons/scripts/sort_table/css.js"></script>
