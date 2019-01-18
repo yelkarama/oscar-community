@@ -1856,8 +1856,10 @@ public class DemographicExportAction4 extends Action {
 							String ohipNo = StringUtils.noNull(edoc.getReviewerOhip());
 							if (ohipNo.length()<=6) reportReviewed.setReviewingOHIPPhysicianId(ohipNo);
 						}
-						Util.writeNameSimple(rpr.addNewSourceAuthorPhysician().addNewAuthorName(), edoc.getSource());
-
+						
+						if (StringUtils.filled(edoc.getSource())) {
+							Util.writeNameSimple(rpr.addNewSourceAuthorPhysician().addNewAuthorName(), edoc.getSource());
+						}
 						if (StringUtils.filled(edoc.getSourceFacility())) rpr.setSourceFacility(edoc.getSourceFacility());
 
 						if (edoc.getDocId()==null) continue;
@@ -1877,11 +1879,20 @@ public class DemographicExportAction4 extends Action {
 						if (StringUtils.empty(reportFile)) continue;
 
 						File hrmFile = new File(reportFile);
+						
+						//check the DOCUMENT_DIR
 						if (!hrmFile.exists()) {
-							exportError.add("Error! HRM report file '"+reportFile+"' not exists! HRM report not exported.");
-							continue;
+							String place= OscarProperties.getInstance().getProperty("DOCUMENT_DIR");
+							reportFile = place + File.separator + reportFile;
+							hrmFile = new File(reportFile);
 						}
 
+						if (!hrmFile.exists()) {
+							exportError.add("Error! HRM report file '"+reportFile+"' does not exist! HRM report not exported.");
+							logger.error("Error! HRM report file '"+reportFile+"' does not exist! HRM report not exported.");
+							continue;
+						}
+						
 						ReadHRMFile hrm = new ReadHRMFile(reportFile);
 						for (int i=0; i<hrm.getReportsReceivedTotal(); i++) {
 							Reports rpr = patientRec.addNewReports();
@@ -2700,7 +2711,7 @@ public class DemographicExportAction4 extends Action {
 			}
 		}
 
-		if (hrmEnumF.equals("Medical Records Report")) hrmEnumF = "Medical Record Report"; //HRM & CDS class names not match
+		//if (hrmEnumF.equals("Medical Records Report")) hrmEnumF = "Medical Record Report"; //HRM & CDS class names not match
 		return hrmEnumF;
 	}
 	
