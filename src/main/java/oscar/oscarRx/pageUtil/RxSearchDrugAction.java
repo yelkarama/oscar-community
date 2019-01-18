@@ -27,6 +27,7 @@ package oscar.oscarRx.pageUtil;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +54,7 @@ import org.oscarehr.util.SpringUtils;
 
 import oscar.OscarProperties;
 import oscar.oscarRx.data.RxDrugData;
+import oscar.oscarRx.data.RxSearchResultComparator;
 import oscar.oscarRx.util.RxDrugRef;
 
 public final class RxSearchDrugAction extends DispatchAction {
@@ -285,10 +287,11 @@ public final class RxSearchDrugAction extends DispatchAction {
     	return Boolean.FALSE;
     }
     
-    private static void jsonify(final Vector<Hashtable<String,Object>> data, 
-    		final HttpServletResponse response) throws IOException {
+    private static void jsonify(final Vector<Hashtable<String,Object>> data, final HttpServletResponse response) throws IOException {
     	 
 		Hashtable<String, Vector<Hashtable<String,Object>>> d = new Hashtable<String, Vector<Hashtable<String,Object>>>();
+        RxSearchResultComparator comparator = new RxSearchResultComparator();
+        Collections.sort(data, comparator);
 		d.put("results", data);
 		response.setContentType("text/x-json");
 		
