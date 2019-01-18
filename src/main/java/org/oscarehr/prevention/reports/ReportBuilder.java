@@ -41,6 +41,7 @@ import org.oscarehr.common.dao.OscarAppointmentDao;
 import org.oscarehr.common.dao.forms.FormsDao;
 import org.oscarehr.common.model.Appointment;
 import org.oscarehr.common.model.Demographic;
+import org.oscarehr.common.model.DemographicContact;
 import org.oscarehr.common.model.Prevention;
 import org.oscarehr.managers.DemographicManager;
 import org.oscarehr.util.LoggedInInfo;
@@ -105,6 +106,22 @@ public class ReportBuilder {
 		if(appt != null) {
 			item.setNextAppt(appt.getAppointmentDate());
 		}
+		
+		
+		List<DemographicContact> substituteDecisionMakers = demographicManager.findSDMByDemographicNo(loggedInInfo, item.getDemographicNo());
+		if(substituteDecisionMakers.size() > 0) {
+			DemographicContact dc = substituteDecisionMakers.get(0);
+			Demographic demoSDM = demographicManager.getDemographic(loggedInInfo, dc.getContactId());
+			if(demoSDM != null) {
+				item.setSubstituteDecisionMakerReq(true);
+	        		item.setSdName(demoSDM.getLastName()+", "+demoSDM.getFirstName());
+	        		item.setSdPhone(demoSDM.getPhone());
+	        		item.setSdEmail(demoSDM.getEmail());
+	        		item.setSdAddress(demoSDM.getAddress()+" "+demoSDM.getCity()+" "+demoSDM.getProvince()+" "+demoSDM.getPostal());
+			}
+        }
+		
+		
 			
 		//Age? or calc it?
 		

@@ -422,6 +422,7 @@ if(!authed) {
   				<th>Phone</th>
   				<th>Email</th>
   				<th>Address</th>
+  				<th>Guardian</th>
   				<th>Next Appt.</th>
   				<th>Status</th>
   				<th>Bonus Stat</th>
@@ -429,7 +430,7 @@ if(!authed) {
   				<th>Last Procedure Date</th>
   				<th>Last Contact Method</th>
   				<th>Next Contact Method</th>
-  				<th>Select Contact</th>
+  				<%-- th>Select Contact</th --%>
   				<th>Roster Physician</th>
   				<th>Bill</th>
   				
@@ -445,6 +446,14 @@ if(!authed) {
   				<td>{{line.phone}}</td>
   				<td>{{line.email}}</td>
   				<td>{{line.address}}</td>
+  				<td>
+  					<span ng-if="line.substituteDecisionMakerReq">
+  					Name:{{line.sdName}}<br>
+  					Phone: {{line.sdPhone}}<br>
+  					Address: {{line.sdAddress}}<br>
+					Email:{{line.sdEmail}}<br>
+					</span>
+  				</td>
   				<td>{{line.nextAppt}}</td>
   				<td title="{{line.rank}}">{{line.state}}</td>
   				<td>{{line.bonusStatus}}</td>
@@ -452,15 +461,15 @@ if(!authed) {
   				<td>{{line.lastDate | date }}</td>
   				<td>{{line.lastFollowup | date}} - {{link.lastFollupProcedure}}</td>
   				<td>{{line.nextSuggestedProcedure}}</td>
-  				<td>DOB7</td>
+  				<%-- td>DOB7</td --%>
   				<td>{{line.rosteringDoc}}</td>
   				<td>Bill</td>
   			</tr>
   			
 		</table>
-		<div class="row">
+		<div class="row" >
 			 <div class="col-sm-3">
-				This is where the links go!
+				Recall letters: 
 				<a ng-if="letter1.length > 0" ng-click='openLetterScreen("L1",letter1)'>Send Letter One</a>
 				<a ng-if="letter2.length > 0" ng-click='openLetterScreen("L1",letter2)'>Send Letter Two</a>
 				</div>

@@ -58,6 +58,12 @@ public class ReportItem implements Comparable<ReportItem> {
 	private String lastFollupProcedure =null;
 	private String nextSuggestedProcedure=null;
 	
+	private boolean substituteDecisionMakerReq = false;
+	private String sdName = null;
+	private String sdPhone = null;
+	private String sdAddress = null;
+	private String sdEmail = null;
+	
 	
 	public Integer getDemographicNo() {
 		return demographicNo;
@@ -199,6 +205,36 @@ public class ReportItem implements Comparable<ReportItem> {
 	}
 	public void setNextSuggestedProcedure(String nextSuggestedProcedure) {
 		this.nextSuggestedProcedure = nextSuggestedProcedure;
+	}
+	public boolean isSubstituteDecisionMakerReq() {
+		return substituteDecisionMakerReq;
+	}
+	public void setSubstituteDecisionMakerReq(boolean substituteDecisionMakerReq) {
+		this.substituteDecisionMakerReq = substituteDecisionMakerReq;
+	}
+	public String getSdName() {
+		return sdName;
+	}
+	public void setSdName(String sdName) {
+		this.sdName = sdName;
+	}
+	public String getSdPhone() {
+		return sdPhone;
+	}
+	public void setSdPhone(String sdPhone) {
+		this.sdPhone = sdPhone;
+	}
+	public String getSdAddress() {
+		return sdAddress;
+	}
+	public void setSdAddress(String sdAddress) {
+		this.sdAddress = sdAddress;
+	}
+	public String getSdEmail() {
+		return sdEmail;
+	}
+	public void setSdEmail(String sdEmail) {
+		this.sdEmail = sdEmail;
 	}
 	
 	
