@@ -459,7 +459,7 @@ if(!authed) {
   				<td>{{line.bonusStatus}}</td>
   				<td>{{line.numMonths}}</td>
   				<td>{{line.lastDate | date }}</td>
-  				<td>{{line.lastFollowup | date}} - {{link.lastFollupProcedure}}</td>
+  				<td>{{line.lastFollupProcedure}} - {{line.lastFollowup | date}}</td>
   				<td>{{line.nextSuggestedProcedure}}</td>
   				<%-- td>DOB7</td --%>
   				<td>{{line.rosteringDoc}}</td>
