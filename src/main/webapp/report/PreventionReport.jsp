@@ -51,6 +51,7 @@ if(!authed) {
 	<script type="text/javascript" src="<%=request.getContextPath() %>/library/angular.min.js"></script>	
 	<script src="<%=request.getContextPath() %>/web/common/preventionReportServices.js"></script>	
 	<script src="<%=request.getContextPath() %>/js/jquery.js"></script>
+	<script type="text/javascript" src="<%=request.getContextPath() %>/library/bootstrap/3.0.0/js/bootstrap.min.js"></script>	
 </head>
 
 <body vlink="#0000FF" class="BodyStyle" >
@@ -434,7 +435,7 @@ if(!authed) {
   				<th>Next Contact Method</th>
   				<%-- th>Select Contact</th --%>
   				<th>Roster Physician</th>
-  				<th>Bill</th>
+  				<th>&nbsp;</th>
   				
   			</tr>
   			<tr ng-repeat="line in reportData.items" class="{{getRowColor(line)}}" >
@@ -463,11 +464,29 @@ if(!authed) {
   				<td>{{line.lastDate | date }}</td>
   				<td ng-if="reportData.active">{{line.lastFollupProcedure}} - {{line.lastFollowup | date}}</td>
   				<td bgcolor="grey" ng-if="!reportData.active">-----</td>
-  				<td ng-if="reportData.active">{{line.nextSuggestedProcedure}}</td>
+  				<td ng-if="reportData.active">
+  					<a ng-if="line.nextSuggestedProcedure != '----'" ng-click="openLetterScreen(line.nextSuggestedProcedure,line.demographicNo)">{{line.nextSuggestedProcedure}}</a>
+  					<span ng-if="line.nextSuggestedProcedure === '----'">{{line.nextSuggestedProcedure}}</span>
+  				</td>
   				<td bgcolor="grey" ng-if="!reportData.active">-----</td>
   				<%-- td>DOB7</td --%>
   				<td>{{line.rosteringDoc}}</td>
-  				<td>Bill</td>
+  				<td>
+  				<%--
+  					<div class="btn-group">
+					  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					    Options <span class="caret"></span>
+					  </button>
+					  <ul class="dropdown-menu">
+					    <li><a href="#">Action</a></li>
+					    <li><a href="#">Another action</a></li>
+					    <li><a href="#">Something else here</a></li>
+					    <li role="separator" class="divider"></li>
+					    <li><a href="#">Separated link</a></li>
+					  </ul>
+					</div>
+					--%>
+  				</td>
   			</tr>
   			
 		</table>
