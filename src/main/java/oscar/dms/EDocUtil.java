@@ -304,6 +304,9 @@ public final class EDocUtil {
 			if (doReview) {
 				doc.setReviewer(newDocument.getReviewerId());
 				doc.setReviewdatetime(ConversionUtils.fromDateString(newDocument.getReviewDateTime(), "yyyy/MM/dd HH:mm:ss"));
+				if(doc.getReviewdatetime() == null) {
+					doc.setReviewdatetime(ConversionUtils.fromDateString(newDocument.getReviewDateTime(), "yyyy-MM-dd HH:mm:ss"));
+				}
 			} else {
 				doc.setReviewer(null);
 				doc.setReviewdatetime(null);

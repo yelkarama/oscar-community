@@ -92,6 +92,7 @@ import org.oscarehr.common.dao.DemographicContactDao;
 import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.DemographicExtDao;
 import org.oscarehr.common.dao.DemographicPharmacyDao;
+import org.oscarehr.common.dao.DocumentExtraReviewerDao;
 import org.oscarehr.common.dao.DrugDao;
 import org.oscarehr.common.dao.DrugReasonDao;
 import org.oscarehr.common.dao.MeasurementsExtDao;
@@ -109,6 +110,7 @@ import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.DemographicArchive;
 import org.oscarehr.common.model.DemographicContact;
 import org.oscarehr.common.model.DemographicPharmacy;
+import org.oscarehr.common.model.DocumentExtraReviewer;
 import org.oscarehr.common.model.Drug;
 import org.oscarehr.common.model.DrugReason;
 import org.oscarehr.common.model.Facility;
@@ -171,6 +173,7 @@ import cds.PersonalHistoryDocument.PersonalHistory;
 import cds.ProblemListDocument.ProblemList;
 import cds.ReportsDocument.Reports;
 import cds.ReportsDocument.Reports.OBRContent;
+import cds.ReportsDocument.Reports.ReportReviewed;
 import cds.ReportsDocument.Reports.SourceAuthorPhysician;
 import cds.RiskFactorsDocument.RiskFactors;
 import cdsDt.AddressType;
@@ -2377,7 +2380,25 @@ import oscar.util.UtilDateUtilities;
                                 CaseManagementNote rpNote1 = prepareCMNote("2",null);
                 	            rpNote1.setNote(notes);
                 	            saveLinkNote(rpNote1, CaseManagementNoteLink.DOCUMENT, Long.valueOf(docNum));
-                	            
+                	 
+                	            if(repR[i].getReportReviewedArray() != null && repR[i].getReportReviewedArray().length>1) {
+                	            	DocumentExtraReviewerDao derDao = SpringUtils.getBean(DocumentExtraReviewerDao.class); 
+                	            	for(int x=1;x<repR[i].getReportReviewedArray().length;x++) {
+                	            		ReportReviewed rr = repR[i].getReportReviewedArray()[x];
+                	            		
+                	            		DocumentExtraReviewer der = new DocumentExtraReviewer();
+                	            		der.setDocumentNo(docNum);
+                	            		
+                                        String extraReviewer = writeProviderData(rr.getName().getFirstName(), rr.getName().getLastName(), rr.getReviewingOHIPPhysicianId());
+                                        //String extraReviewDateTime = dateFPtoString(rr.getDateTimeReportReviewed(), timeShiftInDays);
+
+                                        
+                	            		der.setReviewDateTime(rr.getDateTimeReportReviewed().getFullDate().getTime());
+                	            		der.setReviewerProviderNo(extraReviewer);
+                	            		
+                	            		derDao.persist(der);
+                	            	}
+                	            }
                                 //to dumpsite: Extra report data
                                 if (StringUtils.filled(reportExtra)) {
                     	            reportExtra = Util.addLine("imported.cms4.2011.06", reportExtra);

@@ -51,10 +51,12 @@ import org.oscarehr.PMmodule.model.ProgramProvider;
 import org.oscarehr.casemgmt.model.CaseManagementNote;
 import org.oscarehr.casemgmt.model.CaseManagementNoteLink;
 import org.oscarehr.casemgmt.service.CaseManagementManager;
+import org.oscarehr.common.dao.DocumentExtraReviewerDao;
 import org.oscarehr.common.dao.DocumentStorageDao;
 import org.oscarehr.common.dao.ProviderInboxRoutingDao;
 import org.oscarehr.common.dao.QueueDocumentLinkDao;
 import org.oscarehr.common.dao.SecRoleDao;
+import org.oscarehr.common.model.DocumentExtraReviewer;
 import org.oscarehr.common.model.DocumentStorage;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.SecRole;
@@ -471,6 +473,21 @@ public class AddEditDocumentAction extends DispatchAction {
 			if(fm.getReviewDoc()) {
 				newDoc.setReviewDateTime(UtilDateUtilities.DateToString(new Date(), EDocUtil.REVIEW_DATETIME_FORMAT));
 			}
+			
+			if(fm.isExtraReviewDoc()) {
+				DocumentExtraReviewer der = new DocumentExtraReviewer();
+				der.setDocumentNo(Integer.parseInt(newDoc.getDocId()));
+				der.setReviewDateTime(new Date());
+				der.setReviewerProviderNo(fm.getExtraReviewerId());
+				
+				DocumentExtraReviewerDao derDao = SpringUtils.getBean(DocumentExtraReviewerDao.class);
+				derDao.persist(der);
+				
+				//don't lose the initial review
+				fm.setReviewDoc(true);
+				newDoc.setReviewDateTime(fm.getReviewDateTime());
+			}
+			
 			EDocUtil.editDocumentSQL(newDoc, fm.getReviewDoc());
 
 			if (fm.getFunction() != null && fm.getFunction().equals("demographic")) {

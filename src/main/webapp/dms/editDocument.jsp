@@ -50,7 +50,13 @@ String userlastname = (String) session.getAttribute("userlastname");
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
 <%@ page
-	import="java.util.*, java.io.*, java.sql.*, oscar.*, oscar.util.*, java.net.*,oscar.MyDateFormat, oscar.dms.*, oscar.dms.data.*, oscar.oscarProvider.data.ProviderData, org.oscarehr.util.SpringUtils, org.oscarehr.common.dao.CtlDocClassDao"%><%
+	import="java.util.*, java.io.*, java.sql.*, oscar.*, oscar.util.*, java.net.*,oscar.MyDateFormat, oscar.dms.*, oscar.dms.data.*, oscar.oscarProvider.data.ProviderData, org.oscarehr.util.SpringUtils, org.oscarehr.common.dao.CtlDocClassDao"%>
+<%@ page import="org.oscarehr.common.model.DocumentExtraReviewer"%>
+<%@ page import="org.oscarehr.common.dao.DocumentExtraReviewerDao"%>
+<%
+	DocumentExtraReviewerDao documentExtraReviewerDao = SpringUtils.getBean(DocumentExtraReviewerDao.class);
+	List<DocumentExtraReviewer> extraReviewers = new ArrayList<DocumentExtraReviewer>();
+
 String editDocumentNo = "";
 if (request.getAttribute("editDocumentNo") != null) {
     editDocumentNo = (String) request.getAttribute("editDocumentNo");
@@ -101,6 +107,8 @@ if (request.getAttribute("completedForm") != null) {
     fileName = currentDoc.getFileName();
     formdata.setAbnormal((currentDoc.getAbnormal().equals("1"))?"checked":"");
     formdata.setReceivedDate(currentDoc.getReceivedDate());
+    
+    extraReviewers = documentExtraReviewerDao.findByDocumentNo(Integer.parseInt(editDocumentNo));
 }
 
 List<Map<String,String>> pdList = new ProviderData().getProviderList();
@@ -194,10 +202,18 @@ for (String reportClass : reportClasses) {
                 return ans;
             }
 	    function reviewed(ths) {
-		thisForm = ths.form;
-		thisForm.reviewerId.value = <%=user_no%>;
-		thisForm.reviewDoc.value = true;
-		thisForm.submit();
+	    	if(ths.form.reviewerId.value == 'null') {
+	    		thisForm = ths.form;
+				thisForm.reviewerId.value = <%=user_no%>;
+				thisForm.reviewDoc.value = true;
+				thisForm.submit();
+	    	} else {
+	    		alert('set extra');
+	    		thisForm = ths.form;
+				thisForm.extraReviewerId.value = <%=user_no%>;
+				thisForm.extraReviewDoc.value = true;
+				thisForm.submit();
+	    	}
 	    }
 
             var docSubClassList = [
@@ -225,6 +241,10 @@ for (String reportClass : reportClasses) {
 	<input type="hidden" name="reviewerId" value="<%=formdata.getReviewerId()%>" />
 	<input type="hidden" name="reviewDateTime" value="<%=formdata.getReviewDateTime()%>" />
 	<input type="hidden" name="reviewDoc" value="false" />
+	
+	<input type="hidden" name="extraReviewerId" value="" />
+	<input type="hidden" name="extraReviewDoc" value="false" />
+	
 	<table class="layouttable">
 		<tr>
 			<td>Type:</td>
@@ -365,10 +385,29 @@ for (String reportClass : reportClasses) {
                 </tr>
                 <tr>
 		    <td colspan=2>
-			<% if (formdata.getReviewerId()!=null && !formdata.getReviewerId().equals("")) { %>
+			<% 
+			boolean reviewedByMe = false;
+			if (formdata.getReviewerId()!=null && !formdata.getReviewerId().equals("")) { 
+				if(formdata.getReviewerId().equals(user_no)) {
+					reviewedByMe=true;
+				}
+			%>
 			Reviewed: &nbsp; <%=EDocUtil.getProviderName(formdata.getReviewerId())%>
 			&nbsp; [<%=formdata.getReviewDateTime()%>]
-			<% } else { %>
+			<% } %>
+			<% 
+			for(DocumentExtraReviewer der : extraReviewers) { 
+				if(der.getReviewerProviderNo().equals(user_no)) {
+					reviewedByMe=true;
+				}
+			%>
+				<br/>
+				Reviewed: &nbsp; <%=EDocUtil.getProviderName(der.getReviewerProviderNo())%>
+			&nbsp; [<%=der.getReviewDateTime()%>]
+			<% } %>
+			
+			<%if(!reviewedByMe) { %>
+			<br/>
 			<input type="button" value="Reviewed" title="Click to set Reviewed" onclick="reviewed(this);" />
 			<% } %>
 		    </td>
