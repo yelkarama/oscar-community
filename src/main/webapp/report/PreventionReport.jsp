@@ -444,7 +444,7 @@ if(!authed) {
   				
   			</tr>
   			<tr ng-repeat="line in reportData.items" class="{{getRowColor(line)}}" >
-  				<td>{{line.demographicNo}}</td>
+  				<td><a ng-click="openDemo(line.demographicNo)">{{line.demographicNo}}</a></td>
   				<td>{{line.dob | date }}</td>
   				<td>{{line.age}}</td>
   				<td>{{line.sex}}</td>
@@ -831,7 +831,13 @@ if(!authed) {
 				
 				return reportStr;
 			}
+			
+			$scope.openDemo = function(demo){
+				window.open("../demographic/demographiccontrol.jsp?demographic_no="+demo+"&displaymode=edit&dboperation=search_detail",'MasterDemographic'); 
+				<%--','MasterDemographic')"><%=dis.demographicNo%></a>) --%>
+			}
 		});
 	
 	</script>
 </html>
+

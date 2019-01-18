@@ -763,7 +763,7 @@ public class ReportBuilder {
 				if (demographic != null && frm.getRosterAsOf() != null && provider != null ) {
 					//Only checking the first doc.  Only one should be included for finding the cumulative bonus
 					try {
-						if (!PreventionReportUtil.wasRosteredToThisProvider(loggedInInfo, demographic, frm.getRosterAsOf(), provider)) {
+						if (!PreventionReportUtil.wasEnrolledToThisProvider(loggedInInfo, demographic, frm.getRosterAsOf(), provider)) {
 							logger.info("Demographic :" + demographic + " was not included in returned array because they were not rostered to " + provider + " on " + frm.getRosterAsOf());
 							continue;             //change this back to info
 						} else {

@@ -701,8 +701,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 		</td>
 		<td width="1"></td>
 		<td width="300"><a
-			href="PreventionReport.jsp" target="_blank"><bean:message
-			key="report.reportindex.btnPreventionReportTool" /></a></td>
+			href="PreventionReport.jsp" target="_blank"><bean:message key="report.reportindex.btnReport18n"/> 2019</a></td>
 		<td></td>
 		<td></td>
 		<td></td>
