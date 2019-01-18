@@ -50,6 +50,8 @@ if(!authed) {
 	<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 	<script type="text/javascript" src="<%=request.getContextPath() %>/library/angular.min.js"></script>	
 	<script src="<%=request.getContextPath() %>/web/common/preventionReportServices.js"></script>	
+	<script src="<%=request.getContextPath() %>/js/jquery.js"></script>
+	<script type="text/javascript" src="<%=request.getContextPath() %>/library/bootstrap/3.0.0/js/bootstrap.min.js"></script>	
 </head>
 
 <body vlink="#0000FF" class="BodyStyle" >
@@ -127,6 +129,36 @@ if(!authed) {
                         		<option value="2">Male</option>
 						</select>
 				  	</div>
+				</div>
+				<div class="col-sm-2">                     
+               		<div class="form-group">
+				    		<label for="provider">Prevention Follow</label>
+				    		<select class="form-control" ng-model="newReport.measurementTrackingType">
+					   		<option value="CIMF">CIMF - Child Imms</option>
+                        		<option value="FLUF">FLUF - Flu</option>
+                        		<option value="PAPF">PAPF - Pap</option>
+                        		<option value="MAMF">MAMF - Mam</option>
+                        		<option value="FOBF">FOBF - FOBT</option>
+						</select>
+				  	</div>
+				  	<div class="checkbox">
+					  <label>
+					    <input type="checkbox" value="L1" ng-model="newReport.letter1">
+					    Letter 1
+					  </label>
+					</div>
+					<div class="checkbox">
+					  <label>
+					    <input type="checkbox" value="L2" ng-model="newReport.letter2">
+					    Letter 2
+					  </label>
+					</div>
+					<div class="checkbox">
+					  <label>
+					    <input type="checkbox" value="P1" ng-model="newReport.phone1">
+					    Phone 1
+					  </label>
+					</div>
 				</div>
 
                 
@@ -345,7 +377,9 @@ if(!authed) {
 		    <label for="report">Report</label>
 		    <select class="form-control" ng-model="selectedReport">
 			  <option ng-repeat="report in reports" value="{{report.id}}">{{report.label}}</option>
-			</select> <a class="pull-right" ng-click="editReport(selectedReport)" ng-if="selectedReport != undefined">-edit-</a>
+			</select> 			
+			<a class="pull-right" ng-click="editReport(selectedReport)" ng-if="selectedReport != undefined">-edit-</a>
+			<a class="pull-right" ng-click="dectivateReport(selectedReport)" ng-if="selectedReport != undefined">-dectivate-</a>
 		  </div>
 		  </div>
 		  <div class="col-sm-3">
@@ -383,7 +417,7 @@ if(!authed) {
   			<tr>
   				<th>Demographic</th>
   				<th>DOB</th>
-  				<th>Age as of {{reportData.ageAsOf | date}}</th>
+  				<th>Age as of {{reportData.searchConfig.ageAsOf | date}}</th>
   				<th>Sex</th>
   				<th>Lastname</th>
   				<th>Firstname</th>
@@ -391,6 +425,7 @@ if(!authed) {
   				<th>Phone</th>
   				<th>Email</th>
   				<th>Address</th>
+  				<th>Guardian</th>
   				<th>Next Appt.</th>
   				<th>Status</th>
   				<th>Bonus Stat</th>
@@ -398,9 +433,9 @@ if(!authed) {
   				<th>Last Procedure Date</th>
   				<th>Last Contact Method</th>
   				<th>Next Contact Method</th>
-  				<th>Select Contact</th>
+  				<%-- th>Select Contact</th --%>
   				<th>Roster Physician</th>
-  				<th>Bill</th>
+  				<th>&nbsp;</th>
   				
   			</tr>
   			<tr ng-repeat="line in reportData.items" class="{{getRowColor(line)}}" >
@@ -414,22 +449,61 @@ if(!authed) {
   				<td>{{line.phone}}</td>
   				<td>{{line.email}}</td>
   				<td>{{line.address}}</td>
+  				<td>
+  					<span ng-if="line.substituteDecisionMakerReq">
+  					Name:{{line.sdName}}<br>
+  					Phone: {{line.sdPhone}}<br>
+  					Address: {{line.sdAddress}}<br>
+					Email:{{line.sdEmail}}<br>
+					</span>
+  				</td>
   				<td>{{line.nextAppt}}</td>
-  				<td>{{line.state}} {{line.rank}}</td>
+  				<td title="{{line.rank}}">{{line.state}}</td>
   				<td>{{line.bonusStatus}}</td>
   				<td>{{line.numMonths}}</td>
   				<td>{{line.lastDate | date }}</td>
-  				<td>{{line.lastFollowup}}</td>
-  				<td>DOB6</td>
-  				<td>DOB7</td>
+  				<td ng-if="reportData.active">{{line.lastFollupProcedure}} - {{line.lastFollowup | date}}</td>
+  				<td bgcolor="grey" ng-if="!reportData.active">-----</td>
+  				<td ng-if="reportData.active">
+  					<a ng-if="line.nextSuggestedProcedure != '----'" ng-click="openLetterScreen(line.nextSuggestedProcedure,line.demographicNo)">{{line.nextSuggestedProcedure}}</a>
+  					<span ng-if="line.nextSuggestedProcedure === '----'">{{line.nextSuggestedProcedure}}</span>
+  				</td>
+  				<td bgcolor="grey" ng-if="!reportData.active">-----</td>
+  				<%-- td>DOB7</td --%>
   				<td>{{line.rosteringDoc}}</td>
-  				<td>Bill</td>
+  				<td>
+  				<%--
+  					<div class="btn-group">
+					  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					    Options <span class="caret"></span>
+					  </button>
+					  <ul class="dropdown-menu">
+					    <li><a href="#">Action</a></li>
+					    <li><a href="#">Another action</a></li>
+					    <li><a href="#">Something else here</a></li>
+					    <li role="separator" class="divider"></li>
+					    <li><a href="#">Separated link</a></li>
+					  </ul>
+					</div>
+					--%>
+  				</td>
   			</tr>
   			
 		</table>
+		<div class="row" >
+			 <div class="col-sm-3">
+				Recall letters: 
+				<a ng-if="letter1.length > 0 && reportData.active" ng-click='openLetterScreen("L1",letter1)'>Send Letter One</a>
+				<a ng-if="letter2.length > 0 && reportData.active" ng-click='openLetterScreen("L1",letter2)'>Send Letter Two</a>
+				</div>
+		<%--  a ng-if="phone1.length > 0" ng-click='openLetterScreen("L1",phone1)'>Send Letter One</a> --%>
+		
+		</div>
 		</div>
 	</div>
 	</div>
+	<br>
+	<br>
 	<script>
 		var app = angular.module("preventionReport", ['preventionReportServices']);
 		
@@ -446,6 +520,20 @@ if(!authed) {
 			$scope.reportData = {};
 			
 			$scope.newPrevReport = {};
+			
+			$scope.letter1 = [];
+			$scope.letter2 = [];
+			$scope.phone1 = [];
+			
+			$scope.dectivateReport = function(selectedReport){
+				console.log("selectedReport",selectedReport);
+				
+				preventionReportService.dectivateReport(selectedReport).then(function(data){
+					getList();
+				});
+				
+			}
+				
 			
 			$scope.editReport = function(selectedReport){
 				console.log("selectedReport",selectedReport);
@@ -552,6 +640,7 @@ if(!authed) {
 				preventionReportService.getList().then(function(data){
 					console.log("data coming back",data);
 					$scope.reports = data;
+					
 				});
 			
 			}
@@ -573,6 +662,23 @@ if(!authed) {
 				preventionReportService.runReport(selectedReport,selectedProvider).then(function(data){
 					console.log("data coming back",data);
 					$scope.reportData = data;
+					
+					for (line in $scope.reportData.items) {
+						console.log("lin --- e",line,$scope.reportData.items[line].nextSuggestedProcedure)
+						if($scope.reportData.items[line].nextSuggestedProcedure === "L1"){
+							$scope.letter1.push($scope.reportData.items[line].demographicNo);
+						}else if($scope.reportData.items[line].nextSuggestedProcedure === "L2"){
+							$scope.letter2.push($scope.reportData.items[line].demographicNo);
+						}else if($scope.reportData.items[line].nextSuggestedProcedure === "P1"){
+							$scope.phone1.push($scope.reportData.items[line].demographicNo);
+						}
+						
+					}
+					
+					console.log("$scope.letter1 "+$scope.letter1.length+" $scope.letter2 "+$scope.letter2);
+					
+				
+					
 				});
 			}
 			
@@ -606,6 +712,15 @@ if(!authed) {
 					return	"Require "+newPrevReport.howManyPreventions+" "+ newPrevReport.name + " preventions by age "+newPrevReport.byAge+" months";
 				}
 				return "N/A";
+			}
+			
+			$scope.openLetterScreen = function(followupType,demoarr){
+				//<a target="_blank" href="../report
+				 console.log("$scope.reportData.",$scope.reportData);
+				var urlToOpen = "GenerateLetters.jsp?"+ $.param({demo: demoarr,message: "Reminder Letter",followUpType: $scope.reportData.searchConfig.measurementTrackingType,followupValue:followupType});
+				window.open(urlToOpen);
+				
+				<%-- <%=queryStr%>&amp;message=Letter 1 Reminder Letter sent for :"+request.getAttribute("prevType"),"UTF-8")%>&amp;followupType=<%=followUpType%>&amp;followupValue=L1">Generate First Letter</a>*/ --%>
 			}
 		
 		});

@@ -54,9 +54,15 @@ public class ReportItem implements Comparable<ReportItem> {
 	public String billStatus = "N";
    
    //FollowUp Data
-	public Date lastFollowup = null;
-	public String lastFollupProcedure =null;
-	public String nextSuggestedProcedure=null;
+	private Date lastFollowup = null;
+	private String lastFollupProcedure =null;
+	private String nextSuggestedProcedure=null;
+	
+	private boolean substituteDecisionMakerReq = false;
+	private String sdName = null;
+	private String sdPhone = null;
+	private String sdAddress = null;
+	private String sdEmail = null;
 	
 	
 	public Integer getDemographicNo() {
@@ -181,6 +187,54 @@ public class ReportItem implements Comparable<ReportItem> {
 	      // If this < o, return a negative value
 	      // If this = o, return 0
 	      // If this > o, return a positive value
+	}
+	public Date getLastFollowup() {
+		return lastFollowup;
+	}
+	public void setLastFollowup(Date lastFollowup) {
+		this.lastFollowup = lastFollowup;
+	}
+	public String getLastFollupProcedure() {
+		return lastFollupProcedure;
+	}
+	public void setLastFollupProcedure(String lastFollupProcedure) {
+		this.lastFollupProcedure = lastFollupProcedure;
+	}
+	public String getNextSuggestedProcedure() {
+		return nextSuggestedProcedure;
+	}
+	public void setNextSuggestedProcedure(String nextSuggestedProcedure) {
+		this.nextSuggestedProcedure = nextSuggestedProcedure;
+	}
+	public boolean isSubstituteDecisionMakerReq() {
+		return substituteDecisionMakerReq;
+	}
+	public void setSubstituteDecisionMakerReq(boolean substituteDecisionMakerReq) {
+		this.substituteDecisionMakerReq = substituteDecisionMakerReq;
+	}
+	public String getSdName() {
+		return sdName;
+	}
+	public void setSdName(String sdName) {
+		this.sdName = sdName;
+	}
+	public String getSdPhone() {
+		return sdPhone;
+	}
+	public void setSdPhone(String sdPhone) {
+		this.sdPhone = sdPhone;
+	}
+	public String getSdAddress() {
+		return sdAddress;
+	}
+	public void setSdAddress(String sdAddress) {
+		this.sdAddress = sdAddress;
+	}
+	public String getSdEmail() {
+		return sdEmail;
+	}
+	public void setSdEmail(String sdEmail) {
+		this.sdEmail = sdEmail;
 	}
 	
 	

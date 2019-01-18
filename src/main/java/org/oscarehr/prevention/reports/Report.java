@@ -36,6 +36,7 @@ public class Report {
 	private int ineligiblePatients = 0;
 	private int up2date = 0;
 	private PreventionSearchTo1 searchConfig = null;
+	private boolean active = true;
 
 	/*
 	 h.put("up2date",""+Math.round(done));
@@ -99,5 +100,13 @@ public class Report {
 	
 	public void incrementUp2Date() {
 		this.up2date++;
+	}
+
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
 	}
 }

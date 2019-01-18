@@ -29,10 +29,11 @@ import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.BillingONCHeader1Dao;
@@ -40,6 +41,7 @@ import org.oscarehr.common.dao.OscarAppointmentDao;
 import org.oscarehr.common.dao.forms.FormsDao;
 import org.oscarehr.common.model.Appointment;
 import org.oscarehr.common.model.Demographic;
+import org.oscarehr.common.model.DemographicContact;
 import org.oscarehr.common.model.Prevention;
 import org.oscarehr.managers.DemographicManager;
 import org.oscarehr.util.LoggedInInfo;
@@ -48,6 +50,8 @@ import org.oscarehr.util.SpringUtils;
 import org.oscarehr.ws.rest.to.model.PreventionSearchConfigTo1;
 import org.oscarehr.ws.rest.to.model.PreventionSearchTo1;
 
+import oscar.oscarEncounter.oscarMeasurements.bean.EctMeasurementsDataBean;
+import oscar.oscarEncounter.oscarMeasurements.bean.EctMeasurementsDataBeanHandler;
 import oscar.oscarPrevention.PreventionData;
 import oscar.oscarPrevention.reports.PreventionReportUtil;
 import oscar.oscarPrevention.reports.ReportItem;
@@ -65,11 +69,15 @@ public class ReportBuilder {
 		//Does it need anything else?
 		//First get Denominator of patients that the report wants to look at.
 		PreventionSearchTo1 searchConfig = preventionSearchTo1;
+		if(searchConfig.getAgeAsOf() == null) {
+			searchConfig.setAgeAsOf(new Date());
+		}
 		List<Integer> demographicList = getDemographicDenominator( loggedInInfo,searchConfig, providerNo);
 		
 		logger.error("remove but "+demographicList.size());
 	    
 		Report report = new Report();
+		report.setSearchConfig(searchConfig);
 		List<ReportItem> items = new ArrayList<ReportItem>();
 		//Circle through the denominator to see if they match the criteria
 		for(Integer demographicNo:demographicList) {
@@ -101,6 +109,22 @@ public class ReportBuilder {
 		if(appt != null) {
 			item.setNextAppt(appt.getAppointmentDate());
 		}
+		
+		
+		List<DemographicContact> substituteDecisionMakers = demographicManager.findSDMByDemographicNo(loggedInInfo, item.getDemographicNo());
+		if(substituteDecisionMakers.size() > 0) {
+			DemographicContact dc = substituteDecisionMakers.get(0);
+			Demographic demoSDM = demographicManager.getDemographic(loggedInInfo, dc.getContactId());
+			if(demoSDM != null) {
+				item.setSubstituteDecisionMakerReq(true);
+	        		item.setSdName(demoSDM.getLastName()+", "+demoSDM.getFirstName());
+	        		item.setSdPhone(demoSDM.getPhone());
+	        		item.setSdEmail(demoSDM.getEmail());
+	        		item.setSdAddress(demoSDM.getAddress()+" "+demoSDM.getCity()+" "+demoSDM.getProvince()+" "+demoSDM.getPostal());
+			}
+        }
+		
+		
 			
 		//Age? or calc it?
 		
@@ -267,25 +291,21 @@ public class ReportBuilder {
 			
 		}
 		
+		
+		
 		if(noPreventionsFound) {
 			//If not preventions were found return No Info
 			setNoInfo(item);
 			logger.error("No preventions found for this patient returning no Info");
-			return item;
-		}
-		
-		if(requirementsMet) {
+		}else if(requirementsMet) {
 			setUptoDate(item);
 			report.incrementUp2Date();
-			return item;
-		}
-		
-		if(hasRefusedPrevention) {
+		} else if(hasRefusedPrevention) {
 			setRefused(item);
-			return item;
+		} else {
+			setOverdue(item);
 		}
-		
-		setOverdue(item);
+		letterProcessing(item, searchConfig.getMeasurementTrackingType(),searchConfig.getRosterAsOf());
 		return item;
 		
     
@@ -439,6 +459,129 @@ public class ReportBuilder {
 		return item;
 		*/
 	}
+	
+	private final String LETTER1 = "L1";
+	private final String LETTER2 = "L2";
+	private final String PHONE1 = "P1";
+	
+	private String letterProcessing(ReportItem item,String measurementType,Date asofDate){
+	       if (item != null){
+	          if (item.getState().equals("No Info") || item.getState().equals("due") || item.getState().equals("Overdue")){
+	              // Get LAST contact method
+	              EctMeasurementsDataBeanHandler measurementDataHandler = new EctMeasurementsDataBeanHandler(item.getDemographicNo(),measurementType);
+	              logger.debug("getting followup data for "+item.getDemographicNo());
+
+	              Collection<EctMeasurementsDataBean> followupData = measurementDataHandler.getMeasurementsDataCollection();
+	              //NO Contact
+	              logger.debug("number of follow up "+followupData.size());
+	              if ( followupData.size() == 0 ){
+	                  item.setNextSuggestedProcedure(this.LETTER1);
+	                  return this.LETTER1;
+	              }else{ //There has been contact
+	            	  Calendar oneyear = Calendar.getInstance();
+	                  oneyear.setTime(asofDate);
+	                  oneyear.add(Calendar.YEAR,-1);                  
+
+	                  Calendar onemonth = Calendar.getInstance();
+	                  onemonth.setTime(asofDate);
+	                  onemonth.add(Calendar.MONTH,-1);
+	                   
+	                  Date observationDate = null;
+	                  int count = 0;
+	                  int index = 0;
+	                  EctMeasurementsDataBean measurementData = null;
+	                  
+	                  @SuppressWarnings("unchecked")
+	            	  	  Iterator<EctMeasurementsDataBean>iterator = followupData.iterator();                                    
+	                  
+	                  while(iterator.hasNext()) {
+	                	  	measurementData =  iterator.next();
+	                	  	observationDate = measurementData.getDateObservedAsDate();
+	                	  
+	                	  	if( index == 0 ) {
+	                          logger.debug("fluData "+measurementData.getDataField());
+	                          logger.debug("lastFollowup "+measurementData.getDateObservedAsDate()+ " last procedure "+measurementData.getDateObservedAsDate());
+	                          logger.debug("toString: "+measurementData.toString());
+	                          item.setLastFollowup(observationDate);
+	                          item.setLastFollupProcedure(measurementData.getDataField());
+
+	                          if ( measurementData.getDateObservedAsDate().before(oneyear.getTime())){
+	                              item.setNextSuggestedProcedure(this.LETTER1);
+	                              return this.LETTER1;
+	                          }
+	                          
+	                          
+	                          if( item.getLastFollupProcedure().equals(this.PHONE1)) {
+	                        	  		item.setNextSuggestedProcedure("----");
+	                        	  		return "----";
+	                          }
+	                	  	}
+	                	  
+	                	  	logger.debug(item.getDemographicNo() + " obs" + observationDate + String.valueOf(observationDate.before(onemonth.getTime())) + " OneYear " + oneyear.getTime() + " " + String.valueOf(observationDate.after(oneyear.getTime())));
+	                	  	if( observationDate.before(onemonth.getTime()) && observationDate.after(oneyear.getTime())) {                		  
+	                		  ++count;
+	                	  	}else if( count > 1 && observationDate.after(oneyear.getTime()) ) {
+	                		  ++count;
+	                	  	}
+	                	  
+	                	  	++index;
+
+	                  }
+	                  
+	                  switch (count) {
+		                  case 0: 
+		                   	  item.setNextSuggestedProcedure(  this.LETTER1);
+		                	  break;
+		                  case 1:
+		                	  	  item.setNextSuggestedProcedure(  this.LETTER2);
+		                	  break;
+		                  case 2:
+		                	  	item.setNextSuggestedProcedure(  this.PHONE1);
+		                	  break;
+		                  default:
+		                	  item.setNextSuggestedProcedure(  "----");
+	                  }
+	                  
+	                  return item.getNextSuggestedProcedure();
+
+	              }
+
+
+
+
+	          }else if (item.getState().equals("Refused")){  //Not sure what to do about refused
+	                //prd.lastDate = "-----";
+	              EctMeasurementsDataBeanHandler measurementDataHandler = new EctMeasurementsDataBeanHandler(item.getDemographicNo(),measurementType);
+	              logger.debug("getting followup data for "+item.getDemographicNo());
+	              Collection followupData = measurementDataHandler.getMeasurementsDataCollection();
+	              if ( followupData.size() > 0 ){
+	                  EctMeasurementsDataBean measurementData = (EctMeasurementsDataBean) followupData.iterator().next();
+	                  item.setLastFollowup(measurementData.getDateObservedAsDate());
+	                  item.setLastFollupProcedure(measurementData.getDataField());
+	              }
+	              item.setNextSuggestedProcedure("----");
+	                //prd.numMonths ;
+	          }else if(item.getState().equals("Ineligible")){
+	                // Do nothing
+	        	  	item.setNextSuggestedProcedure("----");
+	          }else if(item.getState().equals("Up to date")){
+	                //Do nothing
+	              EctMeasurementsDataBeanHandler measurementDataHandler = new EctMeasurementsDataBeanHandler(item.getDemographicNo(),measurementType);
+	              logger.debug("getting followup data for "+item.getDemographicNo());
+	              Collection followupData = measurementDataHandler.getMeasurementsDataCollection();
+
+	              if ( followupData.size() > 0 ){
+	                  EctMeasurementsDataBean measurementData = (EctMeasurementsDataBean) followupData.iterator().next();
+	                  item.setLastFollowup(measurementData.getDateObservedAsDate());
+	                  item.setLastFollupProcedure(measurementData.getDataField());
+	              }
+	              item.setNextSuggestedProcedure("----");
+	          }else{
+	               logger.debug("NOT SURE WHAT HAPPEND IN THE LETTER PROCESSING");
+	          }
+	       }
+	       return null;
+	   }
 	
 	private List<Integer> getDemographicDenominator(LoggedInInfo loggedInInfo,PreventionSearchTo1 frm,String provider){
 		List<Integer> list = new ArrayList<Integer>();

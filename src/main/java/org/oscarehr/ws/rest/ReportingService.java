@@ -33,7 +33,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Response.ResponseBuilder;
 
 import net.sf.json.JSONObject;
 
@@ -61,8 +60,6 @@ import org.oscarehr.ws.rest.to.model.MenuItemTo1;
 import org.oscarehr.ws.rest.to.model.PreventionSearchTo1;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import com.sun.mail.iap.Response;
 
 @Path("/reporting/")
 @Component
@@ -276,6 +273,9 @@ public class ReportingService extends AbstractServiceImpl {
         		logger.info("preventionSearchTo1: "+preventionSearchTo1);
         		ReportBuilder reportBuilder = new ReportBuilder();
         		report = reportBuilder.runReport(getLoggedInInfo(), providerNo,preventionSearchTo1);
+        		if(!pr.isActive()) {
+        			report.setActive(false);
+        		}
         }catch(Exception e) {
         	 	logger.error("Error parsing ",e);
         }
@@ -309,6 +309,20 @@ public class ReportingService extends AbstractServiceImpl {
         }
 		
 		return 	javax.ws.rs.core.Response.status(268).entity("{\"Error\":\"Error get Search Config\"}").build();
+	}
+	
+	@POST 
+	@Path("/preventionReport/dectivateReport/{id}")
+	@Produces("application/json")
+	@Consumes("application/json")
+	public javax.ws.rs.core.Response getPreventionReport(@PathParam("id") Integer id) { // will need to change provider to an ojbect
+		GenericRESTResponse response = new GenericRESTResponse();
+		
+		PreventionReport pr = preventionReportDao.find(id);
+		pr.setActive(false);
+		preventionReportDao.merge(pr);
+		
+		return 	javax.ws.rs.core.Response.ok("{\"Message\":\"report deactivated\"}").build();
 	}
 	
 	
