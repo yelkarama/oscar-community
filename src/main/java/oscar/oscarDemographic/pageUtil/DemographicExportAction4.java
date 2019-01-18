@@ -3083,7 +3083,7 @@ public class DemographicExportAction4 extends Action {
 			
 			// ProviderLabRoutingDao assigns UNCLAIMED_PROVIDER = "0" 
 			if (UtilDateUtilities.StringToDate(timestamp,"yyyy-MM-dd HH:mm:ss")!=null &&
-					!"0".equals(lab_provider_no)) {
+					!"0".equals(lab_provider_no) && !"".equals(lab_provider_no)) {
 				LaboratoryResults.ResultReviewer reviewer = labResults.addNewResultReviewer();
 				reviewer.addNewDateTimeResultReviewed().setFullDateTime(Util.calDate(timestamp));
 				//reviewer name
