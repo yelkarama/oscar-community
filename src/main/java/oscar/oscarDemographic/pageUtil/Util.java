@@ -100,6 +100,10 @@ public class Util {
     }
     
     static public XmlCalendar calDate(Date inDate) {
+    	return calDate(inDate, false);
+    }
+    
+    static public XmlCalendar calDateTZD(Date inDate) {
     	return calDate(inDate, true);
     }
     
@@ -459,17 +463,17 @@ public class Util {
 
     static public void putPartialDate(cdsDt.DateFullOrPartial dfp, Date dateValue, String format) {
         if (dateValue!=null) {
-            if (PartialDate.YEARONLY.equals(format)) dfp.setYearOnly(calDate(dateValue, false));
-            else if (PartialDate.YEARMONTH.equals(format)) dfp.setYearMonth(calDate(dateValue, false));
-            else dfp.setFullDate(calDate(dateValue, false));
+            if (PartialDate.YEARONLY.equals(format)) dfp.setYearOnly(calDate(dateValue));
+            else if (PartialDate.YEARMONTH.equals(format)) dfp.setYearMonth(calDate(dateValue));
+            else dfp.setFullDate(calDate(dateValue));
         }
     }
 
     static public void putPartialDate(cdsDt.DateTimeFullOrPartial dfp, Date dateValue, String format) {
         if (dateValue!=null) { 
-            if (PartialDate.YEARONLY.equals(format)) dfp.setYearOnly(calDate(dateValue, false));
-            else if (PartialDate.YEARMONTH.equals(format)) dfp.setYearMonth(calDate(dateValue, false));
-            else dfp.setFullDate(calDate(dateValue, false));
+            if (PartialDate.YEARONLY.equals(format)) dfp.setYearOnly(calDate(dateValue));
+            else if (PartialDate.YEARMONTH.equals(format)) dfp.setYearMonth(calDate(dateValue));
+            else dfp.setFullDate(calDate(dateValue));
         }
     }
 
@@ -486,9 +490,9 @@ public class Util {
 
     static public void putPartialDate(cdsDtCihi.DateFullOrPartial dfp, Date dateValue, String format) {
         if (dateValue!=null) {
-            if (PartialDate.YEARONLY.equals(format)) dfp.setYearOnly(calDate(dateValue, false));
-            else if (PartialDate.YEARMONTH.equals(format)) dfp.setYearMonth(calDate(dateValue, false));
-            else dfp.setFullDate(calDate(dateValue, false));
+            if (PartialDate.YEARONLY.equals(format)) dfp.setYearOnly(calDate(dateValue));
+            else if (PartialDate.YEARMONTH.equals(format)) dfp.setYearMonth(calDate(dateValue));
+            else dfp.setFullDate(calDate(dateValue));
         }
     }
     

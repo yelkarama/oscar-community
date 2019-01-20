@@ -1071,12 +1071,12 @@ public class DemographicExportAction4 extends Action {
 
 						//entered datetime
 					/*	if (createDate!=null) {
-							cNote.addNewEnteredDateTime().setFullDateTime(Util.calDate(createDate));
+							cNote.addNewEnteredDateTime().setFullDateTime(Util.calDateTZD(createDate));
 						}
 					 */
 						//event datetime
 						if (cmn.getObservation_date()!=null) {
-							cNote.addNewEventDateTime().setFullDateTime(Util.calDate(cmn.getObservation_date()));
+							cNote.addNewEventDateTime().setFullDateTime(Util.calDateTZD(cmn.getObservation_date()));
 						}
 
 						List<CaseManagementNote> cmn_same = cmm.getNotesByUUID(cmn.getUuid());
@@ -1092,8 +1092,8 @@ public class DemographicExportAction4 extends Action {
 
 								//note created datetime
 								cdsDt.DateTimeFullOrPartial noteCreatedDateTime = pProvider.addNewDateTimeNoteCreated();
-								if (cmn.getUpdate_date()!=null) noteCreatedDateTime.setFullDateTime(Util.calDate(cm_note.getUpdate_date()));
-								else noteCreatedDateTime.setFullDateTime(Util.calDate(new Date()));
+								if (cmn.getUpdate_date()!=null) noteCreatedDateTime.setFullDateTime(Util.calDateTZD(cm_note.getUpdate_date()));
+								else noteCreatedDateTime.setFullDateTime(Util.calDateTZD(new Date()));
 							}
 
 							//reviewing providers
@@ -1106,8 +1106,8 @@ public class DemographicExportAction4 extends Action {
 
 								//note reviewed datetime
 								cdsDt.DateTimeFullOrPartial noteReviewedDateTime = noteReviewer.addNewDateTimeNoteReviewed();
-								if (cm_note.getUpdate_date()!=null) noteReviewedDateTime.setFullDateTime(Util.calDate(cm_note.getUpdate_date()));
-								else noteReviewer.addNewDateTimeNoteReviewed().setFullDateTime(Util.calDate(new Date()));
+								if (cm_note.getUpdate_date()!=null) noteReviewedDateTime.setFullDateTime(Util.calDateTZD(cm_note.getUpdate_date()));
+								else noteReviewer.addNewDateTimeNoteReviewed().setFullDateTime(Util.calDateTZD(new Date()));
 							}
 						}
 					}
@@ -1374,7 +1374,7 @@ public class DemographicExportAction4 extends Action {
 						mSummary = Util.addSummary("Prescription Written Date", partialDateDao.getDatePartial(arr[p].getWrittenDate(), dateFormat));
 					}
 					if (arr[p].getRxDate()!=null) {
-						medi.addNewStartDate().setFullDate(Util.calDate(arr[p].getRxDate(), false));
+						medi.addNewStartDate().setFullDate(Util.calDate(arr[p].getRxDate()));
 						mSummary = Util.addSummary(mSummary,"Start Date",UtilDateUtilities.DateToString(arr[p].getRxDate(),"yyyy-MM-dd"));
 					}
 					String regionalId = arr[p].getRegionalIdentifier();
@@ -1736,13 +1736,13 @@ public class DemographicExportAction4 extends Action {
 					
 					Appointments aptm = patientRec.addNewAppointments();
 					cdsDt.DateFullOrPartial apDate = aptm.addNewAppointmentDate();
-					apDate.setFullDate(Util.calDate(ap.getAppointmentDate(), false));
+					apDate.setFullDate(Util.calDate(ap.getAppointmentDate()));
 					if (ap.getAppointmentDate()==null) {
 						exportError.add("Error! No Appointment Date ("+j+") for Patient "+demoNo);
 					}
 
 					String startTime = ConversionUtils.toTimeString(ap.getStartTime());
-					aptm.setAppointmentTime(Util.calDate(ap.getStartTime()));
+					aptm.setAppointmentTime(Util.calDateTZD(ap.getStartTime()));
 					addOneEntry(APPOINTMENT);
 					if (UtilDateUtilities.StringToDate(startTime,"HH:mm:ss")==null) {
 						exportError.add("Error! No Appointment Time ("+(j+1)+") for Patient "+demoNo);
@@ -1835,10 +1835,10 @@ public class DemographicExportAction4 extends Action {
 						if (StringUtils.filled(docSubClass)) {
 							rpr.setSubClass(docSubClass);
 						}
-						String obsDateStr = edoc.getObservationDate();
+						String obsDateStr = edoc.getObservationDate(); // TODO Should this actually be "edoc.getContentDateTime()"
 						Date observationDate = UtilDateUtilities.StringToDate(obsDateStr, "yyyy/MM/dd");
 						if (observationDate!=null) {
-							rpr.addNewEventDateTime().setFullDate(Util.calDate(observationDate, false));
+							rpr.addNewEventDateTime().setFullDateTime(Util.calDateTZD(observationDate));
 						} else {
 							exportError.add("Not exporting invalid Event Date (Reports) for Patient "+demoNo+" ("+(j+1)+")");
 						}
@@ -1851,7 +1851,7 @@ public class DemographicExportAction4 extends Action {
 						Date reviewDateTime = edoc.getReviewDateTimeDate();
 						if (reviewDateTime!=null) {
 							ReportReviewed reportReviewed = rpr.addNewReportReviewed();
-							reportReviewed.addNewDateTimeReportReviewed().setFullDate(Util.calDate(reviewDateTime, false));
+							reportReviewed.addNewDateTimeReportReviewed().setFullDate(Util.calDate(reviewDateTime));
 							Util.writeNameSimple(reportReviewed.addNewName(), edoc.getReviewerName());
 							String ohipNo = StringUtils.noNull(edoc.getReviewerOhip());
 							if (ohipNo.length()<=6) reportReviewed.setReviewingOHIPPhysicianId(ohipNo);
