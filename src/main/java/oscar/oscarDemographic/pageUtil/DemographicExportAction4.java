@@ -2634,7 +2634,7 @@ public class DemographicExportAction4 extends Action {
 		if(en != null) {
 			//if(demographic.getRosterStatus().equals(en.status)) {
 				if(DateUtils.isSameDay(demographic.getRosterDate(),en.date)) {
-					if(demographic.getRosterEnrolledTo().equals(en.enrolledTo)) {
+					if(demographic.getRosterEnrolledTo() != null && demographic.getRosterEnrolledTo().equals(en.enrolledTo)) {
 						return true;
 					}
 				}
@@ -2647,7 +2647,7 @@ public class DemographicExportAction4 extends Action {
 		if(en != null) {
 			//if(demographic.getRosterStatus().equals(en.status)) {
 				if(DateUtils.isSameDay(demographic.getRosterDate(),en.date)) {
-					if(demographic.getRosterEnrolledTo().equals(en.enrolledTo)) {
+					if(demographic.getRosterEnrolledTo() != null && demographic.getRosterEnrolledTo().equals(en.enrolledTo)) {
 						return true;
 					}
 				}
