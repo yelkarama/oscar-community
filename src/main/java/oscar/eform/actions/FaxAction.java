@@ -51,21 +51,19 @@ public final class FaxAction {
 	 */
 	private String getEformRequestUrl(HttpServletRequest request) {
 		StringBuilder url = new StringBuilder();
-		String scheme = request.getScheme();
-		Integer port;
-		try { port = new Integer(OscarProperties.getInstance().getProperty("oscar_port")); }
-	    catch (Exception e) { port = 8443; }
-		if (port < 0) port = 80; // Work around java.net.URL bug
+		String scheme = "http";
+		Integer port = 80;
+		if (request.getServerPort() != 80) {
+			port = 8080;
+		}
 
 		url.append(scheme);
 		url.append("://");
 		//url.append(request.getServerName());
 		url.append("127.0.0.1");
-		
-		if ((scheme.equals("http") && (port != 80)) || (scheme.equals("https") && (port != 443))) {
-			url.append(':');
-			url.append(port);
-		}
+		url.append(':');
+		url.append(port);
+
 		url.append(request.getContextPath());
 		url.append("/EFormViewForPdfGenerationServlet?parentAjaxId=eforms&prepareForFax=true&providerId=");
 		url.append(request.getParameter("providerId"));
