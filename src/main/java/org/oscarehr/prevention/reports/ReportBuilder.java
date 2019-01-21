@@ -36,6 +36,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.dao.BillingONCHeader1Dao;
 import org.oscarehr.common.dao.OscarAppointmentDao;
 import org.oscarehr.common.dao.forms.FormsDao;
@@ -43,6 +44,7 @@ import org.oscarehr.common.model.Appointment;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.DemographicContact;
 import org.oscarehr.common.model.Prevention;
+import org.oscarehr.common.model.Provider;
 import org.oscarehr.managers.DemographicManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -63,6 +65,7 @@ public class ReportBuilder {
 	public static DemographicManager demographicManager =  SpringUtils.getBean(DemographicManager.class);
 	OscarAppointmentDao appointmentDao = SpringUtils.getBean(OscarAppointmentDao.class);
 	BillingONCHeader1Dao billingONCHeader1Dao = SpringUtils.getBean(BillingONCHeader1Dao.class);
+	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 	
 
 	public Report runReport(LoggedInInfo loggedInInfo,String providerNo, PreventionSearchTo1 preventionSearchTo1) {
@@ -103,8 +106,14 @@ public class ReportBuilder {
 		item.setAddress(demographic.getAddress());
 		item.setEmail(demographic.getEmail());
 		item.setAge(demographic.getAgeAsOf(asofDate));
-		item.setRosteringDoc(demographic.getProvider().getFormattedName());
-		
+		try {
+			Provider provider = providerDao.getProvider(demographic.getRosterEnrolledTo());
+			if(provider != null) {
+				item.setRosteringDoc(provider.getFormattedName());
+			}
+		}catch(Exception e) {
+			// A enrolled physician must not be set.
+		}
 		Appointment appt = appointmentDao.findNextAppointment(item.getDemographicNo());
 		if(appt != null) {
 			item.setNextAppt(appt.getAppointmentDate());
