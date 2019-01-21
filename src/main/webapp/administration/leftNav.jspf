@@ -308,6 +308,12 @@ String curProvider_no = (String)session.getAttribute("user");
 					<li><a href="${ctx}/eform/efmmanageindependent.jsp" class="contentLink">
 						<bean:message key="admin.admin.frmIndependent"/>s
 					</a></li>
+
+                    <% if (!OscarProperties.getInstance().getProperty("rtl_template_id", "").isEmpty()) { %>
+                    <li>
+                        <a href="javascript:void(0);" rel="${ctx}/admin/rtlTemplateSettings.jsp" class="xlink">RTL Template Settings</a>
+                    </li>
+                    <% } %>
 				</ul>
 				</div>
 				</div>

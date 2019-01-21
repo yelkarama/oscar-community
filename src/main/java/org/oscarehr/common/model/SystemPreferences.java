@@ -19,6 +19,7 @@ public class SystemPreferences extends AbstractModel<Integer>
     public static final List<String> REFERRAL_SOURCE_PREFERENCE_KEYS = Arrays.asList("enable_referral_source");
     public static final String KIOSK_DISPLAY_PREFERENCE_KEYS = "check_in_all_appointments";
     public static final List<String> DOCUMENT_SETTINGS_KEYS = Arrays.asList("document_description_typeahead");
+    public static final List<String> RTL_TEMPLATE_SETTINGS = Arrays.asList("rtl_template_document_type");
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -58,7 +59,7 @@ public class SystemPreferences extends AbstractModel<Integer>
     }
 
     public String getValue() {
-        return value;
+        return value != null ? value : "";
     }
 
     /**

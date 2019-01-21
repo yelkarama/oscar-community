@@ -68,6 +68,7 @@ import org.oscarehr.common.dao.DocumentReviewDao;
 import org.oscarehr.common.dao.IndivoDocsDao;
 import org.oscarehr.common.dao.PatientLabRoutingDao;
 import org.oscarehr.common.dao.ProviderInboxRoutingDao;
+import org.oscarehr.common.dao.SystemPreferencesDao;
 import org.oscarehr.common.dao.TicklerLinkDao;
 import org.oscarehr.common.model.ConsultDocs;
 import org.oscarehr.common.model.CtlDocType;
@@ -79,6 +80,7 @@ import org.oscarehr.common.model.DocumentReview;
 import org.oscarehr.common.model.IndivoDocs;
 import org.oscarehr.common.model.PatientLabRouting;
 import org.oscarehr.common.model.Provider;
+import org.oscarehr.common.model.SystemPreferences;
 import org.oscarehr.common.model.Tickler;
 import org.oscarehr.common.model.TicklerLink;
 import org.oscarehr.managers.DemographicManager;
@@ -1253,9 +1255,16 @@ public final class EDocUtil {
 	 * @param request Request to retrieve information for logging from
 	 */
 	public static void saveRtlToPatient(File file, Provider provider, Demographic demographic, HttpServletRequest request) {
+		SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
 		int numberOfPages = 0;
 		String user = provider.getProviderNo();
 
+		SystemPreferences documentTypePreference = systemPreferencesDao.findPreferenceByName("rtl_template_document_type");
+		String documentType = "";
+		if (documentTypePreference != null && documentTypePreference.getValue() != null) {
+			documentType = documentTypePreference.getValue();
+		}
+		
 		String fileName = file.getName();
 		fileName = fileName.substring(0, fileName.indexOf("-")) + ".pdf";
 		// Creates source and destination paths to move the file
@@ -1274,7 +1283,7 @@ public final class EDocUtil {
 			logger.error("An error occurred when trying to copy the letter pdf to the document directory and counting the pages.");
 		}
 
-		EDoc newDoc = new EDoc(description, "", fileName, "", user, user, "", 'A', org.oscarehr.util.DateUtils.getIsoDate(GregorianCalendar.getInstance()), "",
+		EDoc newDoc = new EDoc(description, documentType, fileName, "", user, user, "", 'A', org.oscarehr.util.DateUtils.getIsoDate(GregorianCalendar.getInstance()), "",
 				"", "demographic", demographic.getDemographicNo().toString(), numberOfPages);
 
 		// Sets the fileName again so that it doesn't have the timestamp in front of it
