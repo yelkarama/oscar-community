@@ -1343,6 +1343,15 @@ public class DemographicExportAction4 extends Action {
 					if (UtilDateUtilities.StringToDate(preventionDate)!=null) {
 						immu.addNewDate().setFullDate(Util.calDate(preventionDate));
 						imSummary = Util.addSummary(imSummary, "Date", preventionDate);
+					} else { // partial date
+						String dateFormat = partialDateDao.getFormat(PartialDate.PREVENTION, Integer.parseInt((String)prevMap.get("id")), PartialDate.PREVENTION_PREVENTIONDATE);
+						if (UtilDateUtilities.StringToDate(preventionDate, dateFormat)!=null) {
+							Date prevDate = UtilDateUtilities.StringToDate(preventionDate, dateFormat);
+							Util.putPartialDate(immu.addNewDate(), prevDate, dateFormat);
+							imSummary = Util.addSummary(imSummary, "Date", partialDateDao.getDatePartial(prevDate, dateFormat));
+						} else {
+							logger.error("Failed to export immunization date.");
+						}
 					}
 
 					imSummary = Util.addSummary(imSummary, "Manufacturer", immu.getManufacturer());
@@ -1374,8 +1383,11 @@ public class DemographicExportAction4 extends Action {
 						mSummary = Util.addSummary("Prescription Written Date", partialDateDao.getDatePartial(arr[p].getWrittenDate(), dateFormat));
 					}
 					if (arr[p].getRxDate()!=null) {
-						medi.addNewStartDate().setFullDate(Util.calDate(arr[p].getRxDate()));
-						mSummary = Util.addSummary(mSummary,"Start Date",UtilDateUtilities.DateToString(arr[p].getRxDate(),"yyyy-MM-dd"));
+						//medi.addNewStartDate().setFullDate(Util.calDate(arr[p].getRxDate()));
+						//mSummary = Util.addSummary(mSummary,"Start Date",UtilDateUtilities.DateToString(arr[p].getRxDate(),"yyyy-MM-dd"));
+						String dateFormat = partialDateDao.getFormat(PartialDate.DRUGS, arr[p].getDrugId(), PartialDate.DRUGS_STARTDATE);
+						Util.putPartialDate(medi.addNewStartDate(), arr[p].getRxDate(), dateFormat);
+						mSummary = Util.addSummary("Start Date", partialDateDao.getDatePartial(arr[p].getRxDate(), dateFormat));
 					}
 					String regionalId = arr[p].getRegionalIdentifier();
 					if (StringUtils.filled(regionalId)) {
