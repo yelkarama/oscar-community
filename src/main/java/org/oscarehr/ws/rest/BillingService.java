@@ -154,12 +154,6 @@ public class BillingService extends AbstractServiceImpl {
         if (invoiceRequest.getBillingItems().isEmpty()) {
             return new InvoiceCreateResponse(false, "Cannot create invoice, no items billed.", null);
         }
-        for (BillingItemTo1 item : invoiceRequest.getBillingItems()) {
-            List<DiagnosticCode> matchedDxCodes = diagnosticCodeDao.findByDiagnosticCodeAndRegion(item.getDx(), "ON");
-            if (matchedDxCodes.isEmpty()) {
-                return new InvoiceCreateResponse(false, "Cannot create invoice, dx code " + item.getDx() +  " does not exist.", null);
-            }
-        }
         
         Appointment billedAppointment = appointmentDao.find(invoiceRequest.getAppointmentNo());
         
