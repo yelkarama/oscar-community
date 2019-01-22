@@ -1813,7 +1813,7 @@ import oscar.util.UtilDateUtilities;
                     if (non_auth!=null && "Y".equals(non_auth)) drug.setNonAuthoritative(non_auth.equalsIgnoreCase("Y"));
                   //  else  err_data.add("Error! No non-authoritative indicator for Medications & Treatments ("+(i+1)+")");
 
-                   drug.setDispenseInterval(medArray[i].getDispenseInterval());
+                   drug.setDispenseInterval(medArray[i].getDispenseInterval() != null ?medArray[i].getDispenseInterval() : "" );
                   //  else err_data.add("Error! Invalid Dispense Interval for Medications & Treatments ("+(i+1)+")");
 
                     String protocolIdentifier = medArray[i].getProtocolIdentifier();
@@ -1837,9 +1837,23 @@ import oscar.util.UtilDateUtilities;
                     drug.setDemographicId(Integer.valueOf(demographicNo));
                     drug.setArchived(false);
 
-                    drug.setBrandName(medArray[i].getDrugName());
-                    drug.setCustomName(medArray[i].getDrugDescription());
-
+                    boolean custom=false;
+                    if(!StringUtils.isNullOrEmpty(medArray[i].getDrugIdentificationNumber())) {
+                    	drug.setBrandName(medArray[i].getDrugName());
+                    } else {
+                    	drug.setCustomName(medArray[i].getDrugName());
+                    	drug.setSpecialInstruction(medArray[i].getDrugDescription());	
+                    	custom=true;
+                    }
+                    
+                    if (StringUtils.filled(medArray[i].getPrescriptionInstructions())) {
+                    	drug.setSpecialInstruction( medArray[i].getPrescriptionInstructions());
+                    	if(custom) {
+                    		drug.setSpecialInstruction( medArray[i].getPrescriptionInstructions() + " " + medArray[i].getDrugDescription());
+                    	}
+                    }
+                    
+                  
                     special = StringUtils.noNull(drug.getBrandName());
                     if (special.equals("")) {
                         special = StringUtils.noNull(drug.getCustomName());
@@ -1870,9 +1884,7 @@ import oscar.util.UtilDateUtilities;
                     }
                     drug.setSpecial(special);   
                     
-                    if (StringUtils.filled(medArray[i].getPrescriptionInstructions())) {
-                    	drug.setSpecialInstruction(medArray[i].getPrescriptionInstructions());
-                    }
+                   
 
                     if (medArray[i].getPrescribedBy()!=null) {
                         HashMap<String,String> personName = getPersonName(medArray[i].getPrescribedBy().getName());

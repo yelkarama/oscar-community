@@ -207,7 +207,7 @@ pageContext.setAttribute("pharmacy", pharmacy);
                         	<%}%>
                         	<% if(drug.getCustomName() != null && !drug.getCustomName().equalsIgnoreCase("null") ){ %>
                         	<tr>
-                        		<td class="label">Drug Description:</td>
+                        		<td class="label">Drug Name:</td>
                         		<td><%= drug.getCustomName()%></td>
                         	</tr>                        	                        	                        	                        
               				<%}%>
