@@ -68,6 +68,10 @@ public class RunClinicalReportAction extends Action {
         String denominatorId = request.getParameter("denominator");
         String numerator2Id = request.getParameter("numerator2");
         
+        String includeNonPositiveResults = request.getParameter("includeNonPositiveResults");
+        boolean inclNonPositiveResults = includeNonPositiveResults != null && "on".equals(includeNonPositiveResults);
+        
+        
         MiscUtils.getLogger().debug("numerator "+numeratorId+" denominator "+denominatorId);    
         ClinicalReportManager reports = ClinicalReportManager.getInstance();
     
@@ -180,7 +184,7 @@ public class RunClinicalReportAction extends Action {
         
         
         ReportEvaluator re  = new ReportEvaluator();
-        re.evaluate(LoggedInInfo.getLoggedInInfoFromSession(request), d,n,n2,extraVal);
+        re.evaluate(LoggedInInfo.getLoggedInInfoFromSession(request), d,n,n2,extraVal, inclNonPositiveResults);
         
         int num = re.getNumeratorCount();
         int denom = re.getDenominatorCount();
@@ -206,6 +210,7 @@ public class RunClinicalReportAction extends Action {
         request.setAttribute("csv",re.getCSV());
         request.setAttribute("list",re.getReportResultList());
         request.setAttribute("outputfields",n.getOutputFields());
+        request.setAttribute("includeNonPositiveResults", inclNonPositiveResults);
         return mapping.findForward("success");
      }    
 }

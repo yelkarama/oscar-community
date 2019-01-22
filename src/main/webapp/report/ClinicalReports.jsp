@@ -459,6 +459,13 @@ if(!authed) {
 
                             </fieldset>
 
+<%
+ String includeNonPositiveResultsCheck = "";
+ if(request.getAttribute("includeNonPositiveResults") != null && (Boolean)request.getAttribute("includeNonPositiveResults") == true) {
+	 includeNonPositiveResultsCheck = " checked=\"checked\" ";
+ }
+%>
+							<input type="checkbox" name="includeNonPositiveResults" id="includeNonPositiveResults" <%=includeNonPositiveResultsCheck %>/>&nbsp;Include All Results (includes results where numerator evaluates to false)
 
                             <br/>
 

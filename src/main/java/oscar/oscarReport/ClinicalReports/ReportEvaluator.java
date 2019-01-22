@@ -58,18 +58,18 @@ public class ReportEvaluator {
     }
 
     public void evaluate(LoggedInInfo loggedInInfo, Denominator deno, Numerator numer){
-        evaluate(loggedInInfo, deno,numer,null,null);
+        evaluate(loggedInInfo, deno,numer,null,null,true);
     }
     
     public void evaluate(LoggedInInfo loggedInInfo, Denominator deno, Numerator numer, Numerator numer2){
-        evaluate(loggedInInfo, deno,numer,numer2,null);
+        evaluate(loggedInInfo, deno,numer,numer2,null,true);
     }
     
     public void evaluate(LoggedInInfo loggedInInfo, Denominator deno, Numerator numer,List<KeyValue> additionalFields){
-    	evaluate(loggedInInfo,deno,numer,null,additionalFields);
+    	evaluate(loggedInInfo,deno,numer,null,additionalFields,true);
     }
 
-    public void evaluate(LoggedInInfo loggedInInfo, Denominator deno, Numerator numer, Numerator numer2,List<KeyValue> additionalFields){
+    public void evaluate(LoggedInInfo loggedInInfo, Denominator deno, Numerator numer, Numerator numer2,List<KeyValue> additionalFields, boolean includeFalseResults){
         denominator = deno;
         numerator = numer;
         numerator2 = numer2;
@@ -105,8 +105,14 @@ public class ReportEvaluator {
             }
 
 
-
-            getReportResultList().add(h);
+            if(includeFalseResults) {
+            	getReportResultList().add(h);
+            } else {
+            	if(bool && bool2) {
+            		getReportResultList().add(h);
+            	}
+            }
+            
 //            if (obj != null){
 //                getReportResultList().add(obj);
 //            }
