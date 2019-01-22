@@ -145,6 +145,8 @@ import cdsDt.EnrollmentStatus;
 import cdsDt.PersonNamePurposeCode;
 import cdsDt.PersonNameSimple;
 import cdsDt.PhoneNumber;
+import cdsDt.ResidualInformation;
+import cdsDt.ResidualInformation.DataElement;
 import cdsDt.ResultNormalAbnormalFlag;
 import cdsDt.YnIndicator;
 import cdsDt.YnIndicatorsimple.Enum;
@@ -1405,7 +1407,19 @@ public class DemographicExportAction4 extends Action {
 					} else {
 						drugName = arr[p].getCustomName();
 						if (StringUtils.filled(drugName)) {
-							medi.setDrugDescription(drugName);
+							medi.setDrugName(drugName);
+							String description = arr[p].getCustomName() + " " + arr[p].getSpecialInstruction();
+							if(description.length()>2000) {
+								medi.setDrugDescription(new String(arr[p].getCustomName() + " (see residuals) " + arr[p].getSpecialInstruction()).substring(0, 2000));
+								//set residual
+								ResidualInformation ri = medi.addNewResidualInfo();
+								DataElement de = ri.addNewDataElement();
+								de.setName("Drug Description");
+								de.setDataType("string");
+								de.setContent(description);
+							} else {
+								medi.setDrugDescription(description);
+							}
 							mSummary = Util.addSummary(mSummary, "Drug Description", drugName);
 						} else {
 							exportError.add("Error! No medication name for Patient "+demoNo+" ("+(p+1)+")");
