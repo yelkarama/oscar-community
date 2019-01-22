@@ -77,6 +77,7 @@ import org.oscarehr.common.dao.DemographicContactDao;
 import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.DemographicExtDao;
 import org.oscarehr.common.dao.DemographicPharmacyDao;
+import org.oscarehr.common.dao.DrugReasonDao;
 import org.oscarehr.common.dao.Hl7TextInfoDao;
 import org.oscarehr.common.dao.Hl7TextMessageDao;
 import org.oscarehr.common.dao.OscarAppointmentDao;
@@ -90,6 +91,7 @@ import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.DemographicArchive;
 import org.oscarehr.common.model.DemographicContact;
 import org.oscarehr.common.model.DemographicPharmacy;
+import org.oscarehr.common.model.DrugReason;
 import org.oscarehr.common.model.Hl7TextInfo;
 import org.oscarehr.common.model.Hl7TextMessage;
 import org.oscarehr.common.model.PartialDate;
@@ -144,6 +146,8 @@ import cdsDt.PersonNamePurposeCode;
 import cdsDt.PersonNameSimple;
 import cdsDt.PhoneNumber;
 import cdsDt.ResultNormalAbnormalFlag;
+import cdsDt.YnIndicator;
+import cdsDt.YnIndicatorsimple.Enum;
 import oscar.OscarProperties;
 import oscar.appt.ApptStatusData;
 import oscar.dms.EDoc;
@@ -1409,13 +1413,10 @@ public class DemographicExportAction4 extends Action {
 					}
 					addOneEntry(MEDICATION);
 
-					/* no need:
 					DrugReasonDao drugReasonDao = (DrugReasonDao) SpringUtils.getBean("drugReasonDao");
 					List<DrugReason> drugReasons = drugReasonDao.getReasonsForDrugID(arr[p].getDrugId(), true);
 					if (drugReasons.size()>0 && StringUtils.filled(drugReasons.get(0).getCode()))
 						medi.setProblemCode(drugReasons.get(0).getCode());
-					 *
-					 */
 
 					if (StringUtils.filled(arr[p].getDosage())) {
 						String[] strength = arr[p].getDosage().split(" ");
@@ -1512,12 +1513,10 @@ public class DemographicExportAction4 extends Action {
 						medi.setQuantity(arr[p].getQuantity());
 						mSummary = Util.addSummary(mSummary, "Quantity", arr[p].getQuantity());
 					}
-					/* no need:
+
 					if (arr[p].getNosubs()) medi.setSubstitutionNotAllowed("Y");
 					else medi.setSubstitutionNotAllowed("N");
 					mSummary = Util.addSummary(mSummary, "Substitution not Allowed", arr[p].getNosubs()?"Yes":"No");
-					 *
-					 */
 
 					if (StringUtils.filled(medi.getDrugName()) || StringUtils.filled(medi.getDrugIdentificationNumber())) {
 						medi.setNumberOfRefills(String.valueOf(arr[p].getRepeat()));
@@ -1527,18 +1526,14 @@ public class DemographicExportAction4 extends Action {
 						medi.setTreatmentType(arr[p].getETreatmentType());
 						mSummary = Util.addSummary(mSummary, "Treatment Type", arr[p].getETreatmentType());
 					}
-					/* no need:
 					if (StringUtils.filled(arr[p].getRxStatus())) {
 						medi.setPrescriptionStatus(arr[p].getRxStatus());
 						mSummary = Util.addSummary(mSummary, "Prescription Status", arr[p].getRxStatus());
 					}
-					/* no need:
-					if (arr[p].getDispenseInterval()!=null) {
+					if (StringUtils.filled(arr[p].getDispenseInterval())) {
 						medi.setDispenseInterval(String.valueOf(arr[p].getDispenseInterval()));
 						mSummary = Util.addLine(mSummary, "Dispense Interval", arr[p].getDispenseInterval().toString());
 					}
-					 *
-					 */
 					if (arr[p].getRefillDuration()!=null) {
 						medi.setRefillDuration(String.valueOf(arr[p].getRefillDuration()));
 						mSummary = Util.addSummary(mSummary, "Refill Duration", arr[p].getRefillDuration().toString());
@@ -1555,8 +1550,9 @@ public class DemographicExportAction4 extends Action {
 					} else if(isLongTerm) {
 						longTerm = "Yes";
 					}
-
-					medi.addNewLongTermMedication().setBoolean(arr[p].isLongTerm());
+					if (isLongTerm != null) {
+						medi.addNewLongTermMedication().setBoolean(arr[p].isLongTerm());
+					}
 					mSummary = Util.addSummary(mSummary, "Long Term Medication",longTerm);
 
 					Boolean isPastMed = arr[p].getPastMed();
@@ -1567,18 +1563,18 @@ public class DemographicExportAction4 extends Action {
 						pastMed = "Yes";
 					}
 					//TODO change the library class so that it can handle null values.
-					medi.addNewPastMedications().setBoolean(arr[p].isPastMed());
-					mSummary = Util.addSummary(mSummary, "Past Medcation",pastMed);
-/*
-					cdsDt.YnIndicatorAndBlank pc = medi.addNewPatientCompliance();
-					if (arr[p].getPatientCompliance()==null) {
-						pc.setBlank(cdsDt.Blank.X);
-					} else {
-						String patientCompliance = arr[p].getPatientCompliance() ? "Yes" : "No";
-						pc.setBoolean(arr[p].getPatientCompliance());
-						mSummary = Util.addSummary(mSummary, "Patient Compliance", patientCompliance);
+					if (isPastMed != null) {
+						medi.addNewPastMedications().setBoolean(arr[p].isPastMed());
 					}
-*/
+					mSummary = Util.addSummary(mSummary, "Past Medcation",pastMed);
+
+					if (arr[p].getPatientCompliance()!=null) {
+						YnIndicator pc = medi.addNewPatientCompliance();
+						Enum patientCompliance = arr[p].getPatientCompliance() ? cdsDt.YnIndicatorsimple.Y : cdsDt.YnIndicatorsimple.N;
+						pc.setYnIndicatorsimple(patientCompliance);
+						mSummary = Util.addSummary(mSummary, "Patient Compliance", arr[p].getPatientCompliance().toString());
+					}
+
 					String outsideProviderName = arr[p].getOutsideProviderName();
 					if (StringUtils.filled(outsideProviderName)) {
 						MedicationsAndTreatments.PrescribedBy pcb = medi.addNewPrescribedBy();
@@ -1599,22 +1595,36 @@ public class DemographicExportAction4 extends Action {
 							mSummary = Util.addSummary(mSummary, "Prescribed by", StringUtils.noNull(prvd.getFirst_name())+" "+StringUtils.noNull(prvd.getLast_name()));
 						}
 					}
-
-					/* no need:
-					data = arr[p].isNonAuthoritative() ? "Y" : "N";
+					
+					// TODO: Can this be null for Y,N,unknown?
+					String data = arr[p].isNonAuthoritative() ? "Y" : "N";
 					medi.setNonAuthoritativeIndicator(data);
 					mSummary = Util.addSummary(mSummary, "Non-Authoritative", data);
 
-					/* no need:
-					medi.setPrescriptionIdentifier(String.valueOf(arr[p].getDrugId()));
-					mSummary = Util.addSummary(mSummary, "Prescription Identifier", medi.getPrescriptionIdentifier());
-					 *
-					 */
+					if (StringUtils.filled(String.valueOf(arr[p].getDrugId()))) {
+						medi.setPrescriptionIdentifier(String.valueOf(arr[p].getDrugId()));
+						mSummary = Util.addSummary(mSummary, "Prescription Identifier", medi.getPrescriptionIdentifier());
+					}
 
-					annotation = getNonDumpNote(CaseManagementNoteLink.DRUGS, (long)arr[p].getDrugId(), null);
-					if (StringUtils.filled(annotation)) {
-						medi.setNotes(annotation);
-						mSummary = Util.addSummary(mSummary, "Notes", annotation);
+					if (StringUtils.filled(String.valueOf(arr[p].getPriorRxProtocol()))) { // PriorRxProtocol should be Prior Prescription Reference
+						medi.setPriorPrescriptionReferenceIdentifier(arr[p].getPriorRxProtocol());
+						mSummary = Util.addSummary(mSummary, "Prior Prescription Reference Identifier", medi.getPriorPrescriptionReferenceIdentifier());
+					}
+					
+					if (StringUtils.filled(arr[p].getProtocol())) {
+						medi.setProtocolIdentifier(arr[p].getProtocol());
+						mSummary = Util.addSummary(mSummary, "Prior Prescription Reference Identifier", arr[p].getProtocol());
+					}
+					
+					if (StringUtils.filled(arr[p].getComment())) {
+						medi.setNotes(arr[p].getComment());
+						mSummary = Util.addSummary(mSummary, "Notes", arr[p].getComment());
+					} else { // can't have more than one note.			
+						annotation = getNonDumpNote(CaseManagementNoteLink.DRUGS, (long)arr[p].getDrugId(), null);
+						if (StringUtils.filled(annotation)) {
+							medi.setNotes(annotation);
+							mSummary = Util.addSummary(mSummary, "Notes", annotation);
+						}
 					}
 
 					if (StringUtils.empty(mSummary)) exportError.add("Error! No Category Summary Line (Medications & Treatments) for Patient "+demoNo+" ("+(p+1)+")");
