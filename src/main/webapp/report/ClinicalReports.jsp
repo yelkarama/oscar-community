@@ -197,6 +197,8 @@ if(!authed) {
             var numer_xtras;
             numerator_fields[numerator_fields.length] = "numerator_measurements";
             numerator_fields[1] = "numerator_value";
+            numerator_fields[2] = "numerator_startDate";
+            numerator_fields[3] = "numerator_endDate";
 
 
             function processExtraFieldsNumerator(t){
@@ -227,6 +229,8 @@ if(!authed) {
             var numer2_xtras;
             numerator2_fields[numerator2_fields.length] = "numerator2_measurements";
             numerator2_fields[1] = "numerator2_value";
+            numerator2_fields[2] = "numerator2_startDate";
+            numerator2_fields[3] = "numerator2_endDate";
 
 
             function processExtraFieldsNumerator2(t){
@@ -315,7 +319,7 @@ if(!authed) {
                                 <select name="numerator" id="numerator" onchange="javascript:processExtraFieldsNumerator(this)">
                                     <%for (Numerator n : numeratorList) {
                                         if (n.hasReplaceableValues()) {
-                                            repNum.put(n.getId(), n.getReplaceableKeys());
+                                        	repNum.put(n.getId(), n.getReplaceableKeys());
                                         }
 
                                         %>
@@ -335,6 +339,24 @@ if(!authed) {
                                     }
                                     %>
                                     <bean:message key="report.ClinicalReports.msgValue"/> : <input type="text" name="numerator_value" value="<%=numer_val%>"><br>
+
+                                </div>
+                                <div id="numerator_startDate" >
+                                    <%Object numer_startDate = "";
+                                    if (request.getAttribute("numerator_startDate") != null){
+                                    	numer_startDate =  request.getAttribute("numerator_startDate") ;
+                                    }
+                                    %>
+                                   Start Date : <input type="text" name="numerator_startDate" value="<%=numer_startDate%>"><br>
+
+                                </div>
+                                <div id="numerator_endDate" >
+                                    <%Object numer_endDate = "";
+                                    if (request.getAttribute("numerator_endDate") != null){
+                                    	numer_endDate =  request.getAttribute("numerator_endDate") ;
+                                    }
+                                    %>
+                                   End Date : <input type="text" name="numerator_endDate" value="<%=numer_endDate%>"><br>
 
                                 </div>
 
@@ -370,7 +392,24 @@ if(!authed) {
                                     <bean:message key="report.ClinicalReports.msgValue"/> : <input type="text" name="numerator2_value" value="<%=numer2_val%>"><br>
 
                                 </div>
+                               <div id="numerator2_startDate" >
+                                    <%Object numer2_startDate = "";
+                                    if (request.getAttribute("numerator2_startDate") != null){
+                                    	numer2_startDate =  request.getAttribute("numerator2_startDate") ;
+                                    }
+                                    %>
+                                   Start Date : <input type="text" name="numerator2_startDate" value="<%=numer2_startDate%>"><br>
 
+                                </div>
+                                <div id="numerator2_endDate" >
+                                    <%Object numer2_endDate = "";
+                                    if (request.getAttribute("numerator2_endDate") != null){
+                                    	numer2_endDate =  request.getAttribute("numerator2_endDate") ;
+                                    }
+                                    %>
+                                   End Date : <input type="text" name="numerator2_endDate" value="<%=numer2_endDate%>"><br>
+
+                                </div>
                                 <br/>
                             </fieldset>
                             <fieldset>

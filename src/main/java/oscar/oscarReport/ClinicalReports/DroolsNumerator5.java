@@ -28,26 +28,32 @@ package oscar.oscarReport.ClinicalReports;
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
 import org.drools.RuleBase;
+import org.drools.WorkingMemory;
 import org.drools.io.RuleBaseLoader;
+import org.jdom.Element;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 
 import oscar.OscarProperties;
 import oscar.oscarEncounter.oscarMeasurements.MeasurementFlowSheet;
 import oscar.oscarEncounter.oscarMeasurements.util.MeasurementDSHelper;
+import oscar.oscarEncounter.oscarMeasurements.util.RuleBaseCreator;
+import oscar.oscarEncounter.oscarMeasurements.util.TargetColour;
+import oscar.oscarEncounter.oscarMeasurements.util.TargetCondition;
 import oscar.util.ConversionUtils;
 
 /**
  *
  * @author jay
  */
-public class DroolsNumerator3 implements Numerator{
+public class DroolsNumerator5 implements Numerator{
     String name = null;
     String id = null;
     String file = null;
@@ -55,7 +61,7 @@ public class DroolsNumerator3 implements Numerator{
     Hashtable outputValues = null;
 
     /** Creates a new instance of DroolsNumerator */
-    public DroolsNumerator3() {
+    public DroolsNumerator5() {
     }
 
      public String getId() {
@@ -81,24 +87,55 @@ public class DroolsNumerator3 implements Numerator{
             Iterator terator = replaceableValues.entrySet().iterator();
             while(terator.hasNext()){
                 Entry en = (Entry) terator.next();
-                MiscUtils.getLogger().debug("IN DROOLS3 key "+en.getKey()+" val "+en.getValue());
+                MiscUtils.getLogger().debug("IN DROOLS5 key "+en.getKey()+" val "+en.getValue());
             }
 
             String measurement = (String) replaceableValues.get("measurements");
+            String value =  (String) replaceableValues.get("value");
             String startDate =  (String) replaceableValues.get("startDate");
             String endDate =  (String) replaceableValues.get("endDate");
 
             Date startDateAsDate = ConversionUtils.fromDateString(startDate, "yyyy-MM-dd");
             Date endDateAsDate = ConversionUtils.fromDateString(endDate, "yyyy-MM-dd");
 
+            TargetCondition tc = new TargetCondition();
+            tc.setType("isDataEqualTo");
+            tc.setParam(measurement);
+            tc.setValue(value);
+            TargetColour tcolour = new TargetColour();
+            tcolour.setAdditionConsequence("m.setInRange(true);");
+            ArrayList<TargetCondition> list = new ArrayList<TargetCondition>();
+            list.add(tc);
+            tcolour.setTargetConditions(list);
+            ArrayList<Element> list2 = new ArrayList<Element>();
+            list2.add(tcolour.getRuleBaseElement("ClinicalRule"));
+            RuleBaseCreator rcb = new RuleBaseCreator();
 
+
+
+            RuleBase ruleBase = rcb.getRuleBase("rulesetName", list2);
+
+//            EctMeasurementsDataBeanHandler ect = new EctMeasurementsDataBeanHandler(demographicNo, measurement);
+//           Collection v = ect.getMeasurementsDataVector();
+//           measurementList.add(new ArrayList(v));
 
             MeasurementDSHelper dshelper = new MeasurementDSHelper(loggedInInfo, demographicNo);
-            boolean a = dshelper.setMeasurement(measurement,startDateAsDate,endDateAsDate);
+            dshelper.setMeasurement(measurement,startDateAsDate,endDateAsDate);
 
-            return !a;
 
-           
+            MiscUtils.getLogger().debug("new working mem");
+            WorkingMemory workingMemory = ruleBase.newWorkingMemory();
+
+            MiscUtils.getLogger().debug("assertObject");
+
+            workingMemory.assertObject(dshelper);
+
+
+            MiscUtils.getLogger().debug("fireAllRules");
+            workingMemory.fireAllRules();
+            evalTrue = dshelper.isInRange();
+
+            MiscUtils.getLogger().debug("right before catch");
         }catch(Exception e){
             MiscUtils.getLogger().error("Error", e);
         }

@@ -255,9 +255,17 @@ DATE_FORMAT(CONCAT( (d.year_of_birth),'-',(d.month_of_birth),'-',(d.date_of_birt
   <Numerator id ="customMeas" name="Measurement Values" type="DROOLS2"  description="Number of patient with a selected measurement at a certain value"
             replaceKeys="measurements,value"/>    
             
-  <Numerator id ="customMeas2" name="No Measurement Values" type="DROOLS3"  description="Number of patient with no measurement value"
-            replaceKeys="measurements,value"/>       
-        
+            
+ <Numerator id ="customMeas3" name="Measurement Values with Date" type="DROOLS4"  description="Number of patient with a selected measurement with value within range and  within a date range"
+            replaceKeys="measurements,value,startDate,endDate"/>   
+            
+ <Numerator id ="customMeas5" name="Exact Measurement Values with Date" type="DROOLS5"  description="Number of patient with a selected measurement at an exact value within a date range"
+            replaceKeys="measurements,value,startDate,endDate"/>   
+
+ <Numerator id ="customMeas2" name="No Measurement Values with Date" type="DROOLS3"  description="Number of patient with no measurement value within a date range"
+            replaceKeys="measurements,startDate,endDate"/>     
+
+            
 <!--Numerators
   
 --> 
