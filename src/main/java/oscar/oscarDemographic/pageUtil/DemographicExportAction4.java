@@ -1952,9 +1952,19 @@ public class DemographicExportAction4 extends Action {
 							HashMap<String,Calendar> reportDates = hrm.getReportDates(i);
 
 							if (reportAuthor!=null) {
-								cdsDt.PersonNameSimple author = rpr.addNewSourceAuthorPhysician().addNewAuthorName();
-								if (StringUtils.filled(reportAuthor.get("firstname"))) author.setFirstName(reportAuthor.get("firstname"));
-								if (StringUtils.filled(reportAuthor.get("lastname"))) author.setLastName(reportAuthor.get("lastname"));
+								if(StringUtils.filled(reportAuthor.get("firstname")) && StringUtils.filled(reportAuthor.get("lastname"))) {
+									cdsDt.PersonNameSimple author = rpr.addNewSourceAuthorPhysician().addNewAuthorName();
+									if (StringUtils.filled(reportAuthor.get("firstname"))) author.setFirstName(reportAuthor.get("firstname"));
+									if (StringUtils.filled(reportAuthor.get("lastname"))) author.setLastName(reportAuthor.get("lastname"));
+								} else {
+									if(StringUtils.filled(reportAuthor.get("firstname"))) {
+										rpr.addNewSourceAuthorPhysician().setAuthorFreeText(reportAuthor.get("firstname"));
+									}
+									if(StringUtils.filled(reportAuthor.get("lastname"))) {
+										rpr.addNewSourceAuthorPhysician().setAuthorFreeText(reportAuthor.get("lastname"));
+									}
+								}
+					
 							}
 
 							if (reportContent!=null) {
