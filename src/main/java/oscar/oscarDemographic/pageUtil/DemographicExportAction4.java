@@ -103,9 +103,11 @@ import org.oscarehr.e2e.util.EverestUtils;
 import org.oscarehr.hospitalReportManager.dao.HRMDocumentCommentDao;
 import org.oscarehr.hospitalReportManager.dao.HRMDocumentDao;
 import org.oscarehr.hospitalReportManager.dao.HRMDocumentToDemographicDao;
+import org.oscarehr.hospitalReportManager.dao.HRMDocumentToProviderDao;
 import org.oscarehr.hospitalReportManager.model.HRMDocument;
 import org.oscarehr.hospitalReportManager.model.HRMDocumentComment;
 import org.oscarehr.hospitalReportManager.model.HRMDocumentToDemographic;
+import org.oscarehr.hospitalReportManager.model.HRMDocumentToProvider;
 import org.oscarehr.managers.DemographicManager;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.sharingcenter.DocumentType;
@@ -2047,13 +2049,29 @@ public class DemographicExportAction4 extends Action {
 								rpr.setSourceFacility(hrmDoc.getSourceFacility());
 							}
 
+							ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
+							HRMDocumentToProviderDao hrmDocumentToProviderDao = SpringUtils.getBean(HRMDocumentToProviderDao.class);
+							for(HRMDocumentToProvider hrmDocumentToProvider: hrmDocumentToProviderDao.findByHrmDocumentId(hrmDocumentId)) {
+								if(hrmDocumentToProvider.getSignedOff() != null && hrmDocumentToProvider.getSignedOff() == 1) {
+									ReportReviewed reviewed = rpr.addNewReportReviewed();
+									Provider provider = providerDao.getProvider(hrmDocumentToProvider.getProviderNo());
+									PersonNameSimple pns = reviewed.addNewName();
+									pns.setLastName(provider.getLastName());
+									pns.setFirstName(provider.getFirstName());
+									reviewed.setReviewingOHIPPhysicianId(provider.getOhipNo());
+									Calendar reviewCal = Calendar.getInstance();
+									reviewCal.setTime(hrmDocumentToProvider.getSignedOffTimestamp());
+									reviewed.addNewDateTimeReportReviewed().setFullDate(reviewCal);
+								}
+							}
+							/*
 							//reviewing info
 							if (reviewerId!=null && reviewDate!=null) {
 								ReportReviewed reviewed = rpr.addNewReportReviewed();
 								reviewed.addNewName();
 								reviewed.setReviewingOHIPPhysicianId(reviewerId);
 								reviewed.addNewDateTimeReportReviewed().setFullDate(reviewDate);
-							}
+							}*/
 
 							//Notes
 							List<HRMDocumentComment> comments = hrmDocCommentDao.getCommentsForDocument(Integer.parseInt(hrmDocumentId));
