@@ -1351,8 +1351,9 @@ public class DemographicExportAction4 extends Action {
 						imSummary = Util.addSummary(imSummary, "Date", preventionDate);
 					} else { // partial date
 						String dateFormat = partialDateDao.getFormat(PartialDate.PREVENTION, Integer.parseInt((String)prevMap.get("id")), PartialDate.PREVENTION_PREVENTIONDATE);
-						if (UtilDateUtilities.StringToDate(preventionDate, dateFormat)!=null) {
-							Date prevDate = UtilDateUtilities.StringToDate(preventionDate, dateFormat);
+						String sdfFormat = getSimpleDateFormatFromPatientDateFormat(dateFormat);
+						if (UtilDateUtilities.StringToDate(preventionDate, sdfFormat)!=null) {
+							Date prevDate = UtilDateUtilities.StringToDate(preventionDate, sdfFormat);
 							Util.putPartialDate(immu.addNewDate(), prevDate, dateFormat);
 							imSummary = Util.addSummary(imSummary, "Date", partialDateDao.getDatePartial(prevDate, dateFormat));
 						} else {
@@ -3230,6 +3231,18 @@ public class DemographicExportAction4 extends Action {
 
 	}
 
+	private String getSimpleDateFormatFromPatientDateFormat(String fmt) {
+		if(fmt == null)
+			return null;
+		
+		if("YYYY".equals(fmt)) {
+			return "yyyy";
+		}
+		if("YYYY-MM".equals(fmt)) {
+			return "yyyy-MM";
+		}
+		return null;
+	}
 }
 
 class Enrolment {
