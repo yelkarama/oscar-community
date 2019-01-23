@@ -48,16 +48,19 @@ import org.oscarehr.common.model.BillingONExt;
 import org.oscarehr.common.model.BillingONItem;
 import org.oscarehr.common.model.BillingOnTransaction;
 import org.oscarehr.common.model.Demographic;
-import org.oscarehr.common.model.DiagnosticCode;
 import org.oscarehr.common.model.Dxresearch;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.managers.BillingManager;
+import org.oscarehr.managers.SecurityInfoManager;
+import org.oscarehr.util.LoggedInInfo;
+import org.oscarehr.ws.rest.conversion.ProviderConverter;
 import org.oscarehr.ws.rest.conversion.ServiceTypeConverter;
 import org.oscarehr.ws.rest.to.AbstractSearchResponse;
 import org.oscarehr.ws.rest.to.GenericRESTResponse;
 import org.oscarehr.ws.rest.to.InvoiceCreateResponse;
 import org.oscarehr.ws.rest.to.model.BillingInvoiceTo1;
 import org.oscarehr.ws.rest.to.model.BillingItemTo1;
+import org.oscarehr.ws.rest.to.model.ProviderTo1;
 import org.oscarehr.ws.rest.to.model.ServiceTypeTo;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -74,27 +77,25 @@ import java.util.List;
 public class BillingService extends AbstractServiceImpl {
 
 	@Autowired
-	BillingManager billingManager;
+    private BillingManager billingManager;
 	@Autowired
-    ProviderDao providerDao;
+    private ProviderDao providerDao;
     @Autowired
-    DemographicDao demographicDao;
+    private DemographicDao demographicDao;
     @Autowired
-    BillingONCHeader1Dao billingONCHeader1Dao;
+    private BillingONCHeader1Dao billingONCHeader1Dao;
     @Autowired
-    BillingServiceDao billingServiceDao;
+    private BillingServiceDao billingServiceDao;
     @Autowired
-    OscarAppointmentDao appointmentDao;
+    private OscarAppointmentDao appointmentDao;
     @Autowired
-    DxresearchDAO dxresearchDAO;
+    private DxresearchDAO dxresearchDAO;
     @Autowired
-    BillingONPaymentDao billingONPaymentDao;
+    private BillingONExtDao billingONExtDao;
     @Autowired
-    BillingONExtDao billingONExtDao;
+    private BillingOnTransactionDao billingOnTransactionDao;
     @Autowired
-    BillingOnTransactionDao billingOnTransactionDao;
-    @Autowired
-    DiagnosticCodeDao diagnosticCodeDao;
+    private SecurityInfoManager securityInfoManager;
 
 	private OscarProperties oscarProperties = OscarProperties.getInstance();
 	
@@ -137,12 +138,38 @@ public class BillingService extends AbstractServiceImpl {
         }
         return new GenericRESTResponse(defaultViewSet, defaultView);
     }
+    
+    @GET
+    @Path("/getBillingProviders")
+    @Produces("application/json")
+    public AbstractSearchResponse<ProviderTo1> getBillingProviders() {
+        AbstractSearchResponse<ProviderTo1> response = new AbstractSearchResponse<ProviderTo1>();
+        
+        LoggedInInfo loggedInInfo = getLoggedInInfo();
+	    List<ProviderTo1> billableProviderResults = new ArrayList<ProviderTo1>();
+        ProviderConverter providerConverter = new ProviderConverter();
+        
+        for (Provider provider : providerDao.getProvidersWithNonEmptyCredentials()) {
+            billableProviderResults.add(providerConverter.getAsTransferObject(loggedInInfo, provider));
+        }
+
+        response.setContent(billableProviderResults);
+        response.setTotal(billableProviderResults.size());
+
+        return response;
+    }
 
     @POST
     @Path("/createInvoice")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public GenericRESTResponse createInvoice(BillingInvoiceTo1 invoiceRequest) {
+
+        LoggedInInfo loggedInInfo = getLoggedInInfo();
+        Provider loggedInProvider = loggedInInfo.getLoggedInProvider();
+        if (!securityInfoManager.hasPrivilege(loggedInInfo, "_billing", "w", invoiceRequest.getDemographicNo())) {
+            return new InvoiceCreateResponse(false, "Missing required security object (_billing)", null);
+        }
         Provider billingProvider = providerDao.getProvider(invoiceRequest.getProviderNo());
         if (billingProvider == null) {
             return new InvoiceCreateResponse(false, "Cannot create invoice, billing provider with id " + invoiceRequest.getProviderNo() + " does not exist.", null);
@@ -209,7 +236,7 @@ public class BillingService extends AbstractServiceImpl {
         invoice.setTotal(totalFee.setScale(2, BigDecimal.ROUND_HALF_UP));
         invoice.setPaid(new BigDecimal("0.00").setScale(2, BigDecimal.ROUND_HALF_UP));
         
-        saveInvoice(invoice, billedDemographic, billedAppointment);
+        saveInvoice(invoice, billedDemographic, loggedInProvider, billedAppointment);
 
 	    if (invoice.getId() != null) {
             return new InvoiceCreateResponse(true, invoice.getId().toString(), invoice.getId());
@@ -218,7 +245,7 @@ public class BillingService extends AbstractServiceImpl {
         }
     }
     
-    private void saveInvoice(BillingONCHeader1 invoice, Demographic billedDemographic, Appointment billedAppointment) {
+    private void saveInvoice(BillingONCHeader1 invoice, Demographic billedDemographic, Provider loggedInProvider, Appointment billedAppointment) {
         boolean isThirdParty = invoice.getPayProgram().substring(0, 3).matches(BillingDataHlp.BILLINGMATCHSTRING_3RDPARTY);
         if (isThirdParty && "ODP".equalsIgnoreCase(invoice.getPayProgram())) {
             String payProgram = billedDemographic.getHcType().equals("ON") ? "HCP" : "RMB";
@@ -226,7 +253,6 @@ public class BillingService extends AbstractServiceImpl {
         }
         
         billingONCHeader1Dao.persist(invoice);
-        Provider loggedInProvider = getLoggedInInfo().getLoggedInProvider();
 
         if (invoice.getId() > 0) {
             List<String> demographicDiagnoses = dxresearchDAO.getCodesByDemographicNo(billedDemographic.getDemographicNo());
