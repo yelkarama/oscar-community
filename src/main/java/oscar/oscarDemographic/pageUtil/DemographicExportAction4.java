@@ -1497,7 +1497,14 @@ public class DemographicExportAction4 extends Action {
 					if (StringUtils.filled(drugUnit)) medi.setDosageUnitOfMeasure(drugUnit);
 					mSummary = Util.addSummary(mSummary, "Dosage", dosageValue+" "+drugUnit);
 
-					if (StringUtils.filled(arr[p].getSpecialInstruction())) {
+					if (StringUtils.filled(arr[p].getSpecialInstruction()) && medi.getDrugDescription() != null) {
+						String[] parts = arr[p].getSpecial().split("\n");
+						if(parts.length == 4) {
+							medi.setPrescriptionInstructions(parts[1]);
+							mSummary = Util.addSummary(mSummary, "Prescription Instructions", parts[1]);
+						}
+					}
+					if (StringUtils.filled(arr[p].getSpecialInstruction()) && medi.getDrugDescription() == null) {
 						medi.setPrescriptionInstructions(arr[p].getSpecialInstruction());
 						mSummary = Util.addSummary(mSummary, "Prescription Instructions", arr[p].getSpecialInstruction());
 					}
