@@ -105,26 +105,32 @@
   if(!appt.getStatus().equals(request.getParameter("status")) && request.getParameter("status") != null){
 	  changedStatus = request.getParameter("status");
 
-	  if (appointmentRemindersEnabled && appointmentReminder != null) {
-          if (confirmedStatus != null && confirmedStatus.getValue() != null && changedStatus.equals(confirmedStatus.getValue())) {
-              appointmentReminder.setConfirmed(true);
-              appointmentReminderDao.merge(appointmentReminder);
-              AppointmentReminderStatus appointmentReminderStatus = appointmentReminderStatusDao.getByAppointmentReminderNo(appointmentReminder.getId());
-              if (appointmentReminderStatus != null) {
-                  appointmentReminderStatus.setAllDelivered(true);
-                  appointmentReminderStatusDao.merge(appointmentReminderStatus);
-              }
-          } else if ("C".equals(changedStatus) || (cancelledStatus != null && cancelledStatus.getValue() != null && changedStatus.equals(cancelledStatus.getValue()))) {
-                  appointmentReminder.setCancelled(true);
-                  appointmentReminderDao.merge(appointmentReminder);
-                  AppointmentReminderStatus appointmentReminderStatus = appointmentReminderStatusDao.getByAppointmentReminderNo(appointmentReminder.getId());
-                  if (appointmentReminderStatus != null) {
-                      appointmentReminderStatus.setAllDelivered(true);
-                      appointmentReminderStatusDao.merge(appointmentReminderStatus);
-                  }
-          }
-      }
+	  if (appointmentRemindersEnabled && confirmedStatus != null && confirmedStatus.getValue() != null && changedStatus.equals(confirmedStatus.getValue()) && appointmentReminder != null) {
+	      appointmentReminder.setConfirmed(true);
+	      appointmentReminderDao.merge(appointmentReminder);
+		  AppointmentReminderStatus appointmentReminderStatus = appointmentReminderStatusDao.getByAppointmentReminderNo(appointmentReminder.getId());
+		  if (appointmentReminderStatus != null) {
+		      appointmentReminderStatus.setAllDelivered(true);
+		      appointmentReminderStatusDao.merge(appointmentReminderStatus);
+		  }
+	  }
   }
+
+	if (request.getParameter("buttoncancel")!=null && (request.getParameter("buttoncancel").equals("Cancel Appt") || request.getParameter("buttoncancel").equals("No Show"))) {
+		changedStatus = request.getParameter("buttoncancel").equals("Cancel Appt") ? "C" : "N";
+	}
+
+	if (appointmentRemindersEnabled && "C".equals(changedStatus) || (cancelledStatus != null && cancelledStatus.getValue() != null && changedStatus.equals(cancelledStatus.getValue()))) {
+		if (appointmentReminder != null) {
+			appointmentReminder.setCancelled(true);
+			appointmentReminderDao.merge(appointmentReminder);
+			AppointmentReminderStatus appointmentReminderStatus = appointmentReminderStatusDao.getByAppointmentReminderNo(appointmentReminder.getId());
+			if (appointmentReminderStatus != null) {
+				appointmentReminderStatus.setAllDelivered(true);
+				appointmentReminderStatusDao.merge(appointmentReminderStatus);
+			}
+		}
+	}
 
    if (request.getParameter("buttoncancel")!=null && (request.getParameter("buttoncancel").equals("Cancel Appt") || request.getParameter("buttoncancel").equals("No Show"))) {
 	  changedStatus = request.getParameter("buttoncancel").equals("Cancel Appt")?"C":"N";
