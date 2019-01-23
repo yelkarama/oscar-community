@@ -313,6 +313,7 @@ public class RxPrescriptionData {
 		if (drug.getRefillQuantity() != null) p.setRefillQuantity(drug.getRefillQuantity());
 		p.setHideCpp(drug.getHideFromCpp());
 		p.setPharmacyId(drug.getPharmacyId());
+		if(drug.isNonAuthoritative() != null) p.setNonAuthoritative(drug.isNonAuthoritative());
 		return p;
 	}
 
