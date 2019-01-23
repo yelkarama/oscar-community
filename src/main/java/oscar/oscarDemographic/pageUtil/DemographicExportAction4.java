@@ -2013,6 +2013,10 @@ public class DemographicExportAction4 extends Action {
 								//Sending Facility Report Number
 								if (reportStrings.get("sendingfacilityreportnumber")!=null) {
 									rpr.setSendingFacilityReport(reportStrings.get("sendingfacilityreportnumber"));
+								} else {	
+									if (hrmDoc.getSourceFacilityReportNo()!=null) {
+										rpr.setSendingFacilityReport(hrmDoc.getSourceFacilityReportNo());
+									}
 								}
 
 								//Reviewing OHIP Physician ID

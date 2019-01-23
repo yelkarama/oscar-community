@@ -123,11 +123,14 @@ public class ReadHRMFile {
 
         PersonNameSimple author = getReportsReceived(r).getAuthorPhysician();
         if (author!=null) {
-        	//TODO: Fix this properly.  
+        	//TODO: Fix this properly.
         	if (author.getLastName().split("\\^").length == 7) {
         		String[] nameArray = author.getLastName().split("\\^");
         		authorPhysician.put("firstname", nameArray[1]);
         		authorPhysician.put("lastname", nameArray[2]);
+        	} else {  // previous behaviour
+        		authorPhysician.put("firstname",  author.getFirstName());
+        		authorPhysician.put("lastname", author.getLastName());
         	}
         }
         return authorPhysician;
