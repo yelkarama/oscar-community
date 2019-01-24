@@ -75,7 +75,7 @@
         {
             rxManage = new RxManage();
             rxManage.setMrpOnRx(Boolean.parseBoolean(request.getParameter("mrpPresc")));
-            rxManageDao.persist(rxManage); 
+            rxManageDao.persist(rxManage);
         }
 
         for(String key : SystemPreferences.RX_PREFERENCE_KEYS) {
@@ -161,6 +161,30 @@
 					</label>
 				</td>
 			</tr>
+            <tr>
+                <td>Display refill duration on prescriptions: </td>
+                <td>
+                    <label style="display: inline">
+                        <input type="radio" value="true" name="rx_show_refill_duration" <%= (dataBean.getProperty("rx_show_refill_duration", "false").equals("true") ? "checked" : "") %> /> Yes
+                    </label>
+                    &nbsp;&nbsp;&nbsp;
+                    <label style="display: inline">
+                        <input type="radio" value="false" name="rx_show_refill_duration" <%= (dataBean.getProperty("rx_show_refill_duration", "false").equals("false") ? "checked" : "") %> /> No
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <td>Display refill quantity on prescriptions: </td>
+                <td>
+                    <label style="display: inline">
+                        <input type="radio" value="true" name="rx_show_refill_quantity" <%= (dataBean.getProperty("rx_show_refill_quantity", "false").equals("true") ? "checked" : "") %> /> Yes
+                    </label>
+                    &nbsp;&nbsp;&nbsp;
+                    <label style="display: inline">
+                        <input type="radio" value="false" name="rx_show_refill_quantity" <%= (dataBean.getProperty("rx_show_refill_quantity", "false").equals("false") ? "checked" : "") %> /> No
+                    </label>
+                </td>
+            </tr>
             </tbody>
         </table>
 

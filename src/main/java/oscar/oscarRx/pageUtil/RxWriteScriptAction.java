@@ -70,7 +70,8 @@ import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
-
+import org.oscarehr.common.dao.SystemPreferencesDao;
+import org.oscarehr.common.model.SystemPreferences;
 import oscar.log.LogAction;
 import oscar.log.LogConst;
 import oscar.oscarRx.data.RxDrugData;
@@ -91,7 +92,8 @@ public final class RxWriteScriptAction extends DispatchAction {
 	private static final PartialDateDao partialDateDao = (PartialDateDao)SpringUtils.getBean("partialDateDao");
 
 	DemographicManager demographicManager = SpringUtils.getBean(DemographicManager.class) ;
-    
+
+
 	String removeExtraChars(String s){
 		return s.replace(""+((char) 130 ),"").replace(""+((char) 194 ),"").replace(""+((char) 195 ),"").replace(""+((char) 172 ),"");
 	}
@@ -1246,6 +1248,20 @@ public final class RxWriteScriptAction extends DispatchAction {
                                         rx.setNonAuthoritative(isNonAuthoritative);
 					String newline = System.getProperty("line.separator");
 					rx.setPatientCompliance(patientComplianceY, patientComplianceN);
+
+					//Implementation to show and hide refill qty and refill duration
+					SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+					SystemPreferences systemPreferences = systemPreferencesDao.findPreferenceByName("rx_show_refill_duration");
+					boolean showDuration = false;
+					if (systemPreferences != null && Boolean.parseBoolean(systemPreferences.getValue())) {
+						showDuration = true;
+					}
+
+					systemPreferences = systemPreferencesDao.findPreferenceByName("rx_show_refill_quantity");
+					boolean showQty = false;
+					if (systemPreferences != null && Boolean.parseBoolean(systemPreferences.getValue())) {
+						showQty = true;
+					}
 					String special;
 					if (rx.isCustomNote()) {
 						rx.setQuantity(null);
@@ -1257,26 +1273,45 @@ public final class RxWriteScriptAction extends DispatchAction {
 						if (rx.getUnitName() == null) {
 							special = rx.getCustomName() + newline + rx.getSpecial();
 							if (rx.getSpecialInstruction() != null && !rx.getSpecialInstruction().equalsIgnoreCase("null") && rx.getSpecialInstruction().trim().length() > 0) special += newline + rx.getSpecialInstruction();
-							special += newline + "Qty:" + rx.getQuantity() + " " + rx.getDispensingUnits() + " Repeats:" + "" + rx.getRepeat();
-							special += newline + "Refill Duration:" + rx.getRefillDuration() + " Refill Qty:" + rx.getRefillQuantity();
+                            special += newline + "Qty:" + rx.getQuantity() + " " + rx.getDispensingUnits() + " Repeats:" + "" + rx.getRepeat();
+                            if(showDuration){
+                                special += newline + "Refill Duration:" + rx.getRefillDuration();
+                            }
+                            if (showQty){
+                                special+= " Refill Qty:" + rx.getRefillQuantity();
+                            }
 						} else {
 							special = rx.getCustomName() + newline + rx.getSpecial();
 							if (rx.getSpecialInstruction() != null && !rx.getSpecialInstruction().equalsIgnoreCase("null") && rx.getSpecialInstruction().trim().length() > 0) special += newline + rx.getSpecialInstruction();
-							special += newline + "Qty:" + rx.getQuantity() + " " + rx.getUnitName() + " Repeats:" + "" + rx.getRepeat();
-							special += newline + "Refill Duration:" + rx.getRefillDuration() + " Refill Qty:" + rx.getRefillQuantity();
+                            special += newline + "Qty:" + rx.getQuantity() + " " + rx.getUnitName() + " Repeats:" + "" + rx.getRepeat();
+                            if(showDuration){
+                                special += newline + "Refill Duration:" + rx.getRefillDuration();
+                            }
+                            if (showQty){
+                                special+= " Refill Qty:" + rx.getRefillQuantity();
+                            }
 						}
 					} else {// non-custom drug
 						if (rx.getUnitName() == null) {
 							special = rx.getBrandName() + newline + rx.getSpecial();
 							if (rx.getSpecialInstruction() != null && !rx.getSpecialInstruction().equalsIgnoreCase("null") && rx.getSpecialInstruction().trim().length() > 0) special += newline + rx.getSpecialInstruction();
-
-							special += newline + "Qty:" + rx.getQuantity() + " " + rx.getDispensingUnits() + " Repeats:" + "" + rx.getRepeat();
-							special += newline + "Refill Duration:" + rx.getRefillDuration() + " Refill Qty:" + rx.getRefillQuantity();
+                            special += newline + "Qty:" + rx.getQuantity() + " Repeats:" + "" + rx.getRepeat();
+                            if(showDuration){
+                                special += newline + "Refill Duration:" + rx.getRefillDuration();
+                            }
+                            if (showQty){
+                                special+= " Refill Qty:" + rx.getRefillQuantity();
+                            }
 						} else {
 							special = rx.getBrandName() + newline + rx.getSpecial();
 							if (rx.getSpecialInstruction() != null && !rx.getSpecialInstruction().equalsIgnoreCase("null") && rx.getSpecialInstruction().trim().length() > 0) special += newline + rx.getSpecialInstruction();
-							special += newline + "Qty:" + rx.getQuantity() + " " + rx.getUnitName() + " Repeats:" + "" + rx.getRepeat();
-							special += newline + "Refill Duration:" + rx.getRefillDuration() + " Refill Qty:" + rx.getRefillQuantity();
+                            special += newline + "Qty:" + rx.getQuantity() + " " + rx.getUnitName() + " Repeats:" + "" + rx.getRepeat();
+                            if(showDuration){
+                                special += newline + "Refill Duration:" + rx.getRefillDuration();
+                            }
+                            if (showQty){
+                                special+= " Refill Qty:" + rx.getRefillQuantity();
+                            }
 						}
 					}
 
