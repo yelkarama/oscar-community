@@ -51,7 +51,6 @@ if(!authed) {
             String provider = (String) session.getValue("user");
 
             String numeratorId = (String) request.getAttribute("numeratorId");
-            String numerator2Id = (String) request.getAttribute("numerator2Id");
             String denominatorId = (String) request.getAttribute("denominatorId");
 
             ClinicalReportManager reports = ClinicalReportManager.getInstance();
@@ -61,8 +60,24 @@ if(!authed) {
 
             Hashtable rep = new Hashtable();
             Hashtable repNum = new Hashtable();
-            Hashtable repNum2 = new Hashtable();
-
+          
+            
+            Integer max_numerator = (Integer)request.getAttribute("max_numerator");
+            
+            Hashtable arrRepNum[] = new Hashtable[11];
+            for(int x=0;x<11;x++) {
+            	arrRepNum[x] = new Hashtable();
+            }
+            Object numer_val[] = new Object[11];
+            Object numer_startDate[] = new Object[11];
+            Object numer_endDate[] = new Object[11];
+           
+            String arrNumeratorId[] = new String[11];
+            for(int x=0;x<11;x++) {
+            	arrNumeratorId[x] = (String)request.getAttribute("numerator" + x + "Id");
+            }
+            
+            
             if (request.getParameter("clear") != null && request.getParameter("clear").equals("yes")) {
                 session.removeAttribute("ClinicalReports");
             }
@@ -96,8 +111,11 @@ if(!authed) {
         <script type="text/javascript" src="../share/calendar/calendar.js" ></script>
         <script type="text/javascript" src="../share/calendar/lang/<bean:message key="global.javascript.calendar"/>" ></script>
         <script type="text/javascript" src="../share/calendar/calendar-setup.js" ></script>
+ 
+ 		<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.12.3.js" ></script>
 
 
+			
         <style type="text/css">
             table.outline{
                 margin-top:50px;
@@ -225,38 +243,59 @@ if(!authed) {
             }
 
 
-            var numerator2_fields = new Array ();
-            var numer2_xtras;
-            numerator2_fields[numerator2_fields.length] = "numerator2_measurements";
-            numerator2_fields[1] = "numerator2_value";
-            numerator2_fields[2] = "numerator2_startDate";
-            numerator2_fields[3] = "numerator2_endDate";
+            <%
+            for(int x=0;x<11;x++) {
+            %>
+	            var numerator<%=x%>_fields = new Array ();
+	            var numer<%=x%>_xtras;
+	            numerator<%=x%>_fields[numerator<%=x%>_fields.length] = "numerator<%=x%>_measurements";
+	            numerator<%=x%>_fields[1] = "numerator<%=x%>_value";
+	            numerator<%=x%>_fields[2] = "numerator<%=x%>_startDate";
+	            numerator<%=x%>_fields[3] = "numerator<%=x%>_endDate";
+	
+	
+	            function processExtraFieldsNumerator<%=x%>(t){
+	                var currentDenom = t.options[t.selectedIndex].value;
+	               
+	                for (  i = 0 ; i < numerator<%=x%>_fields.length; i++) {
+	                    document.getElementById(numerator<%=x%>_fields[i]).style.display = 'none';
+	                }
+	                
+	                try{
+	                    var fields_to_turn_on = numer<%=x%>_xtras[currentDenom];
+	                   
+	                    for (  i = 0 ; i < fields_to_turn_on.length; i++) {
+	                        document.getElementById(fields_to_turn_on[i]).style.display = '';
+	                    }
+	                }catch(e){
+	
+	                }
+	            }
 
+            <% } %>
 
-            function processExtraFieldsNumerator2(t){
-                var currentDenom = t.options[t.selectedIndex].value;
-                //console.log(currentDenom);
-                //Hide all extra denom fields
-                for (  i = 0 ; i < numerator2_fields.length; i++) {
-                    document.getElementById(numerator2_fields[i]).style.display = 'none';
-                }
-                try{
-                    var fields_to_turn_on = numer2_xtras[currentDenom];
-                    //console.log("fields to turn on " + fields_to_turn_on[0]);
-                    //get list of extra
-                    for (  i = 0 ; i < fields_to_turn_on.length; i++) {
-                        //console.log(i+" "+document.getElementById(fields_to_turn_on[i]).style.display);
-                        document.getElementById(fields_to_turn_on[i]).style.display = '';
-                        //console.log(i+" "+document.getElementById(fields_to_turn_on[i]).style.display);
-                    }
-                }catch(e){
-
-                }
-
-                //console.log("going out");
+            
+            var num_numerators = 0;
+            function showNextNumerator() {
+            	if(num_numerators<=11) {
+	            	$("#fieldNumerator" + num_numerators).show();
+	            	num_numerators++;
+					if(num_numerators>11) {
+						$("#addNumeratorBtn").hide();
+					}
+            	}
             }
-
-
+            
+            <%if(max_numerator != null) {%>
+            $(document).ready(function(){
+            	var maxNumerator = <%=max_numerator%>;
+            	if(maxNumerator != -1) {
+            		for(var x=0;x<=maxNumerator;x++) {
+            			showNextNumerator();
+            		}
+            	}
+            });
+            <%}%>
         </script>
 
     </head>
@@ -333,85 +372,98 @@ if(!authed) {
                                     <% }%>
                                 </select>
                                 <div id="numerator_value" >
-                                    <%Object numer_val = "";
+                                    <%numer_val[0] = "";
                                     if (request.getAttribute("numerator_value") != null){
-                                        numer_val =  request.getAttribute("numerator_value") ;
+                                    	numer_val[0] =  request.getAttribute("numerator_value") ;
                                     }
                                     %>
-                                    <bean:message key="report.ClinicalReports.msgValue"/> : <input type="text" name="numerator_value" value="<%=numer_val%>"><br>
+                                    <bean:message key="report.ClinicalReports.msgValue"/> : <input type="text" name="numerator_value" value="<%=numer_val[0]%>"><br>
 
                                 </div>
                                 <div id="numerator_startDate" >
-                                    <%Object numer_startDate = "";
+                                    <%numer_startDate[0] = "";
                                     if (request.getAttribute("numerator_startDate") != null){
-                                    	numer_startDate =  request.getAttribute("numerator_startDate") ;
+                                    	numer_startDate[0] =  request.getAttribute("numerator_startDate") ;
                                     }
                                     %>
-                                   Start Date : <input type="text" name="numerator_startDate" value="<%=numer_startDate%>"><br>
+                                   Start Date : <input type="text" name="numerator_startDate" value="<%=numer_startDate[0]%>"><br>
 
                                 </div>
                                 <div id="numerator_endDate" >
-                                    <%Object numer_endDate = "";
+                                    <%numer_endDate[0] = "";
                                     if (request.getAttribute("numerator_endDate") != null){
-                                    	numer_endDate =  request.getAttribute("numerator_endDate") ;
+                                    	numer_endDate[0] =  request.getAttribute("numerator_endDate") ;
                                     }
                                     %>
-                                   End Date : <input type="text" name="numerator_endDate" value="<%=numer_endDate%>"><br>
+                                   End Date : <input type="text" name="numerator_endDate" value="<%=numer_endDate[0]%>"><br>
 
                                 </div>
 
                                 <br/>
                             </fieldset>
                             
-                            <fieldset>
+                            
+<!-- start of extra numerators -->                            
+
+							<%for(int i=0;i<11;i++) { %>
+
+                            <fieldset style="display:none" id="fieldNumerator<%=i%>">
                                 <legend><bean:message key="report.ClinicalReports.msgNumerator"/></legend>
 
-                                <select name="numerator2" id="numerator2" onchange="javascript:processExtraFieldsNumerator2(this)">
+                                <select name="numerator<%=i %>" id="numerator<%=i %>" onchange="javascript:processExtraFieldsNumerator<%=i %>(this)">
                                 	<option value="">Select Below</option>
                                     <%for (Numerator n : numeratorList) {
                                         if (n.hasReplaceableValues()) {
-                                            repNum2.put(n.getId(), n.getReplaceableKeys());
+                                            arrRepNum[i].put(n.getId(), n.getReplaceableKeys());
                                         }
 
                                         %>
-                                    <option value="<%=n.getId()%>"  <%=sel(numerator2Id, n.getId())%> ><%=n.getNumeratorName()%></option>
+                                    <option value="<%=n.getId()%>"  <%=sel(arrNumeratorId[i], n.getId())%> ><%=n.getNumeratorName()%></option>
                                     <%}%>
                                 </select>
 
-                                <select  id="numerator2_measurements" name="numerator2_measurements">
+                                <select  id="numerator<%=i %>_measurements" name="numerator<%=i %>_measurements">
                                     <% for (EctMeasurementTypesBean measurementTypes : vec) {%>
-                                    <option value="<%=measurementTypes.getType()%>"  <%=sel(measurementTypes.getType(), "" + request.getAttribute("numerator2_measurements"))%>   ><%=measurementTypes.getTypeDisplayName()%> (<%=measurementTypes.getType()%>) </option>
+                                    <option value="<%=measurementTypes.getType()%>"  <%=sel(measurementTypes.getType(), "" + request.getAttribute("numerator"+i+"_measurements"))%>   ><%=measurementTypes.getTypeDisplayName()%> (<%=measurementTypes.getType()%>) </option>
                                     <% }%>
                                 </select>
-                                <div id="numerator2_value" >
-                                    <%Object numer2_val = "";
-                                    if (request.getAttribute("numerator2_value") != null){
-                                        numer2_val =  request.getAttribute("numerator2_value") ;
+                                <div id="numerator<%=i %>_value" >
+                                    <%numer_val[i] = "";
+                                    if (request.getAttribute("numerator"+i+"_value") != null){
+                                        numer_val[i] =  request.getAttribute("numerator"+i+"_value") ;
                                     }
                                     %>
-                                    <bean:message key="report.ClinicalReports.msgValue"/> : <input type="text" name="numerator2_value" value="<%=numer2_val%>"><br>
+                                    <bean:message key="report.ClinicalReports.msgValue"/> : <input type="text" name="numerator<%=i %>_value" value="<%=numer_val[i]%>"><br>
 
                                 </div>
-                               <div id="numerator2_startDate" >
-                                    <%Object numer2_startDate = "";
-                                    if (request.getAttribute("numerator2_startDate") != null){
-                                    	numer2_startDate =  request.getAttribute("numerator2_startDate") ;
+                               <div id="numerator<%=i %>_startDate" >
+                                    <%numer_startDate[i] = "";
+                                    if (request.getAttribute("numerator"+i+"_startDate") != null){
+                                    	numer_startDate[i] =  request.getAttribute("numerator"+i+"_startDate") ;
                                     }
                                     %>
-                                   Start Date : <input type="text" name="numerator2_startDate" value="<%=numer2_startDate%>"><br>
+                                   Start Date : <input type="text" name="numerator<%=i %>_startDate" value="<%=numer_startDate[i]%>"><br>
 
                                 </div>
-                                <div id="numerator2_endDate" >
-                                    <%Object numer2_endDate = "";
-                                    if (request.getAttribute("numerator2_endDate") != null){
-                                    	numer2_endDate =  request.getAttribute("numerator2_endDate") ;
+                                <div id="numerator<%=i %>_endDate" >
+                                    <%numer_endDate[i] = "";
+                                    if (request.getAttribute("numerator"+i+"_endDate") != null){
+                                    	numer_endDate[i] =  request.getAttribute("numerator"+i+"_endDate") ;
                                     }
                                     %>
-                                   End Date : <input type="text" name="numerator2_endDate" value="<%=numer2_endDate%>"><br>
+                                   End Date : <input type="text" name="numerator<%=i %>_endDate" value="<%=numer_endDate[i]%>"><br>
 
                                 </div>
                                 <br/>
                             </fieldset>
+                            
+                            <% } %>
+<!-- end of extra numerators -->
+
+							<input type="button" value="Add Numerator" onClick="showNextNumerator()" id="addNumeratorBtn"/>
+							<br/>
+							<br/>
+							
                             <fieldset>
                                 <legend><bean:message key="report.ClinicalReports.msgDenominator"/></legend>
 
@@ -425,14 +477,26 @@ if(!authed) {
                                     <%}%>
                                 </select>
 
+								<%
+									String defaultDenominatorProviderNo = provider;
+									if(request.getAttribute("denominator_provider_no") != null) {
+										defaultDenominatorProviderNo = (String)request.getAttribute("denominator_provider_no");
+									}
+								%>
                                 <select  id="denominator_provider_no" name="denominator_provider_no">
                                     <%for (Map<String,String> h : providers) {%>
-                                    <option value="<%= h.get("providerNo")%>" <%= (h.get("providerNo").equals(provider) ? " selected" : "")%>><%= h.get("lastName")%> <%= h.get("firstName")%></option>
+                                    <option value="<%= h.get("providerNo")%>" <%= (h.get("providerNo").equals(defaultDenominatorProviderNo) ? " selected" : "")%>><%= h.get("lastName")%> <%= h.get("firstName")%></option>
                                     <%}%>
                                 </select>
                                 <div id="denominator_patientSet" name="denominator_patientSet">
+                                	<%
+                                	String defaultDenominatorPatientSet = "";
+                                	if(request.getAttribute("denominator_patientSet") != null) {
+										defaultDenominatorPatientSet = (String)request.getAttribute("denominator_patientSet");
+									}
+                                	%>
                                     <%for (String listName : demoSetList) {%>
-                                    <input type="checkbox" name="denominator_patientSet" value="<%=listName%>"><%=listName%><br>
+                                    <input type="checkbox" name="denominator_patientSet" value="<%=listName%>" <%=listName.equals(defaultDenominatorPatientSet) ? " checked=\"checked\" " : "" %>><%=listName%><br>
                                     <%}%>
                                 </div>
 
@@ -468,7 +532,6 @@ if(!authed) {
 							<input type="checkbox" name="includeNonPositiveResults" id="includeNonPositiveResults" <%=includeNonPositiveResultsCheck %>/>&nbsp;Include All Results (includes results where numerator evaluates to false)
 
                             <br/>
-
                             <input type="submit" value="<bean:message key="report.ClinicalReports.btnEvaluate"/>"/>
                         </html:form>
                     </fieldset>
@@ -489,17 +552,11 @@ if(!authed) {
 
 
                 <%
-            //String[] outputfields = new String[2];//{"_demographic_no","_report_result" };
-            //outputfields[0]= "_demographic_no";
-            //outputfields[1]= "_report_result";
-
-            //String[] outputfields = (String[]) request.getAttribute("outputfields");
-            // outputfields = (String[]) request.getAttribute("outputfields");
+          
             String[] outputfields = {"_demographic_no", "_report_result"};
 
             Hashtable forView = new Hashtable();
             if (request.getAttribute("extraValues") != null) {
-                //request.getParameter("extraValues");
                 List<org.apache.commons.collections.keyvalue.DefaultKeyValue> extraValues = (List) request.getAttribute("extraValues");
 
                 for (org.apache.commons.collections.keyvalue.DefaultKeyValue kv : extraValues) {
@@ -597,7 +654,12 @@ if(!authed) {
         //Calendar.setup( { inputField : "asOfDate", ifFormat : "%Y-%m-%d", showsTime :false, button : "date", singleClick : true, step : 1 } );
         denom_xtras = new Array();
         numer_xtras = new Array();
-        numer2_xtras = new Array();
+        
+<%
+	for(int x=0;x<11;x++) {
+		%>numer<%=x%>_xtras = new Array();<%
+	}
+%>
 <% Enumeration e = rep.keys();
    while (e.hasMoreElements()) {
     String key = (String) e.nextElement();
@@ -620,21 +682,28 @@ if(!authed) {
     numer_xtras['<%=key%>']= repNumVal<%=key%>;
 <% }%>
 
-<% Enumeration e3 = repNum2.keys();
-while (e3.hasMoreElements()) {
- String key = (String) e3.nextElement();
- String[] repNumValues = (String[]) repNum2.get(key);%>
- var repNumVal<%=key%> = new Array();
- <%for (int i = 0; i < repNumValues.length; i++) {%>
-     repNumVal<%=key%>[<%=i%>] = "numerator2_<%=repNumValues[i]%>";
- <%}%>
- numer2_xtras['<%=key%>']= repNumVal<%=key%>;
-<% }%>
+
+
+<% for(int x=0;x<arrRepNum.length;x++) {
+	Enumeration en = arrRepNum[x].keys();
+	while (en.hasMoreElements()) {
+		 String key = (String) en.nextElement();
+		 String[] repNumValues = (String[]) arrRepNum[x].get(key);%>
+		 var repNumVal<%=x%><%=key%> = new Array();
+		 <%for (int i = 0; i < repNumValues.length; i++) {%>
+		     repNumVal<%=x%><%=key%>[<%=i%>] = "numerator<%=x%>_<%=repNumValues[i]%>";
+		 <%}%>
+		 numer<%=x%>_xtras['<%=key%>']= repNumVal<%=x%><%=key%>;		
+<%	}
+ } %>
 
 
         processExtraFields(document.getElementById('denominator'));
         processExtraFieldsNumerator(document.getElementById('numerator'));
-        processExtraFieldsNumerator2(document.getElementById('numerator2'));
+       
+        <%for(int x=0;x<11;x++) {%>
+        processExtraFieldsNumerator<%=x%>(document.getElementById('numerator<%=x%>'));
+        <%}%>
 
     </script>
     <script language="javascript" src="../commons/scripts/sort_table/css.js"></script>

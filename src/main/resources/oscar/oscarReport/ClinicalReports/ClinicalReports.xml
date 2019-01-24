@@ -282,6 +282,11 @@ DATE_FORMAT(CONCAT( (d.year_of_birth),'-',(d.month_of_birth),'-',(d.date_of_birt
     type="SQL">select distinct demographic_no from demographic  where roster_status = 'A'</Denominator> 
     -->
 
+<Denominator id="ActPat" name="Active Patients"
+description="Number of active patients"
+type="SQL">select distinct demographic_no from demographic  where patient_status = 'AC'
+</Denominator>
+
 <Denominator id="COPDReg416" name="COPD Registry-416"
 description="Number of patients in COPD reg"
 type="SQL">select distinct dx.demographic_no from dxresearch dx, demographic d where dx.dxresearch_code in ('416') and dx.coding_system = 'icd9' and dx.status = 'A' and d.demographic_no = dx.demographic_no and d.patient_status = 'AC'
@@ -387,11 +392,6 @@ type="SQL">select distinct d.demographic_no from measurements m,measurements m2,
      and    m3.demographicNo = d.demographic_no  and m3.type = 'A1C' and  m3.dateObserved &gt;=  DATE_SUB(now(),INTERVAL 6 Month)  
      and  d.dxresearch_code in ('250') and d.coding_system = 'icd9' and d.status = 'A' 
      and d.demographic_no = de.demographic_no and de.provider_no = '${provider_no}' and de.demographic_no = d.demographic_no and de.patient_status = 'AC'
-</Denominator>
-     
-<Denominator id="ActPat" name="Active Patients"
-description="Number of active patients"
-type="SQL">select distinct demographic_no from demographic  where patient_status = 'AC'
 </Denominator>
 
 <Denominator id="ActPatbyP" name="Active Patients by practice"

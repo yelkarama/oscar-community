@@ -50,6 +50,7 @@ public class ReportEvaluator {
     Denominator denominator = null;
     Numerator numerator = null;
     Numerator numerator2 = null;
+    Numerator[] numerators = new Numerator[11];
     
     private ArrayList<Hashtable<String,Object>> reportResultList = null;
 
@@ -61,7 +62,7 @@ public class ReportEvaluator {
         evaluate(loggedInInfo, deno,numer,null,null,true);
     }
     
-    public void evaluate(LoggedInInfo loggedInInfo, Denominator deno, Numerator numer, Numerator numer2){
+    public void evaluate(LoggedInInfo loggedInInfo, Denominator deno, Numerator numer, Numerator[] numer2){
         evaluate(loggedInInfo, deno,numer,numer2,null,true);
     }
     
@@ -69,20 +70,27 @@ public class ReportEvaluator {
     	evaluate(loggedInInfo,deno,numer,null,additionalFields,true);
     }
 
-    public void evaluate(LoggedInInfo loggedInInfo, Denominator deno, Numerator numer, Numerator numer2,List<KeyValue> additionalFields, boolean includeFalseResults){
+    public void evaluate(LoggedInInfo loggedInInfo, Denominator deno, Numerator numer, Numerator[] numers,List<KeyValue> additionalFields, boolean includeFalseResults){
         denominator = deno;
         numerator = numer;
-        numerator2 = numer2;
+        this.numerators = numers;
         List demoList = deno.getDenominatorList();
         denominatorCount = demoList.size();
         setReportResultList(new ArrayList<Hashtable<String,Object>>());
         for (int i = 0; i < demoList.size(); i++){
             String demo = (String) demoList.get(i);
             boolean bool = numer.evaluate(loggedInInfo, demo);
+            
             boolean bool2 = true;
-            if(numer2 != null) {
-            	 bool2 = numer2.evaluate(loggedInInfo, demo);
+            for(int x=0;x<11;x++) {
+            	if(numers[x] != null) {
+            		boolean res = numers[x].evaluate(loggedInInfo, demo);
+            		if(!res) {
+            			bool2=false;
+            		}
+            	}
             }
+            
             //Object obj = numer.getOutputValues();  // PROBLEM IS THAT THIS WILL ALWAYS HAVE A VALUE
             Hashtable<String,Object> h = new Hashtable<String,Object>();
             h.put("_demographic_no",demo);
