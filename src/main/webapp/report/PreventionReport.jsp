@@ -678,6 +678,12 @@ if(!authed) {
 			$scope.runReport = function(selectedReport,selectedProvider){
 				console.log("$scope.selectedReport",selectedReport);
 				console.log("$scope.selectedProvider",selectedProvider);
+				
+				$scope.letter1 = [];
+				$scope.letter2 = [];
+				$scope.phone1 = [];
+
+				
 				preventionReportService.runReport(selectedReport,selectedProvider).then(function(data){
 					console.log("data coming back",data);
 					$scope.reportData = data;
