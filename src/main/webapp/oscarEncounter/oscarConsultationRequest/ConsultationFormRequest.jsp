@@ -1884,6 +1884,12 @@ function statusChanged(val) {
 							</td>
 							<td class="tite2"><%=thisForm.getPatientWPhone()%></td>
 						</tr>
+												<tr>
+							<td class="tite4"><bean:message
+								key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.msgCellPhone" />:
+							</td>
+							<td class="tite2"><%=thisForm.getPatientCellPhone()%></td>
+						</tr>
                                                 <tr>
 							<td class="tite4"><bean:message
 								key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.msgEmail" />:

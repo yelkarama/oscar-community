@@ -127,6 +127,7 @@ public class OscarJobUtils {
 			return false;
 		}
 		oscarRunnableInstance.setLoggedInProvider(provider);
+		oscarRunnableInstance.setConfig(job.getConfig());
 		
 		ScheduledFuture<Object> schedulefuture= taskScheduler.schedule(oscarRunnableInstance, trigger );
 		//cancel,isCancelled, isDone

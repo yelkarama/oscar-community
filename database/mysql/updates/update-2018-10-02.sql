@@ -8,3 +8,4 @@ alter table demographicArchive add mailingCity varchar(50);
 alter table demographicArchive add mailingProvince varchar(20);
 alter table demographicArchive add mailingPostal varchar(9);
 
+alter table OscarJob add column config text;

@@ -45,4 +45,11 @@ public class OscarJobDao extends AbstractDao<OscarJob> {
 		
 	    return query.getResultList();
     }
+	public List<OscarJob> getJobByName(String name){
+		Query query = entityManager.createQuery("select x from " + modelClass.getSimpleName() + " x where x.name = ?1 ");
+		query.setParameter(1, name);
+        return  query.getResultList();
+	}
+	
+	
 }
