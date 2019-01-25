@@ -85,7 +85,7 @@ if(!authed) {
 				  <div class="form-group">
 				    <label for="provider">Age <small>in years, add m for months</small></label>
 				    <input type="text" class="form-control" id="lower" placeholder="age" ng-model="newReport.age1">
-				    <input type="text" class="form-control" id="high" placeholder="age" ng-show="newReport.agestyle == 4" ng-model="newReport.age2">
+				    <input type="text" class="form-control" id="high" placeholder="age" ng-show="newReport.ageStyle == 4" ng-model="newReport.age2">
 				  </div>
 				</div>
 				<div class="col-sm-2">
