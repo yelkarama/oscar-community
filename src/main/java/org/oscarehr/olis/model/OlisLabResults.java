@@ -11,6 +11,7 @@ public class OlisLabResults {
     private List<OlisLabResultDisplay> resultList = new ArrayList<OlisLabResultDisplay>();
     private List<OLISHL7Handler.OLISError> errors =  new ArrayList<OLISHL7Handler.OLISError>();
     private boolean hasBlockedContent = false;
+    private boolean hasRequestingProvider = false;
     
     private String demographicName = "";
     private String demographicHin = "";
@@ -48,6 +49,13 @@ public class OlisLabResults {
     }
     public void setHasBlockedContent(boolean hasBlockedContent) {
         this.hasBlockedContent = hasBlockedContent;
+    }
+
+    public boolean isHasRequestingProvider() {
+        return hasRequestingProvider;
+    }
+    public void setHasRequestingProvider(boolean hasRequestingProvider) {
+        this.hasRequestingProvider = hasRequestingProvider;
     }
 
     public String getDemographicName() {

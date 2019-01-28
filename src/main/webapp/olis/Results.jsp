@@ -175,6 +175,11 @@ function popupNotesWindow(noteDiv) {
 #patientInfoTable tr td.info {
 	width: 25%;
 }
+	
+.patient-consent-alert {
+	color: #CC0000;
+	text-align: center;
+}
 </style>
 	
 <title>OLIS Search Results</title>
@@ -236,6 +241,13 @@ function popupNotesWindow(noteDiv) {
 			</table>
 		</td>
 	</tr>
+	<% if (olisLabResults.isHasBlockedContent() && olisLabResults.isHasRequestingProvider()) { %>
+	<tr>
+		<td colspan="2" class="patient-consent-alert">
+			Do not disclose without express patient consent
+		</td>
+	</tr>
+	<% } %>
 	<tr>
 		<td>
 			<%

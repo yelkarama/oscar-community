@@ -2730,6 +2730,22 @@ public class OLISHL7Handler implements MessageHandler {
 		}
 	}
 
+	/**
+	 * Gets the licence number for the ordering provider
+	 * @return The licence number of the ordering provider
+	 */
+	public String getOrderingProviderNumber() {
+	    String practionerNumber = "";
+	    try {
+	    	// Gets the practioner number from OBR-16-1
+            practionerNumber = terser.get("/.OBR-16-1");
+        } catch (HL7Exception e) {
+	        logger.error("Could not retrieve the ordering provider's number", e);
+        }
+	    
+	    return practionerNumber;
+    }
+	
 	@Override
 	public String getCCDocs() {
 

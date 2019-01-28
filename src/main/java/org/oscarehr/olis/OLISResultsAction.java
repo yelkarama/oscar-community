@@ -21,11 +21,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
+import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.dao.SystemPreferencesDao;
+import org.oscarehr.common.model.Provider;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.olis.model.OlisLabResultDisplay;
 import org.oscarehr.olis.model.OlisLabResults;
@@ -55,6 +58,21 @@ public class OLISResultsAction extends DispatchAction {
         OlisLabResults olisLabResults = new OlisLabResults();
 		
 		try {
+			ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
+			// Gets the requestingHic's provider number
+			String requestingHic = request.getParameter("requestingHic");
+			String requestingPractitionerNumber = "";
+			
+			// Checks if the provider number is empty
+			if (StringUtils.isNotEmpty(requestingHic)) {
+			    // Gets the related provider and ensures that a provider is returned
+				Provider provider = providerDao.getProvider(requestingHic);
+				if (provider != null) {
+				    // Gets the provider's practitioner number
+					requestingPractitionerNumber = provider.getPractitionerNo();
+				}
+			}
+			
 			String olisResultString = (String) request.getAttribute("olisResponseContent");			
 			if(olisResultString == null) {
 				olisResultString = oscar.Misc.getStr(request.getParameter("olisResponseContent"), "");
@@ -110,7 +128,14 @@ public class OLISResultsAction extends DispatchAction {
 					
 					searchResultsMap.put(resultUuid, olisResultHandler);
 					resultList.add(resultUuid);
-
+					// Gets the ordering provider number from the report
+					String licenceNumber = olisResultHandler.getOrderingProviderNumber();
+					// Compares if the report is ordered by the requesting provider
+					if (requestingPractitionerNumber.equals(licenceNumber)) {
+					    // If so, sets the flag to true
+						olisLabResults.setHasRequestingProvider(true);
+					}
+					
                     olisLabResults.getResultList().addAll(OlisLabResultDisplay.getListFromHandler(olisResultHandler, resultUuid));
 				}
 			}
