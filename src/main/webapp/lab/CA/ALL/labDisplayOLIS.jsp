@@ -1061,20 +1061,9 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                             <td bgcolor="white">
                                                 <div class="FieldData monospaced">
                                                 <% if (handler.isReportBlocked()) { %>
-                                                <%
-                                                boolean hasBlockedTest=false;
-                                                for(int i=0;i<handler.getHeaders().size();i++) {
-                                                	int obr = handler.getMappedOBR(i);
-                                                	if(handler.isOBRBlocked(obr)) {
-                                                		hasBlockedTest=true;
-                                                		break;
-                                                	}
-                                                }
-                                                if(hasBlockedTest) {
-                                                %>
-                                                	<span style="color:red; font-weight:bold">Do Not Disclose Without Explicit Patient Consent</span>
+                                                	<div style="color:red; font-weight:bold; text-align: center;">Do Not Disclose Without Explicit Patient Consent</div>
                                                 	<br/>
-                                                <% } } %>
+                                                <% } %>
 
                                                     <strong>Report Comments: </strong>
                                                 </div>

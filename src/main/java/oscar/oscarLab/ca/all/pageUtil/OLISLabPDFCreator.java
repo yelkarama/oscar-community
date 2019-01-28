@@ -371,7 +371,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		//Checks if the OBR is blocked
 		boolean blocked = handler.isOBRBlocked(obr);
 		if (blocked){
-			categoryPhrase.setFont(new Font(cf, 8, Font.NORMAL, Color.RED));
+			categoryPhrase.setFont(commentRedFont);
 			categoryPhrase.add("\n\n(Do Not Disclose Without Explicit Patient Consent)");
 		}
 
@@ -1122,8 +1122,18 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         Phrase commentPhrase = new Phrase();
         PdfPTable commentTable = new PdfPTable(1);
         commentTable.setWidthPercentage(100);
-        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
         cell.setColspan(1);
+        
+        // Gets if the report is blocked
+		boolean blocked = handler.isReportBlocked();
+		// If the report is blocked, creates the patient consent alert and adds it to the start of the comments area
+		if (blocked){
+			cell.setPhrase(new Phrase("Do Not Disclose Without Explicit Patient Consent", commentRedFont));
+			cell.setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
+			commentTable.addCell(cell);
+		}
+		
+		cell.setHorizontalAlignment(Element.ALIGN_LEFT);
         cell.setPhrase(new Phrase("Report Comments: ", commentBoldFont));
         commentTable.addCell(cell);
         for (int commentIndex = 0; commentIndex < handler.getReportCommentCount(); commentIndex++){
