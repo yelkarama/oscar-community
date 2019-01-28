@@ -208,7 +208,8 @@ public class OlisLabResultDisplay {
 
             int obxCount = olisHandler.getOBXCount(obr);
             if (obxCount > 0) {
-                for (int obx = 0; obx < obxCount; obx++) {
+                for (int obxIndex = 0; obxIndex < obxCount; obxIndex++) {
+                    int obx = olisHandler.getMappedOBX(obr, obxIndex);
                     String resultStatus = olisHandler.getOBXResultStatus(obr, obx).trim();
                     
                     // Gets the OBX value type
