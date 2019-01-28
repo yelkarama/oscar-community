@@ -372,7 +372,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		boolean blocked = handler.isOBRBlocked(obr);
 		if (blocked){
 			categoryPhrase.setFont(new Font(cf, 8, Font.NORMAL, Color.RED));
-			categoryPhrase.add("\n\n(Do Not Disclose Without Explicit Patient Consent");
+			categoryPhrase.add("\n\n(Do Not Disclose Without Explicit Patient Consent)");
 		}
 
 		cell.setPhrase(categoryPhrase);
