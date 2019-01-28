@@ -12,6 +12,7 @@ public class OlisLabResults {
     private List<OLISHL7Handler.OLISError> errors =  new ArrayList<OLISHL7Handler.OLISError>();
     private boolean hasBlockedContent = false;
     private boolean hasRequestingProvider = false;
+    private boolean display320Error = false;
     
     private String demographicName = "";
     private String demographicHin = "";
@@ -56,6 +57,13 @@ public class OlisLabResults {
     }
     public void setHasRequestingProvider(boolean hasRequestingProvider) {
         this.hasRequestingProvider = hasRequestingProvider;
+    }
+
+    public boolean isDisplay320Error() {
+        return display320Error;
+    }
+    public void setDisplay320Error(boolean display320Error) {
+        this.display320Error = display320Error;
     }
 
     public String getDemographicName() {

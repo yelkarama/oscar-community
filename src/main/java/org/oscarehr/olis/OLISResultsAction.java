@@ -101,6 +101,13 @@ public class OLISResultsAction extends DispatchAction {
                 List<OLISHL7Handler.OLISError> errors = reportHandler.getReportErrors();
                 if (errors.size() > 0) {
                     olisLabResults.setErrors(errors);
+                    // Loops through each error to check if it is a 920
+                    // If so then sets the flag to not display 320 errors
+                    for (OLISHL7Handler.OLISError error : errors) {
+                    	if (error.getIndentifer().equals("920")) {
+                    		olisLabResults.setDisplay320Error(false);
+						}
+					}
                 }
                 olisLabResults.setHasBlockedContent(reportHandler.isReportBlocked());
             }

@@ -266,9 +266,11 @@ function popupNotesWindow(noteDiv) {
 			}
 				List<OLISError> errors = olisLabResults.getErrors();
 				for (OLISError error : errors) {
+					if (!error.getIndentifer().equals("320") || olisLabResults.isDisplay320Error()) {
 			%>
 			<div class="error"><%=error.getIndentifer()%>:<%=error.getText().replaceAll("\\n", "<br />")%></div>
 			<%
+					}
 				}
 				if (olisLabResults.isHasBlockedContent()) {
 			%>
