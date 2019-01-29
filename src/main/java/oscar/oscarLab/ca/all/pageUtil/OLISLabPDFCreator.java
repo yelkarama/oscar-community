@@ -975,16 +975,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         PdfPTable orderingproviderTable = new PdfPTable(new float[]{2, 3});
         // Gets the parsed doctor information map
         HashMap<String, String> orderingProviderMap = handler.parseDoctor(handler.getDocName());
-        // Sets the ordering provider's name
-        cell.setPhrase(new Phrase("Ordered By:", boldFont));
-        orderingproviderTable.addCell(cell);
-        cell.setPhrase(new Phrase(orderingProviderMap.get("name"), font));
-		orderingproviderTable.addCell(cell);
-		// Sets the ordering provider's licence type and number
-        cell.setPhrase(new Phrase(orderingProviderMap.get("licenceType") + " #:", boldFont));
-		orderingproviderTable.addCell(cell);
-		cell.setPhrase(new Phrase(orderingProviderMap.get("licenceNumber"), font));
-		orderingproviderTable.addCell(cell);
+        addProviderMapToTable(orderingProviderMap, orderingproviderTable, "Ordered By:");
 
 		// Sets the ordering provider's address
 		HashMap<String,String> orderingProviderAddressMap = handler.getOrderingProviderAddress();
@@ -1006,6 +997,16 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 			orderingproviderTable.addCell(cell);
 		}
 
+
+		if (!stringIsNullOrEmpty(handler.getAttendingProviderName())){
+			HashMap<String, String> attendingProviderMap = handler.parseDoctor(handler.getAttendingProviderName());
+			addProviderMapToTable(attendingProviderMap, orderingproviderTable, "Attending Provider:");
+		}
+
+		if (!stringIsNullOrEmpty(handler.getAdmittingProviderName())){
+			HashMap<String, String> admittingProviderMap = handler.parseDoctor(handler.getAdmittingProviderName());
+			addProviderMapToTable(admittingProviderMap, orderingproviderTable, "Admitting Provider:");
+		}
 
         //Create results info table
         PdfPTable reportDetailsTable = new PdfPTable(2);
@@ -1061,20 +1062,6 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		        cell.setPhrase(new Phrase(getFullAddress(handler.getOrderingFacilityAddress()), font));
 		        reportDetailsTable.addCell(cell);
 	        }
-        }
-        
-        if (!stringIsNullOrEmpty(handler.getAttendingProviderName())){
-        	cell.setPhrase(new Phrase("Attending Provider: ", boldFont));
-        	reportDetailsTable.addCell(cell);
-            cell.setPhrase(getDoctorNamePhrase(handler.getAttendingProviderName()));
-            reportDetailsTable.addCell(cell);
-        }
-        
-        if (!stringIsNullOrEmpty(handler.getAdmittingProviderName())){
-        	cell.setPhrase(new Phrase("Admitting Provider: ", boldFont));
-        	reportDetailsTable.addCell(cell);
-            cell.setPhrase(getDoctorNamePhrase(handler.getAdmittingProviderName()));
-            reportDetailsTable.addCell(cell);
         }
     
         String primaryFacility = handler.getPerformingFacilityName();
@@ -1672,4 +1659,28 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         
         return doctorPhrase;
     }
+
+	/**
+	 * Adds a provider information map to the provided table.
+	 * 
+	 * @param providerMap HashMap containing the provider information that will be added to the table.
+	 *                       Should consist of <code>name</code>, <code>licenceType</code>, and <code>licenceNumber</code>
+	 * @param table The table that the provider information will be added to. It should be a two column table.
+	 * @param providerNameLabel The label to display for the provider name
+	 */
+	private void addProviderMapToTable(HashMap<String, String> providerMap, PdfPTable table, String providerNameLabel) {
+		PdfPCell cell = new PdfPCell();
+		cell.setBorder(0);
+		
+		cell.setPhrase(new Phrase(providerNameLabel, boldFont));
+		table.addCell(cell);
+		cell.setPhrase(getDoctorNamePhrase(providerMap.get("name")));
+		table.addCell(cell);
+
+		// Sets the provider's licence type and number
+		cell.setPhrase(new Phrase(providerMap.get("licenceType") + " #:", boldFont));
+		table.addCell(cell);
+		cell.setPhrase(new Phrase(providerMap.get("licenceNumber"), font));
+		table.addCell(cell);
+	}
 }

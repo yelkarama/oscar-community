@@ -265,6 +265,9 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
 .monospaced {
 	font-family: Courier, monospace !important;
 }
+.provider-information td {
+    padding-top: 15px;
+}
             -->
         </style>
         <script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery.js"></script>
@@ -775,6 +778,32 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                         <%
                                             }
                                         %>
+                                        
+                                        <% if (!"".equals(handler.getAttendingProviderName())) {
+                                            Map<String, String> attendingProviderMap = handler.parseDoctor(handler.getAttendingProviderName());
+                                        %>
+                                        <tr class="provider-information">
+                                            <td><div class="FieldData"><strong>Attending Provider:</strong></div></td>
+                                            <td><%=attendingProviderMap.get("name")%></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong><%=attendingProviderMap.get("licenceType")%> #:</strong></td>
+                                            <td><%=attendingProviderMap.get("licenceNumber")%></td>
+                                        </tr>
+                                        <% }%>
+                                        
+                                        <% if (!"".equals(handler.getAdmittingProviderName())) {
+                                            Map<String, String> admittingProviderMap = handler.parseDoctor(handler.getAdmittingProviderName());
+                                        %>
+                                        <tr class="provider-information">
+                                            <td><div class="FieldData"><strong>Admitting Provider:</strong></div></td>
+                                            <td><%=admittingProviderMap.get("name")%></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong><%=admittingProviderMap.get("licenceType")%> #:</strong></td>
+                                            <td><%=admittingProviderMap.get("licenceNumber")%></td>
+                                        </tr>
+                                        <% }%>
                                     </table>
                                 </td>
                                 <td bgcolor="white" valign="top">
@@ -886,42 +915,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                                 </div>
                                             </td>
                                         </tr>
-                                        <% } %>
-                                        <% if (!"".equals(handler.getAttendingProviderName())) { %>
-                                        <tr>
-
-                                            <td colspan="2">
-                                                <div class="FieldData">
-                                                    <strong>Attending Provider:</strong>
-                                                </div>
-                                            </td>
-                                            </tr>
-                                        <tr>
-                                            <td colspan="2">
-                                                <div class="FieldData">
-                                                    <%= handler.getAttendingProviderName() %>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <% }%>
-                                        <% if (!"".equals(handler.getAdmittingProviderName())) { %>
-                                        <tr>
-
-                                            <td colspan="2">
-                                                <div class="FieldData">
-                                                    <strong>Admitting Provider:</strong>
-                                                </div>
-                                            </td>
-                                            </tr>
-                                        <tr>
-                                            <td colspan="2">
-                                                <div class="FieldData">
-                                                    <%= handler.getAdmittingProviderName() %>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <% }%>
-                                         <%
+                                        <% }
                                String primaryFacility = handler.getPerformingFacilityName();
                                String reportingFacility = handler.getReportingFacilityName();
                                if (!stringIsNullOrEmpty(primaryFacility)) {
