@@ -93,21 +93,31 @@ public class SearchDemographicAutoCompleteAction extends Action {
         
 
         List<Demographic> list = null;
+		OscarProperties props = OscarProperties.getInstance();
+		String pstatus = props.getProperty("inactive_statuses", "IN, DE, IC, ID, MO, FI");
+		pstatus = pstatus.replaceAll("'","").replaceAll("\\s", "");
+		List<String>stati = Arrays.asList(pstatus.split(","));
 
         if (searchStr.length() == 8 && searchStr.matches("([0-9]*)")) {
-            list = demographicDao.searchDemographicByDOB(searchStr.substring(0,4)+"-"+searchStr.substring(4,6)+"-"+searchStr.substring(6,8), 100, 0,providerNo,outOfDomain);
-        } 
-        else if (searchStr.length() == 10 && searchStr.matches("([0-9]{4}-[0-9]{2}-[0-9]{2})")) {
-            list = demographicDao.searchDemographicByDOB(searchStr, 100, 0,providerNo,outOfDomain);
+        	if (activeOnly) {
+				list = demographicDao.searchDemographicByDOBAndNotStatus(searchStr.substring(0,4)+"-"+searchStr.substring(4,6)+"-"+searchStr.substring(6,8), stati, 100, 0,providerNo,outOfDomain);
+			} else {
+				list = demographicDao.searchDemographicByDOB(searchStr.substring(0,4)+"-"+searchStr.substring(4,6)+"-"+searchStr.substring(6,8), 100, 0,providerNo,outOfDomain);
+			}
+        } else if (searchStr.length() == 10 && searchStr.matches("([0-9]{4}-[0-9]{2}-[0-9]{2})")) {
+			if (activeOnly) {
+				list = demographicDao.searchDemographicByDOBAndNotStatus(searchStr, stati, 100, 0,providerNo,outOfDomain);
+			} else {
+				list = demographicDao.searchDemographicByDOB(searchStr, 100, 0,providerNo,outOfDomain);
+			}
         } else if (searchStr.length() == 10 && searchStr.matches("([0-9]{10})")) {
-            list = demographicDao.searchDemographicByHIN(searchStr, 100, 0,providerNo,outOfDomain);
+			if (activeOnly) {
+				list = demographicDao.searchDemographicByHINAndNotStatus(searchStr, stati, 100, 0,providerNo,outOfDomain);
+			} else {
+				list = demographicDao.searchDemographicByHIN(searchStr, 100, 0,providerNo,outOfDomain);
+			}
         }
         else if( activeOnly ) {
-        	OscarProperties props = OscarProperties.getInstance();
-        	String pstatus = props.getProperty("inactive_statuses", "IN, DE, IC, ID, MO, FI");
-            pstatus = pstatus.replaceAll("'","").replaceAll("\\s", "");
-            List<String>stati = Arrays.asList(pstatus.split(","));
-
         	list = demographicDao.searchDemographicByNameAndNotStatus(searchStr, stati, 100, 0, providerNo, outOfDomain);
         	if(list.size() == 100) {
         		MiscUtils.getLogger().warn("More results exists than returned");
