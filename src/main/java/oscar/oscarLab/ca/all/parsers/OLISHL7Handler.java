@@ -3023,7 +3023,7 @@ public class OLISHL7Handler implements MessageHandler {
 		}
 		String dateFormat = "yyyyMMddHHmmss";
 		dateFormat = dateFormat.substring(0, plain.length());
-		String stringFormat = "yyyy-MM-dd - HH:mm:ss";
+		String stringFormat = "yyyy-MM-dd HH:mm:ss";
 		stringFormat = stringFormat.substring(0, stringFormat.lastIndexOf(dateFormat.charAt(dateFormat.length() - 1)) + 1);
 
 		Date date = UtilDateUtilities.StringToDate(plain, dateFormat);
