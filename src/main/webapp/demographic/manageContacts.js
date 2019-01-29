@@ -52,6 +52,7 @@ function addContact() {
 function buildContactRoles(category) {
     var contactRoles = $("#contact_role");
     var roles = category === 'professional' ? $professionalRoles : $personalRoles;
+    roles.sort((a,b) => (a.description > b.description) ? 1 : ((b.description > a.description) ? -1 : 0));
 
     contactRoles.empty();
 
