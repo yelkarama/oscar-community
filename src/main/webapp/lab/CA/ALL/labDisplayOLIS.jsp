@@ -193,10 +193,9 @@ tr.AbnormalRes td ~ td a:hover { color: red }
 tr.AbnormalRes td ~ td a:visited { color: red }
 tr.AbnormalRes td ~ td a:active { color: red }
 .NormalRes   { font-weight: bold; font-size: 8pt; color: black; }
-.NormalRes a:link { color: rgb(0, 0, 238); }
-.NormalRes a:hover { color: rgb(0, 0, 238); }
-.NormalRes a:visited { color: rgb(0, 0, 238); }
-.NormalRes a:active { color: rgb(0, 0, 238); }
+a {
+    color: black;
+}
 .CorrectedRes { font-weight: bold; font-size: 8pt; color: #E000D0; font-family:
                Verdana, Arial, Helvetica }
 .CorrectedRes a:link { color: #6da997 }
