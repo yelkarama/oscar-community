@@ -901,7 +901,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		Set<String> patientIdentifiers = handler.getPatientIdentifiers();
 		for (String identifier : patientIdentifiers) {
 			// Skip the health number (displayed above)
-			if (identifier.equals("JHN") || (identifier.equals("MR") && !handler.getHealthNum().isEmpty())) {
+			if (identifier.equals("JHN")) {
 				continue;
 			}
 			String[] identifiers = handler.getPatientIdentifier(identifier);
