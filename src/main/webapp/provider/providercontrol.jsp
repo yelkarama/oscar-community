@@ -148,7 +148,7 @@
             {"day" , "appointmentprovideradminday.jsp"},
             {"month" , "appointmentprovideradminmonth.jsp"},
             {"addstatus" , "provideraddstatus.jsp"},
-            {"updatepreference" , "providerupdatepreference.jsp"},
+            {"updatepreference" , "providerupdatepreference.jsp?groupOnly=true"},
             {"displaymygroup" , "providerdisplaymygroup.jsp"},
             {"encounter" , "providerencounter.jsp"},
             {"encountersingle" , "providerencountersingle.jsp"},

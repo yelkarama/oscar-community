@@ -198,28 +198,24 @@ public class ProviderPropertyAction extends DispatchAction {
         }
 
         propertyValue = StringUtils.trimToNull(request.getParameter("ticklerDefaultRecipient"));
-        if (propertyValue != null) {
-            property = propertyDAO.getProp(providerNo, UserProperty.TICKLER_DEFAULT_RECIPIENT);
-            if (property == null) {
-                property = new UserProperty();
-                property.setProviderNo(providerNo);
-                property.setName(UserProperty.TICKLER_DEFAULT_RECIPIENT);
-            }
-            property.setValue(propertyValue);
-            propertyDAO.saveProp(property);
+        property = propertyDAO.getProp(providerNo, UserProperty.TICKLER_DEFAULT_RECIPIENT);
+        if (property == null) {
+            property = new UserProperty();
+            property.setProviderNo(providerNo);
+            property.setName(UserProperty.TICKLER_DEFAULT_RECIPIENT);
         }
+        property.setValue(propertyValue);
+        propertyDAO.saveProp(property);
 
         propertyValue = StringUtils.trimToNull(request.getParameter("default_pharmacy"));
-        if (propertyValue != null) {
-            property = propertyDAO.getProp(providerNo, UserProperty.DEFAULT_PHARMACY);
-            if (property == null) {
-                property = new UserProperty();
-                property.setProviderNo(providerNo);
-                property.setName(UserProperty.DEFAULT_PHARMACY);
-            }
-            property.setValue(propertyValue);
-            propertyDAO.saveProp(property);
+        property = propertyDAO.getProp(providerNo, UserProperty.DEFAULT_PHARMACY);
+        if (property == null) {
+            property = new UserProperty();
+            property.setProviderNo(providerNo);
+            property.setName(UserProperty.DEFAULT_PHARMACY);
         }
+        property.setValue(propertyValue);
+        propertyDAO.saveProp(property);
 
         propertyValue = StringUtils.trimToNull(request.getParameter("default_service_other"));
         if (propertyValue != null) {

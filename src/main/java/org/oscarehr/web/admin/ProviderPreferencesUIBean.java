@@ -268,6 +268,18 @@ public final class ProviderPreferencesUIBean {
 		providerPreferenceDao.merge(providerPreference);
 	}
 
+	public static ProviderPreference updateGroupNo(String providerNo, String groupNo) {
+		ProviderPreference providerPreference = getProviderPreference(providerNo);
+		groupNo = StringUtils.trimToNull(groupNo);
+		// do not update if a null value is passed for groupNo, otherwise it will cause issues
+		if (groupNo != null) {
+			providerPreference.setMyGroupNo(groupNo);
+			providerPreferenceDao.merge(providerPreference);
+		}
+		
+		return providerPreference;
+	}
+
 	/**
 	 * Checks the showAppointmentReason preference for the given provider number
 	 * @param providerNumber

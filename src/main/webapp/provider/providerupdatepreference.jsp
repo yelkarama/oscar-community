@@ -59,16 +59,21 @@
 <%
 	String programId_forCME = request.getParameter("case_program_id");
 	request.getSession().setAttribute("case_program_id",programId_forCME);
+	Boolean updateGroupOnly = Boolean.parseBoolean(request.getParameter("groupOnly"));
 	
 	String selected_site = (String) request.getParameter("site") ;
 	if (selected_site != null) {
 		session.setAttribute("site_selected", (selected_site.equals("none") ? null : selected_site) );	    
 	}
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-
-	ProviderPropertyAction.updateOrCreateProviderProperties(request);
-	
-	ProviderPreference providerPreference=ProviderPreferencesUIBean.updateOrCreateProviderPreferences(request);
+	ProviderPreference providerPreference;
+	if (updateGroupOnly) {
+		providerPreference = ProviderPreferencesUIBean.updateGroupNo(loggedInInfo.getLoggedInProviderNo(), request.getParameter("mygroup_no"));
+	} else {
+        ProviderPropertyAction.updateOrCreateProviderProperties(request);
+        
+        providerPreference = ProviderPreferencesUIBean.updateOrCreateProviderPreferences(request);
+	}
 
 	//--- 
 	session.setAttribute(SessionConstants.LOGGED_IN_PROVIDER_PREFERENCE, providerPreference);
