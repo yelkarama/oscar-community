@@ -1419,7 +1419,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
  
             // Sets the generated message
             cb.setFontAndSize(bf, 9);
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String generatedMessage = "Generated from OLIS on " + sdf.format(new Date()) + " by user " + printingProvider.getFirstName() + " " + printingProvider.getLastName();
             cb.showTextAligned(PdfContentByte.ALIGN_RIGHT, generatedMessage, 575, height - 40, 0);
             cb.endText();
