@@ -106,7 +106,7 @@ public class RxPrescriptionData {
 		prescription.setSpecial(drug.getSpecial());
 		prescription.setGenericName(drug.getGenericName());
 		prescription.setAtcCode(drug.getAtc());
-		prescription.setScript_no(drug.getPrescriptionIdentifier());
+		prescription.setScript_no(String.valueOf(drug.getScriptNo()));
 		prescription.setRegionalIdentifier(drug.getRegionalIdentifier());
 		prescription.setNaturalProductNumber(drug.getNaturalProductNumber());
 		prescription.setUnit(drug.getUnit());
@@ -134,6 +134,7 @@ public class RxPrescriptionData {
 		if (drug.getDispenseInterval() != null) prescription.setDispenseInterval(drug.getDispenseInterval());
 		if (drug.getRefillDuration() != null) prescription.setRefillDuration(drug.getRefillDuration());
 		if (drug.getRefillQuantity() != null) prescription.setRefillQuantity(drug.getRefillQuantity());
+        if (drug.getPrescriptionIdentifier() != null) prescription.setPrescriptionIdentifier(drug.getPrescriptionIdentifier());
 		if (drug.getPriorRxRefId() != null) prescription.setPriorRxRefId(drug.getPriorRxRefId());
 		if (drug.getProtocolId() != null) prescription.setProtocolId(drug.getProtocolId());
 
@@ -278,7 +279,7 @@ public class RxPrescriptionData {
 		p.setArchived(String.valueOf(drug.isArchived()));
 		p.setGenericName(drug.getGenericName());
 		p.setAtcCode(drug.getAtc());
-		p.setScript_no(drug.getPrescriptionIdentifier());
+		p.setScript_no(String.valueOf(drug.getScriptNo()));
 		p.setRegionalIdentifier(drug.getRegionalIdentifier());
 		p.setNaturalProductNumber(drug.getNaturalProductNumber());
 		p.setUnit(drug.getUnit());
@@ -305,6 +306,7 @@ public class RxPrescriptionData {
 		if (drug.getDispenseInterval() != null) p.setDispenseInterval(drug.getDispenseInterval());
 		if (drug.getRefillDuration() != null) p.setRefillDuration(drug.getRefillDuration());
 		if (drug.getRefillQuantity() != null) p.setRefillQuantity(drug.getRefillQuantity());
+        if (drug.getPrescriptionIdentifier() != null) p.setPrescriptionIdentifier(drug.getPrescriptionIdentifier());
 		if (drug.getPriorRxRefId() != null) p.setPriorRxRefId(drug.getPriorRxRefId());
 		if (drug.getProtocolId() != null) p.setProtocolId(drug.getProtocolId());
 		p.setHideCpp(drug.getHideFromCpp());
@@ -669,6 +671,7 @@ public class RxPrescriptionData {
 		private Integer refillDuration = 0;
 		private Integer refillQuantity = 0;
 		private String dispenseInterval = "0";
+        private String prescriptionIdentifier = "";
 		private String priorRxRefId = "";
 		private String protocolId = "icd9";
 		private int position = 0;
@@ -1918,7 +1921,14 @@ public class RxPrescriptionData {
 			this.dispenseInterval = dispenseInterval;
 		}
 
-		public String getPriorRxRefId() {
+        public String getPrescriptionIdentifier() {
+            return prescriptionIdentifier;
+        }
+        public void setPrescriptionIdentifier(String prescriptionIdentifier) {
+            this.prescriptionIdentifier = prescriptionIdentifier;
+        }
+
+        public String getPriorRxRefId() {
 			return priorRxRefId;
 		}
 
