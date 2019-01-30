@@ -102,4 +102,7 @@ public class HRMDownloadJob implements OscarRunnable {
 	}
 
 
+	public void setConfig(String config) {
+	}
+	
 }
