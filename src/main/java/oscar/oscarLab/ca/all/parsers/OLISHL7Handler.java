@@ -1976,7 +1976,18 @@ public class OLISHL7Handler implements MessageHandler {
 	}
 
 	public String getOBXCESensitivity(int i, int j) {
-		return (getOBXField(i, j, 5, 0, 1));
+		String type = getOBXValueType(i, j);
+		String obxValue = getOBXField(i, j, 5, 0, 1);
+    	
+		if (type.equals("SN")) {
+			obxValue += getOBXField(i, j, 5, 0, 2);
+		} else if (type.equals("TS") || type.equals("DT")) {
+			obxValue = formatDateTime(obxValue);
+		} else if (type.equals("TM")) {
+		    obxValue = formatTime(obxValue);
+        }
+    	
+		return obxValue;
 	}
 
 	@Override

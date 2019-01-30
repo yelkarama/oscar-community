@@ -219,6 +219,15 @@ public class OlisLabResultDisplay {
                     // If it isn't a coded entry, then gets OBX 5.1
                     if (valueType.equals("CE")) {
                         resultValue = olisHandler.getOBXCEName(obr, obx);
+                    } else if (valueType.equals("SN")) {
+                        // If the result is a Structured Number, it needs to get both sections of 5.1
+                        resultValue = olisHandler.getOBXSNResult(obr, obx);
+                    } else if (valueType.equals("TS") || valueType.equals("DT")) {
+                        // If the value is a timestamp or date, it can use the getOBXTSResult function
+                        resultValue = olisHandler.getOBXTSResult(obr, obx);
+                    } else if (valueType.equals("TM")) {
+                        // If the value is a Time, gets it in a formatted version
+                        resultValue = olisHandler.getOBXTMResult(obr, obx);
                     } else {
                         resultValue = olisHandler.getOBXResult(obr, obx);
                     }
