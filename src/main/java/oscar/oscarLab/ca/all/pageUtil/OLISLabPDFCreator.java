@@ -536,58 +536,51 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 				if (obxValueType.equals("NM") || obxValueType.equals("ST") || obxValueType.equals("SN")){
 					//Checks if it is Ancillary and obxValueType is not SN, adds Patient Observation row to table
 					if (handler.isAncillary(obr, obx) && !obxValueType.equals("SN")){
+						Phrase phrase = new Phrase("Patient Observation: ", boldFont);
+						phrase.add(obxDisplayNamePhrase);
 						// Adds the patient observation/obx name
-						cell.setColspan(1);
-						cell.setPhrase(new Phrase("Patient Observation", boldFont));
-						table.addCell(cell);
-
-						cell.setColspan(4);
-						cell.setPhrase(obxDisplayNamePhrase);
+						cell.setColspan(5);
+						cell.setPhrase(phrase);
 						table.addCell(cell);
 						
 						// Adds the ancillary result
-						cell.setColspan(1);
-						cell.setPhrase(new Phrase("Result", boldFont));
+						phrase = new Phrase("Result: ", boldFont);
+						phrase.setFont(lineFont);
+						phrase.add(handler.getOBXResult(obr, obx));
+						cell.setPhrase(phrase);
 						table.addCell(cell);
-
-						cell.setColspan(4);
-						OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(handler.getOBXResult(obr, obx), lineFont, cell));
 						
 						// Adds the abnormal flag
-						cell.setColspan(1);
-						cell.setPhrase(new Phrase("Flag", boldFont));
+						phrase = new Phrase("Flag: ", boldFont);
+						phrase.setFont(lineFont);
+						phrase.add(handler.getOBXAbnormalFlag(obr, obx));
+						cell.setPhrase(phrase);
 						table.addCell(cell);
-						
-						cell.setColspan(4);
-						OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(handler.getOBXAbnormalFlag(obr, obx), lineFont, cell));
-						
 						
 						// Adds the reference range
-						cell.setColspan(1);
-						cell.setPhrase(new Phrase("Reference Range", boldFont));
+						phrase = new Phrase("Reference Range: ", boldFont);
+						phrase.setFont(lineFont);
+						phrase.add(handler.getOBXReferenceRange(obr, obx));
+						cell.setPhrase(phrase);
 						table.addCell(cell);
-						
-						cell.setColspan(4);
-						OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(handler.getOBXReferenceRange(obr, obx), lineFont, cell));
 						
 						// Adds the units
-						cell.setColspan(1);
-						cell.setPhrase(new Phrase("Units", boldFont));
+						phrase = new Phrase("Units: ", boldFont);
+						phrase.setFont(lineFont);
+						phrase.add(handler.getOBXUnits(obr, obx));
+						cell.setPhrase(phrase);
 						table.addCell(cell);
-						
-						cell.setColspan(4);
-						OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(handler.getOBXUnits(obr, obx), lineFont, cell));
 						
 						// Adds the observation date and time
-						cell.setColspan(1);
-						cell.setPhrase(new Phrase("Observation Date/Time", boldFont));
+						phrase = new Phrase("Observation Date/Time: ", boldFont);
+						phrase.setFont(lineFont);
+						String obsDate = handler.getOBXObservationDate(obr, obx);
+						if (!stringIsNullOrEmpty(obsDate)) {
+							phrase.add(obsDate);
+						}
+						cell.setPhrase(phrase);
 						table.addCell(cell);
 						
-						cell.setColspan(4);
-						String obsDate = handler.getOBXObservationDate(obr, obx);
-						if (!stringIsNullOrEmpty(obsDate)){
-							OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(obsDate, lineFont, cell));
-						}
 						cell.setColspan(1);
 					} else {
 

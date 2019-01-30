@@ -1435,32 +1435,29 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                         	|| obxValueType.equals("ST")) { // String Data
                                         	if (handler.isAncillary(obr,obx)) { %>
                                             <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-                                                <td><div class="FieldData"><strong>Patient Observation</strong></div></td>
-                                                <td colspan="4">
-                                                    <a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))">
-                                                        <%=obxDisplayName %>
-                                                    </a>
+                                                <td colspan="5">
+                                                    <div class="FieldData">
+                                                        <strong>Patient Observation</strong>
+                                                        <a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))">
+                                                            <%=obxDisplayName %>
+                                                        </a>
+                                                    </div>
                                                 </td>
                                            	</tr>
                                             <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-                                                <td><div class="FieldData"><strong>Result:</strong></div></td>
-                                                <td align="left" colspan="4"><%= strikeOutInvalidContent(handler.getOBXResult(obr, obx), status) %></td>
+                                                <td colspan="5"><div class="FieldData"><strong>Result:</strong> <%= strikeOutInvalidContent(handler.getOBXResult(obr, obx), status) %></div></td>
                                             </tr>
                                             <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-                                                <td><div class="FieldData"><strong>Flag:</strong></div></td>
-                                                <td align="left" colspan="4"><%= strikeOutInvalidContent(handler.getOBXAbnormalFlag(obr, obx), status)%></td>
+                                                <td colspan="5"><div class="FieldData"><strong>Flag:</strong> <%= strikeOutInvalidContent(handler.getOBXAbnormalFlag(obr, obx), status)%></div></td>
                                             </tr>
                                             <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-                                                <td><div class="FieldData"><strong>Reference Range:</strong></div></td>
-                                                <td align="left" colspan="4"><%=strikeOutInvalidContent(handler.getOBXReferenceRange(obr, obx), status)%></td>
+                                                <td colspan="5"><div class="FieldData"><strong>Reference Range:</strong> <%=strikeOutInvalidContent(handler.getOBXReferenceRange(obr, obx), status)%></div></td>
                                             </tr>
                                             <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-                                                <td><div class="FieldData"><strong>Units:</strong></div></td>
-                                                <td align="left" colspan="4"><%=strikeOutInvalidContent(handler.formatString(handler.getOBXUnits(obr, obx)), status) %></td>
+                                                <td colspan="5"><div class="FieldData"><strong>Units:</strong> <%=strikeOutInvalidContent(handler.formatString(handler.getOBXUnits(obr, obx)), status) %></div></td>
                                             </tr>
                                             <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-                                                <td><div class="FieldData"><strong>Observation Date/Time:</strong></div></td>
-                                                <td align="left" colspan="4"><%=strikeOutInvalidContent(handler.getOBXObservationDate(obr, obx), status) %></td>
+                                                <td colspan="5"><div class="FieldData"><strong>Observation Date/Time:</strong> <%=strikeOutInvalidContent(handler.getOBXObservationDate(obr, obx), status) %></div></td>
                                             </tr>
                                             
                                             <% } else { %>
