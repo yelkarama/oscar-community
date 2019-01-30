@@ -37,9 +37,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.bouncycastle.util.encoders.Base64;
 import org.json.JSONObject;
+import org.oscarehr.olis.dao.OLISFacilitiesDao;
 import org.oscarehr.olis.dao.OLISRequestNomenclatureDao;
 import org.oscarehr.olis.dao.OLISResultNomenclatureDao;
 import org.oscarehr.olis.dao.OlisMicroorganismNomenclatureDao;
+import org.oscarehr.olis.model.OLISFacilities;
 import org.oscarehr.olis.model.OLISRequestNomenclature;
 import org.oscarehr.olis.model.OLISResultNomenclature;
 import org.oscarehr.olis.model.OlisLabResultSortable;
@@ -2317,6 +2319,7 @@ public class OLISHL7Handler implements MessageHandler {
     }
 
 	public String getReportSourceOrganization(int j) {
+		OLISFacilitiesDao olisFacilitiesDao = SpringUtils.getBean(OLISFacilitiesDao.class);
 		try {
 			String[] segments = terser.getFinder().getRoot().getNames();
 			int k = getNTELocation(-1, -1);
@@ -2333,7 +2336,16 @@ public class OLISHL7Handler implements MessageHandler {
 			String ident = key.substring(0, key.indexOf(":"));
 			ident = getOrganizationType(ident);
 			key = key.substring(key.indexOf(":") + 1);
-			return String.format("%s (%s %s)", sourceOrganizations.get(key), ident, key);
+
+			// Added ability to search OMD dataset of facilities before checking in the file itself for the ID
+			OLISFacilities olisFacility = olisFacilitiesDao.findByLicenceNumber(Integer.parseInt(key));
+			String organizationName;
+			if (olisFacility != null && olisFacility.getFacilityName() != null) {
+				organizationName = olisFacility.getFacilityName();
+			} else {
+				organizationName = sourceOrganizations.get(key);
+			}
+			return String.format("%s (%s %s)", organizationName, ident, key);
 		} catch (Exception e) {
 			logger.error("Could not retrieve OBX comment ZNT", e);
 
