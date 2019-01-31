@@ -24,6 +24,7 @@ import org.json.JSONObject;
 import org.oscarehr.common.dao.Hl7TextMessageDao;
 import org.oscarehr.common.model.Hl7TextMessage;
 import org.oscarehr.common.model.Provider;
+import org.oscarehr.olis.OLISUtils;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -1121,7 +1122,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
             String comment = handler.getReportCommentForPdf(commentIndex);
 
             // Replace repeatable encoded characters with their pdf equivalent replacements
-            comment = OLISLabPDFUtils.Hl7EncodedRepeatableCharacter.performReplacement(comment);
+            comment = OLISUtils.Hl7EncodedRepeatableCharacter.performReplacement(comment, false);
             
             // Split comment on \.ce\ (center tag span) markup, due to the fact that adding centered text requires cell-level alignment
             Pattern pattern = Pattern.compile("\\\\\\.ce\\\\(.+?)\n");

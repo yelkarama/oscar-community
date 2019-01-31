@@ -37,6 +37,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.bouncycastle.util.encoders.Base64;
 import org.json.JSONObject;
+import org.oscarehr.olis.OLISUtils;
 import org.oscarehr.olis.dao.OLISFacilitiesDao;
 import org.oscarehr.olis.dao.OLISRequestNomenclatureDao;
 import org.oscarehr.olis.dao.OLISResultNomenclatureDao;
@@ -1581,7 +1582,7 @@ public class OLISHL7Handler implements MessageHandler {
 				Segment obrSeg = (Segment) terser.getFinder().getRoot().get("OBR" + i);
 				comment = getString(Terser.get(obrSeg, 39, 0, 2, 1));
 			}
-			return comment;
+			return OLISUtils.Hl7EncodedRepeatableCharacter.performReplacement(comment, true);
 
 		} catch (Exception e) {
 			return ("");
@@ -2096,7 +2097,7 @@ public class OLISHL7Handler implements MessageHandler {
 			}
 			Structure[] nteSegs = terser.getFinder().getRoot().getAll(segments[k]);
 			Segment nteSeg = (Segment) nteSegs[0];
-			return formatString(getString(Terser.get(nteSeg, 3, 0, 1, 1)));
+			return OLISUtils.Hl7EncodedRepeatableCharacter.performReplacement(getString(Terser.get(nteSeg, 3, 0, 1, 1)), true);
 
 		} catch (Exception e) {
 			logger.error("Could not retrieve OBR comments", e);
@@ -2292,7 +2293,7 @@ public class OLISHL7Handler implements MessageHandler {
 			}
 			Structure[] nteSegs = terser.getFinder().getRoot().getAll(segments[k]);
 			Segment nteSeg = (Segment) nteSegs[0];
-			return formatString(getString(Terser.get(nteSeg, 3, 0, 1, 1)));
+			return OLISUtils.Hl7EncodedRepeatableCharacter.performReplacement(getString(Terser.get(nteSeg, 3, 0, 1, 1)), true);
 
 		} catch (Exception e) {
 			logger.error("Could not retrieve OBR comments", e);
@@ -2420,7 +2421,7 @@ public class OLISHL7Handler implements MessageHandler {
 			}
 			Structure[] nteSegs = terser.getFinder().getRoot().getAll(segments[k]);
 			Segment nteSeg = (Segment) nteSegs[0];
-			return formatString(getString(Terser.get(nteSeg, 3, 0, 1, 1))).replace(" ", "&nbsp;");
+			return OLISUtils.Hl7EncodedRepeatableCharacter.performReplacement(getString(Terser.get(nteSeg, 3, 0, 1, 1)), true).replace(" ", "&nbsp;");
 
 		} catch (Exception e) {
 			logger.error("Could not retrieve OBX comments", e);

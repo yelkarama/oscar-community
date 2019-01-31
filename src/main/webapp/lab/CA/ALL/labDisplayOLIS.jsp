@@ -1216,7 +1216,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                         <tr>
                                             <td>
                                                 <div style="margin-left: 15px; width:700px">
-                                                    <%=handler.formatString(collectorsComment).replaceAll("(?<=\\s)\\s", "&nbsp;")%>
+                                                    <%=collectorsComment.replaceAll("(?<=\\s)\\s", "&nbsp;")%>
                                                 </div>
                                             </td>
                                         </tr>
@@ -1454,7 +1454,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                                 <td colspan="5"><div class="FieldData"><strong>Reference Range:</strong> <%=strikeOutInvalidContent(handler.getOBXReferenceRange(obr, obx), status)%></div></td>
                                             </tr>
                                             <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-                                                <td colspan="5"><div class="FieldData"><strong>Units:</strong> <%=strikeOutInvalidContent(handler.formatString(handler.getOBXUnits(obr, obx)), status) %></div></td>
+                                                <td colspan="5"><div class="FieldData"><strong>Units:</strong> <%=strikeOutInvalidContent(OLISUtils.Hl7EncodedRepeatableCharacter.performReplacement(handler.getOBXUnits(obr, obx), true), status) %></div></td>
                                             </tr>
                                             <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
                                                 <td colspan="5"><div class="FieldData"><strong>Observation Date/Time:</strong> <%=strikeOutInvalidContent(handler.getOBXObservationDate(obr, obx), status) %></div></td>
@@ -1470,7 +1470,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                                         <%= strikeOutInvalidContent(handler.getOBXAbnormalFlag(obr, obx), status)%>
                                                 </td>
                                                 <td align="left"><%=strikeOutInvalidContent(handler.getOBXReferenceRange(obr, obx), status)%></td>
-                                                <td align="left"><%=strikeOutInvalidContent(handler.formatString(handler.getOBXUnits(obr, obx)), status) %></td>
+                                                <td align="left"><%=strikeOutInvalidContent(OLISUtils.Hl7EncodedRepeatableCharacter.performReplacement(handler.getOBXUnits(obr, obx), true), status) %></td>
                                             </tr>
                                             <% }
                                         } else if (obxValueType.equals("SN")) { // or Structured Numeric
@@ -1497,7 +1497,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                         	</tr>
                                         	<tr  bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
                                                 <td align="left" colspan="5">
-                                                    <b><%= handler.formatString(handler.getOBXResult(obr, obx)).replaceAll("(?<=\\s)\\s", "&nbsp;") %></b>
+                                                    <b><%= OLISUtils.Hl7EncodedRepeatableCharacter.performReplacement(handler.getOBXResult(obr, obx), true).replaceAll("(?<=\\s)\\s", "&nbsp;") %></b>
                                                 </td>
                                         	</tr>
                                         	<%

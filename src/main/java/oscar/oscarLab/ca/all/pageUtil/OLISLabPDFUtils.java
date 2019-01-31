@@ -6,6 +6,7 @@ import com.lowagie.text.Font;
 import com.lowagie.text.Phrase;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
+import org.oscarehr.olis.OLISUtils;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -14,52 +15,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class OLISLabPDFUtils {
-    
-    public enum Hl7EncodedRepeatableCharacter {
-        HARD_RETURN("br", "\n"),
-        NEXT_LINE_ALIGN_HORIZONTAL("sp", "\n"),
-        INDENT("in", " "),
-        SKIP_SPACE("sk", " "),
-        TEMPORARY_INDENT("ti", " ");
-        
-        public static final String TAG_REGEX = "\\\\\\.%s[ ]?(?:([ +-])(\\d))*\\\\";
-        private String hl7Tag;
-        private String pdfReplacement;
-
-        Hl7EncodedRepeatableCharacter(String hl7Tag, String pdfReplacement) { 
-            this.hl7Tag = hl7Tag;
-            this.pdfReplacement = pdfReplacement;
-        }
-
-        public String getHl7Tag() {
-            return hl7Tag;
-        }
-        public String getPdfReplacement() {
-            return pdfReplacement;
-        }
-        
-        public static String performReplacement(String hl7Text) {
-            for (Hl7EncodedRepeatableCharacter hl7EncodedCharacter : Hl7EncodedRepeatableCharacter.values()) {
-                String regex = String.format(TAG_REGEX, hl7EncodedCharacter.getHl7Tag());
-                Pattern pattern = Pattern.compile(regex);
-                Matcher matcher = pattern.matcher(hl7Text);
-                while (matcher.find()) {
-                    String repetitionsGroup = matcher.group(2);
-                    int repetitions = 1;
-                    if (repetitionsGroup != null) {
-                        repetitions = Integer.valueOf(repetitionsGroup);
-                    }
-
-                    StringBuilder replacedText = new StringBuilder();
-                    for (int i = 0; i < repetitions; i++) {
-                        replacedText.append(hl7EncodedCharacter.getPdfReplacement());
-                    }
-                    hl7Text = hl7Text.replaceFirst(regex, replacedText.toString());
-                }
-            }
-            return hl7Text;
-        }
-    }
 
     public enum Hl7EncodedSpan {
         HIGHLIGHT("H", "N") {
@@ -133,7 +88,7 @@ public class OLISLabPDFUtils {
         PdfPCell cell;
 
         // Replace repeatable encoded characters with their pdf equivalent replacements
-        hl7Text = OLISLabPDFUtils.Hl7EncodedRepeatableCharacter.performReplacement(hl7Text);
+        hl7Text = OLISUtils.Hl7EncodedRepeatableCharacter.performReplacement(hl7Text, false);
         
         // Split comment on \.ce\ (center tag span) markup, due to the fact that adding centered text requires cell-level alignment
         Pattern pattern = Pattern.compile("\\\\\\.ce\\\\(.+?)(?:\n|$)");

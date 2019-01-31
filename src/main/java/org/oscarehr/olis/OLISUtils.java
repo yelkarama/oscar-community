@@ -26,6 +26,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -60,6 +62,138 @@ public class OLISUtils {
 	static final public String LifeLabsIndentifier = "2.16.840.1.113883.3.59.1:5687";// LifeLabs
 	static final public String AlphaLabsIndetifier = "2.16.840.1.113883.3.59.1:5254";// Alpha Laboratories"
 
+	private static int previousLineLength = 0;
+	public enum Hl7EncodedRepeatableCharacter {
+		INDENT("in", " ", "&nbsp;"),
+		SKIP_SPACE("sk", " ", "&nbsp;"),
+		TEMPORARY_INDENT("ti", " ", "&nbsp;"),
+		HARD_RETURN("br", "\n", "<br/>"),
+		NEXT_LINE_ALIGN_HORIZONTAL("sp", "\n", "<br/>"),
+		HIGHLIGHT_START("H", "", "<span style=\"color:#767676\">"),
+		HIGHLIGHT_END("N", "", "</span>"),
+		CENTER("ce", "", "<center>");
+
+		public static final String TAG_REGEX = "\\\\\\.%s[ ]?(?:([ +-])?(\\d))*\\\\";
+		private String hl7Tag;
+		private String pdfReplacement;
+		private String htmlReplacement;
+
+		Hl7EncodedRepeatableCharacter(String hl7Tag, String pdfReplacement, String htmlReplacement) {
+			this.hl7Tag = hl7Tag;
+			this.pdfReplacement = pdfReplacement;
+			this.htmlReplacement = htmlReplacement;
+		}
+
+		public String getHl7Tag() {
+			return hl7Tag;
+		}
+		public String getPdfReplacement() {
+			return pdfReplacement;
+		}
+		public String getHtmlReplacement() {
+			return htmlReplacement;
+		}
+
+		/**
+		 * Gets the enum's formatted regex to be used for matching
+		 * @return The formatted regex for the enumeration
+		 */
+		public String getFormattedRegex() {
+			return String.format(TAG_REGEX, this.hl7Tag);
+		}
+
+		public static String performReplacement(String hl7Text, boolean replaceHtml) {
+			int maxCharactersPerPdfLine = 92;
+			int maxCharactersPerHtmlLine = 109;
+			// Instantiates the html of the closing center tag
+			String centerClose = "</center>";
+			// Checks to see if an \.sp\ element exists, this will prevent \.br\ element from calculating the length of the last line as it will then need to calculate from the \.sp\ element
+			boolean spElementExists = Pattern.compile(Hl7EncodedRepeatableCharacter.NEXT_LINE_ALIGN_HORIZONTAL.getFormattedRegex()).matcher(hl7Text).find();
+
+
+			int charactersPerLine = replaceHtml ? maxCharactersPerHtmlLine : maxCharactersPerPdfLine;
+
+			for (Hl7EncodedRepeatableCharacter hl7EncodedCharacter : Hl7EncodedRepeatableCharacter.values()) {
+				// If the replacements are happening for PDF printing and the character has no pdf variation, skips the replacement as it is handled elsewhere
+				if (!replaceHtml && hl7EncodedCharacter.getPdfReplacement().isEmpty()) {
+					continue;
+				}
+				String replacementString;
+				// Checks if the replacement is happening for HTML, if so then it gets the html version of the tag, if not then it gets the PDF version
+				if (replaceHtml) {
+					// Gets the HTML version of the HL7 tag
+					replacementString = hl7EncodedCharacter.getHtmlReplacement();
+				} else {
+					// Gets the PDF version of the HL7 tag
+					replacementString = hl7EncodedCharacter.getPdfReplacement();
+				}
+
+				String regex = hl7EncodedCharacter.getFormattedRegex();
+				Pattern pattern = Pattern.compile(regex);
+				Matcher matcher = pattern.matcher(hl7Text);
+				while (matcher.find()) {
+					String repetitionsGroup = matcher.group(2);
+					int repetitions = 1;
+					if (repetitionsGroup != null) {
+						repetitions = Integer.valueOf(repetitionsGroup);
+					}
+
+					StringBuilder replacedText = new StringBuilder();
+					for (int i = 0; i < repetitions; i++) {
+						replacedText.append(replacementString);
+					}
+
+					// If the current tag is a standard line break and there are no \.sp\ elements in the text then calculate the previous line's length based on the \.br\
+					// If there are \.sp\ elements then the length of the previous sentence is calculated uses the current \.sp\, not \.br\
+					if (hl7EncodedCharacter.getHl7Tag().equals("br") && !spElementExists) {
+						// Calculates the previous line count based on the current \.br\ element after replacing all nbsp instances with a single space to represent the proper length
+						previousLineLength = hl7Text.replaceAll("&nbsp;", " ").length() - matcher.end();
+					} else if (hl7EncodedCharacter.getHl7Tag().equals("sp")) {
+						// If the \.sp\ element is not in the first index, gets the previous line length based on the last newline
+						// If the \.sp\ element is the first in the index then the spacing needs to be calculated based on the previous comment's last line
+						if (matcher.start() > 0) {
+							// Gets the text before the matching element, removing all instances of newline characters that happen at the end of the string and all nbsp with single space characters so
+							// the proper line length is represented better
+							String previousLine = hl7Text.substring(0, matcher.start()).replaceAll("(" + replacementString + "|\\s)*$", "").replaceAll("&nbsp;", " ");
+							// Gets the last index of the replacement string in order to calculate the length of the previous line
+							int previousLineStart = previousLine.lastIndexOf(replacementString);
+							// Substrings the previousLine from the previousLineStart plus the length of the replacement string so that it isn't included in the length
+							previousLine = previousLine.substring(previousLineStart + replacementString.length());
+							// Gets the previous lines length
+							previousLineLength = previousLine.length();
+						}
+						// Gets the needed spacing for the current line by getting the number of characters that overflow into the current line
+						int numberOfSpacesToAdd = previousLineLength % charactersPerLine;
+						// Creates a string with the number of spaces that need to be added
+						String spacesToAdd = new String(new char[numberOfSpacesToAdd]).replaceAll("\0", " ");
+						// Adds the spaces to the text that will be replacing the current match
+						replacedText.append(spacesToAdd);
+					} else if (hl7EncodedCharacter.getHl7Tag().equals("ce")) {
+						// If the current element is to center the text, searches for the appropriate index to close the center element
+						// Attempts to get the next line break to use as the index to close the center tag.
+						int closeIndex = hl7Text.indexOf("<br/>", matcher.end());
+						// If there isn't a line break after the center tag, looks for the next center tag to use it as the closing index
+						if (closeIndex == -1) {
+							closeIndex = hl7Text.indexOf("\\.ce\\", matcher.end());
+						}
+						// If a close index was found, inserts the close tag in that index
+						// If a close index was not found, appends the close tag onto the end of the hl7 text
+						if (closeIndex > -1) {
+							hl7Text = new StringBuilder(hl7Text).insert(closeIndex, centerClose).toString();
+						} else {
+							hl7Text += centerClose;
+						}
+					}
+					// Replaces the first instance of the regex
+					hl7Text = hl7Text.replaceFirst(regex, replacedText.toString());
+					// Resets the text in the matcher so proper indexes and lengths can be acquired
+					matcher = pattern.matcher(hl7Text);
+				}
+			}
+			return hl7Text;
+		}
+	}
+	
 	public static String getOLISResponseContent(String response) throws Exception{
 		response = response.replaceAll("<Content", "<Content xmlns=\"\" ");
 		response = response.replaceAll("<Errors", "<Errors xmlns=\"\" ");
