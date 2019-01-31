@@ -24,6 +24,9 @@
 
 --%>
 
+<%@page import="org.oscarehr.common.model.UserProperty"%>
+<%@page import="org.oscarehr.util.SpringUtils"%>
+<%@page import="org.oscarehr.common.dao.UserPropertyDAO"%>
 <%@page import="org.oscarehr.common.service.AcceptableUseAgreementManager"%>
 <%@page import="oscar.OscarProperties, javax.servlet.http.Cookie, oscar.oscarSecurity.CookieSecurity, oscar.login.UAgentInfo" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
@@ -133,6 +136,9 @@ String login_input_style="login_txt_fields";
             td.topbar{
                background-color: gold;
             }
+            td.maintenancebar{
+               background-color: #DF4A2A;
+            }
             td.leftbar{
                 background-color:  #106B3A; /*#009966; */
                 color: white;
@@ -161,6 +167,7 @@ String login_input_style="login_txt_fields";
             span.extrasmall{ font-size: small; }
             #browserInfo, #logoImg, #buildInfo { display: none; }
             #mobileMsg { display: inline; }
+            td.maintenancebar {width:100%;}
         </style>
         <% } %>
     </head>
@@ -185,6 +192,21 @@ String login_input_style="login_txt_fields";
                     <% } %>                    
                 </td>
             </tr>
+            <%
+            	//are we in maintenance mode?
+            	UserPropertyDAO upDao = SpringUtils.getBean(UserPropertyDAO.class);
+            	UserProperty up = upDao.getProp("maintenance_mode");
+            	if(up != null && "enabled".equals(up.getValue())) {
+            		%>
+            			<tr>
+            				<td colspan="2" class="maintenancebar" align="center">
+            					System is currently undergoing maintenance. Please check back later.
+            				</td>
+            			</tr>
+            		<%
+            	}
+            
+            %>
         </table>
         <table class="leftinput" border="0" width="100%">
             <tr>
