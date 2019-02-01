@@ -662,22 +662,26 @@ public class DemographicExportAction4 extends Action {
 					address.setLine1(pi.getAddress());
 					if (StringUtils.filled(pi.getCity()) || StringUtils.filled(pi.getProvince()) || StringUtils.filled(pi.getPostalCode())) {
 						address.setCity(StringUtils.noNull(pi.getCity()));
-						//TODO: A better fix is needed here!!!  Only valid 2 character province codes should be stored
-						//      in the database.  For instance, "AB" rather than "Alberta", "Atla." or "Alb.", etc.
-						if (StringUtils.filled(pi.getProvince())) {
-							String prov = pi.getProvince().trim();
-							if (prov.length() == 2) { // ON, BC, etc.
-								address.setCountrySubdivisionCode(Util.setCountrySubDivCode(prov.toUpperCase()));
-							} else if (Arrays.asList("ONTARIO","ONT","ONT.").contains(prov.toUpperCase())) {
-								address.setCountrySubdivisionCode(Util.setCountrySubDivCode("ON"));	
-							} else {
-								exportError.add("Preferred pharmacy countrySubdivisionCode '" + prov +
-										"' for Patient ID '" + demoNo + "' may not conform to ISO 3166-2.");
-								// Omit call to Util.setCountrySubDivCode(); prov isn't a 2-character Canadian province code
-								address.setCountrySubdivisionCode(prov);
+						if("true".equals(OscarProperties.getInstance().getProperty("iso3166.2.enabled","false"))) { 	
+							address.setCountrySubdivisionCode(pi.getProvince());
+						} else {
+							//TODO: A better fix is needed here!!!  Only valid 2 character province codes should be stored
+							//      in the database.  For instance, "AB" rather than "Alberta", "Atla." or "Alb.", etc.
+							if (StringUtils.filled(pi.getProvince())) {
+								String prov = pi.getProvince().trim();
+								if (prov.length() == 2) { // ON, BC, etc.
+									address.setCountrySubdivisionCode(Util.setCountrySubDivCode(prov.toUpperCase()));
+								} else if (Arrays.asList("ONTARIO","ONT","ONT.").contains(prov.toUpperCase())) {
+									address.setCountrySubdivisionCode(Util.setCountrySubDivCode("ON"));	
+								} else {
+									exportError.add("Preferred pharmacy countrySubdivisionCode '" + prov +
+											"' for Patient ID '" + demoNo + "' may not conform to ISO 3166-2.");
+									// Omit call to Util.setCountrySubDivCode(); prov isn't a 2-character Canadian province code
+									address.setCountrySubdivisionCode(prov);
+								}
 							}
+							// END OF HACK.
 						}
-						// END OF HACK.
 						address.addNewPostalZipCode().setPostalCode(StringUtils.noNull(pi.getPostalCode()).replace(" ",""));
 					}
 					
