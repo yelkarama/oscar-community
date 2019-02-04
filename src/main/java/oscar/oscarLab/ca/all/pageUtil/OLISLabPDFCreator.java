@@ -593,7 +593,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 						table.addCell(cell);
 
 
-						cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+						cell.setHorizontalAlignment(Element.ALIGN_LEFT);
 
 						String ObxAbnormalFlag = handler.getOBXAbnormalFlag(obr, obx);
 						String ObxeferenceRange = handler.getOBXReferenceRange(obr, obx);
@@ -671,7 +671,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
                     table.addCell(cell);
 					
 					cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-					cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+					cell.setHorizontalAlignment(Element.ALIGN_LEFT);
 					
 					//Gets the OBX result based on the value type
 					if(obxValueType.equals("TM")){
@@ -823,7 +823,6 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
                     table.addCell(cell);
 					
 					 
-					cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
                     OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(handler.getOBXResult(obr, obx), lineFont, cell));
 					
 					cell.setHorizontalAlignment(Element.ALIGN_CENTER);
