@@ -13,6 +13,7 @@
 <%@ page import="org.oscarehr.olis.model.OlisLabResults" %>
 <%@ page import="org.oscarehr.olis.model.OlisLabResultDisplay" %>
 <%@ page import="org.oscarehr.olis.model.OlisMeasurementsResultDisplay" %>
+<%@ page import="org.oscarehr.olis.OLISUtils" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -476,24 +477,12 @@ function popupNotesWindow(noteDiv) {
 					<td><%=parentLab.getSpecimenType()%></td>
 					<td><%=parentLab.getCollectionDate()%></td>
 					<td>
-						<% if (parentLab.getCollectorsComment().length() > 20) { %>
-						<span title="<%=parentLab.getCollectorsComment()%>">
-							<%=parentLab.getCollectorsComment().substring(0, 20)%>...
-						</span>
-						<% } else { %>
 						<%=parentLab.getCollectorsComment()%>
-						<% } %>
 					</td>
 					<td class="<%=lineThroughCss%>"><%=measurementDisplay.getTestResultName()%></td>
 					<td class="<%=statusDisplayClass%>"><%=measurementDisplay.getStatus() != null && measurementDisplay.getStatus().isEmpty() ? "Final" : measurementDisplay.getStatus()%></td>
 					<td class="<%=valueDisplayClass%> <%=lineThroughCss%>">
-						<% if (measurementDisplay.getResultValue().length() > 30) { %>
-						<span title="<%=measurementDisplay.getResultValue()%>">
-							<%=measurementDisplay.getResultValue().substring(0, 30)%>...
-						</span>
-						<% } else { %>
-						<%=measurementDisplay.getResultValue()%>
-						<% } %>
+						<%=OLISUtils.Hl7EncodedRepeatableCharacter.performReplacement(measurementDisplay.getResultValue(), true)%>
 					</td>
 					<td class="<%=valueDisplayClass%> <%=lineThroughCss%>"><%=measurementDisplay.getFlag()%></td>
 					<td class="<%=valueDisplayClass%> <%=lineThroughCss%>"><%=measurementDisplay.getReferenceRange()%></td>
