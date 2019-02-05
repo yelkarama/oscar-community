@@ -69,6 +69,10 @@
 <%@page import="org.oscarehr.common.model.ProfessionalSpecialist" %>
 <%@page import="org.oscarehr.common.dao.ProfessionalSpecialistDao" %>
 <%@page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.oscarehr.common.dao.OscarAppointmentDao" %>
+<%@ page import="org.oscarehr.common.model.Appointment" %>
+<%@ page import="org.oscarehr.common.dao.SiteDao" %>
+<%@ page import="org.oscarehr.common.model.Site" %>
 <%
 	ProfessionalSpecialistDao professionalSpecialistDao = (ProfessionalSpecialistDao) SpringUtils.getBean("professionalSpecialistDao");
 %>
@@ -84,6 +88,9 @@
   String ctlBillForm = request.getParameter("billForm");
   String            assgProvider_no   = request.getParameter("assgProvider_no");
   if (assgProvider_no==null) assgProvider_no = new String();
+  
+  List<String> invoiceProviderNos = new ArrayList<String>();
+	invoiceProviderNos.add(user_no);
 
   String            demoSex           = request.getParameter("DemoSex");
   GregorianCalendar now               = new GregorianCalendar();
@@ -820,7 +827,66 @@ ctlCount = 0;
 					<tr>
 						<td nowrap width="30%" align="center"><b><bean:message key="billing.hospitalBilling.frmBillPhysician"/>
 						</b></td>
-						<td width="20%"><select name="xml_provider">
+						<td width="20%">
+							<% if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) { // multisite start ==========================================
+								SiteDao siteDao = (SiteDao)SpringUtils.getBean("siteDao");
+								List<Site> sites = siteDao.getActiveSitesByProviderNos(invoiceProviderNos);
+
+								if (sites != null && !sites.isEmpty()) {
+
+							%> <script>
+							var _providers = [];
+							<%	for (int i=0; i<sites.size(); i++) { 
+                                Set<Provider> siteProviders = sites.get(i).getProviders();
+                                List<Provider>  siteProvidersList = new ArrayList<Provider> (siteProviders);
+                                 Collections.sort(siteProvidersList,(new Provider()).ComparatorName());%>
+							_providers["<%= sites.get(i).getName() %>"]="<%=(siteProviders.size() > 1 ? "<option value='none'>---select provider---</option>" : "")%> <% Iterator<Provider> iter = siteProvidersList.iterator();
+	while (iter.hasNext()) {
+		Provider p=iter.next();
+		if ("1".equals(p.getStatus()) && StringUtils.isNotBlank(p.getOhipNo())) {
+	%><option value='<%= p.getProviderNo() %>|<%= p.getOhipNo() %>' ><%=p.getLastName()%>, <%=p.getFirstName()%></option><%}}%>";
+							<%}%>
+							function changeSite(sel) {
+								sel.form.xml_provider.innerHTML=sel.value=="none"?"":_providers[sel.value];
+								sel.style.backgroundColor=sel.options[sel.selectedIndex].style.backgroundColor;
+							}
+						</script> <select id="site" name="site" onchange="changeSite(this)"
+										  style="width: 140px">
+							<option value="none" style="background-color: white">---select
+								clinic---</option>
+							<%
+								String selectedSite = request.getParameter("site");
+								String xmlp = null;
+								if (selectedSite==null) {
+									OscarAppointmentDao apptDao = SpringUtils.getBean(OscarAppointmentDao.class);
+									for(Object[] obj : apptDao.findAppointmentAndProviderByAppointmentNo(ConversionUtils.fromIntString(appt_no))) {
+										Appointment a = (Appointment) obj[0];
+										Provider p = (Provider) obj[1];
+
+										selectedSite = a.getLocation();
+										xmlp = a.getProviderNo() + "|" + p.getOhipNo();
+									}
+								}
+								for (int i=0; i<sites.size(); i++) {
+							%>
+							<option value="<%=sites.get(i).getName()%>"
+									style="background-color:<%=sites.get(i).getBgColor()%>"
+									<%=sites.get(i).getName().equals(selectedSite)?"selected":""%>><%=sites.get(i).getName()%></option>
+							<%
+								}
+							%>
+						</select> <select id="xml_provider" name="xml_provider"
+										  style="width: 140px"></select> <script>
+							changeSite(document.getElementById("site"));
+							document.getElementById("xml_provider").value='<%=request.getParameter("xml_provider")==null?xmlp:request.getParameter("xml_provider")%>';
+						</script> 
+							<%
+								} 
+							} 
+							else {
+							%>
+							
+							<select name="xml_provider">
 							<%
 				if(vecProvider.size()==1) {
 					propT = (Properties) vecProvider.get(0);
@@ -842,7 +908,10 @@ ctlCount = 0;
 							<%	}
 				}
 				%>
-						</select></td>
+						</select>
+						<% } %>
+						
+						</td>
 						<td nowrap width="30%" align="center"><b><bean:message key="billing.hospitalBilling.frmAssgnPhysician"/></b></td>
 						<td width="20%"><%=providerBean.getProperty(assgProvider_no, "")%>
 						</td>
@@ -857,7 +926,11 @@ ctlCount = 0;
 						ArrayList<ClinicNbr> nbrs = cnDao.findAll();
 			            
 			            String providerSearch = apptProvider_no.equalsIgnoreCase("none") ? user_no : apptProvider_no;
-			            Provider p = providerDao.getProvider(providerSearch);
+						if(!user_no.equals(providerSearch)) {
+							invoiceProviderNos.add(providerSearch);
+						}
+
+							Provider p = providerDao.getProvider(providerSearch);
 			            String providerNbr = SxmlMisc.getXmlContent(p.getComments(),"xml_p_nbr");
 	                    for (ClinicNbr clinic : nbrs) {
 							String valueString = String.format("%s | %s", clinic.getNbrValue(), clinic.getNbrString());
