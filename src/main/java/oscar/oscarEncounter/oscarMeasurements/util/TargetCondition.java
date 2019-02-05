@@ -87,16 +87,26 @@ public class TargetCondition {
                     list.add(new DSCondition("getDataAsDouble", "", "<=", betweenVals[1]));
                 }
 //TODO: how to handle = sign in greater than or equal too.
+            }else if (toParse.indexOf("&gt;=") != -1 ||  toParse.indexOf(">=") != -1 ){ // greater than style
+                toParse = toParse.replaceFirst("&gt;=","");
+                toParse = toParse.replaceFirst(">=","");
+                double gt = Double.parseDouble(toParse.trim());
+                list.add(new DSCondition("getDataAsDouble", "", ">=", ""+gt));
             }else if (toParse.indexOf("&gt;") != -1 ||  toParse.indexOf(">") != -1 ){ // greater than style
                 toParse = toParse.replaceFirst("&gt;","");
                 toParse = toParse.replaceFirst(">","");
                 double gt = Double.parseDouble(toParse.trim());
                 list.add(new DSCondition("getDataAsDouble", "", ">", ""+gt));
+            }else if (toParse.indexOf("&lt;=") != -1  ||  toParse.indexOf("<=") != -1 ){ // less than style
+                toParse = toParse.replaceFirst("&lt;=","");
+                toParse = toParse.replaceFirst("<=","");
+                double lt = Double.parseDouble(toParse.trim());
+                list.add(new DSCondition("getDataAsDouble", "", "<=", ""+lt));
             }else if (toParse.indexOf("&lt;") != -1  ||  toParse.indexOf("<") != -1 ){ // less than style
                 toParse = toParse.replaceFirst("&lt;","");
                 toParse = toParse.replaceFirst("<","");
                 double lt = Double.parseDouble(toParse.trim());
-                list.add(new DSCondition("getDataAsDouble", "", "<=", ""+lt));
+                list.add(new DSCondition("getDataAsDouble", "", "<", ""+lt));    
             }else if (!toParse.equals("")){ // equal style
                 double eq = Double.parseDouble(toParse.trim());
                 list.add(new DSCondition("getDataAsDouble", "", "==", ""+eq));

@@ -111,8 +111,12 @@
 	function doSubmit() {
 		
 		 jQuery.post(jQuery("#measurementForm").attr('action') + '?ajax=true&skipCreateNote=true',jQuery('#measurementForm').serialize(),function(data){
-				opener.opener.postMessage(data,"*");
-				opener.location.reload();
+			 	if(opener != null && opener.opener != null) {	
+					opener.opener.postMessage(data,"*");
+			 	}
+			 	if(opener != null) {
+					opener.location.reload();
+			 	}
 	      		window.close();
 	      	 });
 		 
@@ -251,6 +255,9 @@ clear: left;
 
 <script type="text/javascript">
   function hideExtraName(ele){
+	  if(ele == null) {
+		  return;
+	  }
    //alert(ele);
     if (ele.options[ele.selectedIndex].value != -1){
        hideItem('providerName');

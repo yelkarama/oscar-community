@@ -26,10 +26,181 @@
 	<indicator key="HIGH" colour="orange" />
 	<indicator key="LOW" colour="#9999FF" />
 	
-	<header display_name="Vitals">
-		<item measurement_type="BP" display_name="BP" guideline="Target &gt; 130/80" graphable="yes" value_name="BP" ds_rules="diab-BP.drl" />
-		<item measurement_type="WT" display_name="Weight" guideline="" graphable="yes" value_name="Weight" />
+		<item measurement_type="A1C" display_name="A1C" guideline="Target &lt;= 7.0%" graphable="yes" value_name="A1C"  >
+			<rules>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="A1C" value="&gt;3" />
+				</recommendation>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="A1C" value="-1" />
+				</recommendation>
+			</rules>
+			<ruleset>
+				<rule indicationColor="HIGH">
+					<condition type="getDataAsDouble"  value="&gt; 7"/>
+				</rule>
+				<!-- 
+				<rule indicationColor="HIGH">
+					<condition type="getDataAsDouble"  value="&lt; 2" />
+					<condition type="getDataAsDouble"  value="&gt; 0.07"/>
+				</rule>
+				-->
+			</ruleset>
+		</item>
+		<item measurement_type="FBS" display_name="Fasting Plasma Glucose" guideline="4-7 mmol/L" graphable="yes" value_name="Fasting Plasma Glucose">
+			<rules>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="FBS" value="&gt;3" />
+				</recommendation>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="FBS" value="-1" />
+				</recommendation>
+			</rules>
+			<ruleset>
+				<rule indicationColor="LOW">
+					<condition type="getDataAsDouble" param="FBS" value="&lt;4" />
+				</rule>
+				<rule indicationColor="HIGH">
+					<condition type="getDataAsDouble" param="FBS" value="&gt;7" />
+				</rule>
+			</ruleset>
+		</item>
+		<item measurement_type="FBPC" display_name="2 hr PC BG" guideline="5-10 mmol/L" graphable="yes" value_name="2 hr PC BG">
+			<rules>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="FBPC" value="&gt;3" />
+				</recommendation>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="FBPC" value="-1" />
+				</recommendation>
+			</rules>
+			<ruleset>
+				<rule indicationColor="LOW">
+					<condition type="getDataAsDouble" param="FBPC" value="&lt;5" />
+				</rule>
+				<rule indicationColor="HIGH">
+					<condition type="getDataAsDouble" param="FBPC" value="&gt;10" />
+				</rule>
+			</ruleset>
+		</item>
+			<item measurement_type="LDL" display_name="LDL" guideline="LDL &lt;= 2.0" graphable="yes" value_name="LDL" >
+				<rules>
+					<recommendation strength="warning" >
+						<condition type="monthrange" param="LDL" value="&gt;12" />
+					</recommendation>
+					<recommendation strength="warning" >
+						<condition type="monthrange" param="LDL" value="-1" />
+					</recommendation>
+				</rules>
+				<ruleset>
+					<rule indicationColor="HIGH">
+						<condition type="getDataAsDouble" param="LDL" value="&gt;2" />
+					</rule>
+				</ruleset>
+			</item>
+					
+			<item measurement_type="HDL" display_name="HDL" guideline="" graphable="yes" value_name="HDL" >
+				<rules>
+					<recommendation strength="warning" >
+						<condition type="monthrange" param="HDL" value="&gt;12" />
+					</recommendation>
+					<recommendation strength="warning" >
+						<condition type="monthrange" param="HDL" value="-1" />
+					</recommendation>
+				</rules>
+			</item>
+			<item measurement_type="TCHD" display_name="Ratio (TC/HDL)" guideline="Ratio &lt; 4.0" graphable="yes" value_name="TC/HDL" >
+				<rules>
+					<recommendation strength="warning" >
+						<condition type="monthrange" param="TCHD" value="&gt;12" />
+					</recommendation>
+					<recommendation strength="warning" >
+						<condition type="monthrange" param="TCHD" value="-1" />
+					</recommendation>
+				</rules>
+				<ruleset>
+					<rule indicationColor="HIGH">
+						<condition type="getDataAsDouble" param="TCHD" value="&gt;=4" />
+					</rule>
+				</ruleset>
+			</item>
+
+			<item measurement_type="TG" display_name="Triglycerides" guideline="Target: &lt; 2.0 mmol/L" graphable="yes" value_name="TG" >
+				<rules>
+					<recommendation strength="warning" >
+						<condition type="monthrange" param="TG" value="&gt;12" />
+					</recommendation>
+					<recommendation strength="warning" >
+						<condition type="monthrange" param="TG" value="-1" />
+					</recommendation>
+				</rules>
+				<ruleset>
+					<rule indicationColor="HIGH">
+						<condition type="getDataAsDouble" param="TG" value="&gt;=2" />
+					</rule>
+				</ruleset>
+			</item>				
+		<item measurement_type="ACR" display_name="Alb: creat ratio" guideline="Target: &lt; 2.0 M : &lt;2.8 F" graphable="yes" value_name="ACR" >
+			<rules>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="ACR" value="&gt;12" />
+				</recommendation>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="ACR" value="-1" />
+				</recommendation>
+			</rules>
+			<ruleset>
+				<rule indicationColor="HIGH">
+					<condition type="isMale"  value="true" />
+					<condition type="getDataAsDouble" param="ACR" value="&gt;=2.0" />
+				</rule>
+				<rule indicationColor="HIGH">
+					<condition type="isFemale"  value="true" />
+					<condition type="getDataAsDouble" param="ACR" value="&gt;=2.8" />
+				</rule>
+			</ruleset>
+		</item>			
+		<item measurement_type="EGFR" display_name="eGFR" guideline="" graphable="yes" value_name="eGFR" >
+			<rules>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="EGFR" value="&gt;12" />
+				</recommendation>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="EGFR" value="-1" />
+				</recommendation>
+			</rules>
+			<!-- 
+			<ruleset>
+				<rule indicationColor="HIGH">
+					<condition type="getDataAsDouble" param="ACR" value="&lt;60.0" />
+				</rule>
+			</ruleset>
+			-->            
+		</item>
+		<item measurement_type="UMS" display_name="Urinary Microalbumin Screen" guideline="" graphable="yes" value_name="UMS" />
+		<item prevention_type="Flu" display_name="Flu Vaccine" guideline="Annually" graphable="no">
+			<rules>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="Flu" value="&gt;12" />
+				</recommendation>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="Flu" value="-1" />
+				</recommendation>
+			</rules>
+		</item>
+		<item prevention_type="Pneumovax" display_name="Pneumococcal vaccine" guideline="" graphable="no" />
+		<item measurement_type="BP" display_name="BP" guideline="Target &lt; 130/80" graphable="yes" value_name="BP" ds_rules="diab-BP.drl">
+			<rules>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="BP" value="&gt;3" />
+				</recommendation>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="BP" value="-1" />
+				</recommendation>
+			</rules>
+		</item>
 		<item measurement_type="HT" display_name="Height" guideline="" graphable="yes" value_name="Height" />
+		<item measurement_type="WT" display_name="Weight" guideline="" graphable="yes" value_name="Weight" />
 		<item measurement_type="BMI" display_name="BMI" guideline="Target: 18.5 - 24.9 (kg/m&lt;sup&gt;2&lt;/sup&gt;)" graphable="yes" value_name="BMI" >
 			<rules>
 				<recommendation strength="recommendation" >
@@ -51,7 +222,7 @@
 				</rule>
 			</ruleset>
 		</item>
-		<item measurement_type="WAIS" display_name="Waist Circumference" guideline="" graphable="yes" value_name="Waist Circ" >
+		<item measurement_type="WAIS" display_name="Waist Circumference" guideline="Target &lt;102 M, &lt;88 F" graphable="yes" value_name="Waist Circ" >
 			<rules>
 				<recommendation strength="recommendation" >
 					<condition type="monthrange" param="WAIS" value="3-6" />
@@ -74,193 +245,16 @@
 				</rule>
 			</ruleset>
 		</item>
-		<!-- 
-		<item measurement_type="WHR" display_name="Waist to Hip Ratio" guideline="" graphable="yes" value_name="Waist to Hip Ratio" >
-			<rules>
-				<recommendation strength="recommendation" >
-					<condition type="monthrange" param="WHR" value="3-6" />
-				</recommendation>
-				<recommendation strength="warning" >
-					<condition type="monthrange" param="WHR" value="&gt;6" />
-				</recommendation>
-				<recommendation strength="warning" >
-					<condition type="monthrange" param="WHR" value="-1" />
-				</recommendation>
-			</rules>
-			<ruleset>
-				<rule indicationColor="LOW">
-					<condition type="getDataAsDouble" param="WHR" value="&gt;0.9" />
-					<condition type="isMale"  value="true" />
-				</rule>
-				<rule indicationColor="HIGH">
-					<condition type="getDataAsDouble" param="WHR" value="&gt;0.85" />
-					<condition type="isFemale"  value="true" />
-				</rule>
-			</ruleset>
-		</item>
-		-->
-	</header>
-	<header display_name="Cardiovascular">
-		<header display_name="Lipids">
-			<item measurement_type="HDL" display_name="HDL" guideline="" graphable="yes" value_name="HDL" >
-				<rules>
-					<recommendation strength="warning" >
-						<condition type="monthrange" param="HDL" value="&gt;12" />
-					</recommendation>
-					<recommendation strength="warning" >
-						<condition type="monthrange" param="HDL" value="-1" />
-					</recommendation>
-				</rules>
-			</item>
-			<item measurement_type="LDL" display_name="LDL" guideline="LDL &lt; 2.0" graphable="yes" value_name="LDL" >
-				<rules>
-					<recommendation strength="warning" >
-						<condition type="monthrange" param="LDL" value="&gt;12" />
-					</recommendation>
-					<recommendation strength="warning" >
-						<condition type="monthrange" param="LDL" value="-1" />
-					</recommendation>
-				</rules>
-				<ruleset>
-					<rule indicationColor="HIGH">
-						<condition type="getDataAsDouble" param="LDL" value="&gt;2" />
-					</rule>
-				</ruleset>
-			</item>
-			<item measurement_type="TG" display_name="Triglycerides" guideline="Target: &lt; 2.0 mmol/L" graphable="yes" value_name="TG" >
-				<rules>
-					<recommendation strength="warning" >
-						<condition type="monthrange" param="TG" value="&gt;12" />
-					</recommendation>
-					<recommendation strength="warning" >
-						<condition type="monthrange" param="TG" value="-1" />
-					</recommendation>
-				</rules>
-				<ruleset>
-					<rule indicationColor="HIGH">
-						<condition type="getDataAsDouble" param="TG" value="&gt;2" />
-					</rule>
-				</ruleset>
-			</item>
-			<item measurement_type="TCHD" display_name="Ratio (TC/HDL)" guideline="Ratio &lt; 4.0" graphable="yes" value_name="TC/HDL" >
-				<rules>
-					<recommendation strength="warning" >
-						<condition type="monthrange" param="TCHD" value="&gt;12" />
-					</recommendation>
-					<recommendation strength="warning" >
-						<condition type="monthrange" param="TCHD" value="-1" />
-					</recommendation>
-				</rules>
-				<ruleset>
-					<rule indicationColor="HIGH">
-						<condition type="getDataAsDouble" param="TCHD" value="&gt;4" />
-					</rule>
-				</ruleset>
-			</item>
-			<item measurement_type="EDNL" display_name="Education Lipids" guideline="" graphable="no" value_name="Completed"  >
-				<rules>
-					<recommendation strength="warning" >
-						<condition type="monthrange" param="EDNL" value="&gt;12" />
-					</recommendation>
-					<recommendation strength="warning" >
-						<condition type="monthrange" param="EDNL" value="-1" />
-					</recommendation>
-				</rules>
-			</item>
-			<item measurement_type="UMS" display_name="Urinary Microalbumin Screen" guideline="" graphable="yes" value_name="UMS" />
-		</header>
-		<header display_name="Smoking">
-			<item measurement_type="SKST" display_name="Smoking Status" guideline="" graphable="no" value_name="Smoker" />
-			<item measurement_type="POSK" display_name="Smoking Packs Per Day" guideline="" graphable="yes" value_name="Packs per day" />
-			<item measurement_type="MCCS" display_name="Motivation Counselling - Smoking Cessation" guideline="" graphable="no" value_name="Completed" >
-				<rules>
-					<recommendation strength="recommendation" >
-						<condition type="monthrange" param="MCCS" value="3-6" />
-					</recommendation>
-					<recommendation strength="warning" >
-						<condition type="monthrange" param="MCCS" value="&gt;6" />
-					</recommendation>
-					<recommendation strength="warning" >
-						<condition type="monthrange" param="MCCS" value="-1" />
-					</recommendation>
-				</rules>
-			</item>
-		</header>
-		<item measurement_type="ECG" display_name="ECG" graphable="no" value_name="ECG" />
-		<item measurement_type="PSSC" display_name="Psychosocial Screening" graphable="no" value_name="Screened" />
-		<!-- 
-		<item measurement_type="STRE" display_name="Stress Testing" graphable="no" value_name="StressTesting"/>
-		-->
-	</header>
-	<header display_name="Glycemic">
-		<!-- 
-		<item measurement_type="DTYP" display_name="Diabetes Type" guideline="1 or 2" graphable="no" value_name="type"/>
-		-->
-		<item measurement_type="A1C" display_name="A1C" guideline="Target &gt; 7.0%" graphable="yes" value_name="A1C"  >
+		<item measurement_type="SKST" display_name="Smoking Status" guideline="" graphable="no" value_name="Smoker" />
+		<item measurement_type="POSK" display_name="Smoking Packs Per Day" guideline="" graphable="yes" value_name="Packs per day" />
+		<item measurement_type="EDF" display_name="Erectile Dysfunction" guideline="Yes No" graphable="no" value_name="Dysfunction">
 			<rules>
 				<recommendation strength="warning" >
-					<condition type="monthrange" param="A1C" value="&gt;3" />
-				</recommendation>
-				<recommendation strength="warning" >
-					<condition type="monthrange" param="A1C" value="-1" />
-				</recommendation>
-			</rules>
-			<ruleset>
-				<rule indicationColor="HIGH">
-					<condition type="getDataAsDouble"  value="&gt; 7"/>
-				</rule>
-				<rule indicationColor="HIGH">
-					<condition type="getDataAsDouble"  value="&lt; 2" />
-					<condition type="getDataAsDouble"  value="&gt; 0.07"/>
-				</rule>
-			</ruleset>
-		</item>
-		<item measurement_type="FBS" display_name="Fasting Plasma Glucose" guideline="" graphable="yes" value_name="Fasting Plasma Glucose">
-			<rules>
-				<recommendation strength="warning" >
-					<condition type="monthrange" param="FBS" value="&gt;3" />
-				</recommendation>
-				<recommendation strength="warning" >
-					<condition type="monthrange" param="FBS" value="-1" />
-				</recommendation>
-			</rules>
-			<ruleset>
-				<rule indicationColor="LOW">
-					<condition type="getDataAsDouble" param="FBS" value="&lt;4" />
-				</rule>
-				<rule indicationColor="HIGH">
-					<condition type="getDataAsDouble" param="FBS" value="&gt;7" />
-				</rule>
-			</ruleset>
-		</item>
-		<item measurement_type="FGLC" display_name="Fasting glucose meter/lab comparison" guideline="Meter within 20% of simultaneous lab values" graphable="no" value_name="Within 20%"  >
-			<rules>
-				<recommendation strength="warning" >
-					<condition type="monthrange" param="FGLC" value="&gt;12" />
-				</recommendation>
-				<recommendation strength="warning" >
-					<condition type="monthrange" param="FGLC" value="-1" />
+					<condition type="monthrange" param="EDF" value="&gt;12" />
 				</recommendation>
 			</rules>
 		</item>
-		<item measurement_type="FBPC" display_name="2 hr PC BG" guideline="" graphable="yes" value_name="2 hr PC BG">
-			<rules>
-				<recommendation strength="warning" >
-					<condition type="monthrange" param="FBPC" value="&gt;3" />
-				</recommendation>
-				<recommendation strength="warning" >
-					<condition type="monthrange" param="FBPC" value="-1" />
-				</recommendation>
-			</rules>
-			<ruleset>
-				<rule indicationColor="LOW">
-					<condition type="getDataAsDouble" param="FBPC" value="&lt;5" />
-				</rule>
-				<rule indicationColor="HIGH">
-					<condition type="getDataAsDouble" param="FBPC" value="&gt;10" />
-				</rule>
-			</ruleset>
-		</item>
+
 		<item measurement_type="SMBG" display_name="Self Monitoring BG" guideline="" graphable="yes" value_name="Self Monitoring BG" >
 			<rules>
 				<recommendation strength="warning" >
@@ -271,9 +265,6 @@
 				</recommendation>
 			</rules>
 		</item>
-		<!-- 
-		<item measurement_type="HYPM" display_name="Hypoglycemic Management" guideline="discussed" graphable="no" value_name="Reviewed" />
-		-->
 		<item measurement_type="HYPE" display_name="# of Hypoglycemic Episodes" guideline="Since last assessed" graphable="yes" value_name="# of episodes" >
 			<rules>
 				<recommendation strength="warning" >
@@ -288,7 +279,72 @@
 					<condition type="getDataAsDouble" param="HYPE" value="&gt;0" />
 				</rule>
 			</ruleset>
+		</item>					
+		<item measurement_type="EYEE" display_name="Dilated Eye Exam" guideline="Dilated Eye Exam, comment if referred" graphable="no" value_name="Exam Done" >
+			<rules>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="EYEE" value="&gt;12" />
+				</recommendation>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="EYEE" value="-1" />
+				</recommendation>
+			</rules>
 		</item>
+		<item measurement_type="FTE" display_name="Foot Exam" guideline="Foot Exam" graphable="no" value_name="Normal"  >
+			<rules>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="FTE" value="&gt;12" />
+				</recommendation>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="FTE" value="-1" />
+				</recommendation>
+			</rules>
+		</item>
+		<item measurement_type="FTLS" display_name="Monofilament 10g" guideline="Check for peripheral anesthesia with 10g monofilament or 128 Hz tuning fork" graphable="no" value_name="Normal"  >
+			<rules>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="FTLS" value="&gt;12" />
+				</recommendation>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="FTLS" value="-1" />
+				</recommendation>
+			</rules>
+		</item>
+		<item measurement_type="FGLC" display_name="Fasting glucose meter/lab comparison" guideline="Meter within 20% of simultaneous lab values" graphable="no" value_name="Within 20%"  >
+			<rules>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="FGLC" value="&gt;12" />
+				</recommendation>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="FGLC" value="-1" />
+				</recommendation>
+			</rules>
+		</item>
+		<item measurement_type="ASAU" display_name="ASA Use" guideline="" graphable="no" value_name="Used" />
+		<item measurement_type="ECG" display_name="ECG" graphable="no" value_name="ECG">
+			<rules>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="ECG" value="&gt;24" />
+				</recommendation>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="ECG" value="-1" />
+				</recommendation>
+			</rules>
+		</item>
+
+		<item measurement_type="MCCS" display_name="Motivation Counselling - Smoking Cessation" guideline="" graphable="no" value_name="Completed" >
+			<rules>
+				<recommendation strength="recommendation" >
+					<condition type="monthrange" param="MCCS" value="3-6" />
+				</recommendation>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="MCCS" value="&gt;6" />
+				</recommendation>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="MCCS" value="-1" />
+				</recommendation>
+			</rules>
+		</item>				
 		<item measurement_type="MCCN" display_name="Motivation Counselling - Nutrition" guideline="" graphable="no" value_name="Completed"  >
 			<rules>
 				<recommendation strength="recommendation" >
@@ -315,163 +371,6 @@
 				</recommendation>
 			</rules>
 		</item>
-		<item measurement_type="SMCD" display_name="Self Management Challenges" guideline="" graphable="no" value_name="Challenges">
-			<rules>
-				<recommendation strength="recommendation" >
-					<condition type="monthrange" param="SMCD" value="3-6" />
-				</recommendation>
-				<recommendation strength="warning" >
-					<condition type="monthrange" param="SMCD" value="&gt;6" />
-				</recommendation>
-				<recommendation strength="warning" >
-					<condition type="monthrange" param="SMCD" value="-1" />
-				</recommendation>
-			</rules>
-		</item>                    
-	</header>
-	<!-- 
-	<header display_name="Mental Health">
-		<item measurement_type="DEPR" display_name="Feeling down, depressed or hopeless?" guideline="Yearly or As Needed" graphable="no" value_name="Depressed" />
-		<item measurement_type="LETH" display_name="Little interest or pleasure in doing things?" guideline="Yearly or As Needed" graphable="no" value_name="Lethargic" />
-	</header>
-	-->
-	<header display_name="Nephropathy">
-		<item measurement_type="ACR" display_name="Alb: creat ratio" guideline="Target: &lt; 2.0 M : &lt;2.8 F" graphable="yes" value_name="ACR" >
-			<rules>
-				<recommendation strength="warning" >
-					<condition type="monthrange" param="ACR" value="&gt;12" />
-				</recommendation>
-				<recommendation strength="warning" >
-					<condition type="monthrange" param="ACR" value="-1" />
-				</recommendation>
-			</rules>
-			<ruleset>
-				<rule indicationColor="HIGH">
-					<condition type="isMale"  value="true" />
-					<condition type="getDataAsDouble" param="ACR" value="&gt;2.0" />
-				</rule>
-				<rule indicationColor="HIGH">
-					<condition type="isFemale"  value="true" />
-					<condition type="getDataAsDouble" param="ACR" value="&gt;2.8" />
-				</rule>
-			</ruleset>
-		</item>
-		<!-- 
-		<item measurement_type="SCR" display_name="Serum Creatinine" guideline="" graphable="yes" value_name="Serum Creatinine" >
-			<rules>
-				<recommendation strength="warning" >
-					<condition type="monthrange" param="SCR" value="&gt;12" />
-				</recommendation>
-				<recommendation strength="warning" >
-					<condition type="monthrange" param="SCR" value="-1" />
-				</recommendation>
-			</rules>
-		</item>
-		-->
-		<item measurement_type="EGFR" display_name="eGFR" guideline="" graphable="yes" value_name="eGFR" >
-			<rules>
-				<recommendation strength="warning" >
-					<condition type="monthrange" param="EGFR" value="&gt;12" />
-				</recommendation>
-				<recommendation strength="warning" >
-					<condition type="monthrange" param="EGFR" value="-1" />
-				</recommendation>
-			</rules>
-			<ruleset>
-				<rule indicationColor="HIGH">
-					<condition type="getDataAsDouble" param="ACR" value="&lt;60.0" />
-				</rule>
-			</ruleset>            
-		</item>
-		<!-- 
-		<item measurement_type="AORA" display_name="ACE-I OR ARB" guideline="Yes No" graphable="no" value_name="ACE-I OR ARB" />
-		<item measurement_type="SKD" display_name="Signs of Kidney Damage" guideline="Yes No" graphable="no" value_name="Signs of Kidney Damage" />
-		<item measurement_type="CRCL" display_name="Creatinine Clearance" guideline="" graphable="yes" value_name="Creatinine Clearance" >
-			<rules>
-				<recommendation strength="warning" >
-					<condition type="monthrange" param="CRCL" value="&gt;12" />
-				</recommendation>
-				<recommendation strength="warning" >
-					<condition type="monthrange" param="CRCL" value="-1" />
-				</recommendation>
-			</rules>
-		</item>
-		-->
-	</header>
-	<header display_name="Neuropathy">
-		
-		<!-- 
-		<item measurement_type="EDGI" display_name="Autonomic Neuropathy" guideline="Erectile Dysfunction, gastrointestinal disturbance" graphable="no" value_name="Present" />
-		-->
-		<header display_name="Peripheral">
-			<item measurement_type="FTLS" display_name="Monofilament 10g" guideline="Check for peripheral anesthesia with 10g monofilament or 128 Hz tuning fork" graphable="no" value_name="Normal"  >
-			<rules>
-				<recommendation strength="warning" >
-					<condition type="monthrange" param="FTLS" value="&gt;12" />
-				</recommendation>
-				<recommendation strength="warning" >
-					<condition type="monthrange" param="FTLS" value="-1" />
-				</recommendation>
-			</rules>
-			</item>
-			<!-- 
-			<item measurement_type="PANE" display_name="Painful Neuropathy" guideline="" graphable="no" value_name="Present" />
-			-->
-			<item measurement_type="FTE" display_name="Foot Exam" guideline="Foot Exam" graphable="no" value_name="Normal"  >
-				<rules>
-					<recommendation strength="warning" >
-						<condition type="monthrange" param="FTE" value="&gt;12" />
-					</recommendation>
-					<recommendation strength="warning" >
-						<condition type="monthrange" param="FTE" value="-1" />
-					</recommendation>
-				</rules>
-			</item>
-		</header>
-		<header display_name="Sexual Health">
-			<item measurement_type="EDF" display_name="Erectile Dysfunction" guideline="Yes No" graphable="no" value_name="Dysfunction" />
-			<!-- 
-			<item measurement_type="BCTR" display_name="Birth Control" guideline="On Birth Control" graphable="no" value_name="Birth Control" />
-			-->
-		</header>
-	</header>
-	<header display_name="Retinopathy">
-		<item measurement_type="EYEE" display_name="Dilated Eye Exam" guideline="Dilated Eye Exam, comment if referred" graphable="no" value_name="Exam Done" >
-			<rules>
-				<recommendation strength="warning" >
-					<condition type="monthrange" param="EYEE" value="&gt;12" />
-				</recommendation>
-				<recommendation strength="warning" >
-					<condition type="monthrange" param="EYEE" value="-1" />
-				</recommendation>
-			</rules>
-		</item>
-	</header>
-	<header display_name="Vaccination">
-		<item prevention_type="Pneumovax" display_name="Pneumococcal vaccine" guideline="" graphable="no" />
-		<item prevention_type="Flu" display_name="Flu Vaccine" guideline="Annually" graphable="no" />
-	</header>
-	<header display_name="Other">
-		<item measurement_type="DMME" display_name="Diabetes Education" guideline="Assess and discuss self-management challenges" graphable="no" value_name="Discussed" >
-			<rules>
-				<recommendation strength="warning" >
-					<condition type="monthrange" param="DMME" value="&gt;12" />
-				</recommendation>
-				<recommendation strength="warning" >
-					<condition type="monthrange" param="DMME" value="-1" />
-				</recommendation>
-			</rules>
-		</item>
-		<item measurement_type="EDND" display_name="Education Nutrition" guideline="" graphable="no" value_name="Completed"  >
-			<rules>
-				<recommendation strength="warning" >
-					<condition type="monthrange" param="EDND" value="&gt;12" />
-				</recommendation>
-				<recommendation strength="warning" >
-					<condition type="monthrange" param="EDND" value="-1" />
-				</recommendation>
-			</rules>
-		</item>
 		<item measurement_type="MCCO" display_name="Motivation Counselling - Other" guideline="" graphable="no" value_name="Completed" >
 			<rules>
 				<recommendation strength="recommendation" >
@@ -485,6 +384,37 @@
 				</recommendation>
 			</rules>
 		</item>
+		<item measurement_type="DMME" display_name="Diabetes Education" guideline="Assess and discuss self-management challenges" graphable="no" value_name="Discussed" >
+			<rules>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="DMME" value="&gt;12" />
+				</recommendation>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="DMME" value="-1" />
+				</recommendation>
+			</rules>
+		</item>
+		<item measurement_type="EDNL" display_name="Education Lipids" guideline="" graphable="no" value_name="Completed"  >
+			<rules>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="EDNL" value="&gt;12" />
+				</recommendation>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="EDNL" value="-1" />
+				</recommendation>
+			</rules>
+		</item>
+		<item measurement_type="EDND" display_name="Education Nutrition" guideline="" graphable="no" value_name="Completed"  >
+			<rules>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="EDND" value="&gt;12" />
+				</recommendation>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="EDND" value="-1" />
+				</recommendation>
+			</rules>
+		</item>		
+		
 		<item measurement_type="CGSD" display_name="Collaborative Goal Setting" guideline="" graphable="no" value_name="Goal" >
 			<rules>
 				<recommendation strength="recommendation" >
@@ -498,8 +428,95 @@
 				</recommendation>
 			</rules>
 		</item>
-		<item measurement_type="ASAU" display_name="ASA Use" guideline="" graphable="no" value_name="Used" />
+				
+		<item measurement_type="SMCD" display_name="Self Management Challenges" guideline="" graphable="no" value_name="Challenges">
+			<rules>
+				<recommendation strength="recommendation" >
+					<condition type="monthrange" param="SMCD" value="3-6" />
+				</recommendation>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="SMCD" value="&gt;6" />
+				</recommendation>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="SMCD" value="-1" />
+				</recommendation>
+			</rules>
+		</item>               
+		<item measurement_type="PSSC" display_name="Psychosocial Screening" graphable="no" value_name="Screened" />
 		
+	<!-- 
+		<item measurement_type="WHR" display_name="Waist to Hip Ratio" guideline="" graphable="yes" value_name="Waist to Hip Ratio" >
+			<rules>
+				<recommendation strength="recommendation" >
+					<condition type="monthrange" param="WHR" value="3-6" />
+				</recommendation>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="WHR" value="&gt;6" />
+				</recommendation>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="WHR" value="-1" />
+				</recommendation>
+			</rules>
+			<ruleset>
+				<rule indicationColor="LOW">
+					<condition type="getDataAsDouble" param="WHR" value="&gt;0.9" />
+					<condition type="isMale"  value="true" />
+				</rule>
+				<rule indicationColor="HIGH">
+					<condition type="getDataAsDouble" param="WHR" value="&gt;0.85" />
+					<condition type="isFemale"  value="true" />
+				</rule>
+			</ruleset>
+		</item>
+		-->
+	
+			
+
+		
+	
+
+     
+	<!-- 
+		<item measurement_type="DTYP" display_name="Diabetes Type" guideline="1 or 2" graphable="no" value_name="type"/>
+		<item measurement_type="HYPM" display_name="Hypoglycemic Management" guideline="discussed" graphable="no" value_name="Reviewed" />
+		
+		<item measurement_type="DEPR" display_name="Feeling down, depressed or hopeless?" guideline="Yearly or As Needed" graphable="no" value_name="Depressed" />
+		<item measurement_type="LETH" display_name="Little interest or pleasure in doing things?" guideline="Yearly or As Needed" graphable="no" value_name="Lethargic" />
+		<item measurement_type="SCR" display_name="Serum Creatinine" guideline="" graphable="yes" value_name="Serum Creatinine" >
+			<rules>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="SCR" value="&gt;12" />
+				</recommendation>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="SCR" value="-1" />
+				</recommendation>
+			</rules>
+		</item>
+		
+		<item measurement_type="AORA" display_name="ACE-I OR ARB" guideline="Yes No" graphable="no" value_name="ACE-I OR ARB" />
+		<item measurement_type="SKD" display_name="Signs of Kidney Damage" guideline="Yes No" graphable="no" value_name="Signs of Kidney Damage" />
+		<item measurement_type="CRCL" display_name="Creatinine Clearance" guideline="" graphable="yes" value_name="Creatinine Clearance" >
+			<rules>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="CRCL" value="&gt;12" />
+				</recommendation>
+				<recommendation strength="warning" >
+					<condition type="monthrange" param="CRCL" value="-1" />
+				</recommendation>
+			</rules>
+		</item>
+		
+		<item measurement_type="EDGI" display_name="Autonomic Neuropathy" guideline="Erectile Dysfunction, gastrointestinal disturbance" graphable="no" value_name="Present" />
+	
+			<item measurement_type="PANE" display_name="Painful Neuropathy" guideline="" graphable="no" value_name="Present" />
+			
+			<item measurement_type="BCTR" display_name="Birth Control" guideline="On Birth Control" graphable="no" value_name="Birth Control" />
+	-->
+	
+
+	
+		
+
 		<!-- 
 		<item measurement_type="AST" display_name="AST" guideline="" graphable="yes" value_name="AST" >
 			<rules>
@@ -522,8 +539,6 @@
 			</rules>
 		</item>
 		-->
-	</header>
-	
 	
 	
 	<measurement type="BCTR" typeDesc="Birth Control" typeDisplayName="Birth Control">
