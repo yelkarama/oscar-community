@@ -725,6 +725,10 @@ String pageToShow=request.getParameter("load");
 			            class="xlink" rel="${ctx}/admin/uploadEntryText.jsp"><bean:message key="admin.admin.uploadEntryTxt"/></a>
 			            </li>
 		            </oscar:oscarPropertiesCheck>	
+		            
+		            <li><a href='javascript:void(0);' class="xlink" rel="${ctx}/admin/maintenance.jsp">Maintenance Mode</a></li>
+					
+					
 		            </security:oscarSec>
 		            
 				 	<%

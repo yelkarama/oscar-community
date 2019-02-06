@@ -37,8 +37,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import net.sf.json.JSONObject;
-
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
@@ -60,6 +58,7 @@ import org.oscarehr.common.model.ServiceRequestToken;
 import org.oscarehr.common.model.UserProperty;
 import org.oscarehr.decisionSupport.service.DSService;
 import org.oscarehr.managers.AppManager;
+import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.phr.util.MyOscarUtils;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.LoggedInUserFilter;
@@ -71,6 +70,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import com.quatro.model.security.LdapSecurity;
 
+import net.sf.json.JSONObject;
 import oscar.OscarProperties;
 import oscar.log.LogAction;
 import oscar.log.LogConst;
@@ -394,6 +394,19 @@ public final class LoginAction extends DispatchAction {
             session.setAttribute(SessionConstants.LOGGED_IN_SECURITY, cl.getSecurity());
 
             LoggedInInfo loggedInInfo = LoggedInUserFilter.generateLoggedInInfoFromSession(request);
+        	UserPropertyDAO upDao = SpringUtils.getBean(UserPropertyDAO.class);
+        	UserProperty up = upDao.getProp("maintenance_mode");
+        	SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
+        
+
+          	if(!securityInfoManager.hasPrivilege(loggedInInfo, "_admin.maintenance", "r", null)) {
+    	    	if(up != null && "enabled".equals(up.getValue())) {
+    	    		session.invalidate();
+    	    		String newURL = mapping.findForward("error").getPath();
+    	            newURL = newURL + "?errormsg=System is currently undergoing maintenance.";         
+    	            return new ActionForward(newURL);
+    	    	}
+        	}
             
             if (where.equals("provider")) {
                 UserProperty drugrefProperty = propDao.getProp(UserProperty.MYDRUGREF_ID);
