@@ -1295,7 +1295,7 @@ public final class RxWriteScriptAction extends DispatchAction {
 						if (rx.getUnitName() == null) {
 							special = rx.getBrandName() + newline + rx.getSpecial();
 							if (rx.getSpecialInstruction() != null && !rx.getSpecialInstruction().equalsIgnoreCase("null") && rx.getSpecialInstruction().trim().length() > 0) special += newline + rx.getSpecialInstruction();
-                            special += newline + "Qty:" + rx.getQuantity() + " Repeats:" + "" + rx.getRepeat();
+                            special += newline + "Qty:" + rx.getQuantity() + " " + rx.getDispensingUnits() + " Repeats:" + "" + rx.getRepeat();
                             if(showDuration){
                                 special += newline + "Refill Duration:" + rx.getRefillDuration();
                             }
