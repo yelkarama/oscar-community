@@ -120,7 +120,7 @@
 		changedStatus = request.getParameter("buttoncancel").equals("Cancel Appt") ? "C" : "N";
 	}
 
-	if (appointmentRemindersEnabled && "C".equals(changedStatus) || (cancelledStatus != null && cancelledStatus.getValue() != null && changedStatus.equals(cancelledStatus.getValue()))) {
+	if (appointmentRemindersEnabled && "C".equals(changedStatus) || (cancelledStatus != null && cancelledStatus.getValue() != null && cancelledStatus.getValue().equals(changedStatus))) {
 		if (appointmentReminder != null) {
 			appointmentReminder.setCancelled(true);
 			appointmentReminderDao.merge(appointmentReminder);
