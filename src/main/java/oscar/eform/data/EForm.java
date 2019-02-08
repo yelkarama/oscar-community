@@ -140,6 +140,9 @@ public class EForm extends EFormBase {
 				this.showLatestFormOnly = eFormData.isShowLatestFormOnly();
 				this.patientIndependent = eFormData.isPatientIndependent();
 				this.roleType = eFormData.getRoleType();
+				if (eFormData.getAppointmentNo() != null) {
+					this.appointment_no = eFormData.getAppointmentNo().toString();
+				}
 			}
 			else {
 				this.formName = "";
@@ -220,7 +223,7 @@ public class EForm extends EFormBase {
 			return;
 		}
 		index += 5;
-		StringBuilder action = new StringBuilder("action=\"../eform/addEForm.do?efmfid="+this.fid+"&efmdemographic_no="+this.demographicNo+"&efmprovider_no="+this.providerNo+"&eform_link="+this.eform_link);
+		StringBuilder action = new StringBuilder("action=\"../eform/addEForm.do?efmfid="+this.fid+"&efmdemographic_no="+this.demographicNo+"&efmprovider_no="+this.providerNo+"&eform_link="+this.eform_link+"&appointment_no="+this.appointment_no);
 		if (this.parentAjaxId != null) action.append("&parentAjaxId=" + this.parentAjaxId);
 
 		action.append("\"");

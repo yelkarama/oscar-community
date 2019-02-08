@@ -46,8 +46,6 @@ import java.util.ResourceBundle;
 import com.itextpdf.text.pdf.PdfReader;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.http.HttpRequest;
 import org.apache.log4j.Logger;
 import org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorManager;
 import org.oscarehr.PMmodule.caisi_integrator.IntegratorFallBackManager;
@@ -62,6 +60,7 @@ import org.oscarehr.casemgmt.model.CaseManagementNoteLink;
 import org.oscarehr.common.dao.ConsultDocsDao;
 import org.oscarehr.common.dao.CtlDocTypeDao;
 import org.oscarehr.common.dao.CtlDocumentDao;
+import org.oscarehr.common.dao.CtlDocumentMetadataDao;
 import org.oscarehr.common.dao.DocumentDao;
 import org.oscarehr.common.dao.DocumentDao.Module;
 import org.oscarehr.common.dao.DocumentReviewDao;
@@ -73,6 +72,7 @@ import org.oscarehr.common.dao.TicklerLinkDao;
 import org.oscarehr.common.model.ConsultDocs;
 import org.oscarehr.common.model.CtlDocType;
 import org.oscarehr.common.model.CtlDocument;
+import org.oscarehr.common.model.CtlDocumentMetadata;
 import org.oscarehr.common.model.CtlDocumentPK;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Document;
@@ -92,7 +92,6 @@ import org.oscarehr.util.SpringUtils;
 
 import oscar.MyDateFormat;
 import oscar.OscarProperties;
-import oscar.dms.data.AddEditDocumentForm;
 import oscar.log.LogAction;
 import oscar.log.LogConst;
 import oscar.oscarLab.ca.all.AcknowledgementData;
@@ -1254,7 +1253,7 @@ public final class EDocUtil {
 	 * @param demographic Demographic that the document will be added to
 	 * @param request Request to retrieve information for logging from
 	 */
-	public static void saveRtlToPatient(File file, Provider provider, Demographic demographic, HttpServletRequest request) {
+	public static void saveRtlToPatient(File file, Provider provider, Demographic demographic, Integer appointmentNo, HttpServletRequest request) {
 		SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
 		int numberOfPages = 0;
 		String user = provider.getProviderNo();
@@ -1285,7 +1284,8 @@ public final class EDocUtil {
 
 		EDoc newDoc = new EDoc(description, documentType, fileName, "", user, user, "", 'A', org.oscarehr.util.DateUtils.getIsoDate(GregorianCalendar.getInstance()), "",
 				"", "demographic", demographic.getDemographicNo().toString(), numberOfPages);
-
+		// Sets the appointment number
+		newDoc.setAppointmentNo(appointmentNo);
 		// Sets the fileName again so that it doesn't have the timestamp in front of it
 		newDoc.setFileName(fileName);
 		newDoc.setDocPublic("0");
@@ -1293,7 +1293,17 @@ public final class EDocUtil {
 
 		// Saves the document
 		String doc_no = addDocumentSQL(newDoc);
+		
+		try {
+			CtlDocumentMetadata documentMetadata = new CtlDocumentMetadata(Integer.parseInt(doc_no), appointmentNo);
 
+			CtlDocumentMetadataDao ctlDocumentMetadataDao = SpringUtils.getBean(CtlDocumentMetadataDao.class);
+			ctlDocumentMetadataDao.persist(documentMetadata);
+			
+		} catch (NumberFormatException e) {
+			logger.error("Could not save document to CtlDocumentMetadata, document id is " + doc_no);
+		}
+		
 		// Logs the creation of the RTL
 		LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.ADD, LogConst.CON_DOCUMENT, doc_no, request.getRemoteAddr());
 

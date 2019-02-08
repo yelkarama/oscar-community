@@ -1309,7 +1309,7 @@ public class EFormUtil {
 						renderer.createPDF(os);
 						if (!skipAddToChart) {
                             // Saves the RTL to the patient and adds a routes the pdf to the provider
-                            EDocUtil.saveRtlToPatient(tempFile, provider, demographic, request);
+                            EDocUtil.saveRtlToPatient(tempFile, provider, demographic, eformData.getAppointmentNo(), request);
                         }
 					}
 				} catch (DocumentException e) {

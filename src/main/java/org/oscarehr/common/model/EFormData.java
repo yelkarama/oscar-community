@@ -109,6 +109,9 @@ public class EFormData extends AbstractModel<Integer> implements Serializable {
 	@Column(name = "patient_independent")
 	private boolean patientIndependent;
 
+	@Column(name = "appointment_no")
+	private Integer appointmentNo;
+	
 	private String roleType;
 
 	@Override
@@ -206,6 +209,13 @@ public class EFormData extends AbstractModel<Integer> implements Serializable {
 
 	public void setPatientIndependent(boolean patientIndependent) {
 		this.patientIndependent = patientIndependent;
+	}
+
+	public Integer getAppointmentNo() {
+		return appointmentNo;
+	}
+	public void setAppointmentNo(Integer appointmentNo) {
+		this.appointmentNo = appointmentNo;
 	}
 
 	public String getRoleType() {

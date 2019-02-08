@@ -54,6 +54,7 @@ import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
+import oscar.OscarProperties;
 import oscar.eform.EFormLoader;
 import oscar.eform.EFormUtil;
 import oscar.eform.data.DatabaseAP;
@@ -216,7 +217,21 @@ public class AddEFormAction extends Action {
 		if (!sameform) { //save eform data
 			EFormDataDao eFormDataDao=(EFormDataDao)SpringUtils.getBean("EFormDataDao");
 			EFormData eFormData=toEFormData(curForm);
+			
+			String appointmentNo = request.getParameter("appointment_no");
+			// Checks if the appointment number parameter either doesn't exist or is passed as a string of null
+			if (appointmentNo != null && !appointmentNo.equals("null")) {
+				try {
+					// Sets the appointment number to the eform data after parsing it
+					eFormData.setAppointmentNo(Integer.parseInt(appointmentNo));
+				} catch (NumberFormatException e) {
+					logger.error("Could not convert appointment number to an integer. Appointment number: " + appointmentNo);
+				}
+			}
+			
 			eFormDataDao.persist(eFormData);
+
+			
 			String fdid = eFormData.getId().toString();
 
 			EFormUtil.addEFormValues(paramNames, paramValues, new Integer(fdid), new Integer(fid), new Integer(demographic_no)); //adds parsed values
