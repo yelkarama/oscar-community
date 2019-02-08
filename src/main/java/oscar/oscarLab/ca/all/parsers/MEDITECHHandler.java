@@ -84,10 +84,13 @@ public class MEDITECHHandler implements MessageHandler {
 		msg = (ORU_R01) parser.parse(hl7Body);
 		terser = new Terser(msg);
 		
-		try {
-			reportBlocked = "Y".equalsIgnoreCase(terser.get("/.ZPD-3-1"));
-		} catch (Exception e) {
-			logger.error(e);
+		// Checks if the hl7body contains a ZPD element. This is done because if it doesn't and it tries to get it, the terser will cause the msg to become corrupted
+		if (hl7Body.contains("ZPD")) {
+			try {
+				reportBlocked = "Y".equalsIgnoreCase(terser.get("/.ZPD-3-1"));
+			} catch (Exception e) {
+				logger.error(e);
+			}
 		}
 	}
 
