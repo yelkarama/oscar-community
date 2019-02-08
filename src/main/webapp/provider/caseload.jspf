@@ -126,8 +126,8 @@ clH = ["<bean:message key="caseload.msgDemographic" />", "", "<bean:message key=
 					<b>Rostered: </b>
 					<select id='caseloadRoster' onChange='search("search");' style='width: 120'>
 						<option value='' selected></option>
-						<option value='RO'><bean:message key='demographic.demographiceditdemographic.optRostered'/></option>
-						<option value='NR'><bean:message key='demographic.demographiceditdemographic.optNotRostered'/></option>
+						<option value='RO'><bean:message key='demographic.demographiceditdemographic.optEnrolled'/></option>
+						<option value='NR'><bean:message key='demographic.demographiceditdemographic.optNotEnrolled'/></option>
 						<option value='TE'><bean:message key='demographic.demographiceditdemographic.optTerminated'/></option>
 						<option value='FS'><bean:message key='demographic.demographiceditdemographic.optFeeService'/></option>
 		<%
