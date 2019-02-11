@@ -179,7 +179,7 @@ public class PrintLabsAction extends Action{
                     response.setContentType("application/pdf");
                     response.setHeader("Content-Disposition", "attachment;filename=" + handler.getPatientName().replaceAll("\\s", "_") + "_" + handler.getMsgDate() + "_MultiLabReport.pdf");
 
-                    String fileName = OscarProperties.getInstance().getProperty("DOCUMENT_DIR") + "//" + handler.getPatientName().replaceAll("\\s", "_") + "_" + handler.getMsgDate() + "_LabReport.pdf";
+                    String fileName = OscarProperties.getInstance().getProperty("DOCUMENT_DIR") + "//" + segmentId + handler.getPatientName().replaceAll("\\s", "_") + "_" + handler.getMsgDate() + "_LabReport.pdf";
                     fileTemp = new File(fileName);
                     osTemp = new FileOutputStream(fileTemp);
                     if (handler instanceof OLISHL7Handler) {
