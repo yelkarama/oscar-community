@@ -149,6 +149,18 @@
                     &nbsp;&nbsp;&nbsp;
                 </td>
             </tr>
+            <tr>
+                <td>Display start date on prescriptions: </td>
+                <td>
+                    <label style="display: inline">
+                        <input type="radio" value="true" name="rx_show_start_dates" <%= (dataBean.getProperty("rx_show_start_dates", "false").equals("true") ? "checked" : "") %> /> Yes
+                    </label>
+                    &nbsp;&nbsp;&nbsp;
+                    <label style="display: inline">
+                        <input type="radio" value="false" name="rx_show_start_dates" <%= (dataBean.getProperty("rx_show_start_dates", "false").equals("false") ? "checked" : "") %> /> No
+                    </label>
+                </td>
+            </tr>
 			<tr>
 				<td>Show end date of drugs on prescriptions: </td>
 				<td>

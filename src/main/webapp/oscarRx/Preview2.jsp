@@ -57,6 +57,7 @@
 	boolean rxWaterMark = OscarProperties.getInstance().getBooleanProperty("enable_rx_watermark", "true");
 	String rx_watermark_file = OscarProperties.getInstance().getProperty("rx_watermark_file_name");
 	boolean rxShowEndDatesPref = systemPreferencesDao.isReadBooleanPreference("rx_show_end_dates");
+	boolean rxShowStartDatesPref = systemPreferencesDao.isReadBooleanPreference("rx_show_start_dates");
 	String imageString = "";
 	if (rxWaterMark && rx_watermark_file != null) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -611,7 +612,9 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                                                             Logger.getLogger("preview_jsp").error("drug full outline was null");
                                                                             fullOutLine="<span style=\"color:red;font-size:16;font-weight:bold\">An error occurred, please write a new prescription.</span><br />"+fullOutLine;
                                                                     }
-				strRx += rx.getFullOutLine() + "; Start Date: " + oscar.oscarRx.util.RxUtil.DateToString(rx.getRxDate(), "MMMM d, yyyy",request.getLocale()) + ";;";
+                                                if(rx.getRxDate() != null && rxShowStartDatesPref) {
+                                                    strRx += rx.getFullOutLine() + "; Start Date: " + oscar.oscarRx.util.RxUtil.DateToString(rx.getRxDate(), "MMMM d, yyyy", request.getLocale()) + ";;";
+                                                }
                                             if (rxShowEndDatesPref) {
                                                 strRx += "; End Date: " + oscar.oscarRx.util.RxUtil.DateToString(rx.getEndDate(), "MMMM d, yyyy",request.getLocale());
                                             }
@@ -622,7 +625,7 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
 				<td colspan="2" <%=(i==0)?"style=\"border-top: 1px #808080 inset;\"":""%>>
 					<div>
 						<%=fullOutLine%><br/>
-						Start Date: <%= oscar.oscarRx.util.RxUtil.DateToString(rx.getRxDate(), "MMMM d, yyyy",request.getLocale())%>
+						<%=(rx.getRxDate() != null && rxShowStartDatesPref) ? "<br/>Start Date: " + oscar.oscarRx.util.RxUtil.DateToString(rx.getRxDate(), "MMMM d, yyyy",request.getLocale()) : ""%>
                         <%=(rxShowEndDatesPref) ? "<br/>End Date: " + oscar.oscarRx.util.RxUtil.DateToString(rx.getEndDate(), "MMMM d, yyyy",request.getLocale()) : ""%>
 						<hr/>
 					</div>
