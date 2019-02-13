@@ -107,8 +107,6 @@
 	<item measurement_type="HSMG" display_name="Self Management Goal" guideline="" graphable="no" value_name="Goal" />
 	<item measurement_type="HSMC" display_name="Self Management Challenges" guideline="" graphable="no" value_name="Challenges" />
 	<item measurement_type="SODI" display_name="Salt Intake" guideline="" graphable="no" value_name="On Low Sodium Diet" />
-	
-	<!-- 
 	<item measurement_type="UMS" display_name="Urinary Microalbumin Screen" guideline="Male&lt;2.0 Female&lt;2.8 Biennial" graphable="yes" value_name="UMS">
 		<rules>
 			<recommendation strength="warning" >
@@ -128,7 +126,9 @@
 				<condition type="isFemale"  value="true" />
 			</rule>
 		</ruleset>
-	</item>
+	</item>	
+	<!-- 
+
 	<item prevention_type="Flu" display_name="Flu Vaccine" guideline="Annually" graphable="no" />
 	<item prevention_type="Pneumovax" display_name="Pneumococcal vaccine" guideline="" graphable="no" />
 	-->
