@@ -3348,6 +3348,29 @@ public class OLISHL7Handler implements MessageHandler {
     }
 
 	/**
+	 * Checks if the OBX is a microorganism parent by comparing OBX.3.1 and checking if it is the code 41852-5. If so, then it is a microorganism parent.
+	 * @param obr The OBR that the OBX is under
+	 * @param obx The OBX to check
+	 * @return {@code true} if the result is a microorganism parent. {@code false} if not.
+	 */
+    public boolean isMicroorganismParent(int obr, int obx) {
+		boolean isMicroorganismParent = false;
+		
+		// Gets the OBX Segment
+		Segment segment = getObxSegment(obr, obx);
+		
+		try {
+			// Gets field 3, section 1 to check if the code is for a Microorganism parent
+			String code = Terser.get(segment, 3, 0, 1, 1);
+			isMicroorganismParent = code.equals("41852-5");
+		} catch (HL7Exception e) {
+			logger.error("Could not check if the OLIS result is a microorganism parent. OBR: " + obr + "  OBX: " + obx, e);
+		}
+		
+		return isMicroorganismParent;
+	}
+    
+	/**
 	 * Gets the microorganism code for the given obx segment if it's value type is a Coded Entry and the coding system is HL79905
 	 * @param obxSegment Segment to get the microorganism code from 
 	 * @return The retrieved microorganism code, empty if it's not a CE or the code system doesn't match
@@ -3402,7 +3425,18 @@ public class OLISHL7Handler implements MessageHandler {
 
 		return isMicroorganism;
 	}
-    
+
+	/**
+	 * Gets the OBX segment for the given obr and obx index
+	 * @param obr The OBR/Request that the result belongs to
+	 * @param obx The index of the result
+	 * @return The segment for the requested Obx
+	 */
+	private Segment getObxSegment(int obr, int obx) {
+		ArrayList<Segment> obxSegments = obrGroups.get(obr);
+		return obxSegments.get(obx);
+	}
+	
 	public class OLISError {
 		public OLISError(String segment, String sequence, String field, String indentifer, String text) {
 			super();

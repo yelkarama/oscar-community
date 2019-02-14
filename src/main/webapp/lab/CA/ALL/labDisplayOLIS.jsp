@@ -1563,7 +1563,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
    											<%
    											if (handler.isStatusFinal(handler.getOBXResultStatus(obr, obx).charAt(0))) {
   												String parentId = handler.getOBXCEParentId(obr, obx);
-  												if (!stringIsNullOrEmpty(parentId)) {
+  												if (!stringIsNullOrEmpty(parentId) && handler.isMicroorganismParent(obr, obx)) {
    											%>
    											<tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
    												<td colspan="5" align="center">
