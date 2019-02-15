@@ -504,6 +504,7 @@ if (customRosterStatusProperty != null) {
 <%@ page import="org.oscarehr.common.dao.PropertyDao" %>
 <%@ page import="org.oscarehr.common.dao.SystemPreferencesDao" %>
 <%@ page import="org.oscarehr.common.model.SystemPreferences" %>
+<%@ page import="org.oscarehr.PMmodule.web.utils.UserRoleUtils" %>
 <html:html locale="true">
 <head>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script>
@@ -2638,7 +2639,7 @@ Boolean displayAppointmentReason = appointment.getReason() != null && appointmen
 
 <%= (bShortcutIntakeForm) ? "| <a href='#' onClick='popupPage(700, 1024, \"formIntake.jsp?demographic_no="+demographic_no+"&appointmentNo="+appointment.getId()+"&fromSchedule=true\")' title='Intake Form'>In</a>" : "" %>
 <!--  eyeform open link -->
-<% if (oscar.OscarProperties.getInstance().isPropertyActive("new_eyeform_enabled") && !isWeekView) { %>
+<% if ((oscar.OscarProperties.getInstance().isPropertyActive("new_eyeform_enabled") || UserRoleUtils.hasRole(request, UserRoleUtils.Roles.Ophthalmologist)) && !isWeekView) { %>
 &#124; <a href="#" onClick='popupPage(800, 1280, "../eyeform/eyeform.jsp?demographic_no=<%=demographic_no %>&appointment_no=<%=appointment.getId()%>");return false;' title="EyeForm">EF</a>
 <% } %>
 

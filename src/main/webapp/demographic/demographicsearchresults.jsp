@@ -84,6 +84,7 @@
 <%@page import="org.oscarehr.common.model.DemographicExt"%>
 <%@page import="org.oscarehr.common.dao.DemographicExtDao" %>
 <%@ page import="oscar.oscarDemographic.data.DemographicMerged" %>
+<%@ page import="org.oscarehr.PMmodule.web.utils.UserRoleUtils" %>
 
 <jsp:useBean id="providerBean" class="java.util.Properties"	scope="session" />
 
@@ -434,7 +435,7 @@
 
 	<%	
 		}
-		if (OscarProperties.getInstance().isPropertyActive("new_eyeform_enabled")) { 
+		if (OscarProperties.getInstance().isPropertyActive("new_eyeform_enabled") || UserRoleUtils.hasRole(request, UserRoleUtils.Roles.Ophthalmologist)) { 
 	%>
 		<security:oscarSec roleName="<%=roleName$%>" objectName="_eChart" rights="r">
 			<a title="Eyeform" href="#" onclick="popup(800, 1280, '../eyeform/eyeform.jsp?demographic_no=<%=dem_no %>&reason=')">EF</a>
