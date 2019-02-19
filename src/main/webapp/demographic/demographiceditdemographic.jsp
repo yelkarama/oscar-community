@@ -1783,7 +1783,9 @@ if ( Dead.equals(PatStat) ) {%>
 	          					if(warningLevel.equals("3")) {warningLevelStr="High";}
 	          					if(warningLevel.equals("4")) {warningLevelStr="None";}
                               %>
-						&nbsp;
+						 <span class="label"><bean:message key="demographic.demographiceditdemographic.rxInteractionWarningLevel"/>:</span>
+                                                   <span class="info"><%=warningLevelStr%></span>
+							
 						
 						</div>
 						
