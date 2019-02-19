@@ -726,7 +726,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 					if(handler.isStatusFinal(handler.getOBXResultStatus(obr, obx).charAt(0))){
 						String parentId = handler.getOBXCEParentId(obr, obx);
 						//If there is a parent ID then outputs a table for Agent and Sensitivity
-						if (!stringIsNullOrEmpty(parentId)){
+						if (!stringIsNullOrEmpty(parentId) && handler.isMicroorganismParent(obr, obx)){
 							float[] ceTableWidths = {2f, 3f};
 							PdfPTable ceTable = new PdfPTable(ceTableWidths);
 							ceTable.setWidthPercentage(10f);
