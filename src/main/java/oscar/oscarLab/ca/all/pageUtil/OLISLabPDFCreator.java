@@ -1166,7 +1166,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
             cell = new PdfPCell(new Phrase("Version: "+versionNum+" of "+multiID.length, boldFont));
             cell.setBackgroundColor(new Color(210, 212, 255));
             cell.setPadding(3);
-            cell.setColspan(2);
+            cell.setColspan(3);
             table.addCell(cell);
         }
         cell = new PdfPCell(new Phrase("Patient", boldFont));
