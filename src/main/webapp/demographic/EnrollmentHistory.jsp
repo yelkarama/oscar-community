@@ -158,6 +158,12 @@
 				
 				boolean printedHeaders=false;
 				
+				String lastRosterStatusDisplay=null;
+				String lastRosterDateDisplay=null;
+				String lastRosterEnrolledToDisplay=null;
+				String lastRosterTerminationDateDisplay=null;
+				String lastRosterTerminationReasonDisplay=null;
+				
 				for(DemographicArchive da : archiveList) {
 					String itemRosterStatus = da.getRosterStatus();
 					
@@ -168,12 +174,25 @@
 						if("".equals(iRosterStatus)) {
 							continue;
 						}
+						
+						
 						String iRosterEnrolledTo = da.getRosterEnrolledTo();
 						Provider enrolledToProvider = providerDao.getProvider(iRosterEnrolledTo);
 						
 						Date iRosterDate = da.getRosterDate();
 						Date iRosterTermination = da.getRosterTerminationDate();
 						String iRosterTerminationReason = da.getRosterTerminationReason();
+						
+						String dRosterStatus = getRosterStatusDisplay(iRosterStatus);
+						String dRosterEnrolledTo = enrolledToProvider != null ? enrolledToProvider.getFormattedName() : "N/A";
+						String dRosterDate = DateUtils.formatDate(iRosterDate,request.getLocale());
+						String dRosterTerminationDate = iRosterTermination != null ? DateUtils.formatDate(iRosterTermination,request.getLocale()) : "";
+						String dRosterTerminationReason = iRosterTerminationReason != null && Util.rosterTermReasonProperties.getReasonByCode(iRosterTerminationReason) != null ? Util.rosterTermReasonProperties.getReasonByCode(iRosterTerminationReason) : "";
+
+						//all same?
+						if(dRosterStatus.equals(lastRosterStatusDisplay) && dRosterEnrolledTo.equals(lastRosterEnrolledToDisplay) && dRosterDate.equals(lastRosterDateDisplay) && dRosterTerminationDate.equals(lastRosterTerminationDateDisplay) && dRosterTerminationReason.equals(lastRosterTerminationReasonDisplay) ) {
+							continue;
+						}
 						%>
 						<%if(!printedHeaders) {
 							printedHeaders=true;
@@ -192,13 +211,19 @@
 						
 						<tr>
 							<td><%=DateUtils.formatDate(da.getLastUpdateDate() ,request.getLocale())%></td>
-							<td><%=getRosterStatusDisplay(iRosterStatus) %></td>
-							<td><%=enrolledToProvider != null ? enrolledToProvider.getFormattedName() : "N/A" %></td>
-							<td><%=DateUtils.formatDate(iRosterDate,request.getLocale())%></td>
-							<td><%=iRosterTermination != null ? DateUtils.formatDate(iRosterTermination,request.getLocale()) : ""%></td>
-							<td><%=iRosterTerminationReason != null && Util.rosterTermReasonProperties.getReasonByCode(iRosterTerminationReason) != null ? Util.rosterTermReasonProperties.getReasonByCode(iRosterTerminationReason) : "" %></td>
+							<td><%=dRosterStatus %></td>
+							<td><%=dRosterEnrolledTo %></td>
+							<td><%=dRosterDate %></td>
+							<td><%=dRosterTerminationDate %></td>
+							<td><%=dRosterTerminationReason %></td>
 						</tr>
 						<%
+						
+						lastRosterStatusDisplay = dRosterStatus;
+						lastRosterEnrolledToDisplay = dRosterEnrolledTo;
+						lastRosterDateDisplay = dRosterDate;
+						lastRosterTerminationDateDisplay = dRosterTerminationDate;
+						lastRosterTerminationReasonDisplay = dRosterTerminationReason;
 					}
 				
 				}
