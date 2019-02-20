@@ -483,7 +483,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 					writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, geti18nTagValue(locale, "RxPreview.msgTel")+":" + this.clinicTel, 188 - diff, (page.getHeight() - 70), 0);
 					// render clinicFax;
 					writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, geti18nTagValue(locale, "RxPreview.msgFax")+":" + this.clinicFax, 188 - diff, (page.getHeight() - 80), 0);
-					writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, today, 188 - diff, (page.getHeight() - 90), 0);
+					writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, this.rxDate, 188 - diff, (page.getHeight() - 90), 0);
 					
 					if (this.pharmaShow) {
 						writeDirectContent(cb,bf,10,PdfContentByte.ALIGN_LEFT,this.pharmaName,290,(page.getHeight()-30),0);
