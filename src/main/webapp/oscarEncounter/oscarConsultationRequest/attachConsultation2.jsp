@@ -284,6 +284,8 @@ function toggleSelectAll() {
             Collections.sort(labs);       
             
             List<HRMDocumentToDemographic> hrmDocumentToDemographicList = hrmDocumentToDemographicDao.findByDemographicNo(demoNo);
+            // update eForms with all current patient eforms
+            eForms = EFormUtil.listPatientEformsCurrent(new Integer(demoNo), true, 0, 100);
             
             if (labs.size() == 0 && privatedocs.size() == 0 && hrmDocumentToDemographicList.size() == 0 && eForms.size() == 0) {
             %>
@@ -524,8 +526,6 @@ function toggleSelectAll() {
 					}
 
 					SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy", request.getLocale());
-					//Get eforms
-					eForms= EFormUtil.listPatientEformsCurrent(new Integer(demoNo), true, 0, 100);
 					if (!eForms.isEmpty()) { %>
 						<h2>eForms</h2>
 					<% }
