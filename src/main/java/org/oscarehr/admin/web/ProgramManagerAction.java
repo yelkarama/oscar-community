@@ -37,6 +37,7 @@ import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.action.DynaActionForm;
 import org.apache.struts.actions.DispatchAction;
+import org.apache.struts.validator.DynaValidatorForm;
 import org.oscarehr.PMmodule.dao.ProgramDao;
 import org.oscarehr.PMmodule.model.Program;
 import org.oscarehr.PMmodule.service.AdmissionManager;
@@ -110,7 +111,26 @@ public class ProgramManagerAction extends DispatchAction {
 		
 		setEditAttributes(request,null);
 		
+		Program p = new Program();
+		
+		DynaValidatorForm f = (DynaValidatorForm)form;
+		
+		f.set("program", p);
 		return mapping.findForward("edit");
+	}
+	
+	public ActionForward delete(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+		
+		String id = request.getParameter("id");
+		
+		Program p = programManager.getProgram(Integer.parseInt(id));
+		
+		if(p != null) {
+			p.setProgramStatus("inactive");
+			programManager.saveProgram(p);
+		}
+		
+		return list(mapping,form,request,response);
 	}
 	
 	public ActionForward edit(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {

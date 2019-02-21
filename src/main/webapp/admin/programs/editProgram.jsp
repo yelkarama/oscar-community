@@ -196,6 +196,7 @@ br {
 			<td class="MainTableRightColumn" valign="top"><html:form
 					action="/ProgramManager.do" onsubmit="return save();">
 					<input type="hidden" name="method" value="save" />
+					<html:hidden property="program.id"/>
 					<table width="100%" border="1" cellspacing="2" cellpadding="3">
 
 						<tr class="b">
@@ -227,7 +228,7 @@ br {
 							<select name="program.functionalCentreId">
 								<option value="">None</option>
 								<%
-									DynaValidatorForm f = (DynaValidatorForm)pageContext.getAttribute("programManagerForm");
+									DynaValidatorForm f = (DynaValidatorForm)request.getAttribute("programManagerForm");
 									Program p = (Program)f.get("program");
 									List<FunctionalCentre> functionalCentres = (List<FunctionalCentre>)request.getAttribute("functionalCentres");
 									
