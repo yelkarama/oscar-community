@@ -16,7 +16,7 @@ TRUNCATE TABLE `measurements`;
 INSERT INTO `measurements` VALUES (1,'BP',1,'999998','130/85','sitting position','','2013-09-25 00:00:00','2013-09-25 15:51:13',0);
 INSERT INTO `measurements` VALUES (2,'HT',1,'999998','187','in cm','','2013-09-25 00:00:00','2013-09-25 15:51:13',0);
 INSERT INTO `measurements` VALUES (3,'HR',1,'999998','85','in bpm (nnn) Range:40-180','','2013-09-25 00:00:00','2013-09-25 15:51:13',0);
-INSERT INTO `measurements` VALUES (4,'TEMP',1,'999998','37','degrees celcius','','2013-09-25 00:00:00','2013-09-25 15:51:13',0);
+INSERT INTO `measurements` VALUES (4,'TEMP',1,'999998','37','degrees Celsius','','2013-09-25 00:00:00','2013-09-25 15:51:13',0);
 INSERT INTO `measurements` VALUES (5,'WAIS',1,'999998','92','Waist Circum in cm','','2013-09-25 00:00:00','2013-09-25 15:51:13',0);
 INSERT INTO `measurements` VALUES (6,'WT',1,'999998','95','in kg','','2013-09-25 00:00:00','2013-09-25 15:51:13',0);
 

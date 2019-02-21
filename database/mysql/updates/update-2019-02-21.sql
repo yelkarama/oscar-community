@@ -1,0 +1,1 @@
+UPDATE measurementtype SET measuringInstruction = 'degrees Celsius' WHERE measuringInstruction = 'degrees celcius';
