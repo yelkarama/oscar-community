@@ -312,6 +312,8 @@ public class ManageDocumentAction extends DispatchAction {
 		String documentDescription = request.getParameter("documentDescription");// :test2<
 		String documentId = request.getParameter("documentId");// :29<
 		String docType = request.getParameter("docType");// :consult<
+		String sourceAuthor = request.getParameter("source");
+		String sourceFacility = request.getParameter("source_facility");
 		boolean abnormal = WebUtils.isChecked(request, "abnormal");
 
 		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_edoc", "w", null)) {
@@ -344,6 +346,8 @@ public class ManageDocumentAction extends DispatchAction {
 			d.setDoctype(docType);
 			Date obDate = UtilDateUtilities.StringToDate(observationDate);
 			d.setAbnormal(abnormal);
+			d.setSource(sourceAuthor);
+			d.setSourceFacility(sourceFacility);
 			
 			if (obDate != null) {
 				d.setObservationdate(obDate);
