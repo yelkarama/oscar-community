@@ -93,10 +93,13 @@ public class ScheduleDateDao extends AbstractDao<ScheduleDate>{
 		return results;
 	}
 	
-	public List<Object[]> search_appttimecode(Date sDate, String providerNo) {
-		Query query = entityManager.createQuery("FROM ScheduleTemplate st, ScheduleDate sd WHERE st.id.name=sd.hour and sd.date=? and sd.providerNo=? and sd.status='A' and (st.id.providerNo = sd.providerNo or st.id.providerNo='Public')");
+	public List<Object[]> search_appttimecode(Date sDate, String providerNo, String site) {
+		Query query = entityManager.createQuery("FROM ScheduleTemplate st, ScheduleDate sd WHERE st.id.name=sd.hour and sd.date=? and sd.providerNo=? and sd.status='A' and (st.id.providerNo = sd.providerNo or st.id.providerNo='Public')" +(site == null ? "" : " and sd.reason=?"));
 		query.setParameter(1, sDate);
 		query.setParameter(2, providerNo);
+		if (site != null) {
+			query.setParameter (3, site);
+		}
 		
 		
 		@SuppressWarnings("unchecked")

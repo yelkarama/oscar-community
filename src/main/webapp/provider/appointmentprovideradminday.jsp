@@ -1089,13 +1089,13 @@ String [] param3 = new String[2];
 param3[0] = strDate;
 for(nProvider=0;nProvider<numProvider;nProvider++) {
      param3[1] = curProvider_no[nProvider];
-     List<Object[]> results = scheduleDateDao.search_appttimecode(ConversionUtils.fromDateString(strDate), curProvider_no[nProvider]);
+     List<Object[]> results = scheduleDateDao.search_appttimecode(ConversionUtils.fromDateString(strDate), curProvider_no[nProvider], selectedSite);
      for(Object[] result:results) {
     	 ScheduleTemplate st = (ScheduleTemplate)result[0];
     	 ScheduleDate sd = (ScheduleDate)result[1];
     	 dateTimeCodeBean.put(sd.getProviderNo(), st.getTimecode());
      }
-    
+
 }
 
 	for(ScheduleTemplateCode stc : scheduleTemplateCodeDao.findAll()) {
@@ -2044,7 +2044,7 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
         param3[1] = curProvider_no[nProvider];
     	dateTimeCodeBean.put(String.valueOf(provNum), "");
     	
-    	List<Object[]> results = scheduleDateDao.search_appttimecode(ConversionUtils.fromDateString(strDate), curProvider_no[nProvider]);
+    	List<Object[]> results = scheduleDateDao.search_appttimecode(ConversionUtils.fromDateString(strDate), curProvider_no[nProvider], selectedSite);
     	for(Object[] result : results) {
     		 ScheduleTemplate st = (ScheduleTemplate)result[0];
         	 ScheduleDate sd = (ScheduleDate)result[1];
@@ -2187,8 +2187,7 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
             	if(request.getParameter("module")!=null){
             		module=request.getParameter("module");
             	}
-        List<Object[]> confirmTimeCode = scheduleDateDao.search_appttimecode(ConversionUtils.fromDateString(strDate), curProvider_no[nProvider]);
-        
+        List<Object[]> confirmTimeCode = scheduleDateDao.search_appttimecode(ConversionUtils.fromDateString(strDate), curProvider_no[nProvider], selectedSite);
         String hourDisplay = "";
 		String minuteDisplay = "";
 		String timeDisplay = "";
