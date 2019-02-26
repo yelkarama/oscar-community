@@ -1488,11 +1488,39 @@ CREATE TABLE billing_on_ext (
   payment_id int(10)
 ) ;
 
+CREATE TABLE IF NOT EXISTS billing_on_ou_report (
+  id int(12) NOT NULL auto_increment,
+  report_id varchar(10),
+  report_date date not null,
+  report_period_start date not null,
+  report_period_end date not null,
+  group_id varchar(4),
+  group_type varchar(3),
+  group_Name varchar(75),
+  provider_ohip_no varchar(6) not null,
+  provider_last varchar(30),
+  provider_first varchar(20),
+  provider_middle varchar(20),
+  patient_hin varchar(10) not null,
+  patient_last varchar(30),
+  patient_first varchar(20),
+  patient_dob date,
+  service_date date,
+  service_code varchar(5),
+  service_description varchar(39),
+  service_amount decimal(10,2),
+  report_file varchar(20) default '',
+  
+  PRIMARY KEY (id),
+  key (report_date),
+  key (provider_ohip_no)
+);
+
 CREATE TABLE ctl_billingtype (
     servicetype varchar(10) not null,
     billtype    varchar(5)  not null,
-    visitType char(2) DEFAULT NULL;
-    location varchar(4) DEFAULT NULL;
+    visitType char(2) DEFAULT NULL,
+    location varchar(4) DEFAULT NULL,
     primary key (servicetype)
 );
 

@@ -152,6 +152,10 @@
         &nbsp;&nbsp;
 		<a href="javascript:popupPage(800,1000, 'olis_search', '<%=request.getContextPath()%>/olis/Search.jsp?demographicNo=<%=demoNo%>')">OLIS Search</a>
         &nbsp;&nbsp;
+        <% if (OscarProperties.getInstance().isPropertyActive("moh_file_management_enabled")) { %>
+        <a href="javascript:popupPage(900,1100, 'outside_use_report', '<%=request.getContextPath()%>/billing/CA/ON/outsideUse.jsp?demographic_no=<%=demoNo%>')">OU</a>
+        &nbsp;&nbsp;
+        <% } %>
         
 		<%
 		if (facility.isIntegratorEnabled()){

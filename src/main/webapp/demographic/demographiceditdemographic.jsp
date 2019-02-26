@@ -1225,7 +1225,18 @@ if(wLReadonly.equals("")){
 						title='<bean:message key="demographic.demographiceditdemographic.msgINRBilling"/>'><bean:message key="demographic.demographiceditdemographic.msgINRBill"/></a>
 					</td>
 				</tr>
+	<% if (OscarProperties.getInstance().isPropertyActive("moh_file_management_enabled")) { %>
+				<tr>
+					<td>
+						<a 
+							href="javascript: function myFunction() {return false; }"
+							onClick="window.open('<%=request.getContextPath()%>/billing/CA/ON/outsideUse.jsp?demographic_no=<%=demographic.getDemographicNo()%>','', 'scrollbars=yes,resizable=yes,width=1100,height=900');return false;"
+							title='outside_use_report'>Outside Use
+						</a>
+					</td>
+				</tr>
 <%
+		}
 			}
 %>
 

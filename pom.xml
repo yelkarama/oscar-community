@@ -1180,8 +1180,12 @@
 			<artifactId>flying-saucer-pdf-openpdf</artifactId>
 			<version>9.1.16</version>
 		</dependency>
-		
-		
+
+		<dependency>
+			<groupId>ca.on.health</groupId>
+			<artifactId>ou</artifactId>
+			<version>1.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>

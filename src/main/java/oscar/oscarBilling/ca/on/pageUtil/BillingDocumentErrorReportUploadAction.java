@@ -64,6 +64,7 @@ import org.oscarehr.util.SpringUtils;
 import oscar.OscarProperties;
 import oscar.oscarBilling.ca.on.bean.BillingClaimBatchAcknowledgementReportBeanHandler;
 import oscar.oscarBilling.ca.on.bean.BillingClaimsErrorReportBeanHandler;
+import oscar.oscarBilling.ca.on.bean.BillingClaimsOutsideUseReportBeanHandler;
 import oscar.oscarBilling.ca.on.bean.BillingEDTOBECOutputSpecificationBean;
 import oscar.oscarBilling.ca.on.bean.BillingEDTOBECOutputSpecificationBeanHandler;
 import oscar.oscarBilling.ca.on.data.BillingClaimsErrorReportBeanHandlerSave;
@@ -211,9 +212,10 @@ public class BillingDocumentErrorReportUploadAction extends Action {
 			}
 			else if (fileName.substring(0,1).compareTo("L") == 0) {
 				ReportName = "OUTSIDE USE REPORT";
+				BillingClaimsOutsideUseReportBeanHandler hd = generateReportL(loggedInInfo, filepath + fileName);
 				request.setAttribute("backupfilepath", filepath);
 				request.setAttribute("filename", fileName);
-				isGot = true;
+				isGot = hd.verdict;
 			}
 			
 			request.setAttribute("ReportName", ReportName);
@@ -361,4 +363,16 @@ public class BillingDocumentErrorReportUploadAction extends Action {
 		return hd;
 	}
 
+    /**
+     *
+     * Generate Claims Outside Use Report (E).
+     *
+     * @param loggedInInfo
+     * @param filepath
+     * @return BillingClaimsOutsideUseReportBeanHandler
+     */
+	private BillingClaimsOutsideUseReportBeanHandler generateReportL(LoggedInInfo loggedInInfo, String filepath) {
+        BillingClaimsOutsideUseReportBeanHandler handler = new BillingClaimsOutsideUseReportBeanHandler(filepath);
+        return handler;
+    }
 }

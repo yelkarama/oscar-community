@@ -52,7 +52,11 @@ function viewMOHFile (filename) {
 	} else if (fileType == "P" || fileType == "S") {
 		form.action ="/<%= OscarProperties.getInstance().getProperty("project_home") %>/servlet/oscar.DocumentUploadServlet";
 	} else if (fileType == "L") {
-		form.action ="billingLreport.jsp";
+		//form.action ="billingLreport.jsp";
+        var page = "<%=request.getContextPath() %>/oscarBilling/DocumentErrorReportUpload.do?filename="+filename;
+        var windowprops = "location=no, scrollbars=yes, menubars=no, toolbars=no, resizable=yes, top=0, left=0";
+        var popup = window.open(page, "_blank", windowprops);
+        popup.focus();
 	} else {
         var page = "<%=request.getContextPath() %>/oscarBilling/DocumentErrorReportUpload.do?filename="+filename;
         var windowprops = "location=no, scrollbars=yes, menubars=no, toolbars=no, resizable=yes, top=0, left=0";
