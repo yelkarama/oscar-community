@@ -341,6 +341,9 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		cell.setColspan(6);
 		cell.setPaddingBottom(5);
 		cell.setBorder(12);
+
+        int obxCount = handler.getOBXCount(obr);
+        int obrCommentCount = handler.getOBRCommentCount(obr);
 		
 		Phrase categoryPhrase = new Phrase();
 		categoryPhrase.setFont(new Font(cfBold, 11, Font.NORMAL));
@@ -354,10 +357,14 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		//Adds the obr status to the phrase so it appears beside the test request/header
 		categoryPhrase.add(" (" + handler.getObrStatus(obr) + ")");
 		
+        categoryPhrase.setFont(new Font(cf, 8, Font.NORMAL));
+		if (obxCount == 0 && obrCommentCount > 0) {
+		    categoryPhrase.add(" Refer to test request note");
+        }
+        
 		//Gets the point of care and outputs message if it exists
 		String poc = handler.getPointOfCare(obr);
 		if (!stringIsNullOrEmpty(poc)){
-			categoryPhrase.setFont(new Font(cf, 8, Font.NORMAL));
 			categoryPhrase.add("\n(Test performed at point of care)");
 		}
 
@@ -376,13 +383,11 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		cell.setBackgroundColor(new Color(255, 255, 255));
 		
 		boolean obrFlag = false;
-		int obxCount = handler.getOBXCount(obr);
 		int obx = 0;
 		int lineIndex = 0;
 		
 		if (handler.getObservationHeader(obr, 0).equals(header)){
-			int commentCount = handler.getOBRCommentCount(obr);
-			for (int comment = 0; comment < commentCount; comment++){
+			for (int comment = 0; comment < obrCommentCount; comment++){
                 lineIndex++;
 			    if (lineIndex % 2 == 1) {
                     cell.setBackgroundColor(new Color(255, 255, 255));

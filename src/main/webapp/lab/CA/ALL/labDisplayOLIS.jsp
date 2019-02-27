@@ -1274,10 +1274,15 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                 <td width="20%" align="middle" valign="bottom" class="Cell"><bean:message key="oscarMDS.segmentDisplay.formReferenceRange"/></td>
                                 <td width="10%" align="middle" valign="bottom" class="Cell"><bean:message key="oscarMDS.segmentDisplay.formUnits"/></td>
                             </tr>
+                            <%
+                                int obxCount = handler.getOBXCount(obr);
+                                int obrCommentCount = handler.getOBRCommentCount(obr);
+                            %>
                             <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>">
                                 <td valign="top" colspan="5">
                                     <div class="Title2">
                                         <%=headers.get(obr)%> <span <%= !handler.isObrStatusFinal(obr) ? "style=\"color: red\"" : "" %>><%= " (" +handler.getObrStatus(obr) + ")"%></span>
+                                        <span style="font-size: 9px;"><%= obxCount == 0 && obrCommentCount > 0 ? "Refer to test request note" : ""%></span>
                                         <%
                                             String poc = handler.getPointOfCare(obr);
                                             if (!stringIsNullOrEmpty(poc)) {
@@ -1296,11 +1301,10 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                             </tr>
                             <%
                                 boolean obrFlag = false;
-                                int obxCount = handler.getOBXCount(obr);
+                                
 
                                 if (handler.getObservationHeader(obr, 0).equals(headers.get(obr))) {
-                                	int cc = handler.getOBRCommentCount(obr);
-                                	for (int comment = 0; comment < cc; comment++){
+                                	for (int comment = 0; comment < obrCommentCount; comment++){
                                     // the obrName should only be set if it has not been
                                     // set already which will only have occured if the
                                     // obx name is "" or if it is the same as the obr name
