@@ -2,6 +2,7 @@ package org.oscarehr.olis.model;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
+import org.oscarehr.olis.OLISUtils;
 import oscar.oscarLab.ca.all.parsers.OLISHL7Handler;
 
 import java.text.ParseException;
@@ -188,7 +189,9 @@ public class OlisLabResultDisplay {
             labResult.setSpecimenType(olisHandler.getOBRSpecimentType(obr));
             labResult.setResultsIndicator(olisHandler.getObrStatus(obr));
             labResult.setTestRequestZbr11(olisHandler.getZBR11(obr));
-            labResult.setCollectorsComment(olisHandler.getCollectorsComment(obr));
+            String collectorsComments = olisHandler.getCollectorsComment(obr);
+            collectorsComments = OLISUtils.Hl7EncodedRepeatableCharacter.performReplacement(collectorsComments, true);
+            labResult.setCollectorsComment(collectorsComments);
             labResult.setNomenclature(nomenclatureMap.get(olisHandler.getNomenclatureRequestCode(obr)));
             
             // Report level values

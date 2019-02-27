@@ -1582,7 +1582,7 @@ public class OLISHL7Handler implements MessageHandler {
 				Segment obrSeg = (Segment) terser.getFinder().getRoot().get("OBR" + i);
 				comment = getString(Terser.get(obrSeg, 39, 0, 2, 1));
 			}
-			return OLISUtils.Hl7EncodedRepeatableCharacter.performReplacement(comment, true);
+			return StringUtils.trimToEmpty(comment);
 
 		} catch (Exception e) {
 			return ("");

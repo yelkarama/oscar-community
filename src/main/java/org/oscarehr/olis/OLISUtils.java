@@ -50,6 +50,7 @@ import ca.ssha._2005.hial.Response;
 import oscar.OscarProperties;
 import oscar.oscarLab.ca.all.parsers.Factory;
 import oscar.oscarLab.ca.all.parsers.OLISHL7Handler;
+import oscar.oscarLab.ca.all.upload.handlers.HL7Handler;
 
 
 public class OLISUtils {
@@ -154,7 +155,8 @@ public class OLISUtils {
 						if (matcher.start() > 0) {
 							// Gets the text before the matching element, removing all instances of newline characters that happen at the end of the string and all nbsp with single space characters so
 							// the proper line length is represented better
-							String previousLine = hl7Text.substring(0, matcher.start()).replaceAll("(" + replacementString + "|\\s)*$", "").replaceAll("&nbsp;", " ");
+							String previousLine = hl7Text.substring(0, matcher.start()).replaceAll("(" + replacementString + "|\\s)*$", "").replaceAll("&nbsp;", " ")
+									.replaceAll("\\\\\\..+?\\\\", "");
 							// Gets the last index of the replacement string in order to calculate the length of the previous line
 							int previousLineStart = previousLine.lastIndexOf(replacementString);
 							// Substrings the previousLine from the previousLineStart plus the length of the replacement string so that it isn't included in the length
@@ -313,6 +315,24 @@ public class OLISUtils {
 		return false;	
 	}
 	
+	/**
+	 * Compares the current OBR's collector comments to the previously displayed OBR's collectors comments to determine if they should be displayed or not 
+	 * @param handler The OLISHL7Hander that is being displayed
+	 * @param currentObr The current OBR
+	 * @param previousObr The OBR that was previously displayed
+	 * @return {@code: true} if the comments of the current OBR are different than the previous OBR's comments, {@code: false} if they are the same
+	 */
+	public static boolean areCollectorCommentsDifferent(OLISHL7Handler handler, int currentObr, int previousObr) {
+		// Gets the collector comments from the current and previous OBRs
+		String collectorComments = handler.getCollectorsComment(currentObr);
+		String previousCollectorComments = handler.getCollectorsComment(previousObr);
 	
+		// Declares the regex to remove any hl7 tags as well as spaces (to prevent spacing causing an issue for the comparison)
+		String hl7TagRegex = "(\\\\\\..+?\\\\|\\s)";
+		String taglessCollectorComments = collectorComments.replaceAll(hl7TagRegex, "").trim();
+		String taglessPreviousCollectorComments = previousCollectorComments.replaceAll(hl7TagRegex, "").trim();
+		// Compares the current and previous collectors comments, returning the opposite for the return of .equals(),
+		return !taglessPreviousCollectorComments.equals(taglessCollectorComments);
+	}
 	
 }

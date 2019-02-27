@@ -1095,6 +1095,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                         String newCategory = "";
 
                         int obr;
+                        int previousObr = -1;
                         JSONObject obrHeader;
                         for(i=0;i<headers.size();i++) {
                         	obr = handler.getMappedOBR(i);
@@ -1140,27 +1141,17 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                         String specimenReceivedDate = obrHeader.getString(OLISHL7Handler.OBR_SPECIMEN_RECEIVED_DATETIME);
                                         specimenReceivedDate = specimenReceivedDate.equals(specimenReceived) ? "" : specimenReceivedDate;
 
-                                        int previousObr;
                                         boolean previousMatch = false;
-                                        JSONObject previousObrHeader;
-                                        String previousCollectionDateTime;
-                                        String previousSpecimenCollectedBy;
-                                        String previousSpecimenType;
-                                        String previousSpecimenReceivedDateTime;
-                                        String previousSiteModifier;
-                                        String previousCollectionVolume;
-                                        String previousNoOfSampleContainers;
 
-                                        if (i != 0) {
-                                            previousObr = handler.getMappedOBR(i - 1);
-                                            previousObrHeader = handler.getObrHeader(previousObr);
-                                            previousCollectionDateTime = handler.getCollectionDateTime(previousObr);
-                                            previousSpecimenCollectedBy = handler.getSpecimenCollectedBy(previousObr);
-                                            previousSpecimenType = previousObrHeader.getString(OLISHL7Handler.OBR_SPECIMEN_TYPE);
-                                            previousSpecimenReceivedDateTime = obrHeader.getString(OLISHL7Handler.OBR_SPECIMEN_RECEIVED_DATETIME);
-                                            previousCollectionVolume = handler.getCollectionVolume(previousObr);
-                                            previousNoOfSampleContainers = handler.getNoOfSampleContainers(previousObr);
-                                            previousSiteModifier = previousObrHeader.getString(OLISHL7Handler.OBR_SITE_MODIFIER);
+                                        if (previousObr > -1) {
+                                            JSONObject previousObrHeader = handler.getObrHeader(previousObr);
+                                            String previousCollectionDateTime = handler.getCollectionDateTime(previousObr);
+                                            String previousSpecimenCollectedBy = handler.getSpecimenCollectedBy(previousObr);
+                                            String previousSpecimenType = previousObrHeader.getString(OLISHL7Handler.OBR_SPECIMEN_TYPE);
+                                            String previousSpecimenReceivedDateTime = obrHeader.getString(OLISHL7Handler.OBR_SPECIMEN_RECEIVED_DATETIME);
+                                            String previousCollectionVolume = handler.getCollectionVolume(previousObr);
+                                            String previousNoOfSampleContainers = handler.getNoOfSampleContainers(previousObr);
+                                            String previousSiteModifier = previousObrHeader.getString(OLISHL7Handler.OBR_SITE_MODIFIER);
 
                                             if (previousCollectionDateTime.equals(collectionDateTime) && previousSpecimenCollectedBy.equals(specimenCollectedBy) && previousSpecimenType.equals(obrHeader.getString(OLISHL7Handler.OBR_SPECIMEN_TYPE)) && (previousSpecimenReceivedDateTime.equals(specimenReceivedDate) || previousSpecimenReceivedDateTime.equals(specimenReceived)) && previousCollectionVolume.equals(collectionVolume) && previousNoOfSampleContainers.equals(noOfSampleContainers) && previousSiteModifier.equals(siteModifier)) {
                                                 previousMatch = true;
@@ -1203,8 +1194,14 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                 </td>
                             </tr>
                             <%
+                                boolean displayCollectorComments = true;
+                                if (previousObr > -1) {
+                                    displayCollectorComments = OLISUtils.areCollectorCommentsDifferent(handler, obr, previousObr);
+                                }
+                                
                                 String collectorsComment = handler.getCollectorsComment(obr);
-                                if (collectorsComment != null && !collectorsComment.equals("")) {
+                                if (displayCollectorComments && !collectorsComment.isEmpty()) {
+                                    collectorsComment = OLISUtils.Hl7EncodedRepeatableCharacter.performReplacement(collectorsComment, true);
                             %>
                             
                             <tr>
@@ -1666,6 +1663,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                             %>
                         </table>
                         <% // end for headers
+                            previousObr = obr;
                         }  // for i=0... (headers) line 625 %>
 
                         <% 

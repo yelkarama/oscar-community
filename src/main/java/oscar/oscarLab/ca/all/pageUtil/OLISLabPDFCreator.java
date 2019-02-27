@@ -212,6 +212,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         ArrayList<String> headers = handler.getHeaders();
         int obr;
         int lineNum = 0;
+        int previousObr = -1;
         for (int i=0; i < headers.size(); i++){
         	//Gets the mapped OBR for the current index
         	obr = handler.getMappedOBR(i);
@@ -219,7 +220,9 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         	//If the current lineNum is not a childOBR
         	if (!handler.isChildOBR(lineNum)){
         		//Calls on the addOLISLabCategory function passing the header at the current obr, and the obr itself
-        		addOLISLabCategory(headers.get(obr), obr, i);
+        		addOLISLabCategory(headers.get(obr), obr, previousObr);
+        		// Records the obr index as the last, non-child obr to be processed
+				previousObr = obr;
         	}
         }
 
@@ -234,7 +237,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 	 * Given the name of a lab category this method will add the category
 	 * header, the test result headers and the test results for that category.
 	 */
-	private void addOLISLabCategory(String header, Integer obr, int position) throws DocumentException {
+	private void addOLISLabCategory(String header, Integer obr, int previousObr) throws DocumentException {
 		Color categoryBackground = new Color(255, 204, 0);
 		Color separatorColour = new Color(0, 51, 153);
 		
@@ -287,22 +290,11 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		categoryTable.addCell(separator);
 		
 		//Creates the collection table and adds it to the category table
-		PdfPTable collectionTable = createCollectionTable(obr, position);
+		PdfPTable collectionTable = createCollectionTable(obr, previousObr);
 		cell = new PdfPCell(collectionTable);
 		cell.setBorder(0);
 		cell.setColspan(2);
 		categoryTable.addCell(cell);
-		
-		String collectorsComment = handler.getCollectorsComment(obr);
-		if (!stringIsNullOrEmpty(collectorsComment)){
-			cell = new PdfPCell();
-			cell.setBorder(0);
-			cell.setColspan(2);
-			cell.setPhrase(new Phrase("Collector's Comments", boldFont));
-			categoryTable.addCell(cell);
-			String collectorsCommentPhrase = collectorsComment;
-			OLISLabPDFUtils.addAllCellsToTable(categoryTable, OLISLabPDFUtils.createCellsFromHl7(collectorsCommentPhrase, this.commentFont, cell));
-		}
 		
 		//Adds a small separator between the top row and the collection table
 		cell = new PdfPCell();
@@ -1508,7 +1500,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
     	return phoneNumber;
     }
     
-	public PdfPTable createCollectionTable(Integer obr, int position){
+	public PdfPTable createCollectionTable(Integer obr, int previousObr){
     	PdfPTable collectionTable = new PdfPTable(3);
     	//Sets the default cell's border to 0 in case completeRow() needs to add in a cell
     	collectionTable.getDefaultCell().setBorder(0);
@@ -1523,31 +1515,23 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		String specimenReceivedDate = obrHeader.getString(OLISHL7Handler.OBR_SPECIMEN_RECEIVED_DATETIME);
 		specimenReceivedDate = specimenReceivedDate.equals(handler.getSpecimenReceivedDateTime()) ? "" : specimenReceivedDate;
 
-		int previousObr;
 		boolean previousMatch = false;
-		JSONObject previousObrHeader;
-		String previousCollectionDateTime;
-		String previousSpecimenCollectedBy;
-		String previousSpecimenType;
-		String previousSpecimenReceivedDateTime;
-		String previousSiteModifier;
-		String previousCollectionVolume;
-		String previousNoOfSampleContainers;
-
-		if (position != 0) {
-			previousObr = handler.getMappedOBR(position - 1);
-			previousObrHeader = handler.getObrHeader(previousObr);
-			previousCollectionDateTime = handler.getCollectionDateTime(previousObr);
-			previousSpecimenCollectedBy = handler.getSpecimenCollectedBy(previousObr);
-			previousSpecimenType = previousObrHeader.getString(OLISHL7Handler.OBR_SPECIMEN_TYPE);
-			previousSpecimenReceivedDateTime = obrHeader.getString(OLISHL7Handler.OBR_SPECIMEN_RECEIVED_DATETIME);
-			previousCollectionVolume = handler.getCollectionVolume(previousObr);
-			previousNoOfSampleContainers = handler.getNoOfSampleContainers(previousObr);
-			previousSiteModifier = previousObrHeader.getString(OLISHL7Handler.OBR_SITE_MODIFIER);
+		boolean displayCollectorComments = true;
+		if (previousObr > -1) {
+			JSONObject previousObrHeader = handler.getObrHeader(previousObr);
+			String previousCollectionDateTime = handler.getCollectionDateTime(previousObr);
+			String previousSpecimenCollectedBy = handler.getSpecimenCollectedBy(previousObr);
+			String previousSpecimenType = previousObrHeader.getString(OLISHL7Handler.OBR_SPECIMEN_TYPE);
+			String previousSpecimenReceivedDateTime = obrHeader.getString(OLISHL7Handler.OBR_SPECIMEN_RECEIVED_DATETIME);
+			String previousCollectionVolume = handler.getCollectionVolume(previousObr);
+			String previousNoOfSampleContainers = handler.getNoOfSampleContainers(previousObr);
+			String previousSiteModifier = previousObrHeader.getString(OLISHL7Handler.OBR_SITE_MODIFIER);
 
 			if (previousCollectionDateTime.equals(collectionDateTime) && previousSpecimenCollectedBy.equals(specimenCollectedBy) && previousSpecimenType.equals(obrHeader.getString(OLISHL7Handler.OBR_SPECIMEN_TYPE)) && (previousSpecimenReceivedDateTime.equals(specimenReceivedDate) || previousSpecimenReceivedDateTime.equals(handler.getSpecimenReceivedDateTime())) && previousCollectionVolume.equals(collectionVolume) && previousNoOfSampleContainers.equals(noOfSampleContainers) && previousSiteModifier.equals(siteModifier)) {
 				previousMatch = true;
 			}
+			// Gets whether collector comments should be displayed for the current OBR based on if they are different than the previous OBR or not
+			displayCollectorComments = OLISUtils.areCollectorCommentsDifferent(handler, obr, previousObr);
 		}
 
 		if (!previousMatch) {
@@ -1562,6 +1546,20 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 			addCollectionItem(collectionTable, "Collection Volume", collectionVolume);
 			addCollectionItem(collectionTable, "No. of Sample Containers", noOfSampleContainers);
 			addCollectionItem(collectionTable, "Specimen Received Date/Time", specimenReceivedDate);
+		}
+
+		// Gets the collector comments for the current OBR
+		String collectorComments = handler.getCollectorsComment(obr);
+		// If the collector comments should be displayed (Current is different than previous) and if collector comments are not empty
+		if (displayCollectorComments && !stringIsNullOrEmpty(collectorComments)){
+			PdfPCell cell = new PdfPCell();
+			cell.setBorder(0);
+			cell.setColspan(3);
+			cell.setPhrase(new Phrase("Collector's Comments", boldFont));
+			collectionTable.addCell(cell);
+			collectorComments = OLISUtils.Hl7EncodedRepeatableCharacter.performReplacement(collectorComments, false);
+			String collectorsCommentPhrase = collectorComments;
+			OLISLabPDFUtils.addAllCellsToTable(collectionTable, OLISLabPDFUtils.createCellsFromHl7(collectorsCommentPhrase, this.commentFont, cell));
 		}
 		
         //Returns the collection table
