@@ -99,17 +99,22 @@ public class OLISResultsAction extends DispatchAction {
                 olisLabResults.setDemographicInfo(reportHandler);
                 
                 List<OLISHL7Handler.OLISError> errors = reportHandler.getReportErrors();
+                boolean hasBlockedContent = false;
                 if (errors.size() > 0) {
                     olisLabResults.setErrors(errors);
-                    // Loops through each error to check if it is a 920
-                    // If so then sets the flag to not display 320 errors
+                    // Loops through each error
                     for (OLISHL7Handler.OLISError error : errors) {
-                    	if (error.getIndentifer().equals("920")) {
-                    		olisLabResults.setDisplay320Error(false);
-						}
+                        // If the error is either 320 or 920, then some of the results have blocked content and are hidden
+                        if (error.getIndentifer().equals("320") || error.getIndentifer().equals("920")) {
+                            hasBlockedContent = true;
+                            // If the error is a 920 error, then we don't need to display the 320 error
+                            if (error.getIndentifer().equals("920")) {
+                                olisLabResults.setDisplay320Error(false);
+                            }
+                        }
 					}
                 }
-                olisLabResults.setHasBlockedContent(reportHandler.isReportBlocked());
+                olisLabResults.setHasBlockedContent(hasBlockedContent);
             }
 			
 			@SuppressWarnings("unchecked")

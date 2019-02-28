@@ -1075,7 +1075,7 @@ public class OLISHL7Handler implements MessageHandler {
 			}
 			
 			String status = Terser.get(zbr, 13, 0, 1, 1);
-			if (status.equals("Y") && !reportStatus.equals("Y")) {
+			if (status != null && status.equals("Y") && !reportStatus.equals("Y")) {
 				reportStatus = status;
 				reportStatusDescription = "Full Replace Amendment";
 			}
@@ -1244,9 +1244,6 @@ public class OLISHL7Handler implements MessageHandler {
 		String segment, sequence, field, identifier, text;
 		int rep = -1;
 		while ((identifier = Terser.get(err, 1, ++rep, 4, 1)) != null) {
-			if (identifier.trim().equals("320")) {
-				reportBlocked = true;
-			}
 			segment = Terser.get(err, 1, rep, 1, 1);
 			sequence = Terser.get(err, 1, rep, 1, 2);
 			field = Terser.get(err, 1, rep, 1, 3);

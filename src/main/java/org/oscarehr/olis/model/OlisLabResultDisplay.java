@@ -30,6 +30,7 @@ public class OlisLabResultDisplay {
     private String olisLastUpdated;
     private String collectionDate;
     private String collectorsComment;
+    private boolean isBlocked = false;
     private OLISRequestNomenclature nomenclature;
     
     private List<OlisMeasurementsResultDisplay> measurements = new ArrayList<OlisMeasurementsResultDisplay>();
@@ -150,6 +151,13 @@ public class OlisLabResultDisplay {
         this.collectorsComment = collectorsComment;
     }
 
+    public boolean isBlocked() {
+        return isBlocked;
+    }
+    public void setBlocked(boolean blocked) {
+        isBlocked = blocked;
+    }
+
     public OLISRequestNomenclature getNomenclature() {
         return nomenclature;
     }
@@ -166,7 +174,7 @@ public class OlisLabResultDisplay {
 
     public static List<OlisLabResultDisplay> getListFromHandler(OLISHL7Handler olisHandler, String resultUuid) {
         List<OlisLabResultDisplay> results = new ArrayList<OlisLabResultDisplay>();
-        
+        boolean isReportBlocked = olisHandler.isReportBlocked();
         // Get OLIS Request Nomenclature for lab results for adding to results
         Map<String, OLISRequestNomenclature> nomenclatureMap = olisHandler.getOlisRequestNomenclatureMap();
         
@@ -193,6 +201,9 @@ public class OlisLabResultDisplay {
             collectorsComments = OLISUtils.Hl7EncodedRepeatableCharacter.performReplacement(collectorsComments, true);
             labResult.setCollectorsComment(collectorsComments);
             labResult.setNomenclature(nomenclatureMap.get(olisHandler.getNomenclatureRequestCode(obr)));
+            // Checks if information in the report is blocked, either at the report level or at the OBR level
+            boolean isBlocked = isReportBlocked || olisHandler.isOBRBlocked(obr);
+            labResult.setBlocked(isBlocked);
             
             // Report level values
             labResult.setOrderingPractitioner(olisHandler.getShortDocName());
@@ -248,6 +259,7 @@ public class OlisLabResultDisplay {
                     measurement.setAbnormal(abnormal != null && (abnormal.equals("A") || abnormal.startsWith("H") || olisHandler.isOBXAbnormal(obr, obx)));
                     measurement.setNatureOfAbnormalText(olisHandler.getNatureOfAbnormalTest(obr, obx));
                     measurement.setIsAttachment("ED".equals(olisHandler.getOBXValueType(obr, obx).trim()));
+                    measurement.setBlocked(isBlocked);
 
                     for (int commentIndex = 0; commentIndex < olisHandler.getOBXCommentCount(obr, obx); commentIndex++) {
                         measurement.getComments().add(olisHandler.getOBXComment(obr, obx, commentIndex));
@@ -269,6 +281,7 @@ public class OlisLabResultDisplay {
                     result.setMeasurementObxIndex(0);
                     result.setParentLab(labResult);
                     result.getComments().add(comment);
+                    result.setBlocked(isBlocked);
                     labResult.getMeasurements().add(result);
                 }
             }

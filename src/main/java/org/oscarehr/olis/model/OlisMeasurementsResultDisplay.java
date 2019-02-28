@@ -22,6 +22,7 @@ public class OlisMeasurementsResultDisplay {
     private List<String> comments = new ArrayList<>();
     private boolean isAttachment = false;
     private boolean isInvalid = false;
+    private boolean isBlocked = false;
             
     OlisMeasurementsResultDisplay() { }
 
@@ -114,5 +115,12 @@ public class OlisMeasurementsResultDisplay {
     }
     public void setInvalid(boolean invalid) {
         isInvalid = invalid;
+    }
+
+    public boolean isBlocked() {
+        return isBlocked;
+    }
+    public void setBlocked(boolean blocked) {
+        isBlocked = blocked;
     }
 }

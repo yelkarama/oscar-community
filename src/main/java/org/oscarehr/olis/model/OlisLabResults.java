@@ -12,7 +12,7 @@ public class OlisLabResults {
     private List<OLISHL7Handler.OLISError> errors =  new ArrayList<OLISHL7Handler.OLISError>();
     private boolean hasBlockedContent = false;
     private boolean hasRequestingProvider = false;
-    private boolean display320Error = false;
+    private boolean display320Error = true;
     
     private String demographicName = "";
     private String demographicHin = "";

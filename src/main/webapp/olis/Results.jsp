@@ -180,6 +180,7 @@ function popupNotesWindow(noteDiv) {
 .patient-consent-alert {
 	color: #CC0000;
 	text-align: center;
+    display: block;
 }
 </style>
 	
@@ -242,13 +243,6 @@ function popupNotesWindow(noteDiv) {
 			</table>
 		</td>
 	</tr>
-	<% if (olisLabResults.isHasBlockedContent() && olisLabResults.isHasRequestingProvider()) { %>
-	<tr>
-		<td colspan="2" class="patient-consent-alert">
-			Do not disclose without express patient consent
-		</td>
-	</tr>
-	<% } %>
 	<tr>
 		<td>
 			<%
@@ -359,6 +353,9 @@ function popupNotesWindow(noteDiv) {
 						<div id="<%=resultUuid%>_result"></div>
 						<input type="button" onClick="addToInbox('<%=resultUuid %>'); return false;" id="<%=resultUuid %>" value="Add to Inbox" />
 						<input type="button" onClick="preview('<%=resultUuid %>'); return false;" id="<%=resultUuid %>_preview" value="Preview" />
+                        <% if (resultDisplay.isBlocked()) { %>
+                        <span class="patient-consent-alert">Do not disclose without patient consent</span>
+                        <% } %>
 					</td>
 					<td>
 						<% if (resultDisplay.getTestRequestName().length() > 30) { %>
@@ -463,7 +460,12 @@ function popupNotesWindow(noteDiv) {
 					String lineThroughCss = measurementDisplay.isInvalid() ? "line-through" : "";
 				%>
 				<tr>
-					<td><%=parentLab.getOlisLastUpdated()%></td>
+					<td>
+                        <%=parentLab.getOlisLastUpdated()%>
+                        <% if (measurementDisplay.isBlocked()) { %>
+                        <span class="patient-consent-alert">Do not disclose without patient consent</span>
+                        <% } %>
+                    </td>
 					<td>
 						<% if (parentLab.getTestRequestName().length() > 40) { %>
 						<span title="<%=parentLab.getTestRequestName()%>">
