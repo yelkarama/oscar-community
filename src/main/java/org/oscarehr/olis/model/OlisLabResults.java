@@ -34,7 +34,7 @@ public class OlisLabResults {
         for (OlisLabResultDisplay olisLabResultDisplay : getResultList()) {
             results.addAll(olisLabResultDisplay.getMeasurements());
         }
-
+        Collections.sort(results, OlisMeasurementsResultDisplay.DEFAULT_OLIS_SORT_COMPARATOR);
         return results;
     }
 

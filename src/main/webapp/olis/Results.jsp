@@ -444,6 +444,14 @@ function popupNotesWindow(noteDiv) {
 					<th class="small-text">Ordering Provider &#8597;</th>
 					<th class="hidden">Placer Group</th>
 					<th class="hidden">ZBR.11</th>
+					<th class="hidden">Request Sort Key</th>
+					<th class="hidden">Request Alternate Name</th>
+					<th class="hidden">ZBX.2</th>
+					<th class="hidden">Result Sort Key</th>
+					<th class="hidden">Alternate Name</th>
+					<th class="hidden">Set Id</th>
+					<th class="hidden">Sub Id</th>
+					
 				</tr>
 				</thead>
 				<tbody>
@@ -515,6 +523,13 @@ function popupNotesWindow(noteDiv) {
 					<td><%=parentLab.getOrderingPractitionerFull()%></td>
 					<td class="hidden"><%=parentLab.getPlacerGroupNo()%></td>
 					<td class="hidden"><%=parentLab.getTestRequestZbr11()%></td>
+					<td class="hidden"><%=parentLab.getNomenclature().getSortKey()%></td>
+					<td class="hidden"><%=parentLab.getNomenclature().getRequestAlternateName1()%></td>
+					<td class="hidden"><%=measurementDisplay.getResultSortable().getZbxSortKey()%></td>
+					<td class="hidden"><%=measurementDisplay.getResultSortable().getNomenclatureSortKey()%></td>
+					<td class="hidden"><%=measurementDisplay.getResultSortable().getAlternateName()%></td>
+					<td class="hidden"><%=measurementDisplay.getResultSortable().getSetId()%></td>
+					<td class="hidden"><%=measurementDisplay.getResultSortable().getSubId()%></td>
 				</tr>
 				<% } %>
 				</tbody>

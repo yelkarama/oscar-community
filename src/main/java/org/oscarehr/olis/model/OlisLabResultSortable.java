@@ -88,7 +88,7 @@ public class OlisLabResultSortable {
      * 9. If no or duplicate sub-ID, then sort by test result release date/time (ZBX.1) within results that share the same sub-ID, then sort by alternate name 1 
      * Note: OLIS will reject an HL7 message (data collection) if more than one OBX segment has the same value in OBX.3, OBX.4 and ZBX.1. Refer to OLIS FAQs, #42.
      */
-    public static final Comparator<OlisLabResultSortable> olisResultComparator = new Comparator<OlisLabResultSortable>() {
+    public static final Comparator<OlisLabResultSortable> OLIS_RESULT_COMPARATOR = new Comparator<OlisLabResultSortable>() {
         @Override
         public int compare(OlisLabResultSortable o1, OlisLabResultSortable o2) {
             // Checks if o1 and o2 are ancillary, if they both are, then further compares them however if only one is, then it comes first in the list
@@ -117,21 +117,42 @@ public class OlisLabResultSortable {
                                 // If the sub ids are the same, use the result release date for the ordering
                                 return o1.getReleaseDate().compareTo(o2.getReleaseDate());
                             } else {
-                                // If the sub ids aren't the same, uses them for the ordering
-                                return o1.getSubId().compareTo(o2.getSubId());
+                                // If the sub ids aren't the same, compares them, placing empty strings after strings with text
+                                return compareStringEmptyIsMore(o1.getSubId(), o2.getSubId());
                             }
                         } else {
-                            // If the alternate names aren't the same, uses them for the ordering
-                            return o1.getAlternateName().compareTo(o2.getAlternateName());
+                            // If the alternate names aren't the same, compares them, placing empty strings after strings with text
+                            return compareStringEmptyIsMore(o1.getAlternateName(), o2.getAlternateName());
                         }
                     } else {
-                        // If the nomenclature sort keys aren't the same, uses them for ordering
-                        return o1.getNomenclatureSortKey().compareTo(o2.getNomenclatureSortKey());
+                        // If the nomenclature sort keys aren't the same, compares them, placing empty strings after strings with text
+                        return compareStringEmptyIsMore(o1.getNomenclatureSortKey(), o2.getNomenclatureSortKey());
                     }
                 } else {
-                    // If they aren't the same, uses them for the ordering
-                    return o1.getZbxSortKey().compareTo(o2.getZbxSortKey());
+                    // If the Zbx sort keys aren't the same, compares them, placing empty strings after strings with text
+                    return compareStringEmptyIsMore(o1.getZbxSortKey(), o2.getZbxSortKey());
                 }
+            }
+        }
+
+        /**
+         * Compares two strings against each other, also checking if they are empty to determine positioning in the array.
+         * If s1 is empty, then it is considered greater than s2 and is placed after s2 in the array.
+         * If s2 is empty, then s1 is considered less than s2 and is placed before s2 in the array.
+         * 
+         * @param s1 The string that is the main item of the Collection
+         * @param s2 The string to be compared to
+         * @return A number greater than {@code: 0} of s1 is empty or lesser than s2
+         *         A number less than {@code: 0} if s2 is empty or s1 is greater than s2
+         */
+        private int compareStringEmptyIsMore(String s1, String s2) {
+            if (s1.isEmpty()) {
+                return 1;
+            } else if (s2.isEmpty()) {
+                return -1;
+            } else {
+                // If they aren't the same, uses them for the ordering
+                return s1.compareTo(s2);
             }
         }
     };

@@ -877,6 +877,20 @@ public class OLISHL7Handler implements MessageHandler {
 		return obr;
 	}
 
+    /**
+     * Gets the OlisLabResultSortable related to the provider obr and obx
+     * 
+     * @param obr The obr that the result is under
+     * @param obx The index of the result
+     * @return OlisResultSortable containing the information needed to sort the results to specification
+     */
+	public OlisLabResultSortable getObxSortable(int obr, int obx) {
+		// Gets the list of sorted results for the given obr
+		List<OlisLabResultSortable> obxResults = obxSortMap.get(obr);
+		
+		return obxResults.get(obx);
+	}
+	
 	HashMap<Integer, Segment> obrDiagnosis;
 
 	private ArrayList<String> disciplines;
@@ -1328,7 +1342,7 @@ public class OLISHL7Handler implements MessageHandler {
         }
 
         // Sorts the results and adds them to the map
-		Collections.sort(resultList, OlisLabResultSortable.olisResultComparator);
+		Collections.sort(resultList, OlisLabResultSortable.OLIS_RESULT_COMPARATOR);
         obxSortMap.put(obr, resultList);
     }
 	
@@ -3440,6 +3454,40 @@ public class OLISHL7Handler implements MessageHandler {
 	private Segment getObxSegment(int obr, int obx) {
 		ArrayList<Segment> obxSegments = obrGroups.get(obr);
 		return obxSegments.get(obx);
+	}
+
+	/**
+	 * Gets the set id for the given OBR index
+	 * @param obrIndex The index of the OBR to get the set id for
+	 * @return The set id
+	 */
+	public String getObrSetId(int obrIndex) {
+		obrIndex++;
+		String setId = "";
+		try {
+			Segment obr = getObrSegment(obrIndex);
+			setId = getString(Terser.get(obr, 1, 0, 1, 1));
+		} catch (Exception e) {
+			MiscUtils.getLogger().error("OLIS HL7 Error", e);
+		}
+		return setId;
+	}
+
+	/**
+	 * Gets the OBR segment for the given obr index
+	 * @param obrIndex The obr index to get the segment for
+	 * @return The obr Segment
+	 * @throws HL7Exception If the terser can't get the segment
+	 */
+	private Segment getObrSegment(int obrIndex) throws HL7Exception {
+		Segment obr;
+		if (obrIndex == 1) {
+			obr = terser.getSegment("/.OBR");
+		} else {
+			obr = (Segment) terser.getFinder().getRoot().get("OBR" + obrIndex);
+		}
+		
+		return obr;
 	}
 	
 	public class OLISError {
