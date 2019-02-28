@@ -2124,6 +2124,24 @@ public class OLISHL7Handler implements MessageHandler {
 		}
 	}
 
+	/**
+	 * Local method to retrieve the source organization from the database if it is not present in the lab file
+	 * @param ident The identifier type of the organization
+	 * @param key The key used to retrieve the organization in the list of source organizations
+	 * @return Formatted organization name to be displayed on the Report.
+	 */
+	private String getExternalSourceOrganization(String ident, String key) {
+		OLISFacilitiesDao olisFacilitiesDao = SpringUtils.getBean(OLISFacilitiesDao.class);
+		OLISFacilities olisFacility = olisFacilitiesDao.findByLicenceNumber(Integer.parseInt(key));
+		String organizationName;
+		if (olisFacility != null && olisFacility.getFacilityName() != null) {
+			organizationName = olisFacility.getFacilityName();
+		} else {
+			organizationName = sourceOrganizations.get(key);
+		}
+		return String.format("%s (%s %s)", organizationName, ident, key);
+	}
+
 	public String getOBRSourceOrganization(int i, int j) {
 		try {
 			String[] segments = terser.getFinder().getRoot().getNames();
@@ -2141,7 +2159,8 @@ public class OLISHL7Handler implements MessageHandler {
 			String ident = key.substring(0, key.indexOf(":"));
 			ident = getOrganizationType(ident);
 			key = key.substring(key.indexOf(":") + 1);
-			return sourceOrganizations.get(key) + " (" + ident + " " + key + ")";
+
+			return getExternalSourceOrganization(ident, key);
 
 		} catch (Exception e) {
 			logger.error("Could not retrieve OBX comment ZNT", e);
@@ -2320,7 +2339,6 @@ public class OLISHL7Handler implements MessageHandler {
     }
 
 	public String getReportSourceOrganization(int j) {
-		OLISFacilitiesDao olisFacilitiesDao = SpringUtils.getBean(OLISFacilitiesDao.class);
 		try {
 			String[] segments = terser.getFinder().getRoot().getNames();
 			int k = getNTELocation(-1, -1);
@@ -2338,15 +2356,7 @@ public class OLISHL7Handler implements MessageHandler {
 			ident = getOrganizationType(ident);
 			key = key.substring(key.indexOf(":") + 1);
 
-			// Added ability to search OMD dataset of facilities before checking in the file itself for the ID
-			OLISFacilities olisFacility = olisFacilitiesDao.findByLicenceNumber(Integer.parseInt(key));
-			String organizationName;
-			if (olisFacility != null && olisFacility.getFacilityName() != null) {
-				organizationName = olisFacility.getFacilityName();
-			} else {
-				organizationName = sourceOrganizations.get(key);
-			}
-			return String.format("%s (%s %s)", organizationName, ident, key);
+			return getExternalSourceOrganization(ident, key);
 		} catch (Exception e) {
 			logger.error("Could not retrieve OBX comment ZNT", e);
 
@@ -2465,8 +2475,8 @@ public class OLISHL7Handler implements MessageHandler {
 			String ident = key.substring(0, key.indexOf(":"));
 			ident = getOrganizationType(ident);
 			key = key.substring(key.indexOf(":") + 1);
-			return String.format("%s (%s %s)", sourceOrganizations.get(key), ident, key);
 
+			return getExternalSourceOrganization(ident, key);
 		} catch (Exception e) {
 			logger.error("Could not retrieve OBX comment ZNT", e);
 
@@ -2727,10 +2737,8 @@ public class OLISHL7Handler implements MessageHandler {
 			if (key == null || "".equals(key.trim())) {
 				return "";
 			}
-			String sourceOrg = sourceOrganizations.get(key);
-			if(sourceOrg == null)
-				sourceOrg = defaultSourceOrganizations.get(key);
-			return String.format("%s (%s %s)", sourceOrg, ident, key);
+
+			return getExternalSourceOrganization(ident, key);
 		} catch (Exception e) {
 			MiscUtils.getLogger().error("OLIS HL7 Error", e);
 		}
