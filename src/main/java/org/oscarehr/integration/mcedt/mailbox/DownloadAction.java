@@ -76,7 +76,7 @@ public class DownloadAction extends DispatchAction{
 		
 		try{
 			if(request.getSession().getAttribute("resourceTypeList")==null){
-				EDTDelegate delegate = DelegateFactory.newDelegate();
+				EDTDelegate delegate = DelegateFactory.getEDTDelegateInstance();
 				resourceForm.setTypeListResult(getTypeList(request, delegate));
 				request.getSession().setAttribute("resourceTypeList",resourceForm.getTypeListResult());
 			}
@@ -86,7 +86,7 @@ public class DownloadAction extends DispatchAction{
 			Detail result = ActionUtils.getDetails(request);
 		    if (result == null) {
 		    	for (String serviceId: ActionUtils.getServiceIds()) {
-		    		EDTDelegate delegate = DelegateFactory.newDelegate(serviceId);
+		    		EDTDelegate delegate = DelegateFactory.getEDTDelegateInstance(serviceId);
 		    		result= getResourceList(request, resourceForm, delegate, serviceId, result);		    		
 		    	}
 		    	List<DetailDataCustom> resourceList= resourceForm.getData();
@@ -217,7 +217,7 @@ public class DownloadAction extends DispatchAction{
 		DownloadResult downloadResult = null;		
 		
 		try {
-			EDTDelegate delegate = DelegateFactory.newDelegate(serviceId);			
+			EDTDelegate delegate = DelegateFactory.getEDTDelegateInstance(serviceId);			
 
 				downloadResult = delegate.download(ids);		
 				
@@ -349,7 +349,7 @@ public class DownloadAction extends DispatchAction{
 		DownloadResult downloadResult = null;	
 		DownloadForm downloadForm= (DownloadForm) form;
 		try {
-			EDTDelegate delegate = DelegateFactory.newDelegate(downloadForm.getServiceId()==null? ActionUtils.getDefaultServiceId():downloadForm.getServiceId());			
+			EDTDelegate delegate = DelegateFactory.getEDTDelegateInstance(downloadForm.getServiceId()==null? ActionUtils.getDefaultServiceId():downloadForm.getServiceId());			
 
 			downloadResult = delegate.download(ids);			
 
@@ -400,7 +400,7 @@ public class DownloadAction extends DispatchAction{
 		    		resourceType = null;
 		    	}
 	    	
-		    	EDTDelegate delegate = DelegateFactory.newDelegate(resourceForm.getServiceId());		    	
+		    	EDTDelegate delegate = DelegateFactory.getEDTDelegateInstance(resourceForm.getServiceId());		    	
 		    	result = delegate.list(resourceType, ResourceStatus.DOWNLOADABLE, resourceForm.getPageNoAsBigInt());								
 				
 		    	if(request.getSession().getAttribute("resourceTypeList")==null){

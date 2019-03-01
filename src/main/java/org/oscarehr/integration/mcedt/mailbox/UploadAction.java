@@ -144,14 +144,8 @@ public class UploadAction extends DispatchAction {
 			List<UploadData> uploads = new ArrayList<UploadData>();
 			uploads.add(toUpload(uploadForm));
 
-			/*try {
-			    Thread.sleep(5000);                 //1000 milliseconds is one second.
-			} catch(InterruptedException ex) {
-			    Thread.currentThread().interrupt();
-			}*/
-
 			try {
-				EDTDelegate delegate = DelegateFactory.newDelegate(ActionUtils.getServiceId(uploadForm.getDescription()));
+				EDTDelegate delegate = DelegateFactory.getEDTDelegateInstance(ActionUtils.getServiceId(uploadForm.getDescription()));
 				ResourceResult result = new ResourceResult();
 				
 				try {
@@ -203,14 +197,9 @@ public class UploadAction extends DispatchAction {
 		if (!submitForm.getResourceId().equals(new BigInteger("-2"))) {
 			List<BigInteger> ids = new ArrayList<BigInteger>();
 			ids.add(submitForm.getResourceId());
-			/*try {
-			Thread.sleep(5000);                 //1000 milliseconds is one second.
-			} catch(InterruptedException ex) {
-			Thread.currentThread().interrupt();
-			}*/
 
 			try {
-				EDTDelegate delegate = DelegateFactory.newDelegate(ActionUtils.getServiceId(submitForm.getFileName()));
+				EDTDelegate delegate = DelegateFactory.getEDTDelegateInstance(ActionUtils.getServiceId(submitForm.getFileName()));
 				ResourceResult result = new ResourceResult();
 				
 				try {
@@ -254,7 +243,7 @@ public class UploadAction extends DispatchAction {
 			for (UploadData upload: uploads) {
 				List<UploadData> uploadData= new ArrayList<UploadData>();
 				uploadData.add(upload);
-				EDTDelegate delegate = DelegateFactory.newDelegate(ActionUtils.getServiceId(upload.getDescription()));
+				EDTDelegate delegate = DelegateFactory.getEDTDelegateInstance(ActionUtils.getServiceId(upload.getDescription()));
 				ResourceResult result = new ResourceResult();
 				
 				try {
