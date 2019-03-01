@@ -515,7 +515,7 @@ if(!authed) {
 	<script>
 		var app = angular.module("preventionReport", ['preventionReportServices']);
 		
-		app.controller("preventionReport", function($scope,preventionReportService,$filter) {
+		app.controller("preventionReport", function($scope,preventionReportService,$filter,$http) {
 			
 			$scope.rosterArray = [{name:"RO"},{name:"NR"},{name:"TR"}];
 			
@@ -678,6 +678,12 @@ if(!authed) {
 			$scope.runReport = function(selectedReport,selectedProvider){
 				console.log("$scope.selectedReport",selectedReport);
 				console.log("$scope.selectedProvider",selectedProvider);
+				
+				$scope.letter1 = [];
+				$scope.letter2 = [];
+				$scope.phone1 = [];
+
+				
 				preventionReportService.runReport(selectedReport,selectedProvider).then(function(data){
 					console.log("data coming back",data);
 					$scope.reportData = data;
@@ -735,10 +741,33 @@ if(!authed) {
 			
 			$scope.openLetterScreen = function(followupType,demoarr){
 				//<a target="_blank" href="../report
-				 console.log("$scope.reportData.",$scope.reportData);
-				var urlToOpen = "GenerateLetters.jsp?"+ $.param({demo: demoarr,message: "Reminder Letter",followUpType: $scope.reportData.searchConfig.measurementTrackingType,followupValue:followupType});
-				window.open(urlToOpen);
-				
+				if("P1" === followupType){
+					var comment = prompt('Are you sure you want to added this to patients record \n\nAdd Comment Below ','');
+				    if (comment != null){																							//
+				       var params =  {};
+				       params.id=0;
+				    	   params.followupType=$scope.reportData.searchConfig.measurementTrackingType;
+				    	   params.followupValue=followupType;
+				    	   params.demos=demoarr;
+				    	   params.message=comment;
+				       $http({
+				            url: "../oscarMeasurement/AddShortMeasurement.do",
+				            method: "GET",
+				            params: params
+				         }).then(function (data, status, headers, config) {
+				        	 	console.log("success ",data);
+				        	 	$scope.runReport($scope.selectedReport,$scope.selectedProvider);
+				         },function (data, status, headers, config) {
+				        	 	console.log("fail ",data);
+				         });
+				       
+				    }
+				       
+				}else{ 
+					console.log("$scope.reportData.",$scope.reportData);
+					var urlToOpen = "GenerateLetters.jsp?"+ $.param({demo: demoarr,message: "Reminder Letter",followupType: $scope.reportData.searchConfig.measurementTrackingType,followupValue:followupType});
+					window.open(urlToOpen);
+				}
 				<%-- <%=queryStr%>&amp;message=Letter 1 Reminder Letter sent for :"+request.getAttribute("prevType"),"UTF-8")%>&amp;followupType=<%=followUpType%>&amp;followupValue=L1">Generate First Letter</a>*/ --%>
 			}
 			
