@@ -18,6 +18,8 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.indivica.olis.parameters.ZSD;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
@@ -90,8 +92,23 @@ public class OLISSearchAction extends DispatchAction {
 			request.setAttribute("searchUuid", uuid);
 			boolean force = "true".equals(request.getParameter("force"));
 			Query q = (Query)searchQueryMap.get(uuid).clone();
-			if (force) { 
-				q.setConsentToViewBlockedInformation(new ZPD1("Z"));
+			if (force) {
+			    // If consent is authorized by a substitute decision maker, adds the necessary information
+                // If not then it sets tge ZPD1 to Z for patient consent  
+				String authorizedBy = request.getParameter("blockedInformationIndividual");
+				if (StringUtils.trimToEmpty(authorizedBy).equals("substitute")) {
+				    // Sets the ZPD1 to X for Substitute Decision Maker
+					q.setConsentToViewBlockedInformation(new ZPD1("X"));
+					// Gets the decision maker's first and last name and their relationship to the patient
+					String firstName = StringUtils.trimToEmpty(request.getParameter("firstName"));
+					String lastName = StringUtils.trimToEmpty(request.getParameter("lastName"));
+					String relationship = StringUtils.trimToEmpty(request.getParameter("relationship"));
+					// Sets the substitute decision maker as the ZSD attributes
+					q.setSubstituteDecisionMaker(new ZSD(firstName, lastName, relationship));
+				} else {
+				    // Sets ZPD1 to Z for Patient Consent
+					q.setConsentToViewBlockedInformation(new ZPD1("Z"));
+				}
 
 				String blockedInfoIndividual = request.getParameter("blockedInformationIndividual");
 				// Log the consent override

@@ -33,6 +33,7 @@ import com.indivica.olis.parameters.ZBR6;
 import com.indivica.olis.parameters.ZPD1;
 import com.indivica.olis.parameters.ZPD3;
 import com.indivica.olis.parameters.ZRP1;
+import com.indivica.olis.parameters.ZSD;
 
 /**
  * Z01 - Retrieve Laboratory Information for Patient
@@ -47,6 +48,7 @@ public class Z01Query extends Query {
 	private ZRP1 requestingHic = new ZRP1(); // mandatory
 	private ZPD1 consentToViewBlockedInformation = null;
 	private ZPD3 patientConsentBlockAllIndicator = null;
+	private ZSD substituteDecisionMaker = null;
 	private ZBR3 specimenCollector = null;
 	private ZBR6 performingLaboratory = null;
 	private ZBE6 excludePerformingLaboratory = null;
@@ -84,6 +86,10 @@ public class Z01Query extends Query {
 		
 		if (patientConsentBlockAllIndicator != null)
 			query += patientConsentBlockAllIndicator.toOlisString() + "~";
+		
+		if (substituteDecisionMaker != null) {
+			query += substituteDecisionMaker.toOlisString() + "~";
+		}
 		
 		if (specimenCollector != null)
 			query += specimenCollector.toOlisString() + "~";
@@ -223,6 +229,11 @@ public class Z01Query extends Query {
 	
 	public void addToTestResultCodeList(OBX3 testResultCode) {
 		this.testResultCodeList.add(testResultCode);
+	}
+
+	@Override
+	public void setSubstituteDecisionMaker(ZSD substituteDecisionMaker) {
+		this.substituteDecisionMaker = substituteDecisionMaker;
 	}
 
 	@Override

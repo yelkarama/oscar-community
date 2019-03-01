@@ -114,6 +114,62 @@ function popupNotesWindow(noteDiv) {
     notesWindow.document.body.innerHTML = '';
     notesWindow.document.write(noteDiv.html());
 }
+
+/*
+    Hides or shows the decision-maker-info div depending on if the user is submitted consent from a substitute decision
+    maker or not
+ */
+function changeAuthorizedBy() {
+	let consentTypeDropdown = document.getElementById("blockedInformationIndividual");
+	let selectedConsentType = consentTypeDropdown[consentTypeDropdown.selectedIndex].value;
+	let e = document.getElementById("decision-maker-info");
+	if (selectedConsentType === "substitute") {
+		e.classList.remove("hidden");
+	} else {
+		e.classList.add("hidden");
+	}
+}
+
+/*
+    Validates the input data if the consent type is Substitute Decision Maker. If it isn't then it displays the 
+    confirmation
+ */
+function validateInput() {
+	let validInput = true;
+	let consentTypeDropdown = document.getElementById("blockedInformationIndividual");
+	let selectedConsentType = consentTypeDropdown[consentTypeDropdown.selectedIndex].value;
+	
+	if (selectedConsentType === "substitute") {
+		let firstName = document.getElementById("firstName");
+		let lastName = document.getElementById("lastName");
+		let relationshipDropdown = document.getElementById("relationship");
+		let selectedRelationshipType = relationshipDropdown[relationshipDropdown.selectedIndex].value;
+		let errors = "";
+		
+		if (firstName.value.length === 0) {
+			errors += "You must enter the first name for the SDM";
+		}
+		
+		if (lastName.value.length === 0) {
+			errors += "\nYou must enter the last name for the SDM";
+		}
+		
+		if (selectedRelationshipType.length === 0) {
+			errors += "\nYou must select a relationship type for the SDM";
+		}
+		
+		if (errors.length > 0) {
+			validInput = false;
+			alert(errors.trim());
+		}
+	}
+
+	if (validInput) {
+		validInput = confirm('Are you sure you want to resubmit this query with a patient consent override?');
+	}
+	
+	return validInput;
+}
 </script>
 <script type="text/javascript" src="<%=request.getContextPath()%>/share/javascript/sortable.js"></script>
 <style type="text/css">
@@ -182,6 +238,19 @@ function popupNotesWindow(noteDiv) {
 	text-align: center;
     display: block;
 }
+	
+	.hidden {
+		display: none;
+	}
+	
+	.consent-form {
+		margin-bottom: 10px;
+	}
+	
+	#decision-maker-info {
+		margin-top: 5px;
+	}
+	
 </style>
 	
 <title>OLIS Search Results</title>
@@ -244,7 +313,7 @@ function popupNotesWindow(noteDiv) {
 		</td>
 	</tr>
 	<tr>
-		<td>
+		<td colspan="2">
 			<%
 				if (request.getAttribute("searchException") != null) {
 			%>
@@ -269,16 +338,37 @@ function popupNotesWindow(noteDiv) {
 				}
 				if (olisLabResults.isHasBlockedContent()) {
 			%>
-			<form  action="<%=request.getContextPath()%>/olis/Search.do" onsubmit="return confirm('Are you sure you want to resubmit this query with a patient consent override?')">
+			<form class="consent-form" action="<%=request.getContextPath()%>/olis/Search.do" onsubmit="return validateInput()">
 				<input type="hidden" name="redo" value="true" />
 				<input type="hidden" name="uuid" value="<%=(String)request.getAttribute("searchUuid")%>" />
 				<input type="hidden" name="force" value="true" />
-				<input type="submit" value="Submit Override Consent" />
-				Authorized by:
-				<select id="blockedInformationIndividual" name="blockedInformationIndividual">
+				
+				<label for="blockedInformationIndividual">Authorized by:</label>
+				<select id="blockedInformationIndividual" name="blockedInformationIndividual" onchange="changeAuthorizedBy()">
 					<option value="patient">Patient</option>
 					<option value="substitute">Substitute Decision Maker</option>
 				</select>
+
+				<input type="submit" value="Submit Override Consent" />
+				
+				<div id="decision-maker-info" class="hidden">
+					<label for="firstName">First Name:</label>
+					<input id="firstName" name="firstName" maxlength="20" />
+					<label for="lastName">Last Name:</label>
+					<input id="lastName" name="lastName" maxlength="30" />
+					<label for="relationship">Relationship:</label>
+					<select id="relationship" name="relationship">
+						<option value="">Select a type</option>
+						<option value="A0">Guardian for the Person</option>
+						<option value="A1">Attorney for Personal Care</option>
+						<option value="A2">Representative appointed by Consent and Capacity Board</option>
+						<option value="A3">Spouse/Partner</option>
+						<option value="A4">Parent</option>
+						<option value="A5">Child</option>
+						<option value="A6">Sibling</option>
+						<option value="A7">Other Sibling</option>
+					</select>
+				</div>
 			</form>
 			<% } %>
 		</td>
