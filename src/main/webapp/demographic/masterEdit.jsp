@@ -370,9 +370,22 @@
 	<tr valign="top">
 	<td align="left" colspan="2"><b>Residential</b></td>
 	</tr>
+	<%
+		boolean isMailing = false;
+		if (StringUtils.trimToEmpty(demoExt.get("enableMailing"))!="") {
+			if (StringUtils.trimToEmpty(demoExt.get("enableMailing")).equals("true")) {
+				isMailing = true;
+			}
+		}else if ((StringUtils.trimToEmpty(demoExt.get("address_mailing"))!="")||(StringUtils.trimToEmpty(demoExt.get("postal_mailing"))!="")||(StringUtils.trimToEmpty(demoExt.get("city_mailing"))!="")) {
+			isMailing=true;
+		}
+		System.out.println("enableMailing = " + StringUtils.trimToEmpty(demoExt.get("enableMailing")));
+	%>
 	<tr valign="top">
-		<td align="right"><b><bean:message
-					key="demographic.demographiceditdemographic.formAddr" />: </b></td>
+	<td align="left">
+		<span style="float: left;"><input type="checkbox" name="addMailing" id="addMailing" onclick="toggleMailing()" <%=isMailing ? "checked=\"checked\" " : ""%>><b>Add Mailing </b><input type="hidden" name="enableMailing" id="enableMailing" value="<%=StringUtils.trimToEmpty(demoExt.get("enableMailing"))%>"></span>
+		<span style="float: right;"><b><bean:message
+					key="demographic.demographiceditdemographic.formAddr" />: </b></span></td>
 		<td align="left"><input type="text" name="address"
 			<%=getDisabled("address")%> size="30"
 			value="<%=StringUtils.trimToEmpty(demographic.getAddress())%>">
@@ -425,17 +438,18 @@
 			onBlur="upCaseCtrl(this)" onChange="isPostalCode()"></td>
 	</tr>
 
+	<tbody id="mailingBody" <%=isMailing ? "style = \"visibility: visible\"" : "style=\"visibility: hidden\""%>>
 	<tr valign="top">
-	<td align="left" colspan="2"><b>Mailing</b></td>
+	<td align="left" colspan="2"><b><div style="display: none;">Mailing</div></b></td>
 	</tr>
 	<tr valign="top">
 	<td align="right"> <b><bean:message key="demographic.demographiceditdemographic.formAddr" />: </b> </td>
 	<td align="left">
-		<input type="text" name="address_mailing" <%=getDisabled("address")%> size="30" value="<%=StringUtils.trimToEmpty(demoExt.get("address_mailing"))%>"/>
+		<input type="text" id="address_mailing" name="address_mailing" <%=getDisabled("address")%> size="30" value="<%=StringUtils.trimToEmpty(demoExt.get("address_mailing"))%>"/>
 	</td>
 	<td align="right"> <b><bean:message key="demographic.demographiceditdemographic.formCity" />: </b> </td>
 	<td align="left">
-		<input type="text" name="city_mailing" size="30" <%=getDisabled("city")%> value="<%=StringEscapeUtils.escapeHtml(StringUtils.trimToEmpty(StringUtils.trimToEmpty(demoExt.get("city_mailing"))))%>" />
+		<input type="text" id="city_mailing" name="city_mailing" size="30" <%=getDisabled("city")%> value="<%=StringEscapeUtils.escapeHtml(StringUtils.trimToEmpty(StringUtils.trimToEmpty(demoExt.get("city_mailing"))))%>" />
 	</td>
 	</tr>
 
@@ -451,7 +465,7 @@
 	</td>
 	<td align="left">
 	<% String provinceMailing = demoExt.get("province_mailing"); %> 
-	<select name="province_mailing" style="width: 200px" <%=getDisabled("province")%>>
+	<select id="province_mailing" name="province_mailing" style="width: 200px" <%=getDisabled("province")%>>
 	<option value="OT" <%=(provinceMailing==null || provinceMailing.equals("OT") || provinceMailing.equals("") || provinceMailing.length() > 2)?" selected":""%>>Other</option>
 	<% if (pNames.isDefined()) {
 		for (ListIterator li = pNames.listIterator(); li.hasNext(); ) {
@@ -560,13 +574,13 @@
 } %> :
 	</b></td>
 	<td align="left">
-		<input type="text" name="postal_mailing" size="30" <%=getDisabled("postal")%> value="<%=StringUtils.trimToEmpty(demoExt.get("postal_mailing"))%>" onBlur="upCaseCtrl(this)" onChange="isPostalCode()"/>
+		<input type="text" id="postal_mailing" name="postal_mailing" size="30" <%=getDisabled("postal")%> value="<%=StringUtils.trimToEmpty(demoExt.get("postal_mailing"))%>" onBlur="upCaseCtrl(this)" onChange="isPostalCode()"/>
 	</td>
 	</tr>
-	
 	<%
 		if (OscarProperties.getInstance().getBooleanProperty("enable_appointment_reminders", "true")) {
 	%>
+	</tbody>
 	<tr valign="top">
 		<td align="right" nowrap>
 			<b><bean:message key="demographic.demographiceditdemographic.AllowAppointmentReminders" />:</b>

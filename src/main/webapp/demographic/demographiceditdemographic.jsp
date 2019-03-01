@@ -833,6 +833,20 @@ function checkApptReminderSelect() {
     }
 }
 
+function toggleMailing () {
+	var checkBox = document.getElementById ("addMailing");
+	var enableMailing = document.getElementById ("enableMailing");
+	var mailingSection = document.getElementById("mailingBody");
+
+	if (checkBox.checked) {
+		mailingSection.style.visibility = "visible";
+		enableMailing.value = "true";
+	} else {
+		mailingSection.style.visibility = "hidden";
+		enableMailing.value = "false";
+	}
+}
+
 function checkReminderContactMethod(contactType) {
 	var contactMethod = document.getElementById(contactType);
 	var contactName = contactMethod.id.substring(contactMethod.id.indexOf("_") + 1);

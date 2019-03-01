@@ -200,7 +200,7 @@
             //document.getElementById("adddemographic").submit();
 
             return true;
-        }        
+        }
         
    </script>
 
@@ -287,6 +287,20 @@ function checkTypeInAdd() {
 	}
 	if(!typeInOK) alert ("<bean:message key="demographic.demographicaddrecordhtm.msgMissingFields"/>");
 	return typeInOK;
+}
+
+function toggleMailing () {
+	var checkBox = document.getElementById ("addMailing");
+	var enableMailing = document.getElementById ("enableMailing");
+	var mailingSection = document.getElementById("mailingBody");
+
+	if (checkBox.checked) {
+		mailingSection.style.visibility = "visible";
+		enableMailing.value = "true";
+	} else {
+		mailingSection.style.visibility = "hidden";
+		enableMailing.value = "false";
+	}
 }
 
 function newStatus() {
@@ -877,8 +891,10 @@ function ignoreDuplicates() {
     </tr>
 	<td align="left" colspan="2"><b>Residential</b></td>
 			<tr valign="top">
-				<td id="addrLbl" align="right"><b><bean:message
-					key="demographic.demographicaddrecordhtm.formAddress" />: </b></td>
+				<td id="addrLbl" align="right">
+					<span style="float: left;"><input type="checkbox" name="addMailing" id="addMailing" onclick="toggleMailing()"><b>Add Mailing </b><input type="hidden" name="enableMailing" id="enableMailing"></span>
+					<span style="float: right;"><b><bean:message
+					key="demographic.demographicaddrecordhtm.formAddress" />: </b></span></td>
 				<td id="addressCell" align="left"><input id="address" type="text" name="address" value="<%=address%>" size=40 />
 
 				</td>
@@ -988,7 +1004,7 @@ function ignoreDuplicates() {
 				<td id="postalCell" align="left"><input type="text" id="postal" name="postal" value="<%=postal%>"
 					onBlur="upCaseCtrl(this)"></td>
 			</tr>
-
+	<tbody id="mailingBody" style="visibility: hidden">
 	<td align="left" colspan="2"><b>Mailing</b></td>
 	<tr valign="top">
 		<td id="addrMailingLbl" align="right"><b><bean:message key="demographic.demographicaddrecordhtm.formAddress" />: </b></td>
@@ -997,7 +1013,7 @@ function ignoreDuplicates() {
 		</td>
 		<td id="cityMailingLbl" align="right"><b><bean:message key="demographic.demographicaddrecordhtm.formCity" />: </b></td>
 		<td id="cityMailingCell" align="left">
-			<input type="text" id="city_mailing" name="city_mailing" value="<%=defaultCity%>" />
+			<input type="text" id="city_mailing" name="city_mailing" value="" />
 		</td>
 	</tr>
 
@@ -1099,7 +1115,7 @@ function ignoreDuplicates() {
 				out.print(oscarProps.getProperty("demographicLabelPostal"));
 			} %> : </b></td>
 		<td id="postalMailingCell" align="left"><input type="text" id="postal_mailing" name="postal_mailing" value="<%=postal%>" onBlur="upCaseCtrl(this)"></td>
-	</tr>
+	</tr></tbody>
 			<tr valign="top">
 				<td id="phoneLbl" align="right"><b><bean:message
 					key="demographic.demographicaddrecordhtm.formPhoneHome" />: </b></td>

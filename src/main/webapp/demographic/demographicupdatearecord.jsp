@@ -363,6 +363,10 @@
 		extensions.add(new DemographicExt(request.getParameter("reminder_preference_id"), proNo, demographicNo, "reminder_preference", request.getParameter("reminder_preference")));
 	}
 
+	if (!StringUtils.trimToEmpty(demoExt.get("enableMailing")).equals(StringUtils.trimToEmpty(request.getParameter("enableMailing")))) {
+		extensions.add(new DemographicExt(request.getParameter("enableMailing"), proNo, demographicNo, "enableMailing", request.getParameter("enableMailing")));
+	}
+
 	if (!StringUtils.trimToEmpty(demoExt.get("address_mailing")).equals(StringUtils.trimToEmpty(request.getParameter("address_mailing")))) {
 		extensions.add(new DemographicExt(request.getParameter("address_mailing"), proNo, demographicNo, "address_mailing", request.getParameter("address_mailing")));
 	}

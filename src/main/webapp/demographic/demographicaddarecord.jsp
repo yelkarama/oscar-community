@@ -348,6 +348,10 @@
        demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "enrollmentProvider", request.getParameter("enrollmentProvider"));
        demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "notMrp", request.getParameter("notMrp"), "");
 
+       if (request.getParameter("enableMailing")!=null) {
+		   demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "enableMailing", request.getParameter("enableMailing"));
+	   }
+
 		if (OscarProperties.getInstance().isPropertyActive("showPrimaryCarePhysicianCheck")) {
 			demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "HasPrimaryCarePhysician", request.getParameter("HasPrimaryCarePhysician"), "");
 		}
