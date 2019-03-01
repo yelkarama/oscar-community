@@ -14,6 +14,9 @@
 <%@ page import="org.oscarehr.olis.model.OlisLabResultDisplay" %>
 <%@ page import="org.oscarehr.olis.model.OlisMeasurementsResultDisplay" %>
 <%@ page import="org.oscarehr.olis.OLISUtils" %>
+<%@ page import="org.oscarehr.common.model.Demographic" %>
+<%@ page import="org.oscarehr.common.dao.DemographicDao" %>
+<%@ page import="org.oscarehr.util.SpringUtils" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -260,6 +263,9 @@ function validateInput() {
 	OlisLabResults olisLabResults = (OlisLabResults) request.getAttribute("olisLabResults");
 	String olisResultFileUuid = (String) request.getAttribute("olisResultFileUuid");
 	request.setAttribute("olisResultFileUuid", olisResultFileUuid);
+	DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
+	Demographic demographic = demographicDao.getDemographic(request.getParameter("demographic"));
+	boolean resultsEmpty = olisLabResults.getResultList().isEmpty();
 %>
 <table style="width:600px;" class="MainTable" align="left">
 	<tbody><tr class="MainTableTopRow">
@@ -293,15 +299,15 @@ function validateInput() {
 				</tr>
 				<tr>
 					<td class="label">Name:</td>
-					<td class="info"><%=olisLabResults.getDemographicName()%></td>
+					<td class="info"><%=resultsEmpty ? demographic.getFormattedName() : olisLabResults.getDemographicName()%></td>
 					<td class="label">Ontario Health Number:</td>
-					<td class="info"><%=olisLabResults.getDemographicHin()%></td>
+					<td class="info"><%=resultsEmpty ? demographic.getHin() : olisLabResults.getDemographicHin()%></td>
 				</tr>
 				<tr>
 					<td class="label">Sex:</td>
-					<td class="info"><%=sex%></td>
+					<td class="info"><%=resultsEmpty ? demographic.getSex() : sex%></td>
 					<td class="label">Date of Birth:</td>
-					<td class="info"><%=olisLabResults.getDemographicDob()%></td>
+					<td class="info"><%=resultsEmpty ? demographic.getFormattedDob() : olisLabResults.getDemographicDob()%></td>
 				</tr>
 				<% if (olisLabResults.getDemographicHin().isEmpty()) { %>
 				<tr>
@@ -312,6 +318,11 @@ function validateInput() {
 			</table>
 		</td>
 	</tr>
+    <% if (resultsEmpty) { %>
+    <tr>
+        <td style="color: #a94442; font-weight: bold; padding: 10px;" colspan="3" align="center">No results returned! Please refine your search parameters.</td>
+    </tr>
+    <% } %>
 	<tr>
 		<td colspan="2">
 			<%
@@ -541,7 +552,7 @@ function validateInput() {
 					<th class="hidden">Alternate Name</th>
 					<th class="hidden">Set Id</th>
 					<th class="hidden">Sub Id</th>
-					
+
 				</tr>
 				</thead>
 				<tbody>
@@ -632,6 +643,12 @@ function validateInput() {
 				<img src="<%=request.getContextPath()%>/css/tablesorter/icons/last.png" class="last"/>
 			</div>
 		</td>
+	</tr>
+	<tr>
+		<td colspan="3" align="center">
+			<input type="button" value="Back" onclick="window.location = 'Search.jsp'"/>
+		</td>
+	</tr>
 	</tbody>
 </table>
 <script type="application/javascript">
