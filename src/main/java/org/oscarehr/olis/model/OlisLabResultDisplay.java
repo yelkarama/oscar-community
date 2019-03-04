@@ -222,9 +222,6 @@ public class OlisLabResultDisplay {
             labResult.setReportingFacilityName(olisHandler.getReportingFacilityName());
             
             String collectionDate = olisHandler.getCollectionDateTime(obr);
-            if (collectionDate.contains(" - ")) {
-                collectionDate = collectionDate.substring(0, collectionDate.indexOf(" - "));
-            }
             labResult.setCollectionDate(collectionDate);
             
             labResult.setPlacerGroupNo(olisHandler.getAccessionNum());
