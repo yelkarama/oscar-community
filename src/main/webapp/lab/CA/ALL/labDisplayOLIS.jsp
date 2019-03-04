@@ -1498,7 +1498,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                         	</tr>
                                         	<tr  bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
                                                 <td align="left" colspan="5">
-                                                    <b><%= OLISUtils.Hl7EncodedRepeatableCharacter.performReplacement(handler.getOBXResult(obr, obx), true).replaceAll("(?<=\\s)\\s", "&nbsp;") %></b>
+                                                    <b><%= strikeOutInvalidContent(OLISUtils.Hl7EncodedRepeatableCharacter.performReplacement(handler.getOBXResult(obr, obx), true).replaceAll("(?<=\\s)\\s", "&nbsp;"), status) %></b>
                                                 </td>
                                         	</tr>
                                         	<%
