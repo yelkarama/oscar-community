@@ -190,8 +190,7 @@ public class OlisLabResultDisplay {
         for (int i = 0; i < headers.size(); i++) {
             
             int obr = olisHandler.getMappedOBR(i);
-            int lineNumber = obr + 1;
-            if (olisHandler.isChildOBR(lineNumber)) {
+            if (olisHandler.isChildOBR(obr)) {
                 continue;
             }
 

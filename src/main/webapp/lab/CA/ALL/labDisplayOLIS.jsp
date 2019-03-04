@@ -1101,7 +1101,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                         	obr = handler.getMappedOBR(i);
                         	// Gets the obrHeader JSON related to the current obr
                         	obrHeader = handler.getObrHeader(obr);
-                            if (handler.isChildOBR(obr + 1) || (resultObrIndex != null && !resultObrIndex.equals(i))) {
+                            if (handler.isChildOBR(obr) || (resultObrIndex != null && !resultObrIndex.equals(i))) {
                             	continue;
                             }
                         %>
@@ -1563,8 +1563,8 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
    											</tr>
    											<%
    											if (handler.isStatusFinal(handler.getOBXResultStatus(obr, obx).charAt(0))) {
-  												String parentId = handler.getOBXCEParentId(obr, obx);
-  												if (!stringIsNullOrEmpty(parentId) && handler.isMicroorganismParent(obr, obx)) {
+  												Integer parentId = handler.getChildOBR(obr, obx);
+  												if (parentId > -1) {
    											%>
    											<tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
    												<td colspan="5" align="center">
@@ -1572,7 +1572,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
    														<tr><th>Name</th><th>Result</th> </tr>
    												    <%
 
-   												    int childOBR = handler.getChildOBR(parentId) - 1;
+   												    int childOBR = parentId - 1;
    												    if (childOBR != -1) {
 	   												    int childLength = handler.getOBXCount(childOBR);
 	   												    for (int ceIndex = 0; ceIndex < childLength; ceIndex++) {

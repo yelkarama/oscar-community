@@ -828,18 +828,30 @@ public class OLISHL7Handler implements MessageHandler {
 		return getOBXField(obr, obx, 4, 0, 1);
 	}
 
-	HashMap<String, String> obrParentMap;
+	HashMap<String, Map<String, Integer>> obrParentMap;
 
-	public int getChildOBR(String parentId) {
+	public Integer getChildOBR(int obr, int obx) {
+	    Integer childObrIndex = -1;
 		try {
-			return Integer.valueOf(obrParentMap.get(parentId));
+		    // Gets the parent id from OBR.2
+            String parentId = getObrParentId(obr);
+            // Gets the child OBR map for the retrieve parent id
+            Map<String, Integer> childObrMap = obrParentMap.get(parentId);
+            // If the parent OBR has child OBRs
+            if (childObrMap != null) {
+                // Gets the OBX parent id from OBX.4
+                String obxParentId = StringUtils.trimToEmpty(getOBXCEParentId(obr, obx));
+                // Get the corresponding index of the child OBR
+                childObrIndex = childObrMap.get(obxParentId);
+            }
 		} catch (Exception e) {
-			return -1;
+			logger.error("Could not get child OBR for the given OBR and OBX: " + obr + " " + obx);
 		}
+		return childObrIndex;
 	}
 
 	public boolean isChildOBR(int obr) {
-		return obrParentMap.containsValue(String.valueOf(obr));
+		return !getParentId(obr).isEmpty();
 	}
 
 	public String getDiagnosis(int obr) {
@@ -920,7 +932,7 @@ public class OLISHL7Handler implements MessageHandler {
 
 		obrDiagnosis = new HashMap<Integer, Segment>();
 
-		obrParentMap = new HashMap<String, String>();
+		obrParentMap = new HashMap<String, Map<String, Integer>>();
 
 		patientIdentifierNames = new HashMap<String, String>();
 		initPatientIdentifierNames();
@@ -1048,9 +1060,17 @@ public class OLISHL7Handler implements MessageHandler {
 						obrStatus.add(getTestRequestStatusMessage(status));
 						
 
-						String parent = getString(Terser.get(obr, 26, 0, 2, 1));
-						if (!"".equals(parent)) {
-							obrParentMap.put(parent, String.valueOf(obrNum));
+						// Gets the parent ID of the OBR from OBR.29. If it exists, then the OBR is a child OBR
+						String parentNumber = getParentId(obr);
+						if (!parentNumber.isEmpty()) {
+						    //Gets the parent result id from OBR.26, this id links to the OBX parent OBR id in OBX.4
+                            String parentResultId = getString(Terser.get(obr, 26, 0, 2, 1));
+                            // Gets the OBR children map or a new map if one doesn't exist for the parent OBR 
+						    Map<String, Integer> childrenMap = obrParentMap.getOrDefault(parentNumber, new HashMap<String, Integer>());
+						    // Adds the current obrNum to the map with the parent result id as the key
+						    childrenMap.put(parentResultId, obrNum);
+						    // Adds the children map to the OBR parent map with the parent number as the key
+							obrParentMap.put(parentNumber, childrenMap);
 						}
 						obrHeaders.add(obrHeader);
 
@@ -3462,7 +3482,6 @@ public class OLISHL7Handler implements MessageHandler {
 	 * @return The set id
 	 */
 	public String getObrSetId(int obrIndex) {
-		obrIndex++;
 		String setId = "";
 		try {
 			Segment obr = getObrSegment(obrIndex);
@@ -3473,6 +3492,25 @@ public class OLISHL7Handler implements MessageHandler {
 		return setId;
 	}
 
+    /**
+     * Gets the parent OBR id from OBR.2
+     * @param obrIndex The index of the OBR to get the id for
+     * @return String of the parent id
+     */
+	private String getObrParentId(Integer obrIndex) {
+	    String parentId = "";
+        try {
+            // Gets the obr segment for the provided OBR index
+            Segment obr = getObrSegment(obrIndex);
+            // Gets the placer group number/parent id from the OBR
+            parentId = StringUtils.trimToEmpty(Terser.get(obr, 2, 0, 1, 1));
+        } catch (Exception e) {
+            MiscUtils.getLogger().error("OLIS HL7 Error", e);
+        }
+        
+        return parentId;
+    }
+	
 	/**
 	 * Gets the OBR segment for the given obr index
 	 * @param obrIndex The obr index to get the segment for
@@ -3480,6 +3518,7 @@ public class OLISHL7Handler implements MessageHandler {
 	 * @throws HL7Exception If the terser can't get the segment
 	 */
 	private Segment getObrSegment(int obrIndex) throws HL7Exception {
+	    obrIndex++;
 		Segment obr;
 		if (obrIndex == 1) {
 			obr = terser.getSegment("/.OBR");
@@ -3489,7 +3528,40 @@ public class OLISHL7Handler implements MessageHandler {
 		
 		return obr;
 	}
-	
+
+    /**
+     * Gets the parent id for the provided OBR index. The parent id retrieved from OBR.29, in component 1 and subcomponent 1. It matches the Placer Order Number of the parent OBR.
+     * @param obr The {@code: int} index of the OBR to get the parent id is
+     * @return String of the parent Id that represents the Placer Order Number of the parent OBR
+     */
+	public String getParentId(int obr) {
+	    String parentId = "";
+        try {
+            Segment obrSegment = getObrSegment(obr);
+            parentId = getParentId(obrSegment);
+        } catch (HL7Exception e) {
+            logger.error("Could not retrieve parent id for OBR");
+        }
+	    
+        return parentId;
+    }
+
+    /**
+     * Gets the parent id for the provided OBR index. The parent id retrieved from OBR.29, in component 1 and subcomponent 1. It matches the Placer Order Number of the parent OBR.
+     * @param obrSegment The OBR Segment to get the parent id from
+     * @return String of the parent Id that represents the Placer Order Number of the parent OBR
+     */
+    public String getParentId(Segment obrSegment) {
+	    String parentId = "";
+        try {
+	        parentId = StringUtils.trimToEmpty(Terser.get(obrSegment, 29, 0, 1, 1));
+        } catch (HL7Exception e) {
+            logger.error("Could not retrieve parent id for OBR");
+        }
+        
+        return parentId;
+    }
+    
 	public class OLISError {
 		public OLISError(String segment, String sequence, String field, String indentifer, String text) {
 			super();

@@ -211,14 +211,12 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         // add the tests and test info for each header
         ArrayList<String> headers = handler.getHeaders();
         int obr;
-        int lineNum = 0;
         int previousObr = -1;
         for (int i=0; i < headers.size(); i++){
         	//Gets the mapped OBR for the current index
         	obr = handler.getMappedOBR(i);
-        	lineNum = obr + 1;
         	//If the current lineNum is not a childOBR
-        	if (!handler.isChildOBR(lineNum)){
+        	if (!handler.isChildOBR(obr)){
         		//Calls on the addOLISLabCategory function passing the header at the current obr, and the obr itself
         		addOLISLabCategory(headers.get(obr), obr, previousObr);
         		// Records the obr index as the last, non-child obr to be processed
@@ -721,9 +719,9 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 					
 					//If the status is final
 					if(handler.isStatusFinal(handler.getOBXResultStatus(obr, obx).charAt(0))){
-						String parentId = handler.getOBXCEParentId(obr, obx);
+						Integer parentId = handler.getChildOBR(obr, obx);
 						//If there is a parent ID then outputs a table for Agent and Sensitivity
-						if (!stringIsNullOrEmpty(parentId) && handler.isMicroorganismParent(obr, obx)){
+						if (parentId > -1){
 							float[] ceTableWidths = {2f, 3f};
 							PdfPTable ceTable = new PdfPTable(ceTableWidths);
 							ceTable.setWidthPercentage(10f);
@@ -743,7 +741,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 							cell.setBorder(12);
 							
 							cell.setColspan(1);
-							int childOBR = handler.getChildOBR(parentId) - 1;
+							int childOBR = parentId - 1;
 							//If the childOBR does not equal -1
 							if (childOBR != -1){
 								//Gets the Gets the childOBR length
