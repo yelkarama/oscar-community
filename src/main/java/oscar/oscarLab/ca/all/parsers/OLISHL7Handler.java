@@ -45,6 +45,7 @@ import org.oscarehr.olis.dao.OlisMicroorganismNomenclatureDao;
 import org.oscarehr.olis.model.OLISFacilities;
 import org.oscarehr.olis.model.OLISRequestNomenclature;
 import org.oscarehr.olis.model.OLISResultNomenclature;
+import org.oscarehr.olis.model.OlisLabRequestSortable;
 import org.oscarehr.olis.model.OlisLabResultSortable;
 import org.oscarehr.olis.model.OlisMicroorganismNomenclature;
 import org.oscarehr.util.MiscUtils;
@@ -89,6 +90,7 @@ public class OLISHL7Handler implements MessageHandler {
     private Map<String, OLISResultNomenclature> olisResultNomenclatureMap = null;
     private Map<String, OlisMicroorganismNomenclature> olisMicroorganismNomenclatureMap = new HashMap<>();
 
+	private HashMap<Integer, OlisLabRequestSortable> obrSortMap;
 	private HashMap<Integer, List<OlisLabResultSortable>> obxSortMap;
     
 	public static final String OBR_SPECIMEN_TYPE = "specimenType";
@@ -865,15 +867,12 @@ public class OLISHL7Handler implements MessageHandler {
 
 	public int getMappedOBR(int obr) {
 		try {
-			String[] keys = obrSortMap.keySet().toArray(new String[0]);
-			Arrays.sort(keys);
-			if (obr > keys.length - 1) {
-				return obr;
-			}
-			return obrSortMap.get(keys[obr]);
+			OlisLabRequestSortable sortable = obrSortMap.get(obr);
+			return sortable.getObrIndex();
 		} catch (Exception e) {
 			MiscUtils.getLogger().error("OLIS HL7 Error", e);
 		}
+		
 		return obr;
 	}
 
@@ -1088,7 +1087,7 @@ public class OLISHL7Handler implements MessageHandler {
 			obrGroups.add(obxSegs);
 		}
 		obxSortMap = new HashMap<Integer, List<OlisLabResultSortable>>();
-		obrSortMap = new HashMap<String, Integer>();
+		obrSortMap = new HashMap<Integer, OlisLabRequestSortable>();
 		getOlisMicroorganismNomenclatureMap();
 		mapOBRSortKeys();
 
@@ -1286,34 +1285,65 @@ public class OLISHL7Handler implements MessageHandler {
 		}
 	}
 
-	HashMap<String, Integer> obrSortMap;
-
 	private void mapOBRSortKeys() {
-
+		// If the olis request nomenclature map hasn't been populated yet, populates it
+		if (olisRequestNomenclatureMap == null) {
+			olisRequestNomenclatureMap = getOlisRequestNomenclatureMap();
+		}
+		List<OlisLabRequestSortable> requestSortables = new ArrayList<>();
+		// Creates a new date format for the collection date
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
+		// Gets the number of OBR elements
 		int obrCount = getOBRCount();
+		
 		Segment zbr;
-		String tempKey;
+		String name;
+		int obrIndex;
+		Date collectionDateTime;
+		String groupPlacerNo;
+		String sortKey;
+		OLISRequestNomenclature nomenclature;
+		String setId;
+
 		try {
-			for (int i = 0; i < obrCount; i++) {
-				mapOBXSortKey(i);
-				if (i == 0) {
-					zbr = terser.getSegment("/.ZBR");
-				} else {
-					zbr = (Segment) terser.getFinder().getRoot().get("ZBR" + (i + 1));
-				}
+			for (int obr = 0; obr < obrCount; obr++) {
+				// Calls to sort the OBX elements for the current OBR
+				mapOBXSortKey(obr);
 				try {
-					tempKey = getString(Terser.get(zbr, 11, 0, 1, 1));
-					tempKey = tempKey.equals("") ? String.valueOf(i) : tempKey;
-					if (obrSortMap.containsKey(tempKey)) {
-						tempKey = tempKey + i;
-					}
-					obrSortMap.put(tempKey, i);
+					// Gets the request name
+					name = headers.get(obr);
+					// Sets the current obr to the obrIndex, used to retrieve additional obr information when displaying it
+					obrIndex = obr;
+					// Parses and sets the collection date time
+					collectionDateTime = sdf.parse(getCollectionDateTime(obr));
+					// Gets the report accession number as the group placer number
+					groupPlacerNo = getAccessionNum();
+					// Gets the request sort key found in ZBR11
+					sortKey = getZBR11(obr);
+					// Gets the nomenclature request code
+					String nomenclatureRequestCode = getNomenclatureRequestCode(obr);
+					// Gets the nomenclature mapped to the provided code
+					nomenclature = olisRequestNomenclatureMap.get(nomenclatureRequestCode);
+					// Sets the OBR set id
+					setId = getObrSetId(obr);
+					// Creates a new Olis Lab Request Sortable and adds it to the list to be sorted
+					OlisLabRequestSortable requestSortable = new OlisLabRequestSortable(name, obrIndex, collectionDateTime, groupPlacerNo, sortKey, nomenclature, setId);
+					requestSortables.add(requestSortable);
 				} catch (Exception e) {
 					MiscUtils.getLogger().error("OLIS HL7 Error", e);
 				}
 			}
 		} catch (Exception e) {
 			MiscUtils.getLogger().error("OLIS HL7 Error", e);
+		}
+
+		// Sorts the OlisLabRequestSortable objects
+		Collections.sort(requestSortables, OlisLabRequestSortable.OLIS_REQUEST_COMPARATOR);
+		int index = 0;
+		// For each request, adds them into the obrSortMap in the sorted order with the current index as the key
+		for (OlisLabRequestSortable request : requestSortables) {
+			obrSortMap.put(index, request);
+			index++;
 		}
 	}
 

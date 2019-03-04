@@ -155,11 +155,15 @@ public class OlisMeasurementsResultDisplay {
                     // Compares the ZBR11 sort key, continuing to compare other attributes if they are the same
                     compared = o1.getParentLab().getTestRequestZbr11().compareTo(o2.getParentLab().getTestRequestZbr11());
                     if (compared == 0) {
-                        // Compares the alternate names stored in the nomenclature, continuing to compare other attributes if they are the same
-                        compared = o1.getParentLab().getNomenclature().getRequestAlternateName1().compareTo(o2.getParentLab().getNomenclature().getRequestAlternateName1());
+                        // Compares the nomenclature sort keys, continuing to compare other attributes if they are the same
+                        compared = o1.getParentLab().getNomenclature().getSortKey().compareTo(o2.getParentLab().getNomenclature().getSortKey());
                         if (compared == 0) {
-                            // Compares the set ids to determine order
-                            compared = Integer.compare(o1.getParentLab().getObrSetId(), o2.getParentLab().getObrSetId());
+                            // Compares the alternate names stored in the nomenclature, continuing to compare other attributes if they are the same
+                            compared = o1.getParentLab().getNomenclature().getRequestAlternateName1().compareTo(o2.getParentLab().getNomenclature().getRequestAlternateName1());
+                            if (compared == 0) {
+                                // Compares the set ids to determine order
+                                compared = Integer.compare(o1.getParentLab().getObrSetId(), o2.getParentLab().getObrSetId());
+                            }
                         }
                     }
                 }
