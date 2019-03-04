@@ -18,6 +18,7 @@
 <%@ page import="org.oscarehr.util.LoggedInInfo" %>
 <%@ page import="oscar.OscarProperties" %>
 <%@ page import="org.json.JSONObject" %>
+<%@ page import="org.oscarehr.olis.model.OlisLabChildResultSortable" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
@@ -1568,37 +1569,56 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
    											%>
    											<tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
    												<td colspan="5" align="center">
+                                                    <% 
+                                                        int childOBR = parentId - 1;
+                                                        int currentRow = 1;
+                                                        // Gets the sorted child results for the given OBR as well as if the system 
+                                                        // should display the susceptibility
+                                                        List<OlisLabChildResultSortable> childResults = handler.getChildObrResults(childOBR);
+                                                        boolean displaySusceptibility = handler.checkChildObrHasSusceptibility(childOBR);
+                                                    %>
    													<table style="border: 1px solid black; margin-left: 30px;" cellspacing="0" cellpadding="2">
-   														<tr><th>Name</th><th>Result</th> </tr>
+   														<tr>
+                                                            <th>Name</th>
+                                                            <th>Result</th>
+                                                            <% if (displaySusceptibility) { %>
+                                                            <th>Susceptibility</th>
+                                                            <% } %>
+                                                        </tr>
    												    <%
-
-   												    int childOBR = parentId - 1;
-   												    if (childOBR != -1) {
-	   												    int childLength = handler.getOBXCount(childOBR);
-	   												    for (int ceIndex = 0; ceIndex < childLength; ceIndex++) {
-	   												    	String ceStatus = handler.getOBXResultStatus(childOBR, ceIndex).trim();
+                                                        // For each child result
+	   												    for (OlisLabChildResultSortable childResult : childResults) {
+	   												    	String ceStatus = childResult.getStatus();
+	   												    	// Gets the result status message, appending html for the font colour if it is not empty
+                                                            String resultStatusMessage = handler.getTestResultStatusMessage(ceStatus.charAt(0));
+                                                            if (!resultStatusMessage.isEmpty()) {
+                                                                resultStatusMessage = "(<font color=\"red\">" + resultStatusMessage + "</font>)";
+                                                            }
 	   	   			                                        boolean ceStrikeout = ceStatus != null && ceStatus.startsWith("W");
-	   	   			                                        String ceName = handler.getOBXName(childOBR,ceIndex);
+	   	   			                                        String ceName = childResult.getName();
 	   	   			                                        ceName = ceStrikeout ? "<s>" + ceName + "</s>" : ceName;
-	   	   			                                        String ceSense = handler.getOBXCESensitivity(childOBR,ceIndex);
+	   	   			                                        String ceSense = childResult.getSensitivity();
 	   	   			                                        ceSense = ceStrikeout ? "<s>" + ceSense + "</s>" : ceSense;
-                                                            int commentCount = handler.getOBXCommentCount(childOBR, ceIndex);
+                                                            int commentCount = childResult.getCommentCount();
 	   												    	%>
-                                                        <tr bgcolor="<%=(ceIndex % 2 == 1 ? highlight : "#ccccff")%>" >
-                                                            <td><%=ceName%></td>
+                                                        <tr bgcolor="<%=(currentRow % 2 == 0 ? highlight : "#ccccff")%>" >
+                                                            <td><%=ceName%> <%= resultStatusMessage %></td>
                                                             <td align="center"><%=ceSense%></td>
+                                                            <% if (displaySusceptibility) { %>
+                                                            <td align="center"><%=childResult.getSusceptibility()%></td>
+                                                            <% } %>
                                                         </tr>
                                                         <% for (int comment = 0; comment < commentCount; comment++) { %>
-                                                        <tr bgcolor="<%=(ceIndex % 2 == 1 ? highlight : "#ccccff")%>">
+                                                        <tr bgcolor="<%=(currentRow % 2 == 0 ? highlight : "#ccccff")%>">
                                                             <td colspan="2">
                                                                 <div style="width:700px">
-                                                                <%=handler.getOBXComment(childOBR, ceIndex, comment)%><span style="margin-left:15px;font-size:8px; color:#333333;word-break:normal;"><%=handler.getOBXSourceOrganization(childOBR, ceIndex, comment)%></span>
+                                                                <%=handler.getOBXComment(childOBR, childResult.getIndex(), comment)%><span style="margin-left:15px;font-size:8px; color:#333333;word-break:normal;"><%=handler.getOBXSourceOrganization(childOBR, childResult.getIndex(), comment)%></span>
                                                                 </div>
                                                             </td>
                                                         </tr>
                                                         <%}
+                                                            currentRow++;
 	   													}
-   												    }
    													%>
    													</table>
    												</td>

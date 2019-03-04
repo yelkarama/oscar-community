@@ -25,6 +25,7 @@ import org.oscarehr.common.dao.Hl7TextMessageDao;
 import org.oscarehr.common.model.Hl7TextMessage;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.olis.OLISUtils;
+import org.oscarehr.olis.model.OlisLabChildResultSortable;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -722,10 +723,21 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 						Integer parentId = handler.getChildOBR(obr, obx);
 						//If there is a parent ID then outputs a table for Agent and Sensitivity
 						if (parentId > -1){
+							// Calculates the childObr by subtracting 1 from the parentId to properly represent the obrIndex
+							int childOBR = parentId - 1;
+							// Gets all results for the child OBR
+							List<OlisLabChildResultSortable> childResults = handler.getChildObrResults(childOBR);
+							// Checks if the OBR has susceptibility in the results, must be called after getChildObrResults
+							boolean displaySusceptibility = handler.checkChildObrHasSusceptibility(childOBR);
+
 							float[] ceTableWidths = {2f, 3f};
+							// If the child OBR has susceptibility set, set the table widths to have 3 columns
+							if (displaySusceptibility) {
+								ceTableWidths = new float[]{2f, 2f, 2f};
+							}
+							
 							PdfPTable ceTable = new PdfPTable(ceTableWidths);
 							ceTable.setWidthPercentage(10f);
-							
 							
 							//Column Headers
 							cell.setColspan(1);
@@ -733,59 +745,92 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 							cell.setBorder(11);
 							cell.setPhrase(new Phrase("Name", commentBoldFont));
 							ceTable.addCell(cell);
-							//Enables the borders with the bitwise combination of 7 (1 top, 2 bottom, 4 left)
-							cell.setBorder(7);
+							//Enables the borders with the bitwise combination of 3 (1 top, 2 bottom)
+							cell.setBorder(3);
 							cell.setHorizontalAlignment(Element.ALIGN_CENTER);
 							cell.setPhrase(new Phrase("Result", commentBoldFont));
 							ceTable.addCell(cell);
-							cell.setBorder(12);
 							
+							// If the child OBR has susceptibility set, adds the Susceptibility column
+							if (displaySusceptibility) {
+								//Enables the borders with the bitwise combination of 7 (1 top, 2 bottom, 4 left)
+								cell.setBorder(7);
+								cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+								cell.setPhrase(new Phrase("Susceptibility", commentBoldFont));
+								ceTable.addCell(cell);
+							}
+							cell.setBorder(12);
 							cell.setColspan(1);
-							int childOBR = parentId - 1;
-							//If the childOBR does not equal -1
-							if (childOBR != -1){
-								//Gets the Gets the childOBR length
-								int childLength = handler.getOBXCount(childOBR);
-								//For each child obr, outputs it
-								PdfPCell microorganismCell = new PdfPCell();
-								for (int ceIndex = 0; ceIndex < childLength; ceIndex++){
-									microorganismCell.setBorder(12);
-									int commentCount = handler.getOBXCommentCount(childOBR, ceIndex);
-									Font strikeoutFont = new Font(cfBold, 9, Font.STRIKETHRU);
-									String ceStatus = handler.getOBXResultStatus(childOBR, ceIndex).trim();
-									boolean ceStrikeout = ceStatus != null && ceStatus.startsWith("W");
-									
-									if (ceIndex % 2 == 1) {
-										microorganismCell.setBackgroundColor(white);
-									} else {
-										microorganismCell.setBackgroundColor(grey);
-									}
-									
-									if (ceIndex == childLength - 1 && commentCount == 0) {
-										microorganismCell.setBorder(14);
-									}
-									
-									microorganismCell.setHorizontalAlignment(Element.ALIGN_LEFT);
-                                    OLISLabPDFUtils.addAllCellsToTable(ceTable, OLISLabPDFUtils.createCellsFromHl7(handler.getOBXName(childOBR,ceIndex), (ceStrikeout ? strikeoutFont : commentFont), microorganismCell));
-									microorganismCell.setHorizontalAlignment(Element.ALIGN_CENTER);
-                                    OLISLabPDFUtils.addAllCellsToTable(ceTable, OLISLabPDFUtils.createCellsFromHl7(handler.getOBXCESensitivity(childOBR,ceIndex), (ceStrikeout ? strikeoutFont : commentFont), microorganismCell));
 
-									
-									if (commentCount > 0) {
-										microorganismCell.setColspan(2);
-										microorganismCell.setHorizontalAlignment(Element.ALIGN_LEFT);
-										for (int commentIndex = 0; commentIndex < commentCount; commentIndex++) {
-											if (ceIndex == childLength - 1 && commentIndex == commentCount - 1) {
-												microorganismCell.setBorder(14);
-											}
-											OLISLabPDFUtils.addAllCellsToTable(ceTable, OLISLabPDFUtils.createCellsFromHl7(handler.getOBXCommentNoFormat(childOBR, ceIndex, commentIndex) + " " + handler.getOBXSourceOrganization(childOBR, ceIndex, commentIndex), commentFont, microorganismCell));
-											
-										}
-										
-										microorganismCell.setColspan(1);
-									}
-                                    microorganismCell.setHorizontalAlignment(Element.ALIGN_LEFT);
+							int currentRow = 1;
+							//For each child obr, outputs it
+							PdfPCell microorganismCell = new PdfPCell();
+							// For each child result
+							for (OlisLabChildResultSortable childResult : childResults){
+								microorganismCell.setBorder(12);
+								
+								int commentCount = childResult.getCommentCount();
+								Font strikeoutFont = new Font(cfBold, 9, Font.STRIKETHRU);
+								String ceStatus = childResult.getStatus();
+								String resultStatusMessage = handler.getTestResultStatusMessage(ceStatus.charAt(0));
+								boolean ceStrikeout = ceStatus != null && ceStatus.startsWith("W");
+								
+								if (currentRow % 2 == 0) {
+									microorganismCell.setBackgroundColor(white);
+								} else {
+									microorganismCell.setBackgroundColor(grey);
 								}
+								
+								if (currentRow == childResults.size() && commentCount == 0) {
+									microorganismCell.setBorder(14);
+								}
+								
+								microorganismCell.setHorizontalAlignment(Element.ALIGN_LEFT);
+								
+								// Creates a new phrase for the result name 
+								Phrase resultNamePhrase = new Phrase();
+								// If the result needs to have a strikeout, sets it, otherwise uses normal font
+								if (ceStrikeout) {
+									resultNamePhrase.setFont(strikeoutFont);
+								} else {
+									resultNamePhrase.setFont(commentFont);
+								}
+								
+								// Adds the result name to the phrase
+								resultNamePhrase.add(childResult.getName());
+								// If the result status message is not empty, the result is not final and adds the message in red beside the result
+								if (!resultStatusMessage.isEmpty()) {
+									resultNamePhrase.setFont(commentRedFont);
+									resultNamePhrase.add("(" + resultStatusMessage + ")");
+								}
+								// Adds the phrase to the cell and adds the cell to the ceTable
+								microorganismCell.setPhrase(resultNamePhrase);
+								ceTable.addCell(microorganismCell);
+								
+								microorganismCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+								OLISLabPDFUtils.addAllCellsToTable(ceTable, OLISLabPDFUtils.createCellsFromHl7(childResult.getSensitivity(), (ceStrikeout ? strikeoutFont : commentFont), microorganismCell));
+
+								// If the child OBR has susceptibility, adds susceptibility to the result display
+								if (displaySusceptibility) {
+									OLISLabPDFUtils.addAllCellsToTable(ceTable, OLISLabPDFUtils.createCellsFromHl7(childResult.getSusceptibility(), (ceStrikeout ? strikeoutFont : commentFont), microorganismCell));
+								}
+
+								
+								if (commentCount > 0) {
+									microorganismCell.setColspan(2);
+									microorganismCell.setHorizontalAlignment(Element.ALIGN_LEFT);
+									for (int commentIndex = 0; commentIndex < commentCount; commentIndex++) {
+										if (currentRow == childResults.size() && commentIndex == commentCount - 1) {
+											microorganismCell.setBorder(14);
+										}
+										OLISLabPDFUtils.addAllCellsToTable(ceTable, OLISLabPDFUtils.createCellsFromHl7(handler.getOBXCommentNoFormat(childOBR, childResult.getIndex(), commentIndex) + " " + handler.getOBXSourceOrganization(childOBR, childResult.getIndex(), commentIndex), commentFont, microorganismCell));
+										
+									}
+									
+									microorganismCell.setColspan(1);
+								}
+								microorganismCell.setHorizontalAlignment(Element.ALIGN_LEFT);
+								currentRow++;
 							}
 							
 							//Adds the ceTable to the main table

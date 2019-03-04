@@ -45,6 +45,7 @@ import org.oscarehr.olis.dao.OlisMicroorganismNomenclatureDao;
 import org.oscarehr.olis.model.OLISFacilities;
 import org.oscarehr.olis.model.OLISRequestNomenclature;
 import org.oscarehr.olis.model.OLISResultNomenclature;
+import org.oscarehr.olis.model.OlisLabChildResultSortable;
 import org.oscarehr.olis.model.OlisLabRequestSortable;
 import org.oscarehr.olis.model.OlisLabResultSortable;
 import org.oscarehr.olis.model.OlisMicroorganismNomenclature;
@@ -75,6 +76,7 @@ public class OLISHL7Handler implements MessageHandler {
 	protected Message msg = null;
 	protected Terser terser;
 	protected ArrayList<ArrayList<Segment>> obrGroups = null;
+	private List<List<String>> zbxSortKeys = null;
 	private ArrayList<String> obrSpecimenSource;
 	private ArrayList<JSONObject> obrHeaders;
 	private ArrayList<String> obrStatus;
@@ -82,6 +84,7 @@ public class OLISHL7Handler implements MessageHandler {
 	private List<String> microorganismCodes = new ArrayList<>();
 	private int obrCount = 0;
 	private HashMap<String, String> defaultSourceOrganizations;
+	private Map<Integer, Boolean> obrChildResultSusceptibilities = new HashMap<>(); 
 	
 	private String reportStatus = "";
 	private String reportStatusDescription = "Final";
@@ -843,8 +846,10 @@ public class OLISHL7Handler implements MessageHandler {
             if (childObrMap != null) {
                 // Gets the OBX parent id from OBX.4
                 String obxParentId = StringUtils.trimToEmpty(getOBXCEParentId(obr, obx));
-                // Get the corresponding index of the child OBR
-                childObrIndex = childObrMap.get(obxParentId);
+                if (childObrMap.get(obxParentId) != null) {
+					// Get the corresponding index of the child OBR
+					childObrIndex = childObrMap.get(obxParentId);
+				}
             }
 		} catch (Exception e) {
 			logger.error("Could not get child OBR for the given OBR and OBX: " + obr + " " + obx);
@@ -963,6 +968,7 @@ public class OLISHL7Handler implements MessageHandler {
 		String segmentName;
 		String[] segments = terser.getFinder().getRoot().getNames();
 		obrGroups = new ArrayList<ArrayList<Segment>>();
+		zbxSortKeys = new ArrayList<List<String>>();
 		int k = 0;
 
 		// We only need to parse a few segments if there are no OBRs.
@@ -980,6 +986,7 @@ public class OLISHL7Handler implements MessageHandler {
 		}
 		for (int i = 0; i < this.obrCount; i++) {
 			ArrayList<Segment> obxSegs = new ArrayList<Segment>();
+			ArrayList<String> zbxSegments = new ArrayList<>();
 
 			headers.add(getOBRName(i));
 			obrNum = i + 1;
@@ -1011,6 +1018,15 @@ public class OLISHL7Handler implements MessageHandler {
 							}
 						}
 
+					} else if (obrFlag && segmentName.equals("ZBX")) {
+						// Gets the segments for the current index
+						Structure[] segs = terser.getFinder().getRoot().getAll(segments[k]);
+						// For each segment, get the ZBX sort key and add it to the segments list
+						for (Structure seg : segs) {
+							Segment zbxSeg = (Segment) seg;
+							String zbxSortKey = StringUtils.trimToEmpty(Terser.get(zbxSeg, 2, 0, 1, 1));
+							zbxSegments.add(zbxSortKey);
+						}
 					} else if (obrFlag && segmentName.equals("OBR")) {
 						break;
 					} else if (segments[k].equals("OBR" + obrNum) || (obrNum == 1 && segments[k].equals("OBR"))) {
@@ -1085,6 +1101,8 @@ public class OLISHL7Handler implements MessageHandler {
 				}
 			}
 			obrGroups.add(obxSegs);
+			// Adds the ZBX sort keys to the sortKeys list for the current OBR
+			zbxSortKeys.add(zbxSegments);
 		}
 		obxSortMap = new HashMap<Integer, List<OlisLabResultSortable>>();
 		obrSortMap = new HashMap<Integer, OlisLabRequestSortable>();
@@ -3591,7 +3609,67 @@ public class OLISHL7Handler implements MessageHandler {
         
         return parentId;
     }
-    
+
+	/**
+	 * Gets the child results for the given OBR, sorted based on the ZBR.2 sort key
+	 * @param childObr The child OBR to get the results for
+	 * @return A sorted list of OlisLabchildResultSortable objects, filled out with all needed information
+	 */
+	public List<OlisLabChildResultSortable> getChildObrResults(int childObr) {
+		boolean hasSusceptibility = false;
+    	List<OlisLabChildResultSortable> childResults = new ArrayList<>();
+    	// Gets the count of results for the child OBR
+		int childLength = getOBXCount(childObr);
+		// Gets the list of sort keys for the child OBR
+		List<String> sortKeys = zbxSortKeys.get(childObr);
+		// Loops through for each OBX
+		for (int obx = 0; obx < childLength; obx++) {
+			// Gets the OBX status
+			String status = getOBXResultStatus(childObr, obx);
+			// Gets the OBX Name
+			String name = getOBXName(childObr, obx);
+			// Gets the OBX sensitivity
+			String sensitivity = getOBXCESensitivity(childObr, obx);
+			// Gets the comment count
+			int commentCount = getOBXCommentCount(childObr, obx);
+			// Gets the OBX susceptibility
+			String susceptibility = getObxSusceptibility(childObr, obx);
+			// If susceptibility is not empty, sets the boolean to true
+			if (!susceptibility.isEmpty()) {
+				hasSusceptibility = true;
+			}
+			// Creates a new child result sortable and adds it to the list to be sorted
+			OlisLabChildResultSortable childResult = new OlisLabChildResultSortable(obx, status, name, sensitivity, commentCount, sortKeys.get(obx), susceptibility);
+			childResults.add(childResult);
+		}
+		// Adds the status of susceptibility to the map
+		obrChildResultSusceptibilities.put(childObr, hasSusceptibility);
+		// Sorts the child result sortables
+		Collections.sort(childResults, OlisLabChildResultSortable.CHILD_RESULT_COMPARATOR);
+		
+    	return childResults;
+	}
+
+	/**
+	 * Gets the value in the field for Susceptibility for OBX, OBX.8
+	 * @param obr The OBR the obx falls under
+	 * @param obx The OBX to check
+	 * @return A string of the susceptibility, blank if there is none
+	 */
+	private String getObxSusceptibility(int obr, int obx) {
+		return getOBXField(obr, obx, 8, 0, 1);
+	}
+
+	/**
+	 * Checks the susceptibility map for if the OBR should display the susceptibility column or not. This functon should be called after getChildObrResults as that is where the childObr is added to 
+	 * the map
+	 * @param childObr The child OBR to check 
+	 * @return {@code: true} if the susceptibility column should be displayed, {@code: false} if not
+	 */
+	public boolean checkChildObrHasSusceptibility(int childObr) {
+		return obrChildResultSusceptibilities.getOrDefault(childObr, false);
+	}
+	
 	public class OLISError {
 		public OLISError(String segment, String sequence, String field, String indentifer, String text) {
 			super();
