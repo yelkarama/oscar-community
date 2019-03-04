@@ -76,11 +76,13 @@ import org.oscarehr.common.dao.EFormDao.EFormSortOrder;
 import org.oscarehr.common.dao.EFormDataDao;
 import org.oscarehr.common.dao.EFormGroupDao;
 import org.oscarehr.common.dao.EFormValueDao;
+import org.oscarehr.common.dao.OscarAppointmentDao;
 import org.oscarehr.common.dao.ProfessionalSpecialistDao;
 import org.oscarehr.common.dao.PropertyDao;
 import org.oscarehr.common.dao.SecRoleDao;
 import org.oscarehr.common.dao.TicklerDao;
 import org.oscarehr.common.model.AbstractModel;
+import org.oscarehr.common.model.Appointment;
 import org.oscarehr.common.model.ConsultationRequest;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.EFormData;
@@ -1290,17 +1292,24 @@ public class EFormUtil {
 		EFormValue rtlContentData  = eFormValueDao.findByFormDataIdAndKey(eformData.getId(), "Letter");
 		EFormValue providerNoData = eFormValueDao.findByFormDataIdAndKey(eformData.getId(), "providerNo");
 
-		if (rtlContentData != null && providerNoData != null) {
+		if (rtlContentData != null) {
 			// Gets the values of the rtlContent and providerNo extensions
 			String rtlContent = rtlContentData.getVarValue();
-			String providerNo = providerNoData.getVarValue();
 			// Gets the provider associated with the stored provider number
-			Provider provider = providerDao.getProvider(providerNo);
-			if (provider != null && demographic != null) {
+			Provider provider = null;
+			if (providerNoData != null && providerNoData.getVarValue() != null) {
+				String providerNo = providerNoData.getVarValue();
+				provider = providerDao.getProvider(providerNo);
+			} else {
+				String errorMessage = "The providerNo property associated with eform " + eformData.getId() + " does not exist. The printed template will not be routed to a patient";
+				logger.warn(errorMessage);
+			}
+			
+			if (demographic != null) {
 				// Creates a new output stream for writing the pdf to
 				try (OutputStream os = new FileOutputStream(tempFile)) {
 					// Prepares the RTL template
-					String templateUri = prepareTemplate(eformData.getId().toString(), rtlContent, provider, demographic);
+					String templateUri = prepareTemplate(eformData, rtlContent, provider, demographic);
 					if (!templateUri.isEmpty()) {
 						// Creates the renderer and creates the PDF using the populated template at the given uri
 						ITextRenderer renderer = new ITextRenderer();
@@ -1308,24 +1317,20 @@ public class EFormUtil {
 						renderer.layout();
 						renderer.createPDF(os);
 						if (!skipAddToChart) {
-                            // Saves the RTL to the patient and adds a routes the pdf to the provider
-                            EDocUtil.saveRtlToPatient(tempFile, provider, demographic, eformData.getAppointmentNo(), request);
-                        }
+							// Saves the RTL to the patient and adds a routes the pdf to the provider
+							EDocUtil.saveRtlToPatient(tempFile, provider, demographic, eformData.getAppointmentNo(), request);
+						}
 					}
 				} catch (DocumentException e) {
 					logger.error("Could not generate the rich text letter with the id " + eformData.getId(), e);
 					throw e;
 				}
 			} else {
-				String errorMessage = provider == null ? "The providerNo property associated with eform " + eformData.getId() + " does not exist" : "";
-				if (demographic == null) {
-					errorMessage += errorMessage.length() > 0 ? System.lineSeparator() : "";
-					errorMessage += "The demographic associated with the id " + eformData.getDemographicId() + " for the eform id " + eformData.getId() + " could not be found";
-				}
+				String errorMessage = "The demographic associated with the id " + eformData.getDemographicId() + " for the eform id " + eformData.getId() + " could not be found";
 				throw new RuntimeException(errorMessage);
 			}
 		} else {
-			String errorMessage = "Eform " + eformData.getId() + " must have associated 'Letter' and 'providerNo' values in the eform_values table";
+			String errorMessage = "Eform " + eformData.getId() + " must have an associated 'Letter' value in the eform_values table";
 			throw new RuntimeException(errorMessage);
 		}
 	}
@@ -1334,15 +1339,16 @@ public class EFormUtil {
 	 * Prepares the template for RTL printing using FlyingSaucer's XML to PDF generation. 
 	 * Sets various predetermined tags to their associated data
 	 *
-	 * @param formId Id of the form that will be printed
+	 * @param eformData eformData for the eform that is being printed
 	 * @param rtl Content of the RTL that was created
 	 * @param provider Provider associated with the RTL
 	 * @param demographic Demographic associated with the RTL
 	 * @return Uri of the populated uri's temporary file
 	 * @throws IOException Thrown when the populated template could not be saved as a file
 	 */
-	private static String prepareTemplate(String formId, String rtl, Provider provider, Demographic demographic) throws IOException {
+	private static String prepareTemplate(EFormData eformData, String rtl, Provider provider, Demographic demographic) throws IOException {
 		PropertyDao propertyDao = SpringUtils.getBean(PropertyDao.class);
+        OscarAppointmentDao appointmentDao = SpringUtils.getBean(OscarAppointmentDao.class);
 		String letterUri = "";
 
 		// Gets the path for the template file
@@ -1356,14 +1362,31 @@ public class EFormUtil {
 		rtlTemplate = rtlTemplate.replaceAll("\\$\\{rtlBody}", rtl);
 
 		// Replaces field in the header with the appropriate data
-		rtlTemplate = rtlTemplate.replaceAll("\\$\\{formattedPatientName}", demographic.getFormattedName());
-		rtlTemplate = rtlTemplate.replaceAll("\\$\\{formattedDob}", demographic.getFormattedDob());
-		rtlTemplate = rtlTemplate.replaceAll("\\$\\{fullProviderName}", provider.getFullName());
-		rtlTemplate = rtlTemplate.replaceAll("\\$\\{credentials}", provider.getCredentials());
-		rtlTemplate = rtlTemplate.replaceAll("\\$\\{specialty}", provider.getSpecialty());
+		if (demographic != null) {
+			rtlTemplate = rtlTemplate.replaceAll("\\$\\{formattedPatientName}", demographic.getFormattedName());
+			rtlTemplate = rtlTemplate.replaceAll("\\$\\{formattedDob}", demographic.getFormattedDob());
+		}
+		if (provider != null) {
+			rtlTemplate = rtlTemplate.replaceAll("\\$\\{fullProviderName}", provider.getFullName());
+			rtlTemplate = rtlTemplate.replaceAll("\\$\\{credentials}", provider.getCredentials());
+			rtlTemplate = rtlTemplate.replaceAll("\\$\\{specialty}", provider.getSpecialty());
+		}
+		
+		// If the template has a placeholder for the appointment date, 
+		if (rtlTemplate.contains("${appointment_date}")) {
+		    // Gets the appointment related to the eform
+            Appointment appointment = appointmentDao.find(eformData.getAppointmentNo());
+            if (appointment != null && appointment.getAppointmentDate() != null) {
+				// Replaces the appointment date placeholder in the RTL template
+				rtlTemplate = rtlTemplate.replaceAll("\\$\\{appointment_date}", appointment.getAppointmentDate().toString());
+			}
+        }
 
+		// Removes any remaining tags that haven't been populated
+		rtlTemplate = rtlTemplate.replaceAll("\\$\\{.*?}", "");
+		
 		// Creates a temporary file for the populated template
-		File populatedTemplate = File.createTempFile("eform." + formId + ".header", ".html");
+		File populatedTemplate = File.createTempFile("eform." + eformData.getId() + ".header", ".html");
 
 		// Creates a writer to write the pdf to in UTF-8 encoding
 		try (Writer tempFile = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(populatedTemplate), StandardCharsets.UTF_8))) {

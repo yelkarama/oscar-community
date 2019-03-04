@@ -1256,8 +1256,11 @@ public final class EDocUtil {
 	public static void saveRtlToPatient(File file, Provider provider, Demographic demographic, Integer appointmentNo, HttpServletRequest request) {
 		SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
 		int numberOfPages = 0;
-		String user = provider.getProviderNo();
-
+		String user = "";
+		if (provider != null) {
+			user = provider.getProviderNo();
+		}
+		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
 		SystemPreferences documentTypePreference = systemPreferencesDao.findPreferenceByName("rtl_template_document_type");
 		String documentType = "";
 		if (documentTypePreference != null && documentTypePreference.getValue() != null) {
@@ -1269,7 +1272,7 @@ public final class EDocUtil {
 		// Creates source and destination paths to move the file
 		Path source = Paths.get(file.getPath());
 		Path destination = Paths.get(oscar.OscarProperties.getInstance().getProperty("DOCUMENT_DIR") + "/" + fileName);
-		String description = provider.getProviderNo() + " RTL " + fileName.substring(fileName.indexOf(".") + 1, fileName.lastIndexOf("."));
+		String description = user + " RTL " + fileName.substring(fileName.indexOf(".") + 1, fileName.lastIndexOf("."));
 		
 		try {
 			// Copies the file to the destination
@@ -1282,7 +1285,7 @@ public final class EDocUtil {
 			logger.error("An error occurred when trying to copy the letter pdf to the document directory and counting the pages.");
 		}
 
-		EDoc newDoc = new EDoc(description, documentType, fileName, "", user, user, "", 'A', org.oscarehr.util.DateUtils.getIsoDate(GregorianCalendar.getInstance()), "",
+		EDoc newDoc = new EDoc(description, documentType, fileName, "", loggedInInfo.getLoggedInProviderNo(), user, "", 'A', org.oscarehr.util.DateUtils.getIsoDate(GregorianCalendar.getInstance()), "",
 				"", "demographic", demographic.getDemographicNo().toString(), numberOfPages);
 		// Sets the appointment number
 		newDoc.setAppointmentNo(appointmentNo);
@@ -1313,8 +1316,10 @@ public final class EDocUtil {
 		patientLabRoutingDao.persist(patientLabRouting);
 
 		// Adds the document to the provider's inbox
-		ProviderInboxRoutingDao providerInboxRoutingDao = SpringUtils.getBean(ProviderInboxRoutingDao.class);
-		providerInboxRoutingDao.addToProviderInbox(provider.getProviderNo(), Integer.parseInt(doc_no), "DOC");
+		if (provider != null) {
+			ProviderInboxRoutingDao providerInboxRoutingDao = SpringUtils.getBean(ProviderInboxRoutingDao.class);
+			providerInboxRoutingDao.addToProviderInbox(provider.getProviderNo(), Integer.parseInt(doc_no), "DOC");
+		}
 	}
 
 	}
