@@ -254,8 +254,11 @@ function scScriptAttachNew(elementName) {
         '       <a href="javascript:ScriptAttach(\'dxCode'+ row +'\')" class="btn"><i class="icon icon-search"></i></a>' +
         '   </div>' +
         '</td>' +
-        '<td><input type="hidden" name="xml_billing_unit'+ row +'" value=""> ' +
-        '<input type="text" style="width: 100%" name="billingunit'+ row +'" value="1" size="5" maxlength="4" /></td>' +
+        '<td class="control-group">' +
+        '<input type="hidden" name="xml_billing_unit'+ row +'" value="">' +
+        '<input type="text" style="width: 100%" id="billingunit'+ row +'" name="billingunit'+ row +'" value="1" size="5" maxlength="4" onchange="validateInt(this)" onblur="validateInt(this)" />' +
+        '<label id="billingunit'+ row +'_error" class="control-label" for="billingunit'+ row +'" style="display:none;font-size:x-small">Must be a whole number</label>' +
+        '</td>' +
         '<td align="right"><input type="hidden" name="xml_billing_amount'+ row +'" value="<">' +
         '<input type="text" style="width: 100%" size="5" maxlength="7" id="billingamount'+ row +'" name="billingamount'+ row +'" value="" onblur="parseTwoDecimalPlaces(this)" onchange="javascript:validateNum(this)"></td>' +
         '<td style="text-align: center"><input type="checkbox" name="itemStatus'+ row +'" id="itemStatus'+ row +'" value="S"></td>' +
@@ -278,6 +281,24 @@ function search3rdParty(elementName) {
     var d = elementName;
     t0 = escape("document.forms[1].elements[\'"+d+"\'].value");
     popupPage('600', '700', 'onSearch3rdBillAddr.jsp?param='+t0);
+}
+
+function validateInt(el) {
+    let thirdParty = ($("#payProgram").val() === "PAT");
+    if (!thirdParty && el != null) {
+        let elName = el.name;   // element name
+        let error = $("#"+ elName + "_error"); // error field
+        let parent = $(el).parent('td');  // parent field jQuery(this).parent().addClass('yourClass');
+        let val = el.value;     // element vlaue
+        
+        if (val != null && val.trim() !== ''  && !Number.isInteger(val)) {
+            parent.addClass('error');
+            error.show();
+        } else {
+            parent.removeClass('error');
+            error.hide();
+        }
+    }
 }
 
 function validateNum(el){
@@ -1144,9 +1165,10 @@ for (ClinicNbr clinic : nbrs) {
             <a href="javascript:ScriptAttach('dxCode<%=rowCount-1%>')" class="btn"><i class="icon icon-search"></i></a>
         </div>
     </td>
-    <td>
+    <td class="control-group">
         <input type="hidden" name="xml_billing_unit<%=rowCount-1%>" value="<%=billingunit%>">
-        <input type="text" style="width: 100%" name="billingunit<%=rowCount-1%>" value="<%=billingunit%>" size="5" maxlength="4" />
+        <input type="text" style="width: 100%" id="billingunit<%=rowCount-1%>" name="billingunit<%=rowCount-1%>" value="<%=billingunit%>" size="5" maxlength="4" onchange="validateInt(this)" onblur="validateInt(this)" />
+        <label id="billingunit<%=rowCount-1%>_error" class="control-label" for="billingunit<%=rowCount-1%>" style="display:none;font-size:x-small">Must be a whole number</label>
     </td>
     <td align="right">
         <input type="hidden" name="xml_billing_amount<%=rowCount-1%>" value="<%=billAmount%>">

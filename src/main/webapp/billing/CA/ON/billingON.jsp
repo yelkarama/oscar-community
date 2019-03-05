@@ -659,6 +659,7 @@
 </script>
 <script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-3.1.0.min.js"></script>
 <script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery.maskedinput.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath() %>/js/global.js"></script>	
 <script type="application/javascript">
 	var jQuery_3_1_0 = jQuery.noConflict(true);
 </script>
@@ -1041,6 +1042,28 @@ function validateEmail(email)
 {
     var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(email);
+}
+
+function checkServiceUnit(serviceUnitField){
+	let thirdParty = (document.forms[0].xml_billtype.value.substring(0, 3) === "PAT");
+	let fieldName = serviceUnitField.name;
+	
+	if (!thirdParty && serviceUnitField != null && !validateInteger(serviceUnitField.value)) {
+		document.getElementById(fieldName + "_error").show();
+		serviceUnitField.select();
+	} else {
+		document.getElementById(fieldName + "_error").hide();
+	}
+}
+
+function validateInteger(number) {
+	var valid = true;
+
+	if (number != null && number.trim() !== "") {
+		valid = Number.isInteger(number);
+	}
+
+	return valid;
 }
 
 function onChangePrivate() {
@@ -1599,13 +1622,14 @@ if(checkFlag == null) checkFlag = "0";
 												       code = billingServiceSchedule.get(i).getServiceCode();
 													}
 											%>
+											<span class="myErrorText" id="serviceUnit<%=i%>_error" style="display: none;">Service Unit must be whole numbers only.<br/></span>
 											<input type="text" name="serviceCode<%=i%>" size="4"
 											maxlength="15"
 											value="<%=code%>"
 											onDblClick="scScriptAttach(this)" onBlur="upCaseCtrl(this)" />x
 											<input type="text" name="serviceUnit<%=i%>" size="2"
 											maxlength="4" style="width: 20px;"
-											value="<%=request.getParameter("serviceUnit"+i)!=null?request.getParameter("serviceUnit"+i):""%>" />@
+											value="<%=request.getParameter("serviceUnit"+i)!=null?request.getParameter("serviceUnit"+i):""%>" onblur="checkServiceUnit(this)" />@
 											<input type="text" name="serviceAt<%=i%>" size="3"
 											maxlength="4" style="width: 30px"
 											value="<%=request.getParameter("serviceAt"+i)!=null?request.getParameter("serviceAt"+i):""%>" /><br />
