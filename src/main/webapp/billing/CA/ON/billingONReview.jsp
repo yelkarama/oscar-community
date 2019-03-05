@@ -1378,10 +1378,8 @@ function validateItems(){
 			break;
 		}
 	}
-	
 	<% if (!disableAddToRegistry) { %>
-	if (!ret) alert("Error: Nothing was selected");
-	else ret = confirm("Are you sure to add to the patient's disease registry?");
+	if (ret) ret = confirm("Are you sure to add to the patient's disease registry?");
 	<% } %>
 	return ret;
 }
