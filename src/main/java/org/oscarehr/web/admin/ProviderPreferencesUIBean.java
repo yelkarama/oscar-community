@@ -98,12 +98,13 @@ public final class ProviderPreferencesUIBean {
 				providerPreference.setDefaultDoNotDeleteBilling(defBilling);
 			}
 		}
-		
-		// default billing dxCode
-		// Ronnie 2017-06-06: Allow empty string to remove unwanted setting
-		temp = StringUtils.trimToEmpty(request.getParameter("dxCode"));
-		providerPreference.setDefaultDxCode(temp);
-		
+
+		if (request.getParameter("dxCode") != null) {
+			// default billing dxCode
+			// Ronnie 2017-06-06: Allow empty string to remove unwanted setting
+			temp = StringUtils.trimToEmpty(request.getParameter("dxCode"));
+			providerPreference.setDefaultDxCode(temp);
+		}
 		
 		// rest
 		temp = StringUtils.trimToNull(request.getParameter("start_hour"));
