@@ -23,6 +23,7 @@ public class OlisLabResults {
     public OlisLabResults() { }
 
     public List<OlisLabResultDisplay> getResultList() {
+        Collections.sort(resultList, OlisLabResultDisplay.OLIS_LAB_RESULT_DISPLAY_COMPARATOR);
         return resultList;
     }
     public void setResultList(List<OlisLabResultDisplay> resultList) {

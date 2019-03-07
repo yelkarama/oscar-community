@@ -302,4 +302,42 @@ public class OlisLabResultDisplay {
         
         return results;
     }
+    /**
+     * The order and priority that is achieved is as follows: 
+     * 1. Collection Date/Time
+     * 2. Request Placer Group Number
+     * 3. Request ZBR11 Sort Key
+     * 4. Request Nomenclature Alternate Name 1
+     * 5. Request Set Id
+     */
+    public static final Comparator<OlisLabResultDisplay> OLIS_LAB_RESULT_DISPLAY_COMPARATOR = new Comparator<OlisLabResultDisplay>() {
+        @Override
+        public int compare(OlisLabResultDisplay o1, OlisLabResultDisplay o2) {
+            // Compares the collection dates, using o2 as the basis in order to order it in reverse chronological
+            // If They are the same value, continues comparing other elements to determine order
+            int compared = o2.getCollectionDateAsDate().compareTo(o1.getCollectionDateAsDate());
+            if (compared == 0) {
+                // Compares placer group numbers, continuing to compare other attributes if they are the same
+                compared = o1.getPlacerGroupNo().compareTo(o2.getPlacerGroupNo());
+                if (compared == 0) {
+                    // Compares the ZBR11 sort key, continuing to compare other attributes if they are the same
+                    compared = o1.getTestRequestZbr11().compareTo(o2.getTestRequestZbr11());
+                    if (compared == 0) {
+                        // Compares the nomenclature sort keys, continuing to compare other attributes if they are the same
+                        compared = o1.getNomenclature().getSortKey().compareTo(o2.getNomenclature().getSortKey());
+                        if (compared == 0) {
+                            // Compares the alternate names stored in the nomenclature, continuing to compare other attributes if they are the same
+                            compared = o1.getNomenclature().getRequestAlternateName1().compareTo(o2.getNomenclature().getRequestAlternateName1());
+                            if (compared == 0) {
+                                // Compares the set ids to determine order
+                                compared = Integer.compare(o1.getObrSetId(), o2.getObrSetId());
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return compared;
+        }
+    };
 }
