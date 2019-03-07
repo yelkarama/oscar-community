@@ -1625,6 +1625,9 @@
 		<action input="/oscarReport/oscarReportFluBilling.jsp" name="RptFluBillingForm" path="/oscarReport/FluBilling" scope="request" type="oscar.oscarReport.pageUtil.RptFluBillingAction">
 			<forward name="success" path="/oscarReport/oscarReportFluBilling.jsp" />
 		</action>
+        <action input="/oscarReport/reportindex.jsp" path="/oscarReport/PrintPdfAction" scope="request" type="oscar.oscarReport.pageUtil.PrintPdfAction">
+            <forward name="failure" path="/errorpage.jsp" />
+        </action>
 		<action input="/oscarReport/RptByExample.jsp" name="RptByExampleForm" path="/oscarReport/RptByExample" scope="request" type="oscar.oscarReport.pageUtil.RptByExampleAction">
 			<forward name="success" path="/oscarReport/RptByExample.jsp" />
 		</action>

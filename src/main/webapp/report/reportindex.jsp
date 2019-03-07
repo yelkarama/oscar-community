@@ -52,6 +52,9 @@ String billingRegion = (oscar.OscarProperties.getInstance()).getProperty("billre
 <%@ page
 	import="java.util.*, oscar.*, java.sql.*, java.text.*, java.net.*"
 	errorPage="../appointment/errorpage.jsp"%>
+<%@ page import="org.oscarehr.util.SpringUtils" %>
+<%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
+<%@ page import="org.oscarehr.common.model.Provider" %>
 <jsp:useBean id="reportMainBean" class="oscar.AppointmentMainBean"
 	scope="session" />
 <%  if(!reportMainBean.getBDoConfigure()) { %>
@@ -66,6 +69,7 @@ String billingRegion = (oscar.OscarProperties.getInstance()).getProperty("billre
 
 <%
 
+	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 	
     boolean isSiteAccessPrivacy=false;
     boolean isTeamAccessPrivacy=false; 
@@ -635,7 +639,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
             	%> <bean:message key="report.reportindex.msgStart"/>: <input name="nsdate" type="input" size="8"
 			id="NoShowDate" <%=NoShowEDate%>> <a HREF="#"
 			onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=<%=request.getContextPath()%>/report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('nsdate')[0].value")%>')"><img
-			title=Calendar " src="../images/cal.gif" alt="Calendar" border="0"><a>
+			title=Calendar" src="../images/cal.gif" alt="Calendar" border="0"><a>
 
 
 
@@ -854,6 +858,35 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 
     </tr>      
 </security:oscarSec>
+	<% if (OscarProperties.getInstance().getBooleanProperty("echart_show_progress_sheet", "true")) { %>
+		<tr>
+			<td width="2"><%=j%><%j++;%></td>
+			<td width="1"></td>
+			<td width="300">
+				<a href="javascript:void(0);" onclick="window.open('../oscarReport/PrintPdfAction.do?method=psRxBillingPrint&providerNo=' + document.getElementById('ps_provider_no').value + '&forDate=' + document.getElementById('ps_for_date').value)">
+					<bean:message key="admin.admin.psRxPrintout" />
+				</a>
+			</td>
+			<td>
+				<select id="ps_provider_no" name="ps_provider_no">
+					<option value="all"><bean:message key="report.reportindex.formAllProviders" /></option>
+					<% for (Provider provider : providerDao.getActiveProvidersByTypes(Collections.singletonList("doctor"))) { %>
+					<option value="<%=provider.getProviderNo()%>" <%=curUser_no.equals(provider.getProviderNo())?"selected=\"selected\"":""%>>
+						<%=provider.getLastName()%>, <%=provider.getFirstName()%>
+					</option>
+					<% } %>
+				</select>
+			</td>
+			<td>
+				<label>For Date: 
+					<input name="ps_for_date" type="input" id="ps_for_date" size="8" value="<%=today%>"/>
+				</label>
+				<a HREF="#" onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=../report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('ps_for_date')[0].value")%>')">
+					<img title=Calendar" src="../images/cal.gif" alt="Calendar" border="0">
+				</a>
+			</td>
+		</tr>
+	<% } %>
 
     <tr><td>&nbsp;</td></tr>
     <tr>
@@ -863,6 +896,6 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
         <td></td>
     </tr>
 </table>
-</body>
 </form>
+</body>
 </html:html>

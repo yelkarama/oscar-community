@@ -250,11 +250,18 @@ public class OscarAppointmentDao extends AbstractDao<Appointment> {
 		Query query = entityManager.createQuery(sql);
 		query.setParameter(1, date);
 		query.setParameter(2, status);
-		
 		List<Appointment> rs = query.getResultList();
-
 		return rs;
 	}
+	
+    public List<Appointment> findByDayAndStatusNot(Date date, String status) {
+        String sql = "SELECT a FROM Appointment a WHERE a.appointmentDate = ? and a.status != ?";
+        Query query = entityManager.createQuery(sql);
+        query.setParameter(1, date);
+        query.setParameter(2, status);
+        List<Appointment> rs = query.getResultList();
+        return rs;
+    }
 
 	public List<Appointment> find(Date date, String providerNo,Date startTime, Date endTime, String name,
 			String notes, String reason, Date createDateTime, String creator, Integer demographicNo) {
