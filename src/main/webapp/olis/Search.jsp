@@ -322,7 +322,7 @@
 			</td>
 		</tr><tr>
 			<th width="20%">Observation Date &amp; Time Period<br />(yyyy-mm-dd)</th>
-			<td width="30%"><input style="width:150px;" type="text" name="observationStartTimePeriod" id="observationStartTimePeriod" > to <input style="width:150px" name="obsevationEndTimePeriod" type="text" id="observationEndTimePeriod" ></td>
+			<td width="30%"><input style="width:150px;" type="text" name="observationStartTimePeriod" id="observationStartTimePeriod" > to <input style="width:150px" name="observationEndTimePeriod" type="text" id="observationEndTimePeriod" ></td>
 		</tr>
 		<tr>
 			<th width="20%"><input class="checkbox" type="checkbox" name="quantityLimitedQuery" id="quantityLimitedQuery"> Quantity Limit?</th>
