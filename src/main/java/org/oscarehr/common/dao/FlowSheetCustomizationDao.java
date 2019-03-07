@@ -106,7 +106,11 @@ public class FlowSheetCustomizationDao extends AbstractDao<FlowSheetCustomizatio
         LinkedHashMap<String, FlowSheetCustomization> resultMap = new LinkedHashMap<String, FlowSheetCustomization>();
         
         for (FlowSheetCustomization result : resultList) {
-            resultMap.put(result.getMeasurement(), result);
+            if (result.getMeasurement() != null) {
+                resultMap.put(result.getMeasurement(), result);
+            } else if (result.getPayload() != null) {
+                resultMap.put(result.getPayload(), result);
+            }
         }
         return resultMap;
     }
