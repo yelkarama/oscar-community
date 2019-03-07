@@ -292,6 +292,7 @@ public class OlisLabResultDisplay {
                     result.setParentLab(labResult);
                     result.getComments().add(comment);
                     result.setBlocked(isBlocked);
+                    result.setResultSortable(new OlisLabResultSortable());
                     labResult.getMeasurements().add(result);
                 }
             }

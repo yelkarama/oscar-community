@@ -4,13 +4,13 @@ import java.util.Comparator;
 import java.util.Date;
 
 public class OlisLabResultSortable {
-    private Integer setId;
-    private String subId;
+    private Integer setId = 0;
+    private String subId = "";
     private String nomenclatureSortKey = "";
     private String alternateName = "";
     private boolean isAncillary = false;
-    private Date releaseDate;
-    private String zbxSortKey;
+    private Date releaseDate = new Date();
+    private String zbxSortKey = "";
 
     public OlisLabResultSortable() {
     }

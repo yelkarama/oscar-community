@@ -903,8 +903,14 @@ public class OLISHL7Handler implements MessageHandler {
 	public OlisLabResultSortable getObxSortable(int obr, int obx) {
 		// Gets the list of sorted results for the given obr
 		List<OlisLabResultSortable> obxResults = obxSortMap.get(obr);
+		OlisLabResultSortable resultSortable;
+		if (obxResults != null && obxResults.size() > 0) {
+			resultSortable = obxResults.get(obx);
+		} else {
+			resultSortable = new OlisLabResultSortable();
+		}
 		
-		return obxResults.get(obx);
+		return resultSortable;
 	}
 	
 	HashMap<Integer, Segment> obrDiagnosis;
