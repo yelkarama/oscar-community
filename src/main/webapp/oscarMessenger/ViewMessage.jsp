@@ -63,6 +63,7 @@ if (request.getParameter("bFirstDisp")!=null) bFirstDisp= (request.getParameter(
 %>
 <%@ page 
 	import="oscar.oscarDemographic.data.*, java.util.Enumeration"%>
+<%@ page import="java.util.Date" %>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -509,6 +510,7 @@ function fmtOscarMsg() {
 								UserProperty oldEchartLink = propDao.getProp(curUser_no, UserProperty.HIDE_OLD_ECHART_LINK_IN_APPT);
 								if (oldEchartLink!=null && "Y".equals(oldEchartLink.getValue())) showOldEchartLink = false;
 								CaseManagementNoteDAO caseManagementNoteDAO = SpringUtils.getBean(CaseManagementNoteDAO.class);
+								Date createDate = new Date();
 							if (showOldEchartLink) {
                                                             String params = "";
                                                             String msgType = (String)request.getAttribute("msgType");
@@ -533,6 +535,7 @@ function fmtOscarMsg() {
                                                                                      else {
                                                                                          note_id = String.valueOf(noteList.get(noteList.size()-1).getId());
                                                                                      }
+                                                                                 createDate = note.getCreate_date();
                                                                                  }
                                                                                 
                                                                                 params = "&appointmentNo=" + (val[0].equalsIgnoreCase("null") ? "" :  val[0]) +"&msgType=" + msgType + "&OscarMsgTypeLink="+val[1]+"&noteId="+note_id;
@@ -586,10 +589,9 @@ function fmtOscarMsg() {
 						</tr>
 						<tr>
 							<td bgcolor="#EEEEFF"></td>
-							<td bgcolor="#EEEEFF"><a
-								href="javascript:popupStart(400,850,'../demographic/demographiccontrol.jsp?demographic_no=<%=demoID%>&last_name=<%=demoLastName%>&first_name=<%=demoFirstName%>&orderby=appointment_date&displaymode=appt_history&dboperation=appt_history&limit1=0&limit2=25','ApptHist')"
-								title="Click to see appointment history">Next Appt: <oscar:nextAppt
-								demographicNo="<%=demoID%>" /></a></td>
+							<td bgcolor="#EEEEFF">
+								<a>Date created: <%=createDate%></a>
+							</td>
 						</tr>
 						<%     ++idx;
                                                 ++demoCount;
