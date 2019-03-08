@@ -1055,7 +1055,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                             <td bgcolor="white">
                                                 <div class="FieldData monospaced">
                                                 <% if (handler.isReportBlocked()) { %>
-                                                	<div style="color:red; font-weight:bold; text-align: center;">Do Not Disclose Without Explicit Patient Consent</div>
+                                                	<div style="color:red; font-weight:bold; text-align: center;">Do not disclose without express patient consent</div>
                                                 	<br/>
                                                 <% } %>
 
@@ -1295,7 +1295,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                             boolean blocked = handler.isOBRBlocked(obr);
                                             if (blocked) {
                                         %>
-                                        <span style="font-size:9px; color:red;">(Do Not Disclose Without Explicit Patient Consent)</span>
+                                        <span style="font-size:9px; color:red;">(Do not disclose without express patient consent)</span>
                                         <% } %>
                                     </div>
                                 </td>

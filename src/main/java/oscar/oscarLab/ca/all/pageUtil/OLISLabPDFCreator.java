@@ -371,7 +371,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		boolean blocked = handler.isOBRBlocked(obr);
 		if (blocked){
 			categoryPhrase.setFont(commentRedFont);
-			categoryPhrase.add("\n\n(Do Not Disclose Without Explicit Patient Consent)");
+			categoryPhrase.add("\n\n(Do not disclose without express patient consent)");
 		}
 
 		cell.setPhrase(categoryPhrase);
@@ -1148,7 +1148,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		boolean blocked = handler.isReportBlocked();
 		// If the report is blocked, creates the patient consent alert and adds it to the start of the comments area
 		if (blocked){
-			cell.setPhrase(new Phrase("Do Not Disclose Without Explicit Patient Consent", commentRedFont));
+			cell.setPhrase(new Phrase("Do not disclose without express patient consent", commentRedFont));
 			cell.setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
 			commentTable.addCell(cell);
 		}

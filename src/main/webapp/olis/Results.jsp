@@ -455,7 +455,7 @@ function validateInput() {
 						<input type="button" onClick="addToInbox('<%=resultUuid %>'); return false;" id="<%=resultUuid %>" value="Add to Inbox" />
 						<input type="button" onClick="preview('<%=resultUuid %>'); return false;" id="<%=resultUuid %>_preview" value="Preview" />
                         <% if (resultDisplay.isBlocked()) { %>
-                        <span class="patient-consent-alert">Do not disclose without patient consent</span>
+                        <span class="patient-consent-alert">Do not disclose without express patient consent</span>
                         <% } %>
 					</td>
 					<td>
@@ -572,7 +572,7 @@ function validateInput() {
 					<td>
                         <%=parentLab.getOlisLastUpdated()%>
                         <% if (measurementDisplay.isBlocked()) { %>
-                        <span class="patient-consent-alert">Do not disclose without patient consent</span>
+                        <span class="patient-consent-alert">Do not disclose without express patient consent</span>
                         <% } %>
                     </td>
 					<td>
