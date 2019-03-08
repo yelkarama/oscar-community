@@ -99,21 +99,32 @@ public class OLISResultsAction extends DispatchAction {
                 olisLabResults.setDemographicInfo(reportHandler);
                 
                 List<OLISHL7Handler.OLISError> errors = reportHandler.getReportErrors();
+                List<OLISHL7Handler.OLISError> errorsToRemove = new ArrayList<>();
+                
                 boolean hasBlockedContent = false;
                 if (errors.size() > 0) {
                     olisLabResults.setErrors(errors);
+                    boolean hasPatientConsent = reportHandler.hasPatientConsent();
+					olisLabResults.setHasPatientConsent(hasPatientConsent);
                     // Loops through each error
                     for (OLISHL7Handler.OLISError error : errors) {
                         // If the error is either 320 or 920, then some of the results have blocked content and are hidden
                         if (error.getIndentifer().equals("320") || error.getIndentifer().equals("920")) {
                             hasBlockedContent = true;
-                            // If the error is a 920 error, then we don't need to display the 320 error
-                            if (error.getIndentifer().equals("920")) {
-                                olisLabResults.setDisplay320Error(false);
-                            }
+                            // If the patient has consent, then both 320 and 920 errors can be removed from the errors, if there is no patient consent, then checks if we need to display the 320 error
+                            if (hasPatientConsent) {
+                            	errorsToRemove.add(error);
+							} else {
+								// If the error is a 920 error, then we don't need to display the 320 error
+								if (error.getIndentifer().equals("920")) {
+									olisLabResults.setDisplay320Error(false);
+								}
+							}
                         }
 					}
                 }
+                
+                errors.removeAll(errorsToRemove);
                 olisLabResults.setHasBlockedContent(hasBlockedContent);
             }
 			

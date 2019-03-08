@@ -3675,6 +3675,25 @@ public class OLISHL7Handler implements MessageHandler {
 	public boolean checkChildObrHasSusceptibility(int childObr) {
 		return obrChildResultSusceptibilities.getOrDefault(childObr, false);
 	}
+
+    /**
+     * Searches the ERQ field of the lab report (present in results received in the OLIS search) for the ZPD field to confirm if the query that was sent included patient consent
+     * @return {@code: true} If the ZPD parameter exists in the ERQ, {@code: false} if not
+     */
+	public boolean hasPatientConsent() {
+		boolean hasPatientConsent = false;
+		try {
+			Segment erq = terser.getSegment("/.ERQ");
+			// Gets the ZPD parameter from the ERQ segment. It is in field 3 repetition 8
+			String zpdType =  Terser.get(erq, 3, 8, 1, 1);
+			hasPatientConsent = zpdType.contains("ZPD");
+		} catch(HL7Exception e) {
+			logger.error("Could not get the ERQ segment as it may not exist", e);
+			hasPatientConsent = true;
+		}
+		
+		return hasPatientConsent;
+	}
 	
 	public class OLISError {
 		public OLISError(String segment, String sequence, String field, String indentifer, String text) {

@@ -13,6 +13,7 @@ public class OlisLabResults {
     private boolean hasBlockedContent = false;
     private boolean hasRequestingProvider = false;
     private boolean display320Error = true;
+    private boolean hasPatientConsent = true;
     
     private String demographicName = "";
     private String demographicHin = "";
@@ -65,6 +66,13 @@ public class OlisLabResults {
     }
     public void setDisplay320Error(boolean display320Error) {
         this.display320Error = display320Error;
+    }
+
+    public boolean isHasPatientConsent() {
+        return hasPatientConsent;
+    }
+    public void setHasPatientConsent(boolean hasPatientConsent) {
+        this.hasPatientConsent = hasPatientConsent;
     }
 
     public String getDemographicName() {

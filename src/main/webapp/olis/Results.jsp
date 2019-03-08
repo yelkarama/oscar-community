@@ -347,7 +347,7 @@ function validateInput() {
 			<%
 					}
 				}
-				if (olisLabResults.isHasBlockedContent()) {
+				if (olisLabResults.isHasBlockedContent() && !olisLabResults.isHasPatientConsent()) {
 			%>
 			<form class="consent-form" action="<%=request.getContextPath()%>/olis/Search.do" onsubmit="return validateInput()">
 				<input type="hidden" name="redo" value="true" />
