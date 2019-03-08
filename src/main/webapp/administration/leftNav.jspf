@@ -28,6 +28,8 @@
 
 
 <%@ page import="org.apache.commons.lang.StringUtils"%>
+<%@ page import="org.oscarehr.common.dao.SystemPreferencesDao" %>
+<%@ page import="org.oscarehr.common.model.SystemPreferences" %>
 
 <%
 String curProvider_no = (String)session.getAttribute("user");
@@ -846,7 +848,13 @@ String curProvider_no = (String)session.getAttribute("user");
 					<li><a href='javascript:void(0);' class="xlink" rel="${ctx}/hospitalReportManager/hrmPreferences.jsp">Hospital Report Manager (HRM) Preferences</a></li>
 					<li><a href='javascript:void(0);' class="xlink" rel="${ctx}/hospitalReportManager/hrmShowMapping.jsp">Hospital Report Manager (HRM) Class Mappings</a></li>
 					<li><a href='javascript:void(0);' class="xlink" rel="${ctx}/hospitalReportManager/hrmCategories.jsp">Hospital Report Manager (HRM) Categories</a></li>
-		
+
+					<% SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+						SystemPreferences preference = systemPreferencesDao.findPreferenceByName("kioskProvider");
+						if (preference != null && StringUtils.isNotEmpty(preference.getValue())) {
+					%>
+					<li><a href='javascript:void(0);' class="xlink" rel="${ctx}/admin/kioskDisplaySettings.jsp">Kiosk Settings</a></li>
+					<%}%>
 					<%
 						String olisKeystore = OscarProperties.getInstance().getProperty("olis_keystore", "");
 						if(olisKeystore.length()>0) {
