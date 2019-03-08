@@ -1,5 +1,7 @@
 package org.oscarehr.olis.model;
 
+import org.oscarehr.olis.OLISUtils;
+
 import java.util.Comparator;
 import java.util.Date;
 
@@ -96,10 +98,10 @@ public class OlisLabResultSortable {
                 // If both are ancillary, checks if the ZBX sort key is the same, whether they are blank strings or not
                 if (o1.getZbxSortKey().equals(o2.getZbxSortKey())) {
                     // If they are the same, compares them based on the alternate name
-                    return o1.getAlternateName().compareTo(o2.getAlternateName());
+                    return OLISUtils.compareStringEmptyIsMore(o1.getAlternateName(), o2.getAlternateName());
                 } else {
                     // If they aren't the same, compares them to each other
-                    return o1.getZbxSortKey().compareTo(o2.getZbxSortKey());
+                    return OLISUtils.compareStringEmptyIsMore(o1.getZbxSortKey(), o2.getZbxSortKey());
                 }
             } else if (o1.isAncillary()) {
                 return -1;
@@ -118,41 +120,20 @@ public class OlisLabResultSortable {
                                 return o1.getReleaseDate().compareTo(o2.getReleaseDate());
                             } else {
                                 // If the sub ids aren't the same, compares them, placing empty strings after strings with text
-                                return compareStringEmptyIsMore(o1.getSubId(), o2.getSubId());
+                                return OLISUtils.compareStringEmptyIsMore(o1.getSubId(), o2.getSubId());
                             }
                         } else {
                             // If the alternate names aren't the same, compares them, placing empty strings after strings with text
-                            return compareStringEmptyIsMore(o1.getAlternateName(), o2.getAlternateName());
+                            return OLISUtils.compareStringEmptyIsMore(o1.getAlternateName(), o2.getAlternateName());
                         }
                     } else {
                         // If the nomenclature sort keys aren't the same, compares them, placing empty strings after strings with text
-                        return compareStringEmptyIsMore(o1.getNomenclatureSortKey(), o2.getNomenclatureSortKey());
+                        return OLISUtils.compareStringEmptyIsMore(o1.getNomenclatureSortKey(), o2.getNomenclatureSortKey());
                     }
                 } else {
                     // If the Zbx sort keys aren't the same, compares them, placing empty strings after strings with text
-                    return compareStringEmptyIsMore(o1.getZbxSortKey(), o2.getZbxSortKey());
+                    return OLISUtils.compareStringEmptyIsMore(o1.getZbxSortKey(), o2.getZbxSortKey());
                 }
-            }
-        }
-
-        /**
-         * Compares two strings against each other, also checking if they are empty to determine positioning in the array.
-         * If s1 is empty, then it is considered greater than s2 and is placed after s2 in the array.
-         * If s2 is empty, then s1 is considered less than s2 and is placed before s2 in the array.
-         * 
-         * @param s1 The string that is the main item of the Collection
-         * @param s2 The string to be compared to
-         * @return A number greater than {@code: 0} of s1 is empty or lesser than s2
-         *         A number less than {@code: 0} if s2 is empty or s1 is greater than s2
-         */
-        private int compareStringEmptyIsMore(String s1, String s2) {
-            if (s1.isEmpty()) {
-                return 1;
-            } else if (s2.isEmpty()) {
-                return -1;
-            } else {
-                // If they aren't the same, uses them for the ordering
-                return s1.compareTo(s2);
             }
         }
     };

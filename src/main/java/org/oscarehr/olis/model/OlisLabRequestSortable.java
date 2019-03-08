@@ -1,5 +1,7 @@
 package org.oscarehr.olis.model;
 
+import org.oscarehr.olis.OLISUtils;
+
 import java.util.Comparator;
 import java.util.Date;
 
@@ -83,15 +85,15 @@ public class OlisLabRequestSortable {
             int compared = o2.getCollectionDateTime().compareTo(o1.getCollectionDateTime());
             if (compared == 0) {
                 // Compares placer group numbers, continuing to compare other attributes if they are the same
-                compared = o1.getGroupPlacerNo().compareTo(o2.getGroupPlacerNo());
+                compared = OLISUtils.compareStringEmptyIsMore(o1.getGroupPlacerNo(), o2.getGroupPlacerNo());
                 if (compared == 0) {
                     // Compares the ZBR11 sort key, continuing to compare other attributes if they are the same
-                    compared = o1.getSortKey().compareTo(o2.getSortKey());
+                    compared = OLISUtils.compareStringEmptyIsMore(o1.getSortKey(), o2.getSortKey());
                     if (compared == 0) {
-                        compared = o1.getNomenclature().getSortKey().compareTo(o2.getNomenclature().getSortKey());
+                        compared = OLISUtils.compareStringEmptyIsMore(o1.getNomenclature().getSortKey(), o2.getNomenclature().getSortKey());
                         if (compared == 0) {
                             // Compares the alternate names stored in the nomenclature, continuing to compare other attributes if they are the same
-                            compared = o1.getNomenclature().getRequestAlternateName1().compareTo(o2.getNomenclature().getRequestAlternateName1());
+                            compared = OLISUtils.compareStringEmptyIsMore(o1.getNomenclature().getRequestAlternateName1(), o2.getNomenclature().getRequestAlternateName1());
                             if (compared == 0) {
                                 // Compares the set ids to determine order
                                 compared = o1.getSetId().compareTo(o2.getSetId());

@@ -335,4 +335,24 @@ public class OLISUtils {
 		return !taglessPreviousCollectorComments.equals(taglessCollectorComments);
 	}
 	
+	/**
+	 * Compares two strings against each other, also checking if they are empty to determine positioning in the array.
+	 * If s1 is empty, then it is considered greater than s2 and is placed after s2 in the array.
+	 * If s2 is empty, then s1 is considered less than s2 and is placed before s2 in the array.
+	 *
+	 * @param s1 The string that is the main item of the Collection
+	 * @param s2 The string to be compared to
+	 * @return A number greater than {@code: 0} of s1 is empty or lesser than s2
+	 *         A number less than {@code: 0} if s2 is empty or s1 is greater than s2
+	 */
+	public static int compareStringEmptyIsMore(String s1, String s2) {
+		if (s1.isEmpty()) {
+			return 1;
+		} else if (s2.isEmpty()) {
+			return -1;
+		} else {
+			// If they aren't the same, uses them for the ordering
+			return s1.compareTo(s2);
+		}
+	}
 }

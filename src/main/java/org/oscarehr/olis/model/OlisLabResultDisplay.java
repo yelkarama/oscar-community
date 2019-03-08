@@ -318,16 +318,16 @@ public class OlisLabResultDisplay {
             int compared = o2.getCollectionDateAsDate().compareTo(o1.getCollectionDateAsDate());
             if (compared == 0) {
                 // Compares placer group numbers, continuing to compare other attributes if they are the same
-                compared = o1.getPlacerGroupNo().compareTo(o2.getPlacerGroupNo());
+                compared = OLISUtils.compareStringEmptyIsMore(o1.getPlacerGroupNo(), o2.getPlacerGroupNo());
                 if (compared == 0) {
                     // Compares the ZBR11 sort key, continuing to compare other attributes if they are the same
-                    compared = o1.getTestRequestZbr11().compareTo(o2.getTestRequestZbr11());
+                    compared = OLISUtils.compareStringEmptyIsMore(o1.getTestRequestZbr11(), o2.getTestRequestZbr11());
                     if (compared == 0) {
                         // Compares the nomenclature sort keys, continuing to compare other attributes if they are the same
-                        compared = o1.getNomenclature().getSortKey().compareTo(o2.getNomenclature().getSortKey());
+                        compared = OLISUtils.compareStringEmptyIsMore(o1.getNomenclature().getSortKey(), o2.getNomenclature().getSortKey());
                         if (compared == 0) {
                             // Compares the alternate names stored in the nomenclature, continuing to compare other attributes if they are the same
-                            compared = o1.getNomenclature().getRequestAlternateName1().compareTo(o2.getNomenclature().getRequestAlternateName1());
+                            compared = OLISUtils.compareStringEmptyIsMore(o1.getNomenclature().getRequestAlternateName1(), o2.getNomenclature().getRequestAlternateName1());
                             if (compared == 0) {
                                 // Compares the set ids to determine order
                                 compared = Integer.compare(o1.getObrSetId(), o2.getObrSetId());
