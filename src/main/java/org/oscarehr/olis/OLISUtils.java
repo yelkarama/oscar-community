@@ -140,8 +140,11 @@ public class OLISUtils {
 					}
 
 					StringBuilder replacedText = new StringBuilder();
-					for (int i = 0; i < repetitions; i++) {
-						replacedText.append(replacementString);
+					// If there is no operator or it is a minus sign, we don't need to add the elements
+					if (matcher.group(1) == null || !matcher.group(1).equals("-")) {
+						for (int i = 0; i < repetitions; i++) {
+							replacedText.append(replacementString);
+						}
 					}
 
 					// If the current tag is a standard line break and there are no \.sp\ elements in the text then calculate the previous line's length based on the \.br\
