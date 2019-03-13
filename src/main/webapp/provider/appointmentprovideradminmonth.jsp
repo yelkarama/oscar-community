@@ -840,7 +840,9 @@ function refreshTabAlerts(id) {
 					strHolidayName = new StringBuffer(aHScheduleHoliday.holiday_name);
 				} %>
 				<td nowrap bgcolor="<%=bgcolor.toString()%>" valign="top">
+					<a href='providercontrol.jsp?year=<%=year%>&month=<%=MyDateFormat.getDigitalXX(month)%>&day=<%=MyDateFormat.getDigitalXX(dateGrid[i][j])%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+request.getParameter("curProviderName"))%>&displaymode=day&dboperation=searchappointmentday'>
 					<span class='date'>&nbsp;<%=dateGrid[i][j] %> </span>
+					</a>
 					<font size="-2" color="blue"><%=strHolidayName.toString()%></font>
 
 					<%
