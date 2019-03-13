@@ -764,13 +764,12 @@ public class RxDrugRef {
      }
 
 
-    public Hashtable<String, Vector> getInteractionsUsingFdb(Vector drugs) throws Exception {
+    public Vector<Hashtable<String, String>> getInteractionsUsingFdb(Vector drugs) throws Exception {
         removeNullFromVector(drugs);
         Vector vec = new Vector();
         Vector params = new Vector();
-        params.addElement("interactions_byDIN");
         params.addElement(drugs);
-        return (Hashtable<String, Vector>) callWebserviceLite("fetch", params);
+        return (Vector<Hashtable<String, String>>) callWebserviceLite("getDrugInteractionWarnings", params);
     }
      
        

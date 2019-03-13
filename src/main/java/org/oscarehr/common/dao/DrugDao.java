@@ -81,6 +81,13 @@ public class DrugDao extends AbstractDao<Drug> {
 		List<Drug> results = query.getResultList();
 		return (results);
 	}
+	
+	public List<Drug> findAllCurrentByDemographicNo(Integer demographicNo) {
+		String sqlQuery = "SELECT d FROM Drug d WHERE d.demographicId = ?1 AND ((d.endDate > NOW() OR d.longTerm IS TRUE) AND d.archived IS FALSE)";
+		Query query = entityManager.createQuery(sqlQuery);
+		query.setParameter(1, demographicNo);
+		return (List<Drug>) query.getResultList();
+	}
 
 	public List<Drug> findByScriptNo(Integer scriptNo, Boolean archived) {
 

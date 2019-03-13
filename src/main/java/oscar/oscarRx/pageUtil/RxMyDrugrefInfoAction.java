@@ -190,14 +190,12 @@ public final class RxMyDrugrefInfoAction extends DispatchAction {
         
         if (useFdb) {
             RxPrescriptionData rxData = new RxPrescriptionData();
-            Vector dinCodes = new Vector<Object>(bean.getRegionalIdentifier());
-
-            if (!dinCodes.isEmpty()) {
+            Vector<Hashtable<String, String>> drugInteractionInfoList = bean.getDrugInteractionInfoList();
+            if (!drugInteractionInfoList.isEmpty()) {
                 RxDrugRef drugRef = new RxDrugRef();
-                Hashtable<String, Vector> fdbInteractions = drugRef.getInteractionsUsingFdb(dinCodes);
+                Vector<Hashtable<String, String>> fdbInteractions = drugRef.getInteractionsUsingFdb(drugInteractionInfoList);
                 if (!fdbInteractions.isEmpty()) {
-                    for (Object drugInteractionObj : fdbInteractions.get("First Databank Service")) {
-                        Hashtable<String, String> drugInteraction = (Hashtable<String, String>) drugInteractionObj;
+                    for (Hashtable<String, String> drugInteraction : fdbInteractions) {
                         Hashtable<String, Object> displayInteraction = new Hashtable<String, Object>();
                         displayInteraction.put("is_fdb", "true");
                         displayInteraction.put("id", drugInteraction.get("interaction_id"));

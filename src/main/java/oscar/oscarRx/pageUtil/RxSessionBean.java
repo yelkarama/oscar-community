@@ -34,11 +34,14 @@ import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.log4j.Logger;
+import org.oscarehr.common.dao.DrugDao;
 import org.oscarehr.common.model.Allergy;
+import org.oscarehr.common.model.Drug;
 import org.oscarehr.phr.model.PHRMedication;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 
+import org.oscarehr.util.SpringUtils;
 import oscar.OscarProperties;
 import oscar.oscarRx.data.RxAllergyWarningWorker;
 import oscar.oscarRx.data.RxDrugData;
@@ -407,6 +410,31 @@ public class RxSessionBean  implements java.io.Serializable {
            }
         }
         return regionalIdentifierCodes;
+    }
+    
+    public Vector<Hashtable<String, String>> getDrugInteractionInfoList() {
+        DrugDao drugDao = SpringUtils.getBean(DrugDao.class);
+        List<Drug> demoDrugs = drugDao.findAllCurrentByDemographicNo(this.getDemographicNo());
+        Vector<Hashtable<String, String>> drugInteractionInfoList = new Vector<Hashtable<String, String>>();
+        for (Drug drug : demoDrugs) {
+            Hashtable<String, String> drugInfo = new Hashtable<String, String>();
+            if (drug.getRegionalIdentifier() != null) {
+                drugInfo.put("din", drug.getRegionalIdentifier());
+            }
+            drugInfo.put("atc", String.valueOf(drug.getAtc()));
+            drugInfo.put("generic_name", String.valueOf(drug.getGenericName()));
+            drugInteractionInfoList.add(drugInfo);
+        }
+        for (RxPrescriptionData.Prescription prescription : stash) {
+            Hashtable<String, String> drugInfo = new Hashtable<String, String>();
+            if (prescription.getRegionalIdentifier() != null) {
+                drugInfo.put("din", prescription.getRegionalIdentifier());
+            }
+            drugInfo.put("atc", String.valueOf(prescription.getAtcCode()));
+            drugInfo.put("generic_name", String.valueOf(prescription.getGenericName()));
+            drugInteractionInfoList.add(drugInfo);
+        }
+        return drugInteractionInfoList;
     }
     
     public RxDrugData.Interaction[] getInteractions(){
