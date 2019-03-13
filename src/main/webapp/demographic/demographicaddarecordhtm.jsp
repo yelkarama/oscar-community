@@ -567,6 +567,15 @@ function checkResidentStatus(){
      return false;}
 }
 
+function referralSourceIsOther (value) {
+	var element = document.getElementById ("referralSourceCust");
+	if (value=="Other") {
+		element.style.visibility='visible';
+	} else {
+		element.style.visibility='hidden';
+	}
+}
+
 function checkAllDate() {
 	var typeInOK = false;
 	typeInOK = checkDateYMD( document.adddemographic.date_joined.value, "Date Joined" );
@@ -1659,6 +1668,43 @@ document.forms[1].r_doctor_ohip.value = refNo;
 					key="demographic.demographicaddrecordhtm.formChartNo" />:</b></td>
 				<td id="chartNo" align="left"><input type="text" id="chart_no" name="chart_no" value="<%=StringEscapeUtils.escapeHtml(chartNoVal)%>">
 				</td>
+			</tr>
+			<%
+				ReferralSourceDao referralSourceDao = SpringUtils.getBean (ReferralSourceDao.class);
+				List<ReferralSource> referralSourceList = referralSourceDao.getReferralSourceList();
+
+				for (int i = referralSourceList.size()-1; i >= 0; i--) {
+					if (referralSourceList.get(i).getArchiveStatus()) {
+						referralSourceList.remove(i);
+					}
+				}
+
+				boolean enableRefSources = false;
+
+				List<SystemPreferences> preferences = systemPreferencesDao.findPreferencesByNames(SystemPreferences.REFERRAL_SOURCE_PREFERENCE_KEYS);
+				for(SystemPreferences preference : preferences) {
+					if (preference.getValue() != null) {
+						if (preference.getName().equals("enable_referral_source")) {
+							enableRefSources = Boolean.parseBoolean(preference.getValue());
+						}
+					}
+				}//Copying code from masterEdit to masterAdd p'much. Shit looks weird atm, other categorey is weird
+			%>
+
+			<tr valign="top" <%=enableRefSources ? "" : "style=\"display: none;\""%>>
+				<td align="right"><b>Patient Discovered Clinic VIA:</b></td>
+				<td align="left">
+			<span style="float: left;"><select name="referralSource" onChange='referralSourceIsOther(this.value);' style="width: 200px">
+			<option value="" selected disabled hidden>Choose here</option>
+				<%
+				for (ReferralSource refSourceName : referralSourceList) {
+			%>
+			<option value="<%=refSourceName.getReferralSource()%>"><%=refSourceName.getReferralSource()%></option>
+			<% } %>
+			<option value="Other">Other</option>
+			</select></span>
+			<span style="float: left;"><input type="text" name="referralSourceCust" id="referralSourceCust" style="visibility: visible;" maxlength="200"></span>
+			</td>
 			</tr>
 
 			<%if (oscarProps.getProperty("EXTRA_DEMO_FIELDS") !=null){

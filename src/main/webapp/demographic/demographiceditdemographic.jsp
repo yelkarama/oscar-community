@@ -467,6 +467,16 @@ function checkName() {
     }
 	return typeInOK;
 }
+
+function referralSourceIsOther (value) {
+	var element = document.getElementById ("referralSourceCust");
+	if (value=="Other") {
+		element.style.visibility='visible';
+	} else {
+		element.style.visibility='hidden';
+	}
+}
+
 function checkDate(yyyy,mm,dd,err_msg) {
 
 	var typeInOK = false;

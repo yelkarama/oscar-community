@@ -356,6 +356,7 @@
 	String proNo = (String) session.getValue("user");
 	String familyDoctorId = "";
 	String familyPhysicianId = "";
+    String refSource = request.getParameter("referralSource");
 	List<DemographicExt> extensions = new ArrayList<DemographicExt>();
 	List<DemographicExt> oldExtensions = demographicExtDao.getDemographicExtByDemographicNo(oldDemographic.getDemographicNo());
 
@@ -365,6 +366,14 @@
 
 	if (!StringUtils.trimToEmpty(demoExt.get("enableMailing")).equals(StringUtils.trimToEmpty(request.getParameter("enableMailing")))) {
 		extensions.add(new DemographicExt(request.getParameter("enableMailing"), proNo, demographicNo, "enableMailing", request.getParameter("enableMailing")));
+	}
+
+    if (refSource.equals("Other")) {
+        refSource = StringUtils.trimToEmpty(request.getParameter("referralSourceCust"));
+    }
+
+	if (!StringUtils.trimToEmpty(demoExt.get("referral_source")).equals(refSource)) {
+		extensions.add(new DemographicExt(refSource, proNo, demographicNo, "referral_source", refSource));
 	}
 
 	if (!StringUtils.trimToEmpty(demoExt.get("address_mailing")).equals(StringUtils.trimToEmpty(request.getParameter("address_mailing")))) {

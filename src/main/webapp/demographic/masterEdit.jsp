@@ -452,7 +452,6 @@
 		<input type="text" id="city_mailing" name="city_mailing" size="30" <%=getDisabled("city")%> value="<%=StringEscapeUtils.escapeHtml(StringUtils.trimToEmpty(StringUtils.trimToEmpty(demoExt.get("city_mailing"))))%>" />
 	</td>
 	</tr>
-
 	<tr valign="top">
 	<td align="right">
 		<b> 
@@ -1371,6 +1370,59 @@ function updateStatusDate(patientOrRoster){
 			<script type="application/javascript">createStandardDatepicker(jQuery_3_1_0('#paper_chart_archived_date'), "archive_date_cal");</script>
 			<input type="hidden" name="paper_chart_archived_program" id="paper_chart_archived_program" value="<%=paperChartIndicatorProgram%>" />
 		</td>
+	</tr>
+
+	<%
+		ReferralSourceDao referralSourceDao = SpringUtils.getBean (ReferralSourceDao.class);
+		List<ReferralSource> referralSourceList = referralSourceDao.getReferralSourceList();
+
+		for (int i = referralSourceList.size()-1; i >= 0; i--) {
+			if (referralSourceList.get(i).getArchiveStatus()) {
+				referralSourceList.remove(i);
+			}
+		}
+
+		String refSource = StringUtils.trimToEmpty(demoExt.get("referral_source"));
+		String otherSource = "";
+
+		if (refSource!=null) {
+			Boolean isOther = true;
+			for (ReferralSource refSourceName : referralSourceList) {
+				if (refSource.equals(refSourceName.getReferralSource())) {
+					isOther = false;
+				}
+			}
+
+			if (isOther) {
+				otherSource = refSource;
+				refSource = "Other";
+			}
+		}
+		boolean enableRefSources = false;
+
+		List<SystemPreferences> preferences = systemPreferencesDao.findPreferencesByNames(SystemPreferences.REFERRAL_SOURCE_PREFERENCE_KEYS);
+		for(SystemPreferences preference : preferences) {
+			if (preference.getValue() != null) {
+				if (preference.getName().equals("enable_referral_source")) {
+					enableRefSources = Boolean.parseBoolean(preference.getValue());
+				}
+			}
+		}
+	%>
+
+	<tr valign="top" <%=enableRefSources ? "" : "style=\"display: none;\""%>>
+	<td align="right"><b>Patient Discovered Clinic VIA:</b></td>
+	<td align="left">
+	<span style="float: left;"><select name="referralSource" onChange='referralSourceIsOther(this.value);' style="width: 200px">
+	<%
+		for (ReferralSource refSourceName : referralSourceList) {
+	%>
+	<option value="<%=refSourceName.getReferralSource()%>" <%=refSourceName.getReferralSource().equals(refSource) ? "selected" : ""%>><%=refSourceName.getReferralSource()%></option>
+	<% } %>
+	<option value="Other" <%=refSource.equals("Other") ? " selected" : ""%>>Other</option>
+	</select></span>
+	<span style="float: right;"><input type="text" name="referralSourceCust" id="referralSourceCust" style='visibility: <%=refSource.equals("Other") ? "visible" : "hidden"%>;' <%="value=\"" + otherSource + "\""%> maxlength="200"></span>
+	</td>
 	</tr>
 	<%-- 
 						THE "PATIENT JOINED DATE" ROW HAS NOT BEEN ADDED TWICE IN ERROR

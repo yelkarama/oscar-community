@@ -359,10 +359,14 @@
 		if (OscarProperties.getInstance().isPropertyActive("showEmploymentStatus")) {
 			demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "EmploymentStatus", request.getParameter("EmploymentStatus"), "");
 		}
-       
-       if (OscarProperties.getInstance().isPropertyActive("show_referral_date")) {
-		   demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "referralDate", request.getParameter("referral-date") != null ? request.getParameter("referral-date") : "");
-	   }
+
+		if (OscarProperties.getInstance().isPropertyActive("show_referral_date")) {
+			demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "referralDate", request.getParameter("referral-date") != null ? request.getParameter("referral-date") : "");
+		}
+
+		if (request.getParameter("referralSource")!=null) {
+			demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "referral_source", request.getParameter("referralSource") != null ? request.getParameter("referralSource") : "");
+		}
 
 		if (masterFilePreferences.getOrDefault("display_former_name", false)) {
 			demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "former_name", request.getParameter("former_name") != null ? request.getParameter("former_name") : "");
