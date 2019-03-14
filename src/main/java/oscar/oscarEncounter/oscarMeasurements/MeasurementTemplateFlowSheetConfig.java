@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.drools.RuleBase;
@@ -187,6 +188,15 @@ public class MeasurementTemplateFlowSheetConfig implements InitializingBean {
     public String addFlowsheet(MeasurementFlowSheet m ){
         if( m.getName() == null || m.getName().equals("")){
             m.setName("U"+(flowsheets.size()+1));
+        }
+
+        //Checks for any duplicate names & automatically increments the number if there's a duplicate.
+        Set<String> keys = flowsheets.keySet();
+        for (String name : keys) {
+            if (m.getName().equals(name)) {
+                String[] parts = m.getName().split("(?<=U)");
+                m.setName (parts[0] + (Integer.parseInt(parts[1]) + 1));
+            }
         }
 
         flowsheets.put(m.getName(),m);
