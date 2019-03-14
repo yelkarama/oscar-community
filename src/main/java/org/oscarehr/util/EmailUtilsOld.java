@@ -36,6 +36,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.mail.Email;
+import org.apache.commons.mail.EmailConstants;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
 import org.apache.log4j.Logger;
@@ -136,22 +137,22 @@ public final class EmailUtilsOld
 
 		if (smtpUser != null && smtpPassword != null) email.setAuthentication(smtpUser, smtpPassword);
 
-                Session session = email.getMailSession();
-                
-                if (connectionSecurity != null) {
-                    if (connectionSecurity.equals(CONNECTION_SECURITY_STARTTLS)){
-                        session.getProperties().setProperty(Email.MAIL_TRANSPORT_TLS, "true");
-                        email.setTLS(true);                        
-                    } else if (connectionSecurity.equals(CONNECTION_SECURITY_SSL)) {
-                        email.setSSL(true);
-                    }
-                }
-                
-		if (smtpPort != null)
-		{
+		if (smtpPort != null) {
 			email.setSslSmtpPort(smtpPort);
 		}
-
+		if (connectionSecurity != null) {
+			if (connectionSecurity.equals(CONNECTION_SECURITY_STARTTLS)){
+				email.setStartTLSEnabled(true);
+			} else if (connectionSecurity.equals(CONNECTION_SECURITY_SSL)) {
+				email.setSSLOnConnect(true);
+			}
+		}
+		Session session = email.getMailSession();
+		if (connectionSecurity != null) {
+			if (connectionSecurity.equals(CONNECTION_SECURITY_STARTTLS)) {
+				session.getProperties().setProperty(EmailConstants.MAIL_TRANSPORT_STARTTLS_ENABLE, "true");
+			}
+		}
 		
 		Properties properties = session.getProperties();
 		properties.setProperty("mail.smtp.connectiontimeout", "20000");
