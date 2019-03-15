@@ -556,79 +556,79 @@ function validateAmountNumberic(idx) {
                 out.write("<script>window.alert('sorry, billing access denied.')</script>");               
 
             }else {
-				String curUser_providerno = loggedInInfo.getLoggedInProviderNo();
-				
-				if(bCh1.getPayProgram().equals("HCP")){
-					hasPermission = billingPermissionDao.hasPermission(bCh1.getProviderNo(), curUser_providerno, BillingPermission.OHIP_INVOICES);
-				}else{
-					hasPermission = billingPermissionDao.hasPermission(bCh1.getProviderNo(), curUser_providerno, BillingPermission.THIRD_PARTY_INVOICES);
-				}
-				
-				if(hasPermission){
-					createTimestamp = DateUtils.formatDateTime(bCh1.getTimestamp(), locale);                
-					DemoNo = bCh1.getDemographicNo().toString();
-					DemoName = bCh1.getDemographicName();
-					DemoAddress = "";
-					DemoCity = "";
-					DemoProvince = "";
-					DemoPostal = "";
-					DemoDOB = bCh1.getDob();
-					DemoSex = bCh1.getSex().equals("1") ? "M" : "F";
-
-					BigDecimal billTotal = bCh1.getTotal();                
-
-                org.oscarehr.common.model.Demographic sdemo = (new DemographicData()).getDemographic(loggedInInfo, DemoNo);
-                hin = sdemo.getHin()+sdemo.getVer();
-                DemoDOB = sdemo.getYearOfBirth() + sdemo.getMonthOfBirth() + sdemo.getDateOfBirth();
-                DemoSex = sdemo.getSex();
-                DemoRS = sdemo.getRosterStatus();
-                //hin = ch1Obj.getHin() + ch1Obj.getVer();
-                location = bCh1.getFaciltyNum();
-                BillLocation = "";
-                BillLocationNo = location;
-                BillDate = DateUtils.formatDate(bCh1.getBillingDate(), locale);
-                Provider = bCh1.getProviderNo();
-                BillType = bCh1.getStatus();
-                payProgram = bCh1.getPayProgram();
-                BillTotal = billTotal.toPlainString();
-				try {
-                	visitdate = DateUtils.formatDate(bCh1.getAdmissionDate(), locale);
-				}
-				catch (java.text.ParseException e) {
-					visitdate = "";
-				}
-                visittype = bCh1.getVisitType();
-                sliCode = bCh1.getLocation();
-                BillDTNo = "";
-                HCTYPE = bCh1.getProvince();
-                HCSex = bCh1.getSex();
-                r_doctor_ohip = bCh1.getRefNum();
-                ProfessionalSpecialistDao professionalSpecialistDao = (ProfessionalSpecialistDao) SpringUtils.getBean("professionalSpecialistDao");
-				List<ProfessionalSpecialist> professionalSpecialists = professionalSpecialistDao.findByReferralNo(r_doctor_ohip);
-				if (professionalSpecialists != null)
-					r_doctor = professionalSpecialists.get(0).getLastName()+", "+professionalSpecialists.get(0).getFirstName();
-				else
-					r_doctor = "";
-				r_doctor_ohip_s = "";
-                r_doctor_s = "";
-                m_review = bCh1.getManReview();
-                specialty = "";
-                r_status = "";
-                roster_status = "";
-                comment = bCh1.getComment();
-                
-				// get ohip claim number
-				List<RaDetail> raDetails = raDetailDao.findByBillingNo(billingNo);
-                 for (RaDetail ra : raDetails) {
-                     if ((ra.getProviderOhipNo().equals(bCh1.getProviderOhipNo()))) {
-                         if (ra.getHin() != null) {
-                             String raHin = (ra.getHin().length() >= 10 ? ra.getHin().substring(0,10) : ra.getHin()).trim();
-                             if (raHin.equals(sdemo.getHin().trim())) {
-				claimNo = ra.getClaimNo();
+                 String curUser_providerno = loggedInInfo.getLoggedInProviderNo();
+    
+                 if (bCh1.getPayProgram().equals("HCP")) {
+                     hasPermission = billingPermissionDao.hasPermission(bCh1.getProviderNo(), curUser_providerno, BillingPermission.OHIP_INVOICES);
+                 } else {
+                     hasPermission = billingPermissionDao.hasPermission(bCh1.getProviderNo(), curUser_providerno, BillingPermission.THIRD_PARTY_INVOICES);
+                 }
+    
+                 if (hasPermission) {
+                     createTimestamp = DateUtils.formatDateTime(bCh1.getTimestamp(), locale);
+                     DemoNo = bCh1.getDemographicNo().toString();
+                     DemoName = bCh1.getDemographicName();
+                     DemoAddress = "";
+                     DemoCity = "";
+                     DemoProvince = "";
+                     DemoPostal = "";
+                     DemoDOB = bCh1.getDob();
+                     DemoSex = bCh1.getSex().equals("1") ? "M" : "F";
+    
+                     BigDecimal billTotal = bCh1.getTotal();
+    
+                     org.oscarehr.common.model.Demographic sdemo = (new DemographicData()).getDemographic(loggedInInfo, DemoNo);
+                     hin = sdemo.getHin() + sdemo.getVer();
+                     DemoDOB = sdemo.getYearOfBirth() + sdemo.getMonthOfBirth() + sdemo.getDateOfBirth();
+                     DemoSex = sdemo.getSex();
+                     DemoRS = sdemo.getRosterStatus();
+                     //hin = ch1Obj.getHin() + ch1Obj.getVer();
+                     location = bCh1.getFaciltyNum();
+                     BillLocation = "";
+                     BillLocationNo = location;
+                     BillDate = DateUtils.formatDate(bCh1.getBillingDate(), locale);
+                     Provider = bCh1.getProviderNo();
+                     BillType = bCh1.getStatus();
+                     payProgram = bCh1.getPayProgram();
+                     BillTotal = billTotal.toPlainString();
+                     try {
+                         visitdate = DateUtils.formatDate(bCh1.getAdmissionDate(), locale);
+                     } catch (java.text.ParseException e) {
+                         visitdate = "";
+                     }
+                     visittype = bCh1.getVisitType();
+                     sliCode = bCh1.getLocation();
+                     BillDTNo = "";
+                     HCTYPE = bCh1.getProvince();
+                     HCSex = bCh1.getSex();
+                     r_doctor_ohip = bCh1.getRefNum();
+                     ProfessionalSpecialistDao professionalSpecialistDao = (ProfessionalSpecialistDao) SpringUtils.getBean("professionalSpecialistDao");
+                     List<ProfessionalSpecialist> professionalSpecialists = professionalSpecialistDao.findByReferralNo(r_doctor_ohip);
+                     if (professionalSpecialists != null)
+                         r_doctor = professionalSpecialists.get(0).getLastName() + ", " + professionalSpecialists.get(0).getFirstName();
+                     else
+                         r_doctor = "";
+                     r_doctor_ohip_s = "";
+                     r_doctor_s = "";
+                     m_review = bCh1.getManReview();
+                     specialty = "";
+                     r_status = "";
+                     roster_status = "";
+                     comment = bCh1.getComment();
+    
+                     // get ohip claim number
+                     List<RaDetail> raDetails = raDetailDao.findByBillingNo(billingNo);
+                     for (RaDetail ra : raDetails) {
+                         if ((ra.getProviderOhipNo().equals(bCh1.getProviderOhipNo()))) {
+                             if (ra.getHin() != null) {
+                                 String raHin = (ra.getHin().length() >= 10 ? ra.getHin().substring(0, 10) : ra.getHin()).trim();
+                                 if (raHin.equals(sdemo.getHin().trim())) {
+                                     claimNo = ra.getClaimNo();
+                                 }
                              }
                          }
                      }
-}
+                }
             }
         }
     }
