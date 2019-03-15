@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.struts.util.MessageResources;
 import org.oscarehr.common.dao.BillingONItemDao;
 import org.oscarehr.common.model.BillingONItem;
+import org.oscarehr.provider.model.PreventionManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.SpringUtils;
 
@@ -85,6 +86,8 @@ public class EctDisplayPreventionAction extends EctDisplayAction {
         PreventionDisplayConfig pdc = PreventionDisplayConfig.getInstance();
         ArrayList<HashMap<String,String>> prevList = pdc.getPreventions();
         Map warningTable = p.getWarningMsgs();
+
+        List<String> disabledPreventions = PreventionManager.getDisabledPreventions();
 
         BillingONItemDao billingONItemDao = SpringUtils.getBean(BillingONItemDao.class);
         List<String> exclusions = billingONItemDao.getPreventionExclusionsByDemographicNo(Integer.valueOf(bean.demographicNo));
@@ -148,13 +151,23 @@ public class EctDisplayPreventionAction extends EctDisplayAction {
                 item.setLinkTitle(h.get("desc"));
                 item.setURL(url);
 
-                //if there's a warning associated with this prevention set item apart
-                if( warningTable.containsKey(prevName) && !exclusions.contains(prevName)){
-                    item.setColour(highliteColour);
-                    warnings.add(item);
+
+                boolean disabled = false;
+
+                for (String disabledPrev : disabledPreventions) {
+                    if (prevList.get(i).get("name").equals(disabledPrev)) {
+                        disabled = true;
+                    }
                 }
-                else {
-                    items.add(item);
+
+                if (!disabled) {
+                    //if there's a warning associated with this prevention set item apart
+                    if (warningTable.containsKey(prevName) && !exclusions.contains(prevName)) {
+                        item.setColour(highliteColour);
+                        warnings.add(item);
+                    } else {
+                        items.add(item);
+                    }
                 }
             }
         }
