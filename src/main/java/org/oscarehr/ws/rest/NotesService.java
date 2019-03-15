@@ -47,6 +47,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.oscarehr.PMmodule.model.ProgramProvider;
+import org.oscarehr.PMmodule.model.SecUserRole;
 import org.oscarehr.PMmodule.service.AdmissionManager;
 import org.oscarehr.PMmodule.service.ProgramManager;
 import org.oscarehr.PMmodule.service.ProviderManager;
@@ -135,20 +136,43 @@ public class NotesService extends AbstractServiceImpl {
 		NoteSelectionTo1 returnResult = new NoteSelectionTo1();
 		LoggedInInfo loggedInInfo = getLoggedInInfo();
 		logger.debug("The config "+jsonobject.toString());
-	
+		
+		String demoNo = demographicNo.toString();
+		String roles;
+		
 		HttpSession se = loggedInInfo.getSession();
-		if (se.getAttribute("userrole") == null) {
+		// If the session is not null
+		if (se != null) {
+			// Gets the roles stored in the session
+			roles = StringUtils.trimToEmpty((String) se.getAttribute("userrole"));
+		} else {
+			// If the session is not null (happens when accessed via REST authentication)
+			// Gets all roles for the currently logged in provider
+			List<SecUserRole> userRoles = providerMgr.getSecUserRoles(loggedInInfo.getLoggedInProviderNo());
+			
+			StringBuilder rolesBuilder = new StringBuilder();
+			// Loops through each role and appends it to the builder, separating each role with a comma
+			for (SecUserRole userRole : userRoles) {
+				// If the role is not the first one in the list, appends a comma before the role
+				if (rolesBuilder.length() > 0) {
+					rolesBuilder.append(",");
+				}
+				// Appends the role
+				rolesBuilder.append(userRole.getRoleName());
+			}
+			// Builds the string into the roles string
+			roles = rolesBuilder.toString();
+		}
+
+		if (roles == null) {
 			logger.error("An Error needs to be added to the returned result, remove this when fixed");
 			return returnResult;
 		}
 		
-		String demoNo = ""+demographicNo;
-
 		logger.debug("is client in program");
 		// need to check to see if the client is in our program domain
 		// if not...don't show this screen!
-		String roles = (String) se.getAttribute("userrole");
-		if (OscarProperties.getInstance().isOscarLearning() && roles != null && roles.indexOf("moderator") != -1) {
+		if (OscarProperties.getInstance().isOscarLearning() && roles.contains("moderator")) {
 			logger.info("skipping domain check..provider is a moderator");
 		} else if (!caseManagementMgr.isClientInProgramDomain(loggedInInfo.getLoggedInProviderNo(), demoNo) && !caseManagementMgr.isClientReferredInProgramDomain(loggedInInfo.getLoggedInProviderNo(), demoNo)) {
 			logger.error("A domain error needs to be added to the returned result, remove this when fixed");
@@ -170,8 +194,8 @@ public class NotesService extends AbstractServiceImpl {
 		criteria.setFirstResult(offset);
 		
 		criteria.setDemographicId(demographicNo);
-		criteria.setUserRole((String) se.getAttribute("userrole"));
-		criteria.setUserName((String) se.getAttribute("user"));
+		criteria.setUserRole(roles);
+		criteria.setUserName(loggedInInfo.getLoggedInProviderNo());
 		
 		// Note order is not user selectable in this version yet
 		criteria.setNoteSort("observation_date_desc");  
