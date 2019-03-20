@@ -111,7 +111,7 @@ public class OLISHL7Handler implements MessageHandler {
 				if (requestingHic != null) {
 					ProviderLabRouting routing = new ProviderLabRouting();
 					ProviderDataDao providerDataDao = SpringUtils.getBean(ProviderDataDao.class);
-					ProviderData provider = providerDataDao.findByOhipNumber(getOrderingProviderNo(msg));
+					ProviderData provider = providerDataDao.findByProviderNo(requestingHic);
 
 					if (provider != null){
 						routing.route(results.segmentId, provider.getId(), DbConnectionFilter.getThreadLocalDbConnection(), "HL7");
