@@ -95,8 +95,23 @@ public class OlisLabRequestSortable {
                             // Compares the alternate names stored in the nomenclature, continuing to compare other attributes if they are the same
                             compared = OLISUtils.compareStringEmptyIsMore(o1.getNomenclature().getRequestAlternateName1(), o2.getNomenclature().getRequestAlternateName1());
                             if (compared == 0) {
-                                // Compares the set ids to determine order
-                                compared = o1.getSetId().compareTo(o2.getSetId());
+                                // If the two set ids are not equal, compare them further, if they are, compared is 
+                                // already set to 0
+                                if (!o1.getSetId().equals(o2.getSetId())) {
+                                    // If the first set id is empty, then it is considered higher than the second
+                                    // If the second set id is empty, it is considered higher than the first 
+                                    if (o1.getSetId().isEmpty()) {
+                                        compared = 1;
+                                    } else if (o2.getSetId().isEmpty()) {
+                                        compared = -1;
+                                    } else {
+                                        // Parses both ids to integers
+                                        Integer o1SetId = Integer.parseInt(o1.getSetId());
+                                        Integer o2SetId = Integer.parseInt(o2.getSetId());
+                                        // Compares the set ids to determine order
+                                        compared = o1SetId.compareTo(o2SetId);
+                                    }
+                                }
                             }
                         }
                     }

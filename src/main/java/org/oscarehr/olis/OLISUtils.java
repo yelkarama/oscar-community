@@ -349,13 +349,13 @@ public class OLISUtils {
 	 *         A number less than {@code: 0} if s2 is empty or s1 is greater than s2
 	 */
 	public static int compareStringEmptyIsMore(String s1, String s2) {
-		if (s1.isEmpty()) {
+		if (s1.isEmpty() && !s2.isEmpty()) {
 			return 1;
-		} else if (s2.isEmpty()) {
+		} else if (s2.isEmpty() && !s1.isEmpty()) {
 			return -1;
 		} else {
-			// If they aren't the same, uses them for the ordering
-			return s1.compareTo(s2);
+			// If both values are populated or empty, compares them for the ordering
+			return s1.toLowerCase().compareTo(s2.toLowerCase());
 		}
 	}
 }
