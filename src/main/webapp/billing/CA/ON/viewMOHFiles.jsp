@@ -163,25 +163,26 @@ function checkForm() {
       if (contents[i].isDirectory() || contents[i].getName().startsWith(".")) continue;
       if (contents[i].getName().endsWith(".sh")) continue;
       String archiveElement = "<td ><input type='checkbox' name='mohFile' value='"+URLEncoder.encode(contents[i].getName())+"' title='select to archive'/></td>";
+        LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);  
+        BillingPermissionDao billingPermissionDao = SpringUtils.getBean(BillingPermissionDao.class);
+
+        boolean allowed = true;
+        String filename = contents[i].getName();
+        
+        String fileProviderNumber = "";
+        if (filename.matches("\\w{2}\\d+\\.\\d+")) {
+            fileProviderNumber = filename.substring(2, filename.indexOf("."));
+        }
+        
+        if (!fileProviderNumber.isEmpty()) {
+            String curUser_providerno = loggedInInfo.getLoggedInProviderNo();
+            List<String> ohipNos = billingPermissionDao.getOhipNosNotAllowed(curUser_providerno, BillingPermission.VIEW_MOH_FILES);
+            if (ohipNos.contains(fileProviderNumber)){
+                continue;
+            }
+        }
+        
       if (folder == EDTFolder.INBOX || folder == EDTFolder.ARCHIVE) {
-		  LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		  BillingPermissionDao billingPermissionDao = SpringUtils.getBean(BillingPermissionDao.class);
-	
-		  boolean allowed = true;
-		  String filename = contents[i].getName();
-		  String curUser_providerno = loggedInInfo.getLoggedInProviderNo();
-		  
-		  List<String> ohipNos = billingPermissionDao.getOhipNosNotAllowed(curUser_providerno, BillingPermission.BILLING_RECONCILIATION);
-		  for(int j = 0; j < ohipNos.size(); j++){
-			if(filename.indexOf(ohipNos.get(j)) > 0){
-				allowed = false;
-				break;
-			}
-		  }
-		  if(!allowed){
-			continue;
-		  }
-		  
           out.println("<tr id='" + URLEncoder.encode(contents[i].getName()) + "'>"+(folder == EDTFolder.INBOX ? archiveElement : "")+"<td><a HREF='javascript:void(0)' onclick='viewMOHFile(\""+URLEncoder.encode(contents[i].getName())+"\")'>"+contents[i].getName()+unzipMSG+"</a></td>") ;
           out.println("<td><a HREF='../../../servlet/BackupDownload?filename="+URLEncoder.encode(contents[i].getName())+"'>Download</a></td>") ;
       } else {

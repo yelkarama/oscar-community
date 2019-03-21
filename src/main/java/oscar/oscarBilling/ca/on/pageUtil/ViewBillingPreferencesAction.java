@@ -73,6 +73,7 @@ public class ViewBillingPreferencesAction extends Action {
 		
 		prop.setProperty("provider_no", viewer.getProviderNo());
 		prop.setProperty("provider_name", viewer.getFormattedName());
+		prop.setProperty("has_disabled_permissions", "false");
 		
 		List<BillingPermission> permissionList = dao.getByProviderNoAndViewerNo(loggedInInfo.getLoggedInProviderNo(), viewer.getProviderNo());
 		for(int j = 0; j < permissionList.size(); j++){
@@ -81,6 +82,7 @@ public class ViewBillingPreferencesAction extends Action {
 				prop.setProperty(bp.getPermission(), "true");
 			}else{
 				prop.setProperty(bp.getPermission(), "false");
+				prop.setProperty("has_disabled_permissions", "true");
 			}
 		}
 		providerPermissions.add(prop);

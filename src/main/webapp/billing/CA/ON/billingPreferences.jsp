@@ -57,41 +57,41 @@ function hideItem(hideId){
 			var pActive = $(pRow).find("[name='permission']")[0];
 			var pIcon = $(pRow).find("i")[0];
 			
-			if($permiRow.find("i").hasClass("icon-remove")){
+			if($permiRow.find("i").hasClass("icon-ok")){
 				pActive.value = "false";
 				$(pIcon).removeClass("icon-remove icon-ok");
-				$(pIcon).addClass("icon-ok");
+				$(pIcon).addClass("icon-remove");
 				
 				$(pRow).addClass("inactive");
 			}else{
 				pActive.value = "true";
 				$(pIcon).removeClass("icon-remove icon-ok");
-				$(pIcon).addClass("icon-remove");
+				$(pIcon).addClass("icon-ok");
 				
 				$(pRow).removeClass("inactive");
 			}
 		}
 		
-		if($permiRow.find("i").hasClass("icon-remove")){
-			$permiRow.find("i").removeClass("icon-remove")
-			$permiRow.find("i").addClass("icon-ok")
+		if($permiRow.find("i").hasClass("icon-ok")){
+			$permiRow.find("i").removeClass("icon-ok")
+			$permiRow.find("i").addClass("icon-remove")
 		}else{
 			pActive.value = "true";
-			$permiRow.find("i").removeClass("icon-ok");
-			$permiRow.find("i").addClass("icon-remove");
+			$permiRow.find("i").removeClass("icon-remove");
+			$permiRow.find("i").addClass("icon-ok");
 		}
 		
 	}else{
 		if(permiActive.value == "true"){
 			permiActive.value = "false";
-			$("#"+hideId).removeClass("icon-remove");
-			$("#"+hideId).addClass("icon-ok");
+			$("#"+hideId).removeClass("icon-ok");
+			$("#"+hideId).addClass("icon-remove");
 			
 			$permiRow.addClass("inactive");
 		}else{
 			permiActive.value = "true";
-			$("#"+hideId).removeClass("icon-ok");
-			$("#"+hideId).addClass("icon-remove");
+			$("#"+hideId).removeClass("icon-remove");
+			$("#"+hideId).addClass("icon-ok");
 			
 			$permiRow.removeClass("inactive");
 		}	
@@ -104,8 +104,12 @@ function hideItem(hideId){
 <link href="<%=request.getContextPath() %>/css/panel.css" rel="stylesheet" />
 <link href="<%=request.getContextPath() %>/css/list-group.css" rel="stylesheet" />
 <style>
+	body {
+		padding: 0 16px;
+	}
+	
 .inactive{
-	background-color: #878787;
+	background-color: #e3e3e3;
 }
 .controls{
 	float: right;
@@ -172,7 +176,12 @@ ul, .panel-group{
 				  <h4 class="panel-title">
 					<a data-toggle="collapse" href="#collapse<bean:write name="provPermIndex" />"><bean:write name="provPermissions"  property="provider_name" /></a>
 					<span class="controls">
-						<i id="removeAll<bean:write name="provPermIndex" />" class="icon-remove" onclick="hideItem(this.id)"></i>
+						<logic:equal name="provPermissions" property="has_disabled_permissions" value="false">
+							<i id="removeAll<bean:write name="provPermIndex" />" class="icon-ok" onclick="hideItem(this.id)"></i>
+						</logic:equal>
+						<logic:equal name="provPermissions" property="has_disabled_permissions" value="true">
+							<i id="removeAll<bean:write name="provPermIndex" />" class="icon-remove" onclick="hideItem(this.id)"></i>
+						</logic:equal>
 					</span>
 				  </h4>
 				</div>
@@ -192,17 +201,17 @@ ul, .panel-group{
 							<input type="hidden" name="permission" value="<bean:write name="provPermissions" property="${permission}"/>" />
 							<span class="controls">
 								<logic:equal name="provPermissions" property="${permission}" value="false">
-									<i id="remove<bean:write name="provPermIndex" />_<bean:write name="permissionIndex" />" class="icon-ok" onclick="hideItem(this.id)"></i>
+									<i id="remove<bean:write name="provPermIndex" />_<bean:write name="permissionIndex" />" class="icon-remove" onclick="hideItem(this.id)"></i>
 								</logic:equal>
 								<logic:notEqual name="provPermissions" property="${permission}" value="false">
-									<i id="remove<bean:write name="provPermIndex" />_<bean:write name="permissionIndex" />" class="icon-remove" onclick="hideItem(this.id)"></i>
+									<i id="remove<bean:write name="provPermIndex" />_<bean:write name="permissionIndex" />" class="icon-ok" onclick="hideItem(this.id)"></i>
 								</logic:notEqual>
 							</span>
 						</logic:present>
 						<logic:notPresent name="provPermissions" property="${permission}">
 							<input type="hidden" name="permission" value="true" />
 							<span class="controls">
-								<i id="remove<bean:write name="provPermIndex" />_<bean:write name="permissionIndex" />" class="icon-remove" onclick="hideItem(this.id)"></i>
+								<i id="remove<bean:write name="provPermIndex" />_<bean:write name="permissionIndex" />" class="icon-ok" onclick="hideItem(this.id)"></i>
 							</span>
 						</logic:notPresent>
 					</li>
