@@ -628,9 +628,15 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
                     cell.setPhrase(obxDisplayNamePhrase);
                     table.addCell(cell);
 					
+                    Font formattedCommentFont = new Font(commentFont);
+                    // If the status starts with W, indicating an invalid result, strikes out the comment
+                    if (status.startsWith("W")) {
+                    	formattedCommentFont.setStyle(Font.STRIKETHRU);
+					}
+                    
 					cell.setColspan(5);
 					cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-                    List<PdfPCell> commentCells = OLISLabPDFUtils.createCellsFromHl7(handler.getOBXResult(obr, obx).replaceAll("<br\\s*/*>", "\n"), commentFont, cell);
+                    List<PdfPCell> commentCells = OLISLabPDFUtils.createCellsFromHl7(handler.getOBXResult(obr, obx).replaceAll("<br\\s*/*>", "\n"), formattedCommentFont, cell);
                     if (commentCells.size() > 1) {
                         int numberOfCommentCells = commentCells.size();
                         PdfPCell firstCell = commentCells.remove(0);
