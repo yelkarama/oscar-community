@@ -239,7 +239,10 @@ function validateInput() {
 .patient-consent-alert {
 	color: #CC0000;
 	text-align: center;
-    display: block;
+}
+
+span.patient-consent-alert {
+	display: block;
 }
 	
 	.hidden {
@@ -322,7 +325,13 @@ function validateInput() {
     <tr>
         <td style="color: #a94442; font-weight: bold; padding: 10px;" colspan="3" align="center">No results returned! Please refine your search parameters.</td>
     </tr>
-    <% } %>
+    <% } else if (olisLabResults.isHasBlockedContent() && olisLabResults.isHasRequestingProvider()) { %>
+	<tr>
+		<td colspan="2" class="patient-consent-alert">
+			Do not disclose without express patient consent
+		</td>
+	</tr>
+	<% } %>
 	<tr>
 		<td colspan="2">
 			<%
