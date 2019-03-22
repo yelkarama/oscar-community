@@ -346,7 +346,13 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		
 		Phrase categoryPhrase = new Phrase();
 		categoryPhrase.setFont(new Font(cfBold, 11, Font.NORMAL));
-		categoryPhrase.add(header.replaceAll("<br\\s*/*>", "\n"));
+		
+		String formattedHeader = header.replaceAll("<br\\s*/*>", "\n");
+		if (obxCount == 0 && obrCommentCount > 0) {
+			formattedHeader = "Refer to test request note";
+		}
+		
+		categoryPhrase.add(formattedHeader);
 		
 		//Replaces breakpoints in the header and adds it to the phrase
 		// Checks if the status colour should be red
@@ -356,11 +362,6 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		//Adds the obr status to the phrase so it appears beside the test request/header
 		categoryPhrase.add(" (" + handler.getObrStatus(obr) + ")");
 		
-        categoryPhrase.setFont(new Font(cf, 8, Font.NORMAL));
-		if (obxCount == 0 && obrCommentCount > 0) {
-		    categoryPhrase.add(" Refer to test request note");
-        }
-        
 		//Gets the point of care and outputs message if it exists
 		String poc = handler.getPointOfCare(obr);
 		if (!stringIsNullOrEmpty(poc)){
