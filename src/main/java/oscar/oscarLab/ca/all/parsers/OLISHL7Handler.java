@@ -3407,7 +3407,7 @@ public class OLISHL7Handler implements MessageHandler {
 
             // Gets each part of the address
             String address1 = addressMap.get("Street Address");
-            String address2 = addressMap.get("Other Destination");
+            String address2 = addressMap.get("Other Designation");
             String postalCode = addressMap.get("Postal Code");
             String city = addressMap.get("City");
             String province = addressMap.get("Province");

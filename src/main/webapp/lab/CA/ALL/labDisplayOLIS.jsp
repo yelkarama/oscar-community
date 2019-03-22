@@ -898,6 +898,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                             <td colspan="2">
                                                 <div class="FieldData">
                                                     <%= handler.getOrderingFacilityName() %>
+                                                    <span style="font-size: 8px; color: #333333;"><%= handler.getOrderingFacilityOrganization()%></span>
                                                     <%
                                                     address = handler.getOrderingFacilityAddress();
                                                     if (address != null && address.size() > 0) {
