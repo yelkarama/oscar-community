@@ -413,8 +413,8 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 			}
 		}
 
-		String diagnosis = handler.getDiagnosis(obr);
-		if (!stringIsNullOrEmpty(diagnosis)){
+		List<String> diagnoses = handler.getDiagnoses(obr);
+		for(String diagnosis : diagnoses) {
 			cell.setColspan(5);
 			Phrase diagnosisPhrase = new Phrase();
 			diagnosisPhrase.setFont(commentBoldFont);

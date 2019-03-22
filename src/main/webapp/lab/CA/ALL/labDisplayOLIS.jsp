@@ -1343,8 +1343,8 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                 }//end for k=0
                             	}//end if handler.getObservation..
                                 
-                                String diagnosis = handler.getDiagnosis(obr);
-                                if (!stringIsNullOrEmpty(diagnosis)) {
+                                List<String> diagnoses = handler.getDiagnoses(obr);
+                                for (String diagnosis : diagnoses) {
                                 %>
                                 <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>">
                                     <td colspan="5" style="padding-top: 10px;">

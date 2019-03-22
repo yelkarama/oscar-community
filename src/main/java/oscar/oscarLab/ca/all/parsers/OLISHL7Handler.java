@@ -861,13 +861,29 @@ public class OLISHL7Handler implements MessageHandler {
 		return !getParentId(obr).isEmpty();
 	}
 
-	public String getDiagnosis(int obr) {
-		try {
-			return obrDiagnosis.containsKey(obr) ? getString(Terser.get(obrDiagnosis.get(obr), 3, 0, 2, 1)) : "";
-		} catch (HL7Exception e) {
-			MiscUtils.getLogger().error("OLIS HL7 Error", e);
-		}
-		return "";
+    /**
+     * Gets the diagnoses for the provided OBR as a list
+     * @param obr The OBR to retrieve the diagnoses for
+     * @return A list of diagnoses for the provided OBR. 
+     *         If there are no OBRs, an empty list is returned
+     */
+	public List<String> getDiagnoses(int obr) {
+	    List<String> diagnoses = new ArrayList<>();
+	    // Checks if the OBR has diagnoses linked to it
+	    if (obrDiagnosis.containsKey(obr)) {
+            try {
+                // Gets the diangosis segments for the OBR
+                List<Segment> diagnosisSegments = obrDiagnosis.get(obr);
+                for (Segment segment : diagnosisSegments) {
+                    // Adds the segment's value to the diagnoses list
+                    diagnoses.add(getString(Terser.get(segment, 3, 0, 2, 1)));
+                }
+            } catch (HL7Exception e) {
+                MiscUtils.getLogger().error("OLIS HL7 Error", e);
+            }
+        }
+	    // Returns the list of diagnoses
+		return diagnoses;
 	}
 
 	public int getMappedOBR(int obr) {
@@ -913,7 +929,7 @@ public class OLISHL7Handler implements MessageHandler {
 		return resultSortable;
 	}
 	
-	HashMap<Integer, Segment> obrDiagnosis;
+	HashMap<Integer, List<Segment>> obrDiagnosis;
 
 	private ArrayList<String> disciplines;
 
@@ -940,7 +956,7 @@ public class OLISHL7Handler implements MessageHandler {
 	public void init(String hl7Body) throws HL7Exception {
 		initDefaultSourceOrganizations();
 
-		obrDiagnosis = new HashMap<Integer, Segment>();
+		obrDiagnosis = new HashMap<>();
 
 		obrParentMap = new HashMap<String, Map<String, Integer>>();
 
@@ -1099,7 +1115,9 @@ public class OLISHL7Handler implements MessageHandler {
 						Structure[] segs = terser.getFinder().getRoot().getAll(segments[k]);
 						for (int l = 0; l < segs.length; l++) {
 							Segment dg1Seg = (Segment) segs[l];
-							obrDiagnosis.put(obrNum - 1, dg1Seg);
+							List<Segment> diagnosisSegments = obrDiagnosis.getOrDefault(obrNum - 1, new ArrayList<Segment>());
+							diagnosisSegments.add(dg1Seg);
+							obrDiagnosis.put(obrNum - 1, diagnosisSegments);
 						}
 					}
 				} catch (Exception e) {
