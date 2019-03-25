@@ -305,7 +305,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		
 		cell = new PdfPCell();
 		cell.setBorder(0);
-		String primaryFacility = handler.getPerformingFacilityName();
+		String primaryFacility = handler.getPrimaryPerformingFacilityName();
 		String performingFacility = handler.getOBRPerformingFacilityName(obr);
 		if (!primaryFacility.equals(performingFacility) && !stringIsNullOrEmpty(performingFacility)){
 			cell.setPhrase(new Phrase("Performing Facility: ", boldFont));
@@ -1106,7 +1106,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 	        }
         }
     
-        String primaryFacility = handler.getPerformingFacilityName();
+        String primaryFacility = handler.getPrimaryPerformingFacilityName();
         String reportingFacility = handler.getReportingFacilityName();
         
         if (!stringIsNullOrEmpty(primaryFacility)){

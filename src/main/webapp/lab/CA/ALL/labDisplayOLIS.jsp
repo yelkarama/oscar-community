@@ -917,7 +917,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                             </td>
                                         </tr>
                                         <% }
-                               String primaryFacility = handler.getPerformingFacilityName();
+                               String primaryFacility = handler.getPrimaryPerformingFacilityName();
                                String reportingFacility = handler.getReportingFacilityName();
                                if (!stringIsNullOrEmpty(primaryFacility)) {
                             %>
@@ -932,7 +932,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                         <tr>
                                             <td colspan="2">
                                                 <div class="FieldData">
-                                                    <%= handler.getPerformingFacilityName() %>
+                                                    <%= primaryFacility %>
                                                     <%
                                                      address = handler.getPerformingFacilityAddress();
                                                     if (address != null && address.size() > 0) {

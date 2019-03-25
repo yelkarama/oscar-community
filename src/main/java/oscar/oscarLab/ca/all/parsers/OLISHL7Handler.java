@@ -86,6 +86,8 @@ public class OLISHL7Handler implements MessageHandler {
 	private HashMap<String, String> defaultSourceOrganizations;
 	private Map<Integer, Boolean> obrChildResultSusceptibilities = new HashMap<>(); 
 	
+	private Map<String, String> primaryPerformingFacility = null;
+	
 	private String reportStatus = "";
 	private String reportStatusDescription = "Final";
 
@@ -95,7 +97,11 @@ public class OLISHL7Handler implements MessageHandler {
 
 	private HashMap<Integer, OlisLabRequestSortable> obrSortMap;
 	private HashMap<Integer, List<OlisLabResultSortable>> obxSortMap;
-    
+
+	// Used temporarily for getting the performing facility that occurs the most
+    Map<String, Integer> facilityCountMap = new HashMap<>();
+    Map<String, Map<String, String>> facilityMap = new HashMap<>();
+	
 	public static final String OBR_SPECIMEN_TYPE = "specimenType";
 	public static final String OBR_SPECIMEN_RECEIVED_DATETIME = "specimenReceived";
 	public static final String OBR_SITE_MODIFIER = "siteModifier";
@@ -465,6 +471,24 @@ public class OLISHL7Handler implements MessageHandler {
 		}
 		return "";
 	}
+
+    /**
+     * Gets the primary performing facility name
+     * @return Formatted string of the performing facility
+     */
+    public String getPrimaryPerformingFacilityName() {
+	    String primaryFacility = "";
+	    if (primaryPerformingFacility != null) {
+	        String name = primaryPerformingFacility.get("name");
+	        String id = primaryPerformingFacility.get("id");
+	        String fullId = primaryPerformingFacility.get("fullId");
+            String type = getOrganizationType(fullId);
+	        
+	        primaryFacility = String.format("%s (%s %s)", name, type, id); 
+        }
+	    
+	    return primaryFacility;
+    }
 	
 	public String getPerformingFacilityName() {
 		try {
@@ -1132,13 +1156,30 @@ public class OLISHL7Handler implements MessageHandler {
 		obrSortMap = new HashMap<Integer, OlisLabRequestSortable>();
 		getOlisMicroorganismNomenclatureMap();
 		mapOBRSortKeys();
-
+        setPrimaryPerformingFacility();
 		disciplines = new ArrayList<String>();
 		for (int i = 0; i < getOBRCount(); i++) {
 			disciplines.add(getOBRCategory(i));
 		}
 	}
 
+    /**
+     * Sets the primary performing facility
+     * The primary performing facility is the performing facility that occurs the most times in the report
+     */
+	private void setPrimaryPerformingFacility() {
+	    String mostCommonName = "";
+	    int count = 0;
+	    for (HashMap.Entry<String, Integer> entry : facilityCountMap.entrySet()) {
+	        if (entry.getValue() > count) {
+	            mostCommonName = entry.getKey();
+	            count = entry.getValue();
+            }
+        }
+	    
+	    primaryPerformingFacility = facilityMap.get(mostCommonName);
+    }
+    
 	private void parseZBRSegment(int zbrNum) {
 		try {
 			String key = "", value = "";
@@ -1160,12 +1201,32 @@ public class OLISHL7Handler implements MessageHandler {
 				if (getString(Terser.get(zbr, index, 0, 6, 2)).equals("")) {
 					continue;
 				}
-				key = getString(Terser.get(zbr, index, 0, 6, 2));
-				if (key != null && key.indexOf(":") > 0) {
-					key = key.substring(key.indexOf(":") + 1);
+				String fullId = getString(Terser.get(zbr, index, 0, 6, 2));
+				if (fullId != null && fullId.indexOf(":") > 0) {
+					key = fullId.substring(fullId.indexOf(":") + 1);
 				}
 				value = getString(Terser.get(zbr, index, 0, 1, 1));
 				sourceOrganizations.put(key, value);
+				
+				// If the index is 6, it is the performing facility
+				if (index == 6) {
+				    // Gets the current count for the performing facility
+				    Integer facilityCount = facilityCountMap.getOrDefault(value, 0);
+				    // Increments the occurence count for the facility
+				    facilityCount++;
+				    // Puts the count into the count map with the facility name as the key
+				    facilityCountMap.put(value, facilityCount);
+				    // If this is the first occurrence of the facility, adds it to the facility map with the name as the key
+				    if (facilityCount == 1) {
+                        Map<String, String> facility = new HashMap<>();
+                        facility.put("name", value);
+                        facility.put("id", key);
+                        facility.put("fullId", fullId.substring(0, fullId.indexOf(":")));
+                        
+                        facilityMap.put(value, facility);
+                    }
+				    
+                }
 			}
 		} catch (Exception e) {
 			MiscUtils.getLogger().error("OLIS HL7 Error", e);
