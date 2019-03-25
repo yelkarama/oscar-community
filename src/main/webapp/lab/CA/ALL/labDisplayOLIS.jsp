@@ -1108,8 +1108,10 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                         %>
                         <table style="page-break-inside:avoid;" bgcolor="#003399" border="0" cellpadding="0" cellspacing="0" width="100%" class="monospaced">
                             <%
+                                boolean isNewCategory = false;
                             	newCategory = handler.getOBRCategory(obr);
                             	if (!category.equals(newCategory)) {
+                            	    isNewCategory = true;
                             		if (i > 0) {
                             		%>
                             <tr>
@@ -1159,7 +1161,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                             }
                                         }
 
-                                        if (!previousMatch) {
+                                        if (!previousMatch || isNewCategory) {
                                     %>
                                             <table width="100%">
                                                 <tr>
