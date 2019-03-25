@@ -892,6 +892,8 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 				
 				cell.setColspan(5);
 				cell.setBorder(12);
+				// Adds padding to the right so that text does not overflow outside of the table
+				cell.setPaddingRight(10);
 				//For each comment, outputs it
 				for(int commentCount = 0; commentCount < handler.getOBXCommentCount(obr, obx); commentCount++){
 					String comment = handler.getOBXCommentNoFormat(obr, obx, commentCount).replaceAll("<br\\s*/*>", "\n").replaceAll("&nbsp;", "\u00A0");
