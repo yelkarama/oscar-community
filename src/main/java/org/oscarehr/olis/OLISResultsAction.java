@@ -142,8 +142,8 @@ public class OLISResultsAction extends DispatchAction {
 					FileUtils.writeStringToFile(olisResultFile, message);
 					
 					// Parse the HL7 string...
-					message = message.replaceAll("\\\\H", "\\\\.H");
-					message = message.replaceAll("\\\\N", "\\\\.N");
+					message = message.replaceAll("\\\\H\\\\", "\\\\.H\\\\");
+					message = message.replaceAll("\\\\N\\\\", "\\\\.N\\\\");
                     OLISHL7Handler olisResultHandler = (OLISHL7Handler) Factory.getHandler("OLIS_HL7", message);
 					if (olisResultHandler.getOBRCount() == 0) {
 						continue;
