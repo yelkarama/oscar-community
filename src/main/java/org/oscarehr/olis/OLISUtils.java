@@ -151,7 +151,8 @@ public class OLISUtils {
 					// If there are \.sp\ elements then the length of the previous sentence is calculated uses the current \.sp\, not \.br\
 					if (hl7EncodedCharacter.getHl7Tag().equals("br") && !spElementExists) {
 						// Calculates the previous line count based on the current \.br\ element after replacing all nbsp instances with a single space to represent the proper length
-						previousLineLength = hl7Text.replaceAll("&nbsp;", " ").length() - matcher.end();
+						String previousLine = hl7Text.substring(matcher.end());
+						previousLineLength = previousLine.replaceAll("&nbsp;", " ").length();
 					} else if (hl7EncodedCharacter.getHl7Tag().equals("sp")) {
 						// If the \.sp\ element is not in the first index, gets the previous line length based on the last newline
 						// If the \.sp\ element is the first in the index then the spacing needs to be calculated based on the previous comment's last line

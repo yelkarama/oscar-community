@@ -41,10 +41,12 @@ import org.oscarehr.olis.OLISUtils;
 import org.oscarehr.olis.dao.OLISFacilitiesDao;
 import org.oscarehr.olis.dao.OLISRequestNomenclatureDao;
 import org.oscarehr.olis.dao.OLISResultNomenclatureDao;
+import org.oscarehr.olis.dao.OlisHospitalDao;
 import org.oscarehr.olis.dao.OlisMicroorganismNomenclatureDao;
 import org.oscarehr.olis.model.OLISFacilities;
 import org.oscarehr.olis.model.OLISRequestNomenclature;
 import org.oscarehr.olis.model.OLISResultNomenclature;
+import org.oscarehr.olis.model.OlisFacilityHospital;
 import org.oscarehr.olis.model.OlisLabChildResultSortable;
 import org.oscarehr.olis.model.OlisLabRequestSortable;
 import org.oscarehr.olis.model.OlisLabResultSortable;
@@ -351,47 +353,36 @@ public class OLISHL7Handler implements MessageHandler {
 	public HashMap<String, String> getPerformingFacilityAddress(int obr) {
 		obr++;
 		try {
-			String value = "";
-			Segment zbr = null;
+			Segment zbr;
 			if (obr == 1) {
 				zbr = terser.getSegment("/.ZBR");
 			} else {
 				zbr = (Segment) terser.getFinder().getRoot().get("ZBR" + obr);
 			}
-			HashMap<String, String> address;
 
-			String identifier = getString(Terser.get(zbr, 7, 0, 7, 1));
-			if ("".equals(identifier)) {
-				return null;
+			String fullId = getString(Terser.get(zbr, 6, 0, 6, 2));
+			HashMap<String, String> address = getStoredFacilityAddress(fullId);
+			
+			// If an address couldn't be retrieved from the database, gets the address information from the HL7
+			if (address == null) {
+				String identifier = getString(Terser.get(zbr, 7, 0, 7, 1));
+				if ("".equals(identifier)) {
+					return null;
+				}
+				
+				String addressLine1 = getString(Terser.get(zbr, 7, 0, 1, 1));
+				String addressLine2 = getString(Terser.get(zbr, 7, 0, 2, 1));
+				String city = getString(Terser.get(zbr, 7, 0, 3, 1));
+				String province = getString(Terser.get(zbr, 7, 0, 4, 1));
+				String postalCode = getString(Terser.get(zbr, 7, 0, 5, 1));
+				String country = getString(Terser.get(zbr, 7, 0, 6, 1));
+				
+				address = createAddressMap(addressLine1, addressLine2, city, province, postalCode, country);
+				
+				address.put("Address Type", addressTypeNames.get(identifier));
 			}
-			address = new HashMap<String, String>();
-			value = getString(Terser.get(zbr, 7, 0, 1, 1));
-			if (stringIsNotNullOrEmpty(value)) {
-				address.put("Street Address", value);
-			}
-			value = getString(Terser.get(zbr, 7, 0, 2, 1));
-			if (stringIsNotNullOrEmpty(value)) {
-				address.put("Other Designation", value);
-			}
-			value = getString(Terser.get(zbr, 7, 0, 3, 1));
-			if (stringIsNotNullOrEmpty(value)) {
-				address.put("City", value);
-			}
-			value = getString(Terser.get(zbr, 7, 0, 4, 1));
-			if (stringIsNotNullOrEmpty(value)) {
-				address.put("Province", value);
-			}
-			value = getString(Terser.get(zbr, 7, 0, 5, 1));
-			if (stringIsNotNullOrEmpty(value)) {
-				address.put("Postal Code", value);
-			}
-			value = getString(Terser.get(zbr, 7, 0, 6, 1));
-			if (stringIsNotNullOrEmpty(value)) {
-				address.put("Country", value);
-			}
-			address.put("Address Type", addressTypeNames.get(identifier));
+			
 			return address;
-
 		} catch (Exception e) {
 			MiscUtils.getLogger().error("OLIS HL7 Error", e);
 		}
@@ -482,7 +473,10 @@ public class OLISHL7Handler implements MessageHandler {
 	        String name = primaryPerformingFacility.get("name");
 	        String id = primaryPerformingFacility.get("id");
 	        String fullId = primaryPerformingFacility.get("fullId");
-            String type = getOrganizationType(fullId);
+			String type = "";
+	        if (fullId.contains(":")) {
+				type = getOrganizationType(fullId.substring(0, fullId.indexOf(":")));
+			}
 	        
 	        primaryFacility = String.format("%s (%s %s)", name, type, id); 
         }
@@ -513,6 +507,43 @@ public class OLISHL7Handler implements MessageHandler {
 		return "";
 	}
 
+	public HashMap<String, String> getPrimaryPerformingFacilityAddress() {
+		try {
+			HashMap<String, String> address = null;
+			// If the primary performing facility is populated, gets the address for it
+			if (primaryPerformingFacility != null) {
+				// Gets the fullId for the primary performing facility
+				String fullId = primaryPerformingFacility.get("fullId");
+				// Gets the address to the facility related to the full id
+				address = getStoredFacilityAddress(fullId);
+			}
+			
+			// If there is no primary performing facility or an address could not be retrieved, gets it from the HL7
+			if (address == null) {
+				String identifier = getString(terser.get("/.ZBR-7-7"));
+
+				if ("".equals(identifier)) {
+					return null;
+				}
+				
+				String addressLine1 = getString(terser.get("/.ZBR-7-1"));
+				String addressLine2 = getString(terser.get("/.ZBR-7-2"));
+				String city = getString(terser.get("/.ZBR-7-3"));
+				String province = getString(terser.get("/.ZBR-7-4"));
+				String postalCode = getString(terser.get("/.ZBR-7-5"));
+				String country = getString(terser.get("/.ZBR-7-6"));
+				// Creates the address map based on the contents of the HL7
+				address = createAddressMap(addressLine1, addressLine2, city, province, postalCode, country);
+
+				address.put("Address Type", addressTypeNames.get(identifier));
+			}
+			return address;
+		} catch (HL7Exception e) {
+			MiscUtils.getLogger().error("OLIS HL7 Error", e);
+			return null;
+		}
+	}
+	
 	public HashMap<String, String> getPerformingFacilityAddress() {
 		try {
 			String value;
@@ -578,38 +609,27 @@ public class OLISHL7Handler implements MessageHandler {
 
 	public HashMap<String, String> getReportingFacilityAddress() {
 		try {
-			String value;
-			HashMap<String, String> address;
-			String identifier = getString(terser.get("/.ZBR-5-7"));
-			if ("".equals(identifier)) {
-				return null;
+			HashMap<String, String> address = null;
+			String fullId = getString(terser.get("/.ZBR-4-6-2"));
+			address = getStoredFacilityAddress(fullId);
+			
+			if (address == null) {
+				String identifier = getString(terser.get("/.ZBR-5-7"));
+				if ("".equals(identifier)) {
+					return null;
+				}
+				
+				String addressLine1 = getString(terser.get("/.ZBR-5-1"));
+				String addressLine2 = getString(terser.get("/.ZBR-5-2"));
+				String city = getString(terser.get("/.ZBR-5-3"));
+				String province = getString(terser.get("/.ZBR-5-4"));
+				String postalCode = getString(terser.get("/.ZBR-5-5"));
+				String country = getString(terser.get("/.ZBR-5-6"));
+				// Gets the address map from the data retrieved from the HL7
+				address = createAddressMap(addressLine1, addressLine2, city, province, postalCode, country);
+				
+				address.put("Address Type", addressTypeNames.get(identifier));
 			}
-			address = new HashMap<String, String>();
-			value = getString(terser.get("/.ZBR-5-1"));
-			if (stringIsNotNullOrEmpty(value)) {
-				address.put("Street Address", value);
-			}
-			value = getString(terser.get("/.ZBR-5-2"));
-			if (stringIsNotNullOrEmpty(value)) {
-				address.put("Other Designation", value);
-			}
-			value = getString(terser.get("/.ZBR-5-3"));
-			if (stringIsNotNullOrEmpty(value)) {
-				address.put("City", value);
-			}
-			value = getString(terser.get("/.ZBR-5-4"));
-			if (stringIsNotNullOrEmpty(value)) {
-				address.put("Province", value);
-			}
-			value = getString(terser.get("/.ZBR-5-5"));
-			if (stringIsNotNullOrEmpty(value)) {
-				address.put("Postal Code", value);
-			}
-			value = getString(terser.get("/.ZBR-5-6"));
-			if (stringIsNotNullOrEmpty(value)) {
-				address.put("Country", value);
-			}
-			address.put("Address Type", addressTypeNames.get(identifier));
 			return address;
 		} catch (HL7Exception e) {
 			MiscUtils.getLogger().error("OLIS HL7 Error", e);
@@ -628,38 +648,28 @@ public class OLISHL7Handler implements MessageHandler {
 
 	public HashMap<String, String> getOrderingFacilityAddress() {
 		try {
-			String value;
-			HashMap<String, String> address;
-			String identifier = getString(terser.get("/.ORC-22-7"));
-			if ("".equals(identifier)) {
-				return null;
+			String fullId = getString(terser.get("/.ORC-21-6-2"));
+			// Gets the ordering facility's address from the database
+			HashMap<String, String> address = getStoredFacilityAddress(fullId);
+			// If the address cannot be received from the database, gets it from the HL7
+			if (address == null) {
+				String identifier = getString(terser.get("/.ORC-22-7"));
+				if ("".equals(identifier)) {
+					return null;
+				}
+				
+				// Gets all components of the address for the ordering facility
+				String addressLine1 = getString(terser.get("/.ORC-22-1"));
+				String addressLine2 = getString(terser.get("/.ORC-22-2"));
+				String city = getString(terser.get("/.ORC-22-3"));
+				String province = getString(terser.get("/.ORC-22-4"));
+				String postalCode = getString(terser.get("/.ORC-22-5"));
+				String country = getString(terser.get("/.ORC-22-6"));
+				// Creates the address map
+				address = createAddressMap(addressLine1, addressLine2, city, province, postalCode, country);
+				// Sets the Address Type identifier
+				address.put("Address Type", addressTypeNames.get(identifier));
 			}
-			address = new HashMap<String, String>();
-			value = getString(terser.get("/.ORC-22-1"));
-			if (stringIsNotNullOrEmpty(value)) {
-				address.put("Street Address", value);
-			}
-			value = getString(terser.get("/.ORC-22-2"));
-			if (stringIsNotNullOrEmpty(value)) {
-				address.put("Other Designation", value);
-			}
-			value = getString(terser.get("/.ORC-22-3"));
-			if (stringIsNotNullOrEmpty(value)) {
-				address.put("City", value);
-			}
-			value = getString(terser.get("/.ORC-22-4"));
-			if (stringIsNotNullOrEmpty(value)) {
-				address.put("Province", value);
-			}
-			value = getString(terser.get("/.ORC-22-5"));
-			if (stringIsNotNullOrEmpty(value)) {
-				address.put("Postal Code", value);
-			}
-			value = getString(terser.get("/.ORC-22-6"));
-			if (stringIsNotNullOrEmpty(value)) {
-				address.put("Country", value);
-			}
-			address.put("Address Type", addressTypeNames.get(identifier));
 			return address;
 		} catch (HL7Exception e) {
 			MiscUtils.getLogger().error("OLIS HL7 Error", e);
@@ -667,6 +677,72 @@ public class OLISHL7Handler implements MessageHandler {
 		}
 	}
 
+	/**
+	 * Gets the facility's address from the database if it exists
+	 * @return A hashmap of the facility's address, returns null if an address could not be retrieved
+	 */
+	private HashMap<String, String> getStoredFacilityAddress(String fullId) {
+    	HashMap<String, String> address = null;
+	
+    	if (fullId.contains(":")) {
+			// Gets the OID for the facility
+			String oid = fullId.substring(0, fullId.indexOf(":"));
+			OlisFacilityHospital facility;
+			// If the oid is hospital, gets the address from the hospital table, if not, gets it from the facility table
+			if (oid.equals("2.16.840.1.113883.3.59.3")) {
+				OlisHospitalDao olisHospitalDao = SpringUtils.getBean(OlisHospitalDao.class);
+				// Gets the facility from by the full Id
+				facility = olisHospitalDao.findByFullId(fullId);
+			} else {
+				OLISFacilitiesDao olisFacilitiesDao = SpringUtils.getBean(OLISFacilitiesDao.class);
+				// Gets the facility from by the full Id
+				facility = olisFacilitiesDao.findByFullId(fullId);
+			}
+
+			// If the facility is not null, creates the address map
+			if (facility != null) {
+				address = createAddressMap(facility.getAddressLine1(), facility.getAddressLine2(), facility.getCity(), facility.getProvince(), facility.getPostalCode(), "CAN");
+			}
+		}
+		
+    	// Returns the address
+    	return address;
+	}
+
+	/**
+	 * Creates a HashMap containing the elements of an address
+	 * @param addressLine1 The first address line for the address
+	 * @param addressLine2 Additional address information for the address
+	 * @param city The city the address is in
+	 * @param province The province the address is in
+	 * @param postalCode The postal code of the address
+	 * @param country The country the address is in
+	 * @return A HashMap of the address components
+	 */
+	private HashMap<String, String> createAddressMap(String addressLine1, String addressLine2, String city, String province, String postalCode, String country) {
+		HashMap<String, String> addressMap = new HashMap<String, String>();
+    	if (stringIsNotNullOrEmpty(addressLine1)) {
+			addressMap.put("Street Address", addressLine1);
+		}
+		if (stringIsNotNullOrEmpty(addressLine2)) {
+			addressMap.put("Other Designation", addressLine2);
+		}
+		if (stringIsNotNullOrEmpty(city)) {
+			addressMap.put("City", city);
+		}
+		if (stringIsNotNullOrEmpty(province)) {
+			addressMap.put("Province", province);
+		}
+		if (stringIsNotNullOrEmpty(postalCode)) {
+			addressMap.put("Postal Code", postalCode);
+		}
+		if (stringIsNotNullOrEmpty(country)) {
+			addressMap.put("Country", country);
+		}
+		
+		return addressMap;
+	}
+	
 	public String getOrderingFacilityOrganization() {
 		try {
 			String key = getString(terser.get("/.ORC-21-6-2"));
@@ -1221,7 +1297,7 @@ public class OLISHL7Handler implements MessageHandler {
                         Map<String, String> facility = new HashMap<>();
                         facility.put("name", value);
                         facility.put("id", key);
-                        facility.put("fullId", fullId.substring(0, fullId.indexOf(":")));
+                        facility.put("fullId", fullId);
                         
                         facilityMap.put(value, facility);
                     }
@@ -2298,8 +2374,8 @@ public class OLISHL7Handler implements MessageHandler {
 		OLISFacilitiesDao olisFacilitiesDao = SpringUtils.getBean(OLISFacilitiesDao.class);
 		OLISFacilities olisFacility = olisFacilitiesDao.findByLicenceNumber(Integer.parseInt(key));
 		String organizationName;
-		if (olisFacility != null && olisFacility.getFacilityName() != null) {
-			organizationName = olisFacility.getFacilityName();
+		if (olisFacility != null && olisFacility.getName() != null) {
+			organizationName = olisFacility.getName();
 		} else {
 			organizationName = sourceOrganizations.get(key);
 		}

@@ -934,7 +934,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                                 <div class="FieldData">
                                                     <%= primaryFacility %>
                                                     <%
-                                                     address = handler.getPerformingFacilityAddress();
+                                                     address = handler.getPrimaryPerformingFacilityAddress();
                                                     if (address != null && address.size() > 0) {
                                                     	String city = displayAddressFieldIfNotNullOrEmpty(address, "City", false);
                                                     	String province = displayAddressFieldIfNotNullOrEmpty(address, "Province", false);

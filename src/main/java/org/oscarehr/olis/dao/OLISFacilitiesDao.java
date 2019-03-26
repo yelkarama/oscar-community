@@ -25,4 +25,17 @@ public class OLISFacilitiesDao extends AbstractDao<OLISFacilities> {
             return null;
         }
     }
+    
+    public OLISFacilities findByFullId(String fullId) {
+        try {
+            String sql = "select x from "+ this.modelClass.getName() + " x where x.fullId = :fullId";
+            Query query = entityManager.createQuery(sql);
+            query.setParameter("fullId", fullId);
+            return (OLISFacilities) query.getSingleResult();
+        }
+        catch (javax.persistence.NoResultException nre) {
+            nre.printStackTrace();
+            return null;
+        }
+    }
 }
