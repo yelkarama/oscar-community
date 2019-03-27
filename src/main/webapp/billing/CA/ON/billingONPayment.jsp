@@ -91,6 +91,8 @@
     try {         
        startDate = DateUtils.parseDate(startDateStr, locale);
        endDate = DateUtils.parseDate(endDateStr, locale);
+       //add number of milliseconds in a day minus one to include all times during that day
+       endDate = new Date(endDate.getTime() + 86399999);
        if (DateUtils.calculateDayDifference(startDate, endDate) < 0) {
             errorMsg = LocaleUtils.getMessage(locale, "oscar.billing.paymentReceived.errorEndDateGreater");
         }
