@@ -266,7 +266,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		cell.setBorder(0);
 		//Sets the current category as a newCategory
 		newCategory = handler.getOBRCategory(obr);
-		
+		boolean isNewCategory = false;
 		//If it is a different category, then add a new category header to the category table
 		if (!category.equals(newCategory)){
 			if (newCategory.contains("Microbiology")) {
@@ -283,13 +283,14 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 			categoryTable.addCell(cell);
 			//The new category becomes the current category
 			category = newCategory;
+			isNewCategory = true;
 		}
 		
 		//Adds a separator
 		categoryTable.addCell(separator);
 		
 		//Creates the collection table and adds it to the category table
-		PdfPTable collectionTable = createCollectionTable(obr, previousObr);
+		PdfPTable collectionTable = createCollectionTable(obr, previousObr, isNewCategory);
 		cell = new PdfPCell(collectionTable);
 		cell.setBorder(0);
 		cell.setColspan(2);
@@ -1563,7 +1564,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
     	return phoneNumber;
     }
     
-	public PdfPTable createCollectionTable(Integer obr, int previousObr){
+	public PdfPTable createCollectionTable(Integer obr, int previousObr, boolean isNewCategory){
     	PdfPTable collectionTable = new PdfPTable(3);
     	//Sets the default cell's border to 0 in case completeRow() needs to add in a cell
     	collectionTable.getDefaultCell().setBorder(0);
@@ -1580,7 +1581,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 
 		boolean previousMatch = false;
 		boolean displayCollectorComments = true;
-		if (previousObr > -1) {
+		if (!isNewCategory && previousObr > -1) {
 			JSONObject previousObrHeader = handler.getObrHeader(previousObr);
 			String previousCollectionDateTime = handler.getCollectionDateTime(previousObr);
 			String previousSpecimenCollectedBy = handler.getSpecimenCollectedBy(previousObr);
