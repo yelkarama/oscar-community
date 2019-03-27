@@ -42,6 +42,7 @@
 <%@page import="org.oscarehr.common.model.RaDetail,org.oscarehr.common.dao.RaDetailDao"%>
 <%@page import="org.oscarehr.common.model.BillingONPremium,org.oscarehr.common.dao.BillingONPremiumDao"%>
 <%@page import="org.oscarehr.common.model.BillingONItem, org.oscarehr.common.service.BillingONService"%>
+<%@ page import="java.text.SimpleDateFormat" %>
 
 <%
     if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
@@ -89,11 +90,10 @@
     Date startDate =null;
     Date endDate = null;
     try {         
-       startDate = DateUtils.parseDate(startDateStr, locale);
-       endDate = DateUtils.parseDate(endDateStr, locale);
-       //add number of milliseconds in a day minus one to include all times during that day
-       endDate = new Date(endDate.getTime() + 86399999);
-       if (DateUtils.calculateDayDifference(startDate, endDate) < 0) {
+       startDate = (new SimpleDateFormat("yyyy-MM-dd", locale)).parse(startDateStr);
+       endDate = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", locale)).parse(endDateStr + " 23:59:59.999");
+
+       if (endDate.compareTo(startDate) < 0) {
             errorMsg = LocaleUtils.getMessage(locale, "oscar.billing.paymentReceived.errorEndDateGreater");
         }
     }
@@ -150,8 +150,12 @@
 	int lastDate = raCalEndDate.getActualMaximum(Calendar.DATE);
 		
 	raCalStartDate.set(Calendar.DATE, firstDate);
+	raCalStartDate.set(Calendar.HOUR_OF_DAY, 0);
+	raCalStartDate.set(Calendar.MINUTE, 0);
+	raCalStartDate.set(Calendar.SECOND, 0);
+	raCalStartDate.set(Calendar.MILLISECOND, 0);
 	raCalEndDate.set(Calendar.DATE,lastDate);
-		
+
 	Date raStartDate = raCalStartDate.getTime();
 	Date raEndDate = raCalEndDate.getTime();   
         
