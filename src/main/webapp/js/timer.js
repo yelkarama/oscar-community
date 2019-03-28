@@ -10,14 +10,13 @@ var chartTimer = {
     "minutes": 0,
     "hours": 0
 };
-var timerId;
+var timeoutId;
 var pauseTimer = {
     "milliseconds": 0,
     "seconds": 0,
     "minutes": 0,
     "hours": 0
 };
-var pauseTimerId;
 var time = "";
 var paused = false;
 
@@ -47,16 +46,10 @@ function update(fn, period, hold) {
         delayToNext *= .9;
         hold = true;
     }
-
-    var timeoutId = setTimeout(function(){
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(function(){
         update(fn, period, hold)
     }, delayToNext + buffer);
-
-    if (paused) {
-        pauseTimerId = timeoutId;
-    } else {
-        timerId = timeoutId;
-    }
 }
 
 function add() {
@@ -75,17 +68,11 @@ function add() {
     if (!paused) {
         time = formatTime(chartTimer.hours, chartTimer.minutes, chartTimer.seconds);
         timer.textContent = time;
-    } else {
-
     }
 }
 
 function createTimer() {
     timerId = update(add, 1000, true);
-}
-
-function createPauseTimer() {
-    pauseTimerId = update(add, 1000, true);
 }
 
 /* Start button */
@@ -104,17 +91,10 @@ function pasteTimer() {
 
 /* Pause/Start button */
 function startPauseTimer() {
-    if (paused) {
-        clearTimeout(pauseTimerId);
-        createTimer();
-        paused = false;
-        startPause.title = "Pause";
-    } else {
-        clearTimeout(timerId);
-        createPauseTimer();
-        paused = true;
-        startPause.title = "Play";
-    }
+    clearTimeout(timeoutId);
+    createTimer();
+    paused = !paused;
+    startPause.title = paused ? "Play":"Pause";
 
     startPause.classList.toggle("glyphicon-pause");
     startPause.classList.toggle("glyphicon-play");
