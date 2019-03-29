@@ -346,13 +346,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		
 		Phrase categoryPhrase = new Phrase();
 		categoryPhrase.setFont(new Font(cfBold, 11, Font.NORMAL));
-		
-		String formattedHeader = header.replaceAll("<br\\s*/*>", "\n");
-		if (obxCount == 0 && obrCommentCount > 0) {
-			formattedHeader = "Refer to test request note";
-		}
-		
-		categoryPhrase.add(formattedHeader);
+		categoryPhrase.add(header.replaceAll("<br\\s*/*>", "\n"));
 		
 		//Replaces breakpoints in the header and adds it to the phrase
 		// Checks if the status colour should be red
@@ -411,6 +405,13 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 				String obrCommentPhrase = obrComment + "\t\t" + sourceOrg;
                 OLISLabPDFUtils.addAllCellsToTable(table, OLISLabPDFUtils.createCellsFromHl7(obrCommentPhrase, commentFont, cell));
 			}
+		}
+
+		if (obxCount == 0 && obrCommentCount > 0) {
+			cell.setColspan(5);
+			cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+			cell.setPhrase(new Phrase("Refer to test request note", new Font(cfBold, 11, Font.NORMAL)));
+			table.addCell(cell);
 		}
 
 		List<String> diagnoses = handler.getDiagnoses(obr);

@@ -1281,16 +1281,11 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                             <%
                                 int obxCount = handler.getOBXCount(obr);
                                 int obrCommentCount = handler.getOBRCommentCount(obr);
-                                
-                                String obrTitle = headers.get(obr).toString();
-                                if (obxCount == 0 && obrCommentCount > 0) {
-                                    obrTitle = "Refer to test request note";
-                                }
                             %>
                             <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>">
                                 <td valign="top" colspan="5">
                                     <div class="Title2">
-                                        <%= obrTitle %> <span <%= !handler.isObrStatusFinal(obr) ? "style=\"color: red\"" : "" %>><%= " (" +handler.getObrStatus(obr) + ")"%></span>
+                                        <%=headers.get(obr)%> <span <%= !handler.isObrStatusFinal(obr) ? "style=\"color: red\"" : "" %>><%= " (" +handler.getObrStatus(obr) + ")"%></span>
                                         <%
                                             String poc = handler.getPointOfCare(obr);
                                             if (!stringIsNullOrEmpty(poc)) {
@@ -1339,6 +1334,15 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                    	</div>
                                     </td>
                                 </tr>
+                                <% if (obxCount == 0 && obrCommentCount > 0) { %>
+                                <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="NormalRes">
+                                    <td valign="top" align="left" colspan="5">
+                                        <div class="Title2" style="margin-left:15px;width: 700px;">
+                                            Refer to test request note
+                                        </div>
+                                    </td>
+                                </tr>
+                                <% } %>
                                 <%
 
                                 }//end for k=0
