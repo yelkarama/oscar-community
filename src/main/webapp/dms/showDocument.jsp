@@ -188,6 +188,8 @@
             }
         }
     }
+    SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+    Map<String, Boolean> preferenceMap = systemPreferencesDao.findByKeysAsMap(SystemPreferences.DOCUMENT_SETTINGS_KEYS);
 %>
 <% if (request.getParameter("inWindow") != null && request.getParameter("inWindow").equalsIgnoreCase("true")) {  %>
 <html>
@@ -903,7 +905,9 @@
         
         
         jQuery(setupDemoAutoCompletion());
+        <% if (preferenceMap.getOrDefault("document_description_typeahead", false)) { %>
         jQuery(setupDocDescriptionTypeahead(<%=docId%>));
+        <% } %>
         function setupProviderAutoCompletion() {
         	var url = "<%= request.getContextPath() %>/provider/SearchProvider.do?method=labSearch";
         	

@@ -55,6 +55,7 @@
 <%@ page import="oscar.util.StringUtils" %>
 <%@ page import="oscar.oscarEncounter.data.EctFormData" %>
 <%@ page import="oscar.OscarProperties" %>
+<%@ page import="org.oscarehr.util.SpringUtils" %>
 <jsp:useBean id="displayServiceUtil" scope="request" class="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConDisplayServiceUtil" />
 <%
             WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
@@ -147,6 +148,9 @@
             rdohip = rdohip == null ? "" : rdohip.trim();
         }
     }
+
+    SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+    Map<String, Boolean> preferenceMap = systemPreferencesDao.findByKeysAsMap(SystemPreferences.DOCUMENT_SETTINGS_KEYS);
 %>
 
 <html>
@@ -747,7 +751,9 @@ function sendMRP(ele){
                             }
                             return true;
                           }
+                                            <% if (preferenceMap.getOrDefault("document_description_typeahead", false)) { %>
                                             jQuery(setupDocDescriptionTypeahead(<%=docId%>));
+                                            <% } %>
 
                                             </script>
                                             <div id="providerList<%=docId%>"></div>

@@ -17,6 +17,7 @@ public class SystemPreferences extends AbstractModel<Integer>
     public static final List<String> GENERAL_SETTINGS_KEYS = Arrays.asList("replace_demographic_name_with_preferred");
     public static final String LAB_DISPLAY_PREFERENCE_KEYS = "code_show_hide_column";
     public static final String KIOSK_DISPLAY_PREFERENCE_KEYS = "check_in_all_appointments";
+    public static final List<String> DOCUMENT_SETTINGS_KEYS = Arrays.asList("document_description_typeahead");
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

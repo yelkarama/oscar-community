@@ -52,6 +52,23 @@ public class SystemPreferencesDao extends AbstractDao<SystemPreferences>
         
         return preferenceMap;
     }
+
+    /**
+     * Gets a map of system preferences with the preference name as the key
+     * @param keys List of keys to get the preferences for
+     * @return A map of SystemPreferences with the preference name as the key
+     */
+    public Map<String, SystemPreferences> findByKeysAsPreferenceMap(List<String> keys) {
+        Map<String, SystemPreferences> preferenceMap = new HashMap<>();
+        
+        List<SystemPreferences> preferences = findPreferencesByNames(keys);
+        
+        for (SystemPreferences preference : preferences) {
+            preferenceMap.put(preference.getName(), preference);
+        }
+        
+        return preferenceMap;
+    }
     
     public boolean isReadBooleanPreference(String name) {
         SystemPreferences preference = findPreferenceByName(name);
