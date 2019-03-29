@@ -1118,7 +1118,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         	cell.setPhrase(new Phrase(primaryFacility, font));
         	reportDetailsTable.addCell(cell);
         	//Creates the format for the address and adds it
-        	address = handler.getPerformingFacilityAddress();
+        	address = handler.getPrimaryPerformingFacilityAddress();
         	if (address != null && address.size() > 0){
         		cell.setPhrase(new Phrase("Address: ", boldFont));
             	reportDetailsTable.addCell(cell);
