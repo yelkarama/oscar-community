@@ -1094,9 +1094,14 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         
         HashMap<String, String> address = handler.getOrderingFacilityAddress();
         if (!stringIsNullOrEmpty(handler.getOrderingFacilityName())){
+        	// Creates a phrase with the ordering facility organization
+			Phrase orderingFacility = new Phrase(handler.getOrderingFacilityName(), font);
+			orderingFacility.setFont(subscriptFont);
+			orderingFacility.add("\t" + handler.getOrderingFacilityOrganization());
+			
 	        cell.setPhrase(new Phrase("Ordering Facility: ", boldFont));
 	        reportDetailsTable.addCell(cell);
-	        cell.setPhrase(new Phrase(handler.getOrderingFacilityName(), font));
+	        cell.setPhrase(orderingFacility);
 	        reportDetailsTable.addCell(cell);
 	        
 	        if (address != null && address.size() > 0){
