@@ -206,7 +206,7 @@ public class OlisLabResultDisplay {
             labResult.setTestRequestZbr11(olisHandler.getZBR11(obr));
             String collectorsComments = olisHandler.getCollectorsComment(obr);
             collectorsComments = OLISUtils.Hl7EncodedRepeatableCharacter.performReplacement(collectorsComments, true);
-            labResult.setCollectorsComment(collectorsComments);
+            labResult.setCollectorsComment(collectorsComments.replaceAll("(?<=\\s)\\s", "&nbsp;"));
             labResult.setNomenclature(nomenclatureMap.get(olisHandler.getNomenclatureRequestCode(obr)));
             // Checks if information in the report is blocked, either at the report level or at the OBR level
             boolean isBlocked = isReportBlocked || olisHandler.isOBRBlocked(obr);

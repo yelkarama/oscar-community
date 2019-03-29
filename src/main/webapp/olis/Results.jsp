@@ -257,6 +257,9 @@ span.patient-consent-alert {
 		margin-top: 5px;
 	}
 	
+	.monospaced {
+		font-family: Courier, monospace !important;
+	}
 </style>
 	
 <title>OLIS Search Results</title>
@@ -596,7 +599,7 @@ span.patient-consent-alert {
 					<td><%=parentLab.getRequestStatus()%></td>
 					<td><%=parentLab.getSpecimenType()%></td>
 					<td><%=parentLab.getCollectionDate()%></td>
-					<td>
+					<td class="monospaced">
 						<%=parentLab.getCollectorsComment()%>
 					</td>
 					<td class="<%=lineThroughCss%>"><%=measurementDisplay.getTestResultName()%></td>
