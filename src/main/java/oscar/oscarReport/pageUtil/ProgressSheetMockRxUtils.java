@@ -133,7 +133,7 @@ public class ProgressSheetMockRxUtils {
         StringBuilder rxItemString = new StringBuilder();
         
         if ("billing_post_procedure_marcaine_xylocaine_syringe_count".equals(psField)) {
-            rxItemString.append("Marcaine .25 Xylocaine 9 to 1 10ml syringe\r\n").append("Qty: ").append(psValue);
+            rxItemString.append("Bupivacaine .025% + Xylocaine 2% (9:1)\r\n").append("Qty: ").append(psValue);
         }
         
         return rxItemString.toString();
