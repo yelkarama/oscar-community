@@ -72,7 +72,7 @@ function add() {
 }
 
 function createTimer() {
-    timerId = update(add, 1000, true);
+    update(add, 1000, true);
 }
 
 /* Start button */
