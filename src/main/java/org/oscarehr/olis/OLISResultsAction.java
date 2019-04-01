@@ -111,14 +111,18 @@ public class OLISResultsAction extends DispatchAction {
                         // If the error is either 320 or 920, then some of the results have blocked content and are hidden
                         if (error.getIndentifer().equals("320") || error.getIndentifer().equals("920")) {
                             hasBlockedContent = true;
+							// If the error is a 920
+                            if (error.getIndentifer().equals("920")) {
+                                // If the error is a 920, then sets the patient level block flag so we know which
+                                // consent messages to display
+                                olisLabResults.setHasPatientLevelBlock(true);
+								// If the error is a 920 error, then we don't need to display the 320 error
+								olisLabResults.setDisplay320Error(false);
+							}
+                            
                             // If the patient has consent, then both 320 and 920 errors can be removed from the errors, if there is no patient consent, then checks if we need to display the 320 error
                             if (hasPatientConsent) {
                             	errorsToRemove.add(error);
-							} else {
-								// If the error is a 920 error, then we don't need to display the 320 error
-								if (error.getIndentifer().equals("920")) {
-									olisLabResults.setDisplay320Error(false);
-								}
 							}
                         }
 					}

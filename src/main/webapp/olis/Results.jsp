@@ -237,7 +237,7 @@ function validateInput() {
 }
 	
 .patient-consent-alert {
-	color: #CC0000;
+	color: #FF0000;
 	text-align: center;
 }
 
@@ -328,7 +328,7 @@ span.patient-consent-alert {
     <tr>
         <td style="color: #a94442; font-weight: bold; padding: 10px;" colspan="3" align="center">No results returned! Please refine your search parameters.</td>
     </tr>
-    <% } else if (olisLabResults.isHasBlockedContent() && olisLabResults.isHasRequestingProvider()) { %>
+    <% } else if (olisLabResults.isHasPatientLevelBlock()) { %>
 	<tr>
 		<td colspan="2" class="patient-consent-alert">
 			Do not disclose without express patient consent
@@ -466,7 +466,7 @@ span.patient-consent-alert {
 						<div id="<%=resultUuid%>_result"></div>
 						<input type="button" onClick="addToInbox('<%=resultUuid %>'); return false;" id="<%=resultUuid %>" value="Add to Inbox" />
 						<input type="button" onClick="preview('<%=resultUuid %>'); return false;" id="<%=resultUuid %>_preview" value="Preview" />
-                        <% if (resultDisplay.isBlocked()) { %>
+                        <% if (resultDisplay.isBlocked() && !olisLabResults.isHasPatientLevelBlock()) { %>
                         <span class="patient-consent-alert">Do not disclose without express patient consent</span>
                         <% } %>
 					</td>
@@ -583,7 +583,7 @@ span.patient-consent-alert {
 				<tr>
 					<td>
                         <%=parentLab.getOlisLastUpdated()%>
-                        <% if (measurementDisplay.isBlocked()) { %>
+                        <% if (measurementDisplay.isBlocked() && !olisLabResults.isHasPatientLevelBlock()) { %>
                         <span class="patient-consent-alert">Do not disclose without express patient consent</span>
                         <% } %>
                     </td>

@@ -12,6 +12,7 @@ public class OlisLabResults {
     private List<OLISHL7Handler.OLISError> errors =  new ArrayList<OLISHL7Handler.OLISError>();
     private boolean hasBlockedContent = false;
     private boolean hasRequestingProvider = false;
+    private boolean hasPatientLevelBlock = false;
     private boolean display320Error = true;
     private boolean hasPatientConsent = true;
     
@@ -52,6 +53,13 @@ public class OlisLabResults {
     }
     public void setHasBlockedContent(boolean hasBlockedContent) {
         this.hasBlockedContent = hasBlockedContent;
+    }
+
+    public boolean isHasPatientLevelBlock() {
+        return hasPatientLevelBlock;
+    }
+    public void setHasPatientLevelBlock(boolean hasPatientLevelBlock) {
+        this.hasPatientLevelBlock = hasPatientLevelBlock;
     }
 
     public boolean isHasRequestingProvider() {
