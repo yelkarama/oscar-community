@@ -1603,7 +1603,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 			String previousNoOfSampleContainers = handler.getNoOfSampleContainers(previousObr);
 			String previousSiteModifier = previousObrHeader.getString(OLISHL7Handler.OBR_SITE_MODIFIER);
 
-			if (previousCollectionDateTime.equals(collectionDateTime) && previousSpecimenCollectedBy.equals(specimenCollectedBy) && previousSpecimenType.equals(obrHeader.getString(OLISHL7Handler.OBR_SPECIMEN_TYPE)) && (previousSpecimenReceivedDateTime.equals(specimenReceivedDate) || previousSpecimenReceivedDateTime.equals(handler.getSpecimenReceivedDateTime())) && previousCollectionVolume.equals(collectionVolume) && previousNoOfSampleContainers.equals(noOfSampleContainers) && previousSiteModifier.equals(siteModifier)) {
+			if (previousCollectionDateTime.equals(collectionDateTime) && previousSpecimenCollectedBy.equals(specimenCollectedBy) && previousSpecimenType.equals(obrHeader.getString(OLISHL7Handler.OBR_SPECIMEN_TYPE)) && (previousSpecimenReceivedDateTime.equals(specimenReceivedDate) || previousSpecimenReceivedDateTime.equals(handler.getSpecimenReceivedDateTime())) && previousCollectionVolume.equals(collectionVolume) && previousNoOfSampleContainers.equals(noOfSampleContainers) && previousSiteModifier.equals(siteModifier) && !OLISUtils.areCollectorCommentsDifferent(handler, obr, previousObr)) {
 				previousMatch = true;
 			}
 			// Gets whether collector comments should be displayed for the current OBR based on if they are different than the previous OBR or not
@@ -1627,7 +1627,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		// Gets the collector comments for the current OBR
 		String collectorComments = handler.getCollectorsComment(obr);
 		// If the collector comments should be displayed (Current is different than previous) and if collector comments are not empty
-		if (displayCollectorComments && !stringIsNullOrEmpty(collectorComments)){
+		if (!previousMatch && !stringIsNullOrEmpty(collectorComments)){
 			PdfPCell cell = new PdfPCell();
 			cell.setBorder(0);
 			cell.setColspan(3);

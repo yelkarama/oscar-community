@@ -1159,7 +1159,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                             String previousNoOfSampleContainers = handler.getNoOfSampleContainers(previousObr);
                                             String previousSiteModifier = previousObrHeader.getString(OLISHL7Handler.OBR_SITE_MODIFIER);
 
-                                            if (previousCollectionDateTime.equals(collectionDateTime) && previousSpecimenCollectedBy.equals(specimenCollectedBy) && previousSpecimenType.equals(obrHeader.getString(OLISHL7Handler.OBR_SPECIMEN_TYPE)) && (previousSpecimenReceivedDateTime.equals(specimenReceivedDate) || previousSpecimenReceivedDateTime.equals(specimenReceived)) && previousCollectionVolume.equals(collectionVolume) && previousNoOfSampleContainers.equals(noOfSampleContainers) && previousSiteModifier.equals(siteModifier)) {
+                                            if (previousCollectionDateTime.equals(collectionDateTime) && previousSpecimenCollectedBy.equals(specimenCollectedBy) && previousSpecimenType.equals(obrHeader.getString(OLISHL7Handler.OBR_SPECIMEN_TYPE)) && (previousSpecimenReceivedDateTime.equals(specimenReceivedDate) || previousSpecimenReceivedDateTime.equals(specimenReceived)) && previousCollectionVolume.equals(collectionVolume) && previousNoOfSampleContainers.equals(noOfSampleContainers) && previousSiteModifier.equals(siteModifier) && !OLISUtils.areCollectorCommentsDifferent(handler, obr, previousObr)) {
                                                 previousMatch = true;
                                             }
                                         }
@@ -1200,13 +1200,8 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                 </td>
                             </tr>
                             <%
-                                boolean displayCollectorComments = true;
-                                if (previousObr > -1) {
-                                    displayCollectorComments = OLISUtils.areCollectorCommentsDifferent(handler, obr, previousObr);
-                                }
-                                
                                 String collectorsComment = handler.getCollectorsComment(obr);
-                                if (displayCollectorComments && !collectorsComment.isEmpty()) {
+                                if ((!previousMatch || isNewCategory) && !collectorsComment.isEmpty()) {
                                     collectorsComment = OLISUtils.Hl7EncodedRepeatableCharacter.performReplacement(collectorsComment, true);
                             %>
                             
