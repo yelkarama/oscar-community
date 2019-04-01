@@ -159,17 +159,25 @@ public class OLISUtils {
 						if (matcher.start() > 0) {
 							// Gets the text before the matching element, removing all instances of newline characters that happen at the end of the string and all nbsp with single space characters so
 							// the proper line length is represented better
-							String previousLine = hl7Text.substring(0, matcher.start()).replaceAll("(" + replacementString + "|\\s)*$", "").replaceAll("&nbsp;", " ")
-									.replaceAll("\\\\\\..+?\\\\", "");
+							String previousLine = hl7Text.substring(0, matcher.start()).replaceAll("&nbsp;", " ").replaceAll("\\\\\\..+?\\\\", "");
+							
 							// Gets the last index of the replacement string in order to calculate the length of the previous line
 							int previousLineStart = previousLine.lastIndexOf(replacementString);
-							// Substrings the previousLine from the previousLineStart plus the length of the replacement string so that it isn't included in the length
-							previousLine = previousLine.substring(previousLineStart + replacementString.length());
+							// If there is line break, gets the line using it as the start point
+							if (previousLineStart > -1) {
+								// Substrings the previousLine from the previousLineStart plus the length of the replacement string so that it isn't included in the length
+								previousLine = previousLine.substring(previousLineStart + replacementString.length());
+							}
+							
 							// Gets the previous lines length
-							previousLineLength = previousLine.length();
+							previousLineLength = previousLine.replaceAll("(" + replacementString + "|\\s)*$", "").length();
 						}
 						// Gets the needed spacing for the current line by getting the number of characters that overflow into the current line
 						int numberOfSpacesToAdd = previousLineLength % charactersPerLine;
+						// If it is HMTL, adds an extra space to circumvent HTML's handling of spaces
+						if (replaceHtml) {
+							numberOfSpacesToAdd += 1;
+						}
 						// Creates a string with the number of spaces that need to be added
 						String spacesToAdd = new String(new char[numberOfSpacesToAdd]).replaceAll("\0", " ");
 						// Adds the spaces to the text that will be replacing the current match
