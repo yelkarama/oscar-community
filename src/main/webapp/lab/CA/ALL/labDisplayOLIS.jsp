@@ -188,7 +188,9 @@ public String strikeOutInvalidContent(String content, String status) {
 .CorrectedRollRes a:visited { color: yellow }
 .CorrectedRollRes a:active { color: yellow }
 tr.AbnormalRes { font-weight: bold; }
-tr.AbnormalRes td ~ td { color: red; }
+tr.AbnormalRes td ~ td,
+tr.AbnormalRes.ancillary span
+{ color: red; }
 tr.AbnormalRes td ~ td a:link { color: red }
 tr.AbnormalRes td ~ td a:hover { color: red }
 tr.AbnormalRes td ~ td a:visited { color: red }
@@ -1465,19 +1467,19 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                                     </div>
                                                 </td>
                                            	</tr>
-                                            <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-                                                <td colspan="5"><div class="FieldData"><strong>Result:</strong> <%= strikeOutInvalidContent(handler.getOBXResult(obr, obx), status) %></div></td>
+                                            <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="ancillary <%=lineClass%>">
+                                                <td colspan="5"><div class="FieldData"><strong>Result:</strong> <span><%= strikeOutInvalidContent(handler.getOBXResult(obr, obx), status) %><span></span></div></td>
                                             </tr>
-                                            <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-                                                <td colspan="5"><div class="FieldData"><strong>Flag:</strong> <%= strikeOutInvalidContent(handler.getOBXAbnormalFlag(obr, obx), status)%></div></td>
+                                            <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="ancillary <%=lineClass%>">
+                                                <td colspan="5"><div class="FieldData"><strong>Flag:</strong> <span><%= strikeOutInvalidContent(handler.getOBXAbnormalFlag(obr, obx), status)%></span></div></td>
                                             </tr>
-                                            <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-                                                <td colspan="5"><div class="FieldData"><strong>Reference Range:</strong> <%=strikeOutInvalidContent(handler.getOBXReferenceRange(obr, obx), status)%></div></td>
+                                            <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="ancillary <%=lineClass%>">
+                                                <td colspan="5"><div class="FieldData"><strong>Reference Range:</strong> <span><%=strikeOutInvalidContent(handler.getOBXReferenceRange(obr, obx), status)%></span></div></td>
                                             </tr>
-                                            <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-                                                <td colspan="5"><div class="FieldData"><strong>Units:</strong> <%=strikeOutInvalidContent(OLISUtils.Hl7EncodedRepeatableCharacter.performReplacement(handler.getOBXUnits(obr, obx), true), status) %></div></td>
+                                            <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="ancillary <%=lineClass%>">
+                                                <td colspan="5"><div class="FieldData"><strong>Units:</strong> <span><%=strikeOutInvalidContent(OLISUtils.Hl7EncodedRepeatableCharacter.performReplacement(handler.getOBXUnits(obr, obx), true), status) %></span></div></td>
                                             </tr>
-                                            <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
+                                            <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="ancillary <%=lineClass%>">
                                                 <td colspan="5"><div class="FieldData"><strong>Observation Date/Time:</strong> <%=strikeOutInvalidContent(handler.getOBXObservationDate(obr, obx), status) %></div></td>
                                             </tr>
                                             
