@@ -1464,6 +1464,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                                         <a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))">
                                                             <%=obxDisplayName %>
                                                         </a>
+                                                        <%= abnormalNatureString.toString() %>
                                                     </div>
                                                 </td>
                                            	</tr>
