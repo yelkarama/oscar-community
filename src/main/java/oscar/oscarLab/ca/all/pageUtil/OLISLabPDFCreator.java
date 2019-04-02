@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
@@ -51,6 +52,7 @@ import oscar.oscarLab.ca.all.Hl7textResultsData;
 import oscar.oscarLab.ca.all.parsers.Factory;
 import oscar.oscarLab.ca.all.parsers.OLISHL7Handler;
 import oscar.oscarLab.ca.all.util.Utilities;
+import oscar.util.ResourceUtils;
 import oscar.util.UtilDateUtilities;
 
 
@@ -190,8 +192,18 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
         //Create the fonts that we are going to use
         bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
 		bfBold = BaseFont.createFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
-        cf = BaseFont.createFont(BaseFont.COURIER, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
-        cfBold = BaseFont.createFont(BaseFont.COURIER_BOLD, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+		try {
+			// Creates the comment font and comment font bold with the Courier Prim font
+			cf = BaseFont.createFont(ResourceUtils.Font.COURIER_PRIME.getPath(), BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+			cfBold = BaseFont.createFont(ResourceUtils.Font.COURIER_PRIME_BOLD.getPath(), BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+		} catch(URISyntaxException e) {
+			logger.error("Could not retrieve the resource paths for the Courier Prime font", e);
+			// If the Courier Prime font cannot be found in the resources, defaults to the Courier provided with iText
+			cf = BaseFont.createFont(BaseFont.COURIER, BaseFont.CP1252, BaseFont.EMBEDDED);
+			cfBold = BaseFont.createFont(BaseFont.COURIER_BOLD, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+		}
+		
+        
         font = new Font(bf, 9, Font.NORMAL);
         boldFont = new Font(bfBold, 9, Font.NORMAL);
         redFont = new Font(bf, 9, Font.NORMAL, Color.RED);

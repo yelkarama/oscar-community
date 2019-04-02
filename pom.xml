@@ -1199,7 +1199,17 @@
           <resource>
             <directory>${basedir}/src/main/resources</directory>
             <filtering>true</filtering>
+			<excludes>
+				<exclude>oscar/fonts/*</exclude>
+			</excludes>
           </resource>
+		 <resource>
+			 <directory>${basedir}/src/main/resources</directory>
+			 <filtering>false</filtering>
+			 <includes>
+				 <include>oscar/fonts/*</include>
+			 </includes>
+		 </resource>
         </resources>
 	<plugins>
 
