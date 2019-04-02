@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.oscarehr.common.model.Allergy;
 import org.oscarehr.util.MiscUtils;
@@ -93,7 +94,7 @@ public class RxDrugData {
 			name    = (String) hash.get("name");
 			atc     = (String) hash.get("atc");
 			product = (String) hash.get("product");
-			regionalIdentifier = (String) hash.get("regional_identifier");
+			regionalIdentifier = StringUtils.isEmpty((String) hash.get("regional_identifier")) ? null : (String) hash.get("regional_identifier");
 			naturalProductNumber = (String) hash.get("npn");
 			drugForm = (String)hash.get("drugForm");
 			
