@@ -2381,7 +2381,7 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
 			}
 		}
 	 //multi-site. if a site have been selected, only display appointment in that site
-	 if (!bMultisites || (selectedSite == null && CurrentSiteMap.get(sitename) != null) || sitename.equals(selectedSite)) {
+	 if (!bMultisites || (selectedSite == null && CurrentSiteMap.get(sitename) != null) || sitename.equals(selectedSite) || (sitename.equals("null") && selectedSite == null)){
 %>
             <td <%=hideAppointmentHtml%> class="appt" bgcolor='<%=as.getBgColor()%>' rowspan="<%=iRows%>" <%-- =view==0?(len==lenLimitedL?"nowrap":""):"nowrap"--%> nowrap>
 			<%
