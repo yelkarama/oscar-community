@@ -1455,7 +1455,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
             cb.beginText();
             cb.setFontAndSize(bf, 9);
             String patientInformation = "Patient: " + handler.getPatientName()  + " | Health Number: " + handler.getFormattedHealthNumber();
-            cb.showTextAligned(PdfContentByte.ALIGN_LEFT, patientInformation, 35, height - 15, 0);
+            cb.showTextAligned(PdfContentByte.ALIGN_LEFT, patientInformation, 35, height - 20, 0);
             
             // Adds text describing the report is from OLIS and the ministry of health
             cb.setFontAndSize(boldFont, 9);
