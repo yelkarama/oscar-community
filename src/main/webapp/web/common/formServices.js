@@ -26,7 +26,7 @@
 angular.module("formServices", [])
 	.service("formService", function ($http,$q,$log) {
 		return {
-		apiPath:'../ws/rs/forms',
+		apiPath:'/oscar/ws/rs/forms',
 		configHeaders: {headers: {"Content-Type": "application/json","Accept":"application/json"}},
 		configHeadersWithCache: {headers: {"Content-Type": "application/json","Accept":"application/json"},cache: true},
         getAllFormsByHeading: function(demographicNo,heading){
@@ -132,6 +132,17 @@ angular.module("formServices", [])
             });
      
           return deferred.promise;
-        }
+        },
+		getIntakeEformId: function(){
+			var deferred = $q.defer();
+			$http.get(this.apiPath + '/getIntakeEformId').success(function(data){
+				deferred.resolve(data);
+			}).error(function(){
+				console.log("error fetching intake eform id");
+				deferred.reject("An error occured while fetching intake eform id");
+			});
+
+			return deferred.promise;
+		}
     };
 });

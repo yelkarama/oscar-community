@@ -32,6 +32,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.persistence.NoResultException;
+import javax.persistence.NonUniqueResultException;
 import javax.persistence.Query;
 
 import org.oscarehr.PMmodule.model.Program;
@@ -807,4 +809,23 @@ public class OscarAppointmentDao extends AbstractDao<Appointment> {
 		return appointmentMap;
 	}
 	
+	/**
+	 * Gets the date of the last appointment that the provided demographic attended
+	 * @param demographicNo The demographic number for the demographic to get the last appointment date for
+	 * @return Date object of the date of the last attended appointment
+	 */
+	public Date getLastAppointmentDateByDemographicNo(Integer demographicNo) {
+		Date lastAppointmentDate = null;
+		String sql = "SELECT a.appointmentDate FROM Appointment a WHERE a.demographicNo = :demographicNo AND a.appointmentDate <= NOW() AND a.status NOT IN ('C', 'N') ORDER BY a.appointmentDate DESC, a.startTime DESC";
+		Query query = entityManager.createQuery(sql);
+		query.setParameter("demographicNo", demographicNo);
+		query.setMaxResults(1);
+		try { 
+			lastAppointmentDate = (Date)query.getSingleResult();
+		} catch (NonUniqueResultException | NoResultException e) {
+			MiscUtils.getLogger().error("Could not get the last appointment date for demographic: " + demographicNo, e);
+		}
+		
+		return lastAppointmentDate;
+	}
 }

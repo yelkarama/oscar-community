@@ -26,7 +26,7 @@
 angular.module("securityServices", [])
 	.service("securityService", function ($http,$q,$log) {
 		return {
-		apiPath:'../ws/rs/',
+		apiPath:'/oscar/ws/rs/',
 		configHeaders: {headers: {"Content-Type": "application/json","Accept":"application/json"}},
 		configHeadersWithCache: {headers: {"Content-Type": "application/json","Accept":"application/json"},cache: true},
 		user:null,

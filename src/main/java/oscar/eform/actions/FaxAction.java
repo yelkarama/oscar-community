@@ -24,6 +24,7 @@ import org.oscarehr.common.dao.FaxJobDao;
 import org.oscarehr.common.model.EFormData;
 import org.oscarehr.common.model.FaxConfig;
 import org.oscarehr.common.model.FaxJob;
+import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 import org.oscarehr.util.WKHtmlToPdfUtils;
@@ -31,6 +32,7 @@ import org.oscarehr.util.WKHtmlToPdfUtils;
 import oscar.OscarProperties;
 
 import com.lowagie.text.DocumentException;
+import oscar.dms.EDocUtil;
 import oscar.eform.EFormUtil;
 
 public final class FaxAction {
@@ -78,7 +80,7 @@ public final class FaxAction {
 	 * @throws DocumentException 
 	 */
 	public void faxForms(String[] numbers, String formId, String providerId, String demographicNo, HttpServletRequest request) throws DocumentException {
-		
+		boolean addDocumentToEchart = Boolean.parseBoolean(request.getParameter("printDocumentToEchartOnPdfFax"));
 		File tempFile = null;
 
 		try {
@@ -105,6 +107,13 @@ public final class FaxAction {
 				tempFile = File.createTempFile("EForm." + formId, ".pdf");
 				WKHtmlToPdfUtils.convertToPdf(viewUri, tempFile);
 			}
+			
+			if (addDocumentToEchart) {
+				LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+				// Saves the eform to the patient's chart
+				EDocUtil.saveDocumentToPatient(loggedInInfo, loggedInInfo.getLoggedInProvider(), eFormData.getDemographicId(), tempFile, -1, "", eFormData.getFormName());
+			}
+			
 			logger.info("Writing pdf to : "+tempFile.getCanonicalPath());
             // Copying the fax pdf.
             FileUtils.copyFile(tempFile, new File(OscarProperties.getInstance().getProperty("DOCUMENT_DIR") + "/" + tempFile.getName()));

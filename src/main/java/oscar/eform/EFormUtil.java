@@ -27,6 +27,7 @@ package oscar.eform;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -56,11 +57,13 @@ import javax.persistence.PersistenceException;
 import javax.servlet.http.HttpServletRequest;
 
 import com.lowagie.text.DocumentException;
+import freemarker.template.TemplateException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.log4j.Logger;
+import org.apache.tika.io.FilenameUtils;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.PMmodule.model.ProgramProvider;
 import org.oscarehr.casemgmt.dao.CaseManagementNoteLinkDAO;
@@ -80,6 +83,7 @@ import org.oscarehr.common.dao.OscarAppointmentDao;
 import org.oscarehr.common.dao.ProfessionalSpecialistDao;
 import org.oscarehr.common.dao.PropertyDao;
 import org.oscarehr.common.dao.SecRoleDao;
+import org.oscarehr.common.dao.SystemPreferencesDao;
 import org.oscarehr.common.dao.TicklerDao;
 import org.oscarehr.common.model.AbstractModel;
 import org.oscarehr.common.model.Appointment;
@@ -92,6 +96,7 @@ import org.oscarehr.common.model.Prevention;
 import org.oscarehr.common.model.ProfessionalSpecialist;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.SecRole;
+import org.oscarehr.common.model.SystemPreferences;
 import org.oscarehr.common.model.Tickler;
 import org.oscarehr.managers.PreventionManager;
 import org.oscarehr.managers.ProgramManager2;
@@ -105,6 +110,7 @@ import com.quatro.model.security.Secobjprivilege;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.oscarehr.common.model.OscarMsgType;
+import org.oscarehr.util.WKHtmlToPdfUtils;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 import oscar.OscarProperties;
 import oscar.dms.EDoc;
@@ -117,6 +123,7 @@ import oscar.oscarDB.DBHandler;
 import oscar.oscarMessenger.data.MsgMessageData;
 import oscar.util.ConversionUtils;
 import oscar.util.OscarRoleObjectPrivilege;
+import oscar.util.TemplateUtil;
 import oscar.util.UtilDateUtilities;
 
 public class EFormUtil {
@@ -144,6 +151,7 @@ public class EFormUtil {
 	private static ProgramManager2 programManager2 = SpringUtils.getBean(ProgramManager2.class);
 	private static ConsultationRequestDao consultationRequestDao = SpringUtils.getBean(ConsultationRequestDao.class);
 	private static ProfessionalSpecialistDao professionalSpecialistDao = SpringUtils.getBean(ProfessionalSpecialistDao.class);
+	private static SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
 	
 	private EFormUtil() {
 	}
@@ -1286,6 +1294,7 @@ public class EFormUtil {
 		DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
 		ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 		EFormValueDao eFormValueDao = SpringUtils.getBean(EFormValueDao.class);
+		SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
 		Demographic demographic = demographicDao.getDemographic(eformData.getDemographicId().toString());
 
 		// Gets the contents of the RTL
@@ -1317,9 +1326,16 @@ public class EFormUtil {
 						renderer.layout();
 						renderer.createPDF(os);
 						if (!skipAddToChart) {
-							// Saves the RTL to the patient and adds a routes the pdf to the provider
-							EDocUtil.saveRtlToPatient(tempFile, provider, demographic, eformData.getAppointmentNo(), request);
-						}
+							
+							SystemPreferences documentTypePreference = systemPreferencesDao.findPreferenceByName("rtl_template_document_type");
+							String documentType = "";
+							if (documentTypePreference != null && documentTypePreference.getValue() != null) {
+								documentType = documentTypePreference.getValue();
+							}
+                            // Saves the RTL to the patient and adds a routes the pdf to the provider
+                            EDocUtil.saveDocumentToPatient(LoggedInInfo.getLoggedInInfoFromSession(request), provider, demographic.getDemographicNo(), tempFile,  eformData.getAppointmentNo(), 
+                                    documentType, null);
+                        }
 					}
 				} catch (DocumentException e) {
 					logger.error("Could not generate the rich text letter with the id " + eformData.getId(), e);
@@ -1335,6 +1351,60 @@ public class EFormUtil {
 		}
 	}
 
+	/**
+	 * Prints an eform and saves it to the patient chart
+	 * @param loggedInInfo The logged in info
+	 * @param eformData The data for the eform that will be printed
+	 * @param printUrl The generated URL that will print the eform (for WKHtmlToPdf)
+	 */
+	public static void printEformToEchart(LoggedInInfo loggedInInfo, EFormData eformData, String printUrl) {
+		try {
+			DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
+			Demographic demographic = demographicDao.getDemographicById(eformData.getDemographicId());
+			
+			// Creates a file for the form to be printed to
+			File printedEform = new File(OscarProperties.getInstance().getProperty("DOCUMENT_DIR") + "/" + FilenameUtils.normalize(eformData.getFormName()) + "." + eformData.getId() + ".pdf");
+			// Prints the eform to the file
+			WKHtmlToPdfUtils.convertToPdf(printUrl, printedEform);
+			// Saves the eform to the patient's chart
+			EDocUtil.saveDocumentToPatient(loggedInInfo, loggedInInfo.getLoggedInProvider(), demographic.getDemographicNo(), printedEform, -1, "", eformData.getFormName());
+		} catch (IOException e) {
+			logger.error("Eform " + eformData.getId() + " could not be printed", e);
+		}
+	}
+
+	/**
+	 * Creates a Patient Intake letter by formatting a provided template with information provided by the patient intake eform and determined by the values in the patient intake letter field table
+	 * @param intakeFormData The eform data of the patient intake form
+	 */
+	public static void createPatientIntakeLetter(EFormData intakeFormData) {
+		SystemPreferences systemPreference = systemPreferencesDao.findPreferenceByName("patient_intake_letter_template_url");
+		if (systemPreference != null && StringUtils.isNotEmpty(systemPreference.getValue())) {
+			// Gets the path for the patient intake letter template file
+			File templateFile = new File(systemPreference.getValue());
+			try {
+				// Gets the contents of the template as a string so that special tags can be replaces with appropriate data
+				String intakeLetterTemplate = IOUtils.toString(new FileInputStream(templateFile));
+
+				Map<String, String> intakeValueMap = getEformValuesAsMap(intakeFormData.getId());
+				Map<String, String> templateParameterMap = PatientIntakeUtil.createTemplateParameterMap(intakeValueMap);
+				PatientIntakeUtil.populateAdditionaleLetterData(templateParameterMap, intakeFormData.getDemographicId());
+				try {
+					String formattedTemplate = TemplateUtil.performTemplateReplace(intakeLetterTemplate, templateParameterMap);
+					PatientIntakeUtil.savePatientIntakeLetter(formattedTemplate, intakeFormData.getDemographicId(), intakeFormData.getProviderNo());
+				} catch (IOException | TemplateException e) {
+					logger.error("An error occurred when creating the patient intake letter", e);
+				}
+			} catch(FileNotFoundException e) {
+				logger.error("Patient intake letter template does not exist in the given location: " + systemPreference.getValue(), e);
+			} catch(IOException e) {
+				logger.error("Could not convert the patient intake letter template to a String", e);
+			}
+		} else {
+			logger.error("The SystemPreference for patient_intake_letter_template_url is not set");
+		}
+	}
+	
 	/**
 	 * Prepares the template for RTL printing using FlyingSaucer's XML to PDF generation. 
 	 * Sets various predetermined tags to their associated data
@@ -1740,5 +1810,14 @@ public class EFormUtil {
 			if (str.trim().equalsIgnoreCase(strLst.trim())) return strLst.trim();
 		}
 		return null;
+	}
+	private static Map<String, String> getEformValuesAsMap(Integer formDataId) {
+		Map<String, String> eformValueMap = new HashMap<>();
+		List<EFormValue> patientIntakeValues = eFormValueDao.findByFormDataId(formDataId);
+		for(EFormValue value : patientIntakeValues) {
+			eformValueMap.put(value.getVarName(), value.getVarValue());
+		}
+		
+		return eformValueMap;
 	}
 }

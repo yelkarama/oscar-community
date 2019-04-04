@@ -24,9 +24,9 @@
 
 */
 angular.module("demographicServices", [])
-	.service("demographicService", function ($http,$q,$log) {
+	.service("demographicService", function ($http,$q,$log, $httpParamSerializerJQLike) {
 		return {
-		apiPath:'../ws/rs/',
+		apiPath:'/oscar/ws/rs/',
 		configHeaders: {headers: {"Content-Type": "application/json","Accept":"application/json"}},
 		configHeadersWithCache: {headers: {"Content-Type": "application/json","Accept":"application/json"},cache: true},
 		
@@ -95,6 +95,20 @@ angular.module("demographicServices", [])
               deferred.reject("An error occured while fetching items");
             });
        
+            return deferred.promise;
+        },
+        matchDemographic: function(patient) {
+		    let searchPatient = angular.copy(patient);
+		    searchPatient.dob = patient.dob.getTime();
+		    
+            let deferred = $q.defer();
+            $http.post(this.apiPath+'demographics/matchDemographic', searchPatient).then(function(response){
+                deferred.resolve(response);
+            }, function(response){
+                console.log("error matching demographic");
+                deferred.reject(response);
+            });
+
             return deferred.promise;
         }
     };

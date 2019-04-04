@@ -32,10 +32,13 @@ import org.oscarehr.common.dao.EFormDao.EFormSortOrder;
 import org.oscarehr.common.dao.EFormDataDao;
 import org.oscarehr.common.dao.EFormGroupDao;
 import org.oscarehr.common.dao.EncounterFormDao;
+import org.oscarehr.common.dao.SystemPreferencesDao;
 import org.oscarehr.common.model.EForm;
 import org.oscarehr.common.model.EFormData;
 import org.oscarehr.common.model.EncounterForm;
+import org.oscarehr.common.model.SystemPreferences;
 import org.oscarehr.util.LoggedInInfo;
+import org.oscarehr.util.MiscUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -59,6 +62,9 @@ public class FormsManager {
 	
 	@Autowired
 	private EncounterFormDao encounterFormDao;
+	
+	@Autowired
+	private SystemPreferencesDao systemPreferencesDao;
 
 	public static final String EFORM = "eform"; 
 	public static final String FORM = "form";
@@ -119,4 +125,15 @@ public class FormsManager {
 		return (results);
 	}
 	
+	public String getIntakeEformId() {
+		SystemPreferences preference = systemPreferencesDao.findPreferenceByName("patient_intake_eform");
+		
+		String intakeEformId = "";
+		
+		if (preference != null) {
+			intakeEformId = preference.getValue();
+		}
+		
+		return intakeEformId;
+	}
 }

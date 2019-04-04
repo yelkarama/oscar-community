@@ -114,6 +114,25 @@ public class EFormData extends AbstractModel<Integer> implements Serializable {
 	
 	private String roleType;
 
+	public EFormData() {
+	}
+
+	public EFormData(Integer formId, String formName, String subject, Integer demographicId, boolean current, Date formDate, Date formTime, String providerNo, String formData, boolean showLatestFormOnly, boolean patientIndependent, Integer appointmentNo, String roleType) {
+		this.formId = formId;
+		this.formName = formName;
+		this.subject = subject;
+		this.demographicId = demographicId;
+		this.current = current;
+		this.formDate = formDate;
+		this.formTime = formTime;
+		this.providerNo = providerNo;
+		this.formData = formData;
+		this.showLatestFormOnly = showLatestFormOnly;
+		this.patientIndependent = patientIndependent;
+		this.appointmentNo = appointmentNo;
+		this.roleType = roleType;
+	}
+
 	@Override
 	public Integer getId() {
 		return (id);

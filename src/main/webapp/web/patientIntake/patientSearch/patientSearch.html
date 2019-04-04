@@ -1,0 +1,45 @@
+<div id="patient-search-entry" ng-show="isAuthorized && !finished">
+    <h2>Patient Search</h2>
+    <form role="form" >
+            <div class="form-group">
+                <label for="firstName">First Name:</label>
+                <input id="firstName" type="text" class="form-control" ng-model="patient.firstName"/>
+            </div>
+            <div class="form-group">
+                <label for="lastName">Last Name:</label>
+                <input id="lastName" type="text" class="form-control" ng-model="patient.lastName"/>
+            </div>
+            
+            <div class="form-group">
+                <label for="gender">Gender:</label>
+                <select id="gender" class="form-control" ng-model="patient.gender">
+                    <option value=""></option>
+                    <option value="M">Male</option>
+                    <option value="F">Female</option>
+                    <option value="T">Transgender</option>
+                    <option value="O">Other</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="dob">DOB:</label>
+                <input id="dob" type="text" placeholder="YYYY-MM-DD" maxlength="10" class="form-control" ng-model="patient.dob" 
+                       uib-datepicker-popup="yyyy-MM-dd" is-open="dobOpen" ng-click="dobOpen = true;"/>
+            </div>
+            <div class="form-group">
+                <label for="hin">HIN:</label>
+                <input id="hin" type="text" maxlength="10" placeholder="10 Digit HIN" class="form-control" ng-model="patient.hin" />
+            </div>
+            <div class="form-group">
+                <button class="btn btn-primary" ng-click="matchDemographic()">Search</button>
+            </div>
+    </form>
+</div>
+
+<div ng-show="!isAuthorized" >
+    <h3 class="text-danger"><span class="glyphicon glyphicon-warning-sign"></span>Access Denied</h3>
+</div>
+
+<div style="text-align: center" ng-if="finished">
+    <p style="white-space: pre; font-size: 3rem;">Thank you for filling out the intake form</p>
+</div>

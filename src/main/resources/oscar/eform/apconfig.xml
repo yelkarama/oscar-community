@@ -42,6 +42,11 @@
         <ap-output>${first_name} ${last_name}</ap-output>
     </databaseap>
     <databaseap>
+        <ap-name>current_user_fname_lname_credentials</ap-name>
+        <ap-sql>SELECT provider.first_name, provider.last_name, IF(credentials IS NULL OR credentials = '', '', CONCAT(', ', credentials)) as credentials FROM provider WHERE provider.provider_no='${provider}'</ap-sql>
+        <ap-output>${first_name} ${last_name}${credentials}</ap-output>
+    </databaseap>
+    <databaseap>
         <ap-name>current_user_ohip_no</ap-name>
         <ap-sql>SELECT provider.ohip_no FROM provider WHERE provider.provider_no='${provider}' </ap-sql>
         <ap-output>${ohip_no}</ap-output>
@@ -949,5 +954,16 @@
         <ap-name>current_user_lname</ap-name>
         <ap-sql>SELECT  provider.last_name FROM provider WHERE provider.provider_no='${provider}' </ap-sql>
         <ap-output>${last_name}</ap-output>
+    </databaseap>
+    
+    <databaseap>
+        <ap-name>has_signature_stamp</ap-name>
+        <ap-sql>
+            SELECT IF(COUNT(*) > 0, true, false) as has_signature_stamp 
+            FROM property 
+            WHERE provider_no = '${provider}' AND name = 'provider_consult_signauture' 
+              AND value IS NOT NULL AND LENGTH(value > 0)
+        </ap-sql>
+        <ap-output>${has_signature_stamp}</ap-output>
     </databaseap>
 </eformap-config>

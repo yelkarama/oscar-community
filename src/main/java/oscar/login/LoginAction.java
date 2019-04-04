@@ -47,10 +47,12 @@ import org.apache.struts.actions.DispatchAction;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.PMmodule.service.ProviderManager;
 import org.oscarehr.PMmodule.web.OcanForm;
+import org.oscarehr.PMmodule.web.utils.UserRoleUtils;
 import org.oscarehr.common.dao.*;
 import org.oscarehr.common.model.*;
 import org.oscarehr.decisionSupport.service.DSService;
 import org.oscarehr.managers.AppManager;
+import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.phr.util.MyOscarUtils;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.LoggedInUserFilter;
@@ -433,6 +435,11 @@ public final class LoginAction extends DispatchAction {
                 request.getSession().setAttribute("proceedURL", proceedURL);               
                 return mapping.findForward("LoginTest");
             }
+
+			SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
+			if (UserRoleUtils.hasRole(request, "Patient Intake")) {
+				return mapping.findForward("patientIntake");
+			}
             
             //are they using the new UI?
             UserProperty prop = propDao.getProp(provider.getProviderNo(), UserProperty.COBALT);

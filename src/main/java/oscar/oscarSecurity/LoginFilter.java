@@ -40,8 +40,10 @@ import javax.servlet.http.HttpSession;
 import net.sf.cookierevolver.CRFactory;
 
 import org.apache.log4j.Logger;
+import org.oscarehr.managers.AuthenticationManager;
 import org.oscarehr.util.MiscUtils;
 
+import org.oscarehr.util.SpringUtils;
 import oscar.OscarProperties;
 
 /**
@@ -157,20 +159,28 @@ public class LoginFilter implements Filter {
 			}
 			
 			HttpSession session = httpRequest.getSession(false);
-			if (session==null || session.getAttribute("user") == null) {
-				
-				
+			
+			if (requestURI.equals(contextPath + "/web/patientIntake/") && (session == null || session.getAttribute("user") == null)) {
+				AuthenticationManager authenticationManager = SpringUtils.getBean(AuthenticationManager.class);
+				boolean isPatientIntakeSetUp = authenticationManager.setUpPatientIntake(httpRequest);
+				if (isPatientIntakeSetUp) {
+					session = httpRequest.getSession();
+				}
+			}
+			
+ 			if (session==null || session.getAttribute("user") == null) {
 
 				/*
-				 * If the requested resource is npt exempt then redirect to the logout page.
-				 * 
+				 * If the requested resource is not exempt then redirect to the logout page.
+				 *
 				 * bug fix: removed root directory auto-exemption. If you want to have a resource
-				 * be an exemption, you must explicitely add to EXEMPT_URLS array.
+				 * be an exemption, you must explicitly add to EXEMPT_URLS array.
 				 */
 				if (!inListOfExemptions(requestURI, contextPath,EXEMPT_URLS)) {
 					httpResponse.sendRedirect(contextPath + "/logout.jsp");
 					return;
 				}
+				
 			}else if(session!=null && InActivityLimitInMins != null){ //Tracking for last request time
 				try{
 					long minLimit = Long.parseLong(InActivityLimitInMins);

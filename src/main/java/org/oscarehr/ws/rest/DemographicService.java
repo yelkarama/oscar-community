@@ -24,6 +24,8 @@
 package org.oscarehr.ws.rest;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,6 +40,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import net.sf.json.JSONObject;
 
@@ -48,6 +51,7 @@ import org.oscarehr.PMmodule.model.SecUserRole;
 import org.oscarehr.caisi_integrator.ws.DemographicTransfer;
 import org.oscarehr.caisi_integrator.ws.MatchingDemographicParameters;
 import org.oscarehr.caisi_integrator.ws.MatchingDemographicTransferScore;
+import org.oscarehr.common.Gender;
 import org.oscarehr.common.dao.ContactDao;
 import org.oscarehr.common.dao.ProfessionalSpecialistDao;
 import org.oscarehr.common.dao.WaitingListDao;
@@ -63,6 +67,7 @@ import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.WaitingList;
 import org.oscarehr.common.model.WaitingListName;
 import org.oscarehr.managers.DemographicManager;
+import org.oscarehr.managers.FormsManager;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.web.DemographicSearchHelper;
@@ -120,6 +125,9 @@ public class DemographicService extends AbstractServiceImpl {
 	
 	@Autowired
 	private SecurityInfoManager securityInfoManager;
+	
+	@Autowired
+	private FormsManager formsManager;
 	
 	
 	private DemographicConverter demoConverter = new DemographicConverter();
@@ -593,6 +601,24 @@ public class DemographicService extends AbstractServiceImpl {
 		
 		return response;
 	}
+	
+	@POST
+	@Path("/matchDemographic")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public JSONObject matchDemographic(JSONObject json) {
+		Calendar dateOfBirth = Calendar.getInstance();
+		String firstName = json.getString("firstName");
+		String lastName = json.getString("lastName");
+		String gender = json.getString("gender");
+		dateOfBirth.setTimeInMillis(json.getLong("dob"));
+		String hin = json.getString("hin");
+		
+		JSONObject responseObject = demographicManager.matchDemographic(getLoggedInInfo(), firstName, lastName, gender, dateOfBirth, hin);
+		
+		return responseObject;
+	}
+	
 	
 	private DemographicSearchRequest convertFromJSON(JSONObject json) {
 		if(json ==null)return null;

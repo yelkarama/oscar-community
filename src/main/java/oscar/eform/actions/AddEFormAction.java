@@ -43,8 +43,10 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 import org.oscarehr.common.dao.EFormDataDao;
+import org.oscarehr.common.dao.SystemPreferencesDao;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.EFormData;
+import org.oscarehr.common.model.SystemPreferences;
 import org.oscarehr.managers.DemographicManager;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.match.IMatchManager;
@@ -93,6 +95,7 @@ public class AddEFormAction extends Action {
 		String demographic_no = request.getParameter("efmdemographic_no");
 		String eform_link = request.getParameter("eform_link");
 		String subject = request.getParameter("subject");
+		boolean addDocumentToEchart = Boolean.parseBoolean(request.getParameter("printDocumentToEchart"));
 
 		boolean doDatabaseUpdate = false;
 
@@ -239,6 +242,17 @@ public class AddEFormAction extends Action {
 			//post fdid to {eform_link} attribute
 			if (eform_link!=null) {
 				se.setAttribute(eform_link, fdid);
+			}
+
+			if (addDocumentToEchart) {
+				String eformPrintUrl = PrintAction.getEformRequestUrl(request) + fdid;
+				EFormUtil.printEformToEchart(loggedInInfo, eFormData, eformPrintUrl);
+			}
+			
+			SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+			SystemPreferences systemPreferences = systemPreferencesDao.findPreferenceByName("patient_intake_eform");
+			if (systemPreferences != null && systemPreferences.getValue() != null && systemPreferences.getValue().equals(fid)) {
+				EFormUtil.createPatientIntakeLetter(eFormData);
 			}
 			
 			if (fax) {

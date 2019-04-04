@@ -60,6 +60,7 @@ import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.EForm;
 import org.oscarehr.common.model.EFormData;
 import org.oscarehr.common.model.EncounterForm;
+import org.oscarehr.common.model.SystemPreferences;
 import org.oscarehr.managers.FormsManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -342,6 +343,18 @@ public class FormsService extends AbstractServiceImpl {
 			}
 		}
 		return formMenu;
+	}
+	
+	@GET
+	@Path("/getIntakeEformId")
+	@Produces(MediaType.APPLICATION_JSON)
+	public JSONObject getIntakeForm() {
+		String intakeEformId = formsManager.getIntakeEformId();
+		
+		JSONObject response = new JSONObject();
+		response.put("intakeEformId", intakeEformId);
+		
+		return response;
 	}
 	
 	public static String getK2AEFormsList(LoggedInInfo loggedInInfo, AppDefinition k2aApp, AppUser k2aUser) {

@@ -47,6 +47,7 @@ import java.util.ResourceBundle;
 import com.itextpdf.text.pdf.PdfReader;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorManager;
 import org.oscarehr.PMmodule.caisi_integrator.IntegratorFallBackManager;
@@ -1251,35 +1252,38 @@ public final class EDocUtil {
 	 * Saves the provided RTL file to the demographic and routes it to the provider
 	 * The RTL will appear in the patient's echart under documents
 	 *
+	 * @param loggedInInfo The logged in info for the currently logged in provider
 	 * @param file PDF to that will be added to the patient
 	 * @param provider Provider that the new document record will be routed to
-	 * @param demographic Demographic that the document will be added to
-	 * @param request Request to retrieve information for logging from
+	 * @param demographicNo Demographic number that the document will be added to
+	 * @param documentType The type to save the document as 
+	 * @param documentDescription The description to save with the document. Leave empty to let it be generated
 	 */
-	public static void saveRtlToPatient(File file, Provider provider, Demographic demographic, Integer appointmentNo, HttpServletRequest request) {
-		SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+	public static void saveDocumentToPatient(LoggedInInfo loggedInInfo, Provider provider, Integer demographicNo, File file, Integer appointmentNo, String documentType, String documentDescription) {
 		int numberOfPages = 0;
-		String user = "";
-		if (provider != null) {
-			user = provider.getProviderNo();
-		}
-		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-		SystemPreferences documentTypePreference = systemPreferencesDao.findPreferenceByName("rtl_template_document_type");
-		String documentType = "";
-		if (documentTypePreference != null && documentTypePreference.getValue() != null) {
-			documentType = documentTypePreference.getValue();
-		}
+        String user = "";
+        if (provider != null) {
+            user = provider.getProviderNo();
+        }
 		
 		String fileName = file.getName();
-		fileName = fileName.substring(0, fileName.indexOf("-")) + ".pdf";
+		if (fileName.contains("-")) {
+			fileName = fileName.substring(0, fileName.indexOf("-")) + ".pdf";
+		}
 		// Creates source and destination paths to move the file
 		Path source = Paths.get(file.getPath());
 		Path destination = Paths.get(oscar.OscarProperties.getInstance().getProperty("DOCUMENT_DIR") + "/" + fileName);
-		String description = user + " RTL " + fileName.substring(fileName.indexOf(".") + 1, fileName.lastIndexOf("."));
+		
+		String description = documentDescription;
+		if (StringUtils.isEmpty(description)) {
+			description = user + " EForm " + fileName.substring(fileName.indexOf(".") + 1, fileName.lastIndexOf("."));
+		}
 		
 		try {
-			// Copies the file to the destination
-			Files.copy(source, destination);
+			if (!source.equals(destination)) {
+				// Copies the file to the destination
+				Files.copy(source, destination);
+			}
 			// Gets the number of pages
 			PdfReader reader = new PdfReader(destination.toString());
 			numberOfPages = reader.getNumberOfPages();
@@ -1306,7 +1310,7 @@ public final class EDocUtil {
 		
 		
 		EDoc newDoc = new EDoc(description, documentType, fileName, "", loggedInInfo.getLoggedInProviderNo(), user, "", 'A', sdf.format(observationDate), "",
-				"", "demographic", demographic.getDemographicNo().toString(), numberOfPages);
+				"", "demographic", demographicNo.toString(), numberOfPages);
 		// Sets the appointment number
 		newDoc.setAppointmentNo(appointmentNo);
 		// Sets the fileName again so that it doesn't have the timestamp in front of it
@@ -1328,11 +1332,11 @@ public final class EDocUtil {
 		}
 		
 		// Logs the creation of the RTL
-		LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.ADD, LogConst.CON_DOCUMENT, doc_no, request.getRemoteAddr());
+		LogAction.addLog(loggedInInfo.getLoggedInProviderNo(), LogConst.ADD, LogConst.CON_DOCUMENT, doc_no, loggedInInfo.getIp());
 
 		// Adds a patient routing for the document
 		PatientLabRoutingDao patientLabRoutingDao = SpringUtils.getBean(PatientLabRoutingDao.class);
-		PatientLabRouting patientLabRouting = new PatientLabRouting(Integer.parseInt(doc_no), "DOC", demographic.getDemographicNo());
+		PatientLabRouting patientLabRouting = new PatientLabRouting(Integer.parseInt(doc_no), "DOC", demographicNo);
 		patientLabRoutingDao.persist(patientLabRouting);
 
 		// Adds the document to the provider's inbox

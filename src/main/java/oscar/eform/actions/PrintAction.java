@@ -33,6 +33,7 @@ import org.oscarehr.util.SpringUtils;
 import org.oscarehr.util.WKHtmlToPdfUtils;
 
 import oscar.OscarProperties;
+import oscar.dms.EDocUtil;
 import oscar.eform.EFormUtil;
 import oscar.util.UtilDateUtilities;
 
@@ -109,7 +110,7 @@ public class PrintAction extends Action {
 	 * This method will take eforms and send them to a PHR.
 	 */
 	public void printForm(String formId, String providerId) {
-		
+		boolean addDocumentToEchart = Boolean.parseBoolean(request.getParameter("printDocumentToEchartOnPdfFax"));
 		File tempFile = null;
 
 		try {
@@ -130,6 +131,11 @@ public class PrintAction extends Action {
 			}
 			logger.info("Writing pdf to : "+tempFile.getCanonicalPath());
 			
+			if (addDocumentToEchart) {
+				LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+				// Saves the eform to the patient's chart
+				EDocUtil.saveDocumentToPatient(loggedInInfo, loggedInInfo.getLoggedInProvider(), eFormData.getDemographicId(), tempFile, -1, "", eFormData.getFormName());
+			}
 			
 			InputStream is = new BufferedInputStream(new FileInputStream(tempFile));
 			ByteOutputStream bos = new ByteOutputStream();

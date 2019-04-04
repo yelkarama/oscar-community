@@ -56,6 +56,17 @@ public class EFormValue extends AbstractModel<Integer> implements Serializable {
 	@Column(name = "var_value")
 	private String varValue;
 
+	public EFormValue() {
+	}
+
+	public EFormValue(Integer formDataId, Integer formId, Integer demographicId, String varName, String varValue) {
+		this.formDataId = formDataId;
+		this.formId = formId;
+		this.demographicId = demographicId;
+		this.varName = varName;
+		this.varValue = varValue;
+	}
+
 	@Override
 	public Integer getId() {
 		return (id);

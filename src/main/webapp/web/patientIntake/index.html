@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="oscarTablet">
+<head>
+    <meta charset="UTF-8">
+    <title>OSCAR Tablet</title>
+    <link href="../../library/bootstrap/3.0.0/css/bootstrap.css" rel="stylesheet">
+    <link href="../../css/font-awesome.css" rel="stylesheet">
+    <link href="../../css/loading-bar.css" rel="stylesheet">
+
+
+    <!-- we'll combine/minify later -->
+    <link href="../css/navbar-fixed-top.css" rel="stylesheet">
+    <link href="../css/navbar-demo-search.css" rel="stylesheet">
+    <link href="../css/patient-list.css" rel="stylesheet">
+
+    <link href="../../library/ng-table/ng-table.css" rel="stylesheet">
+
+    <link href="../../library/bootstrap2-datepicker/datepicker3.css" rel="stylesheet">
+
+    <link href="../../css/bootstrap-timepicker.min.css" rel="stylesheet">
+
+    <link href="../../library/bootstrap/3.0.0/assets/css/bootstrap3_badge_colours.css" rel="stylesheet">
+
+    <style>
+        input.checkStyle{
+            background: #888 !important;
+            border: none !important;
+            color: #000 !important;
+        }
+
+        #patient-search-entry {
+            text-align: center;
+        }
+
+        #patient-search-entry form {
+            display: flex;
+            flex-flow: column;
+        }
+
+        #patient-search-entry form > .form-group {
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .form-group > label {
+            flex-shrink: 0;
+            flex-basis: 100px;
+            text-align: right;
+        }
+
+        .form-group input, .form-group select {
+            flex-basis: 200px;
+            margin-left: 2rem;
+        }
+    </style>
+</head>
+<body>
+<div id="right_pane" ui-view ng-cloak></div>
+
+
+<!-- Bootstrap core JavaScript
+    ================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="../../js/jquery-1.9.1.js"></script>
+
+<script src="../../library/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+
+<script src="../../library/angular-1.5.8.js"></script>
+<script src="../../library/angular-ui-router-1.0.22.js"></script>
+<script src="../../library/angular-resource.min.js"></script>
+
+<script src="../../library/ui-bootstrap-custom-tpls-2.5.0.min.js"></script>
+<script src="../../library/pym.js"></script>
+
+
+<!-- we'll combine/minify later -->
+<script src="../common/securityServices.js"></script>
+<script src="../common/demographicServices.js"></script>
+<script src="../common/formServices.js"></script>
+<script src="../common/personaServices.js"></script>
+<script src="./intakeApp.js"></script>
+
+<script src="./patientSearch/patientSearchController.js"></script>
+<script src="./finish/finishController.js"></script>
+
+<script type="text/javascript" src="../../js/bootstrap-timepicker.min.js"></script>
+</body>
+</html>

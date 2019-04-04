@@ -778,7 +778,7 @@
 			<forward name="caisiPMM" path="/PMmodule/ProviderInfo.do" />
 			<forward name="shelterSelection" path="/shelterSelection.do" redirect="true" />
 			<forward name="LoginTest" path="/login/LoginTest.jsp" redirect="true" />
-			
+			<forward name="patientIntake" path="/web/patientIntake" redirect="true" />
 			<forward name="forcepasswordreset" path="/forcepasswordreset.jsp" />
 			<forward name="programLocation" path="/location.jsp" redirect="true"/>
 			<forward name="cobalt" path="/web/" redirect="true" />

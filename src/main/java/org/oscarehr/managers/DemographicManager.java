@@ -28,6 +28,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import net.sf.json.JSONObject;
 import org.apache.log4j.Logger;
 import org.oscarehr.common.Gender;
 import org.oscarehr.common.dao.AdmissionDao;
@@ -104,6 +105,9 @@ public class DemographicManager {
 	
 	@Autowired
 	private SecurityInfoManager securityInfoManager;
+	
+	@Autowired
+	private FormsManager formsManager;
 	
 
 	public Demographic getDemographic(LoggedInInfo loggedInInfo, Integer demographicId) throws PatientDirectiveException {
@@ -631,6 +635,27 @@ public class DemographicManager {
 		
 		
 
+		public JSONObject matchDemographic(LoggedInInfo loggedInInfo, String firstName, String lastName, String gender, Calendar dateOfBirth, String hin) {
+			List<Demographic> demographics = searchDemographicsByAttributes(loggedInInfo, hin, firstName, lastName, Gender.valueOf(gender), dateOfBirth, null, null, null, null, null, 0, 2);
+			JSONObject responseObject = new JSONObject();
+
+			if (demographics.size() == 1) {
+				Integer demographicNo = demographics.get(0).getDemographicNo();
+				responseObject.put("code", "A");
+				responseObject.put("demographicNo", demographicNo);
+				
+			} else {
+				responseObject.put("code", "F");
+				if (demographics.size() > 1) {
+					responseObject.put("message", "There are more than one demographics that match this information.\nPlease contact the clinic for further assistance.");
+				} else {
+					responseObject.put("message", "No demographics matched the provided information.\nPlease try again or contact the clinic for further assistance.");
+				}
+			}
+			
+			return responseObject;
+		}
+		
 		private void checkPrivilege(LoggedInInfo loggedInInfo, String privilege) {
 	      		if (!securityInfoManager.hasPrivilege(loggedInInfo, "_demographic", privilege, null)) {
     				throw new RuntimeException("missing required security object (_demographic)");
