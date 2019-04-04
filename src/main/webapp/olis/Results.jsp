@@ -332,7 +332,7 @@ span.patient-consent-alert {
 		if (resultsEmpty && !hasErrors) { 
 	%>
     <tr>
-        <td style="color: #a94442; font-weight: bold; padding: 10px;" colspan="3" align="center">No results returned! Please refine your search parameters.</td>
+        <td style="color: #a94442; font-weight: bold; padding: 10px;" colspan="3" align="center">No results have been found in OLIS.</td>
     </tr>
     <% } else if (olisLabResults.isHasPatientLevelBlock()) { %>
 	<tr>
