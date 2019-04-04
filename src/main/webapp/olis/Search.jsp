@@ -232,21 +232,30 @@
 	}
 	
 	function setTimePeriod(timeSpan) {
-	    let startDateElement = document.getElementById('startTimePeriod');
-        let endDateElement = document.getElementById('endTimePeriod');
+	    let startDateElements = document.getElementsByName('startTimePeriod');
+        let endDateElements = document.getElementsByName('endTimePeriod');
         let now = new Date();
-        endDateElement.value = now.toISOString().slice(0, 10);
         let then = new Date(now);
+        let nowString = now.toISOString().slice(0, 10);
+        let thenString = ''
 		if (timeSpan === 'week') {
             then.setDate(then.getDate() - 7);
-            startDateElement.value = then.toISOString().slice(0, 10);
+            thenString = then.toISOString().slice(0, 10);
 		} else if (timeSpan === 'month') {
             then.setMonth(then.getMonth() - 1);
-            startDateElement.value = then.toISOString().slice(0, 10);
+            thenString = then.toISOString().slice(0, 10);
 		} else if (timeSpan === 'year') {
             then.setFullYear(then.getFullYear() - 1);
-            startDateElement.value = then.toISOString().slice(0, 10);
+            then.setDate(then.getDate() + 1);
+            thenString = then.toISOString().slice(0, 10);
         }
+
+        endDateElements.forEach(function(endDateElement) {
+            endDateElement.value = nowString;
+        });
+		startDateElements.forEach(function(startDateElement) {
+            startDateElement.value = thenString;
+        });
     }
 
 	</script>
@@ -297,7 +306,7 @@
 	<select id="queryType" onchange="displaySearch(this)" style="margin-left:30px;">
 		<option value="Z01">Z01 - Retrieve Laboratory Information for Patient</option>
 		<option value="Z02">Z02 - Retrieve Laboratory Information for Order ID</option>
-		<%-- REMOVED UNTIL IT'S OPERATIONAL, REQUESTED BY ONTARIO MD option value="Z04">Z04 - Retrieve Laboratory Information Updates for Practitioner</option  --%>
+		<option value="Z04">Z04 - Retrieve Laboratory Information Updates for Practitioner</option>
 		<option value="Z05">Z05 - Retrieve Laboratory Information Updates for Destination Laboratory</option>
 		<option value="Z06">Z06 - Retrieve Laboratory Information Updates for Ordering Facility</option>
 		<option value="Z07">Z07 - Retrieve Test Results Reportable to Public Health</option>

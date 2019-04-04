@@ -272,8 +272,9 @@ span.patient-consent-alert {
 	DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
 	Demographic demographic = demographicDao.getDemographic(request.getParameter("demographic"));
 	boolean resultsEmpty = olisLabResults.getResultList().isEmpty();
+	boolean hasErrors = !olisLabResults.getErrors().isEmpty();
 %>
-<table style="width:600px;" class="MainTable" align="left">
+<table style="min-width:600px;" class="MainTable" align="left">
 	<tbody><tr class="MainTableTopRow">
 		<td class="MainTableTopRowLeftColumn" width="175">OLIS</td>
 		<td class="MainTableTopRowRightColumn">
@@ -281,8 +282,10 @@ span.patient-consent-alert {
 			<tbody><tr>
 				<td>Results</td>
 				<td>
+					<% if (!hasErrors) { %>
 					<input type="button" onclick="showView('measurementsView'); return false;" id="showMeasurementsView" value="Show Measurements View"/>
 					<input type="button" onclick="showView('labsView'); return false;" id="showLabsView" value="Show Labs View" style="display: none;"/>
+					<% } %>
 				</td>
 				<td>&nbsp;</td>
 				<td style="text-align: right"><a href="javascript:popupStart(300,400,'Help.jsp')"><u>H</u>elp</a> | <a href="javascript:popupStart(300,400,'About.jsp')">About</a> | <a href="javascript:popupStart(300,400,'License.jsp')">License</a></td>
@@ -291,6 +294,7 @@ span.patient-consent-alert {
 		</table>
 		</td>
 	</tr>
+	<% if (demographic != null) { %>
 	<tr>
 		<td colspan="2" id="patientInfo">
 			<%
@@ -324,7 +328,9 @@ span.patient-consent-alert {
 			</table>
 		</td>
 	</tr>
-    <% if (resultsEmpty) { %>
+    <%  }
+		if (resultsEmpty && !hasErrors) { 
+	%>
     <tr>
         <td style="color: #a94442; font-weight: bold; padding: 10px;" colspan="3" align="center">No results returned! Please refine your search parameters.</td>
     </tr>
@@ -351,14 +357,21 @@ span.patient-consent-alert {
 			<div class="error"><%=error.replaceAll("\\n", "<br />") %></div>
 			<% }
 			}
-				List<OLISError> errors = olisLabResults.getErrors();
-				for (OLISError error : errors) {
-					if (!error.getIndentifer().equals("320") || olisLabResults.isDisplay320Error()) {
+				if (hasErrors) { %>
+			<div class="error">The querying provider was not recognized by OLIS. Please verify and resubmit your query.
+			<%		for (OLISError error : olisLabResults.getErrors()) {
+						if (!error.getIndentifer().equals("320") || olisLabResults.isDisplay320Error()) {
+						    String text = error.getText().replaceAll("\\n", "<br />");
+							if (error.getErrorSegmentDisplayText() != null) {
+								text += " (" + error.getErrorSegmentDisplayText() + ")";
+							}
 			%>
-			<div class="error"><%=error.getIndentifer()%>:<%=error.getText().replaceAll("\\n", "<br />")%></div>
+			<div><%=text%></div>
 			<%
-					}
-				}
+						}
+					} %>
+			</div>
+			<%  }
 				if (olisLabResults.isHasBlockedContent() && !olisLabResults.isHasPatientConsent()) {
 			%>
 			<form class="consent-form" action="<%=request.getContextPath()%>/olis/Search.do" onsubmit="return validateInput()">

@@ -96,7 +96,9 @@ public class OLISResultsAction extends DispatchAction {
 
             OLISHL7Handler reportHandler = (OLISHL7Handler) Factory.getHandler("OLIS_HL7", olisResultString);
             if (reportHandler != null) {
-                olisLabResults.setDemographicInfo(reportHandler);
+                if (reportHandler.hasPatient()) {
+                    olisLabResults.setDemographicInfo(reportHandler);
+                }
                 
                 List<OLISHL7Handler.OLISError> errors = reportHandler.getReportErrors();
                 List<OLISHL7Handler.OLISError> errorsToRemove = new ArrayList<>();

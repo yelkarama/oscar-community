@@ -180,6 +180,17 @@ public class OLISHL7Handler implements MessageHandler {
 	String[] getUSASocialSecurityNumber() {
 		return patientIdentifiers.get("SS");
 	}
+	
+	public boolean hasPatient() {
+		try {
+			Segment pid = terser.getSegment("/.PID");
+			if (pid != null) {
+				return true;
+			}
+		} catch (HL7Exception e) { /* do nothing */ }
+
+		return false;
+	}
 
 	public String[] getPatientIdentifier(String ident) {
 		return patientIdentifiers.get(ident);
@@ -3841,7 +3852,9 @@ public class OLISHL7Handler implements MessageHandler {
 			Segment erq = terser.getSegment("/.ERQ");
 			// Gets the ZPD parameter from the ERQ segment. It is in field 3 repetition 8
 			String zpdType =  Terser.get(erq, 3, 8, 1, 1);
-			hasPatientConsent = zpdType.contains("ZPD");
+			if (zpdType != null) {
+				hasPatientConsent = zpdType.contains("ZPD");
+			}
 		} catch(HL7Exception e) {
 			logger.error("Could not get the ERQ segment as it may not exist", e);
 			hasPatientConsent = true;
@@ -3851,6 +3864,8 @@ public class OLISHL7Handler implements MessageHandler {
 	}
 	
 	public class OLISError {
+		public final Pattern OLIS_ERROR_TEXT_PATTERN = Pattern.compile("The structure and/or content is not valid for the following parameter: '@(.*)' '(.*)'.");
+		
 		public OLISError(String segment, String sequence, String field, String indentifer, String text) {
 			super();
 			this.segment = segment;
@@ -3858,9 +3873,16 @@ public class OLISHL7Handler implements MessageHandler {
 			this.field = field;
 			this.indentifer = indentifer;
 			this.text = text;
+			Matcher matcher = OLIS_ERROR_TEXT_PATTERN.matcher(text);
+			if (matcher.find()) {
+				OlisErrorFieldDescription fieldDescription = OlisErrorFieldDescription.getByConceptCode(matcher.group(1));
+				if (fieldDescription != null) {
+					this.errorSegmentDisplayText = fieldDescription.getDisplayText();
+				}
+			}
 		}
 
-		String segment, sequence, field, indentifer, text;
+		String segment, sequence, field, indentifer, text, errorSegmentDisplayText;
 
 		public String getSegment() {
 			return segment;
@@ -3900,6 +3922,14 @@ public class OLISHL7Handler implements MessageHandler {
 
 		public void setText(String text) {
 			this.text = text;
+		}
+
+		public String getErrorSegmentDisplayText() {
+			return errorSegmentDisplayText;
+		}
+
+		public void setErrorSegmentDisplayText(String errorSegmentDisplayText) {
+			this.errorSegmentDisplayText = errorSegmentDisplayText;
 		}
 
 		@Override
@@ -3943,5 +3973,39 @@ public class OLISHL7Handler implements MessageHandler {
 			return OLISHL7Handler.this;
 		}
 
+	}
+	
+	enum OlisErrorFieldDescription {
+		CPSO_NUMBER("ZRP.1.1", "Invalid CPSO Number"),
+		UNMATCHED_OFFICIAL_LAST_NAME("ZRP.1.2", "Unmatched Official Last Name"),
+		UNMATCHED_OFFICIAL_FIRST_NAME("ZRP.1.3", "Unmatched Official First Name"),
+		UNMATCHED_OFFICIAL_SECOND_NAME("ZRP.1.4", "Unmatched Official Second Name"),
+		OLIS_IDENTIFIER_TYPE_CODE("ZRP.1.1.13", "Invalid OLIS Identifier Type Code");
+		
+		private String segmentCode;
+		private String displayText;
+
+		OlisErrorFieldDescription(String segmentCode, String displayText) {
+			this.segmentCode = segmentCode;
+			this.displayText = displayText;
+		}
+
+		public String getSegmentCode() {
+			return segmentCode;
+		}
+
+		public String getDisplayText() {
+			return displayText;
+		}
+
+		private static final Map<String, OlisErrorFieldDescription> segmentCodeMap = new HashMap<String, OlisErrorFieldDescription>();
+		static {
+			for (OlisErrorFieldDescription taskReason : OlisErrorFieldDescription.values()) {
+				segmentCodeMap.put(taskReason.getSegmentCode(), taskReason);
+			}
+		}
+		public static OlisErrorFieldDescription getByConceptCode(String segmentCode) {
+			return segmentCodeMap.get(segmentCode);
+		}
 	}
 }
