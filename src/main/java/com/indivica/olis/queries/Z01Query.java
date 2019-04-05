@@ -40,7 +40,7 @@ import com.indivica.olis.parameters.ZSD;
  * @author jen
  *
  */
-public class Z01Query extends Query implements ContinuationPointerQuery{
+public class Z01Query extends Query implements ContinuationPointerQuery {
 
 	private OBR22 startEndTimestamp = null;
 	private OBR7 earliestLatestObservationDateTime = null;

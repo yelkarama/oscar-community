@@ -26,7 +26,6 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
 import org.oscarehr.PMmodule.dao.ProviderDao;
-import org.oscarehr.common.dao.SystemPreferencesDao;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.olis.model.OlisLabResultDisplay;
@@ -44,8 +43,8 @@ import oscar.oscarLab.ca.all.util.Utilities;
 public class OLISResultsAction extends DispatchAction {
 
 	public static HashMap<String, OLISHL7Handler> searchResultsMap = new HashMap<String, OLISHL7Handler>();
+    public static HashMap<String, OlisLabResults> currentResultsMap = new HashMap<String, OlisLabResults>();
 	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	private SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
 	 
 	@Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
@@ -156,7 +155,7 @@ public class OLISResultsAction extends DispatchAction {
 					if (olisResultHandler.getOBRCount() == 0) {
 						continue;
 					}
-					
+
 					searchResultsMap.put(resultUuid, olisResultHandler);
 					resultList.add(resultUuid);
 					// Gets the ordering provider number from the report
@@ -171,17 +170,20 @@ public class OLISResultsAction extends DispatchAction {
 				}
 			}
 			
-			String[] continuationListPastUuids = (String[]) request.getAttribute("continuationListPastUuids");
-			if (continuationListPastUuids != null) {
-				for (String uuid : continuationListPastUuids) {
-					OLISHL7Handler olisResultHandler = searchResultsMap.get(uuid);
-					resultList.add(uuid);
-					olisLabResults.getResultList().addAll(OlisLabResultDisplay.getListFromHandler(olisResultHandler, uuid));
+			String currentViewUuid = UUID.randomUUID().toString();
+			if (request.getAttribute("currentViewUuid") != null) {
+				currentViewUuid = (String) request.getAttribute("currentViewUuid");
+				OlisLabResults pastOlisLabResults = currentResultsMap.get(currentViewUuid);
+				if (pastOlisLabResults != null) {
+					olisLabResults.getResultList().addAll(pastOlisLabResults.getResultList());
+					olisLabResults.getErrors().addAll(pastOlisLabResults.getErrors());
 				}
 			}
-            request.setAttribute("resultList", resultList);
-			
-            request.setAttribute("olisLabResults", olisLabResults);
+			currentResultsMap.put(currentViewUuid, olisLabResults);
+
+			request.setAttribute("resultList", resultList);
+			request.setAttribute("currentViewUuid", currentViewUuid);
+			request.setAttribute("olisLabResults", olisLabResults);
 
 		} catch (IOException | NullPointerException e) {
 			MiscUtils.getLogger().error("Can't pull out messages from OLIS response.", e);

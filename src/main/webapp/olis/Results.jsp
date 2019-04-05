@@ -384,7 +384,7 @@ span.patient-consent-alert {
 			<form class="consent-form" action="<%=request.getContextPath()%>/olis/Search.do" onsubmit="return validateInput()">
 				<input type="hidden" name="method" value="loadResults" />
 				<input type="hidden" name="redo" value="true" />
-				<input type="hidden" name="uuid" value="<%=(String)request.getAttribute("searchUuid")%>" />
+				<input type="hidden" name="uuid" value="<%=olisLabResults.getQueryUsedUuid()%>" />
 				<input type="hidden" name="force" value="true" />
 				
 				<label for="blockedInformationIndividual">Authorized by:</label>
@@ -707,8 +707,7 @@ span.patient-consent-alert {
 <form style="display: none" id="loadMoreResultsForm" action="<%=request.getContextPath()%>/olis/Search.do">
 	<input name="method" value="loadMoreResults"/>
 	<input name="queryUsedUuid" value="<%=olisLabResults.getQueryUsedUuid()%>"/>
-	<input name="continuationPointer" value="<%=olisLabResults.getContinuationPointer()%>"/>
-	<input name="continuationListPastUuids" value="<%=StringUtils.join(resultList, ",")%>"/>
+	<input name="currentViewUuid" value="<%=request.getAttribute("currentViewUuid")%>"/>
 </form>
 <script type="application/javascript">
     jQuery("#resultsSummaryTable").tablesorter({

@@ -35,6 +35,7 @@ import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.OscarLog;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.UserProperty;
+import org.oscarehr.olis.model.OlisLabResults;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -131,10 +132,13 @@ public class OLISSearchAction extends DispatchAction {
 				logDao.persist(logItem);
 
 			}
+			// Remove continuation pointer if it exists to re-pull all results
+			if (q instanceof ContinuationPointerQuery) {
+                ((Z01Query) q).setContinuationPointer(null);
+            }
 			Driver.submitOLISQuery(request, q, loggedInInfo.getLoggedInProvider());
 			
-		}
-		else if (queryType != null) {
+		} else if (queryType != null) {
 			Query query = createOlisQuery(queryType, loggedInInfo, request);
 			
 			String searchUuid = UUID.randomUUID().toString();
@@ -150,19 +154,22 @@ public class OLISSearchAction extends DispatchAction {
 	public ActionForward loadMoreResults(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
 		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 		
+        OlisLabResults currentResults = null;
+        String currentViewUuid = request.getParameter("currentViewUuid");
+        if (currentViewUuid != null) {
+            currentResults = OLISResultsAction.currentResultsMap.get(currentViewUuid);
+        }
+        
 		String queryUsedUuid = request.getParameter("queryUsedUuid");
-		String continuationPointer = request.getParameter("continuationPointer");
 		Query queryUsed = searchQueryMap.get(queryUsedUuid);
-		if (queryUsed instanceof ContinuationPointerQuery && continuationPointer != null) {
-			((ContinuationPointerQuery) queryUsed).setContinuationPointer(continuationPointer);
+		if (currentResults != null && currentResults.getContinuationPointer() != null) {
+			((ContinuationPointerQuery) queryUsed).setContinuationPointer(currentResults.getContinuationPointer());
 			String searchUuid = UUID.randomUUID().toString();
 			searchQueryMap.put(searchUuid, queryUsed);
 			request.setAttribute("searchUuid", searchUuid);
 			Driver.submitOLISQuery(request, queryUsed, loggedInInfo.getLoggedInProvider());
 			
-			String continuationListPastUuids = request.getParameter("continuationListPastUuids");
-			request.setAttribute("continuationListPastUuids", continuationListPastUuids.split(","));
-		   
+			request.setAttribute("currentViewUuid", currentViewUuid);
 		}
 		return mapping.findForward("results");
 	}
