@@ -15,6 +15,8 @@ public class OlisLabResults {
     private boolean hasPatientLevelBlock = false;
     private boolean display320Error = true;
     private boolean hasPatientConsent = true;
+    private String queryUsedUuid = null;
+    private String continuationPointer = null;
     
     private String demographicName = "";
     private String demographicHin = "";
@@ -25,6 +27,9 @@ public class OlisLabResults {
     public OlisLabResults() { }
 
     public List<OlisLabResultDisplay> getResultList() {
+        return resultList;
+    }
+    public List<OlisLabResultDisplay> getResultListSorted() {
         Collections.sort(resultList, OlisLabResultDisplay.OLIS_LAB_RESULT_DISPLAY_COMPARATOR);
         return resultList;
     }
@@ -81,6 +86,22 @@ public class OlisLabResults {
     }
     public void setHasPatientConsent(boolean hasPatientConsent) {
         this.hasPatientConsent = hasPatientConsent;
+    }
+
+    public String getQueryUsedUuid() {
+        return queryUsedUuid;
+    }
+
+    public void setQueryUsedUuid(String queryUsedUuid) {
+        this.queryUsedUuid = queryUsedUuid;
+    }
+
+    public String getContinuationPointer() {
+        return continuationPointer;
+    }
+
+    public void setContinuationPointer(String continuationPointer) {
+        this.continuationPointer = continuationPointer;
     }
 
     public String getDemographicName() {

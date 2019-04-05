@@ -314,7 +314,7 @@
 		<option value="Z50">Z50 - Identify Patient by Name, Sex, and Date of Birth</option>
 	</select>
 
-	<form action="<%=request.getContextPath() %>/olis/Search.do" method="POST" onSubmit="checkBlockedConsent('Z01')" name="Z01_form">
+	<form action="<%=request.getContextPath() %>/olis/Search.do?method=loadResults" method="POST" onSubmit="checkBlockedConsent('Z01')" name="Z01_form">
 	<input type="hidden" name="queryType" value="Z01" />
 	<table id="Z01_query">
 		<tbody><tr>
@@ -584,7 +584,7 @@
 
 
 
-	<form action="<%=request.getContextPath() %>/olis/Search.do" method="POST" onSubmit="checkBlockedConsent('Z02')" name="Z02_form">
+	<form action="<%=request.getContextPath() %>/olis/Search.do?method=loadResults" method="POST" onSubmit="checkBlockedConsent('Z02')" name="Z02_form">
 	<input type="hidden" name="queryType" value="Z02" />
 	<table id="Z02_query" style="display: none;">
 		<tbody><tr>
@@ -685,7 +685,7 @@
 
 
 
-	<form action="<%=request.getContextPath() %>/olis/Search.do" method="POST">
+	<form action="<%=request.getContextPath() %>/olis/Search.do?method=loadResults" method="POST">
 	<input type="hidden" name="queryType" value="Z04" />
 	<table id="Z04_query" style="display: none;">
 		<tbody>
@@ -695,9 +695,9 @@
 		<tr>
 			<th width="20%">Date &amp; Time Period to Search<br />(yyyy-mm-dd)</th>
 			<td width="30%">
-				<input style="width:150px" type="text" name="startTimePeriod" id="startTimePeriod" value="" >
+				<input style="width:150px" type="text" name="startTimePeriod" id="startTimePeriod" value="2011-01-01" >
 				to 
-				<input style="width:150px" name="endTimePeriod" type="text" id="endTimePeriod" value="">
+				<input style="width:150px" name="endTimePeriod" type="text" id="endTimePeriod" value="2011-12-31">
 				&nbsp;<input type="button" value="One Week Ago" onclick="setTimePeriod('week')"/>
 				&nbsp;<input type="button" value="One Month Ago" onclick="setTimePeriod('month')"/>
 				&nbsp;<input type="button" value="One Year Ago" onclick="setTimePeriod('year')"/>
@@ -759,7 +759,7 @@
 	
 	
 	
-	<form action="<%=request.getContextPath() %>/olis/Search.do" method="POST">
+	<form action="<%=request.getContextPath() %>/olis/Search.do?method=loadResults" method="POST">
 	<input type="hidden" name="queryType" value="Z05" />
 	<table id="Z05_query" style="display: none;">
 		<tbody>
@@ -791,7 +791,7 @@
 	
 	
 	
-	<form action="<%=request.getContextPath() %>/olis/Search.do" method="POST">
+	<form action="<%=request.getContextPath() %>/olis/Search.do?method=loadResults" method="POST">
 	<input type="hidden" name="queryType" value="Z06" />
 	<table id="Z06_query" style="display: none;">
 		<tbody>
@@ -822,7 +822,7 @@
 	</form>
 	
 	
-	<form action="<%=request.getContextPath() %>/olis/Search.do" method="POST">
+	<form action="<%=request.getContextPath() %>/olis/Search.do?method=loadResults" method="POST">
 	<input type="hidden" name="queryType" value="Z07" />
 	<table id="Z07_query" style="display: none;">
 		<tbody>
@@ -844,7 +844,7 @@
 	
 	
 	
-	<form action="<%=request.getContextPath() %>/olis/Search.do" method="POST">
+	<form action="<%=request.getContextPath() %>/olis/Search.do?method=loadResults" method="POST">
 	<input type="hidden" name="queryType" value="Z08" />
 	<table id="Z08_query" style="display: none;">
 		<tbody>
@@ -866,7 +866,7 @@
 	
 	
 	
-	<form action="<%=request.getContextPath() %>/olis/Search.do" method="POST">
+	<form action="<%=request.getContextPath() %>/olis/Search.do?method=loadResults" method="POST">
 	<input type="hidden" name="queryType" value="Z50" />
 	<table id="Z50_query" style="display: none;">
 		<tbody>

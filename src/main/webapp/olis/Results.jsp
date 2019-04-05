@@ -17,6 +17,7 @@
 <%@ page import="org.oscarehr.common.model.Demographic" %>
 <%@ page import="org.oscarehr.common.dao.DemographicDao" %>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
+<%@ page import="oscar.util.StringUtils" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -172,6 +173,14 @@ function validateInput() {
 	}
 	
 	return validInput;
+}
+
+let isLoadingMoreResults = false;
+function loadMoreResults() {
+    if (!isLoadingMoreResults) {
+        isLoadingMoreResults = true;
+        document.getElementById('loadMoreResultsForm').submit();
+	}
 }
 </script>
 <script type="text/javascript" src="<%=request.getContextPath()%>/share/javascript/sortable.js"></script>
@@ -375,6 +384,7 @@ span.patient-consent-alert {
 				if (olisLabResults.isHasBlockedContent() && !olisLabResults.isHasPatientConsent()) {
 			%>
 			<form class="consent-form" action="<%=request.getContextPath()%>/olis/Search.do" onsubmit="return validateInput()">
+				<input type="method" name="redo" value="loadResults" />
 				<input type="hidden" name="redo" value="true" />
 				<input type="hidden" name="uuid" value="<%=(String)request.getAttribute("searchUuid")%>" />
 				<input type="hidden" name="force" value="true" />
@@ -413,7 +423,7 @@ span.patient-consent-alert {
 		<td colspan="2" id="labsDisplay">
 			<% 
 			List<String> resultList = (List<String>) request.getAttribute("resultList");
-			List<OlisLabResultDisplay> olisResultList = olisLabResults.getResultList();
+			List<OlisLabResultDisplay> olisResultList = olisLabResults.getResultListSorted();
 			
 			if (olisResultList.size() > 0) { %>
 			<div class="resultsSummaryPager" style="padding: 0;">
@@ -440,9 +450,9 @@ span.patient-consent-alert {
 				<label>Results per page
 					<select class="pagesize" title="Select page size">
 						<option value="10">10</option>
-						<option selected="selected" value="20">20</option>
-						<option value="30">30</option>
-						<option value="40">40</option>
+						<option selected="selected" value="25">25</option>
+						<option value="50">50</option>
+						<option value="100">100</option>
 					</select>
 				</label>
 				<div style="float: right">
@@ -452,6 +462,11 @@ span.patient-consent-alert {
 					<img src="<%=request.getContextPath()%>/css/tablesorter/icons/next.png" class="next"/>
 					<img src="<%=request.getContextPath()%>/css/tablesorter/icons/last.png" class="last"/>
 				</div>
+				<% if (olisLabResults.getContinuationPointer() != null) { %>
+				<label style="float: right">
+					<button title="More results are available, click here to load" onclick="loadMoreResults()">Load More Results</button>
+				</label>
+				<% } %>
 			</div>
 			<table style="min-width: 1200px;" id="resultsSummaryTable" class="resultsTable tablesorter">
 				<thead>
@@ -523,6 +538,11 @@ span.patient-consent-alert {
 				<img src="<%=request.getContextPath()%>/css/tablesorter/icons/last.png" class="last"/>
 			</div>
 			<% } %>
+			<% if (olisLabResults.getContinuationPointer() != null) { %>
+			<label style="float: right">
+				<button title="More results are available, click here to load" onclick="loadMoreResults()">Load More Results</button>
+			</label>
+			<% } %>
 		</td>
 	</tr>
 	<tr>
@@ -535,9 +555,9 @@ span.patient-consent-alert {
 				<label>Results per page
 					<select class="pagesize" title="Select page size">
 						<option value="10">10</option>
-						<option selected="selected" value="20">20</option>
-						<option value="30">30</option>
-						<option value="40">40</option>
+						<option selected="selected" value="25">25</option>
+						<option value="50">50</option>
+						<option value="100">100</option>
 					</select>
 				</label>
 				<div style="float: right">
@@ -547,6 +567,11 @@ span.patient-consent-alert {
 					<img src="<%=request.getContextPath()%>/css/tablesorter/icons/next.png" class="next"/>
 					<img src="<%=request.getContextPath()%>/css/tablesorter/icons/last.png" class="last"/>
 				</div>
+				<% if (olisLabResults.getContinuationPointer() != null) { %>
+				<label style="float: right">
+					<button title="More results are available, click here to load" onclick="loadMoreResults()">Load More Results</button>
+				</label>
+				<% } %>
 			</div>
 			<table style="min-width: 1200px;"  id="measurementsDetailTable" class="resultsTable tablesorter">
 				<thead>
@@ -667,6 +692,11 @@ span.patient-consent-alert {
 				<img src="<%=request.getContextPath()%>/css/tablesorter/icons/next.png" class="next"/>
 				<img src="<%=request.getContextPath()%>/css/tablesorter/icons/last.png" class="last"/>
 			</div>
+			<% if (olisLabResults.getContinuationPointer() != null) { %>
+			<label style="float: right">
+				<button title="More results are available, click here to load" onclick="loadMoreResults()">Load More Results</button>
+			</label>
+			<% } %>
 		</td>
 	</tr>
 	<tr>
@@ -676,6 +706,12 @@ span.patient-consent-alert {
 	</tr>
 	</tbody>
 </table>
+<form style="display: none" id="loadMoreResultsForm" action="<%=request.getContextPath()%>/olis/Search.do">
+	<input name="method" value="loadMoreResults"/>
+	<input name="queryUsedUuid" value="<%=olisLabResults.getQueryUsedUuid()%>"/>
+	<input name="continuationPointer" value="<%=olisLabResults.getContinuationPointer()%>"/>
+	<input name="continuationListPastUuids" value="<%=StringUtils.join(resultList, ",")%>"/>
+</form>
 <script type="application/javascript">
     jQuery("#resultsSummaryTable").tablesorter({
         sortList:[]
@@ -690,7 +726,7 @@ span.patient-consent-alert {
         output: '{startRow} - {endRow} of {totalRows} items',
         updateArrows: true,
         page: 0,
-        size: 20,
+        size: 25,
         fixedHeight: false,
         removeRows: false,
         cssNext: '.next',
@@ -715,7 +751,7 @@ span.patient-consent-alert {
         output: '{startRow} - {endRow} of {totalRows} items',
         updateArrows: true,
         page: 0,
-        size: 20,
+        size: 25,
         fixedHeight: false,
         removeRows: false,
         cssNext: '.next',

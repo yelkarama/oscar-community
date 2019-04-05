@@ -9,6 +9,7 @@
 
 package com.indivica.olis;
 
+import com.indivica.olis.queries.ContinuationPointerQuery;
 import org.oscarehr.common.model.Provider;
 
 import com.indivica.olis.queries.Query;
@@ -36,14 +37,10 @@ public class OLISMessage {
 		mshSegment = new MSHSegment(query.getQueryType());
 		zshSegment = new ZSHSegment(provider);
 		sprSegment = new SPRSegment(query.getQueryType(), query);
+		if (query instanceof ContinuationPointerQuery && ((ContinuationPointerQuery) query).getContinuationPointer() != null) {
+			dscSegment = new DSCSegment(((ContinuationPointerQuery) query).getContinuationPointer());
+		}
 	}
-	
-	public OLISMessage(Query query, String continuationPointer) {
-		mshSegment = new MSHSegment(query.getQueryType());
-		zshSegment = new ZSHSegment(provider);
-		sprSegment = new SPRSegment(query.getQueryType(), query);
-		dscSegment = new DSCSegment(continuationPointer);
-	}	
 	
 	public String getTransactionId() {
 		return mshSegment.getUuidString();

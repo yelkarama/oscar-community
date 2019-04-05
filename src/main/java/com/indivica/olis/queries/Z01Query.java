@@ -40,7 +40,7 @@ import com.indivica.olis.parameters.ZSD;
  * @author jen
  *
  */
-public class Z01Query extends Query {
+public class Z01Query extends Query implements ContinuationPointerQuery{
 
 	private OBR22 startEndTimestamp = null;
 	private OBR7 earliestLatestObservationDateTime = null;
@@ -64,6 +64,7 @@ public class Z01Query extends Query {
 	private ORC4 placerGroupNumber = null;
 	private List<OBR25> testRequestStatusList = new LinkedList<OBR25>();
 	private List<OBX3> testResultCodeList = new LinkedList<OBX3>();
+    private String continuationPointer = null;
 	
 	@Override
 	public String getQueryHL7String() {
@@ -230,6 +231,14 @@ public class Z01Query extends Query {
 	public void addToTestResultCodeList(OBX3 testResultCode) {
 		this.testResultCodeList.add(testResultCode);
 	}
+	
+    public String getContinuationPointer() {
+        return continuationPointer;
+    }
+
+    public void setContinuationPointer(String continuationPointer) {
+        this.continuationPointer = continuationPointer;
+    }
 
 	@Override
 	public void setSubstituteDecisionMaker(ZSD substituteDecisionMaker) {

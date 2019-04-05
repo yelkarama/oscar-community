@@ -1,7 +1,5 @@
 package org.oscarehr.olis.model;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.CompareToBuilder;
 import org.oscarehr.olis.OLISUtils;
 import oscar.oscarLab.ca.all.parsers.OLISHL7Handler;
 

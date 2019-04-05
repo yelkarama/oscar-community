@@ -1092,7 +1092,7 @@
         <action input="/labDisplayOLIS.jsp" path="/lab/CA/ALL/PrintOLISLab" scope="request" type="oscar.oscarLab.ca.all.pageUtil.PrintOLISLabAction">
             <forward name="error" path="/lab/CA/ALL/labDisplay.jsp" />
         </action>
-        <action input="/olis/Search.jsp" path="/olis/Search" scope="request" type="org.oscarehr.olis.OLISSearchAction">
+        <action input="/olis/Search.jsp" path="/olis/Search" scope="request" parameter="method" type="org.oscarehr.olis.OLISSearchAction">
         	<forward name="results" path="/olis/Results.do" />
         </action>
         <action input="/olis/Search.jsp" path="/olis/Results" scope="request" type="org.oscarehr.olis.OLISResultsAction">

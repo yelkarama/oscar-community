@@ -11,7 +11,6 @@ package org.oscarehr.olis;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -132,6 +131,9 @@ public class OLISResultsAction extends DispatchAction {
                 
                 errors.removeAll(errorsToRemove);
                 olisLabResults.setHasBlockedContent(hasBlockedContent);
+                String searchUuid = (String) request.getAttribute("searchUuid");
+                olisLabResults.setQueryUsedUuid(searchUuid);
+                olisLabResults.setContinuationPointer(reportHandler.getContinuationPointer());
             }
 			
 			@SuppressWarnings("unchecked")
@@ -166,6 +168,15 @@ public class OLISResultsAction extends DispatchAction {
 					}
 					
                     olisLabResults.getResultList().addAll(OlisLabResultDisplay.getListFromHandler(olisResultHandler, resultUuid));
+				}
+			}
+			
+			String[] continuationListPastUuids = (String[]) request.getAttribute("continuationListPastUuids");
+			if (continuationListPastUuids != null) {
+				for (String uuid : continuationListPastUuids) {
+					OLISHL7Handler olisResultHandler = searchResultsMap.get(uuid);
+					resultList.add(uuid);
+					olisLabResults.getResultList().addAll(OlisLabResultDisplay.getListFromHandler(olisResultHandler, uuid));
 				}
 			}
             request.setAttribute("resultList", resultList);

@@ -3862,6 +3862,18 @@ public class OLISHL7Handler implements MessageHandler {
 		
 		return hasPatientConsent;
 	}
+
+	public String getContinuationPointer() {
+		try {
+			Segment dsc = terser.getSegment("/.DSC");
+			if (dsc != null) {
+				return Terser.get(dsc, 1, 0, 1, 1);
+			}
+		} catch(HL7Exception e) {
+			logger.error("Could not get the DSC segment as it may not exist", e);
+		}
+		return null;
+	}
 	
 	public class OLISError {
 		public final Pattern OLIS_ERROR_TEXT_PATTERN = Pattern.compile("The structure and/or content is not valid for the following parameter: '@(.*)' '(.*)'.");
