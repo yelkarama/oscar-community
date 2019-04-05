@@ -1489,7 +1489,7 @@ public class OLISHL7Handler implements MessageHandler {
 		Segment zbr;
 		String name;
 		int obrIndex;
-		Date collectionDateTime;
+		Date collectionDateTime = null;
 		String groupPlacerNo;
 		String sortKey;
 		OLISRequestNomenclature nomenclature;
@@ -1504,8 +1504,12 @@ public class OLISHL7Handler implements MessageHandler {
 					name = headers.get(obr);
 					// Sets the current obr to the obrIndex, used to retrieve additional obr information when displaying it
 					obrIndex = obr;
-					// Parses and sets the collection date time
-					collectionDateTime = sdf.parse(getCollectionDateTime(obr));
+					try {
+						// Parses and sets the collection date time
+						collectionDateTime = sdf.parse(getCollectionDateTime(obr));
+					} catch(ParseException e) {
+						logger.error("Could not parse the given date: '" + getCollectionDateTime(obr) + "'");
+					}
 					// Gets the report accession number as the group placer number
 					groupPlacerNo = getAccessionNum();
 					// Gets the request sort key found in ZBR11
@@ -1557,6 +1561,13 @@ public class OLISHL7Handler implements MessageHandler {
                 String loincCode = getObxLoincCode(obxSegment);
                 // Gets the related nomenclature if it exists
                 OLISResultNomenclature nomenclature = olisResultNomenclatureMap.get(loincCode);
+                String nomenclatureSortKey = "";
+                String nomenclatureAlternateName = "";
+                
+                if (nomenclature != null) {
+					nomenclatureSortKey = nomenclature.getSortKey();
+					nomenclatureAlternateName = nomenclature.getResultAlternateName1();
+				}
 
                 
                 String zbxSortKey = "";
@@ -1574,7 +1585,7 @@ public class OLISHL7Handler implements MessageHandler {
                 }
                 
                 // Creates a new OlisLabResultSortable object and adds it to the result list
-                OlisLabResultSortable labResult = new OlisLabResultSortable(setId, subId, nomenclature.getSortKey(), nomenclature.getResultAlternateName1(), resultStatus.equals("Z"), releaseDate, zbxSortKey);
+                OlisLabResultSortable labResult = new OlisLabResultSortable(setId, subId, nomenclatureSortKey, nomenclatureAlternateName, resultStatus.equals("Z"), releaseDate, zbxSortKey);
                 resultList.add(labResult);
             }
         } catch (Exception e) {
@@ -2038,6 +2049,7 @@ public class OLISHL7Handler implements MessageHandler {
      * @return Map of the loinc codes and their matching result nomenclatures
      */
     private Map<String, OLISResultNomenclature> getOlisResultNomenclatureMap() {
+		Map<String, OLISResultNomenclature> loincCodeMap = new HashMap<>();
         List<String> loincCodes = new ArrayList<String>();
         // Initializes the current OBX to 0
         int headerObxCount = 0;
@@ -2056,9 +2068,14 @@ public class OLISHL7Handler implements MessageHandler {
             headerObxCount += obxCount;
         }
         
-        // Get OLIS Request Nomenclature for lab results
-        OLISResultNomenclatureDao resultDao = (OLISResultNomenclatureDao) SpringUtils.getBean("OLISResultNomenclatureDao");
-        return resultDao.findByOlisTestLoincCodes(loincCodes);
+        // If there are any loinc codes from the lab, searches for their related nomenclature
+        if (!loincCodes.isEmpty()) {
+			// Get OLIS Request Nomenclature for lab results
+			OLISResultNomenclatureDao resultDao = (OLISResultNomenclatureDao) SpringUtils.getBean("OLISResultNomenclatureDao");
+			loincCodeMap = resultDao.findByOlisTestLoincCodes(loincCodes);
+		}
+        
+        return loincCodeMap;
     }
     
     public String getNomenclatureRequestCode(int obr) {

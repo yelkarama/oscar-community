@@ -80,9 +80,22 @@ public class OlisLabRequestSortable {
     public static final Comparator<OlisLabRequestSortable> OLIS_REQUEST_COMPARATOR = new Comparator<OlisLabRequestSortable>() {
         @Override
         public int compare(OlisLabRequestSortable o1, OlisLabRequestSortable o2) {
-            // Compares the collection dates, using o2 as the basis in order to order it in reverse chronological
-            // If They are the same value, continues comparing other elements to determine order
-            int compared = o2.getCollectionDateTime().compareTo(o1.getCollectionDateTime());
+            Date collectionDate1 = o1.getCollectionDateTime();
+            Date collectionDate2 = o2.getCollectionDateTime();
+            int compared = 0;
+            
+            // If both collection dates are not null, compares them using the Date objects compareTo
+            // If Collection Date 1 is null and Collection Date 2 is not, sets compared to 1 to indicate that o1 should come later in the list than o2
+            // If Collection Date 1 is not null, sets compared to -1 to indicate that o2 should come later in the list than o1
+            if (collectionDate1 != null && collectionDate2 != null) {
+                compared = o2.getCollectionDateTime().compareTo(o1.getCollectionDateTime());
+            } else if (collectionDate1 == null && collectionDate2 != null) {
+                compared = 1;
+            } else if (collectionDate1 != null) {
+                compared = -1;
+            }
+
+            // If the dates are the same (either they are both null or compareTo returned 0), continues comparing other elements to determine order
             if (compared == 0) {
                 // Compares placer group numbers, continuing to compare other attributes if they are the same
                 compared = OLISUtils.compareStringEmptyIsMore(o1.getGroupPlacerNo(), o2.getGroupPlacerNo());

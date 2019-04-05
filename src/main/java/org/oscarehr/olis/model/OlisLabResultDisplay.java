@@ -232,7 +232,10 @@ public class OlisLabResultDisplay {
                     // Gets the set id and subtracts it by one to get the proper obx location in the segment list for the obr
                     int obx = resultSortable.getSetId() - 1;
                     String resultStatus = olisHandler.getOBXResultStatus(obr, obx).trim();
-                    
+                    String status = "";
+                    if (!resultStatus.isEmpty()) {
+                        status = olisHandler.getTestResultStatusMessage(resultStatus.charAt(0));
+                    }
                     // Gets the OBX value type
                     String valueType = olisHandler.getOBXValueType(obr,obx).trim();
                     String resultValue;
@@ -257,7 +260,7 @@ public class OlisLabResultDisplay {
                     measurement.setMeasurementObxIndex(obx);
                     measurement.setParentLab(labResult);
                     measurement.setTestResultName(olisHandler.getOBXName(obr, obx));
-                    measurement.setStatus(olisHandler.getTestResultStatusMessage(resultStatus.charAt(0)));
+                    measurement.setStatus(status);
                     measurement.setResultValue(resultValue);
                     measurement.setFlag(olisHandler.getOBXAbnormalFlag(obr, obx));
                     measurement.setReferenceRange(olisHandler.getOBXReferenceRange(obr, obx));
@@ -311,9 +314,23 @@ public class OlisLabResultDisplay {
     public static final Comparator<OlisLabResultDisplay> OLIS_LAB_RESULT_DISPLAY_COMPARATOR = new Comparator<OlisLabResultDisplay>() {
         @Override
         public int compare(OlisLabResultDisplay o1, OlisLabResultDisplay o2) {
-            // Compares the collection dates, using o2 as the basis in order to order it in reverse chronological
-            // If They are the same value, continues comparing other elements to determine order
-            int compared = o2.getCollectionDateAsDate().compareTo(o1.getCollectionDateAsDate());
+            Date collectionDate1 = o1.getCollectionDateAsDate();
+            Date collectionDate2 = o2.getCollectionDateAsDate();
+            int compared = 0;
+            
+            // If both collection dates are not null, compares them using the Date objects compareTo
+            // If Collection Date 1 is null and Collection Date 2 is not, sets compared to 1 to indicate that o1 should come later in the list than o2
+            // If Collection Date 1 is not null, sets compared to -1 to indicate that o2 should come later in the list than o1
+            if (collectionDate1 != null && collectionDate2 != null) {
+                // Compares the collection dates, using o2 as the basis in order to order it in reverse chronological
+                compared = collectionDate2.compareTo(collectionDate1);
+            } else if (collectionDate1 == null && collectionDate2 != null) {
+                compared = 1;
+            } else if (collectionDate1 != null) {
+                compared = -1;
+            }
+            
+            // If the dates are the same (either they are both null or compareTo returned 0), continues comparing other elements to determine order
             if (compared == 0) {
                 // Compares placer group numbers, continuing to compare other attributes if they are the same
                 compared = OLISUtils.compareStringEmptyIsMore(o1.getPlacerGroupNo(), o2.getPlacerGroupNo());
