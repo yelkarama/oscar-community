@@ -24,8 +24,10 @@
 package org.oscarehr.hospitalReportManager;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -37,6 +39,7 @@ import org.oscarehr.hospitalReportManager.dao.HRMDocumentDao;
 import org.oscarehr.hospitalReportManager.model.HRMDocument;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
+import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
 import oscar.util.StringUtils;
@@ -129,9 +132,21 @@ public class HRMDownloadFileAction extends DownloadAction{
         
         File temp = File.createTempFile("HRMDownloadFile", report.getFileExtension()); 
         temp.deleteOnExit();
-        
+
         FileUtils.writeByteArrayToFile(temp, data);
-       
-        return new FileStreamInfo(contentType, temp);   
+
+		if(report.getFileExtension().equals(".pdf")) {
+			response.setContentType("application/pdf");
+			response.setContentLength(data.length);
+			response.setHeader("Content-Disposition", "inline; attachment; filename=\"" + fileName + ".pdf\"");
+			try (ServletOutputStream outputStream = response.getOutputStream()){
+				outputStream.write(data);
+			}catch(IOException e){
+				MiscUtils.getLogger().error("Error loading pdf", e);
+			}
+			return null;
+		}
+
+        return new FileStreamInfo(contentType, temp);
     }   
 }

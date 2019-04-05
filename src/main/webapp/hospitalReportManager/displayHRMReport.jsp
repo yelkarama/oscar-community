@@ -367,10 +367,16 @@ function popupPatientTickler(height, width, url, windowName,docId,d,n) {
 		if(hrmReport.getFileExtension() != null && (".gif".equals(hrmReport.getFileExtension()) || ".jpg".equals(hrmReport.getFileExtension()) || ".png".equals(hrmReport.getFileExtension()))) {
 			%><img src="<%=request.getContextPath() %>/hospitalReportManager/HRMDownloadFile.do?hash=<%=noMessageIdHash%>"/><br/><%	
 		}
+		if(hrmReport.getFileExtension() != null && ".pdf".equals(hrmReport.getFileExtension())){
+			%><object data="<%=request.getContextPath() %>/hospitalReportManager/HRMDownloadFile.do?hash=<%=noMessageIdHash%>" width="100%" height="600" type="application/pdf">
+				<p>(Your browser could not display the pdf)</p>
+</object><br/>
+		<%
+		}
 		%><a href="<%=request.getContextPath() %>/hospitalReportManager/HRMDownloadFile.do?hash=<%=noMessageIdHash%>"><%=(hrmReport.getLegalLastName() + "-" + hrmReport.getLegalFirstName() + "-" +  hrmReport.getFirstReportClass() + hrmReport.getFileExtension()).replaceAll("\\s", "_") %></a>&nbsp;&nbsp;
 		<br/>
 		<%
-		if(hrmReport.getFileExtension() != null && (".gif".equals(hrmReport.getFileExtension()) || ".jpg".equals(hrmReport.getFileExtension()) || ".png".equals(hrmReport.getFileExtension()))) {
+		if(hrmReport.getFileExtension() != null && (".pdf".equals(hrmReport.getFileExtension()) || ".gif".equals(hrmReport.getFileExtension()) || ".jpg".equals(hrmReport.getFileExtension()) || ".png".equals(hrmReport.getFileExtension()))) {
 			%>
 		<span>(Please use the link above to download the attachement.)</span>
 		<%
