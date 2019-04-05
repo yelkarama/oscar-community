@@ -291,10 +291,8 @@ span.patient-consent-alert {
 			<tbody><tr>
 				<td>Results</td>
 				<td>
-					<% if (!hasErrors) { %>
 					<input type="button" onclick="showView('measurementsView'); return false;" id="showMeasurementsView" value="Show Measurements View"/>
 					<input type="button" onclick="showView('labsView'); return false;" id="showLabsView" value="Show Labs View" style="display: none;"/>
-					<% } %>
 				</td>
 				<td>&nbsp;</td>
 				<td style="text-align: right"><a href="javascript:popupStart(300,400,'Help.jsp')"><u>H</u>elp</a> | <a href="javascript:popupStart(300,400,'About.jsp')">About</a> | <a href="javascript:popupStart(300,400,'License.jsp')">License</a></td>
@@ -375,7 +373,7 @@ span.patient-consent-alert {
 								text += " (" + error.getErrorSegmentDisplayText() + ")";
 							}
 			%>
-			<div><%=text%></div>
+			<div><%=error.getIndentifer()%>:<%=text%></div>
 			<%
 						}
 					} %>
@@ -384,7 +382,7 @@ span.patient-consent-alert {
 				if (olisLabResults.isHasBlockedContent() && !olisLabResults.isHasPatientConsent()) {
 			%>
 			<form class="consent-form" action="<%=request.getContextPath()%>/olis/Search.do" onsubmit="return validateInput()">
-				<input type="method" name="redo" value="loadResults" />
+				<input type="hidden" name="method" value="loadResults" />
 				<input type="hidden" name="redo" value="true" />
 				<input type="hidden" name="uuid" value="<%=(String)request.getAttribute("searchUuid")%>" />
 				<input type="hidden" name="force" value="true" />
