@@ -372,6 +372,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		//Gets the point of care and outputs message if it exists
 		String poc = handler.getPointOfCare(obr);
 		if (!stringIsNullOrEmpty(poc)){
+		    categoryPhrase.setFont(commentFont);
 			categoryPhrase.add("\n(Test performed at point of care)");
 		}
 
