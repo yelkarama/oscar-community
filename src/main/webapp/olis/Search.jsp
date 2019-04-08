@@ -456,74 +456,70 @@
 			<td colspan=4><hr /></td>
 		</tr>	
 		<tr>
-			<td><span>Requesting HIC</span></td><td>
-			<select name="requestingHic">
-			
-			<option value=""></option>
-			<%
-			for (Provider provider : allProvidersList) {
-				%>
-				<option value="<%=provider.getProviderNo() %>" <%=provider.getProviderNo().equals(requestingHic)?"selected":""%>>[<%=provider.getProviderNo()%>] <%=provider.getLastName() %>, <%=provider.getFirstName() %></option>
-			<%	
-			}
-			%>
-</select></td>
+			<td><span>Requesting HIC</span></td>
+			<td>
+				<select name="requestingHic">
+					<option value=""></option>
+			<% for (Provider provider : allProvidersList) { %>
+					<option value="<%=provider.getProviderNo() %>" <%=provider.getProviderNo().equals(requestingHic)?"selected":""%>>[<%=provider.getProviderNo()%>] <%=provider.getLastName() %>, <%=provider.getFirstName() %></option>
+			<% } %>
+				</select>
+			</td>
 		</tr>
-		
 		<tr>
 			<td><hr></td>
 		</tr>
 		<tr>
-			<th width="20%">Ordering Practitioner</th><td>
-			<select name="orderingPractitioner" id="orderingPractitioner">
-			<option value=""></option>
-			<%
-			for (Provider provider : allProvidersList) {
-				%>
-				<option value="<%=provider.getProviderNo() %>">[<%=provider.getProviderNo()%>] <%=provider.getLastName() %>, <%=provider.getFirstName() %></option>
-			<%	
-			}
-			%>
-</select></td>		
+			<th width="20%">Ordering Practitioner</th>
+			<td>
+				<select name="orderingPractitionerCpso" id="orderingPractitionerCpso">
+					<option value=""></option>
+			<% for (Provider provider : allProvidersList) { 
+				if (!StringUtils.isEmpty(provider.getPractitionerNo())) { %>
+					<option value="<%=provider.getPractitionerNo() %>">[<%=provider.getProviderNo()%>] <%=provider.getLastName() %>, <%=provider.getFirstName() %></option>
+			<%  }
+			} %>
+				</select>
+			</td>		
 		</tr>
 		<tr>
-			<th width="20%">Copied-to Practitioner</th><td>
-			<select name="copiedToPractitioner" id="copiedToPractitioner">
-			<option value=""></option>
-			<%
-			for (Provider provider : allProvidersList) {
-				%>
-				<option value="<%=provider.getProviderNo() %>">[<%=provider.getProviderNo()%>] <%=provider.getLastName() %>, <%=provider.getFirstName() %></option>
-			<%	
-			}
-			%>
-</select></td>		
+			<th width="20%">Copied-to Practitioner</th>
+			<td>
+				<select name="copiedToPractitionerCpso" id="copiedToPractitionerCpso">
+					<option value=""></option>
+				<% for (Provider provider : allProvidersList) {
+					if (!StringUtils.isEmpty(provider.getPractitionerNo())) { %>
+					<option value="<%=provider.getPractitionerNo() %>">[<%=provider.getProviderNo()%>] <%=provider.getLastName() %>, <%=provider.getFirstName() %></option>
+				<%  }
+				} %>
+				</select>
+			</td>		
 		</tr>
 		<tr>
-			<th width="20%">Attending Practitioner</th><td>
-			<select name="attendingPractitioner" id="attendingPractitioner">
-			<option value=""></option>
-			<%
-			for (Provider provider : allProvidersList) {
-				%>
-				<option value="<%=provider.getProviderNo() %>">[<%=provider.getProviderNo()%>] <%=provider.getLastName() %>, <%=provider.getFirstName() %></option>
-			<%	
-			}
-			%>
-</select></td>		
+			<th width="20%">Attending Practitioner</th>
+			<td>
+				<select name="attendingPractitionerCpso" id="attendingPractitionerCpso">
+					<option value=""></option>
+					<% for (Provider provider : allProvidersList) {
+						if (!StringUtils.isEmpty(provider.getPractitionerNo())) { %>
+					<option value="<%=provider.getPractitionerNo() %>">[<%=provider.getProviderNo()%>] <%=provider.getLastName() %>, <%=provider.getFirstName() %></option>
+					<%  }
+					} %>
+				</select>
+			</td>		
 		</tr>
 		<tr>
-			<th width="20%">Admitting Practitioner</th><td>
-			<select name="admittingPractitioner" id="admittingPractitioner">
-			<option value=""></option>
-			<%
-			for (Provider provider : allProvidersList) {
-				%>
-				<option value="<%=provider.getProviderNo() %>">[<%=provider.getProviderNo()%>] <%=provider.getLastName() %>, <%=provider.getFirstName() %></option>
-			<%	
-			}
-			%>
-</select></td>		
+			<th width="20%">Admitting Practitioner</th>
+			<td>
+				<select name="admittingPractitionerCpso" id="admittingPractitionerCpso">
+					<option value=""></option>
+					<% for (Provider provider : allProvidersList) {
+						if (!StringUtils.isEmpty(provider.getPractitionerNo())) { %>
+					<option value="<%=provider.getPractitionerNo() %>">[<%=provider.getProviderNo()%>] <%=provider.getLastName() %>, <%=provider.getFirstName() %></option>
+					<%  }
+					} %>
+				</select>
+			</td>		
 		</tr>
 		<tr>
 			<th width="20%">Test Request Placer</th><td><select>

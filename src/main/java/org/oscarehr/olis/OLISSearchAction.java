@@ -338,10 +338,8 @@ public class OLISSearchAction extends DispatchAction {
 				MiscUtils.getLogger().error("Can't add requested requesting HIC data to OLIS query", e);
 			}
 
-
 			// OBR.16
-			String orderingPractitionerProviderNo = request.getParameter("orderingPractitioner");
-
+			String orderingPractitionerProviderNo = request.getParameter("orderingPractitionerCpso");
 			try {
 				if (orderingPractitionerProviderNo != null && orderingPractitionerProviderNo.trim().length() > 0) {
 					OBR16 obr16 = new OBR16(orderingPractitionerProviderNo, "MDL", "ON", "HL70347");
@@ -352,9 +350,7 @@ public class OLISSearchAction extends DispatchAction {
 				MiscUtils.getLogger().error("Can't add requested ordering practitioner data to OLIS query", e);
 			}
 
-
-			String copiedToPractitionerProviderNo = request.getParameter("copiedToPractitioner");
-
+			String copiedToPractitionerProviderNo = request.getParameter("copiedToPractitionerCpso");
 			try {
 				if (copiedToPractitionerProviderNo != null && copiedToPractitionerProviderNo.trim().length() > 0) {
 					OBR28 obr28 = new OBR28(copiedToPractitionerProviderNo, "MDL", "ON", "HL70347");
@@ -365,9 +361,7 @@ public class OLISSearchAction extends DispatchAction {
 				MiscUtils.getLogger().error("Can't add requested copied to practitioner data to OLIS query", e);
 			}
 
-
-			String attendingPractitionerProviderNo = request.getParameter("attendingPractitioner");
-
+			String attendingPractitionerProviderNo = request.getParameter("attendingPractitionerCpso");
 			try {
 				if (attendingPractitionerProviderNo != null && attendingPractitionerProviderNo.trim().length() > 0) {
 					PV17 pv17 = new PV17(attendingPractitionerProviderNo, "MDL", "ON", "HL70347");
@@ -378,9 +372,7 @@ public class OLISSearchAction extends DispatchAction {
 				MiscUtils.getLogger().error("Can't add requested attending practitioner data to OLIS query", e);
 			}
 
-
-			String admittingPractitionerProviderNo = request.getParameter("admittingPractitioner");
-
+			String admittingPractitionerProviderNo = request.getParameter("admittingPractitionerCpso");
 			try {
 				if (admittingPractitionerProviderNo != null && admittingPractitionerProviderNo.trim().length() > 0) {
 					PV117 pv117 = new PV117(admittingPractitionerProviderNo, "MDL", "ON", "HL70347");
