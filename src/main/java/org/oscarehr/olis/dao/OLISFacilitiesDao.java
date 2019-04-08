@@ -5,6 +5,7 @@ import org.oscarehr.olis.model.OLISFacilities;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.Query;
+import java.util.List;
 
 @Repository
 public class OLISFacilitiesDao extends AbstractDao<OLISFacilities> {
@@ -13,6 +14,15 @@ public class OLISFacilitiesDao extends AbstractDao<OLISFacilities> {
         super (OLISFacilities.class);
     }
 
+    public List<OLISFacilities> getAll() {
+        String sql = "SELECT f FROM " + this.modelClass.getName() + " f";
+        Query query = entityManager.createQuery(sql);
+        @SuppressWarnings("unchecked")
+        List<OLISFacilities> facilities = query.getResultList();
+
+        return facilities;
+    }
+    
     public OLISFacilities findByLicenceNumber(Integer licenceNumber) {
         try {
             String sql = "select x from "+ this.modelClass.getName() + " x where x.id=?";

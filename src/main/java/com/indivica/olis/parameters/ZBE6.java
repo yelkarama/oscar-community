@@ -26,8 +26,8 @@ public class ZBE6 implements Parameter {
 
 	@Override
     public String toOlisString() {
-	    return getQueryCode() + ".6.2" + (universalId != null ? universalId : "") + "~" +
-	    	getQueryCode() + ".6.3" + (universalIdType != null ? universalIdType : "");
+	    return getQueryCode() + ".6.2^" + (universalId != null ? universalId : "") + "~" +
+	    	getQueryCode() + ".6.3^" + (universalIdType != null ? universalIdType : "");
     }
 
 	@Override

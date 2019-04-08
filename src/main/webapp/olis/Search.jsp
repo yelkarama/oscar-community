@@ -18,6 +18,8 @@
 	<%@page import="org.oscarehr.util.LoggedInInfo" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="java.text.SimpleDateFormat" %>
+<%@ page import="org.oscarehr.olis.dao.OLISFacilitiesDao" %>
+<%@ page import="org.oscarehr.olis.model.OLISFacilities" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 	<%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
 
@@ -26,6 +28,9 @@
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 
 		String requestingHic = loggedInInfo.getLoggedInProviderNo();
+
+		OLISFacilitiesDao olisFacilitiesDao = SpringUtils.getBean(OLISFacilitiesDao.class);
+		List<OLISFacilities> facilities = olisFacilitiesDao.getAll();
 	%>
 
 
@@ -351,50 +356,66 @@
 		</tr>
 		<tr>
 			<th width="20%">Specimen Collector</th>
-			<td width="30%"><select id="specimenCollector" name="specimenCollector">
-<option value=""></option>
-<option value="5552">Gamma-Dynacare</option>
-<option value="5407">CML</option>
-<option value="5687">LifeLabs</option>
-</select>
-</td>
-</tr><tr>
+			<td width="30%">
+				<select id="specimenCollector" name="specimenCollector">
+					<option value=""></option>
+					<% for (OLISFacilities facility : facilities) { %>
+					<option value="<%=facility.getFullId()%>" <%=(reportingLabVal.equals(facility.getId())?"selected=\"selected\"":"") %>>
+						<%=facility.getId() + " - " + (facility.getName().length() <= 75 ? facility.getName() : facility.getName().substring(0, 75) + "...")%>
+					</option>
+					<% } %>
+				</select>
+			</td>
+		</tr>
+		<tr>
 			<th width="20%">Performing Laboratory</th>
-			<td width="30%"><select id="performingLaboratory" name="performingLaboratory">
-<option value=""></option>
-<option value="5552">Gamma-Dynacare</option>
-<option value="5407">CML</option>
-<option value="5687">LifeLabs</option>
-</select>
-</td>
+			<td width="30%">
+				<select id="performingLaboratory" name="performingLaboratory">
+					<option value=""></option>
+					<% for (OLISFacilities facility : facilities) { %>
+					<option value="<%=facility.getFullId()%>" <%=(reportingLabVal.equals(facility.getId())?"selected=\"selected\"":"") %>>
+						<%=facility.getId() + " - " + (facility.getName().length() <= 75 ? facility.getName() : facility.getName().substring(0, 75) + "...")%>
+					</option>
+					<% } %>
+				</select>
+			</td>
 		</tr>
 		<tr>
 			<th width="20%">Exclude Performing Laboratory</th>
-			<td width="30%"><select id="excludePerformingLaboratory" name="excludePerformingLaboratory">
-<option value=""></option>
-<option value="5552">Gamma-Dynacare</option>
-<option value="5407">CML</option>
-<option value="5687">LifeLabs</option>
-</select>
-</td>
-</tr>
-<tr>
+			<td width="30%">
+				<select id="excludePerformingLaboratory" name="excludePerformingLaboratory">
+					<option value=""></option>
+					<% for (OLISFacilities facility : facilities) { %>
+					<option value="<%=facility.getFullId()%>" <%=(reportingLabVal.equals(facility.getId())?"selected=\"selected\"":"") %>>
+						<%=facility.getId() + " - " + (facility.getName().length() <= 75 ? facility.getName() : facility.getName().substring(0, 75) + "...")%>
+					</option>
+					<% } %>
+				</select>
+			</td>
+		</tr>
+		<tr>
 			<th width="20%">Reporting Laboratory</th>
-			<td colspan="3"><select id="reportingLaboratory" name="reportingLaboratory">
-						<option value="" <%=(reportingLabVal.equals("")?"selected=\"selected\"":"") %>></option>
-						<option value="5552" <%=(reportingLabVal.equals("5552")?"selected=\"selected\"":"") %>>Gamma-Dynacare</option>
-						<option value="5407" <%=(reportingLabVal.equals("5407")?"selected=\"selected\"":"") %>>CML</option>
-						<option value="5687" <%=(reportingLabVal.equals("5687")?"selected=\"selected\"":"") %>>LifeLabs</option>
+			<td colspan="3">
+				<select id="reportingLaboratory" name="reportingLaboratory">
+					<option value="" <%=(reportingLabVal.equals("")?"selected=\"selected\"":"") %>></option>
+					<% for (OLISFacilities facility : facilities) { %>
+					<option value="<%=facility.getFullId()%>" <%=(reportingLabVal.equals(facility.getId())?"selected=\"selected\"":"") %>>
+						<%=facility.getId() + " - " + (facility.getName().length() <= 75 ? facility.getName() : facility.getName().substring(0, 75) + "...")%>
+					</option>
+					<% } %>
 </select>
 </td>
 		</tr>
 <tr>
 			<th width="20%">Exclude Reporting Laboratory</th>
-			<td width="30%"><select id="excludeReportingLaboratory" name="excludeReportingLaboratory">
-						<option value="" <%=(exReportingLabVal.equals("")?"selected=\"selected\"":"") %>></option>
-						<option value="5552" <%=(exReportingLabVal.equals("5552")?"selected=\"selected\"":"") %>>Gamma-Dynacare</option>
-						<option value="5407" <%=(exReportingLabVal.equals("5407")?"selected=\"selected\"":"") %>>CML</option>
-						<option value="5687" <%=(exReportingLabVal.equals("5687")?"selected=\"selected\"":"") %>>LifeLabs</option>
+			<td width="30%">
+				<select id="excludeReportingLaboratory" name="excludeReportingLaboratory">
+					<option value="" <%=(exReportingLabVal.equals("")?"selected=\"selected\"":"") %>></option>
+					<% for (OLISFacilities facility : facilities) { %>
+					<option value="<%=facility.getFullId()%>" <%=(reportingLabVal.equals(facility.getId())?"selected=\"selected\"":"") %>>
+						<%=facility.getId() + " - " + (facility.getName().length() <= 75 ? facility.getName() : facility.getName().substring(0, 75) + "...")%>
+					</option>
+					<% } %>
 </select>
 </td>
 		</tr>
