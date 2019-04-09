@@ -177,6 +177,14 @@ public class OLISResultsAction extends DispatchAction {
 				if (pastOlisLabResults != null) {
 					olisLabResults.getResultList().addAll(pastOlisLabResults.getResultList());
 					olisLabResults.getErrors().addAll(pastOlisLabResults.getErrors());
+					// If the past results did not have consent carry it over
+					if (!pastOlisLabResults.isHasPatientConsent()) {
+						olisLabResults.setHasPatientConsent(false);
+					}
+					// If the past results had blocked content carry it over
+					if (pastOlisLabResults.isHasBlockedContent()) {
+						olisLabResults.setHasBlockedContent(true);
+					}
 				}
 			}
 			currentResultsMap.put(currentViewUuid, olisLabResults);
