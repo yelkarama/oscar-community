@@ -52,4 +52,15 @@ public class OLISResultNomenclatureDao extends AbstractDao<OLISResultNomenclatur
 		}
 		return resultsMap;
 	}
+	
+	public List<OLISResultNomenclature> searchByName(String name) {
+		String sql = "SELECT r FROM " + this.modelClass.getName() + " r WHERE r.resultAlternateName1 LIKE :name";
+		Query query = entityManager.createQuery(sql);
+		query.setParameter("name", name + "%");
+		query.setMaxResults(10);
+		
+		List<OLISResultNomenclature> results = query.getResultList();
+		
+		return results;
+	}
 }

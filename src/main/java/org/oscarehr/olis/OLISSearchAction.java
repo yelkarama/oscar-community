@@ -9,6 +9,7 @@
 package org.oscarehr.olis;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -28,6 +29,8 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.OscarLogDao;
@@ -37,6 +40,10 @@ import org.oscarehr.common.model.OscarLog;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.UserProperty;
 import org.oscarehr.olis.model.OlisLabResults;
+import org.oscarehr.olis.dao.OLISRequestNomenclatureDao;
+import org.oscarehr.olis.dao.OLISResultNomenclatureDao;
+import org.oscarehr.olis.model.OLISRequestNomenclature;
+import org.oscarehr.olis.model.OLISResultNomenclature;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -397,21 +404,18 @@ public class OLISSearchAction extends DispatchAction {
 				}
 			}
 
-			String[] testResultCodeList = request.getParameterValues("testResultCode");
-
-			if (testResultCodeList != null) {
-				for (String testResultCode : testResultCodeList) {
-					((Z01Query) query).addToTestResultCodeList(new OBX3(testResultCode, "HL79902"));
-				}
+			String testResultCodes = request.getParameter("resultCodes");
+			if (StringUtils.isNotEmpty(testResultCodes)) {
+				String[] testResultCodeList = testResultCodes.trim().split(System.lineSeparator());
+				((Z01Query) query).addAllToTestResultCodeList(Arrays.asList(testResultCodeList));
 			}
 
 
-			String[] testRequestCodeList = request.getParameterValues("testRequestCode");
+			String testRequestCodes = request.getParameter("requestCodes");
 
-			if (testRequestCodeList != null) {
-				for (String testRequestCode : testRequestCodeList) {
-					((Z01Query) query).addToTestRequestCodeList(new OBR4(testRequestCode, "HL79901"));
-				}
+			if (StringUtils.isNotEmpty(testRequestCodes)) {
+				String[] testRequestCodeList = testRequestCodes.trim().split(System.lineSeparator());
+				((Z01Query) query).addAllToTestRequestCodeList(Arrays.asList(testRequestCodeList));
 			}
 
 			String blockedInfoConsent = request.getParameter("blockedInformationConsent");
@@ -601,18 +605,14 @@ public class OLISSearchAction extends DispatchAction {
 			String[] testResultCodeList = request.getParameterValues("testResultCode");
 
 			if (testResultCodeList != null) {
-				for (String testResultCode : testResultCodeList) {
-					((Z04Query) query).addToTestResultCodeList(new OBX3(testResultCode, "HL79902"));
-				}
+				((Z04Query) query).addAllToTestResultCodeList(Arrays.asList(testResultCodeList));
 			}
 
 
 			String[] testRequestCodeList = request.getParameterValues("testRequestCode");
 
 			if (testRequestCodeList != null) {
-				for (String testRequestCode : testRequestCodeList) {
-					((Z04Query) query).addToTestRequestCodeList(new OBR4(testRequestCode, "HL79901"));
-				}
+				((Z04Query) query).addAllToTestRequestCodeList(Arrays.asList(testRequestCodeList));
 			}
 
 
@@ -852,6 +852,55 @@ public class OLISSearchAction extends DispatchAction {
 			}
 		}
 		return query;
+	}
+
+	public ActionForward searchResultCodes(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
+		OLISResultNomenclatureDao resultNomenclatureDao = SpringUtils.getBean(OLISResultNomenclatureDao.class);
+		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+
+		String keyword = request.getParameter("term");
+		
+		List<OLISResultNomenclature> results = resultNomenclatureDao.searchByName(keyword);
+		
+		JSONArray resultArray = new JSONArray();
+		
+		for (OLISResultNomenclature result : results) {
+			JSONObject jsonObject = new JSONObject();
+			jsonObject.put("label", result.getResultAlternateName1());
+			jsonObject.put("value", result.getLoincCode());
+			resultArray.put(jsonObject);
+		}
+		
+		response.setContentType("text/x-json");
+		response.getWriter().print(resultArray.toString());
+		response.getWriter().flush();
+		//resultArray.write(response.getWriter());
+		
+		return null;
+	}
+	
+	public ActionForward searchRequestCodes(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
+		OLISRequestNomenclatureDao requestNomenclatureDao = SpringUtils.getBean(OLISRequestNomenclatureDao.class);
+		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+
+		String keyword = request.getParameter("term");
+		
+		List<OLISRequestNomenclature> requestNomenclatures = requestNomenclatureDao.searchByName(keyword);
+		
+		JSONArray resultArray = new JSONArray();
+		
+		for (OLISRequestNomenclature requestNomenclature : requestNomenclatures) {
+			JSONObject jsonObject = new JSONObject();
+			jsonObject.put("label", requestNomenclature.getRequestAlternateName1());
+			jsonObject.put("value", requestNomenclature.getRequestCode());
+			resultArray.put(jsonObject);
+		}
+		
+		response.setContentType("text/x-json");
+		response.getWriter().print(resultArray.toString());
+		response.getWriter().flush();
+		
+		return null;
 	}
 	
 	private Date changeToEndOfDay(Date d) {

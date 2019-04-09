@@ -9,7 +9,6 @@
 
 package com.indivica.olis.queries;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import com.indivica.olis.parameters.OBR22;
@@ -30,8 +29,8 @@ public class Z04Query extends Query implements ContinuationPointerQuery {
 	private OBR22 startEndTimestamp = new OBR22(); // mandatory
 	private QRD7 quantityLimitedRequest = null;
 	private ZRP1 requestingHic = new ZRP1(); // mandatory
-	private List<OBR4> testRequestCodeList = new LinkedList<OBR4>();
-	private List<OBX3> testResultCodeList = new LinkedList<OBX3>();
+	private OBR4 testRequestCodes = new OBR4("HL79901");
+	private OBX3 testResultCodes = new OBX3("HL79902");
 	private String continuationPointer = null;
 	
 	@Override
@@ -47,11 +46,13 @@ public class Z04Query extends Query implements ContinuationPointerQuery {
 		if (requestingHic != null)
 			query += requestingHic.toOlisString() + "~";
 		
-		for (OBR4 testRequestCode : testRequestCodeList)
-			query += testRequestCode.toOlisString() + "~";
+		if (testRequestCodes.hasCodes()) {
+			query += testRequestCodes.toOlisString() + "~";
+		}
 	
-		for (OBX3 testResultCode : testResultCodeList)
-			query += testResultCode.toOlisString() + "~";
+		if (testRequestCodes.hasCodes()) {
+			query += testResultCodes.toOlisString() + "~";
+		}
 		
 		if(query.endsWith("~")) {
 			query = query.substring(0,query.length()-1);
@@ -71,20 +72,20 @@ public class Z04Query extends Query implements ContinuationPointerQuery {
     	this.requestingHic = requestingHic;
     }
 
-	public void setTestRequestCodeList(List<OBR4> testRequestCodeList) {
-    	this.testRequestCodeList = testRequestCodeList;
-    }
-
-	public void setTestResultCodeList(List<OBX3> testResultCodeList) {
-    	this.testResultCodeList = testResultCodeList;
-    }
-	
-	public void addToTestRequestCodeList(OBR4 testRequestCode) {
-		this.testRequestCodeList.add(testRequestCode);
+	public void addToTestRequestCodeList(String testRequestCode) {
+		this.testRequestCodes.addValue(testRequestCode);
 	}
 	
-	public void addToTestResultCodeList(OBX3 testResultCode) {
-		this.testResultCodeList.add(testResultCode);
+	public void addAllToTestRequestCodeList(List<String> testRequestCodes) {
+		this.testRequestCodes.addAllValues(testRequestCodes);
+	}
+	
+	public void addToTestResultCodeList(String testResultCode) {
+		this.testResultCodes.addValue(testResultCode);
+	}
+	
+	public void addAllToTestResultCodeList(List<String> testResultCodeList) {
+		this.testResultCodes.addAllValues(testResultCodeList);
 	}
 
 	public String getContinuationPointer() {

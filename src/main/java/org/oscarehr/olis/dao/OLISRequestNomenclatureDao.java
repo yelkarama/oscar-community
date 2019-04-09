@@ -33,6 +33,17 @@ public class OLISRequestNomenclatureDao extends AbstractDao<OLISRequestNomenclat
 
 		return getSingleResultOrNull(query);
 	}
+
+	public List<OLISRequestNomenclature> searchByName(String name) throws NoResultException {
+		String sql = "select x from "+ this.modelClass.getName() + " x where x.requestAlternateName1 LIKE :name";
+		Query query = entityManager.createQuery(sql);
+		query.setParameter("name", name + "%");
+		query.setMaxResults(10);
+
+		List<OLISRequestNomenclature> requestNomenclatures = query.getResultList();
+		
+		return requestNomenclatures;
+	}
 	
 	@SuppressWarnings("unchecked")
     public List<OLISRequestNomenclature> findAll() {

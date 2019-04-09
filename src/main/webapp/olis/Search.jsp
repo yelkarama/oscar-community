@@ -59,12 +59,15 @@
 	<html>
 	<head>
 	<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
-	<script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery.js"></script>
-
+	<script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery-1.9.1.js"></script>
+	<script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery-ui/1.12.1-jquery-ui.js"></script>
+	
+		
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title><bean:message key="olis.olisSearch" /></title>
 	<link rel="stylesheet" type="text/css" href="../../../share/css/OscarStandardLayout.css">
 	<link rel="stylesheet" type="text/css" href="../share/css/OscarStandardLayout.css">
+	<link rel="stylesheet" type="text/css" href="../css/jquery-ui/1.12.1-jquery-ui.css">
 	<script type="text/javascript" src="../../../share/javascript/Oscar.js"></script>
 	<script type="text/javascript" src="../share/javascript/Oscar.js"></script>
 	
@@ -74,6 +77,7 @@
         <script type="text/javascript" src="../share/yui/js/datasource-min.js"></script>
         <script type="text/javascript" src="../share/yui/js/autocomplete-min.js"></script>
         <script type="text/javascript" src="../js/demographicProviderAutocomplete.js"></script>
+        <script type="text/javascript" src="../js/OlisRequestResultTypeaheads.js"></script>
 
         <link rel="stylesheet" type="text/css" href="../share/yui/css/fonts-min.css"/>
         <link rel="stylesheet" type="text/css" href="../share/yui/css/autocomplete.css"/>
@@ -199,6 +203,31 @@
 	    background:#426FD9;color:#FFF;
 	}
 
+	.footer-table {
+		padding-top: 20px;
+	}
+	
+	.footer-table tr th {
+		width: 7.5%;
+		text-align: center;
+	}
+	
+	.footer-table tr td {
+		vertical-align: top;
+		padding: 0 5px;
+	}
+
+	.footer-table tr td textarea {
+		margin-top: 5px;
+		height: 50px;
+	}
+	
+	.footer-table tr td input,
+	.footer-table tr td select,
+	.footer-table tr td textarea {
+		width: 100%;
+	}
+		 
 </style>
 	
 	</head>
@@ -555,42 +584,36 @@
 		</tr>
 		<tr>
 			<td colspan="4">
-				<table>
-					<tbody><tr>
-						<th width="20%">Test Request Status (max. 15)</th>
-						<td><select multiple="multiple" id="testRequestStatus" name="testRequestStatus">
-						<option value=""></option>
-						<option value="O"> Order Received </option>
-						<option value="I"> No results </option>
-						<option value="P"> Preliminary </option>
-						<option value="A"> Partial </option>
-						<option value="F"> Final </option>
-						<option value="C"> Correction </option>
-						<option value="X"> Cancelled </option>
-						<option value="E"> Expired  </option>
-						</select></td>
-						<th width="20%">Test Result Code (max. 200)</th>
-						<td><select multiple="multiple" style="width:300px;" name="testResultCode" id="testResultCode">
-						<%
+				<table class="footer-table">
+					<tbody>
+						<tr>
+							<th>Test Request Status (max. 15)</th>
+							<th>Test Result Code (max. 200)</th>
+							<th>Test Request Code (max. 100)</th>
+						</tr>
+						<tr>
+							<td>
+								<select multiple="multiple" id="testRequestStatus" name="testRequestStatus">
+									<option value=""></option>
+									<option value="O"> Order Received </option>
+									<option value="I"> No results </option>
+									<option value="P"> Preliminary </option>
+									<option value="A"> Partial </option>
+									<option value="F"> Final </option>
+									<option value="C"> Correction </option>
+									<option value="X"> Cancelled </option>
+									<option value="E"> Expired  </option>
+								</select>
+							</td>
+						<td>
+							<input id="resultCodeSearch" type="text" name="resultCodeKeyword" placeholder="Search by result name" />
+							<textarea id="result-codes" name="resultCodes" tabindex="-1"></textarea>
+						</td>
 						
-						for (OLISResultNomenclature nomenclature : resultNomenclatureList) {
-						%>
-							<option value="<%=nomenclature.getId() %>"><%=oscar.Misc.getStr(nomenclature.getLoincComponentName(), "").trim()%></option>
-					    <%
-						}
-						%>
-						</select></td>
-						<th width="20%">Test Request Code (max. 100)</th>
-						<td><select multiple="multiple" style="width:300px;" name="testRequestCode" id="testRequestCode">
-						<%
-						
-						for (OLISRequestNomenclature nomenclature : requestNomenclatureList) {
-						%>
-							<option value="<%=nomenclature.getId() %>"><%=oscar.Misc.getStr(nomenclature.getTestRequestName(),"").trim() %></option>
-					    <%
-						}
-						%>
-						</select></td>
+						<td>
+							<input id="requestCodeSearch" type="text" name="requestCodeSearch" placeholder="Search by request name" />
+							<textarea id="request-codes" name="requestCodes" tabindex="-1"></textarea>
+						</td>
 					</tr>
 				</tbody></table>
 			</td>
@@ -923,5 +946,10 @@
 			</td>
 		</tr>
 	</tbody></table>
+	
+	<script>
+		jQuery(setupResultCodeSearchTypeahead());
+		jQuery(setupRequestCodeSearchTypeahead());
+	</script>
 	</body>
 	</html>

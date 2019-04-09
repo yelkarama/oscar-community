@@ -9,6 +9,9 @@
 
 package com.indivica.olis.parameters;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Test Request Code
  * @author jen
@@ -16,17 +19,16 @@ package com.indivica.olis.parameters;
  */
 public class OBR4 implements Parameter {
 
-	private String identifier;
+	private List<String> codes = new ArrayList<>();
 	private String nameOfCodingSystem;
 	
-	public OBR4(String identifier, String nameOfCodingSystem) {
-	    this.identifier = identifier;
-	    this.nameOfCodingSystem = nameOfCodingSystem;
-    }
+	public OBR4(String codingSystem) {
+		this.nameOfCodingSystem = codingSystem;
+	}
 
 	@Override
 	public String toOlisString() {
-		return getQueryCode() + ".1^" + (identifier != null ? identifier : "") + "~" +
+		return getQueryCode() + ".1^" + String.join("&", codes) + "~" +
 			getQueryCode() + ".3^" + (nameOfCodingSystem != null ? nameOfCodingSystem : "");
 	}
 
@@ -37,12 +39,17 @@ public class OBR4 implements Parameter {
 
 	@Override
 	public void setValue(Integer part, Object value) {
-		if (part == 1)
-			this.identifier = (String) value;
-		else if (part == 3)
-			this.nameOfCodingSystem = (String) value;
+		throw new UnsupportedOperationException();
 	}
 
+	public void addValue(String requestCode) {
+		codes.add(requestCode);
+	}
+	
+	public void addAllValues(List<String> requestCodes) {
+		codes.addAll(requestCodes);
+	}
+	
 	@Override
 	public void setValue(Integer part, Integer part2, Object value) {
 		throw new UnsupportedOperationException();
@@ -53,4 +60,7 @@ public class OBR4 implements Parameter {
 		return "@OBR.4";
 	}
 
+	public boolean hasCodes() {
+		return !codes.isEmpty();
+	}
 }
