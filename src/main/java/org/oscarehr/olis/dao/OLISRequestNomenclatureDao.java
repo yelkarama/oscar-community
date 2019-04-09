@@ -34,7 +34,7 @@ public class OLISRequestNomenclatureDao extends AbstractDao<OLISRequestNomenclat
 		return getSingleResultOrNull(query);
 	}
 
-	public List<OLISRequestNomenclature> searchByName(String name) throws NoResultException {
+	public List<OLISRequestNomenclature> searchByName(String name) {
 		String sql = "select x from "+ this.modelClass.getName() + " x where x.requestAlternateName1 LIKE :name";
 		Query query = entityManager.createQuery(sql);
 		query.setParameter("name", name + "%");
