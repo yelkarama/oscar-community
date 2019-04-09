@@ -365,7 +365,11 @@ public class OLISSearchAction extends DispatchAction {
 			// Removes all empty elements from the list
 			practitionerNumbers.removeAll(Collections.singletonList(""));
 			// Gets all providers for the list
-			List<Provider> providers = providerDao.getOlisProvidersByPractitionerNo(practitionerNumbers);
+			List<Provider> providers = new ArrayList<>();
+					
+			if (!practitionerNumbers.isEmpty()) {
+				providers = providerDao.getOlisProvidersByPractitionerNo(practitionerNumbers);
+			}
 			
 			Map<String, String> olisIdTypes = new HashMap<>();
 			// Loops through each provider, getting their OLIS id type and adding it to the hashmap with the practitioner number as the key
