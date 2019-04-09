@@ -19,6 +19,7 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.indivica.olis.parameters.ORC4;
 import com.indivica.olis.parameters.ZSD;
 import com.indivica.olis.queries.ContinuationPointerQuery;
 import org.apache.commons.lang.StringUtils;
@@ -293,6 +294,11 @@ public class OLISSearchAction extends DispatchAction {
 
 			if (reportingLaboratory != null && reportingLaboratory.trim().length() > 0) {
 				((Z01Query) query).setReportingLaboratory(new ZBR4(reportingLaboratory, "ISO"));
+
+				String placerGroupNumber = request.getParameter("placerGroupNumber");
+				if (!StringUtils.isEmpty(placerGroupNumber)) {
+					((Z01Query) query).setPlacerGroupNumber(new ORC4(placerGroupNumber, reportingLaboratory, "ISO"));
+				}
 			}
 
 
@@ -382,9 +388,6 @@ public class OLISSearchAction extends DispatchAction {
 			} catch (Exception e) {
 				MiscUtils.getLogger().error("Can't add requested admitting practitioner data to OLIS query", e);
 			}
-
-
-			// TODO: Add placer group number
 
 			String[] testRequestStatusList = request.getParameterValues("testRequestStatus");
 

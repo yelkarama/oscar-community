@@ -404,6 +404,9 @@
 					</option>
 					<% } %>
 </select>
+				<label>Placer Group:
+					<input type="text" name="placerGroupNumber" id="placerGroupNumber" value=""/>
+				</label>
 </td>
 		</tr>
 <tr>
