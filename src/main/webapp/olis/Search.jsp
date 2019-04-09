@@ -575,12 +575,17 @@
 			</td>		
 		</tr>
 		<tr>
-			<th width="20%">Test Request Placer</th><td><select>
-<option></option>
-<option value="5552">Gamma-Dynacare</option>
-<option value="5407">CML</option>
-<option value="5687">LifeLabs</option>
-</select></td>
+			<th width="20%">Test Request Placer</th>
+			<td>
+				<select id="test-request-placer" name="testRequestPlacer">
+					<option></option>
+					<% for (OLISFacilities facility : facilities) { %>
+					<option value="<%=facility.getFullId()%>" <%=(reportingLabVal.equals(facility.getId())?"selected=\"selected\"":"") %>>
+						<%=facility.getId() + " - " + (facility.getName().length() <= 75 ? facility.getName() : facility.getName().substring(0, 75) + "...")%>
+					</option>
+					<% } %>
+				</select>
+			</td>
 		</tr>
 		<tr>
 			<td colspan="4">

@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.indivica.olis.parameters.ORC4;
+import com.indivica.olis.parameters.ZBR2;
 import com.indivica.olis.parameters.ZSD;
 import com.indivica.olis.queries.ContinuationPointerQuery;
 import org.apache.commons.lang.StringUtils;
@@ -459,6 +460,11 @@ public class OLISSearchAction extends DispatchAction {
 
 				logDao.persist(logItem);
 
+			}
+			
+			String testRequestPlacer = request.getParameter("testRequestPlacer");
+			if (StringUtils.isNotEmpty(testRequestPlacer)) {
+				((Z01Query) query).setTestResultPlacer(new ZBR2(testRequestPlacer, "ISO"));
 			}
 
 		} else if (queryType.equalsIgnoreCase("Z02")) {
