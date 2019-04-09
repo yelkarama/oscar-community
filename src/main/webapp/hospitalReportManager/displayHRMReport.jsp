@@ -435,6 +435,7 @@ function popupPatientTickler(height, width, url, windowName,docId,d,n) {
 					<i>Not currently linked</i><br />
 					<input type="hidden" id="demofind<%=hrmReportId %>hrm" value="" />
 					<input type="hidden" id="routetodemo<%=hrmReportId %>hrm" value="" />
+					<input type="checkbox" id="activeOnly<%=hrmReportId%>" name="activeOnly" checked="checked" value="true" onclick="setupDemoAutoCompletion('<%=hrmReportId%>')">Active Only<br>
 					<input type="text" id="autocompletedemo<%=hrmReportId %>hrm" onchange="checkSave('<%=hrmReportId%>hrm')" name="demographicKeyword" />
 					<div id="autocomplete_choices<%=hrmReportId%>hrm" class="autocomplete"></div>
                                             
@@ -635,7 +636,7 @@ if (documentComments != null) {
 YAHOO.example.BasicRemote = function() {
     if($("autocompletedemo<%=hrmReportId%>hrm") && $("autocomplete_choices<%=hrmReportId%>hrm")){
            oscarLog('in basic remote');
-          var url = "../demographic/SearchDemographic.do";
+		  var url = "../demographic/SearchDemographic.do?activeOnly=" + jQuery("#activeOnly<%=hrmReportId%>").val();
           var oDS = new YAHOO.util.XHRDataSource(url,{connMethodPost:true,connXhrMode:'ignoreStaleResponses'});
           oDS.responseType = YAHOO.util.XHRDataSource.TYPE_JSON;// Set the responseType
           // Define the schema of the delimited resultsTEST, PATIENT(1985-06-15)
