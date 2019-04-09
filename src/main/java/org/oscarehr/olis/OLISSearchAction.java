@@ -9,12 +9,15 @@
 package org.oscarehr.olis;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -351,11 +354,30 @@ public class OLISSearchAction extends DispatchAction {
 				MiscUtils.getLogger().error("Can't add requested requesting HIC data to OLIS query", e);
 			}
 
-			// OBR.16
-			String orderingPractitionerProviderNo = request.getParameter("orderingPractitionerCpso");
+			Map<String, String> map = new HashMap<>();
+			String orderingPractitionerProviderNo = StringUtils.trimToEmpty(request.getParameter("orderingPractitionerCpso"));
+			String copiedToPractitionerProviderNo = StringUtils.trimToEmpty(request.getParameter("copiedToPractitionerCpso"));
+			String attendingPractitionerProviderNo = StringUtils.trimToEmpty(request.getParameter("attendingPractitionerCpso"));
+			String admittingPractitionerProviderNo = StringUtils.trimToEmpty(request.getParameter("admittingPractitionerCpso"));
+			// Turns the retrieved practitioner numbers into an array list
+			List<String> practitionerNumbers = new ArrayList(Arrays.asList(orderingPractitionerProviderNo, copiedToPractitionerProviderNo, attendingPractitionerProviderNo, admittingPractitionerProviderNo));
+			// Removes all empty elements from the list
+			practitionerNumbers.removeAll(Collections.singletonList(""));
+			// Gets all providers for the list
+			List<Provider> providers = providerDao.getOlisProvidersByPractitionerNo(practitionerNumbers);
+			
+			Map<String, String> olisIdTypes = new HashMap<>();
+			// Loops through each provider, getting their OLIS id type and adding it to the hashmap with the practitioner number as the key
+			for (Provider provider : providers) {
+				UserProperty property = userPropertyDAO.getProp(provider.getProviderNo(), UserProperty.OFFICIAL_OLIS_IDTYPE);
+				if (property != null) {
+					olisIdTypes.put(provider.getPractitionerNo(), StringUtils.trimToEmpty(property.getValue()));
+				}
+			}
+            // OBR.16
 			try {
-				if (orderingPractitionerProviderNo != null && orderingPractitionerProviderNo.trim().length() > 0) {
-					OBR16 obr16 = new OBR16(orderingPractitionerProviderNo, "MDL", "ON", "HL70347");
+				if (!orderingPractitionerProviderNo.isEmpty()) {
+					OBR16 obr16 = new OBR16(orderingPractitionerProviderNo, olisIdTypes.getOrDefault(orderingPractitionerProviderNo, "MDL"), "ON", "HL70347");
 
 					((Z01Query) query).setOrderingPractitioner(obr16);
 				}
@@ -363,10 +385,10 @@ public class OLISSearchAction extends DispatchAction {
 				MiscUtils.getLogger().error("Can't add requested ordering practitioner data to OLIS query", e);
 			}
 
-			String copiedToPractitionerProviderNo = request.getParameter("copiedToPractitionerCpso");
+			
 			try {
-				if (copiedToPractitionerProviderNo != null && copiedToPractitionerProviderNo.trim().length() > 0) {
-					OBR28 obr28 = new OBR28(copiedToPractitionerProviderNo, "MDL", "ON", "HL70347");
+				if (!copiedToPractitionerProviderNo.isEmpty()) {
+					OBR28 obr28 = new OBR28(copiedToPractitionerProviderNo, olisIdTypes.getOrDefault(copiedToPractitionerProviderNo, "MDL"), "ON", "HL70347");
 
 					((Z01Query) query).setCopiedToPractitioner(obr28);
 				}
@@ -374,10 +396,10 @@ public class OLISSearchAction extends DispatchAction {
 				MiscUtils.getLogger().error("Can't add requested copied to practitioner data to OLIS query", e);
 			}
 
-			String attendingPractitionerProviderNo = request.getParameter("attendingPractitionerCpso");
+			
 			try {
-				if (attendingPractitionerProviderNo != null && attendingPractitionerProviderNo.trim().length() > 0) {
-					PV17 pv17 = new PV17(attendingPractitionerProviderNo, "MDL", "ON", "HL70347");
+				if (!attendingPractitionerProviderNo.isEmpty()) {
+					PV17 pv17 = new PV17(attendingPractitionerProviderNo, olisIdTypes.getOrDefault(attendingPractitionerProviderNo, "MDL"), "ON", "HL70347");
 
 					((Z01Query) query).setAttendingPractitioner(pv17);
 				}
@@ -385,10 +407,10 @@ public class OLISSearchAction extends DispatchAction {
 				MiscUtils.getLogger().error("Can't add requested attending practitioner data to OLIS query", e);
 			}
 
-			String admittingPractitionerProviderNo = request.getParameter("admittingPractitionerCpso");
+			
 			try {
-				if (admittingPractitionerProviderNo != null && admittingPractitionerProviderNo.trim().length() > 0) {
-					PV117 pv117 = new PV117(admittingPractitionerProviderNo, "MDL", "ON", "HL70347");
+				if (!admittingPractitionerProviderNo.isEmpty()) {
+					PV117 pv117 = new PV117(admittingPractitionerProviderNo, olisIdTypes.getOrDefault(admittingPractitionerProviderNo, "MDL"), "ON", "HL70347");
 
 					((Z01Query) query).setAdmittingPractitioner(pv117);
 				}

@@ -25,6 +25,8 @@ package org.oscarehr.PMmodule.dao;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -744,4 +746,14 @@ public class ProviderDao extends HibernateDaoSupport {
         }
         return null;
     }
+    
+    public List<Provider> getOlisProvidersByPractitionerNo(List<String> practitionerNumbers) {
+		Session session = getSession();
+        String sql = "FROM Provider p WHERE p.practitionerNo IN (:practitionerNumbers)";
+		Query query = session.createQuery(sql);
+		query.setParameterList("practitionerNumbers", practitionerNumbers);
+        List<Provider> providers = query.list();
+        
+        return providers;
+	}
 }
