@@ -4056,11 +4056,24 @@ public class OLISHL7Handler implements MessageHandler {
 	}
 	
 	enum OlisErrorFieldDescription {
-		CPSO_NUMBER("ZRP.1.1", "Invalid CPSO Number"),
-		UNMATCHED_OFFICIAL_LAST_NAME("ZRP.1.2", "Unmatched Official Last Name"),
-		UNMATCHED_OFFICIAL_FIRST_NAME("ZRP.1.3", "Unmatched Official First Name"),
-		UNMATCHED_OFFICIAL_SECOND_NAME("ZRP.1.4", "Unmatched Official Second Name"),
-		OLIS_IDENTIFIER_TYPE_CODE("ZRP.1.1.13", "Invalid OLIS Identifier Type Code");
+		REQUESTING_HIC_CPSID_NUMBER("ZRP.1.1", "Requesting HIC CPSID Number is not available in OLIS"),
+		REQUESTING_HIC_UNMATCHED_LAST_NAME("ZRP.1.2", "Requesting HIC Unmatched Official Last Name in OLIS"),
+		REQUESTING_HIC_UNMATCHED_FIRST_NAME("ZRP.1.3", "Requesting HIC Unmatched Official First Name in OLIS"),
+		REQUESTING_HIC_UNMATCHED_SECOND_NAME("ZRP.1.4", "Requesting HIC Unmatched Official Second Name in OLIS"),
+		OLIS_IDENTIFIER_TYPE_CODE("ZRP.1.1.13", "Invalid OLIS Identifier Type Code"),
+		PATIENT_IDENTIFIER_IS_INCORRECT("PID.3.1", "Patient Identifier (HIN or MRN) is Incorrect"),
+		PATIENT_DATE_OF_BIRTH_IS_INCORRECT("PID.7", "Patient Date of Birth is Incorrect"),
+		ORDERING_PRACTITIONER_IS_NOT_AVAILABLE("OBR.16.1", "Ordering Practitioner is not available in OLIS"),
+		COPIED_TO_PRACTITIONER_IS_NOT_AVAILABLE("OBR.28.1", "Copied-To Practitioner is not available in OLIS"),
+		ATTENDING_PRACTITIONER_IS_NOT_AVAILABLE("PV1.7.1", "Attending Practitioner is not available in OLIS"),
+		ADMITTING_PRACTITIONER_IS_NOT_AVAILABLE("PV1.17.1", "Admitting Practitioner is not available in OLIS"),
+		REPORTING_LAB_DOES_NOT_EXIST("ZBR.4.6.2", "Reporting Lab does not exist in OLIS"),
+		PERFORMING_LAB_DOES_NOT_EXIST("ZBR.6.6.2", "Performing Lab does not exist in OLIS"),
+		SPECIMEN_COLLECTOR_DOES_NOT_EXIST("ZBR.3.6.2", "Specimen Collector does not exist in OLIS"),
+		TEST_REQUEST_CODE_DOES_NOT_EXIST("OBR.4.1", "Test Request Code does not exist in OLIS"),
+		TEST_RESULT_CODE_DOES_NOT_EXIST("OBX.3.1", "Test Result Code does not exist in OLIS"),
+		TEST_REQUEST_PLACER_DOES_NOT_EXIST("ZBR.2.6.2", "Test Request Placer does not exist in OLIS"),
+		PLACER_GROUP_NUMBER_DOES_NOT_EXIST("ORC.4.3", "Placer Group Number does not exist in OLIS");
 		
 		private String segmentCode;
 		private String displayText;
