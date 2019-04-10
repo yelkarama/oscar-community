@@ -1205,7 +1205,7 @@ public class OLISHL7Handler implements MessageHandler {
 						parseObrStatus(String.valueOf(status));
 						isFinal &= isStatusFinal(status);
 						isCorrected |= status == 'C';
-						obrStatus.add(getTestRequestStatusMessage(status));
+						obrStatus.add(getTestRequestStatusMessage(status, false));
 						
 
 						// Gets the parent ID of the OBR from OBR.29. If it exists, then the OBR is a child OBR
@@ -1703,7 +1703,7 @@ public class OLISHL7Handler implements MessageHandler {
 	 * @param status Status of the test request
 	 * @return Description of the provided status
 	 */
-	public String getTestRequestStatusMessage(char status) {
+	public String getTestRequestStatusMessage(char status, boolean displayDetailsMessage) {
 		switch (status) {
 		case 'A':
 			return "partial";
@@ -1714,13 +1714,13 @@ public class OLISHL7Handler implements MessageHandler {
 		case 'F':
 			return "Final";
 		case 'I':
-			return "pending";
+			return displayDetailsMessage ? "Collected" : "pending";
 		case 'O':
-			return "specimen not yet collected";
+			return displayDetailsMessage ? "Ordered" : "specimen not yet collected";
 		case 'P':
 			return "preliminary";
 		case 'X':
-			return "test was cancelled";
+			return displayDetailsMessage ? "Cancelled" : "test was cancelled";
 		default:
 			return "";
 		}

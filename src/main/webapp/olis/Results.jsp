@@ -514,13 +514,7 @@ span.patient-consent-alert {
 					<td><%=resultDisplay.getCollectionDate()%></td>
 					<td><%=resultDisplay.getOlisLastUpdated()%></td>
 					<td>
-						<% if (resultDisplay.getResultsIndicator().length() > 40) { %>
-						<span title="<%=resultDisplay.getResultsIndicator()%>">
-							<%=resultDisplay.getResultsIndicator().substring(0, 40)%>...
-						</span>
-						<% } else { %>
-						<%=resultDisplay.getResultsIndicator()%>
-						<% } %>
+						<%=resultDisplay.getRequestStatus()%>
 					</td>
 					<td><%=resultDisplay.getOrderingPractitioner()%></td>
 					<td><%=resultDisplay.getAdmittingPractitioner()%></td>
