@@ -647,6 +647,9 @@ span.patient-consent-alert {
 					<td class="<%=statusDisplayClass%>"><%=measurementDisplay.getStatus() != null && measurementDisplay.getStatus().isEmpty() ? "Final" : measurementDisplay.getStatus()%></td>
 					<td class="<%=valueDisplayClass%> <%=lineThroughCss%>">
 						<%=OLISUtils.Hl7EncodedRepeatableCharacter.performReplacement(measurementDisplay.getResultValue(), true)%>
+						<% if(measurementDisplay.isAttachment()) { %>
+							** Test result has an attachment **
+						<% } %>
 					</td>
 					<td class="<%=valueDisplayClass%> <%=lineThroughCss%>"><%=measurementDisplay.getFlag()%></td>
 					<td class="<%=valueDisplayClass%> <%=lineThroughCss%>"><%=measurementDisplay.getReferenceRange()%></td>
