@@ -1618,17 +1618,20 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
 	   	   			                                        String ceSense = childResult.getSensitivity();
 	   	   			                                        ceSense = ceStrikeout ? "<s>" + ceSense + "</s>" : ceSense;
                                                             int commentCount = childResult.getCommentCount();
+                                                            int commentColspan = 2;
 	   												    	%>
                                                         <tr bgcolor="<%=(currentRow % 2 == 0 ? highlight : "#ccccff")%>" >
                                                             <td><%=ceName%> <%= resultStatusMessage %></td>
                                                             <td align="center"><%=ceSense%></td>
-                                                            <% if (displaySusceptibility) { %>
+                                                            <% if (displaySusceptibility) {
+                                                                commentColspan = 3;
+                                                            %>
                                                             <td align="center"><%=childResult.getSusceptibility()%></td>
                                                             <% } %>
                                                         </tr>
                                                         <% for (int comment = 0; comment < commentCount; comment++) { %>
                                                         <tr bgcolor="<%=(currentRow % 2 == 0 ? highlight : "#ccccff")%>">
-                                                            <td colspan="2">
+                                                            <td colspan="<%=commentColspan%>">
                                                                 <div style="width:700px">
                                                                 <%=handler.getOBXComment(childOBR, childResult.getIndex(), comment)%><span style="margin-left:15px;font-size:8px; color:#333333;word-break:normal;"><%=handler.getOBXSourceOrganization(childOBR, childResult.getIndex(), comment)%></span>
                                                                 </div>

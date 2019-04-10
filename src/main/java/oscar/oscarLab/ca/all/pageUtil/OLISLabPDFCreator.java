@@ -792,6 +792,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 								microorganismCell.setBorder(12);
 								
 								int commentCount = childResult.getCommentCount();
+								int commentColspan = 2;
 								Font strikeoutFont = new Font(cfBold, 9, Font.STRIKETHRU);
 								String ceStatus = childResult.getStatus();
 								String resultStatusMessage = handler.getTestResultStatusMessage(ceStatus.charAt(0));
@@ -832,14 +833,16 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 								microorganismCell.setHorizontalAlignment(Element.ALIGN_CENTER);
 								OLISLabPDFUtils.addAllCellsToTable(ceTable, OLISLabPDFUtils.createCellsFromHl7(childResult.getSensitivity(), (ceStrikeout ? strikeoutFont : commentFont), microorganismCell));
 
+								
 								// If the child OBR has susceptibility, adds susceptibility to the result display
 								if (displaySusceptibility) {
 									OLISLabPDFUtils.addAllCellsToTable(ceTable, OLISLabPDFUtils.createCellsFromHl7(childResult.getSusceptibility(), (ceStrikeout ? strikeoutFont : commentFont), microorganismCell));
+									commentColspan = 3;
 								}
 
 								
 								if (commentCount > 0) {
-									microorganismCell.setColspan(2);
+									microorganismCell.setColspan(commentColspan);
 									microorganismCell.setHorizontalAlignment(Element.ALIGN_LEFT);
 									for (int commentIndex = 0; commentIndex < commentCount; commentIndex++) {
 										if (currentRow == childResults.size() && commentIndex == commentCount - 1) {
