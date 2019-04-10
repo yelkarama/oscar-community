@@ -1454,7 +1454,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 
             // Add patient information header
             cb.beginText();
-            cb.setFontAndSize(bf, 9);
+            cb.setFontAndSize(bf, 8);
             String patientInformation = "Patient: " + handler.getPatientName()  + " | Health Number: " + handler.getFormattedHealthNumber();
             cb.showTextAligned(PdfContentByte.ALIGN_LEFT, patientInformation, 35, height - 20, 0);
             
