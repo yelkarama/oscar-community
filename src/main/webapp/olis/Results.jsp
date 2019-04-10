@@ -301,8 +301,10 @@ span.patient-consent-alert {
 		</table>
 		</td>
 	</tr>
-	<% if (demographic != null) { %>
-	<tr>
+	<% if (demographic != null) { 
+	    boolean hideDemographicInfo = olisLabResults.getErrors().size() > 0 && !(olisLabResults.hasErrorWithIdentifier("320") || olisLabResults.hasErrorWithIdentifier("920"));
+	%>
+	<tr <%=hideDemographicInfo ? "style=\"display: none;\"" : ""%>>
 		<td colspan="2" id="patientInfo">
 			<%
 				String sex = olisLabResults.getDemographicSex();
@@ -365,8 +367,11 @@ span.patient-consent-alert {
 			<% }
 			}
 				if (hasErrors) { %>
-			<div class="error">The querying provider was not recognized by OLIS. Please verify and resubmit your query.
-			<%		for (OLISError error : olisLabResults.getErrors()) {
+			<div class="error">
+				<% if (!(olisLabResults.hasErrorWithIdentifier("320") || olisLabResults.hasErrorWithIdentifier("920"))) { %>
+				The querying provider was not recognized by OLIS. Please verify and resubmit your query.
+				<% }
+				for (OLISError error : olisLabResults.getErrors()) {
 						if (!error.getIndentifer().equals("320") || olisLabResults.isDisplay320Error()) {
 						    String text = error.getText().replaceAll("\\n", "<br />");
 							if (error.getErrorSegmentDisplayText() != null) {

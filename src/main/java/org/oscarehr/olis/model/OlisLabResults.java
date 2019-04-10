@@ -53,6 +53,20 @@ public class OlisLabResults {
         this.errors = errors;
     }
 
+    /**
+     * Tests if the errors (if any) in the results have the provided identifier 
+     * @param identifierToMatch The OLIS error identifier number to check against
+     * @return true if found, false otherwise
+     */
+    public boolean hasErrorWithIdentifier(String identifierToMatch) {
+        for (OLISHL7Handler.OLISError error : errors) {
+            if (identifierToMatch.equals(error.getIndentifer())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean isHasBlockedContent() {
         return hasBlockedContent;
     }
