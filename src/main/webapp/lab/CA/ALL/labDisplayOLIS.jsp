@@ -1285,6 +1285,14 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                         <%=headers.get(obr)%> <span <%= !handler.isObrStatusFinal(obr) ? "style=\"color: red\"" : "" %>><%= " (" +handler.getObrStatus(obr) + ")"%></span>
                                         <%
                                             String poc = handler.getPointOfCare(obr);
+
+                                            if (handler.isTestRequestReplacement(obr)) {
+                                        %>
+                                        <br />
+                                        <span style="font-size:9px; color:#333333;">This test request and associated results are a replacement of previously reported results</span>
+                                        <% 
+                                            }
+                                            
                                             if (!stringIsNullOrEmpty(poc)) {
                                         %>
                                         <br/>

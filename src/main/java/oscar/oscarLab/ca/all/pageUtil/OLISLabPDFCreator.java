@@ -369,6 +369,11 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 		//Adds the obr status to the phrase so it appears beside the test request/header
 		categoryPhrase.add(" (" + handler.getObrStatus(obr) + ")");
 		
+		if (handler.isTestRequestReplacement(obr)) {
+			categoryPhrase.setFont(commentFont);
+			categoryPhrase.add("\nThis test request and associated results are a replacement of previously reported results");
+		}
+		
 		//Gets the point of care and outputs message if it exists
 		String poc = handler.getPointOfCare(obr);
 		if (!stringIsNullOrEmpty(poc)){

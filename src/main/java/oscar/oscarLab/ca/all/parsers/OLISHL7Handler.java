@@ -3905,6 +3905,43 @@ public class OLISHL7Handler implements MessageHandler {
 		
 		return StringUtils.isEmpty(status) || !inProgressStatuses.contains(status);
 	}
+
+	/**
+	 * Checks if the ZBR 14 for the given OBR contains a Y value, indicating that it is a Test Request Replacement
+	 * @param obr The OBR to check the ZBR for
+	 * @return {@code: true} if the OBR's ZBR.14 is equal to Y, {@code: false} if not
+	 */
+	public boolean isTestRequestReplacement(int obr) {
+		boolean isTestRequestReplacement = false;
+		try {
+			obr++;
+			Segment zbr = getZbrSegment(obr);
+			
+			String replacementStatus = getString(Terser.get(zbr, 14, 0, 1, 1));
+			isTestRequestReplacement = replacementStatus.equals("Y");
+		} catch (HL7Exception e) {
+			logger.error("Could not retrieve ZBR 14 for OBR: " + obr, e);
+		}
+		
+		 return isTestRequestReplacement;
+	}
+
+	/**
+	 * Gets the ZBR segment for the given OBR
+	 * @param obr The OBR to retrieve the ZBR segment for
+	 * @return The ZBR segment related to the provided OBR
+	 * @throws HL7Exception when the ZBR segment cannot be retrieved
+	 */
+	private Segment getZbrSegment(int obr) throws HL7Exception {
+		Segment zbr;
+		if (obr == 1) {
+			zbr = terser.getSegment("/.ZBR");
+		} else {
+			zbr = (Segment) terser.getFinder().getRoot().get("ZBR" + obr);
+		}
+		
+		return zbr;
+	}
 	
 	public class OLISError {
 		public final Pattern OLIS_ERROR_TEXT_PATTERN = Pattern.compile("The structure and/or content is not valid for the following parameter: '@(.*)' '(.*)'.");
