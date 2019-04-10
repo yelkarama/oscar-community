@@ -29,9 +29,7 @@ public class OLISFacilitiesDao extends AbstractDao<OLISFacilities> {
             Query query = entityManager.createQuery(sql);
             query.setParameter(1, licenceNumber);
             return (OLISFacilities) query.getSingleResult();
-        }
-        catch (javax.persistence.NoResultException nre) {
-            nre.printStackTrace();
+        } catch (javax.persistence.NoResultException nre) {
             return null;
         }
     }
@@ -42,9 +40,7 @@ public class OLISFacilitiesDao extends AbstractDao<OLISFacilities> {
             Query query = entityManager.createQuery(sql);
             query.setParameter("fullId", fullId);
             return (OLISFacilities) query.getSingleResult();
-        }
-        catch (javax.persistence.NoResultException nre) {
-            nre.printStackTrace();
+        } catch (javax.persistence.NoResultException nre) {
             return null;
         }
     }

@@ -352,7 +352,17 @@ public class OLISHL7Handler implements MessageHandler {
 			if (key == null || "".equals(key.trim())) {
 				return "";
 			}
-			value = getString(Terser.get(zbr, 6, 0, 1, 1));
+
+			OLISFacilitiesDao olisFacilitiesDao = SpringUtils.getBean(OLISFacilitiesDao.class);
+			OLISFacilities matchedOlisFacility = null;
+			try {
+				matchedOlisFacility = olisFacilitiesDao.findByLicenceNumber(Integer.valueOf(key));
+			} catch (NumberFormatException nfe) { /*ignore*/ }
+			if (matchedOlisFacility != null) {
+				value = matchedOlisFacility.getName();
+			} else {
+				value = getString(Terser.get(zbr, 6, 0, 1, 1));
+			}
 			return String.format("%s (%s %s)", value, ident, key);
 
 		} catch (Exception e) {
@@ -610,7 +620,16 @@ public class OLISHL7Handler implements MessageHandler {
 			if (key == null || key.trim().equals("")) {
 				return "";
 			}
-			value = getString(terser.get("/.ZBR-4-1"));
+			OLISFacilitiesDao olisFacilitiesDao = SpringUtils.getBean(OLISFacilitiesDao.class);
+			OLISFacilities matchedOlisFacility = null;
+			try {
+				matchedOlisFacility = olisFacilitiesDao.findByLicenceNumber(Integer.valueOf(key));
+			} catch (NumberFormatException nfe) { /*ignore*/ }
+			if (matchedOlisFacility != null) {
+				value = matchedOlisFacility.getName();
+			} else {
+				value = getString(terser.get("/.ZBR-4-1"));
+			}
 			return String.format("%s (%s %s)", value, ident, key);
 		} catch (Exception e) {
 			MiscUtils.getLogger().error("OLIS HL7 Error", e);
@@ -1268,6 +1287,7 @@ public class OLISHL7Handler implements MessageHandler {
     }
     
 	private void parseZBRSegment(int zbrNum) {
+		OLISFacilitiesDao olisFacilitiesDao = SpringUtils.getBean(OLISFacilitiesDao.class);
 		try {
 			String key = "", value = "";
 			Segment zbr = null;
@@ -1292,7 +1312,17 @@ public class OLISHL7Handler implements MessageHandler {
 				if (fullId != null && fullId.indexOf(":") > 0) {
 					key = fullId.substring(fullId.indexOf(":") + 1);
 				}
-				value = getString(Terser.get(zbr, index, 0, 1, 1));
+				
+				OLISFacilities matchedOlisFacility = null;
+				try {
+					matchedOlisFacility = olisFacilitiesDao.findByLicenceNumber(Integer.valueOf(key));
+				} catch (NumberFormatException nfe) { /*ignore*/ }
+				if (matchedOlisFacility != null) {
+					value = matchedOlisFacility.getName();
+				} else {
+					value = getString(Terser.get(zbr, index, 0, 1, 1));
+				}
+				
 				sourceOrganizations.put(key, value);
 				
 				// If the index is 6, it is the performing facility
@@ -2479,7 +2509,7 @@ public class OLISHL7Handler implements MessageHandler {
 	public String getSpecimenCollectedBy(int obr) {
 		try {
 			obr++;
-			String key = "", value = "", ident = "";
+			String key = "", name = "", ident = "";
 			Segment zbr = null;
 			if (obr == 1) {
 				zbr = terser.getSegment("/.ZBR");
@@ -2495,8 +2525,17 @@ public class OLISHL7Handler implements MessageHandler {
 			if (key == null || key.trim().equals("")) {
 				return "";
 			}
-			value = getString(Terser.get(zbr, 3, 0, 1, 1));
-			return String.format("%s (%s %s)", value, ident, key);
+			name = getString(Terser.get(zbr, 3, 0, 1, 1));
+			OLISFacilitiesDao olisFacilitiesDao = SpringUtils.getBean(OLISFacilitiesDao.class);
+			OLISFacilities matchedOlisFacility = null;
+			try {
+				matchedOlisFacility = olisFacilitiesDao.findByLicenceNumber(Integer.valueOf(key));
+			} catch (NumberFormatException nfe) { /*ignore*/ }
+			if (matchedOlisFacility != null) {
+				name = matchedOlisFacility.getName();
+			}
+
+			return String.format("%s (%s %s)", name, ident, key);
 		} catch (Exception e) {
 			MiscUtils.getLogger().error("OLIS HL7 Error", e);
 		}
