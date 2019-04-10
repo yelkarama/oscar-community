@@ -421,7 +421,7 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 			}
 		}
 
-		if (obxCount == 0 && obrCommentCount > 0) {
+		if (obxCount == 0 && obrCommentCount > 0 && handler.displayRequestNoteMessage(obr)) {
 			cell.setColspan(5);
 			cell.setHorizontalAlignment(Element.ALIGN_LEFT);
 			cell.setPhrase(new Phrase("Refer to test request note", new Font(cfBold, 11, Font.NORMAL)));

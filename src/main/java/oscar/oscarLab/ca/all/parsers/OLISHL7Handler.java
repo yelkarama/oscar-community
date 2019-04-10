@@ -3891,6 +3891,20 @@ public class OLISHL7Handler implements MessageHandler {
 		}
 		return null;
 	}
+
+	/**
+	 * Checks to see if the provided OBR has a status of O (Not yet collected/Ordered), I (Pending/Collected), or X (Cancelled) and returns a boolean indicating 
+	 * whether or not the report should display the "Refer to test request note" message
+	 *
+	 * @param obr The OBR to check the request status for
+	 * @return Returns true if the status is empty or if it is not in one of the "in progress" statuses, returns false if it isn't empty or it is in the statuses
+	 */
+	public boolean displayRequestNoteMessage(int obr) {
+		List<String> inProgressStatuses = Arrays.asList("O", "I", "X");
+		String status = getObrStatusFinal(obr);
+		
+		return StringUtils.isEmpty(status) || !inProgressStatuses.contains(status);
+	}
 	
 	public class OLISError {
 		public final Pattern OLIS_ERROR_TEXT_PATTERN = Pattern.compile("The structure and/or content is not valid for the following parameter: '@(.*)' '(.*)'.");

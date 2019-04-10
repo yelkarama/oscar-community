@@ -1331,7 +1331,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                    	</div>
                                     </td>
                                 </tr>
-                                <% if (obxCount == 0 && obrCommentCount > 0) { %>
+                                <% if (obxCount == 0 && obrCommentCount > 0 && handler.displayRequestNoteMessage(obr)) { %>
                                 <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="NormalRes">
                                     <td valign="top" align="left" colspan="5">
                                         <div class="Title2" style="margin-left:15px;width: 700px;">
