@@ -13,13 +13,8 @@ public class ReferralSourceDao extends AbstractDao<ReferralSource>  {
 
     public List<ReferralSource> getReferralSourceList() {
         Query query = entityManager.createQuery("FROM org.oscarehr.common.model.ReferralSource rf");
-        List<ReferralSource> results = query.getResultList();
 
-        if (!results.isEmpty()) {
-            return results;
-        }
-
-        return null;
+        return query.getResultList();
     }
 
 }
