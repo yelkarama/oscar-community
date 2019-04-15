@@ -9,6 +9,8 @@
 
 package com.indivica.olis.parameters;
 
+import org.oscarehr.olis.OLISUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,8 +30,7 @@ public class OBX3 implements Parameter {
 
 	@Override
 	public String toOlisString() {
-		return getQueryCode() + ".1^" + String.join("&", codes) + "~" +
-			getQueryCode() + ".3^" + (nameOfCodingSystem != null ? nameOfCodingSystem : "");
+		return OLISUtils.createQueryStringForCodes(getQueryCode(), codes, nameOfCodingSystem);
 	}
 
 	public void addValue(String requestCode) {

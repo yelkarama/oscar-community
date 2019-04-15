@@ -367,4 +367,27 @@ public class OLISUtils {
 			return s1.toLowerCase().compareTo(s2.toLowerCase());
 		}
 	}
+
+	/**
+	 * Creates a query string for OBR4 and OBX3 that will list out the query codes and the code system correctly and return the generated query string
+	 * @param queryCode The query code version
+	 * @param codes A list of codes as strings
+	 * @param codeSystem The coding system for the codes
+	 * @return The generated query for the provided information
+	 */
+	public static String createQueryStringForCodes(String queryCode, List<String> codes, String codeSystem) {
+		StringBuilder query = new StringBuilder();
+		query.append(queryCode).append(".1^").append(String.join("&", codes)).append("~").append(queryCode).append(".3^");
+		// Adds the coding system to the query string for each code that is being queried
+		for (int i = 0; i < codes.size(); i++) {
+			// If the current index is greater than 1, appends an ampersand so link the coding systems
+			if (i > 0) {
+				query.append("&");
+			}
+
+			query.append(codeSystem);
+		}
+		
+		return query.toString();
+	}
 }
