@@ -57,6 +57,7 @@ public class LogConst {
     public static final String GENERATE = "generate";
     public static final String DOWNLOAD = "download";
     public static final String UPLOAD = "upload";
+    public static final String OAUTH_LOGIN = "OAuth Login";
 
     public static final String CON_LOGIN_AGREEMENT = "login agreement";
     public static final String CON_LOGIN = "login";
@@ -93,5 +94,6 @@ public class LogConst {
     public static final String CON_BILL = "bill";
     public static final String CON_OHIP = "ohip file";
     public static final String CON_MCEDT_MAILBOX = "mcedt mailbox";
+    public static final String CON_OAUTH_LOGIN = "Oauth Authentication";
     
 }

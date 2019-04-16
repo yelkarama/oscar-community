@@ -31,6 +31,7 @@ package org.oscarehr.ws.oauth.util;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -43,30 +44,33 @@ import org.apache.cxf.rs.security.oauth.filters.OAuthRequestFilter;
 import org.apache.cxf.rs.security.oauth.data.OAuthContext;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
 
+import org.oscarehr.common.dao.FacilityDao;
+import org.oscarehr.common.model.Facility;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.PMmodule.dao.ProviderDao;
+import oscar.log.LogAction;
+import oscar.log.LogConst;
 
 
 public class OAuthInterceptor extends OAuthRequestFilter implements PhaseInterceptor<Message> {
 
 	@Autowired
 	protected ProviderDao providerDao;
+	@Autowired
+    private FacilityDao facilityDao;
 
 	@Override
 	public void handleMessage(Message message) throws Fault {
-
+        HttpServletRequest request = (HttpServletRequest)message.get(AbstractHTTPDestination.HTTP_REQUEST);
         /* 
          * Setup a LoggedInInfo and throw it onto the Request for use elsewhere. 
          * All we have is a providerNo so we access the ProviderDao directly.
          * There (likely) may be a better way to do this.
          *
          */
-
-        // Create a new LoggedInInfo
-        LoggedInInfo loggedInInfo = new LoggedInInfo();
 
         // Obtain the OAuthContext and the login (which in OSCAR is the providerNo)
 		OAuthContext oc = message.getContent(OAuthContext.class);
@@ -79,21 +83,24 @@ public class OAuthInterceptor extends OAuthRequestFilter implements PhaseInterce
         // Create a new provider directly from the Dao with the providerNo.
         // We can trust this number as it was authenticated from OAuth.
         Provider provider = providerDao.getProvider(providerNo);
-        loggedInInfo.setLoggedInProvider(provider);
+        // Gets the current facility, returns null if there isn't one
+        Facility facility = getFacility(providerNo, request.getRemoteAddr());
 
+        // Create a new LoggedInInfo
+        LoggedInInfo loggedInInfo = new LoggedInInfo();
+        loggedInInfo.setLoggedInProvider(provider);
+        loggedInInfo.setCurrentFacility(facility);
+        
         /* NOTE:
          * A LoggedInInfo object from OAuth will NOT have the following:
          * - session (no active session -- OAuth requests are stateless)
          * - loggedInSecurity (the logged in user is OAuth, so no actual username/password security)
-         * - currentFacility (this could change, I'm not sure what it's for)
          * - initiatingCode (this could change, I'm not sure what it's for)
          * - locale (this could change, I'm not sure what it's for)
          */
 
         // Throw our new loggedInInfo onto the request for future use.
-	    HttpServletRequest request = (HttpServletRequest)message.get(AbstractHTTPDestination.HTTP_REQUEST);
         request.setAttribute(new LoggedInInfo().LOGGED_IN_INFO_KEY, loggedInInfo);
-
 
         return;
     }
@@ -121,7 +128,32 @@ public class OAuthInterceptor extends OAuthRequestFilter implements PhaseInterce
 
     public void handleFault(Message message) {
     }
-    
 
+    /**
+     * Gets the current facility for the provider
+     * @param providerNo The provider number that the facility is for
+     * @param requestIp The requesting ip, used for logging
+     * @return The current facility for the provider, null if there is no facility
+     */
+    private Facility getFacility(String providerNo, String requestIp) {
+        Facility facility = null;
+        List<Integer> facilityIds = providerDao.getFacilityIds(providerNo);
+        if (facilityIds.size() == 1) {
+            // set current facility
+            facility = facilityDao.find(facilityIds.get(0));
+            LogAction.addLog(providerNo, LogConst.OAUTH_LOGIN, LogConst.CON_OAUTH_LOGIN, "facilityId=" + facilityIds.get(0), requestIp);
+        } else {
+            List<Facility> facilities = facilityDao.findAll(true);
+            if(facilities!=null && facilities.size()>=1) {
+                Facility fac = facilities.get(0);
+                int first_id = fac.getId();
+                ProviderDao.addProviderToFacility(providerNo, first_id);
+                facility = facilityDao.find(first_id);
+                LogAction.addLog(providerNo, LogConst.OAUTH_LOGIN, LogConst.CON_OAUTH_LOGIN, "facilityId=" + first_id, requestIp);
+            }
+        }
+        
+        return facility;
+    }
 
 }

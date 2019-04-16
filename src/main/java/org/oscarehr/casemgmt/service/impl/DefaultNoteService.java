@@ -459,11 +459,7 @@ public class DefaultNoteService implements NoteService {
 	}
 
 	private List<CachedDemographicNote> getRemoteNoteIds(LoggedInInfo loggedInInfo, int demographicNo) {
-		if (loggedInInfo == null) {
-			return null;
-		}
-
-		if (!loggedInInfo.getCurrentFacility().isIntegratorEnabled()) {
+		if (loggedInInfo == null || loggedInInfo.getCurrentFacility() == null || !loggedInInfo.getCurrentFacility().isIntegratorEnabled()) {
 			return null;
 		}
 
@@ -492,7 +488,7 @@ public class DefaultNoteService implements NoteService {
 	}
 
 	private List<GroupNoteLink> getGroupNoteIds(LoggedInInfo loggedInInfo, int demographicNo) {
-		if (loggedInInfo == null || !loggedInInfo.getCurrentFacility().isEnableGroupNotes()) {
+		if (loggedInInfo == null || loggedInInfo.getCurrentFacility() == null || !loggedInInfo.getCurrentFacility().isEnableGroupNotes()) {
 			return new ArrayList<GroupNoteLink>();
 		}
 

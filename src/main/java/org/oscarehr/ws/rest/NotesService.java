@@ -138,31 +138,7 @@ public class NotesService extends AbstractServiceImpl {
 		logger.debug("The config "+jsonobject.toString());
 		
 		String demoNo = demographicNo.toString();
-		String roles;
-		
-		HttpSession se = loggedInInfo.getSession();
-		// If the session is not null
-		if (se != null) {
-			// Gets the roles stored in the session
-			roles = StringUtils.trimToEmpty((String) se.getAttribute("userrole"));
-		} else {
-			// If the session is not null (happens when accessed via REST authentication)
-			// Gets all roles for the currently logged in provider
-			List<SecUserRole> userRoles = providerMgr.getSecUserRoles(loggedInInfo.getLoggedInProviderNo());
-			
-			StringBuilder rolesBuilder = new StringBuilder();
-			// Loops through each role and appends it to the builder, separating each role with a comma
-			for (SecUserRole userRole : userRoles) {
-				// If the role is not the first one in the list, appends a comma before the role
-				if (rolesBuilder.length() > 0) {
-					rolesBuilder.append(",");
-				}
-				// Appends the role
-				rolesBuilder.append(userRole.getRoleName());
-			}
-			// Builds the string into the roles string
-			roles = rolesBuilder.toString();
-		}
+		String roles = getProviderRoles(loggedInInfo);
 
 		if (roles == null) {
 			logger.error("An Error needs to be added to the returned result, remove this when fixed");
@@ -1134,11 +1110,10 @@ public class NotesService extends AbstractServiceImpl {
 		LoggedInInfo loggedInInfo =  getLoggedInInfo(); //LoggedInInfo.loggedInInfo.get();
 
 		String providerNo=loggedInInfo.getLoggedInProviderNo();
+		String roles = getProviderRoles(loggedInInfo);
 
-		
-		HttpSession session = loggedInInfo.getSession();
-		if (session.getAttribute("userrole") == null) {
-//			response.sendError(HttpServletResponse.SC_FORBIDDEN);
+		if (roles == null) {
+			logger.error("An Error needs to be added to the returned result, remove this when fixed");
 			return null;
 		}
 
@@ -1184,7 +1159,6 @@ public class NotesService extends AbstractServiceImpl {
 
 		logger.debug("Get Note for editing");
 		String strBeanName = "casemgmt_oscar_bean" + demographicNo;
-		EctSessionBean bean = (EctSessionBean) loggedInInfo.getSession().getAttribute(strBeanName);
 		String encType = getString(jsonobject,"encType");
 		
 		logger.debug("Encounter Type : "+encType);
@@ -1218,8 +1192,13 @@ public class NotesService extends AbstractServiceImpl {
 			} else {
 				note.setEncounter_type(encType);
 			}
-			if (bean.encType != null && bean.encType.length() > 0) {
-				note.setEncounter_type(bean.encType);
+
+			if (loggedInInfo.getSession() != null) {
+				EctSessionBean bean = (EctSessionBean) loggedInInfo.getSession().getAttribute(strBeanName);
+
+				if (bean.encType != null && bean.encType.length() > 0) {
+					note.setEncounter_type(bean.encType);
+				}
 			}
 
 //			resetTemp(providerNo, ""+demographicNo, programIdString);
@@ -1851,5 +1830,41 @@ public class NotesService extends AbstractServiceImpl {
 		if (noteList!=null && noteList.containsKey(providerNo)) noteList.remove(providerNo);
 		if (noteList.isEmpty()) editList.remove(noteUUID);
 		else editList.put(noteUUID, noteList);
+	}
+
+	/**
+	 * Gets the provider roles using the LoggedInInfo. If there is a session, gets the roles from the session however if there isn't, it gets the 
+	 * provider roles based on the logged in provider
+	 * @param loggedInInfo The logged in info for the provider to retrieve the roles for
+	 * @return String of roles delimited by commas
+	 */
+	private String getProviderRoles(LoggedInInfo loggedInInfo) {
+		String roles;
+		
+		HttpSession se = loggedInInfo.getSession();
+		// If the session is not null
+		if (se != null) {
+			// Gets the roles stored in the session
+			roles = StringUtils.trimToEmpty((String) se.getAttribute("userrole"));
+		} else {
+			// If the session is not null (happens when accessed via REST authentication)
+			// Gets all roles for the currently logged in provider
+			List<SecUserRole> userRoles = providerMgr.getSecUserRoles(loggedInInfo.getLoggedInProviderNo());
+
+			StringBuilder rolesBuilder = new StringBuilder();
+			// Loops through each role and appends it to the builder, separating each role with a comma
+			for (SecUserRole userRole : userRoles) {
+				// If the role is not the first one in the list, appends a comma before the role
+				if (rolesBuilder.length() > 0) {
+					rolesBuilder.append(",");
+				}
+				// Appends the role
+				rolesBuilder.append(userRole.getRoleName());
+			}
+			// Builds the string into the roles string
+			roles = rolesBuilder.toString();
+		}
+		
+		return roles;
 	}
 }
