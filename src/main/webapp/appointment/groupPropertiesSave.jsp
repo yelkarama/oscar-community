@@ -113,7 +113,15 @@
 
     String[] servicePrograms = request.getParameterValues("service_program");
     if(servicePrograms != null) {
-    	saveOrUpdateProperty(providerNo,String.join(",", servicePrograms),"service_programs");
+        String tmp = "";
+        for(String sp:servicePrograms) {
+                tmp += sp + ",";
+        }
+        if(!tmp.isEmpty()) {
+                tmp = tmp.substring(0,tmp.length()-1);
+        }
+
+        saveOrUpdateProperty(providerNo,tmp,"service_programs");
     } else {
     	saveOrUpdateProperty(providerNo,"","service_programs");
     }
