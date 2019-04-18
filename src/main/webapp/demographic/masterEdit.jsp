@@ -372,14 +372,9 @@
 	</tr>
 	<%
 		boolean isMailing = false;
-		if (StringUtils.trimToEmpty(demoExt.get("enableMailing"))!="") {
-			if (StringUtils.trimToEmpty(demoExt.get("enableMailing")).equals("true")) {
-				isMailing = true;
-			}
-		}else if ((StringUtils.trimToEmpty(demoExt.get("address_mailing"))!="")||(StringUtils.trimToEmpty(demoExt.get("postal_mailing"))!="")||(StringUtils.trimToEmpty(demoExt.get("city_mailing"))!="")) {
-			isMailing=true;
+		if (Boolean.parseBoolean(demoExt.get("enableMailing")) || (demoExt.get("enableMailing") == null && StringUtils.isNotEmpty(demoExt.get("address_mailing")))) {
+			isMailing = true;
 		}
-		System.out.println("enableMailing = " + StringUtils.trimToEmpty(demoExt.get("enableMailing")));
 	%>
 	<tr valign="top">
 	<td align="left">

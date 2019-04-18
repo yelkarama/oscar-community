@@ -2133,6 +2133,9 @@ if ( Dead.equals(PatStat) ) {%>
 			                                  out.print(oscarProps.getProperty("demographicLabelPostal"));
                                                                                } %>:</span>
                                                        <span class="info"><%=StringUtils.trimToEmpty(demographic.getPostal())%></span></li>
+							<%
+								if ((Boolean.parseBoolean(demoExt.get("enableMailing")) || (demoExt.get("enableMailing") == null && StringUtils.isNotEmpty(demoExt.get("address_mailing"))))) {
+							%>
 							<li><span class="info">Mailing</span></li>
 							<li>
 								<span class="label">
@@ -2162,6 +2165,7 @@ if ( Dead.equals(PatStat) ) {%>
 									} %>:
 								</span>
 								<span class="info"><%=StringUtils.trimToEmpty(StringUtils.trimToEmpty(demoExt.get("postal_mailing")))%></span></li>
+							<%}%>
 
                                                     <li><span class="label"><bean:message
                                                             key="demographic.demographiceditdemographic.formEmail" />:</span>
