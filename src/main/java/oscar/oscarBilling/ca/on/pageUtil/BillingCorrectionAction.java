@@ -515,38 +515,7 @@ public class BillingCorrectionAction extends DispatchAction{
                 int index = bItemsExisting.indexOf(bItemCurrent); 
                 BillingONItem bItemExisting = bItemsExisting.get(index);
 
-                boolean statusChanged = false;
-                if ((!bItemExisting.getStatus().equals("S") && bItemCurrent.getStatus().equals("S"))
-                  ||(bItemExisting.getStatus().equals("S") && !bItemCurrent.getStatus().equals("S"))) {
-                                statusChanged = true;
-                }
-
-                String fee = bItemCurrent.getFee();
-                String unit = bItemCurrent.getServiceCount();
-                
-                if (!bItemExisting.getServiceCount().equals(unit)
-                 || !bItemExisting.getFee().equals(fee)
-                 || !bItemExisting.getDx().equals(bItemCurrent.getDx())
-                 || (bItemExisting.getServiceDate().compareTo(serviceDate) != 0)
-                 || statusChanged) {
-
-                    BillingONRepoDao billRepoDao = (BillingONRepoDao) SpringUtils.getBean("billingONRepoDao");
-                    billRepoDao.createBillingONItemEntry(bItemExisting, request.getLocale());				
-                }
-
-                
-                if (!fee.equals("defunct") && !bItemExisting.getServiceCount().equals(unit)) {
-                    BigDecimal feeAmt = new BigDecimal(fee);
-                    BigDecimal unitAmt = new BigDecimal(unit);
-                    feeAmt = feeAmt.multiply(unitAmt).setScale(2, BigDecimal.ROUND_HALF_UP);
-                    fee = feeAmt.toPlainString();
-                }
-                
-                bItemExisting.setServiceCount(unit);
-                bItemExisting.setFee(fee);
-                bItemExisting.setServiceDate(bItemCurrent.getServiceDate());
-                bItemExisting.setDx(bItemCurrent.getDx());
-                bItemExisting.setStatus(bItemCurrent.getStatus());                                             
+                BillingCorrectionUtil.processUpdatedBillingItem(bItemExisting, bItemCurrent, serviceDate, request.getLocale());
             } 
             else {                
                 // This is a new billing item that isn't already persisted.                

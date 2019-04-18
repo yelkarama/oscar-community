@@ -27,6 +27,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
@@ -35,11 +36,10 @@ import org.apache.commons.lang.StringUtils;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.dao.BillingONCHeader1Dao;
 import org.oscarehr.common.dao.BillingONExtDao;
-import org.oscarehr.common.dao.BillingONPaymentDao;
+import org.oscarehr.common.dao.BillingONRepoDao;
 import org.oscarehr.common.dao.BillingOnTransactionDao;
 import org.oscarehr.common.dao.BillingServiceDao;
 import org.oscarehr.common.dao.DemographicDao;
-import org.oscarehr.common.dao.DiagnosticCodeDao;
 import org.oscarehr.common.dao.DxresearchDAO;
 import org.oscarehr.common.dao.OscarAppointmentDao;
 import org.oscarehr.common.model.Appointment;
@@ -50,9 +50,11 @@ import org.oscarehr.common.model.BillingOnTransaction;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Dxresearch;
 import org.oscarehr.common.model.Provider;
+import org.oscarehr.common.service.BillingONService;
 import org.oscarehr.managers.BillingManager;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
+import org.oscarehr.util.SpringUtils;
 import org.oscarehr.ws.rest.conversion.ProviderConverter;
 import org.oscarehr.ws.rest.conversion.ServiceTypeConverter;
 import org.oscarehr.ws.rest.to.AbstractSearchResponse;
@@ -65,7 +67,11 @@ import org.oscarehr.ws.rest.to.model.ServiceTypeTo;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import oscar.OscarProperties;
+import oscar.log.LogAction;
+import oscar.log.LogConst;
 import oscar.oscarBilling.ca.on.data.BillingDataHlp;
+import oscar.oscarBilling.ca.on.pageUtil.BillingCorrectionUtil;
+import oscar.util.ChangedField;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -94,6 +100,8 @@ public class BillingService extends AbstractServiceImpl {
     private BillingONExtDao billingONExtDao;
     @Autowired
     private BillingOnTransactionDao billingOnTransactionDao;
+    @Autowired
+    private BillingONService billingONService;
     @Autowired
     private SecurityInfoManager securityInfoManager;
 
@@ -164,93 +172,186 @@ public class BillingService extends AbstractServiceImpl {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public GenericRESTResponse createInvoice(BillingInvoiceTo1 invoiceRequest) {
-
         LoggedInInfo loggedInInfo = getLoggedInInfo();
-        Provider loggedInProvider = loggedInInfo.getLoggedInProvider();
         if (!securityInfoManager.hasPrivilege(loggedInInfo, "_billing", "w", invoiceRequest.getDemographicNo())) {
-            return new InvoiceCreateResponse(false, "Missing required security object (_billing)", null);
+            throw new IllegalArgumentException("Missing required security object (_billing)");
         }
-        Provider billingProvider = providerDao.getProvider(invoiceRequest.getProviderNo());
+        Provider loggedInProvider = loggedInInfo.getLoggedInProvider();
+        
+        try {
+            Provider billingProvider = providerDao.getProvider(invoiceRequest.getProviderNo());
+            Demographic billedDemographic = demographicDao.getDemographicById(invoiceRequest.getDemographicNo());
+            Appointment billedAppointment = appointmentDao.find(invoiceRequest.getAppointmentNo());
+            
+            BillingONCHeader1 invoiceToFill = invoiceRequest.toBillingONCHeader1();
+            invoiceToFill.setHeaderId(0);
+            BillingONCHeader1 invoice = prepareInvoiceRequestForSave(invoiceRequest, invoiceToFill, billingProvider, billedDemographic, billedAppointment);
+            saveInvoice(invoice, billedDemographic, loggedInProvider, billedAppointment);
+
+            if (invoice.getId() != null) {
+                return new InvoiceCreateResponse(true, invoice.getId().toString(), invoice.getId());
+            } else {
+                return new InvoiceCreateResponse(false, "Error creating invoice.", null);
+            }
+        } catch (IllegalArgumentException e) {
+            return new InvoiceCreateResponse(true, e.getMessage(), null);
+        }
+        
+    }
+
+    @POST
+    @Path("/updateInvoice/{invoiceId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public GenericRESTResponse updateInvoice(BillingInvoiceTo1 invoiceUpdateRequest, @PathParam("invoiceId") Integer invoiceId) {
+        LoggedInInfo loggedInInfo = getLoggedInInfo();
+        if (!securityInfoManager.hasPrivilege(loggedInInfo, "_billing", "w", invoiceUpdateRequest.getDemographicNo())) {
+            throw new IllegalArgumentException("Missing required security object (_billing)");
+        }
+        BillingONCHeader1 existingBillingHeader1 = billingONCHeader1Dao.find(invoiceId);
+        if (existingBillingHeader1 == null) {
+            throw new IllegalArgumentException("Cannot update invoice, past invoice with id " + invoiceId + " does not exist.");
+        }
+//        Provider loggedInProvider = loggedInInfo.getLoggedInProvider();
+        try {
+            Provider billingProvider = providerDao.getProvider(invoiceUpdateRequest.getProviderNo());
+            Demographic billedDemographic = demographicDao.getDemographicById(invoiceUpdateRequest.getDemographicNo());
+            Appointment billedAppointment = appointmentDao.find(invoiceUpdateRequest.getAppointmentNo());
+
+            BillingONCHeader1 oldBillingHeader1 = new BillingONCHeader1(existingBillingHeader1);
+            
+            BillingONCHeader1 updateBillingHeader1 = prepareInvoiceRequestForSave(invoiceUpdateRequest, existingBillingHeader1, billingProvider, billedDemographic, billedAppointment);
+
+            BillingONService billingONService = (BillingONService) SpringUtils.getBean("billingONService");
+            billingONService.updateTotal(updateBillingHeader1);
+
+            //Add Existing state of Invoice to Billing Repository
+            BillingONRepoDao billRepoDao = (BillingONRepoDao) SpringUtils.getBean("billingONRepoDao");
+            billRepoDao.createBillingONCHeader1Entry(updateBillingHeader1, getLocale());
+
+//            billingONCHeader1Dao.merge(newBillingHeader1);
+            billingONCHeader1Dao.merge(updateBillingHeader1);
+            List<ChangedField> changedFields = ChangedField.getChangedFieldsAndValues(oldBillingHeader1, updateBillingHeader1);
+            
+//
+            // set old 'useBillTo' billing ext to archived
+            BillingONExt billExt = billingONExtDao.getUseBillTo(updateBillingHeader1);
+            if (billExt != null) {
+                billExt.setStatus('0');
+                billingONExtDao.merge(billExt);
+            }
+//
+            if (!changedFields.isEmpty()) {
+                LogAction.addLog(loggedInInfo, LogConst.UPDATE, LogConst.CON_BILL,
+                    "billingNo=" + invoiceId, String.valueOf(updateBillingHeader1.getDemographicNo()), changedFields);
+            }
+
+
+            return new InvoiceCreateResponse(true, invoiceId.toString(), invoiceId);
+        } catch (IllegalArgumentException e) {
+            return new InvoiceCreateResponse(true, e.getMessage(), null);
+        }
+    }
+    
+    private BillingONCHeader1 prepareInvoiceRequestForSave(BillingInvoiceTo1 invoiceRequest, BillingONCHeader1 invoiceToFill, Provider billingProvider, Demographic billedDemographic, Appointment billedAppointment) throws IllegalArgumentException {
+
         if (billingProvider == null) {
-            return new InvoiceCreateResponse(false, "Cannot create invoice, billing provider with id " + invoiceRequest.getProviderNo() + " does not exist.", null);
+            throw new IllegalArgumentException("Cannot create invoice, billing provider with id " + invoiceRequest.getProviderNo() + " does not exist.");
         }
-        Demographic billedDemographic = demographicDao.getDemographicById(invoiceRequest.getDemographicNo());
         if (billedDemographic == null) {
-            return new InvoiceCreateResponse(false, "Cannot create invoice, billed demographic with id " + invoiceRequest.getDemographicNo() + " does not exist.", null);
+            throw new IllegalArgumentException("Cannot create invoice, billed demographic with id " + invoiceRequest.getDemographicNo() + " does not exist.");
         }
         if (invoiceRequest.getBillingItems().isEmpty()) {
-            return new InvoiceCreateResponse(false, "Cannot create invoice, no items billed.", null);
+            throw new IllegalArgumentException("Cannot create invoice, no items billed.");
         }
         
-        Appointment billedAppointment = appointmentDao.find(invoiceRequest.getAppointmentNo());
-        
-        BillingONCHeader1 invoice = invoiceRequest.toBillingONCHeader1();
-        invoice.setHeaderId(0);
-        
         // Set invoice demographic info
-        invoice.setHin(billedDemographic.getHin());
-        invoice.setVer(billedDemographic.getVer());
-        invoice.setDob(billedDemographic.getFormattedDob().replaceAll("-", ""));
-        invoice.setDemographicName(billedDemographic.getDisplayName());
+        invoiceToFill.setHin(billedDemographic.getHin());
+        invoiceToFill.setVer(billedDemographic.getVer());
+        invoiceToFill.setDob(billedDemographic.getFormattedDob().replaceAll("-", ""));
+        invoiceToFill.setDemographicName(billedDemographic.getDisplayName());
         if ("F".equals(billedDemographic.getSex())) {
-            invoice.setSex("2");
+            invoiceToFill.setSex("2");
         } else {
-            invoice.setSex("1");
+            invoiceToFill.setSex("1");
         }
         
         // Set invoice billing provider info
-        invoice.setProviderOhipNo(billingProvider.getOhipNo());
-        invoice.setProviderRmaNo(billingProvider.getRmaNo());
-        invoice.setCreator(billingProvider.getPractitionerNo());
+        invoiceToFill.setProviderOhipNo(billingProvider.getOhipNo());
+        invoiceToFill.setProviderRmaNo(billingProvider.getRmaNo());
+        invoiceToFill.setAsstProviderNo("");
+        invoiceToFill.setCreator(billingProvider.getPractitionerNo());
         
         // Set clinic info
-        invoice.setApptProviderNo("none");
-        if (billedAppointment != null) { invoice.setApptProviderNo(billedAppointment.getProviderNo()); }
+        invoiceToFill.setApptProviderNo("none");
+        if (billedAppointment != null) { invoiceToFill.setApptProviderNo(billedAppointment.getProviderNo()); }
 
-        invoice.setBillingDate(new Date());
-        invoice.setBillingTime(new Date());
-        invoice.setStatus("O");
+        invoiceToFill.setBillingDate(new Date());
+        invoiceToFill.setBillingTime(new Date());
+        invoiceToFill.setStatus("O");
         
         BigDecimal totalFee = new BigDecimal("0.00");
+        List<BillingONItem> newBillingItems = new ArrayList<BillingONItem>();
+        // Create a copy of the existing billing items to track new items
+        List<BillingONItem> oldBillingItems = new ArrayList<BillingONItem>(invoiceToFill.getBillingItems());
 
         for (BillingItemTo1 requestItem : invoiceRequest.getBillingItems()) {
-            org.oscarehr.common.model.BillingService service = billingServiceDao.searchBillingCode(requestItem.getServiceCode(), invoice.getProvince());
+            org.oscarehr.common.model.BillingService service = billingServiceDao.searchBillingCode(requestItem.getServiceCode(), invoiceToFill.getProvince());
             if (service == null) {
-                return new InvoiceCreateResponse(false, "Cannot create invoice, billed service number " + requestItem.getServiceCode() + " does not exist.", null);
+                throw new IllegalArgumentException("Cannot create invoice, billed service number " + requestItem.getServiceCode() + " does not exist.");
             } else {
                 BillingONItem billingItem = new BillingONItem();
                 billingItem.setTranscId(requestItem.getTransactionId());
                 billingItem.setRecId(requestItem.getRecordId());
                 billingItem.setServiceCode(requestItem.getServiceCode());
                 billingItem.setStatus(requestItem.getStatus());
-                billingItem.setServiceDate(invoice.getBillingDate());
+                billingItem.setServiceDate(invoiceToFill.getBillingDate());
                 billingItem.setDx(requestItem.getDx());
                 billingItem.setServiceCount(requestItem.getServiceCount().toString());
                 BigDecimal fee = new BigDecimal(requestItem.getServiceCount()).multiply(new BigDecimal(service.getValue()));
                 totalFee = totalFee.add(fee);
                 billingItem.setFee(fee.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString());
-                invoice.getBillingItems().add(billingItem);
+                
+                if (invoiceToFill.getId() != null) {
+                    billingItem.setCh1Id(invoiceToFill.getId());
+                }
+                if (invoiceToFill.getTranscId() != null) {
+                    billingItem.setTranscId(invoiceToFill.getTranscId());
+                }
+                
+                if (oldBillingItems.contains(billingItem)) {
+                    // Update an existing billing items  that is now modified, not deleted.
+                    int index = oldBillingItems.indexOf(billingItem);
+                    BillingONItem existingItem = oldBillingItems.get(index);
+
+                    BillingCorrectionUtil.processUpdatedBillingItem(existingItem, billingItem, invoiceToFill.getBillingDate(), getLocale());
+                } else {
+                    invoiceToFill.getBillingItems().add(billingItem);
+                }
+                newBillingItems.add(billingItem);
+            }
+        }
+
+        // Update status on existing billing items now removed
+        for (BillingONItem oldBillingItem : oldBillingItems) {
+            if (!newBillingItems.contains(oldBillingItem)){
+                oldBillingItem.setStatus("D");
             }
         }
         
-        invoice.setTotal(totalFee.setScale(2, BigDecimal.ROUND_HALF_UP));
-        invoice.setPaid(new BigDecimal("0.00").setScale(2, BigDecimal.ROUND_HALF_UP));
-        
-        saveInvoice(invoice, billedDemographic, loggedInProvider, billedAppointment);
+        invoiceToFill.setTotal(totalFee.setScale(2, BigDecimal.ROUND_HALF_UP));
+        invoiceToFill.setPaid(new BigDecimal("0.00").setScale(2, BigDecimal.ROUND_HALF_UP));
 
-	    if (invoice.getId() != null) {
-            return new InvoiceCreateResponse(true, invoice.getId().toString(), invoice.getId());
-        } else {
-            return new InvoiceCreateResponse(false, "Error creating invoice.", null);
+        boolean isThirdParty = invoiceToFill.getPayProgram().substring(0, 3).matches(BillingDataHlp.BILLINGMATCHSTRING_3RDPARTY);
+        if (isThirdParty && "ODP".equalsIgnoreCase(invoiceToFill.getPayProgram())) {
+            String payProgram = billedDemographic.getHcType().equals("ON") ? "HCP" : "RMB";
+            invoiceToFill.setPayProgram(payProgram);
         }
+        return invoiceToFill;
     }
     
     private void saveInvoice(BillingONCHeader1 invoice, Demographic billedDemographic, Provider loggedInProvider, Appointment billedAppointment) {
         boolean isThirdParty = invoice.getPayProgram().substring(0, 3).matches(BillingDataHlp.BILLINGMATCHSTRING_3RDPARTY);
-        if (isThirdParty && "ODP".equalsIgnoreCase(invoice.getPayProgram())) {
-            String payProgram = billedDemographic.getHcType().equals("ON") ? "HCP" : "RMB";
-            invoice.setPayProgram(payProgram);
-        }
         
         billingONCHeader1Dao.persist(invoice);
 
