@@ -1779,6 +1779,24 @@ if(oscarProps.getProperty("new_label_print") != null && oscarProps.getProperty("
 							</jsp:include>
 							<%}%>
 
+							<%
+								boolean enableRefSources = false;
+
+								List<SystemPreferences> preferences = systemPreferencesDao.findPreferencesByNames(SystemPreferences.REFERRAL_SOURCE_PREFERENCE_KEYS);
+								for(SystemPreferences preference : preferences) {
+									if (preference.getValue() != null) {
+										if (preference.getName().equals("enable_referral_source")) {
+											enableRefSources = Boolean.parseBoolean(preference.getValue());
+										}
+									}
+								}
+								
+								
+								if (enableRefSources) { %>
+							<li><span class="label">Patient Discovered Clinic VIA: </span>
+								<span class="info"><%=StringUtils.trimToEmpty(demoExt.get("referral_source"))%></span>
+							</li>
+							<%}%>
 						</ul>
 						</div>
 
