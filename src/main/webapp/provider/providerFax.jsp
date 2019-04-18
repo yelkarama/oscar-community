@@ -46,12 +46,11 @@
 <title><bean:message key="provider.editRxFax.title" /></title>
 
 <script type="text/javascript">
-    function validate() {        
-        var msg = "<bean:message key="provider.editRxFax.msgPhoneFormat" />";
+    function validate() {
         var strnum = document.forms[0].elements[0].value;
         if(strnum.length > 0 ) {
-	        if( !strnum.match(/^\d{3}-\d{3}-\d{4}$/) ) {
-	            alert(msg);
+	        if( !strnum.match(/^\d{3}-\d{3}-\d{4}$/) && !strnum.match(/^\d{4}-\d{3}-\d{4}$/)) {
+	            alert("Format For Fax is ###-###-#### OR ####-###-####");
 	            return false;
 	        }
         }
@@ -97,7 +96,7 @@
 			</span>
             <br/>
 
-			<html:text property="faxNumber" value="<%=faxNum%>" size="40" />
+			<html:text property="faxNumber" value="<%=faxNum%>" maxlength="13"/>
 			<br>
 
 			<input type="submit" onclick="return validate();"
