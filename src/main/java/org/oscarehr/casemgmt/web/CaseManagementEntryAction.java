@@ -1250,37 +1250,10 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
             casemgmtNoteLockSession.setSessionId(session.getId());
             casemgmtNoteLockSession.setLockAcquired(new Date());
             
-            // the note session was already removed, so this note is no longer part of a 
-            // a note history. Save as a new note to prevent data loss
+            // Creating a new note was appearing to append a new note to the session but keep the old one,
+			// creating a new lock but not a new note has proven consistent to note lose a note or duplicate it
             logger.warn("Lock not found for " + demo + " provider " + providerNo + " IP " + request.getRemoteAddr() +
-                    "\n creating new note for noteId" + note.getId());
-            ProgramManager programManager = SpringUtils.getBean(ProgramManager.class);
-            AdmissionManager admissionManager = SpringUtils.getBean(AdmissionManager.class);
-            
-            CaseManagementNote newNote = cform.getCaseNote();
-            newNote.setObservation_date(new Date());
-            newNote.setDemographic_no(demo);
-            newNote.setProviderNo(providerNo);
-            String role = null;
-            try {
-                role = String.valueOf((programManager.getProgramProvider(note.getProviderNo(), note.getProgram_no())).getRole().getId());
-            } catch (Exception e) {
-                role = "0";
-            }
-            newNote.setReporter_caisi_role(role);
-            String team = "0";
-            try {
-                Admission admission = admissionManager.getAdmission(note.getProgram_no(), Integer.valueOf(note.getDemographic_no()));
-                if (admission != null) {
-                    team = String.valueOf(admission.getTeamId());
-                }
-            } catch (Exception e) {
-            }
-            newNote.setReporter_program_team(team);
-            newNote.setAppointmentNo(Integer.parseInt(cform.getAppointmentNo()));
-            newNote.setSigning_provider_no("");
-            newNote.setRevision("1");
-            note = newNote;
+                    "\n creating new note lock for noteId" + note.getId());
         }
 
 		String noteTxt = cform.getCaseNote_note();
