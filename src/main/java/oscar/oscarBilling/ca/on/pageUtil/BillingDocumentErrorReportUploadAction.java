@@ -35,6 +35,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URLEncoder;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -43,7 +46,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.cognos.developer.Dataset;
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
@@ -51,11 +56,13 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.upload.FormFile;
+import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.dao.BatchEligibilityDao;
 import org.oscarehr.common.dao.DemographicCustDao;
 import org.oscarehr.common.model.BatchEligibility;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.DemographicCust;
+import org.oscarehr.common.model.Provider;
 import org.oscarehr.managers.DemographicManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -70,10 +77,13 @@ import oscar.oscarBilling.ca.on.bean.BillingEDTOBECOutputSpecificationBeanHandle
 import oscar.oscarBilling.ca.on.data.BillingClaimsErrorReportBeanHandlerSave;
 
 public class BillingDocumentErrorReportUploadAction extends Action {
+	private Logger logger = MiscUtils.getLogger();
+	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
 	private BatchEligibilityDao batchEligibilityDao = (BatchEligibilityDao)SpringUtils.getBean("batchEligibilityDao");
 	private DemographicCustDao demographicCustDao = (DemographicCustDao)SpringUtils.getBean("demographicCustDao");
 	private DemographicManager demographicManager =  SpringUtils.getBean(DemographicManager.class);
+	private ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 
 	public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
@@ -91,9 +101,14 @@ public class BillingDocumentErrorReportUploadAction extends Action {
 				saveErrors(request, errors);
 				return (new ActionForward(mapping.getInput()));
 			} else {
-				if (getData(loggedInInfo, file1.toString(), "DOCUMENT_DIR", request))
-					return file1.getFileName().startsWith("L") ? mapping.findForward("outside") : mapping.findForward("success");
-				else {
+				if (getData(loggedInInfo, file1.toString(), "DOCUMENT_DIR", request)) {
+					if (file1.getFileName().startsWith("L")) {
+						return mapping.findForward("outside");
+					} else if (file1.getFileName().startsWith("RCX")) {
+						return mapping.findForward("rcx");
+					}
+					return mapping.findForward("success");
+				} else {
 					errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("errors.incorrectFileFormat"));
 					saveErrors(request, errors);
 					return (new ActionForward(mapping.getInput()));
@@ -101,9 +116,19 @@ public class BillingDocumentErrorReportUploadAction extends Action {
 			}
 		} else {
 			if (getData(loggedInInfo, filename, "ONEDT_INBOX", request)) {
-				return filename.startsWith("L") ? mapping.findForward("outside") : mapping.findForward("success");
+				if (filename.startsWith("L")) {
+					return mapping.findForward("outside");
+				} else if (filename.startsWith("RCX")) {
+					return mapping.findForward("rcx");
+				}
+				return mapping.findForward("success");
 			} else if (getData(loggedInInfo, filename, "ONEDT_ARCHIVE", request)) {
-				return filename.startsWith("L") ? mapping.findForward("outside") : mapping.findForward("success");
+				if (filename.startsWith("L")) {
+					return mapping.findForward("outside");
+				} else if (filename.startsWith("RCX")) {
+					return mapping.findForward("rcx");
+				}
+				return mapping.findForward("success");
 			} else {
 				errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("errors.incorrectFileFormat"));
 				saveErrors(request, errors);
@@ -204,7 +229,17 @@ public class BillingDocumentErrorReportUploadAction extends Action {
 				request.setAttribute("messages", messages);
 				isGot = reportXIsGenerated;
 			}
-			else if (fileName.substring(0, 1).compareTo("R") == 0) {
+			else if (fileName.startsWith("RCX")) {
+				// Roster Capitation Report XML 
+				ReportName = "Roster Capitation Report";
+				
+				request.setAttribute("backupfilepath", filepath);
+				request.setAttribute("filename", fileName);
+				isGot = generateReportRCX(request, loggedInInfo, filepath, fileName);
+				//request.setAttribute("outputSpecs", hd);
+			}
+			else if (fileName.startsWith("RESPONSE")) {
+				// OBEC RESPONSE File 
 				ReportName = "EDT OBEC Output Specification";
 				BillingEDTOBECOutputSpecificationBeanHandler hd = generateReportR(loggedInInfo, file);
 				request.setAttribute("outputSpecs", hd);
@@ -361,6 +396,79 @@ public class BillingDocumentErrorReportUploadAction extends Action {
 		}
 
 		return hd;
+	}
+
+	/**
+	 * generateReportRCX
+	 * 
+	 * Parse RCX report
+	 * 
+	 * @param request
+	 * @param loggedInInfo
+	 * @param filename
+	 * @return if the dataset is empty or not
+	 */
+	private Boolean generateReportRCX(HttpServletRequest request, LoggedInInfo loggedInInfo, String filepath, String filename) {
+		BillingClaimsRosterCapitationReportAction rcxAction = new BillingClaimsRosterCapitationReportAction();
+		Dataset dataset = null;
+		String groupNo = "";
+		String providerBillNo = "";
+		String providerName = "";
+		String reportDate = "";
+
+		String fileContents = "";
+		if( !filename.matches(".*\\.\\..*") ) {
+			// read file contents
+			File file = new File(filepath + filename);
+			dataset = rcxAction.getDataset(file);
+
+			// parse filename for params
+			// RCX-PPPPPP-GGGGG-S-DDMMMYYYY.xml
+			// PPPPPP      - provider billing no.
+			// GGGGGG      - group no.
+            // DDMMMYYYY   - report date in the format ddMMMyyyy (ie. 1Jan1990)
+			try {
+				
+				fileContents = new String(Files.readAllBytes(Paths.get(file.getAbsolutePath())));
+
+				// get provider billing no. from filename
+				providerBillNo = filename.substring(4, 10);
+				
+				// try and find a matching provider
+				List<Provider> matchingProviders = providerDao.getBillableProvidersByOHIPNo(providerBillNo);
+				Provider theProvider = null;
+				if (matchingProviders.size() == 1) {
+					theProvider = matchingProviders.get(0);
+				} else {
+					for (Provider provider : matchingProviders) {
+						if (org.apache.commons.lang.StringUtils.isNotEmpty(provider.getBillingGroupNo())) {
+							theProvider = provider;
+						}
+					}
+				}
+
+				// if matching provider, set provider name
+				if (theProvider != null) {
+					providerName = theProvider.getLastName() + ", " + theProvider.getFirstName();
+				}
+
+				// get group no. and report date from filename
+				groupNo = filename.substring(11, 16);
+				reportDate = dateFormat.format(new SimpleDateFormat("ddMMMyyyy").parse(filename.substring(19).replace(".xml", "")));
+			} catch(Exception e) {
+				logger.error("ERROR:", e);
+			}
+		}
+
+		// remove nil values
+		fileContents = fileContents.replaceAll("<value xs:nil=\"true\" />", "");
+		
+		request.setAttribute("groupNo", groupNo);
+		request.setAttribute("fileContents", fileContents);
+		request.setAttribute("providerBillNo", providerBillNo);
+		request.setAttribute("providerName", providerName);
+		request.setAttribute("reportDate", reportDate);
+		return dataset != null;
 	}
 
     /**

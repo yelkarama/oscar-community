@@ -1186,6 +1186,12 @@
 			<artifactId>ou</artifactId>
 			<version>1.0</version>
 		</dependency>
+
+		<dependency>
+			<groupId>com.cognos.developer</groupId>
+			<artifactId>rcx</artifactId>
+			<version>0.0-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 	<build>
