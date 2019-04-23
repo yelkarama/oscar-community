@@ -276,6 +276,9 @@ span.patient-consent-alert {
 <body>
 <%
 	OlisLabResults olisLabResults = (OlisLabResults) request.getAttribute("olisLabResults");
+	if (olisLabResults == null) {
+		olisLabResults = new OlisLabResults();
+	}
 	String olisResultFileUuid = (String) request.getAttribute("olisResultFileUuid");
 	request.setAttribute("olisResultFileUuid", olisResultFileUuid);
 	DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
@@ -338,7 +341,7 @@ span.patient-consent-alert {
 		</td>
 	</tr>
     <%  }
-		if (resultsEmpty && !hasErrors) { 
+		if (resultsEmpty && !hasErrors && request.getAttribute("searchException") == null) { 
 	%>
     <tr>
         <td style="color: #a94442; font-weight: bold; padding: 10px;" colspan="3" align="center">No results have been found in OLIS.</td>
@@ -355,7 +358,21 @@ span.patient-consent-alert {
 			<%
 				if (request.getAttribute("searchException") != null) {
 			%>
-			<div class="error">Could not perform the OLIS query due to the following exception:<br /><%=((Exception) request.getAttribute("searchException")).getLocalizedMessage() %></div>
+			<div class="error">Could not perform the OLIS query due to the following exception:<hr/><br/>
+				<%
+					Exception searchException = (Exception) request.getAttribute("searchException");
+					if (searchException.getLocalizedMessage() != null && searchException.getLocalizedMessage().equals("connect timed out")) {
+				%>		
+					<p>The request took too long due to your connection being unable to reach the endpoint.</p>
+					<p>Please check your internet connection and try again.</p>
+				<%
+					} else {
+				%>
+					<%=searchException.getLocalizedMessage()%>
+				<%	
+					}
+				%>
+			</div>
 			<%
 				} %>
 
