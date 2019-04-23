@@ -733,8 +733,10 @@ function onNext() {
     } else if (!existServiceCode() && document.forms[0].services_checked.value<=0) {
 	    ret = false;
 	    alert("You haven't selected any billing item yet!");
-	}
-	else if (!checkSli()) {
+	} else if (!checkServiceUnits()) {
+    	ret = false;
+    	alert("Service Units must be whole numbers");
+	} else if (!checkSli()) {
 		ret = false;
 		alert("You have selected billing codes that require an SLI code but have not provided an SLI code.");
 	}
@@ -1062,11 +1064,27 @@ function checkServiceUnit(serviceUnitField){
 	}
 }
 
+function checkServiceUnits() {
+	let allValid = true;
+	let thirdParty = (document.forms[0].xml_billtype.value.substring(0, 3) === "PAT");
+	if (!thirdParty) {
+		for (let i = 0; i < 10; i++) {
+			let serviceUnit = jQuery("#serviceUnit" + i);
+			if (serviceUnit != null && !validateInteger(serviceUnit.val())) {
+				allValid = false;
+				break;
+			}
+		}
+	}
+	
+	return allValid;
+}
+
 function validateInteger(number) {
 	var valid = true;
 
 	if (number != null && number.trim() !== "") {
-		valid = Number.isInteger(number);
+		valid = Number.isInteger(Number(number));
 	}
 
 	return valid;
@@ -1633,7 +1651,7 @@ if(checkFlag == null) checkFlag = "0";
 											maxlength="15"
 											value="<%=code%>"
 											onDblClick="scScriptAttach(this)" onBlur="upCaseCtrl(this)" />x
-											<input type="text" name="serviceUnit<%=i%>" size="2"
+											<input type="text" id="serviceUnit<%=i%>" name="serviceUnit<%=i%>" size="2"
 											maxlength="4" style="width: 20px;"
 											value="<%=request.getParameter("serviceUnit"+i)!=null?request.getParameter("serviceUnit"+i):""%>" onblur="checkServiceUnit(this)" />@
 											<input type="text" name="serviceAt<%=i%>" size="3"
@@ -1653,7 +1671,7 @@ if(checkFlag == null) checkFlag = "0";
 											maxlength="15"
 											value="<%=code%>"
 											onDblClick="scScriptAttach(this)" onBlur="upCaseCtrl(this)" />x
-											<input type="text" name="serviceUnit<%=i%>" size="2"
+											<input type="text" id="serviceUnit<%=i%>" name="serviceUnit<%=i%>" size="2"
 											maxlength="2" style="width: 20px;"
 											value="<%=request.getParameter("serviceUnit"+i)!=null?request.getParameter("serviceUnit"+i):""%>" />@
 											<input type="text" name="serviceAt<%=i%>" size="3"

@@ -291,7 +291,7 @@ function validateInt(el) {
         let parent = $(el).parent('td');  // parent field jQuery(this).parent().addClass('yourClass');
         let val = el.value;     // element vlaue
         
-        if (val != null && val.trim() !== ''  && !Number.isInteger(val)) {
+        if (val != null && val.trim() !== ''  && !Number.isInteger(Number(val))) {
             parent.addClass('error');
             error.show();
         } else {
@@ -344,9 +344,11 @@ function validateAllItems(){
       return false;
    }
 
-   var billamt = document.getElementById("billingamount" + idx);
-    if( billamt != undefined && !validateNum(billamt) ) {
-           return false;
+    for (let idx = 0; idx < $("input[name^='billingamount']").length; idx++) {
+        var billamt = document.getElementById("billingamount" + idx);
+        if (billamt != undefined && !validateNum(billamt)) {
+            return false;
+        }
     }
 
    var statusOpts = document.getElementById("status");
@@ -361,7 +363,18 @@ function validateAllItems(){
 	   alert("Pay Program does not match bill status.");
 	   return false;
    }
-   
+    
+    if (!is3rdParty) {
+        for (let i = 0; i < $("input[name^='billingunit']").length; i++) {
+            let serviceUnit = $("input[name^='billingunit']")[i];
+            let val = serviceUnit != null ? serviceUnit.value : null;
+            
+            if (val != null && val.trim() !== '' && !Number.isInteger(Number(val))) {
+                alert("All Billing Units must be whole numebrs");
+                return false;
+            } 
+        }
+    }
 
    var outstandingAmt = document.getElementById("outstandingBalance").value;
 
