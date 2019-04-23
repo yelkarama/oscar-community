@@ -75,12 +75,19 @@ public class ForwardingRulesAction extends Action{
             HttpServletResponse response)
             throws ServletException, IOException {
 
+
+        
         String providerNo = request.getParameter("providerNo");
         String operation = request.getParameter("operation");
         if (operation == null) {
         	operation = "";
         }
-
+        if(operation.equals("updateAlwaysSendToMRP")){
+            String selection = request.getParameter("sendToMRPSelect");
+            ForwardingRules fr = new ForwardingRules();
+            fr.setAlwaysSendToMRP(selection != null && selection.equals("Yes"));
+            return mapping.findForward("success");
+        }
         logger.info("ForwardingRulesAction performing: "+operation+" for provider: "+providerNo);
         if (operation.equals("update")){
             String[] providerNums = request.getParameterValues("providerNums");

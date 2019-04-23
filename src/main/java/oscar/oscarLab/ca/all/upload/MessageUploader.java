@@ -78,6 +78,7 @@ import org.oscarehr.util.SpringUtils;
 
 import oscar.OscarProperties;
 import oscar.oscarDemographic.data.DemographicMerged;
+import oscar.oscarLab.ForwardingRules;
 import oscar.oscarLab.ca.all.Hl7textResultsData;
 import oscar.oscarLab.ca.all.parsers.Factory;
 import oscar.oscarLab.ca.all.parsers.HHSEmrDownloadHandler;
@@ -137,6 +138,7 @@ public final class MessageUploader {
 			String fillerOrderNum = h.getFillerOrderNumber();
 			String sendingFacility = h.getPatientLocation();
 			ArrayList docNums = h.getDocNums();
+
 			int finalResultCount = h.getOBXFinalResultCount();
 			String obrDate = h.getMsgDate();
 			String collectionDate = "";
@@ -171,10 +173,6 @@ public final class MessageUploader {
 					docNums = findProvidersForSpireLab(docNames);
 				}
             }
-            //logger.debug("docNums:");
-            for (int i=0; i < docNums.size(); i++) {
-				//logger.debug(i + " " + docNums.get(i));
-			}
 
 			try {
 				// reformat date
@@ -283,6 +281,11 @@ public final class MessageUploader {
 			}
 
 			String demProviderNo = patientRouteReport(loggedInInfo, insertID, lastName, firstName, sex, dob, hin, DbConnectionFilter.getThreadLocalDbConnection());
+			ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
+			//property setting for "Always send a copy to MRP" under lab forwarding rules.
+			if(new ForwardingRules().getAlwaysSendToMRP() && providerDao.getProvider(demProviderNo) != null){
+				docNums.add(providerDao.getProvider(demProviderNo).getOhipNo());
+			}
 			if(type.equals("OLIS_HL7") && demProviderNo.equals("0")) {
 				OLISSystemPreferencesDao olisPrefDao = (OLISSystemPreferencesDao)SpringUtils.getBean("OLISSystemPreferencesDao");
 			    OLISSystemPreferences olisPreferences =  olisPrefDao.getPreferences();
@@ -329,7 +332,7 @@ public final class MessageUploader {
 	private static ArrayList<String> findProvidersForSpireLab(List<String> docNames) {
 		List<String> docNums = new ArrayList<String>();
 		ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
-		
+
 		for (int i=0; i < docNames.size(); i++) {
 			String[] firstLastName = docNames.get(i).split("\\s");
 			if (firstLastName != null && firstLastName.length >= 2) {
@@ -405,7 +408,7 @@ public final class MessageUploader {
 		
 		if (docNums != null) {
 			for (int i = 0; i < docNums.size(); i++) {
-				//Gets the providerNumber from the docNums array
+				//Gets the provider's number from the docNums array (either OHIP or practitioner number NOT provider number)
 				String providerNumber = (String)docNums.get(i);
 				//If the providerNumber is not null and is not a blank string
 				if (providerNumber != null && !providerNumber.trim().equals("")) {
@@ -483,7 +486,7 @@ public final class MessageUploader {
 	}
 
 	/**
-	 * Attempt to match the patient from the lab to a demographic, return the patients provider which is to be used then no other provider can be found to match the patient to.
+	 * Attempt to match the patient from the lab to a demographic, return the patients provider which is to be used when no other provider can be found to match the patient to.
 	 */
 	private static String patientRouteReport(LoggedInInfo loggedInInfo, int labId, String lastName, String firstName, String sex, String dob, String hin, Connection conn) throws SQLException {
 		PatientLabRoutingResult result = null;

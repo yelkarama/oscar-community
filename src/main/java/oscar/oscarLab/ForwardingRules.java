@@ -34,13 +34,16 @@
 package oscar.oscarLab;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.IncomingLabRulesDao;
+import org.oscarehr.common.dao.SystemPreferencesDao;
 import org.oscarehr.common.model.IncomingLabRules;
 import org.oscarehr.common.model.IncomingLabRulesType;
 import org.oscarehr.common.model.Provider;
+import org.oscarehr.common.model.SystemPreferences;
 import org.oscarehr.util.SpringUtils;
 
 /**
@@ -97,5 +100,30 @@ public class ForwardingRules {
 		List<IncomingLabRules> rules = dao.findCurrentByProviderNo(providerNo);
 		return !rules.isEmpty();
 	}
+	
+	public boolean getAlwaysSendToMRP(){
+		SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+		SystemPreferences systemPreference = systemPreferencesDao.findPreferenceByName("alwaysSendToMRP");
 
+		return(systemPreference != null && systemPreference.getValueAsBoolean());
+	}
+	
+	public void setAlwaysSendToMRP(boolean value){
+		SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+		SystemPreferences systemPreference = systemPreferencesDao.findPreferenceByName("alwaysSendToMRP");
+		if (systemPreference!=null)
+		{
+			systemPreference.setUpdateDate(new Date());
+			systemPreference.setValue("" + value);
+			systemPreferencesDao.merge(systemPreference);
+		}
+		else
+		{
+			systemPreference = new SystemPreferences();
+			systemPreference.setName("alwaysSendToMRP");
+			systemPreference.setUpdateDate(new Date());
+			systemPreference.setValue("" + value);
+			systemPreferencesDao.persist(systemPreference);
+		}
+	}
 }

@@ -53,7 +53,6 @@
 
 
 <%
-
 ForwardingRules fr = new ForwardingRules();
 String providerNo = request.getParameter("providerNo");
 if (providerNo == null)
@@ -62,6 +61,7 @@ if (providerNo == null)
 ArrayList frwdProviders = fr.getProviders(providerNo);
 
 String errorMessage = (String) request.getAttribute("errorMessage");
+
 %>
 
 <html>
@@ -97,6 +97,7 @@ String errorMessage = (String) request.getAttribute("errorMessage");
                 <%
                 OscarProperties props = OscarProperties.getInstance();
                 String autoFileLabs = props.getProperty("AUTO_FILE_LABS");
+                
                 if (providerNo.equals("0")){%>                    
                     alert("You must select a provider to set the rules for.");
                     return false;
@@ -120,6 +121,7 @@ String errorMessage = (String) request.getAttribute("errorMessage");
                     }
                 <%}%>
             }
+
         </script>
 
 </head>
@@ -128,7 +130,16 @@ String errorMessage = (String) request.getAttribute("errorMessage");
 
 <h3 class="span12"><bean:message key="admin.admin.labFwdRules" /></h3>
 
-
+<!-- Form for setting to always send Lab results to the patient's MRP You may want to add any future global settings here -->
+<form id="sendToMRPForm" action="${ctx}/admin/ForwardingRules.do" method="post" onsubmit="return false">
+	<div class="well">
+		<input type="hidden" name="operation" value="updateAlwaysSendToMRP">
+		Always Send a Copy to MRP: <select name="sendToMRPSelect" id="sendToMRPSelect">
+		<option value="Yes" <%=fr.getAlwaysSendToMRP() ? "selected" : ""%>>Yes</option>
+		<option value="No" <%=!fr.getAlwaysSendToMRP() ? "selected" : ""%>>No</option>
+		</select>
+	</div>
+</form>
 
 <form id="ForwardRulesForm" name="RULES" action="${ctx}/admin/ForwardingRules.do" method="post">
 
@@ -138,6 +149,8 @@ String errorMessage = (String) request.getAttribute("errorMessage");
 
 
 <div class="well">
+
+
 <h5>Select Provider</h5>
 Please Select the provider to set forwarding rules for:
 
@@ -263,6 +276,7 @@ status = fr.getStatus(providerNo);
 var pageTitle = $(document).attr('title');
 $(document).attr('title', 'Administration Panel | Lab Forwarding Rules');
 
+registerFormSubmit('sendToMRPForm', 'dynamic-content');
 registerFormSubmit('ForwardRulesForm', 'dynamic-content');
 
 $("#provider-selection").change(function(e) {
@@ -276,7 +290,19 @@ $("#provider-selection").change(function(e) {
 		}
 	);
 });
-
+$("#sendToMRPSelect").change(function(e) {
+	$.ajax({
+		url: '${ctx}/admin/ForwardingRules.do',
+		type: 'POST',
+		data: {
+			operation: 'updateAlwaysSendToMRP',
+			sendToMRPSelect: $('#sendToMRPSelect').val()
+		},
+		success: function(msg) {
+			alert('Updated Send To MRP Status');
+		}
+	});
+});
 
 <% if (errorMessage != null && !errorMessage.isEmpty()) { %>
 alert('<%=StringEscapeUtils.escapeJavaScript(errorMessage)%>');
