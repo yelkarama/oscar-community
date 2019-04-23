@@ -796,6 +796,14 @@ span.patient-consent-alert {
 					<th>Results Indicator &#8597;</th>
 					<th>Ordering Practitioner &#8597;</th>
 					<th>Admitting Practitioner &#8597;</th>
+					<th>CC'ed Practitioner &#8597;</th>
+					<th>Attending Practitioner &#8597;</th>
+					<th>Last Name, First Name  &#8597;</th>
+					<th>Gender &#8597;</th>
+					<th>DOB &#8597;</th>
+					<th>Health Card No. &#8597;</th>
+					<th>Category &#8597;</th>
+                    <th>Lab Name</th>
 					<th class="hidden">Placer Group</th>
 					<th class="hidden">ZBR.11</th>
 					<th class="hidden">Sort Key</th>
@@ -842,6 +850,16 @@ span.patient-consent-alert {
 					</td>
 					<td><%=resultDisplay.getOrderingPractitioner()%></td>
 					<td><%=resultDisplay.getAdmittingPractitioner()%></td>
+					<td><%=resultDisplay.getCcPractitioners()%></td>
+					<td><%=resultDisplay.getAttendingPractitioner()%></td>
+					<td>
+						<a <%=resultDisplay.getDemographicNo()!= null ? "href=\""+request.getContextPath()+"/demographic/demographiccontrol.jsp?demographic_no="+resultDisplay.getDemographicNo()+"&displaymode=edit&dboperation=search_detail\"" : ""%>><%=resultDisplay.getPatientLastName()%>, <%=resultDisplay.getPatientFirstName()%></a>
+					</td>
+					<td><%=resultDisplay.getSex()%></td>
+					<td><%=resultDisplay.getDOB()%></td>
+					<td><%=resultDisplay.getPatientHcn()%></td>
+					<td><%=resultDisplay.getCategory()%></td>
+                    <td><%=resultDisplay.getLabName()%></td>
 					<td class="hidden"><%=resultDisplay.getPlacerGroupNo()%></td>
 					<td class="hidden"><%=resultDisplay.getTestRequestZbr11()%></td>
 					<td class="hidden"><%=resultDisplay.getNomenclature().getSortKey()%></td>

@@ -1,6 +1,9 @@
 package org.oscarehr.olis.model;
 
+import org.oscarehr.common.dao.DemographicDao;
+import org.oscarehr.common.model.Demographic;
 import org.oscarehr.olis.OLISUtils;
+import org.oscarehr.util.SpringUtils;
 import oscar.oscarLab.ca.all.parsers.OLISHL7Handler;
 
 import java.text.ParseException;
@@ -40,6 +43,9 @@ public class OlisLabResultDisplay {
     private boolean isBlocked = false;
     private OLISRequestNomenclature nomenclature;
     private int obrSetId;
+    private String sex;
+    private String DOB;
+    private Integer demographicNo;
     
     private List<OlisMeasurementsResultDisplay> measurements = new ArrayList<OlisMeasurementsResultDisplay>();
     
@@ -236,6 +242,28 @@ public class OlisLabResultDisplay {
         this.obrSetId = obrSetId;
     }
 
+    public String getSex() {
+        return sex;
+    }
+    public void setSex(String sex) {
+        this.sex = sex;
+    }
+
+    public String getDOB() {
+        return DOB;
+    }
+    public void setDOB(String DOB) {
+        this.DOB = DOB;
+    }
+
+    public Integer getDemographicNo() {
+        return demographicNo;
+    }
+
+    public void setDemographicNo(Integer demographicNo) {
+        this.demographicNo = demographicNo;
+    }
+
     public List<OlisMeasurementsResultDisplay> getMeasurements() {
         return measurements;
     }
@@ -264,6 +292,8 @@ public class OlisLabResultDisplay {
             labResult.setLabObrIndex(obr);
             labResult.setLabName(olisHandler.getReportingFacilityNameShort());
             labResult.setPatientFirstName(olisHandler.getFirstName());
+            labResult.setSex(olisHandler.getSex());
+            labResult.setDOB(olisHandler.getDOB());
             labResult.setPatientLastName(olisHandler.getLastName());
             labResult.setPatientHcn(olisHandler.getHealthNum());
             labResult.setTestRequestName(olisHandler.getOBRName(obr));
@@ -303,7 +333,16 @@ public class OlisLabResultDisplay {
             labResult.setCollectionDate(collectionDate);
             
             labResult.setPlacerGroupNo(olisHandler.getAccessionNum());
-
+            
+            DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
+            Demographic demographic = null;
+            List <Demographic> demographics = demographicDao.getByHinAndGenderAndDobAndLastName(olisHandler.getHealthNum(), olisHandler.getSex(), olisHandler.getDOB(), olisHandler.getLastName());
+            if(!demographics.isEmpty()){
+                demographic = demographics.get(0);
+                labResult.setDemographicNo(demographic.getDemographicNo());
+            }
+                  
+            
             int obxCount = olisHandler.getOBXCount(obr);
             if (obxCount > 0) {
                 for (int obxIndex = 0; obxIndex < obxCount; obxIndex++) {

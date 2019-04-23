@@ -531,6 +531,29 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 		return searchDemographicByDOBAndStatus(dobStr,null,limit,offset,null,providerNo,outOfDomain,false);
 	}
 
+	public List<Demographic> getByHinAndGenderAndDobAndLastName(String hin, String gender, String dob,  String lastName) {
+		
+		List<Demographic> list = new ArrayList<Demographic>();
+		String queryString = "FROM Demographic d WHERE d.Hin like :hin AND d.Sex = :gender AND d.YearOfBirth like :yearOfBirth AND d.MonthOfBirth like :monthOfBirth AND d.DateOfBirth like :dateOfBirth AND d.LastName = :lastName";
+		String[] params = dob.split("-");
+		Session session = this.getSession();
+		
+		try {
+			Query q = session.createQuery(queryString);
+			q.setParameter("hin", hin.trim());
+			q.setParameter("gender", gender.trim());
+			q.setParameter("dateOfBirth", params[2].trim() + "%");
+			q.setParameter("monthOfBirth", params[1].trim() + "%");
+			q.setParameter("yearOfBirth", params[0].trim() + "%");
+			q.setParameter("lastName", lastName.toUpperCase());
+			list = q.list();
+		} finally {
+			this.releaseSession(session);
+		}
+		
+		return list;
+	}
+
 	public List<Demographic> searchDemographicByDOBAndNotStatus(String dobStr, List<String> statuses, int limit, int offset,String providerNo, boolean outOfDomain) {
 		return searchDemographicByDOBAndStatus(dobStr,statuses,limit,offset,null,providerNo,outOfDomain,true);
 	}
