@@ -1094,6 +1094,7 @@
         </action>
         <action input="/olis/Search.jsp" path="/olis/Search" scope="request" parameter="method" type="org.oscarehr.olis.OLISSearchAction">
         	<forward name="results" path="/olis/Results.do" />
+            <forward name="ajax" path="/olis/ajaxResponse.jsp" />
         </action>
         <action input="/olis/Search.jsp" path="/olis/Results" scope="request" type="org.oscarehr.olis.OLISResultsAction">
         	<forward name="results" path="/olis/Results.jsp" />
@@ -1103,6 +1104,9 @@
         </action>
         <action input="/olis/Simulate.jsp" path="/olis/UploadSimulationData" scope="request" type="org.oscarehr.olis.OLISUploadSimulationDataAction">
         	<forward name="success" path="/olis/Simulate.jsp" />
+        </action>
+        <action input="/olis/Simulate.jsp" path="/olis/OLISHideResults" scope="request" type="org.oscarehr.olis.OLISHideResultsAction">
+            <forward name="ajax" path="/olis/ajaxResponse.jsp" />
         </action>
 		<action input="/CMLDisplay.jsp" path="/lab/CA/ON/Forward" scope="request" type="oscar.oscarMDS.pageUtil.ReportReassignAction">
 			<forward name="failure" path="/errorpage.jsp" />

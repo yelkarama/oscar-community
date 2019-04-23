@@ -129,6 +129,9 @@ public final class MessageUploader {
 			String resultStatus = "";
 			String priority = h.getMsgPriority();
 			String requestingClient = h.getDocName();
+			if (h instanceof OLISHL7Handler) {
+                requestingClient = ((OLISHL7Handler) h).getShortDocName();
+            }
 			String reportStatus = h.getOrderStatus();
 			String accessionNum = h.getAccessionNum();
 			String fillerOrderNum = h.getFillerOrderNumber();

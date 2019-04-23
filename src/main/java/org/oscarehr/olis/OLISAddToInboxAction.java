@@ -46,12 +46,9 @@ public class OLISAddToInboxAction extends DispatchAction {
 		String providerNo=loggedInInfo.getLoggedInProviderNo();
 		
 		String uuidToAdd = request.getParameter("uuid");
-		String pFile = request.getParameter("file");
+        boolean doFile = Boolean.valueOf(request.getParameter("doFile"));
 		String pAck = request.getParameter("ack");
-		boolean doFile = false, doAck = false;
-		if (pFile != null && pFile.equals("true")) {
-			doFile = true;
-		}
+		boolean doAck = false;
 		if (pAck != null && pAck.equals("true")) {
 			doAck = true;
 		}

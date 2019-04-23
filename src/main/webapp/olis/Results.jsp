@@ -17,7 +17,9 @@
 <%@ page import="org.oscarehr.common.model.Demographic" %>
 <%@ page import="org.oscarehr.common.dao.DemographicDao" %>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="oscar.util.StringUtils" %>
+<%@ page import="org.oscarehr.olis.dao.OlisFilteredLabResultDao" %>
+<%@ page import="org.oscarehr.util.LoggedInInfo" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -36,11 +38,11 @@
 	
 <script type="text/javascript">
 let currentView = "labsView";
-function addToInbox(uuid) {
+function addToInbox(uuidd, doFile = false) {
 	jQuery(uuid).attr("disabled", "disabled");
 	jQuery.ajax({
 		url: "<%=request.getContextPath() %>/olis/AddToInbox.do",
-		data: 'uuid=' + uuid + '&requestingHic=<%=request.getParameter("requestingHic")%>',
+		data: 'uuid=' + uuid + '&requestingHic=<%=request.getParameter("requestingHic")%>&doFile=' + doFile,
 		success: function(data) {
 			jQuery("#" + uuid + "_result").html(data);
 		}
@@ -53,27 +55,21 @@ function preview(uuid, obrIndex) {
     }
     reportWindow(url);
 }
-
-function save(uuid) {
-	jQuery(uuid).attr("disabled", "disabled");
-	jQuery.ajax({
-		url: "<%=request.getContextPath() %>/olis/AddToInbox.do",
-		data: "uuid=" + uuid + "&file=true",
-		success: function(data) {
-			jQuery("#" + uuid + "_result").html(data);
-		}
-	});
-}
-
-function ack(uuid) {
-	jQuery(uuid).attr("disabled", "disabled");
-	jQuery.ajax({
-		url: "<%=request.getContextPath() %>/olis/AddToInbox.do?ack=true",
-		data: "uuid=" + uuid + "&ack=true",
-		success: function(data) {
-			jQuery("#" + uuid + "_result").html(data);
-		}
-	});
+function removeFromResults(uuid, placerGroupNo) {
+    jQuery(uuid).attr("disabled", "disabled");
+    jQuery.ajax({
+        url: "<%=request.getContextPath() %>/olis/OLISHideResults.do",
+        data: "method=addHideResult&placerGroupNo=" + placerGroupNo,
+        success: function(data) {
+            if ('Success' === data.trim()) {
+                // remove the row from the results
+                let row = jQuery("#" + uuid + "_remove").parent().parent();
+                row.remove();
+                // trigger update on the tablesorter to update the number of viewed rows
+                jQuery("#resultsSummaryTable").tablesorter().trigger('update'); 
+            }
+        }
+    });
 }
 
 function updateFilter(select) {
@@ -408,6 +404,8 @@ span.patient-consent-alert {
 	request.setAttribute("olisResultFileUuid", olisResultFileUuid);
 	DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
 	Demographic demographic = demographicDao.getDemographic(request.getParameter("demographic"));
+	OlisFilteredLabResultDao olisFilteredLabResultDao = SpringUtils.getBean(OlisFilteredLabResultDao.class);
+	List<String> placerGroupNosToFilter = olisFilteredLabResultDao.getPlacerGroupNosByProviderNo(LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo());
 	boolean resultsEmpty = olisLabResults.getResultList().isEmpty();
 	boolean hasErrors = !olisLabResults.getErrors().isEmpty();
 
@@ -806,7 +804,10 @@ span.patient-consent-alert {
 				</tr>
 				</thead>
 				<tbody>
-				<% for (OlisLabResultDisplay resultDisplay : olisResultList) { 
+				<% for (OlisLabResultDisplay resultDisplay : olisResultList) {
+					if (placerGroupNosToFilter.contains(resultDisplay.getPlacerGroupNo())) {
+						continue; // skip showing this result
+					}
 					String resultUuid = resultDisplay.getLabUuid();%>
 				<tr firstName="<%=resultDisplay.getPatientFirstName()%>" lastName="<%=resultDisplay.getPatientLastName()%>" 
 					hcn="<%=resultDisplay.getPatientHcn()%>" labName="<%=resultDisplay.getLabName()%>"
@@ -816,8 +817,10 @@ span.patient-consent-alert {
 					reportingLab="<%=resultDisplay.getReportingFacilityName()%>" performingLab="<%=resultDisplay.getPerformingFacilityName()%>">
 					<td>
 						<div id="<%=resultUuid%>_result"></div>
-						<input type="button" onClick="addToInbox('<%=resultUuid %>'); return false;" id="<%=resultUuid %>" value="Add to Inbox" />
-						<input type="button" onClick="preview('<%=resultUuid %>'); return false;" id="<%=resultUuid %>_preview" value="Preview" />
+						<input type="button" onClick="addToInbox('<%=resultUuid %>'); return false;" id="<%=resultUuid %>" value="Save"/>
+						<input type="button" onClick="addToInbox('<%=resultUuid %>', true); return false;" id="<%=resultUuid %>_sign_and_save" value="Sign off & Save"/><br/>
+						<input type="button" onClick="removeFromResults('<%=resultUuid %>', '<%=resultDisplay.getPlacerGroupNo()%>'); return false;" id="<%=resultUuid %>_remove" value="Remove"/>
+						<input type="button" onClick="preview('<%=resultUuid %>'); return false;" id="<%=resultUuid %>_preview" value="Preview"/>
                         <% if (resultDisplay.isBlocked() && !olisLabResults.isHasPatientLevelBlock()) { %>
                         <span class="patient-consent-alert">Do not disclose without express patient consent</span>
                         <% } %>
@@ -926,6 +929,9 @@ span.patient-consent-alert {
 				<tbody>
 				<% for (OlisMeasurementsResultDisplay measurementDisplay : olisLabResults.getAllMeasurements()) {
 					OlisLabResultDisplay parentLab = measurementDisplay.getParentLab();
+					if (placerGroupNosToFilter.contains(parentLab.getPlacerGroupNo())) {
+						continue; // skip showing this result
+					}
 					String valueDisplayClass = "";
 					if (measurementDisplay.isAbnormal()) {
 					    valueDisplayClass = "abnormal";
