@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,14 +18,22 @@ public class OlisLabResultDisplay {
     private int labObrIndex;
     private String placerGroupNo;
     private String testRequestZbr11;
+    private String patientFirstName;
+    private String patientLastName;
+    private String patientHcn;
+    private String labName = "";
     private String testRequestName;
+    private String category;
     private String requestStatus;
     private String specimenType;
     private String resultsIndicator;
     private String orderingPractitioner;
     private String orderingPractitionerFull;
+    private String ccPractitioners;
     private String admittingPractitioner;
+    private String attendingPractitioner;
     private String reportingFacilityName = "";
+    private String performingFacilityName = "";
     private String olisLastUpdated;
     private String collectionDate;
     private String collectorsComment;
@@ -66,11 +75,46 @@ public class OlisLabResultDisplay {
         this.testRequestZbr11 = testRequestZbr11;
     }
 
+    public String getPatientFirstName() {
+        return patientFirstName;
+    }
+    public void setPatientFirstName(String patientFirstName) {
+        this.patientFirstName = patientFirstName;
+    }
+
+    public String getPatientLastName() {
+        return patientLastName;
+    }
+    public void setPatientLastName(String patientLastName) {
+        this.patientLastName = patientLastName;
+    }
+
+    public String getPatientHcn() {
+        return patientHcn;
+    }
+    public void setPatientHcn(String patientHcn) {
+        this.patientHcn = patientHcn;
+    }
+
+    public String getLabName() {
+        return labName;
+    }
+    public void setLabName(String labName) {
+        this.labName = labName;
+    }
+
     public String getTestRequestName() {
         return testRequestName;
     }
     public void setTestRequestName(String testRequestName) {
         this.testRequestName = testRequestName;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+    public void setCategory(String category) {
+        this.category = category;
     }
 
     public String getRequestStatus() {
@@ -101,6 +145,13 @@ public class OlisLabResultDisplay {
         this.reportingFacilityName = reportingFacilityName;
     }
 
+    public String getPerformingFacilityName() {
+        return performingFacilityName;
+    }
+    public void setPerformingFacilityName(String performingFacilityName) {
+        this.performingFacilityName = performingFacilityName;
+    }
+
     public String getOrderingPractitioner() {
         return orderingPractitioner;
     }
@@ -115,11 +166,25 @@ public class OlisLabResultDisplay {
         this.orderingPractitionerFull = orderingPractitionerFull;
     }
 
+    public String getCcPractitioners() {
+        return ccPractitioners;
+    }
+    public void setCcPractitioners(String ccPractitioners) {
+        this.ccPractitioners = ccPractitioners;
+    }
+
     public String getAdmittingPractitioner() {
         return admittingPractitioner;
     }
     public void setAdmittingPractitioner(String admittingPractitioner) {
         this.admittingPractitioner = admittingPractitioner;
+    }
+
+    public String getAttendingPractitioner() {
+        return attendingPractitioner;
+    }
+    public void setAttendingPractitioner(String attendingPractitioner) {
+        this.attendingPractitioner = attendingPractitioner;
     }
 
     public String getOlisLastUpdated() {
@@ -197,7 +262,12 @@ public class OlisLabResultDisplay {
             // Lab specific values
             labResult.setLabUuid(resultUuid);
             labResult.setLabObrIndex(obr);
+            labResult.setLabName(olisHandler.getReportingFacilityNameShort());
+            labResult.setPatientFirstName(olisHandler.getFirstName());
+            labResult.setPatientLastName(olisHandler.getLastName());
+            labResult.setPatientHcn(olisHandler.getHealthNum());
             labResult.setTestRequestName(olisHandler.getOBRName(obr));
+            labResult.setCategory(olisHandler.getOBRCategory(obr));
             labResult.setRequestStatus(olisHandler.getTestRequestStatusMessage(olisHandler.getObrStatusFinal(obr).charAt(0), true));
             labResult.setSpecimenType(olisHandler.getOBRSpecimentType(obr));
             labResult.setResultsIndicator(olisHandler.getObrStatus(obr));
@@ -215,9 +285,19 @@ public class OlisLabResultDisplay {
             // Report level values
             labResult.setOrderingPractitioner(olisHandler.getShortDocName());
             labResult.setOrderingPractitionerFull(olisHandler.getDocName());
+            
+            List<String> ccPractitioners = new ArrayList<>();
+            for (HashMap<String, String> ccMap: olisHandler.getFormattedCcDocs()) {
+                ccPractitioners.add(ccMap.get("name").trim());
+            }
+            labResult.setCcPractitioners(String.join(";", ccPractitioners));
+            
+            
             labResult.setAdmittingPractitioner(olisHandler.getAdmittingProviderNameShort());
+            labResult.setAttendingPractitioner(olisHandler.getAttendingProviderNameShort());
             labResult.setOlisLastUpdated(olisHandler.getLastUpdateInOLIS());
             labResult.setReportingFacilityName(olisHandler.getReportingFacilityName());
+            labResult.setPerformingFacilityName(olisHandler.getPerformingFacilityName());
             
             String collectionDate = olisHandler.getCollectionDateTime(obr);
             labResult.setCollectionDate(collectionDate);

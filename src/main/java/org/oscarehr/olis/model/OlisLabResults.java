@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class OlisLabResults {
-
+    private String searchType = "";
     private List<OlisLabResultDisplay> resultList = new ArrayList<OlisLabResultDisplay>();
     private List<OLISHL7Handler.OLISError> errors =  new ArrayList<OLISHL7Handler.OLISError>();
     private boolean hasBlockedContent = false;
@@ -25,6 +25,13 @@ public class OlisLabResults {
     private String demographicDob = "";
 
     public OlisLabResults() { }
+
+    public String getSearchType() {
+        return searchType;
+    }
+    public void setSearchType(String searchType) {
+        this.searchType = searchType;
+    }
 
     public List<OlisLabResultDisplay> getResultList() {
         return resultList;

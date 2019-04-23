@@ -308,6 +308,15 @@ public class OLISHL7Handler implements MessageHandler {
 		}
 	}
 
+	public String getAttendingProviderNameShort() {
+		try {
+			return getShortName("/.PV1-7-");
+		} catch (HL7Exception e) {
+			MiscUtils.getLogger().error("OLIS HL7 Error", e);
+			return "";
+		}
+	}
+	
 	public boolean reportBlocked = false;
 
 	public Boolean isReportBlocked() {
@@ -606,6 +615,35 @@ public class OLISHL7Handler implements MessageHandler {
 		}
 	}
 
+	public String getReportingFacilityNameShort() {
+    	String facilityName = "";
+		try {
+			String key = "", value = "", ident = "";
+			key = getString(terser.get("/.ZBR-4-6-2"));
+			if (key != null && key.indexOf(":") > 0) {
+				key = key.substring(key.indexOf(":") + 1);
+			} else {
+				key = "";
+			}
+			if (key == null || key.trim().equals("")) {
+				facilityName = "";
+			}
+			OLISFacilitiesDao olisFacilitiesDao = SpringUtils.getBean(OLISFacilitiesDao.class);
+			OLISFacilities matchedOlisFacility = null;
+			try {
+				matchedOlisFacility = olisFacilitiesDao.findByLicenceNumber(Integer.valueOf(key));
+			} catch (NumberFormatException nfe) { /*ignore*/ }
+			if (matchedOlisFacility != null) {
+				facilityName = matchedOlisFacility.getName();
+			} else {
+				facilityName = getString(terser.get("/.ZBR-4-1"));
+			}
+		} catch (Exception e) {
+			MiscUtils.getLogger().error("OLIS HL7 Error", e);
+		}
+		return facilityName;
+	}
+	
 	public String getReportingFacilityName() {
 		try {
 			String key = "", value = "", ident = "";

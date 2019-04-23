@@ -54,7 +54,7 @@ public class OLISResultsAction extends DispatchAction {
         }
 
         OlisLabResults olisLabResults = new OlisLabResults();
-		
+		olisLabResults.setSearchType(StringUtils.trimToEmpty(request.getParameter("queryType")));
 		try {
 			ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 			// Gets the requestingHic's provider number

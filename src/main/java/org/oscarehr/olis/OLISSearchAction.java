@@ -115,9 +115,9 @@ public class OLISSearchAction extends DispatchAction {
 				    // Sets the ZPD1 to X for Substitute Decision Maker
 					q.setConsentToViewBlockedInformation(new ZPD1("X"));
 					// Gets the decision maker's first and last name and their relationship to the patient
-					String firstName = StringUtils.trimToEmpty(request.getParameter("firstName"));
-					String lastName = StringUtils.trimToEmpty(request.getParameter("lastName"));
-					String relationship = StringUtils.trimToEmpty(request.getParameter("relationship"));
+					String firstName = StringUtils.trimToEmpty(request.getParameter("overrideFirstName"));
+					String lastName = StringUtils.trimToEmpty(request.getParameter("overrideLastName"));
+					String relationship = StringUtils.trimToEmpty(request.getParameter("overrideRelationship"));
 					// Sets the substitute decision maker as the ZSD attributes
 					q.setSubstituteDecisionMaker(new ZSD(firstName, lastName, relationship));
 				} else {
@@ -634,16 +634,16 @@ public class OLISSearchAction extends DispatchAction {
 			}
 
 
-			String[] testResultCodeList = request.getParameterValues("testResultCode");
-
-			if (testResultCodeList != null) {
+			String testResultCodes = request.getParameter("resultCodes");
+			if (StringUtils.isNotEmpty(testResultCodes)) {
+				String[] testResultCodeList = testResultCodes.trim().split(System.lineSeparator());
 				((Z04Query) query).addAllToTestResultCodeList(Arrays.asList(testResultCodeList));
 			}
 
 
-			String[] testRequestCodeList = request.getParameterValues("testRequestCode");
-
-			if (testRequestCodeList != null) {
+			String testRequestCodes = request.getParameter("requestCodes");
+			if (StringUtils.isNotEmpty(testRequestCodes)) {
+				String[] testRequestCodeList = testRequestCodes.trim().split(System.lineSeparator());
 				((Z04Query) query).addAllToTestRequestCodeList(Arrays.asList(testRequestCodeList));
 			}
 

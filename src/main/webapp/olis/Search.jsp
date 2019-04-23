@@ -771,30 +771,21 @@
 		</tr>
 		<tr>
 			<td colspan="4">
-				<table>
-					<tbody><tr>
+				<table class="footer-table">
+					<tbody>
+					<tr>
 						<th width="20%">Test Result Code (max. 200)</th>
-						<td><input type="text"><br><select multiple="multiple" style="width:300px;" name="testResultCode" id="testResultCode">
-						<%
-						
-						for (OLISResultNomenclature nomenclature : resultNomenclatureList) {
-						%>
-							<option value="<%=nomenclature.getId() %>"><%=nomenclature.getLoincComponentName().trim() %></option>
-					    <%
-						}
-						%>
-						</select></td>
 						<th width="20%">Test Request Code (max. 100)</th>
-						<td><input type="text"><br><select multiple="multiple" style="width:300px;" name="testRequestCode" id="testRequestCode">
-						<%
-						
-						for (OLISRequestNomenclature nomenclature : requestNomenclatureList) {
-						%>
-							<option value="<%=nomenclature.getId() %>"><%=nomenclature.getTestRequestName().trim() %></option>
-					    <%
-						}
-						%>
-						</select></td>
+					</tr>
+					<tr>
+						<td>
+							<input id="resultCodeSearchZ04" type="text" name="resultCodeKeywordZ04" placeholder="Search by result name" />
+							<textarea id="result-codes-Z04" name="resultCodes" tabindex="-1"></textarea>
+						</td>
+						<td>
+							<input id="requestCodeSearchZ04" type="text" name="requestCodeSearchZ04" placeholder="Search by request name" />
+							<textarea id="request-codes-Z04" name="requestCodes" tabindex="-1"></textarea>
+						</td>
 					</tr>
 				</tbody></table>
 			</td>
@@ -955,6 +946,8 @@
 	<script>
 		jQuery(setupResultCodeSearchTypeahead());
 		jQuery(setupRequestCodeSearchTypeahead());
+		jQuery(setupResultCodeSearchZ04Typeahead());
+		jQuery(setupRequestCodeSearchZ04Typeahead());
 	</script>
 	</body>
 	</html>

@@ -50,7 +50,7 @@ public class Z04Query extends Query implements ContinuationPointerQuery {
 			query += testRequestCodes.toOlisString() + "~";
 		}
 	
-		if (testRequestCodes.hasCodes()) {
+		if (testResultCodes.hasCodes()) {
 			query += testResultCodes.toOlisString() + "~";
 		}
 		

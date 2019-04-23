@@ -17,7 +17,7 @@
 <%@ page import="org.oscarehr.common.model.Demographic" %>
 <%@ page import="org.oscarehr.common.dao.DemographicDao" %>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
-<%@ page import="oscar.util.StringUtils" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -35,6 +35,7 @@
 <script type="text/javascript" src="<%=request.getContextPath()%>/share/javascript/oscarMDSIndex.js"></script>
 	
 <script type="text/javascript">
+let currentView = "labsView";
 function addToInbox(uuid) {
 	jQuery(uuid).attr("disabled", "disabled");
 	jQuery.ajax({
@@ -75,22 +76,99 @@ function ack(uuid) {
 	});
 }
 
-var patientFilter = "";
-var labFilter = "";
-function filterResults(select) {
-	if (select.name == "labFilter") {
-		labFilter = select.value;
-	}
-	var performFilter = function() {
-		var visible = (labFilter == "" || jQuery(this).attr("reportingLaboratory") == labFilter);
-		if (visible) { jQuery(this).show(); }
-		else { jQuery(this).hide(); }
-	};
-	jQuery("#resultsSummaryTable tbody tr").each(performFilter);
+function updateFilter(select) {
+	filter[select.name] = select.value;
+	
+	filterResults();
 }
+
+function filterResults() {
+	if (currentView === "labsView") {
+		jQuery("#resultsSummaryTable tbody tr").each(resultsFilter);
+	} else {
+		jQuery("#measurementsDetailTable tbody tr").each(resultsFilter);
+	}
+}
+
+let filter = {
+	firstName: "",
+	lastName: "",
+	hcn: "",
+	labName: "",
+	category: "",
+	requestStatus: "",
+	resultStatus: "",
+	orderingPractitioner: "",
+	ccPractitioner: "",
+	admittingPractitioner: "",
+	attendingPractitioner: "",
+	abnormal: "",
+	reportingLab: "",
+	performingLab: ""
+};
+
+function resultsFilter() {
+	let matches = true;
+	let row = jQuery(this);
+	if ((filter.firstName !== "" && !row.attr("firstName").toLowerCase().startsWith(filter.firstName.toLowerCase())) ||
+			(filter.lastName !== "" && !row.attr("lastName").toLowerCase().startsWith(filter.lastName.toLowerCase())) ||
+			(filter.hcn !== "" && !row.attr("hcn").toLowerCase().startsWith(filter.hcn.toLowerCase())) ||
+			(filter.labName !== "" && row.attr("labName") !== filter.labName) ||
+			(filter.category !== "" && row.attr("category") !== filter.category) ||
+			(filter.requestStatus !== "" && row.attr("requestStatus") !== filter.requestStatus) ||
+			(filter.resultStatus !== "" && row.attr("resultStatus") !== filter.resultStatus) ||
+			(filter.orderingPractitioner !== "" && row.attr("orderingPractitioner") !== filter.orderingPractitioner) ||
+			(filter.ccPractitioner !== "" && !row.attr("ccPractitioners").includes(filter.ccPractitioner)) ||
+			(filter.admittingPractitioner !== "" && row.attr("admittingPractitioner") !== filter.admittingPractitioner) ||
+			(filter.attendingPractitioner !== "" && row.attr("attendingPractitioner") !== filter.attendingPractitioner) ||
+			(filter.abnormal !== "" && row.attr("abnormal") !== filter.abnormal) ||
+			(filter.reportingLab !== "" && row.attr("reportingLab") !== filter.reportingLab) ||
+			(filter.performingLab !== "" && row.attr("performingLab") !== filter.performingLab)) {
+		matches = false;
+	}
+
+	if (matches) {
+		jQuery(this).show();
+	} else {
+		jQuery(this).hide();
+	}
+}
+
 
 function resetSorting() {
     jQuery("#resultsSummaryTable").trigger("sorton", [[[7, 1], [11, 0], [12, 0]]]);
+	
+	document.getElementById('firstNameFilter').value = "";
+	document.getElementById('lastNameFilter').value = "";
+	document.getElementById('hinFilter').value = "";
+	document.getElementById('labNameFilter').value = "";
+	document.getElementById('categoryFilter').value = "";
+	document.getElementById('requestStatusFilter').value = "";
+	document.getElementById('orderingPractitionerFilter').value = "";
+	document.getElementById('ccPractitionerFilter').value = "";
+	document.getElementById('admittingPractitionerFilter').value = "";
+	document.getElementById('attendingPractitionerFilter').value = "";
+	document.getElementById('labFilter').value = "";
+	document.getElementById('performingLabFilter').value = "";
+	document.getElementById('resultStatusFilter').value = "";
+	document.getElementById('abnormalFilter').value = "";
+    
+	filter = {
+		firstName: "",
+		lastName: "",
+		hcn: "",
+		labName: "",
+		category: "",
+		requestStatus: "",
+		resultStatus: "",
+		orderingPractitioner: "",
+		ccPractitioner: "",
+		admittingPractitioner: "",
+		attendingPractitioner: "",
+		abnormal: "",
+		reportingLab: "",
+		performingLab: ""
+	};
 }
 
 function showView(viewName) {
@@ -107,10 +185,21 @@ function showView(viewName) {
 	if (viewName === 'measurementsView') {
         labsButton.style.display = 'inline-block';
         measurementsDisplay.style.display = 'table-cell';
+        
+        
 	} else if (viewName === 'labsView') {
         measurementsButton.style.display = 'inline-block';
         labsDisplay.style.display = 'table-cell';
+        document.getElementById("resultStatusFilter").value = "";
+        document.getElementById("abnormalFilter").value = "";
+        filter.resultStatus = "";
+		filter.abnormal = "";
 	}
+
+	document.getElementById("measurement-filters").classList.toggle("hidden");
+	
+	currentView = viewName;
+	filterResults();
 }
 function popupNotesWindow(noteDiv) {
     let windowProps = "height=300,width=600,location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes";
@@ -144,9 +233,9 @@ function validateInput() {
 	let selectedConsentType = consentTypeDropdown[consentTypeDropdown.selectedIndex].value;
 	
 	if (selectedConsentType === "substitute") {
-		let firstName = document.getElementById("firstName");
-		let lastName = document.getElementById("lastName");
-		let relationshipDropdown = document.getElementById("relationship");
+		let firstName = document.getElementById("overrideFirstName");
+		let lastName = document.getElementById("overrideLastName");
+		let relationshipDropdown = document.getElementById("overrideRelationship");
 		let selectedRelationshipType = relationshipDropdown[relationshipDropdown.selectedIndex].value;
 		let errors = "";
 		
@@ -181,6 +270,20 @@ function loadMoreResults() {
         isLoadingMoreResults = true;
         document.getElementById('loadMoreResultsForm').submit();
 	}
+}
+
+function toggleFilters() {
+	let filters = document.getElementById("result-filters");
+	let filterToggle = document.getElementById("toggle-filters");
+	let isHidden = filters.classList.toggle("hidden");
+	
+	if (isHidden) {
+		filterToggle.text = "Show Filters";
+	} else {
+		filterToggle.text = "Hide Filters";
+	}
+	
+	return false;
 }
 </script>
 <script type="text/javascript" src="<%=request.getContextPath()%>/share/javascript/sortable.js"></script>
@@ -269,6 +372,28 @@ span.patient-consent-alert {
 	.monospaced {
 		font-family: Courier, monospace !important;
 	}
+	
+	
+	#result-filters .filter-row select, 
+	#result-filters .filter-row input {
+		width: 100%;
+		max-width: 100%;
+	}
+
+	#result-filters .filter-row {
+		width: 75%;
+		min-width: 75%;
+		max-width: 75%;
+		padding-top: 5px;
+		white-space: nowrap;
+	}
+	
+	#result-filters .filter-row div {
+		display: inline-block;
+		padding: 0 5px;
+		white-space: normal;
+		width: 25%;
+	}
 </style>
 	
 <title>OLIS Search Results</title>
@@ -285,6 +410,57 @@ span.patient-consent-alert {
 	Demographic demographic = demographicDao.getDemographic(request.getParameter("demographic"));
 	boolean resultsEmpty = olisLabResults.getResultList().isEmpty();
 	boolean hasErrors = !olisLabResults.getErrors().isEmpty();
+
+	
+	List<String> labNames = new ArrayList<String>();
+	List<String> categories = new ArrayList<String>();
+	List<String> orderingPractitioners = new ArrayList<String>();
+	List<String> ccPractitioners = new ArrayList<String>();
+	List<String> admittingPractitioners = new ArrayList<String>();
+	List<String> attendingPractitioners = new ArrayList<String>();
+	List<String> reportingLabs = new ArrayList<String>();
+	List<String> performingLabs = new ArrayList<String>();
+	
+	
+	for (OlisLabResultDisplay resultDisplay : olisLabResults.getResultListSorted()) {
+		
+		if (!resultDisplay.getLabName().isEmpty() && !labNames.contains(resultDisplay.getLabName())) {
+			labNames.add(resultDisplay.getLabName());
+		}
+		
+		if (!resultDisplay.getCategory().isEmpty() && !categories.contains(resultDisplay.getCategory())) {
+			categories.add(resultDisplay.getCategory());
+		}
+
+		if (!resultDisplay.getOrderingPractitioner().isEmpty() && !orderingPractitioners.contains(resultDisplay.getOrderingPractitioner())) {
+			orderingPractitioners.add(resultDisplay.getOrderingPractitioner());
+		}
+
+		if (!resultDisplay.getCcPractitioners().isEmpty()) {
+			for (String ccPractitioner : resultDisplay.getCcPractitioners().split(";")) {
+				if (!ccPractitioners.contains(ccPractitioner)) {
+					ccPractitioners.add(ccPractitioner);
+				}
+			}
+		}
+
+		if (!resultDisplay.getAdmittingPractitioner().isEmpty() && !admittingPractitioners.contains(resultDisplay.getAdmittingPractitioner())) {
+			admittingPractitioners.add(resultDisplay.getAdmittingPractitioner());
+		}
+
+		if (!resultDisplay.getAttendingPractitioner().isEmpty() && !attendingPractitioners.contains(resultDisplay.getAttendingPractitioner())) {
+			attendingPractitioners.add(resultDisplay.getAttendingPractitioner());
+		}
+
+		
+		if (!resultDisplay.getReportingFacilityName().isEmpty() && !reportingLabs.contains(resultDisplay.getReportingFacilityName())) {
+			reportingLabs.add(resultDisplay.getReportingFacilityName());
+		}
+		
+		if (!resultDisplay.getPerformingFacilityName().isEmpty() && !performingLabs.contains(resultDisplay.getPerformingFacilityName())) {
+			performingLabs.add(resultDisplay.getPerformingFacilityName());
+		}
+	}
 %>
 <table style="min-width:600px;" class="MainTable" align="left">
 	<tbody><tr class="MainTableTopRow">
@@ -418,12 +594,12 @@ span.patient-consent-alert {
 				<input type="submit" value="Submit Override Consent" />
 				
 				<div id="decision-maker-info" class="hidden">
-					<label for="firstName">First Name:</label>
-					<input id="firstName" name="firstName" maxlength="20" />
-					<label for="lastName">Last Name:</label>
-					<input id="lastName" name="lastName" maxlength="30" />
-					<label for="relationship">Relationship:</label>
-					<select id="relationship" name="relationship">
+					<label for="overrideFirstName">First Name:</label>
+					<input id="overrideFirstName" name="overrideFirstName" maxlength="20" />
+					<label for="overrideLastName">Last Name:</label>
+					<input id="overrideLastName" name="overrideLastName" maxlength="30" />
+					<label for="overrideRelationship">Relationship:</label>
+					<select id="overrideRelationship" name="overrideRelationship">
 						<option value="">Select a type</option>
 						<option value="A0">Guardian for the Person</option>
 						<option value="A1">Attorney for Personal Care</option>
@@ -439,30 +615,153 @@ span.patient-consent-alert {
 			<% } %>
 		</td>
 	</tr>
+	<% 
+		List<OlisLabResultDisplay> olisResultList = olisLabResults.getResultListSorted(); 
+		if (!olisResultList.isEmpty()) { 
+	%>
+	<tr>
+		<td colspan="2">
+			<a id="toggle-filters" href="javascript:void(0);" onClick="toggleFilters()">Show Filters</a>
+		</td>
+	</tr>
+	<tr id="result-filters" class="hidden">
+		<td colspan="2">
+			<div class="filter-row">
+				<% if (!olisLabResults.getSearchType().equals("Z01")) {%>
+				<div>
+					<label for="firstNameFilter">First Name:</label>
+					<input id="firstNameFilter" name="firstName" onChange="updateFilter(this)" type="text" />
+				</div>
+				<div>
+					<label for="lastNameFilter">Last Name:</label>
+					<input id="lastNameFilter" name="lastName" onChange="updateFilter(this)" type="text" />
+				</div>
+				<div>
+					<label for="hinFilter">HIN:</label>
+					<input id="hinFilter" name="hin" onChange="updateFilter(this)" type="text" />
+				</div>
+				<% } %>
+				<div>
+					<label for="labNameFilter">Lab Name:</label>
+					<select id="labNameFilter" name="labName" class="max-width-select" onChange="updateFilter(this)">
+						<option value="">All Labs</option>
+						<% for(String name : labNames) { %>
+						<option value="<%=name%>"><%=name%></option>
+						<% } %>
+					</select>
+				</div>
+			</div>
+			<div class="filter-row">
+				
+				<div>
+					<label for="categoryFilter">Category:</label>
+					<select id="categoryFilter" name="category" onChange="updateFilter(this)">
+						<option value="">All Categories</option>
+						<% for(String category : categories) { %>
+						<option value="<%=category%>"><%=category%></option>
+						<% } %>
+					</select>
+				</div>
+				<div>
+					<label for="requestStatusFilter">Request Status:</label>
+					<select id="requestStatusFilter" name="requestStatus" onChange="updateFilter(this)">
+						<option value="partial">Partial</option>
+						<option value="amended">Amended</option>
+						<option value="OLIS has expired the test request because no activity has occurred within a reasonable amount of time.">Expired</option>
+						<option value="Final">Final</option>
+						<option value="Collected">Collected</option>
+						<option value="Ordered">Ordered</option>
+						<option value="preliminary">Preliminary</option>
+						<option value="Cancelled">Cancelled</option>
+					</select>
+				</div>
+				<div>
+					<label for="orderingPractitionerFilter">Ordering Practitioner:</label>
+					<select id="orderingPractitionerFilter" name="orderingPractitioner" onChange="updateFilter(this)">
+						<option value="">All Ordering</option>
+						<% for(String orderingPractitioner : orderingPractitioners) { %>
+						<option value="<%=orderingPractitioner%>"><%=orderingPractitioner%></option>
+						<% } %>
+					</select>
+				</div>
+				<div>
+					<label for="ccPractitionerFilter">CC Practitioner:</label>
+					<select id="ccPractitionerFilter" name="ccPractitioner" onChange="updateFilter(this)">
+						<option value="">All CC</option>
+						<% for(String ccPractitioner : ccPractitioners) { %>
+						<option value="<%=ccPractitioner%>"><%=ccPractitioner%></option>
+						<% } %>
+					</select>
+				</div>
+			</div>
+			<div class="filter-row">
+				
+				<div>
+					<label for="admittingPractitionerFilter">Admitting Practitioner:</label>
+					<select id="admittingPractitionerFilter" name="admittingPractitioner" onChange="updateFilter(this)">
+						<option value="">All Admitting</option>
+						<% for(String admittingPractitioner : admittingPractitioners) { %>
+						<option value="<%=admittingPractitioner%>"><%=admittingPractitioner%></option>
+						<% } %>
+					</select>
+				</div>
+				<div>
+					<label for="attendingPractitionerFilter">Attending Practitioner:</label>
+					<select id="attendingPractitionerFilter" name="attendingPractitioner" onChange="updateFilter(this)">
+						<option value="">All Attending</option>
+						<% for(String attendingPractitioner : attendingPractitioners) { %>
+						<option value="<%=attendingPractitioner%>"><%=attendingPractitioner%></option>
+						<% } %>
+					</select>
+				</div>
+				<div>
+					<label for="labFilter">Reporting Laboratory:</label>
+					<select id="labFilter" name="reportingLab" onChange="updateFilter(this)">
+						<option value="">All Labs</option>
+						<% for (String reportingLab : reportingLabs) { %>
+						<option value="<%=reportingLab%>"><%=reportingLab%></option>
+						<% } %>
+					</select>
+				</div>
+				<div>
+					<label for="performingLabFilter">Performing Lab:</label>
+					<select id="performingLabFilter" name="performingLab" onChange="updateFilter(this)">
+						<option value="">All Labs</option>
+						<% for (String performingLab : performingLabs) { %>
+						<option value="<%=performingLab%>"><%=performingLab%></option>
+						<% } %>
+					</select>
+				</div>
+			</div>
+			<div id="measurement-filters" class="filter-row hidden">
+				<div>
+					<label for="resultStatusFilter" >Result Status:</label>
+					<select id="resultStatusFilter" name="resultStatus" onChange="updateFilter(this)">
+						<option value="Amended">Amended</option>
+						<option value="Preliminary">Preliminary</option>
+						<option value="Could not obtain result">Could not obtain result</option>
+						<option value="Invalid result">Invalid result</option>
+						<option value="Test not performed">Test not performed</option>
+						<option value="Patient Observation">Patient Observation</option>
+					</select>
+				</div>
+				<div>
+					<label for="abnormalFilter">Abnormal:</label>
+					<select id="abnormalFilter" name="abnormal" onChange="updateFilter(this)">
+						<option value="">All</option>
+						<option value="N">Normal</option>
+						<option value="A">Abnormal</option>
+					</select>
+				</div>
+			</div>
+		</td>
+	</tr>
+	<% } %>
 	<tr>
 		<td colspan="2" id="labsDisplay">
-			<% 
-			List<String> resultList = (List<String>) request.getAttribute("resultList");
-			List<OlisLabResultDisplay> olisResultList = olisLabResults.getResultListSorted();
-			
-			if (olisResultList.size() > 0) { %>
+			<% if (olisResultList.size() > 0) { %>
 			<div class="resultsSummaryPager" style="padding: 0;">
-				Filter by reporting laboratory:
-				<select name="labFilter" onChange="filterResults(this)">
-					<option value="">All Labs</option>
-					<%  List<String> labs = new ArrayList<String>();
-						OLISHL7Handler result;
-						String name;
-						for (String resultUuid : resultList) {
-							result = OLISResultsAction.searchResultsMap.get(resultUuid);
-							name = oscar.Misc.getStr(result.getReportingFacilityName(), "").trim();
-							if (!name.equals("")) { labs.add(name); }
-						}
-						for (String tmp: new HashSet<String>(labs)) {
-					%>
-					<option value="<%=tmp%>"><%=tmp%></option>
-					<% } %>
-				</select>
+				
 				<input type="button" onclick="resetSorting(); return false;" value="Reset Sorting">
 				<label>Jump to page
 					<select class="gotoPage" title="Select page number"></select>
@@ -492,7 +791,7 @@ span.patient-consent-alert {
 				<thead>
 				<tr>
 					<th style="min-width: 175px;">Actions</th>
-					<th>Test Requst Name &#8597;</th>
+					<th>Test Request Name &#8597;</th>
 					<th>Specimen Type &#8597;</th>
 					<th>Collection Date/Time &#8597;</th>
 					<th>Last Updated in OLIS &#8597;</th>
@@ -509,7 +808,12 @@ span.patient-consent-alert {
 				<tbody>
 				<% for (OlisLabResultDisplay resultDisplay : olisResultList) { 
 					String resultUuid = resultDisplay.getLabUuid();%>
-				<tr reportingLaboratory="<%=resultDisplay.getReportingFacilityName()%>">
+				<tr firstName="<%=resultDisplay.getPatientFirstName()%>" lastName="<%=resultDisplay.getPatientLastName()%>" 
+					hcn="<%=resultDisplay.getPatientHcn()%>" labName="<%=resultDisplay.getLabName()%>"
+					category="<%=resultDisplay.getCategory()%>" requestStatus="<%=resultDisplay.getRequestStatus()%>"
+					orderingPractitioner="<%=resultDisplay.getOrderingPractitioner()%>" ccPractitioners="<%=resultDisplay.getCcPractitioners()%>"
+					admittingPractitioner="<%=resultDisplay.getAdmittingPractitioner()%>" attendingPractitioner="<%=resultDisplay.getAttendingPractitioner()%>"
+					reportingLab="<%=resultDisplay.getReportingFacilityName()%>" performingLab="<%=resultDisplay.getPerformingFacilityName()%>">
 					<td>
 						<div id="<%=resultUuid%>_result"></div>
 						<input type="button" onClick="addToInbox('<%=resultUuid %>'); return false;" id="<%=resultUuid %>" value="Add to Inbox" />
@@ -632,7 +936,13 @@ span.patient-consent-alert {
 					}
 					String lineThroughCss = measurementDisplay.isInvalid() ? "line-through" : "";
 				%>
-				<tr>
+				<tr firstName="<%=parentLab.getPatientFirstName()%>" lastName="<%=parentLab.getPatientLastName()%>"
+					hcn="<%=parentLab.getPatientHcn()%>" labName="<%=parentLab.getLabName()%>"
+					category="<%=parentLab.getCategory()%>" requestStatus="<%=parentLab.getRequestStatus()%>"
+					orderingPractitioner="<%=parentLab.getOrderingPractitioner()%>" ccPractitioners="<%=parentLab.getCcPractitioners()%>"
+					admittingPractitioner="<%=parentLab.getAdmittingPractitioner()%>" attendingPractitioner="<%=parentLab.getAttendingPractitioner()%>"
+					reportingLab="<%=parentLab.getReportingFacilityName()%>" performingLab="<%=parentLab.getPerformingFacilityName()%>"
+					resultStatus="<%=measurementDisplay.getStatus()%>" abnormal="<%=measurementDisplay.isAbnormal() ? "A" : "N"%>">
 					<td>
                         <%=parentLab.getOlisLastUpdated()%>
                         <% if (measurementDisplay.isBlocked() && !olisLabResults.isHasPatientLevelBlock()) { %>
