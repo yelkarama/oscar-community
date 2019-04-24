@@ -17,6 +17,7 @@ public class OlisLabResults {
     private boolean hasPatientConsent = true;
     private String queryUsedUuid = null;
     private String continuationPointer = null;
+    private String emrTransactionId = null;
     
     private String demographicName = "";
     private String demographicHin = "";
@@ -123,6 +124,13 @@ public class OlisLabResults {
 
     public void setContinuationPointer(String continuationPointer) {
         this.continuationPointer = continuationPointer;
+    }
+
+    public String getEmrTransactionId() {
+        return emrTransactionId;
+    }
+    public void setEmrTransactionId(String emrTransactionId) {
+        this.emrTransactionId = emrTransactionId;
     }
 
     public String getDemographicName() {

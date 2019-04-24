@@ -56,6 +56,9 @@ public class OLISResultsAction extends DispatchAction {
         OlisLabResults olisLabResults = new OlisLabResults();
 		olisLabResults.setSearchType(StringUtils.trimToEmpty(request.getParameter("queryType")));
 		try {
+			// Gets the EMR transaction id from the request attributes and sets it to the lab results
+			String emrTransactionId = StringUtils.trimToEmpty((String)request.getAttribute("emrTransactionId"));
+			olisLabResults.setEmrTransactionId(emrTransactionId);
 			ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 			// Gets the requestingHic's provider number
 			String requestingHic = request.getParameter("requestingHic");

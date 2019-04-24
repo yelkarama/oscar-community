@@ -67,6 +67,7 @@ import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.SystemPreferences;
 import org.oscarehr.olis.OLISPoller;
 import org.oscarehr.olis.OLISProtocolSocketFactory;
+import org.oscarehr.olis.OLISUtils;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -154,16 +155,20 @@ public class Driver {
 					request.setAttribute("signedRequest", signedRequest);
 					request.setAttribute("signedData", signedData);
 					request.setAttribute("unsignedResponse", unsignedData);
+					request.setAttribute("emrTransactionId", message.getTransactionId());
 				}
 
                 requestLogXml += "\n\nReceived Response:\n" + unsignedData;
+				String loggedFileName = "";
                 SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
                 SystemPreferences saveQueryProp = systemPreferencesDao.findPreferenceByName("olis_save_queries");
                 if (saveQueryProp != null && Boolean.valueOf(saveQueryProp.getValue())) {
-                    logOlisRequestToFile(requestLogXml, query.getQueryType());
+					loggedFileName = logOlisRequestToFile(requestLogXml, query.getQueryType());
                 }
                 
 				readResponseFromXML(request, unsignedData);
+                
+				OLISUtils.logTransaction(request, query, unsignedData, loggedFileName);
 
 				return unsignedData;
 
@@ -424,12 +429,14 @@ public class Driver {
 		messageData.sendMessage2(message, "OLIS Retrieval Error", "System", sentToString, "-1", sendToProviderListData, null, null, OscarMsgType.GENERAL_TYPE);
 	}
 
-	static void logOlisRequestToFile(String data, QueryType queryType) {
+	static String logOlisRequestToFile(String data, QueryType queryType) {
+		String fileName = "";
 		try {
             String logPath = OscarProperties.getInstance().getProperty("olis_dir") + "/log/";
             new File(logPath).mkdirs();
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            File tempFile = new File(logPath + queryType.name() + "_" + sdf.format(new Date())+ ".xml");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-hhmmss");
+            fileName = queryType.name() + "_" + sdf.format(new Date())+ ".xml";
+            File tempFile = new File(logPath + fileName);
 			PrintWriter pw = new PrintWriter(new FileWriter(tempFile));
 			pw.println(data);
 			pw.flush();
@@ -437,5 +444,7 @@ public class Driver {
 		} catch (Exception e) {
 			MiscUtils.getLogger().error("Error", e);
 		}
+		
+		return fileName;
 	}
 }

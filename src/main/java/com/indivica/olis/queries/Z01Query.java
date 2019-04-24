@@ -40,7 +40,7 @@ import com.indivica.olis.parameters.ZSD;
  * @author jen
  *
  */
-public class Z01Query extends Query implements ContinuationPointerQuery {
+public class Z01Query extends Query implements ContinuationPointerQuery, RequestingHicQuery {
 
 	private OBR22 startEndTimestamp = null;
 	private OBR7 earliestLatestObservationDateTime = null;
@@ -256,5 +256,12 @@ public class Z01Query extends Query implements ContinuationPointerQuery {
     public QueryType getQueryType() {
 	   return QueryType.Z01;
     }
-	
+
+	public boolean hasConsentOverride() {
+		return this.consentToViewBlockedInformation != null;
+	}
+    
+    public String getRequestingHicId() {
+		return requestingHic.getIdNumber();
+	}
 }

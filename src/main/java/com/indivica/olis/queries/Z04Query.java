@@ -24,7 +24,7 @@ import com.indivica.olis.parameters.ZSD;
  * @author jen
  *
  */
-public class Z04Query extends Query implements ContinuationPointerQuery {
+public class Z04Query extends Query implements ContinuationPointerQuery, RequestingHicQuery {
 
 	private OBR22 startEndTimestamp = new OBR22(); // mandatory
 	private QRD7 quantityLimitedRequest = null;
@@ -109,4 +109,12 @@ public class Z04Query extends Query implements ContinuationPointerQuery {
 	public void setSubstituteDecisionMaker(ZSD substituteDecisionMaker) {
 		throw new RuntimeException("Not valid for this type of query.");
     }
+
+	public boolean hasConsentOverride() {
+		return false;
+	}
+    
+    public String getRequestingHicId() {
+		return requestingHic.getIdNumber();
+	}
 }

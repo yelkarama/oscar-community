@@ -29,17 +29,31 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.SchemaFactory;
 
+import ca.uhn.hl7v2.HL7Exception;
+import ca.uhn.hl7v2.model.Segment;
+import ca.uhn.hl7v2.parser.Parser;
+import ca.uhn.hl7v2.parser.PipeParser;
+import ca.uhn.hl7v2.util.Terser;
+import com.indivica.olis.queries.Query;
+import com.indivica.olis.queries.QueryType;
+import com.indivica.olis.queries.RequestingHicQuery;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.Hl7TextInfoDao;
 import org.oscarehr.common.model.Hl7TextInfo;
+import org.oscarehr.olis.dao.OlisQueryLogDao;
+import org.oscarehr.olis.model.OlisQueryLog;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.OscarAuditLogger;
@@ -47,6 +61,7 @@ import org.oscarehr.util.SpringUtils;
 import org.xml.sax.InputSource;
 
 import ca.ssha._2005.hial.Response;
+import org.xml.sax.SAXException;
 import oscar.OscarProperties;
 import oscar.oscarLab.ca.all.parsers.Factory;
 import oscar.oscarLab.ca.all.parsers.OLISHL7Handler;
@@ -389,5 +404,136 @@ public class OLISUtils {
 		}
 		
 		return query.toString();
+	}
+
+    /**
+     * Logs the OLIS transaction into the query log table
+     * @param request The request that initiated the query to OLIS, null if the request was done through the polling
+     * @param query The query that was used in the request to OLIS
+     * @param olisResponse The response OLIS returned
+     * @param loggedFileName The name of the file that was saved containing what was sent and OLIS's response
+     */
+	public static void logTransaction(HttpServletRequest request, Query query, String olisResponse, String loggedFileName) {
+		OlisQueryLogDao olisQueryLogDao = SpringUtils.getBean(OlisQueryLogDao.class);
+		
+		String requestingHic = "";
+		String olisTransactionId = "";
+		String emrTransactionId = "";
+		String initiatingProvider = "System";
+		String queryType = "";
+		
+		// If the request is not null, uses it to get the logged in info and the initiating provider as it was manually submitted and now sent from the automatic polling
+		if (request != null) {
+			LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+			initiatingProvider = loggedInInfo.getLoggedInProvider().getPractitionerNo();
+		}
+		
+		try {
+		    // Gets the HL7 message and parses it into a new terser object to be used to get some data from the response
+			String hl7Message = OLISUtils.getOlisMessage(olisResponse);
+			Parser parser = new PipeParser();
+			Terser terser = new Terser(parser.parse(hl7Message.replaceAll("\n", "\r\n")));
+			// Gets the OLIS and EMR transaction ids 
+			olisTransactionId = getOlisTransactionId(terser);
+			emrTransactionId = getEmrTransactionId(terser);
+		} catch (HL7Exception e) {
+			logger.error("Could not create the terser to parse the HL7 message", e);
+		} catch (SAXException | JAXBException | ParserConfigurationException | NullPointerException e) {
+			logger.error("Could not retrieve the content of the olis response", e);
+		}
+		
+		// Sets the query type based on the query sent as well as if it had a consent override or it was initiated 
+        // through polling
+		if (query.hasConsentOverride()) {
+			queryType = "Consent Overwrite";
+		} else if (query.getQueryType().equals(QueryType.Z01)) {
+			queryType = "OLIS Patient Query";
+		} else if (query.getQueryType().equals(QueryType.Z04)) {
+			if (request == null) {
+				queryType = "OLIS Provider Query";
+			} else {
+				queryType = "OLIS Preload Query";
+			}
+		}
+		
+		// If the query is an instance of a query that requires a Requesting HIC, gets the requesting HIC to be stored
+		if (query instanceof RequestingHicQuery) {
+			requestingHic = ((RequestingHicQuery) query).getRequestingHicId();
+		}
+		// Creates and stores the query information
+		OlisQueryLog queryLog = new OlisQueryLog(query.getQueryType().toString(), queryType, initiatingProvider, requestingHic, "OLIS", emrTransactionId, olisTransactionId, loggedFileName);
+		olisQueryLogDao.persist(queryLog);
+	}
+
+    /**
+     * Gets the OLIS message from OLIS's response by parsing it out of the xml into HL7
+     * @param olisResponse The response from OLIS
+     * @return The HL7 message that was contained in the OLIS response
+     * @throws SAXException
+     * @throws JAXBException
+     * @throws ParserConfigurationException
+     */
+	public static String getOlisMessage(String olisResponse) throws SAXException, JAXBException, ParserConfigurationException {
+		olisResponse = olisResponse.replaceAll("<Content", "<Content xmlns=\"\" ");
+		olisResponse = olisResponse.replaceAll("<Errors", "<Errors xmlns=\"\" ");
+		
+		DocumentBuilderFactory.newInstance().newDocumentBuilder();
+		SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
+
+		InputStream is = OLISPoller.class.getResourceAsStream("/org/oscarehr/olis/response.xsd");
+
+		Source schemaFile = new StreamSource(is);
+
+		if(OscarProperties.getInstance().getProperty("olis_response_schema") != null){
+			schemaFile = new StreamSource(new File(OscarProperties.getInstance().getProperty("olis_response_schema")));
+		}
+
+		factory.newSchema(schemaFile);
+
+		JAXBContext jc = JAXBContext.newInstance("ca.ssha._2005.hial");
+		Unmarshaller u = jc.createUnmarshaller();
+		@SuppressWarnings("unchecked")
+		Response root = ((JAXBElement<Response>) u.unmarshal(new InputSource(new StringReader(olisResponse)))).getValue();
+		
+		return root.getContent();
+	}
+
+    /**
+     * Gets the OLIS Transaction Id stored in the message that the provided terser was created for, must have 
+     * an MSH segment
+     * @param terser The terser that contains the HL7 message that was returned from OLIS
+     * @return The OLIS transaction id
+     */
+	public static String getOlisTransactionId(Terser terser) {
+		String olisTransactionId = "";
+		try {
+			Segment msh = terser.getSegment("/.MSH");
+			if (msh != null) {
+				olisTransactionId = StringUtils.trimToEmpty(Terser.get(msh, 10, 0, 1, 1));
+			}
+		} catch (HL7Exception e) {
+			logger.error("Could not retrieve the OLIS transaction id from the MSH segment", e);
+		}
+		
+		return olisTransactionId;
+	}
+
+    /**
+     * Gets the EMR Transaction ID stored in the message that the terser was created for, must have an MSA segment
+     * @param terser The terser that contains the HL7 message that was returned from OLIS
+     * @return The EMR transaction id
+     */
+	public static String getEmrTransactionId(Terser terser) {
+		String emrTransactionId = "";
+		try {
+			Segment msh = terser.getSegment("/.MSA");
+			if (msh != null) {
+				emrTransactionId = StringUtils.trimToEmpty(Terser.get(msh, 2, 0, 1, 1));
+			}
+		} catch (HL7Exception e) {
+			logger.error("Could not retrieve the EMR transaction id from the MSA segment", e);
+		}
+
+		return emrTransactionId;
 	}
 }

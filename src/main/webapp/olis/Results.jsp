@@ -18,7 +18,7 @@
 <%@ page import="org.oscarehr.common.dao.DemographicDao" %>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="oscar.util.StringUtils" %>
-<%@ page import="org.oscarehr.olis.dao.OlisFilteredLabResultDao" %>
+<%@ page import="org.oscarehr.olis.dao.OlisRemovedLabRequestDao" %>
 <%@ page import="org.oscarehr.util.LoggedInInfo" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -55,11 +55,11 @@ function preview(uuid, obrIndex) {
     }
     reportWindow(url);
 }
-function removeFromResults(uuid, placerGroupNo) {
+function removeFromResults(uuid, emrTransactionId, placerGroupNo) {
     jQuery(uuid).attr("disabled", "disabled");
     jQuery.ajax({
         url: "<%=request.getContextPath() %>/olis/OLISHideResults.do",
-        data: "method=addHideResult&placerGroupNo=" + placerGroupNo,
+        data: "method=addHideResult&placerGroupNo=" + placerGroupNo + "&resultUuid=" + uuid + "&emrTransactionId=" + emrTransactionId,
         success: function(data) {
             if ('Success' === data.trim()) {
                 // remove the row from the results
@@ -404,8 +404,8 @@ span.patient-consent-alert {
 	request.setAttribute("olisResultFileUuid", olisResultFileUuid);
 	DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
 	Demographic demographic = demographicDao.getDemographic(request.getParameter("demographic"));
-	OlisFilteredLabResultDao olisFilteredLabResultDao = SpringUtils.getBean(OlisFilteredLabResultDao.class);
-	List<String> placerGroupNosToFilter = olisFilteredLabResultDao.getPlacerGroupNosByProviderNo(LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo());
+	OlisRemovedLabRequestDao olisRemovedLabRequestDao = SpringUtils.getBean(OlisRemovedLabRequestDao.class);
+	List<String> placerGroupNosToFilter = olisRemovedLabRequestDao.getAccessionNumbersByProviderNo(LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo());
 	boolean resultsEmpty = olisLabResults.getResultList().isEmpty();
 	boolean hasErrors = !olisLabResults.getErrors().isEmpty();
 
@@ -827,7 +827,7 @@ span.patient-consent-alert {
 						<div id="<%=resultUuid%>_result"></div>
 						<input type="button" onClick="addToInbox('<%=resultUuid %>'); return false;" id="<%=resultUuid %>" value="Save"/>
 						<input type="button" onClick="addToInbox('<%=resultUuid %>', true); return false;" id="<%=resultUuid %>_sign_and_save" value="Sign off & Save"/><br/>
-						<input type="button" onClick="removeFromResults('<%=resultUuid %>', '<%=resultDisplay.getPlacerGroupNo()%>'); return false;" id="<%=resultUuid %>_remove" value="Remove"/>
+						<input type="button" onClick="removeFromResults('<%=resultUuid %>', '<%=olisLabResults.getEmrTransactionId()%>', '<%=resultDisplay.getPlacerGroupNo()%>'); return false;" id="<%=resultUuid %>_remove" value="Remove"/>
 						<input type="button" onClick="preview('<%=resultUuid %>'); return false;" id="<%=resultUuid %>_preview" value="Preview"/>
                         <% if (resultDisplay.isBlocked() && !olisLabResults.isHasPatientLevelBlock()) { %>
                         <span class="patient-consent-alert">Do not disclose without express patient consent</span>

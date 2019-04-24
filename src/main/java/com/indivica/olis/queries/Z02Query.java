@@ -22,7 +22,7 @@ import com.indivica.olis.parameters.ZSD;
  * @author jen
  *
  */
-public class Z02Query extends Query {
+public class Z02Query extends Query implements RequestingHicQuery {
 
 	private ZBX1 retrieveAllTestResults = null;
 	private ZRP1 requestingHic = new ZRP1(); // mandatory
@@ -99,5 +99,11 @@ public class Z02Query extends Query {
     	this.placerGroupNumber = placerGroupNumber;
     }
 
-
+    public boolean hasConsentOverride() {
+		return this.consentToViewBlockedInformation != null;
+	}
+    
+	public String getRequestingHicId() {
+		return requestingHic.getIdNumber();
+	}
 }

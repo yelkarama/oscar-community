@@ -30,6 +30,8 @@ public abstract class Query implements Cloneable {
 	
 	public abstract void setConsentToViewBlockedInformation(ZPD1 consentToViewBlockedInformation);
 	
+	public abstract boolean hasConsentOverride();
+	
 	public abstract void setSubstituteDecisionMaker(ZSD substituteDecisionMaker);
 	
 	 public Object clone() {

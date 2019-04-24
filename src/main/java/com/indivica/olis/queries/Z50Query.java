@@ -81,4 +81,8 @@ public class Z50Query extends Query {
 	public void setSubstituteDecisionMaker(ZSD substituteDecisionMaker) {
 		throw new RuntimeException("Not valid for this type of query.");
 	}
+
+	public boolean hasConsentOverride() {
+		return false;
+	}
 }
