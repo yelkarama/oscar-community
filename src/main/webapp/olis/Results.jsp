@@ -38,7 +38,7 @@
 	
 <script type="text/javascript">
 let currentView = "labsView";
-function addToInbox(uuidd, doFile = false) {
+function addToInbox(uuid, doFile = false) {
 	jQuery(uuid).attr("disabled", "disabled");
 	jQuery.ajax({
 		url: "<%=request.getContextPath() %>/olis/AddToInbox.do",
@@ -56,20 +56,28 @@ function preview(uuid, obrIndex) {
     reportWindow(url);
 }
 function removeFromResults(uuid, emrTransactionId, placerGroupNo) {
-    jQuery(uuid).attr("disabled", "disabled");
-    jQuery.ajax({
-        url: "<%=request.getContextPath() %>/olis/OLISHideResults.do",
-        data: "method=addHideResult&placerGroupNo=" + placerGroupNo + "&resultUuid=" + uuid + "&emrTransactionId=" + emrTransactionId,
-        success: function(data) {
-            if ('Success' === data.trim()) {
-                // remove the row from the results
-                let row = jQuery("#" + uuid + "_remove").parent().parent();
-                row.remove();
-                // trigger update on the tablesorter to update the number of viewed rows
-                jQuery("#resultsSummaryTable").tablesorter().trigger('update'); 
-            }
+    let reason = window.prompt("Please enter a reason for removal:");
+    if (reason != null) {
+        if (reason.length > 255) {
+            window.alert("Reason cannot exceed 255 characters, please enter a shorter reason");
+		} else {
+            jQuery(uuid).attr("disabled", "disabled");
+            jQuery.ajax({
+                url: "<%=request.getContextPath() %>/olis/OLISHideResults.do",
+                data: "method=addHideResult&placerGroupNo=" + placerGroupNo + "&resultUuid=" + uuid +
+                    "&emrTransactionId=" + emrTransactionId + "&reason=" + reason,
+                success: function (data) {
+                    if ('Success' === data.trim()) {
+                        // remove the row from the results
+                        let row = jQuery("#" + uuid + "_remove").parent().parent();
+                        row.remove();
+                        // trigger update on the tablesorter to update the number of viewed rows
+                        jQuery("#resultsSummaryTable").tablesorter().trigger('update');
+                    }
+                }
+            });
         }
-    });
+    }
 }
 
 function updateFilter(select) {

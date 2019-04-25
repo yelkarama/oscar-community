@@ -8,6 +8,7 @@
  */
 package org.oscarehr.olis;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
@@ -46,6 +47,7 @@ public class OLISHideResultsAction extends DispatchAction {
         String placerGroupNo = request.getParameter("placerGroupNo");
         String resultUuid = request.getParameter("resultUuid");
         String emrTransactionId = request.getParameter("emrTransactionId");
+        String reason = StringUtils.trimToEmpty(request.getParameter("reason"));
         
         List<OlisRemovedLabRequest> alreadyRemovedLabs = olisRemovedLabRequestDao.findByAccessionNumberAndProviderNo(placerGroupNo, loggedInProviderNo);
         // If the accession number hasn't already been removed for the provider, then we will remove it. 
@@ -67,7 +69,7 @@ public class OLISHideResultsAction extends DispatchAction {
                 String testRequest = handler.getOBRName(obr);
                 
                 // Creates the removed object and adds it to the table 
-                OlisRemovedLabRequest labRequest = new OlisRemovedLabRequest(emrTransactionId, loggedInProviderNo, new Date(), "", "Manual", "OLIS", placerGroupNo, testRequest, collectionDate, new Date());
+                OlisRemovedLabRequest labRequest = new OlisRemovedLabRequest(emrTransactionId, loggedInProviderNo, new Date(), reason, "Manual", "OLIS", placerGroupNo, testRequest, collectionDate, new Date());
                 olisRemovedLabRequestDao.persist(labRequest);
             }
         }
