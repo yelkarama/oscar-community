@@ -38,15 +38,19 @@
 	
 <script type="text/javascript">
 let currentView = "labsView";
-function addToInbox(uuid, doFile = false) {
-	jQuery(uuid).attr("disabled", "disabled");
-	jQuery.ajax({
-		url: "<%=request.getContextPath() %>/olis/AddToInbox.do",
-		data: 'uuid=' + uuid + '&requestingHic=<%=request.getParameter("requestingHic")%>&doFile=' + doFile,
-		success: function(data) {
-			jQuery("#" + uuid + "_result").html(data);
-		}
-	});
+function addToInbox(uuid, isDuplicate, doFile = false) {
+	if (!isDuplicate) {
+		jQuery(uuid).attr("disabled", "disabled");
+		jQuery.ajax({
+			url: "<%=request.getContextPath() %>/olis/AddToInbox.do",
+			data: 'uuid=' + uuid + '&requestingHic=<%=request.getParameter("requestingHic")%>&doFile=' + doFile,
+			success: function (data) {
+				jQuery("#" + uuid + "_result").html(data);
+			}
+		});
+	} else {
+	    jQuery ("#" + uuid + "_result").html("Already Added");
+    }
 }
 function preview(uuid, obrIndex) {
     let url = '<%=request.getContextPath()%>/lab/CA/ALL/labDisplayOLIS.jsp?segmentID=0&preview=true&uuid=' + uuid;
@@ -882,9 +886,10 @@ span.patient-consent-alert {
 					admittingPractitioner="<%=resultDisplay.getAdmittingPractitioner()%>" attendingPractitioner="<%=resultDisplay.getAttendingPractitioner()%>"
 					reportingLab="<%=resultDisplay.getReportingFacilityName()%>" performingLab="<%=resultDisplay.getPerformingFacilityName()%>">
 					<td>
+						<div><%=resultDisplay.isDuplicate() ? "<b>Duplicate</b>" : ""%></div>
 						<div id="<%=resultUuid%>_result"></div>
-						<input type="button" onClick="addToInbox('<%=resultUuid %>'); return false;" id="<%=resultUuid %>" value="Save"/>
-						<input type="button" onClick="addToInbox('<%=resultUuid %>', true); return false;" id="<%=resultUuid %>_sign_and_save" value="Sign off & Save"/><br/>
+						<input type="button" onClick="addToInbox('<%=resultUuid %>', <%=resultDisplay.isDuplicate()%> ); return false;" id="<%=resultUuid %>" value="Save"/>
+						<input type="button" onClick="addToInbox('<%=resultUuid %>', <%=resultDisplay.isDuplicate()%>, true); return false;" id="<%=resultUuid %>_sign_and_save" value="Sign off & Save"/><br/>
 						<input type="button" onClick="removeFromResults('<%=resultUuid %>', '<%=olisLabResults.getEmrTransactionId()%>', '<%=resultDisplay.getPlacerGroupNo()%>'); return false;" id="<%=resultUuid %>_remove" value="Remove"/>
 						<input type="button" onClick="preview('<%=resultUuid %>'); return false;" id="<%=resultUuid %>_preview" value="Preview"/>
                         <% if (resultDisplay.isBlocked() && !olisLabResults.isHasPatientLevelBlock()) { %>

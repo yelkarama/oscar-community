@@ -140,9 +140,11 @@ public final class MessageUploader {
 			int finalResultCount = h.getOBXFinalResultCount();
 			String obrDate = h.getMsgDate();
 			String collectionDate = "";
+			String lastUpdatedInOlis = "";
 			if (h instanceof OLISHL7Handler) {
 				handler = (OLISHL7Handler) h;
                 collectionDate = handler.getCollectionDateTime(0);
+                lastUpdatedInOlis = handler.getLastUpdateInOLIS();
 			}
 
 			if(h instanceof HHSEmrDownloadHandler) {
@@ -268,6 +270,7 @@ public final class MessageUploader {
 				hl7TextInfo.setReportStatus(reportStatus);
 				hl7TextInfo.setAccessionNumber(accessionNum);
 				hl7TextInfo.setFillerOrderNum(fillerOrderNum);
+				hl7TextInfo.setLastUpdateInOLIS (lastUpdatedInOlis);
 				// Set label if there is a matching lab already uploaded with a label
 				if(matchingLabs.size()>0){
 					String label = "";

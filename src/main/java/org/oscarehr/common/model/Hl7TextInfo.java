@@ -87,12 +87,19 @@ public class Hl7TextInfo extends AbstractModel<Integer> implements Serializable 
 	@Column(name = "sending_facility")
 	private String sendingFacility;
 
+	@Column(name = "last_update_in_olis")
+	private String lastUpdateInOLIS;
+
 	private String label;
 	
 	@Override
 	public Integer getId() {
 		return (id);
 	}
+
+	public String getLastUpdateInOLIS() { return lastUpdateInOLIS; }
+
+	public void setLastUpdateInOLIS(String lastUpdateInOLIS) { this.lastUpdateInOLIS = lastUpdateInOLIS; }
 
 	public String getFirstName() {
 		return firstName;

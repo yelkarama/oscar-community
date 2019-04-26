@@ -2,12 +2,16 @@ package org.oscarehr.olis.model;
 
 import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.model.Demographic;
+import org.oscarehr.common.dao.Hl7TextInfoDao;
+import org.oscarehr.common.model.Hl7TextInfo;
 import org.oscarehr.olis.OLISUtils;
 import org.oscarehr.util.SpringUtils;
 import oscar.oscarLab.ca.all.parsers.OLISHL7Handler;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -47,6 +51,25 @@ public class OlisLabResultDisplay {
     private String DOB;
     private Integer demographicNo;
     
+    private boolean duplicate = false;
+    private String duplicateDate;
+
+    public boolean isDuplicate() {
+        return duplicate;
+    }
+
+    public void setDuplicate(boolean duplicate) {
+        this.duplicate = duplicate;
+    }
+
+    public String getDuplicateDate() {
+        return duplicateDate;
+    }
+
+    public void setDuplicateDate(String duplicateDate) {
+        this.duplicateDate = duplicateDate;
+    }
+
     private List<OlisMeasurementsResultDisplay> measurements = new ArrayList<OlisMeasurementsResultDisplay>();
     
     private static SimpleDateFormat collectionDateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
@@ -414,6 +437,28 @@ public class OlisLabResultDisplay {
                     result.setBlocked(isBlocked);
                     result.setResultSortable(new OlisLabResultSortable());
                     labResult.getMeasurements().add(result);
+                }
+            }
+            Hl7TextInfoDao hl7TextInfoDao = SpringUtils.getBean (Hl7TextInfoDao.class);
+            
+            List<Hl7TextInfo> dupResults = hl7TextInfoDao.searchByAccessionNumberOrderByLastUpdateInOLIS(labResult.getPlacerGroupNo());
+
+
+            if (!dupResults.isEmpty() && dupResults.get(0).getLastUpdateInOLIS() != null) {
+                for (Hl7TextInfo result : dupResults) {
+                    //Since we ordered by last update in OLIS, if we ever hit a null value that means the rest of the list will be null
+                    if (result.getLastUpdateInOLIS() == null) {
+                        break;
+                    }
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
+                    ZonedDateTime dt1 = ZonedDateTime.parse(olisHandler.getLastUpdateInOLIS(), formatter);
+                    ZonedDateTime dt2 = ZonedDateTime.parse(result.getLastUpdateInOLIS(), formatter);
+                    //If we find a lab with the same accession number & same last_update_in_olis date then we set isDuplicate to true and leave the loop
+                    if (dt1.compareTo(dt2) == 0) {
+                        labResult.setDuplicate (true);
+                        labResult.setDuplicateDate (result.getLastUpdateInOLIS());
+                        break;
+                    }
                 }
             }
             
