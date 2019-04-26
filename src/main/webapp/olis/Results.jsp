@@ -87,11 +87,17 @@ function updateFilter(select) {
 }
 
 function filterResults() {
+	let tableId;
+	// Gets the id of the table that is currently in user
 	if (currentView === "labsView") {
-		jQuery("#resultsSummaryTable tbody tr").each(resultsFilter);
+		tableId = "#resultsSummaryTable";
 	} else {
-		jQuery("#measurementsDetailTable tbody tr").each(resultsFilter);
+		tableId = "#measurementsDetailTable";
 	}
+	// With the tableId, loops through each row to hide or display them
+	jQuery(tableId + " tbody tr").each(resultsFilter);
+	// Calls the tablesorter to update so that the pager updates the row and page counts
+	jQuery.tablesorter.update(jQuery(tableId)[0].config, false, null);
 }
 
 let filter = {
@@ -108,7 +114,9 @@ let filter = {
 	attendingPractitioner: "",
 	abnormal: "",
 	reportingLab: "",
-	performingLab: ""
+	performingLab: "",
+	excludeReportingLab: "",
+	excludePerformingLab: ""
 };
 
 function resultsFilter() {
@@ -127,14 +135,16 @@ function resultsFilter() {
 			(filter.attendingPractitioner !== "" && row.attr("attendingPractitioner") !== filter.attendingPractitioner) ||
 			(filter.abnormal !== "" && row.attr("abnormal") !== filter.abnormal) ||
 			(filter.reportingLab !== "" && row.attr("reportingLab") !== filter.reportingLab) ||
-			(filter.performingLab !== "" && row.attr("performingLab") !== filter.performingLab)) {
+			(filter.performingLab !== "" && row.attr("performingLab") !== filter.performingLab) ||
+			(filter.excludeReportingLab!== "" && row.attr("reportingLab") === filter.excludeReportingLab) ||
+			(filter.excludePerformingLab !== "" && row.attr("performingLab") === filter.excludePerformingLab)) {
 		matches = false;
 	}
 
 	if (matches) {
-		jQuery(this).show();
+		row.removeClass("tablesorter-childRow");
 	} else {
-		jQuery(this).hide();
+		row.addClass("tablesorter-childRow");
 	}
 }
 
@@ -154,6 +164,8 @@ function resetSorting() {
 	document.getElementById('attendingPractitionerFilter').value = "";
 	document.getElementById('labFilter').value = "";
 	document.getElementById('performingLabFilter').value = "";
+	document.getElementById('excludeLabFilter').value = "";
+	document.getElementById('excludePerformingLabFilter').value = "";
 	document.getElementById('resultStatusFilter').value = "";
 	document.getElementById('abnormalFilter').value = "";
     
@@ -171,7 +183,9 @@ function resetSorting() {
 		attendingPractitioner: "",
 		abnormal: "",
 		reportingLab: "",
-		performingLab: ""
+		performingLab: "",
+		excludeReportingLab: "",
+		excludePerformingLab: ""
 	};
 }
 
@@ -397,6 +411,20 @@ span.patient-consent-alert {
 		padding: 0 5px;
 		white-space: normal;
 		width: 25%;
+	}
+	
+	#result-filters #measurement-filters {
+		display: inline;
+		padding: 0;
+		white-space: nowrap;
+	}
+	
+	#result-filters #measurement-filters.hidden {
+		display: none;
+	}
+
+	.tablesorter-childRow {
+		display: none;
 	}
 </style>
 	
@@ -644,7 +672,7 @@ span.patient-consent-alert {
 				</div>
 				<div>
 					<label for="hinFilter">HIN:</label>
-					<input id="hinFilter" name="hin" onChange="updateFilter(this)" type="text" />
+					<input id="hinFilter" name="hcn" onChange="updateFilter(this)" type="text" />
 				</div>
 				<% } %>
 				<div>
@@ -671,6 +699,7 @@ span.patient-consent-alert {
 				<div>
 					<label for="requestStatusFilter">Request Status:</label>
 					<select id="requestStatusFilter" name="requestStatus" onChange="updateFilter(this)">
+						<option value="">All Reuest Statuses</option>
 						<option value="partial">Partial</option>
 						<option value="amended">Amended</option>
 						<option value="OLIS has expired the test request because no activity has occurred within a reasonable amount of time.">Expired</option>
@@ -739,25 +768,46 @@ span.patient-consent-alert {
 					</select>
 				</div>
 			</div>
-			<div id="measurement-filters" class="filter-row hidden">
+			<div class="filter-row">
 				<div>
-					<label for="resultStatusFilter" >Result Status:</label>
-					<select id="resultStatusFilter" name="resultStatus" onChange="updateFilter(this)">
-						<option value="Amended">Amended</option>
-						<option value="Preliminary">Preliminary</option>
-						<option value="Could not obtain result">Could not obtain result</option>
-						<option value="Invalid result">Invalid result</option>
-						<option value="Test not performed">Test not performed</option>
-						<option value="Patient Observation">Patient Observation</option>
+					<label for="excludeLabFilter">Exclude Reporting Laboratory:</label>
+					<select id="excludeLabFilter" name="excludeReportingLab" onChange="updateFilter(this)">
+						<option value="">None</option>
+						<% for (String reportingLab : reportingLabs) { %>
+						<option value="<%=reportingLab%>"><%=reportingLab%></option>
+						<% } %>
 					</select>
 				</div>
 				<div>
-					<label for="abnormalFilter">Abnormal:</label>
-					<select id="abnormalFilter" name="abnormal" onChange="updateFilter(this)">
-						<option value="">All</option>
-						<option value="N">Normal</option>
-						<option value="A">Abnormal</option>
+					<label for="excludePerformingLabFilter">Exclude Performing Lab:</label>
+					<select id="excludePerformingLabFilter" name="excludePerformingLab" onChange="updateFilter(this)">
+						<option value="">None</option>
+						<% for (String performingLab : performingLabs) { %>
+						<option value="<%=performingLab%>"><%=performingLab%></option>
+						<% } %>
 					</select>
+				</div>
+				<div id="measurement-filters" class="filter-row hidden">
+					<div>
+						<label for="resultStatusFilter" >Result Status:</label>
+						<select id="resultStatusFilter" name="resultStatus" onChange="updateFilter(this)">
+							<option value="">All Result Statuses</option>
+							<option value="Amended">Amended</option>
+							<option value="Preliminary">Preliminary</option>
+							<option value="Could not obtain result">Could not obtain result</option>
+							<option value="Invalid result">Invalid result</option>
+							<option value="Test not performed">Test not performed</option>
+							<option value="Patient Observation">Patient Observation</option>
+						</select>
+					</div>
+					<div>
+						<label for="abnormalFilter">Abnormal:</label>
+						<select id="abnormalFilter" name="abnormal" onChange="updateFilter(this)">
+							<option value="">All</option>
+							<option value="N">Normal</option>
+							<option value="A">Abnormal</option>
+						</select>
+					</div>
 				</div>
 			</div>
 		</td>
