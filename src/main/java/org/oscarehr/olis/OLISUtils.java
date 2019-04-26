@@ -425,7 +425,7 @@ public class OLISUtils {
 		// If the request is not null, uses it to get the logged in info and the initiating provider as it was manually submitted and now sent from the automatic polling
 		if (request != null) {
 			LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-			initiatingProvider = loggedInInfo.getLoggedInProvider().getPractitionerNo();
+			initiatingProvider = loggedInInfo.getLoggedInProvider().getProviderNo();
 		}
 		
 		try {

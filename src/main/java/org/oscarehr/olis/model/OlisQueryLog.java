@@ -25,8 +25,8 @@ public class OlisQueryLog extends AbstractModel<Integer> {
     private String queryCode;
     @Column(name = "type")
     private String type;
-    @Column(name = "initiated_by")
-    private String initiatedBy;
+    @Column(name = "initiating_provider_no")
+    private String initiatingProviderNo;
     @Column(name = "requesting_hic")
     private String requestingHic;
     @Column(name = "external_system")
@@ -41,11 +41,11 @@ public class OlisQueryLog extends AbstractModel<Integer> {
     public OlisQueryLog() {
     }
 
-    public OlisQueryLog(String queryCode, String type, String initiatedBy, String requestingHic, String externalSystem, String emrTransactionId, String olisTransactionId, String fileName) {
+    public OlisQueryLog(String queryCode, String type, String initiatingProviderNo, String requestingHic, String externalSystem, String emrTransactionId, String olisTransactionId, String fileName) {
         this.dateSent = new Date();
         this.queryCode = queryCode;
         this.type = type;
-        this.initiatedBy = initiatedBy;
+        this.initiatingProviderNo = initiatingProviderNo;
         this.requestingHic = requestingHic;
         this.externalSystem = externalSystem;
         this.emrTransactionId = emrTransactionId;
@@ -81,11 +81,11 @@ public class OlisQueryLog extends AbstractModel<Integer> {
         this.type = type;
     }
 
-    public String getInitiatedBy() {
-        return initiatedBy;
+    public String getInitiatingProviderNo() {
+        return initiatingProviderNo;
     }
-    public void setInitiatedBy(String initiatedBy) {
-        this.initiatedBy = initiatedBy;
+    public void setInitiatingProviderNo(String initiatingProviderNo) {
+        this.initiatingProviderNo = initiatingProviderNo;
     }
 
     public String getRequestingHic() {
