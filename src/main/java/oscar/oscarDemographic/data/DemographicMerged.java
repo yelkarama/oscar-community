@@ -119,6 +119,12 @@ public class DemographicMerged {
     		dao.merge(dm);
     	}
     	
+    	Demographic d = demographicDao.getDemographic(demographic_no);
+    	if(d != null) {
+    		d.setPatientStatus("AC");
+    		demographicDao.save(d);
+    	}
+    	
     	 String privilege = "";
          String priority = "";
          String provider_no = "";

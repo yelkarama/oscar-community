@@ -197,6 +197,7 @@ Search:
 			<INPUT TYPE="hidden" NAME="orderby" VALUE="last_name"> 
 			<INPUT TYPE="hidden" NAME="limit1" VALUE="0"> 
 			<INPUT TYPE="hidden" NAME="limit2" VALUE="10"> 
+			<INPUT TYPE="hidden" NAME="dboperation" VALUE=""/>
 
 <INPUT class="btn" TYPE="SUBMIT" NAME="button" VALUE="Search"> 
 <input class="btn" type="submit" name="mergebutton" value="Search Merged Records" onclick="searchMerged()">
