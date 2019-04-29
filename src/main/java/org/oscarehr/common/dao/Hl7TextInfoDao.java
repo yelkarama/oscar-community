@@ -93,12 +93,26 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 		return results;
 	}
 
-	public List<Hl7TextInfo> searchByAccessionNumberOrderByLastUpdateInOLIS(String acc) {
+	public List<Hl7TextInfo> searchByAccessionNumberOrderByCollectionDate(String acc) {
 
-		String sqlCommand="select x from Hl7TextInfo x where x.accessionNumber = ?1 order by x.lastUpdateInOLIS desc";
+		String sqlCommand="select x from Hl7TextInfo x where x.accessionNumber = ?1 order by x.collectionDate desc";
 
 		Query query = entityManager.createQuery(sqlCommand);
 		query.setParameter(1,acc);
+
+		@SuppressWarnings("unchecked")
+		List<Hl7TextInfo> results = query.getResultList();
+
+		return results;
+	}
+
+	public List<Hl7TextInfo> searchByAccessionNumberOrderByCollectionDate(String acc1, String acc2) {
+
+		String sqlCommand="select x from Hl7TextInfo x where x.accessionNumber = ?1 OR x.accessionNumber = ?2 order by x.collectionDate desc";
+
+		Query query = entityManager.createQuery(sqlCommand);
+		query.setParameter(1,acc1);
+		query.setParameter(2,acc2);
 
 		@SuppressWarnings("unchecked")
 		List<Hl7TextInfo> results = query.getResultList();

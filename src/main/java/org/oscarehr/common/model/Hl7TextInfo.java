@@ -24,6 +24,9 @@
 package org.oscarehr.common.model;
 
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -87,8 +90,8 @@ public class Hl7TextInfo extends AbstractModel<Integer> implements Serializable 
 	@Column(name = "sending_facility")
 	private String sendingFacility;
 
-	@Column(name = "last_update_in_olis")
-	private String lastUpdateInOLIS;
+	@Column(name = "collection_date")
+	private Date collectionDate;
 
 	private String label;
 	
@@ -97,9 +100,18 @@ public class Hl7TextInfo extends AbstractModel<Integer> implements Serializable 
 		return (id);
 	}
 
-	public String getLastUpdateInOLIS() { return lastUpdateInOLIS; }
+	public Date getCollectionDate() { return collectionDate; }
 
-	public void setLastUpdateInOLIS(String lastUpdateInOLIS) { this.lastUpdateInOLIS = lastUpdateInOLIS; }
+	public void setCollectionDate(Date collectionDate) { this.collectionDate = collectionDate; }
+	
+	public void setCollectionDate (String collectionDate) {
+		SimpleDateFormat collectionDateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
+		try {
+			this.collectionDate = collectionDateTimeFormatter.parse(collectionDate);
+		} catch (ParseException e) {
+			this.collectionDate = null;
+		}
+	}
 
 	public String getFirstName() {
 		return firstName;
