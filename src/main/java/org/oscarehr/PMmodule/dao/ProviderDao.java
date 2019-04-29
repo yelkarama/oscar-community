@@ -730,6 +730,22 @@ public class ProviderDao extends HibernateDaoSupport {
         }
     }
 
+    public List<Provider> getOlisHicProviders() {
+        UserPropertyDAO userPropertyDAO = SpringUtils.getBean(UserPropertyDAO.class);
+        Session session = getSession();
+        String sql = "FROM Provider p WHERE p.practitionerNo IS NOT NULL AND p.practitionerNo != ''";
+        Query query = session.createQuery(sql);
+        List<Provider> practitionerNoProviders = query.list();
+        
+        List<Provider> results = new ArrayList<Provider>();
+        for (Provider practitionerNoProvider : practitionerNoProviders) {
+            String olisType = userPropertyDAO.getStringValue(practitionerNoProvider.getProviderNo(), UserProperty.OFFICIAL_OLIS_IDTYPE);
+            if (olisType != null && !olisType.isEmpty()) {
+                results.add(practitionerNoProvider);
+            }
+        }
+        return results;
+    }
 
     public Provider getProviderByPractitionerNoAndOlisType(String practitionerNo, String olisIdentifierType) {
         UserPropertyDAO userPropertyDAO = SpringUtils.getBean(UserPropertyDAO.class);

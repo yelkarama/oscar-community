@@ -45,6 +45,7 @@ public class OLISSearchAction extends DispatchAction {
 			boolean force = "true".equals(request.getParameter("force"));
 			providerOlisSession.redoQueries(force, queryParameters, false);
 		} else if (queryType != null) {
+            providerOlisSession.getRequestingHicResultMap().clear();
 			providerOlisSession.doQueries(queryType, queryParameters);
 		}
 		

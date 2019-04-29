@@ -299,6 +299,7 @@
 <%
 	ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
 	List<Provider> allProvidersList = providerDao.getActiveProviders(); 
+	List<Provider> olsiHicProvidersList = providerDao.getOlisHicProviders();
 
 	String selectedDemographicNo = "";
 	String selectedDemographicName = "";
@@ -513,7 +514,7 @@
 			<td>
 				<select name="requestingHic">
 					<option value=""></option>
-			<% for (Provider provider : allProvidersList) { %>
+			<% for (Provider provider : olsiHicProvidersList) { %>
 					<option value="<%=provider.getProviderNo() %>" <%=provider.getProviderNo().equals(requestingHic)?"selected":""%>>[<%=provider.getProviderNo()%>] <%=provider.getLastName() %>, <%=provider.getFirstName() %></option>
 			<% } %>
 				</select>
