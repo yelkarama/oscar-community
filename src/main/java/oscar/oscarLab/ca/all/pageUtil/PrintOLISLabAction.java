@@ -13,6 +13,7 @@ package oscar.oscarLab.ca.all.pageUtil;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -26,7 +27,9 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.bouncycastle.util.encoders.Base64;
 import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.olis.OLISResultsAction;
+import org.oscarehr.olis.model.OlisLabResultDisplay;
+import org.oscarehr.olis.model.OlisSessionManager;
+import org.oscarehr.olis.model.ProviderOlisSession;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -44,20 +47,22 @@ public class PrintOLISLabAction extends Action {
 	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 	
 	public ActionForward execute(ActionMapping mapping, ActionForm form,
-            HttpServletRequest request, HttpServletResponse response) {
-		
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_lab", "r", null)) {
+			HttpServletRequest request, HttpServletResponse response) {
+		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+		if(!securityInfoManager.hasPrivilege(loggedInInfo, "_lab", "r", null)) {
 			throw new SecurityException("missing required security object (_lab)");
 		}
 		
 		try {
 			String segmentId = request.getParameter("segmentID");
-			String resultUuid = request.getParameter("uuid");
+			String resultPlacerGroupNo = request.getParameter("placerGroupNo");
 			boolean includeAttachmentsInZip = Boolean.valueOf(request.getParameter("includeAttachmentsInZip"));
 			MessageHandler handler = null;
 			if (segmentId==null  || "0".equals(segmentId)) {
-				// if viewing in preview from OLIS search, use uuid
-				handler = OLISResultsAction.searchResultsMap.get(resultUuid);
+				ProviderOlisSession providerOlisSession = OlisSessionManager.getSession(loggedInInfo);
+				List<OlisLabResultDisplay> providerOlisLabs = providerOlisSession.getLabResultDisplayByPlacerGroupNo(resultPlacerGroupNo);
+					// if viewing in preview from OLIS search, use placerGroupNo
+				handler = providerOlisLabs.get(0).getOlisHl7Handler();
 			}
 			else{
 				handler = Factory.getHandler(segmentId);

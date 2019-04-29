@@ -712,7 +712,7 @@
 		</tr>
 		<tr>
 			<td width="20%"><span>Requesting HIC</span></td>
-			<td><select name="requestingHic" id="requestingHic">
+			<td><select name="requestingHic" id="requestingHic" size="8">
 			
 			<option value=""></option>
 			<%
@@ -757,7 +757,7 @@
 			<td colspan=4><hr /></td>
 		</tr>
 		<tr>
-			<td width="20%"><span>Requesting HIC</span></td><td><select multiple="multiple" name="requestingHic" id="requestingHic">
+			<td width="20%"><span>Requesting HIC</span></td><td><select multiple="multiple" name="requestingHic" id="requestingHic" size="8">
 			
 			<option value=""></option>
 			<% for (Provider provider : allProvidersList) { %>

@@ -19,6 +19,9 @@
 <%@ page import="oscar.OscarProperties" %>
 <%@ page import="org.json.JSONObject" %>
 <%@ page import="org.oscarehr.olis.model.OlisLabChildResultSortable" %>
+<%@ page import="org.oscarehr.olis.model.OlisSessionManager" %>
+<%@ page import="org.oscarehr.olis.model.ProviderOlisSession" %>
+<%@ page import="org.oscarehr.olis.model.OlisLabResultDisplay" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
@@ -41,6 +44,7 @@ if(!authed) {
 %>
 
 <%
+	LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
 	String segmentID = request.getParameter("segmentID");
 String originalSegmentID = segmentID;
 String providerNo = request.getParameter("providerNo");
@@ -74,7 +78,7 @@ if (oscar.util.StringUtils.isNullOrEmpty(demographicID)){
     obgynShortcuts = false;
 }
 if (obgynShortcuts){
-    List<EctFormData.PatientForm> formsONAREnhanced = Arrays.asList(EctFormData.getPatientFormsFromLocalAndRemote(LoggedInInfo.getLoggedInInfoFromSession(request),demographicID,"formONAREnhancedRecord",true));
+    List<EctFormData.PatientForm> formsONAREnhanced = Arrays.asList(EctFormData.getPatientFormsFromLocalAndRemote(loggedInInfo,demographicID,"formONAREnhancedRecord",true));
     if (formsONAREnhanced!=null && !formsONAREnhanced.isEmpty()){
         formId = formsONAREnhanced.get(0).getFormId();
     }
@@ -87,7 +91,7 @@ DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
 boolean ackFlag = false;
 ArrayList ackList = preview ? null : AcknowledgementData.getAcknowledgements(segmentID);
 Factory f;
-MessageHandler handlerMain;
+MessageHandler handlerMain = null;
 String hl7 = "";
 Integer resultObrIndex = null;
 
@@ -106,11 +110,15 @@ if (!preview) {
 	hl7 = Factory.getHL7Body(segmentID);
 
 } else {
-	String resultUuid = oscar.Misc.getStr(request.getParameter("uuid"), "");
+	ProviderOlisSession providerOlisSession = OlisSessionManager.getSession(loggedInInfo);
+	String placerGroupNo = request.getParameter("placerGroupNo");
 	if (request.getParameter("obrIndex") != null) {
 		resultObrIndex = Integer.parseInt(request.getParameter("obrIndex"));
 	}
-	handlerMain = OLISResultsAction.searchResultsMap.get(resultUuid);
+	List<OlisLabResultDisplay> labResultDisplays = providerOlisSession.getLabResultDisplayByPlacerGroupNo(placerGroupNo);
+	if (!labResultDisplays.isEmpty()) {
+		handlerMain = labResultDisplays.get(0).getOlisHl7Handler();
+	}
 }
 
 
@@ -321,9 +329,9 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
 
         function printPDF(zipAttachments) {
             if (typeof zipAttachments !== 'undefined' && zipAttachments === true) {
-                document.acknowledgeForm.action="PrintOLISLab.do?uuid=<%=request.getParameter("uuid")%>&includeAttachmentsInZip=true";
+                document.acknowledgeForm.action="PrintOLISLab.do?placerGroupNo=<%=request.getParameter("placerGroupNo")%>&includeAttachmentsInZip=true";
             } else {
-                document.acknowledgeForm.action="PrintOLISLab.do?uuid=<%=request.getParameter("uuid")%>";
+                document.acknowledgeForm.action="PrintOLISLab.do?placerGroupNo=<%=request.getParameter("placerGroupNo")%>";
             }
             document.acknowledgeForm.submit();
         }

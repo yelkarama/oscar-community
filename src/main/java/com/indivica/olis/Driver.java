@@ -35,8 +35,10 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.SchemaFactory;
@@ -73,6 +75,7 @@ import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 import org.xml.sax.InputSource;
 
+import org.xml.sax.SAXException;
 import oscar.OscarProperties;
 import oscar.oscarMessenger.data.MsgProviderData;
 import ca.ssha._2005.hial.ArrayOfError;
@@ -93,6 +96,10 @@ public class Driver {
 
 	public static String submitOLISQuery(HttpServletRequest request, Query query, Provider provider) {
 		try {
+			String olisRequestURL = OscarProperties.getInstance().getProperty("olis_request_url", "https://olis.ssha.ca/ssha.olis.webservices.ER7/OLIS.asmx");
+			OLISStub olis = new OLISStub(olisRequestURL);
+			olis._getServiceClient().getOptions().setProperty(HTTPConstants.CUSTOM_PROTOCOL_HANDLER, new Protocol("https",(ProtocolSocketFactory)  new OLISProtocolSocketFactory(),443));
+			
 			OLISMessage message = new OLISMessage(query, provider);
 
 			System.setProperty("javax.net.ssl.trustStore", OscarProperties.getInstance().getProperty("olis_truststore").trim());
@@ -100,9 +107,6 @@ public class Driver {
 			
 			OLISRequest olisRequest = new OLISRequest();
 			olisRequest.setHIALRequest(new HIALRequest());
-			String olisRequestURL = OscarProperties.getInstance().getProperty("olis_request_url", "https://olis.ssha.ca/ssha.olis.webservices.ER7/OLIS.asmx");
-			OLISStub olis = new OLISStub(olisRequestURL);
-			olis._getServiceClient().getOptions().setProperty(HTTPConstants.CUSTOM_PROTOCOL_HANDLER, new Protocol("https",(ProtocolSocketFactory)  new OLISProtocolSocketFactory(),443));
 			
 			olisRequest.getHIALRequest().setClientTransactionID(message.getTransactionId());
 			olisRequest.getHIALRequest().setSignedRequest(new HIALRequestSignedRequest());
@@ -184,30 +188,60 @@ public class Driver {
 			return "";
 		}
 	}
+	
+	public static OLISRequest createOlisRequest(Query query, Provider provider) throws Exception {
+		System.setProperty("javax.net.ssl.trustStore", OscarProperties.getInstance().getProperty("olis_truststore").trim());
+		System.setProperty("javax.net.ssl.trustStorePassword", OscarProperties.getInstance().getProperty("olis_truststore_password").trim());
+
+		OLISRequest olisRequest = new OLISRequest();
+		olisRequest.setHIALRequest(new HIALRequest());
+		String olisRequestURL = OscarProperties.getInstance().getProperty("olis_request_url", "https://olis.ssha.ca/ssha.olis.webservices.ER7/OLIS.asmx");
+		OLISStub olis = new OLISStub(olisRequestURL);
+		olis._getServiceClient().getOptions().setProperty(HTTPConstants.CUSTOM_PROTOCOL_HANDLER, new Protocol("https",(ProtocolSocketFactory)  new OLISProtocolSocketFactory(),443));
+
+		OLISMessage message = new OLISMessage(query, provider);
+		olisRequest.getHIALRequest().setClientTransactionID(message.getTransactionId());
+		olisRequest.getHIALRequest().setSignedRequest(new HIALRequestSignedRequest());
+		String olisHL7String = message.getOlisHL7String().replaceAll("\n", "\r");
+		String msgInXML = String.format("<Request xmlns=\"http://www.ssha.ca/2005/HIAL\"><Content><![CDATA[%s]]></Content></Request>", olisHL7String);
+
+		String signedRequest;
+		if (OscarProperties.getInstance().getProperty("olis_returned_cert") != null) {
+			signedRequest = Driver.signData2(msgInXML);
+		} else {
+			signedRequest = Driver.signData(msgInXML);
+		}
+
+		olisRequest.getHIALRequest().getSignedRequest().setSignedData(signedRequest);
+		return olisRequest;
+	}
+	
+	public static Response unmarshalResponseXml(String olisResponseXml) throws SAXException, JAXBException, ParserConfigurationException {
+		olisResponseXml = olisResponseXml.replaceAll("<Content", "<Content xmlns=\"\" ");
+		olisResponseXml = olisResponseXml.replaceAll("<Errors", "<Errors xmlns=\"\" ");
+
+		DocumentBuilderFactory.newInstance().newDocumentBuilder();
+		SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
+
+		InputStream is = OLISPoller.class.getResourceAsStream("/org/oscarehr/olis/response.xsd");
+		Source schemaFile = new StreamSource(is);
+
+		if (OscarProperties.getInstance().getProperty("olis_response_schema") != null) {
+			schemaFile = new StreamSource(new File(OscarProperties.getInstance().getProperty("olis_response_schema")));
+		}
+
+		factory.newSchema(schemaFile);
+
+		JAXBContext jc = JAXBContext.newInstance("ca.ssha._2005.hial");
+		Unmarshaller u = jc.createUnmarshaller();
+		@SuppressWarnings("unchecked")
+		Response root = ((JAXBElement<Response>) u.unmarshal(new InputSource(new StringReader(olisResponseXml)))).getValue();
+		return root;
+	}
 
 	public static void readResponseFromXML(HttpServletRequest request, String olisResponse) {
-
-		olisResponse = olisResponse.replaceAll("<Content", "<Content xmlns=\"\" ");
-		olisResponse = olisResponse.replaceAll("<Errors", "<Errors xmlns=\"\" ");
-
 		try {
-			DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
-			
-			InputStream is = OLISPoller.class.getResourceAsStream("/org/oscarehr/olis/response.xsd");
-			
-			Source schemaFile = new StreamSource(is);
-		
-			if(OscarProperties.getInstance().getProperty("olis_response_schema") != null){
-				schemaFile = new StreamSource(new File(OscarProperties.getInstance().getProperty("olis_response_schema")));
-			}
-			
-			factory.newSchema(schemaFile);
-
-			JAXBContext jc = JAXBContext.newInstance("ca.ssha._2005.hial");
-			Unmarshaller u = jc.createUnmarshaller();
-			@SuppressWarnings("unchecked")
-			Response root = ((JAXBElement<Response>) u.unmarshal(new InputSource(new StringReader(olisResponse)))).getValue();
+			Response root = unmarshalResponseXml(olisResponse);
 
 			if (root.getErrors() != null) {
 				List<String> errorStringList = new LinkedList<String>();

@@ -1,5 +1,6 @@
 package org.oscarehr.olis.model;
 
+import com.indivica.olis.queries.Query;
 import oscar.oscarLab.ca.all.parsers.OLISHL7Handler;
 
 import java.util.ArrayList;
@@ -8,14 +9,15 @@ import java.util.List;
 
 public class OlisLabResults {
     private String searchType = "";
+    private Query queryUsed = null;
+    private List<String> queryErrorList = new ArrayList<String>();
     private List<OlisLabResultDisplay> resultList = new ArrayList<OlisLabResultDisplay>();
-    private List<OLISHL7Handler.OLISError> errors =  new ArrayList<OLISHL7Handler.OLISError>();
+    private List<OLISHL7Handler.OLISError> resultErrors =  new ArrayList<OLISHL7Handler.OLISError>();
     private boolean hasBlockedContent = false;
     private boolean hasRequestingProvider = false;
     private boolean hasPatientLevelBlock = false;
     private boolean display320Error = true;
     private boolean hasPatientConsent = true;
-    private String queryUsedUuid = null;
     private String continuationPointer = null;
     private String emrTransactionId = null;
     
@@ -32,6 +34,20 @@ public class OlisLabResults {
     }
     public void setSearchType(String searchType) {
         this.searchType = searchType;
+    }
+
+    public Query getQueryUsed() {
+        return queryUsed;
+    }
+    public void setQueryUsed(Query queryUsed) {
+        this.queryUsed = queryUsed;
+    }
+
+    public List<String> getQueryErrorList() {
+        return queryErrorList;
+    }
+    public void setQueryErrorList(List<String> queryErrorList) {
+        this.queryErrorList = queryErrorList;
     }
 
     public List<OlisLabResultDisplay> getResultList() {
@@ -54,20 +70,20 @@ public class OlisLabResults {
         return results;
     }
 
-    public List<OLISHL7Handler.OLISError> getErrors() {
-        return errors;
+    public List<OLISHL7Handler.OLISError> getResultErrors() {
+        return resultErrors;
     }
-    public void setErrors(List<OLISHL7Handler.OLISError> errors) {
-        this.errors = errors;
+    public void setResultErrors(List<OLISHL7Handler.OLISError> resultErrors) {
+        this.resultErrors = resultErrors;
     }
 
     /**
-     * Tests if the errors (if any) in the results have the provided identifier 
+     * Tests if the resultErrors (if any) in the results have the provided identifier 
      * @param identifierToMatch The OLIS error identifier number to check against
      * @return true if found, false otherwise
      */
     public boolean hasErrorWithIdentifier(String identifierToMatch) {
-        for (OLISHL7Handler.OLISError error : errors) {
+        for (OLISHL7Handler.OLISError error : resultErrors) {
             if (identifierToMatch.equals(error.getIndentifer())) {
                 return true;
             }
@@ -108,14 +124,6 @@ public class OlisLabResults {
     }
     public void setHasPatientConsent(boolean hasPatientConsent) {
         this.hasPatientConsent = hasPatientConsent;
-    }
-
-    public String getQueryUsedUuid() {
-        return queryUsedUuid;
-    }
-
-    public void setQueryUsedUuid(String queryUsedUuid) {
-        this.queryUsedUuid = queryUsedUuid;
     }
 
     public String getContinuationPointer() {

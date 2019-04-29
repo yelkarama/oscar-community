@@ -20,6 +20,8 @@
 <%@ page import="oscar.util.StringUtils" %>
 <%@ page import="org.oscarehr.olis.dao.OlisRemovedLabRequestDao" %>
 <%@ page import="org.oscarehr.util.LoggedInInfo" %>
+<%@ page import="org.oscarehr.olis.model.ProviderOlisSession" %>
+<%@ page import="org.oscarehr.olis.model.OlisSessionManager" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -52,8 +54,8 @@ function addToInbox(uuid, isDuplicate, doFile = false) {
 	    jQuery ("#" + uuid + "_result").html("Already Added");
     }
 }
-function preview(uuid, obrIndex) {
-    let url = '<%=request.getContextPath()%>/lab/CA/ALL/labDisplayOLIS.jsp?segmentID=0&preview=true&uuid=' + uuid;
+function preview(placerGroupNo, obrIndex) {
+    let url = '<%=request.getContextPath()%>/lab/CA/ALL/labDisplayOLIS.jsp?segmentID=0&preview=true&placerGroupNo=' + placerGroupNo;
     if (typeof obrIndex !== 'undefined') {
         url += '&obrIndex=' + obrIndex;
     }
@@ -68,7 +70,7 @@ function removeFromResults(uuid, emrTransactionId, placerGroupNo) {
             jQuery(uuid).attr("disabled", "disabled");
             jQuery.ajax({
                 url: "<%=request.getContextPath() %>/olis/OLISHideResults.do",
-                data: "method=addHideResult&placerGroupNo=" + placerGroupNo + "&resultUuid=" + uuid +
+                data: "method=addHideResult&placerGroupNo=" + placerGroupNo +
                     "&emrTransactionId=" + emrTransactionId + "&reason=" + reason,
                 success: function (data) {
                     if ('Success' === data.trim()) {
@@ -436,19 +438,18 @@ span.patient-consent-alert {
 </head>
 <body>
 <%
-	OlisLabResults olisLabResults = (OlisLabResults) request.getAttribute("olisLabResults");
-	if (olisLabResults == null) {
-		olisLabResults = new OlisLabResults();
-	}
 	String olisResultFileUuid = (String) request.getAttribute("olisResultFileUuid");
 	request.setAttribute("olisResultFileUuid", olisResultFileUuid);
 	DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
 	Demographic demographic = demographicDao.getDemographic(request.getParameter("demographic"));
 	OlisRemovedLabRequestDao olisRemovedLabRequestDao = SpringUtils.getBean(OlisRemovedLabRequestDao.class);
 	List<String> placerGroupNosToFilter = olisRemovedLabRequestDao.getAccessionNumbersByProviderNo(LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo());
-	boolean resultsEmpty = olisLabResults.getResultList().isEmpty();
-	boolean hasErrors = !olisLabResults.getErrors().isEmpty();
 
+	ProviderOlisSession providerOlisSession = OlisSessionManager.getSession(LoggedInInfo.getLoggedInInfoFromSession(request));
+
+	boolean resultsEmpty = providerOlisSession.isResultsEmpty();
+	boolean hasErrors = providerOlisSession.hasErrors();
+	boolean has320Or920Errors = providerOlisSession.hasErrorWithIdentifiers(Arrays.asList("320", "920"));
 	
 	List<String> labNames = new ArrayList<String>();
 	List<String> categories = new ArrayList<String>();
@@ -459,8 +460,8 @@ span.patient-consent-alert {
 	List<String> reportingLabs = new ArrayList<String>();
 	List<String> performingLabs = new ArrayList<String>();
 	
-	
-	for (OlisLabResultDisplay resultDisplay : olisLabResults.getResultListSorted()) {
+	List<OlisLabResultDisplay> allResults = providerOlisSession.getAllResultDisplaysSorted();
+	for (OlisLabResultDisplay resultDisplay : allResults) {
 		
 		if (!resultDisplay.getLabName().isEmpty() && !labNames.contains(resultDisplay.getLabName())) {
 			labNames.add(resultDisplay.getLabName());
@@ -519,12 +520,14 @@ span.patient-consent-alert {
 		</td>
 	</tr>
 	<% if (demographic != null) { 
-	    boolean hideDemographicInfo = olisLabResults.getErrors().size() > 0 && !(olisLabResults.hasErrorWithIdentifier("320") || olisLabResults.hasErrorWithIdentifier("920"));
+	    boolean hideDemographicInfo = hasErrors && !has320Or920Errors;
 	%>
 	<tr <%=hideDemographicInfo ? "style=\"display: none;\"" : ""%>>
 		<td colspan="2" id="patientInfo">
 			<%
-				String sex = olisLabResults.getDemographicSex();
+				//All results will be for the same demographic so take the info from the first entry
+				OlisLabResults demoOlisLabResults = (new ArrayList<OlisLabResults>(providerOlisSession.getRequestingHicResultMap().values())).get(0);
+				String sex = demoOlisLabResults.getDemographicSex();
 				if (!("F".equals(sex) || "M".equals(sex))) {
 				    sex = "U";
 				}
@@ -535,20 +538,20 @@ span.patient-consent-alert {
 				</tr>
 				<tr>
 					<td class="label">Name:</td>
-					<td class="info"><%=resultsEmpty ? demographic.getFormattedName() : olisLabResults.getDemographicName()%></td>
+					<td class="info"><%=resultsEmpty ? demographic.getFormattedName() : demoOlisLabResults.getDemographicName()%></td>
 					<td class="label">Ontario Health Number:</td>
-					<td class="info"><%=resultsEmpty ? demographic.getHin() : olisLabResults.getDemographicHin()%></td>
+					<td class="info"><%=resultsEmpty ? demographic.getHin() : demoOlisLabResults.getDemographicHin()%></td>
 				</tr>
 				<tr>
 					<td class="label">Sex:</td>
 					<td class="info"><%=resultsEmpty ? demographic.getSex() : sex%></td>
 					<td class="label">Date of Birth:</td>
-					<td class="info"><%=resultsEmpty ? demographic.getFormattedDob() : olisLabResults.getDemographicDob()%></td>
+					<td class="info"><%=resultsEmpty ? demographic.getFormattedDob() : demoOlisLabResults.getDemographicDob()%></td>
 				</tr>
-				<% if (olisLabResults.getDemographicHin().isEmpty()) { %>
+				<% if (demoOlisLabResults.getDemographicHin().isEmpty()) { %>
 				<tr>
 					<td class="label">Medical Record Number:</td>
-					<td colspan="3" class="info"><%=olisLabResults.getDemographicMrn()%></td>
+					<td colspan="3" class="info"><%=demoOlisLabResults.getDemographicMrn()%></td>
 				</tr>
 				<% } %>
 			</table>
@@ -560,7 +563,7 @@ span.patient-consent-alert {
     <tr>
         <td style="color: #a94442; font-weight: bold; padding: 10px;" colspan="3" align="center">No results have been found in OLIS.</td>
     </tr>
-    <% } else if (olisLabResults.isHasPatientLevelBlock()) { %>
+    <% } else if (providerOlisSession.isHasPatientLevelBlock()) { %>
 	<tr>
 		<td colspan="2" class="patient-consent-alert">
 			Do not disclose without express patient consent
@@ -599,12 +602,13 @@ span.patient-consent-alert {
 			}
 				if (hasErrors) { %>
 			<div class="error">
-				<% if (!(olisLabResults.hasErrorWithIdentifier("320") || olisLabResults.hasErrorWithIdentifier("920"))) { %>
+				<% if (!has320Or920Errors) { %>
 				The querying provider was not recognized by OLIS. Please verify and resubmit your query.
 				<% }
-				for (OLISError error : olisLabResults.getErrors()) {
+				for (OlisLabResults olisLabResults : providerOlisSession.getRequestingHicResultMap().values()) {
+					for (OLISError error : olisLabResults.getResultErrors()) {
 						if (!error.getIndentifer().equals("320") || olisLabResults.isDisplay320Error()) {
-						    String text = error.getText().replaceAll("\\n", "<br />");
+							String text = error.getText().replaceAll("\\n", "<br />");
 							if (error.getErrorSegmentDisplayText() != null) {
 								text += " (" + error.getErrorSegmentDisplayText() + ")";
 							}
@@ -612,15 +616,15 @@ span.patient-consent-alert {
 			<div><%=error.getIndentifer()%>:<%=text%></div>
 			<%
 						}
-					} %>
+					}
+				}%>
 			</div>
 			<%  }
-				if (olisLabResults.isHasBlockedContent() && !olisLabResults.isHasPatientConsent()) {
+				if (providerOlisSession.hasBlockedContent() && !providerOlisSession.hasPatientConsent()) {
 			%>
 			<form class="consent-form" action="<%=request.getContextPath()%>/olis/Search.do" onsubmit="return validateInput()">
 				<input type="hidden" name="method" value="loadResults" />
 				<input type="hidden" name="redo" value="true" />
-				<input type="hidden" name="uuid" value="<%=olisLabResults.getQueryUsedUuid()%>" />
 				<input type="hidden" name="force" value="true" />
 				
 				<label for="blockedInformationIndividual">Authorized by:</label>
@@ -654,8 +658,7 @@ span.patient-consent-alert {
 		</td>
 	</tr>
 	<% 
-		List<OlisLabResultDisplay> olisResultList = olisLabResults.getResultListSorted(); 
-		if (!olisResultList.isEmpty()) { 
+		if (!allResults.isEmpty()) { 
 	%>
 	<tr>
 		<td colspan="2">
@@ -665,7 +668,7 @@ span.patient-consent-alert {
 	<tr id="result-filters" class="hidden">
 		<td colspan="2">
 			<div class="filter-row">
-				<% if (!olisLabResults.getSearchType().equals("Z01")) {%>
+				<% if (!providerOlisSession.getSearchType().equals("Z01")) {%>
 				<div>
 					<label for="firstNameFilter">First Name:</label>
 					<input id="firstNameFilter" name="firstName" onChange="updateFilter(this)" type="text" />
@@ -819,7 +822,7 @@ span.patient-consent-alert {
 	<% } %>
 	<tr>
 		<td colspan="2" id="labsDisplay">
-			<% if (olisResultList.size() > 0) { %>
+			<% if (allResults.size() > 0) { %>
 			<div class="resultsSummaryPager" style="padding: 0;">
 				
 				<input type="button" onclick="resetSorting(); return false;" value="Reset Sorting">
@@ -841,7 +844,7 @@ span.patient-consent-alert {
 					<img src="<%=request.getContextPath()%>/css/tablesorter/icons/next.png" class="next"/>
 					<img src="<%=request.getContextPath()%>/css/tablesorter/icons/last.png" class="last"/>
 				</div>
-				<% if (olisLabResults.getContinuationPointer() != null) { %>
+				<% if (providerOlisSession.hasContinuationPointer()) { %>
 				<label style="float: right">
 					<button title="More results are available, click here to load" onclick="loadMoreResults()">Load More Results</button>
 				</label>
@@ -874,7 +877,7 @@ span.patient-consent-alert {
 				</tr>
 				</thead>
 				<tbody>
-				<% for (OlisLabResultDisplay resultDisplay : olisResultList) {
+				<% for (OlisLabResultDisplay resultDisplay : allResults) {
 					if (placerGroupNosToFilter.contains(resultDisplay.getPlacerGroupNo())) {
 						continue; // skip showing this result
 					}
@@ -890,9 +893,9 @@ span.patient-consent-alert {
 						<div id="<%=resultUuid%>_result"></div>
 						<input type="button" onClick="addToInbox('<%=resultUuid %>', <%=resultDisplay.isDuplicate()%> ); return false;" id="<%=resultUuid %>" value="Save"/>
 						<input type="button" onClick="addToInbox('<%=resultUuid %>', <%=resultDisplay.isDuplicate()%>, true); return false;" id="<%=resultUuid %>_sign_and_save" value="Sign off & Save"/><br/>
-						<input type="button" onClick="removeFromResults('<%=resultUuid %>', '<%=olisLabResults.getEmrTransactionId()%>', '<%=resultDisplay.getPlacerGroupNo()%>'); return false;" id="<%=resultUuid %>_remove" value="Remove"/>
-						<input type="button" onClick="preview('<%=resultUuid %>'); return false;" id="<%=resultUuid %>_preview" value="Preview"/>
-                        <% if (resultDisplay.isBlocked() && !olisLabResults.isHasPatientLevelBlock()) { %>
+						<input type="button" onClick="removeFromResults('<%=resultUuid %>', '<%=resultDisplay.getEmrTransactionId()%>', '<%=resultDisplay.getPlacerGroupNo()%>'); return false;" id="<%=resultUuid %>_remove" value="Remove"/>
+						<input type="button" onClick="preview('<%=resultDisplay.getPlacerGroupNo()%>'); return false;" id="<%=resultUuid %>_preview" value="Preview"/>
+                        <% if (resultDisplay.isBlocked() && !providerOlisSession.isHasPatientLevelBlock()) { %>
                         <span class="patient-consent-alert">Do not disclose without express patient consent</span>
                         <% } %>
 					</td>
@@ -940,7 +943,7 @@ span.patient-consent-alert {
 				<img src="<%=request.getContextPath()%>/css/tablesorter/icons/last.png" class="last"/>
 			</div>
 			<% } %>
-			<% if (olisLabResults.getContinuationPointer() != null) { %>
+			<% if (providerOlisSession.hasContinuationPointer()) { %>
 			<label style="float: right">
 				<button title="More results are available, click here to load" onclick="loadMoreResults()">Load More Results</button>
 			</label>
@@ -969,7 +972,7 @@ span.patient-consent-alert {
 					<img src="<%=request.getContextPath()%>/css/tablesorter/icons/next.png" class="next"/>
 					<img src="<%=request.getContextPath()%>/css/tablesorter/icons/last.png" class="last"/>
 				</div>
-				<% if (olisLabResults.getContinuationPointer() != null) { %>
+				<% if (providerOlisSession.hasContinuationPointer()) { %>
 				<label style="float: right">
 					<button title="More results are available, click here to load" onclick="loadMoreResults()">Load More Results</button>
 				</label>
@@ -1008,7 +1011,7 @@ span.patient-consent-alert {
 				</tr>
 				</thead>
 				<tbody>
-				<% for (OlisMeasurementsResultDisplay measurementDisplay : olisLabResults.getAllMeasurements()) {
+				<% for (OlisMeasurementsResultDisplay measurementDisplay : providerOlisSession.getAllMeasurementDisplays()) {
 					OlisLabResultDisplay parentLab = measurementDisplay.getParentLab();
 					if (placerGroupNosToFilter.contains(parentLab.getPlacerGroupNo())) {
 						continue; // skip showing this result
@@ -1032,7 +1035,7 @@ span.patient-consent-alert {
 					resultStatus="<%=measurementDisplay.getStatus()%>" abnormal="<%=measurementDisplay.isAbnormal() ? "A" : "N"%>">
 					<td>
                         <%=parentLab.getOlisLastUpdated()%>
-                        <% if (measurementDisplay.isBlocked() && !olisLabResults.isHasPatientLevelBlock()) { %>
+                        <% if (measurementDisplay.isBlocked() && !providerOlisSession.isHasPatientLevelBlock()) { %>
                         <span class="patient-consent-alert">Do not disclose without express patient consent</span>
                         <% } %>
                     </td>
@@ -1077,13 +1080,13 @@ span.patient-consent-alert {
 					</td>
 					<td>
 						<% if (measurementDisplay.isAttachment()) { %>
-						<a href="../lab/CA/ALL/PrintOLIS.do?uuid=<%=parentLab.getLabUuid()%>&obr=<%=parentLab.getLabObrIndex()%>&obx=<%=measurementDisplay.getMeasurementObxIndex()%>">
+						<a href="../lab/CA/ALL/PrintOLIS.do?placerGroupNo=<%=parentLab.getPlacerGroupNo()%>&obr=<%=parentLab.getLabObrIndex()%>&obx=<%=measurementDisplay.getMeasurementObxIndex()%>">
 							View
 						</a>
 						<% } %>
 					</td>
 					<td>
-						<input type="button" onClick="preview('<%=parentLab.getLabUuid()%>'); return false;" id="<%=parentLab.getLabUuid()%>_preview" value="View" />
+						<input type="button" onClick="preview('<%=parentLab.getPlacerGroupNo()%>'); return false;" id="<%=parentLab.getLabUuid()%>_preview" value="View" />
 					</td>
 					<td><%=parentLab.getOrderingPractitionerFull()%></td>
 					<td class="hidden"><%=parentLab.getPlacerGroupNo()%></td>
@@ -1106,7 +1109,7 @@ span.patient-consent-alert {
 				<img src="<%=request.getContextPath()%>/css/tablesorter/icons/next.png" class="next"/>
 				<img src="<%=request.getContextPath()%>/css/tablesorter/icons/last.png" class="last"/>
 			</div>
-			<% if (olisLabResults.getContinuationPointer() != null) { %>
+			<% if (providerOlisSession.hasContinuationPointer()) { %>
 			<label style="float: right">
 				<button title="More results are available, click here to load" onclick="loadMoreResults()">Load More Results</button>
 			</label>
@@ -1122,8 +1125,6 @@ span.patient-consent-alert {
 </table>
 <form style="display: none" id="loadMoreResultsForm" action="<%=request.getContextPath()%>/olis/Search.do">
 	<input name="method" value="loadMoreResults"/>
-	<input name="queryUsedUuid" value="<%=olisLabResults.getQueryUsedUuid()%>"/>
-	<input name="currentViewUuid" value="<%=request.getAttribute("currentViewUuid")%>"/>
 </form>
 <script type="application/javascript">
     jQuery("#resultsSummaryTable").tablesorter({

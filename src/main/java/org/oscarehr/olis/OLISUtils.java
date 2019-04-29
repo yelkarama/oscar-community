@@ -25,7 +25,15 @@ package org.oscarehr.olis;
 import java.io.File;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,15 +53,59 @@ import ca.uhn.hl7v2.model.Segment;
 import ca.uhn.hl7v2.parser.Parser;
 import ca.uhn.hl7v2.parser.PipeParser;
 import ca.uhn.hl7v2.util.Terser;
+import com.indivica.olis.parameters.OBR16;
+import com.indivica.olis.parameters.OBR22;
+import com.indivica.olis.parameters.OBR25;
+import com.indivica.olis.parameters.OBR28;
+import com.indivica.olis.parameters.OBR7;
+import com.indivica.olis.parameters.ORC21;
+import com.indivica.olis.parameters.ORC4;
+import com.indivica.olis.parameters.PID3;
+import com.indivica.olis.parameters.PID51;
+import com.indivica.olis.parameters.PID52;
+import com.indivica.olis.parameters.PID7;
+import com.indivica.olis.parameters.PID8;
+import com.indivica.olis.parameters.PV117;
+import com.indivica.olis.parameters.PV17;
+import com.indivica.olis.parameters.QRD7;
+import com.indivica.olis.parameters.ZBE4;
+import com.indivica.olis.parameters.ZBE6;
+import com.indivica.olis.parameters.ZBR2;
+import com.indivica.olis.parameters.ZBR3;
+import com.indivica.olis.parameters.ZBR4;
+import com.indivica.olis.parameters.ZBR6;
+import com.indivica.olis.parameters.ZBR8;
+import com.indivica.olis.parameters.ZBX1;
+import com.indivica.olis.parameters.ZPD1;
+import com.indivica.olis.parameters.ZPD3;
+import com.indivica.olis.parameters.ZRP1;
 import com.indivica.olis.queries.Query;
 import com.indivica.olis.queries.QueryType;
 import com.indivica.olis.queries.RequestingHicQuery;
+import com.indivica.olis.queries.Z01Query;
+import com.indivica.olis.queries.Z02Query;
+import com.indivica.olis.queries.Z04Query;
+import com.indivica.olis.queries.Z05Query;
+import com.indivica.olis.queries.Z06Query;
+import com.indivica.olis.queries.Z07Query;
+import com.indivica.olis.queries.Z08Query;
+import com.indivica.olis.queries.Z50Query;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
+import org.oscarehr.PMmodule.dao.ProviderDao;
+import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.Hl7TextInfoDao;
+import org.oscarehr.common.dao.OscarLogDao;
+import org.oscarehr.common.dao.UserPropertyDAO;
+import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Hl7TextInfo;
+import org.oscarehr.common.model.OscarLog;
+import org.oscarehr.common.model.Provider;
+import org.oscarehr.common.model.UserProperty;
 import org.oscarehr.olis.dao.OlisQueryLogDao;
 import org.oscarehr.olis.model.OlisQueryLog;
+import org.oscarehr.olis.model.OlisQueryParameters;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.OscarAuditLogger;
@@ -65,7 +117,6 @@ import org.xml.sax.SAXException;
 import oscar.OscarProperties;
 import oscar.oscarLab.ca.all.parsers.Factory;
 import oscar.oscarLab.ca.all.parsers.OLISHL7Handler;
-import oscar.oscarLab.ca.all.upload.handlers.HL7Handler;
 
 
 public class OLISUtils {
@@ -535,5 +586,692 @@ public class OLISUtils {
 		}
 
 		return emrTransactionId;
+	}
+	public static Query createOlisQuery(String queryType, LoggedInInfo loggedInInfo, String requestingHic, OlisQueryParameters queryParameters) {
+		DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
+		ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
+		UserPropertyDAO userPropertyDAO = SpringUtils.getBean(UserPropertyDAO.class);
+		Query query = null;
+
+		String[] dateFormat = new String[] {"yyyy-MM-dd"};
+
+		if (queryType.equalsIgnoreCase("Z01")) {
+			query = new Z01Query();
+			String startTimePeriod = queryParameters.getStartTimePeriod();
+			String endTimePeriod = queryParameters.getEndTimePeriod();
+
+			try {
+				if (startTimePeriod != null && startTimePeriod.trim().length() > 0) {
+					Date startTime = DateUtils.parseDate(startTimePeriod, dateFormat);
+					if (endTimePeriod != null && endTimePeriod.trim().length() > 0) {
+						Date endTime = changeToEndOfDay(DateUtils.parseDate(endTimePeriod, dateFormat));
+
+						List<Date> dateList = new LinkedList<Date>();
+						dateList.add(startTime);
+						dateList.add(endTime);
+
+						OBR22 obr22 = new OBR22();
+						obr22.setValue(dateList);
+
+						((Z01Query) query).setStartEndTimestamp(obr22);
+					} else {
+						OBR22 obr22 = new OBR22();
+						obr22.setValue(startTime);
+
+						((Z01Query) query).setStartEndTimestamp(obr22);
+					}
+				}
+			} catch (Exception e) {
+				MiscUtils.getLogger().error("Can't parse date given for OLIS query", e);
+			}
+
+			String observationStartTimePeriod = queryParameters.getObservationStartTimePeriod();
+			String observationEndTimePeriod = queryParameters.getObservationEndTimePeriod();
+
+			try {
+				if (observationStartTimePeriod != null && observationStartTimePeriod.trim().length() > 0) {
+					Date observationStartTime = DateUtils.parseDate(observationStartTimePeriod, dateFormat);
+					if (observationEndTimePeriod != null && observationEndTimePeriod.trim().length() > 0) {
+						Date observationEndTime = changeToEndOfDay(DateUtils.parseDate(observationEndTimePeriod, dateFormat));
+
+						List<Date> dateList = new LinkedList<Date>();
+						dateList.add(observationStartTime);
+						dateList.add(observationEndTime);
+
+						OBR7 obr7 = new OBR7();
+						obr7.setValue(dateList);
+
+						((Z01Query) query).setEarliestLatestObservationDateTime(obr7);
+					} else {
+						OBR7 obr7 = new OBR7();
+						obr7.setValue(observationStartTime);
+
+						((Z01Query) query).setEarliestLatestObservationDateTime(obr7);
+					}
+				}
+			} catch (Exception e) {
+				MiscUtils.getLogger().error("Can't parse date given for OLIS query", e);
+			}
+
+
+			String quantityLimitedQuery = queryParameters.getQuantityLimitedQuery();
+			String quantityLimit = queryParameters.getQuantityLimit();
+
+			try {
+				if (quantityLimitedQuery != null && quantityLimitedQuery.trim().length() > 0) {
+					// Checked
+					((Z01Query) query).setQuantityLimitedRequest(new QRD7(Integer.parseInt(quantityLimit)));
+				}
+			} catch (Exception e) {
+				MiscUtils.getLogger().error("Can't parse the number given for quantity limit in OLIS query", e);
+			}
+
+
+			String blockedInformationConsent = queryParameters.getBlockedInformationConsent();
+
+			if (blockedInformationConsent != null && blockedInformationConsent.trim().length() > 0) {
+				((Z01Query) query).setConsentToViewBlockedInformation(new ZPD1(blockedInformationConsent));
+			}
+
+
+			String consentBlockAllIndicator = queryParameters.getConsentBlockAllIndicator();
+
+			if (consentBlockAllIndicator != null && consentBlockAllIndicator.trim().length() > 0) {
+				((Z01Query) query).setPatientConsentBlockAllIndicator(new ZPD3("Y"));
+			}
+
+
+			String specimenCollector = queryParameters.getSpecimenCollector();
+
+			if (specimenCollector != null && specimenCollector.trim().length() > 0) {
+				((Z01Query) query).setSpecimenCollector(new ZBR3(specimenCollector, "ISO"));
+			}
+
+
+			String performingLaboratory = queryParameters.getPerformingLaboratory();
+
+			if (performingLaboratory != null && performingLaboratory.trim().length() > 0) {
+				((Z01Query) query).setPerformingLaboratory(new ZBR6(performingLaboratory, "ISO"));
+			}
+
+
+			String excludePerformingLaboratory = queryParameters.getExcludePerformingLaboratory();
+
+			if (excludePerformingLaboratory != null && excludePerformingLaboratory.trim().length() > 0) {
+				((Z01Query) query).setExcludePerformingLaboratory(new ZBE6(excludePerformingLaboratory, "ISO"));
+			}
+
+
+			String reportingLaboratory = queryParameters.getReportingLaboratory();
+
+			if (reportingLaboratory != null && reportingLaboratory.trim().length() > 0) {
+				((Z01Query) query).setReportingLaboratory(new ZBR4(reportingLaboratory, "ISO"));
+
+				String placerGroupNumber = queryParameters.getPlacerGroupNumber();
+				if (!StringUtils.isEmpty(placerGroupNumber)) {
+					((Z01Query) query).setPlacerGroupNumber(new ORC4(placerGroupNumber, reportingLaboratory, "ISO"));
+				}
+			}
+
+
+			String excludeReportingLaboratory = queryParameters.getExcludeReportingLaboratory();
+
+			if (excludeReportingLaboratory != null && excludeReportingLaboratory.trim().length() > 0) {
+				((Z01Query) query).setExcludeReportingLaboratory(new ZBE4(excludeReportingLaboratory, "ISO"));
+			}
+
+
+			// Patient Identifier (PID.3 -- pull data from db and add to query)
+			String demographicNo = queryParameters.getDemographic();
+			query.setDemographicNo(demographicNo);
+			try {
+				if (demographicNo != null && demographicNo.trim().length() > 0) {
+					Demographic demo = demographicDao.getDemographic(demographicNo);
+
+					PID3 pid3 = new PID3(demo.getHin(), null, null, "JHN", demo.getHcType(), "HL70347", demo.getSex(), null);
+					pid3.setValue(7, DateUtils.parseDate(demo.getYearOfBirth() + "-" + demo.getMonthOfBirth() + "-" + demo.getDateOfBirth(), dateFormat));
+
+					((Z01Query) query).setPatientIdentifier(pid3);
+				}
+			} catch (Exception e) {
+				MiscUtils.getLogger().error("Can't add requested patient data to OLIS query", e);
+			}
+
+
+			// Requesting HIC (ZRP.1 -- pull data from db and add to query)
+			try {
+				if (requestingHic != null && !requestingHic.trim().isEmpty()) {
+					Provider provider = providerDao.getProvider(requestingHic);
+
+					ZRP1 zrp1 = new ZRP1(provider.getPractitionerNo(), userPropertyDAO.getStringValue(provider.getProviderNo(), UserProperty.OFFICIAL_OLIS_IDTYPE), "ON", "HL70347",
+							userPropertyDAO.getStringValue(provider.getProviderNo(),UserProperty.OFFICIAL_LAST_NAME),
+							userPropertyDAO.getStringValue(provider.getProviderNo(),UserProperty.OFFICIAL_FIRST_NAME),
+							userPropertyDAO.getStringValue(provider.getProviderNo(),UserProperty.OFFICIAL_SECOND_NAME));
+
+					((Z01Query) query).setRequestingHic(zrp1);
+				}
+			} catch (Exception e) {
+				MiscUtils.getLogger().error("Can't add requested requesting HIC data to OLIS query", e);
+			}
+
+			Map<String, String> map = new HashMap<>();
+			String orderingPractitionerProviderNo = StringUtils.trimToEmpty(queryParameters.getOrderingPractitionerCpso());
+			String copiedToPractitionerProviderNo = StringUtils.trimToEmpty(queryParameters.getCopiedToPractitionerCpso());
+			String attendingPractitionerProviderNo = StringUtils.trimToEmpty(queryParameters.getAttendingPractitionerCpso());
+			String admittingPractitionerProviderNo = StringUtils.trimToEmpty(queryParameters.getAdmittingPractitionerCpso());
+			// Turns the retrieved practitioner numbers into an array list
+			List<String> practitionerNumbers = new ArrayList(Arrays.asList(orderingPractitionerProviderNo, copiedToPractitionerProviderNo, attendingPractitionerProviderNo, admittingPractitionerProviderNo));
+			// Removes all empty elements from the list
+			practitionerNumbers.removeAll(Collections.singletonList(""));
+			// Gets all providers for the list
+			List<Provider> providers = new ArrayList<>();
+
+			if (!practitionerNumbers.isEmpty()) {
+				providers = providerDao.getOlisProvidersByPractitionerNo(practitionerNumbers);
+			}
+
+			Map<String, String> olisIdTypes = new HashMap<>();
+			// Loops through each provider, getting their OLIS id type and adding it to the hashmap with the practitioner number as the key
+			for (Provider provider : providers) {
+				UserProperty property = userPropertyDAO.getProp(provider.getProviderNo(), UserProperty.OFFICIAL_OLIS_IDTYPE);
+				if (property != null) {
+					olisIdTypes.put(provider.getPractitionerNo(), StringUtils.trimToEmpty(property.getValue()));
+				}
+			}
+			// OBR.16
+			try {
+				if (!orderingPractitionerProviderNo.isEmpty()) {
+					OBR16 obr16 = new OBR16(orderingPractitionerProviderNo, olisIdTypes.getOrDefault(orderingPractitionerProviderNo, "MDL"), "ON", "HL70347");
+
+					((Z01Query) query).setOrderingPractitioner(obr16);
+				}
+			} catch (Exception e) {
+				MiscUtils.getLogger().error("Can't add requested ordering practitioner data to OLIS query", e);
+			}
+
+
+			try {
+				if (!copiedToPractitionerProviderNo.isEmpty()) {
+					OBR28 obr28 = new OBR28(copiedToPractitionerProviderNo, olisIdTypes.getOrDefault(copiedToPractitionerProviderNo, "MDL"), "ON", "HL70347");
+
+					((Z01Query) query).setCopiedToPractitioner(obr28);
+				}
+			} catch (Exception e) {
+				MiscUtils.getLogger().error("Can't add requested copied to practitioner data to OLIS query", e);
+			}
+
+
+			try {
+				if (!attendingPractitionerProviderNo.isEmpty()) {
+					PV17 pv17 = new PV17(attendingPractitionerProviderNo, olisIdTypes.getOrDefault(attendingPractitionerProviderNo, "MDL"), "ON", "HL70347");
+
+					((Z01Query) query).setAttendingPractitioner(pv17);
+				}
+			} catch (Exception e) {
+				MiscUtils.getLogger().error("Can't add requested attending practitioner data to OLIS query", e);
+			}
+
+
+			try {
+				if (!admittingPractitionerProviderNo.isEmpty()) {
+					PV117 pv117 = new PV117(admittingPractitionerProviderNo, olisIdTypes.getOrDefault(admittingPractitionerProviderNo, "MDL"), "ON", "HL70347");
+
+					((Z01Query) query).setAdmittingPractitioner(pv117);
+				}
+			} catch (Exception e) {
+				MiscUtils.getLogger().error("Can't add requested admitting practitioner data to OLIS query", e);
+			}
+
+			String[] testRequestStatusList = queryParameters.getTestRequestStatus();
+
+			if (testRequestStatusList != null) {
+				for (String testRequestStatus : testRequestStatusList) {
+					((Z01Query) query).addToTestRequestStatusList(new OBR25(testRequestStatus));
+				}
+			}
+
+			String testResultCodes = queryParameters.getResultCodes();
+			if (StringUtils.isNotEmpty(testResultCodes)) {
+				String[] testResultCodeList = testResultCodes.trim().split(System.lineSeparator());
+				((Z01Query) query).addAllToTestResultCodeList(Arrays.asList(testResultCodeList));
+			}
+
+
+			String testRequestCodes = queryParameters.getRequestCodes();
+
+			if (StringUtils.isNotEmpty(testRequestCodes)) {
+				String[] testRequestCodeList = testRequestCodes.trim().split(System.lineSeparator());
+				((Z01Query) query).addAllToTestRequestCodeList(Arrays.asList(testRequestCodeList));
+			}
+
+			String blockedInfoConsent = queryParameters.getBlockedInformationConsent();
+			String blockedInfoIndividual = queryParameters.getBlockedInformationIndividual();
+
+			if (blockedInfoConsent != null && blockedInfoConsent.equalsIgnoreCase("Z")) {
+				// Log the consent override
+				OscarLogDao logDao = (OscarLogDao) SpringUtils.getBean("oscarLogDao");
+				OscarLog logItem = new OscarLog();
+				logItem.setAction("OLIS search");
+				logItem.setContent("consent override");
+				logItem.setContentId("demographicNo=" + demographicNo + ",givenby=" + blockedInfoIndividual);
+				if (loggedInInfo.getLoggedInProvider() != null)
+					logItem.setProviderNo(loggedInInfo.getLoggedInProviderNo());
+				else
+					logItem.setProviderNo("-1");
+
+				logItem.setIp(queryParameters.getRequestIp());
+
+				logDao.persist(logItem);
+
+			}
+
+			String testRequestPlacer = queryParameters.getTestRequestPlacer();
+			if (StringUtils.isNotEmpty(testRequestPlacer)) {
+				((Z01Query) query).setTestResultPlacer(new ZBR2(testRequestPlacer, "ISO"));
+			}
+
+		} else if (queryType.equalsIgnoreCase("Z02")) {
+			query = new Z02Query();
+
+			String retrieveAllResults = queryParameters.getRetrieveAllResults();
+
+			try {
+				if (retrieveAllResults != null && retrieveAllResults.trim().length() > 0) {
+					// Checked
+					((Z02Query) query).setRetrieveAllTestResults(new ZBX1("*"));
+				}
+			} catch (Exception e) {
+				MiscUtils.getLogger().error("Can't set retrieve all results option on OLIS query", e);
+			}
+
+
+			String blockedInformationConsent = queryParameters.getBlockedInformationConsent();
+
+			if (blockedInformationConsent != null && blockedInformationConsent.trim().length() > 0) {
+				((Z02Query) query).setConsentToViewBlockedInformation(new ZPD1(blockedInformationConsent));
+			}
+
+
+			String consentBlockAllIndicator = queryParameters.getConsentBlockAllIndicator();
+
+			if (consentBlockAllIndicator != null && consentBlockAllIndicator.trim().length() > 0) {
+				((Z02Query) query).setPatientConsentBlockAllIndicator(new ZPD3("Y"));
+			}
+
+
+			// Requesting HIC (ZRP.1 -- pull data from db and add to query)
+			try {
+				if (requestingHic != null && !requestingHic.trim().isEmpty()) {
+					Provider provider = providerDao.getProvider(requestingHic);
+
+					ZRP1 zrp1 = new ZRP1(provider.getPractitionerNo(), "MDL", "ON", "HL70347",
+							userPropertyDAO.getStringValue(provider.getProviderNo(),UserProperty.OFFICIAL_LAST_NAME),
+							userPropertyDAO.getStringValue(provider.getProviderNo(),UserProperty.OFFICIAL_FIRST_NAME),
+							userPropertyDAO.getStringValue(provider.getProviderNo(),UserProperty.OFFICIAL_SECOND_NAME));
+
+					((Z02Query) query).setRequestingHic(zrp1);
+				}
+			} catch (Exception e) {
+				MiscUtils.getLogger().error("Can't add requested requesting HIC data to OLIS query", e);
+			}
+
+
+			// Patient Identifier (PID.3 -- pull data from db and add to query)
+			String demographicNo = queryParameters.getDemographic();
+			query.setDemographicNo(demographicNo);
+
+			try {
+				if (demographicNo != null && demographicNo.trim().length() > 0) {
+					Demographic demo = demographicDao.getDemographic(demographicNo);
+
+					PID3 pid3 = new PID3(demo.getHin(), null, null, "JHN", demo.getHcType(), "HL70347", demo.getSex(), null);
+					pid3.setValue(7, DateUtils.parseDate(demo.getYearOfBirth() + "-" + demo.getMonthOfBirth() + "-" + demo.getDateOfBirth(), dateFormat));
+
+					((Z02Query) query).setPatientIdentifier(pid3);
+				}
+			} catch (Exception e) {
+				MiscUtils.getLogger().error("Can't add requested patient data to OLIS query", e);
+			}
+
+			String blockedInfoConsent = queryParameters.getBlockedInformationConsent();
+			String blockedInfoIndividual = queryParameters.getBlockedInformationIndividual();
+
+			if (blockedInfoConsent != null && blockedInfoConsent.equalsIgnoreCase("Z")) {
+				// Log the consent override
+				OscarLogDao logDao = (OscarLogDao) SpringUtils.getBean("oscarLogDao");
+				OscarLog logItem = new OscarLog();
+				logItem.setAction("OLIS search");
+				logItem.setContent("consent override");
+				logItem.setContentId("demographicNo=" + demographicNo + ",givenby=" + blockedInfoIndividual);
+				if (loggedInInfo.getLoggedInProvider() != null)
+					logItem.setProviderNo(loggedInInfo.getLoggedInProviderNo());
+				else
+					logItem.setProviderNo("-1");
+
+				logItem.setIp(queryParameters.getRequestIp());
+
+				logDao.persist(logItem);
+			}
+
+
+		} else if (queryType.equalsIgnoreCase("Z04")) {
+			query = new Z04Query();
+
+			String startTimePeriod = queryParameters.getStartTimePeriod();
+			String endTimePeriod = queryParameters.getEndTimePeriod();
+
+			try {
+				if (startTimePeriod != null && startTimePeriod.trim().length() > 0) {
+					Date startTime = DateUtils.parseDate(startTimePeriod, dateFormat);
+					if (endTimePeriod != null && endTimePeriod.trim().length() > 0) {
+						Date endTime = changeToEndOfDay(DateUtils.parseDate(endTimePeriod, dateFormat));
+
+						List<Date> dateList = new LinkedList<Date>();
+						dateList.add(startTime);
+						dateList.add(endTime);
+
+						OBR22 obr22 = new OBR22();
+						obr22.setValue(dateList);
+
+						((Z04Query) query).setStartEndTimestamp(obr22);
+					} else {
+						OBR22 obr22 = new OBR22();
+						obr22.setValue(startTime);
+
+						((Z04Query) query).setStartEndTimestamp(obr22);
+					}
+				}
+			} catch (Exception e) {
+				MiscUtils.getLogger().error("Can't parse date given for OLIS query", e);
+			}
+
+
+			String quantityLimitedQuery = queryParameters.getQuantityLimitedQuery();
+			String quantityLimit = queryParameters.getQuantityLimit();
+
+			try {
+				if (quantityLimitedQuery != null && quantityLimitedQuery.trim().length() > 0) {
+					// Checked
+					((Z04Query) query).setQuantityLimitedRequest(new QRD7(Integer.parseInt(quantityLimit)));
+				}
+			} catch (Exception e) {
+				MiscUtils.getLogger().error("Can't parse the number given for quantity limit in OLIS query", e);
+			}
+
+
+			// Requesting HIC (ZRP.1 -- pull data from db and add to query)
+			try {
+				if (requestingHic != null && !requestingHic.trim().isEmpty()) {
+					Provider provider = providerDao.getProvider(requestingHic);
+					ZRP1 zrp1 = new ZRP1(provider.getPractitionerNo(), "MDL", "ON", "HL70347",
+							userPropertyDAO.getStringValue(provider.getProviderNo(),UserProperty.OFFICIAL_LAST_NAME),
+							userPropertyDAO.getStringValue(provider.getProviderNo(),UserProperty.OFFICIAL_FIRST_NAME),
+							userPropertyDAO.getStringValue(provider.getProviderNo(),UserProperty.OFFICIAL_SECOND_NAME));
+					((Z04Query) query).setRequestingHic(zrp1);
+				}
+			} catch (Exception e) {
+				MiscUtils.getLogger().error("Can't add requested requesting HIC data to OLIS query", e);
+			}
+
+
+			String testResultCodes = queryParameters.getResultCodes();
+			if (StringUtils.isNotEmpty(testResultCodes)) {
+				String[] testResultCodeList = testResultCodes.trim().split(System.lineSeparator());
+				((Z04Query) query).addAllToTestResultCodeList(Arrays.asList(testResultCodeList));
+			}
+
+
+			String testRequestCodes = queryParameters.getRequestCodes();
+			if (StringUtils.isNotEmpty(testRequestCodes)) {
+				String[] testRequestCodeList = testRequestCodes.trim().split(System.lineSeparator());
+				((Z04Query) query).addAllToTestRequestCodeList(Arrays.asList(testRequestCodeList));
+			}
+
+
+			String continuationPointer = queryParameters.getContinuationPointer();
+			if (continuationPointer != null) {
+				((Z04Query) query).setContinuationPointer(continuationPointer);
+			}
+
+		} else if (queryType.equalsIgnoreCase("Z05")) {
+			query = new Z05Query();
+
+
+			String startTimePeriod = queryParameters.getStartTimePeriod();
+			String endTimePeriod = queryParameters.getEndTimePeriod();
+
+			try {
+				if (startTimePeriod != null && startTimePeriod.trim().length() > 0) {
+					Date startTime = DateUtils.parseDate(startTimePeriod, dateFormat);
+					if (endTimePeriod != null && endTimePeriod.trim().length() > 0) {
+						Date endTime = changeToEndOfDay(DateUtils.parseDate(endTimePeriod, dateFormat));
+
+						List<Date> dateList = new LinkedList<Date>();
+						dateList.add(startTime);
+						dateList.add(endTime);
+
+						OBR22 obr22 = new OBR22();
+						obr22.setValue(dateList);
+
+						((Z05Query) query).setStartEndTimestamp(obr22);
+					} else {
+						OBR22 obr22 = new OBR22();
+						obr22.setValue(startTime);
+
+						((Z05Query) query).setStartEndTimestamp(obr22);
+					}
+				}
+			} catch (Exception e) {
+				MiscUtils.getLogger().error("Can't parse date given for OLIS query", e);
+			}
+
+
+			String quantityLimitedQuery = queryParameters.getQuantityLimitedQuery();
+			String quantityLimit = queryParameters.getQuantityLimit();
+
+			try {
+				if (quantityLimitedQuery != null && quantityLimitedQuery.trim().length() > 0) {
+					// Checked
+					((Z05Query) query).setQuantityLimitedRequest(new QRD7(Integer.parseInt(quantityLimit)));
+				}
+			} catch (Exception e) {
+				MiscUtils.getLogger().error("Can't parse the number given for quantity limit in OLIS query", e);
+			}
+
+
+			String destinationLaboratory = queryParameters.getDestinationLaboratory();
+
+			if (destinationLaboratory != null && destinationLaboratory.trim().length() > 0) {
+				((Z05Query) query).setDestinationLaboratory(new ZBR8(destinationLaboratory, "ISO"));
+			}
+
+		} else if (queryType.equalsIgnoreCase("Z06")) {
+			query = new Z06Query();
+
+
+			String startTimePeriod = queryParameters.getStartTimePeriod();
+			String endTimePeriod = queryParameters.getEndTimePeriod();
+
+			try {
+				if (startTimePeriod != null && startTimePeriod.trim().length() > 0) {
+					Date startTime = DateUtils.parseDate(startTimePeriod, dateFormat);
+					if (endTimePeriod != null && endTimePeriod.trim().length() > 0) {
+						Date endTime = changeToEndOfDay(DateUtils.parseDate(endTimePeriod, dateFormat));
+
+						List<Date> dateList = new LinkedList<Date>();
+						dateList.add(startTime);
+						dateList.add(endTime);
+
+						OBR22 obr22 = new OBR22();
+						obr22.setValue(dateList);
+
+						((Z06Query) query).setStartEndTimestamp(obr22);
+					} else {
+						OBR22 obr22 = new OBR22();
+						obr22.setValue(startTime);
+
+						((Z06Query) query).setStartEndTimestamp(obr22);
+					}
+				}
+			} catch (Exception e) {
+				MiscUtils.getLogger().error("Can't parse date given for OLIS query", e);
+			}
+
+
+			String quantityLimitedQuery = queryParameters.getQuantityLimitedQuery();
+			String quantityLimit = queryParameters.getQuantityLimit();
+
+			try {
+				if (quantityLimitedQuery != null && quantityLimitedQuery.trim().length() > 0) {
+					// Checked
+					((Z06Query) query).setQuantityLimitedRequest(new QRD7(Integer.parseInt(quantityLimit)));
+				}
+			} catch (Exception e) {
+				MiscUtils.getLogger().error("Can't parse the number given for quantity limit in OLIS query", e);
+			}
+
+
+			String orderingFacility = queryParameters.getOrderingFacility();
+
+			if (orderingFacility != null && orderingFacility.trim().length() > 0) {
+				((Z06Query) query).setOrderingFacilityId(new ORC21(orderingFacility, "^ISO"));
+			}
+
+		} else if (queryType.equalsIgnoreCase("Z07")) {
+			query = new Z07Query();
+
+
+			String startTimePeriod = queryParameters.getStartTimePeriod();
+			String endTimePeriod = queryParameters.getEndTimePeriod();
+
+			try {
+				if (startTimePeriod != null && startTimePeriod.trim().length() > 0) {
+					Date startTime = DateUtils.parseDate(startTimePeriod, dateFormat);
+					if (endTimePeriod != null && endTimePeriod.trim().length() > 0) {
+						Date endTime = changeToEndOfDay(DateUtils.parseDate(endTimePeriod, dateFormat));
+
+						List<Date> dateList = new LinkedList<Date>();
+						dateList.add(startTime);
+						dateList.add(endTime);
+
+						OBR22 obr22 = new OBR22();
+						obr22.setValue(dateList);
+
+						((Z07Query) query).setStartEndTimestamp(obr22);
+					} else {
+						OBR22 obr22 = new OBR22();
+						obr22.setValue(startTime);
+
+						((Z07Query) query).setStartEndTimestamp(obr22);
+					}
+				}
+			} catch (Exception e) {
+				MiscUtils.getLogger().error("Can't parse date given for OLIS query", e);
+			}
+
+
+			String quantityLimitedQuery = queryParameters.getQuantityLimitedQuery();
+			String quantityLimit = queryParameters.getQuantityLimit();
+
+			try {
+				if (quantityLimitedQuery != null && quantityLimitedQuery.trim().length() > 0) {
+					// Checked
+					((Z07Query) query).setQuantityLimitedRequest(new QRD7(Integer.parseInt(quantityLimit)));
+				}
+			} catch (Exception e) {
+				MiscUtils.getLogger().error("Can't parse the number given for quantity limit in OLIS query", e);
+			}
+
+		} else if (queryType.equalsIgnoreCase("Z08")) {
+			query = new Z08Query();
+
+			String startTimePeriod = queryParameters.getStartTimePeriod();
+			String endTimePeriod = queryParameters.getEndTimePeriod();
+
+			try {
+				if (startTimePeriod != null && startTimePeriod.trim().length() > 0) {
+					Date startTime = DateUtils.parseDate(startTimePeriod, dateFormat);
+					if (endTimePeriod != null && endTimePeriod.trim().length() > 0) {
+						Date endTime = changeToEndOfDay(DateUtils.parseDate(endTimePeriod, dateFormat));
+
+						List<Date> dateList = new LinkedList<Date>();
+						dateList.add(startTime);
+						dateList.add(endTime);
+
+						OBR22 obr22 = new OBR22();
+						obr22.setValue(dateList);
+
+						((Z08Query) query).setStartEndTimestamp(obr22);
+					} else {
+						OBR22 obr22 = new OBR22();
+						obr22.setValue(startTime);
+
+						((Z08Query) query).setStartEndTimestamp(obr22);
+					}
+				}
+			} catch (Exception e) {
+				MiscUtils.getLogger().error("Can't parse date given for OLIS query", e);
+			}
+
+
+			String quantityLimitedQuery = queryParameters.getQuantityLimitedQuery();
+			String quantityLimit = queryParameters.getQuantityLimit();
+
+			try {
+				if (quantityLimitedQuery != null && quantityLimitedQuery.trim().length() > 0) {
+					// Checked
+					((Z08Query) query).setQuantityLimitedRequest(new QRD7(Integer.parseInt(quantityLimit)));
+				}
+			} catch (Exception e) {
+				MiscUtils.getLogger().error("Can't parse the number given for quantity limit in OLIS query", e);
+			}
+
+
+		} else if (queryType.equalsIgnoreCase("Z50")) {
+			query = new Z50Query();
+
+
+			String firstName = queryParameters.getZ50firstName();
+
+			if (firstName != null && firstName.trim().length() > 0) {
+				((Z50Query) query).setFirstName(new PID52(firstName));
+			}
+
+
+			String lastName = queryParameters.getZ50lastName();
+
+			if (lastName != null && lastName.trim().length() > 0) {
+				((Z50Query) query).setLastName(new PID51(lastName));
+			}
+
+
+			String sex = queryParameters.getZ50sex();
+
+			if (sex != null && sex.trim().length() > 0) {
+				((Z50Query) query).setSex(new PID8(sex));
+			}
+
+
+			String dateOfBirth = queryParameters.getZ50dateOfBirth();
+			try {
+				if (dateOfBirth != null && dateOfBirth.trim().length() > 0) {
+					PID7 pid7 = new PID7();
+					pid7.setValue(DateUtils.parseDate(dateOfBirth,dateFormat));
+					((Z50Query) query).setDateOfBirth(pid7);
+				}
+			} catch (Exception e) {
+				MiscUtils.getLogger().error("Couldn't parse date given for OLIS query", e);
+			}
+		}
+		return query;
+	}
+
+	private static Date changeToEndOfDay(Date d) {
+		Calendar c = Calendar.getInstance();
+		c.setTime(d);
+		c.set(Calendar.HOUR_OF_DAY, 23);
+		c.set(Calendar.MINUTE, 59);
+		c.set(Calendar.SECOND,59);
+		return c.getTime();
 	}
 }

@@ -44,6 +44,8 @@ public class OlisLabResultDisplay {
     private String olisLastUpdated;
     private String collectionDate;
     private String collectorsComment;
+    private String emrTransactionId;
+    private OLISHL7Handler olisHl7Handler;
     private boolean isBlocked = false;
     private OLISRequestNomenclature nomenclature;
     private int obrSetId;
@@ -244,6 +246,20 @@ public class OlisLabResultDisplay {
         this.collectorsComment = collectorsComment;
     }
 
+    public String getEmrTransactionId() {
+        return emrTransactionId;
+    }
+    public void setEmrTransactionId(String emrTransactionId) {
+        this.emrTransactionId = emrTransactionId;
+    }
+
+    public OLISHL7Handler getOlisHl7Handler() {
+        return olisHl7Handler;
+    }
+    public void setOlisHl7Handler(OLISHL7Handler olisHl7Handler) {
+        this.olisHl7Handler = olisHl7Handler;
+    }
+
     public boolean isBlocked() {
         return isBlocked;
     }
@@ -294,7 +310,7 @@ public class OlisLabResultDisplay {
         this.measurements = measurements;
     }
 
-    public static List<OlisLabResultDisplay> getListFromHandler(OLISHL7Handler olisHandler, String resultUuid) {
+    public static List<OlisLabResultDisplay> getListFromHandler(OLISHL7Handler olisHandler, String resultUuid, String emrTransactionId) {
         List<OlisLabResultDisplay> results = new ArrayList<OlisLabResultDisplay>();
         boolean isReportBlocked = olisHandler.isReportBlocked();
         // Get OLIS Request Nomenclature for lab results for adding to results
@@ -328,6 +344,8 @@ public class OlisLabResultDisplay {
             String collectorsComments = olisHandler.getCollectorsComment(obr);
             collectorsComments = OLISUtils.Hl7EncodedRepeatableCharacter.performReplacement(collectorsComments, true);
             labResult.setCollectorsComment(collectorsComments.replaceAll("(?<=\\s)\\s", "&nbsp;"));
+            labResult.setEmrTransactionId(emrTransactionId);
+            labResult.setOlisHl7Handler(olisHandler);
             labResult.setNomenclature(nomenclatureMap.get(olisHandler.getNomenclatureRequestCode(obr)));
             // Checks if information in the report is blocked, either at the report level or at the OBR level
             boolean isBlocked = isReportBlocked || olisHandler.isOBRBlocked(obr);
