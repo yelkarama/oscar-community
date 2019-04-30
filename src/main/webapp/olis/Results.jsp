@@ -47,11 +47,13 @@ function addToInbox(uuid, isDuplicate, doFile = false, doAck = false) {
 			url: "<%=request.getContextPath() %>/olis/AddToInbox.do",
 			data: 'uuid=' + uuid + '&requestingHic=<%=request.getParameter("requestingHic")%>&doFile=' + doFile + '&doAck=' + doAck,
 			success: function (data) {
-				jQuery("#" + uuid + "_result").html(data);
+				let relatedRequests = jQuery("[lab-uuid='" + uuid + "_result']");
+				Array.from(relatedRequests).forEach(request => request.innerHTML = data);
 			}
 		});
 	} else {
-	    jQuery ("#" + uuid + "_result").html("Already Added");
+	    let relatedRequests = jQuery("[lab-uuid='" + uuid + "_result']");
+        Array.from(relatedRequests).forEach(request => request.innerHTML = "Already Added");
     }
 }
 function preview(placerGroupNo, obrIndex) {
@@ -75,8 +77,8 @@ function removeFromResults(uuid, emrTransactionId, placerGroupNo) {
                 success: function (data) {
                     if ('Success' === data.trim()) {
                         // remove the row from the results
-                        let row = jQuery("#" + uuid + "_remove").parent().parent();
-                        row.remove();
+                        let rowsToRemove = jQuery("[uuid='" + uuid + "']");
+                        Array.from(rowsToRemove).forEach(row => row.remove());
                         // trigger update on the tablesorter to update the number of viewed rows
                         jQuery("#resultsSummaryTable").tablesorter().trigger('update');
                     }
@@ -884,7 +886,7 @@ span.patient-consent-alert {
 						continue; // skip showing this result
 					}
 					String resultUuid = resultDisplay.getLabUuid();%>
-				<tr firstName="<%=resultDisplay.getPatientFirstName()%>" lastName="<%=resultDisplay.getPatientLastName()%>" 
+				<tr uuid="<%=resultUuid %>" firstName="<%=resultDisplay.getPatientFirstName()%>" lastName="<%=resultDisplay.getPatientLastName()%>" 
 					hcn="<%=resultDisplay.getPatientHcn()%>" labName="<%=resultDisplay.getLabName()%>"
 					category="<%=resultDisplay.getCategory()%>" requestStatus="<%=resultDisplay.getRequestStatus()%>"
 					orderingPractitioner="<%=resultDisplay.getOrderingPractitioner()%>" ccPractitioners="<%=resultDisplay.getCcPractitioners()%>"
@@ -892,10 +894,10 @@ span.patient-consent-alert {
 					reportingLab="<%=resultDisplay.getReportingFacilityName()%>" performingLab="<%=resultDisplay.getPerformingFacilityName()%>">
 					<td>
 						<div><%=resultDisplay.isDuplicate() ? "<b>Duplicate</b>" : ""%></div>
-						<div id="<%=resultUuid%>_result"></div>
+						<div lab-uuid="<%=resultUuid%>_result"></div>
 						<input type="button" onClick="addToInbox('<%=resultUuid %>', <%=resultDisplay.isDuplicate()%> ); return false;" id="<%=resultUuid %>" value="Save"/>
 						<input type="button" onClick="addToInbox('<%=resultUuid %>', <%=resultDisplay.isDuplicate()%>, false, true); return false;" id="<%=resultUuid %>_sign_and_save" value="Sign off & Save"/><br/>
-						<input type="button" onClick="removeFromResults('<%=resultUuid %>', '<%=resultDisplay.getEmrTransactionId()%>', '<%=resultDisplay.getPlacerGroupNo()%>'); return false;" id="<%=resultUuid %>_remove" value="Remove"/>
+						<input type="button" onClick="removeFromResults('<%=resultUuid %>', '<%=resultDisplay.getEmrTransactionId()%>', '<%=resultDisplay.getPlacerGroupNo()%>'); return false;" value="Remove"/>
 						<input type="button" onClick="preview('<%=resultDisplay.getPlacerGroupNo()%>'); return false;" id="<%=resultUuid %>_preview" value="Preview"/>
                         <% if (resultDisplay.isBlocked() && !providerOlisSession.isHasPatientLevelBlock()) { %>
                         <span class="patient-consent-alert">Do not disclose without express patient consent</span>
