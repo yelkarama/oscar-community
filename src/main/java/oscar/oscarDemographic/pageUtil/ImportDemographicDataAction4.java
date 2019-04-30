@@ -101,6 +101,7 @@ import org.oscarehr.common.dao.PartialDateDao;
 import org.oscarehr.common.dao.PharmacyInfoDao;
 import org.oscarehr.common.dao.ProviderDataDao;
 import org.oscarehr.common.dao.ProviderLabRoutingDao;
+import org.oscarehr.common.model.AbstractModel;
 import org.oscarehr.common.model.Admission;
 import org.oscarehr.common.model.Allergy;
 import org.oscarehr.common.model.Appointment;
@@ -3125,7 +3126,16 @@ import oscar.util.UtilDateUtilities;
 		return ret;
 	}
 
-	ProviderData getProviderByNames(String firstName, String lastName, boolean matchAll) {
+    void getMeasurementsExt(Long measurementId, String key, String val, List<AbstractModel<?>> exts) {
+        if (measurementId!=null && StringUtils.filled(key) && StringUtils.filled(val)) {
+            MeasurementsExt mx = new MeasurementsExt(measurementId.intValue());
+            mx.setKeyVal(key);
+            mx.setVal(StringUtils.noNull(val));
+            exts.add(mx);
+        }
+    }
+    
+    ProviderData getProviderByNames(String firstName, String lastName, boolean matchAll) {
 		ProviderData pd = new ProviderData();
 		if (matchAll) {
 			pd.getProviderWithNames(firstName, lastName);
@@ -3311,6 +3321,10 @@ import oscar.util.UtilDateUtilities;
 			ImportExportMeasurements.saveMeasurementsExt(mx);
 		}
 	}
+	
+	void saveMeasurementsExts(List<AbstractModel<?>> measurementsExts) {
+        measurementsExtDao.batchPersist(measurementsExts, 50);
+    }
 
 	String updateExternalProvider(String firstName, String lastName, String ohipNo, String cpsoNo, ProviderData pd) {
 		// For external provider only
@@ -3742,54 +3756,73 @@ import oscar.util.UtilDateUtilities;
 	                    
 	                   
 			        }
-			      
+
+                    List<AbstractModel<?>> measurementsExtsToSave = new ArrayList<AbstractModel<?>>();
 			        for(int x=0;x<reportResults.length;x++) {
 	                	LaboratoryResults result = reportResults[x];
 	                	Long measId = findMeasurementId(labNo,result.getTestName());
+                        HashMap<String, MeasurementsExt> measurementsExtMap = new HashMap<String, MeasurementsExt>();
+                        
+                        if (measId != null) {
+                           measurementsExtMap = measurementsExtDao.getMeasurementsExtMapByMeasurementId(measId.intValue());
+                        }
 						
-	                	if(StringUtils.filled(result.getNotesFromLab())) {
-	                		saveMeasurementsExt(measId, "comments", result.getNotesFromLab());
+	                	if(StringUtils.filled(result.getNotesFromLab()) && measurementsExtMap.get("comments") == null) {
+	                	    getMeasurementsExt(measId, "comments", result.getNotesFromLab(), measurementsExtsToSave);
 	                	}
 	                	
 	                	String annotation = labResult.getPhysiciansNotes();
-		                if (StringUtils.filled(annotation)) {
-		                    saveMeasurementsExt(measId, "other_id", "0-0");
+		                if (StringUtils.filled(annotation)) { 
+		                    if (measurementsExtMap.get("other_id") == null) { 
+		                        getMeasurementsExt(measId, "other_id", "0-0", measurementsExtsToSave); 
+                            }
 		                    CaseManagementNote cmNote = prepareCMNote("2",null);
 		                    cmNote.setNote(annotation);
 		                    saveLinkNote(cmNote, CaseManagementNoteLink.LABTEST, labNo.longValue(), "0-0");
 		                }
 
 						String olis_status = result.getTestResultStatus();
-						if (StringUtils.filled(olis_status))  {
-							if(measId != null) {
-								saveMeasurementsExt(measId, "olis_status", olis_status);
+						if (StringUtils.filled(olis_status)) {
+							if(measId != null && measurementsExtMap.get("olis_status") == null) {
+                                getMeasurementsExt(measId, "olis_status", olis_status, measurementsExtsToSave);
 							}
 						}
 
-                        if (result.getBlockedTestResult() != null && "Y".equals(result.getBlockedTestResult().toString())) {
-                            saveMeasurementsExt(measId, "reportBlocked", "Y");
+                        if (result.getBlockedTestResult() != null && "Y".equals(result.getBlockedTestResult().toString()) && measurementsExtMap.get("reportBlocked") == null) {
+                            getMeasurementsExt(measId, "reportBlocked", "Y", measurementsExtsToSave);
                         }
 
-                        if (result.isSetTestName()) {
-                            saveMeasurementsExt(measId, "name_internal", result.getTestName());
+                        if (result.isSetTestName() && measurementsExtMap.get("name_internal") == null) {
+                            getMeasurementsExt(measId, "name_internal", result.getTestName(), measurementsExtsToSave);
                         }
 
                         if(result.isSetReferenceRange()) {
-                            if (StringUtils.filled(result.getReferenceRange().getReferenceRangeText())) {
-                                saveMeasurementsExt(measId, "range", result.getReferenceRange().getReferenceRangeText());
+                            if (StringUtils.filled(result.getReferenceRange().getReferenceRangeText()) && measurementsExtMap.get("range") == null) {
+                                getMeasurementsExt(measId, "range", result.getReferenceRange().getReferenceRangeText(), measurementsExtsToSave);
                             }
 
-                            if (StringUtils.filled(result.getReferenceRange().getLowLimit()) && StringUtils.filled(result.getReferenceRange().getHighLimit())) {
-                                saveMeasurementsExt(measId, "range", result.getReferenceRange().getLowLimit() + "-" + result.getReferenceRange().getHighLimit());
-                                saveMeasurementsExt(measId, "minimum", result.getReferenceRange().getLowLimit());
-                                saveMeasurementsExt(measId, "maximum", result.getReferenceRange().getHighLimit());
-                            } else if (StringUtils.filled(result.getReferenceRange().getLowLimit())) {
-                                saveMeasurementsExt(measId, "minimum", result.getReferenceRange().getLowLimit());
-                            } else if (StringUtils.filled(result.getReferenceRange().getHighLimit())) {
-                                saveMeasurementsExt(measId, "maximum", result.getReferenceRange().getHighLimit());
+                            if (StringUtils.filled(result.getReferenceRange().getLowLimit()) && StringUtils.filled(result.getReferenceRange().getHighLimit())
+                                    && measurementsExtMap.get("range") == null && measurementsExtMap.get("minimum") == null && measurementsExtMap.get("maximum") == null) {
+                                getMeasurementsExt(measId, "range", result.getReferenceRange().getLowLimit() + "-" + result.getReferenceRange().getHighLimit(), measurementsExtsToSave);
+                                getMeasurementsExt(measId, "minimum", result.getReferenceRange().getLowLimit(), measurementsExtsToSave);
+                                getMeasurementsExt(measId, "maximum", result.getReferenceRange().getHighLimit(), measurementsExtsToSave);
+                            } else {
+                                if (StringUtils.filled(result.getReferenceRange().getLowLimit()) && measurementsExtMap.get("minimum") == null) {
+                                    getMeasurementsExt(measId, "minimum", result.getReferenceRange().getLowLimit(), measurementsExtsToSave);
+                                }
+
+                                if (StringUtils.filled(result.getReferenceRange().getHighLimit()) && measurementsExtMap.get("maximum") == null) {
+                                    getMeasurementsExt(measId, "maximum", result.getReferenceRange().getHighLimit(), measurementsExtsToSave);
+                                }
+                                
+                                if (StringUtils.filled(result.getReferenceRange().getLowLimit()) && StringUtils.filled(result.getReferenceRange().getHighLimit()) && measurementsExtMap.get("range") == null) {
+                                    getMeasurementsExt(measId, "range", result.getReferenceRange().getLowLimit() + "-" + result.getReferenceRange().getHighLimit(), measurementsExtsToSave);
+                                }
                             }
                         }
 	                }
+			        
+			        saveMeasurementsExts(measurementsExtsToSave);
 	                
 	                String labInfo = getLabDline(labResult, 0);
 	                if (StringUtils.filled(labInfo)) {

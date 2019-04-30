@@ -113,7 +113,7 @@ public class LabRequestReportLink {
 		Integer measurementId = getMeasurementIdFromExt(reportTable, reportId.toString());
 		MeasurementsExt mExt = getRequestDate_MeasurementsExt(measurementId);
 		if (mExt==null && measurementId!=null) {
-			saveRequestDate_MeasurementsExt(requestDate, measurementId);
+			saveRequestDateMeasurementsExt(mExt, requestDate, measurementId);
 		}
 	}
 
@@ -138,10 +138,14 @@ public class LabRequestReportLink {
 		MeasurementsExt mExt = getRequestDate_MeasurementsExt(measurementId);
 		
 		if (mExt!=null && getRequestDate(id.toString()).equals(mExt.getVal())) {
-			saveRequestDate_MeasurementsExt(requestDate, measurementId);
+			saveRequestDateMeasurementsExt(mExt, requestDate, measurementId);
 		}
 	}
 
+	/**
+	 * @deprecated replaced by saveRequestDateMeasurementsExt(MeasurementsExt mExt, String requestDate, Integer measurementId)
+	 */
+	@Deprecated
     private static void saveRequestDate_MeasurementsExt(String requestDate, Integer measurementId) {
 		if (requestDate==null) return;
 		
@@ -149,6 +153,23 @@ public class LabRequestReportLink {
 		if (dRequestDate==null) requestDate += " 00:00:00";
 
 		MeasurementsExt mExt = getRequestDate_MeasurementsExt(measurementId);
+		if (mExt==null) {
+			mExt = new MeasurementsExt(measurementId);
+			mExt.setKeyVal("request_datetime");
+			mExt.setVal(requestDate);
+			measurementsExtDao.persist(mExt);
+		} else {
+			mExt.setVal(requestDate);
+			measurementsExtDao.merge(mExt);
+		}
+	}
+	
+	private static void saveRequestDateMeasurementsExt(MeasurementsExt mExt, String requestDate, Integer measurementId) {
+		if (requestDate==null) return;
+
+		Date dRequestDate = UtilDateUtilities.StringToDate(requestDate, "yyyy-MM-dd HH:mm:ss");
+		if (dRequestDate==null) requestDate += " 00:00:00";
+
 		if (mExt==null) {
 			mExt = new MeasurementsExt(measurementId);
 			mExt.setKeyVal("request_datetime");

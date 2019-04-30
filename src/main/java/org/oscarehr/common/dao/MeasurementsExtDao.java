@@ -23,6 +23,7 @@
  */
 package org.oscarehr.common.dao;
 
+import java.util.HashMap;
 import java.util.List;
 
 import javax.persistence.Query;
@@ -46,6 +47,17 @@ public class MeasurementsExtDao extends AbstractDao<MeasurementsExt>{
 		List<MeasurementsExt> rs = q.getResultList();
 
 		return rs;
+	}
+
+	public HashMap<String, MeasurementsExt> getMeasurementsExtMapByMeasurementId(Integer measurementId) {
+		HashMap<String, MeasurementsExt> measurementsExtHashMap = new HashMap<String, MeasurementsExt>();
+		List<MeasurementsExt> rs = getMeasurementsExtByMeasurementId(measurementId);
+		
+		for (MeasurementsExt measurementsExt : rs) {
+			measurementsExtHashMap.put(measurementsExt.getKeyVal(), measurementsExt);
+		}
+
+		return measurementsExtHashMap;
 	}
 
 	public List<MeasurementsExt> getMeasurementsExtByMeasurementIdLabOnly(Integer measurementId) {
