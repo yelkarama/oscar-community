@@ -188,6 +188,8 @@ public class ProviderOlisSession {
                     File olisResultFile = new File(System.getProperty("java.io.tmpdir") + "/olis_" + olisResultFileUuid.toString() + ".response");
                     FileUtils.writeStringToFile(olisResultFile, olisResultString);
 
+                    OLISUtils.logTransaction(sessionOwner, query, olisResultString, olisResultFile.getName());
+                    
                     processResponseHeaderData(labResults, olisResultString, query);
                     processResponseMessageData(labResults, olisResultString);
                 }
@@ -274,6 +276,8 @@ public class ProviderOlisSession {
                         File olisResultFile = new File(System.getProperty("java.io.tmpdir") + "/olis_" + olisResultFileUuid.toString() + ".response");
                         FileUtils.writeStringToFile(olisResultFile, olisResultString);
 
+                        OLISUtils.logTransaction(sessionOwner, query, olisResultString, olisResultFile.getName());
+                        
                         processResponseHeaderData(labResults, olisResultString, query);
                         processResponseMessageData(labResults, olisResultString);
                     }

@@ -459,12 +459,12 @@ public class OLISUtils {
 
     /**
      * Logs the OLIS transaction into the query log table
-     * @param request The request that initiated the query to OLIS, null if the request was done through the polling
+     * @param loggedInInfo The logged in info for the current session
      * @param query The query that was used in the request to OLIS
-     * @param olisResponse The response OLIS returned
+     * @param responseHl7 The HL7 returned by OLIS
      * @param loggedFileName The name of the file that was saved containing what was sent and OLIS's response
      */
-	public static void logTransaction(HttpServletRequest request, Query query, String olisResponse, String loggedFileName) {
+	public static void logTransaction(LoggedInInfo loggedInInfo, Query query, String responseHl7, String loggedFileName) {
 		OlisQueryLogDao olisQueryLogDao = SpringUtils.getBean(OlisQueryLogDao.class);
 		
 		String requestingHic = "";
@@ -474,22 +474,20 @@ public class OLISUtils {
 		String queryType = "";
 		
 		// If the request is not null, uses it to get the logged in info and the initiating provider as it was manually submitted and now sent from the automatic polling
-		if (request != null) {
-			LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-			initiatingProvider = loggedInInfo.getLoggedInProvider().getProviderNo();
+		if (loggedInInfo != null) {
+			initiatingProvider = loggedInInfo.getLoggedInProviderNo();
 		}
 		
 		try {
 		    // Gets the HL7 message and parses it into a new terser object to be used to get some data from the response
-			String hl7Message = OLISUtils.getOlisMessage(olisResponse);
 			Parser parser = new PipeParser();
-			Terser terser = new Terser(parser.parse(hl7Message.replaceAll("\n", "\r\n")));
+			Terser terser = new Terser(parser.parse(responseHl7.replaceAll("\n", "\r\n")));
 			// Gets the OLIS and EMR transaction ids 
 			olisTransactionId = getOlisTransactionId(terser);
 			emrTransactionId = getEmrTransactionId(terser);
 		} catch (HL7Exception e) {
 			logger.error("Could not create the terser to parse the HL7 message", e);
-		} catch (SAXException | JAXBException | ParserConfigurationException | NullPointerException e) {
+		} catch (NullPointerException e) {
 			logger.error("Could not retrieve the content of the olis response", e);
 		}
 		
@@ -500,7 +498,7 @@ public class OLISUtils {
 		} else if (query.getQueryType().equals(QueryType.Z01)) {
 			queryType = "OLIS Patient Query";
 		} else if (query.getQueryType().equals(QueryType.Z04)) {
-			if (request == null) {
+			if (loggedInInfo == null) {
 				queryType = "OLIS Provider Query";
 			} else {
 				queryType = "OLIS Preload Query";
@@ -514,39 +512,6 @@ public class OLISUtils {
 		// Creates and stores the query information
 		OlisQueryLog queryLog = new OlisQueryLog(query.getQueryType().toString(), queryType, initiatingProvider, requestingHic, "OLIS", emrTransactionId, olisTransactionId, loggedFileName);
 		olisQueryLogDao.persist(queryLog);
-	}
-
-    /**
-     * Gets the OLIS message from OLIS's response by parsing it out of the xml into HL7
-     * @param olisResponse The response from OLIS
-     * @return The HL7 message that was contained in the OLIS response
-     * @throws SAXException
-     * @throws JAXBException
-     * @throws ParserConfigurationException
-     */
-	public static String getOlisMessage(String olisResponse) throws SAXException, JAXBException, ParserConfigurationException {
-		olisResponse = olisResponse.replaceAll("<Content", "<Content xmlns=\"\" ");
-		olisResponse = olisResponse.replaceAll("<Errors", "<Errors xmlns=\"\" ");
-		
-		DocumentBuilderFactory.newInstance().newDocumentBuilder();
-		SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
-
-		InputStream is = OLISPoller.class.getResourceAsStream("/org/oscarehr/olis/response.xsd");
-
-		Source schemaFile = new StreamSource(is);
-
-		if(OscarProperties.getInstance().getProperty("olis_response_schema") != null){
-			schemaFile = new StreamSource(new File(OscarProperties.getInstance().getProperty("olis_response_schema")));
-		}
-
-		factory.newSchema(schemaFile);
-
-		JAXBContext jc = JAXBContext.newInstance("ca.ssha._2005.hial");
-		Unmarshaller u = jc.createUnmarshaller();
-		@SuppressWarnings("unchecked")
-		Response root = ((JAXBElement<Response>) u.unmarshal(new InputSource(new StringReader(olisResponse)))).getValue();
-		
-		return root.getContent();
 	}
 
     /**

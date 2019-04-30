@@ -171,8 +171,6 @@ public class Driver {
                 }
                 
 				readResponseFromXML(request, unsignedData);
-                
-				OLISUtils.logTransaction(request, query, unsignedData, loggedFileName);
 
 				return unsignedData;
 
