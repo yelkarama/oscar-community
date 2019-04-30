@@ -54,7 +54,7 @@ public class OlisLabResultDisplay {
     private Integer demographicNo;
     
     private boolean duplicate = false;
-    private Date duplicateDate;
+    private String duplicateDate;
 
     public boolean isDuplicate() {
         return duplicate;
@@ -64,11 +64,11 @@ public class OlisLabResultDisplay {
         this.duplicate = duplicate;
     }
 
-    public Date getDuplicateDate() {
+    public String getDuplicateDate() {
         return duplicateDate;
     }
 
-    public void setDuplicateDate(Date duplicateDate) {
+    public void setDuplicateDate(String duplicateDate) {
         this.duplicateDate = duplicateDate;
     }
 
@@ -458,46 +458,59 @@ public class OlisLabResultDisplay {
                 }
             }
             
-            String accessionNumber = labResult.getPlacerGroupNo();
-            
-            //If the facility is either CML, LifeLabs, Gamma, or Alpha, we need to check both the direct & OLIS accession numbers
-            if (labResult.getPerformingFacilityName().matches("CML.*")) {
-                String tempList[] = accessionNumber.split("-");
-                accessionNumber = tempList[0];
-            } else if (labResult.getPerformingFacilityName().matches("LifeLabs.*")) {
-                String tempList[] = accessionNumber.split("-");
-                accessionNumber = tempList[1];
-            } else if (labResult.getPerformingFacilityName().matches("Gamma.*")) {
-                Pattern p = Pattern.compile("(....)(..)(..)(......)");
-                Matcher m = p.matcher (accessionNumber);
-                if (m.find()) {
-                    if (m.group(3).equals ("00")) {
-                        accessionNumber = m.group(2) + "-" + m.group(4);
-                    } else {
-                        accessionNumber = m.group(2) + "-" + m.group(3) + m.group(4);
+            //Duplicate lab checking
+            if (labResult.getPlacerGroupNo() != null && !labResult.getPlacerGroupNo().isEmpty()) {
+                String accessionNumber = labResult.getPlacerGroupNo();
+
+                //If the facility is either CML, LifeLabs, Gamma, or Alpha, we need to check both the direct & OLIS accession numbers
+                //The accession number we get through OLIS is the OLIS version, so we need to convert them into direct as well
+                if (labResult.getPerformingFacilityName().matches("CML.*")) {
+                    //CML-olis accession numbers are in the format AAAAAAA-YYYY
+                    //A CML-direct accession number is just AAAAAAA
+                    String tempList[] = accessionNumber.split("-");
+                    accessionNumber = tempList[0];
+                } else if (labResult.getPerformingFacilityName().matches("LifeLabs.*")) {
+                    //LifeLabs-olis accession numbers are in the format YYYY-AAAAAAAAA
+                    //A LifeLabs-direct accession number is just AAAAAAAAA
+                    String tempList[] = accessionNumber.split("-");
+                    accessionNumber = tempList[1];
+                } else if (labResult.getPerformingFacilityName().matches("Gamma.*")) {
+                    //Gamma-olis accession numbers are in the format AAAABBCCDDDD
+                    //There are two different gamma-direct formats that can be obtained from this
+                    //BB-DDDD if CC == "00"
+                    //BB-CCDDDD if CC is anything else
+                    Pattern p = Pattern.compile("(\\w{4})(\\w{2})(\\w{2})(\\w{6})");
+                    Matcher m = p.matcher(accessionNumber);
+                    if (m.find()) {
+                        if (m.group(3).equals("00")) {
+                            accessionNumber = m.group(2) + "-" + m.group(4);
+                        } else {
+                            accessionNumber = m.group(2) + "-" + m.group(3) + m.group(4);
+                        }
                     }
+                } else if (labResult.getPerformingFacilityName().matches("Alpha.*")) {
+                    //Alpha-olis accession numbers are in the format YYYY-AAAAAAAA
+                    //A Alpha-direct accession number is just AAAAAAAA
+                    String tempList[] = accessionNumber.split("-");
+                    accessionNumber = tempList[1];
                 }
-            } else if (labResult.getPerformingFacilityName().matches("Alpha.*")) {
-                String tempList[] = accessionNumber.split("-");
-                accessionNumber = tempList[1];
-            }
-            
-            Hl7TextInfoDao hl7TextInfoDao = SpringUtils.getBean (Hl7TextInfoDao.class);
 
-            //If the accession number wasn't converted, we use the original. If it was converted, we want to search using both
-            List<Hl7TextInfo> dupResults = accessionNumber.equals(labResult.getPlacerGroupNo()) ? hl7TextInfoDao.searchByAccessionNumberOrderByCollectionDate(labResult.getPlacerGroupNo()) : hl7TextInfoDao.searchByAccessionNumberOrderByCollectionDate(labResult.getPlacerGroupNo(), accessionNumber);
+                Hl7TextInfoDao hl7TextInfoDao = SpringUtils.getBean(Hl7TextInfoDao.class);
 
-            if (!dupResults.isEmpty() && (dupResults.get(0).getCollectionDate() != null) && (labResult.getCollectionDateAsDate() != null)) {
+                //If the accession number wasn't converted, we use the original. If it was converted, we want to search using both
+                List<Hl7TextInfo> dupResults = accessionNumber.equals(labResult.getPlacerGroupNo()) ? hl7TextInfoDao.searchByAccessionNumber(labResult.getPlacerGroupNo()) : hl7TextInfoDao.searchByAccessionNumber(labResult.getPlacerGroupNo(), accessionNumber);
+
                 for (Hl7TextInfo result : dupResults) {
-                    //Since we ordered by collection date in OLIS, if we ever hit a null value that means the rest of the list will be null
-                    if (result.getCollectionDate() == null) {
-                        break;
-                    }
-                    //If we find a lab with the same accession number & same collection date then we set isDuplicate to true and leave the loop
-                    if (result.getCollectionDate().compareTo(labResult.getCollectionDateAsDate()) == 0) {
-                        labResult.setDuplicate (true);
-                        labResult.setDuplicateDate (result.getCollectionDate());
-                        break;
+                    //If either date is null we don't proceed
+                    if (result.getObrDate() != null && !result.getObrDate().isEmpty() && labResult.getCollectionDate() != null && !labResult.getCollectionDate().isEmpty()) {
+                        String dt1 = result.getObrDate().replaceAll("\\s*\\d\\d:\\d\\d:\\d\\d(\\s...)?\\s*", "");
+                        String dt2 = labResult.getCollectionDate().replaceAll("\\s*\\d\\d:\\d\\d:\\d\\d(\\s...)?.*", "");
+                        //If we find a lab with the same accession number & same collection/obr date then we set isDuplicate to true and leave the loop
+                        if (dt1.equals(dt2)) {
+                            labResult.setDuplicate(true);
+                            labResult.setDuplicateDate(result.getObrDate());
+                            break;
+                        }
                     }
                 }
             }

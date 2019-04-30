@@ -268,7 +268,6 @@ public final class MessageUploader {
 				hl7TextInfo.setReportStatus(reportStatus);
 				hl7TextInfo.setAccessionNumber(accessionNum);
 				hl7TextInfo.setFillerOrderNum(fillerOrderNum);
-				hl7TextInfo.setCollectionDate(collectionDate);
 				// Set label if there is a matching lab already uploaded with a label
 				if(matchingLabs.size()>0){
 					String label = "";

@@ -90,27 +90,11 @@ public class Hl7TextInfo extends AbstractModel<Integer> implements Serializable 
 	@Column(name = "sending_facility")
 	private String sendingFacility;
 
-	@Column(name = "collection_date")
-	private Date collectionDate;
-
 	private String label;
 	
 	@Override
 	public Integer getId() {
 		return (id);
-	}
-
-	public Date getCollectionDate() { return collectionDate; }
-
-	public void setCollectionDate(Date collectionDate) { this.collectionDate = collectionDate; }
-	
-	public void setCollectionDate (String collectionDate) {
-		SimpleDateFormat collectionDateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
-		try {
-			this.collectionDate = collectionDateTimeFormatter.parse(collectionDate);
-		} catch (ParseException e) {
-			this.collectionDate = null;
-		}
 	}
 
 	public String getFirstName() {
