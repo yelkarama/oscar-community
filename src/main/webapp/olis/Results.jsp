@@ -896,7 +896,7 @@ span.patient-consent-alert {
 						<div><%=resultDisplay.isDuplicate() ? "<b>Duplicate</b>" : ""%></div>
 						<div lab-uuid="<%=resultUuid%>_result"></div>
 						<input type="button" onClick="addToInbox('<%=resultUuid %>', <%=resultDisplay.isDuplicate()%> ); return false;" id="<%=resultUuid %>" value="Save"/>
-						<input type="button" onClick="addToInbox('<%=resultUuid %>', <%=resultDisplay.isDuplicate()%>, false, true); return false;" id="<%=resultUuid %>_sign_and_save" value="Sign off & Save"/><br/>
+						<input type="button" <%=resultDisplay.getDemographicNo() == null ? "disabled" : ""%> onClick="addToInbox('<%=resultUuid %>', <%=resultDisplay.isDuplicate()%>, false, true); return false;" id="<%=resultUuid %>_sign_and_save" value="Sign off & Save"/><br/>
 						<input type="button" onClick="removeFromResults('<%=resultUuid %>', '<%=resultDisplay.getEmrTransactionId()%>', '<%=resultDisplay.getPlacerGroupNo()%>'); return false;" value="Remove"/>
 						<input type="button" onClick="preview('<%=resultDisplay.getPlacerGroupNo()%>'); return false;" id="<%=resultUuid %>_preview" value="Preview"/>
                         <% if (resultDisplay.isBlocked() && !providerOlisSession.isHasPatientLevelBlock()) { %>
