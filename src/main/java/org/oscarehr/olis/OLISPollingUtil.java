@@ -75,7 +75,9 @@ public class OLISPollingUtil {
 		String defaultStartTime = oscar.Misc.getStr(olisSystemPreferences.getStartTime(), "").trim();
 	    String defaultEndTime = oscar.Misc.getStr(olisSystemPreferences.getEndTime(), "").trim();
 	    
-	    pollZ04Query(loggedInInfo, defaultStartTime,defaultEndTime);
+	    if (OscarProperties.getInstance().getBooleanProperty("olis_enable_z04", "true")) {
+			pollZ04Query(loggedInInfo, defaultStartTime, defaultEndTime);
+		}
 	    
 	    String facilityId = OscarProperties.getInstance().getProperty("olis_polling_facility"); //Most of the time this will default to null.
 	    if (facilityId !=null){
