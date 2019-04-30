@@ -529,8 +529,13 @@ span.patient-consent-alert {
 		<td colspan="2" id="patientInfo">
 			<%
 				//All results will be for the same demographic so take the info from the first entry
-				OlisLabResults demoOlisLabResults = (new ArrayList<OlisLabResults>(providerOlisSession.getRequestingHicResultMap().values())).get(0);
-				String sex = demoOlisLabResults.getDemographicSex();
+				List<OlisLabResults> resultsList = new ArrayList<OlisLabResults>(providerOlisSession.getRequestingHicResultMap().values());
+				OlisLabResults demoOlisLabResults = null;
+				if (!resultsList.isEmpty()) {
+					demoOlisLabResults = resultsList.get(0);
+				}
+				
+				String sex = resultsEmpty ? demographic.getSex() : demoOlisLabResults.getDemographicSex();
 				if (!("F".equals(sex) || "M".equals(sex))) {
 				    sex = "U";
 				}
@@ -551,7 +556,7 @@ span.patient-consent-alert {
 					<td class="label">Date of Birth:</td>
 					<td class="info"><%=resultsEmpty ? demographic.getFormattedDob() : demoOlisLabResults.getDemographicDob()%></td>
 				</tr>
-				<% if (demoOlisLabResults.getDemographicHin().isEmpty()) { %>
+				<% if (!resultsEmpty && demoOlisLabResults.getDemographicHin().isEmpty()) { %>
 				<tr>
 					<td class="label">Medical Record Number:</td>
 					<td colspan="3" class="info"><%=demoOlisLabResults.getDemographicMrn()%></td>

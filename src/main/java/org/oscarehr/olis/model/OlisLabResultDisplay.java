@@ -473,7 +473,9 @@ public class OlisLabResultDisplay {
                     //LifeLabs-olis accession numbers are in the format YYYY-AAAAAAAAA
                     //A LifeLabs-direct accession number is just AAAAAAAAA
                     String tempList[] = accessionNumber.split("-");
-                    accessionNumber = tempList[1];
+                    if (tempList.length >= 2) {
+                        accessionNumber = tempList[1];
+                    }
                 } else if (labResult.getPerformingFacilityName().matches("Gamma.*")) {
                     //Gamma-olis accession numbers are in the format AAAABBCCDDDD
                     //There are two different gamma-direct formats that can be obtained from this
