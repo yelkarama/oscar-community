@@ -444,6 +444,7 @@ span.patient-consent-alert {
 	Demographic demographic = demographicDao.getDemographic(request.getParameter("demographic"));
 	OlisRemovedLabRequestDao olisRemovedLabRequestDao = SpringUtils.getBean(OlisRemovedLabRequestDao.class);
 	List<String> placerGroupNosToFilter = olisRemovedLabRequestDao.getAccessionNumbersByProviderNo(LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo());
+	List<String> placerGroupNosFiltered = new ArrayList<String>();
 
 	ProviderOlisSession providerOlisSession = OlisSessionManager.getSession(LoggedInInfo.getLoggedInInfoFromSession(request));
 
@@ -879,6 +880,7 @@ span.patient-consent-alert {
 				<tbody>
 				<% for (OlisLabResultDisplay resultDisplay : allResults) {
 					if (placerGroupNosToFilter.contains(resultDisplay.getPlacerGroupNo())) {
+						placerGroupNosFiltered.add(resultDisplay.getPlacerGroupNo());
 						continue; // skip showing this result
 					}
 					String resultUuid = resultDisplay.getLabUuid();%>
@@ -947,6 +949,9 @@ span.patient-consent-alert {
 			<label style="float: right">
 				<button title="More results are available, click here to load" onclick="loadMoreResults()">Load More Results</button>
 			</label>
+			<% }
+			if (!placerGroupNosFiltered.isEmpty()) { %>
+			<span style="color: red;"><%=placerGroupNosFiltered.size()%> result(s) removed by provider request</span>
 			<% } %>
 		</td>
 	</tr>
@@ -1113,6 +1118,9 @@ span.patient-consent-alert {
 			<label style="float: right">
 				<button title="More results are available, click here to load" onclick="loadMoreResults()">Load More Results</button>
 			</label>
+			<% } 
+			if (!placerGroupNosFiltered.isEmpty()) { %>
+			<span style="color: red;"><%=placerGroupNosFiltered.size()%> result(s) removed by provider request</span>
 			<% } %>
 		</td>
 	</tr>
