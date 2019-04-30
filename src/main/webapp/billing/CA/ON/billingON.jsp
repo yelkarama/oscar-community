@@ -132,7 +132,7 @@
 			String startTime = request.getParameter("start_time");
 			if(startTime != null){
 	   			filterDate =  ConversionUtils.fromTimestampString(billReferenceDate+" "+ startTime);
-	   			if (appt_no != null) {
+	   			if (appt_no != null && !appt_no.equals("0")) {
 					billingServiceSchedule = ScheduleBillingServiceAction.load(provider_no, filterDate);
 				}
 				
