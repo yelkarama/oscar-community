@@ -40,12 +40,12 @@
 	
 <script type="text/javascript">
 let currentView = "labsView";
-function addToInbox(uuid, isDuplicate, doFile = false) {
+function addToInbox(uuid, isDuplicate, doFile = false, doAck = false) {
 	if (!isDuplicate) {
 		jQuery(uuid).attr("disabled", "disabled");
 		jQuery.ajax({
 			url: "<%=request.getContextPath() %>/olis/AddToInbox.do",
-			data: 'uuid=' + uuid + '&requestingHic=<%=request.getParameter("requestingHic")%>&doFile=' + doFile,
+			data: 'uuid=' + uuid + '&requestingHic=<%=request.getParameter("requestingHic")%>&doFile=' + doFile + '&doAck=' + doAck,
 			success: function (data) {
 				jQuery("#" + uuid + "_result").html(data);
 			}
@@ -892,7 +892,7 @@ span.patient-consent-alert {
 						<div><%=resultDisplay.isDuplicate() ? "<b>Duplicate</b>" : ""%></div>
 						<div id="<%=resultUuid%>_result"></div>
 						<input type="button" onClick="addToInbox('<%=resultUuid %>', <%=resultDisplay.isDuplicate()%> ); return false;" id="<%=resultUuid %>" value="Save"/>
-						<input type="button" onClick="addToInbox('<%=resultUuid %>', <%=resultDisplay.isDuplicate()%>, true); return false;" id="<%=resultUuid %>_sign_and_save" value="Sign off & Save"/><br/>
+						<input type="button" onClick="addToInbox('<%=resultUuid %>', <%=resultDisplay.isDuplicate()%>, false, true); return false;" id="<%=resultUuid %>_sign_and_save" value="Sign off & Save"/><br/>
 						<input type="button" onClick="removeFromResults('<%=resultUuid %>', '<%=resultDisplay.getEmrTransactionId()%>', '<%=resultDisplay.getPlacerGroupNo()%>'); return false;" id="<%=resultUuid %>_remove" value="Remove"/>
 						<input type="button" onClick="preview('<%=resultDisplay.getPlacerGroupNo()%>'); return false;" id="<%=resultUuid %>_preview" value="Preview"/>
                         <% if (resultDisplay.isBlocked() && !providerOlisSession.isHasPatientLevelBlock()) { %>

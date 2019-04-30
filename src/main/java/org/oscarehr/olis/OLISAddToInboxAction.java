@@ -47,11 +47,7 @@ public class OLISAddToInboxAction extends DispatchAction {
 		
 		String uuidToAdd = request.getParameter("uuid");
         boolean doFile = Boolean.valueOf(request.getParameter("doFile"));
-		String pAck = request.getParameter("ack");
-		boolean doAck = false;
-		if (pAck != null && pAck.equals("true")) {
-			doAck = true;
-		}
+		boolean doAck = Boolean.valueOf(request.getParameter("doAck"));
 
 		String fileLocation = System.getProperty("java.io.tmpdir") + "/olis_" + uuidToAdd + ".response";
 		File file = new File(fileLocation);
