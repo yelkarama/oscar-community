@@ -22,6 +22,7 @@
         <script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script>
         <script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/jquery/jquery-1.4.2.js"></script>
         <title>MOH Report</title>
+        <link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/library/bootstrap/3.0.0/css/bootstrap-glyphicons-only.min.css">
         <link rel="stylesheet" href="<%=request.getContextPath()%>/billing.css" >
         <link rel="stylesheet" type="text/css" media="all" href="<%=request.getContextPath()%>/share/css/extractedFromPages.css" />
 
@@ -66,13 +67,32 @@
                                         .attr("onClick", "popup(700,1027,'"+url+"')")
                                 )
                             );
-                        } else {
+                        } else if (demographic.value[i].value === "true") {
+                            // display check if demographic successfully updated
+                            row.append(
+                                jQuery("<td></td>").append(
+                                    jQuery("<span></span>").attr("class", "glyphicon glyphicon-ok")
+                                        .attr("style", "color:green")
+                                )
+                                    .attr("style", "text-align: center;")
+                                    .attr("title", "Automatically Updated Demographic")
+                            );
+                        } else if (demographic.value[i].value === "false") {
+                            // display x if demographic failed to update
+                            row.append(
+                                jQuery("<td></td>").append(
+                                    jQuery("<span></span>").attr("class", "glyphicon glyphicon-remove")
+                                        .attr("style", "color:red")
+                                )
+                                    .attr("style", "text-align: center;")
+                                    .attr("title", "Error Automatically Updating Demographic")
+                            );
+                        }else {
                             // display value
                             row.append(
                                 jQuery("<td></td>").text(demographic.value[i].value)
                             );
                         }
-                        
                     }
                 }
                 return row;

@@ -92,6 +92,7 @@ public class BillingClaimsRosterCapitationReportAction extends DispatchAction {
             
             for (Row row : allRows) {
                 boolean demographicUpdated = false;
+                Row.Value updateStatus = null;
                 if (row.getValue().get(0) != null) {
                     String hinValue = row.getValue().get(0).getValue();
                     Matcher hcMatch = hcPattern.matcher(hinValue);
@@ -152,6 +153,8 @@ public class BillingClaimsRosterCapitationReportAction extends DispatchAction {
                                                 demographic.setRosterTerminationDate(rosterEnd.getTime());
                                                 demographic.setRosterTerminationReason(terminationCode);
                                                 demographicUpdated = true;
+                                                updateStatus = new Row.Value();
+                                                updateStatus.setValue("true");
                                             }
                                             
                                         } else {
@@ -165,14 +168,27 @@ public class BillingClaimsRosterCapitationReportAction extends DispatchAction {
                                 } catch (Exception e) {
                                     logger.error("ERROR:", e);
                                 }
+                            } else if ("TE".equals(demographic.getRosterStatus())) {
+                                terminated.add(row);
+                                updateStatus = new Row.Value();
+                                updateStatus.setValue("true");
                             }
 
+                            
+                           
                             try {
                                 if (demographicUpdated) {
                                     demographicDao.save(demographic);
                                 }
                             } catch (Exception ex) {
                                 logger.error("ERROR updating demographic:", ex);
+                                if (updateStatus != null) {
+                                    updateStatus.setValue("false");
+                                }
+                            } finally {
+                                if (updateStatus != null) {
+                                    row.getValue().add( row.getValue().size() - 1, updateStatus);
+                                }
                             }
                         }
                     }

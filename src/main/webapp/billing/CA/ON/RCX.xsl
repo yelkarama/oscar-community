@@ -86,12 +86,24 @@
                     </table>
 
                     <!--TERMINATED-->
-                    <h4>Terminated</h4>
-                    <table border="1" width="100%" cellspacing="0" cellpadding="1" id="terminated" style="font-family:Arial;font-size:10pt">
+                    <h4>Terminated </h4>
+                    <table border="0" width="25%" cellspacing="0" cellpadding="1" id="rosterSummary" style="font-family:Arial;font-size:10pt;margin-right">
+                        <tr>
+                            <td><span class="glyphicon glyphicon-ok" style="color:green"></span></td>
+                            <td>Automatically Updated Demographic</td>
+                        </tr>
+
+                        <tr>
+                            <td><span class="glyphicon glyphicon-remove" style="color:red"></span></td>
+                            <td>Error Automatically Updating Demographic</td>
+                        </tr>
+                    </table>
+                    <table border="1" width="100%" cellspacing="0" cellpadding="1" id="terminated" style="font-family:Arial;font-size:10pt;">
                         <tr>
                             <xsl:for-each select="/cog:dataset/cog:metadata/cog:item">
                                 <th><xsl:value-of select="@name"/></th>
                             </xsl:for-each>
+                            <th>Updated</th>
                         </tr>
                         
                     </table>
