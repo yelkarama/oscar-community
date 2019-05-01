@@ -190,8 +190,11 @@ public class BillingSavePrep {
 		}
 
 		claim1Header.setDemographic_no(val.getParameter("demographic_no"));
-		claim1Header.setProviderNo(val.getParameter("xml_provider").substring(0,
-				val.getParameter("xml_provider").indexOf("|")));
+		String xmlProviderNo = StringUtils.noNull(val.getParameter("xml_provider"));
+		if (xmlProviderNo.contains("|")) {
+			xmlProviderNo = val.getParameter("xml_provider").substring(0, val.getParameter("xml_provider").indexOf("|"));
+		}
+		claim1Header.setProviderNo(xmlProviderNo);
 
 		claim1Header.setBilling_date(val.getParameter("service_date"));
 		claim1Header.setBilling_time(val.getParameter("start_time"));
