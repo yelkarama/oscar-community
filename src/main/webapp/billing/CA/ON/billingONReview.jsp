@@ -252,13 +252,15 @@ boolean dupServiceCode = false;
 			String proOHIPNO = "", proRMA = "";
 			
 			ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
-			Provider ppp = providerDao.getProvider(request.getParameter("xml_provider"));
+			providerview = StringUtils.noNull(request.getParameter("xml_provider"));
+			if (providerview.contains("|")) {
+				providerview = providerview.substring(0, providerview.indexOf("|"));
+			}
+			Provider ppp = providerDao.getProvider(providerview);
 			if (ppp != null) {
 				proOHIPNO = ppp.getOhipNo(); 
 				proRMA = ppp.getRmaNo();
 			}
-			if (request.getParameter("xml_provider") != null)
-				providerview = request.getParameter("xml_provider");
 			// get patient's detail
 			String r_doctor = "", r_doctor_ohip = "";
 			String demoFirst = "", demoLast = "", demoHIN = "", demoVer = "", demoDOB = "", demoDOBYY = "", demoDOBMM = "", demoDOBDD = "", demoHCTYPE = "";
@@ -698,7 +700,7 @@ window.onload=function(){
 					 class="myGreen">
 					<tr>
 						<td nowrap width="30%"><b>Billing Physician</b></td>
-						<td width="20%"><%=providerBean.getProperty(request.getParameter("xml_provider")!=null?request.getParameter("xml_provider").substring(0,request.getParameter("xml_provider").indexOf("|")):"", "")%></td>
+						<td width="20%"><%=providerBean.getProperty(!providerview.isEmpty() ? providerview : "", "")%></td>
 						<td nowrap width="30%"><b>Assig. Physician</b></td>
 						<td width="20%"><%=assgProvider_no == null ? "N/A" : providerBean.getProperty(assgProvider_no, "")%></td>
 					</tr>
@@ -1200,7 +1202,7 @@ if (bMultisites) {
 			<textarea name="comment" cols=100 rows=6><%=tempLoc %></textarea>
 			</td>
 			<td align="right">
-                        <input type="hidden" name="provider_no" value="<%=request.getParameter("xml_provider").substring(0,request.getParameter("xml_provider").indexOf("|"))%>"/>
+                        <input type="hidden" name="provider_no" value="<%=providerview%>"/>
                         HST Billed:<input type="text" id="gst" name="gst" value="<%=gstTotal%>" size="6"/><br>
                         <input type="hidden" id="gstBilledTotal" name="gstBilledTotal" value="<%=gstbilledtotal%>" size="6" />
                         Total:<input type="text" id="stotal" disabled name = "stotal" value="0.00" size="6" /><br>
