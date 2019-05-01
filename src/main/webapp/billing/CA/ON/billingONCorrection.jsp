@@ -370,7 +370,7 @@ function validateAllItems(){
             let val = serviceUnit != null ? serviceUnit.value : null;
             
             if (val != null && val.trim() !== '' && !Number.isInteger(Number(val))) {
-                alert("All Billing Units must be whole numebrs");
+                alert("All Billing Units must be whole numbers");
                 return false;
             } 
         }
