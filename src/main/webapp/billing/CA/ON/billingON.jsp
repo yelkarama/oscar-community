@@ -756,7 +756,7 @@ function checkProviderSelect() {
 }
 function checkSiteSelect() {
 	var siteSelectElement = document.getElementsByName('site')[0];
-	if (siteSelectElement.options.length === 0 || siteSelectElement.options[siteSelectElement.selectedIndex].value == 'none') {
+	if (siteSelectElement != null && (siteSelectElement.options.length === 0 || siteSelectElement.options[siteSelectElement.selectedIndex].value == 'none')) {
 		return false;
 	}
 	return true;
