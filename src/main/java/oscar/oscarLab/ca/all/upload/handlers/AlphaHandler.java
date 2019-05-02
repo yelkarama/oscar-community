@@ -24,14 +24,45 @@
 package oscar.oscarLab.ca.all.upload.handlers;
 
 import org.apache.log4j.Logger;
+import org.oscarehr.common.dao.Hl7TextInfoDao;
+import org.oscarehr.common.model.Hl7TextInfo;
+import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
+import org.oscarehr.util.OscarAuditLogger;
+import org.oscarehr.util.SpringUtils;
+import oscar.oscarLab.ca.all.parsers.Factory;
+
+import java.util.List;
 
 public class AlphaHandler extends DefaultHandler implements MessageHandler {
     Logger logger = Logger.getLogger(AlphaHandler.class);
+    Hl7TextInfoDao hl7TextInfoDao = (Hl7TextInfoDao) SpringUtils.getBean("hl7TextInfoDao");
     
     @Override
     String getHl7Type(){
         MiscUtils.getLogger().debug("AlphaHandler getting called");
         return "ALPHA";
+    }
+
+    private boolean isDuplicate (LoggedInInfo loggedInInfo, String msg) {
+        //OLIS requirements - need to see if this is a duplicate
+        oscar.oscarLab.ca.all.parsers.MessageHandler h = Factory.getHandler("ALPHA", msg);
+
+        String acc = h.getAccessionNum() + "|" + h.getAccessionNum() + "-[A-Z0-9]{4}";
+        //do we have this?
+        List<Hl7TextInfo> dupResults = hl7TextInfoDao.searchByAccessionNumberWithRegex(acc);
+        for (Hl7TextInfo result : dupResults) {
+            if (result.getObrDate() != null && !result.getObrDate().isEmpty() && h.getMsgDate() != null && !h.getMsgDate().isEmpty()) {
+                String dt1 = result.getObrDate().replaceAll("\\s*\\d\\d:\\d\\d:\\d\\d(\\s...)?\\s*", "");
+                String dt2 = h.getMsgDate().replaceAll("\\s*\\d\\d:\\d\\d:\\d\\d(\\s...)?.*", "");
+                //If we find a lab with the same accession number & same collection/obr date then we set isDuplicate to true and leave the loop
+                if (dt1.equals(dt2)) {
+                    OscarAuditLogger.getInstance().log(loggedInInfo, "Lab", "Skip", "Duplicate lab skipped - accession " + h.getAccessionNum() + "\n" + msg);
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

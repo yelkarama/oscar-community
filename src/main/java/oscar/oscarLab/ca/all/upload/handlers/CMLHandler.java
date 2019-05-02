@@ -64,7 +64,7 @@ public class CMLHandler implements MessageHandler {
 			for (i = 0; i < messages.size(); i++) {
 				String msg = messages.get(i);
 				if(isDuplicate(loggedInInfo, msg)) {
-					return ("success");
+					return null;
 				}
 				
 				routeResults = new RouteReportResults();
@@ -93,30 +93,22 @@ public class CMLHandler implements MessageHandler {
 	private boolean isDuplicate(LoggedInInfo loggedInInfo, String msg) {
 		//OLIS requirements - need to see if this is a duplicate
 		oscar.oscarLab.ca.all.parsers.MessageHandler h = Factory.getHandler("CML", msg);
-		//if final
-		if(h.getOrderStatus().equals("CM")) {
-			String acc = h.getAccessionNum().substring(3);
-			//do we have this?
-			List<Hl7TextInfo> dupResults = hl7TextInfoDao.searchByAccessionNumber(acc);
-			for(Hl7TextInfo dupResult:dupResults) {
-				if(("CML"+dupResult.getAccessionNumber()).equals(acc)) {
-					//if(h.getHealthNum().equals(dupResult.getHealthNumber())) {
-						OscarAuditLogger.getInstance().log(loggedInInfo, "Lab", "Skip", "Duplicate lab skipped - accession " + acc + "\n" + msg);
-						return true;
-					//}					
-					
+		
+		String acc = h.getAccessionNum() + "|" + h.getAccessionNum() + "-[A-Z0-9]{4}";
+		//do we have this?
+		List<Hl7TextInfo> dupResults = hl7TextInfoDao.searchByAccessionNumberWithRegex(acc);
+		for (Hl7TextInfo result : dupResults) {
+			if (result.getObrDate() != null && !result.getObrDate().isEmpty() && h.getMsgDate() != null && !h.getMsgDate().isEmpty()) {
+				String dt1 = result.getObrDate().replaceAll("\\s*\\d\\d:\\d\\d:\\d\\d(\\s...)?\\s*", "");
+				String dt2 = h.getMsgDate().replaceAll("\\s*\\d\\d:\\d\\d:\\d\\d(\\s...)?.*", "");
+				//If we find a lab with the same accession number & same collection/obr date then we set isDuplicate to true and leave the loop
+				if (dt1.equals(dt2)) {
+					OscarAuditLogger.getInstance().log(loggedInInfo, "Lab", "Skip", "Duplicate lab skipped - accession " + h.getAccessionNum() + "\n" + msg);
+					return true;
 				}
-				if(dupResult.getAccessionNumber().indexOf("-")!= -1) {
-					if(dupResult.getAccessionNumber().substring(0,dupResult.getAccessionNumber().indexOf("-")).equals(acc) ) {
-						//olis match								
-						//if(h.getHealthNum().equals(dupResult.getHealthNumber())) {
-						OscarAuditLogger.getInstance().log(loggedInInfo, "Lab", "Skip", "Duplicate lab skipped - accession " + acc + "\n" + msg);
-						return true;
-						//}
-					}
-				}
-			}		
+			}
 		}
+		
 		return false;	
 	}
 
