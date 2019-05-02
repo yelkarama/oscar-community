@@ -62,6 +62,7 @@
 <%@ page import="org.oscarehr.PMmodule.dao.ProgramProviderDAO" %>
 <%@ page import="org.oscarehr.PMmodule.model.ProgramProvider" %>
 <%@ page import="org.oscarehr.common.dao.PropertyDao" %>
+<%@ page import="oscar.util.StringUtils" %>
 
 <%
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -606,7 +607,7 @@ var beginD = "1900-01-01"
 </style>
 </head>
 
-<oscar:customInterface section="ticklerMain"/>
+<script src="<%=request.getContextPath()%>/tickler/js/ticklerMain.js"></script>
 <body bgcolor="#FFFFFF" text="#000000" leftmargin="0" rightmargin="0" topmargin="10">
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
   <tr bgcolor="#FFFFFF">
@@ -705,26 +706,35 @@ var beginD = "1900-01-01"
 
           <!-- -->
           &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<font face="Verdana, Arial, Helvetica, sans-serif" size="2" color="#333333"><b><bean:message key="tickler.ticklerMain.msgAssignedTo"/></b></font>
-<%
-	if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable())
-{ // multisite start ==========================================
-        	SiteDao siteDao = (SiteDao)SpringUtils.getBean("siteDao");
-          	List<Site> sites = siteDao.getActiveSitesByProviderNo(user_no);
-%>
-      <script>
-var _providers = [];
-<%for (int i=0; i<sites.size(); i++) {%>
-	_providers["<%=sites.get(i).getSiteId()%>"]="<%Iterator<Provider> iter = sites.get(i).getProviders().iterator();
-	while (iter.hasNext()) {
-		Provider p=iter.next();
-		if ("1".equals(p.getStatus())) {%><option value='<%=p.getProviderNo()%>'><%=p.getLastName()%>, <%=p.getFirstName()%></option><%}}%>";
-<%}%>
-function changeSite(sel) {
-	sel.form.assignedTo.innerHTML=sel.value=="none"?"":_providers[sel.value];
-}
-      </script>
+                <%	if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()){ %>
+            <script>
+                let providers = [];
+                let sites = [];
+                <%
+                    // multisite start ==========================================
+                    SiteDao siteDao = (SiteDao)SpringUtils.getBean("siteDao");
+                    List<Site> sites = siteDao.getActiveSitesByProviderNo(user_no);
+          	        for (int i=0; i<sites.size(); i++) {
+          	    %>
+          	        sites.push({id:'<%=sites.get(i).getSiteId()%>', name: '<%=sites.get(i).getName()%>', providers: []});
+                <% 
+          	        }
+          	        
+          	        for (int i=0; i<sites.size(); i++) {
+          	            Iterator<Provider> iter = sites.get(i).getProviders().iterator();
+          	            while (iter.hasNext()) {
+          	                Provider p=iter.next();
+          	                if ("1".equals(p.getStatus())) {
+          	    %>
+                addProviderToSite('<%=sites.get(i).getSiteId()%>', {providerNo: '<%=p.getProviderNo()%>', name: '<%=p.getLastName()%>, <%=p.getFirstName()%>'});
+                <%
+          	                }
+          	            }
+          	        }
+                %>
+            </script>
       	<select id="site" name="site" onchange="changeSite(this)">
-      		<option value="none">---select clinic---</option>
+      		<option value="all">All Clinics</option>
       	<%
       		for (int i=0; i<sites.size(); i++) {
       	%>
@@ -735,14 +745,14 @@ function changeSite(sel) {
       	</select>
       	<select id="assignedTo" name="assignedTo" style="width:140px"></select>
 <%
-	if (request.getParameter("assignedTo")!=null) {
+    String assignedToVal = StringUtils.isNullOrEmpty(request.getParameter("assignedTo")) ? "all" : request.getParameter("assignedTo");
 %>
       	<script>
      	changeSite(document.getElementById("site"));
-      	document.getElementById("assignedTo").value='<%=request.getParameter("assignedTo")%>';
+      	document.getElementById("assignedTo").value='<%=assignedToVal%>';
       	</script>
 <%
-	} // multisite end ==========================================
+	// multisite end ==========================================
 } else {
 %>
         <select id="assignedTo" name="assignedTo">
