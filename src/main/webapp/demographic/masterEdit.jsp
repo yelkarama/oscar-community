@@ -571,10 +571,10 @@
 		<input type="text" id="postal_mailing" name="postal_mailing" size="30" <%=getDisabled("postal")%> value="<%=StringUtils.trimToEmpty(demoExt.get("postal_mailing"))%>" onBlur="upCaseCtrl(this)" onChange="isPostalCode()"/>
 	</td>
 	</tr>
+	</tbody>
 	<%
 		if (OscarProperties.getInstance().getBooleanProperty("enable_appointment_reminders", "true")) {
 	%>
-	</tbody>
 	<tr valign="top">
 		<td align="right" nowrap>
 			<b><bean:message key="demographic.demographiceditdemographic.AllowAppointmentReminders" />:</b>

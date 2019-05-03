@@ -833,16 +833,6 @@ function addToPatientSet(demoNo, patientSet) {
 
 var demographicNo='<%=demographic_no%>';
 
-<oscar:oscarPropertiesCheck property="enable_appointment_reminders" value="true">
-function checkApptReminderSelect() {
-    var reminderSelect = document.getElementById("allow_appointment_reminders");
-    if (reminderSelect.value === "true") {
-        jQuery(".reminderContactMethods").show();
-    } else {
-        jQuery(".reminderContactMethods").hide();
-    }
-}
-
 function toggleMailing () {
 	var checkBox = document.getElementById ("addMailing");
 	var enableMailing = document.getElementById ("enableMailing");
@@ -855,6 +845,16 @@ function toggleMailing () {
 		mailingSection.style.visibility = "hidden";
 		enableMailing.value = "false";
 	}
+}
+
+<oscar:oscarPropertiesCheck property="enable_appointment_reminders" value="true">
+function checkApptReminderSelect() {
+    var reminderSelect = document.getElementById("allow_appointment_reminders");
+    if (reminderSelect.value === "true") {
+        jQuery(".reminderContactMethods").show();
+    } else {
+        jQuery(".reminderContactMethods").hide();
+    }
 }
 
 function checkReminderContactMethod(contactType) {
