@@ -435,7 +435,7 @@
 
 	<tbody id="mailingBody" <%=isMailing ? "style = \"visibility: visible\"" : "style=\"visibility: hidden\""%>>
 	<tr valign="top">
-	<td align="left" colspan="2"><b><div style="display: none;">Mailing</div></b></td>
+	<td align="left" colspan="2"><b>Mailing</b></td>
 	</tr>
 	<tr valign="top">
 	<td align="right"> <b><bean:message key="demographic.demographiceditdemographic.formAddr" />: </b> </td>
