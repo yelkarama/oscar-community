@@ -28,6 +28,7 @@
 <%@page import="org.oscarehr.common.dao.BillingPermissionDao"%>
 <%@ page import="java.util.regex.Pattern" %>
 <%@ page import="java.util.regex.Matcher" %>
+<%@ page import="org.oscarehr.util.WebUtilsOld" %>
 <jsp:useBean id="oscarVariables" class="java.util.Properties" scope="session" />
 <html>
 <head>
@@ -87,6 +88,7 @@ function checkForm() {
 }
 //-->
 </script>
+<%=WebUtilsOld.popErrorMessagesAsAlert(session)%>
 </head>
 
 <body>
