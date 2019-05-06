@@ -538,7 +538,7 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
 				|| specialty.startsWith('RN') || specialty.startsWith('RPN')) {
 			rules.displayMrp = true;
 			rules.billingNo = mrpProviderData['prac_no'];
-			rules.copyToMrp = false;
+			rules.copyToMrp = true;
 		}
     	return rules;
 	}
