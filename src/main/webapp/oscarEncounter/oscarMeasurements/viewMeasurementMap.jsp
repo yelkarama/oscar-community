@@ -139,14 +139,24 @@
                 }
             }%>
 
-
-
-window.onload = stripe;
-
+            function removeMapping(mappingIdToRemove) {
+                fetch('RemoveMeasurementMap.do?ajax=true&mappingIdToRemove=' + mappingIdToRemove, {
+                    method: 'POST',
+                    headers: {}
+                }).then(function (response) { return response.json(); 
+                }).then(function (jsonResponse) {
+                    if (jsonResponse.success === true) {
+                        document.getElementById('mapping_display_' + mappingIdToRemove).remove();
+					}
+                });
+            }
         </script>
 <link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
 <style type="text/css">
-
+	.remove-mapping {
+		color: red;
+		cursor: pointer;
+	}
 
     .even{ background-color:#ccccff;}
 </style>
@@ -188,52 +198,54 @@ window.onload = stripe;
                                 for(String type:types){%>
                                 <th valign="bottom" class="Header"><%=type%></th>
                                 <%}%>
-			</tr>
-                        <tbody>
-                        <%
+            </tr>
+            <tbody>
+            <%
+                List<String> list = map.getDistinctLoincCodes();
+                boolean odd = true;
+                for (String loincCode : list) {
+                    List<Hashtable<String, String>> codesHash = map.getMappedCodesFromLoincCodes(loincCode);
+                    String desc = "";
+                    if (codesHash.size() > 0) {
+                        desc = getDesc(codesHash.get(0));
+                    }
 
-
-                        List<String> list =map.getDistinctLoincCodes();
-                        boolean odd = true;
-                        for(String s:list){
-
-                        	List<Hashtable<String,String>> codesHash = map.getMappedCodesFromLoincCodes(s);
-                            String desc = "";
-                            if (codesHash.size() > 0 ){
-                                desc = getDesc(codesHash.get(0));
-                            }
-                            String mappings = getCodeMap(codesHash);
-                            Hashtable<String, Hashtable<String,String>> h = map.getMappedCodesFromLoincCodesHash(s);
-
-                            String measurement = getDisplay(h,"FLOWSHEET");
-
-                        %>
-
-                        <tr style="background-color:<%=rowColour(odd)%>">
-                            <td class="Cell" >
-                                <% if (measurement != null && !measurement.equals("&nbsp;")){%>
-                                <%=measurement%>
-                                <%}else{%>
-                                <a href="addMeasurementMap2.jsp?loinc=<%=s%>">map</a>
-                                <%}%>
-                            </td>
-                            <td class="Cell" ><%=s%></td>
-                            <td class="Cell" ><%=desc%></td>
-                            <td class="Cell">&nbsp;</td>
-                            <%-- td class="Cell" ><%=mappings%></td --%>
-
-                            <%for(String type:types){%>
-                                <td class="Cell" ><%=getDisplay(h,type)%></td>
-                            <%}%>
-
-
-
-                        </tr>
-
-                        <%
-                        odd = !odd;
-                        }%>
-					</tbody>
+                    Hashtable<String, ArrayList<Hashtable<String, String>>> lonicCodeMapping = map.getMappedCodesFromLoincCodesHash(loincCode);
+            %>
+            <tr style="background-color:<%=rowColour(odd)%>">
+                <td class="Cell">
+                    <% List<String> measurements = getDisplay(lonicCodeMapping, "FLOWSHEET");
+                        if (!measurements.isEmpty()) {%>
+                    <%=StringUtils.join(measurements, "<br/>")%>
+                    <% } else { %>
+                    <a href="addMeasurementMap2.jsp?loinc=<%=loincCode%>">map</a>
+                    <% } %>
+                </td>
+                <td class="Cell"><%=loincCode%></td>
+                <td class="Cell"><%=desc%></td>
+                <td class="Cell">&nbsp;</td>
+                <%
+                    for (String type : types) {
+                        List<Hashtable<String, String>> mappingsForType = lonicCodeMapping.get(type);
+                %>
+                <td class="Cell">
+                    <%  
+						if (mappingsForType != null) {
+							for (Hashtable<String, String> mapping : mappingsForType) { %>
+                    <span id="mapping_display_<%=mapping.get("id")%>">
+                        <span class="remove-mapping" title="Remove Mapping" onclick="removeMapping('<%=mapping.get("id")%>')">X</span>
+                        <%=mapping.get("name") + ": " + mapping.get("ident_code")%>
+                    	<br/>
+                    </span>
+                    <%      }
+						} %>
+                </td>
+                <% } %>
+            </tr>
+            <%
+                    odd = !odd; 
+                }  %>
+            </tbody>
                         <tfoot>
                             <tr>
                                 <td colspan="<%=4+types.size()%>" style="background-color:black;color:white" align="center"> Unmapped Codes</td>
@@ -267,35 +279,23 @@ window.onload = stripe;
 </body>
 </html>
 <%!
-  String rowColour(Boolean b){
-      if (b.booleanValue()){
-          b = Boolean.valueOf(!b);
-          return "#DDDDDD";
-      }else{
-
-          return "#FFFFFF";
-      }
-
-  }
-
-
-
-  String getDesc(Hashtable<String,String> h){
-      return h.get("name");
-  }
-
-  String getDisplay(Hashtable<String, Hashtable<String,String>> h, String type){
-      Hashtable<String,String> data = h.get(type);
-      if (data == null ){ return "&nbsp;";}
-      return data.get("name")+": "+data.get("ident_code");
-  }
-
-  String getCodeMap(List<Hashtable<String,String>> list){
-      StringBuffer sb = new StringBuffer();
-
-        for(Hashtable<String,String> h : list){
-            sb.append(h.get("name")+" : "+h.get("lab_type")+"("+h.get("ident_code")+ ")   |  ");
+    private String rowColour(Boolean b){ 
+        return (b) ? "#DDDDDD" : "#FFFFFF"; 
+    }
+    
+    private String getDesc(Hashtable<String,String> h){ 
+        return h.get("name"); 
+    }
+    
+    private List<String> getDisplay(Hashtable<String, ArrayList<Hashtable<String,String>>> h, String type){ 
+        List<String> results = new ArrayList<String>();
+        
+        List<Hashtable<String,String>> data = h.get(type);
+        if (data != null ){ 
+            for (Hashtable<String, String> datum : data) { 
+                results.add(datum.get("name") + ": " + datum.get("ident_code")); 
+            } 
         }
-        return sb.toString();
+        return results;
   }
 %>

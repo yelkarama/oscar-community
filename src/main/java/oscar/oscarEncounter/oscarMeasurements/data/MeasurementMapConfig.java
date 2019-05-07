@@ -84,19 +84,25 @@ public class MeasurementMapConfig {
         return ret;
     }
 
-    public Hashtable<String, Hashtable<String,String>> getMappedCodesFromLoincCodesHash(String loincCode) {
-        Hashtable<String, Hashtable<String,String>> ret = new Hashtable<String,Hashtable<String,String>>();
+    public Hashtable<String, ArrayList<Hashtable<String,String>>> getMappedCodesFromLoincCodesHash(String loincCode) {
+        Hashtable<String, ArrayList<Hashtable<String,String>>> result = new Hashtable<String, ArrayList<Hashtable<String,String>>>();
         
         for(MeasurementMap map:dao.findByLoincCode(loincCode)) {
-        	Hashtable<String, String> ht = new Hashtable<String,String>();
+            Hashtable<String, String> ht = new Hashtable<String,String>();
             ht.put("id", map.getId().toString());
             ht.put("loinc_code", map.getLoincCode());
             ht.put("ident_code", map.getIdentCode());
             ht.put("name", map.getName());
             ht.put("lab_type", map.getLabType());
-            ret.put(map.getLabType(),ht);
+            if (result.get(map.getLabType()) == null) {
+                ArrayList<Hashtable<String,String>> entryList = new ArrayList<Hashtable<String,String>>();
+                entryList.add(ht);
+                result.put(map.getLabType(), entryList);
+            } else {
+                result.get(map.getLabType()).add(ht);
+            }
         }
-        return ret;
+        return result;
     }
 
     public List<String> getDistinctLoincCodes() {
@@ -265,12 +271,12 @@ public class MeasurementMapConfig {
     }
 
     /**
-     *  Only one identifier per type is allowed to be mapped to a single loinc code
+     *  Only one identifier, and per type is allowed to be mapped to a single loinc code
      *  Return true if there is already an identifier mapped to the loinc code.
      */
-    public boolean checkLoincMapping(String loinc, String type) {
-    	List<MeasurementMap> maps = dao.findByLoincCodeAndLabType(loinc,type);
-    	return maps.size()>0;   	
+    public boolean checkLoincMapping(String loinc, String type, String name) {
+        MeasurementMap map = dao.findByLonicCodeLabTypeAndMeasurementName(loinc, type, name);
+        return map != null;
     }
 
     private String getString(String input) {

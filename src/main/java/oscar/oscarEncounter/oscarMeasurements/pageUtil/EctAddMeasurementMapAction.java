@@ -77,7 +77,7 @@ public class EctAddMeasurementMapAction extends Action{
             
                 String[] measurement = identifier.split(",");
                 MeasurementMapConfig mmc = new MeasurementMapConfig();
-                if (!mmc.checkLoincMapping(loinc_code, measurement[1])){
+                if (!mmc.checkLoincMapping(loinc_code, measurement[1], measurement[2])){
                     mmc.mapMeasurement(measurement[0], loinc_code, measurement[2], measurement[1]);
                     outcome = "success";
                 }else{

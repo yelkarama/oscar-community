@@ -40,6 +40,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.sf.json.JSONObject;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
@@ -67,12 +68,17 @@ public class EctRemoveMeasurementMapAction extends Action{
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
         
     	if( securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_admin", "w", null) || securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_admin.measurements", "w", null) )  {
-    	
+
+        boolean isAjax = "true".equals(request.getParameter("ajax"));
+        if (isAjax) {
+            return removeMappingAjax(mapping, request, response);
+        }
+        
         String id = request.getParameter("id");
         String identifier = request.getParameter("identifier");
         String name = request.getParameter("name");
         String type = request.getParameter("type");
-        String loinc_code = request.getParameter("loinc_code");
+        String loincCode = request.getParameter("loinc_code");
         String outcome = "continue";
         
         if (id != null){
@@ -81,9 +87,9 @@ public class EctRemoveMeasurementMapAction extends Action{
                 
                 // these values will be set if the measurement is to be remapped instead of deleted
                 // therefore it is first mapped then deleted
-                if ( identifier != null && name != null && type != null && loinc_code != null){
-                    if (!mmc.checkLoincMapping(loinc_code, type)){
-                        mmc.mapMeasurement(identifier, loinc_code, name, type);
+                if ( identifier != null && name != null && type != null && loincCode != null){
+                    if (!mmc.checkLoincMapping(loincCode, type, name)){
+                        mmc.mapMeasurement(identifier, loincCode, name, type);
                         mmc.removeMapping(id, request.getParameter("provider_no"));
                         outcome = "success";
                     }else{
@@ -104,4 +110,20 @@ public class EctRemoveMeasurementMapAction extends Action{
        
     }
     
+    public ActionForward removeMappingAjax(ActionMapping mapping, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+        String id = request.getParameter("mappingIdToRemove");
+        if (id != null) {
+            MeasurementMapConfig mmc = new MeasurementMapConfig();
+            mmc.removeMapping(id, loggedInInfo.getLoggedInProviderNo());
+
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("success", true);
+            
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write(jsonObject.toString());
+        }
+        return null;
+    }
 }
