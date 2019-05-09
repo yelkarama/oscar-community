@@ -515,6 +515,8 @@ if (customRosterStatusProperty != null) {
 <%@ page import="org.oscarehr.common.dao.SystemPreferencesDao" %>
 <%@ page import="org.oscarehr.common.model.SystemPreferences" %>
 <%@ page import="org.oscarehr.PMmodule.web.utils.UserRoleUtils" %>
+<%@ page import="org.oscarehr.common.dao.UserAcceptanceDao" %>
+<%@ page import="org.oscarehr.common.model.UserAcceptance" %>
 <html:html locale="true">
 <head>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script>

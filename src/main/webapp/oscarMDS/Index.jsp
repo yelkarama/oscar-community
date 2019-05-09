@@ -67,6 +67,7 @@ if ("normalOnly".equals(abnormalStatus)) {
 String selectedCategoryPatient = request.getParameter("selectedCategoryPatient");
 String selectedCategoryType    = request.getParameter("selectedCategoryType");
 String isListView			   = request.getParameter("isListView");
+String currentProviderNo 	   = request.getParameter("providerNo");
 
 String patientFirstName    = (String) request.getAttribute("patientFirstName");
 String patientLastName     = (String) request.getAttribute("patientLastName");

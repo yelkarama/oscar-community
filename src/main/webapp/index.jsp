@@ -326,6 +326,10 @@ oscarUrl.setLength(urlLength);
 			    box-shadow: inset 0 3px 5px rgba(0,0,0,.125);
 			}
 			
+			.btn[disabled="disabled"]:hover {
+				cursor: not-allowed;
+			}
+			
 			.btn-primary.focus, .btn-primary:focus {
 			    color: #fff;
 			    background-color: #3f9336;
@@ -510,10 +514,16 @@ oscarUrl.setLength(urlLength);
 
     	                        <input type=hidden name='propname' value='<bean:message key="loginApplication.propertyFile"/>' />
 								<div id="buttonContainer">
-									<% if (!Boolean.parseBoolean(OscarProperties.getInstance().getProperty("hide_oscar_classic"))) { %>
-									<input class="btn btn-oscar btn-block" name="submit" type="submit" onclick="enhancedOrClassic('C');" value="<bean:message key="index.OSCARClassic"/>" />
+									<%
+										OscarProperties oscarProperties = OscarProperties.getInstance();
+										boolean hideOscarClassic = Boolean.parseBoolean(oscarProperties.getProperty("hide_oscar_classic", "false"));
+										boolean enableKaiEmr = Boolean.parseBoolean(oscarProperties.getProperty("enable_kai_emr", "false"));
+									%>
+									
+									<% if (!hideOscarClassic) { %>
+									<input class="btn btn-oscar <%= !enableKaiEmr ? "btn-primary" : "" %> btn-block" name="submit" type="submit" onclick="enhancedOrClassic('C');" value="<bean:message key="index.OSCARClassic"/>" />
 									<% } %>
-									<input class="btn btn-primary btn-block" name="submit" type="submit" onclick="enhancedOrClassic('E');" value="<bean:message key="index.KaiEnhanced"/>" />
+									<input class="btn <%= enableKaiEmr ? "btn-primary" : "" %> btn-block" name="submit" type="submit" <%= enableKaiEmr ? "onclick=\"enhancedOrClassic('E')\"" : "disabled=\"disabled\"" %> value="<bean:message key="index.KaiEnhanced"/>" />
 								</div>
     	                        <% if (detector.detectSmartphone() && detector.detectWebkit()) {
     	                        	session.setAttribute("fullSite","true"); %>
