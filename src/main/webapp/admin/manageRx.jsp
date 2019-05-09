@@ -197,6 +197,14 @@
                     </label>
                 </td>
             </tr>
+            <tr>
+                <td>Display Methadone End Date Calculation Option:</td>
+                <td>
+                    <label style="display: inline">
+                        <input type="checkbox" value="true" name="rx_methadone_end_date_calc" <%= (dataBean.getProperty("rx_methadone_end_date_calc", "false").equals("true") ? "checked" : "") %> /> 
+                    </label>
+                </td>
+            </tr>
             </tbody>
         </table>
 

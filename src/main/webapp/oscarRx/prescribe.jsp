@@ -33,6 +33,7 @@
 <%@page import="oscar.oscarRx.util.*" %>
 <%@page import="oscar.OscarProperties"%>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.oscarehr.common.dao.SystemPreferencesDao" %>
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
 
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
@@ -55,7 +56,8 @@ String fdbProdNum = request.getParameter("fdbProdNum")==null?(String)request.get
 
 List<RxPrescriptionData.Prescription> listRxDrugs=(List)request.getAttribute("listRxDrugs");
 oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean)request.getSession().getAttribute("RxSessionBean");
-
+SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+boolean showMethadoneEndDateCalc = systemPreferencesDao.isReadBooleanPreference("rx_methadone_end_date_calc");
 if(listRxDrugs!=null){
   for(RxPrescriptionData.Prescription rx : listRxDrugs){
          String rand            = Long.toString(rx.getRandomId());
@@ -373,6 +375,9 @@ if(listRxDrugs!=null){
            </div>
               	<br><br>         
         </div>
+    <% if (showMethadoneEndDateCalc) { %>
+    <label style="margin-left:80px;"><input type="checkbox" id="calcMethadoneEndDate_<%=rand%>" name="calcMethadoneEndDate_<%=rand%>" value="true" size="60" />Methadone End Date Calculation</label><br/>
+    <% } %>
 
         <label id="labelQuantity_<%=rand%>"  style="float:left;width:80px;">Qty/Mitte:</label><input <%if(rx.isCustomNote()){%> disabled <%}%> type="text" id="quantity_<%=rand%>"     name="quantity_<%=rand%>"     value="<%=quantityText%>" onblur="updateQty(this);" />
         <label style="">Units:</label><input type="text" size="10" id="dispensingUnits_<%=rand%>" onblur="addUnits(this);" maxlength="20" <%if(rx.isCustomNote()){%> disabled <%}%> name="dispensingUnits_<%=rand%>" value="<%=dispensingUnits%>" />

@@ -687,6 +687,8 @@ public class RxPrescriptionData {
 		
 		private String drugReasonCode;
 		private String drugReasonCodeSystem;
+		
+		private Boolean calculateMethadoneEndDate = false;
 
 		public String getDrugReasonCode() {
 			return drugReasonCode;
@@ -1063,7 +1065,7 @@ public class RxPrescriptionData {
 						}
 						//    p("days",Integer.toString(days));
 						if (days > 0) {
-							cal.add(GregorianCalendar.DATE, days);
+							cal.add(GregorianCalendar.DATE, this.calculateMethadoneEndDate ? (days - 1) : days);
 						}
 					}
 				}
@@ -1952,6 +1954,13 @@ public class RxPrescriptionData {
 		 */
 		public void setProtocolId(java.lang.String protocolId) {
 			this.protocolId = protocolId;
+		}
+
+		public Boolean getCalculateMethadoneEndDate() {
+			return calculateMethadoneEndDate;
+		}
+		public void setCalculateMethadoneEndDate(Boolean calculateMethadoneEndDate) {
+			this.calculateMethadoneEndDate = calculateMethadoneEndDate;
 		}
 
 		public static final Comparator<Prescription> START_DATE_COMPARATOR = new Comparator<Prescription>() {
