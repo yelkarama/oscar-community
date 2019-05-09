@@ -31,7 +31,8 @@ var $personalRoles = [
 var $professionalRoles = [
     {key: 'Family Doctor', description: 'Family Doctor'},
     {key: 'Specialist', description: 'Specialist'},
-    {key: 'Dietician', description: 'Dietitian'} //key originally spelt incorrect in OSCAR
+    {key: 'Other', description: 'Other'},
+    {key: 'Dietician', description: 'Dietitian'}//key originally spelt incorrect in OSCAR
 ];
 
 var $returnMessage = "";
@@ -311,9 +312,16 @@ function setContactCategoryType(category, typeSelect) {
     if (category === 'personal') {
         $('#ecSdm').show();
         $("#contact_typeSelect option[value=specialist]").hide();
+        $('#health_care').hide();
+        $('#health_care_team').attr('checked', false);
     } else {
         $('#ecSdm').hide();
         $("#contact_typeSelect option[value=specialist]").show();
+        if ($independentHealthCareTeam) {
+            $('#health_care').show();
+        }
+        
+        $('#health_care_team').attr('checked', true);
     }
 
     if (typeSelect === 'external') {
@@ -394,20 +402,24 @@ function setValues(contact) {
         $('#contact_email').val(contact.details.email ? contact.details.email : notSet);
     }
 
+    $('#contactType').text(contact.type === 2 ? 'External' : 'Internal');
     if (contact.category === 'personal') {
         $('#contactCategory').text('Personal');
-        $('#contactType').text(contact.type === 1 ? 'Internal' : 'External');
         $('#ecSdm').show();
         $('#contact_sdm').val(contact.sdm ? contact.sdm : '');
         $('#contact_ec').val(contact.ec ? contact.ec : '');
+        $('#health_care').hide();
+        $('#health_care_team').attr('checked', false);
     } else if (contact.category === 'professional') {
         $('#contactCategory').text('Professional');
-        if (contact.type === 0) {
-            $('#contactType').text('Internal');
-        } else if (contact.type === 3) {
-            $('#contactType').text(contact.type === 0 ? 'Internal' : 'Professional Specialist');
+        if (contact.type === 3) {
+            $('#contactType').text('Professional Specialist');
         }
-        $('#contactType').text(contact.type === 0 ? 'Internal' : 'Professional Specialist');
+        
+        if ($independentHealthCareTeam) {
+            $('#health_care').show();
+        }
+        $('#health_care_team').attr('checked', contact.healthCareTeam);
     }
 
     setConsent();
@@ -432,7 +444,7 @@ function matchContactRole(category, role) {
     
     var matchedRole = listToSearch.find(r => r.key.toLowerCase() === role.toLowerCase());
     
-    if (!matchedRole && category === 'personal') {
+    if (!matchedRole) {
         roleDescription = "Other";
         $('#contact_role_other').show();
         if (role && role.trim()) {

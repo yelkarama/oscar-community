@@ -35,6 +35,7 @@
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="com.google.gson.Gson" %>
 <%@ page import="org.oscarehr.common.model.Demographic" %>
+<%@ page import="oscar.OscarProperties" %>
 
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
@@ -53,6 +54,7 @@
 
 <%
 	LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+	OscarProperties oscarProps = OscarProperties.getInstance();
 	@SuppressWarnings("unchecked")
 	List<DemographicContact> dcs = (List<DemographicContact>) request.getAttribute("contacts");
 
@@ -74,6 +76,7 @@
 	if(demographic_no == null) {
 		demographic_no = (String)request.getAttribute("demographic_no");
 	}
+	boolean independentHealthCareTeam = oscarProps.getProperty("NEW_CONTACTS_UI_HEALTH_CARE_TEAM_LINKED", "true").equals("false");
 
 %>
 
@@ -104,6 +107,7 @@
 		<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css" />
 		<script type="text/javascript">
             var contacts = [];
+			var $independentHealthCareTeam = <%=independentHealthCareTeam%>;
 
             $(document).ready(function() {
 

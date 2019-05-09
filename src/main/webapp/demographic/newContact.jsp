@@ -77,6 +77,9 @@
             <select class="form-control input-sm" name="contact_role" id="contact_role" onchange="isPersonalOtherContact() ? $('#contact_role_other').show() : $('#contact_role_other').hide()"></select>
             <input class="form-control input-sm" name="contact_role_other" id="contact_role_other" placeholder="Specify other relationship (optional)" value="" style="display: none;" />
         </div>
+        <div id="health_care" class="col-sm-6">
+            <label class="checkbox-inline"><input type="checkbox" name="health_care_team" id="health_care_team"> Include in Health Care Team</label>
+        </div>
     </div>
 
     <div class="row">

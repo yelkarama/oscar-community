@@ -88,6 +88,9 @@ public class DemographicContact extends AbstractModel<Integer> {
     @Column(name = "best_contact")
     private String bestContact = "";
 
+	@Column(name = "health_care_team")
+	private Boolean healthCareTeam = false;
+	
 	private Boolean active = true;
 
 	@Transient
@@ -98,7 +101,7 @@ public class DemographicContact extends AbstractModel<Integer> {
 	public DemographicContact() {
 	}
 
-	public DemographicContact(int demographicNo, String contactId, String role, int type, String category, String sdm, String ec, String note, int facilityId, String creator, Boolean consentToContact, String bestContact, Boolean active) {
+	public DemographicContact(int demographicNo, String contactId, String role, int type, String category, String sdm, String ec, String note, int facilityId, String creator, Boolean consentToContact, String bestContact, Boolean healthCareTeam, Boolean active) {
 		this.demographicNo = demographicNo;
 		this.contactId = contactId;
 		this.role = role;
@@ -111,6 +114,7 @@ public class DemographicContact extends AbstractModel<Integer> {
 		this.creator = creator;
 		this.consentToContact = consentToContact;
 		this.bestContact = bestContact;
+		this.healthCareTeam = healthCareTeam;
 		this.active = active;
 	}
 
@@ -260,6 +264,13 @@ public class DemographicContact extends AbstractModel<Integer> {
 
 	public void setBestContact(String bestContact) {
 		this.bestContact = bestContact;
+	}
+
+	public Boolean getHealthCareTeam() {
+		return healthCareTeam;
+	}
+	public void setHealthCareTeam(Boolean healthCareTeam) {
+		this.healthCareTeam = healthCareTeam;
 	}
 
 	public boolean isActive() {

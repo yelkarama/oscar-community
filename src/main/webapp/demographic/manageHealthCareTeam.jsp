@@ -35,11 +35,13 @@
 <%@ page import="org.oscarehr.common.dao.DemographicDao" %>
 <%@ page import="org.oscarehr.common.dao.ConsultationServiceDao" %>
 <%@ page import="org.oscarehr.common.model.ConsultationServices" %>
+<%@ page import="oscar.OscarProperties" %>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 
 <security:oscarSec roleName="${ sessionScope.userrole }" objectName="_demographic" rights="r" reverse="${ false }">
 
-<% 
+<%
+	OscarProperties oscarProps = OscarProperties.getInstance();
 	List<DemographicContact> demographicContacts = null;
 	List<Provider> providerList = null;
 	ProviderDao providerDao = null;
@@ -48,13 +50,18 @@
 	ConsultationServiceDao consultationServiceDao = null;
 	List<ConsultationServices> specialty = null;
 	String demographicNoString = request.getParameter("demographicNo");
+	// Demographic Contacts and Health Care Team are linked bt default
+	boolean linkedHealthCareTeam = oscarProps.getProperty("NEW_CONTACTS_UI_HEALTH_CARE_TEAM_LINKED", "true").equals("true");
 	
 	if ( ! StringUtils.isBlank( demographicNoString ) ) {		
 		providerDao = SpringUtils.getBean(ProviderDao.class);
 		providerList = providerDao.getActiveProviders();
 		demographicDao = SpringUtils.getBean(DemographicDao.class);
-		demographic = demographicDao.getClientByDemographicNo( Integer.parseInt(demographicNoString) );
-		demographicContacts = ContactAction.getDemographicContacts(demographic);
+		demographic = demographicDao.getClientByDemographicNo( Integer.parseInt(demographicNoString));
+		// if linked health care team, get all professional contacts
+		// otherwise get only professional contacts on the health care team
+		demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContacts(demographic, "professional") : ContactAction.getDemographicContacts(demographic, "professional", true);
+		
 		consultationServiceDao = SpringUtils.getBean(ConsultationServiceDao.class);
 		specialty = consultationServiceDao.findActive();
 	}	

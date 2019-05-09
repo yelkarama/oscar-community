@@ -124,6 +124,10 @@ public class ContactAction extends DispatchAction {
 
 		Integer demographicContactId = StringUtils.trimToNull(request.getParameter("contact_id")) != null ? Integer.parseInt(request.getParameter("contact_id")) : null;
 		String category = StringUtils.trimToEmpty(request.getParameter("contact_category"));
+		boolean healthCareTeamFlag = false;
+		if (category.equals("professional")) {
+			healthCareTeamFlag = StringUtils.trimToEmpty(request.getParameter("health_care_team")).equals("on");
+		}
 		String role = StringUtils.trimToEmpty(request.getParameter("contact_role"));
 		if (role.equals("Other") && !StringUtils.trimToEmpty(request.getParameter("contact_role_other")).isEmpty()) {
 			role = StringUtils.trimToEmpty(request.getParameter("contact_role_other"));
@@ -181,7 +185,7 @@ public class ContactAction extends DispatchAction {
                                 contactId,
                                 role,
                                 type,
-                                request.getParameter("contact_category"),
+                                category,
                                 StringUtils.trimToEmpty(request.getParameter("contact_sdm")),
                                 StringUtils.trimToEmpty(request.getParameter("contact_ec")),
                                 StringUtils.trimToEmpty(request.getParameter("contact_note")),
@@ -189,6 +193,7 @@ public class ContactAction extends DispatchAction {
                                 loggedInInfo.getLoggedInProviderNo(),
                                 !"0".equals(request.getParameter("contact_consentToContact")),
                                 StringUtils.trimToEmpty(request.getParameter("contact_bestContact")),
+                                healthCareTeamFlag,
                                 !"0".equals(request.getParameter("contact_active"))
                         );
                     } else {
@@ -208,7 +213,7 @@ public class ContactAction extends DispatchAction {
                         Contact externalContact = contactDao.find(Integer.valueOf(contactId));
 
                         externalContact.setCellPhone(StringUtils.trimToEmpty(request.getParameter("contact_cell")));
-                        externalContact.setResidencePhone( StringUtils.trimToEmpty(request.getParameter("contact_phone")));
+                        externalContact.setResidencePhone(StringUtils.trimToEmpty(request.getParameter("contact_phone")));
                         externalContact.setWorkPhone(StringUtils.trimToEmpty(request.getParameter("contact_work")));
 						externalContact.setWorkPhoneExtension(StringUtils.trimToEmpty(request.getParameter("contact_work_extension")));
                         externalContact.setEmail(StringUtils.trimToEmpty(request.getParameter("contact_email")));
@@ -232,6 +237,7 @@ public class ContactAction extends DispatchAction {
                     demographicContact.setConsentToContact(!"0".equals(request.getParameter("contact_consentToContact")));
                     demographicContact.setActive(!"0".equals(request.getParameter("contact_active")));
                     demographicContact.setBestContact(StringUtils.trimToEmpty(request.getParameter("contact_bestContact")));
+                    demographicContact.setHealthCareTeam(healthCareTeamFlag);
 
                     demographicContactDao.saveEntity(demographicContact);
                     successMessage = "Contact updated";
@@ -349,6 +355,7 @@ public class ContactAction extends DispatchAction {
 		        			c.setSdm("");
 		        			c.setEc("");
 		        			c.setCreator(loggedInInfo.getLoggedInProviderNo());
+		        			c.setHealthCareTeam(true);
 		        			
 		        			if(c.getId() == null)
 		        				demographicContactDao.persist(c);
@@ -963,6 +970,11 @@ public class ContactAction extends DispatchAction {
 		List<DemographicContact> contacts = demographicContactDao.findByDemographicNoAndCategory(demographic.getDemographicNo(),category);	
 		return fillContactNames(contacts);
 	}
+
+    public static List<DemographicContact> getDemographicContacts(Demographic demographic, String category, Boolean onHealthCareTeam) {
+        List<DemographicContact> contacts = demographicContactDao.findByDemographicNoAndCategoryOnHealthCareTeam(demographic.getDemographicNo(),category, onHealthCareTeam);
+        return fillContactNames(contacts);
+    }
 
 	public static List<DemographicContact> fillContactInfo(List<DemographicContact> contacts) {
 		for(DemographicContact c : contacts) {
