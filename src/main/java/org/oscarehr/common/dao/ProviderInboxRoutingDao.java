@@ -65,6 +65,17 @@ public class ProviderInboxRoutingDao extends AbstractDao<ProviderInboxItem> {
 		return results;
 	}
 
+	public List<ProviderInboxItem> getProvidersWithUnfiledRoutingForDocument(String docType, Integer docId) {
+		Query query = entityManager.createQuery("select p from ProviderInboxItem p where p.labType = ? and p.labNo = ? and p.status <> 'F'");
+		query.setParameter(1, docType);
+		query.setParameter(2, docId);
+
+		@SuppressWarnings("unchecked")
+		List<ProviderInboxItem> results = query.getResultList();
+
+		return results;
+	}
+
 	public boolean hasProviderBeenLinkedWithDocument(String docType, Integer docId, String providerNo) {
 		Query query = entityManager.createQuery("select p from ProviderInboxItem p where p.labType = ? and p.labNo = ? and p.providerNo=?");
 		query.setParameter(1, docType);
