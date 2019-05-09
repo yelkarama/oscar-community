@@ -841,9 +841,9 @@ function goSearchView(s) {
 function displayKaiMessage()
 {
     <%
-    	boolean hideOscarClassic = oscarProperties.getBooleanProperty("hide_oscar_classic", "true");
+    	boolean showOscarClassic = Boolean.parseBoolean(oscarProperties.getProperty("show_oscar_classic"));
     %>
-    var hideOscarClassic = <%=hideOscarClassic%>
+    var showOscarClassic = <%=showOscarClassic%>
     alertify.set({buttons: {ok:'I Understand', cancel:'Remind Me Later'} });
     alertify.confirm("<h2>Kai Enhanced Terms and Conditions</h2><br/><div id=\"termsAndConditionsDiv\" style=\"overflow-y: auto; height: 250px; border-style: solid;\"><%=termsOfAgreement%></div><br/><input type=\"checkbox\" id=\"termsCheck\"/>I have read and agree with all Terms and Conditions<br/><br/><a href=\"#\" onclick='popupPage(800,900,\"https://www.google.ca\")' style='color: blue;'>Click here to learn more</a>", function (accepted)
 	{
@@ -859,13 +859,13 @@ function displayKaiMessage()
                        refresh();
 				   });
 			   } else if (response === "classic") {
-				   if (hideOscarClassic) {
-                       alertify.alert("You have chosen not to accept the Terms and Conditions. You will be logged out, but may try again.", function () {
-                           window.location.href = '/oscar/logout.jsp';
-                       });
-                   } else {
+				   if (showOscarClassic) {
                        alertify.alert("You have been reverted to OSCAR Classic. You will be re-prompted next time you sign in with Kai Enhanced.", function () {
                            refresh();
+                       });
+                   } else {
+                       alertify.alert("You have chosen not to accept the Terms and Conditions. You will be logged out, but may try again.", function () {
+                           window.location.href = '/oscar/logout.jsp';
                        });
 				   }
 			   } else {
@@ -1102,7 +1102,7 @@ if(mygroupno != null && providerBean.get(mygroupno) != null) { //single appointe
      else {
     	 List<MyGroup> results = myGroupDao.getGroupByGroupNo(mygroupno);
     	 //Collections.sort(results,MyGroup.LastNameComparator);
-  	   
+
     	 for(MyGroup result:results) {
     		 curProvider_no[iTemp] = String.valueOf(result.getId().getProviderNo());
     		 
@@ -1272,12 +1272,16 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 	   <% if (enhancedOrClassic == null || (enhancedOrClassic != null && enhancedOrClassic.getValue() != null && enhancedOrClassic.getValue().equals("C"))) { %>
        <a HREF="#" ONCLICK ="popupInboxManager('../dms/inboxManage.do?method=prepareForIndexPage&providerNo=<%=curUser_no%>', 'Lab');return false;" TITLE='<bean:message key="provider.appointmentProviderAdminDay.viewLabReports"/>'>
 	   <% } else { %>
-	   <a  href="javascript:popupPage(900, 1215, '/kaiemr/app/components/inbox/?providerNo=<%=curUser_no%>')" TITLE='<bean:message key="provider.appointmentProviderAdminDay.viewLabReports"/>'>
+	   <a href="javascript:popupPage(900, 1215, '/kaiemr/app/components/inbox/?providerNo=<%=curUser_no%>')" TITLE='<bean:message key="provider.appointmentProviderAdminDay.viewLabReports"/>'>
 	   <% } %>
 	   <span id="oscar_new_lab"><bean:message key="global.lab"/></span>
        </a>
        <oscar:newUnclaimedLab>
-       <a class="tabalert" HREF="#" ONCLICK ="popupInboxManager('../dms/inboxManage.do?method=prepareForIndexPage&providerNo=0&searchProviderNo=0&status=N&lname=&fname=&hnum=&pageNum=1&startIndex=0', 'Lab');return false;" TITLE='<bean:message key="provider.appointmentProviderAdminDay.viewLabReports"/>'>*</a>
+				   <% if (enhancedOrClassic == null || (enhancedOrClassic != null && enhancedOrClassic.getValue() != null && enhancedOrClassic.getValue().equals("C"))) { %>
+		   <a class="tabalert" HREF="#" ONCLICK ="popupInboxManager('../dms/inboxManage.do?method=prepareForIndexPage&providerNo=0&searchProviderNo=0&status=N&lname=&fname=&hnum=&pageNum=1&startIndex=0', 'Lab');return false;" TITLE='<bean:message key="provider.appointmentProviderAdminDay.viewLabReports"/>'>*</a>
+				   <% } else { %>
+		   <a  href="javascript:popupPage(900, 1215, '/kaiemr/app/components/inbox/?providerNo=0')" TITLE='<bean:message key="provider.appointmentProviderAdminDay.viewLabReports"/>'>*</a>
+				   <% } %>
        </oscar:newUnclaimedLab>
    </li>
   </security:oscarSec>
