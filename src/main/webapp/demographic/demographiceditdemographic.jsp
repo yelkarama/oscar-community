@@ -1194,13 +1194,22 @@ if(wLReadonly.equals("")){
 					<%}%>
 				</td>
 			</tr>
+    <% UserProperty enhancedOrClassic = pref.getProp(curProvider_no, UserProperty.ENHANCED_OR_CLASSIC); %>
 	<security:oscarSec roleName="<%=roleName$%>" objectName="_billing,_demographic.createInvoice" rights="w" reverse="false">
 			<tr>
 				<td><a
 					href="javascript: function myFunction() {return false; }"
-					onClick="popupPage(700, 1000, '../billing.do?billRegion=<%=URLEncoder.encode(prov)%>&billForm=<%=URLEncoder.encode(oscarProps.getProperty("default_view"))%>&hotclick=&appointment_no=0&demographic_name=<%=URLEncoder.encode(demographic.getLastName())%>%2C<%=URLEncoder.encode(demographic.getFirstName())%>&demographic_no=<%=demographic.getDemographicNo()%>&providerview=<%=demographic.getProviderNo()%>&user_no=<%=curProvider_no%>&apptProvider_no=none&appointment_date=<%=dateString%>&start_time=00:00:00&bNewForm=1&status=t<%= selectedSite != null ? "&site=" + selectedSite : ""%>');return false;"
+					onClick="popupPage(700, 1000, '../billing.do?billRegion=<%=URLEncoder.encode(prov)%>&billForm=<%=URLEncoder.encode(oscarVariables.getProperty("default_view"))%>&hotclick=&appointment_no=<%=(appointment!=null?appointment:"0")%>&demographic_name=<%=URLEncoder.encode(demographic.getLastName())%>%2C<%=URLEncoder.encode(demographic.getFirstName())%>&demographic_no=<%=demographic.getDemographicNo()%>&providerview=<%=demographic.getProviderNo()%>&user_no=<%=curProvider_no%>&apptProvider_no=none&appointment_date=<%=dateString%>&start_time=00:00:00&bNewForm=1&status=t');return false;"
 					title="<bean:message key="demographic.demographiceditdemographic.msgBillPatient"/>"><bean:message key="demographic.demographiceditdemographic.msgCreateInvoice"/></a></td>
 			</tr>
+<%
+	if (OscarProperties.getInstance().getBooleanProperty("new_billing", "true") && enhancedOrClassic != null && enhancedOrClassic.getValue() != null && enhancedOrClassic.getValue().equals("E")) { %>
+	<tr>
+		<td>
+			<a href="javascript: function myFunction() {return false; }" onClick='popupPage(755,1200, "/kaiemr/app/components/billing/?demographicNo=<%=demographic_no%>");return false;' title="<bean:message key="global.billingtag"/>">Invoice2</a>
+		</td>
+	</tr>
+<% } %>
 	</security:oscarSec>
 <tr>
                 <security:oscarSec roleName="<%=roleName$%>" objectName="_billing.OnAccountBilling" rights="x">
@@ -1562,7 +1571,7 @@ if (iviewTag!=null && !"".equalsIgnoreCase(iviewTag.trim())){
 										<%=records.get(i)%>
 									</a>
 						<%	  }
-						} %> 
+						} %>
 						)
 							<security:oscarSec roleName="<%=roleName$%>" objectName="_demographic" rights="w">
 							<% if( head.equals(demographic_no)) { %>
@@ -1717,7 +1726,7 @@ if(oscarProps.getProperty("new_label_print") != null && oscarProps.getProperty("
 							<li>
 								<span class="label">SIN:</span>
 								<span class="info"><%=StringUtils.trimToEmpty(demographic.getSin())%> </span>
-							</li>  
+							</li>
 							<% } %>
                                                     <li><span class="label"><bean:message key="demographic.demographiceditdemographic.msgDemoLanguage"/>:</span>
                                                         <span class="info"><%=StringUtils.trimToEmpty(demographic.getOfficialLanguage())%></span>

@@ -128,6 +128,11 @@ oscarUrl.setLength(urlLength);
   			function addStartTime() {
             	document.getElementById("oneIdLogin").href += (Math.round(new Date().getTime() / 1000).toString());
 			}
+
+
+			function enhancedOrClassic(choice) {
+				document.getElementById("loginType").value = choice;
+			}
         </script>
         
         <style type="text/css">
@@ -323,8 +328,8 @@ oscarUrl.setLength(urlLength);
 			
 			.btn-primary.focus, .btn-primary:focus {
 			    color: #fff;
-			    background-color: #286090;
-			    border-color: #122b40;
+			    background-color: #3f9336;
+			    border-color: #3f9336;
 			}
 			
 			.btn-primary:hover {
@@ -335,8 +340,8 @@ oscarUrl.setLength(urlLength);
 			
 			.btn-primary.active, .btn-primary:active, .open>.dropdown-toggle.btn-primary {
 			    color: #fff;
-			    background-color: #286090;
-			    border-color: #204d74;
+			    background-color: #3f9336;
+			    border-color: #3f9336;
 			}
 			
 			.btn-primary.active, .btn-primary:active, .open>.dropdown-toggle.btn-primary {
@@ -345,6 +350,7 @@ oscarUrl.setLength(urlLength);
 			
 			input[type=button].btn-block, input[type=reset].btn-block, input[type=submit].btn-block {
 			    width: 100%;
+				margin-bottom: 10px;
 			}
 			
 			.btn.active.focus, .btn.active:focus, .btn.focus, .btn:active.focus, .btn:active:focus, .btn:focus {
@@ -355,8 +361,8 @@ oscarUrl.setLength(urlLength);
 			
 			.btn-primary.active.focus, .btn-primary.active:focus, .btn-primary.active:hover, .btn-primary:active.focus, .btn-primary:active:focus, .btn-primary:active:hover, .open>.dropdown-toggle.btn-primary.focus, .open>.dropdown-toggle.btn-primary:focus, .open>.dropdown-toggle.btn-primary:hover {
 			    color: #fff;
-			    background-color: #204d74;
-			    border-color: #122b40;
+			    background-color: #3f9336;
+			    border-color: #3f9336;
 			}
             
             td.topbar{
@@ -500,9 +506,13 @@ oscarUrl.setLength(urlLength);
     	                        </div>
     	                        <input type="hidden" id="oneIdKey" name="nameId" value="<%=request.getParameter("nameId") != null ? request.getParameter("nameId") : ""%>"/>
     	                        <input type="hidden" id="email" name="email" value="<%=request.getParameter("email") != null ? request.getParameter("email") : ""%>"/>
+								<input type="hidden" id="loginType" name="loginType" value=""/>
 	                        
     	                        <input type=hidden name='propname' value='<bean:message key="loginApplication.propertyFile"/>' />
-    	                        <input class="btn btn-primary btn-block" name="submit" type="submit" value="<bean:message key="index.btnSignIn"/>" />
+								<div id="buttonContainer">
+									<input class="btn btn-oscar btn-block" name="submit" type="submit" onclick="enhancedOrClassic('C');" value="<bean:message key="index.OSCARClassic"/>" />
+									<input class="btn btn-primary btn-block" name="submit" type="submit" onclick="enhancedOrClassic('E');" value="<bean:message key="index.KaiEnhanced"/>" />
+								</div>
     	                        <% if (detector.detectSmartphone() && detector.detectWebkit()) {
     	                        	session.setAttribute("fullSite","true"); %>
     	                        	<input class="btn btn-primary btn-block" name="submit" type="submit" value="<bean:message key="index.btnSignIn"/> using <bean:message key="loginApplication.fullSite"/>" />
