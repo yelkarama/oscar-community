@@ -37,10 +37,9 @@
 		return;
 	}
 %>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
-<%@ page
-    import="java.util.*,oscar.oscarLab.ca.on.*,oscar.oscarDemographic.data.*"%>
+<%@ page import="java.util.*"%>
+<%@ page import="org.oscarehr.util.MiscUtils"%>
+<%@ page import="oscar.oscarRx.data.RxPrescriptionData" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
@@ -53,40 +52,31 @@
                 identifier = "NULL";
             }
 
-            DemographicData dData = new DemographicData();
-
-            org.oscarehr.common.model.Demographic demographic = dData.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), demographicNo);
-
-
-            oscar.oscarRx.data.RxPrescriptionData prescriptData = new oscar.oscarRx.data.RxPrescriptionData();
             oscar.oscarRx.data.RxPrescriptionData.Prescription [] arr = {};
-            arr = prescriptData.getUniquePrescriptionsByPatient(Integer.parseInt(demographicNo));
             
-            StringBuffer sb = new StringBuffer();
-            Hashtable h = new Hashtable();
+            StringBuilder sb = new StringBuilder();
+            Hashtable drugHashTable = new Hashtable();
             String drugForGraph = "";
-            if(request.getParameterValues("drug")!=null){
+            if (request.getParameterValues("drug") != null) {
                 String[] drugs = request.getParameterValues("drug");                
-                for(String d:drugs){
-                    sb.append("&drug="+d);
-                    h.put(d,"drug");
+                for (String drug : drugs) {
+                    sb.append("&drug=").append(drug);
+                    drugHashTable.put(drug,"drug");
                 }
-            }else{
-                for(int idx = 0; idx < arr.length; ++idx ) {             	
-                    oscar.oscarRx.data.RxPrescriptionData.Prescription drug = arr[idx];
-                    if(!drug.isCustom()) {
-                   	 sb.append("&drug="+drug.getRegionalIdentifier());
-                    	h.put(drug.getRegionalIdentifier(),"drug");
+            } else {
+                oscar.oscarRx.data.RxPrescriptionData prescriptData = new oscar.oscarRx.data.RxPrescriptionData();
+                arr = prescriptData.getUniquePrescriptionsByPatient(Integer.parseInt(demographicNo));
+                for (RxPrescriptionData.Prescription drug : arr) {
+                    if (!drug.isCustom() && drug.getRegionalIdentifier() != null) {
+                        sb.append("&drug=").append(drug.getRegionalIdentifier());
+                        drugHashTable.put(drug.getRegionalIdentifier(), "drug");
                     }
                 }
             }
             drugForGraph = sb.toString();
-            
-
-
 %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<%@page import="org.oscarehr.util.MiscUtils"%><html>
+<html>
     <head>
         <script type="text/javascript" src="<%= request.getContextPath()%>/js/global.js"></script>
         <html:base />
@@ -171,7 +161,7 @@
                                 styleColor="style=\"color:red;\"";
                             }
                             %>
-                            <li><input type="checkbox"  <%=getChecked( h,drug.getRegionalIdentifier())%> name="drug" value="<%=drug.getRegionalIdentifier()%>" /> <%=drug.getFullOutLine().replaceAll(";", " ")%> </li>
+                            <li><input type="checkbox"  <%=getChecked(drugHashTable,drug.getRegionalIdentifier())%> name="drug" value="<%=drug.getRegionalIdentifier()%>" /> <%=drug.getFullOutLine().replaceAll(";", " ")%> </li>
                             <%
                          }
                         %>
