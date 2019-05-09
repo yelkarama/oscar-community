@@ -81,6 +81,7 @@
 		<form-bean name="msgDoc2PDFForm" type="oscar.oscarMessenger.pageUtil.MsgDoc2PDFForm" />
 		<form-bean name="msgAttachPDFForm" type="oscar.oscarMessenger.pageUtil.MsgAttachPDFForm" />
 		<form-bean name="FreshbooksAction" type="org.oscarehr.common.model.FreshbooksAction" />
+		<form-bean name="KaiMessageAction" type="org.oscarehr.common.model.KaiMessageAction" />
 		<form-bean name="RxChoosePatientForm" type="oscar.oscarRx.pageUtil.RxChoosePatientForm" />
 		<form-bean name="RxSearchDrugForm" type="oscar.oscarRx.pageUtil.RxSearchDrugForm" />
 		<form-bean name="RxWriteScriptForm" type="oscar.oscarRx.pageUtil.RxWriteScriptForm" />
@@ -883,6 +884,9 @@
         </action>
 
 		<action name="FreshbooksAction"  path="/FreshbooksAction" scope="request" type="org.oscarehr.common.model.FreshbooksAction">
+		</action>
+
+		<action name="KaiMessageAction"  path="/KaiMessageAction" scope="request" type="org.oscarehr.common.model.KaiMessageAction">
 		</action>
 
         <action name="AlertAction" path="/alert" parameter="method" scope="request" type="org.oscarehr.casemgmt.web.AlertAction">

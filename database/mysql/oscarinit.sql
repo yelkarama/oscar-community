@@ -12575,7 +12575,7 @@ CREATE TABLE form_drawing_tool_image (
   PRIMARY KEY (`ID`)
 );
 
-CREATE TABLE IF NOT EXISTS systempreferences
+CREATE TABLE IF NOT EXISTS systemPreferences
 (
   id         INT AUTO_INCREMENT
     PRIMARY KEY,
@@ -12584,6 +12584,14 @@ CREATE TABLE IF NOT EXISTS systempreferences
   updateDate DATETIME    NULL
 );
 
+CREATE TABLE IF NOT EXISTS userAcceptance
+(
+  id           INT AUTO_INCREMENT
+    PRIMARY KEY,
+  accepted     TINYINT(1) DEFAULT '0' NOT NULL,
+  providerNo   VARCHAR(10)            NULL,
+  timeAccepted DATETIME               NULL
+);
 INSERT INTO form_drawing_tool_image (name, file_name) VALUES ('Blank Page', 'blank.png');
 INSERT INTO form_drawing_tool_image (name, file_name) VALUES ('Lined Paper', 'lined_paper.jpg');
 INSERT INTO form_drawing_tool_image (name, file_name) VALUES ('Anatomical Diagram', 'anatomical_diagram.png');
