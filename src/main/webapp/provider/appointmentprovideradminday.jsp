@@ -840,6 +840,10 @@ function goSearchView(s) {
 
 function displayKaiMessage()
 {
+    <%
+    	boolean hideOscarClassic = oscarProperties.getBooleanProperty("hide_oscar_classic", "true");
+    %>
+    var hideOscarClassic = <%=hideOscarClassic%>
     alertify.set({buttons: {ok:'I Understand', cancel:'Remind Me Later'} });
     alertify.confirm("<h2>Kai Enhanced Terms and Conditions</h2><br/><div id=\"termsAndConditionsDiv\" style=\"overflow-y: auto; height: 250px; border-style: solid;\"><%=termsOfAgreement%></div><br/><input type=\"checkbox\" id=\"termsCheck\"/>I have read and agree with all Terms and Conditions<br/><br/><a href=\"#\" onclick='popupPage(800,900,\"https://www.google.ca\")' style='color: blue;'>Click here to learn more</a>", function (accepted)
 	{
@@ -855,9 +859,15 @@ function displayKaiMessage()
                        refresh();
 				   });
 			   } else if (response === "classic") {
-                   alertify.alert("You have been reverted to OSCAR Classic. You will be re-prompted next time you sign in with Kai Enhanced.", function () {
-						refresh();
-				   });
+				   if (hideOscarClassic) {
+                       alertify.alert("You have chosen not to accept the Terms and Conditions. You will be logged out, but may try again.", function () {
+                           window.location.href = '/oscar/logout.jsp';
+                       });
+                   } else {
+                       alertify.alert("You have been reverted to OSCAR Classic. You will be re-prompted next time you sign in with Kai Enhanced.", function () {
+                           refresh();
+                       });
+				   }
 			   } else {
                    alertify.error("There was an error saving your response, please try again or contact Kai Support.");
 			   }
@@ -1259,7 +1269,11 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 
 <security:oscarSec roleName="<%=roleName$%>" objectName="_appointment.doctorLink" rights="r">
    <li>
+	   <% if (enhancedOrClassic == null || (enhancedOrClassic != null && enhancedOrClassic.getValue() != null && enhancedOrClassic.getValue().equals("C"))) { %>
        <a HREF="#" ONCLICK ="popupInboxManager('../dms/inboxManage.do?method=prepareForIndexPage&providerNo=<%=curUser_no%>', 'Lab');return false;" TITLE='<bean:message key="provider.appointmentProviderAdminDay.viewLabReports"/>'>
+	   <% } else { %>
+	   <a  href="javascript:popupPage(900, 1215, '/kaiemr/app/components/inbox/?providerNo=<%=curUser_no%>')" TITLE='<bean:message key="provider.appointmentProviderAdminDay.viewLabReports"/>'>
+	   <% } %>
 	   <span id="oscar_new_lab"><bean:message key="global.lab"/></span>
        </a>
        <oscar:newUnclaimedLab>
@@ -2706,10 +2720,11 @@ Boolean displayAppointmentReason = appointment.getReason() != null && appointmen
 	<security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="r">
 	<% 
 	if(status.indexOf('B')==-1) 
-	{ 
+	{
+	    if (enhancedOrClassic == null || (enhancedOrClassic != null && enhancedOrClassic.getValue() != null && enhancedOrClassic.getValue().equals("C"))) {
 	%>
 		&#124; <a href=# onClick='popupPage(755,1200, "../billing.do?billRegion=<%=URLEncoder.encode(prov)%>&billForm=<%=URLEncoder.encode(oscarVariables.getProperty("default_view"))%>&hotclick=<%=URLEncoder.encode("")%>&appointment_no=<%=appointment.getId()%>&demographic_name=<%=URLEncoder.encode(name)%>&status=<%=status%>&demographic_no=<%=demographic_no%>&providerview=<%=curProvider_no[nProvider]%>&user_no=<%=curUser_no%>&apptProvider_no=<%=curProvider_no[nProvider]%>&appointment_date=<%=year+"-"+month+"-"+day%>&start_time=<%=start_time%>&bNewForm=1");return false;' title="<bean:message key="global.billingtag"/>"><bean:message key="provider.appointmentProviderAdminDay.btnB"/></a>
-			  <% if (OscarProperties.getInstance().getBooleanProperty("new_billing", "true") && enhancedOrClassic != null && enhancedOrClassic.getValue() != null && enhancedOrClassic.getValue().equals("E")) { %>
+			  <% } if (OscarProperties.getInstance().getBooleanProperty("new_billing", "true") && enhancedOrClassic != null && enhancedOrClassic.getValue() != null && enhancedOrClassic.getValue().equals("E")) { %>
 			  &#124; <a href=# onClick='popupPage(755,1200, "../billing.do?billRegion=<%=URLEncoder.encode(prov)%>&billForm=<%=URLEncoder.encode(oscarVariables.getProperty("default_view"))%>&hotclick=<%=URLEncoder.encode("")%>&appointment_no=<%=appointment.getId()%>&demographic_name=<%=URLEncoder.encode(name)%>&status=<%=status%>&demographic_no=<%=demographic_no%>&providerview=<%=curProvider_no[nProvider]%>&user_no=<%=curUser_no%>&apptProvider_no=<%=curProvider_no[nProvider]%>&appointment_date=<%=year+"-"+month+"-"+day%>&start_time=<%=start_time%>&bNewForm=1");return false;' title="<bean:message key="global.billingtag"/>">B2</a>
 			  <% } %>
 	<% 
@@ -2718,15 +2733,19 @@ Boolean displayAppointmentReason = appointment.getReason() != null && appointmen
 	{
 		if(caisiBillingPreferenceNotDelete!=null && caisiBillingPreferenceNotDelete.equals("1"))
 		{
+		    if (enhancedOrClassic == null || (enhancedOrClassic != null && enhancedOrClassic.getValue() != null && enhancedOrClassic.getValue().equals("C"))) {
 	%>
 			&#124; <a href=# onClick='onUpdatebill("../billing/CA/ON/billingEditWithApptNo.jsp?billRegion=<%=URLEncoder.encode(prov)%>&billForm=<%=URLEncoder.encode(oscarVariables.getProperty("default_view"))%>&hotclick=<%=URLEncoder.encode("")%>&appointment_no=<%=appointment.getId()%>&demographic_name=<%=URLEncoder.encode(name)%>&status=<%=status%>&demographic_no=<%=demographic_no%>&providerview=<%=curProvider_no[nProvider]%>&user_no=<%=curUser_no%>&apptProvider_no=<%=curProvider_no[nProvider]%>&appointment_date=<%=year+"-"+month+"-"+day%>&start_time=<%=iS+":"+iSm%>&bNewForm=1");return false;' title="<bean:message key="global.billingtag"/>">=<bean:message key="provider.appointmentProviderAdminDay.btnB"/></a>
-	<% 
+	<%
+			}
 		} 
 		else 
-		{ 
+		{
+			if (enhancedOrClassic == null || (enhancedOrClassic != null && enhancedOrClassic.getValue() != null && enhancedOrClassic.getValue().equals("C"))) {
 	%>
 		&#124; <a href=# onClick='onUnbilled("../billing/CA/<%=prov%>/billingDeleteWithoutNo.jsp?status=<%=status%>&appointment_no=<%=appointment.getId()%>");return false;' title="<bean:message key="global.billingtag"/>">-<bean:message key="provider.appointmentProviderAdminDay.btnB"/></a>
-	<% 
+	<%
+			}
 		} 
 	} 
 	%>

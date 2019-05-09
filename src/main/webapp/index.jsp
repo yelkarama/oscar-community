@@ -507,10 +507,12 @@ oscarUrl.setLength(urlLength);
     	                        <input type="hidden" id="oneIdKey" name="nameId" value="<%=request.getParameter("nameId") != null ? request.getParameter("nameId") : ""%>"/>
     	                        <input type="hidden" id="email" name="email" value="<%=request.getParameter("email") != null ? request.getParameter("email") : ""%>"/>
 								<input type="hidden" id="loginType" name="loginType" value=""/>
-	                        
+
     	                        <input type=hidden name='propname' value='<bean:message key="loginApplication.propertyFile"/>' />
 								<div id="buttonContainer">
+									<% if (OscarProperties.getInstance().getBooleanProperty("hide_oscar_classic", "false")) { %>
 									<input class="btn btn-oscar btn-block" name="submit" type="submit" onclick="enhancedOrClassic('C');" value="<bean:message key="index.OSCARClassic"/>" />
+									<% } %>
 									<input class="btn btn-primary btn-block" name="submit" type="submit" onclick="enhancedOrClassic('E');" value="<bean:message key="index.KaiEnhanced"/>" />
 								</div>
     	                        <% if (detector.detectSmartphone() && detector.detectWebkit()) {
