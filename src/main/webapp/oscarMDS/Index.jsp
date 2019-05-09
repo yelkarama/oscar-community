@@ -19,6 +19,9 @@
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%@page import="org.oscarehr.common.hl7.v2.oscar_to_oscar.OscarToOscarUtils"%>
 <%@page import="org.oscarehr.util.MiscUtils,org.apache.commons.lang.StringEscapeUtils"%>
+<%@ page import="org.oscarehr.common.model.UserProperty" %>
+<%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
+<%@ page import="org.oscarehr.util.SpringUtils" %>
 
 <%
       String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -529,6 +532,14 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 								| <a href="javascript:popupStart(800,1000, '<%=request.getContextPath() %>/oscarMDS/CreateLab.jsp')" style="color: #FFFFFF;"><bean:message key="global.createLab" /></a>
                                 | <a href="javascript:popupStart(800,1400, '<%=request.getContextPath() %>/olis/Search.jsp')" style="color: #FFFFFF;"><bean:message key="olis.olisSearch" /></a>
                                 | <a href="javascript:popupPage(400, 400,'<html:rewrite page="/hospitalReportManager/hospitalReportManager.jsp"/>')" style="color: #FFFFFF;">HRM Status/Upload</a>
+								
+								<%
+									UserPropertyDAO userPropertyDAO = SpringUtils.getBean(UserPropertyDAO.class);
+									UserProperty enhancedOrClassic = userPropertyDAO.getProp((String) session.getAttribute("user"), UserProperty.ENHANCED_OR_CLASSIC);
+
+									if (OscarProperties.getInstance().getBooleanProperty("new_inbox", "true") && enhancedOrClassic != null && enhancedOrClassic.getValue() != null && enhancedOrClassic.getValue().equals("E")) { %>
+									<a href="javascript:popupPage(900, 1215, '/kaiemr/app/components/inbox/?providerNo=<%=currentProviderNo%>')" title="Inbox" style="color: #FFFFFF;">KAI Inbox</a>
+								<% } %>
 
                             </td>
                         </tr>
