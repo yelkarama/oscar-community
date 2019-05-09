@@ -115,6 +115,13 @@
                     &nbsp;&nbsp;&nbsp;
                 </td>
             </tr>
+            <tr>
+                <td>Use create date instead of next appointment date on messages: </td>
+                <td>
+                    <input id="msg_use_create_date" type="checkbox" value="true" name="msg_use_create_date"
+                            <%=(dataBean.getProperty("msg_use_create_date", "false").equals("true")) ? "checked" : ""%> />
+                </td>
+            </tr>
             </tbody>
         </table>
 

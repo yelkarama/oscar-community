@@ -64,6 +64,8 @@ if (request.getParameter("bFirstDisp")!=null) bFirstDisp= (request.getParameter(
 <%@ page 
 	import="oscar.oscarDemographic.data.*, java.util.Enumeration"%>
 <%@ page import="java.util.Date" %>
+<%@ page import="org.oscarehr.common.model.SystemPreferences" %>
+<%@ page import="org.oscarehr.common.dao.SystemPreferencesDao" %>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -589,9 +591,30 @@ function fmtOscarMsg() {
 						</tr>
 						<tr>
 							<td bgcolor="#EEEEFF"></td>
+							<%
+                                boolean useCreateDate = false;
+
+                                SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+								SystemPreferences preference = systemPreferencesDao.findPreferenceByName("msg_use_create_date");
+								if (preference != null) {
+									useCreateDate = preference.getValueAsBoolean();
+								}
+                                
+                                if (useCreateDate) {
+							%>
 							<td bgcolor="#EEEEFF">
 								<a>Date created: <%=createDate%></a>
 							</td>
+							<%
+								} else {
+							%>
+							<td bgcolor="#EEEEFF"><a
+									href="javascript:popupStart(400,850,'../demographic/demographiccontrol.jsp?demographic_no=<%=demoID%>&last_name=<%=demoLastName%>&first_name=<%=demoFirstName%>&orderby=appointment_date&displaymode=appt_history&dboperation=appt_history&limit1=0&limit2=25','ApptHist')"
+									title="Click to see appointment history">Next Appt: <oscar:nextAppt
+									demographicNo="<%=demoID%>" /></a></td>
+							<%
+								}
+							%>
 						</tr>
 						<%     ++idx;
                                                 ++demoCount;

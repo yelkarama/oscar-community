@@ -14,7 +14,7 @@ public class SystemPreferences extends AbstractModel<Integer>
     public static final List<String> SCHEDULE_PREFERENCE_KEYS = Arrays.asList("schedule_display_type", "schedule_display_custom_roster_status");
     public static final List<String> ECHART_PREFERENCE_KEYS = Arrays.asList("echart_hide_timer");
     public static final List<String> MASTER_FILE_PREFERENCE_KEYS = Arrays.asList("display_former_name", "redirect_for_contact");
-    public static final List<String> GENERAL_SETTINGS_KEYS = Arrays.asList("replace_demographic_name_with_preferred");
+    public static final List<String> GENERAL_SETTINGS_KEYS = Arrays.asList("replace_demographic_name_with_preferred", "msg_use_create_date");
     public static final String LAB_DISPLAY_PREFERENCE_KEYS = "code_show_hide_column";
     public static final List<String> REFERRAL_SOURCE_PREFERENCE_KEYS = Arrays.asList("enable_referral_source");
     public static final String KIOSK_DISPLAY_PREFERENCE_KEYS = "check_in_all_appointments";
