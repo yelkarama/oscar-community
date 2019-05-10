@@ -25,12 +25,14 @@
 
 package oscar.eform;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
-import java.util.Vector;
 
 import org.apache.commons.digester.Digester;
 import org.apache.commons.lang.StringUtils;
@@ -41,7 +43,7 @@ import oscar.eform.data.EForm;
 
 public class EFormLoader {
     static private EFormLoader _instance;
-    static private Vector<DatabaseAP> eFormAPs = new Vector<DatabaseAP>();
+    static private Map<String, DatabaseAP> eFormAPs = new HashMap<String, DatabaseAP>();
     static private String marker = "oscarDB";
     static private String opener = "oscarOPEN";
     static private String inputMarker = "oscarDBinput";
@@ -56,8 +58,13 @@ public class EFormLoader {
         return _instance;
     }
 
+    /**
+     * Gets called by the digester to add the database AP methods
+     * @param ap The parsed DatabaseAP to add to the loaded eformAps 
+     */
     static public void addDatabaseAP(DatabaseAP ap) {
         String processed = ap.getApOutput();
+        
         //-------allow user to enter '\n' for new line---
         int pointer;
         while ((pointer = processed.indexOf("\\"+"n")) >= 0) {
@@ -66,35 +73,20 @@ public class EFormLoader {
         }
         //-----------------------------------------------
         ap.setApOutput(processed);
-        eFormAPs.addElement(ap);
+        
+        // Adds the ap to the eform ap map
+        eFormAPs.put(ap.getApName(), ap);
     }
 
     private EFormLoader() {
-/*
-        String name = "patient_name";
-        String sql = "SELECT * FROM demographic WHERE demographic_no=${demographic}";
-        String output = "${last_name}, ${first_name}";
-        DatabaseAP ap1 = new DatabaseAP(name, sql, output);
-        String name2 = "patient_sex";
-        String sql2 = "SELECT * FROM demographic WHERE demographic_no=${demographic}";
-        String output2 = "${first_name}'s hin is: ${hin}";
-        DatabaseAP ap2 = new DatabaseAP(name2, sql2, output2);
-        eFormAPs.addElement(ap1);
-        eFormAPs.addElement(ap2);
- */
-
     }
+
     /**
      *
      * @return list of names from database
      */
     public List<String> getNames() {
-        ArrayList<String> names = new ArrayList<String>();
-        for (int i=0; i<eFormAPs.size(); i++) {
-            DatabaseAP curap = eFormAPs.get(i);
-            names.add(curap.getApName());
-        }
-        return names;
+        return new ArrayList<String>(eFormAPs.keySet());
     }
 
     public static String getMarker() { return marker; }
@@ -126,16 +118,13 @@ public class EFormLoader {
         return "window.open('"+url+link+"');";
     }
 
+    /**
+     * Gets the requests AP from the stored eformAp map
+     * @param apName The name of the AP to get
+     * @return The matching AP, null if it doesn't exist
+     */
     public static DatabaseAP getAP(String apName) {
-        //returns he DatabaseAP corresponding to the ap name
-        DatabaseAP curAP = null;
-        for (int i=0; i<eFormAPs.size(); i++) {
-            curAP =  eFormAPs.get(i);
-            if (apName.equalsIgnoreCase(curAP.getApName())) {
-                return curAP;
-            }
-        }
-        return null;
+        return eFormAPs.get(apName);
     }
 
     /* Example:
@@ -149,32 +138,53 @@ public class EFormLoader {
      *Call ap like so: <input type="text" oscarDB=patient_name size="20">*/
 
     public static void parseXML() {
-      Digester digester = new Digester();
-      digester.push(_instance); // Push controller servlet onto the stack
-      digester.setValidating(false);
+        try {
+            InputStream fs;
+            Properties op = oscar.OscarProperties.getInstance();
+            
+            // Loads in the internal AP config xml
+            EFormLoader eLoader = new EFormLoader();
+            ClassLoader loader = eLoader.getClass().getClassLoader();
+            fs = loader.getResourceAsStream("/oscar/eform/apconfig.xml");
+            if (fs != null) {
+                // Creates a new digester and parses the internal apconfig, adding it to the eformAps map
+                Digester internalApDigester = createDigester();
+                internalApDigester.parse(fs);
+                fs.close();
+                internalApDigester.clear();
+            }
+            
+            // Reads in and parses the external/custom ap config, if defined
+            String configpath = op.getProperty("eform_databaseap_config");
+            if (configpath != null && new File(configpath).exists()) {
+                Digester externalApDigester = createDigester();
+                fs = new FileInputStream(configpath);
+                externalApDigester.parse(fs);
+                fs.close();
+            }
+        } catch (Exception e) {
+            MiscUtils.getLogger().error("Error", e); 
+        }
+    }
 
-      digester.addObjectCreate("eformap-config/databaseap",DatabaseAP.class);
-      //digester.addSetProperties("eformap-config/databaseap");
-      digester.addBeanPropertySetter("eformap-config/databaseap/ap-name","apName");
-      digester.addBeanPropertySetter("eformap-config/databaseap/ap-sql","apSQL");
-      digester.addBeanPropertySetter("eformap-config/databaseap/ap-output","apOutput");
-      digester.addBeanPropertySetter("eformap-config/databaseap/ap-insql", "apInSQL");
-      digester.addBeanPropertySetter("eformap-config/databaseap/archive", "archive");
-      digester.addBeanPropertySetter("eformap-config/databaseap/ap-json-output", "apJsonOutput");
-      digester.addSetNext("eformap-config/databaseap","addDatabaseAP");
-      try {
-          Properties op = oscar.OscarProperties.getInstance();
-          String configpath = op.getProperty("eform_databaseap_config");
-          InputStream fs = null;
-          if (configpath == null) {
-             EFormLoader eLoader = new EFormLoader();
-             ClassLoader loader = eLoader.getClass().getClassLoader();
-             fs = loader.getResourceAsStream("/oscar/eform/apconfig.xml");
-          }else{
-             fs = new FileInputStream(configpath);
-          }
-          digester.parse(fs);
-          fs.close();
-      } catch (Exception e) { MiscUtils.getLogger().error("Error", e); }
+    /**
+     * Creates a new Digester to load in the database aps
+     * @return A new Digester
+     */
+    private static Digester createDigester() {
+        Digester digester = new Digester();
+        digester.push(_instance); // Push controller servlet onto the stack
+        digester.setValidating(false);
+
+        digester.addObjectCreate("eformap-config/databaseap", DatabaseAP.class);
+        digester.addBeanPropertySetter("eformap-config/databaseap/ap-name","apName");
+        digester.addBeanPropertySetter("eformap-config/databaseap/ap-sql","apSQL");
+        digester.addBeanPropertySetter("eformap-config/databaseap/ap-output","apOutput");
+        digester.addBeanPropertySetter("eformap-config/databaseap/ap-insql", "apInSQL");
+        digester.addBeanPropertySetter("eformap-config/databaseap/archive", "archive");
+        digester.addBeanPropertySetter("eformap-config/databaseap/ap-json-output", "apJsonOutput");
+        digester.addSetNext("eformap-config/databaseap","addDatabaseAP");
+        
+        return digester;
     }
  }
