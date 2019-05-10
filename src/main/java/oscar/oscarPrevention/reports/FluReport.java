@@ -208,7 +208,7 @@ public class FluReport implements PreventionReport {
                 log.debug("due Date "+dueDate.toString()+" cutoffDate "+cutoffDate.toString()+" prevDate "+prevDate.toString());
                 log.debug("due Date  ("+dueDate.toString()+" ) After Prev ("+prevDate.toString() +" ) "+dueDate.after(prevDate));
                 log.debug("cutoff Date  ("+cutoffDate.toString()+" ) before Prev ("+prevDate.toString() +" ) "+cutoffDate.before(prevDate));
-                if (!refused && dueDate.after(prevDate) && cutoffDate.before(prevDate)){ // overdue
+                if (!refused && (dueDate.after(prevDate) || dueDate.equals(prevDate)) && cutoffDate.before(prevDate)){ // overdue
                    prd.rank = 2;
                    prd.lastDate = prevDateStr;
                    prd.state = "due";
@@ -228,7 +228,7 @@ public class FluReport implements PreventionReport {
                    prd.state = "Refused";
                    prd.numMonths = numMonths;
                    prd.color = "orange"; //FF9933
-                } else if (dueDate.before(prevDate)  ){  // recorded done
+                } else if (dueDate.before(prevDate) || dueDate.equals(prevDate)){  // recorded done
                    prd.rank = 4;
                    prd.lastDate = prevDateStr;
                    prd.state = "Up to date";
