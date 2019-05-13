@@ -598,7 +598,7 @@ public class AppService extends AbstractServiceImpl {
 			bufferedReader.close();
 	   		
 			logger.info("response code "+reps.getStatus());
-	   		if(reps.getStatus() == 200) {
+	   		if(reps.getStatus() == Response.Status.OK.getStatusCode() || reps.getStatus() == Response.Status.CREATED.getStatusCode()) {
 	   			return Response.ok(response).build();
 	   		}
 	   		
