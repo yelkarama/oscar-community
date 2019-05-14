@@ -289,6 +289,28 @@
 		using(note_id) order by {cmn.observation_date} asc
 	</sql-query>
 
+	<sql-query name="mostRecentDateRangeForDemographic">
+		<return alias="c" class="org.oscarehr.casemgmt.model.CaseManagementNote" />
+		SELECT DISTINCT c.note_id as {c.id}, c.update_date as {c.update_date}, c.observation_date as {c.observation_date}, c.demographic_no as {c.demographic_no},
+		c.provider_no as {c.providerNo}, c.note as {c.note}, c.signed as {c.signed}, c.include_issue_innote as {c.includeissue}, c.signing_provider_no as {c.signing_provider_no},
+		c.encounter_type as {c.encounter_type}, c.billing_code as {c.billing_code}, c.program_no as {c.program_no}, c.reporter_caisi_role as {c.reporter_caisi_role},
+		c.reporter_program_team as {c.reporter_program_team}, c.history as {c.history}, c.uuid as {c.uuid}, c.password as {c.password}, c.locked as {c.locked}, c.archived as {c.archived},
+		c.position as {c.position}, c.appointmentNo as {c.appointmentNo}, c.hourOfEncounterTime as {c.hourOfEncounterTime}, c.minuteOfEncounterTime as {c.minuteOfEncounterTime},
+		c.hourOfEncTransportationTime as {c.hourOfEncTransportationTime}, c.minuteOfEncTransportationTime as {c.minuteOfEncTransportationTime},
+		r.role_name as {c.roleName}, p.name as {c.programName},
+		(select count(c3.uuid) from casemgmt_note c3 where c3.uuid = c.uuid) as {c.revision},
+		(select min(c4.update_date) from casemgmt_note c4 where c4.uuid = c.uuid) as {c.create_date}
+		FROM casemgmt_note c
+		LEFT JOIN casemgmt_note c2 ON (c.uuid = c2.uuid AND c.note_id &lt; c2.note_id)
+		LEFT JOIN secRole r ON r.role_no = c.reporter_caisi_role
+		LEFT JOIN program p ON p.id = c.program_no
+		WHERE c.demographic_no = :demographicNo
+		AND DATE(c.observation_date) &gt;= :startDate
+		AND DATE(c.observation_date) &lt;= :endDate
+		AND c.provider_no &gt; 0
+		AND c2.note_id IS NULL
+		ORDER BY {c.observation_date} DESC
+	</sql-query>
 	<!--
 		generated sql select casemgmt_note.note_id as note1_82_0_, update_date
 		as update2_82_0_, observation_date as observat3_82_0_, demographic_no

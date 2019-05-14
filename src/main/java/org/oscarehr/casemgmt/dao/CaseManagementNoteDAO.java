@@ -45,6 +45,7 @@ import javax.persistence.PersistenceException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.criterion.Expression;
@@ -485,16 +486,15 @@ public class CaseManagementNoteDAO extends HibernateDaoSupport {
 			return null;
 		}
 
-		hql = " select distinct cmn from CaseManagementNote cmn " +
-				"where cmn.demographic_no = ? " +
-				"and date(cmn.observation_date) >= ?  " +
-				"and date(cmn.observation_date) <= ?  " +
-				"and cmn.providerNo > 0 " +
-				"and cmn.id in (select max(cmn.id) from CaseManagementNote cmn GROUP BY cmn.uuid)  " +
-				"order by cmn.observation_date desc";
-
-		List<CaseManagementNote> result = getHibernateTemplate().find(hql, new Object[] { demographicNo, startDate, endDate });
-		return result;
+		Session session = getSession();
+		Query query = session.getNamedQuery("mostRecentDateRangeForDemographic");
+		query.setParameter("demographicNo", demographicNo);
+		query.setParameter("startDate", startDate);
+		query.setParameter("endDate", endDate);
+		List<CaseManagementNote> results = query.list();
+		session.close();
+		
+		return results;
 	}
 
 	@SuppressWarnings("unchecked")
