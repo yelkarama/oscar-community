@@ -119,48 +119,54 @@ public final class SSOLoginAction extends MappingDispatchAction {
         LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(session);
         //Gets the loggedInProviderNumber
         String loggedInProviderNumber = loggedInInfo.getLoggedInProviderNo();
+        String oneIdToken = null;
+        
         //Sets the oneIdKey and email
         oneIdKey = request.getParameter("nameId");
         oneIdEmail = request.getParameter("email");
-        requestStartTime = request.getParameter("ts");
- String encryptedOneIdToken = request.getParameter("encryptedOneIdToken");
+        requestStartTime = request.getParameter("loginStart");
         
-        String signature = request.getParameter("signature");
-        String ts = request.getParameter("ts");
-        
-        if(!StringUtils.isEmpty(signature)) {
-        	logger.info("Found signature " + signature);
-        	try {
-        		Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
-        		SecretKeySpec secret_key = new SecretKeySpec(OscarProperties.getInstance().getProperty("oneid.encryptionKey").getBytes("UTF-8"), "HmacSHA256");
-        		sha256_HMAC.init(secret_key);
-        		String ourSig = Hex.encodeHexString(sha256_HMAC.doFinal((oneIdKey + oneIdEmail + encryptedOneIdToken + ts).getBytes("UTF-8")));
-        		if(!ourSig.equals(signature)) {
-        			logger.warn("SSO Login: invalid HMAC signature");
-                	ActionRedirect redirect = new ActionRedirect(mapping.findForward("ssoLoginError"));
-                    redirect.addParameter("errorMessage", "Invalid signature found");
-                    return redirect;
-        		}
-        	}catch(Exception e) {
-        		MiscUtils.getLogger().error("Error",e);
-        	}
-        	
-        } else {
-        	logger.warn("SSO Login: expected HMAC signature");
-        	ActionRedirect redirect = new ActionRedirect(mapping.findForward("ssoLoginError"));
-            redirect.addParameter("errorMessage", "No signature found");
-            return redirect;
-        }
-        
-        String oneIdToken = null;
-        if(!StringUtils.isEmpty(encryptedOneIdToken)) {
-        	oneIdToken = decrypt(OscarProperties.getInstance().getProperty("oneid.encryptionKey"),encryptedOneIdToken);
-        	logger.info("token from encryption is " + oneIdToken);	
-        } else {
-        	logger.warn("SSO Login: expected an encrypted token");
-        	ActionRedirect redirect = new ActionRedirect(mapping.findForward("ssoLoginError"));
-            redirect.addParameter("errorMessage", "No token found");
-            return redirect;
+        // If the loginStart parameter is not populated, uses the new encryption checking functionality as it is using the newer backend to login to OneId
+        if (requestStartTime == null) {
+            requestStartTime = request.getParameter("ts");
+            String encryptedOneIdToken = request.getParameter("encryptedOneIdToken");
+
+            String signature = request.getParameter("signature");
+            String ts = request.getParameter("ts");
+
+            if (!StringUtils.isEmpty(signature)) {
+                logger.info("Found signature " + signature);
+                try {
+                    Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
+                    SecretKeySpec secret_key = new SecretKeySpec(OscarProperties.getInstance().getProperty("oneid.encryptionKey").getBytes("UTF-8"), "HmacSHA256");
+                    sha256_HMAC.init(secret_key);
+                    String ourSig = Hex.encodeHexString(sha256_HMAC.doFinal((oneIdKey + oneIdEmail + encryptedOneIdToken + ts).getBytes("UTF-8")));
+                    if (!ourSig.equals(signature)) {
+                        logger.warn("SSO Login: invalid HMAC signature");
+                        ActionRedirect redirect = new ActionRedirect(mapping.findForward("ssoLoginError"));
+                        redirect.addParameter("errorMessage", "Invalid signature found");
+                        return redirect;
+                    }
+                } catch (Exception e) {
+                    MiscUtils.getLogger().error("Error", e);
+                }
+
+            } else {
+                logger.warn("SSO Login: expected HMAC signature");
+                ActionRedirect redirect = new ActionRedirect(mapping.findForward("ssoLoginError"));
+                redirect.addParameter("errorMessage", "No signature found");
+                return redirect;
+            }
+            
+            if (!StringUtils.isEmpty(encryptedOneIdToken)) {
+                oneIdToken = decrypt(OscarProperties.getInstance().getProperty("oneid.encryptionKey"), encryptedOneIdToken);
+                logger.info("token from encryption is " + oneIdToken);
+            } else {
+                logger.warn("SSO Login: expected an encrypted token");
+                ActionRedirect redirect = new ActionRedirect(mapping.findForward("ssoLoginError"));
+                redirect.addParameter("errorMessage", "No token found");
+                return redirect;
+            }
         }
 
         Boolean valid = isSessionValid();
@@ -205,7 +211,9 @@ public final class SSOLoginAction extends MappingDispatchAction {
         	if (loggedInProviderNumber.equals(providerNumber)){
         		//Sets the oneIdEmail session attribute
     			session.setAttribute("oneIdEmail", oneIdEmail);
-    			session.setAttribute("oneid_token", oneIdToken );
+    			if (oneIdToken != null) {
+                    session.setAttribute("oneid_token", oneIdToken);
+                }
     			 
     			if (providerInformation[6] != null && !providerInformation[6].equals("")) {
                     session.setAttribute("delegateOneIdEmail", providerInformation[6]);
@@ -282,49 +290,62 @@ public final class SSOLoginAction extends MappingDispatchAction {
     	//Declares providerInformation String Array
     	String[] providerInformation;
     	String providerNumber = "";
-    	
+
+        String oneIdToken = null;
+        
     	//Gets the ssoKey parameter
     	oneIdKey = request.getParameter("nameId");
     	oneIdEmail = request.getParameter("email");
-        requestStartTime = request.getParameter("ts");
-        String encryptedOneIdToken = request.getParameter("encryptedOneIdToken");
-        
-        String signature = request.getParameter("signature");
-        String ts = request.getParameter("ts");
-  
-        if(!StringUtils.isEmpty(signature)) {
-        	logger.info("Found signature " + signature);
-        	try {
-        		Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
-        		SecretKeySpec secret_key = new SecretKeySpec(OscarProperties.getInstance().getProperty("oneid.encryptionKey").getBytes("UTF-8"), "HmacSHA256");
-        		sha256_HMAC.init(secret_key);
-        		String ourSig = Hex.encodeHexString(sha256_HMAC.doFinal((oneIdKey + oneIdEmail + encryptedOneIdToken + ts).getBytes("UTF-8")));
-        		if(!ourSig.equals(signature)) {
-        			logger.warn("SSO Login: invalid HMAC signature");
-                	ActionRedirect redirect = new ActionRedirect(mapping.findForward("ssoLoginError"));
-                    redirect.addParameter("errorMessage", "Invalid signature found");
-                    return redirect;
-        		}
-        	}catch(Exception e) {
-        		MiscUtils.getLogger().error("Error",e);
-        	}
-        	
-        } else {
-        	logger.warn("SSO Login: expected HMAC signature");
-        	ActionRedirect redirect = new ActionRedirect(mapping.findForward("ssoLoginError"));
-            redirect.addParameter("errorMessage", "No signature found");
-            return redirect;
-        }
-        
-        String oneIdToken = null;
-        if(!StringUtils.isEmpty(encryptedOneIdToken)) {
-        	oneIdToken = decrypt(OscarProperties.getInstance().getProperty("oneid.encryptionKey"),encryptedOneIdToken);
-        	logger.info("token from encryption is " + oneIdToken);	
-        } else {
-        	logger.warn("SSO Login: expected an encrypted token");
-        	ActionRedirect redirect = new ActionRedirect(mapping.findForward("ssoLoginError"));
-            redirect.addParameter("errorMessage", "No token found");
-            return redirect;
+        requestStartTime = request.getParameter("loginStart");
+
+        // If the loginStart parameter is not populated, uses the new encryption checking functionality as it is using the newer backend to login to OneId
+        if (requestStartTime == null) {
+            requestStartTime = request.getParameter("ts");
+            String encryptedOneIdToken = request.getParameter("encryptedOneIdToken");
+
+            String signature = request.getParameter("signature");
+            String ts = request.getParameter("ts");
+
+            if (!StringUtils.isEmpty(signature)) {
+                logger.info("Found signature " + signature);
+                try {
+                    Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
+                    SecretKeySpec secret_key = new SecretKeySpec(OscarProperties.getInstance().getProperty("oneid.encryptionKey").getBytes("UTF-8"), "HmacSHA256");
+                    sha256_HMAC.init(secret_key);
+                    String ourSig = Hex.encodeHexString(sha256_HMAC.doFinal((oneIdKey + oneIdEmail + encryptedOneIdToken + ts).getBytes("UTF-8")));
+                    if (!ourSig.equals(signature)) {
+                        logger.warn("SSO Login: invalid HMAC signature");
+                        ActionRedirect redirect = new ActionRedirect(mapping.findForward("ssoLoginError"));
+                        redirect.addParameter("errorMessage", "Invalid signature found");
+                        return redirect;
+                    }
+                } catch (Exception e) {
+                    MiscUtils.getLogger().error("Error", e);
+                }
+
+            } else {
+                logger.warn("SSO Login: expected HMAC signature");
+                ActionRedirect redirect = new ActionRedirect(mapping.findForward("ssoLoginError"));
+                redirect.addParameter("errorMessage", "No signature found");
+                return redirect;
+            }
+
+            
+            if (!StringUtils.isEmpty(encryptedOneIdToken)) {
+                oneIdToken = decrypt(OscarProperties.getInstance().getProperty("oneid.encryptionKey"), encryptedOneIdToken);
+                logger.info("token from encryption is " + oneIdToken);
+            } else {
+                logger.warn("SSO Login: expected an encrypted token");
+                ActionRedirect redirect = new ActionRedirect(mapping.findForward("ssoLoginError"));
+                redirect.addParameter("errorMessage", "No token found");
+                return redirect;
+            }
+
+            if(oneIdToken == null) {
+                ActionRedirect redirect = new ActionRedirect(mapping.findForward("ssoLoginError"));
+                redirect.addParameter("errorMessage", "No valid token found");
+                return redirect;
+            }
         }
         
         Boolean valid = isSessionValid();
@@ -332,12 +353,6 @@ public final class SSOLoginAction extends MappingDispatchAction {
         if (!valid) {
             ActionRedirect redirect = new ActionRedirect(mapping.findForward("ssoLoginError"));
             redirect.addParameter("errorMessage", "The session has timed out");
-            return redirect;
-        }
-
-        if(oneIdToken == null) {
-        	ActionRedirect redirect = new ActionRedirect(mapping.findForward("ssoLoginError"));
-            redirect.addParameter("errorMessage", "No valid token found");
             return redirect;
         }
         
@@ -411,7 +426,9 @@ public final class SSOLoginAction extends MappingDispatchAction {
             session.setAttribute("oscar_context_path", request.getContextPath());
             session.setAttribute("expired_days", providerInformation[5]);
             session.setAttribute("oneIdEmail", oneIdEmail);
-            session.setAttribute("oneid_token", oneIdToken );
+            if (oneIdToken != null) {
+                session.setAttribute("oneid_token", oneIdToken);
+            }
             if (providerInformation[6] != null && !providerInformation[6].equals("")) {
                 session.setAttribute("delegateOneIdEmail", providerInformation[6]);
             }
