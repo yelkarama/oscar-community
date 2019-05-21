@@ -886,6 +886,23 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 				</a>
 			</td>
 		</tr>
+		<tr>
+			<td width="2"><%=j%><%j++;%></td>
+			<td width="1"></td>
+			<td width="300">
+				<a href="javascript:void(0);" onclick="window.open('/progresssheet/billing/listForDate?date=' + document.getElementById('ps_billing_for_date').value)">
+					<bean:message key="admin.admin.psBillingPrintout" />
+				</a>
+			</td>
+			<td>
+				<label>For Date:
+					<input name="ps_billing_for_date" type="input" id="ps_billing_for_date" size="8" value="<%=today%>"/>
+				</label>
+				<a HREF="#" onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=../report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('ps_billing_for_date')[0].value")%>')">
+					<img title=Calendar" src="../images/cal.gif" alt="Calendar" border="0">
+				</a>
+			</td>
+		</tr>
 	<% } %>
 
     <tr><td>&nbsp;</td></tr>
