@@ -199,17 +199,45 @@
                 document.forms["caseManagementEntryForm"].includeIssue.value = "off";
 
                 var frm = document.forms["caseManagementEntryForm"];
-                var url = ctx + "/CaseManagementEntry.do?" + Form.serialize(frm);
-                
-                navigator.sendBeacon(url);
+                var url = ctx + "/CaseManagementEntry.do";
+                var objAjax = new Ajax.Request (
+                    url,
+                    {
+                        method: 'post',
+                        postBody: Form.serialize(frm),
+                        asynchronous: false,
+                        onComplete: function(request) {                            
+                            okToClose = true;
+                        },
+                        onFailure: function(request) {
+                            if( request.status == 403 )
+                                alert(sessionExpiredError);
+                            else
+                                alert(request.status + " " + savingNoteError);
+                        }
+                     }
+                   );
+
+                   while(1) {
+                        if( okToClose == true ) {
+                            break;
+                        }
+                   }
             } //end if save needed
 			else if( needToReleaseLock && frm.method.value !== "print" && frm.method.value !== "fax") {
 				//release lock on note
-				var url = ctx + "/CaseManagementEntry.do?";
+				var url = ctx + "/CaseManagementEntry.do";
 				var nId = document.forms['caseManagementEntryForm'].noteId.value;
 				var params = "method=releaseNoteLock&providerNo=" + providerNo + "&demographicNo=" + demographicNo 
 					+ "&noteId=" + nId + "&closingEChart=true";
-				navigator.sendBeacon(url + params);
+				new Ajax.Request (
+					url,
+					{
+						method: 'post',
+						postBody: params,
+						asynchronous: false						
+					}
+				);				
 			}
         }
 
