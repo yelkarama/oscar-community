@@ -146,11 +146,11 @@ private List<Site> sites = new ArrayList<Site>();
 private List<Site> curUserSites = new ArrayList<Site>();
 private List<String> siteProviderNos = new ArrayList<String>();
 private List<String> siteGroups = new ArrayList<String>();
-private String selectedSite = null;
 private HashMap<String,String> siteBgColor = new HashMap<String,String>();
 private HashMap<String,String> CurrentSiteMap = new HashMap<String,String>();%>
 
 <%
+	String selectedSite = null;
 	if (bMultisites) {
 	sites = siteDao.getAllActiveSites();
 	selectedSite = (String)session.getAttribute("site_selected");
