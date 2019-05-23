@@ -106,6 +106,13 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 
 		return results;
 	}
+	
+	public List<Hl7TextInfo> searchByAccessionNumberOrderByObrDate(String accessionNumber) {
+        String queryString = "SELECT h from Hl7TextInfo h where h.accessionNumber = :accessionNumber ORDER BY h.obrDate DESC";
+        Query query = entityManager.createQuery(queryString);
+        query.setParameter("accessionNumber", accessionNumber);
+        return query.getResultList();
+    }
 
     public List<Hl7TextInfo> searchByFillerOrderNumber(String fon, String sending_facility){
     	String sql = "select x from Hl7TextInfo x where x.fillerOrderNum=?1 and sendingFacility=?2";

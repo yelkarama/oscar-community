@@ -44,10 +44,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.OtherIdManager;
 import org.oscarehr.common.dao.DemographicCustDao;
+import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.FileUploadCheckDao;
 import org.oscarehr.common.dao.Hl7TextInfoDao;
 import org.oscarehr.common.dao.Hl7TextMessageDao;
@@ -100,6 +102,7 @@ public final class MessageUploader {
 	private static MeasurementDao measurementDao = SpringUtils.getBean(MeasurementDao.class);
 	private static FileUploadCheckDao fileUploadCheckDao = SpringUtils.getBean(FileUploadCheckDao.class);
 	private static DemographicManager demographicManager = SpringUtils.getBean(DemographicManager.class);
+    private static DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
 
 
 
@@ -134,7 +137,7 @@ public final class MessageUploader {
                 requestingClient = ((OLISHL7Handler) h).getShortDocName();
             }
 			String reportStatus = h.getOrderStatus();
-			String accessionNum = h.getAccessionNum();
+			String accessionNumber = h.getAccessionNum();
 			String fillerOrderNum = h.getFillerOrderNumber();
 			String sendingFacility = h.getPatientLocation();
 			ArrayList docNums = h.getDocNums();
@@ -244,7 +247,6 @@ public final class MessageUploader {
 			}
 			int insertID = 0;
 			if (!isTDIS || !hasBeenUpdated) {
-				List<Hl7TextInfo> matchingLabs =  hl7TextInfoDao.searchByAccessionNumber(accessionNum);
 				hl7TextMessage.setFileUploadCheckId(fileId);
 				hl7TextMessage.setType(type);
 				hl7TextMessage.setBase64EncodedeMessage(new String(Base64.encodeBase64(hl7Body.getBytes(MiscUtils.DEFAULT_UTF8_ENCODING)), MiscUtils.DEFAULT_UTF8_ENCODING));
@@ -264,17 +266,28 @@ public final class MessageUploader {
 				hl7TextInfo.setRequestingProvider(requestingClient);
 				hl7TextInfo.setDiscipline(discipline);
 				hl7TextInfo.setReportStatus(reportStatus);
-				hl7TextInfo.setAccessionNumber(accessionNum);
+				hl7TextInfo.setAccessionNumber(accessionNumber);
 				hl7TextInfo.setFillerOrderNum(fillerOrderNum);
-				// Set label if there is a matching lab already uploaded with a label
-				if(matchingLabs.size()>0){
-					String label = "";
-					for(Hl7TextInfo lab : matchingLabs){
-						label = lab.getLabel()!=null?lab.getLabel():"";
-						if(label.trim().length()>0){
-							hl7TextInfo.setLabel(label);
+				
+				// If a past lab with the same AccessionNumber exist carry over the label
+				List<Hl7TextInfo> matchingLabs = hl7TextInfoDao.searchByAccessionNumberOrderByObrDate(accessionNumber);
+				for (Hl7TextInfo matchingLab : matchingLabs) {
+					// if the lab has an entered label to carry over
+					if (!StringUtils.isBlank(matchingLab.getLabel())) {
+						// if the matched lab exist and a demographic is matched to it, make sure the HIN is the same 
+						// before carrying over the label. If there is no demographic linked, just carry over the label
+						PatientLabRouting matchedPatientLabRouting = patientLabRoutingDao.findDemographicByLabId(matchingLab.getLabNumber());
+						if (matchedPatientLabRouting != null) {
+							Demographic matchedDemographic = demographicDao.getDemographic(matchedPatientLabRouting.getDemographicNo());
+							if (matchedDemographic != null && !StringUtils.isBlank(hin) && hin.equals(matchedDemographic.getHin())) {
+								hl7TextInfo.setLabel(matchingLab.getLabel());
+								break;
+							}
+						} else {
+							hl7TextInfo.setLabel(matchingLab.getLabel());
 							break;
 						}
+
 					}
 				}
 				hl7TextInfoDao.persist(hl7TextInfo);

@@ -685,7 +685,7 @@ pre {
       	      type: "POST",
       	      url: '<%=request.getContextPath()%>'+"/lab/CA/ALL/createLabelTDIS.do",
       	      dataType: "json",
-      	      data: { lab_no: jQuery("#labNum_<%=segmentID%>").val(),accessionNum: jQuery("#accNum").val(), label: jQuery("#label_<%=segmentID%>").val(), ajaxcall: true },
+      	      data: { lab_no: jQuery("#labNum_<%=segmentID%>").val(), label: jQuery("#label_<%=segmentID%>").val(), ajaxcall: true },
       	      success: function(result) {
       	    	jQuery("#labelspan_<%=segmentID%>").children().get(0).innerHTML = "Label: " +  jQuery("#label_<%=segmentID%>").val();
         	  	document.forms['acknowledgeForm_<%=segmentID%>'].label.value = "";    

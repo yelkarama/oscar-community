@@ -128,8 +128,11 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 			return null;
 		}
 
-		return this.getHibernateTemplate().get(Demographic.class, dNo);
+		return getDemographic(dNo);
 	}
+    public Demographic getDemographic(Integer demographicNo) {
+        return this.getHibernateTemplate().get(Demographic.class, demographicNo);
+    }
 
 	// ADD BY PINE-SOFT
 	public List getDemographics() {
