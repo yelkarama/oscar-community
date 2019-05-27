@@ -168,20 +168,21 @@ function checkForm() {
 
         boolean allowed = true;
         String filename = contents[i].getName();
-        
-        String fileProviderNumber = "";
-        if (filename.matches("\\w{2}\\d+\\.\\d+")) {
-            fileProviderNumber = filename.substring(2, filename.indexOf("."));
-        }
-        
-        if (!fileProviderNumber.isEmpty()) {
-            String curUser_providerno = loggedInInfo.getLoggedInProviderNo();
-            List<String> ohipNos = billingPermissionDao.getOhipNosNotAllowed(curUser_providerno, BillingPermission.VIEW_MOH_FILES);
-            if (ohipNos.contains(fileProviderNumber)){
-                continue;
-            }
-        }
-        
+      // Doesn't check the billing permissions if the item is a general report
+      if (!filename.matches("[A-z]{3}-\\d{1,6}.*")) {
+          String fileProviderNumber = "";
+          if (filename.matches("\\w{2}\\d+\\.\\d+")) {
+              fileProviderNumber = filename.substring(2, filename.indexOf("."));
+          }
+
+          if (!fileProviderNumber.isEmpty()) {
+              String curUser_providerno = loggedInInfo.getLoggedInProviderNo();
+              List<String> ohipNos = billingPermissionDao.getOhipNosNotAllowed(curUser_providerno, BillingPermission.VIEW_MOH_FILES);
+              if (ohipNos.contains(fileProviderNumber)) {
+                  continue;
+              }
+          }
+      }
       if (folder == EDTFolder.INBOX || folder == EDTFolder.ARCHIVE) {
           out.println("<tr id='" + URLEncoder.encode(contents[i].getName()) + "'>"+(folder == EDTFolder.INBOX ? archiveElement : "")+"<td><a HREF='javascript:void(0)' onclick='viewMOHFile(\""+URLEncoder.encode(contents[i].getName())+"\")'>"+contents[i].getName()+unzipMSG+"</a></td>") ;
           out.println("<td><a HREF='../../../servlet/BackupDownload?filename="+URLEncoder.encode(contents[i].getName())+"'>Download</a></td>") ;
