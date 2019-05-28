@@ -410,6 +410,10 @@ table td,th{font-size:12px;}
 	String curSite = request.getParameter("site");
 	// Create option list for all billable providers
 	StringBuilder allProviderOptions = new StringBuilder();
+	allProviderOptions.append("<option ");
+	allProviderOptions.append("value=\"all\">");
+	allProviderOptions.append("---All Providers---");
+	allProviderOptions.append("</option>");
 	for (Provider provider : providerList) {
 	    if (billingPermissionDao.hasPermission(provider.getProviderNo(), curUser_providerno, BillingPermission.INVOICE_REPORT)) {
             allProviderOptions.append("<option ");
@@ -433,6 +437,10 @@ table td,th{font-size:12px;}
 		List<Provider> siteProvidersList = new ArrayList<Provider>();
 		siteProvidersList.addAll(siteProvidersSet);
 		Collections.sort(siteProvidersList, (new Provider()).ComparatorName());
+		optionsString.append("<option ");
+		optionsString.append("value=\"all\">");
+		optionsString.append("---All Providers---");
+		optionsString.append("</option>");
 		for (Provider provider : siteProvidersList) {
 			if (providerList.contains(provider) && billingPermissionDao.hasPermission(provider.getProviderNo(), curUser_providerno, BillingPermission.INVOICE_REPORT)) {
 				optionsString.append("<option ");
@@ -452,7 +460,8 @@ table td,th{font-size:12px;}
 	} %>
 	<%="_providers[\'all\']=\'" + allProviderOptions.toString() + "\';"%>
 function changeSite(sel) {
-	sel.form.providerview.innerHTML="<option value='none'>---select provider---</option>"+_providers[sel.value];
+	sel.form.providerview.innerHTML = _providers[sel.value];
+	
 	sel.style.backgroundColor=sel.options[sel.selectedIndex].style.backgroundColor;
 	if (sel.value=='<%=StringEscapeUtils.escapeJavaScript(request.getParameter("site"))%>') {
 		if (document.serviceform.provider_ohipNo.value!='')
@@ -465,8 +474,10 @@ function changeSite(sel) {
 	</script>
 	<select id="site" name="site" onchange="changeSite(this)">
 		<option value="all" style="background-color:white">---All Clinics---</option>
-		<% for (Site site : sites) { %>
-			<option value="<%= site.getName() %>" style="background-color:<%= site.getBgColor() %>" <%=site.getName().toString().equals(curSite) ? "selected" : "" %>>
+		<% for (Site site : sites) { 
+			String bgColor = StringUtils.isNullOrEmpty(site.getBgColor()) ? "#ffffff" : site.getBgColor();
+		%>
+			<option value="<%= site.getName() %>" style="background-color:<%=bgColor%>" <%=site.getName().toString().equals(curSite) ? "selected" : "" %>>
 				<%= site.getName() %>
 			</option>
 		<% } %>
@@ -490,7 +501,6 @@ function changeSite(sel) {
 		<option value="<%=defaultProvider.getProviderNo()%>"> <%=defaultProvider.getLastName()%>, <%=defaultProvider.getFirstName()%></option>
 		<script>document.serviceform.provider_ohipNo.value=<%=defaultProvider.getOhipNo()%>;</script>
 		<% } else { %>
-			<option value="all">All Providers</option>
 			<%=allProviderOptions%>
 		<% } %>
 	</select>
@@ -1046,8 +1056,15 @@ if(statusType.equals("_")) { %>
 			 </td>
              <td align="center"><%=qty %></td>
              <td align="center"><%=ch1Obj.getProviderName() %></td>
-             <% if (bMultisites) {%>
-				 <td> "<%=(ch1Obj.getClinic()== null || ch1Obj.getClinic().equalsIgnoreCase("null") ? "" : "bgcolor='" + siteBgColor.get(ch1Obj.getClinic()) + "'")%>">
+			  	<% 
+				 if (bMultisites) {
+					String bgColor = "";
+					if (!(StringUtils.isNullOrEmpty(ch1Obj.getClinic()) || ch1Obj.getClinic().equalsIgnoreCase("null")) 
+							&& !StringUtils.isNullOrEmpty(siteBgColor.get(ch1Obj.getClinic()))) {
+						bgColor = "style='background-color:" + siteBgColor.get(ch1Obj.getClinic()) + "'";
+					 }
+				%>
+				 <td <%=bgColor%>>
 				 	<%=(ch1Obj.getClinic()== null || ch1Obj.getClinic().equalsIgnoreCase("null") ? "" : siteShortName.get(ch1Obj.getClinic()))%>
 				 </td>     <!--SITE-->          
         	<% }%>   

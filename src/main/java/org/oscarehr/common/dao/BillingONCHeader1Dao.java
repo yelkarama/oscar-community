@@ -732,7 +732,8 @@ public class BillingONCHeader1Dao extends AbstractDao<BillingONCHeader1>{
 		}
 
         if(demoName != null) {
-		    demoName = demoName + "%";
+            // claim headers do not include spaces between last and first name
+		    demoName = demoName.replaceAll("\\s", "") + "%";
             app.and("ch1.demographicName like :demographicName", "demographicName", demoName);
         }
 
