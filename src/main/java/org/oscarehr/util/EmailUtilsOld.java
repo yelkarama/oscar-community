@@ -32,6 +32,7 @@ import java.util.Properties;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
+import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
@@ -181,18 +182,40 @@ public final class EmailUtilsOld
 	 * This is a convenience method for sending and email to 1 recipient using the configuration file settings.
 	 * @throws EmailException 
 	 */
-	public static void sendEmail(String toEmailAddress, String toName, String fromEmailAddress, String fromName, String subject, String textContents, String htmlContents) throws EmailException
-	{
-		HtmlEmail htmlEmail = getHtmlEmail();
+	public static void sendEmail(String toEmailAddress, String toName, String fromEmailAddress, String fromName, String subject, String textContents, String htmlContents) throws EmailException  {
 
+		HtmlEmail htmlEmail = (recipientOverride != null || printInsteadOfSend) ? new HtmlEmailWrapper() : new HtmlEmail();
+
+		// Configure recipient, sender, and message data
 		htmlEmail.addTo(toEmailAddress, toName);
 		htmlEmail.setFrom(fromEmailAddress, fromName);
-
 		htmlEmail.setSubject(subject);
 		if (textContents != null) htmlEmail.setTextMsg(textContents);
 		if (htmlContents != null) htmlEmail.setHtmlMsg(htmlContents);
 
-		htmlEmail.send();
+
+		String smtpHost = OscarProperties.getInstance().getProperty(CATEGORY+SMTP_HOST_KEY);
+		String smtpSslPort = OscarProperties.getInstance().getProperty(CATEGORY+SMTP_SSL_PORT_KEY);
+		String smtpUser = OscarProperties.getInstance().getProperty(CATEGORY+SMTP_USER_KEY);
+		String smtpPassword = OscarProperties.getInstance().getProperty(CATEGORY+SMTP_PASSWORD_KEY);
+		
+		try {
+			// Configure properties and transport
+			Properties mailProperties = new Properties();
+			mailProperties.setProperty("mail.transport.protocol", "smtp");
+			Session mailSession = Session.getDefaultInstance(mailProperties, null);
+			Transport transport = mailSession.getTransport("smtp");
+			transport.connect(smtpHost, Integer.parseInt(smtpSslPort), smtpUser, smtpPassword);
+			htmlEmail.setHostName(smtpHost);
+
+			// Build and send message
+			htmlEmail.buildMimeMessage();
+			Message m = htmlEmail.getMimeMessage();
+			transport.sendMessage(m, m.getAllRecipients());
+		} catch (MessagingException e) {
+			// rethrow exception
+			throw new EmailException(e);
+		}
 	}
 
 	/**
