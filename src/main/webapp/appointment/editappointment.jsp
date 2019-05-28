@@ -707,7 +707,8 @@ var appointmentTypeData = {};
                 boolean bMultisites = org.oscarehr.common.IsPropertiesOn.isMultisitesEnable();
 
             
-            List<Site> sites = siteDao.getActiveSitesByProviderNo((String) session.getAttribute("user"));
+            String siteProviderNo = curProvider_no != null ? curProvider_no : (String) session.getAttribute("user");
+            List<Site> sites = siteDao.getActiveSitesByProviderNo(siteProviderNo);
             // multisites end ==================
 
             boolean bMoreAddr = bMultisites? true : props.getProperty("scheduleSiteID", "").equals("") ? false : true;
