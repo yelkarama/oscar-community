@@ -36,6 +36,7 @@
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
+<%@ taglib prefix="security" uri="/oscarSecuritytag" %>
 <%
 	String wlid = (String)request.getAttribute("WLId");
 	if(wlid == null) {
@@ -204,7 +205,9 @@ function removePatient(demographicNo, waitingList){
 						<option value="<%=id%>" <%=selected%>><%=name%></option>
 						<%}%>
 					</html:select> <INPUT type="button" onClick="goToPage()" value="Generate Report">
-					<%
+<%String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");%>
+<security:oscarSec roleName="<%=roleName$%>" objectName="_createTaskList" rights="w">
+<%
         String userRole = "";
         if(session.getAttribute("userrole") != null){
                 userRole = (String)session.getAttribute("userrole");
@@ -216,6 +219,7 @@ function removePatient(demographicNo, waitingList){
 %> test <%
 }
 %>
+</security:oscarSec>
 					
 				</tr>
 			</table>
