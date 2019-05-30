@@ -1093,7 +1093,7 @@
         <dependency>
                 <groupId>org.oscarehr.integration.ebs</groupId>
                 <artifactId>ebs-client</artifactId>
-                <version>0.0.5</version>
+                <version>0.0.6</version>
                 <exclusions>
 						<exclusion>
 							<groupId>org.bouncycastle</groupId>
@@ -1292,6 +1292,7 @@
                         <validHeader>utils/headers/ubc.txt</validHeader>
                         <validHeader>utils/headers/uvic.txt</validHeader>
                         <validHeader>utils/headers/kai.txt</validHeader>
+                        <validHeader>utils/headers/ubcfps.txt</validHeader>
                 </validHeaders>
                 <includes>
                     <include>src/main/java/**/*.java</include>
