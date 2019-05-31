@@ -25,26 +25,40 @@
 
 package oscar;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.oscarehr.util.MiscUtils;
+import org.oscarehr.util.SpringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+
+import javax.servlet.ServletContext;
 
 /**
  * This class will hold OSCAR & CAISI properties. It is a singleton class. Do not instantiate it, use the method getInstance(). Every time the properties file changes, tomcat must be restarted.
  */
 public class OscarProperties extends Properties {
 	private static final long serialVersionUID = -5965807410049845132L;
-	private static OscarProperties oscarProperties = new OscarProperties();
+	private static OscarProperties oscarProperties;
 	private static final Set<String> activeMarkers = new HashSet<String>(Arrays.asList(new String[] { "true", "yes", "on" }));
+
+	private ServletContext servletContext;
+	private final String CONTEXT_ROOT;
+	private final Logger logger = MiscUtils.getLogger();
+	
 
 	/**
 	 * @return OscarProperties the instance of OscarProperties
@@ -53,20 +67,48 @@ public class OscarProperties extends Properties {
 		return oscarProperties;
 	}
 
-	/* If cant find the file, inform and continue */
-	/*
-	 * private OscarProperties() {
-	 * 
-	 * InputStream is = getClass().getResourceAsStream("/oscar_mcmaster.properties"); try { load(is); } catch (Exception e) { MiscUtils.getLogger().debug("Error, file oscar_mcmaster.properties not found.");
-	 * MiscUtils.getLogger().debug("This file must be placed at WEB-INF/classes."); }
-	 * 
-	 * try{ is.close(); } catch (IOException e) { MiscUtils.getLogger().debug("IO error."); MiscUtils.getLogger().error("Error", e); } } //OscarProperties - end
-	 */
 
-	/* Do not use this constructor. Use getInstance instead */
-	private OscarProperties() {
+	public static void initialize(ServletContext context) {
+		if (oscarProperties == null) {
+			oscarProperties = new OscarProperties(context);
+		}
+	}
+
+	private OscarProperties(ServletContext context) {
 		MiscUtils.getLogger().debug("OSCAR PROPS CONSTRUCTOR");
+		servletContext = context;
 
+		String url = "";
+		try {
+			// Anyone know a better way to do this?
+			url = servletContext.getResource("/").getPath();
+			logger.debug(url);
+			int idx = url.lastIndexOf('/');
+			url = url.substring(0, idx);
+
+			idx = url.lastIndexOf('/');
+			url = url.substring(idx + 1);
+
+			idx = url.lastIndexOf('.');
+			if (idx > 0) url = url.substring(0, idx);
+		} catch (Exception e) {
+			logger.error("Error", e);
+		}
+		CONTEXT_ROOT = url;
+		
+		loadProperties();
+	}
+
+	public static void reloadProperties() {
+		MiscUtils.getLogger().info("Reloading OSCAR Properties");
+		// Backups the start time so it can be retained
+		String startTime = oscarProperties.getProperty("OSCAR_START_TIME");
+		oscarProperties = new OscarProperties(oscarProperties.servletContext);
+		oscarProperties.setProperty("OSCAR_START_TIME", startTime);
+	}
+	
+	private void loadProperties() {
+		// Loads the internal and oscar override properties first
 		try {
 			readFromFile("/oscar_mcmaster.properties");
 
@@ -78,8 +120,84 @@ public class OscarProperties extends Properties {
 		} catch (IOException e) {
 			MiscUtils.getLogger().error("Error", e);
 		}
-	}
 
+		// Creates the filename for the external properties and the corresponding path using the user's home
+		String fileName = CONTEXT_ROOT + ".properties";
+		String filePath = System.getProperty("user.home") + System.getProperty("file.separator") + fileName;
+		logger.info("looking up " + filePath);
+
+		try {
+			// Tries to read in the properties in the file path
+			readFromFile(filePath);
+			logger.info("loading properties from " + filePath);
+		} catch (FileNotFoundException ex) {
+			logger.info(filePath + " not found");
+		} catch (IOException e) {
+			logger.info("Could not load properties", e);
+		}
+
+		// In the event that properties cannot be retrieved from the internal, override, and external files, tries to load in properties from the WEB-INF
+		if (isEmpty()) {
+			try {
+				logger.info("looking up  /WEB-INF/" + fileName);
+				readFromFile("/WEB-INF/" + fileName);
+				logger.info("loading properties from /WEB-INF/" + fileName);
+			} catch (java.io.FileNotFoundException e) {
+				logger.error("Configuration file: " + fileName + " cannot be found, it should be put either in the User's home or in WEB-INF ");
+			} catch (Exception e) {
+				logger.error("Error", e);
+			}
+		}
+
+		// Specify who will see new casemanagement screen
+		ArrayList<String> listUsers = new ArrayList<String>();
+		String casemgmtscreen = getProperty("CASEMANAGEMENT");
+		if (casemgmtscreen != null) {
+			listUsers.addAll(Arrays.asList(casemgmtscreen.split(",")));
+			Collections.sort(listUsers);
+		}
+		servletContext.setAttribute("CaseMgmtUsers", listUsers);
+
+		// Sets the newDocArr
+		String newDocs = getProperty("DOCS_NEW_ECHART");
+		if (newDocs != null) {
+			String[] arrnewDocs = newDocs.split(",");
+			ArrayList<String> newDocArr = new ArrayList<String>(Arrays.asList(arrnewDocs));
+			Collections.sort(newDocArr);
+			servletContext.setAttribute("newDocArr", newDocArr);
+		}
+
+		// Sets to whether the new echart will be used or the old one
+		String echartSwitch = getProperty("USE_NEW_ECHART");
+		if (echartSwitch != null && echartSwitch.equalsIgnoreCase("yes")) {
+			servletContext.setAttribute("useNewEchart", true);
+		}
+
+		logger.info("BILLING REGION : " + getProperty("billregion", "NOTSET"));
+		logger.info("DB PROPS: Username :" + getProperty("db_username", "NOTSET") + " db name: " + getProperty("db_name", "NOTSET"));
+		
+		String baseDocumentDir = getProperty("BASE_DOCUMENT_DIR");
+		if (baseDocumentDir != null) {
+			logger.info("Found Base Document Dir: " + baseDocumentDir);
+			checkAndSetProperty(baseDocumentDir, "HOME_DIR", "/billing/download/");
+			checkAndSetProperty(baseDocumentDir, "DOCUMENT_DIR", "/document/");
+			checkAndSetProperty(baseDocumentDir, "eform_image", "/eform/images/");
+			checkAndSetProperty(baseDocumentDir, "olis_dir", "/olis/");
+
+			checkAndSetProperty(baseDocumentDir, "oscarMeasurement_css_upload_path", "/oscarEncounter/oscarMeasurements/styles/");
+			checkAndSetProperty(baseDocumentDir, "TMP_DIR", "/export/");
+			checkAndSetProperty(baseDocumentDir, "form_record_path", "/form/records/");
+			checkAndSetProperty(baseDocumentDir, "form_drawing_images_path", "/form/drawing_images/");
+
+			//HRM Directories
+			checkAndSetProperty(baseDocumentDir,"OMD_hrm","/hrm/");
+			checkAndSetProperty(baseDocumentDir,"OMD_directory" , "/hrm/OMD/");
+			checkAndSetProperty(baseDocumentDir,"OMD_log_directory" , "/hrm/logs/");
+			checkAndSetProperty(baseDocumentDir,"OMD_stored", "/hrm/stored/");
+			checkAndSetProperty(baseDocumentDir,"OMD_downloads","/hrm/sftp_downloads/");
+		}
+	}
+	
 	public void readFromFile(String url) throws IOException {
 		InputStream is = getClass().getResourceAsStream(url);
 		if (is == null) is = new FileInputStream(url);
@@ -151,6 +269,25 @@ public class OscarProperties extends Properties {
         }
         return items;
     }
+
+	// Checks for default property with name propName. If the property does not exist,
+	// the property is set with value equal to the base directory, plus /, plus the webapp context
+	// path and any further extensions. If the formed directory does not exist in the system,
+	// it is created.
+	private void checkAndSetProperty(String baseDir, String propName, String endDir) {
+		String propertyDir = getProperty(propName);
+		if (propertyDir == null) {
+			propertyDir = baseDir + "/" + CONTEXT_ROOT + endDir;
+			logger.debug("Setting property " + propName + " with value " + propertyDir);
+			setProperty(propName, propertyDir);
+			// Create directory if it does not exist
+			if (!(new File(propertyDir)).exists()) {
+				logger.warn("Directory does not exist:  " + propertyDir + ". Creating.");
+				boolean success = (new File(propertyDir)).mkdirs();
+				if (!success) logger.error("An error occured when creating " + propertyDir);
+			}
+		}
+	}
 
 	/*
 	 * Comma delimited spring configuration modules Options: Caisi,Indivo Caisi - Required to run the Caisi Shelter Management System Indivo - Indivo PHR record. Required for integration with Indivo.

@@ -3054,8 +3054,8 @@
 		<action path="/clinicalConnectEHRViewer" type="org.oscarehr.integration.clinicalconnect.ClinicalConnectViewerAction" parameter="method">
 			<forward name="error" path="/cc/launcherError.jsp"/>
 		</action>
-		
-		
+
+		<action input="/admin/reloadData.reloadConfigurations.jsp" path="/admin/ReloadData" type="oscar.admin.actions.ReloadDataAction" parameter="method" scope="request" validate="false" />
 	</action-mappings>
 	<controller processorClass="org.apache.struts.tiles.TilesRequestProcessor" maxFileSize="200M" />
 	<message-resources parameter="oscarResources" null="false" />

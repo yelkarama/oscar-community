@@ -33,6 +33,7 @@
 
 <%
 String curProvider_no = (String)session.getAttribute("user");
+	SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
 %>
 
 
@@ -858,8 +859,7 @@ String curProvider_no = (String)session.getAttribute("user");
 					<li><a href='javascript:void(0);' class="xlink" rel="${ctx}/hospitalReportManager/hrmShowMapping.jsp">Hospital Report Manager (HRM) Class Mappings</a></li>
 					<li><a href='javascript:void(0);' class="xlink" rel="${ctx}/hospitalReportManager/hrmCategories.jsp">Hospital Report Manager (HRM) Categories</a></li>
 
-					<% SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
-						SystemPreferences preference = systemPreferencesDao.findPreferenceByName("kioskProvider");
+					<% SystemPreferences preference = systemPreferencesDao.findPreferenceByName("kioskProvider");
 						if (preference != null && StringUtils.isNotEmpty(preference.getValue())) {
 					%>
 					<li><a href='javascript:void(0);' class="xlink" rel="${ctx}/admin/kioskDisplaySettings.jsp">Kiosk Settings</a></li>
@@ -1034,6 +1034,7 @@ String curProvider_no = (String)session.getAttribute("user");
 
 <oscar:oscarPropertiesCheck property="OSCAR_LEARNING" value="yes">
 	<security:oscarSec roleName="<%=roleName$%>" objectName="_admin" rights="r" reverse="<%=false%>">
+		
 				<div class="accordion-heading">
 				<a class="accordion-toggle" data-toggle="collapse" data-parent="#adminNav" href="#collapseFourteen">
 				<bean:message key="admin.admin.learning" />
@@ -1064,6 +1065,15 @@ String curProvider_no = (String)session.getAttribute("user");
 				</div>
 				<div id="collapseSixteen" class="accordion-body collapse">
 				<div class="accordion-inner">
+					<% LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+						SystemPreferences reloadPreference = systemPreferencesDao.findPreferenceByName("kai_username");
+						if (reloadPreference != null && loggedInInfo != null && loggedInInfo.getLoggedInSecurity() != null && 
+								StringUtils.trimToEmpty(reloadPreference.getValue()).equals(loggedInInfo.getLoggedInSecurity().getUserName())) {
+					%>
+					<li>
+						<a href="javascript:void(0);" class="xlink" rel="${ctx}/admin/reloadConfigurations.jsp">Reload Configurations</a>
+					</li>
+					<% } %>
 				<li><a href='javascript:void(0);'
 						class="xlink" rel="${ctx}/pregnancy/migrateToSplitOnArEnhancedForm.jsp"><bean:message key="admin.admin.updates.migrate_onarenhanced"/></a></li>
 				</ul>

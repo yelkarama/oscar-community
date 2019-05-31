@@ -64,6 +64,7 @@ public class PreventionDS {
    }
    
    public void reloadRuleBase(){
+       log.info("Reloading Prevention Drools/Rule Base");
 	   loadRuleBase();
    }
    

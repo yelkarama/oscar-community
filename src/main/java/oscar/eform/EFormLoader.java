@@ -81,6 +81,14 @@ public class EFormLoader {
     private EFormLoader() {
     }
 
+    public static void reloadEformLoader() {
+        MiscUtils.getLogger().info("Reloading AP Config");
+        if (_instance == null) {
+            _instance = new EFormLoader();
+        }
+        parseXML();
+    }
+    
     /**
      *
      * @return list of names from database
