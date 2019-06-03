@@ -26,6 +26,8 @@
 <%@page import="org.oscarehr.util.SpringUtils"%>
 <%@page import="org.oscarehr.common.model.BillingPermission"%>
 <%@page import="org.oscarehr.common.dao.BillingPermissionDao"%>
+<%@ page import="java.util.regex.Pattern" %>
+<%@ page import="java.util.regex.Matcher" %>
 <jsp:useBean id="oscarVariables" class="java.util.Properties" scope="session" />
 <html>
 <head>
@@ -158,6 +160,9 @@ function checkForm() {
         Exception e = new Exception("Unable to find any files in the directory "+folderPath+".  (If this is the incorrect directory, please modify the value of ONEDT_"+folder.name()+" in your properties file to reflect the correct directory).");
         throw e;
     }
+    // Creates a pattern for matching billing file names
+    Pattern pattern = Pattern.compile("\\w{2,3}?-?(\\d+)\\..+");
+    
     for(int i=0; i<contents.length; i++) {
       bodd = bodd?false:true ;
       if (contents[i].isDirectory() || contents[i].getName().startsWith(".")) continue;
@@ -168,21 +173,20 @@ function checkForm() {
 
         boolean allowed = true;
         String filename = contents[i].getName();
-      // Doesn't check the billing permissions if the item is a general report
-      if (!filename.matches("[A-z]{3}-\\d{1,6}.*")) {
-          String fileProviderNumber = "";
-          if (filename.matches("\\w{2}\\d+\\.\\d+")) {
-              fileProviderNumber = filename.substring(2, filename.indexOf("."));
-          }
+        String fileProviderNumber = "";
+        // Creates a new matcher for the filename
+        Matcher matcher = pattern.matcher(filename);
+        if (matcher.find()) {
+            fileProviderNumber = matcher.group(1);
+        }
 
-          if (!fileProviderNumber.isEmpty()) {
-              String curUser_providerno = loggedInInfo.getLoggedInProviderNo();
-              List<String> ohipNos = billingPermissionDao.getOhipNosNotAllowed(curUser_providerno, BillingPermission.VIEW_MOH_FILES);
-              if (ohipNos.contains(fileProviderNumber)) {
-                  continue;
-              }
-          }
-      }
+        if (!fileProviderNumber.isEmpty()) {
+            String curUser_providerno = loggedInInfo.getLoggedInProviderNo();
+            List<String> ohipNos = billingPermissionDao.getOhipNosNotAllowed(curUser_providerno, BillingPermission.VIEW_MOH_FILES);
+            if (ohipNos.contains(fileProviderNumber)) {
+                continue;
+            }
+        }
       if (folder == EDTFolder.INBOX || folder == EDTFolder.ARCHIVE) {
           out.println("<tr id='" + URLEncoder.encode(contents[i].getName()) + "'>"+(folder == EDTFolder.INBOX ? archiveElement : "")+"<td><a HREF='javascript:void(0)' onclick='viewMOHFile(\""+URLEncoder.encode(contents[i].getName())+"\")'>"+contents[i].getName()+unzipMSG+"</a></td>") ;
           out.println("<td><a HREF='../../../servlet/BackupDownload?filename="+URLEncoder.encode(contents[i].getName())+"'>Download</a></td>") ;
