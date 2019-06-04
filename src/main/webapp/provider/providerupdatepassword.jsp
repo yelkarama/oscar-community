@@ -32,8 +32,7 @@
 %>
 
 <%@ page
-	import="java.lang.*, java.util.*, java.text.*,java.security.*, oscar.*"
-	errorPage="errorpage.jsp"%>
+	import="java.lang.*, java.util.*, java.text.*,java.security.*, oscar.*"%>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.Security" %>
 <%@ page import="org.oscarehr.common.dao.SecurityDao" %>

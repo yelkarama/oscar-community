@@ -28,8 +28,7 @@ if(!authed) {
   String deepcolor = "#CCCCFF", weakcolor = "#EEEEFF" ;
 %>
 <%@ page
-	import="java.util.*, java.sql.*, oscar.*, java.text.*, oscar.oscarDB.*,java.net.*"
-	errorPage="../appointment/errorpage.jsp"%>
+	import="java.util.*, java.sql.*, oscar.*, java.text.*, oscar.oscarDB.*,java.net.*"%>
 <html>
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>

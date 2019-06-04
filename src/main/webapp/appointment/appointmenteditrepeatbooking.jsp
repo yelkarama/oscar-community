@@ -44,8 +44,7 @@
   String deepcolor = "#CCCCFF", weakcolor = "#EEEEFF", tableTitle = "#99ccff";
   boolean bEdit = request.getParameter("appointment_no") != null ? true : false;
 %>
-<%@ page import="java.util.*, oscar.*, oscar.util.*, java.sql.*"
-	errorPage="errorpage.jsp"%>
+<%@ page import="java.util.*, oscar.*, oscar.util.*, java.sql.*"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 

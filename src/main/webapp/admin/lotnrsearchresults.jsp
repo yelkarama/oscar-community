@@ -39,8 +39,7 @@
   String orderby = request.getParameter("orderby")!=null?request.getParameter("orderby"):"prevention_type" ;
   String deepcolor = "#CCCCFF", weakcolor = "#EEEEFF" ;
 %>
-<%@ page import="java.sql.*, java.util.*, oscar.*" buffer="none"
-	errorPage="errorpage.jsp"%>
+<%@ page import="java.sql.*, java.util.*, oscar.*" buffer="none"%>
 <jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
 	scope="session" />
 

@@ -40,7 +40,7 @@ String providerview = request.getParameter("providerview")==null?"all":request.g
 String sqlProviderView = request.getParameter("providerview")==null?"%":request.getParameter("providerview") ;
 %>
 
-<%@ page import="java.util.*, java.sql.*, oscar.login.*, oscar.*, java.net.*" errorPage="errorpage.jsp"%>
+<%@ page import="java.util.*, java.sql.*, oscar.login.*, oscar.*, java.net.*"%>
 <%@ include file="../../../admin/dbconnection.jsp"%>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.dao.ReportProviderDao" %>

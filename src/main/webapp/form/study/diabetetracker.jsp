@@ -40,7 +40,7 @@
 %>
 
 <%@ page contentType="text/xml"%>
-<%@ page import="java.util.*, java.sql.*,  org.w3c.dom.*, oscar.util.*,java.io.*" errorPage="../../appointment/errorpage.jsp"%>
+<%@ page import="java.util.*, java.sql.*,  org.w3c.dom.*, oscar.util.*,java.io.*"%>
 <%@page import="oscar.oscarDB.DBHandler"%>
 <%@page import="org.oscarehr.common.dao.AllergyDao"%>
 <%@page import="org.oscarehr.common.model.Allergy"%>

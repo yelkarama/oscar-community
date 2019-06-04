@@ -18,7 +18,7 @@ if(!authed) {
   String   curUser_no = (String)session.getAttribute("user");
   String[] ROLE       = new String[]{"doctor", "resident", "nurse", "social worker", "other"};
 %>
-<%@ page errorPage="../errorpage.jsp"%>
+
 <%@ page import="java.util.*"%>
 <%@ page import="java.sql.*"%>
 <%@ page import="org.oscarehr.util.SpringUtils"%>

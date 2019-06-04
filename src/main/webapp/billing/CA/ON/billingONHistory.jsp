@@ -40,8 +40,7 @@
 	UserProperty prop;
 %>
 <%@ page
-	import="java.util.*, java.sql.*, java.net.*, oscar.*, oscar.oscarDB.*"
-	errorPage="errorpage.jsp"%>
+	import="java.util.*, java.sql.*, java.net.*, oscar.*, oscar.oscarDB.*"%>
 <%@ page import="oscar.oscarBilling.ca.on.data.*"%>
 <%@page import="org.oscarehr.billing.CA.ON.dao.*" %>
 <%@page import="org.oscarehr.util.SpringUtils" %>

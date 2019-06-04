@@ -25,7 +25,7 @@
 --%>
 
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%@ page errorPage="../errorpage.jsp"%>
+
 <%@ page import="java.util.*"%>
 <%@ page import="oscar.login.*"%>
 <%@ page import="oscar.log.*"%>

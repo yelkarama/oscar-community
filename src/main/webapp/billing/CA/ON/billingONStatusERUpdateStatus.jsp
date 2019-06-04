@@ -23,8 +23,7 @@
 	//String user_no = (String) session.getAttribute("user");
 %>
 <%@ page
-	import="oscar.oscarBilling.ca.on.data.*, java.sql.*, oscar.*, java.net.*"
-	errorPage="../errorpage.jsp"%>
+	import="oscar.oscarBilling.ca.on.data.*, java.sql.*, oscar.*, java.net.*"%>
 <% 
 	String id = request.getParameter("id");
 	String val = request.getParameter("val");;

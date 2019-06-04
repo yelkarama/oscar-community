@@ -27,8 +27,7 @@
 <%
   if(session.getValue("user") == null)  response.sendRedirect("../logout.jsp");
 %>
-<%@ page import="java.sql.*, java.util.*, java.net.*, oscar.*"
-	errorPage="errorpage.jsp"%>
+<%@ page import="java.sql.*, java.util.*, java.net.*, oscar.*"%>
 <%@page import="org.oscarehr.util.SpringUtils" %>
 <%@page import="org.oscarehr.common.dao.DemographicAccessoryDao" %>
 <%@page import="org.oscarehr.common.model.DemographicAccessory" %>

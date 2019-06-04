@@ -29,8 +29,7 @@
 <%
   String oldGroup_no = request.getParameter("mygroup_no")==null?".":request.getParameter("mygroup_no");
 %>
-<%@ page import="java.util.*,java.sql.*"
-	errorPage="../provider/errorpage.jsp"%>
+<%@ page import="java.util.*,java.sql.*"%>
 <%@ page import="org.oscarehr.util.SpringUtils"%>
 <%@ page import="org.oscarehr.common.model.MyGroup"%>
 <%@ page import="org.oscarehr.common.dao.MyGroupDao"%>

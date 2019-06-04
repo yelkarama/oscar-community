@@ -35,7 +35,7 @@
     LookupList reasonCodes = lookupListManager.findLookupListByName(LoggedInInfo.getLoggedInInfoFromSession(request), "reasonCode");
 %>
 
-<%@ page errorPage="../errorpage.jsp" %>
+
 <%@ page import="java.util.*" %>
 <%@ page import="java.sql.*" %>
 <%@ page import="oscar.util.*" %>

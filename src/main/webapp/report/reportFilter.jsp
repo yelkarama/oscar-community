@@ -13,7 +13,7 @@ if(!authed) {
 }
 %>
 
-<%@ page errorPage="../appointment/errorpage.jsp"
+<%@ page
 	import="java.util.*, oscar.oscarReport.data.*"%>
 <%
 String reportId = request.getParameter("id")!=null ? request.getParameter("id") : "0";

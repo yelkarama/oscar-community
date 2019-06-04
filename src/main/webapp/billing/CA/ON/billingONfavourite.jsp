@@ -23,7 +23,7 @@
 			String user_no = (String) session.getAttribute("user");
 
 			%>
-<%@ page errorPage="../../../appointment/errorpage.jsp"
+<%@ page
 	import="java.util.*,java.sql.*,oscar.*,java.text.*,java.net.*"%>
 <%@ page import="oscar.oscarBilling.ca.on.data.JdbcBillingPageUtil"%>
 <%@ page import="oscar.oscarBilling.ca.on.data.*"%>

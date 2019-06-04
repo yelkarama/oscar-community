@@ -63,7 +63,7 @@ if(!authed) {
     }
   }
 %>
-<%@ page errorPage="../errorpage.jsp"%>
+
 <%@ page import="java.util.*"%>
 <%@ page import="java.sql.*"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>

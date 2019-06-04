@@ -24,8 +24,7 @@
 
 --%>
 
-<%@ page import="java.sql.*, java.io.*, java.util.*, oscar.oscarDB.*" buffer="none"
-	errorPage="errorpage.jsp"%>
+<%@ page import="java.sql.*, java.io.*, java.util.*, oscar.oscarDB.*" buffer="none"%>
 
 
 <%@page import="org.apache.struts.upload.FormFile"%>

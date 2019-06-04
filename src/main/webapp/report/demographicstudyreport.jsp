@@ -49,7 +49,7 @@ if(!authed) {
 	if(request.getParameter("limit2")!=null) strLimit2 = request.getParameter("limit2");
 %>
 
-<%@ page import="java.sql.*" errorPage="../errorpage.jsp"%>
+<%@ page import="java.sql.*"%>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.dao.StudyDao" %>
 <%@ page import="org.oscarehr.common.model.Study" %>

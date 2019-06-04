@@ -40,7 +40,7 @@
 %>
 
 
-<%@ page import="java.util.*, java.sql.*, java.net.*, oscar.*" errorPage="../appointment/errorpage.jsp"%>
+<%@ page import="java.util.*, java.sql.*, java.net.*, oscar.*"%>
 
 <%@page import="org.oscarehr.util.SpringUtils" %>
 

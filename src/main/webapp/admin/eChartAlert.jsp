@@ -39,7 +39,7 @@
 	}
 	String curUser_no = (String) session.getAttribute("user");
 %>
-<%@ page import="java.util.*" errorPage="errorpage.jsp"%>
+<%@ page import="java.util.*"%>
 <%@ page import="org.oscarehr.common.dao.AlertDao" %>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.Alert" %>

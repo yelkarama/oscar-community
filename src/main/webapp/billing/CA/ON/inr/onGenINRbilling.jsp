@@ -20,7 +20,7 @@
 <%
 	String user_no = (String) session.getAttribute("user");
 %>
-<%@ page import="java.util.*,java.sql.*,oscar.util.*,oscar.*,oscar.oscarBilling.ca.on.data.*" errorPage="../../../errorpage.jsp"%>
+<%@ page import="java.util.*,java.sql.*,oscar.util.*,oscar.*,oscar.oscarBilling.ca.on.data.*"%>
 
 <%@page import="org.oscarehr.billing.CA.model.BillingInr" %>
 <%@page import="org.oscarehr.common.model.Demographic" %>

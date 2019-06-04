@@ -82,8 +82,7 @@ sites = siteDao.getAllSites();
   String [] param = new String[3];
 %>
 <%@ page
-	import="java.util.*, java.sql.*, oscar.*, java.text.*, java.lang.*,java.net.*"
-	errorPage="../appointment/errorpage.jsp"%>
+	import="java.util.*, java.sql.*, oscar.*, java.text.*, java.lang.*,java.net.*"%>
 
 <jsp:useBean id="DateTimeCodeBean" class="java.util.Hashtable"
 	scope="page" />

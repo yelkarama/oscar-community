@@ -20,7 +20,7 @@
 --%>
 <%@page import="org.oscarehr.common.dao.BillingOnItemPaymentDao"%>
 <%@page import="org.oscarehr.managers.SecurityInfoManager"%>
-<%@page import="java.math.*,java.util.*,java.sql.*,oscar.*,java.net.*" %> <!-- errorPage="errorpage.jsp" -->
+<%@page import="java.math.*,java.util.*,java.sql.*,oscar.*,java.net.*" %> <!-- -->
 <%@page import="oscar.oscarBilling.ca.on.data.*"%>
 <%@page import="oscar.oscarBilling.ca.on.pageUtil.*"%>
 <%@page import="org.oscarehr.util.LoggedInInfo"%>

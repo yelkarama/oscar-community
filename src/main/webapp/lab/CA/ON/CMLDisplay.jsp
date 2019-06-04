@@ -42,7 +42,7 @@ if(!authed) {
 <%@page import="org.oscarehr.common.model.PatientLabRouting"%>
 <%@page import="oscar.util.ConversionUtils"%>
 <%@page import="org.oscarehr.common.dao.PatientLabRoutingDao"%>
-<%@page errorPage="../provider/errorpage.jsp"%>
+<%@page%>
 <%@ page
 	import="java.util.*, oscar.oscarMDS.data.*,oscar.oscarLab.ca.on.CML.*,oscar.oscarLab.LabRequestReportLink,oscar.oscarDB.*,java.sql.*,oscar.log.*,org.oscarehr.util.SpringUtils,org.oscarehr.casemgmt.service.CaseManagementManager,org.oscarehr.casemgmt.model.*"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>

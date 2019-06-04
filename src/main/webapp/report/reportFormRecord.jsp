@@ -12,7 +12,7 @@ if(!authed) {
 	return;
 }
 %>
-<%@ page errorPage="../appointment/errorpage.jsp"
+<%@ page
 	import="java.util.*, oscar.oscarReport.data.*"%>
 <%@ page import="oscar.login.*"%>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils"%>

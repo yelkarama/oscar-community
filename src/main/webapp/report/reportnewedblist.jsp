@@ -52,7 +52,7 @@ if(!authed) {
   if(request.getParameter("startDate")!=null) startDate = request.getParameter("startDate");
   if(request.getParameter("endDate")!=null) endDate = request.getParameter("endDate");
 %>
-<%@ page import="java.util.*, java.sql.*" errorPage="../errorpage.jsp"%>
+<%@ page import="java.util.*, java.sql.*"%>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
 <%@ page import="org.oscarehr.common.model.Provider" %>

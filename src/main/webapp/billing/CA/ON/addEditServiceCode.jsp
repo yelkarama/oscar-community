@@ -23,7 +23,7 @@
     response.sendRedirect("../logout.jsp");
   }
 %>
-<%@ page errorPage="../../../appointment/errorpage.jsp"	import="java.util.*,java.sql.*,oscar.*,java.text.*, java.lang.*,java.net.*"%>
+<%@ page	import="java.util.*,java.sql.*,oscar.*,java.text.*, java.lang.*,java.net.*"%>
 
 <%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%@ page import="org.oscarehr.util.SpringUtils, org.oscarehr.common.dao.CSSStylesDAO, org.oscarehr.common.model.CssStyle, java.util.List"%>

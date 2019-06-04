@@ -35,11 +35,7 @@
                           : ("0");
   String curUser_no     = (String)session.getAttribute("user");
 %>
-<%@ page errorPage="../../appointment/errorpage.jsp"
-	import="java.util.*,
-                                                              java.sql.*,
-                                                              oscar.*,
-                                                              oscar.util.*"%>
+<%@ page import="java.util.*, java.sql.*, oscar.*, oscar.util.*"%>
 <%@page import="org.oscarehr.util.SpringUtils" %>
 <%@page import="org.oscarehr.common.model.Demographic" %>           
 <%@page import="org.oscarehr.common.dao.DemographicDao" %>     

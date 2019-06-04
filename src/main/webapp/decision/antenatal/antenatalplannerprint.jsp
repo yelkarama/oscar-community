@@ -31,8 +31,7 @@
   String curUser_no = (String) session.getAttribute("user");
 %>
 <%@ page
-	import="java.util.*, java.sql.*, oscar.*, java.text.*, java.lang.*,java.net.*,java.io.*"
-	errorPage="../../appointment/errorpage.jsp"%>
+	import="java.util.*, java.sql.*, oscar.*, java.text.*, java.lang.*,java.net.*,java.io.*"%>
 
 <jsp:useBean id="riskDataBean" class="java.util.Properties" scope="page" />
 <jsp:useBean id="risks"

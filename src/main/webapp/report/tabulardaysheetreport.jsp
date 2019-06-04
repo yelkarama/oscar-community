@@ -19,7 +19,7 @@ if(!authed) {
 
   String orderby = request.getParameter("orderby")!=null?request.getParameter("orderby"):("a.start_time") ;
 %>
-<%@ page import="java.util.*, java.sql.*, oscar.*, java.text.*, java.lang.*,java.net.*,org.oscarehr.common.model.*,org.apache.commons.lang.time.*" errorPage="../appointment/errorpage.jsp"%>
+<%@ page import="java.util.*, java.sql.*, oscar.*, java.text.*, java.lang.*,java.net.*,org.oscarehr.common.model.*,org.apache.commons.lang.time.*"%>
 <jsp:useBean id="daySheetBean" class="oscar.AppointmentMainBean" scope="page" />
 <jsp:useBean id="providerBean" class="java.util.Properties" scope="session" />
 <% 

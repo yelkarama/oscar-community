@@ -29,8 +29,7 @@
 <%@page import="org.oscarehr.common.dao.ClinicNbrDao"%>
 <%@page import="oscar.OscarProperties, org.oscarehr.util.LoggedInInfo"%>
 <%@ page
-	import="java.sql.*, java.util.*, oscar.*, oscar.SxmlMisc, oscar.oscarProvider.data.ProviderBillCenter"
-	errorPage="errorpage.jsp"%>
+	import="java.sql.*, java.util.*, oscar.*, oscar.SxmlMisc, oscar.oscarProvider.data.ProviderBillCenter"%>
 
 <html:html locale="true">
 <head>

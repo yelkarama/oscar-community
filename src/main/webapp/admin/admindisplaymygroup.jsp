@@ -47,7 +47,7 @@
 	<%isSiteAccessPrivacy=true; %>
 </security:oscarSec>
 
-<%@ page import="java.util.*,java.sql.*" errorPage="../provider/errorpage.jsp"%>
+<%@ page import="java.util.*,java.sql.*"%>
 <%@ page import="org.oscarehr.common.dao.PropertyDao" %>
 <%@ page import="org.oscarehr.common.model.Property" %>
 

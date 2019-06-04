@@ -64,8 +64,7 @@
 	boolean bEdit = request.getParameter("appointment_no") != null ? true : false;
 %>
 <%@ page
-	import="java.util.*, java.sql.*,java.net.*, oscar.*, oscar.util.*, org.oscarehr.common.OtherIdManager"
-	errorPage="errorpage.jsp"%>
+	import="java.util.*, java.sql.*,java.net.*, oscar.*, oscar.util.*, org.oscarehr.common.OtherIdManager"%>
 <%@ page import="oscar.log.LogConst" %>
 <%@ page import="oscar.log.LogAction" %>
 <%@ page import="java.util.Date" %>

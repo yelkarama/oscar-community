@@ -15,8 +15,7 @@ if(!authed) {
 %>
 
 <%@ page
-	import="java.util.*, oscar.oscarReport.data.*, java.sql.*, oscar.login.*, java.net.*"
-	errorPage="../appointment/errorpage.jsp"%>
+	import="java.util.*, oscar.oscarReport.data.*, java.sql.*, oscar.login.*, java.net.*"%>
 <% java.util.Properties oscarVariables = oscar.OscarProperties.getInstance(); %>
 
 <%

@@ -22,7 +22,7 @@ if(request.getParameter("submit")!=null && request.getParameter("submit").equals
   }
 }
 %>
-<%@ page errorPage="../appointment/errorpage.jsp"
+<%@ page
 	import="java.util.*, oscar.oscarReport.data.*"%>
 <%@ page import="oscar.oscarReport.pageUtil.*"%>
 <%@ page import="oscar.login.*"%>

@@ -51,8 +51,7 @@ if(!authed) {
   if(request.getParameter("limit2")!=null) strLimit2 = request.getParameter("limit2");
 %>
 <%@ page
-	import="java.util.*, java.sql.*, oscar.*, java.text.*, java.lang.*,java.net.*"
-	errorPage="../appointment/errorpage.jsp"%>
+	import="java.util.*, java.sql.*, oscar.*, java.text.*, java.lang.*,java.net.*"%>
 <jsp:useBean id="daySheetBean" class="oscar.AppointmentMainBean"
 	scope="page" />
 <% 

@@ -23,7 +23,7 @@
     Ontario, Canada
 
 --%>
-<%@page errorPage="../provider/errorpage.jsp"%>
+
 <%@ page
 	import="java.util.*, oscar.oscarMDS.data.*,oscar.oscarLab.ca.on.*"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>

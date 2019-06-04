@@ -48,7 +48,7 @@
 	
 %>
 
-<%@ page errorPage="../errorpage.jsp" %>
+
 <%@ page import="java.util.*" %>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
 <%@ page import="org.oscarehr.common.model.LookupListItem" %>

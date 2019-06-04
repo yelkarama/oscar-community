@@ -14,8 +14,7 @@ if(!authed) {
 }
 %>
 
-<%@ page import="java.util.*, oscar.oscarDemographic.data.ProvinceNames"
-	errorPage="errorpage.jsp"%>
+<%@ page import="java.util.*, oscar.oscarDemographic.data.ProvinceNames"%>
 <% java.util.Properties oscarVariables = oscar.OscarProperties.getInstance(); %>
 <% 
   ProvinceNames pNames = ProvinceNames.getInstance();

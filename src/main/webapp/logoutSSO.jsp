@@ -30,8 +30,7 @@
 <%@page import="org.oscarehr.common.dao.UserPropertyDAO"%>
 <%@page import="java.net.URLEncoder"%>
 <%@page import="oscar.OscarProperties"%>
-<%@page import="java.util.HashMap, oscar.log.*"
-	errorPage="errorpage.jsp"%>
+<%@page import="java.util.HashMap, oscar.log.*"%>
 	
 <%
 	String message = null;    		

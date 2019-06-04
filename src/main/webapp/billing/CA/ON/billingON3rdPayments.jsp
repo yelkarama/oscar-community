@@ -47,8 +47,7 @@
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 
-<%@ page import="java.math.*,java.util.*,java.sql.*,oscar.*,java.net.*,java.text.*"
-	errorPage="errorpage.jsp"%>
+<%@ page import="java.math.*,java.util.*,java.sql.*,oscar.*,java.net.*,java.text.*"%>
 <%@page import="org.oscarehr.common.model.Site,org.oscarehr.common.dao.SiteDao" %>
 <%@page import="org.oscarehr.common.model.Provider,org.oscarehr.PMmodule.dao.ProviderDao" %>
 <%@page import="org.oscarehr.common.model.BillingONPayment,org.oscarehr.common.dao.BillingONPaymentDao" %>

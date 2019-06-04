@@ -47,8 +47,7 @@ if(!authed2) {
   if(request.getParameter("limit1")!=null) strLimit1 = request.getParameter("limit1");  
   if(request.getParameter("limit2")!=null) strLimit2 = request.getParameter("limit2");
 %>
-<%@ page import="java.util.*, java.sql.*, oscar.*"
-	errorPage="errorpage.jsp"%>
+<%@ page import="java.util.*, java.sql.*, oscar.*"%>
 <jsp:useBean id="reportMainBean" class="oscar.AppointmentMainBean"
 	scope="session" />
 <jsp:useBean id="providerNameBean" class="oscar.Dict" scope="page" />

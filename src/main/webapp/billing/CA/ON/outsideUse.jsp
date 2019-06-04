@@ -16,7 +16,7 @@
 
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
 
-<%@ page import="java.util.*" errorPage="errorpage.jsp"%>
+<%@ page import="java.util.*"%>
 
 <%@page import="org.apache.commons.lang.StringUtils"%>
 <%@page import="org.oscarehr.util.SpringUtils" %>

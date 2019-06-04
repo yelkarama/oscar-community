@@ -42,8 +42,7 @@
 
 <%@ page import="org.springframework.web.util.JavaScriptUtils"%>
 <%@ page
-	import="java.lang.*, java.util.*, java.text.*,java.sql.*, oscar.*"
-	errorPage="errorpage.jsp"%>
+	import="java.lang.*, java.util.*, java.text.*,java.sql.*, oscar.*"%>
 
 <%!
 	OscarProperties op = OscarProperties.getInstance();

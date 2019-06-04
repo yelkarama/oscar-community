@@ -28,8 +28,7 @@
 
 %>
 <%@ page
-	import="java.util.*, java.sql.*, oscar.*, java.text.*, java.lang.*"
-	errorPage="../appointment/errorpage.jsp"%>
+	import="java.util.*, java.sql.*, oscar.*, java.text.*, java.lang.*"%>
 
 <jsp:useBean id="providerNameBean" class="oscar.Dict" scope="session" />
 <%@ page import="org.oscarehr.util.SpringUtils" %>

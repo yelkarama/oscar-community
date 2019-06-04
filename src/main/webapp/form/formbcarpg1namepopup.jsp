@@ -20,7 +20,7 @@ String deepcolor = "#CCCCFF", weakcolor = "#EEEEFF";
 String fieldName = request.getParameter("fieldname")!=null ? request.getParameter("fieldname") : "pg1_priCare" ;
 %>
 
-<%@ page import="java.sql.*" errorPage="../errorpage.jsp"%>
+<%@ page import="java.sql.*"%>
 
 <jsp:useBean id="providerNameBean" class="java.util.Properties" scope="page" />
 

@@ -39,8 +39,7 @@ if(!authed) {
     String deepColor = "#CCCCFF", weakColor = "#EEEEFF" ;
 %>
 <%@ page
-	import="java.util.*, java.sql.*, oscar.*, java.text.*, oscar.login.*,java.net.*"
-	errorPage="../appointment/errorpage.jsp"%>
+	import="java.util.*, java.sql.*, oscar.*, java.text.*, oscar.login.*,java.net.*"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <jsp:useBean id="daySheetBean" class="oscar.AppointmentMainBean" scope="page" />

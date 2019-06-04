@@ -24,7 +24,7 @@
     Ontario, Canada
 
 --%>
-<%@ page errorPage="../errorpage.jsp"%>
+
 <%@ page import="java.util.*"%>
 <%@ page import="java.sql.*"%>
 <%@ page import="oscar.login.*, oscar.oscarDB.*, oscar.MyDateFormat"%>

@@ -28,8 +28,7 @@
   if(session.getValue("patient") == null)    response.sendRedirect("logout.jsp");
   String demographic_no = (String) session.getAttribute("demo_no");
 %>
-<%@ page import="java.util.*, java.sql.*, oscar.*,java.net.*"
-	errorPage="../errorpage.jsp"%>
+<%@ page import="java.util.*, java.sql.*, oscar.*,java.net.*"%>
 
 <%@page import="org.oscarehr.util.SpringUtils" %>
 <%@page import="org.oscarehr.common.dao.DemographicAccessoryDao" %>

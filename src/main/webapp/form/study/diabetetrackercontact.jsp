@@ -40,7 +40,7 @@
 %>
 
 <%@ page contentType="text/xml"%>
-<%@ page import="java.util.*, java.sql.*, javax.xml.parsers.*, org.w3c.dom.*, oscar.util.*,java.io.*,org.xml.sax.InputSource" errorPage="../../appointment/errorpage.jsp"%>
+<%@ page import="java.util.*, java.sql.*, javax.xml.parsers.*, org.w3c.dom.*, oscar.util.*,java.io.*,org.xml.sax.InputSource"%>
 <%@page import="org.oscarehr.util.MiscUtils"%>
 <%@ page import="org.oscarehr.util.SpringUtils"%>
 <%@ page import="org.oscarehr.common.model.Demographic"%>

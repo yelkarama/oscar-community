@@ -40,7 +40,7 @@
 	}
 %>
 
-<%@ page import="java.net.URLDecoder, oscar.form.data.*" errorPage="../errorpage.jsp"%>
+<%@ page import="java.net.URLDecoder, oscar.form.data.*"%>
 <%@ page import="oscar.log.LogAction" %>
 <%@ page import="org.oscarehr.util.LoggedInInfo" %>
 <%@ page import="oscar.log.LogConst" %>

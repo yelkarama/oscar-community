@@ -57,7 +57,7 @@
 				}
 			}
 %>
-<%@ page errorPage="../../../appointment/errorpage.jsp"
+<%@ page
 	import="java.util.*,java.sql.*,java.net.*"%>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%@ page import="org.apache.commons.lang.WordUtils"%>

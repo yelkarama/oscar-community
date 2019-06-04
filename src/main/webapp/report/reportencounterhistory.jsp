@@ -39,7 +39,7 @@ if(!authed) {
 }
 %>
 
-<%@ page import="java.util.*, java.sql.*, oscar.*,java.net.*" errorPage="../errorpage.jsp"%>
+<%@ page import="java.util.*, java.sql.*, oscar.*,java.net.*"%>
 
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.dao.EncounterDao" %>

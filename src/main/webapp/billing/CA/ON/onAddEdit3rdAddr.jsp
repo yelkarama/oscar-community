@@ -23,8 +23,7 @@
 			String user_no = (String) session.getAttribute("user");
 
 			%>
-<%@ page errorPage="../../../appointment/errorpage.jsp"
-	import="java.util.*,java.sql.*,oscar.*,java.text.*,java.net.*"%>
+<%@ page import="java.util.*,java.sql.*,oscar.*,java.text.*,java.net.*"%>
 <%@ page import="oscar.oscarBilling.ca.on.data.*"%>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
 <% //

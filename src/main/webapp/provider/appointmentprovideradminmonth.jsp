@@ -205,8 +205,7 @@ if (bMultisites) {
 %>
 <%@ page import="oscar.dao.*" %>
 <%@ page
-	import="java.lang.*, java.util.*, java.text.*,java.net.*,java.sql.*,oscar.*"
-	errorPage="errorpage.jsp"%>
+	import="java.lang.*, java.util.*, java.text.*,java.net.*,java.sql.*,oscar.*"%>
 <% 
 	java.util.Properties oscarVariables = OscarProperties.getInstance();
 	OscarProperties oscarProperties = OscarProperties.getInstance();

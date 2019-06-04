@@ -24,8 +24,7 @@
 
 --%>
 <%@ page
-	import="java.util.*, java.net.*, java.sql.*, oscar.*, oscar.util.*, java.text.*, java.lang.*, org.apache.struts.util.*"
-	errorPage="../appointment/errorpage.jsp"%>
+	import="java.util.*, java.net.*, java.sql.*, oscar.*, oscar.util.*, java.text.*, java.lang.*, org.apache.struts.util.*"%>
 
 <jsp:useBean id="scheduleRscheduleBean" class="oscar.RscheduleBean"	scope="session" />
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>

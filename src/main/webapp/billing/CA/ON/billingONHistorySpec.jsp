@@ -38,8 +38,7 @@
   String serviceCode = request.getParameter("serviceCode")!=null? request.getParameter("serviceCode") : "";
 %>
 <%@ page
-	import="java.util.*, java.sql.*, java.net.*, oscar.*, oscar.oscarDB.*"
-	errorPage="errorpage.jsp"%>
+	import="java.util.*, java.sql.*, java.net.*, oscar.*, oscar.oscarDB.*"%>
 <%@ page import="oscar.oscarBilling.ca.on.data.*"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <jsp:useBean id="providerBean" class="java.util.Properties"

@@ -38,8 +38,7 @@
   
 %>
 <%@ page
-	import="java.util.*, java.sql.*, oscar.*, java.text.*, java.lang.*,java.net.*"
-	errorPage="../appointment/errorpage.jsp"%>
+	import="java.util.*, java.sql.*, oscar.*, java.text.*, java.lang.*,java.net.*"%>
 <%
 String urlfrom = request.getParameter("urlfrom")==null?"":request.getParameter("urlfrom") ;
 String param = request.getParameter("param")==null?"":request.getParameter("param") ;
