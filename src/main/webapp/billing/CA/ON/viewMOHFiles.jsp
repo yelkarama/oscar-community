@@ -161,7 +161,7 @@ function checkForm() {
         throw e;
     }
     // Creates a pattern for matching billing file names
-    Pattern pattern = Pattern.compile("\\w{2,3}?-?(\\d+)\\..+");
+    Pattern pattern = Pattern.compile("\\w{2,3}?-?(\\d+).*\\..+");
     
     for(int i=0; i<contents.length; i++) {
       bodd = bodd?false:true ;
