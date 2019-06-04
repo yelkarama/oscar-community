@@ -28,6 +28,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketException;
@@ -72,7 +73,7 @@ public final class ImageRenderingServlet extends HttpServlet {
 	private static DigitalSignatureDao digitalSignatureDao = (DigitalSignatureDao) SpringUtils.getBean("digitalSignatureDao");
 
 	public static enum Source {
-		local_client, hnr_client, integrator_client, signature_preview, signature_stored,clinic_logo
+		local_client, hnr_client, integrator_client, signature_preview, signature_stored,clinic_logo, signature_stored_and_temp
 	}
 
 	@Override
@@ -94,6 +95,8 @@ public final class ImageRenderingServlet extends HttpServlet {
 				renderSignaturePreview(request, response);
 			} else if (Source.signature_stored.name().equals(source)) {
 				renderSignatureStored(request, response);
+			} else if (Source.signature_stored_and_temp.name().equals(source)) {
+                renderSignatureStoredAndTemp(request, response);
 			} else if (Source.clinic_logo.name().equals(source)) {
 				renderClinicLogoStored(request, response);
 			} else {
@@ -287,6 +290,44 @@ public final class ImageRenderingServlet extends HttpServlet {
 			DigitalSignature digitalSignature = digitalSignatureDao.find(Integer.parseInt(request.getParameter("digitalSignatureId")));
 			if (digitalSignature != null) {
 				renderImage(response, digitalSignature.getSignatureImage(), "jpeg");
+				return;
+			}
+		} catch (Exception e) {
+			logger.error("Unexpected error.", e);
+		}
+
+		response.sendError(HttpServletResponse.SC_NOT_FOUND);
+	}
+
+    /**
+     * Renders the stored signature with the digitalSignatureId from the request and also creates a temporary file of the signature for printing
+     * @param request HTTP Request
+     * @param response HTTP Response to write the signature to
+     * @throws IOException If the temp file cannot be written to
+     */
+	private static final void renderSignatureStoredAndTemp(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		HttpSession session = request.getSession();
+		Provider provider = (Provider) session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER);
+		if (provider == null) {
+			response.sendError(HttpServletResponse.SC_FORBIDDEN);
+			return;
+		}
+
+		try {
+			// get image
+			Integer id = Integer.parseInt(request.getParameter("digitalSignatureId"));
+			DigitalSignature digitalSignature = digitalSignatureDao.find(id);
+			if (digitalSignature != null) {
+				renderImage(response, digitalSignature.getSignatureImage(), "jpeg");
+				
+				try {
+					String tempFilePath = DigitalSignatureUtils.getTempFilePath(id.toString());
+					FileOutputStream fileOutputStream = new FileOutputStream(tempFilePath);
+					fileOutputStream.write(digitalSignature.getSignatureImage());
+				} catch (IOException e) {
+					logger.error("Could not render temporary image for digital signature " + id, e); 
+				}
+				
 				return;
 			}
 		} catch (Exception e) {

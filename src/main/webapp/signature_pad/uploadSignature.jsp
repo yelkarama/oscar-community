@@ -28,6 +28,9 @@
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.apache.commons.codec.binary.Base64" %>
 <%@ page import="org.oscarehr.common.model.DigitalSignature" %>
+<%@ page import="org.apache.commons.lang3.math.NumberUtils" %>
+<%@ page import="org.oscarehr.managers.PrescriptionManager" %>
+<%@ page import="org.oscarehr.util.SpringUtils" %>
 <%
 	String signatureId = "";
 	try {
@@ -79,7 +82,10 @@
 		
 		boolean saveToDB = "true".equals(request.getParameter("saveToDB")); 
 		if (saveToDB) {
-			
+			Integer scriptNumber = null;
+			if (NumberUtils.isParsable(request.getParameter("scriptNo"))) {
+				scriptNumber = Integer.parseInt(request.getParameter("scriptNo"));
+			}
 			Integer demo; 
 			try {
 				demo = Integer.parseInt(request.getParameter("demographicNo"));
@@ -87,10 +93,16 @@
 			catch (NumberFormatException nfe) {
 				demo = -1;
 			}
-			DigitalSignature signature = DigitalSignatureUtils.storeDigitalSignatureFromTempFileToDB(
-						loggedInInfo, 
-						request.getParameter(DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY), 
+			DigitalSignature signature = null;
+			if (scriptNumber != null) {
+				PrescriptionManager prescriptionManager = SpringUtils.getBean(PrescriptionManager.class);
+				signature = prescriptionManager.saveSignatureToPrescription(loggedInInfo, request.getParameter(DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY), demo, scriptNumber);
+			} else {
+				signature = DigitalSignatureUtils.storeDigitalSignatureFromTempFileToDB(
+						loggedInInfo,
+						request.getParameter(DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY),
 						demo);
+			}
 			if (signature != null) {
 				signatureId = "" + signature.getId();
 			}

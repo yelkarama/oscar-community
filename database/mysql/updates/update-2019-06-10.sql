@@ -1,0 +1,1 @@
+ALTER TABLE prescription ADD COLUMN signature_id INT;

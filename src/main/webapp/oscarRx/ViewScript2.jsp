@@ -43,6 +43,7 @@
 <%@ page import="org.oscarehr.common.model.*" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="oscar.oscarProvider.data.ProviderData" %>
+<%@ page import="org.apache.commons.lang3.math.NumberUtils" %>
 <%
 	OscarAppointmentDao appointmentDao = SpringUtils.getBean(OscarAppointmentDao.class);
 	UserPropertyDAO userPropertyDAO = (UserPropertyDAO) SpringUtils.getBean(UserPropertyDAO.class);
@@ -241,6 +242,15 @@ HashMap<String, Boolean> rxPreferencesMap = new HashMap<String, Boolean>();
 for (SystemPreferences preference : rxPreferences) {
     rxPreferencesMap.put(preference.getName(), Boolean.parseBoolean(preference.getValue()));
 }
+
+Integer storedSignatureId = null;
+if (NumberUtils.isParsable(request.getParameter("scriptId"))) {
+	Integer scriptId = Integer.parseInt(request.getParameter("scriptId"));
+	PrescriptionDao prescriptionDao = SpringUtils.getBean(PrescriptionDao.class);
+	Prescription prescription = prescriptionDao.find(scriptId);
+	storedSignatureId = prescription.getSignatureId();
+}
+
 %>
 <link rel="stylesheet" type="text/css" href="styles.css" />
 <link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
@@ -479,7 +489,11 @@ function resizeFrame(height) {
 <%
 String signatureRequestId = "";
 String imageUrl = "";
-signatureRequestId = DigitalSignatureUtils.generateSignatureRequestId(loggedInInfo.getLoggedInProviderNo());
+if (storedSignatureId != null) {
+	signatureRequestId = storedSignatureId.toString();
+} else {
+	signatureRequestId = DigitalSignatureUtils.generateSignatureRequestId(loggedInInfo.getLoggedInProviderNo());
+}
 imageUrl = request.getContextPath()+"/imageRenderingServlet?source="+ImageRenderingServlet.Source.signature_preview.name()+"&"+DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY+"="+signatureRequestId;
 %>
 <script type="text/javascript">
@@ -489,8 +503,10 @@ var counter=0;
 function refreshImage()
 {
 	counter=counter+1;
-	frames["preview"].document.getElementById("signature").src="<%=imageUrl%>&rand="+counter;
-	frames['preview'].document.getElementById('imgFile').value='<%=System.getProperty("java.io.tmpdir")%>/signature_<%=signatureRequestId%>.jpg';	
+	if (frames["preview"].document.getElementById("signature") != null) {
+		frames["preview"].document.getElementById("signature").src = "<%=imageUrl%>&rand=" + counter;
+	}
+	frames['preview'].document.getElementById('imgFile').value='<%=System.getProperty("java.io.tmpdir").replaceAll("\\\\", "/")%>/signature_<%=signatureRequestId%>.jpg';	
 }
 
 function sendFax()
@@ -519,8 +535,8 @@ function signatureHandler(e) {
 	isSignatureSaved = e.isSave;
 	e.target.onbeforeunload = null;
 	<% if (OscarProperties.getInstance().isRxFaxEnabled()) { //%>
-	e.target.document.getElementById("faxButton").disabled = !hasFaxNumber || !e.isSave;
-    e.target.document.getElementById("faxPasteButton").disabled = !hasFaxNumber || !e.isSave;
+	let disabled = !hasFaxNumber || !e.isSave;
+	toggleFaxButtons(disabled);
 	<% } %>
 	if (e.isSave) {
 		<% if (OscarProperties.getInstance().isRxFaxEnabled()) { //%>
@@ -531,6 +547,21 @@ function signatureHandler(e) {
 		refreshImage();			
 	}
 }
+
+function toggleFaxButtons(disabled) {
+	document.getElementById("faxButton").disabled = disabled;
+	document.getElementById("faxPasteButton").disabled = disabled;
+}
+
+function enableExistingSignature() {
+	toggleFaxButtons(false);
+	frames["preview"].document.onreadystatechange = function(event, readystate) {
+		if (frames["preview"].document.readyState === "complete") {
+			refreshImage();
+		}
+	}
+}
+
 var requestIdKey = "<%=signatureRequestId %>";
 
 </script>
@@ -811,15 +842,16 @@ function toggleView(form) {
                                         </tr>
 
 
-					<% if (OscarProperties.getInstance().isRxSignatureEnabled() && !OscarProperties.getInstance().getBooleanProperty("signature_tablet", "yes") && !props.getBooleanProperty("rx_electronic_signing", "true")) { %>
-                                        
+					<% if (OscarProperties.getInstance().isRxSignatureEnabled() && !OscarProperties.getInstance().getBooleanProperty("signature_tablet", "yes") && !props.getBooleanProperty("rx_electronic_signing", "true")) {
+						if(storedSignatureId == null) {
+					%>               
                     <tr>
 						<td colspan=2 style="font-weight: bold"><span>Signature</span></td>
 					</tr>               
 					<tr>
                         <td>
                             <input type="hidden" name="<%=DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY%>" value="<%=signatureRequestId%>" />
-                            <iframe style="width:500px; height:132px;"id="signatureFrame" src="<%= request.getContextPath() %>/signature_pad/tabletSignature.jsp?inWindow=true&<%=DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY%>=<%=signatureRequestId%>" ></iframe>
+                            <iframe style="width:500px; height:132px;"id="signatureFrame" src="<%= request.getContextPath() %>/signature_pad/tabletSignature.jsp?inWindow=true&saveToDB=<%=String.valueOf(rxPreferencesMap.getOrDefault("save_rx_signature", true))%>&demographicNo=<%=bean.getDemographicNo()%>&scriptNo=<%=request.getParameter("scriptId")%>&<%=DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY%>=<%=signatureRequestId%>" ></iframe>
                         </td>
 					</tr>
 		            <%}%>
@@ -862,5 +894,12 @@ function toggleView(form) {
 </table>
 
 </div>
+	
+<% if (storedSignatureId != null) { %>
+	<script type="text/javascript">
+		enableExistingSignature();
+	</script>
+<% } %>
+	
 </body>
 </html:html>

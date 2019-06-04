@@ -28,6 +28,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Date;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.DigitalSignatureDao;
 import org.oscarehr.common.dao.UserPropertyDAO;
@@ -118,4 +119,30 @@ public class DigitalSignatureUtils {
 		}
 	}
 
+	/**
+	 * Updates a signature that already exists in the database
+	 * @param loggedInInfo Logged in info of the logged in user
+	 * @param signatureId The id of the signature to update
+	 * @param filePath The path to the temporary file that the new signature is stored in
+	 * @return The updated DigitalSignature
+	 */
+	public static DigitalSignature updateSignature(LoggedInInfo loggedInInfo, Integer signatureId, String filePath) {
+		DigitalSignature signature = null;
+		if (loggedInInfo.getCurrentFacility().isEnableDigitalSignatures()) {
+			DigitalSignatureDao digitalSignatureDao = (DigitalSignatureDao) SpringUtils.getBean("digitalSignatureDao");
+
+			String filename = getTempFilePath(filePath);
+			try (FileInputStream fileInputStream = new FileInputStream(filename)) {
+				byte[] image = new byte[1024 * 256];
+				fileInputStream.read(image);
+
+				signature = digitalSignatureDao.find(signatureId);
+				signature.setSignatureImage(image);
+				digitalSignatureDao.merge(signature);
+			} catch (IOException e) {
+				logger.error("Could not update signature " + signatureId);
+			}
+		}
+		return signature;
+	}
 }

@@ -16,6 +16,7 @@ is hosted in an IFrame and that the IFrame's parent window implements signatureH
 <%@ page import="org.oscarehr.util.MiscUtils" %>
 <%@ page import="org.oscarehr.util.LoggedInInfo" %>
 <%@ page import="org.oscarehr.ui.servlet.ImageRenderingServlet"%>
+<%@ page import="org.apache.commons.lang3.math.NumberUtils" %>
 
 <!DOCTYPE html> 
 <html lang="en"> 
@@ -41,6 +42,7 @@ if (requestIdKey == null) {
 String imageUrl=request.getContextPath()+"/imageRenderingServlet?source="+ImageRenderingServlet.Source.signature_preview.name()+"&"+DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY+"="+requestIdKey;
 String storedImageUrl=request.getContextPath()+"/imageRenderingServlet?source="+ImageRenderingServlet.Source.signature_stored.name()+"&digitalSignatureId=";
 boolean saveToDB = "true".equals(request.getParameter("saveToDB"));
+String scriptNo = request.getParameter("scriptNo");
 %>
 <script type="text/javascript">
 var _in_window = <%= "true".equals(request.getParameter("inWindow"))%>;
@@ -70,6 +72,9 @@ var contextPath = "<%=request.getContextPath() %>";
 	<input type="hidden" name="<%=DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY %>" value="<%= requestIdKey %>" />
 	<input type="hidden" name="demographicNo" value="<%= request.getParameter("demographicNo") %>" />
 	<input type="hidden" name="saveToDB" value="<%=saveToDB%>" />
+	<% if (scriptNo != null) { %>
+	<input type="hidden" name="scriptNo" value="<%=scriptNo%>" />
+	<% } %>
 </form>
 
 </body>

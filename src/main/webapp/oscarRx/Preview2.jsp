@@ -689,10 +689,22 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
 																			startimageUrl = request.getContextPath() + "/images/1x1.gif";
 																			statusUrl = request.getContextPath() + "/PMmodule/ClientManager/check_signature_status.jsp?" + DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY + "=" + signatureRequestId;
 																		}
-																	%>
-																	<input type="hidden" name="<%=DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY%>" value="<%=signatureRequestId%>" />	
 
-																	<img id="signature" style="width:250px; height:50px" src="<%=startimageUrl%>" alt="digital_signature" />
+                                                                        String signatureImagePath = "";
+                                                                        PrescriptionDao prescriptionDao = SpringUtils.getBean(PrescriptionDao.class);
+                                                                        Prescription prescription = prescriptionDao.find(Integer.parseInt(scriptid));
+                                                                        if (prescription != null && prescription.getSignatureId() != null) {
+                                                                            signatureImagePath = request.getContextPath() + "/imageRenderingServlet?source=" + ImageRenderingServlet.Source.signature_stored_and_temp.name() + "&digitalSignatureId=" + prescription.getSignatureId();
+                                                                            imgFile = DigitalSignatureUtils.getTempFilePath(prescription.getSignatureId().toString());
+                                                                        }
+																	%>
+																	<input type="hidden" name="<%=DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY%>" value="<%=signatureRequestId%>" />
+
+                                                                    <% if (!signatureImagePath.isEmpty()) { %>
+                                                                    <img style="width:250px; height:50px" src="<%=signatureImagePath%>" />
+                                                                    <% } else { %>
+                                                                    <img id="test" style="width:300px; height:60px" src="<%= request.getContextPath() + "/dms/ManageDocument.do?method=viewDocPage&doc_no=" + new_doc_no%>" />
+                                                                    <% } %>
 				 													<input type="hidden" name="imgFile" id="imgFile" value="<%=imgFile%>" />
 																	<script type="text/javascript">
 																		

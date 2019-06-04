@@ -30,8 +30,10 @@ import org.oscarehr.caisi_integrator.ws.CachedDemographicDrug;
 import org.oscarehr.common.dao.DrugDao;
 import org.oscarehr.common.dao.PrescriptionDao;
 import org.oscarehr.common.exception.AccessDeniedException;
+import org.oscarehr.common.model.DigitalSignature;
 import org.oscarehr.common.model.Drug;
 import org.oscarehr.common.model.Prescription;
+import org.oscarehr.util.DigitalSignatureUtils;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -339,5 +341,29 @@ public class PrescriptionManager {
 		LogAction.addLogSynchronous(loggedInInfo, "PrescriptionManager.getLongtermDrugs", "Demographic: " + demographicId);
 		return drugDao.findLongTermDrugsByDemographic(demographicId);
 	}
+
+    /**
+     * Saves the provided Signature id to the prescription matching the provided script number. Will update the  
+     * @param loggedInInfo Logged in info for the logged in user
+     * @param signatureRequestId The id of the DigitalSignature record
+     * @param demographicId The id of the demographic that the prescription belongs to
+     * @param scriptNo The id of the prescription to save the signature to
+     * @return The DigitalSignature record that was saved to the prescription
+     */
+	public DigitalSignature saveSignatureToPrescription(LoggedInInfo loggedInInfo, String signatureRequestId, int demographicId, Integer scriptNo) {
+        DigitalSignature signature = null;
+        Prescription prescription = prescriptionDao.find(scriptNo);
+        if (prescription != null) {
+            if (prescription.getSignatureId() != null) {
+                signature = DigitalSignatureUtils.updateSignature(loggedInInfo, prescription.getSignatureId(), signatureRequestId);
+            } else {
+                signature = DigitalSignatureUtils.storeDigitalSignatureFromTempFileToDB(loggedInInfo, signatureRequestId, demographicId);
+                prescription.setSignatureId(signature.getId());
+                prescriptionDao.merge(prescription);
+            }
+        }
+        
+        return signature;
+    }
 
 }

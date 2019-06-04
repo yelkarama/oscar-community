@@ -205,6 +205,14 @@
                     </label>
                 </td>
             </tr>
+            <tr>
+                <td>Save Rx Signature:</td>
+                <td>
+                    <label style="display: inline">
+                        <input type="checkbox" value="true" name="save_rx_signature" <%= (dataBean.getProperty("save_rx_signature", "true").equals("true") ? "checked" : "") %> />
+                    </label>
+                </td>
+            </tr>
             </tbody>
         </table>
 

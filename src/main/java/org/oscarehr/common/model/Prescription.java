@@ -75,6 +75,9 @@ public class Prescription extends AbstractModel<Integer> implements Serializable
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date lastUpdateDate;
 
+	@Column(name = "signature_id")
+	private Integer signatureId;
+
 	@PreRemove
 	protected void jpaPreventDelete() {
 		throw (new UnsupportedOperationException("Remove is not allowed for this type of item."));
@@ -155,6 +158,13 @@ public class Prescription extends AbstractModel<Integer> implements Serializable
 
 	public Date getLastUpdateDate() {
 		return (lastUpdateDate);
+	}
+
+	public Integer getSignatureId() {
+		return signatureId;
+	}
+	public void setSignatureId(Integer signatureId) {
+		this.signatureId = signatureId;
 	}
 
 	/**
