@@ -1447,7 +1447,7 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 	</li>		
 
 </security:oscarSec>
-<% if (OscarProperties.getInstance().hasProperty("kaiemr_lab_queue_url") && enhancedOrClassic != null && enhancedOrClassic.getValue() != null && enhancedOrClassic.getValue().equals("E")) { %>
+<% if (OscarProperties.getInstance().hasProperty("kaiemr_lab_queue_url")) { %>
 	<li>
 		<a href="javascript:void(0)" id="work_lab_button" title='Lab Queue' onclick="popupPage2('<%=OscarProperties.getInstance().getProperty("kaiemr_lab_queue_url")%>','work_queue', 700, 1215)">Lab Queue</a>
 	</li>
@@ -1464,7 +1464,7 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 		}
 	}
 
-   if (OscarProperties.getInstance().hasProperty("allow_online_booking") && OscarProperties.getInstance().getBooleanProperty("allow_online_booking", "true") && providerAllowOnlineBooking && enhancedOrClassic != null && enhancedOrClassic.getValue() != null && enhancedOrClassic.getValue().equals("E")) { %>
+   if (OscarProperties.getInstance().hasProperty("allow_online_booking") && OscarProperties.getInstance().getBooleanProperty("allow_online_booking", "true") && providerAllowOnlineBooking) { %>
 	<li>
 		<a href="javascript:void(0)" id="online_booking_button" title='Online Booking' onclick="popupPage2('/kaiemr/app/components/onlinebooking/#!/patientModule','work_queue', 700, 1215)">Online Booking</a>
 	</li>
