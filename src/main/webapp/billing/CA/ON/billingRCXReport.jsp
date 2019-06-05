@@ -67,30 +67,23 @@
                                         .attr("onClick", "popup(700,1027,'"+url+"')")
                                 )
                             );
-                        } else if (demographic.value[i].value === "true") {
+                        } else if (demographic.value[i] !== null && (demographic.value[i].value === "true" || demographic.value[i].value === "false")) {
                             // display check if demographic successfully updated
-                            row.append(
-                                jQuery("<td></td>").append(
-                                    jQuery("<span></span>").attr("class", "glyphicon glyphicon-ok")
-                                        .attr("style", "color:green")
-                                )
-                                    .attr("style", "text-align: center;")
-                                    .attr("title", "Automatically Updated Demographic")
-                            );
-                        } else if (demographic.value[i].value === "false") {
                             // display x if demographic failed to update
+                            let successfullyUpdated = demographic.value[i].value === "true";
+
                             row.append(
                                 jQuery("<td></td>").append(
-                                    jQuery("<span></span>").attr("class", "glyphicon glyphicon-remove")
-                                        .attr("style", "color:red")
+                                    jQuery("<span></span>").attr("class", successfullyUpdated ? "glyphicon glyphicon-ok" : "glyphicon glyphicon-remove")
+                                        .attr("style", successfullyUpdated ? "color:green" : "color:red")
                                 )
                                     .attr("style", "text-align: center;")
-                                    .attr("title", "Error Automatically Updating Demographic")
+                                    .attr("title", successfullyUpdated ? "Automatically Updated Demographic" : "Error Automatically Updating Demographic")
                             );
-                        }else {
+                        } else {
                             // display value
                             row.append(
-                                jQuery("<td></td>").text(demographic.value[i].value)
+                                jQuery("<td></td>").text(demographic.value[i] != null ? demographic.value[i].value : '')
                             );
                         }
                     }
