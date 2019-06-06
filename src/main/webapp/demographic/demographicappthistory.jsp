@@ -385,9 +385,13 @@ if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) {
 	if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) {
 	    if (appointment.getLocation() != null && !appointment.getLocation().isEmpty()) {
 	        String[] sbc = siteBgColor.get(appointment.getLocation());
+	        if (sbc != null && sbc.length > 1) { 
 %>      
 	<td style='background-color:<%= sbc[0] %>'><%= sbc[1] %></td>
+		 <% } else { %>
+	<td>none</td>
 <% 
+			}
 		}
 		else {
 %>
