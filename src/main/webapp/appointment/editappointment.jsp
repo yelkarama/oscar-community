@@ -1025,7 +1025,6 @@ if (bMultisites) { %>
         </li>
     </ul>
 
-<% if (isSiteSelected) { %>
 <table class="buttonBar deep">
 	<tr>
             <% if (!bMultipleSameDayGroupAppt) { %>
@@ -1068,7 +1067,6 @@ if (bMultisites) { %>
                 }%>
 	</tr>
 </table>
-<% } %>
 
 </div>
 <div id="bottomInfo">
