@@ -939,14 +939,7 @@
         <ap-output>${type}, ${dataField}, ${comments}, ${dateObserved}, ${dateEntered}</ap-output>
         <ap-json-output>true</ap-json-output>
     </databaseap>
-
-    <databaseap>
-        <ap-name>patient_nameM</ap-name>
-        <ap-sql>SELECT middleNames FROM demographic WHERE demographic_no=${demographic}</ap-sql>
-        <ap-output>${middleNames}</ap-output>
-        <ap-insql>UPDATE demographic SET middleNames='${value}' WHERE demographic_no=${demographic}</ap-insql>
-        <archive>demographic</archive>
-    </databaseap>
+    
     <databaseap>
         <ap-name>current_user_fname</ap-name>
         <ap-sql>SELECT provider.first_name FROM provider WHERE provider.provider_no='${provider}' </ap-sql>
