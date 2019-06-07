@@ -88,6 +88,7 @@ if(request.getParameter("submit")!=null && request.getParameter("submit").equals
 	
 	if ("all".equals(pro)) {
 		BillingReviewPrep prep = new BillingReviewPrep();
+		prep.setRequest(request);
 		List<String> providerStr = null;
 		if (isTeamBillingOnly || isTeamAccessPrivacy) {			
 			providerStr = prep.getTeamProviderBillingStr(BillingPermission.GENERATE_SIMULATE, user_no);
