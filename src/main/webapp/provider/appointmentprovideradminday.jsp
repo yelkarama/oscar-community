@@ -1271,18 +1271,19 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 
 <security:oscarSec roleName="<%=roleName$%>" objectName="_appointment.doctorLink" rights="r">
    <li>
-	   <% if (enhancedOrClassic == null || (enhancedOrClassic != null && enhancedOrClassic.getValue() != null && enhancedOrClassic.getValue().equals("C"))) { %>
-       <a HREF="#" ONCLICK ="popupInboxManager('../dms/inboxManage.do?method=prepareForIndexPage&providerNo=<%=curUser_no%>', 'Lab');return false;" TITLE='<bean:message key="provider.appointmentProviderAdminDay.viewLabReports"/>'>
+	   <% if (enhancedOrClassic != null && "E".equals(enhancedOrClassic.getValue())) { %>
+       <a href="javascript:popupPage(900, 1215, '/kaiemr/app/components/inbox/?providerNo=<%=curUser_no%>')" TITLE='<bean:message key="provider.appointmentProviderAdminDay.viewLabReports"/>'>
+       
 	   <% } else { %>
-	   <a href="javascript:popupPage(900, 1215, '/kaiemr/app/components/inbox/?providerNo=<%=curUser_no%>')" TITLE='<bean:message key="provider.appointmentProviderAdminDay.viewLabReports"/>'>
+           <a HREF="#" ONCLICK ="popupInboxManager('../dms/inboxManage.do?method=prepareForIndexPage&providerNo=<%=curUser_no%>', 'Lab');return false;" TITLE='<bean:message key="provider.appointmentProviderAdminDay.viewLabReports"/>'>
 	   <% } %>
 	   <span id="oscar_new_lab"><bean:message key="global.lab"/></span>
        </a>
        <oscar:newUnclaimedLab>
-				   <% if (enhancedOrClassic == null || (enhancedOrClassic != null && enhancedOrClassic.getValue() != null && enhancedOrClassic.getValue().equals("C"))) { %>
-		   <a class="tabalert" HREF="#" ONCLICK ="popupInboxManager('../dms/inboxManage.do?method=prepareForIndexPage&providerNo=0&searchProviderNo=0&status=N&lname=&fname=&hnum=&pageNum=1&startIndex=0', 'Lab');return false;" TITLE='<bean:message key="provider.appointmentProviderAdminDay.viewLabReports"/>'>*</a>
+				   <% if (enhancedOrClassic != null && "E".equals(enhancedOrClassic.getValue())) { %>
+           <a class="tabalert" href="javascript:popupPage(900, 1215, '/kaiemr/app/components/inbox/?providerNo=0')" TITLE='<bean:message key="provider.appointmentProviderAdminDay.viewLabReports"/>'>*</a>
 				   <% } else { %>
-		   <a  href="javascript:popupPage(900, 1215, '/kaiemr/app/components/inbox/?providerNo=0')" TITLE='<bean:message key="provider.appointmentProviderAdminDay.viewLabReports"/>'>*</a>
+           <a class="tabalert" HREF="#" ONCLICK ="popupInboxManager('../dms/inboxManage.do?method=prepareForIndexPage&providerNo=0&searchProviderNo=0&status=N&lname=&fname=&hnum=&pageNum=1&startIndex=0', 'Lab');return false;" TITLE='<bean:message key="provider.appointmentProviderAdminDay.viewLabReports"/>'>*</a>
 				   <% } %>
        </oscar:newUnclaimedLab>
    </li>
@@ -2721,11 +2722,11 @@ Boolean displayAppointmentReason = appointment.getReason() != null && appointmen
 	<% 
 	if(status.indexOf('B')==-1) 
 	{
-	    if (enhancedOrClassic == null || (enhancedOrClassic != null && enhancedOrClassic.getValue() != null && enhancedOrClassic.getValue().equals("C"))) {
+	    if (enhancedOrClassic != null && "E".equals(enhancedOrClassic.getValue())) {
 	%>
-		&#124; <a href=# onClick='popupPage(755,1200, "../billing.do?billRegion=<%=URLEncoder.encode(prov)%>&billForm=<%=URLEncoder.encode(oscarVariables.getProperty("default_view"))%>&hotclick=<%=URLEncoder.encode("")%>&appointment_no=<%=appointment.getId()%>&demographic_name=<%=URLEncoder.encode(name)%>&status=<%=status%>&demographic_no=<%=demographic_no%>&providerview=<%=curProvider_no[nProvider]%>&user_no=<%=curUser_no%>&apptProvider_no=<%=curProvider_no[nProvider]%>&appointment_date=<%=year+"-"+month+"-"+day%>&start_time=<%=start_time%>&bNewForm=1");return false;' title="<bean:message key="global.billingtag"/>"><bean:message key="provider.appointmentProviderAdminDay.btnB"/></a>
-			  <% } if (enhancedOrClassic != null && enhancedOrClassic.getValue() != null && enhancedOrClassic.getValue().equals("E")) { %>
 			  &#124; <a href=# onClick='popupPage(755,1200, "/kaiemr/app/components/billing/?demographicNo=<%=demographic_no%>&appointmentNo=<%=appointment.getId()%>");return false;' title="<bean:message key="global.billingtag"/>">B</a>
+			  <% } else { %>
+			  &#124; <a href=# onClick='popupPage(755,1200, "../billing.do?billRegion=<%=URLEncoder.encode(prov)%>&billForm=<%=URLEncoder.encode(oscarVariables.getProperty("default_view"))%>&hotclick=<%=URLEncoder.encode("")%>&appointment_no=<%=appointment.getId()%>&demographic_name=<%=URLEncoder.encode(name)%>&status=<%=status%>&demographic_no=<%=demographic_no%>&providerview=<%=curProvider_no[nProvider]%>&user_no=<%=curUser_no%>&apptProvider_no=<%=curProvider_no[nProvider]%>&appointment_date=<%=year+"-"+month+"-"+day%>&start_time=<%=start_time%>&bNewForm=1");return false;' title="<bean:message key="global.billingtag"/>"><bean:message key="provider.appointmentProviderAdminDay.btnB"/></a>
 			  <% } %>
 	<% 
 	}
@@ -2733,19 +2734,15 @@ Boolean displayAppointmentReason = appointment.getReason() != null && appointmen
 	{
 		if(caisiBillingPreferenceNotDelete!=null && caisiBillingPreferenceNotDelete.equals("1"))
 		{
-		    if (enhancedOrClassic == null || (enhancedOrClassic != null && enhancedOrClassic.getValue() != null && enhancedOrClassic.getValue().equals("C"))) {
 	%>
 			&#124; <a href=# onClick='onUpdatebill("../billing/CA/ON/billingEditWithApptNo.jsp?billRegion=<%=URLEncoder.encode(prov)%>&billForm=<%=URLEncoder.encode(oscarVariables.getProperty("default_view"))%>&hotclick=<%=URLEncoder.encode("")%>&appointment_no=<%=appointment.getId()%>&demographic_name=<%=URLEncoder.encode(name)%>&status=<%=status%>&demographic_no=<%=demographic_no%>&providerview=<%=curProvider_no[nProvider]%>&user_no=<%=curUser_no%>&apptProvider_no=<%=curProvider_no[nProvider]%>&appointment_date=<%=year+"-"+month+"-"+day%>&start_time=<%=iS+":"+iSm%>&bNewForm=1");return false;' title="<bean:message key="global.billingtag"/>">=<bean:message key="provider.appointmentProviderAdminDay.btnB"/></a>
 	<%
-			}
 		} 
 		else 
 		{
-			if (enhancedOrClassic == null || (enhancedOrClassic != null && enhancedOrClassic.getValue() != null && enhancedOrClassic.getValue().equals("C"))) {
 	%>
 		&#124; <a href=# onClick='onUnbilled("../billing/CA/<%=prov%>/billingDeleteWithoutNo.jsp?status=<%=status%>&appointment_no=<%=appointment.getId()%>");return false;' title="<bean:message key="global.billingtag"/>">-<bean:message key="provider.appointmentProviderAdminDay.btnB"/></a>
 	<%
-			}
 		} 
 	} 
 	%>
