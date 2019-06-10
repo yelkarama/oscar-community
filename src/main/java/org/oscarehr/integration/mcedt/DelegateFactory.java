@@ -28,6 +28,7 @@ import org.oscarehr.common.dao.UserPropertyDAO;
 import org.oscarehr.common.model.UserProperty;
 import org.oscarehr.integration.ebs.client.EdtClientBuilder;
 import org.oscarehr.integration.ebs.client.EdtClientBuilderConfig;
+import org.oscarehr.integration.mcedt.mailbox.ActionUtils;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -75,6 +76,18 @@ public class DelegateFactory {
 			logger.info("Created new EDT delegate " + edtDelegate);
 		}
 		return edtDelegate;
+	}
+
+	/**
+	 * Refreshes created delegates in the event that information has been updated 
+	 */
+	public static void refreshDelegates() {
+		// For each service id, create a new updated delegate
+		for (String serviceId : ActionUtils.getServiceIds()){
+			edtDelegates.put(serviceId, newDelegate(serviceId));
+		}
+		// Suggests for the Garbage Collector to run in an effort to clean up any lingering connections
+		System.gc();
 	}
 	
 	public static UserPropertyDAO getUserPropertyDAO() {

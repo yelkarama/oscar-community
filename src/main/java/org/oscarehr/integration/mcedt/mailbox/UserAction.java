@@ -33,6 +33,7 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
 import org.oscarehr.common.dao.UserPropertyDAO;
 import org.oscarehr.common.model.UserProperty;
+import org.oscarehr.integration.mcedt.DelegateFactory;
 import org.oscarehr.util.SpringUtils;
 
 import oscar.OscarProperties;
@@ -68,6 +69,8 @@ public class UserAction extends DispatchAction{
 			prop.setValue(resourceForm.getPassword());
 			userPropertyDAO.saveProp(prop);
 			request.getSession().setAttribute("isPassChange", "true");
+			// Refreshes the delegates with the new password
+			DelegateFactory.refreshDelegates();
 			} catch (Exception e) {
 				request.getSession().setAttribute("isPassChange", "false");
 			}
