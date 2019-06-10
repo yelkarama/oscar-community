@@ -441,10 +441,10 @@ public final class LoginAction extends DispatchAction {
             }
 
 			prop = propDao.getProp(provider.getProviderNo(), UserProperty.ENHANCED_OR_CLASSIC);
-			if (prop != null && prop.getValue() != null) {
+			if (prop != null) {
 				prop.setValue(loginType);
 				propDao.saveProp(prop);
-			} else if (prop == null || prop.getValue() == null) {
+			} else {
 				UserProperty property = new UserProperty();
 				property.setName(UserProperty.ENHANCED_OR_CLASSIC);
 				property.setProviderNo(provider.getProviderNo());
