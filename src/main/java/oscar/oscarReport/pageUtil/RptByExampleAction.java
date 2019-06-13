@@ -87,42 +87,28 @@ public class RptByExampleAction extends Action {
         String sql = frm.getSql();
         
         
-        if (sql!= null){            
+        if (sql != null){            
             write2Database(sql, providerNo);
-        }
-        else
-            sql = "";
-        
-        oscar.oscarReport.data.RptByExampleData exampleData  = new oscar.oscarReport.data.RptByExampleData();
-        Properties proppies = OscarProperties.getInstance();
+            oscar.oscarReport.data.RptByExampleData exampleData  = new oscar.oscarReport.data.RptByExampleData();
+            Properties proppies = OscarProperties.getInstance();
 
-        String results = exampleData.exampleReportGenerate(sql, proppies)==null?null: exampleData.exampleReportGenerate(sql, proppies);
-        String resultText = exampleData.exampleTextGenerate(sql, proppies)==null?null: exampleData.exampleTextGenerate(sql, proppies);
+            String results = exampleData.exampleReportGenerate(sql, proppies);
+            String resultText = exampleData.exampleTextGenerate(sql, proppies);
 
-        request.setAttribute("results", results);
-        request.setAttribute("resultText", resultText);
+            request.setAttribute("results", results);
+            request.setAttribute("resultText", resultText);
+        } 
         
         return mapping.findForward("success");
     }
     
     public void write2Database(String query, String providerNo){
         if (query!=null && query.compareTo("")!=0){
-            
-                
-       // StringEscapeUtils strEscUtils = new StringEscapeUtils();
-        
-        //query = exampleData.replaceSQLString (";","",query);
-        //query = exampleData.replaceSQLString("\"", "\'", query);            
-
-       // query = StringEscapeUtils.escapeSql(query);
-        
-        ReportByExamples r = new ReportByExamples();
-        r.setProviderNo(providerNo);
-        r.setQuery(query);
-        r.setDate(new Date());
-        dao.persist(r);
-       
-           
+            ReportByExamples r = new ReportByExamples();
+            r.setProviderNo(providerNo);
+            r.setQuery(query);
+            r.setDate(new Date());
+            dao.persist(r);
         }
     }
 }

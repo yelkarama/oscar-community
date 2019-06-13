@@ -35,84 +35,67 @@ import oscar.oscarDB.DBPreparedHandler;
 
 
 /**
-*This classes main function FluReportGenerate collects a group of patients with flu in the last specified date
-*/
+ *This classes main function FluReportGenerate collects a group of patients with flu in the last specified date
+ */
 public class RptByExampleData {
 
     public ArrayList demoList = null;
-    public String sql= "";
-    public String results= null;
+    public String sql = "";
+    public String results = null;
     public String connect = null;
-    DBPreparedHandler accessDB=null;
-  Properties oscarVariables = null;
+    DBPreparedHandler accessDB = null;
+    Properties oscarVariables = null;
 
 
     public RptByExampleData() {
     }
 
 
-    public String exampleTextGenerate (String sql, Properties oscarVariables ){
-	return exampleReportGenerate(sql, oscarVariables);
+    public String exampleTextGenerate(String sql, Properties oscarVariables) {
+        return exampleReportGenerate(sql, oscarVariables);
     }
 
-    public String exampleReportGenerate( String sql, Properties oscarVariables ){
+    public String exampleReportGenerate(String sql, Properties oscarVariables) {
 
-           if (sql.compareTo("") != 0){
+        if (sql.compareTo("") != 0) {
+            sql = replaceSQLString(";", "", sql);
+            sql = replaceSQLString("\"", "\'", sql);
 
-
-
-             sql = replaceSQLString (";","",sql);
-             sql =  replaceSQLString("\"", "\'", sql);
-
-		 }
+        }
+        
         this.sql = sql;
         this.oscarVariables = oscarVariables;
+        try {
+            accessDB = new DBPreparedHandler();
+            ResultSet rs = accessDB.queryResults(this.sql);
+            if (rs != null) {
+                results = RptResultStruct.getStructure(rs);
+            } else {
+                results = "";
+            }
+            rs.close();
+        } catch (java.sql.SQLException e) {
+            MiscUtils.getLogger().debug("Problems");
+            MiscUtils.getLogger().error("Error", e);
+        }
 
-       try{
-
-accessDB = new DBPreparedHandler();
-
-
-ResultSet rs = null;
-rs = accessDB.queryResults(this.sql);
-
-
-
-      if (rs != null){
-
-             results =  RptResultStruct.getStructure(rs);
-} else {
-	results = "";
-
-}
-
-              rs.close();
-
-
-
-        }catch (java.sql.SQLException e){ MiscUtils.getLogger().debug("Problems");   MiscUtils.getLogger().error("Error", e);  }
-
-     return results;
+        return results;
     }
 
+    public static String replaceSQLString
+            (String oldString, String newString, String inputString) {
 
-
-public static String replaceSQLString
-(String oldString, String newString, String inputString){
-
-String outputString = "";
-int i;
-for (i=0; i<inputString.length(); i++) {
-if (!(inputString.regionMatches (true, i, oldString,
-0, oldString.length())))
-outputString += inputString.charAt(i);
-else {
-outputString += newString;
-i += oldString.length()-1;
+        String outputString = "";
+        int i;
+        for (i = 0; i < inputString.length(); i++) {
+            if (!(inputString.regionMatches(true, i, oldString,
+                    0, oldString.length())))
+                outputString += inputString.charAt(i);
+            else {
+                outputString += newString;
+                i += oldString.length() - 1;
+            }
+        }
+        return outputString;
+    }
 }
-}
-return outputString;
-}
-
-
-};
