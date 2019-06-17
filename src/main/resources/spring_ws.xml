@@ -41,7 +41,7 @@
 		
 		<!-- logging interceptors -->
 		 
-		<cxf:inInterceptors>
+		<!--<cxf:inInterceptors>
 			<ref bean="loggingInInterceptor" />
 		</cxf:inInterceptors>
 		
@@ -50,7 +50,7 @@
 		</cxf:outFaultInterceptors>
 		<cxf:inFaultInterceptors>
 			<ref bean="loggingInInterceptor" />
-		</cxf:inFaultInterceptors>
+		</cxf:inFaultInterceptors>-->
 		 
     </cxf:bus>
 
