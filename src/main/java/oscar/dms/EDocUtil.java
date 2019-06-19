@@ -65,10 +65,12 @@ import org.oscarehr.common.dao.DocumentDao;
 import org.oscarehr.common.dao.DocumentDao.Module;
 import org.oscarehr.common.dao.DocumentReviewDao;
 import org.oscarehr.common.dao.IndivoDocsDao;
+import org.oscarehr.common.dao.OscarAppointmentDao;
 import org.oscarehr.common.dao.PatientLabRoutingDao;
 import org.oscarehr.common.dao.ProviderInboxRoutingDao;
 import org.oscarehr.common.dao.SystemPreferencesDao;
 import org.oscarehr.common.dao.TicklerLinkDao;
+import org.oscarehr.common.model.Appointment;
 import org.oscarehr.common.model.ConsultDocs;
 import org.oscarehr.common.model.CtlDocType;
 import org.oscarehr.common.model.CtlDocument;
@@ -1285,7 +1287,24 @@ public final class EDocUtil {
 			logger.error("An error occurred when trying to copy the letter pdf to the document directory and counting the pages.");
 		}
 
-		EDoc newDoc = new EDoc(description, documentType, fileName, "", loggedInInfo.getLoggedInProviderNo(), user, "", 'A', org.oscarehr.util.DateUtils.getIsoDate(GregorianCalendar.getInstance()), "",
+		Date observationDate = null;
+		// If an appointment is linked to the eform, uses the appointment date as the observation date
+		if (appointmentNo != null) {
+			OscarAppointmentDao appointmentDao = SpringUtils.getBean(OscarAppointmentDao.class);
+			Appointment appointment = appointmentDao.find(appointmentNo);
+			if (appointment != null) {
+				observationDate = appointment.getAppointmentDate();
+			}
+		}
+		
+		if (observationDate == null){
+			observationDate = new Date();
+		}
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		
+		
+		EDoc newDoc = new EDoc(description, documentType, fileName, "", loggedInInfo.getLoggedInProviderNo(), user, "", 'A', sdf.format(observationDate), "",
 				"", "demographic", demographic.getDemographicNo().toString(), numberOfPages);
 		// Sets the appointment number
 		newDoc.setAppointmentNo(appointmentNo);
