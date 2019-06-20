@@ -53,6 +53,9 @@ public class IssueDAO extends HibernateDaoSupport {
     }
 
     public List<Issue> findIssueByCode(String[] codes) {
+        for(int i = 0; i < codes.length; i++){
+            codes[i] = StringEscapeUtils.escapeSql(codes[i]);
+        }
         String code = "'" + StringUtils.join(codes,"','") + "'";
         return this.getHibernateTemplate().find("from Issue i where i.code in (" + code + ")");
     }

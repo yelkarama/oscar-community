@@ -46,6 +46,7 @@ import javax.servlet.http.HttpSession;
 
 import net.sf.json.JSONObject;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.http.impl.cookie.DateUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
@@ -226,11 +227,11 @@ public class DmsInboxManageAction extends DispatchAction {
 		boolean providerSearch = !"-1".equals(searchProviderNo);
 		
 		MiscUtils.getLogger().debug("SEARCH " + searchProviderNo);
-		String patientFirstName = request.getParameter("fname");
-		String patientLastName = request.getParameter("lname");
-		String patientHealthNumber = request.getParameter("hnum");
-		String startDate = request.getParameter("startDate");
-		String endDate = request.getParameter("endDate");
+		String patientFirstName = StringEscapeUtils.escapeSql(request.getParameter("fname"));
+		String patientLastName = StringEscapeUtils.escapeSql(request.getParameter("lname"));
+		String patientHealthNumber = StringEscapeUtils.escapeSql(request.getParameter("hnum"));
+		String startDate = StringEscapeUtils.escapeSql(request.getParameter("startDate"));
+		String endDate = StringEscapeUtils.escapeSql(request.getParameter("endDate"));
 
 		if (patientFirstName == null) {
 			patientFirstName = "";
@@ -303,10 +304,10 @@ public class DmsInboxManageAction extends DispatchAction {
 		CommonLabResultData comLab = new CommonLabResultData();
 		// String providerNo = request.getParameter("providerNo");
 		String providerNo = (String) session.getAttribute("user");
-		String searchProviderNo = request.getParameter("searchProviderNo");
-		String ackStatus = request.getParameter("status");
-		String demographicNo = request.getParameter("demographicNo"); // used when searching for labs by patient instead of provider
-		String scannedDocStatus = request.getParameter("scannedDocument");
+		String searchProviderNo = StringEscapeUtils.escapeSql(request.getParameter("searchProviderNo"));
+		String ackStatus = StringEscapeUtils.escapeSql(request.getParameter("status"));
+		String demographicNo = StringEscapeUtils.escapeSql(request.getParameter("demographicNo")); // used when searching for labs by patient instead of provider
+		String scannedDocStatus = StringEscapeUtils.escapeSql(request.getParameter("scannedDocument"));
 		Integer page = 0;
 		try {
 			page = Integer.parseInt(request.getParameter("page"));
@@ -325,8 +326,8 @@ public class DmsInboxManageAction extends DispatchAction {
 		}
 		scannedDocStatus = "I";
 
-		String startDateStr = request.getParameter("startDate");
-		String endDateStr = request.getParameter("endDate");
+		String startDateStr = StringEscapeUtils.escapeSql(request.getParameter("startDate"));
+		String endDateStr = StringEscapeUtils.escapeSql(request.getParameter("endDate"));
 
 
 
@@ -386,9 +387,9 @@ public class DmsInboxManageAction extends DispatchAction {
 		roleName += "," + searchProviderNo;
 
 		InboxResultsDao inboxResultsDao = (InboxResultsDao) SpringUtils.getBean("inboxResultsDao");
-		String patientFirstName = request.getParameter("fname");
-		String patientLastName = request.getParameter("lname");
-		String patientHealthNumber = request.getParameter("hnum");
+		String patientFirstName = StringEscapeUtils.escapeSql(request.getParameter("fname"));
+		String patientLastName = StringEscapeUtils.escapeSql(request.getParameter("lname"));
+		String patientHealthNumber = StringEscapeUtils.escapeSql(request.getParameter("hnum"));
 
 		ArrayList<LabResultData> labdocs = new ArrayList<LabResultData>();
 

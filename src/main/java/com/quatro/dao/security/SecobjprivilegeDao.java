@@ -27,6 +27,7 @@ package com.quatro.dao.security;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -115,6 +116,7 @@ public class SecobjprivilegeDao extends HibernateDaoSupport {
 	}
     public String getFunctionDesc(String function_code) {
 		try {
+			function_code = StringEscapeUtils.escapeSql(function_code);
 			String queryString = "select description from Secobjectname obj where obj.objectname='" + function_code+"'";
 			
 			List lst = getHibernateTemplate().find(queryString);
@@ -129,6 +131,7 @@ public class SecobjprivilegeDao extends HibernateDaoSupport {
 	}
 	public String getAccessDesc(String accessType_code) {
 		try {
+			accessType_code = StringEscapeUtils.escapeSql(accessType_code);
 			String queryString = "select description from Secprivilege obj where obj.privilege='" + accessType_code +"'";
 			
 			List lst = getHibernateTemplate().find(queryString);
@@ -157,6 +160,7 @@ public class SecobjprivilegeDao extends HibernateDaoSupport {
 				+ ", value: " + value);
 		Session session = getSession();
 		try {
+			propertyName = StringEscapeUtils.escapeSql(propertyName);
 			String queryString = "from Secobjprivilege as model where model."
 					+ propertyName + "= ? order by objectname_code";
 			Query queryObject = session.createQuery(queryString);
@@ -170,7 +174,8 @@ public class SecobjprivilegeDao extends HibernateDaoSupport {
 		}
 	}
     
-    public List<Secobjprivilege> getByObjectNameAndRoles(String o,List<String> roles) {    	
+    public List<Secobjprivilege> getByObjectNameAndRoles(String o,List<String> roles) {
+    	o = StringEscapeUtils.escapeSql(o);
 		String queryString = "from Secobjprivilege obj where obj.objectname_code='" + o +"'";
 		List<Secobjprivilege> results = new ArrayList<Secobjprivilege>();
 		
