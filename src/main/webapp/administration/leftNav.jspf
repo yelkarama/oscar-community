@@ -1068,7 +1068,7 @@ String curProvider_no = (String)session.getAttribute("user");
 					<% LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
 						SystemPreferences reloadPreference = systemPreferencesDao.findPreferenceByName("kai_username");
 						if (reloadPreference != null && loggedInInfo != null && loggedInInfo.getLoggedInSecurity() != null && 
-								StringUtils.trimToEmpty(reloadPreference.getValue()).equals(loggedInInfo.getLoggedInSecurity().getUserName())) {
+								StringUtils.trimToEmpty(reloadPreference.getValue()).equalsIgnoreCase(loggedInInfo.getLoggedInSecurity().getUserName())) {
 					%>
 					<li>
 						<a href="javascript:void(0);" class="xlink" rel="${ctx}/admin/reloadConfigurations.jsp">Reload Configurations</a>
