@@ -1,9 +1,11 @@
 package oscar.admin.actions;
 
+import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
+import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 import oscar.OscarProperties;
 import oscar.eform.EFormLoader;
@@ -14,7 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class ReloadDataAction extends DispatchAction {
-
+    private final Logger logger = MiscUtils.getLogger();
+    
     public ActionForward unspecified(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
         return null;
     }
@@ -28,6 +31,7 @@ public class ReloadDataAction extends DispatchAction {
     }
     
     public void reloadPreventions(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+        logger.info("Reloading Preventions XML");
         PreventionDisplayConfig preventionDisplayConfig = PreventionDisplayConfig.getInstance();
         preventionDisplayConfig.loadPreventions();
         preventionDisplayConfig.loadConfigurationSets();
