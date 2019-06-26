@@ -854,6 +854,7 @@ function toggleView(form) {
                             <iframe style="width:500px; height:132px;"id="signatureFrame" src="<%= request.getContextPath() %>/signature_pad/tabletSignature.jsp?inWindow=true&saveToDB=<%=String.valueOf(rxPreferencesMap.getOrDefault("save_rx_signature", true))%>&demographicNo=<%=bean.getDemographicNo()%>&scriptNo=<%=request.getParameter("scriptId")%>&<%=DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY%>=<%=signatureRequestId%>" ></iframe>
                         </td>
 					</tr>
+					<% } %>
 		            <%}%>
                     <tr>
 						<td colspan=2 style="font-weight: bold"><span><bean:message key="ViewScript.msgDrugInfo"/></span></td>

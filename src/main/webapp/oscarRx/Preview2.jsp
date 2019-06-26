@@ -703,7 +703,7 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                                                     <% if (!signatureImagePath.isEmpty()) { %>
                                                                     <img style="width:250px; height:50px" src="<%=signatureImagePath%>" />
                                                                     <% } else { %>
-                                                                    <img id="test" style="width:300px; height:60px" src="<%= request.getContextPath() + "/dms/ManageDocument.do?method=viewDocPage&doc_no=" + new_doc_no%>" />
+																	<img id="signature" style="width:250px; height:50px" src="<%=startimageUrl%>" alt="digital_signature" />
                                                                     <% } %>
 				 													<input type="hidden" name="imgFile" id="imgFile" value="<%=imgFile%>" />
 																	<script type="text/javascript">
