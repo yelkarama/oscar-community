@@ -29,7 +29,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -43,7 +43,7 @@ import oscar.eform.data.EForm;
 
 public class EFormLoader {
     static private EFormLoader _instance;
-    static private Map<String, DatabaseAP> eFormAPs = new HashMap<String, DatabaseAP>();
+    static private Map<String, DatabaseAP> eFormAPs = new LinkedHashMap<String, DatabaseAP>();
     static private String marker = "oscarDB";
     static private String opener = "oscarOPEN";
     static private String inputMarker = "oscarDBinput";
