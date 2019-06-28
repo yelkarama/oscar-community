@@ -65,6 +65,7 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Laboratory Requisition</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <html:base />
 <link rel="stylesheet" type="text/css" media="screen"
 	href="labReq07Style.css">

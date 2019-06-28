@@ -48,6 +48,7 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>BILLING HISTORY</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" href="billingON.css">
 <script language="JavaScript">
 <!--

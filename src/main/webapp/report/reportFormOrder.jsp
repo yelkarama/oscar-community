@@ -45,6 +45,7 @@ Vector vecConfigObj = tableObj.getConfigObj(SAVE_AS, reportId);
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Report Field Order</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <LINK REL="StyleSheet" HREF="../web.css" TYPE="text/css">
 <script language="JavaScript">
 

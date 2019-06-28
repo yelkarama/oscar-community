@@ -26,7 +26,6 @@
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
-<%@ page import="oscar.oscarProvider.data.*"%>
 <%@ page import="org.oscarehr.common.dao.UserPropertyDAO"%>
 <%@ page import="org.oscarehr.common.model.UserProperty"%>
 <%@ page import="org.oscarehr.util.SpringUtils"%>
@@ -39,26 +38,37 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 
+<script type="text/javascript">
+	
+	function validate() {
+		var msg = "<bean:message key="provider.editRxFax.msgPhoneFormat" />";
+		var email = document.getElementsByName('email')[0];
+		if(email.length > 0 ) {
+			if(!validateEmail(email)) {
+				alert(msg);
+				return false;
+			}
+		}
+		return true;
+	}
+
+	function validateEmail(email) {
+		var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+		return re.test(email.toLowerCase());
+	}
+</script>
 <html:base />
 <link rel="stylesheet" type="text/css"
 	href="../oscarEncounter/encounterStyles.css">
 
 <title><bean:message key="provider.editRxFax.title" /></title>
-<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
-
-<script type="text/javascript">
-    function validate() {
-        var strnum = document.forms[0].elements[0].value;
-        if(strnum.length > 0 ) {
-	        if( !strnum.match(/^\d{3}-\d{3}-\d{4}$/) && !strnum.match(/^\d{4}-\d{3}-\d{4}$/)) {
-	            alert("Format For Fax is ###-###-#### OR ####-###-####");
-	            return false;
-	        }
-        }
-        return true;        
-    }
-</script>
-
+<style type="text/css">
+	.label-span {
+		float: left;
+		width: 120px;
+		font-weight: bold;
+	}
+</style>
 </head>
 
 <body class="BodyStyle" vlink="#0000FF">
@@ -67,48 +77,45 @@
 	<tr class="MainTableTopRow">
 		<td class="MainTableTopRowLeftColumn"><bean:message
 			key="provider.editRxFax.msgPrefs" /></td>
-		<td style="color: white" class="MainTableTopRowRightColumn"><bean:message
-			key="provider.editRxFax.msgProviderFaxNumber" /></td>
+		<td style="color: white" class="MainTableTopRowRightColumn">Provider Website and Email</td>
 	</tr>
 	<tr>
 		<td class="MainTableLeftColumn">&nbsp;</td>
 		<td class="MainTableRightColumn">
 		<%
-		UserPropertyDAO propertyDao = (UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
-		UserProperty prop = propertyDao.getProp(curUser_no,"faxnumber");			
-		String faxNum = "";
-        if(prop!=null) {
-        	faxNum = prop.getValue();
-        }
-               
-               if( request.getAttribute("status") == null )
-               {
-      
-            %> <html:form action="/EditFaxNum.do">
+			UserPropertyDAO propertyDao = (UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
+			UserProperty emailProp = propertyDao.getProp(curUser_no,"email");			
+			String email = "";
+			if(emailProp!=null) {
+				email = emailProp.getValue();
+			}
+			UserProperty websiteProp = propertyDao.getProp(curUser_no,"website");
+			String website = "";
+			if(websiteProp!=null) {
+				website = websiteProp.getValue();
+			}
+			if (request.getAttribute("status") == null) {
+		%>
+			<html:form action="/EditWebsiteAndEmail.do">
+				
+				<span style="color:blue">
+					By entering in a value, you will override the email and/or website in consultation letterheads
+				</span>
+				<br/><br/>
+				<label><span class="label-span">Website: </span><html:text property="website" value="<%=website%>" maxlength="255" size="40"/></label>
+				<br/>
+				<label><span class="label-span">Email Address: </span><html:text property="email" value="<%=email%>" maxlength="255" size="40"/></label>
+				<br/>
 
-
-			<span style="color:blue">By entering in a value, you will 
-			<ul>
-			<li>Override the fax # in prescriptions</li>
-			<li> When choosing your letterhead in consult requests, the clinic fax # and your provider record's fax # will be overridden
-			</li>
-				<li>Override the fax # in Prevention print-outs</li>
-			</ul>
-			</span>
-            <br/>
-
-			<html:text property="faxNumber" value="<%=faxNum%>" maxlength="13"/>
-			<br>
-
-			<input type="submit" onclick="return validate();"
-				value="<bean:message key="provider.editRxFax.btnSubmit"/>" />
-		</html:form> <%
-               }
-               else if( ((String)request.getAttribute("status")).equals("complete") ) {
-            %> <bean:message key="provider.editRxFax.msgSuccess" /> <br>
-		<%=faxNum%> <%
-               }
-            %>
+				<input type="submit" onclick="return validate();" value="<bean:message key="provider.editRxFax.btnSubmit"/>"/>
+			</html:form>
+		<%
+			} else if((request.getAttribute("status")).equals("complete")) { %>
+			<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.letterheadWebsite"/> set to: 
+			<%=website%><br/>
+			<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.letterheadEmail"/> set to:
+			<%=email%>
+		<%	}%>
 		</td>
 	</tr>
 	<tr>

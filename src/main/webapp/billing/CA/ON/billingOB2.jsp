@@ -50,6 +50,7 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Billing History</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 <% String billNo = request.getParameter("billing_no");
  ResultSet rslocation = null;

@@ -72,6 +72,7 @@
         <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>    
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>No Show and Cancellation Policy</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
         <link rel="stylesheet" type="text/css" href="westernuStyle.css">                        
         <script src="../share/javascript/prototype.js" type="text/javascript"></script>
     </head>

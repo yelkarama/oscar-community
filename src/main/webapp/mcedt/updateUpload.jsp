@@ -59,6 +59,7 @@
 
 
 <title>MCEDT: Update Upload</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <html:base />
 </head>

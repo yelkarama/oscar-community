@@ -88,6 +88,7 @@
 <head>
 
 <title>British Columbia New Born Record 2008 - Page 2 (pg3)</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 
 <link rel="stylesheet" type="text/css" href="bcArStyle.css">

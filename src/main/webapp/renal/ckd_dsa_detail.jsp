@@ -70,6 +70,7 @@ if(!authed) {
 <html>
     <head>
         <title>Chronic Kidney Disease DSA</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
         <link rel="stylesheet" href="<%=request.getContextPath()%>/oscarEncounter/decisionSupport/decisionSupport.css" type="text/css"></link>
         <script src="<%=request.getContextPath() %>/js/jquery-1.7.1.min.js" type="text/javascript"></script>
 		 

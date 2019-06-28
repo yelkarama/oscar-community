@@ -32,6 +32,7 @@
 <head>
 
 <title>MyOSCAR Measurement: Glucose</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <c:import url="header.jsp" />
 

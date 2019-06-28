@@ -55,6 +55,7 @@ body {
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title><%=titleStr%></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script type="text/javascript"
 	src="<%=request.getContextPath()%>/js/jquery-1.7.1.min.js"></script>
 <script type="text/javascript">

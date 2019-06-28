@@ -60,6 +60,7 @@ if(d != null) {
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>UPDATE INR BILLING</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script language="JavaScript">
 <!--
 

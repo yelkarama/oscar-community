@@ -49,6 +49,7 @@ if(!authed) {
 
 <head>
 <title>Add Private Billing Code</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
 <script type="text/javascript">
 

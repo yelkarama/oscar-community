@@ -40,6 +40,7 @@
 
 <head>
 <title><bean:message key="oscarLearning.studentImport.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
 </head>
 

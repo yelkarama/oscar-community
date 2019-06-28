@@ -65,6 +65,7 @@ function doDocuments() {
 <html:base />
 <meta http-equiv="Content-Type" content="text/html;">
 <title><bean:message key="admin.oscarStatus.oscarStatus" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <link rel="stylesheet" type="text/css" href="../oscarEncounter/encounterStyles.css">
 <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">

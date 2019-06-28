@@ -84,6 +84,7 @@ com.quatro.service.security.SecurityManager securityManager = new com.quatro.ser
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="EditAllergies.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css" href="styles.css">
 
 <style type="text/css">

@@ -88,6 +88,7 @@ if (drug != null) {
         <script type="text/javascript" src="<%= request.getContextPath()%>/js/global.js"></script>
         <html:base />
         <title><bean:message key="oscarRx.DisplayRxRecord.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
         <link rel="stylesheet" type="text/css" href="../../../share/css/OscarStandardLayout.css">
         <link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
     </head>

@@ -31,6 +31,7 @@
 <html>
 <head>
 <title>Do you want a cover page?</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 <body style="text-align:center">
 

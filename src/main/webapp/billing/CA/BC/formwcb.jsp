@@ -86,6 +86,7 @@ if(!authed) {
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <html:base />
 <title>OSCAR BC Billing - WCB</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" href="../../../share/css/oscar.css">
 <link rel="stylesheet" href="../../../share/css/reporting.css">
 <link rel="stylesheet" href="../../../share/calendar/calendar.css">

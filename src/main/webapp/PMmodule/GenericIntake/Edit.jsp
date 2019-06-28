@@ -75,6 +75,7 @@
 	
 	
     <title>Generic Intake Edit</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
     <style type="text/css">
         @import "<html:rewrite page="/css/genericIntake.css" />";
     </style>

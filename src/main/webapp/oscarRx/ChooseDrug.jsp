@@ -60,6 +60,7 @@
 <html:html locale="true">
 <head>
 <title><bean:message key="ChooseDrug.title.DrugSearchResults"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <html:base/>
 <script type="text/javascript" src="<c:out value="../share/javascript/Oscar.js"/>"></script>
 <script type="text/javascript" src="<c:out value="../share/javascript/prototype.js"/>"></script>

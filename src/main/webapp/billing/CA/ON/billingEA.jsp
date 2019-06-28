@@ -32,6 +32,7 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>EDT Billing Report Generator</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 
 <body bgcolor="#FFFFFF" text="#000000">

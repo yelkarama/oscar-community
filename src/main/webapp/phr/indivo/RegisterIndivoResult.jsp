@@ -42,6 +42,7 @@ String user = (String) session.getAttribute("user");
 <html>
     <head>
         <title>Indivo Registration Result</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
         <link rel="stylesheet" type="text/css" href="../phr.css">
         <style type="text/css">
             div.messageDiv {

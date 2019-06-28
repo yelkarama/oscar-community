@@ -30,6 +30,7 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>OSCAR Nature of Injury</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" href="../../../../share/css/oscar.css">
 </head>
 <%

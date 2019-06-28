@@ -53,6 +53,7 @@ String reportAction=request.getParameter("reportAction")==null?"":request.getPar
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="billing.manageBillingform.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" href="billing.css">
 
 <link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />

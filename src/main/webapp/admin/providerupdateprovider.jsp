@@ -78,6 +78,7 @@
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery-1.9.1.js"></script>
 <title><bean:message key="admin.providerupdateprovider.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" href="../web.css">
 <script LANGUAGE="JavaScript">
 <!--

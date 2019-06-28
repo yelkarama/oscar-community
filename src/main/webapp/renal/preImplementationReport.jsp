@@ -56,6 +56,7 @@ if(!authed) {
 <html>
 	<head>
 		<title>Pre-Implementation Report</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 		
 <style type="text/css">
 

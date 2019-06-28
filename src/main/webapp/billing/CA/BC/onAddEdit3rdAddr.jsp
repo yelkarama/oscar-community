@@ -163,6 +163,7 @@ if(!authed) {
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Add/Edit Service Code</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css" href="billingON.css" />
 <link rel="StyleSheet" type="text/css" href="../web.css" />
 <!-- calendar stylesheet -->

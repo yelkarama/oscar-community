@@ -79,6 +79,7 @@
 <head>
 
 <title><bean:message key="admin.providertemplate.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">

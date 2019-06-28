@@ -28,6 +28,7 @@
 <html>
     <head>
         <title>test</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
     </head>
     <body>
     	<h3>test find PHR user</h3>

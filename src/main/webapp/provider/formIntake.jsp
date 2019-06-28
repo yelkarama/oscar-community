@@ -919,6 +919,7 @@ String msmtCommentSmkF = (!msmtResult.isEmpty() && msmtResult.get(0).get("commen
 <html>
 <head>
 <title>Intake</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <style>
 
 table {

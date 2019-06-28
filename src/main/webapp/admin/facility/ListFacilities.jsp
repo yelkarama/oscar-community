@@ -45,6 +45,7 @@ if(!authed) {
 <html:html locale="true">
     <head>
         <title>Facilities</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
         <link rel="stylesheet" type="text/css" href='<html:rewrite page="/css/tigris.css" />' />
         <link rel="stylesheet" type="text/css" href='<html:rewrite page="/css/displaytag.css" />' />
 

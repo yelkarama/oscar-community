@@ -49,6 +49,7 @@
     <head>
     	<script type="text/javascript" src="<c:out value="${ctx}/share/javascript/prototype.js"/>"></script>
     	<title>MacPlus Search Results</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
         <style type="text/css">
             table.sample {
                 border-width: 0.2px;

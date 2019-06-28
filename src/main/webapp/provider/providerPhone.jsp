@@ -45,6 +45,7 @@
 	href="../oscarEncounter/encounterStyles.css">
 
 <title><bean:message key="provider.editRxPhone.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <script type="text/javascript">
     function validate() {       

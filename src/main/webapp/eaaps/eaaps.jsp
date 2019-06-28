@@ -39,6 +39,7 @@
 <script type="text/javascript" src="../share/javascript/prototype.js"></script>
 
 <title>EAAPs Info</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <html:base />
 </head>

@@ -20,6 +20,7 @@ if(session.getAttribute("user") == null ) response.sendRedirect("../logout.jsp")
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>OLIS Search Simulator</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css"
 	href="../share/css/OscarStandardLayout.css">
 

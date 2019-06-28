@@ -53,6 +53,7 @@ function popupPage(vheight,vwidth,varpage) { //open a new popup window
 <html:base />
 
 <title>Migration Tool</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 
 </head>

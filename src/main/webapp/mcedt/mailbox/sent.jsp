@@ -272,6 +272,7 @@ $(document).ready(function ()
 
 
 <title>Sent</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 <body>
 	<html:form action="/mcedt/resourceInfo" method="post" styleId="formSent">

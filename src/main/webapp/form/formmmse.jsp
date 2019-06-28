@@ -49,6 +49,7 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Mini Mental State Exam</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <html:base />
 <link rel="stylesheet" type="text/css" href="mmseStyle.css" />
 <link rel="stylesheet" type="text/css" media="print" href="print.css" />

@@ -67,6 +67,7 @@
 <head>
 <!--I18n-->
 <title>Reporting of Diabetes</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
 

@@ -104,6 +104,7 @@ boolean adminAccess = false;
 <head>
 <html:base/>
 <title><bean:message key="admin.admin.editInvoices"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
 
 <script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.9.1.min.js"></script>

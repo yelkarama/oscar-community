@@ -141,6 +141,7 @@ if(!authed) {
     
 </script>
 <title>CKD Report</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css" href="../share/css/OscarStandardLayout.css">
 
 

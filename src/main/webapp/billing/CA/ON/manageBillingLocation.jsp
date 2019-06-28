@@ -50,6 +50,7 @@ if (request.getParameter("submit") != null && request.getParameter("submit").equ
 <html:html locale="true">
 <head>
 <title><bean:message key="admin.admin.btnAddBillingLocation" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
 <script language="JavaScript">
 <!--

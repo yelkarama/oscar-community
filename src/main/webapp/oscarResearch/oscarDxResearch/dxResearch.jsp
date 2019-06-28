@@ -166,6 +166,7 @@ function update_date(did, demoNo, provNo) {
 
 <!-- link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  /-->
 <title><bean:message key="oscarResearch.oscarDxResearch.dxResearch.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 
 <body bgcolor="#FFFFFF" text="#000000" rightmargin="0" leftmargin="0"

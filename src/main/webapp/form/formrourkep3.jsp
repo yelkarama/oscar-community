@@ -54,6 +54,7 @@
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 
 <title><bean:message key="oscarEncounter.formRourke3.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <html:base />
 

@@ -48,6 +48,7 @@
 	href="../oscarEncounter/encounterStyles.css">
 
 <title><bean:message key="provider.providerSignature.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 </head>
 

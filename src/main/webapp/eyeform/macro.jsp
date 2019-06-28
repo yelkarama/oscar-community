@@ -36,6 +36,7 @@
 <html lang="en">
 <head>
     <title>Eyeform Macro Details</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 
 <link rel="stylesheet" href="css/displaytag.css" type="text/css">

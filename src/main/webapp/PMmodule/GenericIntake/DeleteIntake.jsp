@@ -47,6 +47,7 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Delete Intake</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 <body>
 <h2>Deleting [<%=thisLabel%>]...</h2>

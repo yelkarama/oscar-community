@@ -56,6 +56,7 @@ String user_no = (String) session.getAttribute("user");
 
 <head>
 <title><bean:message key="admin.admin.btnSimulationOHIPDiskette" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <%
 GregorianCalendar now=new GregorianCalendar();
 int curYear = now.get(Calendar.YEAR);

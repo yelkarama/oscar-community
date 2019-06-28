@@ -215,6 +215,7 @@ if (rx_enhance!=null && rx_enhance.equals("true")) {
 
 
         <title><bean:message key="SearchDrug.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
         <link rel="stylesheet" type="text/css" href="styles.css">
 
         <html:base />

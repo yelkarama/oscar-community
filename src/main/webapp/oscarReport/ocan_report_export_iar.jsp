@@ -72,6 +72,7 @@ if(!authed) {
 <html>
 <head>
 <title>OCAN Submission</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 <body>
 Testing

@@ -59,6 +59,7 @@ String user_no = (String) session.getAttribute("user");
 <html>
 <head>
 <title><bean:message key="admin.admin.btnINRBatchBilling"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script language="JavaScript">
 <!--
 function openBrWindow(theURL,winName,features) {

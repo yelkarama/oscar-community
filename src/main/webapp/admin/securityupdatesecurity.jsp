@@ -58,6 +58,7 @@
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/checkPassword.js.jsp"></script>
 <title><bean:message key="admin.securityupdatesecurity.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css" href="bcArStyle.css">
 <!-- calendar stylesheet -->
 <link rel="stylesheet" type="text/css" media="all"

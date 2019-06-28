@@ -85,6 +85,7 @@ String userlastname = (String) session.getAttribute("userlastname");
         <script type="text/javascript" src="<%= request.getContextPath()%>/js/global.js"></script>
         <script type="text/javascript" src="<%= request.getContextPath()%>/js/jquery-1.9.1.min.js" ></script>                
         <title>Print Drug Profile</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
         <link rel="stylesheet" type="text/css" href="styles.css">
 		<link rel="stylesheet" type="text/css" media="all" href="../share/calendar/calendar.css" title="win2k-cold-1">
 		<script type="text/javascript" src="../share/calendar/calendar.js"></script>

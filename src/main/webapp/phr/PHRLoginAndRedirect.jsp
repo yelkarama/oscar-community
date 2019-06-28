@@ -65,6 +65,7 @@ pageContext.setAttribute("forwardToOnSuccess",request.getAttribute("forwardToOnS
     <head>
         <link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/phr/phr.css"/>
         <title>PHR Call</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
         <script type="text/javascript" language="JavaScript" src="<%=request.getContextPath()%>/share/javascript/prototype.js"></script>
         <script type="text/javascript" language="JavaScript" src="<%=request.getContextPath()%>/phr/phr.js"></script>
         <script type="text/javascript" language="JavaScript">

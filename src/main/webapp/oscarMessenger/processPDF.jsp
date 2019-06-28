@@ -64,6 +64,7 @@ String pdfTitle = request.getParameter("pdfTitle");
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Generate Preview Page</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 <script type="text/javascript">   
     function SetBottomURL(url) {

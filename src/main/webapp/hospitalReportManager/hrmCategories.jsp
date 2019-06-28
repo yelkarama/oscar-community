@@ -33,6 +33,7 @@ if(!authed) {
 <html:html locale="true">
 <head>
 	<title>HRM Categories</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 	<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 	<link href="<%=request.getContextPath() %>/css/datepicker.css" rel="stylesheet" type="text/css">
 	<link href="<%=request.getContextPath() %>/css/DT_bootstrap.css" rel="stylesheet" type="text/css">

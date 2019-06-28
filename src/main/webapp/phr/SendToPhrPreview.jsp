@@ -67,6 +67,7 @@ if(request.getParameter("labId") != null){
 <html>
     <head>
         <title>Preview</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 		<link href="../library/bootstrap/3.0.0/css/bootstrap.css" rel="stylesheet">
         <script type="text/javascript" language="JavaScript" src="phr.js"></script>
         <script type="text/javascript" language="JavaScript">

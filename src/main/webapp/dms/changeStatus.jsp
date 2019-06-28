@@ -65,6 +65,7 @@ while (iter.hasNext()){%>
 <link rel="stylesheet" type="text/css" href="../share/yui/css/autocomplete.css"/>
 <link rel="stylesheet" type="text/css" href="../share/css/OscarStandardLayout.css" />
 <title>Status Update Page</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 <body>
 <table class="MainTable" id="scrollNumber1" name="documentCategoryTable" style="margin: 0px;">

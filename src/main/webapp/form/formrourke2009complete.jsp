@@ -62,6 +62,7 @@ request.setAttribute("frmRecord", rec);
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 
 <title><%= "Rourke2009 Record for " + props.getProperty("c_pName", "") + " DOB: " + props.getProperty("c_birthDate", "")%></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css" href="rourkeStyle.css">
 <!-- calendar stylesheet -->
 <link rel="stylesheet" type="text/css" media="all"

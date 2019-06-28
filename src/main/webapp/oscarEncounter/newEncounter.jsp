@@ -38,6 +38,7 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>New Encounter Access</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script type="text/javascript" LANGUAGE="JavaScript">
 
         function checkAll(formId){

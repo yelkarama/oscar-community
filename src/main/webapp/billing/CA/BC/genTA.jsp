@@ -666,6 +666,7 @@ while ((nextline=input.readLine())!=null){
 <html:base />
 <link rel="stylesheet" href="../../../billing/billing.css">
 <title>Billing Reconcilliation</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <script language="JavaScript">
 <!--

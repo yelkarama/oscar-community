@@ -40,6 +40,7 @@ String pdfTitle = request.getParameter("pdfTitle");
 %>
 
 <title>OSCAR attachment <%=uri%></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <frameset rows="400,0">
 	<frame name="attMain"
 		src="processPDF.jsp?demographic_no=<%=demographic_no%>&pdfTitle=<%=pdfTitle%>&uri=<%=uri%>"

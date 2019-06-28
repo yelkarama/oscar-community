@@ -32,6 +32,7 @@ if(!authed) {
 <html:html locale="true">
 <head>
 <title><bean:message key="oscarEncounter.oscarConsultationRequest.AttachDocPopup.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <% boolean linkIncluded = StringUtils.isNotEmpty(request.getParameter("link")); %>
 <script type="text/javascript">

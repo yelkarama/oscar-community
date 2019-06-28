@@ -52,6 +52,7 @@ String outcome = (String) request.getAttribute("outcome");
 <head>
 
 <title><bean:message key="lab.ca.all.testUploader.labUploadUtility" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 <link href="<%=request.getContextPath() %>/css/datepicker.css" rel="stylesheet" type="text/css">

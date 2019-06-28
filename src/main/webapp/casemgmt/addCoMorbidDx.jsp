@@ -35,6 +35,7 @@
 <html:html locale="true">
 <head>
 	<title>Add Co-morbid ICD9 Dx</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 	<script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery-3.1.0.min.js"></script>
 	<script type="text/javascript">
 		function addCoMorbidity() {

@@ -47,6 +47,7 @@
 	<link href="<%=request.getContextPath() %>/library/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" type="text/css">
 	<link href="<%=request.getContextPath() %>/js/jquery_css/smoothness/jquery-ui-1.7.3.custom.css" rel="stylesheet" type="text/css">
 	<title>Drawing Tool</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 	<style>
 		#header {
 			position:fixed;

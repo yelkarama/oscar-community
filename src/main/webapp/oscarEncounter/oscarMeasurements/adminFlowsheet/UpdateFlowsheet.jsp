@@ -101,7 +101,8 @@ FlowSheetItem fsi =mFlowsheet.getFlowSheetItem(measurement);
 <html:html locale="true">
 
 <head>
-<title>Update Flowsheet <%=flowsheet%>  <oscar:nameage demographicNo="<%=demographic%>"/></title><!--I18n-->
+<title>Update Flowsheet <%=flowsheet%>  <oscar:nameage demographicNo="<%=demographic%>"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script><!--I18n-->
 
 <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet">
 

@@ -63,6 +63,7 @@ if(!authed) {
 <head>
 
 <title><bean:message key="oscarprevention.index.oscarpreventiontitre" /> - <bean:message key="admin.admin.preventionNotification.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <script type="text/javascript">
 <!--

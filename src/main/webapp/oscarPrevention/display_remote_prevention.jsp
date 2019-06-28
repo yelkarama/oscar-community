@@ -60,6 +60,7 @@ if(!authed) {
 <%@page import="java.util.List"%><html xmlns="http://www.w3.org/1999/xhtml">
 	<head>	
 		<title>Remote Prevention</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 		<style>
 			.tableLabel
 			{

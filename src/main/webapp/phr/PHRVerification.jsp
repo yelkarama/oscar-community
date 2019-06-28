@@ -85,6 +85,7 @@ String myOscarUserName = demo.getMyOscarUserName();
 	}
 </script>
 <title><bean:message key="phr.verification.title"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css" href="../share/css/OscarStandardLayout.css">
 
 <script type="text/javascript" language="JavaScript" src="../share/javascript/Oscar.js"></script>

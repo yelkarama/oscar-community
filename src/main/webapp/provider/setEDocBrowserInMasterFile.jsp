@@ -40,6 +40,7 @@ if(session.getAttribute("userrole") == null ) response.sendRedirect("../logout.j
         <html:base />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title><bean-el:message key="${providertitle}" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
         <link rel="stylesheet" type="text/css"
               href="../oscarEncounter/encounterStyles.css">
     </head>

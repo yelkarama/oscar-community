@@ -73,6 +73,7 @@ ResourceBundle spellcheckBundle = ResourceBundle.getBundle( "spellcheckBundle", 
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><%=spellcheckBundle.getString("WindowTitle")%></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" href="spellcheck.css" type="text/css" />
 </head>
 <body onload="processNextMistake();" onkeypress="miscKeyPress();">

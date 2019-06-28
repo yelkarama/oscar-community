@@ -38,6 +38,7 @@
 <script type="text/javascript" src="../share/javascript/prototype.js"></script>
 
 <title>eAAPS Status</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 
 <body class="mainbody" vlink="#0000FF">

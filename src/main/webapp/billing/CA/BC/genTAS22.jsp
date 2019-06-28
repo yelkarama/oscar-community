@@ -62,6 +62,7 @@ if(!authed) {
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <link rel="stylesheet" href="billing.css">
 <title>Teleplan Reconcilliation</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 
 <body bgcolor="#EBF4F5" text="#000000" leftmargin="0" topmargin="0"

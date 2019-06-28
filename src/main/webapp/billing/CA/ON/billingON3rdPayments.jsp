@@ -315,6 +315,7 @@ function validateDiscountNumberic(idx) {
 
 </script>
 <title><bean:message key="admin.admin.editBillPaymentList"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 <security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="w">
 <body bgcolor="ivory" text="#000000" topmargin="0" leftmargin="0" rightmargin="0" >

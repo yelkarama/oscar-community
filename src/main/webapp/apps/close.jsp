@@ -28,6 +28,7 @@
 <html>
 <head>
 <title><bean:message key="global.btnClose"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <link href="../library/bootstrap/3.0.0/css/bootstrap.css" rel="stylesheet">
 </head>

@@ -27,6 +27,7 @@
 <html>
   <head>
     <title>Bootstrap 101 data tables Template</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
  

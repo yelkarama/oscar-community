@@ -53,6 +53,7 @@
 <html>
     <head>
         <title>JSP Page</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
         <style type="text/css">
             a:hover {
                 font-weight: bold;

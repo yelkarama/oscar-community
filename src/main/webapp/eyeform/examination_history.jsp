@@ -35,6 +35,7 @@
 <html>
 	<head>
     	<title>Choose Fields for Examination History</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
     
    		<style type="text/css">
 		table td{

@@ -266,6 +266,7 @@ String keyword = request.getParameter("keyword")!=null?request.getParameter("key
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>PROVIDER</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script language="JavaScript" type="text/javascript">
 <!--
 function setfocus() {

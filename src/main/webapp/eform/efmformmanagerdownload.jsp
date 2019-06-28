@@ -39,6 +39,7 @@
 <head>
     <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
     <title><bean:message key="eform.download.msgDownloadEform" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
     <link rel="stylesheet" href="../share/css/OscarStandardLayout.css">
     <link rel="stylesheet" href="../share/css/eformStyle.css">
     <link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />

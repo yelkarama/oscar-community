@@ -49,6 +49,7 @@
         <link rel="stylesheet" type="text/css" href="../oscarEncounter/encounterStyles.css">
 
         <title><bean:message key="provider.setDefaultPrinter.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
         <script language="javascript">
                 function createMessageHandler() { 

@@ -36,6 +36,7 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Ovalation</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css" href="formovulation.css" />
 <link rel="stylesheet" type="text/css" media="print" href="print.css">
 <style type="text/css" media="print">

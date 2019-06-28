@@ -38,6 +38,7 @@
 
 <head>
 <title><bean:message key="admin.admin.manageTeleplan"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <html:base/>
 <link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
 

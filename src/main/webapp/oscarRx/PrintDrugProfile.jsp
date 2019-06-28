@@ -74,6 +74,7 @@ if (pharmacyList != null && !pharmacyList.isEmpty()) {
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Print Drug Profile</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css" href="styles.css">
 
 <html:base />

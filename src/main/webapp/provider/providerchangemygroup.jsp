@@ -46,6 +46,7 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="provider.providerchangemygroup.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script language="javascript">
 <!-- start javascript ---- check to see if it is really empty in database
 function setfocus() {

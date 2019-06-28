@@ -56,6 +56,7 @@ if(!authed) {
 <head>
 <html:base />
 <title>generate consultation report</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <style type="text/css">
 table td {

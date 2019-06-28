@@ -68,6 +68,7 @@
 <html>
     <head>
             <title><bean:message key="provider.login.title.confidentiality"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
     </head>
     <body>
         <div style="text-align:center;">

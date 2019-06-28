@@ -54,6 +54,7 @@
 <html>
     <head>
           <title><bean:message key="inboxmanager.document.title"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
         <script type="text/javascript" src="../share/javascript/prototype.js"></script>
         <script type="text/javascript" src="../share/javascript/scriptaculous.js"></script>
         <link rel="stylesheet" type="text/css" href="../share/css/OscarStandardLayout.css" />

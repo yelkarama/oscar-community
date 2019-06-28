@@ -87,6 +87,7 @@ if(!authed) {
 
     <head>
         <title><bean:message key="report.ClinicalReports.title"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
         <html:base/>
         <link rel="stylesheet" type="text/css" href="../share/css/OscarStandardLayout.css">
         <link rel="stylesheet" type="text/css" media="all" href="../share/calendar/calendar.css" title="win2k-cold-1" />

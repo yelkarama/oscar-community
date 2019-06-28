@@ -63,6 +63,7 @@ function submitUpload(object) {
 <script type="text/javascript" src="<c:out value="${ctx}/share/javascript/Oscar.js"/>"></script>
 <link rel="stylesheet" type="text/css" href="../share/css/OscarStandardLayout.css" />
 <title> Document Categories</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 <body class="mainbody">
 

@@ -50,6 +50,7 @@ function submitUpload(object) {
 </script>
 <!-- <title>Add New Document Type</title> -->
 <title><bean:message key="dms.documentReport.msgAddNewDocumentType"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 <body>
 <div>

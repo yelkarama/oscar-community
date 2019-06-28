@@ -48,6 +48,7 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Waiting List</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <!-- calendar stylesheet -->
 <link rel="stylesheet" type="text/css" media="all"

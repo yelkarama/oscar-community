@@ -60,6 +60,7 @@
 <script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/effects.js"></script>
 <script type="text/javascript" src="<%= request.getContextPath() %>/share/lightwindow/javascript/lightwindow.js"></script>
 <title><bean:message key="SelectPharmacy.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <html:base />
 
 <logic:notPresent name="RxSessionBean" scope="session">

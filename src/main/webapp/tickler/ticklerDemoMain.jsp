@@ -186,6 +186,7 @@ function saveNoteDialog() {
   
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script>
 <title><bean:message key="tickler.ticklerDemoMain.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script language="JavaScript">
 <!--
 

@@ -46,6 +46,7 @@
 <html>
 <head>
 <title><bean:message key="admin.admin.manageCodeStyles"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
 <script src="<c:out value="${ctx}"/>/share/javascript/prototype.js" type="text/javascript"></script>
 <script src="<c:out value="${ctx}"/>/share/javascript/scriptaculous.js" type="text/javascript"></script>

@@ -36,6 +36,7 @@
 	href="../oscarEncounter/encounterStyles.css">
 
 <title><bean:message key="provider.editRxFax.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 
 <body class="BodyStyle" vlink="#0000FF">

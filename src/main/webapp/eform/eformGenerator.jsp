@@ -36,6 +36,7 @@
 <html>
 <head>
 <title> <bean:message key="eFormGenerator.title"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <style type="text/css" media="print">
 <!-- CSS Script that removes the whole division when printing -->

@@ -41,6 +41,7 @@
 <html:html locale="true">
 <head>
 <title><bean:message key="provider.btnBillPreference" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.9.1.min.js"></script>
 <script type="text/javascript" src="<%=request.getContextPath() %>/js/bootstrap.min.js"></script>

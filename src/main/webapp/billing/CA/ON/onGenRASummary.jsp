@@ -38,6 +38,7 @@
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/tablefilter_all_min.js"></script>
 <link rel="stylesheet" type="text/css" href="billingON.css" />
 <title>Billing Reconcilliation</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <style>
 <% if (bMultisites) { %>

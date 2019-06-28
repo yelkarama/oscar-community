@@ -60,6 +60,7 @@
 			  href="../oscarEncounter/encounterStyles.css">
 
 		<title><bean:message key="provider.consultSignatureStamp.title"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 	</head>
 

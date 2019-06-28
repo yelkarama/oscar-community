@@ -32,6 +32,7 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Provider Search</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link href="<html:rewrite page='/css/tigris.css'/>" rel="stylesheet"
 	type="text/css" />
 <link href="<html:rewrite page='/css/displaytag.css'/>" rel="stylesheet"

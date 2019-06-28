@@ -47,6 +47,7 @@
 <html ng-app="surveillanceConfig">
 <head>
 	<title><bean:message key="admin.admin.surveillanceConfig"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 	<link href="<%=request.getContextPath() %>/library/bootstrap/3.0.0/css/bootstrap.css" rel="stylesheet">
 	<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 	<script type="text/javascript" src="<%=request.getContextPath() %>/library/angular.min.js"></script>	
@@ -161,7 +162,7 @@
 		 	</h4>
 
 		 		
-		 		<table class="table table-condensed table-stripedå"> 
+		 		<table class="table table-condensed table-stripedï¿½"> 
 		 			<thead> 
 		 				<tr> 
 		 					<th>Name</th> 

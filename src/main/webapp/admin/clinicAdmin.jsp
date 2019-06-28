@@ -50,6 +50,7 @@ if(!authed) {
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Clinic</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css"
 	href="../share/css/OscarStandardLayout.css">
 

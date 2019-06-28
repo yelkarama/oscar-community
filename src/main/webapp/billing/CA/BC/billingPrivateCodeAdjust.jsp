@@ -33,6 +33,7 @@
 <html:html locale="true">
 <head>
 	<title><bean:message key="admin.admin.ManagePrivFrm"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 	<link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
 </head>
 

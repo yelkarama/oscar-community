@@ -43,6 +43,7 @@ v<%
 <script type="text/javascript" src="../../../share/javascript/Oscar.js"></script>
 <html:base />
 <title>OSCAR BC Billing - WCB</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script language="JavaScript">
   function billingFormActive(){
      oscarLog("billingFormActive")

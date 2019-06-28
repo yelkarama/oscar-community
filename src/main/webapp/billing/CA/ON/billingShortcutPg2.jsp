@@ -484,6 +484,7 @@
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 	<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery.js"></script>
 <title>OscarBilling</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script language="JavaScript">
 	<!--
 	    function onSave() {

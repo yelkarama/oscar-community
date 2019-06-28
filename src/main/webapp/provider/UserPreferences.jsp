@@ -40,6 +40,7 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="provider.pref.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script src="<c:out value="${ctx}/js/checkPassword.js.jsp"/>"></script>
 <script type="text/javascript" src="../share/javascript/prototype.js"></script>
 <script src="<c:out value="${ctx}/js/jquery.js"/>"></script>

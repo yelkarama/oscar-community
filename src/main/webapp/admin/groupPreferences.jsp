@@ -69,6 +69,7 @@ if(!authed) {
                 }
             </script>
             <title><bean:message key="admin.grouppref.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
     </head>
 
 

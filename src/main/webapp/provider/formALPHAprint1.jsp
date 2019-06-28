@@ -40,6 +40,7 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <TITLE>ALPHA print</TITLE>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </HEAD>
 <BODY BGCOLOR="#FFFFFF">
 

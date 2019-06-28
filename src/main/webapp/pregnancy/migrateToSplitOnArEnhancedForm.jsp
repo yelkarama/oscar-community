@@ -65,6 +65,7 @@ if(!authed) {
 <html>
 <head>
 <title>formONAREnhanced data migration script</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 <body>
 

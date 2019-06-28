@@ -132,6 +132,7 @@
 <html>
     <head>
         <title><bean:message key="oscarEncounter.noteBrowser.title"/> - <oscar:nameage demographicNo="<%=demographicID%>"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
         <script type="text/javascript">  
 
             function popup(vheight,vwidth,varpage) { //open a new popup window

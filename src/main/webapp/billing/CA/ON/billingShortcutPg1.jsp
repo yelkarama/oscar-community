@@ -406,6 +406,7 @@
     <c:set var="ctx" value="${pageContext.request.contextPath}" scope="request"/>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>HospitalBilling</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css" href="billingON.css" />
 
 <!-- calendar stylesheet -->

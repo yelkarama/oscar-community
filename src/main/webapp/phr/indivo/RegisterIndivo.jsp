@@ -76,6 +76,7 @@ if (wPhoneExt != null)
 <html>
     <head>
         <title>Register for PHR</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
         <link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/css/bootstrap.css">
         <script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery-1.7.1.min.js"></script>
         

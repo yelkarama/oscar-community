@@ -46,6 +46,7 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Length & Weight Graph</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <html:base />
 <link rel="stylesheet" type="text/css" media="screen"
 	href="rourkeStyle.css">

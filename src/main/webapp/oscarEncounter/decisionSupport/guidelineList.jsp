@@ -64,6 +64,7 @@ LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
 <html>
     <head>
         <title>GuidelineList</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
         <link rel="stylesheet" href="decisionSupport.css" type="text/css"></link>
     </head>
     <body>

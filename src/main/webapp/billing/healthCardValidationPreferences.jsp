@@ -33,6 +33,7 @@
 
 <head>
     <title>Health Card Validation Settings</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
     <script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.9.1.min.js"></script>
     <script src="<%=request.getContextPath() %>/js/bootstrap.min.js"></script>

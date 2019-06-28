@@ -57,6 +57,7 @@
 <head>
 
 <title><bean:message key="admin.adminnewgroup.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <script>
 

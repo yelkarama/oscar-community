@@ -63,6 +63,7 @@ if(!authed) {
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <html:base />
 <title>manage Letters</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <!-- i18n -->
 
 <script type="text/javascript" src="../share/javascript/Oscar.js"></script>

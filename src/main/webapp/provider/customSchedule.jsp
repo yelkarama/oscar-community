@@ -32,6 +32,7 @@
 	<link href="<%=request.getContextPath()%>/js/jquery_css/smoothness/jquery-ui-1.7.3.custom.css" rel="stylesheet" type="text/css">
 	<link href="<%=request.getContextPath()%>/css/main-kai.css" rel="stylesheet" type="text/css"/>
     <title>Create a temporary custom schedule</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 	<style type="text/css">
 		.fixed-header {
 			height: 100%;

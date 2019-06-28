@@ -43,6 +43,7 @@ if(!authed) {
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Add Edit Study</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <style type="text/css">
 BODY {

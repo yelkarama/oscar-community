@@ -50,6 +50,7 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Case Management</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <c:set var="ctx" value="${pageContext.request.contextPath}" scope="request"/>
 <link rel="stylesheet" href="<c:out value="${ctx}"/>/css/casemgmt.css" type="text/css">
 <script language="JavaScript" src="<c:out value="${ctx}"/>/jspspellcheck/spellcheck-caller.js"></script>

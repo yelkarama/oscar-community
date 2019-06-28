@@ -2,6 +2,7 @@
 <html>
 <head>
     <title></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
     <script type='text/javascript'>
         document.addEventListener('DOMContentLoaded',submitForm);
         function submitForm() {

@@ -29,6 +29,7 @@
 <%@page import="org.oscarehr.util.ProgressStatus"%><html>
 	<head>
 		<title>Progress Dialog</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 	</head>
 
 	<body style="font-size:12px">

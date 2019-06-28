@@ -47,6 +47,7 @@ if(appName==null)
 %>
 
 <title><%=appName %></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 
 <%!

@@ -46,6 +46,7 @@ String curUser_no = (String) session.getAttribute("user");
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Billing Summary</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script type="text/javascript"
 	src="../../../share/javascript/prototype.js"></script>
 <script type="text/javascript" src="../../../share/javascript/nifty.js"></script>

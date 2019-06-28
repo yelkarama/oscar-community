@@ -54,6 +54,7 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Client Image Manager</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" href="<%= request.getContextPath() %>/web.css" />
 <script>
 	function init_page() {

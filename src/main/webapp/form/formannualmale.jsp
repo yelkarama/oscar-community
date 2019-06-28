@@ -46,6 +46,7 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="oscarEncounter.formMaleAnnual.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css" href="annualStyle.css">
 <link rel="stylesheet" type="text/css" media="print" href="print.css">
 <html:base />

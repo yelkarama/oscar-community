@@ -38,6 +38,7 @@
 <head>
 <jsp:include page="head-includes.jsp" />
 <title>MCEDT: Error Page</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 <body>
 	<div class="container-fluid">

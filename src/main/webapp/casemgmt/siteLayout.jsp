@@ -37,6 +37,7 @@
 
 <html:base />
 <title><tiles:getAsString name="title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 <body>
 <table border="1" width="600" cellspacing="5">

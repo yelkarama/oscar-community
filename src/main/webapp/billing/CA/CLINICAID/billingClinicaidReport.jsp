@@ -192,6 +192,7 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Clincaid Billed Appointment Report</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" href="../../../web.css">
 <link rel="stylesheet" type="text/css" media="all" href="../../../share/css/extractedFromPages.css"  />
 <!-- calendar stylesheet -->

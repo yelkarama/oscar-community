@@ -25,6 +25,7 @@ if(session.getValue("user") == null) response.sendRedirect("../../../logout.jsp"
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Billing Reconcilliation</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script language="JavaScript">
 <!--
 

@@ -74,6 +74,7 @@
         <link rel="shortcut icon" href="${ctx}/assets/ico/favicon.png">
 
         <title>Sharing Center - Infrastructure Details</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
         <link rel="stylesheet" href="${ctx}/library/bootstrap/3.0.0/css/bootstrap.min.css">
         <script src="${ctx}/js/jquery-1.9.1.min.js"></script>

@@ -54,6 +54,7 @@
 <script src="<%=request.getContextPath() %>/js/jquery.dataTables.js" type="text/javascript"></script>
 
 <title>OCAN Workload</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css" href="../share/css/OscarStandardLayout.css">
 
 

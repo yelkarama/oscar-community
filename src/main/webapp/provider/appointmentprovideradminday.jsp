@@ -521,7 +521,8 @@ if (customRosterStatusProperty != null) {
 <head>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script>
 <title><%=WordUtils.capitalize(userlastname + ", " +  org.apache.commons.lang.StringUtils.substring(userfirstname, 0, 1)) + "-"%><bean:message key="provider.appointmentProviderAdminDay.title"/></title>
-
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
+	
 <!-- Determine which stylesheet to use: mobile-optimized or regular -->
 <%
 	boolean isMobileOptimized = session.getAttribute("mobileOptimized") != null;

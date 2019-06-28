@@ -49,6 +49,7 @@ if(!authed) {
 <html style="height: 100% !important;">
 <head>
 <title>CBI Upload Administration Panel</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <!-- <script type="text/javascript" src="../js/jquery-1.9.1.js"></script> -->
 <script type="text/javascript" language="JavaScript" src="../js/jquery-1.7.1.min.js"></script>

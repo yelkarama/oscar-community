@@ -37,6 +37,7 @@ String demographic_no = request.getParameter("demographic_no");
 %>
 
 <title>OSCAR attachment</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <% if ( demographic_no != null ) { %>
 

@@ -51,6 +51,7 @@ if(!authed) {
 
 <head>
 <title><bean:message key="admin.renal.managePatientLetter"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
 
 <%

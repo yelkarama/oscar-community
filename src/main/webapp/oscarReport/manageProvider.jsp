@@ -73,6 +73,7 @@ String last_name="", first_name="", mygroup="";
 <html:html locale="true">
 <head>
 <title><bean:message key="oscarReport.manageProvider.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
 <script language="JavaScript">
 <!--

@@ -53,6 +53,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title><bean:message key="provider.setDocumentDescriptionTemplate.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
         <script language="javascript" type="text/javascript" src="../share/javascript/Oscar.js" ></script>
         <script type="text/javascript" src="../share/javascript/prototype.js"></script>
             

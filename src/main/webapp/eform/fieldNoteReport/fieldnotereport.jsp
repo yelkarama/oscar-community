@@ -90,6 +90,7 @@
 <head>
 
 <title><bean:message key="admin.fieldNote.report"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" href="../../share/css/OscarStandardLayout.css">
 <link rel="stylesheet" href="../../share/css/eformStyle.css">
 <link rel="stylesheet" type="text/css" media="all" href="../../share/calendar/calendar.css" title="win2k-cold-1"/> 

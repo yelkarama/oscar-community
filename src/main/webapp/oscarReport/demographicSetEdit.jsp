@@ -67,6 +67,7 @@ if(!authed) {
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Demographic Set Edit I18n</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script src="../share/javascript/Oscar.js"></script>
 <link rel="stylesheet" type="text/css"
 	href="../share/css/OscarStandardLayout.css">
@@ -135,7 +136,7 @@ function disableifchecked(ele,nextDate){
   	<section id="mainContent">
 		<% if(request.getAttribute("deleteSetSuccess")!=null && (Boolean)request.getAttribute("deleteSetSuccess")){ %>
 			<div class="alert alert-block alert-success fade in">
-				<button type="button" class="close" data-dismiss="alert">×</button>
+				<button type="button" class="close" data-dismiss="alert">ï¿½</button>
 				<h4 class="alert-heading">Success!</h4>
 				<p>Patient set "${requestScope.setname}" has been successfully deleted.</p>
 			</div>
@@ -205,7 +206,7 @@ function disableifchecked(ele,nextDate){
 
 	<div id="delete-set-confirm" class="modal hide fade" tabindex="-1" role="dialog">
 		<div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal">×</button>
+			<button type="button" class="close" data-dismiss="modal">ï¿½</button>
 			<h3>Delete Set</h3>
 		</div>
 		<div class="modal-body">

@@ -47,6 +47,7 @@
 <html:html locale="true">
 <head>
 <title><bean:message key="admin.fieldNote.selectEforms" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" href="../../share/css/OscarStandardLayout.css">
 <link rel="stylesheet" href="../../share/css/eformStyle.css">
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>

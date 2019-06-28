@@ -39,6 +39,7 @@
 <html>
     <head>
         <title>Drugref Info</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
         <script type="text/javascript" src="<c:out value="${ctx}/share/javascript/prototype.js"/>"></script>
 
         <script type="text/javascript" src="<c:out value="${ctx}/share/javascript/Oscar.js"/>"></script>

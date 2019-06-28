@@ -58,6 +58,7 @@ if(!authed) {
 <script src="<%=request.getContextPath() %>/js/jquery-1.7.1.min.js" type="text/javascript"></script>
 
 <title>Migration Tool</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 
 <link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/share/css/OscarStandardLayout.css">
@@ -355,7 +356,7 @@ function updateGtt() {
 						<option value="NDE">North Ndebele</option>
 						<option value="SME">Northern Sami</option>
 						<option value="NOR">Norwegian</option>
-						<option value="NOB">Norwegian Bokmål</option>
+						<option value="NOB">Norwegian Bokmï¿½l</option>
 						<option value="NNO">Norwegian Nynorsk</option>
 						<option value="NYA">Nyanja</option>
 						<option value="OCI">Occitan (post 1500)</option>

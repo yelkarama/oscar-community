@@ -66,6 +66,7 @@ if(!authed) {
 <html>
 <head>
 <title><bean:message key="admin.admin.ocanReporting"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
 
 <script>

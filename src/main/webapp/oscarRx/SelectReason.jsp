@@ -62,6 +62,7 @@
 <script type="text/javascript" src="${ oscar_context_path }/js/jquery-ui-1.8.18.custom.min.js" ></script>
 <script type="text/javascript" >var ctx = '${ oscar_context_path }';</script>
 <title>Drug Reason</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <html:base />
 
 <logic:notPresent name="RxSessionBean" scope="session">

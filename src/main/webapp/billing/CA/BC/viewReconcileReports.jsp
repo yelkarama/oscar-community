@@ -73,6 +73,7 @@ if(!authed) {
 <html:base/>
 <link rel="stylesheet" href="../../../billing/billing.css" >
 <title>Billing Reconcilliation</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <script language="JavaScript">
 <!--

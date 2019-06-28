@@ -100,6 +100,7 @@ if(!authed) {
 <%@page import="org.oscarehr.util.MiscUtils"%><html>
     <head>
         <title>Link to Lab Requisition</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
     </head>
     <body>
 

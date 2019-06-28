@@ -58,6 +58,7 @@
 <html:html locale="true">
 <head>
     <title>Antenatal Record 2</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
     <html:base/>
     <link rel="stylesheet" type="text/css" href="<%=bView?"bcArStyleView.css" : "bcArStyle.css"%>">
   <!-- calendar stylesheet -->

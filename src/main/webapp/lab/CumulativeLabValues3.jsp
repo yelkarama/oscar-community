@@ -149,6 +149,7 @@ try{
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Cumulative Lab 3</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <!--I18n-->
 <link rel="stylesheet" type="text/css"
 	href="../share/css/OscarStandardLayout.css" />

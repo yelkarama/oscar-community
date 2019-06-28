@@ -137,6 +137,7 @@
         <link rel="shortcut icon" href="${ctx}/assets/ico/favicon.png">
 
         <title>Document Export</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
         <link rel="stylesheet" href="${ctx}/library/bootstrap/3.0.0/css/bootstrap.min.css">
         <link rel="stylesheet" href="${ctx}/css/bootstrap-multiselect.css" type="text/css"/>

@@ -35,6 +35,7 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>ANTENATAL CHECK LIST</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" href="antenatalrecord.css">
 <script language="JavaScript">
 <!--		

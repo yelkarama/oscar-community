@@ -28,6 +28,7 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Oscar Prescription Module - Error</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 <body style="width: 600px">
 <h1>Session Expired</h1>

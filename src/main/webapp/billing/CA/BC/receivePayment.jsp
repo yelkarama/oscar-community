@@ -22,6 +22,7 @@ if(!authed) {
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="oscar.billing.CA.BC.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script type="javascript">
 function refreshParent(){
 	opener.window.location.href = opener.window.location.href;

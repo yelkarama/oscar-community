@@ -76,6 +76,7 @@
 	<link href="<%=request.getContextPath() %>/js/jquery_css/smoothness/jquery-ui-1.7.3.custom.css" rel="stylesheet" type="text/css">
 
 	<title>Caisi Tickler Setting</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 <body>
 <h3>Caisi Tickler Setting</h3>

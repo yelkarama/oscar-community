@@ -77,6 +77,7 @@ boolean selectOne = Boolean.parseBoolean(request.getParameter("selectOne"));
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Service Code Search</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 	<style>
 		.service-code:hover {
 			cursor: pointer;

@@ -150,6 +150,7 @@ if(!authed) {
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 
 <title>oscarBillingBC Correction</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script language="JavaScript">
 
 <!--

@@ -57,6 +57,7 @@
 <html:html locale="true">
 <head>
     <title>General Settings</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
     <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 
     <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>

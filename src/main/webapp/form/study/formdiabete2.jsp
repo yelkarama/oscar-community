@@ -49,6 +49,7 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Type 2 Diabetes Record</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css"
 	href="../../oscarEncounter/styles.css" />
 <link rel="stylesheet" type="text/css" media="print"

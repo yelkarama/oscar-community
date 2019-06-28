@@ -69,6 +69,7 @@
 <html>
 <head>
 <title></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script>
 window.close();
 </script>

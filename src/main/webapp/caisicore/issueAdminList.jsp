@@ -41,6 +41,7 @@
 	}
 %>
 <title>MyIssues ~ Issue List</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
 
 <button onclick="location.href='issueAdmin.do?method=edit'">Add

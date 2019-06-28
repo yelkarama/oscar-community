@@ -254,6 +254,7 @@ boolean isMulitSites = oscarProp.getBooleanProperty("multisites", "on");
     }
 </script>
 <title>Billing Invoice</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery.js"></script>
    <script>
      jQuery.noConflict();

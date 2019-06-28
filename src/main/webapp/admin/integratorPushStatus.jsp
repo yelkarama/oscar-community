@@ -137,6 +137,7 @@ $( document ).ready(function() {
 <html:base />
 <meta http-equiv="Content-Type" content="text/html;">
 <title>Integrator Push Manager</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <link rel="stylesheet" type="text/css"
 	href="../oscarEncounter/encounterStyles.css">

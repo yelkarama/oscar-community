@@ -27,6 +27,7 @@
 <head>
     <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
     <title>Encounter Notes</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 <body>
 <h3 style="text-align: center;"><%=request.getAttribute("title")%></h3>

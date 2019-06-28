@@ -38,6 +38,7 @@ List<FlowSheetUserCreated> flowsheets = flowSheetUserCreatedDao.getAllUserCreate
 <html>
     <head>
         <title>Create a new Flowsheet</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
         <script type="text/javascript">
         	function checkForm(){
         		  var displayName = document.getElementById("displayName").value;

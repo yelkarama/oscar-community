@@ -51,6 +51,7 @@ String resourcePath = context + "/share/documentUploader/";
 <head>
 	<meta charset="utf-8">
 	<title><bean:message key="inboxmanager.document.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 	<link rel="stylesheet" href="<%=context%>/css/cupertino/jquery-ui-1.8.18.custom.css" id="theme">
 	<link rel="stylesheet" href="<%=resourcePath%>jquery.fileupload-ui.css">
 	<link rel="stylesheet" href="<%=resourcePath%>style.css">

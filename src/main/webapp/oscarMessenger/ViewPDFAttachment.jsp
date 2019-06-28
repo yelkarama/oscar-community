@@ -70,6 +70,7 @@ if(!authed) {
 %>
 
 <title>Document Transfer</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 
 

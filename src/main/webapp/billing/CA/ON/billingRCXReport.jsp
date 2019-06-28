@@ -22,6 +22,7 @@
         <script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script>
         <script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/jquery/jquery-1.4.2.js"></script>
         <title>MOH Report</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
         <link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/library/bootstrap/3.0.0/css/bootstrap-glyphicons-only.min.css">
         <link rel="stylesheet" href="<%=request.getContextPath()%>/billing.css" >
         <link rel="stylesheet" type="text/css" media="all" href="<%=request.getContextPath()%>/share/css/extractedFromPages.css" />

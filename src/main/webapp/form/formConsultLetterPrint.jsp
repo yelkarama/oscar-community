@@ -42,6 +42,7 @@
  <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>OFC - Female Consult</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css" href="formConsultLetterPrintStyle.css">
 </head> 
 <%

@@ -37,6 +37,7 @@ BillingONPayment billPayment = (BillingONPayment)request.getAttribute("billPayme
 <html>
 <head>
 <title>View payment details</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 <body>
 	

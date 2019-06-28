@@ -47,6 +47,7 @@
 <jnlp spec="1.0+" codebase="<%=signaturePadUrlBase%>">
 	<information>
 		<title>Signature Pad</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 		<vendor>caisi</vendor>
 		<description>Signature Pad</description>
 	</information>

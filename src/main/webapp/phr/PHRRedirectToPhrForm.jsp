@@ -39,6 +39,7 @@
 <html>
     <head>
         <title>Redirecting</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
         <script type="text/javascript" language="JavaScript">
             function onloadd() {
                 document.forms["autosubmit"].submit();

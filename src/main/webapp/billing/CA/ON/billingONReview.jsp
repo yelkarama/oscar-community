@@ -342,6 +342,7 @@ boolean dupServiceCode = false;
 <%@page import="org.oscarehr.common.model.Site"%><html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>OscarBilling</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css" href="billingON.css" />
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery.js"></script>
    <script>

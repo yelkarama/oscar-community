@@ -98,6 +98,7 @@ String boxType = request.getParameter("boxType");
 %>
 
 <title><bean:message key="oscarMessenger.ViewMessage.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 
 <script type="text/javascript">

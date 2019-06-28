@@ -29,6 +29,7 @@
 <html>
 <head>
 <title>Appointment Type</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script type="text/javascript">
 var typeIds = [];
 var durations = [];

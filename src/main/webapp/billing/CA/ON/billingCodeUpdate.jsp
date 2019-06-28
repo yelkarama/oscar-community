@@ -32,6 +32,7 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Billing Summary</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script LANGUAGE="JavaScript">
 <!--
 function CodeAttach(File0, File1, File2) {

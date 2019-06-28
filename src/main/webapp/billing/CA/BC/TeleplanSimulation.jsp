@@ -83,6 +83,7 @@ pageContext.setAttribute("billActivityList",billList);
 <html>
 <head>
 	<title><bean:message key="admin.admin.simulateSubFile2"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 	<link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
 <script language="JavaScript">
 

@@ -63,6 +63,7 @@
     <head>
         <meta charset="utf-8">
         <title>Oscar Sharing Center - Clinic Info</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
         <link rel="stylesheet" href="${ctx}/library/bootstrap/3.0.0/css/bootstrap.min.css">
         <script src="${ctx}/js/jquery-1.9.1.min.js"></script>

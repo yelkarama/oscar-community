@@ -306,6 +306,7 @@ if(!authed) {
     }
 %>
 <title>Document Transfer</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 
 <body class="BodyStyle" vlink="#0000FF">

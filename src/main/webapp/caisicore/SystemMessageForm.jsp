@@ -49,6 +49,7 @@
 <link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
 
 <title>System Messages</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script type="text/javascript"
 	src="<%=request.getContextPath()%>/js/validation.js"></script>
 </head>

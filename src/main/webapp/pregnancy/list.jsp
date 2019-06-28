@@ -59,6 +59,7 @@ if(!authed) {
 <script src="<%=request.getContextPath() %>/js/jquery.dataTables.js" type="text/javascript"></script>
 
 <title>Pregnancy History</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/share/css/OscarStandardLayout.css">
 
 

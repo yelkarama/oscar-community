@@ -94,6 +94,7 @@ if(!authed2) {
 <html>
 <head>
 <title>Reports</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script type="text/javascript">
 
 function popupPage(height, width, url) {

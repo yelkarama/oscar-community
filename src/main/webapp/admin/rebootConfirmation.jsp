@@ -27,7 +27,8 @@ String tite = (String) request.getAttribute("provider.title");
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 
-<title>Reboot Confirmation</title></head>
+<title>Reboot Confirmation</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script></head>
 
 <body>	
 

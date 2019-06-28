@@ -56,6 +56,7 @@
     <head>
     <html:base/>
     <title>OSCAR Billing Fee Item</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
     <link rel="stylesheet" href="../../../../share/css/oscar.css">
     </head>
     

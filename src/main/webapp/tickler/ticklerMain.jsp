@@ -209,6 +209,7 @@
 <html:html locale="true">
 <head>
 <title><bean:message key="tickler.ticklerMain.title"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <link rel="stylesheet" type="text/css" media="all" href="<c:out value="${ctx}"/>/css/print.css" />
 

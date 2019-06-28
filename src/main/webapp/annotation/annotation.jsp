@@ -180,6 +180,7 @@
 <html:html locale="true">
 <head>
     <title>Annotation</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
     <% if (isMobileOptimized) { %>
         <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, width=device-width" />
         <link rel="stylesheet" type="text/css" href="../share/css/OscarStandardMobileLayout.css" />

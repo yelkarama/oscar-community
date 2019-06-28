@@ -163,6 +163,7 @@ Remote documents not supported
 <html>
     <head>
         <title><bean:message key="dms.documentBrowser.title"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
         <script type="text/javascript">  
             window.moveTo(0,0);

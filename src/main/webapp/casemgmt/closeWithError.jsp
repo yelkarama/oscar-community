@@ -33,6 +33,7 @@
 <html>
 <head>
 <title>OSCAR</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script type="text/javascript">
 
 	window.innerHeight = 400;

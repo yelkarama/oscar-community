@@ -121,6 +121,7 @@ select,button {
 
 
 <title>MCEDT: Index</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <html:base />
 

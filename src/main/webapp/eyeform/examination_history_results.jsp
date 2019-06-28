@@ -38,6 +38,7 @@
 <html>
 	<head>
     	<title>Examination History Results</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
     	<link rel="stylesheet" type="text/css" href='<html:rewrite page="/jsCalendar/skins/aqua/theme.css" />' />
 		<link rel="stylesheet" type="text/css" media="all" href="<%=request.getContextPath()%>/share/calendar/calendar.css" title="win2k-cold-1" />
 		<script type="text/javascript" src="<%=request.getContextPath()%>/share/calendar/calendar.js"></script>

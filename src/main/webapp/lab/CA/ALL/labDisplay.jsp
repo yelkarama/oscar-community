@@ -272,6 +272,7 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
     <head>
         <html:base/>
         <title><%=handler.getPatientName()+" Lab Results"%></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
         <script language="javascript" type="text/javascript" src="../../../share/javascript/Oscar.js" ></script>
         <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
         <script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/prototype.js"></script>

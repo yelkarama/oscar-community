@@ -52,6 +52,7 @@ if(!authed) {
 <html>
 <head>
 <title>Oscar Quick Billing</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 
 <link rel="stylesheet" href="<c:out value="${ oscar_context_path }/css/bcbilling.css" />" type="text/css" media="screen" />

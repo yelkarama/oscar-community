@@ -140,6 +140,7 @@ $(function() {
 
 <link rel="stylesheet" type="text/css" href="encounterStyles.css">
 <title><bean:message key="oscarMDS.search.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 
 <body>

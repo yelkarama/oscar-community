@@ -79,6 +79,7 @@ if(!authed) {
 <head>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script>
 <title><bean:message key="oscarEncounter.oscarConsultationRequest.AttachDocPopup.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css" media="all" href="<%=request.getContextPath()%>/share/css/extractedFromPages.css" />
 <style type="text/css">
 .doc {

@@ -113,6 +113,7 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="demographic.demographicsearch2apptresults.title" />(demographicsearch2apptresults)</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <% 
 	if (isMobileOptimized) { 

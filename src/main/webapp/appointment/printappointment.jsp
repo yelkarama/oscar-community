@@ -49,6 +49,7 @@
 <html:html locale="true">
     <head>
         <title><bean:message key="report.appointmentReceipt.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
     </head>
     <body>
         <% if (!defaultPrinterNameAppointmentReceipt.isEmpty()) { 

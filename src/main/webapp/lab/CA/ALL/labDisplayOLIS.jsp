@@ -171,6 +171,7 @@ public String strikeOutInvalidContent(String content, String status) {
     <head>
         <html:base/>
         <title><%=handler.getPatientName()+" Lab Results"%></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <script language="javascript" type="text/javascript" src="../../../share/javascript/Oscar.js" ></script>
         <link rel="stylesheet" type="text/css" href="../../../share/css/OscarStandardLayout.css">

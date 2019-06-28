@@ -29,6 +29,7 @@ session.setAttribute("homepath", props.getProperty("project_home", ""));
 <html>
 <head>
 <title><bean:message key="admin.admin.uploadMOHFile"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
 
 <script type="text/javascript">

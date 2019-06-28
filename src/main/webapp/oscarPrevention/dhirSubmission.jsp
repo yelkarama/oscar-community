@@ -131,7 +131,8 @@
 <html:html locale="true">
 
 <head>
-<title>OSCAR Prevention Review Screen</title><!--I18n-->
+<title>OSCAR Prevention Review Screen</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script><!--I18n-->
 <link rel="stylesheet" type="text/css" href="../share/css/OscarStandardLayout.css">
 <link rel="stylesheet" type="text/css" media="all" href="../share/calendar/calendar.css" title="win2k-cold-1" />
 

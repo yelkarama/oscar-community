@@ -55,6 +55,7 @@
 		
 <head>
 	<title><bean:message key="colcamex.formBPMH.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 	<link rel="stylesheet" type="text/css" media="screen" href="${ pageContext.request.contextPath }/form/pharmaForms/index.css" />
  	<link rel="stylesheet" type="text/css" media="screen" href="${ pageContext.request.contextPath }/css/bootstrap.min.css" />
 	<link rel="stylesheet" type="text/css" href="${ pageContext.request.contextPath }/css/healthCareTeam.css" />

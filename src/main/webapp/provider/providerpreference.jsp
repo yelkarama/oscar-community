@@ -72,6 +72,7 @@
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="provider.providerpreference.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script type="text/javascript" src="../share/javascript/prototype.js"></script>
 <script language="JavaScript">
 

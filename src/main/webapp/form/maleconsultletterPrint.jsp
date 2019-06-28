@@ -56,6 +56,7 @@
 <HTML>
 	<HEAD>
 		<TITLE>OFC-Male Consult Print Preview</TITLE>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 	</HEAD>
 
 <style>

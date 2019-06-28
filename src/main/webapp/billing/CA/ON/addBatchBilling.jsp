@@ -53,6 +53,7 @@ Provider creator = providerDao.getProvider(request.getParameter("creator"));
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="billing.batchbilling.title"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script language="JavaScript">
 <!--
 

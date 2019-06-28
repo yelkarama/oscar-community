@@ -65,6 +65,7 @@
 		
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title><bean:message key="olis.olisSearch" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 	<link rel="stylesheet" type="text/css" href="../../../share/css/OscarStandardLayout.css">
 	<link rel="stylesheet" type="text/css" href="../share/css/OscarStandardLayout.css">
 	<link rel="stylesheet" type="text/css" href="../css/jquery-ui/1.12.1-jquery-ui.css">

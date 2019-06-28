@@ -53,6 +53,7 @@ if(!authed) {
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <link rel="stylesheet" href="billing.css">
 <title>Teleplan Reconcilliation</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script language="JavaScript">
 
 function popupPage(vheight,vwidth,varpage) { //open a new popup window

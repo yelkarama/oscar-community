@@ -56,6 +56,7 @@ if(!authed) {
 <html:html locale="true">
     <head>
         <title><bean:message key="admin.admin.DiseaseRegistry"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
     
     <link rel="stylesheet" type="text/css" href="../css/jquery.autocomplete.css" />
     <script src="https://www.google.com/jsapi"></script>    

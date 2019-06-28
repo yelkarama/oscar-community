@@ -30,6 +30,7 @@
 <html:html locale="true">
 <head>
 <title>About OSCAR | Open Source Clinical Application Resource</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <style type="text/css">
 p.build_info 

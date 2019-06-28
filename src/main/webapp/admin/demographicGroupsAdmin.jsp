@@ -15,6 +15,7 @@
 <head>
 <script src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Demographic Groups</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css" href="../share/css/OscarStandardLayout.css">
 
 <script src="../share/javascript/Oscar.js"></script>

@@ -45,6 +45,7 @@ if(!authed) {
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>OSCAR - <bean:message key="report.tabulardaysheetreport.title"/>=</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" href="../share/css/oscar.css">
 <link rel="stylesheet" href="../share/css/reporting.css">
 <link rel="stylesheet" href="../web.css">

@@ -55,6 +55,7 @@ if(!authed) {
 <script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/effects.js"></script>
 <script type="text/javascript" src="<%= request.getContextPath() %>/share/lightwindow/javascript/lightwindow.js"></script>
 <title><bean:message key="report.reportdaysheet.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" href="../web.css">
 <link rel="stylesheet" href="<%= request.getContextPath() %>/share/lightwindow/css/lightwindow.css" type="text/css" media="screen">
 <style>

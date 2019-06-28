@@ -72,6 +72,7 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="demographic.demographiclabelprintsetting.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script src="../share/javascript/prototype.js" language="javascript" type="text/javascript"></script>
 
 <script type="text/javascript">

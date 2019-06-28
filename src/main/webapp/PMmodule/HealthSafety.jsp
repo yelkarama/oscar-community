@@ -29,6 +29,7 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Health and Safety</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script>
 function submitForm(form) {
  var message = form.elements['healthsafety.message'].value;

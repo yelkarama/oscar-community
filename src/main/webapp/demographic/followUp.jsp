@@ -62,6 +62,7 @@
 <html>
 <head>
 <title>Follow-Up Request</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 <body bgcolor="#FFFFFF" text="#000000" leftmargin="0" rightmargin="0" topmargin="10" onLoad="setfocus()">
 <table width="100%" border="0" cellspacing="0" cellpadding="0">

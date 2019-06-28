@@ -57,6 +57,7 @@
 <head>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script>
 <title><bean:message key="admin.securityupdate.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 <link rel="stylesheet" href="../web.css" />
 <body topmargin="0" leftmargin="0" rightmargin="0">

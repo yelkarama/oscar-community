@@ -140,6 +140,7 @@ if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) {
 <oscar:customInterface section="appthistory"/>
    
 <title><bean:message key="demographic.demographicappthistory.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css" href="../share/css/OscarStandardLayout.css">
 <script type="text/javascript">
 

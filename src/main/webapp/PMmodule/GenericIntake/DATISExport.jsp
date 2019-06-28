@@ -54,6 +54,7 @@ request.setAttribute("facilities", facilities);
 	}
 </script>
 <title>DATIS Export</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 <body>
 	

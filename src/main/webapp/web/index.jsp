@@ -48,6 +48,7 @@ session.setAttribute("useIframeResizing", "true");  //Temporary Hack
 <link rel="shortcut icon" href="../images/Oscar.ico">
 
 <title><bean:message key="global.title" bundle="ui"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <link href="../library/bootstrap/3.0.0/css/bootstrap.css" rel="stylesheet">
 <link href="../css/font-awesome.css" rel="stylesheet">

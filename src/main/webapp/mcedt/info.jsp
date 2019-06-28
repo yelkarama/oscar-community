@@ -45,6 +45,7 @@
 	}
 </script>
 <title>MCEDT: Info</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 
 <body>

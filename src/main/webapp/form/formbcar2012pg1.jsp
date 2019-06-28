@@ -498,6 +498,7 @@ function calcAgeAtEDD(){
 </script>
 
 <title>Antenatal Record 1</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <link rel="stylesheet" type="text/css"
 	href="<%=bView?"bcArStyleView.css" : "bcAr2007Style.css"%>">

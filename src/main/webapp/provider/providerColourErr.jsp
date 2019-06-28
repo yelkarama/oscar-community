@@ -35,6 +35,7 @@
 <link rel="stylesheet" type="text/css" href="../oscarEncounter/encounterStyles.css">
 
 <title><bean:message key="provider.editRxFax.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 </head>
 

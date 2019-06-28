@@ -92,6 +92,7 @@ PreventionsLotNrsDao PreventionsLotNrsDao = (PreventionsLotNrsDao)SpringUtils.ge
 	<link rel="stylesheet" type="text/css" media="all"
 		  href="<%=request.getContextPath()%>/share/calendar/calendar.css" title="win2k-cold-1" />
 <title><bean:message key="admin.admin.add_lot_nr.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" href="../web.css">
 <script type="text/javascript">
 

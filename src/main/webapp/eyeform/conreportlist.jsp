@@ -50,6 +50,7 @@ if(!authed) {
   <head>
     <html:base />
     <title>Generate Consultation Report</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" href="css/displaytag.css" type="text/css">
 <style type="text/css">
 .boldRow {

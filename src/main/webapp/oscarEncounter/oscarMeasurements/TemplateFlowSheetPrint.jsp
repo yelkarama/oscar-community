@@ -166,7 +166,8 @@ maybe use jquery/ajax to post this data instead of submitting a form to send ALL
 <html:html locale="true">
 
 <head>
-<title><oscar:nameage demographicNo="<%=demographic_no%>"/> - <%=flowSheet%> Custom Print</title><!--I18n-->
+<title><oscar:nameage demographicNo="<%=demographic_no%>"/> - <%=flowSheet%> Custom Print</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script><!--I18n-->
 
 <meta name="viewport" content="width=device-width, user-scalable=false;">
 

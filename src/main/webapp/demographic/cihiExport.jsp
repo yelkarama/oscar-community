@@ -66,6 +66,7 @@ List<Provider> setsList =  providerDao.getActiveProviders();
 <html>
 <head>
 <title>CIHI Export</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
 <script type="text/javascript">
 	function setReportType(select) {

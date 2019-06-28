@@ -86,6 +86,7 @@ if (request.getParameter("view") != null && request.getParameter("view").equals(
     <head>
 
         <title>British Columbia New Born Record 2008 - Page 1</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 
 <link rel="stylesheet" type="text/css" href="bcArStyle.css">

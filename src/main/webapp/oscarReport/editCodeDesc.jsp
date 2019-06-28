@@ -39,6 +39,7 @@ if(!authed) {
     <head>
 
         <title>Dx Register Report</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 
 

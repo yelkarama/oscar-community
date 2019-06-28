@@ -62,6 +62,7 @@ if(!authed) {
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>OSCAR PathNET - Search Lab Reports</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" href="../../../share/css/oscar.css">
 <script language="JavaScript">
 var labReport;

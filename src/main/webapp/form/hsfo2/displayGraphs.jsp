@@ -36,6 +36,7 @@
   <script type="text/javascript" src="<%=request.getContextPath()%>/js/HSFO2.js"></script>
   
   <title>HSFO2 Graphs</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
  
   <link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css" />
   <link rel="stylesheet" href="../form/hsfo2/hsfo2.css">

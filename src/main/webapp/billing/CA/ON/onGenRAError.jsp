@@ -27,6 +27,7 @@
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <link rel="stylesheet" type="text/css" href="billingON.css" />
 <title>Billing Reconcilliation</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 <% 
 String raNo = "", flag="", plast="", pfirst="", pohipno="", proNo="";

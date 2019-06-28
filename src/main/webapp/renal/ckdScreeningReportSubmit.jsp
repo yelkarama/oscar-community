@@ -64,6 +64,7 @@ List<ORNCkdScreeningReportLog> reports = logDao.getAllReports();
 <html>
 <head>
 	<title>CKD Screening Reports</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 	<link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
 
 <script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.9.1.min.js"></script>

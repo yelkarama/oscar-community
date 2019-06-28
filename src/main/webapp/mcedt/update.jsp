@@ -70,6 +70,7 @@
 
 
 <title>MCEDT: Updates</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <html:base />
 </head>

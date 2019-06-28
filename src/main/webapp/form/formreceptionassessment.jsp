@@ -53,6 +53,7 @@
 
 
 <title>INTAKE A. RECEPTION ASSESSMENT</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css"
 	href="formreceptionassessment.css">
 <link rel="stylesheet" type="text/css" media="print" href="print.css">

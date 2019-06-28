@@ -30,6 +30,7 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Program Management Module</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css"
 	href='<html:rewrite page="/css/tigris.css" />' />
 <link rel="stylesheet" type="text/css"

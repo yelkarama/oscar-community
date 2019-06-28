@@ -87,6 +87,7 @@ user_no = (String) session.getAttribute("user");
 <link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 
 <title><bean:message key="admin.admin.btnBatchBilling"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script type="text/javascript">
 <!--
 

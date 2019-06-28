@@ -43,6 +43,7 @@
 <html>
     <head>
         <title>myDrugref login details</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
     </head>
     <body>

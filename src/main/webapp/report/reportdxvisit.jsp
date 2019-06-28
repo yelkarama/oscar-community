@@ -34,6 +34,7 @@ if(!authed) {
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>PATIENT LIST</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <meta http-equiv=Expires content=-1>
 <!--link rel="stylesheet" href="../web.css" -->
 <script language="JavaScript">

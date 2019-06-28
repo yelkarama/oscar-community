@@ -51,6 +51,7 @@ if (type == null) type = "";
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Measurement Mapping Configuration</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <script type="text/javascript" language=javascript>
             

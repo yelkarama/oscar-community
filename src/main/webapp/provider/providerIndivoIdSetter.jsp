@@ -45,6 +45,7 @@ curUser_no = (String) session.getAttribute("user");
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <html:base />
 <title><bean:message key="provider.setPHRLogin.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <link rel="stylesheet" type="text/css"
 	href="../oscarEncounter/encounterStyles.css">

@@ -67,6 +67,7 @@
 
 	<head>
 		<title>Group Note - Select Clients</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 	</head>
 	<body>
 	

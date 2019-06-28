@@ -115,6 +115,7 @@
 <script type="text/javascript" src="../share/javascript/prototype.js"></script>
 <script type="text/javascript" src="../share/javascript/Oscar.js"></script>
 <title><bean:message key="RxPreview.title"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <style type="text/css" media="print">
  .noprint {
 	 display: none;

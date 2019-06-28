@@ -58,6 +58,7 @@ String percent = props.getProperty("gstPercent");
 </script>
 <head>
 <title><bean:message key="admin.admin.manageGSTControl"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body onload="loadData()">

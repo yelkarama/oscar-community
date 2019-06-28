@@ -44,6 +44,7 @@
         <script type="text/javascript" src="<c:out value="${ctx}/share/javascript/controls.js"/>"></script>
         <script type="text/javascript" src="<c:out value="${ctx}/share/javascript/Oscar.js"/>"></script>
 <title><bean:message key="oscarMDS.selectProvider.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 <%String docId=request.getParameter("doc_no");%>
 <script language='JavaScript'>

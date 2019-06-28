@@ -48,6 +48,7 @@
 
 <head>
 <title><bean:message key="eform.showmyform.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <script type="text/javascript">
 function popupPage(varpage, windowname) {

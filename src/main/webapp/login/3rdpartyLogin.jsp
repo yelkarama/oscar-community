@@ -53,6 +53,7 @@
 <html>
     <head>
             <title>Login and Authorize 3rd party application</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
             
 
     <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet">

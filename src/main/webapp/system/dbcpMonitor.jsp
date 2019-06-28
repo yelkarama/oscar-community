@@ -85,6 +85,7 @@ if(!authed) {
 <html>
     <head>
         <title>JSP Page</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
         <style type="text/css">
             body {
                 font-size: 12px;

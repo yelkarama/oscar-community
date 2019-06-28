@@ -58,6 +58,7 @@ if(request.getAttribute("actionDeleted")!=null){
 
 <head>
 <title><bean:message key="ScratchPad.title"/> <%=title%></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/share/css/OscarStandardLayout.css">
 <%if(userColour!=null){%>
 <style>

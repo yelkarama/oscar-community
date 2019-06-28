@@ -99,6 +99,7 @@ if(!authed2) {
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>CDS Report</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <style type="text/css" media="print">
 .noprint {

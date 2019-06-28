@@ -73,6 +73,7 @@
 <script type="text/javascript" src="../share/calendar/calendar-setup.js"></script>
 <head>
 <title>Letterhead</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 <body onload="cleanForm(); start();">
         <html:form action="/form/formname">  <%//The action of the form is important.  Keep the same%>

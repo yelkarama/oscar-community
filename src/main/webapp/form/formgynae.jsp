@@ -46,6 +46,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 
 <title>Gynae Form</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <style type="text/css">
 .style1 {
 	width: 1123px;

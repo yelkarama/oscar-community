@@ -99,6 +99,7 @@ if(!authed2) {
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>OSIS Report</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <style>
 td.OSISdata{
 	text-align:center;

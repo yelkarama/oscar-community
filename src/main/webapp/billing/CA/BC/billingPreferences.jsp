@@ -15,6 +15,7 @@ lst.add(prov);
 <link rel="stylesheet" type="text/css"
 	href="../../../oscarEncounter/encounterStyles.css">
 <title></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 <body class="BodyStyle" vlink="#0000FF">
 <!--  -->

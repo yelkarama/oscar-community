@@ -437,6 +437,7 @@ span.patient-consent-alert {
 </style>
 	
 <title>OLIS Search Results</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 <body>
 <%

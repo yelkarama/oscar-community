@@ -72,7 +72,8 @@ if(!authed) {
 
 <head>
 <html:base/>
-<title><bean:message key="oscarprevention.index.oscarpreventiontitre" /></title><!-- i18n -->
+<title><bean:message key="oscarprevention.index.oscarpreventiontitre" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script><!-- i18n -->
 
 <script type="text/javascript" src="../share/javascript/Oscar.js"></script>
 <link rel="stylesheet" type="text/css" href="../share/css/OscarStandardLayout.css">

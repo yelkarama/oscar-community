@@ -31,6 +31,7 @@
 <html>
     <head>
         <title>Ontario MD Disease</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
         <script type="text/javascript">
 
             function popupDrugOfChoice(vheight,vwidth,varpage) { //open a new popup window

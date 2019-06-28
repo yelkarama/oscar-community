@@ -125,6 +125,7 @@ GregorianCalendar now=new GregorianCalendar();
 <html:html locale="true">
 <head>
 <title><bean:message key="tickler.ticklerAdd.title"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" href="../billing/billing.css" >
 <style type="text/css">
 <!--

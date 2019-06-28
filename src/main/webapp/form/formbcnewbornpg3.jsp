@@ -56,6 +56,7 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>New Born Record (Baby)</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css"
 	href="<%=bView?"bcArStyleView.css" : "bcArStyle.css"%>">
 <!-- calendar stylesheet -->

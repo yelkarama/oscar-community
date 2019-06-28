@@ -28,6 +28,7 @@
 <html>
 <head>
 <title>Batch Saved</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <script type="text/javascript">
 function exit() {

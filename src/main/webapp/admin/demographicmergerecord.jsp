@@ -124,6 +124,7 @@ if( outcome !=null){
 <html>
 <head>
 <title><bean:message key="admin.admin.mergeRec"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
 <script language="JavaScript">
 	function setfocus() {

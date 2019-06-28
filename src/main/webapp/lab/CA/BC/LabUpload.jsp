@@ -56,6 +56,7 @@ if(!authed) {
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <!--I18n-->
 <title>Lab Upload Utility</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <html:base />
 <link rel="stylesheet" type="text/css"
 	href="../../../share/css/OscarStandardLayout.css">

@@ -136,6 +136,7 @@ String pSize        = request.getParameter("pSize");
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Add To Intake</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script type="text/javascript" src="<html:rewrite page="/js/jquery.js"/>"></script>
 <script type="text/javascript">
 	$("document").ready(function(){		

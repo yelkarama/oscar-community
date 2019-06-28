@@ -110,6 +110,7 @@ boolean authed=true;
 
 <link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 <title>Log Report</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script language="JavaScript">
 
                 <!--

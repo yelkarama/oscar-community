@@ -37,6 +37,7 @@
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery.js"></script>
 <title>Clinic NBR Management Start Time : <%=oscar.OscarProperties.getInstance().getStartTime()%></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script type="text/javascript">
 	function toggleButtons(visible) {
 		jQuery("input[type='submit']").attr("disabled", visible);

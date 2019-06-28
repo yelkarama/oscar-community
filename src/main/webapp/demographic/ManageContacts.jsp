@@ -94,6 +94,7 @@
 
 		<script src="<%=request.getContextPath() %>/demographic/manageContacts.js"></script>
 		<title>Demographic Contact Manager</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 		<!--I18n-->
 		<link rel="stylesheet" href="<%=request.getContextPath() %>/library/bootstrap/3.0.0/css/bootstrap.min.css" />
 		<link rel="stylesheet" type="text/css" href="../share/css/OscarStandardLayout.css" />

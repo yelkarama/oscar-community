@@ -34,6 +34,7 @@
     <head>
 	    <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
         <title>Edit Intake</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
         <script type="text/javascript">
             function add(id,nodeTemplateId,parentId,pos,psize){
                var eURL = "AddToIntake.jsp?id="+id+"&node="+nodeTemplateId+"&parentId="+parentId+"&pos="+pos+"&pSize="+psize;

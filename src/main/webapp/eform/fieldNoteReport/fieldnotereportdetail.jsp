@@ -89,6 +89,7 @@
 <html:html locale="true">
 <head>
 <title><bean:message key="admin.fieldNote.report"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" href="../../share/css/OscarStandardLayout.css">
 <link rel="stylesheet" href="../../share/css/eformStyle.css">
 <style>

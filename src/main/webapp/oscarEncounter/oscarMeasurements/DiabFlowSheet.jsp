@@ -94,7 +94,8 @@ ArrayList<String> recomendations = mi.getRecommendations();
 <html>
 
 <head>
-	<title><%=flowSheet%> - <oscar:nameage demographicNo="<%=demographic_no%>"/></title><!--I18n-->
+	<title><%=flowSheet%> - <oscar:nameage demographicNo="<%=demographic_no%>"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script><!--I18n-->
 	<script type="text/javascript" src="<%=request.getContextPath() %>/share/javascript/Oscar.js"></script>
 
 

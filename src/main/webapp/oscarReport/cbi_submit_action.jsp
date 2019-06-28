@@ -57,6 +57,7 @@ if(!authed) {
 <html>
 <head>
 <title>CBI Submission</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 <body>
 CBI Submission Finished !

@@ -114,7 +114,8 @@ if(!authed2) {
 <html lang="en">
 
 <head>
-<title>Edit Flowsheet</title><!--I18n-->
+<title>Edit Flowsheet</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script><!--I18n-->
 
 <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet">
 

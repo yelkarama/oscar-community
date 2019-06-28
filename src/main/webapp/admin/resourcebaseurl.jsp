@@ -104,6 +104,7 @@
 <html lang="en">
 <head>
 <title><bean:message key="admin.resourcebaseurl.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 
 

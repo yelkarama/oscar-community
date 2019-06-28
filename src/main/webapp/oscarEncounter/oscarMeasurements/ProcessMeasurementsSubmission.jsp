@@ -35,6 +35,7 @@
 <html:html locale="true">
 <head>
 <title><bean:message key="oscarEncounter.Measurements.msgProcessMeasurementsSubmission" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <html:base />
 </head>
 

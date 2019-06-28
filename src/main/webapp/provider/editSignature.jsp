@@ -52,6 +52,7 @@ ProSignatureData sig = new ProSignatureData();
 	href="../oscarEncounter/encounterStyles.css">
 
 <title><bean:message key="provider.editSignature.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 </head>
 

@@ -69,6 +69,7 @@ String duration = "1";
 <html>
     <head>
         <title><bean:message key="admin.admin.uploadEntryTxt"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
         <link rel="stylesheet" type="text/css" href="../share/css/OscarStandardLayout.css">
         <link rel="stylesheet" type="text/css" media="all" href="../share/calendar/calendar.css" title="win2k-cold-1" />
 

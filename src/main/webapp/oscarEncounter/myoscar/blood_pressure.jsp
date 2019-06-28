@@ -36,6 +36,7 @@
 <head>
 
 <title>MyOSCAR Measurement: Blood Pressure</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <c:import url="header.jsp" />
 

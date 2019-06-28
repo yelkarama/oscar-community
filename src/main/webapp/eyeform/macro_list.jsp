@@ -49,6 +49,7 @@ if(!authed) {
 <html>
 <head>
 <title>Macros</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" href="<%=request.getContextPath() %>/eyeform/displaytag.css" type="text/css">
 <style type="text/css">
 .boldRow {

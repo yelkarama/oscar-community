@@ -48,6 +48,7 @@ if(request.getParameter("endDate")!=null) endDate = request.getParameter("endDat
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="report.reportnewdblist.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" href="../css/receptionistapptstyle.css">
 <script language="JavaScript">
 <!--

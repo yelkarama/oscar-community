@@ -49,6 +49,7 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Antenatal Record 2</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <html:base />
 <link rel="stylesheet" type="text/css"
 	href="<%=bView?"arStyleView.css" : "arStyle.css"%>">

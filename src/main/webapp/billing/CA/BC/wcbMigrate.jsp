@@ -60,6 +60,7 @@ if(!authed) {
 <html>
     <head>
         <title>Migrating WCB old to new</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
     </head>
     <body>
         <h1>Migrating WCB old to new</h1>

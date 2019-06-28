@@ -60,6 +60,7 @@ MeasurementManager measurementManager = SpringUtils.getBean(MeasurementManager.c
 <head>
 
 		<title><bean:message key="oscarEncounter.Measurements.msgEditMeasurementGroup" /> - <%=groupName%></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet" media="screen">
 

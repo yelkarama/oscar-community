@@ -60,6 +60,7 @@
 <html>
 <head>
 <title>Annotation History</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 <body>
 <h3 style="text-align: center;"><%=display%> Annotation Revision History</h3>

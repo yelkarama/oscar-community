@@ -117,6 +117,7 @@
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script>
 <script type="text/javascript" src="<%=request.getContextPath()%>/share/javascript/prototype.js"></script>
 <title><bean:message key="SearchDrug.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css" href="styles.css">
 
 <html:base />

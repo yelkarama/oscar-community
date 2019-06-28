@@ -48,6 +48,7 @@
 <html>
 <head>
     <title>Antenatal Planner</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script type="text/javascript" language="Javascript">
 function onExit() {
   if(confirm("Are you sure you wish to exit without saving your changes?")==true)  {

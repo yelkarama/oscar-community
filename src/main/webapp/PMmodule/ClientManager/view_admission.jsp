@@ -34,6 +34,7 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Admission Details</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script>
 function popupPage(vheight,vwidth,varpage) {
 	var page = "" + varpage;

@@ -42,6 +42,7 @@
 %>
 
 <title>MyIssues ~ Issue Details</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <p>Please fill in issue's information below:</p>
 <!-- html:form action="/issueAdmin" focus="issueAdmin.code" onsubmit="return validateIssueAdminForm(this)" -->
 <html:form action="/issueAdmin" focus="issueAdmin.code">

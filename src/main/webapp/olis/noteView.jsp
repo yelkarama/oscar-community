@@ -28,6 +28,7 @@
 <script type="text/javascript" src="<%=request.getContextPath()%>/share/javascript/sortable.js"></script>
 	
 <title>Notes:</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 <body>
 <%

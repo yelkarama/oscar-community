@@ -59,6 +59,7 @@ if(!authed) {
 <script type="text/javascript"
 	src="<%=request.getContextPath()%>/js/global.js"></script>
 <title>OSCAR Products</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link href="<%=request.getContextPath()%>/css/bootstrap.css"
 	rel="stylesheet" type="text/css">
 <link href="<%=request.getContextPath()%>/css/datepicker.css"

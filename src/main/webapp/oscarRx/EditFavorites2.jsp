@@ -36,6 +36,7 @@
 <script type="text/javascript" src="<c:out value="${ctx}/share/javascript/rx.js"/>"></script>
 <script type="text/javascript" src="<c:out value="${ctx}/share/javascript/scriptaculous.js"/>"></script>
 <title>Edit Favorites</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <html:base />
 
 <logic:notPresent name="RxSessionBean" scope="session">

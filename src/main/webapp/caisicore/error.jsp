@@ -32,6 +32,7 @@
 <%@page import="org.oscarehr.util.MiscUtils"%><head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Doh!</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 
 An Error has occurred in this application.

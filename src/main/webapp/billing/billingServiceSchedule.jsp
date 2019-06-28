@@ -41,6 +41,7 @@
 %>
 <head>
     <title>Scheduled Premium Billing Services</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
     <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
     <link rel="stylesheet" type="text/css" href="../share/yui/css/fonts-min.css"/>

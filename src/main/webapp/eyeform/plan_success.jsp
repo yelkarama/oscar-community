@@ -27,6 +27,7 @@
 <html>
 <head>
 <title>Saving Plan...</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script>
 function c() {
 	window.close();

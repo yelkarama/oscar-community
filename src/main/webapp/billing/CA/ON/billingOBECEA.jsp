@@ -38,6 +38,7 @@
 <link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
 
 <title>EDT OBEC Response Report Generator</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 
 <body>

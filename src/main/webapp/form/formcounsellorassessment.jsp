@@ -53,6 +53,7 @@
 
 
 <title>INTAKE B. COUNSELLOR ASSESSMENT</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css"
 	href="formcounsellorassessment.css">
 <link rel="stylesheet" type="text/css" media="print" href="print.css">

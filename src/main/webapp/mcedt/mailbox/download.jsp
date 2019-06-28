@@ -103,6 +103,7 @@ $(window).load(function(){
 	
 </script>
 <title>Download</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 <body>
 	<html:form action="/mcedt/download" method="post" styleId="formDownload">

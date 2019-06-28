@@ -69,6 +69,7 @@ function deleteAssociation(id){
 }
 </script>
 <title>Manage Procedure and Tray Fee Associations</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 <body>
 <html:errors />

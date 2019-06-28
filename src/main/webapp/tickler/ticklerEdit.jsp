@@ -127,6 +127,7 @@
             td.white {font-weight: normal; font-size: 8pt ; font-family: verdana,arial,helvetica; color: #000000; background-color: #FFFFFF;}
         </style>
         <title><bean:message key="tickler.ticklerEdit.title"/></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
         <script language="javascript">
             //open a new popup window
             function popupPage(vheight,vwidth,varpage) { 
