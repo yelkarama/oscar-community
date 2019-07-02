@@ -1237,6 +1237,7 @@ public final class RxWriteScriptAction extends DispatchAction {
 
 					}
 
+                    rx.setCalculateMethadoneEndDate(Boolean.parseBoolean(request.getParameter("calcMethadoneEndDate_" + num)));
 					if (!isOutsideProvider) {
 						rx.setOutsideProviderName("");
 						rx.setOutsideProviderOhip("");
