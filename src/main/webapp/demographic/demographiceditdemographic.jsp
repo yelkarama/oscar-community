@@ -2924,10 +2924,13 @@ if ( Dead.equals(PatStat) ) {%>
 									MyOscarLoggedInInfo myOscarLoggedInInfo=MyOscarLoggedInInfo.getLoggedInInfo(session);
 									if (myOscarLoggedInInfo==null || !myOscarLoggedInInfo.isLoggedIn()) onclickString="alert('Please login to MyOscar first.')";
 								%>
+								
+								<security:oscarSec roleName="<%=roleName$%>" objectName="_phr.internal.register" rights="w">
 								<br />
 								<a href="javascript:"
 									onclick="<%=onclickString%>"><sub
 									style="white-space: nowrap;"><bean:message key="demographic.demographiceditdemographic.msgRegisterPHR"/></sub></a> 
+									</security:oscarSec>
 								<%}else{%>
 									<input type="button" id="phrConsent" style="display:none;" title="<bean:message key="demographic.demographiceditdemographic.confirmAccount"/>"  value="Confirm" />
 								<%}%>

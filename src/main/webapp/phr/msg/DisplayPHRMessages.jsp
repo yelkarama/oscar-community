@@ -302,16 +302,6 @@ request.setAttribute("pageMethod",pageMethod);
                         <td>
                         		<span id="buttonArea">
                         		<button style="float:right" onclick="refreshPassword();" title="This will set a new strong password for your account">Refresh Password</button>
-                            <%
-                            	if (MyOscarUtils.isMyOscarEnabled((String) session.getAttribute("user")) && myOscarLoggedInInfo!=null && myOscarLoggedInInfo.isLoggedIn())
-                            	{
-                            		%>
-                           				<button style="float:right" onclick="window.open('<%=request.getContextPath()%>/myoscar/myoscar_page_link_action.jsp?redirectPage=/v2/external_message_settings.jsp');">PHR Message Settings</button>
-                           				
-                           			<%
-                           		}
-                           	%>
-                           	
                            	</span>
                             <table  cellspacing=3 style="display:inline">
                                 <tr>

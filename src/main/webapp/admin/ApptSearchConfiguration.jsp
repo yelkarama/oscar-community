@@ -134,7 +134,7 @@
 				        </table>	 
     					</div>
     					<div role="tabpanel" class="tab-pane" ng-class="tabActive('types')" id="profile">
-    						<h2>Appointment Types</h2>
+    						<h2>Online Appointment Types</h2>
 			            <div class="row">
 			                <div class="col-xs-6">
 			                		<a ng-click="openSurvey(surveyConfig)" class="list-group-item" <%-- ng-class="itemActive(surveyConfig.id)" --%> 
@@ -144,7 +144,7 @@
 								  	<span class="pull-right"> 
 								  	<small>Mapped to internal appointment type</small>
 								  	
-								  	<select ng-model="appointmentType.mappingOscarApptType" class="form-control"
+								  	<select ng-model="appointmentType.mappingOscarApptType" 
 								  	 		ng-options="i.id as (i.name) for i in oscarAppointmentTypes.types">
 								  	 		<option value="">-- no mapping --</option>
 								  	</select>
@@ -156,7 +156,7 @@
 			                    
 			                </div>
 			                <div class="col-xs-6">
-			                    <h2>Existing Types from oscar</h2>
+			                    <h2>Existing Types from Oscar</h2>
 			                    
 			                    <a ng-click="openSurvey(surveyConfig)" class="list-group-item" <%-- ng-class="itemActive(surveyConfig.id)" --%> 
 		    						   data-ng-repeat="appointmentType in oscarAppointmentTypes.types" >
