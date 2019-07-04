@@ -799,8 +799,8 @@ Event.observe('rxInteractionWarningLevel', 'change', function(event) {
    if (br.equals("BC")) { %>
 	<a href=# onClick ="popupPage(230,400,'../billing/CA/BC/viewBillingPreferencesAction.do?providerNo=<%=providerNo%>');return false;"><bean:message key="provider.btnBillPreference"/></a>
 <% } else { %>
-	<a href=# onClick ="popupPage(600,450,'../billing/CA/ON/viewBillingPreferencesAction.do?providerNo=<%=providerNo%>');return false;"><bean:message key="provider.btnBillPreference"/></a>
-	<!-- <a href=# onClick ="showHideBillPref();return false;"><bean:message key="provider.btnBillPreference"/></a> -->
+    <a href=# onClick ="showHideBillPref();return false;"><bean:message key="provider.btnBillPreference"/></a>
+	<a href=# onClick ="popupPage(600,450,'../billing/CA/ON/viewBillingPreferencesAction.do?providerNo=<%=providerNo%>');return false;">Edit Billing Permissions</a>
 <% }
 String clinicNo = OscarProperties.getInstance().getProperty("clinic_no");
 %>
