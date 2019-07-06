@@ -69,6 +69,7 @@ public class UserProperty extends AbstractModel<Integer> implements Serializable
     public static final String OFFICIAL_OLIS_IDTYPE="official_olis_idtype";
     public static final String OSCAR_MSG_RECVD="oscarMsgRecvd";
     
+    public static final String LAB_MACRO_JSON = "labMacroJSON";
     
     //added to user properties with new interface
     public static final String FAX = "fax";
