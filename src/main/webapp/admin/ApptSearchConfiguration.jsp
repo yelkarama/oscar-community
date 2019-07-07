@@ -62,7 +62,7 @@
 	<script type="text/javascript" src="<%=request.getContextPath() %>/library/angular-sanitize.min.js"></script>			
 </head>
 
-<body vlink="#0000FF" class="BodyStyle" ng-cloak style="margin:7px;">
+<body vlink="#0000FF" class="BodyStyle" ng-cloak style="margin:7px; padding:5px;">
 	<div ng-controller="phrConfig" ng-cloak>
 		<div class="page-header">
 			<h4><bean:message key="admin.admin.phrconfig"/> <small data-ng-show="phrActive"> <bean:message key="admin.phr.active"/></small><small data-ng-show="serverOffline"> Connector Offline</small></h4>
@@ -71,7 +71,7 @@
 		<%--  div class="container"> --%>
 			
 			<div class="row">
-  				<div class="col-md-9">	
+  				<div class="col-md-12">	
 					
 		
 					
