@@ -103,6 +103,8 @@ import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 import org.oscarehr.util.WebUtils;
+import org.owasp.html.PolicyFactory;
+import org.owasp.html.Sanitizers;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -1065,10 +1067,26 @@ public class ManageDocumentAction extends DispatchAction {
 			filename = remoteDocument.getDocFilename();
 			contentBytes = remoteDocumentContents.getFileContents();
 		}
+		
+		// Declaring an OWASP html sanitizer to allow non-malicious HTML to pass through
+		PolicyFactory policy = Sanitizers.BLOCKS
+				.and(Sanitizers.STYLES)
+				.and(Sanitizers.FORMATTING)
+				.and(Sanitizers.IMAGES)
+				.and(Sanitizers.TABLES);
+		// If there is a file and it contains content, extract the string, sanitize it, and convert it back to a byte array for writing to the servlet output stream.
+		if (contentBytes != null) {
+			String originalContents = new String(contentBytes);
+			String safeHtml = policy.sanitize(originalContents);
+			contentBytes = safeHtml.getBytes();
+		}
 
+		// If no file is present, but raw data is (eDoc's), do the sanitization, then convert to byte array for writing to the servlet output stream.
 		if (docxml != null && !docxml.trim().equals("")) {
+			String safeHtml = policy.sanitize(docxml);
+			contentBytes = safeHtml.getBytes();
 			ServletOutputStream outs = response.getOutputStream();
-			outs.write(docxml.getBytes());
+			outs.write(contentBytes);
 			outs.flush();
 			outs.close();
 			return null;
