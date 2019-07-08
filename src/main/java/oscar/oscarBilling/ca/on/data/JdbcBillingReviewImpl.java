@@ -540,25 +540,24 @@ public class JdbcBillingReviewImpl {
 
 		try {
 			for (BillingONCHeader1 h : hs) {
-				iRow++;
-				if (iRow > iPageSize) {
-					break;
-				}
-				ch1Obj = new BillingClaimHeader1Data();
-				
-				if(loggedInInfo != null){
+				if (loggedInInfo != null) {
 					String curUser_providerno = loggedInInfo.getLoggedInProviderNo();
-					if("HCP".equals(h.getPayProgram())){
-						if(!billingPermissionDao.hasPermission(h.getProviderNo(), curUser_providerno, BillingPermission.OHIP_INVOICES)){
+					if ("HCP".equals(h.getPayProgram())) {
+						if (!billingPermissionDao.hasPermission(h.getProviderNo(), curUser_providerno, BillingPermission.OHIP_INVOICES)) {
 							continue;
 						}
-					}else{
-						if(!billingPermissionDao.hasPermission(h.getProviderNo(), curUser_providerno, BillingPermission.THIRD_PARTY_INVOICES)){
+					} else {
+						if (!billingPermissionDao.hasPermission(h.getProviderNo(), curUser_providerno, BillingPermission.THIRD_PARTY_INVOICES)) {
 							continue;
 						}
 					}
 				}
 				
+				iRow++;
+				if (iRow > iPageSize) {
+					break;
+				}
+				ch1Obj = new BillingClaimHeader1Data();
 				ch1Obj.setId("" + h.getId());
 				ch1Obj.setBilling_date(ConversionUtils.toDateString(h.getBillingDate()));
 				ch1Obj.setBilling_time(ConversionUtils.toDateString(h.getBillingTime()));
