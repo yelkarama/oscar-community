@@ -476,7 +476,12 @@ public class OscarAppointmentDao extends AbstractDao<Appointment> {
 	
 	//search_appt_name
 	public List<Appointment> search_appt(Date date, String providerNo, Date startTime1, Date startTime2, Date endTime1, Date endTime2, Date startTime3, Date endTime3, Integer programId) {
-		String sql = "select a from Appointment a where a.appointmentDate = ? and a.providerNo = ? and a.status <>'C' and ((a.startTime >= ? and a.startTime<= ?) or (a.endTime>= ? and a.endTime<= ?) or (a.startTime <= ? and a.endTime>= ?) ) and program_id=?";
+		String sql = null;
+		if(programId != null) {
+			sql = "select a from Appointment a where a.appointmentDate = ? and a.providerNo = ? and a.status <>'C' and ((a.startTime >= ? and a.startTime<= ?) or (a.endTime>= ? and a.endTime<= ?) or (a.startTime <= ? and a.endTime>= ?) ) and program_id=?";
+		} else {
+			sql = "select a from Appointment a where a.appointmentDate = ? and a.providerNo = ? and a.status <>'C' and ((a.startTime >= ? and a.startTime<= ?) or (a.endTime>= ? and a.endTime<= ?) or (a.startTime <= ? and a.endTime>= ?) )";
+		}
 		Query query = entityManager.createQuery(sql);
 		query.setParameter(1, date);
 		query.setParameter(2, providerNo);
@@ -486,7 +491,9 @@ public class OscarAppointmentDao extends AbstractDao<Appointment> {
 		query.setParameter(6, endTime2);
 		query.setParameter(7, startTime3);
 		query.setParameter(8, endTime3);
-		query.setParameter(9, programId);
+		if(programId != null) {
+			query.setParameter(9, programId);
+		}
 		
 		List<Appointment> rs = query.getResultList();
 

@@ -448,8 +448,8 @@ function pasteAppt(multipleSameDayGroupAppt) {
 
   java.util.Date startTime = ConversionUtils.fromDateString(request.getParameter("start_time"),"HH:mm");
   java.util.Date endTime = ConversionUtils.fromDateString(caltime.get(Calendar.HOUR_OF_DAY) +":"+ caltime.get(Calendar.MINUTE),"HH:mm");
-  
-  List<Appointment> appts = appointmentDao.search_appt(apptDate, curProvider_no, startTime, endTime, startTime, endTime, startTime, endTime, Integer.parseInt((String)request.getSession().getAttribute("programId_oscarView")));
+
+  List<Appointment> appts = appointmentDao.search_appt(apptDate, curProvider_no, startTime, endTime, startTime, endTime, startTime, endTime, null);
   
   long apptnum = appts.size() > 0 ? new Long(appts.size()) : 0;
   
