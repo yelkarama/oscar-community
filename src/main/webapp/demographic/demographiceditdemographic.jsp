@@ -326,6 +326,7 @@ if(!authed) {
 <title><bean:message
 	key="demographic.demographiceditdemographic.title" /></title>
 <html:base />
+	<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <oscar:oscarPropertiesCheck property="DEMOGRAPHIC_PATIENT_HEALTH_CARE_TEAM" value="true">
 	<link rel="stylesheet" type="text/css" href="${ pageContext.request.contextPath }/css/healthCareTeam.css" />

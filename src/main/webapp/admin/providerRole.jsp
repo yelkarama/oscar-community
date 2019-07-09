@@ -308,6 +308,7 @@ if(newCaseManagement) {
       <title>
         PROVIDER
       </title>
+	<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
       <link rel="stylesheet" href="../css/receptionistapptstyle.css">
        <script src="../js/jquery-1.7.1.min.js"></script>
       
