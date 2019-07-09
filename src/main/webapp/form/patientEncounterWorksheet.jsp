@@ -55,6 +55,7 @@
 <%@ page import="org.oscarehr.common.model.Appointment" %>
 <%@ page import="org.oscarehr.common.dao.OscarAppointmentDao" %>
 <%@ page import="java.text.SimpleDateFormat" %>
+<%@ page import="oscar.SxmlMisc" %>
 
 <%
     String formClass = "CostQuestionnaire";
@@ -84,9 +85,10 @@
 
 	Provider provider = providerDao.getProvider(demographic.getProviderNo());
     String providerName = provider != null ? provider.getFormattedName() : "";
+	String familyDocName = SxmlMisc.getXmlContent(StringUtils.noNull(demographic.getFamilyPhysician()), "fd");
 
 	String referralContent = demographic.getFamilyDoctor();
-	String referralName = new String();
+	String referralName = "";
 	String elementString = "<rd>";
 	int begin = referralContent.indexOf(elementString);
 	int end = referralContent.indexOf("</rd>");
@@ -222,11 +224,16 @@
 			<td valign="top" width="50%">
 				<table border="0" cellspacing="2" cellpadding="2">
 					<input type="hidden" name="mrp_provider" value="<%=providerName %>"/>
+					<input type="hidden" name="fam_provider" value="<%=familyDocName%>"/>
 					<input type="hidden" name="ref_provider" value="<%=referralName%>"/>
 					
 					<tr>
 						<td>Provider:</td>
 						<td><%=providerName %></td>
+					</tr>
+					<tr>
+						<td>Family Doctor:</td>
+						<td><%=familyDocName%></td>
 					</tr>
 					<tr>
 						<td>Referring Doctor:</td>
