@@ -75,7 +75,7 @@
 	<INPUT TYPE="hidden" NAME="orderby" VALUE="last_name">
 	<INPUT TYPE="hidden" NAME="search_mode" VALUE="search_name">
 	<INPUT TYPE="hidden" NAME="originalpage"
-		VALUE="../tickler/ticklerAdd.jsp">
+		VALUE="<%=request.getContextPath()%>/tickler/ticklerAdd.jsp">
 	<INPUT TYPE="hidden" NAME="limit1" VALUE="0">
 	<INPUT TYPE="hidden" NAME="limit2" VALUE="5">
 	<!--input type="hidden" name="displaymode" value="TicklerSearch" -->

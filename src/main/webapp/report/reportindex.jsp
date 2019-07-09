@@ -291,13 +291,13 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 			ONCLICK="ogo2()">05</a> <% } %>
 		</td>
 		<td><a HREF="#"
-			onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=../report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('startDate')[0].value")%>')">
+			onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=<%=request.getContextPath()%>/report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('startDate')[0].value")%>')">
 		<bean:message key="report.reportindex.formFrom" /></a> 
 		<%-- any early default start date should suffice for reporting all --%>
 		<INPUT TYPE="text" NAME="startDate" VALUE="<%=today%>" size='10'>
 		</td>
 		<td><a HREF="#"
-			onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=../report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('endDate')[0].value")%>')">
+			onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=<%=request.getContextPath()%>/report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('endDate')[0].value")%>')">
 		<bean:message key="report.reportindex.formTo" /></a> <INPUT TYPE="text"
 			NAME="endDate" VALUE="<%=today%>" size='10'></td>
 		<td><INPUT TYPE="button" NAME="button"
@@ -365,11 +365,11 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
                         <sup>*</sup><a HREF="#" ONCLICK="go('all')"><bean:message
 			key="report.reportindex.btnAllAppt" /></a><br>&nbsp;&nbsp; <bean:message key="report.reportindex.chkRostered"/> <input type="checkbox" id="rosteredOnly" value="true"> </td>
 		<td><a HREF="#"
-			onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=../report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('asdate')[0].value")%>')"><bean:message
+			onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=<%=request.getContextPath()%>/report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('asdate')[0].value")%>')"><bean:message
 			key="report.reportindex.formFrom" /></a> <input type='text' name="asdate"
 			VALUE="<%=today%>" size=10></td>
 		<td><a HREF="#"
-			onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=../report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('aedate')[0].value")%>')"><bean:message
+			onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=<%=request.getContextPath()%>/report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('aedate')[0].value")%>')"><bean:message
 			key="report.reportindex.formTo" /> </a> <input type='text' name="aedate"
 			VALUE="<%=today%>" size=10></td>
 		<td><select name="sTime">
@@ -634,7 +634,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
                 String NoShowEDate = cal.get(Calendar.YEAR)+"-"+(cal.get(Calendar.MONTH)+1)+"-"+cal.get(Calendar.DATE);
             	%> <bean:message key="report.reportindex.msgStart"/>: <input name="nsdate" type="input" size="8"
 			id="NoShowDate" <%=NoShowEDate%>> <a HREF="#"
-			onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=../report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('nsdate')[0].value")%>')"><img
+			onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=<%=request.getContextPath()%>/report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('nsdate')[0].value")%>')"><img
 			title=Calendar " src="../images/cal.gif" alt="Calendar" border="0"><a>
 
 

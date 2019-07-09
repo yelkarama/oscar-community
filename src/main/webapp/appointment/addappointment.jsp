@@ -1044,7 +1044,7 @@ var appointmentTypeData = {};
     }
 %> 
             <INPUT TYPE="hidden" NAME="search_mode" VALUE="<%=searchMode%>"> 
-            <INPUT TYPE="hidden" NAME="originalpage" VALUE="../appointment/addappointment.jsp"> 
+            <INPUT TYPE="hidden" NAME="originalpage" VALUE="<%=request.getContextPath()%>/appointment/addappointment.jsp"> 
             <INPUT TYPE="hidden" NAME="limit1" VALUE="0"> 
             <INPUT TYPE="hidden" NAME="limit2" VALUE="5"> 
             <INPUT TYPE="hidden" NAME="ptstatus" VALUE="active"> 

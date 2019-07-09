@@ -1121,15 +1121,15 @@ function removeSaveFeedback()  {
                                     LabResultData result =  (LabResultData) labs.get(j);
                                     if ( result.isMDS() ){ %>
 					<option
-						value="../oscarMDS/SegmentDisplay.jsp?providerNo=<%=provNo%>&segmentID=<%=result.segmentID%>&status=<%=result.getReportStatus()%>"><%=result.getDateTime()%>
+						value="<%=request.getContextPath()%>/oscarMDS/SegmentDisplay.jsp?providerNo=<%=provNo%>&segmentID=<%=result.segmentID%>&status=<%=result.getReportStatus()%>"><%=result.getDateTime()%>
 					<%=result.getDiscipline()%></option>
 					<% }else if (result.isCML()){ %>
 					<option
-						value="../lab/CA/ON/CMLDisplay.jsp?providerNo=<%=provNo%>&segmentID=<%=result.segmentID%>">
+						value="<%=request.getContextPath()%>/lab/CA/ON/CMLDisplay.jsp?providerNo=<%=provNo%>&segmentID=<%=result.segmentID%>">
 					<%=result.getDateTime()%> <%=result.getDiscipline()%></option>
 					<% }else {%>
 					<option
-						value="../lab/CA/BC/labDisplay.jsp?segmentID=<%=result.segmentID%>&providerNo=<%=provNo%>"><%=result.getDateTime()%>
+						value="<%=request.getContextPath()%>/lab/CA/BC/labDisplay.jsp?segmentID=<%=result.segmentID%>&providerNo=<%=provNo%>"><%=result.getDateTime()%>
 					<%=result.getDiscipline()%></option>
 					<% }%>
 
