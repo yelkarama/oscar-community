@@ -487,6 +487,20 @@ angular.module("rxServices", [])
 
                 return deferred.promise;
 
+            },
+
+            getDrugrefInfo : function(){
+
+                var deferred = $q.defer();
+                var queryPath = this.apiPath + "lookup/drugrefInfo";
+                $http.get(queryPath).then(function (data) {
+                    deferred.resolve(data);
+                },function () {
+                    deferred.reject("An error occurred while attempting to get medication details");
+                });
+
+                return deferred.promise;
+
             }
         };
     });

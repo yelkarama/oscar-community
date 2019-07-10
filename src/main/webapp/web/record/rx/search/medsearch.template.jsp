@@ -65,6 +65,7 @@
           <li><a ng-click="$ctrl.customDrug()">Custom Drug</a></li>
           <li><a ng-click="$ctrl.customNote()">Note</a></li>
           <li><a ng-click="$ctrl.DrugOfChoice()">Drug of Choice</a></li>
+          <li><a ng-click="$ctrl.getDrugDatabaseInfo()">Drug Database Info</a>
           <li role="separator" class="divider"></li>
           <li class="dropdown-header">Favourites</li>
           <li  ng-repeat="fmed in $ctrl.favouriteMeds"><a ng-click="$ctrl.selectFav(fmed)">{{fmed.name}}</a></li>
