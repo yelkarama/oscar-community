@@ -209,7 +209,8 @@ const RxProfileComponent = {
 		});
   	}
     rxProfileComp.timeline = function(){
-  		alert("Not Implemented Yet");
+    		$window.open("http://localhost:8080/oscar/oscarRx/chartDrugProfile.jsp?demographic_no="+$stateParams.demographicNo);
+  		
   	}
     
     
