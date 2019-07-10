@@ -19,6 +19,7 @@ const RxComponent = {
 			rxComp.page.dsMessageList = [];
 			rxComp.page.dsMessageHash = {};
 			rxComp.page.favouriteDrugs = [];
+			rxComp.page.currentEntryStyle = "prescribe";
 
 			rxComp.toRxList = []; // might want to cache this server
 									// side and check back so that we
@@ -34,6 +35,21 @@ const RxComponent = {
 
 		}
 
+		
+		rxComp.isCurrentEntryStyle = function(stat){
+			   console.log("stat",stat,rxComp.page.currentEntryStyle,(stat == rxComp.page.currentEntryStyle));
+			   if(stat == rxComp.page.currentEntryStyle){
+				   return "active";
+			   }else{
+				   return "";
+			   }
+
+		}
+		
+		rxComp.changeCurrentEntryStyle = function(stat){
+			rxComp.page.currentEntryStyle = stat;
+		}
+		
 		getMeds = function() {
 
 			rxService.getMedications($stateParams.demographicNo, "").then(function(data) {

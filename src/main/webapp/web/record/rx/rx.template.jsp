@@ -52,8 +52,8 @@
     
         <div class="row">
         		<ul class="nav nav-pills nav-justified">
-			  <li class="active" <%-- %>ng-class="isCurrentStatus('none')" --%> ><a data-target="#all" ng-click="removeFilter(0)" data-toggle="tab" class="hand-hover">Prescribe</a></li>
-			  <li ng-class="isCurrentStatus('Just My Notes')"><a ng-click="changeNoteFilter('Just My Notes')" class="hand-hover">Additional Meds</a></li>
+			  <li ng-class="$ctrl.isCurrentEntryStyle('prescribe')"> <a ng-click="$ctrl.changeCurrentEntryStyle('prescribe')"  class="hand-hover">Prescribe</a></li>
+			  <li ng-class="$ctrl.isCurrentEntryStyle('additional')"><a ng-click="$ctrl.changeCurrentEntryStyle('additional')" class="hand-hover">Additional Meds</a></li>
 			</ul>
 			<div class="tab-content">
 			  
@@ -98,6 +98,46 @@
 								    </label>
 								  </div>
 					  		</div>
+					  	</div>
+					  </div>
+					  <div class="form-group" ng-if="$ctrl.isCurrentEntryStyle('additional') || med.showmore">
+					  	<div class="row">
+						  <div class="col-xs-6">
+							<label for="repeatsInput">Start Date</label>  
+							<div class="input-group">
+								<input type="text" class="form-control"   
+								<%--  ng-model="med.writtenDate" --%> 
+								uib-datepicker-popup="yyyy-MM-dd" 
+								uib-datepicker-append-to-body="false" 
+								is-open="startDatePicker" 
+								ng-click="startDatePicker = true" 
+								placeholder="YYYY-MM-DD"
+								/>
+								<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+							</div>
+						  </div>
+					  	</div>
+					  </div>
+					  <div class="form-group" ng-if="$ctrl.isCurrentEntryStyle('additional')">
+					  	<div class="row">
+						  <div class="col-xs-6">
+							<label for="repeatsInput">Outside Provider Name</label>  
+							<div class="input-group">
+								<input type="text" class="form-control"   
+								<%--  ng-model="med.writtenDate" --%> 
+								
+								/>
+							</div>
+						  </div>
+						  <div class="col-xs-6">
+							<label for="repeatsInput">Outside Provider #</label>  
+							<div class="input-group">
+								<input type="text" class="form-control"   
+								<%--  ng-model="med.writtenDate" --%> 
+								
+								/>
+							</div>
+						  </div>
 					  	</div>
 					  </div>
 					  <div class="form-group" ng-if="med.showmore">
