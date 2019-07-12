@@ -27,6 +27,7 @@
 <%@ page import="oscar.log.LogAction" %>
 <%@ page import="org.oscarehr.util.LoggedInInfo" %>
 <%@ page import="oscar.log.LogConst" %>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <%
 	String id = request.getParameter("fid");
 	String messageOnFailure = "No eform or appointment is available";
