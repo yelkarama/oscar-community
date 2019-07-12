@@ -142,7 +142,7 @@ if(!authed) {
                         		<option value="FOBF">FOBF - FOBT</option>
 						</select>
 				  	</div>
-				  	<div class="checkbox">
+				  	<%--  Not currently used.  div class="checkbox" >
 					  <label>
 					    <input type="checkbox" value="L1" ng-model="newReport.letter1">
 					    Letter 1
@@ -159,7 +159,7 @@ if(!authed) {
 					    <input type="checkbox" value="P1" ng-model="newReport.phone1">
 					    Phone 1
 					  </label>
-					</div>
+					</div --%>
 				</div>
 
                 
