@@ -187,7 +187,7 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
     showPatientDOB=true;
 }
 %>
-<form action="/form/formname" styleId="preview2Form">
+<form action="/form/formname" styleId="preview2Form" id="preview2Form" method="POST">
 
 	<input type="hidden" name="demographic_no" value="<%=prescription.getDemographicId()%>"/>
     <p id="pharmInfo" style="float:right;">

@@ -24,7 +24,17 @@
 
 --%>
 <div class="modal-header">
-	<button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">Print PDF</button>
+	<div class="btn-group">
+  		<button type="button" class="btn btn-primary" ng-click="$ctrl.printPDF()">Print PDF</button>
+  		<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    			<span class="caret"></span>
+    			<span class="sr-only">Toggle Dropdown</span>
+  		</button>
+  		<ul class="dropdown-menu">
+    			<li ng-repeat="p in $ctrl.pdfPageOptions"><a ng-click="$ctrl.printPDF(p.code)" >{{p.label}}</a></li>
+  		</ul>
+	</div>
+	
 	<button class="btn btn-primary" type="button" ng-click="$ctrl.print()">Print</button>
 	<button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">Print & Paste into EMR</button>
     <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">Create New Rx</button>

@@ -46,6 +46,48 @@ const RxPrintComponent = {
     		rxPrint.dismiss({$value: 'cancel'});
  	};
  	
+ 	rxPrint.defaultPageOption = "PageSize.A4";
+ 	rxPrint.pdfPageOptions = [{label:"A4 page", code:"PageSize.A4"},{label:"A6 page", code:"PageSize.A6"},{label:"Letter page", code:"PageSize.Letter"}];
+ 	
+ 	rxPrint.printPDF = function(pageOpt = null) {
+ 		console.log("angular.isDefined(this.resolve.reprint)",angular.isDefined(this.resolve.reprint),this.resolve);
+ 		if(angular.isDefined(this.resolve.reprint) && this.resolve.reprint){
+ 			onPrint2("rePrint", this.resolve.scriptId,pageOpt);
+ 		}else{
+ 			onPrint2("print", this.resolve.scriptId,pageOpt);
+ 		}
+ 	   
+ 	}
+ 		function onPrint2(method, scriptId,rxPageSize) {
+ 			
+ 			var useSC=false;
+ 	        var scAddress="";
+ 	        if(rxPageSize == null){
+ 	        		rxPageSize = rxPrint.defaultPageOption;
+ 	        }
+ 	        //var rxPageSize="PageSize.A4";  //$('printPageSize').value;
+ 	        //console.log("rxPagesize  "+rxPageSize);
+ 	        	
+
+ 	  /*<% if(vecAddressName != null) {
+ 	    %>
+ 	        useSC=true;
+ 	   <%      for(int i=0; i<vecAddressName.size(); i++) {%>
+ 		    if(document.getElementById("addressSel").value=="<%=i%>") {
+ 	    	       scAddress="<%=vecAddress.get(i)%>";
+ 	            }
+ 	<%       }
+ 	      }%>
+ 			*/
+ 	       
+ 	        console.log("preview window ",document.getElementById("preview").contentWindow.document);
+ 	              var action="../../../../form/createcustomedpdf?__title=Rx&__method=" +  method+"&useSC="+useSC+"&scAddress="+scAddress+"&rxPageSize="+rxPageSize+"&scriptId="+scriptId;
+ 	            document.getElementById("preview").contentWindow.document.getElementById("preview2Form").action = action;
+ 	            document.getElementById("preview").contentWindow.document.getElementById("preview2Form").target="_blank";
+ 	            document.getElementById("preview").contentWindow.document.getElementById("preview2Form").submit();
+ 	       return true;
+ 	    }
+ 	
  	
  	function printIframe(){
  	   var browserName=navigator.appName; 
@@ -61,6 +103,8 @@ const RxPrintComponent = {
  		  preview.print();
  	   }	
     }
+ 	
+ 	
  	
  	
  	} 

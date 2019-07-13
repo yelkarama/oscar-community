@@ -222,6 +222,9 @@ const RxProfileComponent = {
 			resolve : {
 				scriptId : function() {
 					return scriptNoId;
+				},
+				reprint : function() {
+					return true;
 				}
 			}
 		});
