@@ -5,7 +5,7 @@ const RxPrintComponent = {
 	  resolve: '<',
   },
   templateUrl: '../web/record/rx/print/print.template.jsp',
-  controller: ['$stateParams','$state','$uibModal','$log','rxService',function($stateParams,$state,$uibModal,$log,rxService) {
+  controller: ['$stateParams','$state','$uibModal','$log','rxService','$http',function($stateParams,$state,$uibModal,$log,rxService,$http) {
 	  
 	/*
 	 Options on the print page:
@@ -93,6 +93,21 @@ const RxPrintComponent = {
  			onPrint2("print", this.resolve.scriptId,pageOpt);
  		}
  	   
+ 	}
+ 	
+ 	rxPrint.addNotes = function(){
+	    var url = "../oscarRx/AddRxComment.jsp";
+	    var ran_number=Math.round(Math.random()*1000000);
+	    var comment = encodeURIComponent(document.getElementById('additionalNotes').value);
+	    var params = "scriptNo="+this.resolve.scriptId+"&comment="+comment+"&rand="+ran_number;  //]
+	    $http.get(url+"?"+params).then(function(response) {
+	      console.log(response);
+	    });
+	    //new Ajax.Request(url, {method: 'post',parameters:params}); 
+	    document.getElementById("preview").contentWindow.document.getElementById('additNotes').innerHTML =  document.getElementById('additionalNotes').value.replace(/\n/g, "<br>");
+	    document.getElementById("preview").contentWindow.document.getElementsByName('additNotes')[0].value=  document.getElementById('additionalNotes').value.replace(/\n/g, "\r\n");
+ 	
+ 		
  	}
  		
  	function onPrint2(method, scriptId,rxPageSize) {

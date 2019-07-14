@@ -44,13 +44,15 @@
 <div class="modal-body" id="modal-body">
 				
 	<div class="row">
-		<div class="col-lg-6">
+		<div class="col-xs-6">
 			<iframe id="preview" name="preview" src="{{$ctrl.scriptURL}}" border="0" align="middle" width="420px" height="1000px" frameborder="0"></iframe>	
 		</div>
-		<div class="col-lg-6">	
+		<div class="col-xs-6">	
 			Additional Notes to add to Rx
 			<textarea class="form-control" rows="3" id="additionalNotes"></textarea>
+			<button class="btn btn-primary btn-block" type="button" ng-click="$ctrl.addNotes()">Add To Rx</button>
 		</div>
+		
 	</div>
 
 </div>
