@@ -36,7 +36,7 @@
 	</div>
 	
 	<button class="btn btn-primary" type="button" ng-click="$ctrl.print()">Print</button>
-	<button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">Print & Paste into EMR</button>
+	<button class="btn btn-primary" type="button" ng-click="$ctrl.printPasteToChartNote()">Print & Paste into EMR</button>
     <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">Create New Rx</button>
 	<button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">Close</button>
     <button class="btn btn-warning" type="button" ng-click="$ctrl.cancel()">Edit Rx</button>
@@ -49,7 +49,7 @@
 		</div>
 		<div class="col-lg-6">	
 			Additional Notes to add to Rx
-			<textarea class="form-control" rows="3"></textarea>
+			<textarea class="form-control" rows="3" id="additionalNotes"></textarea>
 		</div>
 	</div>
 

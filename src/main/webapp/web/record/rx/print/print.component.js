@@ -26,6 +26,43 @@ const RxPrintComponent = {
   		printIframe();
   	}
   	
+  	rxPrint.printPasteToChartNote = function(){
+  		 try{
+  		      text =""; // "****<%=oscar.oscarProvider.data.ProviderData.getProviderName(bean.getProviderNo())%>********************************************************************************";
+  		      //console.log("1");
+  		      //text = text.substring(0, 82) + "\n";
+  		      if (document.all){
+  		         text += document.getElementById("preview").contentWindow.document.getElementById("rx_no_newlines").value;
+  		      } else {
+  		         text += document.getElementById("preview").contentWindow.document.getElementById("rx_no_newlines").value + "\n";
+  		      }
+  		      //console.log("2");
+  		      text+=document.getElementById('additionalNotes').value+"\n";
+  		      //text += "**********************************************************************************\n";
+  		      //oscarLog(text);
+
+  		      //we support pasting into orig encounter and new casemanagement
+  		      demographicNo = $stateParams.demographicNo;
+  		      noteEditor = "noteEditor"+demographicNo;
+  		      if( window.parent.opener.document.forms["caseManagementEntryForm"] != undefined ) {
+  		          //oscarLog("3");
+  		        window.parent.opener.pasteToEncounterNote(text);
+  		      }else if( window.parent.opener.document.encForm != undefined ){
+  		          //oscarLog("4");
+  		        window.parent.opener.document.encForm.enTextarea.value = window.parent.opener.document.encForm.enTextarea.value + text;
+  		      }else if( window.parent.opener.document.getElementById(noteEditor) != undefined ){
+  		    	window.parent.opener.document.getElementById(noteEditor).value = window.parent.opener.document.getElementById(noteEditor).value + text; 
+  		      }
+  		      
+  		   }catch (e){
+  		      alert ("ERROR: could not paste to EMR");
+  		      console.log(e,e);
+  		   }
+  		   
+  		   printIframe();
+  		
+  	}
+  	
   	rxPrint.$onInit = function(){
  		console.log("oninit print component",this);
 
@@ -50,7 +87,6 @@ const RxPrintComponent = {
  	rxPrint.pdfPageOptions = [{label:"A4 page", code:"PageSize.A4"},{label:"A6 page", code:"PageSize.A6"},{label:"Letter page", code:"PageSize.Letter"}];
  	
  	rxPrint.printPDF = function(pageOpt = null) {
- 		console.log("angular.isDefined(this.resolve.reprint)",angular.isDefined(this.resolve.reprint),this.resolve);
  		if(angular.isDefined(this.resolve.reprint) && this.resolve.reprint){
  			onPrint2("rePrint", this.resolve.scriptId,pageOpt);
  		}else{
@@ -58,16 +94,14 @@ const RxPrintComponent = {
  		}
  	   
  	}
- 		function onPrint2(method, scriptId,rxPageSize) {
+ 		
+ 	function onPrint2(method, scriptId,rxPageSize) {
  			
  			var useSC=false;
  	        var scAddress="";
  	        if(rxPageSize == null){
  	        		rxPageSize = rxPrint.defaultPageOption;
  	        }
- 	        //var rxPageSize="PageSize.A4";  //$('printPageSize').value;
- 	        //console.log("rxPagesize  "+rxPageSize);
- 	        	
 
  	  /*<% if(vecAddressName != null) {
  	    %>
@@ -80,13 +114,13 @@ const RxPrintComponent = {
  	      }%>
  			*/
  	       
- 	        console.log("preview window ",document.getElementById("preview").contentWindow.document);
+ 	       
  	              var action="../../../../form/createcustomedpdf?__title=Rx&__method=" +  method+"&useSC="+useSC+"&scAddress="+scAddress+"&rxPageSize="+rxPageSize+"&scriptId="+scriptId;
  	            document.getElementById("preview").contentWindow.document.getElementById("preview2Form").action = action;
  	            document.getElementById("preview").contentWindow.document.getElementById("preview2Form").target="_blank";
  	            document.getElementById("preview").contentWindow.document.getElementById("preview2Form").submit();
  	       return true;
- 	    }
+ 	   }
  	
  	
  	function printIframe(){

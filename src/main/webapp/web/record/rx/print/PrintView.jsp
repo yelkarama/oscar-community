@@ -432,7 +432,7 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                             strRxNoNewLines.append(drug.getFullOutLine().replaceAll(";"," ")+ "\n");
                                             }
                                             %> <input type="hidden" name="rx" value="<%= StringEscapeUtils.escapeHtml(strRx.replaceAll(";","\\\n")) %>" />
-                                               <input type="hidden" name="rx_no_newlines" value="<%= strRxNoNewLines.toString() %>" />
+                                               <input type="hidden" name="rx_no_newlines" id="rx_no_newlines" value="<%= strRxNoNewLines.toString() %>" />
                                                <input type="hidden" name="additNotes" value=""/>
                                                				</td>
                                                              
