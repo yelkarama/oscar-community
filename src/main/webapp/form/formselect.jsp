@@ -34,7 +34,6 @@
 <head>
 
 <title><bean:message key="admin.admin.btnSelectForm" /></title>
-<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 
 </head>

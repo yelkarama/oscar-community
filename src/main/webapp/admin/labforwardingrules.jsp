@@ -68,7 +68,6 @@ String errorMessage = (String) request.getAttribute("errorMessage");
 <head>
 
 <title><bean:message key="admin.admin.labFwdRules" /></title>
-<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <script type="text/javascript">
                         

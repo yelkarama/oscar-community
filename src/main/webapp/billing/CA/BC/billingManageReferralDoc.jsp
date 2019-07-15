@@ -54,7 +54,6 @@ if(!authed) {
 
 <head>
 <title><bean:message key="admin.admin.ManageReferralDoc"/></title>
-<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <script type="text/javascript">
 

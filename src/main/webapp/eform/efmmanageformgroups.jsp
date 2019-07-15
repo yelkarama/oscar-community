@@ -59,7 +59,6 @@ else if (orderByRequest.equals("file_name")) orderBy = EFormUtil.FILE_NAME;
 <head>
 
 <title><bean:message key="admin.admin.frmGroups"/></title>
-<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <style>
 #eformSelect{

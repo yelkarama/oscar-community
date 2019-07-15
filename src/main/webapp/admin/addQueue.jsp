@@ -49,7 +49,6 @@ if(!authed) {
 <html lang="en">
     <head>
     <title>Add New Inbox Queue</title>
-<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
          
         <style type="text/css">
   		.input-queue{font-size:18px !important;}

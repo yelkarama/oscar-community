@@ -66,7 +66,6 @@ if(!authed) {
 <html>
 <head>	
 <title><bean:message key="admin.admin.misRpt" /></title>
-<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 </head>
 
 <body>

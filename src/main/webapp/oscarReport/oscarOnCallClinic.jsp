@@ -28,7 +28,6 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>On Call Clinic Calendar</title>
-<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link href="<%=request.getContextPath()%>/css/bootstrap-year-calendar.min.css" rel="stylesheet">
 <script src="<%=request.getContextPath()%>/js/bootstrap-year-calendar.min.js"></script>
 
