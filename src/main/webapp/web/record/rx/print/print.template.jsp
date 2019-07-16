@@ -23,6 +23,12 @@
     Ontario, Canada
 
 --%>
+<%@page import="org.oscarehr.util.*"%><%
+String signatureRequestId = "";
+String imageUrl = "";
+LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+signatureRequestId = org.oscarehr.util.DigitalSignatureUtils.generateSignatureRequestId(loggedInInfo.getLoggedInProviderNo());
+%>
 <div class="modal-header">
 	<div class="btn-group">
   		<button type="button" class="btn btn-primary" ng-click="$ctrl.printPDF()">Print PDF</button>
@@ -51,6 +57,10 @@
 			Additional Notes to add to Rx
 			<textarea class="form-control" rows="3" id="additionalNotes"></textarea>
 			<button class="btn btn-primary btn-block" type="button" ng-click="$ctrl.addNotes()">Add To Rx</button>
+			
+			<label>Signature</label>
+             <input type="hidden" name="<%=DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY%>" value="<%=signatureRequestId%>" />
+             <iframe style="width:500px; height:132px;"id="signatureFrame" src="<%= request.getContextPath() %>/signature_pad/tabletSignature.jsp?inWindow=true&<%=DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY%>=<%=signatureRequestId%>" ></iframe>
 		</div>
 		
 	</div>

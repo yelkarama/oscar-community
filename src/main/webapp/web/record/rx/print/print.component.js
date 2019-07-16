@@ -26,6 +26,20 @@ const RxPrintComponent = {
   		printIframe();
   	}
   	
+  	signatureHandler = function(e) {
+		var browserName=navigator.appName; 
+		if (browserName=="Microsoft Internet Explorer"){
+			try{ 
+				iframe = document.getElementById('preview'); 
+				iframe.contentWindow.document.signatureHandler(e);  
+			}catch(e){ 
+				window.print(); 
+			} 
+		}else{
+			preview.signatureHandler(e);
+		}	
+	}
+  	
   	rxPrint.printPasteToChartNote = function(){
   		 try{
   		      text =""; // "****<%=oscar.oscarProvider.data.ProviderData.getProviderName(bean.getProviderNo())%>********************************************************************************";

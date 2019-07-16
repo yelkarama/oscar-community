@@ -95,20 +95,6 @@
 
 
 <link rel="stylesheet" type="text/css" href="styles.css">
-<script type="text/javascript" language="Javascript">
-	
-
-    function onPrint2(method) {
-
-            document.getElementById("preview2Form").action = "../form/createcustomedpdf?__title=Rx&__method=" + method;
-            document.getElementById("preview2Form").target="_blank";
-            document.getElementById("preview2Form").submit();
-       return true;
-    }
-</script>
-
-</head>
-<body topmargin="0" leftmargin="0" vlink="#0000FF">
 
 <%
 Date rxDate = prescription.getDatePrescribed();
@@ -164,7 +150,7 @@ String pharmaFax = "";
 String pharmaFax2 = "";
 String pharmaName = "";
 RxPharmacyData pharmacyData = new RxPharmacyData();
-PharmacyInfo pharmacy;
+PharmacyInfo pharmacy = null;
 String pharmacyId = request.getParameter("pharmacyId");
 
 if (pharmacyId != null && !"null".equalsIgnoreCase(pharmacyId)) {
@@ -187,6 +173,49 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
     showPatientDOB=true;
 }
 %>
+
+
+<script type="text/javascript" language="Javascript">
+	
+
+    function onPrint2(method) {
+
+            document.getElementById("preview2Form").action = "../form/createcustomedpdf?__title=Rx&__method=" + method;
+            document.getElementById("preview2Form").target="_blank";
+            document.getElementById("preview2Form").submit();
+       return true;
+    }
+    var counter = 0;
+    function signatureHandler(e) {
+    	console.log("herttrin called ",e);
+    	<% if (OscarProperties.getInstance().isRxFaxEnabled()) { %>
+    	var hasFaxNumber = <%= pharmacy != null && pharmacy.getFax().trim().length() > 0 ? "true" : "false" %>;
+    	<% } %>
+    	isSignatureDirty = e.isDirty;
+    	isSignatureSaved = e.isSave;
+    	e.target.onbeforeunload = null;
+    	<% if (OscarProperties.getInstance().isRxFaxEnabled()) { //%>
+    	e.target.document.getElementById("faxButton").disabled = !hasFaxNumber || !e.isSave;
+    	<% } %>
+    	if (e.isSave) {
+    		<% if (OscarProperties.getInstance().isRxFaxEnabled()) { //%>
+    		if (hasFaxNumber) {
+    			e.target.onbeforeunload = unloadMess;
+    		}
+    		<% } %>
+    		//refreshImage();
+    		var img=document.getElementById("signature");
+    		counter++;
+			img.src=e.previewImageUrl+'&rand='+counter;
+    	}
+    }
+    
+</script>
+
+</head>
+<body topmargin="0" leftmargin="0" vlink="#0000FF">
+
+
 <form action="/form/formname" styleId="preview2Form" id="preview2Form" method="POST">
 
 	<input type="hidden" name="demographic_no" value="<%=prescription.getDemographicId()%>"/>
@@ -462,6 +491,7 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
 																	signatureRequestId=loggedInInfo.getLoggedInProviderNo();
 																	imageUrl=request.getContextPath()+"/imageRenderingServlet?source="+ImageRenderingServlet.Source.signature_preview.name()+"&"+DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY+"="+signatureRequestId;
 																	startimageUrl=request.getContextPath()+"/images/1x1.gif";		
+																	startimageUrl=imageUrl;
 																	statusUrl = request.getContextPath()+"/PMmodule/ClientManager/check_signature_status.jsp?" + DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY+"="+signatureRequestId;
 																	%>
 																	<input type="hidden" name="<%=DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY%>" value="<%=signatureRequestId%>" />	
