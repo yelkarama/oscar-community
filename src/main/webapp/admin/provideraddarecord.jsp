@@ -64,6 +64,7 @@
 <%@page import="org.oscarehr.common.model.ProviderSite"%>
 <%@page import="org.oscarehr.common.model.ProviderSitePK"%>
 <%@page import="org.oscarehr.common.dao.ProviderSiteDao"%>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%
 	ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
 	ProviderSiteDao providerSiteDao = SpringUtils.getBean(ProviderSiteDao.class);
@@ -191,9 +192,13 @@ DBPreparedHandler dbObj = new DBPreparedHandler();
   if(providerDao.providerExists(p.getProviderNo())) {
 	  isOk=false;
 	  alreadyExists=true;
-  } else {
-  	providerDao.saveProvider(p);
- 	 isOk=true;
+  } else if ((StringUtils.isNumeric(p.getProviderNo()) ||
+		  (StringUtils.isNotEmpty(p.getProviderNo())) && p.getProviderNo().equals("-new-")) &&
+  			StringUtils.isNotEmpty(p.getLastName()) &&
+  			StringUtils.isNotEmpty(p.getFirstName()) &&
+  			StringUtils.isNotEmpty(p.getProviderType())) {
+		providerDao.saveProvider(p);
+		isOk = true;
   }
 
 if (isOk && org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) {

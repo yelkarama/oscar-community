@@ -61,8 +61,9 @@
   String role_name = request.getParameter("role_name");
   String action = "search"; // add/edit
   Properties	prop  = new Properties();
-
-  if (request.getParameter("submit") != null && request.getParameter("submit").equals("Save")) {
+	if(role_name == null || role_name.length() < 2 || role_name.length() > 60) {
+		msg = "Please type in a role name.";
+	} else if (request.getParameter("submit") != null && request.getParameter("submit").equals("Save")) {
     // check the input data
 
     if(request.getParameter("action").startsWith("edit")) {
@@ -103,11 +104,7 @@
       msg = "You can <font color='red'>NOT</font> save the role. Please search the role name first.";
     }
   } else if (request.getParameter("submit") != null && request.getParameter("submit").equals("Search")) {
-    // check the input data
-    if(role_name == null || role_name.length() < 2) {
-      msg = "Please type in a role name.";
-    } else {
-    	SecRole secRole = null;
+   		SecRole secRole = null;
     	try {
     		secRole = secRoleDao.findByName(role_name);
     	}catch(javax.persistence.NoResultException e) {}
@@ -121,7 +118,6 @@
  		    msg = "It is a NEW role. You can add it.";
  		    action = "add" + role_name;
     	}
-	}
   }
 %>
 

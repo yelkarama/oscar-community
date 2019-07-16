@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import net.sf.json.JSONObject;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
@@ -86,7 +87,11 @@ public class ManageStudyAction extends DispatchAction {
 			study.setRemoteServerUrl(request.getParameter("studyRemoteURL"));
 			study.setProviderNo(String.valueOf(request.getSession().getAttribute("user")));
 			study.setTimestamp(new Date());
-			studyDao.persist(study);
+			if (validateStudy(study)) {
+				studyDao.persist(study);
+			} else {
+				return mapping.findForward("failure");
+			}
 			
 			auditLogger.log(loggedInInfo, "study", "create", "created study " + study.getId());
 		}
@@ -100,7 +105,11 @@ public class ManageStudyAction extends DispatchAction {
 			study.setRemoteServerUrl(request.getParameter("studyRemoteURL"));
 			study.setProviderNo(String.valueOf(request.getSession().getAttribute("user")));
 			study.setTimestamp(new Date());
-			studyDao.merge(study);
+			if (validateStudy(study)) {
+				studyDao.merge(study);
+			} else {
+				return mapping.findForward("failure");
+			}
 			
 			auditLogger.log(loggedInInfo, "study", "update", "updated study " + study.getId());
 		}
@@ -124,6 +133,9 @@ public class ManageStudyAction extends DispatchAction {
 		
 		if( studyId != null && studyStatus != null ) {
 			Study study = studyDao.find(Integer.parseInt(studyId));
+			if (study == null || !StringUtils.isNumeric(studyStatus)) {
+				return null;
+			}
 			study.setCurrent1(Integer.parseInt(studyStatus));
 			study.setProviderNo(String.valueOf(request.getSession().getAttribute("user")));
 			study.setTimestamp(new Date());
@@ -168,14 +180,26 @@ public class ManageStudyAction extends DispatchAction {
 					demographicStudy.setId(demographicStudyPK);
 					demographicStudy.setProviderNo(String.valueOf(request.getSession().getAttribute("user")));
 					demographicStudy.setTimestamp(new Date());
-					
-					demographicStudyDao.persist(demographicStudy);
-					auditLogger.log(loggedInInfo, "study", "demographic", demographicStudyPK.getDemographicNo(), "added demographic to study #" + studyId);
+					if (StringUtils.isNotEmpty(demographicStudy.getProviderNo()) && StringUtils.isNumeric(demographicStudy.getProviderNo()) && demographicStudy.getProviderNo().length() <= 6) {
+						demographicStudyDao.persist(demographicStudy);
+						auditLogger.log(loggedInInfo, "study", "demographic", demographicStudyPK.getDemographicNo(), "added demographic to study #" + studyId);
+					}
 				}
 			}
 		
 		}
 		return mapping.findForward("AddedToStudy");
+	}
+	
+	private boolean validateStudy (Study study) {
+		if (StringUtils.isEmpty(study.getStudyName()) || study.getStudyName().length() > 20 ||
+			StringUtils.isEmpty(study.getDescription()) || study.getDescription().length() > 255 ||
+				(StringUtils.isNotEmpty(study.getStudyLink()) && study.getStudyLink().length() > 255) ||
+				(StringUtils.isNotEmpty(study.getFormName()) && study.getFormName().length() > 20) ||
+				(StringUtils.isNotEmpty(study.getRemoteServerUrl()) && study.getRemoteServerUrl().length() > 50)) {
+			return false;
+		}
+		return true;
 	}
 	
 	public ActionForward RemoveFromStudy(ActionMapping mapping, ActionForm form,
@@ -258,7 +282,10 @@ public class ManageStudyAction extends DispatchAction {
 				providerStudy.setCreator(String.valueOf(request.getSession().getAttribute("user")));
 				providerStudy.setTimestamp(new Date());
 				
-				providerStudyDao.persist(providerStudy);
+				if (StringUtils.isNotEmpty(providerStudy.getId().getProviderNo()) && StringUtils.isNumeric(providerStudy.getId().getProviderNo()) && providerStudy.getId().getProviderNo().length() <= 6 &&
+						StringUtils.isNotEmpty(providerStudy.getCreator()) && StringUtils.isNumeric(providerStudy.getCreator()) && providerStudy.getCreator().length() <= 6) {
+					providerStudyDao.persist(providerStudy);
+				}
 			}
 		}
 		

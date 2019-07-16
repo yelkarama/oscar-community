@@ -47,6 +47,7 @@
 <%@ page import="org.oscarehr.common.dao.SystemPreferencesDao" %>
 <%@ page import="org.oscarehr.common.model.SystemPreferences" %>
 <%@ page import="java.util.Date" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <jsp:useBean id="dataBean" class="java.util.Properties"/>
 <%
     SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
@@ -54,18 +55,21 @@
     SystemPreferences preference = systemPreferencesDao.findPreferenceByName(key);
     if (request.getParameter("dboperation") != null && !request.getParameter("dboperation").isEmpty() && request.getParameter("dboperation").equals("Save")) {
             String newValue = request.getParameter(key);
-            if (preference != null) {
-                if (!preference.getValue().equals(newValue)) {
+            if (StringUtils.isNotEmpty(newValue) &&
+                    (newValue.equals("true") || newValue.equals("false"))) {
+                if (preference != null) {
+                    if (!preference.getValue().equals(newValue)) {
+                        preference.setUpdateDate(new Date());
+                        preference.setValue(newValue);
+                        systemPreferencesDao.merge(preference);
+                    }
+                } else {
+                    preference = new SystemPreferences();
+                    preference.setName(key);
                     preference.setUpdateDate(new Date());
                     preference.setValue(newValue);
-                    systemPreferencesDao.merge(preference);
+                    systemPreferencesDao.persist(preference);
                 }
-            } else {
-                preference = new SystemPreferences();
-                preference.setName(key);
-                preference.setUpdateDate(new Date());
-                preference.setValue(newValue);
-                systemPreferencesDao.persist(preference);
             }
     }
 %>

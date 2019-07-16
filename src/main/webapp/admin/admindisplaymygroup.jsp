@@ -121,8 +121,13 @@ ul{
 		enableCustomTemporaryGroups.setValue("false");
 	}
 	
-	if (request.getParameter("enableCustomTemporaryGroups") != null) {
-		enableCustomTemporaryGroups.setValue(request.getParameter("enableCustomTemporaryGroups"));
+	String enableCustomTempGroups = request.getParameter("enableCustomTemporaryGroups");
+	
+	//To prevent html injections, we need to make sure valid data is being sent back to the DB
+	if (enableCustomTempGroups != null &&
+			(enableCustomTempGroups.equals("true") || 
+			 enableCustomTempGroups.equals("false"))) {
+		enableCustomTemporaryGroups.setValue(enableCustomTempGroups);
 		propertyDao.saveEntity(enableCustomTemporaryGroups);
 	}
 %>

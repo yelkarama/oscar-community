@@ -44,6 +44,7 @@ import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.MeasurementMapDao;
 import org.oscarehr.common.dao.RecycleBinDao;
@@ -234,13 +235,18 @@ public class MeasurementMapConfig {
     }
 
     public void mapMeasurement(String identifier, String loinc, String name, String type)  {
-    	MeasurementMapDao dao = SpringUtils.getBean(MeasurementMapDao.class);
-    	MeasurementMap mm = new MeasurementMap();
-    	mm.setLoincCode(loinc);
-    	mm.setIdentCode(identifier);
-    	mm.setName(name);
-    	mm.setLabType(type);
-    	dao.persist(mm);
+        if (StringUtils.isNotEmpty(loinc) && loinc.length() <= 20 &&
+            StringUtils.isNotEmpty(name) && name.length() <= 255 &&
+            StringUtils.isNotEmpty(identifier) && identifier.length() <= 20 &&
+            StringUtils.isNotEmpty(type) && type.length() <= 10){
+            MeasurementMapDao dao = SpringUtils.getBean(MeasurementMapDao.class);
+            MeasurementMap mm = new MeasurementMap();
+            mm.setLoincCode(loinc);
+            mm.setIdentCode(identifier);
+            mm.setName(name);
+            mm.setLabType(type);
+            dao.persist(mm);
+        }
     }
 
     public void removeMapping(String id, String provider_no)  {

@@ -29,6 +29,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
@@ -56,15 +57,19 @@ public class EctConAddDepartmentAction extends Action {
 			throw new SecurityException("missing required security object (_con)");
 		}
 
-		Department Department=null;
+		Department department=null;
 		EctConAddDepartmentForm addDepartmentForm = (EctConAddDepartmentForm)form;
 
 		int whichType = addDepartmentForm.getWhichType();
 		if(whichType == 1) //create
 		{
-			Department=new Department();
-			populateFields(Department, addDepartmentForm);
-			DepartmentDao.persist(Department);
+			department=new Department();
+			populateFields(department, addDepartmentForm);
+			if (validateFields(department)) {
+				DepartmentDao.persist(department);
+			} else {
+				return mapping.findForward("failure");
+			}
 		
 		}
 		else if (whichType == 2) // update
@@ -72,9 +77,13 @@ public class EctConAddDepartmentAction extends Action {
             request.setAttribute("upd", true);
 
 			Integer id = Integer.parseInt(addDepartmentForm.getId());
-			Department=DepartmentDao.find(id);
-			populateFields(Department, addDepartmentForm);
-			DepartmentDao.merge(Department);
+			department=DepartmentDao.find(id);
+			populateFields(department, addDepartmentForm);
+			if (validateFields(department)) {
+				DepartmentDao.merge(department);
+			} else {
+				return mapping.findForward("failure");
+			}
 			
 		}
 		else
@@ -84,7 +93,7 @@ public class EctConAddDepartmentAction extends Action {
 
 		addDepartmentForm.resetForm();
 
-		String added=""+Department.getName();
+		String added=""+department.getName();
 		request.setAttribute("Added", added);
 		return mapping.findForward("success");
 	}
@@ -94,5 +103,12 @@ public class EctConAddDepartmentAction extends Action {
 	private void populateFields(Department Department, EctConAddDepartmentForm addDepartmentForm) {
 		Department.setName(addDepartmentForm.getName());
 		Department.setAnnotation(addDepartmentForm.getAnnotation());
+	}
+	
+	private boolean validateFields (Department department) {
+		if (StringUtils.isNotEmpty(department.getName()) && department.getName().length() <= 255) {
+			return true;
+		}
+		return false;
 	}
 }

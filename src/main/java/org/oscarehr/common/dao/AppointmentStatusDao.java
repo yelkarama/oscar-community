@@ -28,6 +28,7 @@ import java.util.List;
 
 import javax.persistence.Query;
 
+import org.apache.commons.lang.StringUtils;
 import org.oscarehr.common.model.AppointmentStatus;
 import org.springframework.stereotype.Repository;
 
@@ -97,7 +98,10 @@ public class AppointmentStatusDao extends AbstractDao<AppointmentStatus> {
 
     public void modifyStatus(int ID, String strDesc, String strColor) {
     	AppointmentStatus appts = find(ID);
-    	if(appts != null) {
+    	if(appts != null &&
+				(strDesc == null || strDesc.length() <= 30) &&
+				StringUtils.isNotEmpty(strColor) &&
+				strColor.length() <= 7) {
     		appts.setDescription(strDesc);
             appts.setColor(strColor);
     	}
@@ -105,7 +109,7 @@ public class AppointmentStatusDao extends AbstractDao<AppointmentStatus> {
 
     public void changeStatus(int ID, int iActive) {
     	AppointmentStatus appts = find(ID);
-    	if(appts != null) {
+    	if(appts != null && (iActive == 0 || iActive == 1)) {
     		appts.setActive(iActive);
     	}
     }

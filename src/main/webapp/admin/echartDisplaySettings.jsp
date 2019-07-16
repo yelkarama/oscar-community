@@ -51,6 +51,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.Arrays" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 
 <jsp:useBean id="dataBean" class="java.util.Properties"/>
 <%
@@ -60,19 +61,21 @@
         for(String key : SystemPreferences.ECHART_PREFERENCE_KEYS) {
             SystemPreferences preference = systemPreferencesDao.findPreferenceByName(key);
             String newValue = request.getParameter(key);
-
-            if (preference != null) {
-                if (!preference.getValue().equals(newValue)) {
+            
+            if (StringUtils.isNotEmpty(newValue) && (newValue.equals("true") || newValue.equals("false"))) {
+                if (preference != null) {
+                    if (!preference.getValue().equals(newValue)) {
+                        preference.setUpdateDate(new Date());
+                        preference.setValue(newValue);
+                        systemPreferencesDao.merge(preference);
+                    }
+                } else {
+                    preference = new SystemPreferences();
+                    preference.setName(key);
                     preference.setUpdateDate(new Date());
                     preference.setValue(newValue);
-                    systemPreferencesDao.merge(preference);
+                    systemPreferencesDao.persist(preference);
                 }
-            } else {
-                preference = new SystemPreferences();
-                preference.setName(key);
-                preference.setUpdateDate(new Date());
-                preference.setValue(newValue);
-                systemPreferencesDao.persist(preference);
             }
         }
     }

@@ -59,6 +59,7 @@
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.ScheduleHoliday" %>
 <%@ page import="org.oscarehr.common.dao.ScheduleHolidayDao" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%
 	ScheduleHolidayDao scheduleHolidayDao = SpringUtils.getBean(ScheduleHolidayDao.class);
 %>
@@ -73,6 +74,17 @@
 	 temp=e.nextElement().toString();
 
          if( !temp.startsWith("sdate_") || request.getParameter(temp).equals("")) continue;
+         
+         if (temp.startsWith("sdate_")) {
+         	String date = request.getParameter(temp);
+         	if (!date.matches("\\d{4}-\\d{2}-\\d{2}")) {
+         		break;
+			}
+         	
+			 if (StringUtils.isEmpty(request.getParameter("holiday_name"))) {
+				 break;
+			 }
+		 }
 
          ScheduleHoliday sh = scheduleHolidayDao.find(MyDateFormat.getSysDate(request.getParameter(temp)));
          if(sh != null) {

@@ -29,6 +29,7 @@
 <%@ page import="org.oscarehr.common.model.ReferralSource" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Date" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 
 <jsp:useBean id="dataBean" class="java.util.Properties" scope="page" />
 <%
@@ -43,7 +44,7 @@
 
 		//Update Referral Sources
 		for (int i = 0; i < refSourceList.size(); i++) {
-			if (refSourceList.get(i).getReferralSource()!=request.getParameter("refSource" + i)) {
+			if (!refSourceList.get(i).getReferralSource().equals(request.getParameter("refSource" + i))) {
 				if (request.getParameter("refSourceHidden" + i).equals("Delete")) {
 					refSourceList.get(i).setArchiveStatus(true);
 				}
@@ -55,7 +56,7 @@
 		}
 
 		//New Referral Source
-		if ((request.getParameter("newRefferal") != null)&&(request.getParameter("newRefferal") != "")) {
+		if (StringUtils.isNotEmpty(request.getParameter("newRefferal")) && request.getParameter("newRefferal").length() <= 200) {
 			ReferralSource referralSource = new ReferralSource();
 			referralSource.setReferralSource(request.getParameter("newRefferal"));
 			referralSource.setLastUpdateUser(Integer.parseInt(provider.getProviderNo()));
@@ -69,18 +70,20 @@
 			SystemPreferences preference = systemPreferencesDao.findPreferenceByName(key);
 			String newValue = request.getParameter("enableRef");
 
-			if (preference != null) {
-				if (!preference.getValue().equals(newValue)) {
+			if (newValue.equals("true") || newValue.equals("false")) {
+				if (preference != null) {
+					if (!preference.getValue().equals(newValue)) {
+						preference.setUpdateDate(new Date());
+						preference.setValue(newValue);
+						systemPreferencesDao.merge(preference);
+					}
+				} else {
+					preference = new SystemPreferences();
+					preference.setName(key);
 					preference.setUpdateDate(new Date());
 					preference.setValue(newValue);
-					systemPreferencesDao.merge(preference);
+					systemPreferencesDao.persist(preference);
 				}
-			} else {
-				preference = new SystemPreferences();
-				preference.setName(key);
-				preference.setUpdateDate(new Date());
-				preference.setValue(newValue);
-				systemPreferencesDao.persist(preference);
 			}
 		}
 

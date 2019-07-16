@@ -135,7 +135,7 @@
 			<div class="span6 form-horizontal">
 				<label class="span2 text-right" for="duration">Duration: </label>
 				<div class="span4">
-					<input type="text" id="duration" name="duration" value="<bean:write name="AppointmentTypeForm" property="duration"/>" onChange="checkNumberPresent(this)">
+					<input type="text" id="duration" maxlength="10" name="duration" value="<bean:write name="AppointmentTypeForm" property="duration"/>" onChange="checkNumberPresent(this)">
 				</div>
 			</div>
 		</div>
@@ -160,13 +160,13 @@
 						<option value="-1">Other</option>
 						<%	} %>
 					</select>
-					<textarea style="width: 100%" name="reason"><bean:write name="AppointmentTypeForm" property="reason"/></textarea>
+					<textarea style="width: 100%" maxlength="80" name="reason"><bean:write name="AppointmentTypeForm" property="reason"/></textarea>
 				</div>
 			</div>
 			<div class="span6 form-horizontal">
 				<label class="span2 text-right" for="notes">Notes: </label>
 				<div class="span4">
-					<textarea style="width: 100%" id="notes" name="notes"><bean:write name="AppointmentTypeForm" property="notes"/></textarea>
+					<textarea style="width: 100%" id="notes" maxlength="80" name="notes"><bean:write name="AppointmentTypeForm" property="notes"/></textarea>
 				</div>
 			</div>
 		</div>
@@ -193,7 +193,7 @@
 			<div class="span6 form-horizontal">
 				<label class="span2 text-right" for="resources">Resources: </label>
 				<div class="span4">
-					<input type="text" id="resources" name="resources" value="<bean:write name="AppointmentTypeForm" property="resources"/>">
+					<input type="text" id="resources" maxlength="10" name="resources" value="<bean:write name="AppointmentTypeForm" property="resources"/>">
 				</div>
 			</div>
 			<div class="span6 form-horizontal">

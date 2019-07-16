@@ -30,6 +30,7 @@ import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
@@ -81,6 +82,10 @@ public class FlowSheetCustomAction extends DispatchAction {
         String demographicNo = "0";
         if (request.getParameter("demographic")!=null){
         	demographicNo = request.getParameter("demographic");
+        }
+
+        if (StringUtils.isEmpty(request.getParameter("display_name"))) {
+            return mapping.findForward("failure");
         }
 
         if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_demographic", "w", demographicNo)) {
@@ -184,7 +189,11 @@ public class FlowSheetCustomAction extends DispatchAction {
 
     public ActionForward update(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)  {
         MeasurementTemplateFlowSheetConfig templateConfig = MeasurementTemplateFlowSheetConfig.getInstance();
-
+        
+        if (StringUtils.isEmpty(request.getParameter("display_name"))) {
+            return mapping.findForward("failure");
+        }
+        
         String flowsheet = request.getParameter("flowsheet");
         String demographicNo = "0";
         if (request.getParameter("demographic")!=null){
@@ -469,6 +478,12 @@ public class FlowSheetCustomAction extends DispatchAction {
     	String recommendationColour = request.getParameter("recommendationColour");
     	//String topHTML 				= request.getParameter("topHTML");  // Not supported yet
 
+        if (StringUtils.isEmpty(displayName) || displayName.length() > 255 ||
+                StringUtils.isEmpty(dxcodeTriggers) || dxcodeTriggers.length() > 255 ||
+                StringUtils.isEmpty(warningColour) || warningColour.length() > 20 ||
+                StringUtils.isEmpty(recommendationColour) || recommendationColour.length() > 20) {
+            return mapping.findForward("newflowsheet");
+        }
 
     	/// NEW FLOWSHEET CODE
     	MeasurementFlowSheet m = new MeasurementFlowSheet();

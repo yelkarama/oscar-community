@@ -28,6 +28,7 @@ package org.oscarehr.common.web;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -57,12 +58,25 @@ public class ClinicManageAction extends DispatchAction {
         DynaActionForm frm = (DynaActionForm)form;
         Clinic clinic = (Clinic) frm.get("clinic");
         //weird hack, but not sure why struts isn't filling in the id.
-        if(request.getParameter("clinic.id") != null && request.getParameter("clinic.id").length()>0 && clinic.getId()==null) {
+        if(request.getParameter("clinic.id") != null && request.getParameter("clinic.id").length()>0 && StringUtils.isNumeric(request.getParameter("clinic.id")) &&clinic.getId()==null) {
         	clinic.setId(Integer.parseInt(request.getParameter("clinic.id")));
         }
-        clinicDAO.save(clinic);
+        if (clinic != null &&
+                (StringUtils.isEmpty(clinic.getClinicName()) || clinic.getClinicName().length() <= 100) &&
+                (StringUtils.isEmpty(clinic.getClinicAddress()) || clinic.getClinicAddress().length() <= 60) &&
+                (StringUtils.isEmpty(clinic.getClinicCity()) || clinic.getClinicCity().length() <= 40) &&
+                (StringUtils.isEmpty(clinic.getClinicPostal()) || clinic.getClinicPostal().length() <= 15) &&
+                (StringUtils.isEmpty(clinic.getClinicPhone()) || clinic.getClinicPhone().length() <= 50) &&
+                (StringUtils.isEmpty(clinic.getClinicFax()) || clinic.getClinicFax().length() <= 20) &&
+                (StringUtils.isEmpty(clinic.getClinicLocationCode()) || clinic.getClinicLocationCode().length() <= 10) &&
+                (StringUtils.isEmpty(clinic.getClinicProvince()) || clinic.getClinicProvince().length() <= 40) &&
+                (StringUtils.isEmpty(clinic.getClinicEmail()) || clinic.getClinicEmail().length() <= 255) &&
+                (StringUtils.isEmpty(clinic.getClinicWebsite()) || clinic.getClinicWebsite().length() <= 255)) {
+            clinicDAO.save(clinic);
 
-        return mapping.findForward("success");
+            return mapping.findForward("success");
+        }
+        return mapping.findForward("failure");
     }
 
     public void setClinicDAO(ClinicDAO clinicDAO) {

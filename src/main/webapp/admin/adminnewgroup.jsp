@@ -36,6 +36,7 @@
 <%@ page import="org.oscarehr.common.dao.MyGroupDao" %>
 <%@ page import="org.oscarehr.common.model.ProviderData"%>
 <%@ page import="org.oscarehr.common.dao.ProviderDataDao"%>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 
 <%
 	MyGroupDao myGroupDao = SpringUtils.getBean(MyGroupDao.class);
@@ -108,16 +109,44 @@ function validate() {
 	
 	String[] remProvider = request.getParameterValues("removeBtn");
 	String[] groProviders= request.getParameterValues("providerNo");
-
-  	for (int i=0; i < groProviders.length; i++ ) {
-		if(remProvider[i].equals("true")){
-			myGroupDao.deleteGroupMember(groupNo,groProviders[i]);
-		}else{
-			MyGroup save = myGroupDao.getGroup(groupNo,groProviders[i]);
-			save.setViewOrder(i);
-			myGroupDao.merge(save);
+	
+	//Incase of html injection, we need to have backend validation to prevent unexpected data from
+    //being saved into the database.
+	boolean hasErrors = false;
+	
+	//If either list is null, or they aren't the same length, that means something went wrong
+	  //and it will cause a null pointer exception further down if we don't catch it.
+	if (remProvider == null || groProviders == null || remProvider.length != groProviders.length) {
+		hasErrors = true;
+	}
+	
+	//Next we need to make sure the providers that we got are actually in the groups we're editing
+	//in case a false provider was snuck in. We also want to ensure that the provider has a
+	//legal number
+	if (!hasErrors) {
+		for (String provider : groProviders) {
+			MyGroup findGroup = myGroupDao.getGroup(groupNo, provider);
+			if (findGroup == null ||
+				StringUtils.isEmpty(provider) ||
+				provider.length() > 6 ||
+				!StringUtils.isNumeric(provider)) {
+			
+				hasErrors = true;
+			}
 		}
-    }
+	}
+
+	if (!hasErrors) {
+		for (int i = 0; i < groProviders.length; i++) {
+			if (remProvider[i].equals("true")) {
+				myGroupDao.deleteGroupMember(groupNo, groProviders[i]);
+			} else {
+				MyGroup save = myGroupDao.getGroup(groupNo, groProviders[i]);
+				save.setViewOrder(i);
+				myGroupDao.merge(save);
+			}
+		}
+	}
   }
 %>
 

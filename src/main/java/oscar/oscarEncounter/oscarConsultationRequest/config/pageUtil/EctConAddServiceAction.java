@@ -31,6 +31,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
@@ -60,7 +61,11 @@ public class EctConAddServiceAction extends Action
         ConsultationServices cs = new ConsultationServices();
         cs.setActive(consultationServiceDao.ACTIVE);
         cs.setServiceDesc(service);
-        consultationServiceDao.persist(cs);
+        if (StringUtils.isNotEmpty(cs.getServiceDesc().trim()) && cs.getServiceDesc().length() <= 255) {
+            consultationServiceDao.persist(cs);
+        } else {
+            return mapping.findForward("failure");
+        }
         request.setAttribute("SERVADD", service);
 
         EctConConstructSpecialistsScriptsFile constructSpecialistsScriptsFile = new EctConConstructSpecialistsScriptsFile();

@@ -64,6 +64,54 @@ public class AppointmentTypeAction extends OscarAction  {
 			String sOper = request.getParameter("oper");			
 			String selectedProviderNo = request.getParameter("selectedProvider");
 		    ActionMessages errors = this.getErrors(request);
+
+		   if (formBean != null) {
+			   if (formBean.getName() != null && formBean.getName().length() > 50) {
+				   errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("appointment.type.name.error"));
+				   saveErrors(request,errors);
+				   return mapping.findForward("failure");
+			   }
+			   if (formBean.getNotes() != null && formBean.getNotes().length() > 80) {
+				   errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("appointment.type.notesLength.error"));
+				   saveErrors(request,errors);
+				   return mapping.findForward("failure");
+			   }
+			   if (formBean.getReason() != null && formBean.getReason().length() > 80) {
+				   errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("appointment.type.reasonLength.error"));
+				   saveErrors(request,errors);
+				   return mapping.findForward("failure");
+			   }
+			   if (formBean.getLocation() != null && formBean.getLocation().length() > 30) {
+				   errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("appointment.type.locationLength.error"));
+				   saveErrors(request,errors);
+				   return mapping.findForward("failure");
+			   }
+			   if (formBean.getResources() != null && formBean.getResources().length() > 10) {
+				   errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("appointment.type.resourcesLength.error"));
+				   saveErrors(request,errors);
+				   return mapping.findForward("failure");
+			   }
+			   if (String.valueOf(formBean.getDuration()).length() > 10) {
+				   errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("appointment.type.durationLength.error"));
+				   saveErrors(request,errors);
+				   return mapping.findForward("failure");
+			   }
+			   if (String.valueOf(formBean.getReasonCode()).length() > 11) {
+				   errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("appointment.type.reasonCodeLength.error"));
+				   saveErrors(request,errors);
+				   return mapping.findForward("failure");
+			   }
+			   if (formBean.getTemplateId() != null && String.valueOf(formBean.getTemplateId()).length() > 11) {
+				   errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("appointment.type.templateIdLength.error"));
+				   saveErrors(request,errors);
+				   return mapping.findForward("failure");
+			   }
+			   if (formBean.getProviderNo() != null && formBean.getProviderNo().length() > 6) {
+				   errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("appointment.type.providerNo.error"));
+				   saveErrors(request,errors);
+				   return mapping.findForward("failure");
+			   }
+		   }
 		    
 		    int typeNo = -1;
 		    if(formBean != null && (formBean.getId()!=null?formBean.getId().intValue():-1)> 0) {

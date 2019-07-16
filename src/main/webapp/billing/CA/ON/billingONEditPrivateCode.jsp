@@ -32,6 +32,8 @@
 <%@ page import="static org.oscarehr.consultations.ConsultationResponseSearchFilter.SORTMODE.Provider" %>
 <%@ page import="org.oscarehr.common.model.Provider" %>
 <%@ page import="org.oscarehr.common.model.UserProperty" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.apache.commons.lang3.math.NumberUtils" %>
 <%//
 			//int serviceCodeLen = 5;
 			String msg = "Type in a service code and search first to see if it is available.";
@@ -51,92 +53,128 @@
 			FreshbooksService fs = new FreshbooksService();
 			List sL = dbObj.getPrivateBillingCodeDesc();
 
+			
+			
+
 			if (request.getParameter("submit") != null && request.getParameter("submit").equals("Save")) {
 				String valuePara = request.getParameter("value");
-				if (request.getParameter("action").startsWith("edit")) {
-					// update the service code
-					String serviceCode = request.getParameter("service_code");
-					if (serviceCode == null)
-						serviceCode = "";
-					serviceCode = "_" + serviceCode;
-					if (serviceCode.equals(request.getParameter("action").substring("edit".length()))) {
-						gstPercent = request.getParameter("gstFlag").equals("1")?gstPercent:"0.00";
-						if (dbObj.updateCodeByName(serviceCode, request.getParameter("description"), valuePara, gstPercent,
-								request.getParameter("billingservice_date"), request.getParameter("gstFlag"))) {
-							msg = serviceCode + " is updated.<br>"
-									+ "Type in a service code and search first to see if it is available.";
-							action = "search";
-							prop.setProperty("service_code", serviceCode);
-						} else {
-							msg = serviceCode
-									+ " is <font color='red'>NOT</font> updated. Action failed! Try edit it again.";
-							action = "edit" + serviceCode;
-							prop.setProperty("service_code", serviceCode);
-							String description = request.getParameter("description");
-							if (description == null)
-								description = "";
-							prop.setProperty("description", description);
-							prop.setProperty("value", request.getParameter("value"));
-							prop.setProperty("billingservice_date", request.getParameter("billingservice_date"));
-                                                        prop.setProperty("gstFlag", request.getParameter("gstFlag"));
-						}
-					} else {
-						msg = "You can <font color='red'>NOT</font> save the service code - " + serviceCode
-								+ ". Please search the service code first.";
-						action = "search";
-						prop.setProperty("service_code", serviceCode);
+				String sCode = request.getParameter("service_code");
+
+				boolean errorCheck = false;
+
+				if(sCode.length()==0){
+					errorCheck = true;
+					msg = "You must type in a service code with letters/digits.";
+					alert = "error";
+				}
+
+				if(valuePara.length()>0) {
+					if(!NumberUtils.isParsable(valuePara)){
+						errorCheck = true;
+						msg = "You must type in a number in the field feeeeeeeeeeeee";
+						alert = "error";
 					}
-				} else if (request.getParameter("action").startsWith("add")) {
-					String serviceCode = request.getParameter("service_code");
-					if (serviceCode == null)
-						serviceCode = "";
-					serviceCode = "_" + serviceCode;
-					if (serviceCode.equals(request.getParameter("action").substring("add".length()))) {
-						if (dbObj.addCodeByStr(serviceCode, request.getParameter("description"), valuePara, "0.00",
-								request.getParameter("billingservice_date"), request.getParameter("gstFlag")) > 0) {
-							msg = serviceCode + " is added.<br>"
-									+ "Type in a service code and search first to see if it is available.";
-							action = "search";
-							prop.setProperty("service_code", serviceCode);
+				} else if(valuePara.length()==0) {
+					errorCheck = true;
+					msg = "You must type in a number in the field fee";
+					alert = "error";
+				}
 
-							if (providers.size() > 0)
-							{
-								for (Provider prov : providers)
-								{
-									String curProvFreshbooksId;
+				if(request.getParameter("billingservice_date").length()<10) {
+					errorCheck = true;
+					msg = "You need to select a date from the calendar.";
+					alert = "error";
+				}
 
-									uProp = userPropertyDAO.getProp(prov.getProviderNo(), UserProperty.PROVIDER_FRESHBOOKS_ID);
-									if (uProp != null && uProp.getValue() != null && !uProp.getValue().isEmpty())
-									{
-										curProvFreshbooksId = uProp.getValue();
-										fs.addServiceCodeItem(curProvFreshbooksId, serviceCode, request.getParameter("description"), valuePara, request.getParameter("billingservice_date"), false);
-									}
-								}
+				if (!NumberUtils.isParsable(percent)) {
+					errorCheck = true;
+					msg = "Invalid percent entry. Action failed!";
+					alert = "error";
+				}
+				
+				if (!errorCheck) {
+					if (request.getParameter("action").startsWith("edit")) {
+						// update the service code
+						String serviceCode = request.getParameter("service_code");
+						if (serviceCode == null)
+							serviceCode = "";
+						serviceCode = "_" + serviceCode;
+						if (serviceCode.equals(request.getParameter("action").substring("edit".length()))) {
+							gstPercent = request.getParameter("gstFlag").equals("1") ? gstPercent : "0.00";
+							if (dbObj.updateCodeByName(serviceCode, request.getParameter("description"), valuePara, gstPercent,
+									request.getParameter("billingservice_date"), request.getParameter("gstFlag"))) {
+								msg = serviceCode + " is updated.<br>"
+										+ "Type in a service code and search first to see if it is available.";
+								action = "search";
+								prop.setProperty("service_code", serviceCode);
+							} else {
+								msg = serviceCode
+										+ " is <font color='red'>NOT</font> updated. Action failed! Try edit it again.";
+								action = "edit" + serviceCode;
+								prop.setProperty("service_code", serviceCode);
+								String description = request.getParameter("description");
+								if (description == null)
+									description = "";
+								prop.setProperty("description", description);
+								prop.setProperty("value", request.getParameter("value"));
+								prop.setProperty("billingservice_date", request.getParameter("billingservice_date"));
+								prop.setProperty("gstFlag", request.getParameter("gstFlag"));
 							}
 						} else {
-							msg = serviceCode
-									+ " is not added. Action failed! Try edit it again.";
-							action = "add" + serviceCode;
+							msg = "You can <font color='red'>NOT</font> save the service code - " + serviceCode
+									+ ". Please search the service code first.";
+							action = "search";
 							prop.setProperty("service_code", serviceCode);
-							String description = request.getParameter("description");
-							if (description == null)
-								description = "";
-							prop.setProperty("description", description);
-							prop.setProperty("value", request.getParameter("value"));
-							prop.setProperty("billingservice_date", request.getParameter("billingservice_date"));
-                                                        prop.setProperty("gstFlag", request.getParameter("gstFlag"));
+						}
+					} else if (request.getParameter("action").startsWith("add")) {
+						String serviceCode = request.getParameter("service_code");
+						if (serviceCode == null)
+							serviceCode = "";
+						serviceCode = "_" + serviceCode;
+						if (serviceCode.equals(request.getParameter("action").substring("add".length()))) {
+							if (dbObj.addCodeByStr(serviceCode, request.getParameter("description"), valuePara, "0.00",
+									request.getParameter("billingservice_date"), request.getParameter("gstFlag")) > 0) {
+								msg = serviceCode + " is added.<br>"
+										+ "Type in a service code and search first to see if it is available.";
+								action = "search";
+								prop.setProperty("service_code", serviceCode);
+
+								if (providers.size() > 0) {
+									for (Provider prov : providers) {
+										String curProvFreshbooksId;
+
+										uProp = userPropertyDAO.getProp(prov.getProviderNo(), UserProperty.PROVIDER_FRESHBOOKS_ID);
+										if (uProp != null && uProp.getValue() != null && !uProp.getValue().isEmpty()) {
+											curProvFreshbooksId = uProp.getValue();
+											fs.addServiceCodeItem(curProvFreshbooksId, serviceCode, request.getParameter("description"), valuePara, request.getParameter("billingservice_date"), false);
+										}
+									}
+								}
+							} else {
+								msg = serviceCode
+										+ " is not added. Action failed! Try edit it again.";
+								action = "add" + serviceCode;
+								prop.setProperty("service_code", serviceCode);
+								String description = request.getParameter("description");
+								if (description == null)
+									description = "";
+								prop.setProperty("description", description);
+								prop.setProperty("value", request.getParameter("value"));
+								prop.setProperty("billingservice_date", request.getParameter("billingservice_date"));
+								prop.setProperty("gstFlag", request.getParameter("gstFlag"));
+								alert = "error";
+							}
+						} else {
+							msg = "You can not save the service code - " + serviceCode
+									+ ". Please search the service code first.";
+							action = "search";
+							prop.setProperty("service_code", serviceCode);
 							alert = "error";
 						}
 					} else {
-						msg = "You can not save the service code - " + serviceCode
-								+ ". Please search the service code first.";
-						action = "search";
-						prop.setProperty("service_code", serviceCode);
+						msg = "You can not save the service code. Please search the service code first.";
 						alert = "error";
 					}
-				} else {
-					msg = "You can not save the service code. Please search the service code first.";
-					alert = "error";
 				}
 			} else if (request.getParameter("submit") != null && request.getParameter("submit").equals("Search")) {
 				// check the input data

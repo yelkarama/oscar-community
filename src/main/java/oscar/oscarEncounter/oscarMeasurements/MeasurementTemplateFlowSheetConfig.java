@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.drools.RuleBase;
 import org.jdom.Attribute;
@@ -228,7 +229,7 @@ public class MeasurementTemplateFlowSheetConfig implements InitializingBean {
     	if(fs != null) {
     		fs.setEnabled(false);
     		flowsheetDao.merge(fs);
-    	} else {
+    	} else if (StringUtils.isNotEmpty(name) && name.length() <= 25){
     		fs = new Flowsheet();
     		fs.setCreatedDate(new Date());
     		fs.setEnabled(false);

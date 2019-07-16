@@ -28,6 +28,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import net.sf.json.JSONObject;
+import org.apache.commons.lang.StringUtils;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -85,6 +86,17 @@ public class DocumentDescriptionTemplateAction extends DispatchAction {
         String description = request.getParameter("description");
         String descriptionShortcut = request.getParameter("shortcut");
         String providerNo = request.getParameter("providerNo").equals("null")?null:request.getParameter("providerNo");
+        if (StringUtils.isEmpty(docType) ||
+                StringUtils.isEmpty(description) ||
+                StringUtils.isEmpty(descriptionShortcut) ||
+                StringUtils.isEmpty(providerNo) ||
+                docType.length() > 60 ||
+                description.length() > 255 ||
+                descriptionShortcut.length() > 20 ||
+                providerNo.length() > 6) {
+            return null;
+        }
+        
         DocumentDescriptionTemplate documentDescriptionTemplate = new DocumentDescriptionTemplate();
         documentDescriptionTemplate.setDescription(description);
         documentDescriptionTemplate.setDescriptionShortcut(descriptionShortcut);
@@ -103,6 +115,18 @@ public class DocumentDescriptionTemplateAction extends DispatchAction {
         String description = request.getParameter("description");
         String descriptionShortcut = request.getParameter("shortcut");
         String providerNo = request.getParameter("providerNo").equals("null")?null:request.getParameter("providerNo");
+
+        if (StringUtils.isEmpty(docType) ||
+                StringUtils.isEmpty(description) ||
+                StringUtils.isEmpty(descriptionShortcut) ||
+                StringUtils.isEmpty(providerNo) ||
+                docType.length() > 60 ||
+                description.length() > 255 ||
+                descriptionShortcut.length() > 20 ||
+                providerNo.length() > 6) {
+            return null;
+        }
+        
         DocumentDescriptionTemplate documentDescriptionTemplate = new DocumentDescriptionTemplate();
         documentDescriptionTemplate.setDescription(description);
         documentDescriptionTemplate.setDescriptionShortcut(descriptionShortcut);

@@ -65,10 +65,16 @@ public class DaySheetConfigurationDao extends AbstractDao<DaySheetConfiguration>
     }
 
     public void save(DaySheetConfiguration dsConfig) {
-        if(dsConfig.getId() != null && dsConfig.getId()>0) {
-        	merge(dsConfig);
-        } else {
-        	persist(dsConfig);
-        }
+		if (dsConfig.getHeading() != null &&
+				dsConfig.getHeading().length() <= 255 &&
+				dsConfig.getField() != null &&
+				dsConfig.getField().length() <= 55 &&
+				String.valueOf(dsConfig.getPos()).length() <= 11) {
+			if (dsConfig.getId() != null && dsConfig.getId() > 0) {
+				merge(dsConfig);
+			} else {
+				persist(dsConfig);
+			}
+		}
     }
 }

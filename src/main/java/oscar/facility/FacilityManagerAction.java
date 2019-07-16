@@ -30,6 +30,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -118,8 +119,23 @@ public class FacilityManagerAction extends DispatchAction {
 		facility.setEnableIntegratedReferrals(WebUtils.isChecked(request, "facility.enableIntegratedReferrals"));
 		facility.setEnableHealthNumberRegistry(WebUtils.isChecked(request, "facility.enableHealthNumberRegistry"));
 		facility.setEnableDigitalSignatures(WebUtils.isChecked(request, "facility.enableDigitalSignatures"));
-		if (facility.getId() == null || facility.getId() == 0) facilityDao.persist(facility);
-		else facilityDao.merge(facility);
+		
+		boolean hasErrors = false;
+		
+		if (StringUtils.isEmpty(facility.getName()) || facility.getName().length() > 32 ||
+			StringUtils.isEmpty(facility.getDescription()) || facility.getDescription().length() > 70) {
+			hasErrors = true;
+		}
+		
+		if (hasErrors) {
+			return list(mapping, form, request, response);
+		}
+		
+		if (facility.getId() == null || facility.getId() == 0) {
+			facilityDao.persist(facility);
+		} else {
+			facilityDao.merge(facility);
+		}
 
 		// if we just updated our current facility, refresh local cached data in the session / thread local variable
 		if (loggedInInfo.getCurrentFacility().getId().intValue() == facility.getId().intValue()) {

@@ -62,6 +62,7 @@
 <%@ page import="org.oscarehr.common.dao.SecObjPrivilegeDao"%>
 <%@ page import="org.oscarehr.common.model.RecycleBin"%>
 <%@ page import="org.oscarehr.common.dao.RecycleBinDao"%>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%
 	SecRoleDao secRoleDao = SpringUtils.getBean(SecRoleDao.class);
 	SecPrivilegeDao secPrivilegeDao = SpringUtils.getBean(SecPrivilegeDao.class);
@@ -133,40 +134,51 @@ if (request.getParameter("submit") != null && request.getParameter("submit").equ
     }
 
 	for(int i=0; i<vecObjRowNo.size(); i++) {
-	    String objectName = (String) vecObjRowNo.get(i);
-	    if(objectName.equals("Name1") && request.getParameter("object$Name1").trim().equals("") ) continue;
+		String objectName = (String) vecObjRowNo.get(i);
+		if (objectName.equals("Name1") && request.getParameter("object$Name1").trim().equals("")) continue;
 
-	    String privilege = "";
-		for (Enumeration e = request.getParameterNames() ; e.hasMoreElements() ;) {
-	         String paraName = (String)e.nextElement();
-	         String prefix = "privilege$" + objectName + "$";
-	         if(paraName.startsWith(prefix)) {
-	         	privilege += paraName.substring( prefix.length() );
-	         }
-	    }
-		String prefix = "priority$" + objectName;
-	    String priority = request.getParameter(prefix);
-	    if(objectName.equals("Name1") )  objectName = request.getParameter("object$Name1").trim();
-
-	    SecObjPrivilege sop = new SecObjPrivilege();
-	    sop.setId(new SecObjPrivilegePrimaryKey());
-		sop.getId().setRoleUserGroup(roleUserGroup);
-		sop.getId().setObjectName(objectName.trim());
-		sop.setPrivilege(privilege);
-		sop.setPriority(Integer.parseInt(priority));
-		sop.setProviderNo(curUser_no);
-		String secExceptionMsg = new String();
-		try {
-			secObjPrivilegeDao.persist(sop);
-		} 
-		catch(DataIntegrityViolationException divEx) {
-			secExceptionMsg = divEx.getMostSpecificCause().getLocalizedMessage();
+		String privilege = "";
+		for (Enumeration e = request.getParameterNames(); e.hasMoreElements(); ) {
+			String paraName = (String) e.nextElement();
+			String prefix = "privilege$" + objectName + "$";
+			if (paraName.startsWith(prefix)) {
+				privilege += paraName.substring(prefix.length());
+			}
 		}
-		if(secExceptionMsg.length() > 0)
-			msg += secExceptionMsg;
-		else
-			msg += "Role/Obj/Rights " + roleUserGroup + "/" + objectName + "/" + privilege + " is added. ";
-	    LogAction.addLog(curUser_no, LogConst.ADD, LogConst.CON_PRIVILEGE, roleUserGroup +"|"+ objectName +"|"+privilege, ip);
+		String prefix = "priority$" + objectName;
+		String priority = request.getParameter(prefix);
+		if (objectName.equals("Name1")) objectName = request.getParameter("object$Name1").trim();
+
+		if (StringUtils.isNotEmpty(roleUserGroup) &&
+				StringUtils.isNotEmpty(objectName.trim()) &&
+				StringUtils.isNotEmpty(privilege) &&
+				StringUtils.isNotEmpty(curUser_no) &&
+				roleUserGroup.length() <= 30 &&
+				objectName.trim().length() <= 100 &&
+				privilege.length() <= 100 &&
+				(StringUtils.isEmpty(priority) || priority.length() <= 2) &&
+				curUser_no.length() <= 6) {
+			SecObjPrivilege sop = new SecObjPrivilege();
+			sop.setId(new SecObjPrivilegePrimaryKey());
+			sop.getId().setRoleUserGroup(roleUserGroup);
+			sop.getId().setObjectName(objectName.trim());
+			sop.setPrivilege(privilege);
+			sop.setPriority(Integer.parseInt(priority));
+			sop.setProviderNo(curUser_no);
+			String secExceptionMsg = new String();
+			try {
+				secObjPrivilegeDao.persist(sop);
+			} catch (DataIntegrityViolationException divEx) {
+				secExceptionMsg = divEx.getMostSpecificCause().getLocalizedMessage();
+			}
+			if (secExceptionMsg.length() > 0)
+				msg += secExceptionMsg;
+			else
+				msg += "Role/Obj/Rights " + roleUserGroup + "/" + objectName + "/" + privilege + " is added. ";
+			LogAction.addLog(curUser_no, LogConst.ADD, LogConst.CON_PRIVILEGE, roleUserGroup + "|" + objectName + "|" + privilege, ip);
+		} else {
+			msg += "Role/Obj/Rights " + roleUserGroup + "/" + objectName + "/" + privilege + " is <font color='red'>NOT</font> added!!! ";
+		}
 	}
 }
 
@@ -212,7 +224,10 @@ if (request.getParameter("buttonUpdate") != null && request.getParameter("button
     provider_no   = curUser_no;
 
     sop = secObjPrivilegeDao.find(new SecObjPrivilegePrimaryKey(roleUserGroup,objectName));
-    if(sop != null) {
+    if(sop != null &&
+			StringUtils.isNotEmpty(provider_no) && provider_no.length() <= 6 &&
+			StringUtils.isNotEmpty(privilege) && privilege.length() <= 100 && 
+			(StringUtils.isEmpty(priority) || priority.length() <= 2)) {
     	sop.setProviderNo(provider_no);
     	sop.setPrivilege(privilege);
     	sop.setPriority(Integer.parseInt(priority));

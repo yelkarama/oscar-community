@@ -31,6 +31,7 @@
 <%@ page import="org.oscarehr.common.dao.BillingServiceDao" %>
 <%@ page import="org.oscarehr.billing.CA.ON.model.BillingPercLimit" %>
 <%@ page import="org.oscarehr.billing.CA.ON.dao.BillingPercLimitDao" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%
 	BillingServiceDao billingServiceDao = SpringUtils.getBean(BillingServiceDao.class);
 	BillingPercLimitDao billingPercLimitDao = SpringUtils.getBean(BillingPercLimitDao.class);
@@ -46,165 +47,205 @@
   
   List<CssStyle> styles = new ArrayList<CssStyle>();
   if (request.getParameter("submitFrm") != null && (request.getParameter("submitFrm").equals("Save") || request.getParameter("submitFrm").equalsIgnoreCase("Add Service Code"))) {
-    // check the input data
-    // if input the perc code,
-    String valuePara = request.getParameter("value");
-    if(request.getParameter("percentage").length()>0 && valuePara.trim().equals("") ) {
-    	valuePara = ".00";
-    }
+	  // check the input data
+	  // if input the perc code,
+	  String valuePara = request.getParameter("value");
+	  if (request.getParameter("percentage").length() > 0 && valuePara.trim().equals("")) {
+		  valuePara = ".00";
+	  }
 
-    if(request.getParameter("action").startsWith("edit")) {
-      	// update the service code
+	  String sCode = request.getParameter("service_code");
+	  Boolean errorCheck = false;
 
-		String serviceCode = request.getParameter("service_code");
-        String billingservice_no = request.getParameter("billingservice_no");
-		if(serviceCode.equals(request.getParameter("action").substring("edit".length()))) {
-			BillingService bs = null;
-			if(billingservice_no != null) {
-				bs = billingServiceDao.find(Integer.parseInt(billingservice_no));
-			}else {
-				List<BillingService> bsList = billingServiceDao.findByServiceCode(serviceCode);
-				if(bsList.size()>=0) {
-					bs = bsList.get(0);
-				}else {
-					msg = serviceCode + " is not updated. Action failed! Try edit it again." ;
-				    action = "search";
-					alert="error";
-				}
-			}
-			if(bs != null) {
-				bs.setDescription(request.getParameter("description"));
-				bs.setValue(valuePara);
-				bs.setPercentage(request.getParameter("percentage"));
-				bs.setBillingserviceDate(MyDateFormat.getSysDate(request.getParameter("billingservice_date")));
-				bs.setSliFlag("true".equals(request.getParameter("sliFlag"))?true:false);
-				bs.setTerminationDate(MyDateFormat.getSysDate(request.getParameter("termination_date")));
+	  if (StringUtils.isNotEmpty(sCode)) {
+		  if (sCode.length() != 5) {
+			  errorCheck = true;
+			  msg = sCode + " is not a valid code. Action failed!";
+			  action = "search";
+			  alert = "error";
+		  }
+		  if ((sCode.charAt(0) < 'A') || (sCode.charAt(0) > 'Z')) {
+			  errorCheck = true;
+			  msg = sCode + " is not a valid code. Action failed!";
+			  action = "search";
+			  alert = "error";
+		  }
+		  if ((sCode.charAt(4) < 'A') || (sCode.charAt(4) > 'Z')) {
+			  errorCheck = true;
+			  msg = sCode + " is not a valid code. Action failed!";
+			  action = "search";
+			  alert = "error";
+		  }
 
-				 String servicecodeStyle = request.getParameter("servicecode_style");
-                 String styleId;
-                 String[] tmp;
-                 if( !servicecodeStyle.startsWith("-1")) {
-                 	tmp = servicecodeStyle.split(",");
-                 	bs.setDisplayStyle(Integer.parseInt(tmp[0]));
-                 }			
-            	 else {
-            		bs.setDisplayStyle(null);
-            	 }
+		  for (int i = 1; i < sCode.length() - 1; i++) {
+			  // Check that current character is number.
+			  char c = sCode.charAt(i);
+			  if (((c < '0') || (c > '9'))) {
+				  errorCheck = true;
+				  msg = sCode + " is not a valid code. Action failed!";
+				  action = "search";
+				  alert = "error";
+			  }
+		  }
+	  } else {
+		  errorCheck = true;
+		  msg = "No sCode found. Action failed!";
+		  action = "search";
+		  alert = "error";
+	  }
+
+	  if (!errorCheck) {
+		  if (request.getParameter("action").startsWith("edit")) {
+			  // update the service code
+
+			  String serviceCode = request.getParameter("service_code");
+			  String billingservice_no = request.getParameter("billingservice_no");
+			  if (serviceCode.equals(request.getParameter("action").substring("edit".length()))) {
+				  BillingService bs = null;
+				  if (billingservice_no != null) {
+					  bs = billingServiceDao.find(Integer.parseInt(billingservice_no));
+				  } else {
+					  List<BillingService> bsList = billingServiceDao.findByServiceCode(serviceCode);
+					  if (bsList.size() >= 0) {
+						  bs = bsList.get(0);
+					  } else {
+						  msg = serviceCode + " is not updated. Action failed! Try edit it again.";
+						  action = "search";
+						  alert = "error";
+					  }
+				  }
+				  if (bs != null) {
+					  bs.setDescription(request.getParameter("description"));
+					  bs.setValue(valuePara);
+					  bs.setPercentage(request.getParameter("percentage"));
+					  bs.setBillingserviceDate(MyDateFormat.getSysDate(request.getParameter("billingservice_date")));
+					  bs.setSliFlag("true".equals(request.getParameter("sliFlag")) ? true : false);
+					  bs.setTerminationDate(MyDateFormat.getSysDate(request.getParameter("termination_date")));
+
+					  String servicecodeStyle = request.getParameter("servicecode_style");
+					  String styleId;
+					  String[] tmp;
+					  if (!servicecodeStyle.startsWith("-1")) {
+						  tmp = servicecodeStyle.split(",");
+						  bs.setDisplayStyle(Integer.parseInt(tmp[0]));
+					  } else {
+						  bs.setDisplayStyle(null);
+					  }
 
 
-				if(request.getParameter("percentage").length()>1) {
-					List<BillingPercLimit> percLimits=billingPercLimitDao.findByServiceCode(serviceCode);
-					if(percLimits.size() == 0) {
-						BillingPercLimit percLimit = new BillingPercLimit();
-						percLimit.setService_code(serviceCode);
-						percLimit.setMin(request.getParameter("min"));
-						percLimit.setMax(request.getParameter("max"));
-						percLimit.setEffective_date(MyDateFormat.getSysDate(request.getParameter("billingservice_date")));
-						billingPercLimitDao.persist(percLimit);
-					}else {
-						BillingPercLimit percLimit= billingPercLimitDao.findByServiceCodeAndEffectiveDate(serviceCode,MyDateFormat.getSysDate(request.getParameter("billingservice_date")));
-						if(percLimit != null) {
-							percLimit.setMin(request.getParameter("min"));
-							percLimit.setMax(request.getParameter("max"));
-							billingPercLimitDao.merge(percLimit);
-						}
-					}
+					  if (request.getParameter("percentage").length() > 1) {
+						  List<BillingPercLimit> percLimits = billingPercLimitDao.findByServiceCode(serviceCode);
+						  if (percLimits.size() == 0) {
+							  BillingPercLimit percLimit = new BillingPercLimit();
+							  percLimit.setService_code(serviceCode);
+							  percLimit.setMin(request.getParameter("min"));
+							  percLimit.setMax(request.getParameter("max"));
+							  percLimit.setEffective_date(MyDateFormat.getSysDate(request.getParameter("billingservice_date")));
+							  billingPercLimitDao.persist(percLimit);
+						  } else {
+							  BillingPercLimit percLimit = billingPercLimitDao.findByServiceCodeAndEffectiveDate(serviceCode, MyDateFormat.getSysDate(request.getParameter("billingservice_date")));
+							  if (percLimit != null) {
+								  percLimit.setMin(request.getParameter("min"));
+								  percLimit.setMax(request.getParameter("max"));
+								  billingPercLimitDao.merge(percLimit);
+							  }
+						  }
 
-				}
+					  }
 
-				billingServiceDao.merge(bs);
-				msg = serviceCode + " is updated.<br>" + "Type in a service code and search first to see if it is available.";
-				alert="success";
-	  			action = "search";
-			    prop.setProperty("service_code", serviceCode);
-			}else {
-				msg = serviceCode + " is not updated. Action failed! Try edit it again." ;
-				alert="error";
-			    action = "edit" + serviceCode;
-			    prop.setProperty("service_code", serviceCode);
-			    prop.setProperty("description", request.getParameter("description"));
-			    prop.setProperty("value", request.getParameter("value"));
-			    prop.setProperty("percentage", request.getParameter("percentage"));
-			    prop.setProperty("billingservice_date", request.getParameter("billingservice_date"));
-			    prop.setProperty("sliFlag", request.getParameter("sliFlag"));
-			}
+					  billingServiceDao.merge(bs);
+					  msg = serviceCode + " is updated.<br>" + "Type in a service code and search first to see if it is available.";
+					  alert = "success";
+					  action = "search";
+					  prop.setProperty("service_code", serviceCode);
+				  } else {
+					  msg = serviceCode + " is not updated. Action failed! Try edit it again.";
+					  alert = "error";
+					  action = "edit" + serviceCode;
+					  prop.setProperty("service_code", serviceCode);
+					  prop.setProperty("description", request.getParameter("description"));
+					  prop.setProperty("value", request.getParameter("value"));
+					  prop.setProperty("percentage", request.getParameter("percentage"));
+					  prop.setProperty("billingservice_date", request.getParameter("billingservice_date"));
+					  prop.setProperty("sliFlag", request.getParameter("sliFlag"));
+				  }
 
-		} else {
-      		msg = "You can not save the service code - " + serviceCode + ". Please search the service code first.";
-		alert="error";
-  			action = "search";
-		    prop.setProperty("service_code", serviceCode);
-		}
+			  } else {
+				  msg = "You can not save the service code - " + serviceCode + ". Please search the service code first.";
+				  alert = "error";
+				  action = "search";
+				  prop.setProperty("service_code", serviceCode);
+			  }
 
-    } else if (request.getParameter("action").startsWith("add")) {
-		String serviceCode = request.getParameter("service_code");
-		if(serviceCode.equals(request.getParameter("action").substring("add".length()))) {
-			BillingService bs = new BillingService();
-			bs.setServiceCompositecode("");
-			bs.setServiceCode(serviceCode);
-			bs.setDescription(request.getParameter("description"));
-			bs.setValue(valuePara);
-			bs.setPercentage(request.getParameter("percentage"));
-			bs.setBillingserviceDate(MyDateFormat.getSysDate(request.getParameter("billingservice_date")));
-			bs.setSpecialty("");
-			bs.setRegion("ON");
-			bs.setAnaesthesia("00");
-			bs.setTerminationDate(MyDateFormat.getSysDate(request.getParameter("termination_date")));
-			bs.setSliFlag("true".equals(request.getParameter("sliFlag"))?true:false);
+		  } else if (request.getParameter("action").startsWith("add")) {
+			  String serviceCode = request.getParameter("service_code");
+			  if (serviceCode.equals(request.getParameter("action").substring("add".length()))) {
+				  BillingService bs = new BillingService();
+				  bs.setServiceCompositecode("");
+				  bs.setServiceCode(serviceCode);
+				  bs.setDescription(request.getParameter("description"));
+				  bs.setValue(valuePara);
+				  bs.setPercentage(request.getParameter("percentage"));
+				  bs.setBillingserviceDate(MyDateFormat.getSysDate(request.getParameter("billingservice_date")));
+				  bs.setSpecialty("");
+				  bs.setRegion("ON");
+				  bs.setAnaesthesia("00");
+				  bs.setTerminationDate(MyDateFormat.getSysDate(request.getParameter("termination_date")));
+				  bs.setSliFlag("true".equals(request.getParameter("sliFlag")) ? true : false);
 
-			String servicecodeStyle = request.getParameter("servicecode_style");
-            String styleId;
-            String[] tmp;
-            if( !servicecodeStyle.startsWith("-1")) {
-            	tmp = servicecodeStyle.split(",");
-            	bs.setDisplayStyle(Integer.parseInt(tmp[0]));
-            }
-            bs.setGstFlag(false);
+				  String servicecodeStyle = request.getParameter("servicecode_style");
+				  String styleId;
+				  String[] tmp;
+				  if (!servicecodeStyle.startsWith("-1")) {
+					  tmp = servicecodeStyle.split(",");
+					  bs.setDisplayStyle(Integer.parseInt(tmp[0]));
+				  }
+				  bs.setGstFlag(false);
 
-			if(request.getParameter("percentage").length()>1 && request.getParameter("min").length()>1 && request.getParameter("max").length()>1) {
-				BillingPercLimit bpl = new BillingPercLimit();
-				bpl.setService_code(serviceCode);
-				bpl.setMin(request.getParameter("min"));
-				bpl.setMax(request.getParameter("max"));
-				bpl.setEffective_date(MyDateFormat.getSysDate(request.getParameter("billingservice_date")));
-				billingPercLimitDao.persist(bpl);
-			}
+				  if (request.getParameter("percentage").length() > 1 && request.getParameter("min").length() > 1 && request.getParameter("max").length() > 1) {
+					  BillingPercLimit bpl = new BillingPercLimit();
+					  bpl.setService_code(serviceCode);
+					  bpl.setMin(request.getParameter("min"));
+					  bpl.setMax(request.getParameter("max"));
+					  bpl.setEffective_date(MyDateFormat.getSysDate(request.getParameter("billingservice_date")));
+					  billingPercLimitDao.persist(bpl);
+				  }
 
-			// Check that service date is unique for service code
-			List scadList = billingServiceDao.findByServiceCodeAndDate(bs.getServiceCode(), bs.getBillingserviceDate());
-			if(!scadList.isEmpty()) {
-	      		msg = "The selected Service Code has an entry for this Issue Date. <br> Select new issue date, or use 'Save' to update the existing entry.";
-			alert="error";
-                prop.setProperty("service_code", serviceCode);
-                prop.setProperty("description", oscar.util.StringUtils.noNull(bs.getDescription()));
-                prop.setProperty("value", oscar.util.StringUtils.noNull(bs.getValue()));
-                prop.setProperty("percentage", oscar.util.StringUtils.noNull(bs.getPercentage()));
-                prop.setProperty("billingservice_date", oscar.util.StringUtils.noNull(MyDateFormat.getMyStandardDate(bs.getBillingserviceDate())));
-                prop.setProperty("sliFlag", oscar.util.StringUtils.noNull(bs.getSliFlag().toString()));
-                prop.setProperty("termination_date", oscar.util.StringUtils.noNull(MyDateFormat.getMyStandardDate(bs.getTerminationDate())));
-                action = "edit" + serviceCode;
-                action2 = "add" + serviceCode;
-			}
-			else {
-				billingServiceDao.persist(bs);
+				  // Check that service date is unique for service code
+				  List scadList = billingServiceDao.findByServiceCodeAndDate(bs.getServiceCode(), bs.getBillingserviceDate());
+				  if (!scadList.isEmpty()) {
+					  msg = "The selected Service Code has an entry for this Issue Date. <br> Select new issue date, or use 'Save' to update the existing entry.";
+					  alert = "error";
+					  prop.setProperty("service_code", serviceCode);
+					  prop.setProperty("description", oscar.util.StringUtils.noNull(bs.getDescription()));
+					  prop.setProperty("value", oscar.util.StringUtils.noNull(bs.getValue()));
+					  prop.setProperty("percentage", oscar.util.StringUtils.noNull(bs.getPercentage()));
+					  prop.setProperty("billingservice_date", oscar.util.StringUtils.noNull(MyDateFormat.getMyStandardDate(bs.getBillingserviceDate())));
+					  prop.setProperty("sliFlag", oscar.util.StringUtils.noNull(bs.getSliFlag().toString()));
+					  prop.setProperty("termination_date", oscar.util.StringUtils.noNull(MyDateFormat.getMyStandardDate(bs.getTerminationDate())));
+					  action = "edit" + serviceCode;
+					  action2 = "add" + serviceCode;
+				  } else {
+					  billingServiceDao.persist(bs);
 
-  				msg = serviceCode + " is added.<br>" + "Type in a service code and search first to see if it is available.";
-				alert="success";
-  				action = "search";
-		    	prop.setProperty("service_code", serviceCode);
-			}
+					  msg = serviceCode + " is added.<br>" + "Type in a service code and search first to see if it is available.";
+					  alert = "success";
+					  action = "search";
+					  prop.setProperty("service_code", serviceCode);
+				  }
 
-		} else {
-      		msg = "You can not save the service code - " + serviceCode + ". Please search the service code first.";
-		alert="error";
-  			action = "search";
-		    prop.setProperty("service_code", serviceCode);
-		}
-    } else {
-      msg = "You can not save the service code. Please search the service code first.";
-	alert="error";
-    }
-  } else if (request.getParameter("submitFrm") != null && request.getParameter("submitFrm").equals("Search")) {
+			  } else {
+				  msg = "You can not save the service code - " + serviceCode + ". Please search the service code first.";
+				  alert = "error";
+				  action = "search";
+				  prop.setProperty("service_code", serviceCode);
+			  }
+		  } else {
+			  msg = "You can not save the service code. Please search the service code first.";
+			  alert = "error";
+		  }
+	  }
+  }else if (request.getParameter("submitFrm") != null && request.getParameter("submitFrm").equals("Search")) {
     // check the input data
     if(request.getParameter("service_code") == null || request.getParameter("service_code").length() != serviceCodeLen) {
       msg = "Please type in a right service code.";

@@ -36,6 +36,7 @@
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.ScheduleTemplateCode" %>
 <%@ page import="org.oscarehr.common.dao.ScheduleTemplateCodeDao" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%
 	ScheduleTemplateCodeDao scheduleTemplateCodeDao = SpringUtils.getBean(ScheduleTemplateCodeDao.class);
 %>
@@ -45,22 +46,52 @@
   {
 	  if (request.getParameter("dboperation").compareTo(" Save ")==0 )
 	  {
-	      if (request.getParameter("code")!=null && !request.getParameter("code").equals(""))
-		  {
-			  ScheduleTemplateCode code = scheduleTemplateCodeDao.getByCode(request.getParameter("code").toCharArray()[0]);
-			  if(code != null) {
-				  scheduleTemplateCodeDao.remove(code.getId());
-			  }
+	      if (request.getParameter("code")!=null && !request.getParameter("code").equals("")) {
+	      	String codeId = request.getParameter("code");
+			  String desc = request.getParameter("description");
+			  String duration = request.getParameter("duration");
+			  String colour = request.getParameter("color");
+			  String confirm = request.getParameter("confirm");
+			  String bookingLimit = request.getParameter("bookinglimit");
+			  String bookingAvail = request.getParameter("bookingavail");
+			  
+			  List<String> confirmTypes = new ArrayList<String>();
 
-			  code = new ScheduleTemplateCode();
-			  code.setCode(request.getParameter("code").toCharArray()[0]);
-			  code.setDescription(request.getParameter("description"));
-			  code.setDuration(request.getParameter("duration"));
-			  code.setColor(request.getParameter("color"));
-			  code.setConfirm(request.getParameter("confirm"));
-			  code.setBookinglimit(Integer.parseInt(request.getParameter("bookinglimit")));
-			  code.setAvailable(Boolean.parseBoolean(request.getParameter("bookingavail")));
-			  scheduleTemplateCodeDao.persist(code);
+			  confirmTypes.add("No");
+			  confirmTypes.add("Yes");
+			  confirmTypes.add("Day");
+			  confirmTypes.add("Wk");
+	      	
+			  if (StringUtils.isNotEmpty(codeId) &&
+			  StringUtils.isNotEmpty(desc) &&
+			  StringUtils.isNotEmpty(duration) &&
+			  StringUtils.isNotEmpty(colour) &&
+			  StringUtils.isNotEmpty(confirm) &&
+			  StringUtils.isNotEmpty(bookingLimit) &&
+			  StringUtils.isNotEmpty(bookingAvail) &&
+			  codeId.length() == 1 &&
+			  desc.length() <= 40 &&
+			  StringUtils.isNumeric(duration) &&
+			  duration.length() <= 3 &&
+			  colour.length() <= 10 && 
+			  bookingLimit.length() <= 10 &&
+			  StringUtils.isNumeric(bookingLimit) &&
+			  confirmTypes.contains(confirm)) {
+				  ScheduleTemplateCode code = scheduleTemplateCodeDao.getByCode(request.getParameter("code").toCharArray()[0]);
+				  if (code != null) {
+					  scheduleTemplateCodeDao.remove(code.getId());
+				  }
+
+				  code = new ScheduleTemplateCode();
+				  code.setCode(request.getParameter("code").toCharArray()[0]);
+				  code.setDescription(request.getParameter("description"));
+				  code.setDuration(request.getParameter("duration"));
+				  code.setColor(request.getParameter("color"));
+				  code.setConfirm(request.getParameter("confirm"));
+				  code.setBookinglimit(Integer.parseInt(request.getParameter("bookinglimit")));
+				  code.setAvailable(Boolean.parseBoolean(request.getParameter("bookingavail")));
+				  scheduleTemplateCodeDao.persist(code);
+			  }
 		  }
 		  else
 		  {
@@ -193,7 +224,7 @@ function checkInput() {
 			<tr bgcolor='ivory'>
 				<td><font color="red"><bean:message
 					key="schedule.scheduletemplatecodesetting.formDescription" />:</font></td>
-				<td><input type="text" name="description" size="25"
+				<td><input type="text" name="description" size="25" maxlength="40"
 					<%=bEdit?("value='"+dataBean.getProperty("description")+"'"):"value=''"%>></td>
 			</tr>
 			<tr bgcolor='ivory'>

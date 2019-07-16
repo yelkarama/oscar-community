@@ -93,7 +93,7 @@
 			}
 		} else if (request.getParameter("dboperation").startsWith("add-new-hc-type")) {
 			String newHcTypeName = request.getParameter("new-hc-type");
-			if (!StringUtils.isBlank(newHcTypeName)) {
+			if (!StringUtils.isBlank(newHcTypeName) && newHcTypeName.length() > 2) {
 				newHcTypeName = newHcTypeName.trim();
 				Boolean enabled = request.getParameter("new-hc-type-enable") != null;
 				List<CustomHealthcardType> existingHealthcardTypes = customHealthcardTypeDao.findByName(newHcTypeName);
