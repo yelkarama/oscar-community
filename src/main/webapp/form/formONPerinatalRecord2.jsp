@@ -53,17 +53,19 @@
     if(StringUtils.isNullOrEmpty(props.getProperty("pe_ht", "")) && StringUtils.isNullOrEmpty(props.getProperty("pe_wt", ""))){
         MeasurementDao measurementDao = SpringUtils.getBean(MeasurementDao.class);
         Measurement height = measurementDao.findLatestByDemographicNoAndType(demoNo,"HT");
-        props.setProperty("pe_ht", height != null ? height.getDataField() : "");
         Measurement weight = measurementDao.findLatestByDemographicNoAndType(demoNo,"WT");
-        props.setProperty("pe_wt", weight != null ? weight.getDataField() : "");
-        if(height.getMeasuringInstruction() != null && height.getMeasuringInstruction().toLowerCase().contains("cm") &&
-                weight.getMeasuringInstruction()!= null && weight.getMeasuringInstruction().toLowerCase().contains("kg")) {
-            try {
-                double height_db = Double.parseDouble(height.getDataField()) / 100; //convert to meters
-                double weight_db = Double.parseDouble(weight.getDataField());
-                double bmi = ((double) Math.round((weight_db / (height_db * height_db)) * 10)) / 10; //BMI = weight / height^2 (kg/m^2)
-                props.setProperty("pe_bmi", "" + bmi);
-            } catch (Exception e) {/* couldn't parse height/weight to calculate BMI, no action */}
+        if(weight != null && height != null) {
+            props.setProperty("pe_ht", height.getDataField());
+            props.setProperty("pe_wt", weight.getDataField());
+            if (height.getMeasuringInstruction() != null && height.getMeasuringInstruction().toLowerCase().contains("cm") &&
+                    weight.getMeasuringInstruction() != null && weight.getMeasuringInstruction().toLowerCase().contains("kg")) {
+                try {
+                    double height_db = Double.parseDouble(height.getDataField()) / 100; //convert to meters
+                    double weight_db = Double.parseDouble(weight.getDataField());
+                    double bmi = ((double) Math.round((weight_db / (height_db * height_db)) * 10)) / 10; //BMI = weight / height^2 (kg/m^2)
+                    props.setProperty("pe_bmi", "" + bmi);
+                } catch (Exception e) {/* couldn't parse height/weight to calculate BMI, no action */}
+            }
         }
     }
 
