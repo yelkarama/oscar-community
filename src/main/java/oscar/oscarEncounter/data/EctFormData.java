@@ -139,7 +139,7 @@ public class EctFormData {
 			if (!table.equals("form")) {
 				String sql = "SELECT max(ID) ID, demographic_no, formCreated, date(formEdited) 'lastEdited', max(formEdited) 'frmEdited' FROM " + table + " WHERE demographic_no=" + demoNo + " group by lastEdited";
 				if (table.contains("perinatal")) {
-					sql =  "SELECT max(form_id) ID, demographic_no, create_date 'formCreated', create_date 'frmEdited' FROM " + table + " WHERE demographic_no=" + demoNo; // +" group by lastEdited";
+					sql =  "SELECT max(form_id) ID, demographic_no, create_date 'formCreated', date(formEdited) 'lastEdited', max(formEdited) 'frmEdited' FROM " + table + " WHERE demographic_no=" + demoNo + " GROUP BY lastEdited";
 				}
 
 				Statement s = c.createStatement();
@@ -201,7 +201,7 @@ public class EctFormData {
 			if (!table.equals("form")) {
 				String sql = "SELECT ID, demographic_no, formCreated, formEdited FROM " + table + " WHERE demographic_no=" + demoNo + " ORDER BY ID DESC";
 				if (table.contains("perinatal")) {
-					sql =  "SELECT max(form_id) ID, demographic_no, create_date 'formCreated', create_date 'formEdited' FROM " + table + " WHERE demographic_no=" + demoNo; // +" group by lastEdited";
+					sql =  "SELECT form_id ID, demographic_no, create_date 'formCreated', formEdited FROM " + table + " WHERE demographic_no=" + demoNo + " ORDER BY ID DESC";
 				}
 
 				Statement s = c.createStatement();

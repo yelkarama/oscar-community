@@ -48,10 +48,10 @@ public class ONPerinatal2017Dao extends AbstractDao<FormONPerinatal2017> {
         query = query.setParameter("fieldName", fieldName);
 
         FormONPerinatal2017 record = null;
-        Object result = query.getSingleResult();
 
-        if (result != null) {
-            record = (FormONPerinatal2017) result;
+        List<FormONPerinatal2017> results = query.getResultList();
+        if (!results.isEmpty()) {
+            record = results.get(0);
         }
 
         return record;
