@@ -421,24 +421,26 @@ function geneticWarning() {
 }
 
 function getGestationalAge(field) {
-    var days = getGestationalAgeDays();
-    var weeks = getGestationalAgeWeeks();
-    var offset;
-    var result;
+    if (field != null) {
+        var days = getGestationalAgeDays(field);
+        var weeks = getGestationalAgeWeeks(days);
+        var offset;
+        var result;
 
-    if(days > 0) {
-        offset = days % 7;
-    }
-    
-    result = parseInt(weeks) + "w+" + offset;
-    if (field) {
-        field.value = result;
-    }
+        if (days > 0) {
+            offset = days % 7;
+        }
 
-    return result;
+        result = parseInt(weeks) + "w+" + offset;
+        if (field) {
+            field.value = result;
+        }
+
+        return result;
+    }
 }
 
-function getGestationalAgeDays() {
+function getGestationalAgeDays(field) {
     // Take the EDB, remove 40 weeks (280 days), then get the difference between today and that date, to get the number of days into the pregnancy
     var numberOfDays = -1;
     var finalEDB = $("input[name='ps_edb_final']").val();
@@ -459,14 +461,34 @@ function getGestationalAgeDays() {
         startDate.setTime(edbDate.getTime() - (280 * 1000 * 60 * 60 * 24));
         startDate.setHours(8);
 
-        var today = new Date();
-        today.setHours(8);
-        today.setMinutes(0);
-        today.setSeconds(0);
-        today.setMilliseconds(0);
+        let ultrasoundDateField = $("input[name='"+field.name.replace('ga', 'date')+"']");
+        let ultrasoundDateStr = ultrasoundDateField.val();
+        let ultrasoundDate = new Date();
+        
+        if (ultrasoundDateStr && ultrasoundDateStr.length === 10) {
+            let usYear = ultrasoundDateStr.substring(0, 4);
+            let usMonth = ultrasoundDateStr.substring(5, 7);
+            let usDay = ultrasoundDateStr.substring(8, 10);
+            
+            usMonth =  usMonth.substring(0, 1) === '0' ? usMonth.substring(1, 2) : usMonth;
+            
+            ultrasoundDate = new Date(usYear, (parseInt(usMonth) - 1), usDay);
+        } else {
+            let usYear = ultrasoundDate.getFullYear();
+            let usMonth = ultrasoundDate.getMonth() + 1;
+            usMonth = usMonth > 9 ? usMonth : ("0" + usMonth);
+            let usDay = ultrasoundDate.getDate() > 9 ? ultrasoundDate.getDate() : ("0" + ultrasoundDate.getDate());
 
-        if (today > startDate) {
-            var days = dayDifference(startDate, today);
+            ultrasoundDateField.val(usYear + '/' + usMonth + '/' + usDay);
+        }
+        
+        ultrasoundDate.setHours(8);
+        ultrasoundDate.setMinutes(0);
+        ultrasoundDate.setSeconds(0);
+        ultrasoundDate.setMilliseconds(0);
+
+        if (ultrasoundDate > startDate) {
+            var days = dayDifference(startDate, ultrasoundDate);
             days = Math.round(days);
             numberOfDays = days;
         }
@@ -475,9 +497,8 @@ function getGestationalAgeDays() {
     return parseInt(numberOfDays);
 }
 
-function getGestationalAgeWeeks() {
+function getGestationalAgeWeeks(days) {
     var weeks = 0;
-    var days = getGestationalAgeDays();
 
     if(days > 0) {
         weeks = days / 7;
