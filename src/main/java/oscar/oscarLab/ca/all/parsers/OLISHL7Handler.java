@@ -4019,6 +4019,27 @@ public class OLISHL7Handler implements MessageHandler {
 		
 		return zbr;
 	}
+
+	public static String getOrderDateFromHl7(String hl7Body) {
+		String orderDate = "";
+		Message message;
+		Terser terser;
+		Parser p = new PipeParser();
+		p.setValidationContext(new NoValidation());
+
+		try {
+			message = p.parse(hl7Body.replaceAll("\n", "\r\n"));
+			terser = new Terser(message);
+			orderDate = terser.get("/.OBR-27-4");
+			if (StringUtils.isNotEmpty(orderDate)) {
+				orderDate = OLISUtils.formatDate(orderDate.substring(0, 8));
+			}
+		} catch (HL7Exception e) {
+			MiscUtils.getLogger().error("Could not get the Order Date", e);
+		}
+
+		return orderDate;
+	}
 	
 	public class OLISError {
 		public final Pattern OLIS_ERROR_TEXT_PATTERN = Pattern.compile("The structure and/or content is not valid for the following parameter: '@(.*)' '(.*)'.");

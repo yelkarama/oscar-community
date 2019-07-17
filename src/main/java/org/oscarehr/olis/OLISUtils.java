@@ -25,6 +25,8 @@ package org.oscarehr.olis;
 import java.io.File;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -33,6 +35,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -1238,5 +1241,25 @@ public class OLISUtils {
 		c.set(Calendar.MINUTE, 59);
 		c.set(Calendar.SECOND,59);
 		return c.getTime();
+	}
+
+	public static String formatDate(String dateFromHl7) {
+		String formattedDate = "";
+		String dateFormat = "yyyyMMdd";
+		dateFormat = dateFormat.substring(0, dateFromHl7.length());
+		String stringFormat = "yyyy-MM-dd";
+		stringFormat = stringFormat.substring(0, stringFormat.lastIndexOf(dateFormat.charAt(dateFormat.length() - 1)) + 1);
+		
+		try {
+			SimpleDateFormat sdf = new SimpleDateFormat(dateFormat, Locale.CANADA);
+			Date date = sdf.parse(dateFromHl7);
+
+			sdf = new SimpleDateFormat(stringFormat, Locale.CANADA);
+			formattedDate = sdf.format(date);
+		} catch (ParseException e) {
+			logger.error("Could not parse the date " + dateFromHl7, e);
+		}
+		
+		return formattedDate;
 	}
 }

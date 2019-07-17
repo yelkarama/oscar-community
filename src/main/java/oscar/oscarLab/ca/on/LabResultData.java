@@ -25,22 +25,24 @@
 
 package oscar.oscarLab.ca.on;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
+import org.oscarehr.common.dao.Hl7TextMessageDao;
 import org.oscarehr.common.dao.LabReportInformationDao;
+import org.oscarehr.common.model.Hl7TextMessage;
 import org.oscarehr.common.model.LabReportInformation;
 import org.oscarehr.common.dao.DocumentDao;
 import org.oscarehr.common.model.Document;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
-import oscar.oscarLab.ca.all.parsers.Factory;
-import oscar.oscarLab.ca.all.parsers.MessageHandler;
 import oscar.oscarLab.ca.all.parsers.OLISHL7Handler;
 import oscar.oscarLab.ca.bc.PathNet.PathnetResultsData;
 import oscar.oscarLab.ca.on.CML.CMLLabTest;
@@ -69,6 +71,7 @@ public class LabResultData implements Comparable<LabResultData> {
 	
 	//HL7TEXT handles all messages types recieved as a hl7 formatted string
 	public static String HL7TEXT = "HL7";
+	public static String HL7_OLIS_TEXT = "OLIS_HL7";
 
 	public String segmentID;
 	public String labPatientId;
@@ -321,10 +324,15 @@ public class LabResultData implements Comparable<LabResultData> {
 			this.dateTimeObr = UtilDateUtilities.getDateFromString(this.getDateTime(), "yyyy-MM-dd HH:mm:ss");
 		}else if(HL7TEXT.equals(this.labType) || Spire.equals(this.labType)){
 			String time = this.getDateTime();
-			MessageHandler messageHandler = Factory.getHandler(this.getSegmentID());
-			if (time==null && messageHandler instanceof OLISHL7Handler){
-				OLISHL7Handler handler = (OLISHL7Handler) messageHandler;
-				time = handler.getOrderDate();
+			
+			if (time == null) {
+				Hl7TextMessageDao hl7TextMessageDao = SpringUtils.getBean(Hl7TextMessageDao.class);
+				Hl7TextMessage hl7TextMessage = hl7TextMessageDao.find(Integer.parseInt(this.getSegmentID()));
+				
+				if (hl7TextMessage != null && hl7TextMessage.getType().equals(HL7_OLIS_TEXT)) {
+					String hl7Body = new String(Base64.decodeBase64(hl7TextMessage.getBase64EncodedeMessage()), StandardCharsets.UTF_8);
+					time = OLISHL7Handler.getOrderDateFromHl7(hl7Body);
+				}
 			}
 			String dateFormat = "yyyy-MM-dd HH:mm:ss.SSS".substring( 0, time.length() );
 			this.dateTimeObr = UtilDateUtilities.getDateFromString(time, dateFormat);
