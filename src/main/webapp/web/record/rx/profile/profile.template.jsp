@@ -35,6 +35,7 @@
 			        <button type="button" class="btn btn-default" ng-click="$ctrl.print()">Print</button>
 			        <button type="button" class="btn btn-default" ng-click="$ctrl.rePrint()">Reprint</button>
 			        <button type="button" class="btn btn-default" ng-click="$ctrl.timeline()">Timeline</button>
+			        <button type="button" class="btn btn-default" ng-click="$ctrl.copyText()">Copy</button>
 			      </div>
 			    </div><!-- /input-group -->
 		  	</div>

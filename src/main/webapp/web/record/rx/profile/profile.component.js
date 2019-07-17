@@ -208,6 +208,22 @@ const RxProfileComponent = {
 			console.log('Modal dismissed at: ' + new Date());
 		});
   	}
+    
+    rxProfileComp.copyText = function(){
+		var dr = $stateParams.demographicNo;
+		var modalInstance = $uibModal.open({
+		component : 'copytextComponent',
+		size : 'lg',
+		resolve : {}
+	});
+
+	modalInstance.result.then(function(selectedItem) {
+		console.log("copytextComponent item", selectedItem);
+	}, function() {
+		console.log('Modal dismissed at: ' + new Date());
+	});
+	}
+    
     rxProfileComp.timeline = function(){
     		$window.open("http://localhost:8080/oscar/oscarRx/chartDrugProfile.jsp?demographic_no="+$stateParams.demographicNo);
   		
