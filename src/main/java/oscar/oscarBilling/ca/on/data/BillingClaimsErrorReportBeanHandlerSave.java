@@ -122,7 +122,9 @@ public class BillingClaimsErrorReportBeanHandlerSave {
 				}
 
 				if (headerCount.compareTo("R") == 0) {
-					CERBean = new BillingClaimsErrorReportBean();
+					if (!isNewHin) {
+						CERBean = new BillingClaimsErrorReportBean();
+					}
 					CERBean.setRegNumber(nextline.substring(3, 15));
 					CERBean.setPatient_last(nextline.substring(15, 24));
 					CERBean.setPatient_first(nextline.substring(24, 29));
@@ -133,7 +135,6 @@ public class BillingClaimsErrorReportBeanHandlerSave {
 					CERBean.setReCode3(nextline.substring(70, 73));
 					CERBean.setReCode4(nextline.substring(73, 76));
 					CERBean.setReCode5(nextline.substring(76, 79));
-					claimsErrorReportBeanVector.add(CERBean);
 
 					claimError += nextline.substring(64, 67).trim() + " " + nextline.substring(67, 70).trim() + " "
 							+ nextline.substring(70, 73).trim() + " " + nextline.substring(73, 76).trim() + " "
