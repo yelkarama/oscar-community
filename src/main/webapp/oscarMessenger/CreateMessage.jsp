@@ -102,6 +102,7 @@ else if (messageText != null) {
 <%@ page import="oscar.OscarProperties" %>
 <html:html locale="true">
 <head>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script type="text/javascript" src="../js/jquery-1.7.1.min.js"></script>
 <script src="<%=request.getContextPath()%>/js/jquery-ui-1.8.18.custom.min.js"></script>
 <script src="<%=request.getContextPath()%>/js/fg.menu.js"></script>

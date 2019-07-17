@@ -168,6 +168,7 @@ if(!authed) {
 <link rel="stylesheet" type="text/css" media="all" href="../share/calendar/calendar.css" title="win2k-cold-1" />
 <link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css" />
 
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script type="text/javascript" src="../share/calendar/calendar.js" ></script>
 <script type="text/javascript" src="../share/calendar/lang/<bean:message key="global.javascript.calendar"/>" ></script>
 <script type="text/javascript" src="../share/calendar/calendar-setup.js" ></script>

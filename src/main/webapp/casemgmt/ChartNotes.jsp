@@ -29,6 +29,7 @@
 <%@page import="oscar.util.UtilMisc"%>
 <%@include file="/casemgmt/taglibs.jsp"%>
 <%@taglib uri="/WEB-INF/caisi-tag.tld" prefix="caisi"%>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 <%@page import="java.util.Enumeration"%>
 <%@page import="oscar.oscarEncounter.pageUtil.NavBarDisplayDAO"%>
 <%@page	import="java.util.Arrays,java.util.Properties,java.util.List,java.util.Set,java.util.ArrayList,java.util.Enumeration,java.util.HashSet,java.util.Iterator,java.text.SimpleDateFormat,java.util.Calendar,java.util.Date,java.text.ParseException"%>
@@ -246,6 +247,7 @@ try
 </script>
 
  <html:form action="/CaseManagementView" method="post">
+	 <input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 	<html:hidden property="demographicNo" value="<%=demographicNo%>" />
 	<html:hidden property="providerNo" value="<%=provNo%>" />
 	<html:hidden property="tab" value="Current Issues" />
@@ -516,6 +518,7 @@ try
             String OscarMsgTypeLink = (String)request.getParameter("OscarMsgTypeLink");
          %>
 <nested:form action="/CaseManagementEntry" style="display:inline; margin-top:0; margin-bottom:0;">
+	<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 	<html:hidden property="demographicNo" value="<%=demographicNo%>" />
 	<html:hidden property="includeIssue" value="off" />
         <input type="hidden" name="OscarMsgType" value="<%=oscarMsgType%>"/>        

@@ -65,6 +65,7 @@
 <html:html locale="true">
 	<head>
 		<html:base/>
+		<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 		<script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script>
 		<script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery-3.1.0.min.js"></script>
 		<script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery-ui-1.8.18.custom.min.js"></script>

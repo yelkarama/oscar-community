@@ -87,6 +87,7 @@ Boolean writeToEncounter = false;
     }
     
 %>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 <%@ page import="java.util.*, java.sql.*, oscar.*, java.net.*, oscar.oscarEncounter.pageUtil.EctSessionBean" %>
 <%@page import="org.oscarehr.util.SpringUtils" %>
 <%@page import="org.oscarehr.common.model.Appointment" %>
@@ -299,6 +300,7 @@ var newD = newYear + "-" + newMonth + "-" + newDay;
 </table>
 <table width="100%" border="0" cellspacing="0" cellpadding="0"bgcolor="#EEEEFF">
  <form name="ADDAPPT" method="post" action="../appointment/appointmentcontrol.jsp">
+	 <input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 <tr> 
       <td width="35%"><font color="#003366"><font face="Verdana, Arial, Helvetica, sans-serif" size="2"><b><bean:message key="tickler.ticklerAdd.formDemoName"/>: </b></font></font></td>
       <td colspan="2" width="65%">

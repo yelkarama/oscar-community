@@ -99,6 +99,7 @@
 		<title>
 			<bean:message key="oscarMessenger.DisplayMessages.title"/>
 		</title>
+		<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 		<style type="text/css">
 
 			tr.newMessage {

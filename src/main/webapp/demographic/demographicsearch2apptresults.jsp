@@ -40,6 +40,7 @@
 %>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/caisi-tag.tld" prefix="caisi"%>
@@ -350,6 +351,7 @@ function addNameCaisi(demographic_no,lastname,firstname,chartno,messageID) {
 
 
 	<form method="post" name="addform" action="../appointment/addappointment.jsp">
+	<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
         
 <table>
         <tr class="tableHeadings deep">
