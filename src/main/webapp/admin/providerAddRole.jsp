@@ -36,6 +36,8 @@
 <%@ page import="org.oscarehr.common.model.SecRole" %>
 <%@ page import="org.oscarehr.common.dao.SecRoleDao" %>
 <%@ page import="org.oscarehr.PMmodule.utility.RoleCache" %>
+<%@ page import="org.owasp.encoder.Encode" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 
 <%
 	SecRoleDao secRoleDao = SpringUtils.getBean(SecRoleDao.class);
@@ -61,11 +63,11 @@
   String role_name = request.getParameter("role_name");
   String action = "search"; // add/edit
   Properties	prop  = new Properties();
-	if(role_name == null || role_name.length() < 2 || role_name.length() > 60) {
+	if (role_name == null || role_name.length() < 2 || role_name.length() > 60) {
 		msg = "Please type in a role name.";
 	} else if (request.getParameter("submit") != null && request.getParameter("submit").equals("Save")) {
     // check the input data
-
+	  String encodedRoleName = Encode.forHtmlContent(StringUtils.trimToEmpty(role_name));
     if(request.getParameter("action").startsWith("edit")) {
       	// update the code
       	SecRole secRole = secRoleDao.findByName(request.getParameter("action").substring(4));
@@ -73,12 +75,12 @@
 			secRole.setName(role_name);
 			secRoleDao.merge(secRole);
 			RoleCache.reload();
-			msg = role_name + " is updated.<br>" + "Type in a role name and search it first to see if it is available.";
+			msg = encodedRoleName + " is updated.<br>" + "Type in a role name and search it first to see if it is available.";
   			action = "search";
 		    prop.setProperty("role_name", role_name);
 		    LogAction.addLog(curUser_no, LogConst.UPDATE, LogConst.CON_ROLE, role_name, ip);
 		} else {
-			msg = role_name + " is <font color='red'>NOT</font> updated. Action failed! Try edit it again." ;
+			msg = encodedRoleName + " is <font color='red'>NOT</font> updated. Action failed! Try edit it again." ;
 		    action = "edit" + role_name;
 		    prop.setProperty("role_name", role_name);
 		}
@@ -91,12 +93,12 @@
 			secRoleDao.persist(secRole);
 			RoleCache.reload();
 
-  			msg = role_name + " is added.<br>" + "Type in a role name and search it first to see if it is available.";
+  			msg = encodedRoleName + " is added.<br>" + "Type in a role name and search it first to see if it is available.";
   			action = "search";
 		    prop.setProperty("role_name", role_name);
 		    LogAction.addLog(curUser_no, LogConst.ADD, LogConst.CON_ROLE, role_name, ip);
 		} else {
-      		msg = "You can <font color='red'>NOT</font> save the role  - " + role_name + ". Please search the role name first.";
+      		msg = "You can <font color='red'>NOT</font> save the role  - " + encodedRoleName + ". Please search the role name first.";
   			action = "search";
 		    prop.setProperty("role_name", role_name);
 		}
@@ -222,8 +224,8 @@
 	<tr bgcolor="#EEEEFF">
 		<td align="right"><b>Role name</b></td>
 		<td><input type="text" name="role_name"
-			value="<%=prop.getProperty("role_name", "")%>" size='20'
-			maxlength='30' /> <input type="submit" name="submit" value="Search"
+				   value="<%=Encode.forHtmlAttribute(prop.getProperty("role_name", ""))%>" size='20'
+				   maxlength='30' /> <input type="submit" name="submit" value="Search"
 			onclick="javascript:return onSearch();" /></td>
 	</tr>
 	<tr>
@@ -250,7 +252,7 @@
 	for(SecRole secRole:secRoles) {
 		%>
 		<tr>
-			<td><%=secRole.getName()%></td>
+			<td><%=Encode.forHtmlContent(secRole.getName())%></td>
 		</tr>
 	<%}%>
 

@@ -62,6 +62,8 @@
 <%@ page import="org.oscarehr.common.dao.SecObjPrivilegeDao"%>
 <%@ page import="org.oscarehr.common.model.RecycleBin"%>
 <%@ page import="org.oscarehr.common.dao.RecycleBinDao"%>
+<%@ page import="org.springframework.web.util.HtmlUtils" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%
 	SecRoleDao secRoleDao = SpringUtils.getBean(SecRoleDao.class);
@@ -185,7 +187,9 @@ if (request.getParameter("submit") != null && request.getParameter("submit").equ
 // update the role list
 if (request.getParameter("buttonUpdate") != null && request.getParameter("buttonUpdate").length() > 0) {
     String roleUserGroup   = request.getParameter("roleUserGroup");
+	String encodedRoleUserGroup = Encode.forHtmlContent(StringUtils.trimToEmpty(roleUserGroup));
     String objectName   = request.getParameter("objectName");
+	String encodedObjectName = Encode.forHtmlContent(StringUtils.trimToEmpty(objectName));
 
     String privilege = request.getParameter("privilege");
     String priority   = request.getParameter("priority");
@@ -232,10 +236,10 @@ if (request.getParameter("buttonUpdate") != null && request.getParameter("button
     	sop.setPrivilege(privilege);
     	sop.setPriority(Integer.parseInt(priority));
     	secObjPrivilegeDao.merge(sop);
-    	msg = "Role/Obj/Rights " + roleUserGroup + "/" + objectName + "/" + privilege + " is updated. ";
+    	msg = "Role/Obj/Rights " + encodedRoleUserGroup + "/" + encodedObjectName + "/" + privilege + " is updated. ";
 	    LogAction.addLog(curUser_no, LogConst.UPDATE, LogConst.CON_PRIVILEGE, roleUserGroup +"|"+ objectName, ip);
     } else {
-    	msg = "Role/Obj/Rights " + roleUserGroup + "/" + objectName + "/" + privilege + " is <font color='red'>NOT</font> updated!!! ";
+    	msg = "Role/Obj/Rights " + encodedRoleUserGroup + "/" + encodedObjectName + "/" + privilege + " is <font color='red'>NOT</font> updated!!! ";
     }
 
 }
@@ -244,7 +248,9 @@ if (request.getParameter("buttonUpdate") != null && request.getParameter("button
 // delete the role list
 if (request.getParameter("submit") != null && request.getParameter("submit").equals("Delete")) {
     String roleUserGroup   = request.getParameter("roleUserGroup");
+    String encodedRoleUserGroup = Encode.forHtmlContent(StringUtils.trimToEmpty(roleUserGroup));
     String objectName   = request.getParameter("objectName");
+    String encodedObjectName = Encode.forHtmlContent(StringUtils.trimToEmpty(objectName));
 
     String privilege = request.getParameter("privilege");
     String priority   = request.getParameter("priority");
@@ -256,7 +262,7 @@ if (request.getParameter("submit") != null && request.getParameter("submit").equ
     	priority = String.valueOf(sop.getPriority());
     	provider_no = sop.getProviderNo();
     	secObjPrivilegeDao.remove(sop.getId());
-    	msg = "Role/Obj/Rights " + roleUserGroup + "/" + objectName + "/" + privilege + " is deleted. ";
+    	msg = "Role/Obj/Rights " + encodedRoleUserGroup + "/" + encodedObjectName + "/" + privilege + " is deleted. ";
 
     	RecycleBin recycleBin = new RecycleBin();
     	recycleBin.setProviderNo(curUser_no);
@@ -270,7 +276,7 @@ if (request.getParameter("submit") != null && request.getParameter("submit").equ
     	recycleBinDao.persist(recycleBin);
     	LogAction.addLog(curUser_no, LogConst.DELETE, LogConst.CON_PRIVILEGE, roleUserGroup +"|"+ objectName, ip);
     } else {
-    	msg = "Role/Obj/Rights " + roleUserGroup + "/" + objectName + "/" + privilege + " is <font color='red'>NOT</font> deleted!!! ";
+    	msg = "Role/Obj/Rights " + encodedRoleUserGroup + "/" + encodedObjectName + "/" + privilege + " is <font color='red'>NOT</font> deleted!!! ";
     }
 }
 
@@ -325,8 +331,8 @@ function onChangeSelect(){
 			color="#FFFFFF"> <% if(msg.length()>1) {%> <%=msg%> <% } %> </font></th>
 		<td nowrap><font size="-1" color="#FFFFFF"> Object
 		Name/Role Name: <input type="text" name="keyword" size="15"
-			value="<%=keyword%>" /> <input type="submit" name="search"
-			value="Search"> </font></td>
+			value="<%=Encode.forHtmlAttribute(keyword)%>" /> <input type="submit" name="search"
+													 value="Search"> </font></td>
 	</tr>
 </table>
 </form>
@@ -343,8 +349,8 @@ if("".equals(keyword)||vecRoleName.contains(keyword)) {
 }
 for(SecObjPrivilege sop:sops) {
 	prop = new Properties();
-	prop.setProperty("roleUserGroup",sop.getId().getRoleUserGroup());
-	prop.setProperty("objectName",sop.getId().getObjectName());
+	prop.setProperty("roleUserGroup", Encode.forHtmlAttribute(sop.getId().getRoleUserGroup()));
+	prop.setProperty("objectName", Encode.forHtmlAttribute(sop.getId().getObjectName()));
 	prop.setProperty("privilege", sop.getPrivilege());
 	prop.setProperty("priority", String.valueOf(sop.getPriority()));
 	vec.add(prop);
@@ -399,7 +405,7 @@ for(SecObjPrivilege sop:sops) {
 		</select></td>
 		<td align="center">
 		<%			if(!roleUser.equals("admin") && !obj.equals("_admin")) { %> <input
-			type="hidden" name="keyword" value="<%=keyword%>" /> <input
+			type="hidden" name="keyword" value="<%=Encode.forHtmlAttribute(keyword)%>" /> <input
 			type="hidden" name="objectName" value="<%=obj %>" /> <input
 			type="hidden" name="roleUserGroup" value="<%=roleUser %>" /> <input
 			type="submit" name="buttonUpdate" value="Update"> <input
@@ -433,7 +439,7 @@ for(SecObjPrivilege sop:sops) {
 			onChange="onChangeSelect()">
 			<option value="">-</option>
 			<%					for (int j = 0; j < vecRoleName.size(); j++) {%>
-			<option value="<%=vecRoleName.get(j)%>"><%= vecRoleName.get(j) %>
+			<option value="<%=Encode.forHtmlAttribute(vecRoleName.get(j).toString())%>"><%= Encode.forHtmlContent(vecRoleName.get(j).toString()) %>
 			</option>
 			<%                  }%>
 		</select> or <select name="roleUserGroup1">
@@ -499,7 +505,7 @@ for(SecObjPrivilege sop:sops) {
 	<%       		bgColor = bgColor.equals("#EEEEFF")?color:"#EEEEFF"; %>
 	<tr bgcolor="<%=bgColor%>">
 		<td align="center" colspan="4"><input type="hidden"
-			name="keyword" value="<%=keyword%>" /> <input type="submit"
+			name="keyword" value="<%=Encode.forHtmlAttribute(keyword)%>" /> <input type="submit"
 			name="submit" value="Add"></td>
 	</tr>
 	</form>
