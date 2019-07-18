@@ -38,6 +38,7 @@
 <%@page import="org.oscarehr.common.model.FunctionalCentre"%>
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.apache.commons.lang.StringEscapeUtils"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 
 <%
@@ -188,7 +189,7 @@ month.)
 					for (SecRole secRole : allRoles)
 					{
 						%>
-							<option value="<%=secRole.getId() %>"><%=secRole.getName()%></option>
+							<option value="<%=secRole.getId() %>"><%=Encode.forHtmlContent(secRole.getName())%></option>
 						<%
 					}
 				%>

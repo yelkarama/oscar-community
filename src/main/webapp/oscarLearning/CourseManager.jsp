@@ -35,6 +35,7 @@
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
 
 <%@ page import="java.util.*,org.oscarehr.learning.web.CourseManagerAction,org.oscarehr.common.model.SecRole"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 
 <%
@@ -177,8 +178,8 @@ function generateRoleDropDown(name,roleId) {
 		moderatorSelected="selected=\"selected\"";
 	
 	//student
-	html += "<option value=\"<%=studentRole.getId()%>\" "+studentSelected+"><%=studentRole.getName()%></option>";
-	html += "<option value=\"<%=moderatorRole.getId()%>\" "+moderatorSelected+"><%=moderatorRole.getName()%></option>";	
+	html += "<option value=\"<%=studentRole.getId()%>\" "+studentSelected+"><%=Encode.forHtmlContent(studentRole.getName())%></option>";
+	html += "<option value=\"<%=moderatorRole.getId()%>\" "+moderatorSelected+"><%=Encode.forHtmlContent(moderatorRole.getName())%></option>";	
 	html += "</select>";
 
 	return html;

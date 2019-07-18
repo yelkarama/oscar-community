@@ -111,6 +111,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.oscarehr.common.model.OscarMsgType;
 import org.oscarehr.util.WKHtmlToPdfUtils;
+import org.owasp.encoder.Encode;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 import oscar.OscarProperties;
 import oscar.dms.EDoc;
@@ -252,7 +253,7 @@ public class EFormUtil {
 		SecRoleDao dao = (SecRoleDao) SpringUtils.getBean(SecRoleDao.class);
 		ArrayList<String> results = new ArrayList<String>();
 		for (SecRole role : dao.findAll())
-			results.add(role.getName());
+			results.add(Encode.forHtmlContent(role.getName()));
 
 		return (results);
 	}

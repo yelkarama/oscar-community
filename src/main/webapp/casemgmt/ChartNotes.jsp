@@ -69,6 +69,7 @@
 <%@ page import="org.oscarehr.casemgmt.dao.CaseManagementNoteDAO" %>
 <%@ page import="org.oscarehr.common.dao.SystemPreferencesDao" %>
 <%@ page import="java.util.HashMap" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <c:set var="ctx" value="${pageContext.request.contextPath}" scope="request" />
 
@@ -380,7 +381,7 @@ try
 										{
 											Secrole role = (Secrole)roles.get(num);
 								%>
-								<li><html:multibox property="filter_roles" value="<%=String.valueOf(role.getId())%>" onclick="filterCheckBox(this)"></html:multibox><%=role.getName()%></li>
+								<li><html:multibox property="filter_roles" value="<%=String.valueOf(role.getId())%>" onclick="filterCheckBox(this)"></html:multibox><%=Encode.forHtmlContent(role.getName())%></li>
 								<%
 									}
 								%>

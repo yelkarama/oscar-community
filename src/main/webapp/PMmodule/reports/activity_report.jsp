@@ -30,6 +30,7 @@
 <%@page import="org.oscarehr.util.*"%>
 <%@page import="java.text.*"%>
 <%@page import="org.oscarehr.common.model.FunctionalCentre"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
@@ -104,7 +105,7 @@ The total unique clients column is a unique count so if a client had 10 encounte
 				}
 				%>
 					<tr class="genericTableRow">
-					<td class="genericTableHeader"><%=tempRoleName%></td>
+					<td class="genericTableHeader"><%=Encode.forHtmlContent(tempRoleName)%></td>
 					<td class="genericTableData"><%=encounterEntry.getKey().name()%></td>
 					<%
 						for (Integer issueGroupEntry : encounterEntry.getValue().values())

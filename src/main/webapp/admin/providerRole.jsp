@@ -44,6 +44,7 @@
 <%@ page import="org.oscarehr.common.model.RecycleBin" %>
 <%@ page import="org.oscarehr.common.dao.RecycleBinDao" %>
 <%@ page import="org.oscarehr.common.dao.ProviderDataDao" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
 	ProgramDao programDao = SpringUtils.getBean(ProgramDao.class);
@@ -429,8 +430,8 @@ function submit(form) {
 <%
                     for (int j = 0; j < vecRoleName.size(); j++) {
 %>
-                      <option value="<%=vecRoleName.get(j)%>" <%= vecRoleName.get(j).equals(item.getProperty("role_name", ""))?"selected":"" %>>
-                      <%= vecRoleName.get(j) %>
+                      <option value="<%=Encode.forHtmlAttribute(String.valueOf(vecRoleName.get(j)))%>" <%= vecRoleName.get(j).equals(item.getProperty("role_name", ""))?"selected":"" %>>
+                      <%= Encode.forHtmlContent(String.valueOf(vecRoleName.get(j))) %>
                       </option>
 <%
                     }
