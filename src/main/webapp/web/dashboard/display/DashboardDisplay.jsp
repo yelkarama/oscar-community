@@ -56,6 +56,11 @@
 	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/checkLoginStatus.js"></script>
 	<script>
 		startCheckLoginStatus('${ pageContext.request.contextPath }');
+		
+		<c:if test="${not empty indicatorRefreshRate}">
+			setupRefreshIndicators(${indicatorRefreshRate});
+		</c:if>
+		
 	</script>
 </head>
 
@@ -97,9 +102,18 @@
 		<div class="col-md-6">
 			Last loaded: 
 			<c:out value="${ dashboard.lastChecked }" />
-			<a href="#" title="refresh" class="reloadDashboardBtn" id="getDashboard_${ dashboard.id }" >
+			<a href="#" title="Refresh Dashboard" class="reloadDashboardBtn" id="getDashboard_${ dashboard.id }" >
 				<span class="glyphicon glyphicon-refresh"></span>
 			</a>
+			&nbsp;&nbsp;
+			Indicator Refresh Rate: 
+			<c:if test="${empty indicatorRefreshRate}">
+				<span style="color:red">Never</span>
+			</c:if>
+			<c:if test="${not empty indicatorRefreshRate}">
+				${indicatorRefreshRate} minutes
+			</c:if>
+			
 		</div>
 		<div class="col-md-6">
 			<a href="#" title="Dashboard Manager" class="pull-right dashboardManagerBtn" id="${ dashboard.id }" >

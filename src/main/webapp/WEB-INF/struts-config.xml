@@ -306,6 +306,7 @@
 			<form-property name="appointmentCardPhone" type="org.oscarehr.common.model.UserProperty" />
 			<form-property name="appointmentCardFax" type="org.oscarehr.common.model.UserProperty" />
 			<form-property name="dashboardShareProperty" type="org.oscarehr.common.model.UserProperty" />
+			<form-property name="dashboardRefreshProperty" type="org.oscarehr.common.model.UserProperty" />
 			<form-property name="preventionSSOWarningProperty" type="org.oscarehr.common.model.UserProperty" />
 			<form-property name="preventionISPAWarningProperty" type="org.oscarehr.common.model.UserProperty" />
 			<form-property name="preventionNonISPAWarningProperty" type="org.oscarehr.common.model.UserProperty" />
