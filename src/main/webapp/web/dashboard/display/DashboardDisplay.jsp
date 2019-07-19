@@ -52,6 +52,11 @@
 	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jqplot/jquery.jqplot2.min.js" ></script>
 	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jqplot/plugins/jqplot.pieRenderer.js" ></script>
 	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jqplot/plugins/jqplot.json2.js" ></script>
+	
+	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/checkLoginStatus.js"></script>
+	<script>
+		startCheckLoginStatus('${ pageContext.request.contextPath }');
+	</script>
 </head>
 
 <body>
