@@ -24,9 +24,11 @@
 package org.oscarehr.dashboard.factory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.oscarehr.dashboard.display.beans.IndicatorBean;
 import org.oscarehr.dashboard.display.beans.IndicatorPanelBean;
@@ -154,7 +156,7 @@ public class IndicatorPanelBeanFactory {
 	private IndicatorPanelBean createIndicatorPanelsWithIndicatorIds( String subcategory ) {
 		
 		IndicatorPanelBean indicatorPanelBean = null;
-		List<Integer> indicatorIdList = null;
+		List<IndicatorTemplateXML> indicatorTemplateList = null;
 		
 		// add the indicator beans to the indicator panel bean based on sub-category 
 		// matches within the previously provided category.
@@ -163,11 +165,12 @@ public class IndicatorPanelBeanFactory {
 			if( getCategory().equals( indicatorTemplateXML.getCategory() ) && 
 					subcategory.equals( indicatorTemplateXML.getSubCategory() ) ) {
 
-				if( indicatorIdList == null ) {
-					indicatorIdList = new ArrayList<Integer>();
+				if( indicatorTemplateList == null ) {
+					indicatorTemplateList = new ArrayList<IndicatorTemplateXML>();
 				}
 
-				indicatorIdList.add( indicatorTemplateXML.getId() );
+				
+				indicatorTemplateList.add(indicatorTemplateXML);
 				
 				if( indicatorPanelBean == null ) {
 					indicatorPanelBean = new IndicatorPanelBean();
@@ -177,8 +180,21 @@ public class IndicatorPanelBeanFactory {
 			
 		}
 		
+		List<Integer> indicatorIdList = null;
+		
 		if( indicatorPanelBean != null ) {
 			indicatorPanelBean.setIndicatorIdList( indicatorIdList );
+			
+			//sort through the xmls by order, and make the id list
+			if(indicatorTemplateList != null) {
+				indicatorIdList = new ArrayList<Integer>();
+				Collections.sort(indicatorTemplateList,IndicatorTemplateXML.OrderComparator);
+				for(IndicatorTemplateXML indicatorTemplateXML : indicatorTemplateList) {
+					indicatorIdList.add( indicatorTemplateXML.getId() );
+				}
+				indicatorPanelBean.setIndicatorIdList( indicatorIdList );
+			}
+			
 		}
 		
 		return indicatorPanelBean;
