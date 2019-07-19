@@ -44,6 +44,17 @@
 	</div>
 	
 	<div class="row indicatorFooter" >
+		<div class="col-md-9">
+			<c:out value="${ indicatorPanel.lastChecked }" />
+		</div>
+		<div class="col-md-3 text-right">
+		
+			<a href="#" title="refresh" class="reloadIndicatorBtn" id="reloadIndicator_${ indicatorPanel.id }" >
+				<span class="glyphicon glyphicon-refresh"></span>
+			</a>
+		</div>
+	</div>
+	<div class="row indicatorFooter" >
 		<div class="col-md-12 text-right">	
 									
 	        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" 
