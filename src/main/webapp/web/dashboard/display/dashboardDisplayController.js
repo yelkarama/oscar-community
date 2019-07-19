@@ -104,7 +104,20 @@ $(document).ready( function() {
 		data.indicatorId = this.id.split("_")[1];
 
 		sendData("/web/dashboard/display/DisplayIndicator.do", data, this.id.split("_")[0]);
-	})
+	});
+	
+	$(".indicatorWrapper").on('click', ".reloadIndicatorBtn", function(event) {
+    	event.preventDefault();
+    	
+    	$("#indicatorId_" + this.id.split("_")[1]).html("<div><span class=\"glyphicon glyphicon-refresh glyphicon-refresh-animate\"></span>Loading...</div>");
+    	
+    	var data = new Object();
+		data.method = "getIndicator";
+		data.indicatorId = this.id.split("_")[1];
+
+		sendData("/web/dashboard/display/DisplayIndicator.do", data, "indicatorId");
+    });
+	
 	
 	placeHolderCount = $(".indicatorWrapper").length;
 
