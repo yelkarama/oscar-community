@@ -36,6 +36,9 @@
 <%@ page import="org.oscarehr.common.dao.MessageFolderDao" %>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="oscar.OscarProperties" %>
+<%@ page import="org.oscarehr.common.model.UserProperty" %>
+<%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
       String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -534,12 +537,12 @@ function moveToFolder(selected){
                                             if( pageType == 1 ) {
                                                 int pos = dm.sentto.indexOf(",");
                                                 if( pos == -1 )
-                                                    out.print(dm.sentto);
+                                                    out.print(Encode.forHtmlContent(dm.sentto));
                                                 else
-                                                    out.print(dm.sentto.substring(0,pos));
+                                                    out.print(Encode.forHtmlContent(dm.sentto.substring(0,pos)));
                                             }
                                             else {
-                                                out.print(dm.sentby);
+                                                out.print(Encode.forHtmlContent(dm.sentby));
                                                 if (dm.getSentBySpecialty() != null) {
 													out.print(" (" + dm.getSentBySpecialty() + ")");
 												}
@@ -549,7 +552,7 @@ function moveToFolder(selected){
                                     </td>
                                     <td bgcolor="#EEEEFF">
                                     <a href="<%=request.getContextPath()%>/oscarMessenger/ViewMessage.do?messageID=<%=dm.messageId%>&boxType=<%=pageType%>">
-                                        <%=dm.thesubject%>
+                                        <%=Encode.forHtmlContent(dm.thesubject)%>
                                     </a>
 
                                     </td>

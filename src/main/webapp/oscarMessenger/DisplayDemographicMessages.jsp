@@ -30,6 +30,7 @@
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
 <%@ page import="oscar.oscarDemographic.data.DemographicData"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
       String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -255,10 +256,10 @@ function unlink(){
                                             }
                                          %> &nbsp;</td>
 
-							<td bgcolor="#EEEEFF"><%= dm.sentby  %></td>
+							<td bgcolor="#EEEEFF"><%= Encode.forHtmlContent(dm.sentby)  %></td>
 							<td bgcolor="#EEEEFF"><a
 								href="<%=request.getContextPath()%>/oscarMessenger/ViewMessage.do?from=encounter&demographic_no=<%=demographic_no%>&msgCount=<%=msgCount%>&orderBy=<%=orderby%>&messageID=<%=dm.messageId%>&messagePosition=<%=dm.messagePosition%>">
-							<%=dm.thesubject%> </a></td>
+							<%=Encode.forHtmlContent(dm.thesubject)%> </a></td>
 							<td bgcolor="#EEEEFF"><%= dm.thedate  %></td>
                                                         <td bgcolor="#EEEEFF">
                                                             <oscar:nameage demographicNo="<%=dm.demographic_no%>"></oscar:nameage>

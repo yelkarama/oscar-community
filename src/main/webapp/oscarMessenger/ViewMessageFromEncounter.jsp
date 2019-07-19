@@ -30,6 +30,7 @@ boolean bFirstDisp=true; //this is the first time to display the window
 if (request.getParameter("bFirstDisp")!=null) bFirstDisp= (request.getParameter("bFirstDisp")).equals("true");
 %>
 <%@page import="java.util.Enumeration"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
@@ -267,26 +268,26 @@ function paste2Encounter(demoNo) {
 					<tr>
 						<td class="Printable" bgcolor="#DDDDFF"><bean:message
 							key="oscarMessenger.ViewMessage.msgFrom" />:</td>
-						<td id="sentBy" class="Printable" bgcolor="#CCCCFF"><%= request.getAttribute("viewMessageSentby") %>
+						<td id="sentBy" class="Printable" bgcolor="#CCCCFF"><%= Encode.forHtmlContent((String) request.getAttribute("viewMessageSentby")) %>
 						</td>
 					</tr>
 					<tr>
 						<td class="Printable" bgcolor="#DDDDFF"><bean:message
 							key="oscarMessenger.ViewMessage.msgTo" />:</td>
-						<td id="sentTo" class="Printable" bgcolor="#BFBFFF"><%= request.getAttribute("viewMessageSentto") %>
+						<td id="sentTo" class="Printable" bgcolor="#BFBFFF"><%= Encode.forHtmlContent((String) request.getAttribute("viewMessageSentto")) %>
 						</td>
 					</tr>
 					<tr>
 						<td class="Printable" bgcolor="#DDDDFF"><bean:message
 							key="oscarMessenger.ViewMessage.msgSubject" />:</td>
-						<td id="msgSubject" class="Printable" bgcolor="#BBBBFF"><%= request.getAttribute("viewMessageSubject") %>
+						<td id="msgSubject" class="Printable" bgcolor="#BBBBFF"><%= Encode.forHtmlContent((String) request.getAttribute("viewMessageSubject")) %>
 						</td>
 					</tr>
 
 					<tr>
 						<td class="Printable" bgcolor="#DDDDFF"><bean:message
 							key="oscarMessenger.ViewMessage.msgDate" />:</td>
-						<td id="sentDate" class="Printable" bgcolor="#B8B8FF"><%= request.getAttribute("viewMessageDate") %>&nbsp;&nbsp;
+						<td id="sentDate" class="Printable" bgcolor="#B8B8FF"><%= Encode.forHtmlContent((String) request.getAttribute("viewMessageDate")) %>&nbsp;&nbsp;
 						<%= request.getAttribute("viewMessageTime") %></td>
 					</tr>
 					<%  String attach = (String) request.getAttribute("viewMessageAttach");
@@ -308,7 +309,7 @@ function paste2Encounter(demoNo) {
 						<html:form action="/oscarMessenger/HandleMessages">
 							<td bgcolor="#EEEEFF"></td>
 							<td bgcolor="#EEEEFF"><textarea id="msgBody" name="Message"
-								wrap="hard" readonly="true" rows="18" cols="60"><%= request.getAttribute("viewMessageMessage") %></textarea><br>
+								wrap="hard" readonly="true" rows="18" cols="60"><%=Encode.forHtmlContent((String) request.getAttribute("viewMessageMessage")) %></textarea><br>
 
 							</td>
 						</html:form>
@@ -360,7 +361,7 @@ function paste2Encounter(demoNo) {
 </table>
 <!-- I don't like this next part, but it is a working hack for printing long messages.  A prefered solution would
  move away from textboxes entirely, so that there is more programmatic formating control. -->
-<%  String bodyTextAsHTML = (String) request.getAttribute("viewMessageMessage");
+<%  String bodyTextAsHTML = Encode.forHtmlContent((String) request.getAttribute("viewMessageMessage"));
     bodyTextAsHTML = bodyTextAsHTML.replaceAll("\n|\r\n?","<br/>"); %>
 <p class="NotDisplayable Printable"><%= bodyTextAsHTML %></p>
 </body>

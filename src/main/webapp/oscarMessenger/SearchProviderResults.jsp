@@ -35,6 +35,7 @@
 <%@ page import="oscar.oscarMessenger.data.MsgDisplayMessage" %>
 <%@ page import="org.oscarehr.util.LoggedInInfo" %>
 <%@ page import="oscar.oscarMessenger.pageUtil.MsgSessionBean" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
 	String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -248,16 +249,16 @@
 							<bean:message key="<%= key %>"/>
 						</td>
 						<td bgcolor="#EEEEFF">
-							<%=messagesResult.sentby%>
+							<%=Encode.forHtmlContent(messagesResult.sentby)%>
 							<%=(messagesResult.getSentBySpecialty() != null)?" (" + messagesResult.getSentBySpecialty() + ")":""%>
 						</td>
 						<td bgcolor="#EEEEFF">
-							<%=messagesResult.sentto%>
+							<%=Encode.forHtmlContent(messagesResult.sentto)%>
 							<%=(messagesResult.getSentToSpecialty() != null)?" (" + messagesResult.getSentToSpecialty() + ")":""%>
 						</td>
 						<td bgcolor="#EEEEFF">
 							<a href="<%=request.getContextPath()%>/oscarMessenger/ViewMessage.do?messageID=<%=messagesResult.messageId%>&boxType=pageType&replyFor=<%=messagesResult.getSentToProviderNo()%>&fromProviderSearch=true">
-								<%=messagesResult.thesubject%>
+								<%=Encode.forHtmlContent(messagesResult.thesubject)%>
 							</a>
 						</td>
 						<td bgcolor="#EEEEFF">

@@ -66,6 +66,7 @@ if (request.getParameter("bFirstDisp")!=null) bFirstDisp= (request.getParameter(
 <%@ page import="java.util.Date" %>
 <%@ page import="org.oscarehr.common.model.SystemPreferences" %>
 <%@ page import="org.oscarehr.common.dao.SystemPreferencesDao" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -344,26 +345,26 @@ function fmtOscarMsg() {
 						<tr>
 							<td class="Printable" bgcolor="#DDDDFF"><bean:message
 								key="oscarMessenger.ViewMessage.msgFrom" />:</td>
-							<td id="sentBy" class="Printable" bgcolor="#CCCCFF"><%= request.getAttribute("viewMessageSentby") %>
+							<td id="sentBy" class="Printable" bgcolor="#CCCCFF"><%= Encode.forHtmlContent((String) request.getAttribute("viewMessageSentby")) %>
 							</td>
 						</tr>
 						<tr>
 							<td class="Printable" bgcolor="#DDDDFF"><bean:message
 								key="oscarMessenger.ViewMessage.msgTo" />:</td>
-							<td id="sentTo" class="Printable" bgcolor="#BFBFFF"><%= request.getAttribute("viewMessageSentto") %>
+							<td id="sentTo" class="Printable" bgcolor="#BFBFFF"><%= Encode.forHtmlContent((String) request.getAttribute("viewMessageSentto")) %>
 							</td>
 						</tr>
 						<tr>
 							<td class="Printable" bgcolor="#DDDDFF"><bean:message
 								key="oscarMessenger.ViewMessage.msgSubject" />:</td>
-							<td id="msgSubject" class="Printable" bgcolor="#BBBBFF"><%= request.getAttribute("viewMessageSubject") %>
+							<td id="msgSubject" class="Printable" bgcolor="#BBBBFF"><%= Encode.forHtmlContent((String) request.getAttribute("viewMessageSubject")) %>
 							</td>
 						</tr>
 
 						<tr>
 							<td class="Printable" bgcolor="#DDDDFF"><bean:message
 								key="oscarMessenger.ViewMessage.msgDate" />:</td>
-							<td id="sentDate" class="Printable" bgcolor="#B8B8FF"><%= request.getAttribute("viewMessageDate") %>&nbsp;&nbsp;
+							<td id="sentDate" class="Printable" bgcolor="#B8B8FF"><%= Encode.forHtmlContent((String) request.getAttribute("viewMessageDate")) %>&nbsp;&nbsp;
 							<%= request.getAttribute("viewMessageTime") %></td>
 						</tr>
 						<%  String attach = (String) request.getAttribute("viewMessageAttach");
@@ -399,7 +400,7 @@ function fmtOscarMsg() {
 
 							<td bgcolor="#EEEEFF"></td>
 							<td bgcolor="#EEEEFF"><textarea id="msgBody" name="Message"
-								wrap="hard" readonly="true" rows="18" cols="60"><%= request.getAttribute("viewMessageMessage") %></textarea><br>
+								wrap="hard" readonly="true" rows="18" cols="60"><%=Encode.forHtmlContent((String) request.getAttribute("viewMessageMessage")) %></textarea><br>
 							<html:submit styleClass="ControlPushButton" property="reply">
 								<bean:message key="oscarMessenger.ViewMessage.btnReply" />
 							</html:submit> <html:submit styleClass="ControlPushButton" property="replyAll">
@@ -643,7 +644,7 @@ function fmtOscarMsg() {
 		</tr>
 	</table>
 </html:form>
-<%  String bodyTextAsHTML = (String) request.getAttribute("viewMessageMessage");
+<%  String bodyTextAsHTML =  Encode.forHtmlContent((String) request.getAttribute("viewMessageMessage"));
     bodyTextAsHTML = bodyTextAsHTML.replaceAll("\n|\r\n?","<br/>"); %>
 <p class="NotDisplayable Printable"><%= bodyTextAsHTML %></p>
 </body>

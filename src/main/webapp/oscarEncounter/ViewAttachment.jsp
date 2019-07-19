@@ -43,6 +43,7 @@ if(!authed) {
 	import="oscar.oscarEncounter.immunization.data.*,oscar.util.UtilXML"%>
 <%@ page
 	import="oscar.oscarEncounter.immunization.pageUtil.*, java.util.*, org.w3c.dom.*"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
@@ -204,26 +205,26 @@ if(!authed) {
 			<tr>
 				<td bgcolor="#DDDDFF"><bean:message
 					key="oscarEncounter.ViewAttachment.msgFrom" />:</td>
-				<td bgcolor="#CCCCFF"><%= sentBy%> <bean:message
+				<td bgcolor="#CCCCFF"><%= Encode.forHtmlContent(sentBy)%> <bean:message
 					key="oscarEncounter.ViewAttachment.msgAt" /> <%=remoteName%></td>
 			</tr>
 			<tr>
 				<td bgcolor="#DDDDFF"><bean:message
 					key="oscarEncounter.ViewAttachment.msgSubject" />:</td>
-				<td bgcolor="#BBBBFF"><%= thesubject%></td>
+				<td bgcolor="#BBBBFF"><%= Encode.forHtmlContent(thesubject)%></td>
 			</tr>
 
 			<tr>
 				<td bgcolor="#DDDDFF"><bean:message
 					key="oscarEncounter.ViewAttachment.msgDate" />:</td>
-				<td bgcolor="#B8B8FF"><%= thedate %>&nbsp;&nbsp; <%= theime %>
+				<td bgcolor="#B8B8FF"><%= thedate %>&nbsp;&nbsp; <%= Encode.forHtmlContent(theime) %>
 				</td>
 			</tr>
 
 			<tr>
 				<td bgcolor="#EEEEFF"></td>
 				<td bgcolor="#EEEEFF"><textarea name="Message" wrap="hard"
-					readonly="true" rows="18" cols="60"><%=themessage%></textarea></td>
+					readonly="true" rows="18" cols="60"><%=Encode.forHtmlContent(themessage)%></textarea></td>
 			</tr>
 
 

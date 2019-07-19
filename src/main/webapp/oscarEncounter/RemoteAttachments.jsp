@@ -42,6 +42,7 @@ if(!authed) {
 <%@ page import="oscar.oscarEncounter.immunization.data.*"%>
 <%@ page
 	import="oscar.oscarEncounter.immunization.pageUtil.*, java.util.*, org.w3c.dom.*"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
@@ -142,7 +143,7 @@ function popupSendAttach(vheight,vwidth,varpage) { //open a new popup window
                 %>
 			<tr>
 				<td bgcolor="#EEEEFF"><a
-					href="javascript:popupViewAttach(700,960,'ViewAttachment.do?mesId=<%=mesId%>')"><%=subject%></a></td>
+					href="javascript:popupViewAttach(700,960,'ViewAttachment.do?mesId=<%=mesId%>')"><%=Encode.forHtmlContent(subject)%></a></td>
 				<td bgcolor="#EEEEFF"><%=fromLoco%></td>
 				<td bgcolor="#EEEEFF"><%=svBy%></td>
 				<td bgcolor="#EEEEFF"><%=theDate%></td>

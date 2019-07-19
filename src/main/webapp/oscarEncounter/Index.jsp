@@ -167,7 +167,9 @@ if (request.getParameter("casetoEncounter")==null)
 
 
 
-<%@page import="org.oscarehr.util.MiscUtils"%><html:html locale="true">
+<%@page import="org.oscarehr.util.MiscUtils"%>
+<%@ page import="org.owasp.encoder.Encode" %>
+<html:html locale="true">
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="oscarEncounter.Index.title" /> - <oscar:nameage
@@ -1006,7 +1008,7 @@ function removeSaveFeedback()  {
                                 msgDate = msgData.getDate();
                          %>
 
-					<option value="<%=j%>"><%=msgSubject + " - " + msgDate %></option>
+					<option value="<%=j%>"><%=Encode.forHtmlContent(msgSubject) + " - " + msgDate %></option>
 					<% }%>
 				</select></td>
 				</td>
@@ -1531,7 +1533,7 @@ function removeSaveFeedback()  {
 							name='enTextarea' wrap="hard" cols="99"
 							style="height:<%=windowSizes.getProperty("rowThreeSize")%>;overflow:auto"
 							onfocus="javascript: encTextareaFocus=true;"
-							onblur="javascript: encTextareaFocus=false;"><%=encounterText%></textarea>
+							onblur="javascript: encTextareaFocus=false;"><%=Encode.forHtmlContent(encounterText)%></textarea>
 						</td>
 					</tr>
 				</table>

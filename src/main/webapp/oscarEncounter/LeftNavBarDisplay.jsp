@@ -50,6 +50,7 @@ if(!authed) {
 <%@ page import="com.quatro.dao.security.SecobjprivilegeDao" %>
 <%@ page import="com.quatro.model.security.Secobjprivilege" %>
 <%@ page import="java.util.List, java.util.regex.Pattern, java.util.regex.Matcher" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <c:set var="ctx" value="${pageContext.request.contextPath}"
 	scope="request" />
@@ -314,12 +315,12 @@ if(!authed) {
 				//url = StringUtils.replaceEach(url, new String[] {"'","\\\""}, new String[] {"\'","\\\""});
                 if( item.isURLJavaScript() ) {
                     divReloadInfo = trackWindowString(url, divReloadUrl, cmd, pattern);
-                	out.println("<a class='links' style='" + colour + "' onmouseover=\"this.className='linkhover'\" onmouseout=\"this.className='links'\" href='#' onclick=\"" + divReloadInfo + url + "\" title='" + item.getLinkTitle() + "'>");
+                	out.println("<a class='links' style='" + colour + "' onmouseover=\"this.className='linkhover'\" onmouseout=\"this.className='links'\" href='#' onclick=\"" + divReloadInfo + url + "\" title='" + Encode.forHtmlAttribute(item.getLinkTitle()) + "'>");
                 }
                 else {
-                	out.println("<a class='links' style='" + colour + "' onmouseover=\"this.className='linkhover'\" onmouseout=\"this.className='links'\" href=\"" + url + "\" title='" + item.getLinkTitle() + "' target=\"_blank\">");
+                	out.println("<a class='links' style='" + colour + "' onmouseover=\"this.className='linkhover'\" onmouseout=\"this.className='links'\" href=\"" + url + "\" title='" + Encode.forHtmlAttribute(item.getLinkTitle()) + "' target=\"_blank\">");
                 }
-                out.println(item.getTitle());
+                out.println(Encode.forHtmlContent(item.getTitle()));
                 out.println("</a>");
                 out.println("</span>");
 
@@ -328,10 +329,10 @@ if(!authed) {
 										
                     if( item.isURLJavaScript() ) {
                 		divReloadInfo = trackWindowString(url, divReloadUrl, cmd, pattern);
-                    	out.println("...<a class='links' style='margin-right: 2px;" + colour + "' onmouseover=\"this.className='linkhover'\" onmouseout=\"this.className='links'\" href='#' onclick=\"" + divReloadInfo + url + "\" title='" + item.getLinkTitle() + "'>");
+                    	out.println("...<a class='links' style='margin-right: 2px;" + colour + "' onmouseover=\"this.className='linkhover'\" onmouseout=\"this.className='links'\" href='#' onclick=\"" + divReloadInfo + url + "\" title='" + Encode.forHtmlAttribute(item.getLinkTitle()) + "'>");
                     }
                     else {
-                    	out.println("...<a class='links' style='margin-right: 2px;" + colour + "' onmouseover=\"this.className='linkhover'\" onmouseout=\"this.className='links'\" href=\"" + url + "\" title='" + item.getLinkTitle() + "' target=\"_blank\">");
+                    	out.println("...<a class='links' style='margin-right: 2px;" + colour + "' onmouseover=\"this.className='linkhover'\" onmouseout=\"this.className='links'\" href=\"" + url + "\" title='" + Encode.forHtmlAttribute(item.getLinkTitle()) + "' target=\"_blank\">");
                     }
 
                     if(item.getValue() != null && !item.getValue().trim().equals("")){

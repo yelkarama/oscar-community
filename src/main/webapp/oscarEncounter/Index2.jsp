@@ -221,7 +221,9 @@ if (request.getParameter("casetoEncounter")==null)
 
 
 
-<%@page import="org.oscarehr.util.MiscUtils"%><html:html locale="true">
+<%@page import="org.oscarehr.util.MiscUtils"%>
+<%@ page import="org.owasp.encoder.Encode" %>
+<html:html locale="true">
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="oscarEncounter.Index.title" /> - <oscar:nameage
@@ -1623,7 +1625,7 @@ function grabEnterGetTemplate(event){
 					<tr>
 						<td colspan="2" valign="top" style="text-align: left"><textarea
 							name='enTextarea' tabindex="7" wrap="hard" cols="90"
-							style="height:<%=windowSizes.getProperty("rowThreeSize")%>;overflow:auto"><%=encounterText%></textarea>
+							style="height:<%=windowSizes.getProperty("rowThreeSize")%>;overflow:auto"><%=Encode.forHtmlContent(encounterText)%></textarea>
 						</td>
 					</tr>
 				</table>
