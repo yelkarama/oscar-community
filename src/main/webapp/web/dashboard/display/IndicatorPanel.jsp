@@ -49,8 +49,11 @@
 		</div>
 		<div class="col-md-3 text-right">
 		
-			<a href="#" title="refresh" class="reloadIndicatorBtn" id="reloadIndicator_${ indicatorPanel.id }" >
+			<a href="#" title="Refresh this indicator" class="reloadIndicatorBtn" id="reloadIndicator_${ indicatorPanel.id }" >
 				<span class="glyphicon glyphicon-refresh"></span>
+			</a>
+			<a href="#" title="Disable automatic refresh of this Indicator" class="disableReloadIndicatorBtn" id="disableReloadIndicator_${ indicatorPanel.id }" >
+				<span class="glyphicon glyphicon-ban-circle"></span>
 			</a>
 		</div>
 	</div>

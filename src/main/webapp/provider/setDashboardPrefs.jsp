@@ -57,6 +57,9 @@
 						<html:checkbox property="dashboardShareProperty.checked">
 						<bean:message key="provider.pref.dashboardShare"/></html:checkbox>
 						<br/><br/>
+						Automatically refresh indicators (in minutes, empty = never) 
+						<html:text property="dashboardRefreshProperty.value"/>
+						<br/><br/>
 						<input type="submit" value="<bean-el:message key="${providerbtnSubmit}"/>"/>
 						<input type="button" value="<bean-el:message key="${providerbtnCancel}"/>" onclick="window.close();"/>
 					</html:form>

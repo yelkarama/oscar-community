@@ -118,6 +118,21 @@ $(document).ready( function() {
 		sendData("/web/dashboard/display/DisplayIndicator.do", data, "indicatorId");
     });
 	
+	$(".indicatorWrapper").on('click', ".disableReloadIndicatorBtn", function(event) {
+    	event.preventDefault();
+    	
+    	
+    	var hasClass = $("#indicatorId_" +  this.id.split("_")[1]).hasClass('disableRefresh');
+    	if(!hasClass) {
+    		$("#indicatorId_" +  this.id.split("_")[1]).addClass('disableRefresh');
+    		$("#disableReloadIndicator_" + this.id.split("_")[1]).css('color','red');
+    	} else {
+    		$("#indicatorId_" +  this.id.split("_")[1]).removeClass('disableRefresh');
+    		$("#disableReloadIndicator_" + this.id.split("_")[1]).css('color','rgb(42, 100, 150)');
+    		
+    	}
+    });
+	
 	
 	placeHolderCount = $(".indicatorWrapper").length;
 
@@ -189,4 +204,32 @@ function sendData(path, param, target) {
 	    	}
 	    }
 	});
+}
+
+function setupRefreshIndicators(numMinutes) {
+	//will need to eventual exclude some of them.
+	console.log('setting up refresh of indicators every ' + numMinutes + " minutes.");
+	setInterval(function(){
+		refreshIndicators();
+	},numMinutes*60*1000);
+	
+}
+
+function refreshIndicators() {
+	console.log('refreshing indicators ' + new Date().toString());
+	//loop through all indicators...is it disabled?..refresh it
+	$(".indicatorWrapper").each(function(){	
+		var hasClass = $("#indicatorId_" +  this.id.split("_")[1]).hasClass('disableRefresh');
+		if(hasClass) {
+			//console.log('skipping' + this.id + " because it's refresh is disabled");
+			return;
+		}
+		//console.log('refreshing indicator' + this.id);
+		var data = new Object();
+		data.method = "getIndicator";
+		data.indicatorId = this.id.split("_")[1];
+
+		sendData("/web/dashboard/display/DisplayIndicator.do", data, "indicatorId");
+	});
+	
 }
