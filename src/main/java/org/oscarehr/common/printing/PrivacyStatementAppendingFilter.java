@@ -137,7 +137,7 @@ public class PrivacyStatementAppendingFilter implements Filter {
 		    
 		    // don't append for AJAX queries as well
 		    String requestedWithHeader = httpRequest.getHeader(HTTP_HEADER_NAME_AJAX_REQUESTED_WITH);
-		    boolean isAjaxRequest = requestedWithHeader != null && HTTP_HEADER_VALUE_AJAX_REQUESTED_WITH.equalsIgnoreCase(requestedWithHeader); 
+		    boolean isAjaxRequest = requestedWithHeader != null && requestedWithHeader.contains(HTTP_HEADER_VALUE_AJAX_REQUESTED_WITH); 
 		    if (isAjaxRequest) 
 		    	return;
 			

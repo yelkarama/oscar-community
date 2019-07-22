@@ -36,6 +36,7 @@
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 <%
       String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
       boolean authed=true;
@@ -133,6 +134,7 @@ $(function() {
 		<div class="warning"><%=message%></div>
 		<%}%> <html:form action="/oscarReport/reportByTemplate/uploadTemplates"
 			enctype="multipart/form-data">
+			<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
                   Upload Templates: <input type="file"
 				name="templateFile">
 				<span title="<bean:message key="global.uploadWarningBody"/>" style="vertical-align:middle;font-family:arial;font-size:20px;font-weight:bold;color:#ABABAB;cursor:pointer"><img border="0" src="../../images/icon_alertsml.gif"/></span></span>

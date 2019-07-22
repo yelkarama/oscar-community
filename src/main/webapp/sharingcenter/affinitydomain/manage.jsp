@@ -41,6 +41,7 @@
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 <c:set var="ctx" value="${pageContext.request.contextPath}" scope="request"/>
 <%@page import="org.oscarehr.sharingcenter.dao.AffinityDomainDao"%>
 <%@page import="org.oscarehr.sharingcenter.model.AffinityDomainDataObject"%>
@@ -105,6 +106,7 @@
 
                 <form id="configform" action="${ctx}/sharingcenter/affinitydomain/AffinityDomainParser.do"
                       method="POST" enctype="multipart/form-data" role="form">
+					<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
                     <div class="form-group">
                         <div class="input-group">
                             <span class="input-group-addon">Upload Configuration:</span> <input

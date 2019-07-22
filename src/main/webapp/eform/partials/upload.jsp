@@ -27,6 +27,7 @@
 <%@ page import="oscar.eform.data.*, oscar.eform.*, java.util.*"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 
 <%
 String status = (String) request.getAttribute("status");    		
@@ -68,6 +69,7 @@ window.top.location.href = "<%=request.getContextPath()%>/administration/?show=F
 <%}else{%>
 
 <html:form action="/eform/uploadHtml" method="POST" onsubmit="return checkFormAndDisable()" enctype="multipart/form-data">
+	<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 <div class="alert alert-error" style="display:none"> <html:errors /> </div>
                                        
                                         <div class='uploadEformTitle'>

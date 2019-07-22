@@ -1,3 +1,4 @@
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 
 <%--
 
@@ -93,6 +94,7 @@
 
 	<html:form action="/ClientImage" enctype="multipart/form-data"
 		method="post" onsubmit="return onPicUpload();">
+		<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 		<input type="hidden" name="method" value="saveImage" />
 		<%
 	request.getSession().setAttribute("clientId",request.getParameter("demographicNo"));

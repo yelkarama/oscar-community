@@ -42,6 +42,7 @@
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 <c:set var="ctx" value="${pageContext.request.contextPath}" scope="request"/>
 <%@page import="org.oscarehr.sharingcenter.model.InfrastructureDataObject"%>
 <%@page import="org.oscarehr.sharingcenter.dao.InfrastructureDao"%>
@@ -236,6 +237,7 @@ $(function() {
                     <div class="panel-body">
 
                         <form id="certform" action="Infrastructure.do" method="post" enctype="multipart/form-data">
+							<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
                             <div class="form-group">
                                 <div class="input-group">
                                     <span class="input-group-addon">PKCS7 Certificate:</span> <input

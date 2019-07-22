@@ -27,6 +27,7 @@
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 
 <%
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -104,6 +105,7 @@ You can click "Download Traceability Data from this Oscar" to generate a file wi
 If you have a Traceability Data file from another Oscar, you can choose it and click "Generate Traceability Report" to create a file which will let you know what files in the OSCAR program have been modified, added, or removed.
 
 <form action="GenerateTraceabilityReportAction.do" method="post" enctype="multipart/form-data" onsubmit="return validateInput()">
+	<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 <input type="file" name="file" value="Browse" />
 <span title="<bean:message key="global.uploadWarningBody"/>" style="vertical-align:middle;font-family:arial;font-size:20px;font-weight:bold;color:#ABABAB;cursor:pointer"><img border="0" src="../images/icon_alertsml.gif"/></span></span>
         

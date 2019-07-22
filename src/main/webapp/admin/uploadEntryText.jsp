@@ -63,6 +63,7 @@ String duration = "1";
 %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
    "http://www.w3.org/TR/html4/loose.dtd">
 
@@ -113,6 +114,7 @@ String duration = "1";
                 <td class="MainTableLeftColumn" valign="top">&nbsp;</td>
                 <td class="MainTableRightColumn">
                 	<html:form action="/admin/uploadEntryText" method="POST" enctype="multipart/form-data">
+						<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
                     
                 	How long is agreement valid?<br>
                 	

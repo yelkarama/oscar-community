@@ -14,6 +14,7 @@
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 <%
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
     boolean authed=true;
@@ -76,6 +77,7 @@ while (iter.hasNext()){%>
 <html:form action="/dms/addDocumentType" method="POST"
 	enctype="multipart/form-data" styleClass="forms"
 	onsubmit="return submitUpload(this)">
+	<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 <table>
 	<tr>
 <!-- 		<td><b>Select module name: </b></td> -->

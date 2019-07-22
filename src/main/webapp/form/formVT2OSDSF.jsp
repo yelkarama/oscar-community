@@ -41,6 +41,7 @@
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 
 <html:html locale="true">
 
@@ -64,7 +65,9 @@ function autosubmit(){
 <!--  -->
 <form method="POST"
 	action="https://oscartest.oscarmcmaster.org/osdsf/form/dmtracker.do?id=12345678"
-	enctype="multipart/form-data">Uploading data to OSDEF... HbA1c <input
+	enctype="multipart/form-data">
+	<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
+	Uploading data to OSDEF... HbA1c <input
 	type="hidden" name="dbl_HbA1c" value="<bean:write name="A1C"/>" /> LDL
 <input type="hidden" name="dbl_LDL_mM" value="<bean:write name="LDL"/>" />
 HDL <input type="hidden" name="dbl_HDL_mM"

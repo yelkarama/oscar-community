@@ -281,6 +281,7 @@ if(!authed) {
 		
 %><head>
 <c:set var="ctx" value="${pageContext.request.contextPath}" scope="request"/>
+	<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script>
 	var ctx = '<%=request.getContextPath()%>';
 	var requestId = '<%=request.getParameter("requestId")%>';

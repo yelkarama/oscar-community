@@ -41,6 +41,7 @@
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 <% java.util.Properties oscarVariables = oscar.OscarProperties.getInstance(); %>
 <%   
   if(session.getValue("user") == null)
@@ -74,6 +75,7 @@ $(function() {
 <h3><bean:message key="admin.admin.btnImportFormData" /></h3>
 
 <html:form action="/form/xmlUpload.do" method="POST" enctype="multipart/form-data">
+	<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 
 	<html:errors />
 

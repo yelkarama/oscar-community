@@ -46,6 +46,7 @@ String user_no = (String) session.getAttribute("user");
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 <%@ page import="java.util.*, oscar.util.*, oscar.dms.*, oscar.dms.data.*, org.oscarehr.util.SpringUtils, org.oscarehr.common.dao.CtlDocClassDao"%>
 <%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
 <%@ page import="org.oscarehr.common.model.Provider" %>
@@ -235,6 +236,7 @@ for (String reportClass : reportClasses) {
 	key="<%=(String) docerrors.get(errorkeys.nextElement())%>" /></font><br />
 <% } %> <html:form action="/dms/addEditDocument" method="POST"
 	enctype="multipart/form-data" onsubmit="return submitUpload(this);">
+	<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 	<input type="hidden" name="function"
 		value="<%=formdata.getFunction()%>" size="20" />
 	<input type="hidden" name="functionId"

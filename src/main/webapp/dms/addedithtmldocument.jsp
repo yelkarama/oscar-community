@@ -46,6 +46,7 @@ String userlastname = (String) session.getAttribute("userlastname");
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 
 <%@ page
 	import="java.util.*, oscar.*, oscar.util.*, oscar.dms.*, oscar.dms.data.*, oscar.oscarProvider.data.ProviderData, org.oscarehr.util.SpringUtils, org.oscarehr.common.dao.CtlDocClassDao"%>
@@ -269,6 +270,7 @@ function newDocType(){
 <% } %> <html:form action="/dms/addEditHtml" method="POST"
 	enctype="multipart/form-data" styleClass="form"
 	onsubmit="return submitUpload(this);">
+	<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 	<input type="hidden" name="function"
 		value="<%=formdata.getFunction()%>" size="20" />
 	<input type="hidden" name="functionId"

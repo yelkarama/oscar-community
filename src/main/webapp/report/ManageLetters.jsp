@@ -46,6 +46,7 @@ if(!authed) {
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 <jsp:useBean id="providerBean" class="java.util.Properties"
 	scope="session" />
 
@@ -195,6 +196,7 @@ function disableifchecked(ele,nextDate){
 		<td class="MainTableLeftColumn" valign="top">&nbsp;</td>
 		<td valign="top" class="MainTableRightColumn"><html:form
 			action="/report/ManageLetters" enctype="multipart/form-data">
+			<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 			<input type="hidden" name="goto"
 				value="<%=request.getParameter("goto")%>" />
 			<div>Select Letter: <input type="file" name="reportFile"

@@ -45,6 +45,7 @@
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 
 
 <html:html locale="true">
@@ -92,6 +93,7 @@ function checkAll(formId){
 <html:form
 action="/billing/CA/ON/benefitScheduleUpload" method="POST"
 enctype="multipart/form-data" onsubmit="return checkForm();">
+	<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 <input type="file" name="importFile" value="/root/apr05sob.001">
 <input class="btn btn-primary" type="submit" name="Submit" value="Import">
 <div>			

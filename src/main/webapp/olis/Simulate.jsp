@@ -9,6 +9,7 @@
 
 --%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 <html>
 <head>
 <link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/js/jquery_css/smoothness/jquery-ui-1.10.2.custom.min.css"/>
@@ -33,6 +34,7 @@ $(function() {
 		}
 	%>
 	<form action="<%=request.getContextPath() %>/olis/UploadSimulationData.do" method="POST" enctype="multipart/form-data" name="simulate_form">
+		<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 <table>	
 		<tr>
 			<td colspan="2"><b>Simulation File:</b><input type="file" name="simulateFile"/>

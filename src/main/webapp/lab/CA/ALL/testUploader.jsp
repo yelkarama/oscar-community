@@ -42,6 +42,7 @@ if(!authed) {
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
 
 <%
@@ -100,6 +101,7 @@ $(function() {
     </div>
 
 <form method='POST' name="UPLOAD" id="uploadForm" enctype="multipart/form-data"	action='${ctx}/lab/CA/ALL/insideLabUpload.do'>
+	<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 						
 <bean:message key="lab.ca.all.testUploader.pleaseSelectTheLabfile" />: <i class="icon-question-sign"></i> <oscar:help keywords="lab" key="app.top1"/> <br />
 				

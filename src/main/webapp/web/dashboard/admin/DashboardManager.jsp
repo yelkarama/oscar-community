@@ -27,6 +27,7 @@
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 
 <security:oscarSec roleName='${ sessionScope[userrole] }, ${ sessionScope[user] }' rights="w" objectName="_dashboardManager">
 	<c:redirect url="securityError.jsp?type=_admin.dashboardManager" />
@@ -61,6 +62,7 @@
 
 	<html:form styleClass="form-inline" styleId="importForm" 
 		method="POST" action="/web/dashboard/admin/DashboardManager.do" enctype="multipart/form-data" >
+		<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 			
 		<c:if test="${ not empty param.dashboardId }">
 		<div class="form-group">

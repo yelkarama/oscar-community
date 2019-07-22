@@ -1,3 +1,4 @@
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 <%--
 
     Copyright (c) 2006-. OSCARservice, OpenSoft System. All Rights Reserved.
@@ -40,7 +41,9 @@
 Billing Report Generator</b></font></p>
 <form name="form1" method="post"
 	action="../servlet/oscar.DocumentErrorReportUploadServlet"
-	ENCTYPE="multipart/form-data"><font
+	ENCTYPE="multipart/form-data">
+	<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
+	<font
 	face="Arial, Helvetica, sans-serif" size="2"> </font>
 <table width="400" border="0">
 	<tr>

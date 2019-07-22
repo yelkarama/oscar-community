@@ -47,6 +47,7 @@
 <%@ page import="oscar.util.UtilDateUtilities,java.util.*" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://jakarta.apache.org/struts/tags-html-el" prefix="html-el" %>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 <c:set var="ctx" value="${pageContext.request.contextPath}" scope="request" />
 <%
 	Demographic demographic= null;
@@ -233,6 +234,7 @@ Create Message
                             		}
                             	%>
                                 <html:form action="/phr/PhrMessage" enctype="multipart/form-data">
+									<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
                                     <tr>
                                         <th align="left" bgcolor="#DDDDFF">
                                             <bean:message key="oscarMessenger.CreateMessage.msgMessage"/>

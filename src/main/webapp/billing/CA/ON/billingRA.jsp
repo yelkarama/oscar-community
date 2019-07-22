@@ -1,3 +1,4 @@
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 <%--
 
     Copyright (c) 2006-. OSCARservice, OpenSoft System. All Rights Reserved.
@@ -55,6 +56,7 @@ function onSubmit(){
 	<form name="form1" method="post"
 		action="../../../servlet/oscar.DocumentUploadServlet"
 		ENCTYPE="multipart/form-data" onsubmit="return onSubmit();">
+		<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 	<tr>
 		<td width="181"><b><font face="Arial, Helvetica, sans-serif"
 			size="2">Select diskette </font></b></td>

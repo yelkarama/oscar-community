@@ -25,6 +25,7 @@
 --%>
 
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 <%
       String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
       boolean authed=true;
@@ -62,7 +63,9 @@ if(!authed) {
 Billing Report Generator</b></font></p>
 <form name="form1" method="post"
 	action="../../../servlet/oscar.DocumentTeleplanReportUploadServlet"
-	ENCTYPE="multipart/form-data"><font
+	ENCTYPE="multipart/form-data">
+	<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
+	<font
 	face="Arial, Helvetica, sans-serif" size="2"> </font>
 <table width="400" border="0">
 	<tr>

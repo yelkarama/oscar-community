@@ -25,6 +25,7 @@
 --%>
 
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 <%
       String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
 	  boolean authed=true;
@@ -99,6 +100,7 @@ for pre-populating data.
 %>
 
 <form method="post" enctype="multipart/form-data" action="oruR01Upload.do" onsubmit="return checkRequiredFields()" class="well form-horizontal">
+	<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 	<fieldset>
 		<div class="control-group">
 			<label class="control-label">From Provider:</label>

@@ -31,6 +31,7 @@
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 <link rel="stylesheet" type="text/css" href="../encounterStyles.css">
 
 <html:html locale="true">
@@ -58,6 +59,7 @@ $(function() {
 <html:form
 	action="/oscarEncounter/oscarMeasurements/AddMeasurementStyleSheet.do"
 	method="POST" enctype="multipart/form-data">
+	<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 	<table class="MainTable" id="scrollNumber1" name="encounterTable">
 		<tr class="MainTableTopRow">
 			<td class="MainTableTopRowLeftColumn"><bean:message

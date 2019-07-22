@@ -26,6 +26,7 @@
 <%@ page import="oscar.eform.data.*, oscar.eform.*, java.util.*, oscar.util.*, org.apache.commons.lang.StringEscapeUtils"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 <%
 HashMap<String, Object> curform = new HashMap<String, Object>();
 HashMap<String, String> errors = new HashMap<String, String>();
@@ -111,6 +112,7 @@ window.opener.location.href = '<%=request.getContextPath()%>/administration/?sho
 <%}%>
 
 <form action="<%=request.getContextPath()%>/eform/editForm.do" method="POST" enctype="multipart/form-data" id="editform" name="eFormEdit">
+	<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 
 <div class="well" style="position: relative;">
 		

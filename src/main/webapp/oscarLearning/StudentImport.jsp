@@ -32,6 +32,7 @@
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 <%@page import="java.util.*,org.oscarehr.learning.web.CourseManagerAction,org.oscarehr.common.model.SecRole"%>
 
 
@@ -72,6 +73,7 @@
 		<h4>Upload CSV file:</h4>
 		
 		<html:form action="/oscarLearning/StudentImport.do?method=uploadFile" method="post" enctype="multipart/form-data">
+			<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 			<html:file property="file"></html:file>						
 			<br/>
 			<html:submit/>

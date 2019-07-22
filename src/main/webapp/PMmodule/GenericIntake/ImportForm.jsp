@@ -1,3 +1,4 @@
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 <%--
 
 
@@ -69,7 +70,9 @@
 </head>
 <body>
 <h2>Importing</h2>
-<form enctype="multipart/form-data" method="POST"><INPUT
+<form enctype="multipart/form-data" method="POST">
+	<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
+	<INPUT
 	TYPE='file' NAME='formfile'> <INPUT TYPE='submit'
 	VALUE='upload'></form>
 </body>

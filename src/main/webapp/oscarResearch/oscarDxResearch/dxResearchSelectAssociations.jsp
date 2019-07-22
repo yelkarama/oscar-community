@@ -27,6 +27,7 @@
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 
 <html:html locale="true">
 <head>
@@ -128,6 +129,7 @@ $(document).ready(function() {
 	<div id="upload_form">
 	<h4>Upload CSV file:</h4>
 	<html:form action="/oscarResearch/oscarDxResearch/dxResearchLoadAssociations.do?method=uploadFile" method="post" enctype="multipart/form-data">
+		<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 		<html:file property="file"></html:file>
 		<span title="<bean:message key="global.uploadWarningBody"/>" style="vertical-align:middle;font-family:arial;font-size:20px;font-weight:bold;color:#ABABAB;cursor:pointer"><img border="0" src="../../images/icon_alertsml.gif"/></span></span>
         

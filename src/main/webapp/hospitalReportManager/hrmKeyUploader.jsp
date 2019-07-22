@@ -29,6 +29,7 @@ if(!authed) {
 <%@page contentType="text/html"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 
 <%
 String outcome = (String) request.getAttribute("outcome");
@@ -101,6 +102,7 @@ $(function() {
 <body>
 <form method='POST' name="UPLOAD" enctype="multipart/form-data"
 	action='<%=request.getContextPath()%>/hospitalReportManager/hrmKeyUploader.do'>
+	<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 <table align="center" class="MainTable">
 	<tr class="MainTableTopRow">
 		<td class="MainTableTopRowLeftColumn" width="175"><bean:message

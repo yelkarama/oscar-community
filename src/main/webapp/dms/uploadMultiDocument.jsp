@@ -51,6 +51,7 @@
 <%@ taglib uri="/WEB-INF/rewrite-tag.tld" prefix="rewrite"%>
 <%@ taglib uri="/WEB-INF/oscarProperties-tag.tld" prefix="oscarProp"%>
 <%@ taglib uri="/WEB-INF/indivo-tag.tld" prefix="indivo"%>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 
 <%@ page
 	import="java.math.*, java.util.*, java.io.*, java.sql.*, oscar.*, oscar.util.*, java.net.*,oscar.MyDateFormat, oscar.dms.*, oscar.dms.data.*, oscar.oscarProvider.data.ProviderMyOscarIdData, oscar.oscarDemographic.data.DemographicData"%>
@@ -451,8 +452,10 @@
 
 
 		<form id="form1" action="../dms/addEditDocument.do" method="post"
-			enctype="multipart/form-data"><label for="provider"
-			class="fields">Send to Provider:</label> <select
+			enctype="multipart/form-data">
+			<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
+			<label for="provider" class="fields">Send to Provider:</label> 
+			<select
 			onchange="javascript:addProviderToPost(this);" id="providerDrop"
 			name="provider">
 			<option value="-1" <%= ("-1".equals(provider) ? " selected" : "")%>>None</option>

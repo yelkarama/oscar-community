@@ -24,6 +24,7 @@ OscarProperties props = OscarProperties.getInstance();
 session.setAttribute("homepath", props.getProperty("project_home", ""));      
 %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 <%@ page import="oscar.*"%>
 
 <html>
@@ -69,6 +70,7 @@ function onSubmit(){
 <h3><bean:message key="admin.admin.uploadMOHFile"/></h3>
 <div class="container-fluid well">
 	<form id="form1" name="form1" method="post" action="" ENCTYPE="multipart/form-data" onsubmit="return onSubmit();">
+		<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 		Select diskette<input style="margin-left:40px;" type="file" name="file1" value="" required>
 		<input class="btn btn-primary" type="submit" name="Submit" value="Create Report">
 	</form>

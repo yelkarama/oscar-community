@@ -44,6 +44,7 @@
 <%@page import="org.oscarehr.PMmodule.dao.ProgramDao, org.oscarehr.util.SpringUtils,org.oscarehr.PMmodule.model.Program"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 
 <%
 	ProgramDao programDao = (ProgramDao) SpringUtils.getBean("programDao");
@@ -109,6 +110,7 @@ if (!Util.checkDir(op.getProperty("TMP_DIR"))) { %>
 		
 		<html:form action="/form/importUpload.do" method="POST"
 			enctype="multipart/form-data" onsubmit="displayAndDisable()">
+			<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
                         <p><html:file property="importFile" value=""/>
                         <span id="uploadWarn" title="<bean:message key="global.uploadWarningBody"/>" style="vertical-align:middle;font-family:arial;font-size:20px;font-weight:bold;color:#ABABAB;cursor:pointer"><img border="0" src="../images/icon_alertsml.gif"/></span></span>
         

@@ -221,7 +221,7 @@
     </context-param>
     <filter>
         <filter-name>CSRFGuard</filter-name>
-        <filter-class>org.owasp.csrfguard.CsrfGuardFilter</filter-class>
+        <filter-class>org.oscarehr.app.OscarCsrfGuardFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>CSRFGuard</filter-name>

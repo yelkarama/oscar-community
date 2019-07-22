@@ -27,6 +27,7 @@
 <%@ page import="oscar.eform.data.*, oscar.eform.*, java.util.*"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 
 <%
 String status = (String) request.getAttribute("status");    		
@@ -65,6 +66,7 @@ window.top.location.href = "<%=request.getContextPath()%>/administration/?show=F
 
 <%}else{%>
 <form action="<%=request.getContextPath()%>/eform/manageEForm.do" method="POST" enctype="multipart/form-data" id="eformImportForm">
+	<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
     <input type="hidden" name="method" value="importEForm">
 		Import eForm:		
         <%List<String> importErrors = (List<String>) request.getAttribute("importErrors");

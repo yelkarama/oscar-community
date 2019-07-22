@@ -48,6 +48,7 @@ if(!authed) {
 <%@page import="oscar.oscarDemographic.data.*,java.util.*"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 
 
 <html:html locale="true">
@@ -106,6 +107,7 @@ function displayAndDisable(){
 		<td valign="top" class="MainTableRightColumn"><html:form
 			action="/lab/labUpload" method="POST" enctype="multipart/form-data"
 			onsubmit="javascript: return displayAndDisable()">
+			<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 			<input type="file" name="importFile" value="">
 			<input type="submit" name="Submit" value="Import">
 		</html:form> <%

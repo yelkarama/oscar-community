@@ -43,6 +43,7 @@ if(!authed) {
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 <link rel="stylesheet" type="text/css"
 	href="../oscarEncounter/encounterStyles.css">
 <html:html locale="true">
@@ -70,6 +71,7 @@ if(!authed) {
 		<td class="MainTableTopRowRightColumn">
 		<table class="TopStatusBar">
 			<html:form action="/oscarReport/RptViewAllQueryByExamples.do">
+				<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 				<tr>
 					<td><bean:message
 						key="oscarReport.RptByExample.MsgAllQueriesExecutedFrom" />: <html:text
@@ -97,6 +99,7 @@ if(!authed) {
 			</tr>
 
 			<html:form action="/oscarReport/RptByExamplesFavorite.do">
+				<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 				<input type="hidden" name="newQuery" value="error" />
 				<logic:iterate id="queryInfo" name="allQueries"
 					property="queryVector">

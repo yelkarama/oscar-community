@@ -26,6 +26,7 @@
 
 <%@ page import="java.util.*, oscar.dms.EDocUtil, oscar.dms.data.ChangeDocStatusForm"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 <% 
 ArrayList<String> doctypesD = EDocUtil.getDoctypes("demographic");
 ArrayList<String> doctypesP = EDocUtil.getDoctypes("provider");
@@ -83,6 +84,7 @@ while (iter.hasNext()){%>
 <html:form action="/dms/changeDocStatus" method="POST"
 	enctype="multipart/form-data" styleClass="forms"
 	onsubmit="return submitUpload(this)" >
+	<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 	
 <table>
 	<br>

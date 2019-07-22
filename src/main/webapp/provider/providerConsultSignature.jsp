@@ -51,6 +51,7 @@
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 <html:html locale="true">
 	<head>
 		<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
@@ -88,6 +89,7 @@
 			<td class="MainTableLeftColumn">&nbsp;</td>
 			<td class="MainTableRightColumn">
 				<html:form action="/eform/imageUpload" enctype="multipart/form-data" method="post">
+					<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 					<input type="hidden" id="method" name="method" value="uploadProviderImage">
 					<%
 						boolean hasSig = (prop != null);

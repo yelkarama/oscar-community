@@ -28,6 +28,7 @@
 <%@page import="oscar.OscarProperties"%>
 <%@page import="org.oscarehr.PMmodule.dao.ProviderDao, org.oscarehr.common.model.Provider" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 <%
 ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
 ArrayList<Provider> providers = new ArrayList<Provider>(providerDao.getActiveProviders());
@@ -74,6 +75,7 @@ String resourcePath = context + "/share/documentUploader/";
 
     <div class="file_upload_buttons fileupload-buttonbar ui-widget-header ui-corner-top">
 	    <form action="<%=context%>/dms/documentUpload.do?method=executeUpload" method="POST" enctype="multipart/form-data">
+			<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 	        <input type="hidden" id="provider" name="provider" value="<%=provider%>" />
 			<input type="hidden" name="queue" value="<%=queueId%>"/>
 	        <input type="file" name="filedata" multiple>

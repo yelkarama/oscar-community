@@ -1,3 +1,4 @@
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 
 <%--
 
@@ -33,6 +34,7 @@
 
 <html:form action="/SurveyManager" method="POST"
 	enctype="multipart/form-data" styleId="surveyForm">
+	<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 	<input type="hidden" name="method" value="import_survey" />
 	<table width=100%">
 		<tr>

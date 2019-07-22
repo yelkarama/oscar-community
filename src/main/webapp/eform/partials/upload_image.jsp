@@ -28,6 +28,7 @@
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 
 <%
 String status = (String) request.getAttribute("status");    		
@@ -90,6 +91,7 @@ window.top.location.href = "<%=request.getContextPath()%>/administration/?show=I
 
 		
 		<html:form action="/eform/imageUpload" enctype="multipart/form-data" method="post">
+			<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 		<bean:message key="eform.uploadimages.msgFileName" /> 
 		<span class="text-error message"><html:errors /></span>
 		<br>
