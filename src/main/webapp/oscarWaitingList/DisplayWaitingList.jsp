@@ -207,21 +207,9 @@ function removePatient(demographicNo, waitingList){
 					</html:select> <INPUT type="button" onClick="goToPage()" value="Generate Report">
 <%String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");%>
 <security:oscarSec roleName="<%=roleName$%>" objectName="_createTaskList" rights="w">
-<%
-        String userRole = "";
-        if(session.getAttribute("userrole") != null){
-                userRole = (String)session.getAttribute("userrole");
-        }
-        if(userRole.indexOf("admin") >= 0){
-%> <a href="#" onclick="popupEditWlNamePage();"
-						style="color: #000000; text-decoration: none;">Create List</a> <%
-        }else{
-%> test <%
-}
-%>
+ <a href="#" onclick="popupEditWlNamePage();" style="color: #000000; text-decoration: none;">Create List</a> 
 </security:oscarSec>
-					
-				</tr>
+</tr>
 			</table>
 			</td>
 		</tr>
