@@ -33,7 +33,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.Ostermiller.util.CSVParser;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
@@ -47,6 +51,8 @@ import org.oscarehr.util.SpringUtils;
 import oscar.log.LogAction;
 import oscar.util.ConversionUtils;
 import oscar.util.UtilXML;
+
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Created on December 27, 2006, 10:54 AM
@@ -393,4 +399,38 @@ public class ReportManager {
 		}
 	}
 
+    public static void writeCsvFileToResponse(HttpServletResponse response, String csvString) {
+        response.setContentType("application/octet-stream");
+        response.setHeader("Content-Disposition", "attachment; filename=\"oscarReport.csv\"");
+        try {
+            response.getWriter().write(csvString);
+        } catch (Exception ioe) {
+            MiscUtils.getLogger().error("Error", ioe);
+        }
+    }
+	
+	public static void writeXlsFileToResponse(HttpServletResponse response, String csvString) {
+        MiscUtils.getLogger().debug("Generating Spread Sheet file for the 'report by template' module ..");
+        response.setContentType("application/octet-stream");
+        response.setHeader("Content-Disposition", "attachment; filename=\"oscarReport.xls\"");
+        String[][] data = CSVParser.parse(csvString);
+        HSSFWorkbook wb = new HSSFWorkbook();
+        HSSFSheet sheet = wb.createSheet("OSCAR_Report");
+        for (int x=0; x<data.length; x++) {
+            HSSFRow row = sheet.createRow(x);
+            for (int y=0; y<data[x].length; y++) {
+                try{
+                    double d = Double.parseDouble(data[x][y]);
+                    row.createCell(y).setCellValue(d);
+                } catch (Exception e){
+                    row.createCell(y).setCellValue(data[x][y]);
+                }
+            }
+        }
+        try {
+            wb.write(response.getOutputStream());
+        } catch(Exception e) {
+            MiscUtils.getLogger().error("Error", e);
+        }
+    }
 }

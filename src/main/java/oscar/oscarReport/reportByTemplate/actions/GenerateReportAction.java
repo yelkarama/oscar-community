@@ -36,6 +36,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 
 import oscar.oscarReport.reportByTemplate.ReportFactory;
+import oscar.oscarReport.reportByTemplate.ReportManager;
 import oscar.oscarReport.reportByTemplate.Reporter;
 
 /**
@@ -52,14 +53,20 @@ public class GenerateReportAction extends Action {
     	}
     	
         Reporter reporter = ReportFactory.getReporter(request.getParameter("type"));
-        
-        if( reporter.generateReport(request)) {
-            return mapping.findForward("success");
+        if (reporter != null && reporter.generateReport(request)) {
+    	    String csv = (String) request.getAttribute("csv");
+            if (request.getParameter("getCSV") != null) {
+                ReportManager.writeCsvFileToResponse(response, csv);
+                return null;
+            } else if (request.getParameter("getXLS") != null) {
+                ReportManager.writeXlsFileToResponse(response, csv);
+                return null;
+            } else {
+                return mapping.findForward("success");
+            }
+        } else {
+            return mapping.findForward("fail");
         }
-                
-        return mapping.findForward("fail");
-        
-        
     }
     
 }
