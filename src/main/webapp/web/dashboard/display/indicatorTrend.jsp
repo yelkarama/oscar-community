@@ -28,7 +28,6 @@
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="org.oscarehr.common.model.IndicatorResultItem"%>
 <%@page import="org.oscarehr.util.MiscUtils"%>
-<%@page import="org.oscarehr.common.model.IndicatorResult"%>
 <%@page import="java.util.List"%>
 <%@page import="org.oscarehr.util.SpringUtils"%>
 <%@page import="org.oscarehr.common.dao.IndicatorResultItemDao"%>
