@@ -76,6 +76,11 @@
 						Drill Down
 					</a>
 			    </li>
+			    <li>
+					<a href="#" class="indicatorTrendBtn" id="getTrend_${ indicatorPanel.id }" >
+						Show Trend
+					</a>
+			    </li>
 	        </ul>
 	        					        
 		</div>
@@ -122,7 +127,35 @@
 			<!-- end modal content -->								
 		</div>
 	</div> 
-	<!--  end indicator modal  -->							
+	<!--  end indicator modal  -->	
+	
+		<!-- modal panel for displaying this indicators details -->	
+	<div id="indicatorTrending_${ indicatorPanel.id }" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+	
+			<div class="modal-content">
+				<div class="modal-header">	
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title">
+						title
+					</h4>
+				</div>
+				
+				<div class="modal-body">
+					<div style="height:300px;width:700px" id="indicatorTrendCanvas_${ indicatorPanel.id }"></div>
+				</div>
+				
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						Close
+					</button>
+				</div>						
+			</div> 
+			<!-- end modal content -->								
+		</div>
+	</div> 
+	<!--  end indicator modal  -->		
+							
 </div>
 														
 

@@ -136,6 +136,18 @@ $(document).ready( function() {
 	
 	placeHolderCount = $(".indicatorWrapper").length;
 
+	
+	
+	$(".indicatorWrapper").on("click", ".indicatorTrendBtn", function(event) {
+		event.preventDefault();
+		console.log('trend going modal '  + (this.id).split("_")[1]);
+		
+		window.open('indicatorTrend.jsp?providerNo=' + $("#providerNo").val() + "&indicatorTemplateId=" + (this.id).split("_")[1],'trending','toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=900px,height=500px');
+		
+	});
+
+	
+	
 })
 
 // build Indicator panel with Pie chart.

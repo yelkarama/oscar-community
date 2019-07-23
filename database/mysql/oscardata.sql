@@ -2939,3 +2939,4 @@ insert into secRole values(\N,'HRMAdmin','HRM Administator');
 insert into secObjPrivilege values('HRMAdmin','_hrm.administrator','x',0,'999998');
 
 
+insert into OscarJobType VALUES (\N,'DashboardTrending','','org.oscarehr.integration.dashboard.DashboardTrendingJob',1,now());
