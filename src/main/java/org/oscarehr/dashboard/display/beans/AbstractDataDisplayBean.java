@@ -56,6 +56,11 @@ public abstract class AbstractDataDisplayBean {
 	private String rangeString;
 	private String queryString;
 	private List<?> queryResult;
+	
+	public enum GraphType {pie,bar,table,stacked};
+	
+	private GraphType graphType;
+	
 
 	public Integer getId() {
 		return id;
@@ -247,4 +252,13 @@ public abstract class AbstractDataDisplayBean {
 		this.ranges = ranges;
 	}
 
+	public GraphType getGraphType() {
+		return graphType;
+	}
+
+	public void setGraphType(GraphType graphType) {
+		this.graphType = graphType;
+	}
+
+	
 }

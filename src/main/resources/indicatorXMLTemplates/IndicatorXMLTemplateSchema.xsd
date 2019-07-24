@@ -18,6 +18,16 @@
                                              <xs:element name="framework" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
                                              <xs:element name="frameworkVersion" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
                                              <xs:element name="notes" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+                                             <xs:element name="graphType" maxOccurs="1" minOccurs="0">
+                                            	 <xs:simpleType>
+													 <xs:restriction base = "xs:string">
+														 <xs:enumeration value = "pie"/>
+														 <xs:enumeration value = "bar"/>
+														 <xs:enumeration value = "table"/>
+														 <xs:enumeration value = "stacked"/>
+							      					</xs:restriction>
+												</xs:simpleType>
+                                             </xs:element>
                                        </xs:sequence>
                                  </xs:complexType>
                            </xs:element>

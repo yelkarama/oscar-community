@@ -51,6 +51,11 @@
 	<script type="text/javascript" src="${ pageContext.request.contextPath }/web/dashboard/display/dashboardDisplayController.js?rand=<%=(int)(Math.random() * 10000) %>" ></script>
 	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jqplot/jquery.jqplot2.min.js" ></script>
 	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jqplot/plugins/jqplot.pieRenderer.js" ></script>
+	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jqplot/plugins/jqplot.barRenderer.js" ></script>
+	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jqplot/plugins/jqplot.categoryAxisRenderer.js" ></script>
+	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jqplot/plugins/jqplot.highlighter.js" ></script>
+	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jqplot/plugins/jqplot.canvasTextRenderer.js" ></script>
+	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jqplot/plugins/jqplot.canvasAxisLabelRenderer.js" ></script>
 	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jqplot/plugins/jqplot.json2.js" ></script>
 	
 	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/checkLoginStatus.js"></script>

@@ -23,6 +23,8 @@
 */
 
 var jqplotOptions;
+var jqplotOptionsBar;
+
 var placeHolderCount = 0;
 var indicatorPanels = [];
 
@@ -56,8 +58,56 @@ $(document).ready( function() {
 			legend: { show:true, location: 's' }
 			
 		};
-
-
+	
+	jqplotOptionsBar = {		
+			title: ' ',
+			seriesDefaults: {
+				renderer: $.jqplot.BarRenderer, 
+				 pointLabels: { show: false }, 
+			     showLabel: true,
+			     rendererOptions: { varyBarColor : true },
+				
+			},
+			legend: {
+				 show: true,
+		            placement: 'outsideGrid',
+		            location: 's',
+		          //  labels: ticks
+	        },
+			highlighter:{
+		        show:true,
+		        tooltipContentEditor:tooltipContentEditor
+		    },
+	        axesDefaults: {
+	        	showLabel:false,
+	        	 showTickMarks:false,
+	        	 showTicks:false,
+	        	 show:false,
+	        	 showTicks: false
+	        },
+			 axes: {
+				 xaxis: {
+	                    renderer: $.jqplot.CategoryAxisRenderer,
+	                    showLabel:false,
+	                    show:false
+	                },
+	                yaxis : {
+	                	showLabel:true,
+	   	        	 showTickMarks:false,
+	   	        	 showTicks:true,
+	   	        	 min:0
+	                }
+	            },
+	            
+		};
+	
+	function tooltipContentEditor(str, seriesIndex, pointIndex, plot) {
+	    // display series_label, x-axis_tick, y-axis value
+		//console.log(JSON.stringify(plot.data[seriesIndex][pointIndex]));
+		//return plot.series[seriesIndex]["label"] + ", " + plot.data[seriesIndex][pointIndex];
+		return plot.data[seriesIndex][pointIndex][0];
+	}
+	
 	// get the drill down page
 	$(".indicatorWrapper").on('click', ".indicatorDrilldownBtn", function(event) {
     	event.preventDefault();
@@ -163,7 +213,52 @@ function buildIndicatorPanel( html, target, id ) {
 	var data = "[" + panel.find( "#graphPlots_" + id ).val() + "]";
 	data = data.replace(/'/g, '"');
 	data = JSON.parse( data )
-	indicatorGraph = $.jqplot ( 'graphContainer_' + id, data, jqplotOptions ).replot();
+	
+	var labels = "[" + panel.find( "#graphLabels_" + id ).val() + "]";
+	labels = labels.replace(/'/g, '"');
+	labels = JSON.parse( labels )
+	
+	
+	var graphType = panel.find( "#graphType_" + id ).val();
+	
+	console.log('plot data = ' + "[" + panel.find( "#graphPlots_" + id ).val() + "]");
+	if(graphType === 'bar') {
+		//need to massage the data variable
+		//var data =  [[['% Smokers',1.0],['% Not documented',0.0],['% Non-smokers',1.0]],[],[]];
+		//var data =  [[1.0,0.0,1.0],[],[]];
+		
+		var newData = [];
+		
+		var ticks = [];
+		var d1 = data[0];
+		for(var x=0;x<d1.length;x++) {
+			console.log('element ' + x + ' -> ' + d1[x]);
+			ticks[x] = d1[x][0];
+			newData[x] = d1[x][1];
+		}
+		
+		var newData2 = [];
+		newData2[0] = newData;
+		for(var x=0;x<d1.length-1;x++) {
+			newData2[x+1] = [];
+		}
+		
+		jqplotOptionsBar.series = [];
+		jqplotOptionsBar.series[0] = {};
+		for(var x=0;x<d1.length;x++) {
+			jqplotOptionsBar.series[x+1] =  {renderer: $.jqplot.LineRenderer};
+		}
+		jqplotOptionsBar.legend.labels = ticks;
+		
+		
+		indicatorGraph = $.jqplot ( 'graphContainer_' + id, newData2, jqplotOptionsBar ).replot();
+	} else if(graphType === 'pie') {
+		indicatorGraph = $.jqplot ( 'graphContainer_' + id, data, jqplotOptions ).replot();
+	} else if(graphType === 'table') {
+		console.log('table rendering not yet implemented');
+	} else if(graphType === 'stacked') {
+		console.log('stacked bar graph type not yet implemented');
+	}
 	
 	window.onresize = function(event) {
 		indicatorGraph.replot();
@@ -194,7 +289,7 @@ function buildIndicatorPanel( html, target, id ) {
 
 		}		
 		return panelList;
-	}
+	} 
 }
 
 function sendData(path, param, target) {
