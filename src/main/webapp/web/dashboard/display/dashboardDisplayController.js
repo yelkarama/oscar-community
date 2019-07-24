@@ -255,6 +255,13 @@ function buildIndicatorPanel( html, target, id ) {
 	} else if(graphType === 'pie') {
 		indicatorGraph = $.jqplot ( 'graphContainer_' + id, data, jqplotOptions ).replot();
 	} else if(graphType === 'table') {
+		var tableHtml = '<table class="table">';
+		var d1 = data[0];
+		for(var x=0;x<d1.length;x++) {
+			tableHtml += "<tr><td>"+d1[x][0]+"</td><td>"+d1[x][1]+"</td></tr>";
+		}
+		tableHtml += "</table>";
+		$('#graphContainer_' + id).html(tableHtml);
 		console.log('table rendering not yet implemented');
 	} else if(graphType === 'stacked') {
 		console.log('stacked bar graph type not yet implemented');
