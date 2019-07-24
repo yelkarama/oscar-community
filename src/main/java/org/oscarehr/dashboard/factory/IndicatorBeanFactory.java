@@ -154,6 +154,7 @@ public class IndicatorBeanFactory {
 		indicatorBean.setNotes( indicatorTemplateXML.getNotes() );
 		indicatorBean.setSubCategory( indicatorTemplateXML.getSubCategory() );
 		indicatorBean.setXmlTemplate( indicatorTemplateXML.getTemplate() );
+		indicatorBean.setGraphType( IndicatorBean.GraphType.valueOf(indicatorTemplateXML.getGraphType()));
 
 	}
 

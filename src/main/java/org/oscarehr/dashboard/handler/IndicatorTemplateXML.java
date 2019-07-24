@@ -30,6 +30,7 @@ import java.util.List;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.log4j.Logger;
+import org.oscarehr.dashboard.display.beans.AbstractDataDisplayBean;
 import org.oscarehr.dashboard.query.Column;
 import org.oscarehr.dashboard.query.DrillDownAction;
 import org.oscarehr.dashboard.query.Parameter;
@@ -50,7 +51,7 @@ public class IndicatorTemplateXML {
 	private static Logger logger = MiscUtils.getLogger();
 	
 	private enum Root {heading, author, indicatorQuery, drillDownQuery, shared}
-	private enum Heading {category, subCategory, order, framework, frameworkVersion, name, definition, notes, metricSetName, metricLabel}
+	private enum Heading {category, subCategory, order, framework, frameworkVersion, name, definition, notes, metricSetName, metricLabel, graphType}
 	private enum Indicator {version, params, parameter, range, query}
 	private enum Drilldown {version, params, parameter, range, displayColumns, column, exportColumns, drillDownActions, action, query}
 	private enum ParameterAttribute {id, name, value}
@@ -235,6 +236,14 @@ public class IndicatorTemplateXML {
 			return nl.item(0).getTextContent();
 		}
 		return null;
+	}
+	
+	public String getGraphType() {
+		NodeList nl = getHeadingNode().getElementsByTagName( Heading.graphType.name() );
+		if(nl != null && nl.getLength() > 0) {
+			return nl.item(0).getTextContent();
+		}
+		return AbstractDataDisplayBean.GraphType.pie.toString();
 	}
 	
 	/**
