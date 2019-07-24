@@ -23,6 +23,7 @@
 <%@ page import="org.oscarehr.util.DateRange"%>
 <%! boolean bMultisites = org.oscarehr.common.IsPropertiesOn.isMultisitesEnable(); %>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 <%@ page import="java.math.*, java.util.*, oscar.util.*"%>
 <%
     if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
@@ -236,10 +237,11 @@ function checkData() {
 
 <body>
 
-<div class="container-fluid">
+<div class="container-fluid" style="margin-left: 10px;">
 <h3><bean:message key="admin.admin.btnSimulationOHIPDiskette" /></h3>
 
 <form name="serviceform" id="serviceform" action="<%=request.getContextPath() %>/billing/CA/ON/billingOHIPsimulation.jsp">
+<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 <div class="row well well-small hidden-print">
 
 <input type="hidden" name="submit" value="Create Report">

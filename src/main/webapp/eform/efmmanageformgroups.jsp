@@ -27,6 +27,7 @@
 <%@ page import="oscar.eform.data.*, oscar.eform.*, java.util.*"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
+<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
 <%
   String user = (String) session.getAttribute("user");
   if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
@@ -85,6 +86,7 @@ max-width:400px;
 
 <!--ADD GROUP-->
 <form action="<%= request.getContextPath() %>/eform/addGroup.do" method="get" id="addGroupForm" class="form-inline">
+	<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 	<input type="text" name="groupName" class="check" placeholder="<bean:message key="eform.groups.addGroup" />">
 	<input type="submit" name="subm" class="btn groupAdd" value="<bean:message key="eform.groups.addGroup" />" disabled>	
 </form>
@@ -200,6 +202,7 @@ if(groupName.equals(groupView)){
 <!--modal-->
 <% if (!groupView.equals("")) { %>
 <html:form action="/eform/addToGroup" method="get" styleId="eformToGroupForm">
+<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
 <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 <div class="modal-header">
 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
