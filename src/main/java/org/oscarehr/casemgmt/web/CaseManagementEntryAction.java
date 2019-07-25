@@ -2032,14 +2032,16 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
                     if( verifyStr != null && verifyStr.equalsIgnoreCase("on") ) {
                     
                         if( priorNote != null && !"null".equalsIgnoreCase(priorNote) && !"".equalsIgnoreCase(priorNote) ) {
-                            ResidentOscarMsg residentOscarMsg = residenOscarMsgDao.findByNoteId(Long.valueOf(priorNote));
+                            List<ResidentOscarMsg> residentOscarMsgList = residenOscarMsgDao.findAllRelatedByNoteId(Long.valueOf(priorNote));
 
-                            if( residentOscarMsg != null ) {
+                            if( residentOscarMsgList != null ) {
+                                for (ResidentOscarMsg residentOscarMsg : residentOscarMsgList) {
 
-                                residentOscarMsg.setComplete(Boolean.TRUE);
-                                residentOscarMsg.setComplete_time(new Date(System.currentTimeMillis()));
+                                    residentOscarMsg.setComplete(Boolean.TRUE);
+                                    residentOscarMsg.setComplete_time(new Date(System.currentTimeMillis()));
 
-                                residenOscarMsgDao.merge(residentOscarMsg);
+                                    residenOscarMsgDao.merge(residentOscarMsg);
+                                }
                             }
                         }
                     }

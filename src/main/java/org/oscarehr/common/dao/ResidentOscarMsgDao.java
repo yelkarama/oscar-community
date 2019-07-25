@@ -50,4 +50,13 @@ public class ResidentOscarMsgDao extends AbstractDao<ResidentOscarMsg>{
         return this.getSingleResultOrNull(query);
     }
     
+    public List<ResidentOscarMsg> findAllRelatedByNoteId (Long noteId) {
+        Query query = entityManager.createQuery ("SELECT r FROM ResidentOscarMsg r, CaseManagementNote c WHERE r.note_id = c.id AND c.uuid = (SELECT n.uuid FROM CaseManagementNote n WHERE n.id = :note_id)");
+        query.setParameter ("note_id", noteId);
+        
+        List<ResidentOscarMsg> rList = query.getResultList();
+        
+        return rList;
+    }
+    
 }

@@ -33,6 +33,8 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 import org.apache.log4j.Logger;
+import org.oscarehr.casemgmt.dao.CaseManagementNoteDAO;
+import org.oscarehr.casemgmt.model.CaseManagementNote;
 import org.oscarehr.common.dao.ProviderDataDao;
 import org.oscarehr.common.dao.ResidentOscarMsgDao;
 import org.oscarehr.common.dao.UserPropertyDAO;
@@ -130,9 +132,15 @@ public class OscarMsgReviewSender implements OscarRunnable {
                     messageId = msgData.sendMessageReview(MESSAGE, SUBJECT, userName, sentToWho, userNo, providerListing, null, null, OscarMsgType.OSCAR_REVIEW_TYPE,msgInfo.toString());
                     logger.info("SENT Review OSCAR MESSAGE");
                     if( messageId != null ) {
+                        List<String> uuidList = new ArrayList<String>();
                         for( ResidentOscarMsg res : residentOscarMsgList ) {
-                            MsgDemoMap msgDemoMap = new MsgDemoMap();
-                            msgDemoMap.linkMsg2Demo(messageId, String.valueOf(res.getDemographic_no()));                        
+                            CaseManagementNoteDAO caseManagementNoteDao = SpringUtils.getBean(CaseManagementNoteDAO.class);
+                            CaseManagementNote note = caseManagementNoteDao.getNote(res.getNote_id());
+                            if (!uuidList.contains(note.getUuid())) {
+                                MsgDemoMap msgDemoMap = new MsgDemoMap();
+                                msgDemoMap.linkMsg2Demo(messageId, String.valueOf(res.getDemographic_no()));
+                                uuidList.add(note.getUuid());
+                            }
                         }
 
 
