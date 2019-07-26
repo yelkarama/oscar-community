@@ -147,6 +147,7 @@ if(!authed) {
 <%@ page import="oscar.log.LogConst" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.oscarehr.common.dao.BillingONItemDao" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <html:html
 	locale="true">
 
@@ -556,12 +557,13 @@ text-align:left;
 		}
 		
                 String prevName = h.get("name");
+				String displayName = h.get("displayName") != null ? h.get("displayName") : prevName;
                            
 	            if(!preventionManager.hideItem(prevName)){%>
 					<li style="margin-top: 2px;"><a
 						href="javascript: function myFunction() {return false; }"
-						onclick="javascript:popup(465,635,'AddPreventionData.jsp?prevention=<%= java.net.URLEncoder.encode(prevName) %>&amp;demographic_no=<%=demographic_no%>&amp;prevResultDesc=<%= java.net.URLEncoder.encode(h.get("resultDesc")) %>','addPreventionData<%=Math.abs(prevName.hashCode()) %>')" title="<%=h.get("desc")%>">
-					<%=prevName%> </a></li>
+						onclick="javascript:popup(465,635,'AddPreventionData.jsp?prevention=<%= java.net.URLEncoder.encode(prevName) %>&amp;displayName=<%=Encode.forHtmlContent(displayName)%>&amp;demographic_no=<%=demographic_no%>&amp;prevResultDesc=<%= java.net.URLEncoder.encode(h.get("resultDesc")) %>','addPreventionData<%=Math.abs(prevName.hashCode()) %>')" title="<%=h.get("desc")%>">
+					<%=displayName%> </a></li>
 				<%
 				}
 			}
@@ -693,6 +695,7 @@ text-align:left;
                   for (int i = 0 ; i < prevList.size(); i++){
                   		HashMap<String,String> h = prevList.get(i);
                         String prevName = h.get("name");
+                        String displayName = h.get("displayName") != null ? h.get("displayName") : prevName;
                         ArrayList<Map<String,Object>> alist = PreventionData.getPreventionData(loggedInInfo, prevName, Integer.valueOf(demographic_no));
                         PreventionData.addRemotePreventions(loggedInInfo, alist, demographicId,prevName,demographicDateOfBirth);
                         boolean show = pdc.display(loggedInInfo, h, demographic_no,alist.size());
@@ -716,8 +719,8 @@ text-align:left;
 		</div>
 		<div class="headPrevention">
 		<p><a href="javascript: function myFunction() {return false; }"
-			onclick="javascript:popup(465,635,'AddPreventionData.jsp?prevention=<%= response.encodeURL( h.get("name")) %>&amp;demographic_no=<%=demographic_no%>&amp;prevResultDesc=<%= java.net.URLEncoder.encode(h.get("resultDesc")) %>','addPreventionData<%=Math.abs( ( h.get("name")).hashCode() ) %>')">
-		<span title="<%=h.get("desc")%>" style="font-weight: bold;"><%=h.get("name")%></span>
+			onclick="javascript:popup(465,635,'AddPreventionData.jsp?prevention=<%= response.encodeURL( h.get("name")) %>&amp;displayName=<%=Encode.forHtmlContent(displayName)%>&amp;demographic_no=<%=demographic_no%>&amp;prevResultDesc=<%= java.net.URLEncoder.encode(h.get("resultDesc")) %>','addPreventionData<%=Math.abs( ( h.get("name")).hashCode() ) %>')">
+		<span title="<%=h.get("desc")%>" style="font-weight: bold;"><%=displayName%></span>
 		</a>
 		<br />
 		</p>

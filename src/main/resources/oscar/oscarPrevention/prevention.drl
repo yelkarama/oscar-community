@@ -764,7 +764,7 @@
         <java:condition>prev.getHowManyMonthsSinceLast("FOBT") &gt;= 24</java:condition>
         <java:consequence>
               prev.log("FOBT 1 debug");
-              prev.addWarning("FOBT", "FOBT is overdue for this patient");
+              prev.addWarning("FOBT", "FIT/FOBT is overdue for this patient");
         </java:consequence>
     </rule>
 
@@ -778,7 +778,7 @@
         <java:condition>prev.getHowManyMonthsSinceLast("FOBT") == -1</java:condition>
         <java:consequence>
               prev.log("FOBT 2 debug");
-              prev.addWarning("FOBT", "FOBT is overdue for this patient");
+              prev.addWarning("FOBT", "FIT/FOBT is overdue for this patient");
         </java:consequence>
     </rule>
 
@@ -802,7 +802,7 @@
         <java:condition>prev.getHowManyMonthsSinceLast("COLONOSCOPY") != -1</java:condition>
         <java:consequence>
               prev.log("FOBT Inelligible debug");
-              prev.addReminder("Colonoscopy makes FOBT ineligible");
+              prev.addReminder("Colonoscopy makes FIT/FOBT ineligible");
         </java:consequence>
     </rule>
     <!-- FOBT Rules End-->

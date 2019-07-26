@@ -106,6 +106,7 @@ public class EctDisplayPreventionAction extends EctDisplayAction {
             NavBarDisplayDAO.Item item = NavBarDisplayDAO.Item();
             HashMap<String,String> h = prevList.get(i);
             String prevName = h.get("name");
+            String displayName = h.get("displayName") != null ? h.get("displayName") : prevName;
             ArrayList<Map<String,Object>> alist = PreventionData.getPreventionData(loggedInInfo, prevName, Integer.valueOf(bean.demographicNo));
             PreventionData.addRemotePreventions(loggedInInfo, alist, Integer.valueOf(bean.demographicNo),prevName,demographicDateOfBirth);
             boolean show = pdc.display(loggedInInfo, h, bean.demographicNo,alist.size());
@@ -143,7 +144,7 @@ public class EctDisplayPreventionAction extends EctDisplayAction {
                     item.setDate(null);
                 }
 
-                String title = StringUtils.maxLenString(h.get("name"),  MAX_LEN_TITLE, CROP_LEN_TITLE, ELLIPSES);
+                String title = StringUtils.maxLenString(displayName,  MAX_LEN_TITLE, CROP_LEN_TITLE, ELLIPSES);
                 item.setTitle(title);
                 item.setLinkTitle(h.get("desc"));
                 item.setURL(url);

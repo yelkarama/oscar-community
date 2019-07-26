@@ -113,6 +113,7 @@ if(!authed) {
   }
 
   String prevention = request.getParameter("prevention");
+  String displayName = request.getParameter("displayName");
   if (prevention == null && existingPrevention != null){
       prevention = (String) existingPrevention.get("preventionType");
   }
@@ -482,7 +483,7 @@ function validateInput() {
                <%if (layoutType.equals("injection")) {%>
                <div class="prevention">
                    <fieldset>
-                      <legend>Prevention : <%=prevention%></legend>
+                      <legend>Prevention : <%=displayName%></legend>
                          <div>
                             <input name="given" type="radio" value="given"      <%=checked(completed,"0")%>>Completed</input><br/>
                             <input name="given" type="radio" value="given_ext"  <%=checked(completed,"3")%>>Completed externally</input><br/>
@@ -542,7 +543,7 @@ function validateInput() {
                <%} else if(layoutType.equals("h1n1")) {%>
                <div class="prevention">
                    <fieldset>
-                      <legend>Prevention : <%=prevention%></legend>
+                      <legend>Prevention : <%=displayName%></legend>
                          <div>
                             <input name="given" type="radio" value="given"      <%=checked(completed,"0")%>>Completed</input><br/>
                             <input name="given" type="radio" value="given_ext"  <%=checked(completed,"3")%>>Completed externally</input><br/>
@@ -645,7 +646,7 @@ function validateInput() {
                <%}else if(layoutType.equals("PAPMAM")){/*next layout type*/%>
                <div class="prevention">
                    <fieldset>
-                      <legend>Prevention : <%=prevention%></legend>
+                      <legend>Prevention : <%=displayName%></legend>
                          <div>
                             <input name="given" type="radio" value="given"      <%=checked(completed,"0")%>>Completed</input><br/>
                             <input name="given" type="radio" value="given_ext"  <%=checked(completed,"3")%>>Completed externally</input><br/>
@@ -693,7 +694,7 @@ function validateInput() {
                <%} else if(layoutType.equals("history")) {%>
                		 <div class="prevention">
                    <fieldset>
-                      <legend>Prevention : <%=prevention%></legend>
+                      <legend>Prevention : <%=displayName%></legend>
                          <div style="float:left;">
                             <input name="given" type="radio" value="yes"      <%=checked(completed,"0")%>>Yes</input><br/>
                             <input name="given" type="radio" value="never"    <%=checked(completed,"1")%>>Never</input><br/>

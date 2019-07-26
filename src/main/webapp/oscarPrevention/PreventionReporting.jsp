@@ -406,7 +406,7 @@ table.ele thead {
                       <html:option value="Mammogram" >Mammogram</html:option>
                       <html:option value="Flu" >Flu</html:option>
                       <html:option value="ChildImmunizations" >Child Immunizations</html:option>
-                      <html:option value="FOBT" >FOBT</html:option>
+                      <html:option value="FOBT" >FIT/FOBT</html:option>
                       <html:option value="Colonoscopy" >Colonoscopy</html:option>
                   </html:select>
                </div>

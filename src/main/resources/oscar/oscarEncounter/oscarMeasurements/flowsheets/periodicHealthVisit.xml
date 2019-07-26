@@ -192,7 +192,7 @@
 			</rules>
 		</item>
 
-		<item prevention_type="FOBT" display_name="FOBT" guideline="" graphable="no" >
+		<item prevention_type="FOBT" display_name="FIT/FOBT" guideline="" graphable="no" >
 			<rules>
 			       	<recommendation strength="hidden">
 					<condition type="patientAge" value="&lt;50" />
