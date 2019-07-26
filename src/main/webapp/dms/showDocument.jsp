@@ -549,16 +549,19 @@
                                             <bean:message key="inboxmanager.document.LinkedProvidersMsg"/>
                                             <%
             Properties p = (Properties) session.getAttribute("providerBean");
-            List<ProviderInboxItem> routeList = providerInboxRoutingDao.getProvidersWithUnfiledRoutingForDocument("DOC", Integer.parseInt(docId));
+            List<ProviderInboxItem> routeList = providerInboxRoutingDao.getProvidersWithRoutingForDocument("DOC", Integer.parseInt(docId));
             int countValidProvider = 0;
                                             %>
                                             <ul>
                                                 <%for (ProviderInboxItem pItem : routeList) {
                                                     String s=p.getProperty(pItem.getProviderNo(), pItem.getProviderNo());
 
-                                                    if(!s.equals("0")&&!s.equals("null")&& !pItem.getStatus().equals("X")){  %>
-                                                        <li><%=s%><a href="#" onclick="removeLink('DOC', '<%=docId %>', '<%=pItem.getProviderNo() %>', this);return false;"><bean:message key="inboxmanager.document.RemoveLinkedProviderMsg" /></a></li>
-                                                <%countValidProvider++;}
+                                                    if(!s.equals("0")&&!s.equals("null")&& !pItem.getStatus().equals("X")){
+                                                if (!pItem.getStatus().equals("F")) {%>
+                                                <li><%=s%><a href="#" onclick="removeLink('DOC', '<%=docId %>', '<%=pItem.getProviderNo() %>', this);return false;"><bean:message key="inboxmanager.document.RemoveLinkedProviderMsg" /></a></li>
+                                                <% }
+                                                    // even if filed, count provider so document is faxable
+                                                    countValidProvider++;
                                                 }%>
                                             </ul>
                                         </td>
