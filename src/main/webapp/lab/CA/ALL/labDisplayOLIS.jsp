@@ -88,6 +88,7 @@ String billRegion=(OscarProperties.getInstance().getProperty("billregion","")).t
 String billForm=OscarProperties.getInstance().getProperty("default_view");
 DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
 
+boolean isLinkedToDemographic=false;
 boolean ackFlag = false;
 ArrayList ackList = preview ? null : AcknowledgementData.getAcknowledgements(segmentID);
 Factory f;
@@ -96,7 +97,9 @@ String hl7 = "";
 Integer resultObrIndex = null;
 
 if (!preview) {
-
+    if(demographicID != null && !demographicID.equals("")&& !demographicID.equals("0")) {
+        isLinkedToDemographic = true;
+    }
 	if (ackList != null){
 	    for (int i=0; i < ackList.size(); i++){
 	        ReportStatus reportStatus = (ReportStatus) ackList.get(i);
@@ -357,12 +360,18 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
 			}
 		});
 	}
+	
+	function matchDemographic() {
+        <% if ( !isLinkedToDemographic) { %>
+        popupStart(360, 680, '../../../oscarMDS/SearchPatient.do?labType=HL7&segmentID=<%= segmentID %>&name=<%=java.net.URLEncoder.encode(handler.getLastName()+", "+handler.getFirstName())%>', 'searchPatientWindow');
+        <% } %>
+    }
 
         </script>
 
     </head>
 
-    <body style="width:800px">
+    <body style="width:800px" onLoad="javascript:matchDemographic();">
         <!-- form forwarding of the lab -->
         <form name="reassignForm_<%=segmentID%>" method="post" action="Forward.do">
             <input type="hidden" name="flaggedLabs" value="<%= segmentID %>" />

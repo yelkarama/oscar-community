@@ -62,6 +62,7 @@ if(!authed) {
 	scope="session" />
 <html>
 <head>
+	<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message
 	key="oscarMDS.segmentDisplay.patientSearch.title" /></title>
