@@ -320,7 +320,7 @@ if(!authed) {
                 else {
                 	out.println("<a class='links' style='" + colour + "' onmouseover=\"this.className='linkhover'\" onmouseout=\"this.className='links'\" href=\"" + url + "\" title='" + Encode.forHtmlAttribute(item.getLinkTitle()) + "' target=\"_blank\">");
                 }
-                out.println(Encode.forHtmlContent(item.getTitle()));
+                out.println((item.getTitle()));
                 out.println("</a>");
                 out.println("</span>");
 

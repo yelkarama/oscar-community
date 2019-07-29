@@ -41,6 +41,7 @@ import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 
 import org.oscarehr.util.SpringUtils;
+import org.owasp.encoder.Encode;
 import oscar.oscarMessenger.data.MsgMessageData;
 import oscar.oscarMessenger.util.MsgDemoMap;
 import oscar.util.DateUtils;
@@ -86,7 +87,7 @@ public class EctDisplayMsgAction extends EctDisplayAction {
                     hash = hash < 0 ? hash * -1 : hash;
                     url = "popupPage(600,900,'" + hash + "','" + request.getContextPath() + "/oscarMessenger/ViewMessage.do?from=encounter&orderBy=!date&demographic_no=" + bean.demographicNo + "&messagePosition=" + position + "&messageID=" + message.getId() + "'); return false;";
                     item.setURL(url);
-                    item.setTitle(msgSubject);
+                    item.setTitle(Encode.forHtmlContent(msgSubject));
                     item.setLinkTitle(message.getSubject() + " " + msgDate);
                     Dao.addItem(item);
                 }
