@@ -95,12 +95,13 @@
 	if(begin != -1 && end != -1){
 		referralName = referralContent.substring(begin + elementString.length(), end);
 	}
-    Appointment appt = null;
-    if(request.getParameter("appointmentNo") != null)
-    	appt = appointmentDao.find(Integer.parseInt(request.getParameter("appointmentNo")));
-
-	Provider appointmentProvider = providerDao.getProvider(appt.getProviderNo());
-	String appointmentProviderName = appointmentProvider != null ? appointmentProvider.getFormattedName() : "";
+	Appointment appt = null;
+	String appointmentProviderName = "";
+	if (!StringUtils.isNullOrEmpty(request.getParameter("appointmentNo"))) {
+		appt = appointmentDao.find(Integer.parseInt(request.getParameter("appointmentNo")));
+		Provider appointmentProvider = providerDao.getProvider(appt.getProviderNo());
+		appointmentProviderName = appointmentProvider != null ? appointmentProvider.getFormattedName() : "";
+	}
 
     SimpleDateFormat dateFormatter =new SimpleDateFormat("yyyy-MM-dd");
     SimpleDateFormat timeFormatter =new SimpleDateFormat("HH:mm");
@@ -241,6 +242,7 @@
 					</tr>
 				</table>
 			</td>
+			<% if (appt != null) { %>
 			<td valign="top" width="50%">
 				<table border="0" cellspacing="2" cellpadding="2">
 					<input type="hidden" name="appt_date" value="<%=dateFormatter.format(appt.getAppointmentDate()) + " " + timeFormatter.format(appt.getStartTime()) %>"/>
@@ -261,6 +263,7 @@
 					</tr>
 				</table>
 			</td>
+			<% } %>
 		</tr>
 		
 		<tr>
