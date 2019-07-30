@@ -203,7 +203,8 @@ public final class EmailUtilsOld
 			// Configure properties and transport
 			Properties mailProperties = new Properties();
 			mailProperties.setProperty("mail.transport.protocol", "smtp");
-			Session mailSession = Session.getDefaultInstance(mailProperties, null);
+			mailProperties.setProperty("mail.smtp.starttls.enable", "true");
+			Session mailSession = Session.getDefaultInstance(mailProperties);
 			Transport transport = mailSession.getTransport("smtp");
 			transport.connect(smtpHost, Integer.parseInt(smtpSslPort), smtpUser, smtpPassword);
 			htmlEmail.setHostName(smtpHost);
