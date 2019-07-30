@@ -562,7 +562,7 @@
                                                 <% }
                                                     // even if filed, count provider so document is faxable
                                                     countValidProvider++;
-                                                }%>
+                                                } }%>
                                             </ul>
                                         </td>
                                     </tr>
