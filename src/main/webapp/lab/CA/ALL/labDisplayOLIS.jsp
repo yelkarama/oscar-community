@@ -113,6 +113,7 @@ if (!preview) {
 	hl7 = Factory.getHL7Body(segmentID);
 
 } else {
+    isLinkedToDemographic = true;
 	ProviderOlisSession providerOlisSession = OlisSessionManager.getSession(loggedInInfo);
 	String placerGroupNo = request.getParameter("placerGroupNo");
 	if (request.getParameter("obrIndex") != null) {
