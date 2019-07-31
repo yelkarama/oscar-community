@@ -35,6 +35,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import org.oscarehr.common.model.AbstractModel;
+import oscar.util.StringUtils;
 
 @Entity
 @Table(name="billing_on_3rdPartyAddress")
@@ -137,4 +138,30 @@ public class Billing3rdPartyAddress extends AbstractModel<Integer>{
 		}
 	};   
 	
+    public String createContactString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getCompanyName());
+        if (!StringUtils.isNullOrEmpty(getAttention())) {
+            sb.append(", ").append(getAttention());
+        }
+        if (!StringUtils.isNullOrEmpty(getAddress())) {
+            sb.append("\n").append(getAddress());
+            if (!StringUtils.isNullOrEmpty(getCity())) {
+                sb.append(" ").append(getCity());
+            }
+            if (!StringUtils.isNullOrEmpty(getProvince())) {
+                sb.append("\n").append(getProvince());
+            }
+            if (!StringUtils.isNullOrEmpty(getPostalCode())) {
+                sb.append(" ").append(getPostalCode());
+            }
+        }
+        if (!StringUtils.isNullOrEmpty(getTelephone())) {
+            sb.append("\nTel: ").append(getTelephone());
+        }
+        if (!StringUtils.isNullOrEmpty(getFax())) {
+            sb.append("\nFax: ").append(getFax());
+        }
+        return sb.toString();
+    }
 }

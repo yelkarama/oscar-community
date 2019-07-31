@@ -226,6 +226,18 @@ public class ProviderPropertyAction extends DispatchAction {
             propertyDAO.saveProp(property);
         }
 
+        propertyValue = StringUtils.trimToNull(request.getParameter(UserProperty.DEFAULT_BILL_TO_OTHER));
+        propertyDAO.saveUserPropertyIfChanged(providerNo, UserProperty.DEFAULT_BILL_TO_OTHER, propertyValue);
+
+        propertyValue = request.getParameter(UserProperty.BILL_TO_OTHER_TEXT);
+        propertyDAO.saveUserPropertyIfChanged(providerNo, UserProperty.BILL_TO_OTHER_TEXT, propertyValue);
+
+        propertyValue = request.getParameter(UserProperty.REMIT_TO_OTHER_TEXT);
+        propertyDAO.saveUserPropertyIfChanged(providerNo, UserProperty.REMIT_TO_OTHER_TEXT, propertyValue);
+
+        propertyValue = request.getParameter(UserProperty.BILL_TO_OTHER_DATABASE_FIELD);
+        propertyDAO.saveUserPropertyIfChanged(providerNo, UserProperty.BILL_TO_OTHER_DATABASE_FIELD, propertyValue);
+
         propertyValue = StringUtils.trimToNull(request.getParameter("default_service_quebec"));
         if (propertyValue != null) {
             property = propertyDAO.getProp(providerNo, UserProperty.DEFAULT_SERVICE_QUEBEC);
@@ -238,6 +250,17 @@ public class ProviderPropertyAction extends DispatchAction {
             propertyDAO.saveProp(property);
         }
 
+        propertyValue = StringUtils.trimToNull(request.getParameter(UserProperty.DEFAULT_BILL_TO_QUEBEC));
+        propertyDAO.saveUserPropertyIfChanged(providerNo, UserProperty.DEFAULT_BILL_TO_QUEBEC, propertyValue);
+
+        propertyValue = request.getParameter(UserProperty.BILL_TO_QUEBEC_TEXT);
+        propertyDAO.saveUserPropertyIfChanged(providerNo, UserProperty.BILL_TO_QUEBEC_TEXT, propertyValue);
+
+        propertyValue = request.getParameter(UserProperty.REMIT_TO_QUEBEC_TEXT);
+        propertyDAO.saveUserPropertyIfChanged(providerNo, UserProperty.REMIT_TO_QUEBEC_TEXT, propertyValue);
+
+        propertyValue = request.getParameter(UserProperty.BILL_TO_QUEBEC_DATABASE_FIELD);
+        propertyDAO.saveUserPropertyIfChanged(providerNo, UserProperty.BILL_TO_QUEBEC_DATABASE_FIELD, propertyValue);
     }
     public ActionForward viewDefaultSex(ActionMapping actionmapping,
                                ActionForm actionform,

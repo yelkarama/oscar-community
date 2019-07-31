@@ -107,7 +107,15 @@ public class UserProperty extends AbstractModel<Integer> implements Serializable
     public static final String DEFAULT_PAYEE = "default_payee";
     public static final String DEFAULT_DX_CODE = "default_dx_code";
     public static final String DEFAULT_SERVICE_OTHER = "default_service_other";
+    public static final String DEFAULT_BILL_TO_OTHER = "default_bill_to_other";
+    public static final String BILL_TO_OTHER_TEXT = "bill_to_other_text";
+    public static final String REMIT_TO_OTHER_TEXT = "remit_to_other_text";
+    public static final String BILL_TO_OTHER_DATABASE_FIELD = "bill_to_other_database_field";
     public static final String DEFAULT_SERVICE_QUEBEC = "default_service_quebec";
+    public static final String DEFAULT_BILL_TO_QUEBEC = "default_bill_to_quebec";
+    public static final String BILL_TO_QUEBEC_TEXT = "bill_to_other_text";
+    public static final String REMIT_TO_QUEBEC_TEXT = "remit_to_other_text";
+    public static final String BILL_TO_QUEBEC_DATABASE_FIELD = "bill_to_other_database_field";
     public static final String CPP_SINGLE_LINE="cpp_single_line";
     public static final String LAB_ACK_COMMENT="lab_ack_comment";
     public static final String EDOC_BROWSER_IN_MASTER_FILE="edoc_browser_in_master_file";

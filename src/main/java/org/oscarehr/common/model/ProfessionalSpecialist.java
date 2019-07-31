@@ -372,6 +372,29 @@ public class ProfessionalSpecialist extends AbstractModel<Integer> implements Se
 		this.eformId = eformId;
 	}
 
-	
+    /**
+     * Creates a contact string for billing invoices for this provider
+     * @return A new string describing the provider's contact details
+     */
+	public String createContactString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(getLastName()).append(", ").append(getFirstName());
+		if (getStreetAddress() != null) {
+			sb.append("\n").append(getStreetAddress());
+		}
+		if (getPhoneNumber() != null) {
+			sb.append("\nTel: ").append(getPhoneNumber());
+		}
+		if (getFaxNumber() != null) {
+			sb.append("\nFax: ").append(getFaxNumber());
+		}
+		if (getEmailAddress() != null) {
+			sb.append("\n").append(getEmailAddress());
+		}
+		if (getWebSite() != null) {
+			sb.append("\n").append(getWebSite());
+		}
+		return sb.toString();
+	}
 
 }

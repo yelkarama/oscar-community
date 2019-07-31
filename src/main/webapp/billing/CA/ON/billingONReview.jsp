@@ -56,6 +56,7 @@
 <%
 	DiagnosticCodeDao diagnosticCodeDao = SpringUtils.getBean(DiagnosticCodeDao.class);
 	BillingONCHeader1Dao billingONCHeader1Dao = (BillingONCHeader1Dao) SpringUtils.getBean("billingONCHeader1Dao");
+	UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 %>
 <%//
 	if (session.getAttribute("user") == null) {
@@ -63,7 +64,7 @@
 	}
 	OscarProperties props = OscarProperties.getInstance();
 
-			String user_no = (String) session.getAttribute("user");
+	String loggedInProviderNo = (String) session.getAttribute("user");
 			String providerview = request.getParameter("providerview") == null ? "" : request
 					.getParameter("providerview");
 			String asstProvider_no = "";
@@ -162,8 +163,6 @@ boolean dupServiceCode = false;
 
 			
 			if (dxCode != null && !dxCode.isEmpty()) {
-
-				UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 				DxresearchDAO dxresearchDao = SpringUtils.getBean(DxresearchDAO.class);
 				Icd9Dao icd9Dao = SpringUtils.getBean(Icd9Dao.class);
 				DemographicExtDao demoExtDao = SpringUtils.getBean(DemographicExtDao.class);
@@ -339,7 +338,12 @@ boolean dupServiceCode = false;
 
 <%@page import="org.oscarehr.common.dao.SiteDao"%>
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
-<%@page import="org.oscarehr.common.model.Site"%><html xmlns="http://www.w3.org/1999/xhtml">
+<%@page import="org.oscarehr.common.model.Site"%>
+<%@ page import="oscar.oscarProvider.data.HcTypeBillToRemitToPreference" %>
+<%@ page import="oscar.oscarProvider.data.DefaultHcTypeBillToRemitToPreferenceService" %>
+<%@ page import="oscar.oscarRx.data.RxProviderData" %>
+<%@ page import="org.owasp.encoder.Encode" %>
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>OscarBilling</title>
 <script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
@@ -1099,28 +1103,20 @@ if(request.getParameter("xml_billtype")!=null && !request.getParameter("xml_bill
 	Billing3rdPartPrep privateObj = new Billing3rdPartPrep();
 	oscar.oscarRx.data.RxProviderData.Provider provider = new oscar.oscarRx.data.RxProviderData().getProvider((String) session.getAttribute("user"));
 
-                /*
-                = propClinic.getProperty("clinic_name", "") + "\n"
-		+ propClinic.getProperty("clinic_address", "") + "\n"
-		+ propClinic.getProperty("clinic_city", "") + ", " + propClinic.getProperty("clinic_province", "") + "\n"
-		+ propClinic.getProperty("clinic_postal", "") + "\n"
-		+ "Tel: " + propClinic.getProperty("clinic_phone", "") + "\n"
-		+ "Fax: " + propClinic.getProperty("clinic_fax", "") ;
-                */
-        String strClinicAddr = provider.getClinicName().replaceAll("\\(\\d{6}\\)","") +"\n"
-                             + provider.getClinicAddress() +"\n"
-                             + provider.getClinicCity() +","+ provider.getClinicProvince()+"\n"
-                             + provider.getClinicPostal() +"\n"
-                             + "Tel: "+provider.getClinicPhone() +"\n"
-                             + "Fax: "+provider.getClinicFax() ;
+	String strClinicAddr = RxProviderData.createProviderContactString(provider);
 
 if (codeValid) { %>
 
 <%
+HcTypeBillToRemitToPreference billToRemitToPreference = DefaultHcTypeBillToRemitToPreferenceService.getPreferenceForProvider(loggedInProviderNo, demo);
 // for satellite clinics
 String clinicAddress = null;
-// get Site ID from billingON.jsp
-if (bMultisites) {
+if (billToRemitToPreference.isBilledToSet()) {
+	strPatientAddr = billToRemitToPreference.getBillToText();
+}
+if (billToRemitToPreference.isRemitToSet()) {
+	clinicAddress = billToRemitToPreference.getRemitToText();
+} else if (bMultisites) {
 	String siteName = request.getParameter("site");
 	SiteDao siteDao = (SiteDao)WebApplicationContextUtils.getWebApplicationContext(application).getBean("siteDao");
   	List<Site> sites = siteDao.getActiveSitesByProviderNo((String) session.getAttribute("user"));
@@ -1165,9 +1161,9 @@ if (bMultisites) {
 
 			<table id="privateBillInfo" border="0" width="100%" >
 			<tr><td>Bill To [<a href=# onclick="scriptAttach('billTo'); return false;">Search</a>]<br>
-			<textarea name="billto" id="billTo" cols=30 rows=6><%=strPatientAddr %></textarea></td>
+			<textarea name="billto" id="billTo" cols=30 rows=6><%=Encode.forHtmlContent(strPatientAddr)%></textarea></td>
 			<td>Remit To [<a href=# onclick="scriptAttach('remitTo'); return false;">Search</a>]<br>
-			<textarea name="remitto" id="remitTo" value="" cols=30 rows=6><%=clinicAddress%></textarea></td>
+			<textarea name="remitto" id="remitTo" value="" cols=30 rows=6><%=Encode.forHtmlContent(clinicAddress)%></textarea></td>
 			<td>Payee<br>
              <% 
              String  providerNo= request.getParameter("xml_provider");

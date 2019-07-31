@@ -61,6 +61,7 @@
 <%@ page import="oscar.oscarBilling.ca.on.data.JdbcBillingPageUtil" %>
 <%@ page import="oscar.oscarRx.data.RxPharmacyData" %>
 <%@ page import="org.oscarehr.common.model.PharmacyInfo" %>
+<%@ page import="oscar.oscarProvider.data.DefaultHcTypeBillToRemitToPreferenceService" %>
 
 <%
 	CtlBillingServiceDao ctlBillingServiceDao = SpringUtils.getBean(CtlBillingServiceDao.class);
@@ -179,6 +180,29 @@ function showHideBillPref() {
 function showHideERxPref() {
     //$("eRxPref").toggle();
 }
+
+function defaultBillToChanged(type) {
+    let radioButtonValue = document.querySelector('input[name=default_bill_to_' + type + ']:checked').value;
+    let contactListDiv = document.getElementById('billing_contact_list_' + type + '_div');
+    let databaseFieldDiv = document.getElementById('billing_database_field_' + type + '_div');
+    
+    if (radioButtonValue === 'contact_list') {
+        contactListDiv.style.display = 'block';
+        databaseFieldDiv.style.display = 'none';
+    } else if (radioButtonValue === "database_field") {
+        contactListDiv.style.display = 'none';
+        databaseFieldDiv.style.display = 'block';
+	}
+}
+
+function scriptAttach(elementName) {
+    popupPage('600', '700', '<c:out value="${ctx}"/>/billing/CA/ON/onSearch3rdBillAddr.jsp?param=' + elementName);
+}
+
+function updateElement(eId, data) {
+    document.getElementById(eId).value = data;
+}
+
 </script>
 <style type="text/css">
 	.preferenceTable td
@@ -220,6 +244,9 @@ function showHideERxPref() {
 	}
 	#billingONpref select{
 		width:350px;
+	}
+	.contactListDiv div {
+		display: inline-block;
 	}
 	
 </style>
@@ -888,6 +915,57 @@ String clinicNo = OscarProperties.getInstance().getProperty("clinic_no");
 				  }
 			  %>
 		  </select>
+		  <br/>
+		  <%
+			  String billToOtherValue = "contact_list";
+			  String billToOtherTextValue = "";
+			  String remitToOtherTextValue = "";
+			  String billToOtherDatabaseFieldValue = "insurance_company";
+
+			  UserProperty defaultBillToOther = propertyDao.getProp(providerNo, UserProperty.DEFAULT_BILL_TO_OTHER);
+			  if (defaultBillToOther != null) {
+				  billToOtherValue = defaultBillToOther.getValue();
+			  }
+			  UserProperty billToOtherTextProp = propertyDao.getProp(providerNo, UserProperty.BILL_TO_OTHER_TEXT);
+			  if (billToOtherTextProp != null && billToOtherTextProp.getValue() != null) {
+				  billToOtherTextValue = billToOtherTextProp.getValue();
+			  }
+			  UserProperty remitToOtherTextProp = propertyDao.getProp(providerNo, UserProperty.REMIT_TO_OTHER_TEXT);
+			  if (remitToOtherTextProp != null && remitToOtherTextProp.getValue() != null) {
+				  remitToOtherTextValue = remitToOtherTextProp.getValue();
+			  }
+			  UserProperty billToOtherDatabaseFieldProp = propertyDao.getProp(providerNo, UserProperty.BILL_TO_OTHER_DATABASE_FIELD);
+			  if (billToOtherDatabaseFieldProp != null && billToOtherDatabaseFieldProp.getValue() != null) {
+				  billToOtherDatabaseFieldValue = billToOtherDatabaseFieldProp.getValue();
+			  }
+		  %>
+		  <label>Default Bill to:</label>
+		  <label>
+			  <input type="radio" name="default_bill_to_other" value="contact_list" onchange="defaultBillToChanged('other')" <%=billToOtherValue.equals("contact_list") ? "checked=\"checked\"" : ""%>/>
+			  Contact List
+		  </label>
+		  <label>
+			  <input type="radio" name="default_bill_to_other" value="database_field" onchange="defaultBillToChanged('other')" <%=billToOtherValue.equals("database_field") ? "checked=\"checked\"" : ""%>/>
+			  Database Field
+		  </label>
+		  <div class="contactListDiv" id="billing_contact_list_other_div" <%=billToOtherValue.equals("database_field") ? "style=\"display: none;\"" : ""%>>
+			  <div>
+				  <label for="bill_to_other_text">Bill To [<a href=# onclick="scriptAttach('bill_to_other_text'); return false;">Search</a>]</label><br>
+				  <textarea name="bill_to_other_text" id="bill_to_other_text" cols=30 rows=6><%=billToOtherTextValue%></textarea>
+			  </div>
+			  <div>
+				  <label for="remit_to_other_text">Remit To [<a href=# onclick="scriptAttach('remit_to_other_text'); return false;">Search</a>]</label><br>
+				  <textarea name="remit_to_other_text" id="remit_to_other_text" cols=30 rows=6><%=remitToOtherTextValue%></textarea>
+			  </div>
+		  </div>
+		  
+		  <div id="billing_database_field_other_div" <%=billToOtherValue.equals("contact_list") ? "style=\"display: none;\"" : ""%>>
+			  <select name="bill_to_other_database_field">
+				  <% for (Map.Entry<String, String> entry : DefaultHcTypeBillToRemitToPreferenceService.DATABASE_FIELD_MAP.entrySet()) { %>
+				  <option value="<%=entry.getKey()%>" <%=entry.getKey().equals(billToOtherDatabaseFieldValue) ? "selected=\"selected\"" : "" %>><%=entry.getValue()%></option>
+				  <% } %>
+			  </select>
+		  </div>
 
 		  <br/>
 
@@ -908,6 +986,57 @@ String clinicNo = OscarProperties.getInstance().getProperty("clinic_no");
 				  }
 			  %>
 		  </select>
+		  <br/>
+		  <%
+			  String billToQuebecValue = "contact_list";
+			  String billToQuebecTextValue = "";
+			  String remitToQuebecTextValue = "";
+			  String billToQuebecDatabaseFieldValue = "insurance_company";
+
+			  UserProperty defaultBillToQuebec = propertyDao.getProp(providerNo, UserProperty.DEFAULT_BILL_TO_QUEBEC);
+			  if (defaultBillToQuebec != null) {
+				  billToQuebecValue = defaultBillToQuebec.getValue();
+			  }
+			  UserProperty billToQuebecTextProp = propertyDao.getProp(providerNo, UserProperty.BILL_TO_QUEBEC_TEXT);
+			  if (billToQuebecTextProp != null && billToQuebecTextProp.getValue() != null) {
+				  billToQuebecTextValue = billToQuebecTextProp.getValue();
+			  }
+			  UserProperty remitToQuebecTextProp = propertyDao.getProp(providerNo, UserProperty.REMIT_TO_QUEBEC_TEXT);
+			  if (remitToQuebecTextProp != null && remitToQuebecTextProp.getValue() != null) {
+				  remitToQuebecTextValue = remitToQuebecTextProp.getValue();
+			  }
+			  UserProperty billToQuebecDatabaseFieldProp = propertyDao.getProp(providerNo, UserProperty.BILL_TO_QUEBEC_DATABASE_FIELD);
+			  if (billToQuebecDatabaseFieldProp != null && billToQuebecDatabaseFieldProp.getValue() != null) {
+				  billToQuebecDatabaseFieldValue = billToQuebecDatabaseFieldProp.getValue();
+			  }
+		  %>
+		  <label>Default Bill to:</label>
+		  <label>
+			  <input type="radio" name="default_bill_to_quebec" value="contact_list" onchange="defaultBillToChanged('quebec')" <%=billToQuebecValue.equals("contact_list") ? "checked=\"checked\"" : ""%>/>
+			  Contact List
+		  </label>
+		  <label>
+			  <input type="radio" name="default_bill_to_quebec" value="database_field" onchange="defaultBillToChanged('quebec')" <%=billToQuebecValue.equals("database_field") ? "checked=\"checked\"" : ""%>/>
+			  Database Field
+		  </label>
+		  <div class="contactListDiv" id="billing_contact_list_quebec_div" <%=billToQuebecValue.equals("database_field") ? "style=\"display: none;\"" : ""%>>
+			  <div>
+				  <label for="bill_to_quebec_text">Bill To [<a href=# onclick="scriptAttach('bill_to_quebec_text'); return false;">Search</a>]</label><br>
+				  <textarea name="bill_to_quebec_text" id="bill_to_quebec_text" cols=30 rows=6><%=billToQuebecTextValue%></textarea>
+			  </div>
+			  <div>
+				  <label for="remit_to_quebec_text">Remit To [<a href=# onclick="scriptAttach('remit_to_quebec_text'); return false;">Search</a>]</label><br>
+				  <textarea name="remit_to_quebec_text" id="remit_to_quebec_text" cols=30 rows=6><%=remitToQuebecTextValue%></textarea>
+			  </div>
+		  </div>
+
+		  <div id="billing_database_field_quebec_div" <%=billToQuebecValue.equals("contact_list") ? "style=\"display: none;\"" : ""%>>
+			  <select name="bill_to_quebec_database_field">
+				  <% for (Map.Entry<String, String> entry : DefaultHcTypeBillToRemitToPreferenceService.DATABASE_FIELD_MAP.entrySet()) { %>
+				  <option value="<%=entry.getKey()%>" <%=entry.getKey().equals(billToQuebecDatabaseFieldValue) ? "selected=\"selected\"" : "" %>><%=entry.getValue()%></option>
+				  <% } %>
+			  </select>
+		  </div>
 	  </div>
       </td>
   </tr>

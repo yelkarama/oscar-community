@@ -30,6 +30,7 @@ import java.util.Map;
 
 import javax.persistence.Query;
 
+import org.apache.commons.lang.StringUtils;
 import org.oscarehr.common.model.UserProperty;
 import org.springframework.stereotype.Repository;
 
@@ -177,5 +178,26 @@ public class UserPropertyDAO extends AbstractDao<UserProperty> {
     		}
     		saveProp(prop);
     	}
+    }
+
+    /**
+     * Saves the provided parameters as a new UserProperty if not exist, and update an existing one otherwise
+     * @param providerNo The providerNo of the owning provider
+     * @param propertyKey The property key of the property to save
+     * @param value The new value
+     */
+    public void saveUserPropertyIfChanged(String providerNo, String propertyKey, String value) {
+        if (value != null) {
+            UserProperty property = getProp(providerNo, propertyKey);
+            if (property == null) {
+                property = new UserProperty();
+                property.setProviderNo(providerNo);
+                property.setName(propertyKey);
+            }
+            if (!value.equals(StringUtils.trimToEmpty(property.getValue()))) {
+                property.setValue(value);
+                saveProp(property);
+            }
+        }
     }
 }

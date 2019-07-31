@@ -142,6 +142,20 @@ public class RxProviderData {
         return "";
     }
 
+    /**
+     * Creates a contact string for billing invoices for this provider
+     * @param provider The subject provider
+     * @return A new string describing the provider's contact details
+     */
+    public static String createProviderContactString(Provider provider) {
+        return provider.getClinicName().replaceAll("\\(\\d{6}\\)","") +"\n"
+                + provider.getClinicAddress() +"\n"
+                + provider.getClinicCity() +","+ provider.getClinicProvince()+"\n"
+                + provider.getClinicPostal() +"\n"
+                + "Tel: "+provider.getClinicPhone() +"\n"
+                + "Fax: "+provider.getClinicFax();
+    }
+
     public class Provider{
     	boolean fullAddress=true;
     	
