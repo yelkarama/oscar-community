@@ -20,6 +20,7 @@
 <%@ page import="java.text.SimpleDateFormat" %>
 <%@ page import="org.oscarehr.olis.dao.OLISFacilitiesDao" %>
 <%@ page import="org.oscarehr.olis.model.OLISFacilities" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 	<%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
 
@@ -518,7 +519,7 @@
 				<select name="requestingHic">
 					<option value=""></option>
 			<% for (Provider provider : olsiHicProvidersList) { %>
-					<option value="<%=provider.getProviderNo() %>" <%=provider.getProviderNo().equals(requestingHic)?"selected":""%>>[<%=provider.getProviderNo()%>] <%=provider.getLastName() %>, <%=provider.getFirstName() %></option>
+					<option value="<%=provider.getProviderNo() %>" <%=provider.getProviderNo().equals(requestingHic)?"selected":""%>>[<%=provider.getProviderNo()%>] <%=Encode.forHtmlContent(provider.getLastName()) %>, <%=Encode.forHtmlContent(provider.getFirstName()) %></option>
 			<% } %>
 				</select>
 			</td>
@@ -533,7 +534,7 @@
 					<option value=""></option>
 			<% for (Provider provider : allProvidersList) { 
 				if (!StringUtils.isEmpty(provider.getPractitionerNo())) { %>
-					<option value="<%=provider.getPractitionerNo() %>">[<%=provider.getProviderNo()%>] <%=provider.getLastName() %>, <%=provider.getFirstName() %></option>
+					<option value="<%=provider.getPractitionerNo() %>">[<%=provider.getProviderNo()%>] <%=Encode.forHtmlContent(provider.getLastName()) %>, <%=Encode.forHtmlContent(provider.getFirstName()) %></option>
 			<%  }
 			} %>
 				</select>
@@ -546,7 +547,7 @@
 					<option value=""></option>
 				<% for (Provider provider : allProvidersList) {
 					if (!StringUtils.isEmpty(provider.getPractitionerNo())) { %>
-					<option value="<%=provider.getPractitionerNo() %>">[<%=provider.getProviderNo()%>] <%=provider.getLastName() %>, <%=provider.getFirstName() %></option>
+					<option value="<%=provider.getPractitionerNo() %>">[<%=provider.getProviderNo()%>] <%=Encode.forHtmlContent(provider.getLastName()) %>, <%=Encode.forHtmlContent(provider.getFirstName()) %></option>
 				<%  }
 				} %>
 				</select>
@@ -559,7 +560,7 @@
 					<option value=""></option>
 					<% for (Provider provider : allProvidersList) {
 						if (!StringUtils.isEmpty(provider.getPractitionerNo())) { %>
-					<option value="<%=provider.getPractitionerNo() %>">[<%=provider.getProviderNo()%>] <%=provider.getLastName() %>, <%=provider.getFirstName() %></option>
+					<option value="<%=provider.getPractitionerNo() %>">[<%=provider.getProviderNo()%>] <%=Encode.forHtmlContent(provider.getLastName()) %>, <%=Encode.forHtmlContent(provider.getFirstName()) %></option>
 					<%  }
 					} %>
 				</select>
@@ -572,7 +573,7 @@
 					<option value=""></option>
 					<% for (Provider provider : allProvidersList) {
 						if (!StringUtils.isEmpty(provider.getPractitionerNo())) { %>
-					<option value="<%=provider.getPractitionerNo() %>">[<%=provider.getProviderNo()%>] <%=provider.getLastName() %>, <%=provider.getFirstName() %></option>
+					<option value="<%=provider.getPractitionerNo() %>">[<%=provider.getProviderNo()%>] <%=Encode.forHtmlContent(provider.getLastName()) %>, <%=Encode.forHtmlContent(provider.getFirstName()) %></option>
 					<%  }
 					} %>
 				</select>
@@ -722,7 +723,7 @@
 			<%
 			for (Provider provider : allProvidersList) {
 				%>
-				<option value="<%=provider.getProviderNo() %>" <%=provider.getProviderNo().equals(requestingHic)?"selected":""%>>[<%=provider.getProviderNo()%>] <%=provider.getLastName() %>, <%=provider.getFirstName() %></option>
+				<option value="<%=provider.getProviderNo() %>" <%=provider.getProviderNo().equals(requestingHic)?"selected":""%>>[<%=provider.getProviderNo()%>] <%=Encode.forHtmlContent(provider.getLastName()) %>, <%=Encode.forHtmlContent(provider.getFirstName()) %></option>
 			<%	
 			}
 			%>
@@ -765,7 +766,7 @@
 			
 			<option value=""></option>
 			<% for (Provider provider : allProvidersList) { %>
-				<option value="<%=provider.getProviderNo() %>">[<%=provider.getProviderNo()%>] <%=provider.getLastName() %>, <%=provider.getFirstName() %></option>
+				<option value="<%=provider.getProviderNo() %>">[<%=provider.getProviderNo()%>] <%=Encode.forHtmlContent(provider.getLastName()) %>, <%=Encode.forHtmlContent(provider.getFirstName()) %></option>
 			<% } %>
 </select></td>		
 		</tr>

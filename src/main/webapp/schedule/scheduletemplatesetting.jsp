@@ -31,6 +31,7 @@
 <%@page import="org.oscarehr.common.model.Provider" %>
 <%@page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
 <%@page import="org.oscarehr.util.SpringUtils" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
@@ -171,7 +172,7 @@ function go() {
 							
 							for(Provider p:providers) {
 						%>
-							<option value="<%=p.getProviderNo()%>"><%=p.getFormattedName()%></option>
+							<option value="<%=p.getProviderNo()%>"><%=Encode.forHtmlContent(p.getFormattedName())%></option>
 							
 						<% } %>
 				
@@ -217,7 +218,7 @@ function go() {
 <%
 							for(Provider p:providers) {
 						%>
-							<option value="<%=p.getProviderNo()%>"><%=p.getFormattedName()%></option>
+							<option value="<%=p.getProviderNo()%>"><%=Encode.forHtmlContent(p.getFormattedName())%></option>
 							
 						<% } %>
 						

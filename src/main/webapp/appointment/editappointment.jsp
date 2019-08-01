@@ -163,6 +163,7 @@
 <%@page import="org.oscarehr.common.dao.SiteDao"%>
 <%@page import="org.oscarehr.common.model.Site"%>
 <%@ page import="org.oscarehr.common.dao.AppointmentTypeDao" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <html:html locale="true">
 <head>
 <% if (isMobileOptimized) { %>
@@ -855,13 +856,13 @@ var appointmentTypeData = {};
 				</select>
  				</br>
 				<textarea id="reason" name="reason" tabindex="2" rows="2" wrap="virtual"
-					cols="18"><%=bFirstDisp?appt.getReason():request.getParameter("reason")%></textarea>
+					cols="18"><%=Encode.forHtmlContent(bFirstDisp?appt.getReason():request.getParameter("reason"))%></textarea>
             </div>
             <div class="space">&nbsp;</div>
             <div class="label"><bean:message key="Appointment.formNotes" />:</div>
             <div class="input">
 				<textarea name="notes" maxlength="255" tabindex="3" rows="2" wrap="virtual"
-					cols="18"><%=bFirstDisp?appt.getNotes():request.getParameter("notes")%></textarea>
+					cols="18"><%=Encode.forHtmlContent(bFirstDisp?appt.getNotes():request.getParameter("notes"))%></textarea>
             </div>
         </li>
 			<% if (pros.isPropertyActive("mc_number")) {
@@ -927,7 +928,7 @@ if (bMultisites) { %>
             <div class="input">
                 <input type="TEXT"
 					name="resources" tabindex="5"
-					value="<%=bFirstDisp?appt.getResources():request.getParameter("resources")%>"
+					value="<%=Encode.forHtmlAttribute(bFirstDisp?appt.getResources():request.getParameter("resources"))%>"
                     width="25">
             </div>
         </li>
@@ -935,7 +936,7 @@ if (bMultisites) { %>
             <div class="label">Creator:</div>
             <div class="input">
             <% String lastCreatorNo = bFirstDisp?(appt.getCreator()):request.getParameter("user_id"); %>
-                <INPUT TYPE="TEXT" NAME="user_id" VALUE="<%=lastCreatorNo%>" readonly WIDTH="25">
+                <INPUT TYPE="TEXT" NAME="user_id" VALUE="<%=Encode.forHtmlAttribute(lastCreatorNo)%>" readonly WIDTH="25">
             </div>
             <div class="space">&nbsp;</div>
             <div class="label"><bean:message key="Appointment.formLastTime" />:</div>
@@ -961,8 +962,8 @@ if (bMultisites) { %>
                 <INPUT TYPE="hidden" NAME="createdatetime" VALUE="<%=strDateTime%>">
 				<INPUT TYPE="hidden" NAME="provider_no" VALUE="<%=curProvider_no%>">
 				<INPUT TYPE="hidden" NAME="dboperation" VALUE="">
-                <INPUT TYPE="hidden" NAME="creator" VALUE="<%=userlastname+", "+userfirstname%>">
-                <INPUT TYPE="hidden" NAME="remarks" VALUE="<%=remarks%>">
+                <INPUT TYPE="hidden" NAME="creator" VALUE="<%=Encode.forHtmlAttribute(userlastname+", "+userfirstname)%>">
+                <INPUT TYPE="hidden" NAME="remarks" VALUE="<%=Encode.forHtmlAttribute(remarks)%>">
                 <INPUT TYPE="hidden" NAME="appointment_no" VALUE="<%=appointment_no%>">
             </div>
         </li>
@@ -987,7 +988,7 @@ if (bMultisites) { %>
             <div class="label">Last Editor:</div>
             <div class="input">
                 <INPUT TYPE="TEXT" readonly
-					VALUE="<%=lastCreatorNo%>" WIDTH="25">
+					VALUE="<%=Encode.forHtmlAttribute(lastCreatorNo)%>" WIDTH="25">
             </div>           
         </li>
           
@@ -1221,9 +1222,9 @@ if (bMultisites) { %>
 					<tr bgcolor="#eeeeff" style="<%=curUser_no.equals(currentProvider.getProviderNo())?"font-weight:bold":""%>">
 						<td style="background-color: #CCFFCC; padding-right: 25px"><%=ConversionUtils.toDateString(a.getAppointmentDate())%></td>
 						<td style="background-color: #CCFFCC; padding-right: 25px"><%=ConversionUtils.toTimeString(a.getStartTime())%></td>
-						<td style="background-color: #CCFFCC; padding-right: 25px"><%=((Provider)result[1]).getFormattedName()%></td>
+						<td style="background-color: #CCFFCC; padding-right: 25px"><%=Encode.forHtmlContent(((Provider) result[1]).getFormattedName())%></td>
 						<td style="background-color: #CCFFCC;"><%= statusDescription %></td>
-						<td style="background-color: #CCFFCC;" title="<%= notes %>"><%= shortenedNotes %></td>
+						<td style="background-color: #CCFFCC;" title="<%= Encode.forHtmlAttribute(notes) %>"><%= Encode.forHtmlContent(shortenedNotes) %></td>
 					</tr>
 					<%
 						}
@@ -1257,9 +1258,9 @@ if (bMultisites) { %>
 					<tr bgcolor="#eeeeff" style="<%=curUser_no.equals(currentProvider.getProviderNo())?"font-weight:bold":""%>">
 						<td style="padding-right: 25px"><%=ConversionUtils.toDateString(a.getAppointmentDate())%></td>
 						<td style="padding-right: 25px"><%=ConversionUtils.toTimeString(a.getStartTime())%></td>
-						<td style="padding-right: 25px"><%=currentProvider.getFormattedName()%></td>
+						<td style="padding-right: 25px"><%=Encode.forHtmlContent(currentProvider.getFormattedName())%></td>
 						<td style="padding-right: 25px"><%= statusDescription %></td>
-						<td style="padding-right: 25px" title="<%= notes %>"><%= shortenedNotes %></td>
+						<td style="padding-right: 25px" title="<%= Encode.forHtmlAttribute(notes) %>"><%= Encode.forHtmlContent(shortenedNotes) %></td>
 					</tr>
 					<%
 							}
@@ -1455,18 +1456,18 @@ Currently this is only used in the mobile version -->
                 <div class="info"><%=bFirstDisp ? appt.getType() : request.getParameter("type")%></div>
             </li>
             <li><div class="label"><bean:message key="Appointment.formReason" />: </div>
-                <div class="info"><%=bFirstDisp ? appt.getReason() : request.getParameter("reason")%></div>
+                <div class="info"><%=Encode.forHtmlContent(bFirstDisp ? appt.getReason() : request.getParameter("reason"))%></div>
             </li>
             <li><div class="label"><bean:message key="Appointment.formLocation" />: </div>
                 <div class="info"><%=bFirstDisp ? appt.getLocation() : request.getParameter("location")%></div>
             </li>
             <li><div class="label"><bean:message key="Appointment.formResources" />: </div>
-                <div class="info"><%=bFirstDisp ? appt.getResources() : request.getParameter("resources")%></div>
+                <div class="info"><%=Encode.forHtmlContent(bFirstDisp ? appt.getResources() : request.getParameter("resources"))%></div>
             </li>
             <li>&nbsp;</li>
             <li class="notes">
                 <div class="label"><bean:message key="Appointment.formNotes" />: </div>
-                <div class="info"><%=bFirstDisp ? appt.getNotes() : request.getParameter("notes")%></div>
+                <div class="info"><%=Encode.forHtmlContent(bFirstDisp ? appt.getNotes() : request.getParameter("notes"))%></div>
             </li>
         </ul>
     </div>

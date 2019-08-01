@@ -71,6 +71,7 @@
 <%@page import="org.oscarehr.common.model.ProviderSitePK"%>
 <%@page import="org.oscarehr.common.dao.ProviderSiteDao"%>
 	<%@ page import="org.oscarehr.common.dao.PropertyDao" %>
+	<%@ page import="org.owasp.encoder.Encode" %>
 
 
 	<head>
@@ -84,6 +85,18 @@
 function setfocus() {
   document.updatearecord.last_name.focus();
   document.updatearecord.last_name.select();
+}
+
+function onsub() {
+	if(["<", ">", "/", "\"", ";", "&"].some(function(element){
+		return document.updatearecord.last_name.value.includes(element) || document.updatearecord.first_name.value.includes(element);}
+	)){
+		alert("Provider Name can't contain any of the following characters:\n< > / \" ; &");
+		return false;
+	}
+	else{
+		return true;
+	}
 }
 
 jQuery(document).ready( function() {
@@ -146,7 +159,7 @@ jQuery(document).ready( function() {
 	</tr>
 </table>
 
-<form method="post" action="providerupdate.jsp" name="updatearecord">
+<form method="post" action="providerupdate.jsp" name="updatearecord" onsubmit="return onsub()">
 
 <%
 	String keyword = request.getParameter("keyword");
@@ -181,7 +194,7 @@ jQuery(document).ready( function() {
 			key="admin.provider.formLastName" />:</div>
 		</td>
 		<td><input type="text" index="3" name="last_name"
-			value="<%= provider.getLastName() %>" maxlength="30"></td>
+			value="<%= Encode.forHtmlAttribute(provider.getLastName()) %>" maxlength="30"></td>
 	</tr>
 	<tr>
 		<td>
@@ -189,7 +202,7 @@ jQuery(document).ready( function() {
 			key="admin.provider.formFirstName" />:</div>
 		</td>
 		<td><input type="text" index="4" name="first_name"
-			value="<%= provider.getFirstName() %>" maxlength="30"></td>
+			value="<%= Encode.forHtmlAttribute(provider.getFirstName()) %>" maxlength="30"></td>
 	</tr>
 
 
@@ -289,7 +302,7 @@ for (int i=0; i<sites.size(); i++) {
                     for( ProviderData p : providerL ) {
                         
                     %>
-                    <option value="<%=p.getId()%>" <%if( provider.getSupervisor() != null &&  provider.getSupervisor().equals(p.getId())){%>SELECTED<%}%>><%=p.getLastName() + ", " + p.getFirstName()%></option>
+                    <option value="<%=p.getId()%>" <%if( provider.getSupervisor() != null &&  provider.getSupervisor().equals(p.getId())){%>SELECTED<%}%>><%=Encode.forHtmlContent(p.getLastName() + ", " + p.getFirstName())%></option>
                         
                     <%
                     }

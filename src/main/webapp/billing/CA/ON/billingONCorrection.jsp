@@ -51,6 +51,7 @@
 <%@page import="java.text.NumberFormat" %>
 <%@ page import="org.oscarehr.common.model.CustomHealthcardType" %>
 <%@ page import="org.oscarehr.common.dao.CustomHealthcardTypeDao" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%@taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%@taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
@@ -1033,7 +1034,7 @@ function changeSite(sel) {
 					%>
 			<option value="<%=temp[0]%>"
 				<%=Provider.equals(temp[0])?"selected":""%>><%=temp[0]%> |
-			<%=temp[1]%>, <%=temp[2]%></option>
+			<%=Encode.forHtmlContent(temp[1])%>, <%=Encode.forHtmlContent(temp[2])%></option>
 			<%}
 
 				%>

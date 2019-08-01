@@ -47,6 +47,7 @@ if(!authed) {
 <%@ page import="org.oscarehr.common.model.Provider" %>
 <%@ page import="org.oscarehr.common.dao.MyGroupDao" %>
 <%@ page import="org.oscarehr.common.model.MyGroup" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
 	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
@@ -172,7 +173,7 @@ if(!authed) {
                        for(Provider p : providerDao.getActiveProviders()) {
                 %>
                 <option value="<%=p.getProviderNo()%>" <%=mygroupno.equals(p.getProviderNo())?"selected":""%>>
-                    <%=p.getFormattedName()%></option>
+                    <%=Encode.forHtmlContent(p.getFormattedName())%></option>
                     <%
                             }
                     %>
@@ -188,7 +189,7 @@ if(!authed) {
 
                         for(Provider p: providerDao.getActiveProviders()) {
                 %>
-                <option value="<%=p.getProviderNo()%>" <%=mygroupno.equals(p.getProviderNo())?"selected":""%>><%=p.getFormattedName()%></option>
+                <option value="<%=p.getProviderNo()%>" <%=mygroupno.equals(p.getProviderNo())?"selected":""%>><%=Encode.forHtmlContent(p.getFormattedName())%></option>
                     <%
                             }
                     %>

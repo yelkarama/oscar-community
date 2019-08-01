@@ -62,6 +62,7 @@
 <%@page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
 <%@page import="org.oscarehr.common.model.Security" %>
 <%@page import="org.oscarehr.common.dao.SecurityDao" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%
 	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 	SecurityDao securityDao = SpringUtils.getBean(SecurityDao.class);
@@ -230,7 +231,7 @@
     		List<Security> s = securityDao.findByProviderNo(p.getProviderNo());
     		if(s.size() > 0) {
     			%>
-    			<option value="<%=p.getProviderNo()%>"><%=p.getFormattedName()%></option>    			
+    			<option value="<%=p.getProviderNo()%>"><%=Encode.forHtmlContent(p.getFormattedName())%></option>    			
     			<%
     		}
     	}
@@ -241,7 +242,7 @@
     else {
     	for(Provider p : providerDao.getActiveProviders()) {
     		%>
-			<option value="<%=p.getProviderNo()%>"><%=p.getFormattedName()%></option>    	
+			<option value="<%=p.getProviderNo()%>"><%=Encode.forHtmlContent(p.getFormattedName())%></option>    	
 			<%
     	}
     }

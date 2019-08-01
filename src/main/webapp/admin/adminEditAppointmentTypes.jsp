@@ -58,6 +58,7 @@
 <%@ page import="oscar.appt.web.AppointmentTypeForm" %>
 <%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
 <%@ page import="org.oscarehr.common.model.Provider" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <html>
 <head>
 	<title>
@@ -216,7 +217,7 @@
 			<option value="all" selected="selected">All</option>
 			<%	for (Provider p : activeProviders) { %>
 			<option value="<%=p.getProviderNo()%>" <%=(p.getProviderNo().equals(selectedProviderNo)?"selected=\"selected\"":"")%>>
-				<%=p.getFormattedName()%>
+				<%=Encode.forHtmlContent(p.getFormattedName())%>
 			</option>
 			<% } %>
 		</select>

@@ -27,6 +27,7 @@
 <%@ page import="org.oscarehr.common.dao.ProviderDataDao, org.oscarehr.common.model.ProviderData" %>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="java.util.List, java.util.Collections" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
@@ -279,7 +280,7 @@
 	
 	for( ProviderData providerData : providerDataList ) {
 %>
-		<option value="<%=providerData.getId()%>"><%=providerData.getLastName() + ", " + providerData.getFirstName()%></option>
+		<option value="<%=providerData.getId()%>"><%=Encode.forHtmlContent(providerData.getLastName() + ", " + providerData.getFirstName())%></option>
 	
 <%
 	}

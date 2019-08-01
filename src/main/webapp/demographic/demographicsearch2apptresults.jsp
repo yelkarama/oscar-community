@@ -69,6 +69,7 @@
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
 <%@ page import="net.sf.json.JSONObject" %>
 <%@ page import="org.oscarehr.common.dao.DemographicExtDao" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <jsp:useBean id="providerBean" class="java.util.Properties" scope="session" />
 
@@ -232,25 +233,25 @@ function searchAll() {
 		<input type="hidden" name="month" value="<%=request.getParameter("month")%>">
 		<input type="hidden" name="day" value="<%=request.getParameter("day")%>">
 		<input type="hidden" name="appointment_date" value="<%=request.getParameter("appointment_date")%>">
-		<input type="hidden" name="notes" value="<%=request.getParameter("notes")%>">
+		<input type="hidden" name="notes" value="<%=Encode.forHtmlAttribute(request.getParameter("notes"))%>">
 		<input type="hidden" name="reasonCode" value="<%=request.getParameter("reasonCode")%>">
-		<input type="hidden" name="reason" value="<%=request.getParameter("reason")%>">
+		<input type="hidden" name="reason" value="<%=Encode.forHtmlAttribute(request.getParameter("reason"))%>">
 		<input type="hidden" name="location" value="<%=request.getParameter("location")%>">
-		<input type="hidden" name="resources" value="<%=request.getParameter("resources")%>">
+		<input type="hidden" name="resources" value="<%=Encode.forHtmlAttribute(request.getParameter("resources"))%>">
 		<input type="hidden" name="type" value="<%=request.getParameter("type")%>">
 		<input type="hidden" name="style" value="<%=request.getParameter("style")%>">
 		<input type="hidden" name="billing" value="<%=request.getParameter("billing")%>">
 		<input type="hidden" name="status" value="<%=request.getParameter("status")%>">
 		<input type="hidden" name="createdatetime" value="<%=request.getParameter("createdatetime")%>">
-		<input type="hidden" name="creator" value="<%=request.getParameter("creator")%>">
-		<input type="hidden" name="remarks" value="<%=request.getParameter("remarks")%>">
+		<input type="hidden" name="creator" value="<%=Encode.forHtmlAttribute(request.getParameter("creator"))%>">
+		<input type="hidden" name="remarks" value="<%=Encode.forHtmlAttribute(request.getParameter("remarks"))%>">
 		        
 <%
 	String temp=null;
 	for (Enumeration e = request.getParameterNames() ; e.hasMoreElements() ;) {
 		temp=e.nextElement().toString();
 		if(temp.equals("keyword") || temp.equals("dboperation") ||temp.equals("displaymode") ||temp.equals("search_mode") ||temp.equals("chart_no")  ||temp.equals("ptstatus") ||temp.equals("submit") || temp.equals("includeIntegratedResults")) continue; %>
-		<input type="hidden" name="<%=temp%>" value="<%=request.getParameter(temp)%>">
+		<input type="hidden" name="<%=temp%>" value="<%=Encode.forHtmlAttribute(request.getParameter(temp))%>">
  <% }
 %>
        <a href="#" onclick="showHideItem('demographicSearch');" id="cancelButton" class="leftButton top"><bean:message key="global.btnCancel" /></a>
@@ -579,7 +580,7 @@ function addNameCaisi(demographic_no,lastname,firstname,chartno,messageID) {
 	for (Enumeration e = request.getParameterNames() ; e.hasMoreElements() ;) {
 		temp=e.nextElement().toString();
 		if(temp.equals("keyword") || temp.equals("dboperation") ||temp.equals("displaymode")||temp.equals("submit") ||temp.equals("chart_no")) continue; %>
-  	  	<input type="hidden" name="<%=temp%>" value="<%=request.getParameter(temp)%>">
+  	  	<input type="hidden" name="<%=temp%>" value="<%=Encode.forHtmlAttribute(request.getParameter(temp))%>">
   <% }
   
 %>
@@ -675,7 +676,7 @@ function addNameCaisi(demographic_no,lastname,firstname,chartno,messageID) {
 	for (Enumeration e = request.getParameterNames() ; e.hasMoreElements() ;) {
 		temp=e.nextElement().toString();
 		if(temp.equals("dboperation") ||temp.equals("displaymode") ||temp.equals("submit")  ||temp.equals("chart_no")) continue; %>
-  		<input type='hidden' name="<%=temp%>" value="<%=request.getParameter(temp)%>">
+  		<input type='hidden' name="<%=temp%>" value="<%=Encode.forHtmlAttribute(request.getParameter(temp))%>">
 	<% }
 %>
 	<% if (demoList.size() == 1) {

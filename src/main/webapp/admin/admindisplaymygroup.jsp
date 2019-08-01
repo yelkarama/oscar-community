@@ -50,6 +50,7 @@
 <%@ page import="java.util.*,java.sql.*"%>
 <%@ page import="org.oscarehr.common.dao.PropertyDao" %>
 <%@ page import="org.oscarehr.common.model.Property" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <!DOCTYPE html>
 <html:html locale="true">
@@ -181,7 +182,7 @@ for(MyGroup myGroup : groupList) {
 	j++;
 %>
 			<li class="list-group-item provider">
-				<%=myGroup.getLastName()+","+ myGroup.getFirstName()%>
+				<%=Encode.forHtmlContent(myGroup.getLastName()+","+ myGroup.getFirstName())%>
 				<input name="removeBtn" type="hidden" />
 				<input name="providerNo" type="hidden" value="<%=myGroup.getId().getProviderNo()%>" />
 				<span class="controls">

@@ -421,8 +421,8 @@ function submit(form) {
       <form name="myform<%= providerNo %>" action="providerRole.jsp" method="POST">
             <tr bgcolor="<%=colors[i%2]%>">
               <td><%= providerNo %></td>
-              <td><%= item.getProperty("first_name", "") %></td>
-              <td><%= item.getProperty("last_name", "") %></td>
+              <td><%= Encode.forHtmlContent(item.getProperty("first_name", "")) %></td>
+              <td><%= Encode.forHtmlContent(item.getProperty("last_name", "")) %></td>
               <td align="center">
               <select name="roleNew">
                       <option value="-" >-</option>
@@ -480,7 +480,7 @@ function submit(form) {
                                         String providerNo = prop.getProperty("provider_no");
                                         if(!temp1.contains(providerNo)) {
                                                 %>
-                                                        <option value="<%=providerNo%>"><%=prop.getProperty("last_name") + "," + prop.getProperty("first_name") %></option>
+                                                        <option value="<%=providerNo%>"><%=Encode.forHtmlContent(prop.getProperty("last_name") + "," + prop.getProperty("first_name")) %></option>
                                                 <%
                                                 temp1.add(providerNo);
                                         }

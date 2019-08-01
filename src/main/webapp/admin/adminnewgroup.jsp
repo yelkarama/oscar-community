@@ -37,6 +37,7 @@
 <%@ page import="org.oscarehr.common.model.ProviderData"%>
 <%@ page import="org.oscarehr.common.dao.ProviderDataDao"%>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
 	MyGroupDao myGroupDao = SpringUtils.getBean(MyGroupDao.class);
@@ -200,11 +201,11 @@ function validate() {
 				<td width="20px" ALIGN="center">
 				<input type="checkbox" name="data" value="<%=i%>"> 
 				<input type="hidden" name="provider_no<%=i%>" value="<%= provider.getId() %>"> 
-				<input type="hidden" name="last_name<%=i%>" value='<%= provider.getLastName() %>'> 
-				<input type="hidden" name="first_name<%=i%>" value='<%= provider.getFirstName() %>'>
+				<input type="hidden" name="last_name<%=i%>" value='<%= Encode.forHtmlAttribute(provider.getLastName()) %>'> 
+				<input type="hidden" name="first_name<%=i%>" value='<%= Encode.forHtmlAttribute(provider.getFirstName()) %>'>
 				</td>
 				
-				<td><%= provider.getLastName() %>, <%= provider.getFirstName() %></td>
+				<td><%= Encode.forHtmlContent(provider.getLastName()) %>, <%= Encode.forHtmlContent(provider.getFirstName()) %></td>
 
 			</tr>
 <%

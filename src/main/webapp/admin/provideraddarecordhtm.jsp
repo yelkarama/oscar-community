@@ -122,6 +122,12 @@ function onsub() {
   		alert("Provider No. must be a number.");
   		return false;
   }
+  if(["<", ">", "/", "\"", ";", "&"].some(function(element){
+  		return document.searchprovider.last_name.value.includes(element) || document.searchprovider.first_name.value.includes(element);}
+  	)){
+  		alert("Provider Name can't contain any of the following characters:\n< > / \" ; &");
+	  	return false;
+  }
   else {
     	return true;
   }
@@ -286,7 +292,7 @@ for (int i=0; i<sites.size(); i++) {
                     <%
                     for( ProviderData p : providerL ) {
                     %>
-                    <option value="<%=p.getId()%>"><%=p.getLastName() + ", " + p.getFirstName()%></option>
+                    <option value="<%=p.getId()%>"><%=Encode.forHtmlContent(p.getLastName() + ", " + p.getFirstName())%></option>
                         
                     <%
                     }

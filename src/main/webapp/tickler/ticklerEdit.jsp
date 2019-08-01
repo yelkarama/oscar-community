@@ -44,6 +44,7 @@
 <%@ page import="oscar.OscarProperties" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="org.oscarehr.PMmodule.dao.ProgramProviderDAO" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
 	TicklerManager ticklerManager = SpringUtils.getBean(TicklerManager.class);
@@ -244,8 +245,8 @@
                                 %>
                 
                 <tr>
-                    <td colspan="2" class="<%=cellColour%>" style="font-weight: bold"><%=t.getMessage()%></td>
-                    <td class="<%=cellColour%>" style="font-weight: bold"><%=t.getProvider().getLastName()%>,<%=t.getProvider().getFirstName()%></td>
+                    <td colspan="2" class="<%=cellColour%>" style="font-weight: bold"><%=Encode.forHtmlContent(t.getMessage())%></td>
+                    <td class="<%=cellColour%>" style="font-weight: bold"><%=Encode.forHtmlContent(t.getProvider().getLastName())%>, <%=Encode.forHtmlContent(t.getProvider().getFirstName())%></td>
                     <td class="<%=cellColour%>" style="font-weight: bold"><%=t.getUpdateDate()%></td>
                 </tr>
                 
@@ -259,8 +260,8 @@
                                                                 }
                                     %>
                <tr>
-                    <td colspan="2" class="<%=cellColour%>"><%=tc.getMessage()%></td>
-                    <td class="<%=cellColour%>"><%=tc.getProvider().getLastName()%>,<%=tc.getProvider().getFirstName()%></td>
+                    <td colspan="2" class="<%=cellColour%>"><%=Encode.forHtmlContent(tc.getMessage())%></td>
+                    <td class="<%=cellColour%>"><%=Encode.forHtmlContent(tc.getProvider().getLastName())%>, <%=Encode.forHtmlContent(tc.getProvider().getFirstName())%></td>
                     <td class="<%=cellColour%>"><%=tc.getUpdateDateTime(vLocale)%></td>
                 </tr>
                     <%}%>
@@ -280,7 +281,7 @@
                             <%   
                                 TicklerTextSuggestDao ticklerTextSuggestDao = (TicklerTextSuggestDao) SpringUtils.getBean("ticklerTextSuggestDao");
                                 for (TicklerTextSuggest tTextSuggest : ticklerTextSuggestDao. getActiveTicklerTextSuggests()) { %>
-                                <option><%=tTextSuggest.getSuggestedText()%></option>
+                                <option><%=Encode.forHtmlContent(tTextSuggest.getSuggestedText())%></option>
                             <% } %>
                         </select>
                     </td>
@@ -336,7 +337,7 @@
                                         selected = "";
                                     }
                             %>
-                            <option <%=selected%> value="<%=p.getProviderNo()%>"><%=p.getLastName()%>,<%=p.getFirstName()%></option>
+                            <option <%=selected%> value="<%=p.getProviderNo()%>"><%=Encode.forHtmlContent(p.getLastName())%>, <%=Encode.forHtmlContent(p.getFirstName())%></option>
                             <%  } %>
                         </select>
                     </td>

@@ -633,6 +633,7 @@
 <%@ page import="javax.swing.*" %>
 <%@ page import="oscar.oscarDemographic.data.ProvinceNames" %>
 <%@ page import="org.oscarehr.billing.ScheduleBillingServiceAction" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <html>
 <head>
 <title>Ontario Billing</title>
@@ -1715,7 +1716,7 @@ var _providers = [];
 	while (iter.hasNext()) {
 		Provider p=iter.next();
 		if ("1".equals(p.getStatus()) && StringUtils.isNotBlank(p.getOhipNo())) {
-	%><option value='<%= p.getProviderNo() %>|<%= p.getOhipNo() %>' ><%=p.getLastName()%>, <%=p.getFirstName()%></option><%}}%>";
+	%><option value='<%= p.getProviderNo() %>|<%= p.getOhipNo() %>' ><%=Encode.forHtmlAttribute(p.getLastName())%>, <%=Encode.forHtmlAttribute(p.getFirstName())%></option><%}}%>";
 <%}%>
 function changeSite(sel) {
 	sel.form.xml_provider.innerHTML=sel.value=="none"?"":_providers[sel.value];

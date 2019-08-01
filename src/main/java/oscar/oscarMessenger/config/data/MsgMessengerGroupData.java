@@ -40,6 +40,7 @@ import org.oscarehr.common.model.Provider;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
+import org.owasp.encoder.Encode;
 import oscar.util.ConversionUtils;
 
 /**
@@ -118,10 +119,10 @@ public class MsgMessengerGroupData {
 				}
 				out.print("      </td>");
 				out.print("      <td>");
-				out.print(p.getLastName());
+				out.print(Encode.forHtmlContent(p.getLastName()));
 				out.print("      </td>");
 				out.print("      <td>");
-				out.print(p.getFirstName());
+				out.print(Encode.forHtmlContent(p.getFirstName()));
 				out.print("      </td>");
 				out.print("      <td>");
 

@@ -3,6 +3,7 @@
 <%@ page import="oscar.oscarReport.data.DoctorList"%>
 <%@ page import="oscar.oscarProvider.bean.ProviderNameBean"%>
 <%@ page import="java.util.ArrayList"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%@ include file="/taglibs.jsp"%>
 <c:set var="ctx" value="${pageContext.request.contextPath}"
@@ -45,7 +46,7 @@ if(!authed) {
 							for (int i = 0; i < dnl.size(); i++) {
 								ProviderNameBean pb = (ProviderNameBean) dnl.get(i);
 						%>
-						<option value="<%=pb.getProviderID()%>"><%=pb.getProviderName()%></option>
+						<option value="<%=pb.getProviderID()%>"><%=Encode.forHtmlContent(pb.getProviderName())%></option>
 						<%
 							}
 						%>

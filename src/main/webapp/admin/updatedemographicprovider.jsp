@@ -49,6 +49,7 @@ if(!authed) {
 <%@ page import="org.oscarehr.common.model.Provider" %>
 <%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
 <%@ page import="oscar.OscarProperties"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%
 	DemographicCustDao demographicCustDao = (DemographicCustDao)SpringUtils.getBean("demographicCustDao");
 	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
@@ -254,7 +255,7 @@ function setregexp2() {
 			<%
  	 for(int i=0; i<names.size(); i=i+2) {
 %>
-			<option value="<%=names.get(i)%>"><%=names.get(i+1)%></option>
+			<option value="<%=Encode.forHtmlContent(names.get(i))%>"><%=Encode.forHtmlContent(names.get(i+1))%></option>
 			<%
  	 }
 %>
@@ -264,7 +265,7 @@ function setregexp2() {
 			<%
  	 for(int i=0; i<names.size(); i=i+2) {
 %>
-			<option value="<%=names.get(i)%>"><%=names.get(i+1)%></option>
+			<option value="<%=Encode.forHtmlContent(names.get(i))%>"><%=Encode.forHtmlContent(names.get(i+1))%></option>
 			<%
  	 }
 %>
@@ -314,7 +315,7 @@ function setregexp2() {
 			<%
  	 for(int i=0; i<names.size(); i=i+2) {
 %>
-			<option value="<%=names.get(i)%>"><%=names.get(i+1)%></option>
+			<option value="<%=Encode.forHtmlContent(names.get(i))%>"><%=Encode.forHtmlContent(names.get(i+1))%></option>
 			<%
  	 }
 %>
@@ -324,7 +325,7 @@ function setregexp2() {
 			<%
  	 for(int i=0; i<names.size(); i=i+2) {
 %>
-			<option value="<%=names.get(i)%>"><%=names.get(i+1)%></option>
+			<option value="<%=Encode.forHtmlContent(names.get(i))%>"><%=Encode.forHtmlContent(names.get(i+1))%></option>
 			<%
  	 }
 %>
@@ -375,7 +376,7 @@ function setregexp2() {
 			<%
  	 for(int i=0; i<names.size(); i=i+2) {
 %>
-			<option value="<%=names.get(i)%>"><%=names.get(i+1)%></option>
+			<option value="<%=Encode.forHtmlContent(names.get(i))%>"><%=Encode.forHtmlContent(names.get(i+1))%></option>
 			<%
  	 }
 %>
@@ -385,7 +386,7 @@ function setregexp2() {
 			<%
  	 for(int i=0; i<names.size(); i=i+2) {
 %>
-			<option value="<%=names.get(i)%>"><%=names.get(i+1)%></option>
+			<option value="<%=Encode.forHtmlContent(names.get(i))%>"><%=Encode.forHtmlContent(names.get(i+1))%></option>
 			<%
  	 }
 %>

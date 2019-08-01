@@ -65,6 +65,7 @@
 <%@page import="org.oscarehr.common.model.ProviderSitePK"%>
 <%@page import="org.oscarehr.common.dao.ProviderSiteDao"%>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="java.util.regex.Pattern" %>
 <%
 	ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
 	ProviderSiteDao providerSiteDao = SpringUtils.getBean(ProviderSiteDao.class);
@@ -188,10 +189,12 @@ DBPreparedHandler dbObj = new DBPreparedHandler();
   {
   	p.setProviderNo(dbObj.getNewProviderNo());
   }
-  
+  Pattern pattern = Pattern.compile("[<>/\";&]");
   if(providerDao.providerExists(p.getProviderNo())) {
 	  isOk=false;
 	  alreadyExists=true;
+  } else if(pattern.matcher(p.getLastName()).find()) {
+	  isOk = false;
   } else if ((StringUtils.isNumeric(p.getProviderNo()) ||
 		  (StringUtils.isNotEmpty(p.getProviderNo())) && p.getProviderNo().equals("-new-")) &&
   			StringUtils.isNotEmpty(p.getLastName()) &&
@@ -232,6 +235,11 @@ if (isOk) {
 	if(alreadyExists) {
 		%><h2><bean:message key="admin.provideraddrecord.msgAlreadyExists" /></h2>
 		<h3>The provider number may already exist with or without leading zeroes</h3>
+	<%
+	} else {
+	%>
+		<h2><bean:message key="admin.provideraddrecord.msgGenericError" /></h2>
+		<h3>One of the provider fields may have an invalid value</h3>
 	<%
 	}
 

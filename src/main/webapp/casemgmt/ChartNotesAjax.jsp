@@ -63,6 +63,7 @@
 <%@page import="org.oscarehr.common.dao.EncounterTemplateDao"%>
 <%@page import="org.oscarehr.casemgmt.web.CheckBoxBean"%>
 <%@page import="org.oscarehr.common.model.CasemgmtNoteLock"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
     String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -398,10 +399,10 @@ CasemgmtNoteLock casemgmtNoteLock = (CasemgmtNoteLock)session.getAttribute("case
 						<img title="<bean:message key="oscarEncounter.print.title"/>" id='print<%=globalNoteId%>' alt="<bean:message key="oscarEncounter.togglePrintNote.title"/>" onclick="togglePrint(<%=globalNoteId%>, event)" style='float: right; margin-right: 5px;' src='<%=ctx %>/oscarEncounter/graphics/printer.png' />
 
 						<security:oscarSec roleName="<%=roleName2$%>" objectName="_casemgmt.notes" rights="w" reverse="false">
-							<textarea tabindex="7" cols="84" rows="10" class="txtArea" wrap="soft" style="line-height: 1.1em;" name="caseNote_note" id="caseNote_note<%=savedId%>"><%=cform.getCaseNote_note()%></textarea>
+							<textarea tabindex="7" cols="84" rows="10" class="txtArea" wrap="soft" style="line-height: 1.1em;" name="caseNote_note" id="caseNote_note<%=savedId%>"><%=Encode.forHtmlContent(cform.getCaseNote_note())%></textarea>
 						</security:oscarSec>
 						<security:oscarSec roleName="<%=roleName2$%>" objectName="_casemgmt.notes" rights="w" reverse="true">
-							<textarea tabindex="7" cols="84" rows="10" class="txtArea" wrap="soft" style="line-height: 1.1em;" name="caseNote_note" id="caseNote_note<%=savedId%>" readonly><%=cform.getCaseNote_note()%></textarea>
+							<textarea tabindex="7" cols="84" rows="10" class="txtArea" wrap="soft" style="line-height: 1.1em;" name="caseNote_note" id="caseNote_note<%=savedId%>" readonly><%=Encode.forHtmlContent(cform.getCaseNote_note())%></textarea>
 						</security:oscarSec>
 						
 						<div class="sig" style="display:inline;<%=bgColour%>" id="sig<%=globalNoteId%>">
@@ -453,7 +454,7 @@ CasemgmtNoteLock casemgmtNoteLock = (CasemgmtNoteLock)session.getAttribute("case
 						{
 					 	%>
 						 	<div style="background-color:#ffcccc; text-align:right">
-						 		<bean:message key="oscarEncounter.noteFrom.label" />&nbsp;<%=note.getLocation()%>,<%=note.getProviderName()%>
+						 		<bean:message key="oscarEncounter.noteFrom.label" />&nbsp;<%=note.getLocation()%>, <%=Encode.forHtmlContent(note.getProviderName())%>
 						 	</div>
 						<%
 						}
@@ -724,11 +725,11 @@ CasemgmtNoteLock casemgmtNoteLock = (CasemgmtNoteLock)session.getAttribute("case
 
 													if (count % MAXLINE == 0)
 													{
-														out.print("<li>" + providerName + "; ");
+														out.print("<li>" + Encode.forHtmlContent(providerName) + "; ");
 													}
 													else
 													{
-														out.print(providerName + "</li>");
+														out.print(Encode.forHtmlContent(providerName) + "</li>");
 													}
 													if (it.hasNext()) ++count;
 												}

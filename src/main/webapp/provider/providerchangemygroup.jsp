@@ -33,6 +33,7 @@
 <%@ page import="org.oscarehr.util.SpringUtils"%>
 <%@ page import="org.oscarehr.common.model.MyGroup"%>
 <%@ page import="org.oscarehr.common.dao.MyGroupDao"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
 	MyGroupDao dao = SpringUtils.getBean(MyGroupDao.class);
@@ -112,7 +113,7 @@ function setfocus() {
 %>
 			<tr BGCOLOR="<%=bNewNo?"white":"ivory"%>">
 				<td ALIGN="center"><font face="arial"> <%=myGroup.getId().getMyGroupNo()%></font></td>
-				<td><font face="arial"> &nbsp;<%=myGroup.getLastName()+", "+myGroup.getFirstName()%></font>
+				<td><font face="arial"> &nbsp;<%=Encode.forHtmlContent(myGroup.getLastName()+", "+myGroup.getFirstName())%></font>
 				</td>
 			</tr>
 			<%

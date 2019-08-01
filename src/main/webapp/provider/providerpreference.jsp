@@ -62,6 +62,7 @@
 <%@ page import="oscar.oscarRx.data.RxPharmacyData" %>
 <%@ page import="org.oscarehr.common.model.PharmacyInfo" %>
 <%@ page import="oscar.oscarProvider.data.DefaultHcTypeBillToRemitToPreferenceService" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
 	CtlBillingServiceDao ctlBillingServiceDao = SpringUtils.getBean(CtlBillingServiceDao.class);
@@ -381,7 +382,7 @@ function updateElement(eId, data) {
 					<select name="default_doctor">
 						<option value=""></option>
 						<% for (Provider doctor : doctors) { %>
-							<option value="<%= doctor.getProviderNo() %>" <%=doctor.getProviderNo().equals(defaultDoctor) ? "selected='selected'" : ""%>> <%= doctor.getFormattedName() %> </option>
+							<option value="<%= doctor.getProviderNo() %>" <%=doctor.getProviderNo().equals(defaultDoctor) ? "selected='selected'" : ""%>> <%= Encode.forHtmlContent(doctor.getFormattedName()) %> </option>
 						<% } %>
 					</select>
 				</td>
@@ -555,7 +556,7 @@ function updateElement(eId, data) {
                     <select name="ticklerDefaultRecipient">
                         <option value=""></option>
                         <% for (Provider provider : listProvider) { %>
-                        <option value="<%= provider.getProviderNo() %>" <%=provider.getProviderNo().equals(defaultRecipient) ? "selected='selected'" : ""%>> <%= provider.getFormattedName() %> </option>
+                        <option value="<%= provider.getProviderNo() %>" <%=provider.getProviderNo().equals(defaultRecipient) ? "selected='selected'" : ""%>> <%= Encode.forHtmlContent(provider.getFormattedName()) %> </option>
                         <% } %>
                     </select>
                 </td>

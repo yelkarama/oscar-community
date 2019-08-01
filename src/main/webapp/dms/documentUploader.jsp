@@ -15,6 +15,7 @@
 <%@page import="org.oscarehr.common.model.UserProperty"%>
 <%@page import="org.oscarehr.util.SpringUtils"%>
 <%@page import="org.oscarehr.common.dao.UserPropertyDAO"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
@@ -157,7 +158,7 @@ if (isFirefox > 0) {
 					for (int i = 0; i < providers.size(); i++) {
 	                	Provider h = providers.get(i);
 	                %>
-					<option value="<%= h.getProviderNo()%>" <%= (h.getProviderNo().equals(provider) ? " selected" : "")%>><%= h.getLastName()%> <%= h.getFirstName()%></option>
+					<option value="<%= h.getProviderNo()%>" <%= (h.getProviderNo().equals(provider) ? " selected" : "")%>><%= Encode.forHtmlContent(h.getLastName())%> <%= Encode.forHtmlContent(h.getFirstName())%></option>
 					<%
 					}
 					%>

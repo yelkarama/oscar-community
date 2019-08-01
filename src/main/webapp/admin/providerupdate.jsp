@@ -62,6 +62,7 @@ if(!authed) {
 <%@ page import="oscar.util.ChangedField" %>
 <%@ page import="org.oscarehr.util.LoggedInInfo" %>
 <%@ page import="oscar.util.StringUtils" %>
+<%@ page import="java.util.regex.Pattern" %>
 <%
 	ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
 	ProviderSiteDao providerSiteDao = SpringUtils.getBean(ProviderSiteDao.class);
@@ -198,7 +199,10 @@ if(!authed) {
                   else {
                     p.setSupervisor(supervisor);
                   }
-		  
+
+          Pattern pattern = Pattern.compile("[<>/\";&]");
+          if(!pattern.matcher(p.getLastName()).find()){
+  
 		  providerDao.updateProvider(p);
 		  
 		  
@@ -268,9 +272,14 @@ if(!authed) {
 <%
   } else {
 %>
-<h1><bean:message key="admin.providerupdate.msgUpdateFailure" /><%= request.getParameter("provider_no") %>.</h1>
+<h1><bean:message key="admin.providerupdate.msgUpdateFailure" /> <%= request.getParameter("provider_no") %></h1>
 <%
-  }
+  } 
+}else {
+%>
+<h1><bean:message key="admin.providerupdate.msgUpdateFailure" /> <%= request.getParameter("provider_no") %></h1>
+<%
+}
 }
 else {
 	if (!isProviderFormalize) {

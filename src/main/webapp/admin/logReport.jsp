@@ -93,6 +93,7 @@ boolean authed=true;
 <%@page import="oscar.Misc"%>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <html:html locale="true">
 <head>
 
@@ -153,7 +154,7 @@ label{margin-top:6px;margin-bottom:0px;}
 					%>
 					<option value="<%=prov %>"
 						<% if ((selected != null) && (selected.equals(prov))) { %> selected
-						<% } %>><%= ((Properties)vecProvider.get(i)).getProperty("name", "") %>
+						<% } %>><%= Encode.forHtmlContent(((Properties) vecProvider.get(i)).getProperty("name", "")) %>
 					</option>
 					<%
 		                }

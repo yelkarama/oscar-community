@@ -67,6 +67,7 @@ if(!authed2) {
 <%@page import="org.oscarehr.common.dao.BillingONCHeader1Dao"%>
 <%@page import="org.oscarehr.common.model.BillingONCHeader1"%>
 <%@page import="oscar.util.ConversionUtils"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%
 	ClinicLocationDao clinicLocationDao = (ClinicLocationDao)SpringUtils.getBean("clinicLocationDao");
 	ReportProviderDao reportProviderDao = SpringUtils.getBean(ReportProviderDao.class);
@@ -157,7 +158,7 @@ function popupPage(height, width, url) {
 							Provider p = providerDao.getProvider(rps.getProviderNo());
 							if (p.getStatus().equals("1")) {
 					%>
-							<option value="<%=p.getProviderNo()%>"><%=p.getFormattedName()%></option>
+							<option value="<%=p.getProviderNo()%>"><%=Encode.forHtmlContent(p.getFormattedName())%></option>
 					<%
 							}
 						}

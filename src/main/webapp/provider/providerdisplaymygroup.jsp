@@ -31,6 +31,7 @@
 <%@ page import="org.oscarehr.util.SpringUtils"%>
 <%@ page import="org.oscarehr.common.model.MyGroup"%>
 <%@ page import="org.oscarehr.common.dao.MyGroupDao"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
 	MyGroupDao dao = SpringUtils.getBean(MyGroupDao.class);
@@ -96,7 +97,7 @@
 					name="<%=groupNo+myGroup.getId().getProviderNo()%>"
 					value="<%=groupNo%>"></td>
 				<td ALIGN="center"><font face="arial"> <%=groupNo%></font></td>
-				<td ALIGN="center"><font face="arial"> <%=myGroup.getLastName()+", "+myGroup.getFirstName()%></font>
+				<td ALIGN="center"><font face="arial"> <%=Encode.forHtmlContent(myGroup.getLastName()+", "+myGroup.getFirstName())%></font>
 				</td>
 			</tr>
 			<%

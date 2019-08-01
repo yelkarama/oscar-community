@@ -439,7 +439,7 @@ for(SecObjPrivilege sop:sops) {
 		</select> or <select name="roleUserGroup1">
 			<option value="">-</option>
 			<%					for (int j = 0; j < vecProviderNo.size(); j++) {%>
-			<option value="<%=vecProviderNo.get(j)%>"><%= vecProviderName.get(j) %>
+			<option value="<%=vecProviderNo.get(j)%>"><%= Encode.forHtmlContent((String) vecProviderName.get(j)) %>
 			</option>
 			<%                  }%>
 			<option value="_principal">_principal</option>

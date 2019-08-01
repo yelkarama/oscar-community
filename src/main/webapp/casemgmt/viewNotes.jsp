@@ -51,6 +51,7 @@
 <%@ page import="org.oscarehr.common.dao.Icd9Dao" %>
 <%@ page import="org.oscarehr.common.model.Icd9" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
     boolean authed=true;
@@ -136,7 +137,7 @@
                 List<Provider> listEditors = note.getEditors();
                 StringBuffer editors = new StringBuffer();
                 for( Provider p: listEditors) {
-                	editors.append(p.getFormattedName() + ";");                     
+                	editors.append(Encode.forHtmlContent(p.getFormattedName()) + ";");                     
                 }             
                 
                 String htmlNoteTxt = note.getNote() + addlData;
@@ -224,7 +225,7 @@
 				    <%
 				}
 				%>
-					<a class="links" onmouseover="this.className='linkhover'"	onmouseout="this.className='links'" title="<%=remoteNote.getLocation()%> by <%=remoteNote.getProviderName()%> on <%=ConversionUtils.toTimestampString(remoteNote.getObservationDate())%>" href="javascript:void(0)" onclick="showIntegratedNote('<%=title%>',<%=htmlText%>,<%=remoteNote.getLocation()%>, <%=remoteNote.getProviderName()%>, <%=ConversionUtils.toTimestampString(remoteNote.getObservationDate())%>);">					
+					<a class="links" onmouseover="this.className='linkhover'"	onmouseout="this.className='links'" title="<%=remoteNote.getLocation()%> by <%=Encode.forHtmlAttribute(remoteNote.getProviderName())%> on <%=ConversionUtils.toTimestampString(remoteNote.getObservationDate())%>" href="javascript:void(0)" onclick="showIntegratedNote('<%=title%>',<%=htmlText%>,<%=remoteNote.getLocation()%>, <%=Encode.forJavaScript(remoteNote.getProviderName())%>, <%=ConversionUtils.toTimestampString(remoteNote.getObservationDate())%>);">					
 					<%=htmlText%>
 					</a>
 				</li>

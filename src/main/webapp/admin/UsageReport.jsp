@@ -59,6 +59,7 @@ if(!authed) {
 <%@page import="org.oscarehr.common.model.CustomFilter" %>
 <%@page import="org.oscarehr.common.dao.DocumentDao"%>
 <%@page import="org.oscarehr.common.dao.BillingONCHeader1Dao" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%@ include file="/taglibs.jsp"%>
 <c:set var="ctx" value="${pageContext.request.contextPath}"	scope="request" />
@@ -103,7 +104,7 @@ ProviderDao providerDao	                        = (ProviderDao)SpringUtils.getBe
 																				&& providerNo.equals(provider.getProviderNo())) {
 																			selected = " selected=\"selected\" ";
 																		}
-						%><option value="<%=provider.getProviderNo()%>" <%=selected%>><%=provider.getFormattedName()%></option>
+						%><option value="<%=provider.getProviderNo()%>" <%=selected%>><%=Encode.forHtmlContent(provider.getFormattedName())%></option>
 						<%
 							}
 						%>

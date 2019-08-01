@@ -32,6 +32,7 @@
 <%@ page import="oscar.oscarMDS.data.ProviderData, java.util.ArrayList, oscar.oscarLab.ForwardingRules, oscar.OscarProperties"%>
 <%@ page import="org.oscarehr.common.model.Provider" %>
 <%@ page import="java.util.List" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
@@ -159,7 +160,7 @@ Please Select the provider to set forwarding rules for:
 	<% List<Provider> providers = ProviderData.getAllProviders();
     for (Provider provider : providers) { %>
 	    <option value="<%= provider.getProviderNo() %>" <%= provider.getProviderNo().equals(providerNo) ? "selected" : "" %>>
-            <%= provider.getFirstName() + " " + provider.getLastName() %>
+            <%= Encode.forHtmlContent(provider.getFirstName() + " " + provider.getLastName()) %>
         </option>
 	<% }%>
 </select> 
@@ -202,10 +203,10 @@ status = fr.getStatus(providerNo);
 <tbody>
 <%for (int i=0; i < frwdProviders.size(); i++){%> 
 <tr> 
-<td><%= (String) ((ArrayList) frwdProviders.get(i)).get(1) %> <%= (String) ((ArrayList) frwdProviders.get(i)).get(2) %></td>
+<td><%= Encode.forHtmlContent((String) ((ArrayList) frwdProviders.get(i)).get(1)) %> <%= Encode.forHtmlContent((String) ((ArrayList) frwdProviders.get(i)).get(2)) %></td>
 <td><%= status.equals("N") ? "New" : "Filed" %></td>
 <td><%=(String) ((ArrayList) frwdProviders.get(i)).get(3)%></td>
-<td><button type="submit" class="btn btn-small" onclick="return removeProvider('<%= (String) ((ArrayList) frwdProviders.get(i)).get(0) %>', '<%= StringEscapeUtils.escapeJavaScript((String) ((ArrayList) frwdProviders.get(i)).get(1)) %> <%= StringEscapeUtils.escapeJavaScript((String) ((ArrayList) frwdProviders.get(i)).get(2)) %>')" title="remove provider"><i class="icon-trash"></i> remove</button></td>
+<td><button type="submit" class="btn btn-small" onclick="return removeProvider('<%= Encode.forHtmlContent((String) ((ArrayList) frwdProviders.get(i)).get(0)) %>', '<%= StringEscapeUtils.escapeJavaScript((String) ((ArrayList) frwdProviders.get(i)).get(1)) %> <%= StringEscapeUtils.escapeJavaScript((String) ((ArrayList) frwdProviders.get(i)).get(2)) %>')" title="remove provider"><i class="icon-trash"></i> remove</button></td>
 </tr> 
 
 <br />
@@ -256,7 +257,7 @@ status = fr.getStatus(providerNo);
 
 							for (Provider provider : providerList) {
 								String provNo = provider.getProviderNo();
-						%> <option value="<%=provNo%>" <%=provNo.equals(providerNo)?"selected=\'selected\'":""%>><%=provider.getFormattedName()%></option> <%
+						%> <option value="<%=provNo%>" <%=provNo.equals(providerNo)?"selected=\'selected\'":""%>><%=Encode.forHtmlContent(provider.getFormattedName())%></option> <%
 						    }
 					%>
 					</optgroup>

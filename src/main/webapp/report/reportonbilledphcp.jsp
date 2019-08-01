@@ -73,7 +73,9 @@ if(!authed) {
 %>
 <%@page import="oscar.oscarDB.DBPreparedHandler"%>
 
-<%@page import="oscar.Misc"%><html:html locale="true">
+<%@page import="oscar.Misc"%>
+<%@ page import="org.owasp.encoder.Encode" %>
+<html:html locale="true">
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>PHCP Report</title>
@@ -144,8 +146,8 @@ function onSub() {
 %>
 			<option
 				value="<%=((Properties)VEC_PROVIDER[0].get(i)).getProperty("providerNo", "")  %>">
-			<%= ((Properties)VEC_PROVIDER[0].get(i)).getProperty("firstName", "") + " " +
-                          ((Properties)VEC_PROVIDER[0].get(i)).getProperty("lastName", "") %>
+			<%=Encode.forHtmlContent(((Properties) VEC_PROVIDER[0].get(i)).getProperty("firstName", "") + " " +
+                          ((Properties)VEC_PROVIDER[0].get(i)).getProperty("lastName", "")) %>
 			</option>
 			<%
                 }
@@ -157,8 +159,8 @@ function onSub() {
 %>
 			<option
 				value="<%=((Properties)VEC_PROVIDER[1].get(i)).getProperty("providerNo", "")  %>">
-			<%= ((Properties)VEC_PROVIDER[1].get(i)).getProperty("firstName", "") + " " +
-                          ((Properties)VEC_PROVIDER[1].get(i)).getProperty("lastName", "") %>
+			<%= Encode.forHtmlContent(((Properties)VEC_PROVIDER[1].get(i)).getProperty("firstName", "") + " " +
+                          ((Properties)VEC_PROVIDER[1].get(i)).getProperty("lastName", "")) %>
 			</option>
 			<%
                 }

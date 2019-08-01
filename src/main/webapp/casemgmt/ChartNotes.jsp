@@ -362,7 +362,7 @@ try
 											prov = iter.next();
 											providerNo = prov.getProviderNo();
 								%>
-								<li><html:multibox property="filter_providers" value="<%=providerNo%>" onclick="filterCheckBox(this)"></html:multibox><%=prov.getFormattedName()%></li>
+								<li><html:multibox property="filter_providers" value="<%=providerNo%>" onclick="filterCheckBox(this)"></html:multibox><%=Encode.forHtml(prov.getFormattedName())%></li>
 								<%
 									}
 								%>

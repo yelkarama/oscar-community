@@ -63,6 +63,7 @@
 <%@ page import="org.oscarehr.PMmodule.model.ProgramProvider" %>
 <%@ page import="org.oscarehr.common.dao.PropertyDao" %>
 <%@ page import="oscar.util.StringUtils" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -665,7 +666,7 @@ var beginD = "1900-01-01"
         <select id="mrpview" name="mrpview">
         <option value="all" <%=mrpview.equals("all")?"selected":""%>><bean:message key="tickler.ticklerMain.formAllProviders"/></option>
         <% for (Provider p : providersThatReceiveTicklers) { %>
-        <option value="<%=p.getProviderNo()%>" <%=mrpview.equals(p.getProviderNo())?"selected":""%>><%=p.getLastName()%>,<%=p.getFirstName()%></option>
+        <option value="<%=p.getProviderNo()%>" <%=mrpview.equals(p.getProviderNo())?"selected":""%>><%=Encode.forHtmlContent(p.getLastName())%>,<%=Encode.forHtmlContent(p.getFirstName())%></option>
         <% } %>
           </select>
         
@@ -674,7 +675,7 @@ var beginD = "1900-01-01"
         <select id="providerview" name="providerview">
         <option value="all" <%=providerview.equals("all")?"selected":""%>><bean:message key="tickler.ticklerMain.formAllProviders"/></option>
         <% for (Provider p : providersThatReceiveTicklers) { %>
-        <option value="<%=p.getProviderNo()%>" <%=providerview.equals(p.getProviderNo())?"selected":""%>><%=p.getLastName()%>,<%=p.getFirstName()%></option>
+        <option value="<%=p.getProviderNo()%>" <%=providerview.equals(p.getProviderNo())?"selected":""%>><%=Encode.forHtmlContent(p.getLastName())%>,<%=Encode.forHtmlContent(p.getFirstName())%></option>
         <% } %>
           </select>
 
@@ -719,7 +720,7 @@ var beginD = "1900-01-01"
           	                Provider p=iter.next();
           	                if ("1".equals(p.getStatus())) {
           	    %>
-                addProviderToSite('<%=sites.get(i).getSiteId()%>', {providerNo: '<%=p.getProviderNo()%>', name: '<%=p.getLastName()%>, <%=p.getFirstName()%>'});
+                addProviderToSite('<%=sites.get(i).getSiteId()%>', {providerNo: '<%=p.getProviderNo()%>', name: '<%=Encode.forJavaScript(p.getLastName())%>, <%=Encode.forJavaScript(p.getFirstName())%>'});
                 <%
           	                }
           	            }
@@ -754,7 +755,7 @@ var beginD = "1900-01-01"
         	List<Provider> providersActive = providerDao.getActiveProviders(); 
                                     for (Provider p : providersActive) {
         %>
-        <option value="<%=p.getProviderNo()%>" <%=assignedTo.equals(p.getProviderNo())?"selected":""%>><%=p.getLastName()%>, <%=p.getFirstName()%></option>
+        <option value="<%=p.getProviderNo()%>" <%=assignedTo.equals(p.getProviderNo())?"selected":""%>><%=Encode.forHtmlContent(p.getLastName())%>, <%=Encode.forHtmlContent(p.getFirstName())%></option>
         <%
         	}
         %>
@@ -982,16 +983,24 @@ var beginD = "1900-01-01"
                                         <a href=# onClick="popupPage(600,800,'../demographic/demographiccontrol.jsp?demographic_no=<%=demo.getDemographicNo()%>&displaymode=edit&dboperation=search_detail')"><%=demo.getLastName()%>,<%=demo.getFirstName()%></a>
                                         | <a href=# onClick="popupPage(710,1024,'../oscarEncounter/IncomingEncounter.do?providerNo=<%=user_no%>&appointmentNo=&demographicNo=<%=demo.getDemographicNo()%>&curProviderNo=<%=user_no%>&reason=&userName=<%=URLEncoder.encode(loggedInInfo.getLoggedInProvider().getFirstName() + " "+ loggedInInfo.getLoggedInProvider().getLastName())%>&curDate=<%=""+curYear%>-<%=""+curMonth%>-<%=""+curDay%>&appointmentDate=&startTime=&status=')">E</a>
                                     </TD>
-                                    <TD ROWSPAN="1" class="<%=cellColour%>"><%=t.getProvider() == null ? "N/A" : t.getProvider().getFormattedName()%></TD>
-                                    <TD ROWSPAN="1" class="<%=cellColour%>"><%=t.getServiceDate()%></TD>
+                                    <TD ROWSPAN="1" class="<%=cellColour%>"><%=t.getProvider() == null ? "N/A" : Encode.forHtmlContent(t.getProvider().getFormattedName())%></TD>
+                                    <TD ROWSPAN="1" class="<%=cellColour%>">
+										<% 
+											String serviceDate = t.getServiceDate().toString();
+											if (serviceDate.substring(11).equals("00:00:00.0")) {
+												serviceDate = serviceDate.substring(0, 10);
+											}
+										%>
+										<%=serviceDate%>
+									</TD>
                                     <TD ROWSPAN="1" class="<%=cellColour%>"><%=t.getUpdateDate()%></TD>
 									<% if (caisiEnabled) { %>
 									<td rowspan="1" class="<%=cellColour%>"><%=t.getProgram() != null?t.getProgram().getName():""%></td>
 									<% } %>
                                     <TD ROWSPAN="1" class="<%=cellColour%>"><%=t.getPriority()%></TD>
-                                    <TD ROWSPAN="1" class="<%=cellColour%>"><%=t.getAssignee() != null ? t.getAssignee().getLastName() + ", " + t.getAssignee().getFirstName() : "N/A"%></TD>
+                                    <TD ROWSPAN="1" class="<%=cellColour%>"><%=t.getAssignee() != null ? Encode.forHtmlContent(t.getAssignee().getLastName() + ", " + t.getAssignee().getFirstName()) : "N/A"%></TD>
                                     <TD ROWSPAN="1" class="<%=cellColour%>"><%=t.getStatusDesc(locale)%></TD>
-                                    <TD ROWSPAN="1" class="<%=cellColour%>"><%=t.getMessage()%>
+                                    <TD ROWSPAN="1" class="<%=cellColour%>"><%=Encode.forHtmlContent(t.getMessage())%>
                                         
                                         <%
                                             HRMDocumentDao hrmDocumentDao = (HRMDocumentDao) SpringUtils.getBean("HRMDocumentDao");
@@ -1063,7 +1072,7 @@ var beginD = "1900-01-01"
                                         <td width="3%"  ROWSPAN="1" class="<%=cellColour%>"></td>
                                         <td width="3%" ROWSPAN="1" class="<%=cellColour%>"></td>
                                         <td width="12%" ROWSPAN="1" class="<%=cellColour%>"></td>
-                                        <td ROWSPAN="1" class="<%=cellColour%>"><%=tc.getProvider().getLastName()%>,<%=tc.getProvider().getFirstName()%></td>
+                                        <td ROWSPAN="1" class="<%=cellColour%>"><%=Encode.forHtmlContent(tc.getProvider().getLastName())%>,<%=Encode.forHtml(tc.getProvider().getFirstName())%></td>
                                         <td ROWSPAN="1" class="<%=cellColour%>"></td>
                                         <td ROWSPAN="1" class="<%=cellColour%>"><%=tc.getUpdateDate(locale)%> <%=tc.getUpdateTime(locale)%></td>
                                         <td ROWSPAN="1" class="<%=cellColour%>"></td>
@@ -1072,7 +1081,7 @@ var beginD = "1900-01-01"
                                         <% } %>
                                         <td ROWSPAN="1" class="<%=cellColour%>"></td>
                                         <td ROWSPAN="1" class="<%=cellColour%>"></td>
-                                        <td ROWSPAN="1" class="<%=cellColour%>"><%=tc.getMessage()%></td>
+                                        <td ROWSPAN="1" class="<%=cellColour%>"><%=Encode.forHtmlContent(tc.getMessage())%></td>
                                         <td ROWSPAN="1" class="<%=cellColour%>">&nbsp;</td>
                                     </tr>
                                 <%      }                                        

@@ -28,6 +28,7 @@
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%@ page import="oscar.oscarProvider.data.*"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
   if(session.getValue("user") == null)
@@ -79,7 +80,7 @@
 		<% boolean hasSig = sig.hasSignature(curUser_no);
                if (hasSig){
             %> <bean:message
-			key="provider.providerSignature.msgCurrentSignature" /> <u><%=sig.getSignature(curUser_no)%></u>
+			key="provider.providerSignature.msgCurrentSignature" /> <u><%=Encode.forHtmlContent(sig.getSignature(curUser_no))%></u>
 		<br>
 		<a href="editSignature.jsp"><bean:message
 			key="provider.providerSignature.btnClickHere" /></a> <bean:message

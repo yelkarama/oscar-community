@@ -94,7 +94,9 @@ sites = siteDao.getAllSites();
 <%@page import="org.oscarehr.common.model.Site"%>
 <%@page import="org.oscarehr.common.dao.SiteDao"%>
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
-<%@page import="oscar.appt.ApptUtil"%><html:html locale="true">
+<%@page import="oscar.appt.ApptUtil"%>
+<%@ page import="org.owasp.encoder.Encode" %>
+<html:html locale="true">
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="schedule.scheduleflipview.title" /></title>
@@ -206,7 +208,7 @@ function t(s1,s2,s3,s4,s5,s6, doConfirm, allowDay, allowWeek) {
 				List<MyGroup> mgs = myGroupDao.getGroupByGroupNo(mygroupno);
 				for(MyGroup mg:mgs) {
 					%>
-					<option value="<%=mg.getId().getProviderNo()%>" <%=mg.getId().getProviderNo().equals(curProvider_no)?"selected":""%>><%=Misc.getShortStr(mg.getLastName() + "," + mg.getFirstName(),"",12)%></option>
+					<option value="<%=mg.getId().getProviderNo()%>" <%=mg.getId().getProviderNo().equals(curProvider_no)?"selected":""%>><%=Encode.forHtmlContent(Misc.getShortStr(mg.getLastName() + "," + mg.getFirstName(),"",12))%></option>
 					<%
 				}
 			}

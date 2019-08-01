@@ -173,7 +173,8 @@
     <%@page import="org.oscarehr.common.model.Site"%>
     <%@ page import="org.oscarehr.common.dao.*" %>
 	<%@ page import="org.oscarehr.common.model.AppointmentType" %>
-	<html:html locale="true">
+    <%@ page import="org.owasp.encoder.Encode" %>
+    <html:html locale="true">
 <head>
 <script type="text/javascript" src="../js/jquery-1.7.1.min.js"></script>
 <script src="<%=request.getContextPath()%>/js/jquery-ui-1.8.18.custom.min.js"></script>
@@ -916,7 +917,7 @@ var appointmentTypeData = {};
         <!-- We display a shortened title for the mobile version -->
         <% if (isMobileOptimized) { %><bean:message key="appointment.addappointment.msgMainLabelMobile" />
         <% } else { %><bean:message key="appointment.addappointment.msgMainLabel" />
-        <%          out.println("("+pFirstname+" "+pLastname+")"); %>
+        <%          out.println(Encode.forHtmlContent("("+pFirstname+" "+pLastname+")")); %>
         <% } %>
     </div>
     <% if (OscarProperties.getInstance().getBooleanProperty("indivica_hc_read_enabled", "true")) { %>
@@ -1019,7 +1020,7 @@ var appointmentTypeData = {};
             <div class="label"><bean:message key="Appointment.formDoctor" />:</div>
             <div class="input">
                 <INPUT type="TEXT" name="curDoctor_no" readonly
-                       value="<%=bFirstDisp ? "" : StringEscapeUtils.escapeHtml(providerBean.getProperty(curDoctor_no,""))%>">
+                       value="<%=bFirstDisp ? "" : Encode.forHtmlAttribute(providerBean.getProperty(curDoctor_no,""))%>">
             </div>
         </li>
         <li class="row deep">
@@ -1086,12 +1087,12 @@ var appointmentTypeData = {};
 					%>
 				</select>
 				</br>
-				<textarea id="reason" name="reason" tabindex="2" rows="2" wrap="virtual" cols="18"><%=bFirstDisp?"":request.getParameter("reason").equals("")?"":request.getParameter("reason")%></textarea>
+				<textarea id="reason" name="reason" tabindex="2" rows="2" wrap="virtual" cols="18"><%=Encode.forHtmlContent(bFirstDisp?"":request.getParameter("reason").equals("")?"":request.getParameter("reason"))%></textarea>
             </div>
             <div class="space">&nbsp;</div>
             <div class="label"><bean:message key="Appointment.formNotes" />:</div>
             <div class="input">
-                <textarea name="notes" tabindex="3" maxlength="255" rows="2" wrap="virtual" cols="18"><%=bFirstDisp?"":request.getParameter("notes").equals("")?"":request.getParameter("notes")%></textarea>
+                <textarea name="notes" tabindex="3" maxlength="255" rows="2" wrap="virtual" cols="18"><%=Encode.forHtmlContent(bFirstDisp?"":request.getParameter("notes").equals("")?"":request.getParameter("notes"))%></textarea>
             </div> </li>
         <% if (pros.isPropertyActive("mc_number")) { %>
         <li class="row deep">
@@ -1145,7 +1146,7 @@ var appointmentTypeData = {};
             <div class="input">
                 <input type="TEXT" name="resources"
                     tabindex="5"
-                    value='<%=bFirstDisp?"":request.getParameter("resources").equals("")?"":request.getParameter("resources")%>'
+                    value='<%=Encode.forHtmlAttribute(bFirstDisp?"":request.getParameter("resources").equals("")?"":request.getParameter("resources"))%>'
                     width="25" height="20" border="0" hspace="2">
             </div>
         </li>
@@ -1153,7 +1154,7 @@ var appointmentTypeData = {};
             <div class="label"><bean:message key="Appointment.formCreator" />:</div>
             <div class="input">
                 <INPUT TYPE="TEXT" NAME="user_id" readonly
-                    VALUE='<%=bFirstDisp?(StringEscapeUtils.escapeHtml(userlastname)+", "+StringEscapeUtils.escapeHtml(userfirstname)):request.getParameter("user_id").equals("")?"Unknown":request.getParameter("user_id")%>'
+                    VALUE='<%=bFirstDisp?Encode.forHtmlAttribute(userlastname + ", " + userfirstname):request.getParameter("user_id").equals("")?"Unknown":request.getParameter("user_id")%>'
                     WIDTH="25" HEIGHT="20" border="0" hspace="2">
             </div>
             <div class="space">&nbsp;</div>
@@ -1168,7 +1169,7 @@ var appointmentTypeData = {};
                 <INPUT TYPE="TEXT" NAME="createdatetime" readonly VALUE="<%=strDateTime%>" WIDTH="25" HEIGHT="20" border="0" hspace="2">
                 <INPUT TYPE="hidden" NAME="provider_no" VALUE="<%=curProvider_no%>">
                 <INPUT TYPE="hidden" NAME="dboperation" VALUE="search_titlename">
-                <INPUT TYPE="hidden" NAME="creator" VALUE='<%=StringEscapeUtils.escapeHtml(userlastname)+", "+StringEscapeUtils.escapeHtml(userfirstname)%>'>
+                <INPUT TYPE="hidden" NAME="creator" VALUE='<%=Encode.forHtmlAttribute(userlastname + ", " + userfirstname)%>'>
                 <INPUT TYPE="hidden" NAME="remarks" VALUE="">
             </div>
         </li>
@@ -1418,9 +1419,9 @@ var appointmentTypeData = {};
 	<tr bgcolor="#eeeeff" style="<%=HighlightUserAppt==curUser_no.equals(p.getProviderNo())?"font-weight:bold":""%>">
 		<td style="background-color: #CCFFCC; padding-right: 25px"><%=ConversionUtils.toDateString(a.getAppointmentDate())%></td>
 		<td style="background-color: #CCFFCC; padding-right: 25px"><%=ConversionUtils.toTimeString(a.getStartTime())%></td>
-		<td style="background-color: #CCFFCC; padding-right: 25px"><%=p.getFormattedName()%></td>
+		<td style="background-color: #CCFFCC; padding-right: 25px"><%=Encode.forHtmlContent(p.getFormattedName())%></td>
 		<td style="background-color: #CCFFCC;"><%= statusDescription %></td>
-		<td style="background-color: #CCFFCC;" title="<%= notes %>"><%= shortenedNotes %></td>
+		<td style="background-color: #CCFFCC;" title="<%= Encode.forHtmlAttribute(notes) %>"><%= Encode.forHtmlContent(shortenedNotes) %></td>
 	</tr>
 	<%
             }
@@ -1458,9 +1459,9 @@ var appointmentTypeData = {};
 	<tr bgcolor="#eeeeff" style="<%=HighlightUserAppt==curUser_no.equals(p.getProviderNo())?"font-weight:bold":""%>">
 		<td style="padding-right: 25px"><%=ConversionUtils.toDateString(a.getAppointmentDate())%></td>
 		<td style="padding-right: 25px"><%=ConversionUtils.toTimeString(a.getStartTime())%></td>
-		<td style="padding-right: 25px"><%=p.getFormattedName()%></td>
+		<td style="padding-right: 25px"><%=Encode.forHtmlContent(p.getFormattedName())%></td>
 		<td style="padding-right: 25px"><%= statusDescription %></td>
-		<td style="padding-right: 25px" title="<%= notes %>"><%= shortenedNotes %></td>
+		<td style="padding-right: 25px" title="<%= Encode.forHtmlAttribute(notes) %>"><%= Encode.forHtmlContent(shortenedNotes)%></td>
 	</tr>
 	<%
             }

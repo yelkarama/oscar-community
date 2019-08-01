@@ -38,6 +38,7 @@
 <%@ page import="org.oscarehr.common.model.Provider" %>
 <%@ page import="org.oscarehr.common.dao.MyGroupAccessRestrictionDao" %>
 <%@ page import="org.oscarehr.common.model.MyGroupAccessRestriction" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 	String providerNo=loggedInInfo.getLoggedInProviderNo();
@@ -156,7 +157,7 @@
 									selected=" selected=\"selected\" ";
 								}
 						%>
-							<option value="<%=provider.getProviderNo()%>" <%=selected%>><%=provider.getFormattedName() %></option>
+							<option value="<%=provider.getProviderNo()%>" <%=selected%>><%= Encode.forHtmlContent(provider.getFormattedName()) %></option>
 						<% } %>
 					</select>
 				</td>
@@ -173,7 +174,7 @@
      				i++;
 			%>
 			<tr BGCOLOR="<%=i%2==0?"ivory":"white"%>">
-				<td>&nbsp; <%=provider.getLastName()%>, <%=provider.getFirstName()%></td>
+				<td>&nbsp; <%=Encode.forHtmlContent(provider.getLastName())%>, <%=Encode.forHtmlContent(provider.getFirstName())%></td>
 				<td ALIGN="center">
 					<input type="checkbox" name="data" <%=selected%> value="<%=provider.getProviderNo()%>"> 					
 			</tr>

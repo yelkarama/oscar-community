@@ -342,6 +342,7 @@ boolean dupServiceCode = false;
 <%@ page import="oscar.oscarProvider.data.HcTypeBillToRemitToPreference" %>
 <%@ page import="oscar.oscarProvider.data.DefaultHcTypeBillToRemitToPreferenceService" %>
 <%@ page import="oscar.oscarRx.data.RxProviderData" %>
+<%@page import="org.oscarehr.common.model.Site"%>
 <%@ page import="org.owasp.encoder.Encode" %>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -705,9 +706,9 @@ window.onload=function(){
 					 class="myGreen">
 					<tr>
 						<td nowrap width="30%"><b>Billing Physician</b></td>
-						<td width="20%"><%=providerBean.getProperty(!providerview.isEmpty() ? providerview : "", "")%></td>
+						<td width="20%"><%=Encode.forHtmlContent(providerBean.getProperty(!providerview.isEmpty() ? providerview : "", ""))%></td>
 						<td nowrap width="30%"><b>Assig. Physician</b></td>
-						<td width="20%"><%=assgProvider_no == null ? "N/A" : providerBean.getProperty(assgProvider_no, "")%></td>
+						<td width="20%"><%=assgProvider_no == null ? "N/A" : Encode.forHtmlContent(providerBean.getProperty(assgProvider_no, ""))%></td>
 					</tr>
 					<tr>
 

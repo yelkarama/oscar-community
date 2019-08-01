@@ -52,6 +52,7 @@ if(!authed) {
 <%@page import="org.oscarehr.common.model.ReportAgeSex" %>
 <%@page import="oscar.util.ConversionUtils" %>
 <%@page import="org.oscarehr.util.MiscUtils"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%
 	String user_no = (String) session.getAttribute("user");
 	int  nItems=0;
@@ -185,7 +186,7 @@ function refresh() {
                   	specialty_code = SxmlMisc.getXmlContent(p.getComments(),"<xml_p_specialty_code>","</xml_p_specialty_code>");
           	%>
 			<option value="<%=proOHIP%>"
-				<%=providerview.equals(proOHIP)?"selected":""%>><%=proLast%>,<%=proFirst%></option>
+				<%=providerview.equals(proOHIP)?"selected":""%>><%=Encode.forHtmlContent(proLast)%>, <%=Encode.forHtmlContent(proFirst)%></option>
 			<% } // -- end of provider dropdown %>
 		</select></div>
 		</td>

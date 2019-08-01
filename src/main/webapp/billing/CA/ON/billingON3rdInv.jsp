@@ -13,7 +13,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
+    along with this program; if not , write to the Free Software
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
@@ -44,6 +44,7 @@
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
 <%@ page import="java.text.DateFormat" %>
 <%@ page import="java.text.SimpleDateFormat" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 
@@ -352,7 +353,7 @@ boolean isMulitSites = oscarProp.getBooleanProperty("multisites", "on");
 
         <table width="100%" border="0">
             <tr>
-                <td><%=invoiceComment%></td>
+                <td><%=Encode.forHtmlContent(invoiceComment)%></td>
             </tr>
         </table>
 

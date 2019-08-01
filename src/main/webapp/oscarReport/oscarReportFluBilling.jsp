@@ -41,6 +41,7 @@ if(!authed) {
 
 <%@ page import="java.util.*,oscar.oscarReport.data.*"%>
 <%@ page import="org.oscarehr.common.model.Provider" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 
 <%@ include file="/taglibs.jsp"%>
@@ -113,7 +114,7 @@ if(!authed) {
 		<%
 			for (Provider p : providers) {
 		%>
-		<option value="<%=p.getProviderNo()%>" <%=selled(p.getProviderNo(), pros)%>><%=p.getFormattedName()%></option>
+		<option value="<%=p.getProviderNo()%>" <%=selled(p.getProviderNo(), pros)%>><%=Encode.forHtmlContent(p.getFormattedName())%></option>
 		<%
 			}
 		%>

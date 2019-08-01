@@ -31,6 +31,7 @@
 <%@ page import="org.oscarehr.util.SpringUtils"%>
 <%@ page import="org.oscarehr.common.model.ProviderData"%>
 <%@ page import="org.oscarehr.common.dao.ProviderDataDao"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
@@ -224,12 +225,12 @@
 
 	<tr bgcolor="<%=toggleLine?"white":weakcolor%>">
 		<td align="center"><a href='providerupdateprovider.jsp?keyword=<%=provider.getId()%>'><%= provider.getId() %></a></td>
-		<td><%= provider.getFirstName() %></td>
-		<td><%= provider.getLastName() %></td>
-		<td><%= provider.getSpecialty() %></td>
-		<td><%= provider.getTeam() %></td>
+		<td><%= Encode.forHtmlContent(provider.getFirstName()) %></td>
+		<td><%= Encode.forHtmlContent(provider.getLastName()) %></td>
+		<td><%= Encode.forHtmlContent(provider.getSpecialty()) %></td>
+		<td><%= Encode.forHtmlContent(provider.getTeam()) %></td>
 		<td align="center"><%= provider.getSex() %></td>
-		<td><%= provider.getPhone() %></td>
+		<td><%= Encode.forHtmlContent(provider.getPhone()) %></td>
 		<td><%= (provider.getStatus()!=null)?(provider.getStatus().equals("1")?"Active":"Inactive"):"" %></td>
 	</tr>
 	<%

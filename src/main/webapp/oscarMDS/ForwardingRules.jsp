@@ -29,6 +29,7 @@
 <%@ page
 	import="oscar.oscarMDS.data.ProviderData, java.util.ArrayList, oscar.oscarLab.ForwardingRules, oscar.OscarProperties"%>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
 
@@ -219,8 +220,8 @@ String errorMessage = (String) request.getAttribute("errorMessage");
 							for (int i=0; i < providers.size(); i++) { 
 								String prov_no = (String) ((ArrayList) providers.get(i)).get(0);
 								if ( !providerNo.equals(prov_no) && !frwdProviders.contains(providers.get(i))){%>
-									<option value="<%= prov_no %>"><%= (String) ((ArrayList) providers.get(i)).get(1) %>
-									<%= (String) ((ArrayList) providers.get(i)).get(2) %></option>
+									<option value="<%= prov_no %>"><%=Encode.forHtmlContent((String) ((ArrayList) providers.get(i)).get(1)) %>
+									<%= Encode.forHtmlContent((String) ((ArrayList) providers.get(i)).get(2)) %></option>
 								<% }
 							} %>
 					</optgroup>

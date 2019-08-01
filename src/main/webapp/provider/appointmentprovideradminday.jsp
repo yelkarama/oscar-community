@@ -517,6 +517,7 @@ if (customRosterStatusProperty != null) {
 <%@ page import="org.oscarehr.PMmodule.web.utils.UserRoleUtils" %>
 <%@ page import="org.oscarehr.common.dao.UserAcceptanceDao" %>
 <%@ page import="org.oscarehr.common.model.UserAcceptance" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <html:html locale="true">
 <head>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script>
@@ -1646,7 +1647,7 @@ if (curProvider_no[provIndex].equals(provNum)) {
 <a href='providercontrol.jsp?year=<%=strYear%>&month=<%=strMonth%>&day=<%=strDay%>&view=0&displaymode=day&dboperation=searchappointmentday'><bean:message key="provider.appointmentProviderAdminDay.grpView"/></a>
 <% } else { %>
 <% if (!isMobileOptimized) { %> <bean:message key="global.hello"/> <% } %>
-<% out.println( userfirstname+" "+userlastname); %>
+<% out.println( Encode.forHtmlContent(userfirstname+" "+userlastname)); %>
 </td>
 <% } } %>
 
@@ -1765,12 +1766,12 @@ if (curProvider_no[provIndex].equals(provNum)) {
 %>
 <option value="<%=p.getProviderNo()%>" <%=mygroupno.equals(p.getProviderNo())?"selected":""%>>
 	<% if(org.oscarehr.common.IsPropertiesOn.propertiesOn("external_name_on_schedule")){%>
-		<%=p.getFormattedName(true)%>
+		<%=Encode.forHtmlContent(p.getFormattedName(true))%>
 	<%}else{ %>
-		<%=p.getFormattedName()%>
+		<%=Encode.forHtmlContent(p.getFormattedName())%>
 	<%}%>
 	<% if (oscarProperties.isPropertyActive("queens_message_search")) { %>
-		<%=(p.getSpecialty() != null && !p.getSpecialty().isEmpty()) ? " (" + p.getSpecialty() + ")" : ""%>
+		<%=(p.getSpecialty() != null && !p.getSpecialty().isEmpty()) ? " (" + Encode.forHtmlContent(p.getSpecialty()) + ")" : ""%>
 	<% } %>
 </option>
 <%
@@ -1794,7 +1795,7 @@ if (curProvider_no[provIndex].equals(provNum)) {
 			}
 %>
   <option value="<%="_grp_"+g.getId().getMyGroupNo()%>" <%=mygroupno.equals(g.getId().getMyGroupNo())?"selected":""%>>
-	  <%=groupName%>
+	  <%=Encode.forHtmlContent(groupName)%>
   </option>
 <%
 		}
@@ -1806,9 +1807,9 @@ if (curProvider_no[provIndex].equals(provNum)) {
 		if (!skip && (!bMultisites || siteProviderNos  == null || siteProviderNos.size() == 0 || siteProviderNos.contains(p.getProviderNo()))) {
 %>
   <option value="<%=p.getProviderNo()%>" <%=mygroupno.equals(p.getProviderNo())?"selected":""%>>
-		<%=p.getFormattedName()%>
+		<%=Encode.forHtmlContent(p.getFormattedName())%>
 	  <% if (oscarProperties.isPropertyActive("queens_message_search")) { %>
-	  	<%=(p.getSpecialty() != null && !p.getSpecialty().isEmpty()) ? " (" + p.getSpecialty() + ")" : ""%>
+	  	<%=(p.getSpecialty() != null && !p.getSpecialty().isEmpty()) ? " (" + Encode.forHtmlContent(p.getSpecialty()) + ")" : ""%>
 	  <% } %>
   </option>
 <%
@@ -1973,10 +1974,10 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
 										<input type='radio' name='flipview' class="noprint"
 											   onClick="goFilpView('<%=curProvider_no[nProvider]%>')" title="Flip view">
 										<a style="color:#333" href=#
-										   onClick="goZoomView('<%=curProvider_no[nProvider]%>','<%=StringEscapeUtils.escapeJavaScript(curProviderName[nProvider])%>')"
+										   onClick="goZoomView('<%=curProvider_no[nProvider]%>','<%=Encode.forJavaScript(curProviderName[nProvider])%>')"
 										   onDblClick="goFilpView('<%=curProvider_no[nProvider]%>')"
 										   title="<bean:message key="provider.appointmentProviderAdminDay.zoomView"/>">
-											<%=curProviderName[nProvider] + "(" + appointmentCount + ")"%>
+											<%=Encode.forHtmlContent(curProviderName[nProvider] + "(" + appointmentCount + ")")%>
 										</a>
 	
 									</b>
@@ -2640,10 +2641,10 @@ Boolean displayAppointmentReason = appointment.getReason() != null && appointmen
 
 <a class="apptLink" href=# onClick ="popupPage(535,860,'../appointment/appointmentcontrol.jsp?appointment_no=<%=appointment.getId()%>&provider_no=<%=curProvider_no[nProvider]%>&year=<%=year%>&month=<%=month%>&day=<%=day%>&start_time=<%=iS+":"+iSm%>&demographic_no=<%=demographic_no%>&displaymode=edit&dboperation=search');return false;" 
 <oscar:oscarPropertiesCheck property="SHOW_APPT_REASON_TOOLTIP" value="yes" defaultVal="true"> 
-	title="<%=name + prefName%>
+	title="<%=Encode.forHtmlAttribute(name + prefName)%>
 	type: <%=type != null ? type : "" %>
-	reason: <%=reasonCodeName!=null? reasonCodeName:""%> <%if(reason!=null && !reason.isEmpty()){%>- <%=UtilMisc.htmlEscape(reason)%><%}%>
-	notes: <%=notes%>"
+	reason: <%=reasonCodeName!=null? reasonCodeName:""%> <%if(reason!=null && !reason.isEmpty()){%>- <%=Encode.forHtmlAttribute(reason)%><%}%>
+	notes: <%=Encode.forHtmlAttribute(notes)%>"
 </oscar:oscarPropertiesCheck> ><%=(view==0) ? (name.length()>len?name.substring(0,len) : name + prefName) :name + prefName%></a>
 	
 <% if(schedulePreferencesMap.getOrDefault("schedule_display_type", false) && (displayAppointmentType || displayAppointmentReason)) { %>
@@ -2834,7 +2835,7 @@ Boolean displayAppointmentReason = appointment.getReason() != null && appointmen
 			  <% if (!schedulePreferencesMap.getOrDefault("schedule_display_type", false)) { %>
 	<oscar:oscarPropertiesCheck property="SHOW_APPT_REASON" value="yes" defaultVal="true">
 				<span class="reason reason_<%=isWeekView?strDate:curProvider_no[nProvider]%> ${ hideReason ? "hideReason" : "" }">
-		<strong>&#124;<%=reasonCodeName==null?"":"&nbsp;" + reasonCodeName + " -"%><%=reason==null?"":"&nbsp;" + reason%></strong>
+		<strong>&#124;<%=reasonCodeName==null?"":"&nbsp;" + reasonCodeName + " -"%><%=reason==null?"":"&nbsp;" + Encode.forHtmlContent(reason)%></strong>
 		</span>
 	</oscar:oscarPropertiesCheck>
 			  <% } %>

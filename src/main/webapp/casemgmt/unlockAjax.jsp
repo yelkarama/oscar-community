@@ -47,6 +47,7 @@
 <%@ page import="org.oscarehr.casemgmt.model.CaseManagementIssue"%>
 <%@ page import="org.oscarehr.common.model.Provider"%>
 <%@ page import="oscar.util.DateUtils"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <% CaseManagementNote note = (CaseManagementNote)request.getAttribute("Note");
     pageContext.setAttribute("provName", note.getProviderName());    
@@ -86,10 +87,10 @@
                               Provider p = it.next();
 
                               if( count % MAXLINE == 0 ) {
-                                  out.print("<li>" + p.getFormattedName() + "; ");
+                                  out.print("<li>" + Encode.forHtmlContent(p.getFormattedName()) + "; ");
                               }
                               else {
-                                  out.print(p.getFormattedName() + "</li>");
+                                  out.print(Encode.forHtmlContent(p.getFormattedName()) + "</li>");
                               }
                               ++count;
                           }
