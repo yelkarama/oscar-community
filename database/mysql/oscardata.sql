@@ -2937,9 +2937,9 @@ insert into secObjPrivilege values('admin','_admin.hrm','x',0,'999998');
 insert into secRole values(\N,'HRMAdmin','HRM Administator');
 insert into secObjPrivilege values('HRMAdmin','_hrm.administrator','x',0,'999998');
 
-INSERT INTO oscar_msg_type Values(1,'OSCAR Resident Review');
-insert into oscar_msg_type Values(2,'General');
-INSERT INTO `oscar_msg_type`(`type`, `description`) VALUES (3, 'Integrator Message');
+INSERT INTO oscar_msg_type VALUES (1,'OSCAR Resident Review', 'OSCAR_REVIEW_TYPE');
+insert into oscar_msg_type VALUES (2,'General', 'GENERAL_TYPE');
+INSERT INTO `oscar_msg_type` VALUES (3, 'Integrator Message', 'INTEGRATOR_TYPE');
 
 INSERT INTO `secObjPrivilege`(`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('-1', '_msg', 'x', 0, '999998');
 INSERT INTO `secObjPrivilege`(`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('-1', '_demographic', 'r', 0, '999998');
