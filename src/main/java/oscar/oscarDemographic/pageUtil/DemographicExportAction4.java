@@ -3145,16 +3145,16 @@ public class DemographicExportAction4 extends Action {
 
 	private Calendar formatDateTime(Calendar cal, String calString) {
 		try {
-			if (calString.length() > 10) {
+			if (calString == null) {
+				cal = Calendar.getInstance();
+			} else if (calString.length() > 10) {
 				cal.setTime(dateTime.parse(calString));
-			} else {
-				if (!calString.equals("")) {
-					cal.setTime(dateFormat.parse(calString));
-				}
+			} else if (!calString.equals("")) {
+				cal.setTime(dateFormat.parse(calString));
 			}
 
 		} catch (ParseException e) {
-			System.out.println(e.getMessage());
+			logger.warn(e);
 			return Calendar.getInstance();
 		}
 		return cal;
