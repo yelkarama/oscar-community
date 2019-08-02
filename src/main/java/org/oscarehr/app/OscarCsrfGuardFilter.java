@@ -9,6 +9,7 @@ import org.owasp.csrfguard.log.LogLevel;
 import org.owasp.csrfguard.util.RandomGenerator;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import oscar.OscarProperties;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -61,6 +62,23 @@ public class OscarCsrfGuardFilter implements Filter {
 			CsrfGuard csrfGuard = CsrfGuard.getInstance();
 			csrfGuard.getLogger().log(String.format("CsrfGuard analyzing request %s", httpRequest.getRequestURI()));
 
+			// Default to not redirect unless csrf_do_redirect is set 
+            // TODO: reverse this when there are more pages by csrf covered 
+            boolean doRedirect = false;
+            if (OscarProperties.getInstance().getProperty("csrf_do_redirect") != null) {
+                doRedirect = OscarProperties.getInstance().isPropertyActive("csrf_do_redirect");
+            }
+            if (!doRedirect) {
+                IAction redirectActionToRemove = null;
+                for (IAction action : csrfGuard.getActions()) {
+                    if ("Redirect".equals(action.getName())) {
+                        redirectActionToRemove = action;
+                        break;
+                    }
+                }
+                csrfGuard.getActions().remove(redirectActionToRemove);
+            }
+
 			InterceptRedirectResponse httpResponse = new InterceptRedirectResponse((HttpServletResponse) response, httpRequest, csrfGuard);
 
 			if ((session != null && session.isNew()) && csrfGuard.isUseNewTokenLandingPage()) {
@@ -69,11 +87,13 @@ public class OscarCsrfGuardFilter implements Filter {
                 MultiReadHttpServletRequest multiReadHttpRequest = new MultiReadHttpServletRequest(httpRequest);
                 if (isValidMultipartRequest(multiReadHttpRequest, httpResponse)) {
                     filterChain.doFilter(multiReadHttpRequest, httpResponse);
+                } else if (!doRedirect) {
+                    filterChain.doFilter(multiReadHttpRequest, httpResponse);
                 }
 			} else if (csrfGuard.isValidRequest(httpRequest, httpResponse)) {
 				filterChain.doFilter(httpRequest, httpResponse);
-			} else {
-				/* invalid request - nothing to do - actions already executed */
+			} else if (!doRedirect) {
+                filterChain.doFilter(httpRequest, httpResponse);
 			}
 
 			/* update tokens */

@@ -217,7 +217,7 @@
     </listener>
     <context-param>
         <param-name>Owasp.CsrfGuard.Config.Print</param-name>
-        <param-value>true</param-value>
+        <param-value>false</param-value>
     </context-param>
     <filter>
         <filter-name>CSRFGuard</filter-name>

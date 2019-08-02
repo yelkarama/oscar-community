@@ -4,8 +4,13 @@ import org.owasp.csrfguard.log.JavaLogger;
 import org.owasp.csrfguard.log.LogLevel;
 import oscar.OscarProperties;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 /**
  * Oscar CsrfGuardLogger
@@ -16,6 +21,28 @@ public class CsrfGuardLogger extends JavaLogger {
     
     private static final OscarProperties oscarProperties = OscarProperties.getInstance();
     private static final List<LogLevel> errorLogLevels = Arrays.asList(LogLevel.Warning, LogLevel.Error, LogLevel.Fatal);
+
+    // Create logger that adds to a log file in the oscar document folder just for csrf log lines
+    private static Logger LOGGER = Logger.getLogger("Owasp.CsrfGuard");
+    static {
+        try {
+            String documentsFolder = oscarProperties.getProperty("BASE_DOCUMENT_DIR");
+            if (!documentsFolder.endsWith("/")) {
+                documentsFolder += "/";
+            }
+            String logDirectory = documentsFolder + "logs";
+            File logFile = new File(logDirectory + "/csrf.log");
+            if (!logFile.getParentFile().exists()) {
+                logFile.getParentFile().mkdirs();
+            }
+            FileHandler logFileHandler = new FileHandler(logFile.getPath(), true);
+            logFileHandler.setFormatter(new SimpleFormatter());
+            LOGGER.addHandler(logFileHandler);
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     
     @Override
     public void log(String msg) {
