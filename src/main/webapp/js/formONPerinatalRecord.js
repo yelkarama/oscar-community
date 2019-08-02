@@ -61,7 +61,7 @@ function addRiskFactor() {
 
 function addRiskFactorRow(i) {
     $.ajax({
-        url:'onarenhanced_rf.jsp?rfNum='+ i,
+        url:'onPerinatalRecordRiskFactors.jsp?rfNum='+ i,
         async:false,
         success:function(data) {
             $("#rf_results").append(data);
