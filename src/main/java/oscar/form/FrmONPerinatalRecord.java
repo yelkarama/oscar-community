@@ -124,6 +124,13 @@ public class FrmONPerinatalRecord extends FrmRecord {
         return ((new FrmRecordHelp()).createActionURL(where, action, demoId, formId));
     }
     
+    public static Integer getLatestFormIdByDemographic(Integer demographicNo) {
+        ONPerinatal2017Dao perinatalDao = SpringUtils.getBean(ONPerinatal2017Dao.class);
+        Integer formId = perinatalDao.getLatestFormIdByDemographic(demographicNo);
+        
+        return formId;
+    }
+    
     private List<FormONPerinatal2017> getExistingPerinatalRecordValues(Integer formId) {
         ONPerinatal2017Dao perinatalDao = SpringUtils.getBean(ONPerinatal2017Dao.class);
         List<FormONPerinatal2017> records = new ArrayList<FormONPerinatal2017>();

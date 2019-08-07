@@ -145,7 +145,7 @@ function dialogs(page, view) {
                 url:'../form/ONPerinatal.do?method=getPrintData', 
                 data: {
                     resourceName:'ONPREnhanced',
-                    resourceId:$('#episodeId').val()
+                    resourceId: $('#demographicNo').val()
                 },
                 dataType:'json',
                 async:true, 

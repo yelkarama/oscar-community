@@ -873,8 +873,10 @@ function warnings(){
         hbsagWarning();
         geneticWarning();
         rhogamWarning();
-        
-        if($("input[name='mh_42']").val() === 'Y') {
+        // If the first input for the name has a value of Y, then it is the yes option and gets the checked value
+        // If it doesn't have a value of Y, the second item is the yes option
+        let isSmoking = $("input[name='mh_42']")[0].value === 'Y' ? $("input[name='mh_42']")[0].checked : $("input[name='mh_42']")[1].checked;
+        if(isSmoking) {
             $("#smoking_warn").show();
         }
 
@@ -1173,11 +1175,11 @@ function updateResourcesCounts(field){
 function watchFormVersion() {
     $.ajax({
         type: "post",
-        url: "../Pregnancy.do",
-        data: { method: "getLatestFormIdByPregnancy", episodeId: episodeId},
+        url: "../form/ONPerinatal.do",
+        data: { method: "getLatestFormIdByDemographic", demographicNo: demographicNo},
         dataType: 'json',
         success: function(data) {
-            if(data.value !== formId) {
+            if(data.formId !== formId) {
                 $("#outdated_warn").show();
             } else {
                 $("#outdated_warn").hide();

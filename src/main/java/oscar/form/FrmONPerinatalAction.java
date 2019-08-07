@@ -11,17 +11,22 @@ import net.sf.jasperreports.engine.export.JRPdfExporter;
 import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
 import net.sf.jasperreports.export.SimplePdfReportConfiguration;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
+import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.dao.DemographicDao;
+import org.oscarehr.common.dao.PrintResourceLogDao;
 import org.oscarehr.common.model.AbstractModel;
 import org.oscarehr.common.model.Demographic;
 
+import org.oscarehr.common.model.PrintResourceLog;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -213,12 +218,27 @@ public class FrmONPerinatalAction extends DispatchAction {
     }
 
     public ActionForward print(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)  {
+        LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+        Integer demographicNo = Integer.parseInt(request.getParameter("demographicNo"));
+        
+        // Creates a new print resource log item so we can track who has printed the perinatal form
+        PrintResourceLog item = new PrintResourceLog();
+        item.setDateTime(new Date());
+        item.setExternalLocation("None");
+        item.setExternalMethod("None");
+        item.setProviderNo(loggedInInfo.getLoggedInProviderNo());
+        item.setResourceId(demographicNo.toString());
+        item.setResourceName("ONPREnhanced");
+        
+        PrintResourceLogDao printLogDao = SpringUtils.getBean(PrintResourceLogDao.class);
+        printLogDao.persist(item);
+        
+        
         final String RESOURCE_PATH = "/oscar/form/perinatal/page";
         ClassLoader cl = getClass().getClassLoader();
         
         try {
             Integer formId = Integer.parseInt(request.getParameter("formId"));
-            Integer demographicNo = Integer.parseInt(request.getParameter("demographicNo"));
             FrmONPerinatalRecord perinatalRecord = (FrmONPerinatalRecord)(new FrmRecordFactory()).factory(RECORD_NAME);
 
             response.setContentType("application/pdf");
@@ -239,7 +259,7 @@ public class FrmONPerinatalAction extends DispatchAction {
                     String pageImage = RESOURCE_PATH + pageNumber + ".png";
                     String reportUri = RESOURCE_PATH + pageNumber + ".jrxml";
                     
-                    Properties recordData = perinatalRecord.getFormRecord(LoggedInInfo.getLoggedInInfoFromRequest(request), demographicNo, formId, pageNumber);
+                    Properties recordData = perinatalRecord.getFormRecord(loggedInInfo, demographicNo, formId, pageNumber);
                     recordData.setProperty("background_image", cl.getResource(pageImage).toString());
                     
                     JasperReport report = JasperCompileManager.compileReport(cl.getResource(reportUri).toURI().getPath());
@@ -269,6 +289,37 @@ public class FrmONPerinatalAction extends DispatchAction {
         return null;
     }
     
+    public ActionForward getPrintData(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+        PrintResourceLogDao printLogDao = SpringUtils.getBean(PrintResourceLogDao.class);
+        ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
+        String demographicNo = StringUtils.trimToEmpty(request.getParameter("demographicNo"));
+        // Gets the print logs for the given demographic
+        List<PrintResourceLog> printLogs = printLogDao.findByResource("perinatal", demographicNo);
+        
+        if (!printLogs.isEmpty()) {
+            List<String> providerNumbers = new ArrayList<>();
+            // Creates a list of provider numbers to get the provider names for
+            for (PrintResourceLog log : printLogs) {
+                providerNumbers.add(log.getProviderNo());
+            }
+            // Gets a map of the provider names for the related provider numbers
+            Map<String, String> providerNameMap = providerDao.getProviderNamesByIdsAsMap(providerNumbers);
+            // Updates the resource log object wiht the provider's name for display purposes
+            for (PrintResourceLog log : printLogs) {
+                log.setProviderName(providerNameMap.getOrDefault(log.getProviderNo(), ""));
+            }
+        }
+
+        try {
+            JSONArray json = JSONArray.fromObject(printLogs);
+            response.getWriter().print(json.toString());
+        } catch (IOException e) {
+            logger.warn("Could not print Perinatal printing log", e);
+        }
+        
+        return null;
+    }
+    
     public static List<FormONPerinatal2017> getCommentsAsRecords(Integer formId) {
         ONPerinatal2017CommentDao commentDao = SpringUtils.getBean(ONPerinatal2017CommentDao.class);
         List<FormONPerinatal2017> commentsAsRecords = new ArrayList<FormONPerinatal2017>();
@@ -281,6 +332,26 @@ public class FrmONPerinatalAction extends DispatchAction {
         return commentsAsRecords;
     }
 
+    public ActionForward getLatestFormIdByDemographic(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+        String demographicNo = StringUtils.trimToEmpty(request.getParameter("demographicNo"));
+        Integer latestFormId = null;
+        // If the demographic number is all digits, it should be parseable to an integer
+        if (NumberUtils.isDigits(demographicNo)) {
+            // Gets the latest form id for the demographic
+            latestFormId = FrmONPerinatalRecord.getLatestFormIdByDemographic(Integer.valueOf(demographicNo));
+        }
+
+        try {
+            JSONObject json = new JSONObject();
+            json.accumulate("formId", String.valueOf(latestFormId));
+            response.getWriter().println(json);
+        } catch (IOException e) {
+            logger.warn("Could not retrieve the lastest Perinatal form id", e); 
+        }
+        
+        return null;
+    }
+    
     private FormONPerinatal2017 getCommentRecordByKey(List<FormONPerinatal2017Comment> comments, String key) {
         FormONPerinatal2017 record = null;
 

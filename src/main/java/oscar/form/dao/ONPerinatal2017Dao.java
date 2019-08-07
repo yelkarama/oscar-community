@@ -113,5 +113,22 @@ public class ONPerinatal2017Dao extends AbstractDao<FormONPerinatal2017> {
         }
         return id;
     }
-    
+
+    /**
+     * Gets the latest form id by the provided demographic number
+     * @param demographicNo The demographic number to get the latest form id for
+     * @return The latest form id
+     */
+    public Integer getLatestFormIdByDemographic(Integer demographicNo) {
+        Integer latestFormId = null;
+        String sql = "select max(frm.formId) from FormONPerinatal2017 frm WHERE frm.demographicNo = :demographicNo";
+        Query query = entityManager.createQuery(sql);
+        query.setParameter("demographicNo", demographicNo);
+        Object result = query.getSingleResult();
+        if (result instanceof Integer) {
+            latestFormId = (Integer)result;
+        }
+        
+        return latestFormId;
+    }
 }

@@ -28,7 +28,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
@@ -775,5 +777,36 @@ public class ProviderDao extends HibernateDaoSupport {
         List<Provider> providers = query.list();
         
         return providers;
+	}
+
+	/**
+	 * Gets a list of provider numbers based on the provided list of provider numbers
+	 * @param providerNumbers The list of provider numbers to get the related objects for
+	 * @return A list of providers
+	 */
+	public List<Provider> getProvidersByIds(List<String> providerNumbers) {
+		Session session = getSession();
+		String sql = "FROM Provider p WHERE p.ProviderNo IN (:providerNumbers)";
+		Query query = session.createQuery(sql);
+		query.setParameterList("providerNumbers", providerNumbers);
+		
+		List<Provider> providers = query.list();
+		return providers;
+	}
+
+	/**
+	 * Gets a map of provider names with the provider number as the map key based on the provided list of provider numbers
+	 * @param providerNumbers A list of provider numbers to get the name map for 
+	 * @return A map of provider names with their related provider number as the key
+	 */
+	public Map<String, String> getProviderNamesByIdsAsMap(List<String> providerNumbers) {
+        Map<String, String> providerNameMap = new HashMap<>();
+        List<Provider> providers = getProvidersByIds(providerNumbers);
+        
+        for (Provider provider : providers) {
+        	providerNameMap.put(provider.getProviderNo(), provider.getFullName());
+		}
+        
+        return providerNameMap;
 	}
 }
