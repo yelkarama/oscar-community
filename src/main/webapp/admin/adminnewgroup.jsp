@@ -33,12 +33,12 @@
 <%@ page import="org.oscarehr.common.model.MyGroup" %>
 <%@ page import="org.oscarehr.common.model.MyGroupPrimaryKey" %>
 <%@ page import="org.oscarehr.common.dao.MyGroupDao" %>
-<%@ page import="org.oscarehr.common.model.ProviderData"%>
-<%@ page import="org.oscarehr.common.dao.ProviderDataDao"%>
+<%@ page import="org.oscarehr.common.model.Provider"%>
+<%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
 
 <%
 	MyGroupDao myGroupDao = SpringUtils.getBean(MyGroupDao.class);
-	ProviderDataDao providerDao = SpringUtils.getBean(ProviderDataDao.class);
+	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 
     String curProvider_no = (String) session.getAttribute("user");
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -151,9 +151,9 @@ function validate() {
 <%
 	// find all active providers
 	int i=0;
-	List<ProviderData> providerList = providerDao.findAll(false);
-   
-   for(ProviderData provider : providerList) {
+	List<Provider> providerList = providerDao.getActiveProviders();
+
+	for (Provider provider : providerList) {
 		i++;
 %>
 			<tr class="<%=i%2==0?"":"info"%>">
@@ -164,7 +164,7 @@ function validate() {
 				<input type="hidden" name="first_name<%=i%>" value='<%= provider.getFirstName() %>'>
 				</td>
 				
-				<td><%= provider.getLastName() %>, <%= provider.getFirstName() %></td>
+				<td><%= provider.getFormattedName() %></td>
 
 			</tr>
 <%
