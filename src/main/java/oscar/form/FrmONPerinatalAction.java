@@ -294,7 +294,7 @@ public class FrmONPerinatalAction extends DispatchAction {
         ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
         String demographicNo = StringUtils.trimToEmpty(request.getParameter("resourceId"));
         // Gets the print logs for the given demographic
-        List<PrintResourceLog> printLogs = printLogDao.findByResource("perinatal", demographicNo);
+        List<PrintResourceLog> printLogs = printLogDao.findByResource("ONPREnhanced", demographicNo);
         
         if (!printLogs.isEmpty()) {
             List<String> providerNumbers = new ArrayList<>();
