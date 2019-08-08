@@ -292,7 +292,7 @@ public class FrmONPerinatalAction extends DispatchAction {
     public ActionForward getPrintData(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
         PrintResourceLogDao printLogDao = SpringUtils.getBean(PrintResourceLogDao.class);
         ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
-        String demographicNo = StringUtils.trimToEmpty(request.getParameter("demographicNo"));
+        String demographicNo = StringUtils.trimToEmpty(request.getParameter("resourceId"));
         // Gets the print logs for the given demographic
         List<PrintResourceLog> printLogs = printLogDao.findByResource("perinatal", demographicNo);
         

@@ -226,7 +226,7 @@
 		<band height="792" splitType="Stretch">
 			<image>
 				<reportElement mode="Transparent" x="0" y="0" width="612" height="792" isRemoveLineWhenBlank="true" backcolor="#000000"/>
-				<imageExpression><![CDATA["D:\\OSCAR\\Development\\Perinatal\\page1.png"]]></imageExpression>
+				<imageExpression><![CDATA[$P{background_image}]]></imageExpression>
 			</image>
 			<textField isBlankWhenNull="true">
 				<reportElement x="45" y="72" width="148" height="13"/>
