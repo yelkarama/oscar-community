@@ -253,6 +253,46 @@ public class Util {
 	if (provinceCode.equals("non-Canada/US")) return cdsDt.HealthCardProvinceCode.X_90; //Not applicable
 	return cdsDt.HealthCardProvinceCode.Enum.forString(provinceCode);
     }
+
+    static private String getProvinceAbbreviation(String provinceName) {
+        if (provinceName != null) {
+            if (provinceName.equalsIgnoreCase("Alberta")) {
+                // Alberta
+                return "AB";
+            } else if (provinceName.equalsIgnoreCase("British Columbia")) {
+                // British Columbia
+                return "BC";
+            } else if (provinceName.equalsIgnoreCase("Manitoba")) {
+                // Manitoba
+                return "MB";
+            } else if (provinceName.equalsIgnoreCase("New Brunswick")) {
+                // New Brunswick
+                return "NB";
+            } else if (provinceName.equalsIgnoreCase("Newfoundland & Labrador") 
+                    || provinceName.toUpperCase().startsWith("NEWFOUNDLAND") || provinceName.toUpperCase().contains("LABRADOR")) {
+                // Newfoundland & Labrador
+                // handles user entry of Newfoundland / Newfoundland and Labrador
+                return "NL";
+            } else if (provinceName.equalsIgnoreCase("Northwest Territory") 
+                    || provinceName.toUpperCase().equalsIgnoreCase("NWT") || provinceName.toUpperCase().startsWith("NORTHWEST")) {
+                // Northwest Territory
+                // handles user entry of NWT / Northwest Territories
+                return "NT";
+            } else if (provinceName.equalsIgnoreCase("Nova Scotia")) {
+                // Nova Scotia
+                return "NS";
+            } else if (provinceName.equalsIgnoreCase("Nunavut")) {
+                // Nunavut
+                return "NU";
+            } else if (provinceName.equalsIgnoreCase("Ontario") 
+                    || provinceName.toUpperCase().startsWith("ONT")) {
+                // Ontario
+                // handles user entry of Ont
+                return "ON";
+            }
+        }
+        return "";
+    } 
 	
     static public String setCountrySubDivCode(String countrySubDivCode) {
 	countrySubDivCode = countrySubDivCode.trim();
@@ -260,7 +300,15 @@ public class Util {
         Pattern p = Pattern.compile("-\\w*");
         Matcher m = p.matcher(countrySubDivCode);
         countrySubDivCode = m.replaceAll("");
+    } else if (countrySubDivCode.length() > 2) {
+        // Handle province name entered as the province code
+        // Get abbreviation
+        countrySubDivCode = getProvinceAbbreviation(countrySubDivCode);
+    } else if (countrySubDivCode.equals("NF")) {
+        // Handle old Newfoundland abbreviation
+        countrySubDivCode = "NL";
     }
+
 	if (StringUtils.filled(countrySubDivCode)) {
 	    if (countrySubDivCode.equals("OT")) return "Other";
 	    if (!countrySubDivCode.startsWith("US")) return "CA-"+countrySubDivCode;
