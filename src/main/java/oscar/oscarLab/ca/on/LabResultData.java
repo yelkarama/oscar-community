@@ -325,7 +325,7 @@ public class LabResultData implements Comparable<LabResultData> {
 		}else if(HL7TEXT.equals(this.labType) || Spire.equals(this.labType)){
 			String time = this.getDateTime();
 			
-			if (time == null) {
+			if (time == null || "null".equals(time.toLowerCase())) {
 				Hl7TextMessageDao hl7TextMessageDao = SpringUtils.getBean(Hl7TextMessageDao.class);
 				Hl7TextMessage hl7TextMessage = hl7TextMessageDao.find(Integer.parseInt(this.getSegmentID()));
 				
