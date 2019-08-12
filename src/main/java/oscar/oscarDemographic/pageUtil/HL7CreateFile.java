@@ -23,9 +23,8 @@ public class HL7CreateFile {
     private static final SimpleDateFormat fullDate = new SimpleDateFormat("yyyyMMdd");
     
 
-    public HL7CreateFile(String demographicNo){
-        DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
-        demographic = demographicDao.getDemographic(demographicNo);
+    public HL7CreateFile(Demographic demographic){
+        this.demographic = demographic;
     }
     
     public String generateHL7(List<LaboratoryResultsDocument.LaboratoryResults> labs) {

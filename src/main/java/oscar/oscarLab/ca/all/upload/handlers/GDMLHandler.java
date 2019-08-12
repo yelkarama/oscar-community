@@ -40,6 +40,7 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.Hl7TextInfoDao;
+import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Hl7TextInfo;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.OscarAuditLogger;
@@ -62,6 +63,10 @@ public class GDMLHandler implements MessageHandler {
 	}
 
 	public String parse(LoggedInInfo loggedInInfo, String serviceName, String fileName, int fileId, String ipAddr) {
+		return parse(loggedInInfo, serviceName, fileName, fileId, ipAddr, true);
+	}
+
+	public String parse(LoggedInInfo loggedInInfo, String serviceName, String fileName, int fileId, String ipAddr, Boolean autoRoute) {
 
 		int i = 0;
 		RouteReportResults routeResults;
@@ -75,7 +80,7 @@ public class GDMLHandler implements MessageHandler {
 				}
 				
 				routeResults = new RouteReportResults();
-				MessageUploader.routeReport(loggedInInfo, serviceName, "GDML", msg, fileId, routeResults);
+				MessageUploader.routeReport(loggedInInfo, serviceName, "GDML", msg, fileId, routeResults, autoRoute);
 				
 				oscar.oscarLab.ca.all.parsers.MessageHandler msgHandler = Factory.getHandler(String.valueOf(routeResults.segmentId));
 				

@@ -114,16 +114,19 @@ public final class MessageUploader {
 		return routeReport(loggedInInfo, serviceName, type, hl7Body, fileId, null);
 	}
 
+	public static String routeReport(LoggedInInfo loggedInInfo, String serviceName, String type, String hl7Body, int fileId, RouteReportResults results) throws Exception {
+		return routeReport(loggedInInfo, serviceName, type, hl7Body, fileId, results, true);
+	}
+
 	/**
 	 * Insert the lab into the proper tables of the database
 	 */
-	public static String routeReport(LoggedInInfo loggedInInfo, String serviceName, String type, String hl7Body, int fileId, RouteReportResults results) throws Exception {
+	public static String routeReport(LoggedInInfo loggedInInfo, String serviceName, String type, String hl7Body, int fileId, RouteReportResults results, Boolean autoRoute) throws Exception {
 
 		
 		String retVal = "";
 		try {
 			MessageHandler h = Factory.getHandler(type, hl7Body);
-			OLISHL7Handler handler = null;
 
 			String firstName = h.getFirstName();
 			String lastName = h.getLastName();
@@ -146,8 +149,7 @@ public final class MessageUploader {
 			String obrDate = h.getMsgDate();
 			String collectionDate = "";
 			if (h instanceof OLISHL7Handler) {
-				handler = (OLISHL7Handler) h;
-                collectionDate = handler.getCollectionDateTime(0);
+                collectionDate = ((OLISHL7Handler) h).getCollectionDateTime(0);
 			}
 
 			if(h instanceof HHSEmrDownloadHandler) {
@@ -293,39 +295,41 @@ public final class MessageUploader {
 				hl7TextInfoDao.persist(hl7TextInfo);
 			}
 
-			String demProviderNo = patientRouteReport(loggedInInfo, insertID, lastName, firstName, sex, dob, hin, DbConnectionFilter.getThreadLocalDbConnection());
-			ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
-			//property setting for "Always send a copy to MRP" under lab forwarding rules.
-			if(new ForwardingRules().getAlwaysSendToMRP() && providerDao.getProvider(demProviderNo) != null){
-				docNums.add(providerDao.getProvider(demProviderNo).getOhipNo());
-			}
-			if(type.equals("OLIS_HL7") && demProviderNo.equals("0")) {
-				OLISSystemPreferencesDao olisPrefDao = (OLISSystemPreferencesDao)SpringUtils.getBean("OLISSystemPreferencesDao");
-			    OLISSystemPreferences olisPreferences =  olisPrefDao.getPreferences();
-			    if(olisPreferences.isFilterPatients()) {
-			    	//set as unclaimed
-			    	providerRouteReport(String.valueOf(insertID), null, DbConnectionFilter.getThreadLocalDbConnection(), String.valueOf(0), type);
-			    } else {
-			    	providerRouteReport(String.valueOf(insertID), docNums, DbConnectionFilter.getThreadLocalDbConnection(), demProviderNo, type);
-			    }
-			} else {
-				Integer limit = null;
-				boolean orderByLength = false;
-				String search = null;
-				if (type.equals("Spire")) {
-					limit = new Integer(1);
-					orderByLength = true;
-					search = "provider_no";
+			if (autoRoute) {
+				String demProviderNo = patientRouteReport(loggedInInfo, insertID, lastName, firstName, sex, dob, hin, DbConnectionFilter.getThreadLocalDbConnection());
+				ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
+				//property setting for "Always send a copy to MRP" under lab forwarding rules.
+				if (new ForwardingRules().getAlwaysSendToMRP() && providerDao.getProvider(demProviderNo) != null) {
+					docNums.add(providerDao.getProvider(demProviderNo).getOhipNo());
 				}
-				
-				if( "MEDITECH".equals(type) || "ExcellerisON".equals(type)) {
-					search = "practitionerNo";
+				if (type.equals("OLIS_HL7") && demProviderNo.equals("0")) {
+					OLISSystemPreferencesDao olisPrefDao = (OLISSystemPreferencesDao) SpringUtils.getBean("OLISSystemPreferencesDao");
+					OLISSystemPreferences olisPreferences = olisPrefDao.getPreferences();
+					if (olisPreferences.isFilterPatients()) {
+						//set as unclaimed
+						providerRouteReport(String.valueOf(insertID), null, DbConnectionFilter.getThreadLocalDbConnection(), String.valueOf(0), type);
+					} else {
+						providerRouteReport(String.valueOf(insertID), docNums, DbConnectionFilter.getThreadLocalDbConnection(), demProviderNo, type);
+					}
+				} else {
+					Integer limit = null;
+					boolean orderByLength = false;
+					String search = null;
+					if (type.equals("Spire")) {
+						limit = new Integer(1);
+						orderByLength = true;
+						search = "provider_no";
+					}
+
+					if ("MEDITECH".equals(type) || "ExcellerisON".equals(type)) {
+						search = "practitionerNo";
+					}
+
+					providerRouteReport(String.valueOf(insertID), docNums, DbConnectionFilter.getThreadLocalDbConnection(), demProviderNo, type, search, limit, orderByLength);
 				}
-				
-				providerRouteReport(String.valueOf(insertID), docNums, DbConnectionFilter.getThreadLocalDbConnection(), demProviderNo, type, search, limit, orderByLength);
 			}
 			retVal = h.audit();
-			if(results != null) {
+			if (results != null) {
 				results.segmentId = insertID;
 			}
 		} catch (Exception e) {

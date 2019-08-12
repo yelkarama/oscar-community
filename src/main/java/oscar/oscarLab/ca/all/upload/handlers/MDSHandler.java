@@ -53,9 +53,11 @@ public class MDSHandler implements MessageHandler {
 	Logger logger = Logger.getLogger(MDSHandler.class);
 	Hl7TextInfoDao hl7TextInfoDao = (Hl7TextInfoDao)SpringUtils.getBean("hl7TextInfoDao");
 	Integer labNo = null;
-	
 
 	public String parse(LoggedInInfo loggedInInfo, String serviceName, String fileName, int fileId, String ipAddr) {
+		return parse(loggedInInfo, serviceName, fileName, fileId, ipAddr, true);
+	}
+	public String parse(LoggedInInfo loggedInInfo, String serviceName, String fileName, int fileId, String ipAddr, Boolean autoRoute) {
 
 		int i = 0;
 		RouteReportResults routeResults;
@@ -69,7 +71,7 @@ public class MDSHandler implements MessageHandler {
 					return null;
 				}
 				routeResults = new RouteReportResults();
-				String auditLine = MessageUploader.routeReport(loggedInInfo, serviceName, "MDS", msg, fileId, routeResults) + "\n";
+				String auditLine = MessageUploader.routeReport(loggedInInfo, serviceName, "MDS", msg, fileId, routeResults, autoRoute) + "\n";
 				
 				oscar.oscarLab.ca.all.parsers.MessageHandler msgHandler = Factory.getHandler(String.valueOf(routeResults.segmentId));
 				if( msgHandler == null ) {

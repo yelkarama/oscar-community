@@ -49,7 +49,19 @@ public class ProviderLabRoutingModel extends AbstractModel<Integer> implements S
 	
 	@Column(name = "lab_type")
 	private String labType;
+
+	public ProviderLabRoutingModel() {
+	}
 	
+	public ProviderLabRoutingModel(String providerNo, Integer labNo, String status, String comment, Date timestamp, String labType) {
+		this.providerNo = providerNo;
+		this.labNo = labNo;
+		this.status = status;
+		this.comment = comment;
+		this.timestamp = timestamp;
+		this.labType = labType;
+	}
+
 	@Override
 	public Integer getId() {
 		return id;

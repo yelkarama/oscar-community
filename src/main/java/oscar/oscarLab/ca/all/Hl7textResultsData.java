@@ -109,17 +109,20 @@ public class Hl7textResultsData {
 		}
 
 		if (k != 0) {
+			List<AbstractModel<?>> measurementsDeletedList = new ArrayList<>();
 			List<AbstractModel<?>> measurementsToRemove = new ArrayList<>();
 			MeasurementsDeleted measurementsDeleted;
 			for (Measurement m : measurementDao.findByValue("lab_no", matchingLabs[k - 1])) {
 				measurementsDeleted = new MeasurementsDeleted(m);
-				measurementsToRemove.add(measurementsDeleted);
-				measurementDao.remove(m.getId());
+				measurementsDeletedList.add(measurementsDeleted);
+				measurementsToRemove.add(m);
 			}
-			measurementsDeletedDao.batchPersist(measurementsToRemove);
+			measurementsDeletedDao.batchPersist(measurementsDeletedList);
+			measurementDao.batchRemove(measurementsToRemove);
 		}
 		// loop through the measurements for the lab and add them
 
+		List<AbstractModel<?>> measurementsExts = new ArrayList<>();
 		for (int i = 0; i < h.getOBRCount(); i++) {
 			for (int j = 0; j < h.getOBXCount(i); j++) {
 
@@ -155,17 +158,20 @@ public class Hl7textResultsData {
 
 				String measType = "";
 				String measInst = "";
+				identifier = StringUtils.trimToEmpty(identifier).replaceAll("null", "");
 				
-				List<Object[]> measurements = measurementMapDao.findMeasurements("FLOWSHEET", identifier, name);
-				if (measurements.isEmpty()) {
-					logger.warn("CODE:" + identifier + " needs to be mapped");
-				} else {
-					for (Object[] o : measurements) {
-						MeasurementMap mm = (MeasurementMap) o[1];
-						MeasurementType type = (MeasurementType) o[2];
+				if (!identifier.isEmpty()) {
+					List<Object[]> measurements = measurementMapDao.findMeasurements("FLOWSHEET", identifier, name);
+					if (measurements.isEmpty()) {
+						logger.warn("CODE:" + identifier + " needs to be mapped");
+					} else {
+						for (Object[] o : measurements) {
+							MeasurementMap mm = (MeasurementMap) o[1];
+							MeasurementType type = (MeasurementType) o[2];
 
-						measType = mm.getIdentCode();
-						measInst = type.getMeasuringInstruction();
+							measType = mm.getIdentCode();
+							measInst = type.getMeasuringInstruction();
+						}
 					}
 				}
 				
@@ -195,8 +201,7 @@ public class Hl7textResultsData {
                     m.setComments(comments);
                     measurementDao.persist(m);
 
-                    int mId = m.getId();
-                    List<AbstractModel<?>> measurementsExts = new ArrayList<>();
+				    int mId = m.getId();
 
                     MeasurementsExt me = new MeasurementsExt();
                     me.setMeasurementId(mId);
@@ -290,13 +295,10 @@ public class Hl7textResultsData {
                     me.setKeyVal("other_id");
                     me.setVal(i + "-" + j);
                     measurementsExts.add(me);
-
-                    measurementsExtDao.batchPersist(measurementsExts);
-                }
+				}
 			}
 		}
-		
-
+		measurementsExtDao.batchPersist(measurementsExts, 50);
 	}
 
 	public static String getMatchingLabs_CLS(String lab_no) {

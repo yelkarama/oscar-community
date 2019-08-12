@@ -42,6 +42,7 @@ import org.oscarehr.common.dao.DemographicExtDao;
 import org.oscarehr.common.dao.DemographicMergedDao;
 import org.oscarehr.common.dao.PHRVerificationDao;
 import org.oscarehr.common.exception.PatientDirectiveException;
+import org.oscarehr.common.hl7.v2.oscar_to_oscar.DataTypeUtils;
 import org.oscarehr.common.model.Admission;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Demographic.PatientStatus;
@@ -509,6 +510,12 @@ public class DemographicManager {
 		return (workPhone);
 	}
 
+	/**
+	 * @see DemographicDao.findByAttributes for parameter details
+	 */
+	public List<Demographic> searchDemographicsByAttributes(LoggedInInfo loggedInInfo, String hin, String firstName, String lastName, String gender, Calendar dateOfBirth, int startIndex, int itemsToReturn) {
+		return searchDemographicsByAttributes(loggedInInfo, hin, firstName, lastName, DataTypeUtils.getOscarGenderFromHl7Gender(gender), dateOfBirth, null, null, null, null, null, startIndex, itemsToReturn);
+	}
 	/**
 	 * @see DemographicDao.findByAttributes for parameter details
 	 */

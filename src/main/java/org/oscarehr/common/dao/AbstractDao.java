@@ -67,7 +67,7 @@ public abstract class AbstractDao<T extends AbstractModel<?>> {
 	}
 
 	public void batchPersist(List<AbstractModel<?>> oList) {
-		batchPersist(oList, 20);
+		batchPersist(oList, 25);
 	}
 	
 	public void batchPersist(List<AbstractModel<?>> oList, int batchSize) {
@@ -100,6 +100,35 @@ public abstract class AbstractDao<T extends AbstractModel<?>> {
 	 */
 	public void remove(AbstractModel<?> o) {
 		entityManager.remove(o);
+	}
+
+	public void batchRemove(List<AbstractModel<?>> oList) {
+		batchRemove(oList, 25);
+	}
+
+	public void batchRemove(List<AbstractModel<?>> oList, int batchSize) {
+		EntityManager batchEntityManager = null;
+		EntityTransaction transaction = null;
+		try {
+			batchEntityManager = entityManagerFactory.createEntityManager();
+			transaction = batchEntityManager.getTransaction();
+			transaction.begin();
+			for (int i = 0; i < oList.size(); i++) {
+				if (i > 0 && i % batchSize == 0) {
+					batchEntityManager.flush();
+					batchEntityManager.clear();
+					transaction.commit();
+					transaction.begin();
+				}
+				batchEntityManager.remove(oList.get(i));
+			}
+			transaction.commit();
+		} catch (RuntimeException e) {
+			if (transaction != null && transaction.isActive()) { transaction.rollback(); }
+			throw e;
+		} finally {
+			if (batchEntityManager != null) { batchEntityManager.close(); }
+		}
 	}
 
 	/**

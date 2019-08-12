@@ -67,8 +67,8 @@ public class ProviderLabRouting {
 		 route(Integer.parseInt(labId), provider_no, conn, labType);
 	}
 
-	public void route(int labId, String provider_no, String labType) throws SQLException {
-		route(Integer.toString(labId), provider_no, labType);
+	public void route(int labId, String provider_no, String labType) {
+		routeMagic(labId, provider_no, labType);
 	}
 
 	/**

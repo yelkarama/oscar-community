@@ -90,7 +90,6 @@ import org.oscarehr.common.dao.AllergyDao;
 import org.oscarehr.common.dao.AppointmentStatusDao;
 import org.oscarehr.common.dao.DemographicArchiveDao;
 import org.oscarehr.common.dao.DemographicContactDao;
-import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.DemographicExtDao;
 import org.oscarehr.common.dao.DemographicPharmacyDao;
 import org.oscarehr.common.dao.DrugDao;
@@ -98,6 +97,7 @@ import org.oscarehr.common.dao.DrugReasonDao;
 import org.oscarehr.common.dao.MeasurementsExtDao;
 import org.oscarehr.common.dao.OscarAppointmentDao;
 import org.oscarehr.common.dao.PartialDateDao;
+import org.oscarehr.common.dao.PatientLabRoutingDao;
 import org.oscarehr.common.dao.PharmacyInfoDao;
 import org.oscarehr.common.dao.ProviderDataDao;
 import org.oscarehr.common.dao.ProviderLabRoutingDao;
@@ -109,15 +109,17 @@ import org.oscarehr.common.model.AppointmentStatus;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.DemographicArchive;
 import org.oscarehr.common.model.DemographicContact;
-import org.oscarehr.common.model.DemographicPharmacy;
+import org.oscarehr.common.model.DemographicExt;
 import org.oscarehr.common.model.DocumentReview;
 import org.oscarehr.common.model.Drug;
 import org.oscarehr.common.model.DrugReason;
 import org.oscarehr.common.model.Facility;
 import org.oscarehr.common.model.MeasurementsExt;
 import org.oscarehr.common.model.PartialDate;
+import org.oscarehr.common.model.PatientLabRouting;
 import org.oscarehr.common.model.PharmacyInfo;
 import org.oscarehr.common.model.Provider;
+import org.oscarehr.common.model.ProviderLabRoutingModel;
 import org.oscarehr.hospitalReportManager.HRMReport;
 import org.oscarehr.hospitalReportManager.HRMReportParser;
 import org.oscarehr.hospitalReportManager.dao.HRMDocumentCommentDao;
@@ -128,7 +130,6 @@ import org.oscarehr.hospitalReportManager.model.HRMDocument;
 import org.oscarehr.hospitalReportManager.model.HRMDocumentComment;
 import org.oscarehr.hospitalReportManager.model.HRMDocumentSubClass;
 import org.oscarehr.hospitalReportManager.model.HRMDocumentToDemographic;
-import org.oscarehr.hospitalReportManager.model.HRMDocumentToProvider;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -170,6 +171,7 @@ import oscar.oscarEncounter.data.EctProgram;
 import oscar.oscarEncounter.oscarMeasurements.data.ImportExportMeasurements;
 import oscar.oscarLab.FileUploadCheck;
 import oscar.oscarLab.LabRequestReportLink;
+import oscar.oscarLab.ca.all.Hl7textResultsData;
 import oscar.oscarLab.ca.all.upload.HandlerClassFactory;
 import oscar.oscarLab.ca.all.upload.handlers.CMLHandler;
 import oscar.oscarLab.ca.all.upload.handlers.GDMLHandler;
@@ -212,6 +214,7 @@ import oscar.util.UtilDateUtilities;
 
     boolean matchProviderNames = true;
     String admProviderNo = null;
+    Demographic demographic = null;
     String demographicNo = null;
     String patientName = null;
     String programId = null;
@@ -237,6 +240,7 @@ import oscar.util.UtilDateUtilities;
     DemographicExtDao demographicExtDao = (DemographicExtDao) SpringUtils.getBean("demographicExtDao");
     OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
     PharmacyInfoDao pharmacyInfoDao = SpringUtils.getBean(PharmacyInfoDao.class);
+    PatientLabRoutingDao patientLabRoutingDao  = SpringUtils.getBean(PatientLabRoutingDao.class); 
     ProviderLabRoutingDao providerLabRoutingDao = SpringUtils.getBean(ProviderLabRoutingDao.class);
     MeasurementsExtDao measurementsExtDao = SpringUtils.getBean(MeasurementsExtDao.class);
     Map<String, String> successfulImports = new HashMap<String, String>();
@@ -345,7 +349,8 @@ import oscar.util.UtilDateUtilities;
             for (File xml : xmlFiles) {
                 logs.add(importXML(LoggedInInfo.getLoggedInInfoFromSession(request), xml.getPath(), warnings, request, frm.getTimeshiftInDays(), students, courseId));
                 importNo++;
-                demographicNo=null;
+                demographic = null;
+                demographicNo = null;
             }
             importLog = makeImportLog(logs, tmpDir);
             
@@ -811,7 +816,7 @@ import oscar.util.UtilDateUtilities;
         DemographicAddResult demoRes = null;
 
         //Check if Contact-only demographic exists
-        org.oscarehr.common.model.Demographic demographic = null;
+        demographic = null;
 
         if(courseId == 0) {
             demographicNo = dd.getDemoNoByNamePhoneEmail(loggedInInfo, firstName, lastName, homePhone, workPhone, email);
@@ -910,6 +915,7 @@ import oscar.util.UtilDateUtilities;
             }
 
             //Put enrolment history into demographicArchive
+            List<AbstractModel<?>> demographicArchives = new ArrayList<>();
             demographic = dd.getDemographic(loggedInInfo, demographicNo);
             for (int i=0; i<roster_status.length-1; i++) {
             	DemographicArchive demographicArchive = archiveDemographic(demographic);
@@ -918,7 +924,14 @@ import oscar.util.UtilDateUtilities;
             	demographicArchive.setRosterTerminationDate(UtilDateUtilities.StringToDate(term_date[i]));
             	demographicArchive.setRosterTerminationReason(term_reason[i]);
             	demographicArchive.setProviderNo(enrollment_physician[i]);
-            	demoArchiveDao.persist(demographicArchive);
+            	demographicArchives.add(demographicArchive);
+            }
+
+            try {
+                demoArchiveDao.batchPersist(demographicArchives);
+            } catch (Exception e) {
+                e.printStackTrace();
+                err_summ.add("Error adding demographic archive objects");
             }
 
             //Patient notes
@@ -931,15 +944,23 @@ import oscar.util.UtilDateUtilities;
 	            dmNote.setNote(extra);
 	            saveLinkNote(dmNote, CaseManagementNoteLink.DEMOGRAPHIC, Long.valueOf(demographicNo));
             }
+            List<AbstractModel<?>> demographicExts = new ArrayList<>();
 
-            demographicExtDao.addKey(primaryPhysician, Integer.parseInt(demographicNo), "address_mailing", StringUtils.noNull(addressMailing));
-            demographicExtDao.addKey(primaryPhysician, Integer.parseInt(demographicNo), "city_mailing", StringUtils.noNull(cityMailing));
-            demographicExtDao.addKey(primaryPhysician, Integer.parseInt(demographicNo), "province_mailing", StringUtils.noNull(provinceMailing));
-            demographicExtDao.addKey(primaryPhysician, Integer.parseInt(demographicNo), "postal_mailing", StringUtils.noNull(postalCodeMailing));
-            if (!workExt.equals("")) demographicExtDao.addKey(primaryPhysician, Integer.parseInt(demographicNo), "wPhoneExt", workExt);
-            if (!homeExt.equals("")) demographicExtDao.addKey(primaryPhysician, Integer.parseInt(demographicNo), "hPhoneExt", homeExt);
-            if (!cellPhone.equals("")) demographicExtDao.addKey(primaryPhysician, Integer.parseInt(demographicNo), "demo_cell", cellPhone);
-            if(courseId>0) demographicExtDao.addKey(primaryPhysician, Integer.parseInt(demographicNo), "course", String.valueOf(courseId));
+            demographicExts.add(new DemographicExt(primaryPhysician, Integer.parseInt(demographicNo), "address_mailing", StringUtils.noNull(addressMailing)));
+            demographicExts.add(new DemographicExt(primaryPhysician, Integer.parseInt(demographicNo), "city_mailing", StringUtils.noNull(cityMailing)));
+            demographicExts.add(new DemographicExt(primaryPhysician, Integer.parseInt(demographicNo), "province_mailing", StringUtils.noNull(provinceMailing)));
+            demographicExts.add(new DemographicExt(primaryPhysician, Integer.parseInt(demographicNo), "postal_mailing", StringUtils.noNull(postalCodeMailing)));
+            if (!workExt.equals("")) demographicExts.add(new DemographicExt(primaryPhysician, Integer.parseInt(demographicNo), "wPhoneExt", workExt));
+            if (!homeExt.equals("")) demographicExts.add(new DemographicExt(primaryPhysician, Integer.parseInt(demographicNo), "hPhoneExt", homeExt));
+            if (!cellPhone.equals("")) demographicExts.add(new DemographicExt(primaryPhysician, Integer.parseInt(demographicNo), "demo_cell", cellPhone));
+            if(courseId>0) demographicExts.add(new DemographicExt(primaryPhysician, Integer.parseInt(demographicNo), "course", String.valueOf(courseId)));
+
+            try {
+                demographicExtDao.batchPersist(demographicExts);
+            } catch (Exception e) {
+                e.printStackTrace();
+                err_summ.add("Error adding demographic extension objects");
+            }
 
             // Preferred Pharmacy  {
             if (demo.isSetPreferredPharmacy()) {
@@ -1067,6 +1088,7 @@ import oscar.util.UtilDateUtilities;
                 String cDemoNo = dd.getDemoNoByNamePhoneEmail(loggedInInfo, cFirstName, cLastName, homePhone, workPhone, cEmail);
                 String cPatient = cLastName+","+cFirstName;
                 try {
+                    demographicExts = new ArrayList<>();
                     if (StringUtils.empty(cDemoNo)) {   //add new demographic as contact
                         psDate = UtilDateUtilities.DateToString(new Date(),"yyyy-MM-dd");
                         demoRes = dd.addDemographic(loggedInInfo, ""/*title*/, cLastName, cFirstName, "", ""/*address*/, ""/*city*/, ""/*province*/, ""/*postal*/,
@@ -1080,6 +1102,8 @@ import oscar.util.UtilDateUtilities;
                         if (!workExt.equals("")) demographicExtDao.addKey("", Integer.parseInt(cDemoNo), "wPhoneExt", workExt);
                         if (!homeExt.equals("")) demographicExtDao.addKey("", Integer.parseInt(cDemoNo), "hPhoneExt", homeExt);
                         if (!cellPhone.equals("")) demographicExtDao.addKey("", Integer.parseInt(cDemoNo), "demo_cell", cellPhone);
+                        
+                        demographicExtDao.batchPersist(demographicExts);
                     }
                     insertIntoAdmission(cDemoNo);
                 } catch (Exception e) {
@@ -3312,20 +3336,7 @@ import oscar.util.UtilDateUtilities;
 			caseManagementManager.saveNoteLink(cml);
 		}
 	}
-
-	void saveMeasurementsExt(Long measurementId, String key, String val) {
-		if (measurementId!=null && StringUtils.filled(key) && StringUtils.filled(val)) {
-			MeasurementsExt mx = new MeasurementsExt(measurementId.intValue());
-			mx.setKeyVal(key);
-			mx.setVal(StringUtils.noNull(val));
-			ImportExportMeasurements.saveMeasurementsExt(mx);
-		}
-	}
 	
-	void saveMeasurementsExts(List<AbstractModel<?>> measurementsExts) {
-        measurementsExtDao.batchPersist(measurementsExts, 50);
-    }
-
 	String updateExternalProvider(String firstName, String lastName, String ohipNo, String cpsoNo, ProviderData pd) {
 		// For external provider only
 		if (pd==null) return null; 
@@ -3677,7 +3688,7 @@ import oscar.util.UtilDateUtilities;
 				
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddkkmmssSS");
 		        String filename = "Lab." + sdf.format(new Date()) + ".import.hl7";
-                HL7CreateFile hl7CreateFile = new HL7CreateFile(demographicNo);
+                HL7CreateFile hl7CreateFile = new HL7CreateFile(demographic);
                 String observationMsg = hl7CreateFile.generateHL7(Arrays.asList(reportResults));
 				
 		        InputStream formFileIs=null;
@@ -3695,29 +3706,31 @@ import oscar.util.UtilDateUtilities;
 		            
 		            int checkFileUploadedSuccessfully = FileUploadCheck.addFile(file.getName(),localFileIs,admProviderNo);            
 		            
-		            if (checkFileUploadedSuccessfully != FileUploadCheck.UNSUCCESSFUL_SAVE){
-		                logger.debug("filePath"+filePath);
-		                logger.debug("Type :"+type);
-		                MessageHandler msgHandler = HandlerClassFactory.getHandler(type);
-		                if(msgHandler != null){
-		                   logger.debug("MESSAGE HANDLER "+msgHandler.getClass().getName());
-		                }
-		               if((msgHandler.parse(loggedInInfo, getClass().getSimpleName(), filePath,checkFileUploadedSuccessfully, "")) != null) { 
-		                    if (msgHandler instanceof CMLHandler) {
-                               labNo = ((CMLHandler)msgHandler).getLastLabNo(); 
-		                    } else if (msgHandler instanceof GDMLHandler) {
-                                labNo = ((GDMLHandler)msgHandler).getLastLabNo();
-                            } else if (msgHandler instanceof MDSHandler) {
-                                labNo = ((MDSHandler)msgHandler).getLastLabNo(); 
-		                    }
-		                    
-		                    logger.info("successfully added lab");
-		                    addOneEntry(LABS);
-		               }
-		            }else{
-		            	 logger.info("uploaded previously");
-		            }
-		        }catch(Exception e){
+		            if (checkFileUploadedSuccessfully != FileUploadCheck.UNSUCCESSFUL_SAVE) {
+                        logger.debug("filePath" + filePath);
+                        logger.debug("Type :" + type);
+                        MessageHandler msgHandler = HandlerClassFactory.getHandler(type);
+                        if (msgHandler != null) {
+                            logger.debug("MESSAGE HANDLER " + msgHandler.getClass().getName());
+                        }
+
+                        if (msgHandler instanceof CMLHandler && ((CMLHandler) msgHandler).parse(loggedInInfo, getClass().getSimpleName(), filePath, checkFileUploadedSuccessfully, "", false) != null) {
+                            labNo = ((CMLHandler) msgHandler).getLastLabNo();
+                            logger.info("successfully added lab");
+                            addOneEntry(LABS);
+                        } else if (msgHandler instanceof GDMLHandler && ((GDMLHandler) msgHandler).parse(loggedInInfo, getClass().getSimpleName(), filePath, checkFileUploadedSuccessfully, "", false) != null) {
+                            labNo = ((GDMLHandler) msgHandler).getLastLabNo();
+                            logger.info("successfully added lab");
+                            addOneEntry(LABS);
+                        } else if (msgHandler instanceof MDSHandler && ((MDSHandler) msgHandler).parse(loggedInInfo, getClass().getSimpleName(), filePath, checkFileUploadedSuccessfully, "", false) != null) {
+                            labNo = ((MDSHandler) msgHandler).getLastLabNo();
+                            logger.info("successfully added lab");
+                            addOneEntry(LABS);
+                        } else {
+                            logger.info("uploaded previously");
+                        }
+                    }
+		        } catch(Exception e){
 		            logger.error("Error: ",e);
                     importErrors.add("Error adding lab");
 		        }
@@ -3728,19 +3741,25 @@ import oscar.util.UtilDateUtilities;
 		        
 		        
 		        if(labNo != null) {
+                    Hl7textResultsData.populateMeasurementsTable(labNo.toString(), demographicNo);
+
+                    patientLabRoutingDao.persist(new PatientLabRouting(labNo, "HL7", Integer.parseInt(demographicNo)));
+		            
 		        	DateTimeFullOrPartial dt = labResult.getLabRequisitionDateTime();
 		        	if(dt == null) {
 		        		dt = labResult.getCollectionDateTime();
 		        	}
 		        	
 		        	LabRequestReportLink.save(null,null,dateFPtoString(dt,0),"labPatientPhysicianInfo",labNo.longValue());
-		        	
-		      
+
+                    List<AbstractModel<?>> providerLabRoutingQueue = new ArrayList<>();
+                    
+                    if (StringUtils.filled(demographic.getProviderNo())) {
+                        providerLabRoutingQueue.add(new ProviderLabRoutingModel(demographic.getProviderNo(), labNo , "N", "", new Date(), "HL7"));
+                    }
+                    
 			        for(ResultReviewer resultReviewer : labResult.getResultReviewerArray()) {
-			        	String reviewDate = dateFPtoString(resultReviewer.getDateTimeResultReviewed(),0);
-                        if (reviewDate.length() == 10) {
-                            reviewDate = reviewDate + " 00:00:00";
-                        }
+			        	Date reviewDate = dateTimeFPtoDate(resultReviewer.getDateTimeResultReviewed(),0);
                         
 			        	String reviewer = writeProviderData(resultReviewer.getName().getFirstName(),resultReviewer.getName().getLastName(),resultReviewer.getOHIPPhysicianId(), null, "0");
 			        	
@@ -3752,10 +3771,10 @@ import oscar.util.UtilDateUtilities;
 			        	String status = StringUtils.filled(reviewer) ? "A" : "N";
 	                    reviewer = status.equals("A") ? reviewer : "0";
 	                 
-	                    LabResultImport.saveProviderLabRouting(reviewer, labNo.toString() , status, reviewerComment, reviewDate);
-	                    
-	                   
+                        providerLabRoutingQueue.add(new ProviderLabRoutingModel(reviewer, labNo , status, reviewerComment, reviewDate, "HL7"));
 			        }
+
+                    providerLabRoutingDao.batchPersist(providerLabRoutingQueue);
 
                     List<AbstractModel<?>> measurementsExtsToSave = new ArrayList<AbstractModel<?>>();
 			        for(int x=0;x<reportResults.length;x++) {
@@ -3765,64 +3784,64 @@ import oscar.util.UtilDateUtilities;
                         
                         if (measId != null) {
                            measurementsExtMap = measurementsExtDao.getMeasurementsExtMapByMeasurementId(measId.intValue());
-                        }
-						
-	                	if(StringUtils.filled(result.getNotesFromLab()) && measurementsExtMap.get("comments") == null) {
-	                	    getMeasurementsExt(measId, "comments", result.getNotesFromLab(), measurementsExtsToSave);
-	                	}
-	                	
-	                	String annotation = labResult.getPhysiciansNotes();
-		                if (StringUtils.filled(annotation)) { 
-		                    if (measurementsExtMap.get("other_id") == null) { 
-		                        getMeasurementsExt(measId, "other_id", "0-0", measurementsExtsToSave); 
-                            }
-		                    CaseManagementNote cmNote = prepareCMNote("2",null);
-		                    cmNote.setNote(annotation);
-		                    saveLinkNote(cmNote, CaseManagementNoteLink.LABTEST, labNo.longValue(), "0-0");
-		                }
 
-						String olis_status = result.getTestResultStatus();
-						if (StringUtils.filled(olis_status)) {
-							if(measId != null && measurementsExtMap.get("olis_status") == null) {
-                                getMeasurementsExt(measId, "olis_status", olis_status, measurementsExtsToSave);
-							}
-						}
-
-                        if (result.getBlockedTestResult() != null && "Y".equals(result.getBlockedTestResult().toString()) && measurementsExtMap.get("reportBlocked") == null) {
-                            getMeasurementsExt(measId, "reportBlocked", "Y", measurementsExtsToSave);
-                        }
-
-                        if (result.isSetTestName() && measurementsExtMap.get("name_internal") == null) {
-                            getMeasurementsExt(measId, "name_internal", result.getTestName(), measurementsExtsToSave);
-                        }
-
-                        if(result.isSetReferenceRange()) {
-                            if (StringUtils.filled(result.getReferenceRange().getReferenceRangeText()) && measurementsExtMap.get("range") == null) {
-                                getMeasurementsExt(measId, "range", result.getReferenceRange().getReferenceRangeText(), measurementsExtsToSave);
+                            if(StringUtils.filled(result.getNotesFromLab()) && measurementsExtMap.get("comments") == null) {
+                                getMeasurementsExt(measId, "comments", result.getNotesFromLab(), measurementsExtsToSave);
                             }
 
-                            if (StringUtils.filled(result.getReferenceRange().getLowLimit()) && StringUtils.filled(result.getReferenceRange().getHighLimit())
-                                    && measurementsExtMap.get("range") == null && measurementsExtMap.get("minimum") == null && measurementsExtMap.get("maximum") == null) {
-                                getMeasurementsExt(measId, "range", result.getReferenceRange().getLowLimit() + "-" + result.getReferenceRange().getHighLimit(), measurementsExtsToSave);
-                                getMeasurementsExt(measId, "minimum", result.getReferenceRange().getLowLimit(), measurementsExtsToSave);
-                                getMeasurementsExt(measId, "maximum", result.getReferenceRange().getHighLimit(), measurementsExtsToSave);
-                            } else {
-                                if (StringUtils.filled(result.getReferenceRange().getLowLimit()) && measurementsExtMap.get("minimum") == null) {
-                                    getMeasurementsExt(measId, "minimum", result.getReferenceRange().getLowLimit(), measurementsExtsToSave);
+                            String annotation = labResult.getPhysiciansNotes();
+                            if (StringUtils.filled(annotation)) {
+                                if (measurementsExtMap.get("other_id") == null) {
+                                    getMeasurementsExt(measId, "other_id", "0-0", measurementsExtsToSave);
+                                }
+                                CaseManagementNote cmNote = prepareCMNote("2",null);
+                                cmNote.setNote(annotation);
+                                saveLinkNote(cmNote, CaseManagementNoteLink.LABTEST, labNo.longValue(), "0-0");
+                            }
+
+                            String olis_status = result.getTestResultStatus();
+                            if (StringUtils.filled(olis_status)) {
+                                if(measId != null && measurementsExtMap.get("olis_status") == null) {
+                                    getMeasurementsExt(measId, "olis_status", olis_status, measurementsExtsToSave);
+                                }
+                            }
+
+                            if (result.getBlockedTestResult() != null && "Y".equals(result.getBlockedTestResult().toString()) && measurementsExtMap.get("reportBlocked") == null) {
+                                getMeasurementsExt(measId, "reportBlocked", "Y", measurementsExtsToSave);
+                            }
+
+                            if (result.isSetTestName() && measurementsExtMap.get("name_internal") == null) {
+                                getMeasurementsExt(measId, "name_internal", result.getTestName(), measurementsExtsToSave);
+                            }
+
+                            if(result.isSetReferenceRange()) {
+                                if (StringUtils.filled(result.getReferenceRange().getReferenceRangeText()) && measurementsExtMap.get("range") == null) {
+                                    getMeasurementsExt(measId, "range", result.getReferenceRange().getReferenceRangeText(), measurementsExtsToSave);
                                 }
 
-                                if (StringUtils.filled(result.getReferenceRange().getHighLimit()) && measurementsExtMap.get("maximum") == null) {
-                                    getMeasurementsExt(measId, "maximum", result.getReferenceRange().getHighLimit(), measurementsExtsToSave);
-                                }
-                                
-                                if (StringUtils.filled(result.getReferenceRange().getLowLimit()) && StringUtils.filled(result.getReferenceRange().getHighLimit()) && measurementsExtMap.get("range") == null) {
+                                if (StringUtils.filled(result.getReferenceRange().getLowLimit()) && StringUtils.filled(result.getReferenceRange().getHighLimit())
+                                        && measurementsExtMap.get("range") == null && measurementsExtMap.get("minimum") == null && measurementsExtMap.get("maximum") == null) {
                                     getMeasurementsExt(measId, "range", result.getReferenceRange().getLowLimit() + "-" + result.getReferenceRange().getHighLimit(), measurementsExtsToSave);
+                                    getMeasurementsExt(measId, "minimum", result.getReferenceRange().getLowLimit(), measurementsExtsToSave);
+                                    getMeasurementsExt(measId, "maximum", result.getReferenceRange().getHighLimit(), measurementsExtsToSave);
+                                } else {
+                                    if (StringUtils.filled(result.getReferenceRange().getLowLimit()) && measurementsExtMap.get("minimum") == null) {
+                                        getMeasurementsExt(measId, "minimum", result.getReferenceRange().getLowLimit(), measurementsExtsToSave);
+                                    }
+
+                                    if (StringUtils.filled(result.getReferenceRange().getHighLimit()) && measurementsExtMap.get("maximum") == null) {
+                                        getMeasurementsExt(measId, "maximum", result.getReferenceRange().getHighLimit(), measurementsExtsToSave);
+                                    }
+
+                                    if (StringUtils.filled(result.getReferenceRange().getLowLimit()) && StringUtils.filled(result.getReferenceRange().getHighLimit()) && measurementsExtMap.get("range") == null) {
+                                        getMeasurementsExt(measId, "range", result.getReferenceRange().getLowLimit() + "-" + result.getReferenceRange().getHighLimit(), measurementsExtsToSave);
+                                    }
                                 }
                             }
                         }
 	                }
 			        
-			        saveMeasurementsExts(measurementsExtsToSave);
+			        measurementsExtDao.batchPersist(measurementsExtsToSave, 50);
 	                
 	                String labInfo = getLabDline(labResult, 0);
 	                if (StringUtils.filled(labInfo)) {

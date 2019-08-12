@@ -38,6 +38,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.Hl7TextInfoDao;
+import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Hl7TextInfo;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -54,8 +55,12 @@ public class CMLHandler implements MessageHandler {
 	Logger logger = Logger.getLogger(CMLHandler.class);
 	Hl7TextInfoDao hl7TextInfoDao = (Hl7TextInfoDao)SpringUtils.getBean("hl7TextInfoDao");
 	private Integer labNo = null;
-	
+
 	public String parse(LoggedInInfo loggedInInfo, String serviceName, String fileName, int fileId, String ipAddr) {
+		return parse(loggedInInfo, serviceName, fileName, fileId, ipAddr, true);
+	}
+	
+	public String parse(LoggedInInfo loggedInInfo, String serviceName, String fileName, int fileId, String ipAddr, Boolean autoRoute) {
 
 		int i = 0;
 		RouteReportResults routeResults;
@@ -68,7 +73,7 @@ public class CMLHandler implements MessageHandler {
 				}
 				
 				routeResults = new RouteReportResults();
-				MessageUploader.routeReport(loggedInInfo, serviceName, "CML", msg, fileId, routeResults);
+				MessageUploader.routeReport(loggedInInfo, serviceName, "CML", msg, fileId, routeResults, autoRoute);
 				
 				oscar.oscarLab.ca.all.parsers.MessageHandler msgHandler = Factory.getHandler(String.valueOf(routeResults.segmentId));
 				if( msgHandler == null ) {
