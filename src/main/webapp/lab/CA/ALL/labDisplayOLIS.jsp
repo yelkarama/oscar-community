@@ -22,6 +22,7 @@
 <%@ page import="org.oscarehr.olis.model.OlisSessionManager" %>
 <%@ page import="org.oscarehr.olis.model.ProviderOlisSession" %>
 <%@ page import="org.oscarehr.olis.model.OlisLabResultDisplay" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
@@ -95,6 +96,7 @@ Factory f;
 MessageHandler handlerMain = null;
 String hl7 = "";
 Integer resultObrIndex = null;
+String previewLabUuid = "";
 
 if (!preview) {
     if(demographicID != null && !demographicID.equals("")&& !demographicID.equals("0")) {
@@ -122,6 +124,7 @@ if (!preview) {
 	List<OlisLabResultDisplay> labResultDisplays = providerOlisSession.getLabResultDisplayByPlacerGroupNo(placerGroupNo);
 	if (!labResultDisplays.isEmpty()) {
 		handlerMain = labResultDisplays.get(0).getOlisHl7Handler();
+        previewLabUuid = labResultDisplays.get(0).getLabUuid();
 	}
 }
 
@@ -334,9 +337,9 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
 
         function printPDF(zipAttachments) {
             if (typeof zipAttachments !== 'undefined' && zipAttachments === true) {
-                document.acknowledgeForm.action="PrintOLISLab.do?placerGroupNo=<%=request.getParameter("placerGroupNo")%>&includeAttachmentsInZip=true";
+                document.acknowledgeForm.action="PrintOLISLab.do?placerGroupNo=<%=request.getParameter("placerGroupNo")%>&includeAttachmentsInZip=true" <%=preview ? "+ \"&uuid=" + Encode.forJavaScriptBlock(previewLabUuid) + "\"": ""%>;
             } else {
-                document.acknowledgeForm.action="PrintOLISLab.do?placerGroupNo=<%=request.getParameter("placerGroupNo")%>";
+                document.acknowledgeForm.action="PrintOLISLab.do?placerGroupNo=<%=request.getParameter("placerGroupNo")%>" <%=preview ? "+ \"&uuid=" + Encode.forJavaScriptBlock(previewLabUuid) + "\"": ""%>;
             }
             document.acknowledgeForm.submit();
         }
