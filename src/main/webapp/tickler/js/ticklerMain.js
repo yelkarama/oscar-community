@@ -2,7 +2,7 @@ jQuery(document).ready(function(){
     jQuery("#checkAllLink").hide();
 });
 
-function addProviderToSite(siteId, provider) {
+function addProviderToSite(providers, siteId, provider) {
     if (providers.find( p => p.providerNo === provider.providerNo ) == null) {
         providers.push(provider);
     }
@@ -13,7 +13,7 @@ function addProviderToSite(siteId, provider) {
     }
 }
 
-function buildProviderList(siteId){
+function buildProviderList(providers, siteId){
     let assignedToEl = jQuery('#assignedTo');
     assignedToEl.empty();
     let theProviders = [];
@@ -36,6 +36,6 @@ function buildProviderList(siteId){
     });
 }
 
-function changeSite(sel) {
-    buildProviderList(sel.value)
+function changeSite(sel, providers) {
+    buildProviderList(providers, sel.value)
 }

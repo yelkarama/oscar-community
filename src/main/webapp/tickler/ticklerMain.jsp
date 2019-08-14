@@ -687,7 +687,7 @@ var beginD = "1900-01-01"
 				<option value="all" <%="all".equals(selectedProgram)?"selected=\"selected\"":""%>>All Programs</option>
 				<%	for (Program p : programsList) { %>
 				<option value="<%=p.getId()%>" <%=String.valueOf(p.getId()).equals(selectedProgram)?"selected=\"selected\"":""%>>
-					<%=p.getName()%>
+					<%=Encode.forHtmlContent(p.getName())%>
 				</option>
 				<%	} 
 					if ("true".equals(ticklerShowOnlyProviderPrograms)) { %>
@@ -710,7 +710,7 @@ var beginD = "1900-01-01"
                     List<Site> sites = siteDao.getActiveSitesByProviderNo(user_no);
           	        for (int i=0; i<sites.size(); i++) {
           	    %>
-          	        sites.push({id:'<%=sites.get(i).getSiteId()%>', name: '<%=sites.get(i).getName()%>', providers: []});
+          	        sites.push({id:'<%=sites.get(i).getSiteId()%>', name: '<%=Encode.forJavaScript(sites.get(i).getName())%>', providers: []});
                 <% 
           	        }
           	        
@@ -720,19 +720,19 @@ var beginD = "1900-01-01"
           	                Provider p=iter.next();
           	                if ("1".equals(p.getStatus())) {
           	    %>
-                addProviderToSite('<%=sites.get(i).getSiteId()%>', {providerNo: '<%=p.getProviderNo()%>', name: '<%=Encode.forJavaScript(p.getLastName())%>, <%=Encode.forJavaScript(p.getFirstName())%>'});
+                addProviderToSite(providers, '<%=sites.get(i).getSiteId()%>', {providerNo: '<%=p.getProviderNo()%>', name: '<%=Encode.forJavaScript(p.getLastName())%>, <%=Encode.forJavaScript(p.getFirstName())%>'});
                 <%
           	                }
           	            }
           	        }
                 %>
             </script>
-      	<select id="site" name="site" onchange="changeSite(this)">
+      	<select id="site" name="site" onchange="changeSite(this, providers)">
       		<option value="all">All Clinics</option>
       	<%
       		for (int i=0; i<sites.size(); i++) {
       	%>
-      		<option value="<%=sites.get(i).getSiteId()%>" <%=sites.get(i).getSiteId().toString().equals(request.getParameter("site"))?"selected":""%>><%=sites.get(i).getName()%></option>
+      		<option value="<%=sites.get(i).getSiteId()%>" <%=sites.get(i).getSiteId().toString().equals(request.getParameter("site"))?"selected":""%>><%=Encode.forHtmlContent(sites.get(i).getName())%></option>
       	<%
       		}
       	%>
@@ -742,7 +742,7 @@ var beginD = "1900-01-01"
     String assignedToVal = StringUtils.isNullOrEmpty(request.getParameter("assignedTo")) ? "all" : request.getParameter("assignedTo");
 %>
       	<script>
-     	changeSite(document.getElementById("site"));
+     	changeSite(document.getElementById("site"), providers);
       	document.getElementById("assignedTo").value='<%=assignedToVal%>';
       	</script>
 <%
