@@ -858,7 +858,9 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 
     </tr>      
 </security:oscarSec>
-	<% if (OscarProperties.getInstance().getBooleanProperty("echart_show_progress_sheet", "true")) { %>
+	<% if (OscarProperties.getInstance().getBooleanProperty("echart_show_progress_sheet", "true")) {
+		List<Provider> activeProviders = providerDao.getActiveProvidersByTypes(Collections.singletonList("doctor"));
+	%>
 		<tr>
 			<td width="2"><%=j%><%j++;%></td>
 			<td width="1"></td>
@@ -870,7 +872,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 			<td>
 				<select id="ps_provider_no" name="ps_provider_no">
 					<option value="all"><bean:message key="report.reportindex.formAllProviders" /></option>
-					<% for (Provider provider : providerDao.getActiveProvidersByTypes(Collections.singletonList("doctor"))) { %>
+					<% for (Provider provider : activeProviders) { %>
 					<option value="<%=provider.getProviderNo()%>" <%=curUser_no.equals(provider.getProviderNo())?"selected=\"selected\"":""%>>
 						<%=provider.getLastName()%>, <%=provider.getFirstName()%>
 					</option>
@@ -890,9 +892,19 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 			<td width="2"><%=j%><%j++;%></td>
 			<td width="1"></td>
 			<td width="300">
-				<a href="javascript:void(0);" onclick="window.open('/progresssheet/billing/listForDate?date=' + document.getElementById('ps_billing_for_date').value)">
+				<a href="javascript:void(0);" onclick="window.open('/progresssheet/billing/listForDate?provider=' + document.getElementById('ps_billing_provider_no').value + '&date=' + document.getElementById('ps_billing_for_date').value)">
 					<bean:message key="admin.admin.psBillingPrintout" />
 				</a>
+			</td>
+			<td>
+				<select id="ps_billing_provider_no" name="ps_billing_provider_no">
+					<option value="all"><bean:message key="report.reportindex.formAllProviders" /></option>
+					<% for (Provider provider : activeProviders) { %>
+					<option value="<%=provider.getProviderNo()%>" <%=curUser_no.equals(provider.getProviderNo())?"selected=\"selected\"":""%>>
+						<%=provider.getLastName()%>, <%=provider.getFirstName()%>
+					</option>
+					<% } %>
+				</select>
 			</td>
 			<td>
 				<label>For Date:
