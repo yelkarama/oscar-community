@@ -152,7 +152,7 @@ public class SecurityAddSecurityHelper {
 			return "admin.securityrecord.msgPasswordNotConfirmed";
 		}
 		
-		if (request.getParameter("b_ExpireSet").equals("1") && request.getParameter("date_ExpireDate").length() < 10) {
+		if ("1".equals(request.getParameter("b_ExpireSet")) && request.getParameter("date_ExpireDate").length() < 10) {
 			return "admin.securityrecord.formDate";
 		}
 		
