@@ -2,6 +2,7 @@ package oscar.oscarProvider.data;
 
 import org.oscarehr.billing.CA.ON.model.Billing3rdPartyAddress;
 import org.oscarehr.common.dao.Billing3rdPartyAddressDao;
+import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.DemographicExtDao;
 import org.oscarehr.common.dao.ProfessionalSpecialistDao;
 import org.oscarehr.common.dao.UserPropertyDAO;
@@ -14,8 +15,10 @@ import org.oscarehr.util.SpringUtils;
 import oscar.oscarRx.data.RxProviderData;
 import oscar.util.StringUtils;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,6 +36,15 @@ public class DefaultHcTypeBillToRemitToPreferenceService {
         aMap.put("referral_doctor", "Referral Doctor");
         aMap.put("patient", "Patient");
         DATABASE_FIELD_MAP = Collections.unmodifiableMap(aMap);
+    }
+    
+    public static final List<String> PDF_PRINT_BILL_FIELDS = Arrays.asList("first_last_name", "address_street_number_and_name", "city", "province", "postal", "email", "phone", "chartno");
+    public static final List<String> PDF_PRINT_REMIT_FIELDS = Arrays.asList("clinic_name", "clinic_address", "clinic_city", "clinic_province", "clinic_postal", "remit_to_phone");
+
+    public static HcTypeBillToRemitToPreference getPreferenceForProvider(String loggedInProviderNo, int billedDemographicNo) {
+        DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
+        Demographic demographic = demographicDao.getClientByDemographicNo(billedDemographicNo);
+        return getPreferenceForProvider(loggedInProviderNo, demographic);
     }
     
     public static HcTypeBillToRemitToPreference getPreferenceForProvider(String loggedInProviderNo, Demographic billedDemographic) {

@@ -50,6 +50,8 @@ import org.oscarehr.eyeform.model.EyeformTestBook;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
+import oscar.oscarProvider.data.DefaultHcTypeBillToRemitToPreferenceService;
+import oscar.oscarProvider.data.HcTypeBillToRemitToPreference;
 import oscar.util.DateUtils;
 import oscar.OscarProperties;
 import oscar.eform.util.GraphicalCanvasToImage;
@@ -313,7 +315,8 @@ public class PdfRecordPrinter {
                 if (jrParams != null) {
                     
                     APExecute apExe = new APExecute();
-                    BillingONCHeader1 billingONCHeader1 = billingONCHeader1Dao.find(invoiceNo);                    
+                    BillingONCHeader1 billingONCHeader1 = billingONCHeader1Dao.find(invoiceNo);
+                    HcTypeBillToRemitToPreference billToRemitToPreference = DefaultHcTypeBillToRemitToPreferenceService.getPreferenceForProvider(billingONCHeader1.getProviderNo(), billingONCHeader1.getDemographicNo());
                     
                     for (JRParameter jrParam : jrParams) {
                         if (!jrParam.isSystemDefined()) {
@@ -321,8 +324,14 @@ public class PdfRecordPrinter {
                             
                             if (paramName.equals("invoice_no")) {
                                 parameters.put(paramName, invoiceNo);
-                            }
-                            else if (paramName.equals("clinic_logo")) {                               
+                            } else if ((billToRemitToPreference.isBilledToSet() && DefaultHcTypeBillToRemitToPreferenceService.PDF_PRINT_BILL_FIELDS.contains(paramName))
+                                    || (billToRemitToPreference.isRemitToSet() && DefaultHcTypeBillToRemitToPreferenceService.PDF_PRINT_REMIT_FIELDS.contains(paramName))) {
+                                if (paramName.equals("email") || paramName.equals("phone") || paramName.equals("chartno") || paramName.equals("remit_to_phone")) {
+                                    parameters.put(paramName, null); // set param null to blank out printed text box
+                                } else {
+                                    parameters.put(paramName, "");
+                                }
+                            } else if (paramName.equals("clinic_logo")) {                               
                                 String imagePath = props.getProperty("clinic_logo","");  
                                 if (imagePath.isEmpty()) {
                                     //DO NOTHING imageIS = this.getClass().getClassLoader().getResourceAsStream(OSCAR_LOGO_FILE);
@@ -356,7 +365,7 @@ public class PdfRecordPrinter {
                                     payee = providerDao.getProviderName(billingONCHeader1.getProviderNo());
                                 }
                                 parameters.put(paramName, payee);
-                            } else if (paramName.equals("remit_to_phone")) {
+                            } else if (paramName.equals("remit_to_phone") && !billToRemitToPreference.isRemitToSet()) {
                                 String remitToPhone = props.getProperty("clinic_billing_phone","");
                                 if (remitToPhone.isEmpty()) {
                                     remitToPhone = clinicDao.getClinic().getClinicPhone();
@@ -389,13 +398,17 @@ public class PdfRecordPrinter {
                                 }
                                 
                                 parameters.put(paramName, paymentDate);
+                            } else if (billToRemitToPreference.isBilledToSet() && paramName.equals("bill_to")) {
+                                parameters.put(paramName, billToRemitToPreference.getBillToText());
+                            } else if (billToRemitToPreference.isRemitToSet() && paramName.equals("remit_to")) {
+                                parameters.put(paramName, billToRemitToPreference.getRemitToText());
                             } else {
                                 parameters.put(paramName,apExe.execute(paramName,String.valueOf(billingONCHeader1.getDemographicNo()),invoiceNo));
                             }                            
                         }
                     }
 
-                    if (bMultisites) {
+                    if (bMultisites && !billToRemitToPreference.isRemitToSet()) {
                         parameters = setMultisiteClinicParams(billingONCHeader1.getClinic(), parameters);
                     }
                     

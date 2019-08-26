@@ -63,6 +63,8 @@
 	<parameter name="bill_item_dx" class="java.lang.String"/>
 	<parameter name="bill_item_amount" class="java.lang.String"/>
 	<parameter name="remit_to_phone" class="java.lang.String"/>
+    <parameter name="bill_to" class="java.lang.String"/>
+    <parameter name="remit_to" class="java.lang.String"/>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
@@ -162,17 +164,17 @@
 			<textField>
 				<reportElement mode="Transparent" x="38" y="208" width="208" height="20"/>
 				<textElement/>
-				<textFieldExpression><![CDATA["Email: " + $P{email}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[($P{email} !=null)?"Email: " + $P{email}:""]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement mode="Transparent" x="38" y="228" width="208" height="20"/>
 				<textElement/>
-				<textFieldExpression><![CDATA["Tel: "+ $P{phone}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[($P{phone}!=null)?"Tel: "+ $P{phone}:""]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement mode="Transparent" x="38" y="248" width="208" height="20"/>
 				<textElement/>
-				<textFieldExpression><![CDATA["Chart No: " + $P{chartno}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[($P{phone} !=null)?"Chart No: " + $P{chartno}:""]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement mode="Opaque" x="0" y="29" width="569" height="24" backcolor="#999999"/>
@@ -235,8 +237,16 @@
 			<textField>
 				<reportElement x="346" y="161" width="228" height="20"/>
 				<textElement/>
-				<textFieldExpression><![CDATA["Tel: " + $P{remit_to_phone}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[($P{remit_to_phone} !=null)?"Tel: " + $P{remit_to_phone}:""]]></textFieldExpression>
 			</textField>
+            <textField>
+                <reportElement x="40" y="83" width="206" height="184"/>
+                <textFieldExpression><![CDATA[($P{bill_to} !=null)?$P{bill_to}:""]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="347" y="84" width="224" height="96"/>
+                <textFieldExpression><![CDATA[($P{remit_to} !=null)?$P{remit_to}:""]]></textFieldExpression>
+            </textField>
 		</band>
 	</pageHeader>
 	<columnHeader>
