@@ -144,13 +144,14 @@ if (request.getParameter("buttonUpdate") != null && request.getParameter("button
     String roleId = request.getParameter("roleId");
     String roleOld = request.getParameter("roleOld");
     String roleNew = request.getParameter("roleNew");
+    String encodedRoleNew = Encode.forHtmlContent(roleNew);
 
     if(!"-".equals(roleNew)) {
 		Secuserrole secUserRole = secUserRoleDao.findById(Integer.parseInt(roleId));
 		if(secUserRole != null) {
 			secUserRole.setRoleName(roleNew);
 			secUserRoleDao.updateRoleName(Integer.parseInt(roleId),roleNew);
-			msg = "Role " + roleNew + " is updated. (" + number + ")";
+			msg = "Role " + encodedRoleNew + " is updated. (" + number + ")";
 
 			RecycleBin recycleBin = new RecycleBin();
 			recycleBin.setProviderNo(curUser_no);
@@ -175,7 +176,7 @@ if (request.getParameter("buttonUpdate") != null && request.getParameter("button
 			}
 
 		} else {
-			msg = "Role " + roleNew + " is <font color='red'>NOT</font> updated!!! (" + number + ")";
+			msg = "Role " + encodedRoleNew + " is <font color='red'>NOT</font> updated!!! (" + number + ")";
 		}
     }
 
@@ -185,14 +186,14 @@ if (request.getParameter("buttonUpdate") != null && request.getParameter("button
 if (request.getParameter("submit") != null && request.getParameter("submit").equals("Add")) {
     String number = request.getParameter("providerId");
     String roleNew = request.getParameter("roleNew");
-
+    String encodedRoleNew = Encode.forHtmlContent(roleNew);
     if(!"-".equals(roleNew)) {
 	    Secuserrole secUserRole = new Secuserrole();
 	    secUserRole.setProviderNo(number);
 	    secUserRole.setRoleName(roleNew);
 	    secUserRole.setActiveyn(1);
 	    secUserRoleDao.save(secUserRole);
-	    msg = "Role " + roleNew + " is added. (" + number + ")";
+	    msg = "Role " + encodedRoleNew + " is added. (" + number + ")";
 	    LogAction.addLog(curUser_no, LogConst.ADD, LogConst.CON_ROLE, number +"|"+ roleNew, ip);
 	    if( newCaseManagement ) {
             ProgramProvider programProvider = programProviderDao.getProgramProvider(number, Long.valueOf(caisiProgram));
@@ -205,7 +206,7 @@ if (request.getParameter("submit") != null && request.getParameter("submit").equ
             programProviderDao.saveProgramProvider(programProvider);
 	    }
     } else {
-    	msg = "Role " + roleNew + " is <font color='red'>NOT</font> added!!! (" + number + ")";
+    	msg = "Role " + encodedRoleNew + " is <font color='red'>NOT</font> added!!! (" + number + ")";
     }
 
 }
@@ -216,11 +217,12 @@ if (request.getParameter("submit") != null && request.getParameter("submit").equ
     String roleId = request.getParameter("roleId");
     String roleOld = request.getParameter("roleOld");
     String roleNew = request.getParameter("roleNew");
+    String encodedRoleOld = Encode.forHtmlContent(roleOld);
 
     Secuserrole secUserRole = secUserRoleDao.findById(Integer.parseInt(roleId));
     if(secUserRole != null) {
     	secUserRoleDao.deleteById(secUserRole.getId());
-    	msg = "Role " + roleOld + " is deleted. (" + number + ")";
+    	msg = "Role " + encodedRoleOld + " is deleted. (" + number + ")";
 
     	RecycleBin recycleBin = new RecycleBin();
 		recycleBin.setProviderNo(curUser_no);
@@ -239,7 +241,7 @@ if (request.getParameter("submit") != null && request.getParameter("submit").equ
             }
         }
     } else {
-    	msg = "Role " + roleOld + " is <font color='red'>NOT</font> deleted!!! (" + number + ")";
+    	msg = "Role " + encodedRoleOld + " is <font color='red'>NOT</font> deleted!!! (" + number + ")";
     }
 
 }
@@ -330,7 +332,7 @@ function submit(form) {
         <%
                 for(Properties prop:vec) {
                         %>
-                                item={providerNo:"<%=prop.get("provider_no")%>",role_id:"<%=prop.get("role_id")%>",roleName:"<%=prop.get("role_name")%>"};
+                                item={providerNo:"<%=prop.get("provider_no")%>",role_id:"<%=prop.get("role_id")%>",roleName:"<%=Encode.forHtmlAttribute((String)prop.get("role_name"))%>"};
                                 items.push(item);
                         <%
                 }
@@ -448,7 +450,7 @@ function submit(form) {
               <input type="hidden" name="keyword" value="<%=keyword%>" />
               <input type="hidden" name="providerId" value="<%=providerNo%>">
               <input type="hidden" name="roleId" value="<%= item.getProperty("role_id", "")%>">
-              <input type="hidden" name="roleOld" value="<%= item.getProperty("role_name", "")%>">
+              <input type="hidden" name="roleOld" value="<%= Encode.forHtmlAttribute(item.getProperty("role_name", ""))%>">
               <input type="submit" name="submit" value="Add">
               -
               <input type="submit" name="buttonUpdate" value="Update" <%= StringUtils.hasText(item.getProperty("role_id"))?"":"disabled"%>>

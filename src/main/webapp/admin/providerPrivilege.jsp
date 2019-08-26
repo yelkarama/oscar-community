@@ -151,6 +151,8 @@ if (request.getParameter("submit") != null && request.getParameter("submit").equ
 		String priority = request.getParameter(prefix);
 		if (objectName.equals("Name1")) objectName = request.getParameter("object$Name1").trim();
 
+		String encodedRoleUserGroup = Encode.forHtmlContent(StringUtils.trimToEmpty(roleUserGroup));
+		String encodedObjectName = Encode.forHtmlContent(StringUtils.trimToEmpty(objectName));
 		if (StringUtils.isNotEmpty(roleUserGroup) &&
 				StringUtils.isNotEmpty(objectName.trim()) &&
 				StringUtils.isNotEmpty(privilege) &&
@@ -176,10 +178,10 @@ if (request.getParameter("submit") != null && request.getParameter("submit").equ
 			if (secExceptionMsg.length() > 0)
 				msg += secExceptionMsg;
 			else
-				msg += "Role/Obj/Rights " + roleUserGroup + "/" + objectName + "/" + privilege + " is added. ";
+				msg += "Role/Obj/Rights " + encodedRoleUserGroup + "/" + encodedObjectName + "/" + privilege + " is added. ";
 			LogAction.addLog(curUser_no, LogConst.ADD, LogConst.CON_PRIVILEGE, roleUserGroup + "|" + objectName + "|" + privilege, ip);
 		} else {
-			msg += "Role/Obj/Rights " + roleUserGroup + "/" + objectName + "/" + privilege + " is <font color='red'>NOT</font> added!!! ";
+			msg += "Role/Obj/Rights " + encodedRoleUserGroup + "/" + encodedObjectName + "/" + privilege + " is <font color='red'>NOT</font> added!!! ";
 		}
 	}
 }
