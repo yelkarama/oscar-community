@@ -26,8 +26,8 @@
 
 <%@ page import="oscar.util.*, oscar.eform.data.*"%>
 <%@ page import="java.util.*"%>
+<%@ page import="oscar.eform.EFormCsrfUtil" %>
 <%@taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
-<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <%
   if (request.getAttribute("page_errors") != null) {
 %>
@@ -79,7 +79,9 @@ function hideDiv() {
   thisEForm.setOscarOPEN(request.getRequestURI());
   thisEForm.setAction();
   thisEForm.setSource(source);
-  out.print(thisEForm.getFormHtml());
+  String htmlDocument = thisEForm.getFormHtml();
+  htmlDocument = EFormCsrfUtil.addCsrfScriptTagToHtml(htmlDocument, request.getContextPath());
+  out.print(htmlDocument);
 %>
 <%
 String iframeResize = (String) session.getAttribute("useIframeResizing");
