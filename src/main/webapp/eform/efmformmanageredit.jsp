@@ -46,9 +46,11 @@ if (request.getAttribute("submitted") != null) {
    if (curform.get("formFileName") == null) curform.put("formFileName", "");
    if (curform.get("roleType") == null) curform.put("roleType", "");
    
+   boolean popupDisplay = false;
    if (request.getParameter("formHtmlG") != null){
        //load html from hidden form from eformGenerator.jsp,the html is then injected into edit-eform
       curform.put("formHtml", StringEscapeUtils.unescapeHtml(request.getParameter("formHtmlG")));
+      popupDisplay = true;
    }
    if (curform.get("formDate") == null) curform.put("formDate", "--");
    if (curform.get("formTime") == null) curform.put("formTime", "--");
@@ -64,7 +66,7 @@ if (request.getAttribute("submitted") != null) {
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="eform.edithtml.msgEditEform" /></title>
-<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
+<%--<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>--%>
 
 <style>
 .input-error{   
@@ -73,8 +75,8 @@ if (request.getAttribute("submitted") != null) {
     outline: 0 none !important;  
 }
 
-#popupDisplay{display:inline-block;}
-#panelDisplay{display:none;}
+#popupDisplay{display:none;}
+#panelDisplay{display:inline-block;}
 </style>
 
 <script type="text/javascript" language="JavaScript">
@@ -83,20 +85,14 @@ function openLastSaved() {
 }
 
 //using this to check if page is being viewing in admin panel or in popup
-var elementExists = document.getElementById("dynamic-content");
-
-if (elementExists){
-document.getElementById("popupDisplay").style.display = 'none';
-document.getElementById("panelDisplay").style.display = 'inline';
-}else{
-document.write('<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">');
-}
-
-<% if ((request.getAttribute("success") != null) && (errors.size() == 0)) { %>
-if (elementExists==null){
+<% if (popupDisplay) { %>
+document.getElementById("popupDisplay").style.display = 'inline-block';
+document.getElementById("panelDisplay").style.display = 'none';
+document.getElementById("dynamicContent").value = "false";
+<% if ((request.getAttribute("success") != null) && (errors.size() == 0)) {%>
 window.opener.location.href = '<%=request.getContextPath()%>/administration/?show=Forms';
-}
-<%}%>
+<%}
+}%>
 </script>
 
 </head>
@@ -111,30 +107,18 @@ window.opener.location.href = '<%=request.getContextPath()%>/administration/?sho
 <h3>Create New eForm</h3>
 <%}%>
 
-<form action="<%=request.getContextPath()%>/eform/editForm.do" method="POST" enctype="multipart/form-data" id="editform" name="eFormEdit">
-	<input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
-
+<form action="<%=request.getContextPath()%>/eform/editForm.do" method="POST" enctype="multipart/form-data" id="editform" name="eFormEdit" onsubmit="return saveEform();">
 <div class="well" style="position: relative;">
-		
-<% if ((request.getAttribute("success") != null) && (errors.size() == 0)) { %>
-<div class="alert alert-success">
+	
+<div id="alert-success" class="alert alert-success" style="display: none">
 <button type="button" class="close" data-dismiss="alert">&times;</button>
 <bean:message key="eform.edithtml.msgChangesSaved" />.
 </div>
-<% } %> 
 	
-	<%String formNameMissing = errors.get("formNameMissing");
-    if (errors.containsKey("formNameMissing")) { %>
-	<div class="alert alert-error">
+	<div id="alert-error" class="alert alert-error" style="display: none">
     <button type="button" class="close" data-dismiss="alert">&times;</button>
-    <bean:message key="<%=formNameMissing%>" />
+		<span id="error"></span>
     </div>
-	<%} else if (errors.containsKey("formNameExists")) { %>
-	<div class="alert alert-error">
-    <button type="button" class="close" data-dismiss="alert">&times;</button>
-    <bean:message key="<%=formNameMissing%>" />
-    </div>
-	<%}%>
 
 		<input type="hidden" name="fid" id="fid" value="<%= curform.get("fid")%>">
        
@@ -152,7 +136,7 @@ window.opener.location.href = '<%=request.getContextPath()%>/administration/?sho
 			 
 			<bean:message key="eform.uploadhtml.formName" />:
 			<br />
-			<input type="text" name="formName" value="<%= curform.get("formName") %>" class="<% if (errors.containsKey("formNameMissing") || (errors.containsKey("formNameExists"))) { %> input-error <% } %>" size="30" /> 
+			<input type="text" name="formName" id="formName" value="<%= curform.get("formName") %>" class="" size="30" /> 
 			<br />
 			
 			</div>
@@ -194,6 +178,8 @@ window.opener.location.href = '<%=request.getContextPath()%>/administration/?sho
 			<textarea wrap="off" name="formHtml" style="" class="span12" rows="40"><%= formHtml%></textarea><br />
 
 <p>
+    <input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
+	<input type="hidden" id="dynamicContent" name="dynamicContent" value="true"/>
 	<div id="panelDisplay">
 	<a href="<%=request.getContextPath()%>/eform/efmformmanager.jsp" class="btn contentLink">
 	 <i class="icon-circle-arrow-left"></i> Back to eForm Library<!--<bean:message key="eform.edithtml.msgBackToForms"/>-->
@@ -216,7 +202,57 @@ window.opener.location.href = '<%=request.getContextPath()%>/administration/?sho
 <%@ include file="efmFooter.jspf"%>
 
 <script>
-registerFormSubmit('editform', 'dynamic-content');
+	function saveEform(){
+	    let editForm = $('#editform');
+		$('#alert-success').hide();
+		formNameError('');
+		// get csrf token and place it in the header for a ajax request
+		let headerToken = null;
+		editForm.serializeArray().forEach(function(field) {
+			if (field.name === '<csrf:tokenname/>' && headerToken === null) {
+				headerToken = field.value ;
+			}
+		}); 
+		// post data
+		$.ajax({
+            beforeSend: function(request) {
+                request.setRequestHeader('<csrf:tokenname/>', headerToken);
+            },
+			url: editForm.attr('action'),
+			type: editForm.attr('method'),
+			data: editForm.serialize(),
+			success: function (data) {
+				// insert returned html
+				data = JSON.parse(data);
+				if (data && data.success) {
+					$('#fid').val(data.fid);
+					$('#alert-success').show();
+				} else {
+					formNameError(data.errors.formNameExists ? data.errors.formNameExists : data.errors.formNameMissing);
+				}
+				scrollToTop();
+			}
+		});
+		
+		// stop browser from doing default submit process
+		return false; 
+	}
+	
+	function formNameError(errorMsg) {
+		$('#error').text(errorMsg);
+		if (errorMsg && errorMsg.length > 0) {
+			$('#alert-error').show();
+			$('#formName').addClass('input-error');
+		} else {
+			$('#alert-error').hide();
+			$('#formName').removeClass('input-error')
+		}
+	}
+	
+	function scrollToTop() {
+		document.body.scrollTop = 0; // Safari
+		document.documentElement.scrollTop = 0; // Chrome, Firefox, IE and Opera
+	}
 
 $(document).ready(function () {
 

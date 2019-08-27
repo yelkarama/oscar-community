@@ -420,7 +420,7 @@ function registerFormSubmit(formId, divId) {
 		// post data
 		$.ajax({
 			url: thisForm.attr('action'),
-			type: 'get',
+			type: thisForm.attr('method'),
 			data: data,
 			headers: {
 				headerToken

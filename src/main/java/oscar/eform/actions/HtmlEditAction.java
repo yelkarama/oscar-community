@@ -30,10 +30,12 @@ import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.sf.json.JSONObject;
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.apache.struts.util.MessageResources;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -56,7 +58,8 @@ public class HtmlEditAction extends Action {
         if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_eform", "w", null)) {
 			throw new SecurityException("missing required security object (_eform)");
 		}
-        
+        boolean dynamicContent = Boolean.parseBoolean(request.getParameter("dynamicContent"));
+        MessageResources messages = MessageResources.getMessageResources("oscarResources");
         try {
             String fid = fm.getFid();
             String formName = fm.getFormName();
@@ -71,10 +74,10 @@ public class HtmlEditAction extends Action {
             EFormBase updatedform = new EFormBase(fid, formName, formSubject, formFileName, formHtml, showLatestFormOnly, patientIndependent, roleType); //property container (bean)
             //validation...
             if ((formName == null) || (formName.length() == 0)) {
-                errors.put("formNameMissing", "eform.errors.form_name.missing.regular");
+                errors.put("formNameMissing", messages.getMessage(request.getLocale(), "eform.errors.form_name.missing.regular"));
             }
             if ((fid.length() > 0) && (EFormUtil.formExistsInDBn(formName, fid) > 0)) {
-                errors.put("formNameExists", "eform.errors.form_name.exists.regular");
+                errors.put("formNameExists", messages.getMessage(request.getLocale(), "eform.errors.form_name.exists.regular"));
             }
             if ((fid.length() == 0) && (errors.size() == 0)) {
                 fid = EFormUtil.saveEForm(formName, formSubject, formFileName, formHtml, showLatestFormOnly, patientIndependent, roleType);
@@ -88,10 +91,21 @@ public class HtmlEditAction extends Action {
             request.setAttribute("submitted", curht);
             
             request.setAttribute("errors", errors);
+
+            if (dynamicContent) {
+                JSONObject json = new JSONObject();
+                json.put("success", (errors.size() == 0));
+                json.put("errors", errors);
+                json.put("formId", fid);
+                response.getWriter().print(json.toString());
+            }
         } catch (Exception e) {
             MiscUtils.getLogger().error("Error", e);
         }
 
+        if (dynamicContent) {
+            return null;
+        }
         return(mapping.findForward("success"));
     }
     
