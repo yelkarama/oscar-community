@@ -69,7 +69,9 @@ public class ClinicManageAction extends DispatchAction {
                 (StringUtils.isEmpty(clinic.getClinicPhone()) || clinic.getClinicPhone().length() <= 50) &&
                 (StringUtils.isEmpty(clinic.getClinicFax()) || clinic.getClinicFax().length() <= 20) &&
                 (StringUtils.isEmpty(clinic.getClinicLocationCode()) || clinic.getClinicLocationCode().length() <= 10) &&
-                (StringUtils.isEmpty(clinic.getClinicProvince()) || clinic.getClinicProvince().length() <= 40)) {
+                (StringUtils.isEmpty(clinic.getClinicProvince()) || clinic.getClinicProvince().length() <= 40) &&
+                (StringUtils.isEmpty(clinic.getClinicEmail()) || clinic.getClinicEmail().length() <= 255) &&
+                (StringUtils.isEmpty(clinic.getClinicWebsite()) || clinic.getClinicWebsite().length() <= 255)) {
             clinicDAO.save(clinic);
 
             return mapping.findForward("success");
