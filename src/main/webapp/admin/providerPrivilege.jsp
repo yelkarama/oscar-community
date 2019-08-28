@@ -136,20 +136,20 @@ if (request.getParameter("submit") != null && request.getParameter("submit").equ
     }
 
 	for(int i=0; i<vecObjRowNo.size(); i++) {
-		String objectName = (String) vecObjRowNo.get(i);
-		if (objectName.equals("Name1") && request.getParameter("object$Name1").trim().equals("")) continue;
+	    String objectName = (String) vecObjRowNo.get(i);
+	    if(objectName.equals("Name1") && request.getParameter("object$Name1").trim().equals("") ) continue;
 
-		String privilege = "";
-		for (Enumeration e = request.getParameterNames(); e.hasMoreElements(); ) {
-			String paraName = (String) e.nextElement();
-			String prefix = "privilege$" + objectName + "$";
-			if (paraName.startsWith(prefix)) {
-				privilege += paraName.substring(prefix.length());
-			}
-		}
+	    String privilege = "";
+		for (Enumeration e = request.getParameterNames() ; e.hasMoreElements() ;) {
+	         String paraName = (String)e.nextElement();
+	         String prefix = "privilege$" + objectName + "$";
+	         if(paraName.startsWith(prefix)) {
+	         	privilege += paraName.substring( prefix.length() );
+	         }
+	    }
 		String prefix = "priority$" + objectName;
-		String priority = request.getParameter(prefix);
-		if (objectName.equals("Name1")) objectName = request.getParameter("object$Name1").trim();
+	    String priority = request.getParameter(prefix);
+	    if(objectName.equals("Name1") )  objectName = request.getParameter("object$Name1").trim();
 
 		String encodedRoleUserGroup = Encode.forHtmlContent(StringUtils.trimToEmpty(roleUserGroup));
 		String encodedObjectName = Encode.forHtmlContent(StringUtils.trimToEmpty(objectName));
@@ -230,10 +230,7 @@ if (request.getParameter("buttonUpdate") != null && request.getParameter("button
     provider_no   = curUser_no;
 
     sop = secObjPrivilegeDao.find(new SecObjPrivilegePrimaryKey(roleUserGroup,objectName));
-    if(sop != null &&
-			StringUtils.isNotEmpty(provider_no) && provider_no.length() <= 6 &&
-			StringUtils.isNotEmpty(privilege) && privilege.length() <= 100 && 
-			(StringUtils.isEmpty(priority) || priority.length() <= 2)) {
+    if(sop != null) {
     	sop.setProviderNo(provider_no);
     	sop.setPrivilege(privilege);
     	sop.setPriority(Integer.parseInt(priority));

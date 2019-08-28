@@ -33,7 +33,6 @@
 <%@ page import="org.oscarehr.common.model.MyGroup" %>
 <%@ page import="org.oscarehr.common.model.MyGroupPrimaryKey" %>
 <%@ page import="org.oscarehr.common.dao.MyGroupDao" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%
 	MyGroupDao myGroupDao = SpringUtils.getBean(MyGroupDao.class);
 %>
@@ -70,18 +69,7 @@
 			myGroup.getId().setProviderNo(request.getParameter("provider_no"+datano));
 			myGroup.setFirstName(request.getParameter("first_name"+datano));
 			myGroup.setLastName(request.getParameter("last_name"+datano));
-			
-			//Incase of html injection, we need to make sure valid data is being sent back to the database
-			if(myGroupDao.find(myGroup.getId()) == null &&
-				StringUtils.isNotEmpty(myGroup.getId().getProviderNo()) &&
-				StringUtils.isNotEmpty(myGroup.getId().getMyGroupNo()) &&
-				StringUtils.isNotEmpty(myGroup.getFirstName()) &&
-				StringUtils.isNotEmpty(myGroup.getLastName()) && 
-				myGroup.getId().getProviderNo().length() <= 6 &&
-				myGroup.getId().getMyGroupNo().length() <= 10 &&
-				myGroup.getFirstName().length() <= 30 &&
-				myGroup.getLastName().length() <= 30) {
-				
+			if(myGroupDao.find(myGroup.getId()) == null) {
 				myGroupDao.persist(myGroup);
 			}
 			rowsAffected++;

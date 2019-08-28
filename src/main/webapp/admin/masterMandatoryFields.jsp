@@ -55,23 +55,23 @@
 
     if (request.getParameter("dboperation")!=null && !request.getParameter("dboperation").isEmpty())
     {
-        if (request.getParameter("dboperation").equals("Save")) {
+        if (request.getParameter("dboperation").equals("Save"))
+        {
             SystemPreferences systemPreference = systemPreferencesDao.findPreferenceByName("referring_physician_mandatory");
 
-            String refPhys = request.getParameter("refPhysicianMandatory");
-
-            if (refPhys != null && (refPhys.equals("true") || refPhys.equals("false"))) {
-                if (systemPreference != null) {
-                    systemPreference.setUpdateDate(new Date());
-                    systemPreference.setValue(request.getParameter("refPhysicianMandatory"));
-                    systemPreferencesDao.merge(systemPreference);
-                } else {
-                    systemPreference = new SystemPreferences();
-                    systemPreference.setName("referring_physician_mandatory");
-                    systemPreference.setUpdateDate(new Date());
-                    systemPreference.setValue(request.getParameter("refPhysicianMandatory"));
-                    systemPreferencesDao.persist(systemPreference);
-                }
+            if (systemPreference!=null)
+            {
+                systemPreference.setUpdateDate(new Date());
+                systemPreference.setValue(request.getParameter("refPhysicianMandatory"));
+                systemPreferencesDao.merge(systemPreference);
+            }
+            else
+            {
+                systemPreference = new SystemPreferences();
+                systemPreference.setName("referring_physician_mandatory");
+                systemPreference.setUpdateDate(new Date());
+                systemPreference.setValue(request.getParameter("refPhysicianMandatory"));
+                systemPreferencesDao.persist(systemPreference);
             }
         }
     }

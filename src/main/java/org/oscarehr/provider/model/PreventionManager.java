@@ -43,7 +43,6 @@ import org.springframework.stereotype.Component;
 import oscar.oscarPrevention.Prevention;
 import oscar.oscarPrevention.PreventionDS;
 import oscar.oscarPrevention.PreventionData;
-import oscar.oscarPrevention.PreventionDisplayConfig;
 
 
 /**
@@ -187,21 +186,9 @@ public class PreventionManager {
 			return true;
 		}
 		
-		PreventionDisplayConfig pdc = PreventionDisplayConfig.getInstance();
-		ArrayList<HashMap<String,String>> preventionList = pdc.getPreventions();
-		
 		String newDisabled = "";
 		for(String preventionName : newDisabledPreventions){
-			//Incase of html injection, we need to ensure that illegal values were not put in
-			boolean illegalPrevention = true;
-			for (HashMap<String, String> preventionItem : preventionList) {
-				if (preventionItem.get("name").equals(preventionName)) {
-					illegalPrevention = false;
-				}
-			}
-			if (illegalPrevention) {
-				continue;
-			}
+
 			
 			if ((newDisabled + "["+ preventionName +"]").length() > 255) { //a value in the property table holds a max of 255 characters
 

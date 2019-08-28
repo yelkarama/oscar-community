@@ -1,7 +1,6 @@
 package org.oscarehr.billing;
 
 import net.sf.json.JSONObject;
-import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
@@ -112,21 +111,6 @@ public class ScheduleBillingServiceAction extends DispatchAction {
         Integer id = StringUtils.trimToNull(request.getParameter("id")) != null ? Integer.parseInt(request.getParameter("id")) : 0;
         String time = request.getParameter("billingTime");
         String serviceCode = request.getParameter("serviceCode");
-        
-        if (StringUtils.isNotEmpty(serviceCode) && serviceCode.length() == 5) {
-            if (!CharUtils.isAsciiAlpha(serviceCode.charAt(0)) ||
-                    !CharUtils.isAsciiAlpha(serviceCode.charAt(4))) {
-                return null;
-            }
-            
-            for (int i = 1; i < 4; i++) {
-                if (!CharUtils.isAsciiNumeric(serviceCode.charAt(i))) {
-                    return null;
-                }
-            }
-        } else {
-            return null;
-        }
 
         HashMap<String, Object> returnObject = new HashMap<String, Object>();
         Boolean newServiceSchedule = false;

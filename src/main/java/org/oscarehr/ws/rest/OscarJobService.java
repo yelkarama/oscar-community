@@ -36,7 +36,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MultivaluedMap;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.oscarehr.common.jobs.OscarJobExecutingManager;
 import org.oscarehr.common.jobs.OscarJobUtils;
@@ -146,16 +145,6 @@ public class OscarJobService extends AbstractServiceImpl {
 	@Produces("application/json")
 	@Consumes("application/x-www-form-urlencoded")
 	public OscarJobResponse saveJob(MultivaluedMap<String, String> params) {
-		String jobDesc = params.getFirst("job.description");
-		String jobName = params.getFirst("job.name");
-		String providerNo = params.getFirst("job.provider");
-		String jobType = params.getFirst("job.oscarJobTypeId");
-		if (StringUtils.isEmpty(jobName) || jobName.length() > 255 ||
-				StringUtils.isEmpty(jobType) || jobType.length() > 11 ||
-				StringUtils.isEmpty(providerNo) || providerNo.length() > 6 || !StringUtils.isNumeric(providerNo) ||
-				(StringUtils.isNotEmpty(jobDesc) && jobDesc.length() > 255)) {
-			return null;
-		}
 		OscarJob job = new OscarJob();
 		job.setId(Integer.parseInt(params.getFirst("job.id")));
 		job.setDescription(params.getFirst("job.description"));
@@ -309,16 +298,6 @@ public class OscarJobService extends AbstractServiceImpl {
 	@Produces("application/json")
 	@Consumes("application/x-www-form-urlencoded")
 	public OscarJobTypeResponse saveJobType(MultivaluedMap<String, String> params) {
-		String jobDesc = params.getFirst("jobType.description");
-		String jobName = params.getFirst("jobType.name");
-		String jobClass = params.getFirst("jobType.className");
-		String jobType = params.getFirst("jobType.id");
-		if (StringUtils.isEmpty(jobName) || jobName.length() > 255 ||
-				StringUtils.isEmpty(jobType) || jobType.length() > 11 ||
-				(StringUtils.isNotEmpty(jobClass) && jobClass.length() > 255) ||
-				(StringUtils.isNotEmpty(jobDesc) && jobDesc.length() > 255)) {
-			return null;
-		}
 		OscarJobType job = new OscarJobType();
 		job.setId(Integer.parseInt(params.getFirst("jobType.id")));
 		job.setName(params.getFirst("jobType.name"));

@@ -30,7 +30,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
@@ -60,7 +59,7 @@ public class MsgMessengerCreateGroupAction extends Action {
 
 		grpName = grpName.trim();
 
-		if (!grpName.equals("") && grpName.length() <= 50 && StringUtils.isNumeric(parentID)) {
+		if (!grpName.equals("")) {
 			if (type.equals("1")) {
 				GroupsDao gd = SpringUtils.getBean(GroupsDao.class);
 				Groups g = new Groups();

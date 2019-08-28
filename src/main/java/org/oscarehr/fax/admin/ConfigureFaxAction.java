@@ -126,23 +126,8 @@ public class ConfigureFaxAction extends DispatchAction {
 				}
 			
 			
-				for( FaxConfig faxConfig1 : faxConfigList ) {
-					if (StringUtils.isNotEmpty(faxConfig1.getFaxUser()) &&
-							StringUtils.isNotEmpty(faxConfig1.getFaxNumber()) &&
-							StringUtils.isNotEmpty(faxConfig1.getFaxPasswd()) &&
-							StringUtils.isNotEmpty(faxConfig1.getPasswd()) &&
-							StringUtils.isNotEmpty(faxConfig1.getUrl()) &&
-							StringUtils.isNotEmpty(faxConfig1.getSiteUser()) &&
-							faxConfig1.getFaxUser().length() <= 255 &&
-							faxConfig1.getFaxNumber().length() <= 10 &&
-							faxConfig1.getFaxPasswd().length() <= 255 &&
-							faxConfig1.getPasswd().length() <= 255 &&
-							faxConfig1.getUrl().length() <= 255 &&
-							faxConfig1.getSiteUser().length() <= 255 &&
-							String.valueOf(faxConfig1.getQueue()).length() <= 255 &&
-							String.valueOf(faxConfig1.getId()).length() <= 11) {
-						faxConfigDao.saveEntity(faxConfig1);
-					}
+				for( FaxConfig faxConfig1 : faxConfigList ) {				
+					faxConfigDao.saveEntity(faxConfig1);
 				}
 				
 				

@@ -59,25 +59,22 @@
             SystemPreferences preference = preferenceMap.get(key);
             
             String newValue = request.getParameter(key);
-            if ((newValue != null && (newValue.equals("true") || newValue.equals("false"))) ||
-                    (key.equals("inbox_use_fax_dropdown") && newValue == null)) {
-                if (preference != null) {
-                    if (!preference.getValue().equals(newValue)) {
-                        preference.setUpdateDate(new Date());
-                        preference.setValue(newValue);
-                        systemPreferencesDao.merge(preference);
-                    }
-                } else {
-                    preference = new SystemPreferences();
-                    preference.setName(key);
+            if (preference != null) {
+                if (!preference.getValue().equals(newValue)) {
                     preference.setUpdateDate(new Date());
                     preference.setValue(newValue);
-                    systemPreferencesDao.persist(preference);
+                    systemPreferencesDao.merge(preference);
                 }
-
-                // Updates the preference in the preference map
-                preferenceMap.put(key, preference);
+            } else {
+                preference = new SystemPreferences();
+                preference.setName(key);
+                preference.setUpdateDate(new Date());
+                preference.setValue(newValue);
+                systemPreferencesDao.persist(preference);
             }
+            
+            // Updates the preference in the preference map
+            preferenceMap.put(key, preference);
         }
     }
 %>

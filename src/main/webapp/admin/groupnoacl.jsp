@@ -66,20 +66,17 @@
     	}
     	if(providerNos != null) {    		    	
 	    	for(String providerNoTemp : providerNos) {
-				if (chosen_group.length() <= 50 &&
-					providerNoTemp.length() <= 6) {
-					MyGroupAccessRestriction mgra = myGroupAccessRestrictionDao.findByGroupNoAndProvider(chosen_group, providerNoTemp);
-					if (mgra != null) {
-						myGroupAccessRestrictionDao.remove(mgra.getId());
-					}
-
-					mgra = new MyGroupAccessRestriction();
-					mgra.setMyGroupNo(chosen_group);
-					mgra.setProviderNo(providerNoTemp);
-					mgra.setLastUpdateUser(providerNoTemp);
-					myGroupAccessRestrictionDao.persist(mgra);
-				}
-			}
+	    		MyGroupAccessRestriction mgra = myGroupAccessRestrictionDao.findByGroupNoAndProvider(chosen_group,providerNoTemp);
+	    		if(mgra != null) {
+	    			myGroupAccessRestrictionDao.remove(mgra.getId());
+	    		}
+	    		
+	   			mgra = new MyGroupAccessRestriction();
+	   			mgra.setMyGroupNo(chosen_group);
+	   			mgra.setProviderNo(providerNoTemp);
+	   			mgra.setLastUpdateUser(providerNoTemp);
+	       		myGroupAccessRestrictionDao.persist(mgra);
+	    	}
     	}
     }
     

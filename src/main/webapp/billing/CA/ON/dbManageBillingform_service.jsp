@@ -24,8 +24,6 @@
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.CtlBillingService" %>
 <%@ page import="org.oscarehr.common.dao.CtlBillingServiceDao" %>
-<%@ page import="org.apache.commons.lang3.math.NumberUtils" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%
 	CtlBillingServiceDao ctlBillingServiceDao = SpringUtils.getBean(CtlBillingServiceDao.class);
 %>
@@ -38,9 +36,6 @@ for(CtlBillingService b:ctlBillingServiceDao.findByServiceType(typeid)) {
 }
 
 String[] group = new String[4];
-
-boolean valid = true;
-List<String> errors = new ArrayList<String>();
 int rowsAffected = -100;
 
 for(int j=1;j<4;j++){
@@ -56,25 +51,7 @@ for(int j=1;j<4;j++){
 			cbs.setServiceGroup("Group"+j);
 			cbs.setStatus("A");
 			cbs.setServiceOrder(Integer.parseInt(request.getParameter("group"+j+"_service"+i+"_order")));
-			
-			if(StringUtils.isNotEmpty(cbs.getServiceCode())) {
-				if (StringUtils.isNotEmpty(request.getParameter("group"+j+"_service"+i+"_order"))) {
-					valid = false;
-					errors.add("Missing service order for service " + cbs.getServiceCode() + " in group " + cbs.getServiceGroupName());
-				} else if (NumberUtils.isParsable(cbs.getServiceCode())) {
-					valid = false;
-					errors.add("Invalid service order value for service " + cbs.getServiceCode() + " in group " + cbs.getServiceGroupName() +
-							"\n Service order value must be a number.");
-				}
-			}
-
-			if (!valid) {
-				for (String error : errors) {
-					System.out.println (error + "\n");
-				}
-			} else {
-				ctlBillingServiceDao.persist(cbs);
-			}
+		    ctlBillingServiceDao.persist(cbs);
 		}
 	}
 }

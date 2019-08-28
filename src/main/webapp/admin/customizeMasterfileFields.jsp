@@ -79,20 +79,18 @@
 			SystemPreferences preference = systemPreferencesDao.findPreferenceByName(key);
 			String newValue = request.getParameter(key) != null ? request.getParameter(key) : "false";
 
-			if (newValue == null || newValue.equals("true")) {
-				if (preference != null) {
-					if (!preference.getValueAsBoolean().equals(Boolean.parseBoolean(newValue))) {
-						preference.setUpdateDate(new Date());
-						preference.setValue(newValue);
-						systemPreferencesDao.merge(preference);
-					}
-				} else {
-					preference = new SystemPreferences();
-					preference.setName(key);
+			if (preference != null) {
+				if (!preference.getValueAsBoolean().equals(Boolean.parseBoolean(newValue))) {
 					preference.setUpdateDate(new Date());
 					preference.setValue(newValue);
-					systemPreferencesDao.persist(preference);
+					systemPreferencesDao.merge(preference);
 				}
+			} else {
+				preference = new SystemPreferences();
+				preference.setName(key);
+				preference.setUpdateDate(new Date());
+				preference.setValue(newValue);
+				systemPreferencesDao.persist(preference);
 			}
 		}
 	}

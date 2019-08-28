@@ -42,12 +42,12 @@ public class OLISPreferencesAction extends DispatchAction  {
 	     	DateTimeFormatter output = DateTimeFormat.forPattern("YYYYMMddHHmmssZ");
 	     	DateTime date;
 	     	String startTime = oscar.Misc.getStr(request.getParameter("startTime"), "").trim();
-	     	if (!startTime.equals("") && startTime.matches("\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}\\s[+-]\\d{4}")) {
+	     	if (!startTime.equals("")) {
 		     	date = input.parseDateTime(startTime);
 		     	startTime = date.toString(output);
 	     	}
 	     	String endTime = oscar.Misc.getStr(request.getParameter("endTime"), "").trim();
-	     	if (!endTime.equals("") && endTime.matches("\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}\\s[+-]\\d{4}")) {
+	     	if (!endTime.equals("")) {
 		     	date = input.parseDateTime(endTime);
 		     	endTime = date.toString(output);
 	     	}

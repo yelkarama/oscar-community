@@ -53,7 +53,6 @@
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.PreventionsLotNrs"%>
 <%@ page import="org.oscarehr.common.dao.PreventionsLotNrsDao"%>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%
 PreventionsLotNrsDao PreventionsLotNrsDao = (PreventionsLotNrsDao)SpringUtils.getBean(PreventionsLotNrsDao.class);
 %>
@@ -79,7 +78,7 @@ String curUser_no = (String)session.getAttribute("user");
 String prevention = request.getParameter("prevention");
 String lotnr = request.getParameter("lotnr");
 java.util.Date expDate = null;
-if (request.getParameter("expDate")!=null&&!request.getParameter("expDate").equals(""))
+if (request.getParameter("expDate")!=null||!request.getParameter("expDate").equals(""))
 {
     expDate = new java.text.SimpleDateFormat("yyyy-MM-dd").parse(request.getParameter("expDate"));
 }
@@ -103,7 +102,7 @@ else if (currentLotnrs.contains(lotnr))
 	<bean:message key="admin.lotaddrecord.msgDuplicateLotnr"/>
 	<%
 }
-else if (StringUtils.isNotEmpty(lotnr) && StringUtils.isNumeric(lotnr) && expDate != null)
+else
 {
 PreventionsLotNrs p = new PreventionsLotNrs();
 p.setPreventionType(prevention);

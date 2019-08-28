@@ -41,7 +41,6 @@
 <%@ page import="org.oscarehr.common.dao.ScheduleTemplateDao" %>
 <%@ page import="org.oscarehr.common.model.ScheduleTemplateCode" %>
 <%@ page import="org.oscarehr.common.dao.ScheduleTemplateCodeDao" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%
 	ScheduleTemplateDao scheduleTemplateDao = SpringUtils.getBean(ScheduleTemplateDao.class);
 	ScheduleTemplateCodeDao scheduleTemplateCodeDao = SpringUtils.getBean(ScheduleTemplateCodeDao.class);
@@ -52,50 +51,18 @@
   int STEP = request.getParameter("step")!=null&&!request.getParameter("step").equals("")?Integer.parseInt(request.getParameter("step")):(props.getProperty("template_time", "").length()>0?Integer.parseInt(props.getProperty("template_time", "")):15);
   if(request.getParameter("dboperation")!=null && (request.getParameter("dboperation").compareTo(" Save ")==0 || request.getParameter("dboperation").equals("Delete") ) ) {
     String pre = request.getParameter("providerid").equals("Public")&&!request.getParameter("name").startsWith("P:")?"P:":"" ;
-	String name = request.getParameter("name");
-	  String providerid = request.getParameter("providerid");
-	  String summary = request.getParameter("summary");
-	  int timecodeLength = 0;
 
-	  for (Enumeration e = request.getParameterNames() ; e.hasMoreElements() ;) {
-		  String temp = e.nextElement().toString();
-		  if (temp.startsWith("timecode") &&
-				  (request.getParameter(temp) == null || request.getParameter(temp).length() < 2)) {
-		  	timecodeLength++;
-		  }
-	  }
-	  
-	  boolean validTimeCodeLength = false;
-	  
-	  for (int i = 5; i < 35; i+=5) {
-	  	if (i == 25) {
-	  		continue;
-		}
-	  	if ((60/i)*24 == timecodeLength) {
-	  		validTimeCodeLength = true;
-		}
-	  }
-	
-	if (name != null &&
-			StringUtils.isNotEmpty(providerid) &&
-			summary != null &&
-			(pre + name).length() <= 20 &&
-			summary.length() <= 30 &&
-			providerid.length() <= 6 &&
-			validTimeCodeLength) {
+    scheduleTemplateDao.remove(new ScheduleTemplatePrimaryKey(request.getParameter("providerid"),request.getParameter("name")));
 
-		scheduleTemplateDao.remove(new ScheduleTemplatePrimaryKey(request.getParameter("providerid"), pre + request.getParameter("name")));
-
-		if (request.getParameter("dboperation") != null && request.getParameter("dboperation").equals(" Save ")) {
-			ScheduleTemplate scheduleTemplate = new ScheduleTemplate();
-			scheduleTemplate.setId(new ScheduleTemplatePrimaryKey());
-			scheduleTemplate.getId().setName(pre + request.getParameter("name"));
-			scheduleTemplate.getId().setProviderNo(request.getParameter("providerid"));
-			scheduleTemplate.setSummary(request.getParameter("summary"));
-			scheduleTemplate.setTimecode(SxmlMisc.createDataString(request, "timecode", "_", 300));
-			scheduleTemplateDao.persist(scheduleTemplate);
-		}
-	}
+    if(request.getParameter("dboperation")!=null && request.getParameter("dboperation").equals(" Save ") ) {
+    	ScheduleTemplate scheduleTemplate = new ScheduleTemplate();
+    	scheduleTemplate.setId(new ScheduleTemplatePrimaryKey());
+    	scheduleTemplate.getId().setName(pre + request.getParameter("name"));
+    	scheduleTemplate.getId().setProviderNo(request.getParameter("providerid"));
+    	scheduleTemplate.setSummary(request.getParameter("summary"));
+    	scheduleTemplate.setTimecode(SxmlMisc.createDataString(request,"timecode","_", 300));
+    	scheduleTemplateDao.persist(scheduleTemplate);
+    }
   }
 
 %>
@@ -220,8 +187,8 @@ function changeGroup(s) {
 			<tr bgcolor='ivory'>
 				<td nowrap><bean:message
 					key="schedule.scheduleedittemplate.formTemplateName" />:</td>
-				<td><input type="text" name="name" size="30" maxlength="<%=request.getParameter("providerid").equals("Public") ? "18": "20"%>"
-					<%=bEdit?("value='"+(myTempBean.getName().startsWith("P:") ? myTempBean.getName().substring(2): myTempBean.getName())+"'"):"value=''"%>>
+				<td><input type="text" name="name" size="30" maxlength="20"
+					<%=bEdit?("value='"+myTempBean.getName()+"'"):"value=''"%>>
 				<font size='-2'><bean:message
 					key="schedule.scheduleedittemplate.msgLessTwentyChars" /></font></td>
 				<td></td>

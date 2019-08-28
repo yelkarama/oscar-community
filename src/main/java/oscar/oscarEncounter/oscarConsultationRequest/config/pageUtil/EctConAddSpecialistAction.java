@@ -31,7 +31,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
@@ -78,11 +77,7 @@ public class EctConAddSpecialistAction extends Action {
 					return mapping.findForward("success");
 				}
 			}
-			if (validateSpecialist(professionalSpecialist)) {
-				professionalSpecialistDao.persist(professionalSpecialist);
-			} else {
-				return mapping.findForward("failure");
-			}
+			professionalSpecialistDao.persist(professionalSpecialist);
 		}
 		else if (whichType == 2) // update
 		{
@@ -102,11 +97,7 @@ public class EctConAddSpecialistAction extends Action {
 					return mapping.findForward("success");
 				}
 			}
-			if (validateSpecialist(professionalSpecialist)) {
-				professionalSpecialistDao.merge(professionalSpecialist);
-			} else {
-				return mapping.findForward("success");
-			}
+			professionalSpecialistDao.merge(professionalSpecialist);
 		}
 		else
 		{
@@ -167,30 +158,5 @@ public class EctConAddSpecialistAction extends Action {
 		professionalSpecialist.setSalutation(addSpecailistForm.getSalutation());
 		professionalSpecialist.setHideFromView(addSpecailistForm.getHideFromView());
 		professionalSpecialist.setEformId(addSpecailistForm.getEformId());
-	}
-	
-	private boolean validateSpecialist (ProfessionalSpecialist professionalSpecialist) {
-		if (StringUtils.isNotEmpty(professionalSpecialist.getFirstName()) && professionalSpecialist.getFirstName().length() <= 32 &&
-				StringUtils.isNotEmpty(professionalSpecialist.getLastName()) && professionalSpecialist.getLastName().length() <= 32 &&
-				StringUtils.isNotEmpty(professionalSpecialist.getPhoneNumber()) && professionalSpecialist.getPhoneNumber().length() <= 30 &&
-				StringUtils.isNotEmpty(professionalSpecialist.getStreetAddress()) && professionalSpecialist.getStreetAddress().length() <= 255 &&
-				(StringUtils.isEmpty(professionalSpecialist.getProfessionalLetters()) || professionalSpecialist.getProfessionalLetters().length() <= 20) &&
-				(StringUtils.isEmpty(professionalSpecialist.getFaxNumber()) || professionalSpecialist.getFaxNumber().length() <= 30) &&
-				(StringUtils.isEmpty(professionalSpecialist.getWebSite()) || professionalSpecialist.getWebSite().length() <= 128) &&
-				(StringUtils.isEmpty(professionalSpecialist.getEmailAddress()) || professionalSpecialist.getEmailAddress().length() <= 128) &&
-				(StringUtils.isEmpty(professionalSpecialist.getSpecialtyType()) || professionalSpecialist.getSpecialtyType().length() <= 128) &&
-				(StringUtils.isEmpty(professionalSpecialist.geteDataUrl()) || professionalSpecialist.geteDataUrl().length() <= 255) &&
-				(StringUtils.isEmpty(professionalSpecialist.geteDataOscarKey()) || professionalSpecialist.geteDataOscarKey().length() <= 1024) &&
-				(StringUtils.isEmpty(professionalSpecialist.geteDataServiceKey()) || professionalSpecialist.geteDataServiceKey().length() <= 1024) &&
-				(StringUtils.isEmpty(professionalSpecialist.geteDataServiceName()) || professionalSpecialist.geteDataServiceName().length() <= 255) &&
-				(StringUtils.isEmpty(String.valueOf(professionalSpecialist.getInstitutionId())) || String.valueOf(professionalSpecialist.getInstitutionId()).length() <= 10) &&
-				(StringUtils.isEmpty(String.valueOf(professionalSpecialist.getDepartmentId())) || String.valueOf(professionalSpecialist.getDepartmentId()).length() <= 10) &&
-				(StringUtils.isEmpty(professionalSpecialist.getPrivatePhoneNumber()) || professionalSpecialist.getPrivatePhoneNumber().length() <= 30) &&
-				(StringUtils.isEmpty(professionalSpecialist.getCellPhoneNumber()) || professionalSpecialist.getCellPhoneNumber().length() <= 30) &&
-				(StringUtils.isEmpty(professionalSpecialist.getPagerNumber()) || professionalSpecialist.getPagerNumber().length() <= 30) &&
-				(StringUtils.isEmpty(String.valueOf(professionalSpecialist.getEformId())) || String.valueOf(professionalSpecialist.getEformId()).length() <= 10)) {
-			return true;
-		}
-		return false;
 	}
 }

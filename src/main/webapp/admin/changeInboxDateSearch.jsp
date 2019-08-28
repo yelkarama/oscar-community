@@ -16,7 +16,6 @@
 <%@ page import="org.oscarehr.common.model.SystemPreferences" %>
 <%@ page import="org.oscarehr.common.dao.SystemPreferencesDao" %>
 <%@ page import="java.util.Date" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
 
 <jsp:useBean id="dataBean" class="java.util.Properties" />
 
@@ -43,24 +42,22 @@
     {
         if (request.getParameter("dboperation").equals("Save"))
         {
-            String newPreference = request.getParameter("inboxDateSearchType");
-            if (StringUtils.isNotEmpty(newPreference) &&
-                    (newPreference.equals("serviceObservation") ||
-                    newPreference.equals("receivedCreated"))) {
-                SystemPreferences systemPreferences = systemPreferencesDao.findPreferenceByName("inboxDateSearchType");
+            SystemPreferences systemPreferences = systemPreferencesDao.findPreferenceByName("inboxDateSearchType");
 
-                if (systemPreferences != null) {
-                    systemPreferences.setValue(request.getParameter("inboxDateSearchType"));
-                    systemPreferencesDao.merge(systemPreferences);
-                    saveSuccess = true;
-                } else {
-                    systemPreferences = new SystemPreferences();
-                    systemPreferences.setName("inboxDateSearchType");
-                    systemPreferences.setValue(request.getParameter("inboxDateSearchType"));
-                    systemPreferences.setUpdateDate(new Date());
-                    systemPreferencesDao.persist(systemPreferences);
-                    saveSuccess = true;
-                }
+            if (systemPreferences!=null)
+            {
+                systemPreferences.setValue(request.getParameter("inboxDateSearchType"));
+                systemPreferencesDao.merge(systemPreferences);
+                saveSuccess = true;
+            }
+            else
+            {
+                systemPreferences = new SystemPreferences();
+                systemPreferences.setName("inboxDateSearchType");
+                systemPreferences.setValue(request.getParameter("inboxDateSearchType"));
+                systemPreferences.setUpdateDate(new Date());
+                systemPreferencesDao.persist(systemPreferences);
+                saveSuccess = true;
             }
         }
     }

@@ -43,7 +43,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
@@ -83,11 +82,6 @@ public class ForwardingRulesAction extends Action{
         if (operation == null) {
         	operation = "";
         }
-        
-        if (StringUtils.isEmpty(providerNo) || !StringUtils.isNumeric(providerNo) || providerNo.equals("0")) {
-            return mapping.findForward("success");
-        }
-        
         if(operation.equals("updateAlwaysSendToMRP")){
             String selection = request.getParameter("sendToMRPSelect");
             ForwardingRules fr = new ForwardingRules();
@@ -99,13 +93,6 @@ public class ForwardingRulesAction extends Action{
             String[] providerNums = request.getParameterValues("providerNums");
             if (providerNums == null) {
             	providerNums = new String[0];
-            } else {
-                for (String providerNum : providerNums) {
-                    if (StringUtils.isEmpty(providerNum) ||
-                    !StringUtils.isNumeric(providerNum)) {
-                        return mapping.findForward("success");
-                    }
-                }
             }
             String status = request.getParameter("status");
             

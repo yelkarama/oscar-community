@@ -30,7 +30,6 @@
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.CtlBillingType" %>
 <%@ page import="org.oscarehr.common.dao.CtlBillingTypeDao" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%
 	CtlBillingTypeDao ctlBillingTypeDao = SpringUtils.getBean(CtlBillingTypeDao.class);
 %>
@@ -39,40 +38,30 @@ String servicetype="", billtype="", billtype_old="";
 String[] param = new String[2];
 
 servicetype = request.getParameter("servicetype");
-
-boolean hasErrors = false;
-
-if (StringUtils.isEmpty(servicetype) ||
-    servicetype.equals("MFP")) {
-    hasErrors = true;
+billtype = request.getParameter("billtype");
+String visitType = (request.getParameter("visitType")!=null && request.getParameter("visitType").equals("none")) ? null : request.getParameter("visitType");
+if(visitType!=null){
+    visitType = visitType.split("\\|")[0];
 }
+String location = request.getParameter("location");
 
-if (!hasErrors) {
-    billtype = request.getParameter("billtype");
-    String visitType = (request.getParameter("visitType") != null && request.getParameter("visitType").equals("none")) ? null : request.getParameter("visitType");
-    if (visitType != null) {
-        visitType = visitType.split("\\|")[0];
-    }
-    String location = request.getParameter("location");
-
-    if (billtype.equals("no") && visitType == null && location.startsWith("0000")) {
-        ctlBillingTypeDao.remove(servicetype);
-
+if (billtype.equals("no") && visitType==null && location.startsWith("0000")) {
+    ctlBillingTypeDao.remove(servicetype);
+    
+} else {
+    CtlBillingType cbt = ctlBillingTypeDao.find(servicetype);
+    if(cbt != null) {
+    	cbt.setBillType(billtype);
+    	cbt.setVisitType(visitType);
+    	cbt.setLocation(location!=null?location.split("\\|")[0]:location);
+    	ctlBillingTypeDao.merge(cbt);
     } else {
-        CtlBillingType cbt = ctlBillingTypeDao.find(servicetype);
-        if (cbt != null) {
-            cbt.setBillType(billtype);
-            cbt.setVisitType(visitType);
-            cbt.setLocation(location != null ? location.split("\\|")[0] : location);
-            ctlBillingTypeDao.merge(cbt);
-        } else {
-            cbt = new CtlBillingType();
-            cbt.setId(servicetype);
-            cbt.setBillType(billtype);
-            cbt.setVisitType(visitType);
-            cbt.setLocation(location != null ? location.split("\\|")[0] : location);
-            ctlBillingTypeDao.persist(cbt);
-        }
+        cbt = new CtlBillingType();
+        cbt.setId(servicetype);
+        cbt.setBillType(billtype);
+        cbt.setVisitType(visitType);
+        cbt.setLocation(location!=null?location.split("\\|")[0]:location);
+        ctlBillingTypeDao.persist(cbt);
     }
 }
 %>

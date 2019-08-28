@@ -29,12 +29,10 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
-import org.oscarehr.common.dao.CtlBillingServiceDao;
 import org.oscarehr.common.dao.MyGroupDao;
 import org.oscarehr.common.model.MyGroup;
 import org.oscarehr.util.SpringUtils;
@@ -49,32 +47,9 @@ public class GroupPreferenceAction extends DispatchAction {
         
         String billingForm = request.getParameter("chosenForm");
         
-        if (StringUtils.isNotEmpty(billingForm)) {
+        if (billingForm != null && !billingForm.isEmpty()) {
             
             String selectedGroups[] = request.getParameterValues("data");
-            
-            boolean formErrors = true;
-            CtlBillingServiceDao ctlBillingServiceDao = (CtlBillingServiceDao) SpringUtils.getBean("ctlBillingServiceDao");
-            List<Object[]> forms = ctlBillingServiceDao.getUniqueServiceTypes();
-
-            for(Object[] formObj : forms) {
-                String serviceType = (String)formObj[0];
-                if (billingForm.equals(serviceType)) {
-                    formErrors = false;
-                }
-            }
-
-            if (formErrors) {
-                return mapping.findForward("failure");
-            }
-
-            for (String group : selectedGroups) {
-                List<MyGroup> currentGroup = myGroupDao.getGroupByGroupNo(group);
-                if (group.length() > 10 ||
-                    currentGroup.isEmpty()) {
-                    return mapping.findForward("failure");
-                }
-            }
             
             for (int i = 0; i < selectedGroups.length; i++) {
                 

@@ -218,7 +218,7 @@ function checkForm() {
 			</tr>
 			<tr id="startTimeError" style="display:none;">
 				<td> &nbsp; </td>
-				<td style="color:red"> The start time does not match the provided format (e.g., ""1970-01-01 00:00:00 -0400".)</td>
+				<td style="color:red"> The start time does not match the provided format (e.g., ""1970-01-01 00:00:00 - 400".)</td>
 			</tr>
 			<tr>
 				<td>End Time (optional):</td>
@@ -226,7 +226,7 @@ function checkForm() {
 			</tr>
 			<tr id="endTimeError" style="display:none;">
 				<td> &nbsp; </td>
-				<td style="color:red"> The end time does not match the provided format (e.g., ""1970-01-01 00:00:00 -0400".)</td>
+				<td style="color:red"> The end time does not match the provided format (e.g., ""1970-01-01 00:00:00 - 400".)</td>
 			</tr>
 			<tr>
 				<td>Frequency (in minutes):</td>

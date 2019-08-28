@@ -73,15 +73,7 @@ public class ScheduleTemplateCodeDao extends AbstractDao<ScheduleTemplateCode> {
 		@SuppressWarnings("unchecked")
 		List<ScheduleTemplateCode> results = query.getResultList();
 		if(!results.isEmpty()) {
-			if (results.size() > 1) {
-				for (ScheduleTemplateCode result : results) {
-					if (result.getCode().toString().equals(code)) {
-						return result;
-					}
-				}
-			} else {
-				return results.get(0);
-			}
+			return results.get(0);
 		}
 		return null;
 	}

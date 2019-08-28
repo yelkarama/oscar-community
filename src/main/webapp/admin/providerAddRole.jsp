@@ -106,7 +106,11 @@
       msg = "You can <font color='red'>NOT</font> save the role. Please search the role name first.";
     }
   } else if (request.getParameter("submit") != null && request.getParameter("submit").equals("Search")) {
-   		SecRole secRole = null;
+    // check the input data
+    if(role_name == null || role_name.length() < 2) {
+      msg = "Please type in a role name.";
+    } else {
+    	SecRole secRole = null;
     	try {
     		secRole = secRoleDao.findByName(role_name);
     	}catch(javax.persistence.NoResultException e) {}
@@ -120,6 +124,7 @@
  		    msg = "It is a NEW role. You can add it.";
  		    action = "add" + role_name;
     	}
+	}
   }
 %>
 

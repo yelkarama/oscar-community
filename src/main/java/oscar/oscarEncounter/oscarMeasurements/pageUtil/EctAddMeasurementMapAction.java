@@ -40,7 +40,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
@@ -78,7 +77,7 @@ public class EctAddMeasurementMapAction extends Action{
             
                 String[] measurement = identifier.split(",");
                 MeasurementMapConfig mmc = new MeasurementMapConfig();
-                if (!mmc.checkLoincMapping(loinc_code, measurement[1], measurement[2]) && validate(loinc_code)){
+                if (!mmc.checkLoincMapping(loinc_code, measurement[1], measurement[2])){
                     mmc.mapMeasurement(measurement[0], loinc_code, measurement[2], measurement[1]);
                     outcome = "success";
                 }else{
@@ -94,60 +93,4 @@ public class EctAddMeasurementMapAction extends Action{
     	} 
     }
     
-    private boolean validate (String loinc_code) {
-        if (StringUtils.isEmpty(loinc_code) || loinc_code.length() > 20) {
-            return false;
-        }
-        if (loinc_code.startsWith("x") || loinc_code.startsWith("X")) {
-            return true;
-        }
-        
-        String[] codeArray = loinc_code.split("-");
-        
-        if (codeArray.length != 2 || !StringUtils.isNumeric(codeArray[0]) || !StringUtils.isNumeric(codeArray[1])) {
-            return false;
-        }
-
-        boolean even = false;
-        
-        if (codeArray[0].length() % 2 == 0) {
-            even = true;
-        }
-        
-        String evenNumbers = "";
-        String oddNumbers = "";
-        
-        for (int i = codeArray[0].length()-1; i >= 0; i--) {
-            if (even) {
-                even = false;
-                evenNumbers += codeArray[0].charAt(i);
-            } else {
-                even = true;
-                oddNumbers += codeArray[0].charAt(i);
-            }
-        }
-        
-        oddNumbers = String.valueOf(Integer.parseInt(oddNumbers)*2);
-        
-        String newNum = evenNumbers + oddNumbers;
-        int sum = 0;
-        
-        for (int i = 0; i < newNum.length(); i++) {
-            sum += Integer.parseInt(String.valueOf(newNum.charAt(i)));
-        }
-        
-        int newSum = sum;
-        
-        while ((newSum % 10) != 0) {
-            newSum++;
-        }
-        
-        int checkDigit = newSum - sum;
-        
-        if (checkDigit == Integer.parseInt(codeArray[1])) {
-            return true;
-        }
-        
-        return false;
-    }
 }

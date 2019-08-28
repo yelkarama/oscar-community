@@ -29,7 +29,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
@@ -65,11 +64,7 @@ public class EctConAddInstitutionAction extends Action {
 		{
 			institution=new Institution();
 			populateFields(institution, addInstitutionForm);
-			if (validateFields(institution)) {
-				institutionDao.persist(institution);
-			} else {
-				return mapping.findForward("failure");
-			}
+			institutionDao.persist(institution);
 		
 		}
 		else if (whichType == 2) // update
@@ -79,11 +74,7 @@ public class EctConAddInstitutionAction extends Action {
 			Integer id = Integer.parseInt(addInstitutionForm.getId());
 			institution=institutionDao.find(id);
 			populateFields(institution, addInstitutionForm);
-			if (validateFields(institution)) {
-				institutionDao.merge(institution);
-			} else {
-				return mapping.findForward("failure");
-			}
+			institutionDao.merge(institution);
 			
 		}
 		else
@@ -112,21 +103,5 @@ public class EctConAddInstitutionAction extends Action {
 		institution.setWebsite(addInstitutionForm.getWebsite());
 		institution.setEmail(addInstitutionForm.getEmail());
 		institution.setAnnotation(addInstitutionForm.getAnnotation());
-	}
-	
-	public boolean validateFields (Institution institution) {
-		if (StringUtils.isNotEmpty(institution.getName()) && institution.getName().length() <= 255 &&
-				(StringUtils.isEmpty(institution.getAddress()) || institution.getAddress().length() <= 255) &&
-				(StringUtils.isEmpty(institution.getCity()) || institution.getCity().length() <= 100) &&
-				(StringUtils.isEmpty(institution.getProvince()) || institution.getProvince().length() <= 100) &&
-				(StringUtils.isEmpty(institution.getPostal()) || institution.getPostal().length() <= 10) &&
-				(StringUtils.isEmpty(institution.getCountry()) || institution.getCountry().length() <= 25) &&
-				(StringUtils.isEmpty(institution.getPhone()) || institution.getPhone().length() <= 25) &&
-				(StringUtils.isEmpty(institution.getFax()) || institution.getFax().length() <= 25) &&
-				(StringUtils.isEmpty(institution.getWebsite()) || institution.getWebsite().length() <= 100) &&
-				(StringUtils.isEmpty(institution.getEmail()) || institution.getEmail().length() <= 50)) {
-			return true;
-		}
-		return false;
 	}
 }

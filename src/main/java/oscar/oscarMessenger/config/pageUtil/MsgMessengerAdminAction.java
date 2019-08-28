@@ -31,7 +31,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
@@ -64,20 +63,6 @@ public class MsgMessengerAdminAction extends Action {
 		String update = ((MsgMessengerAdminForm) form).getUpdate();
 		String delete = ((MsgMessengerAdminForm) form).getDelete();
 
-		boolean error = false;
-		
-		for (String provider : providers) {
-			if (StringUtils.isEmpty(provider) || provider.length() > 6 || !StringUtils.isNumeric(provider)) {
-				error = true;
-			}
-		}
-
-		if (error) {
-			request.setAttribute("groupNo", grpNo);
-			request.setAttribute("fail", "Error: Invalid provider sent through");
-			return (mapping.findForward("failure"));
-		}
-		
 		String parent = new String();
 
 		ResourceBundle oscarR = ResourceBundle.getBundle("oscarResources", request.getLocale());

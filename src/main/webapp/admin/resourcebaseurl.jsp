@@ -91,7 +91,7 @@
 	  checkedDetails="";
 	  resource_helpHtml_value="";
 	  resource_baseurl_value = request.getParameter("resource_baseurl");
-  }else if(request.getParameter("detailsSave")!=null && request.getParameter("detailsSave").length() <= 2000){
+  }else if(request.getParameter("detailsSave")!=null){
 	  propertyDao.saveProp("resource_helpHtml", request.getParameter("resource_helpHtml")); 
 	  checkedWebsite="";
 	  checkedDetails="checked";
