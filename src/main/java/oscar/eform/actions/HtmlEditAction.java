@@ -97,6 +97,11 @@ public class HtmlEditAction extends Action {
                 json.put("success", (errors.size() == 0));
                 json.put("errors", errors);
                 json.put("formId", fid);
+                json.put("formName", formName);
+                json.put("formFileName", formFileName);
+                json.put("formDate", curht.get("formDate"));
+                json.put("formTime", curht.get("formTime"));
+                json.put("formSubject", formSubject);
                 response.getWriter().print(json.toString());
             }
         } catch (Exception e) {

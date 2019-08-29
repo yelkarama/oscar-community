@@ -66,7 +66,6 @@ if (request.getAttribute("submitted") != null) {
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="eform.edithtml.msgEditEform" /></title>
-<%--<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>--%>
 
 <style>
 .input-error{   
@@ -81,7 +80,8 @@ if (request.getAttribute("submitted") != null) {
 
 <script type="text/javascript" language="JavaScript">
 function openLastSaved() {
-    window.open('<%=request.getContextPath()%>/eform/efmshowform_data.jsp?fid=<%= curform.get("fid") %>', 'PreviewForm', 'toolbar=no, location=no, status=yes, menubar=no, scrollbars=yes, resizable=yes, width=700, height=600, left=300, top=100');   
+	let formId = document.getElementById('fid').value;
+	window.open('<%=request.getContextPath()%>/eform/efmshowform_data.jsp?fid=' + formId, 'PreviewForm', 'toolbar=no, location=no, status=yes, menubar=no, scrollbars=yes, resizable=yes, width=700, height=600, left=300, top=100');   
 }
 
 //using this to check if page is being viewing in admin panel or in popup
@@ -100,13 +100,7 @@ window.opener.location.href = '<%=request.getContextPath()%>/administration/?sho
 <body id="eformBody">
 
 <%@ include file="efmTopNav.jspf"%>
-
-<%if (request.getParameter("fid") != null){%>
-<h3><bean:message key="eform.edithtml.msgEditEform" /></h3>
-<%}else{%>
-<h3>Create New eForm</h3>
-<%}%>
-
+<h3 id="editHtmlHeader"></h3>
 <form action="<%=request.getContextPath()%>/eform/editForm.do" method="POST" enctype="multipart/form-data" id="editform" name="eFormEdit" onsubmit="return saveEform();">
 <div class="well" style="position: relative;">
 	
@@ -121,6 +115,9 @@ window.opener.location.href = '<%=request.getContextPath()%>/administration/?sho
     </div>
 
 		<input type="hidden" name="fid" id="fid" value="<%= curform.get("fid")%>">
+		<input type="hidden" name="formFileName" id="formFileName" value="<%= curform.get("formFileName")%>">
+		<input type="hidden" name="formDate" id="formDate" value="<%= curform.get("formDate")%>">
+		<input type="hidden" name="formTime" id="formTime" value="<%= curform.get("formTime")%>">
        
 		<% if ((request.getAttribute("success") == null) || (errors.size() != 0)) {%>
 			<!--error? -->
@@ -128,7 +125,7 @@ window.opener.location.href = '<%=request.getContextPath()%>/administration/?sho
 		
 			<!--LAST SAVED-->
 			<div style="position:absolute;top:2px;right:4px;">			
-			<em><bean:message key="eform.edithtml.msgLastModified" />: 	<%= curform.get("formDate")%>&nbsp;<%= curform.get("formTime") %></em>
+			<em><bean:message key="eform.edithtml.msgLastModified" />:<span id="lastSavedDate"></span></em>
 			</div>
 
 			<!--FORM NAME-->
@@ -144,7 +141,7 @@ window.opener.location.href = '<%=request.getContextPath()%>/administration/?sho
 			<!--FORM ADDITIONAL INFO-->
 			<div style="display:inline-block">
 			<bean:message key="eform.uploadhtml.formSubject" />:<br />
-                        <input type="text" name="formSubject" value="<%= curform.get("formSubject") %>" size="30" /><br />
+						<input type="text" id="formSubject" name="formSubject" value="<%= curform.get("formSubject") %>" size="30" /><br />
 			</div>
 
 			<!--ROLE TYPE-->
@@ -184,8 +181,8 @@ window.opener.location.href = '<%=request.getContextPath()%>/administration/?sho
 	<a href="<%=request.getContextPath()%>/eform/efmformmanager.jsp" class="btn contentLink">
 	 <i class="icon-circle-arrow-left"></i> Back to eForm Library<!--<bean:message key="eform.edithtml.msgBackToForms"/>-->
 	</a>
-	<input type="button" class="btn" value="<bean:message key="eform.edithtml.msgPreviewLast"/>" <% if (curform.get("fid") == null) {%> disabled	<%}%> name="previewlast" onclick="openLastSaved()"> 
-	<a href="<%=request.getContextPath()%>/eform/efmformmanageredit.jsp?fid=<%= curform.get("fid") %>" class="btn contentLink"> <bean:message key="eform.edithtml.cancelChanges"/></a>
+	<input type="button" class="btn" value="<bean:message key="eform.edithtml.msgPreviewLast"/>" id="previewLast" onclick="openLastSaved()">
+	<a id="restoreLastSavedLink" href="" class="btn contentLink"> <bean:message key="eform.edithtml.cancelChanges"/></a>
 	</div>
 
 	<a href="#" class="btn" id="popupDisplay" onClick="window.close()"> 
@@ -225,8 +222,8 @@ window.opener.location.href = '<%=request.getContextPath()%>/administration/?sho
 				// insert returned html
 				data = JSON.parse(data);
 				if (data && data.success) {
-					$('#fid').val(data.fid);
 					$('#alert-success').show();
+					updatePageVariables(data.formId, data.formName, data.formFileName, data.formDate, data.formTime, data.formSubject);
 				} else {
 					formNameError(data.errors.formNameExists ? data.errors.formNameExists : data.errors.formNameMissing);
 				}
@@ -253,12 +250,32 @@ window.opener.location.href = '<%=request.getContextPath()%>/administration/?sho
 		document.body.scrollTop = 0; // Safari
 		document.documentElement.scrollTop = 0; // Chrome, Firefox, IE and Opera
 	}
-
+	
+	function updatePageVariables(fid, formName, formFileName, formDate, formTime, formSubject) {
+		document.getElementById('fid').value = fid;
+		document.getElementById('formName').value = formName;
+		document.getElementById('formFileName').value = formFileName;
+		document.getElementById('formDate').value = formDate;
+		document.getElementById('formTime').value = formTime;
+		document.getElementById('formSubject').value = formSubject;
+		document.getElementById('lastSavedDate').innerHTML = formDate + ' ' + formTime;
+		document.getElementById('restoreLastSavedLink').href = '<%=request.getContextPath()%>/eform/efmformmanageredit.jsp?fid=' + fid;
+		
+		if (fid !== '') {
+			document.getElementById("previewLast").disabled = false;
+			document.getElementById("restoreLastSavedLink").style.visibility = 'visible';
+			document.getElementById('editHtmlHeader').innerHTML = '<bean:message key="eform.edithtml.msgEditEform" />';
+		} else {
+			document.getElementById("previewLast").disabled = true;
+			document.getElementById("restoreLastSavedLink").style.visibility = 'hidden';
+			document.getElementById('editHtmlHeader').innerHTML = 'Create New eForm';
+		}
+	}
+	
 $(document).ready(function () {
-
-$("html, body").animate({ scrollTop: 0 }, "slow");
-return false;
-
+	updatePageVariables('<%=curform.get("fid")%>', '<%=curform.get("formName")%>', '<%=curform.get("formFileName")%>', '<%=curform.get("formDate")%>', '<%=curform.get("formTime")%>', '<%=curform.get("formSubject")%>');
+	$("html, body").animate({ scrollTop: 0 }, "slow");
+	return false;
 });
 </script>
 
