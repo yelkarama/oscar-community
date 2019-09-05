@@ -1308,6 +1308,7 @@ return unescape(text);
 //this function used for injecting html in to Edit E-Form in efmformmanageredit.jsp w/ variable formHtml
 function injectHtml(){
     document.getElementById('formHtmlG').value = popUp();
+    document.getElementById('formHtmlName').value = document.getElementById('eFormName').value;
     document.getElementById('toSave').submit();
 }
 
@@ -1439,6 +1440,7 @@ show('classic');
 
 <!-- this form  used for injecting html in to Edit E-Form  efmformmanageredit.jsp -->
 <form method="post" action="efmformmanageredit.jsp" id="toSave">
+	<input type="hidden" name="formHtmlName" id="formHtmlName" />
     <input type="hidden" name="formHtmlG" id="formHtmlG" />
 </form>
 

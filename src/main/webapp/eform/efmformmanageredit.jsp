@@ -50,6 +50,7 @@ if (request.getAttribute("submitted") != null) {
    if (request.getParameter("formHtmlG") != null){
        //load html from hidden form from eformGenerator.jsp,the html is then injected into edit-eform
       curform.put("formHtml", StringEscapeUtils.unescapeHtml(request.getParameter("formHtmlG")));
+      curform.put("formName", request.getParameter("formHtmlName") != null ? request.getParameter("formHtmlName") : "");
       popupDisplay = true;
    }
    if (curform.get("formDate") == null) curform.put("formDate", "--");
@@ -65,6 +66,12 @@ if (request.getAttribute("submitted") != null) {
 <html:html locale="true">
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
+	<% if (popupDisplay) { %>
+		<link href="/oscar/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+		<link rel="stylesheet" type="text/css" href="/oscar/js/jquery_css/smoothness/jquery-ui-1.10.2.custom.min.css"/>
+		<script type="text/javascript" src="/oscar/js/jquery-1.9.1.js"></script>
+		<script type="text/javascript" src="/oscar/js/jquery-ui-1.10.2.custom.min.js"></script>
+	<% } %>
 <title><bean:message key="eform.edithtml.msgEditEform" /></title>
 
 <style>
@@ -83,16 +90,6 @@ function openLastSaved() {
 	let formId = document.getElementById('fid').value;
 	window.open('<%=request.getContextPath()%>/eform/efmshowform_data.jsp?fid=' + formId, 'PreviewForm', 'toolbar=no, location=no, status=yes, menubar=no, scrollbars=yes, resizable=yes, width=700, height=600, left=300, top=100');   
 }
-
-//using this to check if page is being viewing in admin panel or in popup
-<% if (popupDisplay) { %>
-document.getElementById("popupDisplay").style.display = 'inline-block';
-document.getElementById("panelDisplay").style.display = 'none';
-document.getElementById("dynamicContent").value = "false";
-<% if ((request.getAttribute("success") != null) && (errors.size() == 0)) {%>
-window.opener.location.href = '<%=request.getContextPath()%>/administration/?show=Forms';
-<%}
-}%>
 </script>
 
 </head>
@@ -273,6 +270,18 @@ window.opener.location.href = '<%=request.getContextPath()%>/administration/?sho
 	}
 	
 $(document).ready(function () {
+
+	//using this to check if page is being viewing in admin panel or in popup
+    <% if (popupDisplay) { %>
+    document.getElementById("popupDisplay").style.display = 'inline-block';
+    document.getElementById("panelDisplay").style.display = 'none';
+    document.getElementById("dynamicContent").value = 'true'; // changed
+    document.getElementById("topNavBar").style.display = 'none';
+    <%  if ((request.getAttribute("success") != null) && (errors.size() == 0)) { %>
+    window.opener.location.href = '<%=request.getContextPath()%>/administration/?show=Forms';
+    <%  }
+	} %>
+    
 	updatePageVariables('<%=curform.get("fid")%>', '<%=curform.get("formName")%>', '<%=curform.get("formFileName")%>', '<%=curform.get("formDate")%>', '<%=curform.get("formTime")%>', '<%=curform.get("formSubject")%>');
 	$("html, body").animate({ scrollTop: 0 }, "slow");
 	return false;
