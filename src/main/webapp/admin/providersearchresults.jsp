@@ -162,7 +162,7 @@
 
 <table width="100%" border="0">
 	<tr>
-		<td align="left"><i><bean:message key="admin.search.keywords" /></i> : <%=keyword%></td>
+		<td align="left"><i><bean:message key="admin.search.keywords" /></i> : <%=Encode.forHtml(keyword)%></td>
 	</tr>
 </table>
 
@@ -170,13 +170,13 @@
 	bgcolor="ivory">
 	<tr bgcolor="<%=deepcolor%>">
 		<TH align="center" width="10%"><b><a
-			href="providersearchresults.jsp?keyword=<%=keyword%>&search_mode=<%=searchMode%>&orderby=provider_no&limit1=0&limit2=10">
+			href="providersearchresults.jsp?keyword=<%=Encode.forUriComponent(keyword)%>&search_mode=<%=searchMode%>&orderby=provider_no&limit1=0&limit2=10">
 			<bean:message key="admin.providersearchresults.ID" /></a></b></TH>
 		<TH align="center" width="19%"><b><a
-			href="providersearchresults.jsp?keyword=<%=keyword%>&search_mode=<%=searchMode%>&orderby=first_name&limit1=0&limit2=10">
+			href="providersearchresults.jsp?keyword=<%=Encode.forUriComponent(keyword)%>&search_mode=<%=searchMode%>&orderby=first_name&limit1=0&limit2=10">
 			<bean:message key="admin.provider.formFirstName" /></a> </b></TH>
 		<TH align="center" width="19%"><b><a
-			href="providersearchresults.jsp?keyword=<%=keyword%>&search_mode=<%=searchMode%>&orderby=last_name&limit1=0&limit2=10">
+			href="providersearchresults.jsp?keyword=<%=Encode.forUriComponent(keyword)%>&search_mode=<%=searchMode%>&orderby=last_name&limit1=0&limit2=10">
 			<bean:message key="admin.provider.formLastName" /></a></b></TH>
 		<TH align="center" width="16%"><b>
 			<bean:message key="admin.provider.formSpecialty" /></b></TH>
@@ -248,12 +248,12 @@
   String searchStatusQ = (searchStatus!=null)?"&search_status="+searchStatus:"";
   if(nLastPage>=0) {
 %> <a
-	href="providersearchresults.jsp?keyword=<%= keyword %>&search_mode=<%= searchMode %><%= searchStatusQ %>&orderby=<%=orderBy%>&limit1=<%=nLastPage%>&limit2=<%=strLimit%>"><bean:message
+	href="providersearchresults.jsp?keyword=<%= Encode.forUriComponent(keyword) %>&search_mode=<%= searchMode %><%= searchStatusQ %>&orderby=<%=orderBy%>&limit1=<%=nLastPage%>&limit2=<%=strLimit%>"><bean:message
 	key="admin.providersearchresults.btnLastPage" /></a> | <%
   }
   if(nItems==Integer.parseInt(strLimit)) {
 %> <a
-	href="providersearchresults.jsp?keyword=<%= keyword %>&search_mode=<%= searchMode %><%= searchStatusQ %>&orderby=<%= orderBy %>&limit1=<%=nNextPage%>&limit2=<%=strLimit%>"><bean:message
+	href="providersearchresults.jsp?keyword=<%= Encode.forUriComponent(keyword) %>&search_mode=<%= searchMode %><%= searchStatusQ %>&orderby=<%= orderBy %>&limit1=<%=nNextPage%>&limit2=<%=strLimit%>"><bean:message
 	key="admin.providersearchresults.btnNextPage" /></a> <%
 }
 %>
