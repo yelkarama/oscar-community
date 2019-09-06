@@ -24,7 +24,9 @@
 
 --%>
 
-<%@page import="org.springframework.web.context.support.WebApplicationContextUtils,org.oscarehr.util.OntarioMD,java.util.Hashtable"%><%@page import="org.springframework.web.context.WebApplicationContext,org.oscarehr.common.dao.*,org.oscarehr.common.model.*"%><%
+<%@page import="org.springframework.web.context.support.WebApplicationContextUtils,org.oscarehr.util.OntarioMD,java.util.Hashtable"%><%@page import="org.springframework.web.context.WebApplicationContext,org.oscarehr.common.dao.*,org.oscarehr.common.model.*"%>
+<%@ page import="org.owasp.encoder.Encode" %>
+<%
 
     WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
     UserPropertyDAO userPropertyDAO = (UserPropertyDAO) ctx.getBean("UserPropertyDAO");
@@ -82,7 +84,7 @@
   <p>PT login Token:</p> 
   <input type="text" size="70" id="ptLoginToken" name="ptLoginToken" value="<%=loginCreds.get("ptLoginToken")%>"/> 
   <p>Keyword:</p> 
-  <input type="text" size="100" id="keyword" name="keyword" value="<%=keyword%>"/> 
+  <input type="text" size="100" id="keyword" name="keyword" value="<%=Encode.forHtmlAttribute(keyword)%>"/> 
   <p>Params:</p> 
   <input type="text" size="200" id="params" name="params" value="<%=params%>"/> 
   <p>Requestor:</p> 

@@ -25,7 +25,8 @@
 --%>
 <%@ page import="java.util.*, java.sql.*,java.net.*, oscar.oscarDB.DBPreparedHandler, oscar.MyDateFormat, oscar.Misc"%>
 <%@ page import="oscar.oscarDemographic.data.DemographicMerged"%>
-	
+<%@ page import="org.owasp.encoder.Encode" %>
+
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
@@ -120,7 +121,7 @@ function checkTypeIn() {
 			key="oscarMDS.segmentDisplay.patientSearch.formDOB" /> </font></td>
 		<td valign="middle" rowspan="2" ALIGN="left"><input type="text"
 			NAME="keyword" SIZE="17" MAXLENGTH="100"
-			value="<%=request.getParameter("keyword")%>"> <INPUT
+			value="<%=Encode.forHtmlAttribute(request.getParameter("keyword"))%>"> <INPUT
 			TYPE="hidden" NAME="orderby" VALUE="last_name"> <INPUT
 			TYPE="hidden" NAME="dboperation" VALUE="search_titlename"> <INPUT
 			TYPE="hidden" NAME="limit1" VALUE="0"> <INPUT TYPE="hidden"

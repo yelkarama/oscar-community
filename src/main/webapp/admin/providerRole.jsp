@@ -380,7 +380,7 @@ function submit(form) {
           <td nowrap>
             <font size="-1" color="#FFFFFF">
               Name:
-              <input type="text" name="keyword" size="15" value="<%=keyword%>" />
+              <input type="text" name="keyword" size="15" value="<%=Encode.forHtmlAttribute(keyword)%>" />
               <input type="submit" name="search" value="Search">
             </font>
           </td>
@@ -447,7 +447,7 @@ function submit(form) {
 			<% } %>
             
             <td align="center">
-              <input type="hidden" name="keyword" value="<%=keyword%>" />
+              <input type="hidden" name="keyword" value="<%=Encode.forHtmlAttribute(keyword)%>" />
               <input type="hidden" name="providerId" value="<%=providerNo%>">
               <input type="hidden" name="roleId" value="<%= item.getProperty("role_id", "")%>">
               <input type="hidden" name="roleOld" value="<%= Encode.forHtmlAttribute(item.getProperty("role_name", ""))%>">

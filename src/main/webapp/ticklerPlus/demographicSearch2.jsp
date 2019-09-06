@@ -1,4 +1,4 @@
-<%--
+<%@ page import="org.owasp.encoder.Encode" %><%--
 
     Copyright (c) 2001-2002. Department of Family Medicine, McMaster University. All Rights Reserved.
     This software is published under the GPL GNU General Public License.
@@ -67,7 +67,7 @@
 		Name: </b></font></font></td>
 		<td colspan="2" width="65%">
 		<div align="left"><INPUT TYPE="HIDDEN"
-			value="<%=(query!=null)?query:""%>" NAME="keyword" size="25">
+			value="<%=(query!=null)?Encode.forHtmlAttribute(query):""%>" NAME="keyword" size="25">
 		</div>
 
 		</td>

@@ -804,7 +804,7 @@ var appointmentTypeData = {};
             <div class="input">
                 <INPUT TYPE="TEXT" NAME="keyword"
 					tabindex="1"
-					VALUE="<%=bFirstDisp?nameSb.toString():request.getParameter("name")%>"
+					VALUE="<%=Encode.forHtmlAttribute(bFirstDisp?nameSb.toString():request.getParameter("name"))%>"
                     width="25">
             </div>
             <div class="space">&nbsp;</div>

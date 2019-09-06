@@ -280,14 +280,14 @@ function moveToFolder(selected){
                             }
                         }else{
                              String title =   messageFolderDao.getFolderNameById(bean.getProviderNo(), Integer.parseInt(folderId));%>
-                            <div class="DivContentTitle"><%=title%> </div>
+                            <div class="DivContentTitle"><%=Encode.forHtml(title)%> </div>
 
                         <%}%>
                         </td>
                         <td>
                             <html:form action="/oscarMessenger/DisplayMessages">
                             <input name="boxType" type="hidden" value="<%=pageType%>">
-                            <input name="searchString" type="text" size="20" value="<jsp:getProperty name="DisplayMessagesBeanId" property="filter"/>">
+                            <input name="searchString" type="text" size="20" value="<%=Encode.forHtmlAttribute(DisplayMessagesBeanId.getFilter())%>">
                             <input name="btnSearch" type="submit" value="<bean:message key="oscarMessenger.DisplayMessages.btnSearch"/>">
                             <input name="btnClearSearch" type="submit" value="<bean:message key="oscarMessenger.DisplayMessages.btnClearSearch"/>">
                             </html:form>
@@ -315,7 +315,7 @@ function moveToFolder(selected){
             </ul>
             <ul class="folderList">
                 <% for (MessageFolder folder : messageFolders){%>
-                    <li value="<%=folder.getId()%>" <%=folderId!=null&&(Integer.parseInt(folderId)==folder.getId())?"class='currentFolder'":""%>><a href="<%=request.getContextPath()%>/oscarMessenger/DisplayMessages.jsp?folder=<%=folder.getId()%>"><%=folder.getName()%></a></li>
+                    <li value="<%=folder.getId()%>" <%=folderId!=null&&(Integer.parseInt(folderId)==folder.getId())?"class='currentFolder'":""%>><a href="<%=request.getContextPath()%>/oscarMessenger/DisplayMessages.jsp?folder=<%=folder.getId()%>"><%=Encode.forHtmlContent(folder.getName())%></a></li>
                 <%}%>
             </ul>
             </td>
@@ -413,7 +413,7 @@ function moveToFolder(selected){
                                         <option value="-1">Move To</option>
                                         <option value="0">Inbox</option>
                                         <%for (MessageFolder messageFolder : messageFolders){%>
-                                        <option value="<%=messageFolder.getId()%>"><%=messageFolder.getName()%></option>
+                                        <option value="<%=messageFolder.getId()%>"><%=Encode.forHtmlContent(messageFolder.getName())%></option>
                                         <%}%>
                                     </select>
                             <%}else if (pageType == 2){%>

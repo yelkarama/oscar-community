@@ -213,7 +213,7 @@ function searchAll() {
         </li>
         <li>
             <div class="label"> </div>
-            <input type="text" class="wideInput" NAME="keyword" VALUE="<%=request.getParameter("keyword")%>" SIZE="17" MAXLENGTH="100"/>
+            <input type="text" class="wideInput" NAME="keyword" VALUE="<%=Encode.forHtmlAttribute(request.getParameter("keyword"))%>" SIZE="17" MAXLENGTH="100"/>
         </li>
         <li>
 	<INPUT TYPE="hidden" NAME="orderby" VALUE="last_name, first_name">

@@ -41,6 +41,7 @@ if(!authed) {
 
 <%@ page import="java.lang.*"%>
 <%@ page import="oscar.OscarProperties"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%
 	String demographic_no = request.getParameter("demographic_no") ;
         boolean firstSearch  = request.getParameter("firstSearch") == null ? false : (request.getParameter("firstSearch")).equalsIgnoreCase("true")?true:false;    
@@ -111,7 +112,7 @@ function write2Parent(keyword, demographic_no){
 				<td nowrap></td>
 				<td nowrap></td>
 				<td valign="middle" rowspan="2" ALIGN="left"><input type="text"
-					NAME="keyword" VALUE="<%=keyword%>" SIZE="17" MAXLENGTH="100">
+					NAME="keyword" VALUE="<%=Encode.forHtmlAttribute(keyword)%>" SIZE="17" MAXLENGTH="100">
 <%
     String searchMode = request.getParameter("search_mode");
     if (searchMode == null || searchMode.isEmpty()) {

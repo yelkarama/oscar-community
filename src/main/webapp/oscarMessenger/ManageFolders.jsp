@@ -50,6 +50,7 @@
 <%@ page import="net.sf.json.JSON" %>
 <%@ page import="oscar.oscarLab.ca.bc.PathNet.HL7.Message" %>
 <%@ page import="net.sf.json.JSONArray" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <html:html locale="true">
     <head>
         <script type="text/javascript" src="../js/jquery-1.7.1.min.js"></script>
@@ -215,7 +216,7 @@
                                         </td>
 
                                         <td bgcolor="#EEEEFF" valign=top>
-                                            <input class="editable" type="text" name="<%=folder.getId()%>" value="<%=folder.getName()%>" onblur="renameFolder(this);" ondblclick="this.readOnly=''" readonly="true">
+                                            <input class="editable" type="text" name="<%=folder.getId()%>" value="<%=Encode.forHtmlContent(folder.getName())%>" onblur="renameFolder(this);" ondblclick="this.readOnly=''" readonly="true">
 
                                             <% if (messageFolders.get(messageFolders.size()-1)!=folder){%>
                                             <a href="javascript:void(0);"  onclick="order('down',<%=folder.getId()%>)" class="reorder"><img border="0" src="/oscar/images/icon_down_sort_arrow.png"></a>

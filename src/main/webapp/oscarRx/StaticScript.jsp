@@ -37,6 +37,7 @@
 <%@page import="org.oscarehr.util.SessionConstants"%>
 <%@page import="org.oscarehr.oscarRx.StaticScriptBean"%>
 <%@page import="java.util.ArrayList"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
@@ -203,7 +204,7 @@
 												if (searchString==null) searchString=drug.genericName;
 												if (searchString==null) searchString=drug.prescriptionDetails;
 											%>
-											<input type="hidden" name="searchString" value="<%=searchString%>" />
+											<input type="hidden" name="searchString" value="<%=Encode.forHtmlAttribute(searchString)%>" />
 											<input type="submit" class="ControlPushButton" value="Search to Re-prescribe" />
 										</form>
 									<%

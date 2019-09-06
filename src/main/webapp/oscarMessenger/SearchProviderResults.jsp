@@ -177,7 +177,7 @@
 				</ul>
 				<ul class="folderList">
 					<% for (MessageFolder folder : messageFolders){%>
-					<li value="<%=folder.getId()%>"><a href="<%=request.getContextPath()%>/oscarMessenger/DisplayMessages.jsp?folder=<%=folder.getId()%>"><%=folder.getName()%></a></li>
+					<li value="<%=folder.getId()%>"><a href="<%=request.getContextPath()%>/oscarMessenger/DisplayMessages.jsp?folder=<%=folder.getId()%>"><%=Encode.forHtmlContent(folder.getName())%></a></li>
 					<%}%>
 				</ul>
 			</td>

@@ -304,7 +304,7 @@ var newD = newYear + "-" + newMonth + "-" + newDay;
 <tr> 
       <td width="35%"><font color="#003366"><font face="Verdana, Arial, Helvetica, sans-serif" size="2"><b><bean:message key="tickler.ticklerAdd.formDemoName"/>: </b></font></font></td>
       <td colspan="2" width="65%">
-<div align="left"><INPUT TYPE="TEXT" NAME="keyword" size="25" VALUE="<%=bFirstDisp?"":demoName.equals("")?session.getAttribute("appointmentname"):demoName%>">
+<div align="left"><INPUT TYPE="TEXT" NAME="keyword" size="25" VALUE="<%=bFirstDisp?"":Encode.forHtmlAttribute(demoName.equals("")?(String) session.getAttribute("appointmentname"):demoName)%>">
    	 <input type="submit" name="Submit" value="<bean:message key="tickler.ticklerAdd.btnSearch"/>">
   </div>
 </td>

@@ -29,6 +29,7 @@
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%@ page
 	import="java.util.*, oscar.oscarEncounter.oscarMeasurements.data.MeasurementMapConfig, oscar.OscarProperties"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
 
@@ -126,7 +127,7 @@
                                         if (searchstring == null)
                                             searchstring = "";%> Search
 				table for name: <input type="text" size="30" name="searchstring"
-					value="<%= searchstring %>" /> <input type="submit" value="Search"
+					value="<%= Encode.forHtmlAttribute(searchstring) %>" /> <input type="submit" value="Search"
 					onclick="return reloadPage()" /></td>
 			<tr>
 			<tr>

@@ -50,6 +50,7 @@
 <%@page import="org.oscarehr.managers.DrugDispensingManager" %>
 <%@page import="org.oscarehr.managers.CodingSystemManager" %>
 <%@ page import="org.oscarehr.common.model.PartialDate" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <bean:define id="patient" type="oscar.oscarRx.data.RxPatientData.Patient" name="Patient" />
 <logic:notPresent name="RxSessionBean" scope="session">
     <logic:redirect href="error.html" />
@@ -274,7 +275,7 @@ if (heading != null){
                 <%} else {%>
                 <form action="<%=request.getContextPath()%>/oscarRx/searchDrug.do" method="post">
                     <input type="hidden" name="demographicNo" value="<%=patient.getDemographicNo()%>" />
-                    <input type="hidden" name="searchString" value="<%=getName(prescriptDrug)%>" />
+                    <input type="hidden" name="searchString" value="<%=Encode.forHtmlAttribute(getName(prescriptDrug))%>" />
                     <input type="submit" class="ControlPushButton" value="Search to Re-prescribe" />
                 </form>
                 <%}%>

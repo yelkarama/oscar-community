@@ -153,6 +153,7 @@
 <%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%@ page import="org.apache.commons.lang.WordUtils"%>
 <%@ page import="oscar.OscarProperties" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <html:html locale="true">
@@ -244,7 +245,7 @@
 		<td class="blueText" nowrap><input type="radio"
 			name="search_mode" value="referral_no" <%= searchType.equals("number") ? "checked" : "" %>> Ref. no.</td>
 		<td valign="middle" rowspan="2" align="left"><input type="text"
-			name="keyword" value="<%= searchType.equals("number") ? doctorNo : (searchType.equals("name") ? doctorName : "") %>" size="17" maxlength="100"> <input
+				name="keyword" value="<%= searchType.equals("number") ? doctorNo : Encode.forHtmlAttribute(searchType.equals("name") ? doctorName : "") %>" size="17" maxlength="100"> <input
 			type="hidden" name="orderby" value="last_name, first_name"> <input
 			type="hidden" name="limit1" value="0"> <input type="hidden"
 			name="limit2" value="10"> <input type="hidden" name="submit"

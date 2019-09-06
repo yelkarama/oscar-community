@@ -29,6 +29,7 @@
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%@ page
 	import="java.util.*, oscar.oscarEncounter.oscarMeasurements.data.MeasurementMapConfig, oscar.OscarProperties, oscar.util.StringUtils"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
 
@@ -146,7 +147,7 @@ if (type == null) type = "";
                                                 if (searchstring == null)
                                                     searchstring = "";%>
 				<input type="text" size="30" name="searchstring"
-					value="<%= searchstring %>" /> <input type="submit" value="Search"
+					value="<%= Encode.forHtmlAttribute(searchstring) %>" /> <input type="submit" value="Search"
 					onclick="return reloadPage()" /></td>
 			<tr>
 				<td class="Cell" width="20%">Select code to map to:</td>

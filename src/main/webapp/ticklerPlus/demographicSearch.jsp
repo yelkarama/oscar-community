@@ -1,4 +1,4 @@
-<%--
+<%@ page import="org.owasp.encoder.Encode" %><%--
 
 
     Copyright (c) 2005-2012. Centre for Research on Inner City Health, St. Michael's Hospital, Toronto. All Rights Reserved.
@@ -67,7 +67,7 @@
 		Name: </b></font></font></td>
 		<td colspan="2" width="65%">
 		<div align="left"><INPUT TYPE="HIDDEN"
-			value="<%=(query!=null)?query:"" %>" NAME="keyword" size="25">
+			value="<%=(query!=null)?Encode.forHtmlAttribute(query):"" %>" NAME="keyword" size="25">
 		<input type="submit" name="Submit" value="Search"></div>
 
 		</td>

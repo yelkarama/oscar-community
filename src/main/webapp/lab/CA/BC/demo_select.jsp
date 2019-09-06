@@ -44,6 +44,7 @@ if(!authed) {
 <%@page import="org.oscarehr.util.SpringUtils"%>
 <%@page import="org.oscarehr.common.dao.DemographicDao"%>
 <%@page import="org.oscarehr.common.model.Demographic"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%
 
 	String postTo = request.getParameter("postTo");
