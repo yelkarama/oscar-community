@@ -23,7 +23,7 @@
     Ontario, Canada
 
 --%>
-
+<%@ taglib uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" prefix="csrf" %>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -61,6 +61,7 @@
 <%@ page import="org.oscarehr.util.LoggedInInfo" %>
 <%@ page import="oscar.SxmlMisc" %>
 <%@ page import="oscar.oscarEncounter.data.EctFormData" %>
+<%@ page import="org.owasp.csrfguard.CsrfGuard" %>
 <jsp:useBean id="displayServiceUtil" scope="request" class="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConDisplayServiceUtil" />
 <%
 
@@ -134,10 +135,9 @@
             
             String ackFunc;
             if( skipComment ) {
-            	ackFunc = "updateStatus('acknowledgeForm_" + docId + "'," + inQueueB + ");";
-            }
-            else {
-            	ackFunc = "getDocComment('" + docId + "','" + providerNo + "'," + inQueueB + ");";
+            	ackFunc = "updateStatus('acknowledgeForm_" + docId + "', {'" + CsrfGuard.getInstance().getTokenName() + "': '" + CsrfGuard.getInstance().getTokenValue((HttpServletRequest) pageContext.getRequest(), null) + "'});";
+            } else {
+            	ackFunc = "getDocComment('" + docId + "','" + providerNo + "', {'" + CsrfGuard.getInstance().getTokenName() + "': '" + CsrfGuard.getInstance().getTokenValue((HttpServletRequest) pageContext.getRequest(), null) + "'});";
             }
 
 
@@ -194,7 +194,6 @@
 <% if (request.getParameter("inWindow") != null && request.getParameter("inWindow").equalsIgnoreCase("true")) {  %>
 <html>
 <head>
-    <script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <!-- global -->
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script>
 <script type="text/javascript" src="<%= request.getContextPath() %>/share/calendar/calendar.js"></script>
@@ -321,17 +320,17 @@
         	 }
         	%>
         	<form name="acknowledgeForm_<%=docId%>" id="acknowledgeForm_<%=docId%>" onsubmit="<%=ackFunc%>" method="post" action="javascript:void(0);">
-
+                                                        <input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
                                                         <input type="hidden" name="segmentID" value="<%= docId%>"/>
                                                         <input type="hidden" name="multiID" value="<%= docId%>" />
                                                         <input type="hidden" name="providerNo" value="<%= providerNo%>"/>
                                                         <input type="hidden" name="status" value="A"/ id="status_<%=docId%>">
                                                         <input type="hidden" name="labType" value="DOC"/>
                                                         <input type="hidden" name="ajaxcall" value="yes"/>
-                                                        <input type="hidden" name="comment" id="comment_<%=docId%>" value="<%=docCommentTxt%>">                                                        
+                                                        <input type="hidden" name="comment" id="comment_<%=docId%>" value="<%=docCommentTxt%>">
                                                     <% if (demographicID != null && !demographicID.equals("") && !demographicID.equalsIgnoreCase("null") && !ackedOrFiled ) {%>
                                                         <input type="submit" id="ackBtn_<%=docId%>" value="<bean:message key="oscarMDS.segmentDisplay.btnAcknowledge"/>">
-                                                        <input type="button" value="Comment" onclick="addDocComment('<%=docId%>','<%=providerNo%>',true)"/>
+                                                        <input type="button" value="Comment" onclick="addDocComment('<%=docId%>','<%=providerNo%>',true, { '<csrf:tokenname/>': '<csrf:tokenvalue/>'})"/>
                                                         <%if (MyOscarUtils.isMyOscarEnabled((String) session.getAttribute("user"))){
 															MyOscarLoggedInInfo myOscarLoggedInInfo=MyOscarLoggedInInfo.getLoggedInInfo(session);
 															boolean enabledMyOscarButton=MyOscarUtils.isMyOscarSendButtonEnabled(myOscarLoggedInInfo, Integer.valueOf(demographicID));
@@ -341,7 +340,7 @@
                                                     <%}%>
                                                         <input type="button" id="fwdBtn_<%=docId%>"  value="<bean:message key="oscarMDS.index.btnForward"/>" onClick="popupStart(355, 685, '../oscarMDS/SelectProvider.jsp?docId=<%=docId%>', 'providerselect');">
                                                     <%if( !ackedOrFiled ) { %>
-                                                        <input type="button" id="fileBtn_<%=docId%>"  value="<bean:message key="oscarMDS.index.btnFile"/>" onclick="fileDoc('<%=docId%>');">
+                                                        <input type="button" id="fileBtn_<%=docId%>"  value="<bean:message key="oscarMDS.index.btnFile"/>" onclick="fileDoc('<%=docId%>', { '<csrf:tokenname/>': '<csrf:tokenvalue/>'});">
                                                     <%} %>
                                                         <input type="button" id="closeBtn_<%=docId%>" value=" <bean:message key="global.btnClose"/> " onClick="window.close()">                                                        
                                                         <input type="button" id="printBtn_<%=docId%>" value=" <bean:message key="global.btnPrint"/> " onClick="popup(700,960,'<%=url2%>','file download')">
@@ -353,12 +352,12 @@
                                                         
                                                         %>
                                                         <input type="button" id="msgBtn_<%=docId%>" value="Msg" onclick="popupPatient(700,960,'<%= request.getContextPath() %>/oscarMessenger/SendDemoMessage.do?demographic_no=','msg', '<%=docId%>')" <%=btnDisabled %>/>
-                                                        <% if (!OscarProperties.getInstance().isPropertyActive("ticklerplus")) { %> <input type="button" id="mainTickler_<%=docId%>" value="Tickler" onclick="handleDocSave('<%=docId%>','addTickler')" <%=btnDisabled %>><% } else { %> <input type="button" id="mainTickler_<%=docId%>" value="Tickler" onclick="popupPatientTickler(710, 1024,'<%= request.getContextPath() %>/Tickler.do?', 'Tickler','<%=docId%>')" <%=btnDisabled %>> <%} %>
+                                                        <% if (!OscarProperties.getInstance().isPropertyActive("ticklerplus")) { %> <input type="button" id="mainTickler_<%=docId%>" value="Tickler" onclick="handleDocSave('<%=docId%>','addTickler', { '<csrf:tokenname/>': '<csrf:tokenvalue/>'})" <%=btnDisabled %>><% } else { %> <input type="button" id="mainTickler_<%=docId%>" value="Tickler" onclick="popupPatientTickler(710, 1024,'<%= request.getContextPath() %>/Tickler.do?', 'Tickler','<%=docId%>')" <%=btnDisabled %>> <%} %>
                                                         <input type="button" id="mainEchart_<%=docId%>" value=" <bean:message key="oscarMDS.segmentDisplay.btnEChart"/> " onClick="popupPatient(710, 1024,'<%= request.getContextPath() %>/oscarEncounter/IncomingEncounter.do?updateParent=false&reason=' + getDocumentType() + '&curDate=<%=currentDate%>>&appointmentNo=&appointmentDate=&startTime=&status=&demographicNo=', 'encounter', '<%=docId%>')" <%=btnDisabled %>>
                                                         <input type="button" id="mainMaster_<%=docId%>" value=" <bean:message key="oscarMDS.segmentDisplay.btnMaster"/>" onClick="popupPatient(710,1024,'<%= request.getContextPath() %>/demographic/demographiccontrol.jsp?displaymode=edit&dboperation=search_detail&demographic_no=','master','<%=docId%>')" <%=btnDisabled %>>
                                                         <input type="button" id="mainApptHistory_<%=docId%>" value=" <bean:message key="oscarMDS.segmentDisplay.btnApptHist"/>" onClick="popupPatient(710,1024,'<%= request.getContextPath() %>/demographic/demographiccontrol.jsp?orderby=appttime&displaymode=appt_history&dboperation=appt_history&limit1=0&limit2=25&demographic_no=','ApptHist','<%=docId%>')" <%=btnDisabled %>>
 
-                                                        <input type="button" id="refileDoc_<%=docId%>" value="<bean:message key="oscarEncounter.noteBrowser.msgRefile"/>" onclick="refileDoc('<%=docId%>');" >
+                                                        <input type="button" id="refileDoc_<%=docId%>" value="<bean:message key="oscarEncounter.noteBrowser.msgRefile"/>" onclick="refileDoc('<%=docId%>', {'<csrf:tokenname/>': '<csrf:tokenvalue/>'});" >
                                                         <select  id="queueList_<%=docId%>" name="queueList"> 
                                                             <%
                                                             for (Hashtable ht : queues) {
@@ -432,16 +431,17 @@
                                     <td>
                                         <div>
                                             <input onclick="split('<%=docId%>','<%=StringEscapeUtils.escapeJavaScript(demoName) %>')" type="button" value="<bean:message key="inboxmanager.document.split" />" />
-                                            <input id="rotate180btn_<%=docId %>" onclick="rotate180('<%=docId %>')" type="button" value="<bean:message key="inboxmanager.document.rotate180" />" />
-                                            <input id="rotate90btn_<%=docId %>" onclick="rotate90('<%=docId %>')" type="button" value="<bean:message key="inboxmanager.document.rotate90" />" />
-                                            <% if (numOfPage > 1) { %><input id="removeFirstPagebtn_<%=docId %>" onclick="removeFirstPage('<%=docId %>')" type="button" value="<bean:message key="inboxmanager.document.removeFirstPage" />" /><% } %>
+                                            <input id="rotate180btn_<%=docId %>" onclick="rotate180('<%=docId %>', { '<csrf:tokenname/>': '<csrf:tokenvalue/>'})" type="button" value="<bean:message key="inboxmanager.document.rotate180" />" />
+                                            <input id="rotate90btn_<%=docId %>" onclick="rotate90('<%=docId %>', { '<csrf:tokenname/>': '<csrf:tokenvalue/>'})" type="button" value="<bean:message key="inboxmanager.document.rotate90" />" />
+                                            <% if (numOfPage > 1) { %><input id="removeFirstPagebtn_<%=docId %>" onclick="removeFirstPage('<%=docId %>', { '<csrf:tokenname/>': '<csrf:tokenvalue/>'})" type="button" value="<bean:message key="inboxmanager.document.removeFirstPage" />" /><% } %>
                                         </div>
                                     </td>
                                 </tr>
 
                             </table>
 
-                            <form id="forms_<%=docId%>" onsubmit="return updateDocument('forms_<%=docId%>');">
+                            <form id="forms_<%=docId%>" onsubmit="return updateDocument('forms_<%=docId%>', { '<csrf:tokenname/>': '<csrf:tokenvalue/>'});">
+                                <input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
                                 <input type="hidden" name="method" value="documentUpdateAjax" />
                                 <input type="hidden" name="documentId" value="<%=docId%>" />
                                 <input type="hidden" name="curPage_<%=docId%>" id="curPage_<%=docId%>" value="1"/>
@@ -540,9 +540,14 @@
 
                                     <tr>
                                         <td width="30%" colspan="1" align="left"><a id="saveSucessMsg_<%=docId%>" style="display:none;color:blue;"><bean:message key="inboxmanager.document.SuccessfullySavedMsg"/></a></td>
-                                        <td width="30%" colspan="1" align="left"><%if(demographicID.equals("-1")){%><input type="submit" name="save" disabled id="save<%=docId%>" value="Save" /><input type="button" name="save" id="saveNext<%=docId%>" onclick="saveNext(<%=docId%>)" disabled value='<bean:message key="inboxmanager.document.SaveAndNext"/>' /><%}
-            else{%><input type="submit" name="save" id="save<%=docId%>" value="Save" /><input type="button" name="save" onclick="saveNext(<%=docId%>)" id="saveNext<%=docId%>" value='<bean:message key="inboxmanager.document.SaveAndNext"/>' /> <%}%>
-
+										<td width="30%" colspan="1" align="left">
+												<%if(demographicID.equals("-1")){%>
+													<input type="submit" name="save" disabled id="save<%=docId%>" value="Save" />
+													<input type="button" name="save" id="saveNext<%=docId%>" onclick="saveNext(<%=docId%>, {'<csrf:tokenname/>': '<csrf:tokenvalue/>'})" disabled value='<bean:message key="inboxmanager.document.SaveAndNext"/>' />
+												<%}else{%>
+													<input type="submit" name="save" id="save<%=docId%>" value="Save" />
+													<input type="button" name="save" onclick="saveNext(<%=docId%>, {'<csrf:tokenname/>': '<csrf:tokenvalue/>'})" id="saveNext<%=docId%>" value='<bean:message key="inboxmanager.document.SaveAndNext"/>' /> 
+												<%}%>
                                     </tr>
 
                                     <tr>
@@ -559,7 +564,7 @@
 
                                                     if(!s.equals("0")&&!s.equals("null")&& !pItem.getStatus().equals("X")){
                                                 if (!pItem.getStatus().equals("F")) {%>
-                                                <li><%=s%><a href="#" onclick="removeLink('DOC', '<%=docId %>', '<%=pItem.getProviderNo() %>', this);return false;"><bean:message key="inboxmanager.document.RemoveLinkedProviderMsg" /></a></li>
+                                                <li><%=s%><a href="#" onclick="removeLink('DOC', '<%=docId %>', '<%=pItem.getProviderNo() %>', this, {'<csrf:tokenname/>': '<csrf:tokenvalue/>'});return false;"><bean:message key="inboxmanager.document.RemoveLinkedProviderMsg" /></a></li>
                                                 <% }
                                                     // even if filed, count provider so document is faxable
                                                     countValidProvider++;
@@ -672,6 +677,7 @@
                             <%}
                                     }%>
                             <form name="reassignForm_<%=docId%>" id="reassignForm_<%=docId%>">
+                                <input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
                                 <input type="hidden" name="flaggedLabs" value="<%= docId%>" />
                                 <input type="hidden" name="selectedProviders" value="" />                                
                                 <input type="hidden" name="labType" value="DOC" />
@@ -685,7 +691,7 @@
                          <fieldset>
                          
                          <form name="acknowledgeForm_<%=docId%>" id="acknowledgeForm_<%=docId%>" onsubmit="<%=ackFunc%>" method="post" action="javascript:void(0);">
-
+                                                        <input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
                                                         <input type="hidden" name="segmentID" value="<%= docId%>"/>
                                                         <input type="hidden" name="multiID" value="<%= docId%>" />
                                                         <input type="hidden" name="providerNo" value="<%= providerNo%>"/>
@@ -695,7 +701,7 @@
                                                         <input type="hidden" name="comment" id="comment_<%=docId%>" value="<%=docCommentTxt%>">                                                        
                                                     <% if (demographicID != null && !demographicID.equals("") && !demographicID.equalsIgnoreCase("null") && !ackedOrFiled ) {%>
                                                         <input type="submit" id="ackBtn_<%=docId%>" value="<bean:message key="oscarMDS.segmentDisplay.btnAcknowledge"/>">
-                                                        <input type="button" value="Comment" onclick="addDocComment('<%=docId%>','<%=providerNo%>',true)"/>
+                                                        <input type="button" value="Comment" onclick="addDocComment('<%=docId%>','<%=providerNo%>',true, { '<csrf:tokenname/>': '<csrf:tokenvalue/>'})"/>
                                                         <%if (MyOscarUtils.isMyOscarEnabled((String) session.getAttribute("user"))){
 															MyOscarLoggedInInfo myOscarLoggedInInfo=MyOscarLoggedInInfo.getLoggedInInfo(session);
 															boolean enabledMyOscarButton=MyOscarUtils.isMyOscarSendButtonEnabled(myOscarLoggedInInfo, Integer.valueOf(demographicID));
@@ -705,7 +711,7 @@
                                                     <%}%>
                                                         <input type="button" id="fwdBtn_<%=docId%>"  value="<bean:message key="oscarMDS.index.btnForward"/>" onClick="popupStart(355, 685, '../oscarMDS/SelectProvider.jsp?docId=<%=docId%>', 'providerselect');">
                                                     <%if( !ackedOrFiled ) { %>
-                                                        <input type="button" id="fileBtn_<%=docId%>"  value="<bean:message key="oscarMDS.index.btnFile"/>" onclick="fileDoc('<%=docId%>');">
+                                                        <input type="button" id="fileBtn_<%=docId%>"  value="<bean:message key="oscarMDS.index.btnFile"/>" onclick="fileDoc('<%=docId%>', {'<csrf:tokenname/>': '<csrf:tokenvalue/>'});">
                                                     <%} %>
                                                         <input type="button" id="closeBtn_<%=docId%>" value=" <bean:message key="global.btnClose"/> " onClick="window.close()">                                                        
                                                         <input type="button" id="printBtn_<%=docId%>" value=" <bean:message key="global.btnPrint"/> " onClick="popup(700,960,'<%=url2%>','file download')">
@@ -716,12 +722,12 @@
                                                         }
                                                         
                                                         %>
- 														<% if (!OscarProperties.getInstance().isPropertyActive("ticklerplus")) { %> <input type="button" id="mainTickler_<%=docId%>" value="Tickler" onclick="handleDocSave('<%=docId%>','addTickler')" <%=btnDisabled %>><% } else { %> <input type="button" id="mainTickler_<%=docId%>" value="Tickler" onclick="popupPatientTickler(710, 1024,'<%= request.getContextPath() %>/Tickler.do?', 'Tickler','<%=docId%>')" <%=btnDisabled %>> <%} %>
+ 														<% if (!OscarProperties.getInstance().isPropertyActive("ticklerplus")) { %> <input type="button" id="mainTickler_<%=docId%>" value="Tickler" onclick="handleDocSave('<%=docId%>','addTickler', {'<csrf:tokenname/>': '<csrf:tokenvalue/>'})" <%=btnDisabled %>><% } else { %> <input type="button" id="mainTickler_<%=docId%>" value="Tickler" onclick="popupPatientTickler(710, 1024,'<%= request.getContextPath() %>/Tickler.do?', 'Tickler','<%=docId%>')" <%=btnDisabled %>> <%} %>
  														<input type="button" id="mainEchart_<%=docId%>" value=" <bean:message key="oscarMDS.segmentDisplay.btnEChart"/> " onClick="popupPatient(710, 1024,'<%= request.getContextPath() %>/oscarEncounter/IncomingEncounter.do?updateParent=false&reason=' + getDocumentType() + '&curDate=<%=currentDate%>>&appointmentNo=&appointmentDate=&startTime=&status=&demographicNo=', 'encounter', '<%=docId%>')"<%=btnDisabled %>>
                                                         <input type="button" id="mainMaster_<%=docId%>" value=" <bean:message key="oscarMDS.segmentDisplay.btnMaster"/>" onClick="popupPatient(710,1024,'<%= request.getContextPath() %>/demographic/demographiccontrol.jsp?displaymode=edit&dboperation=search_detail&demographic_no=','master','<%=docId%>')" <%=btnDisabled %>>
                                                         <input type="button" id="mainApptHistory_<%=docId%>" value=" <bean:message key="oscarMDS.segmentDisplay.btnApptHist"/>" onClick="popupPatient(710,1024,'<%= request.getContextPath() %>/demographic/demographiccontrol.jsp?orderby=appttime&displaymode=appt_history&dboperation=appt_history&limit1=0&limit2=25&demographic_no=','ApptHist','<%=docId%>')" <%=btnDisabled %>>
                                                         
-                                                        <input type="button" id="refileDoc_<%=docId%>" value="<bean:message key="oscarEncounter.noteBrowser.msgRefile"/>" onclick="refileDoc('<%=docId%>');" >
+                                                        <input type="button" id="refileDoc_<%=docId%>" value="<bean:message key="oscarEncounter.noteBrowser.msgRefile"/>" onclick="refileDoc('<%=docId%>', {'<csrf:tokenname/>': '<csrf:tokenvalue/>'});" >
                                                         <select  id="queueList_<%=docId%>" name="queueList"> 
                                                             <%
                                                             for (Hashtable ht : queues) {
@@ -759,7 +765,10 @@
                                         type: "POST",
                                         url: "<%=request.getContextPath() %>/dms/ManageDocument.do",
                                         data: "method=fax&docId=" + docId + "&faxRecipients=" + faxRecipients + "&demoNo=" + demographicNo + "&docType=DOC",
-                                        success: function(data) {
+										headers: {
+											'<csrf:tokenname/>': '<csrf:tokenvalue/>'
+										},
+										success: function(data) {
                                             if (data != null)
                                                 location.reload();
                                         }
@@ -768,6 +777,7 @@
                             </script>
                             <legend>Fax</legend>
                             <form name="faxForm_<%=docId%>" id="faxForm_<%=docId%>" onsubmit="" method="post" action="javascript:void(0);">
+                                <input type="hidden" name="<csrf:tokenname/>" value="<csrf:tokenvalue/>"/>
                                 <table border="0px">
                                     <tbody>
                                     <tr>

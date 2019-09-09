@@ -25,16 +25,17 @@
 /************init global data methods*****************/
 var oldestLab = null;
 
-function  updateDocStatusInQueue(docid){//change status of queue document link row to I=inactive
-    //console.log('in updateDocStatusInQueue, docid '+docid);
-          var url="../dms/inboxManage.do",data="docid="+docid+"&method=updateDocStatusInQueue";
-          new Ajax.Request(url,{method:'post',parameters:data,onSuccess:function(transport){}});
-
-
+function  updateDocStatusInQueue(docid, csrfToken){//change status of queue document link row to I=inactive
+    var url="../dms/inboxManage.do",data="docid="+docid+"&method=updateDocStatusInQueue";
+    let headers = {};
+    if (typeof csrfToken !== 'undefined' && csrfToken !== null) {
+        headers = csrfToken;
+    }
+    new Ajax.Request(url,{method:'post',parameters:data, requestHeaders: headers, onSuccess:function(transport){}});
 }
 
-function saveNext(docid) {
-	updateDocumentAndNext('forms_'+docid);
+function saveNext(docid, csrfToken) {
+	updateDocumentAndNext('forms_'+docid, csrfToken);
 }
 
 function initPatientIds(s){
@@ -311,11 +312,15 @@ function forwardDocument(docId) {
 }
 
 
-function rotate180(id) {
+function rotate180(id, csrfToken) {
 	jQuery("#rotate180btn_" + id).attr('disabled', 'disabled');
         var displayDocumentAs=$('displayDocumentAs_'+id).value;
+    let headers = {};
+    if (typeof csrfToken !== 'undefined' && csrfToken !== null) {
+        headers = csrfToken;
+    }
 
-	new Ajax.Request(contextpath + "/dms/SplitDocument.do", {method: 'post', parameters: "method=rotate180&document=" + id, onSuccess: function(data) {
+	new Ajax.Request(contextpath + "/dms/SplitDocument.do", {method: 'post', parameters: "method=rotate180&document=" + id, requestHeaders: headers, onSuccess: function(data) {
 		jQuery("#rotate180btn_" + id).removeAttr('disabled');
                 if(displayDocumentAs=="PDF") {
                     showPDF(id,contextpath);
@@ -325,11 +330,15 @@ function rotate180(id) {
 	}});
 }
 
-function rotate90(id) {
+function rotate90(id, csrfToken) {
 	jQuery("#rotate90btn_" + id).attr('disabled', 'disabled');
         var displayDocumentAs=$('displayDocumentAs_'+id).value;
+    let headers = {};
+    if (typeof csrfToken !== 'undefined' && csrfToken !== null) {
+        headers = csrfToken;
+    }
 
-	new Ajax.Request(contextpath + "/dms/SplitDocument.do", {method: 'post', parameters: "method=rotate90&document=" + id, onSuccess: function(data) {
+	new Ajax.Request(contextpath + "/dms/SplitDocument.do", {method: 'post', parameters: "method=rotate90&document=" + id, requestHeaders: headers, onSuccess: function(data) {
 		jQuery("#rotate90btn_" + id).removeAttr('disabled');
                 if(displayDocumentAs=="PDF") {
                     showPDF(id,contextpath);
@@ -1560,12 +1569,17 @@ function  popupStart(vheight,vwidth,varpage,windowname) {
 	var popup=window.open(varpage, windowname, windowprops);
 }
 
-function updateDocumentAndNext(eleId){//save doc info
-	var url="../dms/ManageDocument.do",data=$(eleId).serialize(true);
+function updateDocumentAndNext(eleId, csrfToken){//save doc info
+    let url = "../dms/ManageDocument.do";
+    let parameterData = $(eleId).serialize(true);
+    let headers = {};
+    if (typeof csrfToken !== 'undefined' && csrfToken !== null) {
+        headers = csrfToken;
+    }
 	new Ajax.Request(url,
 			{
 				method:'post',
-				parameters:data,
+				parameters:parameterData, requestHeaders: headers, 
 				onSuccess:function(transport){
 					var json=transport.responseText.evalJSON();
 					var patientId;
@@ -1584,7 +1598,7 @@ function updateDocumentAndNext(eleId){//save doc info
 						$("msgBtn_"+num).onclick = function() { popup(700,960, contextpath +'/oscarMessenger/SendDemoMessage.do?demographic_no='+patientId,'msg'); };
 						//Hide document						
 						Effect.BlindUp('labdoc_'+num);											
-						updateDocStatusInQueue(num);
+						updateDocStatusInQueue(num, csrfToken);
 						var success= updateGlobalDataAndSideNav(num,patientId);
 						if(success){
 						
@@ -1605,13 +1619,18 @@ function updateDocumentAndNext(eleId){//save doc info
 	return false;
 }
 
-function updateDocument(eleId){
+function updateDocument(eleId, csrfToken) {
 	if (!checkObservationDate(eleId)) {
 		return false;
 	}
 	//save doc info
-	var url="../dms/ManageDocument.do",data=$(eleId).serialize(true);
-	new Ajax.Request(url,{method:'post',parameters:data,onSuccess:function(transport){
+	let url = "../dms/ManageDocument.do";
+	let parameterData = $(eleId).serialize(true);
+    let headers = {};
+    if (typeof csrfToken !== 'undefined' && csrfToken !== null) {
+        headers = csrfToken;
+    }
+	new Ajax.Request(url,{ method: 'post', parameters: parameterData, requestHeaders: headers, onSuccess: function(transport) {
 		var json=transport.responseText.evalJSON();
 		var patientId;
 		//oscarLog(json);
@@ -1628,7 +1647,7 @@ function updateDocument(eleId){
 			$('saved'+num).value='true';
 			$("msgBtn_"+num).onclick = function() { popup(700,960,contextpath +'/oscarMessenger/SendDemoMessage.do?demographic_no='+patientId,'msg'); };
 			
-			updateDocStatusInQueue(num);
+			updateDocStatusInQueue(num, csrfToken);
 			var success= updateGlobalDataAndSideNav(num,patientId);
 			
 			if(success){
@@ -1724,7 +1743,7 @@ function checkObservationDate(formid) {
     return isValid;
   }
 
-function updateStatus(formid){//acknowledge
+function updateStatus(formid, csrfToken){//acknowledge
 	var num=formid.split("_");
 	var doclabid=num[1];
 	if(doclabid){
@@ -1735,12 +1754,15 @@ function updateStatus(formid){//acknowledge
 		}else{
 			var url=contextpath+"/oscarMDS/UpdateStatus.do";
 			var data=$(formid).serialize(true);
-
-			new Ajax.Request(url,{method:'post',parameters:data,onSuccess:function(transport){
+            let headers = {};
+            if (typeof csrfToken !== 'undefined' && csrfToken !== null) {
+                headers = csrfToken;
+            }
+			new Ajax.Request(url,{method:'post',parameters:data, requestHeaders: headers,onSuccess:function(transport){
 
 				if(doclabid){
 					Effect.BlindUp('labdoc_'+doclabid);
-					updateDocStatusInQueue(doclabid);
+					updateDocStatusInQueue(doclabid, csrfToken);
 					//updateDocLabData(doclabid);
 				}
 
@@ -1759,7 +1781,7 @@ function updateStatus(formid){//acknowledge
 
 
 
-function fileDoc(docId){
+function fileDoc(docId, csrfToken){
 	if(docId){
 		docId=docId.replace(/\s/,'');
 		if(docId.length>0){
@@ -1773,8 +1795,12 @@ function fileDoc(docId){
 				if(type){
 					var url='../oscarMDS/FileLabs.do';
 					var data='method=fileLabAjax&flaggedLabId='+docId+'&labType='+type;
-					new Ajax.Request(url, {method: 'post',parameters:data,onSuccess:function(transport){
-						updateDocStatusInQueue(docId);
+                    let headers = {};
+                    if (typeof csrfToken !== 'undefined' && csrfToken !== null) {
+                        headers = csrfToken;
+                    }
+					new Ajax.Request(url, {method: 'post',parameters:data, requestHeaders: headers,onSuccess:function(transport){
+						updateDocStatusInQueue(docId, csrfToken);
 						if (docId) {
 							Effect.Fade('labdoc_'+docId);
 						}
@@ -1793,12 +1819,16 @@ function fileDoc(docId){
 	}
 }
 
-function refileDoc(id) {
+function refileDoc(id, csrfToken) {
     var queueId=document.getElementById('queueList_'+id).options[document.getElementById('queueList_'+id).selectedIndex].value;
     var url=contextpath +"/dms/ManageDocument.do";
     var data='method=refileDocumentAjax&documentId='+id+"&queueId="+queueId;
-    new Ajax.Request(url,{method:'post',parameters:data,onSuccess:function(transport){
-        fileDoc(id);
+    let headers = {};
+    if (typeof csrfToken !== 'undefined' && csrfToken !== null) {
+        headers = csrfToken;
+    }
+    new Ajax.Request(url,{method:'post',parameters:data, requestHeaders: headers,onSuccess:function(transport){
+        fileDoc(id, csrfToken);
     }});
  }
  
@@ -1823,10 +1853,14 @@ function addDocToList(provNo, provName, docId) {
 	providerList.appendChild(adoc);
 }
 
-function removeLink(docType, docId, providerNo, e) {
+function removeLink(docType, docId, providerNo, e, csrfToken) {
 	var url = "../dms/ManageDocument.do";
 	var data = 'method=removeLinkFromDocument&docType=' + docType + '&docId=' + docId + '&providerNo=' + providerNo;
-	new Ajax.Request(url, {method: 'post',parameters:data,onSuccess:function(transport){
+    let headers = {};
+    if (typeof csrfToken !== 'undefined' && csrfToken !== null) {
+        headers = csrfToken;
+    }
+	new Ajax.Request(url, {method: 'post',parameters:data, requestHeaders: headers,onSuccess:function(transport){
 		updateDocLabData(docId);
 	}});
 
@@ -2071,7 +2105,7 @@ function showNext(docid){
 
 }
 
-function addDocComment(docId, providerNo,sync) {
+function addDocComment(docId, providerNo,sync, csrfToken) {
 	
 	var ret = true;
     var comment = "";
@@ -2098,8 +2132,12 @@ function addDocComment(docId, providerNo,sync) {
     	var formid = "acknowledgeForm_" + docId;
     	var data=$(formid).serialize();
     	data += "&method=addComment";
+        let headers = {};
+        if (typeof csrfToken !== 'undefined' && csrfToken !== null) {
+            headers = csrfToken;
+        }
 
-    	new Ajax.Request(url,{method:'post',parameters:data,asynchronous:sync,onSuccess:function(transport){
+    	new Ajax.Request(url,{method:'post',parameters:data,asynchronous:sync, requestHeaders: headers, onSuccess:function(transport){
     				var json=transport.responseText.evalJSON();
     				if(json!=null ){
     					var date = json.date;
@@ -2114,7 +2152,7 @@ function addDocComment(docId, providerNo,sync) {
     }
 }
 
-function getDocComment(docId, providerNo, inQueueB) {
+function getDocComment(docId, providerNo, csrfToken) {
 	
 	var ret = true;
     var comment = "";
@@ -2136,7 +2174,7 @@ function getDocComment(docId, providerNo, inQueueB) {
     	jQuery("#" + "comment_" + docId).val(comment);            	
 
    if(ret) {	   
-	   updateStatus("acknowledgeForm_" + docId ,inQueueB);
+	   updateStatus("acknowledgeForm_" + docId , csrfToken);
    }                    	
 	
 }

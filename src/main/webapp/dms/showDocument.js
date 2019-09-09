@@ -1,7 +1,11 @@
-function handleDocSave(docid,action){
+function handleDocSave(docid,action, csrfToken){
     var url=contextpath + "/dms/inboxManage.do";
     var data='method=isDocumentLinkedToDemographic&docId='+docid;
-    new Ajax.Request(url, {method: 'post',parameters:data,onSuccess:function(transport){
+    let headers = {};
+    if (typeof csrfToken !== 'undefined' && csrfToken !== null) {
+        headers = csrfToken;
+    }
+    new Ajax.Request(url, {method: 'post',parameters:data, requestHeaders: headers, onSuccess:function(transport){
         var json=transport.responseText.evalJSON();
         if(json!=null){
             var success=json.isLinkedToDemographic;
