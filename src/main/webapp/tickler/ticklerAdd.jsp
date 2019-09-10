@@ -123,6 +123,7 @@ GregorianCalendar now=new GregorianCalendar();
 <%@ page import="org.oscarehr.util.LoggedInInfo" %>
 <%@ page import="org.oscarehr.PMmodule.dao.ProgramProviderDAO" %>
 <%@ page import="org.oscarehr.PMmodule.model.ProgramProvider" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <html:html locale="true">
 <head>
 <title><bean:message key="tickler.ticklerAdd.title"/></title>
