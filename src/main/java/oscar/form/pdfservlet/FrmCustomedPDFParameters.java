@@ -113,7 +113,7 @@ public class FrmCustomedPDFParameters {
         if (this.rx == null) { rx = ""; }
         this.patientDOB = request.getParameter("patientDOB");
         this.showPatientDOB = "true".equals(request.getParameter("showPatientDOB"));
-        if (this.showPatientDOB) { patientDOB = ""; }
+        if (!this.showPatientDOB) { patientDOB = ""; }
         this.patientHIN = StringUtils.trimToEmpty(request.getParameter("patientHIN"));
         this.patientChartNo = StringUtils.trimToEmpty(request.getParameter("patientChartNo"));
         this.bandNumber = request.getParameter("bandNumber");
