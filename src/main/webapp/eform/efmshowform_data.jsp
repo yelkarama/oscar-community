@@ -27,7 +27,7 @@
 <%@ page import="oscar.log.LogAction" %>
 <%@ page import="org.oscarehr.util.LoggedInInfo" %>
 <%@ page import="oscar.log.LogConst" %>
-<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
+<%@ page import="oscar.eform.EFormCsrfUtil" %>
 <%
 	String id = request.getParameter("fid");
 	String messageOnFailure = "No eform or appointment is available";
@@ -48,7 +48,9 @@
 	  if (request.getParameter("appointment") != null) { logData += "\nappointment_no=" + request.getParameter("appointment"); }
 	  LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.READ, "eForm",
 			  request.getParameter("fdid"), eForm.getDemographicNo(), logData);
-      out.print(eForm.getFormHtml());
+	  String htmlDocument = eForm.getFormHtml();
+	  htmlDocument = EFormCsrfUtil.addCsrfScriptTagToHtml(htmlDocument, request.getContextPath());
+	  out.print(htmlDocument);
   } else {  //if form is viewed from admin screen
       EForm eForm = new EForm(id, "-1"); //form cannot be submitted, demographic_no "-1" indicate this specialty
       eForm.setContextPath(request.getContextPath());
@@ -59,7 +61,9 @@
 	  if (request.getParameter("appointment") != null) { logData += "\nappointment_no=" + request.getParameter("appointment"); }
 	  LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.READ, "eForm",
 			  request.getParameter("fdid"), eForm.getDemographicNo(), logData);
-      out.print(eForm.getFormHtml());
+	  String htmlDocument = eForm.getFormHtml();
+	  htmlDocument = EFormCsrfUtil.addCsrfScriptTagToHtml(htmlDocument, request.getContextPath());
+	  out.print(htmlDocument);
   }
 %>
 <%
