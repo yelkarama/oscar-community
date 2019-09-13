@@ -867,7 +867,7 @@ THEME 2*/
 							<%if(securityManager.hasWriteAccess("_rx",roleName2$,true)) {%>
                                 <html:form action="/oscarRx/searchDrug"  onsubmit="return checkEnterSendRx();" style="display: inline; margin-bottom:0;" styleId="drugForm">
                                     <div id="interactingDrugErrorMsg" style="display:none"></div>
-                                    <div id="rxText" style="float:left;"></div><br style="clear:left;">
+                                    <div id="rxText"></div><br style="clear:left;">
                                     <input type="hidden" id="deleteOnCloseRxBox" value="false">
 
                                     <html:hidden property="demographicNo" value="<%=new Integer(patient.getDemographicNo()).toString()%>" />
