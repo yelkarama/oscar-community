@@ -120,7 +120,10 @@ public abstract class AbstractDao<T extends AbstractModel<?>> {
 					transaction.commit();
 					transaction.begin();
 				}
-				batchEntityManager.remove(oList.get(i));
+				// Gets the model and gets the reference to it so that it is attached to the new entity manager's session
+				AbstractModel<?> model = oList.get(i);
+				Object entity = batchEntityManager.getReference(model.getClass(), model.getId());
+				batchEntityManager.remove(entity);
 			}
 			transaction.commit();
 		} catch (RuntimeException e) {
