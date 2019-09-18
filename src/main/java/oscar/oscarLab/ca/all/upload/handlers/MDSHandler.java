@@ -68,7 +68,7 @@ public class MDSHandler implements MessageHandler {
 			for (i = 0; i < messages.size(); i++) {
 				String msg = messages.get(i);
 				if(isDuplicate(loggedInInfo,msg)) {
-					return null;
+					continue;
 				}
 				routeResults = new RouteReportResults();
 				String auditLine = MessageUploader.routeReport(loggedInInfo, serviceName, "MDS", msg, fileId, routeResults, autoRoute) + "\n";
@@ -100,22 +100,22 @@ public class MDSHandler implements MessageHandler {
 	private boolean isDuplicate(LoggedInInfo loggedInInfo,String msg) {
 		//OLIS requirements - need to see if this is a duplicate
 		oscar.oscarLab.ca.all.parsers.MessageHandler h = Factory.getHandler("MDS", msg);
-		
-		String acc = h.getAccessionNum() + "|" + "[A-Z0-9]{4}-" + h.getAccessionNum();
-		//do we have this?
-		List<Hl7TextInfo> dupResults = hl7TextInfoDao.searchByAccessionNumberWithRegex(acc);
-		for (Hl7TextInfo result : dupResults) {
-			if (result.getObrDate() != null && !result.getObrDate().isEmpty() && h.getMsgDate() != null && !h.getMsgDate().isEmpty()) {
-				String dt1 = result.getObrDate().replaceAll("\\s*\\d\\d:\\d\\d:\\d\\d(\\s...)?\\s*", "");
-				String dt2 = h.getMsgDate().replaceAll("\\s*\\d\\d:\\d\\d:\\d\\d(\\s...)?.*", "");
-				//If we find a lab with the same accession number & same collection/obr date then we set isDuplicate to true and leave the loop
-				if (dt1.equals(dt2)) {
-					OscarAuditLogger.getInstance().log(loggedInInfo, "Lab", "Skip", "Duplicate lab skipped - accession " + h.getAccessionNum() + "\n" + msg);
-					return true;
+		//if final		
+		if(h.getOrderStatus().equals("F")) {
+			String fullAcc = h.getAccessionNum();
+			
+			//do we have this?
+			List<Hl7TextInfo> dupResults = hl7TextInfoDao.searchByAccessionNumber(fullAcc);
+			for(Hl7TextInfo dupResult:dupResults) {				
+				if(dupResult.getAccessionNumber().substring(5).equals(fullAcc)) {
+					//if(h.getHealthNum().equals(dupResult.getHealthNumber())) {
+					OscarAuditLogger.getInstance().log(loggedInInfo, "Lab", "Skip", "Duplicate lab skipped - accession " + fullAcc + "\n" + msg);
+						return true;
+					//}
 				}
-			}
+				
+			}		
 		}
-
 		return false;	
 	}
 

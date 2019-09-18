@@ -35,8 +35,6 @@ package oscar.oscarLab.ca.all.upload.handlers;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.Hl7TextInfoDao;
@@ -76,7 +74,7 @@ public class GDMLHandler implements MessageHandler {
 
 				String msg = messages.get(i);
 				if(isDuplicate(loggedInInfo, msg)) {
-					return null;
+					return ("success");
 				}
 				
 				routeResults = new RouteReportResults();
@@ -150,30 +148,30 @@ public class GDMLHandler implements MessageHandler {
 	private boolean isDuplicate(LoggedInInfo loggedInInfo, String msg) {
 		//OLIS requirements - need to see if this is a duplicate
 		oscar.oscarLab.ca.all.parsers.MessageHandler h = Factory.getHandler("GDML", msg);
-		
-		String fullAcc = h.getAccessionNum();
-		String acc = h.getAccessionNum();
-		
-		if (acc.matches("\\w{2}-\\w{8}")) {
-			acc = "[A-Z0-9]{4}" + h.getAccessionNum().replace("-", "") + "|" + h.getAccessionNum();
-		} else if (acc.matches("\\w{2}-\\w{6}")) {
-			String[] splitter = acc.split("-");
-			acc = "[A-Z0-9]{4}" + splitter[0] + "00" + splitter[1] + "|" + h.getAccessionNum();
-		}
-		//do we have this?
-		List<Hl7TextInfo> dupResults = hl7TextInfoDao.searchByAccessionNumberWithRegex(acc);
-		for (Hl7TextInfo result : dupResults) {
-			if (result.getObrDate() != null && !result.getObrDate().isEmpty() && h.getMsgDate() != null && !h.getMsgDate().isEmpty()) {
-				String dt1 = result.getObrDate().replaceAll("\\s*\\d\\d:\\d\\d:\\d\\d(\\s...)?\\s*", "");
-				String dt2 = h.getMsgDate().replaceAll("\\s*\\d\\d:\\d\\d:\\d\\d(\\s...)?.*", "");
-				//If we find a lab with the same accession number & same collection/obr date then we set isDuplicate to true and leave the loop
-				if (dt1.equals(dt2)) {
+		//if final		
+		if(h.getOrderStatus().equals("F")) {
+			String fullAcc = h.getAccessionNum();
+			String acc = h.getAccessionNum();
+			if(acc.indexOf("-")!=-1) {
+				acc = acc.substring(acc.indexOf("-")+1);
+			}
+			//do we have this?
+			List<Hl7TextInfo> dupResults = hl7TextInfoDao.searchByAccessionNumber(acc);
+			for(Hl7TextInfo dupResult:dupResults) {
+				if(dupResult.equals(fullAcc)) {
+					//if(h.getHealthNum().equals(dupResult.getHealthNumber())) {
 					OscarAuditLogger.getInstance().log(loggedInInfo, "Lab", "Skip", "Duplicate lab skipped - accession " + fullAcc + "\n" + msg);
 					return true;
+					//}
 				}
-			}
-		}		
-		
+				if(dupResult.getAccessionNumber().length()>4 && dupResult.getAccessionNumber().substring(4).equals(acc)) {
+					//if(h.getHealthNum().equals(dupResult.getHealthNumber())) {
+					OscarAuditLogger.getInstance().log(loggedInInfo, "Lab", "Skip", "Duplicate lab skipped - accession " + fullAcc + "\n" + msg);
+					return true;
+					//}
+				}
+			}		
+		}
 		return false;	
 	}
 }

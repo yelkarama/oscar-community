@@ -95,24 +95,11 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 
 	public List<Hl7TextInfo> searchByAccessionNumber(String acc1, String acc2) {
 
-		String sqlCommand="SELECT x FROM Hl7TextInfo x WHERE x.accessionNumber = ?1 OR x.accessionNumber = ?2";
+		String sqlCommand="select x from Hl7TextInfo x where x.accessionNumber = ?1 OR x.accessionNumber = ?2";
 
 		Query query = entityManager.createQuery(sqlCommand);
 		query.setParameter(1,acc1);
 		query.setParameter(2,acc2);
-
-		@SuppressWarnings("unchecked")
-		List<Hl7TextInfo> results = query.getResultList();
-
-		return results;
-	}
-	
-	public List<Hl7TextInfo> searchByAccessionNumberWithRegex(String regex) {
-
-		String sqlCommand="SELECT * FROM hl7TextInfo x WHERE x.accessionNum REGEXP :regex ";
-
-		Query query = entityManager.createNativeQuery(sqlCommand, Hl7TextInfo.class);
-		query.setParameter("regex",regex);
 
 		@SuppressWarnings("unchecked")
 		List<Hl7TextInfo> results = query.getResultList();
