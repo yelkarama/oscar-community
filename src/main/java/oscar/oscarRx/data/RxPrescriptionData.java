@@ -41,8 +41,10 @@ import org.oscarehr.common.dao.DrugDao;
 import org.oscarehr.common.dao.FavoriteDao;
 import org.oscarehr.common.dao.IndivoDocsDao;
 import org.oscarehr.common.dao.PrescriptionDao;
+import org.oscarehr.common.model.DigitalSignature;
 import org.oscarehr.common.model.Drug;
 import org.oscarehr.common.model.IndivoDocs;
+import org.oscarehr.util.DigitalSignatureUtils;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -525,8 +527,8 @@ public class RxPrescriptionData {
 		 */
 		String provider_no = bean.getProviderNo();
 		int demographic_no = bean.getDemographicNo();
-
 		Date today = oscar.oscarRx.util.RxUtil.Today();
+		DigitalSignature digitalSignature = DigitalSignatureUtils.storeSignatureStamp(loggedInInfo, demographic_no);
 		//String date_prescribed = oscar.oscarRx.util.RxUtil.DateToString(today, "yyyy/MM/dd");
 		//String date_printed = date_prescribed;
 
@@ -583,7 +585,9 @@ public class RxPrescriptionData {
 		rx.setDatePrescribed(today);
 		rx.setDatePrinted(today);
 		rx.setTextView(textView.toString());
-
+		if(digitalSignature != null) {
+			rx.setSignatureId(digitalSignature.getId());
+		}
 		PrescriptionDao dao = SpringUtils.getBean(PrescriptionDao.class);
 		dao.persist(rx);
 		return rx.getId().toString();
