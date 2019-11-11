@@ -335,7 +335,16 @@ public class SFTPConnector {
 		cmd.cd(serverDirectory);
 		for (String file : filenames) {
 			if (file != null) {
-				cmd.rm(file);
+				logger.debug("About to delete server file " + file);
+				if(file.indexOf("/") != -1) {
+					file = file.substring(file.lastIndexOf("/")+1,file.length());
+					logger.debug("file to delete is now " + file);
+				}
+				try {
+					cmd.rm(file);
+				}catch(SftpException e) {
+					logger.error("Error deleting file",e);
+				}
 
 				fLogger.info("Deleted file " + file + " from server");
 				logger.debug("Deleted server file " + file);
@@ -443,9 +452,15 @@ public class SFTPConnector {
 	 * Close channels, disconnect sessions, release/close file handlers.
 	 */
 	public void close() {
-		cmd.exit();
-		sess.disconnect();
-		fLogger.getHandlers()[0].close();
+		if(cmd != null) {
+			cmd.exit();
+		}
+		if(sess != null) {
+			sess.disconnect();
+		}
+		if(fLogger != null && fLogger.getHandlers() != null && fLogger.getHandlers().length>0) {
+			fLogger.getHandlers()[0].close();
+		}
 	}
 
 	/********************************************************/
