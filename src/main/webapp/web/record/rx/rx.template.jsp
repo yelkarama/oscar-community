@@ -183,6 +183,7 @@
 			</div>
         		<medsearch med-selected="$ctrl.medSelected(med)" fav-selected="$ctrl.favSelected(fav)" favourite-meds="$ctrl.page.favouriteDrugs" custom-rx="$ctrl.customRx(nam)"></medsearch>	
         		<button type="button" class="btn btn-primary btn-block" style="margin-top:3px;" ng-click="$ctrl.saveAndPrint()">Save And Print</button>
+        		<h6><small>Preferred Pharmacy:</small> {{$ctrl.getCurrentPharmacy().name}} </h6>
 		</div>
 		<hr>
 		<div class="row">

@@ -28,6 +28,9 @@ angular.module("rxServices", [])
     .service("rxService", function ($http, $q, $log) {
         return {
             apiPath: '../ws/rs/rx',
+    			configHeaders: {headers: {"Content-Type": "application/json","Accept":"application/json"}},
+    			configHeadersWithCache: {headers: {"Content-Type": "application/json","Accept":"application/json"},cache: true},
+    			
             getMedications: function (demographicNo, status) {
                 console.log("Debug: calling getMedications, demo="+demographicNo);
                 var deferred = $q.defer();
@@ -497,6 +500,33 @@ angular.module("rxServices", [])
                     deferred.resolve(data);
                 },function () {
                     deferred.reject("An error occurred while attempting to get medication details");
+                });
+
+                return deferred.promise;
+
+            },
+            getDemographicPharmacies : function(demographicNo){
+
+                var deferred = $q.defer();
+                var queryPath = this.apiPath + "/pharmacy/"+demographicNo
+                console.log("Pharma to transfer",meds);
+                $http.post(queryPath).then(function (data) {
+                    deferred.resolve(data);
+                },function () {
+                    deferred.reject("An error occurred while attempting to get pharma details");
+                });
+
+                return deferred.promise;
+            },
+            getPharmacies : function(){
+
+                var deferred = $q.defer();
+                var queryPath = "../ws/rs/pharmacies";
+                console.log("Pharma to transfer",meds);
+                $http.get(queryPath).then(function (data) {
+                    deferred.resolve(data);
+                },function () {
+                    deferred.reject("An error occurred while attempting to get pharma details");
                 });
 
                 return deferred.promise;

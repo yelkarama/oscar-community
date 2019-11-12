@@ -81,7 +81,7 @@ const RxPrintComponent = {
  		console.log("oninit print component",this);
 
  		rxPrint.printId = this.resolve.scriptId;
- 		rxPrint.pharamacyId = null;
+ 		rxPrint.pharamacyId = this.resolve.pharamacyId;
  		rxPrint.scriptURL = "../web/record/rx/print/PrintView.jsp?scriptId="+rxPrint.printId+"&rePrint=false&pharmacyId="+rxPrint.pharamacyId;
  		rxService.recordPrescriptionPrint(rxPrint.printId);
  	}
