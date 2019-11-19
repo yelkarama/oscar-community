@@ -155,7 +155,7 @@
 					<th>Action</th>
 				</tr>
 				<tr ng-repeat="drug in $ctrl.rxComp.allDrugsList | filter:$ctrl.drugProfileFilter | orderBy: '-rxDate'"
-					ng-if="drug.archived">
+					ng-if="drug.archived && drug.archivedReason != 'represcribed'">
 					
 					<td ng-class="{ 'deletedItem': drug.archived }" >
 						<a ng-click="$ctrl.medhistory(drug)">{{drug.instructions}}</a>
