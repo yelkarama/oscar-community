@@ -87,6 +87,7 @@ INSERT INTO ctl_doctype (module,doctype,status) VALUES ('provider','others','A')
 INSERT INTO ctl_doctype (module,doctype,status) VALUES ('provider','share','A');
 INSERT INTO ctl_doctype (module,doctype,status) VALUES ('provider','photo','A');
 INSERT INTO `ctl_doctype` (`module`, `doctype`, `status`, `id`) VALUES('provider','invoice letterhead','A',null);
+INSERT INTO `ctl_doctype`(`module`, `doctype`, `status`) VALUES ('demographic', 'econsult', 'A');
 
 --
 -- Dumping data for table 'ctl_doc_class'
@@ -325,7 +326,7 @@ INSERT INTO ctl_specialinstructions VALUES (26,'Insert in both eyes');
 --
 
 -- It doesn't work and is not useful.
--- INSERT INTO demographic VALUES (1,'Mr.','TEST','PATIENT','','','ON','','905-','','','','1998','06','15','','','','AC','2003-06-04','','','999998','M','0001-01-01','0001-01-01',NULL,'ON','0001-01-01','<rdohip></rdohip><rd></rd>','','','','','','','','');
+-- INSERT INTO demographic VALUES (1,'Mr.','TEST','PATIENT','','','ON','','905-','','','','1998','06','15','','','','AC','2003-06-04','','','999998','M','0001-01-01','0001-01-01',NULL,'ON','0001-01-01','<rdohip></rdohip><rd></rd>','','','','','','','','',NULL);
 
 --
 -- Dumping data for table 'demographicaccessory'
@@ -1904,6 +1905,7 @@ insert into `secObjectName` (`objectName`) values ('_dashboardDrilldown');
 insert into `secObjectName` (`objectName`) values ('_dashboardChgUser');
 
 insert into `secObjectName` (`objectName`) values ('_admin.demographic');
+insert into `secObjectName` (`objectName`) values ('_newCasemgmt.eaaps');
 
 insert into `secObjPrivilege` values('receptionist', '_appointment', 'x', 0, '999998');
 insert into `secObjPrivilege` values('receptionist', '_demographic', 'x', 0, '999998');
@@ -2097,7 +2099,7 @@ insert into `secObjPrivilege` values('admin','_appDefinition','x',0,'999998');
 insert into `secObjPrivilege` values('admin','_demographicExport','x',0,'999998');
 insert into `secObjPrivilege` values('admin','_admin.document','x',0,'999998');
 insert into `secObjPrivilege` values('admin','_admin.demographic','u',0,'999998');
-
+insert into `secObjPrivilege` values('doctor','_newCasemgmt.eaaps','x',0,'999998');
 
 
 -- for defaultqueue
@@ -2438,6 +2440,7 @@ INSERT INTO `appointment_status` VALUES
 (11,'N','No Show','#cccccc','noshow.gif',1,0,0,'NOSHO'),
 (12,'C','Cancelled','#999999','cancel.gif',1,0,0,'CAN'),
 (13,'B','Billed','#3ea4e1','billed.gif',1,0,0,'BILL'),
+(14,'h','Confirmed','#2fcccf','thumb.png',1,0,0,'CONFI'),
 (6,'a','Customized 1','#897DF8','1.gif',1,1,0,'CUST1'),
 (7,'b','Customized 2','#897DF8','2.gif',1,1,0,'CUST2'),
 (8,'c','Customized 3','#897DF8','3.gif',0,1,0,'CUST3'),
