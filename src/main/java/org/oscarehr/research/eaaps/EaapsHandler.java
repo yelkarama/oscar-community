@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -155,7 +156,7 @@ public class EaapsHandler extends DefaultGenericHandler implements oscar.oscarLa
 		if (fileName != null) {
 			String provider = getProvider(message, demo); 
 						
-			String description = "eAAPS Action plan for " + demo.getFormattedName();
+			String description = "Asthma Action Plan for " + demo.getFormattedName();
 
 			EDoc doc = createEDoc(message, fileName, demo, description);
 			// save edoc
@@ -270,7 +271,7 @@ public class EaapsHandler extends DefaultGenericHandler implements oscar.oscarLa
         systemMessage.setType(OscarMsgType.GENERAL_TYPE);
         systemMessage.setSentByNo(SYSTEM_USER_ID);
         systemMessage.setSentBy("System");
-        systemMessage.setSubject("eAAPS: Recommendations ready for " + demo.getFormattedName());
+        systemMessage.setSubject("Electronic Asthma Management System (eAMS): Recommendations ready for " + demo.getFormattedName());
         systemMessage.setMessage(mrpNote);
         systemMessage.setAttachedDemographicNo(new Integer[] {demo.getDemographicNo()});
         
