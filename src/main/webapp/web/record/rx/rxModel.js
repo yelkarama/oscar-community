@@ -236,7 +236,28 @@ Drug.prototype.toDrugTransferObject = function (drugKey) {
 
             archived: false,
             archivedReason: this.archivedReason,
-            archivedDate: this.archivedDate
+            archivedDate: this.archivedDate,
+            
+            externalProvider: this.externalProvider,
+            outsideProviderOhip: this.outsideProviderOhip,
+            
+            refillDuration: this.refillDuration,
+            	refillQuantity: this.refillQuantity,
+            	
+            dispenseInterval: this.dispenseInterval,
+            patientCompliance: this.patientCompliance,
+            nonAuthoritative: this.nonAuthoritative,
+
+            pickupDate: this.pickupDate,
+
+            protocol: this.protocol,
+
+            priorRxProtocol: this.priorRxProtocol,
+
+            eTreatmentType: this.eTreatmentType,
+
+            rxStatus: this.rxStatus
+            
     };
 
     
@@ -316,6 +337,26 @@ Drug.prototype.fromDrugTransferObject = function (obj) {
     // not a new medication if we are unpacking from
     // a transfer object.
     this.newMed = false;
+
+    this.outsideProviderOhip = obj.outsideProviderOhip;
+    
+    this.refillDuration = obj.refillDuration;
+    this.refillQuantity = obj.refillQuantity;
+    	
+    	this.dispenseInterval = obj.dispenseInterval;
+    this.patientCompliance = obj.patientCompliance;
+    this.nonAuthoritative = obj.nonAuthoritative;
+
+    this.pickupDate = obj.pickupDate;
+
+    this.protocol = obj.protocol;
+
+    this.priorRxProtocol = obj.priorRxProtocol;
+
+    this.eTreatmentType = obj.eTreatmentType;
+
+    this.rxStatus = obj.rxStatus;
+     
 };
 
 /**

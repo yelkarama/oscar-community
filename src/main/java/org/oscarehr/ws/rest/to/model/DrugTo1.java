@@ -96,15 +96,30 @@ public class DrugTo1 implements Serializable {
     private String strengthUnit;
 
     private String externalProvider;
+    
+    private String outsideProviderOhip;
 
     private Boolean longTerm;
 
     private Boolean noSubstitutions;
     
     private Boolean dispenseInternal = null;
-    private String dispenseIntervalNumber = null;
+    private String dispenseInterval = null;
     private Integer refillDuration = null;
     private Integer refillQuantity = null;
+    	
+    private Boolean patientCompliance = null;
+    private Boolean nonAuthoritative = null;
+
+    private Date pickupDate = null;
+    //private pickupTime: this.pickupTime,
+
+    private String protocol = null;
+    private String priorRxProtocol = null;
+
+    private String eTreatmentType = null;
+
+    private String rxStatus = null;
     
 
     public String getAdditionalInstructions() {
@@ -371,14 +386,6 @@ public class DrugTo1 implements Serializable {
 		this.dispenseInternal = dispenseInternal;
 	}
 
-	public String getDispenseIntervalNumber() {
-		return dispenseIntervalNumber;
-	}
-
-	public void setDispenseIntervalNumber(String dispenseIntervalNumber) {
-		this.dispenseIntervalNumber = dispenseIntervalNumber;
-	}
-
 	public Integer getRefillDuration() {
 		return refillDuration;
 	}
@@ -393,5 +400,77 @@ public class DrugTo1 implements Serializable {
 
 	public void setRefillQuantity(Integer refillQuantity) {
 		this.refillQuantity = refillQuantity;
+	}
+
+	public String getOutsideProviderOhip() {
+		return outsideProviderOhip;
+	}
+
+	public void setOutsideProviderOhip(String outsideProviderOhip) {
+		this.outsideProviderOhip = outsideProviderOhip;
+	}
+
+	public Boolean getPatientCompliance() {
+		return patientCompliance;
+	}
+
+	public void setPatientCompliance(Boolean patientCompliance) {
+		this.patientCompliance = patientCompliance;
+	}
+
+	public Boolean getNonAuthoritative() {
+		return nonAuthoritative;
+	}
+
+	public void setNonAuthoritative(Boolean nonAuthoritative) {
+		this.nonAuthoritative = nonAuthoritative;
+	}
+
+	public Date getPickupDate() {
+		return pickupDate;
+	}
+
+	public void setPickupDate(Date pickupDate) {
+		this.pickupDate = pickupDate;
+	}
+
+	public String getProtocol() {
+		return protocol;
+	}
+
+	public void setProtocol(String protocol) {
+		this.protocol = protocol;
+	}
+
+	public String getPriorRxProtocol() {
+		return priorRxProtocol;
+	}
+
+	public void setPriorRxProtocol(String priorRxProtocol) {
+		this.priorRxProtocol = priorRxProtocol;
+	}
+
+	public String geteTreatmentType() {
+		return eTreatmentType;
+	}
+
+	public void seteTreatmentType(String eTreatmentType) {
+		this.eTreatmentType = eTreatmentType;
+	}
+
+	public String getRxStatus() {
+		return rxStatus;
+	}
+
+	public void setRxStatus(String rxStatus) {
+		this.rxStatus = rxStatus;
+	}
+
+	public String getDispenseInterval() {
+		return dispenseInterval;
+	}
+
+	public void setDispenseInterval(String dispenseInterval) {
+		this.dispenseInterval = dispenseInterval;
 	}
 }

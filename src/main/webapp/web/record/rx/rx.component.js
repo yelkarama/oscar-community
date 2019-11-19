@@ -97,17 +97,37 @@ const RxComponent = {
 		
 
 		
+		rxComp.showSpecialInstructions = function(med){
+			med.additionalInstructions = "";
+			window.setTimeout(function (){
+				document.getElementById('specailInstructionsInput').focus();
+			}, 0);
+			
+			
+		}
 		
+		rxComp.isSpecailInstructionsShow = function(med){
+			if(med.additionalInstructions == null){
+				return false;
+			}
+			return true;
+		}
 		
 		
 		rxComp.isCurrentEntryStyle = function(stat){
-			   console.log("stat",stat,rxComp.page.currentEntryStyle,(stat == rxComp.page.currentEntryStyle));
 			   if(stat == rxComp.page.currentEntryStyle){
 				   return "active";
 			   }else{
 				   return "";
 			   }
 
+		}
+		
+		rxComp.isCurrentEntryStyleBoolean = function(stat){
+			   if(stat == rxComp.page.currentEntryStyle){
+				   return true;
+			   }
+			   return false;
 		}
 		
 		rxComp.changeCurrentEntryStyle = function(stat){
@@ -422,6 +442,7 @@ const RxComponent = {
 									newMed.newMed = true;
 									newMed.repeats = 0;
 									newMed.writtenDate = new Date();
+									newMed.additionalInstructions = null;
 									// if(angular.isDefined(newMed.id)){
 									// delete newMed.id;
 									// }
