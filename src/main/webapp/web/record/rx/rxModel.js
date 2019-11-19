@@ -206,6 +206,7 @@ Drug.prototype.toDrugTransferObject = function (drugKey) {
             customName: this.customName,
             atc: this.atc,
             regionalIdentifier: this.regionalIdentifier,
+            gcnSeqNo: this.gcnSeqNo,
 
             strength: this.strength,
             strengthUnit: this.strengthUnit,
@@ -374,6 +375,7 @@ Drug.prototype.populateFromDrugSearchDetails = function (t) {
     this.form = t.form;
     this.atc = t.atc;
     this.regionalIdentifier = t.regionalId;
+    this.gcnSeqNo = t.id;
 
     if (!(t.component instanceof Array)) {
 

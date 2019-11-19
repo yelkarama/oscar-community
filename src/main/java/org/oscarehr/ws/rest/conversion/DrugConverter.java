@@ -81,6 +81,9 @@ public class DrugConverter extends AbstractConverter<Drug, DrugTo1> {
             }else {
                d.setProviderNo(t.getProviderNo()); // Cast to string.
             }
+            if(t.getGcnSeqNo() != null) {
+            		d.setGcnSeqNo(t.getGcnSeqNo());
+            }
             d.setAtc(t.getAtc());
             d.setRegionalIdentifier(t.getRegionalIdentifier());
             d.setDosage(t.getStrength() + t.getStrengthUnit());

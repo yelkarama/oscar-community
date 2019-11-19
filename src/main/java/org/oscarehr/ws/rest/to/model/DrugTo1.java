@@ -43,6 +43,8 @@ public class DrugTo1 implements Serializable {
     private String genericName;
     
     private String customName;
+    
+    private Integer gcnSeqNo;
 
     private String atc;
 
@@ -472,5 +474,13 @@ public class DrugTo1 implements Serializable {
 
 	public void setDispenseInterval(String dispenseInterval) {
 		this.dispenseInterval = dispenseInterval;
+	}
+
+	public Integer getGcnSeqNo() {
+		return gcnSeqNo;
+	}
+
+	public void setGcnSeqNo(Integer gcnSeqNo) {
+		this.gcnSeqNo = gcnSeqNo;
 	}
 }
