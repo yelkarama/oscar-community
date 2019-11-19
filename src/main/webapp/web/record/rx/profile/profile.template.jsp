@@ -57,7 +57,10 @@
 			<td ng-class="{ 'deletedItem': drug.archived }">
 				<a ng-click="$ctrl.medhistory(drug)">{{drug.instructions}}</a>
 				<div ng-if="drug.externalProvider"><em>External Prescribed by {{drug.externalProvider}}</em></div>
-				<div  ng-repeat="warning in $ctrl.dsMessagesHash[drug.atc]">   	
+				<div ng-if="$ctrl.dsMessagesHash[drug.atc].length > 0 && !$ctrl.hasShowFullWarnings(drug.atc)">
+					<a ng-class="'alert-' + ($ctrl.getHighestAlertStyle($ctrl.dsMessagesHash[drug.atc]) || 'warning')" ng-click="$ctrl.addShowFullWarnings(drug.atc)"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> {{$ctrl.dsMessagesHash[drug.atc].length}} Warnings</a>
+				</div>
+				<div ng-show="$ctrl.hasShowFullWarnings(drug.atc)" ng-repeat="warning in $ctrl.dsMessagesHash[drug.atc]">   	
 					<a ng-hide="$ctrl.checkIfHidden(warning)" ng-class="'alert-' + ($ctrl.getAlertStyl(warning) || 'warning')" ng-click="$ctrl.showAlert({'alert':warning})"><span <%-- style="color:red" --%> class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> {{$ctrl.getHeading(warning)}}</a>
 				</div>
 			</td>
@@ -109,7 +112,11 @@
 					<td ng-class="{ 'deletedItem': drug.archived }">
 						<a ng-click="$ctrl.medhistory(drug)">{{drug.instructions}}</a>
 					    <div ng-if="drug.externalProvider"><em>External Prescribed by {{drug.externalProvider}}</em></div>
-					    <div  ng-repeat="warning in $ctrl.dsMessagesHash[drug.atc]">
+					    
+					    <div ng-if="$ctrl.dsMessagesHash[drug.atc].length > 0 && !$ctrl.hasShowFullWarnings(drug.atc)">
+							<a ng-class="'alert-' + ($ctrl.getHighestAlertStyle($ctrl.dsMessagesHash[drug.atc]) || 'warning')" ng-click="$ctrl.addShowFullWarnings(drug.atc)"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> {{$ctrl.dsMessagesHash[drug.atc].length}} Warnings</a>
+						</div>
+						<div ng-show="$ctrl.hasShowFullWarnings(drug.atc)"  ng-repeat="warning in $ctrl.dsMessagesHash[drug.atc]">
 					    		<a ng-hide="$ctrl.checkIfHidden(warning)"  ng-class="'alert-' + ($ctrl.getAlertStyl(warning) || 'warning')" ng-click="$ctrl.showAlert({'alert':warning})"><span <%-- style="color:red" --%> class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> {{$ctrl.getHeading(warning)}}</a>
 					    	</div>
 					</td>

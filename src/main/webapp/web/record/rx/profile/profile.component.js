@@ -21,9 +21,20 @@ const RxProfileComponent = {
   		rxProfileComp.mode = 0;
   		rxProfileComp.tab = 0;
   		rxProfileComp.dsMessagesHash = {};
+  		rxProfileComp.showFullWarnings = {};
 
  	}
   	
+  	rxProfileComp.addShowFullWarnings = function(atc){
+  		rxProfileComp.showFullWarnings[atc] = atc;
+  	}
+
+  	rxProfileComp.hasShowFullWarnings = function(atc){
+  		if(rxProfileComp.showFullWarnings[atc] != null){
+  			return true;
+  		}
+  		return false;
+  	}
   	
   	
   	rxProfileComp.$onChanges = function(changesObj){
@@ -118,6 +129,19 @@ const RxProfileComponent = {
   			return warn.heading;
   		}
   		return warn.summary;
+  	}
+  	
+  	rxProfileComp.getHighestAlertStyle = function(alerts){ 
+  		var i;
+  		var highestAlert = 0;
+  		for (i = 0; i < alerts.length; i++) {
+  			if(alerts[i].significance > highestAlert){
+  				highestAlert = alerts[i].significance;
+  			} 
+  		}
+  		retAlert = {};
+  		retAlert.significance = highestAlert;
+  		return rxProfileComp.getAlertStyl(retAlert);
   	}
   	
   	rxProfileComp.getAlertStyl = function(alert) {
