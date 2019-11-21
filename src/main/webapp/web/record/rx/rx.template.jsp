@@ -224,15 +224,6 @@
 											<label class="radio-inline"><input type="radio" name="inlineRadioOptions" ng-model="med.patientCompliance" id="inlineRadio1" value="true"> <bean:message key="WriteScript.msgYes" /></label>
 											<label class="radio-inline"><input type="radio" name="inlineRadioOptions" ng-model="med.patientCompliance" id="inlineRadio2" value="false"> <bean:message key="WriteScript.msgNo" /></label>
 											<label class="radio-inline"><input type="radio" name="inlineRadioOptions" ng-model="med.patientCompliance" id="inlineRadio3" value="null"> <bean:message key="WriteScript.msgUnset" /></label>
-											<%-- span id="patientCompliantSelection"> 
-												<label for="patientComplianceY"><bean:message key="WriteScript.msgYes" /></label> 
-												<input type="radio" value="true" ng-model="med.patientCompliance" /> 
-												<label for="patientComplianceN"><bean:message key="WriteScript.msgNo" /></label> 
-												<input type="radio" value="false" ng-model="med.patientCompliance" id="patientComplianceN_" />
-												<label for="patientComplianceE"><bean:message key="WriteScript.msgUnset" /></label> 
-												<input type="radio" value="null" ng-model="med.patientCompliance" id="patientComplianceE_" />
-											</span>
-											--%>
 										</div>
 									</div>
 								</div>
