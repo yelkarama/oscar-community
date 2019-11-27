@@ -19,6 +19,7 @@ const RxComponent = {
 			rxComp.page.dsMessageList = [];
 			rxComp.page.dsMessageHash = {};
 			rxComp.page.favouriteDrugs = [];
+			rxComp.page.medResources = [];
 
 			rxComp.toRxList = []; // might want to cache this server
 									// side and check back so that we
@@ -29,9 +30,15 @@ const RxComponent = {
 
 			rxService.favorites($stateParams.demographicNo, null,rxComp.processFavourites);
 
-			getRightItems();
-			getLeftItems();
+			rxService.getMedResources().then(function(data) {
+				rxComp.page.medResources = data.data;
+				getRightItems();
+			}, function(errorMessage) {
+				console.log("getMedications++" + errorMessage);
+				rxComp.error = errorMessage;
+			});
 
+			getLeftItems();	
 		}
 
 		getMeds = function() {
@@ -387,8 +394,7 @@ const RxComponent = {
 				summaryLists[itemsToFill[i].summaryCode] = itemsToFill[i];
 				
 				if(itemsToFill[i].summaryCode === "dssupport"){
-					itemsToFill[i].launchButtons = [{name:"TaperMD",id:"23"}]
-					
+					itemsToFill[i].launchButtons = rxComp.page.medResources;
 				}
 					
 

@@ -1094,4 +1094,44 @@ public class AppService extends AbstractServiceImpl {
 		}
 		return response;
 	}
+	
+	@POST
+	@Path("/initTaper/")
+	@Produces("application/json")
+	@Consumes("application/json")
+	public GenericRESTResponse initTaper(JSONObject clinicName,@Context HttpServletRequest request){
+		if (!securityInfoManager.hasPrivilege(getLoggedInInfo(), "_appDefinition", "w", null)) {
+			throw new RuntimeException("Access Denied");
+		}
+		
+		String name = (String) clinicName.get("institutionId");
+		if (name==null || name.trim().isEmpty()){
+			throw new RuntimeException("Invalid institutionId id ["+name+"]");
+		}
+
+		AppDefinition taperNew = appManager.getAppDefinition(getLoggedInInfo(), "TAPER"); 
+		if(taperNew != null){
+			taperNew.setConfig(clinicName.toString());
+			appManager.updateAppDefinition(getLoggedInInfo(), taperNew);
+		}else {
+			taperNew = new AppDefinition();		      
+			taperNew.setActive(true);
+			taperNew.setAdded(new Date());
+			taperNew.setAppType(AppDefinition.JWT_TYPE);
+			taperNew.setName("TAPER");
+			taperNew.setConfig(clinicName.toString());
+			taperNew.setAddedBy(getLoggedInInfo().getLoggedInProviderNo());
+			appManager.saveAppDefinition(getLoggedInInfo(),  taperNew);
+
+		}
+		
+		
+		
+		   
+	      
+	    
+		return  new GenericRESTResponse(false,"Taper active");
+	}
+	
+	
 }

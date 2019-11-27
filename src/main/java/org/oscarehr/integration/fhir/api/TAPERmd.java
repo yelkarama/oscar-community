@@ -25,6 +25,7 @@ import org.hl7.fhir.dstu3.model.Identifier;
 import org.hl7.fhir.dstu3.model.Quantity;
 import org.hl7.fhir.dstu3.model.Observation.ObservationComponentComponent;
 import org.hl7.fhir.dstu3.model.Observation.ObservationStatus;
+import org.oscarehr.common.model.AppDefinition;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Drug;
 import org.oscarehr.common.model.Measurement;
@@ -33,6 +34,7 @@ import org.oscarehr.integration.fhir.builder.FhirBundleBuilder;
 import org.oscarehr.integration.fhir.manager.OscarFhirConfigurationManager;
 import org.oscarehr.integration.fhir.resources.Settings;
 import org.oscarehr.integration.fhir.resources.constants.FhirDestination;
+import org.oscarehr.managers.AppManager;
 import org.oscarehr.managers.DemographicManager;
 import org.oscarehr.managers.MeasurementManager;
 import org.oscarehr.managers.PrescriptionManager;
@@ -42,8 +44,6 @@ import org.oscarehr.util.SpringUtils;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTCreationException;
-
 import oscar.OscarProperties;
  
 
@@ -144,7 +144,7 @@ public class TAPERmd {
 		logger.debug("messageJson:"+messageJson);
 		//Send to Taper REST service with bearer token
 		
-		String bearerToken = createBearerToken(""+demographicNo,"patientName",loggedInInfo.getLoggedInProvider().getFormattedName(),loggedInInfo.getLoggedInProviderNo());
+		String bearerToken = createBearerToken(loggedInInfo,""+demographicNo,"patientName",loggedInInfo.getLoggedInProvider().getFormattedName(),loggedInInfo.getLoggedInProviderNo());
 		logger.debug("bearerToken:"+bearerToken);
 		
 		String url = "https://demo.tapermd.org/functions/oscar.php";
@@ -184,19 +184,24 @@ public class TAPERmd {
   	 "provider_name": "Johnson,Ron",
   	 "provider_id":"44444", 
 	 */
-	String createBearerToken(String subject,String patientName, String providerName, String providerId) {
+	String createBearerToken(LoggedInInfo loggedInInfo,String subject,String patientName, String providerName, String providerId) {
 		String token = null;
 		try {
-		    Algorithm algorithm = Algorithm.HMAC256("secret");
+			AppManager appManager = SpringUtils.getBean(AppManager.class);
+			AppDefinition appDef = appManager.getAppDefinition(loggedInInfo, "TAPER");
+			org.codehaus.jettison.json.JSONObject configObject = new org.codehaus.jettison.json.JSONObject(appDef.getConfig());
+			
+		    Algorithm algorithm = Algorithm.HMAC256(configObject.getString("clinicKey"));
 		    token = JWT.create()
 		        .withIssuer("auth0")
+		        .withClaim("institutionId",configObject.getString("institutionId"))
 		        .withClaim("patient_name", patientName)
 		        .withSubject(subject)
 		        .withClaim("provider_name", providerName) 
 		        .withClaim("provider_id", providerId) 
 		        .sign(algorithm);
-		} catch (JWTCreationException exception){
-		    //Invalid Signing configuration / Couldn't convert Claims.
+		} catch (Exception exception){
+			logger.error("Error creating bearer token",exception);
 		}
 		return token;
 	}

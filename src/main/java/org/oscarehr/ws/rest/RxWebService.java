@@ -39,6 +39,7 @@ import org.oscarehr.common.model.Drug;
 import org.oscarehr.common.model.Favorite;
 import org.oscarehr.common.model.Prescription;
 import org.oscarehr.integration.fhir.api.TAPERmd;
+import org.oscarehr.managers.AppManager;
 import org.oscarehr.managers.DemographicManager;
 import org.oscarehr.managers.PrescriptionManager;
 import org.oscarehr.managers.RxManager;
@@ -106,6 +107,9 @@ public class RxWebService extends AbstractServiceImpl {
     
     @Autowired
     protected PrescriptionManager prescriptionManager;
+    
+    @Autowired
+    protected AppManager appManager;
 
     @GET
     @Path("/drugs")
@@ -621,13 +625,17 @@ public class RxWebService extends AbstractServiceImpl {
     		if("TaperMD".equals(medResource.getName())){
     			TAPERmd taperMD = new TAPERmd();
     			String urlToLaunch =  taperMD.callService(getLoggedInInfo(),demographicNo);
-    		
-    			resp.setSuccess(true);
-    			resp.setMessage(urlToLaunch);
+    			if(urlToLaunch != null) {
+    				resp.setSuccess(true); 
+    				resp.setMessage(urlToLaunch);
+    			}else {
+    				resp.setSuccess(false); 
+    				resp.setMessage("Error: Please contact support");
+    			}
     			
     		}else {
     			resp.setSuccess(false);
-    			resp.setMessage(null);
+    			resp.setMessage("Med Resource unknown. ");
     		}
     		
     		return resp;
@@ -639,9 +647,11 @@ public class RxWebService extends AbstractServiceImpl {
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public List<MedResourceTo1> getMedResources(){
     		List<MedResourceTo1> retList = new ArrayList<MedResourceTo1>();
-    		MedResourceTo1 md = new MedResourceTo1();
-    		md.setId(1);
-    		md.setName("TaperMD");
+    		if(appManager.getAppDefinition(getLoggedInInfo(), "TAPER") != null) {
+    			MedResourceTo1 md = new MedResourceTo1();
+    			md.setName("TaperMD");
+    			retList.add(md);
+    		}
     		
     		return retList;
     }
