@@ -38,6 +38,7 @@ import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Drug;
 import org.oscarehr.common.model.Favorite;
 import org.oscarehr.common.model.Prescription;
+import org.oscarehr.integration.fhir.api.TAPERmd;
 import org.oscarehr.managers.DemographicManager;
 import org.oscarehr.managers.PrescriptionManager;
 import org.oscarehr.managers.RxManager;
@@ -52,6 +53,7 @@ import org.oscarehr.ws.rest.conversion.PrescriptionConverter;
 import org.oscarehr.ws.rest.to.*;
 import org.oscarehr.ws.rest.to.model.DrugTo1;
 import org.oscarehr.ws.rest.to.model.FavoriteTo1;
+import org.oscarehr.ws.rest.to.model.MedResourceTo1;
 import org.oscarehr.ws.rest.to.model.PrescriptionTo1;
 import org.oscarehr.ws.rest.to.model.PrintPointTo1;
 import org.oscarehr.ws.rest.to.model.PrintRxTo1;
@@ -608,6 +610,44 @@ public class RxWebService extends AbstractServiceImpl {
         return resp;
 
     }
+    
+    
+    @Path("/launchMedResource/{demographicNo}")
+    @POST
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    public GenericRESTResponse launchMedResource(MedResourceTo1 medResource, @PathParam("demographicNo") int demographicNo){
+    		GenericRESTResponse resp = new GenericRESTResponse();
+    		if("TaperMD".equals(medResource.getName())){
+    			TAPERmd taperMD = new TAPERmd();
+    			String urlToLaunch =  taperMD.callService(getLoggedInInfo(),demographicNo);
+    		
+    			resp.setSuccess(true);
+    			resp.setMessage(urlToLaunch);
+    			
+    		}else {
+    			resp.setSuccess(false);
+    			resp.setMessage(null);
+    		}
+    		
+    		return resp;
+    }
+    
+    @Path("/getMedResources")
+    @GET
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    public List<MedResourceTo1> getMedResources(){
+    		List<MedResourceTo1> retList = new ArrayList<MedResourceTo1>();
+    		MedResourceTo1 md = new MedResourceTo1();
+    		md.setId(1);
+    		md.setName("TaperMD");
+    		
+    		return retList;
+    }
+    
+    
+    
     
     
     @GET

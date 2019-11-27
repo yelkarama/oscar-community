@@ -385,6 +385,12 @@ const RxComponent = {
 			for (var i = 0; i < itemsToFill.length; i++) {
 				console.log(itemsToFill[i].summaryCode);
 				summaryLists[itemsToFill[i].summaryCode] = itemsToFill[i];
+				
+				if(itemsToFill[i].summaryCode === "dssupport"){
+					itemsToFill[i].launchButtons = [{name:"TaperMD",id:"23"}]
+					
+				}
+					
 
 				summaryService.getFullSummary($stateParams.demographicNo,itemsToFill[i].summaryCode).then(function(data) {
 					console.log("FullSummary returned ",data);
@@ -403,6 +409,29 @@ const RxComponent = {
 				);
 			}
 		};
+		
+		rxComp.launchButtom = function(lButton){
+			var isConfirmed = confirm("Is the med list up to date ?");
+			if(!isConfirmed){
+				return false;
+			}
+			
+			rxService.launchMedResource($stateParams.demographicNo,lButton).then(function(data) {
+				console.log("launch returned data", data);
+				
+				if(data.data.success){
+					window.open(data.data.message);
+				}else{
+					alert(data.data.message);
+				}
+				
+			}, function(errorMessage) {
+				console.log("rxRight" + errorMessage);
+				rxComp.error = errorMessage;
+			});
+			
+			
+		}
 
 } ]
 };

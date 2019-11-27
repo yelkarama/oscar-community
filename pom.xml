@@ -1200,6 +1200,13 @@
    <artifactId>flowsheets</artifactId>
    <version>1.0</version>
 </dependency>
+
+<dependency>
+    <groupId>com.auth0</groupId>
+    <artifactId>java-jwt</artifactId>
+    <version>3.8.3</version>
+</dependency>
+
 <!-- JAVA 11
 <dependency>
     <groupId>com.sun.xml.ws</groupId>

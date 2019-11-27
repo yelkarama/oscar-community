@@ -487,6 +487,32 @@ angular.module("rxServices", [])
 
                 return deferred.promise;
 
-            }
+            },
+            getMedResources: function(){
+
+                var deferred = $q.defer();
+                var queryPath = this.apiPath + "/getMedResources"
+                $http.get(queryPath).then(function (data) {
+                    deferred.resolve(data);
+                },function () {
+                    deferred.reject("An error occurred while attempting to get medication details");
+                });
+
+                return deferred.promise;
+
+            },
+            launchMedResource: function(demographicNo,resource){
+
+                var deferred = $q.defer();
+                var queryPath = this.apiPath + "/launchMedResource/"+demographicNo
+                $http.post(queryPath,resource).then(function (data) {
+                    deferred.resolve(data);
+                },function () {
+                    deferred.reject("An error occurred while attempting to get medication details");
+                });
+
+                return deferred.promise;
+
+            }        
         };
     });

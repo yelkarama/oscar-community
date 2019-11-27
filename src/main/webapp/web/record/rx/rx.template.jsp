@@ -163,6 +163,7 @@
 					<input type="text" class="form-control search-query" ng-model="incomingQ" placeholder="Search">
 				</div>
 			</legend>
+			<button type="button"  ng-repeat="lButton in mod.launchButtons" class="btn btn-primary btn-block btn-xs" style="margin-top:3px;" ng-click="$ctrl.launchButtom(lButton)">{{lButton.name}}</button>
         	<ul style="padding-left:12px;">
         	<%-- href="{{item.action}}" --%>
         	<li ng-repeat="item in mod.summaryItem | filter:incomingQ" ng-show="$index < mod.displaySize"  ><span class="pull-right">{{item.date | date : 'dd-MMM-yyyy'}}</span><a ng-click="gotoState(item)" class="hand-hover" ng-class="{true: 'abnormal', false: ''}[item.abnormalFlag]">{{item.displayName}}<small ng-show="item.classification">({{item.classification}})</small></a> </li> 
