@@ -330,6 +330,7 @@ font-size:20px
 	<script src="../web/record/rx/search/medsearch.component.js"></script>
 	<script src="../web/record/rx/profile/profile.component.js"></script>
 	<script src="../web/record/rx/medrec/medrec.component.js"></script>
+	<script src="../web/record/rx/lucode/lucode.component.js"></script>
 	<script src="../web/record/rx/print/print.component.js"></script>
 	<script src="../web/record/rx/dsview/dsview.component.js"></script>
 	<script src="../web/record/rx/discontinue/discontinue.component.js"></script>

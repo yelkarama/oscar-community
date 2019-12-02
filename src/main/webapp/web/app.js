@@ -202,7 +202,8 @@ oscarApp.config(['$stateProvider', '$urlRouterProvider',function($stateProvider,
    .component('reprintComponent',ReprintComponent)
    .component('fullsearchComponent',FullSearchComponent)
    .component('copytextComponent',CopytextComponent)
-   .component('rxMedrec',RxMedrecComponent);
+   .component('rxMedrec',RxMedrecComponent)
+   .component('lucode',RxLucodeComponent);
 
 // For debugging purposes
 /*

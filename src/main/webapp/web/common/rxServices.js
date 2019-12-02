@@ -531,6 +531,20 @@ angular.module("rxServices", [])
 
                 return deferred.promise;
 
+            },
+            getLUCodes : function(din){
+
+                var deferred = $q.defer();
+                var queryPath = this.apiPath + "lookup/limitedUseCodeLookup/"+din;
+                console.log("din for lu codes check",din);
+                $http.get(queryPath).then(function (data) {
+                    deferred.resolve(data);
+                },function () {
+                    deferred.reject("An error occurred while attempting to get pharma details");
+                });
+
+                return deferred.promise;
+
             }
         };
     });

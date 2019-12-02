@@ -140,6 +140,7 @@
 									</div>
 								</div>
 							</div>
+							<lucode med="med"></lucode>
 							<div class="form-group"
 								ng-if="$ctrl.isCurrentEntryStyle('additional') || med.showmore">
 								<div class="row">
