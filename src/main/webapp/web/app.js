@@ -2,7 +2,7 @@
 var oscarApp = angular.module('oscarProviderViewModule', ['ui.router','ngResource','ui.bootstrap','demographicServices','programServices',
 														  'ticklerServices','scheduleServices','billingServices','securityServices','staticDataServices',
 														  'patientDetailStatusServices','formServices','providerServices','noteServices','infinite-scroll',
-														  'uxServices','ngTable','oscarFilters','messageServices','inboxServices','k2aServices', 'personaServices'
+														  'uxServices','ngTable','oscarFilters','messageServices','inboxServices','k2aServices', 'personaServices','measurementServices'
 														  ,'consultServices','appServices','diseaseRegistryServices','rxServices','angular-loading-bar','ngSanitize','consentServices']);
 
 
@@ -201,7 +201,8 @@ oscarApp.config(['$stateProvider', '$urlRouterProvider',function($stateProvider,
    .component('drughistoryComponent',DrughistoryComponent)
    .component('reprintComponent',ReprintComponent)
    .component('fullsearchComponent',FullSearchComponent)
-   .component('copytextComponent',CopytextComponent);
+   .component('copytextComponent',CopytextComponent)
+   .component('rxMedrec',RxMedrecComponent);
 
 // For debugging purposes
 /*

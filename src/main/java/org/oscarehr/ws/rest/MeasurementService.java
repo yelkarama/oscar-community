@@ -29,6 +29,7 @@ import org.oscarehr.common.model.Measurement;
 import org.oscarehr.managers.MeasurementManager;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.ws.rest.to.MeasurementResponse;
+import org.oscarehr.ws.rest.to.MeasurementTo1;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -62,6 +63,35 @@ public class MeasurementService extends AbstractServiceImpl {
         }
 
         List<Measurement> measurements = measurementManager.getMeasurementByType(getLoggedInInfo(), demoId, new ArrayList<String>(Arrays.asList(types)));
+        response.addMeasurements(measurements);
+        return response;
+    }
+    
+    @POST
+    @Path("/{demographicNo}/save")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public MeasurementResponse saveMeasurements(MeasurementTo1 measurementTo, @PathParam("demographicNo") Integer demoId) {
+        if(!securityInfoManager.hasPrivilege(getLoggedInInfo(), "_measurement", "r", null)) {
+            throw new SecurityException("Access Denied: Missing required security object (_measurement)");
+        }
+        
+        Measurement measurement = new Measurement();
+        
+        measurement.setDataField(measurementTo.getDataField());
+        measurement.setProviderNo(getLoggedInInfo().getLoggedInProviderNo());
+        measurement.setDemographicId(demoId);
+        measurement.setDateObserved(measurementTo.getDateObserved());
+        measurement.setType(measurementTo.getType());
+        
+        List<String> list = new ArrayList<String>();
+        list.add(measurementTo.getType());
+        
+        measurementManager.addMeasurement(getLoggedInInfo(),  measurement);
+        
+        
+        List<Measurement> measurements = measurementManager.getMeasurementByType(getLoggedInInfo(), demoId, list);
+        MeasurementResponse response = new MeasurementResponse();
         response.addMeasurements(measurements);
         return response;
     }

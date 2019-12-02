@@ -27,6 +27,7 @@
 	<legend style="margin-bottom:0px;">Current and Long Term
  		<button type="button" class="btn btn-default btn-xs" ng-class="$ctrl.buttonStyle(1)" ng-click="$ctrl.setMode(1)">All</button>
 		<button type="button" class="btn btn-primary btn-xs" ng-class="$ctrl.buttonStyle(0)" ng-click="$ctrl.setMode(0)">Current</button>
+		<rx-medrec></rx-medrec>
 		<div class="row">
 			<div class="col-sm-12">
 			    <div class="input-group">
