@@ -257,7 +257,8 @@ Drug.prototype.toDrugTransferObject = function (drugKey) {
 
             eTreatmentType: this.eTreatmentType,
 
-            rxStatus: this.rxStatus
+            rxStatus: this.rxStatus,
+            pharmacyId: this.pharmacyId
             
     };
 

@@ -129,7 +129,7 @@ public class DrugConverter extends AbstractConverter<Drug, DrugTo1> {
             
             d.setETreatmentType(t.geteTreatmentType());
             d.setRxStatus(t.getRxStatus());
-
+            d.setPharmacyId(t.getPharmacyId());
             populateDrugStrength(d, t);
 
         }catch(RuntimeException re){

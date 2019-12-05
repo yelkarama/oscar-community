@@ -60,6 +60,14 @@ const RxComponent = {
 			return "N/A";
 		}
 		
+		rxComp.getCurrentPharmacyId = function(){
+			//console.log("currentPharmacy",rxComp.page.preferedPharmacyList.length,rxComp.page.pharmacyHash);
+			if(rxComp.page.preferedPharmacyList.length > 0){
+				return rxComp.page.preferedPharmacyList[0].pharmacyId;
+			}
+			return null;
+		}
+		
 		rxComp.fetchPreferedPharmacies = function(){
 			rxService.getDemographicPharmacies($stateParams.demographicNo).then(
 					function(data) {
@@ -238,6 +246,13 @@ const RxComponent = {
 		};
 
 		rxComp.saveAndPrint = function() {
+			pharmId = rxComp.getCurrentPharmacyId();
+			console.log("rxComp.page.currentPharmacy",pharmId);
+			for(i=0;i <rxComp.toRxList.length;i++){
+				console.log("dd"+i,rxComp.toRxList[i]);
+				rxComp.toRxList[i].pharmacyId = pharmId;
+			}
+			console.log("rxComp.toRxList",rxComp.toRxList);
 			rxService.prescribe($stateParams.demographicNo,rxComp.toRxList, rxComp.processRxSuccess);
 			console.log("PRESCRIBE CALLED");
 		}

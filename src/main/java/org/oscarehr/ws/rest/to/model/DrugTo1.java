@@ -123,6 +123,7 @@ public class DrugTo1 implements Serializable {
 
     private String rxStatus = null;
     
+    private Integer pharmacyId = null;
 
     public String getAdditionalInstructions() {
         return additionalInstructions;
@@ -482,5 +483,13 @@ public class DrugTo1 implements Serializable {
 
 	public void setGcnSeqNo(Integer gcnSeqNo) {
 		this.gcnSeqNo = gcnSeqNo;
+	}
+
+	public Integer getPharmacyId() {
+		return pharmacyId;
+	}
+
+	public void setPharmacyId(Integer pharmacyId) {
+		this.pharmacyId = pharmacyId;
 	}
 }
