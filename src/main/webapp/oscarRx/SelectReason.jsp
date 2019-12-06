@@ -194,7 +194,7 @@ dxQuickListBeanHandler dxQlBeanHandler = new dxQuickListBeanHandler();
 		     	<legend>Dx Quick List</legend> 
 		     	
 		     		<%
-					for(dxQuickListBean qlBean: dxQlBeanHandler.getDxQuickListBeanVector()){
+					for(dxQuickListBean qlBean: dxQlBeanHandler.getDxQuickListBeanList()){
 							%>
 							<fieldset style="display: inline; vertical-align:top;"> 
 					     	<legend><%=qlBean.getQuickListName() %></legend>
