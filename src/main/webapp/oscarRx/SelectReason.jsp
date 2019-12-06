@@ -104,7 +104,7 @@ Icd9Dao icd9Dao = (Icd9Dao)  SpringUtils.getBean("Icd9DAO");
 pageContext.setAttribute("showQuicklist", showQuicklist);
 
 dxQuickListBeanHandler dxQlBeanHandler = new dxQuickListBeanHandler();
-Collection quickLists = dxQlBeanHandler.getDxQuickListBeanVector();
+Collection<dxQuickListBean> quickLists = dxQlBeanHandler.getDxQuickListBeanVector();
 
 %>
 
@@ -197,12 +197,11 @@ Collection quickLists = dxQlBeanHandler.getDxQuickListBeanVector();
 		     		<%Iterator iterQ = quickLists.iterator();
 						while (iterQ.hasNext()) {
 							dxQuickListBean qlBean = (dxQuickListBean)iterQ.next();
-							System.out.println("qlBean"+qlBean.getQuickListName());
 							%>
 							<fieldset style="display: inline; vertical-align:top;"> 
 					     	<legend><%=qlBean.getQuickListName() %></legend>
 						     	<% dxQuickListItemsHandler dxQuickList = new dxQuickListItemsHandler(qlBean.getQuickListName());
-						     	Collection list = dxQuickList.getDxQuickListItemsVector();
+						     	Collection<dxCodeSearchBean>  list = dxQuickList.getDxQuickListItemsVector();
 						     	Iterator iter = list.iterator();
 								while (iter.hasNext()) {
 									dxCodeSearchBean code = (dxCodeSearchBean) iter.next();

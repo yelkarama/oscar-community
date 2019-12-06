@@ -81,7 +81,7 @@ public class dxQuickListBeanHandler {
 		return true;
 	}
 
-	public Collection getDxQuickListBeanVector() {
+	public Collection<dxQuickListBean> getDxQuickListBeanVector() {
 		return dxQuickListBeanVector;
 	}
 
