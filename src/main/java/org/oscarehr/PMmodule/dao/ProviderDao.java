@@ -223,8 +223,26 @@ public class ProviderDao extends HibernateDaoSupport {
 	public List<Provider> getActiveProviders() {
 		
 		List<Provider> rs = getHibernateTemplate().find(
-				"FROM  Provider p where p.Status='1' ORDER BY p.LastName");
+				"FROM  Provider p where p.Status='1' AND p.ProviderNo NOT LIKE '-%'  ORDER BY p.LastName");
 
+		if (log.isDebugEnabled()) {
+			log.debug("getProviders: # of results=" + rs.size());
+		}
+		return rs;
+	}
+	
+	public List<Provider> getActiveProviders(boolean filterOutSystemAndImportedProviders ) {
+		
+		List<Provider> rs = null;
+		
+		if(!filterOutSystemAndImportedProviders) {
+			rs = getHibernateTemplate().find(
+				"FROM  Provider p where p.Status='1' ORDER BY p.LastName");
+		} else {
+			rs = getHibernateTemplate().find(
+					"FROM  Provider p where p.Status='1' AND p.ProviderNo > -1 ORDER BY p.LastName");	
+		}
+		
 		if (log.isDebugEnabled()) {
 			log.debug("getProviders: # of results=" + rs.size());
 		}

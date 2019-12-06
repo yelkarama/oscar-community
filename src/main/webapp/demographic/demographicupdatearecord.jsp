@@ -132,6 +132,13 @@
 	demographic.setPhone(request.getParameter("phone"));
 	demographic.setPhone2(request.getParameter("phone2"));
 	demographic.setEmail(request.getParameter("email"));
+	if("yes".equals(request.getParameter("consentToUseEmailForCare"))){
+		demographic.setConsentToUseEmailForCare(Boolean.TRUE);
+	}else if("no".equals(request.getParameter("consentToUseEmailForCare"))){
+		demographic.setConsentToUseEmailForCare(Boolean.FALSE);
+	}else{
+		demographic.setConsentToUseEmailForCare(null);		
+	}
 	demographic.setMyOscarUserName(StringUtils.trimToNull(request.getParameter("myOscarUserName")));
 	demographic.setYearOfBirth(request.getParameter("year_of_birth"));
 	demographic.setMonthOfBirth(request.getParameter("month_of_birth")!=null && request.getParameter("month_of_birth").length()==1 ? "0"+request.getParameter("month_of_birth") : request.getParameter("month_of_birth"));
@@ -349,7 +356,7 @@
      
     if(demographic.getMyOscarUserName() != null && !demographic.getMyOscarUserName().trim().isEmpty()){ 
      	Demographic myoscarDemographic = demographicDao.getDemographicByMyOscarUserName(demographic.getMyOscarUserName());
-     	if(!myoscarDemographic.getDemographicNo().equals(demographic.getDemographicNo())){
+     	if(myoscarDemographic != null && !myoscarDemographic.getDemographicNo().equals(demographic.getDemographicNo())){
 
 %>
 			***<font color='red'><bean:message key="demographic.demographicaddarecord.msgDuplicatedPHR" /></font>
