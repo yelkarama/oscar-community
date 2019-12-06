@@ -193,9 +193,10 @@ dxQuickListBeanHandler dxQlBeanHandler = new dxQuickListBeanHandler();
 		     <fieldset> 
 		     	<legend>Dx Quick List</legend> 
 		     	
-		     		<%Iterator iterQ = dxQlBeanHandler.getDxQuickListBeanVector().iterator();
-						while (iterQ.hasNext()) {
-							dxQuickListBean qlBean = (dxQuickListBean)iterQ.next();
+		     		<%//Iterator iterQ = dxQlBeanHandler.getDxQuickListBeanVector().iterator();
+					//	while (iterQ.hasNext()) {
+					//		dxQuickListBean qlBean = (dxQuickListBean)iterQ.next();
+					for(dxQuickListBean qlBean: dxQlBeanHandler.getDxQuickListBeanVector()){
 							%>
 							<fieldset style="display: inline; vertical-align:top;"> 
 					     	<legend><%=qlBean.getQuickListName() %></legend>
