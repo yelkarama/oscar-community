@@ -24,6 +24,8 @@
 
 --%>
 
+<%@page import="org.oscarehr.managers.CanadianVaccineCatalogueManager2"%>
+<%@page import="org.oscarehr.managers.SecurityInfoManager"%>
 <%@page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%@page import="org.oscarehr.common.model.UserProperty"%>
 <%@page import="org.oscarehr.common.dao.UserPropertyDAO"%>
@@ -69,6 +71,8 @@ if(!authed) {
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 	DHIRSubmissionManager submissionManager = SpringUtils.getBean(DHIRSubmissionManager.class);
 	UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
+	SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
+	
 	
   //int demographic_no = Integer.parseInt(request.getParameter("demographic_no"));
   String demographic_no = request.getParameter("demographic_no");
@@ -132,6 +136,8 @@ if(!authed) {
 	
 	UserProperty nonIspaWarningUp = userPropertyDao.getProp(LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo(), UserProperty.PREVENTION_NON_ISPA_WARNING);
 	boolean hideNonISPAWarning = nonIspaWarningUp != null && "true".equals(nonIspaWarningUp.getValue());
+	
+	boolean canUpdateCVC = securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_prevention.updateCVC", "r", null);
 	
 %>
 
@@ -316,6 +322,11 @@ function addByLot() {
 	var lotNbr = $("#lotNumberToAdd").val();
 	
 	popup(600,900,'AddPreventionData.jsp?demographic_no=<%=demographic_no%>&lotNumber=' + lotNbr,'addPreventionData' + <%=new java.util.Random().nextInt(10000) + 1%> );
+	
+}
+
+function viewDHIRSummary() {
+	popup(600,900,'ViewDHIRData.jsp?demographic_no=<%=demographic_no%>','ViewDHIRData' + <%=new java.util.Random().nextInt(10000) + 1%> );
 	
 }
 </script>
@@ -554,6 +565,21 @@ function disableNonISPAWarning() {
 		});
 	}
 }
+
+<%
+	if(canUpdateCVC) {
+%>
+function updateCVC() {
+	$.ajax({
+         type: "POST",
+         url: "<%=request.getContextPath()%>/cvc.do",
+         data: { method : "updateCVC"},
+        success: function(data,textStatus) {
+        	 alert('CVC has been updated');
+         }
+	});
+}
+<% } %>
 </script>
 </head>
 
@@ -571,7 +597,13 @@ List<String> OTHERS = Arrays.asList(new String[]{"DTaP-Hib","TdP-IPV-Hib","HBTmf
 			<tr>
 				<td><%=nameAge%></td>
 				<td>&nbsp;</td>
-				<td style="text-align: right"><oscar:help keywords="prevention" key="app.top1"/> | <a
+				<td style="text-align: right">
+					<%
+					if(canUpdateCVC) {
+					%>
+						<a onClick="updateCVC()" href="javascript:void()">Update CVC</a> | 
+					<% } %>
+					<oscar:help keywords="prevention" key="app.top1"/> | <a
 					href="javascript:popupStart(300,400,'About.jsp')"><bean:message
 					key="global.about" /></a> | <a
 					href="javascript:popupStart(300,400,'License.jsp')"><bean:message
@@ -703,18 +735,6 @@ List<String> OTHERS = Arrays.asList(new String[]{"DTaP-Hib","TdP-IPV-Hib","HBTmf
 			<span><a href="javascript:void()" onClick="disableSSOWarning()">[x]</a></span> Warning: You are not logged into OneId and will not be able to submit data to DHIR	
 		</div>
 		<% } %>
-		
-		<%if(dhirEnabled && !hasIspaConsent && !hideISPAWarning) {%>
-		<div style="width:100%;background-color:pink;text-align:left;font-weight:bold;font-size:13pt;border-style:solid" id="ispaWarning">
-			<span><a href="javascript:void()" onClick="disableISPAWarning()">[x]</a></span> Warning: This patient has not consented to send ISPA vaccines to DHIR	
-		</div>
-		<% } %>
-		
-		<%if(dhirEnabled && !hasNonIspaConsent && !hideNonISPAWarning) {%>
-		<div style="width:100%;background-color:pink;text-align:left;font-weight:bold;font-size:13pt;border-style:solid" id="nonIspaWarning">
-			<span><a href="javascript:void()" onClick="disableNonISPAWarning()">[x]</a></span> Warning: This patient has not consented to send non-ISPA vaccines to DHIR	
-		</div>
-		<% } %>
 
 		
 		<a href="#" onclick="popup(600,800,'http://www.phac-aspc.gc.ca/im/is-cv/index-eng.php')">Immunization Schedules - Public Health Agency of Canada</a>
@@ -774,12 +794,18 @@ List<String> OTHERS = Arrays.asList(new String[]{"DTaP-Hib","TdP-IPV-Hib","HBTmf
 		<% } %>
 
 		<br/>
-		<%if(!StringUtils.isEmpty(OscarProperties.getInstance().getProperty("cvc.url"))) { %>		
+		<%if(!StringUtils.isEmpty(CanadianVaccineCatalogueManager2.getCVCURL())) { %>		
 		<table>
 			<tr>
 				<td style="font-size:12pt">Add by Brand/Generic/Lot#</td><td><input type="text" id="lotNumberToAdd2" name="lotNumberToAdd2" size="20"/><div id="lotNumberToAdd2_choices" class="autocomplete"></div></td>
 			</tr>
 		</table>
+		<% } %>
+		
+		<br/>
+		
+		<%if(dhirEnabled) {%>
+			<input type="button" value="View DHIR Data" onClick="viewDHIRSummary()"/>
 		<% } %>
 	<%
 	 String[] ColourCodesArray=new String[7];

@@ -53,7 +53,7 @@ import org.oscarehr.integration.fhir.interfaces.ImmunizationInterface;
 
 @Entity
 @Table(name = "preventions")
-public class Prevention extends AbstractModel<Integer> implements Serializable, ImmunizationInterface, DemographicData {
+public class Prevention extends AbstractModel<Integer> implements Serializable, ImmunizationInterface, DemographicData, org.oscarehr.integration.fhirR4.interfaces.ImmunizationInterface {
 
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 	
@@ -514,5 +514,27 @@ public class Prevention extends AbstractModel<Integer> implements Serializable, 
 	@Override
 	public int getImmunizationId() {
 		return getId();
+	}
+	
+	public String getRouteForDisplay() {
+		String route = getRoute();
+		if("ID".equals(route)) {
+			return "Intradermal";
+		} else if("IM".equals(route)) {
+			return "Intramuscular";
+		} else if("IN".equals(route)) {
+			return "Intranasal";
+		} else if("PO".equals(route)) {
+			return "Oral";
+		} else if("SC".equals(route)) {
+			return "Subcutaneous";
+		}
+	
+		return route;
+	}
+	
+	@Override
+	public String getDIN() {
+		return getImmunizationProperty( ImmunizationProperty.DIN );
 	}
 }

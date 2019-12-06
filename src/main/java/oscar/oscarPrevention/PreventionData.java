@@ -606,7 +606,11 @@ public class PreventionData {
 					}
 					if (ext.containsKey("location") && !ext.get("location").equals("")) {
 						addToHashIfNotNull(h, "location", ext.get("location"));
-						summary += "\nLocation: " + ext.get("location");
+						if(ext.containsKey("locationDisplay") && !ext.get("locationDisplay").equals("")) {
+							summary += "\nLocation: " + ext.get("locationDisplay");
+						} else {
+							summary += "\nLocation: " + ext.get("location");
+						}
 					}
 					if (ext.containsKey("expiryDate") && !ext.get("expiryDate").equals("")) {
 						addToHashIfNotNull(h, "expiryDate", ext.get("expiryDate"));
@@ -614,7 +618,11 @@ public class PreventionData {
 					}
 					if (ext.containsKey("route") && !ext.get("route").equals("")) {
 						addToHashIfNotNull(h, "route", ext.get("route"));
-						summary += "\nRoute: " + ext.get("route");
+						if(ext.containsKey("routeDisplay") && !ext.get("routeDisplay").equals("")) {
+							summary += "\nRoute: " + ext.get("routeDisplay");
+						} else {
+							summary += "\nRoute: " + ext.get("route");
+						}
 					}
 					if (ext.containsKey("dose") && !ext.get("dose").equals("")) {
 						addToHashIfNotNull(h, "dose", ext.get("dose"));

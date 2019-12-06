@@ -70,6 +70,18 @@
 		<appender-ref ref="INTEGRATOR_FILE" />
 	</category>
 
+	<category name="oscar.oscarPrevention.pageUtil">
+		<priority value="DEBUG"/>
+	</category>
+<!-- 
+       <category name="org.oscarehr.integration.born">
+                <priority value="DEBUG" />
+        </category>
+
+        <category name="org.oscarehr.managers.CanadianVaccineCatalogueManager2">
+                <priority value="DEBUG" />
+        </category>
+-->
 <!--
 	<category name="org.oscarehr.PMmodule.caisi_integrator">
 		<priority value="DEBUG" />
@@ -92,6 +104,14 @@
 		
 	</category>
 	-->
+
+	<category name="ca.uhn.fhir.rest.client">
+		<priority value="DEBUG"/>
+	</category>	
+	
+	<category name="org.apache.http">
+		<priority value="DEBUG"/>
+	</category>	
 	
 	<category name="org.oscarehr.util.VmStat" >
 		<priority value="ERROR"/>
@@ -172,7 +192,6 @@
 	<category name="org.oscarehr.hospitalReportManager">
 		<priority value="INFO" />
 	</category>
-	
 	
 	<!-- ############################# -->
 
