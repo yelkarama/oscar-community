@@ -291,9 +291,14 @@ public final class SSOLoginAction extends MappingDispatchAction {
         
         String signature = request.getParameter("signature");
         String ts = request.getParameter("ts");
+        String oauth2Param = request.getParameter("oauth2");
+        Boolean oauth2 = false;
+        if(!StringUtils.isEmpty(oauth2Param) && "true".equals(oauth2Param)) {
+        	oauth2=true;
+        }
         
         if(!StringUtils.isEmpty(signature)) {
-        	logger.info("Found signature " + signature);
+        	logger.debug("Found signature " + signature);
         	try {
         		Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
         		SecretKeySpec secret_key = new SecretKeySpec(OscarProperties.getInstance().getProperty("oneid.encryptionKey").getBytes("UTF-8"), "HmacSHA256");
@@ -319,7 +324,7 @@ public final class SSOLoginAction extends MappingDispatchAction {
         String oneIdToken = null;
         if(!StringUtils.isEmpty(encryptedOneIdToken)) {
         	oneIdToken = decrypt(OscarProperties.getInstance().getProperty("oneid.encryptionKey"),encryptedOneIdToken);
-        	logger.info("token from encryption is " + oneIdToken);	
+        	logger.debug("token from encryption is " + oneIdToken);	
         } else {
         	logger.warn("SSO Login: expected an encrypted token");
         	ActionRedirect redirect = new ActionRedirect(mapping.findForward("ssoLoginError"));
@@ -369,7 +374,7 @@ public final class SSOLoginAction extends MappingDispatchAction {
         	return(new ActionForward(newURL));
         }
     	
-        logger.error("providerInformation : " + Arrays.toString(providerInformation));
+        logger.info("providerInformation : " + Arrays.toString(providerInformation));
         if (providerInformation != null && providerInformation.length != 1) {
         	providerNumber = providerInformation[0];
         	//Checks if the provider is inactive
@@ -412,6 +417,7 @@ public final class SSOLoginAction extends MappingDispatchAction {
             session.setAttribute("expired_days", providerInformation[5]);
             session.setAttribute("oneIdEmail", oneIdEmail);
             session.setAttribute("oneid_token", oneIdToken );
+            session.setAttribute("oneid_oauth2", oauth2);
             if (providerInformation[6] != null && !providerInformation[6].equals("")) {
                 session.setAttribute("delegateOneIdEmail", providerInformation[6]);
             }
