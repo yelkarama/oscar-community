@@ -199,7 +199,7 @@ dxQuickListBeanHandler dxQlBeanHandler = new dxQuickListBeanHandler();
 							<fieldset style="display: inline; vertical-align:top;"> 
 					     	<legend><%=qlBean.getQuickListName() %></legend>
 						     	<% dxQuickListItemsHandler dxQuickList = new dxQuickListItemsHandler(qlBean.getQuickListName());
-									for(dxCodeSearchBean code:dxQuickList.getDxQuickListItemsVector()){
+									for(dxCodeSearchBean code:dxQuickList.getDxQuickListBeanList()){
 									%>
 									<a href="javascript:void(0);" onclick="assignQuickDxLink('<%=code.getDxSearchCode() %>','<%=code.getDescription() %>');" ><%=code.getDxSearchCode() %> - <%=code.getDescription() %></a><br>
 									<% 
