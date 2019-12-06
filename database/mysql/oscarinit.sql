@@ -12297,6 +12297,9 @@ CREATE TABLE CVCImmunization (
   `prevalence` int,
   `parentConceptId` varchar(255),
   `ispa` tinyint(1),
+   `typicalDose` varchar(255),
+   `typicalDoseUofM` varchar(255),
+   `strength` varchar(255),
   PRIMARY KEY  (`id`)
 );
 
@@ -12476,3 +12479,29 @@ CREATE TABLE ISO36612 (
     country varchar(255),
     PRIMARY KEY(id)
 );
+
+CREATE TABLE CVCImmunizationName (
+    id int(11) auto_increment,
+    language varchar(30),
+    useSystem varchar(255),
+    useCode varchar(255),
+    useDisplay varchar(255),
+    value varchar(255),
+    PRIMARY KEY(id)
+);
+
+create table DHIRTransactionLog (
+  id int(11) auto_increment,
+  started timestamp not null,
+  initiatingProviderNo varchar(25),
+  transactionType varchar(25),
+  externalSystem varchar(50),
+  demographicNo int(10),
+  resultCode int(10),
+  success tinyint(1),
+  error mediumtext,
+  headers mediumtext,
+  PRIMARY KEY(id)
+);
+
+

@@ -39,7 +39,9 @@ public class CVCImmunizationDao extends AbstractDao<CVCImmunization> {
 	}
 
 	public void removeAll() {
-		Query query = entityManager.createQuery("DELETE FROM CVCImmunization");
+		Query query = entityManager.createQuery("DELETE FROM CVCImmunizationName");
+		query.executeUpdate();
+		query = entityManager.createQuery("DELETE FROM CVCImmunization");
 		query.executeUpdate();
 	}
 	
@@ -82,7 +84,7 @@ public class CVCImmunizationDao extends AbstractDao<CVCImmunization> {
 			segment = " AND generic=1 ";
 		}
 		
-		Query query = entityManager.createQuery("SELECT x FROM CVCImmunization x WHERE x.displayName like :term OR x.picklistName like :term" + segment);
+		Query query = entityManager.createQuery("SELECT x FROM CVCImmunization x JOIN x.names y WHERE y.value like :term" + segment);
 		query.setParameter("term", "%" +  term  + "%");
 		List<CVCImmunization> results = query.getResultList();
 		return results;

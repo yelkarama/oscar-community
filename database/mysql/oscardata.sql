@@ -2939,3 +2939,7 @@ insert into secRole values(\N,'HRMAdmin','HRM Administator');
 insert into secObjPrivilege values('HRMAdmin','_hrm.administrator','x',0,'999998');
 
 
+insert into secObjectName values ('_prevention.updateCVC',NULL,0);
+insert into secObjPrivilege values('admin','_prevention.updateCVC','x',0,'999998');
+
+
