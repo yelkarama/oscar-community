@@ -193,17 +193,13 @@ dxQuickListBeanHandler dxQlBeanHandler = new dxQuickListBeanHandler();
 		     <fieldset> 
 		     	<legend>Dx Quick List</legend> 
 		     	
-		     		<%//Iterator iterQ = dxQlBeanHandler.getDxQuickListBeanVector().iterator();
-					//	while (iterQ.hasNext()) {
-					//		dxQuickListBean qlBean = (dxQuickListBean)iterQ.next();
+		     		<%
 					for(dxQuickListBean qlBean: dxQlBeanHandler.getDxQuickListBeanVector()){
 							%>
 							<fieldset style="display: inline; vertical-align:top;"> 
 					     	<legend><%=qlBean.getQuickListName() %></legend>
 						     	<% dxQuickListItemsHandler dxQuickList = new dxQuickListItemsHandler(qlBean.getQuickListName());
-						     	Iterator iter = dxQuickList.getDxQuickListItemsVector().iterator();
-								while (iter.hasNext()) {
-									dxCodeSearchBean code = (dxCodeSearchBean) iter.next();
+									for(dxCodeSearchBean code:dxQuickList.getDxQuickListItemsVector()){
 									%>
 									<a href="javascript:void(0);" onclick="assignQuickDxLink('<%=code.getDxSearchCode() %>','<%=code.getDescription() %>');" ><%=code.getDxSearchCode() %> - <%=code.getDescription() %></a><br>
 									<% 

@@ -618,6 +618,7 @@
         <ViolationValue>/src/main/webapp/oscarRx/BulletinDisplayMyD.jsp:Hashtable h = new Hashtable();</ViolationValue>
         <ViolationValue>/src/main/webapp/oscarRx/BulletinDisplayMyD.jsp:Vector params = new Vector();</ViolationValue>
         <ViolationValue>/src/main/webapp/oscarRx/BulletinDisplayMyD.jsp:Vector vec = new Vector();</ViolationValue>
+        <ViolationValue>/src/main/webapp/oscarRx/SelectReason.jsp:for(dxQuickListBean qlBean: dxQlBeanHandler.getDxQuickListBeanVector()){</ViolationValue>
         <ViolationValue>/src/main/webapp/oscarRx/HsfoPreview.jsp:java.util.HashMap params = new java.util.HashMap();</ViolationValue>
         <ViolationValue>/src/main/webapp/oscarRx/HsfoPreview.jsp:rdh.setOutlines(new java.util.ArrayList());</ViolationValue>
         <ViolationValue>/src/main/webapp/oscarRx/InteractionDisplay.jsp:Hashtable h = new Hashtable();</ViolationValue>
