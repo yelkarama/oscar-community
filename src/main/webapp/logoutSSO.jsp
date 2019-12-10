@@ -48,7 +48,7 @@
 	if(!oauth2) {
 		redirectURL = econsultUrl + "/SAML2/logout?oscarReturnURL=" + URLEncoder.encode(oscarUrl + "/logout.jsp","UTF-8");
 	} else {
-		redirectURL = "https://login.pst.oneidfederation.ehealthontario.ca/oidc/logout/?returnurl=" + URLEncoder.encode(oscarUrl + "/logout.jsp","UTF-8");
+		redirectURL = OscarProperties.getInstance().getProperty("oneid.oauth2.logoutUrl") +  "/?returnurl=" + URLEncoder.encode(oscarUrl + "/logout.jsp","UTF-8");
 	}
 	
 			

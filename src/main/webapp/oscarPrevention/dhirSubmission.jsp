@@ -145,11 +145,9 @@
 	String consumerSecret = OscarProperties.getInstance().getProperty("oneid.consumerSecret");
 	String gatewayUrl = OscarProperties.getInstance().getProperty("oneid.gateway.url");
 
-	//oneid.gateway.url=https://provider.pst.ehealthontario.ca/api2/fhir/Immunization
-	//https://provider.pst.ehealthontario.ca/api2/fhir/$process-message 
-	
+		
 	Map<String, String> params = new HashMap<>();
-	String submissionURL = "https://provider.pst.ehealthontario.ca/api2/fhir/$process-message";
+	String submissionURL = OscarProperties.getInstance().getProperty("oneid.gateway.dhir.submissionUrl");
 	WebClient wc = WebClient.create(submissionURL);
 	for (Entry<String, String> entry : params.entrySet()) {
 		wc.query(entry.getKey(), entry.getValue());

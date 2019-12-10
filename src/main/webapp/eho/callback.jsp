@@ -296,7 +296,7 @@
 <%!
 JSONArray getCertificate(String algorithm , String kid) {
 	
-	WebClient wc = WebClient.create("https://login.pst.oneidfederation.ehealthontario.ca/oidc/connect/jwk_uri"); 
+	WebClient wc = WebClient.create(OscarProperties.getInstance().getProperty("oneid.oauth2.certsUrl")); 
 	Response response2 = wc.get();
 	if(response2.getStatus() == 200) {
 		String body = response2.readEntity(String.class);
