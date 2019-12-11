@@ -910,7 +910,7 @@ function refuse() {
 	
 	String getSite(Immunization immunization) {
 		if(immunization.getSite() != null) {
-			return immunization.getSite().getText();
+			return immunization.getSite().getCodingFirstRep().getDisplay();
 		}
 		return null;
 	}
