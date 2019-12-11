@@ -137,7 +137,6 @@
 	
 		redirect.append("&doctor_no=");
 		redirect.append(request.getParameter("provider_no"));
-	
 		@SuppressWarnings("unchecked")
 		Enumeration<String> e = request.getParameterNames();
 		while (e.hasMoreElements()) {

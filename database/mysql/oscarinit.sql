@@ -6610,6 +6610,7 @@ CREATE TABLE groupMembers_tbl (
   id int(10) NOT NULL auto_increment,
   groupID int(10) default NULL,
   provider_No varchar(6) default NULL,
+  facilityId int(6),
   PRIMARY KEY  (id)
 ) ;
 
@@ -6987,6 +6988,8 @@ CREATE TABLE messagelisttbl (
   provider_no varchar(6) default NULL,
   status varchar(10) default NULL,
   remoteLocation int(10) default NULL,
+  destinationFacilityId int(6),
+  sourceFacilityId int(6),
   PRIMARY KEY(id),
   KEY `message` (`message`),
   KEY `provider_no` (`provider_no`),
@@ -12185,6 +12188,7 @@ CREATE TABLE resident_oscarMsg (
 CREATE TABLE oscar_msg_type (
     type int(10),
     description varchar(255),
+    code varchar(255),
     PRIMARY KEY(type)
 );
 

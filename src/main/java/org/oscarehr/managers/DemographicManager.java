@@ -24,6 +24,7 @@
 
 package org.oscarehr.managers;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -32,6 +33,11 @@ import java.util.List;
 import java.util.Objects;
 
 import org.apache.log4j.Logger;
+import org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorManager;
+import org.oscarehr.PMmodule.model.ProgramProvider;
+import org.oscarehr.caisi_integrator.ws.DemographicTransfer;
+import org.oscarehr.caisi_integrator.ws.DemographicWs;
+import org.oscarehr.caisi_integrator.ws.GetConsentTransfer;
 import org.oscarehr.common.Gender;
 import org.oscarehr.common.dao.AdmissionDao;
 import org.oscarehr.common.dao.ConsentDao;
@@ -47,6 +53,7 @@ import org.oscarehr.common.dao.PHRVerificationDao;
 import org.oscarehr.common.exception.PatientDirectiveException;
 import org.oscarehr.common.model.Admission;
 import org.oscarehr.common.model.Consent;
+import org.oscarehr.common.model.ConsentType;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Demographic.PatientStatus;
 import org.oscarehr.common.model.DemographicContact;
@@ -55,6 +62,7 @@ import org.oscarehr.common.model.DemographicExt;
 import org.oscarehr.common.model.DemographicMerged;
 import org.oscarehr.common.model.PHRVerification;
 import org.oscarehr.common.model.Provider;
+import org.oscarehr.common.model.UserProperty;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -115,6 +123,12 @@ public class DemographicManager {
 	
 	@Autowired
 	ConsentDao consentDao;
+	
+	@Autowired
+	PatientConsentManager patientConsentManager;
+	
+	@Autowired
+	ProgramManager2 programManager;
 	
 
 	public Demographic getDemographic(LoggedInInfo loggedInInfo, Integer demographicId) throws PatientDirectiveException {
@@ -391,6 +405,48 @@ public class DemographicManager {
 
 	}
 	
+	/**
+	 * Exact match is by firstname, lastname, gender, dob, and hin. Return value is null if more than 1 exact match is returned.
+	 * @param loggedInInfo
+	 * @param demographic
+	 * @return
+	 */
+	public Demographic findExactMatchToDemographic(LoggedInInfo loggedInInfo, Demographic demographic) {
+		Calendar dateOfBirth = Calendar.getInstance();
+		dateOfBirth.set(Integer.parseInt(demographic.getYearOfBirth()), Integer.parseInt(demographic.getMonthOfBirth()), Integer.parseInt(demographic.getDateOfBirth()));
+		List<Demographic> exactmatch = searchDemographicsByAttributes(
+				loggedInInfo, 
+				demographic.getHin(), 
+				demographic.getFirstName(), 
+				demographic.getLastName(), 
+				Gender.valueOf(demographic.getSex()), 
+				dateOfBirth, 
+				null, 
+				null, 
+				null, 
+				null, 
+				null, 
+				0, 
+				2);
+
+		if(exactmatch != null && exactmatch.size() == 1)
+		{
+			return exactmatch.get(0);
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * fuzzy match is by lastname and dob
+	 * @param loggedInInfo
+	 * @param demographic
+	 * @return
+	 */
+	public List<Demographic> findFuzzyMatchToDemographic(LoggedInInfo loggedInInfo, Demographic demographic) {
+		return getDemographicWithLastFirstDOB(loggedInInfo, demographic.getLastName(), demographic.getFirstName(), demographic.getYearOfBirth(),demographic.getMonthOfBirth(), demographic.getDateOfBirth());
+	}
+
 	public void addDemographic(LoggedInInfo loggedInInfo, Demographic demographic) {
 		checkPrivilege(loggedInInfo, SecurityInfoManager.WRITE);
 		try {
@@ -774,7 +830,183 @@ public class DemographicManager {
 			return results; 
 		}
 		
+		/**
+		 * Fetch the remote demographic file from the Integrator.
+		 * 
+		 * THIS IS AN INTEGRATOR FUNCTION ONLY.  INTEGRATOR MUST BE ENABLED.
+		 * 
+		 * @param loggedInInfo
+		 * @param remoteFacilityId
+		 * @param remoteDemographicId
+		 * @return
+		 */
+		public Demographic getRemoteDemographic(LoggedInInfo loggedInInfo, int remoteFacilityId, int remoteDemographicId) {
+			checkPrivilege(loggedInInfo, SecurityInfoManager.READ);
+			Demographic demographic = null;
+			if(loggedInInfo.getCurrentFacility().isIntegratorEnabled())
+			{
+				try {
+					demographic = CaisiIntegratorManager.makeUnpersistedDemographicObjectFromRemoteEntry(loggedInInfo, loggedInInfo.getCurrentFacility(), remoteFacilityId, remoteDemographicId);
+				} catch (MalformedURLException e) {
+					logger.error("Error while importing patient file " + remoteDemographicId + " from facility " + remoteFacilityId, e);
+				}
+				LogAction.addLog(loggedInInfo, "DemographicManager.getRemoteDemographic", null, null, ""+remoteDemographicId, null);
+			}
+			return demographic;
+		}
 		
+		/**
+		 * Copies the given remotely Integrated demographic file into this local facility.
+		 * 
+		 * THIS IS AN INTEGRATOR FUNCTION ONLY.  INTEGRATOR MUST BE ENABLED.
+		 * 
+		 * @param loggedInInfo
+		 * @param remoteFacilityId
+		 * @param remoteDemographicId
+		 * @return
+		 */
+		public Demographic copyRemoteDemographic(LoggedInInfo loggedInInfo, Demographic remoteDemographic, int remoteFacilityId, int remoteDemographicId) {
+			checkPrivilege(loggedInInfo, SecurityInfoManager.WRITE);
+
+			remoteDemographic.setDemographicNo(null);
+						
+			if(loggedInInfo.getCurrentFacility().isIntegratorEnabled())
+			{
+				try {
+					// find the program id
+					ProgramProvider programProvider = programManager.getCurrentProgramInDomain(loggedInInfo);
+					createDemographic(loggedInInfo, remoteDemographic, (int) (long) programProvider.getProgramId());
+					
+					// get the remote patient consent status
+					GetConsentTransfer consentTransfer = CaisiIntegratorManager.getConsentState( loggedInInfo, loggedInInfo.getCurrentFacility(), remoteFacilityId, remoteDemographicId );				
+					updatePatientConsent(loggedInInfo, remoteDemographic.getDemographicNo(), UserProperty.INTEGRATOR_PATIENT_CONSENT, "ALL".equals( consentTransfer.getConsentState().value() ));
+				} catch (MalformedURLException e) {
+					logger.error("Error while importing patient file " + remoteDemographicId + " from facility " + remoteFacilityId, e);
+				}
+				
+				LogAction.addLog(loggedInInfo, "DemographicManager.copyRemoteDemographic", null, null, ""+remoteDemographicId, null);
+			}
+			return remoteDemographic;
+		}
+		
+		/**
+		 * Update a patient's consent status. 
+		 * 
+		 * @param loggedInInfo
+		 * @param demographic_no
+		 * @param consentType
+		 * @param consented
+		 */
+		public void updatePatientConsent(LoggedInInfo loggedInInfo, int demographic_no, String consentType, boolean consented) {
+			checkPrivilege(loggedInInfo, SecurityInfoManager.WRITE);
+
+			ConsentType patientConsentType = patientConsentManager.getConsentType( consentType );
+			patientConsentManager.setConsent( loggedInInfo, demographic_no, patientConsentType.getId(), consented );
+		}
+		
+		/**
+		 * Checks to see if this patient has consented to the given consent type
+		 */
+		public boolean isPatientConsented(LoggedInInfo loggedInInfo, int demographic_no, String consentType) {
+			checkPrivilege(loggedInInfo, SecurityInfoManager.READ);
+
+			ConsentType patientConsentType = patientConsentManager.getConsentType( consentType );			
+			return patientConsentManager.hasPatientConsented(demographic_no, patientConsentType);
+		}
+		
+		/**
+		 * Link the given demographic numbers with in the given remote facility.
+		 * 
+		 * THIS IS AN INTEGRATOR FUNCTION ONLY.  INTEGRATOR MUST BE ENABLED.
+		 * 
+		 */
+		public boolean linkDemographicToRemoteDemographic(LoggedInInfo loggedInInfo, int demographicNo, int remoteFacilityId, int remoteDemographicNo) {
+			checkPrivilege(loggedInInfo, SecurityInfoManager.WRITE);
+			
+			if(loggedInInfo.getCurrentFacility().isIntegratorEnabled())
+			{
+				try {
+					CaisiIntegratorManager.linkIntegratedDemographicFiles(loggedInInfo, demographicNo, remoteFacilityId, remoteDemographicNo);
+			    	String providerNo = loggedInInfo.getLoggedInProviderNo();
+			    	
+			    	MiscUtils.getLogger().info("LINK DEMOGRAPHIC #### ProviderNo :"+providerNo+" ,demo No :"+ remoteDemographicNo+" , remoteFacilityId :"+ remoteFacilityId+" ,remoteDemographicId "+ remoteDemographicNo+" orig demo "+demographicNo);
+			    	
+			    	LogAction.addLog(loggedInInfo, "DemographicManager.linkDemographicToRemoteDemographic", null, null, ""+demographicNo, null);
+			    	
+			    	return true;
+				} catch (MalformedURLException e) {
+					logger.error("Failure to link local demographic number " + demographicNo + " with demographicNo " + remoteDemographicNo + " from facility " + remoteFacilityId, e);
+				}
+				
+			}
+			return false;
+		}
+		
+		/**
+		 * Fetch all the the demographic ids linked by the Integrator to the given local demographic number
+		 * and given remote facility id. 
+		 * 
+		 * THIS IS AN INTEGRATOR FUNCTION ONLY.  INTEGRATOR MUST BE ENABLED. 
+		 * 
+		 * @param loggedInInfo
+		 * @param local demographicNo
+		 * @param sourceFacilityId where the linked demographic should exist
+		 * @return
+		 */
+		public List<Integer> getLinkedDemographicIds(LoggedInInfo loggedInInfo, int demographicNo, int sourceFacilityId) {
+			checkPrivilege(loggedInInfo, SecurityInfoManager.READ, demographicNo);
+			
+			ArrayList<Integer> remoteDemographicNumbers = new ArrayList<Integer>();
+			List<DemographicTransfer> demographicTransferList = getLinkedDemographics(loggedInInfo, demographicNo);
+					
+			/*
+			 * Add the demographic number to the array if the demographic file is 
+			 * from the target facility (sourceFacilityId)
+			 */
+			for(DemographicTransfer demographicTransfer : demographicTransferList)
+			{						
+				if(demographicTransfer.getIntegratorFacilityId() == sourceFacilityId)
+				{
+					remoteDemographicNumbers.add(demographicTransfer.getCaisiDemographicId());
+				}
+			}
+			
+			LogAction.addLog(loggedInInfo, "DemographicManager.getLinkedDemographicIds", null, null, ""+demographicNo, null);
+			
+			return remoteDemographicNumbers;
+		}
+		
+		/**
+		 * Fetch all the the demographic files from all facilities linked by the Integrator to the given local demographic number
+		 * Excludes the demographic file located in this facility
+		 * 
+		 * THIS IS AN INTEGRATOR FUNCTION ONLY.  INTEGRATOR MUST BE ENABLED.
+		 * 
+		 * @param loggedInInfo
+		 * @param demographicNo
+		 * @return
+		 */
+		public List<DemographicTransfer> getLinkedDemographics(LoggedInInfo loggedInInfo, int demographicNo) {
+			checkPrivilege(loggedInInfo, SecurityInfoManager.READ, demographicNo);
+			
+			if(loggedInInfo.getCurrentFacility().isIntegratorEnabled()) 
+			{
+				/*
+				 *  Fetch all demographic files that are linked to this local demographic number.
+				 *  Excludes all results for this facility. 
+				 */
+				try {
+					DemographicWs demographicWs = CaisiIntegratorManager.getDemographicWs(loggedInInfo, loggedInInfo.getCurrentFacility());
+					return demographicWs.getLinkedDemographicsByDemographicId(demographicNo);
+				} catch (MalformedURLException e) {
+					MiscUtils.getLogger().error("Integrator connection failed ", e);
+				}
+			}
+			
+			LogAction.addLog(loggedInInfo, "DemographicManager.getLinkedDemographics(LoggedInInfo", null, null, ""+demographicNo, null);
+			
+			return Collections.emptyList();
+		}
 
 		private void checkPrivilege(LoggedInInfo loggedInInfo, String privilege) {
 	      		if (!securityInfoManager.hasPrivilege(loggedInInfo, "_demographic", privilege, null)) {
@@ -787,7 +1019,5 @@ public class DemographicManager {
     				throw new RuntimeException("missing required security object (_demographic)");
     			}
         	}
-		
 	
-		
 }
