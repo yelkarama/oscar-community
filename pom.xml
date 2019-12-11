@@ -1035,6 +1035,10 @@
 					<groupId>org.slf4j</groupId>
 					<artifactId>log4j-over-slf4j</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-simple</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -1174,7 +1178,7 @@
 <dependency>
    <groupId>ca.uhn.hapi.fhir</groupId>
    <artifactId>hapi-fhir-base</artifactId>
-   <version>2.5</version>
+   <version>4.0.0</version>
                        <exclusions>
                                <exclusion>
                                         <groupId>org.slf4j</groupId>
@@ -1187,13 +1191,25 @@
 <dependency>
    <groupId>ca.uhn.hapi.fhir</groupId>
    <artifactId>hapi-fhir-structures-dstu2</artifactId>
-   <version>2.5</version>
+   <version>4.0.0</version>
 </dependency>
 <dependency>
    <groupId>ca.uhn.hapi.fhir</groupId>
    <artifactId>hapi-fhir-structures-dstu3</artifactId>
-   <version>2.5</version>
+   <version>4.0.0</version>
 </dependency>
+
+<dependency>
+    <groupId>ca.uhn.hapi.fhir</groupId>
+    <artifactId>hapi-fhir-structures-r4</artifactId>
+    <version>4.0.0</version>
+</dependency>
+<dependency>
+    <groupId>ca.uhn.hapi.fhir</groupId>
+    <artifactId>hapi-fhir-client</artifactId>
+    <version>4.0.0</version>
+</dependency>
+
 
 <dependency>
    <groupId>org.oscarehr</groupId>
@@ -1208,6 +1224,13 @@
     <type>pom</type>
 </dependency>
 -->
+
+		<dependency>
+		   <groupId>com.auth0</groupId>
+		   <artifactId>java-jwt</artifactId>
+		   <version>3.3.0</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

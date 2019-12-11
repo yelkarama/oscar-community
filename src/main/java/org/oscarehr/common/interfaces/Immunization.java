@@ -29,7 +29,7 @@ import java.util.Date;
 
 
 public interface Immunization {
-	public enum ImmunizationProperty{lot, location, route, dose, comments, neverReason, manufacture, name, expiryDate,providerName, brandSnomedId}
+	public enum ImmunizationProperty{lot, location, route, dose, comments, neverReason, manufacture, name, expiryDate,providerName, brandSnomedId, DIN}
 
 	public int getImmunizationId();
 	
@@ -133,4 +133,6 @@ public interface Immunization {
 	 *  ie: [submission date] – [immunization date] > 14 days (2 weeks) 
 	 */
 	public boolean isHistorical(int days);
+	
+	public String getDIN();
 }

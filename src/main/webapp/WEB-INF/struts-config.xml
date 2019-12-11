@@ -2983,6 +2983,14 @@
 			<forward name="testresult" path="/oscarPrevention/test_case.jsp"/>
 		</action>
 		
+		<action path="/dhir/summary" type="org.oscarehr.integration.dhir.DHIRSummaryViewAction" parameter="method" scope="request">
+			<forward name="success" path="/oscarPrevention/ViewDHIRData.jsp"/>
+		</action>
+		
+		<action path="/dhir/printSummary" scope="request" type="org.oscarehr.integration.dhir.DHIRPrintAction">
+			<forward name="error" path="/dhir/printError.jsp" />
+		</action>
+		
 		<action path="/clinicalConnectEHRViewer" type="org.oscarehr.integration.clinicalconnect.ClinicalConnectViewerAction" parameter="method">
 			<forward name="error" path="/cc/launcherError.jsp"/>
 		</action>

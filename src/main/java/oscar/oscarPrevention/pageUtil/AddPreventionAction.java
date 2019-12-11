@@ -36,7 +36,7 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.r4.model.Bundle;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.dao.CVCImmunizationDao;
 import org.oscarehr.common.dao.ConsentDao;
@@ -48,9 +48,11 @@ import org.oscarehr.common.dao.PartialDateDao;
 import org.oscarehr.common.dao.PreventionDao;
 import org.oscarehr.common.model.CVCImmunization;
 import org.oscarehr.common.model.Consent;
+import org.oscarehr.common.model.LookupList;
+import org.oscarehr.common.model.LookupListItem;
 import org.oscarehr.common.model.PartialDate;
-import org.oscarehr.integration.fhir.api.DHIR;
-import org.oscarehr.integration.fhir.builder.FhirBundleBuilder;
+import org.oscarehr.integration.fhirR4.api.DHIR;
+import org.oscarehr.integration.fhirR4.builder.FhirBundleBuilder;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.provider.model.PreventionManager;
 import org.oscarehr.util.LoggedInInfo;
@@ -101,6 +103,9 @@ public class AddPreventionAction  extends Action {
          if(action != null && "Save & Submit".equals(action)) {
         	 submitToDhir = true;
          }
+         MiscUtils.getLogger().debug("submitToDhir "+ submitToDhir);
+         
+         
          MiscUtils.getLogger().debug("id "+id+"  delete "+ delete);
          
          MiscUtils.getLogger().debug("prevention Type "+preventionType);
@@ -156,7 +161,6 @@ public class AddPreventionAction  extends Action {
          
          ArrayList<Map<String,String>> extraData = new ArrayList<Map<String,String>>();
                   
-         addHashtoArray(extraData,request.getParameter("location"),"location");
          addHashtoArray(extraData,request.getParameter("location2"),"location2");
         
          addHashtoArray(extraData,request.getParameter("din"),"din");
@@ -171,8 +175,27 @@ public class AddPreventionAction  extends Action {
         	 addHashtoArray(extraData,request.getParameter("lot"),"lot"); 
          }
                          
-         addHashtoArray(extraData,request.getParameter("route"),"route");
          
+         LookupListDao lookupListDao = SpringUtils.getBean(LookupListDao.class);
+         LookupListItemDao lookupListItemDao = SpringUtils.getBean(LookupListItemDao.class);
+	     LookupList ll = lookupListDao.findByName("AnatomicalSite");
+	    if(ll != null) {
+	    	LookupListItem lli = lookupListItemDao.findByLookupListIdAndValue(ll.getId(),request.getParameter("location"));
+	    	if(lli != null) {
+	    		addHashtoArray(extraData,lli.getLabel(),"locationDisplay");
+	    	}
+	    } 
+	    addHashtoArray(extraData,request.getParameter("location"),"location");
+	    
+	    ll = lookupListDao.findByName("RouteOfAdmin");
+	    if(ll != null) {
+	    	LookupListItem lli = lookupListItemDao.findByLookupListIdAndValue(ll.getId(),request.getParameter("route"));
+	    	if(lli != null) {
+	    		addHashtoArray(extraData,lli.getLabel(),"routeDisplay");
+	    	}
+	    }
+	    addHashtoArray(extraData,request.getParameter("route"),"route");
+        	    
          String dose = request.getParameter("dose");
          String doseUnit = request.getParameter("doseUnit");
          if(doseUnit != null && doseUnit.length()>0) {
@@ -208,10 +231,14 @@ public class AddPreventionAction  extends Action {
         	 addHashtoArray(extraData,request.getParameter("cvcName"),"brandSnomedId");
          }
          
+         MiscUtils.getLogger().debug("about to validate");
          
          //let's do some validation
          List<String> valid = validate(preventionType,demographic_no,id,delete,action,submitToDhir,given,prevDate,providerNo,nextDate,neverWarn,
         		 snomedId,refused,extraData,lotItem,dose,doseUnit);
+         
+         MiscUtils.getLogger().debug("validate done " + valid);
+         
          if(valid != null && valid.size()>0) {
         	 request.setAttribute("errors", valid);
         	 return mapping.findForward("form");
@@ -250,7 +277,7 @@ public class AddPreventionAction  extends Action {
 
 			 boolean ispa = Boolean.valueOf(imm != null && imm.isIspa());
 				
-			 if((ispa && hasIspaConsent) || (!ispa && hasNonIspaConsent)) {
+//			 if((ispa && hasIspaConsent) || (!ispa && hasNonIspaConsent)) {
 	        	 
 	        	 if("given".equals(given) || "given_ext".equals(given)) {
 	        	
@@ -272,7 +299,7 @@ public class AddPreventionAction  extends Action {
 		        	request.setAttribute("demographicNo", demographic_no);
 		        	return mapping.findForward("review");
 	        	 }
-	         }
+//	         }
          }
          
          
