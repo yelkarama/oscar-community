@@ -22,7 +22,7 @@ patient.namePrefix=false
 patient.email=false
 patient.mrn=false
 patient.language=false
-patient.address=true
+patient.address=false
 patient.telecom=false
 
 organization.address=true
