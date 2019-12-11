@@ -572,6 +572,13 @@ function changeCVCName() {
             		 if(dose != null && doseUnit != null) {
             		 	$("#typicalDose").html(dose + " " + doseUnit);
             		 }
+            		 $("#dose").val(dose);
+            		 
+            		 if(doseUnit == 'ml') {
+            			 doseUnit = "mL";
+            		 }
+            		 $("#doseUnit").val(doseUnit);
+            		 
             	 }
              }
           });
@@ -900,10 +907,10 @@ function changeSite(el) {
                          	%>
                          	<br/>
                          <label>Typical Dose: </label><span id="typicalDose"></span><br/><br/>
-                         <label for="dose">Dose:</label> <input type="text" name="dose"  value="<%=d1%>"/>
+                         <label for="dose">Dose:</label> <input type="text" name="dose"  id="dose" value="<%=d1%>"/>
                          <br>
                           <label for="doseUnit">Dose Unit:</label>
-                          <select name="doseUnit">
+                          <select name="doseUnit" id="doseUnit">
 							<option value="" <%="".equals(d2)?"selected=\"selected\" ":"" %>></option>
 							<option value="mL" <%="mL".equals(d2)?"selected=\"selected\" ":"" %>>mL</option>
 							<option value="mg" <%="mg".equals(d2)?"selected=\"selected\" ":"" %>>mg</option>

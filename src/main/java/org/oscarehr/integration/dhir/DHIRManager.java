@@ -431,8 +431,11 @@ public class DHIRManager {
 	    ArrayList<MsgProviderData> sendToProviderListData = new ArrayList<MsgProviderData>();
 	    for (String providerNo : sendToProviderList) {
 	    	MsgProviderData mpd = new MsgProviderData();
-	    	mpd.providerNo = providerNo;
-	    	mpd.locationId = "145";
+	    	//mpd.set
+	    	//mpd.setPrproviderNo = providerNo;
+	    	mpd.getId().setContactId(providerNo);
+	    	mpd.setLocation("145");
+	    
 	    	sendToProviderListData.add(mpd);
 	//    	logger.info("HRM retrieval error: notifying "  + providerNo);
 	    }
