@@ -21,8 +21,7 @@
     McMaster University
     Hamilton
     Ontario, Canada
-    
-"seq":"007","type":"","txt":"For DVT in patients who have failed treatment with warfarin.","useId":"189"
+
 --%>
 
 	<table ng-if="$ctrl.codes.length > 0" class="table table-condensed table-bordered">
