@@ -89,7 +89,7 @@ public class dxQuickListBeanHandler {
 		return lastUsedQuickList;
 	}
 	
-	public Collection getDxQuickListBeanList() {
+	public Collection<dxQuickListBean> getDxQuickListBeanList() {
 		return dxQuickListBeanVector;
 	}
 }
