@@ -65,6 +65,7 @@ public class LimitedUseLookup {
 	static public ArrayList<LimitedUseCode> getLUInfoForDin(String din) {
 		loadLULookupInformation();
 		if (din == null) {
+			log.info("din null returning null");
 			return null;
 		}
 		return luLookup.get(din);
@@ -142,7 +143,7 @@ public class LimitedUseLookup {
 						}
 					}
 				}
-
+				log.debug("LUCODES loaded=true size:"+luLookup.size());
 				loaded = true;
 			} catch (Exception e) {
 				MiscUtils.getLogger().error("Error", e);

@@ -1529,8 +1529,8 @@ INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `me
 ( 'CNOLE', 'COPD: # of Exacerbations since last assessment', 'COPD: # of Exacerbations since last assessment', 'The number of exacerbations due to COPD since last visit, as reported by the patient', '14', '2018-09-14 00:00:00'),
 ( 'WHE', 'Wheezing', 'Wheezing', 'Records whether the patient is wheezing or not', '18', '2018-09-14 00:00:00'),
 ( 'HFMR', 'HF Medication Review', 'Heart Failure Medication Review', 'Records whether medication adherence for Heart Failure 
-purpose has been discussed with the patient', '18', '2018-09-14 00:00:00');
-
+purpose has been discussed with the patient', '18', '2018-09-14 00:00:00'),
+( 'MDRC', 'Med Rec', 'Med Rec', 'Completed', '18','2018-09-14 00:00:00');
 
 --
 -- Dumping data for table 'measurementCSSLocation'

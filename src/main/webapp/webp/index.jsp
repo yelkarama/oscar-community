@@ -322,18 +322,22 @@ font-size:20px
 	<script src="../web/common/appServices.js"></script>
 	<script src="../web/common/diseaseRegistryServices.js"></script>
 	<script src="../web/common/rxServices.js"></script>
+	<script src="../web/common/measurementServices.js"></script>
 	<script src="../web/filters.js"></script>
 	
 	<script src="../web/record/rx/rx.component.js"></script>
 	<script src="../web/record/rx/rxModel.js"></script>
 	<script src="../web/record/rx/search/medsearch.component.js"></script>
 	<script src="../web/record/rx/profile/profile.component.js"></script>
+	<script src="../web/record/rx/medrec/medrec.component.js"></script>
+	<script src="../web/record/rx/lucode/lucode.component.js"></script>
 	<script src="../web/record/rx/print/print.component.js"></script>
 	<script src="../web/record/rx/dsview/dsview.component.js"></script>
 	<script src="../web/record/rx/discontinue/discontinue.component.js"></script>
 	<script src="../web/record/rx/history/history.component.js"></script>
 	<script src="../web/record/rx/reprint/reprint.component.js"></script>
 	<script src="../web/record/rx/fullsearch/fullsearch.component.js"></script>
+	<script src="../web/record/rx/copytext/copytext.component.js"></script>
 	<script src="../web/common/components/provider/provider.component.js"></script>
 	<script src="app.js.jsp"></script>
 	

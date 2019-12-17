@@ -19,6 +19,11 @@ const RxComponent = {
 			rxComp.page.dsMessageList = [];
 			rxComp.page.dsMessageHash = {};
 			rxComp.page.favouriteDrugs = [];
+			rxComp.page.currentEntryStyle = "prescribe";
+			rxComp.page.pharmacyList = [];
+			rxComp.page.preferedPharmacyList = [];
+			rxComp.page.pharmacyHash = {};
+			rxComp.page.currentPharmacy = null;
 
 			rxComp.toRxList = []; // might want to cache this server
 									// side and check back so that we
@@ -28,12 +33,115 @@ const RxComponent = {
 			rxComp.getDSMessages($stateParams.demographicNo,rxComp.toRxList);
 
 			rxService.favorites($stateParams.demographicNo, null,rxComp.processFavourites);
+			
+			rxComp.getPharmacies();
+			rxComp.fetchPreferedPharmacies();
+			
 
 			getRightItems();
 			getLeftItems();
 
 		}
 
+		rxComp.getCurrentPharamcyId = function(){
+			ret = rxComp.getCurrentPharmacy();
+			if("N/A" === ret){
+				return null;
+			}
+			return ret.id;
+		}
+		
+		rxComp.getCurrentPharmacy = function(){
+			//console.log("currentPharmacy",rxComp.page.preferedPharmacyList.length,rxComp.page.pharmacyHash);
+			if(rxComp.page.preferedPharmacyList.length > 0){
+				preferedId = rxComp.page.preferedPharmacyList[0].pharmacyId;
+				return rxComp.page.pharmacyHash[preferedId];
+			}
+			return "N/A";
+		}
+		
+		rxComp.getCurrentPharmacyId = function(){
+			//console.log("currentPharmacy",rxComp.page.preferedPharmacyList.length,rxComp.page.pharmacyHash);
+			if(rxComp.page.preferedPharmacyList.length > 0){
+				return rxComp.page.preferedPharmacyList[0].pharmacyId;
+			}
+			return null;
+		}
+		
+		rxComp.fetchPreferedPharmacies = function(){
+			rxService.getDemographicPharmacies($stateParams.demographicNo).then(
+					function(data) {
+						console.log("getDemoPharm",data);
+						rxComp.page.preferedPharmacyList = data.data //[0].pharmacyId;
+						
+					},
+					function(errorMessage) {
+						console.log("error hiding ds message ++"+ errorMessage);
+						rxComp.error = errorMessage;
+					});
+		}
+		
+		rxComp.getPharmacies = function(){
+			
+			rxService.getPharmacies().then(
+					function(data) {
+						console.log("getPharmacies",data);
+						rxComp.page.pharmacyList = data.data.content;
+						rxComp.page.pharmacyHash = {};
+						for (i = 0; i < rxComp.page.pharmacyList.length; i++) {
+							pharmacy = rxComp.page.pharmacyList[i];
+							console.log("pharmacy", pharmacy);
+							rxComp.page.pharmacyHash[pharmacy.id] =rxComp.page.pharmacyList[i];
+						}
+						console.log("getPharma2",rxComp.page.pharmacyList,rxComp.page.pharmacyHash);
+						
+					},
+					function(errorMessage) {
+						console.log("error hiding ds message ++"+ errorMessage);
+						rxComp.error = errorMessage;
+					});
+		}
+		
+		
+
+		
+		rxComp.showSpecialInstructions = function(med){
+			med.additionalInstructions = "";
+			window.setTimeout(function (){
+				document.getElementById('specailInstructionsInput').focus();
+			}, 0);
+			
+			
+		}
+		
+		rxComp.isSpecailInstructionsShow = function(med){
+			if(med.additionalInstructions == null){
+				return false;
+			}
+			return true;
+		}
+		
+		
+		rxComp.isCurrentEntryStyle = function(stat){
+			   if(stat == rxComp.page.currentEntryStyle){
+				   return "active";
+			   }else{
+				   return "";
+			   }
+
+		}
+		
+		rxComp.isCurrentEntryStyleBoolean = function(stat){
+			   if(stat == rxComp.page.currentEntryStyle){
+				   return true;
+			   }
+			   return false;
+		}
+		
+		rxComp.changeCurrentEntryStyle = function(stat){
+			rxComp.page.currentEntryStyle = stat;
+		}
+		
 		getMeds = function() {
 
 			rxService.getMedications($stateParams.demographicNo, "").then(function(data) {
@@ -138,6 +246,13 @@ const RxComponent = {
 		};
 
 		rxComp.saveAndPrint = function() {
+			pharmId = rxComp.getCurrentPharmacyId();
+			console.log("rxComp.page.currentPharmacy",pharmId);
+			for(i=0;i <rxComp.toRxList.length;i++){
+				console.log("dd"+i,rxComp.toRxList[i]);
+				rxComp.toRxList[i].pharmacyId = pharmId;
+			}
+			console.log("rxComp.toRxList",rxComp.toRxList);
 			rxService.prescribe($stateParams.demographicNo,rxComp.toRxList, rxComp.processRxSuccess);
 			console.log("PRESCRIBE CALLED");
 		}
@@ -158,6 +273,9 @@ const RxComponent = {
 					resolve : {
 						scriptId : function() {
 							return resp.prescription.scriptId;
+						},
+						pharamacyId : function(){
+							return rxComp.getCurrentPharamcyId();
 						}
 					}
 				});
@@ -339,6 +457,7 @@ const RxComponent = {
 									newMed.newMed = true;
 									newMed.repeats = 0;
 									newMed.writtenDate = new Date();
+									newMed.additionalInstructions = null;
 									// if(angular.isDefined(newMed.id)){
 									// delete newMed.id;
 									// }
