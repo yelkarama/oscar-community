@@ -70,10 +70,10 @@ public class ConsultationRequestDao extends AbstractDao<ConsultationRequest> {
         }
 
         
-        public List<ConsultationRequest> getConsults(String team, boolean showCompleted, Date startDate, Date endDate, String orderby, String desc, String searchDate, Integer offset, Integer limit) {
+        public List<ConsultationRequest> getConsults(String team, boolean showCompleted, Date startDate, Date endDate, String orderby, String desc, String searchDate, Integer offset, Integer limit, String mrpNo, String patientId, String urgencyFilter, String serviceFilter, String consultantFilter) {
         	MiscUtils.getLogger().debug("getConsults(bunch)-----------------------------------------------"); 
-        	
-        	StringBuilder sql = new StringBuilder("select cr from ConsultationRequest cr left outer join cr.professionalSpecialist specialist, ConsultationServices service, Demographic d left outer join d.provider p where d.DemographicNo = cr.demographicId and service.id = cr.serviceId ");
+
+            StringBuilder sql = new StringBuilder("select cr from ConsultationRequest cr left outer join cr.professionalSpecialist specialist, ConsultationServices service, Demographic d left outer join d.provider p where d.DemographicNo = cr.demographicId and service.id = cr.serviceId ");
 
             if( !showCompleted ) {
                sql.append("and cr.status != 4 ");
@@ -98,6 +98,23 @@ public class ConsultationRequestDao extends AbstractDao<ConsultationRequest> {
                     sql.append("and cr.referralDate <= '" + DateFormatUtils.ISO_DATETIME_FORMAT.format(endDate)+ "' ");
                 }
             }
+
+
+	    if( mrpNo != null && !mrpNo.isEmpty() )
+	    sql.append(" and d.ProviderNo = " + mrpNo + " " );
+
+	    if( patientId != null && !patientId.isEmpty() )
+	    sql.append(" and d.DemographicNo = " + patientId + " " );
+
+	    if( urgencyFilter != null && !urgencyFilter.isEmpty() )
+	    sql.append(" and cr.urgency = " + urgencyFilter + " " );
+
+	    if( serviceFilter != null && !serviceFilter.isEmpty() )
+	    sql.append(" and cr.serviceId = " + serviceFilter + " " );
+
+	    if( consultantFilter != null && !consultantFilter.isEmpty() )
+	    sql.append(" and cr.professionalSpecialist = " + consultantFilter + " " );
+
 
             String orderDesc = desc != null && desc.equals("1") ? "DESC" : "";
             String service = ", service.serviceDesc";

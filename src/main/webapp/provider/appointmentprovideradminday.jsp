@@ -891,7 +891,7 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 <caisi:isModuleLoad moduleName="TORONTO_RFQ" reverse="true">
 <security:oscarSec roleName="<%=roleName$%>" objectName="_con" rights="r">
 <li id="con">
- <a HREF="#" ONCLICK ="popupOscarRx(625,1024,'../oscarEncounter/IncomingConsultation.do?providerNo=<%=curUser_no%>&userName=<%=URLEncoder.encode(userfirstname+" "+userlastname)%>')" title="<bean:message key="provider.appointmentProviderAdminDay.viewConReq"/>">
+ <a HREF="#" ONCLICK ="popupOscarRx(625,1224,'../oscarEncounter/IncomingConsultation.do?providerNo=<%=curUser_no%>&userName=<%=URLEncoder.encode(userfirstname+" "+userlastname)%>')" title="<bean:message key="provider.appointmentProviderAdminDay.viewConReq"/>">
  <span id="oscar_aged_consults"><bean:message key="global.con"/></span></a>
 </li>
 </security:oscarSec>

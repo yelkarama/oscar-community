@@ -52,6 +52,9 @@ if(!authed) {
 <%@ page import="org.oscarehr.common.model.ProviderData"%>
 <%@ page import="org.oscarehr.common.dao.ProviderDataDao"%>
 
+<%@page import="org.oscarehr.common.dao.ConsultationServiceDao" %>
+<%@page import="org.oscarehr.common.model.ConsultationServices" %>
+
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
@@ -150,6 +153,12 @@ if (bMultisites) {
   String orderby = (String) request.getAttribute("orderby");
   String desc = (String) request.getAttribute("desc");
   String searchDate = (String) request.getAttribute("searchDate");
+
+  String mrpNo = (String) request.getAttribute("mrpNo");
+  String patientId = (String) request.getAttribute("patientId");
+  String urgencyFilter = (String) request.getAttribute("urgencyFilter");
+  String serviceFilter = (String) request.getAttribute("serviceFilter");
+  String consultantFilter = (String) request.getAttribute("consultantFilter");
   
   oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFormRequestUtil consultUtil;
   consultUtil = new  oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFormRequestUtil();
@@ -209,7 +218,7 @@ color : black;
 
 
 
-</head>
+
 <script language="javascript">
 function BackToOscar()
 {
@@ -272,6 +281,25 @@ function gotoPage(next) {
 
 
 <link rel="stylesheet" type="text/css" href="../encounterStyles.css">
+<style>
+.searchDate{width:90px}
+
+.custom-dropdown{
+list-style: none; margin:0px;padding:0px
+}
+
+.custom-dropdown li{
+font-size:12px;
+padding:2px;
+}
+
+.custom-dropdown li:hover{
+background-color: #ccc;
+cursor: pointer;
+cursor: hand;
+}
+</style>
+</head>
 <body class="BodyStyle" vlink="#0000FF" >
 <!--  -->
     <table  class="MainTable" id="scrollNumber1" name="encounterTable">
@@ -336,12 +364,11 @@ function gotoPage(next) {
                                 <%}else{%>
                                     <option value="<%=te%>"><%=te%></option>
                                 <%}}%>
-                            </select>                            
-                            <input type="submit" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.btnConsReq"/>"/>
-                            <div style="margin: 0; padding: 0; ">
-                            <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgStart"/>:<html:text property="startDate" size="8" styleId="startDate"/><a id="SCal"><img title="Calendar" src="../../images/cal.gif" alt="Calendar" border="0" /></a>
-                            <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgEnd"/>:<html:text property="endDate" size="8"   styleId="endDate"/><a id="ECal"><img title="Calendar" src="../../images/cal.gif" alt="Calendar" border="0" /></a>
-                            <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgIncludeCompleted"/>:<html:checkbox property="includeCompleted" value="include" />
+                            </select> 
+
+                            <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgStart"/>:<html:text property="startDate" styleClass="searchDate" size="6" styleId="startDate"/><a id="SCal"><img title="Calendar" src="../../images/cal.gif" alt="Calendar" border="0" /></a>
+                            <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgEnd"/>:<html:text property="endDate" styleClass="searchDate"   styleId="endDate"/><a id="ECal"><img title="Calendar" src="../../images/cal.gif" alt="Calendar" border="0" /></a>
+
                             <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgSearchon"/><html:radio property="searchDate" value="0" titleKey="Search on Referal Date"/>
                             <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgApptDate"/><html:radio property="searchDate" value="1" titleKey="Search on Appt. Date"/>
                             <html:hidden property="currentTeam"/>
@@ -349,21 +376,62 @@ function gotoPage(next) {
                             <html:hidden property="desc"/>
                             <html:hidden property="offset"/>
                             <html:hidden property="limit"/>
-                            </div>
+
+                            <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgIncludeCompleted"/>:<html:checkbox property="includeCompleted" value="include" />
+
+			    <div style="width:100%"> 
+				MRP <input type="text" class="form-control" id="mrpName" size="14" onKeyup="mrpSearch(this.value)" placeholder="lastname, firstname" autocomplete="off" onFocus="toggleTempBin(1, 'mrpName')" onBlur="toggleTempBin(0, 'mrpName')">
+				<html:hidden property="mrpNo" styleId="mrpNo" value="<%=mrpNo%>" /> 
+
+
+				Patient <input type="text" class="form-control" id="patientName" size="14" onKeyup="patientSearch(this.value)" placeholder="lastname, firstname" autocomplete="off" onFocus="toggleTempBin(1, 'patientName')" onBlur="toggleTempBin(0, 'patientName')">
+				<html:hidden property="patientId" styleId="patientId" />
+
+				Service <select name="serviceFilter" data-new="2">
+				<option value="">select</option>
+				<%
+				ConsultationServiceDao consultationServiceDao = SpringUtils.getBean(ConsultationServiceDao.class);
+
+				List<ConsultationServices> services = consultationServiceDao.findActive();
+
+				for(ConsultationServices cs:services) {
+				out.print("<option value=\""+String.valueOf(cs.getServiceId())+"\">"+cs.getServiceDesc()+"</option>\n");
+				}
+				%></select>
+
+				Consultant  <input type="text" class="form-control" id="consultantName" size="14" onKeyup="consultantSearch(this.value)" placeholder="lastname, firstname" autocomplete="off" onFocus="toggleTempBin(1, 'consultantName')" onBlur="toggleTempBin(0, 'consultantName')">
+				<html:hidden property="consultantFilter" styleId="consultantFilter" />
+
+				Urgency <select name="urgencyFilter">
+					  <option value="">select</option> 
+					  <option value="1">Urgent</option> 
+					  <option value="2">Non-Urgent</option> 
+					  <option value="3">Return</option>
+					</select>
+
+
+				<div id="tempBin" onmouseover="tempBinHover(true)" onmouseout="tempBinHover(false)" style="display:none;position:absolute;padding:4px; background-color:white;border:thin solid #cccccc">You must enter at least 2 characters of a patients name!</div>
+			    </div>
+
+				
+<input class="btn" type="submit" value="Apply Filter"/> <!-- <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.btnConsReq"/> -->
+<input type="reset" class="btn" value="Clear Filter"/>
+<input type="reset" class="btn" value="Reload" onclick="reloadConsults();"/>
+                            <!--/div-->
                         </html:form>
                     </td>
                 </tr>
                 <tr>
                     <td>                    
-                        <table border="0" width="90%" cellspacing="1" style="border: thin solid #C0C0C0;" >
+                        <table border="0" width="90%" cellspacing="1" style="border: thin solid #C0C0C0;"><!--xclass="table table-bordered table-condensed table-hover"-->
                             <tr>
-                                <th align="left" class="VCRheads" width="10%">
+                                <th align="left" class="VCRheads" width="20">
                                    <a href=# onclick="setOrder('1'); return false;">
                                    <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgStatus"/>
                                    </a>
                                 </th>
-				 				<th align="left" class="VCRheads" width="10%">
-									<bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgUrgency"/>
+ 				<th align="left" class="VCRheads" width="60">
+					<bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgUrgency"/>
                                 </th>
                                 <th align="left" class="VCRheads">
                                    <a href=# onclick="setOrder('2'); return false;">
@@ -416,7 +484,7 @@ function gotoPage(next) {
                         <%                                                        
                             oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctViewConsultationRequestsUtil theRequests;                            
                             theRequests = new  oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctViewConsultationRequestsUtil();                            
-                            theRequests.estConsultationVecByTeam(LoggedInInfo.getLoggedInInfoFromSession(request), team,includeCompleted,startDate,endDate,orderby,desc,searchDate,offset,limit);                                                        
+                            theRequests.estConsultationVecByTeam(LoggedInInfo.getLoggedInInfoFromSession(request), team,includeCompleted,startDate,endDate,orderby,desc,searchDate,offset,limit, mrpNo,patientId,urgencyFilter,serviceFilter, consultantFilter);                                                        
                             boolean overdue;                            
                             UserPropertyDAO pref = (UserPropertyDAO) WebApplicationContextUtils.getWebApplicationContext(pageContext.getServletContext()).getBean("UserPropertyDAO");
                             String user = (String)session.getAttribute("user");
@@ -598,7 +666,251 @@ function gotoPage(next) {
     </table>
     <script language='javascript'>
        Calendar.setup({inputField:"startDate",ifFormat:"%Y-%m-%d",showsTime:false,button:"SCal",singleClick:true,step:1});          
-       Calendar.setup({inputField:"endDate",ifFormat:"%Y-%m-%d",showsTime:false,button:"ECal",singleClick:true,step:1});                      
+       Calendar.setup({inputField:"endDate",ifFormat:"%Y-%m-%d",showsTime:false,button:"ECal",singleClick:true,step:1});    
+
+
+var searchDropDownFlag = false;
+
+function patientSearch(term) {
+
+if(term.length<2){
+document.getElementById('tempBin').innerHTML = "You must enter at least 2 characters of a patients name!";
+return false;
+}
+
+tmpBin = document.getElementById('tempBin');
+loaderImg(tmpBin);
+
+oscar_url = window.location.href;     
+static_path = '/ws/rs/demographics/quickSearch?query=';
+url_chucks = oscar_url.split( '/' );
+oscar_name = url_chucks[3];
+search_url = origin + '/' + oscar_name + static_path + term;
+
+var request = new XMLHttpRequest();
+
+request.open('GET', search_url, true);
+request.onload = function() {
+
+  var data = JSON.parse(this.response);
+  var results_html = "";
+  if (request.status >= 200 && request.status < 400) {
+
+    if(data.content.length>0){
+      results_html += "<ul class=\"custom-dropdown\">";
+	    for(i=0;i<=data.content.length-1;i++){
+	      results_html += "<li><a onclick=\"populateInputField(this, 'patient')\" data-id=\""+data.content[i].demographicNo+" \">"+ data.content[i].lastName + ", " + data.content[i].firstName + "</a></li>";
+	    }
+      results_html += "</ul>";
+    }else{
+	results_html = "No results found matching <b>"+term+"</b>.";
+    }
+   document.getElementById('tempBin').innerHTML = results_html;
+  } else {
+    console.log('error')
+  }
+
+}// end onload
+
+request.send();
+}     
+
+
+function xmrpSearch(term) {
+
+if(term.length<2){
+document.getElementById('tempBin').innerHTML = "You must enter at least 2 characters of a patients name!";
+return false;
+}
+
+tmpBin = document.getElementById('tempBin');
+loaderImg(tmpBin);
+
+oscar_url = window.location.href;     
+static_path = '/ws/rs/providerService/providers?searchTerm=';
+url_chucks = oscar_url.split( '/' );
+oscar_name = url_chucks[3];
+search_url = origin + '/' + oscar_name + static_path + term;
+
+var request = new XMLHttpRequest();
+
+request.open('GET', search_url, true);
+request.setRequestHeader("Content-Type", "application/json");
+request.onload = function() {
+
+  var data = this.response;
+  var results_html = "";
+  if (request.status >= 200 && request.status < 400) {
+
+ 	//xmlDoc = data;
+        //var lastName = xmlDoc.getElementsByTagName("lastName"); 
+
+	console.log(data);
+  } else {
+    console.log('error')
+  }
+
+}// end onload
+
+request.send();
+} 
+
+
+function mrpSearch(term){
+
+if(term.length<2){
+document.getElementById('tempBin').innerHTML = "You must enter at least 2 characters of a patients name!";
+return false;
+}
+
+tmpBin = document.getElementById('tempBin');
+loaderImg(tmpBin);
+
+var search = {searchTerm:term, active:true};
+var xhr = new XMLHttpRequest();
+xhr.open("POST", '../../ws/rs/providerService/providers/search', true);
+
+//Send the proper header information along with the request
+xhr.setRequestHeader("Content-Type", "application/json");
+
+xhr.onreadystatechange = function() { // Call a function when the state changes.
+    if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+        // Request finished. Do processing here.
+	var data = JSON.parse(this.response);
+        var results_html = "";
+	    if(data.content.length>0){
+	      results_html += "<ul class=\"custom-dropdown\">";
+		    for(i=0;i<=data.content.length-1;i++){
+		      results_html += "<li><a onclick=\"populateInputField(this, 'mrp')\" data-id=\""+data.content[i].providerNo+" \">"+ data.content[i].lastName + ", " + data.content[i].firstName + "</a></li>";
+		    }
+	      results_html += "</ul>";
+	    }else{
+		results_html = "No results found matching <b>"+term+"</b>.";
+	    }
+	   document.getElementById('tempBin').innerHTML = results_html;
+    }
+}
+
+xhr.send(JSON.stringify(search));
+}
+
+
+function consultantSearch(term){
+if(term.length<2){
+document.getElementById('tempBin').innerHTML = "You must enter at least 2 characters of a patients name!";
+return false;
+}
+
+tmpBin = document.getElementById('tempBin');
+loaderImg(tmpBin);
+
+var request = new XMLHttpRequest();
+
+request.open('GET', 'searchProfessionalSpecialist.json?keyword='+term, true);
+request.setRequestHeader("Content-Type", "application/json");
+request.onload = function() {
+
+  var data = this.response;
+  var results_html = "";
+  if (request.status >= 200 && request.status < 400) {
+
+        // Request finished. Do processing here.
+	var data = JSON.parse(this.response);
+        var results_html = "";
+	    if(data.length>0){
+	      results_html += "<ul class=\"custom-dropdown\">";
+		    for(i=0;i<=data.length-1;i++){
+		      results_html += "<li><a onclick=\"populateInputField(this, 'consultant')\" data-id=\""+data[i].id+" \">"+ data[i].lastName + ", " + data[i].firstName + "</a></li>";
+		    }
+	      results_html += "</ul>";
+	    }else{
+		results_html = "No results found matching <b>"+term+"</b>.";
+	    }
+	   document.getElementById('tempBin').innerHTML = results_html;
+
+
+
+  } else {
+    console.log('error')
+  }
+
+}// end onload
+
+request.send();
+}
+
+
+function populateInputField(el, type){ 
+  
+document.getElementById(type+"Name").value=el.firstChild.data;
+
+if(type=="mrp")
+document.getElementById("mrpNo").value=el.getAttribute("data-id");
+
+if(type=="patient")
+document.getElementById("patientId").value=el.getAttribute("data-id");
+
+if(type=="consultant")
+document.getElementById("consultantFilter").value=el.getAttribute("data-id").trim();
+
+searchDropDownFlag = false;
+toggleTempBin(0, null);
+}
+
+function reloadConsults(){
+url="../../oscarEncounter/IncomingConsultation.do?providerNo=99999";
+window.location.href = url;
+}
+
+function toggleTempBin(a, parentElement){
+if(a===1){
+
+position = getOffset( document.getElementById(parentElement) );
+
+new_top = position.top + document.getElementById(parentElement).offsetHeight
+
+document.getElementById("tempBin").style.top=new_top+"px";
+document.getElementById("tempBin").style.left=position.left+"px";
+document.getElementById("tempBin").style.width=document.getElementById(parentElement).offsetWidth+"px";
+document.getElementById("tempBin").style.display='block';
+
+}else if(a===0 && searchDropDownFlag===false){
+document.getElementById("tempBin").style.display='none';
+document.getElementById("tempBin").innerHTML="You must enter at least 2 characters of a patients name!";
+}
+}
+
+function getOffset( el ) {
+    var _x = 0;
+    var _y = 0;
+    while( el && !isNaN( el.offsetLeft ) && !isNaN( el.offsetTop ) ) {
+        _x += el.offsetLeft - el.scrollLeft;
+        _y += el.offsetTop - el.scrollTop;
+        el = el.offsetParent;
+    }
+    return { top: _y, left: _x};
+}
+
+
+function loaderImg(bin){
+    bin.innerHTML="";
+    var img = document.createElement('img');      
+    img.src = '../../images/loader.gif';
+    img.style.marginLeft = "40%";
+    bin.appendChild(img);
+}
+
+
+function tempBinHover(h){
+
+if(h){
+//console.log("true");
+searchDropDownFlag = true;
+}else{
+searchDropDownFlag = false;
+//console.log("false");
+}
+}
    </script>
 </body>
 
