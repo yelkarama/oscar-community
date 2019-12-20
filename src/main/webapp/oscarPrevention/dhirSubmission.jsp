@@ -94,9 +94,16 @@
 
 
 <%
-
+	Logger logger = MiscUtils.getLogger();
+    DHIRSubmissionManager submissionManager = SpringUtils.getBean(DHIRSubmissionManager.class);
+    String uuid = request.getParameter("uuid");
+    		 
 	String action = request.getParameter("action");
-    		
+    boolean refused = false;
+    Response response2 = null;
+    String body = null;
+    Bundle bundle = null;
+    
     if(!StringUtils.isEmpty(action) && "refuse".equals(action)) {
     	OscarLog log = new OscarLog();
     	log.setAction("DHIR.consent.refused");
@@ -106,13 +113,13 @@
     	log.setDemographicId(Integer.parseInt(request.getParameter("demographicNo")));
     	log.setProviderNo(LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo());
        	LogAction.addLogSynchronous(log);
-    }
+       	refused=true;
+       	
+    } else {
     
-	DHIRSubmissionManager submissionManager = SpringUtils.getBean(DHIRSubmissionManager.class);
-    		
+			
     
-	Logger logger = MiscUtils.getLogger();
-
+	
 	OscarProperties oscarProperties = OscarProperties.getInstance();
 
 	String oneIdEmail = session.getAttribute("oneIdEmail") != null ? session.getAttribute("oneIdEmail").toString() : "";
@@ -166,13 +173,12 @@
 	}
 	
 	
-	String uuid = request.getParameter("uuid");
 	Map<String,Bundle> bundles = (Map<String,Bundle> )session.getAttribute("bundles");
-	Bundle bundle = bundles.get(uuid);
+	bundle = bundles.get(uuid);
 	
 	String bundleJSON = FhirContext.forR4().newJsonParser().encodeResourceToString(bundle);
 	
-	Response response2 = wc
+	response2 = wc
 			.header("Authorization", "Bearer " + accessToken)
 			.header("X-IBM-Client-Id", consumerKey)
 			.header("X-IBM-Client-Secret", consumerSecret)
@@ -187,10 +193,10 @@
 		logger.info(key + "=" + response2.getHeaders().get(key));
 	}
 	*/
-	String body = response2.readEntity(String.class);
+	body = response2.readEntity(String.class);
 		
 	logger.info("body=" + body);
-	
+    }
 %>
 
 
@@ -309,6 +315,17 @@ clear: left;
 
 </head>
 
+<script>
+<%
+	if(refused) {
+		%>
+		$(document).ready(function(){
+			window.close();
+		});
+		<%
+	}
+%>
+</script>
 <body class="BodyStyle" vlink="#0000FF" onload="disableifchecked(document.getElementById('neverWarn'),'nextDate');">
 <!--  -->
     <table  class="MainTable" id="scrollNumber1" name="encounterTable">
@@ -338,6 +355,14 @@ clear: left;
             </td>
             <td valign="top" class="MainTableRightColumn">
             
+            
+<%
+	if(refused) {
+		%>
+		<h2>Submission was not sent due to refusal of consent </h2>
+		<%
+	} else {
+%>
 <%
 
 if(response2.getStatus() == 201) {
@@ -430,6 +455,7 @@ for(DHIRSubmissionLog log : logs) {
 	<%
 }
 
+	}
 %>
 
  </td>
