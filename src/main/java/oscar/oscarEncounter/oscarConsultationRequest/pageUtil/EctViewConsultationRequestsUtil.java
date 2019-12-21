@@ -62,7 +62,7 @@ public class EctViewConsultationRequestsUtil {
       return estConsultationVecByTeam(loggedInInfo,team,showCompleted,null,null,null,null,null,null,null,null,null,null,null,null);
    }  
             
-   public boolean estConsultationVecByTeam(LoggedInInfo loggedInInfo, String team,boolean showCompleted,Date startDate, Date endDate,String orderby,String desc,String searchDate, Integer offset, Integer limit, String mrpNo, String patientId, String urgencyFilter, String serviceFilter, String consultantFilter) {       
+   public boolean estConsultationVecByTeam(LoggedInInfo loggedInInfo, String team,boolean showCompleted,Date startDate, Date endDate,String orderby,String desc,String searchDate, Integer offset, Integer limit, Integer mrpNo, Integer patientId, Integer urgencyFilter, Integer serviceFilter, Integer consultantFilter) {       
       ids = new Vector<String>();
       status = new Vector<String>();
       patient = new Vector<String>();

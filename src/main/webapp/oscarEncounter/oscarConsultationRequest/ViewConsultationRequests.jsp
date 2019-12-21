@@ -154,12 +154,13 @@ if (bMultisites) {
   String desc = (String) request.getAttribute("desc");
   String searchDate = (String) request.getAttribute("searchDate");
 
+
   String mrpNo = (String) request.getAttribute("mrpNo");
   String patientId = (String) request.getAttribute("patientId");
   String urgencyFilter = (String) request.getAttribute("urgencyFilter");
   String serviceFilter = (String) request.getAttribute("serviceFilter");
   String consultantFilter = (String) request.getAttribute("consultantFilter");
-  
+
   oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFormRequestUtil consultUtil;
   consultUtil = new  oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFormRequestUtil();
   
@@ -482,9 +483,31 @@ cursor: hand;
                             <%} %>                                   
                             </tr>
                         <%                                                        
+	Integer intMrpNo = null;
+	Integer intPatientId = null;
+	Integer intUrgencyFilter = null; 
+	Integer intServiceFilter = null;
+	Integer intConsultantFilter = null;
+
+	if(mrpNo!=null && !mrpNo.isEmpty())
+	intMrpNo = Integer.parseInt(mrpNo.trim());
+
+	if(patientId!=null && !patientId.isEmpty())
+	intPatientId = Integer.parseInt(patientId.trim());
+
+	if(urgencyFilter!=null && !urgencyFilter.isEmpty())
+	intUrgencyFilter = Integer.parseInt(urgencyFilter.trim());
+
+	if(serviceFilter!=null && !serviceFilter.isEmpty())
+	intServiceFilter = Integer.parseInt(serviceFilter.trim());
+
+	if(consultantFilter!=null && !consultantFilter.isEmpty())
+	intConsultantFilter = Integer.parseInt(consultantFilter.trim());
+
+
                             oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctViewConsultationRequestsUtil theRequests;                            
                             theRequests = new  oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctViewConsultationRequestsUtil();                            
-                            theRequests.estConsultationVecByTeam(LoggedInInfo.getLoggedInInfoFromSession(request), team,includeCompleted,startDate,endDate,orderby,desc,searchDate,offset,limit, mrpNo,patientId,urgencyFilter,serviceFilter, consultantFilter);                                                        
+                            theRequests.estConsultationVecByTeam(LoggedInInfo.getLoggedInInfoFromSession(request), team,includeCompleted,startDate,endDate,orderby,desc,searchDate,offset,limit, intMrpNo, intPatientId, intUrgencyFilter, intServiceFilter, intConsultantFilter);                                                        
                             boolean overdue;                            
                             UserPropertyDAO pref = (UserPropertyDAO) WebApplicationContextUtils.getWebApplicationContext(pageContext.getServletContext()).getBean("UserPropertyDAO");
                             String user = (String)session.getAttribute("user");

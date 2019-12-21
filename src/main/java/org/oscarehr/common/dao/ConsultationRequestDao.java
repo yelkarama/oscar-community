@@ -70,8 +70,7 @@ public class ConsultationRequestDao extends AbstractDao<ConsultationRequest> {
         }
 
         
-        public List<ConsultationRequest> getConsults(String team, boolean showCompleted, Date startDate, Date endDate, String orderby, String desc, String searchDate, Integer offset, Integer limit, String mrpNo, String patientId, String urgencyFilter, String serviceFilter, String consultantFilter) {
-        	MiscUtils.getLogger().debug("getConsults(bunch)-----------------------------------------------"); 
+        public List<ConsultationRequest> getConsults(String team, boolean showCompleted, Date startDate, Date endDate, String orderby, String desc, String searchDate, Integer offset, Integer limit, Integer mrpNo, Integer patientId, Integer urgencyFilter, Integer serviceFilter, Integer consultantFilter) {
 
             StringBuilder sql = new StringBuilder("select cr from ConsultationRequest cr left outer join cr.professionalSpecialist specialist, ConsultationServices service, Demographic d left outer join d.provider p where d.DemographicNo = cr.demographicId and service.id = cr.serviceId ");
 
@@ -100,19 +99,19 @@ public class ConsultationRequestDao extends AbstractDao<ConsultationRequest> {
             }
 
 
-	    if( mrpNo != null && !mrpNo.isEmpty() )
+	    if( mrpNo != null )
 	    sql.append(" and d.ProviderNo = " + mrpNo + " " );
 
-	    if( patientId != null && !patientId.isEmpty() )
+	    if( patientId != null )
 	    sql.append(" and d.DemographicNo = " + patientId + " " );
 
-	    if( urgencyFilter != null && !urgencyFilter.isEmpty() )
+	    if( urgencyFilter != null )
 	    sql.append(" and cr.urgency = " + urgencyFilter + " " );
 
-	    if( serviceFilter != null && !serviceFilter.isEmpty() )
+	    if( serviceFilter != null )
 	    sql.append(" and cr.serviceId = " + serviceFilter + " " );
 
-	    if( consultantFilter != null && !consultantFilter.isEmpty() )
+	    if( consultantFilter != null )
 	    sql.append(" and cr.professionalSpecialist = " + consultantFilter + " " );
 
 
