@@ -1,5 +1,27 @@
 package org.oscarehr.integration.fhir.api;
-
+/**
+ * Copyright (c) 2001-2002. Department of Family Medicine, McMaster University. All Rights Reserved.
+ * This software is published under the GPL GNU General Public License.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version. 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ *
+ * This software was written for the
+ * Department of Family Medicine
+ * McMaster University
+ * Hamilton
+ * Ontario, Canada
+ */
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -79,17 +101,17 @@ public class TAPERmd {
 			}
 		}
 		
-		List<String> weightMeasurement = new ArrayList<String>();
-		weightMeasurement.add("WT");
-		List<Measurement> weightMeasurements = measurementManager.getMeasurementByType(loggedInInfo, demographicNo,weightMeasurement);
+		//List<String> weightMeasurement = new ArrayList<String>();
+		//weightMeasurement.add("WT");
+		List<Measurement> weightMeasurements = measurementManager.getMeasurementByType(loggedInInfo, demographicNo,getMeasurementArray("WT"));
 		
-		List<String> bpMeasurement = new ArrayList<String>();
-		bpMeasurement.add("BP");
-		List<Measurement> bpMeasurements = measurementManager.getMeasurementByType(loggedInInfo, demographicNo,weightMeasurement);
+		//List<String> bpMeasurement = new ArrayList<String>();
+		//bpMeasurement.add("BP");
+		List<Measurement> bpMeasurements = measurementManager.getMeasurementByType(loggedInInfo, demographicNo,getMeasurementArray("BP"));
 		
-		List<String> sCrMeasurement = new ArrayList<String>();
-		sCrMeasurement.add("SCR");
-		List<Measurement> sCrMeasurements = measurementManager.getMeasurementByType(loggedInInfo, demographicNo,sCrMeasurement);
+		//List<String> sCrMeasurement = new ArrayList<String>();
+		//sCrMeasurement.add("SCR");
+		List<Measurement> sCrMeasurements = measurementManager.getMeasurementByType(loggedInInfo, demographicNo,getMeasurementArray("SCR"));
 		
 		if(weightMeasurements.size() > 0) {
 			Measurement wMeasurement = weightMeasurements.get(0);
@@ -161,6 +183,14 @@ public class TAPERmd {
 			logger.error("url error" +response,e);
 		}
 		return urlToLaunch;
+	}
+	
+	private List<String> getMeasurementArray(String... strs){
+		List<String> measurementArr = new ArrayList<String>();
+		for(String str: strs) {
+			measurementArr.add(str);
+		}
+		return measurementArr;
 	}
 	
 	String getResponse(javax.ws.rs.core.Response resp) {
