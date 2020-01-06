@@ -51,6 +51,7 @@ import org.oscarehr.common.model.AppDefinition;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Drug;
 import org.oscarehr.common.model.Measurement;
+import org.oscarehr.common.model.Provider;
 import org.oscarehr.integration.fhir.builder.FhirBundleBuilder;
 
 import org.oscarehr.integration.fhir.manager.OscarFhirConfigurationManager;
@@ -60,6 +61,7 @@ import org.oscarehr.managers.AppManager;
 import org.oscarehr.managers.DemographicManager;
 import org.oscarehr.managers.MeasurementManager;
 import org.oscarehr.managers.PrescriptionManager;
+import org.oscarehr.managers.ProviderManager2;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -81,6 +83,7 @@ public class TAPERmd {
 		PrescriptionManager prescriptionManager = SpringUtils.getBean(PrescriptionManager.class);
 		MeasurementManager measurementManager = SpringUtils.getBean(MeasurementManager.class);
 		DemographicManager demographicManager = SpringUtils.getBean(DemographicManager.class);
+		ProviderManager2 providerManager = SpringUtils.getBean(ProviderManager2.class);
 		List<String> dins = new ArrayList<String>();
 		Double weight = null;
 		Date weightDate = null;
@@ -101,16 +104,10 @@ public class TAPERmd {
 			}
 		}
 		
-		//List<String> weightMeasurement = new ArrayList<String>();
-		//weightMeasurement.add("WT");
 		List<Measurement> weightMeasurements = measurementManager.getMeasurementByType(loggedInInfo, demographicNo,getMeasurementArray("WT"));
 		
-		//List<String> bpMeasurement = new ArrayList<String>();
-		//bpMeasurement.add("BP");
 		List<Measurement> bpMeasurements = measurementManager.getMeasurementByType(loggedInInfo, demographicNo,getMeasurementArray("BP"));
 		
-		//List<String> sCrMeasurement = new ArrayList<String>();
-		//sCrMeasurement.add("SCR");
 		List<Measurement> sCrMeasurements = measurementManager.getMeasurementByType(loggedInInfo, demographicNo,getMeasurementArray("SCR"));
 		
 		if(weightMeasurements.size() > 0) {
@@ -138,9 +135,12 @@ public class TAPERmd {
 		Demographic demographic = demographicManager.getDemographic(loggedInInfo, demographicNo);
 		if(demographic != null) {
 			patientSex = demographic.getSex();
-			mrpNumber = "9999";demographic.getProviderNo();
-			mrpLastname  = "test";  
-			mrpFirstname = "test";
+			mrpNumber = demographic.getProviderNo();
+			Provider mrpProvider = providerManager.getProvider(loggedInInfo, mrpNumber);
+			if(mrpProvider != null) {
+				mrpLastname  = mrpProvider.getLastName();  
+				mrpFirstname = mrpProvider.getFirstName();
+			}
 		}
 		
 		logger.debug("loggedInInfo "+loggedInInfo+" demographicNo "+demographicNo+" dins "+dins+" weight "+weight+" weightDate "+ weightDate+" systolic "+ systolic+" diastolic "+ diastolic +"   bpDate "+ bpDate+ " scr "+scr+" scrDate "+  scrDate+ " patientSex "+patientSex +" mrpLastname "+mrpLastname+" mrpFirstname "+  mrpFirstname+"  mrpNumber "+mrpNumber);
@@ -166,7 +166,7 @@ public class TAPERmd {
 		logger.debug("messageJson:"+messageJson);
 		//Send to Taper REST service with bearer token
 		
-		String bearerToken = createBearerToken(loggedInInfo,""+demographicNo,"patientName",loggedInInfo.getLoggedInProvider().getFormattedName(),loggedInInfo.getLoggedInProviderNo());
+		String bearerToken = createBearerToken(loggedInInfo,""+demographicNo,demographic.getFormattedName(),loggedInInfo.getLoggedInProvider().getFormattedName(),loggedInInfo.getLoggedInProviderNo());
 		logger.debug("bearerToken:"+bearerToken);
 		
 		String url = "https://demo.tapermd.org/functions/oscar.php";
@@ -229,6 +229,7 @@ public class TAPERmd {
 		        .withSubject(subject)
 		        .withClaim("provider_name", providerName) 
 		        .withClaim("provider_id", providerId) 
+		        .withIssuedAt(new Date())
 		        .sign(algorithm);
 		} catch (Exception exception){
 			logger.error("Error creating bearer token",exception);
