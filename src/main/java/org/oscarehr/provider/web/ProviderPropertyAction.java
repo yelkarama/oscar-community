@@ -2016,8 +2016,8 @@ public ActionForward viewEDocBrowserInDocumentReport(ActionMapping actionmapping
         request.setAttribute("providerbtnCancel","provider.ticklerPreference.btnCancel"); //=Cancel
         request.setAttribute("method","saveTicklerTaskAssignee");
 
-	    request.setAttribute("taskAssigneeSelection", ticklerTaskAssignee);
-	    frm.set("taskAssigneeSelection", ticklerTaskAssignee);
+	request.setAttribute("taskAssigneeSelection", ticklerTaskAssignee);
+	frm.set("taskAssigneeSelection", ticklerTaskAssignee);
 
         request.setAttribute("providerMsg","");
 
@@ -2071,6 +2071,104 @@ public ActionForward viewEDocBrowserInDocumentReport(ActionMapping actionmapping
         return actionmapping.findForward("complete");
 
 	}
+
+//********************************************************************************************************************
+public ActionForward viewConsultsFilter(ActionMapping actionmapping,ActionForm actionform,HttpServletRequest request, HttpServletResponse response) {
+        DynaActionForm frm = (DynaActionForm)actionform;
+        LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+        String providerNo=loggedInInfo.getLoggedInProviderNo();
+
+	//consultsDefaultFilter
+	UserProperty prop = this.userPropertyDAO.getProp(providerNo, UserProperty.CONSULTS_DEFAULT_FILTER);
+
+	MiscUtils.getLogger().error("viewConsultsFilter has started -----------------------------"); //TODO REMOVE
+
+	//String defaultTo = "";
+	if (prop == null){
+MiscUtils.getLogger().error("viewConsultsFilter prop null-----------------------------"); //TODO REMOVE
+
+		prop = new UserProperty();
+		prop.setValue(""); //sendTo=Cats &mrpNo=999998
+		//defaultTo = prop.getValue();
+	}
+
+       
+
+        request.setAttribute("providertitle","provider.viewConsultsPreference.title"); 
+        request.setAttribute("providermsgPrefs","provider.viewConsultsPreference.msgPrefs"); //=Preferences
+        request.setAttribute("providerbtnSubmit","provider.viewConsultsPreference.btnSubmit"); //=Save
+        request.setAttribute("providerbtnCancel","provider.viewConsultsPreference.btnCancel"); //=Cancel
+        request.setAttribute("method","saveConsultsFilter"); //was: saveTicklerTaskAssignee
+
+	request.setAttribute("consultsDefaultFilter", prop); //was: ticklerTaskAssignee
+	frm.set("consultsDefaultFilter", prop);
+
+	request.setAttribute("providerMsg","");
+
+        return actionmapping.findForward("success");
+    }
+
+    public ActionForward saveConsultsFilter(ActionMapping actionmapping,ActionForm actionform, HttpServletRequest request, HttpServletResponse response) {
+        LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+
+
+        String providerNo=loggedInInfo.getLoggedInProviderNo();
+	String team = "";
+        DynaActionForm frm=(DynaActionForm)actionform;
+
+
+Provider p = loggedInInfo.getLoggedInProvider();
+if( p != null ) {
+	team = p.getTeam();
+
+MiscUtils.getLogger().error("saveConsultsFilter provider team(updated)-----------------------------" + team);
+}
+
+
+	UserProperty a=(UserProperty)frm.get("consultsDefaultFilter");
+	String consultsDefaultFilter = a != null ? a.getValue() : "";
+	String propToSave = "";
+
+	consultsDefaultFilter = consultsDefaultFilter.trim();
+
+	boolean delete = false;
+	if(consultsDefaultFilter.equals("mine")){
+		propToSave="mrpNo="+providerNo;
+	}else if(consultsDefaultFilter.equals("mygroup")){
+		propToSave="sendTo="+team;
+	}else{
+
+		//catch all for now
+		propToSave=consultsDefaultFilter;
+	}
+
+	UserProperty property = this.userPropertyDAO.getProp(providerNo, UserProperty.CONSULTS_DEFAULT_FILTER);
+	if( property == null ) {
+		property = new UserProperty();
+		property.setProviderNo(providerNo);
+		property.setName(UserProperty.CONSULTS_DEFAULT_FILTER);
+	}
+
+	if(delete){
+	 userPropertyDAO.delete(property);
+	}else{
+	 property.setValue(propToSave);
+	 userPropertyDAO.saveProp(property);
+	}
+
+	request.setAttribute("status", "success");
+        request.setAttribute("providertitle","provider.viewConsultsPreference.title"); 
+        request.setAttribute("providermsgPrefs","provider.viewConsultsPreference.msgPrefs"); //=Preferences
+        request.setAttribute("providerbtnSubmit","provider.viewConsultsPreference.btnSubmit"); //=Save
+        request.setAttribute("providerbtnCancel","provider.viewConsultsPreference.btnCancel"); //=Cancel
+	request.setAttribute("providerbtnClose","provider.viewConsultsPreference.providerbtnClose"); //=Close Window
+        request.setAttribute("providerMsg","provider.viewConsultsPreference.savedMsg");
+        request.setAttribute("method","saveConsultsFilter");
+
+        return actionmapping.findForward("complete");
+
+	}
+//***************************************************************************************************************************************************
 
     public ActionForward viewEncounterWindowSize(ActionMapping actionmapping,ActionForm actionform,HttpServletRequest request, HttpServletResponse response) {
 

@@ -154,12 +154,23 @@ if (bMultisites) {
   String desc = (String) request.getAttribute("desc");
   String searchDate = (String) request.getAttribute("searchDate");
 
+UserPropertyDAO pref = (UserPropertyDAO) WebApplicationContextUtils.getWebApplicationContext(pageContext.getServletContext()).getBean("UserPropertyDAO");
+String user = (String)session.getAttribute("user");
+
+UserProperty default_filter = pref.getProp(user, UserProperty.CONSULTS_DEFAULT_FILTER);
+String defaultFilterValue = null;
+
 
   String mrpNo = (String) request.getAttribute("mrpNo");
   String patientId = (String) request.getAttribute("patientId");
   String urgencyFilter = (String) request.getAttribute("urgencyFilter");
   String serviceFilter = (String) request.getAttribute("serviceFilter");
   String consultantFilter = (String) request.getAttribute("consultantFilter");
+
+
+if ( default_filter != null && default_filter.getValue() != null && !default_filter.getValue().trim().equals("")){
+	defaultFilterValue = default_filter.getValue();
+}
 
   oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFormRequestUtil consultUtil;
   consultUtil = new  oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFormRequestUtil();
@@ -218,7 +229,7 @@ color : black;
 </style>
 
 
-
+<%="<script>\nvar provider_no=\""+curProvider_no+"\";\nvar default_filter=\""+defaultFilterValue+"\";\n</script>"%>
 
 <script language="javascript">
 function BackToOscar()
@@ -380,6 +391,7 @@ cursor: hand;
 
                             <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgIncludeCompleted"/>:<html:checkbox property="includeCompleted" value="include" />
 
+
 			    <div style="width:100%"> 
 				MRP <input type="text" class="form-control" id="mrpName" size="14" onKeyup="mrpSearch(this.value)" placeholder="lastname, firstname" autocomplete="off" onFocus="toggleTempBin(1, 'mrpName')" onBlur="toggleTempBin(0, 'mrpName')">
 				<html:hidden property="mrpNo" styleId="mrpNo" value="<%=mrpNo%>" /> 
@@ -414,7 +426,7 @@ cursor: hand;
 				<div id="tempBin" onmouseover="tempBinHover(true)" onmouseout="tempBinHover(false)" style="display:none;position:absolute;padding:4px; background-color:white;border:thin solid #cccccc">You must enter at least 2 characters of a patients name!</div>
 			    </div>
 
-				
+			   <div style="width:100%;display:none;"><b>For Testing Preference Only:</b><br><%=defaultFilterValue%></div>		
 <input class="btn" type="submit" value="Apply Filter"/> <!-- <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.btnConsReq"/> -->
 <input type="reset" class="btn" value="Clear Filter"/>
 <input type="reset" class="btn" value="Reload" onclick="reloadConsults();"/>
@@ -424,7 +436,7 @@ cursor: hand;
                 </tr>
                 <tr>
                     <td>                    
-                        <table border="0" width="90%" cellspacing="1" style="border: thin solid #C0C0C0;"><!--xclass="table table-bordered table-condensed table-hover"-->
+                        <table border="0" width="90%" cellspacing="1" style="border: thin solid #C0C0C0;">
                             <tr>
                                 <th align="left" class="VCRheads" width="20">
                                    <a href=# onclick="setOrder('1'); return false;">
@@ -509,8 +521,7 @@ cursor: hand;
                             theRequests = new  oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctViewConsultationRequestsUtil();                            
                             theRequests.estConsultationVecByTeam(LoggedInInfo.getLoggedInInfoFromSession(request), team,includeCompleted,startDate,endDate,orderby,desc,searchDate,offset,limit, intMrpNo, intPatientId, intUrgencyFilter, intServiceFilter, intConsultantFilter);                                                        
                             boolean overdue;                            
-                            UserPropertyDAO pref = (UserPropertyDAO) WebApplicationContextUtils.getWebApplicationContext(pageContext.getServletContext()).getBean("UserPropertyDAO");
-                            String user = (String)session.getAttribute("user");
+                            
                             UserProperty up = pref.getProp(user, UserProperty.CONSULTATION_TIME_PERIOD_WARNING);
                             String timeperiod = null;
                             int countback;
@@ -881,7 +892,11 @@ toggleTempBin(0, null);
 }
 
 function reloadConsults(){
-url="../../oscarEncounter/IncomingConsultation.do?providerNo=99999";
+url="../../oscarEncounter/IncomingConsultation.do?providerNo="+provider_no;
+if(default_filter!=="null"){
+url="../../oscarEncounter/ViewConsultation.do?"+default_filter;
+}
+
 window.location.href = url;
 }
 

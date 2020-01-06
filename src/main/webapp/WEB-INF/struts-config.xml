@@ -279,6 +279,10 @@
 			<form-property name="taskAssigneeMRP" type="org.oscarehr.common.model.UserProperty" />
 			<form-property name="taskAssigneeProvider" type="org.oscarehr.common.model.UserProperty" />
 		</form-bean>
+
+		<form-bean name="setViewConsultsPreferencesForm" type="org.apache.struts.action.DynaActionForm">
+			<form-property name="consultsDefaultFilter" type="org.oscarehr.common.model.UserProperty" />
+		</form-bean>
 		
 		<form-bean name="setProviderNoteStaleDateForm" type="org.apache.struts.action.DynaActionForm">
 			<form-property name="dateProperty" type="org.oscarehr.common.model.UserProperty" />
@@ -1733,10 +1737,16 @@
         </action>
         
 		<action path="/setTicklerPreferences" type="org.springframework.web.struts.DelegatingActionProxy" parameter="method" scope="request" input="/provider/setTicklerPreferences.jsp" name="setTicklerPreferencesForm">
-			<forward name="success"	 path="/provider/setTicklerPreferences.jsp" />
-			<forward name="complete" path="/provider/setTicklerPreferences.jsp" />
-			<forward name="error"    path="/provider/setTicklerPreferences.jsp?error" />
-        </action>        
+				<forward name="success"	 path="/provider/setTicklerPreferences.jsp" />
+				<forward name="complete" path="/provider/setTicklerPreferences.jsp" />
+				<forward name="error"    path="/provider/setTicklerPreferences.jsp?error" />
+		</action>   
+
+		<action path="/setViewConsultsPreferences" type="org.springframework.web.struts.DelegatingActionProxy" parameter="method" scope="request" input="/provider/setViewConsultsPreferences.jsp" name="setViewConsultsPreferencesForm">
+				<forward name="success"	 path="/provider/setViewConsultsPreferences.jsp" />
+				<forward name="complete" path="/provider/setViewConsultsPreferences.jsp" />
+				<forward name="error"    path="/provider/setViewConsultsPreferences.jsp?error" />
+		</action>     
 
 		<action input="/provider/providerIndivoIdSetter.jsp" name="setMyOscarIdForm" path="/setMyOscarId" scope="request" type="oscar.oscarProvider.pageUtil.ProEditMyOscarIdAction">
 			<forward name="success" path="/provider/providerIndivoIdSetter.jsp" />
