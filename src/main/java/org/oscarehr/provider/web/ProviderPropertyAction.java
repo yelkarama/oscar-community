@@ -2072,7 +2072,6 @@ public ActionForward viewEDocBrowserInDocumentReport(ActionMapping actionmapping
 
 	}
 
-//********************************************************************************************************************
 public ActionForward viewConsultsFilter(ActionMapping actionmapping,ActionForm actionform,HttpServletRequest request, HttpServletResponse response) {
         DynaActionForm frm = (DynaActionForm)actionform;
         LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
@@ -2081,26 +2080,20 @@ public ActionForward viewConsultsFilter(ActionMapping actionmapping,ActionForm a
 	//consultsDefaultFilter
 	UserProperty prop = this.userPropertyDAO.getProp(providerNo, UserProperty.CONSULTS_DEFAULT_FILTER);
 
-	MiscUtils.getLogger().error("viewConsultsFilter has started -----------------------------"); //TODO REMOVE
-
-	//String defaultTo = "";
 	if (prop == null){
-MiscUtils.getLogger().error("viewConsultsFilter prop null-----------------------------"); //TODO REMOVE
-
 		prop = new UserProperty();
-		prop.setValue(""); //sendTo=Cats &mrpNo=999998
-		//defaultTo = prop.getValue();
+		prop.setValue("");
 	}
 
        
 
         request.setAttribute("providertitle","provider.viewConsultsPreference.title"); 
-        request.setAttribute("providermsgPrefs","provider.viewConsultsPreference.msgPrefs"); //=Preferences
-        request.setAttribute("providerbtnSubmit","provider.viewConsultsPreference.btnSubmit"); //=Save
-        request.setAttribute("providerbtnCancel","provider.viewConsultsPreference.btnCancel"); //=Cancel
-        request.setAttribute("method","saveConsultsFilter"); //was: saveTicklerTaskAssignee
+        request.setAttribute("providermsgPrefs","provider.viewConsultsPreference.msgPrefs");
+        request.setAttribute("providerbtnSubmit","provider.viewConsultsPreference.btnSubmit");
+        request.setAttribute("providerbtnCancel","provider.viewConsultsPreference.btnCancel"); 
+        request.setAttribute("method","saveConsultsFilter");
 
-	request.setAttribute("consultsDefaultFilter", prop); //was: ticklerTaskAssignee
+	request.setAttribute("consultsDefaultFilter", prop);
 	frm.set("consultsDefaultFilter", prop);
 
 	request.setAttribute("providerMsg","");
@@ -2117,13 +2110,10 @@ MiscUtils.getLogger().error("viewConsultsFilter prop null-----------------------
         DynaActionForm frm=(DynaActionForm)actionform;
 
 
-Provider p = loggedInInfo.getLoggedInProvider();
-if( p != null ) {
-	team = p.getTeam();
-
-MiscUtils.getLogger().error("saveConsultsFilter provider team(updated)-----------------------------" + team);
-}
-
+	Provider p = loggedInInfo.getLoggedInProvider();
+	if( p != null ) {
+		team = p.getTeam();
+	}
 
 	UserProperty a=(UserProperty)frm.get("consultsDefaultFilter");
 	String consultsDefaultFilter = a != null ? a.getValue() : "";
@@ -2168,7 +2158,7 @@ MiscUtils.getLogger().error("saveConsultsFilter provider team(updated)----------
         return actionmapping.findForward("complete");
 
 	}
-//***************************************************************************************************************************************************
+
 
     public ActionForward viewEncounterWindowSize(ActionMapping actionmapping,ActionForm actionform,HttpServletRequest request, HttpServletResponse response) {
 
