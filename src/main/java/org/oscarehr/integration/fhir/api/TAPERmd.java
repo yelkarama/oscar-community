@@ -85,6 +85,7 @@ public class TAPERmd {
 		DemographicManager demographicManager = SpringUtils.getBean(DemographicManager.class);
 		ProviderManager2 providerManager = SpringUtils.getBean(ProviderManager2.class);
 		List<String> dins = new ArrayList<String>();
+		List<Drug> meds = new ArrayList<Drug>();
 		Double weight = null;
 		Date weightDate = null;
 		Integer systolic = null;
@@ -100,7 +101,8 @@ public class TAPERmd {
 		List<Drug> drugList = prescriptionManager.getLongTermDrugs(loggedInInfo, demographicNo);
 		for(Drug drug: drugList) {
 			if(drug.getRegionalIdentifier() != null && !dins.contains(drug.getRegionalIdentifier())) {
-				dins.add(drug.getRegionalIdentifier());
+				dins.add(drug.getRegionalIdentifier()); //only add one med per din
+				meds.add(drug);
 			}
 		}
 		
@@ -148,7 +150,7 @@ public class TAPERmd {
 		
 		FhirBundleBuilder fhirBundleBuilder = getFhirBundleBuilder(loggedInInfo,
 				demographicNo,
-				dins,
+				meds,
 				weight,  
 				weightDate,  
 				systolic, 
@@ -238,7 +240,7 @@ public class TAPERmd {
 	}
 	
 	
-	public FhirBundleBuilder getFhirBundleBuilder(LoggedInInfo loggedInInfo,int demographicNo,List<String> dins,
+	public FhirBundleBuilder getFhirBundleBuilder(LoggedInInfo loggedInInfo,int demographicNo,List<Drug> dins,
 												Double weight, Date weightDate, Integer systolic,Integer diastolic, Date bpDate,
 												Double scr, Date scrDate,
 												String patientSex,
@@ -246,7 +248,7 @@ public class TAPERmd {
 		logger.debug("trying to build bundle");
 		OscarFhirConfigurationManager configurationManager = new OscarFhirConfigurationManager( loggedInInfo, SETTINGS );
 		FhirBundleBuilder fhirBundleBuilder = new FhirBundleBuilder( configurationManager );
-		for(String din:dins) {
+		for(Drug din:dins) {
 			fhirBundleBuilder.addResource(getMed(din));
 		}
 		
@@ -376,14 +378,15 @@ public class TAPERmd {
 		return observation;
 	}
 	
-	org.hl7.fhir.dstu3.model.Medication getMed(String din){
+	org.hl7.fhir.dstu3.model.Medication getMed(Drug drug){
 		org.hl7.fhir.dstu3.model.Medication med = new org.hl7.fhir.dstu3.model.Medication();
 		CodeableConcept dinCode = new CodeableConcept();
 		Coding coding = new Coding();
-		coding.setCode(din);
+		coding.setCode(drug.getRegionalIdentifier());
 		coding.setSystem("http://hl7.org/fhir/NamingSystem/ca-hc-din");
 		dinCode.getCoding().add(coding);
 		med.setCode(dinCode);
+		med.setId(""+drug.getId());
 		return med;
 	}
 	
