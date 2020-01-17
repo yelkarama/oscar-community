@@ -369,7 +369,7 @@ public class DrugConverterTest extends DrugConverter {
             if(name.equals("aspirin")){
                 DrugSearchTo1 d = new DrugSearchTo1();
                 d.setName("aspirin");
-                d.setId(1);
+                d.setId("1");
                 toReturn.add(d);
             }
 
