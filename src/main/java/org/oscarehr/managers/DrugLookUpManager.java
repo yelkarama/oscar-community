@@ -63,7 +63,7 @@ public class DrugLookUpManager implements DrugLookUp {
                 temp = new DrugSearchTo1();
                 temp.setName((String) h.get("name"));
                 temp.setActive(!((Boolean) h.get("isInactive")));
-                temp.setId((Integer) h.get("id"));
+                temp.setId(""+ h.get("id"));
                 temp.setCategory((Integer) h.get("category"));
 
                 drugs.add(temp);
@@ -104,7 +104,7 @@ public class DrugLookUpManager implements DrugLookUp {
                 if(h.containsKey("isInactive")) {
                 		temp.setActive(!((Boolean) h.get("isInactive")));
                 }
-                temp.setId((Integer) h.get("id"));
+                temp.setId(""+ h.get("id"));
                 temp.setCategory((Integer) h.get("category"));
 
                 drugs.add(temp);
@@ -145,7 +145,7 @@ public class DrugLookUpManager implements DrugLookUp {
                 if(h.containsKey("isInactive")) {
                 		temp.setActive(!((Boolean) h.get("isInactive")));
                 }
-                temp.setId((Integer) h.get("id"));
+                temp.setId((String) h.get("id"));
                 temp.setCategory((Integer) h.get("category"));
 
                 drugs.add(temp);
@@ -167,7 +167,7 @@ public class DrugLookUpManager implements DrugLookUp {
         RxDrugRef dr = new RxDrugRef();
 
         DrugSearchTo1 toReturn = new DrugSearchTo1();
-        toReturn.setId(Integer.parseInt(id));
+        toReturn.setId(id);
 
         // TODO: This is not finished! Needs more work once drug ref gets better.
 
