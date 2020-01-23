@@ -183,6 +183,8 @@ public class UserProperty extends AbstractModel<Integer> implements Serializable
 	public static final String PREVENTION_NON_ISPA_WARNING = "prevention_non_ispa_warning";
 	
 	public static final String TICKLER_TASK_ASSIGNEE = "tickler_task_assignee";
+
+	public static final String CONSULTS_DEFAULT_FILTER = "consults_default_filter";
 	
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

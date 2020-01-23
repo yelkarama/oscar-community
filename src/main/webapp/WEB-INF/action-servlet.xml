@@ -176,6 +176,10 @@
 		<property name="userPropertyDAO" ref="UserPropertyDAO" />
 	</bean>
 
+	<bean name="/setViewConsultsPreferences" class="org.oscarehr.provider.web.ProviderPropertyAction" singleton="false">
+		<property name="userPropertyDAO" ref="UserPropertyDAO" />
+	</bean>
+
 	<!-- Indivo -->
 
 	<bean name="/phr/PhrMessage" class="org.oscarehr.phr.web.PHRMessageAction" singleton="false"/> 
