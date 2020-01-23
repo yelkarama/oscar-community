@@ -57,10 +57,12 @@ CREATE TABLE allergies (
   severity_of_reaction char(1) default '0',
   onset_of_reaction char(1) default '0',
   regional_identifier varchar(100),
+  atc VARCHAR(10),
   life_stage char(1),
   position int(10) not null,
   lastUpdateDate datetime not null,
   providerNo varchar(6),
+  reaction_type VARCHAR(2) NULL,
   PRIMARY KEY  (allergyid)
 ) ;
 
@@ -279,6 +281,8 @@ CREATE TABLE clinic (
   clinic_province varchar(40) default NULL,
   clinic_delim_phone text,
   clinic_delim_fax text,
+  clinic_email VARCHAR(255) DEFAULT '',
+  clinic_website VARCHAR(255) DEFAULT '',
   PRIMARY KEY  (clinic_no)
 ) ;
 
@@ -342,6 +346,9 @@ CREATE TABLE consultationRequests (
   `lastUpdateDate` datetime not null,
   fdid int(10),
   source varchar(50),
+  letterhead_website VARCHAR(255) DEFAULT '',
+  letterhead_email VARCHAR(255) DEFAULT '',
+  locked BOOLEAN NOT NULL DEFAULT FALSE,
   PRIMARY KEY  (requestId)
 ) ;
 
@@ -694,6 +701,8 @@ CREATE TABLE document (
   status char(1) NOT NULL default '',
   contenttype varchar(255) NOT NULL default '',
   contentdatetime datetime,
+  sent_date_time DATETIME,
+  report_media VARCHAR(20),
   public1 int(1) NOT NULL default '0',
   observationdate date default NULL,
   reviewer varchar(30) default '',
@@ -735,7 +744,7 @@ CREATE TABLE drugs (
   pickup_datetime datetime,
   BN varchar(255) default '',
   GCN_SEQNO decimal(10,0) NOT NULL default '0',
-  customName varchar(60) default NULL,
+  customName VARCHAR(255) default NULL,
   takemin float default NULL,
   takemax float default NULL,
   freqcode varchar(6) default NULL,
@@ -754,9 +763,10 @@ CREATE TABLE drugs (
   ATC varchar(20) default NULL,
   script_no int(10) default NULL,
   regional_identifier varchar(100) default NULL,
+  natural_product_number VARCHAR(20) DEFAULT NULL,
   unit varchar(5) default 'tab',
   method varchar(5) default 'Take',
-  route varchar(5) default 'PO',
+  route varchar(120) default 'PO',
   drug_form varchar(50),
   create_date datetime,
   dosage text,
@@ -783,6 +793,9 @@ CREATE TABLE drugs (
   start_date_unknown boolean,
   lastUpdateDate datetime not null,
   dispenseInternal tinyint(1) not null,
+  prescription_identifier varchar(50),
+  prior_rx_ref_id varchar(20),
+  protocol_id varchar(20),
   PRIMARY KEY  (drugid)
 ) ;
 
@@ -864,6 +877,7 @@ CREATE TABLE eform_data (
   form_name varchar(255) default NULL,
   subject varchar(255) default NULL,
   demographic_no int(10) NOT NULL default '0',
+  appointment_no INT,
   status tinyint(1) NOT NULL default '1',
   form_date date default NULL,
   form_time time default NULL,
@@ -5829,11 +5843,11 @@ CREATE TABLE formType2Diabetes (
   otherBox7 varchar(20) default NULL,
   insulin tinyint(1) default NULL,
   otherBox8 varchar(20) default NULL,
-  meds1 varchar(100) default NULL,
-  meds2 varchar(100) default NULL,
-  meds3 varchar(100) default NULL,
-  meds4 varchar(100) default NULL,
-  meds5 varchar(100) default NULL,
+  meds1 tinytext default NULL,
+  meds2 tinytext default NULL,
+  meds3 tinytext default NULL,
+  meds4 tinytext default NULL,
+  meds5 tinytext default NULL,
   lifestyle1 varchar(50) default NULL,
   lifestyle2 varchar(50) default NULL,
   lifestyle3 varchar(50) default NULL,
@@ -6185,6 +6199,7 @@ CREATE TABLE `formGrowth0_36` (
   `length_20` varchar(6) default NULL,
   `headCirc_20` varchar(6) default NULL,
   `comment_20` varchar(25) default NULL,
+  chart_type VARCHAR(3) DEFAULT 'WHO',
   PRIMARY KEY  (`ID`),
   KEY `demographic_no` (`demographic_no`)
 );
@@ -6890,7 +6905,7 @@ CREATE TABLE measurements(
   providerNo varchar(6) NOT NULL default '',
   dataField  varchar(255) NOT NULL,
   measuringInstruction varchar(255) NOT NULL,
-  comments varchar(255),
+  comments TEXT,
   dateObserved datetime,
   dateEntered datetime NOT NULL,
   appointmentNo int(10),
@@ -6962,6 +6977,7 @@ CREATE TABLE measurementType (
   typeDescription varchar(255) NOT NULL,
   measuringInstruction varchar(255) NOT NULL,
   validation varchar(100) NOT NULL,
+  parent_type varchar(50) DEFAULT NULL,
   createDate datetime not null,
   PRIMARY KEY(id),
   KEY id (id),
@@ -7110,7 +7126,9 @@ create table ProviderPreference
     eRxTrainingMode tinyint(1) not null,
     encryptedMyOscarPassword varbinary(255),
     defaultBillingLocation varchar(4) DEFAULT 'no',
-    defaultSliCode varchar(4) default 'no'
+    defaultSliCode varchar(4) default 'no',
+    showAppointmentReason TINYINT(1) NULL DEFAULT NULL,
+    ticklerDefaultAssignedProvider TINYINT(1) NULL DEFAULT NULL
 );
 
 --
@@ -7140,6 +7158,8 @@ CREATE TABLE prescription (
   dates_reprinted text,
   textView text,
   rx_comments text,
+  delivery_method VARCHAR(5),
+  signature_id INT,
   lastUpdateDate datetime not null,
   PRIMARY KEY  (script_no)
 ) ;
@@ -7200,6 +7220,7 @@ CREATE TABLE provider (
   provider_type varchar(15) NOT NULL default '',
   supervisor varchar(6),
   specialty varchar(40) NOT NULL default '',
+  credentials VARCHAR(100) NOT NULL DEFAULT '',
   team varchar(20) default '',
   sex char(1) NOT NULL default '',
   dob date default NULL,
@@ -7526,6 +7547,9 @@ CREATE TABLE security (
   provider_no varchar(6) default NULL,
   pin varchar(6) default NULL,
   forcePasswordReset tinyint(1),
+  oneIdKey VARCHAR(255),
+  `oneIdEmail` VARCHAR(255),
+  `delegateOneIdEmail` VARCHAR(255),
   PRIMARY KEY  (security_no),
   UNIQUE user_name (user_name)
 ) ;
@@ -7848,6 +7872,7 @@ CREATE TABLE demographicQueryFavourites (
   age varchar(255) default NULL,
   startYear varchar(8) default NULL,
   endYear varchar(8) default NULL,
+  asOfDate VARCHAR(10),
   firstName varchar(255) default NULL,
   lastName varchar(255) default NULL,
   rosterStatus text,
@@ -8042,6 +8067,7 @@ create table hl7TextInfo(
 	filler_order_num varchar(50),
 	sending_facility varchar(50),
 	label varchar(255),
+    last_updated_in_olis VARCHAR(255),
 	KEY `labno_index`(`lab_no`),
 	KEY `accession_index`(`accessionNum`)
 );
@@ -8082,7 +8108,7 @@ CREATE TABLE measurementMap(
 	loinc_code varchar(20) NOT NULL,
 	ident_code varchar(20) NOT NULL,
 	name varchar(255),
-	lab_type varchar(10) NOT NULL,
+	lab_type varchar(15) NOT NULL,
 	INDEX(ident_code)
 );
 
@@ -8739,7 +8765,8 @@ CREATE TABLE `casemgmt_note_ext` (
       demographic_no int(10),
       create_date datetime,
       archived char(1) default '0',
-      archived_date datetime
+      archived_date datetime,
+      universal BOOLEAN NOT NULL DEFAULT TRUE
 
 
     ) ;
@@ -8813,7 +8840,7 @@ create table flowsheet_dx (
 CREATE TABLE `site` (
   `site_id` int(11) NOT NULL auto_increment,
   `name` varchar(255) NOT NULL default '',
-  `short_name` varchar(10) NOT NULL default '',
+  full_name VARCHAR(255) NOT NULL default '',
   `phone` varchar(50) default '',
   `fax` varchar(50) default '',
   `bg_color` varchar(20) NOT NULL default '',
@@ -9041,6 +9068,7 @@ CREATE TABLE `EyeformMacro` (
   `statFlag` varchar(20),
   `optFlag` varchar(20),
   `sliCode` varchar(10),
+  includeAdmissionDate BOOLEAN DEFAULT TRUE,
   PRIMARY KEY (`id`)
 );
 
@@ -9198,6 +9226,8 @@ create table DemographicContact (
 	ec varchar(25),
 	note varchar(200),
 	consentToContact tinyint(1),
+    best_contact VARCHAR(10) DEFAULT '',
+    health_care_team BOOLEAN NOT NULL DEFAULT TRUE,
 	active tinyint(1),
 	KEY (`demographicNo`)
 );
@@ -9284,6 +9314,8 @@ CREATE TABLE `HRMDocument` (
   `reportDate` datetime ,
   `parentReport` int(11) ,
   `reportLessDemographicInfoHash` varchar(64) ,
+  report_media VARCHAR(20),
+  source_author VARCHAR(120),
   `sourceFacility` varchar(120) ,
   `hrmCategoryId` int ,
   `description` varchar(255),
@@ -10009,8 +10041,8 @@ create table billing_on_payment (
     total_payment decimal(10,2) not null,
     total_discount decimal(10,2) not null,
     total_refund decimal(10,2) not null,
-    total_credit decimal(10,2) not null
-
+    total_credit decimal(10,2) not null,
+    `active` BOOLEAN DEFAULT TRUE
 );
 
 --
@@ -12057,7 +12089,7 @@ CREATE TABLE `billing_on_transaction` (
   `admission_date` date,
   `sli_code` varchar(10),
   `service_code` varchar(10),
-  `service_code_num` char(2),
+  `service_code_num` char(10),
   `service_code_invoiced` varchar(64),
   `service_code_paid` decimal(10,2),
   `service_code_refund` decimal(10,2),
@@ -12704,7 +12736,8 @@ CREATE TABLE consultation_requests_archive (
   `letterhead_email` VARCHAR(255) DEFAULT '',
   `last_update_date` DATETIME NOT NULL,
   `fdid` INT(10) DEFAULT NULL,
-  `source` VARCHAR(50) DEFAULT NULL
+  `source` VARCHAR(50) DEFAULT NULL,
+  locked BOOLEAN NOT NULL DEFAULT FALSE
 );
 CREATE TABLE consultation_requests_ext_archive (
   `id` INT(10) NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -12752,4 +12785,119 @@ CREATE TABLE IF NOT EXISTS `form_on_perinatal_2017_comment` (
   `field` varchar(255) NOT NULL,
   `val` text NOT NULL,
   PRIMARY KEY (`id`)
+);
+
+CREATE TABLE IF NOT EXISTS incomingLabRulesType (
+  id int(10) NOT NULL AUTO_INCREMENT,
+  forward_rule_id int(10),
+  type VARCHAR(10) NOT NULL,
+  PRIMARY KEY (id),
+  CONSTRAINT FOREIGN KEY (forward_rule_id) REFERENCES incomingLabRules (id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS appointment_reminders
+(
+    id            INT AUTO_INCREMENT
+        PRIMARY KEY,
+    appointment_id INT                    NULL,
+    reminder_email VARCHAR(50)            NULL,
+    reminder_phone VARCHAR(20)            NULL,
+    reminder_cell  VARCHAR(20)            NULL,
+    confirmed     TINYINT(1) DEFAULT '0' NOT NULL,
+    cancelled     TINYINT(1) DEFAULT '0' NOT NULL,
+    unique_cancellation_key VARCHAR(40)    NULL,
+    create_date DATETIME,
+    last_update_date DATETIME,
+    last_update_user VARCHAR(30)
+);
+
+CREATE TABLE IF NOT EXISTS appointment_reminder_status
+(
+    id             INT AUTO_INCREMENT
+        PRIMARY KEY,
+    appt_reminder_id INT                    NOT NULL,
+    provider_no     VARCHAR(10)            NULL,
+    all_delivered   TINYINT(1) DEFAULT '0' NULL,
+    reminders_sent  INT DEFAULT '0'        NULL,
+    delivery_time   DATETIME               NULL
+);
+
+CREATE TABLE IF NOT EXISTS custom_healthcard_type (
+    id int(11) NOT NULL AUTO_INCREMENT,
+    name varchar(20) NOT NULL,
+    enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    created_by varchar(9) NOT NULL,
+    update_date datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted BOOLEAN NOT NULL DEFAULT TRUE,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS prescription_fax
+(
+    id int PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    rx_id varchar(50) NOT NULL,
+    pharmacy_id int(10) NOT NULL,
+    provider_no varchar(6) NOT NULL,
+    prescribe_it_fax boolean default false not null,
+    date_faxed datetime NOT NULL
+);
+
+create table if not exists billing_service_schedule (
+    id int(10) auto_increment primary key,
+    service_code varchar(10) not null,
+    billing_time time default '00:00:00',
+    provider_no  varchar(6),
+    deleted BOOLEAN default false
+);
+
+CREATE TABLE IF NOT EXISTS casemgmt_dx_link (
+    note_id INT(10) NOT NULL,
+    dx_type VARCHAR(10) NOT NULL,
+    dx_code VARCHAR(10) NOT NULL,
+    co_morbid_dx_type VARCHAR(10) DEFAULT NULL,
+    co_morbid_dx_code VARCHAR(10) DEFAULT NULL,
+    update_date DATETIME NOT NULL,
+    PRIMARY KEY(note_id, dx_type, dx_code),
+    FOREIGN KEY(note_id) REFERENCES casemgmt_note(note_id)
+);
+
+create table if not exists document_review
+(
+    id int auto_increment primary key,
+    document_no int(20) not null,
+    provider_no varchar(6) not null,
+    date_reviewed datetime,
+    foreign key(document_no) references document(document_no),
+    foreign key(provider_no) references provider(provider_no)
+);
+
+CREATE TABLE IF NOT EXISTS referral_source
+(
+    id               int auto_increment
+        primary key,
+    referral_source  varchar(200) null,
+    last_update_user int          null,
+    last_update_date datetime     null,
+    archived         tinyint(1)   null
+);
+
+CREATE TABLE IF NOT EXISTS ctl_document_metadata (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    document_no INT,
+    appointment_no INT,
+    status VARCHAR(1)
+);
+
+CREATE TABLE patient_intake_letter_field (
+    name VARCHAR(50) PRIMARY KEY,
+    false_text VARCHAR(255),
+    true_text VARCHAR(255)
+);
+
+create table if not exists billing_rule
+(
+    id int auto_increment primary key,
+    service_code varchar(5) unique not null,
+    bill_region varchar(2) default '',
+    enabled boolean default true
 );

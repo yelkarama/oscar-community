@@ -1367,6 +1367,7 @@ CREATE TABLE billing_on_cheader1 (
   billing_time TIME NOT NULL DEFAULT '00:00:00',
   total decimal(10,2),
   paid decimal(10,2),
+  total_deleted decimal(10,2) default 0.00,
   status char(1) default NULL,
   comment1 text,
   visittype char(2) default NULL,
@@ -3039,7 +3040,8 @@ CREATE TABLE `batch_billing` (
 create table billing_on_premium (
     premium_id int (10) NOT NULL auto_increment primary key, 
     raheader_no int(6) NOT NULL, provider_no varchar(6), 
-    providerohip_no varchar(6) NOT NULL, 
+    providerohip_no varchar(6) NOT NULL,
+    premium_type varchar(255),
     pay_date date NOT NULL, 
     amount_pay varchar(10) NOT NULL, 
     status tinyint(1) NOT NULL, 

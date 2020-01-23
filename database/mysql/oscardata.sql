@@ -251,7 +251,7 @@ insert into ctl_doc_class (reportclass,subclass) values ("Consultant ReportB","D
 insert into ctl_doc_class (reportclass,subclass) values ("Consultant ReportB","Encounter Report");
 insert into ctl_doc_class (reportclass,subclass) values ("Consultant ReportB","Operative Report");
 insert into ctl_doc_class (reportclass,subclass) values ("Consultant ReportB","Progress Report");
-
+INSERT INTO ctl_doc_class (reportclass, subclass) VALUES ('Lab Report', '');
 
 --
 -- Dumping data for table 'ctl_document'
@@ -1743,6 +1743,7 @@ insert into `secRole` (role_name, description) values('Counselling Intern', 'Cou
 insert into `secRole` (role_name, description) values('Field Note Admin', 'Field Note Admin');
 INSERT INTO `secRole` (`role_name`, `description` ) VALUES ('student', 'Student (OSCAR Learning)');
 INSERT INTO `secRole` (`role_name`, `description` ) VALUES ('moderator', 'Moderator (OSCAR Learning)');
+INSERT INTO secRole (role_name, description) VALUE ('Ophthalmologist', 'Opthalmologist');
 
 
 insert into `secUserRole` (`provider_no`,`role_name`,`orgcd`,`activeyn`,lastUpdateDate) values('999998', 'doctor', 'R0000001',1,now());
@@ -2880,15 +2881,16 @@ insert into `secObjectName` (`objectName`) values ('_dashboardCommonLink');
 insert into `secObjPrivilege` values('doctor','_dashboardCommonLink','o',0,'999998');
 insert into `secObjPrivilege` values('admin','_dashboardCommonLink','o',0,'999998');
 
-INSERT INTO `kai15`.`secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_Reminders', 'r', '0', '999998');
-INSERT INTO `kai15`.`secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_consultation', 'r', '0', '999998');
-INSERT INTO `kai15`.`secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_OMeds', 'r', '0', '999998');
-INSERT INTO `kai15`.`secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_RiskFactors', 'r', '0', '999998');
-INSERT INTO `kai15`.`secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_FamHistory', 'r', '0', '999998');
-INSERT INTO `kai15`.`secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_MedHistory', 'r', '0', '999998');
-INSERT INTO `kai15`.`secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_Concerns', 'r', '0', '999998');
-INSERT INTO `kai15`.`secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_SocHistory', 'r', '0', '999998');
-INSERT INTO `kai15`.`secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_demographic.createInvoice', 'r', '0', '999998');
+INSERT INTO `secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_Reminders', 'r', '0', '999998');
+INSERT INTO `secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_consultation', 'r', '0', '999998');
+INSERT INTO `secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_OMeds', 'r', '0', '999998');
+INSERT INTO `secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_RiskFactors', 'r', '0', '999998');
+INSERT INTO `secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_FamHistory', 'r', '0', '999998');
+INSERT INTO `secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_MedHistory', 'r', '0', '999998');
+INSERT INTO `secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_Concerns', 'r', '0', '999998');
+INSERT INTO `secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_SocHistory', 'r', '0', '999998');
+INSERT INTO `secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_demographic.createInvoice', 'r', '0', '999998');
+INSERT IGNORE INTO secObjPrivilege (roleUserGroup, objectName, privilege, priority, provider_no) VALUES ('admin', '_createTaskList', 'x', 0, '999998');
 
 insert into scheduletemplate Values('Public','P:OnCallClinic','Weekends/Holidays','________________________________________CCCCCCCCCCCCCCCC________________________________________');
 
@@ -2897,3 +2899,20 @@ insert into scheduletemplatecode Values(null,'C','On Call Clinic','15','green','
 insert into OscarJobType Values(null,'OSCAR ON CALL CLINIC', 'Notifies MRP if patient seen during on-call clinic','org.oscarehr.jobs.OscarOnCallClinic',false,now());
 
 insert into OscarJob Values(null,'OSCAR On-Call Clinic',null,(select id from OscarJobType where name = 'OSCAR ON CALL CLINIC'),'0 0 4 * * *','999998',false,now(),null);
+
+insert into document_review (document_no, provider_no, date_reviewed)
+select d.document_no, d.reviewer, d.reviewdatetime
+from document d
+where d.reviewer is not null and d.reviewer != '' and d.reviewer != 'null';
+
+INSERT INTO SystemPreferences (name, value, updateDate) VALUE ('kai_username', 'Support', NOW());
+
+INSERT INTO encounterForm VALUE ('Perinatal', '../form/formONPerinatalRecord1.jsp?demographic_no=', 'form_on_perinatal_2017', FALSE);
+
+INSERT INTO secRole (role_name, description) VALUE ('Patient Intake', 'Patient Intake');
+
+INSERT INTO secObjPrivilege (roleUserGroup, objectName, privilege, priority, provider_no) VALUE
+    ('Patient Intake', '_demographic', 'r', 0, '999998'),
+    ('Patient Intake', '_eform', 'w', 0, '999998');
+
+insert into billing_rule (service_code, bill_region, enabled) values ('K267A', 'ON', false),('K269A', 'ON', false);
