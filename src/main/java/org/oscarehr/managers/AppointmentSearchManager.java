@@ -151,7 +151,7 @@ public class AppointmentSearchManager {
 						Class<AvailableTimeSlotFilter> filterClass = (Class<AvailableTimeSlotFilter>) Class.forName(className.getFilterClassName());
 						logger.debug("filter class null? "+filterClass.getName());
 						AvailableTimeSlotFilter filterClassInstance = filterClass.newInstance();
-						providerAppointments = filterClassInstance.filterAvailableTimeSlots(config,mrp,provider.getProviderNo(), appointmentTypeId, dayWorkSchedule, providerAppointments,calDayToSearch,className.getParams());
+						providerAppointments = filterClassInstance.filterAvailableTimeSlots(loggedInInfo,config,mrp,provider.getProviderNo(), appointmentTypeId, dayWorkSchedule, providerAppointments,calDayToSearch,className.getParams());
 						/// keep? or change ? recordFilterForSearchedProvider(doc,searchedProviderRecord,dayWorkScheduleTransfer,filterClassInstance.getClass().getSimpleName() , providerAppointments);						
 						if(providerAppointments.size() == 0) {
 							break;
