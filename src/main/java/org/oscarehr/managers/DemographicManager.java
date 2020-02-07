@@ -564,14 +564,27 @@ public class DemographicManager {
 	}
 
 	public boolean getPhrVerificationLevelByDemographicId(LoggedInInfo loggedInInfo, Integer demographicId) {
-		Integer consentId = appManager.getAppDefinitionConsentId(loggedInInfo, "PHR");
-		if(consentId != null) {
-			Consent consent = consentDao.findByDemographicAndConsentTypeId( demographicId,  consentId  ) ;
-			if(consent != null && consent.getPatientConsented()) {
-				return true;
+		if(appManager.hasAppDefinition(loggedInInfo, "PHR")) {
+			Integer consentId = appManager.getAppDefinitionConsentId(loggedInInfo, "PHR");
+			if(consentId != null) {
+				Consent consent = consentDao.findByDemographicAndConsentTypeId( demographicId,  consentId  ) ;
+				if(consent != null && consent.getPatientConsented()) {
+					return true;
+				}
 			}
+			return false;
+		}else {
+			PHRVerification phrVerification = getLatestPhrVerificationByDemographicId(loggedInInfo, demographicId);
+
+			if (phrVerification != null) {
+				String authLevel = phrVerification.getVerificationLevel();
+				if (PHRVerification.VERIFICATION_METHOD_INPERSON.equals(authLevel)) {
+					return true;
+				}
+			}
+			return false;
 		}
-		return false;
+		
 	}
 
 	/**
