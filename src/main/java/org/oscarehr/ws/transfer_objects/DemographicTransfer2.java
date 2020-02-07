@@ -649,6 +649,7 @@ public final class DemographicTransfer2 {
 			else if ("spokenLanguage".equals(field)) dto.setSpokenLanguage(this.getSpokenLanguage());
 			else if ("title".equals(field)) dto.setTitle(this.getTitle());
 			else if ("ver".equals(field)) dto.setVer(this.getVer());
+			else if ("consentToUseEmailForCare".equals(field)) dto.setConsentToUseEmailForCare(this.getConsentToUseEmailForCare());
 		}
 		return dto;
 	}
