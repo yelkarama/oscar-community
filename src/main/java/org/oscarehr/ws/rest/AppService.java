@@ -752,10 +752,7 @@ public class AppService extends AbstractServiceImpl {
 	@GET
 	@Path("/PHREmailInvite/{demographicId}")
 	public GenericRESTResponse phrEmailInvite(@Context HttpServletRequest request, @PathParam("demographicId") String demographicId) {
-		if (!securityInfoManager.hasPrivilege(getLoggedInInfo(), "_appDefinition", "r", null)) {
-			throw new RuntimeException("Access Denied");
-		}
-		
+	
 		Demographic demographic = demographicManager.getDemographic(getLoggedInInfo(), demographicId);
 		if (demographic!=null && demographic.getEmail()!=null && (demographic.getMyOscarUserName()==null || demographic.getMyOscarUserName().trim().isEmpty())) {
 			PHRInviteTo1 invite = new PHRInviteTo1();
