@@ -24,6 +24,7 @@
 package org.oscarehr.ws.rest;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,6 +39,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import net.sf.json.JSONObject;
 
@@ -555,6 +557,47 @@ public class DemographicService extends AbstractServiceImpl {
 		
 		return response;
 	}
+	
+	@POST
+	@Path("/matchDemographicPartial")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response matchDemographicPartial(JSONObject searchParameters) {
+		String lastName = searchParameters.optString("lastName", null);
+		String hin = searchParameters.optString("hin", null);
+		String dateOfBirth = searchParameters.optString("dateOfBirth", null);
+
+		Response response;
+		
+		if (lastName == null || hin == null || dateOfBirth == null) {
+			response = Response.status(Response.Status.BAD_REQUEST).entity("The attributes lastName, hin, and dateOfBirth are all required to match a demographic").build();
+		} else {
+			try {
+				// Sets the calendar with the DOB, errors if it is an invalid date
+				String[] birthDate = dateOfBirth.split("-");
+				Calendar dob = Calendar.getInstance();
+				dob.setLenient(false);
+				dob.set(Calendar.YEAR, Integer.parseInt(birthDate[0]));
+				dob.set(Calendar.MONTH, Integer.parseInt(birthDate[1]) - 1);
+				dob.set(Calendar.DATE, Integer.parseInt(birthDate[2]));
+				
+				List<Demographic> matchedDemographics = demographicManager.findByLastNameDobAndHin(lastName, dob, hin, false);
+				if (matchedDemographics.isEmpty()) {
+					matchedDemographics = demographicManager.findByLastNameDobAndHin(lastName, dob, hin, true);
+				}
+
+				List<DemographicTo1> demographicTs = new DemographicConverter().getAllAsTransferObjects(getLoggedInInfo(), matchedDemographics);
+				
+				response = Response.ok().entity(demographicTs).build();
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+				response = Response.status(Response.Status.BAD_REQUEST).entity("The date of birth must be a valid date in the format yyyy-MM-dd. There is an issue with " + e.getMessage()).build();
+			}
+		}
+		
+		return response;
+	}
+	
 	
 	private DemographicSearchRequest convertFromJSON(JSONObject json) {
 		if(json ==null)return null;

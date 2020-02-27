@@ -975,6 +975,38 @@ public class DemographicManager {
 			
 			return remoteDemographicNumbers;
 		}
+
+	/**
+	 * Find a demographic by 3 parameters, Last Name, Date of Birth, and HIN. The match can be partial (2/3 must match) or full (all 3 must match).
+	 * @param lastName The lastname to match
+	 * @param dob The date of birth to match
+	 * @param hin The HIN to match
+	 * @param partialMatch Boolean of if the match should be partial (2/3 parameters must match). False means all 3 parameters must match
+	 * @return List of demographics matching the supplied parameters, either fully or partially
+	 */
+		public List<Demographic> findByLastNameDobAndHin(String lastName, Calendar dob, String hin, boolean partialMatch) {
+			String year = String.valueOf(dob.get(Calendar.YEAR));
+			String month = String.valueOf(dob.get(Calendar.MONTH) + 1);
+			// Convert the month to start with a 0 if it is earlier than October
+			if (month.length() == 1) {
+				month = "0" + month;
+			}
+			String day = String.valueOf(dob.get(Calendar.DAY_OF_MONTH));
+			// Convert the date of month to start with a 0 if it is earlier than the 10th
+			if (day.length() == 1) {
+				day = "0" + day;
+			}
+		
+			List<Demographic> demographics;
+			if (partialMatch) {
+				demographics = demographicDao.findByLastNameDobAndHinPartial(lastName, year, month, day, hin);
+			} else {
+				demographics = demographicDao.findByLastNameDobAndHin(lastName, year, month, day, hin);
+			}
+			
+			return demographics;
+		}
+		
 		
 		/**
 		 * Fetch all the the demographic files from all facilities linked by the Integrator to the given local demographic number
