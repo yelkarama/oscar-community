@@ -348,6 +348,8 @@ public class DemographicManager {
 			throw new IllegalArgumentException("Birth date was specified for " + demographic.getFullName() + ": " + demographic.getBirthDayAsString());
 		}
 
+		demographic.setLastName(demographic.getLastName().toUpperCase());
+		demographic.setFirstName(demographic.getFirstName().toUpperCase());
 		demographic.setPatientStatus(PatientStatus.AC.name());
 		demographic.setFamilyDoctor("<rdohip></rdohip><rd></rd>");
 		demographic.setLastUpdateUser(loggedInInfo.getLoggedInProviderNo());
@@ -360,11 +362,14 @@ public class DemographicManager {
 		admission.setAdmissionDate(new Date());
 		admission.setAdmissionStatus(Admission.STATUS_CURRENT);
 		admission.setAdmissionNotes("");
-
-		admissionDao.saveAdmission(admission);
+		
+		if(admission.getProgramId() != null){
+			admissionDao.saveAdmission(admission);
+		}
 
 		if (demographic.getExtras() != null) {
 			for (DemographicExt ext : demographic.getExtras()) {
+				ext.setDemographicNo(demographic.getDemographicNo());
 				createExtension(loggedInInfo, ext);
 			}
 		}

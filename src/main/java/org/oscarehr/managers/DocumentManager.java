@@ -37,11 +37,13 @@ import java.util.List;
 
 import org.oscarehr.common.dao.CtlDocumentDao;
 import org.oscarehr.common.dao.DocumentDao;
+import org.oscarehr.common.dao.DocumentReviewDao;
 import org.oscarehr.common.dao.ProviderInboxRoutingDao;
 import org.oscarehr.common.model.ConsentType;
 import org.oscarehr.common.dao.DocumentDao.DocumentType;
 import org.oscarehr.common.model.CtlDocument;
 import org.oscarehr.common.model.Document;
+import org.oscarehr.common.model.DocumentReview;
 import org.oscarehr.common.model.ProviderInboxItem;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -67,6 +69,9 @@ public class DocumentManager {
     @Autowired
     protected SecurityInfoManager securityInfoManager;
 
+	@Autowired
+	private DocumentReviewDao documentReviewDao;
+	
 	@Autowired
 	private PatientConsentManager patientConsentManager;
 
@@ -116,6 +121,23 @@ public class DocumentManager {
 		}
 
 		return(result);
+	}
+	
+	public Document addDocument(LoggedInInfo loggedInInfo, Document document, CtlDocument ctlDocument) {
+		Integer documentNo = document.getDocumentNo();
+		documentDao.saveEntity(document);
+		boolean newDocument = document.getDocumentNo().equals(documentNo);
+		ctlDocument.getId().setDocumentNo(document.getDocumentNo());
+		ctlDocumentDao.saveEntity(ctlDocument);
+		for(DocumentReview review : document.getReviews()){
+			review.setDocumentNo(document.getDocumentNo());
+			if(newDocument){
+				review.setId(null);
+			}
+			documentReviewDao.saveEntity(review);
+		}
+		LogAction.addLogSynchronous(loggedInInfo, "DocumentManager.addDocument", "id=" + document.getId());
+		return(document);
 	}
 	
 	public List<Document> getDocumentsUpdateAfterDate(LoggedInInfo loggedInInfo, Date updatedAfterThisDateExclusive, int itemsToReturn) {

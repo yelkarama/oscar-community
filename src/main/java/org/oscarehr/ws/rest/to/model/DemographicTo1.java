@@ -23,6 +23,8 @@
  */
 package org.oscarehr.ws.rest.to.model;
 
+import net.sf.json.JSONObject;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -95,7 +97,7 @@ public class DemographicTo1 implements Serializable {
 	private Date onWaitingListSinceDate;
 	private AgeTo1 age;
 	private Integer admissionProgramId;
-	private String middleNames;
+	private String middleNames = "";
 	
 	private List<DemographicContactFewTo1> demoContacts = new ArrayList<DemographicContactFewTo1>();
 	private List<DemographicContactFewTo1> demoContactPros = new ArrayList<DemographicContactFewTo1>();
@@ -107,6 +109,13 @@ public class DemographicTo1 implements Serializable {
 	private List<WaitingListNameTo1> waitingListNames = new ArrayList<WaitingListNameTo1>();
 	private List<StatusValueTo1> patientStatusList = new ArrayList<StatusValueTo1>();
 	private List<StatusValueTo1> rosterStatusList = new ArrayList<StatusValueTo1>();
+	private List<AllergyTo1> allergies = new ArrayList<>();
+	private List<MeasurementTo1> measurements = new ArrayList<>();
+	private List<ConsultationRequestTo1> consultationRequests = new ArrayList<>();
+	private List<ConsultationResponseTo1> consultationResponses = new ArrayList<>();
+	private List<JSONObject> encounterNotes = new ArrayList<>();
+	private List<NoteIssueTo1> issueNotes = new ArrayList<>();
+	private List<DocumentRecordTo1> documents = new ArrayList<>();
 	
 	
 	public Integer getDemographicNo() {
@@ -676,5 +685,60 @@ public class DemographicTo1 implements Serializable {
 	public void setMiddleNames(String middleNames) {
 		this.middleNames = middleNames;
 	}
-	
+
+	public List<AllergyTo1> getAllergies() {
+		return allergies;
+	}
+
+	public void setAllergies(List<AllergyTo1> allergies) {
+		this.allergies = allergies;
+	}
+
+	public List<MeasurementTo1> getMeasurements() {
+		return measurements;
+	}
+
+	public void setMeasurements(List<MeasurementTo1> measurements) {
+		this.measurements = measurements;
+	}
+
+	public List<ConsultationRequestTo1> getConsultationRequests() {
+		return consultationRequests;
+	}
+
+	public void setConsultationRequests(List<ConsultationRequestTo1> consultationRequests) {
+		this.consultationRequests = consultationRequests;
+	}
+
+	public List<ConsultationResponseTo1> getConsultationResponses() {
+		return consultationResponses;
+	}
+
+	public void setConsultationResponses(List<ConsultationResponseTo1> consultationResponses) {
+		this.consultationResponses = consultationResponses;
+	}
+
+	public List<JSONObject> getEncounterNotes() {
+		return encounterNotes;
+	}
+
+	public void setEncounterNotes(List<JSONObject> encounterNotes) {
+		this.encounterNotes = encounterNotes;
+	}
+
+	public List<NoteIssueTo1> getIssueNotes() {
+		return issueNotes;
+	}
+
+	public void setIssueNotes(List<NoteIssueTo1> issueNotes) {
+		this.issueNotes = issueNotes;
+	}
+
+	public List<DocumentRecordTo1> getDocuments() {
+		return documents;
+	}
+
+	public void setDocuments(List<DocumentRecordTo1> documents) {
+		this.documents = documents;
+	}
 }

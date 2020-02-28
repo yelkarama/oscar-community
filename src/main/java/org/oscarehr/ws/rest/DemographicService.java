@@ -23,6 +23,8 @@
  */
 package org.oscarehr.ws.rest;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -43,6 +45,9 @@ import javax.ws.rs.core.Response;
 
 import net.sf.json.JSONObject;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorManager;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.PMmodule.dao.SecUserRoleDao;
@@ -55,27 +60,49 @@ import org.oscarehr.common.dao.ProfessionalSpecialistDao;
 import org.oscarehr.common.dao.WaitingListDao;
 import org.oscarehr.common.dao.WaitingListNameDao;
 import org.oscarehr.common.exception.PatientDirectiveException;
+import org.oscarehr.common.model.Allergy;
+import org.oscarehr.common.model.ConsultDocs;
+import org.oscarehr.common.model.ConsultResponseDoc;
+import org.oscarehr.common.model.ConsultationRequest;
+import org.oscarehr.common.model.ConsultationResponse;
 import org.oscarehr.common.model.Contact;
+import org.oscarehr.common.model.CtlDocument;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.DemographicContact;
 import org.oscarehr.common.model.DemographicCust;
 import org.oscarehr.common.model.DemographicExt;
 import org.oscarehr.common.model.DemographicExt.DemographicProperty;
+import org.oscarehr.common.model.Document;
+import org.oscarehr.common.model.Measurement;
 import org.oscarehr.common.model.ProfessionalSpecialist;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.WaitingList;
 import org.oscarehr.common.model.WaitingListName;
+import org.oscarehr.managers.AllergyManager;
+import org.oscarehr.managers.ConsultationManager;
 import org.oscarehr.managers.DemographicManager;
+import org.oscarehr.managers.DocumentManager;
+import org.oscarehr.managers.MeasurementManager;
+import org.oscarehr.managers.NoteManager;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.web.DemographicSearchHelper;
+import org.oscarehr.ws.rest.conversion.AllergyConverter;
+import org.oscarehr.ws.rest.conversion.ConsultationRequestConverter;
+import org.oscarehr.ws.rest.conversion.ConsultationResponseConverter;
 import org.oscarehr.ws.rest.conversion.DemographicContactFewConverter;
 import org.oscarehr.ws.rest.conversion.DemographicConverter;
+import org.oscarehr.ws.rest.conversion.DocumentConverter;
+import org.oscarehr.ws.rest.conversion.MeasurementConverter;
 import org.oscarehr.ws.rest.conversion.ProfessionalSpecialistConverter;
 import org.oscarehr.ws.rest.conversion.ProviderConverter;
 import org.oscarehr.ws.rest.conversion.WaitingListNameConverter;
 import org.oscarehr.ws.rest.to.AbstractSearchResponse;
 import org.oscarehr.ws.rest.to.OscarSearchResponse;
+import org.oscarehr.ws.rest.to.model.AllergyTo1;
+import org.oscarehr.ws.rest.to.model.ConsultationAttachmentTo1;
+import org.oscarehr.ws.rest.to.model.ConsultationRequestTo1;
+import org.oscarehr.ws.rest.to.model.ConsultationResponseTo1;
 import org.oscarehr.ws.rest.to.model.DemographicContactFewTo1;
 import org.oscarehr.ws.rest.to.model.DemographicSearchRequest;
 import org.oscarehr.ws.rest.to.model.DemographicSearchRequest.SEARCHMODE;
@@ -83,6 +110,11 @@ import org.oscarehr.ws.rest.to.model.DemographicSearchRequest.SORTDIR;
 import org.oscarehr.ws.rest.to.model.DemographicSearchRequest.SORTMODE;
 import org.oscarehr.ws.rest.to.model.DemographicSearchResult;
 import org.oscarehr.ws.rest.to.model.DemographicTo1;
+import org.oscarehr.ws.rest.to.model.DocumentRecordTo1;
+import org.oscarehr.ws.rest.to.model.DocumentTo1;
+import org.oscarehr.ws.rest.to.model.MeasurementTo1;
+import org.oscarehr.ws.rest.to.model.NoteIssueTo1;
+import org.oscarehr.ws.rest.to.model.NoteTo1;
 import org.oscarehr.ws.rest.to.model.StatusValueTo1;
 import org.oscarehr.ws.rest.to.model.WaitingListNameTo1;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,6 +156,22 @@ public class DemographicService extends AbstractServiceImpl {
 	@Autowired
 	private SecurityInfoManager securityInfoManager;
 	
+	@Autowired
+	private AllergyManager allergyManager;
+	
+	@Autowired
+	private MeasurementManager measurementManager;
+	
+	@Autowired
+	private ConsultationManager consultationManager;
+	
+	@Autowired
+	private NoteManager noteManager;
+	
+	@Autowired
+	private DocumentManager documentManager;
+	
+	private final Logger logger = MiscUtils.getLogger();
 	
 	private DemographicConverter demoConverter = new DemographicConverter();
 	private DemographicContactFewConverter demoContactFewConverter = new DemographicContactFewConverter();
@@ -339,7 +387,164 @@ public class DemographicService extends AbstractServiceImpl {
 	public DemographicTo1 createDemographicData(DemographicTo1 data) {
 		Demographic demographic = demoConverter.getAsDomainObject(getLoggedInInfo(), data);
 		demographicManager.createDemographic(getLoggedInInfo(), demographic, data.getAdmissionProgramId());
-	    return demoConverter.getAsTransferObject(getLoggedInInfo(), demographic);
+		
+		List<AllergyTo1> responseAllergies = new ArrayList<>();
+		if(data.getAllergies() != null && !data.getAllergies().isEmpty()) {
+			List<Allergy> allergies = new ArrayList<>();
+			AllergyConverter allergyConverter = new AllergyConverter();
+			for (AllergyTo1 allergyTo1 : data.getAllergies()) {
+				Allergy allergy = allergyConverter.getAsDomainObject(getLoggedInInfo(), allergyTo1);
+				allergy.setDemographicNo(demographic.getDemographicNo());
+				allergies.add(allergy);
+			}
+			if(demographic.getDemographicNo().equals(data.getDemographicNo())){
+				allergyManager.saveAllergies(allergies);
+			} else {
+				allergyManager.createAllergies(allergies);
+			}
+			responseAllergies = allergyConverter.getAllAsTransferObjects(getLoggedInInfo(), allergies);
+		}
+		
+		List<MeasurementTo1> responseMeasurements = new ArrayList<>();
+		if(data.getMeasurements() != null && !data.getMeasurements().isEmpty()){
+			MeasurementConverter measurementConverter = new MeasurementConverter();
+			for(MeasurementTo1 measurementTo1 : data.getMeasurements()){
+				Measurement measurement = measurementConverter.getAsDomainObject(getLoggedInInfo(), measurementTo1);
+				measurement.setDemographicId(demographic.getDemographicNo());
+				measurementManager.addMeasurement(getLoggedInInfo(), measurement);
+				measurementTo1.setId(measurement.getId());
+				responseMeasurements.add(measurementTo1);
+			}
+		}
+		
+		List<ConsultationRequestTo1> responseConsultRequests = new ArrayList<>();
+		if(data.getConsultationRequests() != null && !data.getConsultationRequests().isEmpty()){
+			ConsultationRequestConverter requestConverter = new ConsultationRequestConverter();
+			for(ConsultationRequestTo1 requestTo1 : data.getConsultationRequests()) {
+				ConsultationRequest request = null;
+				requestTo1.setDemographicId(demographic.getDemographicNo());
+				if(!demographic.getDemographicNo().equals(data.getDemographicNo())){
+					requestTo1.setId(null);
+				}				
+				if (requestTo1.getId() == null) { //new consultation request
+					request = requestConverter.getAsDomainObject(getLoggedInInfo(), requestTo1);
+				} else {
+					request = requestConverter.getAsDomainObject(getLoggedInInfo(), requestTo1, consultationManager.getRequest(getLoggedInInfo(), requestTo1.getId()));
+				}
+				request.setProfessionalSpecialist(consultationManager.getProfessionalSpecialist(requestTo1.getProfessionalSpecialist().getId()));
+				consultationManager.saveConsultationRequest(getLoggedInInfo(), request);
+				requestTo1.setId(request.getId());
+
+				//save attachments
+				saveRequestAttachments(requestTo1);
+				responseConsultRequests.add(requestTo1);
+			}
+		}
+
+		List<ConsultationResponseTo1> responseConsultResponse = new ArrayList<>();
+		if(data.getConsultationResponses() != null && !data.getConsultationResponses().isEmpty()){
+			ConsultationResponseConverter responseConverter = new ConsultationResponseConverter();
+			for(ConsultationResponseTo1 responseTo1 : data.getConsultationResponses()){
+				ConsultationResponse response = null;
+				if(!demographic.getDemographicNo().equals(data.getDemographicNo())){
+					responseTo1.setId(null);
+				}
+				responseTo1.setDemographic(demoConverter.getAsTransferObject(getLoggedInInfo(), demographic));
+				if (responseTo1.getId()==null) { //new consultation response
+					response = responseConverter.getAsDomainObject(getLoggedInInfo(), responseTo1);
+				} else {
+					response = responseConverter.getAsDomainObject(getLoggedInInfo(), responseTo1, consultationManager.getResponse(getLoggedInInfo(), responseTo1.getId()));
+				}
+				consultationManager.saveConsultationResponse(getLoggedInInfo(), response);
+				responseTo1.setId(response.getId());
+
+				//save attachments
+				saveResponseAttachments(responseTo1);
+				responseConsultResponse.add(responseTo1);
+			}
+		}
+		
+		List<JSONObject> responseEncounterNotes = new ArrayList<>();
+		if(data.getEncounterNotes() != null && !data.getEncounterNotes().isEmpty()){
+			for (JSONObject jsonObject : data.getEncounterNotes()) {
+				try {
+					ObjectMapper objectMapper = new ObjectMapper();
+					NoteTo1 note = null;
+					
+					if (jsonObject != null) {
+						if (jsonObject.containsKey("encounterNote")) {
+							note = objectMapper.readValue(jsonObject.get("encounterNote").toString(), NoteTo1.class);
+						} else {
+							note = objectMapper.readValue(jsonObject.toString(), NoteTo1.class);
+						}
+					}
+					
+					note = noteManager.saveNote(getLoggedInInfo(), demographic.getDemographicNo(), note);
+					if (jsonObject != null) {
+						if (jsonObject.containsKey("encounterNote")) {
+							jsonObject.getJSONObject("encounterNote").put("noteId", note.getNoteId());
+							jsonObject.getJSONObject("encounterNote").put("uuid", note.getUuid());
+						} else {
+							jsonObject.put("noteId", note.getNoteId());
+							jsonObject.put("uuid", note.getUuid());
+						}
+						responseEncounterNotes.add(jsonObject);
+					}
+				} catch (IOException e){
+					logger.error("Error reading JSON object for a note", e);
+				}
+			}
+		}
+		
+		List<NoteIssueTo1> responseNoteIssues = new ArrayList<>();
+		if(data.getIssueNotes() != null && !data.getIssueNotes().isEmpty()){
+			for(NoteIssueTo1 noteIssueTo1 : data.getIssueNotes()){
+				responseNoteIssues.add(noteManager.saveIssueNote(getLoggedInInfo(), demographic.getDemographicNo(), noteIssueTo1));
+			}
+		}
+		
+		List<DocumentRecordTo1> responseDocuments = new ArrayList<>();
+		if(data.getDocuments() != null && !data.getDocuments().isEmpty()){
+			DocumentConverter documentConverter = new DocumentConverter();
+			String savePath = oscar.OscarProperties.getInstance().getProperty("DOCUMENT_DIR");
+			if (!savePath.endsWith(File.separator)) {
+				savePath += File.separator;
+			}
+
+			for(DocumentRecordTo1 documentTo1 : data.getDocuments()){
+				String destFilePath = savePath + documentTo1.getDocfilename();
+				try{
+					File document_file = new File(destFilePath);
+					FileUtils.writeByteArrayToFile(document_file, documentTo1.getFileContents());
+					CtlDocument ctlDocument = new CtlDocument();
+					ctlDocument.getId().setModule(documentTo1.getCtlModule());
+					if(ctlDocument.getId().getModule().equalsIgnoreCase("demographic")){
+						ctlDocument.getId().setModuleId(demographic.getDemographicNo());
+					} else {
+						ctlDocument.getId().setModuleId(documentTo1.getCtlModuleId());
+					}
+					ctlDocument.setStatus(documentTo1.getCtlStatus());
+					if(!demographic.getDemographicNo().equals(data.getDemographicNo())){
+						documentTo1.setDocumentNo(null);
+					}
+					Document document = documentManager.addDocument(getLoggedInInfo(), documentConverter.getAsDomainObject(getLoggedInInfo(), documentTo1), ctlDocument);
+					documentTo1.setDocumentNo(document.getDocumentNo());
+					responseDocuments.add(documentTo1);
+				} catch (IOException e) {
+					logger.error("And error has occured copying the document", e);
+				}
+			}
+		}
+
+		DemographicTo1 responseDemographic = demoConverter.getAsTransferObject(getLoggedInInfo(), demographic);
+		responseDemographic.setAllergies(responseAllergies);
+		responseDemographic.setMeasurements(responseMeasurements);
+		responseDemographic.setConsultationRequests(responseConsultRequests);
+		responseDemographic.setConsultationResponses(responseConsultResponse);
+		responseDemographic.setEncounterNotes(responseEncounterNotes);
+		responseDemographic.setIssueNotes (responseNoteIssues);
+		responseDemographic.setDocuments(responseDocuments);
+		return responseDemographic;
 	}
 
 	/**
@@ -652,4 +857,67 @@ public class DemographicService extends AbstractServiceImpl {
 	    return false;
 	    
 	}
+
+	private void saveRequestAttachments(ConsultationRequestTo1 request) {
+		List<ConsultationAttachmentTo1> newAttachments = request.getAttachments();
+		List<ConsultDocs> currentDocs = consultationManager.getConsultRequestDocs(getLoggedInInfo(), request.getId());
+		if (newAttachments==null || currentDocs==null) return;
+
+		//first assume all current docs detached (set delete)
+		for (ConsultDocs doc : currentDocs) {
+			doc.setDeleted(ConsultDocs.DELETED);
+		}
+
+		//compare current & new, remove from current list the unchanged ones - no need to update them
+		for (ConsultationAttachmentTo1 newAtth : newAttachments) {
+			boolean isNew = true;
+			for (ConsultDocs doc : currentDocs) {
+				if (doc.getDocType().equals(newAtth.getDocumentType()) && doc.getDocumentNo()==newAtth.getDocumentNo()) {
+					currentDocs.remove(doc);
+					isNew = false;
+					break;
+				}
+			}
+			if (isNew) { //save the new attachment
+				consultationManager.saveConsultRequestDoc(getLoggedInInfo(), new ConsultDocs(request.getId(), newAtth.getDocumentNo(), newAtth.getDocumentType(), getLoggedInInfo().getLoggedInProviderNo()));
+			}
+		}
+
+		//update what remains in current docs, they are detached (set delete)
+		for (ConsultDocs doc : currentDocs) {
+			consultationManager.saveConsultRequestDoc(getLoggedInInfo(), doc);
+		}
+	}
+	
+	private void saveResponseAttachments(ConsultationResponseTo1 response) {
+		List<ConsultationAttachmentTo1> newAttachments = response.getAttachments();
+		List<ConsultResponseDoc> currentDocs = consultationManager.getConsultResponseDocs(getLoggedInInfo(), response.getId());
+		if (newAttachments==null || currentDocs==null) return;
+
+		//first assume all current docs detached (set delete)
+		for (ConsultResponseDoc doc : currentDocs) {
+			doc.setDeleted(ConsultResponseDoc.DELETED);
+		}
+
+		//compare current & new, remove from current list the unchanged ones - no need to update them
+		for (ConsultationAttachmentTo1 newAtth : newAttachments) {
+			boolean isNew = true;
+			for (ConsultResponseDoc doc : currentDocs) {
+				if (doc.getDocType().equals(newAtth.getDocumentType()) && doc.getDocumentNo()==newAtth.getDocumentNo()) {
+					currentDocs.remove(doc);
+					isNew = false;
+					break;
+				}
+			}
+			if (isNew) { //save the new attachment
+				consultationManager.saveConsultResponseDoc(getLoggedInInfo(), new ConsultResponseDoc(response.getId(), newAtth.getDocumentNo(), newAtth.getDocumentType(), getLoggedInInfo().getLoggedInProviderNo()));
+			}
+		}
+
+		//update what remains in current docs, they are detached (set delete)
+		for (ConsultResponseDoc doc : currentDocs) {
+			consultationManager.saveConsultResponseDoc(getLoggedInInfo(), doc);
+		}
+	}
+
 }
