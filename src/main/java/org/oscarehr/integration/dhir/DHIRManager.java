@@ -338,7 +338,7 @@ public class DHIRManager {
 		String consumerSecret = OscarProperties.getInstance().getProperty("oneid.consumerSecret");
 		String accessToken = getValidToken(request.getSession());
 		
-		Response response2 = wc.header("Authorization", "Bearer " + accessToken).header("X-IBM-Client-Id", consumerKey).header("X-IBM-Client-Secret", consumerSecret).get();
+		Response response2 = wc.header("Authorization", "Bearer " + accessToken).header("X-Gtwy-Client-Id", consumerKey).header("X-Gtwy-Client-Secret", consumerSecret).get();
 		
 		return response2;
 	}
