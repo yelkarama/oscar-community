@@ -254,6 +254,11 @@ public final class ApptStatusData {
 	            
 	            if (strStatus.equals(s.getStatus())){
 	                i++;
+	                
+	                if(apptStatuses.size() >= i) {
+	                	//HPH fix.
+	                	return "";
+	                }
 	                s = apptStatuses.get(i);
 	                
 	                while (s.getActive() == 0 && i < apptStatuses.size()) {
