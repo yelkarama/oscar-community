@@ -915,9 +915,13 @@ if (bMultisites) { %>
         		String programName = "N/A";
         		if(p != null) {
         			programName = p.getName();
+        			%>
+        			<input type="hidden" name="program" value="<%=p.getId() %>" />
+        			<%
         		}
             	%>
-            	<input type="text" name="program_id" disabled="disabled" readonly="readonly" value="<%=programName %>" />
+            	
+            	<input type="text" name="program_id"  readonly="readonly" value="<%=programName %>" />
             </div>
 
             <div class="space">&nbsp;</div>
