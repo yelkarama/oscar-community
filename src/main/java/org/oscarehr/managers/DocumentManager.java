@@ -30,19 +30,26 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.oscarehr.common.dao.CtlDocumentDao;
 import org.oscarehr.common.dao.DocumentDao;
+import org.oscarehr.common.dao.PatientLabRoutingDao;
 import org.oscarehr.common.dao.ProviderInboxRoutingDao;
+import org.oscarehr.common.dao.ProviderLabRoutingDao;
 import org.oscarehr.common.model.ConsentType;
 import org.oscarehr.common.dao.DocumentDao.DocumentType;
 import org.oscarehr.common.model.CtlDocument;
 import org.oscarehr.common.model.Document;
+import org.oscarehr.common.model.PatientLabRouting;
 import org.oscarehr.common.model.ProviderInboxItem;
+import org.oscarehr.common.model.ProviderLabRoutingModel;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,7 +79,13 @@ public class DocumentManager {
 
 	@Autowired
 	private ProviderInboxRoutingDao providerInboxRoutingDao;
-
+	
+	@Autowired
+	private ProviderLabRoutingDao providerLabRoutingDao;
+	
+	@Autowired
+	private PatientLabRoutingDao patientLabRoutingDao;
+	
 	public Document getDocument(LoggedInInfo loggedInInfo, Integer id)
 	{
 		if ( ! securityInfoManager.hasPrivilege( loggedInInfo, "_edoc", "r", "" ) ) {
@@ -116,6 +129,55 @@ public class DocumentManager {
 		}
 
 		return(result);
+	}
+
+	/**
+	 * Creates a document and saves it to the provided demographic 
+	 * @param loggedInInfo The logged in info of the current user
+	 * @param title The title of the document
+	 * @param demographicNo The demographic number to save the document to
+	 * @param providerNo The optional provider number to route the document to
+	 * @param fileType The file type of the provided document
+	 * @param documentData The document byte data
+	 * @return Document record from the database once it has been created
+	 * @throws IOException If actions related to getting document data fail
+	 */
+	public Document createDocument(LoggedInInfo loggedInInfo, String title, Integer demographicNo, String providerNo, String fileType, byte[] documentData) throws IOException {
+		SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		Date today = new Date();
+		// Generates filename and path data and saves the document data to the file system
+		String documentPath = oscar.OscarProperties.getInstance().getProperty("DOCUMENT_DIR");
+		String fileName = title + "_" + dateTimeFormat.format(today) + "." + fileType;
+		File file = new File(documentPath + File.separator + fileName);
+		FileUtils.writeByteArrayToFile(file, documentData);
+
+		String contentType = Files.probeContentType(file.toPath());
+
+		// Gets the number of pages for the document
+		int numberOfPages = 1;
+		if (fileType.equals("pdf")) {
+			PDDocument document = PDDocument.load(file);
+			numberOfPages = document.getNumberOfPages();
+		}
+
+		// Creates and saves the document 
+		EDoc newDoc = new EDoc(title, "", fileName, "", loggedInInfo.getLoggedInProviderNo(), providerNo, "REST API", 'A', dateFormat.format(today), "", "", "demographic", String.valueOf(demographicNo), contentType, "0", numberOfPages, false);
+		Integer documentNo = Integer.parseInt(EDocUtil.addDocumentSQL(newDoc));
+
+		// Saves the patient and provider lab routings if necessary
+		if (demographicNo != null && demographicNo > 0) {
+			PatientLabRouting patientLabRouting = new PatientLabRouting(documentNo, "DOC", demographicNo);
+			patientLabRoutingDao.persist(patientLabRouting);
+		}
+
+		if (!providerNo.isEmpty()) {
+			ProviderLabRoutingModel providerLabRouting = new ProviderLabRoutingModel(providerNo, documentNo, "N", "", today, "DOC");
+			providerLabRoutingDao.persist(providerLabRouting);
+		}
+		// Gets and returns the completed document
+		Document document = documentDao.find(documentNo);
+		return document;
 	}
 	
 	public List<Document> getDocumentsUpdateAfterDate(LoggedInInfo loggedInInfo, Date updatedAfterThisDateExclusive, int itemsToReturn) {
