@@ -7,51 +7,52 @@ import java.util.List;
 
 @XmlRootElement
 public class DocumentTo1 {
-	private Integer documentNo;
-	private String doctype;
-	private String docClass;
-	private String docSubClass;
-	private String docdesc;
-	private String docxml;
-	private String docfilename;
-	private String doccreator;
-	private String responsible;
-	private String source;
-	private String sourceFacility;
-	private Integer programId;
-	private Date updatedatetime;
-	private char status;
-	private String contenttype;
-	private Date contentdatetime;
+	private Integer id;
+	private String type = "";
+	private String docClass = "";
+	private String subClass = "";
+	private String fileName;
+	private String description = "";
+	private String xml = "";
+	private String creator;
+	private String responsible = "";
+	private String source = "";
+	private String sourceFacility = "";
+	private Integer programId = -1;
+	private Date updateDateTime = new Date();
+	private char status = 'A';
+	private String contentType;
+	private Date contentDateTime = new Date();
 	private String reportMedia;
 	private Date sentDateTime;
-	private int public1;
-	private Date observationdate;
-	private Integer numberofpages;
-	private Integer appointmentNo;
-	private Boolean abnormal;
+	private int public1 = 0;
+	private Date observationDate = new Date();
+	private Integer numberOfPages;
+	private Integer appointmentNo = -1;
+	private Boolean abnormal = false;
 	private Boolean restrictToProgram=false;
 
-	private byte[] fileContents;
+	private String providerNo;
+    private Integer demographicNo;
 
-	private String ctlModule = "";
-	private Integer ctlModuleId;
-	private String ctlStatus;
+    private byte[] fileContents;
 
-	public Integer getDocumentNo() {
-		return documentNo;
+    private List<DocumentReviewTo1> reviews = new ArrayList<>();
+
+    public Integer getId() {
+        return id;
+    }
+
+	public void setId(Integer id) {
+		this.id = id;
 	}
 
-	public void setDocumentNo(Integer documentNo) {
-		this.documentNo = documentNo;
+	public String getType() {
+		return type;
 	}
 
-	public String getDoctype() {
-		return doctype;
-	}
-
-	public void setDoctype(String doctype) {
-		this.doctype = doctype;
+	public void setType(String type) {
+		this.type = type;
 	}
 
 	public String getDocClass() {
@@ -62,44 +63,44 @@ public class DocumentTo1 {
 		this.docClass = docClass;
 	}
 
-	public String getDocSubClass() {
-		return docSubClass;
+	public String getSubClass() {
+		return subClass;
 	}
 
-	public void setDocSubClass(String docSubClass) {
-		this.docSubClass = docSubClass;
+	public void setSubClass(String subClass) {
+		this.subClass = subClass;
 	}
 
-	public String getDocdesc() {
-		return docdesc;
+	public String getDescription() {
+		return description;
 	}
 
-	public void setDocdesc(String docdesc) {
-		this.docdesc = docdesc;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
-	public String getDocxml() {
-		return docxml;
+	public String getXml() {
+		return xml;
 	}
 
-	public void setDocxml(String docxml) {
-		this.docxml = docxml;
+	public void setXml(String xml) {
+		this.xml = xml;
 	}
 
-	public String getDocfilename() {
-		return docfilename;
+	public String getFileName() {
+		return fileName;
 	}
 
-	public void setDocfilename(String docfilename) {
-		this.docfilename = docfilename;
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
 	}
 
-	public String getDoccreator() {
-		return doccreator;
+	public String getCreator() {
+		return creator;
 	}
 
-	public void setDoccreator(String doccreator) {
-		this.doccreator = doccreator;
+	public void setCreator(String creator) {
+		this.creator = creator;
 	}
 
 	public String getResponsible() {
@@ -134,12 +135,12 @@ public class DocumentTo1 {
 		this.programId = programId;
 	}
 
-	public Date getUpdatedatetime() {
-		return updatedatetime;
+	public Date getUpdateDateTime() {
+		return updateDateTime;
 	}
 
-	public void setUpdatedatetime(Date updatedatetime) {
-		this.updatedatetime = updatedatetime;
+	public void setUpdateDateTime(Date updateDateTime) {
+		this.updateDateTime = updateDateTime;
 	}
 
 	public char getStatus() {
@@ -150,20 +151,20 @@ public class DocumentTo1 {
 		this.status = status;
 	}
 
-	public String getContenttype() {
-		return contenttype;
+	public String getContentType() {
+		return contentType;
 	}
 
-	public void setContenttype(String contenttype) {
-		this.contenttype = contenttype;
+	public void setContentType(String contentType) {
+		this.contentType = contentType;
 	}
 
-	public Date getContentdatetime() {
-		return contentdatetime;
+	public Date getContentDateTime() {
+		return contentDateTime;
 	}
 
-	public void setContentdatetime(Date contentdatetime) {
-		this.contentdatetime = contentdatetime;
+	public void setContentDateTime(Date contentDateTime) {
+		this.contentDateTime = contentDateTime;
 	}
 
 	public String getReportMedia() {
@@ -190,20 +191,20 @@ public class DocumentTo1 {
 		this.public1 = public1;
 	}
 
-	public Date getObservationdate() {
-		return observationdate;
+	public Date getObservationDate() {
+		return observationDate;
 	}
 
-	public void setObservationdate(Date observationdate) {
-		this.observationdate = observationdate;
+	public void setObservationDate(Date observationDate) {
+		this.observationDate = observationDate;
 	}
 
-	public Integer getNumberofpages() {
-		return numberofpages;
+	public Integer getNumberOfPages() {
+		return numberOfPages;
 	}
 
-	public void setNumberofpages(Integer numberofpages) {
-		this.numberofpages = numberofpages;
+	public void setNumberOfPages(Integer numberOfPages) {
+		this.numberOfPages = numberOfPages;
 	}
 
 	public Integer getAppointmentNo() {
@@ -238,27 +239,17 @@ public class DocumentTo1 {
 		this.fileContents = fileContents;
 	}
 
-	public String getCtlModule() {
-		return ctlModule;
+	public String getProviderNo() {
+		return providerNo;
+    }
+	public void setProviderNo(String providerNo) {
+		this.providerNo = providerNo;
 	}
 
-	public void setCtlModule(String ctlModule) {
-		this.ctlModule = ctlModule;
-	}
-
-	public Integer getCtlModuleId() {
-		return ctlModuleId;
-	}
-
-	public void setCtlModuleId(Integer ctlModuleId) {
-		this.ctlModuleId = ctlModuleId;
-	}
-
-	public String getCtlStatus() {
-		return ctlStatus;
-	}
-
-	public void setCtlStatus(String ctlStatus) {
-		this.ctlStatus = ctlStatus;
+	public Integer getDemographicNo() {
+		return demographicNo;
+    }
+	public void setDemographicNo(Integer demographicNo) {
+		this.demographicNo = demographicNo;
 	}
 }

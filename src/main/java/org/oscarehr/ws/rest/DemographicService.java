@@ -23,7 +23,6 @@
  */
 package org.oscarehr.ws.rest;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -45,7 +44,6 @@ import javax.ws.rs.core.Response;
 
 import net.sf.json.JSONObject;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorManager;
@@ -66,7 +64,6 @@ import org.oscarehr.common.model.ConsultResponseDoc;
 import org.oscarehr.common.model.ConsultationRequest;
 import org.oscarehr.common.model.ConsultationResponse;
 import org.oscarehr.common.model.Contact;
-import org.oscarehr.common.model.CtlDocument;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.DemographicContact;
 import org.oscarehr.common.model.DemographicCust;
@@ -505,32 +502,15 @@ public class DemographicService extends AbstractServiceImpl {
 		List<DocumentTo1> responseDocuments = new ArrayList<>();
 		if(data.getDocuments() != null && !data.getDocuments().isEmpty()){
 			DocumentConverter documentConverter = new DocumentConverter();
-			String savePath = oscar.OscarProperties.getInstance().getProperty("DOCUMENT_DIR");
-			if (!savePath.endsWith(File.separator)) {
-				savePath += File.separator;
-			}
 
 			for(DocumentTo1 documentTo1 : data.getDocuments()){
-				String destFilePath = savePath + documentTo1.getDocfilename();
 				try{
-					File document_file = new File(destFilePath);
-					FileUtils.writeByteArrayToFile(document_file, documentTo1.getFileContents());
-					CtlDocument ctlDocument = new CtlDocument();
-					ctlDocument.getId().setModule(documentTo1.getCtlModule());
-					if(ctlDocument.getId().getModule().equalsIgnoreCase("demographic")){
-						ctlDocument.getId().setModuleId(demographic.getDemographicNo());
-					} else {
-						ctlDocument.getId().setModuleId(documentTo1.getCtlModuleId());
-					}
-					ctlDocument.setStatus(documentTo1.getCtlStatus());
-					if(!demographic.getDemographicNo().equals(data.getDemographicNo())){
-						documentTo1.setDocumentNo(null);
-					}
-					Document document = documentManager.addDocument(getLoggedInInfo(), documentConverter.getAsDomainObject(getLoggedInInfo(), documentTo1), ctlDocument);
-					documentTo1.setDocumentNo(document.getDocumentNo());
+					Document document = documentConverter.getAsDomainObject(getLoggedInInfo(), documentTo1);
+					document = documentManager.createDocument(getLoggedInInfo(), document, demographic.getDemographicNo(), documentTo1.getProviderNo(), documentTo1.getFileContents());
+					documentTo1.setId(document.getDocumentNo());
 					responseDocuments.add(documentTo1);
 				} catch (Exception e) {
-					logger.error("And error has occured copying the document", e);
+					logger.error("An error has occured copying the document", e);
 				}
 			}
 		}

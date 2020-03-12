@@ -38,6 +38,8 @@ import org.oscarehr.PMmodule.model.ProgramProvider;
 import org.oscarehr.caisi_integrator.ws.DemographicTransfer;
 import org.oscarehr.caisi_integrator.ws.DemographicWs;
 import org.oscarehr.caisi_integrator.ws.GetConsentTransfer;
+import org.oscarehr.PMmodule.dao.ProgramDao;
+import org.oscarehr.PMmodule.model.Program;
 import org.oscarehr.common.Gender;
 import org.oscarehr.common.dao.AdmissionDao;
 import org.oscarehr.common.dao.ConsentDao;
@@ -114,6 +116,9 @@ public class DemographicManager {
 
 	@Autowired
 	private AdmissionDao admissionDao;
+	
+	@Autowired
+	private ProgramDao programDao;
 	
 	@Autowired
 	private SecurityInfoManager securityInfoManager;
@@ -355,6 +360,11 @@ public class DemographicManager {
 		demographic.setLastUpdateUser(loggedInInfo.getLoggedInProviderNo());
 		demographicDao.save(demographic);
 
+		if (admissionProgramId == null) {
+			Program program = programDao.getProgramByName("OSCAR");
+			admissionProgramId = program.getId();
+		}
+		
 		Admission admission = new Admission();
 		admission.setClientId(demographic.getDemographicNo());
 		admission.setProgramId(admissionProgramId);
@@ -363,9 +373,7 @@ public class DemographicManager {
 		admission.setAdmissionStatus(Admission.STATUS_CURRENT);
 		admission.setAdmissionNotes("");
 		
-		if(admission.getProgramId() != null){
-			admissionDao.saveAdmission(admission);
-		}
+		admissionDao.saveAdmission(admission);
 
 		if (demographic.getExtras() != null) {
 			for (DemographicExt ext : demographic.getExtras()) {
