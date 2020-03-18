@@ -460,42 +460,19 @@ public class DemographicService extends AbstractServiceImpl {
 			}
 		}
 		
-		List<JSONObject> responseEncounterNotes = new ArrayList<>();
+		List<NoteTo1> responseEncounterNotes = new ArrayList<>();
 		if(data.getEncounterNotes() != null && !data.getEncounterNotes().isEmpty()){
-			for (JSONObject jsonObject : data.getEncounterNotes()) {
-				try {
-					ObjectMapper objectMapper = new ObjectMapper();
-					NoteTo1 note = null;
-					
-					if (jsonObject != null) {
-						if (jsonObject.containsKey("encounterNote")) {
-							note = objectMapper.readValue(jsonObject.get("encounterNote").toString(), NoteTo1.class);
-						} else {
-							note = objectMapper.readValue(jsonObject.toString(), NoteTo1.class);
-						}
-					}
-					
-					note = noteManager.saveNote(getLoggedInInfo(), demographic.getDemographicNo(), note);
-					if (jsonObject != null) {
-						if (jsonObject.containsKey("encounterNote")) {
-							jsonObject.getJSONObject("encounterNote").put("noteId", note.getNoteId());
-							jsonObject.getJSONObject("encounterNote").put("uuid", note.getUuid());
-						} else {
-							jsonObject.put("noteId", note.getNoteId());
-							jsonObject.put("uuid", note.getUuid());
-						}
-						responseEncounterNotes.add(jsonObject);
-					}
-				} catch (IOException e){
-					logger.error("Error reading JSON object for a note", e);
-				}
-			}
-		}
-		
-		List<NoteIssueTo1> responseNoteIssues = new ArrayList<>();
-		if(data.getIssueNotes() != null && !data.getIssueNotes().isEmpty()){
-			for(NoteIssueTo1 noteIssueTo1 : data.getIssueNotes()){
-				responseNoteIssues.add(noteManager.saveIssueNote(getLoggedInInfo(), demographic.getDemographicNo(), noteIssueTo1));
+			for (NoteTo1 note : data.getEncounterNotes()) {
+                if(!demographic.getDemographicNo().equals(data.getDemographicNo())){
+                    note.setNoteId(null);
+                    note.setUuid(null);
+                }
+                note = noteManager.saveNote(getLoggedInInfo(), demographic.getDemographicNo(), note);
+			    if (note != null) {
+			        note.setNoteId(note.getNoteId());
+			        note.setUuid(note.getUuid());
+			        responseEncounterNotes.add(note);
+			    }
 			}
 		}
 		
@@ -510,7 +487,7 @@ public class DemographicService extends AbstractServiceImpl {
 					documentTo1.setId(document.getDocumentNo());
 					responseDocuments.add(documentTo1);
 				} catch (Exception e) {
-					logger.error("An error has occured copying the document", e);
+					logger.error("An error has occurred copying the document", e);
 				}
 			}
 		}
@@ -521,7 +498,6 @@ public class DemographicService extends AbstractServiceImpl {
 		responseDemographic.setConsultationRequests(responseConsultRequests);
 		responseDemographic.setConsultationResponses(responseConsultResponse);
 		responseDemographic.setEncounterNotes(responseEncounterNotes);
-		responseDemographic.setIssueNotes (responseNoteIssues);
 		responseDemographic.setDocuments(responseDocuments);
 		return responseDemographic;
 	}

@@ -113,8 +113,7 @@ public class DemographicTo1 implements Serializable {
 	private List<MeasurementTo1> measurements = new ArrayList<>();
 	private List<ConsultationRequestTo1> consultationRequests = new ArrayList<>();
 	private List<ConsultationResponseTo1> consultationResponses = new ArrayList<>();
-	private List<JSONObject> encounterNotes = new ArrayList<>();
-	private List<NoteIssueTo1> issueNotes = new ArrayList<>();
+	private List<NoteTo1> encounterNotes = new ArrayList<>();
 	private List<DocumentTo1> documents = new ArrayList<>();
 	
 	
@@ -718,22 +717,14 @@ public class DemographicTo1 implements Serializable {
 		this.consultationResponses = consultationResponses;
 	}
 
-	public List<JSONObject> getEncounterNotes() {
+	public List<NoteTo1> getEncounterNotes() {
 		return encounterNotes;
 	}
 
-	public void setEncounterNotes(List<JSONObject> encounterNotes) {
+	public void setEncounterNotes(List<NoteTo1> encounterNotes) {
 		this.encounterNotes = encounterNotes;
 	}
-
-	public List<NoteIssueTo1> getIssueNotes() {
-		return issueNotes;
-	}
-
-	public void setIssueNotes(List<NoteIssueTo1> issueNotes) {
-		this.issueNotes = issueNotes;
-	}
-
+	
 	public List<DocumentTo1> getDocuments() {
 		return documents;
 	}
