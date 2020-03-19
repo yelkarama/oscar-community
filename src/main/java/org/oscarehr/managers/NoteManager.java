@@ -76,7 +76,11 @@ public class NoteManager {
         caseManagementNote.setProviderNo(providerNo);
 
         if(note.getUuid() != null && !note.getUuid().trim().equals("")){
-            caseManagementNote.setUuid(note.getUuid());
+            CaseManagementNote mostRecent = caseManagementManager.getMostRecentNote(note.getUuid());
+            
+            if(mostRecent == null || mostRecent.getDemographic_no().equals(demo)) {
+                caseManagementNote.setUuid(note.getUuid());
+            }
         }
 
         String noteTxt = note.getNote();
