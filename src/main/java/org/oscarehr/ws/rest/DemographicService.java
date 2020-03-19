@@ -348,6 +348,25 @@ public class DemographicService extends AbstractServiceImpl {
 				result.getRosterStatusList().add(value);
 			}
 		}
+		
+		result.setAllergies(new AllergyConverter().getAllAsTransferObjects(getLoggedInInfo(), allergyManager.getActiveAllergies(getLoggedInInfo(), demo.getDemographicNo())));
+		List<String> heightType = new ArrayList<>();
+		heightType.add("ht");
+		List<String> weightType = new ArrayList<>();
+		weightType.add("wt");
+		List<Measurement> heights = measurementManager.getMeasurementByType(getLoggedInInfo(), demo.getDemographicNo(), heightType);
+		List<Measurement> weights = measurementManager.getMeasurementByType(getLoggedInInfo(), demo.getDemographicNo(), weightType);
+		List<Measurement> measurements = new ArrayList<>();
+        //Just send most recent measurements
+        if(!heights.isEmpty()){
+			measurements.add(heights.get(0));
+		}
+		if(!weights.isEmpty()){
+			measurements.add(weights.get(0));
+		}
+		result.setMeasurements(new MeasurementConverter().getAllAsTransferObjects(getLoggedInInfo(), measurements));
+		result.setEncounterNotes(noteManager.getCppNotes(getLoggedInInfo(), demo.getDemographicNo()));
+		
 		return result;
 	}
 	

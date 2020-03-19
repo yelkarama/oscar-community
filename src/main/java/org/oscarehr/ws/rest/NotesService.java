@@ -94,8 +94,6 @@ import oscar.oscarEncounter.pageUtil.EctSessionBean;
 @Path("/notes")
 @Component("notesService")
 public class NotesService extends AbstractServiceImpl {
-
-	public static String cppCodes[] = {"OMeds", "SocHistory", "MedHistory", "Concerns", "FamHistory", "Reminders", "RiskFactors","OcularMedication","TicklerNote"};
 	
 	private static Logger logger = MiscUtils.getLogger();
 	
@@ -682,7 +680,7 @@ public class NotesService extends AbstractServiceImpl {
 		List<CaseManagementIssue> cmeIssues = new ArrayList<CaseManagementIssue>();
 		
 		for(CaseManagementIssue cmei:rawCmeIssues) {
-			if(!isCppCode(cmei)) {
+			if(!noteManager.isCppCode(cmei)) {
 				cmeIssues.add(cmei);
 			}
 		}
@@ -692,14 +690,10 @@ public class NotesService extends AbstractServiceImpl {
 		noteIssue.setEncounterNote(note);	
 		noteIssue.setGroupNoteExt(noteExt);	
 		noteIssue.setAssignedCMIssues(new CaseManagementIssueConverter().getAllAsTransferObjects(getLoggedInInfo(), cmeIssues));
-		
-		return noteIssue;
-		
-	}
-	
-	private boolean isCppCode(CaseManagementIssue cmeIssue) {
-		return Arrays.asList(cppCodes).contains(cmeIssue.getIssue().getCode());
-	}
+
+        return noteIssue;
+
+    }
 	
 	@POST
 	@Path("/getGroupNoteExt/{noteId}")	

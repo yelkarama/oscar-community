@@ -5,6 +5,7 @@ import org.apache.log4j.Logger;
 import org.oscarehr.PMmodule.model.ProgramProvider;
 import org.oscarehr.PMmodule.service.AdmissionManager;
 import org.oscarehr.PMmodule.service.ProgramManager;
+import org.oscarehr.casemgmt.dao.CaseManagementNoteDAO;
 import org.oscarehr.casemgmt.dao.IssueDAO;
 import org.oscarehr.casemgmt.model.CaseManagementCPP;
 import org.oscarehr.casemgmt.model.CaseManagementIssue;
@@ -17,6 +18,7 @@ import org.oscarehr.common.model.Provider;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
+import org.oscarehr.ws.rest.conversion.CaseManagementIssueConverter;
 import org.oscarehr.ws.rest.to.model.CaseManagementIssueTo1;
 import org.oscarehr.ws.rest.to.model.IssueTo1;
 import org.oscarehr.ws.rest.to.model.NoteExtTo1;
@@ -27,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -34,6 +37,8 @@ import java.util.List;
 
 @Service
 public class NoteManager {
+
+    public static String cppCodes[] = {"OMeds", "SocHistory", "MedHistory", "Concerns", "FamHistory", "Reminders", "RiskFactors","OcularMedication","TicklerNote"};
 
     private static Logger logger = MiscUtils.getLogger();
 
@@ -48,6 +53,9 @@ public class NoteManager {
 
     @Autowired
     private IssueDAO issueDao;
+    
+    @Autowired
+    private CaseManagementNoteDAO caseManagementNoteDAO;
 
     //moved over from NotesService.Java:saveNote()
     public NoteTo1 saveNote(LoggedInInfo loggedInInfo, Integer demographicNo, NoteTo1 note){
@@ -430,54 +438,50 @@ public class NoteManager {
 
         //this is actually just the issue for the main note
         //translate summary codes
-        String issueCode = note.getSummaryCode();//set temp
-        if("ongoingconcerns".equals(issueCode)){
-            issueCode = "Concerns";
-        }else if("medhx".equals(issueCode)){
-            issueCode = "MedHistory";
-        }else if("reminders".equals(issueCode)){
-            issueCode = "Reminders";
-        }else if("othermeds".equals(issueCode)){
-            issueCode = "OMeds";
-        }else if("sochx".equals(issueCode)){
-            issueCode = "SocHistory";
-        }else if("famhx".equals(issueCode)){
-            issueCode = "FamHistory";
-        }else if("riskfactors".equals(issueCode)){
-            issueCode = "RiskFactors";
+        String issueCode = note.getSummaryCode() != null ? note.getSummaryCode() : "";
+        issueCode = issueCode.replaceAll("ongoingconcerns", "Concerns");
+        issueCode = issueCode.replaceAll("medhx", "MedHistory");
+        issueCode = issueCode.replaceAll("reminders", "Reminders");
+        issueCode = issueCode.replaceAll("othermeds", "OMeds");
+        issueCode = issueCode.replaceAll("sochx", "SocHistory");
+        issueCode = issueCode.replaceAll("famhx", "FamHistory");
+        issueCode = issueCode.replaceAll("riskfactors", "RiskFactors");
+
+        List<String> issueCodes = new ArrayList<>();
+        for(String code: issueCode.split(",")) {
+            //cIssue2 will be loaded with existing CaseManagementIssue if there is one for this patient
+            code = code.trim();
+            Issue cppIssue = caseManagementManager.getIssueInfoByCode(code);
+            
+            CaseManagementIssue cIssue;
+            if(cppIssue != null) {
+                cIssue = caseManagementManager.getIssueByIssueCode(demo, code);
+
+                //no issue existing for this type of CPP note..create and save it
+                if (cIssue == null) {
+                    Date creationDate = new Date();
+
+                    cIssue = new CaseManagementIssue();
+                    cIssue.setAcute(false);
+                    cIssue.setCertain(false);
+                    cIssue.setDemographic_no(Integer.valueOf(demo));
+                    cIssue.setIssue_id(cppIssue.getId());
+                    cIssue.setMajor(false);
+                    cIssue.setProgram_id(Integer.parseInt(programId));
+                    cIssue.setResolved(false);
+                    cIssue.setType(cppIssue.getRole());
+                    cIssue.setUpdate_date(creationDate);
+
+                    caseManagementManager.saveCaseIssue(cIssue);
+                }
+
+                //save the associations
+                issuelist.add(cIssue);
+            }
         }
-        
-        Issue cppIssue = caseManagementManager.getIssueInfoByCode(issueCode);
-        
-        CaseManagementIssue cIssue;
-        cIssue = caseManagementManager.getIssueByIssueCode(demo, issueCode);
-
-        //no issue existing for this type of CPP note..create and save it
-        if( cIssue == null ) {
-            Date creationDate = new Date();
-
-            cIssue = new CaseManagementIssue();
-            cIssue.setAcute(false);
-            cIssue.setCertain(false);
-            cIssue.setDemographic_no(Integer.valueOf(demo));
-            cIssue.setIssue_id(cppIssue.getId());
-            cIssue.setMajor(false);
-            cIssue.setProgram_id(Integer.parseInt(programId));
-            cIssue.setResolved(false);
-            cIssue.setType(cppIssue.getRole());
-            cIssue.setUpdate_date(creationDate);
-
-            caseManagementManager.saveCaseIssue(cIssue);
-        }
-
-        //save the associations
-        issuelist.add(cIssue);
-        
         note.setIssues(new HashSet<CaseManagementIssue>(issuelist));
         caseMangementNote.setIssues(new HashSet<CaseManagementIssue>(issuelist));
 
-        // update appointment and add verify message to note if verified
-        boolean verify = false;
 
         Date now = new Date();
 
@@ -485,7 +489,7 @@ public class NoteManager {
         if (observationDate != null && !observationDate.equals("")) {
             if (observationDate.getTime() > now.getTime()) {
                 caseMangementNote.setObservation_date(now);
-            } else{
+            } else {
                 caseMangementNote.setObservation_date(observationDate);
             }
         } else if (note.getObservationDate() == null) {
@@ -504,8 +508,7 @@ public class NoteManager {
          * we go and set the positions so it's always 1,2,..,n across the group note. Archived notes,
          * and older notes (not the latest based on uuid/id) have positions set to 0
          */
-        String[] strIssueId = { String.valueOf(cppIssue.getId()) };
-        List<CaseManagementNote> curCPPNotes = this.caseManagementManager.getActiveNotes(demo, strIssueId);
+        List<CaseManagementNote> curCPPNotes = this.caseManagementManager.getActiveNotes(demo, issueCodes.toArray(new String[0]));
         Collections.sort(curCPPNotes,CaseManagementNote.getPositionComparator());
 
 
@@ -686,6 +689,94 @@ public class NoteManager {
 
         return noteIssue;
 
+    }
+    
+    public List<NoteTo1> getCppNotes(LoggedInInfo loggedInInfo, Integer demographicNo){
+        List<CaseManagementNote> notes = new ArrayList<>(caseManagementNoteDAO.findNotesByDemographicAndIssueCode(demographicNo, cppCodes));
+        List<NoteTo1> noteTo1s = new ArrayList<>();
+        for(CaseManagementNote note : notes){
+            noteTo1s.add(convertNote(loggedInInfo, note));
+        }
+        return noteTo1s;
+    }
+    
+    public NoteTo1 convertNote(LoggedInInfo loggedInInfo, CaseManagementNote caseManagementNote){
+        NoteTo1 note = new NoteTo1();
+        note.setNoteId(caseManagementNote.getId().intValue());
+        note.setIsSigned(caseManagementNote.isSigned());
+        note.setRevision(caseManagementNote.getRevision());
+        note.setObservationDate(caseManagementNote.getObservation_date());
+        note.setUpdateDate(caseManagementNote.getUpdate_date());
+        note.setProviderName(caseManagementNote.getProviderName());
+        note.setProviderNo(caseManagementNote.getProviderNo());
+        note.setStatus(caseManagementNote.getStatus());
+        note.setProgramName(caseManagementNote.getProgramName());
+        note.setRoleName(caseManagementNote.getRoleName());
+        note.setUuid(caseManagementNote.getUuid());
+        note.setHasHistory(caseManagementNote.getHasHistory());
+        note.setLocked(caseManagementNote.isLocked());
+        note.setNote(caseManagementNote.getNote());
+        note.setRxAnnotation(caseManagementNote.isRxAnnotation());
+        note.setEncounterType(caseManagementNote.getEncounter_type());
+        note.setPosition(caseManagementNote.getPosition());
+        note.setAppointmentNo(caseManagementNote.getAppointmentNo());
+        note.setCpp(false);
+        
+        //get all note extra values	
+        List<CaseManagementNoteExt> lcme = new ArrayList<CaseManagementNoteExt>();
+        lcme.addAll(caseManagementManager.getExtByNote( caseManagementNote.getId() ));
+
+        NoteExtTo1 noteExt = new NoteExtTo1();
+        noteExt.setNoteId( caseManagementNote.getId() );
+
+        for(CaseManagementNoteExt l : lcme){
+            logger.debug("NOTE EXT KEY:" +l.getKeyVal() + l.getValue());
+
+            if(l.getKeyVal().equals(CaseManagementNoteExt.STARTDATE)){
+                noteExt.setStartDate(l.getDateValueStr());
+            }else if(l.getKeyVal().equals(CaseManagementNoteExt.RESOLUTIONDATE)){
+                noteExt.setResolutionDate(l.getDateValueStr());
+            }else if(l.getKeyVal().equals(CaseManagementNoteExt.PROCEDUREDATE)){
+                noteExt.setProcedureDate(l.getDateValueStr());
+            }else if(l.getKeyVal().equals(CaseManagementNoteExt.AGEATONSET)){
+                noteExt.setAgeAtOnset(l.getValue());
+            }else if(l.getKeyVal().equals(CaseManagementNoteExt.TREATMENT)){
+                noteExt.setTreatment(l.getValue());
+            }else if(l.getKeyVal().equals(CaseManagementNoteExt.PROBLEMSTATUS)){
+                noteExt.setProblemStatus(l.getValue());
+            }else if(l.getKeyVal().equals(CaseManagementNoteExt.EXPOSUREDETAIL)){
+                noteExt.setExposureDetail(l.getValue());
+            }else if(l.getKeyVal().equals(CaseManagementNoteExt.RELATIONSHIP)){
+                noteExt.setRelationship(l.getValue());
+            }else if(l.getKeyVal().equals(CaseManagementNoteExt.LIFESTAGE)){
+                noteExt.setLifeStage(l.getValue());
+            }else if(l.getKeyVal().equals(CaseManagementNoteExt.HIDECPP)){
+                noteExt.setHideCpp(l.getValue());
+            }else if(l.getKeyVal().equals(CaseManagementNoteExt.PROBLEMDESC)){
+                noteExt.setProblemDesc(l.getValue());
+            }
+
+        }
+        
+        List<CaseManagementIssue> cmIssues = new ArrayList<CaseManagementIssue>(caseManagementNote.getIssues());
+        
+        StringBuilder summaryCodes = new StringBuilder();
+        for(CaseManagementIssue issue : cmIssues) {
+            if(isCppCode(issue)) {
+                note.setCpp(true);
+            }
+            summaryCodes.append((summaryCodes.toString().isEmpty()? "" : ", ") + issue.getIssue().getCode());
+        }
+        
+        note.setSummaryCode(summaryCodes.toString());
+        note.setNoteExt(noteExt);
+        note.setAssignedIssues(new CaseManagementIssueConverter().getAllAsTransferObjects(loggedInInfo, cmIssues));
+        
+        return note;
+    }
+
+    public boolean isCppCode(CaseManagementIssue cmeIssue) {
+        return Arrays.asList(cppCodes).contains(cmeIssue.getIssue().getCode());
     }
 
     public String getProgram(LoggedInInfo loggedInInfo,String providerNo){
