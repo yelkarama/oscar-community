@@ -23,12 +23,17 @@
  */
 package org.oscarehr.managers;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -37,8 +42,10 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.ClinicDAO;
 import org.oscarehr.common.dao.ConsultDocsDao;
 import org.oscarehr.common.dao.ConsultRequestDao;
@@ -50,6 +57,7 @@ import org.oscarehr.common.dao.ConsultationRequestExtDao;
 import org.oscarehr.common.dao.ConsultationServiceDao;
 import org.oscarehr.common.dao.DocumentDao.DocumentType;
 import org.oscarehr.common.dao.DocumentDao.Module;
+import org.oscarehr.common.dao.EReferAttachmentDao;
 import org.oscarehr.common.dao.Hl7TextInfoDao;
 import org.oscarehr.common.dao.ProfessionalSpecialistDao;
 import org.oscarehr.common.dao.PropertyDao;
@@ -70,15 +78,22 @@ import org.oscarehr.common.model.CtlDocument;
 import org.oscarehr.common.model.CtlDocumentPK;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Document;
+import org.oscarehr.common.model.EReferAttachmentData;
 import org.oscarehr.common.model.Hl7TextInfo;
+import org.oscarehr.common.model.Hl7TextMessage;
+import org.oscarehr.common.model.EReferAttachment;
 import org.oscarehr.common.model.ProfessionalSpecialist;
 import org.oscarehr.common.model.Property;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.consultations.ConsultationRequestSearchFilter;
 import org.oscarehr.consultations.ConsultationRequestSearchFilter.SORTDIR;
 import org.oscarehr.consultations.ConsultationResponseSearchFilter;
+import org.oscarehr.hospitalReportManager.HRMPDFCreator;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.ws.rest.conversion.OtnEconsultConverter;
+import org.oscarehr.util.MiscUtils;
+import org.oscarehr.util.WKHtmlToPdfUtils;
+import org.oscarehr.ws.rest.to.model.ConsultationAttachment;
 import org.oscarehr.ws.rest.to.model.ConsultationRequestSearchResult;
 import org.oscarehr.ws.rest.to.model.ConsultationResponseSearchResult;
 import org.oscarehr.ws.rest.to.model.OtnEconsult;
@@ -90,10 +105,13 @@ import com.lowagie.text.DocumentException;
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.v26.message.ORU_R01;
 import ca.uhn.hl7v2.model.v26.message.REF_I12;
+import oscar.OscarProperties;
 import oscar.dms.EDoc;
 import oscar.dms.EDocUtil;
+import oscar.eform.actions.PrintAction;
 import oscar.log.LogAction;
 import oscar.oscarLab.ca.all.pageUtil.LabPDFCreator;
+import oscar.oscarLab.ca.all.pageUtil.OLISLabPDFCreator;
 import oscar.oscarLab.ca.on.CommonLabResultData;
 import oscar.oscarLab.ca.on.LabResultData;
 
@@ -130,8 +148,13 @@ public class ConsultationManager {
 	ConsultationRequestArchiveDao consultationRequestArchiveDao;
 	@Autowired
 	DocumentManager documentManager;
+	@Autowired
+	private EReferAttachmentDao eReferAttachmentDao;
+	@Autowired
+	private LabManager labManager;
 
-
+	private final Logger logger = MiscUtils.getLogger();
+	
 	public final String CON_REQUEST_ENABLED = "consultRequestEnabled";
 	public final String CON_RESPONSE_ENABLED = "consultResponseEnabled";
 	public final String ENABLED_YES = "Y";
@@ -429,6 +452,183 @@ public class ConsultationManager {
 		checkPrivilege(loggedInInfo, SecurityInfoManager.READ);
 		return documentManager.getDemographicDocumentsByDocumentType(loggedInInfo, demographicNo, DocumentType.ECONSULT);
 	}
+
+	/**
+	 * Gets attachments for use on an eReferral for the provided demographic number. It only gets the oldest prepped attachments within the past hour.
+	 * @param loggedInInfo The current user's logged in info
+	 * @param request The HttpRequest for printing any eforms
+	 * @param demographicNo The demographic number to get the attachments for 
+	 * @return List of ConsultationAttachments containing the file name and data and the attachment id and type, 
+	 * @throws IOException Thrown if an error occurs with OutputStreams or when reading and printing files
+	 * @throws DocumentException Thrown if a lab cannot be printed
+	 * @throws RuntimeException Thrown if a lab does not have a matching Hl7TextMessage record or the content type is null/empty
+	 */
+	public List<ConsultationAttachment> getEReferAttachments(LoggedInInfo loggedInInfo, HttpServletRequest request, Integer demographicNo) throws Exception {
+		List<ConsultationAttachment> attachments = new ArrayList<>();
+		
+		EReferAttachment eReferAttachment = eReferAttachmentDao.getRecentByDemographic(demographicNo);
+		
+		if (eReferAttachment != null) {
+			for (EReferAttachmentData attachmentData :  eReferAttachment.getAttachments()) {
+				try {
+						ConsultationAttachment attachment = null;
+						switch (attachmentData.getLabType()) {
+							case ConsultDocs.DOCTYPE_DOC:
+								attachment = getDocumentAttachment(loggedInInfo, attachmentData.getLabId());
+								break;
+
+							case ConsultDocs.DOCTYPE_LAB:
+								attachment = getLabAttachment(loggedInInfo, attachmentData.getLabId());
+								break;
+
+							case ConsultDocs.DOCTYPE_HRM:
+								attachment = getHrmAttachment(loggedInInfo, attachmentData.getLabId());
+								break;
+
+							case ConsultDocs.DOCTYPE_EFORM:
+								attachment = getEformAttachment(loggedInInfo, request, attachmentData.getLabId());
+								break;
+
+							/*case ConsultDocs.DOCTYPE_FORMPERINATAL:
+								attachment = getPerinatalAttachment(loggedInInfo, attachmentData.getLabId(), eReferAttachment.getDemographicNo());
+								break;*/
+						}
+
+						attachments.add(attachment);
+				} catch (Exception e) {
+					logger.error("Attachment " + attachmentData.getLabType() + " " + attachmentData.getLabId() + " encountered an error while generating the file data", e);
+					throw e;
+				}
+			}
+			// Archives the retrieved attachments so they can't be retrieved again
+			eReferAttachment.setArchived(true);
+			eReferAttachmentDao.merge(eReferAttachment);
+		}
+		
+		return attachments;
+	}
+
+	/**
+	 * Gets a document's file data and file name for transfer
+	 * @param loggedInInfo The logged in info of the current user
+	 * @param id The id of the document to get the file data for
+	 * @return ConsultationAttachment with the document's file name and file data in a byte array
+	 * @throws IOException if the document's file data cannot be read
+	 */
+	private ConsultationAttachment getDocumentAttachment(LoggedInInfo loggedInInfo, Integer id) throws IOException, RuntimeException {
+		ConsultationAttachment attachment;
+		
+		Document document = documentManager.getDocument(loggedInInfo, id);
+		File file = new File(OscarProperties.getInstance().getProperty("DOCUMENT_DIR") + File.separator +  document.getDocfilename());
+		
+		attachment = new ConsultationAttachment(id, ConsultDocs.DOCTYPE_DOC, file.getName(), Files.readAllBytes(file.toPath()));
+		
+		return attachment;
+	}
+
+	/**
+	 * Gets printed file data for the given lab id
+	 * @param loggedInInfo The logged in info of the current user
+	 * @param id The id of the lab to print and retrieve the data of
+	 * @return ConsultationAttachment containing a file name and the printed file data
+	 * @throws IOException Thrown if a temporary file cannot be created for non OLIS labs, the ByteArrayOutputStream or the FileOutputStream encounters an issue, or if an error occurs during print 
+	 * @throws DocumentException Thrown by itext if an error occurs during print
+	 * @throws RuntimeException Thrown if an Hl7TextMessage record doesn't exist or it doesn't have a message type
+	 */
+	private ConsultationAttachment getLabAttachment(LoggedInInfo loggedInInfo, Integer id) throws IOException, DocumentException {
+		ConsultationAttachment attachment;
+		Hl7TextMessage hl7TextMessage = labManager.getHl7Message(loggedInInfo, id);
+		
+		try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+			//Checks if the lab is OLIS
+			if (hl7TextMessage.getType().equals("OLIS_HL7")) {
+				//If the lab is OLIS, use the OLISLabPDFCreator to print the lab
+				OLISLabPDFCreator olisLabPdfCreator = new OLISLabPDFCreator(baos, id.toString(), loggedInInfo.getLoggedInProvider());
+				olisLabPdfCreator.printPdf();
+			} else {
+				File tempPdf = File.createTempFile(String.format("%03d", id), "pdf");
+				try (FileOutputStream fos = new FileOutputStream(tempPdf)) {
+					//If it isn't an OLIS lab, use the normal LabPDFCreator to print
+					LabPDFCreator pdf = new LabPDFCreator(fos, id.toString(), loggedInInfo.getLoggedInProviderNo());
+					pdf.printPdf();
+					pdf.addEmbeddedDocuments(tempPdf, baos);
+				}
+			}
+			
+			String fileName = String.format("Lab_%03d.pdf", id);
+			attachment = new ConsultationAttachment(id, ConsultDocs.DOCTYPE_LAB, fileName, baos.toByteArray());
+		}
+		
+		return attachment;
+	}
+
+	/**
+	 * Creates a ConsultationAttachment object containing the data for a printed HRM record
+	 * @param loggedInInfo The current user's logged in info
+	 * @param id The id of the HRM record to print
+	 * @return ConsultationAttachment with the filename 
+	 * @throws IOException Thrown if an error is encountered when printing the HRM
+	 */
+	private ConsultationAttachment getHrmAttachment(LoggedInInfo loggedInInfo, Integer id) throws IOException {
+		ConsultationAttachment attachment;
+		
+		try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+			HRMPDFCreator hrmPdfCreator = new HRMPDFCreator(baos, id.toString(), loggedInInfo);
+			hrmPdfCreator.printPdf();
+
+			// Generates the filename and ConsultationAttachment
+			String fileName = String.format("HRM_%03d.pdf", id);
+			attachment = new ConsultationAttachment(id, ConsultDocs.DOCTYPE_HRM, fileName, baos.toByteArray());
+		}
+		
+		return attachment;
+	}
+
+	/**
+	 * Creates a ConsultationAttachment object containing the data of a printed eform relating to the given id 
+	 * @param loggedInInfo The logged in info of the current user
+	 * @param request The request object
+	 * @param id The id of the eform to print
+	 * @return ConsultationAttachment containing the eform's filename and file data in the form of a byte array
+	 * @throws IOException Thrown if WKHtmlToPdf encounters an error while printing the eform
+	 */
+	private ConsultationAttachment getEformAttachment(LoggedInInfo loggedInInfo, HttpServletRequest request, Integer id) throws IOException {
+		ConsultationAttachment attachment;
+		
+		String localUri = PrintAction.getEformRequestUrl(request);
+		byte[] fileBytes = WKHtmlToPdfUtils.convertToPdf(localUri + id);
+
+		// Generates the filename and ConsultationAttachment object
+		String fileName = String.format("Eform_%03d.pdf", id);
+		attachment = new ConsultationAttachment(id, ConsultDocs.DOCTYPE_EFORM, fileName, fileBytes);
+
+		return attachment;
+	}
+
+	/*
+	 * Creates a ConsultationAttachment object with the file data of a printed perinatal form
+	 * @param loggedInInfo The current user's logged in info
+	 * @param id The id of the perinatal form that will be printed
+	 * @param demographicNo The demographic number the form is being printed for
+	 * @return Generated ConsultationAttachment with a file name and byte array containing the data
+	 * @throws IOException Thrown if an error occurs while printing the perinatal form
+	 */
+	/*private ConsultationAttachment getPerinatalAttachment(LoggedInInfo loggedInInfo, Integer id, Integer demographicNo) throws IOException {
+		ConsultationAttachment attachment;
+		
+		try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+			FrmONPerinatalAction frmONPerinatalAction = new FrmONPerinatalAction();
+			List<Integer> pagesToPrint = Arrays.asList(1, 2, 3, 4, 5);
+
+			frmONPerinatalAction.printPdf(baos, loggedInInfo, demographicNo, id, pagesToPrint);
+			
+			// Generates the filename and attachment object
+			String fileName = String.format("Perinatal_%03d.pdf", id);
+			attachment = new ConsultationAttachment(id, ConsultDocs.DOCTYPE_FORMPERINATAL, fileName, baos.toByteArray());
+		}
+		
+		return attachment;
+	}*/
 	
 	private ConsultationRequestSearchResult convertToRequestSearchResult(Object[] items) {
 		ConsultationRequestSearchResult result = new ConsultationRequestSearchResult();

@@ -495,7 +495,8 @@ e.preventDefault();
 jQuery('#consultant-by-location-dropdown').slideUp();
 jQuery('#consultant-by-location-input').val('');
 });
-
+	
+	document.getElementById("eRefer").onclick = eRefer;
 })
 
 function unlockSearchByLocationInput(n){
@@ -507,6 +508,21 @@ jQuery('#consultant-by-location-dropdown').slideUp();
 document.getElementById('consultant-by-location-input').readOnly = true;
 document.getElementById('consultant-by-location-input').placeholder = "No consultants found for selected service";
 }
+}
+
+// TODO: Replace this when implementing OSCAR-3016
+function eRefer() {
+	let demographicNo = document.getElementById("demographicNo").serialize();
+	let documents = document.getElementById("documents").serialize();
+	let data = demographicNo + "&" + documents;
+	jQuery.ajax({
+		type: 'POST',
+		url: '<%=request.getContextPath()%>/oscarEncounter/eRefer.do',
+		data: data,
+		success: function(response) {
+			console.log(response);
+		}
+	});
 }
 
 function getClinicalData( data, target ) {
@@ -1558,9 +1574,9 @@ function statusChanged(val) {
 	<% if (!props.isConsultationFaxEnabled() || !OscarProperties.getInstance().isPropertyActive("consultation_dynamic_labelling_enabled")) { %>
 	<input type="hidden" name="providerNo" value="<%=providerNo%>">
 	<% } %>
-	<input type="hidden" name="demographicNo" value="<%=demo%>">
+	<input type="hidden" id="demographicNo" name="demographicNo" value="<%=demo%>">
 	<input type="hidden" name="requestId" value="<%=requestId%>">
-	<input type="hidden" name="documents" value="">
+	<input type="hidden" id="documents" name="documents" value="">
 	<input type="hidden" name="ext_appNo" value="<%=request.getParameter("appNo") %>">
 	<input type="hidden" name="source" value="<%=(requestId!=null)?thisForm.getSource():request.getParameter("source") %>">
 	
@@ -1579,6 +1595,10 @@ function statusChanged(val) {
 						<%=thisForm.getPatientName()%> <%=thisForm.getPatientSex()%>	<%=thisForm.getPatientAge()%>
 						</h2>
 						</td>
+					<!-- TODO: Replace this when implementing OSCAR-3016 -->
+					<td>
+						<span id="eRefer" style="cursor:pointer">eRefer</span>
+					</td>
 				</tr>
 			</table>
 			</td>
