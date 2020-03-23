@@ -95,7 +95,14 @@ public class NoteManager {
             cpp.setDemographic_no(demo);
         }
         if(note.isCpp() && note.getSummaryCode()!=null){
-            cpp = copyNote2cpp(cpp, note.getNote(), note.getSummaryCode());
+            StringBuilder summaryCode = new StringBuilder(note.getSummaryCode());
+            for(CaseManagementIssueTo1 cmIssue : note.getAssignedIssues()){
+                if(cmIssue.getIssue() != null){
+                    summaryCode.append((summaryCode.toString().equals("") ? "" : ", "));
+                    summaryCode.append(cmIssue.getIssue().getCode());
+                }
+            }
+            cpp = copyNote2cpp(cpp, note.getNote(), summaryCode.toString());
         }
         
         logger.debug("enc TYPE " +note.getEncounterType());
@@ -130,7 +137,7 @@ public class NoteManager {
                 } else {
                     //new one
                     cmi = new CaseManagementIssue();
-                    Issue is = issueDao.getIssue(i.getIssue_id());
+                    Issue is = i.getIssue() != null ? issueDao.findIssueByCode(i.getIssue().getCode()) : issueDao.getIssue(i.getIssue_id());
                     cmi.setIssue_id(is.getId());
                     cmi.setIssue(is);
                     cmi.setProgram_id(programManager2.getCurrentProgramInDomain(loggedInInfo, loggedInInfo.getLoggedInProviderNo()).getProgramId().intValue());
@@ -149,7 +156,6 @@ public class NoteManager {
             }
         }
 
-        note.setIssues(new HashSet<CaseManagementIssue>(issuelist));
         caseManagementNote.setIssues(new HashSet<CaseManagementIssue>(issuelist));
         
         String noteString = note.getNote();
@@ -165,7 +171,7 @@ public class NoteManager {
             } else{
                 caseManagementNote.setObservation_date(observationDate);
             }
-        } else if (note.getObservationDate() == null) {
+        } else {
             caseManagementNote.setObservation_date(now);
         }
 
