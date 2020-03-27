@@ -23,6 +23,7 @@
  */
 package org.oscarehr.ws.rest;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -56,6 +57,7 @@ import org.oscarehr.common.model.ConsultationRequest;
 import org.oscarehr.common.model.ConsultationResponse;
 import org.oscarehr.common.model.ConsultationServices;
 import org.oscarehr.common.model.Demographic;
+import org.oscarehr.common.model.Document;
 import org.oscarehr.common.model.EFormData;
 import org.oscarehr.common.model.FaxConfig;
 import org.oscarehr.common.model.ProfessionalSpecialist;
@@ -65,12 +67,15 @@ import org.oscarehr.consultations.ConsultationRequestSearchFilter;
 import org.oscarehr.consultations.ConsultationResponseSearchFilter;
 import org.oscarehr.managers.ConsultationManager;
 import org.oscarehr.managers.DemographicManager;
+import org.oscarehr.managers.DocumentManager;
+import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 import org.oscarehr.ws.rest.conversion.ConsultationRequestConverter;
 import org.oscarehr.ws.rest.conversion.ConsultationResponseConverter;
 import org.oscarehr.ws.rest.conversion.ConsultationServiceConverter;
 import org.oscarehr.ws.rest.conversion.DemographicConverter;
+import org.oscarehr.ws.rest.conversion.DocumentConverter;
 import org.oscarehr.ws.rest.conversion.ProfessionalSpecialistConverter;
 import org.oscarehr.ws.rest.to.AbstractSearchResponse;
 import org.oscarehr.ws.rest.to.GenericRESTResponse;
@@ -92,6 +97,7 @@ import net.sf.json.JSONObject;
 import oscar.dms.EDoc;
 import oscar.dms.EDocUtil;
 import oscar.eform.EFormUtil;
+import oscar.log.LogAction;
 import oscar.oscarDemographic.data.RxInformation;
 import oscar.oscarLab.ca.on.CommonLabResultData;
 import oscar.oscarLab.ca.on.LabResultData;
@@ -126,6 +132,9 @@ public class ConsultationWebService extends AbstractServiceImpl {
 	
 	@Autowired
 	ConsultationServiceDao consultationServiceDao;
+	
+	@Autowired
+	DocumentManager documentManager;
 	
 	private ConsultationRequestConverter requestConverter = new ConsultationRequestConverter();
 	private ConsultationResponseConverter responseConverter = new ConsultationResponseConverter();
@@ -201,6 +210,69 @@ public class ConsultationWebService extends AbstractServiceImpl {
 		getLabs(labs, demographicId, attached, attachments);
 		
 		return attachments;
+	}
+	
+	@POST
+	@Path("/createConsultation")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response createConsultation(ConsultationRequestTo1 data){
+		
+		if(data.getId() != null){
+			return Response.status(Response.Status.BAD_REQUEST).entity("Please use /updateConsultation service for existing consultations").build();
+		}
+		if(data.getDemographicId() == null || data.getDemographicId() <= 0 || demographicManager.getDemographic(getLoggedInInfo(), data.getDemographicId()) == null){
+			return Response.status(Response.Status.BAD_REQUEST).entity("Invalid demographicId").build();
+		}
+		if(data.getReferralDate() == null || data.getServiceId() == null || data.getUrgency() == null || data.getStatus() == null){
+			return Response.status(Response.Status.BAD_REQUEST).entity("required fields: \"referralDate\", \"serviceId\", \"urgency\", \"status\"").build();
+		}
+		
+		ConsultationRequest request = requestConverter.getAsDomainObject(getLoggedInInfo(), data);
+
+		request.setProfessionalSpecialist(data.getProfessionalSpecialist() == null ? null : consultationManager.getProfessionalSpecialist(data.getProfessionalSpecialist().getId()));
+		consultationManager.saveConsultationRequest(getLoggedInInfo(), request);
+		data.setId(request.getId());
+		
+		//save attachments
+		saveRequestAttachments(data);
+
+		ConsultationServices service = consultationManager.getConsultationService(data.getServiceId());
+		
+		LogAction.addLog(getLoggedInInfo(), "Created new consultation", "consultationRequest id", data.getId().toString(), data.getDemographicId().toString(), "Service: " + (service != null ? service.getServiceDesc() : "") + (request.getProfessionalSpecialist() != null ? "Specialist: " + request.getProfessionalSpecialist().getFormattedName() : ""));
+		
+		return Response.ok().entity(data).build();
+	}
+	
+	@POST
+	@Path("/updateConsultation")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response updateConsultation(ConsultationRequestTo1 data){
+		
+		if(data.getId() == null){
+			return Response.status(Response.Status.BAD_REQUEST).entity("Please use /createConsultation service for new consultations").build();
+		}
+		if(data.getDemographicId() == null || data.getDemographicId() <= 0 || demographicManager.getDemographic(getLoggedInInfo(), data.getDemographicId()) == null){
+			return Response.status(Response.Status.BAD_REQUEST).entity("Invalid demographicId").build();
+		}
+		if(data.getReferralDate() == null || data.getServiceId() == null || data.getUrgency() == null || data.getStatus() == null){
+			return Response.status(Response.Status.BAD_REQUEST).entity("required fields: \"referralDate\" \"serviceId\" \"urgency\" \"status\"").build();
+		}
+		
+		ConsultationRequest request = requestConverter.getAsDomainObject(getLoggedInInfo(), data, consultationManager.getRequest(getLoggedInInfo(), data.getId()));
+
+		request.setProfessionalSpecialist(data.getProfessionalSpecialist() == null ? null : consultationManager.getProfessionalSpecialist(data.getProfessionalSpecialist().getId()));
+		consultationManager.saveConsultationRequest(getLoggedInInfo(), request);
+
+		//save attachments
+		saveRequestAttachments(data);
+		
+		ConsultationServices service = consultationManager.getConsultationService(data.getServiceId());
+
+		LogAction.addLog(getLoggedInInfo(), "Updated consultation", "consultationRequest id", data.getId().toString(), data.getDemographicId().toString(), "Service: " + (service != null ? service.getServiceDesc() : "") + (request.getProfessionalSpecialist() != null ? "Specialist: " + request.getProfessionalSpecialist().getFormattedName() : ""));
+
+		return Response.ok().entity(data).build();
 	}
 
 	@POST
@@ -649,6 +721,34 @@ public class ConsultationWebService extends AbstractServiceImpl {
 	}
 	
 	private void saveRequestAttachments(ConsultationRequestTo1 request) {
+
+		List<ConsultationAttachmentTo1> goodAttachments = new ArrayList<>();
+		for(ConsultationAttachmentTo1 attachment : request.getAttachments()){
+
+			if(attachment.getDocument() != null && attachment.getDocument().getId() == null){
+				if(StringUtils.isNotEmpty(attachment.getDocument().getFileName()) && attachment.getDocument().getFileContents().length > 0) {
+					try {
+						attachment.getDocument().setDemographicNo(request.getDemographicId());
+						DocumentConverter documentConverter = new DocumentConverter();
+						LoggedInInfo loggedInInfo = getLoggedInInfo();
+						if (StringUtils.isEmpty(attachment.getDocument().getSource())) {
+							attachment.getDocument().setSource("REST API");
+						}
+						Document document = documentConverter.getAsDomainObject(loggedInInfo, attachment.getDocument());
+						document = documentManager.createDocument(loggedInInfo, document, attachment.getDocument().getDemographicNo(), attachment.getDocument().getProviderNo(), attachment.getDocument().getFileContents());
+						attachment.setDocumentNo(document.getDocumentNo());
+						attachment.getDocument().setId(document.getDocumentNo());
+						goodAttachments.add(attachment);
+					} catch (IOException e) {
+						MiscUtils.getLogger().warn("saveRequestAttachments: Could not create document for attachment", e);
+					}
+				}
+			} else {
+				goodAttachments.add(attachment);
+			}
+		}
+		request.setAttachments(goodAttachments);
+		
 		List<ConsultationAttachmentTo1> newAttachments = request.getAttachments();
 		List<ConsultDocs> currentDocs = consultationManager.getConsultRequestDocs(getLoggedInInfo(), request.getId());
 		if (newAttachments==null || currentDocs==null) return;

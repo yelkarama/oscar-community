@@ -246,6 +246,10 @@ public class ConsultationManager {
 		return services;
 	}
 	
+	public ConsultationServices getConsultationService(Integer id) {
+		return serviceDao.find(id);
+	}
+	
 	public List<ProfessionalSpecialist> getReferringDoctorList() {
 		ConsultationServices service = serviceDao.findReferringDoctorService(serviceDao.ACTIVE_ONLY);
 		return (service==null) ? null : service.getSpecialists();
