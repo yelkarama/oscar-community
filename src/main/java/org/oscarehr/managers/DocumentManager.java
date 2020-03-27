@@ -171,6 +171,8 @@ public class DocumentManager {
 		// Creates and saves the document 
 		saveDocument(document, demographicNo, providerNo);
 		
+		LogAction.addLog(loggedInInfo, "Save Document to Patient", "Document Id", document.getId().toString(), demographicNo.toString(), document.getDocfilename());
+		
 		return document;
 	}
 	
