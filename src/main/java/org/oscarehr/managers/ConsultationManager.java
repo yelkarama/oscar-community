@@ -469,6 +469,7 @@ public class ConsultationManager {
 		EReferAttachment eReferAttachment = eReferAttachmentDao.getRecentByDemographic(demographicNo);
 		
 		if (eReferAttachment != null) {
+			StringBuilder data = new StringBuilder("Retrieved:");
 			for (EReferAttachmentData attachmentData :  eReferAttachment.getAttachments()) {
 				try {
 						ConsultationAttachment attachment = null;
@@ -492,9 +493,13 @@ public class ConsultationManager {
 							/*case ConsultDocs.DOCTYPE_FORMPERINATAL:
 								attachment = getPerinatalAttachment(loggedInInfo, attachmentData.getLabId(), eReferAttachment.getDemographicNo());
 								break;*/
+								
+							default:
+								throw new RuntimeException("Attachment type " + attachmentData.getLabType() + " does not match a printable type");
 						}
 
 						attachments.add(attachment);
+						data.append("\n").append(attachment.getAttachmentType()).append(attachment.getId());
 				} catch (Exception e) {
 					logger.error("Attachment " + attachmentData.getLabType() + " " + attachmentData.getLabId() + " encountered an error while generating the file data", e);
 					throw e;
@@ -503,6 +508,8 @@ public class ConsultationManager {
 			// Archives the retrieved attachments so they can't be retrieved again
 			eReferAttachment.setArchived(true);
 			eReferAttachmentDao.merge(eReferAttachment);
+			
+			LogAction.addLog(loggedInInfo, "Retrieved and archived eRefer attachments", "eReferAttachment id", eReferAttachment.getId().toString(), demographicNo.toString(), data.toString());
 		}
 		
 		return attachments;
