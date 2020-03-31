@@ -60,6 +60,7 @@ import org.oscarehr.common.model.OscarMsgType;
 import org.oscarehr.common.model.SecObjPrivilege;
 import org.oscarehr.integration.OneIDTokenUtils;
 import org.oscarehr.integration.TokenExpiredException;
+import org.oscarehr.integration.dhdr.OmdGateway;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -68,7 +69,7 @@ import ca.uhn.fhir.context.FhirContext;
 import oscar.OscarProperties;
 import oscar.oscarMessenger.data.MsgProviderData;
 
-public class DHIRManager {
+public class DHIRManager  extends OmdGateway{
 
 	Logger logger = MiscUtils.getLogger();
 	private DHIRTransactionLogDao dhirTransactionLogDao = SpringUtils.getBean(DHIRTransactionLogDao.class);
@@ -147,7 +148,7 @@ public class DHIRManager {
 		params.put("_revinclude:recurse", "ImmunizationRecommendation:patient");
 		params.put("_format", "application/fhir+json");
 		
-		WebClient wc = getWebClient();
+		WebClient wc = getWebClient(OmdGateway.Immunization);
 		
 		for (Entry<String, String> entry : params.entrySet()) {
 			wc.query(entry.getKey(), entry.getValue());
@@ -210,7 +211,7 @@ public class DHIRManager {
 		params.put("_revinclude:recurse", "ImmunizationRecommendation:patient");
 		params.put("_format", "application/fhir+json");
 		
-		WebClient wc = getWebClient();
+		WebClient wc = getWebClient(OmdGateway.Immunization);
 		
 		for (Entry<String, String> entry : params.entrySet()) {
 			wc.query(entry.getKey(), entry.getValue());
@@ -294,53 +295,6 @@ public class DHIRManager {
 			}
 		}
 		return result;
-	}
-
-	private String getValidToken(HttpSession session) throws TokenExpiredException {
-		
-	//	String tokenAttr = (String) session.getAttribute("oneid_token");
-	//	JSONObject tokens = JSONObject.fromObject(tokenAttr);
-
-	//	String accessToken = tokens.getString("access_token");
-		
-		//logger.info("CURRENT WORKING TOKEN=" + tokenAttr);
-		
-	   String  accessToken = OneIDTokenUtils.getValidAccessToken(session);
-
-		return accessToken;
-	}
-	
-	private WebClient getWebClient() throws Exception {
-		String gatewayUrl = OscarProperties.getInstance().getProperty("oneid.gateway.url");
-		WebClient wc = WebClient.create(gatewayUrl);
-		WebClient.getConfig(wc).getHttpConduit().setTlsClientParameters(getTLSClientParameters());
-		return wc;
-	}
-	
-	private TLSClientParameters getTLSClientParameters() throws Exception {
-		KeyStore ks = KeyStore.getInstance("JKS");
-		ks.load(new FileInputStream(OscarProperties.getInstance().getProperty("oneid.gateway.keystore")), 
-				OscarProperties.getInstance().getProperty("oneid.gateway.keystore.password").toCharArray());
-		
-		SSLContext sslcontext = SSLContexts.custom().loadKeyMaterial(ks, OscarProperties.getInstance().getProperty("oneid.gateway.keystore.password").toCharArray()).build();
-		sslcontext.getDefaultSSLParameters().setNeedClientAuth(true);
-		sslcontext.getDefaultSSLParameters().setWantClientAuth(true);
-
-		TLSClientParameters tlsParams = new TLSClientParameters();
-		tlsParams.setSSLSocketFactory(sslcontext.getSocketFactory());
-		tlsParams.setDisableCNCheck(true);
-		
-		return tlsParams;
-	}
-	
-	private Response doGet(WebClient wc, HttpServletRequest request) throws TokenExpiredException {
-		String consumerKey = OscarProperties.getInstance().getProperty("oneid.consumerKey");
-		String consumerSecret = OscarProperties.getInstance().getProperty("oneid.consumerSecret");
-		String accessToken = getValidToken(request.getSession());
-		
-		Response response2 = wc.header("Authorization", "Bearer " + accessToken).header("X-Gtwy-Client-Id", consumerKey).header("X-Gtwy-Client-Secret", consumerSecret).get();
-		
-		return response2;
 	}
 	
 	private String mapGender(String sex) {
