@@ -77,12 +77,15 @@
 	String callbackUrl = OscarProperties.getInstance().getProperty("oneid.oauth2.callbackUrl");
 	String clientId = OscarProperties.getInstance().getProperty("oneid.oauth2.clientId");
 	String state = RandomStringUtils.randomAlphanumeric(20);
+	String aud = OscarProperties.getInstance().getProperty("oneid.oauth2.aud");
+	
 	
 
-	Map<String, String> params = new HashMap<>();
+	Map<String, String> params = new HashMap<String,String>();
 	params.put("response_type", "code");
 	//TODO: remove hard coded scopes
-	params.put("scope", "openid user/Immunization.read user/Immunization.write user/Patient.read");
+	params.put("scope", "openid user/Immunization.read user/Immunization.write user/Patient.read user/MedicationDispense.read");
+	
 	
 	params.put("code_challenge_method", "S256");
 	
@@ -90,9 +93,10 @@
 	params.put("redirect_uri", callbackUrl);
 	params.put("client_id", clientId);
 	params.put("state", state);
-	//THIS WAS COMMENTED OUT - aud
-	params.put("aud","https://provider.ehealthontario.on.ca");
-	params.put("_profile","http://ehealthontario.ca/StructureDefinition/ca-on-dhir-profile-Immunization http://ehealthontario.ca/StructureDefinition/ca-on-dhir-profile-Patient");
+	if(aud != null){
+		params.put("aud",aud);
+	}
+	params.put("_profile","http://ehealthontario.ca/StructureDefinition/ca-on-dhir-profile-Immunization http://ehealthontario.ca/StructureDefinition/ca-on-dhir-profile-Patient http://ehealthontario.ca/StructureDefinition/ca-on-dhdr-profile-MedicationDispense");
 	session.setAttribute("eho_verifier-" + state,verifier);
 		
 	if(request.getParameter("alreadyLoggedIn") != null && "true".equals(request.getParameter("alreadyLoggedIn"))) {
