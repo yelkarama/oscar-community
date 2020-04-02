@@ -61,7 +61,7 @@
 	<div ng-controller="dhdrView">
 	<div class="page-header" style="margin-top: 0px; margin-bottom: 0px;">
 		<h1 class="patientHeaderName" style="margin-top: 0px;" ng-cloak>
-			<b>{{demographic.lastName}}, {{demographic.firstName}}</b>  <span ng-show="demographic.alias">({{demographic.alias}})</span> 
+			<b>{{demographic.lastName}}, {{demographic.firstName}}</b>  <span ng-show="demographic.hin">({{demographic.hin}})</span> 
 			
 			<small class="patientHeaderExt pull-right"> 
 				<i><bean:message key="demographic.patient.context.born"/>: </i>
@@ -114,7 +114,7 @@
 						</tr> 
 					</thead> 
 		 			<tbody> 
-		 				<tr ng-repeat="med in meds"> 
+		 				<tr ng-repeat="med in meds" ng-hide="med.hide"> 
 		 					<th scope="row">{{med.whenPrepared | date}}</th> 
 		 					<td>{{med.genericName}}</td>
 		 					<td>{{med.brandName.display}}</td>
@@ -126,7 +126,7 @@
 		 					<td>{{med.prescriberPhoneNumber}}</td>
 		 					<td>{{med.dispensingPharmacy}}</td>
 		 					<td>{{med.dispensingPharmacyFaxNumber}}</td>
-		 					<td><!-- {{med | json}}  --></td> 
+		 					<td ng-click="showGroupedMeds(med)">{{medsWithGroupedDups[med.getUniqVal()].length}}<!-- {{med | json}}  --></td> 
 		 					
 		 				</tr> 
 		 			</tbody> 
@@ -150,12 +150,15 @@
 			$scope.demographic = {};
 			$scope.meds = [];
 			$scope.outcomes = [];
-			defaultDaysToSearch = 120;
+			defaultDaysToSearch = 1420;
 			$scope.searchConfig = {};
 			$scope.searchConfig.endDate = new Date();
 			$scope.searchConfig.startDate = new Date($scope.searchConfig.endDate);
 			$scope.searchConfig.startDate.setDate($scope.searchConfig.endDate.getDate() - defaultDaysToSearch);
 			$scope.searching = false;
+			
+			$scope.medsWithGroupedDups = [];
+			
 			
 			/*
 			$scope.$watch('location.search()', function() {
@@ -167,6 +170,15 @@
 			$scope.callSearch = function(){
 				search($scope.demographicNo,$scope.searchConfig);
 			}
+			
+			$scope.showGroupedMeds = function(med) {
+				hiddenGroup = $scope.medsWithGroupedDups[med.getUniqVal()];
+				console.log("hiddenGroup",hiddenGroup);
+				for (x of  hiddenGroup) {
+					x.hide = false;
+				}
+				console.log("hiddenGroup2",hiddenGroup);
+			}
 		
 			search = function(demographicNo,searchConfig){
 				$scope.searching = true;
@@ -175,6 +187,7 @@
 					$scope.searching = false;
 					$scope.meds = [];
 					$scope.outcomes = [];
+					$scope.medsWithGroupedDups = [];
 					for (x of  response.entry) {
 						console.log("x",x);
 						if(x.resource.resourceType === "OperationOutcome"){
@@ -183,8 +196,19 @@
 							console.log("$scope.outcomes",$scope.outcomes);
 						}else if(x.resource.resourceType === "MedicationDispense"){
 							var d = new MedicationDispense(x);
-							console.log("d",d);
+							console.log("d",d,d.getUniqVal());
 							$scope.meds.push(d);
+							console.log("d.getUniqVal()",d.getUniqVal(),$scope.medsWithGroupedDups[d.getUniqVal()]);
+							
+							//if ($scope.medsWithGroupedDups.indexOf(d.getUniqVal()) === -1) {
+							if($scope.medsWithGroupedDups[d.getUniqVal()] === undefined){
+								$scope.medsWithGroupedDups[d.getUniqVal()] = [];
+								$scope.medsWithGroupedDups[d.getUniqVal()].push(d);
+							}else{
+								console.log("found ",d.getUniqVal(),$scope.medsWithGroupedDups[d.getUniqVal()]);
+								d.hide = true;
+								$scope.medsWithGroupedDups[d.getUniqVal()].push(d);
+							}
 						}
 					}
 					
@@ -225,6 +249,16 @@
 		
 		function MedicationDispense(medication){
 			this.med = medication;
+			this.hide = false;
+			
+			/* uniq value
+			 a) Generic name of the dispensed drug [Medication.code.coding[2].display]
+			 b) Dispensed drug strength [Medication.extension[1].valueString]
+			 c) Drug dosage form (e.g., tablet, capsule, injection) [Medication.form.coding.display]
+			*/
+			this.getUniqVal = function(){
+				 return this.genericName+":"+this.dispensedDrugStrength+":"+this.drugDosageForm;
+			 }
 			
 			this.whenPrepared = this.med.resource.whenPrepared;
 			if(angular.isDefined(this.med.resource.quantity) && angular.isDefined(this.med.resource.quantity.value)){
