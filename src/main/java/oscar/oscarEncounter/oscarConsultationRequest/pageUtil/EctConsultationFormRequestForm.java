@@ -110,6 +110,8 @@ public final class EctConsultationFormRequestForm extends ActionForm {
 	private String professionalSpecialistAddress;
         private String followUpDate;
 	private boolean eReferral = false;
+	private String eReferralService = "";
+	private String eReferralId = null;
 	private Integer hl7TextMessageId;
 
 	private String letterheadName, letterheadAddress, letterheadPhone, letterheadFax;
@@ -150,6 +152,20 @@ public final class EctConsultationFormRequestForm extends ActionForm {
 
 	public void seteReferral(boolean eReferral) {
 		this.eReferral = eReferral;
+	}
+
+	public String geteReferralService() {
+		return eReferralService;
+	}
+	public void seteReferralService(String eReferralService) {
+		this.eReferralService = eReferralService;
+	}
+
+	public String geteReferralId() {
+		return eReferralId;
+	}
+	public void seteReferralId(String eReferralId) {
+		this.eReferralId = eReferralId;
 	}
 
 	public String getProviderName() {

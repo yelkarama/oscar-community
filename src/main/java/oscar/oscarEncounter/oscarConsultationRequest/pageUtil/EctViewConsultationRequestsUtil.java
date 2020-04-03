@@ -33,6 +33,7 @@ import java.util.Vector;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.dao.ConsultationRequestDao;
+import org.oscarehr.common.dao.ConsultationRequestExtDao;
 import org.oscarehr.common.dao.ConsultationServiceDao;
 import org.oscarehr.common.model.ConsultationRequest;
 import org.oscarehr.common.model.ConsultationServices;
@@ -182,7 +183,7 @@ public class EctViewConsultationRequestsUtil {
       try {                           
 
           ConsultationRequestDao consultReqDao = (ConsultationRequestDao) SpringUtils.getBean("consultationRequestDao");
-
+          ConsultationRequestExtDao consultationRequestExtDao = SpringUtils.getBean(ConsultationRequestExtDao.class);
           ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
           DemographicManager demoManager = SpringUtils.getBean(DemographicManager.class);
           ConsultationServiceDao serviceDao = (ConsultationServiceDao) SpringUtils.getBean("consultationServiceDao");
@@ -205,13 +206,21 @@ public class EctViewConsultationRequestsUtil {
                   providerName = "N/A";
               }
 
-              services = serviceDao.find(consult.getServiceId());
+              String serviceDescription;
+              
+              // If service id is 0, check the extensions table
+              if (consult.getServiceId() == 0) {
+                  serviceDescription = consultationRequestExtDao.getConsultationRequestExtsByKey(consult.getId(), "ereferral_service");
+              } else {
+                  services = serviceDao.find(consult.getServiceId());
+                  serviceDescription = services.getServiceDesc();
+              }
 
               ids.add(consult.getId().toString());
               status.add(consult.getStatus());
               patient.add(demo.getFormattedName());
               provider.add(providerName);
-              service.add(services.getServiceDesc());
+              service.add(serviceDescription);
               urgency.add(consult.getUrgency());
               patientWillBook.add(""+consult.isPatientWillBook());
               date.add(DateFormatUtils.ISO_DATE_FORMAT.format(consult.getReferralDate()));

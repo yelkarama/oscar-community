@@ -72,6 +72,7 @@ import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 import org.oscarehr.ws.rest.conversion.ConsultationRequestConverter;
+import org.oscarehr.ws.rest.conversion.ConsultationRequestExtConverter;
 import org.oscarehr.ws.rest.conversion.ConsultationResponseConverter;
 import org.oscarehr.ws.rest.conversion.ConsultationServiceConverter;
 import org.oscarehr.ws.rest.conversion.DemographicConverter;
@@ -81,6 +82,7 @@ import org.oscarehr.ws.rest.to.AbstractSearchResponse;
 import org.oscarehr.ws.rest.to.GenericRESTResponse;
 import org.oscarehr.ws.rest.to.ReferralResponse;
 import org.oscarehr.ws.rest.to.model.ConsultationAttachmentTo1;
+import org.oscarehr.ws.rest.to.model.ConsultationRequestExtTo1;
 import org.oscarehr.ws.rest.to.model.ConsultationRequestSearchResult;
 import org.oscarehr.ws.rest.to.model.ConsultationRequestTo1;
 import org.oscarehr.ws.rest.to.model.ConsultationResponseSearchResult;
@@ -141,6 +143,7 @@ public class ConsultationWebService extends AbstractServiceImpl {
 	private ConsultationServiceConverter serviceConverter = new ConsultationServiceConverter();
 	private ProfessionalSpecialistConverter specialistConverter = new ProfessionalSpecialistConverter();
 	private DemographicConverter demographicConverter = new DemographicConverter();
+	private final ConsultationRequestExtConverter consultationRequestExtConverter = new ConsultationRequestExtConverter();
 	
 	
 	/********************************
@@ -217,6 +220,7 @@ public class ConsultationWebService extends AbstractServiceImpl {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response createConsultation(ConsultationRequestTo1 data){
+		LoggedInInfo loggedInInfo = getLoggedInInfo();
 		
 		if(data.getId() != null){
 			return Response.status(Response.Status.BAD_REQUEST).entity("Please use /updateConsultation service for existing consultations").build();
@@ -228,18 +232,21 @@ public class ConsultationWebService extends AbstractServiceImpl {
 			return Response.status(Response.Status.BAD_REQUEST).entity("required fields: \"referralDate\", \"serviceId\", \"urgency\", \"status\"").build();
 		}
 		
-		ConsultationRequest request = requestConverter.getAsDomainObject(getLoggedInInfo(), data);
+		ConsultationRequest request = requestConverter.getAsDomainObject(loggedInInfo, data);
 
 		request.setProfessionalSpecialist(data.getProfessionalSpecialist() == null ? null : consultationManager.getProfessionalSpecialist(data.getProfessionalSpecialist().getId()));
-		consultationManager.saveConsultationRequest(getLoggedInInfo(), request);
+		consultationManager.saveConsultationRequest(loggedInInfo, request);
 		data.setId(request.getId());
+		
+		List<ConsultationRequestExtTo1> updatedExtras = consultationRequestExtConverter.getAllAsTransferObjects(loggedInInfo, request.getExtras());
+		data.setExtras(updatedExtras);
 		
 		//save attachments
 		saveRequestAttachments(data);
 
 		ConsultationServices service = consultationManager.getConsultationService(data.getServiceId());
 		
-		LogAction.addLog(getLoggedInInfo(), "Created new consultation", "consultationRequest id", data.getId().toString(), data.getDemographicId().toString(), "Service: " + (service != null ? service.getServiceDesc() : "") + (request.getProfessionalSpecialist() != null ? "Specialist: " + request.getProfessionalSpecialist().getFormattedName() : ""));
+		LogAction.addLog(loggedInInfo, "Created new consultation", "consultationRequest id", data.getId().toString(), data.getDemographicId().toString(), "Service: " + (service != null ? service.getServiceDesc() : "") + (request.getProfessionalSpecialist() != null ? "Specialist: " + request.getProfessionalSpecialist().getFormattedName() : ""));
 		
 		return Response.ok().entity(data).build();
 	}
@@ -266,7 +273,15 @@ public class ConsultationWebService extends AbstractServiceImpl {
 		consultationManager.saveConsultationRequest(getLoggedInInfo(), request);
 
 		//save attachments
-		saveRequestAttachments(data);
+		if (data.getAttachments().isEmpty()) {
+			saveRequestAttachments(data);
+		}
+		
+		// Sets the extras, if any exist, to the data being returned so the user gets all up to date info 
+		if (!request.getExtras().isEmpty()) {
+			List<ConsultationRequestExtTo1> extraTs = consultationRequestExtConverter.getAllAsTransferObjects(getLoggedInInfo(), request.getExtras());
+			data.setExtras(extraTs);
+		}
 		
 		ConsultationServices service = consultationManager.getConsultationService(data.getServiceId());
 

@@ -562,12 +562,13 @@ function disableEditing()
 		form.status[3].disabled = disableFields;
 
 		form.referalDate.disabled = disableFields;
-		form.service.disabled = disableFields;
+		disableIfExists(form.specialist, disableFields);
+		disableIfExists(form.service, disableFields);
 		form.urgency.disabled = disableFields;
 		form.phone.disabled = disableFields;
 		form.fax.disabled = disableFields;
 		form.address.disabled = disableFields;
-		form.patientWillBook.disabled = disableFields;
+		disableIfExists(form.patientWillBook, disableFields);
 		form.sendTo.disabled = disableFields;
 
 		form.appointmentNotes.disabled = disableFields;
@@ -577,6 +578,9 @@ function disableEditing()
 		form.currentMedications.disabled = disableFields;
 		form.allergies.disabled = disableFields;
                 form.annotation.disabled = disableFields;
+        form.appointmentDate.disabled = disableFields;
+        form.followUpDate.disabled = disableFields;
+        
 
 		disableIfExists(form.update, disableFields);
 		disableIfExists(form.updateAndPrint, disableFields);
@@ -587,12 +591,24 @@ function disableEditing()
 		disableIfExists(form.submitAndPrint, disableFields);
 		disableIfExists(form.submitAndSendElectronically, disableFields);
 		disableIfExists(form.submitAndFax, disableFields);
+		disableIfExists(form.letterheadFax, disableFields);
+
+		hideElement('referalDate_cal');
+		hideElement('appointmentDate_cal');
+		hideElement("followUpDate_cal");
 	}
 }
 
 function disableIfExists(item, disabled)
 {
 	if (item!=null) item.disabled=disabled;
+}
+
+function hideElement(elementId) {
+	let element = document.getElementById(elementId)
+	if (element != null) {
+		element.style.display = 'none';
+	}
 }
 
 //------------------------------------------------------------------------------------------
@@ -1729,6 +1745,7 @@ function statusChanged(val) {
 				height="100%" border=1>
 
 				<!----Start new rows here-->
+				<% if (thisForm.geteReferralId() == null) { %>
 				<tr>
 					<td class="tite4" colspan=2>
 					<% boolean faxEnabled = props.isConsultationFaxEnabled(); %>
@@ -1769,6 +1786,7 @@ function statusChanged(val) {
 					
 					</td>
                     </tr>
+					<% } %>
                     <tr class="consultDemographicData" >
 					<td>
 
@@ -1829,8 +1847,12 @@ function statusChanged(val) {
 							<td class="tite4"><bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.formService" />:
 							</td>
 							<td  class="tite1">
-							  <html:select styleId="service" property="service" onchange="fillSpecialistSelect(this);">
+							  <% if (thisForm.iseReferral() && !thisForm.geteReferralService().isEmpty()) { %>
+									<%= thisForm.geteReferralService() %>
+								<% } else { %>
+									<html:select styleId="service" property="service" onchange="fillSpecialistSelect(this);">
 							  </html:select>
+							<% } %>
 							</td>
 						</tr>
 						<tr>
@@ -2256,6 +2278,7 @@ function statusChanged(val) {
 								<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.formClinInf" />:						
 							</td>
 							<td id="clinicalInfoButtonBar">
+								<% if (thisForm.geteReferralId() == null) { %>
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportSocHistory"/>" onclick="importFromEnct('SocialHistory',document.forms[0].clinicalInformation);" />&nbsp;
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportFamHistory"/>" onclick="importFromEnct('FamilyHistory',document.forms[0].clinicalInformation);" />&nbsp;
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportMedHistory"/>" onclick="importFromEnct('MedicalHistory',document.forms[0].clinicalInformation);" />&nbsp;
@@ -2263,16 +2286,17 @@ function statusChanged(val) {
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportOtherMeds"/>" onclick="importFromEnct('OtherMeds',document.forms[0].clinicalInformation);" />&nbsp;
 
 								<span id="clinicalInfoButtons"></span>
+								<% } %>
 							</td>
 						</tr>
 						<tr>
-														<td>
+							<td>
+								<% if (thisForm.geteReferralId() == null) { %>
 								<input id="btnReminders" type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportReminders"/>" onclick="importFromEnct('Reminders',document.forms[0].clinicalInformation);" />&nbsp;								
 								<input id="fetchRiskFactors_clinicalInformation" type="button" class="btn clinicalData" value="Risk Factors" />&nbsp;
 								<input id="fetchMedications_clinicalInformation" type="button" class="btn clinicalData" value="Medications" />&nbsp;
 								<input id="fetchLongTermMedications_clinicalInformation" type="button" class="btn clinicalData" value="Long Term Medications" />&nbsp;
-								
-								
+								<% } %>
 							</td>
 						</tr>
 					</table>
@@ -2300,22 +2324,24 @@ function statusChanged(val) {
  %>
 							</td>
 							<td id="concurrentProblemsButtonBar">
+								<% if (thisForm.geteReferralId() == null) { %>
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportSocHistory"/>" onclick="importFromEnct('SocialHistory',document.forms[0].concurrentProblems);" />&nbsp;
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportFamHistory"/>" onclick="importFromEnct('FamilyHistory',document.forms[0].concurrentProblems);" />&nbsp;
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportMedHistory"/>" onclick="importFromEnct('MedicalHistory',document.forms[0].concurrentProblems);" />&nbsp;
 								<input id="btnOngoingConcerns2" type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportConcerns"/>" onclick="importFromEnct('ongoingConcerns',document.forms[0].concurrentProblems);" />&nbsp;
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportOtherMeds"/>" onclick="importFromEnct('OtherMeds',document.forms[0].concurrentProblems);" />&nbsp;
-
+								<% } %>
 							</td>
 						</tr>
 						<tr>
 							
 							<td>
+								<% if (thisForm.geteReferralId() == null) { %>
 								<input id="btnReminders2" type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportReminders"/>" onclick="importFromEnct('Reminders',document.forms[0].concurrentProblems);" />&nbsp;
 								<input id="fetchRiskFactors_concurrentProblems" type="button" class="btn clinicalData" value="Risk Factors" />&nbsp;
 								<input id="fetchMedications_concurrentProblems" type="button" class="btn clinicalData" value="Medications" />&nbsp;
 								<input id="fetchLongTermMedications_concurrentProblems" type="button" class="btn clinicalData" value="Long Term Medications" />&nbsp;
-								
+								<% } %>
 							</td>
 						</tr>
 					</table>
@@ -2353,6 +2379,7 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 								<% }  %>
 							</td>
 							<td id="medsButtonBar">
+								<% if (thisForm.geteReferralId() == null) { %>
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportOtherMeds"/>" 
 								onclick="importFromEnct('OtherMeds',document.forms[0].currentMedications);" />
 								
@@ -2360,6 +2387,7 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 								<input id="fetchLongTermMedications_currentMedications" type="button" class="btn clinicalData" value="Long Term Medications" />&nbsp;
 								
 								<span id="medsButtons"></span>
+								<% } %>
 							</td>
 						</tr>
 					</table>
@@ -2378,7 +2406,9 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 							<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.formAllergies" />:
 							</td>
 							<td>
+								<% if (thisForm.geteReferralId() == null) { %>
 								<input id="fetchAllergies_allergies" type="button" class="btn clinicalData" value="Allergies" />
+								<% } %>
 							</td>
 						</tr>
 						
@@ -2418,7 +2448,7 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 				</tr>
 				<% }%>
 				<%
-				if (props.isConsultationFaxEnabled()) {
+				if (props.isConsultationFaxEnabled() && thisForm.geteReferralId() == null) {
 				%>
 				<tr><td colspan=2 class="tite4">Additional Fax Recipients:</td></tr>
 				<tr>
@@ -2499,7 +2529,7 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 				<% } %>
 
 
-
+				<% if (thisForm.geteReferralId() == null) { %>
 				<tr>
 
 <td colspan=2>
@@ -2553,6 +2583,7 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 						</logic:equal>
 					</td>
 				</tr>
+				<% } %>
 
 				<script type="text/javascript">
 
