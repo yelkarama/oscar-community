@@ -831,15 +831,6 @@ public class ConsultationManager {
 			}
 		}
 	}
-	
-	public List<ConsultationRequestExt> saveConsultationExtras(LoggedInInfo loggedInInfo, List<ConsultationRequestExt> extras) {
-		List<AbstractModel<?>> toSave = new ArrayList<>();
-		toSave.addAll(extras);
-		consultationRequestExtDao.batchPersist(toSave);
-		
-		return extras;
-	}
-
 
 	/**
 	 * Saves or updates consultation request extras depending on if the key already exists in the table
