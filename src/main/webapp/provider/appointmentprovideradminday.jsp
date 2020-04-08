@@ -2165,13 +2165,17 @@ start_time += iSm + ":00";
 
       <%String appointment_no=appointment.getId().toString();
       	request.setAttribute("providerPreference", providerPreference);
+      	
+      	String appointmentDate = strYear + "-" + strMonth + "-" + strDay + "T" + start_time + ".000Z";
       %>
       <c:set var="demographic_no" value="<%=demographic_no %>" />
       <c:set var="appointment_no" value="<%=appointment_no %>" />
+      <c:set var="appointment_date" value="<%=appointmentDate%>" />
       
 	  <jsp:include page="appointmentFormsLinks.jspf">	  	
 	  	<jsp:param value="${demographic_no}" name="demographic_no"/>
 	  	<jsp:param value="${appointment_no}" name="appointment_no"/>
+	  	<jsp:param value="${appointment_date}" name="appointment_date"/>
 	  </jsp:include>
 
 	<oscar:oscarPropertiesCheck property="appt_pregnancy" value="true" defaultVal="false">
