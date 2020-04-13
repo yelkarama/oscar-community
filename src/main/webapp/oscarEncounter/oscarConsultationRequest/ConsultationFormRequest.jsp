@@ -358,6 +358,15 @@ background-color:#003399;color:#fff
 }
 
 /* select consultant by location */
+	
+span.oceanRefer	{
+	display: flex;
+	align-items: center;
+}
+	
+span.oceanRefer a {
+	margin-right: 5px;
+}
 </style>
 </head>
 
@@ -496,7 +505,6 @@ jQuery('#consultant-by-location-dropdown').slideUp();
 jQuery('#consultant-by-location-input').val('');
 });
 	
-	document.getElementById("eRefer").onclick = eRefer;
 })
 
 function unlockSearchByLocationInput(n){
@@ -508,21 +516,6 @@ jQuery('#consultant-by-location-dropdown').slideUp();
 document.getElementById('consultant-by-location-input').readOnly = true;
 document.getElementById('consultant-by-location-input').placeholder = "No consultants found for selected service";
 }
-}
-
-// TODO: Replace this when implementing OSCAR-3016
-function eRefer() {
-	let demographicNo = document.getElementById("demographicNo").serialize();
-	let documents = document.getElementById("documents").serialize();
-	let data = demographicNo + "&" + documents;
-	jQuery.ajax({
-		type: 'POST',
-		url: '<%=request.getContextPath()%>/oscarEncounter/eRefer.do',
-		data: data,
-		success: function(response) {
-			console.log(response);
-		}
-	});
 }
 
 function getClinicalData( data, target ) {
@@ -1595,6 +1588,8 @@ function statusChanged(val) {
 	<input type="hidden" id="documents" name="documents" value="">
 	<input type="hidden" name="ext_appNo" value="<%=request.getParameter("appNo") %>">
 	<input type="hidden" name="source" value="<%=(requestId!=null)?thisForm.getSource():request.getParameter("source") %>">
+	<input type="hidden" id="contextPath" value="<%=request.getContextPath()%>">
+	
 	
         <input type="hidden" id="saved" value="false">
 	<!--  -->
@@ -1611,10 +1606,12 @@ function statusChanged(val) {
 						<%=thisForm.getPatientName()%> <%=thisForm.getPatientSex()%>	<%=thisForm.getPatientAge()%>
 						</h2>
 						</td>
-					<!-- TODO: Replace this when implementing OSCAR-3016 -->
+						<% if (requestId == null && "ocean".equals(props.get("cme_js"))) { %>
 					<td>
-						<span id="eRefer" style="cursor:pointer">eRefer</span>
+						<span id="ocean" style="display:none"></span>
+						<span id="oceanReferButton" class="oceanRefer"></span>
 					</td>
+						<% } %>
 				</tr>
 			</table>
 			</td>
