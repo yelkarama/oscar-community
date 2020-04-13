@@ -50,6 +50,7 @@
 	<link href="<%=request.getContextPath() %>/library/bootstrap/3.0.0/css/bootstrap.css" rel="stylesheet">
 	<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 	<script type="text/javascript" src="<%=request.getContextPath() %>/library/angular.min.js"></script>	
+	<script type="text/javascript" src="<%=request.getContextPath() %>/library/ui-bootstrap-tpls-0.11.0.js"></script>
 	<script src="<%=request.getContextPath() %>/web/common/demographicServices.js"></script>	
 	<script src="<%=request.getContextPath() %>/web/common/providerServices.js"></script>	
 	<script src="<%=request.getContextPath() %>/web/common/dhdrServices.js"></script>	
@@ -97,6 +98,9 @@
 		
 		 		
 		 		<table class="table table-condensed table-striped table-bordered" ng-show="meds.length > 0"> 
+		 			<caption>
+		 			<div><i>Warning: Limited to Drug and Pharmacy Service Information available in the Digital Health Drug Repository (DHDR) EHR Service. To ensure a Best Possible Medication History, please review this information with the patient/family and use other available sources of medication information in addition to the DHDR EHR Service. For more details on the information available in the DHDR EHR Service, please click <a href="http://www.forms.ssb.gov.on.ca/mbs/ssb/forms/ssbforms.nsf/GetFileAttach/014- 5056-87E~1/$File/5056-87E.pdf" target="_blank">http://www.forms.ssb.gov.on.ca/mbs/ssb/forms/ssbforms.nsf/GetFileAttach/014- 5056-87E~1/$File/5056-87E.pdf</a></i></div>
+		 			</caption>
 		 			<thead> 
 		 				<tr> 
 		 					<th>Dispense Date</th> 
@@ -116,13 +120,13 @@
 		 			<tbody> 
 		 				<tr ng-repeat="med in meds" ng-hide="med.hide"> 
 		 					<th scope="row">{{med.whenPrepared | date}}</th> 
-		 					<td>{{med.genericName}}</td>
+		 					<td ng-click="getDetailView(med);">{{med.genericName}}</td>
 		 					<td>{{med.brandName.display}}</td>
 		 					<td>{{med.dispensedDrugStrength}}</td>
 		 					<td>{{med.drugDosageForm}}</td>
 		 					<td>{{med.dispensedQuantity}}</td>
 		 					<td>{{med.estimatedDaysSupply}}</td>
-		 					<td>{{med.prescriberLastname}}, {{med.prescriberFirstname}} ({{med.prescriberLicenceNumber}})</td>
+		 					<td>{{med.prescriberLastname}}, {{med.prescriberFirstname}} ({{med.prescriberLicenceNumber.value}})</td>
 		 					<td>{{med.prescriberPhoneNumber}}</td>
 		 					<td>{{med.dispensingPharmacy}}</td>
 		 					<td>{{med.dispensingPharmacyFaxNumber}}</td>
@@ -139,11 +143,124 @@
 	 	
 		
 	</div>
-	
+	<script type="text/ng-template" id="myModalContent.html">
+        <div class="modal-header">
+            <h3 class="modal-title" id="modal-title">{{med.genericName}} - {{med.whenPrepared | date}}</h3>
+        </div>
+        <div class="modal-body" id="modal-body">
+            <div class="md-dialog-content" id="dialogContentApptProvider">
+            
+            <div class="row">
+                <div class="col-xs-11">
+
+
+
+                    <table class="table table-bordered table striped" >
+                       
+						<tr> 
+		 					<th>Dispense Date</th> 
+							<th scope="row">{{med.whenPrepared | date}}</th>
+						</tr>
+						<tr>
+		 					<th>Generic</th> 
+							<td>{{med.genericName}}</td>
+</tr>
+						<tr>
+		 					<th>Brand</th>
+							<td>{{med.brandName.display}}</td>
+ </tr>
+						<tr>
+		 					<th>DIN/PIN</th>
+							<td>{{med.brandName.code}}</td>
+ 						</tr>
+						<tr>
+		 					<th>Therapeutic Class</th>
+							<td>{{med.ahfsClass.display}}</td>
+ 						</tr>
+						<tr>
+		 					<th>Therapeutic Sub-Class</th>
+							<td>{{med.ahfsSubClass.display}}</td>
+ 						</tr>
+						<tr>
+		 					<th>Rx Number</th>
+							<td>{{med.rxNumber}}</td>
+ 						</tr>
+						<tr>
+							<th>Medical Condition/Reason for Use</th>
+							<td>
+								<div ng-repeat="rcode in med.reasonCode">
+									<div ng-repeat="reason in rcode">({{reason.code}}) -- {{reason.display}}</div>
+								</div>
+							</td>
+						</tr>
+
+						<tr>
+		 					<th>Strength</th>	
+							<td>{{med.dispensedDrugStrength}}</td>
+						</tr>
+						<tr>
+		 					<th>Dosage Form</th>
+							<td>{{med.drugDosageForm}}</td>
+						</tr>
+						<tr>		 					
+
+							<th>Quantity</th>
+							<td>{{med.dispensedQuantity}}</td>
+						</tr>
+						<tr>
+		 					<th>Est Days Supply</th>
+							<td>{{med.estimatedDaysSupply}}</td>
+						</tr>
+						<tr>
+		 					<th>Prescriber</th>
+							<td>{{med.prescriberLastname}}, {{med.prescriberFirstname}} ({{med.prescriberLicenceNumber.value}})</td>
+						</tr>
+						<tr>
+						<tr>
+		 					<th>Prescriber ID</th>
+							<td> {{med.prescriberLicenceNumber.system}} ({{med.prescriberLicenceNumber.value}})</td>
+						</tr>
+						<tr>
+		 					<th>Prescriber #</th>
+							<td>{{med.prescriberPhoneNumber}}</td>
+						</tr>	
+						<tr>
+		 					<th>Pharmacy</th>
+							<td>{{med.dispensingPharmacy}}</td>
+						</tr>
+						<tr>
+		 					<th>Pharmacy Fax</th>
+							<td>{{med.dispensingPharmacyFaxNumber}}</td>
+						</tr> 
+						<tr>
+		 					<th>Pharmacy Phone</th>
+							<td>{{med.dispensingPharmacyPhoneNumber}}</td> 
+						</tr> 
+						<tr>
+							<th>Pharmacist</th>
+							<td>{{med.pharmacistLastname}}, {{med.pharmacistFirstname}} ({{med.pharmacistLicenceNumber.value}})
+						</tr>
+					
+<!-- tr>
+<td colspan=2>
+<pre>{{med}}</pre>
+</td>
+</tr -->
+                        
+                    </table>
+                </div>
+            </div>
+        </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" type="button" ng-click="saveManageApptProvider()">Save</button>
+            <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+        </div>
+    </script>
 	<script>
-		var app = angular.module("dhdrView", ['demographicServices','providerServices','dhdrServices','oscarFilters']);
+		var app = angular.module("dhdrView", ['demographicServices','providerServices','dhdrServices','oscarFilters','ui.bootstrap']);
 		
-		app.controller("dhdrView", function($scope,demographicService,providerService,dhdrService,$location,$window) {
+		app.controller("dhdrView", function($scope,demographicService,providerService,dhdrService,$location,$window,$modal) {
 
 			console.log("$location.search()",$location.search().demographic_no);
 			$scope.demographicNo = $location.search().demographic_no;
@@ -229,6 +346,33 @@
 			
 			getDemo();
 			
+			$scope.getDetailView = function(med,$event){
+			    
+	    		    var modalInstance = $modal.open({
+	    		      
+	    		      templateUrl: 'myModalContent.html',
+	    		      controller: 'ModalInstanceCtrl',
+	    		      controllerAs: 'mpa',
+	    		      parent: angular.element(document.body),
+	    		      size: 'lg',
+	    		      appendTo: $event,
+	    		      resolve: {
+	    		    	  	
+	    		    	  		med: function () {
+	    		          		return med;
+	    		        		}
+	    		      }
+	    		    });
+
+	    		    modalInstance.result.then(function (selectedItem) {
+	    		      selected = selectedItem;
+	    		    }, function () {
+	    		      console.log('Modal dismissed at: ' + new Date());
+	    		    });
+    		  };
+	    	
+			
+	
 			
 			
 			
@@ -259,7 +403,28 @@
 			this.getUniqVal = function(){
 				 return this.genericName+":"+this.dispensedDrugStrength+":"+this.drugDosageForm;
 			 }
+			 
+			 /*
+<pre>
+
+Prescriber Information
+g) Prescriber ID (e.g., practitioner license or CPSO number) [Practitioner.identifier.value]
+h) ID Reference [Practitioner.identifier.system]
+Pharmacy Information
+i) Pharmacist Name [Practitioner.name.given] [Practitioner.name.family]
+j) Pharmacy Phone Number [Organization.telecom[1].value]
+</pre>
+			 
+			 */
 			
+			if(angular.isDefined(this.med.resource.identifier)){
+				for (ident of  this.med.resource.identifier) {
+					if(angular.isDefined(ident.value)){
+						this.rxNumber = ident.value;			
+					}
+				}				
+			} 
+			 
 			this.whenPrepared = this.med.resource.whenPrepared;
 			if(angular.isDefined(this.med.resource.quantity) && angular.isDefined(this.med.resource.quantity.value)){
 				this.dispensedQuantity = this.med.resource.quantity.value;
@@ -267,6 +432,10 @@
 			if(angular.isDefined(this.med.resource.daysSupply) && angular.isDefined(this.med.resource.daysSupply.value)){
 				this.estimatedDaysSupply = this.med.resource.daysSupply.value;
 			}
+			if(angular.isDefined(this.med.resource.reasonCode)){
+				this.reasonCode = this.med.resource.reasonCode;
+			}
+			
 			
 			for (res of  this.med.resource.contained) {
 				
@@ -316,13 +485,30 @@
 						if("fax" === tele.system){
 							this.dispensingPharmacyFaxNumber = tele.value;		
 						}
+						if("PHONE" === tele.system){
+							this.dispensingPharmacyPhoneNumber = tele.value;		
+						}
+
 					}
+				}else if(res.resourceType ===  "MedicationRequest") {
+					this.reasonCode = [];
+					console.log("reasonCode",res.reasonCode);
+					if(angular.isDefined(res.reasonCode)){
+						for(code of res.reasonCode){	
+							this.reasonCode = code;
+						}
+					}	
 				}else if(res.resourceType ==="Practitioner") {
 					
 					for(identifier of res.identifier) {
 						if("https://fhir.infoway-inforoute.ca/NamingSystem/ca-on-license-physician" === identifier.system) {
-							
-							this.prescriberLicenceNumber = identifier.value;
+							/* Does this have a different system value if it's a CPSO value?
+							Prescriber Information
+							g) Prescriber ID (e.g., practitioner license or CPSO number) [Practitioner.identifier.value]
+				h) ID Reference [Practitioner.identifier.system]
+
+							*/							
+							this.prescriberLicenceNumber = identifier;
 							for( humanName of res.name) {
 								console.log("humanName",humanName);
 								this.prescriberLastname = humanName.family;
@@ -338,6 +524,16 @@
 							
 							console.log("res for telecom ",res);
 							//this.prescriberPhoneNumber = res.telecom[0].value);
+						}else if("https://fhir.infoway-inforoute.ca/NamingSystem/ca-on-license-pharmacist" === identifier.system) {
+							this.pharmacistLicenceNumber = identifier;
+							for( humanName of res.name) {
+								console.log("humanName",humanName);
+								this.pharmacistLastname = humanName.family;
+								this.pharmacistFirstname = humanName.given[0];
+							}
+							
+						}else{
+							console.log(" not processing "+identifier,res);
 						}
 							
 					}
@@ -348,6 +544,11 @@
 			}
 			
 		}
+			
+		app.controller('ModalInstanceCtrl', function ModalInstanceCtrl($scope, $modal, $modalInstance,med){
+			$scope.med = med;
+			console.log("med",med);
+		});
 	
 	</script>
 	</body>
