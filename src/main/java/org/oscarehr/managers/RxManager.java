@@ -24,6 +24,8 @@
 
 package org.oscarehr.managers;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.WordUtils;
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.DrugDao;
 import org.oscarehr.common.dao.FavoriteDao;
@@ -150,6 +152,32 @@ public class RxManager {
         return drug;
     }
 
+    /**
+     * Get a list of formatted medications the demographic has prescribed and are active. The returned list contains the drug's special field, or if one doesn't exist, the medication's name.
+     * @param loggedInInfo Current user's logged in info
+     * @param demographicNo The demographic number to get the medications for
+     * @return List of medication information from the medication's special field
+     */
+    public List<String> getCurrentSingleLineMedications(LoggedInInfo loggedInInfo, int demographicNo) {
+        List<String> singleLineMedications = new ArrayList<>();
+        List<Drug> medications = getDrugs(loggedInInfo, demographicNo, CURRENT);
+
+        for (Drug medication : medications) {
+            if(medication.isCurrent() || (medication.isLongTerm() && !medication.isArchived())) {
+                String prescription = medication.getSpecial();
+
+                if (StringUtils.isNotEmpty(prescription)) {
+                    prescription = prescription.replace("\n", " ").replace("\r", " ");
+                    singleLineMedications.add(WordUtils.capitalizeFully(prescription));
+                } else {
+                    singleLineMedications.add(medication.getDrugName());
+                }
+            }
+        }
+
+        return singleLineMedications;
+    }
+    
     /**
      * Adds a new drug to the database.
      *

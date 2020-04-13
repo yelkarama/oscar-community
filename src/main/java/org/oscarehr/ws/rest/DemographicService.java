@@ -45,7 +45,6 @@ import javax.ws.rs.core.Response;
 import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorManager;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.PMmodule.dao.SecUserRoleDao;
@@ -81,7 +80,9 @@ import org.oscarehr.managers.DemographicManager;
 import org.oscarehr.managers.DocumentManager;
 import org.oscarehr.managers.MeasurementManager;
 import org.oscarehr.managers.NoteManager;
+import org.oscarehr.managers.RxManager;
 import org.oscarehr.managers.SecurityInfoManager;
+import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.web.DemographicSearchHelper;
 import org.oscarehr.ws.rest.conversion.AllergyConverter;
@@ -109,7 +110,6 @@ import org.oscarehr.ws.rest.to.model.DemographicSearchResult;
 import org.oscarehr.ws.rest.to.model.DemographicTo1;
 import org.oscarehr.ws.rest.to.model.DocumentTo1;
 import org.oscarehr.ws.rest.to.model.MeasurementTo1;
-import org.oscarehr.ws.rest.to.model.NoteIssueTo1;
 import org.oscarehr.ws.rest.to.model.NoteTo1;
 import org.oscarehr.ws.rest.to.model.StatusValueTo1;
 import org.oscarehr.ws.rest.to.model.WaitingListNameTo1;
@@ -167,6 +167,9 @@ public class DemographicService extends AbstractServiceImpl {
 	@Autowired
 	private DocumentManager documentManager;
 	
+	@Autowired
+	private RxManager rxManager;
+	
 	private final Logger logger = MiscUtils.getLogger();
 	
 	private DemographicConverter demoConverter = new DemographicConverter();
@@ -221,7 +224,8 @@ public class DemographicService extends AbstractServiceImpl {
 	@GET
 	@Path("/{dataId}")
 	@Produces({MediaType.APPLICATION_JSON , MediaType.APPLICATION_XML})
-	public DemographicTo1 getDemographicData(@PathParam("dataId") Integer id) throws PatientDirectiveException {		
+	public DemographicTo1 getDemographicData(@PathParam("dataId") Integer id) throws PatientDirectiveException {
+		LoggedInInfo loggedInInfo = getLoggedInInfo();
 		Demographic demo = demographicManager.getDemographic(getLoggedInInfo(),id);
 		if (demo == null) return null;
 		
@@ -348,24 +352,27 @@ public class DemographicService extends AbstractServiceImpl {
 				result.getRosterStatusList().add(value);
 			}
 		}
-		
-		result.setAllergies(new AllergyConverter().getAllAsTransferObjects(getLoggedInInfo(), allergyManager.getActiveAllergies(getLoggedInInfo(), demo.getDemographicNo())));
+
+		result.setAllergies(new AllergyConverter().getAllAsTransferObjects(loggedInInfo, allergyManager.getActiveAllergies(getLoggedInInfo(), demo.getDemographicNo())));
 		List<String> heightType = new ArrayList<>();
 		heightType.add("ht");
 		List<String> weightType = new ArrayList<>();
 		weightType.add("wt");
-		List<Measurement> heights = measurementManager.getMeasurementByType(getLoggedInInfo(), demo.getDemographicNo(), heightType);
-		List<Measurement> weights = measurementManager.getMeasurementByType(getLoggedInInfo(), demo.getDemographicNo(), weightType);
+		List<Measurement> heights = measurementManager.getMeasurementByType(loggedInInfo, demo.getDemographicNo(), heightType);
+		List<Measurement> weights = measurementManager.getMeasurementByType(loggedInInfo, demo.getDemographicNo(), weightType);
 		List<Measurement> measurements = new ArrayList<>();
-        //Just send most recent measurements
-        if(!heights.isEmpty()){
+		//Just send most recent measurements
+		if (!heights.isEmpty()) {
 			measurements.add(heights.get(0));
 		}
-		if(!weights.isEmpty()){
+		if (!weights.isEmpty()) {
 			measurements.add(weights.get(0));
 		}
-		result.setMeasurements(new MeasurementConverter().getAllAsTransferObjects(getLoggedInInfo(), measurements));
-		result.setEncounterNotes(noteManager.getCppNotes(getLoggedInInfo(), demo.getDemographicNo()));
+		result.setMeasurements(new MeasurementConverter().getAllAsTransferObjects(loggedInInfo, measurements));
+		result.setEncounterNotes(noteManager.getCppNotes(loggedInInfo, demo.getDemographicNo()));
+		
+		List<String> singleLineMedications = rxManager.getCurrentSingleLineMedications(loggedInInfo, demo.getDemographicNo());
+		result.setMedicationSummary(singleLineMedications);
 		
 		return result;
 	}

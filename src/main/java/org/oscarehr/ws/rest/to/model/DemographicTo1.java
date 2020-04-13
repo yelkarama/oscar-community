@@ -27,6 +27,7 @@ import net.sf.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -115,6 +116,7 @@ public class DemographicTo1 implements Serializable {
 	private List<ConsultationResponseTo1> consultationResponses = new ArrayList<>();
 	private List<NoteTo1> encounterNotes = new ArrayList<>();
 	private List<DocumentTo1> documents = new ArrayList<>();
+	private List<String> medicationSummary = Collections.emptyList();
 	
 	
 	public Integer getDemographicNo() {
@@ -731,5 +733,12 @@ public class DemographicTo1 implements Serializable {
 
 	public void setDocuments(List<DocumentTo1> documents) {
 		this.documents = documents;
+	}
+
+	public List<String> getMedicationSummary() {
+		return medicationSummary;
+	}
+	public void setMedicationSummary(List<String> medicationSummary) {
+		this.medicationSummary = medicationSummary;
 	}
 }
