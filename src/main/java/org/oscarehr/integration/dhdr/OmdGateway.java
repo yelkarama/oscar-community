@@ -24,6 +24,8 @@ package org.oscarehr.integration.dhdr;
  */
 import java.io.FileInputStream;
 import java.security.KeyStore;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.net.ssl.SSLContext;
 import javax.servlet.http.HttpServletRequest;
@@ -33,6 +35,11 @@ import javax.ws.rs.core.Response;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.http.conn.ssl.SSLContexts;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.OperationOutcome;
+import org.hl7.fhir.r4.model.Resource;
+import org.hl7.fhir.r4.model.ResourceType;
+import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import org.oscarehr.integration.OneIDTokenUtils;
 import org.oscarehr.integration.TokenExpiredException;
 
@@ -57,6 +64,19 @@ public class OmdGateway {
 
 			return accessToken;
 		}
+	
+	protected List<OperationOutcome> hasOperationOutcome(Bundle bundle)  {
+		List<OperationOutcome> result = new ArrayList<OperationOutcome>();
+		
+		for(BundleEntryComponent comp : bundle.getEntry()) {
+			Resource resource = comp.getResource();
+			if(resource.getResourceType() == ResourceType.OperationOutcome) {
+				OperationOutcome oo = (OperationOutcome)resource;
+				result.add(oo);
+			}
+		}
+		return result;
+	}
 		
 	public WebClient getWebClient(String resource) throws Exception {
 			String gatewayUrl = OscarProperties.getInstance().getProperty("oneid.gateway.url");

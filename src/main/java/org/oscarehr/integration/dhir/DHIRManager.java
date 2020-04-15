@@ -284,18 +284,7 @@ public class DHIRManager  extends OmdGateway{
 		return false;
 	}
 	
-	private List<OperationOutcome> hasOperationOutcome(Bundle bundle)  {
-		List<OperationOutcome> result = new ArrayList<OperationOutcome>();
-		
-		for(BundleEntryComponent comp : bundle.getEntry()) {
-			Resource resource = comp.getResource();
-			if(resource.getResourceType() == ResourceType.OperationOutcome) {
-				OperationOutcome oo = (OperationOutcome)resource;
-				result.add(oo);
-			}
-		}
-		return result;
-	}
+	
 	
 	private String mapGender(String sex) {
 		if("m".equalsIgnoreCase(sex)) {
