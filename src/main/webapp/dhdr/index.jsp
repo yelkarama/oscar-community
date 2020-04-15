@@ -72,9 +72,8 @@
 			</small>
 		</h1>
 	</div>
-	
+	<div class="container">
 		<div class="row">
-		 	
 		 	<div class="col-xs-12" >
 		 		<form class="form-inline">
 				  <div class="form-group">
@@ -88,12 +87,19 @@
 				  <button type="submit" class="btn btn-default" ng-click="callSearch();">Search</button>
 				</form>
 		 		
+		 	</div>
+		 	<div class="col-xs-12" >
 		 		<div ng-show="searching">
 					Searching...  
 				</div>
 		 		
 		 		
-		 		<div ng-repeat="outs in outcomes"  class="alert alert-warning" role="alert">{{outs.details}}</div>
+		 		<div ng-repeat="outs in outcomes" >
+		 			<div ng-repeat="issue in outs.issues"  class="alert" ng-class="issueClass(issue)" role="alert">
+		 				{{issue.details.text}}
+		 				<button ng-if="issue.code === 'suppressed'" type="button" class="btn btn-danger" ng-click="callConsentBlock();">Temporary Consent Unblock</button>
+		 			</div>
+		 		</div>
 				
 		
 		 		
@@ -141,7 +147,7 @@
 	 	</div>
 	 	
 	 	
-		
+		</div> <!-- container -->
 	</div>
 	<script type="text/ng-template" id="myModalContent.html">
         <div class="modal-header">
@@ -277,6 +283,14 @@
 			$scope.medsWithGroupedDups = [];
 			
 			
+			$scope.issueClass = function(issue){
+				if(issue.severity === "warning"){
+					return "alert-danger";
+				}
+				return "alert-warning";
+			}
+			
+			
 			/*
 			$scope.$watch('location.search()', function() {
 				console.log("Watch called",$location.search());
@@ -372,6 +386,10 @@
     		  };
 	    	
 			
+    		  $scope.callConsentBlock = function(){
+    				console.log("callConsentBlock");	  
+    		  
+    		  }
 	
 			
 			
@@ -380,10 +398,10 @@
 		
 		function OperationOutcome(operationOutcome){
 			this.outcomme = operationOutcome;
-			this.details = "";
+			this.issues = [];
 			
 			if(angular.isDefined(this.outcomme.resource) && angular.isDefined(this.outcomme.resource.issue)){
-				this.details = this.outcomme.resource.issue[0].details.text;
+				this.issues = this.outcomme.resource.issue;
 			}
 				
 			
