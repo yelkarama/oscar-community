@@ -265,6 +265,46 @@ angular.module("scheduleServices", [])
                 	deferred.reject("An error occured while getting appointment history");
                 });
            return deferred.promise;
+        },
+        getAppointmentDxLinkList: function (id) {
+        	var deferred = $q.defer();
+        	$http({
+                url: this.apiPath+'schedule/appointmentDxLink/list',
+                method: "POST",
+                headers: {'Content-Type': 'application/json'}
+              }).then(function (response){
+            	  deferred.resolve(response.data);
+                },function (data, status, headers, config) {
+                	deferred.reject("An error occured while getting appointment history");
+                });
+           return deferred.promise;
+        },
+        addAppointmentDxLink: function (apptDxLink) {
+        	var deferred = $q.defer();
+        	$http({
+                url: this.apiPath+'schedule/appointmentDxLink/add',
+                method: "POST",
+                data: apptDxLink,
+                headers: {'Content-Type': 'application/json'}
+              }).then(function (response){
+            	  deferred.resolve(response.data);
+                },function (data, status, headers, config) {
+                	deferred.reject("An error occured while getting appointment history");
+                });
+           return deferred.promise;
+        },
+        disableAppointmentDxLink: function (id) {
+        	var deferred = $q.defer();
+        	$http({
+                url: this.apiPath+'schedule/appointmentDxLink/disable/' + id ,
+                method: "POST",
+                headers: {'Content-Type': 'application/json'}
+              }).then(function (response){
+            	  deferred.resolve(response.data);
+                },function (data, status, headers, config) {
+                	deferred.reject("An error occured while getting appointment history");
+                });
+           return deferred.promise;
         }
     };
 });
