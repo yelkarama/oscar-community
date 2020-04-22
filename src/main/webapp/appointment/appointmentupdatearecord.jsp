@@ -89,7 +89,7 @@
   }
   
   if (request.getParameter("buttoncancel")!=null && (request.getParameter("buttoncancel").equals("Cancel Appt") || request.getParameter("buttoncancel").equals("No Show"))) {
-	  changedStatus = request.getParameter("buttoncancel").equals("Cancel Appt")?"C":"N";
+	  changedStatus = request.getParameter("buttoncancel").equals("Cancel Appt")?"C":"N"; 
 	  if(appt != null) {
       	appt.setStatus(request.getParameter("buttoncancel").equals("Cancel Appt")?"C":"N");
       	appt.setLastUpdateUser(updateuser);
@@ -108,7 +108,7 @@
 			if ( ! (cancelReasonId == null || cancelReasonId.isEmpty()) ) {
 
 				LookupListManager lookupListManager = SpringUtils.getBean(LookupListManager.class);
-				cancelReasonId
+				
 				try {
 
 					Integer listItemId = Integer.parseInt(cancelReasonId);

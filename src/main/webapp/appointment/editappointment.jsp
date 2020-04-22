@@ -479,8 +479,8 @@ function setType(typeSel,reasonSel,locSel,durSel,notesSel,resSel) {
                 </select>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-cancelAppt">Cancel Only</button>
-                <button class="btn btn-primary">Cancel and Email</button>
+                <button class="btn btn-cancelAppt"><bean:message key="appointment.editappointment.msgCancelOnlyLbl"/></button>
+                <button class="btn btn-primary"><bean:message key="appointment.editappointment.msgCancelAndEmailLbl"/></button>
             </div>
         </div>
     </div>
