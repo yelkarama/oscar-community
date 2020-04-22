@@ -156,7 +156,10 @@
 	CaseManagementManager caseManagementManager = (CaseManagementManager) SpringUtils.getBean("caseManagementManager");
 %>
 <%@page import="org.oscarehr.common.dao.SiteDao"%>
-<%@page import="org.oscarehr.common.model.Site"%><html:html locale="true">
+<%@page import="org.oscarehr.common.model.Site"%>
+<%@ page import="org.oscarehr.util.EmailUtilsOld" %>
+<%@ page import="org.oscarehr.myoscar.util.EmailUtils" %>
+<html:html locale="true">
 <head>
 <% if (isMobileOptimized) { %>
     <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, width=device-width" />
@@ -170,6 +173,11 @@
 <% } %>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="appointment.editappointment.title" /></title>
+
+<link rel="stylesheet" type="text/css" href="${ pageContext.request.contextPath }/library/bootstrap/3.0.0/css/bootstrap.min.css" />
+<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="${ pageContext.request.contextPath }/library/bootstrap/3.0.0/js/bootstrap.min.js" ></script>
+
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery.js"></script>
    <script>
      jQuery.noConflict();
@@ -447,6 +455,37 @@ function setType(typeSel,reasonSel,locSel,durSel,notesSel,resSel) {
       topmargin="0" leftmargin="0" rightmargin="0" bottommargin="0">
 <!-- The mobile optimized page is split into two sections: viewing and editing an appointment
      In the mobile version, we only display the edit section first if we are returning from a search -->
+
+<%
+    LookupList cancellationReasons = lookupListManager.findLookupListByName(loggedInInfo, "apptCancellationReasons");
+%>
+<div class="modal fade" id="cancelApptModal" tabindex="-1" role="dialog" aria-labelledby="cancelApptModalLabel" aria-hidden="true">
+
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h3 id="cancelApptModalLabel"><bean:message key="appointment.editappointment.msgCancelledEmailConfirmation"/></h3>
+            </div>
+            <div class="modal-body">
+                <label for="cancelApptReasonList"><bean:message key="appointment.editappointment.msgCancellationReasonLbl"/></label>
+                <select id="cancelApptReasonList">
+                    <option selected disabled value=""><bean:message key="appointment.editappointment.msgCancellationReasonDefault"/></option>
+
+            <%  for(LookupListItem lli:cancellationReasons.getItems()) { %>
+                    <option value="<%=lli.getId()%>"><%=lli.getLabel()%></option>
+            <%  } %>
+
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-cancelAppt">Cancel Only</button>
+                <button class="btn btn-primary">Cancel and Email</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="editAppointment" style="display:<%= (isMobileOptimized && bFirstDisp) ? "none":"block"%>;">
 <FORM NAME="EDITAPPT" METHOD="post" ACTION="appointmentcontrol.jsp"
 	onSubmit="return(onSub())"><INPUT TYPE="hidden"
@@ -971,9 +1010,28 @@ if (bMultisites) { %>
 		<input type="submit" class="redButton button" id="deleteButton"
 			onclick="document.forms['EDITAPPT'].displaymode.value='Delete Appt'; onButDelete();"
 			value="<bean:message key="appointment.editappointment.btnDeleteAppointment"/>">
-		<input type="button" name="buttoncancel" id="cancelButton"
+		<%
+            boolean enableCancellationEmailModal = false;
+            
+            if ( props.isPropertyActive("appointment.sendCancellationEmail.enabled") ) {
+            
+                Demographic demographic = demographicManager.getDemographic(loggedInInfo, demono);
+
+                if (demographic != null) {
+
+                    enableCancellationEmailModal = EmailUtilsOld.isValidEmailAddress(demographic.getEmail());
+                }
+            }
+		%>
+            <input type="button" name="buttoncancel" id="cancelButton"
 			value="<bean:message key="appointment.editappointment.btnCancelAppointment"/>"
-			onClick="onButCancel();"> <input type="button"
+       <% if ( enableCancellationEmailModal ) { %>
+			data-toggle="modal" data-target="#cancelApptModal"
+       <% } else { %>
+			onClick="onButCancel();"
+       <% } %>
+            >
+        <input type="button"
 			name="buttoncancel" id="noShowButton"
 			value="<bean:message key="appointment.editappointment.btnNoShow"/>"
 			onClick="window.location='appointmentcontrol.jsp?buttoncancel=No Show&displaymode=Update Appt&appointment_no=<%=appointment_no%>'">
@@ -1215,6 +1273,28 @@ jQuery(document).ready(function(){
 	} 
 });
 
+$('#cancelApptModal').on('click', '.btn-primary', function() {
+
+    let cancellationReason = $('#cancelApptReasonList option:selected').val();
+
+    let goToNextPage = 'appointmentcontrol.jsp?buttoncancel=Cancel Appt&sendCancellationEmail=true&displaymode=Update Appt&appointment_no=<%=appointment_no%>';
+
+    if (cancellationReason != "<bean:message key='appointment.editappointment.msgCancellationReasonDefault'/>") {
+
+        window.location = goToNextPage + '&cancelReasonId=' + cancellationReason;
+
+    } else {
+
+        window.location = goToNextPage;
+
+    }
+});
+
+$('#cancelApptModal').on('click', '.btn-cancelAppt', function(){
+
+    window.location = 'appointmentcontrol.jsp?buttoncancel=Cancel Appt&displaymode=Update Appt&appointment_no=<%=appointment_no%>';
+
+;})
 </script>
 
 </html:html>

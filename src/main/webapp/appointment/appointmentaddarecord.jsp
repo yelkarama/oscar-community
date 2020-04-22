@@ -165,8 +165,8 @@ if (request.getParameter("demographic_no") != null && !(request.getParameter("de
                         Demographic demographic = demographicManager.getDemographic(loggedInInfo,param[16]);
 
                         if ((demographic != null) && (apptNo > 0)) {
-                            AppointmentMailer emailer = new AppointmentMailer(apptNo,demographic);
-                            emailer.prepareMessage();
+                            AppointmentMailer emailer = new AppointmentMailer( aa, AppointmentMailer.EMAIL_NOTIFICATION_TYPE.REMINDER );
+                            emailer.prepareMessage( aa.getReason() );
                             emailer.send();
                         }
                     }

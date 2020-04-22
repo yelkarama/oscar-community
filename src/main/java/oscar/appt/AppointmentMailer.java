@@ -32,15 +32,18 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Properties;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.oscarehr.PMmodule.utility.DateUtils;
+import org.oscarehr.util.DateUtils;
 import org.oscarehr.common.dao.ClinicDAO;
+import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.OscarAppointmentDao;
 import  org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.model.Appointment;
@@ -60,51 +63,47 @@ import oscar.service.MessageMailer;
 
 public class AppointmentMailer implements MessageMailer{
     
+    public enum EMAIL_NOTIFICATION_TYPE
+    {
+        REMINDER,
+        CANCELLATION
+    }
+
     private static final Logger logger=MiscUtils.getLogger();
     
-    private MailSender mailSender;
+    private MailSender mailSender = (MailSender) SpringUtils.getBean("asyncMailSender");
     private SimpleMailMessage message;
     private StringBuilder msgTextTemplate;
-    private Integer apptNo;
+    private Appointment appointment;
     private Demographic demographic;
+    private EMAIL_NOTIFICATION_TYPE notificationType;
     
-    OscarAppointmentDao dao=(OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
+    private OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
+    private DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
 
     
-    public AppointmentMailer(Integer apptNo, Demographic demographic) {
-        this.mailSender = (MailSender) SpringUtils.getBean("asyncMailSender");
+    public AppointmentMailer(Appointment appointment, EMAIL_NOTIFICATION_TYPE notificationType)
+    {
         this.message = null;
         this.msgTextTemplate = new StringBuilder();
-        this.apptNo = apptNo;
-        this.demographic = demographic;
+        this.appointment = appointment;
+        this.notificationType = notificationType;
+        this.demographic = demographicDao.getDemographicById( appointment.getDemographicNo() );
     }
     
-    public void setMailSender(MailSender mailSender) {
-        this.mailSender = mailSender;
-    }
-    
-    public void setApptNo(Integer apptNo) {
-        this.apptNo = apptNo;
-    }
-    
-    public void setDemographic(Demographic demographic) {
-        this.demographic = demographic;
-    }
-    
-    private void setMessageHeader()
+    private void setMessageHeader(String propertyPrefixTemplate, String propertyPrefixMime)
     {
         if (this.message == null)
         {
             Properties op = oscar.OscarProperties.getInstance();
 
             String msgTemplatePath = "";
-            Appointment appt = dao.find(this.apptNo);
 
-            if(appt != null)
+            if(this.appointment != null)
             {
                 ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 
-                Provider apptProvider = providerDao.getProvider(appt.getProviderNo());
+                Provider apptProvider = providerDao.getProvider(this.appointment.getProviderNo());
 
                 if (apptProvider != null)
                 {
@@ -112,19 +111,19 @@ public class AppointmentMailer implements MessageMailer{
 
                     if (providerTeam != null && !providerTeam.isEmpty())
                     {
-                        msgTemplatePath = op.getProperty("appt_reminder_template." + providerTeam.toLowerCase());
+                        msgTemplatePath = op.getProperty(propertyPrefixTemplate + "." + providerTeam.toLowerCase());
                     }
                 }
             }
 
             if (msgTemplatePath == null || msgTemplatePath.isEmpty())
             {
-               msgTemplatePath = op.getProperty("appt_reminder_template");
+               msgTemplatePath = op.getProperty(propertyPrefixTemplate);
             }
 
             if (msgTemplatePath != null)
             {
-                String msgMime = op.getProperty("appt_reminder_mime");
+                String msgMime = op.getProperty(propertyPrefixMime);
 
                 if ((msgMime == null) || msgMime.equalsIgnoreCase("no"))
                 {
@@ -196,33 +195,32 @@ public class AppointmentMailer implements MessageMailer{
         }
     }
     
-    private void fillMessageText() {
+    private void fillMessageText(String reasonTag, String reason) {
         
         if ((this.message != null) && (this.msgTextTemplate.length() > 0)) {
                  
             Date today = new Date();
-
-            Appointment a = dao.find(this.apptNo);
            
             ClinicDAO clinicDao = (ClinicDAO)SpringUtils.getBean("clinicDAO");
             Clinic clinic = clinicDao.getClinic();
             
-            if (a == null) {
-              logger.error("Appointment ("+this.apptNo+") not found for demographic no (" + this.demographic.getDemographicNo() +") on Date: " + today);
+            if (this.appointment == null) {
+
+              logger.error("Appointment ("+this.appointment.getId()+") not found for demographic no (" + this.demographic.getDemographicNo() +") on Date: " + today);
+
             } else {
                
                 String msgText = msgTextTemplate.toString();
-                msgText = msgText.replaceAll("<today>", DateUtils.getDate());
-                msgText = msgText.replaceAll("<appointment_date>", a.getAppointmentDate().toString());
-                msgText = msgText.replaceAll("<appointment_time>", a.getStartTime().toString());
+                msgText = msgText.replaceAll("<today>", DateUtils.getIsoDate(Calendar.getInstance()));
+                msgText = msgText.replaceAll("<appointment_date>", this.appointment.getAppointmentDate().toString());
+                msgText = msgText.replaceAll("<appointment_time>", this.appointment.getStartTime().toString());
                 msgText = msgText.replaceAll("<first_name>", this.demographic.getFirstName());
                 msgText = msgText.replaceAll("<last_name>", this.demographic.getLastName());
                 
                 msgText = msgText.replaceAll("<clinic_name>", clinic.getClinicName());                
                 msgText = msgText.replaceAll("<clinic_addressLine>", clinic.getClinicAddress());
                 msgText = msgText.replaceAll("<clinic_phone>", clinic.getClinicPhone());
-                 
-                msgText = msgText.replaceAll("<appt_reason>", a.getReason());
+                msgText = msgText.replaceAll(reasonTag, reason);
                 
                 this.message.setText(msgText);
             }
@@ -232,9 +230,19 @@ public class AppointmentMailer implements MessageMailer{
         }
     }
     
-    public void prepareMessage() {
-        setMessageHeader();
-        fillMessageText();
+    public void prepareMessage( String reason ) {
+        
+        String reasonTagPrefix = "appt";
+        
+        if ( EMAIL_NOTIFICATION_TYPE.CANCELLATION.equals(this.notificationType) ) {
+            
+                reasonTagPrefix = EMAIL_NOTIFICATION_TYPE.CANCELLATION.name().toLowerCase();
+        }
+
+        setMessageHeader( "appt_" + this.notificationType.name().toLowerCase() + "_template",
+                "appt_" + notificationType.name().toLowerCase() + "_mime");
+        
+        fillMessageText("<" + reasonTagPrefix + "_reason>", reason);
     }
     
     @Override
@@ -264,10 +272,20 @@ public class AppointmentMailer implements MessageMailer{
                 mailSender.send(this.message);
                 
                 //Update appt history accordingly      
-                Appointment appt = dao.find(this.apptNo);
-                if(appt != null) {
-                	appt.setRemarks(appt.getRemarks() + "Emailed:" + DateUtils.getCurrentDateOnlyStr("-") +"\n");
-                	dao.merge(appt);
+                if(this.appointment != null) {
+
+                    StringBuilder remarks = new StringBuilder();
+                    
+                    remarks.append(this.appointment.getRemarks())
+                            .append("Emailed ")
+                            .append(StringUtils.capitalize(this.notificationType.name()))
+                            .append(": ")
+                            .append(DateUtils.getIsoDate(Calendar.getInstance()))
+                            .append("\n");
+
+                    this.appointment.setRemarks(remarks.toString());
+
+                	this.appointmentDao.merge(this.appointment);
                 }
             }
             else {

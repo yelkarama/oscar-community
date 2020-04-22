@@ -49,10 +49,19 @@
 <%@page import="org.oscarehr.common.model.Appointment" %>
 <%@page import="org.oscarehr.util.SpringUtils" %>
 <%@page import="oscar.util.ConversionUtils" %>
+<%@ page import="oscar.appt.AppointmentMailer" %>
+<%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.oscarehr.managers.LookupListManager"%>
+<%@ page import="org.oscarehr.common.model.LookupListItem"%>
+<%@ page import="org.oscarehr.util.LoggedInInfo"%>
+<%@ page import="org.oscarehr.util.MiscUtils" %>
+<%@ page import="oscar.OscarProperties"%>
+
 <%
 	AppointmentArchiveDao appointmentArchiveDao = (AppointmentArchiveDao)SpringUtils.getBean("appointmentArchiveDao");
 	OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
     String changedStatus = null;
+	ResourceBundle properties = ResourceBundle.getBundle("oscarResources", request.getLocale());
 %>
 <html:html locale="true">
 <head>
@@ -80,13 +89,50 @@
   }
   
   if (request.getParameter("buttoncancel")!=null && (request.getParameter("buttoncancel").equals("Cancel Appt") || request.getParameter("buttoncancel").equals("No Show"))) {
-	  changedStatus = request.getParameter("buttoncancel").equals("Cancel Appt")?"C":"N"; 
+	  changedStatus = request.getParameter("buttoncancel").equals("Cancel Appt")?"C":"N";
 	  if(appt != null) {
       	appt.setStatus(request.getParameter("buttoncancel").equals("Cancel Appt")?"C":"N");
       	appt.setLastUpdateUser(updateuser);
       	appointmentDao.merge(appt);
       	rowsAffected=1;
       }
+	  
+	  if( "C".equals(changedStatus)  
+              && "true".equals(request.getParameter("sendCancellationEmail")) 
+              && OscarProperties.getInstance().isPropertyActive("appointment.sendCancellationEmail.enabled") ) {
+
+			String cancelReasonId = request.getParameter("cancelReasonId");
+
+			String cancellationReason = properties.getString("appointment.editappointment.msgNoCancellationReason");
+
+			if ( ! (cancelReasonId == null || cancelReasonId.isEmpty()) ) {
+
+				LookupListManager lookupListManager = SpringUtils.getBean(LookupListManager.class);
+				cancelReasonId
+				try {
+
+					Integer listItemId = Integer.parseInt(cancelReasonId);
+
+					LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+
+					LookupListItem lookupListItem = lookupListManager.findLookupListItemById(loggedInInfo, listItemId);
+
+					if (! (lookupListItem == null
+							|| lookupListItem.getLabel() == null
+							|| lookupListItem.getLabel().isEmpty()) ) {
+
+						cancellationReason = lookupListItem.getLabel();
+					}
+				} catch (NumberFormatException e) {
+
+					MiscUtils.getLogger().error("Cannot parse appointment cancellation reason id", e);
+				}
+			}
+
+			AppointmentMailer emailer = new AppointmentMailer( appt, AppointmentMailer.EMAIL_NOTIFICATION_TYPE.CANCELLATION );
+			emailer.prepareMessage( cancellationReason );
+			emailer.send();
+	  }
 
   } else {
 
