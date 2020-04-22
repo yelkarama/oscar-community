@@ -15260,23 +15260,13 @@ insert into LookupListItem values (\N,@lid,'56','Region of Waterloo, Public Heal
 insert into LookupListItem values (\N,@lid,'57','Durham Region Health Department',35,1,'oscar',now());
 insert into LookupListItem values (\N,@lid,'58','Windsor-Essex County Health Unit',36,1,'oscar',now());
 
-INSERT INTO LookupList (name, listTitle, description, active, createdBy)
-        VALUES ('apptCancellationReasons', 'Appointment Cancellation Reason List', 'Select list of appointment cancellation reasons',1, 'oscar');
-
-INSERT INTO LookupListItem (lookupListId, value, label, displayOrder, active, createdBy)
-  SELECT LookupList.id, 'PA', 'Physician Absent', 1, 1, 'oscar' FROM LookupList WHERE LookupList.name = 'apptCancellationReasons';
-
-INSERT INTO LookupListItem (lookupListId, value, label, displayOrder, active, createdBy)
-  SELECT LookupList.id, 'CC', 'Clinic Closure', 2, 1, 'oscar' FROM LookupList WHERE LookupList.name = 'apptCancellationReasons';
-
-INSERT INTO LookupListItem (lookupListId, value, label, displayOrder, active, createdBy)
-  SELECT LookupList.id, 'WD', 'Weather Disturbance', 3, 1, 'oscar' FROM LookupList WHERE LookupList.name = 'apptCancellationReasons';
-
-INSERT INTO LookupListItem (lookupListId, value, label, displayOrder, active, createdBy)
-  SELECT LookupList.id, 'RA', 'Rescheduled Appointment', 4, 1, 'oscar' FROM LookupList WHERE LookupList.name = 'apptCancellationReasons';
-
-INSERT INTO LookupListItem (lookupListId, value, label, displayOrder, active, createdBy)
-  SELECT LookupList.id, 'PR', 'Patient Requested', 5, 1, 'oscar' FROM LookupList WHERE LookupList.name = 'apptCancellationReasons';
+INSERT INTO LookupList VALUES (\N,'apptCancellationReasons', 'Appointment Cancellation Reason List', 'Select list of appointment cancellation reasons',NULL,1, 'oscar',now());
+SET @lid = LAST_INSERT_ID();
+INSERT INTO LookupListItem values (\N,@lid,'PA','Physician Absent', 1, 1, 'oscar', now());
+INSERT INTO LookupListItem values (\N,@lid,'CC', 'Clinic Closure', 2, 1, 'oscar', now());
+INSERT INTO LookupListItem values (\N,@lid,'WD', 'Weather Disturbance', 3, 1, 'oscar', now());
+INSERT INTO LookupListItem values (\N,@lid,'RA', 'Rescheduled Appointment', 4, 1, 'oscar', now());
+INSERT INTO LookupListItem values (\N,@lid,'PR', 'Patient Requested', 5, 1, 'oscar', now());
 
 INSERT INTO `OscarJobType` VALUES (\N,'CanadianVaccineCatalogueUpdater','Updates the local copy of the data','org.oscarehr.integration.born.CanadianVaccineCatalogueJob',1,now()),(\N,'BORN FHIR','','org.oscarehr.integration.born.BORNFhirJob',1,now());
 INSERT INTO `OscarJob` VALUES (\N,'CanadianVaccineCatalogueUpdater','Updates the CVC data',(select id from OscarJobType where name='CanadianVaccineCatalogueUpdater'),'0 * 0 * * *','999998',0,now(),null),(\N,'BORN FHIR','',(select id from OscarJobType where name='BORN FHIR'),'0 * * * * *','999998',0,now(),null);
