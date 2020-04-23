@@ -27,8 +27,10 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
+import jdk.nashorn.internal.lookup.Lookup;
 import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
@@ -67,7 +69,7 @@ public class LookupListDaoTest extends DaoTestFixtures {
 		LookupList lookupList1 = new LookupList();
 		EntityDataGenerator.generateTestDataForModelClass(lookupList1);
 		lookupList1.setActive(isActive);
-		lookupList1.setName(name2);
+		lookupList1.setName(name3);
 		dao.persist(lookupList1);
 		
 		LookupList lookupList2 = new LookupList();
@@ -79,7 +81,7 @@ public class LookupListDaoTest extends DaoTestFixtures {
 		LookupList lookupList3 = new LookupList();
 		EntityDataGenerator.generateTestDataForModelClass(lookupList3);
 		lookupList3.setActive(isActive);
-		lookupList3.setName(name3);
+		lookupList3.setName(name2);
 		dao.persist(lookupList3);
 		
 		LookupList lookupList4 = new LookupList();
@@ -88,9 +90,12 @@ public class LookupListDaoTest extends DaoTestFixtures {
 		lookupList4.setName(name1);
 		dao.persist(lookupList4);
 		
-		List<LookupList> expectedResult = new ArrayList<LookupList>(Arrays.asList(lookupList4, lookupList1, lookupList3));
-		List<LookupList> result = dao.findAllActive().subList(0, 3);
-
+		List<LookupList> expectedResult = new ArrayList<LookupList>(Arrays.asList(lookupList4, lookupList3, lookupList1));
+		List<LookupList> result = dao.findAllActive();
+		
+		result.sort(Comparator.comparing(LookupList::getDateCreated).reversed());
+		result = result.subList(0,3);
+		
 		Logger logger = MiscUtils.getLogger();
 		
 		if (result.size() != expectedResult.size()) {
@@ -99,8 +104,11 @@ public class LookupListDaoTest extends DaoTestFixtures {
 		}
 		for (int i = 0; i < expectedResult.size(); i++) {
 			if (!expectedResult.get(i).equals(result.get(i))){
+				
 				logger.warn("Items  do not match.");
-				fail("Items  do not match. Expected:" + expectedResult.get(i).getName() + "Actual:" + result.get(i).getName());
+				
+				fail("Items  do not match. Expected:" + expectedResult.get(i).getName() 
+						+ " vs. Actual:" + result.get(i).getName());
 			}
 		}
 		assertTrue(true);
