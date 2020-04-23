@@ -100,7 +100,7 @@ public class LookupListDaoTest extends DaoTestFixtures {
 		for (int i = 0; i < expectedResult.size(); i++) {
 			if (!expectedResult.get(i).equals(result.get(i))){
 				logger.warn("Items  do not match.");
-				fail("Items  do not match.");
+				fail("Items  do not match. Expected:" + expectedResult.get(i).getName() + "Actual:" + result.get(i).getName());
 			}
 		}
 		assertTrue(true);
