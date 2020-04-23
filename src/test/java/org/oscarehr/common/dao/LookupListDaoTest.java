@@ -25,10 +25,7 @@ package org.oscarehr.common.dao;
 
 import static org.junit.Assert.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 import org.apache.log4j.Logger;
 import org.junit.Before;
@@ -92,22 +89,28 @@ public class LookupListDaoTest extends DaoTestFixtures {
 		List<LookupList> expectedResult = new ArrayList<LookupList>(Arrays.asList(lookupList4, lookupList3, lookupList1));
 		List<LookupList> result = dao.findAllActive();
 		
-		result.sort(Comparator.comparing(LookupList::getDateCreated).reversed());
-		result = result.subList(0,3);
+		result.sort(Comparator.comparing(LookupList::getId).reversed());
+		
+		List<LookupList> testResults = result.subList(0,3);
 		
 		Logger logger = MiscUtils.getLogger();
+
+		for (int i = 0; i < testResults.size(); i++) {
+			logger.info("Result " + i + ":" + testResults.get(i).getName());
+		}
 		
-		if (result.size() != expectedResult.size()) {
+		if (testResults.size() != expectedResult.size()) {
 			logger.warn("Array sizes do not match.");
 			fail("Array sizes do not match.");
 		}
+		
 		for (int i = 0; i < expectedResult.size(); i++) {
-			if (!expectedResult.get(i).equals(result.get(i))){
+			if (!expectedResult.get(i).equals(testResults.get(i))){
 				
 				logger.warn("Items  do not match.");
 				
 				fail("Items  do not match. Expected:" + expectedResult.get(i).getName() 
-						+ " vs. Actual:" + result.get(i).getName());
+						+ " vs. Actual:" + testResults.get(i).getName());
 			}
 		}
 		assertTrue(true);
