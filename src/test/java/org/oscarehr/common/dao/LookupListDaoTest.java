@@ -30,7 +30,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-import jdk.nashorn.internal.lookup.Lookup;
 import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
