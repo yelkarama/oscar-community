@@ -293,7 +293,7 @@ public class EctConsultationFormRequestUtil {
 				}
             }
 
-			isEReferral = daoExt.getConsultationRequestExtsByKey(ConversionUtils.fromIntString(id),"ereferral_id") != null;
+			isEReferral = daoExt.getConsultationRequestExtsByKey(ConversionUtils.fromIntString(id),"ereferral_ref") != null;
         }
 
 		return verdict;

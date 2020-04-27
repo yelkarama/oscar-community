@@ -75,6 +75,8 @@ if(!authed) {
 <%@ page import="org.oscarehr.common.dao.FaxConfigDao, org.oscarehr.common.model.FaxConfig" %>
 <%@page import="org.oscarehr.common.dao.ConsultationServiceDao" %>
 <%@page import="org.oscarehr.common.model.ConsultationServices" %>
+<%@ page import="org.oscarehr.common.dao.ConsultationRequestExtDao" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <jsp:useBean id="displayServiceUtil" scope="request" class="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConDisplayServiceUtil" />
 
 <html:html locale="true">
@@ -1606,12 +1608,14 @@ function statusChanged(val) {
 						<%=thisForm.getPatientName()%> <%=thisForm.getPatientSex()%>	<%=thisForm.getPatientAge()%>
 						</h2>
 						</td>
-						<% if (requestId == null && "ocean".equals(props.get("cme_js"))) { %>
-					<td>
-						<span id="ocean" style="display:none"></span>
+						<% if ("ocean".equals(props.get("cme_js"))) { %>
+					<td>						
+                        <span id="ocean" style="display:none"></span>
+                        <% if (requestId == null) { %>
 						<span id="oceanReferButton" class="oceanRefer"></span>
 					</td>
-						<% } %>
+						<% }
+						}%>
 				</tr>
 			</table>
 			</td>
@@ -1740,7 +1744,16 @@ function statusChanged(val) {
 			<table cellpadding="0" cellspacing="2"
 				style="border-collapse: collapse" bordercolor="#111111" width="100%"
 				height="100%" border=1>
-
+				<% if (requestId != null && "ocean".equals(props.get("cme_js"))) {
+					ConsultationRequestExtDao consultationRequestExtDao = SpringUtils.getBean(ConsultationRequestExtDao.class);
+					Integer consultId = Integer.parseInt(requestId);
+					String eReferralRef = consultationRequestExtDao.getConsultationRequestExtsByKey(consultId, "ereferral_ref");
+					if(eReferralRef != null) {
+				%>
+				<input id="ereferral_ref" type="hidden" value="<%= Encode.forHtmlAttribute(eReferralRef) %>"/>
+				<span id="editOnOcean" class="oceanRefer"></span>
+				<%	}
+				   } %>
 				<!----Start new rows here-->
 				<% if (thisForm.geteReferralId() == null) { %>
 				<tr>

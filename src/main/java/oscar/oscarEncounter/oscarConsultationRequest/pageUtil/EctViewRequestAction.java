@@ -190,12 +190,12 @@ public class EctViewRequestAction extends Action {
             Provider prov = provDao.getProvider(consult.getProviderNo());
             thisForm.setProviderName(prov.getFormattedName());
 
-            boolean isEReferral = extraMap.containsKey("ereferral_id");
+            boolean isEReferral = extraMap.containsKey("ereferral_ref");
             thisForm.seteReferral(isEReferral);
             if (isEReferral) {
                 thisForm.setProfessionalSpecialistName(extraMap.getOrDefault("ereferral_doctor", ""));
                 thisForm.seteReferralService(extraMap.getOrDefault("ereferral_service", ""));
-                thisForm.seteReferralId(extraMap.get("ereferral_id"));
+                thisForm.seteReferralId(extraMap.get("ereferral_ref"));
             }
             
             thisForm.setFdid(consult.getFdid());
