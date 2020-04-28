@@ -118,6 +118,7 @@ import org.springframework.stereotype.Component;
 
 import oscar.OscarProperties;
 import oscar.oscarWaitingList.util.WLWaitingListUtil;
+import oscar.util.StringUtils;
 
 
 /**
@@ -750,13 +751,12 @@ public class DemographicService extends AbstractServiceImpl {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response matchDemographicPartial(JSONObject searchParameters) {
 		String lastName = searchParameters.optString("lastName", null);
-		String hin = searchParameters.optString("hin", null);
 		String dateOfBirth = searchParameters.optString("dateOfBirth", null);
 
 		Response response;
 		
-		if (lastName == null || hin == null || dateOfBirth == null) {
-			response = Response.status(Response.Status.BAD_REQUEST).entity("The attributes lastName, hin, and dateOfBirth are all required to match a demographic").build();
+		if (StringUtils.isNullOrEmpty(lastName) || StringUtils.isNullOrEmpty(dateOfBirth)) {
+			response = Response.status(Response.Status.BAD_REQUEST).entity("The attributes lastName and dateOfBirth are both required to match a demographic").build();
 		} else {
 			try {
 				// Sets the calendar with the DOB, errors if it is an invalid date
@@ -767,10 +767,7 @@ public class DemographicService extends AbstractServiceImpl {
 				dob.set(Calendar.MONTH, Integer.parseInt(birthDate[1]) - 1);
 				dob.set(Calendar.DATE, Integer.parseInt(birthDate[2]));
 				
-				List<Demographic> matchedDemographics = demographicManager.findByLastNameDobAndHin(lastName, dob, hin, false);
-				if (matchedDemographics.isEmpty()) {
-					matchedDemographics = demographicManager.findByLastNameDobAndHin(lastName, dob, hin, true);
-				}
+				List<Demographic> matchedDemographics = demographicManager.findByLastNameDob(lastName, dob);
 
 				List<DemographicTo1> demographicTs = new DemographicConverter().getAllAsTransferObjects(getLoggedInInfo(), matchedDemographics);
 				

@@ -2194,56 +2194,7 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 		return rs;
 	}
 	
-	public List<Demographic> findByLastNameDobAndHin(String lastName, String year, String month, String day, String hin) {
-		List<Demographic> demographics = Collections.emptyList();
-		
-		String sql = "SELECT d FROM Demographic d WHERE d.LastName = :lastName AND d.YearOfBirth = :yearOfBirth AND d.MonthOfBirth = :monthOfBirth AND " +
-				"d.DateOfBirth = :dateOfBirth AND d.Hin = :hin ";
-		
-		Session session = getSession();
-		
-		try {
-			Query query = session.createQuery(sql);
-
-			query.setParameter("lastName", lastName);
-			query.setParameter("yearOfBirth", year);
-			query.setParameter("monthOfBirth", month);
-			query.setParameter("dateOfBirth", day);
-			query.setParameter("hin", hin);
-			
-			demographics = query.list();
-		} finally {
-			this.releaseSession(session);
-		}
-		
-		return demographics;
-	}
-	
-	
-	public List<Demographic> findByLastNameDobAndHinPartial(String lastName, String year, String month, String day, String hin) {
-		List<Demographic> demographics = Collections.emptyList();
-		
-		String lastNameSql = "d.LastName = :lastName";
-		String dobSql = "d.YearOfBirth = :yearOfBirth AND d.MonthOfBirth = :monthOfBirth AND d.DateOfBirth = :dateOfBirth";
-		String hinSql = "d.Hin = :hin";
-		
-		String sql = "SELECT d FROM Demographic d WHERE (" + lastNameSql + " AND " + dobSql + ") OR (" + lastNameSql + " AND " + hinSql + ") OR (" + 
-				dobSql + " AND " + hinSql + ")";
-		
-		Session session = getSession();
-		try {
-			Query query = session.createQuery(sql);
-			query.setParameter("lastName", lastName);
-			query.setParameter("yearOfBirth", year);
-			query.setParameter("monthOfBirth", month);
-			query.setParameter("dateOfBirth", day);
-			query.setParameter("hin", hin);
-			
-			demographics = query.list();
-		} finally {
-			this.releaseSession(session);
-		}
-		
-		return demographics;
+	public List<Demographic> findByLastNameAndDob(String lastName, Calendar dateOfBirth) {
+		return findByAttributes(null, null, lastName, null, dateOfBirth, null, null, null, null, null, 0, 99);
 	}
 }
