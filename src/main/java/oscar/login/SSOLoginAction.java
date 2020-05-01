@@ -64,6 +64,7 @@ import org.oscarehr.common.model.Security;
 import org.oscarehr.common.model.ServiceRequestToken;
 import org.oscarehr.common.model.UserProperty;
 import org.oscarehr.decisionSupport.service.DSService;
+import org.oscarehr.integration.OneIDTokenUtils;
 import org.oscarehr.managers.AppManager;
 import org.oscarehr.phr.util.MyOscarUtils;
 import org.oscarehr.util.LoggedInInfo;
@@ -421,7 +422,7 @@ public final class SSOLoginAction extends MappingDispatchAction {
             if (providerInformation[6] != null && !providerInformation[6].equals("")) {
                 session.setAttribute("delegateOneIdEmail", providerInformation[6]);
             }
-            
+            logger.debug(OneIDTokenUtils.debugTokens(session));
             // If a new session has been created, we must set the mobile attribute again
             if (isMobileOptimized) session.setAttribute("mobileOptimized","true");
             // initiate security manager

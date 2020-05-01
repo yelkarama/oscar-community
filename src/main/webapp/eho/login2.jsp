@@ -50,6 +50,7 @@
 <%@page import="java.net.URI"%>
 <%@page import="org.apache.cxf.rs.security.oauth2.client.OAuthClientUtils"%>
 <%@page import="java.nio.charset.StandardCharsets"%>
+<%@page import="org.oscarehr.integration.OneIDTokenUtils" %>
 <%
 	Logger logger = MiscUtils.getLogger();
 	logger.info("OAUTH2 Login started");
@@ -79,24 +80,25 @@
 	String state = RandomStringUtils.randomAlphanumeric(20);
 	String aud = OscarProperties.getInstance().getProperty("oneid.oauth2.aud");
 	
-	
+	WebClient wc = WebClient.create(authorizeUrl); 
 
-	Map<String, String> params = new HashMap<String,String>();
-	params.put("response_type", "code");
+	wc.query("response_type", "code");
 	//TODO: remove hard coded scopes
-	params.put("scope", "openid user/Immunization.read user/Immunization.write user/Patient.read user/MedicationDispense.read");
+	String scopes = "openid user/Immunization.read user/Immunization.write user/Patient.read user/MedicationDispense.read toolbar user/Context.read user/Context.write user/Consent.write";
 	
+	wc.query("scope", OneIDTokenUtils.urlEncode(scopes));
 	
-	params.put("code_challenge_method", "S256");
+	wc.query("code_challenge_method", "S256");
 	
-	params.put("code_challenge", challenge);
-	params.put("redirect_uri", callbackUrl);
-	params.put("client_id", clientId);
-	params.put("state", state);
+	wc.query("code_challenge", challenge);
+	wc.query("redirect_uri", callbackUrl);
+	wc.query("client_id", clientId);
+	wc.query("state", state);
 	if(aud != null){
-		params.put("aud",aud);
+		wc.query("aud",aud);
 	}
-	params.put("_profile","http://ehealthontario.ca/StructureDefinition/ca-on-dhir-profile-Immunization http://ehealthontario.ca/StructureDefinition/ca-on-dhir-profile-Patient http://ehealthontario.ca/StructureDefinition/ca-on-dhdr-profile-MedicationDispense");
+	String profile = "http://ehealthontario.ca/StructureDefinition/ca-on-dhir-profile-Immunization http://ehealthontario.ca/StructureDefinition/ca-on-dhir-profile-Patient http://ehealthontario.ca/StructureDefinition/ca-on-dhdr-profile-MedicationDispense http://ehealthontario.ca/fhir/StructureDefinition/ca-on-consent-pcoi-profile-Consent";
+	wc.query("_profile",OneIDTokenUtils.urlEncode(profile));
 	session.setAttribute("eho_verifier-" + state,verifier);
 		
 	if(request.getParameter("alreadyLoggedIn") != null && "true".equals(request.getParameter("alreadyLoggedIn"))) {
@@ -104,15 +106,14 @@
 		session.setAttribute("eho_verifier-" + state + ".forwardURL",request.getParameter("forwardURL"));
 	}
 
-	WebClient wc = WebClient.create(authorizeUrl); 
-	for (Entry<String, String> entry : params.entrySet()) {
-		wc.query(entry.getKey(), entry.getValue());
-	}
+
 	 
 
 	Response response2 = wc.header("Content-Type", "application/x-www-form-urlencoded").post("code_verifier=" +URLEncoder.encode(verifier,"UTF-8"));
 
 	logger.info("Response Status from /Authorize =" + response2.getStatus());
+	String body = response2.readEntity(String.class);
+	logger.info("body from authorize:\n"+body);
 	if(response2.getStatus() == 302) {
 		logger.info("Redirecting to " + response2.getHeaderString("Location") );
 		response.sendRedirect( response2.getHeaderString("Location"));

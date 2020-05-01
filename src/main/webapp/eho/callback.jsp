@@ -74,12 +74,28 @@
 <%
 	Logger logger = MiscUtils.getLogger();
 
+    		logger.debug("	request.getQueryString() "+request.getQueryString());
+    		
+    		
+    		for (Entry<String, String[]> entry : request.getParameterMap().entrySet()) {
+    			StringBuilder sb = new StringBuilder();
+    			int i = 1;
+    			for(String s: entry.getValue()){
+    				sb.append(i+": " +s+" ");
+    				i++;
+    			}
+    			
+    			logger.debug("REQUEST PARAM:"+entry.getKey()+":" +sb.toString());
+    			
+    		}
 
 	String toolbar = request.getParameter("toolbar");
 	String iss = request.getParameter("iss");
 	String state = request.getParameter("state");
 	String clientId = request.getParameter("client_id");
 	String code = request.getParameter("code");
+	
+	logger.debug("TOOLBARU*** "+toolbar+" iss "+iss+" state "+state+" clientId "+clientId);
 
 	if(StringUtils.isEmpty(code)) {
 		//redirect to login page with error;
@@ -112,7 +128,7 @@
 	Map<String, String> params = new HashMap<>();
 	params.put("grant_type", "authorization_code");
 	//TODO: Not sure that _profile should be hard coded
-	params.put("_profile", "http://ehealthontario.ca/StructureDefinition/ca-on-dhir-profile-Immunization");
+	//params.put("_profile", "http://ehealthontario.ca/StructureDefinition/ca-on-dhir-profile-Immunization");
 	params.put("client_assertion_type", "urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer");
 
 	params.put("code", code);

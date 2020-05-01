@@ -47,6 +47,7 @@ import org.oscarehr.util.MiscUtils;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 import net.sf.json.JSONObject;
@@ -55,6 +56,79 @@ import oscar.OscarProperties;
 public class OneIDTokenUtils {
 
 	static Logger logger = MiscUtils.getLogger();
+	
+	
+	public static String urlEncode(String toEncode) {
+	    if (toEncode == null) {
+	        return "";
+	    }
+	    String encoded = toEncode.replace("%", "%25");
+	    encoded = encoded.replace(" ", "%20");
+	    encoded = encoded.replace("!", "%21");
+	    encoded = encoded.replace("#", "%23");
+	    encoded = encoded.replace("$", "%24");
+	    encoded = encoded.replace("&", "%26");
+	    encoded = encoded.replace("'", "%27");
+	    encoded = encoded.replace("(", "%28");
+	    encoded = encoded.replace(")", "%29");
+	    encoded = encoded.replace("*", "%2A");
+	    encoded = encoded.replace("+", "%2B");
+	    encoded = encoded.replace(",", "%2C");
+	    encoded = encoded.replace("/", "%2F");
+	    encoded = encoded.replace(":", "%3A");
+	    encoded = encoded.replace(";", "%3B");
+	    encoded = encoded.replace("=", "%3D");
+	    encoded = encoded.replace("?", "%3F");
+	    encoded = encoded.replace("@", "%40");
+	    encoded = encoded.replace("[", "%5B");
+	    encoded = encoded.replace("]", "%5D");
+	    return encoded;
+	}
+	
+	public static String debugTokens(HttpSession session) {
+		String tokenAttr = (String) session.getAttribute("oneid_token");
+
+		if (tokenAttr == null) {
+			logger.warn("tokenAttr is null");
+			return "ERROR no token";
+		}
+		StringBuilder sb = new StringBuilder("===============================\nDEBUG ONEID TOKEN\n=======================\n");
+		try {
+			JSONObject tokens = JSONObject.fromObject(tokenAttr);
+			sb.append("\n"+tokens.toString(3)); 
+			
+			String accessToken = tokens.getString("access_token");
+	
+			if (accessToken == null) {
+				logger.warn("accessToken is null");
+				return "ERROR no access token";
+			}
+			sb.append("\n\nACCESS TOKEN\n");
+			DecodedJWT decodedJWT = JWT.decode(accessToken);
+			for (Entry<String,Claim> entry : decodedJWT.getClaims().entrySet()) {
+				sb.append("\t entry:"+entry.getKey()+"  "+entry.getValue().asString()+"\n");
+			}
+			
+			decodedJWT = JWT.decode(tokens.getString("refresh_token"));
+			sb.append("\n\nRefresh TOKEN\n");
+			for (Entry<String,Claim> entry : decodedJWT.getClaims().entrySet()) {
+				sb.append("\t entry:"+entry.getKey()+"  "+entry.getValue().asString()+"\n");
+				
+			}
+			
+			
+			decodedJWT = JWT.decode(tokens.getString("id_token"));
+			sb.append("\n\nID TOKEN\n");
+			for (Entry<String,Claim> entry : decodedJWT.getClaims().entrySet()) {
+				sb.append("\t entry:"+entry.getKey()+"  "+entry.getValue().asString()+"\n");
+			}
+		}catch(Exception e) {
+			sb.append("Error parsing Token "+tokenAttr);
+		}
+		sb.append("\n=================================\n");
+		
+		return sb.toString();
+	}
 
 	public static String getValidAccessToken(HttpSession session) throws TokenExpiredException {
 		String tokenAttr = (String) session.getAttribute("oneid_token");
