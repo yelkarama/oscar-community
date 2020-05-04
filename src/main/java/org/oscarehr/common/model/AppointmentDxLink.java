@@ -39,6 +39,7 @@ public class AppointmentDxLink extends AbstractModel<Integer>  {
 	private String providerNo;
 	private String code = null;
 	private String codeType = null;
+	private String ageRange = null;
 	private String colour = "000";
 	private String message = null;
 	private String symbol = null;
@@ -136,6 +137,16 @@ public class AppointmentDxLink extends AbstractModel<Integer>  {
 
 	public void setCodeType(String codeType) {
 		this.codeType = codeType;
+	}
+
+
+	public String getAgeRange() {
+		return this.ageRange;
+	}
+
+
+	public void setAgeRange(String ageRange) {
+		this.ageRange = ageRange;
 	}
 	
 }

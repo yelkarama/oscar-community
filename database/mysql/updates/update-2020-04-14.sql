@@ -3,6 +3,7 @@ CREATE TABLE AppointmentDxLink (
 			providerNo varchar(6),
 			code varchar(20),
 			codeType varchar(20),
+			ageRange varchar(20),
 			symbol varchar(20),
 			colour varchar(20),
 			message varchar(255),

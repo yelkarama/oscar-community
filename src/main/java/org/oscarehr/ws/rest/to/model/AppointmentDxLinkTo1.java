@@ -33,6 +33,7 @@ public class AppointmentDxLinkTo1 {
 	private String providerNo;
 	private String code;
 	private String codeType;
+	private String ageRange;
 	private String colour = "000";
 	private String message;
 	private String symbol;
@@ -47,6 +48,7 @@ public class AppointmentDxLinkTo1 {
 		providerNo = appointmentDxLink.getProviderNo();
 		code = appointmentDxLink.getCode();
 		setCodeType(appointmentDxLink.getCodeType());
+		setAgeRange(appointmentDxLink.getAgeRange());
 		colour = appointmentDxLink.getColour();
 		message = appointmentDxLink.getMessage();
 		symbol = appointmentDxLink.getSymbol();
@@ -131,6 +133,16 @@ public class AppointmentDxLinkTo1 {
 
 	public void setCodeType(String codeType) {
 		this.codeType = codeType;
+	}
+
+
+	public String getAgeRange() {
+		return ageRange;
+	}
+
+
+	public void setAgeRange(String ageRange) {
+		this.ageRange = ageRange;
 	}
 	
 }
