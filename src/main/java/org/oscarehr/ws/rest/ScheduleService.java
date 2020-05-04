@@ -852,6 +852,7 @@ public class ScheduleService extends AbstractServiceImpl {
 		AppointmentDxLink appointmentDxLink = new AppointmentDxLink();	
 		appointmentDxLink.setCode(appointmentDxLinkTo1.getCode());
 		appointmentDxLink.setCodeType(appointmentDxLinkTo1.getCodeType());
+		appointmentDxLink.setAgeRange(appointmentDxLinkTo1.getAgeRange());
 		appointmentDxLink.setColour(appointmentDxLinkTo1.getColour());
 		Date createDate = new Date();
 		appointmentDxLink.setCreateDate(createDate);
