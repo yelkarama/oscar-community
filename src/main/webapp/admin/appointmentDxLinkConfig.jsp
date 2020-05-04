@@ -77,6 +77,7 @@
 						  <a ng-if="searchConfig.active" class="list-group-item" ng-class="itemActive(searchConfig.id)" data-ng-repeat="searchConfig in appointmentDxLinkList " >  <%--| limitTo:loadedSurveillanceConfigsQuantity --%>
 						  	
 						  	<h4 class="list-group-item-heading">{{searchConfig.code}}</h4>
+						  	 <p class="list-group-item-text">Age Range: {{searchConfig.ageRange}}  </p>  
 							 <p class="list-group-item-text">Colour: {{searchConfig.colour}}  </p>
 							 <p class="list-group-item-text">Message: {{searchConfig.message}}  </p>
 							 <p class="list-group-item-text">Symbol: {{searchConfig.symbol}}  </p>
@@ -92,6 +93,7 @@
 						  <a ng-if="!searchConfig.active"  class="list-group-item" ng-class="itemActive(searchConfig.id)" data-ng-repeat="searchConfig in appointmentDxLinkList | limitTo:loadedSurveillanceConfigsQuantity" >
 						  	
 						  	<h4 class="list-group-item-heading">{{searchConfig.code}}</h4>
+						  	 <p class="list-group-item-text">Age Range: {{searchConfig.ageRange}}  </p> 
 							 <p class="list-group-item-text">Colour: {{searchConfig.colour}}  </p>
 							 <p class="list-group-item-text">Message: {{searchConfig.message}}  </p>
 							 <p class="list-group-item-text">Symbol: {{searchConfig.symbol}}  </p>
@@ -119,6 +121,10 @@
 					  <div class="form-group">
 					    <label for="searchNameText">Dx Code Type</label>
 					    <input type="text" class="form-control" id="exampleInputEmail1" placeholder="code type, usually this is icd9" ng-model="new.codeType">
+					  </div>
+					  <div class="form-group">
+					    <label for="searchNameText">Age Range</label>
+					    <input type="text" class="form-control" id="exampleInputEmail1" placeholder="Can be 40-50 or >16 or <50. Leave blank if there is no age filter" ng-model="new.ageRange">
 					  </div>
 					  <div class="form-group">
 					    <label for="searchNameText">Colour</label>

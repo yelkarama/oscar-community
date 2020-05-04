@@ -29,9 +29,11 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.AppointmentDxLinkDao;
+import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.DxresearchDAO;
 import org.oscarehr.common.model.AppDefinition;
 import org.oscarehr.common.model.AppointmentDxLink;
+import org.oscarehr.common.model.Demographic;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,9 +54,12 @@ public class AppointmentDxLinkManager {
 		@Autowired
 		private SecurityInfoManager securityInfoManager;
 		
+		@Autowired
+		private DemographicDao demographicDao;
+		
 		public List<AppointmentDxLink> getAppointmentDxLinkForDemographic(LoggedInInfo loggedInInfo,int demographicNo) {
-				
-			List<AppointmentDxLink> list = appointmentDxLinkDao.getActiveDxLink(demographicNo) ;
+			Demographic demographic = demographicDao.getDemographicById(demographicNo);
+			List<AppointmentDxLink> list = appointmentDxLinkDao.getActiveDxLink(demographic) ;
 			List<AppointmentDxLink> returnList = new ArrayList<AppointmentDxLink>();
 			if(list.size() > 0) {
 				for(AppointmentDxLink appointmentDxLink : list) {
