@@ -125,7 +125,7 @@
 	
 	Date expiryDate = PKCEUtils.getDateInFuture(10);
 	
-	Map<String, String> params = new HashMap<>();
+	Map<String, String> params = new HashMap<String, String>();
 	params.put("grant_type", "authorization_code");
 	//TODO: Not sure that _profile should be hard coded
 	//params.put("_profile", "http://ehealthontario.ca/StructureDefinition/ca-on-dhir-profile-Immunization");

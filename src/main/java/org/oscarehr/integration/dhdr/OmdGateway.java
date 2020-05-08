@@ -77,7 +77,14 @@ public class OmdGateway {
 		}
 		return result;
 	}
-		
+	
+	public WebClient getWebClientWholeURL(String url) throws Exception {
+		String gatewayUrl = OscarProperties.getInstance().getProperty("oneid.gateway.url");
+		WebClient wc = WebClient.create(url);
+		WebClient.getConfig(wc).getHttpConduit().setTlsClientParameters(getTLSClientParameters());
+		return wc;
+	}
+	
 	public WebClient getWebClient(String resource) throws Exception {
 			String gatewayUrl = OscarProperties.getInstance().getProperty("oneid.gateway.url");
 			WebClient wc = WebClient.create(gatewayUrl+resource);
