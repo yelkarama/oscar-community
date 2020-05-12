@@ -57,6 +57,8 @@
 <%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
 <%@ page import="org.oscarehr.common.model.UserProperty" %>
 <%@ page import="org.oscarehr.common.model.Tickler" %>
+<%@ page import="org.oscarehr.common.model.AppointmentDxLink" %>
+<%@ page import="org.oscarehr.managers.AppointmentDxLinkManager" %>
 <%@ page import="org.oscarehr.managers.TicklerManager" %>
 <%@page import="org.oscarehr.managers.ProgramManager2"%>
 <%@page import="org.oscarehr.PMmodule.model.ProgramProvider"%>
@@ -100,6 +102,7 @@
 	DemographicCustDao demographicCustDao = SpringUtils.getBean(DemographicCustDao.class);
 	ProgramManager2 programManager = SpringUtils.getBean(ProgramManager2.class);
 	AppManager appManager = SpringUtils.getBean(AppManager.class);
+	AppointmentDxLinkManager appointmentDxLinkManager = SpringUtils.getBean(AppointmentDxLinkManager.class);
 	
 	LookupListManager lookupListManager = SpringUtils.getBean(LookupListManager.class);
 	LookupList reasonCodes = lookupListManager.findLookupListByName(loggedInInfo1, "reasonCode");
@@ -1951,6 +1954,16 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
 <!-- security:oscarSec roleName="<%--=roleName$--%>" objectName="_appointment.doctorLink" rights="r" -->
 <% if ("".compareTo(study_no.toString()) != 0) {%>	<a href="#" onClick="popupPage(700,1024, '../form/study/forwardstudyname.jsp?study_link=<%=study_link.toString()%>&demographic_no=<%=demographic_no%>&study_no=<%=study_no%>');return false;" title="<bean:message key="provider.appointmentProviderAdminDay.study"/>: <%=UtilMisc.htmlEscape(studyDescription.toString())%>"><%="<font color='"+studyColor+"'>"+studySymbol+"</font>"%></a><%} %>
 
+<% List<AppointmentDxLink> dxLinkList = appointmentDxLinkManager.getAppointmentDxLinkForDemographic(loggedInInfo1,demographic_no); 
+   for(AppointmentDxLink dx:dxLinkList){
+%>
+	<a href="#" 
+		<%if(dx.getLink() != null){%>
+		onClick="popupPage(700,1024,'<%=dx.getLink()%>');return false;" 
+		<%}%> 
+		title="<%=dx.getMessage()%>">
+		<%="<font color='"+dx.getColour()+"'>"+dx.getSymbol()+"</font>"%></a>
+<%}%>
 <% if (ver!=null && ver!="" && "##".compareTo(ver.toString()) == 0){%><a href="#" title="<bean:message key="provider.appointmentProviderAdminDay.versionMsg"/> <%=UtilMisc.htmlEscape(ver)%>"> <font color="red">*</font></a><%}%>
 
 <% if (roster!="" && "FS".equalsIgnoreCase(roster)){%> <a href="#" title="<bean:message key="provider.appointmentProviderAdminDay.rosterMsg"/> <%=UtilMisc.htmlEscape(roster)%>"><font color="red">$</font></a><%}%>

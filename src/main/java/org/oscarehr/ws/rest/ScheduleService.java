@@ -51,12 +51,14 @@ import org.oscarehr.common.dao.AppointmentSearchDao;
 import org.oscarehr.common.dao.BillingONCHeader1Dao;
 import org.oscarehr.common.dao.OscarAppointmentDao;
 import org.oscarehr.common.model.Appointment;
+import org.oscarehr.common.model.AppointmentDxLink;
 import org.oscarehr.common.model.AppointmentSearch;
 import org.oscarehr.common.model.AppointmentStatus;
 import org.oscarehr.common.model.AppointmentType;
 import org.oscarehr.common.model.BillingONCHeader1;
 import org.oscarehr.common.model.LookupListItem;
 import org.oscarehr.common.model.ScheduleTemplateCode;
+import org.oscarehr.managers.AppointmentDxLinkManager;
 import org.oscarehr.managers.AppointmentManager;
 import org.oscarehr.managers.DemographicManager;
 import org.oscarehr.managers.ScheduleManager;
@@ -78,6 +80,7 @@ import org.oscarehr.ws.rest.to.AppointmentExtResponse;
 import org.oscarehr.ws.rest.to.ProviderApptsCountResponse;
 import org.oscarehr.ws.rest.to.ProviderPeriodAppsResponse;
 import org.oscarehr.ws.rest.to.SchedulingResponse;
+import org.oscarehr.ws.rest.to.model.AppointmentDxLinkTo1;
 import org.oscarehr.ws.rest.to.model.AppointmentExtTo;
 import org.oscarehr.ws.rest.to.model.AppointmentSearchTo1;
 import org.oscarehr.ws.rest.to.model.AppointmentStatusTo1;
@@ -110,6 +113,8 @@ public class ScheduleService extends AbstractServiceImpl {
 	private AppointmentSearchDao appointmentSearchDao;
 	@Autowired
 	private BillingONCHeader1Dao billingONCHeader1Dao;
+	@Autowired 
+	private AppointmentDxLinkManager appointmentDxLinkManager;
 
 	@GET
 	@Path("/day/{date}")
@@ -807,6 +812,61 @@ public class ScheduleService extends AbstractServiceImpl {
 	}
 	
 	
+	
+	//Method to list apptDxLinks
+	@POST
+	@Path("/appointmentDxLink/list")
+	@Produces("application/json")
+	@Consumes("application/json")
+	public List<AppointmentDxLinkTo1> listAppointmentDxLink() {
+		List<AppointmentDxLinkTo1> returnList = new ArrayList<AppointmentDxLinkTo1>();
+		List<AppointmentDxLink> appointmentDxLinkList = appointmentDxLinkManager.getAllAppointmentDxLinks(this.getLoggedInInfo());
+		for(AppointmentDxLink appointmentDxLink: appointmentDxLinkList) {
+			AppointmentDxLinkTo1 appointmentDxLinkTo1 = new AppointmentDxLinkTo1();
+			appointmentDxLinkTo1.fill(appointmentDxLink);
+			returnList.add(appointmentDxLinkTo1);
+		}
+		
+		return returnList;
+	}
+	
+	//Method to archive apptDxLinks
+	@POST
+	@Path("/appointmentDxLink/disable/{id}")
+	@Produces("application/json")
+	@Consumes("application/json")
+	public AppointmentDxLinkTo1 disableAppointmentDxLink(@PathParam("id") Integer id) {
+		AppointmentDxLink appointmentDxLink = appointmentDxLinkManager.disableAppointmentDxLink(this.getLoggedInInfo(),id);
+		AppointmentDxLinkTo1 appointmentDxLinkTo1 = new AppointmentDxLinkTo1();
+		appointmentDxLinkTo1.fill(appointmentDxLink);
+		return appointmentDxLinkTo1;
+	}
+	
+	//Method to add apptDxLinks
+	@POST
+	@Path("/appointmentDxLink/add")
+	@Produces("application/json")
+	@Consumes("application/json")
+	public AppointmentDxLinkTo1 addAppointmentDxLink(AppointmentDxLinkTo1 appointmentDxLinkTo1) {
+
+		AppointmentDxLink appointmentDxLink = new AppointmentDxLink();	
+		appointmentDxLink.setCode(appointmentDxLinkTo1.getCode());
+		appointmentDxLink.setCodeType(appointmentDxLinkTo1.getCodeType());
+		appointmentDxLink.setAgeRange(appointmentDxLinkTo1.getAgeRange());
+		appointmentDxLink.setColour(appointmentDxLinkTo1.getColour());
+		Date createDate = new Date();
+		appointmentDxLink.setCreateDate(createDate);
+		appointmentDxLink.setUpdateDate(createDate);
+		appointmentDxLink.setLink(appointmentDxLinkTo1.getLink());
+		appointmentDxLink.setMessage(appointmentDxLinkTo1.getMessage());
+		appointmentDxLink.setSymbol(appointmentDxLinkTo1.getSymbol());
+		appointmentDxLink.setProviderNo(getLoggedInInfo().getLoggedInProviderNo());
+		appointmentDxLink.setActive(true);
+		
+		appointmentDxLink = appointmentDxLinkManager.addAppointmentDxLink(this.getLoggedInInfo(),  appointmentDxLink); 
+		appointmentDxLinkTo1.fill(appointmentDxLink);
+		return appointmentDxLinkTo1;
+	}
 	
 
 }
