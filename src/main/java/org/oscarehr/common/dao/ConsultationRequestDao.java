@@ -32,7 +32,7 @@ import javax.persistence.Query;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.oscarehr.common.NativeSql;
 import org.oscarehr.common.model.ConsultationRequest;
-import org.oscarehr.util.MiscUtils;
+
 
 @SuppressWarnings("unchecked")
 public class ConsultationRequestDao extends AbstractDao<ConsultationRequest> {
@@ -70,10 +70,9 @@ public class ConsultationRequestDao extends AbstractDao<ConsultationRequest> {
         }
 
         
-        public List<ConsultationRequest> getConsults(String team, boolean showCompleted, Date startDate, Date endDate, String orderby, String desc, String searchDate, Integer offset, Integer limit) {
-        	MiscUtils.getLogger().debug("getConsults(bunch)-----------------------------------------------"); 
-        	
-        	StringBuilder sql = new StringBuilder("select cr from ConsultationRequest cr left outer join cr.professionalSpecialist specialist, ConsultationServices service, Demographic d left outer join d.provider p where d.DemographicNo = cr.demographicId and service.id = cr.serviceId ");
+        public List<ConsultationRequest> getConsults(String team, boolean showCompleted, Date startDate, Date endDate, String orderby, String desc, String searchDate, Integer offset, Integer limit, Integer mrpNo, Integer patientId, Integer urgencyFilter, Integer serviceFilter, Integer consultantFilter) {
+
+            StringBuilder sql = new StringBuilder("select cr from ConsultationRequest cr left outer join cr.professionalSpecialist specialist, ConsultationServices service, Demographic d left outer join d.provider p where d.DemographicNo = cr.demographicId and service.id = cr.serviceId ");
 
             if( !showCompleted ) {
                sql.append("and cr.status != 4 ");
@@ -98,6 +97,23 @@ public class ConsultationRequestDao extends AbstractDao<ConsultationRequest> {
                     sql.append("and cr.referralDate <= '" + DateFormatUtils.ISO_DATETIME_FORMAT.format(endDate)+ "' ");
                 }
             }
+
+
+	    if( mrpNo != null )
+	    sql.append(" and d.ProviderNo = " + mrpNo + " " );
+
+	    if( patientId != null )
+	    sql.append(" and d.DemographicNo = " + patientId + " " );
+
+	    if( urgencyFilter != null )
+	    sql.append(" and cr.urgency = " + urgencyFilter + " " );
+
+	    if( serviceFilter != null )
+	    sql.append(" and cr.serviceId = " + serviceFilter + " " );
+
+	    if( consultantFilter != null )
+	    sql.append(" and cr.professionalSpecialist = " + consultantFilter + " " );
+
 
             String orderDesc = desc != null && desc.equals("1") ? "DESC" : "";
             String service = ", service.serviceDesc";

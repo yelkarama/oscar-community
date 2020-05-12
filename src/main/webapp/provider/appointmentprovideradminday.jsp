@@ -893,8 +893,18 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
  </caisi:isModuleLoad>
 <caisi:isModuleLoad moduleName="TORONTO_RFQ" reverse="true">
 <security:oscarSec roleName="<%=roleName$%>" objectName="_con" rights="r">
+<%
+
+
+	UserProperty consultsDefaultFilter = propDao.getProp(curUser_no, UserProperty.CONSULTS_DEFAULT_FILTER);
+	String consultsDefaultFilterUrl = "../oscarEncounter/IncomingConsultation.do?providerNo="+curUser_no+"&userName="+URLEncoder.encode(userfirstname+" "+userlastname);
+	if ( consultsDefaultFilter != null && consultsDefaultFilter.getValue() != null && !consultsDefaultFilter.getValue().trim().equals("")){
+		consultsDefaultFilterUrl = "../oscarEncounter/ViewConsultation.do?"+consultsDefaultFilter.getValue();
+	}
+
+%>
 <li id="con">
- <a HREF="#" ONCLICK ="popupOscarRx(625,1024,'../oscarEncounter/IncomingConsultation.do?providerNo=<%=curUser_no%>&userName=<%=URLEncoder.encode(userfirstname+" "+userlastname)%>')" title="<bean:message key="provider.appointmentProviderAdminDay.viewConReq"/>">
+ <a HREF="#" ONCLICK ="popupOscarRx(625,1224,'<%=consultsDefaultFilterUrl%>')" title="<bean:message key="provider.appointmentProviderAdminDay.viewConReq"/>">
  <span id="oscar_aged_consults"><bean:message key="global.con"/></span></a>
 </li>
 </security:oscarSec>

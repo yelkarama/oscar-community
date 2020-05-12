@@ -81,6 +81,9 @@ public class DrugConverter extends AbstractConverter<Drug, DrugTo1> {
             }else {
                d.setProviderNo(t.getProviderNo()); // Cast to string.
             }
+            if(t.getGcnSeqNo() != null) {
+            		d.setGcnSeqNo(t.getGcnSeqNo());
+            }
             d.setAtc(t.getAtc());
             d.setRegionalIdentifier(t.getRegionalIdentifier());
             d.setDosage(t.getStrength() + t.getStrengthUnit());
@@ -105,18 +108,28 @@ public class DrugConverter extends AbstractConverter<Drug, DrugTo1> {
             d.setNoSubs(t.getNoSubstitutions());
             d.setPosition(1);
             d.setOutsideProviderName(t.getExternalProvider());
-            d.setSpecialInstruction(t.getAdditionalInstructions());
+            d.setOutsideProviderOhip(t.getOutsideProviderOhip());
+            d.setSpecialInstruction(t.getAdditionalInstructions()); 
             	
             d.setDispenseInternal(falseIfNull(t.getDispenseInternal())); 
-            d.setDispenseInterval(t.getDispenseIntervalNumber());
+            d.setDispenseInterval(t.getDispenseInterval());
             d.setRefillDuration(zeroIfNull(t.getRefillDuration()));
             d.setRefillQuantity(zeroIfNull(t.getRefillQuantity()));
 
             if(t.getQuantity() != null){
                 d.setQuantity(t.getQuantity().toString());
             }
-
-
+            
+            d.setPatientCompliance(t.getPatientCompliance());
+            d.setNonAuthoritative(t.getNonAuthoritative());
+            d.setPickUpDateTime(t.getPickupDate());
+            
+            d.setProtocol(t.getProtocol());
+            d.setPriorRxProtocol(t.getPriorRxProtocol());
+            
+            d.setETreatmentType(t.geteTreatmentType());
+            d.setRxStatus(t.getRxStatus());
+            d.setPharmacyId(t.getPharmacyId());
             populateDrugStrength(d, t);
 
         }catch(RuntimeException re){
@@ -207,11 +220,29 @@ public class DrugConverter extends AbstractConverter<Drug, DrugTo1> {
         t.setArchivedDate(d.getArchivedDate());
         t.setArchivedReason(d.getArchivedReason());
         t.setExternalProvider(d.getOutsideProviderName());
+        t.setOutsideProviderOhip(d.getOutsideProviderOhip());
+        
         t.setAdditionalInstructions(d.getSpecialInstruction());
 
         if(d.getQuantity() != null){
             t.setQuantity(Integer.parseInt(d.getQuantity()));
         }
+        
+        
+        t.setDispenseInterval(d.getDispenseInterval());
+        t.setRefillDuration(zeroIfNull(d.getRefillDuration()));
+        t.setRefillQuantity(zeroIfNull(d.getRefillQuantity()));
+
+        t.setPatientCompliance(d.getPatientCompliance());
+        t.setNonAuthoritative(d.isNonAuthoritative());
+        t.setPickupDate(d.getPickUpDateTime());
+        
+        t.setProtocol(d.getProtocol());
+        t.setPriorRxProtocol(d.getPriorRxProtocol());
+        
+        t.seteTreatmentType(d.getETreatmentType());
+        t.setRxStatus(d.getRxStatus());
+
 
         this.populateStrengthFromDosage(d, t);
 

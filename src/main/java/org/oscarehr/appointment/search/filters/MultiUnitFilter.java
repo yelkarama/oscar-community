@@ -31,12 +31,13 @@ import java.util.Map;
 import org.oscarehr.appointment.search.SearchConfig;
 import org.oscarehr.appointment.search.TimeSlot;
 import org.oscarehr.managers.DayWorkSchedule;
+import org.oscarehr.util.LoggedInInfo;
 
 
 public class MultiUnitFilter  implements AvailableTimeSlotFilter{
 		
 	@Override
-	public List<TimeSlot> filterAvailableTimeSlots(SearchConfig clinic,String mrp,String providerId, Long appointmentTypeId, DayWorkSchedule dayWorkScheduleTransfer, List<TimeSlot> currentlyAllowedTimeSlots, Calendar date,Map<String,String> params){
+	public List<TimeSlot> filterAvailableTimeSlots(LoggedInInfo loggedInInfo,SearchConfig clinic,String mrp,String providerId, Long appointmentTypeId, DayWorkSchedule dayWorkScheduleTransfer, List<TimeSlot> currentlyAllowedTimeSlots, Calendar date,Map<String,String> params){
 		int timeSlotLen = dayWorkScheduleTransfer.getTimeSlotDurationMin();
 		// allowed time codes
 		ArrayList<TimeSlot> filteredResults = new ArrayList<TimeSlot>();
@@ -67,7 +68,7 @@ public class MultiUnitFilter  implements AvailableTimeSlotFilter{
 		return(filteredResults);
 	}
 	
-	public List<TimeSlot> filterAvailableTimeSlots2(SearchConfig clinic,String mrp,String providerId, Long appointmentTypeId, DayWorkSchedule dayWorkScheduleTransfer, List<TimeSlot> currentlyAllowedTimeSlots, Calendar date,Map<String,String> params){
+	public List<TimeSlot> filterAvailableTimeSlots2(LoggedInInfo loggedInInfo,SearchConfig clinic,String mrp,String providerId, Long appointmentTypeId, DayWorkSchedule dayWorkScheduleTransfer, List<TimeSlot> currentlyAllowedTimeSlots, Calendar date,Map<String,String> params){
 		int timeSlotLen = dayWorkScheduleTransfer.getTimeSlotDurationMin();
 		// allowed time codes
 		ArrayList<TimeSlot> filteredResults = new ArrayList<TimeSlot>();

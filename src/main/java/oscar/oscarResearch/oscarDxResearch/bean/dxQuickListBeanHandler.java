@@ -88,4 +88,8 @@ public class dxQuickListBeanHandler {
 	public String getLastUsedQuickList() {
 		return lastUsedQuickList;
 	}
+	
+	public Collection<dxQuickListBean> getDxQuickListBeanList() {
+		return dxQuickListBeanVector;
+	}
 }

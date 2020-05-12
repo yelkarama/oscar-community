@@ -34,11 +34,22 @@
 	errorPage="errorpage.jsp"%>
 	
 <%
+	Boolean oauth2 = (Boolean) session.getAttribute("oneid_oauth2");
+    if(oauth2 == null) {
+    	oauth2 = false;
+    }
+    
 	String message = null;    		
 	String econsultUrl = OscarProperties.getInstance().getProperty("backendEconsultUrl");
 	StringBuffer oscarUrl = request.getRequestURL();
 	oscarUrl.setLength(oscarUrl.length() - request.getServletPath().length());
-	String redirectURL = econsultUrl + "/SAML2/logout?oscarReturnURL=" + URLEncoder.encode(oscarUrl + "/logout.jsp","UTF-8");
+	String redirectURL = null;
+	
+	if(!oauth2) {
+		redirectURL = econsultUrl + "/SAML2/logout?oscarReturnURL=" + URLEncoder.encode(oscarUrl + "/logout.jsp","UTF-8");
+	} else {
+		redirectURL = OscarProperties.getInstance().getProperty("oneid.oauth2.logoutUrl") +  "/?returnurl=" + URLEncoder.encode(oscarUrl + "/logout.jsp","UTF-8");
+	}
 	
 			
 	UserPropertyDAO userPropertyDAO = SpringUtils.getBean(UserPropertyDAO.class);
@@ -65,7 +76,7 @@
 %>
 <html>
 <head>
-<meta http-equiv="refresh" content="10; url=<%=econsultUrl + "/SAML2/logout?oscarReturnURL=" + URLEncoder.encode(oscarUrl + "/logout.jsp", "UTF-8") %>">
+<meta http-equiv="refresh" content="10; url=<%=redirectURL %>">
 
 </head>
 
@@ -79,7 +90,7 @@
 <div style="margin-left:auto;margin-right:auto;width:40em;font-size:15pt;text-align:center">
 CONFIRM SIGN OUT*
 <br/>
-<input type="button" value="SIGN OUT" onClick="window.location.href='<%=econsultUrl + "/SAML2/logout?oscarReturnURL=" + URLEncoder.encode(oscarUrl + "/logout.jsp", "UTF-8") %>'"/>
+<input type="button" value="SIGN OUT" onClick="window.location.href='<%=redirectURL %>'"/>
 <input type="button" value="CANCEL" onClick="window.history.back();"/>
 <br/>
 

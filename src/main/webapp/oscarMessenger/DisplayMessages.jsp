@@ -155,6 +155,16 @@ tr.newMessage td {
 .TopStatusBar{
 width:100% !important;
 }
+
+.integratedMessage {
+	background-color: #FFCCCC;
+	color: black;
+}
+
+.normalMessage {
+	background-color: #EEEEFF;
+	color: black;
+}
 </style>
 
 <script type="text/javascript">
@@ -192,12 +202,12 @@ function checkAll(formId){
     <table  class="MainTable" id="scrollNumber1" name="encounterTable">
         <tr class="MainTableTopRow">
             <td class="MainTableTopRowLeftColumn">
-                <bean:message key="oscarMessenger.DisplayMessages.msgMessenger"/>
+                <h2><bean:message key="oscarMessenger.DisplayMessages.msgMessenger"/></h2>
             </td>
             <td class="MainTableTopRowRightColumn">
                 <table class="TopStatusBar">
                     <tr>
-                        <td >
+                        <td ><h2>
                         <% String inbxStyle = "messengerButtonsA";
                            String sentStyle = "messengerButtonsA";
                            String delStyle  = "messengerButtonsA";
@@ -219,6 +229,7 @@ function checkAll(formId){
                         <%      delStyle =  "messengerButtonsD";
                             break;
                         }%>
+                        </h2>
                         </td>
                         <td  >
                             <!-- edit 2006-0811-01 by wreby -->
@@ -404,7 +415,7 @@ function checkAll(formId){
                                     for (int i = 0; i < theMessages2.size() ; i++) {
                                         oscar.oscarMessenger.data.MsgDisplayMessage dm;
                                         dm = (oscar.oscarMessenger.data.MsgDisplayMessage) theMessages2.get(i);
-                                        String key = "oscarMessenger.DisplayMessages.msgStatus"+dm.status.substring(0,1).toUpperCase()+dm.status.substring(1); 
+                                        String key = "oscarMessenger.DisplayMessages.msgStatus"+dm.getStatus().substring(0,1).toUpperCase()+dm.getStatus().substring(1); 
                                         %>
                                         
                                 <% if ("oscarMessenger.DisplayMessages.msgStatusNew".equals(key)){%>        
@@ -412,53 +423,52 @@ function checkAll(formId){
                                 <%}else{%>
                                 <tr>
                                 <%}%>
-                                    <td bgcolor="#EEEEFF"  width="75">
+                                    <td class='<%= dm.getType() == 3 ? "integratedMessage" : "normalMessage" %>'  width="75">
                                     <%if (pageType != 1){%>
-                                        <html:checkbox property="messageNo" value="<%=dm.messageId %>" />
+                                        <html:checkbox property="messageNo" value="<%=dm.getMessageId() %>" />
                                      <% } %>
                                     &nbsp;
                                     <% 
-                                       String atta = dm.attach;
-                                       String pdfAtta = dm.pdfAttach; 
+                                       String atta = dm.getAttach();
+                                       String pdfAtta = dm.getPdfAttach(); 
                                        if (atta.equals("1") || pdfAtta.equals("1") ){ %>
                                             <img src="img/clip4.jpg">
                                     <% } %>
 
 
                                     </td>
-                                    <td bgcolor="#EEEEFF">
+                                    <td class='<%= dm.getType() == 3 ? "integratedMessage" : "normalMessage" %>'>
                                      <bean:message key="<%= key %>"/>
                                     </td>
-                                    <td bgcolor="#EEEEFF">
+                                    <td class='<%= dm.getType() == 3 ? "integratedMessage" : "normalMessage" %>'>
                                         <%
-                                            if( pageType == 1 ) {
-                                                int pos = dm.sentto.indexOf(",");
-                                                if( pos == -1 )
-                                                    out.print(dm.sentto);
-                                                else
-                                                    out.print(dm.sentto.substring(0,pos));
+                                            if( pageType == 1 ) {                       
+                                                out.print(dm.getSentto());
                                             }
-                                            else {
-                                                out.print(dm.sentby);
-                                           }
+                                            else 
+                                            {
+                                                out.print(dm.getSentby());
+                                            }
                                         %>
                                     
                                     </td>
-                                    <td bgcolor="#EEEEFF">
-                                    <a href="<%=request.getContextPath()%>/oscarMessenger/ViewMessage.do?messageID=<%=dm.messageId%>&boxType=<%=pageType%>">
-                                        <%=dm.thesubject%>
+                                    <td class='<%= dm.getType() == 3 ? "integratedMessage" : "normalMessage" %>'>
+                                    <a href="<%=request.getContextPath()%>/oscarMessenger/ViewMessage.do?messageID=<%=dm.getMessageId()%>&boxType=<%=pageType%>">
+                                        <%=dm.getThesubject()%>
                                     </a>
 
                                     </td>
-                                    <td bgcolor="#EEEEFF">
-                                    	<%= dm.thedate %>
+                                    <td class='<%= dm.getType() == 3 ? "integratedMessage" : "normalMessage" %>'>
+                                    	<%= dm.getThedate() %>
                                     	&nbsp;&nbsp;
-                                    	<%= dm.theime %>
+                                    	<%= dm.getThetime() %>
                                     </td>
-                                    <td bgcolor="#EEEEFF">
-                                    <%if(dm.demographic_no != null  && !dm.demographic_no.equalsIgnoreCase("null")) {%>
-                                        <oscar:nameage demographicNo="<%=dm.demographic_no%>"></oscar:nameage>
+                                    <td class='<%= dm.getType() == 3 ? "integratedMessage" : "normalMessage" %>'>
+                                                                       
+                                    <%if(dm.getDemographic_no() != null  && !dm.getDemographic_no().equalsIgnoreCase("null")) {%>                                        
+                                        <oscar:nameage demographicNo="<%=dm.getDemographic_no()%>"></oscar:nameage>
                                     <%} %>
+
                                     </td>
                                 </tr>
                             <%}%>

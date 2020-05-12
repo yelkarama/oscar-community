@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 import org.oscarehr.appointment.search.SearchConfig;
@@ -49,10 +50,10 @@ public class ExistingAppointmentFilter implements AvailableTimeSlotFilter{
 	ScheduleManager scheduleManager = SpringUtils.getBean(ScheduleManager.class);
 	
 	@Override
-	public List<TimeSlot> filterAvailableTimeSlots(SearchConfig clinic,String mrp,String providerId, Long appointmentTypeId, DayWorkSchedule dayWorkScheduleTransfer, List<TimeSlot> currentlyAllowedTimeSlots, Calendar date,Map<String,String> params){
+	public List<TimeSlot> filterAvailableTimeSlots(LoggedInInfo loggedInInfo,SearchConfig clinic,String mrp,String providerId, Long appointmentTypeId, DayWorkSchedule dayWorkScheduleTransfer, List<TimeSlot> currentlyAllowedTimeSlots, Calendar date,Map<String,String> params){
 		ArrayList<TimeSlot> allowedTimesFilteredByExistingAppointments = new ArrayList<TimeSlot>();
 		try{
-			List<Appointment> existingAppointments = scheduleManager.getDayAppointments(null,providerId, date);
+			List<Appointment> existingAppointments = scheduleManager.getDayAppointments(loggedInInfo,providerId, date);
 			for (TimeSlot startTime : currentlyAllowedTimeSlots){
 				if (!isThisTakenByExistingAppointment(startTime, existingAppointments)){
 					allowedTimesFilteredByExistingAppointments.add(startTime);

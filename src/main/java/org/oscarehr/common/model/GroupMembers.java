@@ -45,6 +45,12 @@ public class GroupMembers extends AbstractModel<Integer>{
 
 	@Column(name="provider_no")
 	private String providerNo;
+	
+	@Column(name="facilityId")
+	private int facilityId;
+	
+	@Column(name="clinicLocationNo")
+	private int clinicLocationNo;
 
 	public Integer getId() {
     	return id;
@@ -70,5 +76,20 @@ public class GroupMembers extends AbstractModel<Integer>{
     	this.providerNo = providerNo;
     }
 
+	public int getFacilityId() {
+		return facilityId;
+	}
+
+	public void setFacilityId(int facilityId) {
+		this.facilityId = facilityId;
+	}
+
+	public int getClinicLocationNo() {
+		return clinicLocationNo;
+	}
+
+	public void setClinicLocationNo(int clinicLocationNo) {
+		this.clinicLocationNo = clinicLocationNo;
+	}
 
 }

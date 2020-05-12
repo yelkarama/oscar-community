@@ -24,6 +24,9 @@
 
 --%>
 
+<%@page import="org.oscarehr.common.model.LookupListItem"%>
+<%@page import="org.oscarehr.common.model.LookupList"%>
+<%@page import="org.oscarehr.common.dao.LookupListDao"%>
 <%@page import="java.text.ParseException"%>
 <%@page import="org.oscarehr.common.model.PartialDate"%>
 <%@page import="org.oscarehr.common.dao.PartialDateDao"%>
@@ -508,6 +511,7 @@ var startup = false, startup2 = false;
 
 function changeCVCName() {
 	lots = null;
+	$("#typicalDose").html("");
 	
 	 var snomedId = $("#cvcName").val();
 	 if(snomedId == "-1") {
@@ -525,17 +529,17 @@ function changeCVCName() {
              data: { method : "getLotNumberAndExpiryDates", snomedConceptId: snomedId},
              dataType: 'json',
              success: function(data,textStatus) {
-            	 if(data != null && data instanceof Array && data.length > 0) {
+            	 if(data != null && data.lots != null && data.lots instanceof Array && data.lots.length > 0) {
             		 $("#lot").hide();
             		 $("#cvcLot").show();
             		 $("#cvcLot").find("option").remove().end();
             		 
             		 $("#cvcLot").append('<option value=""></option>');
          			
-            		 for(var x=0;x<data.length;x++) {
-            			 var item = data[x];
+            		 for(var x=0;x<data.lots.length;x++) {
+            			 var item = data.lots[x];
             			 //console.log(JSON.stringify(item));
-            			 var d = new Date(data[x].expiryDate.time);
+            			 var d = new Date(data.lots[x].expiryDate.time);
             			// console.log(d);
             			var month = ((d.getMonth()+1) > 9) ? (d.getMonth()+1) : ("0" + (d.getMonth()+1));
             			var day = ((d.getDate()) > 9) ? (d.getDate()) : ("0" + (d.getDate()));
@@ -559,6 +563,38 @@ function changeCVCName() {
             		 
             		// $("#lot").val('');
             		 $("#lot").show();
+            	 }
+            	 
+            	 if(data != null && data.typicalDose != null) {
+            		 var dose = data.typicalDose.dose;
+            		 var doseUnit = data.typicalDose.UoM;
+            		 //console.log("dose = " + dose + ",doseUnit=" + doseUnit);
+            		 if(dose != null && doseUnit != null) {
+            		 	$("#typicalDose").html(dose + " " + doseUnit);
+            		 }
+            		 $("#dose").val(dose);
+            		 
+            		 if(doseUnit == 'ml') {
+            			 doseUnit = "mL";
+            		 }
+            		 $("#doseUnit").val(doseUnit);
+            		 
+            	 }
+             }
+          });
+		 
+		 
+		 
+		 $.ajax({
+             type: "POST",
+             url: "<%=request.getContextPath()%>/cvc.do",
+             data: { method : "getDIN", snomedConceptId: snomedId},
+             dataType: 'json',
+             success: function(data,textStatus) {
+            	 if(data != null) {
+            		 if(data.din != null) {
+            			 $("#din").val(data.din);
+            		 }
             	 }
              }
           });
@@ -748,7 +784,7 @@ function changeSite(el) {
    		             			 				selected = "selected=\"selected\"";
    		             			 			}
    	             						}
-   	             			 			%><option value="<%=tn.getSnomedConceptId()%>" <%=selected%>><%=tn.getDisplayName() %></option><%
+   	             			 			%><option value="<%=tn.getSnomedConceptId()%>" <%=selected%>><%=tn.getPicklistName() %></option><%
    	             			 		}
    	             			 	%>
    	             		
@@ -774,6 +810,15 @@ function changeSite(el) {
              			 	 <option value=""></option>
                          	    <%
                          	    	String locationSelected = " selected=\"selected\" ";
+                         	    	LookupListDao lookupListDao = SpringUtils.getBean(LookupListDao.class);
+                         	    	LookupList ll = lookupListDao.findByName("AnatomicalSite");
+                         	    	if(ll != null) {
+                         	    		for(LookupListItem lli : ll.getItems()) {
+                         	    			%>
+                         	    				<option value="<%=lli.getValue() %>" <%=lli.getValue().equals(str((extraData.get("location")),"")) ? locationSelected : "" %>><%=lli.getLabel() %></option>
+                         	    			<%
+                         	    		}
+                         	    	} else {
                          	    %>
                          		<option value="Superior Deltoid Lt" <%="Superior Deltoid Lt".equals(str((extraData.get("location")),"")) ? locationSelected : "" %>>Superior Deltoid Lt</option>
                          		<option value="Inferior Deltoid Lt" <%="Inferior Deltoid Lt".equals(str((extraData.get("location")),"")) ? locationSelected : "" %>>Inferior Deltoid Lt</option>
@@ -795,7 +840,7 @@ function changeSite(el) {
                          		<option value="Forearm Rt" <%="Forearm Rt".equals(str((extraData.get("location")),"")) ? locationSelected : "" %>>Forearm Rt</option>
                          		<option value="Other" <%="Other".equals(str((extraData.get("location")),"")) ? locationSelected : "" %>>Other</option>
                          		<option value="Nares (Lt and Rt)" <%="Nares (Lt and Rt)".equals(str((extraData.get("location")),"")) ? locationSelected : "" %>>Nares (Lt and Rt)</option>
-                         		
+                         		<% } %>
              			 </select>
              			 
              			 <%
@@ -818,12 +863,22 @@ function changeSite(el) {
                          	    <option value=""></option>
                          	    <%
                          	    	String routeSelected = " selected=\"selected\" ";
+
+                    	    	ll = lookupListDao.findByName("RouteOfAdmin");
+                    	    	if(ll != null) {
+                    	    		for(LookupListItem lli : ll.getItems()) {
+                    	    			%>
+                    	    				<option value="<%=lli.getValue() %>" <%=lli.getValue().equals(str((extraData.get("route")),"")) ? routeSelected : "" %>><%=lli.getLabel() %></option>
+                    	    			<%
+                    	    		}
+                    	    	} else {
                          	    %>
                          		<option value="ID" <%="ID".equals(str((extraData.get("route")),"")) ? routeSelected : "" %>>Intradermal: ID</option>
                          		<option value="IM" <%="IM".equals(str((extraData.get("route")),"")) ? routeSelected : "" %>>Intramuscular: IM</option>
                          		<option value="IN" <%="IN".equals(str((extraData.get("route")),"")) ? routeSelected : "" %>>Intranasal: IN</option>
                          		<option value="PO" <%="PO".equals(str((extraData.get("route")),"")) ? routeSelected : "" %>>Oral: PO</option>
                          		<option value="SC" <%="SC".equals(str((extraData.get("route")),"")) ? routeSelected : "" %>>Subcutaneous: SC</option>
+                         		<% } %>
                          	</select>
                          	<br/>
                          	
@@ -850,10 +905,12 @@ function changeSite(el) {
                          			d2 = "mL";
                          		}
                          	%>
-                         <label for="dose">Dose:</label> <input type="text" name="dose"  value="<%=d1%>"/>
+                         	<br/>
+                         <label>Typical Dose: </label><span id="typicalDose"></span><br/><br/>
+                         <label for="dose">Dose:</label> <input type="text" name="dose"  id="dose" value="<%=d1%>"/>
                          <br>
                           <label for="doseUnit">Dose Unit:</label>
-                          <select name="doseUnit">
+                          <select name="doseUnit" id="doseUnit">
 							<option value="" <%="".equals(d2)?"selected=\"selected\" ":"" %>></option>
 							<option value="mL" <%="mL".equals(d2)?"selected=\"selected\" ":"" %>>mL</option>
 							<option value="mg" <%="mg".equals(d2)?"selected=\"selected\" ":"" %>>mg</option>
@@ -1091,11 +1148,15 @@ function changeSite(el) {
    					boolean hasIspaConsent = ispaConsent != null && !ispaConsent.isOptout();
    					boolean hasNonIspaConsent = nonIspaConsent != null && !nonIspaConsent.isOptout();
 
-   					if(dhirEnabled &&  isSSOLoggedIn) {
-   						if((ispa && hasIspaConsent) || (!ispa && hasNonIspaConsent)) {
+   					//if(dhirEnabled &&  isSSOLoggedIn) {
+   					//	if((ispa && hasIspaConsent) || (!ispa && hasNonIspaConsent)) {
                %>
                <input type="submit" value="Save & Submit" name="action" >
-                <% } } %>
+                <% //} 
+   					
+   					//} 
+   					
+   					%>
                <% if ( id != null ) { %>
                <input type="submit" name="delete" value="Delete"/>
                <% } %>

@@ -45,7 +45,7 @@ import org.oscarehr.integration.fhir.resources.constants.ContactType;
  */
 @Entity
 @Table(name="clinic")
-public class Clinic extends AbstractModel<Integer> implements Serializable, ContactInterface {
+public class Clinic extends AbstractModel<Integer> implements Serializable, ContactInterface, org.oscarehr.integration.fhirR4.interfaces.ContactInterface {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

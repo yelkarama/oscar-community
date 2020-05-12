@@ -171,6 +171,18 @@ public class PreventionDao extends AbstractDao<Prevention> {
 		return query.getResultList();
 	}
 	
+	public List<Prevention> findActiveByDemoIdWithDates(Integer demoId, Date startDate, Date endDate) {
+		Query query = entityManager.createQuery("select x from "+modelClass.getSimpleName()+" x where demographicId=?1 and preventionDate>=?2 and preventionDate<=?3 and deleted='0' and refused='0' order by preventionDate DESC");
+		query.setParameter(1, demoId);
+		query.setParameter(2, startDate);
+		query.setParameter(3, endDate);
+
+		@SuppressWarnings("unchecked")
+        List<Prevention> results = query.getResultList();
+
+		return (results);
+	}
+	
 
 	public List<Prevention> findUniqueByDemographicId(Integer demographicId) {
 		Query query = entityManager.createQuery("select x from "+modelClass.getSimpleName()+" x where demographicId=?1 and deleted='0' GROUP BY preventionType ORDER BY preventionDate DESC");

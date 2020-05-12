@@ -647,22 +647,20 @@ request.setAttribute("pageMethod",pageMethod);
 	        url: "<%=request.getContextPath()%>/ws/rs/app/providerLaunchItems",
 	        dataType: 'json',
 	        success: function (data) {
+	        	
+		        	data.forEach(function(dataElement,idx){
+		        		console.log("data "+idx,dataElement);
+		       		jQuery("#buttonArea").append(
+		       		jQuery("<button style='float: right;' id='"+dataElement.link+"'/>")
+		       		    .text(dataElement.heading)
+		       		    .click(function () { window.open('../../ws/rs/app/openProviderPHRWindow/'+dataElement.link); console.log("d",dataElement); }));
+		        	});
 
-	       		for(i =0; i < data.length; i++){
-	        			d = data[i];
-	       			console.log("data "+i,d);
-	       			jQuery("#buttonArea").append(
-	       			jQuery("<button style='float: right;'/>")
-	       		    .text(d.heading)
-	       		    .click(function () { window.open('../../ws/rs/app/openProviderPHRWindow/'+d.link); }));
-
-	       		
-	       		}
 	    		}
 		});
     });
     
-    updatePHRPW
+    
     
    // https://localhost:8081/oscar/ws/rs/app/providerLaunchItems
     	</script>

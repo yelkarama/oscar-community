@@ -6610,6 +6610,7 @@ CREATE TABLE groupMembers_tbl (
   id int(10) NOT NULL auto_increment,
   groupID int(10) default NULL,
   provider_No varchar(6) default NULL,
+  facilityId int(6),
   PRIMARY KEY  (id)
 ) ;
 
@@ -6987,6 +6988,8 @@ CREATE TABLE messagelisttbl (
   provider_no varchar(6) default NULL,
   status varchar(10) default NULL,
   remoteLocation int(10) default NULL,
+  destinationFacilityId int(6),
+  sourceFacilityId int(6),
   PRIMARY KEY(id),
   KEY `message` (`message`),
   KEY `provider_no` (`provider_no`),
@@ -12185,6 +12188,7 @@ CREATE TABLE resident_oscarMsg (
 CREATE TABLE oscar_msg_type (
     type int(10),
     description varchar(255),
+    code varchar(255),
     PRIMARY KEY(type)
 );
 
@@ -12298,6 +12302,9 @@ CREATE TABLE CVCImmunization (
   `prevalence` int,
   `parentConceptId` varchar(255),
   `ispa` tinyint(1),
+   `typicalDose` varchar(255),
+   `typicalDoseUofM` varchar(255),
+   `strength` varchar(255),
   PRIMARY KEY  (`id`)
 );
 
@@ -12493,3 +12500,28 @@ CREATE TABLE AppointmentDxLink (
 			active boolean,
 			KEY(code)
 );
+CREATE TABLE CVCImmunizationName (
+    id int(11) auto_increment,
+    language varchar(30),
+    useSystem varchar(255),
+    useCode varchar(255),
+    useDisplay varchar(255),
+    value varchar(255),
+    PRIMARY KEY(id)
+);
+
+create table DHIRTransactionLog (
+  id int(11) auto_increment,
+  started timestamp not null,
+  initiatingProviderNo varchar(25),
+  transactionType varchar(25),
+  externalSystem varchar(50),
+  demographicNo int(10),
+  resultCode int(10),
+  success tinyint(1),
+  error mediumtext,
+  headers mediumtext,
+  PRIMARY KEY(id)
+);
+
+

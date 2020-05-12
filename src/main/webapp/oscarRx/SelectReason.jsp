@@ -27,7 +27,7 @@
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
-<%@ page import="oscar.oscarRx.data.*,java.util.*,org.oscarehr.common.dao.DrugReasonDao,org.oscarehr.common.model.DrugReason"%>
+<%@ page import="oscar.oscarRx.data.*,java.util.*,org.oscarehr.common.dao.DrugReasonDao,org.oscarehr.common.model.DrugReason,oscar.oscarResearch.oscarDxResearch.bean.*"%>
 <%@page import="org.oscarehr.util.SpringUtils,oscar.util.StringUtils"%>
 <%@ page import="org.oscarehr.common.dao.DxresearchDAO,org.oscarehr.common.model.Dxresearch,org.oscarehr.common.dao.Icd9Dao,org.oscarehr.common.model.Icd9" %>
 <%@ page import="org.oscarehr.util.MiscUtils" %>
@@ -103,6 +103,8 @@ Icd9Dao icd9Dao = (Icd9Dao)  SpringUtils.getBean("Icd9DAO");
 
 pageContext.setAttribute("showQuicklist", showQuicklist);
 
+dxQuickListBeanHandler dxQlBeanHandler = new dxQuickListBeanHandler();
+
 %>
 
 <style type="text/css">
@@ -140,6 +142,12 @@ pageContext.setAttribute("showQuicklist", showQuicklist);
 		$(".codeTxt").css('color','black')
 	}
 	
+	function assignQuickDxLink(id, name) {
+		$("#codeTxt").val(id);
+		$("#jsonDxSearch").val(name);
+		$("#jsonDxSearch").css('color','black')
+	}
+	
 	function toggleArchiveMenu(id) {
 		$('#' + id).toggle();
 	}
@@ -148,7 +156,6 @@ pageContext.setAttribute("showQuicklist", showQuicklist);
 			event.preventDefault();
 			$("#rxReasonForm").submit();
 			opener.location.reload();
-			window.close();
 		})
 		
 	})
@@ -186,20 +193,25 @@ pageContext.setAttribute("showQuicklist", showQuicklist);
 		     <fieldset> 
 		     	<legend>Dx Quick List</legend> 
 		     	
-		        <%-- DX QUICK LIST - returns a table 
-					<logic:equal name="showQuicklist" value="true" scope="page">
-					<tr>
-						<td>
-						<jsp:include page="dxQuickList.jsp" >
-							<jsp:param value="false" name="disable"/>
-							<jsp:param value="${ param.quickList }" name="quickList" />
-							<jsp:param value="${ demographicNo }" name="demographicNo"/>
-							<jsp:param value="${ providerNo }" name="providerNo"/>
-						</jsp:include>
-						</td>
-					</tr>
-					</logic:equal>--%>
-				<%-- DX QUICK LIST --%>
+		     		<%
+					for(dxQuickListBean qlBean: dxQlBeanHandler.getDxQuickListBeanList()){
+							%>
+							<fieldset style="display: inline; vertical-align:top;"> 
+					     	<legend><%=qlBean.getQuickListName() %></legend>
+						     	<% dxQuickListItemsHandler dxQuickList = new dxQuickListItemsHandler(qlBean.getQuickListName());
+									for(dxCodeSearchBean code:dxQuickList.getDxQuickListBeanList()){
+									%>
+									<a href="javascript:void(0);" onclick="assignQuickDxLink('<%=code.getDxSearchCode() %>','<%=code.getDescription() %>');" ><%=code.getDxSearchCode() %> - <%=code.getDescription() %></a><br>
+									<% 
+						     		
+								}
+						     	%>
+					     	</fieldset>
+						<%	
+							
+						}
+			 		%>
+		       
         	</fieldset>
 
 		</td> <!--   Side Bar File --->

@@ -62,6 +62,7 @@ public final class WsUtils {
 				}
 
 				LoggedInInfo.setLoggedInInfoIntoRequest(request, loggedInInfo);
+				loggedInInfo.setLocale(request.getLocale());
 				return (true);
 			}
 			logger.debug("token must not have been valid");
