@@ -36,6 +36,7 @@ import javax.servlet.jsp.tagext.TagSupport;
 import org.apache.log4j.Logger;
 import org.oscarehr.provider.web.CppPreferencesUIBean;
 
+import org.owasp.encoder.Encode;
 import oscar.OscarProperties;
 
 public class CustomInterfaceTag extends TagSupport {
@@ -86,8 +87,13 @@ public class CustomInterfaceTag extends TagSupport {
 					if("main".equals(getSection()) && hide_ConReport){
 						// do nothing
 					} else {
+						String customTag = "";
+						if (customJs.equalsIgnoreCase("ocean")) {
+							customTag = "ocean-host=" + Encode.forUriComponent(props.getProperty("ocean_host"));
+						}
+						
 						int randomNo = new Random().nextInt();
-						out.println("<script src=\""+contextPath+"/js/custom/"+customJs+"/"+getSection()+".js?no-cache="+randomNo+"\"></script>");
+						out.println("<script src=\""+contextPath+"/js/custom/"+customJs+"/"+getSection()+".js?no-cache="+randomNo+"\" " + customTag + " ></script>");
 					}
 				}
 			}catch(IOException e) {

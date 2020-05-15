@@ -1,5 +1,12 @@
 var section = 'consultation';
-window.oceanHost = "https://ocean.cognisantmd.com";
+
+(function (script) {
+    let oceanHost = script.attributes['ocean-host'];
+    if (oceanHost && oceanHost.value) {
+        window.oceanHost = decodeURIComponent(oceanHost.value);
+    }
+})(document.currentScript);
+
 
 jQuery(document).ready(function(){
     jQuery("#ocean").append("<div id='ocean_div'></div>");

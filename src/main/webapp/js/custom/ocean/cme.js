@@ -1,3 +1,9 @@
+(function (script) {
+    let oceanHost = script.attributes['ocean-host'];
+    if (oceanHost && oceanHost.value) {
+        window.oceanHost = decodeURIComponent(oceanHost.value);
+    }
+})(document.currentScript);
  
    jQuery(document).ready(function(){
 	   issueNoteUrls = {
@@ -7,8 +13,27 @@
                divR2I2:    ctx + "/CaseManagementView.do?hc=996633&method=listNotes&providerNo=" + providerNo + "&demographicNo=" + demographicNo + "&issue_code=Reminders&title=" + remindersLabel + "&cmd=divR2I2"                                         
        };
 
-       jQuery.ajax({ url: "../eform/displayImage.do?imagefile=oceanToolbar.js", cache: true, dataType: "script" });
-	   init();	   
+       init();
+       
+       jQuery("#cppBoxes").append("<div id='ocean_div' style='width: 100%; display: none; font-size: 11px;'>Sorry, the Ocean toolbar is currently unavailable.</div>");
+
+       jQuery.ajax({
+           url: window.oceanHost + "/robots.txt",
+           cache: true,
+           dataType: "text",
+           success: function() {
+               jQuery.ajax({
+                   url: window.oceanHost + "/oscar_resources/OscarToolbar.js",
+                   cache: true,
+                   dataType: "script"
+               });
+           },
+           error: function(jqXHR, textStatus, error) {
+               console.log("Ocean toolbar error: " + textStatus + ", " + error);
+               jQuery("#ocean_div").show().css("padding", "5px").
+               css("text-align", "center");
+           }
+       });
      });
 
 
