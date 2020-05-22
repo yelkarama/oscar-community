@@ -26,7 +26,10 @@ package org.oscarehr.ws.rest;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -361,15 +364,17 @@ public class DemographicService extends AbstractServiceImpl {
 		weightType.add("wt");
 		List<Measurement> heights = measurementManager.getMeasurementByType(loggedInInfo, demo.getDemographicNo(), heightType);
 		List<Measurement> weights = measurementManager.getMeasurementByType(loggedInInfo, demo.getDemographicNo(), weightType);
-		List<Measurement> measurements = new ArrayList<>();
-		//Just send most recent measurements
-		if (!heights.isEmpty()) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.add(Calendar.YEAR, -3);
+		List<Measurement> measurements = measurementManager.getMeasurementByDemographicIdObservedAfter(loggedInInfo, demo.getDemographicNo(), calendar.getTime());
+		//Just send most recent height and weight
+		if (!heights.isEmpty() && !measurements.contains(heights.get(0))) {
 			measurements.add(heights.get(0));
 		}
-		if (!weights.isEmpty()) {
+		if (!weights.isEmpty() && !measurements.contains(weights.get(0))) {
 			measurements.add(weights.get(0));
 		}
-		result.setMeasurements(new MeasurementConverter().getAllAsTransferObjects(loggedInInfo, measurements));
+		result.setMeasurements(new MeasurementConverter().getAllAsTransferObjects(loggedInInfo, new ArrayList<>(measurements)));
 		result.setEncounterNotes(noteManager.getCppNotes(loggedInInfo, demo.getDemographicNo()));
 		
 		List<String> singleLineMedications = rxManager.getCurrentSingleLineMedications(loggedInInfo, demo.getDemographicNo());
