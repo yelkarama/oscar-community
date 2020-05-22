@@ -89,8 +89,9 @@ public class MeasurementManager {
 
 	public List<Measurement> getMeasurementByDemographicIdAfter(LoggedInInfo loggedInInfo, Integer demographicId, Date updateAfter) {
 		List<Measurement> results = new ArrayList<Measurement>();
-		ConsentType consentType = patientConsentManager.getProviderSpecificConsent(loggedInInfo);
-		if (patientConsentManager.hasPatientConsented(demographicId, consentType)) {
+		//If the consent type does not exist in the table assume this consent type is not being managed by the clinic, otherwise ensure patient has consented
+		boolean hasConsent = patientConsentManager.hasProviderSpecificConsent(loggedInInfo) || patientConsentManager.getConsentType(ConsentType.PROVIDER_CONSENT_FILTER) == null;
+		if (hasConsent) {
 			results = measurementDao.findByDemographicLastUpdateAfterDate(demographicId, updateAfter);
 			if (results.size() > 0) {
 				LogAction.addLogSynchronous(loggedInInfo, "MeasurementManager.getMeasurementByDemographicIdAfter", "demographicId="+demographicId+" updateAfter="+updateAfter);

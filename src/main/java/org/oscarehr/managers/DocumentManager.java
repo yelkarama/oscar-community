@@ -191,8 +191,9 @@ public class DocumentManager {
 	
 	public List<Document> getDocumentsByDemographicIdUpdateAfterDate(LoggedInInfo loggedInInfo, Integer demographicId, Date updatedAfterThisDateExclusive) {
 		List<Document> results = new ArrayList<Document>();
-		ConsentType consentType = patientConsentManager.getProviderSpecificConsent(loggedInInfo);
-		if (patientConsentManager.hasPatientConsented(demographicId, consentType)) {
+        //If the consent type does not exist in the table assume this consent type is not being managed by the clinic, otherwise ensure patient has consented
+        boolean hasConsent = patientConsentManager.hasProviderSpecificConsent(loggedInInfo) || patientConsentManager.getConsentType(ConsentType.PROVIDER_CONSENT_FILTER) == null;
+        if (hasConsent) {
 			results = documentDao.findByDemographicUpdateAfterDate(demographicId, updatedAfterThisDateExclusive);
 			LogAction.addLogSynchronous(loggedInInfo, "DocumentManager.getDocumentsByDemographicIdUpdateAfterDate", "demographicId="+demographicId+" updatedAfterThisDateExclusive="+updatedAfterThisDateExclusive);
 		}
