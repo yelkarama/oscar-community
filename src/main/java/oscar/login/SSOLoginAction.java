@@ -65,6 +65,8 @@ import org.oscarehr.common.model.ServiceRequestToken;
 import org.oscarehr.common.model.UserProperty;
 import org.oscarehr.decisionSupport.service.DSService;
 import org.oscarehr.integration.OneIDTokenUtils;
+import org.oscarehr.integration.OneIdGatewayData;
+import org.oscarehr.integration.ohcms.CMSManager;
 import org.oscarehr.managers.AppManager;
 import org.oscarehr.phr.util.MyOscarUtils;
 import org.oscarehr.util.LoggedInInfo;
@@ -493,8 +495,15 @@ public final class SSOLoginAction extends MappingDispatchAction {
             Provider provider = providerManager.getProvider(username);
             session.setAttribute(SessionConstants.LOGGED_IN_PROVIDER, provider);
             session.setAttribute(SessionConstants.LOGGED_IN_SECURITY, loginCheck.getSecurity());
-
+            session.setAttribute(SessionConstants.OH_GATEWAY_DATA, new OneIdGatewayData(oneIdToken));
+            
             LoggedInInfo loggedInInfo = LoggedInUserFilter.generateLoggedInInfoFromSession(request);
+            
+            try {
+            		CMSManager.userLogin(loggedInInfo);
+            }catch(Exception e) {
+            		logger.error("Error creating Hub Topic",e);
+            }
             
             if (destination.equals("provider")) {
                 UserProperty drugrefProperty = propDao.getProp(UserProperty.MYDRUGREF_ID);

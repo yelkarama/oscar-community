@@ -42,6 +42,8 @@ import org.hl7.fhir.r4.model.ResourceType;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import org.oscarehr.integration.OneIDTokenUtils;
 import org.oscarehr.integration.TokenExpiredException;
+import org.oscarehr.integration.fhircast.Event;
+import org.oscarehr.util.LoggedInInfo;
 
 import oscar.OscarProperties;
 
@@ -118,5 +120,33 @@ public class OmdGateway {
 			return response2;
 		}
 
+	public Response doGet(LoggedInInfo loggedInInfo, WebClient wc) throws TokenExpiredException {
+		String consumerKey = OscarProperties.getInstance().getProperty("oneid.consumerKey");
+		String consumerSecret = OscarProperties.getInstance().getProperty("oneid.consumerSecret");
+		if(loggedInInfo.getOneIdGatewayData().isAccessTokenExpired()) {
+			throw new TokenExpiredException();
+		}
+		String accessToken = loggedInInfo.getOneIdGatewayData().getAccessToken();
+		
+		Response response2 = wc.header("Authorization", "Bearer " + accessToken).header("X-Gtwy-Client-Id", consumerKey).header("X-Gtwy-Client-Secret", consumerSecret).get();
+		
+		return response2;
+	}
+	
+	public Response doPost(LoggedInInfo loggedInInfo, WebClient wc,Event fhirCastEvent) throws TokenExpiredException {
+		String consumerKey = OscarProperties.getInstance().getProperty("oneid.consumerKey");
+		String consumerSecret = OscarProperties.getInstance().getProperty("oneid.consumerSecret");
+		if(loggedInInfo.getOneIdGatewayData().isAccessTokenExpired()) {
+			throw new TokenExpiredException();
+		}
+		String accessToken = loggedInInfo.getOneIdGatewayData().getAccessToken();
+		
+		Response response2 = wc.header("Authorization", "Bearer " + accessToken).header("X-Gtwy-Client-Id", consumerKey)
+				.header("X-Gtwy-Client-Secret", consumerSecret).header("X-Request-Id", fhirCastEvent.getId())
+				.header("X-Correlation-Id", fhirCastEvent.getId()).header("X-LobTxId", fhirCastEvent.getId())
+				.header("Content-Type", "application/json").post(fhirCastEvent.getFhirCastEvent());
+		
+		return response2;
+	}
 
 }

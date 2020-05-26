@@ -30,10 +30,13 @@
 <%@page import="org.oscarehr.common.dao.UserPropertyDAO"%>
 <%@page import="java.net.URLEncoder"%>
 <%@page import="oscar.OscarProperties"%>
+<%@page import="org.oscarehr.util.LoggedInInfo" %>
+<%@page import="org.oscarehr.integration.ohcms.CMSManager" %>
 <%@page import="java.util.HashMap, oscar.log.*"
 	errorPage="errorpage.jsp"%>
 	
 <%
+	LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(session);
 	Boolean oauth2 = (Boolean) session.getAttribute("oneid_oauth2");
     if(oauth2 == null) {
     	oauth2 = false;
@@ -48,6 +51,7 @@
 	if(!oauth2) {
 		redirectURL = econsultUrl + "/SAML2/logout?oscarReturnURL=" + URLEncoder.encode(oscarUrl + "/logout.jsp","UTF-8");
 	} else {
+    		CMSManager.userLogout(loggedInInfo);
 		redirectURL = OscarProperties.getInstance().getProperty("oneid.oauth2.logoutUrl") +  "/?returnurl=" + URLEncoder.encode(oscarUrl + "/logout.jsp","UTF-8");
 	}
 	

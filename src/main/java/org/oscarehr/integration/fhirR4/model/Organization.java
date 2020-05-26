@@ -170,7 +170,7 @@ public class Organization<T extends AbstractModel<Integer> & ContactInterface> e
 		setIdentifier( identifier );
 	}
 	
-	protected void setIdentifier( Identifier identifier ) {
+	public void setIdentifier( Identifier identifier ) {
 		if( getFhirResource().getIdentifier() != null ) {
 			getFhirResource().getIdentifier().clear();
 		}	
