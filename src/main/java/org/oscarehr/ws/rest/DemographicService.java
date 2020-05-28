@@ -366,7 +366,7 @@ public class DemographicService extends AbstractServiceImpl {
 		List<Measurement> weights = measurementManager.getMeasurementByType(loggedInInfo, demo.getDemographicNo(), weightType);
 		Calendar calendar = Calendar.getInstance();
 		calendar.add(Calendar.YEAR, -3);
-		List<Measurement> measurements = measurementManager.getMeasurementByDemographicIdObservedAfter(loggedInInfo, demo.getDemographicNo(), calendar.getTime());
+		List<Measurement> measurements = measurementManager.getLatestMeasurementsByDemographicIdObservedAfter(loggedInInfo, demo.getDemographicNo(), calendar.getTime());
 		//Just send most recent height and weight
 		if (!heights.isEmpty() && !measurements.contains(heights.get(0))) {
 			measurements.add(heights.get(0));

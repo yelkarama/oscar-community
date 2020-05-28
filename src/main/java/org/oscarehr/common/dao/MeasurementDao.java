@@ -734,10 +734,11 @@ public class MeasurementDao extends AbstractDao<Measurement> {
 		return results;
 	}
 
-	public List<Measurement> findByDemographicObservedAfterDate(Integer demographicId, Date observedAfterDateExclusive) {
-		String sql = "select x from "+modelClass.getSimpleName()+" x where x.demographicId=:demographicId and x.dateObserved>:dateObserved order by x.dateObserved desc";
-
-		Query query = entityManager.createQuery(sql);
+	@NativeSql("measurements")
+	public List<Measurement> findLatestByDemographicObservedAfterDate(Integer demographicId, Date observedAfterDateExclusive) {
+		String sql = "SELECT x.* FROM measurements x LEFT JOIN measurements y ON x.dateObserved < y.dateObserved AND x.type = y.type AND x.demographicNo = y.demographicNo WHERE y.id IS NULL AND x.demographicNo = :demographicId AND x.dateObserved > :dateObserved GROUP BY x.type, x.dateObserved ORDER BY x.dateObserved DESC";
+		
+		Query query = entityManager.createNativeQuery(sql, Measurement.class);
 		query.setParameter("demographicId", demographicId);
 		query.setParameter("dateObserved", observedAfterDateExclusive);
 
