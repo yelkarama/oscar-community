@@ -51,7 +51,11 @@
 	if(!oauth2) {
 		redirectURL = econsultUrl + "/SAML2/logout?oscarReturnURL=" + URLEncoder.encode(oscarUrl + "/logout.jsp","UTF-8");
 	} else {
+		try{
     		CMSManager.userLogout(loggedInInfo);
+		}catch(Exception e){
+			org.oscarehr.util.MiscUtils.getLogger().error("Error logging out of CMS",e);
+		}
 		redirectURL = OscarProperties.getInstance().getProperty("oneid.oauth2.logoutUrl") +  "/?returnurl=" + URLEncoder.encode(oscarUrl + "/logout.jsp","UTF-8");
 	}
 	
