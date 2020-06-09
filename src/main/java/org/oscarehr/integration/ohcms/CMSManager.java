@@ -90,11 +90,9 @@ public class CMSManager {
 		Organization organization = new Organization<org.oscarehr.common.model.Clinic>( clinic );
 		organization.getFhirResource().getMeta().addProfile("http://ehealthontario.ca/fhir/StructureDefinition/ca-on-cms-profile-Organization|1.0.0");
 		Identifier identifier = new Identifier();
-		identifier.setSystem("https://fhir.infoway-inforoute.ca/NamingSystem/ca-on-provider-upi").setValue("103698089424");//2.16.840.1.113883.3.239.9:103698089424");
+		identifier.setSystem("https://fhir.infoway-inforoute.ca/NamingSystem/ca-on-provider-upi").setValue( oneIdGatewayData.getProviderUPI()); 
 		organization.setIdentifier(identifier);
 		userLogin.addContext("organization",organization.getFhirJSON());
-		//ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
-	    //Provider provider = providerDao.getProvider(
 		Practitioner practitioner = new Practitioner(loggedInInfo.getLoggedInProvider());
 		practitioner.getFhirResource().getMeta().addProfile("http://ehealthontario.ca/fhir/StructureDefinition/ca-on-cms-profile-Practitioner|1.0.0");
 		userLogin.addContext("practitioner",practitioner.getFhirJSON());
@@ -275,6 +273,7 @@ public class CMSManager {
 		String uuid = UUID.randomUUID().toString();
 		Event event = new Event(uuid,oneIdGatewayData.getHubTopic(),"OH.legacyLaunch");
 		
+		//createHubTopic.header("contextSessionId", param);
 		org.hl7.fhir.r4.model.Parameters parameters = new org.hl7.fhir.r4.model.Parameters();
 		parameters.setId(UUID.randomUUID().toString() );
 		parameters.getMeta().addProfile("http://ehealthontario.ca/fhir/StructureDefinition/ca-on-cms-profile-Parameters|1.0.0");
@@ -285,7 +284,7 @@ public class CMSManager {
 		event.addContext("parameters",Organization.getFhirContext().newJsonParser().setPrettyPrint(true).encodeResourceToString( parameters ));
 		Response hubTopicResponse = omdGateway.doPost(loggedInInfo,createHubTopic,event);
 		String hubTopicResponseBody = hubTopicResponse.readEntity(String.class);
-		logger.error("userLoginResponse: "+hubTopicResponseBody);
+		logger.error("legacyLaunch: "+hubTopicResponseBody);
 		
 		//Now call consentTargetChange.
 		/*
