@@ -959,7 +959,10 @@ String curProvider_no = (String)session.getAttribute("user");
 						class="xlink" rel="${ctx}/admin/migrateCustomAllergyNonDrug.jsp">
 							Bulk set Custom Allergy Non-Drug flag
 						</a></li>
-						
+					<li><a href='javascript:void(0);'
+						class="xlink" rel="${ctx}/admin/ManageDxBulkRegister.jsp">
+							Bulk set Dx code in Dx Registry
+						</a></li>
 					
 				</ul>
 				
