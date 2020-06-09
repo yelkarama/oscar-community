@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.core.Response;
 
@@ -299,4 +300,16 @@ public class OneIDTokenUtils {
 		
 		return false;
 	}
+	
+	public static String getCompleteURL(HttpServletRequest request) {
+		StringBuffer requestURL = request.getRequestURL();
+		if (request.getQueryString() != null) {
+		    requestURL.append("?").append(request.getQueryString());
+		}
+		String completeURL = requestURL.toString();
+		
+		return completeURL;
+	}
+
+	
 }
