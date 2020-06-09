@@ -57,6 +57,19 @@ angular.module("dhdrServices", [])
                 });
            return deferred.promise;
         },
+        getConsentOveride: function (demographicNo) {
+        	var deferred = $q.defer();
+        	$http({
+                url: this.apiPath+'/dhdr/getConsentOveride?demographicNo='+demographicNo,
+                method: "GET",
+                headers: this.configHeaders,
+              }).then(function(response){
+            	  deferred.resolve(response.data);
+                },function (data, status, headers) {
+                	deferred.reject("An error occured while getting phr content");
+                });
+           return deferred.promise;
+        },
         phrAbilities: function(){
            	var deferred = $q.defer();
            	 $http.post(this.apiPath+'/app/PHRAbilities',this.configHeaders).then(function(response){

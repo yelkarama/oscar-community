@@ -23,17 +23,25 @@
  */
 package org.oscarehr.ws.rest;
 
+import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.log4j.Logger;
 import org.hl7.fhir.r4.model.Bundle;
@@ -50,11 +58,14 @@ import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Medication;
 import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.model.Demographic;
-
+import org.oscarehr.integration.OneIdGatewayData;
 import org.oscarehr.integration.dhdr.DHDRManager;
+import org.oscarehr.integration.ohcms.CMSManager;
+import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.ws.rest.to.DHDRSearchConfig;
 import org.oscarehr.ws.rest.to.model.MedicationDispenseTo1;
+import org.oscarehr.ws.rest.to.model.NotificationTo1;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -188,6 +199,32 @@ public class DHDRService extends AbstractServiceImpl {
 		
 		
 		return medicationDispenseTo1;
+	}
+	
+	
+	@GET
+	@Path("/getConsentOveride")
+	@Produces("application/json")
+	public Response getConsentOveride(@QueryParam("demographicNo") int demographicNo) throws Exception{
+		LoggedInInfo loggedInInfo = getLoggedInInfo();
+		CMSManager.consentTargetChange(loggedInInfo, demographicNo,"http://ehealthontario.ca/fhir/StructureDefinition/ca-on-medications-profile-MedicationDispense");
+		OneIdGatewayData oneIdGatewayData = loggedInInfo.getOneIdGatewayData();
+		String url = oneIdGatewayData.getPCOIUrl()+"?launch="+oneIdGatewayData.getHubTopic()+"&iss="+oneIdGatewayData.getFHIRiss()+"&InheritanceID="+UUID.randomUUID().toString();
+		NotificationTo1 notif = new NotificationTo1();
+		notif.setReferenceURL(url);
+		
+		return Response.ok().entity(notif).build();
+	}
+	
+	
+	@GET
+	@Path("/openClinicalConnect/{demographicNo}")
+	public Response openPHRWindow(@Context HttpServletRequest request,@Context HttpServletResponse response,@PathParam("demographicNo") Integer demographicNo) throws IOException{
+		
+		
+		String redirectUrl = request.getContextPath()+"/common/ClinicalConnectCMS11Redirect.jsp?demographicNo="+demographicNo;
+		response.sendRedirect(request.getContextPath() + "/eho/login2.jsp?alreadyLoggedIn=true&forwardURL=" + URLEncoder.encode(redirectUrl,"UTF-8") );
+		return Response.status(Status.ACCEPTED).build();
 	}
 	
 }

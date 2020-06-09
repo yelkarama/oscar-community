@@ -84,7 +84,7 @@
 				    <label for="exampleInputEmail2">End Date</label>
 				    <input type="date" class="form-control" id="exampleInputEmail2" placeholder="2020-03-31" ng-model="searchConfig.endDate" >
 				  </div>
-				  <button type="submit" class="btn btn-default" ng-click="callSearch();">Search</button>
+				  <button type="submit" class="btn btn-default" ng-click="callSearch();" style="vertical-align: bottom;">Search</button>
 				</form>
 		 		
 		 	</div>
@@ -263,6 +263,11 @@
             <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
         </div>
     </script>
+    <script type="text/ng-template" id="pcoi.html">
+<div class="modal-body" id="modal-body">
+		<iframe id="pcoi-frame" src="{{pcoiUrl}}" sandbox="allow-forms allow-scripts allow-same-origin allow-modals"  width="540" height="600"></iframe>
+<div>
+	</script>
 	<script>
 		var app = angular.module("dhdrView", ['demographicServices','providerServices','dhdrServices','oscarFilters','ui.bootstrap']);
 		
@@ -386,9 +391,38 @@
     		  };
 	    	
 			
-    		  $scope.callConsentBlock = function(){
-    				console.log("callConsentBlock");	  
-    		  
+    		  $scope.callConsentBlock = function($event){
+    				console.log("callConsentBlock");	 
+    				dhdrService.getConsentOveride($scope.demographicNo).then(function(response){
+    					console.log("response.referenceURL",response);
+    					var med = response;
+    					var modalInstance = $modal.open({
+    		    		      
+    		    		      templateUrl: 'pcoi.html',
+    		    		      controller: 'PcoiInstanceCtrl',
+    		    		      controllerAs: 'mpcoi',
+    		    		      parent: angular.element(document.body),
+    		    		      size: 'lg',
+    		    		      appendTo: $event,
+    		    		      resolve: {
+    		    		    	  	
+    		    		    	  		med: function () {
+    		    		          		return med;
+    		    		        		}
+    		    		      }
+    		    		    });
+    					//pcoi message back 
+    					//message { target: Window, isTrusted: true, data: "{\"status\":\"completed\"}", origin: "https://pcoi-pst.apps.dev.ehealthontario.ca", lastEventId: "", source: Restricted https://pcoi-pst.apps.dev.ehealthontario.ca/main, ports: Restricted, srcElement: Window, currentTarget: Window, eventPhase: 2,  }
+    					modalInstance.result.then(function (selectedItem) {
+    						$scope.callSearch();
+    		    		    }, function () {
+    		    		      console.log('Modal dismissed at: ' + new Date());
+    		    		    });
+    					
+    				},function(reason){
+    					alert(reason);
+    				});
+    				
     		  }
 	
 			
@@ -565,7 +599,21 @@ j) Pharmacy Phone Number [Organization.telecom[1].value]
 			
 		app.controller('ModalInstanceCtrl', function ModalInstanceCtrl($scope, $modal, $modalInstance,med){
 			$scope.med = med;
-			console.log("med",med);
+			console.log("ModalInstanceCtrl",med);
+		});
+		
+		app.controller('PcoiInstanceCtrl', function ModalInstanceCtrl($scope, $modal, $modalInstance,med,$sce,$window){
+			
+			$window.addEventListener('message', function(e) {
+
+		        console.log("pcoi message back",e);
+		    		$modalInstance.close(e);	
+
+		    });
+			
+			$scope.med = med;
+			$scope.pcoiUrl = $sce.trustAsResourceUrl(med.referenceURL);
+			console.log("PcoiInstanceCtrl",med);
 		});
 	
 	</script>
