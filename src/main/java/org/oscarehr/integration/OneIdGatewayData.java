@@ -53,10 +53,16 @@ public class OneIdGatewayData {
 	String hubTopic = null;
 	private String cmsLoggedIn = null;
 	private String cmsPatientInContext = null;
+	private String ctxSessionId;
+	private String uao = null;
 	
 	public OneIdGatewayData() {}
 	
 	public OneIdGatewayData(String oneIdString) {
+		processOneIdString(oneIdString); 
+	}
+	
+	public void processOneIdString(String oneIdString) {
 		if (oneIdString != null) {
 			this.oneIdString = oneIdString;
 			try {
@@ -66,18 +72,26 @@ public class OneIdGatewayData {
 				refreshTokenStr = tokens.getString("refresh_token");
 				idTokenStr      = tokens.getString("id_token");
 				String toolbarStr 	  = tokens.getString("toolbar");
-			
+				setCtxSessionId(tokens.getString("contextSessionId"));
 				processAccessToken(accessTokenStr);
 				processRefreshToken(refreshTokenStr);
 				processIdToken(idTokenStr);
 				processToolBar(toolbarStr);
-
-				hubTopic = tokens.optString("hub.topic",null);
+				if(tokens.containsKey("hub.topic")) {
+					hubTopic = tokens.getString("hub.topic");
+				}
 			}catch(Exception e) {
 				logger.error("Error with parsing tokens "+oneIdString,e);
 			}
 		
 		}
+	}
+	
+
+	public String getProviderUPI() {
+		String[] split = uao.split(":");
+		logger.debug("split "+split[1]+" --- "+split);
+		return split[1];
 	}
 	
 	public String getAccessToken() {
@@ -87,6 +101,7 @@ public class OneIdGatewayData {
 	
 	public void processAccessToken(String accessTokenStr) {
 		accessToken = JWT.decode(accessTokenStr);
+		uao = accessToken.getClaim("uao").asString();
 	}
 	
 	public void processRefreshToken(String refreshTokenStr) {
@@ -218,6 +233,22 @@ public class OneIdGatewayData {
 
 	public void setCmsPatientInContext(String cmsPatientInContext) {
 		this.cmsPatientInContext = cmsPatientInContext;
+	}
+
+	public String getCtxSessionId() {
+		return ctxSessionId;
+	}
+
+	public void setCtxSessionId(String ctxSessionId) {
+		this.ctxSessionId = ctxSessionId;
+	}
+
+	public String getUao() {
+		return uao;
+	}
+
+	public void setUao(String uao) {
+		this.uao = uao;
 	}
 	
 }

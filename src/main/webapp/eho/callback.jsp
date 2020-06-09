@@ -70,6 +70,8 @@
 <%@page import="org.apache.commons.lang3.StringUtils"%>
 <%@page import="org.apache.log4j.Logger"%>
 <%@page import="org.oscarehr.util.MiscUtils"%>
+<%@page import="org.oscarehr.integration.OneIdGatewayData"%>
+<%@page import="org.oscarehr.util.SessionConstants"%>
 
 <%
 	Logger logger = MiscUtils.getLogger();
@@ -251,6 +253,13 @@
 	if(alreadyLoggedIn != null && alreadyLoggedIn) {
 		
 		session.setAttribute("oneid_token",body);
+		OneIdGatewayData oneIdGateWayData = (OneIdGatewayData) session.getAttribute(SessionConstants.OH_GATEWAY_DATA);
+		if(oneIdGateWayData != null ){
+			oneIdGateWayData.processOneIdString(body);
+		}else{
+			session.setAttribute(SessionConstants.OH_GATEWAY_DATA, new OneIdGatewayData(body));
+		}
+		
 		String forwardURL = (String)session.getAttribute("eho_verifier-" + state + ".forwardURL");	
 		response.sendRedirect(forwardURL);
 		return;
