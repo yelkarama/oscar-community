@@ -273,7 +273,7 @@ public class ConsultationWebService extends AbstractServiceImpl {
 		consultationManager.saveConsultationRequest(getLoggedInInfo(), request);
 
 		//save attachments
-		if (data.getAttachments().isEmpty()) {
+		if (!data.getAttachments().isEmpty()) {
 			saveRequestAttachments(data);
 		}
 		
