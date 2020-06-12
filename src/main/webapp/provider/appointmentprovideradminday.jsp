@@ -73,6 +73,7 @@
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.util.MiscUtils" %>
 <%@ page import="org.oscarehr.util.SessionConstants" %>
+<%@ page import="java.util.Date" %>
 
 <!-- add by caisi -->
 <%@ taglib uri="http://www.caisi.ca/plugin-tag" prefix="plugin" %>
@@ -349,6 +350,8 @@ public boolean patientHasOutstandingPrivateBills(String demographicNo){
 	UserProperty oldEchartLink = propDao.getProp(curUser_no, UserProperty.HIDE_OLD_ECHART_LINK_IN_APPT);
 	if (oldEchartLink!=null && "Y".equals(oldEchartLink.getValue())) showOldEchartLink = false;
 
+	SimpleDateFormat appointmentDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+	
 if (org.oscarehr.common.IsPropertiesOn.isCaisiEnable() && org.oscarehr.common.IsPropertiesOn.isTicklerPlusEnable()){
 	newticklerwarningwindow = (String) session.getAttribute("newticklerwarningwindow");
 	default_pmm = (String)session.getAttribute("default_pmm");
@@ -2165,12 +2168,11 @@ start_time += iSm + ":00";
 
       <%String appointment_no=appointment.getId().toString();
       	request.setAttribute("providerPreference", providerPreference);
-      	
-      	String appointmentDate = strYear + "-" + strMonth + "-" + strDay + "T" + start_time + ".000Z";
+      	Date appointmentDate = appointmentDateTimeFormat.parse(strYear + "-" + strMonth + "-" + strDay + " " + start_time);
       %>
       <c:set var="demographic_no" value="<%=demographic_no %>" />
       <c:set var="appointment_no" value="<%=appointment_no %>" />
-      <c:set var="appointment_date" value="<%=appointmentDate%>" />
+      <c:set var="appointment_date" value="<%=appointmentDate.getTime()%>" />
       
 	  <jsp:include page="appointmentFormsLinks.jspf">	  	
 	  	<jsp:param value="${demographic_no}" name="demographic_no"/>
