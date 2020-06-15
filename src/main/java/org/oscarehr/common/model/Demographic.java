@@ -122,6 +122,7 @@ public class Demographic implements Serializable {
     private String countryOfOrigin;
     private String newsletter;
     
+    private String cellPhone;
 
         public String getTitle() {
         	return title;
@@ -1242,5 +1243,14 @@ public class Demographic implements Serializable {
 		}
 		return sb.toString();
 	}
+
+	public String getCellPhone() {
+		return cellPhone;
+	}
+
+	public void setCellPhone(String cellPhone) {
+		this.cellPhone = cellPhone;
+	}
+	
 	
 }

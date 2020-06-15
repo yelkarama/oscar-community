@@ -458,7 +458,7 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 			switch( SearchType.valueOf( searchType ) ) {
 			
 			case SEARCH_PHONE :
-				sql += " (d.Phone like :phone"+x+" or d.Phone2 like :phone"+x+") ";
+				sql += " ((d.Phone like :phone"+x+" or d.Phone2 like :phone"+x+") or (d.cellPhone like :phone"+x+" )) ";
 				paramMap.put("phone"+x, searchStr.trim() + "%");
 				break;
 			case SEARCH_DOB:
