@@ -289,6 +289,8 @@ public class ConsultationManager {
 			
 		} else {
 			checkPrivilege(loggedInInfo, SecurityInfoManager.UPDATE);
+
+			archiveConsultationRequest(request.getId());
 			
 			consultationRequestDao.merge(request);
 
