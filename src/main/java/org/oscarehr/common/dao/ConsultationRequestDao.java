@@ -73,10 +73,10 @@ public class ConsultationRequestDao extends AbstractDao<ConsultationRequest> {
         public List<ConsultationRequest> getConsults(String team, boolean showCompleted, Date startDate, Date endDate, String orderby, String desc, String searchDate, Integer offset, Integer limit, Integer mrpNo, Integer patientId, Integer urgencyFilter, Integer serviceFilter, Integer consultantFilter) {
 		
 			StringBuilder sql = new StringBuilder("SELECT IF(c.serviceId != 0, c.serviceDesc, ext.value) AS serviceName, cr.* " +
-					"FROM consultationrequests cr " +
-					"LEFT JOIN professionalspecialists ps ON cr.specId = ps.specId " +
-					"LEFT JOIN consultationservices c ON cr.serviceId = c.serviceId " +
-					"LEFT JOIN consultationrequestext ext ON cr.requestId = ext.requestId AND ext.name = 'ereferral_service' " +
+					"FROM consultationRequests cr " +
+					"LEFT JOIN professionalSpecialists ps ON cr.specId = ps.specId " +
+					"LEFT JOIN consultationServices c ON cr.serviceId = c.serviceId " +
+					"LEFT JOIN consultationRequestExt ext ON cr.requestId = ext.requestId AND ext.name = 'ereferral_service' " +
 					"LEFT JOIN demographic d on cr.demographicNo = d.demographic_no " +
 					"LEFT JOIN provider p on d.provider_no = p.provider_no ");
 			StringBuilder whereSql = new StringBuilder();
