@@ -258,8 +258,7 @@ public class Patient extends AbstractOscarFhirResource< org.hl7.fhir.r4.model.Pa
 	
 	private void setPatientIdentifier( org.hl7.fhir.r4.model.Patient patient ) {		
 		patient.addIdentifier()
-			//.setSystem( "https://ehealthontario.ca/API/FHIR/NamingSystem/ca-on-patient-hcn" ) //supposedly won't cause an issue with the DHIR Submit
-			.setSystem( "https://fhir.infoway-inforoute.ca/NamingSystem/ca-on-patient-hcn")
+			.setSystem( "https://ehealthontario.ca/API/FHIR/NamingSystem/ca-on-patient-hcn" ) 
 			.setValue( getOscarResource().getHin() );
 		
 		if( include( OptionalFHIRAttribute.mrn ) ) {	
