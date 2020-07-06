@@ -45,9 +45,6 @@ import org.oscarehr.common.model.Demographic;
 
 import org.oscarehr.integration.OneIdGatewayData;
 import org.oscarehr.integration.dhdr.OmdGateway;
-import org.oscarehr.integration.fhirR4.model.Organization;
-import org.oscarehr.integration.fhirR4.model.Practitioner;
-import org.oscarehr.integration.fhirR4.model.Patient;
 import org.oscarehr.integration.fhircast.Event;
 import org.oscarehr.integration.fhircast.UserLogin;
 
@@ -76,6 +73,8 @@ public class CMSManager {
 
 		ClinicDAO clinicDao = SpringUtils.getBean(ClinicDAO.class);
 		
+		FhirResources fhirResources = new FhirResources();
+		
 		OmdGateway omdGateway = new OmdGateway();
 		OneIdGatewayData oneIdGatewayData = loggedInInfo.getOneIdGatewayData();
 		
@@ -87,45 +86,23 @@ public class CMSManager {
 		String uuid = UUID.randomUUID().toString();
 		UserLogin userLogin = new UserLogin(uuid,oneIdGatewayData.getHubTopic());
 		Clinic clinic = clinicDao.getClinic();
-		Organization organization = new Organization<org.oscarehr.common.model.Clinic>( clinic );
-		organization.getFhirResource().getMeta().addProfile("http://ehealthontario.ca/fhir/StructureDefinition/ca-on-cms-profile-Organization|1.0.0");
-		Identifier identifier = new Identifier();
-		identifier.setSystem("https://fhir.infoway-inforoute.ca/NamingSystem/ca-on-provider-upi").setValue( oneIdGatewayData.getProviderUPI()); 
-		organization.setIdentifier(identifier);
-		userLogin.addContext("organization",organization.getFhirJSON());
-		Practitioner practitioner = new Practitioner(loggedInInfo.getLoggedInProvider());
-		practitioner.getFhirResource().getMeta().addProfile("http://ehealthontario.ca/fhir/StructureDefinition/ca-on-cms-profile-Practitioner|1.0.0");
-		userLogin.addContext("practitioner",practitioner.getFhirJSON());
-		/*
-		 "resource": {
-          "resourceType": "Parameters",
-          "id": "7336f5e9-b484-4e2e-9669-9491dd99ce3f",
-          "meta": {
-          "profile": "http://ehealthontario.ca/fhir/StructureDefinition/ca-on-cms-profile-Parameters|1.0"
-             },
-          "parameter": [
-            {
-              "name": "appLanguage",
-              "valueCoding": {
-                "system": "urn:ietf:bcp:47",
-                "code": "en"
-              }
-            }
-          ]
-        } 
-		 */
-		org.hl7.fhir.r4.model.Parameters parameters = new org.hl7.fhir.r4.model.Parameters();
-		parameters.setId(UUID.randomUUID().toString() );
-		parameters.getMeta().addProfile("http://ehealthontario.ca/fhir/StructureDefinition/ca-on-cms-profile-Parameters|1.0.0");
-		Coding coding = new Coding();
-		coding.setCode("en");
-		coding.setSystem("urn:ietf:bcp:47");
-		parameters.addParameter().setName("appLanguage").setValue(coding);
-		userLogin.addContext("parameters",Organization.getFhirContext().newJsonParser().setPrettyPrint(true).encodeResourceToString( parameters ));
+		
+		userLogin.addContext("organization",fhirResources.getString(fhirResources.getOrganization(loggedInInfo)));
+		
+		userLogin.addContext("practitioner",fhirResources.getString(fhirResources.getPractitioner(loggedInInfo)));
+		
+		userLogin.addContext("parameters",fhirResources.getString(fhirResources.getLanguageParameter(loggedInInfo, UUID.randomUUID().toString(), "en")));
 		Response hubTopicResponse = omdGateway.doPost(loggedInInfo,createHubTopic,userLogin);
 		String hubTopicResponseBody = hubTopicResponse.readEntity(String.class);
 		logger.error("userLoginResponse: "+hubTopicResponseBody);
-		oneIdGatewayData.setCmsLoggedIn(hubTopicResponseBody);
+		if(hubTopicResponse.getStatus() >= 200 && hubTopicResponse.getStatus() < 300) {
+			oneIdGatewayData.setCmsLoggedIn(hubTopicResponseBody);
+		}else if(hubTopicResponse.getStatus() >= 400 && hubTopicResponseBody != null) {
+			throw new CMSException(hubTopicResponseBody);
+		}else {
+			throw new CMSException();
+		}
+		
 		return null;
 	}
 	
@@ -138,7 +115,7 @@ public class CMSManager {
 
 		DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
 		Demographic demographic = demographicDao.getDemographicById(demographicNo);
-		
+		FhirResources fhirResources = new FhirResources();
 		OmdGateway omdGateway = new OmdGateway();
 		OneIdGatewayData oneIdGatewayData = loggedInInfo.getOneIdGatewayData();
 		
@@ -150,14 +127,21 @@ public class CMSManager {
 		String uuid = UUID.randomUUID().toString();
 		Event event = new Event(uuid,oneIdGatewayData.getHubTopic(),"Patient-open");
 		
-		Patient organization = new Patient( demographic );
-		organization.getFhirResource().getMeta().addProfile("http://ehealthontario.ca/fhir/StructureDefinition/ca-on-cms-profile-Patient|1.0.0");
-		
-		event.addContext("patient",organization.getFhirJSON());
+		event.addContext("patient",fhirResources.getString(fhirResources.getPatient(loggedInInfo,demographic)));
 		Response hubTopicResponse = omdGateway.doPost(loggedInInfo,createHubTopic,event);
 		String hubTopicResponseBody = hubTopicResponse.readEntity(String.class);
 		logger.error("patientOpen: "+hubTopicResponseBody);
-		oneIdGatewayData.setCmsPatientInContext(""+demographicNo);
+		
+		if(hubTopicResponse.getStatus() >= 200 && hubTopicResponse.getStatus() < 300) {
+			oneIdGatewayData.setCmsPatientInContext(""+demographicNo);
+		}else if(hubTopicResponse.getStatus() >= 400 && hubTopicResponseBody != null) {
+			throw new CMSException(hubTopicResponseBody);
+		}else {
+			throw new CMSException();
+		}
+		
+		
+		
 		//NEED to set the patient that is open in the cms
 		return null;
 	}
@@ -167,7 +151,7 @@ public class CMSManager {
 
 		DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
 		Demographic demographic = demographicDao.getDemographicById(demographicNo);
-		
+		FhirResources fhirResources = new FhirResources();
 		OmdGateway omdGateway = new OmdGateway();
 		OneIdGatewayData oneIdGatewayData = loggedInInfo.getOneIdGatewayData();
 		
@@ -180,10 +164,7 @@ public class CMSManager {
 		String uuid = UUID.randomUUID().toString();
 		Event event = new Event(uuid,oneIdGatewayData.getHubTopic(),"Patient-close");
 		
-		Patient organization = new Patient( demographic );
-		organization.getFhirResource().getMeta().addProfile("http://ehealthontario.ca/fhir/StructureDefinition/ca-on-cms-profile-Patient|1.0.0");
-		
-		event.addContext("patient",organization.getFhirJSON());
+		event.addContext("patient",fhirResources.getString(fhirResources.getPatient(loggedInInfo,demographic)));
 		Response hubTopicResponse = omdGateway.doPost(loggedInInfo,createHubTopic,event);
 		String hubTopicResponseBody = hubTopicResponse.readEntity(String.class);
 		logger.error("patientOpen: "+hubTopicResponseBody);
@@ -207,18 +188,12 @@ public class CMSManager {
 		}
 		patientInContext = oneIdGatewayData.getCmsPatientInContext();
 		OmdGateway omdGateway = new OmdGateway();
+		FhirResources fhirResources = new FhirResources();
 		WebClient createHubTopic = omdGateway.getWebClientWholeURL(oneIdGatewayData.getCMSUrl());
 		String uuid = UUID.randomUUID().toString();
 		Event event = new Event(uuid,oneIdGatewayData.getHubTopic(),"OH.consentTargetChange");
 		
-		org.hl7.fhir.r4.model.Parameters parameters = new org.hl7.fhir.r4.model.Parameters();
-		parameters.setId(UUID.randomUUID().toString() );
-		parameters.getMeta().addProfile("http://ehealthontario.ca/fhir/StructureDefinition/ca-on-cms-profile-Parameters|1.0.0");
-		StringType stringType = new StringType();
-		stringType.setValue(param);
-		
-		parameters.addParameter().setName("consentTarget").setValue(stringType);
-		event.addContext("parameters",Organization.getFhirContext().newJsonParser().setPrettyPrint(true).encodeResourceToString( parameters ));
+		event.addContext("parameters",fhirResources.getString(fhirResources.getConsentTargetParameter(loggedInInfo,UUID.randomUUID().toString(),param)));
 		Response hubTopicResponse = omdGateway.doPost(loggedInInfo,createHubTopic,event);
 		String hubTopicResponseBody = hubTopicResponse.readEntity(String.class);
 		logger.error("userLoginResponse: "+hubTopicResponseBody);
@@ -269,19 +244,12 @@ public class CMSManager {
 		}
 		patientInContext = oneIdGatewayData.getCmsPatientInContext();
 		OmdGateway omdGateway = new OmdGateway();
+		FhirResources fhirResources = new FhirResources();
 		WebClient createHubTopic = omdGateway.getWebClientWholeURL(oneIdGatewayData.getCMSUrl());
 		String uuid = UUID.randomUUID().toString();
 		Event event = new Event(uuid,oneIdGatewayData.getHubTopic(),"OH.legacyLaunch");
 		
-		//createHubTopic.header("contextSessionId", param);
-		org.hl7.fhir.r4.model.Parameters parameters = new org.hl7.fhir.r4.model.Parameters();
-		parameters.setId(UUID.randomUUID().toString() );
-		parameters.getMeta().addProfile("http://ehealthontario.ca/fhir/StructureDefinition/ca-on-cms-profile-Parameters|1.0.0");
-		IdType stringType = new IdType();
-		stringType.setValue(param);
-		
-		parameters.addParameter().setName("contextSessionId").setValue(stringType);
-		event.addContext("parameters",Organization.getFhirContext().newJsonParser().setPrettyPrint(true).encodeResourceToString( parameters ));
+		event.addContext("parameters",fhirResources.getString(fhirResources.getContextSessionIdParameter(loggedInInfo,UUID.randomUUID().toString(),param)));
 		Response hubTopicResponse = omdGateway.doPost(loggedInInfo,createHubTopic,event);
 		String hubTopicResponseBody = hubTopicResponse.readEntity(String.class);
 		logger.error("legacyLaunch: "+hubTopicResponseBody);
