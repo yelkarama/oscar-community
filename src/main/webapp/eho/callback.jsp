@@ -72,13 +72,24 @@
 <%@page import="org.oscarehr.util.MiscUtils"%>
 <%@page import="org.oscarehr.integration.OneIdGatewayData"%>
 <%@page import="org.oscarehr.util.SessionConstants"%>
+<%@page import="org.oscarehr.common.dao.SecurityDao"%>
+<%@page import="org.oscarehr.common.model.Security"%>
+<%@page import="org.oscarehr.common.dao.UAODao"%>
+<%@page import="org.oscarehr.common.model.UAO"%>
+<%@page import="org.oscarehr.util.SpringUtils"%>
+<%@page import="org.oscarehr.integration.dhdr.OmdGateway"%>
+<%@page import="java.util.List"%>
+<%@page import="org.oscarehr.common.dao.OMDGatewayTransactionLogDao"%>
+<%@page import="org.oscarehr.common.model.OMDGatewayTransactionLog,org.oscarehr.util.LoggedInInfo"%>
+
 
 <%
 	Logger logger = MiscUtils.getLogger();
 
     		logger.debug("	request.getQueryString() "+request.getQueryString());
-    		
-    		
+    		String rethap = "n/a";
+    		JSONObject reqParams = new JSONObject();
+    		reqParams.accumulateAll(request.getParameterMap());
     		for (Entry<String, String[]> entry : request.getParameterMap().entrySet()) {
     			StringBuilder sb = new StringBuilder();
     			int i = 1;
@@ -91,6 +102,13 @@
     			
     		}
 
+    	OMDGatewayTransactionLogDao omdGatewayTransactionLogDao = SpringUtils.getBean(OMDGatewayTransactionLogDao.class);
+    	LoggedInInfo loggedInInfo =LoggedInInfo.getLoggedInInfoFromSession(request);
+    	OMDGatewayTransactionLog omdGatewayTransactionLog = OmdGateway.getOMDGatewayTransactionLog(loggedInInfo, null, "Auth", "CALL-BACK");
+    	omdGatewayTransactionLog.setDataSent(reqParams.toString(3));
+    	omdGatewayTransactionLogDao.persist(omdGatewayTransactionLog);
+    	
+    	
 	String toolbar = request.getParameter("toolbar");
 	String iss = request.getParameter("iss");
 	String state = request.getParameter("state");
@@ -244,12 +262,47 @@
 	String subject = idTokenJWT.getSubject();
 	String contextSessionId = idTokenJWT.getClaim("contextSessionId").asString();
 	String email = idTokenJWT.getClaim("email").asString();
-	String serviceEntitlementsEncoded = idTokenJWT.getClaim("serviceEntitlements").asString();
-	String serviceEntitlements = new String( Base64.decodeBase64(serviceEntitlementsEncoded));
+	//String serviceEntitlementsEncoded = idTokenJWT.getClaim("serviceEntitlements").asString();
+	//String serviceEntitlements = new String( Base64.decodeBase64(serviceEntitlementsEncoded));
 	
-	JSONObject serviceEntitlementsJSON = JSONObject.fromObject(serviceEntitlements);
+	//JSONObject serviceEntitlementsJSON = JSONObject.fromObject(serviceEntitlements);
+	
+	SecurityDao securityDao = (SecurityDao) SpringUtils.getBean("securityDao");
+	List<Security> securityResults = securityDao.findByOneIdKey(subject); 
+	
+	/*
+	Can i seperate this into two sections, one section sets the uao if it hasn't been set and the other sets the 		
+	
+	*/
 	
 	
+	if (securityResults != null && securityResults.size() > 0) {
+		
+		Security securityRecord = securityResults.get(0);
+		UAODao uaoDao = SpringUtils.getBean(UAODao.class);
+		List<UAO> uaolist = uaoDao.findByProvider(securityRecord.getProviderNo());
+		
+		if(uaolist.size() > 0) {
+			OneIdGatewayData oneIdGateWayData = (OneIdGatewayData) session.getAttribute(SessionConstants.OH_GATEWAY_DATA);
+			oneIdGateWayData.setUao(uaolist.get(0).getName());
+			logger.info("Set UAO for provider "+securityRecord.getProviderNo()+" to "+uaolist.get(0).getName());
+		
+			boolean hasNeededScope = oneIdGateWayData.hasScope(OneIdGatewayData.fullScope);
+			boolean hasNeededProfile = oneIdGateWayData.hasProfile(OneIdGatewayData.fullProfile);
+			if(hasNeededScope && hasNeededProfile){
+				logger.info("no more scope needed for "+securityRecord.getProviderNo());
+			}else{
+				String appendIfLoggedIn = "";
+				if(alreadyLoggedIn != null && alreadyLoggedIn) {
+					appendIfLoggedIn = "?alreadyLoggedIn=true";
+				}
+				response.sendRedirect(request.getContextPath() + "/eho/login2.jsp"+appendIfLoggedIn);
+				return;
+			}
+		}
+	}
+	
+	logger.info("checking if already logged In "+alreadyLoggedIn);
 	if(alreadyLoggedIn != null && alreadyLoggedIn) {
 		
 		session.setAttribute("oneid_token",body);
@@ -261,10 +314,12 @@
 		}
 		
 		String forwardURL = (String)session.getAttribute("eho_verifier-" + state + ".forwardURL");	
+		logger.info("about to forward too "+forwardURL);
 		response.sendRedirect(forwardURL);
 		return;
 		
 	} else {
+		logger.info("going to foward to loginForm");
 		//TODO: Not sure what we can do with this ID token, 
 		
 		//{"UAO":[{"type":"Organization","id":"2.16.840.1.113883.3.239.9:103698089424","friendName":"Sinai Health System","service":[{"name":"DHDR","attribute":[{"name":"scope","value":"user/MedicationDispense.read;user/Consent.write"},{"name":"_profile","value":"http%3A%2F%2Fehealthontario.ca%2FStructureDefinition%2Fca-on-dhdr-profile-MedicationDispense"}]},{"name":"DHIR","attribute":[{"name":"scope","value":"user/Immunization.read;user/Immunization.write"},{"name":"_profile","value":"http%3A%2F%2Fehealthontario.ca%2FStructureDefinition%2Fca-on-dhir-profile-Immunization"}]},{"name":"DHIR","attribute":[{"name":"scope","value":"user/Patient.read"},{"name":"_profile","value":"http%3A%2F%2Fehealthontario.ca%2FStructureDefinition%2Fca-on-dhir-profile-Patient"}]}]}]}
