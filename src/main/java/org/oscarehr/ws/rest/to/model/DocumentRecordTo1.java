@@ -38,8 +38,6 @@ public class DocumentRecordTo1 {
 	private Integer ctlModuleId;
 	private String ctlStatus;
 
-	private List<DocumentReviewTo1> reviews = new ArrayList<>();
-
 	public Integer getDocumentNo() {
 		return documentNo;
 	}
@@ -230,14 +228,6 @@ public class DocumentRecordTo1 {
 
 	public void setRestrictToProgram(Boolean restrictToProgram) {
 		this.restrictToProgram = restrictToProgram;
-	}
-
-	public List<DocumentReviewTo1> getReviews() {
-		return reviews;
-	}
-
-	public void setReviews(List<DocumentReviewTo1> reviews) {
-		this.reviews = reviews;
 	}
 
 	public byte[] getFileContents() {

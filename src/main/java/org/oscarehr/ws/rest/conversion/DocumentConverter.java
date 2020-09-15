@@ -33,13 +33,6 @@ public class DocumentConverter extends AbstractConverter<Document, DocumentRecor
         d.setAppointmentNo(t.getAppointmentNo());
         d.setAbnormal(t.getAbnormal() ? 1 : 0);
         d.setRestrictToProgram(t.getRestrictToProgram());
-
-        if(t.getReviews() != null){
-            DocumentReviewConverter reviewConverter = new DocumentReviewConverter();
-            for(DocumentReviewTo1 reviewTo1: t.getReviews()){
-                d.getReviews().add(reviewConverter.getAsDomainObject(loggedInInfo, reviewTo1));
-            }
-        }
         
         return d;
     }
@@ -70,11 +63,6 @@ public class DocumentConverter extends AbstractConverter<Document, DocumentRecor
         t.setAppointmentNo(d.getAppointmentNo());
         t.setAbnormal(d.getAbnormal() > 0);
         t.setRestrictToProgram(d.isRestrictToProgram());
-
-        if(d.getReviews() != null){
-            DocumentReviewConverter reviewConverter = new DocumentReviewConverter();
-            t.setReviews(reviewConverter.getAllAsTransferObjects(loggedInInfo, d.getReviews()));
-        }
 
         return t;
     }

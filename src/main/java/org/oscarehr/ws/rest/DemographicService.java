@@ -530,7 +530,7 @@ public class DemographicService extends AbstractServiceImpl {
 					Document document = documentManager.addDocument(getLoggedInInfo(), documentConverter.getAsDomainObject(getLoggedInInfo(), documentTo1), ctlDocument);
 					documentTo1.setDocumentNo(document.getDocumentNo());
 					responseDocuments.add(documentTo1);
-				} catch (IOException e) {
+				} catch (Exception e) {
 					logger.error("And error has occured copying the document", e);
 				}
 			}
