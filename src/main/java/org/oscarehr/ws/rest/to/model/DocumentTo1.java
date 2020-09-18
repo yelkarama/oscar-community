@@ -1,109 +1,264 @@
-/**
- * Copyright (c) 2001-2002. Department of Family Medicine, McMaster University. All Rights Reserved.
- * This software is published under the GPL GNU General Public License.
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- * This software was written for the
- * Department of Family Medicine
- * McMaster University
- * Hamilton
- * Ontario, Canada
- */
 package org.oscarehr.ws.rest.to.model;
 
-public class DocumentTo1 implements Comparable<DocumentTo1> {
-	
-	private int id;
-	private String name;
-	private String category;
-	private String documentDate;
-	private String documentTable;
-	private String documentDescription;
-	private String contentType;
-	
-	public DocumentTo1( int id, String name, String documentDate, String category, String contentType) {
-		setId(id);
-		setName(name);
-		setDocumentDate(documentDate);
-		setCategory(category);
-		setDocumentTable("");
-		setContentType(contentType);
-	}
-	
-	public DocumentTo1( int id, String name, String documentDate, String category, String contentType, String documentTable) {
-		this(id, name, documentDate, category, contentType);
-		setDocumentTable(documentTable);
-	}
-	
-	public int getId() {
-		return id;
-	}
-	public void setId(int id) {
-		this.id = id;
-	}
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	public String getCategory() {
-		return category;
-	}
-	public void setCategory(String category) {
-		this.category = category;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+@XmlRootElement
+public class DocumentTo1 {
+	private Integer documentNo;
+	private String doctype;
+	private String docClass;
+	private String docSubClass;
+	private String docdesc;
+	private String docxml;
+	private String docfilename;
+	private String doccreator;
+	private String responsible;
+	private String source;
+	private String sourceFacility;
+	private Integer programId;
+	private Date updatedatetime;
+	private char status;
+	private String contenttype;
+	private Date contentdatetime;
+	private String reportMedia;
+	private Date sentDateTime;
+	private int public1;
+	private Date observationdate;
+	private Integer numberofpages;
+	private Integer appointmentNo;
+	private Boolean abnormal;
+	private Boolean restrictToProgram=false;
+
+	private byte[] fileContents;
+
+	private String ctlModule = "";
+	private Integer ctlModuleId;
+	private String ctlStatus;
+
+	public Integer getDocumentNo() {
+		return documentNo;
 	}
 
-	public String getDocumentDate() {
-		return documentDate;
+	public void setDocumentNo(Integer documentNo) {
+		this.documentNo = documentNo;
 	}
 
-	public void setDocumentDate(String documentDate) {
-		this.documentDate = documentDate;
+	public String getDoctype() {
+		return doctype;
 	}
 
-	public String getDocumentTable() {
-		return documentTable;
+	public void setDoctype(String doctype) {
+		this.doctype = doctype;
 	}
 
-	public void setDocumentTable(String documentTable) {
-		this.documentTable = documentTable;
+	public String getDocClass() {
+		return docClass;
 	}
 
-	public String getDocumentDescription() {
-		return documentDescription;
+	public void setDocClass(String docClass) {
+		this.docClass = docClass;
 	}
 
-	public void setDocumentDescription(String documentDescription) {
-		this.documentDescription = documentDescription;
+	public String getDocSubClass() {
+		return docSubClass;
 	}
 
-	public String getContentType() {
-		return contentType;
+	public void setDocSubClass(String docSubClass) {
+		this.docSubClass = docSubClass;
 	}
 
-	public void setContentType(String contentType) {
-		this.contentType = contentType;
+	public String getDocdesc() {
+		return docdesc;
 	}
 
-	@Override
-	public int compareTo(DocumentTo1 arg0) {
-		if (arg0.getDocumentDate() == null || arg0.getDocumentDate() == null) {
-			return 0;
-		}
-		return getDocumentDate().compareTo(arg0.getDocumentDate());
+	public void setDocdesc(String docdesc) {
+		this.docdesc = docdesc;
 	}
 
+	public String getDocxml() {
+		return docxml;
+	}
+
+	public void setDocxml(String docxml) {
+		this.docxml = docxml;
+	}
+
+	public String getDocfilename() {
+		return docfilename;
+	}
+
+	public void setDocfilename(String docfilename) {
+		this.docfilename = docfilename;
+	}
+
+	public String getDoccreator() {
+		return doccreator;
+	}
+
+	public void setDoccreator(String doccreator) {
+		this.doccreator = doccreator;
+	}
+
+	public String getResponsible() {
+		return responsible;
+	}
+
+	public void setResponsible(String responsible) {
+		this.responsible = responsible;
+	}
+
+	public String getSource() {
+		return source;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
+	}
+
+	public String getSourceFacility() {
+		return sourceFacility;
+	}
+
+	public void setSourceFacility(String sourceFacility) {
+		this.sourceFacility = sourceFacility;
+	}
+
+	public Integer getProgramId() {
+		return programId;
+	}
+
+	public void setProgramId(Integer programId) {
+		this.programId = programId;
+	}
+
+	public Date getUpdatedatetime() {
+		return updatedatetime;
+	}
+
+	public void setUpdatedatetime(Date updatedatetime) {
+		this.updatedatetime = updatedatetime;
+	}
+
+	public char getStatus() {
+		return status;
+	}
+
+	public void setStatus(char status) {
+		this.status = status;
+	}
+
+	public String getContenttype() {
+		return contenttype;
+	}
+
+	public void setContenttype(String contenttype) {
+		this.contenttype = contenttype;
+	}
+
+	public Date getContentdatetime() {
+		return contentdatetime;
+	}
+
+	public void setContentdatetime(Date contentdatetime) {
+		this.contentdatetime = contentdatetime;
+	}
+
+	public String getReportMedia() {
+		return reportMedia;
+	}
+
+	public void setReportMedia(String reportMedia) {
+		this.reportMedia = reportMedia;
+	}
+
+	public Date getSentDateTime() {
+		return sentDateTime;
+	}
+
+	public void setSentDateTime(Date sentDateTime) {
+		this.sentDateTime = sentDateTime;
+	}
+
+	public int getPublic1() {
+		return public1;
+	}
+
+	public void setPublic1(int public1) {
+		this.public1 = public1;
+	}
+
+	public Date getObservationdate() {
+		return observationdate;
+	}
+
+	public void setObservationdate(Date observationdate) {
+		this.observationdate = observationdate;
+	}
+
+	public Integer getNumberofpages() {
+		return numberofpages;
+	}
+
+	public void setNumberofpages(Integer numberofpages) {
+		this.numberofpages = numberofpages;
+	}
+
+	public Integer getAppointmentNo() {
+		return appointmentNo;
+	}
+
+	public void setAppointmentNo(Integer appointmentNo) {
+		this.appointmentNo = appointmentNo;
+	}
+
+	public Boolean getAbnormal() {
+		return abnormal;
+	}
+
+	public void setAbnormal(Boolean abnormal) {
+		this.abnormal = abnormal;
+	}
+
+	public Boolean getRestrictToProgram() {
+		return restrictToProgram;
+	}
+
+	public void setRestrictToProgram(Boolean restrictToProgram) {
+		this.restrictToProgram = restrictToProgram;
+	}
+
+	public byte[] getFileContents() {
+		return fileContents;
+	}
+
+	public void setFileContents(byte[] fileContents) {
+		this.fileContents = fileContents;
+	}
+
+	public String getCtlModule() {
+		return ctlModule;
+	}
+
+	public void setCtlModule(String ctlModule) {
+		this.ctlModule = ctlModule;
+	}
+
+	public Integer getCtlModuleId() {
+		return ctlModuleId;
+	}
+
+	public void setCtlModuleId(Integer ctlModuleId) {
+		this.ctlModuleId = ctlModuleId;
+	}
+
+	public String getCtlStatus() {
+		return ctlStatus;
+	}
+
+	public void setCtlStatus(String ctlStatus) {
+		this.ctlStatus = ctlStatus;
+	}
 }

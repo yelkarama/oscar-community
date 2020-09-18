@@ -57,7 +57,7 @@ import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.ws.rest.to.DocumentResponse;
 import org.oscarehr.ws.rest.to.model.DocumentCategory;
-import org.oscarehr.ws.rest.to.model.DocumentTo1;
+import org.oscarehr.ws.rest.to.model.GenericDocumentTo1;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -65,8 +65,8 @@ import oscar.form.util.FormTransportContainer;
 import oscar.oscarEncounter.data.EctFormData.PatientForm;
 
 @Path("/patientDocuments")
-@Component("documentService")
-public class DocumentService extends AbstractServiceImpl {
+@Component("patientDocumentService")
+public class PatientDocumentService extends AbstractServiceImpl {
 	
 	private static final String DATE_FORMAT = "yyyy-MM-dd";
 	
@@ -181,10 +181,10 @@ public class DocumentService extends AbstractServiceImpl {
 			}
 			Date documentDate = document.getContentdatetime();	
 			String dateString = dateFormat.format(documentDate);
-			DocumentTo1 documentTo1 = new DocumentTo1( id, name, dateString, DocumentCategory.EDOCUMENT.name(), "application/pdf");
-			documentTo1.setContentType(document.getContenttype());
-			documentTo1.setDocumentDescription(document.getDocdesc());
-			documentResponse.add( documentTo1 );			
+			GenericDocumentTo1 genericDocumentTo1 = new GenericDocumentTo1( id, name, dateString, DocumentCategory.EDOCUMENT.name(), "application/pdf");
+			genericDocumentTo1.setContentType(document.getContenttype());
+			genericDocumentTo1.setDocumentDescription(document.getDocdesc());
+			documentResponse.add(genericDocumentTo1);			
 		}
 		
 		// sort response by date descending
@@ -206,7 +206,7 @@ public class DocumentService extends AbstractServiceImpl {
 		for(Map<String,Object> eformData : eformList) {
 			Date eformDate = (Date) eformData.get("formDate");
 			String dateString = dateFormat.format(eformDate);
-			documentResponse.add( new DocumentTo1( 
+			documentResponse.add( new GenericDocumentTo1( 
 					(Integer) eformData.get("id"), 
 					(String) eformData.get("formName"),
 					dateString,
@@ -229,7 +229,7 @@ public class DocumentService extends AbstractServiceImpl {
 		List<Hl7TextInfo> hl7TextInfoList = labManager.getHl7TextInfo(getLoggedInInfo(), demographicNo);
 
 		for(Hl7TextInfo hl7TextInfo : hl7TextInfoList) {
-			documentResponse.add( new DocumentTo1( 
+			documentResponse.add( new GenericDocumentTo1( 
 					hl7TextInfo.getLabNumber(), 
 					hl7TextInfo.getDiscipline(),
 					hl7TextInfo.getObrDate(),
@@ -259,7 +259,7 @@ public class DocumentService extends AbstractServiceImpl {
 			if(dateCreated != null) {
 				dateString = dateFormat.format(dateCreated);
 			}
-			documentResponse.add( new DocumentTo1( 
+			documentResponse.add( new GenericDocumentTo1( 
 					Integer.parseInt(patientForm.getFormId()), 
 					patientForm.getFormName(),
 					dateString,

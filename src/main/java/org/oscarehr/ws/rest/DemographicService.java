@@ -110,7 +110,6 @@ import org.oscarehr.ws.rest.to.model.DemographicSearchRequest.SORTDIR;
 import org.oscarehr.ws.rest.to.model.DemographicSearchRequest.SORTMODE;
 import org.oscarehr.ws.rest.to.model.DemographicSearchResult;
 import org.oscarehr.ws.rest.to.model.DemographicTo1;
-import org.oscarehr.ws.rest.to.model.DocumentRecordTo1;
 import org.oscarehr.ws.rest.to.model.DocumentTo1;
 import org.oscarehr.ws.rest.to.model.MeasurementTo1;
 import org.oscarehr.ws.rest.to.model.NoteIssueTo1;
@@ -503,7 +502,7 @@ public class DemographicService extends AbstractServiceImpl {
 			}
 		}
 		
-		List<DocumentRecordTo1> responseDocuments = new ArrayList<>();
+		List<DocumentTo1> responseDocuments = new ArrayList<>();
 		if(data.getDocuments() != null && !data.getDocuments().isEmpty()){
 			DocumentConverter documentConverter = new DocumentConverter();
 			String savePath = oscar.OscarProperties.getInstance().getProperty("DOCUMENT_DIR");
@@ -511,7 +510,7 @@ public class DemographicService extends AbstractServiceImpl {
 				savePath += File.separator;
 			}
 
-			for(DocumentRecordTo1 documentTo1 : data.getDocuments()){
+			for(DocumentTo1 documentTo1 : data.getDocuments()){
 				String destFilePath = savePath + documentTo1.getDocfilename();
 				try{
 					File document_file = new File(destFilePath);

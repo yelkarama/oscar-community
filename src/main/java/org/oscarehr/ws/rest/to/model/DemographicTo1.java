@@ -115,7 +115,7 @@ public class DemographicTo1 implements Serializable {
 	private List<ConsultationResponseTo1> consultationResponses = new ArrayList<>();
 	private List<JSONObject> encounterNotes = new ArrayList<>();
 	private List<NoteIssueTo1> issueNotes = new ArrayList<>();
-	private List<DocumentRecordTo1> documents = new ArrayList<>();
+	private List<DocumentTo1> documents = new ArrayList<>();
 	
 	
 	public Integer getDemographicNo() {
@@ -734,11 +734,11 @@ public class DemographicTo1 implements Serializable {
 		this.issueNotes = issueNotes;
 	}
 
-	public List<DocumentRecordTo1> getDocuments() {
+	public List<DocumentTo1> getDocuments() {
 		return documents;
 	}
 
-	public void setDocuments(List<DocumentRecordTo1> documents) {
+	public void setDocuments(List<DocumentTo1> documents) {
 		this.documents = documents;
 	}
 }

@@ -27,34 +27,34 @@ package org.oscarehr.ws.rest.to;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.oscarehr.ws.rest.to.model.DocumentTo1;
+import org.oscarehr.ws.rest.to.model.GenericDocumentTo1;
 
 public class DocumentResponse {
 
-	private List<DocumentTo1> documents;
+	private List<GenericDocumentTo1> documents;
 	
 	public DocumentResponse() {
-		documents = new ArrayList<DocumentTo1>();
+		documents = new ArrayList<GenericDocumentTo1>();
 	}
 	
-	public DocumentResponse( ArrayList<DocumentTo1> documentList ) {
+	public DocumentResponse( ArrayList<GenericDocumentTo1> documentList ) {
 		documents = documentList;
 	}
 
-	public List<DocumentTo1> getDocuments() {
+	public List<GenericDocumentTo1> getDocuments() {
 		return documents;
 	}
 
-	public void setDocuments(List<DocumentTo1> documents) {
+	public void setDocuments(List<GenericDocumentTo1> documents) {
 		this.documents = documents;
 	}
 	
-	public void add(DocumentTo1 document) {
+	public void add(GenericDocumentTo1 document) {
 		getDocuments().add(document);
 	}
 	
-	public void addAll(List<DocumentTo1> document) {
-		for(DocumentTo1 documentto : document) {
+	public void addAll(List<GenericDocumentTo1> document) {
+		for(GenericDocumentTo1 documentto : document) {
 			getDocuments().add(documentto);
 		}
 	}

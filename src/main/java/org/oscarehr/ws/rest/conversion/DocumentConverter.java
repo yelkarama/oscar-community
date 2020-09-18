@@ -2,13 +2,11 @@ package org.oscarehr.ws.rest.conversion;
 
 import org.oscarehr.common.model.Document;
 import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.ws.rest.to.model.DocumentRecordTo1;
-import org.oscarehr.ws.rest.to.model.DocumentReviewTo1;
 import org.oscarehr.ws.rest.to.model.DocumentTo1;
 
-public class DocumentConverter extends AbstractConverter<Document, DocumentRecordTo1> {
+public class DocumentConverter extends AbstractConverter<Document, DocumentTo1> {
     @Override
-    public Document getAsDomainObject(LoggedInInfo loggedInInfo, DocumentRecordTo1 t) throws ConversionException {
+    public Document getAsDomainObject(LoggedInInfo loggedInInfo, DocumentTo1 t) throws ConversionException {
         Document d = new Document();
         
         d.setDocumentNo(t.getDocumentNo());
@@ -38,8 +36,8 @@ public class DocumentConverter extends AbstractConverter<Document, DocumentRecor
     }
 
     @Override
-    public DocumentRecordTo1 getAsTransferObject(LoggedInInfo loggedInInfo, Document d) throws ConversionException {
-        DocumentRecordTo1 t = new DocumentRecordTo1();
+    public DocumentTo1 getAsTransferObject(LoggedInInfo loggedInInfo, Document d) throws ConversionException {
+        DocumentTo1 t = new DocumentTo1();
         
         t.setDocumentNo(d.getDocumentNo());
         t.setDoctype(d.getDoctype());
