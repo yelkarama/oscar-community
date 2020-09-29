@@ -23,27 +23,70 @@
     Ontario, Canada
 
 --%>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
+<%@page import="org.oscarehr.integration.OneIdGatewayData,org.oscarehr.util.LoggedInInfo,java.net.URLEncoder"%>
+<%@page import="org.oscarehr.integration.OneIDTokenUtils,org.oscarehr.integration.TokenExpiredException"%>
+<%@page import="org.oscarehr.util.SessionConstants,org.oscarehr.util.LoggedInUserFilter"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
+<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%><%
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
 	boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>"
-	objectName="_admin,_admin.misc" rights="r" reverse="<%=true%>">
+%><security:oscarSec roleName="<%=roleName$%>" objectName="_rx" rights="r" reverse="<%=true%>">
 	<%authed=false; %>
 	<%response.sendRedirect("../securityError.jsp?type=_admin&type=_admin.misc");%>
-</security:oscarSec>
-<%
+</security:oscarSec><%
 	if(!authed) {
 		return;
 	}
+LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+OneIdGatewayData oneIdGatewayData= loggedInInfo.getOneIdGatewayData();
+try  { 
+	OneIDTokenUtils.verifyAccessTokenIsValid(loggedInInfo,oneIdGatewayData);
+	
+	
+	
+	////user/Immunization.read user/Immunization.write user/Patient.read
+	boolean hasNeededScope = oneIdGatewayData.hasScope(oneIdGatewayData.fullScope);//"openid", "user/MedicationDispense.read", "toolbar", "user/Context.read", "user/Context.write",  "user/Consent.write");
+	//http://ehealthontario.ca/StructureDefinition/ca-on-dhir-profile-Immunization http://ehealthontario.ca/StructureDefinition/ca-on-dhir-profile-Patient
+	boolean hasNeededProfile = oneIdGatewayData.hasProfile(oneIdGatewayData.fullProfile);//"http://ehealthontario.ca/StructureDefinition/ca-on-dhdr-profile-MedicationDispense","http://ehealthontario.ca/fhir/StructureDefinition/ca-on-consent-pcoi-profile-Consent");
+	System.out.println("hasNeededScope"+hasNeededScope+" hasNeededProfile"+hasNeededProfile);
+	if(hasNeededScope && hasNeededProfile && oneIdGatewayData.howLongSinceRefreshTokenWasIssued() < 2){
+		//All good
+	}else{
+		
+		response.sendRedirect(request.getContextPath() + "/eho/login2.jsp?alreadyLoggedIn=true&forwardURL=" + URLEncoder.encode(OneIDTokenUtils.getCompleteURL(request),"UTF-8") );
+		return;
+	}
+	
+	
+} catch(TokenExpiredException e) {
+	if(oneIdGatewayData == null){
+		oneIdGatewayData = new OneIdGatewayData();
+		session.setAttribute(SessionConstants.OH_GATEWAY_DATA,oneIdGatewayData);
+		loggedInInfo = LoggedInUserFilter.generateLoggedInInfoFromSession(request);
+	}
+	loggedInInfo = LoggedInUserFilter.generateLoggedInInfoFromSession(request);
+	oneIdGatewayData.hasScope(oneIdGatewayData.fullScope);
+	oneIdGatewayData.hasProfile(oneIdGatewayData.fullProfile);
+	response.sendRedirect(request.getContextPath() + "/eho/login2.jsp?alreadyLoggedIn=true&forwardURL=" + URLEncoder.encode(OneIDTokenUtils.getCompleteURL(request),"UTF-8") );
+	return;
+} catch(NullPointerException e2) {
+	if(oneIdGatewayData == null){
+		oneIdGatewayData = new OneIdGatewayData();
+		session.setAttribute(SessionConstants.OH_GATEWAY_DATA,oneIdGatewayData);
+		loggedInInfo = LoggedInUserFilter.generateLoggedInInfoFromSession(request);
+	}
+	oneIdGatewayData.hasScope(oneIdGatewayData.fullScope);
+	oneIdGatewayData.hasProfile(oneIdGatewayData.fullProfile);
+	response.sendRedirect(request.getContextPath() + "/eho/login2.jsp?alreadyLoggedIn=true&forwardURL=" + URLEncoder.encode(OneIDTokenUtils.getCompleteURL(request),"UTF-8") );
+	return;
+}
+
+
+
+
 %>
-
-
-<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
-
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
 <html ng-app="dhdrView">
 <head>
 	<title><bean:message key="admin.admin.surveillanceConfig"/></title>
@@ -54,6 +97,7 @@
 	<script src="<%=request.getContextPath() %>/web/common/demographicServices.js"></script>	
 	<script src="<%=request.getContextPath() %>/web/common/providerServices.js"></script>	
 	<script src="<%=request.getContextPath() %>/web/common/dhdrServices.js"></script>	
+	<script src="<%=request.getContextPath() %>/web/common/rxServices.js"></script>	
 	<script src="<%=request.getContextPath() %>/web/filters.js"></script>
 	
 </head>
@@ -84,15 +128,27 @@
 				    <label for="exampleInputEmail2">End Date</label>
 				    <input type="date" class="form-control" id="exampleInputEmail2" placeholder="2020-03-31" ng-model="searchConfig.endDate" >
 				  </div>
+				 
 				  <button type="submit" class="btn btn-default" ng-click="callSearch();" style="vertical-align: bottom;">Search</button>
+				  <button type="submit" class="btn btn-default" ng-click="setSearchDateToAll();" style="vertical-align: bottom;">Search All</button>
 				</form>
 		 		
 		 	</div>
+		 </div>
+		 <div class="row" style="margin-bottom:10px;">
 		 	<div class="col-xs-12" >
+		 		<div class="alert alert-info" role="alert" ng-show="showDHDRDisclaimer">
+		 				<button type="button" class="close" data-dismiss="alert" aria-label="Close" ng-click="closeWarning()"><span aria-hidden="true">&times;</span></button>
+		 				<i>Warning: Limited to Drug and Pharmacy Service Information available in the Digital Health Drug Repository (DHDR) EHR Service. 
+		 					To ensure a Best Possible Medication History, please review this information with the patient/family and use other available sources of medication 
+		 					information in addition to the DHDR EHR Service. For more details on the information available in the DHDR EHR Service, 
+		 					please  <a class="alert-link" href="http://www.forms.ssb.gov.on.ca/mbs/ssb/forms/ssbforms.nsf/FormDetail?OpenForm&ACT=RDR&TAB=PROFILE&SRCH=&ENV=WWE&TIT=5056-87E&NO=014-5056-87E" target="_blank">click here</a></i>
+		 				<button ng-if="issue.code === 'suppressed'" type="button" class="btn btn-danger" ng-click="callConsentBlock();">Temporary Consent Unblock</button>
+		 		</div>
+		 		
 		 		<div ng-show="searching">
 					Searching...  
 				</div>
-		 		
 		 		
 		 		<div ng-repeat="outs in outcomes" >
 		 			<div ng-repeat="issue in outs.issues"  class="alert" ng-class="issueClass(issue)" role="alert">
@@ -101,37 +157,56 @@
 		 			</div>
 		 		</div>
 				
-		
-		 		
-		 		<table class="table table-condensed table-striped table-bordered" ng-show="meds.length > 0"> 
-		 			<caption>
-		 			<div><i>Warning: Limited to Drug and Pharmacy Service Information available in the Digital Health Drug Repository (DHDR) EHR Service. To ensure a Best Possible Medication History, please review this information with the patient/family and use other available sources of medication information in addition to the DHDR EHR Service. For more details on the information available in the DHDR EHR Service, please click <a href="http://www.forms.ssb.gov.on.ca/mbs/ssb/forms/ssbforms.nsf/GetFileAttach/014- 5056-87E~1/$File/5056-87E.pdf" target="_blank">http://www.forms.ssb.gov.on.ca/mbs/ssb/forms/ssbforms.nsf/GetFileAttach/014- 5056-87E~1/$File/5056-87E.pdf</a></i></div>
-		 			</caption>
+				<ul class="nav nav-pills nav-justified">
+				  <li role="presentation" ng-class="currentView('summary')"><a ng-click="showSummary()">Summary</a></li>
+				  <li role="presentation" ng-class="currentView('comp')"><a href="#" ng-click="showComp()">Comparitive</a></li>  
+				</ul>
+		</div>
+		<div class="row" ng-show="viewWhen('summary')">		
+				<button ng-click="printSummary()">Print</button>
+		 		<table class="table table-condensed table-striped table-bordered" ng-show="meds.length > 0"> 		 			
 		 			<thead> 
 		 				<tr> 
-		 					<th>Dispense Date</th> 
-		 					<th>Generic</th> 
-		 					<th>Brand</th> 
+		 					<th>
+		 						<a ng-click="orderByField='whenPrepared'; reverseSort = !reverseSort">Dispense Date <span ng-show="orderByField == 'whenPrepared'"><span ng-show="!reverseSort">^</span><span ng-show="reverseSort">v</span></span></a>
+		 					</th> 
+		 					<th>
+		 						<a ng-click="orderByField='genericName'; reverseSort = !reverseSort">Generic<span ng-show="orderByField == 'genericName'"><span ng-show="!reverseSort">^</span><span ng-show="reverseSort">v</span></span></a> 
+		 						
+		 						<br><input ng-model="searchtxt.genericName" type="text" placeholder="filter Generic Name" />
+		 					</th> 
+		 					<th>
+		 						<a ng-click="orderByField='brandName.display'; reverseSort = !reverseSort">Brand<span ng-show="orderByField == 'brandName.display'"><span ng-show="!reverseSort">^</span><span ng-show="reverseSort">v</span></span></a>
+		 					</th> 
 		 					<th>Strength</th>
 		 					<th>Dosage Form</th>
 		 					<th>Quantity</th>
 		 					<th>Est Days Supply</th>
-		 					<th>Prescriber</th>
+		 					<th>Refills Remaining</th>
+							<th>Quantity Remaining</th>
+		 					<th>
+		 						<a ng-click="orderByField='prescriberLastname'; reverseSort = !reverseSort">Prescriber<span ng-show="orderByField == 'prescriberLastname'"><span ng-show="!reverseSort">^</span><span ng-show="reverseSort">v</span></span></a>
+		 					</th>
 		 					<th>Prescriber #</th>
-		 					<th>Pharmacy</th>
+		 					<th>
+		 						<a ng-click="orderByField='dispensingPharmacy'; reverseSort = !reverseSort">Pharmacy<span ng-show="orderByField == 'dispensingPharmacy'"><span ng-show="!reverseSort">^</span><span ng-show="reverseSort">v</span></span></a>
+		 					</th>
 		 					<th>Pharmacy Fax</th>
 		 					<th>Rx Count</th> 
 						</tr> 
 					</thead> 
+					
 		 			<tbody> 
-		 				<tr ng-repeat="med in meds" ng-hide="med.hide"> 
+		 				<tr ng-repeat="med in meds | filter : searchtxt | orderBy:orderByField:reverseSort" ng-hide="med.hide"> 
 		 					<th scope="row">{{med.whenPrepared | date}}</th> 
-		 					<td ng-click="getDetailView(med);">{{med.genericName}}</td>
+		 					<td ng-click="getDetailView(med);">{{med.genericName}} -- {{med.categoryCode}}</td>
 		 					<td>{{med.brandName.display}}</td>
 		 					<td>{{med.dispensedDrugStrength}}</td>
 		 					<td>{{med.drugDosageForm}}</td>
 		 					<td>{{med.dispensedQuantity}}</td>
 		 					<td>{{med.estimatedDaysSupply}}</td>
+		 					<td>{{med.refillsRemaining}}</td>
+							<td>{{med.quantityRemaining}}</td>
 		 					<td>{{med.prescriberLastname}}, {{med.prescriberFirstname}} ({{med.prescriberLicenceNumber.value}})</td>
 		 					<td>{{med.prescriberPhoneNumber}}</td>
 		 					<td>{{med.dispensingPharmacy}}</td>
@@ -139,12 +214,90 @@
 		 					<td ng-click="showGroupedMeds(med)">{{medsWithGroupedDups[med.getUniqVal()].length}}<!-- {{med | json}}  --></td> 
 		 					
 		 				</tr> 
+		 				<tr>
+		 					<td colspan="12">
+		 						{{meds.length}} results returned  <button type="button" class="btn btn-default btn-xs" ng-click="printSummary()">Print</button>
+ 		 					</td>
+		 				</tr>
 		 			</tbody> 
 		 		</table>
 		 		
 
+		 </div>
+	 	
+	 	
+	 	
+	 	<div ng-show="viewWhen('comp')">	<!-- comparitive view start -->
+	 		<div class="row">
+		 		<div class="col-xs-6" >
+		 		<h4>DHIR DATA</h4>
+		 			<table class="table table-condensed table-striped table-bordered" > 
+		 			<%-- caption>
+		 			<div><i>Warning: Limited to Drug and Pharmacy Service Information available in the Digital Health Drug Repository (DHDR) EHR Service. 
+		 					To ensure a Best Possible Medication History, please review this information with the patient/family and use other available sources of medication 
+		 					information in addition to the DHDR EHR Service. For more details on the information available in the DHDR EHR Service, 
+		 					please  <a href="http://www.forms.ssb.gov.on.ca/mbs/ssb/forms/ssbforms.nsf/FormDetail?OpenForm&ACT=RDR&TAB=PROFILE&SRCH=&ENV=WWE&TIT=5056-87E&NO=014-5056-87E" target="_blank">click here</a></i></div>
+		 			</caption --%>
+		 			<thead> 
+		 				<tr> 
+		 					<th>Dispense Date</th> 
+		 					<%-- th>Generic</th> --%> 
+		 					<th>Brand</th> 
+		 					<th>Quantity</th>
+		 					<th>Est Days Supply</th>
+		 					<th>Prescriber</th>
+		 					<th>Pharmacy</th>
+						</tr> 
+					</thead> 
+		 			<tbody> 
+		 				<tr ng-repeat="med in meds"> 
+		 					<th scope="row">{{med.whenPrepared | date}}</th> 
+		 					<%-- td >{{med.genericName}}</td> --%>
+		 					<td ng-click="getDetailView(med);">{{med.brandName.display}} {{med.dispensedDrugStrength}} {{med.drugDosageForm}} ({{med.genericName}})</td>
+		 					<td>{{med.dispensedQuantity}}</td>
+		 					<td>{{med.estimatedDaysSupply}}</td>
+		 					<td>{{med.prescriberLastname}}, {{med.prescriberFirstname}} ({{med.prescriberLicenceNumber.value}}) {{med.prescriberPhoneNumber}}</td>
+		 					<td>{{med.dispensingPharmacy}} {{med.dispensingPharmacyFaxNumber}}</td>
+		 					
+		 					
+		 				</tr>
+		 				<tr>
+		 					<td colspan="6">
+		 						{{meds.length}} results returned
+ 		 					</td>
+		 				</tr> 
+		 			</tbody> 
+		 		</table>
+		 		
+		 		</div>
+		 		<div class="col-xs-6" >
+		 		<h4>LOCAL DATA</h4>
+		 			<table class="table table-condensed table-striped table-bordered" ng-show="compLocalMeds.length > 0"> 
+		 			   	<thead> 
+			 				<tr> 
+			 					<th>Start Date</th> 
+			 					<th>Medication</th>
+			 					<th>Prescriber</th>
+			 					<th>DIN</th>
+			 					 
+							</tr> 
+						</thead> 
+		 				<tbody> 
+			 				<tr ng-repeat="med in compLocalMeds"> 
+			 					<th scope="row">{{med.rxDate | date}}</th>
+			 					<%-- td ng-click="getDetailView(med);">{{med.genericName}}</td> --%>
+			 					<td>{{med.instructions}}</td>
+			 					<td>{{med.providerNo}}</td>
+			 					<td>{{med.regionalIdentifier}}</td>
+			 				</tr> 
+			 			</tbody> 
+		 			</table>
+		 	
+		 		</div>
 		 	</div>
-	 	</div>
+	 	
+	 	
+	 	</div> <!-- comparitive view end -->
 	 	
 	 	
 		</div> <!-- container -->
@@ -217,6 +370,18 @@
 		 					<th>Est Days Supply</th>
 							<td>{{med.estimatedDaysSupply}}</td>
 						</tr>
+
+						<tr>
+		 					<th>Refills Remaining</th>
+							<td>{{med.refillsRemaining}}</td>
+						</tr>
+						<tr>
+		 					<th>Quantity Remaining</th>
+							<td>{{med.quantityRemaining}}</td>
+						</tr>	
+						
+							
+
 						<tr>
 		 					<th>Prescriber</th>
 							<td>{{med.prescriberLastname}}, {{med.prescriberFirstname}} ({{med.prescriberLicenceNumber.value}})</td>
@@ -259,22 +424,34 @@
         </div>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-primary" type="button" ng-click="saveManageApptProvider()">Save</button>
+            <button class="btn btn-primary" type="button" ng-click="printDetail()">Print</button>
             <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
         </div>
     </script>
     <script type="text/ng-template" id="pcoi.html">
 <div class="modal-body" id="modal-body">
-		<iframe id="pcoi-frame" src="{{pcoiUrl}}" sandbox="allow-forms allow-scripts allow-same-origin allow-modals"  width="540" height="600"></iframe>
+		<a ng-if="showUntilLoaded" ng-click="reload()"> Failed to load? click here</a>	
+		<a ng-if="viewletNotResponding" ng-click="cancel()"> Viewlet not responding? click here</a>	
+		<iframe id="pcoi-frame" src="{{pcoiUrl}}" sandbox="allow-forms allow-scripts allow-same-origin allow-modals"  width="540" height="600" ng-onload="loadingResult(state,message)"></iframe>
+		
 <div>
 	</script>
 	<script>
-		var app = angular.module("dhdrView", ['demographicServices','providerServices','dhdrServices','oscarFilters','ui.bootstrap']);
+		var app = angular.module("dhdrView", ['demographicServices','providerServices','dhdrServices','oscarFilters','ui.bootstrap','rxServices']);
 		
-		app.controller("dhdrView", function($scope,demographicService,providerService,dhdrService,$location,$window,$modal) {
+		//app.config(['$locationProvider'],function($locationProvider ) {
+		//	$locationProvider.html5Mode(true);
+		//});
+		
+		app.controller("dhdrView", function($scope,demographicService,providerService,dhdrService,rxService,$location,$window,$modal,$http,$filter) {
 
-			console.log("$location.search()",$location.search().demographic_no);
+			console.log("$location.search()",$location);
 			$scope.demographicNo = $location.search().demographic_no;
+			
+			//if($scope.demographicNo == undefined){
+				var urlParams = new URLSearchParams(window.location.search);
+				$scope.demographicNo = urlParams.get("demographic_no");
+			//}
 			$scope.demographic = {};
 			$scope.meds = [];
 			$scope.outcomes = [];
@@ -284,6 +461,101 @@
 			$scope.searchConfig.startDate = new Date($scope.searchConfig.endDate);
 			$scope.searchConfig.startDate.setDate($scope.searchConfig.endDate.getDate() - defaultDaysToSearch);
 			$scope.searching = false;
+			$scope.showDHDRDisclaimer = true;
+			
+			
+			
+			$scope.closeWarning = function(){
+				$scope.showDHDRDisclaimer = false;
+				dhdrService.muteDisclaimer("DHDR").then(function(data) {
+					console.log("set to hidden",data);
+				}, function(errorMessage) {
+					alert("Error saving ")
+					//rxComp.error = errorMessage;
+				});	
+			
+			}
+			
+			$scope.getShowDisclaimerStatus = function(){
+				dhdrService.showDisclaimer("DHDR").then(function(data) {
+					console.log("set to hidden",data);
+					if(data.status == 268){
+						$scope.showDHDRDisclaimer = false;
+					}else{
+						$scope.showDHDRDisclaimer = true;
+					}
+				}, function(errorMessage) {
+					alert("Error saving ")
+					//rxComp.error = errorMessage;
+				});	
+			}
+			$scope.getShowDisclaimerStatus();
+			
+			$scope.orderByField = 'whenPrepared';
+			$scope.reverseSort = true;
+			////////
+			currentViewValue = 'summary'
+			
+			$scope.showSummary = function(){
+				currentViewValue = 'summary';
+			}
+			
+			$scope.printSummary = function(){
+				var toPrint = {};
+				toPrint.meds = $scope.meds;
+				toPrint.startDate = $filter('date')($scope.searchConfig.startDate, "yyyy-MM-dd");
+				toPrint.endDate   = $filter('date')($scope.searchConfig.endDate, "yyyy-MM-dd");
+				
+				$http.post('../ws/rs/dhdr/'+$scope.demographicNo+'/print/summary',toPrint,{ responseType: 'arraybuffer' }).then(function (response) {
+					
+					console.log("respone",response);
+				       var file = new Blob([response.data], {type: 'application/pdf'});
+				       var fileURL = URL.createObjectURL(file);
+				       window.open(fileURL);
+				}, function(errorMessage) {
+					alert("Error getting printout");
+					//rxComp.error = errorMessage;
+				});	
+				//window.open('../ws/rs/dhdr/'+$scope.demographicNo+'/print/summary','_blank');
+			}
+			
+			$scope.showComp = function() {
+				currentViewValue = 'comp';	
+					rxService.getMedications($scope.demographicNo, "").then(function(data) {
+						console.log("getMedications--", data);
+						$scope.compLocalMeds = data.data.content;
+					}, function(errorMessage) {
+						console.log("getMedications++" + errorMessage);
+						//rxComp.error = errorMessage;
+					});	
+				
+			}
+			
+			$scope.currentView = function(view){
+				if(currentViewValue === view){
+					return "active";
+				}
+			}
+			
+			$scope.viewWhen = function(view){
+			
+				if(currentViewValue === view){
+					return true;
+				}
+			}
+			
+
+			
+			
+			
+			$scope.setSearchDateToAll = function(){
+
+				console.log("$scope.demographic",$scope.demographic.dobYear+"-"+$scope.demographic.dobMonth+"-"+$scope.demographic.dobDay);
+				
+				$scope.searchConfig.startDate = new Date($scope.demographic.dobYear+"-"+$scope.demographic.dobMonth+"-"+$scope.demographic.dobDay);
+				$scope.searchConfig.endDate = new Date();
+				$scope.callSearch();
+			}
 			
 			$scope.medsWithGroupedDups = [];
 			
@@ -296,6 +568,49 @@
 			}
 			
 			
+			$scope.compDhirMeds = [];
+			$scope.compLocalMeds = [];
+			
+			/*$scope.fillCompView = function(){
+				var compsearchConfig = {};
+				compsearchConfig.startDate = new Date($scope.demographic.dobYear+"-"+$scope.demographic.dobMonth+"-"+$scope.demographic.dobDay);
+				compsearchConfig.endDate = new Date();
+			
+				dhdrService.searchByDemographicNo2($scope.demographicNo,compsearchConfig).then(function(response){
+					console.log("response.entry",response.entry);
+					$scope.searching = false;
+					$scope.compDhirMeds = [];
+					$scope.outcomes = [];
+					for (x of  response.entry) {
+						console.log("x",x);
+						if(x.resource.resourceType === "OperationOutcome"){
+							var o = new OperationOutcome(x);
+							$scope.outcomes.push(o);
+							console.log("$scope.outcomes",$scope.outcomes);
+						}else if(x.resource.resourceType === "MedicationDispense"){
+							var d = new MedicationDispense(x);
+							console.log("d",d,d.getUniqVal());
+							$scope.compDhirMeds.push(d);
+						}
+					}
+				},function(reason){
+					$scope.searching = false;
+					alert(reason);
+				});
+				
+				
+				rxService.getMedications($scope.demographicNo, "").then(function(data) {
+					console.log("getMedications--", data);
+					$scope.compLocalMeds = data.data.content;
+				}, function(errorMessage) {
+					console.log("getMedications++" + errorMessage);
+					//rxComp.error = errorMessage;
+				});
+				
+			};
+			*/
+			
+			
 			/*
 			$scope.$watch('location.search()', function() {
 				console.log("Watch called",$location.search());
@@ -305,6 +620,7 @@
 */
 			$scope.callSearch = function(){
 				search($scope.demographicNo,$scope.searchConfig);
+				
 			}
 			
 			$scope.showGroupedMeds = function(med) {
@@ -379,7 +695,10 @@
 	    		    	  	
 	    		    	  		med: function () {
 	    		          		return med;
-	    		        		}
+	    		        		},
+	    		        		demoNo: function () {
+	    		          		return $scope.demographicNo;
+	    		        		} 
 	    		      }
 	    		    });
 
@@ -395,7 +714,13 @@
     				console.log("callConsentBlock");	 
     				dhdrService.getConsentOveride($scope.demographicNo).then(function(response){
     					console.log("response.referenceURL",response);
-    					var med = response;
+    					if(response.status == 268){
+    						console.log("error ",response.data);
+    						alert("Error check the log for more details :\n"+response.data.summary);// response.data);
+    						return;
+    					}
+    					
+    					var med = response.data;
     					var modalInstance = $modal.open({
     		    		      
     		    		      templateUrl: 'pcoi.html',
@@ -414,6 +739,10 @@
     					//pcoi message back 
     					//message { target: Window, isTrusted: true, data: "{\"status\":\"completed\"}", origin: "https://pcoi-pst.apps.dev.ehealthontario.ca", lastEventId: "", source: Restricted https://pcoi-pst.apps.dev.ehealthontario.ca/main, ports: Restricted, srcElement: Window, currentTarget: Window, eventPhase: 2,  }
     					modalInstance.result.then(function (selectedItem) {
+    						console.log("result from pcoi ",selectedItem.data);
+    						dhdrService.logConsentOveride($scope.demographicNo,selectedItem.data).then(function(response){
+    	    						console.log("logConsentOveride",response);
+    	    					});
     						$scope.callSearch();
     		    		    }, function () {
     		    		      console.log('Modal dismissed at: ' + new Date());
@@ -477,6 +806,40 @@ j) Pharmacy Phone Number [Organization.telecom[1].value]
 				}				
 			} 
 			 
+			 /*
+			 "extension": [
+          {
+            "url": "http://ehealthontario.ca/fhir/StructureDefinition/ca-on-medications-ext-refills-remaining",
+            "valueInteger": 1
+          },
+          {
+            "url": "http://ehealthontario.ca/fhir/StructureDefinition/ca-on-medications-ext-quantity-remaining",
+            "valueQuantity": {
+              "value": 120,
+              "unit": "tsp",
+              "system": "http://snomed.info/sct",
+              "code": "SOL"
+            }
+          }
+        ],
+        */
+			
+			if(angular.isDefined(this.med.resource.extension)){
+				
+			    console.log("this.med.resource.extension",this.med.resource.extension);
+				for (ext of  this.med.resource.extension) {
+					if(angular.isDefined(ext.url) && ext.url === "http://ehealthontario.ca/fhir/StructureDefinition/ca-on-medications-ext-refills-remaining"){
+						
+					   console.log("ext.valueInteger",ext.valueInteger);
+						this.refillsRemaining = ext.valueInteger;
+					}else if(angular.isDefined(ext.url) && ext.url === "http://ehealthontario.ca/fhir/StructureDefinition/ca-on-medications-ext-quantity-remaining"){
+						this.quantityRemaining = ext.valueQuantity.value+" "+ext.valueQuantity.unit;
+					} 
+				}				
+			} else {
+				console.log("extension not present");
+			}
+        
 			this.whenPrepared = this.med.resource.whenPrepared;
 			if(angular.isDefined(this.med.resource.quantity) && angular.isDefined(this.med.resource.quantity.value)){
 				this.dispensedQuantity = this.med.resource.quantity.value;
@@ -486,6 +849,18 @@ j) Pharmacy Phone Number [Organization.telecom[1].value]
 			}
 			if(angular.isDefined(this.med.resource.reasonCode)){
 				this.reasonCode = this.med.resource.reasonCode;
+			}
+			console.log("dleete me ",this.med);
+			if(angular.isDefined(this.med.resource.category)){
+				console.log("CATEGORY FOIND !!!!!",this.med.resource.category);
+				for(coding of this.med.resource.category.coding) {
+					
+					if("http://ehealthontario.ca/fhir/NamingSystem/ca-on-medication-dispense-category" === coding.system) {
+						this.categoryCode = coding.code;
+						this.categoryDisplay = coding.display
+					}	
+				}				
+		
 			}
 			
 			
@@ -533,14 +908,16 @@ j) Pharmacy Phone Number [Organization.telecom[1].value]
 				
 				}else if(res.resourceType ===  "Organization") {
 					this.dispensingPharmacy = res.name;
-					for(tele of res.telecom){
-						if("fax" === tele.system){
-							this.dispensingPharmacyFaxNumber = tele.value;		
+					if(angular.isDefined(res.telecom)){
+						for(tele of res.telecom){
+							if("fax" === tele.system){
+								this.dispensingPharmacyFaxNumber = tele.value;		
+							}
+							if("PHONE" === tele.system){
+								this.dispensingPharmacyPhoneNumber = tele.value;		
+							}
+	
 						}
-						if("PHONE" === tele.system){
-							this.dispensingPharmacyPhoneNumber = tele.value;		
-						}
-
 					}
 				}else if(res.resourceType ===  "MedicationRequest") {
 					this.reasonCode = [];
@@ -550,6 +927,7 @@ j) Pharmacy Phone Number [Organization.telecom[1].value]
 							this.reasonCode = code;
 						}
 					}	
+					
 				}else if(res.resourceType ==="Practitioner") {
 					
 					for(identifier of res.identifier) {
@@ -597,12 +975,37 @@ j) Pharmacy Phone Number [Organization.telecom[1].value]
 			
 		}
 			
-		app.controller('ModalInstanceCtrl', function ModalInstanceCtrl($scope, $modal, $modalInstance,med){
+		app.controller('ModalInstanceCtrl', function ModalInstanceCtrl($scope, $modal, $modalInstance,med,demoNo,$http){
 			$scope.med = med;
 			console.log("ModalInstanceCtrl",med);
+			
+			$scope.cancel = function(){
+				
+				$modalInstance.close(false);	
+			}
+			
+			$scope.printDetail = function(){
+					console.log("trying to print");
+					var toPrint = {};
+					toPrint.med = $scope.med;
+					
+					$http.post('../ws/rs/dhdr/'+demoNo+'/print/detail',toPrint,{ responseType: 'arraybuffer' }).then(function (response) {
+						
+						console.log("respone for detail print",response);
+					       var file = new Blob([response.data], {type: 'application/pdf'});
+					       var fileURL = URL.createObjectURL(file);
+					       window.open(fileURL);
+					}, function(errorMessage) {
+						alert("Error getting printout");
+						//rxComp.error = errorMessage;
+					});	
+					//window.open('../ws/rs/dhdr/'+$scope.demographicNo+'/print/summary','_blank');
+			
+			}
+			
 		});
 		
-		app.controller('PcoiInstanceCtrl', function ModalInstanceCtrl($scope, $modal, $modalInstance,med,$sce,$window){
+		app.controller('PcoiInstanceCtrl', function ModalInstanceCtrl($scope, $modal, $modalInstance,med,$sce,$window,$http,$timeout){
 			
 			$window.addEventListener('message', function(e) {
 
@@ -611,11 +1014,59 @@ j) Pharmacy Phone Number [Organization.telecom[1].value]
 
 		    });
 			
+			$scope.showUntilLoaded = true;
+			$scope.viewletNotResponding = false;
+			
+
+			$timeout(function() {
+				$scope.viewletNotResponding = true;
+			}, <%=oscar.OscarProperties.getInstance().getProperty("oneid.viewlet.timeout","300000")%>);
+			
+			
+			
 			$scope.med = med;
 			$scope.pcoiUrl = $sce.trustAsResourceUrl(med.referenceURL);
+		
+			$scope.reload = function(){
+				
+				console.log("setting pcoiUrl");
+				$scope.pcoiUrl = $sce.trustAsResourceUrl(med.referenceURL);
+			}
+		
+			$scope.loadingResult = function(e){
+				$scope.showUntilLoaded = false;
+				$scope.$apply();
+			}
 			console.log("PcoiInstanceCtrl",med);
+			
+			$scope.cancel = function(){
+				
+				$modalInstance.close(false);	
+			}
 		});
+		
+		app.directive("ngOnload", function elementOnloadDirective() {
+	        return {
+	            restrict: "A",
+	            scope: {
+	                callback: "&ngOnload"
+	            },
+	            link: function link(scope, element, attrs) {
+	                // hooking up the onload event - calling the callback on load event
+	                element.one("load", function (state,message) {
+	                	
+	                	console.log("state ",state,message);
+	                    var contentLocation = element.length > 0 && element[0].contentWindow ? element[0].contentWindow.location : undefined;
+			console.log("onload", element,scope);
+	                    scope.callback({
+	                        contentLocation: contentLocation
+	                    });
+	                });
+	            }
+	        };
+	    });
 	
+		
 	</script>
 	</body>
 </html>	    			
