@@ -135,6 +135,12 @@ try  {
 		 		
 		 	</div>
 		 </div>
+		 <div class="row" style="margin-bottom:2px;">
+		 	<div class="col-xs-12" >
+		 	<i>DHDR is being search with HIN: {{demographic.hin}}  Sex: {{demographic.sex}}   DOB: {{demographic.dobYear}}-{{demographic.dobMonth}}-{{demographic.dobDay}}</i>
+		 	</div>
+		 </div>
+		 
 		 <div class="row" style="margin-bottom:10px;">
 		 	<div class="col-xs-12" >
 		 		<div class="alert alert-info" role="alert" ng-show="showDHDRDisclaimer">
@@ -153,17 +159,62 @@ try  {
 		 		<div ng-repeat="outs in outcomes" >
 		 			<div ng-repeat="issue in outs.issues"  class="alert" ng-class="issueClass(issue)" role="alert">
 		 				{{issue.details.text}}
-		 				<button ng-if="issue.code === 'suppressed'" type="button" class="btn btn-danger" ng-click="callConsentBlock();">Temporary Consent Unblock</button>
+		 				<span ng-if="issue.code === 'suppressed'"> 
+		 					<button type="button" class="btn btn-danger" ng-click="callConsentBlock();">Temporary Consent Unblock</button>
+		 					<button type="button" class="btn btn-default" ng-click="cancelBlock();">Cancel</button>
+		 					<button type="button" class="btn btn-default" ng-click="refusedBlock();">Refused</button>
+		 				</span>
 		 			</div>
 		 		</div>
 				
 				<ul class="nav nav-pills nav-justified">
 				  <li role="presentation" ng-class="currentView('summary')"><a ng-click="showSummary()">Summary</a></li>
-				  <li role="presentation" ng-class="currentView('comp')"><a href="#" ng-click="showComp()">Comparitive</a></li>  
+				  <li role="presentation" ng-class="currentView('comp')"><a href="#" ng-click="showComp()">Comparative</a></li>  
 				</ul>
 		</div>
 		<div class="row" ng-show="viewWhen('summary')">		
-				<button ng-click="printSummary()">Print</button>
+				<h6>Drug Products <small><a ng-click="showHideFilter()">Filter</a></small></h6>
+				<div ng-show="showFilter()" >
+					<form class="form-horizontal">
+					  <div class="form-group">
+					    <label for="inputEmail3" class="col-sm-2 control-label">Generic name</label>
+					    <div class="col-sm-10">
+					      <input ng-model="searchtxt.genericName" type="text" placeholder="type to filter" class="form-control" />
+					    </div>
+					  </div>
+					  <div class="form-group">
+					    <label for="inputEmail3" class="col-sm-2 control-label">Brand name</label>
+					    <div class="col-sm-10">
+					      <input ng-model="searchtxt.brandName.display" type="text" placeholder="type to filter" class="form-control"/>
+					    </div>
+					  </div>
+					  <div class="form-group">
+					    <label for="inputEmail3" class="col-sm-2 control-label">Dispensed date</label>
+					    <div class="col-sm-10">
+					      <input ng-model="searchtxt.whenPrepared" type="text" placeholder="type to filter" class="form-control"/>
+					    </div>
+					  </div>
+					  <div class="form-group">
+					    <label for="inputEmail3" class="col-sm-2 control-label">Pharmacy Name</label>
+					    <div class="col-sm-10">
+					      <input ng-model="searchtxt.dispensingPharmacy" type="text" placeholder="type to filter" class="form-control" />
+					    </div>
+					  </div>
+					  <div class="form-group">
+					    <label for="inputEmail3" class="col-sm-2 control-label">Prescriber Name</label>
+					    <div class="col-sm-10">
+					      <input ng-model="searchtxt.prescriberLastname" type="text" placeholder="type to filter" class="form-control" />
+					    </div>
+					  </div>
+					  <div class="form-group">
+					    <label for="inputEmail3" class="col-sm-2 control-label">Therapeutic Class</label>
+					    <div class="col-sm-10">
+					      <input ng-model="searchtxt.ahfsClass.display" type="text" placeholder="type to filter" class="form-control"/>
+					    </div>
+					  </div>
+					  
+					</form>
+				</div>
 		 		<table class="table table-condensed table-striped table-bordered" ng-show="meds.length > 0"> 		 			
 		 			<thead> 
 		 				<tr> 
@@ -172,8 +223,6 @@ try  {
 		 					</th> 
 		 					<th>
 		 						<a ng-click="orderByField='genericName'; reverseSort = !reverseSort">Generic<span ng-show="orderByField == 'genericName'"><span ng-show="!reverseSort">^</span><span ng-show="reverseSort">v</span></span></a> 
-		 						
-		 						<br><input ng-model="searchtxt.genericName" type="text" placeholder="filter Generic Name" />
 		 					</th> 
 		 					<th>
 		 						<a ng-click="orderByField='brandName.display'; reverseSort = !reverseSort">Brand<span ng-show="orderByField == 'brandName.display'"><span ng-show="!reverseSort">^</span><span ng-show="reverseSort">v</span></span></a>
@@ -187,7 +236,7 @@ try  {
 		 					<th>
 		 						<a ng-click="orderByField='prescriberLastname'; reverseSort = !reverseSort">Prescriber<span ng-show="orderByField == 'prescriberLastname'"><span ng-show="!reverseSort">^</span><span ng-show="reverseSort">v</span></span></a>
 		 					</th>
-		 					<th>Prescriber #</th>
+		 					<th>Prescriber Tel#</th>
 		 					<th>
 		 						<a ng-click="orderByField='dispensingPharmacy'; reverseSort = !reverseSort">Pharmacy<span ng-show="orderByField == 'dispensingPharmacy'"><span ng-show="!reverseSort">^</span><span ng-show="reverseSort">v</span></span></a>
 		 					</th>
@@ -197,9 +246,9 @@ try  {
 					</thead> 
 					
 		 			<tbody> 
-		 				<tr ng-repeat="med in meds | filter : searchtxt | orderBy:orderByField:reverseSort" ng-hide="med.hide"> 
+		 				<tr ng-repeat="med in meds | filter : searchtxt | orderBy:orderByField:reverseSort" ng-hide="med.hide" ng-class="getRowClass(med)"> 
 		 					<th scope="row">{{med.whenPrepared | date}}</th> 
-		 					<td ng-click="getDetailView(med);">{{med.genericName}} -- {{med.categoryCode}}</td>
+		 					<td ng-click="getDetailView(med);">{{med.genericName}} </td>
 		 					<td>{{med.brandName.display}}</td>
 		 					<td>{{med.dispensedDrugStrength}}</td>
 		 					<td>{{med.drugDosageForm}}</td>
@@ -207,11 +256,11 @@ try  {
 		 					<td>{{med.estimatedDaysSupply}}</td>
 		 					<td>{{med.refillsRemaining}}</td>
 							<td>{{med.quantityRemaining}}</td>
-		 					<td>{{med.prescriberLastname}}, {{med.prescriberFirstname}} ({{med.prescriberLicenceNumber.value}})</td>
+		 					<td>{{med.prescriberLastname}}, {{med.prescriberFirstname}} </td>
 		 					<td>{{med.prescriberPhoneNumber}}</td>
 		 					<td>{{med.dispensingPharmacy}}</td>
 		 					<td>{{med.dispensingPharmacyFaxNumber}}</td>
-		 					<td ng-click="showGroupedMeds(med)">{{medsWithGroupedDups[med.getUniqVal()].length}}<!-- {{med | json}}  --></td> 
+		 					<td ng-click="showGroupedMeds(med)"><span ng-if="med.headRecord"><a>{{medsWithGroupedDups[med.getUniqVal()].length}}</a></span><!-- {{med | json}}  --></td> 
 		 					
 		 				</tr> 
 		 				<tr>
@@ -222,56 +271,196 @@ try  {
 		 			</tbody> 
 		 		</table>
 		 		
-
+				<%-- services  --%>
+				<h6>Pharma Services <small><a ng-click="showHideServiceFilter()">Filter</a></small></h6>
+				<div ng-show="showServiceFilter()" >
+					<form class="form-horizontal">
+					  <div class="form-group">
+					    <label for="inputEmail3" class="col-sm-2 control-label">Pharmacy Service Description</label>
+					    <div class="col-sm-10">
+					      <input ng-model="searchServicetxt.genericName" type="text" placeholder="type to filter" class="form-control" />
+					    </div>
+					  </div>
+					  <div class="form-group">
+					    <label for="inputEmail3" class="col-sm-2 control-label">Pharmacy Service Type</label>
+					    <div class="col-sm-10">
+					      <input ng-model="searchServicetxt.brandName.display" type="text" placeholder="type to filter" class="form-control" />
+					    </div>
+					  </div>
+					  <div class="form-group">
+					    <label for="inputEmail3" class="col-sm-2 control-label">Last Service Date</label>
+					    <div class="col-sm-10">
+					      <input ng-model="searchServicetxt.whenPrepared" type="text" placeholder="type to filter" class="form-control" />
+					    </div>
+					  </div>
+					  <div class="form-group">
+					    <label for="inputEmail3" class="col-sm-2 control-label">Pharmacy Name</label>
+					    <div class="col-sm-10">
+					      <input ng-model="searchServicetxt.dispensingPharmacy" type="text" placeholder="type to filter" class="form-control" />
+					    </div>
+					  </div>
+					  <div class="form-group">
+					    <label for="inputEmail3" class="col-sm-2 control-label">Pharmacist Name</label>
+					    <div class="col-sm-10">
+					      <input ng-model="searchServicetxt.pharmacistLastname" type="text" placeholder="type to filter" class="form-control" />
+					    </div>
+					  </div>
+					  <div class="form-group">
+					    <label for="inputEmail3" class="col-sm-2 control-label">Pharmacy #</label>
+					    <div class="col-sm-10">
+					      <input ng-model="searchServicetxt.dispensingPharmacyPhoneNumber" type="text" placeholder="type to filter" class="form-control" />
+					    </div>
+					  </div>
+					  
+					</form>
+					
+				</div>
+		 		<table class="table table-condensed table-striped table-bordered" ng-show="services.length > 0"> 		 			
+		 			<thead> 
+		 				<tr> 
+		 					<th>
+		 						<a ng-click="serviceOrderByField='whenPrepared'; serviceReverseSort = !serviceReverseSort">Last Service Date <span ng-show="serviceOrderByField == 'whenPrepared'"><span ng-show="!serviceReverseSort">^</span><span ng-show="serviceReverseSort">v</span></span></a>
+		 					</th> 
+		 					<th>
+		 						<a ng-click="serviceOrderByField='whenHandedOver'; serviceReverseSort = !serviceReverseSort">Pickup Date <span ng-show="serviceOrderByField == 'whenHandedOver'"><span ng-show="!serviceReverseSort">^</span><span ng-show="serviceReverseSort">v</span></span></a>
+		 					</th> 
+		 					<th>
+		 						<a ng-click="serviceOrderByField='brandName.display'; serviceReverseSort = !serviceReverseSort">Pharmacy Service Type<span ng-show="serviceOrderByField == 'brandName.display'"><span ng-show="!serviceReverseSort">^</span><span ng-show="serviceReverseSort">v</span></span></a> 
+		 					</th> 
+		 					<th>
+		 						<a ng-click="serviceOrderByField='genericName'; serviceReverseSort = !serviceReverseSort">Pharmacy Service Description<span ng-show="serviceOrderByField == 'genericName'"><span ng-show="!serviceReverseSort">^</span><span ng-show="serviceReverseSort">v</span></span></a>
+		 					</th> 
+							<th>
+		 						<a ng-click="serviceOrderByField='dispensingPharmacy'; serviceReverseSort = !serviceReverseSort">Pharmacy Name<span ng-show="serviceOrderByField == 'dispensingPharmacy'"><span ng-show="!serviceReverseSort">^</span><span ng-show="serviceReverseSort">v</span></span></a>
+		 					</th>
+		 					<th>
+		 						<a ng-click="serviceOrderByField='pharmacistLastname'; serviceReverseSort = !serviceReverseSort">Pharmacist<span ng-show="serviceOrderByField == 'pharmacistLastname'"><span ng-show="!serviceReverseSort">^</span><span ng-show="serviceReverseSort">v</span></span></a>
+		 					</th>
+		 					<th>
+		 						<a ng-click="serviceOrderByField='dispensingPharmacyPhoneNumber'; serviceReverseSort = !serviceReverseSort">Pharmacy Tel<span ng-show="serviceOrderByField == 'dispensingPharmacyPhoneNumber'"><span ng-show="!serviceReverseSort">^</span><span ng-show="serviceReverseSort">v</span></span></a>
+		 					</th>
+		 					<th>Service Count</th> 
+						</tr> 
+					</thead> 
+					 
+		 			<tbody> 
+		 				<tr ng-repeat="med in services | filter : searchServicetxt | orderBy:serviceOrderByField:serviceReverseSort" ng-hide="med.hide" ng-class="getRowClass(med)"> 
+		 					<th scope="row">{{med.whenPrepared | date}}</th> 
+		 					<td scope="row">{{med.whenHandedOver | date}}</td>
+		 					<td>{{med.brandName.display}}</td> 
+		 					<td>{{med.genericName}} </td>
+		 					<td>{{med.dispensingPharmacy}}</td>
+		 					<td>{{med.pharmacistLastname}}, {{med.pharmacistFirstname}} </td>
+		 					<td>{{med.dispensingPharmacyPhoneNumber}}</td> 
+		 					<td ng-click="showGroupedService(med)"><span ng-if="med.headRecord"><a>{{servicesWithGroupedDups[med.brandName.display].length}}</a></span><!-- {{med | json}}  --></td> 
+		 					
+		 				</tr> 
+		 				<tr>
+		 					<td colspan="8">
+		 						{{services.length}} results returned  <button type="button" class="btn btn-default btn-xs" ng-click="printSummary()">Print</button>
+ 		 					</td>
+		 				</tr>
+		 			</tbody> 
+		 		</table>
+				
+				<!--  end services -->
 		 </div>
 	 	
 	 	
 	 	
-	 	<div ng-show="viewWhen('comp')">	<!-- comparitive view start -->
+	 	<div ng-show="viewWhen('comp')">	<!-- comparative view start -->
 	 		<div class="row">
-		 		<div class="col-xs-6" >
-		 		<h4>DHIR DATA</h4>
-		 			<table class="table table-condensed table-striped table-bordered" > 
-		 			<%-- caption>
-		 			<div><i>Warning: Limited to Drug and Pharmacy Service Information available in the Digital Health Drug Repository (DHDR) EHR Service. 
-		 					To ensure a Best Possible Medication History, please review this information with the patient/family and use other available sources of medication 
-		 					information in addition to the DHDR EHR Service. For more details on the information available in the DHDR EHR Service, 
-		 					please  <a href="http://www.forms.ssb.gov.on.ca/mbs/ssb/forms/ssbforms.nsf/FormDetail?OpenForm&ACT=RDR&TAB=PROFILE&SRCH=&ENV=WWE&TIT=5056-87E&NO=014-5056-87E" target="_blank">click here</a></i></div>
-		 			</caption --%>
-		 			<thead> 
-		 				<tr> 
-		 					<th>Dispense Date</th> 
-		 					<%-- th>Generic</th> --%> 
-		 					<th>Brand</th> 
-		 					<th>Quantity</th>
-		 					<th>Est Days Supply</th>
-		 					<th>Prescriber</th>
-		 					<th>Pharmacy</th>
-						</tr> 
-					</thead> 
-		 			<tbody> 
-		 				<tr ng-repeat="med in meds"> 
-		 					<th scope="row">{{med.whenPrepared | date}}</th> 
-		 					<%-- td >{{med.genericName}}</td> --%>
-		 					<td ng-click="getDetailView(med);">{{med.brandName.display}} {{med.dispensedDrugStrength}} {{med.drugDosageForm}} ({{med.genericName}})</td>
-		 					<td>{{med.dispensedQuantity}}</td>
-		 					<td>{{med.estimatedDaysSupply}}</td>
-		 					<td>{{med.prescriberLastname}}, {{med.prescriberFirstname}} ({{med.prescriberLicenceNumber.value}}) {{med.prescriberPhoneNumber}}</td>
-		 					<td>{{med.dispensingPharmacy}} {{med.dispensingPharmacyFaxNumber}}</td>
-		 					
-		 					
-		 				</tr>
-		 				<tr>
-		 					<td colspan="6">
-		 						{{meds.length}} results returned
- 		 					</td>
-		 				</tr> 
-		 			</tbody> 
-		 		</table>
-		 		
+		 		<div class="col-xs-12" >
+		 			<button type="button" class="btn btn-default btn-xs" ng-click="hideShowDhirData()"><span ng-if="hideShowDhirDataVal">Hide</span><span ng-if="!hideShowDhirDataVal">Show</span> DHDR DATA</button>
+		 			<button type="button" class="btn btn-default btn-xs" ng-click="hideShowDhirPharma()"><span ng-if="hideShowDhirPharmaVal">Hide</span><span ng-if="!hideShowDhirPharmaVal">Show</span> DHDR PharmaServices</button>
+		 			<button type="button" class="btn btn-default btn-xs" ng-click="hideShowDhirDrug()"><span ng-if="hideShowDhirDrugVal">Hide</span><span ng-if="!hideShowDhirDrugVal">Show</span> DHDR Drugs</button>
+		 			
+		 			<button type="button" class="btn btn-default btn-xs" ng-click="printComparative()">Print</button>
+		 		</div>
+		 	</div>
+	 		
+	 		<div class="row">
+		 		<div class="col-xs-6" ng-if="hideShowDhirDataVal">
+			 		<div ng-if="hideShowDhirDrugVal">
+				 		<h4>DHDR Drugs</h4>
+				 			<h6>Medication Dispense</h6>
+				 			<table class="table table-condensed table-striped table-bordered" > 
+				 			<%-- caption>
+				 			<div><i>Warning: Limited to Drug and Pharmacy Service Information available in the Digital Health Drug Repository (DHDR) EHR Service. 
+				 					To ensure a Best Possible Medication History, please review this information with the patient/family and use other available sources of medication 
+				 					information in addition to the DHDR EHR Service. For more details on the information available in the DHDR EHR Service, 
+				 					please  <a href="http://www.forms.ssb.gov.on.ca/mbs/ssb/forms/ssbforms.nsf/FormDetail?OpenForm&ACT=RDR&TAB=PROFILE&SRCH=&ENV=WWE&TIT=5056-87E&NO=014-5056-87E" target="_blank">click here</a></i></div>
+				 			</caption --%>
+				 			<thead> 
+				 				<tr> 
+				 					<th>Dispense Date</th> 
+				 					<%-- th>Generic</th> --%> 
+				 					<th>Brand</th> 
+				 					<th>Quantity</th>
+				 					<th>Status</th>
+				 					<th>Prescriber</th>
+				 					<th>Pharmacy</th>
+								</tr> 
+							</thead> 
+				 			<tbody> 
+				 				<tr ng-repeat="med in meds"> 
+				 					<th scope="row">{{med.whenPrepared | date}}</th> 
+				 					<%-- td >{{med.genericName}}</td> --%>
+				 					<td ng-click="getDetailView(med);">{{med.brandName.display}} {{med.dispensedDrugStrength}} {{med.drugDosageForm}} ({{med.genericName}})</td>
+				 					<td>{{med.dispensedQuantity}}</td>
+				 					<td>
+				 						Est Days Supply:{{med.estimatedDaysSupply}}
+				 						Refills Remaining:{{med.refillsRemaining}}
+										Quantity Remaining:{{med.quantityRemaining}}
+				 					</td>
+				 					<td>{{med.prescriberLastname}}, {{med.prescriberFirstname}} Tel:{{med.prescriberPhoneNumber}}</td>
+				 					<td>{{med.dispensingPharmacy}} {{med.dispensingPharmacyFaxNumber}}</td>
+				 					
+				 					
+				 				</tr>
+				 				<tr>
+				 					<td colspan="6">
+				 						{{meds.length}} results returned
+		 		 					</td>
+				 				</tr> 
+				 			</tbody> 
+				 		</table>
+			 		</div>
+			 		<div ng-if="hideShowDhirPharmaVal">
+				 		<h6>DHDR PharmaServices</h6>
+				 		 <table class="table table-condensed table-striped table-bordered" ng-show="services.length > 0"> 		 			
+				 			<thead> 
+				 				<tr> 
+				 					<th>Last Service Date</th> 
+				 					<th>Pickup Date</th> 
+				 					<th>Pharmacy Service Type</th> 
+				 					<th>Pharmacy Service Description</th> 
+									<th>Pharmacy Name</th>
+				 					<th>Pharmacist</th>
+								</tr> 
+							</thead> 
+							 
+				 			<tbody> 
+				 				<tr ng-repeat="med in services | filter : searchtxt | orderBy:serviceOrderByField:serviceReverseSort"> 
+				 					<th scope="row">{{med.whenPrepared | date}}</th> 
+				 					<td scope="row">{{med.whenHandedOver | date}}</td>
+				 					<td>{{med.brandName.display}}</td> 
+				 					<td>{{med.genericName}} </td>
+				 					<td>{{med.dispensingPharmacy}} - Tel:{{med.dispensingPharmacyPhoneNumber}}</td>
+				 					<td>{{med.pharmacistLastname}}, {{med.pharmacistFirstname}} </td>
+				 					
+				 				</tr> 
+				 				<tr>
+				 					<td colspan="8">
+				 						{{services.length}} results returned  
+		 		 					</td>
+				 				</tr>
+				 			</tbody> 
+				 		</table>
+			 		</div>
 		 		</div>
 		 		<div class="col-xs-6" >
-		 		<h4>LOCAL DATA</h4>
+		 		<h4>EMR prescriptions</h4>
 		 			<table class="table table-condensed table-striped table-bordered" ng-show="compLocalMeds.length > 0"> 
 		 			   	<thead> 
 			 				<tr> 
@@ -287,7 +476,7 @@ try  {
 			 					<th scope="row">{{med.rxDate | date}}</th>
 			 					<%-- td ng-click="getDetailView(med);">{{med.genericName}}</td> --%>
 			 					<td>{{med.instructions}}</td>
-			 					<td>{{med.providerNo}}</td>
+			 					<td>{{getProviderName(med.providerNo)}}</td>
 			 					<td>{{med.regionalIdentifier}}</td>
 			 				</tr> 
 			 			</tbody> 
@@ -453,15 +642,72 @@ try  {
 				$scope.demographicNo = urlParams.get("demographic_no");
 			//}
 			$scope.demographic = {};
+			activeProvidersHash = {};
 			$scope.meds = [];
+			$scope.services = [];
 			$scope.outcomes = [];
-			defaultDaysToSearch = 1420;
+			defaultDaysToSearch = 120;
 			$scope.searchConfig = {};
 			$scope.searchConfig.endDate = new Date();
 			$scope.searchConfig.startDate = new Date($scope.searchConfig.endDate);
 			$scope.searchConfig.startDate.setDate($scope.searchConfig.endDate.getDate() - defaultDaysToSearch);
 			$scope.searching = false;
 			$scope.showDHDRDisclaimer = true;
+			$scope.hideShowDhirDataVal = true;
+			$scope.showSummaryProductFilter = false;
+			$scope.showSummaryServiceFilter = false;
+			$scope.hideShowDhirPharmaVal = true;
+			$scope.hideShowDhirDrugVal = true;
+			
+			$scope.hideShowDhirData = function(){
+				if($scope.hideShowDhirDataVal){
+					$scope.hideShowDhirDataVal = false;
+				}else{
+					$scope.hideShowDhirDataVal = true;
+				}
+			}
+			
+			$scope.hideShowDhirPharma = function(){
+				if($scope.hideShowDhirPharmaVal){
+					$scope.hideShowDhirPharmaVal = false;
+				}else{
+					$scope.hideShowDhirPharmaVal = true;
+				}
+			}
+			
+			$scope.hideShowDhirDrug = function(){
+				if($scope.hideShowDhirDrugVal){
+					$scope.hideShowDhirDrugVal = false;
+				}else{
+					$scope.hideShowDhirDrugVal = true;
+				}
+			}
+			
+			$scope.showHideFilter = function(){
+				if($scope.showSummaryProductFilter){
+					$scope.searchtxt = {};
+					$scope.showSummaryProductFilter =false;
+				}else{
+					$scope.showSummaryProductFilter = true;
+				}
+			}
+			
+			$scope.showFilter = function(){
+				return $scope.showSummaryProductFilter;
+			}
+			
+			$scope.showHideServiceFilter = function(){
+				if($scope.showSummaryServiceFilter){
+					$scope.searchServicetxt = {};
+					$scope.showSummaryServiceFilter =false;
+				}else{
+					$scope.showSummaryServiceFilter = true;
+				}
+			}
+			
+			$scope.showServiceFilter = function(){
+				return $scope.showSummaryServiceFilter;
+			}
 			
 			
 			
@@ -491,8 +737,32 @@ try  {
 			}
 			$scope.getShowDisclaimerStatus();
 			
+			getAllActiveProviders = function(){
+	    			providerService.getAllActiveProviders().then(function(data){
+		    			$scope.activeProviders = data;
+		    			console.log("$scope.activeProviders",data);
+		    			angular.forEach($scope.activeProviders, function(provider) {
+		    				activeProvidersHash[provider.providerNo] = provider;
+		    			});
+		    			console.log("getAllActiveProviders", activeProvidersHash); //data);
+				});
+	    		};
+	    		
+	    		getAllActiveProviders();
+	    		
+	    		$scope.getProviderName = function(providerNumber){
+	    			provider = activeProvidersHash[providerNumber];
+	    			if(provider == null){ return providerNumber+" N/A inactive"}
+	    			return provider.lastName+", "+provider.firstName;
+	    		}
+			
 			$scope.orderByField = 'whenPrepared';
 			$scope.reverseSort = true;
+			
+			$scope.serviceOrderByField = 'whenPrepared';
+			$scope.serviceReverseSort = true;
+			
+			
 			////////
 			currentViewValue = 'summary'
 			
@@ -503,10 +773,32 @@ try  {
 			$scope.printSummary = function(){
 				var toPrint = {};
 				toPrint.meds = $scope.meds;
+				toPrint.services = $scope.services;
 				toPrint.startDate = $filter('date')($scope.searchConfig.startDate, "yyyy-MM-dd");
 				toPrint.endDate   = $filter('date')($scope.searchConfig.endDate, "yyyy-MM-dd");
 				
 				$http.post('../ws/rs/dhdr/'+$scope.demographicNo+'/print/summary',toPrint,{ responseType: 'arraybuffer' }).then(function (response) {
+					
+					console.log("respone",response);
+				       var file = new Blob([response.data], {type: 'application/pdf'});
+				       var fileURL = URL.createObjectURL(file);
+				       window.open(fileURL);
+				}, function(errorMessage) {
+					alert("Error getting printout");
+					//rxComp.error = errorMessage;
+				});	
+				//window.open('../ws/rs/dhdr/'+$scope.demographicNo+'/print/summary','_blank');
+			}
+			
+			$scope.printComparative = function(){
+				var toPrint = {};
+				toPrint.meds = $scope.meds;
+				toPrint.services = $scope.services;
+				toPrint.localData = $scope.compLocalMeds;
+				toPrint.startDate = $filter('date')($scope.searchConfig.startDate, "yyyy-MM-dd");
+				toPrint.endDate   = $filter('date')($scope.searchConfig.endDate, "yyyy-MM-dd");
+				
+				$http.post('../ws/rs/dhdr/'+$scope.demographicNo+'/print/comparative',toPrint,{ responseType: 'arraybuffer' }).then(function (response) {
 					
 					console.log("respone",response);
 				       var file = new Blob([response.data], {type: 'application/pdf'});
@@ -625,21 +917,88 @@ try  {
 			
 			$scope.showGroupedMeds = function(med) {
 				hiddenGroup = $scope.medsWithGroupedDups[med.getUniqVal()];
-				console.log("hiddenGroup",hiddenGroup);
+				//console.log("hiddenGroup",hiddenGroup);
+				//for (x of  hiddenGroup) {
+				//	x.hide = false;
+				//}
+				//console.log("hiddenGroup2",hiddenGroup);
+				
+				var currentlyHasHiddenItems = false; 
 				for (x of  hiddenGroup) {
-					x.hide = false;
+					if(x.hide){
+						currentlyHasHiddenItems = true;
+					}
 				}
-				console.log("hiddenGroup2",hiddenGroup);
+				
+				if(currentlyHasHiddenItems){
+					for (x of  hiddenGroup) {
+						x.hide = false;
+					}
+				}else{
+					for (x of  hiddenGroup) {
+						if(x.hiddenRecord){
+							x.hide = true;	
+						}
+					}
+				}
+				
+			}
+			
+			$scope.showGroupedService = function(med){
+				hiddenGroup = $scope.servicesWithGroupedDups[med.brandName.display];
+				//console.log("hiddenGroup",hiddenGroup);
+				var currentlyHasHiddenItems = false; 
+				for (x of  hiddenGroup) {
+					if(x.hide){
+						currentlyHasHiddenItems = true;
+					}
+				}
+				if(currentlyHasHiddenItems){
+					for (x of  hiddenGroup) {
+						x.hide = false;
+					}
+				}else{
+					for (x of  hiddenGroup) {
+						if(x.hiddenRecord){
+							x.hide = true;	
+						}
+					}
+				}
+				//console.log("hiddenGroup2",hiddenGroup);
+			}
+			
+			$scope.getRowClass = function(med){
+				if(med.hiddenRecord){
+					return "warning";
+				}
 			}
 		
 			search = function(demographicNo,searchConfig){
 				$scope.searching = true;
 				dhdrService.searchByDemographicNo2(demographicNo,searchConfig).then(function(response){
+					
+				    console.log("resonse",response);
 					console.log("response.entry",response.entry);
 					$scope.searching = false;
 					$scope.meds = [];
+					$scope.services = [];
 					$scope.outcomes = [];
 					$scope.medsWithGroupedDups = [];
+					$scope.servicesWithGroupedDups = [];
+					
+					if(angular.isUndefined(response.entry)){
+						if(angular.isDefined(response.resourceType) && response.resourceType === "OperationOutcome"){
+							var o = new OperationOutcome(response);
+							$scope.outcomes.push(o);
+							console.log("$scope.outcomes",$scope.outcomes);
+							return;
+						}
+						
+					}
+						
+					
+					
+					
 					for (x of  response.entry) {
 						console.log("x",x);
 						if(x.resource.resourceType === "OperationOutcome"){
@@ -648,18 +1007,41 @@ try  {
 							console.log("$scope.outcomes",$scope.outcomes);
 						}else if(x.resource.resourceType === "MedicationDispense"){
 							var d = new MedicationDispense(x);
-							console.log("d",d,d.getUniqVal());
-							$scope.meds.push(d);
-							console.log("d.getUniqVal()",d.getUniqVal(),$scope.medsWithGroupedDups[d.getUniqVal()]);
-							
-							//if ($scope.medsWithGroupedDups.indexOf(d.getUniqVal()) === -1) {
-							if($scope.medsWithGroupedDups[d.getUniqVal()] === undefined){
-								$scope.medsWithGroupedDups[d.getUniqVal()] = [];
-								$scope.medsWithGroupedDups[d.getUniqVal()].push(d);
+							if(d.categoryCode === "service"){ 
+								console.log("d",d,d.brandName.display);
+								$scope.services.push(d);
+								console.log("d.brandName.display",d.brandName.display,$scope.servicesWithGroupedDups[d.brandName.display]);
+								
+								//if ($scope.medsWithGroupedDups.indexOf(d.getUniqVal()) === -1) {
+								if($scope.servicesWithGroupedDups[d.brandName.display] === undefined){
+									$scope.servicesWithGroupedDups[d.brandName.display] = [];
+									d.headRecord= true;
+									$scope.servicesWithGroupedDups[d.brandName.display].push(d);
+								}else{
+									console.log("found ",d.getUniqVal(),$scope.servicesWithGroupedDups[d.brandName.display]);
+									d.hide = true;
+									d.hiddenRecord = true;
+									$scope.servicesWithGroupedDups[d.brandName.display].push(d);
+								}
+								
 							}else{
-								console.log("found ",d.getUniqVal(),$scope.medsWithGroupedDups[d.getUniqVal()]);
-								d.hide = true;
-								$scope.medsWithGroupedDups[d.getUniqVal()].push(d);
+							
+								///
+								console.log("d",d,d.getUniqVal());
+								$scope.meds.push(d);
+								console.log("d.getUniqVal()",d.getUniqVal(),$scope.medsWithGroupedDups[d.getUniqVal()]);
+								
+								//if ($scope.medsWithGroupedDups.indexOf(d.getUniqVal()) === -1) {
+								if($scope.medsWithGroupedDups[d.getUniqVal()] === undefined){
+									$scope.medsWithGroupedDups[d.getUniqVal()] = [];
+									d.headRecord= true;
+									$scope.medsWithGroupedDups[d.getUniqVal()].push(d);
+								}else{
+									console.log("found ",d.getUniqVal(),$scope.medsWithGroupedDups[d.getUniqVal()]);
+									d.hide = true;
+									d.hiddenRecord = true;
+									$scope.medsWithGroupedDups[d.getUniqVal()].push(d);
+								}
 							}
 						}
 					}
@@ -709,6 +1091,45 @@ try  {
 	    		    });
     		  };
 	    	
+    		  
+    		  $scope.cancelBlock = function(){
+    			  var cancelReason = prompt("Access to Drug and Pharmacy Service Information has been cancelled. \nReason:");
+
+    			  if (cancelReason != null) {
+    			    var cancelMsg= {};
+    			    cancelMsg.type = 'CANCEL';
+    			    cancelMsg.reason = cancelReason;
+    		
+    			    dhdrService.logConsentOverrideCancelRefuse($scope.demographicNo,cancelMsg).then(function(response){
+    					console.log("logConsentOverrideCancelRefuse",response);
+    					window.close();	
+    				},function(reason){
+    					alert(reason);
+    				});
+    				
+    			
+    			    
+    			    
+    			    
+    			  } 
+    		  }
+    		  
+    		  $scope.refusedBlock = function(){
+    			  var refusedReason = prompt("Access to Drug and Pharmacy Service Information has been refused by the patient. \nReason:");
+
+    			  if (refusedReason != null) {
+    				  var refusedMsg= {};
+    				  refusedMsg.type = 'REFUSED';
+    				  refusedMsg.reason = refusedReason;
+      		
+	    			    dhdrService.logConsentOverrideCancelRefuse($scope.demographicNo,refusedMsg).then(function(response){
+	    					console.log("logConsentOverrideCancelRefuse",response);
+	    					window.close();	
+	    				},function(reason){
+	    					alert(reason);
+	    				});
+    			  }
+    		  }
 			
     		  $scope.callConsentBlock = function($event){
     				console.log("callConsentBlock");	 
@@ -760,11 +1181,14 @@ try  {
 		});
 		
 		function OperationOutcome(operationOutcome){
+			
 			this.outcomme = operationOutcome;
 			this.issues = [];
 			
 			if(angular.isDefined(this.outcomme.resource) && angular.isDefined(this.outcomme.resource.issue)){
 				this.issues = this.outcomme.resource.issue;
+			}else if(angular.isDefined(this.outcomme.issue)){
+				this.issues = this.outcomme.issue;
 			}
 				
 			
@@ -913,7 +1337,7 @@ j) Pharmacy Phone Number [Organization.telecom[1].value]
 							if("fax" === tele.system){
 								this.dispensingPharmacyFaxNumber = tele.value;		
 							}
-							if("PHONE" === tele.system){
+							if("phone" === tele.system){
 								this.dispensingPharmacyPhoneNumber = tele.value;		
 							}
 	
