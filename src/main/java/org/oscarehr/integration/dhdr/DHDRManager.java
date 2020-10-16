@@ -23,30 +23,35 @@ package org.oscarehr.integration.dhdr;
  * Ontario, Canada
  */
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.log4j.Logger;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.OperationOutcome;
 import org.oscarehr.common.model.Demographic;
+import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 
 import ca.uhn.fhir.context.FhirContext;
+import oscar.OscarProperties;
 
 public class DHDRManager extends OmdGateway {
 	
 	Logger logger = MiscUtils.getLogger();
 	static FhirContext ctx = FhirContext.forR4();
-	
+	/*
 	public Bundle search(HttpServletRequest request, Demographic demographic, Date startDate, Date endDate) throws Exception {
-		
+		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
 		Map<String, String> params = new HashMap<String, String>();
 		SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
 		//params.put("patient.identifier", "http://ehealthontario.ca/fhir/NamingSystem/ca-on-patient-hcn|" + "7361544534");
@@ -67,7 +72,7 @@ public class DHDRManager extends OmdGateway {
 		
 		
 		
-		WebClient wc = getWebClient(OmdGateway.MedicationDispense);
+		WebClient wc = getWebClient(loggedInInfo,OmdGateway.MedicationDispense);
 		
 		for (Entry<String, String> entry : params.entrySet()) {
 			wc.query(entry.getKey(), entry.getValue());
@@ -103,8 +108,29 @@ public class DHDRManager extends OmdGateway {
 		return null;
 
 	}
-
-	public String search2(HttpServletRequest request, Demographic demographic, Date startDate, Date endDate) throws Exception {
+*/
+	//This only used if the endpoint is different for the dhdr than the rest of the gateway applications
+	@Override
+	protected String getConsumerKey() {
+		if(OscarProperties.getInstance().hasProperty("oneid.consumerKey.dhdr")) {
+			return OscarProperties.getInstance().getProperty("oneid.consumerKey.dhdr");
+		}
+		return OscarProperties.getInstance().getProperty("oneid.consumerKey");
+	}
+	
+	@Override
+	protected String getEndpointURL() {
+		if(OscarProperties.getInstance().hasProperty("oneid.gateway.url.dhdr")) {
+			return OscarProperties.getInstance().getProperty("oneid.gateway.url.dhdr");
+		}
+		return OscarProperties.getInstance().getProperty("oneid.gateway.url");
+	}
+	
+	
+	
+	
+	
+	public String search2(LoggedInInfo loggedInInfo, Demographic demographic, Date startDate, Date endDate) throws Exception {
 		
 		Map<String, String> params = new HashMap<String, String>();
 		SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
@@ -125,9 +151,30 @@ public class DHDRManager extends OmdGateway {
 		
 		
 		logger.info("params: "+params);
-		WebClient wc = getWebClient(OmdGateway.MedicationDispense);
+		WebClient wc = getWebClient(loggedInInfo,OmdGateway.MedicationDispense);
 		
 		wc.query("patient.identifier", "https://fhir.infoway-inforoute.ca/NamingSystem/ca-on-patient-hcn|" + demographic.getHin());//"5365837912");
+		
+		wc.query("patient.birthdate", demographic.getBirthDayAsString());
+		
+		//Map to fhir types “male”, “female”, “other”, “unknown”
+		
+		if("M".equalsIgnoreCase(demographic.getSex())){
+			wc.query("patient.gender", "male");//"5365837912");
+		}else if("F".equalsIgnoreCase(demographic.getSex())){
+			wc.query("patient.gender", "female");//"5365837912");
+		}else if("T".equalsIgnoreCase(demographic.getSex())){
+			wc.query("patient.gender", "other");//"5365837912");
+		}else if("O".equalsIgnoreCase(demographic.getSex())){
+			wc.query("patient.gender", "other");//"5365837912");
+		}else if("U".equalsIgnoreCase(demographic.getSex())){
+			wc.query("patient.gender", "unknown");//"5365837912");
+		}else{
+			wc.query("patient.gender", "unknown");//"5365837912");
+		}
+	
+		
+		wc.query("_count", "500");
 		
 		if (endDate == null) {
 			wc.query("whenprepared", "lt"+fmt.format(endDate));
@@ -140,10 +187,14 @@ public class DHDRManager extends OmdGateway {
 		wc.query("_format", "application/fhir+json");
 		
 		
-		
-		Response response2 = doGet(wc, request);			
+		AuditInfo auditInfo = new AuditInfo(AuditInfo.DHDR,AuditInfo.SEARCH,demographic.getDemographicNo());
+		Response response2 = doGet(loggedInInfo, wc,auditInfo);			
 		String body = response2.readEntity(String.class);
 		
+		//java.io.InputStream salida = (java.io.InputStream) response2.getEntity();
+		//java.io.StringWriter writer = new java.io.StringWriter();
+        //IOUtils.copy(salida, writer, "UTF-8");
+		//body = writer.toString();
 		logger.info("body:"+ body);
 		
 		if(response2.getStatus() >= 200 && response2.getStatus() < 300) {	
@@ -155,6 +206,7 @@ public class DHDRManager extends OmdGateway {
 			OperationOutcome outcome = ctx.newJsonParser().parseResource(OperationOutcome.class, body);
 			if(outcome != null) {
 				logger.warn("would add outcome here "+outcome);
+				return body;
 				//outcomes.add(outcome);
 			} else {
 				//notifyDHIRError(loggedInInfo,"An error occurred retrieving the data. (" + response2.getStatus() + ":" + ((body != null)?body:"") + ")");
