@@ -89,7 +89,7 @@ try  {
 "http://www.w3.org/TR/html4/loose.dtd">
 <html ng-app="dhdrView">
 <head>
-	<title><bean:message key="admin.admin.surveillanceConfig"/></title>
+	<title>DHDR Search</title>
 	<link href="<%=request.getContextPath() %>/library/bootstrap/3.0.0/css/bootstrap.css" rel="stylesheet">
 	<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 	<script type="text/javascript" src="<%=request.getContextPath() %>/library/angular.min.js"></script>	
@@ -644,6 +644,7 @@ try  {
 			$scope.demographic = {};
 			activeProvidersHash = {};
 			$scope.meds = [];
+			$scope.uniqMeds = [];
 			$scope.services = [];
 			$scope.outcomes = [];
 			defaultDaysToSearch = 120;
@@ -910,10 +911,7 @@ try  {
 		        getDemo();
 		    }, true);
 */
-			$scope.callSearch = function(){
-				search($scope.demographicNo,$scope.searchConfig);
-				
-			}
+			
 			
 			$scope.showGroupedMeds = function(med) {
 				hiddenGroup = $scope.medsWithGroupedDups[med.getUniqVal()];
@@ -972,6 +970,69 @@ try  {
 					return "warning";
 				}
 			}
+			
+			processEntries = function(entries){
+				for (x of entries) {
+					console.log("x",x);
+					if(x.resource.resourceType === "OperationOutcome"){
+						var o = new OperationOutcome(x);
+						$scope.outcomes.push(o);
+						console.log("$scope.outcomes",$scope.outcomes);
+					}else if(x.resource.resourceType === "MedicationDispense"){
+						var d = new MedicationDispense(x);
+						if(d.categoryCode === "service"){ 
+							console.log("d",d,d.brandName.display);
+							$scope.services.push(d);
+							console.log("d.brandName.display",d.brandName.display,$scope.servicesWithGroupedDups[d.brandName.display]);
+							
+							//if ($scope.medsWithGroupedDups.indexOf(d.getUniqVal()) === -1) {
+							if($scope.servicesWithGroupedDups[d.brandName.display] === undefined){
+								$scope.servicesWithGroupedDups[d.brandName.display] = [];
+								d.headRecord= true;
+								$scope.servicesWithGroupedDups[d.brandName.display].push(d);
+							}else{
+								console.log("found ",d.getUniqVal(),$scope.servicesWithGroupedDups[d.brandName.display]);
+								d.hide = true;
+								d.hiddenRecord = true;
+								$scope.servicesWithGroupedDups[d.brandName.display].push(d);
+							}
+							
+						}else{
+						
+							///
+							console.log("d",d,d.getUniqVal());
+							$scope.meds.push(d);
+							console.log("d.getUniqVal()",d.getUniqVal(),$scope.medsWithGroupedDups[d.getUniqVal()]);
+							
+							//if ($scope.medsWithGroupedDups.indexOf(d.getUniqVal()) === -1) {
+							if($scope.medsWithGroupedDups[d.getUniqVal()] === undefined){
+								$scope.medsWithGroupedDups[d.getUniqVal()] = [];
+								d.headRecord= true;
+								$scope.uniqMeds.push(d);
+								$scope.medsWithGroupedDups[d.getUniqVal()].push(d);
+							}else{
+								console.log("found ",d.getUniqVal(),$scope.medsWithGroupedDups[d.getUniqVal()]);
+								d.hide = true;
+								d.hiddenRecord = true;
+								$scope.medsWithGroupedDups[d.getUniqVal()].push(d);
+							}
+						}
+					}
+				}
+			};
+			
+			$scope.callSearch = function(){
+				
+				$scope.meds = [];
+				$scope.services = [];
+				$scope.outcomes = [];
+				$scope.medsWithGroupedDups = [];
+				$scope.servicesWithGroupedDups = [];
+				$scope.searchConfig.searchId = null;
+				$scope.searchConfig.pageId = null;
+				search($scope.demographicNo,$scope.searchConfig);
+				
+			}
 		
 			search = function(demographicNo,searchConfig){
 				$scope.searching = true;
@@ -980,11 +1041,9 @@ try  {
 				    console.log("resonse",response);
 					console.log("response.entry",response.entry);
 					$scope.searching = false;
-					$scope.meds = [];
-					$scope.services = [];
-					$scope.outcomes = [];
-					$scope.medsWithGroupedDups = [];
-					$scope.servicesWithGroupedDups = [];
+					
+					
+					console.log("HAS more ",response.link.length);
 					
 					if(angular.isUndefined(response.entry)){
 						if(angular.isDefined(response.resourceType) && response.resourceType === "OperationOutcome"){
@@ -996,55 +1055,21 @@ try  {
 						
 					}
 						
+					processEntries(response.entry);
 					
-					
-					
-					for (x of  response.entry) {
-						console.log("x",x);
-						if(x.resource.resourceType === "OperationOutcome"){
-							var o = new OperationOutcome(x);
-							$scope.outcomes.push(o);
-							console.log("$scope.outcomes",$scope.outcomes);
-						}else if(x.resource.resourceType === "MedicationDispense"){
-							var d = new MedicationDispense(x);
-							if(d.categoryCode === "service"){ 
-								console.log("d",d,d.brandName.display);
-								$scope.services.push(d);
-								console.log("d.brandName.display",d.brandName.display,$scope.servicesWithGroupedDups[d.brandName.display]);
-								
-								//if ($scope.medsWithGroupedDups.indexOf(d.getUniqVal()) === -1) {
-								if($scope.servicesWithGroupedDups[d.brandName.display] === undefined){
-									$scope.servicesWithGroupedDups[d.brandName.display] = [];
-									d.headRecord= true;
-									$scope.servicesWithGroupedDups[d.brandName.display].push(d);
-								}else{
-									console.log("found ",d.getUniqVal(),$scope.servicesWithGroupedDups[d.brandName.display]);
-									d.hide = true;
-									d.hiddenRecord = true;
-									$scope.servicesWithGroupedDups[d.brandName.display].push(d);
-								}
-								
-							}else{
-							
-								///
-								console.log("d",d,d.getUniqVal());
-								$scope.meds.push(d);
-								console.log("d.getUniqVal()",d.getUniqVal(),$scope.medsWithGroupedDups[d.getUniqVal()]);
-								
-								//if ($scope.medsWithGroupedDups.indexOf(d.getUniqVal()) === -1) {
-								if($scope.medsWithGroupedDups[d.getUniqVal()] === undefined){
-									$scope.medsWithGroupedDups[d.getUniqVal()] = [];
-									d.headRecord= true;
-									$scope.medsWithGroupedDups[d.getUniqVal()].push(d);
-								}else{
-									console.log("found ",d.getUniqVal(),$scope.medsWithGroupedDups[d.getUniqVal()]);
-									d.hide = true;
-									d.hiddenRecord = true;
-									$scope.medsWithGroupedDups[d.getUniqVal()].push(d);
-								}
-							}
+					if(response.link.length > 1){
+						$scope.searchConfig.searchId = response.id;
+						console.log("$scope.searchConfig.",$scope.searchConfig);
+						if($scope.searchConfig.pageId == null){
+							$scope.searchConfig.pageId = 2;
+						
+						}else{
+							$scope.searchConfig.pageId = $scope.searchConfig.pageId+1;
 						}
+						search($scope.demographicNo,$scope.searchConfig);
 					}
+					
+					
 					
 				},function(reason){
 					$scope.searching = false;
@@ -1363,12 +1388,15 @@ j) Pharmacy Phone Number [Organization.telecom[1].value]
 
 							*/							
 							this.prescriberLicenceNumber = identifier;
-							for( humanName of res.name) {
-								console.log("humanName",humanName);
-								this.prescriberLastname = humanName.family;
-								this.prescriberFirstname = humanName.given[0];
+							if(angular.isDefined(res.name)){
+								for( humanName of res.name) {
+									console.log("humanName",humanName);
+									this.prescriberLastname = humanName.family;
+									if(angular.isDefined(humanName.given)){
+										this.prescriberFirstname = humanName.given[0];
+									}
+								}
 							}
-							
 							for(tele of res.telecom){
 								if("phone" === tele.system){
 									this.prescriberPhoneNumber = tele.value;		
@@ -1380,10 +1408,14 @@ j) Pharmacy Phone Number [Organization.telecom[1].value]
 							//this.prescriberPhoneNumber = res.telecom[0].value);
 						}else if("https://fhir.infoway-inforoute.ca/NamingSystem/ca-on-license-pharmacist" === identifier.system) {
 							this.pharmacistLicenceNumber = identifier;
-							for( humanName of res.name) {
-								console.log("humanName",humanName);
-								this.pharmacistLastname = humanName.family;
-								this.pharmacistFirstname = humanName.given[0];
+							if(angular.isDefined(res.name)){
+								for( humanName of res.name) {
+									console.log("humanName",humanName);
+									this.pharmacistLastname = humanName.family;
+									if(angular.isDefined(humanName.given)){
+										this.pharmacistFirstname = humanName.given[0];
+									}
+								}
 							}
 							
 						}else{
