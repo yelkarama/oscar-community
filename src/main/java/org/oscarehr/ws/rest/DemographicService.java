@@ -26,10 +26,8 @@ package org.oscarehr.ws.rest;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -130,7 +128,11 @@ import oscar.util.StringUtils;
 @Path("/demographics")
 @Component("demographicService")
 public class DemographicService extends AbstractServiceImpl {
-	
+	private final String ALLERGIES = "allergies";
+	private final String MEASUREMENTS = "measurements";
+	private final String NOTES = "notes";
+	private final String MEDICATIONS = "medications";
+	private final String CONTACTS = "contacts";
 	
 	@Autowired
 	private DemographicManager demographicManager;
@@ -228,7 +230,7 @@ public class DemographicService extends AbstractServiceImpl {
 	@GET
 	@Path("/{dataId}")
 	@Produces({MediaType.APPLICATION_JSON , MediaType.APPLICATION_XML})
-	public DemographicTo1 getDemographicData(@PathParam("dataId") Integer id) throws PatientDirectiveException {
+	public DemographicTo1 getDemographicData(@PathParam("dataId") Integer id, @QueryParam("includes[]") List<String> include) throws PatientDirectiveException {
 		LoggedInInfo loggedInInfo = getLoggedInInfo();
 		Demographic demo = demographicManager.getDemographic(getLoggedInInfo(),id);
 		if (demo == null) return null;
@@ -357,28 +359,38 @@ public class DemographicService extends AbstractServiceImpl {
 			}
 		}
 
-		result.setAllergies(new AllergyConverter().getAllAsTransferObjects(loggedInInfo, allergyManager.getActiveAllergies(getLoggedInInfo(), demo.getDemographicNo())));
-		List<String> heightType = new ArrayList<>();
-		heightType.add("ht");
-		List<String> weightType = new ArrayList<>();
-		weightType.add("wt");
-		List<Measurement> heights = measurementManager.getMeasurementByType(loggedInInfo, demo.getDemographicNo(), heightType);
-		List<Measurement> weights = measurementManager.getMeasurementByType(loggedInInfo, demo.getDemographicNo(), weightType);
-		Calendar calendar = Calendar.getInstance();
-		calendar.add(Calendar.YEAR, -3);
-		List<Measurement> measurements = measurementManager.getLatestMeasurementsByDemographicIdObservedAfter(loggedInInfo, demo.getDemographicNo(), calendar.getTime());
-		//Just send most recent height and weight
-		if (!heights.isEmpty() && !measurements.contains(heights.get(0))) {
-			measurements.add(heights.get(0));
+		if (include.contains(ALLERGIES)) {
+			result.setAllergies(new AllergyConverter().getAllAsTransferObjects(loggedInInfo, allergyManager.getActiveAllergies(getLoggedInInfo(), demo.getDemographicNo())));
 		}
-		if (!weights.isEmpty() && !measurements.contains(weights.get(0))) {
-			measurements.add(weights.get(0));
-		}
-		result.setMeasurements(new MeasurementConverter().getAllAsTransferObjects(loggedInInfo, new ArrayList<>(measurements)));
-		result.setEncounterNotes(noteManager.getCppNotes(loggedInInfo, demo.getDemographicNo()));
 		
-		List<String> singleLineMedications = rxManager.getCurrentSingleLineMedications(loggedInInfo, demo.getDemographicNo());
-		result.setMedicationSummary(singleLineMedications);
+		if (include.contains(MEASUREMENTS)) {
+			List<String> heightType = new ArrayList<>();
+			heightType.add("ht");
+			List<String> weightType = new ArrayList<>();
+			weightType.add("wt");
+			List<Measurement> heights = measurementManager.getMeasurementByType(loggedInInfo, demo.getDemographicNo(), heightType);
+			List<Measurement> weights = measurementManager.getMeasurementByType(loggedInInfo, demo.getDemographicNo(), weightType);
+			Calendar calendar = Calendar.getInstance();
+			calendar.add(Calendar.YEAR, -3);
+			List<Measurement> measurements = measurementManager.getLatestMeasurementsByDemographicIdObservedAfter(loggedInInfo, demo.getDemographicNo(), calendar.getTime());
+			//Just send most recent height and weight
+			if (!heights.isEmpty() && !measurements.contains(heights.get(0))) {
+				measurements.add(heights.get(0));
+			}
+			if (!weights.isEmpty() && !measurements.contains(weights.get(0))) {
+				measurements.add(weights.get(0));
+			}
+			result.setMeasurements(new MeasurementConverter().getAllAsTransferObjects(loggedInInfo, new ArrayList<>(measurements)));
+		}
+
+		if (include.contains(NOTES)) {
+			result.setEncounterNotes(noteManager.getCppNotes(loggedInInfo, demo.getDemographicNo()));
+		}
+
+		if (include.contains(MEDICATIONS)) {
+			List<String> singleLineMedications = rxManager.getCurrentSingleLineMedications(loggedInInfo, demo.getDemographicNo());
+			result.setMedicationSummary(singleLineMedications);
+		}
 		
 		return result;
 	}
@@ -583,7 +595,7 @@ public class DemographicService extends AbstractServiceImpl {
 	@Path("/{dataId}")
 	public DemographicTo1 deleteDemographicData(@PathParam("dataId") Integer id) {
 		Demographic demo = demographicManager.getDemographic(getLoggedInInfo(),id);
-    	DemographicTo1 result = getDemographicData(id);
+    	DemographicTo1 result = getDemographicData(id, Collections.EMPTY_LIST);
     	if (demo == null) {
     		throw new IllegalArgumentException("Unable to find demographic record with ID " + id);
     	}
