@@ -30,8 +30,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
+import org.oscarehr.util.MiscUtils;
 import org.hl7.fhir.r4.model.Immunization;
 import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.ResourceType;
@@ -42,6 +44,8 @@ import ca.uhn.fhir.parser.DataFormatException;
 public class SearchResultsHandler {
 	
 	FhirContext ctx = FhirContext.forR4();
+	
+	private static Logger logger = MiscUtils.getLogger();
 	
 	Bundle bundle = null;
 	
@@ -56,11 +60,17 @@ public class SearchResultsHandler {
 		return bundle.getId();
 	}
 	
+	public String getResourceAsString(Resource resource) {
+		return ctx.newJsonParser().setPrettyPrint(true).encodeResourceToString( resource );
+	}
+	
 	public SearchResultsHandler(Reader reader) throws DataFormatException  {
 		bundle = ctx.newJsonParser().parseResource(Bundle.class, reader);
 		 
 		for(BundleEntryComponent comp : bundle.getEntry()) {
 			Resource resource = comp.getResource();
+			logger.debug("bundle resource: "+resource.getResourceType());
+			
 			if(resource.getResourceType() == ResourceType.Immunization) {
 				immunizationResources.put(resource.getId(),(Immunization)resource);
 			}
@@ -73,6 +83,7 @@ public class SearchResultsHandler {
 		 
 		for(BundleEntryComponent comp : bundle.getEntry()) {
 			Resource resource = comp.getResource();
+			logger.debug("bundle resource: "+resource.getResourceType());
 			if(resource.getResourceType() == ResourceType.Immunization) {
 				immunizationResources.put(resource.getId(),(Immunization)resource);
 			}

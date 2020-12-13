@@ -1,4 +1,3 @@
-package org.oscarehr.ws.rest.to;
 /**
  * Copyright (c) 2001-2002. Department of Family Medicine, McMaster University. All Rights Reserved.
  * This software is published under the GPL GNU General Public License.
@@ -22,40 +21,51 @@ package org.oscarehr.ws.rest.to;
  * Hamilton
  * Ontario, Canada
  */
-import java.util.Date;
+package org.oscarehr.common.dao;
 
-public class DHDRSearchConfig {
-	
-	private Date startDate = null;
-	private Date endDate = null;
-	private String searchId = null;
-	private String pageId = null;
-	
-	public Date getStartDate() {
-		return startDate;
-	}
-	public void setStartDate(Date startDate) {
-		this.startDate = startDate;
-	}
-	public Date getEndDate() {
-		return endDate;
-	}
-	public void setEndDate(Date endDate) {
-		this.endDate = endDate;
-	}
-	public String getSearchId() {
-		return searchId;
-	}
-	public void setSearchId(String searchId) {
-		this.searchId = searchId;
-	}
-	public String getPageId() {
-		return pageId;
-	}
-	public void setPageId(String pageId) {
-		this.pageId = pageId;
-	}
-	
-	
+import java.util.List;
 
+import javax.persistence.Query;
+
+import org.oscarehr.common.model.UAO;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class UAODao extends AbstractDao<UAO> {
+
+	public UAODao() {
+		super(UAO.class);
+	}
+	
+	
+	
+	public List<UAO> findByProvider(String provider) {
+		
+		Query q = entityManager.createQuery("select s from UAO s where s.providerNo = :providerNo and s.active = true order by s.defaultUAO desc");
+		q.setParameter("providerNo", provider);
+		
+		@SuppressWarnings("unchecked")
+		List<UAO> results = q.getResultList();
+		return results;
+	}
+	
+	public void setAsDefault(UAO uao,String provider) {
+		List<UAO> list = findByProvider(provider);
+		
+		for(UAO u:list) {
+			if(u.getId().equals(uao.getId()) && !u.getDefaultUAO()) { 
+				u.setDefaultUAO(true);
+				merge(u);
+			}else {
+				if(u.getDefaultUAO()) {
+					u.setDefaultUAO(false);
+					merge(u);
+				}
+			}
+		}
+		
+		
+	}
+	
+	
 }

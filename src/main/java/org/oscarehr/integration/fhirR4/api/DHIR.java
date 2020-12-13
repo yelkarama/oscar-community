@@ -29,6 +29,7 @@ import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.MessageHeader;
 import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.Resource;
+import org.oscarehr.common.model.Provider;
 import org.oscarehr.integration.fhirR4.builder.FhirBundleBuilder;
 import org.oscarehr.integration.fhirR4.builder.SenderFactory;
 import org.oscarehr.integration.fhirR4.manager.OscarFhirConfigurationManager;
@@ -87,7 +88,7 @@ public class DHIR {
 	 * Get the FhirBundleBuilder Object for a specific immunization
 	 * Useful for adding additional resources or adjusting the message structure.
 	 */
-	public static synchronized FhirBundleBuilder getFhirBundleBuilder( LoggedInInfo loggedInInfo, int demographicNo, int preventionId ) {
+	public static synchronized FhirBundleBuilder getFhirBundleBuilder( LoggedInInfo loggedInInfo, int demographicNo, int preventionId ,Provider externalProvider) {
 		
 		//TODO this will be set in a properties file later. The default is false anyway. 
 		SETTINGS.setIncludeSenderEndpoint( Boolean.TRUE ); 
@@ -105,7 +106,7 @@ public class DHIR {
 		patient.setFocusResource( Boolean.TRUE );
 		
 		// set the immunizations into the resource list
-		OscarFhirResourceManager.getImmunizationResourceBundle( configurationManager, patient, preventionId, resourceList );			
+		OscarFhirResourceManager.getImmunizationResourceBundle( configurationManager, patient, preventionId, resourceList,externalProvider );			
 		/*
 		if(publicHealthUnit != null) {
 			Reference reference = new Reference();
@@ -135,7 +136,7 @@ public class DHIR {
 	 * ie: send the MessageHeader as a reference back to this bundle resource.
 	 */
 	public static Bundle getBundleResource( LoggedInInfo loggedInInfo, int demographicNo, int preventionId ) {
-		return DHIR.getFhirBundleBuilder( loggedInInfo, demographicNo, preventionId ).getBundle();
+		return DHIR.getFhirBundleBuilder( loggedInInfo, demographicNo, preventionId,null ).getBundle();
 	}
 	
 	/**
@@ -143,7 +144,7 @@ public class DHIR {
 	 * For a single transmission payload.
 	 */
 	public static String getMessageJSON( LoggedInInfo loggedInInfo, int demographicNo, int preventionId ) {
-		return DHIR.getFhirBundleBuilder( loggedInInfo, demographicNo, preventionId ).getMessageJson();
+		return DHIR.getFhirBundleBuilder( loggedInInfo, demographicNo, preventionId,null ).getMessageJson();
 	}
 	
 	/**
@@ -151,7 +152,7 @@ public class DHIR {
 	 * This is useful for retrieving the destination endpoint, etc...
 	 */
 	public static MessageHeader getMessageHeader( LoggedInInfo loggedInInfo, int demographicNo, int preventionId) {
-		return DHIR.getFhirBundleBuilder( loggedInInfo, demographicNo, preventionId).getMessageHeader();
+		return DHIR.getFhirBundleBuilder( loggedInInfo, demographicNo, preventionId,null).getMessageHeader();
 	}
 
 }

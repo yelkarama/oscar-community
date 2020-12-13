@@ -49,66 +49,7 @@ public class DHDRManager extends OmdGateway {
 	
 	Logger logger = MiscUtils.getLogger();
 	static FhirContext ctx = FhirContext.forR4();
-	/*
-	public Bundle search(HttpServletRequest request, Demographic demographic, Date startDate, Date endDate) throws Exception {
-		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-		Map<String, String> params = new HashMap<String, String>();
-		SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
-		//params.put("patient.identifier", "http://ehealthontario.ca/fhir/NamingSystem/ca-on-patient-hcn|" + "7361544534");
-		params.put("patient.identifier", "https://fhir.infoway-inforoute.ca/NamingSystem/ca-on-patient-hcn|" + "5365837912");
-		
-		
-		if (endDate == null) {
-			params.put("whenprepared", "lt"+fmt.format(new Date()));
-		}
-		//params.put("patient.birthdate", dob);
-		//params.put("patient.gender", mapGender(gender));
-		//params.put("patient.family", lastName);
-		//params.put("patient.given", firstName);
-		//params.put("_include", "Immunization:patient");
-		//params.put("_include", "Immunization:performer");
-		//params.put("_revinclude:recurse", "ImmunizationRecommendation:patient");
-		params.put("_format", "application/fhir+json");
-		
-		
-		
-		WebClient wc = getWebClient(loggedInInfo,OmdGateway.MedicationDispense);
-		
-		for (Entry<String, String> entry : params.entrySet()) {
-			wc.query(entry.getKey(), entry.getValue());
-		}	
-		
-		Response response2 = doGet(wc, request);			
-		String body = response2.readEntity(String.class);
-		
-		logger.info("body:"+ body);
-		
-		if(response2.getStatus() >= 200 && response2.getStatus() < 300) {	
-			Bundle bundle = (Bundle) ctx.newJsonParser().parseResource(body);
-			//hasConsentBlock(bundle);
-			//outcomes.addAll(hasOperationOutcome(bundle));
-			return bundle;
-		} else if(response2.getStatus() >= 400 && response2.getStatus() < 600 && body != null) {
-			OperationOutcome outcome = ctx.newJsonParser().parseResource(OperationOutcome.class, body);
-			if(outcome != null) {
-				logger.warn("would add outcome here "+outcome);
-				//outcomes.add(outcome);
-			} else {
-				//notifyDHIRError(loggedInInfo,"An error occurred retrieving the data. (" + response2.getStatus() + ":" + ((body != null)?body:"") + ")");
-				//throw new DHIRException("An error occurred retrieving the data. (" + response2.getStatus() + ":" + ((body != null)?body:"") + ")");
-				logger.error("throw error here");
-			}
-		} else {
-			logger.error(response2.getStatus()); 
-			logger.error(body);
-			//notifyDHIRError(loggedInInfo,"An error occurred retrieving the data. (" + response2.getStatus() + ":" + ((body != null)?body:"") + ")");
-			//throw new DHIRException("An error occurred retrieving the data. (" + response2.getStatus() + ":" + ((body != null)?body:"") + ")");
-		}
-		 
-		return null;
-
-	}
-*/
+	
 	//This only used if the endpoint is different for the dhdr than the rest of the gateway applications
 	@Override
 	protected String getConsumerKey() {
@@ -125,32 +66,10 @@ public class DHDRManager extends OmdGateway {
 		}
 		return OscarProperties.getInstance().getProperty("oneid.gateway.url");
 	}
-	
-	
-	
-	
-	
-	public String search2(LoggedInInfo loggedInInfo, Demographic demographic, Date startDate, Date endDate) throws Exception {
+
+	public String search2(LoggedInInfo loggedInInfo, Demographic demographic, Date startDate, Date endDate,String searchId,Integer pageId) throws Exception {
 		
-		Map<String, String> params = new HashMap<String, String>();
 		SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
-		//params.put("patient.identifier", "http://ehealthontario.ca/fhir/NamingSystem/ca-on-patient-hcn|" + "7361544534");
-		params.put("patient.identifier", "https://fhir.infoway-inforoute.ca/NamingSystem/ca-on-patient-hcn|" + demographic.getHin());//"5365837912");
-		
-		
-		if (endDate == null) {
-			params.put("whenprepared", "lt"+fmt.format(endDate));
-		}else {
-			params.put("whenprepared", "lt"+fmt.format(new Date()));
-		}
-		if (startDate != null) {
-			params.put("whenprepared", "gt"+fmt.format(startDate));
-		}
-		
-		params.put("_format", "application/fhir+json");
-		
-		
-		logger.info("params: "+params);
 		WebClient wc = getWebClient(loggedInInfo,OmdGateway.MedicationDispense);
 		
 		wc.query("patient.identifier", "https://fhir.infoway-inforoute.ca/NamingSystem/ca-on-patient-hcn|" + demographic.getHin());//"5365837912");
@@ -174,7 +93,7 @@ public class DHDRManager extends OmdGateway {
 		}
 	
 		
-		wc.query("_count", "500");
+		wc.query("_count", "1000");
 		
 		if (endDate == null) {
 			wc.query("whenprepared", "lt"+fmt.format(endDate));
@@ -186,42 +105,51 @@ public class DHDRManager extends OmdGateway {
 		}
 		wc.query("_format", "application/fhir+json");
 		
+		if(searchId != null){
+			wc.query("search-id",searchId);
+		}
+		
+		if(pageId != null){
+			wc.query("page",pageId);
+		}
 		
 		AuditInfo auditInfo = new AuditInfo(AuditInfo.DHDR,AuditInfo.SEARCH,demographic.getDemographicNo());
 		Response response2 = doGet(loggedInInfo, wc,auditInfo);			
 		String body = response2.readEntity(String.class);
-		
-		//java.io.InputStream salida = (java.io.InputStream) response2.getEntity();
-		//java.io.StringWriter writer = new java.io.StringWriter();
-        //IOUtils.copy(salida, writer, "UTF-8");
-		//body = writer.toString();
-		logger.info("body:"+ body);
+	
+		logger.debug("body:"+ body);
 		
 		if(response2.getStatus() >= 200 && response2.getStatus() < 300) {	
 			Bundle bundle = (Bundle) ctx.newJsonParser().parseResource(body);
-			//hasConsentBlock(bundle);
-			//outcomes.addAll(hasOperationOutcome(bundle));
+			
 			return body;
 		} else if(response2.getStatus() >= 400 && response2.getStatus() < 600 && body != null) {
 			OperationOutcome outcome = ctx.newJsonParser().parseResource(OperationOutcome.class, body);
 			if(outcome != null) {
-				logger.warn("would add outcome here "+outcome);
+				logger.debug("would add outcome here "+outcome);
 				return body;
-				//outcomes.add(outcome);
-			} else {
-				//notifyDHIRError(loggedInInfo,"An error occurred retrieving the data. (" + response2.getStatus() + ":" + ((body != null)?body:"") + ")");
-				//throw new DHIRException("An error occurred retrieving the data. (" + response2.getStatus() + ":" + ((body != null)?body:"") + ")");
-				logger.error("throw error here");
-			}
+			} 
 		} else {
 			logger.error(response2.getStatus()); 
 			logger.error(body);
-			//notifyDHIRError(loggedInInfo,"An error occurred retrieving the data. (" + response2.getStatus() + ":" + ((body != null)?body:"") + ")");
-			//throw new DHIRException("An error occurred retrieving the data. (" + response2.getStatus() + ":" + ((body != null)?body:"") + ")");
 		}
 		 
 		return null;
 
+	}
+	
+	List<String> getMoreBundles(LoggedInInfo loggedInInfo,List<String> bundles,Bundle bundle,AuditInfo auditInfo) throws Exception{
+		logger.debug("bundle.hasLink()" +bundle.hasLink()+" bundle.getLink(\"next\") " +bundle.getLink("next"));
+		if(bundle.hasLink() && bundle.getLink("next") != null) {
+			String url = bundle.getLink("next").getUrl();
+			WebClient wc = getWebClientWholeURL(loggedInInfo, url); 
+			Response response2 = doGet(loggedInInfo, wc,auditInfo);			
+			String body = response2.readEntity(String.class);
+			Bundle bundle2 = (Bundle) ctx.newJsonParser().parseResource(body);
+			bundles.add(body);
+			getMoreBundles(loggedInInfo,bundles,bundle2,auditInfo);
+		}
+		return bundles;
 	}
 	
 }

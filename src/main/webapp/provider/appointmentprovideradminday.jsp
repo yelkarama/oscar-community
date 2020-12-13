@@ -1132,7 +1132,37 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 </div>
 	<%}%>
 	
-		<% if (request.getSession().getAttribute("oneIdEmail") != null && !request.getSession().getAttribute("oneIdEmail").equals("")) { %>
+		<%  	if(loggedInInfo1.getOneIdGatewayData() != null){ 
+				int numberOfMinutesUntilRefreshTokenIsInvalid = loggedInInfo1.getOneIdGatewayData().numberOfMinutesUntilRefreshTokenIsInvalid();
+				String gtwyColor = "";
+				String gtwyMsg = "Token is valid for "+numberOfMinutesUntilRefreshTokenIsInvalid+" minutes";
+				if(numberOfMinutesUntilRefreshTokenIsInvalid > 10){
+					//use default message;
+				}else if(numberOfMinutesUntilRefreshTokenIsInvalid < 10 && numberOfMinutesUntilRefreshTokenIsInvalid > 0){
+					gtwyColor = "style='color:yellow;'";
+					gtwyMsg = "Token will expire soon, valid for "+numberOfMinutesUntilRefreshTokenIsInvalid+" minutes. Click here to refresh";
+				}else if(numberOfMinutesUntilRefreshTokenIsInvalid < 0 && numberOfMinutesUntilRefreshTokenIsInvalid > -10){
+					gtwyColor = "style='color:red'";
+					gtwyMsg = "Token has expired. Click here to re-authenticate with ONE ID";
+				}else{
+					gtwyColor = "style='color:grey'";
+					gtwyMsg = "Token has expired. Click here to re-authenticate with ONE ID";
+				}
+				%>
+				<a href="<%=request.getContextPath()%>/eho/login2.jsp?alreadyLoggedIn=true&forwardURL=<%=URLEncoder.encode(request.getContextPath()+"/provider/providercontrol.jsp","UTF-8") %>" <%=gtwyColor%> title="<%=gtwyMsg%>">GTWY</a>
+				| <a href="uaoSelector.jsp" title="Operating under the authority of: <%=loggedInInfo1.getOneIdGatewayData().getUaoFriendlyName()%>. Click to Change">UAO</a> 
+				| <a target="_blank" href="<%=request.getContextPath()%>/admin/omdGatewayLog.jsp" title="Current Gateway Log">Log</a>
+				| <a href="../logoutSSO.jsp">Global Logout</a>
+			<%
+			}else if (request.getSession().getAttribute("oneIdEmail") != null && !request.getSession().getAttribute("oneIdEmail").equals("")) { 
+				if(loggedInInfo1.getOneIdGatewayData() == null){ %>
+					<script>
+					window.location = 'uaoSelector.jsp';
+					</script>
+				<%   /*?ondIdwasnull*/
+					return;
+				}%>
+				
 				| <a href="../logoutSSO.jsp">Global Logout</a>
  		<% }
 		   else { %>
@@ -1147,6 +1177,15 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 
 
 <script>
+	<%if(loggedInInfo1.getOneIdGatewayData() != null && loggedInInfo1.getOneIdGatewayData().isDoubleCheckUAO()){
+		%>
+		if (!confirm('Operating under the authority of: <%=loggedInInfo1.getOneIdGatewayData().getUaoFriendlyName()%> Press Cancel to select another.')){
+		 	window.location = 'uaoSelector.jsp';	 
+		} 
+		<%
+		loggedInInfo1.getOneIdGatewayData().setDoubleCheckUAO(false);
+	}
+	%>
 	jQuery(document).ready(function(){
 		jQuery.get("<%=request.getContextPath()%>/SystemMessage.do?method=view","html",function(data,textStatus){
 			jQuery("#system_message").html(data);

@@ -26,7 +26,7 @@ import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map.Entry;
-
+import java.util.UUID;
 
 import org.apache.log4j.Logger;
 import org.oscarehr.util.MiscUtils;
@@ -51,15 +51,51 @@ public class OneIdGatewayData {
 	String refreshTokenStr = null;
 	String idTokenStr = null;
 	String hubTopic = null;
+	private String authzid = null;
 	private String cmsLoggedIn = null;
 	private String cmsPatientInContext = null;
 	private String ctxSessionId;
 	private String uao = null;
+	private String uaoFriendlyName = null;
+	private boolean doubleCheckUAO = false;
+	private boolean updateUAOInCMS = false;
 	
-	public OneIdGatewayData() {}
+	private String scope = "openid"; // the base scope.  
+	private String _profile = "";
+	private String uniqueSessionId = null;
+	
+	public static String[] minScope = {"openid"};                              
+	public static String[] fullScope = {"openid", "user/MedicationDispense.read", "toolbar", "user/Context.read", "user/Context.write",  "user/Consent.write","user/Immunization.read", "user/Immunization.write","user/Patient.read","azs"};
+	public static String[] fullProfile = {"http://ehealthontario.ca/StructureDefinition/ca-on-dhdr-profile-MedicationDispense","http://ehealthontario.ca/fhir/StructureDefinition/ca-on-consent-pcoi-profile-Consent","http://ehealthontario.ca/StructureDefinition/ca-on-dhir-profile-Immunization","http://ehealthontario.ca/StructureDefinition/ca-on-dhir-profile-Patient"};
+	
+	public OneIdGatewayData() {
+		this.uniqueSessionId = UUID.randomUUID().toString();
+	}
 	
 	public OneIdGatewayData(String oneIdString) {
+		this.uniqueSessionId = UUID.randomUUID().toString();
 		processOneIdString(oneIdString); 
+	}
+	
+	public void clearGatewayData() {
+		oneIdString = null;
+		endPointToolbar = null;
+		tokens = null;
+		accessToken = null;
+		refreshToken = null;
+		idToken = null;
+		
+		accessTokenStr  = null;
+		refreshTokenStr = null;
+		idTokenStr = null;
+		hubTopic = null;
+		authzid = null;
+		cmsLoggedIn = null;
+		cmsPatientInContext = null;
+		ctxSessionId = null;
+		uao = null;
+		uaoFriendlyName = null;
+		
 	}
 	
 	public void processOneIdString(String oneIdString) {
@@ -68,10 +104,11 @@ public class OneIdGatewayData {
 			try {
 				tokens = JSONObject.fromObject(oneIdString);
 			
-				accessTokenStr  = tokens.getString("access_token");
-				refreshTokenStr = tokens.getString("refresh_token");
-				idTokenStr      = tokens.getString("id_token");
+				accessTokenStr  = tokens.optString("access_token");
+				refreshTokenStr = tokens.optString("refresh_token");
+				idTokenStr      = tokens.optString("id_token");
 				String toolbarStr 	  = tokens.getString("toolbar");
+				setAuthzid(tokens.optString("authzid"));
 				setCtxSessionId(tokens.getString("contextSessionId"));
 				processAccessToken(accessTokenStr);
 				processRefreshToken(refreshTokenStr);
@@ -100,12 +137,17 @@ public class OneIdGatewayData {
 	
 	
 	public void processAccessToken(String accessTokenStr) {
+		this.accessTokenStr = accessTokenStr;
 		accessToken = JWT.decode(accessTokenStr);
-		uao = accessToken.getClaim("uao").asString();
+		//uao = accessToken.getClaim("uao").asString();
 	}
 	
 	public void processRefreshToken(String refreshTokenStr) {
 		refreshToken = JWT.decode(refreshTokenStr);
+	}
+	
+	public String getRefreshTokenString() {
+		return refreshTokenStr;
 	}
 	
 	public void processIdToken(String idTokenStr) {
@@ -175,6 +217,95 @@ public class OneIdGatewayData {
 		} 
 		return true;
 		
+	}
+	
+	public boolean isRefreshTokenExpired() {
+	
+		long iat = refreshToken.getClaim("iat").asLong();
+		int expiresIn = refreshToken.getClaim("expires_in").asInt();
+			
+		Date date = Date.from(Instant.ofEpochSecond(iat));
+			
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		cal.add(Calendar.SECOND, expiresIn);
+
+		Date expires = cal.getTime();
+
+		if(expires.before(new Date())) {
+			return true;
+		}
+		return false;
+	}
+	
+	public Date getAccessTokenExpireDate() {
+		Date date = Date.from(Instant.ofEpochSecond(accessToken.getClaim("exp").asLong()));
+		return date;
+	}
+	
+	public Date getRefreshTokenExpireDate() {
+		Date date = Date.from(Instant.ofEpochSecond(refreshToken.getClaim("exp").asLong()));
+		return date;
+	}
+	
+	public int howLongSinceRefreshTokenWasIssued() {
+		try {
+			Date refreshTokenIatDate = Date.from(Instant.ofEpochSecond(refreshToken.getClaim("iat").asLong()));
+			Date currentDate = new Date();
+			long refreshTokenTimeMillis = refreshTokenIatDate.getTime();
+			long currentTime = currentDate.getTime();
+			long numMillisActive = currentTime - refreshTokenTimeMillis;
+			long numMinutesActive = numMillisActive / 1000 / 60;
+			return (int) numMinutesActive ;
+		}catch(Exception e) {
+			//anything wrong it's invalid
+		}
+		return 0;
+	}
+	
+	public int numberOfMinutesUntilRefreshTokenIsInvalid() {
+		try {
+			Date refreshTokenDate = Date.from(Instant.ofEpochSecond(refreshToken.getClaim("exp").asLong()));
+			Date currentDate = new Date();
+			long refreshTokenTimeMillis = refreshTokenDate.getTime();
+			long currentTime = currentDate.getTime();
+			if (currentTime > refreshTokenTimeMillis) {
+				logger.debug("current time over refresh currentTime "+ currentTime +" refreshTokenTimeMillis "+refreshTokenTimeMillis+ " ---- "+(currentTime-refreshTokenTimeMillis));
+			//	return -1; // It's already invalid
+			}
+			long numberOfMillisLeft = refreshTokenTimeMillis - currentTime;
+			long numberOfMinutes = numberOfMillisLeft / 1000 / 60;
+			return (int) numberOfMinutes;
+		}catch(Exception e) {
+			//anything wrong it's invalid
+		}
+		return -99999;
+	}
+	
+	public boolean willRefreshTokenExpireInMinutes(int numberOfMinutes) {
+		try {
+			Calendar refreshTokenExpireDate = Calendar.getInstance();
+			refreshTokenExpireDate.setTimeInMillis(refreshToken.getClaim("exp").asLong());			
+			Calendar cal2 = Calendar.getInstance();
+			cal2.add(Calendar.MINUTE, numberOfMinutes);
+			
+			return cal2.after(refreshTokenExpireDate);
+		}catch(Exception e) {
+			//It's must already be expired!
+		}
+		return true;
+	}
+	
+	
+	
+	public long howLongUntilAccessTokenIsExpired() {
+		if(accessToken == null || accessToken.getClaim("iat") == null) {
+			return -1L;
+		}
+		Date accessTokenDate = Date.from(Instant.ofEpochSecond(accessToken.getClaim("exp").asLong()));
+		Date now = new Date();
+		return (accessTokenDate.getTime() - now.getTime()) / 1000;
+				
 	}
 	
 	private void debugDecodedJWT(StringBuilder sb,String heading,DecodedJWT decodedJWT) {
@@ -250,5 +381,89 @@ public class OneIdGatewayData {
 	public void setUao(String uao) {
 		this.uao = uao;
 	}
+
+	public String getScope() {
+		return scope;
+	}
+
+	public void setScope(String scope) {
+		this.scope = scope;
+	}
+
+	public String get_profile() {
+		if(_profile != null) {
+			return _profile.trim();
+		}
+		return _profile;
+	}
+
+	public void set_profile(String _profile) {
+		this._profile = _profile;
+	}
+	
+	public boolean hasScope(String... scopes) {
+		StringBuilder sb = new StringBuilder(scope);
+		boolean hadScope = verifyScopeIsPresent(sb, scopes);
+		scope = sb.toString();
+		return hadScope;
+	}
+	
+	public boolean hasProfile(String... scopes) {
+		StringBuilder sb = new StringBuilder(_profile);
+		boolean hadScope = verifyScopeIsPresent(sb, scopes);
+		_profile = sb.toString();
+		return hadScope;
+	}
+	
+	private boolean verifyScopeIsPresent(StringBuilder valueLine, String... scopes) {
+		boolean hadScope = true;
+		for(String newScope: scopes) {
+			logger.info("valueLine "+valueLine+" new scope "+newScope+" index "+valueLine.indexOf(newScope));
+			if(valueLine.indexOf(newScope) == -1) {
+				hadScope =false;
+				valueLine.append(" "+newScope);
+			}
+		}
+		logger.info("Scope leaving "+valueLine+" scopes "+scopes);
+		return hadScope;
+	}
+   
+	public String getUniqueSessionId() {
+		return uniqueSessionId;
+	}
+
+	public boolean isDoubleCheckUAO() {
+		return doubleCheckUAO;
+	}
+
+	public void setDoubleCheckUAO(boolean doubleCheckUAO) {
+		this.doubleCheckUAO = doubleCheckUAO;
+	}
+
+	public String getUaoFriendlyName() {
+		return uaoFriendlyName;
+	}
+
+	public void setUaoFriendlyName(String uaoFriendlyName) {
+		this.uaoFriendlyName = uaoFriendlyName;
+	}
+
+	public boolean isUpdateUAOInCMS() {
+		return updateUAOInCMS;
+	}
+
+	public void setUpdateUAOInCMS(boolean updateUAOInCMS) {
+		this.updateUAOInCMS = updateUAOInCMS;
+	}
+
+	public String getAuthzid() {
+		return authzid;
+	}
+
+	public void setAuthzid(String authzid) {
+		this.authzid = authzid;
+	}
+	
+	
 	
 }

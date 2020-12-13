@@ -41,6 +41,7 @@
 <%@page import="org.apache.commons.lang.StringUtils"%>
 <%@page import="org.oscarehr.common.model.CVCImmunization"%>
 <%@page import="org.oscarehr.managers.CanadianVaccineCatalogueManager"%>
+<%@page import="org.oscarehr.managers.CanadianVaccineCatalogueManager2"%>
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="oscar.oscarProvider.data.ProviderData"%>
 <%@ page import="oscar.oscarDemographic.data.DemographicData,java.text.SimpleDateFormat, java.util.*,oscar.oscarPrevention.*,oscar.oscarProvider.data.*,oscar.util.*"%>
@@ -50,6 +51,7 @@
 <%@page import="org.oscarehr.common.dao.DemographicExtDao" %>
 <%@page import="org.oscarehr.common.dao.PreventionsLotNrsDao" %>
 <%@page import="org.oscarehr.common.model.PreventionsLotNrs" %>
+<%@page import="org.oscarehr.common.model.Demographic" %>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
@@ -107,7 +109,8 @@ if(!authed) {
   	if("true".equals(OscarProperties.getInstance().getProperty("dhir.enabled", "false"))) {
   		dhirEnabled=true;
   	}
-	
+
+     Date creationDate = null;
   if (id != null){
 
      existingPrevention = PreventionData.getPreventionById(id);
@@ -137,6 +140,8 @@ if(!authed) {
 	List<CaseManagementNoteLink> cml = cmm.getLinkByTableId(CaseManagementNoteLink.PREVENTIONS, Long.valueOf(id));
 	hasImportExtra = (cml.size()>0);
 	 snomedId = (String) existingPrevention.get("snomedId");
+	 
+	 creationDate = parseDate((String) existingPrevention.get("creationDate"));
 	
   }
 
@@ -232,6 +237,8 @@ if(!authed) {
   DemographicData demoData = new DemographicData();
   String[] demoInfo = demoData.getNameAgeSexArray(LoggedInInfo.getLoggedInInfoFromSession(request), Integer.valueOf(demographic_no));
   String nameage = demoInfo[0] + ", " + demoInfo[1] + " " + demoInfo[2] + " " + age;
+  
+  Demographic demoObject = demoData.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), demographic_no);
 
   HashMap<String,String> genders = new HashMap<String,String>();
   genders.put("M", "Male");
@@ -396,9 +403,11 @@ clear: left;
    //alert(ele);
     if (ele.options[ele.selectedIndex].value != -1){
        hideItem('providerName');
+       hideItem('providerNameFormat');
        //alert('hidding');
     }else{
        showItem('providerName');
+       showItem('providerNameFormat');
        document.getElementById('providerName').focus();
        //alert('showing');
     }
@@ -407,7 +416,7 @@ clear: left;
 
 <script type="text/javascript">
   function updateLotNr(elem){
-	if (elem.options[elem.selectedIndex].value != -1)
+	if (elem != null && elem.options[elem.selectedIndex].value != -1)
 	{
 		hideItem('lot');
 	}
@@ -523,6 +532,7 @@ function changeCVCName() {
 		 $("#name").show();
 	 } else {
 		 $("#unknownName").hide();
+		 $("#name").val($("#cvcName option:selected").text());
 		 $.ajax({
              type: "POST",
              url: "<%=request.getContextPath()%>/cvc.do",
@@ -594,7 +604,14 @@ function changeCVCName() {
             	 if(data != null) {
             		 if(data.din != null) {
             			 $("#din").val(data.din);
+            			 
             		 }
+            		 if(data.manufacture != null) {
+            			 $("#manufacture").val(data.manufacture);
+            		 }
+            		 //if(data.status != null) {
+            		//	 $("#shelfStatus").html(data.status);
+            		 //}
             	 }
              }
           });
@@ -737,8 +754,8 @@ function changeSite(el) {
                    <fieldset>
                       <legend>Prevention : <%=prevention%></legend>
                          <div>
-                            <input name="given" type="radio" value="given"      <%=checked(completed,"0")%> onClick="$('#providerDrop').val('<%=LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo() %>');hideExtraName(document.getElementById('providerDrop'))">Completed</input><br/>
-                            <input name="given" type="radio" value="given_ext"  <%=checked(completed,"3")%> onClick="$('#providerDrop').val('-1');hideExtraName(document.getElementById('providerDrop'))">Completed externally</input><br/>
+                            <input name="given" type="radio" value="given"  id="given"    <%=checked(completed,"0")%> onClick="$('#providerDrop').val('<%=LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo() %>');hideExtraName(document.getElementById('providerDrop'))">Completed</input><br/>
+                            <input name="given" type="radio" value="given_ext" id="givenExt" <%=checked(completed,"3")%> onClick="$('#providerDrop').val('-1');hideExtraName(document.getElementById('providerDrop'))">Completed externally</input><br/>
                             <input name="given" type="radio" value="refused"    <%=checked(completed,"1")%>>Refused</input><br/>
                             <input name="given" type="radio" value="ineligible" <%=checked(completed,"2")%>>Ineligible</input>
                          </div>
@@ -753,6 +770,8 @@ function changeSite(el) {
                                       <%}%>
                                       <option value="-1" <%= ( "-1".equals(provider) ? " selected" : "" ) %> >Other</option>
                                   </select>
+                                  <span id="providerNameFormat"><small>External Provider Name Format: FirstName, LastName </small>
+                                 
                                   <br/>
                              <label for="creator" class="fields" >Creator:</label> <input type="text" name="creator" value="<%=creatorName%>" readonly/> <br/>
                          </div>
@@ -941,6 +960,10 @@ function changeSite(el) {
                          <label for="expiryDate">Expiry Date:</label> <input type="text" name="expiryDate" id="expiryDate"  value="<%=str((extraData.get("expiryDate")),"")%>"/><br/>
                          <% } %>
                          <label for="manufacture">Manufacture:</label> <input type="text" name="manufacture" id="manufacture"  value="<%=str((extraData.get("manufacture")),"")%>"/><br/>
+                         <% if(generic != null){ %>
+                         <label for="shelfStatus">Status:</label> <span name="shelfStatus" id="shelfStatus"  ></span><%=generic.getShelfStatus() %><br/> <%--str((extraData.get("status")),"")--%>
+                         <% } %>
+                         
                    </fieldset>
                    <fieldset >
                       <legend >Comments</legend>
@@ -1056,7 +1079,7 @@ function changeSite(el) {
                    <fieldset>
                       <legend>Prevention : <%=prevention%></legend>
                          <div>
-                            <input name="given" type="radio" value="given"      <%=checked(completed,"0")%>>Completed</input><br/>
+                            <input name="given" type="radio" value="given"     <%=checked(completed,"0")%>>Completed</input><br/>
                             <input name="given" type="radio" value="given_ext"  <%=checked(completed,"3")%>>Completed externally</input><br/>
                             <input name="given" type="radio" value="refused"    <%=checked(completed,"1")%>>Refused</input><br/>
                             <input name="given" type="radio" value="ineligible" <%=checked(completed,"2")%>>Ineligible</input>
@@ -1136,7 +1159,7 @@ function changeSite(el) {
                    </fieldset>
                </div>
                <br/>
-               <input type="submit" value="Save" name="action">
+               <input type="submit" value="Save" name="action"><!-- cvcActiveCall ?  <%= CanadianVaccineCatalogueManager2.getCVCActive(creationDate)%>  <%= creationDate%> -->
                <%
    					ConsentDao consentDao = SpringUtils.getBean(ConsentDao.class);
    					Consent ispaConsent =  consentDao.findByDemographicAndConsentType(Integer.parseInt(demographic_no), "dhir_ispa_consent");
@@ -1150,9 +1173,31 @@ function changeSite(el) {
 
    					//if(dhirEnabled &&  isSSOLoggedIn) {
    					//	if((ispa && hasIspaConsent) || (!ispa && hasNonIspaConsent)) {
+   						
+   					if("ON".equalsIgnoreCase(demoObject.getHcType()) && CanadianVaccineCatalogueManager2.getCVCActive(creationDate)){
                %>
-               <input type="submit" value="Save & Submit" name="action" >
-                <% //} 
+               <script type="text/javascript">
+               	function validateSubmitSave() {
+            	    		var givenVal = document.getElementById('given');
+            	    		var givenExtVal = document.getElementById('givenExt');
+            	    		// || givenExtVal.checked != true
+            	    		console.log("givenVal",givenVal.checked);
+            	    		if( !(givenVal.checked == true || givenExtVal.checked == true)){ //if(givenVal.checked != true){   if given is not true  need it to be if given is true or given Ext is true
+            	    			alert("Only Completed Immunizations can be submitted to the DHIR");
+            	    			return false;
+            	    		}
+            	    		/*var prevDateVal = document.getElementById('prevDate');
+            	    		console.log("prevDate",prevDate,prevDate.value.length);
+            	    		if(prevDate.value.length != 16){
+            	    			alert("Partial Dates are not supported by the DHIR. This Immunization can not be submitted.")
+            	    			return false;
+            	    		}
+            	    		*/
+            	   		return true;
+               	}
+               </script>
+               <input type="submit" value="Save & Submit" name="action" onclick="return validateSubmitSave();" >
+                <% } 
    					
    					//} 
    					

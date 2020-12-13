@@ -43,6 +43,8 @@ import javax.ws.rs.core.Response;
 
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.log4j.Logger;
+import org.oscarehr.integration.dhdr.OmdGateway;
+import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 
 import com.auth0.jwt.JWT;
@@ -193,6 +195,25 @@ public class OneIDTokenUtils {
 			return refreshToken(session);
 		}
 		
+	}
+	
+	
+	public static void verifyAccessTokenIsValid(LoggedInInfo loggedInInfo,OneIdGatewayData oneIdGatewayData) throws TokenExpiredException {
+		if(oneIdGatewayData.isAccessTokenExpired()) {
+			refreshToken(loggedInInfo,oneIdGatewayData);
+		}
+		
+	}
+
+
+	private static void refreshToken(LoggedInInfo loggedInInfo,OneIdGatewayData oneIdGatewayData) throws TokenExpiredException{
+				
+		if(oneIdGatewayData.isRefreshTokenExpired()) {
+			logger.info("Token was expired"+oneIdGatewayData);
+			throw new TokenExpiredException();
+		}
+		OmdGateway omdGateway = new OmdGateway();
+		omdGateway.refreshToken(loggedInInfo,oneIdGatewayData);	
 	}
 
 	public static String refreshToken(HttpSession session) throws TokenExpiredException {

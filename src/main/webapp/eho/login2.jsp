@@ -51,70 +51,65 @@
 <%@page import="org.apache.cxf.rs.security.oauth2.client.OAuthClientUtils"%>
 <%@page import="java.nio.charset.StandardCharsets"%>
 <%@page import="org.oscarehr.integration.OneIDTokenUtils" %>
+<%@page import="org.oscarehr.integration.OneIdGatewayData"%>
+<%@page import="org.oscarehr.util.SessionConstants"%>
+<%@page import="org.oscarehr.integration.dhdr.OmdGateway"%>
+<%@page import="org.oscarehr.util.LoggedInInfo,org.oscarehr.util.LoggedInUserFilter" %>
+<%@page import="org.oscarehr.common.dao.UAODao"%>
+<%@page import="org.oscarehr.common.model.UAO"%>
+<%@page import="org.oscarehr.util.SpringUtils"%>
+<%@page import="java.util.List"%>
+
 <%
 	Logger logger = MiscUtils.getLogger();
 	logger.info("OAUTH2 Login started");
+    	LoggedInInfo loggedInInfo =LoggedInInfo.getLoggedInInfoFromSession(request);
 
-
-    //create verifier and challenge
-    byte[] array = new byte[50];
-    new Random().nextBytes(array);
-    String generatedString = RandomStringUtils.randomAlphabetic(50);
+    	OneIdGatewayData oneIdGatewayData = (OneIdGatewayData) session.getAttribute(SessionConstants.OH_GATEWAY_DATA);
+    	if(oneIdGatewayData == null){
+    		oneIdGatewayData = new OneIdGatewayData();
+    		session.setAttribute(SessionConstants.OH_GATEWAY_DATA,oneIdGatewayData);
+    		loggedInInfo = LoggedInUserFilter.generateLoggedInInfoFromSession(request);// this will set the oneIdGatewayData to be in the loggedInInfo
+    	}
+    	//If everyone in a clinic is using one UAO it would seem easy to set they UAO for all requests to elminate the extra trip to the IDP to set the UAO BUT 
+    	//The EMR needs to validate that this is known valid user to the EMR before it lets the EMR user operate under it's authority.
+    //IE. If it was set for every request, and patient with a ONE ID credential had access to the front page of OSCAR they could 
+    //login to ONE ID and create a valid session token with ONE ID with the UAO of the clinic. They wouldn't gain access to OSCAR but they might be able to do something with the OMD gateway
     
-    String verifier = PKCEUtils.encodeBase64NoPadding(generatedString);
-    logger.debug("verifier = "+verifier);
-
-    String challenge = null;
-    try {
-    	challenge = PKCEUtils.generateChallengeS256(verifier);
-    } catch(Exception e) {
-    	logger.error("Error",e);
-		//need to forward back to login page with error
-    }    
-    logger.debug("challenge = "+challenge);
+    	
+    	OmdGateway omdGateway = new OmdGateway();
+    	String state = RandomStringUtils.randomAlphanumeric(20);
+    	
+    	String verifier = omdGateway.generateVerifier();
+    	logger.error("oneIdGatewayData in login2.jsp "+oneIdGatewayData.getUniqueSessionId());
+    	
     
-    
-	String authorizeUrl = OscarProperties.getInstance().getProperty("oneid.oauth2.authorizeUrl");
-	String callbackUrl = OscarProperties.getInstance().getProperty("oneid.oauth2.callbackUrl");
-	String clientId = OscarProperties.getInstance().getProperty("oneid.oauth2.clientId");
-	String state = RandomStringUtils.randomAlphanumeric(20);
-	String aud = OscarProperties.getInstance().getProperty("oneid.oauth2.aud");
-	
-	WebClient wc = WebClient.create(authorizeUrl); 
-
-	wc.query("response_type", "code");
-	//TODO: remove hard coded scopes
-	String scopes = "openid user/Immunization.read user/Immunization.write user/Patient.read user/MedicationDispense.read toolbar user/Context.read user/Context.write user/Consent.write";
-	
-	wc.query("scope", OneIDTokenUtils.urlEncode(scopes));
-	
-	wc.query("code_challenge_method", "S256");
-	
-	wc.query("code_challenge", challenge);
-	wc.query("redirect_uri", callbackUrl);
-	wc.query("client_id", clientId);
-	wc.query("state", state);
-	if(aud != null){
-		wc.query("aud",aud);
-	}
-	String profile = "http://ehealthontario.ca/StructureDefinition/ca-on-dhir-profile-Immunization http://ehealthontario.ca/StructureDefinition/ca-on-dhir-profile-Patient http://ehealthontario.ca/StructureDefinition/ca-on-dhdr-profile-MedicationDispense http://ehealthontario.ca/fhir/StructureDefinition/ca-on-consent-pcoi-profile-Consent";
-	wc.query("_profile",OneIDTokenUtils.urlEncode(profile));
-	session.setAttribute("eho_verifier-" + state,verifier);
 		
 	if(request.getParameter("alreadyLoggedIn") != null && "true".equals(request.getParameter("alreadyLoggedIn"))) {
+		
+		if(oneIdGatewayData.getUao() == null){
+			logger.info("UAO was null");
+			UAODao uaoDao = SpringUtils.getBean(UAODao.class);
+			List<UAO> uaolist = uaoDao.findByProvider(loggedInInfo.getLoggedInProviderNo());
+			if(uaolist.size() > 0) {
+				logger.info("UAO was has more than none");
+				oneIdGatewayData.setUao(uaolist.get(0).getName());
+				oneIdGatewayData.setUaoFriendlyName(uaolist.get(0).getFriendlyName());
+				
+			}
+		}
+		logger.info("UAO was :"+oneIdGatewayData.getUao());
 		session.setAttribute("eho_verifier-" + state + ".alreadyLoggedIn",true);
 		session.setAttribute("eho_verifier-" + state + ".forwardURL",request.getParameter("forwardURL"));
+			logger.info("alreadyLoggedIn Set! + "+request.getParameter("forwardURL"));
 	}
-
-
-	 
-
-	Response response2 = wc.header("Content-Type", "application/x-www-form-urlencoded").post("code_verifier=" +URLEncoder.encode(verifier,"UTF-8"));
-
-	logger.info("Response Status from /Authorize =" + response2.getStatus());
-	String body = response2.readEntity(String.class);
-	logger.info("body from authorize:\n"+body);
-	if(response2.getStatus() == 302) {
+    	
+	Response response2 =	omdGateway.callAuthorize(loggedInInfo,oneIdGatewayData,state,verifier);
+	
+	session.setAttribute("eho_verifier-" + state,verifier);
+	if(response2 == null){
+		%>Unexpected Error, more info available in the logs <%
+	}else if(response2.getStatus() == 302) {
 		logger.info("Redirecting to " + response2.getHeaderString("Location") );
 		response.sendRedirect( response2.getHeaderString("Location"));
 	} else {

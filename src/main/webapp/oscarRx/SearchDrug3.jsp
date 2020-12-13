@@ -945,8 +945,16 @@ THEME 2*/
                                                     <a href="javascript: void(0);" onclick="callReplacementWebService('GetmyDrugrefInfo.do?method=view','interactionsRxMyD');" >DS run</a>
                                                     &nbsp;&nbsp;
                                                     <oscar:oscarPropertiesCheck property="oneid.oauth2.enabled" value="true">
-                                                    		<a href="javascript:popupWindow(720,920,'../dhdr/#!?demographic_no=<%=demoNo%>','DHDR');" >DHDR</a>
+                                                    	<% if(loggedInInfo.hasOneIdKey() && patient.getHin() != null && !patient.getHin().trim().isEmpty() && "ON".equalsIgnoreCase(patient.getHcType())){ %>
+                                                    		<a href="javascript:popupWindow(720,920,'../dhdr/?demographic_no=<%=demoNo%>','OMD-CONTEXT-AWARE');" title="<%=OscarProperties.getInstance().getProperty("oneid.gateway.dhdr.version","V1")%>" ><%=OscarProperties.getInstance().getProperty("oneid.gateway.dhdr.name","DHDR")%></a>
                                                      		&nbsp;&nbsp;
+                                                     	<%}else if(loggedInInfo.hasOneIdKey() && (patient.getHin() == null || patient.getHin().trim().isEmpty())){ %>
+                                                     		<a style="color: grey;cursor: not-allowed;" title="HIN required for DHDR" ><%=OscarProperties.getInstance().getProperty("oneid.gateway.dhdr.name","DHDR")%></a>
+                                                     		&nbsp;&nbsp;
+                                                     <%}else if(loggedInInfo.hasOneIdKey() && !"ON".equalsIgnoreCase(patient.getHcType())){ %>
+                                                     		<a style="color: grey;cursor: not-allowed;" title="Ontario HIN required for DHDR" ><%=OscarProperties.getInstance().getProperty("oneid.gateway.dhdr.name","DHDR")%></a>
+                                                     		&nbsp;&nbsp;
+                                                     	<%}%>
                                                     </oscar:oscarPropertiesCheck>
 													<%
 									                  	  if (MyOscarUtils.isMyOscarEnabled((String) session.getAttribute("user")))

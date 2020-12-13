@@ -25,7 +25,6 @@
 --%>
 
 <%@page import="org.oscarehr.util.SpringUtils"%>
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.oscarehr.common.model.UserProperty"%>
 <%@page import="org.oscarehr.common.dao.UserPropertyDAO"%>
 <%@page import="java.net.URLEncoder"%>
@@ -37,9 +36,9 @@
 	
 <%
 	LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(session);
-	Boolean oauth2 = (Boolean) session.getAttribute("oneid_oauth2");
-    if(oauth2 == null) {
-    	oauth2 = false;
+	boolean oauth2 = true;
+    if(loggedInInfo.getOneIdGatewayData() == null) {
+    		oauth2 = false;
     }
     
 	String message = null;    		
@@ -57,6 +56,8 @@
 			org.oscarehr.util.MiscUtils.getLogger().error("Error logging out of CMS",e);
 		}
 		redirectURL = OscarProperties.getInstance().getProperty("oneid.oauth2.logoutUrl") +  "/?returnurl=" + URLEncoder.encode(oscarUrl + "/logout.jsp","UTF-8");
+		response.sendRedirect(redirectURL);
+		return;
 	}
 	
 			

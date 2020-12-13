@@ -99,7 +99,11 @@ try  {
 	<script src="<%=request.getContextPath() %>/web/common/dhdrServices.js"></script>	
 	<script src="<%=request.getContextPath() %>/web/common/rxServices.js"></script>	
 	<script src="<%=request.getContextPath() %>/web/filters.js"></script>
-	
+	<style>
+		.modal-lg{ 
+			width:1100px;
+		}
+	</style>
 </head>
 
 <body vlink="#0000FF" class="BodyStyle">
@@ -246,7 +250,7 @@ try  {
 					</thead> 
 					
 		 			<tbody> 
-		 				<tr ng-repeat="med in meds | filter : searchtxt | orderBy:orderByField:reverseSort" ng-hide="med.hide" ng-class="getRowClass(med)"> 
+		 				<tr ng-repeat="med in uniqMeds | filter : searchtxt | orderBy:orderByField:reverseSort" ng-hide="med.hide" ng-class="getRowClass(med)"> 
 		 					<th scope="row">{{med.whenPrepared | date}}</th> 
 		 					<td ng-click="getDetailView(med);">{{med.genericName}} </td>
 		 					<td>{{med.brandName.display}}</td>
@@ -260,7 +264,7 @@ try  {
 		 					<td>{{med.prescriberPhoneNumber}}</td>
 		 					<td>{{med.dispensingPharmacy}}</td>
 		 					<td>{{med.dispensingPharmacyFaxNumber}}</td>
-		 					<td ng-click="showGroupedMeds(med)"><span ng-if="med.headRecord"><a>{{medsWithGroupedDups[med.getUniqVal()].length}}</a></span><!-- {{med | json}}  --></td> 
+		 					<td ng-click="showGroupedMeds2(medsWithGroupedDups[med.getUniqVal()])"><span ng-if="med.headRecord"><a>{{medsWithGroupedDups[med.getUniqVal()].length}}</a></span><!-- {{med | json}}  --></td> 
 		 					
 		 				</tr> 
 		 				<tr>
@@ -337,22 +341,22 @@ try  {
 		 						<a ng-click="serviceOrderByField='pharmacistLastname'; serviceReverseSort = !serviceReverseSort">Pharmacist<span ng-show="serviceOrderByField == 'pharmacistLastname'"><span ng-show="!serviceReverseSort">^</span><span ng-show="serviceReverseSort">v</span></span></a>
 		 					</th>
 		 					<th>
-		 						<a ng-click="serviceOrderByField='dispensingPharmacyPhoneNumber'; serviceReverseSort = !serviceReverseSort">Pharmacy Tel<span ng-show="serviceOrderByField == 'dispensingPharmacyPhoneNumber'"><span ng-show="!serviceReverseSort">^</span><span ng-show="serviceReverseSort">v</span></span></a>
+		 						<a ng-click="serviceOrderByField='dispensingPharmacyFaxNumber'; serviceReverseSort = !serviceReverseSort">Pharmacy Fax<span ng-show="serviceOrderByField == 'dispensingPharmacyPhoneNumber'"><span ng-show="!serviceReverseSort">^</span><span ng-show="serviceReverseSort">v</span></span></a>
 		 					</th>
 		 					<th>Service Count</th> 
 						</tr> 
 					</thead> 
 					 
 		 			<tbody> 
-		 				<tr ng-repeat="med in services | filter : searchServicetxt | orderBy:serviceOrderByField:serviceReverseSort" ng-hide="med.hide" ng-class="getRowClass(med)"> 
+		 				<tr ng-repeat="med in uniqServices | filter : searchServicetxt | orderBy:serviceOrderByField:serviceReverseSort" ng-hide="med.hide" ng-class="getRowClass(med)"> 
 		 					<th scope="row">{{med.whenPrepared | date}}</th> 
 		 					<td scope="row">{{med.whenHandedOver | date}}</td>
 		 					<td>{{med.brandName.display}}</td> 
 		 					<td>{{med.genericName}} </td>
 		 					<td>{{med.dispensingPharmacy}}</td>
 		 					<td>{{med.pharmacistLastname}}, {{med.pharmacistFirstname}} </td>
-		 					<td>{{med.dispensingPharmacyPhoneNumber}}</td> 
-		 					<td ng-click="showGroupedService(med)"><span ng-if="med.headRecord"><a>{{servicesWithGroupedDups[med.brandName.display].length}}</a></span><!-- {{med | json}}  --></td> 
+		 					<td>{{med.dispensingPharmacyFaxNumber}}</td> 
+		 					<td ng-click="showGroupedServices2(servicesWithGroupedDups[med.brandName.display])"><span ng-if="med.headRecord"><a>{{servicesWithGroupedDups[med.brandName.display].length}}</a></span><!-- {{med | json}}  --></td> 
 		 					
 		 				</tr> 
 		 				<tr>
@@ -476,7 +480,7 @@ try  {
 			 					<th scope="row">{{med.rxDate | date}}</th>
 			 					<%-- td ng-click="getDetailView(med);">{{med.genericName}}</td> --%>
 			 					<td>{{med.instructions}}</td>
-			 					<td>{{getProviderName(med.providerNo)}}</td>
+			 					<td>{{med.providerName}}</td>
 			 					<td>{{med.regionalIdentifier}}</td>
 			 				</tr> 
 			 			</tbody> 
@@ -578,7 +582,7 @@ try  {
 						<tr>
 						<tr>
 		 					<th>Prescriber ID</th>
-							<td> {{med.prescriberLicenceNumber.system}} ({{med.prescriberLicenceNumber.value}})</td>
+							<td> {{getLicence(med.prescriberLicenceNumber.system)}} ({{med.prescriberLicenceNumber.value}})</td>
 						</tr>
 						<tr>
 		 					<th>Prescriber #</th>
@@ -625,6 +629,102 @@ try  {
 		
 <div>
 	</script>
+	<script type="text/ng-template" id="drugDupsContent.html">
+        <div class="modal-header">
+            <h3 class="modal-title" id="modal-title">{{med.genericName}} - {{med.whenPrepared | date}}</h3>
+        </div>
+        <div class="modal-body" id="modal-body">
+            <div class="md-dialog-content" id="dialogContentApptProvider">
+            
+            <div class="row">
+                <div class="col-xs-12">
+					<table class="table table-condensed table-striped table-bordered" ng-show="meds.length > 0"> 		 			
+		 			<thead> 
+		 				<tr> 
+		 					<th>Dispense Date</th> 
+		 					<th>Generic</th> 
+		 					<th>Brand</th> 
+		 					<th>Strength</th>
+		 					<th>Dosage Form</th>
+		 					<th>Quantity</th>
+		 					<th>Est Days Supply</th>
+		 					<th>Refills Remaining</th>
+							<th>Quantity Remaining</th>
+		 					<th>Prescriber</th>
+		 					<th>Prescriber Tel#</th>
+		 					<th>Pharmacy</th>
+		 					<th>Pharmacy Fax</th>
+						</tr> 
+					</thead> 
+					
+		 			<tbody> 
+		 				<tr ng-repeat="med in meds | filter : searchtxt | orderBy:whenPrepared:reverseSort"> 
+		 					<th scope="row">{{med.whenPrepared | date}}</th> 
+		 					<td ng-click="getDetailView(med);">{{med.genericName}} </td>
+		 					<td>{{med.brandName.display}}</td>
+		 					<td>{{med.dispensedDrugStrength}}</td>
+		 					<td>{{med.drugDosageForm}}</td>
+		 					<td>{{med.dispensedQuantity}}</td>
+		 					<td>{{med.estimatedDaysSupply}}</td>
+		 					<td>{{med.refillsRemaining}}</td>
+							<td>{{med.quantityRemaining}}</td>
+		 					<td>{{med.prescriberLastname}}, {{med.prescriberFirstname}} </td>
+		 					<td>{{med.prescriberPhoneNumber}}</td>
+		 					<td>{{med.dispensingPharmacy}}</td>
+		 					<td>{{med.dispensingPharmacyFaxNumber}}</td> 
+		 				</tr> 
+		 			</tbody> 
+		 		</table>
+                </div>
+            </div>
+        </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+        </div>
+    </script>
+	<script type="text/ng-template" id="pharmaDupsContent.html">
+        <div class="modal-header">
+            <h3 class="modal-title" id="modal-title">{{med.genericName}} - {{med.whenPrepared | date}}</h3>
+        </div>
+        <div class="modal-body" id="modal-body">
+            <div class="md-dialog-content" id="dialogContentApptProvider">
+            
+            <div class="row">
+                <div class="col-xs-12">
+					<table class="table table-condensed table-striped table-bordered" ng-show="services.length > 0"> 		 			
+		 			<thead> 
+		 				<tr> 
+		 					<th>Last Service Date </th> 
+		 					<th>Pickup Date</th> 
+		 					<th>Pharmacy Service Type</th> 
+		 					<th>Pharmacy Service Description</th> 
+							<th>Pharmacy Name</th>
+		 					<th>Pharmacist</th>
+		 					<th>Pharmacy Tel</th>
+						</tr> 
+					</thead> 
+					 
+		 			<tbody> 
+		 				<tr ng-repeat="med in services | filter : searchServicetxt | orderBy:serviceOrderByField:serviceReverseSort" > 
+		 					<th scope="row">{{med.whenPrepared | date}}</th> 
+		 					<td scope="row">{{med.whenHandedOver | date}}</td>
+		 					<td>{{med.brandName.display}}</td> 
+		 					<td>{{med.genericName}} </td>
+		 					<td>{{med.dispensingPharmacy}}</td>
+		 					<td>{{med.pharmacistLastname}}, {{med.pharmacistFirstname}} </td>
+		 					<td>{{med.dispensingPharmacyPhoneNumber}}</td> 
+		 				</tr> 
+		 			</tbody> 
+		 		</table>
+                </div>
+            </div>
+        </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+        </div>
+    </script>
 	<script>
 		var app = angular.module("dhdrView", ['demographicServices','providerServices','dhdrServices','oscarFilters','ui.bootstrap','rxServices']);
 		
@@ -645,6 +745,7 @@ try  {
 			activeProvidersHash = {};
 			$scope.meds = [];
 			$scope.uniqMeds = [];
+			$scope.uniqServices = [];
 			$scope.services = [];
 			$scope.outcomes = [];
 			defaultDaysToSearch = 120;
@@ -817,6 +918,11 @@ try  {
 					rxService.getMedications($scope.demographicNo, "").then(function(data) {
 						console.log("getMedications--", data);
 						$scope.compLocalMeds = data.data.content;
+						
+						angular.forEach($scope.compLocalMeds,function(med){
+							med.providerName = $scope.getProviderName(med.providerNo);
+						});
+						
 					}, function(errorMessage) {
 						console.log("getMedications++" + errorMessage);
 						//rxComp.error = errorMessage;
@@ -989,6 +1095,8 @@ try  {
 							if($scope.servicesWithGroupedDups[d.brandName.display] === undefined){
 								$scope.servicesWithGroupedDups[d.brandName.display] = [];
 								d.headRecord= true;
+								$scope.uniqServices.push(d);
+								
 								$scope.servicesWithGroupedDups[d.brandName.display].push(d);
 							}else{
 								console.log("found ",d.getUniqVal(),$scope.servicesWithGroupedDups[d.brandName.display]);
@@ -1019,6 +1127,21 @@ try  {
 						}
 					}
 				}
+						
+				//If a block record is found the other warnings are dumped.  Probably a bad idea but OMD's requirement.
+				for(outcome of $scope.outcomes) {
+					var replaceIssue = null;
+					for(issue of outcome.issues){	
+						if	(issue.code === 'suppressed'){
+							replaceIssue = issue;
+						}
+					}
+					if(replaceIssue != null){
+						outcome.issues = [];
+						outcome.issues.push(replaceIssue);
+					}
+				}
+				
 			};
 			
 			$scope.callSearch = function(){
@@ -1026,12 +1149,15 @@ try  {
 				$scope.meds = [];
 				$scope.services = [];
 				$scope.outcomes = [];
+				$scope.uniqMeds = [];
+				$scope.uniqServices = [];
+				
 				$scope.medsWithGroupedDups = [];
 				$scope.servicesWithGroupedDups = [];
 				$scope.searchConfig.searchId = null;
 				$scope.searchConfig.pageId = null;
 				search($scope.demographicNo,$scope.searchConfig);
-				
+			
 			}
 		
 			search = function(demographicNo,searchConfig){
@@ -1080,7 +1206,8 @@ try  {
 			getDemo = function(){
 				demographicService.getDemographic($scope.demographicNo).then(function(response){
 					$scope.demographic = response;
-					search($scope.demographicNo,$scope.searchConfig);
+					//search($scope.demographicNo,$scope.searchConfig);
+					$scope.callSearch();
 				},function(reason){
 					alert(reason);
 				});
@@ -1116,6 +1243,62 @@ try  {
 	    		    });
     		  };
 	    	
+    		  
+    		  $scope.showGroupedMeds2 =function(meds,$event){
+				var modalInstance = $modal.open({
+	    		      
+	    		      templateUrl: 'drugDupsContent.html',
+	    		      controller: 'DrugDupsInstanceCtrl',
+	    		      controllerAs: 'ddpa',
+	    		      parent: angular.element(document.body),
+	    		      size: 'lg',
+	    		      appendTo: $event,
+	    		      resolve: {
+	    		    	  	
+	    		    	  		meds: function () {
+	    		          		return meds;
+	    		        		},
+	    		        		getDetailView: function () {
+	    		          		return $scope.getDetailView;
+	    		        		} 
+	    		      }
+	    		    });
+
+	    		    modalInstance.result.then(function (selectedItem) {
+	    		      selected = selectedItem;
+	    		    }, function () {
+	    		      console.log('Modal dismissed at: ' + new Date());
+	    		    });
+    		  };
+    		  
+    		  
+    		  $scope.showGroupedServices2 =function(services,$event){
+  				var modalInstance = $modal.open({
+  	    		      
+  	    		      templateUrl: 'pharmaDupsContent.html',
+  	    		      controller: 'PharmaDupsInstanceCtrl',
+  	    		      controllerAs: 'pdpa',
+  	    		      parent: angular.element(document.body),
+  	    		      size: 'lg',
+  	    		      appendTo: $event,
+  	    		      resolve: {
+  	    		    	  	
+  	    		    	  		services: function () {
+  	    		          		return services;
+  	    		        		},
+  	    		        		getDetailView: function () {
+  	    		          		return $scope.getDetailView;
+  	    		        		} 
+  	    		      }
+  	    		    });
+
+  	    		    modalInstance.result.then(function (selectedItem) {
+  	    		      selected = selectedItem;
+  	    		    }, function () {
+  	    		      console.log('Modal dismissed at: ' + new Date());
+  	    		    });
+      		  };
+    		  
     		  
     		  $scope.cancelBlock = function(){
     			  var cancelReason = prompt("Access to Drug and Pharmacy Service Information has been cancelled. \nReason:");
@@ -1167,6 +1350,10 @@ try  {
     					}
     					
     					var med = response.data;
+    					
+    					//window.open(med.referenceURL);  only for testing in chrome
+    					
+    					
     					var modalInstance = $modal.open({
     		    		      
     		    		      templateUrl: 'pcoi.html',
@@ -1186,7 +1373,7 @@ try  {
     					//message { target: Window, isTrusted: true, data: "{\"status\":\"completed\"}", origin: "https://pcoi-pst.apps.dev.ehealthontario.ca", lastEventId: "", source: Restricted https://pcoi-pst.apps.dev.ehealthontario.ca/main, ports: Restricted, srcElement: Window, currentTarget: Window, eventPhase: 2,  }
     					modalInstance.result.then(function (selectedItem) {
     						console.log("result from pcoi ",selectedItem.data);
-    						dhdrService.logConsentOveride($scope.demographicNo,selectedItem.data).then(function(response){
+    						dhdrService.logConsentOveride($scope.demographicNo,med.uuid,selectedItem.data).then(function(response){
     	    						console.log("logConsentOveride",response);
     	    					});
     						$scope.callSearch();
@@ -1233,6 +1420,8 @@ try  {
 			this.getUniqVal = function(){
 				 return this.genericName+":"+this.dispensedDrugStrength+":"+this.drugDosageForm;
 			 }
+			
+			this.uniqVal = this.genericName+":"+this.dispensedDrugStrength+":"+this.drugDosageForm;
 			 
 			 /*
 <pre>
@@ -1440,6 +1629,35 @@ j) Pharmacy Phone Number [Organization.telecom[1].value]
 				$modalInstance.close(false);	
 			}
 			
+			$scope.getLicence = function(val){
+				if(val == null){
+					return "N/A";
+				}
+				
+				if(val.endsWith("ca-on-license-physician")){
+					return "College of Physicians and Surgeons of Ontario";
+				}else if(val.endsWith("ca-on-license-dental-surgeon")){
+					return "Royal College of Dental Surgeons of Ontario";
+				}else if(val.endsWith("ca-out-of-province -prescriber")){
+					return "Out-of-Province Prescriber";
+				}else if(val.endsWith("ca-on-license-chiropodist")){
+					return "College of Chiropodists of Ontario";
+				}else if(val.endsWith("ca-on-license-midwife")){
+					return "College of Midwives of Ontario";
+				}else if(val.endsWith("ca-on-license-pharmacist")){
+					return "Ontario College of Pharmacists";
+				}else if(val.endsWith("ca-on-license-optometrist")){
+					return "College of Optometrists of Ontario";
+				}else if(val.endsWith("ca-on-license-nurse")){
+					return "College of Nurses of Ontario";
+				}else if(val.endsWith("ca-on-license-naturopath")){
+					return "College of Naturopaths of Ontario";
+				}else if(val.endsWith("ca-on-unknown-prescriber")){
+					return "Unknown Prescriber";
+				}
+				return "N/A";
+			}
+			
 			$scope.printDetail = function(){
 					console.log("trying to print");
 					var toPrint = {};
@@ -1460,6 +1678,37 @@ j) Pharmacy Phone Number [Organization.telecom[1].value]
 			}
 			
 		});
+		
+		app.controller('DrugDupsInstanceCtrl', function ModalInstanceCtrl($scope, $modal, $modalInstance,meds,getDetailView,$http){
+			$scope.meds = meds;
+			$scope.getDetailView = getDetailView;
+			console.log("DrugDupsInstanceCtrl",meds);
+			
+			$scope.cancel = function(){
+				
+				$modalInstance.close(false);	
+			}
+			
+			
+			
+		});
+		
+		app.controller('PharmaDupsInstanceCtrl', function ModalInstanceCtrl($scope, $modal, $modalInstance,services,getDetailView,$http){
+			$scope.services = services;
+			$scope.getDetailView = getDetailView;
+			console.log("PharmaDupsInstanceCtrl",services);
+			
+			$scope.cancel = function(){
+				
+				$modalInstance.close(false);	
+			}
+			
+			
+			
+		});
+		
+		
+		
 		
 		app.controller('PcoiInstanceCtrl', function ModalInstanceCtrl($scope, $modal, $modalInstance,med,$sce,$window,$http,$timeout){
 			

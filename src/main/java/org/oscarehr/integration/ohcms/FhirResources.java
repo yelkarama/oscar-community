@@ -36,9 +36,10 @@ public class FhirResources {
 	ClinicDAO clinicDao = SpringUtils.getBean(ClinicDAO.class);
 	private static FhirContext fhirContext = FhirContext.forR4();
 	
-	public Organization getOrganization(LoggedInInfo loggedInInfo) {
+	public Organization getOrganization(LoggedInInfo loggedInInfo) throws CMSException{
 		Organization organization = new Organization();
 		OneIdGatewayData oneIdGatewayData = loggedInInfo.getOneIdGatewayData();
+		organization.setId(oneIdGatewayData.getProviderUPI());
 		organization.getMeta().addProfile("http://ehealthontario.ca/fhir/StructureDefinition/ca-on-cms-profile-Organization|1.0.0");
 		Identifier identifier = new Identifier();
 		CodeableConcept codeableConcept = new CodeableConcept();
@@ -49,24 +50,47 @@ public class FhirResources {
 		//not sure what code is for this organization.addType().addCoding().setSystem("http://terminology.hl7.org/CodeSystem/organization-type");
 		Clinic clinic = clinicDao.getClinic();
 		
+		if(clinic.getOrganizationName()  == null || clinic.getOrganizationName().trim().isEmpty()) {
+			throw new CMSException("Organization name can not be blank. Edit Clinic details in the administration section.");
+		}
+		
 		organization.setName(clinic.getOrganizationName());
 		
-		organization.addAddress()
-		.setUse(AddressUse.WORK)
-		.addLine( clinic.getAddress2() )
-		.setCity( clinic.getCity() )
-		.setState( clinic.getProvince())
-		.setPostalCode( clinic.getPostal() )
-		.setType(AddressType.PHYSICAL);
 		
-		organization.addTelecom().setSystem( ContactPointSystem.PHONE ).setValue( clinic.getWorkPhone() );	
-		organization.addTelecom().setSystem( ContactPointSystem.FAX ).setValue( clinic.getFax() );
+		if(clinic.getAddress2() != null && clinic.getCity() != null && clinic.getProvince() != null && clinic.getPostal() != null ) {
+			organization.addAddress()
+			.setUse(AddressUse.WORK)
+			.addLine( clinic.getAddress2() )
+			.setCity( clinic.getCity() )
+			.setState( clinic.getProvince())
+			.setPostalCode( clinic.getPostal() )
+			.setType(AddressType.PHYSICAL);
+		}
+		//May want to log that address was not included 
 		
+		if(clinic.getWorkPhone() != null && clinic.getWorkPhone().trim().length() > 4) { // checking for 4 characters because a lot of numbers area code defaulted 905-.
+			organization.addTelecom().setSystem( ContactPointSystem.PHONE ).setValue( clinic.getWorkPhone() );
+		}
+		if(clinic.getFax() != null && clinic.getFax().trim().length() > 4) { 
+			organization.addTelecom().setSystem( ContactPointSystem.FAX ).setValue( clinic.getFax() );
+		}
 		return organization;
 	}
 	
-	public Practitioner getPractitioner(LoggedInInfo loggedInInfo) {
+	public Practitioner getPractitioner(LoggedInInfo loggedInInfo) throws CMSException{
+		
+		if(loggedInInfo.getLoggedInProvider().getPractitionerNo() == null || loggedInInfo.getLoggedInProvider().getPractitionerNo().trim().isEmpty()) {
+			throw new CMSException("Practitioner Number can not be blank. Edit Provider details in the administration section.");
+		}
+		if(loggedInInfo.getLoggedInProvider().getLastName() == null || loggedInInfo.getLoggedInProvider().getLastName().trim().isEmpty()) {
+			throw new CMSException("Provider's Lastname can not be blank. Edit Provider details in the administration section.");
+		}
+		if(loggedInInfo.getLoggedInProvider().getFirstName() == null || loggedInInfo.getLoggedInProvider().getFirstName().trim().isEmpty()) {
+			throw new CMSException("Provider's Firstname can not be blank. Edit Provider details in the administration section.");
+		}
+		
 		Practitioner practitioner = new Practitioner();
+		practitioner.setId(loggedInInfo.getLoggedInProvider().getPractitionerNo());
 		practitioner.getMeta().addProfile("http://ehealthontario.ca/fhir/StructureDefinition/ca-on-cms-profile-Practitioner|1.0.0");
 		OneIdGatewayData oneIdGatewayData = loggedInInfo.getOneIdGatewayData();
 		practitioner.addIdentifier().setSystem("https://fhir.infoway-inforoute.ca/NamingSystem/ca-on-license-physician").setValue(loggedInInfo.getLoggedInProvider().getPractitionerNo());
@@ -75,34 +99,48 @@ public class FhirResources {
 		return practitioner;
 	}
 	
-	public Patient getPatient(LoggedInInfo loggedInInfo,Demographic demographic) {
+	public Patient getPatient(LoggedInInfo loggedInInfo,Demographic demographic) throws CMSException{
 		Patient patient = new Patient();
 		patient.getMeta().addProfile("http://ehealthontario.ca/fhir/StructureDefinition/ca-on-cms-profile-Patient|1.0.0");
 		patient.addIdentifier().setSystem( "https://fhir.infoway-inforoute.ca/NamingSystem/ca-on-patient-hcn").setValue( demographic.getHin() );
 		patient.setId( demographic.getDemographicNo() + "" );
-		patient.setBirthDate( new Date( demographic.getBirthDay().getTimeInMillis() ) );
+		try {
+			patient.setBirthDate( new Date( demographic.getBirthDay().getTimeInMillis() ) ); //required
+		}catch(Exception e) {
+			throw new CMSException("Error processing birthdate of patient.  Verify birthdate in patient's demographic record.");
+		}
+		Gender gender = Gender.valueOf( demographic.getSex().toUpperCase() );  
+		patient.setGender( EnumMappingUtil.genderToAdministrativeGender( gender ) );  //required
 		
-		Gender gender = Gender.valueOf( demographic.getSex().toUpperCase() );
-		patient.setGender( EnumMappingUtil.genderToAdministrativeGender( gender ) );
-		
-		patient.addAddress()
-		.setUse( AddressUse.HOME )				
-		.addLine( demographic.getAddress() )
-		.setCity( demographic.getCity() )
-		.setState( demographic.getProvince() )
-		.setPostalCode( demographic.getPostal() );
+		if(demographic.getAddress() != null && demographic.getCity() != null && demographic.getProvince() != null && demographic.getPostal() != null ) {
+			patient.addAddress()
+			.setUse( AddressUse.HOME )				
+			.addLine( demographic.getAddress() )
+			.setCity( demographic.getCity() )
+			.setState( demographic.getProvince() )
+			.setPostalCode( demographic.getPostal() );
+		}
 		
 		HumanName humanName = new HumanName();
-		
-		//mandatory
-		humanName.setFamily( demographic.getLastName() );
-		humanName.addGiven( demographic.getFirstName() );
-		
-		//optional
-		
-		humanName.addPrefix( demographic.getTitle() );
 		humanName.setUse( NameUse.OFFICIAL );
 		humanName.getExtensionFirstRep().setUrl( "http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier" );
+		
+		
+		if(demographic.getLastName() == null || demographic.getLastName().trim().isEmpty()) {
+			throw new CMSException("Patient's Lastname can not be blank. Verify Patient's details in the demographic record.");
+		}
+		if(demographic.getFirstName() == null || demographic.getFirstName().trim().isEmpty()) {
+			throw new CMSException("Patient's Firstname can not be blank. Verify Patient's details in the demographic record.");
+		}
+		
+		//mandatory
+		humanName.setFamily( demographic.getLastName() );  //required
+		humanName.addGiven( demographic.getFirstName() );  //required
+		
+		//optional
+		if(demographic.getTitle() != null && !demographic.getTitle().trim().isEmpty()) {
+			humanName.addPrefix( demographic.getTitle() );
+		}
 		
 		patient.addName( humanName );
 		
@@ -112,9 +150,11 @@ public class FhirResources {
 		c.setCode("en-US");
 		patient.addCommunication().setLanguage(cc);
 		
-		patient.addTelecom().setUse( ContactPointUse.HOME )
-		.setSystem( ContactPointSystem.PHONE )
-		.setValue( demographic.getPhone() );
+		if(demographic.getPhone() != null && !demographic.getPhone().trim().isEmpty()) {
+			patient.addTelecom().setUse( ContactPointUse.HOME )
+			.setSystem( ContactPointSystem.PHONE )
+			.setValue( demographic.getPhone() );
+		}
 
 		if(demographic.getPhone2() != null && !demographic.getPhone2().trim().isEmpty()) {
 			patient.addTelecom().setUse( ContactPointUse.WORK )

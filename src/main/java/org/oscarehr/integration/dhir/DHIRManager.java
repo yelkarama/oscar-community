@@ -37,6 +37,7 @@ import java.util.Map.Entry;
 import javax.net.ssl.SSLContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.ws.rs.POST;
 import javax.ws.rs.core.Response;
 
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
@@ -56,10 +57,12 @@ import org.oscarehr.common.dao.DHIRTransactionLogDao;
 import org.oscarehr.common.dao.SecObjPrivilegeDao;
 import org.oscarehr.common.model.DHIRTransactionLog;
 import org.oscarehr.common.model.Demographic;
+import org.oscarehr.common.model.OMDGatewayTransactionLog;
 import org.oscarehr.common.model.OscarMsgType;
 import org.oscarehr.common.model.SecObjPrivilege;
 import org.oscarehr.integration.OneIDTokenUtils;
 import org.oscarehr.integration.TokenExpiredException;
+import org.oscarehr.integration.dhdr.AuditInfo;
 import org.oscarehr.integration.dhdr.OmdGateway;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -75,8 +78,52 @@ public class DHIRManager  extends OmdGateway{
 	private DHIRTransactionLogDao dhirTransactionLogDao = SpringUtils.getBean(DHIRTransactionLogDao.class);
 	private static HashSet<String> doNotSentMsgForOuttage=new HashSet<String>();
 
+	@Override
+	protected String getEndpointURL() {
+		if(OscarProperties.getInstance().hasProperty("oneid.gateway.url.dhir")) {
+			return OscarProperties.getInstance().getProperty("oneid.gateway.url.dhir");
+		}
+		return OscarProperties.getInstance().getProperty("oneid.gateway.url");
+	}
+	
+	
+	public Response submitImmunizations(LoggedInInfo loggedInInfo, String bundleJSON,Integer demographicNo,String uuid) throws Exception{
+		String submissionURL = OscarProperties.getInstance().getProperty("oneid.gateway.dhir.submissionUrl");
+		WebClient wc = getWebClientWholeURL(loggedInInfo, submissionURL);
+		
+		String consumerKey = getConsumerKey();
+		String consumerSecret = OscarProperties.getInstance().getProperty("oneid.consumerSecret");
+		if(loggedInInfo.getOneIdGatewayData().isAccessTokenExpired()) {
+			throw new TokenExpiredException();
+		}
+		String accessToken = loggedInInfo.getOneIdGatewayData().getAccessToken();
+		String externalSystem = "DHIR";
+		String transactionType = "SUBMISSION";
+		
+		OMDGatewayTransactionLog omdGatewayTransactionLog = getOMDGatewayTransactionLog(loggedInInfo, demographicNo, externalSystem, transactionType);
+		omdGatewayTransactionLog.setDataSent(bundleJSON);
+		omdGatewayTransactionLog.setxGtwyClientId(consumerKey);
+		transactionLogDao.persist(omdGatewayTransactionLog);
+		Response response2 = null;
+		try {
+			response2 = wc.header("Authorization", "Bearer " + accessToken)
+					      .header("X-Gtwy-Client-Id", consumerKey)
+					      .header("X-Gtwy-Client-Secret", consumerSecret)
+					      .header("X-Request-Id", uuid)
+						  .header("Content-Type", "application/json")
+						  .post(bundleJSON);
+		completeLog(omdGatewayTransactionLog,response2);
+		transactionLogDao.merge(omdGatewayTransactionLog);
+		}catch(Exception e) {
+			e.getMessage();
+			omdGatewayTransactionLog.setError(e.getLocalizedMessage());
+			transactionLogDao.merge(omdGatewayTransactionLog);
+			throw(e);
+		}
+		return response2;
+	}
 
-	public Bundle search(HttpServletRequest request, Demographic demographic, Date startDate, Date endDate) throws Exception {
+	public Bundle search(HttpServletRequest request, Demographic demographic, Date startDate, Date endDate,List<String> searchParamsUsed) throws Exception {
 		String hin = demographic.getHin();
 		String dob = demographic.getFormattedDob();
 		String gender = demographic.getSex();
@@ -86,6 +133,9 @@ public class DHIRManager  extends OmdGateway{
 		List<OperationOutcome> outcomes = new ArrayList<OperationOutcome>();
 		
 		Bundle bundle = this.getImmunizationsByHINAndDOB(request, demographic.getDemographicNo(), hin, dob, startDate, endDate, outcomes);
+		searchParamsUsed.add("HIN:"+hin);
+		searchParamsUsed.add("Date Of Birth:"+dob);
+		
 		
 		//success
 		if(outcomes.isEmpty() && bundle != null) {
@@ -99,6 +149,9 @@ public class DHIRManager  extends OmdGateway{
 				logger.info("multiple.records found..trying with gender and name as well");
 				outcomes.clear();
 				bundle = this.getImmunizationsByHINAndDOBAndGenderAndName(request, demographic.getDemographicNo(), hin, dob, gender, lastName, firstName, startDate, endDate, outcomes);
+				searchParamsUsed.add("Gender:"+gender);
+				searchParamsUsed.add("Last name:"+lastName);
+				searchParamsUsed.add("First name:"+firstName);
 				
 				if(outcomes.isEmpty() && bundle != null) {
 					return bundle;
@@ -137,22 +190,18 @@ public class DHIRManager  extends OmdGateway{
 		
 		logger.info("searching DHIR by HIN, DOB, Gender, Name");
 		
-		Map<String, String> params = new HashMap<String, String>();
-		params.put("patient.identifier", "http://ehealthontario.ca/fhir/NamingSystem/ca-on-patient-hcn|" + hin);
-		params.put("patient.birthdate", dob);
-		params.put("patient.gender", mapGender(gender));
-		params.put("patient.family", lastName);
-		params.put("patient.given", firstName);
-		params.put("_include", "Immunization:patient");
-		params.put("_include", "Immunization:performer");
-		params.put("_revinclude:recurse", "ImmunizationRecommendation:patient");
-		params.put("_format", "application/fhir+json");
+		WebClient wc = getWebClient(loggedInInfo,OmdGateway.Immunization);
 		
-		WebClient wc = getWebClient(OmdGateway.Immunization);
-		
-		for (Entry<String, String> entry : params.entrySet()) {
-			wc.query(entry.getKey(), entry.getValue());
-		}	
+		wc.query("patient.identifier", "http://ehealthontario.ca/fhir/NamingSystem/ca-on-patient-hcn|" + hin);
+		wc.query("patient.birthdate", dob);
+		wc.query("patient.gender", mapGender(gender));
+		wc.query("patient.family", lastName);
+		wc.query("patient.given", firstName);
+		wc.query("_include", "Immunization:patient");
+		wc.query("_include", "Immunization:performer");
+		wc.query("_revinclude:recurse", "ImmunizationRecommendation:patient");
+		wc.query("_format", "application/fhir+json");
+	
 		if(startDate != null && endDate == null) {
 			wc.query("date", "ge"+fmt.format(startDate));
 		}
@@ -165,8 +214,9 @@ public class DHIRManager  extends OmdGateway{
 		
 		DHIRTransactionLog log = generateInitialLog(demographicNo, loggedInInfo.getLoggedInProviderNo(), "IMMUNIZATION.READ");
 		dhirTransactionLogDao.persist(log);
-				
-		Response response2 = doGet(wc, request);			
+		
+		AuditInfo auditInfo = new AuditInfo(AuditInfo.DHIR,AuditInfo.RETRIEVAL,demographicNo);
+		Response response2 = doGet(loggedInInfo,wc,auditInfo);			
 		String body = response2.readEntity(String.class);
 		
 		completeLog(log, response2, body);
@@ -202,20 +252,16 @@ public class DHIRManager  extends OmdGateway{
 		SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
 		FhirContext ctx = FhirContext.forR4();
 		
-
-		Map<String, String> params = new HashMap<String, String>();
-		params.put("patient.identifier", "http://ehealthontario.ca/fhir/NamingSystem/ca-on-patient-hcn|" + hin);
-		params.put("patient.birthdate", dob);
-		params.put("_include", "Immunization:patient");
-		params.put("_include", "Immunization:performer");
-		params.put("_revinclude:recurse", "ImmunizationRecommendation:patient");
-		params.put("_format", "application/fhir+json");
+		WebClient wc = getWebClient(loggedInInfo,OmdGateway.Immunization);
 		
-		WebClient wc = getWebClient(OmdGateway.Immunization);
 		
-		for (Entry<String, String> entry : params.entrySet()) {
-			wc.query(entry.getKey(), entry.getValue());
-		}
+		wc.query("patient.identifier", "http://ehealthontario.ca/fhir/NamingSystem/ca-on-patient-hcn|" + hin);
+		wc.query("patient.birthdate", dob);
+		wc.query("_include", "Immunization:patient");
+		wc.query("_include", "Immunization:performer");
+		wc.query("_revinclude:recurse", "ImmunizationRecommendation:patient");
+		wc.query("_format", "application/fhir+json");
+		
 		
 		if(startDate != null && endDate == null) {
 			wc.query("date", "ge"+fmt.format(startDate));
@@ -229,8 +275,9 @@ public class DHIRManager  extends OmdGateway{
 	
 		DHIRTransactionLog log = generateInitialLog(demographicNo, loggedInInfo.getLoggedInProviderNo(), "IMMUNIZATION.READ");
 		dhirTransactionLogDao.persist(log);
-				
-		Response response2 = doGet(wc, request);			
+		
+		AuditInfo auditInfo = new AuditInfo(AuditInfo.DHIR,AuditInfo.RETRIEVAL,demographicNo);
+		Response response2 = doGet(loggedInInfo,wc,auditInfo);			
 		String body = response2.readEntity(String.class);
 		
 		completeLog(log, response2, body);

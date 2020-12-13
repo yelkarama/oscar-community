@@ -166,10 +166,55 @@ EMR / DHIR View
 			return item;
 		}
 		
-		var renderFunc = function(data, type, row, meta) {
+		var renderFuncVaccine= function(data, type, row, meta) {
 			//console.log("data=" +JSON.stringify(data));
 			
 			if(data.forecastStatus == null) {
+				return "&nbsp;";
+			}
+			
+			if(data.targetDisease != null && data.targetDisease.length>0) {
+				return "&nbsp;";
+			}
+			
+			//console.log('cc=' + JSON.stringify(data.forecastStatus));
+			var color = "";
+			if(data.forecastStatus.display == "Overdue") {color = "#f2dede";};
+			if(data.forecastStatus.display == "Due") {color = "#fff3cd";};
+			if(data.forecastStatus.display == "Eligible but not due") {color = "#d4edda";};
+			if(data.forecastStatus.display == "Up to date") {color = "#d1ecf1";};
+			
+			
+			var renderedText = "<div class=\"recItem\" style=\"background-color:"+color+" \">";
+			
+			
+			//if(data.targetDisease != null && data.targetDisease.length>0) {
+			//	renderedText += "<b>" + data.targetDisease + "</b>" ;
+			//}
+			if(data.vaccineCodes != null && data.vaccineCodes.length>0) {
+				renderedText += "<b>" + data.vaccineCodes[0].display + "</b>";
+			}
+			if(data.vaccineCodes != null && data.vaccineCodes.length>1) {
+				renderedText += "<br/><b>" + data.vaccineCodes[1].display + "</b>";
+			}
+			if(data.date != null) {
+				renderedText += "<br/>" + data.date ;
+			}
+			
+			renderedText += "</div>";
+			
+			return renderedText;
+		}
+		
+		
+		var renderFuncDisease = function(data, type, row, meta) {
+			//console.log("data=" +JSON.stringify(data));
+			
+			if(data.forecastStatus == null) {
+				return "&nbsp;";
+			}
+			
+			if(data.vaccineCodes != null && data.vaccineCodes.length>0) {
 				return "&nbsp;";
 			}
 			
@@ -187,12 +232,12 @@ EMR / DHIR View
 			if(data.targetDisease != null && data.targetDisease.length>0) {
 				renderedText += "<b>" + data.targetDisease + "</b>" ;
 			}
-			if(data.vaccineCodes != null && data.vaccineCodes.length>0) {
-				renderedText += "<b>" + data.vaccineCodes[0].display + "</b>";
-			}
-			if(data.vaccineCodes != null && data.vaccineCodes.length>1) {
-				renderedText += "<br/><b>" + data.vaccineCodes[1].display + "</b>";
-			}
+			//if(data.vaccineCodes != null && data.vaccineCodes.length>0) {
+			//	renderedText += "<b>" + data.vaccineCodes[0].display + "</b>";
+			//}
+			//if(data.vaccineCodes != null && data.vaccineCodes.length>1) {
+			//	renderedText += "<br/><b>" + data.vaccineCodes[1].display + "</b>";
+			//}
 			if(data.date != null) {
 				renderedText += "<br/>" + data.date ;
 			}
@@ -266,6 +311,7 @@ EMR / DHIR View
 					{"title": "Dose",			"data" : "dose"},
 					{"title": "Date",			"data" : "date"},
 					{"title": "Refused",		"data" : "refused"},
+					{"title": "Preformer",		"data" : "preformer"},
 					{"title": "Notes",			"data" : "notes"}
 				],
 				
@@ -282,12 +328,35 @@ EMR / DHIR View
 			
 			
 			
-			$("#forecastByStatusTbl").DataTable({
+			$("#forecastByStatusTblVaccine").DataTable({
 				"columns" : [
-					{"title": "Overdue","width": "25%", "render" : renderFunc },
-					{"title": "Due" ,"width": "25%", "render" : renderFunc},
-					{"title": "Eligible but not due","width": "25%", "render" : renderFunc},
-					{"title": "Up to date","width": "25%", "render" : renderFunc }
+					{"title": "Overdue","width": "25%", "render" : renderFuncVaccine },
+					{"title": "Due" ,"width": "25%", "render" : renderFuncVaccine},
+					{"title": "Eligible but not due","width": "25%", "render" : renderFuncVaccine},
+					{"title": "Up to date","width": "25%", "render" : renderFuncVaccine }
+				],
+				
+				"language": {
+				      "emptyTable": "No forecast items."
+				},
+				paging: false,
+				searching:false,
+				info:false,
+				
+				"order": [],
+			    "columnDefs": [ {
+			      "targets"  : [0,1,2,3],
+			      "orderable": false,
+			    }]
+				
+			});
+			
+			$("#forecastByStatusTblDisease").DataTable({
+				"columns" : [
+					{"title": "Overdue","width": "25%", "render" : renderFuncDisease },
+					{"title": "Due" ,"width": "25%", "render" : renderFuncDisease},
+					{"title": "Eligible but not due","width": "25%", "render" : renderFuncDisease},
+					{"title": "Up to date","width": "25%", "render" : renderFuncDisease }
 				],
 				
 				"language": {
@@ -316,8 +385,10 @@ EMR / DHIR View
 				dt.clear();
 		    	$("#summaryPeriod").html("<b>Search period:</b>");
 		    	
-		    	var dtF = $("#forecastByStatusTbl").DataTable();
-		    	dtF.clear();
+		    	var dtFV = $("#forecastByStatusTblVaccine").DataTable();
+		    	dtFV.clear();
+		    	var dtFD = $("#forecastByStatusTblDisease").DataTable();
+		    	dtFD.clear();
 		    	
 				$.ajax({
 					url: "<%=request.getContextPath()%>/dhir/summary.do?demographic_no=<%=demographic.getDemographicNo()%>&startDate=" + $("#startDate").val() + "&endDate=" + $("#endDate").val(),
@@ -409,24 +480,44 @@ EMR / DHIR View
 				    	}
 				    	
 				    	if(data.recommendationsByStatus != null) {
-				    		var forecastByStatusTable = $("#forecastByStatusTbl").DataTable();
+				    		var forecastByStatusTableVaccine = $("#forecastByStatusTblVaccine").DataTable();
+				    		var forecastByStatusTableDisease = $("#forecastByStatusTblDisease").DataTable();
 				    		var recs = data.recommendationsByStatus;
+				    		console.log("recs",recs);
+				    		var a1Vaccine = []; //recs["Overdue"];
+				    		var a2Vaccine = []; //recs["Due"];
+				    		var a3Vaccine = []; //recs["Eligible but not due"];
+				    		var a4Vaccine = []; //recs["Up to date"];
 				    		
-				    		var a1 = recs["Overdue"];
-				    		var a2 = recs["Due"];
-				    		var a3 = recs["Eligible but not due"];
-				    		var a4 = recs["Up to date"];
+				    		var a1Disease = []; //recs["Overdue"];
+				    		var a2Disease = []; //recs["Due"];
+				    		var a3Disease = []; //recs["Eligible but not due"];
+				    		var a4Disease = []; //recs["Up to date"];
 				    		
-				    		var maxSize = Math.max(a1.length,a2.length,a3.length,a4.length);
+				    		filterFor(recs["Overdue"],a1Vaccine,a1Disease);
+				    		filterFor(recs["Due"],a2Vaccine,a2Disease);
+				    		filterFor(recs["Eligible but not due"],a3Vaccine,a3Disease);
+				    		filterFor(recs["Up to date"],a4Vaccine,a4Disease);
+				    		
+				    		var maxSizeV = Math.max(a1Vaccine.length,a2Vaccine.length,a3Vaccine.length,a4Vaccine.length);
+				    		console.log("maxSizeV",maxSizeV);
 				    	
-				    		for(var x=0;x<maxSize;x++) {
-				    			var r = [emptyIfNull(a1[x]),emptyIfNull(a2[x]),emptyIfNull(a3[x]),emptyIfNull(a4[x])];
-				    			console.log(r);
-				    			
-				    			forecastByStatusTable.rows.add([r]);
+				    		for(var x=0;x<maxSizeV;x++) {
+				    			var r = [emptyIfNull(a1Vaccine[x]),emptyIfNull(a2Vaccine[x]),emptyIfNull(a3Vaccine[x]),emptyIfNull(a4Vaccine[x])];
+				    			console.log("r",r);
+				    				forecastByStatusTableVaccine.rows.add([r]);	
 				    		}
 				    		
-				    		forecastByStatusTable.draw();
+				    		var maxSizeD = Math.max(a1Disease.length,a2Disease.length,a3Disease.length,a4Disease.length);
+					    	console.log("maxSizeD",maxSizeD);
+				    		for(var x=0;x<maxSizeD;x++) {
+				    			var r = [emptyIfNull(a1Disease[x]),emptyIfNull(a2Disease[x]),emptyIfNull(a3Disease[x]),emptyIfNull(a4Disease[x])];
+				    			console.log("r",r);
+				    				forecastByStatusTableDisease.rows.add([r]);					    			
+				    		}
+				    		
+				    		forecastByStatusTableVaccine.draw();
+				    		forecastByStatusTableDisease.draw();
 				    		
 				    	}
 				    	
@@ -437,6 +528,19 @@ EMR / DHIR View
 				    	$("#dhirError").html("A system error occurred.");
 				    }
 				});
+			}
+			
+			function filterFor(list,vaccineList,diseaseList){
+				
+				for(var x=0;x<list.length;x++) {
+					if(list[x].vaccineCodes != null && list[x].vaccineCodes.length > 0){
+						vaccineList.push(list[x]);
+    					}else{
+    						diseaseList.push(list[x]);
+    					}
+				}
+				console.log("lists ",list.length,vaccineList.length,diseaseList.length);
+				
 			}
 			
 			function getEMRData() {	
@@ -556,8 +660,8 @@ EMR / DHIR View
 				  <label class="btn btn-primary active">
 				    <input type="checkbox" class="showing" id="showDHIRDemoData"> DHIR Patient Demographics
 				  </label>
-				  <label class="btn btn-primary active">
-				    <input type="checkbox" checked class="showing" id="showEMR"> EMR Immunizations
+				  <label class="btn btn-primary">
+				    <input type="checkbox"  class="showing" id="showEMR"> EMR Immunizations
 				  </label>
 				  <label class="btn btn-primary active">			  
 				    <input type="checkbox" checked class="showing" id="showDHIR"> DHIR Immunizations
@@ -599,7 +703,7 @@ EMR / DHIR View
 		
 		
 		<div class="row">
-			<div style="background-color:#ccffeb;border: 1px black solid" id="emrDiv">
+			<div style="background-color:#ccffeb;border: 1px black solid; display:none" id="emrDiv">
 			
 				<div class="col-sm-12"  style="padding-top:10px; padding-left:10px;padding-bottom:5px">
 					<span class="h4"><b><u>Immunization Event(s) in EMR</u></b><br/></span>
@@ -669,8 +773,12 @@ EMR / DHIR View
 					<span class="h4"><b><u>Immunization Forecast</u></b> <small>Generated on: <span id="immunizationsRecommendationDateGenerated"></span></small><br/></span>
 				</div>
 			<div class="col-sm-12">
-			
-				<table id="forecastByStatusTbl">
+				<h6>By Vaccine</h6>
+				<table id="forecastByStatusTblVaccine">
+				
+				</table>
+				<h6>By Disease</h6>
+				<table id="forecastByStatusTblDisease">
 				
 				</table>
 			</div>

@@ -1,4 +1,4 @@
-package org.oscarehr.ws.rest.to;
+package org.oscarehr.integration.ohcms;
 /**
  * Copyright (c) 2001-2002. Department of Family Medicine, McMaster University. All Rights Reserved.
  * This software is published under the GPL GNU General Public License.
@@ -22,40 +22,9 @@ package org.oscarehr.ws.rest.to;
  * Hamilton
  * Ontario, Canada
  */
-import java.util.Date;
-
-public class DHDRSearchConfig {
-	
-	private Date startDate = null;
-	private Date endDate = null;
-	private String searchId = null;
-	private String pageId = null;
-	
-	public Date getStartDate() {
-		return startDate;
-	}
-	public void setStartDate(Date startDate) {
-		this.startDate = startDate;
-	}
-	public Date getEndDate() {
-		return endDate;
-	}
-	public void setEndDate(Date endDate) {
-		this.endDate = endDate;
-	}
-	public String getSearchId() {
-		return searchId;
-	}
-	public void setSearchId(String searchId) {
-		this.searchId = searchId;
-	}
-	public String getPageId() {
-		return pageId;
-	}
-	public void setPageId(String pageId) {
-		this.pageId = pageId;
-	}
-	
-	
-
+public class CMSException extends Exception{
+	public CMSException() { super(); }
+	public CMSException(String message) { super(message); }
+	public CMSException(String message, Throwable cause) { super(message, cause); }
+	public CMSException(Throwable cause) { super(cause); }
 }

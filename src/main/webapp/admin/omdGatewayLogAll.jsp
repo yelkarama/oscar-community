@@ -53,74 +53,26 @@
 	<script src="<%=request.getContextPath() %>/web/common/surveillanceServices.js"></script>	
 	<script src="<%=request.getContextPath() %>/web/common/providerServices.js"></script>	
 	<script src="<%=request.getContextPath() %>/web/common/dhdrServices.js"></script>
-	<script src="<%=request.getContextPath() %>/web/common/demographicServices.js"></script>	
 </head>
 
 <body vlink="#0000FF" class="BodyStyle">
 	<div ng-controller="consentConfig">
 		<div class="page-header">
-			<h4>Consent Unblock Log</h4>
+			<h4>Gateway Interactions Log</h4>
 		</div>
+		
 		
 		<div class="row">
-			<div class="col-xs-12">
-				<form class="form-horizontal">
-					  <div class="form-group">
-					    <label for="inputEmail3" class="col-sm-2 control-label">Last name</label>
-					    <div class="col-sm-10">
-					      <input ng-model="searchtxt.demographic.lastName" type="text" placeholder="type to filter" class="form-control" />
-					    </div>
-					  </div>
-					  <div class="form-group">
-					    <label for="inputEmail3" class="col-sm-2 control-label">HIN</label>
-					    <div class="col-sm-10">
-					      <input ng-model="searchtxt.demographic.hin" type="text" placeholder="type to filter" class="form-control"/>
-					    </div>
-					  </div>
-				 </form>
-				
-				
-				
-				<table class="table table-bordered">
-					<tr>
-						<th>Date</th>
-						<th>Provider</th>
-						<th>Demographic #</th>
-						<th>Demographic Name</th>
-						<th>Demographic HIN</th>
-						<th>Unblock Status</th>
-						<%--
-						Date and time the request was made to override a patient consent unblock
-First and Last Name of the EMR user who requested the temporary consent unblock
-Unique ID of the patient related to the transaction
-Patient First and Last Name
-Patient Health Card Number
- --%>
-					</tr>
-					<tr ng-repeat="logc in logComboArr | filter : searchtxt">
-						<td>{{logc.launch.started | date:'medium'}}</td>
-						<td>{{getProviderName(logc.launch.initiatingProviderNo)}}</td>
-						<td>{{logc.launch.demographicNo}}</td>
-						<td>{{logc.demographic.lastName+", "+ logc.demographic.firstName}}</td>
-						<td>{{logc.demographic.hin}}</td>
-						<td>{{logc.callbackStatus}}</td>
-					</tr>
-				</table>
-			</div>
-		</div>
-		
-		<div class="row" ng-show="detailedLog">
 			<div class="col-xs-3">
 				<div class="list-group">
 						  <a ng-click="openLog(logDetail)" class="list-group-item" ng-class="itemActive(logDetail.id)" data-ng-repeat="logDetail in logDetails | limitTo:loadedSurveillanceConfigsQuantity" >
 						  	
 						  	<h4 class="list-group-item-heading">
-						  		<%--span ng-if="logDetail.success" style="color:green" class="glyphicon glyphicon-ok " aria-hidden="true"></span  --%> 
+						  		<span ng-if="logDetail.success" style="color:green" class="glyphicon glyphicon-ok " aria-hidden="true"></span> 
 						  		{{logDetail.transactionType}}
 						  	</h4>
 							 <p class="list-group-item-text">Started: {{logDetail.started | date:'medium'}}</p>
-							 <p class="list-group-item-text">Provider: {{getProviderName(logDetail.initiatingProviderNo)}}</p>
-							 <p class="list-group-item-text">Patient: {{getDemo(logDetail.demographicNo)}}</p>
+							 
 						  </a>
 				</div>
 			</div>
@@ -167,88 +119,17 @@ Patient Health Card Number
 	</div>
 	
 	<script>
-		var app = angular.module("consentConfig", ['surveillanceServices','providerServices','dhdrServices','demographicServices']);
+		var app = angular.module("consentConfig", ['surveillanceServices','providerServices','dhdrServices']);
 		
-		app.controller("consentConfig", function($scope,surveillanceService,providerService,dhdrService,demographicService) {
+		app.controller("consentConfig", function($scope,surveillanceService,providerService,dhdrService) {
 		
-			$scope.searchtxt = {};
 			$scope.logDetails = [];
 			$scope.currentLogDetail = {};
 			$scope.expireTimes = [];
-			activeProvidersHash = {};
-			demoHash = {};
-			$scope.logCombo = {}; 
-			$scope.detailedLog = false;
-			$scope.logComboArr = [];
 			
 	    		getAllLogs = function(){
-	    			dhdrService.getGatewayLogsByExternalSystem('PCOI').then(function(data){
+	    			dhdrService.getAllGatewayLogs().then(function(data){
 	    				console.log("data",data);
-	    				
-	    				<%--  Filter all unique patient names in the logs that will display.  --%> 
-	    				angular.forEach(data.data,function(log){
- 						if(log.demographicNo != null) {
-		    					demoNo = demoHash[log.demographicNo];
-		    					console.log("log.demographicNo",log.demographicNo,demoNo);
-		    					if(demoNo == null){
-		    						demoHash[log.demographicNo] = {};
-		    						demoHash[log.demographicNo].demographicNo = log.demographicNo;
-		    					}
-		    					
-	    					}
-	    				});
-	    				
-	    				
-	    				<%-- Now create a hash of those patients --%>
-	    				angular.forEach(demoHash,function(demoNo){
-	    					console.log("demoNo",demoNo);
-						demographicService.getDemographic(demoNo.demographicNo).then(function(response){
-    							demoHash[response.demographicNo] = response;
-    						},function(reason){
-    							alert(reason);
-    						});
-		    			});
-	    				
-	    				angular.forEach(data.data,function(log){
-	    					console.log("lig",log.xCorrelationId);	
-	    					if(log.xCorrelationId != null){
-	    						fullLog = $scope.logCombo[log.xCorrelationId];
-	    						if(fullLog == null){
-	    							var fullLog = {};
-	    							fullLog.callbackStatus = "N/A";
-	    							$scope.logCombo[log.xCorrelationId] = fullLog;
-	    							demographicService.getDemographic(log.demographicNo).then(function(response){
-	    								fullLog.demographic = response;
-	        						},function(reason){
-	        							alert(reason);
-	        						});
-	    						}
-	    						if(log.transactionType === 'CALLBACK MESSAGE'){
-	    							fullLog.callback = log;
-	    							
-	    							try{
-	    								console.log("fullLog.callback",fullLog.callback);
-	    								callBackjson = JSON.parse(fullLog.callback.dataRecieved);
-	    								if(angular.isDefined(callBackjson.successes) && callBackjson.successes.length >0){
-	    									fullLog.callbackStatus = "Success";
-	    								}else{
-	    									fullLog.callbackStatus = "Cancelled";
-	    								}
-	    								console.log("callbackjson",callBackjson);
-	    							}catch(e){
-	    								console.log("ERR",e);
-	    							}
-	    						}else if(log.transactionType === 'consentViewletLaunch'){
-	    							fullLog.launch = log;
-	    						}
-	    						
-	    					}
-	    				});
-	    				
-	    				angular.forEach($scope.logCombo,function(log){
-	    					$scope.logComboArr.push(log);	
-	    				});
-	    				
 		    			$scope.logDetails = data.data;
 		   
 				});
@@ -277,31 +158,6 @@ Patient Health Card Number
 		   
 				});
 	    		};
-	    		
-	    		
-	    		getAllActiveProviders = function(){
-	    			providerService.getAllActiveProviders().then(function(data){
-		    			$scope.activeProviders = data;
-		    			console.log("$scope.activeProviders",data);
-		    			angular.forEach($scope.activeProviders, function(provider) {
-		    				activeProvidersHash[provider.providerNo] = provider;
-		    			});
-		    			console.log("getAllActiveProviders", activeProvidersHash); //data);
-				});
-	    		};
-	    		
-	    		getAllActiveProviders();
-	    		
-	    		$scope.getProviderName = function(providerNumber){
-	    			provider = activeProvidersHash[providerNumber];
-	    			if(provider == null){ return providerNumber+" N/A inactive"}
-	    			return provider.lastName+", "+provider.firstName +" ("+provider.practitionerNo+")";
-	    		}
-	    		
-	    		
-	    		$scope.getDemo = function(demoNo){
-					return demoHash[demoNo].lastName+", "+ demoHash[demoNo].firstName+" (HIN: "+demoHash[demoNo].hin+")";
-				};
 	    		
 	    		getAllLogs();
 	    		getTokenExpireTime();

@@ -216,4 +216,11 @@ public final class LoggedInInfo implements Serializable {
 		this.oneIdGatewayData = new OneIdGatewayData(oneIdToken);
 	}
 	
+	public boolean hasOneIdKey() {
+		if(loggedInSecurity != null && loggedInSecurity.getOneIdKey() != null && !loggedInSecurity.getOneIdKey().trim().isEmpty()) {
+			return true;
+		}
+		return false;
+	}
+	
 }

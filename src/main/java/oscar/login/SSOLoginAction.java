@@ -56,12 +56,14 @@ import org.oscarehr.common.dao.FacilityDao;
 import org.oscarehr.common.dao.ProviderPreferenceDao;
 import org.oscarehr.common.dao.SecurityDao;
 import org.oscarehr.common.dao.ServiceRequestTokenDao;
+import org.oscarehr.common.dao.UAODao;
 import org.oscarehr.common.dao.UserPropertyDAO;
 import org.oscarehr.common.model.Facility;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.ProviderPreference;
 import org.oscarehr.common.model.Security;
 import org.oscarehr.common.model.ServiceRequestToken;
+import org.oscarehr.common.model.UAO;
 import org.oscarehr.common.model.UserProperty;
 import org.oscarehr.decisionSupport.service.DSService;
 import org.oscarehr.integration.OneIDTokenUtils;
@@ -245,6 +247,7 @@ public final class SSOLoginAction extends MappingDispatchAction {
 	        			securityRecord.setOneIdEmail(oneIdEmail);
 	        			
 	        			securityDao.updateOneIdKey(securityRecord);
+	        			session.setAttribute("oneid_oauth2", true);
 	        			
 	        			//Logs the linking of the key
 	        			logger.info("Linked ONE ID Key " + oneIdKey + " to provider " + loggedInProviderNumber);
@@ -285,7 +288,7 @@ public final class SSOLoginAction extends MappingDispatchAction {
     	//Declares providerInformation String Array
     	String[] providerInformation;
     	String providerNumber = "";
-    	
+    	OneIdGatewayData oneIdGatewayData = null;
     	//Gets the ssoKey parameter
     	oneIdKey = request.getParameter("nameId");
     	oneIdEmail = request.getParameter("email");
@@ -396,6 +399,7 @@ public final class SSOLoginAction extends MappingDispatchAction {
         	// invalidate the existing session
             HttpSession session = request.getSession(false);
             if (session != null) {
+            		oneIdGatewayData = (OneIdGatewayData) session.getAttribute(SessionConstants.OH_GATEWAY_DATA);
             	if(request.getParameter("invalidate_session") != null && request.getParameter("invalidate_session").equals("false")) {
             		//don't invalidate in this case..messes up authenticity of OAUTH
             	} else {
@@ -495,15 +499,21 @@ public final class SSOLoginAction extends MappingDispatchAction {
             Provider provider = providerManager.getProvider(username);
             session.setAttribute(SessionConstants.LOGGED_IN_PROVIDER, provider);
             session.setAttribute(SessionConstants.LOGGED_IN_SECURITY, loginCheck.getSecurity());
-            session.setAttribute(SessionConstants.OH_GATEWAY_DATA, new OneIdGatewayData(oneIdToken));
+            
+    			if(oneIdGatewayData != null ){
+    				oneIdGatewayData.processOneIdString(oneIdToken);
+    			}else{
+    				oneIdGatewayData = new OneIdGatewayData(oneIdToken);
+    			}
+    			session.setAttribute(SessionConstants.OH_GATEWAY_DATA,oneIdGatewayData);
             
             LoggedInInfo loggedInInfo = LoggedInUserFilter.generateLoggedInInfoFromSession(request);
             
-            try {
-            		CMSManager.userLogin(loggedInInfo);
-            }catch(Exception e) {
-            		logger.error("Error creating Hub Topic",e);
-            }
+            //try {
+            	//   CMSManager.userLogin(loggedInInfo); // Currently not required to login to CMS before being needed
+            //}catch(Exception e) {
+            	//	logger.error("Error creating Hub Topic",e);
+            //}
             
             if (destination.equals("provider")) {
                 UserProperty drugrefProperty = propDao.getProp(UserProperty.MYDRUGREF_ID);

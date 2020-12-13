@@ -64,15 +64,46 @@ angular.module("dhdrServices", [])
                 method: "GET",
                 headers: this.configHeaders,
               }).then(function(response){
-            	  deferred.resolve(response.data);
+            	  deferred.resolve(response);
                 },function (data, status, headers) {
-                	deferred.reject("An error occured while getting phr content");
+                	console.log("data error ",data);
+                	deferred.reject("An error occured check log for additional details");
                 });
            return deferred.promise;
         },
-        phrAbilities: function(){
+        logConsentOveride: function (demographicNo,uniqueToken,dataReceived) {
+        	var deferred = $q.defer();
+        	$http({
+                url: this.apiPath+'/dhdr/logConsentOveride/'+demographicNo+'/'+uniqueToken,
+                method: "POST",
+                data: dataReceived,
+                headers: this.configHeaders,
+              }).then(function(response){
+            	  deferred.resolve(response);
+                },function (data, status, headers) {
+                	console.log("data error ",data);
+                	deferred.reject("An error occured check log for additional details");
+                });
+           return deferred.promise;
+        },
+        logConsentOverrideCancelRefuse: function (demographicNo,dataReceived) {
+        	var deferred = $q.defer();
+        	$http({
+                url: this.apiPath+'/dhdr/logConsentOverrideCancelRefuse/'+demographicNo,
+                method: "POST",
+                data: dataReceived,
+                headers: this.configHeaders,
+              }).then(function(response){
+            	  deferred.resolve(response);
+                },function (data, status, headers) {
+                	console.log("data error ",data);
+                	deferred.reject("An error occured check log for additional details");
+                });
+           return deferred.promise;
+        },
+        getGatewayLogs: function(){
            	var deferred = $q.defer();
-           	 $http.post(this.apiPath+'/app/PHRAbilities',this.configHeaders).then(function(response){
+           	 $http.get(this.apiPath+'/dhdr/getGatewayLogs',this.configHeaders).then(function(response){
                	console.log("returned from /PHRAbilities",response.data);
                	deferred.resolve(response);
                },function(data, status, headers){
@@ -81,8 +112,114 @@ angular.module("dhdrServices", [])
                });
         
              return deferred.promise;
+        },        
+        getPreviousGatewayLogs: function(){
+           	var deferred = $q.defer();
+           	 $http.get(this.apiPath+'/dhdr/getPreviousGatewayLogs',this.configHeaders).then(function(response){
+               	console.log("returned from /PHRAbilities",response.data);
+               	deferred.resolve(response);
+               },function(data, status, headers){
+               	console.log("error initializing phr",data, status, headers);
+               	deferred.reject("An error occured while trying to initialize k2a");
+               });
+        
+             return deferred.promise;
+        },
+        getAllGatewayLogs: function(){
+           	var deferred = $q.defer();
+          	 $http.get(this.apiPath+'/dhdr/getAllGatewayLogs',this.configHeaders).then(function(response){
+              	console.log("returned from /PHRAbilities",response.data);
+              	deferred.resolve(response);
+              },function(data, status, headers){
+              	console.log("error initializing phr",data, status, headers);
+              	deferred.reject("An error occured while trying to initialize k2a");
+              });
+       
+            return deferred.promise;
+       },
+       getGatewayLogsByExternalSystem: function(systemType){
+          	var deferred = $q.defer();
+         	 $http.get(this.apiPath+'/dhdr/getGatewayLogsByExternalSystem/'+systemType,this.configHeaders).then(function(response){
+             	console.log("returned from /getGatewayLogsByExternalSystem",response.data);
+             	deferred.resolve(response);
+             },function(data, status, headers){
+             	console.log("error getGatewayLogsByExternalSystem phr",data, status, headers);
+             	deferred.reject("An error occured while trying to initialize k2a");
+             });
+      
+           return deferred.promise;
+      },
+        createUAO: function(id,obj){
+            var deferred = $q.defer();
+            $http.post(this.apiPath+'/dhdr/createUAO/'+id,obj,this.configHeaders).then(function(data){
+                    deferred.resolve(data.data);
+            },function(){
+              deferred.reject("An error occured while trying to /resources/setExportAsSent/"+id);
+            });
+            return deferred.promise;    
+        },
+        getUAOForProvider: function(prov){
+           	var deferred = $q.defer();
+           	 $http.get(this.apiPath+'/dhdr/UAO/list/'+prov,this.configHeaders).then(function(response){
+               	console.log("returned from /getUAOForProvider",response.data);
+               	deferred.resolve(response);
+               },function(data, status, headers){
+               	console.log("error initializing phr",data, status, headers);
+               	deferred.reject("An error occured while trying to initialize k2a");
+               });
+        
+             return deferred.promise;
+        },
+        archiveUAO: function(id,provider,obj){
+            var deferred = $q.defer();
+            $http.post(this.apiPath+'/dhdr/archiveUAO/'+provider+'/'+id,obj,this.configHeaders).then(function(data){
+                    deferred.resolve(data.data);
+            },function(){
+              deferred.reject("An error occured while trying to /resources/setExportAsSent/"+id);
+            });
+            return deferred.promise;    
+        },
+        getTokenExpireTime: function(){
+           	var deferred = $q.defer();
+           	 $http.get(this.apiPath+'/dhdr/getTokenExpireTime/',this.configHeaders).then(function(response){
+               	console.log("returned from /getTokenExpireTime",response.data);
+               	deferred.resolve(response);
+               },function(data, status, headers){
+               	console.log("error initializing phr",data, status, headers);
+               	deferred.reject("An error occured while trying to initialize k2a");
+               });
+        
+             return deferred.promise;
+        },
+        muteDisclaimer: function(dType){
+	        	var deferred = $q.defer();
+	        	$http({
+	                url: this.apiPath+'/dhdr/muteDisclaimer/'+dType,
+	                method: "GET",
+	                headers: this.configHeaders,
+	              }).then(function(response){
+	            	  deferred.resolve(response);
+	                },function (data, status, headers) {
+	                	console.log("data error ",data);
+	                	deferred.reject("An error occured check log for additional details");
+	                });
+	           return deferred.promise;
+        },
+        showDisclaimer: function(dType){
+	        	var deferred = $q.defer();
+	        	$http({
+	                url: this.apiPath+'/dhdr/showDisclaimer/'+dType,
+	                method: "GET",
+	                headers: this.configHeaders,
+	              }).then(function(response){
+	            	  deferred.resolve(response);
+	                },function (data, status, headers) {
+	                	console.log("data error ",data);
+	                	deferred.reject("An error occured check log for additional details");
+	                });
+	           return deferred.promise;
         }
-   
+       
     };
 });
 
