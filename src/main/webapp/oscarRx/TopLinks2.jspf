@@ -68,10 +68,12 @@ function newWindow(url) {
                     </td>
                     <td valign="top" align="right">
                         <span class="HelpAboutLogout" style="color:white;">
-                        		<% if (OscarProperties.getInstance().getBooleanProperty("oneid.oauth2.enabled", "true")) { %>
+                        		<% 
+                        		OscarProperties oProp = OscarProperties.getInstance();
+                        		if (oProp.getBooleanProperty("oneid.oauth2.enabled", "true")) { %>
                         		<a style="color:white;" target="_blank" href="<%=oProp.getProperty("rx.EAP.link","http://www.health.gov.on.ca/en/pro/programs/sadie/")%>" >EAP</a> |
                         		<a style="color:white;" target="_blank" href="<%=oProp.getProperty("rx.check.med.coverage.link","https://www.ontario.ca/page/check-medication-coverage/")%>" >Check Medication Coverage</a> |
-                        		} %>
+                        		<%	} %>
 							<a style="color:white;" href="javascript: popupFocusPage(200,700,'./drugrefInfo.jsp','Drugref Info');" >Drugref Info</a> |
 							<oscar:help keywords="&Title=Writing+Prescriptions&portal_type%3Alist=Document" key="app.top1" style="color:white;"/> |
                             <a style="color:white;" href="<%=request.getContextPath()%>/oscarEncounter/About.jsp" target="_new"><bean:message key="global.about" /></a>

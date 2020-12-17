@@ -7,7 +7,6 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.oscarehr.common.model.Demographic;
-import org.oscarehr.common.model.Prevention;
 import org.oscarehr.common.printing.FontSettings;
 import org.oscarehr.common.printing.PdfWriterFactory;
 import org.oscarehr.managers.DemographicManager;

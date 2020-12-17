@@ -10,7 +10,6 @@ import org.hl7.fhir.r4.model.Address.AddressType;
 import org.hl7.fhir.r4.model.Address.AddressUse;
 
 import java.sql.Date;
-import java.util.UUID;
 
 import org.hl7.fhir.r4.model.BaseResource;
 import org.hl7.fhir.r4.model.CodeableConcept;

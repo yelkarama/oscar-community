@@ -23,26 +23,17 @@
  */
 package org.oscarehr.integration.dhir;
 
-import java.io.FileInputStream;
-import java.security.KeyStore;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
+
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
-import javax.net.ssl.SSLContext;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import javax.ws.rs.POST;
 import javax.ws.rs.core.Response;
 
-import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.log4j.Logger;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
@@ -60,7 +51,6 @@ import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.OMDGatewayTransactionLog;
 import org.oscarehr.common.model.OscarMsgType;
 import org.oscarehr.common.model.SecObjPrivilege;
-import org.oscarehr.integration.OneIDTokenUtils;
 import org.oscarehr.integration.TokenExpiredException;
 import org.oscarehr.integration.dhdr.AuditInfo;
 import org.oscarehr.integration.dhdr.OmdGateway;
