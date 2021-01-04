@@ -9,7 +9,7 @@ pipelines:
               caches:
                 - maven
               script:
-                - mvn clean package -Dcheckstyle.skip -Dmaven.test.skip=True -e -X -s settings.xml # Builds the WAR
+                - mvn clean package -Dmaven.test.skip=True -e -X  # Builds the WAR
                 - file=(target/*.war) # Gets the path for the WAR  
                 - echo "BITBUCKET_BUILD_NUMBER $BITBUCKET_BUILD_NUMBER  BITBUCKET_BRANCH $BITBUCKET_BRANCH $file"
         
