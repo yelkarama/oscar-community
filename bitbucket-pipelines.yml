@@ -1,0 +1,15 @@
+image: maven:3-jdk-8
+
+pipelines:
+
+    branches:
+        stable:
+            - step:
+              name: Build
+              caches:
+                - maven
+              script:
+                - mvn clean package -Dcheckstyle.skip -Dmaven.test.skip=True -e -X -s settings.xml # Builds the WAR
+                - file=(target/*.war) # Gets the path for the WAR  
+                - echo "BITBUCKET_BUILD_NUMBER $BITBUCKET_BUILD_NUMBER  BITBUCKET_BRANCH $BITBUCKET_BRANCH $file"
+        
