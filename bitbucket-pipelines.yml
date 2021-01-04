@@ -4,7 +4,7 @@ pipelines:
 
     branches:
         stable:
-            - step:
+           - step:
               name: Build
               caches:
                 - maven
