@@ -741,6 +741,40 @@ table.mhTable td{
     font-size:10pt;
 }
 
+.pharmacyItem:hover{
+	background: #DCDCDC;
+	font-weight: bold;
+	cursor: pointer; 
+}
+
+
+#preferredList{
+    vertical-align: top; 
+	width: 30%;
+}
+
+
+#preferredList div{
+	width: 95%; 
+	margin: 10px 2.5% 2.5% 5px;
+	border: 1px solid #eda; 
+    background-color: #FDFEC7;
+	vertical-align: middle; 
+}
+
+
+.prefAction{
+	text-align: center;
+	background-color: #fbf0b7;
+}
+
+
+.prefAction:hover{
+	color: #FFFFFF;
+	background-color: #ffba65;
+	cursor: pointer; 
+}
+
 @media print { 
 .noPrint {
 	display:none; 
