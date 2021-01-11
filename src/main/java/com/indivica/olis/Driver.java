@@ -156,12 +156,12 @@ public class Driver {
 				MiscUtils.getLogger().error("Couldn't write log message for OLIS query", e);
 			}
 
+			request.getSession().setAttribute("olisResponseQuery", query);
 			if (OscarProperties.getInstance().getProperty("olis_simulate", "no").equals("yes")) {
 				if(request != null) {
 					String response = (String) request.getSession().getAttribute("olisResponseContent");
 					request.setAttribute("olisResponseContent", response);
 					request.getSession().setAttribute("olisResponseContent", response);
-					request.getSession().setAttribute("olisResponseQuery", query);
 					return response;
 				}
 				//this only happens for auto-polling when simulate is enabled
@@ -297,11 +297,6 @@ public class Driver {
 
 			//Enumeration e = keystore.aliases();
 			String name = "olis";
-			Enumeration e = keystore.aliases();
-			while(e.hasMoreElements()) {
-				name = (String)e.nextElement();
-				
-			}
 
 			// Get the private key and the certificate
 			priv = (PrivateKey) keystore.getKey(name, pwd.toCharArray());

@@ -574,7 +574,7 @@ public class JdbcBillingClaimImpl {
 		BillingDiskNameData obj = null;
 		
 		try {
-			List<BillingONDiskName> results = diskNameDao.findByCreateDateRangeAndStatus(dateformatter.parse(sDate),dateformatter.parse(eDate),status);
+			List<BillingONDiskName> results = diskNameDao.findByCreateDateRangeAndStatus(dateformatter.parse(sDate),tsFormatter.parse(eDate),status);
 	
 			for(BillingONDiskName b : results) {
 				obj = new BillingDiskNameData();

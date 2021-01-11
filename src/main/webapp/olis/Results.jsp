@@ -73,7 +73,7 @@ function bulkAddToInbox() {
 	
 	jQuery.ajax({
 		url: "<%=request.getContextPath() %>/olis/AddToInbox.do",
-		method: "POST",
+		type: "POST",
 		data: "method=bulkAddToInbox&data=" + btoa(JSON.stringify(reqData)),
 		dataType: 'json',
 		success: function(data) {
@@ -370,7 +370,7 @@ function bulkProcess() {
 	
 	jQuery.ajax({
 		url: "<%=request.getContextPath() %>/olis/AddToInbox.do",
-		method: "POST",
+		type: "POST",
 		data: "method=bulkProcess&data=" + btoa(JSON.stringify(reqData)),
 		dataType: 'json',
 		success: function(data) {
