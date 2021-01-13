@@ -420,7 +420,7 @@ if(recall){
 								<tr>
 									<td><input type="submit" class="ControlPushButton"
 										value="<bean:message key="oscarMessenger.CreateMessage.btnSendMessage"/>">
-									</td>
+									</td>""
 									<td><input type="button" class="ControlPushButton"
 										value="<bean:message key="oscarMessenger.CreateMessage.btnSendnArchiveMessage"/>" onClick="XMLHttpRequestSendnArch()">
 									</td>
@@ -439,9 +439,9 @@ if(recall){
 																	
 										<!-- Display Member Groups -->
 										<div id="member-groups">
-										<details>
+										<details open="true">
 											<summary>
-												<strong>Member Groups</strong>
+												<strong><bean:message key="oscarMessenger.CreateMessage.memberGroups" /></strong>
 											</summary>
 											<c:forEach items="${ groupManager }" var="group" varStatus="count">
 											<details>										
