@@ -332,6 +332,8 @@ function checkAll(formId){
                         <td>
                             <%if (pageType == 0){%>
                                     <input name="btnDelete" type="submit" value="<bean:message key="oscarMessenger.DisplayMessages.formArchive"/>">
+                                    <input name="btnRead" type="submit" value="<bean:message key="oscarMessenger.DisplayMessages.markRead"/>">
+	                                <input name="btnUnread" type="submit" value="<bean:message key="oscarMessenger.DisplayMessages.markUnRead"/>">
                             <%}else if (pageType == 2){%>
                                     <input type="submit" value="<bean:message key="oscarMessenger.DisplayMessages.formUnarchive"/>">
                             <%}%>
@@ -418,7 +420,7 @@ function checkAll(formId){
                                         String key = "oscarMessenger.DisplayMessages.msgStatus"+dm.getStatus().substring(0,1).toUpperCase()+dm.getStatus().substring(1); 
                                         %>
                                         
-                                <% if ("oscarMessenger.DisplayMessages.msgStatusNew".equals(key)){%>        
+                                <% if ("oscarMessenger.DisplayMessages.msgStatusNew".equals(key) || "oscarMessenger.DisplayMessages.msgStatusUnread".equals(key)){%>        
                                 <tr class="newMessage">
                                 <%}else{%>
                                 <tr>
