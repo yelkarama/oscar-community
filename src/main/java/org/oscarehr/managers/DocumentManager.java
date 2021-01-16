@@ -30,21 +30,31 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.oscarehr.common.dao.CtlDocumentDao;
 import org.oscarehr.common.dao.DocumentDao;
+import org.oscarehr.common.dao.PatientLabRoutingDao;
 import org.oscarehr.common.dao.ProviderInboxRoutingDao;
+import org.oscarehr.common.dao.ProviderLabRoutingDao;
 import org.oscarehr.common.model.ConsentType;
 import org.oscarehr.common.dao.DocumentDao.DocumentType;
 import org.oscarehr.common.model.CtlDocument;
+import org.oscarehr.common.model.CtlDocumentPK;
 import org.oscarehr.common.model.Document;
+import org.oscarehr.common.model.PatientLabRouting;
 import org.oscarehr.common.model.ProviderInboxItem;
+import org.oscarehr.common.model.ProviderLabRoutingModel;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
+import org.oscarehr.ws.rest.to.model.DocumentTo1;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -66,13 +76,19 @@ public class DocumentManager {
 	
     @Autowired
     protected SecurityInfoManager securityInfoManager;
-
+	
 	@Autowired
 	private PatientConsentManager patientConsentManager;
 
 	@Autowired
 	private ProviderInboxRoutingDao providerInboxRoutingDao;
-
+	
+	@Autowired
+	private ProviderLabRoutingDao providerLabRoutingDao;
+	
+	@Autowired
+	private PatientLabRoutingDao patientLabRoutingDao;
+	
 	public Document getDocument(LoggedInInfo loggedInInfo, Integer id)
 	{
 		if ( ! securityInfoManager.hasPrivilege( loggedInInfo, "_edoc", "r", "" ) ) {
@@ -117,6 +133,48 @@ public class DocumentManager {
 
 		return(result);
 	}
+
+	/**
+	 * Creates a document and saves it to the provided demographic 
+	 * @param loggedInInfo The logged in info of the current user
+	 * @param document Document to create
+	 * @param demographicNo The demographic number to save the document to
+	 * @param providerNo The optional provider number to route the document to
+	 * @param documentData The document byte data
+	 * @return Document record from the database once it has been created
+	 * @throws IOException If actions related to getting document data fail
+	 */
+	public Document createDocument(LoggedInInfo loggedInInfo, Document document, Integer demographicNo, String providerNo, byte[] documentData) throws IOException {
+		SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		Date today = new Date();
+		// Generates filename and path data and saves the document data to the file system
+		String documentPath = oscar.OscarProperties.getInstance().getProperty("DOCUMENT_DIR");
+		String fileName = dateTimeFormat.format(today) + "_" + document.getDocfilename();
+		File file = new File(documentPath + File.separator + fileName);
+		FileUtils.writeByteArrayToFile(file, documentData);
+
+		String contentType = Files.probeContentType(file.toPath());
+
+		// Gets the number of pages for the document
+		int numberOfPages = 1;
+		if (fileName.toLowerCase().endsWith("pdf")) {
+			PDDocument pdDocument = PDDocument.load(file);
+			numberOfPages = pdDocument.getNumberOfPages();
+		} else if (fileName.toLowerCase().endsWith("html")) {
+			numberOfPages = 0;
+		}
+		document.setNumberofpages(numberOfPages);
+		document.setDoccreator(loggedInInfo.getLoggedInProviderNo());
+		document.setDocfilename(fileName);
+		
+		// Creates and saves the document 
+		saveDocument(document, demographicNo, providerNo);
+		
+		LogAction.addLog(loggedInInfo, "Save Document to Patient", "Document Id", document.getId().toString(), demographicNo.toString(), document.getDocfilename());
+		
+		return document;
+	}
 	
 	public List<Document> getDocumentsUpdateAfterDate(LoggedInInfo loggedInInfo, Date updatedAfterThisDateExclusive, int itemsToReturn) {
 		
@@ -133,8 +191,9 @@ public class DocumentManager {
 	
 	public List<Document> getDocumentsByDemographicIdUpdateAfterDate(LoggedInInfo loggedInInfo, Integer demographicId, Date updatedAfterThisDateExclusive) {
 		List<Document> results = new ArrayList<Document>();
-		ConsentType consentType = patientConsentManager.getProviderSpecificConsent(loggedInInfo);
-		if (patientConsentManager.hasPatientConsented(demographicId, consentType)) {
+        //If the consent type does not exist in the table assume this consent type is not being managed by the clinic, otherwise ensure patient has consented
+        boolean hasConsent = patientConsentManager.hasProviderSpecificConsent(loggedInInfo) || patientConsentManager.getConsentType(ConsentType.PROVIDER_CONSENT_FILTER) == null;
+        if (hasConsent) {
 			results = documentDao.findByDemographicUpdateAfterDate(demographicId, updatedAfterThisDateExclusive);
 			LogAction.addLogSynchronous(loggedInInfo, "DocumentManager.getDocumentsByDemographicIdUpdateAfterDate", "demographicId="+demographicId+" updatedAfterThisDateExclusive="+updatedAfterThisDateExclusive);
 		}
@@ -354,6 +413,33 @@ public class DocumentManager {
 			}
 		}
 		return providerList;
+	}
+	
+	private void saveDocument(Document document, Integer demographicNo, String providerNo) {
+		// Saves the document
+		documentDao.persist(document);
+
+		// Check that the demographic number is a valid number for a demographic, sets it to -1 if it isn't
+		if (demographicNo == null || demographicNo < 1) {
+			demographicNo = -1;
+		}
+		// Creates and saves the CtlDocument record
+		CtlDocumentPK ctlDocumentPK = new CtlDocumentPK("demographic", demographicNo, document.getId());
+		CtlDocument ctlDocument = new CtlDocument();
+		ctlDocument.setId(ctlDocumentPK);
+		ctlDocument.setStatus(String.valueOf(document.getStatus()));
+		ctlDocumentDao.persist(ctlDocument);
+
+		// Saves the patient and provider lab routings if the provided numbers are valid
+		if (demographicNo > 0) {
+			PatientLabRouting patientLabRouting = new PatientLabRouting(document.getId(), "DOC", demographicNo);
+			patientLabRoutingDao.persist(patientLabRouting);
+		}
+
+		if (StringUtils.isNotEmpty(providerNo)) {
+			ProviderLabRoutingModel providerLabRouting = new ProviderLabRoutingModel(providerNo, document.getId(), "N", "", new Date(), "DOC");
+			providerLabRoutingDao.persist(providerLabRouting);
+		}
 	}
 
 }

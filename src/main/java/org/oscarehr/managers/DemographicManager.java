@@ -38,6 +38,8 @@ import org.oscarehr.PMmodule.model.ProgramProvider;
 import org.oscarehr.caisi_integrator.ws.DemographicTransfer;
 import org.oscarehr.caisi_integrator.ws.DemographicWs;
 import org.oscarehr.caisi_integrator.ws.GetConsentTransfer;
+import org.oscarehr.PMmodule.dao.ProgramDao;
+import org.oscarehr.PMmodule.model.Program;
 import org.oscarehr.common.Gender;
 import org.oscarehr.common.dao.AdmissionDao;
 import org.oscarehr.common.dao.ConsentDao;
@@ -114,6 +116,9 @@ public class DemographicManager {
 
 	@Autowired
 	private AdmissionDao admissionDao;
+	
+	@Autowired
+	private ProgramDao programDao;
 	
 	@Autowired
 	private SecurityInfoManager securityInfoManager;
@@ -348,11 +353,18 @@ public class DemographicManager {
 			throw new IllegalArgumentException("Birth date was specified for " + demographic.getFullName() + ": " + demographic.getBirthDayAsString());
 		}
 
+		demographic.setLastName(demographic.getLastName().toUpperCase());
+		demographic.setFirstName(demographic.getFirstName().toUpperCase());
 		demographic.setPatientStatus(PatientStatus.AC.name());
 		demographic.setFamilyDoctor("<rdohip></rdohip><rd></rd>");
 		demographic.setLastUpdateUser(loggedInInfo.getLoggedInProviderNo());
 		demographicDao.save(demographic);
 
+		if (admissionProgramId == null) {
+			Program program = programDao.getProgramByName("OSCAR");
+			admissionProgramId = program.getId();
+		}
+		
 		Admission admission = new Admission();
 		admission.setClientId(demographic.getDemographicNo());
 		admission.setProgramId(admissionProgramId);
@@ -360,11 +372,12 @@ public class DemographicManager {
 		admission.setAdmissionDate(new Date());
 		admission.setAdmissionStatus(Admission.STATUS_CURRENT);
 		admission.setAdmissionNotes("");
-
+		
 		admissionDao.saveAdmission(admission);
 
 		if (demographic.getExtras() != null) {
 			for (DemographicExt ext : demographic.getExtras()) {
+				ext.setDemographicNo(demographic.getDemographicNo());
 				createExtension(loggedInInfo, ext);
 			}
 		}
@@ -975,6 +988,19 @@ public class DemographicManager {
 			
 			return remoteDemographicNumbers;
 		}
+
+	/**
+	 * Find a demographic by 3 parameters, Last Name, Date of Birth, and HIN. The match can be partial (2/3 must match) or full (all 3 must match).
+	 * @param lastName The lastname to match
+	 * @param dob The date of birth to match
+	 * @return List of demographics matching the supplied parameters
+	 */
+		public List<Demographic> findByLastNameDob(String lastName, Calendar dob) {
+			List<Demographic> demographics = demographicDao.findByLastNameAndDob(lastName, dob);
+			
+			return demographics;
+		}
+		
 		
 		/**
 		 * Fetch all the the demographic files from all facilities linked by the Integrator to the given local demographic number

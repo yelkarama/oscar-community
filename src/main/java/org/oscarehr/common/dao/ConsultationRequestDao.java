@@ -71,78 +71,89 @@ public class ConsultationRequestDao extends AbstractDao<ConsultationRequest> {
 
         
         public List<ConsultationRequest> getConsults(String team, boolean showCompleted, Date startDate, Date endDate, String orderby, String desc, String searchDate, Integer offset, Integer limit, Integer mrpNo, Integer patientId, Integer urgencyFilter, Integer serviceFilter, Integer consultantFilter) {
-
-            StringBuilder sql = new StringBuilder("select cr from ConsultationRequest cr left outer join cr.professionalSpecialist specialist, ConsultationServices service, Demographic d left outer join d.provider p where d.DemographicNo = cr.demographicId and service.id = cr.serviceId ");
-
+		
+			StringBuilder sql = new StringBuilder("SELECT IF(c.serviceId != 0, c.serviceDesc, ext.value) AS serviceName, cr.* " +
+					"FROM consultationRequests cr " +
+					"LEFT JOIN professionalSpecialists ps ON cr.specId = ps.specId " +
+					"LEFT JOIN consultationServices c ON cr.serviceId = c.serviceId " +
+					"LEFT JOIN consultationRequestExt ext ON cr.requestId = ext.requestId AND ext.name = 'ereferral_service' " +
+					"LEFT JOIN demographic d on cr.demographicNo = d.demographic_no " +
+					"LEFT JOIN provider p on d.provider_no = p.provider_no ");
+			StringBuilder whereSql = new StringBuilder();
+            
             if( !showCompleted ) {
-               sql.append("and cr.status != 4 ");
+               whereSql.append("and cr.status != 4 ");
             }
 
             if( !team.isEmpty()) {
-                sql.append("and cr.sendTo = '" + team + "' ");
+                whereSql.append("and cr.sendTo = '").append(team).append("' ");
             }
 
             if(startDate != null){
                 if (searchDate != null && searchDate.equals("1")){
-                    sql.append("and cr.appointmentDate >= '" + DateFormatUtils.ISO_DATETIME_FORMAT.format(startDate)+ "' ");
+                    whereSql.append("and cr.appointmentDate >= '").append(DateFormatUtils.ISO_DATETIME_FORMAT.format(startDate)).append("' ");
                 }else{
-                    sql.append("and cr.referralDate >= '" + DateFormatUtils.ISO_DATETIME_FORMAT.format(startDate)+ "' ");
+                    whereSql.append("and cr.referalDate >= '").append(DateFormatUtils.ISO_DATETIME_FORMAT.format(startDate)).append("' ");
                 }
             }
 
             if(endDate != null){
                 if (searchDate != null && searchDate.equals("1")){
-                    sql.append("and cr.appointmentDate <= '" + DateFormatUtils.ISO_DATETIME_FORMAT.format(endDate)+ "' ");
+                    whereSql.append("and cr.appointmentDate <= '").append(DateFormatUtils.ISO_DATETIME_FORMAT.format(endDate)).append("' ");
                 }else{
-                    sql.append("and cr.referralDate <= '" + DateFormatUtils.ISO_DATETIME_FORMAT.format(endDate)+ "' ");
+                    whereSql.append("and cr.referalDate <= '").append(DateFormatUtils.ISO_DATETIME_FORMAT.format(endDate)).append("' ");
                 }
             }
 
 
-	    if( mrpNo != null )
-	    sql.append(" and d.ProviderNo = " + mrpNo + " " );
+			if( mrpNo != null )
+			whereSql.append(" and d.provider_no = " + mrpNo + " " );
+	
+			if( patientId != null )
+			whereSql.append(" and d.demographic_no = " + patientId + " " );
+	
+			if( urgencyFilter != null )
+			whereSql.append(" and cr.urgency = " + urgencyFilter + " " );
+	
+			if( serviceFilter != null )
+			whereSql.append(" and cr.serviceId = " + serviceFilter + " " );
+	
+			if( consultantFilter != null )
+			whereSql.append(" and cr.specId = " + consultantFilter + " " );
 
-	    if( patientId != null )
-	    sql.append(" and d.DemographicNo = " + patientId + " " );
 
-	    if( urgencyFilter != null )
-	    sql.append(" and cr.urgency = " + urgencyFilter + " " );
-
-	    if( serviceFilter != null )
-	    sql.append(" and cr.serviceId = " + serviceFilter + " " );
-
-	    if( consultantFilter != null )
-	    sql.append(" and cr.professionalSpecialist = " + consultantFilter + " " );
-
-
+            if (whereSql.length() > 0) {
+            	sql.append("WHERE ").append(whereSql.toString().substring(4));
+			}
+            
             String orderDesc = desc != null && desc.equals("1") ? "DESC" : "";
-            String service = ", service.serviceDesc";
+            String service = ", serviceName";
             if (orderby == null){
-                sql.append("order by cr.referralDate desc ");
+                sql.append("order by cr.referalDate desc ");
             }else if(orderby.equals("1")){               //1 = msgStatus
-                sql.append("order by cr.status " + orderDesc + service);
+                sql.append("order by cr.status ").append(orderDesc).append(service);
              }else if(orderby.equals("2")){               //2 = msgTeam
-                sql.append("order by cr.sendTo " + orderDesc + service);
+                sql.append("order by cr.sendTo ").append(orderDesc).append(service);
             }else if(orderby.equals("3")){               //3 = msgPatient
-                sql.append("order by d.LastName " + orderDesc + service);
+                sql.append("order by d.last_name ").append(orderDesc).append(service);
             }else if(orderby.equals("4")){               //4 = msgProvider
-                sql.append("order by p.LastName " + orderDesc + service);
+                sql.append("order by p.last_name ").append(orderDesc).append(", cr.referalDate desc ").append(service);
             }else if(orderby.equals("5")){               //5 = msgService Desc
-                sql.append("order by service.serviceDesc " + orderDesc);
+                sql.append("order by serviceName ").append(orderDesc).append(service);
             }else if(orderby.equals("6")){               //6 = msgSpecialist Name
-                sql.append("order by specialist.lastName " + orderDesc + service);
+                sql.append("order by ps.lname ").append(orderDesc).append(service);
             }else if(orderby.equals("7")){               //7 = msgRefDate
-                sql.append("order by cr.referralDate " + orderDesc);
+                sql.append("order by cr.referalDate ").append(orderDesc).append(service);
             }else if(orderby.equals("8")){               //8 = Appointment Date
-                sql.append("order by cr.appointmentDate " + orderDesc);
+                sql.append("order by cr.appointmentDate ").append(orderDesc).append(service);
             }else if(orderby.equals("9")){               //9 = FollowUp Date
-                sql.append("order by cr.followUpDate " + orderDesc);
+                sql.append("order by cr.followUpDate ").append(orderDesc);
             }else{
-                sql.append("order by cr.referralDate desc");
+                sql.append("order by cr.referalDate desc");
             }
             
 
-            Query query = entityManager.createQuery(sql.toString());
+            Query query = entityManager.createNativeQuery(sql.toString(), ConsultationRequest.class);
             query.setFirstResult(offset!=null?offset:0);
             
             //need to never send more than MAX_LIST_RETURN_SIZE
