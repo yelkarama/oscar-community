@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS erefer_attachment (
     id INT PRIMARY KEY AUTO_INCREMENT,
     demographic_no INT,
     created DATETIME,
-    archived BOOLEAN DEFAULT FALSE
+    archived BOOLEAN
 );
 
 CREATE TABLE IF NOT EXISTS erefer_attachment_data (

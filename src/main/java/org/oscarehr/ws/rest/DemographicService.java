@@ -23,7 +23,7 @@
  */
 package org.oscarehr.ws.rest;
 
-import java.io.IOException;
+//import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -790,7 +790,7 @@ public class DemographicService extends AbstractServiceImpl {
 				
 				response = Response.ok().entity(demographicTs).build();
 			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
+				//e.print Stack Trace();
 				response = Response.status(Response.Status.BAD_REQUEST).entity("The date of birth must be a valid date in the format yyyy-MM-dd. There is an issue with " + e.getMessage()).build();
 			}
 		}

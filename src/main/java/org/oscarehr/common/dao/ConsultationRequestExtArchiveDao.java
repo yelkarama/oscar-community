@@ -27,9 +27,9 @@ import org.oscarehr.common.model.ConsultationRequestExtArchive;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.Query;
-import java.util.HashMap;
+//import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+//import java.util.Map;
 
 @Repository
 public class ConsultationRequestExtArchiveDao extends AbstractDao<ConsultationRequestExtArchive> {

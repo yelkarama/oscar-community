@@ -16,7 +16,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.oscarehr.util.MiscUtils;
+import org.apache.log4j.Logger;
+
 public class EReferAction extends Action {
+	private static Logger log = MiscUtils.getLogger();
 	public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		Integer demographicNo = Integer.parseInt(request.getParameter("demographicNo"));
 		String documents = StringUtils.trimToEmpty(request.getParameter("documents"));
@@ -41,7 +45,8 @@ public class EReferAction extends Action {
 			try {
 				response.getWriter().write(eReferAttachment.getId().toString());
 			} catch (IOException e) {
-				e.printStackTrace();
+				//e.print Stack Trace();
+				log.error("IO error",e);
 			}
 		}
 		
