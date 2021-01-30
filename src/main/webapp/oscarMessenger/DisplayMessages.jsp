@@ -113,6 +113,9 @@ bean.nullAttachment();
 <title>
 <bean:message key="oscarMessenger.DisplayMessages.title"/>
 </title>
+
+<script type="text/javascript" src="<%=request.getContextPath()%>/library/jquery/jquery-1.12.0.min.js" ></script>
+
 <style type="text/css">
 td.messengerButtonsA{
     /*background-color: #6666ff;*/
@@ -165,6 +168,20 @@ width:100% !important;
 	background-color: #EEEEFF;
 	color: black;
 }
+span.recipientList {
+    text-overflow:ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+span.recipientList:hover{
+	position: relative;
+    text-overflow:clip;
+    width:auto;
+    white-space: normal;
+}
+
+
 </style>
 
 <script type="text/javascript">
@@ -195,10 +212,24 @@ function checkAll(formId){
    }
 }
 
+$(document).ready(function(){
+	
+	var lengthText = 30;
+	const recipientLists = $('.recipientList');
+	
+	$.each(recipientLists, function(key, value){		
+		var text = $(value).text();
+		var shortText = $.trim(text).substring(0, lengthText).split(" ").slice(0, -1).join(" ") + "...";
+		$(value).text(shortText);
+		$(value).attr("title", $.trim(text));
+	})
+})
+
 </script>
 </head>
 
 <body class="BodyStyle" vlink="#0000FF" onload="window.focus()" onunload="return uload()">
+<div id="pop-up"><p></p></div>
     <table  class="MainTable" id="scrollNumber1" name="encounterTable">
         <tr class="MainTableTopRow">
             <td class="MainTableTopRowLeftColumn">
@@ -332,8 +363,6 @@ function checkAll(formId){
                         <td>
                             <%if (pageType == 0){%>
                                     <input name="btnDelete" type="submit" value="<bean:message key="oscarMessenger.DisplayMessages.formArchive"/>">
-                                    <input name="btnRead" type="submit" value="<bean:message key="oscarMessenger.DisplayMessages.markRead"/>">
-	                                <input name="btnUnread" type="submit" value="<bean:message key="oscarMessenger.DisplayMessages.markUnRead"/>">
                             <%}else if (pageType == 2){%>
                                     <input type="submit" value="<bean:message key="oscarMessenger.DisplayMessages.formUnarchive"/>">
                             <%}%>
@@ -420,7 +449,7 @@ function checkAll(formId){
                                         String key = "oscarMessenger.DisplayMessages.msgStatus"+dm.getStatus().substring(0,1).toUpperCase()+dm.getStatus().substring(1); 
                                         %>
                                         
-                                <% if ("oscarMessenger.DisplayMessages.msgStatusNew".equals(key) || "oscarMessenger.DisplayMessages.msgStatusUnread".equals(key)){%>        
+                                <% if ("oscarMessenger.DisplayMessages.msgStatusNew".equals(key) || "oscarMessenger.DisplayMessages.msgStatusUnread".equals(key)){%>         
                                 <tr class="newMessage">
                                 <%}else{%>
                                 <tr>
@@ -443,6 +472,7 @@ function checkAll(formId){
                                      <bean:message key="<%= key %>"/>
                                     </td>
                                     <td class='<%= dm.getType() == 3 ? "integratedMessage" : "normalMessage" %>'>
+                                        <span class="recipientList">
                                         <%
                                             if( pageType == 1 ) {                       
                                                 out.print(dm.getSentto());
@@ -452,7 +482,7 @@ function checkAll(formId){
                                                 out.print(dm.getSentby());
                                             }
                                         %>
-                                    
+                                    	</span>
                                     </td>
                                     <td class='<%= dm.getType() == 3 ? "integratedMessage" : "normalMessage" %>'>
                                     <a href="<%=request.getContextPath()%>/oscarMessenger/ViewMessage.do?messageID=<%=dm.getMessageId()%>&boxType=<%=pageType%>">
