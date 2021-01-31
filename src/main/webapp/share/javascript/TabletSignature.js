@@ -33,7 +33,7 @@ function init() {
 	canvas.setAttribute("height", "100px");
 	canvas.setAttribute("width", "500px");
     	
-    ctx.fillStyle = 'rgb(255,255,255)';
+    ctx.fillStyle = 'rgb(255,255,255,0.0)';
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 	ctx.fill();
     	
@@ -257,10 +257,7 @@ function onMouseCancel(e) {
 
 function clearCanvas() {
     
-	ctx.fillStyle = 'rgb(255,255,255)';
-	ctx.fillRect(0, 0, canvas.width, canvas.height);
-	ctx.fill();
-	
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	OnSignEvent(false, false);
 }
     

@@ -86,6 +86,9 @@ StringBuffer oscarUrl = request.getRequestURL();
 Integer urlLength = oscarUrl.length() - request.getServletPath().length();
 //Sets the length of the URL, found by subtracting the length of the servlet path from the length of the full URL, that way it only gets up to the context path
 oscarUrl.setLength(urlLength);
+
+boolean oneIdEnabled = "true".equalsIgnoreCase(OscarProperties.getInstance().getProperty("oneid.enabled","false"));
+boolean oauth2Enabled= "true".equalsIgnoreCase(OscarProperties.getInstance().getProperty("oneid.oauth2.enabled","false")); 
 %>
 
 <html:html locale="true">
@@ -265,8 +268,11 @@ oscarUrl.setLength(urlLength);
                         <input type="hidden" id="email" name="email" value="<%=request.getParameter("email") != null ? request.getParameter("email") : ""%>"/>
                         </html:form>
 
-			<% if("true".equalsIgnoreCase(OscarProperties.getInstance().getProperty("oneid.enabled","false"))) { %>
-                        <a href="<%=econsultUrl %>/SAML2/login?oscarReturnURL=<%=URLEncoder.encode(oscarUrl + "/ssoLogin.do", "UTF-8") + "?loginStart="%>" id="oneIdLogin" onclick="addStartTime()"><div class="btn btn-primary btn-block oneIDLogin"><span class="oneIDLogo"></span><span class="oneIdText">ONE ID Login</span></div></a>
+						<%if(oneIdEnabled && !oauth2Enabled) { %>
+                       		 <a href="<%=econsultUrl %>/SAML2/login?oscarReturnURL=<%=URLEncoder.encode(oscarUrl + "/ssoLogin.do", "UTF-8") + "?loginStart="%>" id="oneIdLogin" onclick="addStartTime()"><div class="btn btn-primary btn-block oneIDLogin"><span class="oneIDLogo"></span><span class="oneIdText">ONE ID Login</span></div></a>
+                        <% } %>
+                        <%if(oneIdEnabled && oauth2Enabled) { %>
+                       		 <a href="<%=request.getContextPath() %>/eho/login2.jsp" id="oneIdLoginOauth"><div class="btn btn-primary btn-block oneIDLogin"><span class="oneIDLogo"></span><span class="oneIdText">ONE ID Login</span></div></a>
                         <% } %>
                         <%if (AcceptableUseAgreementManager.hasAUA()){ %>
                         <span class="extrasmall">

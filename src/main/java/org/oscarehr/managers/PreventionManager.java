@@ -76,8 +76,9 @@ public class PreventionManager {
 
 	public List<Prevention> getByDemographicIdUpdatedAfterDate(LoggedInInfo loggedInInfo, Integer demographicId, Date updatedAfterThisDateExclusive) {
 		List<Prevention> results = new ArrayList<Prevention>();
-		ConsentType consentType = patientConsentManager.getProviderSpecificConsent(loggedInInfo);
-		if (patientConsentManager.hasPatientConsented(demographicId, consentType)) {
+		//If the consent type does not exist in the table assume this consent type is not being managed by the clinic, otherwise ensure patient has consented
+		boolean hasConsent = patientConsentManager.hasProviderSpecificConsent(loggedInInfo) || patientConsentManager.getConsentType(ConsentType.PROVIDER_CONSENT_FILTER) == null;
+		if (hasConsent) {
 			results = preventionDao.findByDemographicIdAfterDatetimeExclusive(demographicId, updatedAfterThisDateExclusive);
 			LogAction.addLogSynchronous(loggedInInfo, "PreventionManager.getByDemographicIdUpdatedAfterDate", "demographicId="+demographicId+" updatedAfterThisDateExclusive=" + updatedAfterThisDateExclusive);
 		}

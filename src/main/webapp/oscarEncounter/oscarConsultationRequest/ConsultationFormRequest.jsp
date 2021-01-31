@@ -75,6 +75,8 @@ if(!authed) {
 <%@ page import="org.oscarehr.common.dao.FaxConfigDao, org.oscarehr.common.model.FaxConfig" %>
 <%@page import="org.oscarehr.common.dao.ConsultationServiceDao" %>
 <%@page import="org.oscarehr.common.model.ConsultationServices" %>
+<%@ page import="org.oscarehr.common.dao.ConsultationRequestExtDao" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <jsp:useBean id="displayServiceUtil" scope="request" class="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConDisplayServiceUtil" />
 
 <html:html locale="true">
@@ -358,6 +360,15 @@ background-color:#003399;color:#fff
 }
 
 /* select consultant by location */
+	
+span.oceanRefer	{
+	display: flex;
+	align-items: center;
+}
+	
+span.oceanRefer a {
+	margin-right: 5px;
+}
 </style>
 </head>
 
@@ -495,7 +506,7 @@ e.preventDefault();
 jQuery('#consultant-by-location-dropdown').slideUp();
 jQuery('#consultant-by-location-input').val('');
 });
-
+	
 })
 
 function unlockSearchByLocationInput(n){
@@ -546,12 +557,13 @@ function disableEditing()
 		form.status[3].disabled = disableFields;
 
 		form.referalDate.disabled = disableFields;
-		form.service.disabled = disableFields;
+		disableIfExists(form.specialist, disableFields);
+		disableIfExists(form.service, disableFields);
 		form.urgency.disabled = disableFields;
 		form.phone.disabled = disableFields;
 		form.fax.disabled = disableFields;
 		form.address.disabled = disableFields;
-		form.patientWillBook.disabled = disableFields;
+		disableIfExists(form.patientWillBook, disableFields);
 		form.sendTo.disabled = disableFields;
 
 		form.appointmentNotes.disabled = disableFields;
@@ -561,6 +573,9 @@ function disableEditing()
 		form.currentMedications.disabled = disableFields;
 		form.allergies.disabled = disableFields;
                 form.annotation.disabled = disableFields;
+        form.appointmentDate.disabled = disableFields;
+        form.followUpDate.disabled = disableFields;
+        
 
 		disableIfExists(form.update, disableFields);
 		disableIfExists(form.updateAndPrint, disableFields);
@@ -571,12 +586,24 @@ function disableEditing()
 		disableIfExists(form.submitAndPrint, disableFields);
 		disableIfExists(form.submitAndSendElectronically, disableFields);
 		disableIfExists(form.submitAndFax, disableFields);
+		disableIfExists(form.letterheadFax, disableFields);
+
+		hideElement('referalDate_cal');
+		hideElement('appointmentDate_cal');
+		hideElement("followUpDate_cal");
 	}
 }
 
 function disableIfExists(item, disabled)
 {
 	if (item!=null) item.disabled=disabled;
+}
+
+function hideElement(elementId) {
+	let element = document.getElementById(elementId)
+	if (element != null) {
+		element.style.display = 'none';
+	}
 }
 
 //------------------------------------------------------------------------------------------
@@ -1558,11 +1585,13 @@ function statusChanged(val) {
 	<% if (!props.isConsultationFaxEnabled() || !OscarProperties.getInstance().isPropertyActive("consultation_dynamic_labelling_enabled")) { %>
 	<input type="hidden" name="providerNo" value="<%=providerNo%>">
 	<% } %>
-	<input type="hidden" name="demographicNo" value="<%=demo%>">
+	<input type="hidden" id="demographicNo" name="demographicNo" value="<%=demo%>">
 	<input type="hidden" name="requestId" value="<%=requestId%>">
-	<input type="hidden" name="documents" value="">
+	<input type="hidden" id="documents" name="documents" value="">
 	<input type="hidden" name="ext_appNo" value="<%=request.getParameter("appNo") %>">
 	<input type="hidden" name="source" value="<%=(requestId!=null)?thisForm.getSource():request.getParameter("source") %>">
+	<input type="hidden" id="contextPath" value="<%=request.getContextPath()%>">
+	
 	
         <input type="hidden" id="saved" value="false">
 	<!--  -->
@@ -1579,6 +1608,14 @@ function statusChanged(val) {
 						<%=thisForm.getPatientName()%> <%=thisForm.getPatientSex()%>	<%=thisForm.getPatientAge()%>
 						</h2>
 						</td>
+						<% if ("ocean".equals(props.get("cme_js"))) { %>
+					<td>						
+                        <span id="ocean" style="display:none"></span>
+                        <% if (requestId == null) { %>
+						<span id="oceanReferButton" class="oceanRefer"></span>
+					</td>
+						<% }
+						}%>
 				</tr>
 			</table>
 			</td>
@@ -1707,8 +1744,18 @@ function statusChanged(val) {
 			<table cellpadding="0" cellspacing="2"
 				style="border-collapse: collapse" bordercolor="#111111" width="100%"
 				height="100%" border=1>
-
+				<% if (requestId != null && "ocean".equals(props.get("cme_js"))) {
+					ConsultationRequestExtDao consultationRequestExtDao = SpringUtils.getBean(ConsultationRequestExtDao.class);
+					Integer consultId = Integer.parseInt(requestId);
+					String eReferralRef = consultationRequestExtDao.getConsultationRequestExtsByKey(consultId, "ereferral_ref");
+					if(eReferralRef != null) {
+				%>
+				<input id="ereferral_ref" type="hidden" value="<%= Encode.forHtmlAttribute(eReferralRef) %>"/>
+				<span id="editOnOcean" class="oceanRefer"></span>
+				<%	}
+				   } %>
 				<!----Start new rows here-->
+				<% if (thisForm.geteReferralId() == null) { %>
 				<tr>
 					<td class="tite4" colspan=2>
 					<% boolean faxEnabled = props.isConsultationFaxEnabled(); %>
@@ -1749,6 +1796,7 @@ function statusChanged(val) {
 					
 					</td>
                     </tr>
+					<% } %>
                     <tr class="consultDemographicData" >
 					<td>
 
@@ -1809,8 +1857,12 @@ function statusChanged(val) {
 							<td class="tite4"><bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.formService" />:
 							</td>
 							<td  class="tite1">
-							  <html:select styleId="service" property="service" onchange="fillSpecialistSelect(this);">
+							  <% if (thisForm.iseReferral() && !thisForm.geteReferralService().isEmpty()) { %>
+									<%= thisForm.geteReferralService() %>
+								<% } else { %>
+									<html:select styleId="service" property="service" onchange="fillSpecialistSelect(this);">
 							  </html:select>
+							<% } %>
 							</td>
 						</tr>
 						<tr>
@@ -2236,6 +2288,7 @@ function statusChanged(val) {
 								<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.formClinInf" />:						
 							</td>
 							<td id="clinicalInfoButtonBar">
+								<% if (thisForm.geteReferralId() == null) { %>
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportSocHistory"/>" onclick="importFromEnct('SocialHistory',document.forms[0].clinicalInformation);" />&nbsp;
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportFamHistory"/>" onclick="importFromEnct('FamilyHistory',document.forms[0].clinicalInformation);" />&nbsp;
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportMedHistory"/>" onclick="importFromEnct('MedicalHistory',document.forms[0].clinicalInformation);" />&nbsp;
@@ -2243,16 +2296,17 @@ function statusChanged(val) {
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportOtherMeds"/>" onclick="importFromEnct('OtherMeds',document.forms[0].clinicalInformation);" />&nbsp;
 
 								<span id="clinicalInfoButtons"></span>
+								<% } %>
 							</td>
 						</tr>
 						<tr>
-														<td>
+							<td>
+								<% if (thisForm.geteReferralId() == null) { %>
 								<input id="btnReminders" type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportReminders"/>" onclick="importFromEnct('Reminders',document.forms[0].clinicalInformation);" />&nbsp;								
 								<input id="fetchRiskFactors_clinicalInformation" type="button" class="btn clinicalData" value="Risk Factors" />&nbsp;
 								<input id="fetchMedications_clinicalInformation" type="button" class="btn clinicalData" value="Medications" />&nbsp;
 								<input id="fetchLongTermMedications_clinicalInformation" type="button" class="btn clinicalData" value="Long Term Medications" />&nbsp;
-								
-								
+								<% } %>
 							</td>
 						</tr>
 					</table>
@@ -2280,22 +2334,24 @@ function statusChanged(val) {
  %>
 							</td>
 							<td id="concurrentProblemsButtonBar">
+								<% if (thisForm.geteReferralId() == null) { %>
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportSocHistory"/>" onclick="importFromEnct('SocialHistory',document.forms[0].concurrentProblems);" />&nbsp;
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportFamHistory"/>" onclick="importFromEnct('FamilyHistory',document.forms[0].concurrentProblems);" />&nbsp;
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportMedHistory"/>" onclick="importFromEnct('MedicalHistory',document.forms[0].concurrentProblems);" />&nbsp;
 								<input id="btnOngoingConcerns2" type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportConcerns"/>" onclick="importFromEnct('ongoingConcerns',document.forms[0].concurrentProblems);" />&nbsp;
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportOtherMeds"/>" onclick="importFromEnct('OtherMeds',document.forms[0].concurrentProblems);" />&nbsp;
-
+								<% } %>
 							</td>
 						</tr>
 						<tr>
 							
 							<td>
+								<% if (thisForm.geteReferralId() == null) { %>
 								<input id="btnReminders2" type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportReminders"/>" onclick="importFromEnct('Reminders',document.forms[0].concurrentProblems);" />&nbsp;
 								<input id="fetchRiskFactors_concurrentProblems" type="button" class="btn clinicalData" value="Risk Factors" />&nbsp;
 								<input id="fetchMedications_concurrentProblems" type="button" class="btn clinicalData" value="Medications" />&nbsp;
 								<input id="fetchLongTermMedications_concurrentProblems" type="button" class="btn clinicalData" value="Long Term Medications" />&nbsp;
-								
+								<% } %>
 							</td>
 						</tr>
 					</table>
@@ -2333,6 +2389,7 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 								<% }  %>
 							</td>
 							<td id="medsButtonBar">
+								<% if (thisForm.geteReferralId() == null) { %>
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportOtherMeds"/>" 
 								onclick="importFromEnct('OtherMeds',document.forms[0].currentMedications);" />
 								
@@ -2340,6 +2397,7 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 								<input id="fetchLongTermMedications_currentMedications" type="button" class="btn clinicalData" value="Long Term Medications" />&nbsp;
 								
 								<span id="medsButtons"></span>
+								<% } %>
 							</td>
 						</tr>
 					</table>
@@ -2358,7 +2416,9 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 							<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.formAllergies" />:
 							</td>
 							<td>
+								<% if (thisForm.geteReferralId() == null) { %>
 								<input id="fetchAllergies_allergies" type="button" class="btn clinicalData" value="Allergies" />
+								<% } %>
 							</td>
 						</tr>
 						
@@ -2398,7 +2458,7 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 				</tr>
 				<% }%>
 				<%
-				if (props.isConsultationFaxEnabled()) {
+				if (props.isConsultationFaxEnabled() && thisForm.geteReferralId() == null) {
 				%>
 				<tr><td colspan=2 class="tite4">Additional Fax Recipients:</td></tr>
 				<tr>
@@ -2479,7 +2539,7 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 				<% } %>
 
 
-
+				<% if (thisForm.geteReferralId() == null) { %>
 				<tr>
 
 <td colspan=2>
@@ -2533,6 +2593,7 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 						</logic:equal>
 					</td>
 				</tr>
+				<% } %>
 
 				<script type="text/javascript">
 

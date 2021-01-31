@@ -175,6 +175,11 @@ function showHideBillPref() {
 function showHideERxPref() {
     //$("eRxPref").toggle();
 }
+
+function reloadParentWindow(){
+window.opener.location.reload();
+}
+
 </script>
 <style type="text/css">
 	.preferenceTable td
@@ -716,6 +721,10 @@ Event.observe('rxInteractionWarningLevel', 'change', function(event) {
       <tr>
           <td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewConsultPasteFmt');return false;"><bean:message key="provider.btnSetConsultPasteFmt"/></a></td>
       </tr>
+      <tr>
+          <td align="center"><a href=# onClick ="popupPage(230,860,'../setViewConsultsPreferences.do?method=viewConsultsFilter');return false;"><bean:message key="provider.btnViewConsultationsDefaultFilter"/></a></td>
+      </tr>
+
       <tr>
           <td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewFavouriteEformGroup');return false;"><bean:message key="provider.btnSetEformGroup"/></a></td>
       </tr>

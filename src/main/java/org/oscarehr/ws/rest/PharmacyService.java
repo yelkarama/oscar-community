@@ -23,12 +23,14 @@
  */
 package org.oscarehr.ws.rest;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
 import org.oscarehr.common.dao.PharmacyInfoDao;
@@ -67,6 +69,7 @@ public class PharmacyService extends AbstractServiceImpl {
 	 */
 	@GET
 	@Path("/")
+	@Produces("application/json")
 	public OscarSearchResponse<PharmacyInfoTo1> getPharmacies(@QueryParam("offset") Integer offset, @QueryParam("limit") Integer limit) {
 		OscarSearchResponse<PharmacyInfoTo1> result = new OscarSearchResponse<PharmacyInfoTo1>();
 		result.getContent().addAll(converter.getAllAsTransferObjects(getLoggedInInfo(),pharmacyInfoDao.findAll(offset, limit))); 
@@ -83,6 +86,7 @@ public class PharmacyService extends AbstractServiceImpl {
 	 */
 	@GET
 	@Path("/{pharmacyId}")
+	@Produces("application/json")
 	public PharmacyInfoTo1 getPharmacy(@PathParam("pharmacyId") Integer id) {
 		return converter.getAsTransferObject(getLoggedInInfo(),pharmacyInfoDao.find(id));
 	}
@@ -97,6 +101,8 @@ public class PharmacyService extends AbstractServiceImpl {
 	 */
 	@POST
 	@Path("/")
+	@Produces("application/json")
+	@Consumes("application/json")
 	public PharmacyInfoTo1 addPharmacy(PharmacyInfoTo1 pharmacyInfo) {
 		return converter.getAsTransferObject(getLoggedInInfo(),pharmacyInfoDao.saveEntity(converter.getAsDomainObject(getLoggedInInfo(),pharmacyInfo)));
 	}
@@ -111,6 +117,8 @@ public class PharmacyService extends AbstractServiceImpl {
 	 */
 	@PUT
 	@Path("/")
+	@Produces("application/json")
+	@Consumes("application/json")
 	public PharmacyInfoTo1 updatePharmacy(PharmacyInfoTo1 pharmacyInfo) {
 		return converter.getAsTransferObject(getLoggedInInfo(),pharmacyInfoDao.saveEntity(converter.getAsDomainObject(getLoggedInInfo(),pharmacyInfo)));
 	}
@@ -125,6 +133,7 @@ public class PharmacyService extends AbstractServiceImpl {
 	 */
 	@DELETE
 	@Path("/{pharmacyId}")
+	@Produces("application/json")
 	public PharmacyInfoTo1 removePharmacy(@PathParam("pharmacyId") Integer id) {
 		PharmacyInfo pharmacyInfo = pharmacyInfoDao.find(id);
 		pharmacyInfo.setStatus(PharmacyInfo.DELETED);

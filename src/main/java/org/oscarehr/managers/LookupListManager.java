@@ -151,6 +151,25 @@ public class LookupListManager {
 		return lookupListItems;
 	}
 
+	/**
+	 * Retrieve all the active select list option items by the lookupList.name
+	 */
+	public LookupListItem findLookupListItemsByLookupListNameAndValue(LoggedInInfo loggedInInfo, String lookupListName, String itemValue ) {
+
+		LookupList lookupList = findLookupListByName(loggedInInfo,lookupListName);
+		LookupListItem lookupListItem = null;
+
+		if (lookupList != null) {
+			
+			lookupListItem = lookupListItemDao.findByLookupListIdAndValue(lookupList.getId(), itemValue);
+			
+			LogAction.addLogSynchronous(loggedInInfo, "LookupListManager.findLookupListItemsByLookupListNameAndValue", lookupList.toString() + "," + itemValue );
+		}
+
+		return lookupListItem;
+	}
+
+	
 
 	/**
 	 * Find a specific lookupListItem by it's id
@@ -230,4 +249,9 @@ public class LookupListManager {
 	}
 
 
+	public void removeLookupListItems(LoggedInInfo loggedInInfo, Integer listId) {
+		for(LookupListItem lli : lookupListItemDao.findByLookupListId(listId, true)) {
+			lookupListItemDao.remove(lli.getId());
+		}
+	}
 }

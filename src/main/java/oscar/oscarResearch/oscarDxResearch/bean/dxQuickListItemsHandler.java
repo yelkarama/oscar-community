@@ -120,6 +120,10 @@ public class dxQuickListItemsHandler {
 	public Collection<dxCodeSearchBean> getDxQuickListItemsVector() {
 		return dxQuickListItemsVector;
 	}
+	
+	public List<dxCodeSearchBean> getDxQuickListBeanList() {
+		return dxQuickListItemsVector;
+	}
 
 	public Collection<dxCodeSearchBean> getDxQuickListItemsVectorNotInPatientsList(Vector<dxResearchBean> patientsList) {
 		Vector<String> dxList = new Vector<String>();

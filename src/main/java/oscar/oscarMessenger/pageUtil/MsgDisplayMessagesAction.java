@@ -133,6 +133,7 @@ public class MsgDisplayMessagesAction extends Action {
 			MiscUtils.getLogger().debug("Unexpected action in MsgDisplayMessagesBean.java");
 		}
 
+
 		return (mapping.findForward(findForward));
 	}
 

@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.Hl7TextMessageDao;
 import org.oscarehr.common.model.Hl7TextMessage;
+import org.oscarehr.common.model.Provider;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -62,6 +63,7 @@ import oscar.oscarLab.ca.all.Hl7textResultsData;
 import oscar.oscarLab.ca.all.parsers.Factory;
 import oscar.oscarLab.ca.all.parsers.OLISHL7Handler;
 import oscar.oscarLab.ca.all.util.Utilities;
+import oscar.util.UtilDateUtilities;
 
 
 public class OLISLabPDFCreator extends PdfPageEventHelper{
@@ -77,6 +79,8 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
     private String[] multiID;
     private String id;
 
+	private Provider printingProvider;
+	private String dateLabReceived;
     private Document document;
     private BaseFont bf;
     private BaseFont cf;
@@ -165,6 +169,39 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 			}
 		}
     }
+
+	/**
+	 * Prints an OLIS lab with the provided segmentId (lab id). This cannot be used with a UUID and will error if the segment id is not a positive integer	
+	 * @param os OutputStream to print the pdf contents to
+	 * @param segmentId The segment id of the lab that will be printed. Must be a positive integer, cannot be 0.
+	 * @param provider The provider printing the lab
+	 */
+	public OLISLabPDFCreator(OutputStream os, String segmentId, Provider provider) {
+		this.os = os;
+		this.id = segmentId;
+
+		// determine lab version
+		String multiLabId = Hl7textResultsData.getMatchingLabs(id);
+		this.multiID = multiLabId.split(",");
+
+		int i=0;
+		while (!multiID[i].equals(id)){
+			i++;
+		}
+		this.versionNum = i+1;
+		
+		this.printingProvider = provider;
+		
+		//Need date lab was received by OSCAR
+		Hl7TextMessageDao hl7TxtMsgDao = (Hl7TextMessageDao)SpringUtils.getBean("hl7TextMessageDao");
+		Hl7TextMessage hl7TextMessage = hl7TxtMsgDao.find(Integer.parseInt(segmentId));
+		java.util.Date date = hl7TextMessage.getCreated();
+		String stringFormat = "yyyy-MM-dd HH:mm";
+		dateLabReceived = UtilDateUtilities.DateToString(date, stringFormat);
+
+		// create handler
+		this.handler = (OLISHL7Handler) Factory.getHandler(id);
+	}
     
     public void printPdf() throws IOException, DocumentException{
 

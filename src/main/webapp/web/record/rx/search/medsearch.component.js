@@ -44,6 +44,19 @@ const MedsearchComponent = {
     rxSearchComp.DrugOfChoice = function(){
     		alert("Not Implemented Yet");
     }
+    
+    rxSearchComp.getDrugDatabaseInfo = function(){
+    		rxService.getDrugrefInfo().then(function (response) {
+    			if(response.data==null || response.data == ""){
+    				alert('Drugref database has not been updated,please update.');
+			}else if(response.data =='updating'){
+				alert('Drugref database is updating');                 	
+		    }else{
+                alert('Drugref has been updated on '+response.data);
+            }
+    			console.log(response);
+    		}	);
+    }
   	 
   	rxSearchComp.medTypeAheadLabel = function(med) {
   		if (med == null || med == undefined){

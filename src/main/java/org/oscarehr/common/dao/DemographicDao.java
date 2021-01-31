@@ -31,6 +31,7 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+//import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -2193,4 +2194,7 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 		return rs;
 	}
 	
+	public List<Demographic> findByLastNameAndDob(String lastName, Calendar dateOfBirth) {
+		return findByAttributes(null, null, lastName, null, dateOfBirth, null, null, null, null, null, 0, 99);
+	}
 }

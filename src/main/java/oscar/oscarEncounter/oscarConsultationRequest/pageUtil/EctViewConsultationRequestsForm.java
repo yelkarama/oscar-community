@@ -39,7 +39,48 @@ public final class EctViewConsultationRequestsForm extends ActionForm {
 
       sendTo = str;
    }
+
+   public String getMrpNo() {
+      return mrpNo;
+   }
    
+   public void setMrpNo(String str) {
+      mrpNo = str;
+   }
+
+   public String getPatientId() {
+      return patientId;
+   }
+   
+   public void setPatientId(String str) {
+      patientId = str;
+   }
+
+   public String getUrgencyFilter() {
+      return urgencyFilter;
+   }
+   
+   public void setUrgencyFilter(String str) {
+      urgencyFilter = str;
+   }
+
+   public String getServiceFilter() {
+      return serviceFilter;
+   }
+   
+   public void setServiceFilter(String str) {
+      serviceFilter = str;
+   }
+   
+   public String getConsultantFilter() {
+      return consultantFilter;
+   }
+   
+   public void setConsultantFilter(String str) {
+      consultantFilter = str;
+   }
+   
+
    public String getCurrentTeam() {
 
       if(currentTeam == null)
@@ -176,4 +217,9 @@ public final class EctViewConsultationRequestsForm extends ActionForm {
    String searchDate = null;
    Integer offset;
    Integer limit = ConsultationRequestDao.DEFAULT_CONSULT_REQUEST_RESULTS_LIMIT;
+   String mrpNo;
+   String patientId;
+   String urgencyFilter;
+   String serviceFilter;
+   String consultantFilter;
 }

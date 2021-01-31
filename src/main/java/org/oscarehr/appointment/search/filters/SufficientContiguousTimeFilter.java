@@ -31,11 +31,12 @@ import java.util.Map;
 import org.oscarehr.appointment.search.SearchConfig;
 import org.oscarehr.appointment.search.TimeSlot;
 import org.oscarehr.managers.DayWorkSchedule;
+import org.oscarehr.util.LoggedInInfo;
 
 
 public class SufficientContiguousTimeFilter  implements AvailableTimeSlotFilter{
 
-	public List<TimeSlot> filterAvailableTimeSlots(SearchConfig clinic,String mrp,String providerId, Long appointmentTypeId, DayWorkSchedule dayWorkScheduleTransfer, List<TimeSlot> currentlyAllowedTimeSlots, Calendar date,Map<String,String> params){
+	public List<TimeSlot> filterAvailableTimeSlots(LoggedInInfo loggedInInfo,SearchConfig clinic,String mrp,String providerId, Long appointmentTypeId, DayWorkSchedule dayWorkScheduleTransfer, List<TimeSlot> currentlyAllowedTimeSlots, Calendar date,Map<String,String> params){
 		// check for enough contiguous time
 		ArrayList<TimeSlot> allowedTimesFilteredByContiguousDuration = new ArrayList<TimeSlot>();
 		if (dayWorkScheduleTransfer != null){

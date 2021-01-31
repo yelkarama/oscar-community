@@ -618,6 +618,7 @@
         <ViolationValue>/src/main/webapp/oscarRx/BulletinDisplayMyD.jsp:Hashtable h = new Hashtable();</ViolationValue>
         <ViolationValue>/src/main/webapp/oscarRx/BulletinDisplayMyD.jsp:Vector params = new Vector();</ViolationValue>
         <ViolationValue>/src/main/webapp/oscarRx/BulletinDisplayMyD.jsp:Vector vec = new Vector();</ViolationValue>
+        <ViolationValue>/src/main/webapp/oscarRx/SelectReason.jsp:for(dxQuickListBean qlBean: dxQlBeanHandler.getDxQuickListBeanVector()){</ViolationValue>
         <ViolationValue>/src/main/webapp/oscarRx/HsfoPreview.jsp:java.util.HashMap params = new java.util.HashMap();</ViolationValue>
         <ViolationValue>/src/main/webapp/oscarRx/HsfoPreview.jsp:rdh.setOutlines(new java.util.ArrayList());</ViolationValue>
         <ViolationValue>/src/main/webapp/oscarRx/InteractionDisplay.jsp:Hashtable h = new Hashtable();</ViolationValue>
@@ -2903,6 +2904,8 @@
         <ViolationValue>/src/main/webapp/oscarMessenger/ViewPDFAttachment.jsp:&lt;% for ( int i = 0 ; i &lt; attVector.size(); i++) { %&gt;</ViolationValue>
         <ViolationValue>/src/main/webapp/oscarMessenger/ViewPDFAttachment.jsp:&lt;td bgcolor="#DDDDFF"&gt;&lt;%=(String) attVector.get(i)%&gt;&lt;/td&gt;</ViolationValue>
         <ViolationValue>/src/main/webapp/oscarPrevention/PreventionReporting.jsp:Hashtable h = deName.getNameAgeSexHashtable(LoggedInInfo.getLoggedInInfoFromSession(request), dis.demographicNo.toString());</ViolationValue>
+        <ViolationValue>/src/main/webapp/oscarPrevention/ViewDHIRData.jsp:StringBuffer requestURL = request.getRequestURL();</ViolationValue>
+        <ViolationValue>/src/main/webapp/oscarPrevention/dhirSubmission.jsp:StringBuffer requestURL = request.getRequestURL();</ViolationValue>
         <ViolationValue>/src/main/webapp/oscarReport/LabReqReport.jsp:Hashtable h = (Hashtable) labRep.get(j);</ViolationValue>
         <ViolationValue>/src/main/webapp/oscarReport/RptByExamplesAllFavorites.jsp:property="favoriteVector"&gt;</ViolationValue>
         <ViolationValue>/src/main/webapp/oscarReport/RptViewAllQueryByExamples.jsp:property="queryVector"&gt;</ViolationValue>

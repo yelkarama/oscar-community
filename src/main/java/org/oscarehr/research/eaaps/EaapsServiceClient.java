@@ -25,8 +25,11 @@ package org.oscarehr.research.eaaps;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 
 import javax.ws.rs.core.MediaType;
@@ -35,6 +38,7 @@ import javax.ws.rs.core.Response;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.jaxrs.client.ClientConfiguration;
@@ -56,6 +60,7 @@ public class EaapsServiceClient {
 	private String host;
 	private String userName;
 	private String password;
+	private String hashPostPath;
 
 	// http://radu.cotescu.com/java-https-rest-services-apache-cxf/
 	private static class TrustManager implements javax.net.ssl.X509TrustManager {
@@ -111,6 +116,21 @@ public class EaapsServiceClient {
 			pass = props.getProperty("eaaps.ws.pass", "test");
 		}
 		setPassword(pass);
+		setHashPostPath(props.getProperty("eaaps.ws.hashPost", "/appointments"));
+	}
+	
+	public String postHash(JSONObject jsonObject) throws IOException {
+		WebClient client = WebClient.create(getHost());
+		setClientAuthentication(client, getUserName(), getPassword());
+		client = client.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).path(getHashPostPath());
+
+		Response response = client.post(jsonObject.toString());
+		InputStream in = (InputStream) response.getEntity();
+		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
+		String responseStr = IOUtils.toString(bufferedReader);
+		bufferedReader.close();
+		return responseStr;
+		
 	}
 
 	public EaapsPatientData getPatient(String patientHash) throws Exception {
@@ -201,4 +221,12 @@ public class EaapsServiceClient {
 	    EaapsHash hash = new EaapsHash(demographic);
 	    return getPatient(hash.getHash());
     }
+
+	public String getHashPostPath() {
+		return hashPostPath;
+	}
+
+	public void setHashPostPath(String hashPostPath) {
+		this.hashPostPath = hashPostPath;
+	}
 }
