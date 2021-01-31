@@ -51,6 +51,7 @@ import com.google.gson.Gson;
 
 import oscar.oscarMessenger.data.ContactIdentifier;
 import oscar.oscarMessenger.data.MsgProviderData;
+import org.oscarehr.common.model.Facility;
 
 public class MsgCreateMessageAction extends Action {
 
@@ -113,17 +114,19 @@ public class MsgCreateMessageAction extends Action {
              * This message will not send until the non-consenting patient has consented -or- is removed 
              * from the message.
              */
-            if(demographic_no != null 
-            		&& ("1".equals( userPropertyDao.getProp( UserProperty.INTEGRATOR_PATIENT_CONSENT ).getValue()) 
-            				|| "1".equals( userPropertyDao.getProp( UserProperty.INTEGRATOR_DEMOGRAPHIC_CONSENT ).getValue())))
-            {
-            	if( MessagingManager.doesContainRemoteRecipient(loggedInInfo, providerListing)
-            			&& ! messengerDemographicManager.isPatientConsentedForIntegrator(loggedInInfo, Integer.parseInt(demographic_no)))
-            	{
-            		return error(mapping, request, (MsgCreateMessageForm) form, "oscarMessenger.CreateMessage.patientConsentError");
-            	}
-            }
-            
+        	Facility facility = LoggedInInfo.getLoggedInInfoFromSession(request).getCurrentFacility();
+        	if(facility.isIntegratorEnabled()) {
+	            if(demographic_no != null 
+	            		&& ("1".equals( userPropertyDao.getProp( UserProperty.INTEGRATOR_PATIENT_CONSENT ).getValue()) 
+	            				|| "1".equals( userPropertyDao.getProp( UserProperty.INTEGRATOR_DEMOGRAPHIC_CONSENT ).getValue())))
+	            {
+	            	if( MessagingManager.doesContainRemoteRecipient(loggedInInfo, providerListing)
+	            			&& ! messengerDemographicManager.isPatientConsentedForIntegrator(loggedInInfo, Integer.parseInt(demographic_no)))
+	            	{
+	            		return error(mapping, request, (MsgCreateMessageForm) form, "oscarMessenger.CreateMessage.patientConsentError");
+	            	}
+	            }
+        	}
             /*
              * The Integrator does not support attachments at this time.  Stop attachments from being sent externally. 
              */
