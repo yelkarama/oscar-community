@@ -12485,21 +12485,6 @@ CREATE TABLE ISO36612 (
     PRIMARY KEY(id)
 );
 
-CREATE TABLE AppointmentDxLink (
-			id int(10)  NOT NULL auto_increment primary key,
-			providerNo varchar(6),
-			code varchar(20),
-			codeType varchar(20),
-			ageRange varchar(20),
-			symbol varchar(20),
-			colour varchar(20),
-			message varchar(255),
-			link varchar(255),
-			updateDate datetime,
-			createDate datetime,
-			active boolean,
-			KEY(code)
-);
 
 CREATE TABLE AppointmentDxLink (
 			id int(10)  NOT NULL auto_increment primary key,
@@ -12516,6 +12501,7 @@ CREATE TABLE AppointmentDxLink (
 			active boolean,
 			KEY(code)
 );
+
 CREATE TABLE CVCImmunizationName (
     id int(11) auto_increment,
     language varchar(30),
@@ -12526,59 +12512,6 @@ CREATE TABLE CVCImmunizationName (
     PRIMARY KEY(id)
 );
 
-create table DHIRTransactionLog (
-  id int(11) auto_increment,
-  started timestamp not null,
-  initiatingProviderNo varchar(25),
-  transactionType varchar(25),
-  externalSystem varchar(50),
-  demographicNo int(10),
-  resultCode int(10),
-  success tinyint(1),
-  error mediumtext,
-  headers mediumtext,
-  PRIMARY KEY(id)
-);
-
-
-CREATE TABLE IF NOT EXISTS erefer_attachment (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    demographic_no INT,
-    created DATETIME,
-    archived BOOLEAN DEFAULT FALSE
-);
-
-CREATE TABLE IF NOT EXISTS erefer_attachment_data (
-    erefer_attachment_id INT,
-    lab_id INT,
-    lab_type VARCHAR(20),
-    PRIMARY KEY(erefer_attachment_id, lab_id, lab_type)
-);
-
-CREATE TABLE AppointmentDxLink (
-			id int(10)  NOT NULL auto_increment primary key,
-			providerNo varchar(6),
-			code varchar(20),
-			codeType varchar(20),
-			ageRange varchar(20),
-			symbol varchar(20),
-			colour varchar(20),
-			message varchar(255),
-			link varchar(255),
-			updateDate datetime,
-			createDate datetime,
-			active boolean,
-			KEY(code)
-);
-CREATE TABLE CVCImmunizationName (
-    id int(11) auto_increment,
-    language varchar(30),
-    useSystem varchar(255),
-    useCode varchar(255),
-    useDisplay varchar(255),
-    value varchar(255),
-    PRIMARY KEY(id)
-);
 
 create table DHIRTransactionLog (
   id int(11) auto_increment,
