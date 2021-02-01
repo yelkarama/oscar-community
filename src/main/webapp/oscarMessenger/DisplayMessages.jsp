@@ -363,6 +363,8 @@ $(document).ready(function(){
                         <td>
                             <%if (pageType == 0){%>
                                     <input name="btnDelete" type="submit" value="<bean:message key="oscarMessenger.DisplayMessages.formArchive"/>">
+                                    <input name="btnRead" type="submit" value="<bean:message key="oscarMessenger.DisplayMessages.markRead"/>">
+                                    <input name="btnUnread" type="submit" value="<bean:message key="oscarMessenger.DisplayMessages.markUnRead"/>">
                             <%}else if (pageType == 2){%>
                                     <input type="submit" value="<bean:message key="oscarMessenger.DisplayMessages.formUnarchive"/>">
                             <%}%>
