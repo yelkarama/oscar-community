@@ -122,7 +122,7 @@ public abstract class AbstractFhirMessageBuilder<T extends BaseResource> {
 	private void createMessageHeader( MessageHeader messageHeader ) {
 		messageHeader.setId( UUID.randomUUID().toString() );
 		messageHeader.getEventCoding()
-		.setSystem("http://terminology.hl7.org/CodeSystem/message-events")
+		.setSystem("http://hl7.org/fhir/message-events")
 		.setCode("MedicationAdministration-Recording");
 		
 		messageHeader.setSource( getSender().getMessageSourceComponent() );

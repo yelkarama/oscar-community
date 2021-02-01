@@ -68,7 +68,6 @@ import com.lowagie.text.PageSize;
 import com.lowagie.text.Paragraph;
 import com.lowagie.text.Phrase;
 import com.lowagie.text.Rectangle;
-import com.lowagie.text.pdf.BaseFont;
 import com.lowagie.text.pdf.PdfContentByte;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
@@ -76,7 +75,6 @@ import com.lowagie.text.pdf.PdfWriter;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import oscar.OscarProperties;
 
 public class DHIRPrintPdf {
 
@@ -150,12 +148,14 @@ public class DHIRPrintPdf {
         Bundle bundle = null;
         List<ImmunizationHandler> handlers = new ArrayList<ImmunizationHandler>();
         SearchResultsHandler handler = null;
+        List<String> searchParams = new ArrayList<String>();
         if(includeDHIR || includeForecast) {
         
 	        //retrieve DHIR data (dates)
 	        DHIRManager mgr = new DHIRManager();
+	        
 			try {
-				bundle = mgr.search(request, demo, startDate, endDate);
+				bundle = mgr.search(request, demo, startDate, endDate,searchParams);
 			} catch (TokenExpiredException e) {
 				logger.error("Error",e);
 				return;
@@ -195,6 +195,15 @@ public class DHIRPrintPdf {
         
         document.open();
         cb = writer.getDirectContent();
+        
+        Font font = FontFactory.getFont(FontFactory.HELVETICA, 9, Font.NORMAL, Color.BLACK);     
+        Font boldFont = FontFactory.getFont(FontFactory.HELVETICA, 9, Font.BOLD, Color.BLACK);     
+        
+        Paragraph disclaimerParagraph = new Paragraph();
+        disclaimerParagraph.add(new Phrase("Warning:",boldFont));
+        disclaimerParagraph.add(new Phrase("Limited to Immunization Information available in the Digital Health Immunization Repository (DHIR) EHR service. To ensure a Best Possible Immunization History, please review this information with the patient/family and use other available sources of Immunization information in addition to the DHIR EHR service.",font));
+        
+        document.add(disclaimerParagraph);
         
         if(includeEMR) {
         
@@ -320,14 +329,7 @@ public class DHIRPrintPdf {
 	        
 	        //print any  confidentiality notices, etc
 	        
-	        Font font = FontFactory.getFont(FontFactory.HELVETICA, 9, Font.NORMAL, Color.BLACK);     
-	        Font boldFont = FontFactory.getFont(FontFactory.HELVETICA, 9, Font.BOLD, Color.BLACK);     
 	        
-	        Paragraph disclaimerParagraph = new Paragraph();
-	        disclaimerParagraph.add(new Phrase("Warning:",boldFont));
-	        disclaimerParagraph.add(new Phrase("Limited to Immunization Information available in the Digital Health Immunization Repository (DHIR) EHR service. To ensure a Best Possible Immunization History, please review this information with the patient/family and use other available sources of Immunization information in addition to the DHIR EHR service.",font));
-	        
-	        document.add(disclaimerParagraph);
         }
         
         
@@ -346,8 +348,10 @@ public class DHIRPrintPdf {
 	        
 	        
 			Map<String, Resource> map = handler.getAllResources();
-			JSONArray recommendations = new JSONArray();
+			JSONArray recommendationsVaccine = new JSONArray();
+			JSONArray recommendationsDisease = new JSONArray();
 			JSONObject rec2 = new JSONObject();
+			JSONObject rec3 = new JSONObject();
 			
 			for (Resource r : map.values()) {
 				if (r.getResourceType() == ResourceType.ImmunizationRecommendation) {
@@ -355,11 +359,17 @@ public class DHIRPrintPdf {
 	
 					String dateGenerated = sdf.format(irHandler.getDate());
 	
-					Map<String, List<JSONObject>> mapByStatus = new HashMap<String, List<JSONObject>>();
-					mapByStatus.put("Overdue", new ArrayList<JSONObject>());
-					mapByStatus.put("Up to date", new ArrayList<JSONObject>());
-					mapByStatus.put("Due", new ArrayList<JSONObject>());
-					mapByStatus.put("Eligible but not due", new ArrayList<JSONObject>());
+					Map<String, List<JSONObject>> mapByStatusVaccine = new HashMap<String, List<JSONObject>>();
+					mapByStatusVaccine.put("Overdue", new ArrayList<JSONObject>());
+					mapByStatusVaccine.put("Up to date", new ArrayList<JSONObject>());
+					mapByStatusVaccine.put("Due", new ArrayList<JSONObject>());
+					mapByStatusVaccine.put("Eligible but not due", new ArrayList<JSONObject>());
+					
+					Map<String, List<JSONObject>> mapByStatusDisease = new HashMap<String, List<JSONObject>>();
+					mapByStatusDisease.put("Overdue", new ArrayList<JSONObject>());
+					mapByStatusDisease.put("Up to date", new ArrayList<JSONObject>());
+					mapByStatusDisease.put("Due", new ArrayList<JSONObject>());
+					mapByStatusDisease.put("Eligible but not due", new ArrayList<JSONObject>());
 					
 					for (ImmunizationRecommendation ir : irHandler.getRecs()) {
 						JSONObject rec = new JSONObject();
@@ -385,39 +395,65 @@ public class DHIRPrintPdf {
 						rec.put("forecastStatus", fs);
 	
 						rec.put("dateGenerated", dateGenerated);
-	
-						if(mapByStatus.get(c.getDisplay()) == null) {
-							List<JSONObject> jList = new ArrayList<JSONObject>();
-							jList.add(rec);
-							mapByStatus.put(c.getDisplay(),jList);
-						} else {
-							List<JSONObject> jList = mapByStatus.get(c.getDisplay());
-							jList.add(rec);
+						
+						if(vaccineCodes.size() > 0) {
+							
+						
+						
+							if(mapByStatusVaccine.get(c.getDisplay()) == null) {
+								List<JSONObject> jList = new ArrayList<JSONObject>();
+								jList.add(rec);
+								mapByStatusVaccine.put(c.getDisplay(),jList);
+							} else {
+								List<JSONObject> jList = mapByStatusVaccine.get(c.getDisplay());
+								jList.add(rec);
+							}
+							recommendationsVaccine.add(rec);
+						}else {
+							if(mapByStatusDisease.get(c.getDisplay()) == null) {
+								List<JSONObject> jList = new ArrayList<JSONObject>();
+								jList.add(rec);
+								mapByStatusDisease.put(c.getDisplay(),jList);
+							} else {
+								List<JSONObject> jList = mapByStatusDisease.get(c.getDisplay());
+								jList.add(rec);
+							}
+							recommendationsDisease.add(rec);
 						}
-						recommendations.add(rec);
 					}
 	
 					
-					for(String key : mapByStatus.keySet()) {
+					for(String key : mapByStatusVaccine.keySet()) {
 						JSONArray arr = new JSONArray();
-						arr.addAll(mapByStatus.get(key));
+						arr.addAll(mapByStatusVaccine.get(key));
 						rec2.put(key,arr);
+					}
+					
+					for(String key : mapByStatusDisease.keySet()) {
+						JSONArray arr = new JSONArray();
+						arr.addAll(mapByStatusDisease.get(key));
+						rec3.put(key,arr);
 					}
 					
 				}
 	
 			}
 			//rec2 has our map
+			
+			Paragraph byVaccineHeaderParagraph = new Paragraph(LEADING, "By Vaccine", FontFactory.getFont(FontFactory.HELVETICA, 10, Font.BOLD | Font.ITALIC, Color.BLACK));
+			byVaccineHeaderParagraph.add(Chunk.NEWLINE);
+	        document.add(byVaccineHeaderParagraph);
+	        document.add(Chunk.NEWLINE);
 	
-			PdfPTable forecastTable = new PdfPTable(4);
-			forecastTable.setWidthPercentage(100.0f);
+			PdfPTable forecastTableVaccine = new PdfPTable(4);
+			forecastTableVaccine.setWidthPercentage(100.0f);
 	       
-			forecastTable.addCell(getHeaderCell("Overdue"));
-			forecastTable.addCell(getHeaderCell("Due"));
-			forecastTable.addCell(getHeaderCell("Eligible but not due"));
-			forecastTable.addCell(getHeaderCell("Up to date"));
+			forecastTableVaccine.addCell(getHeaderCell("Overdue"));
+			forecastTableVaccine.addCell(getHeaderCell("Due"));
+			forecastTableVaccine.addCell(getHeaderCell("Eligible but not due"));
+			forecastTableVaccine.addCell(getHeaderCell("Up to date"));
 	        
-			forecastTable.setHeaderRows(1);
+			forecastTableVaccine.setHeaderRows(1);
 	        
 			JSONArray a1 = rec2.getJSONArray("Overdue");
 			JSONArray a2 = rec2.getJSONArray("Due");
@@ -436,14 +472,56 @@ public class DHIRPrintPdf {
 				j3 = getJSONObjectOrNull(a3,x);
 				j4 = getJSONObjectOrNull(a4,x);
 				
-				forecastTable.addCell(getForecastItemCell( j1 ));
-				forecastTable.addCell(getForecastItemCell( j2 ));
-				forecastTable.addCell(getForecastItemCell( j3 ));
-				forecastTable.addCell(getForecastItemCell( j4 ));
+				forecastTableVaccine.addCell(getForecastItemCell( j1 ));
+				forecastTableVaccine.addCell(getForecastItemCell( j2 ));
+				forecastTableVaccine.addCell(getForecastItemCell( j3 ));
+				forecastTableVaccine.addCell(getForecastItemCell( j4 ));
 				
 			}
 			
-			document.add(forecastTable);
+			document.add(forecastTableVaccine);
+			
+			Paragraph byDiseaseHeaderParagraph = new Paragraph(LEADING, "By Disease", FontFactory.getFont(FontFactory.HELVETICA, 10, Font.BOLD | Font.ITALIC, Color.BLACK));
+			byDiseaseHeaderParagraph.add(Chunk.NEWLINE);
+	        document.add(byDiseaseHeaderParagraph);
+	        document.add(Chunk.NEWLINE);
+			
+			PdfPTable forecastTableDisease = new PdfPTable(4);
+			forecastTableDisease.setWidthPercentage(100.0f);
+	       
+			forecastTableDisease.addCell(getHeaderCell("Overdue"));
+			forecastTableDisease.addCell(getHeaderCell("Due"));
+			forecastTableDisease.addCell(getHeaderCell("Eligible but not due"));
+			forecastTableDisease.addCell(getHeaderCell("Up to date"));
+	        
+			forecastTableDisease.setHeaderRows(1);
+	        
+			JSONArray b1 = rec2.getJSONArray("Overdue");
+			JSONArray b2 = rec2.getJSONArray("Due");
+			JSONArray b3 = rec2.getJSONArray("Eligible but not due");
+			JSONArray b4 = rec2.getJSONArray("Up to date");
+			
+	
+			int maxSizeD = NumberUtils.max(a1.size(),a2.size(),a3.size(),a4.size());
+	
+			
+			for(int x=0;x<maxSizeD;x++) {
+				JSONObject j1 = null, j2 = null, j3 = null, j4 = null;
+				
+				j1 = getJSONObjectOrNull(b1,x);
+				j2 = getJSONObjectOrNull(b2,x);
+				j3 = getJSONObjectOrNull(b3,x);
+				j4 = getJSONObjectOrNull(b4,x);
+				
+				forecastTableVaccine.addCell(getForecastItemCell( j1 ));
+				forecastTableVaccine.addCell(getForecastItemCell( j2 ));
+				forecastTableVaccine.addCell(getForecastItemCell( j3 ));
+				forecastTableVaccine.addCell(getForecastItemCell( j4 ));
+				
+			}
+			
+			document.add(forecastTableVaccine);
+			
         }
         
          
@@ -529,12 +607,14 @@ public class DHIRPrintPdf {
         
     
     private void addPromoText() throws DocumentException, IOException{
+    	/*
         if ( OscarProperties.getInstance().getProperty("FORMS_PROMOTEXT") != null){
             cb.beginText();
             cb.setFontAndSize(BaseFont.createFont(BaseFont.HELVETICA,BaseFont.CP1252,BaseFont.NOT_EMBEDDED), 6);
             cb.showTextAligned(PdfContentByte.ALIGN_CENTER, OscarProperties.getInstance().getProperty("FORMS_PROMOTEXT"), PageSize.LETTER.getWidth()/2, 5, 0);
             cb.endText();
         }
+        */
     }
     
     private Date parseDate(HttpServletRequest request, String fieldName) throws Exception {

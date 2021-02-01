@@ -27,6 +27,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.hl7.fhir.r4.model.BooleanType;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Immunization.ImmunizationStatus;
@@ -34,16 +35,21 @@ import org.hl7.fhir.r4.model.Reference;
 import org.oscarehr.common.dao.CVCImmunizationDao;
 import org.oscarehr.common.dao.LookupListDao;
 import org.oscarehr.common.dao.LookupListItemDao;
+import org.oscarehr.common.dao.PartialDateDao;
+import org.oscarehr.common.dao.PreventionDao;
 import org.oscarehr.common.model.AbstractModel;
 import org.oscarehr.common.model.CVCImmunization;
 import org.oscarehr.common.model.LookupList;
 import org.oscarehr.common.model.LookupListItem;
+import org.oscarehr.common.model.PartialDate;
 import org.oscarehr.common.model.Prevention;
 import org.oscarehr.integration.fhirR4.api.DHIR;
 import org.oscarehr.integration.fhirR4.interfaces.ImmunizationInterface;
 import org.oscarehr.integration.fhirR4.manager.OscarFhirConfigurationManager;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
+
+import oscar.util.UtilDateUtilities;
 
 
 /*
@@ -101,7 +107,7 @@ import org.oscarehr.util.SpringUtils;
  */
 public class Immunization<T extends AbstractModel<Integer> & ImmunizationInterface > 
 	extends AbstractOscarFhirResource< org.hl7.fhir.r4.model.Immunization, T> {
-
+	static Logger logger = MiscUtils.getLogger();
 	private static final Pattern measurementValuePattern = Pattern.compile("^([0-9])*(\\.)*([0-9])*");
 	private boolean isHistorical;
 	
@@ -214,8 +220,16 @@ public class Immunization<T extends AbstractModel<Integer> & ImmunizationInterfa
 	 */
 	private void setAdministrationDate( org.hl7.fhir.r4.model.Immunization immunization ){
 		immunization.getOccurrenceDateTimeType().setValue(getOscarResource().getImmunizationDate());
-	
-		if( include( OptionalFHIRAttribute.dateIsEstimated ) ) {
+		PartialDateDao partialDateDao = SpringUtils.getBean(PartialDateDao.class);
+		boolean partialDate = false;
+		if(partialDateDao.getPartialDate(PartialDate.PREVENTION,  getOscarResource().getId(), PartialDate.PREVENTION_PREVENTIONDATE) != null) {
+			String preventionDate = UtilDateUtilities.DateToString(getOscarResource().getImmunizationDate(), "yyyy-MM-dd HH:mm");
+			String prevDate = partialDateDao.getDatePartial(preventionDate, PartialDate.PREVENTION,  getOscarResource().getId(), PartialDate.PREVENTION_PREVENTIONDATE);
+			immunization.getOccurrenceDateTimeType().setValueAsString(prevDate);
+			partialDate = true;
+		}
+		
+		if(partialDate || include( OptionalFHIRAttribute.dateIsEstimated ) ) {
 			
 			//TODO the number of days to estimate a historical date will need to fetched from the configuration settings.
 			
@@ -238,15 +252,20 @@ public class Immunization<T extends AbstractModel<Integer> & ImmunizationInterfa
 	 * SNOMED is a fixed (static) system in Oscar.
 	 */
 	private void setVaccineCode( org.hl7.fhir.r4.model.Immunization immunization ){
+		
 		CVCImmunizationDao cvcImmDao = SpringUtils.getBean(CVCImmunizationDao.class);
 	
 		if(!StringUtils.isEmpty(getOscarResource().getVaccineCode2())) {
+			CVCImmunization cvcImm = cvcImmDao.findBySnomedConceptId(getOscarResource().getVaccineCode2());
+			if(cvcImm != null) {
+				logger.error("cvcImm "+cvcImm.getDisplayName());
+			}
+			
 			immunization.getVaccineCode().addCoding()
 			.setSystem("http://snomed.info/sct")
 			.setCode( getOscarResource().getVaccineCode2() )
 			.setDisplay((getOscarResource().getName()).trim());
 		} else {
-				
 			if(!StringUtils.isEmpty(getOscarResource().getVaccineCode())) {
 				String display = getOscarResource().getName().trim();
 				if(StringUtils.isEmpty(display) || !StringUtils.isEmpty(getOscarResource().getVaccineCode2())) {
@@ -529,21 +548,29 @@ public class Immunization<T extends AbstractModel<Integer> & ImmunizationInterfa
 	 * information from the person who administered the vaccine.
 	 */
 	private void setReportOrigin( org.hl7.fhir.r4.model.Immunization immunization ) {	
-		String provider = "provider";
-		String display = "other";
+		String provider = "223366009";
+		String display = "Health care provider"; 
+		
+		PreventionDao preventionDao = SpringUtils.getBean(PreventionDao.class);
+		Prevention prevention = preventionDao.find(getOscarResource().getImmunizationId());
 		
 		if( include( OptionalFHIRAttribute.dateIsEstimated ) ) {
-			if( isHistorical() ) {
-				provider = "record";
+			if( isHistorical() || "-1".equals(prevention.getProviderNo())) {
+				provider = "116154003";
+				display = "Client";
+			}
+		}else {
+		
+			
+			if("-1".equals(prevention.getProviderNo())){
+				provider = "116154003";
+				display = "Client";
 			}
 		}
 		
-		if( "provider".equals(provider)  && !StringUtils.isEmpty(getOscarResource().getProviderName())) {
-			display = getOscarResource().getProviderName();
-		}
 		
 		immunization.getReportOrigin().addCoding()
-			.setSystem("http://hl7.org/fhir/immunization-origin")
+			.setSystem("http://snomed.info/sct") // WAS THIS --> but simplifier shows it should be <-- http://hl7.org/fhir/immunization-origin")
 			.setCode( provider )
 			.setDisplay( display );		
 	}

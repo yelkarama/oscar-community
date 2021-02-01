@@ -917,7 +917,11 @@ String curProvider_no = (String)session.getAttribute("user");
                     	<li><a href='javascript:void(0);' class="xlink" rel="${ctx}/admin/QuestimedConfiguration.jsp"><bean:message key="admin.admin.QuestimedConfig" /></a></li>
                     <%}%>
 					<li><a  href='javascript:void(0);' class="xlink" rel="${ctx}/admin/cvc.jsp"><bean:message key="admin.admin.cvc" /></a></li>
-					                                        
+					<% if (OscarProperties.getInstance().getBooleanProperty("oneid.oauth2.enabled", "true")) { %>                                          
+					<li><a  href='javascript:void(0);' class="xlink" rel="${ctx}/admin/uaoConfig.jsp">UAO Config</a></li>
+					<li><a  href='javascript:void(0);' class="xlink" rel="${ctx}/admin/omdGatewayLogAll.jsp">Gateway Log</a></li>
+					<li><a  href='javascript:void(0);' class="xlink" rel="${ctx}/admin/omdConsentUnblock.jsp">Consent Unblock Log</a></li>
+                    <%}%>					                                        
 				</ul>
 				</div>
 				</div>

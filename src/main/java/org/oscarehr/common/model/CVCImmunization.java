@@ -58,6 +58,7 @@ public class CVCImmunization extends AbstractModel<Integer> {
 	private String typicalDose;
 	private String typicalDoseUofM;
 	private String strength;
+	private String shelfStatus;
 
 	public Integer getId() {
 		return id;
@@ -76,8 +77,8 @@ public class CVCImmunization extends AbstractModel<Integer> {
 	}
 
 	public String getDisplayName() {
-		for (CVCImmunizationName name : getNames()) {
-			if ("en".equals(name.getLanguage()) && "Fully Specified Name".equals(name.getUseCode())) {
+		for (CVCImmunizationName name : getNames()) { //Changing this from Fully Specified Name to 900000000000003001 because "Fully Specified Name" is the useDisplay column value not code
+			if ("en".equals(name.getLanguage()) && "900000000000003001".equals(name.getUseCode())) {
 				return name.getValue();
 			}
 		}
@@ -171,6 +172,14 @@ public class CVCImmunization extends AbstractModel<Integer> {
 
 	public void setStrength(String strength) {
 		this.strength = strength;
+	}
+
+	public String getShelfStatus() {
+		return shelfStatus;
+	}
+
+	public void setShelfStatus(String shelfStatus) {
+		this.shelfStatus = shelfStatus;
 	}
 
 }

@@ -23,7 +23,6 @@
     Ontario, Canada
 
 --%>
-
 <%@page import="org.apache.commons.lang3.StringEscapeUtils"%>
 <%@page import="org.hl7.fhir.r4.model.OperationOutcome"%>
 <%@page import="java.net.URLEncoder"%>
@@ -91,10 +90,58 @@
 <%@page import="org.apache.http.client.HttpClient" %>
 <%@page import="org.apache.http.HttpResponse" %>
 <%@page import="org.codehaus.jettison.json.*" %>
-
+<%@page import="org.oscarehr.integration.dhir.DHIRManager"%>
+<%@page import="org.oscarehr.integration.OneIdGatewayData"%>
+<%@page import="org.oscarehr.util.LoggedInInfo,org.oscarehr.util.LoggedInUserFilter"%>
+<%@page import="org.oscarehr.util.SessionConstants"%>
 
 <%
 	Logger logger = MiscUtils.getLogger();
+    		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+    		OneIdGatewayData oneIdGatewayData= loggedInInfo.getOneIdGatewayData();
+    		try  { 
+    			OneIDTokenUtils.verifyAccessTokenIsValid(loggedInInfo,oneIdGatewayData);
+    			
+    			
+    			
+    			////user/Immunization.read user/Immunization.write user/Patient.read
+    			boolean hasNeededScope = oneIdGatewayData.hasScope(oneIdGatewayData.fullScope);//"openid", "user/MedicationDispense.read", "toolbar", "user/Context.read", "user/Context.write",  "user/Consent.write");
+    			//http://ehealthontario.ca/StructureDefinition/ca-on-dhir-profile-Immunization http://ehealthontario.ca/StructureDefinition/ca-on-dhir-profile-Patient
+    			boolean hasNeededProfile = oneIdGatewayData.hasProfile(oneIdGatewayData.fullProfile);//"http://ehealthontario.ca/StructureDefinition/ca-on-dhdr-profile-MedicationDispense","http://ehealthontario.ca/fhir/StructureDefinition/ca-on-consent-pcoi-profile-Consent");
+    			
+    			if(hasNeededScope && hasNeededProfile && oneIdGatewayData.howLongSinceRefreshTokenWasIssued() < 2){
+    				//All good
+    			}else{	
+    				response.sendRedirect(request.getContextPath() + "/eho/login2.jsp?alreadyLoggedIn=true&forwardURL=" + URLEncoder.encode(OneIDTokenUtils.getCompleteURL(request),"UTF-8") );
+    				return;
+    			}
+    			
+    			
+    		} catch(TokenExpiredException e) {
+    			if(oneIdGatewayData == null){
+    				oneIdGatewayData = new OneIdGatewayData();
+    				session.setAttribute(SessionConstants.OH_GATEWAY_DATA,oneIdGatewayData);
+    				loggedInInfo = LoggedInUserFilter.generateLoggedInInfoFromSession(request);
+    			}
+    			loggedInInfo = LoggedInUserFilter.generateLoggedInInfoFromSession(request);
+    			oneIdGatewayData.hasScope(oneIdGatewayData.fullScope);
+    			oneIdGatewayData.hasProfile(oneIdGatewayData.fullProfile);
+    			response.sendRedirect(request.getContextPath() + "/eho/login2.jsp?alreadyLoggedIn=true&forwardURL=" + URLEncoder.encode(OneIDTokenUtils.getCompleteURL(request),"UTF-8") );
+    			return;
+    		} catch(NullPointerException e2) {
+    			if(oneIdGatewayData == null){
+    				oneIdGatewayData = new OneIdGatewayData();
+    				session.setAttribute(SessionConstants.OH_GATEWAY_DATA,oneIdGatewayData);
+    				loggedInInfo = LoggedInUserFilter.generateLoggedInInfoFromSession(request);
+    			}
+    			oneIdGatewayData.hasScope(oneIdGatewayData.fullScope);
+    			oneIdGatewayData.hasProfile(oneIdGatewayData.fullProfile);
+    			response.sendRedirect(request.getContextPath() + "/eho/login2.jsp?alreadyLoggedIn=true&forwardURL=" + URLEncoder.encode(OneIDTokenUtils.getCompleteURL(request),"UTF-8") );
+    			return;
+    		}		
+    		
+    		
+    		
     DHIRSubmissionManager submissionManager = SpringUtils.getBean(DHIRSubmissionManager.class);
     String uuid = request.getParameter("uuid");
     		 
@@ -117,82 +164,16 @@
        	
     } else {
     
-			
-    
-	
-	OscarProperties oscarProperties = OscarProperties.getInstance();
-
-	String oneIdEmail = session.getAttribute("oneIdEmail") != null ? session.getAttribute("oneIdEmail").toString() : "";
-
-	String delegateOneIdEmail = session.getAttribute("delegateOneIdEmail") != null
-	? session.getAttribute("delegateOneIdEmail").toString() : "";
-	String providerEmail = oneIdEmail;
-
-	//If there is a delegateOneIdEmail then it is used as the normal oneId email and the current user is the delegate as they are delegating for that person
-	if (!delegateOneIdEmail.equals("")) {
-		providerEmail = delegateOneIdEmail;
-	}
-	//logger.debug("providerEmail is " + providerEmail);
-	
-	KeyStore ks = KeyStore.getInstance("JKS");
-	ks.load(new FileInputStream(OscarProperties.getInstance().getProperty("oneid.gateway.keystore")), 
-			OscarProperties.getInstance().getProperty("oneid.gateway.keystore.password").toCharArray());
-
-	//setup SSL
-	SSLContext sslcontext = SSLContexts.custom().loadKeyMaterial(ks, OscarProperties.getInstance().getProperty("oneid.gateway.keystore.password").toCharArray()).build();
-	sslcontext.getDefaultSSLParameters().setNeedClientAuth(true);
-	sslcontext.getDefaultSSLParameters().setWantClientAuth(true);
-	SSLConnectionSocketFactory sf = new SSLConnectionSocketFactory(sslcontext);
-
-	TLSClientParameters tlsParams = new TLSClientParameters();
-	tlsParams.setSSLSocketFactory(sslcontext.getSocketFactory());
-	tlsParams.setDisableCNCheck(true);
-
-	String consumerKey = OscarProperties.getInstance().getProperty("oneid.consumerKey");
-	String consumerSecret = OscarProperties.getInstance().getProperty("oneid.consumerSecret");
-	String gatewayUrl = OscarProperties.getInstance().getProperty("oneid.gateway.url");
-
-		
-	Map<String, String> params = new HashMap<>();
-	String submissionURL = OscarProperties.getInstance().getProperty("oneid.gateway.dhir.submissionUrl");
-	WebClient wc = WebClient.create(submissionURL);
-	for (Entry<String, String> entry : params.entrySet()) {
-		wc.query(entry.getKey(), entry.getValue());
-	}
-
-	WebClient.getConfig(wc).getHttpConduit().setTlsClientParameters(tlsParams);
-
-	
-	String accessToken = null;
-	
-	try { 
-		accessToken = OneIDTokenUtils.getValidAccessToken(session);
-	} catch(TokenExpiredException e) {
-		response.sendRedirect(request.getContextPath() + "/eho/login2.jsp?alreadyLoggedIn=true&forwardURL=" + URLEncoder.encode(getCompleteURL(request),"UTF-8") );
-		return;
-	}
 	
 	
+	DHIRManager dhirManager = new DHIRManager();
 	Map<String,Bundle> bundles = (Map<String,Bundle> )session.getAttribute("bundles");
 	bundle = bundles.get(uuid);
 	
 	String bundleJSON = FhirContext.forR4().newJsonParser().encodeResourceToString(bundle);
 	
-	response2 = wc
-			.header("Authorization", "Bearer " + accessToken)
-			.header("X-IBM-Client-Id", consumerKey)
-			.header("X-IBM-Client-Secret", consumerSecret)
-			.header("X-Request-Id",uuid)
-			.header("Content-Type","application/json")
-			.post(bundleJSON);
-
-	logger.info("HTTP response code  = " + response2.getStatus());
+	response2 = dhirManager.submitImmunizations(loggedInInfo, bundleJSON, Integer.parseInt(request.getParameter("demographicNo")), uuid);
 	
-	/*
-	for(String key : response2.getHeaders().keySet()) {
-		logger.info(key + "=" + response2.getHeaders().get(key));
-	}
-	*/
 	body = response2.readEntity(String.class);
 		
 	logger.info("body=" + body);
@@ -367,14 +348,19 @@ clear: left;
 
 if(response2.getStatus() == 201) {
 	//success
-	Bundle responseBundle = (Bundle) FhirContext.forR4().newJsonParser().parseResource(body);
+	
 	List<DHIRSubmissionLog> logs= new ArrayList<DHIRSubmissionLog>();
 	String demographicNo = null;
 	
-	for(BundleEntryComponent bec : responseBundle.getEntry()) {
-		String location = bec.getResponse().getLocation(); //Immunization/756f4e4c-ddb2-4072-8891-e81c7b04ae90
-		String status = bec.getResponse().getStatus(); //201
-		logger.info("location=" + location + ",status=" + status);
+	try{
+		Bundle responseBundle = (Bundle) FhirContext.forR4().newJsonParser().parseResource(body);
+		for(BundleEntryComponent bec : responseBundle.getEntry()) {
+			String location = bec.getResponse().getLocation(); //Immunization/756f4e4c-ddb2-4072-8891-e81c7b04ae90
+			String status = bec.getResponse().getStatus(); //201
+			logger.info("location=" + location + ",status=" + status);
+		}
+	}catch(Exception e){
+		logger.error("location error",e);
 	}
 	
 	for(BundleEntryComponent bec : bundle.getEntry()) {
@@ -404,7 +390,7 @@ if(response2.getStatus() == 201) {
 	 }
 
 	
-	String val = response2.getHeaderString("X-GtwyTxId");
+	String val = response2.getHeaderString("X-Request-Id");
 	String clientId = response2.getHeaderString("x-response-id");
 	
 for(DHIRSubmissionLog log : logs) {

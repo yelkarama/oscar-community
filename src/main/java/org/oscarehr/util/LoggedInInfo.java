@@ -33,6 +33,7 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.oscarehr.common.model.Facility;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.Security;
+import org.oscarehr.integration.OneIdGatewayData;
 
 /**
  * The Provider fields should only be used if this is a user based thread, i.e. a thread handling a user request.
@@ -53,6 +54,7 @@ public final class LoggedInInfo implements Serializable {
 	private Security loggedInSecurity = null;
 	private Locale locale = null;
 	private String ip = null;
+	private OneIdGatewayData oneIdGatewayData = null;
 
 	public LoggedInInfo()
 	{
@@ -201,4 +203,24 @@ public final class LoggedInInfo implements Serializable {
 	public void setIp(String ip) {
 		this.ip = ip;
 	}
+
+	public OneIdGatewayData getOneIdGatewayData() {
+		return oneIdGatewayData;
+	}
+
+	public void setOneIdGatewayData(OneIdGatewayData oneIdGatewayData) {
+		this.oneIdGatewayData = oneIdGatewayData;
+	}
+	
+	public void setOneIdGatewayData(String oneIdToken) {
+		this.oneIdGatewayData = new OneIdGatewayData(oneIdToken);
+	}
+	
+	public boolean hasOneIdKey() {
+		if(loggedInSecurity != null && loggedInSecurity.getOneIdKey() != null && !loggedInSecurity.getOneIdKey().trim().isEmpty()) {
+			return true;
+		}
+		return false;
+	}
+	
 }

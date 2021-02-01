@@ -23,7 +23,7 @@
     Ontario, Canada
 
 --%>
-<%@page import="java.net.URLEncoder"%>
+<%@page import="java.net.URLEncoder,oscar.OscarProperties"%>
 <%@page import="org.oscarehr.integration.TokenExpiredException"%>
 <%@page import="org.oscarehr.integration.OneIDTokenUtils"%>
 <%@page import="java.text.SimpleDateFormat"%>
@@ -32,36 +32,89 @@
 <%@page import="org.oscarehr.util.SpringUtils"%>
 <%@page import="org.oscarehr.common.dao.DemographicDao"%>
 <%@page import="org.oscarehr.common.model.Demographic"%>
+
+<%@page import="org.oscarehr.integration.OneIdGatewayData"%>
+<%@page import="org.oscarehr.util.LoggedInInfo,org.oscarehr.util.LoggedInUserFilter"%>
+<%@page import="org.oscarehr.util.SessionConstants"%>
+
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-
+<% boolean authed=true; %>
 <security:oscarSec roleName='${ sessionScope[userrole] }, ${ sessionScope[user] }' rights="w" objectName="_prevention">
 	<c:redirect url="securityError.jsp?type=_prevention" />
+	<%authed=false; %>
 </security:oscarSec>
-
 <%
+	if(!authed) {
+		return;
+	}
+LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+OneIdGatewayData oneIdGatewayData= loggedInInfo.getOneIdGatewayData();
+try  { 
+	OneIDTokenUtils.verifyAccessTokenIsValid(loggedInInfo,oneIdGatewayData);
+	
+	
+	
+	////user/Immunization.read user/Immunization.write user/Patient.read
+	boolean hasNeededScope = oneIdGatewayData.hasScope(oneIdGatewayData.fullScope);//"openid", "user/MedicationDispense.read", "toolbar", "user/Context.read", "user/Context.write",  "user/Consent.write");
+	//http://ehealthontario.ca/StructureDefinition/ca-on-dhir-profile-Immunization http://ehealthontario.ca/StructureDefinition/ca-on-dhir-profile-Patient
+	boolean hasNeededProfile = oneIdGatewayData.hasProfile(oneIdGatewayData.fullProfile);//"http://ehealthontario.ca/StructureDefinition/ca-on-dhdr-profile-MedicationDispense","http://ehealthontario.ca/fhir/StructureDefinition/ca-on-consent-pcoi-profile-Consent");
+	if(hasNeededScope && hasNeededProfile && oneIdGatewayData.howLongSinceRefreshTokenWasIssued() < 2){
+		//All good
+	}else{
+		
+		response.sendRedirect(request.getContextPath() + "/eho/login2.jsp?alreadyLoggedIn=true&forwardURL=" + URLEncoder.encode(OneIDTokenUtils.getCompleteURL(request),"UTF-8") );
+		return;
+	}
+	
+	
+} catch(TokenExpiredException e) {
+	if(oneIdGatewayData == null){
+		oneIdGatewayData = new OneIdGatewayData();
+		session.setAttribute(SessionConstants.OH_GATEWAY_DATA,oneIdGatewayData);
+		loggedInInfo = LoggedInUserFilter.generateLoggedInInfoFromSession(request);
+	}
+	loggedInInfo = LoggedInUserFilter.generateLoggedInInfoFromSession(request);
+	oneIdGatewayData.hasScope(oneIdGatewayData.fullScope);
+	oneIdGatewayData.hasProfile(oneIdGatewayData.fullProfile);
+	response.sendRedirect(request.getContextPath() + "/eho/login2.jsp?alreadyLoggedIn=true&forwardURL=" + URLEncoder.encode(OneIDTokenUtils.getCompleteURL(request),"UTF-8") );
+	return;
+} catch(NullPointerException e2) {
+	if(oneIdGatewayData == null){
+		oneIdGatewayData = new OneIdGatewayData();
+		session.setAttribute(SessionConstants.OH_GATEWAY_DATA,oneIdGatewayData);
+		loggedInInfo = LoggedInUserFilter.generateLoggedInInfoFromSession(request);
+	}
+	oneIdGatewayData.hasScope(oneIdGatewayData.fullScope);
+	oneIdGatewayData.hasProfile(oneIdGatewayData.fullProfile);
+	response.sendRedirect(request.getContextPath() + "/eho/login2.jsp?alreadyLoggedIn=true&forwardURL=" + URLEncoder.encode(OneIDTokenUtils.getCompleteURL(request),"UTF-8") );
+	return;
+}
+
+
+
 	DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
 	Demographic demographic = demographicDao.getDemographic(request.getParameter("demographic_no"));
-	
+	SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
 	String startDate = request.getParameter("startDate");
 	String endDate = request.getParameter("endDate");
-	
+	String dobDate = fmt.format(demographic.getBirthDay().getTime());
 	if(StringUtils.isEmpty(startDate)) {
 		Calendar c = Calendar.getInstance();
-		c.add(Calendar.DAY_OF_YEAR,-120);
-		SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
+		c.add(Calendar.YEAR,-10);
+		
 		startDate = fmt.format(c.getTime());
 	}
 	
 	if(StringUtils.isEmpty(endDate)) {
 		Calendar c = Calendar.getInstance();
-		SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
+		//SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
 		endDate = fmt.format(c.getTime());
 	}
 	
-	String emrStartDate = startDate;
+	String emrStartDate = dobDate;
 	String emrEndDate = endDate;
 
 	try  { 
@@ -112,10 +165,55 @@ EMR / DHIR View
 			return item;
 		}
 		
-		var renderFunc = function(data, type, row, meta) {
+		var renderFuncVaccine= function(data, type, row, meta) {
 			//console.log("data=" +JSON.stringify(data));
 			
 			if(data.forecastStatus == null) {
+				return "&nbsp;";
+			}
+			
+			if(data.targetDisease != null && data.targetDisease.length>0) {
+				return "&nbsp;";
+			}
+			
+			//console.log('cc=' + JSON.stringify(data.forecastStatus));
+			var color = "";
+			if(data.forecastStatus.display == "Overdue") {color = "#f2dede";};
+			if(data.forecastStatus.display == "Due") {color = "#fff3cd";};
+			if(data.forecastStatus.display == "Eligible but not due") {color = "#d4edda";};
+			if(data.forecastStatus.display == "Up to date") {color = "#d1ecf1";};
+			
+			
+			var renderedText = "<div class=\"recItem\" style=\"background-color:"+color+" \">";
+			
+			
+			//if(data.targetDisease != null && data.targetDisease.length>0) {
+			//	renderedText += "<b>" + data.targetDisease + "</b>" ;
+			//}
+			if(data.vaccineCodes != null && data.vaccineCodes.length>0) {
+				renderedText += "<b>" + data.vaccineCodes[0].display + "</b>";
+			}
+			if(data.vaccineCodes != null && data.vaccineCodes.length>1) {
+				renderedText += "<br/><b>" + data.vaccineCodes[1].display + "</b>";
+			}
+			if(data.date != null) {
+				renderedText += "<br/>" + data.date ;
+			}
+			
+			renderedText += "</div>";
+			
+			return renderedText;
+		}
+		
+		
+		var renderFuncDisease = function(data, type, row, meta) {
+			//console.log("data=" +JSON.stringify(data));
+			
+			if(data.forecastStatus == null) {
+				return "&nbsp;";
+			}
+			
+			if(data.vaccineCodes != null && data.vaccineCodes.length>0) {
 				return "&nbsp;";
 			}
 			
@@ -133,12 +231,12 @@ EMR / DHIR View
 			if(data.targetDisease != null && data.targetDisease.length>0) {
 				renderedText += "<b>" + data.targetDisease + "</b>" ;
 			}
-			if(data.vaccineCodes != null && data.vaccineCodes.length>0) {
-				renderedText += "<b>" + data.vaccineCodes[0].display + "</b>";
-			}
-			if(data.vaccineCodes != null && data.vaccineCodes.length>1) {
-				renderedText += "<br/><b>" + data.vaccineCodes[1].display + "</b>";
-			}
+			//if(data.vaccineCodes != null && data.vaccineCodes.length>0) {
+			//	renderedText += "<b>" + data.vaccineCodes[0].display + "</b>";
+			//}
+			//if(data.vaccineCodes != null && data.vaccineCodes.length>1) {
+			//	renderedText += "<br/><b>" + data.vaccineCodes[1].display + "</b>";
+			//}
 			if(data.date != null) {
 				renderedText += "<br/>" + data.date ;
 			}
@@ -152,6 +250,8 @@ EMR / DHIR View
 		$(document).ready(function(){
 	
 			$("#disclaimer").hide();
+			
+			
 			
 			$("#summaryTbl").DataTable({
 				//orderCellsTop: true,
@@ -177,7 +277,27 @@ EMR / DHIR View
 				
 			});
 			
+			<%-- this is the new part 
+			$('#summaryTbl thead tr').clone(true).appendTo( '#summaryTbl thead' );
+		    $('#summaryTbl thead tr:eq(1) th').each( function (i) {
+		        var title = $(this).text();
+		        $(this).html( '<input type="text" placeholder="Search '+title+'" />' );
+		 
+		        $( 'input', this ).on( 'keyup change', function () {
+		            if ( table.column(i).search() !== this.value ) {
+		                table
+		                    .column(i)
+		                    .search( this.value )
+		                    .draw();
+		            }
+		        } );
+		    } );
+			 end --%>
+		
+		    
+		    
 			$("#compTbl").DataTable({
+				
 				
 				"columns" : [
 					{"title": "Name", 			"data" : "name"},
@@ -190,24 +310,52 @@ EMR / DHIR View
 					{"title": "Dose",			"data" : "dose"},
 					{"title": "Date",			"data" : "date"},
 					{"title": "Refused",		"data" : "refused"},
+					{"title": "Preformer",		"data" : "preformer"},
 					{"title": "Notes",			"data" : "notes"}
 				],
 				
 				"language": {
 				      "emptyTable": "No events found for the search time period."
-				    }
+				    },
+				    "order": [[ 8, "desc" ]]   
+				    
 				
 			});
 			
 			
 			
 			
-			$("#forecastByStatusTbl").DataTable({
+			
+			
+			$("#forecastByStatusTblVaccine").DataTable({
 				"columns" : [
-					{"title": "Overdue","width": "25%", "render" : renderFunc },
-					{"title": "Due" ,"width": "25%", "render" : renderFunc},
-					{"title": "Eligible but not due","width": "25%", "render" : renderFunc},
-					{"title": "Up to date","width": "25%", "render" : renderFunc }
+					{"title": "Overdue","width": "25%", "render" : renderFuncVaccine },
+					{"title": "Due" ,"width": "25%", "render" : renderFuncVaccine},
+					{"title": "Eligible but not due","width": "25%", "render" : renderFuncVaccine},
+					{"title": "Up to date","width": "25%", "render" : renderFuncVaccine }
+				],
+				
+				"language": {
+				      "emptyTable": "No forecast items."
+				},
+				paging: false,
+				searching:false,
+				info:false,
+				
+				"order": [],
+			    "columnDefs": [ {
+			      "targets"  : [0,1,2,3],
+			      "orderable": false,
+			    }]
+				
+			});
+			
+			$("#forecastByStatusTblDisease").DataTable({
+				"columns" : [
+					{"title": "Overdue","width": "25%", "render" : renderFuncDisease },
+					{"title": "Due" ,"width": "25%", "render" : renderFuncDisease},
+					{"title": "Eligible but not due","width": "25%", "render" : renderFuncDisease},
+					{"title": "Up to date","width": "25%", "render" : renderFuncDisease }
 				],
 				
 				"language": {
@@ -236,8 +384,10 @@ EMR / DHIR View
 				dt.clear();
 		    	$("#summaryPeriod").html("<b>Search period:</b>");
 		    	
-		    	var dtF = $("#forecastByStatusTbl").DataTable();
-		    	dtF.clear();
+		    	var dtFV = $("#forecastByStatusTblVaccine").DataTable();
+		    	dtFV.clear();
+		    	var dtFD = $("#forecastByStatusTblDisease").DataTable();
+		    	dtFD.clear();
 		    	
 				$.ajax({
 					url: "<%=request.getContextPath()%>/dhir/summary.do?demographic_no=<%=demographic.getDemographicNo()%>&startDate=" + $("#startDate").val() + "&endDate=" + $("#endDate").val(),
@@ -248,6 +398,19 @@ EMR / DHIR View
 				    		$("#dhirError").html(data.error);
 				    		$("#dhirError").show();
 				    	} 
+				    	if(data.searchParams != null){
+				    		var searchParamsText = "";
+				    		var first = true;
+				    		for (i = 0; i < data.searchParams.length; i++) {
+				    			  if(!first){
+				    				  searchParamsText += ", ";
+				    			  }
+				    			  first = false;
+				    			  searchParamsText += data.searchParams[i];
+				    		}
+				    		$("#summaryParams").html("<b>Search params:</b> <i>" +searchParamsText +"</i>");
+				    	}
+				    	
 				    	if(data.immunizations != null) {
 					    	var dt = $("#summaryTbl").DataTable();
 					    	dt.rows.add(data.immunizations);
@@ -260,27 +423,100 @@ EMR / DHIR View
 					    	
 				    	}
 				    	
-				    	
-				    	
-				    	if(data.recommendationsByStatus != null) {
-				    		var forecastByStatusTable = $("#forecastByStatusTbl").DataTable();
-				    		var recs = data.recommendationsByStatus;
+				    	if(data.patient != null){
+				    		/*
+				    		{"patient":{
+				    			"resourceType":"Patient",
+				    			"id":"1003327923",
+				    			"identifier":[{"system":"https://fhir.infoway-inforoute.ca/NamingSystem/ca-on-patient-hcn","value":"7361544534"},{"system":"http://ehealthontario.ca/fhir/NamingSystem/ca-on-panorama-immunization-id","value":"MKMVB3JFB6"}],
+				    			"name":[{"family":"David","given":["Alice","EMROne"]}],
+				    			"telecom":[{"system":"phone","value":"+1-747-440-6320","use":"home"}],
+				    			"gender":"male",
+				    			"birthDate":"2000-01-14"}}
+				    		*/
+				    		document.getElementById('dhir_last_name').textContent = data.patient.name[0].family;
+				    		document.getElementById('dhir_first_name').textContent = data.patient.name[0].given[0];
+				    		document.getElementById('dhir_dob').textContent = data.patient.birthDate;
+				    		document.getElementById('dhir_hin').textContent = data.patient.identifier[0].value;
+				    		document.getElementById('dhir_sex').textContent = data.patient.gender;
+							
+				    		var dhirDemoDataMatches = true;
 				    		
-				    		var a1 = recs["Overdue"];
-				    		var a2 = recs["Due"];
-				    		var a3 = recs["Eligible but not due"];
-				    		var a4 = recs["Up to date"];
-				    		
-				    		var maxSize = Math.max(a1.length,a2.length,a3.length,a4.length);
-				    	
-				    		for(var x=0;x<maxSize;x++) {
-				    			var r = [emptyIfNull(a1[x]),emptyIfNull(a2[x]),emptyIfNull(a3[x]),emptyIfNull(a4[x])];
-				    			console.log(r);
-				    			
-				    			forecastByStatusTable.rows.add([r]);
+				    		if('<%=demographic.getLastName()%>'.localeCompare(data.patient.name[0].family, undefined, { sensitivity: 'accent' }) != 0){
+				    			alert("DHIR Demographic Data does not match Local Demographic Data <%=demographic.getLastName()%> does not equal "+data.patient.name[0].family);
+				    			dhirDemoDataMatches = false;
 				    		}
 				    		
-				    		forecastByStatusTable.draw();
+				    		if('<%=demographic.getFirstName()%>'.localeCompare(data.patient.name[0].given[0], undefined, { sensitivity: 'accent' }) != 0){
+				    			alert("DHIR Demographic Data does not match Local Demographic Data <%=demographic.getFirstName()%> does not equal "+data.patient.name[0].given[0]);
+				    			dhirDemoDataMatches = false;
+				    		}
+				    		
+				    		var sexMatch = false;
+						if('<%=demographic.getSex() %>' === 'M' && data.patient.gender === 'male'){
+							sexMatch = true;
+						}else if('<%=demographic.getSex() %>' === 'F' && data.patient.gender === 'female'){
+							sexMatch = true;
+						}else if('<%=demographic.getSex() %>' === 'O' && data.patient.gender === 'other'){
+							sexMatch = true;
+						}else if('<%=demographic.getSex() %>' === 'U' && data.patient.gender === 'unknown'){
+							sexMatch = true;
+						}
+						if(!sexMatch){
+							alert("DHIR Demographic Data does not match Local Demographic Data for gender :<%=demographic.getSex() %>");
+							dhirDemoDataMatches = false;
+						}
+				    		
+				    		if(!dhirDemoDataMatches){
+				    			$("#dhir_demo_info_warning").show();
+				    			$("#dhir_demo_info").show();
+				    		}
+				    		
+				    		
+				    	}
+				    	if(data.immunizationsRecommendationDateGenerated != null){
+				    		document.getElementById('immunizationsRecommendationDateGenerated').textContent = data.immunizationsRecommendationDateGenerated;
+				    	}
+				    	
+				    	if(data.recommendationsByStatus != null) {
+				    		var forecastByStatusTableVaccine = $("#forecastByStatusTblVaccine").DataTable();
+				    		var forecastByStatusTableDisease = $("#forecastByStatusTblDisease").DataTable();
+				    		var recs = data.recommendationsByStatus;
+				    		console.log("recs",recs);
+				    		var a1Vaccine = []; //recs["Overdue"];
+				    		var a2Vaccine = []; //recs["Due"];
+				    		var a3Vaccine = []; //recs["Eligible but not due"];
+				    		var a4Vaccine = []; //recs["Up to date"];
+				    		
+				    		var a1Disease = []; //recs["Overdue"];
+				    		var a2Disease = []; //recs["Due"];
+				    		var a3Disease = []; //recs["Eligible but not due"];
+				    		var a4Disease = []; //recs["Up to date"];
+				    		
+				    		filterFor(recs["Overdue"],a1Vaccine,a1Disease);
+				    		filterFor(recs["Due"],a2Vaccine,a2Disease);
+				    		filterFor(recs["Eligible but not due"],a3Vaccine,a3Disease);
+				    		filterFor(recs["Up to date"],a4Vaccine,a4Disease);
+				    		
+				    		var maxSizeV = Math.max(a1Vaccine.length,a2Vaccine.length,a3Vaccine.length,a4Vaccine.length);
+				    		console.log("maxSizeV",maxSizeV);
+				    	
+				    		for(var x=0;x<maxSizeV;x++) {
+				    			var r = [emptyIfNull(a1Vaccine[x]),emptyIfNull(a2Vaccine[x]),emptyIfNull(a3Vaccine[x]),emptyIfNull(a4Vaccine[x])];
+				    			console.log("r",r);
+				    				forecastByStatusTableVaccine.rows.add([r]);	
+				    		}
+				    		
+				    		var maxSizeD = Math.max(a1Disease.length,a2Disease.length,a3Disease.length,a4Disease.length);
+					    	console.log("maxSizeD",maxSizeD);
+				    		for(var x=0;x<maxSizeD;x++) {
+				    			var r = [emptyIfNull(a1Disease[x]),emptyIfNull(a2Disease[x]),emptyIfNull(a3Disease[x]),emptyIfNull(a4Disease[x])];
+				    			console.log("r",r);
+				    				forecastByStatusTableDisease.rows.add([r]);					    			
+				    		}
+				    		
+				    		forecastByStatusTableVaccine.draw();
+				    		forecastByStatusTableDisease.draw();
 				    		
 				    	}
 				    	
@@ -291,6 +527,19 @@ EMR / DHIR View
 				    	$("#dhirError").html("A system error occurred.");
 				    }
 				});
+			}
+			
+			function filterFor(list,vaccineList,diseaseList){
+				
+				for(var x=0;x<list.length;x++) {
+					if(list[x].vaccineCodes != null && list[x].vaccineCodes.length > 0){
+						vaccineList.push(list[x]);
+    					}else{
+    						diseaseList.push(list[x]);
+    					}
+				}
+				console.log("lists ",list.length,vaccineList.length,diseaseList.length);
+				
 			}
 			
 			function getEMRData() {	
@@ -329,6 +578,9 @@ EMR / DHIR View
 			$("#endDate").bind('change',function(){
 				getDHIRData();
 			});
+			$("#dobDate").bind('click',function(){
+				getDHIRData();
+			});
 			
 			$("#emrStartDate").bind('change',function(){
 				getEMRData();
@@ -356,6 +608,12 @@ EMR / DHIR View
 				} else {
 					$("#forecastDiv").hide();
 				}
+				if($("#showDHIRDemoData").is(":checked")) {
+					$("#dhir_demo_info").show();
+				} else {
+					$("#dhir_demo_info").hide();
+				}
+				
 			});
 		
 			$("#disclaimerDismiss").bind("click",function(){
@@ -399,7 +657,10 @@ EMR / DHIR View
 			<div class="col-sm-6">
 				<div class="btn-group" data-toggle="buttons">
 				  <label class="btn btn-primary active">
-				    <input type="checkbox" checked class="showing" id="showEMR"> EMR Immunizations
+				    <input type="checkbox" class="showing" id="showDHIRDemoData"> DHIR Patient Demographics
+				  </label>
+				  <label class="btn btn-primary">
+				    <input type="checkbox"  class="showing" id="showEMR"> EMR Immunizations
 				  </label>
 				  <label class="btn btn-primary active">			  
 				    <input type="checkbox" checked class="showing" id="showDHIR"> DHIR Immunizations
@@ -417,7 +678,31 @@ EMR / DHIR View
 		</div>
 		
 		<div class="row">
-			<div style="background-color:#ccffeb;border: 1px black solid" id="emrDiv">
+			<div class="col-sm-12">
+				<div id="disclaimer" class="alert alert-warning alert-dismissible" >
+					<button type="button" class="close" id="disclaimerDismiss"><span aria-hidden="true">&times;</span></button>
+				<b>Warning:</b> <%=OscarProperties.getInstance().get("dhir.disclaimer") %>
+				</div>
+			</div>
+		</div>
+		
+		<div class="row" style="display:none;" id="dhir_demo_info">
+			<div class="col-sm-12">
+				<div id="disclaimer" class="alert alert-info" >
+				<h4>Demographic information from DHIR</h4>
+					<h5><span id="dhir_last_name"></span>,<span id="dhir_first_name"></span></h5>
+					<h6><span id="dhir_dob"></span></h6>
+					<h6><span id="dhir_hin"></span> , <span id="dhir_sex"></span></h6>
+					
+					<div style="display:none; color:red;" id="dhir_demo_info_warning"><b>Warning:</b> Local Demographic Information does not match Demographic Information from DHIR.</div>
+					
+				</div>
+			</div>
+		</div>
+		
+		
+		<div class="row">
+			<div style="background-color:#ccffeb;border: 1px black solid; display:none" id="emrDiv">
 			
 				<div class="col-sm-12"  style="padding-top:10px; padding-left:10px;padding-bottom:5px">
 					<span class="h4"><b><u>Immunization Event(s) in EMR</u></b><br/></span>
@@ -462,6 +747,7 @@ EMR / DHIR View
 			<div class="col-sm-12">
 				<div>
 					<b>Date Range:</b> From <input type="text" name="startDate" id="startDate" value="<%=startDate %>" /> to <input type="text" name="endDate" id="endDate" value="<%=endDate %>"/>
+					<a id="dobDate" onclick="document.getElementById('startDate').value = '<%=dobDate%>';  console.log('table',document.getElementById('summaryTbl'));">-ALL-</a>
 					<span id="dhir_loading"><i style="color:blue" class="fa fa-circle-notch fa-spin" aria-hidden="true"></i></span>
 				</div>
 			</div>
@@ -470,13 +756,8 @@ EMR / DHIR View
 				<table id="summaryTbl" class="stripe">
 				</table>
 				<div id="summaryPeriod"></div>
-				<div id="disclaimer" class="alert alert-warning alert-dismissible" >
-				 <button type="button" class="close" id="disclaimerDismiss"><span aria-hidden="true">&times;</span></button>
-				<b>Warning:</b> Limited to Immunization Information available in the
-	Digital Health Immunization Repository (DHIR) EHR service. To
-	ensure a Best Possible Immunization History, please review this
-	information with the patient/family and use other available sources
-	of Immunization information in addition to the DHIR EHR service.</div>
+				<div id="summaryParams"></div>
+			
 			</div>
 		</div>
 		
@@ -488,11 +769,15 @@ EMR / DHIR View
 			
 			
 			<div class="col-sm-12"  style="padding-top:10px; padding-left:10px;padding-bottom:5px">
-					<span class="h4"><b><u>Immunization Forecast</u></b><br/></span>
+					<span class="h4"><b><u>Immunization Forecast</u></b> <small>Generated on: <span id="immunizationsRecommendationDateGenerated"></span></small><br/></span>
 				</div>
 			<div class="col-sm-12">
-			
-				<table id="forecastByStatusTbl">
+				<h6>By Vaccine</h6>
+				<table id="forecastByStatusTblVaccine">
+				
+				</table>
+				<h6>By Disease</h6>
+				<table id="forecastByStatusTblDisease">
 				
 				</table>
 			</div>

@@ -24,6 +24,7 @@
 
 --%>
 
+<%@page import="org.oscarehr.util.MiscUtils"%>
 <%@page import="org.hl7.fhir.r4.model.Extension"%>
 <%@page import="org.oscarehr.integration.fhirR4.api.DHIR"%>
 <%@page import="org.hl7.fhir.r4.model.StringType"%>
@@ -185,6 +186,23 @@ if(!authed) {
  
   List<String> validationErrors = new ArrayList<String>();
   
+  //Organization validations
+  
+  
+  if(submitterOrganizationCity == null || submitterOrganizationCity.trim().isEmpty()){
+		validationErrors.add("Missing Clinic City");
+  }
+
+  if(submitterOrganizationProvince == null || submitterOrganizationProvince.trim().isEmpty()){
+		validationErrors.add("Missing Clinic Province");
+  }
+  
+  if(submitterOrganizationPostalCode == null || submitterOrganizationPostalCode.trim().isEmpty()){
+		validationErrors.add("Missing Clinic Postal Code");
+  }
+					
+				
+  
   
   //Submitting Practitioner Resource
   if(submittingPractitioner == null) {
@@ -295,7 +313,7 @@ if(!authed) {
 			if(!immunization.getPrimarySource() && immunization.getReportOrigin() == null) {
 				validationErrors.add("Missing required report origin. This is requied when primary source is false");
 			}
-			
+			/* OMD validation said these weren't required fields
 			if(StringUtils.isEmpty(immunization.getLotNumber())) {
 				validationErrors.add("Lot# is required");
 			}
@@ -310,6 +328,8 @@ if(!authed) {
 				validationErrors.add("Site is required");
 			}
 			
+			*/
+			
 			if(getDoseQuantity(immunization) == null || getDoseUnit(immunization) == null) {
 				validationErrors.add("Dose is required");
 			}
@@ -319,7 +339,7 @@ if(!authed) {
 			} else {
 				
 				//if(ispa && !historical && !external) {
-					if(getPractitionerCollegeIdType(performer) == null || getPractitionerCollegeId(performer) == null) {
+					if(!external && (getPractitionerCollegeIdType(performer) == null || getPractitionerCollegeId(performer) == null)) {
 						validationErrors.add("Set college ID and Type for performing practitioner");
 					}
 				
@@ -327,7 +347,7 @@ if(!authed) {
 						validationErrors.add("Name required for performing practitioner");
 					}
 					
-					if(getPractitionerQualification(performer) == null) {
+					if(!external && getPractitionerQualification(performer) == null) {
 						validationErrors.add("Missing qualifications for performing practitioner");
 					}
 				//} 
@@ -456,6 +476,15 @@ function refuse() {
 	$("#theForm").submit();
 	return true;
 	
+}
+
+function checkConsent() {
+	if(document.getElementById("patientConsent").checked){
+		document.getElementById("submitButton").disabled = false;
+	}else{
+		document.getElementById("submitButton").disabled = true;	
+	}
+		
 }
 
 </script>
@@ -724,7 +753,8 @@ function refuse() {
 			
 					<br/>
 		
-		<h4>By clicking Submit, you acknowledge that you have received express consent from the patient or their legal guardian to submit this immunization data to the Digital Health Immunization Repository.  If the patient or their legal guardian has refused consent, select Cancel - Refusal to save the immunization record in your EMR and exit this screen.</h4>
+		<h4><input onclick="checkConsent()" type="checkbox" id="patientConsent" name="patientConsent" <%=(!validationErrors.isEmpty())?" disabled=\"disabled\" ":"" %> />Check here to acknowledge that you have received express consent from the patient or their legal guardian to submit this immunization data to the Digital Health Immunization Repository.  If the patient or their legal guardian has refused consent, select Cancel - Refusal to save the immunization record in your EMR and exit this screen.</h4>
+		
 			<br/>
 			
 		</td>
@@ -759,7 +789,7 @@ function refuse() {
 				<input type="hidden" name="demographicNo" value="<%=demographicNo%>"/>
 				<input type="hidden" name="preventionId" value="<%=preventionId%>"/>
 				<input type="hidden" id="action" name="action" value="Submit" />
-				<input type="submit" value="Submit" <%=(!validationErrors.isEmpty())?" disabled=\"disabled\" ":"" %>/>
+				<input type="submit" value="Submit"  disabled="disabled" id="submitButton"/>
 				&nbsp;&nbsp;&nbsp;
 				<input type="button" value="Edit Prevention" onClick="window.location.href='<%=request.getContextPath()%>/oscarPrevention/AddPreventionData.jsp?id=<%=preventionId %>&demographic_no=<%=demographicNo%>'"/>
 				&nbsp;&nbsp;
@@ -874,6 +904,10 @@ function refuse() {
 			if((DHIR.ID_SYSTEM_GLOBAL_BASE + "/ca-on-license-pharmacist").equals(id.getSystem())) {
 				return "OCP";
 			}
+			if((DHIR.ID_SYSTEM_GLOBAL_BASE + "/ca-on-license-midwife").equals(id.getSystem())) {
+				return "CMO";
+			}
+			
 		}
 		return null;
 	}
@@ -947,8 +981,12 @@ function refuse() {
 	}
 	
 	String getImmunizationDateDisplay(Immunization i) {
+		
 		if(i != null) {
 			if(i.hasOccurrenceDateTimeType()) {
+		
+				return i.getOccurrenceDateTimeType().getValueAsString();
+				/* is this needed ???
 				String estimated = " ";
 				Extension ext = null;
 				if( (ext = i.getOccurrenceDateTimeType().getExtensionByUrl("http://ehealthontario.ca/fhir/StructureDefinition/ca-on-extension-estimated-date") ) != null){ 
@@ -960,12 +998,15 @@ function refuse() {
 				SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 						
 				return formatter.format(i.getOccurrenceDateTimeType().getValueAsCalendar().getTime()) + estimated;
+				*/
 			} else if(i.hasOccurrenceStringType()) {
 				String estimated = " ";
 				Extension ext = null;
 				if((ext = i.getOccurrenceDateTimeType().getExtensionByUrl("http://ehealthontario.ca/fhir/StructureDefinition/ca-on-extension-estimated-date")) != null){ 
 					if("true".equals(ext.getValueAsPrimitive().getValueAsString())) {
-						estimated += " (ESTIMATED)";
+						
+						return null;
+						//estimated += " (ESTIMATED)";
 					}
 				}
 				return i.getOccurrenceStringType().getValue() + estimated;

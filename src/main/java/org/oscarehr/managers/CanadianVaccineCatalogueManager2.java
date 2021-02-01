@@ -23,12 +23,17 @@
  */
 package org.oscarehr.managers;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.hl7.fhir.r4.model.Bundle;
@@ -56,6 +61,7 @@ import org.oscarehr.common.model.CVCMedicationLotNumber;
 import org.oscarehr.common.model.LookupList;
 import org.oscarehr.common.model.LookupListItem;
 import org.oscarehr.common.model.UserProperty;
+import org.oscarehr.integration.dhdr.OmdGateway;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -74,6 +80,8 @@ public class CanadianVaccineCatalogueManager2 {
 	
 	protected static FhirContext ctxR4 = null;
 	Logger logger = MiscUtils.getLogger();
+	
+	private static final String CVCFirstDate = "cvc.firstdate";
 
 	@Autowired
 	CVCMedicationDao medicationDao;
@@ -88,18 +96,38 @@ public class CanadianVaccineCatalogueManager2 {
 		ctxR4 = FhirContext.forR4();
 	}
 	
+	Map<String,String> dinManufactureMap = new HashMap<String,String>();
+	Map<String,String> dinStatusMap = new HashMap<String,String>();
+	
 	public void update(LoggedInInfo loggedInInfo) {
-		clearCurrentData();
-		Bundle bundle = getBundleFromServer();
+		OmdGateway omdGateway = new OmdGateway();
 		
-		/*
-		String bundleJSON = ctxR4.newJsonParser().setPrettyPrint(true).encodeResourceToString(bundle);
+		Bundle bundle =null;
+		
 		try {
-			FileUtils.writeStringToFile(new File("/home/marc/Downloads/bundle.json"), bundleJSON);
-		}catch(IOException e) {
-			logger.error("Error",e);
+			bundle= getBundleFromServer();
+		}catch(Exception e) {
+			omdGateway.logError(loggedInInfo, "CVC", "DOWNLOAD", e.getLocalizedMessage());
+			
+			throw(e);
 		}
-		*/
+		
+		String bundleJSON = ctxR4.newJsonParser().setPrettyPrint(true).encodeResourceToString(bundle);
+		omdGateway.logDataReceived(loggedInInfo, "CVC", "DOWNLOAD", "data loaded", null);
+		
+		OscarProperties oscarProperties = OscarProperties.getInstance();
+		if(oscarProperties.hasProperty("CVC_BUNDLE_LOCAL_FILE")){
+			try {
+				FileUtils.writeStringToFile(new File(oscarProperties.getProperty("CVC_BUNDLE_LOCAL_FILE")), bundleJSON);
+			}catch(IOException e) {
+				logger.error("Error",e);
+			}
+		}else {
+			logger.info("CVC_BUNDLE_LOCAL_FILE property not set. Not writing to file to disk. (not needed) ");
+		}
+		 
+		clearCurrentData();
+		
 		
 		for(Bundle.BundleEntryComponent bec : bundle.getEntry()) {
 			Resource res = bec.getResource();
@@ -127,6 +155,7 @@ public class CanadianVaccineCatalogueManager2 {
 		
 		//store when we last update
 		setUpdatedInPropertyTable();
+		setFirstDateInPropertyTable();
 	}
 
 	private void setUpdatedInPropertyTable() {
@@ -141,6 +170,17 @@ public class CanadianVaccineCatalogueManager2 {
 		
 		userPropertyDao.merge(up);
 		
+	}
+	
+	private void setFirstDateInPropertyTable() {
+		UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
+		UserProperty up = userPropertyDao.getProp(CVCFirstDate);
+		if(up == null) {
+			up = new UserProperty();
+			up.setName(CVCFirstDate);
+			up.setValue(""+(new Date()).getTime());
+			userPropertyDao.persist(up);
+		}
 	}
 	
 	private void clearCurrentData() {
@@ -179,16 +219,28 @@ public class CanadianVaccineCatalogueManager2 {
 						name.setUseSystem(use.getSystem());
 						name.setUseCode(use.getCode());
 						name.setUseDisplay(use.getDisplay());
+						logger.info(cc.getCode()+" display name "+use.getDisplay()+" cc display "+cc.getDisplay());
+					}else {
+						logger.error("USE WAS NULL for "+cr.getValue() +" "+c.toString());
 					}
 					name.setValue(cr.getValue());
 					imm.getNames().add(name);
 				}
 				
 				for (Extension ext : cc.getExtension()) {
-					if ("https://cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-concept-status-extension".equals(ext.getUrl())) {
+
+					if ("https://cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-shelf-status".equals(ext.getUrl())) {
+						CodeableConcept shelfStatusConcept = (CodeableConcept)ext.getValue();
 						//active or inactive
-						String status = ext.getValueAsPrimitive().getValueAsString();
+						//String status = ext.getValueAsPrimitive().getValueAsString();
+						for(Coding parentConceptCode :shelfStatusConcept.getCoding()) {                        
+							if("https://cvc.canimmunize.ca/v3/Valueset/ShelfStatus".equals(parentConceptCode.getSystem())) {
+								imm.setShelfStatus(parentConceptCode.getDisplay());
+							}
+						}
 					}
+				
+					
 					
 					if ("https://cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-concept-last-updated".equals(ext.getUrl())) {
 						Date lastUpdated = (Date)ext.getValueAsPrimitive().getValue();
@@ -211,6 +263,8 @@ public class CanadianVaccineCatalogueManager2 {
 					if ("https://cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-protects-against-diseases".equals(ext.getUrl())) {
 						//more structure
 					}
+					
+					
 					
 				}
 				
@@ -254,10 +308,16 @@ public class CanadianVaccineCatalogueManager2 {
 						name.setUseSystem(use.getSystem());
 						name.setUseCode(use.getCode());
 						name.setUseDisplay(use.getDisplay());
+					}else {
+						logger.info("USE WAS NULL for "+cr.getValue() +" "+c.toString());
 					}
 					name.setValue(cr.getValue());
 					imm.getNames().add(name);
 				}
+				
+				String din = null;
+				String manufactureDisplay = null;
+				
 				
 
 				for (Extension ext : cc.getExtension()) {
@@ -269,8 +329,16 @@ public class CanadianVaccineCatalogueManager2 {
 					*/
 					
 					if ("https://cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-shelf-status".equals(ext.getUrl())) {
-						
+						CodeableConcept shelfStatusConcept = (CodeableConcept)ext.getValue();
+						//active or inactive
+						//String status = ext.getValueAsPrimitive().getValueAsString();
+						for(Coding parentConceptCode :shelfStatusConcept.getCoding()) {                        
+							if("https://cvc.canimmunize.ca/v3/CodeSystem/ShelfStatus".equals(parentConceptCode.getSystem())) {
+								imm.setShelfStatus(parentConceptCode.getDisplay());
+							}
+						}
 					}
+					
 					
 					if ("https://cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-concept-last-updated".equals(ext.getUrl())) {
 						
@@ -280,6 +348,9 @@ public class CanadianVaccineCatalogueManager2 {
 						Boolean ispa =  (Boolean)ext.getValueAsPrimitive().getValue();
 						imm.setIspa(ispa);
 					}
+					
+					
+					
 					if ("https://cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-parent-concept".equals(ext.getUrl())) {
 						CodeableConcept parentConcept = (CodeableConcept)ext.getValue();
 						for(Coding parentConceptCode :parentConcept.getCoding()) {
@@ -291,8 +362,15 @@ public class CanadianVaccineCatalogueManager2 {
 						//imm.setParentConceptId(parent);
 					}
 					if ("https://cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-din".equals(ext.getUrl())) {
-						
+						CodeableConcept dinConcept = (CodeableConcept)ext.getValue();
+						if(dinConcept.hasCoding()) {
+							din = dinConcept.getCoding().get(0).getDisplay();
+						}
 					}
+					if("https://cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-market-authorization-holder".equals(ext.getUrl())) {
+						manufactureDisplay = ext.getValue().primitiveValue();
+					}
+					
 					if ("https://cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-typical-dose-size".equals(ext.getUrl())) {
 						String typicalDose = ext.getValueAsPrimitive().getValueAsString();
 						imm.setTypicalDose(typicalDose);
@@ -321,6 +399,10 @@ public class CanadianVaccineCatalogueManager2 {
 					}
 					
 				}
+				
+				if(imm.getSnomedConceptId() != null && manufactureDisplay != null) {
+					dinManufactureMap.put(imm.getSnomedConceptId(),manufactureDisplay);
+				}
 				imm.setGeneric(false);
 
 				saveImmunization(loggedInInfo, imm);
@@ -348,7 +430,11 @@ public class CanadianVaccineCatalogueManager2 {
 			CVCMedication cMed = new CVCMedication();
 
 			Medication med = (Medication) entry.getResource();
-			logger.debug("processing " + med.getId());
+			
+			logger.debug("processing " + med.getIdBase() +" : "+med.getIdElement().getIdPart());
+			if(dinManufactureMap.containsKey(med.getIdElement().getIdPart())) {
+				cMed.setManufacturerDisplay(dinManufactureMap.get(med.getIdElement().getIdPart()));
+			}
 		//	cMed.setBrand(med.getIsBrand());
 			cMed.setStatus(med.getStatus().toString());
 
@@ -356,6 +442,7 @@ public class CanadianVaccineCatalogueManager2 {
 				if ("http://hl7.org/fhir/sid/ca-hc-din".equals(c.getSystem())) {
 					cMed.setDin(c.getCode());
 					cMed.setDinDisplayName(c.getDisplay());
+					
 				}
 				if ("https://fhir.infoway-inforoute.ca/CodeSystem/snomedctcaextension".equals(c.getSystem())) {
 					cMed.setSnomedCode(c.getCode());
@@ -367,7 +454,19 @@ public class CanadianVaccineCatalogueManager2 {
 			}
 			
 			for (Extension ext : med.getExtension()) {
+				
+				if("https://cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-market-authorization-holder".equals(ext.getUrl())) {
+					cMed.setManufacturerDisplay(ext.getValue().primitiveValue());
+				}
+				
 				if ("https://cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-shelf-status".equals(ext.getUrl())) {
+					CodeableConcept shelfStatusConcept = (CodeableConcept)ext.getValue();
+					for(Coding parentConceptCode :shelfStatusConcept.getCoding()) {
+						if("https://cvc.canimmunize.ca/v3/ValueSet/ShelfStatus".equals(parentConceptCode.getSystem())) {
+							cMed.setStatus(parentConceptCode.getDisplay());
+						}
+					}
+					
 					
 				}
 				
@@ -378,6 +477,8 @@ public class CanadianVaccineCatalogueManager2 {
 				if ("https://cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-container".equals(ext.getUrl())) {
 					
 				}
+				
+				
 
 				if ("https://cvc.canimmunize.ca/v3/StructureDefinition/ca-cvc-lots".equals(ext.getUrl())) {
 					for(Extension lotsExt : ext.getExtension()) {
@@ -580,4 +681,25 @@ public class CanadianVaccineCatalogueManager2 {
 		
 		return url;
 	}
+	
+	public static boolean getCVCActive(Date creationDate) {
+		boolean cvcActive = false;
+		UserPropertyDAO upDao = SpringUtils.getBean(UserPropertyDAO.class);
+		UserProperty up =  upDao.getProp(CVCFirstDate);
+		
+		if(up != null && !StringUtils.isEmpty(up.getValue())) {
+			if(creationDate == null) {
+				cvcActive = true;
+			}else {
+				long timeInMillis = Long.parseLong(up.getValue());
+				Date cvcfirstDate = new Date(timeInMillis);
+				if(cvcfirstDate.before(creationDate)) {
+					cvcActive = true;
+				}
+			}
+		}
+		
+		return cvcActive;
+	}
+	
 }

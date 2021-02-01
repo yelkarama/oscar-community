@@ -46,11 +46,18 @@ import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Immunization;
 import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.ResourceType;
+import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.dao.DemographicDao;
+import org.oscarehr.common.dao.LookupListDao;
+import org.oscarehr.common.dao.LookupListItemDao;
 import org.oscarehr.common.dao.PreventionDao;
 import org.oscarehr.common.model.Demographic;
+import org.oscarehr.common.model.LookupList;
+import org.oscarehr.common.model.LookupListItem;
 import org.oscarehr.common.model.Prevention;
+import org.oscarehr.common.model.Provider;
 import org.oscarehr.integration.TokenExpiredException;
+import org.oscarehr.integration.fhirR4.model.Patient;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -101,8 +108,10 @@ public class DHIRSummaryViewAction extends DispatchAction {
 
 		DHIRManager mgr = new DHIRManager();
 		Bundle bundle = null;
+		List<String> searchParamsUsed = new ArrayList<String>();
 		try {
-			bundle = mgr.search(request, demographic, startDate, endDate);
+			
+			bundle = mgr.search(request, demographic, startDate, endDate,searchParamsUsed);
 		} catch (TokenExpiredException e) {
 			JSONObject root = new JSONObject();
 			root.put("error", e.getMessage());
@@ -170,6 +179,7 @@ public class DHIRSummaryViewAction extends DispatchAction {
 		root.put("startDate", startDateStr);
 		root.put("endDate", endDateStr);
 		root.put("immunizations", imms);
+		root.put("searchParams",searchParamsUsed);
 
 		//Forecasting
 		Map<String, Resource> map = handler.getAllResources();
@@ -181,6 +191,8 @@ public class DHIRSummaryViewAction extends DispatchAction {
 
 				String dateGenerated = sdf.format(irHandler.getDate());
 
+				root.put("immunizationsRecommendationDateGenerated", dateGenerated);	
+				
 				Map<String, List<JSONObject>> mapByStatus = new HashMap<String, List<JSONObject>>();
 				mapByStatus.put("Overdue", new ArrayList<JSONObject>());
 				mapByStatus.put("Up to date", new ArrayList<JSONObject>());
@@ -232,6 +244,14 @@ public class DHIRSummaryViewAction extends DispatchAction {
 					rec2.put(key,arr);
 				}
 				root.put("recommendationsByStatus",rec2);
+			}else if(r.getResourceType() == ResourceType.Patient) {
+				root.put("patient",handler.getResourceAsString(r));
+				Patient patient = new Patient((org.hl7.fhir.r4.model.Patient)r);
+				root.put("dob",patient.getOscarResource().getBirthDayAsString());
+				root.put("sex",patient.getOscarResource().getSex());
+				root.put("lastname",patient.getOscarResource().getLastName());
+				root.put("firstname",patient.getOscarResource().getFirstName());
+				root.put("middlename",patient.getOscarResource().getMiddleNames());
 			}
 
 		}
@@ -245,7 +265,7 @@ public class DHIRSummaryViewAction extends DispatchAction {
 	public ActionForward emrData(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		PreventionDao preventionDao = SpringUtils.getBean(PreventionDao.class);
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-
+		ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 		
 		String startDateStr = request.getParameter("startDate");
 		String endDateStr = request.getParameter("endDate");
@@ -274,6 +294,12 @@ public class DHIRSummaryViewAction extends DispatchAction {
 
 		JSONObject root = new JSONObject();
 		JSONArray imms = new JSONArray();
+		
+		LookupListDao lookupListDao = SpringUtils.getBean(LookupListDao.class);
+		LookupListItemDao lookupListItemDao = SpringUtils.getBean(LookupListItemDao.class);
+		LookupList ll = lookupListDao.findByName("RouteOfAdmin");
+		LookupListItem lli = null;
+		
 
 		for (Prevention prevention : preventions) {
 			prevention.setPreventionExtendedProperties();
@@ -284,12 +310,39 @@ public class DHIRSummaryViewAction extends DispatchAction {
 			imm.put("type", emptyIfNull(prevention.getImmunizationType()));
 			imm.put("manufacturer", emptyIfNull(prevention.getManufacture()));
 			imm.put("lotNumber", emptyIfNull(prevention.getLotNo()));
-			imm.put("route", emptyIfNull(prevention.getRouteForDisplay()));
-			imm.put("site", emptyIfNull(prevention.getSite()));
+			
+			String routeForDisplay = prevention.getRouteForDisplay();
+			if(ll != null) {
+				lli = lookupListItemDao.findByLookupListIdAndValue(ll.getId(), prevention.getRouteForDisplay());
+				if(lli != null) {
+					routeForDisplay = lli.getLabel();
+				}
+			}
+			imm.put("route", emptyIfNull(routeForDisplay));
+			
+			String siteForDisplay = prevention.getSite();
+			LookupList llSite = lookupListDao.findByName("AnatomicalSite");
+			LookupListItem lliSite = null;
+			if(llSite != null) {
+				lliSite = lookupListItemDao.findByLookupListIdAndValue(llSite.getId(), prevention.getSite());
+				if(lliSite != null) {
+					siteForDisplay = lliSite.getLabel();
+				}
+			}
+			
+			imm.put("site", emptyIfNull(siteForDisplay));
 			imm.put("dose", emptyIfNull(prevention.getDose()));
 			imm.put("date", emptyIfNull(sdf.format(prevention.getPreventionDate())));
 			imm.put("refused", emptyIfNull(prevention.isRefused() ? "Yes" : "No"));
 			imm.put("notes", emptyIfNull(prevention.getComment()));
+			
+			if("-1".equals(prevention.getProviderNo())) {
+				imm.put("preformer",emptyIfNull(prevention.getProviderName()));
+			}else {
+				Provider provider = providerDao.getProvider(prevention.getProviderNo());
+				imm.put("preformer",emptyIfNull(provider.getFormattedName()));
+			}
+			
 
 			imms.add(imm);
 		}

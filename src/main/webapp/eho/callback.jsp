@@ -70,16 +70,56 @@
 <%@page import="org.apache.commons.lang3.StringUtils"%>
 <%@page import="org.apache.log4j.Logger"%>
 <%@page import="org.oscarehr.util.MiscUtils"%>
+<%@page import="org.oscarehr.integration.OneIdGatewayData"%>
+<%@page import="org.oscarehr.util.SessionConstants"%>
+<%@page import="org.oscarehr.common.dao.SecurityDao"%>
+<%@page import="org.oscarehr.common.model.Security"%>
+<%@page import="org.oscarehr.common.dao.UAODao"%>
+<%@page import="org.oscarehr.common.model.UAO"%>
+<%@page import="org.oscarehr.util.SpringUtils"%>
+<%@page import="org.oscarehr.integration.dhdr.OmdGateway"%>
+<%@page import="java.util.List"%>
+<%@page import="org.oscarehr.common.dao.OMDGatewayTransactionLogDao"%>
+<%@page import="org.oscarehr.common.model.OMDGatewayTransactionLog,org.oscarehr.util.LoggedInInfo,org.oscarehr.integration.ohcms.CMSManager"%>
+
 
 <%
 	Logger logger = MiscUtils.getLogger();
 
+    		logger.debug("	request.getQueryString() "+request.getQueryString());
+    		String rethap = "n/a";
+    		JSONObject reqParams = new JSONObject();
+    		reqParams.accumulateAll(request.getParameterMap());
+    		for (Entry<String, String[]> entry : request.getParameterMap().entrySet()) {
+    			StringBuilder sb = new StringBuilder();
+    			int i = 1;
+    			for(String s: entry.getValue()){
+    				sb.append(i+": " +s+" ");
+    				i++;
+    			}
+    			
+    			logger.debug("REQUEST PARAM:"+entry.getKey()+":" +sb.toString());
+    			
+    		}
 
+    	OMDGatewayTransactionLogDao omdGatewayTransactionLogDao = SpringUtils.getBean(OMDGatewayTransactionLogDao.class);
+    	LoggedInInfo loggedInInfo =LoggedInInfo.getLoggedInInfoFromSession(request);
+    	OMDGatewayTransactionLog omdGatewayTransactionLog = OmdGateway.getOMDGatewayTransactionLog(loggedInInfo, null, "Auth", "CALL-BACK");
+    	omdGatewayTransactionLog.setDataSent(reqParams.toString(3));
+    	omdGatewayTransactionLogDao.persist(omdGatewayTransactionLog);
+    	
+    	
 	String toolbar = request.getParameter("toolbar");
 	String iss = request.getParameter("iss");
 	String state = request.getParameter("state");
 	String clientId = request.getParameter("client_id");
 	String code = request.getParameter("code");
+	
+	
+	String forwardURLCheck = (String)session.getAttribute("eho_verifier-" + state + ".forwardURL");	
+	logger.info("forward was: "+forwardURLCheck+" jsession Id="+session.getId());
+	
+	logger.debug("TOOLBARU*** "+toolbar+" iss "+iss+" state "+state+" clientId "+clientId);
 
 	if(StringUtils.isEmpty(code)) {
 		//redirect to login page with error;
@@ -101,26 +141,15 @@
 	}
 	
 	String authorizeUrl = OscarProperties.getInstance().getProperty("oneid.oauth2.authorizeUrl");
-	String tokenUrl = OscarProperties.getInstance().getProperty("oneid.oauth2.tokenUrl");
+	
 	String audUrl = OscarProperties.getInstance().getProperty("oneid.oauth2.audUrl");
 	
 	String audUrl1 = OscarProperties.getInstance().getProperty("oneid.oauth2.audUrl1");
-	String callbackUrl = OscarProperties.getInstance().getProperty("oneid.oauth2.callbackUrl");
+	
 	
 	Date expiryDate = PKCEUtils.getDateInFuture(10);
 	
-	Map<String, String> params = new HashMap<>();
-	params.put("grant_type", "authorization_code");
-	//TODO: Not sure that _profile should be hard coded
-	params.put("_profile", "http://ehealthontario.ca/StructureDefinition/ca-on-dhir-profile-Immunization");
-	params.put("client_assertion_type", "urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer");
-
-	params.put("code", code);
-	params.put("redirect_uri", callbackUrl);
-	params.put("client_id", clientId);
-
-	params.put("code_verifier",codeVerifier);
-	
+		
 	String keystoreFile = OscarProperties.getInstance().getProperty("oneid.oauth2.keystore");
 	String keystorePassword = OscarProperties.getInstance().getProperty("oneid.oauth2.keystore.password");
 	String keystoreAlias = OscarProperties.getInstance().getProperty("oneid.oauth2.keystore.alias");
@@ -130,7 +159,7 @@
 	KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
 	keystore.load(is, keystorePassword.toCharArray());
 	Key key = keystore.getKey(keystoreAlias, keystorePassword.toCharArray());
-	    
+	String jwt = null;  
     if (key instanceof PrivateKey) {
     	Certificate cert = keystore.getCertificate(keystoreAlias);
     	
@@ -140,16 +169,11 @@
     			.withExpiresAt(expiryDate)
     			.withIssuer(clientId);
     	
-		String jwt = builder.sign(Algorithm.RSA256((RSAPublicKey)cert.getPublicKey(), (RSAPrivateKey) key));
-    	params.put("client_assertion", jwt);
-    }	    
-			
-	WebClient wc = WebClient.create(tokenUrl); 
-	for (Entry<String, String> entry : params.entrySet()) {
-		wc.query(entry.getKey(), entry.getValue());
-	}
-
-	Response response2 = wc.header("Content-Type", "application/x-www-form-urlencoded").post(null);
+		jwt = builder.sign(Algorithm.RSA256((RSAPublicKey)cert.getPublicKey(), (RSAPrivateKey) key));
+    }	
+    			
+ 	OmdGateway omdGateway = new OmdGateway();
+	Response response2 = omdGateway.getTokens(loggedInInfo,code,clientId, codeVerifier,jwt);
 	
 	logger.debug("status=" + response2.getStatus());
 	
@@ -226,20 +250,113 @@
 	String subject = idTokenJWT.getSubject();
 	String contextSessionId = idTokenJWT.getClaim("contextSessionId").asString();
 	String email = idTokenJWT.getClaim("email").asString();
-	String serviceEntitlementsEncoded = idTokenJWT.getClaim("serviceEntitlements").asString();
-	String serviceEntitlements = new String( Base64.decodeBase64(serviceEntitlementsEncoded));
+	//String serviceEntitlementsEncoded = idTokenJWT.getClaim("serviceEntitlements").asString();
+	//String serviceEntitlements = new String( Base64.decodeBase64(serviceEntitlementsEncoded));
 	
-	JSONObject serviceEntitlementsJSON = JSONObject.fromObject(serviceEntitlements);
+	//JSONObject serviceEntitlementsJSON = JSONObject.fromObject(serviceEntitlements);
+	SecurityDao securityDao = (SecurityDao) SpringUtils.getBean("securityDao");
+	List<Security> securityResults = securityDao.findByOneIdKey(subject);
+	//IF the OSCAR user is already logged in. It needs to check to make sure 
+	String providerNo = null;
+
+	if(loggedInInfo != null && loggedInInfo.getLoggedInProviderNo() != null){
+		//User is already logged in. Need to verify that their idToken matches their provider
+		if(securityResults.isEmpty()){
+			//Send them oneId Logout to invalidate the token.
+			String redirectURL = OscarProperties.getInstance().getProperty("oneid.oauth2.logoutUrl") +  "/?returnurl=" + URLEncoder.encode("http://google.ca","UTF-8");
+			logger.debug("Sending redirect "+redirectURL);
+			response.sendRedirect(redirectURL);
+			return;
+		}else{
+			Security securityRecord = securityResults.get(0);
+			logger.debug("loggedInInfo.getLoggedInProviderNo().equals(securityRecord.getProviderNo()) ="+loggedInInfo.getLoggedInProviderNo().equals(securityRecord.getProviderNo()));
+			if(!loggedInInfo.getLoggedInProviderNo().equals(securityRecord.getProviderNo())){
+				String redirectURL = OscarProperties.getInstance().getProperty("oneid.oauth2.logoutUrl") +  "/?returnurl=" + URLEncoder.encode("http://google.ca","UTF-8");
+				logger.debug("Sending redirect "+redirectURL);
+				response.sendRedirect(redirectURL);
+				return;
+			}
+		}
+		
+	}
+	
+	/*
+	Can i seperate this into two sections, one section sets the uao if it hasn't been set and the other checks the scope? 		
+	
+	*/
+	OneIdGatewayData oneIdGatewayData = (OneIdGatewayData) session.getAttribute(SessionConstants.OH_GATEWAY_DATA);
+	
+	if(oneIdGatewayData != null){
+		logger.debug( "WHAT IS UAO "+oneIdGatewayData.getUao());
+		
+	}
+		
+		
 	
 	
+	if(oneIdGatewayData != null && oneIdGatewayData.getUao() == null){
+		
+		 
+		if(securityResults.size() > 0){
+			Security securityRecord = securityResults.get(0);
+			UAODao uaoDao = SpringUtils.getBean(UAODao.class);
+			List<UAO> uaolist = uaoDao.findByProvider(securityRecord.getProviderNo());
+			
+			if(uaolist.size() > 0) {
+				//OneIdGatewayData oneIdGatewayData = (OneIdGatewayData) session.getAttribute(SessionConstants.OH_GATEWAY_DATA);
+				oneIdGatewayData.setUao(uaolist.get(0).getName());
+				oneIdGatewayData.setUaoFriendlyName(uaolist.get(0).getFriendlyName());
+				logger.debug("Set UAO for provider "+securityRecord.getProviderNo()+" to "+uaolist.get(0).getName() +" uao size "+uaolist.size());
+				if (uaolist.size() > 1){
+					oneIdGatewayData.setDoubleCheckUAO(true);
+				}
+			}
+		}
+	}else{
+		logger.info("oneIdGatewayData is null or uao was not null");
+	}
+	
+		
+	boolean hasNeededScope = oneIdGatewayData.hasScope(OneIdGatewayData.fullScope);
+	boolean hasNeededProfile = oneIdGatewayData.hasProfile(OneIdGatewayData.fullProfile);
+	if(hasNeededScope && hasNeededProfile){
+		logger.info("no more scope needed for "+subject);
+	}else{
+		String appendIfLoggedIn = "";
+		String appendIfForward = "";
+		if(alreadyLoggedIn != null && alreadyLoggedIn) {
+			appendIfLoggedIn = "?alreadyLoggedIn=true";
+			if(forwardURLCheck != null){
+				appendIfForward = "&forwardURL=" + URLEncoder.encode(request.getContextPath()+"/provider/providercontrol.jsp","UTF-8");
+			}
+		}
+		response.sendRedirect(request.getContextPath() + "/eho/login2.jsp"+appendIfLoggedIn+appendIfForward);
+		return;
+	}
+	
+	
+	
+	logger.debug("checking if already logged In "+alreadyLoggedIn);
 	if(alreadyLoggedIn != null && alreadyLoggedIn) {
 		
 		session.setAttribute("oneid_token",body);
+		//OneIdGatewayData oneIdGatewayData = (OneIdGatewayData) session.getAttribute(SessionConstants.OH_GATEWAY_DATA);
+		if(oneIdGatewayData != null ){
+			oneIdGatewayData.processOneIdString(body);
+		}else{
+			session.setAttribute(SessionConstants.OH_GATEWAY_DATA, new OneIdGatewayData(body));
+		}
+		if(oneIdGatewayData.isUpdateUAOInCMS()){
+			CMSManager.organizationChange(loggedInInfo);
+		}
+		
 		String forwardURL = (String)session.getAttribute("eho_verifier-" + state + ".forwardURL");	
+		logger.info("about to forward too "+forwardURL);
 		response.sendRedirect(forwardURL);
 		return;
 		
 	} else {
+		logger.debug("going to foward to loginForm");
 		//TODO: Not sure what we can do with this ID token, 
 		
 		//{"UAO":[{"type":"Organization","id":"2.16.840.1.113883.3.239.9:103698089424","friendName":"Sinai Health System","service":[{"name":"DHDR","attribute":[{"name":"scope","value":"user/MedicationDispense.read;user/Consent.write"},{"name":"_profile","value":"http%3A%2F%2Fehealthontario.ca%2FStructureDefinition%2Fca-on-dhdr-profile-MedicationDispense"}]},{"name":"DHIR","attribute":[{"name":"scope","value":"user/Immunization.read;user/Immunization.write"},{"name":"_profile","value":"http%3A%2F%2Fehealthontario.ca%2FStructureDefinition%2Fca-on-dhir-profile-Immunization"}]},{"name":"DHIR","attribute":[{"name":"scope","value":"user/Patient.read"},{"name":"_profile","value":"http%3A%2F%2Fehealthontario.ca%2FStructureDefinition%2Fca-on-dhir-profile-Patient"}]}]}]}

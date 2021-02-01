@@ -22,8 +22,8 @@ patient.namePrefix=false
 patient.email=false
 patient.mrn=false
 patient.language=false
-patient.address=false
-patient.telecom=false
+patient.address=true
+patient.telecom=true
 
 organization.address=true
 organization.telecom=false 

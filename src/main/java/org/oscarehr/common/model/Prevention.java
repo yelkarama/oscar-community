@@ -535,6 +535,6 @@ public class Prevention extends AbstractModel<Integer> implements Serializable, 
 	
 	@Override
 	public String getDIN() {
-		return getImmunizationProperty( ImmunizationProperty.DIN );
+		return getImmunizationProperty( ImmunizationProperty.din );
 	}
 }

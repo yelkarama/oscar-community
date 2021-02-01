@@ -245,11 +245,11 @@ public class OscarFhirResourceManager {
 	 * - SubmittingPractitioner
 	 * - PerformingPractitioner
 	 */
-	public static final HashSet<AbstractOscarFhirResource<?,?>> getImmunizationResourceBundle( OscarFhirConfigurationManager configurationManager, org.oscarehr.integration.fhirR4.model.Patient patient, int preventionId, HashSet<AbstractOscarFhirResource<?,?>> resourceList ) {
+	public static final HashSet<AbstractOscarFhirResource<?,?>> getImmunizationResourceBundle( OscarFhirConfigurationManager configurationManager, org.oscarehr.integration.fhirR4.model.Patient patient, int preventionId, HashSet<AbstractOscarFhirResource<?,?>> resourceList,Provider externalProvider ) {
 		
 		org.oscarehr.integration.fhirR4.model.Immunization<Prevention> immunization = OscarFhirResourceManager.getImmunizationById( configurationManager, preventionId);
 		if( immunization != null) {
-			OscarFhirResourceManager.linkPerformingPractitionerAndPatient( configurationManager, immunization, patient, resourceList  );
+			OscarFhirResourceManager.linkPerformingPractitionerAndPatient( configurationManager, immunization, patient, resourceList, externalProvider  );
 		} else {
 			MiscUtils.getLogger().warn( "Requested Immunization id " + preventionId + " was not found.");
 		}
@@ -303,7 +303,8 @@ public class OscarFhirResourceManager {
 	private static final HashSet<AbstractOscarFhirResource<?,?>> linkPerformingPractitionerAndPatient( 
 			OscarFhirConfigurationManager configurationManager, 
 			org.oscarehr.integration.fhirR4.model.Immunization<Prevention> immunization, 
-			org.oscarehr.integration.fhirR4.model.Patient patient, HashSet<AbstractOscarFhirResource<?,?>> resourceList) {
+			org.oscarehr.integration.fhirR4.model.Patient patient, HashSet<AbstractOscarFhirResource<?,?>> resourceList,
+			Provider externalProvider) {
 		
 		String performingProviderNo = immunization.getOscarResource().getProviderNo();
 		if(performingProviderNo != null && !"-1".equals(performingProviderNo) ) {
@@ -313,8 +314,14 @@ public class OscarFhirResourceManager {
 				resourceList.add( performingPractitioner );
 			}	
 		} else if (performingProviderNo != null && "-1".equals(performingProviderNo)) {
-			Provider provider = new Provider();
-			provider.setProviderNo(UUID.randomUUID().toString().substring(0,8));
+			Provider provider = null;
+			if(externalProvider != null) {
+				provider = externalProvider;
+			}else {
+				provider = new Provider();
+				provider.setProviderNo(UUID.randomUUID().toString().substring(0,8));
+			}
+			
 			PerformingPractitioner performingPractitioner = new org.oscarehr.integration.fhirR4.model.PerformingPractitioner( provider, configurationManager );
 			immunization.addPerformingPractitioner( performingPractitioner.getReference() );
 			resourceList.add( performingPractitioner );
@@ -343,7 +350,7 @@ public class OscarFhirResourceManager {
 
 		if( immunizations != null && ! immunizations.isEmpty() ) {		
 			for( Immunization<Prevention> immunization : immunizations ) {				
-				linkPerformingPractitionerAndPatient( configurationManager, immunization, patient, resourceList );			
+				linkPerformingPractitionerAndPatient( configurationManager, immunization, patient, resourceList,null );			
 			}
 		}
 		

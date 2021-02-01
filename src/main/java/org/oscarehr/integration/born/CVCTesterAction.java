@@ -65,7 +65,7 @@ public class CVCTesterAction extends DispatchAction {
 	CanadianVaccineCatalogueManager cvcManager = SpringUtils.getBean(CanadianVaccineCatalogueManager.class);
 	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 	
-	public ActionForward updateCVC(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)  {
+	public ActionForward updateCVC(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		//
 		 if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_prevention.updateCVC", "r", null)) {
              throw new SecurityException("missing required security object (_prevention.updateCVC)");
@@ -77,6 +77,9 @@ public class CVCTesterAction extends DispatchAction {
 			cvcManager2.update(LoggedInInfo.getLoggedInInfoFromSession(request));
 		}catch(Exception e) {
 			logger.error("error",e);
+			//response.setStatus(400,e.getLocalizedMessage());
+			response.sendError(400,e.getLocalizedMessage());
+			return null;
 		}
 		logger.info("completed CVC update");
 		return null;
@@ -113,9 +116,11 @@ public class CVCTesterAction extends DispatchAction {
 		String snomedConceptId = request.getParameter("snomedConceptId");
 		if(snomedConceptId != null) {
 			CVCMedication med = cvcManager.getMedicationBySnomedConceptId(snomedConceptId);
-			String din = med.getDin();
+			String din = med.getDinDisplayName();
 			JSONObject json =  new JSONObject();
 			json.put("din", din);
+			json.put("manufacture", med.getManufacturerDisplay());
+			json.put("status", med.getStatus());			
 			json.write(response.getWriter());
 		}
 		return null;
