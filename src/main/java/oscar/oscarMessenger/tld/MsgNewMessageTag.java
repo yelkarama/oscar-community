@@ -66,7 +66,7 @@ public class MsgNewMessageTag extends TagSupport {
     }
 
     public int doStartTag() throws JspException    {
-
+ 
     	Provider provider = providerManager.getProvider(providerNo);
     	loggedInInfo.setLoggedInProvider(provider);
     	loggedInInfo.setLoggedInSecurity(new Security());

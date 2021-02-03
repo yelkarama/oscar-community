@@ -88,6 +88,10 @@
 	            // dataType: 'json',
 	             success: function(data,textStatus) {
 	            	 $("#update_div").html("<font style='color:blue'>Updated</font>");
+	             },
+	             error: function(data,textStatus) {
+	            	 console.log("cvc error",data,textStatus);
+	            	 $("#update_div").html("<font style='color:red'>An Error has occurred</font>");
 	             }
 			});
 		}

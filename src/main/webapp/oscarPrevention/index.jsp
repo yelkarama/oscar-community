@@ -730,13 +730,7 @@ List<String> OTHERS = Arrays.asList(new String[]{"DTaP-Hib","TdP-IPV-Hib","HBTmf
 			<input type="hidden" name="immunizationOnly" value="false"/>
 		<td valign="top" class="MainTableRightColumn">
 		
-		<%if(dhirEnabled && !isSSOLoggedIn && !hideSSOWarning) {%>
-		<div style="width:100%;background-color:pink;text-align:left;font-weight:bold;font-size:13pt;border-style:solid" id="ssoWarning">
-			<span><a href="javascript:void()" onClick="disableSSOWarning()">[x]</a></span> Warning: You are not logged into OneId and will not be able to submit data to DHIR	
-		</div>
-		<% } %>
 
-		
 		<a href="#" onclick="popup(600,800,'http://www.phac-aspc.gc.ca/im/is-cv/index-eng.php')">Immunization Schedules - Public Health Agency of Canada</a>
 
 		<%
@@ -856,9 +850,18 @@ List<String> OTHERS = Arrays.asList(new String[]{"DTaP-Hib","TdP-IPV-Hib","HBTmf
 		<%
                  if (!oscar.OscarProperties.getInstance().getBooleanProperty("PREVENTION_CLASSIC_VIEW","yes")){
                    ArrayList<Map<String,Object>> hiddenlist = new ArrayList<Map<String,Object>>();
+                   Map<String,String> shownBefore = new HashMap<String,String>();//See explanation below.
                   for (int i = 0 ; i < prevList.size(); i++){
                   		HashMap<String,String> h = prevList.get(i);
                         String prevName = h.get("name");
+                        
+                        //This is here because the CVC integration adds all the CVC Immunizations as possible types BUT the list is not unique. 
+                        //So there are two Mumps types. If a mumps vaccine is added without this two lines will show with the same preventions.
+                        if(shownBefore.containsKey(prevName)){
+                        		continue;
+                        }else{
+                        		shownBefore.put(prevName, prevName);
+                        }
                         ArrayList<Map<String,Object>> alist = PreventionData.getPreventionData(loggedInInfo, prevName, Integer.valueOf(demographic_no));
                         PreventionData.addRemotePreventions(loggedInInfo, alist, demographicId,prevName,demographicDateOfBirth);
                         boolean show = pdc.display(loggedInInfo, h, demographic_no,alist.size());
@@ -870,7 +873,7 @@ List<String> OTHERS = Arrays.asList(new String[]{"DTaP-Hib","TdP-IPV-Hib","HBTmf
                         }else{
                %>
 
-		<div class="preventionSection">
+		<div class="preventionSection"><!-- <%=prevName%> <%=i%> of <%=prevList.size()%> -->
 		<%
 		 String snomedId = h.get("snomedConceptCode") != null ? h.get("snomedConceptCode") : null;
          boolean ispa = h.get("ispa") != null ? Boolean.valueOf(h.get("ispa")) : false;

@@ -223,15 +223,20 @@ public class Patient extends AbstractOscarFhirResource< org.hl7.fhir.r4.model.Pa
 		
 		//optional
 		if( include( OptionalFHIRAttribute.workPhone ) ) {	
-			patient.addTelecom().setUse( ContactPointUse.WORK )
-			.setSystem( ContactPointSystem.PHONE )
-			.setValue( getOscarResource().getPhone2() );
+			//Adding this to not fill empty sections of the resource
+			if(getOscarResource().getPhone2() != null && !getOscarResource().getPhone2().trim().isEmpty()) {
+				patient.addTelecom().setUse( ContactPointUse.WORK )
+				.setSystem( ContactPointSystem.PHONE )
+				.setValue( getOscarResource().getPhone2() );
+			}
 		}
 		
 		if( include( OptionalFHIRAttribute.email ) ) {
-			patient.addTelecom().setUse( ContactPointUse.HOME )
-			.setSystem( ContactPointSystem.EMAIL)
-			.setValue( getOscarResource().getEmail() );
+			if(getOscarResource().getEmail() != null && !getOscarResource().getEmail().trim().isEmpty() ) {
+				patient.addTelecom().setUse( ContactPointUse.HOME )
+				.setSystem( ContactPointSystem.EMAIL)
+				.setValue( getOscarResource().getEmail() );
+			}
 		}	
 	}
 	
@@ -253,7 +258,7 @@ public class Patient extends AbstractOscarFhirResource< org.hl7.fhir.r4.model.Pa
 	
 	private void setPatientIdentifier( org.hl7.fhir.r4.model.Patient patient ) {		
 		patient.addIdentifier()
-			.setSystem( "https://ehealthontario.ca/API/FHIR/NamingSystem/ca-on-patient-hcn" )
+			.setSystem( "https://ehealthontario.ca/API/FHIR/NamingSystem/ca-on-patient-hcn" ) 
 			.setValue( getOscarResource().getHin() );
 		
 		if( include( OptionalFHIRAttribute.mrn ) ) {	

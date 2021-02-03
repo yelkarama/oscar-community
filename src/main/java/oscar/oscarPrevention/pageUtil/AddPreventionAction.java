@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -51,6 +52,7 @@ import org.oscarehr.common.model.Consent;
 import org.oscarehr.common.model.LookupList;
 import org.oscarehr.common.model.LookupListItem;
 import org.oscarehr.common.model.PartialDate;
+import org.oscarehr.common.model.Provider;
 import org.oscarehr.integration.fhirR4.api.DHIR;
 import org.oscarehr.integration.fhirR4.builder.FhirBundleBuilder;
 import org.oscarehr.managers.SecurityInfoManager;
@@ -280,8 +282,42 @@ public class AddPreventionAction  extends Action {
 //			 if((ispa && hasIspaConsent) || (!ispa && hasNonIspaConsent)) {
 	        	 
 	        	 if("given".equals(given) || "given_ext".equals(given)) {
+	        		 Provider externalProvider = null; 
+	        		if("given_ext".equals(given)) {
+	        			try {
+	        			//firstname, lastname (cspo:#####)
+	        			String nameToParse = request.getParameter("providerName");
+	        			String[] firstSection = nameToParse.split(",");
+	        			String firstName = firstSection[0];
+	        			String secondPart = firstSection[1];
+	        			
+	        			/* Not required to have the license # for external providers
+	        			int firstBracket =  secondPart.indexOf('(');
+	        			String lastName = secondPart.substring(0,firstBracket).trim();
+	        			
+	        			String licenseToParse = secondPart.substring((firstBracket+1),secondPart.indexOf(')')).trim();
+	        			
+	        			String[] licenseSections = licenseToParse.split(":");
+	        			String licenceType = licenseSections[0].trim();
+	        			String licenceNo = licenseSections[1].trim();
+	        			*/
+	        			externalProvider = new Provider();
+	        			externalProvider.setProviderNo(UUID.randomUUID().toString().substring(0,8));
+	        			//externalProvider.setPractitionerNo(licenceNo);	        			
+	        			//externalProvider.setPractitionerNoType(licenceType);
+	        			externalProvider.setLastName(secondPart);
+	        			externalProvider.setFirstName(firstName);
+	        			
+	        			
+	        			
+	        			}catch(Exception e) {
+	        				MiscUtils.getLogger().error("Error Parsing "+request.getParameter("providerName"),e);
+	        			}
+	        			
+	        		}
+	        			
 	        	
-		        	FhirBundleBuilder fbb = DHIR.getFhirBundleBuilder(LoggedInInfo.getLoggedInInfoFromSession(request), Integer.parseInt(demographic_no), preventionId);
+		        	FhirBundleBuilder fbb = DHIR.getFhirBundleBuilder(LoggedInInfo.getLoggedInInfoFromSession(request), Integer.parseInt(demographic_no), preventionId,externalProvider);
 		        	 
 		        	Bundle bundle = fbb.getBundle();
 		        	request.setAttribute("bundle", bundle);

@@ -43,18 +43,16 @@
 <%@page import="java.util.Calendar"%>
 <%@page import="com.auth0.jwt.JWTCreator"%>
 <%@page import="org.apache.commons.lang3.StringUtils"%>
+<%@page import="org.oscarehr.util.LoggedInInfo" %>
+<%@page import="org.oscarehr.integration.ohcms.CMSManager" %>
 
 
 <%
+	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+    	CMSManager.userLogout(loggedInInfo);
 	String logoutUrl = "https://login.pst.oneidfederation.ehealthontario.ca/oidc/logout/";
 
-	Map<String, String> params = new HashMap<>();
-
 	WebClient wc = WebClient.create(logoutUrl);
-	for (Entry<String, String> entry : params.entrySet()) {
-		wc.query(entry.getKey(), entry.getValue());
-	}
-
 	Response response2 = wc.get();
 
 	String body = response2.readEntity(String.class);

@@ -25,18 +25,20 @@
 --%>
 
 <%@page import="org.oscarehr.util.SpringUtils"%>
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.oscarehr.common.model.UserProperty"%>
 <%@page import="org.oscarehr.common.dao.UserPropertyDAO"%>
 <%@page import="java.net.URLEncoder"%>
 <%@page import="oscar.OscarProperties"%>
+<%@page import="org.oscarehr.util.LoggedInInfo" %>
+<%@page import="org.oscarehr.integration.ohcms.CMSManager" %>
 <%@page import="java.util.HashMap, oscar.log.*"
 	errorPage="errorpage.jsp"%>
 	
 <%
-	Boolean oauth2 = (Boolean) session.getAttribute("oneid_oauth2");
-    if(oauth2 == null) {
-    	oauth2 = false;
+	LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(session);
+	boolean oauth2 = true;
+    if(loggedInInfo.getOneIdGatewayData() == null) {
+    		oauth2 = false;
     }
     
 	String message = null;    		
@@ -48,7 +50,14 @@
 	if(!oauth2) {
 		redirectURL = econsultUrl + "/SAML2/logout?oscarReturnURL=" + URLEncoder.encode(oscarUrl + "/logout.jsp","UTF-8");
 	} else {
+		try{
+    		CMSManager.userLogout(loggedInInfo);
+		}catch(Exception e){
+			org.oscarehr.util.MiscUtils.getLogger().error("Error logging out of CMS",e);
+		}
 		redirectURL = OscarProperties.getInstance().getProperty("oneid.oauth2.logoutUrl") +  "/?returnurl=" + URLEncoder.encode(oscarUrl + "/logout.jsp","UTF-8");
+		response.sendRedirect(redirectURL);
+		return;
 	}
 	
 			

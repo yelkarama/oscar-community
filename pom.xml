@@ -1501,6 +1501,12 @@
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
+					<!-- version>3.8.1</version -->
+        
+    			        <fork>true</fork>
+          			<meminitial>3048m</meminitial>
+         			<maxmem>8048m</maxmem>
+    
 				</configuration>
 			</plugin>
 

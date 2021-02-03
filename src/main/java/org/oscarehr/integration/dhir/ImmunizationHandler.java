@@ -67,8 +67,7 @@ public class ImmunizationHandler {
 	}
 	
 	public Boolean getValidFlag() {
-		//TODO: base-structure?
-		Extension ext = immunization.getExtensionByUrl("https://ehealthontario.ca/API/FHIR/StructureDefinition/ca-on-immunizations-extension-valid-flag");
+		Extension ext = immunization.getExtensionByUrl(DHIR.BASE_STRUCTURE + "/ca-on-immunizations-extension-valid-flag");
 		if(ext != null) {
 			return ((BooleanType)ext.getValue()).getValue();
 		}
@@ -93,9 +92,7 @@ public class ImmunizationHandler {
 	public String getTradeName() {
 		if(immunization.getVaccineCode().getCoding().size() > 1) {
 			Coding coding = immunization.getVaccineCode().getCoding().get(1);
-			if("http://snomed.info/sct".equals(coding.getSystem())) {
-				return coding.getDisplay();
-			}
+			return coding.getDisplay();
 		}
 		
 		return null;
@@ -116,7 +113,7 @@ public class ImmunizationHandler {
 	}
 	
 	public String getPHU() {
-		Extension ext = immunization.getExtensionByUrl("https://ehealthontario.ca/API/FHIR/StructureDefinition/ca-on-immunizations-extension-public-health-unit");
+		Extension ext = immunization.getExtensionByUrl(DHIR.BASE_STRUCTURE + "/ca-on-immunizations-extension-public-health-unit");
 		if(ext != null) {
 			return ((StringType)ext.getValue()).getValue();
 		}
