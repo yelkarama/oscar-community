@@ -118,7 +118,7 @@ public class ReportLettersDaoTest extends DaoTestFixtures {
 			fail("Array sizes do not match.");
 		}
 		for (int i = 0; i < expectedResult.size(); i++) {
-			if (!expectedResult.get(i).equals(result.get(i+1))){
+			if (!expectedResult.get(i).equals(result.get(i))){
 				logger.warn("Items do not match.");
 				fail("Items do not match.");
 			}
