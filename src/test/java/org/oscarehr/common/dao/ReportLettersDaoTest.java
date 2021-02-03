@@ -113,7 +113,7 @@ public class ReportLettersDaoTest extends DaoTestFixtures {
 
 		Logger logger = MiscUtils.getLogger();
 		
-		if (result.size() < (expectedResult.size()+1) ) {
+		if (result.size() != expectedResult.size() ) {
 			logger.warn("Array size mis match.");
 			fail("Array sizes do not match.");
 		}
