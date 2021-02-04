@@ -170,7 +170,6 @@ width:100% !important;
 }
 span.recipientList {
     text-overflow:ellipsis;
-    white-space: nowrap;
     overflow: hidden;
 }
 
@@ -363,8 +362,8 @@ $(document).ready(function(){
                         <td>
                             <%if (pageType == 0){%>
                                     <input name="btnDelete" type="submit" value="<bean:message key="oscarMessenger.DisplayMessages.formArchive"/>">
-                                    <input name="btnRead" type="submit" value="Mark as Read">
-                                    <input name="btnUnread" type="submit" value="Mark as Unread">
+                                    <input name="btnRead" type="submit" value="<bean:message key="oscarMessenger.DisplayMessages.markRead"/>">
+                                    <input name="btnUnread" type="submit" value="<bean:message key="oscarMessenger.DisplayMessages.markUnRead"/>">
                             <%}else if (pageType == 2){%>
                                     <input type="submit" value="<bean:message key="oscarMessenger.DisplayMessages.formUnarchive"/>">
                             <%}%>
@@ -513,8 +512,8 @@ $(document).ready(function(){
                                     <td>
                                          <%if (pageType == 0){%>
                                             <input name="btnDelete" type="submit" value="<bean:message key="oscarMessenger.DisplayMessages.formArchive"/>">
-                                            <input name="btnRead" type="submit" value="Mark as Read">
-                                            <input name="btnUnread" type="submit" value="Mark as Unread">
+                                    		<input name="btnRead" type="submit" value="<bean:message key="oscarMessenger.DisplayMessages.markRead"/>">
+                                    		<input name="btnUnread" type="submit" value="<bean:message key="oscarMessenger.DisplayMessages.markUnRead"/>">
                                              <%}else if (pageType == 2){%>
                                             <input type="submit" value="<bean:message key="oscarMessenger.DisplayMessages.formUnarchive"/>">
                                             <%}%>  

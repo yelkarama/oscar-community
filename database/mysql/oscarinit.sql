@@ -1,4 +1,4 @@
--- updated to OSCAR 19 spec Feb 2021
+-- updated to OSCAR 19 spec Feb 2 2021
 --
 -- Table structure for table `AppDefinition`
 --
