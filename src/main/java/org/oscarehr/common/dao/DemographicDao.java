@@ -137,11 +137,11 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 		logger.error("No one should be calling this method, this is a good way to run out of memory and crash a server... this is too large of a result set, it should be pagenated.", new IllegalArgumentException("The entire demographic table is too big to allow a full select."));
 		return this.getHibernateTemplate().find("from Demographic d order by d.LastName");
 	}
-	@SuppressWarnings("unchecked")
+
 	public List<Demographic> getDemographicFamilyMembers(String demographic_no) {
 		List params = new ArrayList<String>();
 		boolean allNull = true;
-		if (demographic_no == null || demographic_no.length() == 0) {
+		if (demographic_no == null || demographic_no.length() == 0 || demographic_no == "test") {
 			return null;
 		}
 
