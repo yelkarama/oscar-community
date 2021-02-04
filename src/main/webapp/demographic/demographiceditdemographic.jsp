@@ -4118,6 +4118,8 @@ if(oscarProps.getProperty("demographicExtJScript") != null) { out.println(oscarP
 									%>
 									<input type="submit" <%=(showCbiReminder?"onclick='showCbiReminder()'":"")%>
 										value="<bean:message key="demographic.demographiceditdemographic.btnUpdate"/>">
+										<input type="submit" name="submit" <%=(showCbiReminder?"onclick='showCbiReminder()'":"")%>
+											   value="Save & Update Family Members">
 								</security:oscarSec> </span> <!-- security code block --></td>
 								<td width="40%" align='right' valign="top"><span
 									id="swipeButton" style="display: none;"> <input

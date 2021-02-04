@@ -153,7 +153,7 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 		// excluding province in the slim chance there are demographics of more than one family that live at an
 		// address that are located in different cities of the same province.
 		if(demographic.getAddress() !=null){
-			sql += " AND d.Address = '" + demographic.getAddress().trim() + "' ";
+			if(demographic.getAddress() !=null && !demographic.getAddress().trim().equals("")){
 
 			if(demographic.getCity() !=null){
 				sql += " AND d.City = '" + demographic.getCity().trim() + "' ";
