@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 -- updated to OSCAR 19 spec Feb 2 2021
-=======
--- updated to OSCAR 19 spec Feb 2021
->>>>>>> refs/remotes/origin/stable
 --
 -- Table structure for table `AppDefinition`
 --
