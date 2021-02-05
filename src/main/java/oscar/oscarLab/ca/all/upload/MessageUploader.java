@@ -515,7 +515,8 @@ public final class MessageUploader {
 			
 			if (hin != null) {
 				hinMod = new String(hin);
-				if (hinMod.length() == 12) {
+				Boolean flag = Character.isDigit(hinMod.charAt(1));
+				if (hinMod.length() == 12 && flag) {
 					hinMod = hinMod.substring(0, 10);
 				}
 			}
