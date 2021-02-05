@@ -313,6 +313,19 @@ if(!authed) {
    <script>
      jQuery.noConflict();
    </script>
+<script>
+jQuery( document ).ready( function() {
+	
+    <% if (updatedFamily!=null && !updatedFamily.isEmpty()){ %>
+		var familyMembers = "";
+    	<% for (String member : updatedFamily){%>
+			familyMembers += "\n<%=member%>"
+		<%}%>
+
+        alert("Updated demographic and the following family members:" + familyMembers+"");
+    <% }%>
+});
+</script>
 <oscar:customInterface section="master"/>
 
 <script type="text/javascript" src="<%=request.getContextPath() %>/demographic/demographiceditdemographic.js.jsp"></script>
