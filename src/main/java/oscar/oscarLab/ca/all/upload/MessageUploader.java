@@ -720,6 +720,12 @@ public final class MessageUploader {
 					dobDay = dobArray[2];
 				}
 	
+				
+				// if no hin but there is a dob try for a complete match against the full name
+				if( ( hinMod == null || hinMod.equals("") ) && (dob != null && !dob.equals("")) ) {
+					sql = "select demographic_no, provider_no from demographic where" + " last_name like '" + lastName + "%' and " + " first_name like '" + firstName + "%' and " + " year_of_birth like '" + dobYear + "' and " + " month_of_birth like '" + dobMonth + "' and " + " date_of_birth like '" + dobDay + "' and " + " sex like '" + sex + "%' ";
+				}
+
 				// only the first letter of names
 				if (!firstName.equals("")) firstName = firstName.substring(0, 1);
 				if (!lastName.equals("")) lastName = lastName.substring(0, 1);
@@ -730,7 +736,7 @@ public final class MessageUploader {
 //				} 
 				
 				// HIN is ALWAYS required for lab matching. Please do not revert this code. Previous iterations have caused fatal patient miss-matches.				
-				if( hinMod != null ) {
+				if( hinMod != null && !hinMod.equals("") ) {
 					if (OscarProperties.getInstance().getBooleanProperty("LAB_NOMATCH_NAMES", "yes")) {
 						sql = "select demographic_no, provider_no from demographic where hin='" + hinMod + "' and " + " year_of_birth like '" + dobYear + "' and " + " month_of_birth like '" + dobMonth + "' and " + " date_of_birth like '" + dobDay + "' and " + " sex like '" + sex + "%' ";
 					} else {
