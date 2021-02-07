@@ -429,7 +429,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 					Image img = Image.getInstance(this.imgPath);
 					// image, image_width, 0, 0, image_height, x, y
 					//         131, 55, 375, 75, 0
-					cb.addImage(img, 157, 0, 0, 40, 100f, endPara-56f);
+					cb.addImage(img, 157, 0, 0, 40, 90f, endPara-56f);
 				}
 
 				// Render doctor name
