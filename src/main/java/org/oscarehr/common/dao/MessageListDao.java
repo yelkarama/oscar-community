@@ -24,11 +24,12 @@
 
 package org.oscarehr.common.dao;
 
+import java.util.Collections;
 import java.util.List;
 
 import javax.persistence.Query;
-
 import org.oscarehr.common.model.MessageList;
+import org.oscarehr.common.model.OscarMsgType;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -40,16 +41,45 @@ public class MessageListDao extends AbstractDao<MessageList> {
 	}
 	
 	public List<MessageList> findByProviderNoAndMessageNo(String providerNo, Long messageNo) {
-		Query query = createQuery("msg", "msg.providerNo = :pno AND msg.message = :msg");
+		Query query = createQuery("msg", "msg.providerNo = :pno AND msg.message = :msgNo");
 		query.setParameter("pno", providerNo);
-		query.setParameter("msg", messageNo);
+		query.setParameter("msgNo", messageNo);
 		return query.getResultList();
 	}
 
-	public List<MessageList> findByProviderNoAndLocationNo(String providerNo, Integer remoteLocation) {
+	/**
+	 * Caution: excludes message recipients with a deleted status.
+	 */
+	public List<MessageList> findByProviderNoAndLocationNo(String providerNo, Integer locationNo) {
 		Query query = createQuery("ml", "ml.providerNo = :providerNo and ml.status not like 'del' and ml.remoteLocation = :remoteLocation order by ml.message");
 		query.setParameter("providerNo", providerNo);
-		query.setParameter("remoteLocation", remoteLocation);
+		query.setParameter("remoteLocation", locationNo);
+		return query.getResultList();
+	}
+	
+	/**
+	 * Gets entire list of message recipients regardless of message status. 
+	 * @param messageNo
+	 * @param locationNo
+	 * @return
+	 */
+	public List<MessageList> findAllByMessageNoAndLocationNo(Long messageNo, Integer locationNo) {
+		Query query = createQuery("ml", "ml.message = :messageNo and ml.remoteLocation = :remoteLocation order by ml.message");
+		query.setParameter("messageNo", messageNo);
+		query.setParameter("remoteLocation", locationNo);
+		return query.getResultList();
+	}
+	
+	/**
+	 * Caution: excludes message recipients with a deleted status.
+	 * @param messageNo
+	 * @param locationNo
+	 * @return
+	 */
+	public List<MessageList> findByMessageNoAndLocationNo(Long messageNo, Integer locationNo) {
+		Query query = createQuery("ml", "ml.message = :messageNo and ml.status not like 'del' and ml.remoteLocation = :remoteLocation order by ml.message");
+		query.setParameter("messageNo", messageNo);
+		query.setParameter("remoteLocation", locationNo);
 		return query.getResultList();
 	}
 
@@ -80,6 +110,20 @@ public class MessageListDao extends AbstractDao<MessageList> {
 		
 	}
 	
+	public int countUnreadByProviderAndFromIntegratedFacility(String providerNo) {
+		Query query = entityManager.createQuery("SELECT count(l) FROM MessageList l, MessageTbl mt WHERE l.message = mt.id AND l.providerNo= :providerNo AND l.status='new' AND mt.type = :type");
+		
+		query.setParameter("providerNo", providerNo);
+		query.setParameter("type", OscarMsgType.INTEGRATOR_TYPE);
+		return getCountResult(query).intValue();	
+	}
+	
+	public int countUnreadByProvider(String providerNo) {
+		Query query = entityManager.createQuery("select count(l) from MessageList l where l.providerNo= :providerNo and l.status='new' and l.sourceFacilityId > 0");
+		
+		query.setParameter("providerNo", providerNo);
+		return getCountResult(query).intValue();	
+	}
 	
     public List<MessageList> search(String providerNo, String status, int start, int max) {
     	
@@ -182,6 +226,30 @@ public class MessageListDao extends AbstractDao<MessageList> {
 		Integer result = ((Long)query.getSingleResult()).intValue();
 		
 		return result;
-	}
+	}  
+    
+    public List<MessageList> findByIntegratedFacility(int facilityId, String status) {
+		Query query = createQuery("ml", "ml.status like :status and ml.destinationFacilityId = :destinationFacilityId order by ml.id");
+		query.setParameter("destinationFacilityId", facilityId);
+		query.setParameter("status", status);
+		List<MessageList> results = query.getResultList();
+		if(results == null)
+		{
+			results = Collections.emptyList(); 
+		}
+		return results;
+    }
+    
+	public List<MessageList> findByMessageAndIntegratedFacility(Long messageNo, int facilityId) {
+	    Query query = createQuery("ml", "ml.message = :messageNo and ml.destinationFacilityId = :destinationFacilityId order by ml.id");
+		query.setParameter("messageNo", messageNo);
+		query.setParameter("destinationFacilityId", facilityId);
+		List<MessageList> results = query.getResultList();
+		if(results == null)
+		{
+			results = Collections.emptyList(); 
+		}
+		return results;
+    }
     
 }

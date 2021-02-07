@@ -23,7 +23,24 @@
     Ontario, Canada
 
 --%>
-
+<%@page import="org.apache.commons.lang3.StringEscapeUtils"%>
+<%@page import="org.hl7.fhir.r4.model.OperationOutcome"%>
+<%@page import="java.net.URLEncoder"%>
+<%@page import="org.oscarehr.integration.TokenExpiredException"%>
+<%@page import="org.oscarehr.common.model.OscarLog"%>
+<%@page import="oscar.log.LogAction"%>
+<%@page import="org.apache.commons.lang3.StringUtils"%>
+<%@page import="org.hl7.fhir.r4.model.Bundle.BundleEntryComponent"%>
+<%@page import="org.oscarehr.integration.OneIDTokenUtils"%>
+<%@page import="java.util.HashMap"%>
+<%@page import="org.apache.cxf.configuration.jsse.TLSClientParameters"%>
+<%@page import="java.io.FileInputStream"%>
+<%@page import="java.security.KeyStore"%>
+<%@page import="ca.uhn.fhir.context.FhirContext"%>
+<%@page import="net.sf.json.JSONObject"%>
+<%@page import="javax.ws.rs.core.Response"%>
+<%@page import="java.util.Map.Entry"%>
+<%@page import="org.apache.cxf.jaxrs.client.WebClient"%>
 <%@page import="org.apache.http.impl.client.HttpClients"%>
 <%@page import="org.apache.http.impl.client.CloseableHttpClient"%>
 <%@page import="org.apache.http.client.config.RequestConfig"%>
@@ -36,12 +53,12 @@
 <%@page import="org.oscarehr.common.model.DHIRSubmissionLog"%>
 <%@page import="org.oscarehr.util.SpringUtils"%>
 <%@page import="org.oscarehr.managers.DHIRSubmissionManager"%>
-<%@page import="org.hl7.fhir.dstu3.model.Immunization"%>
-<%@page import="org.hl7.fhir.dstu3.model.Patient"%>
-<%@page import="org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent"%>
+<%@page import="org.hl7.fhir.r4.model.Immunization"%>
+<%@page import="org.hl7.fhir.r4.model.Patient"%>
+<%@page import="org.hl7.fhir.r4.model.Bundle.BundleEntryComponent"%>
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
-<%@page import="org.oscarehr.integration.fhir.builder.AbstractFhirMessageBuilder"%>
-<%@page import="org.hl7.fhir.dstu3.model.Bundle"%>
+<%@page import="org.oscarehr.integration.fhirR4.builder.AbstractFhirMessageBuilder"%>
+<%@page import="org.hl7.fhir.r4.model.Bundle"%>
 <%@page import="java.util.Map"%>
 <%@page import="java.io.InputStream"%>
 <%@page import="org.apache.commons.io.IOUtils"%>
@@ -73,64 +90,94 @@
 <%@page import="org.apache.http.client.HttpClient" %>
 <%@page import="org.apache.http.HttpResponse" %>
 <%@page import="org.codehaus.jettison.json.*" %>
-
+<%@page import="org.oscarehr.integration.dhir.DHIRManager"%>
+<%@page import="org.oscarehr.integration.OneIdGatewayData"%>
+<%@page import="org.oscarehr.util.LoggedInInfo,org.oscarehr.util.LoggedInUserFilter"%>
+<%@page import="org.oscarehr.util.SessionConstants"%>
 
 <%
-	DHIRSubmissionManager submissionManager = SpringUtils.getBean(DHIRSubmissionManager.class);
-    		
-    
 	Logger logger = MiscUtils.getLogger();
-
-	OscarProperties oscarProperties = OscarProperties.getInstance();
-
-	String oneIdEmail = session.getAttribute("oneIdEmail") != null ? session.getAttribute("oneIdEmail").toString() : "";
-
-	String delegateOneIdEmail = session.getAttribute("delegateOneIdEmail") != null
-	? session.getAttribute("delegateOneIdEmail").toString() : "";
-	String providerEmail = oneIdEmail;
-
-	//If there is a delegateOneIdEmail then it is used as the normal oneId email and the current user is the delegate as they are delegating for that person
-	if (!delegateOneIdEmail.equals("")) {
-		providerEmail = delegateOneIdEmail;
-	}
-	//logger.debug("providerEmail is " + providerEmail);
+    		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+    		OneIdGatewayData oneIdGatewayData= loggedInInfo.getOneIdGatewayData();
+    		try  { 
+    			OneIDTokenUtils.verifyAccessTokenIsValid(loggedInInfo,oneIdGatewayData);
+    			
+    			
+    			
+    			////user/Immunization.read user/Immunization.write user/Patient.read
+    			boolean hasNeededScope = oneIdGatewayData.hasScope(oneIdGatewayData.fullScope);//"openid", "user/MedicationDispense.read", "toolbar", "user/Context.read", "user/Context.write",  "user/Consent.write");
+    			//http://ehealthontario.ca/StructureDefinition/ca-on-dhir-profile-Immunization http://ehealthontario.ca/StructureDefinition/ca-on-dhir-profile-Patient
+    			boolean hasNeededProfile = oneIdGatewayData.hasProfile(oneIdGatewayData.fullProfile);//"http://ehealthontario.ca/StructureDefinition/ca-on-dhdr-profile-MedicationDispense","http://ehealthontario.ca/fhir/StructureDefinition/ca-on-consent-pcoi-profile-Consent");
+    			
+    			if(hasNeededScope && hasNeededProfile && oneIdGatewayData.howLongSinceRefreshTokenWasIssued() < 2){
+    				//All good
+    			}else{	
+    				response.sendRedirect(request.getContextPath() + "/eho/login2.jsp?alreadyLoggedIn=true&forwardURL=" + URLEncoder.encode(OneIDTokenUtils.getCompleteURL(request),"UTF-8") );
+    				return;
+    			}
+    			
+    			
+    		} catch(TokenExpiredException e) {
+    			if(oneIdGatewayData == null){
+    				oneIdGatewayData = new OneIdGatewayData();
+    				session.setAttribute(SessionConstants.OH_GATEWAY_DATA,oneIdGatewayData);
+    				loggedInInfo = LoggedInUserFilter.generateLoggedInInfoFromSession(request);
+    			}
+    			loggedInInfo = LoggedInUserFilter.generateLoggedInInfoFromSession(request);
+    			oneIdGatewayData.hasScope(oneIdGatewayData.fullScope);
+    			oneIdGatewayData.hasProfile(oneIdGatewayData.fullProfile);
+    			response.sendRedirect(request.getContextPath() + "/eho/login2.jsp?alreadyLoggedIn=true&forwardURL=" + URLEncoder.encode(OneIDTokenUtils.getCompleteURL(request),"UTF-8") );
+    			return;
+    		} catch(NullPointerException e2) {
+    			if(oneIdGatewayData == null){
+    				oneIdGatewayData = new OneIdGatewayData();
+    				session.setAttribute(SessionConstants.OH_GATEWAY_DATA,oneIdGatewayData);
+    				loggedInInfo = LoggedInUserFilter.generateLoggedInInfoFromSession(request);
+    			}
+    			oneIdGatewayData.hasScope(oneIdGatewayData.fullScope);
+    			oneIdGatewayData.hasProfile(oneIdGatewayData.fullProfile);
+    			response.sendRedirect(request.getContextPath() + "/eho/login2.jsp?alreadyLoggedIn=true&forwardURL=" + URLEncoder.encode(OneIDTokenUtils.getCompleteURL(request),"UTF-8") );
+    			return;
+    		}		
+    		
+    		
+    		
+    DHIRSubmissionManager submissionManager = SpringUtils.getBean(DHIRSubmissionManager.class);
+    String uuid = request.getParameter("uuid");
+    		 
+	String action = request.getParameter("action");
+    boolean refused = false;
+    Response response2 = null;
+    String body = null;
+    Bundle bundle = null;
+    
+    if(!StringUtils.isEmpty(action) && "refuse".equals(action)) {
+    	OscarLog log = new OscarLog();
+    	log.setAction("DHIR.consent.refused");
+    	log.setContent("");
+    	log.setContentId("");
+    	log.setData("");
+    	log.setDemographicId(Integer.parseInt(request.getParameter("demographicNo")));
+    	log.setProviderNo(LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo());
+       	LogAction.addLogSynchronous(log);
+       	refused=true;
+       	
+    } else {
+    
 	
-	String backendEconsultUrl = OscarProperties.getInstance().getProperty("backendEconsultUrl");
 	
-	
-	String url = backendEconsultUrl + "/api/test";
-	
-	String uuid = request.getParameter("uuid");
+	DHIRManager dhirManager = new DHIRManager();
 	Map<String,Bundle> bundles = (Map<String,Bundle> )session.getAttribute("bundles");
-	Bundle bundle = bundles.get(uuid);
+	bundle = bundles.get(uuid);
 	
-	String demographicNo = null;
+	String bundleJSON = FhirContext.forR4().newJsonParser().encodeResourceToString(bundle);
 	
-	List<DHIRSubmissionLog> logs= new ArrayList<DHIRSubmissionLog>();
+	response2 = dhirManager.submitImmunizations(loggedInInfo, bundleJSON, Integer.parseInt(request.getParameter("demographicNo")), uuid);
 	
-	for(BundleEntryComponent bec : bundle.getEntry()) {
-		if(bec.getResource().fhirType().equals("Patient")) {
-	Patient patient  = (Patient)bec.getResource();
-	demographicNo = patient.getId();
-		}	
-	}
-	
-	for(BundleEntryComponent bec : bundle.getEntry()) {
-		if(bec.getResource().fhirType().equals("Immunization")) {
-	Immunization i = (Immunization)bec.getResource();
-	
-	DHIRSubmissionLog log = new DHIRSubmissionLog();
-	log.setDateCreated(new java.util.Date());
-	log.setDemographicNo(Integer.parseInt(demographicNo));
-	log.setPreventionId(Integer.parseInt(i.getId()));
-	log.setStatus("Error");
-	log.setSubmitterProviderNo(LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo());
-	log.setBundleId(bundle.getId());
-	submissionManager.save(log);
-	
-	logs.add(log);
-		}
-	}
+	body = response2.readEntity(String.class);
+		
+	logger.info("body=" + body);
+    }
 %>
 
 
@@ -249,6 +296,17 @@ clear: left;
 
 </head>
 
+<script>
+<%
+	if(refused) {
+		%>
+		$(document).ready(function(){
+			window.close();
+		});
+		<%
+	}
+%>
+</script>
 <body class="BodyStyle" vlink="#0000FF" onload="disableifchecked(document.getElementById('neverWarn'),'nextDate');">
 <!--  -->
     <table  class="MainTable" id="scrollNumber1" name="encounterTable">
@@ -278,159 +336,112 @@ clear: left;
             </td>
             <td valign="top" class="MainTableRightColumn">
             
+            
 <%
-            	try {	
-            		String theString = AbstractFhirMessageBuilder.getFhirContext().newJsonParser().setPrettyPrint(true).encodeResourceToString(bundle);
-            		JSONObject jbundle = new JSONObject(theString);
-            		
-            		String clientRequestId = UUID.randomUUID().toString();
+	if(refused) {
+		%>
+		<h2>Submission was not sent due to refusal of consent </h2>
+		<%
+	} else {
+%>
+<%
 
-          		
-                    HttpPost httpPost = new HttpPost(url);
-                    
-                    String oneIdToken = (String)session.getAttribute("oneid_token");
-                    logger.debug("oneid_token is " + oneIdToken);
-                    
-                    httpPost.addHeader("x-oneid-email", providerEmail);
-                    httpPost.addHeader("x-access-token", oneIdToken);
-                    
-                    JSONObject obj = new JSONObject();
-                    obj.put("url",OscarProperties.getInstance().getProperty("dhir.url"));
-                    obj.put("service","DHIR");
-                    obj.put("body",jbundle);
-                    obj.put("client-request-id",clientRequestId);
-                    obj.put("client-app-desc","EMR");
-                    
-                    HttpEntity reqEntity = new ByteArrayEntity(obj.toString().getBytes("UTF-8"));
-                    httpPost.setEntity(reqEntity);
-                    httpPost.setHeader("Content-type", "application/json");
-                    
-                    HttpClient httpClient = getHttpClient2();
-                    HttpResponse httpResponse = httpClient.execute(httpPost);
-                    String entity = EntityUtils.toString(httpResponse.getEntity());
-                    
-                    JSONObject object = new JSONObject(entity);
-                    logger.info("object="+object.toString());
-                    
-                    Integer code = (Integer)object.get("code");
-                    
-                    if(code >= 200 && code < 300) { 
-                    	String val = null;
-                    	String clientId = null;
-                    	if(object != null) {
-                    		JSONObject headers = (JSONObject)object.get("headers");
-                    		try {
-                    			val = (String)headers.get("hialTxId");
-                    		}catch(JSONException je) {
-                    			
-                    		}
-                    		try {
-                    			clientId = (String)headers.get("client-response-id");
-                    		}catch(JSONException je) {
-                    			
-                    		}
-                    	}
-                    	
-                    	for(DHIRSubmissionLog log : logs) {
-                    		log.setStatus("Submitted");
-                    		log.setTransactionId(val);
-                    		log.setClientResponseId(clientId);
-                    		log.setClientRequestId(clientRequestId);
-                    		submissionManager.update(log);
-                    	}
-            %>
-        		<h2>Submission send for review. You may find the reference number in the prevention's Summary field. </h2>
-        		<input type="button" value="Close Window" onClick="window.close()"/>
-        	<%
-        }
-        
-        
-        if((code >=300 && code < 400) || code == 500) {
-        	String val = null;
-        	String clientId = null;
-        	
-        	if(object != null) {
-        		JSONObject headers = (JSONObject)object.get("headers");
-        		try {
-        			val = (String)headers.get("hialTxId");
-        		}catch(JSONException je) {
-        			
-        		}
-        		try {
-        			clientId = (String)headers.get("client-response-id");
-        		}catch(JSONException je) {
-        			
-        		}
-        	}
-        	
-        	
-        	for(DHIRSubmissionLog log : logs) {
-        		log.setStatus("Error");
-        		log.setTransactionId(val);
-        		log.setResponse(entity != null ? entity : "");
-        		log.setClientResponseId(clientId);
-        		log.setClientRequestId(clientRequestId);
-        		submissionManager.update(log);
-        	}
-        	
-        	%>
-        		<h2>There was an error sending the message. You can try resubmitting.</h2>
-        		<h3>HTTP Code <%=code%></h3>
-        		<h3>Check logs for more information</h3>
-        		<input type="button" value="Retry" onClick="window.location.reload()"/>
-        		&nbsp;
-        		<input type="button" value="Close Window" onClick="window.close()"/>
-        	<%
-        }
-        
-        if(code >=400 && code < 500) {
-        	String val = null;
-        	String clientId = null;
-        	if(object != null) {
-        		JSONObject headers = (JSONObject)object.get("headers");
-        		try {
-        			val = (String)headers.get("hialTxId");
-        		}catch(JSONException je) {
-        			
-        		}
-        		try {
-        			clientId = (String)headers.get("client-response-id");
-        		}catch(JSONException je) {
-        			
-        		}
-        	}
-        	
-        	for(DHIRSubmissionLog log : logs) {
-        		log.setStatus("Error");
-        		log.setTransactionId(val);
-        		log.setResponse(entity != null ? entity : "");
-        		log.setClientResponseId(clientId);
-        		log.setClientRequestId(clientRequestId);
-        		submissionManager.update(log);
-        	}
-        	
-        	%>
-        		<h2>There was an error sending the message. DHIR will not accept this message.</h2>
-        		<h3>HTTP Code <%=code%></h3>
-        		<h3>Check logs for more information</h3>
-        		
-        		<input type="button" value="Close Window" onClick="window.close()"/>
-        	<%
-        }
-    }
-    catch (IOException e) {
-        logger.error("Failed to retrieve eConsults for the OneID account " + providerEmail, e);
-    }
-    catch (NoSuchAlgorithmException e) {
-        logger.error("Failed to create an HttpClient that allows all SSL", e);
-    }
-    catch (KeyManagementException e) {
-    	 logger.error("Failed to create an HttpClient that allows all SSL", e);
-    }
-   
-	bundles.put(uuid,null);
+if(response2.getStatus() == 201) {
+	//success
+	
+	List<DHIRSubmissionLog> logs= new ArrayList<DHIRSubmissionLog>();
+	String demographicNo = null;
+	
+	try{
+		Bundle responseBundle = (Bundle) FhirContext.forR4().newJsonParser().parseResource(body);
+		for(BundleEntryComponent bec : responseBundle.getEntry()) {
+			String location = bec.getResponse().getLocation(); //Immunization/756f4e4c-ddb2-4072-8891-e81c7b04ae90
+			String status = bec.getResponse().getStatus(); //201
+			logger.info("location=" + location + ",status=" + status);
+		}
+	}catch(Exception e){
+		logger.error("location error",e);
+	}
+	
+	for(BundleEntryComponent bec : bundle.getEntry()) {
+		if(bec.getResource().fhirType().equals("Patient")) {
+	        Patient patient  = (Patient)bec.getResource();
+	        demographicNo = patient.getId();
+	        break;
+	    }
 
+	}
+	
+	for(BundleEntryComponent bec : bundle.getEntry()) {
+        if(bec.getResource().fhirType().equals("Immunization")) {
+		    Immunization i = (Immunization)bec.getResource();
+		
+		    DHIRSubmissionLog log = new DHIRSubmissionLog();
+		    log.setDateCreated(new java.util.Date());
+		    log.setDemographicNo(Integer.parseInt(demographicNo));
+		    log.setPreventionId(Integer.parseInt(i.getId()));
+		    log.setStatus("Error");
+		    log.setSubmitterProviderNo(LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo());
+		    log.setBundleId(bundle.getId());
+		    submissionManager.save(log);
+		
+		    logs.add(log);
+        }
+	 }
 
+	
+	String val = response2.getHeaderString("X-Request-Id");
+	String clientId = response2.getHeaderString("x-response-id");
+	
+for(DHIRSubmissionLog log : logs) {
+	log.setStatus("Submitted");
+	log.setTransactionId(val);
+	log.setClientResponseId(clientId);
+	//log.setClientRequestId(clientRequestId);
+	log.setClientRequestId(uuid);
+	submissionManager.update(log);
+}
+%>
+	<h2>Submission sent for review. You may find the reference number in the prevention's Summary field. </h2>
+	<input type="button" value="Close Window" onClick="window.close()"/>
+<%
+
+	
+} else if(response2.getStatus() == 422) {
+	//should be some operational outcome
+	if(body != null) {
+		try {
+			OperationOutcome outcome = FhirContext.forR4().newJsonParser().parseResource(OperationOutcome.class, body);
+			if(outcome != null) {
+				if(outcome.getText() != null && "Generated".equals(outcome.getText().getStatus().getDisplay()) ) {
+					String text = outcome.getText().getDiv().toString();
+					%>
+					<h2>Submission was not successfully accepted. </h2>
+					<h3><%=StringEscapeUtils.unescapeHtml3(text) %></h3>
+					<br/>
+					<input type="button" value="Edit Prevention" onClick="window.location.href='<%=request.getContextPath()%>/oscarPrevention/AddPreventionData.jsp?id=<%=request.getParameter("preventionId")%>&demographic_no=<%=request.getParameter("demographicNo")%>'"/>
+					&nbsp;&nbsp;
+					<input type="button" value="Close Window" onClick="window.close()"/>
+				<%					
+				}
+			}
+		}catch(Exception e) {
+	
+		}
+	}
+} else if(response2.getStatus() == 400 ) {
+	//invalid resource
+	%>
+	<h2>Submission was not successfully accepted. </h2>
+	<%
+} else {
+	//some other error
+	%>
+	<h2>Submission was not successfully accepted. </h2>
+	<%
+}
+
+	}
 %>
 
  </td>
@@ -448,27 +459,14 @@ clear: left;
 </body>
 </html:html>
 
-
-
 <%!
-
-protected HttpClient getHttpClient2() throws Exception {
-
-    //setup SSL
-    SSLContext sslcontext = SSLContexts.custom().useTLS().build();
-    sslcontext.getDefaultSSLParameters().setNeedClientAuth(true);
-    sslcontext.getDefaultSSLParameters().setWantClientAuth(true);
-    SSLConnectionSocketFactory sf = new SSLConnectionSocketFactory(sslcontext);
-
-    //setup timeouts
-    int timeout = Integer.parseInt(OscarProperties.getInstance().getProperty("dhir.timeout", "60"));
-    RequestConfig config = RequestConfig.custom().setSocketTimeout(timeout * 1000).setConnectTimeout(timeout * 1000).build();
-
-    CloseableHttpClient httpclient3 = HttpClients.custom().setDefaultRequestConfig(config).setSSLSocketFactory(sf).build();
-
-    return httpclient3;
-
+ String getCompleteURL(HttpServletRequest request) {
+	StringBuffer requestURL = request.getRequestURL();
+	if (request.getQueryString() != null) {
+	    requestURL.append("?").append(request.getQueryString());
+	}
+	String completeURL = requestURL.toString();
+	
+	return completeURL;
 }
-
-
 %>

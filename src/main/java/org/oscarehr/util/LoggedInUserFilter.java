@@ -36,6 +36,7 @@ import org.apache.log4j.Logger;
 import org.oscarehr.common.model.Facility;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.Security;
+import org.oscarehr.integration.OneIdGatewayData;
 
 public class LoggedInUserFilter implements javax.servlet.Filter {
 	private static final Logger logger = MiscUtils.getLogger();
@@ -68,6 +69,7 @@ public class LoggedInUserFilter implements javax.servlet.Filter {
 		loggedInInfo.setCurrentFacility((Facility) session.getAttribute(SessionConstants.CURRENT_FACILITY));
 		loggedInInfo.setLoggedInProvider((Provider) session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER));
 		loggedInInfo.setLoggedInSecurity((Security) session.getAttribute(SessionConstants.LOGGED_IN_SECURITY));
+		loggedInInfo.setOneIdGatewayData((OneIdGatewayData) session.getAttribute(SessionConstants.OH_GATEWAY_DATA));
 		loggedInInfo.setInitiatingCode(request.getRequestURI());
 		loggedInInfo.setLocale(request.getLocale());
 		loggedInInfo.setIp(request.getRemoteAddr());

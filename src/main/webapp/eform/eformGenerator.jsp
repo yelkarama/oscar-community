@@ -1812,8 +1812,7 @@ onclick="SetSwitchOn('Stamp');document.getElementById('AddStamp').disabled=true;
 				<input type="radio" name="AutoPopType" id="AutoPopMeasurements" value="measurements"><bean:message key="eFormGenerator.inputTypeMeasurements"/><br>
 				<table>
 					<tr>
-						<td><p><bean:message key="eFormGenerator.inputTypeMeasurementsType"/></p></td>
-						<td><p>
+						<td><p><bean:message key="eFormGenerator.inputTypeMeasurementsType"/><br>
 							<select name="MeasurementList" id="MeasurementList">
 								<option value="" selected="selected"><bean:message key="eFormGenerator.inputTypeMeasurementsButton"/></option>
 								<option value="HT">HT</option>
@@ -1836,13 +1835,16 @@ onclick="SetSwitchOn('Stamp');document.getElementById('AddStamp').disabled=true;
 								<option value="TCHL">TCHL</option>
 								<option value="EGFR">EGFR</option>
 								<option value="SCR">SCR (Cr)</option>
-								<option value="ACR">ACR</option>								</select>
-							<br>
-						<bean:message key="eFormGenerator.inputTypeMeasurementsCustom"/><input type="text" name="MeasurementCustom" id="MeasurementCustom" style="width:50px;">
+								<option value="ACR">ACR</option>
+							</select>
 						</p>
 						</td>
+						<td><p><bean:message key="eFormGenerator.inputTypeMeasurementsCustom"/><br>
+						       <input type="text" name="MeasurementCustom" id="MeasurementCustom" style="width:50px;">
+						    </p>
+						</td>
 						<td>
-							<p><bean:message key="eFormGenerator.inputTypeMeasurementsField"/>
+							<p><bean:message key="eFormGenerator.inputTypeMeasurementsField"/><br>
 								<select name="MeasurementField" id="MeasurementField">
 									<option value="value"><bean:message key="eFormGenerator.inputTypeMeasurementsFieldButtonValue"/></option>
 									<option value="dateObserved"><bean:message key="eFormGenerator.inputTypeMeasurementsFieldButtonDateObserved"/></option>
@@ -1920,8 +1922,7 @@ onclick="SetSwitchOn('Stamp');document.getElementById('AddStamp').disabled=true;
 			<span id="iiimeasures"><input type="radio" name="InputNameType" id="InputNameMeasurement" value="Measurement"><bean:message key="eFormGenerator.inputNameMeasurement"/><br>
 			<table>
 				<tr>
-					<td><p><bean:message key="eFormGenerator.inputNameMeasurementType"/></p></td>
-					<td><p>
+					<td><p><bean:message key="eFormGenerator.inputNameMeasurementType"/><br>
 						<select name="ExportMeasurementList" id="ExportMeasurementList">
 							<option value="" selected="selected"><bean:message key="eFormGenerator.inputNameMeasurementButton"/></option>
 								<option value="HT">HT</option>
@@ -1946,12 +1947,14 @@ onclick="SetSwitchOn('Stamp');document.getElementById('AddStamp').disabled=true;
 								<option value="SCR">SCR (Cr)</option>
 								<option value="ACR">ACR</option>	
 						</select>
-						<br>
-				&nbsp;<bean:message key="eFormGenerator.inputNameMeasurementsCustom"/>&nbsp;<input type="text" name="ExportMeasurementCustom" id="ExportMeasurementCustom" style="width:50px;">
 					</p>
 					</td>
+					<td><p><bean:message key="eFormGenerator.inputNameMeasurementsCustom"/><br>
+					       <input type="text" name="ExportMeasurementCustom" id="ExportMeasurementCustom" style="width:50px;">
+					    </p>
+					</td>
 					<td>
-						<p><bean:message key="eFormGenerator.inputNameMeasurementsField"/>
+						<p><bean:message key="eFormGenerator.inputNameMeasurementsField"/><br>
 							<select name="ExportMeasurementField" id="ExportMeasurementField">
 								<option value="value"><bean:message key="eFormGenerator.inputTypeMeasurementsFieldButtonValue"/></option>
 								<option value="dateObserved"><bean:message key="eFormGenerator.inputTypeMeasurementsFieldButtonDateObserved"/></option>

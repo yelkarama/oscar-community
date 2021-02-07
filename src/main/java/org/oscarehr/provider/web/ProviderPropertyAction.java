@@ -2016,8 +2016,8 @@ public ActionForward viewEDocBrowserInDocumentReport(ActionMapping actionmapping
         request.setAttribute("providerbtnCancel","provider.ticklerPreference.btnCancel"); //=Cancel
         request.setAttribute("method","saveTicklerTaskAssignee");
 
-	    request.setAttribute("taskAssigneeSelection", ticklerTaskAssignee);
-	    frm.set("taskAssigneeSelection", ticklerTaskAssignee);
+	request.setAttribute("taskAssigneeSelection", ticklerTaskAssignee);
+	frm.set("taskAssigneeSelection", ticklerTaskAssignee);
 
         request.setAttribute("providerMsg","");
 
@@ -2071,6 +2071,94 @@ public ActionForward viewEDocBrowserInDocumentReport(ActionMapping actionmapping
         return actionmapping.findForward("complete");
 
 	}
+
+public ActionForward viewConsultsFilter(ActionMapping actionmapping,ActionForm actionform,HttpServletRequest request, HttpServletResponse response) {
+        DynaActionForm frm = (DynaActionForm)actionform;
+        LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+        String providerNo=loggedInInfo.getLoggedInProviderNo();
+
+	//consultsDefaultFilter
+	UserProperty prop = this.userPropertyDAO.getProp(providerNo, UserProperty.CONSULTS_DEFAULT_FILTER);
+
+	if (prop == null){
+		prop = new UserProperty();
+		prop.setValue("");
+	}
+
+       
+
+        request.setAttribute("providertitle","provider.viewConsultsPreference.title"); 
+        request.setAttribute("providermsgPrefs","provider.viewConsultsPreference.msgPrefs");
+        request.setAttribute("providerbtnSubmit","provider.viewConsultsPreference.btnSubmit");
+        request.setAttribute("providerbtnCancel","provider.viewConsultsPreference.btnCancel"); 
+        request.setAttribute("method","saveConsultsFilter");
+
+	request.setAttribute("consultsDefaultFilter", prop);
+	frm.set("consultsDefaultFilter", prop);
+
+	request.setAttribute("providerMsg","");
+
+        return actionmapping.findForward("success");
+    }
+
+    public ActionForward saveConsultsFilter(ActionMapping actionmapping,ActionForm actionform, HttpServletRequest request, HttpServletResponse response) {
+        LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+
+
+        String providerNo=loggedInInfo.getLoggedInProviderNo();
+	String team = "";
+        DynaActionForm frm=(DynaActionForm)actionform;
+
+
+	Provider p = loggedInInfo.getLoggedInProvider();
+	if( p != null ) {
+		team = p.getTeam();
+	}
+
+	UserProperty a=(UserProperty)frm.get("consultsDefaultFilter");
+	String consultsDefaultFilter = a != null ? a.getValue() : "";
+	String propToSave = "";
+
+	consultsDefaultFilter = consultsDefaultFilter.trim();
+
+	boolean delete = false;
+	if(consultsDefaultFilter.equals("mine")){
+		propToSave="mrpNo="+providerNo;
+	}else if(consultsDefaultFilter.equals("mygroup")){
+		propToSave="sendTo="+team;
+	}else{
+
+		//catch all for now
+		propToSave=consultsDefaultFilter;
+	}
+
+	UserProperty property = this.userPropertyDAO.getProp(providerNo, UserProperty.CONSULTS_DEFAULT_FILTER);
+	if( property == null ) {
+		property = new UserProperty();
+		property.setProviderNo(providerNo);
+		property.setName(UserProperty.CONSULTS_DEFAULT_FILTER);
+	}
+
+	if(delete){
+	 userPropertyDAO.delete(property);
+	}else{
+	 property.setValue(propToSave);
+	 userPropertyDAO.saveProp(property);
+	}
+
+	request.setAttribute("status", "success");
+        request.setAttribute("providertitle","provider.viewConsultsPreference.title"); 
+        request.setAttribute("providermsgPrefs","provider.viewConsultsPreference.msgPrefs"); //=Preferences
+        request.setAttribute("providerbtnSubmit","provider.viewConsultsPreference.btnSubmit"); //=Save
+        request.setAttribute("providerbtnCancel","provider.viewConsultsPreference.btnCancel"); //=Cancel
+	request.setAttribute("providerbtnClose","provider.viewConsultsPreference.providerbtnClose"); //=Close Window
+        request.setAttribute("providerMsg","provider.viewConsultsPreference.savedMsg");
+        request.setAttribute("method","saveConsultsFilter");
+
+        return actionmapping.findForward("complete");
+
+	}
+
 
     public ActionForward viewEncounterWindowSize(ActionMapping actionmapping,ActionForm actionform,HttpServletRequest request, HttpServletResponse response) {
 

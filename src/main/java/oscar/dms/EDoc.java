@@ -131,6 +131,14 @@ public class EDoc extends TagObject implements Comparable<EDoc> {
 		preliminaryProcessing();
 	}
 
+	public EDoc(String description, String type, String fileName, String html, String creatorId, String responsibleId, String source, char status, String observationDate, String reviewerId, String reviewDateTime, String module, String moduleId, 
+				String contentType, String publicStatus, int numberOfPages, boolean updateFilename) {
+		this(description, type, fileName, html, creatorId, responsibleId, source, status, observationDate, reviewerId, reviewDateTime, module, moduleId, updateFilename);
+		this.setNumberOfPages(numberOfPages);
+		this.setContentType(contentType);
+		this.setDocPublic(publicStatus);
+	}
+	
 	public EDoc(String description, String type, String fileName, String html, String creatorId, String responsibleId, String source, char status, String observationDate, String reviewerId, String reviewDateTime, String module, String moduleId, boolean updateFilename) {
 		this.setDescription(description.trim());
 		this.setType(type.trim());

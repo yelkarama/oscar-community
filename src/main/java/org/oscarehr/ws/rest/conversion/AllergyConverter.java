@@ -31,7 +31,31 @@ public class AllergyConverter extends AbstractConverter<Allergy, AllergyTo1> {
 
 	@Override
     public Allergy getAsDomainObject(LoggedInInfo loggedInInfo, AllergyTo1 t) throws ConversionException {
-	    throw new ConversionException("not yet implemented");
+		Allergy d = new Allergy();
+
+		d.setAgccs(t.getAgccs());
+		d.setAgcsp(t.getAgcsp());
+		d.setAgeOfOnset(t.getAgeOfOnset());
+		d.setArchived(t.isArchived());
+		d.setDemographicNo(t.getDemographicNo());
+		d.setDescription(t.getDescription());
+		d.setDrugrefId(t.getDrugrefId());
+		d.setEntryDate(t.getEntryDate());
+		d.setHiclSeqno(t.getHiclSeqno());
+		d.setHicSeqno(t.getHicSeqno());
+		d.setId(t.getId());
+		d.setLastUpdateDate(t.getLastUpdateDate());
+		d.setLifeStage(t.getLifeStage());
+		d.setOnsetOfReaction(t.getOnsetOfReaction());
+		d.setPosition(t.getPosition());
+		d.setProviderNo(t.getProviderNo());
+		d.setReaction(t.getReaction());
+		d.setRegionalIdentifier(t.getRegionalIdentifier());
+		d.setSeverityOfReaction(t.getSeverityOfReaction());
+		d.setStartDate(t.getStartDate());
+		d.setTypeCode(t.getTypeCode());
+
+		return d;
     }
 
 	@Override

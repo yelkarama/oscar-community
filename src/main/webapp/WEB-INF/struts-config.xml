@@ -279,6 +279,10 @@
 			<form-property name="taskAssigneeMRP" type="org.oscarehr.common.model.UserProperty" />
 			<form-property name="taskAssigneeProvider" type="org.oscarehr.common.model.UserProperty" />
 		</form-bean>
+
+		<form-bean name="setViewConsultsPreferencesForm" type="org.apache.struts.action.DynaActionForm">
+			<form-property name="consultsDefaultFilter" type="org.oscarehr.common.model.UserProperty" />
+		</form-bean>
 		
 		<form-bean name="setProviderNoteStaleDateForm" type="org.apache.struts.action.DynaActionForm">
 			<form-property name="dateProperty" type="org.oscarehr.common.model.UserProperty" />
@@ -820,11 +824,17 @@
 			<forward name="home" path="/Home.do" redirect="true" />
 			<forward name="login" path="/index.jsp" />
 		</action>
+		
+		<action input="/oscarMessenger/ViewMessage.jsp" path="/oscarMessenger/ImportDemographic" scope="request" type="oscar.oscarMessenger.pageUtil.ImportDemographicAction">
+			<forward name="success" path="/oscarMessenger/ViewMessage.do" />
+		</action>
+		
 		<action input="/oscarMessenger/SendMessage.jsp" name="msgSendMessageForm" path="/oscarMessenger/SendMessage" scope="request" type="oscar.oscarMessenger.pageUtil.MsgSendMessageAction">
 			<forward name="success" path="/oscarMessenger/SentMessage.jsp" />
 		</action>
 		<action input="/oscarMessenger/CreateMessage.jsp" name="msgCreateMessageForm" path="/oscarMessenger/CreateMessage" scope="request" type="oscar.oscarMessenger.pageUtil.MsgCreateMessageAction">
 			<forward name="success" path="/oscarMessenger/SentMessage.jsp" />
+			<forward name="error" path="/oscarMessenger/CreateMessage.jsp" />
 		</action>
 		<action input="/oscarMessenger/DisplayMessages.jsp" name="msgDisplayMessagesForm" path="/oscarMessenger/DisplayMessages" scope="request" type="oscar.oscarMessenger.pageUtil.MsgDisplayMessagesAction">
 			<forward name="success" path="/oscarMessenger/DisplayMessages.jsp" />
@@ -858,13 +868,17 @@
 			<forward name="success" path="/oscarMessenger/DisplayMessages.jsp" />
 			<forward name="reply" path="/oscarMessenger/CreateMessage.jsp" />
 		</action>
-		<action input="/oscarMessenger/config/MessengerAdmin.jsp" name="msgMessengerAdminForm" path="/oscarMessenger/UpdateMembers" scope="request" type="oscar.oscarMessenger.config.pageUtil.MsgMessengerAdminAction">
+		
+		<action input="/oscarMessenger/config/MessengerAdmin.jsp" name="msgMessengerAdminForm" path="/oscarMessenger" scope="request" parameter="method" 
+			type="oscar.oscarMessenger.config.pageUtil.MsgMessengerAdminAction">
 			<forward name="success" path="/oscarMessenger/config/MessengerAdmin.jsp" />
 			<forward name="failure" path="/oscarMessenger/config/MessengerAdmin.jsp" />
 		</action>
+		
 		<action input="/oscarMessenger/config/MessengerCreateGroup.jsp" name="msgMessengerCreateGroupForm" path="/oscarMessenger/AddGroup" scope="request" type="oscar.oscarMessenger.config.pageUtil.MsgMessengerCreateGroupAction">
 			<forward name="success" path="/oscarMessenger/config/MessengerAdmin.jsp" />
 		</action>
+		
 		<action input="/oscarMessenger/ViewMessage.jsp" name="msgViewAttachmentForm" path="/oscarMessenger/ViewAttach" scope="request" type="oscar.oscarMessenger.pageUtil.MsgViewAttachmentAction">
 			<forward name="success" path="/oscarMessenger/ViewAttachment.jsp" />
 		</action>
@@ -1266,6 +1280,10 @@
 		
 		<action path="/oscarEncounter/myoscar/measurements_*" name="EctMyOscarFilterForm" scope="request" type="oscar.oscarEncounter.data.myoscar.EctMyOscarFilterAction">
 			<forward name="success" path="/oscarEncounter/myoscar/{1}.jsp" />
+		</action>
+
+		<action input="/oscarEncounter/oscarConsultationRequest/ConsultationFormRequest.jsp" path="/oscarEncounter/eRefer" scope="request" validate="false" type="oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EReferAction">
+			<forward name="success" path="/oscarEncounter/oscarConsultationRequest/ConsultationFormRequest.jsp"/>
 		</action>
 		
 		<action input="/oscarEncounter/oscarConsultationRequest/ConsultationFormRequest.jsp" name="EctConsultationFormRequestForm" path="/oscarEncounter/RequestConsultation" scope="request"
@@ -1723,10 +1741,16 @@
         </action>
         
 		<action path="/setTicklerPreferences" type="org.springframework.web.struts.DelegatingActionProxy" parameter="method" scope="request" input="/provider/setTicklerPreferences.jsp" name="setTicklerPreferencesForm">
-			<forward name="success"	 path="/provider/setTicklerPreferences.jsp" />
-			<forward name="complete" path="/provider/setTicklerPreferences.jsp" />
-			<forward name="error"    path="/provider/setTicklerPreferences.jsp?error" />
-        </action>        
+				<forward name="success"	 path="/provider/setTicklerPreferences.jsp" />
+				<forward name="complete" path="/provider/setTicklerPreferences.jsp" />
+				<forward name="error"    path="/provider/setTicklerPreferences.jsp?error" />
+		</action>   
+
+		<action path="/setViewConsultsPreferences" type="org.springframework.web.struts.DelegatingActionProxy" parameter="method" scope="request" input="/provider/setViewConsultsPreferences.jsp" name="setViewConsultsPreferencesForm">
+				<forward name="success"	 path="/provider/setViewConsultsPreferences.jsp" />
+				<forward name="complete" path="/provider/setViewConsultsPreferences.jsp" />
+				<forward name="error"    path="/provider/setViewConsultsPreferences.jsp?error" />
+		</action>     
 
 		<action input="/provider/providerIndivoIdSetter.jsp" name="setMyOscarIdForm" path="/setMyOscarId" scope="request" type="oscar.oscarProvider.pageUtil.ProEditMyOscarIdAction">
 			<forward name="success" path="/provider/providerIndivoIdSetter.jsp" />
@@ -2981,6 +3005,14 @@
 		<action path="/dhir/submit" type="org.oscarehr.integration.dhir.SubmitImmunizationAction" parameter="method" scope="request">
 			<forward name="success" path="/oscarPrevention/dhirSubmission.jsp"/>
 			<forward name="testresult" path="/oscarPrevention/test_case.jsp"/>
+		</action>
+		
+		<action path="/dhir/summary" type="org.oscarehr.integration.dhir.DHIRSummaryViewAction" parameter="method" scope="request">
+			<forward name="success" path="/oscarPrevention/ViewDHIRData.jsp"/>
+		</action>
+		
+		<action path="/dhir/printSummary" scope="request" type="org.oscarehr.integration.dhir.DHIRPrintAction">
+			<forward name="error" path="/dhir/printError.jsp" />
 		</action>
 		
 		<action path="/clinicalConnectEHRViewer" type="org.oscarehr.integration.clinicalconnect.ClinicalConnectViewerAction" parameter="method">

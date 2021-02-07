@@ -515,7 +515,7 @@ public class Immunization<T extends AbstractModel<Integer> & ImmunizationInterfa
 			.getRole().addCoding()
 				.setSystem("http://hl7.org/fhir/v2/0443")
 				.setCode("AP")
-				.setDisplay("AdministeringProvider");
+				.setDisplay("Administering Provider");
 	}
 	
 	/**

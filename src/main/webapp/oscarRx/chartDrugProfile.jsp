@@ -39,11 +39,10 @@
 %>
 
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
-<%@ page
-    import="java.util.*,oscar.oscarLab.ca.on.*,oscar.oscarDemographic.data.*"%>
-<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
-<%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
-<%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
+<%@page import="java.util.*,oscar.oscarLab.ca.on.*,oscar.oscarDemographic.data.*"%>
+<%@taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
+<%@taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
+<%@taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%
             String labType = request.getParameter("labType");
             String demographicNo = request.getParameter("demographic_no");
@@ -74,7 +73,7 @@
             }else{
                 for(int idx = 0; idx < arr.length; ++idx ) {             	
                     oscar.oscarRx.data.RxPrescriptionData.Prescription drug = arr[idx];
-                    if(!drug.isCustom()) {
+                    if(!drug.isCustom() && !drug.isArchived()) {
                    	 sb.append("&drug="+drug.getRegionalIdentifier());
                     	h.put(drug.getRegionalIdentifier(),"drug");
                     }
@@ -155,8 +154,8 @@
         
                         long now = System.currentTimeMillis();
                         long month = 1000L * 60L * 60L * 24L * 30L;
-                        for(int idx = 0; idx < arr.length; ++idx ) {            
-                            oscar.oscarRx.data.RxPrescriptionData.Prescription drug = arr[idx];
+                        for(oscar.oscarRx.data.RxPrescriptionData.Prescription drug : arr){//int idx = 0; idx < arr.length; ++idx ) {            
+                            //oscar.oscarRx.data.RxPrescriptionData.Prescription drug = arr[idx];
                             if( drug.isArchived() ){
                                 continue;
                             }

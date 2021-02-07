@@ -27,7 +27,7 @@ import org.apache.log4j.Logger;
 import org.oscarehr.common.jobs.OscarRunnable;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.Security;
-import org.oscarehr.managers.CanadianVaccineCatalogueManager;
+import org.oscarehr.managers.CanadianVaccineCatalogueManager2;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -39,7 +39,7 @@ public class CanadianVaccineCatalogueJob implements OscarRunnable {
 	private Provider provider;
 	private Security security;
 	
-	CanadianVaccineCatalogueManager cvcManager = SpringUtils.getBean(CanadianVaccineCatalogueManager.class);
+	CanadianVaccineCatalogueManager2 cvcManager = SpringUtils.getBean(CanadianVaccineCatalogueManager2.class);
 	
 	@Override
 	public void run() {
@@ -49,7 +49,11 @@ public class CanadianVaccineCatalogueJob implements OscarRunnable {
 
 		logger.info("Canadian Vaccine Catalogue Job started and running as " + x.getLoggedInProvider().getFormattedName());
 		
-		cvcManager.update(x);
+		try {
+			cvcManager.update(x);
+		}catch(Exception e) {
+			logger.error("error",e);
+		}
 		
 		logger.info("Canadian Vaccine Catalogue Job done");
 		

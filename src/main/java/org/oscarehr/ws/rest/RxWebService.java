@@ -35,10 +35,12 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.interactive.action.type.PDActionJavaScript;
 import org.oscarehr.common.exception.AccessDeniedException;
 import org.oscarehr.common.model.Demographic;
+import org.oscarehr.common.model.DemographicPharmacy;
 import org.oscarehr.common.model.Drug;
 import org.oscarehr.common.model.Favorite;
 import org.oscarehr.common.model.Prescription;
 import org.oscarehr.managers.DemographicManager;
+import org.oscarehr.managers.PharmacyManager;
 import org.oscarehr.managers.PrescriptionManager;
 import org.oscarehr.managers.RxManager;
 import org.oscarehr.managers.SecurityInfoManager;
@@ -50,6 +52,7 @@ import org.oscarehr.ws.rest.conversion.DrugConverter;
 import org.oscarehr.ws.rest.conversion.FavoriteConverter;
 import org.oscarehr.ws.rest.conversion.PrescriptionConverter;
 import org.oscarehr.ws.rest.to.*;
+import org.oscarehr.ws.rest.to.model.DemographicPharmacyTo;
 import org.oscarehr.ws.rest.to.model.DrugTo1;
 import org.oscarehr.ws.rest.to.model.FavoriteTo1;
 import org.oscarehr.ws.rest.to.model.PrescriptionTo1;
@@ -104,6 +107,9 @@ public class RxWebService extends AbstractServiceImpl {
     
     @Autowired
     protected PrescriptionManager prescriptionManager;
+    
+    @Autowired
+    protected PharmacyManager pharmacyManager;
 
     @GET
     @Path("/drugs")
@@ -608,6 +614,29 @@ public class RxWebService extends AbstractServiceImpl {
         return resp;
 
     }
+    
+    
+    @Path("/pharmacy/{demographicNo}")
+    @POST
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    public List<DemographicPharmacyTo> getPharmaciesForDemographic(@PathParam("demographicNo") Integer demographicNo) {
+    		LoggedInInfo loggedInInfo = getLoggedInInfo();
+    		List<DemographicPharmacy> list = pharmacyManager.getPharmacies(loggedInInfo,  demographicNo);
+    		List<DemographicPharmacyTo> returnList = new ArrayList<DemographicPharmacyTo>();
+    		for(DemographicPharmacy demographicPharmacy : list) {
+    			DemographicPharmacyTo demographicPharmacyTo = new DemographicPharmacyTo();
+    			demographicPharmacyTo.setAddDate(demographicPharmacy.getAddDate());
+    			demographicPharmacyTo.setDemographicNo(demographicPharmacy.getDemographicNo());
+    			demographicPharmacyTo.setId(demographicPharmacy.getId());
+    			demographicPharmacyTo.setPharmacyId(demographicPharmacy.getPharmacyId());
+    			demographicPharmacyTo.setPreferredOrder(demographicPharmacy.getPreferredOrder());
+    			demographicPharmacyTo.setStatus(demographicPharmacy.getStatus());
+    			returnList.add(demographicPharmacyTo);
+    		}
+    		return returnList;
+    }
+ 
     
     
     @GET

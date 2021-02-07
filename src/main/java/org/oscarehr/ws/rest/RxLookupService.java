@@ -40,6 +40,9 @@ import org.oscarehr.ws.rest.to.model.RxDsMessageTo1;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import oscar.oscarRx.data.RxPrescriptionData;
+import oscar.oscarRx.util.LimitedUseCode;
+import oscar.oscarRx.util.LimitedUseLookup;
+import oscar.oscarRx.util.RxDrugRef;
 import oscar.oscarRx.util.RxUtil;
 
 import javax.ws.rs.*;
@@ -332,5 +335,28 @@ public class RxLookupService extends AbstractServiceImpl {
         
     		return Response.ok("true").build();
     }
+    
+    @GET
+    @Path("/drugrefInfo")
+    public Response getDrugrefInfo() {
+    		String s = null;
+    		try {
+    		RxDrugRef drugref = new RxDrugRef();
+        s= drugref.getLastUpdateTime();
+    		}catch(Exception e) {
+    			logger.error("error getting drugref info",e);
+    		}
+        return Response.ok(s).build();
+    }
+     
+    @GET
+    @Path("/limitedUseCodeLookup/{din}")
+    @Produces("application/json")
+    public List<LimitedUseCode> getDrugrefInfo(@PathParam("din") String din) {
+    		din = ("00000000" + din).substring(din.length());
+    		List<LimitedUseCode> luList = LimitedUseLookup.getLUInfoForDin(din);
+    		logger.debug("din" +din +" found "+luList);
+        return luList;
+    }    
 
 }

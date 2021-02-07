@@ -146,6 +146,11 @@ public class RxPatientData {
 			if (demographic != null) return demographic.getHin();
 			else return "";
 		}
+		
+		public String getHcType() {
+			if (demographic != null) return demographic.getHcType();
+			else return "";
+		}
 
 		public java.util.Date getDOB() {
 			Date dob = null;

@@ -35,6 +35,7 @@ import org.apache.log4j.Logger;
 import org.oscarehr.appointment.search.SearchConfig;
 import org.oscarehr.appointment.search.TimeSlot;
 import org.oscarehr.managers.DayWorkSchedule;
+import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.ws.transfer_objects.CalendarScheduleCodePairTransfer;
 
@@ -43,7 +44,7 @@ public class OpenAccessFilter implements AvailableTimeSlotFilter{
 	private static Logger logger = MiscUtils.getLogger();
 	
 	@Override
-	public List<TimeSlot> filterAvailableTimeSlots(SearchConfig clinic,String mrp,String providerId, Long appointmentTypeId, DayWorkSchedule dayWorkScheduleTransfer, List<TimeSlot> currentlyAllowedTimeSlots, Calendar date,Map<String,String> params){
+	public List<TimeSlot> filterAvailableTimeSlots(LoggedInInfo loggedInInfo,SearchConfig clinic,String mrp,String providerId, Long appointmentTypeId, DayWorkSchedule dayWorkScheduleTransfer, List<TimeSlot> currentlyAllowedTimeSlots, Calendar date,Map<String,String> params){
 		ArrayList<TimeSlot> filteredResults = new ArrayList<TimeSlot>();
 		for (TimeSlot entry : currentlyAllowedTimeSlots){
 			if (isAllowedTime(dayWorkScheduleTransfer, entry.getAvailableApptTime(),params)){

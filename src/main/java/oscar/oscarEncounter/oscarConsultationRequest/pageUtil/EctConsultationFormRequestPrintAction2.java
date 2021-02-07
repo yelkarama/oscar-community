@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -118,7 +119,7 @@ public class EctConsultationFormRequestPrintAction2 extends Action {
 						File f2 = File.createTempFile("image"+doc.getDocId(),"pdf");
 						FileOutputStream fos2 = new FileOutputStream(f2);
 						
-						request.setAttribute("imagePath", path + doc.getFileName());
+						request.setAttribute("imagePath", path + URLEncoder.encode(doc.getFileName(),"UTF-8"));
 						request.setAttribute("imageTitle", doc.getDescription());
 
 						ImagePDFCreator ipdfc = new ImagePDFCreator(request, fos2);

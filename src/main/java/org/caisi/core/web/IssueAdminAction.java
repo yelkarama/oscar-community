@@ -143,6 +143,13 @@ public class IssueAdminAction extends DispatchAction {
 		//issue code cannot be duplicated
 		String newCode = ((Issue)issueAdminForm.get("issueAdmin")).getCode();
 		String newId = String.valueOf(((Issue)issueAdminForm.get("issueAdmin")).getId());
+		//issue code cannot contain a comma
+        if(newCode.contains(",")){
+            ActionMessages messages = new ActionMessages();
+            messages.add(ActionMessages.GLOBAL_MESSAGE,new ActionMessage("issueAdmin.code.containsComma"));
+            saveErrors(request,messages);
+            return mapping.findForward("edit");
+        }
 		List<Issue> issueAdmins = mgr.getIssueAdmins();
 		for(Iterator<Issue> it = issueAdmins.iterator(); it.hasNext();) {
 		    Issue issueAdmin = it.next();

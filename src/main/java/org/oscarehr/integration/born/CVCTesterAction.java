@@ -43,6 +43,9 @@ import org.oscarehr.common.model.CVCImmunization;
 import org.oscarehr.common.model.CVCMedication;
 import org.oscarehr.common.model.CVCMedicationLotNumber;
 import org.oscarehr.managers.CanadianVaccineCatalogueManager;
+import org.oscarehr.managers.CanadianVaccineCatalogueManager2;
+import org.oscarehr.managers.SecurityInfoManager;
+import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -54,23 +57,40 @@ import net.sf.json.JSONObject;
  * @author marc
  *
  *
- * baseDstu3/Medication?_tag=CVC1 - All medication objects in a bundle
- * baseDstu3/ValueSet/CVC-Tradename-ValueSet - URI for the tradename valueset
- * baseDstu3/ValueSet/CVC-Generic-ValueSet - URI for the generic valueset
- * baseDstu3/ValueSet?_tag=CVC1- Both valuesets in a bundle
- * baseDstu3/Medication?_tag=CVC1&code=http://www.gs1.org/gtin|067055043550 - Returns bundle containing resource with single Medication that has a GTIN 067055043550
- * baseDstu3/Medication?_tag=CVC1&code=http://snomed.info/sct|7641000087107 - Returns bundle containing resource with single Medication that has SNOMED CT code 7641000087107
  */
 public class CVCTesterAction extends DispatchAction {
 
 	Logger logger = MiscUtils.getLogger();
 	
 	CanadianVaccineCatalogueManager cvcManager = SpringUtils.getBean(CanadianVaccineCatalogueManager.class);
+	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
+	
+	public ActionForward updateCVC(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		//
+		 if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_prevention.updateCVC", "r", null)) {
+             throw new SecurityException("missing required security object (_prevention.updateCVC)");
+           }
 
+		CanadianVaccineCatalogueManager2 cvcManager2 = SpringUtils.getBean(CanadianVaccineCatalogueManager2.class);
+		logger.info("starting CVC update");
+		try {
+			cvcManager2.update(LoggedInInfo.getLoggedInInfoFromSession(request));
+		}catch(Exception e) {
+			logger.error("error",e);
+			//response.setStatus(400,e.getLocalizedMessage());
+			response.sendError(400,e.getLocalizedMessage());
+			return null;
+		}
+		logger.info("completed CVC update");
+		return null;
+	}
+	
 	public ActionForward getLotNumberAndExpiryDates(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String snomedConceptId = request.getParameter("snomedConceptId");
 		if(snomedConceptId != null) {
 			CVCMedication med = cvcManager.getMedicationBySnomedConceptId(snomedConceptId);
+			JSONObject result = new JSONObject();
+			
 			JSONArray json =  new JSONArray();
 			for(CVCMedicationLotNumber ln : med.getLotNumberList()) {
 				JSONObject obj = new JSONObject();
@@ -78,6 +98,29 @@ public class CVCTesterAction extends DispatchAction {
 				obj.put("expiryDate", ln.getExpiryDate());
 				json.add(obj);
 			}
+			result.put("lots",json);
+			
+			CVCImmunization imm = cvcManager.getBrandNameImmunizationBySnomedCode(LoggedInInfo.getLoggedInInfoFromSession(request), snomedConceptId);
+			if(imm != null) {
+				JSONObject t = new JSONObject();
+				t.put("dose",imm.getTypicalDose());
+				t.put("UoM",imm.getTypicalDoseUofM());
+				result.put("typicalDose",t);
+			}
+			result.write(response.getWriter());
+		}
+		return null;
+	}
+	
+	public ActionForward getDIN(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String snomedConceptId = request.getParameter("snomedConceptId");
+		if(snomedConceptId != null) {
+			CVCMedication med = cvcManager.getMedicationBySnomedConceptId(snomedConceptId);
+			String din = med.getDinDisplayName();
+			JSONObject json =  new JSONObject();
+			json.put("din", din);
+			json.put("manufacture", med.getManufacturerDisplay());
+			json.put("status", med.getStatus());			
 			json.write(response.getWriter());
 		}
 		return null;
@@ -136,150 +179,6 @@ public class CVCTesterAction extends DispatchAction {
 		return null;
 	}
 	
-	
-	
-	/* USED FOR TESTING WHILE DEVELOPING
- 
- 	private static FhirContext ctx = FhirContext.forDstu3();
-	String serverBase = "https://xxx/baseDstu3";
-		
-	public ActionForward allMedications(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		IGenericClient client = ctx.newRestfulGenericClient(serverBase);
-		Bundle bundle = client.search().forResource(Medication.class).withTag(null, "CVC1").returnBundle(Bundle.class).execute();
-		
-		logger.info("Bundle ID + " + bundle.getId() + ", total = " + bundle.getTotal());
-		
-		
-		processMedicationBundle(bundle);
-
-		while (bundle.getLink(Bundle.LINK_NEXT) != null) {
-			// load next page
-			bundle = client.loadPage().next(bundle).execute();
-			processMedicationBundle(bundle);
-		}
-
-		return null;
-	}
-	
-	
-	public ActionForward allTradenames(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		IGenericClient client = ctx.newRestfulGenericClient(serverBase);
-		
-		ValueSet valueSet = client.read(ValueSet.class, "CVC-Tradename-ValueSet");
-		logger.info("value set ID = " + valueSet.getId());
-		processValueSet(valueSet);
-		
-		return null;
-	}
-	
-	public ActionForward allGeneric(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		IGenericClient client = ctx.newRestfulGenericClient(serverBase);
-		
-		ValueSet valueSet = client.read(ValueSet.class, "CVC-Generic-ValueSet");
-		logger.info("value set ID = " + valueSet.getId());
-		processValueSet(valueSet);
-		
-		return null;
-	}
-	
-	public ActionForward allValueSets(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		IGenericClient client = ctx.newRestfulGenericClient(serverBase);
-		
-		Bundle bundle = client.search().forResource(ValueSet.class).withTag(null, "CVC1").returnBundle(Bundle.class).execute();
-		logger.info("Bundle ID + " + bundle.getId() + ", total = " + bundle.getTotal());
-		
-		
-		processValueSetBundle(bundle);
-
-		while (bundle.getLink(Bundle.LINK_NEXT) != null) {
-			// load next page
-			bundle = client.loadPage().next(bundle).execute();
-			processValueSetBundle(bundle);
-		}
-
-		
-		return null;
-	}
-	public ActionForward medicationByGtin(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		String gtin = request.getParameter("gtin");
-		
-		IGenericClient client = ctx.newRestfulGenericClient(serverBase);
-		Bundle bundle = client.search().forResource(Medication.class).withTag(null, "CVC1").where(Medication.CODE.exactly().systemAndCode("http://www.gs1.org/gtin", gtin)).returnBundle(Bundle.class).execute();
-		
-		logger.info("Bundle ID + " + bundle.getId() + ", total = " + bundle.getTotal());
-		
-		
-		processMedicationBundle(bundle);
-
-		while (bundle.getLink(Bundle.LINK_NEXT) != null) {
-			// load next page
-			bundle = client.loadPage().next(bundle).execute();
-			processMedicationBundle(bundle);
-		}
-
-		return null;
-	}
-	
-	public ActionForward medicationBySnomed(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		String code = request.getParameter("code");
-		
-		IGenericClient client = ctx.newRestfulGenericClient(serverBase);
-		Bundle bundle = client.search().forResource(Medication.class).withTag(null, "CVC1").where(Medication.CODE.exactly().systemAndCode("http://snomed.info/sct", code)).returnBundle(Bundle.class).execute();
-		
-		logger.info("Bundle ID + " + bundle.getId() + ", total = " + bundle.getTotal());
-		
-		
-		processMedicationBundle(bundle);
-
-		while (bundle.getLink(Bundle.LINK_NEXT) != null) {
-			// load next page
-			bundle = client.loadPage().next(bundle).execute();
-			processMedicationBundle(bundle);
-		}
-
-		return null;
-	}
-	
-	private void processMedicationBundle(Bundle bundle) {
-		for (BundleEntryComponent entry : bundle.getEntry()) {
-			Medication med = (Medication) entry.getResource();
-			for (Coding c : med.getCode().getCoding()) {
-				if ("http://hl7.org/fhir/sid/ca-hc-din".equals(c.getSystem())) {
-					logger.info(c.getDisplay());
-				}
-			}
-		}
-	}
-	
-	private void processValueSetBundle(Bundle bundle) {
-		for (BundleEntryComponent entry : bundle.getEntry()) {
-			ValueSet vs = (ValueSet) entry.getResource();
-			processValueSet(vs);
-		}
-	}	
-	
-	private void processValueSet(ValueSet vs) {
-		//vs.getResourceType();
-		//vs.getId();
-		//vs.getMeta().getVersionId();
-		//vs.getMeta().getLastUpdated();
-
-		List<ConceptSetComponent> l = vs.getCompose().getInclude();
-		for (ConceptSetComponent c : l) {
-			//logger.info(c.getSystem() + " : " + c.getVersion());
-			List<ConceptReferenceComponent> cons = c.getConcept();
-			for (ConceptReferenceComponent cc : cons) {
-				logger.info(cc.getDisplay() + "(" + cc.getCode() + ")");
-				for (ConceptReferenceDesignationComponent cr : cc.getDesignation()) {
-					if("en".equals(cr.getLanguage()) && "Picklist".equals(cr.getUse().getDisplay())) {
-						logger.info("\t" + cr.getValue());
-						//logger.info("\t\t" + cr.getUse().getSystem() + ", " + cr.getUse().getCode() + ", " + cr.getUse().getDisplay());
-					}
-				}
-			}
-		}
-	}
-	*/
 }
 
 class PrevalenceComparator implements Comparator<CVCImmunization> {

@@ -23,10 +23,26 @@
     Ontario, Canada
 
 --%>
+<%@page import="org.oscarehr.util.*"%><%
+String signatureRequestId = "";
+String imageUrl = "";
+LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+signatureRequestId = org.oscarehr.util.DigitalSignatureUtils.generateSignatureRequestId(loggedInInfo.getLoggedInProviderNo());
+%>
 <div class="modal-header">
-	<button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">Print PDF</button>
+	<div class="btn-group">
+  		<button type="button" class="btn btn-primary" ng-click="$ctrl.printPDF()">Print PDF</button>
+  		<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    			<span class="caret"></span>
+    			<span class="sr-only">Toggle Dropdown</span>
+  		</button>
+  		<ul class="dropdown-menu">
+    			<li ng-repeat="p in $ctrl.pdfPageOptions"><a ng-click="$ctrl.printPDF(p.code)" >{{p.label}}</a></li>
+  		</ul>
+	</div>
+	
 	<button class="btn btn-primary" type="button" ng-click="$ctrl.print()">Print</button>
-	<button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">Print & Paste into EMR</button>
+	<button class="btn btn-primary" type="button" ng-click="$ctrl.printPasteToChartNote()">Print & Paste into EMR</button>
     <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">Create New Rx</button>
 	<button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">Close</button>
     <button class="btn btn-warning" type="button" ng-click="$ctrl.cancel()">Edit Rx</button>
@@ -34,13 +50,19 @@
 <div class="modal-body" id="modal-body">
 				
 	<div class="row">
-		<div class="col-lg-6">
+		<div class="col-xs-6">
 			<iframe id="preview" name="preview" src="{{$ctrl.scriptURL}}" border="0" align="middle" width="420px" height="1000px" frameborder="0"></iframe>	
 		</div>
-		<div class="col-lg-6">	
+		<div class="col-xs-6">	
 			Additional Notes to add to Rx
-			<textarea class="form-control" rows="3"></textarea>
+			<textarea class="form-control" rows="3" id="additionalNotes"></textarea>
+			<button class="btn btn-primary btn-block" type="button" ng-click="$ctrl.addNotes()">Add To Rx</button>
+			
+			<label>Signature</label>
+             <input type="hidden" name="<%=DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY%>" value="<%=signatureRequestId%>" />
+             <iframe style="width:500px; height:132px;"id="signatureFrame" src="<%= request.getContextPath() %>/signature_pad/tabletSignature.jsp?inWindow=true&<%=DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY%>=<%=signatureRequestId%>" ></iframe>
 		</div>
+		
 	</div>
 
 </div>

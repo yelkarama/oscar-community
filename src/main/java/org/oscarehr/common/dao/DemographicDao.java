@@ -31,6 +31,7 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+//import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -135,6 +136,50 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 	public List getDemographics() {
 		logger.error("No one should be calling this method, this is a good way to run out of memory and crash a server... this is too large of a result set, it should be pagenated.", new IllegalArgumentException("The entire demographic table is too big to allow a full select."));
 		return this.getHibernateTemplate().find("from Demographic d order by d.LastName");
+	}
+
+	public List<Demographic> getDemographicFamilyMembers(String demographic_no) {
+		List params = new ArrayList<String>();
+		boolean allNull = true;
+		if (demographic_no == null || demographic_no.length() == 0 || demographic_no == "test") {
+			return null;
+		}
+
+		Demographic demographic = getDemographic(demographic_no);
+		String sql = "FROM Demographic d " + " WHERE d.PatientStatus = 'AC' ";
+		sql += " AND d.id <> "+ demographic_no;
+
+		// To be part of a family, the demographics must have a matching street address and other address field
+		// excluding province in the slim chance there are demographics of more than one family that live at an
+		// address that are located in different cities of the same province.
+		if(demographic.getAddress() !=null && !demographic.getAddress().trim().equals("")){
+			sql += " AND d.Address = '" + demographic.getAddress().trim() + "' ";
+
+			if(demographic.getCity() !=null){
+				sql += " AND d.City = '" + demographic.getCity().trim() + "' ";
+				allNull = false;
+			}
+
+			if(demographic.getProvince()!=null){
+				sql += " AND d.Province = '" + demographic.getProvince().trim() + "' ";
+			}
+
+			if(demographic.getPostal()!=null){
+				sql += " AND d.Postal = '" + demographic.getPostal().trim() + "' ";
+				allNull = false;
+			}
+
+			if(demographic.getPhone()!=null){
+				sql += " AND d.Phone  = '" + demographic.getPhone().trim() + "' ";
+				allNull = false;
+			}
+		}
+
+		if(allNull){
+			return null;
+		}
+
+		return this.getHibernateTemplate().find(sql);
 	}
 	
 	public Long getActiveDemographicCount() {
@@ -2193,4 +2238,7 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 		return rs;
 	}
 	
+	public List<Demographic> findByLastNameAndDob(String lastName, Calendar dateOfBirth) {
+		return findByAttributes(null, null, lastName, null, dateOfBirth, null, null, null, null, null, 0, 99);
+	}
 }

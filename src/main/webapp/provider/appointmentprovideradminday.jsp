@@ -73,6 +73,7 @@
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.util.MiscUtils" %>
 <%@ page import="org.oscarehr.util.SessionConstants" %>
+<%@ page import="java.util.Date" %>
 
 <!-- add by caisi -->
 <%@ taglib uri="http://www.caisi.ca/plugin-tag" prefix="plugin" %>
@@ -349,6 +350,8 @@ public boolean patientHasOutstandingPrivateBills(String demographicNo){
 	UserProperty oldEchartLink = propDao.getProp(curUser_no, UserProperty.HIDE_OLD_ECHART_LINK_IN_APPT);
 	if (oldEchartLink!=null && "Y".equals(oldEchartLink.getValue())) showOldEchartLink = false;
 
+	SimpleDateFormat appointmentDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+	
 if (org.oscarehr.common.IsPropertiesOn.isCaisiEnable() && org.oscarehr.common.IsPropertiesOn.isTicklerPlusEnable()){
 	newticklerwarningwindow = (String) session.getAttribute("newticklerwarningwindow");
 	default_pmm = (String)session.getAttribute("default_pmm");
@@ -893,8 +896,18 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
  </caisi:isModuleLoad>
 <caisi:isModuleLoad moduleName="TORONTO_RFQ" reverse="true">
 <security:oscarSec roleName="<%=roleName$%>" objectName="_con" rights="r">
+<%
+
+
+	UserProperty consultsDefaultFilter = propDao.getProp(curUser_no, UserProperty.CONSULTS_DEFAULT_FILTER);
+	String consultsDefaultFilterUrl = "../oscarEncounter/IncomingConsultation.do?providerNo="+curUser_no+"&userName="+URLEncoder.encode(userfirstname+" "+userlastname);
+	if ( consultsDefaultFilter != null && consultsDefaultFilter.getValue() != null && !consultsDefaultFilter.getValue().trim().equals("")){
+		consultsDefaultFilterUrl = "../oscarEncounter/ViewConsultation.do?"+consultsDefaultFilter.getValue();
+	}
+
+%>
 <li id="con">
- <a HREF="#" ONCLICK ="popupOscarRx(625,1024,'../oscarEncounter/IncomingConsultation.do?providerNo=<%=curUser_no%>&userName=<%=URLEncoder.encode(userfirstname+" "+userlastname)%>')" title="<bean:message key="provider.appointmentProviderAdminDay.viewConReq"/>">
+ <a HREF="#" ONCLICK ="popupOscarRx(625,1224,'<%=consultsDefaultFilterUrl%>')" title="<bean:message key="provider.appointmentProviderAdminDay.viewConReq"/>">
  <span id="oscar_aged_consults"><bean:message key="global.con"/></span></a>
 </li>
 </security:oscarSec>
@@ -1125,7 +1138,37 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 </div>
 	<%}%>
 	
-		<% if (request.getSession().getAttribute("oneIdEmail") != null && !request.getSession().getAttribute("oneIdEmail").equals("")) { %>
+		<%  	if(loggedInInfo1.getOneIdGatewayData() != null){ 
+				int numberOfMinutesUntilRefreshTokenIsInvalid = loggedInInfo1.getOneIdGatewayData().numberOfMinutesUntilRefreshTokenIsInvalid();
+				String gtwyColor = "";
+				String gtwyMsg = "Token is valid for "+numberOfMinutesUntilRefreshTokenIsInvalid+" minutes";
+				if(numberOfMinutesUntilRefreshTokenIsInvalid > 10){
+					//use default message;
+				}else if(numberOfMinutesUntilRefreshTokenIsInvalid < 10 && numberOfMinutesUntilRefreshTokenIsInvalid > 0){
+					gtwyColor = "style='color:yellow;'";
+					gtwyMsg = "Token will expire soon, valid for "+numberOfMinutesUntilRefreshTokenIsInvalid+" minutes. Click here to refresh";
+				}else if(numberOfMinutesUntilRefreshTokenIsInvalid < 0 && numberOfMinutesUntilRefreshTokenIsInvalid > -10){
+					gtwyColor = "style='color:red'";
+					gtwyMsg = "Token has expired. Click here to re-authenticate with ONE ID";
+				}else{
+					gtwyColor = "style='color:grey'";
+					gtwyMsg = "Token has expired. Click here to re-authenticate with ONE ID";
+				}
+				%>
+				<a href="<%=request.getContextPath()%>/eho/login2.jsp?alreadyLoggedIn=true&forwardURL=<%=URLEncoder.encode(request.getContextPath()+"/provider/providercontrol.jsp","UTF-8") %>" <%=gtwyColor%> title="<%=gtwyMsg%>">GTWY</a>
+				| <a href="uaoSelector.jsp" title="Operating under the authority of: <%=loggedInInfo1.getOneIdGatewayData().getUaoFriendlyName()%>. Click to Change">UAO</a> 
+				| <a target="_blank" href="<%=request.getContextPath()%>/admin/omdGatewayLog.jsp" title="Current Gateway Log">Log</a>
+				| <a href="../logoutSSO.jsp">Global Logout</a>
+			<%
+			}else if (request.getSession().getAttribute("oneIdEmail") != null && !request.getSession().getAttribute("oneIdEmail").equals("")) { 
+				if(loggedInInfo1.getOneIdGatewayData() == null){ %>
+					<script>
+					window.location = 'uaoSelector.jsp';
+					</script>
+				<%   /*?ondIdwasnull*/
+					return;
+				}%>
+				
 				| <a href="../logoutSSO.jsp">Global Logout</a>
  		<% }
 		   else { %>
@@ -1140,6 +1183,15 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 
 
 <script>
+	<%if(loggedInInfo1.getOneIdGatewayData() != null && loggedInInfo1.getOneIdGatewayData().isDoubleCheckUAO()){
+		%>
+		if (!confirm('Operating under the authority of: <%=loggedInInfo1.getOneIdGatewayData().getUaoFriendlyName()%> Press Cancel to select another.')){
+		 	window.location = 'uaoSelector.jsp';	 
+		} 
+		<%
+		loggedInInfo1.getOneIdGatewayData().setDoubleCheckUAO(false);
+	}
+	%>
 	jQuery(document).ready(function(){
 		jQuery.get("<%=request.getContextPath()%>/SystemMessage.do?method=view","html",function(data,textStatus){
 			jQuery("#system_message").html(data);
@@ -2155,13 +2207,16 @@ start_time += iSm + ":00";
 
       <%String appointment_no=appointment.getId().toString();
       	request.setAttribute("providerPreference", providerPreference);
+      	Date appointmentDate = appointmentDateTimeFormat.parse(strYear + "-" + strMonth + "-" + strDay + " " + start_time);
       %>
       <c:set var="demographic_no" value="<%=demographic_no %>" />
       <c:set var="appointment_no" value="<%=appointment_no %>" />
+      <c:set var="appointment_date" value="<%=appointmentDate.getTime()%>" />
       
 	  <jsp:include page="appointmentFormsLinks.jspf">	  	
 	  	<jsp:param value="${demographic_no}" name="demographic_no"/>
 	  	<jsp:param value="${appointment_no}" name="appointment_no"/>
+	  	<jsp:param value="${appointment_date}" name="appointment_date"/>
 	  </jsp:include>
 
 	<oscar:oscarPropertiesCheck property="appt_pregnancy" value="true" defaultVal="false">

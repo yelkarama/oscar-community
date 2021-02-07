@@ -43,14 +43,14 @@ import org.oscarehr.util.SpringUtils;
 import oscar.util.UtilDateUtilities;
 
 public class EctViewConsultationRequestsAction extends Action {
-	private static SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
+    private static SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
     	
         if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_con", "r", null)) {
 			throw new SecurityException("missing required security object (_con)");
-		}
+	}
     	
         EctViewConsultationRequestsForm frm = (EctViewConsultationRequestsForm) form;
         
@@ -59,8 +59,23 @@ public class EctViewConsultationRequestsAction extends Action {
         String includeCompleted = null;                
         Date startDate = null;
         Date endDate = null;
-        boolean includedComp = false;        
-                
+        boolean includedComp = false;
+      
+        String mrpNo = null;
+	    mrpNo = frm.getMrpNo();
+
+        String patientId = null;
+	    patientId = frm.getPatientId();
+
+        String urgencyFilter = null;
+	    urgencyFilter = frm.getUrgencyFilter();
+
+        String serviceFilter = null;
+	    serviceFilter = frm.getServiceFilter();
+
+        String consultantFilter = null;
+	    consultantFilter = frm.getConsultantFilter();
+        
         sendTo = frm.getSendTo();
         includeCompleted = frm.getIncludeCompleted();
                                 
@@ -80,7 +95,12 @@ public class EctViewConsultationRequestsAction extends Action {
         request.setAttribute("teamVar", sendTo);
         request.setAttribute("orderby",frm.getOrderby());
         request.setAttribute("desc",frm.getDesc());
-        request.setAttribute("searchDate",frm.getSearchDate());                
+        request.setAttribute("searchDate",frm.getSearchDate());    
+        request.setAttribute("mrpNo",mrpNo);     
+        request.setAttribute("patientId",patientId);
+        request.setAttribute("urgencyFilter",urgencyFilter);   
+        request.setAttribute("serviceFilter",serviceFilter);            
+        request.setAttribute("consultantFilter",consultantFilter); 
         return mapping.findForward("success");
     }
     
