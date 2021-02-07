@@ -321,20 +321,19 @@ function printIframe(){
 	}
 
 function printPaste2Parent(print){
-    //console.log("in printPaste2Parent");
    try{
-      text =""; // "****<%=oscar.oscarProvider.data.ProviderData.getProviderName(bean.getProviderNo())%>********************************************************************************";
-      //console.log("1");
-      //text = text.substring(0, 82) + "\n";
+      text =""; 
       if (document.all){
          text += preview.document.forms[0].rx_no_newlines.value
       } else {
-         text += preview.document.forms[0].rx_no_newlines.value + "\n";
+         text += preview.document.forms[0].rx_no_newlines.value;
       }
-      //console.log("2");
-      text+=document.getElementById('additionalNotes').value+"\n";
-      //text += "**********************************************************************************\n";
-      //oscarLog(text);
+      if (document.getElementById('additionalNotes').value){
+           text+=document.getElementById('additionalNotes').value+"\n";
+      }
+	  if(!print){
+           text+="Faxed to: "+ '<%=prefPharmacy%>';
+       };
 
       //we support pasting into orig encounter and new casemanagement
       demographicNo = <%=bean.getDemographicNo()%>;
@@ -656,8 +655,7 @@ function toggleView(form) {
 					<tr>                            
                             <td><span><input type=button value="Fax & Paste into EMR"
                                     class="ControlPushButton" id="faxButton" style="width: 150px"
-                                    onClick="printPaste2Parent(false);sendFax();" disabled/></span>
-                                    
+                                    onClick="printPaste2Parent(false);sendFax();clearPending('close');parent.window.close();" disabled/></span> 
                                  <span>
                                  	<select id="faxNumber" name="faxNumber">
                                  	<%
