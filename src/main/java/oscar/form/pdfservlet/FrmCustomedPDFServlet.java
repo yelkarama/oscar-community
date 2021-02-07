@@ -412,38 +412,38 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 				cb.setLineWidth(0.5f);
 				// cb.moveTo(13f, 20f);
 				// cb.lineTo(285f, 20f);
-				cb.moveTo(13f, endPara - 60);
-				cb.lineTo(285f, endPara - 60);
+				cb.moveTo(13f, endPara - 80);
+				cb.lineTo(285f, endPara - 80);
 				cb.stroke();
 				// Render "Signature:"
-				writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, geti18nTagValue(locale, "RxPreview.msgSignature"), 20f, endPara - 30f, 0);// Render line for Signature 75, 55, 280, 55, 0.5
+				writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, geti18nTagValue(locale, "RxPreview.msgSignature"), 20f, endPara - 50f, 0);// Render line for Signature 75, 55, 280, 55, 0.5
 				cb.setRGBColorStrokeF(0f, 0f, 0f);
 				cb.setLineWidth(0.5f);
 				// cb.moveTo(75f, 50f);
 				// cb.lineTo(280f, 50f);
-				cb.moveTo(75f, endPara - 30f);
-				cb.lineTo(280f, endPara - 30f);
+				cb.moveTo(75f, endPara - 50f);
+				cb.lineTo(280f, endPara - 50f);
 				cb.stroke();
 
 				if (this.imgPath != null) {
 					Image img = Image.getInstance(this.imgPath);
 					// image, image_width, 0, 0, image_height, x, y
 					//         131, 55, 375, 75, 0
-					cb.addImage(img, 157, 0, 0, 40, 150f, endPara-30f);
+					cb.addImage(img, 157, 0, 0, 40, 150f, endPara-50f);
 				}
 
 				// Render doctor name
-				writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, this.sigDoctorName, 90, endPara - 40f, 0);
+				writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, this.sigDoctorName, 90, endPara - 60f, 0);
 				// public void writeDirectContent(PdfContentByte cb, BaseFont bf, float fontSize, int alignment, String text, float x, float y, float rotation)
 				// render reprint origPrintDate and numPrint
 				if (origPrintDate != null && numPrint != null) {
-					String rePrintStr = geti18nTagValue(locale, "RxPreview.msgReprintBy")+" " + this.sigDoctorName + "; "+geti18nTagValue(locale, "RxPreview.msgOrigPrinted")+": " + origPrintDate + "; "+geti18nTagValue(locale, "RxPreview.msgTimesPrinted") +": " + numPrint;writeDirectContent(cb, bf, 6, PdfContentByte.ALIGN_LEFT, rePrintStr, 50, endPara - 48, 0);
+					String rePrintStr = geti18nTagValue(locale, "RxPreview.msgReprintBy")+" " + this.sigDoctorName + "; "+geti18nTagValue(locale, "RxPreview.msgOrigPrinted")+": " + origPrintDate + "; "+geti18nTagValue(locale, "RxPreview.msgTimesPrinted") +": " + numPrint;writeDirectContent(cb, bf, 6, PdfContentByte.ALIGN_LEFT, rePrintStr, 50, endPara - 68, 0);
 				}
 				// print promoText
-				writeDirectContent(cb, bf, 6, PdfContentByte.ALIGN_LEFT, this.promoText, 70, endPara - 57, 0);
+				writeDirectContent(cb, bf, 6, PdfContentByte.ALIGN_LEFT, this.promoText, 70, endPara - 77, 0);
 				// print page number
 				String footer = "" + writer.getPageNumber();
-				writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_RIGHT, footer, 280, endPara - 57, 0);
+				writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_RIGHT, footer, 280, endPara - 77, 0);
 			} catch (Exception e) {
 				logger.error("Error", e);
 			}
