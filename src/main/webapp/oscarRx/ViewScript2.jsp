@@ -332,7 +332,7 @@ function printPaste2Parent(print){
            text+=document.getElementById('additionalNotes').value+"\n";
       }
 	  if(!print){
-           text+="Faxed to: "+ '<%=prefPharmacy%>';
+		  text+="Fax sent to: "+ '<%=prefPharmacy%>'+" ("+ '<%= pharmacy.getFax().trim() %>'+")";
        };
 
       //we support pasting into orig encounter and new casemanagement
