@@ -389,7 +389,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 				cb.setRGBColorStrokeF(0f, 0f, 0f);
 				cb.setLineWidth(0.5f);
 				// cb.moveTo(13f, 20f);
-				cb.moveTo(13f, endPara - 60);
+				cb.moveTo(13f, endPara - 80);
 				cb.lineTo(13f, height - 15f);
 				cb.stroke();
 
@@ -397,7 +397,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 				cb.setRGBColorStrokeF(0f, 0f, 0f);
 				cb.setLineWidth(0.5f);
 				// cb.moveTo(285f, 20f);
-				cb.moveTo(285f, endPara - 60);
+				cb.moveTo(285f, endPara - 80);
 				cb.lineTo(285f, height - 15f);
 				cb.stroke();
 				// draw top line 10, 405, 285, 405, 0.5
@@ -429,7 +429,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 					Image img = Image.getInstance(this.imgPath);
 					// image, image_width, 0, 0, image_height, x, y
 					//         131, 55, 375, 75, 0
-					cb.addImage(img, 157, 0, 0, 40, 150f, endPara-50f);
+					cb.addImage(img, 157, 0, 0, 40, 100f, endPara-56f);
 				}
 
 				// Render doctor name
