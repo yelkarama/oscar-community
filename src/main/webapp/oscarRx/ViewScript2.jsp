@@ -331,11 +331,10 @@ function printPaste2Parent(print){
       if (document.getElementById('additionalNotes').value){
            text+=document.getElementById('additionalNotes').value+"\n";
       }
-      <%if(prefPharmacy.length()>0 && pharmacy.getFax.length()>0){   %>
-	       if(!print){
-	  	        text+="Fax sent to: "+ '<%=prefPharmacy%>'+" ("+ '<%= pharmacy.getFax().trim() %>'+")";
-           };
-       <% }; %>
+	  if(!print){
+ 	       text+="Fax sent to: "+ '<%=((prefPharmacy==null)?"":prefPharmacy)%>'+" ("+ '<%=((pharmacy.getFax()==null)?"":pharmacy.getFax())%>'+")";
+      };
+
       //we support pasting into orig encounter and new casemanagement
       demographicNo = <%=bean.getDemographicNo()%>;
       noteEditor = "noteEditor"+demographicNo;
