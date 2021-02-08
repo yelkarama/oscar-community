@@ -332,8 +332,15 @@ function printPaste2Parent(print){
            text+=document.getElementById('additionalNotes').value+"\n";
       }
 	  if(!print){
- 	       text+="Fax sent to: "+ '<%=((prefPharmacy==null)?"":prefPharmacy)%>'+" ("+ '<%=((prefPharmacy==null)?"":pharmacy.getFax())%>'+")";
-      };
+            var url="<c:out value="${ctx}"/>"+"/oscarRx/managePharmacy2.do?";
+            var data="method=getPharmacyInfo&pharmacyId="+'<%=prefPharmacyId%>';
+            new Ajax.Request(url, {method: 'get',parameters:data, onSuccess:function(transport){
+                var json=transport.responseText.evalJSON();
+                    if(json!=null){
+                        text+="Fax sent to: "+json.name+" ("+json.fax+")";
+                    }
+            }});
+      }
 
       //we support pasting into orig encounter and new casemanagement
       demographicNo = <%=bean.getDemographicNo()%>;
