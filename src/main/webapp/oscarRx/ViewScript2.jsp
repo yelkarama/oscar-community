@@ -192,13 +192,16 @@ PharmacyInfo pharmacy = null;
 
 String prefPharmacy = "";
 String prefPharmacyId="";
+String prefPharmacyFax="";
 if (pharmacyId != null && !"null".equalsIgnoreCase(pharmacyId)) {
 	pharmacy = pharmacyData.getPharmacy(pharmacyId);    
 	if( pharmacy != null ) {
     	prefPharmacy = pharmacy.getName().replace("'", "\\'");
     	prefPharmacyId=String.valueOf(pharmacy.getId());
+prefPharmacyFax=pharmacy.getFax();
     	prefPharmacy=prefPharmacy.trim();
     	prefPharmacyId=prefPharmacyId.trim();
+prefPharmacyFax=prefPharmacyFax.trim();
 	}
 }
 
@@ -332,14 +335,7 @@ function printPaste2Parent(print){
            text+=document.getElementById('additionalNotes').value+"\n";
       }
 	  if(!print){
-            var url="<c:out value="${ctx}"/>"+"/oscarRx/managePharmacy2.do?";
-            var data="method=getPharmacyInfo&pharmacyId="+'<%=prefPharmacyId%>';
-            new Ajax.Request(url, {method: 'get',parameters:data, onSuccess:function(transport){
-                var json=transport.responseText.evalJSON();
-                    if(json!=null){
-                        text+="Fax sent to: "+json.name+" ("+json.fax+")";
-                    }
-            }});
+            text+="Fax sent to: "+ '<%=prefPharmacy%>'+" ("+ '<%=prefPharmacyFax%>'+")";
       }
 
       //we support pasting into orig encounter and new casemanagement
