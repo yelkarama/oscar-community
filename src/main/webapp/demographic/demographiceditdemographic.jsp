@@ -1510,7 +1510,19 @@ if(oscarProps.getProperty("new_label_print") != null && oscarProps.getProperty("
                             <security:oscarSec roleName="<%=roleName$%>" objectName="_demographicExport" rights="r" reverse="<%=false%>">
                                 <input type="button" value="<bean:message key="demographic.demographiceditdemographic.msgExport"/>"
                                     onclick="window.open('demographicExport.jsp?demographicNo=<%=demographic.getDemographicNo()%>');">
-                             </security:oscarSec>     
+                             </security:oscarSec>
+                             <input type="button" name="Button"
+                                    value="Add Family Member"
+                                    onclick="window.open('demographicaddarecordhtm.jsp?search_mode=search_name&keyword=','', 'scrollbars=yes,resizable=yes,width=1000,height=500, top=100, left=0')">
+               <%
+                if( demographic!=null) {
+                        session.setAttribute("address", demographic.getAddress());
+                        session.setAttribute("city", demographic.getCity());
+                        session.setAttribute("province", demographic.getProvince());
+                        session.setAttribute("postal", demographic.getPostal());
+                        session.setAttribute("phone", demographic.getPhone());
+                } %>
+                           
                                 </td>
                                 <td width="30%" align='center' valign="top">
                                 <% if (oscarProps.getBooleanProperty("workflow_enhance", "true")) { %>
