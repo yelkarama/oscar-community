@@ -138,7 +138,7 @@ public class BORNFhirJob implements OscarRunnable {
 			x.setLoggedInProvider(provider);
 			x.setLoggedInSecurity(security);
 
-			logger.info("BORN FHIR integration job started and running as " + x.getLoggedInProvider().getFormattedName());
+			logger.debug("BORN FHIR integration job started and running as " + x.getLoggedInProvider().getFormattedName());
 			
 			String providerEmail = security.getOneIdEmail();
 			Clinic clinic = clinicDao.getClinic();
@@ -148,7 +148,7 @@ public class BORNFhirJob implements OscarRunnable {
 			sendMessages(x, getWBDemographicNos(), "wb", clinic, providerEmail, oneIdToken);
 			sendMessages(x, getWBCSDDemographicNos(), "wbcsd", clinic, providerEmail, oneIdToken);
 		
-			logger.info("BORN FHIR integration job successfully completed");
+			logger.debug("BORN FHIR integration job successfully completed");
 			
 		} finally {
 			DbConnectionFilter.releaseThreadLocalDbConnection();
