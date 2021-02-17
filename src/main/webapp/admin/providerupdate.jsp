@@ -58,6 +58,11 @@ if(!authed) {
 <%@page import="org.oscarehr.common.dao.ProviderSiteDao"%>
 <%@page import="org.oscarehr.common.dao.UserPropertyDAO"%>
 <%@page import="org.oscarehr.common.model.UserProperty"%>
+<%@ page import="oscar.log.LogAction" %>
+<%@ page import="oscar.log.LogConst" %>
+<%@ page import="oscar.util.ChangedField" %>
+<%@ page import="org.oscarehr.util.LoggedInInfo" %>
+<%@ page import="oscar.util.StringUtils" %>
 <%
 	ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
 	ProviderSiteDao providerSiteDao = SpringUtils.getBean(ProviderSiteDao.class);
@@ -159,6 +164,8 @@ if(!authed) {
 
 	  Provider p = providerDao.getProvider(request.getParameter("provider_no"));
 	  if(p != null) {
+		  List<ChangedField> changedFields = new ArrayList<ChangedField>();
+		  Provider beforeChange = new Provider(p);
 		  p.setLastName(request.getParameter("last_name"));
 		  p.setFirstName(request.getParameter("first_name"));
 		  p.setProviderType(request.getParameter("provider_type"));
@@ -210,12 +217,27 @@ if(!authed) {
 		  String officialSecondName = request.getParameter("officialSecondName");
 		  String officialLastName = request.getParameter("officialLastName");
 		  String officialOlisIdtype = request.getParameter("officialOlisIdtype");
-		
+		  String oldOfficialFirstName = StringUtils.noNull(userPropertyDAO.getStringValue(provider.getProviderNo(), UserProperty.OFFICIAL_FIRST_NAME));
+		  String oldOfficialSecondName = StringUtils.noNull(userPropertyDAO.getStringValue(provider.getProviderNo(), UserProperty.OFFICIAL_SECOND_NAME));
+		  String oldOfficialLastName = StringUtils.noNull(userPropertyDAO.getStringValue(provider.getProviderNo(), UserProperty.OFFICIAL_LAST_NAME));
+		  String oldOfficialOlisIdtype = StringUtils.noNull(userPropertyDAO.getStringValue(provider.getProviderNo(), UserProperty.OFFICIAL_OLIS_IDTYPE));
+		  
 		  userPropertyDAO.saveProp(provider.getProviderNo(), UserProperty.OFFICIAL_FIRST_NAME, officialFirstName);
 		  userPropertyDAO.saveProp(provider.getProviderNo(), UserProperty.OFFICIAL_SECOND_NAME, officialSecondName);
 		  userPropertyDAO.saveProp(provider.getProviderNo(), UserProperty.OFFICIAL_LAST_NAME, officialLastName);
 		  userPropertyDAO.saveProp(provider.getProviderNo(), UserProperty.OFFICIAL_OLIS_IDTYPE, officialOlisIdtype);
-		  
+		  if (!oldOfficialFirstName.equals(officialFirstName)) {
+		      changedFields.add(new ChangedField(UserProperty.OFFICIAL_FIRST_NAME, oldOfficialFirstName, officialFirstName));
+		  }
+		  if (!oldOfficialSecondName.equals(officialSecondName)) {
+		      changedFields.add(new ChangedField(UserProperty.OFFICIAL_SECOND_NAME, oldOfficialSecondName, officialSecondName));
+		  }
+		  if (!oldOfficialLastName.equals(officialLastName)) {
+		      changedFields.add(new ChangedField(UserProperty.OFFICIAL_LAST_NAME, oldOfficialLastName, officialLastName));
+		  }
+		  if (!oldOfficialOlisIdtype.equals(officialOlisIdtype)) {
+			  changedFields.add(new ChangedField(UserProperty.OFFICIAL_OLIS_IDTYPE, oldOfficialOlisIdtype, officialOlisIdtype));
+		  }
 		
         if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) {
             String[] sites = request.getParameterValues("sites");
@@ -233,6 +255,12 @@ if(!authed) {
                 }
             }
         }
+		changedFields.addAll(ChangedField.getChangedFieldsAndValues(beforeChange, p));
+        
+        String keyword = "providerNo=" + p.getProviderNo();
+        if (request.getParameter("keyword") != null) { keyword += "\n" + request.getParameter("keyword"); }
+        
+		LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.UPDATE, "adminUpdateUser", keyword, changedFields);
 %>
 <p>
 <h2><bean:message key="admin.providerupdate.msgUpdateSuccess" />

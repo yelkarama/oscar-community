@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionRedirect;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
 import org.oscarehr.PMmodule.dao.ProviderDao;
@@ -42,21 +43,24 @@ import org.oscarehr.common.dao.BillingONCHeader1Dao;
 import org.oscarehr.common.dao.BillingONExtDao;
 import org.oscarehr.common.dao.BillingONPaymentDao;
 import org.oscarehr.common.dao.BillingONRepoDao;
-import org.oscarehr.common.dao.BillingPaymentTypeDao;
 import org.oscarehr.common.dao.BillingServiceDao;
+import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.model.BillingONCHeader1;
 import org.oscarehr.common.model.BillingONExt;
 import org.oscarehr.common.model.BillingONItem;
 import org.oscarehr.common.model.BillingONPayment;
 import org.oscarehr.common.model.BillingService;
 import org.oscarehr.common.model.Provider;
+import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.service.BillingONService;
-import org.oscarehr.common.model.BillingPaymentType;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
+import oscar.log.LogAction;
+import oscar.log.LogConst;
 import oscar.oscarBilling.ca.on.data.BillingDataHlp;
+import oscar.util.ChangedField;
 import oscar.util.DateUtils;
 import oscar.util.StringUtils;
 
@@ -69,7 +73,7 @@ public class BillingCorrectionAction extends DispatchAction{
     private BillingONPaymentDao bPaymentDao = (BillingONPaymentDao) SpringUtils.getBean("billingONPaymentDao");        
     private BillingONCHeader1Dao bCh1Dao = (BillingONCHeader1Dao) SpringUtils.getBean("billingONCHeader1Dao");     
     private  BillingONExtDao billExtDao = (BillingONExtDao) SpringUtils.getBean("billingONExtDao");
-    private final BillingPaymentTypeDao billingPaymentTypeDao = SpringUtils.getBean(BillingPaymentTypeDao.class);
+	private DemographicDao demographicDao = (DemographicDao) SpringUtils.getBean("demographicDao");
         
     public ActionForward add3rdPartyPayment(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response){
         
@@ -127,7 +131,7 @@ public class BillingCorrectionAction extends DispatchAction{
     }
     
     public ActionForward updateInvoice(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response){
-        
+        List<ChangedField> changedFields = new ArrayList<ChangedField>();
         Integer billingNo = null;
         try {
             billingNo = Integer.parseInt(request.getParameter("xml_billing_no"));
@@ -141,7 +145,8 @@ public class BillingCorrectionAction extends DispatchAction{
         if (bCh1 == null) {
             MiscUtils.getLogger().error("No billing object found for Ch1 Id: " + request.getParameter("xml_billing_no"));
             return mapping.findForward("closeReload");            
-        }        
+        }
+        BillingONCHeader1 oldBCh1 = new BillingONCHeader1(bCh1);
         
         if (!updateBillingONCHeader1(bCh1, request))
             return mapping.findForward("failure");
@@ -154,7 +159,8 @@ public class BillingCorrectionAction extends DispatchAction{
         }
         
         bCh1Dao.merge(bCh1);
-         
+        changedFields.addAll(ChangedField.getChangedFieldsAndValues(oldBCh1, bCh1));
+
         String newStatus = request.getParameter("status").substring(0,1);
         String oldStatus = bCh1.getStatus();
         
@@ -164,16 +170,19 @@ public class BillingCorrectionAction extends DispatchAction{
                 billPayment.setBillingOnCheader1(bCh1);
                 billPayment.setPaymentDate(new java.util.Date());
                 bPaymentDao.persist(billPayment);
+                changedFields.add(new ChangedField("BillingStatus", oldStatus, newStatus));
         }
         
         //Update Bill To if changed.
         if (request.getParameter("billTo") != null) {           
             BillingONExt billExt = billExtDao.getBillTo(bCh1);
-            if (billExt != null) {
+            String oldValue = "";
+            if (billExt != null && !billExt.getValue().equals(request.getParameter("billTo"))) {
+                oldValue = billExt.getValue();
                 billExt.setValue(request.getParameter("billTo"));
-                
                 billExtDao.merge(billExt);
-            } else {
+                changedFields.add(new ChangedField("billTo", oldValue, request.getParameter("billTo")));
+            } else if (billExt == null) {
                 billExt = new BillingONExt();
                 billExt.setBillingNo(bCh1.getId());
                 billExt.setDateTime(new Date());
@@ -182,17 +191,18 @@ public class BillingCorrectionAction extends DispatchAction{
                 billExt.setPaymentId(new Integer(0));
                 billExt.setStatus('1');
                 billExt.setValue(request.getParameter("billTo"));
-                
                 billExtDao.persist(billExt);
-            }            
+                changedFields.add(new ChangedField("billTo", oldValue, request.getParameter("billTo")));
+            }
         }
         
         //Update Due Date if changed.
 	if (request.getParameter("invoiceDueDate") != null) {
 	           
             BillingONExt billExt = billExtDao.getDueDate(bCh1);
-	           
+            String oldValue = "";
             if (billExt != null) {
+                oldValue = billExt.getValue();
                 billExt.setValue(request.getParameter("invoiceDueDate"));                
                 billExtDao.merge(billExt);
             } else {
@@ -206,11 +216,12 @@ public class BillingCorrectionAction extends DispatchAction{
                 billExt.setValue(request.getParameter("invoiceDueDate"));
 	               
                 billExtDao.persist(billExt);
-            }            
+            }
+            changedFields.add(new ChangedField("invoiceDueDate", oldValue, request.getParameter("invoiceDueDate")));
         }        
         
         //Update Use Bill To for Reprint if changed                    
-        BillingONExt billExt = billExtDao.getUseBillTo(bCh1);            
+        BillingONExt billExt = billExtDao.getUseBillTo(bCh1);
         if (billExt != null) {
             if (request.getParameter("overrideUseDemoContact") != null) {
                 billExt.setValue(request.getParameter("overrideUseDemoContact")); 
@@ -232,19 +243,57 @@ public class BillingCorrectionAction extends DispatchAction{
             billExt.setStatus('1');
             
             billExtDao.persist(billExt);
-        }            
-    
+        }
+        if (!changedFields.isEmpty()) {
+            LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.UPDATE, LogConst.CON_BILL,
+                    "billingNo=" + billingNo, String.valueOf(bCh1.getDemographicNo()), changedFields);
+        }
  
-        if(request.getParameter("submit").equals("Save&Correct Another")){
+        if(request.getParameter("submit").equals("Save&Correct Another") || request.getParameter("submit").equalsIgnoreCase("Unlink Referral Doctor")){
             return mapping.findForward("closeReload");
         } else if(request.getParameter("adminSubmit")!=null){
         	return mapping.findForward("adminReload");
         } else {
             return mapping.findForward("submitClose"); 
         }
+    }
+    
+	public ActionForward updateDemographic(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response){
         
+        Integer billingNo = null;
+        try {
+            billingNo = Integer.parseInt(request.getParameter("xml_billing_no"));
+        }                       
+        catch (NumberFormatException e) {
+            MiscUtils.getLogger().error("Billing number invalid for Ch1 Id: " + request.getParameter("xml_billing_no"));           
+            return mapping.findForward("closeReload");
+        }
+        BillingONCHeader1 bCh1 = bCh1Dao.find(billingNo);
+                        
+        if (bCh1 == null) {
+            MiscUtils.getLogger().error("No billing object found for Ch1 Id: " + request.getParameter("xml_billing_no"));
+            return mapping.findForward("closeReload");            
+        }        
+		
+        Demographic demo = demographicDao.getDemographicById(bCh1.getDemographicNo());
+
+        if(demo == null) {
+        	MiscUtils.getLogger().error("No demographic found for Ch1 Id: " + request.getParameter("xml_billing_no"));
+            return mapping.findForward("closeReload");  
+        }
+        bCh1.setHin(demo.getHin());
+        bCh1.setVer(demo.getVer());
+        bCh1.setDob(demo.getDateOfBirth());
+        bCh1.setDemographicName(demo.getLastName() + "," + demo.getFirstName());
+        bCh1.setSex(demo.getSex());
+        bCh1.setRefNum(request.getParameter("rdohip"));
+        bCh1.setStatus("O");
         
-                    
+        bCh1Dao.merge(bCh1);
+		
+		ActionRedirect redirect = new ActionRedirect(mapping.findForward("success"));
+		redirect.addParameter("billing_no", billingNo);
+		return redirect;
     }
         
     private boolean updateBillingONCHeader1(BillingONCHeader1 bCh1, HttpServletRequest request) {
@@ -300,36 +349,13 @@ public class BillingCorrectionAction extends DispatchAction{
             Provider provider = providerDao.getProvider(bCh1.getProviderNo());
                                                            
             bCh1.setStatus(status);
-
-	    if (!(was3rdPartyPayProgram || nowMohPayProgram))
-	    {
-		/*
-		 * from Ministry of Health Pay Program  to 3rd Party Pay Program
-		 * so default payee to the first pay method in the list
-		*/
-		List<BillingPaymentType> paymentTypes = billingPaymentTypeDao.findAll();
-		if (paymentTypes != null)
-		{
-		    bCh1.setPayee(String.valueOf(paymentTypes.get(0).getId()));
-		}
-	    }
-	    else if (was3rdPartyPayProgram && nowMohPayProgram)
-	    {
-		/*
-		 * from 3rd Party Pay Program to Ministry of Health Pay Program
-		 * so default payee to "P"
-		*/
-	    	bCh1.setPayee(BillingDataHlp.CLAIMHEADER1_PAYEE);
-	    }
-
             bCh1.setPayProgram(payProgram);
             bCh1.setRefNum(request.getParameter("rdohip"));
             bCh1.setVisitType(request.getParameter("visittype"));            
             bCh1.setFaciltyNum(request.getParameter("clinic_ref_code"));                        
             bCh1.setManReview(manualReview);                        
             bCh1.setBillingDate(billingDate); 
-            if(visitDate!=null) 
-            	bCh1.setAdmissionDate(visitDate);
+            bCh1.setAdmissionDate(visitDate);
             bCh1.setProviderNo(request.getParameter("provider_no"));
             bCh1.setComment(request.getParameter("comment"));           
             bCh1.setProviderOhipNo(provider.getOhipNo());
@@ -337,19 +363,12 @@ public class BillingCorrectionAction extends DispatchAction{
             bCh1.setCreator(providerNo);
             bCh1.setClinic(request.getParameter("site"));			
             bCh1.setProvince(request.getParameter("hc_type"));
-            bCh1.setLocation(request.getParameter("xml_slicode"));     
-            
-            if(!provider.getProviderNo().equals(request.getParameter("provider_no"))) {
-            	Provider newProvider = providerDao.getProvider(request.getParameter("provider_no"));
-            	if(newProvider != null) { 
-            		bCh1.setProviderOhipNo(newProvider.getOhipNo());
-            	} else {
-            		MiscUtils.getLogger().warn("null provider! can't do the update (" + request.getParameter("provider_no") + ")");
-            	}
-            }
+            bCh1.setLocation(request.getParameter("xml_slicode"));                        
         }
-
-        if( was3rdPartyPayProgram && nowMohPayProgram) {
+        
+        boolean mohPayProgram = ("HCP".equals(payProgram) || "RMB".equals(payProgram) || "WCB".equals(payProgram));
+        
+        if( request.getParameter("oldStatus").equals("thirdParty") && mohPayProgram) {
             /* 
              * If status has been changed from 3rd Party Pay Program to Ministry of Health Pay Program, 
              * AND there has been 3rd party payments already received, refund an amount equal to the
@@ -370,7 +389,7 @@ public class BillingCorrectionAction extends DispatchAction{
             if (doReverse > 0) {
                 bPaymentDao.createPayment(bCh1, locale, BillingONPayment.REFUND, reversedFunds, "",providerNo);                                        
             }
-        } else if (statusChangedToSettled && !nowMohPayProgram) {
+        } else if (statusChangedToSettled && !mohPayProgram) {
             /*
              * If the invoice has just been settled for a 3rd party invoice,
              * Then any amount outstanding is now paid in full.
@@ -430,30 +449,30 @@ public class BillingCorrectionAction extends DispatchAction{
                 //Determine Unit
                 String unit = request.getParameter("billingunit" + i);
                 MiscUtils.getLogger().info("("+ serviceCodeId + ") Unit Amount:" + unit);
-                if (!unit.matches("\\d+")) {
+                if (!unit.matches("(\\d+)") && !unit.matches("(\\d*\\.\\d+)")) {
                     unit = "1";
                 }
                 BigDecimal unitAmt = new BigDecimal(unit);
                 
                  //Determine fee
-                String fee = request.getParameter("billingamount" + i);                
+                String fee = request.getParameter("billingamount" + i);
                 if (fee == null || fee.isEmpty() || fee.trim().isEmpty()) {
                     BillingServiceDao bServiceDao = (BillingServiceDao) SpringUtils.getBean("billingServiceDao");
                     BillingService bService = bServiceDao.searchBillingCode(serviceCodeId, "ON", serviceDate);
-                    
+
                     if( bService == null ) {
-                    	bService = bServiceDao.searchPrivateBillingCode(serviceCodeId, serviceDate);
+                        bService = bServiceDao.searchPrivateBillingCode(serviceCodeId, serviceDate);
                     }
                     if( bService != null ) {
-                    	                    
-                    	if (bService.getTerminationDate().before(serviceDate)) {
-                    		fee = "defunct";
-                    	} else { 
-                    		fee = bService.getValue();      
-                    		BigDecimal feeAmt = new BigDecimal(fee);
-                    		feeAmt = feeAmt.multiply(unitAmt).setScale(2, BigDecimal.ROUND_HALF_UP);
-                    		fee = feeAmt.toPlainString();
-                    	}
+
+                        if (bService.getTerminationDate().before(serviceDate)) {
+                            fee = "defunct";
+                        } else {
+                            fee = bService.getValue();
+                            BigDecimal feeAmt = new BigDecimal(fee);
+                            feeAmt = feeAmt.multiply(unitAmt).setScale(2, BigDecimal.ROUND_HALF_UP);
+                            fee = feeAmt.toPlainString();
+                        }
                     }
                 }
                                                     

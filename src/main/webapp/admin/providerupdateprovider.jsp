@@ -49,7 +49,6 @@
 <%@ page
 	import="java.sql.*, java.util.*, oscar.SxmlMisc, oscar.oscarProvider.data.ProviderBillCenter"
 	errorPage="errorpage.jsp"%>
-<%@ page import="oscar.log.LogAction,oscar.log.LogConst"%>
 <%@ page import="org.oscarehr.common.model.ClinicNbr"%>
 <%@ page import="org.oscarehr.util.SpringUtils"%>
 <%@ page import="org.oscarehr.common.dao.ClinicNbrDao"%>
@@ -188,8 +187,6 @@ function onsub() {
 	    out.println("failed");
 	} 
 	else {
-		LogAction.addLog((String)session.getAttribute("user"), LogConst.UPDATE, "adminUpdateUser",
-			request.getParameter("keyword"), request.getRemoteAddr());
 %>
 
 			<table cellspacing="0" cellpadding="2" width="100%" border="0"

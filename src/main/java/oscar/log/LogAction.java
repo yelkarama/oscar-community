@@ -25,6 +25,7 @@
 
 package oscar.log;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -39,6 +40,7 @@ import org.oscarehr.util.DeamonThreadFactory;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
+import oscar.util.ChangedField;
 
 public class LogAction {
 	private static Logger logger = MiscUtils.getLogger();
@@ -68,6 +70,31 @@ public class LogAction {
 	public static void addLog(String provider_no, String action, String content, String contentId, String ip) {
 		addLog(provider_no, action, content, contentId, ip, null, null);
 	}
+	
+    /**
+     * This method will add a log entry asynchronously in a separate thread.
+     */
+    public static void addLog(LoggedInInfo loggedInInfo, String action, String content, String contentId, List<ChangedField> changedFields) {
+        StringBuilder sb = new StringBuilder();
+        if (changedFields != null) {
+            for (ChangedField cf : changedFields) {
+                sb.append(cf).append("\n");
+            }
+        }
+        addLog(loggedInInfo, action, content, contentId, null, sb.toString());
+    }
+    /**
+     * This method will add a log entry asynchronously in a separate thread.
+     */
+    public static void addLog(LoggedInInfo loggedInInfo, String action, String content, String contentId, String demographicNo, List<ChangedField> changedFields) {
+        StringBuilder sb = new StringBuilder();
+        if (changedFields != null) {
+            for (ChangedField cf : changedFields) {
+                sb.append(cf).append("\n");
+            }
+        }
+        addLog(loggedInInfo, action, content, contentId, demographicNo, sb.toString());
+    }
 
 	/**
 	 * This method will add a log entry asynchronously in a separate thread.

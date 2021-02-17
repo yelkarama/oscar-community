@@ -61,6 +61,7 @@
 
 <%@page import="org.oscarehr.common.dao.OscarAppointmentDao" %>
 <%@page import="org.oscarehr.common.model.Appointment" %>
+<%@ page import="oscar.util.ChangedField" %>
 <%@page import="org.oscarehr.provider.model.PreventionManager" %>
 
 <%@ page import="org.oscarehr.PMmodule.dao.ProgramDao" %>
@@ -114,9 +115,7 @@
 	java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.struts.Globals.LOCALE_KEY);
 	
 	Demographic demographic = demographicDao.getDemographic(request.getParameter("demographic_no"));
-	if(demographic == null) {
-	 //we have a problem!
-	}
+	Demographic oldDemographic = new Demographic(demographic);
 
 	boolean updateFamily = false;
 	if (request.getParameter("submit")!=null&&request.getParameter("submit").equalsIgnoreCase("Save & Update Family Members")){
@@ -383,7 +382,12 @@
 		//String oldValue = request.getParameter(archive.getKey() + "Orig");
 		archive.setValue(request.getParameter(archive.getKey()));
 		demographicExtArchiveDao.saveEntity(archive);	
-	}	
+	}
+
+	List<ChangedField> changedFields = new ArrayList<ChangedField>(ChangedField.getChangedFieldsAndValues(oldDemographic, demographic));
+	String keyword = "demographicNo=" + demographic.getDemographicNo();
+	if (request.getParameter("keyword") != null) { keyword += "\n" + request.getParameter("keyword"); }
+	LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.UPDATE, "demographic", keyword, demographic.getDemographicNo().toString(), changedFields);
 	
     demographicDao.save(demographic);
 	if(family!=null && !family.isEmpty()){
@@ -540,9 +544,6 @@
 	PreventionManager prevMgr = (PreventionManager) SpringUtils.getBean("preventionMgr");
 	prevMgr.removePrevention(request.getParameter("demographic_no"));
 
-    String ip = request.getRemoteAddr();
-    String user = (String)session.getAttribute("user");
-    LogAction.addLog((String) session.getAttribute("user"), LogConst.UPDATE, LogConst.CON_DEMOGRAPHIC,  request.getParameter("demographic_no") , request.getRemoteAddr(),request.getParameter("demographic_no"));
 %>
 <p></p>
 

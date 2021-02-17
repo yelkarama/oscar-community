@@ -69,6 +69,9 @@ if(!authed) {
 %>
 <%
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+	String demographic_no = request.getParameter("demographic_no");
+	LogAction.addLog(loggedInInfo, LogConst.READ, "Preventions", demographic_no, demographic_no, (String)null);
+	
 	DHIRSubmissionManager submissionManager = SpringUtils.getBean(DHIRSubmissionManager.class);
 	UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 	SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
@@ -154,7 +157,10 @@ if(!authed) {
 
 
 
-<%@page import="org.oscarehr.util.SessionConstants"%><html:html
+<%@page import="org.oscarehr.util.SessionConstants"%>
+<%@ page import="oscar.log.LogAction" %>
+<%@ page import="oscar.log.LogConst" %>
+<html:html
 	locale="true">
 
 <head>

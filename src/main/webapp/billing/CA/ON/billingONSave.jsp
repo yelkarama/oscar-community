@@ -23,10 +23,12 @@
 <%@ page import="java.util.*,java.sql.*,oscar.util.*,oscar.oscarBilling.ca.on.pageUtil.*,oscar.oscarBilling.ca.on.data.*,oscar.oscarProvider.data.*,java.math.* ,oscar.oscarBilling.ca.on.administration.*"%>
 <%@ page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
 <%@ page import="org.springframework.web.context.WebApplicationContext"%>
-<%@ page errorPage="errorpage.jsp" import="java.util.*"%>
-<%@ page import="oscar.oscarBilling.ca.on.pageUtil.*"%>
-<%@ page import="oscar.oscarBilling.ca.on.data.*,org.oscarehr.common.model.*,org.oscarehr.common.dao.*"%>
+<%@ page errorPage="errorpage.jsp" %>
+<%@ page import="org.oscarehr.common.model.*,org.oscarehr.common.dao.*"%>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
+<%@ page import="oscar.log.LogAction" %>
+<%@ page import="org.oscarehr.util.LoggedInInfo" %>
+<%@ page import="oscar.log.LogConst" %>
 <%
 	WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
     UserPropertyDAO userPropertyDAO = (UserPropertyDAO) ctx.getBean("UserPropertyDAO");
@@ -63,7 +65,7 @@
 			bObj.addOhipInvoiceTrans(vecObj);
 		}
 		int billingNo = bObj.getBillingId();
-		String demographic_no="";	
+		String demographic_no=null;	
 		String time="";
 		String value="";
 		value=request.getParameter("payeename");		
@@ -89,13 +91,16 @@
         
 		// update appt and close the page
 		if (ret) {
+            String logData = "";
 			if (apptNo != null && apptNo.length() > 0 && !apptNo.equals("0")) {
 				String apptCurStatus = bObj.getApptStatus(apptNo);
 				oscar.appt.ApptStatusData as = new oscar.appt.ApptStatusData();
 				String billStatus = as.billStatus(apptCurStatus);
 				bObj.updateApptStatus(apptNo, billStatus, (String)session.getAttribute("user"));
+				logData += "appointment_no=" + apptNo;
 			}
-					
+			LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.ADD, LogConst.CON_BILL,
+					"billingId=" + bObj.getBillingId(), demographic_no, logData);
 				//if you are editing previous billing, the previous billing should be deleted(flag "D") after edit (insert a new billing)�      
 		%>
 			
