@@ -86,7 +86,7 @@ public class LogAction {
     /**
      * This method will add a log entry asynchronously in a separate thread.
      */
-    public static void addLog(LoggedInInfo loggedInInfo, String action, String content, String contentId, List<ChangedField> changedFields) {
+    public static void addChangeLog(LoggedInInfo loggedInInfo, String action, String content, String contentId, List<ChangedField> changedFields) {
         StringBuilder sb = new StringBuilder();
         if (changedFields != null) {
             for (ChangedField cf : changedFields) {
@@ -96,9 +96,9 @@ public class LogAction {
         addLog(loggedInInfo, action, content, contentId, null, sb.toString());
     }
     /**
-     * This method will add a log entry asynchronously in a separate thread.
+     * This method will add a log entry asynchronously in a separate thread.xxx
      */
-    public static void addLog(LoggedInInfo loggedInInfo, String action, String content, String contentId, String demographicNo, List<ChangedField> changedFields) {
+    public static void addChangeLog(LoggedInInfo loggedInInfo, String action, String content, String contentId, String demographicNo, List<ChangedField> changedFields) {
         StringBuilder sb = new StringBuilder();
         if (changedFields != null) {
             for (ChangedField cf : changedFields) {
@@ -115,6 +115,9 @@ public class LogAction {
 		addLog(provider_no, action, content, contentId, ip, demographicNo, null);
 	}
 
+    /**
+     * This method will add a log entry asynchronously in a separate thread.xxx
+     */
 	public static void addLog(LoggedInInfo loggedInInfo, String action, String content, String contentId, String demographicNo, String data)
 	{
 		OscarLog logEntry=new OscarLog();
@@ -136,7 +139,7 @@ public class LogAction {
 	}
 	
 	
-    public static void addLog(String providerNo, String action, String content, String contentId, String demographicNo, List<ChangedField> changedFields) {
+    public static void addChangeLog(String providerNo, String action, String content, String contentId, String demographicNo, List<ChangedField> changedFields) {
         StringBuilder sb = new StringBuilder();
         if (changedFields != null) {
             for (ChangedField cf : changedFields) {
