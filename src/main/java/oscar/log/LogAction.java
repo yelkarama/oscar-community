@@ -56,6 +56,18 @@ public class LogAction {
 		logEntry.setData(data);
 		LogAction.addLogSynchronous(logEntry);		
 	}
+
+	public static void addLogSynchronous(LoggedInInfo loggedInInfo, String action, String content, String contentId) {
+		OscarLog oscarLog = new OscarLog();
+
+		if (loggedInInfo.getLoggedInSecurity()!=null) oscarLog.setSecurityId(loggedInInfo.getLoggedInSecurity().getSecurityNo());
+		if (loggedInInfo.getLoggedInProvider()!=null) oscarLog.setProviderNo(loggedInInfo.getLoggedInProviderNo());
+		oscarLog.setAction(action);
+		oscarLog.setContent(content);
+		oscarLog.setContentId(contentId);
+
+		addLogSynchronous(oscarLog);
+	}
 	
 	/**
 	 * This method will add a log entry asynchronously in a separate thread.
@@ -122,6 +134,17 @@ public class LogAction {
 		logEntry.setData(data);
 		executorService.execute(new AddLogExecutorTask(logEntry));
 	}
+	
+	
+    public static void addLog(String providerNo, String action, String content, String contentId, String demographicNo, List<ChangedField> changedFields) {
+        StringBuilder sb = new StringBuilder();
+        if (changedFields != null) {
+            for (ChangedField cf : changedFields) {
+                sb.append(cf).append("\n");
+            }
+        }
+        addLog(providerNo, action, content, contentId, null, demographicNo, sb.toString());
+    }
 	
 	/**
 	 * This method will add a log entry asynchronously in a separate thread.

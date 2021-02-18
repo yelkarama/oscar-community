@@ -242,69 +242,6 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 		initialize();
 	}
 
-    public Demographic(Demographic d) {
-        this.hashCode = d.hashCode();
-        this.demographicNo = d.getDemographicNo();
-        this.phone = d.getPhone();
-        this.patientStatus = d.getPatientStatus();
-        this.patientStatusDate = d.getPatientStatusDate();
-        this.rosterStatus = d.getRosterStatus();
-        this.providerNo = d.getProviderNo();
-        this.myOscarUserName = d.getMyOscarUserName();
-        this.hin = d.getHin();
-        this.address = d.getAddress();
-        this.province = d.getProvince();
-        this.monthOfBirth = d.getMonthOfBirth();
-        this.ver = d.getVer();
-        this.dateOfBirth = d.getDateOfBirth();
-        this.sex = d.getSex();
-        this.sexDesc = d.getSexDesc();
-        this.dateJoined = d.getDateJoined();
-        this.familyDoctor = d.getFamilyDoctor();
-        this.familyPhysician = d.getFamilyPhysician();
-        this.city = d.getCity();
-        this.firstName = d.getFirstName();
-        this.prefName = d.getPrefName();
-        this.postal = d.getPostal();
-        this.hcRenewDate = d.getHcRenewDate();
-        this.phone2 = d.getPhone2();
-        this.pcnIndicator = d.getPcnIndicator();
-        this.endDate = d.getEndDate();
-        this.lastName = d.getLastName();
-        this.hcType = d.getHcType();
-        this.chartNo = d.getChartNo();
-        this.email = d.getEmail();
-        this.yearOfBirth = d.getYearOfBirth();
-        this.effDate = d.getEffDate();
-        this.rosterDate = d.getRosterDate();
-        this.rosterTerminationDate = d.getRosterTerminationDate();
-        this.rosterTerminationReason = d.getRosterTerminationReason();
-        this.links = d.getLinks();
-        this.extras = d.getExtras();
-        this.alias = d.getAlias();
-        this.previousAddress = d.getPreviousAddress();
-        this.children = d.getChildren();
-        this.sourceOfIncome = d.getSourceOfIncome();
-        this.citizenship = d.getCitizenship();
-        this.sin = d.getSin();
-        this.headRecord = d.getHeadRecord();
-        this.subRecord = d.getSubRecord();
-        this.anonymous = d.getAnonymous();
-        this.spokenLanguage = d.getSpokenLanguage();
-        this.activeCount = d.getActiveCount();
-        this.hsAlertCount = d.getHsAlertCount();
-        this.displayName = d.getDisplayName();
-        this.provider = d.getProvider();
-        this.lastUpdateUser = d.getLastUpdateUser();
-        this.lastUpdateDate = d.getLastUpdateDate();
-        this.title = d.getTitle();
-        this.officialLanguage = d.getOfficialLanguage();
-        this.countryOfOrigin = d.getCountryOfOrigin();
-        this.newsletter = d.getNewsletter();
-        this.patientType = d.getPatientType();
-        this.patientId = d.getPatientId();
-    }
-
 	/**
 	 * Constructor for primary key
 	 */
