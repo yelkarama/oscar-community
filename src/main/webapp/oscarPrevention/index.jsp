@@ -68,6 +68,7 @@ if(!authed) {
 }
 %>
 <%
+	String demographic_no = request.getParameter("demographic_no");
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 	
 	LogAction.addLog(loggedInInfo, LogConst.READ, "Preventions", demographic_no, demographic_no, (String)null);
@@ -78,7 +79,7 @@ if(!authed) {
 	
 	
   //int demographic_no = Integer.parseInt(request.getParameter("demographic_no"));
-  String demographic_no = request.getParameter("demographic_no");
+
   DemographicData demoData = new DemographicData();
   String nameAge = demoData.getNameAgeString(loggedInInfo, demographic_no);
   org.oscarehr.common.model.Demographic demo = demoData.getDemographic(loggedInInfo, demographic_no);

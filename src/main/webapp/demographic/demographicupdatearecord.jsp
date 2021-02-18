@@ -115,7 +115,7 @@
 	java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.struts.Globals.LOCALE_KEY);
 	
 	Demographic demographic = demographicDao.getDemographic(request.getParameter("demographic_no"));
-	Demographic oldDemographic = new Demographic(demographic);
+	Demographic oldDemographic = demographic; 
 
 	boolean updateFamily = false;
 	if (request.getParameter("submit")!=null&&request.getParameter("submit").equalsIgnoreCase("Save & Update Family Members")){
@@ -387,7 +387,7 @@
 	List<ChangedField> changedFields = new ArrayList<ChangedField>(ChangedField.getChangedFieldsAndValues(oldDemographic, demographic));
 	String keyword = "demographicNo=" + demographic.getDemographicNo();
 	if (request.getParameter("keyword") != null) { keyword += "\n" + request.getParameter("keyword"); }
-	LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.UPDATE, "demographic", keyword, demographic.getDemographicNo().toString(), changedFields);
+	LogAction.addChangeLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.UPDATE, "demographic", keyword, demographic.getDemographicNo().toString(), changedFields);
 	
     demographicDao.save(demographic);
 	if(family!=null && !family.isEmpty()){
