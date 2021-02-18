@@ -25,6 +25,7 @@
 
 package oscar.log;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -39,6 +40,7 @@ import org.oscarehr.util.DeamonThreadFactory;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
+import oscar.util.ChangedField;
 
 public class LogAction {
 	private static Logger logger = MiscUtils.getLogger();
@@ -54,6 +56,18 @@ public class LogAction {
 		logEntry.setData(data);
 		LogAction.addLogSynchronous(logEntry);		
 	}
+
+	public static void addLogSynchronous(LoggedInInfo loggedInInfo, String action, String content, String contentId) {
+		OscarLog oscarLog = new OscarLog();
+
+		if (loggedInInfo.getLoggedInSecurity()!=null) oscarLog.setSecurityId(loggedInInfo.getLoggedInSecurity().getSecurityNo());
+		if (loggedInInfo.getLoggedInProvider()!=null) oscarLog.setProviderNo(loggedInInfo.getLoggedInProviderNo());
+		oscarLog.setAction(action);
+		oscarLog.setContent(content);
+		oscarLog.setContentId(contentId);
+
+		addLogSynchronous(oscarLog);
+	}
 	
 	/**
 	 * This method will add a log entry asynchronously in a separate thread.
@@ -68,6 +82,31 @@ public class LogAction {
 	public static void addLog(String provider_no, String action, String content, String contentId, String ip) {
 		addLog(provider_no, action, content, contentId, ip, null, null);
 	}
+	
+    /**
+     * This method will add a log entry asynchronously in a separate thread.
+     */
+    public static void addChangeLog(LoggedInInfo loggedInInfo, String action, String content, String contentId, List<ChangedField> changedFields) {
+        StringBuilder sb = new StringBuilder();
+        if (changedFields != null) {
+            for (ChangedField cf : changedFields) {
+                sb.append(cf).append("\n");
+            }
+        }
+        addLog(loggedInInfo, action, content, contentId, null, sb.toString());
+    }
+    /**
+     * This method will add a log entry asynchronously in a separate thread.xxx
+     */
+    public static void addChangeLog(LoggedInInfo loggedInInfo, String action, String content, String contentId, String demographicNo, List<ChangedField> changedFields) {
+        StringBuilder sb = new StringBuilder();
+        if (changedFields != null) {
+            for (ChangedField cf : changedFields) {
+                sb.append(cf).append("\n");
+            }
+        }
+        addLog(loggedInInfo, action, content, contentId, demographicNo, sb.toString());
+    }
 
 	/**
 	 * This method will add a log entry asynchronously in a separate thread.
@@ -76,6 +115,9 @@ public class LogAction {
 		addLog(provider_no, action, content, contentId, ip, demographicNo, null);
 	}
 
+    /**
+     * This method will add a log entry asynchronously in a separate thread.xxx
+     */
 	public static void addLog(LoggedInInfo loggedInInfo, String action, String content, String contentId, String demographicNo, String data)
 	{
 		OscarLog logEntry=new OscarLog();
@@ -95,6 +137,17 @@ public class LogAction {
 		logEntry.setData(data);
 		executorService.execute(new AddLogExecutorTask(logEntry));
 	}
+	
+	
+    public static void addChangeLog(String providerNo, String action, String content, String contentId, String demographicNo, List<ChangedField> changedFields) {
+        StringBuilder sb = new StringBuilder();
+        if (changedFields != null) {
+            for (ChangedField cf : changedFields) {
+                sb.append(cf).append("\n");
+            }
+        }
+        addLog(providerNo, action, content, contentId, null, demographicNo, sb.toString());
+    }
 	
 	/**
 	 * This method will add a log entry asynchronously in a separate thread.

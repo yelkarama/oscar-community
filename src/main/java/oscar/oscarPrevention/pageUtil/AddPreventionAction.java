@@ -61,6 +61,8 @@ import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
+import oscar.log.LogAction;
+import oscar.log.LogConst;
 import oscar.oscarPrevention.PreventionData;
 import oscar.oscarPrevention.PreventionDisplayConfig;
 /**
@@ -268,6 +270,9 @@ public class AddPreventionAction  extends Action {
          PreventionManager prvMgr = (PreventionManager) SpringUtils.getBean("preventionMgr");
          prvMgr.removePrevention(demographic_no); 
          MiscUtils.getLogger().debug("Given "+given+" prevDate "+prevDate+" providerName "+providerName+" provider "+providerNo);
+        String contentId = "preventionType=" + preventionType;
+        LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.ADD, 
+                "Preventions", contentId, demographic_no, (String)null);
 
          
          if(submitToDhir) {

@@ -73,6 +73,7 @@ import java.util.Collections;
 
 import oscar.OscarProperties;
 import oscar.log.LogAction;
+import oscar.log.LogConst;
 
 import com.quatro.model.security.Secrole;
 
@@ -161,7 +162,7 @@ public class TicklerManager {
 	     
 	    //--- log action ---
             LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.addTicklerLink", "ticklerLinkId="+ticklerLink.getId());
-		
+
             return true;			
 	}
         
@@ -175,7 +176,8 @@ public class TicklerManager {
     	ticklerDao.persist(tickler);
 	     
 	    //--- log action ---
-		LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.addtickler", "ticklerId="+tickler.getId());
+    	String logData = "Message=" + tickler.getMessage();
+        LogAction.addLog(loggedInInfo, LogConst.ADD, "TicklerManager.addTickler", String.valueOf(tickler.getId()), String.valueOf(tickler.getDemographicNo()), logData);
 		
 		return true;
     }

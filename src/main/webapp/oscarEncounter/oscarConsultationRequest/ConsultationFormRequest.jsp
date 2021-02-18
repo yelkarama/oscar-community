@@ -77,6 +77,8 @@ if(!authed) {
 <%@page import="org.oscarehr.common.model.ConsultationServices" %>
 <%@ page import="org.oscarehr.common.dao.ConsultationRequestExtDao" %>
 <%@ page import="org.owasp.encoder.Encode" %>
+<%@ page import="oscar.log.LogAction" %>
+<%@ page import="oscar.log.LogConst" %>
 <jsp:useBean id="displayServiceUtil" scope="request" class="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConDisplayServiceUtil" />
 
 <html:html locale="true">
@@ -162,6 +164,9 @@ if(!authed) {
 
 		if (demo != null) consultUtil.estPatient(loggedInInfo, demo);
 		consultUtil.estActiveTeams();
+		String logData = "requestId=" + requestId;
+		LogAction.addLog(loggedInInfo, LogConst.READ, "Consultation Request", requestId, demo, logData);
+		
 
 		if (request.getParameter("error") != null)
 		{

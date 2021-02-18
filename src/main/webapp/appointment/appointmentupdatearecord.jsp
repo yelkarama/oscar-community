@@ -49,6 +49,9 @@
 <%@page import="org.oscarehr.common.model.Appointment" %>
 <%@page import="org.oscarehr.util.SpringUtils" %>
 <%@page import="oscar.util.ConversionUtils" %>
+<%@ page import="oscar.log.LogAction" %>
+<%@ page import="org.oscarehr.util.LoggedInInfo" %>
+<%@ page import="oscar.log.LogConst" %>
 <%
 	AppointmentArchiveDao appointmentArchiveDao = (AppointmentArchiveDao)SpringUtils.getBean("appointmentArchiveDao");
 	OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
@@ -73,6 +76,7 @@
   int rowsAffected = 0;
   Appointment appt = appointmentDao.find(Integer.parseInt(request.getParameter("appointment_no")));
   appointmentArchiveDao.archiveAppointment(appt);
+  Appointment oldAppointment = new Appointment(appt);
   
   //Did the appt status change ?
   if(!appt.getStatus().equals(request.getParameter("status"))){
@@ -123,6 +127,9 @@
 	  
   }
   if (rowsAffected == 1) {
+	  List<ChangedField> changedFields = new ArrayList<ChangedField>(ChangedField.getChangedFieldsAndValues(oldAppointment, appt));
+	  LogAction.addChangeLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.UPDATE, LogConst.CON_APPT,
+			  "appointment_no=" + appt.getId(), String.valueOf(appt.getDemographicNo()), changedFields);
 %>
 <p>
 <h1><bean:message

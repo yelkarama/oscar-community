@@ -48,6 +48,8 @@
 <%@page import="org.oscarehr.common.model.Appointment" %>
 <%@page import="oscar.util.ConversionUtils" %>
 <%@page import="oscar.util.UtilDateUtilities"%>
+<%@ page import="oscar.log.LogAction" %>
+<%@ page import="oscar.log.LogConst" %>
 <%
 	OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
     		
@@ -78,7 +80,7 @@
 	Appointment a = new Appointment();
 	a.setProviderNo(request.getParameter("provider_no"));
 	a.setAppointmentDate(ConversionUtils.fromDateString(request.getParameter("appointment_date")));
-	a.setStartTime(ConversionUtils.fromTimeStringNoSeconds(request.getParameter("start_time")));
+	a.setStartTime(ConversionUtils.fromTimeStringNoSeconds(MyDateFormat.getTimeXX_XX_XX(request.getParameter("start_time"))));
 	a.setEndTime(ConversionUtils.fromTimeStringNoSeconds(request.getParameter("end_time")));
 	a.setName(request.getParameter("keyword"));
 	a.setNotes(request.getParameter("notes"));
@@ -111,6 +113,10 @@ if (request.getParameter("demographic_no") != null && !(request.getParameter("de
 	a.setUrgency((request.getParameter("urgency")!=null)?request.getParameter("urgency"):"");
 	
 	appointmentDao.persist(a);
+	SimpleDateFormat sdf = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
+	String logData = "startTime=" + sdf.format(a.getStartTimeAsFullDate()) +
+			";\n endTime=" + sdf.format(a.getEndTimeAsFullDate()) + ";\n status=" + a.getStatus();
+	LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.ADD, LogConst.CON_APPT, "appointment_no=" + a.getId(), String.valueOf(a.getDemographicNo()), logData);
 	
     
     

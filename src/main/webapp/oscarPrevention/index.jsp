@@ -68,14 +68,18 @@ if(!authed) {
 }
 %>
 <%
+	String demographic_no = request.getParameter("demographic_no");
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+	
+	LogAction.addLog(loggedInInfo, LogConst.READ, "Preventions", demographic_no, demographic_no, (String)null);
+	
 	DHIRSubmissionManager submissionManager = SpringUtils.getBean(DHIRSubmissionManager.class);
 	UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 	SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 	
 	
   //int demographic_no = Integer.parseInt(request.getParameter("demographic_no"));
-  String demographic_no = request.getParameter("demographic_no");
+
   DemographicData demoData = new DemographicData();
   String nameAge = demoData.getNameAgeString(loggedInInfo, demographic_no);
   org.oscarehr.common.model.Demographic demo = demoData.getDemographic(loggedInInfo, demographic_no);
@@ -154,7 +158,10 @@ if(!authed) {
 
 
 
-<%@page import="org.oscarehr.util.SessionConstants"%><html:html
+<%@page import="org.oscarehr.util.SessionConstants"%>
+<%@ page import="oscar.log.LogAction" %>
+<%@ page import="oscar.log.LogConst" %>
+<html:html
 	locale="true">
 
 <head>
