@@ -59,7 +59,7 @@
 	OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
 
 	ProviderPreference providerPreference=(ProviderPreference)session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER_PREFERENCE);
-	boolean twelveHourFormat = providerPreference.isTwelveHourFormat();
+	
 	
 %>
 <html:html locale="true">
@@ -203,7 +203,7 @@
 	    	appt.setReasonCode(Integer.parseInt(request.getParameter("reasonCode")));
 	    	appointmentDao.merge(appt);
 			List<ChangedField> changedFields = new ArrayList<ChangedField>(ChangedField.getChangedFieldsAndValues(oldAppointment, appt));
-			LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.UPDATE, LogConst.CON_APPT,
+			LogAction.addChangeLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.UPDATE, LogConst.CON_APPT,
 					"appointment_no=" + appt.getId(), String.valueOf(appt.getDemographicNo()), changedFields);
 	    	rowsAffected=1;
 	    }
@@ -246,10 +246,7 @@
         String demoNo = String.valueOf(demographicNo);
         String appt_date = request.getParameter("appointment_date");
         String appt_time = MyDateFormat.getTimeXX_XX_XX(request.getParameter("start_time"));
-        if (twelveHourFormat) 
-        {
-			appt_time = request.getParameter("start_time");
-		}
+
         int iRow=0;
         int iPageSize=5;
         String pname="";

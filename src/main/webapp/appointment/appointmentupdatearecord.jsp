@@ -128,7 +128,7 @@
   }
   if (rowsAffected == 1) {
 	  List<ChangedField> changedFields = new ArrayList<ChangedField>(ChangedField.getChangedFieldsAndValues(oldAppointment, appt));
-	  LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.UPDATE, LogConst.CON_APPT,
+	  LogAction.addChangeLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.UPDATE, LogConst.CON_APPT,
 			  "appointment_no=" + appt.getId(), String.valueOf(appt.getDemographicNo()), changedFields);
 %>
 <p>

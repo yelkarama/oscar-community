@@ -260,7 +260,7 @@ if(!authed) {
         String keyword = "providerNo=" + p.getProviderNo();
         if (request.getParameter("keyword") != null) { keyword += "\n" + request.getParameter("keyword"); }
         
-		LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.UPDATE, "adminUpdateUser", keyword, changedFields);
+		LogAction.addChangeLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.UPDATE, "adminUpdateUser", keyword, changedFields);
 %>
 <p>
 <h2><bean:message key="admin.providerupdate.msgUpdateSuccess" />

@@ -69,7 +69,7 @@ if(!authed) {
 %>
 <%
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-	String demographic_no = request.getParameter("demographic_no");
+	
 	LogAction.addLog(loggedInInfo, LogConst.READ, "Preventions", demographic_no, demographic_no, (String)null);
 	
 	DHIRSubmissionManager submissionManager = SpringUtils.getBean(DHIRSubmissionManager.class);
