@@ -97,8 +97,9 @@ public class WebServiceLoggingAdvice {
 		log.setIp(request.getRemoteAddr());
 		log.setContent(request.getRequestURL().toString());
 		log.setData(request.getParameterMap().toString());
-
-		LogAction.addLogSynchronous(log);
+		if (action != "REST WS: ResourceService.getNotificationsNumber") {
+			LogAction.addLogSynchronous(log);
+		}
 	}
 
 }

@@ -45,8 +45,8 @@ public class FacilityManager {
 			return (null);
 		} else {
 
-			//--- log action ---
-			LogAction.addLogSynchronous(loggedInInfo,"FacilityManager.getDefaultFacility", null);
+			//--- log action --- this fires 10's of thousands times a day
+			// LogAction.addLogSynchronous(loggedInInfo,"FacilityManager.getDefaultFacility", null);
 
 			return (results.get(0));
 		}
