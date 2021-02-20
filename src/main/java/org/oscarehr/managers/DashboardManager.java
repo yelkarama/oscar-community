@@ -192,12 +192,6 @@ public class DashboardManager {
 		
 		List<Dashboard> dashboards = dashboardDao.getActiveDashboards();
 		
-		if( dashboards != null) {
-			LogAction.addLog(loggedInInfo, "DashboardManager.getActiveDashboards", null, null, null, "returning dashboard entries");
-		} else {
-			LogAction.addLog(loggedInInfo, "DashboardManager.getActiveDashboards", null, null, null, "Failed to find any Dashboards");	
-		}
-		
 		return dashboards;
 	}
 
