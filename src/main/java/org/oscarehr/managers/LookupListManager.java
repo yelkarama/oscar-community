@@ -75,11 +75,6 @@ public class LookupListManager {
 
 		LookupList result = lookupListDao.findByName(name);
 
-		//--- log action ---
-		if (result != null) {
-			LogAction.addLogSynchronous(loggedInInfo, "LookupListManager.findLookupListByName", "id returned=" + result.getId());
-		}
-
 		return (result);
 
 	}
