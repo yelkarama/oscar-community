@@ -222,7 +222,7 @@ public class TicklerManager {
         }    
         
         //--- log action ---
-        LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.getTicklers", "providerNo="+providerNo+", " + results.size() + " results");
+        //LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.getTicklers", "providerNo="+providerNo+", " + results.size() + " results");
         
         return(results);
     }
@@ -233,7 +233,7 @@ public class TicklerManager {
     	List<Tickler> results = ticklerDao.getTicklers(filter);     
         
         //--- log action ---
-        LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.getTicklers", results.size() + "results");
+        //LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.getTicklers", results.size() + "results");
 
         return(results);
     }
@@ -244,7 +244,7 @@ public class TicklerManager {
     	List<Tickler> results = ticklerDao.getTicklers(filter,offset,limit);     
         
         //--- log action ---
-        LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.getTicklers", results.size() + "results");
+        //LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.getTicklers", results.size() + "results");
         
         return(results);
     }
@@ -391,8 +391,8 @@ public class TicklerManager {
     public int getActiveTicklerCount(LoggedInInfo loggedInInfo, String providerNo) {
         int result =  ticklerDao.getActiveTicklerCount(providerNo);
         
-        //--- log action ---
-		LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.getActiveTicklerCount","");
+        //--- log action --- this entry is noisy and doesn't add useful information
+		// LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.getActiveTicklerCount","");
 		
 		return result;
     }
@@ -401,7 +401,7 @@ public class TicklerManager {
         int result =  ticklerDao.getActiveTicklerByDemoCount(demographicNo);
         
         //--- log action ---
-		LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.getActiveTicklerByDemoCount","");
+		LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.getActiveTicklerByDemoCount","demoId="+demographicNo+", " +result.size() + " results");
 		
 		return result;
     }
@@ -425,7 +425,7 @@ public class TicklerManager {
         Tickler tickler =  ticklerDao.find(id);
         
         //--- log action ---
-      	LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.getTickler",(tickler != null)?"id="+tickler.getId():"");
+      	// LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.getTickler",(tickler != null)?"id="+tickler.getId():"");
       	
         return tickler;
     }
@@ -436,7 +436,7 @@ public class TicklerManager {
         Tickler tickler =  ticklerDao.find(id);
         
         //--- log action ---
-      	LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.getTickler",(tickler != null)?"id="+tickler.getId():"");
+      	// LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.getTickler",(tickler != null)?"id="+tickler.getId():"");
       	
         return tickler;
     }
@@ -721,7 +721,7 @@ public class TicklerManager {
     		  checkPrivilege(loggedInInfo, PRIVILEGE_READ);
     		  
     		  List<Tickler> result = ticklerDao.search_tickler(demographicNo,endDate);
-    		  LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.search_tickler", "demoId="+demographicNo+", " +result.size() + " results");
+    		  //LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.search_tickler", "demoId="+demographicNo+", " +result.size() + " results");
     		  
     		  return result;
     	  }
