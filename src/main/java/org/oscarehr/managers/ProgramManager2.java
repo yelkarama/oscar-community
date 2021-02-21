@@ -111,11 +111,7 @@ public class ProgramManager2 {
     		   result =  programProviderDAO.getProgramProvider(providerNo, Long.valueOf(defProgramId));
     	   }
         }
-        
-        if(result !=null) {
-        	LogAction.addLogSynchronous(loggedInInfo, "ProgramManager2.getCurrentProgramInDomain", "id returned=" + result.getId());
-        }
-        
+               
         return (result);
 	}
 	
