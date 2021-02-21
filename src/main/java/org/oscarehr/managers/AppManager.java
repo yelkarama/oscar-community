@@ -138,7 +138,7 @@ public class AppManager {
 			return true;
 		}
 		
-		LogAction.addLogSynchronous(loggedInInfo, "AppManager.hasAppDefinition", "Not found:" + appName);
+		// LogAction.addLogSynchronous(loggedInInfo, "AppManager.hasAppDefinition", "Not found:" + appName);
 		return false;
 	}
 	
