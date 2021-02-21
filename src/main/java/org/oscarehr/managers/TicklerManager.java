@@ -401,7 +401,7 @@ public class TicklerManager {
         int result =  ticklerDao.getActiveTicklerByDemoCount(demographicNo);
         
         //--- log action ---
-		LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.getActiveTicklerByDemoCount","demoId="+demographicNo+", " +result.size() + " results");
+		LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.getActiveTicklerByDemoCount","demoId="+demographicNo+", " +result + " results");
 		
 		return result;
     }
