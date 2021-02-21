@@ -85,7 +85,7 @@ public class OAuth1Utils {
 	    	String contentId = "AppUser="+user.getId();
 	    	String demographicNo = null;
 	    	String data = sb.toString();
-	    	LogAction.addLog(loggedInInfo, action, content, contentId, demographicNo, data);
+	    	// LogAction.addLog(loggedInInfo, action, content, contentId, demographicNo, data);
 			logger.debug("logaction "+action);
 	    	
 			return data;
