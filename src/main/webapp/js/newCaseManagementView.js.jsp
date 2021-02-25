@@ -290,7 +290,7 @@ function setupNotes(){
     let autosaveNoteId = document.forms['caseManagementEntryForm'].noteId.value;
     let autosaveProgramId = document.forms['caseManagementEntryForm']['caseNote.program_no'].value;
     let autosaveDemographicNo = document.forms['caseManagementEntryForm'].demographicNo.value;
-    chartNoteAutosave = new ChartNoteAutosave(caseNote, autosaveDemographicNo, autosaveProgramId, autosaveNoteId, 5000, ctx, csrfToken, updateAutosaveMessage, true);
+    chartNoteAutosave = new ChartNoteAutosave(caseNote, autosaveDemographicNo, autosaveProgramId, autosaveNoteId, 5, ctx, csrfToken, updateAutosaveMessage, true);
     console.log('chartNoteAutosave instance created, noteId: ' + autosaveNoteId + ', programId:  ' + autosaveProgramId);
 }
 function updateAutosaveMessage() {
@@ -2093,7 +2093,7 @@ function editNote(e) {
     var issueURL = ctx + "/CaseManagementEntry.do?method=issueList&demographicNo=" + demographicNo + "&providerNo=" + providerNo;
 	issueAutoCompleter = new Ajax.Autocompleter("issueAutocomplete", "issueAutocompleteList", issueURL, {minChars: 4, indicator: 'busy', afterUpdateElement: saveIssueId, onShow: autoCompleteShowMenu, onHide: autoCompleteHideMenu});
     let autosaveProgramId = document.forms['caseManagementEntryForm']['caseNote.program_no'].value;
-    chartNoteAutosave = new ChartNoteAutosave(caseNote, demographicNo, autosaveProgramId, nId, 5000, ctx, updateAutosaveMessage, true);
+    chartNoteAutosave = new ChartNoteAutosave(caseNote, demographicNo, autosaveProgramId, nId, 5, ctx, updateAutosaveMessage, true);
     console.log('chartNoteAutosave instance created, noteId: ' + nId + ', programId:  ' + autosaveProgramId);
 
     //if note is already signed, remove save button to force edits to be signed
@@ -2411,8 +2411,11 @@ function ajaxSaveNote(div,noteId,noteTxt) {
 		
 		}
     }
-
-
+    // Stop autosave on manual save
+    if (typeof chartNoteAutosave !== 'undefined') {
+        chartNoteAutosave.setChangedFalse();
+    }
+    
     document.forms["caseManagementEntryForm"].method.value = 'ajaxsave';
 
     var idx = 0;
