@@ -458,16 +458,18 @@ try
 		    		        url: "<%=request.getContextPath()%>/ws/rs/app/providerChartLaunchItems",
 				        dataType: 'json',
 				        success: function (data) {
-					
-				       		for(i =0; i < data.length; i++){
-				        			d = data[i];
-				       			jQuery("#phrButtonArea").append(
-				       			jQuery("<button/>")
-				       		    .text(d.heading)
-				       		    .click(function () { window.open('../ws/rs/app/openProviderPHRWindow/'+d.link+'<%=demographicNo%>'); }));
-
-				       		}
-				    		}
+                            if (data) {
+                                for (i = 0; i < data.length; i++) {
+                                    d = data[i];
+                                    jQuery("#phrButtonArea").append(
+                                        jQuery("<button/>")
+                                            .text(d.heading)
+                                            .click(function () {
+                                                window.open('../ws/rs/app/openProviderPHRWindow/' + d.link + '<%=demographicNo%>');
+                                            }));
+                                }
+                            }
+                        }
 					});
 			    });
 				

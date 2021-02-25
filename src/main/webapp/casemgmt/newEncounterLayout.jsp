@@ -112,6 +112,8 @@
 <!-- phr popups -->
 <script type="text/javascript" src="<c:out value="${ctx}/phr/phr.js"/>"></script>
 
+<!-- note autosaving -->
+<script type="text/javascript" src="<c:out value="${ctx}"/>/share/javascript/casemgmt/chartNoteAutosave.js"></script>
 
 <link rel="stylesheet" type="text/css" href="<c:out value="${ctx}/css/oscarRx.css" />">
 

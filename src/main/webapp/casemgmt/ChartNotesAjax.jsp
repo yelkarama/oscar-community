@@ -979,7 +979,7 @@ CasemgmtNoteLock casemgmtNoteLock = (CasemgmtNoteLock)session.getAttribute("case
    new Autocompleter.Local('enTemplate', 'enTemplate_list', autoCompList, { colours: itemColours, afterUpdateElement: menuAction }  );
 
    //start timer for autosave
-   setTimer();
+   //setTimer();
 
     //$("encMainDiv").scrollTop = $("n<%=savedId%>").offsetTop - $("encMainDiv").offsetTop;
     reason = "<%=insertReason(request)%>";    //function defined bottom of file

@@ -2810,6 +2810,7 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		}
 
 		if (note == null || note.length() == 0) {
+			response.setHeader("message","note is empty");
 			return null;
 		}
 
@@ -2825,6 +2826,7 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		cform.getCaseNote().setNote(note);
 
 		response.setStatus(HttpServletResponse.SC_OK);
+		response.setHeader("success","true");
 		return null;
 	}
 
