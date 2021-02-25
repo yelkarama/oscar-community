@@ -23,8 +23,6 @@
  */
 package org.oscarehr.common.dao;
 
-import javax.persistence.NoResultException;
-import javax.persistence.NonUniqueResultException;
 import java.util.List;
 
 import javax.persistence.Query;
