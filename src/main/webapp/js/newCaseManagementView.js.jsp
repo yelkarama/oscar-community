@@ -30,6 +30,7 @@
 <%@page contentType="text/javascript"%>
 <%@page import="org.oscarehr.casemgmt.common.Colour"%>
 
+    let chartNoteAutosave = null;
 	var numNotes = 0;   //How many saved notes do we have?
     var ctx;        //url context
     var providerNo;
@@ -286,7 +287,22 @@ function setupNotes(){
     setCaretPosition($(caseNote), $(caseNote).value.length);
 
     $(caseNote).focus();
+    let autosaveNoteId = document.forms['caseManagementEntryForm'].noteId.value;
+    let autosaveProgramId = document.forms['caseManagementEntryForm']['caseNote.program_no'].value;
+    let autosaveDemographicNo = document.forms['caseManagementEntryForm'].demographicNo.value;
+    chartNoteAutosave = new ChartNoteAutosave(caseNote, autosaveDemographicNo, autosaveProgramId, autosaveNoteId, 5000, ctx, csrfToken, updateAutosaveMessage, true);
+    console.log('chartNoteAutosave instance created, noteId: ' + autosaveNoteId + ', programId:  ' + autosaveProgramId);
 }
+function updateAutosaveMessage() {
+    var d = new Date();
+    var min = d.getMinutes();
+    min = min < 10 ? "0" + min : min;
+    var seconds = d.getSeconds();
+    seconds = seconds < 10 ? "0" + seconds : seconds;
+    var fmtDate = "<i>" + msgDraftSaved + " " + d.getDate() + "-" + month[d.getMonth()]  + "-" + d.getFullYear() + " " + d.getHours() + ":" + min +  ":" + seconds + "<\/i>";
+    $("autosaveTime").update(fmtDate);
+}
+
 
 function setupOneNote(note) {
 	if (!NiftyCheck())
@@ -1230,7 +1246,9 @@ function loadDiv(div,url,limit) {
         $(caseNote).value += "\n" + txt;
         adjustCaseNote();
         setCaretPosition($(caseNote),$(caseNote).value.length);
-
+        if (typeof chartNoteAutosave !== 'undefined') {
+            chartNoteAutosave.setChanged();
+         }
     }
 
     function writeToEncounterNote(request) {
@@ -1428,9 +1446,7 @@ function changeToView(id) {
             }
         }
     } */
-
-    //clear auto save
-    clearTimeout(autoSaveTimer);
+    
     deleteAutoSave();
 
     if( $("notePasswd") != null ) {
@@ -1535,7 +1551,10 @@ function changeToView(id) {
         
 
          if( nId.substr(0,1) != "0" ) {
-            Element.remove(printImg);
+            let imageElement = $(printImg);
+             if (imageElement) {
+                 imageElement.parentNode.removeChild(imageElement);
+			 }
             new Insertion.Before(editId, printimg);
             new Insertion.After(editId, attribAnchor);
             new Insertion.Top(parent, img);
@@ -2073,6 +2092,9 @@ function editNote(e) {
     //AutoCompleter for Issues
     var issueURL = ctx + "/CaseManagementEntry.do?method=issueList&demographicNo=" + demographicNo + "&providerNo=" + providerNo;
 	issueAutoCompleter = new Ajax.Autocompleter("issueAutocomplete", "issueAutocompleteList", issueURL, {minChars: 4, indicator: 'busy', afterUpdateElement: saveIssueId, onShow: autoCompleteShowMenu, onHide: autoCompleteHideMenu});
+    let autosaveProgramId = document.forms['caseManagementEntryForm']['caseNote.program_no'].value;
+    chartNoteAutosave = new ChartNoteAutosave(caseNote, demographicNo, autosaveProgramId, nId, 5000, ctx, updateAutosaveMessage, true);
+    console.log('chartNoteAutosave instance created, noteId: ' + nId + ', programId:  ' + autosaveProgramId);
 
     //if note is already signed, remove save button to force edits to be signed
     var sign = "signed" + nId;
@@ -2081,8 +2103,6 @@ function editNote(e) {
     else
         $("saveImg").style.visibility = "visible";
 
-    //start AutoSave
-    setTimer();
 }
 
 function collapseView(e) {
@@ -2503,7 +2523,7 @@ function saveNoteAjax(method, chain) {
     document.forms["caseManagementEntryForm"].chain.value = chain;
     document.forms["caseManagementEntryForm"].includeIssue.value = "off";
 
-    clearAutoSaveTimer();
+    //clearAutoSaveTimer();
 
     var caseMgtEntryfrm = document.forms["caseManagementEntryForm"];
 
@@ -2701,7 +2721,7 @@ function savePage(method, chain) {
 
     var caseMgtEntryfrm = document.forms["caseManagementEntryForm"];
 
-    clearAutoSaveTimer();
+    // clearAutoSaveTimer();
 
     if( method == "saveAndExit" ) {
     	needToReleaseLock = false;
@@ -2711,6 +2731,9 @@ function savePage(method, chain) {
     }
 
 	origCaseNote = $F(caseNote);
+    if (typeof chartNoteAutosave !== 'undefined') {
+        chartNoteAutosave.setChangedFalse();
+	}
     caseMgtEntryfrm.submit();
 
 	jQuery("span[note_addon]").each(function(i){
@@ -3032,7 +3055,7 @@ function newNote(e) {
         $("saveImg").style.visibility = "visible";
 
         //start AutoSave
-        setTimer();
+        //setTimer();
     }
     else
         $(caseNote).focus();
@@ -3120,18 +3143,6 @@ function backup() {
         autoSave(true);        
     }
 
-	if( !lostNoteLock ) {
-    	setTimer();
-    }
-}
-
-var autoSaveTimer;
-function setTimer() {
-    autoSaveTimer = setTimeout("backup()", 5000);
-}
-
-function clearAutoSaveTimer() {
-    clearTimeout(autoSaveTimer);
 }
 
 var unsavedNoteMsg;
