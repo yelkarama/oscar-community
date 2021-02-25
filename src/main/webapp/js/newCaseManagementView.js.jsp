@@ -290,7 +290,7 @@ function setupNotes(){
     let autosaveNoteId = document.forms['caseManagementEntryForm'].noteId.value;
     let autosaveProgramId = document.forms['caseManagementEntryForm']['caseNote.program_no'].value;
     let autosaveDemographicNo = document.forms['caseManagementEntryForm'].demographicNo.value;
-    chartNoteAutosave = new ChartNoteAutosave(caseNote, autosaveDemographicNo, autosaveProgramId, autosaveNoteId, 5, ctx, csrfToken, updateAutosaveMessage, true);
+    chartNoteAutosave = new ChartNoteAutosave(caseNote, autosaveDemographicNo, autosaveProgramId, autosaveNoteId, 5, ctx, updateAutosaveMessage, true);
     console.log('chartNoteAutosave instance created, noteId: ' + autosaveNoteId + ', programId:  ' + autosaveProgramId);
 }
 function updateAutosaveMessage() {
