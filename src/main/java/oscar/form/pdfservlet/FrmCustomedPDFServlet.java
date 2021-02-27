@@ -168,6 +168,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 			        if( validFaxNumber ) {
 			        	
 			        	LogAction.addLog(provider_no, LogConst.SENT, LogConst.CON_FAX, "PRESCRIPTION " + pdfFile );
+						writer.println("<p style='text-align:center'>Fax sent to: " + req.getParameter("pharmaName") + " (" + req.getParameter("pharmaFax") + ")</p><script type='text/javascript'>function countdown() {    var i = document.getElementById('counter');    i.innerHTML = parseInt(i.innerHTML)-1; if (parseInt(i.innerHTML)<=0) { window.close();}} setInterval(function(){ countdown(); },1000); </script>");
 			        	// writer.println("<script>alert('Fax sent to: " + req.getParameter("pharmaName") + " (" + req.getParameter("pharmaFax") + ")');window.close();</script>");
 			        	
 			        }
