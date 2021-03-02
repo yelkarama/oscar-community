@@ -359,6 +359,9 @@ public class Driver {
 					if (keystore.isKeyEntry(n)) {
 						name = n;
 					}
+					if (name.equals("olis")) {
+						break;
+					}
 				}
 			}
 
