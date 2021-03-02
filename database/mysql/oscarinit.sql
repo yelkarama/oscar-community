@@ -998,6 +998,21 @@ CREATE TABLE `Icd9Synonym` (
 );
 
 --
+-- Table structure for table `IndicatorResultItem`
+--
+
+
+CREATE TABLE `IndicatorResultItem` (
+    `id` int(11) auto_increment,
+    `providerNo` varchar(30),
+    `timeGenerated` timestamp,
+    `indicatorTemplateId` int,
+    `label` varchar(255),
+    `result` float,
+    PRIMARY KEY(`id`)
+);
+
+--
 -- Table structure for table `Institution`
 --
 

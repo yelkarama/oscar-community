@@ -147,6 +147,7 @@
 		<table class="table table-striped table-condensed" id="libraryTable" >
 			<thead>
 			<tr>
+				<th>Delete</th>
 				<th>Disable/Enable</th>
 				<th></th>
 				<th>Dashboard</th>
@@ -164,6 +165,7 @@
 			<tr>
 				<th></th>
 				<th></th>
+				<th></th>
 				<th>Dashboard</th>
 				<th>Shared</th>
 				<th>Name</th>
@@ -177,6 +179,11 @@
 			<tbody>
 			<c:forEach items="${ indicatorTemplates }" var="indicator" >
 				<tr>
+					<td>
+						<a href="#" title="Delete Indicator" class="deleteIndicatorBtn" id="deleteIndicator_${indicator.id}">
+							<span style="color:red" class="glyphicon glyphicon-remove"</span>
+						</a>
+					</td>
 					<td>					
 						<label class="switch">
 						  <input class="form-control toggleActive" type="checkbox" name="IndicatorTemplate_${ indicator.id }" 

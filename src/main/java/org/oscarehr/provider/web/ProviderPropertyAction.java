@@ -53,6 +53,7 @@ import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
+import oscar.OscarProperties;
 import oscar.eform.EFormUtil;
 import oscar.log.LogAction;
 import oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFormRequestUtil;
@@ -2672,7 +2673,23 @@ public ActionForward viewConsultsFilter(ActionMapping actionmapping,ActionForm a
 			checked=false;
 
 		prop.setChecked(checked);
+		
+		UserProperty propRefresh = this.userPropertyDAO.getProp(providerNo, UserProperty.DASHBOARD_REFRESH);
+		if(propRefresh == null) {
+			propRefresh = new UserProperty();
+			Integer userRefreshRate = null;
+			try {
+				userRefreshRate = Integer.parseInt(OscarProperties.getInstance().getProperty("dashboard.indicatorRefreshRate"));
+			}catch(NumberFormatException e) {
+			}
+			if(userRefreshRate != null) {
+				propRefresh.setValue(String.valueOf(userRefreshRate));
+			}
+		}
+		
+		
 		request.setAttribute("dashboardShareProperty", prop);
+		request.setAttribute("dashboardRefreshProperty", propRefresh);
 		request.setAttribute("providertitle","provider.dashboardPrefs.title"); 
 		request.setAttribute("providermsgPrefs","provider.dashboardPrefs.msgPrefs"); //=Preferences
 		request.setAttribute("providerbtnSubmit","provider.dashboardPrefs.btnSubmit"); //=Save
@@ -2680,6 +2697,7 @@ public ActionForward viewConsultsFilter(ActionMapping actionmapping,ActionForm a
 		request.setAttribute("method","saveDashboardPrefs");
 
 		frm.set("dashboardShareProperty", prop);
+		frm.set("dashboardRefreshProperty", propRefresh);
 
 		return actionmapping.findForward("genDashboardPrefs");
     }
@@ -2704,9 +2722,21 @@ public ActionForward viewConsultsFilter(ActionMapping actionmapping,ActionForm a
 
 		prop.setValue(propValue);
 		this.userPropertyDAO.saveProp(prop);
-
+		
+		
+		UserProperty refreshProp=(UserProperty)frm.get("dashboardRefreshProperty");
+		UserProperty prop2=this.userPropertyDAO.getProp(providerNo, UserProperty.DASHBOARD_REFRESH);
+		if(prop2==null){
+			prop2=new UserProperty();
+			prop2.setName(UserProperty.DASHBOARD_REFRESH);
+			prop2.setProviderNo(providerNo);
+		}
+		prop2.setValue(refreshProp.getValue());
+		this.userPropertyDAO.saveProp(prop2);
+		
 		request.setAttribute("status", "success");
 		request.setAttribute("dashboardShareProperty",prop);
+		request.setAttribute("dashboardRefreshProperty",prop2);
 		request.setAttribute("providertitle","provider.dashboardPrefs.title"); 
 		request.setAttribute("providermsgPrefs","provider.dashboardPrefs.msgPrefs"); //=Preferences
 		request.setAttribute("providerbtnClose","provider.dashboardPrefs.btnClose"); //=Close

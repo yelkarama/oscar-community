@@ -174,6 +174,7 @@ public class UserProperty extends AbstractModel<Integer> implements Serializable
 	public static final String QUESTIMED_SERVICE_PASSWORD = "questimed_service_password";
 	public static final String QUESTIMED_SERVICE_LOCATION = "questimed_service_location";
 	public static final String DASHBOARD_SHARE = "dashboard_share";
+	public static final String DASHBOARD_REFRESH = "dashboard_refresh";
 	
 	public static final String CODE_TO_ADD_PATIENTDX = "code_to_add_patientDx";
 	public static final String CODE_TO_MATCH_PATIENTDX = "code_to_match_patientDx";

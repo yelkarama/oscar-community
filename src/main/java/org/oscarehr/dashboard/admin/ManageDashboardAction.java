@@ -122,7 +122,7 @@ public class ManageDashboardAction extends DispatchAction {
 				factory.setNamespaceAware(true);
 				SAXParser parser = factory.newSAXParser();
 				SAXReader xmlReader = new SAXReader();
-				Document xmlDocument = (Document) xmlReader.read(formFile.getInputStream());
+				Document xmlDocument = xmlReader.read(formFile.getInputStream());
 				parser.setProperty(  
 	                    "http://java.sun.com/xml/jaxp/properties/schemaLanguage",  
 	                    "http://www.w3.org/2001/XMLSchema");
@@ -327,6 +327,32 @@ public class ManageDashboardAction extends DispatchAction {
 		
 		if( id > 0 && objectClassName != null ) {
 			dashboardManager.toggleStatus(loggedInInfo, id, ObjectName.valueOf( objectClassName ), active);
+		}
+		
+		return null;
+	}
+	
+	@SuppressWarnings("unused")
+	public ActionForward deleteIndicator(ActionMapping mapping, ActionForm form, 
+			HttpServletRequest request, HttpServletResponse response) {
+		
+		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+		
+		if( ! securityInfoManager.hasPrivilege(loggedInInfo, "_dashboardManager", SecurityInfoManager.WRITE, null ) ) {	
+			return mapping.findForward("unauthorized");
+        }
+		
+		String objectId = request.getParameter( "objectId" );
+		
+		int id = 0;
+		
+		if( objectId != null && ! objectId.isEmpty() ) {
+			id = Integer.parseInt( objectId );
+		}
+		
+		
+		if( id > 0 ) {
+			dashboardManager.deleteIndicator(loggedInInfo,id);
 		}
 		
 		return null;

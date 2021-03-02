@@ -710,4 +710,9 @@ public class DashboardManager {
 		}
 	}
 
+	public void deleteIndicator(LoggedInInfo loggedInInfo, Integer indicatorId) {
+		if (loggedInInfo != null) {
+			indicatorTemplateDao.remove(indicatorId);
+		}
+	}
 }

@@ -23,7 +23,9 @@
  */
 package org.oscarehr.dashboard.factory;
 
+import java.util.Date;
 import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.oscarehr.dashboard.display.beans.GraphPlot;
 import org.oscarehr.dashboard.display.beans.IndicatorBean;
@@ -125,6 +127,7 @@ public class IndicatorBeanFactory {
 			indicatorBean.setStringArrayPlots( IndicatorQueryHandler.plotsToStringArray( graphPlots ) );
 			indicatorBean.setStringArrayTooltips( IndicatorQueryHandler.plotsToTooltipsStringArray( graphPlots ) );
 			
+			indicatorBean.setLastChecked(new Date());
 			logger.debug("Indicator Bean: " + indicatorBean.toString() );
 			
 		} else {
@@ -151,6 +154,7 @@ public class IndicatorBeanFactory {
 		indicatorBean.setNotes( indicatorTemplateXML.getNotes() );
 		indicatorBean.setSubCategory( indicatorTemplateXML.getSubCategory() );
 		indicatorBean.setXmlTemplate( indicatorTemplateXML.getTemplate() );
+		indicatorBean.setGraphType( IndicatorBean.GraphType.valueOf(indicatorTemplateXML.getGraphType()));
 
 	}
 

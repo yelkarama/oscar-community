@@ -455,5 +455,16 @@
 <!-- End patient status update modal panel -->
 
 </div>	<!-- end container -->
+<style type="text/css"><!--
+.yesprint {
+	display: none;        
+}
+@media print {
+	.yesprint {
+		display:block;
+	}
+}
+--></style><p class="yesprint"><b>
+Personal Health Information: CONFIDENTIAL</b><br/><b>END OF PRINTED DOCUMENT</b></p>
 </body>
 </html>

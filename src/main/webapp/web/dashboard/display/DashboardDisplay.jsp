@@ -48,10 +48,25 @@
 	<script>var ctx = "${pageContext.request.contextPath}"</script>
 	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jquery-1.9.1.min.js"></script>		
 	<script type="text/javascript" src="${ pageContext.request.contextPath }/library/bootstrap/3.0.0/js/bootstrap.min.js" ></script>	
-	<script type="text/javascript" src="${ pageContext.request.contextPath }/web/dashboard/display/dashboardDisplayController.js" ></script>
+	<script type="text/javascript" src="${ pageContext.request.contextPath }/web/dashboard/display/dashboardDisplayController.js?rand=<%=(int)(Math.random() * 10000) %>" ></script>
 	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jqplot/jquery.jqplot2.min.js" ></script>
 	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jqplot/plugins/jqplot.pieRenderer.js" ></script>
+	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jqplot/plugins/jqplot.barRenderer.js" ></script>
+	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jqplot/plugins/jqplot.categoryAxisRenderer.js" ></script>
+	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jqplot/plugins/jqplot.highlighter.js" ></script>
+	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jqplot/plugins/jqplot.canvasTextRenderer.js" ></script>
+	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jqplot/plugins/jqplot.canvasAxisLabelRenderer.js" ></script>
 	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jqplot/plugins/jqplot.json2.js" ></script>
+	
+	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/checkLoginStatus.js"></script>
+	<script>
+		startCheckLoginStatus('${ pageContext.request.contextPath }');
+		
+		<c:if test="${not empty indicatorRefreshRate}">
+			setupRefreshIndicators(${indicatorRefreshRate});
+		</c:if>
+		
+	</script>
 </head>
 
 <body>
@@ -92,9 +107,18 @@
 		<div class="col-md-6">
 			Last loaded: 
 			<c:out value="${ dashboard.lastChecked }" />
-			<a href="#" title="refresh" class="reloadDashboardBtn" id="getDashboard_${ dashboard.id }" >
+			<a href="#" title="Refresh Dashboard" class="reloadDashboardBtn" id="getDashboard_${ dashboard.id }" >
 				<span class="glyphicon glyphicon-refresh"></span>
 			</a>
+			&nbsp;&nbsp;
+			Indicator Refresh Rate: 
+			<c:if test="${empty indicatorRefreshRate}">
+				<span style="color:red">Never</span>
+			</c:if>
+			<c:if test="${not empty indicatorRefreshRate}">
+				${indicatorRefreshRate} minutes
+			</c:if>
+			
 		</div>
 		<div class="col-md-6">
 			<a href="#" title="Dashboard Manager" class="pull-right dashboardManagerBtn" id="${ dashboard.id }" >

@@ -357,7 +357,8 @@ INSERT INTO `OscarJob` (`id`, `name`, `description`, `oscarJobTypeId`, `cronExpr
 -- Dumping data for table `OscarJobType`
 --
 
-INSERT INTO `OscarJobType` (`id`, `name`, `description`, `className`, `enabled`, `updated`) VALUES (1,'OSCAR MSG REVIEW','Sends OSCAR Messages to Residents Supervisors when charts need to be reviewed','org.oscarehr.jobs.OscarMsgReviewSender',0,'2021-02-02 13:33:34'),(2,'OSCAR ON CALL CLINIC','Notifies MRP if patient seen during on-call clinic','org.oscarehr.jobs.OscarOnCallClinic',0,'2021-02-02 13:33:34');
+INSERT INTO `OscarJobType` (`id`, `name`, `description`, `className`, `enabled`, `updated`) VALUES (1,'OSCAR MSG REVIEW','Sends OSCAR Messages to Residents Supervisors when charts need to be reviewed','org.oscarehr.jobs.OscarMsgReviewSender',0,'2021-02-02 13:33:34'),(2,'OSCAR ON CALL CLINIC','Notifies MRP if patient seen during on-call clinic','org.oscarehr.jobs.OscarOnCallClinic',0,'2021-02-02 13:33:33');
+INSERT INTO `OscarJobType` (`id`, `name`, `description`, `className`, `enabled`, `updated`) VALUES (\N,'DashboardTrending','','org.oscarehr.integration.dashboard.DashboardTrendingJob',1,now());
 
 --
 -- Dumping data for table `PHRVerification`

@@ -39,10 +39,25 @@
 	
 			<input type="hidden" id="graphPlots_${ indicatorPanel.id }" value="${ indicatorPanel.stringArrayPlots }" />
 			<input type="hidden" id="graphLabels_${ indicatorPanel.id }" value="${ indicatorPanel.stringArrayTooltips }" />
+			<input type="hidden" id="graphType_${ indicatorPanel.id }" value="${indicatorPanel.graphType}"/>
 			<div class="indicatorGraph" id="graphContainer_${ indicatorPanel.id }" ></div>
 		</div>									
 	</div>
 	
+	<div class="row indicatorFooter" >
+		<div class="col-md-9">
+			<c:out value="${ indicatorPanel.lastChecked }" />
+		</div>
+		<div class="col-md-3 text-right">
+		
+			<a href="#" title="Refresh this indicator" class="reloadIndicatorBtn" id="reloadIndicator_${ indicatorPanel.id }" >
+				<span class="glyphicon glyphicon-refresh"></span>
+			</a>
+			<a href="#" title="Disable automatic refresh of this Indicator" class="disableReloadIndicatorBtn" id="disableReloadIndicator_${ indicatorPanel.id }" >
+				<span class="glyphicon glyphicon-ban-circle"></span>
+			</a>
+		</div>
+	</div>
 	<div class="row indicatorFooter" >
 		<div class="col-md-12 text-right">	
 									
@@ -60,6 +75,11 @@
 			    <li>
 					<a href="#" class="indicatorDrilldownBtn" id="getDrilldown_${ indicatorPanel.id }" >
 						Drill Down
+					</a>
+			    </li>
+			    <li>
+					<a href="#" class="indicatorTrendBtn" id="getTrend_${ indicatorPanel.id }" >
+						Show Trend
 					</a>
 			    </li>
 	        </ul>
@@ -108,7 +128,35 @@
 			<!-- end modal content -->								
 		</div>
 	</div> 
-	<!--  end indicator modal  -->							
+	<!--  end indicator modal  -->	
+	
+		<!-- modal panel for displaying this indicators details -->	
+	<div id="indicatorTrending_${ indicatorPanel.id }" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+	
+			<div class="modal-content">
+				<div class="modal-header">	
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title">
+						title
+					</h4>
+				</div>
+				
+				<div class="modal-body">
+					<div style="height:300px;width:700px" id="indicatorTrendCanvas_${ indicatorPanel.id }"></div>
+				</div>
+				
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						Close
+					</button>
+				</div>						
+			</div> 
+			<!-- end modal content -->								
+		</div>
+	</div> 
+	<!--  end indicator modal  -->		
+							
 </div>
 														
 

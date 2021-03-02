@@ -23,6 +23,7 @@
  */
 package org.oscarehr.dashboard.display.beans;
 
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
@@ -38,6 +39,7 @@ public class IndicatorBean extends AbstractDataDisplayBean {
 	private String stringArrayPlots;
 	private String stringArrayTooltips;
 	private String originalJsonPlots;
+	private Date lastChecked;
 
 	public List<GraphPlot[]> getGraphPlots() {
 		return graphPlots;
@@ -92,4 +94,11 @@ public class IndicatorBean extends AbstractDataDisplayBean {
 		return ReflectionToStringBuilder.toString(this);
 	}
 
+	public Date getLastChecked() {
+		return lastChecked;
+	}
+
+	public void setLastChecked(Date lastChecked) {
+		this.lastChecked = lastChecked;
+	}
 }

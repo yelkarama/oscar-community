@@ -23,30 +23,35 @@
  */
 package org.oscarehr.dashboard.display;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
+import org.oscarehr.common.dao.UserPropertyDAO;
 import org.oscarehr.common.model.Provider;
+import org.oscarehr.common.model.UserProperty;
 import org.oscarehr.dashboard.display.beans.DashboardBean;
 import org.oscarehr.managers.DashboardManager;
 import org.oscarehr.managers.ProviderManager2;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.util.SpringUtils;
-import org.apache.log4j.Logger;
 import org.oscarehr.util.MiscUtils;
+import org.oscarehr.util.SpringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import oscar.OscarProperties;
 
 public class DisplayDashboardAction extends DispatchAction {
 	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 	private static DashboardManager dashboardManager = SpringUtils.getBean(DashboardManager.class);
 	private ProviderManager2 providerManager = SpringUtils.getBean( ProviderManager2.class );
+	private UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 	private static Logger logger = MiscUtils.getLogger();
 	
 	public ActionForward unspecified(ActionMapping mapping, ActionForm form, 
@@ -95,6 +100,27 @@ public class DisplayDashboardAction extends DispatchAction {
 		DashboardBean dashboard = dashboardManager.getDashboard(loggedInInfo, id);
 
 		request.setAttribute("dashboard", dashboard);
+		
+		
+		Integer userRefreshRate = null;
+		try {
+			userRefreshRate = Integer.parseInt(OscarProperties.getInstance().getProperty("dashboard.indicatorRefreshRate"));
+		}catch(NumberFormatException e) {
+		}
+		
+		UserProperty refreshRate = userPropertyDao.getProp(loggedInInfo.getLoggedInProviderNo(), UserProperty.DASHBOARD_REFRESH);
+		if(refreshRate != null && refreshRate.getValue() != null) {
+			try {
+				userRefreshRate = Integer.parseInt(refreshRate.getValue());
+			} catch(NumberFormatException e) {
+				userRefreshRate=null;
+			}
+		}
+		
+	
+		request.setAttribute("indicatorRefreshRate", userRefreshRate);
+		
+		
 
 		return mapping.findForward("success");
 	}
