@@ -267,12 +267,13 @@ public boolean checkOlisKeystore(String key,String password,OscarProperties p,Li
 				errors.add(prob(key+" keystore is empty"));
 				return false;
 			}
-			String name="olis";
-			Enumeration e = keystore.aliases();
+
+			String name = null;
+            Enumeration e = keystore.aliases();
 			while(e.hasMoreElements()) {
-				name = (String)e.nextElement();
-				
-			}
+               	name = (String)e.nextElement();
+            	    if(name.equals("olis")){ break;}
+            }
 		
 			// Get the private key and the certificate
 			priv = (PrivateKey) keystore.getKey(name, pwd.toCharArray());
@@ -408,7 +409,7 @@ public boolean checkTrustStore(String s,String password,OscarProperties p,List<S
 			return false;
 		}
 		
-		java.security.cert.Certificate root = keystore.getCertificate("ehealth ontario root ca");
+		java.security.cert.Certificate root = keystore.getCertificate("olis.ssha.ca-1");
 		if(root == null) {
 			errors.add(prob("Truststore does not contain ehealth ontario root ca"));
 			return false;
