@@ -111,6 +111,8 @@ public class BillingSaveBillingAction extends Action {
             	appt.setStatus(billStatus);
             	appt.setLastUpdateUser(bean.getCreator());
             	appointmentDao.merge(appt);
+                // 2020-12-12 : Tom Le added the rowAffected line below so that the if (rowsAffected<1) statement below will not be true all the time
+                rowsAffected = 1;
             }
             
             if (rowsAffected<1) log.error("LLLOOK: APPT ERROR - CANNOT UPDATE APPT ("+bean.getApptNo()+") FOR demo:" + bean.getPatientName() +" date " + curDate);
