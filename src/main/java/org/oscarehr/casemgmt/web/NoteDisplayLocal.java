@@ -99,7 +99,15 @@ public class NoteDisplayLocal implements NoteDisplay {
 	public void setReadOnly(boolean ro) {
 		readonly = ro;
 	}
+	
+	public CaseManagementNote getCaseManagementNote() {
+		return caseManagementNote;
+	}
 
+	public void setCaseManagementNote(CaseManagementNote caseManagementNote) {
+		this.caseManagementNote = caseManagementNote;
+	}
+	
 	public String getEncounterType() {
 		return (caseManagementNote.getEncounter_type());
 	}
