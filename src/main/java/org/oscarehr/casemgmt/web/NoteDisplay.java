@@ -134,14 +134,6 @@ public interface NoteDisplay {
 	//use this for a category of notes - like integrator, group notes, etc
 	public boolean isReadOnly();
 	
-	public CaseManagementNote getCaseManagementNote() {
-		return caseManagementNote;
-	}
-
-	public void setCaseManagementNote(CaseManagementNote caseManagementNote) {
-		this.caseManagementNote = caseManagementNote;
-	}
-
 	public boolean isGroupNote();
 
 	public boolean isCpp();
