@@ -31,7 +31,6 @@
 <%@page import="org.oscarehr.casemgmt.common.Colour"%>
 
     let chartNoteAutosave = null;
-    let noteLockToRelease = null;
 	var numNotes = 0;   //How many saved notes do we have?
     var ctx;        //url context
     var providerNo;
@@ -293,9 +292,6 @@ function setupNotes(){
     let autosaveDemographicNo = document.forms['caseManagementEntryForm'].demographicNo.value;
     chartNoteAutosave = new ChartNoteAutosave(caseNote, autosaveDemographicNo, autosaveProgramId, autosaveNoteId, 5, ctx, updateAutosaveMessage, true);
     console.log('chartNoteAutosave instance created, noteId: ' + autosaveNoteId + ', programId:  ' + autosaveProgramId);
-    if (autosaveNoteId) {
-        noteLockToRelease = autosaveNoteId;
-	}
 }
 function updateAutosaveMessage() {
     var d = new Date();
@@ -432,9 +428,7 @@ function notesIncrementAndLoadMore() {
 		if($("encMainDiv").scrollHeight > $("encMainDiv").getHeight()) {	
 			notesOffset += notesIncrement;
 			notesRetrieveOk = false;
-			if (typeof $("encMainDiv").children[0] != 'undefined') {
-            	notesCurrentTop = $("encMainDiv").children[0].id;
-			}
+			notesCurrentTop = $("encMainDiv").children[0].id;
 			notesLoader(notesOffset, notesIncrement, demographicNo);
 		}
 	}
@@ -466,7 +460,7 @@ function notesLoader(offset, numToReturn, demoNo) {
 				insertion: Insertion.Top,
 				onSuccess: function(data) {
 					notesRetrieveOk = (data.responseText.replace(/\s+/g, '').length > 0);
-					if (!notesRetrieveOk) clearInterval(notesScrollCheckInterval);
+					if (!notesRetrieveOk) clearInterval(scrollCheckInterval);
 				},
 				onComplete: function() {
 					$("notesLoading").style.display = "none";
@@ -1002,7 +996,6 @@ function updateCPPNote() {
                                                     $(div).update(request.responseText);
 												}
                                                  if( $("issueChange").value == "true" ) {
-                                                 	document.forms["caseManagementEntryForm"].forceNote.value = 'true';
                                                  	ajaxUpdateIssues("edit",sigId);
                                                       $("issueChange").value = false;
                                                  }
@@ -1297,11 +1290,6 @@ function loadDiv(div,url,limit) {
         $(caseNote).focus();
         adjustCaseNote();
         setCaretPosition($(caseNote),curPos);
-        
-        if (typeof chartNoteAutosave !== 'undefined') {
-            chartNoteAutosave.setChanged();
-        }
-        
     }
 
      var insertTemplateError;
@@ -1378,8 +1366,16 @@ function removeLock(id) {
 	var regEx = /\d+/;
     var nId = regEx.exec(id);
 	var url = ctx + "/CaseManagementEntry.do";
-	params = "?method=releaseNoteLock&closingEChart=true&providerNo=" + providerNo + "&demographicNo=" + demographicNo + "&noteId=" + nId + "&force=true&" ;
-	navigator.sendBeacon(url + params);
+	params = "method=releaseNoteLock&providerNo=" + providerNo + "&demographicNo=" + demographicNo + "&noteId=" + nId + "&force=true";
+	
+	new Ajax.Request(
+		url,
+		{
+			method: 'post',
+			postBody: params,
+			asynchronous: true
+		}
+	);	
 }
 
 
@@ -3014,14 +3010,6 @@ function newNote(e) {
     if( e != null )
         Event.stop(e);
 
-    // if current edited note is new prompt user to save
-    if (document.forms["caseManagementEntryForm"].note_edit.value === 'new') {
-        let result = confirm('Existing edited note has not been saved. Are you sure you want to relpace it?');
-        if (!result) {
-            return false;
-        }
-    }
-
     ++newNoteCounter;
     var newNoteIdx = "0" + newNoteCounter;
     var id = "nc" + newNoteIdx;
@@ -3062,13 +3050,7 @@ function newNote(e) {
         //AutoCompleter for Issues
         var issueURL = "/CaseManagementEntry.do?method=issueList&demographicNo=" + demographicNo + "&providerNo=" + providerNo;
         issueAutoCompleter = new Ajax.Autocompleter("issueAutocomplete", "issueAutocompleteList", issueURL, {minChars: 4, indicator: 'busy', afterUpdateElement: saveIssueId, onShow: autoCompleteShowMenu, onHide: autoCompleteHideMenu});
-		
-		let autosaveNoteId = document.forms['caseManagementEntryForm'].noteId.value;
-        let autosaveProgramId = document.forms['caseManagementEntryForm']['caseNote.program_no'].value;
-        let autosaveDemographicNo = document.forms['caseManagementEntryForm'].demographicNo.value;
-        chartNoteAutosave = new ChartNoteAutosave(caseNote, autosaveDemographicNo, autosaveProgramId, autosaveNoteId, 5000, ctx, csrfToken, updateAutosaveMessage, true);
-        console.log('chartNoteAutosave instance created, noteId: ' + autosaveNoteId + ', programId:  ' + autosaveProgramId);
-        
+
         //hide new note button
         //$("newNoteImg").hide();
 
@@ -3669,9 +3651,6 @@ function autoCompleteShowMenuCPP(element, update) {
     	currentNoteText += "\n";
     	currentNoteText += jQuery("#noteEditTxt").val();
     	jQuery("#caseNote_note"+currentNoteId).val(currentNoteText);
-    	if (typeof chartNoteAutosave !== 'undefined') {
-           chartNoteAutosave.setChanged();
-	       }
     }
     
   	function selectGroup(programId,demographicNo) {
@@ -3709,6 +3688,26 @@ function autoCompleteShowMenuCPP(element, update) {
                     	}
             saving = true;
             ajaxSaveNote(sig,nId,tmp);
+                //cancel updating of issues
+                //IE destroys innerHTML of sig div when calling ajax update
+                //so we have to restore it here if the ajax call is aborted
+                //this is buggy don't use
+                /*if( ajaxRequest != undefined  && callInProgress(ajaxRequest.transport) ) {
+                    ajaxRequest.transport.abort();
+                    var siblings = $(caseNote).siblings();
+                    var pos;
+
+                    for( var idx = 0; idx < siblings.length; ++idx ) {
+                        if( (pos = siblings[idx].id.indexOf("sig")) != -1 ) {
+                            nId = siblings[idx].id.substr(pos+3);
+                            sumaryId += nId;
+                            if( $(sumaryId) == null ) {
+                                siblings[idx].innerHTML = sigCache;
+                            }
+                            break;
+                        }
+                    }
+                } */
 
                 //clear auto save
                 clearTimeout(autoSaveTimer);
@@ -3993,10 +3992,3 @@ function receiveMessage(event) {
 	
 %>
 
-    window.addEventListener("beforeunload", function() {
-        console.log('test ' + noteLockToRelease);
-        if (noteLockToRelease && noteLockToRelease !== '0') {
-            //remove lock from current note
-            removeLock(id);
-		}
-    });

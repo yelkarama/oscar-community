@@ -343,7 +343,7 @@ ArrayList<String> recomendations = mi.getRecommendations();
 			window.scrollTo(x, y);
 
 			//if scroll to position then page is being reloaded due to saving so refresh encounter
-			self.opener.autoSave(true);
+			self.opener.location.reload();
 		}
 
 		window.onload = setScrollPos;
