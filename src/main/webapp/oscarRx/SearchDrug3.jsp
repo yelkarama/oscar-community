@@ -402,6 +402,10 @@ if (rx_enhance!=null && rx_enhance.equals("true")) {
                
                return  display;
            };
+           <% if (Boolean.valueOf(request.getParameter("autoSaveOpenerOnOpen"))) { %>
+           self.opener.autoSave(true);
+           <% } %>
+
         </script>
 
         <script type="text/javascript">

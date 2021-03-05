@@ -473,7 +473,7 @@
                                                         };
                                                     }();
                                                     refreshParent=function(){
-                                                        window.opener.location.reload();
+                                                    	window.opener.autoSave(true);
                                                     }
                                                     updateStatus=function(formid){
                                                     var num=formid.split("_");

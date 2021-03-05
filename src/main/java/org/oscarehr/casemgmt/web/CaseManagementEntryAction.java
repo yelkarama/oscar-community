@@ -264,27 +264,37 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 
 		logger.debug("NoteId " + nId);
 
-		String maxTmpSave = oscar.OscarProperties.getInstance().getProperty("maxTmpSave", "off");
-		logger.debug("maxTmpSave " + maxTmpSave);
-		// set date 2 weeks in past so we retrieve more recent saved notes
-		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.DAY_OF_MONTH, -14);
-		Date twoWeeksAgo = cal.getTime();
-		logger.debug("Get tmp note");
-		CaseManagementTmpSave tmpsavenote;
-		if (maxTmpSave.equalsIgnoreCase("off")) {
-			tmpsavenote = this.caseManagementMgr.restoreTmpSave(providerNo, demono, programIdString);
-		} else {
-			tmpsavenote = this.caseManagementMgr.restoreTmpSave(providerNo, demono, programIdString, twoWeeksAgo);
-		}
+		CaseManagementTmpSave tmpsavenote = caseManagementMgr.getTmpSave(providerNo, demono, programIdString);
 		current = System.currentTimeMillis();
 		logger.debug("Get tmp note " + String.valueOf(current - start));
 		start = current;
 
 		logger.debug("Get Note for editing");
 
-		// create a new note
-		if (request.getParameter("note_edit") != null && request.getParameter("note_edit").equals("new")) {
+        // get the last temp note?
+		if (tmpsavenote != null && forceNote.equals("true")) {
+			logger.debug("tempsavenote is NOT NULL");
+			if (tmpsavenote.getNoteId() > 0) {
+				session.setAttribute("newNote", "false");
+				request.setAttribute("noteId", String.valueOf(tmpsavenote.getNoteId()));
+				note = caseManagementMgr.getNote(String.valueOf(tmpsavenote.getNoteId()));
+				logger.debug("Restoring " + String.valueOf(note.getId()));
+			} else {
+				session.setAttribute("newNote", "true");
+				session.setAttribute("issueStatusChanged", "false");
+				note = new CaseManagementNote();
+				note.setProviderNo(providerNo);
+				Provider prov = new Provider();
+				prov.setProviderNo(providerNo);
+				note.setProvider(prov);
+				note.setDemographic_no(demono);
+			}
+
+			note.setNote(tmpsavenote.getNote());
+			logger.debug("Setting note to " + note.getNote());
+
+            // create a new note
+		} else if (request.getParameter("note_edit") != null && request.getParameter("note_edit").equals("new")) {
 			logger.debug("NEW NOTE GENERATED");
 			session.setAttribute("newNote", "true");
 			session.setAttribute("issueStatusChanged", "false");
@@ -320,29 +330,7 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 			resetTemp(providerNo, demono, programIdString);
 
 		}
-		// get the last temp note?
-		else if (tmpsavenote != null && !forceNote.equals("true")) {
-			logger.debug("tempsavenote is NOT NULL");
-			if (tmpsavenote.getNoteId() > 0) {
-				session.setAttribute("newNote", "false");
-				request.setAttribute("noteId", String.valueOf(tmpsavenote.getNoteId()));
-				note = caseManagementMgr.getNote(String.valueOf(tmpsavenote.getNoteId()));
-				logger.debug("Restoring " + String.valueOf(note.getId()));
-			} else {
-				session.setAttribute("newNote", "true");
-				session.setAttribute("issueStatusChanged", "false");
-				note = new CaseManagementNote();
-				note.setProviderNo(providerNo);
-				Provider prov = new Provider();
-				prov.setProviderNo(providerNo);
-				note.setProvider(prov);
-				note.setDemographic_no(demono);
-			}
 
-			note.setNote(tmpsavenote.getNote());
-			logger.debug("Setting note to " + note.getNote());
-
-		}
 		// get an existing non-temp note?
 		else if (nId != null && !"null".equalsIgnoreCase(nId) && Integer.parseInt(nId) > 0) {
 			logger.debug("Using nId " + nId + " to fetch note");
@@ -1910,13 +1898,6 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 			//nothing to do. lock was not found 
 		}
 
-		//We are exiting note so we have to make sure we clean up tmpSave
-		try {
-			CaseManagementEntryFormBean cform = (CaseManagementEntryFormBean) session.getAttribute(sessionFrmName);
-			caseManagementMgr.deleteTmpSave(providerNo, demoNo, cform.getCaseNote().getProgram_no());
-		} catch (Exception e) {
-			logger.error("Could not remove tmpSave", e);
-		}
 
 		if (closingEChart) {
             String logData = null;//"Message=" + tickler.getMessage();
@@ -2819,7 +2800,7 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 			caseManagementMgr.deleteTmpSave(providerNo, demographicNo, programId);
 			caseManagementMgr.tmpSave(providerNo, demographicNo, programId, noteId, note);
 		} catch (Exception e) {
-			logger.warn("AutoSave Error: " + e);
+			logger.warn("AutoSave Error: " + e, e);
 		}
 
 		CaseManagementEntryFormBean cform = (CaseManagementEntryFormBean) form;

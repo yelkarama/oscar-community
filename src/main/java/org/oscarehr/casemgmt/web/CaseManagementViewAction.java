@@ -83,6 +83,7 @@ import org.oscarehr.casemgmt.service.CaseManagementManager;
 import org.oscarehr.casemgmt.service.NoteSelectionCriteria;
 import org.oscarehr.casemgmt.service.NoteSelectionResult;
 import org.oscarehr.casemgmt.service.NoteService;
+import org.oscarehr.casemgmt.web.formbeans.CaseManagementEntryFormBean;
 import org.oscarehr.casemgmt.web.formbeans.CaseManagementViewFormBean;
 import org.oscarehr.common.dao.BillingONCHeader1Dao;
 import org.oscarehr.common.dao.CaseManagementIssueNotesDao;
@@ -2021,6 +2022,12 @@ public class CaseManagementViewAction extends BaseCaseManagementViewAction {
 
 		NoteSelectionResult result = noteService.findNotes(loggedInInfo, criteria);
 
+		// Check stored note in session for if it matches an existing note, then check the date and discard session note if newer note exists
+		String sessionFrmName = "caseManagementEntryForm" + demoNo;
+		CaseManagementEntryFormBean cform = (CaseManagementEntryFormBean) request.getSession().getAttribute(sessionFrmName);
+		trimCurrentEditingNoteFromResults(cform, result);
+
+
 		if (logger.isDebugEnabled()) {
 			logger.debug("FOUND: " + result);
 			for (NoteDisplay nd : result.getNotes()) {
@@ -2035,4 +2042,38 @@ public class CaseManagementViewAction extends BaseCaseManagementViewAction {
 		return mapping.findForward("ajaxDisplayNotes");
 	}
 
+	/**
+	 * Takes the provided stored note in the session and the note results and checks if a revision of the current 
+	 * edited note is in the results. If it is, and it's a later updated revision, take that note result and move
+	 * it to the current edited note
+	 * @param sessionForm the current edited note in the session
+	 * @param noteResults the echart note result set
+	 */
+	private void trimCurrentEditingNoteFromResults(CaseManagementEntryFormBean sessionForm, NoteSelectionResult noteResults) {
+		if (sessionForm != null) {
+			CaseManagementNote sessionNote = sessionForm.getCaseNote();
+			if (sessionNote != null) {
+				Integer metchedIndexToRemove = null;
+				for (int i = 0; i < noteResults.getNotes().size(); i++) {
+					if (noteResults.getNotes().get(i) instanceof NoteDisplayLocal) {
+						NoteDisplayLocal noteDisplay = (NoteDisplayLocal) noteResults.getNotes().get(i);
+
+						// if a note in the NoteSelectionResult is a revision of the current edited note but 
+						// is a later revision, set it to the edited note
+						if (noteDisplay.getUuid() != null && noteDisplay.getUpdateDate() != null &&
+								noteDisplay.getUuid().equals(sessionNote.getUuid()) && noteDisplay.getUpdateDate().after(sessionNote.getUpdate_date())) {
+							CaseManagementNote resultListNote = noteDisplay.getCaseManagementNote();
+							sessionForm.setCaseNote(resultListNote);
+							metchedIndexToRemove = i;
+						}
+					}
+				}
+				if (metchedIndexToRemove != null) {
+					List<NoteDisplay> notes = noteResults.getNotes();
+					notes.remove(metchedIndexToRemove);
+					noteResults.setNotes(notes);
+				}
+			}
+		}
+	}
 }

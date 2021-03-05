@@ -26,6 +26,7 @@ package org.oscarehr.casemgmt.service;
 import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -1089,6 +1090,18 @@ public class CaseManagementManager {
 		caseManagementTmpSaveDao.remove(providerNo, intDemoNo, intProgramId);
 	}
 
+	public CaseManagementTmpSave getTmpSave(String providerNo, String demographicNo, String programId) {
+		String maxTmpSave = oscar.OscarProperties.getInstance().getProperty("maxTmpSave", "");
+		if (maxTmpSave.equalsIgnoreCase("off")) {
+			return restoreTmpSave(providerNo, demographicNo, programId);
+		} else {
+			Calendar cal = Calendar.getInstance();
+			cal.add(Calendar.DAY_OF_MONTH, -14);
+			Date twoWeeksAgo = cal.getTime();
+			return restoreTmpSave(providerNo, demographicNo, programId, twoWeeksAgo);
+		}
+	}
+	
 	public CaseManagementTmpSave restoreTmpSave(String providerNo, String demographicNo, String programId) {
 		boolean removed = false;
 
