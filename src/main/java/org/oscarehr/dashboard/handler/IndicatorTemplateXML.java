@@ -478,7 +478,7 @@ public class IndicatorTemplateXML {
 	
 	private static List<Column> createColumnList( NodeList columnNodeList ) {
 		
-		List<Column> columnList = null;	
+		List<Column> columnList = new ArrayList<Column>();	
 		Element columnsNode = null;
 		NodeList columns = null;
 		
