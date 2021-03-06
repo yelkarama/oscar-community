@@ -26,18 +26,23 @@ package org.oscarehr.dashboard.handler;
 
 import java.util.ArrayList;
 import java.util.Date;
+//import java.util.ArrayList;
 import java.util.List;
+//import java.util.Objects;
 
 import org.apache.log4j.Logger;
 //import org.oscarehr.common.dao.DemographicExtArchiveDao;
 import org.oscarehr.common.dao.DemographicExtDao;
+import org.oscarehr.common.dao.PropertyDao;
 import org.oscarehr.common.model.DemographicExt;
+import org.oscarehr.common.model.Property;
 import org.oscarehr.dashboard.display.beans.DrilldownBean;
 import org.oscarehr.managers.DashboardManager;
 //import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
+//import org.springframework.beans.factory.annotation.Autowired;
 
 import net.sf.json.JSONArray;
 
@@ -45,9 +50,7 @@ public class ExcludeDemographicHandler {
 	
 	private static Logger logger = MiscUtils.getLogger();
 	
-	private static DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);
-	private DashboardManager dashboardManager = SpringUtils.getBean(DashboardManager.class);
-	
+	static DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);
 	List<Integer> demoIds;
 	List<DemographicExt> demoExts;
 	private LoggedInInfo loggedInInfo;
@@ -169,12 +172,24 @@ public class ExcludeDemographicHandler {
 		String providerNo = null;
 		if (loggedInInfo != null) {
 			providerNo = getLoggedinInfo().getLoggedInProviderNo();
-			String mrp = dashboardManager.getRequestedProviderNo(loggedInInfo);
-			if (mrp != null && !mrp.isEmpty()) {
-				providerNo = mrp;
+			String surrogate = surrogateForProvider(providerNo);
+			if (!surrogate.isEmpty()) {
+				providerNo = surrogate;
 			}
 		}
 		return providerNo;
+	}
+	
+	/**
+	 *Retrieve provider for which current provider is acting as a surrogate.
+	 */
+	public static String surrogateForProvider(String surrogate_providerNo) {
+		PropertyDao dao = SpringUtils.getBean(PropertyDao.class);
+		List<Property> props = dao.findByNameAndProvider("surrogate_for_provider", surrogate_providerNo);
+		if(props.size()>0) {
+			return props.get(0).getValue();
+		}
+		return new String();
 	}
 	
 	// An exclusion is only valid for a finite interval.  The interval may need to be modified
