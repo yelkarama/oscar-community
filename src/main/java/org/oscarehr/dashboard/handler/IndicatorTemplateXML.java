@@ -478,7 +478,7 @@ public class IndicatorTemplateXML {
 	
 	private static List<Column> createColumnList( NodeList columnNodeList ) {
 		
-		List<Column> columnList = null;	
+		List<Column> columnList = new ArrayList<Column>();	
 		Element columnsNode = null;
 		NodeList columns = null;
 		
@@ -667,6 +667,10 @@ public class IndicatorTemplateXML {
 		
 		switch( ProviderValueAlias.valueOf( parameterValue ) ) {
 		case loggedinprovider : parameterValue = getLoggedInProvider().trim();
+//				String surrogate = surrogateForProvider(parameterValue);
+//				if (!surrogate.isEmpty()) {
+//					parameterValue = surrogate;
+//				}
 				break;
 		
 		case all : parameterValue = "%";
@@ -691,6 +695,17 @@ public class IndicatorTemplateXML {
 		this.providerNo = providerNo;
 	}
 	
+//	/**
+//	 *Retrieve provider for which current provider is acting as a surrogate.
+//	 */
+//	public static String surrogateForProvider(String surrogate_providerNo) {
+//		PropertyDao dao = SpringUtils.getBean(PropertyDao.class);
+//		List<Property> props = dao.findByNameAndProvider("surrogate_for_provider", surrogate_providerNo);
+//		if(props.size()>0) {
+//			return props.get(0).getValue();
+//		}
+//		return new String();
+//	}
 	
 	public void setSharedMetricLabel(String sharedMetricLabel) {
 		this.sharedMetricLabel = sharedMetricLabel;
