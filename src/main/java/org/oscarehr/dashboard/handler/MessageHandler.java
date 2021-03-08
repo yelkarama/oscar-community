@@ -72,9 +72,9 @@ public class MessageHandler {
 			return;
 		}
 
-		MsgDemoMap msgDemoMap = new MsgDemoMap();
-		for (Integer demographicNumber : linkedDemographicNumbers) {
-			msgDemoMap.linkMsg2Demo(messageId, demographicNumber.toString());
-		}
+		//MsgDemoMap msgDemoMap = new MsgDemoMap();
+		//for (Integer demographicNumber : linkedDemographicNumbers) {
+		//	msgDemoMap.linkMsg2Demo(messageId, demographicNumber.toString());
+		//}
 	}
 }
