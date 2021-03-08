@@ -214,10 +214,10 @@ public class BulkPatientDashboardAction extends DispatchAction {
 		String message = "Patient demographic_no(s) {" + patientIdsJson +
 			"} set inactive by " + providerNo;
 
-		messageHandler.notifyProvider(subject, message, providerNo, null); // patientIdList);
+		messageHandler.notifyProvider(subject, message, providerNo, patientIdList);
 		String mrp = getMRP(loggedInInfo);
 		if (mrp != null && !providerNo.equals(mrp)) {  // operation done by MOA for doctor
-			messageHandler.notifyProvider(subject, message, mrp, null); // patientIdList);
+			messageHandler.notifyProvider(subject, message, mrp, patientIdList);
 		}
 
 		logger.info(message);
