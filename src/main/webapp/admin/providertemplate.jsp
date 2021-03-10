@@ -134,7 +134,7 @@
 				<input type="hidden" name="dboperation" value="">
 			
 					<bean:message key="admin.providertemplate.formTemplateName" />:<br>
-					<input type="text" name="name" value="<%=bEdit?tName:""%>" class="span10" maxlength="20">
+					<input type="text" name="name" value="<%=bEdit?tName:""%>" class="span10" maxlength="50"> <!-- match the definition in the schema -->
 				
 					<br><br>
 				
