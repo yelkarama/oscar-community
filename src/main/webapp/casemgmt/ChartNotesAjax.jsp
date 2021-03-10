@@ -956,8 +956,8 @@ CasemgmtNoteLock casemgmtNoteLock = (CasemgmtNoteLock)session.getAttribute("case
     <c:url value="/CaseManagementEntry.do?method=issueList&demographicNo=${param.demographicNo}&providerNo=${param.providerNo}" var="issueURL" />
     var issueAutoCompleter = new Ajax.Autocompleter("issueAutocomplete", "issueAutocompleteList", "<c:out value="${issueURL}"/>", {minChars: 3, indicator: 'busy', afterUpdateElement: saveIssueId, onShow: autoCompleteShowMenu, onHide: autoCompleteHideMenu});
 
-    <%int MaxLen = 20;
-			int TruncLen = 17;
+    <%int MaxLen = 25;
+			int TruncLen = 22;
 			String ellipses = "...";
 			for (int j = 0; j < bean.templateNames.size(); j++)
 			{
