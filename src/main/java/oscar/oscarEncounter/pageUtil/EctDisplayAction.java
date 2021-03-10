@@ -63,8 +63,8 @@ public class EctDisplayAction extends Action {
 	protected static final String ELLIPSES = "...";
 	protected static final int MAX_LEN_TITLE = 48;
 	protected static final int CROP_LEN_TITLE = 45;
-	protected static final int MAX_LEN_KEY = 21;
-	protected static final int CROP_LEN_KEY = 18;
+	protected static final int MAX_LEN_KEY = 25;
+	protected static final int CROP_LEN_KEY = 22;
 	
 	private boolean enabled;
 	
