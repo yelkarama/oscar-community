@@ -36,6 +36,13 @@ if( !ProviderMyOscarIdData.idIsSet(provNo)) {
 	return;
 }
 
+// If you previously used MyOSCAR your id will still be set but your MY_OSCAR = no
+oscar.OscarProperties props = oscar.OscarProperties.getInstance();
+boolean myOSCAR = props.isPropertyActive("MY_OSCAR");
+if( !myOSCAR ) {	
+	return;
+}
+
 DemographicDao demographicDao=(DemographicDao)SpringUtils.getBean("demographicDao");
 Demographic demographic=demographicDao.getDemographic(demographicNo);
 String winName = "viewPatientPHR" + demographicNo;
