@@ -14,8 +14,8 @@
        };
 
        init();
-       
-       jQuery("#cppBoxes").append("<div id='ocean_div' style='width: 100%; display: none; font-size: 11px;'>Sorry, the Ocean toolbar is currently unavailable.</div>");
+       // rather than highjacking a <div> lets put OCEAN where the OSCAR instance has allowance
+       jQuery("#ocean_placeholder").append("<div id='ocean_div' style='width: 100%; display: none; font-size: 11px;'>Sorry, the Ocean toolbar is currently unavailable.</div>");
 
        jQuery.ajax({
            url: window.oceanHost + "/robots.txt",

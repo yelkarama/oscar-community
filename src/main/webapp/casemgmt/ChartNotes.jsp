@@ -146,7 +146,7 @@ try
 	}
 %>
 
-
+<link rel="stylesheet" href="../css/font-awesome.min.css">
 
 <script type="text/javascript">
     ctx = "<c:out value="${ctx}"/>";
@@ -373,18 +373,15 @@ try
 
 		<div style="float: left; clear: both; margin-top: 5px; margin-bottom: 3px; width: 100%; text-align: center;">
 			<div style="display:inline-block">
-				<img alt="<bean:message key="oscarEncounter.msgFind"/>" src="<c:out value="${ctx}/oscarEncounter/graphics/edit-find.png"/>">
+				
 				<input id="enTemplate" tabindex="6" size="25" type="text" value="" onkeypress="return grabEnterGetTemplate(event)">
 
 				<div class="enTemplate_name_auto_complete" id="enTemplate_list" style="z-index: 1; display: none">&nbsp;</div>
 
-				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+							
 
-
-				
-
-				<input type="text" id="keyword" name="keyword" value="" onkeypress="return grabEnter('searchButton',event)">
-				<input type="button" id="searchButton" name="button" value="<bean:message key="oscarEncounter.Index.btnSearch"/>" onClick="popupPage(600,800,'<bean:message key="oscarEncounter.Index.popupSearchPageWindow"/>',$('channel').options[$('channel').selectedIndex].value+urlencode($F('keyword')) ); return false;">
+				<!-- <input type="text" id="keyword" name="keyword" value="" style="width: 10px; text-align: center;" onkeypress="return grabEnter('searchButton',event)">-->
+				<button class="btn" id="searchButton" name="button" alt="<bean:message key="oscarEncounter.msgFind"/>" onClick="popupPage(600,800,'<bean:message key="oscarEncounter.Index.popupSearchPageWindow"/>' ,$('channel').options[$('channel').selectedIndex].value+urlencode($F('enTemplate')) ); return false;"><i class="icon-search"></i></button>
 
 				<div style="display:inline-block; text-align: left;">
 					<%
@@ -399,9 +396,18 @@ try
 					
 					<!-- channel -->
 					<select id="channel">
-					<option value="http://resource.oscarmcmaster.org/oscarResource/OSCAR_search?query="><bean:message key="oscarEncounter.Index.oscarSearch" /></option>
+                    <%
+                        String customSearchNameProperty = OscarProperties.getInstance().getProperty("customSearchName");
+                        String customSearchUrlProperty = OscarProperties.getInstance().getProperty("customSearchUrl");
+                        if (customSearchNameProperty != null && customSearchNameProperty !="" && customSearchUrlProperty!="" ) {
+					%>
+                    <option value="<%=customSearchUrlProperty%>"><%=customSearchNameProperty%></option>
+					<%
+						}
+					%>
+					<!-- <option value="http://resource.oscarmcmaster.org/oscarResource/OSCAR_search?query="><bean:message key="oscarEncounter.Index.oscarSearch" /> -->
 					<option value="http://www.google.com/search?q="><bean:message key="global.google" /></option>
-					<option value="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?SUBMIT=y&amp;CDM=Search&amp;DB=PubMed&amp;term="><bean:message key="global.pubmed" /></option>
+					<option value="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?SUBMIT=y&amp;CDM=Search&amp;DB=PubMed&amp;term="><bean:message key="global.pubmed" /></option>				
 					<option value="http://search.nlm.nih.gov/medlineplus/query?DISAMBIGUATION=true&amp;FUNCTION=search&amp;SERVER2=server2&amp;SERVER1=server1&amp;PARAMETER="><bean:message key="global.medlineplus" /></option>
                     <option value="tripsearch.jsp?searchterm=">Trip Database</option>
                     <option value="macplussearch.jsp?searchterm=">MacPlus Database</option>
@@ -410,8 +416,8 @@ try
 				</div>				
 
 			</div>
-			&nbsp;&nbsp;
-			<div style="display:inline-block;text-align: left;" id="toolbar">
+			&nbsp;
+			<div style="display:inline-block;text-align: left;background-color:#ccccff" id="toolbar">
 				<input type="button" value="<bean:message key="oscarEncounter.Filter.title"/>" onclick="showFilter();" />
 				<%
 					String roleName = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -457,8 +463,9 @@ try
 			  			type: "GET",
 		    		        url: "<%=request.getContextPath()%>/ws/rs/app/providerChartLaunchItems",
 				        dataType: 'json',
-				        success: function (data) {
-                            if (data) {
+				        success: function (data,textStatus,jqXHR) {
+                        console.log("PHR status="+jqXHR.status);
+                            if (data  && jqXHR.status == "200") {
                                 for (i = 0; i < data.length; i++) {
                                     d = data[i];
                                     jQuery("#phrButtonArea").append(
@@ -653,4 +660,3 @@ catch (Exception e)
 	MiscUtils.getLogger().error("Unexpected error.", e);
 }
 %>
-

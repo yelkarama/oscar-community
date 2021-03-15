@@ -64,7 +64,7 @@
 <% java.util.Properties oscarVariables = OscarProperties.getInstance(); %>
 <c:set var="ctx" value="${pageContext.request.contextPath}" scope="request" />
 
-	<div id="cppBoxes">
+	<div id="cppBoxes" bstyle="background-color: #FFFFFF;">
 		<div id="divR1" style="width: 100%; height: 75px; margin: 0px; background-color: #FFFFFF;">
 			<!-- social history -->		
 			<div id="divR1I1" class="topBox" 
@@ -87,9 +87,13 @@
 				style="clear: right; float: right; width: 49%; margin-right: 3px; height: inherit;">		
 			</div>
 		</div>
-		<span style="visibility:hidden">test</span>
 	</div>
 	
+
 	<div id="notCPP" style="height: 70%; margin-left: 2px; background-color: #FFFFFF;">	
  	
+	</div>
+	<!--  This leaves the OCEAN toolbar accessible but not taking up prime realestate -->
+	<div id="ocean_placeholder" >
+				<span style="visibility:hidden">test</span>
 	</div>
