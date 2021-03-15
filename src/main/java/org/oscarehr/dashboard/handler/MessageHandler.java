@@ -64,7 +64,7 @@ public class MessageHandler {
         systemMessage.setSentBy(userName);
         systemMessage.setSubject(subject);
         systemMessage.setMessage(messageBody);
-        systemMessage.setAttachedDemographicNo(linkedDemographicNumbers.toArray(new Integer[linkedDemographicNumbers.size()]));
+        //systemMessage.setAttachedDemographicNo(linkedDemographicNumbers.toArray(new Integer[linkedDemographicNumbers.size()]));
         
         messagingManager.sendSystemMessage(loggedInInfo, systemMessage);
 
