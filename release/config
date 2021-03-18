@@ -1,7 +1,9 @@
 #!/bin/sh
 #=================================================================
-# Copyright Peter Hutten-Czapski 2012-17 released under the GPL v2
+# Copyright Peter Hutten-Czapski 2012-19 released under the GPL v2
+# v 19.10
 #=================================================================
+
 set -e
 
 # Source debconf library.
@@ -10,14 +12,18 @@ set -e
 # Script Constants
 PROGRAM=oscar
 PACKAGE=oscar-emr
-VERSION=15
-PREVIOUS=12_1
-REVISION=71~691
-if [ -f /usr/share/tomcat8/bin/version.sh ] ; then
-        TOMCAT=tomcat8
+VERSION=19
+PREVIOUS=15
+REVISION=6~952
+if [ -f /usr/share/tomcat9/bin/version.sh ] ; then
+        TOMCAT=tomcat9
     else
-    if [ -f /usr/share/tomcat7/bin/version.sh ] ; then
-        TOMCAT=tomcat7
+    if [ -f /usr/share/tomcat8/bin/version.sh ] ; then
+        TOMCAT=tomcat8
+        else
+        if [ -f /usr/share/tomcat7/bin/version.sh ] ; then
+            TOMCAT=tomcat7
+        fi
     fi
 fi
 tomcat_path=/usr/share/${TOMCAT}/
@@ -48,9 +54,9 @@ signature_tablet=no
 ENABLE_EDIT_APPT_STATUS=yes
 appt_intake_form=off
 new_flowsheet_enabled=true
-NEW_CONTACTS_UI=false
+NEW_CONTACTS_UI=true
 enableFax=false
-buildDateTime="Oct 6, 2017 11:29:01 AM"
+buildDateTime="May 21, 2019 4:31:35 PM"
 logintext="OSCAR EMR"
 faxEnable=false
 rx_fax_enabled=false
@@ -150,7 +156,7 @@ lab_req_include_chartno=true
 use_lab_clientreference=true
 useDemoClinicInfoOnInvoice=true
 INVOICE_DIR=${SRC}OscarDocument/${PROGRAM}/billing/invoices
-NEW_CONTACTS_UI_EXTERNAL_CONTACT=false
+NEW_CONTACTS_UI_EXTERNAL_CONTACT=true
 ckd_notification_scheme=tickler
 ORN_PILOT=no
 onare_labreqver=10
@@ -201,12 +207,12 @@ HL7TEXT_LABS=yes
 # Only cleanup the passwords on error because we may need the passwords
 # in the post install script. The post install must handle the cleanup
 # for all error conditions and successful exit.
-trap cleanupOnError HUP TERM ABRT KILL INT QUIT 
-cleanupOnError()
-{
-	echo "Cleaning up sensitive data"
-	db_get oscar-emr/password
-}
+#trap cleanupOnError HUP TERM ABRT KILL INT QUIT 
+#cleanupOnError()
+#{
+#	echo "Cleaning up sensitive data"
+#	db_get oscar-emr/password
+#}
 
 # --- log the running of the script appending as necessary
 echo "#########" `date` "#########" 1>> $LOG_FILE
@@ -230,8 +236,14 @@ fi
 
 # if tomcat8 then need to move the wars from the DEB installed directories to the tomcat8 directory
 if [ -f /usr/share/tomcat8/bin/version.sh ] ; then
-        mv /var/lib/tomcat7/webapps/oscar.war /var/lib/tomcat8/webapps/oscar.war
-        mv /var/lib/tomcat7/webapps/drugref.war /var/lib/tomcat8/webapps/drugref.war
+        cp /var/lib/tomcat7/webapps/oscar.war /var/lib/tomcat8/webapps/oscar.war
+        cp /var/lib/tomcat7/webapps/drugref.war /var/lib/tomcat8/webapps/drugref.war
+fi
+
+# if tomcat9 then need to move the wars from the DEB installed directories to the tomcat9 directory
+if [ -f /usr/share/tomcat9/bin/version.sh ] ; then
+        cp /var/lib/tomcat7/webapps/oscar.war /var/lib/tomcat9/webapps/oscar.war
+        cp /var/lib/tomcat7/webapps/drugref.war /var/lib/tomcat9/webapps/drugref.war
 fi
 
 #GEOIP=$(curl --silent -f http://freegeoip.net/csv/ |  tr -d '"')
@@ -241,7 +253,10 @@ fi
 #STATE=$(echo $GEOIP | awk -F "," '{print $4;}')
 #LOCALITY=$(echo $GEOIP | awk -F "," '{print $6;}')
 
+
+
 GEOIP2=$(curl --silent -f http://ip-api.com/csv/ |  tr -d '"' | tr ' ' '+')
+#success,Canada,CA,ON,Ontario,"Temiskaming Shores",P0J,47.5776,-80.2036,America/Toronto,Parolink.net,Parolink.net,...
 echo GEOIP2=$GEOIP2 >>$LOG_FILE
 IP=$(echo $GEOIP2 | awk -F "," '{print $14;}')
 COUNTRY=$(echo $GEOIP2 | awk -F "," '{print $3;}')
@@ -383,13 +398,13 @@ if [ "${UPGRADE}" = "true" ] ; then
 		existing=$(sed '/^\#/d' ${C_HOME}${PROGRAM}.properties | grep 'db_name'  | tail -n 1 | cut -d "=" -f2 | cut -d "?" -f1 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//') 2>>$LOG_FILE
 		if [ "${db_name}" = "${existing}" ] ; then
 
-            # UPDATE late breaking property key values here
+            # UPDATE late breaking property key values here, we will support back to the first 15 deb
+            # grep the key, tail backwards to the last entry and cut the key itself to test that it is present
 	        echo "adding new properties file key values"  >>$LOG_FILE
 
 		    CONSULTATION_APPOINTMENT_INSTRUCTIONS_LOOKUP=$(sed '/^\#/d' ${C_HOME}${PROGRAM}.properties | grep 'CONSULTATION_APPOINTMENT_INSTRUCTIONS_LOOKUP'  | tail -n 1 | cut -d "=" -f2 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//') 2>>$LOG_FILE
             if [ "${CONSULTATION_APPOINTMENT_INSTRUCTIONS_LOOKUP}" = "" ]; then
                 echo "adding consult key value block"  >>$LOG_FILE
-
                 echo "# True to enable the use of the customizable Appointment Instructions look up list" >> ${C_HOME}${PROGRAM}.properties 
                 echo "# in the consultation module.  It is suggested to toggle CONSULTATION_PATIENT_WILL_BOOK" >> ${C_HOME}${PROGRAM}.properties 
                 echo "# to false." >> ${C_HOME}${PROGRAM}.properties 
@@ -583,6 +598,243 @@ if [ "${UPGRADE}" = "true" ] ; then
                 echo "" >> ${C_HOME}${PROGRAM}.properties 
             fi
 
+            logpurge=$(sed '/^\#/d' ${C_HOME}${PROGRAM}.properties | grep 'log.purge.minDays'  | tail -n 1 | cut -d "=" -f2 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//') 2>>$LOG_FILE
+            if [ "${logpurge}" = "" ]; then
+                echo "adding log purging properties"  >>$LOG_FILE 
+                echo "# Log Purging Settings" >> ${C_HOME}${PROGRAM}.properties
+                echo "log.purge.minDays=30" >> ${C_HOME}${PROGRAM}.properties 
+                echo "log.purge.mysqldump=/usr/bin/mysqldump" >> ${C_HOME}${PROGRAM}.properties
+                echo "log.purge.daysfromnowtopurge=365" >> ${C_HOME}${PROGRAM}.properties
+                echo "log.purge.outputdir=${SRC}OscarDocument/${PROGRAM}/" >> ${C_HOME}${PROGRAM}.properties
+                echo "" >> ${C_HOME}${PROGRAM}.properties 
+            fi
+
+            default_phu=$(sed '/^\#/d' ${C_HOME}${PROGRAM}.properties | grep 'default_phu'  | tail -n 1 | cut -d "=" -f2 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//') 2>>$LOG_FILE
+            if [ "${default_phu}" = "" ]; then
+                echo "adding default_phu properties"  >>$LOG_FILE 
+                echo "# Setting Default Local Ontario Public Helath Unit" >> ${C_HOME}${PROGRAM}.properties
+                echo "# 20 is Hamilton see other options in LookupList/LookupListItem table" >> ${C_HOME}${PROGRAM}.properties
+                echo "default_phu=20" >> ${C_HOME}${PROGRAM}.properties 
+                echo "" >> ${C_HOME}${PROGRAM}.properties 
+            fi
+
+            # OneID added Feb 5, 2018
+            OneID=$(sed '/^\#/d' ${C_HOME}${PROGRAM}.properties | grep 'oneid.enabled'  | tail -n 1 | cut -d "=" -f2 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//') 2>>$LOG_FILE
+            if [ "${OneID}" = "" ]; then
+                echo "adding OneID properties"  >>$LOG_FILE 
+                echo "# OneID SSO login" >> ${C_HOME}${PROGRAM}.properties
+                echo "oneid.enabled=false" >> ${C_HOME}${PROGRAM}.properties 
+                echo "#referral_no.msg=Input exactly 6 digits (i.e. 123456)." >> ${C_HOME}${PROGRAM}.properties 
+                echo "#provide a regular expression for the pattern if desired" >> ${C_HOME}${PROGRAM}.properties 
+                echo "#referral_no.pattern=\\d{6}" >> ${C_HOME}${PROGRAM}.properties 
+                echo "#backendEconsultUrl = [url]/econsult-backend" >> ${C_HOME}${PROGRAM}.properties 
+                echo "#frontendEconsultUrl = [url]/econsult-frontend" >> ${C_HOME}${PROGRAM}.properties 
+                echo "" >> ${C_HOME}${PROGRAM}.properties 
+            fi
+
+            tickler_email_provider=$(sed '/^\#/d' ${C_HOME}${PROGRAM}.properties | grep 'tickler_email_provider_enabled'  | tail -n 1 | cut -d "=" -f2 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//') 2>>$LOG_FILE
+            if [ "${tickler_email_provider}" = "" ]; then
+                echo "adding tickler_email_provider properties"  >>$LOG_FILE 
+                echo "#this one will send email to assignedTo provider on save" >> ${C_HOME}${PROGRAM}.properties
+                echo "tickler_email_provider_enabled=false" >> ${C_HOME}${PROGRAM}.properties 
+                echo "tickler_email_provider_from_address=test@example.com" >> ${C_HOME}${PROGRAM}.properties 
+                echo "tickler_email_provider_subject=OSCAR Tickler received" >> ${C_HOME}${PROGRAM}.properties
+                echo "adding tickler sort order properties"  >>$LOG_FILE  
+                echo "tickler.default_sort_order=asc" >> ${C_HOME}${PROGRAM}.properties 
+                echo "" >> ${C_HOME}${PROGRAM}.properties 
+            fi
+            
+            # added Mar 7, 2018
+            default_phu=$(grep 'cvc.url'  ${C_HOME}${PROGRAM}.properties  | tail -n 1 | cut -d "=" -f1 ) 2>>$LOG_FILE
+            if [ "${default_phu}" = "" ]; then
+                echo "adding Canadian Vaccine Catalogue setting"  >>$LOG_FILE 
+                echo "# for the Canadian Vaccine Catalogue" >> ${C_HOME}${PROGRAM}.properties
+                echo "cvc.url=" >> ${C_HOME}${PROGRAM}.properties 
+                echo "" >> ${C_HOME}${PROGRAM}.properties 
+            fi
+
+            # added Apr 24, 2018
+            empty_tmp=$(sed '/^\#/d' ${C_HOME}${PROGRAM}.properties | grep 'encounter.remove_empty_tmp_notes'  | tail -n 1 | cut -d "=" -f2 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//') 2>>$LOG_FILE
+            if [ "${empty_tmp}" = "" ]; then
+                echo "adding Frequent Temporarily Saved Encounter Note Entries keyvalue"  >>$LOG_FILE 
+                echo "#Prevents storage and retention of temporarily saved encounter ntoes that only" >> ${C_HOME}${PROGRAM}.properties
+                echo "#contain the autogenerated date/reason tag, and no other significant content" >> ${C_HOME}${PROGRAM}.properties
+                echo "#e.g. [24-Apr-2018 .: Tel-Progress Note]" >> ${C_HOME}${PROGRAM}.properties
+                echo "encounter.remove_empty_tmp_notes=yes" >> ${C_HOME}${PROGRAM}.properties 
+                echo "" >> ${C_HOME}${PROGRAM}.properties 
+            fi
+
+            # added May 30, 2018
+            consult_ohip=$(sed '/^\#/d' ${C_HOME}${PROGRAM}.properties | grep 'consultation_display_practitioner_no'  | tail -n 1 | cut -d "=" -f2 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//') 2>>$LOG_FILE
+            if [ "${consult_ohip}" = "" ]; then
+                echo "adding [OSCAREMR-6436] Display Ohip No. on Printed PDF Consultation Request keyvalue"  >>$LOG_FILE 
+                echo "#[OSCAREMR-6436] Display Ohip No. on Printed PDF Consultation Request" >> ${C_HOME}${PROGRAM}.properties
+                echo "#defaults to false" >> ${C_HOME}${PROGRAM}.properties
+                echo "consultation_display_practitioner_no=true" >> ${C_HOME}${PROGRAM}.properties 
+                echo "" >> ${C_HOME}${PROGRAM}.properties 
+            fi
+
+            # added June 11, 2018
+            oneid_encryptionKey=$(grep 'oneid.encryptionKey'  ${C_HOME}${PROGRAM}.properties  | tail -n 1 | cut -d "=" -f1 ) 2>>$LOG_FILE
+            if [ "${oneid_encryptionKey}" = "" ]; then
+                echo "adding [OSCAREMR-6459] SSO login key property"  >>$LOG_FILE 
+                echo "#[OSCAREMR-6459]  SSO login key property" >> ${C_HOME}${PROGRAM}.properties
+                echo "#16 hex characters" >> ${C_HOME}${PROGRAM}.properties
+                echo "#oneid.encryptionKey=" >> ${C_HOME}${PROGRAM}.properties 
+                echo "" >> ${C_HOME}${PROGRAM}.properties 
+                echo "#[OSCAREMR-6459] additional properties added" >> ${C_HOME}${PROGRAM}.properties
+                echo "#BORNFhirJob.access_token=" >> ${C_HOME}${PROGRAM}.properties
+                echo "#BORNFhirJob.bisURL=" >> ${C_HOME}${PROGRAM}.properties 
+                echo "" >> ${C_HOME}${PROGRAM}.properties 
+            fi
+ 
+            # added July 25, 2018
+            dhir=$(grep 'dhir'  ${C_HOME}${PROGRAM}.properties  | tail -n 1 | cut -d "=" -f1 ) 2>>$LOG_FILE
+            if [ "${dhir}" = "" ]; then
+                echo "adding DHIR and Clinical Connect key properties"  >>$LOG_FILE 
+                echo "#[OSCAREMR-6419] submission of immunization" >> ${C_HOME}${PROGRAM}.properties
+                echo "dhir.enabled=false" >> ${C_HOME}${PROGRAM}.properties
+                echo "#dhir.timeout=60" >> ${C_HOME}${PROGRAM}.properties
+                echo "#dhir.url=" >> ${C_HOME}${PROGRAM}.properties 
+                echo "" >> ${C_HOME}${PROGRAM}.properties 
+                echo "#[OSCAREMR-6487] Clinical Connect EHR viewer integration" >> ${C_HOME}${PROGRAM}.properties
+                echo "#clinicalConnect.CMS.url=" >> ${C_HOME}${PROGRAM}.properties
+                echo "#clinicalConnect.CMS.keystore=" >> ${C_HOME}${PROGRAM}.properties 
+                echo "#clinicalConnect.CMS.keystore.password=" >> ${C_HOME}${PROGRAM}.properties
+                echo "clinicalConnect.CMS.timeout=60" >> ${C_HOME}${PROGRAM}.properties
+                echo "#clinicalConnect.redirectUrl=" >> ${C_HOME}${PROGRAM}.properties 
+                echo "" >> ${C_HOME}${PROGRAM}.properties 
+
+            fi
+
+            # added Aug 20, 2018
+            postit=$(grep 'inbox.labels.sticky'  ${C_HOME}${PROGRAM}.properties  | tail -n 1 | cut -d "=" -f1 ) 2>>$LOG_FILE
+            if [ "${postit}" = "" ]; then
+                echo "adding sticky labels that persist across lab report versions"  >>$LOG_FILE 
+                echo "#when true, labels from earlier version of lab are applied to newer versions of that lab" >> ${C_HOME}${PROGRAM}.properties
+                echo "inbox.labels.sticky=true" >> ${C_HOME}${PROGRAM}.properties
+                echo "" >> ${C_HOME}${PROGRAM}.properties 
+
+            fi
+
+            # added Sept 10, 2018
+            indicatornos=$(grep 'SHOW_INDICATOR_DASHBOARD_NUMBERS'  ${C_HOME}${PROGRAM}.properties  | tail -n 1 | cut -d "=" -f1 ) 2>>$LOG_FILE
+            if [ "${indicatornos}" = "" ]; then
+                echo "adding preference for indicator dashboard pie chart labels"  >>$LOG_FILE 
+                echo "#when true, shows absolute numbers" >> ${C_HOME}${PROGRAM}.properties
+                echo "#when false, shows pecentages" >> ${C_HOME}${PROGRAM}.properties
+                echo "SHOW_INDICATOR_DASHBOARD_NUMBERS=true" >> ${C_HOME}${PROGRAM}.properties
+                echo "" >> ${C_HOME}${PROGRAM}.properties 
+
+            fi
+
+            # added Feb 28, 2019
+            iso3166=$(grep 'iso3166.2.enabled'  ${C_HOME}${PROGRAM}.properties  | tail -n 1 | cut -d "=" -f1 ) 2>>$LOG_FILE
+            if [ "${iso3166}" = "" ]; then
+                echo "adding iso3166 province country dropdown to demographics"  >>$LOG_FILE 
+                echo "#province/country dropdown" >> ${C_HOME}${PROGRAM}.properties
+                echo "iso3166.2.enabled=true" >> ${C_HOME}${PROGRAM}.properties
+                echo "demographic.default_province=${COUNTRY}-${STATE}" >> ${C_HOME}${PROGRAM}.properties
+                echo "#forcing change in properties for testing" >> ${C_HOME}${PROGRAM}.properties
+                echo "#comment the following 3 to restore previous settings" >> ${C_HOME}${PROGRAM}.properties
+                echo "NEW_CONTACTS_UI=true" >> ${C_HOME}${PROGRAM}.properties
+                echo "NEW_CONTACTS_UI_EXTERNAL_CONTACT=true" >> ${C_HOME}${PROGRAM}.properties
+                echo "DEMOGRAPHIC_PATIENT_HEALTH_CARE_TEAM" >> ${C_HOME}${PROGRAM}.properties
+                echo "" >> ${C_HOME}${PROGRAM}.properties 
+            fi
+
+            # added Mar 18, 2019
+            encryptedOnly=$(grep 'encryptedOnly'  ${C_HOME}${PROGRAM}.properties  | tail -n 1 | cut -d "=" -f1 ) 2>>$LOG_FILE
+            if [ "${encryptedOnly}" = "" ]; then
+                echo "adding demographic.export.encryptedOnly for export"  >>$LOG_FILE 
+                echo "# forced encrypt of export with pgp if true" >> ${C_HOME}${PROGRAM}.properties
+                echo "demographic.export.encryptedOnly=true" >> ${C_HOME}${PROGRAM}.properties
+                echo "" >> ${C_HOME}${PROGRAM}.properties 
+            fi
+
+            # added April 8, 2019
+            phrTest=$(grep 'PHR_TEST_CONNECTION'  ${C_HOME}${PROGRAM}.properties  | tail -n 1 | cut -d "=" -f1 ) 2>>$LOG_FILE
+            if [ "${phrTest}" = "" ]; then
+                echo "adding PHR settings"  >>$LOG_FILE 
+                echo "#The url for the PHR Connector System" >> ${C_HOME}${PROGRAM}.properties
+                echo "PHR_CONNECTOR_URL=https://connector.kindredphr.com/" >> ${C_HOME}${PROGRAM}.properties
+                echo "#Flag to allow self signed certificates in testing" >> ${C_HOME}${PROGRAM}.properties
+                echo "PHR_TEST_CONNECTION=false" >> ${C_HOME}${PROGRAM}.properties
+                echo "" >> ${C_HOME}${PROGRAM}.properties 
+            fi
+
+            # added May 8, 2019  
+            # notice we are tailing up to the last entry and then cutting for the *second* field to test the keyvalue
+            login=$(grep 'logintitle'  ${C_HOME}${PROGRAM}.properties  | tail -n 1 | cut -d "=" -f2 ) 2>>$LOG_FILE
+            if [ "${login}" = "OSCAR EMR 15" ]; then
+                echo "Updating login title settings"  >>$LOG_FILE 
+                echo "logintitle=OSCAR EMR 19" >> ${C_HOME}${PROGRAM}.properties
+                echo "" >> ${C_HOME}${PROGRAM}.properties 
+            fi
+
+            # added May 17, 2019  
+            schedulehide=$(grep 'schedule.hideNonScheduledDaysInWeekView'  ${C_HOME}${PROGRAM}.properties  | tail -n 1 | cut -d "=" -f1 ) 2>>$LOG_FILE
+            if [ "${schedulehide}" = "" ]; then
+                echo "adding supression of non scheduled days setting"  >>$LOG_FILE 
+                echo "# Shall we hide empty(non assigned) schedules" >> ${C_HOME}${PROGRAM}.properties
+                echo "schedule.hideNonScheduledDaysInWeekView=false" >> ${C_HOME}${PROGRAM}.properties
+                echo "" >> ${C_HOME}${PROGRAM}.properties 
+            fi
+            
+            # added May 22, 2019  
+            pastea=$(grep 'appointment.paste.status'  ${C_HOME}${PROGRAM}.properties  | tail -n 1 | cut -d "=" -f1 ) 2>>$LOG_FILE
+            if [ "${pastea}" = "" ]; then
+                echo "adding settings to control appointment paste"  >>$LOG_FILE 
+                echo "# Controls for what elements in an appointment get copied" >> ${C_HOME}${PROGRAM}.properties
+                echo "appointment.paste.status=true" >> ${C_HOME}${PROGRAM}.properties
+                echo "appointment.paste.location=true" >> ${C_HOME}${PROGRAM}.properties
+                echo "" >> ${C_HOME}${PROGRAM}.properties 
+            fi
+
+
+            # July 4, 2019  newui.enabled=false added to base oscar.properties
+
+            # July 10, 2019  force NEW_CONTACTS_UI=true and add properties for Rx
+            newc=$(grep 'NEW_CONTACTS_UI'  ${C_HOME}${PROGRAM}.properties  | tail -n 1 | cut -d "=" -f1 ) 2>>$LOG_FILE
+            if [ "${newc}" = "false" ]; then
+                echo "migrating to NEW CONTACTS UI"  >>$LOG_FILE 
+                echo "NEW_CONTACTS_UI=true" >> ${C_HOME}${PROGRAM}.properties
+                echo "" >> ${C_HOME}${PROGRAM}.properties 
+            fi
+
+            triggerl=$(grep 'rx_select_long_term_when_repeat'  ${C_HOME}${PROGRAM}.properties  | tail -n 1 | cut -d "=" -f1 ) 2>>$LOG_FILE
+            if [ "${triggerl}" = "" ]; then
+                echo "adding settings to control triggering of Rx long term"  >>$LOG_FILE 
+                echo "# Controls if a repeat automatically triggers the long term radio button" >> ${C_HOME}${PROGRAM}.properties
+                echo "rx_select_long_term_when_repeat=false" >> ${C_HOME}${PROGRAM}.properties
+                echo "" >> ${C_HOME}${PROGRAM}.properties 
+            fi
+ 
+            lucode=$(grep 'odb_formulary_file'  ${C_HOME}${PROGRAM}.properties  | tail -n 1 | cut -d "=" -f2 ) 2>>$LOG_FILE
+            if [ "${lucode}" = "" ]; then
+                echo "adding new LU file to images"  >>$LOG_FILE 
+                echo "# Reference to external xml for LU codes and formulary newer than the build in 2018 12 17" >> ${C_HOME}${PROGRAM}.properties
+                echo "odb_formulary_file=/usr/share/oscar-emr/OscarDocument/oscar/eform/images/data_extract.xml" >> ${C_HOME}${PROGRAM}.properties
+                echo "" >> ${C_HOME}${PROGRAM}.properties 
+            fi
+
+            csearch=$(grep 'customSearchUrl'  ${C_HOME}${PROGRAM}.properties  | tail -n 1 | cut -d "=" -f2 ) 2>>$LOG_FILE
+            if [ "${csearch}" = "" ]; then
+                echo "adding custom search setting and setting them to duck duck go."  >>$LOG_FILE 
+                echo "# Custom search for eChart" >> ${C_HOME}${PROGRAM}.properties
+                echo "odb_formulary_file=/usr/share/oscar-emr/OscarDocument/oscar/eform/images/data_extract.xml" >> ${C_HOME}${PROGRAM}.properties
+                echo "" >> ${C_HOME}${PROGRAM}.properties 
+            fi
+
+            ocean=$(grep 'ocean_host'  ${C_HOME}${PROGRAM}.properties  | tail -n 1 | cut -d "=" -f2 ) 2>>$LOG_FILE
+            if [ "${ocean}" = "" ]; then
+                echo "adding ocean"  >>$LOG_FILE 
+                echo "# The default URL for Ocean's live instance" >> ${C_HOME}${PROGRAM}.properties
+                echo "customSearchUrl=https://duckduckgo.com?q=" >> ${C_HOME}${PROGRAM}.properties
+                echo "customSearchName=DuckDuckGo" >> ${C_HOME}${PROGRAM}.properties
+                echo "" >> ${C_HOME}${PROGRAM}.properties 
+            fi
+
 			echo "${PROGRAM}.war file updated so exiting config normally" >> $LOG_FILE
 			exit 0
 		else
@@ -720,8 +972,16 @@ else
 	echo billcenter=${billcenter}>> ${PROGRAM}.tmp 2>>$LOG_FILE
 
 	# probe for the local ip and set it
+
+        #ifconfig is deprecated in newer systems 
+        #login_local_ip=`ifconfig  | grep 'inet addr:'| grep -v '127.0.0.1' | cut -d: -f2 | awk '{ print $1}'`;
+        # eth1 may not be the connection
 	#login_local_ip=`ip -f inet addr show dev eth1 | sed -n 's/^ *inet *\([.0-9/]*\)\..*/\1/p'`;
-    login_local_ip=`ifconfig  | grep 'inet addr:'| grep -v '127.0.0.1' | cut -d: -f2 | awk '{ print $1}'`;
+        #Another option is hostname but it doesn't work on all systems, can give a series of answers or just 127.0.0.1
+        #login_local_ip=$(hostname -I);  
+        #so just find the route to Google's DNS  and extract the IP      
+        login_local_ip=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}') ;
+
 	echo login_local_ip=${login_local_ip}>> ${PROGRAM}.tmp 2>>$LOG_FILE
 
 	echo hibernate.dialect=org.oscarehr.util.persistence.OscarMySQL5Dialect>> ${PROGRAM}.tmp 2>>$LOG_FILE
@@ -761,18 +1021,20 @@ echo debInstall=true >> ${PROGRAM}.tmp 2>>$LOG_FILE
 	
 echo logintitle=${logintitle}>> ${PROGRAM}.tmp 2>>$LOG_FILE
 
-#processor=$(uname -m)
-#if [ "$processor" = "x86_64" ]; then
-#	echo "linking in 64 bit wkhtmltopdf" >>$LOG_FILE
-#	echo WKHTMLTOPDF_COMMAND=${SRC}OscarDocument/wkhtmltopdf>> ${PROGRAM}.tmp 2>>$LOG_FILE
-#else
-#	echo WKHTMLTOPDF_COMMAND=${SRC}OscarDocument/wkhtmltopdf-i386>> ${PROGRAM}.tmp 2>>$LOG_FILE
-#fi
-#echo WKHTMLTOPDF_COMMAND=/usr/local/bin/OscarDocument/wkhtmltopdf>> ${PROGRAM}.tmp 2>>$LOG_FILE
-echo WKHTMLTOPDF_COMMAND=wkhtmltopdf>> ${PROGRAM}.tmp 2>>$LOG_FILE
+if [ -f /usr/local/bin/wkhtmltopdf ]; then
+	echo "pointing to wkhtmltopdf in /usr/local/bin " >>$LOG_FILE
+	echo WKHTMLTOPDF_COMMAND=/usr/local/bin/wkhtmltopdf>> ${PROGRAM}.tmp 2>>$LOG_FILE
+else
+    if [ ! -f /usr/bin/wkhtmltopdf ]; then
+	    echo "wkhtmltopdf NOT FOUND in either usr/local/bin/ nor /usr/bin/" >>$LOG_FILE
+    fi
+	echo "pointing wkhtmltopdf to default location in /usr/bin" >>$LOG_FILE    
+    echo WKHTMLTOPDF_COMMAND=wkhtmltopdf>> ${PROGRAM}.tmp 2>>$LOG_FILE
+fi
+
 # Letter page size, margins as indicated, use print media stylesheet
-echo WKHTMLTOPDF_ARGS=-s Letter -T 10mm -L 8mm -R 8mm --print-media-type>> ${PROGRAM}.tmp 2>>$LOG_FILE
-# This deb will install a server.xml that directs Tomcat 7 for port 8443 for https connections
+echo WKHTMLTOPDF_ARGS=-s Letter -T 10mm -L 8mm -R 8mm --print-media-type --enable-local-file-acess --zoom 1.2>> ${PROGRAM}.tmp 2>>$LOG_FILE
+# This deb will install a server.xml that directs Tomcat for port 8443 for https connections
 echo oscar_port=8443>> ${PROGRAM}.tmp 2>>$LOG_FILE
 
 echo priorschema=${priorschema}>> ${PROGRAM}.tmp 2>>$LOG_FILE
@@ -1129,6 +1391,10 @@ echo " " >> ${PROGRAM}.tmp 2>>$LOG_FILE
 echo "#Experimental UI for OSCAR 14/15">> ${PROGRAM}.tmp 2>>$LOG_FILE
 echo cobalt=${cobalt}>> ${PROGRAM}.tmp 2>>$LOG_FILE
 
+echo "# Global control over two factor authentication ">> ${PROGRAM}.tmp 2>>$LOG_FILE
+echo "# 2FA.sh checks for this value being set to 0 to indicate off ">> ${PROGRAM}.tmp 2>>$LOG_FILE
+echo "# Note that security.totp_enabled also needs to be set to 1 for a user for the PIN to cycle">> ${PROGRAM}.tmp 2>>$LOG_FILE
+echo TOTP=1>> ${PROGRAM}.tmp 2>>$LOG_FILE
 
 echo "install the properties file" >>$LOG_FILE
 mv ${PROGRAM}.tmp ${C_HOME}${PROGRAM}.properties 2>>$LOG_FILE
@@ -1137,14 +1403,17 @@ mv ${PROGRAM}.tmp ${C_HOME}${PROGRAM}.properties 2>>$LOG_FILE
 
 rm -f ${PROGRAM}.tmp
 echo  ${C_HOME}${PROGRAM}.properties created >>$LOG_FILE
+
+# some look for /var/lib/tomcat8/oscar.properties but we are using /usr/share/tomcat8
+# so create a symlink for that in C_BASE, overwrite if necessary
+ln -sf ${C_HOME}/${PROGRAM}.properties ${C_BASE}/${PROGRAM}.properties
+chown ${TOMCAT}:${TOMCAT} ${C_BASE}${PROGRAM}.properties 2>>$LOG_FILE
+
 echo "the oscar properties file contains a plaintext password..." >>$LOG_FILE
 echo "so let only tomcat read it" >>$LOG_FILE
 chown ${TOMCAT}:${TOMCAT} ${C_HOME}${PROGRAM}.properties 2>>$LOG_FILE
 chmod 640 ${C_HOME}${PROGRAM}.properties 2>>$LOG_FILE
 
-# some people look for /var/lib/tomcat8/drugref2.properties
-# so create a symlink
-ln -s /usr/share/${TOMCAT}/${PROGRAM}.properties /var/lib/${TOMCAT}/${PROGRAM}.properties
 
 echo "configure crontab" >>$LOG_FILE
 
@@ -1160,32 +1429,38 @@ else
 	touch c.temp 2>>$LOG_FILE
 fi
 
-if grep -Fq "01 23 * * * ${SRC}oscar_backup.sh" c.temp ; then
+# Now without changing any settings ensure that there are some
+
+if grep -Fq "${SRC}oscar_backup.sh" c.temp ; then
     	echo "entry for oscar_backup already present" >>$LOG_FILE
 else
 	echo "append the backup job to a new cron file" >>$LOG_FILE
     	echo "01 23 * * * ${SRC}oscar_backup.sh" >> c.temp 2>>$LOG_FILE
 fi 
-if grep -Fq "* * * * * ${SRC}reOscar.sh" c.temp ; then
+if grep -Fq "${SRC}reOscar.sh" c.temp ; then
     	echo "entry for reOscar already present" >>$LOG_FILE
 else
 	echo "append the reOscar job to a new cron file" >>$LOG_FILE
     	echo "* * * * * ${SRC}reOscar.sh" >> c.temp 2>>$LOG_FILE
 fi 
-if grep -Fq "*/3 * * * * ${SRC}gateway.cron" c.temp ; then
+if grep -Fq "${SRC}gateway.cron" c.temp ; then
     	echo "entry for gateway fax already present" >>$LOG_FILE
 else
 	echo "append the gateway fax job to a new cron file" >>$LOG_FILE
     	echo "* * * * * ${SRC}gateway.cron" >> c.temp 2>>$LOG_FILE
 fi 
-if grep -Fq "00 23 * * Fri touch /tmp/${TOMCAT}-${TOMCAT}-tmp/restartOscar.action" c.temp ; then
-    	echo "entry for restart OSCAR weekly already present" >>$LOG_FILE
+if grep -Fq "${SRC}2FA.sh" c.temp ; then
+    	echo "entry for 2FA already present" >>$LOG_FILE
 else
-	echo "append restart OSCAR weekly job to a new cron file" >>$LOG_FILE
-    	echo "00 23 * * Fri touch /tmp/${TOMCAT}-${TOMCAT}-tmp/restartOscar.action" >> c.temp 2>>$LOG_FILE
+	echo "append an entry for the 2FA job to a new cron file" >>$LOG_FILE
+    	echo "* * * * * ${SRC}2FA.sh" >> c.temp 2>>$LOG_FILE
 fi
-
-
+#if grep -Fq "00 23 * * Fri touch /tmp/${TOMCAT}-${TOMCAT}-tmp/restartOscar.action" c.temp ; then
+#    	echo "entry for restart OSCAR weekly already present" >>$LOG_FILE
+#else
+#	echo "append restart OSCAR weekly job to a new cron file" >>$LOG_FILE
+#    	echo "00 23 * * Fri touch /tmp/${TOMCAT}-${TOMCAT}-tmp/restartOscar.action" >> c.temp 2>>$LOG_FILE
+#fi
 #	echo "Commenting out previous oscar backup jobs" >>$LOG_FILE
 #	sed -e 's/\(^[^#].*oscar_backup\)/#\1/' c.temp > tempcron 2>>$LOG_FILE
 
@@ -1193,6 +1468,7 @@ fi
 echo "install new cron file" >>$LOG_FILE
 crontab c.temp 2>>$LOG_FILE
 rm c.temp 2>>$LOG_FILE
+
 
 
 

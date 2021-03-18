@@ -2,7 +2,8 @@
 # prerm
 # a script file for OSCAR that uninstalls and tweaks the necessary files
 #=================================================================
-# Copyright Peter Hutten-Czapski 2012-17 released under the GPL v2
+# Copyright Peter Hutten-Czapski 2012-19 released under the GPL v2
+# v 7.00
 #=================================================================
 
 set -e
@@ -14,14 +15,18 @@ set -e
 PROGRAM=oscar
 PACKAGE=oscar-emr
 db_name=oscar_15
-VERSION=15
-PREVIOUS=12_1
-REVISION=71~691
-if [ -f /usr/share/tomcat8/bin/version.sh ] ; then
-        TOMCAT=tomcat8
+VERSION=19
+PREVIOUS=15
+REVISION=4~944
+if [ -f /usr/share/tomcat9/bin/version.sh ] ; then
+        TOMCAT=tomcat9
     else
-    if [ -f /usr/share/tomcat7/bin/version.sh ] ; then
-        TOMCAT=tomcat7
+    if [ -f /usr/share/tomcat8/bin/version.sh ] ; then
+        TOMCAT=tomcat8
+        else
+        if [ -f /usr/share/tomcat7/bin/version.sh ] ; then
+            TOMCAT=tomcat7
+        fi
     fi
 fi
 C_HOME=/usr/share/${TOMCAT}/
@@ -38,24 +43,12 @@ echo "#########" `date` "#########" 1>> $LOG_FILE
 echo Removal script triggered with $1>>$LOG_FILE
 echo VERSION=${VERSION}-${REVISION}>>$LOG_FILE
 
-
-# clear temporary storage of configuration variables
-db_clear
-
 # stop tomcat
 invoke-rc.d ${TOMCAT} stop 2>>$LOG_FILE
 
 case "$1" in
     remove)
-	# get the MySQL pwd
-	if [ -f "${C_HOME}${PROGRAM}.properties" ]; then
-		#first grep the password
-		echo "grep the password from the properties file" 1>> $LOG_FILE
-		db_password=$(sed '/^\#/d' ${C_HOME}${PROGRAM}.properties | grep 'db_password'  | tail -n 1 | cut -d "=" -f2- | sed 's/^[[:space:]]*//;s/[[:space:]]*$//') 2>>$LOG_FILE
-		db_username=$(sed '/^\#/d' ${C_HOME}${PROGRAM}.properties | grep 'db_username'  | tail -n 1 | cut -d "=" -f2- | sed 's/^[[:space:]]*//;s/[[:space:]]*$//') 2>>$LOG_FILE
-	else
-		echo "Oops can't find ${C_HOME}${PROGRAM}.properties" >> ${LOG_ERR} ; exit 1 ;
-	fi
+
 	if [ -f "${C_HOME}drugref2.properties" ]; then
 		echo "Removing ${C_HOME}drugref2.properties" 
 		rm -f ${C_HOME}drugref2.properties 2>>$LOG_FILE
@@ -80,11 +73,21 @@ case "$1" in
 		rm -f ${C_BASE}webapps/drugref.war 2>>$LOG_FILE
 		echo "Removed drugref.war" >> ${LOG_FILE}
 		#and its database
-		echo "Dropping drugref database"
-		mysql -u ${db_username} -p${db_password} --execute="drop database if exists drugref;" 2>>$LOG_FILE
-		echo "Removed drugref database" >> ${LOG_FILE}
+	    # get the MySQL pwd
+	    if [ -f "${C_HOME}${PROGRAM}.properties" ]; then
+		    #first grep the password
+		    echo "grep the password from the properties file" 1>> $LOG_FILE
+		    db_password=$(sed '/^\#/d' ${C_HOME}${PROGRAM}.properties | grep 'db_password'  | tail -n 1 | cut -d "=" -f2- | sed 's/^[[:space:]]*//;s/[[:space:]]*$//') 2>>$LOG_FILE
+		    db_username=$(sed '/^\#/d' ${C_HOME}${PROGRAM}.properties | grep 'db_username'  | tail -n 1 | cut -d "=" -f2- | sed 's/^[[:space:]]*//;s/[[:space:]]*$//') 2>>$LOG_FILE
+		    echo "Dropping drugref database"
+		    mysql -u ${db_username} -p${db_password} --execute="drop database if exists drugref;" 2>>$LOG_FILE
+		    echo "Removed drugref database" >> ${LOG_FILE}
+	    else
+		    echo "Oops can't remove the drugref database, will proceed anyway" >> ${LOG_ERR}
+	    fi
 	fi
-        
+    # clear temporary storage of configuration variables
+    #db_clear        
     ;;
 
 
@@ -99,4 +102,3 @@ case "$1" in
 esac
 
 exit 0
-
