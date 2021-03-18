@@ -46,8 +46,6 @@
 <%@page import="org.oscarehr.common.model.Site"%>
 <%@page import="org.oscarehr.util.SpringUtils"%>
 <%@page import="org.oscarehr.common.model.Appointment"%>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
-<%@ page import="oscar.oscarProvider.data.ProviderData" %>
 <%@page import="org.oscarehr.common.dao.OscarAppointmentDao"%>
 <%@ page import="org.oscarehr.common.dao.FaxConfigDao, org.oscarehr.common.model.FaxConfig" %>
 <%
@@ -317,30 +315,14 @@ function printIframe(){
 	            {
 	                window.print();
 	            }
-            if(rxToPaste != null) {
-                    pasteRxToEchart();
-                }
-
-
 			}
 			else
 			{
 				preview.focus();
 				preview.print();
-                
-                if(rxToPaste != null) {
-                    pasteRxToEchart();
-                }
-				self.onfocus = function () {
-                    self.setTimeout(
-                        function(){
-                        self.parent.close();
-                    }, 1000);
-                };
-				self.focus();
 			}
 	}
-    
+
 function printPaste2Parent(print){
    try{
       text =""; 
@@ -367,14 +349,10 @@ function printPaste2Parent(print){
         window.parent.opener.document.encForm.enTextarea.value = window.parent.opener.document.encForm.enTextarea.value + text;
       }else if( window.parent.opener.document.getElementById(noteEditor) != undefined ){
     	window.parent.opener.document.getElementById(noteEditor).value = window.parent.opener.document.getElementById(noteEditor).value + text; 
-      } else {
-			rxToPaste = text;
-			if (!print) {
-			    pasteRxToEchart();
       }
       
    }catch (e){
-      alert ("ERROR: could not paste to EMR" + e);
+      alert ("ERROR: could not paste to EMR");
    }
    
    if (print) { printIframe(); }
@@ -382,14 +360,7 @@ function printPaste2Parent(print){
 }
 
 
-var rxToPaste = null;
 
-function pasteRxToEchart() {
-    var windowprops = "height=710,width=1024,location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=50,screenY=50,top=20,left=20";
-    var currentDate = new Date().toISOString().substring(0, 10);
-    var encounterWindow = window.open("../oscarEncounter/IncomingEncounter.do?providerNo=<%= bean.getProviderNo() %>&demographicNo=<%= bean.getDemographicNo() %>&curProviderNo=<%= bean.getProviderNo() %>&userName=<%=ProviderData.getProviderName(bean.getProviderNo())%>&curDate=" + currentDate, "encounter", windowprops);
-    encounterWindow.rxToPaste = rxToPaste;
-}
 
 function addressSelect() {
    <% if(vecAddressName != null) {
