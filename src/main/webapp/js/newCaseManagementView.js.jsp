@@ -1242,17 +1242,6 @@ function loadDiv(div,url,limit) {
 
     }
 
-    var encounterNotesReadyCheckInterval;
-    if (window.rxToPaste != null) {
-        encounterNotesReadyCheckInterval = setInterval(function() {
-            if ($(caseNote) != null) {
-                clearInterval(encounterNotesReadyCheckInterval);
-                pasteToEncounterNote(window.rxToPaste);
-                window.rxToPaste = null;
-            }
-        }, 100);
-    }
-
     function pasteToEncounterNote(txt) {
         $(caseNote).value += "\n" + txt;
         adjustCaseNote();
