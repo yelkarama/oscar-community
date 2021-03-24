@@ -2223,7 +2223,7 @@ function updateQty(element){
                     $(durationStr).innerHTML=json.duration;
                 }
                 $(durationUnitStr).innerHTML=json.durationUnit;
-                $(quantityStr).innerHTML=json.calQuantity;
+                if(json.calQuantity!="0"){$(quantityStr).innerHTML=json.calQuantity;}
                 if(json.unitName!=null && json.unitName!="null" && json.unitName!="NULL" && json.unitName!="Null"){
                     $(unitNameStr).innerHTML=json.unitName;
                 }else{
