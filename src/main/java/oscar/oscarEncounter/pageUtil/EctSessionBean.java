@@ -80,6 +80,7 @@ public class EctSessionBean implements java.io.Serializable {
     public String city;
     public String postal;
     public String phone;
+    public String email;
     public String roster;
     public String team = null;
     public String consultationRequestId = null;
@@ -123,6 +124,7 @@ public class EctSessionBean implements java.io.Serializable {
         city = "";
         postal = "";
         phone = "";
+        email = "";
         roster = "";
         template = "";
         oscarMsg = "";
@@ -150,6 +152,7 @@ public class EctSessionBean implements java.io.Serializable {
         city = d.getCity();
         postal = d.getPostal();
         phone = d.getPhone();
+        email = d.getEmail();
         familyDoctorNo = d.getProviderNo();
         yearOfBirth = d.getYearOfBirth();
         monthOfBirth = d.getMonthOfBirth();
@@ -307,6 +310,7 @@ public class EctSessionBean implements java.io.Serializable {
             city = demo.getCity();
             postal = demo.getPostal();
             phone = demo.getPhone();
+            email = demo.getEmail();
             familyDoctorNo = demo.getProviderNo();
             yearOfBirth = demo.getYearOfBirth();
             monthOfBirth = demo.getMonthOfBirth();
@@ -366,6 +370,7 @@ public class EctSessionBean implements java.io.Serializable {
             city = demo.getCity();
             postal = demo.getPostal();
             phone = demo.getPhone();
+            email = demo.getEmail();
             familyDoctorNo = demo.getProviderNo();
             yearOfBirth = demo.getYearOfBirth();
             monthOfBirth = demo.getMonthOfBirth();
