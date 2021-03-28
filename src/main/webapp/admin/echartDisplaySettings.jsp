@@ -105,14 +105,14 @@
         <table id="displaySettingsTable" class="table table-bordered table-striped table-hover table-condensed">
             <tbody>
                 <tr>
-                    <td>Hide eChart Timer: </td>
+                    <td>Show eChart Timer: </td>
                     <td>
-                        <input id="echart_hide_timer-true" type="radio" value="true" name="echart_hide_timer"
-                                <%=(dataBean.getProperty("echart_hide_timer", "false").equals("true")) ? "checked" : ""%> />
+                        <input id="echart_show_timer-true" type="radio" value="true" name="echart_show_timer"
+                                <%=(dataBean.getProperty("echart_show_timer", "false").equals("true")) ? "checked" : ""%> />
                         Yes
                         &nbsp;&nbsp;&nbsp;
-                        <input id="echart_hide_timer-false" type="radio" value="false" name="echart_hide_timer"
-                                <%=(dataBean.getProperty("echart_hide_timer", "false").equals("false")) ? "checked" : ""%> />
+                        <input id="echart_show_timer-false" type="radio" value="false" name="echart_show_timer"
+                                <%=(dataBean.getProperty("echart_show_timer", "false").equals("false")) ? "checked" : ""%> />
                         No
                         &nbsp;&nbsp;&nbsp;
                     </td>
