@@ -577,7 +577,7 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 
 	/**
 	 * Return the last name as parsed from column: family_physician
-	 */
+	 
 	public String getFamilyPhysicianLastName() {
 
 		Matcher m = FD_LAST_NAME.matcher(getFamilyPhysician());
@@ -590,7 +590,7 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 
 	/**
 	 * Return the first name as parsed from column: family_physician
-	 */
+	 
 	public String getFamilyPhysicianFirstName() {
 		Matcher m = FD_FIRST_NAME.matcher(getFamilyPhysician());
 
@@ -602,7 +602,7 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 
 	/**
 	 * Return the first name as parsed from column: family_physician
-	 */
+	 
 	public String getFamilyPhysicianFullName() {
 		Matcher m = FD_FULL_NAME.matcher(getFamilyPhysician());
 
@@ -614,7 +614,7 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 
 	/**
 	 * Return the FP OHIP number as parsed from column: family_physician
-	 */
+	 
 	public String getFamilyPhysicianNumber() {
 
 		Matcher m = FD_OHIP.matcher(getFamilyPhysician());
