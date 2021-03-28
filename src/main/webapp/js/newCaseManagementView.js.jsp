@@ -553,14 +553,15 @@ function navBarLoader() {
         		leftNavBar.unshift(ctx + '/oscarEncounter/displayProgressSheet.do?hC=003468');
         		leftNavBarTitles.unshift('progressSheet');
             <% }
-            List<String> propertyNoteCodes = OscarProperties.getInstance().getCommaSeparatedProperty("leftnav_notes_issue_codes");
-        	Collections.reverse(propertyNoteCodes); // Reverse List to add to the javascript array in the entered order
-            for (String code : propertyNoteCodes) { %>
-				leftNavBar.unshift(ctx + "/CaseManagementView.do?method=listNotes&providerNo=" + providerNo +
+           // List<String> propertyNoteCodes = OscarProperties.getInstance().getCommaSeparatedProperty("leftnav_notes_issue_codes");
+        	//Collections.reverse(propertyNoteCodes); // Reverse List to add to the javascript array in the entered order
+            //for (String code : propertyNoteCodes) { %>
+			<%--	leftNavBar.unshift(ctx + "/CaseManagementView.do?method=listNotes&providerNo=" + providerNo +
 					"&demographicNo=" + demographicNo + "&issue_code=<%=code%>&title=<%=code%>" +
 					"&cmd=<%=code%>" + "&appointment_no=" + appointmentNo + "&hc=996633");
 				leftNavBarTitles.unshift('<%=code%>');
-			<% } %>
+				--%>
+			<% //} %>
         
             var rightNavBar = [
                   ctx + "/oscarEncounter/displayAllergy.do?hC=" + Colour.allergy,
