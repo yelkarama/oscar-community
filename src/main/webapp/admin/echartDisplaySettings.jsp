@@ -105,7 +105,7 @@
         <table id="displaySettingsTable" class="table table-bordered table-striped table-hover table-condensed">
             <tbody>
                 <tr>
-                    <td>Show eChart Timer: </td>
+                    <td>Display eChart Timer: </td>
                     <td>
                         <input id="echart_show_timer-true" type="radio" value="true" name="echart_show_timer"
                                 <%=(dataBean.getProperty("echart_show_timer", "false").equals("true")) ? "checked" : ""%> />
@@ -117,6 +117,46 @@
                         &nbsp;&nbsp;&nbsp;
                     </td>
                 </tr>
+                <tr>
+                    <td>Display OLIS link: </td>
+                    <td>
+                        <input id="echart_show_OLIS-true" type="radio" value="true" name="echart_show_OLIS"
+                                <%=(dataBean.getProperty("echart_show_OLIS", "false").equals("true")) ? "checked" : ""%> />
+                        Yes
+                        &nbsp;&nbsp;&nbsp;
+                        <input id="echart_show_OLIS-false" type="radio" value="false" name="echart_show_OLIS"
+                                <%=(dataBean.getProperty("echart_show_OLIS", "false").equals("false")) ? "checked" : ""%> />
+                        No
+                        &nbsp;&nbsp;&nbsp;
+                    </td>
+                </tr>
+                <tr>
+                    <td>Display Cell Phone: </td>
+                    <td>
+                        <input id="echart_show_cell-true" type="radio" value="true" name="echart_show_cell"
+                                <%=(dataBean.getProperty("echart_show_cell", "false").equals("true")) ? "checked" : ""%> />
+                        Yes
+                        &nbsp;&nbsp;&nbsp;
+                        <input id="echart_show_cell-false" type="radio" value="false" name="echart_show_cell"
+                                <%=(dataBean.getProperty("echart_show_cell", "false").equals("false")) ? "checked" : ""%> />
+                        No
+                        &nbsp;&nbsp;&nbsp;
+                    </td>
+                </tr>
+                <tr>
+                    <td>Display HIN: </td>
+                    <td>
+                        <input id="echart_show_HIN-true" type="radio" value="true" name="echart_show_HIN"
+                                <%=(dataBean.getProperty("echart_show_HIN", "false").equals("true")) ? "checked" : ""%> />
+                        Yes
+                        &nbsp;&nbsp;&nbsp;
+                        <input id="echart_show_HIN-false" type="radio" value="false" name="echart_show_HIN"
+                                <%=(dataBean.getProperty("echart_show_HIN", "false").equals("false")) ? "checked" : ""%> />
+                        No
+                        &nbsp;&nbsp;&nbsp;
+                    </td>
+                </tr>  
+                                
                 <tr>
                     <td>Display Email Indicator: </td>
                     <td>
