@@ -42,9 +42,9 @@ public class EctDisplayPatientClinicStatusAction extends EctDisplayAction {
         Demographic demographic = demographicDao.getDemographic(bean.demographicNo);
         String displayName = "";
         switch (widget) {
-            //case "fDoc":
-                //displayName = demographic.getFamilyPhysicianFullName();
-                //break;
+            case "fDoc":
+                displayName = demographic.getFamilyDoctorFullName();//demographic.getFamilyPhysicianFullName();
+                break;
             case "rDoc":
                 displayName = demographic.getFamilyDoctorFullName();
                 break;
