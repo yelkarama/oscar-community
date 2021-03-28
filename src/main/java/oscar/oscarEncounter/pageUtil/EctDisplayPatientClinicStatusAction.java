@@ -43,7 +43,7 @@ public class EctDisplayPatientClinicStatusAction extends EctDisplayAction {
         String displayName = "";
         switch (widget) {
             case "fDoc":
-                displayName = demographic.getFamilyPhysicianFullName();
+                displayName = ""; //demographic.getFamilyPhysicianFullName();
                 break;
             case "rDoc":
                 displayName = demographic.getFamilyDoctorFullName();
