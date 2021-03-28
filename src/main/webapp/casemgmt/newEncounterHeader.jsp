@@ -40,6 +40,7 @@
 <%@ page import="org.oscarehr.common.model.SystemPreferences" %>
 <%@ page import="org.oscarehr.common.dao.SystemPreferencesDao" %>
 <%@ page import="java.util.Map" %>
+<%@ page import="org.owasp.encoder.Encode" %>
  
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security" %>
@@ -109,14 +110,7 @@
     StringBuilder patientName = new StringBuilder();
     patientName.append(bean.getPatientLastName())
                .append(", ");
-    if (replaceNameWithPreferred && !bean.patientPreferredName.isEmpty()) {
-        patientName.append(bean.patientPreferredName);
-    } else {
         patientName.append(bean.getPatientFirstName());
-        if (!bean.patientPreferredName.isEmpty()) {
-            patientName.append(" (").append(bean.patientPreferredName).append(")");
-        }
-    }
     %>
 
     <c:set var="ctx" value="${pageContext.request.contextPath}" scope="request"/>
