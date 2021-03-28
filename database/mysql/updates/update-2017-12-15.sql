@@ -1,6 +1,6 @@
 -- CREATE INDEX `idx_hl7TextMessage_created`  ON `hl7TextMessage`;
 
-CREATE TABLE IF NOT EXISTS `systempreferences`
+CREATE TABLE IF NOT EXISTS `SystemPreferences`
 (
   `id`         INT AUTO_INCREMENT
     PRIMARY KEY,

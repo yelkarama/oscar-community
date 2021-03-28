@@ -2821,6 +2821,7 @@
 		</action>
 		
 		<action path="/oscarEncounter/displayContacts" scope="request" type="oscar.oscarEncounter.pageUtil.EctDisplayContactsAction" />
+		<action path="/oscarEncounter/displayPatientClinicStatus" scope="request" type="oscar.oscarEncounter.pageUtil.EctDisplayPatientClinicStatusAction" />
 		
 		<action path="/renal/CkdDSA" type="org.oscarehr.renal.web.CkdDSAAction" parameter="method">
 			<forward name="detail" path="/renal/ckd_dsa_detail.jsp" />
