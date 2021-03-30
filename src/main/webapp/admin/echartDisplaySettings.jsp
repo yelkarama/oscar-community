@@ -118,6 +118,19 @@
                     </td>
                 </tr>
                 <tr>
+                    <td>Display Date of Birth (yyyy-mm-dd): </td>
+                    <td>
+                        <input id="echart_show_DOB-true" type="radio" value="true" name="echart_show_DOB"
+                                <%=(dataBean.getProperty("echart_show_DOB", "false").equals("true")) ? "checked" : ""%> />
+                        Yes
+                        &nbsp;&nbsp;&nbsp;
+                        <input id="echart_show_DOB-false" type="radio" value="false" name="echart_show_DOB"
+                                <%=(dataBean.getProperty("echart_show_DOB", "false").equals("false")) ? "checked" : ""%> />
+                        No
+                        &nbsp;&nbsp;&nbsp;
+                    </td>
+                </tr>
+                <tr>
                     <td>Display OLIS link: </td>
                     <td>
                         <input id="echart_show_OLIS-true" type="radio" value="true" name="echart_show_OLIS"
