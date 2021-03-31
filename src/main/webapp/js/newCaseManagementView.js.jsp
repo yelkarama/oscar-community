@@ -27,8 +27,19 @@
 <%@page import="org.oscarehr.util.SpringUtils"%>
 <%@page import="org.oscarehr.common.dao.UserPropertyDAO"%>
 <%@page import="oscar.OscarProperties"%>
-<%@page contentType="text/javascript"%>
 <%@page import="org.oscarehr.casemgmt.common.Colour"%>
+<%@ page import="java.util.List"%>
+<%@ page import="java.util.Collections"%>
+<%@ page import="org.oscarehr.common.model.Property"%>
+<%@ page import="org.oscarehr.common.dao.PropertyDao"%>
+<%@ page import="org.oscarehr.provider.web.CppPreferencesUIBean"%>
+<%@ page import="org.apache.xpath.operations.Bool"%>
+<%@ page import="org.oscarehr.common.model.SystemPreferences"%>
+<%@ page import="org.oscarehr.common.dao.SystemPreferencesDao"%>
+
+<%@page contentType="text/javascript"%>
+
+<jsp:useBean id="dataBean" class="java.util.Properties"/>
 
     let chartNoteAutosave = null;
 	var numNotes = 0;   //How many saved notes do we have?
@@ -502,14 +513,56 @@ function navBarLoader() {
                   ctx + "/oscarEncounter/displayMeasurements.do?hC=" + Colour.measurements,
                   ctx + "/oscarEncounter/displayConsultation.do?hC=" + Colour.consultation,
                   ctx + "/oscarEncounter/displayHRM.do?hC=",
-                  ctx + "/oscarEncounter/displayMyOscar.do?hC=",
                   ctx + "/eaaps/displayEctEaaps.do?hC=",
                   ctx + "/oscarEncounter/displayEconsultation.do?hC=",
-                  ctx + "/oscarEncounter/displayEHR.do?hC=",
-                  ctx + "/oscarEncounter/displayQuestimed.do?hC=",
-              ];
+                  ctx + "/oscarEncounter/displayQuestimed.do?hC="
+                   ];
 
-            var leftNavBarTitles = [ "preventions", "tickler", "Dx", "forms", "eforms", "docs","labs", "msgs", "measurements", "consultation", "HRM","PHR", "eams", "eConsult","ehr","Questimed"];
+            var leftNavBarTitles = [ "preventions", "tickler", "Dx", "forms", "eforms", "docs","labs", "msgs", "measurements", "consultation", "HRM", "eams", "eConsult","Questimed"];
+            
+        <% if (Boolean.parseBoolean(OscarProperties.getInstance().getProperty("DEMOGRAPHIC_PATIENT_CLINIC_STATUS", "true"))) {
+            SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+            List<SystemPreferences> preferences = systemPreferencesDao.findPreferencesByNames(SystemPreferences.ECHART_PREFERENCE_KEYS);
+            for(SystemPreferences preference : preferences) {
+                 dataBean.setProperty(preference.getName(), preference.getValue());
+            }
+            if (Boolean.parseBoolean(dataBean.getProperty("echart_show_ref_doc_widget", "false"))) { %>
+                // to beginning of array to display at top
+                leftNavBar.unshift(ctx + "/oscarEncounter/displayPatientClinicStatus.do?cmd=patientClinicStatus&widget=rDoc&hC=");
+                leftNavBarTitles.unshift("rDoc");
+        <% } %>
+
+        <% if (Boolean.parseBoolean(dataBean.getProperty("echart_show_fam_doc_widget", "false"))) { %>
+            // to beginning of array to display at top, before ref doc widget (if displayed)
+            leftNavBar.unshift(ctx + "/oscarEncounter/displayPatientClinicStatus.do?cmd=patientClinicStatus&widget=fDoc&hC=");
+            leftNavBarTitles.unshift("fDoc");
+        <% }
+        }
+        %>
+            <% if (!OscarProperties.getInstance().getProperty("clinicalConnect.CMS.url", "").isEmpty()) { %>
+                leftNavBar.push(ctx + "/oscarEncounter/displayEHR.do?hC=");
+                leftNavBarTitles.push("ehr");
+            <% } %>
+
+            <%
+            if (OscarProperties.getInstance().getBooleanProperty("MY_OSCAR", "yes")) { %>
+                leftNavBar.push(ctx + '/oscarEncounter/displayMyOscar.do?hC=');
+                leftNavBarTitles.push('PHR')
+            <%}
+            if (OscarProperties.getInstance().getBooleanProperty("echart_show_progress_sheet", "true")) { %>
+        		leftNavBar.unshift(ctx + '/oscarEncounter/displayProgressSheet.do?hC=003468');
+        		leftNavBarTitles.unshift('progressSheet');
+            <% }
+           // List<String> propertyNoteCodes = OscarProperties.getInstance().getCommaSeparatedProperty("leftnav_notes_issue_codes");
+        	//Collections.reverse(propertyNoteCodes); // Reverse List to add to the javascript array in the entered order
+            //for (String code : propertyNoteCodes) { %>
+			<%--	leftNavBar.unshift(ctx + "/CaseManagementView.do?method=listNotes&providerNo=" + providerNo +
+					"&demographicNo=" + demographicNo + "&issue_code=<%=code%>&title=<%=code%>" +
+					"&cmd=<%=code%>" + "&appointment_no=" + appointmentNo + "&hc=996633");
+				leftNavBarTitles.unshift('<%=code%>');
+				--%>
+			<% //} %>
+        
             var rightNavBar = [
                   ctx + "/oscarEncounter/displayAllergy.do?hC=" + Colour.allergy,
                   ctx + "/oscarEncounter/displayRx.do?hC=" + Colour.rx + "&numToDisplay=12",

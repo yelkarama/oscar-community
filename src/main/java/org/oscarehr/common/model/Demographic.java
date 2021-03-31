@@ -56,9 +56,10 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 	public static final String ANONYMOUS = "ANONYMOUS";
 	public static final String UNIQUE_ANONYMOUS = "UNIQUE_ANONYMOUS";
 	
-	private final static Pattern FD_LAST_NAME = Pattern.compile(".*<rd>([^,]*),.*</rd>.*");
-	private final static Pattern FD_FIRST_NAME = Pattern.compile(".*<rd>[^,]*,(.*)</rd>.*");
-	private final static Pattern FD_OHIP = Pattern.compile("<rdohip>(.*)</rdohip>.*");
+	private final static Pattern FD_LAST_NAME = Pattern.compile(".*<([fr])d>([^,]*),.*</([fr])d>.*");
+	private final static Pattern FD_FIRST_NAME = Pattern.compile(".*<([fr])d>[^,]*,(.*)</([fr])d>.*");
+	private final static Pattern FD_FULL_NAME = Pattern.compile(".*<([fr])d>(.*)</([fr])d>.*");
+	private final static Pattern FD_OHIP = Pattern.compile("<([fr])dohip>(.*)</[fr]dohip>.*");
 	
 	
 	private int hashCode = Integer.MIN_VALUE;// primary key
@@ -548,6 +549,17 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 		}
 		return "";
 	}
+	
+	/**
+	 * Return the full name as parsed from column: family_doctor
+	 */	
+	public String getFamilyDoctorFullName() {
+		Matcher m = FD_FULL_NAME.matcher(getFamilyDoctor());
+		if(m.find()) {
+			return m.group(2);
+		}
+		return "";
+	}
 
 	/**
 	 * Return the doctor number as parsed from column: family_doctor
@@ -563,6 +575,57 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 		return "";
 	}
 
+	/**
+	 * Return the last name as parsed from column: family_physician
+	 
+	public String getFamilyPhysicianLastName() {
+
+		Matcher m = FD_LAST_NAME.matcher(getFamilyPhysician());
+
+		if(m.find()) {
+			return m.group(1);
+		}
+		return "";
+	}
+
+	/**
+	 * Return the first name as parsed from column: family_physician
+	 
+	public String getFamilyPhysicianFirstName() {
+		Matcher m = FD_FIRST_NAME.matcher(getFamilyPhysician());
+
+		if(m.find()) {
+			return m.group(1);
+		}
+		return "";
+	}
+
+	/**
+	 * Return the first name as parsed from column: family_physician
+	 
+	public String getFamilyPhysicianFullName() {
+		Matcher m = FD_FULL_NAME.matcher(getFamilyPhysician());
+
+		if(m.find()) {
+			return m.group(2);
+		}
+		return "";
+	}
+
+	/**
+	 * Return the FP OHIP number as parsed from column: family_physician
+	 
+	public String getFamilyPhysicianNumber() {
+
+		Matcher m = FD_OHIP.matcher(getFamilyPhysician());
+
+		if(m.find()) {
+			return m.group(1);
+		}
+		
+		return "";
+	}
+	
 	/**
 	 * Return the value associated with the column: city
 	 */

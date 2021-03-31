@@ -64,6 +64,8 @@
 <%@page import="org.oscarehr.casemgmt.web.CheckBoxBean"%>
 <%@page import="org.oscarehr.common.dao.DemographicExtDao" %>
 <%@page import="org.oscarehr.managers.ProgramManager2" %>
+<%@page import="org.oscarehr.common.dao.SystemPreferencesDao" %>
+<%@page import="java.util.HashMap" %>
 
 <c:set var="ctx" value="${pageContext.request.contextPath}" scope="request" />
 
@@ -143,6 +145,15 @@ try
 	if (request.getParameter("caseManagementEntryForm") == null)
 	{
 		request.setAttribute("caseManagementEntryForm", cform);
+	}
+	
+	HashMap<String, Boolean> echartPreferencesMap = new HashMap<String, Boolean>();
+
+	SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+
+	List<SystemPreferences> schedulePreferences = systemPreferencesDao.findPreferencesByNames(SystemPreferences.ECHART_PREFERENCE_KEYS);
+	for (SystemPreferences preference : schedulePreferences) {
+		echartPreferencesMap.put(preference.getName(), Boolean.parseBoolean(preference.getValue()));
 	}
 %>
 
@@ -374,11 +385,9 @@ try
 		<div style="float: left; clear: both; margin-top: 5px; margin-bottom: 3px; width: 100%; text-align: center;">
 			<div style="display:inline-block">
 				
-				<input id="enTemplate" tabindex="6" size="25" type="text" value="" onkeypress="return grabEnterGetTemplate(event)">
+				<input id="enTemplate" tabindex="6" style="width:160px" type="text" value="" onkeypress="return grabEnterGetTemplate(event)">
 
-				<div class="enTemplate_name_auto_complete" id="enTemplate_list" style="z-index: 1; display: none">&nbsp;</div>
-
-							
+				<div class="enTemplate_name_auto_complete" id="enTemplate_list" style="z-index: 1; display: none">&nbsp;</div>						
 
 				<!-- <input type="text" id="keyword" name="keyword" value="" style="width: 10px; text-align: center;" onkeypress="return grabEnter('searchButton',event)">-->
 				<button class="btn" id="searchButton" name="button" alt="<bean:message key="oscarEncounter.msgFind"/>" onClick="popupPage(600,800,'<bean:message key="oscarEncounter.Index.popupSearchPageWindow"/>' ,$('channel').options[$('channel').selectedIndex].value+urlencode($F('enTemplate')) ); return false;"><i class="icon-search"></i></button>
@@ -603,8 +612,11 @@ try
 
 	<div id='save' style="width: 99%; background-color: #CCCCFF; padding-top: 5px; margin-left: 2px; border-left: thin solid #000000; border-right: thin solid #000000; border-bottom: thin solid #000000;">
 		<span style="float: right; margin-right: 5px;">
+		<% if (echartPreferencesMap.getOrDefault("echart_show_timer", true)) { %>
 			<button type="button" onclick="pasteTimer()" id="aTimer" title="<bean:message key="oscarEncounter.Index.pasteTimer"/>">00:00</button>
 			<button type="button" id="toggleTimer" onclick="toggleATimer()"  title='<bean:message key="oscarEncounter.Index.toggleTimer"/>'>&#8741;</button>
+		<% } %>
+		
 		<%
 
 			if(facility.isEnableGroupNotes()) {
