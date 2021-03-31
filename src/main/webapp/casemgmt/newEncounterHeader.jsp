@@ -109,7 +109,7 @@
     boolean showOLIS = echartPreferences.getOrDefault("echart_show_OLIS", false);
     boolean showHIN = echartPreferences.getOrDefault("echart_show_HIN", false);
     boolean showDOB = echartPreferences.getOrDefault("echart_show_DOB", false);
-    boolean showCell = echartPreferences.getOrDefault("echart_show_cell", false);
+    boolean showCell = echartPreferences.getOrDefault("echart_show_cell", true);
     
     StringBuilder patientName = new StringBuilder();
     patientName.append(bean.getPatientLastName())
@@ -136,7 +136,7 @@
         <a href="#" onClick="popupPage(700,1000,'<%=winName%>','<c:out value="${ctx}"/><%=url%>'); return false;" title="<bean:message key="provider.appointmentProviderAdminDay.msgMasterFile"/>"><%=Encode.forHtmlContent(patientName.toString()) %></a>
         
         <% if (showHIN) { %> 
-	        <%=bean.hin%>
+	        <span title=<bean:message key="oscarencounter.header.hin"/><%=bean.hin%></span>
 	        &nbsp;
         <% } %>
          
@@ -151,14 +151,14 @@
         <oscar:phrverification demographicNo="<%=demoNo%>"><bean:message key="phr.verification.link"/></oscar:phrverification> 
         &nbsp;
         <% if (showCell && StringUtils.trimToEmpty(demoExt.get("demo_cell")) != "") { %> 
-	        <span title="Phone:<%=bean.phone%>" ><%=StringUtils.trimToEmpty(demoExt.get("demo_cell"))%></span>
+	        <span title=<bean:message key="oscarencounter.header.phone"/><%=bean.phone%>" ><bean:message key="oscarencounter.header.cell"/><%=StringUtils.trimToEmpty(demoExt.get("demo_cell"))%></span>
         <% } else { %>
-        	<span title="Cell:<%=StringUtils.trimToEmpty(demoExt.get("demo_cell"))%>" ><%=bean.phone%></span>
+        	<span title="<bean:message key="oscarencounter.header.cell"/><%=StringUtils.trimToEmpty(demoExt.get("demo_cell"))%>" ><bean:message key="oscarencounter.header.phone"/><%=bean.phone%></span>
         <% }  %>
          &nbsp; 
             
         <% if (showEmailIndicator) { %> 
-	        <%=bean.email%>
+	        <a href="mailto:<%=bean.email%>"><%=bean.email%></a>
             &nbsp;
         <% }  %>
 		<span id="encounterHeaderExt"></span>
