@@ -133,12 +133,9 @@
             String winName = "Master" + bean.demographicNo;
             String url = "/demographic/demographiccontrol.jsp?demographic_no=" + bean.demographicNo + "&amp;displaymode=edit&amp;dboperation=search_detail&appointment="+appointmentNo;
         %>
-        <a href="#" onClick="popupPage(700,1000,'<%=winName%>','<c:out value="${ctx}"/><%=url%>'); return false;" title="<bean:message key="provider.appointmentProviderAdminDay.msgMasterFile"/>"><%=Encode.forHtmlContent(patientName.toString()) %></a>
         
-        <% if (showHIN) { %> 
-	        <span id="hin"><bean:message key="oscarencounter.header.hin"/><%=bean.hin%></span>
-	        &nbsp;
-        <% } %>
+        &nbsp;
+        <a href="#" onClick="popupPage(700,1000,'<%=winName%>','<c:out value="${ctx}"/><%=url%>'); return false;" title="<bean:message key="provider.appointmentProviderAdminDay.msgMasterFile"/>"><%=Encode.forHtmlContent(patientName.toString()) %></a>
          
         <%=bean.patientSex%> 
         
@@ -147,16 +144,19 @@
         <% } else { %>
         	<span id="dob" title="<%=bean.yearOfBirth%>-<%=bean.monthOfBirth%>-<%=bean.dateOfBirth%>" ><%=bean.patientAge%></span>
         <% }  %>
-        &nbsp;   
+        &nbsp;
+        <% if (showHIN) { %> 
+	        <span id="hin"><bean:message key="oscarencounter.header.hin"/>&nbsp;<%=bean.hin%></span>
+	        &nbsp;
+        <% } %>  
         <oscar:phrverification demographicNo="<%=demoNo%>"><bean:message key="phr.verification.link"/></oscar:phrverification> 
         &nbsp;
         <% if (showCell && StringUtils.trimToEmpty(demoExt.get("demo_cell")) != "") { %> 
-	        <span id="cell" title=<bean:message key="oscarencounter.header.phone"/><%=bean.phone%>" ><bean:message key="oscarencounter.header.cell"/><%=StringUtils.trimToEmpty(demoExt.get("demo_cell"))%></span>
+	        <span id="cell" title="<bean:message key="oscarencounter.header.phone"/>&nbsp;<%=bean.phone%>" ><bean:message key="oscarencounter.header.cell"/>&nbsp;<%=StringUtils.trimToEmpty(demoExt.get("demo_cell"))%></span>
         <% } else { %>
-        	<span id="tel" title="<bean:message key="oscarencounter.header.cell"/><%=StringUtils.trimToEmpty(demoExt.get("demo_cell"))%>" ><bean:message key="oscarencounter.header.phone"/><%=bean.phone%></span>
+        	<span id="tel" title="<bean:message key="oscarencounter.header.cell"/>&nbsp;<%=StringUtils.trimToEmpty(demoExt.get("demo_cell"))%>" ><bean:message key="oscarencounter.header.phone"/>&nbsp;<%=bean.phone%></span>
         <% }  %>
-         &nbsp; 
-            
+         &nbsp;            
         <% if (showEmailIndicator) { %> 
 	        <a href="mailto:<%=bean.email%>"><%=bean.email%></a>
             &nbsp;
