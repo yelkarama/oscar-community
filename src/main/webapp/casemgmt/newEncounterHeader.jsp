@@ -105,7 +105,7 @@
     Map<String, Boolean> generalSettingsMap = systemPreferencesDao.findByKeysAsMap(SystemPreferences.GENERAL_SETTINGS_KEYS);
     
     boolean replaceNameWithPreferred = generalSettingsMap.getOrDefault("replace_demographic_name_with_preferred", false);
-    boolean showEmailIndicator = echartPreferences.getOrDefault("echart_email_indicator", false) && StringUtils.isNotEmpty(bean.email);
+    boolean showEmailIndicator = echartPreferences.getOrDefault("echart_email_indicator", true) && StringUtils.isNotEmpty(bean.email);
     boolean showOLIS = echartPreferences.getOrDefault("echart_show_OLIS", false);
     boolean showHIN = echartPreferences.getOrDefault("echart_show_HIN", false);
     boolean showDOB = echartPreferences.getOrDefault("echart_show_DOB", false);
@@ -136,24 +136,24 @@
         <a href="#" onClick="popupPage(700,1000,'<%=winName%>','<c:out value="${ctx}"/><%=url%>'); return false;" title="<bean:message key="provider.appointmentProviderAdminDay.msgMasterFile"/>"><%=Encode.forHtmlContent(patientName.toString()) %></a>
         
         <% if (showHIN) { %> 
-	        <span title=<bean:message key="oscarencounter.header.hin"/><%=bean.hin%></span>
+	        <span id="hin"><bean:message key="oscarencounter.header.hin"/><%=bean.hin%></span>
 	        &nbsp;
         <% } %>
          
         <%=bean.patientSex%> 
         
         <% if (showDOB) { %> 
-	        <span title="<%=bean.patientAge%>" ><%=bean.yearOfBirth%>-<%=bean.monthOfBirth%>-<%=bean.dateOfBirth%></span>
+	        <span id="age" title="<%=bean.patientAge%>" ><%=bean.yearOfBirth%>-<%=bean.monthOfBirth%>-<%=bean.dateOfBirth%></span>
         <% } else { %>
-        	<span title="<%=bean.yearOfBirth%>-<%=bean.monthOfBirth%>-<%=bean.dateOfBirth%>" ><%=bean.patientAge%></span>
+        	<span id="dob" title="<%=bean.yearOfBirth%>-<%=bean.monthOfBirth%>-<%=bean.dateOfBirth%>" ><%=bean.patientAge%></span>
         <% }  %>
         &nbsp;   
         <oscar:phrverification demographicNo="<%=demoNo%>"><bean:message key="phr.verification.link"/></oscar:phrverification> 
         &nbsp;
         <% if (showCell && StringUtils.trimToEmpty(demoExt.get("demo_cell")) != "") { %> 
-	        <span title=<bean:message key="oscarencounter.header.phone"/><%=bean.phone%>" ><bean:message key="oscarencounter.header.cell"/><%=StringUtils.trimToEmpty(demoExt.get("demo_cell"))%></span>
+	        <span id="cell" title=<bean:message key="oscarencounter.header.phone"/><%=bean.phone%>" ><bean:message key="oscarencounter.header.cell"/><%=StringUtils.trimToEmpty(demoExt.get("demo_cell"))%></span>
         <% } else { %>
-        	<span title="<bean:message key="oscarencounter.header.cell"/><%=StringUtils.trimToEmpty(demoExt.get("demo_cell"))%>" ><bean:message key="oscarencounter.header.phone"/><%=bean.phone%></span>
+        	<span id="tel" title="<bean:message key="oscarencounter.header.cell"/><%=StringUtils.trimToEmpty(demoExt.get("demo_cell"))%>" ><bean:message key="oscarencounter.header.phone"/><%=bean.phone%></span>
         <% }  %>
          &nbsp; 
             
