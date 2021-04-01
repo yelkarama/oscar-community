@@ -46,24 +46,13 @@
 			<id>local_repo</id>
 			<url>file://${basedir}/local_repo</url>
 		</repository>
-
-		<repository>
-			<id>oscar_repo</id>
-			<url>http://oscarmcmaster.sourceforge.net/m2</url>
-		</repository>
-
 	</repositories>
 
 	<pluginRepositories>
-       	<pluginRepository>
+       		<pluginRepository>
 			<id>local_repo</id>
 			<url>file://${basedir}/local_repo</url>
-       	</pluginRepository>
-
-		<pluginRepository>
-			<id>oscar_repo</id>
-			<url>http://oscarmcmaster.sourceforge.net/m2</url>
-		</pluginRepository>
+       		</pluginRepository>
 	</pluginRepositories>
 
 	<dependencies>
