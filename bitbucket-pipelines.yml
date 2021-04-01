@@ -9,7 +9,8 @@ pipelines:
               caches:
                 - maven
               script:
-                - mvn clean package -Dmaven.test.skip=True -e -X  # Builds the WAR
+                - mvn -B -Dmaven.test.skip=True  package  # Builds the WAR
                 - file=(target/*.war) # Gets the path for the WAR  
+                - mv /opt/atlassian/pipelines/agent/build/target/oscar-14.0.0-SNAPSHOT.war /opt/atlassian/pipelines/agent/build/target/oscar-19.$BITBUCKET_BUILD_NUMBER.war
                 - echo "BITBUCKET_BUILD_NUMBER $BITBUCKET_BUILD_NUMBER  BITBUCKET_BRANCH $BITBUCKET_BRANCH $file"
         
