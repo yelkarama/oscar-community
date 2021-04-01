@@ -531,6 +531,137 @@ if (isMobileOptimized) {
 
 
 <script type="text/javascript">
+// calendar shortcuts
+function getLocation(ID,Multiplier)
+{
+	// initialize array
+	initializeQSArray();
+	//btnGCloud.addEventListener("click", function(){G3PO.launchComposeGmail(to,from,docsButtonContainer.textContent,body,"ss spreadsheets spreadsheet cell cells",true)},false);
+	
+	// get query string values
+	getQSValues();
+	
+	// create the current date - note months are 0 based --> 0-11
+	var dateSelected=new Date(qsParm['year'],qsParm['month']-1,qsParm['day']);
+
+	// set the item type and value to be added
+	switch (ID)
+	{	    
+		case 'weekBackward':
+			itemType = 'w';
+			// negative * 7 days * weeks
+			valueToAdd = -1 * Multiplier;
+			break;
+		case 'weekForward':
+			itemType = 'w';
+			valueToAdd = Multiplier;
+			break;
+		case 'monthBackward':
+			itemType = 'm';
+			valueToAdd = -1 * Multiplier;
+			break;
+		case 'monthForward':
+			itemType = 'm';
+			valueToAdd = Multiplier;		
+			break;
+	}
+
+    //get new date
+    dateDestination = DateAdd(itemType, dateSelected, valueToAdd);
+  	
+	// check the day of the new date - if Saturday or Sunday move to the following Monday - 0:Sunday 1:Monday 2:Tuesday 3:Wednesday 4:Thursday 5:Friday 6:Saturday
+	var DayID = dateDestination.getDay();
+	switch (DayID)
+	{
+		case 0: // Sunday			
+			dateDestination = DateAdd('d', dateDestination, 1);			
+			break;
+		case 6: // Saturday			
+			dateDestination = DateAdd('d', dateDestination, 2);
+			break;
+	}
+	
+	// build the new location string
+	destination  = 'providercontrol.jsp?year=' + dateDestination.getFullYear() + '&month='+ getMonthNumber(dateDestination.getMonth()) +'&day='+dateDestination.getDate()+'&view=' +qsParm['view']+ '&curProvider='+qsParm['curProvider']+'&curProviderName='+qsParm['curProviderName'] + '&displaymode='+qsParm['displaymode']+'&dboperation='+qsParm['dboperation']
+	
+	// move the calendar to the new date
+	window.location = destination;	
+}
+
+// get the querystring values from the url and put them in the array
+function getQSValues() 
+{
+	var query = window.location.search.substring(1);
+	var parms = query.split('&');
+	var key;
+	var val;
+	
+	for (var i=0; i<parms.length; i++) 
+	{
+		var pos = parms[i].indexOf('=');
+		if (pos > 0) 
+		{
+			key = parms[i].substring(0,pos);
+			val = parms[i].substring(pos+1);
+			qsParm[key] = val;
+		}
+	}
+} 
+
+var qsParm = new Array();
+
+function initializeQSArray()
+{
+	
+     //initialize array
+	qsParm['year'] = null;
+	qsParm['month'] = null;
+	qsParm['day'] = null;
+	qsParm['view'] = null;
+	qsParm['curProvider'] = null;
+	qsParm['curProviderName'] = null;
+	qsParm['displaymode'] = null;
+	qsParm['dboperation'] = null;
+}
+
+function getMonthNumber(month)
+{	
+	// add 1 to the month for the oscar querystring
+    return month + 1;
+}
+
+function DateAdd(ItemType, DateToWorkOn, ValueToBeAdded)
+{
+    switch (ItemType)
+    {    
+        case 'd': //add days
+            DateToWorkOn.setDate(DateToWorkOn.getDate() + ValueToBeAdded);
+            break;
+        case 'w': //add weeks
+			ValueToBeAdded = ValueToBeAdded*7;
+            DateToWorkOn.setDate(DateToWorkOn.getDate() + ValueToBeAdded);
+            break;
+        case 'm': //add months
+            DateToWorkOn.setMonth(DateToWorkOn.getMonth() + parseInt(ValueToBeAdded));
+            break;
+        case 'y': //add years
+            DateToWorkOn.setYear(DateToWorkOn.getFullYear() + ValueToBeAdded);
+            break;
+        //time portion        
+        case 'h': //add hours
+            DateToWorkOn.setHours(DateToWorkOn.getHours() + ValueToBeAdded);
+            break;
+        case 'n': //add minutes
+            DateToWorkOn.setMinutes(DateToWorkOn.getMinutes() + ValueToBeAdded);
+            break;
+        case 's': //add seconds
+            DateToWorkOn.setSeconds(DateToWorkOn.getSeconds() + ValueToBeAdded);
+            break;
+    }
+    return DateToWorkOn;
+}
+
+// end calendar shortcuts 
 
 function changeGroup(s) {
 var newGroupNo = s.options[s.selectedIndex].value;
@@ -1227,6 +1358,24 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
  <a class="redArrow" href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=isWeekView?(day+7):(day+1)%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+URLEncoder.encode(request.getParameter("curProviderName"),"UTF-8") )%>&displaymode=day&dboperation=searchappointmentday<%=isWeekView?"&provider_no="+provNum:""%>&viewall=<%=viewall%>">
  <img src="../images/next.gif" WIDTH="10" HEIGHT="9" BORDER="0" class="noprint" ALT="<bean:message key="provider.appointmentProviderAdminDay.viewNextDay"/>" vspace="2">&nbsp;&nbsp;</a>
 <a id="calendarLink" href=# onClick ="popupPage(425,430,'../share/CalendarPopup.jsp?urlfrom=../provider/providercontrol.jsp&year=<%=strYear%>&month=<%=strMonth%>&param=<%=URLEncoder.encode("&view=0&displaymode=day&dboperation=searchappointmentday&viewall="+viewall,"UTF-8")%><%=isWeekView?URLEncoder.encode("&provider_no="+provNum, "UTF-8"):""%>')"><bean:message key="global.calendar"/></a>
+
+<input id="monthBackward" type="button" value="M-" style="width:25px;font-size:8pt;font-weight: bold;border: none;" onclick="getLocation(this.id,document.getElementById('multiplier').value);"/><input id="weekBackward" type="button" value="W-" style="width:30px;font-size:8pt;font-weight: bold;border: none;"onclick="getLocation(this.id,document.getElementById('multiplier').value)"/><input id="multiplier" type="text"  value="1" maxlength="2" style="width:20px;font-size:8pt;background-color:#b0c4de;font-weight: bold;border: none;text-align: center;" /><input id="weekForward" type="button" value="W+" style="width:30px;font-size:8pt;font-weight: bold;border: none;" onclick="getLocation(this.id,document.getElementById('multiplier').value)"/><input id="monthForward" type="button" value="M+" style="width:25px;font-size:8pt;font-weight: bold;border: none;" onclick="getLocation(this.id,document.getElementById('multiplier').value)"/>
+<!-- 
+<input id="dayForward5" type="button" value="5D" style="width:25px;font-size:8pt;font-weight: bold;border: none;" /><input id="dayForward7" type="button" value="7D" style="width:25px;font-size:8pt;font-weight: bold;border: none;" /><input id="dayForward10" type="button" value="10D" style="width:30px;font-size:8pt;font-weight: bold;border: none;" /><input id="Blank" type="button" value="" style="width:15px;font-size:8pt;border: none;" />
+<input id="weekForward1" type="button" value="1W" style="width:25px;font-size:8pt;font-weight: bold;border: none;" onclick="getLocation('weekForward',1) "/>
+<input id="weekForward2" type="button" value="2W" style="width:25px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',2) "/>
+<input id="weekForward3" type="button" value="3W" style="width:25px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',3) "/>
+<input id="weekForward4" type="button" value="4W" style="width:25px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',4) "/>
+<input id="weekForward6" type="button" value="6W" style="width:25px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',6) "/>
+<input id="Blank1" type="button" value="" style="width:15px;font-size:8pt;border: none;" />
+<input id="monthForward1" type="button" value="1M" style="width:25px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',4) "/>
+<input id="monthForward3" type="button" value="3M" style="width:25px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',12) "/>
+<input id="monthForward6" type="button" value="6M" style="width:25px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',25) "/>
+<input id="Blank2" type="button" value="" style="width:15px;font-size:8pt;border: none;" />
+<input id="monthForward12" type="button" value="1Y" style="width:30px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',367/7) "/>
+
+-->
+
 
 <logic:notEqual name="infirmaryView_isOscar" value="false">
 | <% if(request.getParameter("viewall")!=null && request.getParameter("viewall").equals("1") ) { %>
@@ -2429,4 +2578,3 @@ jQuery(document).ready(function(){
                 }
                 return false;
         }%>
-
