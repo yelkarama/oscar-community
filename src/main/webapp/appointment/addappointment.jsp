@@ -203,6 +203,16 @@ function setfocus() {
   document.ADDAPPT.keyword.select();
 }
 
+function moveAppt() {
+	var determinator = 0;
+	determinator = localStorage.getItem('copyPaste');
+	if (determinator == 1) {  //This means we are moving an appt
+	$("#pasteButton").click();
+	$("#addButton").click();
+	localStorage.setItem('copyPaste','0');  //reset
+	}
+}
+	
 function upCaseCtrl(ctrl) {
 	ctrl.value = ctrl.value.toUpperCase();
 }
@@ -643,7 +653,7 @@ function pasteAppt(multipleSameDayGroupAppt) {
 %>
 </head>
 <body bgproperties="fixed"
-	onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0" bottommargin="0">
+	onLoad="setfocus(); moveAppt();" topmargin="0" leftmargin="0" rightmargin="0" bottommargin="0">
  <% if (timeoutSecs >0) { %>
     <div id="lock_notification">
         <span title="">Viewers: N/A</span>
