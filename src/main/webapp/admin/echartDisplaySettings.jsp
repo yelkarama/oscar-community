@@ -108,11 +108,11 @@
                     <td><bean:message key="admin.admin.echartDisplaySettings.echart_show_timer"/>:</td>
                     <td>
                         <input id="echart_show_timer-true" type="radio" value="true" name="echart_show_timer"
-                                <%=(dataBean.getProperty("echart_show_timer", "false").equals("true")) ? "checked" : ""%> />
+                                <%=(dataBean.getProperty("echart_show_timer", "true").equals("true")) ? "checked" : ""%> />
                         <bean:message key="admin.admin.echartDisplaySettings.yes"/>
                         &nbsp;&nbsp;&nbsp;
                         <input id="echart_show_timer-false" type="radio" value="false" name="echart_show_timer"
-                                <%=(dataBean.getProperty("echart_show_timer", "false").equals("false")) ? "checked" : ""%> />
+                                <%=(dataBean.getProperty("echart_show_timer", "true").equals("false")) ? "checked" : ""%> />
                         <bean:message key="admin.admin.echartDisplaySettings.no"/>
                         &nbsp;&nbsp;&nbsp;
                     </td>
@@ -147,11 +147,11 @@
                     <td><bean:message key="admin.admin.echartDisplaySettings.echart_show_cell"/>:</td>
                     <td>
                         <input id="echart_show_cell-true" type="radio" value="true" name="echart_show_cell"
-                                <%=(dataBean.getProperty("echart_show_cell", "false").equals("true")) ? "checked" : ""%> />
+                                <%=(dataBean.getProperty("echart_show_cell", "true").equals("true")) ? "checked" : ""%> />
                         <bean:message key="admin.admin.echartDisplaySettings.yes"/>
                         &nbsp;&nbsp;&nbsp;
                         <input id="echart_show_cell-false" type="radio" value="false" name="echart_show_cell"
-                                <%=(dataBean.getProperty("echart_show_cell", "false").equals("false")) ? "checked" : ""%> />
+                                <%=(dataBean.getProperty("echart_show_cell", "true").equals("false")) ? "checked" : ""%> />
                         <bean:message key="admin.admin.echartDisplaySettings.no"/>
                         &nbsp;&nbsp;&nbsp;
                     </td>
