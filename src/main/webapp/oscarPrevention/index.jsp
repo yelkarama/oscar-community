@@ -509,6 +509,13 @@ height:10px;
 border:1px solid #999999;
 }
 
+li {
+width: 200px;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+}
+
 </style>
 
 <!--[if IE]>
