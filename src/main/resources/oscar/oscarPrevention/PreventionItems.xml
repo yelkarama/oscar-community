@@ -521,8 +521,8 @@ Varicella Immunoglobulin	VarIg
 
 	<item
 			resultDesc=""
-			desc="Women from ages 21 to 70 are recommended to receive a PAP" name="PAP"
-			headingName="Screenings" link="" layout="PAPMAM" minAge="21"
+			desc="Women from ages 25 to 70 are recommended to receive a PAP" name="PAP"
+			headingName="Screenings" link="" layout="PAPMAM" minAge="25"
 			maxAge="70" sex="F" showIfMinRecordNum="1" />
 
 	<item

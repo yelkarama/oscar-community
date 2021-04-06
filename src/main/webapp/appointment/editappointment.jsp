@@ -1018,9 +1018,9 @@ if (bMultisites) { %>
 <table width="95%" align="center" id="belowTbl">
 	<tr>
 		<td><input type="submit"
-			onclick="document.forms['EDITAPPT'].displaymode.value='Cut';"
+			onclick="document.forms['EDITAPPT'].displaymode.value='Cut';localStorage.setItem('copyPaste','1');"
 			value="Cut" /> | <input type="submit"
-			onclick="document.forms['EDITAPPT'].displaymode.value='Copy';"
+			onclick="document.forms['EDITAPPT'].displaymode.value='Copy';localStorage.setItem('copyPaste','1');"
 			value="Copy" />
                      <%
                      if(bFirstDisp && apptObj!=null) {
