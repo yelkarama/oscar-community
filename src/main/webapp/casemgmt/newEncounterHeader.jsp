@@ -32,6 +32,8 @@
 <%@ page import="org.oscarehr.util.MiscUtils"%>
 <%@ page import="java.net.URLEncoder"%>
 <%@ page import="org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorManager, org.oscarehr.util.LoggedInInfo, org.oscarehr.common.model.Facility" %>
+<%@ page import="org.oscarehr.common.model.Demographic" %>
+<%@ page import="org.oscarehr.common.dao.DemographicDao" %>
 <%@ page import="org.oscarehr.common.dao.DemographicExtDao" %>
 <%@ page import="org.oscarehr.common.model.DemographicExt" %>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
@@ -69,6 +71,8 @@
     DemographicExt infoExt = demographicExtDao.getDemographicExt(Integer.parseInt(demoNo), "informedConsent");
     boolean showPopup = infoExt == null || StringUtils.isBlank(infoExt.getValue());
     Map<String,String> demoExt = demographicExtDao.getAllValuesForDemo(Integer.parseInt(demoNo));
+    DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
+    Demographic demographic = demographicDao.getDemographic(demoNo);
 
     //we calculate inverse of provider colour for text
     int base = 16;
@@ -117,6 +121,17 @@
         patientName.append(bean.getPatientFirstName());
     %>
 
+<script>
+	function copySpanToClipboard(id) {
+	    var range = document.createRange();
+	    range.selectNode(document.getElementById(id));
+	    window.getSelection().removeAllRanges(); // clear current selection
+	    window.getSelection().addRange(range); // to select text
+	    document.execCommand("copy");
+	    window.getSelection().removeAllRanges();// to deselect
+	}
+</script>
+
     <c:set var="ctx" value="${pageContext.request.contextPath}" scope="request"/>
     
 <div style="float:left; width: 100%; padding-left:2px; text-align:left; font-size: 12px; color:<%=inverseUserColour%>; background-color:<%=userColour%>" id="encounterHeader">
@@ -140,25 +155,29 @@
         <%=bean.patientSex%> 
         
         <% if (showDOB) { %> 
-	        <span id="age" title="<%=bean.patientAge%>" ><%=bean.yearOfBirth%>-<%=bean.monthOfBirth%>-<%=bean.dateOfBirth%></span>
+	        <span id="age" title="<%=bean.patientAge%>" onclick="copySpanToClipboard(this.id)"><%=bean.yearOfBirth%>-<%=bean.monthOfBirth%>-<%=bean.dateOfBirth%></span>
         <% } else { %>
-        	<span id="dob" title="<%=bean.yearOfBirth%>-<%=bean.monthOfBirth%>-<%=bean.dateOfBirth%>" ><%=bean.patientAge%></span>
+        	<span id="dob" title="<%=bean.yearOfBirth%>-<%=bean.monthOfBirth%>-<%=bean.dateOfBirth%>" onclick="copySpanToClipboard(this.id)"><%=bean.patientAge%></span>
         <% }  %>
         &nbsp;
         <% if (showHIN) { %> 
-	        <span id="hin"><bean:message key="oscarencounter.header.hin"/>&nbsp;<%=bean.hin%></span>
+	        <bean:message key="oscarencounter.header.hin"/>&nbsp;<span id="hin" onclick="copySpanToClipboard(this.id)"><%=bean.hin%></span>
 	        &nbsp;
         <% } %>  
         <oscar:phrverification demographicNo="<%=demoNo%>"><bean:message key="phr.verification.link"/></oscar:phrverification> 
         &nbsp;
         <% if (showCell && StringUtils.trimToEmpty(demoExt.get("demo_cell")) != "") { %> 
-	        <span id="cell" title="<bean:message key="oscarencounter.header.phone"/>&nbsp;<%=bean.phone%>" ><bean:message key="oscarencounter.header.cell"/>&nbsp;<%=StringUtils.trimToEmpty(demoExt.get("demo_cell"))%></span>
+	        <bean:message key="oscarencounter.header.cell"/>&nbsp;<span id="cell" title="<bean:message key="oscarencounter.header.phone"/>&nbsp;<%=bean.phone%>" onclick="copySpanToClipboard(this.id)"><%=StringUtils.trimToEmpty(demoExt.get("demo_cell"))%></span>
         <% } else { %>
-        	<span id="tel" title="<bean:message key="oscarencounter.header.cell"/>&nbsp;<%=StringUtils.trimToEmpty(demoExt.get("demo_cell"))%>" ><bean:message key="oscarencounter.header.phone"/>&nbsp;<%=bean.phone%></span>
+        	<bean:message key="oscarencounter.header.phone"/>&nbsp;<span id="tel" title="<bean:message key="oscarencounter.header.cell"/>&nbsp;<%=StringUtils.trimToEmpty(demoExt.get("demo_cell"))%>" onclick="copySpanToClipboard(this.id)"><%=bean.phone%></span>
         <% }  %>
          &nbsp;            
-        <% if (showEmailIndicator) { %> 
-	        <a href="mailto:<%=bean.email%>"><%=bean.email%></a>
+        <% if (showEmailIndicator) { %>
+        	<% if (demographic.getConsentToUseEmailForCare() != null && demographic.getConsentToUseEmailForCare()){ %>
+	        	<a href="mailto:<%=bean.email%>?subject=Message from your Doctors Office" target="_blank" rel="noopener noreferrer" ><%=bean.email%></a>
+        	<% } else { %>
+        		<span id="email" onclick="copySpanToClipboard(this.id)"><%=bean.email%></span>
+        	<% }  %>       	
             &nbsp;
         <% }  %>
 		<span id="encounterHeaderExt"></span>

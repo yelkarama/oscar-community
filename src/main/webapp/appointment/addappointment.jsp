@@ -48,6 +48,7 @@
 <%@page import="java.util.Set,java.util.HashSet"%>
 <%@page import="org.oscarehr.managers.ProgramManager2"%>
 <%@page import="oscar.OscarProperties" %>
+<%@page import="org.owasp.encoder.Encode" %>
 <%
  
   String DONOTBOOK = "Do_Not_Book";
@@ -202,6 +203,16 @@ function setfocus() {
   document.ADDAPPT.keyword.select();
 }
 
+function moveAppt() {
+	var determinator = 0;
+	determinator = localStorage.getItem('copyPaste');
+	if (determinator == 1) {  //This means we are moving an appt
+	$("#pasteButton").click();
+	$("#addButton").click();
+	localStorage.setItem('copyPaste','0');  //reset
+	}
+}
+	
 function upCaseCtrl(ctrl) {
 	ctrl.value = ctrl.value.toUpperCase();
 }
@@ -357,26 +368,30 @@ function pasteAppt(multipleSameDayGroupAppt) {
         else {
            warnMsgId.style.display = "none";
         }
-        document.forms[0].duration.value = "<%=apptObj.getDuration()%>";
-        document.forms[0].keyword.value = "<%=apptObj.getName()%>";
-        document.forms[0].demographic_no.value = "<%=apptObj.getDemographic_no()%>";
+        
+        document.forms[0].duration.value = "<%=Encode.forJavaScriptBlock(apptObj.getDuration())%>";
+        //document.forms[0].chart_no.value = "<%=Encode.forJavaScriptBlock(apptObj.getChart_no())%>";
+        document.forms[0].keyword.value = "<%=Encode.forJavaScriptBlock(apptObj.getName())%>";
+        document.forms[0].demographic_no.value = "<%=Encode.forJavaScriptBlock(apptObj.getDemographic_no())%>";
         document.forms[0].reason.value = "<%= StringEscapeUtils.escapeJavaScript(apptObj.getReason()) %>";
-        document.forms[0].notes.value = "<%= StringEscapeUtils.escapeJavaScript(apptObj.getNotes()) %>";
-        document.forms[0].resources.value = "<%=apptObj.getResources()%>";
-        document.forms[0].type.value = "<%=apptObj.getType()%>";
+        document.forms[0].reasonCode.value = "<%= StringEscapeUtils.escapeJavaScript(apptObj.getReasonCode()) %>";
+        document.forms[0].notes.value = "<%= StringEscapeUtils.escapeJavaScript(apptObj.getNotes()) %>";       
+        document.forms[0].resources.value = "<%=Encode.forJavaScriptBlock(apptObj.getResources())%>";
+        document.forms[0].type.value = "<%=Encode.forJavaScriptBlock(apptObj.getType())%>";
+        document.forms[0].location.value = "<%=Encode.forJavaScriptBlock(apptObj.getLocation())%>";   
         if('<%=apptObj.getUrgency()%>' == 'critical') {
                 document.forms[0].urgency.checked = "checked";
         }
-		document.forms[0].reasonCode.value = "<%=apptObj.getReasonCode() %>";
-		
+
 		<%if("true".equals(pros.getProperty("appointment.paste.status","false"))) {%>
-			document.forms[0].status.value = "<%=apptObj.getStatus()%>";
+            var statusCode = "<%=Encode.forJavaScriptBlock(apptObj.getStatus())%>";
+            statusCode = statusCode.substring(0,1); //the selector only supports setting the first status
+		    document.forms[0].status.value = statusCode;
 		<%}%>
 		<%if("true".equals(pros.getProperty("appointment.paste.location","false"))) {%>
-			document.forms[0].location.value = "<%=apptObj.getLocation()%>";
+			document.forms[0].location.value = "<%=Encode.forJavaScriptBlock(apptObj.getLocation())%>";
 		<%}%>
 		
-		//document.forms[0].chart_no.value = "<%=apptObj.getChart_no()%>";
 		
 }
 <% } %>
@@ -638,7 +653,7 @@ function pasteAppt(multipleSameDayGroupAppt) {
 %>
 </head>
 <body bgproperties="fixed"
-	onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0" bottommargin="0">
+	onLoad="setfocus(); moveAppt();" topmargin="0" leftmargin="0" rightmargin="0" bottommargin="0">
  <% if (timeoutSecs >0) { %>
     <div id="lock_notification">
         <span title="">Viewers: N/A</span>
