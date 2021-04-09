@@ -17,7 +17,7 @@
 		<java:condition>!prev.isPreventionNever("DTaP-IPV")</java:condition>
 		<java:consequence>              
               prev.log("DTaP-IPV 1");
-              prev.addWarning("DTaP-IPV", "Needs First DTaP-IPV /HIB");
+              prev.addWarning("DTaP-IPV", "Needs 1st DTaP-IPV-HIB");
         </java:consequence>
 	</rule>
 	<rule name="DTaP-IPV 2">
@@ -26,28 +26,24 @@
 		</parameter>
 		<java:condition>prev.getAgeInMonths() &gt;= 4</java:condition>
 		<java:condition>prev.getAgeInMonths() &lt;= 72</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("DTaP-IPV") + prev.getNumberOfPreventionType("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio") == 1</java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("DTaP-IPV") &gt;= 2</java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio") &gt;= 2</java:condition>
-		<java:condition>!prev.isPreventionNever("DTaP-IPV")</java:condition>
-		<java:condition>prev.isNextDateSet("DTaP-IPV") || prev.isNextDateSet("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio")</java:condition>
+		<java:condition>prev.getNumberOfPreventionType("DTaP-IPV-Hib") + prev.getNumberOfPreventionType("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib") == 1</java:condition>
+		<java:condition>prev.getHowManyMonthsSinceLast("DTaP-IPV") &gt;= 2 || prev.getHowManyMonthsSinceLast("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib") &gt;= 2</java:condition>
 		<java:consequence>              
               prev.log("DTaP-IPV 2");
-              prev.addWarning("DTaP-IPV", "Needs Second DTaP-IPV /HIB");
+              prev.addWarning("DTaP-IPV", "Needs 2nd DTaP-IPV-HIB");
         </java:consequence>
 	</rule>
 	<rule name="DTaP-IPV 2.1">
 		<parameter identifier="prev">
 			<class>oscar.oscarPrevention.Prevention</class>
 		</parameter>
-		<java:condition>prev.isPassedNextDate("DTaP-IPV") || prev.isPassedNextDate("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio")</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("DTaP-IPV") + prev.getNumberOfPreventionType("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio") == 1</java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("DTaP-IPV") &gt;= 2</java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio") &gt;= 2</java:condition>
-		<java:condition>!prev.isPreventionNever("DTaP-IPV") || !prev.isPreventionNever("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio")</java:condition>
+		<java:condition>prev.isPassedNextDate("DTaP-IPV-Hib") || prev.isPassedNextDate("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib")</java:condition>
+		<java:condition>prev.getNumberOfPreventionType("DTaP-IPV-Hib") + prev.getNumberOfPreventionType("[[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib") == 1</java:condition>
+		<java:condition>prev.getHowManyMonthsSinceLast("DTaP-IPV-Hib") &gt;= 2 || prev.getHowManyMonthsSinceLast("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib") &gt;= 2</java:condition>
+		<java:condition>!prev.isPreventionNever("DTaP-IPV-Hib") || !prev.isPreventionNever("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib")</java:condition>
 		<java:consequence>              
               prev.log("DTaP-IPV 2");
-              prev.addWarning("DTaP-IPV", "Needs Second DTaP-IPV /HIB");
+              prev.addWarning("DTaP-IPV", "Needs Second DTaP-IPV-HIB");
         </java:consequence>
 	</rule>
 	<rule name="DTaP-IPV 3">
@@ -56,27 +52,25 @@
 		</parameter>
 		<java:condition>prev.getAgeInMonths() &gt;= 6</java:condition>
 		<java:condition>prev.getAgeInMonths() &lt; 72</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("DTaP-IPV") + prev.getNumberOfPreventionType("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio") == 2</java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("DTaP-IPV") &gt;= 2</java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio") &gt;= 2</java:condition>
-		<java:condition>!prev.isPreventionNever("DTaP-IPV") || !prev.isPreventionNever("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio")</java:condition>
+		<java:condition>prev.getNumberOfPreventionType("DTaP-IPV-Hib") + prev.getNumberOfPreventionType("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib") == 2</java:condition>
+		<java:condition>prev.getHowManyMonthsSinceLast("DTaP-IPV-Hib") &gt;= 2 || prev.getHowManyMonthsSinceLast("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib") &gt;= 2</java:condition>
+		<java:condition>!prev.isPreventionNever("DTaP-IPV-Hib") || !prev.isPreventionNever("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib")</java:condition>
 		<java:consequence>              
               prev.log("DTaP-IPV 3");
-              prev.addWarning("DTaP-IPV", "Needs Third DTaP-IPV /HIB");
+              prev.addWarning("DTaP-IPV", "Needs 3rd DTaP-IPV-HIB");
         </java:consequence>
 	</rule>
 	<rule name="DTaP-IPV 3.1">
 		<parameter identifier="prev">
 			<class>oscar.oscarPrevention.Prevention</class>
 		</parameter>
-		<java:condition>prev.isPassedNextDate("DTaP-IPV") || prev.isPassedNextDate("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio")</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("DTaP-IPV") + prev.getNumberOfPreventionType("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio") == 2</java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("DTaP-IPV") &gt;= 2</java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio") &gt;= 2</java:condition>
-		<java:condition>!prev.isPreventionNever("DTaP-IPV") || !prev.isPreventionNever("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio")</java:condition>
+		<java:condition>prev.isPassedNextDate("DTaP-IPV-Hib") || prev.isPassedNextDate("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib")</java:condition>
+		<java:condition>prev.getNumberOfPreventionType("DTaP-IPV-Hib") + prev.getNumberOfPreventionType("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib") == 2</java:condition>
+		<java:condition>prev.getHowManyMonthsSinceLast("DTaP-IPV-Hib") &gt;= 2 || prev.getHowManyMonthsSinceLast("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib") &gt;= 2</java:condition>
+		<java:condition>!prev.isPreventionNever("DTaP-IPV-Hib") || !prev.isPreventionNever("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib")</java:condition>
 		<java:consequence>              
               prev.log("DTaP-IPV 2.1");
-              prev.addWarning("DTaP-IPV", "Needs Third DTaP-IPV /HIB");
+              prev.addWarning("DTaP-IPV", "Needs 3rd DTaP-IPV /HIB");
         </java:consequence>
 	</rule>
 	<rule name="DTaP-IPV 4">
@@ -85,58 +79,54 @@
 		</parameter>
 		<java:condition>prev.getAgeInMonths() &gt;= 18</java:condition>
 		<java:condition>prev.getAgeInMonths() &lt; 72</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("DTaP-IPV") + prev.getNumberOfPreventionType("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio") == 3</java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("DTaP-IPV") &gt;= 12</java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio") &gt;= 12</java:condition>
-		<java:condition>!prev.isPreventionNever("DTaP-IPV") || !prev.isPreventionNever("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio")</java:condition>
+		<java:condition>prev.getNumberOfPreventionType("DTaP-IPV-Hib") + prev.getNumberOfPreventionType("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib") == 3</java:condition>
+		<java:condition>prev.getHowManyMonthsSinceLast("DTaP-IPV-Hib") &gt;= 12 || prev.getHowManyMonthsSinceLast("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib") &gt;= 12</java:condition>
+		<java:condition>!prev.isPreventionNever("DTaP-IPV-Hib") || !prev.isPreventionNever("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib")</java:condition>
 		<java:consequence>              
               prev.log("DTaP-IPV 4");
-              prev.addWarning("DTaP-IPV", "Needs Fourth DTaP-IPV /HIB");
+              prev.addWarning("DTaP-IPV", "Needs 4th DTaP-IPV-HIB");
         </java:consequence>
 	</rule>
 	<rule name="DTaP-IPV 4.1">
 		<parameter identifier="prev">
 			<class>oscar.oscarPrevention.Prevention</class>
 		</parameter>
-		<java:condition>prev.isPassedNextDate("DTaP-IPV")</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("DTaP-IPV") + prev.getNumberOfPreventionType("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio") == 2</java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("DTaP-IPV") &gt;= 2 || prev.getHowManyMonthsSinceLast("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio") &gt;= 2</java:condition>
-		<java:condition>!prev.isPreventionNever("DTaP-IPV") || !prev.isPreventionNever("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio")</java:condition>
+		<java:condition>prev.isPassedNextDate("DTaP-IPV-Hib")</java:condition>
+		<java:condition>prev.getNumberOfPreventionType("DTaP-IPV-Hib") + prev.getNumberOfPreventionType("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib") == 2</java:condition>
+		<java:condition>prev.getHowManyMonthsSinceLast("DTaP-IPV-Hib") &gt;= 2 || prev.getHowManyMonthsSinceLast("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib") &gt;= 2</java:condition>
+		<java:condition>!prev.isPreventionNever("DTaP-IPV-Hib") || !prev.isPreventionNever("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib")</java:condition>
 		<java:consequence>              
               prev.log("DTaP-IPV 2.1");
-              prev.addWarning("DTaP-IPV", "Needs Third DTaP-IPV /HIB");
+              prev.addWarning("DTaP-IPV", "Needs 3rd DTaP-IPV-Hib");
         </java:consequence>
 	</rule>
 	<rule name="DTaP-IPV 5">
 		<parameter identifier="prev">
 			<class>oscar.oscarPrevention.Prevention</class>
 		</parameter>
-		<java:condition>prev.getAgeInMonths() &gt;= 48</java:condition>
-		<java:condition>prev.getAgeInMonths() &lt; 72</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("DTaP-IPV") + prev.getNumberOfPreventionType("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio") == 4</java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("DTaP-IPV") &gt;= 1</java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio") &gt;= 1</java:condition>
-		<java:condition>prev.getAgeInMonthsLastPreventionTypeGiven("DTaP-IPV") &lt;= 48 || prev.getHowManyMonthsSinceLast("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio") &gt;= 48</java:condition>
-		<java:condition>!prev.isPreventionNever("DTaP-IPV") || !prev.isPreventionNever("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio")</java:condition>
+		<java:condition>prev.getAgeInMonths() &gt;= 12</java:condition>
+		<java:condition>prev.getAgeInMonths() &lt; 60</java:condition>
+		<java:condition>prev.getNumberOfPreventionType("DTaP-IPV-Hib") + prev.getNumberOfPreventionType("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib") + prev.getNumberOfPreventionType("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio") == 1</java:condition>
+		<java:condition>prev.getHowManyMonthsSinceLast("DTaP-IPV") &gt;= 2 || prev.getHowManyMonthsSinceLast("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio") &gt;= 2</java:condition>
+		<java:condition>!prev.isPreventionNever("DTaP-IPV-Hib") || !prev.isPreventionNever("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib")</java:condition>
 		<java:consequence>              
               prev.log("DTaP-IPV 3");
-              prev.addWarning("DTaP-IPV", "Needs Third DTaP-IPV /HIB");
+              prev.addWarning("DTaP-IPV", "Needs 2nd DTaP-IPV-HIB");
         </java:consequence>
 	</rule>
 	<rule name="DTaP-IPV 6">
 		<parameter identifier="prev">
 			<class>oscar.oscarPrevention.Prevention</class>
 		</parameter>
-		<java:condition>prev.getAgeInMonths() &gt;= 168</java:condition>
-		<java:condition>prev.getAgeInMonths() &lt; 192</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("DTaP-IPV") + prev.getNumberOfPreventionType("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio") == 4</java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("DTaP-IPV") &gt;= 1</java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio") &gt;= 1</java:condition>
+		<java:condition>prev.getAgeInMonths() &gt;= 18</java:condition>
+		<java:condition>prev.getAgeInMonths() &lt; 94</java:condition>
+		<java:condition>prev.getNumberOfPreventionType("DTaP-IPV") + prev.getNumberOfPreventionType("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio") == 2</java:condition>
+		<java:condition>prev.getHowManyMonthsSinceLast("DTaP-IPV") &gt;= 2 || prev.getHowManyMonthsSinceLast("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio") &gt;= 2</java:condition>
 		<java:condition>prev.getAgeInMonthsLastPreventionTypeGiven("DTaP-IPV") &lt;= 48 || prev.getHowManyMonthsSinceLast("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio") &gt;= 48</java:condition>
 		<java:condition>!prev.isPreventionNever("DTaP-IPV") || !prev.isPreventionNever("[DTaP-IPV] Diphtheria + Tetanus + Pertussis + Polio")</java:condition>
 		<java:consequence>              
               prev.log("DTaP-IPV 3.1");
-              prev.addWarning("DTaP-IPV", "Needs Third DTaP-IPV /HIB");
+              prev.addWarning("DTaP-IPV", "Needs Third DTaP-IPV);
         </java:consequence>
 	</rule>
 	<rule name="Tdap-IPV 1">
@@ -159,7 +149,7 @@
 		<java:condition>prev.getAgeInMonths() &gt;= 2</java:condition>
 		<java:condition>prev.getAgeInMonths() &lt; 5</java:condition>
 		<java:condition>prev.getNumberOfPreventionType("Rot") +	prev.getNumberOfPreventionType("[Rota-5] Rotavirus pentavalent") == 0</java:condition>
-		<java:condition>!prev.isPreventionNever("Rot")</java:condition>
+		<java:condition>!prev.isPreventionNever("Rot") || !prev.isPreventionNever("[Rota-5] Rotavirus pentavalent")</java:condition>
 		<java:consequence>
              System.out.println("Rot 1");
              prev.addWarning("Rot", "Needs First Rota-5 vaccine");
@@ -172,13 +162,12 @@
 		<java:condition>prev.getAgeInMonths() &gt;= 4</java:condition>
 		<java:condition>prev.getAgeInMonths() &lt;= 6</java:condition>
 		<java:condition>prev.getNumberOfPreventionType("Rot") +	prev.getNumberOfPreventionType("[Rota-5] Rotavirus pentavalent") == 1</java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("Rot") &gt;= 1</java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("[Rota-5] Rotavirus pentavalent") &gt;= 1</java:condition>
+		<java:condition>prev.getHowManyMonthsSinceLast("Rot") &gt;= 1 || prev.getHowManyMonthsSinceLast("[Rota-5] Rotavirus pentavalent") &gt;= 1</java:condition>
 		<java:condition>!prev.isPreventionNever("Rot") || prev.isPreventionNever("[Rota-5] Rotavirus pentavalent")</java:condition>
 		<java:condition>prev.isNextDateSet("Rot")</java:condition>
 		<java:consequence>
              System.out.println("Rot 2");
-             prev.addWarning("Rot", "Needs Second Rot-5 vaccine");
+             prev.addWarning("Rot", "Needs 2nd Rot-5 vaccine");
        </java:consequence>
 	</rule>
 	<rule name="Hib 1">
@@ -217,13 +206,11 @@
 		</parameter>
 		<java:condition>prev.getAgeInMonths() &gt;= 6</java:condition>
 		<java:condition>prev.getAgeInMonths() &lt; 12</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("Hib") + prev.getNumberOfPreventionType("DTaP-IPV-Hib") + prev.getNumberOfPreventionType("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib") == 2 </java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("Hib") &gt;= 2</java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("DTaP-IPV-Hib") &gt;= 2</java:condition>
-		<java:condition>prev.getHowManyMonthsSinceLast("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib") &gt;= 2</java:condition>
+		<java:condition>prev.getNumberOfPreventionType("DTaP-IPV-Hib") + prev.getNumberOfPreventionType("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib") == 2 </java:condition>
+		<java:condition>prev.getHowManyMonthsSinceLast("DTaP-IPV-Hib") &gt;= 2 || prev.getHowManyMonthsSinceLast("[DTaP-IPV-Hib] Diphtheria + Tetanus + Pertussis + Polio + Hib") &gt;= 2</java:condition>
 		<java:consequence>              
               prev.log("Hib 3");
-              prev.addWarning("Hib", "Needs third DTaP-IPV-Hib");
+              prev.addWarning("Hib", "third DTaP-IPV-Hib");
         </java:consequence>
 	</rule>
 	<rule name="Hib 4">
