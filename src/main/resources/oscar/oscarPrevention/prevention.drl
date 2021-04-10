@@ -570,7 +570,7 @@
 		<java:condition>prev.getHowManyMonthsSinceLast("COLONOSCOPY") != -1</java:condition>
 		<java:consequence>
               prev.log("FOBT Inelligible debug");
-              prev.addReminder("Colonoscopy makes FOBT Inelligible");
+              prev.addReminder("Colonoscopy makes FIT Inelligible");
         </java:consequence>
 	</rule>
 	<!-- FOBT Rules End-->
@@ -600,6 +600,7 @@
 		<parameter identifier="prev">
 			<class>oscar.oscarPrevention.Prevention</class>
 		</parameter>
+		<java:condition>prev.getAgeInYears() &gt;= 18</java:condition>
 		<java:condition>prev.getHowManyMonthsSinceLast("PHV") == -1</java:condition>
 		<java:consequence>
               prev.log("PHV debug");
@@ -610,12 +611,14 @@
 		<parameter identifier="prev">
 			<class>oscar.oscarPrevention.Prevention</class>
 		</parameter>
-		<java:condition>prev.getHowManyMonthsSinceLast("PHV") &gt; 11</java:condition>
+		<java:condition>prev.getAgeInYears() &gt;= 18</java:condition>
+		<java:condition>prev.getHowManyMonthsSinceLast("PHV") &gt; 23</java:condition>
 		<java:consequence>
               prev.log("PHV debug");
-              prev.addWarning("PHV", "Periodic Health Visit has not occurred in over a year");
+              prev.addWarning("PHV", "Periodic Health Visit has not occurred in over two years");
         </java:consequence>
 	</rule>
+	<!--
 	<rule name="Annual Physical">
 		<parameter identifier="prev">
 			<class>oscar.oscarPrevention.Prevention</class>
@@ -656,6 +659,7 @@
               prev.addWarning("Obesity", "Obesity check has not occurred in over 12 months");
         </java:consequence>
 	</rule>
+	-->
 </rule-set>
 <!--
 
