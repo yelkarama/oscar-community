@@ -318,7 +318,7 @@
 			<class>oscar.oscarPrevention.Prevention</class>
 		</parameter>
 		<java:condition>prev.getAgeInYears() &gt;= 14</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("dTap") + prev.getNumberOfPreventionType("Tdap] Tetanus + Diphtheria + Pertussis") == 0</java:condition>
+		<java:condition>prev.getNumberOfPreventionType("dTap") + prev.getNumberOfPreventionType("[Tdap] Tetanus + Diphtheria + Pertussis") == 0</java:condition>
 		<java:consequence>              
               prev.log("dTap 1");
               prev.addWarning("dTap", "Needs Tdap");
@@ -330,7 +330,7 @@
 		</parameter>
 		<java:condition>prev.getAgeInYears() &gt;= 14</java:condition>
 		<java:condition>prev.getNumberOfPreventionType("Td") + prev.getNumberOfPreventionType("[Td] Tetanus + Diphtheria") == 0</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("dTap") + prev.getNumberOfPreventionType("Tdap] Tetanus + Diphtheria + Pertussis") &gt;= 1</java:condition>
+		<java:condition>prev.getNumberOfPreventionType("dTap") + prev.getNumberOfPreventionType("[Tdap] Tetanus + Diphtheria + Pertussis") &gt;= 1</java:condition>
 		<java:condition>prev.getHowManyMonthsSinceLast("dTaP") &gt;= 120 || prev.getHowManyMonthsSinceLast("[Tdap] Tetanus + Diphtheria + Pertussis") &gt;= 120</java:condition>
 		<java:consequence>              
               prev.log("Td 1");
