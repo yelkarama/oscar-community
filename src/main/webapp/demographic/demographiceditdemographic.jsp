@@ -1708,9 +1708,11 @@ if(oscarProps.getProperty("new_label_print") != null && oscarProps.getProperty("
 								String masterLink=null;
 								if(DemographicContact.CATEGORY_PERSONAL.equals(dContact.getCategory()) && DemographicContact.TYPE_DEMOGRAPHIC == dContact.getType() ) {
 									 masterLink = "<a target=\"demographic"+dContact.getContactId()+"\" href=\"" + request.getContextPath() + "/demographic/demographiccontrol.jsp?demographic_no="+dContact.getContactId()+"&displaymode=edit&dboperation=search_detail\">M</a>";
+                                     masterLink = masterLink + "&nbsp;<a target=\"demographic"+dContact.getContactId()+"\" href=\"" + request.getContextPath() + "/oscarEncounter/IncomingEncounter.do?appointmentNo=&demographicNo="+dContact.getContactId()+"&curProviderNo=&reason=Tel-Progress+Note&encType=&appointmentDate=&startTime=&status=&curDate=\">E</a>";
 								}
 								if(DemographicContact.CATEGORY_PERSONAL.equals(dContact.getCategory()) && DemographicContact.TYPE_CONTACT == dContact.getType()) {
 									masterLink = "<a target=\"_blank\" href=\""+ request.getContextPath() +"/demographic/Contact.do?method=viewContact&contact.id="+ dContact.getContactId() + "\">details</a>";
+                                    masterLink = masterLink + "&nbsp;<a target=\"demographic"+dContact.getContactId()+"\" href=\"" + request.getContextPath() + "/oscarEncounter/IncomingEncounter.do?appointmentNo=&demographicNo="+dContact.getContactId()+"&curProviderNo=&reason=Tel-Progress+Note&encType=&appointmentDate=&startTime=&status=&curDate=\">E</a>";
 								}
 %>
 

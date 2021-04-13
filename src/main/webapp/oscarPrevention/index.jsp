@@ -409,7 +409,7 @@ div.leftBox li {
 div.headPrevention {
 	position: relative;
 	float: left;
-	width: 8.4em;
+	width: 10em;
 	height: 2.5em;
 }
 
@@ -422,6 +422,9 @@ div.headPrevention p {
 	text-align: justify height : 2em;
 	font-family: sans-serif;
 	border-left: 0px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 div.headPrevention a {
@@ -487,9 +490,6 @@ div.recommendations ul {
 	padding-bottom: 0px;
 }
 
-div.recommendations li {
-
-}
 table.legend{
 border:0;
 padding-top:10px;
@@ -514,6 +514,10 @@ width: 200px;
 white-space: nowrap;
 overflow: hidden;
 text-overflow: ellipsis;
+}
+
+div.recommendations li {
+width: 600px;
 }
 
 </style>
@@ -683,13 +687,13 @@ List<String> OTHERS = Arrays.asList(new String[]{"DTaP-Hib","TdP-IPV-Hib","HBTmf
 			            	<li style="margin-top: 2px;"><a
 								href="javascript: function myFunction() {return false; }"
 								onclick="javascript:popup(600,900,'AddPreventionDataDisambiguate.jsp?<%=snomedId != null ? "snomedId=" + snomedId + "&" : ""%>prevention=<%= java.net.URLEncoder.encode(prevName) %>&amp;demographic_no=<%=demographic_no%>&amp;prevResultDesc=<%= java.net.URLEncoder.encode(h.get("resultDesc")) %>','addPreventionData<%=Math.abs(prevName.hashCode()) %>')" title="<%=h.get("desc")%>">
-							<%=prevName%><%=ispa1 %> </a></li>
+							<%=ispa1 %><%=prevName%> </a></li>
 			          <%  } else {
 			            %>
 							<li style="margin-top: 2px;"><a
 								href="javascript: function myFunction() {return false; }"
 								onclick="javascript:popup(600,900,'AddPreventionData.jsp?4=4&<%=snomedId != null ? "snomedId=" + snomedId + "&" : ""%>prevention=<%= java.net.URLEncoder.encode(prevName) %>&amp;demographic_no=<%=demographic_no%>&amp;prevResultDesc=<%= java.net.URLEncoder.encode(h.get("resultDesc")) %>','addPreventionData<%=Math.abs(prevName.hashCode()) %>')" title="<%=h.get("desc")%>">
-							<%=prevName%><%=ispa1 %> </a></li>
+							<%=ispa1 %><%=prevName%> </a></li>
 						<%
 			            }
 		            }
@@ -913,12 +917,12 @@ List<String> OTHERS = Arrays.asList(new String[]{"DTaP-Hib","TdP-IPV-Hib","HBTmf
         if(mappings != null && mappings.size()>1) {%>
         <a href="javascript: function myFunction() {return false; }"
 			onclick="javascript:popup(600,900,'AddPreventionDataDisambiguate.jsp?1=1&<%=snomedId != null ? "snomedId=" + snomedId + "&" : ""%>prevention=<%= java.net.URLEncoder.encode(h.get("name")) %>&amp;demographic_no=<%=demographic_no%>&amp;prevResultDesc=<%= java.net.URLEncoder.encode(h.get("resultDesc")) %>','addPreventionData<%=Math.abs( ( h.get("name")).hashCode() ) %>')">
-		<span title="<%=h.get("desc")%>" style="font-weight: bold;"><%=h.get("name")%><%=ispa1%></span>
+		<span title="<%=h.get("desc")%>" style="font-weight: bold;"><%=ispa1%><%=h.get("name")%></span>
 		</a>
 		<% } else { %>
 		<a href="javascript: function myFunction() {return false; }"
 			onclick="javascript:popup(600,900,'AddPreventionData.jsp?1=1&<%=snomedId != null ? "snomedId=" + snomedId + "&" : ""%>prevention=<%= java.net.URLEncoder.encode(h.get("name")) %>&amp;demographic_no=<%=demographic_no%>&amp;prevResultDesc=<%= java.net.URLEncoder.encode(h.get("resultDesc")) %>','addPreventionData<%=Math.abs( ( h.get("name")).hashCode() ) %>')">
-		<span title="<%=h.get("desc")%>" style="font-weight: bold;"><%=h.get("name")%><%=ispa1 %></span>
+		<span title="<%=h.get("desc")%>" style="font-weight: bold;"><%=ispa1%><%=h.get("name")%></span>
 		</a>
 		<% } %>
 		<br />
@@ -1002,7 +1006,7 @@ List<String> OTHERS = Arrays.asList(new String[]{"DTaP-Hib","TdP-IPV-Hib","HBTmf
 		<div class="headPrevention">
 		<p><a href="javascript: function myFunction() {return false; }"
 			onclick="javascript:popup(600,900,'AddPreventionData.jsp?2=2&<%=snomedId != null ? "snomedId=" + snomedId + "&" : ""%>prevention=<%= java.net.URLEncoder.encode(h.get("name")) %>&amp;demographic_no=<%=demographic_no%>&amp;prevResultDesc=<%= java.net.URLEncoder.encode(h.get("resultDesc")) %>','addPreventionData<%=Math.abs( ( h.get("name")).hashCode() ) %>')">
-		<span title="<%=h.get("desc")%>" style="font-weight: bold;"><%=h.get("name")%><%=ispa1 %></span>
+		<span title="<%=h.get("desc")%>" style="font-weight: bold;"><%=ispa1 %><%=h.get("name")%></span>
 		</a>
 		
 		<br />
