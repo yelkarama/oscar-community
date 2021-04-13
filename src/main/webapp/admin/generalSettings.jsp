@@ -83,8 +83,8 @@
     
     String defaultClinicInfo = clinicData.getClinicName() + 
             "\n" + clinicData.getClinicAddress() + ", " + clinicData.getClinicCity() + ", " + clinicData.getClinicProvince() + " " + clinicData.getClinicPostal() + 
-            "\nTelephone: " + (vecPhones.size() >= 1 ? vecPhones.elementAt(0) : clinicData.getClinicPhone()) + 
-            "\nFax: " + (vecFaxes.size() >= 1 ? vecFaxes.elementAt(0) : clinicData.getClinicFax());
+            "\nTelephone: " + (vecPhones.size() >= 1 ? vecPhones.get(0) : clinicData.getClinicPhone()) + 
+            "\nFax: " + (vecFaxes.size() >= 1 ? vecFaxes.get(0) : clinicData.getClinicFax());
 
 	String errorMessages = "";
 
