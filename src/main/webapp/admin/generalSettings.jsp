@@ -70,8 +70,8 @@
     if (strFaxes == null) {
         strFaxes = "";
     }
-    List<String> vecPhones = Collections.synchronizedList(new ArrayList<String>())
-   	List<String> vecFaxes = Collections.synchronizedList(new ArrayList<String>())
+    List<String> vecPhones = Collections.synchronizedList(new ArrayList<String>());
+   	List<String> vecFaxes = Collections.synchronizedList(new ArrayList<String>());
     StringTokenizer st = new StringTokenizer(strPhones, "|");
     while (st.hasMoreTokens()) {
         vecPhones.add(st.nextToken());
