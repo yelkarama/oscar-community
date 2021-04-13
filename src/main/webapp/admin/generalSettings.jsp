@@ -49,7 +49,7 @@
 <%@ page import="java.util.Date" %>
 <%@ page import="java.util.List" %>
 <%@ page import="oscar.oscarClinic.ClinicData" %>
-<%@ page import="java.util.Vector" %>
+<%@ page import="java.util.Collections" %>
 <%@ page import="java.util.StringTokenizer" %>
 <%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="oscar.OscarProperties" %>
@@ -70,8 +70,8 @@
     if (strFaxes == null) {
         strFaxes = "";
     }
-    Vector vecPhones = new Vector();
-    Vector vecFaxes = new Vector();
+    List<String> vecPhones = Collections.synchronizedList(new ArrayList<String>())
+   	List<String> vecFaxes = Collections.synchronizedList(new ArrayList<String>())
     StringTokenizer st = new StringTokenizer(strPhones, "|");
     while (st.hasMoreTokens()) {
         vecPhones.add(st.nextToken());
