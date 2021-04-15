@@ -70,21 +70,21 @@
     if (strFaxes == null) {
         strFaxes = "";
     }
-    List<String> vecPhones = new ArrayList<String>();
-   	List<String> vecFaxes = new ArrayList<String>();
+    List<String> lPhones = new ArrayList<String>();
+   	List<String> lFaxes = new ArrayList<String>();
     StringTokenizer st = new StringTokenizer(strPhones, "|");
     while (st.hasMoreTokens()) {
-        vecPhones.add(st.nextToken());
+        lPhones.add(st.nextToken());
     }
     st = new StringTokenizer(strFaxes, "|");
     while (st.hasMoreTokens()) {
-        vecFaxes.add(st.nextToken());
+        lFaxes.add(st.nextToken());
     }
     
     String defaultClinicInfo = clinicData.getClinicName() + 
             "\n" + clinicData.getClinicAddress() + ", " + clinicData.getClinicCity() + ", " + clinicData.getClinicProvince() + " " + clinicData.getClinicPostal() + 
-            "\nTelephone: " + (vecPhones.size() >= 1 ? vecPhones.get(0) : clinicData.getClinicPhone()) + 
-            "\nFax: " + (vecFaxes.size() >= 1 ? vecFaxes.get(0) : clinicData.getClinicFax());
+            "\nTelephone: " + (lPhones.size() >= 1 ? lPhones.get(0) : clinicData.getClinicPhone()) + 
+            "\nFax: " + (lFaxes.size() >= 1 ? lFaxes.get(0) : clinicData.getClinicFax());
 
 	String errorMessages = "";
 
@@ -164,6 +164,19 @@
         <input type="hidden" name="dboperation" value="">
         <table id="displaySettingsTable" class="table table-bordered table-striped table-hover table-condensed">
             <tbody>
+             <tr>
+                <td>Load Eyeform Ocular Module: </td>
+                <td>
+                    <input id="new_eyeform_enabled-true" type="radio" value="true" name="new_eyeform_enabled"
+                            <%=(dataBean.getProperty("new_eyeform_enabled", "false").equals("true")) ? "checked" : ""%> />
+                    Yes
+                    &nbsp;&nbsp;&nbsp;
+                    <input id="new_eyeform_enabled-false" type="radio" value="false" name="new_eyeform_enabled"
+                            <%=(dataBean.getProperty("new_eyeform_enabled", "false").equals("false")) ? "checked" : ""%> />
+                    No
+                    &nbsp;&nbsp;&nbsp;
+                </td>
+            </tr>
             <tr>
                 <td>Display preferred name instead of demographic name: </td>
                 <td>

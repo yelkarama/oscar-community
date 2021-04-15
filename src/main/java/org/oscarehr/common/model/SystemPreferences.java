@@ -39,7 +39,7 @@ public class SystemPreferences extends AbstractModel<Integer>
     public static final List<String> SCHEDULE_PREFERENCE_KEYS = Arrays.asList("schedule_display_type", "schedule_display_custom_roster_status", "schedule_tp_link_enabled", "schedule_tp_link_type", "schedule_tp_link_display", "schedule_eligibility_enabled", "schedule_display_enrollment_dr_enabled");
     public static final List<String> ECHART_PREFERENCE_KEYS = Arrays.asList("echart_show_timer", "echart_email_indicator", "echart_show_OLIS","echart_show_HIN","echart_show_cell","echart_show_DOB", "echart_show_fam_doc_widget", "echart_show_ref_doc_widget");
     public static final List<String> MASTER_FILE_PREFERENCE_KEYS = Arrays.asList("display_former_name", "redirect_for_contact");
-    public static final List<String> GENERAL_SETTINGS_KEYS = Arrays.asList("replace_demographic_name_with_preferred", "msg_use_create_date", "invoice_custom_clinic_info", "force_logout_when_inactive", "force_logout_when_inactive_time");
+    public static final List<String> GENERAL_SETTINGS_KEYS = Arrays.asList("replace_demographic_name_with_preferred", "msg_use_create_date", "invoice_custom_clinic_info", "force_logout_when_inactive", "force_logout_when_inactive_time", "new_eyeform_enabled");
     public static final List<String> LAB_DISPLAY_PREFERENCE_KEYS = Arrays.asList("code_show_hide_column", "lab_embed_pdf", "lab_pdf_max_size", "display_discipline_as_label_in_inbox", "discipline_character_limit_in_inbox");
     public static final List<String> EFORM_SETTINGS = Arrays.asList("rtl_template_document_type", "patient_intake_eform", "patient_intake_letter_eform", "perinatal_eforms");
     public static final List<String> REFERRAL_SOURCE_PREFERENCE_KEYS = Arrays.asList("enable_referral_source");
