@@ -33,8 +33,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
-import org.oscarehr.common.dao.SystemPreferencesDao;
-import org.oscarehr.util.SpringUtils;
 
 import org.oscarehr.util.MiscUtils;
 
