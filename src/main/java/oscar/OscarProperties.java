@@ -33,6 +33,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
+import org.oscarehr.common.dao.SystemPreferencesDao;
+import org.oscarehr.util.SpringUtils;
 
 import org.oscarehr.util.MiscUtils;
 
@@ -130,6 +132,12 @@ public class OscarProperties extends Properties {
 	 */
 	public boolean isPropertyActive(String key) {
 		key = key==null ? null : key.trim();
+		SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+		Boolean syspref = systemPreferencesDao.isReadBooleanPreference(key);
+		if (syspref != null){
+			// allow a matching value in system preferences table to overrule one in oscar.properties
+			return syspref;
+		}
 		return activeMarkers.contains(getProperty(key, "").trim().toLowerCase());
 	}
 
