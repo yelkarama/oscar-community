@@ -96,6 +96,7 @@
 	StudyDao studyDao = SpringUtils.getBean(StudyDao.class);
     SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
     Map<String, Boolean> schedulePreferences = systemPreferencesDao.findByKeysAsMap(SystemPreferences.SCHEDULE_PREFERENCE_KEYS);
+    
     boolean showFullName = schedulePreferences.getOrDefault("appt_show_full_name", true);
     boolean showApptReason = schedulePreferences.getOrDefault("show_appt_reason", true);
     boolean showRecView = schedulePreferences.getOrDefault("receptionist_alt_view", true);
