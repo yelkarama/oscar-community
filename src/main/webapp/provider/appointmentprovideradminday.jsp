@@ -107,7 +107,8 @@
     boolean showNotes = schedulePreferences.getOrDefault("displayNotesOnScheduleScreen", true);
     boolean showQuickDateMultiplier = schedulePreferences.getOrDefault("display_quick_date_multiplier", true);
     boolean showQuickDatePicker = schedulePreferences.getOrDefault("display_quick_date_picker", true);
-
+    boolean showEyeForm = schedulePreferences.getOrDefault("new_eyeform_enabled", false);
+    
 	UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 	SiteDao siteDao = SpringUtils.getBean(SiteDao.class);
@@ -2275,7 +2276,7 @@ start_time += iSm + ":00";
 
 <%= (bShortcutIntakeForm) ? "| <a href='#' onClick='popupPage(700, 1024, \"formIntake.jsp?demographic_no="+demographic_no+"\")' title='Intake Form'>In</a>" : "" %>
 <!--  eyeform open link -->
-<% if (oscar.OscarProperties.getInstance().isPropertyActive("new_eyeform_enabled") && !isWeekView) { %>
+<% if ((oscar.OscarProperties.getInstance().isPropertyActive("new_eyeform_enabled") || showEyeForm) && !isWeekView) { %>
 &#124; <a href="#" onClick='popupPage(800, 1280, "../eyeform/eyeform.jsp?demographic_no=<%=demographic_no %>&appointment_no=<%=appointment.getId()%>");return false;' title="EyeForm">EF</a>
 <% } %>
 
