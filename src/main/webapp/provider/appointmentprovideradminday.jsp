@@ -74,6 +74,9 @@
 <%@ page import="org.oscarehr.util.MiscUtils" %>
 <%@ page import="org.oscarehr.util.SessionConstants" %>
 <%@ page import="java.util.Date" %>
+<%@ page import="org.oscarehr.common.model.SystemPreferences" %>
+<%@ page import="org.oscarehr.common.dao.SystemPreferencesDao" %>
+<%@ page import="java.util.Map" %>
 
 <!-- add by caisi -->
 <%@ taglib uri="http://www.caisi.ca/plugin-tag" prefix="plugin" %>
@@ -91,6 +94,21 @@
 	TicklerManager ticklerManager= SpringUtils.getBean(TicklerManager.class);
 	DemographicStudyDao demographicStudyDao = SpringUtils.getBean(DemographicStudyDao.class);
 	StudyDao studyDao = SpringUtils.getBean(StudyDao.class);
+    SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+    Map<String, Boolean> schedulePreferences = systemPreferencesDao.findByKeysAsMap(SystemPreferences.SCHEDULE_PREFERENCE_KEYS);
+    
+    boolean showFullName = schedulePreferences.getOrDefault("appt_show_full_name", true);
+    boolean showApptReason = schedulePreferences.getOrDefault("show_appt_reason", true);
+    boolean showRecView = schedulePreferences.getOrDefault("receptionist_alt_view", true);
+    boolean showNonScheduled = schedulePreferences.getOrDefault("show_NonScheduledDays_In_WeekView", true);
+    boolean showTypeReason = schedulePreferences.getOrDefault("show_appt_type_with_reason", true);
+    boolean showShortLetters = schedulePreferences.getOrDefault("appt_show_short_letters", true);
+    boolean showAlerts = schedulePreferences.getOrDefault("displayAlertsOnScheduleScreen", true);
+    boolean showNotes = schedulePreferences.getOrDefault("displayNotesOnScheduleScreen", true);
+    boolean showQuickDateMultiplier = schedulePreferences.getOrDefault("display_quick_date_multiplier", true);
+    boolean showQuickDatePicker = schedulePreferences.getOrDefault("display_quick_date_picker", true);
+    boolean showEyeForm = schedulePreferences.getOrDefault("new_eyeform_enabled", false);
+    
 	UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 	SiteDao siteDao = SpringUtils.getBean(SiteDao.class);
@@ -374,14 +392,14 @@ if (org.oscarehr.common.IsPropertiesOn.isCaisiEnable() && org.oscarehr.common.Is
 	session.setAttribute("programId_oscarView",programId_oscarView);
 }
     int lenLimitedL=11; //L - long
-    if(OscarProperties.getInstance().getProperty("APPT_SHOW_FULL_NAME","").equalsIgnoreCase("true")) {
+    if(showFullName) {
     	lenLimitedL = 25;
     }
     int lenLimitedS=3; //S - short
     int len = lenLimitedL;
     int view = request.getParameter("view")!=null ? Integer.parseInt(request.getParameter("view")) : 0; //0-multiple views, 1-single view
     //// THIS IS THE VALUE I HAVE BEEN LOOKING FOR!!!!!
-	boolean bDispTemplatePeriod = ( oscarVariables.getProperty("receptionist_alt_view") != null && oscarVariables.getProperty("receptionist_alt_view").equals("yes") ); // true - display as schedule template period, false - display as preference
+	boolean bDispTemplatePeriod = ( showRecView ); // true - display as schedule template period, false - display as preference
 %>
 <%
 	String tickler_no="", textColor="", tickler_note="";
@@ -1358,9 +1376,10 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
  <a class="redArrow" href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=isWeekView?(day+7):(day+1)%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+URLEncoder.encode(request.getParameter("curProviderName"),"UTF-8") )%>&displaymode=day&dboperation=searchappointmentday<%=isWeekView?"&provider_no="+provNum:""%>&viewall=<%=viewall%>">
  <img src="../images/next.gif" WIDTH="10" HEIGHT="9" BORDER="0" class="noprint" ALT="<bean:message key="provider.appointmentProviderAdminDay.viewNextDay"/>" vspace="2">&nbsp;&nbsp;</a>
 <a id="calendarLink" href=# onClick ="popupPage(425,430,'../share/CalendarPopup.jsp?urlfrom=../provider/providercontrol.jsp&year=<%=strYear%>&month=<%=strMonth%>&param=<%=URLEncoder.encode("&view=0&displaymode=day&dboperation=searchappointmentday&viewall="+viewall,"UTF-8")%><%=isWeekView?URLEncoder.encode("&provider_no="+provNum, "UTF-8"):""%>')"><bean:message key="global.calendar"/></a>
-
+<% if (showQuickDateMultiplier) { %> 
 <input id="monthBackward" type="button" value="M-" style="width:25px;font-size:8pt;font-weight: bold;border: none;" onclick="getLocation(this.id,document.getElementById('multiplier').value);"/><input id="weekBackward" type="button" value="W-" style="width:30px;font-size:8pt;font-weight: bold;border: none;"onclick="getLocation(this.id,document.getElementById('multiplier').value)"/><input id="multiplier" type="text"  value="1" maxlength="2" style="width:20px;font-size:8pt;background-color:#b0c4de;font-weight: bold;border: none;text-align: center;" /><input id="weekForward" type="button" value="W+" style="width:30px;font-size:8pt;font-weight: bold;border: none;" onclick="getLocation(this.id,document.getElementById('multiplier').value)"/><input id="monthForward" type="button" value="M+" style="width:25px;font-size:8pt;font-weight: bold;border: none;" onclick="getLocation(this.id,document.getElementById('multiplier').value)"/>
-<!-- 
+<% } %> 
+<% if (showQuickDatePicker) { %> 
 <input id="dayForward5" type="button" value="5D" style="width:25px;font-size:8pt;font-weight: bold;border: none;" /><input id="dayForward7" type="button" value="7D" style="width:25px;font-size:8pt;font-weight: bold;border: none;" /><input id="dayForward10" type="button" value="10D" style="width:30px;font-size:8pt;font-weight: bold;border: none;" /><input id="Blank" type="button" value="" style="width:15px;font-size:8pt;border: none;" />
 <input id="weekForward1" type="button" value="1W" style="width:25px;font-size:8pt;font-weight: bold;border: none;" onclick="getLocation('weekForward',1) "/>
 <input id="weekForward2" type="button" value="2W" style="width:25px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',2) "/>
@@ -1373,8 +1392,7 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 <input id="monthForward6" type="button" value="6M" style="width:25px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',25) "/>
 <input id="Blank2" type="button" value="" style="width:15px;font-size:8pt;border: none;" />
 <input id="monthForward12" type="button" value="1Y" style="width:30px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',367/7) "/>
-
--->
+<% } %> 
 
 
 <logic:notEqual name="infirmaryView_isOscar" value="false">
@@ -1746,7 +1764,7 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
      bColor=bColor?false:true;
      
      boolean hideColumn=false;
-     if("true".equals(OscarProperties.getInstance().getProperty("schedule.hideNonScheduledDaysInWeekView","false"))) {
+     if(!showNonScheduled) {
     	 if(sd == null || "0".equals(String.valueOf(sd.getAvailable())) ) {
     		 hideColumn=true;
     	 }
@@ -2010,7 +2028,7 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
           	    		reasonCodeName = lli.getLabel();
           	    	}
           	      }
-				if ( "yes".equalsIgnoreCase(OscarProperties.getInstance().getProperty("SHOW_APPT_TYPE_WITH_REASON")) ) {
+				if ( showTypeReason ) {
 					reasonCodeName = ( type + " : " + reasonCodeName );
 				}
           
@@ -2044,8 +2062,7 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
             <%
 						}
 						if (nextStatus != null) {
-							if(OscarProperties.getInstance().getProperty("APPT_SHOW_SHORT_LETTERS", "false") != null 
-								&& OscarProperties.getInstance().getProperty("APPT_SHOW_SHORT_LETTERS", "false").equals("true")){
+							if (showShortLetters) {
 						
 								String colour = as.getShortLetterColour();
 								if(colour == null){
@@ -2094,13 +2111,13 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
     		</security:oscarSec>
     		
     		<!--  alerts -->
-    		<% if(OscarProperties.getInstance().getProperty("displayAlertsOnScheduleScreen", "").equals("true")){ %>
+    		<% if(showAlerts){ %>
     		<% if(dCust != null && dCust.getAlert() != null && !dCust.getAlert().isEmpty()) { %>
     			<a href="#" onClick="return false;" title="<%=StringEscapeUtils.escapeHtml(dCust.getAlert())%>">A</a>		
     		<%} }%>
     		
     		<!--  notes -->
-    		<% if(OscarProperties.getInstance().getProperty("displayNotesOnScheduleScreen", "").equals("true")){ %>
+    		<% if(showNotes){ %>
     		<% if(dCust != null && dCust.getNotes() != null && !SxmlMisc.getXmlContent(dCust.getNotes(), "<unotes>", "</unotes>").isEmpty()) { %>
     			<a href="#" onClick="return false;" title="<%=StringEscapeUtils.escapeHtml(SxmlMisc.getXmlContent(dCust.getNotes(), "<unotes>", "</unotes>"))%>">N</a>		
     		<%} }%>
@@ -2113,9 +2130,9 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
 <%}%>	<bean:message key="provider.appointmentProviderAdminDay.notes"/>: <%=UtilMisc.htmlEscape(notes)%>" >
             .<%=(view==0&&numAvailProvider!=1)?(name.length()>len?name.substring(0,len).toUpperCase():name.toUpperCase()):name.toUpperCase()%>
             </font></a><!--Inline display of reason -->
-      <oscar:oscarPropertiesCheck property="SHOW_APPT_REASON" value="yes" defaultVal="true">
+      <% if (showApptReason) { %> 
       <span class="reason reason_<%=curProvider_no[nProvider]%> ${ hideReason ? "hideReason" : "" }"><bean:message key="provider.appointmentProviderAdminDay.Reason"/>:<%=UtilMisc.htmlEscape(reason)%></span>
-      </oscar:oscarPropertiesCheck></td>
+      <% } %> 
         <%
         			} else {
 				%>	<% if (tickler_no.compareTo("") != 0) {%>
@@ -2259,7 +2276,7 @@ start_time += iSm + ":00";
 
 <%= (bShortcutIntakeForm) ? "| <a href='#' onClick='popupPage(700, 1024, \"formIntake.jsp?demographic_no="+demographic_no+"\")' title='Intake Form'>In</a>" : "" %>
 <!--  eyeform open link -->
-<% if (oscar.OscarProperties.getInstance().isPropertyActive("new_eyeform_enabled") && !isWeekView) { %>
+<% if ((oscar.OscarProperties.getInstance().isPropertyActive("new_eyeform_enabled") || showEyeForm) && !isWeekView) { %>
 &#124; <a href="#" onClick='popupPage(800, 1280, "../eyeform/eyeform.jsp?demographic_no=<%=demographic_no %>&appointment_no=<%=appointment.getId()%>");return false;' title="EyeForm">EF</a>
 <% } %>
 
