@@ -132,6 +132,7 @@ table.ele {
 			value="<%=startStr%>" /> <label>End Date:</label> <input type="text"
 			size="9" name="endDate" value="<%=endStr%>" /> <label>Injection
 		Type:</label> <select name="injectionType">
+
 			<option value="RH" <%=selled ("RH",injectionType)%>>Rh</option>
 			<option value="DTaP-IPV" <%=selled ("DTaP-IPV",injectionType)%>>DTaP-IPV</option>
 			<option value="DTaP-IPV-Hib" <%=selled ("DTaP-IPV-Hib",injectionType)%>>DTaP-IPV-Hib</option>
@@ -151,7 +152,7 @@ table.ele {
 			<option value="HepA" <%=selled ("HepA",injectionType)%>>HepA</option>
 			<option value="HepAB" <%=selled ("HepAB",injectionType)%>>HepAB</option>
 			<option value="Rabies" <%=selled ("Rabies",injectionType)%>>Rabies</option>
-			
+			<option value="COVID-19" <%=selled ("COVID-19",injectionType)%>>COVID-19</option>			
 			<option value="Tuberculosis"
 				<%=selled ("Tuberculosis",injectionType)%>>Tuberculosis</option>
 			<option value="Pneumovax" <%=selled ("Pneumovax",injectionType)%>>Pneumovax</option>
@@ -180,6 +181,7 @@ table.ele {
 		<th>Last Name</th>
 		<th>DOB</th>
 		<th>Chart #</th>
+		<th>Demo #</th>
 		<th>Product #</th>
 		<th>Injection Date</th>
 		<th>Comments</th>
@@ -199,6 +201,7 @@ table.ele {
 		<td><%=demog.getLastName()%></td>
 		<td><%=DemographicData.getDob(demog,"-")%></td>
 		<td><%=demog.getChartNo()%></td>
+		<td> <a href="javascript:void(0)" onClick="popupPage(600,800, '../../oscar/oscarEncounter/IncomingEncounter.do?appointmentNo=&demographicNo=<%=demog.getDemographicNo()%>&curProviderNo=&reason=Review+From+Report&encType=&curDate=&appointmentDate=&startTime=&status=')"><%=demog.getDemographicNo()%></a><sp> </td>
 		<td><%=h.get("val")%>&nbsp;</td>
 		<td><%=h.get("prevention_date")%></td>
 		<td><%=comments%></td>
