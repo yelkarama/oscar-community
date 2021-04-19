@@ -99,14 +99,15 @@ if(propertyExists){
 String prevId = null;
 String prevName = null;
 String prevDesc = null;
+String regex = "[`~!@#$%^&*()=+\\[{\\]}\\\\|;:'\",<.>/?\\s]";
 for (int e = 0 ; e < prevList.size(); e++){ 
 	HashMap<String,String> h = prevList.get(e);
-		prevId = h.get("name").replaceAll("\\s+","").replaceAll("\\[", "").replaceAll("\\]", "");
+		prevId = h.get("name").replaceAll(regex,"");
 		prevName = h.get("name");
 		prevDesc = h.get("desc");             	
 %>
-			<tr class="prevention-item" id="<%=prevId%>" prevention-data="<%=prevName%>">
-				<td class="item-active" title="Available on master list"></td><td><%=prevName%></td><td><%=prevDesc%></td>
+			<tr class="prevention-item" id="<%=prevId%>" prevention-data="<%=prevName%>"> 
+				<td class="item-active" title="Available on master list"></td><td><%=prevName%></td><td><%=prevDesc%></td> 
 			</tr>
 			
 <%}%>
@@ -159,32 +160,36 @@ $(".prevention-item").click(function () {
 
 
 function indicatorDisplay(id, name){
-	indicator = $('#'+id+' td:first-child');
+    if($('#'+id+' td:first-child').length){
+	    indicator = $('#'+id+' td:first-child');
+        
+        console.log("   id="+id+"\n name="+name);
+	    if(indicator.hasClass("item-active")){
+		    indicator.removeClass('item-active');
+		    indicator.attr("title", "Removed from master list");	    
+		    addPreventionToBin(name);
+	        
+	    }else{
+		    indicator.addClass('item-active');
+		    indicator.attr("title", "Available on master list");
+		    removePreventionFromBin(name);
+	    }
 
-	if(indicator.hasClass("item-active")){
-		indicator.removeClass('item-active');
-		indicator.attr("title", "Removed from master list");	    
-		addPreventionToBin(name);
-	    
-	}else{
-		indicator.addClass('item-active');
-		indicator.attr("title", "Available on master list");
-		removePreventionFromBin(name);
-	}
-
-	btnSaveDisplay();
+	    btnSaveDisplay();
+    }
 }
 
 function indicatorAllDisplay(items){
+    var regex = /[`~!@#$%^&*()+=\[{\]}\\|;:'",<.>\/?\s]/g;
 	preventions = items.split(',');
 	n = preventions.length;
 	if(n>1){
 		for(i=0;i<n;i++){
-			id = preventions[i].replace(" ", "").replace("[","").replace("]","");
+			id = preventions[i].replace(regex, "");
 			indicatorDisplay(id, preventions[i]);
 		}
 	}else{			
-		id = items.replace(" ", "").replace("[","").replace("]","");
+		id = items.replace(regex, "");
 		indicatorDisplay(id, items);
 	}
 }
@@ -192,7 +197,8 @@ function indicatorAllDisplay(items){
 function addPreventionToBin(name){
 	bin = $("#prevention-bin");
 	if(bin.val()!=""){
-		bin.val(bin.val() + "," + name);
+		bin.val(bin.val() + "," + name.trim());
+        console.log("added to hide list="+name);
 	}else{
 		bin.val(name);
 	}
@@ -202,13 +208,15 @@ function removePreventionFromBin(itemToBeRemoved){
 	bin = $("#prevention-bin");
 	if(bin.val()!=""){
 	preventions = bin.val().split(',');
+    preventions.map(s => s.trim());
 	n = preventions.length;
 		if(n>1){
 			index = preventions.indexOf(itemToBeRemoved);
-			
+			console.log("removing item no. "+index);
 			if(index > -1){
 				preventions.splice(index, 1);
 				bin.val(preventions);
+                console.log("removed from hide list="+itemToBeRemoved);
 			}
 			
 		}else{

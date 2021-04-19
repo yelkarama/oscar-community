@@ -233,7 +233,7 @@
 		</parameter>
 		<java:condition>prev.getAgeInYears() &gt;= 12</java:condition>
 		<java:condition>prev.getAgeInYears() &lt; 19</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("[Men-ACYW-135] Meningococcal A+C+Y+W135") == 0</java:condition>
+		<java:condition>prev.getNumberOfPreventionType("[Men-ACYW-135] Meningococcal A+C+Y+W135") + prev.getNumberOfPreventionType("Men-C-ACYW-135") == 0</java:condition>
 		<java:consequence>              
               prev.log("MenC-C 2");
               prev.addWarning("MenC-C", "Needs Men-ACYW-135");
@@ -257,7 +257,7 @@
 		</parameter>
 		<java:condition>prev.getAgeInYears() &gt;= 12</java:condition>
 		<java:condition>prev.getAgeInYears() &lt; 19</java:condition>
-		<java:condition>prev.getNumberOfPreventionType("[HB] Hepatitis B") + prev.getNumberOfPreventionType("HepB") == 0</java:condition>
+		<java:condition>prev.getNumberOfPreventionType("[HB] Hepatitis B") + prev.getNumberOfPreventionType("HepB") + prev.getNumberOfPreventionType("HepAB") == 0</java:condition>
 		<java:consequence>              
               prev.log("HB 1");
               prev.addWarning("HB", "Needs HB");
