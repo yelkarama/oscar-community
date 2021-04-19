@@ -518,6 +518,7 @@ String curProvider_no = (String)session.getAttribute("user");
 					</oscar:oscarPropertiesCheck>
 					
 					<li><a href="javascript:void(0);" class="xlink" rel="${ctx}/oscarPrevention/PreventionManager.jsp" title="Customize prevention notifications."><bean:message key="admin.admin.preventionNotification.title" /></a></li>
+					<li><a href="javascript:void(0);" class="xlink" rel="${ctx}/admin/scheduleDisplaySettings.jsp" title="Customize schedule display">Display Settings</a></li>
 				</security:oscarSec>
 				<li><a href="javascript:void(0);" class="xlink" rel="${ctx}/admin/appointmentSearchConfig.jsp" ><bean:message key="admin.admin.appointmentSearchConfig"/></a></li>
 				<li><a href="javascript:void(0);" class="xlink" rel="${ctx}/admin/appointmentDxLinkConfig.jsp" ><bean:message key="admin.admin.appointmentDxLinkConfig"/></a></li>
@@ -722,7 +723,7 @@ String curProvider_no = (String)session.getAttribute("user");
 				            class="xlink" rel="${ctx}/admin/uploadEntryText.jsp"><bean:message key="admin.admin.uploadEntryTxt"/></a>
 				            </li>
 			            </oscar:oscarPropertiesCheck>	
-			            <li><a href="javascript:void(0);" class="xlink" rel="${ctx}/admin/generalSettings.jsp"><bean:message key="admin.admin.generalSettings"/></a></li>
+			            <!--  <li><a href="javascript:void(0);" class="xlink" rel="${ctx}/admin/generalSettings.jsp"><bean:message key="admin.admin.generalSettings"/></a></li> -->
 		            </security:oscarSec>
 		            
 				 	<%

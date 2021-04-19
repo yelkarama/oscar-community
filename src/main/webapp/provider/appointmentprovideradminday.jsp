@@ -102,12 +102,13 @@
     boolean showRecView = schedulePreferences.getOrDefault("receptionist_alt_view", true);
     boolean showNonScheduled = schedulePreferences.getOrDefault("show_NonScheduledDays_In_WeekView", true);
     boolean showTypeReason = schedulePreferences.getOrDefault("show_appt_type_with_reason", true);
-    boolean showShortLetters = schedulePreferences.getOrDefault("appt_show_short_letters", true);
+    boolean showShortLetters = schedulePreferences.getOrDefault("appt_show_short_letters", false);
     boolean showAlerts = schedulePreferences.getOrDefault("displayAlertsOnScheduleScreen", true);
     boolean showNotes = schedulePreferences.getOrDefault("displayNotesOnScheduleScreen", true);
     boolean showQuickDateMultiplier = schedulePreferences.getOrDefault("display_quick_date_multiplier", true);
     boolean showQuickDatePicker = schedulePreferences.getOrDefault("display_quick_date_picker", true);
     boolean showEyeForm = schedulePreferences.getOrDefault("new_eyeform_enabled", false);
+    boolean bShortcutIntakeForm =  schedulePreferences.getOrDefault("appt_intake_form", true);   
     
 	UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
@@ -336,8 +337,6 @@ public boolean patientHasOutstandingPrivateBills(String demographicNo){
 	boolean prescriptionQrCodes = providerPreference2.isPrintQrCodeOnPrescriptions();
 	boolean erx_enable = providerPreference2.isERxEnabled();
 	boolean erx_training_mode = providerPreference2.isERxTrainingMode();
-    
-    boolean bShortcutIntakeForm = oscarVariables.getProperty("appt_intake_form", "").equalsIgnoreCase("on") ? true : false;
 
     String newticklerwarningwindow=null;
     String default_pmm=null;
@@ -554,7 +553,6 @@ function getLocation(ID,Multiplier)
 {
 	// initialize array
 	initializeQSArray();
-	//btnGCloud.addEventListener("click", function(){G3PO.launchComposeGmail(to,from,docsButtonContainer.textContent,body,"ss spreadsheets spreadsheet cell cells",true)},false);
 	
 	// get query string values
 	getQSValues();
@@ -1363,7 +1361,7 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 
 <table BORDER="0" CELLPADDING="1" CELLSPACING="0" WIDTH="100%" BGCOLOR="#C0C0C0">
 <tr id="ivoryBar">
-<td id="dateAndCalendar" BGCOLOR="ivory" width="33%">
+<td id="dateAndCalendar" BGCOLOR="ivory" width="45%">
  <a class="redArrow" href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=isWeekView?(day-7):(day-1)%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+URLEncoder.encode(request.getParameter("curProviderName"),"UTF-8") )%>&displaymode=day&dboperation=searchappointmentday<%=isWeekView?"&provider_no="+provNum:""%>&viewall=<%=viewall%>">
  &nbsp;&nbsp;<img src="../images/previous.gif" WIDTH="10" HEIGHT="9" BORDER="0" class="noprint" ALT="<bean:message key="provider.appointmentProviderAdminDay.viewPrevDay"/>" vspace="2"></a>
  <b><span class="dateAppointment"><%
@@ -1379,18 +1377,21 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 <% if (showQuickDateMultiplier) { %> 
 <input id="monthBackward" type="button" value="M-" style="width:25px;font-size:8pt;font-weight: bold;border: none;" onclick="getLocation(this.id,document.getElementById('multiplier').value);"/><input id="weekBackward" type="button" value="W-" style="width:30px;font-size:8pt;font-weight: bold;border: none;"onclick="getLocation(this.id,document.getElementById('multiplier').value)"/><input id="multiplier" type="text"  value="1" maxlength="2" style="width:20px;font-size:8pt;background-color:#b0c4de;font-weight: bold;border: none;text-align: center;" /><input id="weekForward" type="button" value="W+" style="width:30px;font-size:8pt;font-weight: bold;border: none;" onclick="getLocation(this.id,document.getElementById('multiplier').value)"/><input id="monthForward" type="button" value="M+" style="width:25px;font-size:8pt;font-weight: bold;border: none;" onclick="getLocation(this.id,document.getElementById('multiplier').value)"/>
 <% } %> 
-<% if (showQuickDatePicker) { %> 
-<input id="dayForward5" type="button" value="5D" style="width:25px;font-size:8pt;font-weight: bold;border: none;" /><input id="dayForward7" type="button" value="7D" style="width:25px;font-size:8pt;font-weight: bold;border: none;" /><input id="dayForward10" type="button" value="10D" style="width:30px;font-size:8pt;font-weight: bold;border: none;" /><input id="Blank" type="button" value="" style="width:15px;font-size:8pt;border: none;" />
+<% if (showQuickDatePicker && !showQuickDateMultiplier) { %> 
 <input id="weekForward1" type="button" value="1W" style="width:25px;font-size:8pt;font-weight: bold;border: none;" onclick="getLocation('weekForward',1) "/>
+<% } %>
+<% if (showQuickDatePicker) { %> 
 <input id="weekForward2" type="button" value="2W" style="width:25px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',2) "/>
 <input id="weekForward3" type="button" value="3W" style="width:25px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',3) "/>
 <input id="weekForward4" type="button" value="4W" style="width:25px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',4) "/>
 <input id="weekForward6" type="button" value="6W" style="width:25px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',6) "/>
-<input id="Blank1" type="button" value="" style="width:15px;font-size:8pt;border: none;" />
+<% } %>
+<% if (showQuickDatePicker && !showQuickDateMultiplier) { %> 
 <input id="monthForward1" type="button" value="1M" style="width:25px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',4) "/>
+<% } %>
+<% if (showQuickDatePicker) { %>
 <input id="monthForward3" type="button" value="3M" style="width:25px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',12) "/>
 <input id="monthForward6" type="button" value="6M" style="width:25px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',25) "/>
-<input id="Blank2" type="button" value="" style="width:15px;font-size:8pt;border: none;" />
 <input id="monthForward12" type="button" value="1Y" style="width:30px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',367/7) "/>
 <% } %> 
 
@@ -1441,7 +1442,7 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 %>
 </td>
 
-<td class="title noprint" ALIGN="center"  BGCOLOR="ivory" width="33%">
+<td class="title noprint" ALIGN="center"  BGCOLOR="ivory" width="15%">
 
 <%
 	if (isWeekView) {
@@ -2112,15 +2113,15 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
     		
     		<!--  alerts -->
     		<% if(showAlerts){ %>
-    		<% if(dCust != null && dCust.getAlert() != null && !dCust.getAlert().isEmpty()) { %>
-    			<a href="#" onClick="return false;" title="<%=StringEscapeUtils.escapeHtml(dCust.getAlert())%>">A</a>		
-    		<%} }%>
+        		<% if(dCust != null && dCust.getAlert() != null && !dCust.getAlert().isEmpty()) { %>
+        			<a href="#" onClick="return false;" title="<%=StringEscapeUtils.escapeHtml(dCust.getAlert())%>">A</a>		
+    		<% }    }%>
     		
     		<!--  notes -->
     		<% if(showNotes){ %>
-    		<% if(dCust != null && dCust.getNotes() != null && !SxmlMisc.getXmlContent(dCust.getNotes(), "<unotes>", "</unotes>").isEmpty()) { %>
-    			<a href="#" onClick="return false;" title="<%=StringEscapeUtils.escapeHtml(SxmlMisc.getXmlContent(dCust.getNotes(), "<unotes>", "</unotes>"))%>">N</a>		
-    		<%} }%>
+        		<% if(dCust != null && dCust.getNotes() != null && !SxmlMisc.getXmlContent(dCust.getNotes(), "<unotes>", "</unotes>").isEmpty()) { %>
+        			<a href="#" onClick="return false;" title="<%=StringEscapeUtils.escapeHtml(SxmlMisc.getXmlContent(dCust.getNotes(), "<unotes>", "</unotes>"))%>">N</a>		
+    		<% }    }%>
     		
     		
 <a href=# onClick ="popupPage(535,860,'../appointment/appointmentcontrol.jsp?appointment_no=<%=appointment.getId()%>&provider_no=<%=curProvider_no[nProvider]%>&year=<%=year%>&month=<%=month%>&day=<%=day%>&start_time=<%=iS+":"+iSm%>&demographic_no=0&displaymode=edit&dboperation=search');return false;" title="<%=iS+":"+(iSm>10?"":"0")+iSm%>-<%=iE+":"+iEm%>
@@ -2146,15 +2147,15 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
 					<%} %>
 					
 					<!--  alerts -->
-			<% if(OscarProperties.getInstance().getProperty("displayAlertsOnScheduleScreen", "").equals("true")) {%>
-    		<% if(dCust != null && dCust.getAlert() != null && !dCust.getAlert().isEmpty()) { %>
-    			<a href="#" onClick="return false;" title="<%=StringEscapeUtils.escapeHtml(dCust.getAlert())%>">A</a>		
+			<% if(showAlerts){ %>
+        		<% if(dCust != null && dCust.getAlert() != null && !dCust.getAlert().isEmpty()) { %>
+        			<a href="#" onClick="return false;" title="<%=StringEscapeUtils.escapeHtml(dCust.getAlert())%>">A</a>		
     		<%} } %>
     		
     		<!--  notes -->
-    		<% if(OscarProperties.getInstance().getProperty("displayNotesOnScheduleScreen", "").equals("true")) {%>
-    		<% if(dCust != null && dCust.getNotes() != null && !SxmlMisc.getXmlContent(dCust.getNotes(), "<unotes>", "</unotes>").isEmpty()) { %>
-    			<a href="#" onClick="return false;" title="<%=StringEscapeUtils.escapeHtml(SxmlMisc.getXmlContent(dCust.getNotes(), "<unotes>", "</unotes>"))%>">N</a>		
+    		<% if(showNotes){ %>
+        		<% if(dCust != null && dCust.getNotes() != null && !SxmlMisc.getXmlContent(dCust.getNotes(), "<unotes>", "</unotes>").isEmpty()) { %>
+        			<a href="#" onClick="return false;" title="<%=StringEscapeUtils.escapeHtml(SxmlMisc.getXmlContent(dCust.getNotes(), "<unotes>", "</unotes>"))%>">N</a>		
     		<%} }%>
 
 <!-- doctor code block 1 -->
@@ -2275,8 +2276,9 @@ start_time += iSm + ":00";
 <% }} %>
 
 <%= (bShortcutIntakeForm) ? "| <a href='#' onClick='popupPage(700, 1024, \"formIntake.jsp?demographic_no="+demographic_no+"\")' title='Intake Form'>In</a>" : "" %>
+
 <!--  eyeform open link -->
-<% if ((oscar.OscarProperties.getInstance().isPropertyActive("new_eyeform_enabled") || showEyeForm) && !isWeekView) { %>
+<% if (showEyeForm && !isWeekView) { %>
 &#124; <a href="#" onClick='popupPage(800, 1280, "../eyeform/eyeform.jsp?demographic_no=<%=demographic_no %>&appointment_no=<%=appointment.getId()%>");return false;' title="EyeForm">EF</a>
 <% } %>
 
