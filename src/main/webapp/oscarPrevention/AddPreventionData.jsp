@@ -518,6 +518,17 @@ function escapeHtml(unsafe1) {
 var lots;
 var startup = false, startup2 = false;
 
+function GetSortOrder(prop) {    
+    return function(a, b) {    
+        if (a[prop] > b[prop]) {    
+            return -1;    
+        } else if (a[prop] < b[prop]) {    
+            return 1;    
+        }    
+        return 0;    
+    }    
+}
+
 function changeCVCName() {
 	lots = null;
 	$("#typicalDose").html("");
@@ -545,7 +556,8 @@ function changeCVCName() {
             		 $("#cvcLot").find("option").remove().end();
             		 
             		 $("#cvcLot").append('<option value=""></option>');
-         			
+                     
+         			 data.lots.sort(GetSortOrder("lotNumber")); //Pass the attribute to be sorted 
             		 for(var x=0;x<data.lots.length;x++) {
             			 var item = data.lots[x];
             			 //console.log(JSON.stringify(item));
