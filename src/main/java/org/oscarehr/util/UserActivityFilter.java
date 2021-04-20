@@ -40,6 +40,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Date;
+import org.owasp.encoder.Encode;
 
 /**
  * Filter for determining the inactivity of a user with a session. Pages that automatically refresh should be marked with the parameter autoRefresh=true
@@ -83,7 +84,7 @@ public final class UserActivityFilter implements Filter {
         }
         if (redirectToLogout) {
             HttpServletResponse httpResponse = (HttpServletResponse) response;
-            httpResponse.sendRedirect(((HttpServletRequest) request).getContextPath() + "/logout.jsp?autoLogout=true&errorMessage=logged out due to inactivity");
+            httpResponse.sendRedirect(((HttpServletRequest) request).getContextPath() + Encode.forUriComponent("/logout.jsp?autoLogout=true&errorMessage=logged out due to inactivity"));
         } else {
             chain.doFilter(request, response);
         }
