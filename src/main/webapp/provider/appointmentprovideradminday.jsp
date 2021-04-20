@@ -527,7 +527,13 @@ if (isMobileOptimized) {
 %>
 <c:if test="${empty sessionScope.archiveView or sessionScope.archiveView != true}">
 <%!String refresh = oscar.OscarProperties.getInstance().getProperty("refresh.appointmentprovideradminday.jsp", "-1");%>
-<%="-1".equals(refresh)?"":"<meta http-equiv=\"refresh\" content=\""+refresh+";\">"%>
+	<%
+		String thisRequestUrl = request.getRequestURL().toString() + (StringUtils.isEmpty(request.getQueryString()) ? "" : "?" + request.getQueryString());
+		if (!thisRequestUrl.contains("&autoRefresh=true")) {
+			thisRequestUrl += "&autoRefresh=true";
+		}
+	%>
+<%="-1".equals(refresh)?"":"<meta http-equiv=\"refresh\" content=\""+refresh+"; url="+thisRequestUrl+"\">"%>
 </c:if>
 <%
 	}
@@ -1138,7 +1144,7 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 			<script type="text/javascript">
 				function pollMessageCount()
 				{
-					jQuery('#unreadMessagesMenuMarker').load('<%=request.getContextPath()%>/phr/msg/unread_message_count.jsp')
+					jQuery('#unreadMessagesMenuMarker').load('<%=request.getContextPath()%>/phr/msg/unread_message_count.jsp?autoRefresh=true')
 				}
 				
 				window.setInterval(pollMessageCount, 60000);
@@ -1340,10 +1346,10 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 	}
 	%>
 	jQuery(document).ready(function(){
-		jQuery.get("<%=request.getContextPath()%>/SystemMessage.do?method=view","html",function(data,textStatus){
+		jQuery.get("<%=request.getContextPath()%>/SystemMessage.do","method=view&autoRefresh=true",function(data,textStatus){
 			jQuery("#system_message").html(data);
 		});
-		jQuery.get("<%=request.getContextPath()%>/FacilityMessage.do?method=view","html",function(data,textStatus){
+		jQuery.get("<%=request.getContextPath()%>/FacilityMessage.do","method=view&autoRefresh=true",function(data,textStatus){
 			jQuery("#facility_message").html(data);
 		});
 	});

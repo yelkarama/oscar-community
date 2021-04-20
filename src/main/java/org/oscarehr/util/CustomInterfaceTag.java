@@ -84,6 +84,7 @@ public class CustomInterfaceTag extends TagSupport {
 				out.println("<script src=\""+contextPath+"/js/custom/"+customJs+"/global.js\"></script>");
 				if(getSection()!=null && getSection().length()>0) {
 					boolean hide_ConReport = OscarProperties.getInstance().isPropertyActive("hide_ConReport_link");
+					boolean cardswipe = props.getBooleanProperty("cardswipe", "false");
 					if("main".equals(getSection()) && hide_ConReport){
 						// do nothing
 					} else {
@@ -93,7 +94,7 @@ public class CustomInterfaceTag extends TagSupport {
 						}
 						
 						int randomNo = new Random().nextInt();
-						out.println("<script src=\""+contextPath+"/js/custom/"+customJs+"/"+getSection()+".js?no-cache="+randomNo+"\" " + customTag + " ></script>");
+						out.println("<script id=\"mainScript\" src=\""+contextPath+"/js/custom/"+customJs+"/"+getSection()+".js?no-cache="+randomNo+"&autoRefresh=true\" hide_ConReport=\""+hide_ConReport+"\" cardswipe=\""+cardswipe+"\" " + customTag + " ></script>");
 					}
 				}
 			}catch(IOException e) {

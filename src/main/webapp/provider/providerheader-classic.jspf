@@ -137,7 +137,7 @@ function popupPage2(varpage) {
 
 	function refreshTabAlerts(id) {
 	var url = "../provider/tabAlertsRefresh.jsp";
-	var pars = "id=" + id;
+	var pars = "id=" + id + "&autoRefresh=true";
 
 	var myAjax = new Ajax.Updater(id, url, {method: 'get', parameters: pars});
 	}	
@@ -288,7 +288,7 @@ function popupPage2(varpage) {
 			<script type="text/javascript">
 				function pollMessageCount()
 				{
-					jQuery('#unreadMessagesMenuMarker').load('<%=request.getContextPath()%>/phr/msg/unread_message_count.jsp')
+					jQuery('#unreadMessagesMenuMarker').load('<%=request.getContextPath()%>/phr/msg/unread_message_count.jsp?autoRefresh=true')
 				}
 				
 				window.setInterval(pollMessageCount, 60000);
