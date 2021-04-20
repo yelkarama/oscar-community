@@ -384,7 +384,7 @@ label.error {
 						<script type="text/javascript">
 							function pollMessageCount()
 							{
-								jQuery('#unreadMessagesMenuMarker').load('<%=request.getContextPath()%>/phr/msg/unread_message_count.jsp')
+								jQuery('#unreadMessagesMenuMarker').load('<%=request.getContextPath()%>/phr/msg/unread_message_count.jsp?autoRefresh=true')
 							}
 							
 							window.setInterval(pollMessageCount, 60000);

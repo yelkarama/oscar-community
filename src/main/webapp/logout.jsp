@@ -35,7 +35,11 @@
       session.invalidate();
       request.getSession();
       String ip = request.getRemoteAddr();
-	  LogAction.addLog((String)user, LogConst.LOGOUT, LogConst.CON_LOGIN, "", ip);
+      String logMessage = "";
+      if ("true".equalsIgnoreCase(request.getParameter("autoLogout"))) {
+          logMessage = "test";
+      }
+      LogAction.addLog((String)user, LogConst.LOGOUT, LogConst.CON_LOGIN, logMessage, ip);
     }
   }
   String param = "";

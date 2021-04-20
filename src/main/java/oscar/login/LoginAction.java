@@ -52,6 +52,8 @@ import org.oscarehr.common.dao.ProviderPreferenceDao;
 import org.oscarehr.common.dao.SecurityDao;
 import org.oscarehr.common.dao.ServiceRequestTokenDao;
 import org.oscarehr.common.dao.UserPropertyDAO;
+import org.oscarehr.common.dao.SystemPreferencesDao;
+import org.oscarehr.common.model.SystemPreferences;
 import org.oscarehr.common.model.Facility;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.ProviderPreference;
@@ -273,7 +275,12 @@ public final class LoginAction extends DispatchAction {
             	}
             }
             session = request.getSession(); // Create a new session for this user
-
+            // set session max interval from system preference
+            SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+            SystemPreferences forceLogoutInactivePref = systemPreferencesDao.findPreferenceByName("force_logout_when_inactive");
+            SystemPreferences forceLogoutInactiveTimePref = systemPreferencesDao.findPreferenceByName("force_logout_when_inactive_time");
+            session.setMaxInactiveInterval((forceLogoutInactivePref != null && forceLogoutInactivePref.getValueAsBoolean() && forceLogoutInactiveTimePref != null ? Integer.parseInt(forceLogoutInactiveTimePref.getValue()) : 120) * 60);
+            
           //If the ondIdKey parameter is not null and is not an empty string
         	if (oneIdKey != null && !oneIdKey.equals("")) {
         		String providerNumber = strAuth[0];
