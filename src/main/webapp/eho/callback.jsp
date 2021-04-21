@@ -167,6 +167,8 @@
     			.withSubject(clientId)
     			.withAudience(audUrl)
     			.withExpiresAt(expiryDate)
+    			.withIssuedAt(new Date())
+    			.withJWTId(java.util.UUID.randomUUID().toString())
     			.withIssuer(clientId);
     	
 		jwt = builder.sign(Algorithm.RSA256((RSAPublicKey)cert.getPublicKey(), (RSAPrivateKey) key));
@@ -417,6 +419,7 @@ JSONArray getCertificate(String algorithm , String kid) {
 	Response response2 = wc.get();
 	if(response2.getStatus() == 200) {
 		String body = response2.readEntity(String.class);
+		MiscUtils.getLogger().debug("BODY alg:"+algorithm+" kid"+kid+" --- "+body);
 		JSONObject obj = JSONObject.fromObject(body);
 		JSONArray keys = obj.getJSONArray("keys");
 		for(int x=0;x<keys.size();x++) {
