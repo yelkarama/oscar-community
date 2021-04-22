@@ -78,6 +78,7 @@ public final class UserActivityFilter implements Filter {
                     redirectToLogout = true;
                 } else if (isUserRequest(httpRequest)) {
                     // Reset activity timer in session
+                    logger.warn("User providerNo=" + loggedInInfo.getLoggedInProviderNo() + " opened a new page");
                     session.setAttribute(LAST_USER_ACTIVITY, now);
                 }
             }
