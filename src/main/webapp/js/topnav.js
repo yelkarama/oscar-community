@@ -6,11 +6,11 @@ function refreshAllTabAlerts() {
 	refreshTabAlerts("oscar_scratch");
 }
 
-function refreshTabAlerts(idval) {
+function refreshTabAlerts(id) {
 	var url = "../provider/tabAlertsRefresh.jsp";
-	$.get(url,{id:idval},function(data,textStatus){
-		$("#"+idval).html(data);
-	},"html");
+	var pars = "id=" + id + "&autoRefresh=true";
+	
+	var myAjax = new Ajax.Updater(id, url, {method: 'get', parameters: pars});
 }
 
 $("document").ready(function(){
