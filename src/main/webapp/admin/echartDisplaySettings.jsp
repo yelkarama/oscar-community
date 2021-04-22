@@ -211,6 +211,19 @@
                         </td>
                     </tr>
                 </oscar:oscarPropertiesCheck>
+	                <tr>
+	                    <td><bean:message key="admin.admin.echartDisplaySettings.echart_show_ocean"/>:</td>
+	                    <td>
+	                        <input id="echart_show_ocean-true" type="radio" value="true" name="echart_show_ocean"
+	                                <%=(dataBean.getProperty("echart_show_ocean", "false").equals("true")) ? "checked" : ""%> />
+	                        <bean:message key="admin.admin.echartDisplaySettings.yes"/>
+	                        &nbsp;&nbsp;&nbsp;
+	                        <input id="echart_show_ocean-false" type="radio" value="false" name="echart_show_ocean"
+	                                <%=(dataBean.getProperty("echart_show_ocean", "false").equals("false")) ? "checked" : ""%> />
+	                        <bean:message key="admin.admin.echartDisplaySettings.no"/>
+	                        &nbsp;&nbsp;&nbsp;
+	                    </td>
+	                </tr>
             </tbody>
         </table>
 

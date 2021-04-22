@@ -133,7 +133,7 @@
 
 <html:html locale="true">
     <head>
-        <title>General Settings</title>
+        <title><bean:message key="admin.admin.generalSettings"/></title>
 <script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
         <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 
@@ -158,51 +158,52 @@
     </head>
 
     <body vlink="#0000FF" class="BodyStyle">
-    <h4>Manage General OSCAR Settings</h4>
+    <h4><bean:message key="admin.admin.generalSettings.manage"/></h4>
     <form name="generalSettingsForm" method="post" action="generalSettings.jsp">
         <%=errorMessages%>
         <input type="hidden" name="dboperation" value="">
         <table id="displaySettingsTable" class="table table-bordered table-striped table-hover table-condensed">
             <tbody>                                              
-            <tr>
-                <td>Display preferred name instead of demographic name: </td>
+ <!--           <tr>
+                <td><bean:message key="admin.admin.generalSettings.alias"/>: </td>
                 <td>
                     <input id="replace_demographic_name_with_preferred-true" type="radio" value="true" name="replace_demographic_name_with_preferred"
                             <%=(dataBean.getProperty("replace_demographic_name_with_preferred", "false").equals("true")) ? "checked" : ""%> />
-                    Yes
+                    <bean:message key="admin.admin.generalSettings.yes"/>
                     &nbsp;&nbsp;&nbsp;
                     <input id="replace_demographic_name_with_preferred-false" type="radio" value="false" name="replace_demographic_name_with_preferred"
                             <%=(dataBean.getProperty("replace_demographic_name_with_preferred", "false").equals("false")) ? "checked" : ""%> />
-                    No
+                    <bean:message key="admin.admin.generalSettings.no"/>
                     &nbsp;&nbsp;&nbsp;
                 </td>
             </tr>
             <tr>
-                <td>Use create date instead of next appointment date on messages: </td>
+                <td><bean:message key="admin.admin.generalSettings.message_create_date"/>: </td>
                 <td>
                     <input id="msg_use_create_date" type="checkbox" value="true" name="msg_use_create_date"
                             <%=(dataBean.getProperty("msg_use_create_date", "false").equals("true")) ? "checked" : ""%> />
                 </td>
             </tr>
+ -->
             <tr>
-                <td>Force logout on inactive users: </td>
+                <td><bean:message key="admin.admin.generalSettings.force_logout"/>: </td>
                 <td>
                     <input id="force_logout_when_inactive_true" type="radio" value="true" name="force_logout_when_inactive"
                             <%=forceLogoutWhenInactive ? "checked" : ""%> />
-                    Yes
+                    <bean:message key="admin.admin.generalSettings.yes"/>
                     &nbsp;&nbsp;&nbsp;
                     <input id="force_logout_when_inactive_false" type="radio" value="false" name="force_logout_when_inactive"
                             <%=!forceLogoutWhenInactive ? "checked" : ""%> />
-                    No
-                    <br/>Logout after
-                    <input id="force_logout_when_inactive_time" type="text" value="<%=forceLogoutTime%>" name="force_logout_when_inactive_time"/> minutes
+                    <bean:message key="admin.admin.generalSettings.no"/>
+                    <br/><bean:message key="admin.admin.generalSettings.logout_after"/>
+                    <input id="force_logout_when_inactive_time" type="text" value="<%=forceLogoutTime%>" name="force_logout_when_inactive_time"/> <bean:message key="admin.admin.generalSettings.unit"/>
                 </td>
             </tr>
             <% if(oscarProps.getProperty("billregion", "").equals("BC")){ %>
             <tr>
-                <td>Set clinic information to display on invoice: </td>
+                <td><bean:message key="admin.admin.generalSettings.custom_clinic"/>: </td>
                 <td width="327px">
-                    <input type="checkbox" id="invoice_use_custom_clinic_info" name="invoice_use_custom_clinic_info" onclick="setClinicInfo()" <%= StringUtils.isNullOrEmpty(dataBean.getProperty("invoice_custom_clinic_info")) ? "" : "checked"%>/>Use Custom
+                    <input type="checkbox" id="invoice_use_custom_clinic_info" name="invoice_use_custom_clinic_info" onclick="setClinicInfo()" <%= StringUtils.isNullOrEmpty(dataBean.getProperty("invoice_custom_clinic_info")) ? "" : "checked"%>/><bean:message key="admin.admin.generalSettings.use_custom_clinic"/>
                     <br>
                     <textarea style="resize: none; width: 90%" rows="4" id="invoice_custom_clinic_info" name="invoice_custom_clinic_info" maxlength="250" <%=StringUtils.isNullOrEmpty(dataBean.getProperty("invoice_custom_clinic_info")) ? "disabled" : ""%>><%= Encode.forHtmlAttribute(StringUtils.isNullOrEmpty(dataBean.getProperty("invoice_custom_clinic_info")) ? defaultClinicInfo : dataBean.getProperty("invoice_custom_clinic_info"))%></textarea>
                 </td>
