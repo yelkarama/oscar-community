@@ -60,8 +60,20 @@
 <%@page import="org.oscarehr.casemgmt.web.NoteDisplayNonNote"%>
 <%@page import="org.oscarehr.common.dao.EncounterTemplateDao"%>
 <%@page import="org.oscarehr.casemgmt.web.CheckBoxBean"%>
+<%@page import="org.oscarehr.common.dao.SystemPreferencesDao" %>
+<%@page import="java.util.HashMap" %>
 
 <% java.util.Properties oscarVariables = OscarProperties.getInstance(); %>
+
+<%
+	HashMap<String, Boolean> echartPreferencesMap = new HashMap<String, Boolean>();
+	SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+	List<SystemPreferences> schedulePreferences = systemPreferencesDao.findPreferencesByNames(SystemPreferences.ECHART_PREFERENCE_KEYS);
+	for (SystemPreferences preference : schedulePreferences) {
+		echartPreferencesMap.put(preference.getName(), Boolean.parseBoolean(preference.getValue()));
+	}
+%>
+
 <c:set var="ctx" value="${pageContext.request.contextPath}" scope="request" />
 
 	<div id="cppBoxes" bstyle="background-color: #FFFFFF;">
@@ -94,6 +106,8 @@
  	
 	</div>
 	<!--  This leaves the OCEAN toolbar accessible but not taking up prime realestate -->
+	<% if (echartPreferencesMap.getOrDefault("echart_show_ocean", true)) { %>
 	<div id="ocean_placeholder" >
 				<span style="visibility:hidden">test</span>
 	</div>
+	<% } %>
