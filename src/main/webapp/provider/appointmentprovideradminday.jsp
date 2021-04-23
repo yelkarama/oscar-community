@@ -550,7 +550,7 @@ if (isMobileOptimized) {
 
 <oscar:customInterface section="main"/>
 
-<script type="text/javascript" src="schedulePage.js.jsp"></script>
+<script type="text/javascript" src="schedulePage.js.jsp?autoRefresh=true"></script>
 
 
 <script type="text/javascript">
