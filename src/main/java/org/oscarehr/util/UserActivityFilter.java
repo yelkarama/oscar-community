@@ -78,6 +78,7 @@ public final class UserActivityFilter implements Filter {
                     redirectToLogout = true;
                 } else if (isUserRequest(httpRequest) && httpRequest.getRequestURL().toString().contains(".jsp")) {
                     // Reset activity timer in session if user is opening a jsp
+                	logger.info("User opened page " + httpRequest.getRequestURL().toString());
                     session.setAttribute(LAST_USER_ACTIVITY, now);
                 }
             }
