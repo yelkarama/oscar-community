@@ -76,8 +76,9 @@ public final class UserActivityFilter implements Filter {
                     LogAction.addLog((String)session.getAttribute("user"), LogConst.LOGOUT, LogConst.CON_LOGIN, "logged out due to inactivity", request.getRemoteAddr());
                     logger.warn("User providerNo=" + loggedInInfo.getLoggedInProviderNo() + " logged out due to inactivity");
                     redirectToLogout = true;
-                } else if (isUserRequest(httpRequest)) {
-                    // Reset activity timer in session
+                } else if (isUserRequest(httpRequest) && httpRequest.getRequestURL().toString().contains(".jsp")) {
+                    // Reset activity timer in session if user is opening a jsp
+                	logger.info("User opened page " + httpRequest.getRequestURL().toString());
                     session.setAttribute(LAST_USER_ACTIVITY, now);
                 }
             }
