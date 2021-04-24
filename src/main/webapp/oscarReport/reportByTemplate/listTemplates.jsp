@@ -35,7 +35,6 @@ if (templateViewId == null) templateViewId = "";
 
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
       boolean authed=true;
 %>
 <security:oscarSec roleName="<%=roleName$%>"
