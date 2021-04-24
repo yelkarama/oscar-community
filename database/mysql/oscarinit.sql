@@ -13938,8 +13938,8 @@ CREATE TABLE `workflow` (
 CREATE TABLE `SystemPreferences` (
   `id`         INT AUTO_INCREMENT PRIMARY KEY,
   `name`       VARCHAR(40) NULL,
-  `updateDate` DATETIME    NULL
-  `value`      VARCHAR(40) NULL,
+  `updateDate` DATETIME    NULL,
+  `value`      VARCHAR(40) NULL
 );
 
 CREATE TABLE `rbt_groups` (
