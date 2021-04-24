@@ -12081,9 +12081,38 @@ CREATE TABLE `mygroup` (
 );
 
 --
--- Table structure for table `onCallClinicDates`
+-- Table structure for table `OMDGatewayTransactionLog` PHC note that this is reverse engineered from the DAO
 --
 
+CREATE TABLE `OMDGatewayTransactionLog` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `started` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `ended` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `initiatingProviderNo` varchar(10) DEFAULT NULL,
+  `transactionType` varchar(50) DEFAULT NULL,
+  `externalSystem` varchar(50) DEFAULT NULL,
+  `demographicNo` int(10) DEFAULT NULL,
+  `resultCode` int(10) DEFAULT NULL,
+  `success` tinyint(1) DEFAULT NULL,
+  `error` varchar(255) DEFAULT NULL,
+  `dataSent` varchar(255) DEFAULT NULL,
+  `dataRecieved` varchar(255) DEFAULT NULL,
+  `headers` varchar(255) DEFAULT NULL,
+  `uao` varchar(255) DEFAULT NULL,
+  `oscarSessionId` varchar(50) DEFAULT '1',
+  `contextSessionId` varchar(50) DEFAULT '2',
+  `uniqueSessionId` varchar(50) DEFAULT NULL,
+  `xRequestId` varchar(50) DEFAULT NULL,
+  `xLobTxId` varchar(50) DEFAULT NULL,
+  `xCorrelationId` varchar(50) DEFAULT NULL,
+  `xGtwyClientId` varchar(50) DEFAULT NULL,
+  `secondsLeft` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ;
+
+--
+-- Table structure for table `onCallClinicDates`
+--
 
 CREATE TABLE `onCallClinicDates` (
   `id` int(10) NOT NULL,
@@ -12404,7 +12433,7 @@ CREATE TABLE `program` (
 
 CREATE TABLE `property` (
   `name` varchar(255) NOT NULL DEFAULT '',
-  `value` varchar(255) DEFAULT NULL,
+  `value` varchar(4000) DEFAULT NULL,
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `provider_no` varchar(6) DEFAULT '',
   PRIMARY KEY (`id`)
@@ -13906,3 +13935,16 @@ CREATE TABLE `workflow` (
   PRIMARY KEY (`ID`)
 );
 
+CREATE TABLE `SystemPreferences` (
+  `id`         INT AUTO_INCREMENT PRIMARY KEY,
+  `name`       VARCHAR(40) NULL,
+  `updateDate` DATETIME    NULL
+  `value`      VARCHAR(40) NULL,
+);
+
+CREATE TABLE `rbt_groups` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tid` int(11) DEFAULT NULL,
+  `group_name` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+);
