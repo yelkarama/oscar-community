@@ -12087,7 +12087,7 @@ CREATE TABLE `mygroup` (
 CREATE TABLE `OMDGatewayTransactionLog` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `started` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `ended` timestamp DEFAULT NULL,
+  `ended` timestamp DEFAULT CURRENT_TIMESTAMP,
   `initiatingProviderNo` varchar(10) DEFAULT NULL,
   `transactionType` varchar(50) DEFAULT NULL,
   `externalSystem` varchar(50) DEFAULT NULL,
