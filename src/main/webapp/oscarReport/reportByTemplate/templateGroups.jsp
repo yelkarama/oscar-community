@@ -41,7 +41,7 @@
 	<script src="${pageContext.request.contextPath}/js/jquery-1.9.1.min.js"></script>
 	<script src="${pageContext.request.contextPath}/share/javascript/jquery/jquery.validate.js"></script>  
 	<script src="${pageContext.request.contextPath}/js/jquery-ui-1.10.2.custom.min.js"></script> 
-	<script src="${pageContext.request.contextPath}/js/bootstrap.min.2.js"></script>
+	<script src="${pageContext.request.contextPath}/js/bootstrap.min.js"></script>
 	
 
 </head>
