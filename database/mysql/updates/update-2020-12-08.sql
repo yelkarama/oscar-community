@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXIST `rbt_groups` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) AUTO_INCREMENT,
   `tid` int(11) ,
   `group_name` varchar(255) ,
   PRIMARY KEY (`id`)
