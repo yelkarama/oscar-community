@@ -486,7 +486,7 @@ function copyLot() {
 	
 	var cvcName = $("#cvcName option:selected").val();
 	if(cvcName !== undefined && cvcName != -1 && $("#cvcLot").is(":visible")) {
-		$("#lot").val($("#cvcLot").val());
+		//$("#lot").val($("#cvcLot").val());
 		$("#name").val($("#cvcName option:selected").text());	
 	}
 }
@@ -551,7 +551,7 @@ function changeCVCName() {
              dataType: 'json',
              success: function(data,textStatus) {
             	 if(data != null && data.lots != null && data.lots instanceof Array && data.lots.length > 0) {
-            		 $("#lot").hide();
+            		 //$("#lot").hide();
             		 $("#cvcLot").show();
             		 $("#cvcLot").find("option").remove().end();
             		 
@@ -571,13 +571,15 @@ function changeCVCName() {
             			if(startup2 && escapeHtml(item.lotNumber) == '<%=addByLotNbr %>') {
             				$("#cvcLot").append('<option selected="selected" value="'+item.lotNumber+'" expiryDate="'+output+'">'+item.lotNumber+'</option>');
             				startup2=false;
+                            updateCvcLot();
             			} else if(startup && escapeHtml(item.lotNumber) == '<%=(existingPrevention != null)?existingPrevention.get("lot"):"" %>') {
             				$("#cvcLot").append('<option selected="selected" value="'+escapeHtml(item.lotNumber)+'" expiryDate="'+output+'">'+escapeHtml(item.lotNumber)+'</option>');
+                            $("#lot").val(escapeHtml(item.lotNumber));
             				startup=false;
             			} else {
             				$("#cvcLot").append('<option value="'+escapeHtml(item.lotNumber)+'" expiryDate="'+output+'">'+escapeHtml(item.lotNumber)+'</option>');
             			}
-            			updateCvcLot();        			 
+            			//updateCvcLot();        			 
             		 }            		 
             	 } else {
             		 $("#cvcLot").hide();
@@ -633,6 +635,7 @@ function changeCVCName() {
 function updateCvcLot() {
 	var lotNumber = $("#cvcLot").find(":selected");
 	$("#expiryDate").val(lotNumber.attr('expiryDate'));
+    $("#lot").val($("#cvcLot").val());
 }
 
 
