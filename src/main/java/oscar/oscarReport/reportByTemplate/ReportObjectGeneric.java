@@ -46,6 +46,7 @@ public class ReportObjectGeneric implements ReportObject {
     private String type = "";
     private int active;
     private ArrayList parameters = new ArrayList(0);
+    private String uuid;
     
     private boolean sequence;
      
@@ -203,4 +204,14 @@ public class ReportObjectGeneric implements ReportObject {
 		this.sequence = sequence;
 	}
 
+	@Override
+	public String getUuid() {
+		return uuid;
+	}
+	
+	@Override
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
+	
 }
