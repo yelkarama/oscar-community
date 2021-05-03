@@ -99,7 +99,7 @@
     
     boolean showFullName = schedulePreferences.getOrDefault("appt_show_full_name", true);
     boolean showApptReason = schedulePreferences.getOrDefault("show_appt_reason", true);
-    boolean showRecView = schedulePreferences.getOrDefault("receptionist_alt_view", true);
+    boolean showRecView = schedulePreferences.getOrDefault("receptionist_alt_view", false);
     boolean showNonScheduled = schedulePreferences.getOrDefault("show_NonScheduledDays_In_WeekView", true);
     boolean showTypeReason = schedulePreferences.getOrDefault("show_appt_type_with_reason", true);
     boolean showShortLetters = schedulePreferences.getOrDefault("appt_show_short_letters", false);
@@ -1380,26 +1380,6 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
  <a class="redArrow" href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=isWeekView?(day+7):(day+1)%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+URLEncoder.encode(request.getParameter("curProviderName"),"UTF-8") )%>&displaymode=day&dboperation=searchappointmentday<%=isWeekView?"&provider_no="+provNum:""%>&viewall=<%=viewall%>">
  <img src="../images/next.gif" WIDTH="10" HEIGHT="9" BORDER="0" class="noprint" ALT="<bean:message key="provider.appointmentProviderAdminDay.viewNextDay"/>" vspace="2">&nbsp;&nbsp;</a>
 <a id="calendarLink" href=# onClick ="popupPage(425,430,'../share/CalendarPopup.jsp?urlfrom=../provider/providercontrol.jsp&year=<%=strYear%>&month=<%=strMonth%>&param=<%=URLEncoder.encode("&view=0&displaymode=day&dboperation=searchappointmentday&viewall="+viewall,"UTF-8")%><%=isWeekView?URLEncoder.encode("&provider_no="+provNum, "UTF-8"):""%>')"><bean:message key="global.calendar"/></a>
-<% if (showQuickDateMultiplier) { %> 
-<input id="monthBackward" type="button" value="M-" style="width:25px;font-size:8pt;font-weight: bold;border: none;" onclick="getLocation(this.id,document.getElementById('multiplier').value);"/><input id="weekBackward" type="button" value="W-" style="width:30px;font-size:8pt;font-weight: bold;border: none;"onclick="getLocation(this.id,document.getElementById('multiplier').value)"/><input id="multiplier" type="text"  value="1" maxlength="2" style="width:20px;font-size:8pt;background-color:#b0c4de;font-weight: bold;border: none;text-align: center;" /><input id="weekForward" type="button" value="W+" style="width:30px;font-size:8pt;font-weight: bold;border: none;" onclick="getLocation(this.id,document.getElementById('multiplier').value)"/><input id="monthForward" type="button" value="M+" style="width:25px;font-size:8pt;font-weight: bold;border: none;" onclick="getLocation(this.id,document.getElementById('multiplier').value)"/>
-<% } %> 
-<% if (showQuickDatePicker && !showQuickDateMultiplier) { %> 
-<input id="weekForward1" type="button" value="1W" style="width:25px;font-size:8pt;font-weight: bold;border: none;" onclick="getLocation('weekForward',1) "/>
-<% } %>
-<% if (showQuickDatePicker) { %> 
-<input id="weekForward2" type="button" value="2W" style="width:25px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',2) "/>
-<input id="weekForward3" type="button" value="3W" style="width:25px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',3) "/>
-<input id="weekForward4" type="button" value="4W" style="width:25px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',4) "/>
-<input id="weekForward6" type="button" value="6W" style="width:25px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',6) "/>
-<% } %>
-<% if (showQuickDatePicker && !showQuickDateMultiplier) { %> 
-<input id="monthForward1" type="button" value="1M" style="width:25px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',4) "/>
-<% } %>
-<% if (showQuickDatePicker) { %>
-<input id="monthForward3" type="button" value="3M" style="width:25px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',12) "/>
-<input id="monthForward6" type="button" value="6M" style="width:25px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',25) "/>
-<input id="monthForward12" type="button" value="1Y" style="width:30px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',367/7) "/>
-<% } %> 
 
 
 <logic:notEqual name="infirmaryView_isOscar" value="false">
@@ -1446,6 +1426,27 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 <%
 	}
 %>
+<% if (showQuickDateMultiplier) { %> 
+<input id="monthBackward" type="button" value="M-" style="width:25px;font-size:8pt;font-weight: bold;border: none;" onclick="getLocation(this.id,document.getElementById('multiplier').value);"/><input id="weekBackward" type="button" value="W-" style="width:30px;font-size:8pt;font-weight: bold;border: none;"onclick="getLocation(this.id,document.getElementById('multiplier').value)"/><input id="multiplier" type="text"  value="1" maxlength="2" style="width:20px;font-size:8pt;background-color:#b0c4de;font-weight: bold;border: none;text-align: center;" /><input id="weekForward" type="button" value="W+" style="width:30px;font-size:8pt;font-weight: bold;border: none;" onclick="getLocation(this.id,document.getElementById('multiplier').value)"/><input id="monthForward" type="button" value="M+" style="width:25px;font-size:8pt;font-weight: bold;border: none;" onclick="getLocation(this.id,document.getElementById('multiplier').value)"/>
+<% } %> 
+<% if (showQuickDatePicker && !showQuickDateMultiplier) { %> 
+<input id="weekForward1" type="button" value="1W" style="width:25px;font-size:8pt;font-weight: bold;border: none;" onclick="getLocation('weekForward',1) "/>
+<% } %>
+<% if (showQuickDatePicker) { %> 
+<input id="weekForward2" type="button" value="2W" style="width:25px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',2) "/>
+<input id="weekForward3" type="button" value="3W" style="width:25px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',3) "/>
+<input id="weekForward4" type="button" value="4W" style="width:25px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',4) "/>
+<input id="weekForward6" type="button" value="6W" style="width:25px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',6) "/>
+<% } %>
+<% if (showQuickDatePicker && !showQuickDateMultiplier) { %> 
+<input id="monthForward1" type="button" value="1M" style="width:25px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',4) "/>
+<% } %>
+<% if (showQuickDatePicker) { %>
+<input id="monthForward3" type="button" value="3M" style="width:25px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',12) "/>
+<input id="monthForward6" type="button" value="6M" style="width:25px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',25) "/>
+<input id="monthForward12" type="button" value="1Y" style="width:30px;font-size:8pt;font-weight: bold;border: none;"  onclick="getLocation('weekForward',367/7) "/>
+<% } %> 
+
 </td>
 
 <td class="title noprint" ALIGN="center"  BGCOLOR="ivory" width="15%">
