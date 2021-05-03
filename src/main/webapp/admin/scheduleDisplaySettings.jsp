@@ -163,11 +163,11 @@
 	            <td>Activate Appointment Screen Intake Link: </td>
 	                <td>
 	                    <input id="appt_intake_form-true" type="radio" value="true" name="appt_intake_form"
-	                            <%=(dataBean.getProperty("appt_intake_form", "false").equals("true")) ? "checked" : ""%> />
+	                            <%=(dataBean.getProperty("appt_intake_form", "true").equals("true")) ? "checked" : ""%> />
 	                    Yes
 	                    &nbsp;&nbsp;&nbsp;
 	                    <input id="appt_intake_form-false" type="radio" value="false" name="appt_intake_form"
-	                            <%=(dataBean.getProperty("appt_intake_form", "false").equals("false")) ? "checked" : ""%> />
+	                            <%=(dataBean.getProperty("appt_intake_form", "true").equals("false")) ? "checked" : ""%> />
 	                    No
 	                    &nbsp;&nbsp;&nbsp;
 	                </td>
@@ -176,11 +176,11 @@
 	                <td>Appointment Show Full Name: </td>
 	                <td>
 	                    <input id="appt_show_full_name-true" type="radio" value="true" name="appt_show_full_name"
-	                            <%=(dataBean.getProperty("appt_show_full_name", "false").equals("true")) ? "checked" : ""%> />
+	                            <%=(dataBean.getProperty("appt_show_full_name", "true").equals("true")) ? "checked" : ""%> />
 	                    Yes
 	                    &nbsp;&nbsp;&nbsp;
 	                    <input id="appt_show_full_name-false" type="radio" value="false" name="appt_show_full_name"
-	                            <%=(dataBean.getProperty("appt_show_full_name", "false").equals("false")) ? "checked" : ""%> />
+	                            <%=(dataBean.getProperty("appt_show_full_name", "true").equals("false")) ? "checked" : ""%> />
 	                    No
 	                    &nbsp;&nbsp;&nbsp;
 	                </td>
@@ -189,11 +189,11 @@
 	                <td>Appointment Show Reason: </td>
 	                <td>
 	                    <input id="show_appt_reason-true" type="radio" value="true" name="show_appt_reason"
-	                            <%=(dataBean.getProperty("show_appt_reason", "false").equals("true")) ? "checked" : ""%> />
+	                            <%=(dataBean.getProperty("show_appt_reason", "true").equals("true")) ? "checked" : ""%> />
 	                    Yes
 	                    &nbsp;&nbsp;&nbsp;
 	                    <input id="show_appt_reason-false" type="radio" value="false" name="show_appt_reason"
-	                            <%=(dataBean.getProperty("show_appt_reason", "false").equals("false")) ? "checked" : ""%> />
+	                            <%=(dataBean.getProperty("show_appt_reason", "true").equals("false")) ? "checked" : ""%> />
 	                    No
 	                    &nbsp;&nbsp;&nbsp;
 	                </td>
@@ -202,11 +202,11 @@
 	                <td>Show Non Scheduled Days in Week View: </td>
 	                <td>
 	                    <input id="show_NonScheduledDays_In_WeekView-true" type="radio" value="true" name="show_NonScheduledDays_In_WeekView"
-	                            <%=(dataBean.getProperty("show_NonScheduledDays_In_WeekView", "false").equals("true")) ? "checked" : ""%> />
+	                            <%=(dataBean.getProperty("show_NonScheduledDays_In_WeekView", "true").equals("true")) ? "checked" : ""%> />
 	                    Yes
 	                    &nbsp;&nbsp;&nbsp;
 	                    <input id="show_NonScheduledDays_In_WeekView-false" type="radio" value="false" name="show_NonScheduledDays_In_WeekView"
-	                            <%=(dataBean.getProperty("show_NonScheduledDays_In_WeekView", "false").equals("false")) ? "checked" : ""%> />
+	                            <%=(dataBean.getProperty("show_NonScheduledDays_In_WeekView", "true").equals("false")) ? "checked" : ""%> />
 	                    No
 	                    &nbsp;&nbsp;&nbsp;
 	                </td>
@@ -228,11 +228,11 @@
 	                <td>Show Appointment Type With Reason: </td>
 	                <td>
 	                    <input id="show_appt_type_with_reason-true" type="radio" value="true" name="show_appt_type_with_reason"
-	                            <%=(dataBean.getProperty("show_appt_type_with_reason", "false").equals("true")) ? "checked" : ""%> />
+	                            <%=(dataBean.getProperty("show_appt_type_with_reason", "true").equals("true")) ? "checked" : ""%> />
 	                    Yes
 	                    &nbsp;&nbsp;&nbsp;
 	                    <input id="show_appt_type_with_reason-false" type="radio" value="false" name="show_appt_type_with_reason"
-	                            <%=(dataBean.getProperty("show_appt_type_with_reason", "false").equals("false")) ? "checked" : ""%> />
+	                            <%=(dataBean.getProperty("show_appt_type_with_reason", "true").equals("false")) ? "checked" : ""%> />
 	                    No
 	                    &nbsp;&nbsp;&nbsp;
 	                </td>
@@ -254,11 +254,11 @@
 	                <td>Display Alerts on Schedule: </td>
 	                <td>
 	                    <input id="displayAlertsOnScheduleScreen-true" type="radio" value="true" name="displayAlertsOnScheduleScreen"
-	                            <%=(dataBean.getProperty("displayAlertsOnScheduleScreen", "false").equals("true")) ? "checked" : ""%> />
+	                            <%=(dataBean.getProperty("displayAlertsOnScheduleScreen", "true").equals("true")) ? "checked" : ""%> />
 	                    Yes
 	                    &nbsp;&nbsp;&nbsp;
 	                    <input id="displayAlertsOnScheduleScreen-false" type="radio" value="false" name="displayAlertsOnScheduleScreen"
-	                            <%=(dataBean.getProperty("displayAlertsOnScheduleScreen", "false").equals("false")) ? "checked" : ""%> />
+	                            <%=(dataBean.getProperty("displayAlertsOnScheduleScreen", "true").equals("false")) ? "checked" : ""%> />
 	                    No
 	                    &nbsp;&nbsp;&nbsp;
 	                </td>
@@ -267,11 +267,11 @@
 	                <td>Display Notes on Schedule: </td>
 	                <td>
 	                    <input id="displayNotesOnScheduleScreen-true" type="radio" value="true" name="displayNotesOnScheduleScreen"
-	                            <%=(dataBean.getProperty("displayNotesOnScheduleScreen", "false").equals("true")) ? "checked" : ""%> />
+	                            <%=(dataBean.getProperty("displayNotesOnScheduleScreen", "true").equals("true")) ? "checked" : ""%> />
 	                    Yes
 	                    &nbsp;&nbsp;&nbsp;
 	                    <input id="displayNotesOnScheduleScreen-false" type="radio" value="false" name="displayNotesOnScheduleScreen"
-	                            <%=(dataBean.getProperty("displayNotesOnScheduleScreen", "false").equals("false")) ? "checked" : ""%> />
+	                            <%=(dataBean.getProperty("displayNotesOnScheduleScreen", "true").equals("false")) ? "checked" : ""%> />
 	                    No
 	                    &nbsp;&nbsp;&nbsp;
 	                </td>
@@ -280,11 +280,11 @@
 	                <td>Display Quick Date Selector with Fixed Intervals: </td>
 	                <td>
 	                    <input id="display_quick_date_picker-true" type="radio" value="true" name="display_quick_date_picker"
-	                            <%=(dataBean.getProperty("display_quick_date_picker", "false").equals("true")) ? "checked" : ""%> />
+	                            <%=(dataBean.getProperty("display_quick_date_picker", "true").equals("true")) ? "checked" : ""%> />
 	                    Yes
 	                    &nbsp;&nbsp;&nbsp;
 	                    <input id="display_quick_date_picker-false" type="radio" value="false" name="display_quick_date_picker"
-	                            <%=(dataBean.getProperty("display_quick_date_picker", "false").equals("false")) ? "checked" : ""%> />
+	                            <%=(dataBean.getProperty("display_quick_date_picker", "true").equals("false")) ? "checked" : ""%> />
 	                    No
 	                    &nbsp;&nbsp;&nbsp;
 	                </td>
@@ -293,11 +293,11 @@
 	                <td>Display Quick Date Selector with Multiplier: </td>
 	                <td>
 	                    <input id="display_quick_date_multiplier-true" type="radio" value="true" name="display_quick_date_multiplier"
-	                            <%=(dataBean.getProperty("display_quick_date_multiplier", "false").equals("true")) ? "checked" : ""%> />
+	                            <%=(dataBean.getProperty("display_quick_date_multiplier", "true").equals("true")) ? "checked" : ""%> />
 	                    Yes
 	                    &nbsp;&nbsp;&nbsp;
 	                    <input id="display_quick_date_multiplier-false" type="radio" value="false" name="display_quick_date_multiplier"
-	                            <%=(dataBean.getProperty("display_quick_date_multiplier", "false").equals("false")) ? "checked" : ""%> />
+	                            <%=(dataBean.getProperty("display_quick_date_multiplier", "true").equals("false")) ? "checked" : ""%> />
 	                    No
 	                    &nbsp;&nbsp;&nbsp;
 	                </td>
