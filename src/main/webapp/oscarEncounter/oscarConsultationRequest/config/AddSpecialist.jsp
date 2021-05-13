@@ -99,6 +99,7 @@ for(Institution i: institutionDao.findAll()) {
 	%> if(i == '<%=i.getId()%>') {
 		$('#department').empty();
 		$('#department').append($("<option></option>").attr("value", '0').text('Select Below'));
+
 	<%
 	for(InstitutionDepartment id : idDao.findByInstitutionId(i.getId())) {
 		
@@ -116,10 +117,36 @@ for(Institution i: institutionDao.findAll()) {
 </script>
 
 <script>
+
+function formatPhone(obj) {
+    // formats to North American xxx-xxx-xxxx standard numbers that are exactly 10 digits long
+    var x=obj.value;
+    //strip the formatting to get the numbers
+    var matches = x.match(/\d+/g);
+    if (!matches || x.substring(0,1) == "+"){
+        // don't do anything if non numberic and or international format
+        return;
+    }
+    var num = '';
+    for (var i=0; i< matches.length; i++) {
+        console.log(matches[i]);
+        num = num + matches[i];
+    }
+    if (num.length == 10){
+        obj.value = num.substring(0,3)+"-"+num.substring(3,6) + "-"+ num.substring(6);
+    } else {
+        if (num.length == 11 && x.substring(0,1) == "1"){
+            obj.value = num.substring(0,1)+"-"+num.substring(1,4) + "-"+ num.substring(4,7)+ "-"+ num.substring(7);
+        } 
+    }
+}
+
+
 	$(document).ready(function(){
 		$('#institution').change(function(){
 			changeInstitution();
-		});	
+		});
+
 	});
 	
 	function changeInstitution() {
@@ -131,7 +158,12 @@ for(Institution i: institutionDao.findAll()) {
 			updateDepartments(id);
 		}
 	}
+
+
+
+
 </script>
+
 </head>
 <script language="javascript">
 function BackToOscar() {
@@ -216,6 +248,7 @@ function BackToOscar() {
 						   		changeInstitution();
 						   		$('#department').val('<%=request.getAttribute("department")%>');
 						   		});
+
 						   	</script>
 						   <%
 						   }
@@ -245,21 +278,21 @@ function BackToOscar() {
 						<tr>
 							<td><bean:message key="oscarEncounter.oscarConsultationRequest.config.AddSpecialist.phone" />
 							</td>
-							<td><html:text name="EctConAddSpecialistForm" property="phone" /></td>
+							<td><html:text name="EctConAddSpecialistForm" property="phone" title="xxx-xxx-xxxx" onblur="formatPhone(this)" /></td>
 							<td><bean:message key="oscarEncounter.oscarConsultationRequest.config.AddSpecialist.fax" />
 							</td>
-							<td colspan="4"><html:text name="EctConAddSpecialistForm" property="fax" /></td>
+							<td colspan="4"><html:text name="EctConAddSpecialistForm" property="fax" title="xxx-xxx-xxxx" onblur="formatPhone(this)" /></td>
 						</tr>
 						<tr>
 							<td><bean:message key="oscarEncounter.oscarConsultationRequest.config.AddSpecialist.privatePhoneNumber" /></td>
-							<td><html:text name="EctConAddSpecialistForm" property="privatePhoneNumber" /></td>
+							<td><html:text name="EctConAddSpecialistForm" property="privatePhoneNumber" title="xxx-xxx-xxxx" onblur="formatPhone(this)" /></td>
 							<td><bean:message key="oscarEncounter.oscarConsultationRequest.config.AddSpecialist.cellPhoneNumber" /></td>
-							<td colspan="4"><html:text name="EctConAddSpecialistForm" property="cellPhoneNumber" /></td>
+							<td colspan="4"><html:text name="EctConAddSpecialistForm" property="cellPhoneNumber" title="xxx-xxx-xxxx" onblur="formatPhone(this)" /></td>
 						</tr>
 						
 						<tr>
 							<td><bean:message key="oscarEncounter.oscarConsultationRequest.config.AddSpecialist.pagerNumber" /></td>
-							<td><html:text name="EctConAddSpecialistForm" property="pagerNumber" /></td>
+							<td><html:text name="EctConAddSpecialistForm" property="pagerNumber" title="xxx-xxx-xxxx" onblur="formatPhone(this)" /></td>
 							<td><bean:message key="oscarEncounter.oscarConsultationRequest.config.AddSpecialist.salutation" /></td>
 							<td colspan="4">
 								<html:select name="EctConAddSpecialistForm" property="salutation">
