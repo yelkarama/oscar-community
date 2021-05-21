@@ -352,8 +352,8 @@ function refresh() {
         <a href="javascript:void(0)" onClick="openBrWindow('../billing/billingCalendarPopup.jsp?type=end&amp;year=<%=curYear%>&amp;month=<%=curMonth%>','','width=300,height=300');return false;" title="<bean:message key="tickler.ticklerAdd.btnCalendarLookup"/>">
             <input type="image" src="../images/cal.gif" width="25" height="22" border="0" align="top" alt="<bean:message key="tickler.ticklerAdd.btnCalendarLookup"/>"/>
         </a>
-        <a href="#" onClick="toggleQuickPickDateDisplay(this)" title="<bean:message key="tickler.ticklerAdd.btnToggleQuickpickDates"/>" style="padding-left:5px; vertical-align: middle;"><bean:message key="tickler.ticklerAdd.btnShowQuickpick"/></a>
-        <div id="quickPickDateOptions"  style="display:none;">
+        <a href="#" onClick="toggleQuickPickDateDisplay(this)" title="<bean:message key="tickler.ticklerAdd.btnToggleQuickpickDates"/>" style="padding-left:5px; vertical-align: middle;"><bean:message key="tickler.ticklerAdd.btnHideQuickpick"/></a>
+        <div id="quickPickDateOptions"  style="display:block;">
          <a href="#" onClick="addDays(14)">14d</a>&nbsp; &nbsp;
         <a href="#" onClick="addMonths(1)">1m</a>&nbsp; &nbsp;
         <a href="#" onClick="addMonths(2)">2m</a>&nbsp; &nbsp;
