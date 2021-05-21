@@ -43,7 +43,9 @@
 		javax.swing.text.rtf.RTFEditorKit,
 		java.io.ByteArrayInputStream"%>
 <%@ page import="org.oscarehr.common.model.Tickler" %>
-<%@ page import="org.oscarehr.managers.TicklerManager" %>		
+<%@ page import="org.oscarehr.managers.TicklerManager" %>
+<%@ page import="org.oscarehr.common.model.Demographic" %>
+<%@ page import="org.oscarehr.common.dao.DemographicDao" %>		
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
@@ -148,6 +150,8 @@ Hl7TextInfoDao hl7TextInfoDao = (Hl7TextInfoDao) SpringUtils.getBean("hl7TextInf
 int lab_no = Integer.parseInt(segmentID);
 String label = ""; Hl7TextInfo hl7Lab = hl7TextInfoDao.findLabId(lab_no);
 if (hl7Lab.getLabel()!=null) label = hl7Lab.getLabel();
+DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
+Demographic demographic = demographicDao.getDemographic(demographicID);
 // check for errors printing
 if (request.getAttribute("printError") != null && (Boolean) request.getAttribute("printError")){
 %>
@@ -570,16 +574,23 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
                                                                         </div>
                                                                     </td>
                                                                 </tr>
-                                                                <tr>
+                                                                <tr>                                                               <tr>
                                                                     <td nowrap>
-                                                                        <div align="left" class="FieldData" nowrap="nowrap">
+                                                                        <div align="left" class="FieldData">
+                                                                            <strong><bean:message key="oscarMDS.segmentDisplay.formEmail"/>: </strong>
                                                                         </div>
                                                                     </td>
                                                                     <td nowrap>
                                                                         <div align="left" class="FieldData" nowrap="nowrap">
+                                                                        <% if (demographic.getConsentToUseEmailForCare() != null && demographic.getConsentToUseEmailForCare()){ %>
+                                                                            <a href="mailto:<%=demographic.getEmail()%>?subject=Message from your Doctors Office" target="_blank" rel="noopener noreferrer" ><%=demographic.getEmail()%></a>
+                                                                        <% } else { %>
+                                                                            <span id="email"><%=demographic.getEmail()%></span>
+                                                                        <% }  %> 
                                                                         </div>
                                                                     </td>
                                                                 </tr>
+                                                                
                                                                 <tr>
                                                                     <td nowrap>
                                                                         <div align="left" class="FieldData">
