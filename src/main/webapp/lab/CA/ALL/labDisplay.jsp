@@ -61,6 +61,10 @@
 <%@ page import="org.oscarehr.managers.TicklerManager" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.oscarehr.casemgmt.service.CaseManagementManager, org.oscarehr.common.dao.Hl7TextMessageDao, org.oscarehr.common.model.Hl7TextMessage,org.oscarehr.common.dao.Hl7TextInfoDao,org.oscarehr.common.model.Hl7TextInfo"%>
+
+<%@ page import="org.oscarehr.common.model.Demographic" %>
+<%@ page import="org.oscarehr.common.dao.DemographicDao" %>
+
 <jsp:useBean id="oscarVariables" class="java.util.Properties" scope="session" />
 <%@	page import="javax.swing.text.rtf.RTFEditorKit"%>
 <%@	page import="java.io.ByteArrayInputStream"%>
@@ -96,6 +100,7 @@ String remoteFacilityIdString = request.getParameter("remoteFacilityId");
 String remoteLabKey = request.getParameter("remoteLabKey");
 String demographicID = request.getParameter("demographicId");
 String showAllstr = request.getParameter("all");
+
 
 List<String> allLicenseNames = new ArrayList<String>();
 String lastLicenseNo = null, currentLicenseNo = null;
@@ -240,7 +245,8 @@ else // remote lab
 }
 
 /********************** Converted to this sport *****************************/
-
+DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
+Demographic demographic = demographicDao.getDemographic(demographicID);
 
 // check for errors printing
 if (request.getAttribute("printError") != null && (Boolean) request.getAttribute("printError")){
@@ -1042,6 +1048,22 @@ input[type=button], button, input[id^='acklabel_']{ font-size:12px !important;pa
                                                                     <td nowrap>
                                                                         <div align="left" class="FieldData" nowrap="nowrap">
                                                                             <%=handler.getWorkPhone()%>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td nowrap>
+                                                                        <div align="left" class="FieldData">
+                                                                            <strong><bean:message key="oscarMDS.segmentDisplay.formEmail"/>: </strong>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td nowrap>
+                                                                        <div align="left" class="FieldData" nowrap="nowrap">
+                                                                        <% if (demographic.getConsentToUseEmailForCare() != null && demographic.getConsentToUseEmailForCare()){ %>
+                                                                            <a href="mailto:<%=demographic.getEmail()%>?subject=Message from your Doctors Office" target="_blank" rel="noopener noreferrer" ><%=demographic.getEmail()%></a>
+                                                                        <% } else { %>
+                                                                            <span id="email"><%=demographic.getEmail()%></span>
+                                                                        <% }  %> 
                                                                         </div>
                                                                     </td>
                                                                 </tr>
