@@ -1059,11 +1059,12 @@ input[type=button], button, input[id^='acklabel_']{ font-size:12px !important;pa
                                                                     </td>
                                                                     <td nowrap>
                                                                         <div align="left" class="FieldData" nowrap="nowrap">
-                                                                        <% if (demographic.getConsentToUseEmailForCare() != null && demographic.getConsentToUseEmailForCare()){ %>
+                                                						<% if(demographicID != null && !demographicID.equals("") && !demographicID.equals("0")){
+                                                    						if (demographic.getConsentToUseEmailForCare() != null && demographic.getConsentToUseEmailForCare()){ %>
                                                                             <a href="mailto:<%=demographic.getEmail()%>?subject=Message from your Doctors Office" target="_blank" rel="noopener noreferrer" ><%=demographic.getEmail()%></a>
                                                                         <% } else { %>
                                                                             <span id="email"><%=demographic.getEmail()%></span>
-                                                                        <% }  %> 
+                                                                        <% } } %> 
                                                                         </div>
                                                                     </td>
                                                                 </tr>
