@@ -944,17 +944,12 @@ function GetTextTop(){
 	textTop += "&lt;/script&gt;\n\n"
 
 	//maximize window script
+	//fix by Adrian Starzynski to fix the maximize window option to work when checked
 	if (document.getElementById('maximizeWindow').checked){
-		textTop += "&lt;script language=&quot;JavaScript&quot;&gt;\n"
-		textTop += "\t top.window.moveTo(0,0);\n"
-		textTop += "\t if (document.all) {\n"
-		textTop += "\t top.window.resizeTo(screen.availWidth,screen.availHeight);\n"
-		textTop += "\t }\n"
-		textTop += "\t else if (document.layers||document.getElementById) {\n"
-		textTop += "\t if (top.window.outerHeight&lt;screen.availHeight||top.window.outerWidth&lt;screen.availWidth){\n"
-		textTop += "\t\t top.window.outerHeight = screen.availHeight;\n"
-		textTop += "\t\t top.window.outerWidth = screen.availWidth;\n"
-		textTop += "\t}\n}\n &lt;/script&gt;\n\n"
+        textTop += "&lt;script language=&quot;JavaScript&quot;&gt;\n"
+        textTop += "\t top.window.moveTo(0,0);\n"
+        textTop += "\t top.window.resizeTo(screen.availWidth,screen.availHeight);\n"
+        textTop += "\t\n\n &lt;/script&gt;\n\n"
 	}
 	//scripts for scaling up checkboxes
 	if (document.getElementById('ScaleCheckmark').checked){
