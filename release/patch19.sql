@@ -433,5 +433,54 @@ CREATE TABLE IF NOT EXISTS `IndicatorResultItem` (
     PRIMARY KEY(`id`)
 );
 
+-- update-2017-12-15.sql (sic)
 
+CREATE TABLE IF NOT EXISTS `SystemPreferences` (
+    `id` INT AUTO_INCREMENT,
+    `name`       VARCHAR(40) NULL,
+    `value`      VARCHAR(40) NULL,
+    `updateDate` DATETIME    NULL,
+    PRIMARY KEY(`id`)
+);
+
+
+-- phc fudge
+
+CREATE TABLE IF NOT EXISTS `OMDGatewayTransactionLog` (
+    `id` int(11) AUTO_INCREMENT,
+    `started` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `ended` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+    `initiatingProviderNo` varchar(10) DEFAULT NULL,
+    `transactionType` varchar(50) DEFAULT NULL,
+    `externalSystem` varchar(50) DEFAULT NULL,
+    `demographicNo` int(10) DEFAULT NULL,
+    `resultCode` int(10) DEFAULT NULL,
+    `success` tinyint(1) DEFAULT NULL,
+    `error` varchar(255) DEFAULT NULL,
+    `dataSent` varchar(255) DEFAULT NULL,
+    `dataRecieved` varchar(255) DEFAULT NULL,
+    `headers` varchar(255) DEFAULT NULL,
+    `uao` varchar(255) DEFAULT NULL,
+    `oscarSessionId` varchar(50) DEFAULT '1',
+    `contextSessionId` varchar(50) DEFAULT '2',
+    `uniqueSessionId` varchar(50) DEFAULT NULL,
+    `xRequestId` varchar(50) DEFAULT NULL,
+    `xLobTxId` varchar(50) DEFAULT NULL,
+    `xCorrelationId` varchar(50) DEFAULT NULL,
+    `xGtwyClientId` varchar(50) DEFAULT NULL,
+    `secondsLeft` int(11) DEFAULT NULL,
+    UNIQUE KEY `id` (`id`)
+);
+CALL add_column('oscar_15','CVCImmunizationName','CVCImmunizationId','VARCHAR(11) NOT NULL AFTER `value`');
+
+ALTER TABLE `property` MODIFY COLUMN `value` VARCHAR(4000); 
+
+-- update 2020 12 08
+
+CREATE TABLE IF NOT EXISTS `rbt_groups` (
+  `id` int(11) AUTO_INCREMENT,
+  `tid` int(11) ,
+  `group_name` varchar(255) ,
+  PRIMARY KEY (`id`)
+);
 
