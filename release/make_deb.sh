@@ -4,7 +4,7 @@
 # makes a debian installer release from source
 
 #===================================================================
-# Copyright Peter Hutten-Czapski 2012-2017 released under the GPL v2
+# Copyright Peter Hutten-Czapski 2012-2021 released under the GPL v2
 #===================================================================
 
 
@@ -216,7 +216,11 @@
 # v 28 - fixed restore.sh altered cd ${DOCS}/${PROGRAM} to cd ${DOCS}
 # v 29 - added customSearchUrl and customSearchName properties and fixing typeo for ocean in config
 # v 30 - added --enable-local-file-access to wkhtmltopdf commands for versions above 2.6.1
-
+# v 31 - updated demo.sql to v6.3 to deal with Msg 
+# v 32 - updated specific war number to upload from bitbucket, CVC initial support
+# v 33 - updated to upload drugref from bitbucket 
+# v 34 - upload drugref from bitbucket, and modification for tomcat 9 experimental install
+# v 35 - reverted drugref after issues
 
 # --- sanity check
 if [ "$(id -u)" != "0" ];
@@ -227,7 +231,7 @@ fi
 
 
 
-DEB_SUBVERSION=30
+DEB_SUBVERSION=35
 PROGRAM=oscar
 PACKAGE=oscar-emr
 
@@ -252,7 +256,7 @@ WGET_VERSION=oscar-stable
 # for TRUNK and 15 BETA oscar-14.0.0-SNAPSHOT.war
 TARGET=oscar-14.0.0-SNAPSHOT.war
 
-echo "grep the build from Jenkins" 
+echo "grep the build from Bitbucket" 
 
 
 ## check command line for a switch eg sudo ./make_deb c
@@ -263,7 +267,9 @@ echo "grep the build from Jenkins"
 if [ -z "$1" ];
     then
         echo "No argument supplied.. proceed with last stable build"
-        curl -o build http://jenkins.oscar-emr.com:8080/job/$WGET_VERSION/lastStableBuild/
+        ##curl -o build http://jenkins.oscar-emr.com:8080/job/$WGET_VERSION/lastStableBuild/
+        curl -L -o latestStable https://bitbucket.org/oscaremr/oscar/downloads/latestBuild
+        curl -L -o latestDrugref https://bitbucket.org/oscaremr/drugref2/downloads/latestBuild
     else
         if [ -n "$1" ] && [ "$1" -eq "$1" ] 2>/dev/null; then
           echo "numeric argument supplied.. proceed with build ${1}"
@@ -287,12 +293,24 @@ fi
 
 
 if [ ! $custom ]; then
-    echo getting build information from Jenkins
+    echo getting build information from Bitbucket
     ## <title>may2014alphaMaster #13 [Jenkins]</title>
     # oct2014AlphaMaster #1 [Jenkins]
-    BUILD=$(grep '<title>' build | head -n 1 | sed "s/<title>$WGET_VERSION #\([0-9]*\).*/\1/;s/^[[:space:]]*//;s/[[:space:]]*$//")
-    buildDateTime=$(grep '       (' build | head -n 1 |sed 's/^[[:space:]]*(//;s/)[[:space:]]*$//')
-    SHA1=$(grep 'Revision' build | head -n 1 |sed 's/.*Revision.* \(.*\)/\1/')
+
+    BUILD=$(grep 'BUILD_NUMBER'  latestStable  | tail -n 1 | cut -d "=" -f2 ) 
+    buildDateTime=$(grep 'BUILD_DATE'  latestStable  | tail -n 1 | cut -d "=" -f2 )   
+    WAR_URL=$(grep 'WAR_URL'  latestStable  | tail -n 1 | cut -d "=" -f2 ) 
+    OSCAR_COMMIT=$(grep 'COMMIT_MESSAGE'  latestStable  | tail -n 1 | cut -d "=" -f2 ) 
+    SHA1=""
+
+    D_BUILD=$(grep 'BUILD_NUMBER'  latestDrugref  | tail -n 1 | cut -d "=" -f2 ) 
+    D_buildDateTime=$(grep 'BUILD_DATE'  latestDrugref  | tail -n 1 | cut -d "=" -f2 )   
+    D_WAR_URL=$(grep 'WAR_URL'  latestDrugref  | tail -n 1 | cut -d "=" -f2 ) 
+    D_COMMIT=$(grep 'COMMIT_MESSAGE'  latestDrugref  | tail -n 1 | cut -d "=" -f2 ) 
+
+    #BUILD=$(grep '<title>' build | head -n 1 | sed "s/<title>$WGET_VERSION #\([0-9]*\).*/\1/;s/^[[:space:]]*//;s/[[:space:]]*$//")
+    ##buildDateTime=$(grep '       (' build | head -n 1 |sed 's/^[[:space:]]*(//;s/)[[:space:]]*$//')
+    ##SHA1=$(grep 'Revision' build | head -n 1 |sed 's/.*Revision.* \(.*\)/\1/')
    else
       echo build is custom
       BUILD=custom
@@ -301,7 +319,8 @@ if [ ! $custom ]; then
 fi
 echo "+++++++++++++++++++++++"
 echo build=$BUILD
-echo SHA1=$SHA1
+
+echo WAR_URL=$WAR_URL
 echo buildDateTime=$buildDateTime
 echo "current date="$(date)
 
@@ -347,7 +366,8 @@ fi
 echo "cleaning up"
 
 
-rm changes
+
+
 rm tmp*
 rm -R -f ./oscar_documents
 
@@ -358,23 +378,66 @@ cp -R copyright ./${DEBNAME}/usr/share/doc/${PACKAGE}/
 # echo "loading control scripts"
 mkdir -p ./${DEBNAME}/DEBIAN/
 
+
+if [ "${SKIP_NEW_WAR}" = "true" ] ; then
+	    echo skipping redownloading of wars
+    else
+
+
+
+## fudge to account for missing Jenkins build
+    #echo "using existing drugref war TEMPORARY"
+    #curl -o drugref2-1.0-SNAPSHOT.war http://jenkins.oscar-emr.com:8080/job/drugref2/lastSuccessfulBuild/org.drugref\$drugref2/artifact/org.drugref/drugref2/1.0-SNAPSHOT/drugref2-1.0-SNAPSHOT.war
+
+        #curl -o drugref2-1.0-SNAPSHOT.war http://jenkins.oscar-emr.com:8080/job/drugref2/ws/target/drugref2.war
+# reverted due to upstream drugref issue
+        #curl -L -o drugref2-1.0-SNAPSHOT.war ${D_WAR_URL}
+        echo "drugref war up"
+	#curl -o $TARGET http://jenkins.oscar-emr.com:8080/job/$WGET_VERSION/lastStableBuild/artifact/target/$TARGET
+	
+##TEMPORARILY USE THE LAST BUILD or last Sucessful Build REGARDLESS OF STABILITY WHILE CONGURATION CHANGES ARE MADE
+##curl -o $TARGET http://jenkins.oscar-emr.com:8080/job/$WGET_VERSION/lastBuild/artifact/target/$TARGET
+##curl -o $TARGET http://jenkins.oscar-emr.com:8080/job/$WGET_VERSION/lastSuccessfulBuild/artifact/target/$TARGET
+##curl -o $TARGET http://jenkins.oscar-emr.com:8080/job/oscar-stable/999/artifact/target/$TARGET
+# http://jenkins.oscar-emr.com:8080/job/oscar-stable/994/artifact/target/oscar-14.0.0-SNAPSHOT.war
+
+    if [ -z "$1" ]
+        then
+            echo "No argument supplied.. proceed with last stable build at ${WAR_URL} and saving to ${TARGET}"
+            #curl -o $TARGET http://jenkins.oscar-emr.com:8080/job/$WGET_VERSION/lastStableBuild/artifact/target/$TARGET
+            curl -L -o $TARGET ${WAR_URL}
+        else
+            if [ -n "$1" ] && [ "$1" -eq "$1" ] 2>/dev/null; then
+              echo "numeric argument supplied.. proceed with build ${1} from bitbucket using -L to follow redirects"
+                curl -L -o $TARGET https://bitbucket.org/oscaremr/oscar/downloads/oscar-19.${1}.war
+              ##curl -o $TARGET http://jenkins.oscar-emr.com:8080/job/$WGET_VERSION/${1}/artifact/target/$TARGET
+            else
+            curl -L -o $TARGET ${WAR_URL}
+            fi
+    fi
+fi
+
+SHA1=$(sha1sum ${TARGET})
+echo The ${TARGET} SHA1=$SHA1
+
+
 echo "changelog"
 
 
 if [ -z "$1" ]
     then
         echo "No argument supplied.. proceed with last stable build"
-        curl -o changes http://jenkins.oscar-emr.com:8080/job/oscar-stable/changes
+        ##curl -o changes http://jenkins.oscar-emr.com:8080/job/oscar-stable/changes
     else
         if [ -n "$1" ] && [ "$1" -eq "$1" ] 2>/dev/null; then
           echo "numeric argument supplied.. proceed with build ${1}"
-            curl -o changes http://jenkins.oscar-emr.com:8080/job/oscar-stable/${1}/changes
+            ##curl -o changes http://jenkins.oscar-emr.com:8080/job/oscar-stable/${1}/changes
         else
           echo "non numeric argument supplied.. proceed with last build regardless of stability"
-            curl -o changes http://jenkins.oscar-emr.com:8080/job/oscar-stable/changes
+            ##curl -o changes http://jenkins.oscar-emr.com:8080/job/oscar-stable/changes
         fi
 fi
-curl -o changes http://jenkins.oscar-emr.com:8080/job/oscar-stable/changes
+#curl -o changes http://jenkins.oscar-emr.com:8080/job/oscar-stable/changes
 
 sed \
 -e 's/yyy-1.0/'"$VERSION"'-'"$BUILD"'/' \
@@ -387,7 +450,10 @@ head -n 1 tmp > tmp2
 #grep "^                [ a-zA-Z#]" changes | tail -n +13 |sed 's/&#039\;//;s/&nbsp\;/ /;s/&quot\;/\"/;s/&quot\;/\"/;s/&quot\;/\"/;s/&quot\;/\"/;s/id:\;//;s/ID://;s/ID \#//;s/Bug \#//;s/Bug ID //;s/Oscar Host - //;s/\#//;s/^[[:space:]]*/  * /;s/[[:space:]]*$//' >tmp3
 # lots of cleanup to extract the pith from the changes and then truncate at 80 columns as per DEBIAN requirement
 
-grep "<\/h2>"  changes | sed 's/^[[:space:]]*/  * /;s/, [0-9]* [0-9]*:[0-9][0-9]:[0-9][0-9] [A|P]M//;s/<\/a><\/h2><ol><li>//;s/OSCAREMR-//;s/[[:space:]]*$//' > tmp3
+#grep "<\/h2>"  changes | sed 's/^[[:space:]]*/  * /;s/, [0-9]* [0-9]*:[0-9][0-9]:[0-9][0-9] [A|P]M//;s/<\/a><\/h2><ol><li>//;s/OSCAREMR-//;s/[[:space:]]*$//' > tmp3
+#grep 'COMMIT_MESSAGE'  latestStable  | tail -n 1 | cut -d "=" -f2 > tmp3
+echo  ${OSCAR_COMMIT} > tmp3
+echo  ${D_COMMIT} >> tmp3
 
 sed -r 's/(^.{80}).*/\1/' tmp3 > tmp4
 tail -n 1 tmp > tmp5
@@ -398,20 +464,23 @@ tmp4 \
 tmp5 \
 > changelog.Debian
 
-curl -o summary http://jenkins.oscar-emr.com:8080/job/oscar-stable/$BUILD/changes
+cat latestStable >> cumulative
+cat latestDrugref >> cumulative
+
+#curl -o summary http://jenkins.oscar-emr.com:8080/job/oscar-stable/$BUILD/changes
 ## Commit f8a5567c8a733b6990f70a8c857079b5b1d0c75d
 #SHA1=$(sed -n '12p' summary)
 
 
-curl  -o drugrefChanges http://jenkins.oscar-emr.com:8080/job/drugref2/changes
+#curl  -o drugrefChanges http://jenkins.oscar-emr.com:8080/job/drugref2/changes
 
 #grep "^                [ a-zA-Z#]" drugrefChanges | sed 's/&#039\;//;s/&nbsp\;/ /;s/&quot\;/\"/;s/&quot\;/\"/;s/&quot\;/\"/;s/&quot\;/\"/;s/id:\;//;s/ID://;s/ID \#//;s/Bug \#//;s/Bug ID //;s/Oscar Host - //;s/\#//;s/^[[:space:]]*/  * /;s/[[:space:]]*$//' >drugrefChangesClean
 
-grep "<\/h2>"  drugrefChanges | sed 's/^[[:space:]]*/  * /;s/, [0-9]* [0-9]*:[0-9][0-9]:[0-9][0-9] [A|P]M//;s/<\/a><\/h2><ol><li>//;s/OSCAREMR-//;s/[[:space:]]*$//' > drugrefChangesClean
+#grep "<\/h2>"  drugrefChanges | sed 's/^[[:space:]]*/  * /;s/, [0-9]* [0-9]*:[0-9][0-9]:[0-9][0-9] [A|P]M//;s/<\/a><\/h2><ol><li>//;s/OSCAREMR-//;s/[[:space:]]*$//' > drugrefChangesClean
 
 echo "+++++++++++++++++++++++"
 echo build=$BUILD
-buildDateTime=$(grep '       (' build | head -n 1 |sed 's/^[[:space:]]*(//;s/)[[:space:]]*$//')
+#buildDateTime=$(grep '       (' build | head -n 1 |sed 's/^[[:space:]]*(//;s/)[[:space:]]*$//')
 echo buildDateTime=$buildDateTime
 #SHA1=$(grep 'Revision' build | head -n 1 |sed 's/.*Revision.* \(.*\)/\1/')
 echo SHA1=$SHA1
@@ -420,12 +489,12 @@ echo ""
 echo "OSCAR changes"
 head -n 5 changelog.Debian
 echo ""
-echo "Drugref2 Changes"
-cat drugrefChangesClean
+#echo "Drugref2 Changes"
+#cat drugrefChangesClean
 echo "+++++++++++++++++++++++"
 
-rm build
-rm drugrefChangesClean
+#rm build
+#rm drugrefChangesClean
 
 gzip -9 changelog.Debian
 mv changelog.Debian.gz ./${DEBNAME}/usr/share/doc/${PACKAGE}/
@@ -541,6 +610,7 @@ chmod 755 ./${DEBNAME}/usr/share/${PACKAGE}/gateway.cron
 echo "copying over utility scripts"
 cp -R demo.sql ./${DEBNAME}/usr/share/${PACKAGE}/
 cp -R drugref.sql ./${DEBNAME}/usr/share/${PACKAGE}/
+cp -R CVC.sql ./${DEBNAME}/usr/share/${PACKAGE}/
 cp -R OfficeCodes.sql ./${DEBNAME}/usr/share/${PACKAGE}/
 cp -R OLIS.sql ./${DEBNAME}/usr/share/${PACKAGE}/
 cp -R Oscar11_to_oscar_12.sql ./${DEBNAME}/usr/share/${PACKAGE}/
@@ -612,41 +682,6 @@ mkdir -p ./${DEBNAME}${C_BASE}webapps/
 echo "build directory made to receive wars"
 
 
-if [ "${SKIP_NEW_WAR}" = "true" ] ; then
-	    echo skipping redownloading of wars
-    else
-
-
-
-## fudge to account for missing Jenkins build
-    #echo "using existing drugref war TEMPORARY"
-    #curl -o drugref2-1.0-SNAPSHOT.war http://jenkins.oscar-emr.com:8080/job/drugref2/lastSuccessfulBuild/org.drugref\$drugref2/artifact/org.drugref/drugref2/1.0-SNAPSHOT/drugref2-1.0-SNAPSHOT.war
-
-        curl -o drugref2-1.0-SNAPSHOT.war http://jenkins.oscar-emr.com:8080/job/drugref2/ws/target/drugref2.war
-        echo "drugref war up"
-	#curl -o $TARGET http://jenkins.oscar-emr.com:8080/job/$WGET_VERSION/lastStableBuild/artifact/target/$TARGET
-	
-##TEMPORARILY USE THE LAST BUILD or last Sucessful Build REGARDLESS OF STABILITY WHILE CONGURATION CHANGES ARE MADE
-##curl -o $TARGET http://jenkins.oscar-emr.com:8080/job/$WGET_VERSION/lastBuild/artifact/target/$TARGET
-##curl -o $TARGET http://jenkins.oscar-emr.com:8080/job/$WGET_VERSION/lastSuccessfulBuild/artifact/target/$TARGET
-##curl -o $TARGET http://jenkins.oscar-emr.com:8080/job/oscar-stable/999/artifact/target/$TARGET
-# http://jenkins.oscar-emr.com:8080/job/oscar-stable/994/artifact/target/oscar-14.0.0-SNAPSHOT.war
-
-    if [ -z "$1" ]
-        then
-            echo "No argument supplied.. proceed with last stable build"
-            curl -o $TARGET http://jenkins.oscar-emr.com:8080/job/$WGET_VERSION/lastStableBuild/artifact/target/$TARGET
-        else
-            if [ -n "$1" ] && [ "$1" -eq "$1" ] 2>/dev/null; then
-              echo "numeric argument supplied.. proceed with build ${1}"
-
-              curl -o $TARGET http://jenkins.oscar-emr.com:8080/job/$WGET_VERSION/${1}/artifact/target/$TARGET
-            else
-              echo "non numeric argument supplied.. proceed with last build regardless of stability"
-              curl -o $TARGET http://jenkins.oscar-emr.com:8080/job/$WGET_VERSION/lastBuild/artifact/target/$TARGET
-            fi
-    fi
-fi
 
 cp drugref2-1.0-SNAPSHOT.war drugref.war
 cp drugref.war ./${DEBNAME}${C_BASE}webapps/drugref.war
@@ -706,8 +741,4 @@ echo "so then people can"
 echo wget http://sourceforge.net/projects/oscarmcmaster/files/Oscar\\ Debian\\+Ubuntu\\ deb\\ Package/${DEBNAME}.deb
 echo "the md5sum is" 
 md5sum ${DEBNAME}.deb
-
-
-
-
 
