@@ -1,7 +1,7 @@
 #!/bin/sh
 #=================================================================
 # Copyright Peter Hutten-Czapski 2012-19 released under the GPL v2
-# v 19.10
+# v 19.11
 #=================================================================
 
 set -e
@@ -17,12 +17,15 @@ PREVIOUS=15
 REVISION=6~952
 if [ -f /usr/share/tomcat9/bin/version.sh ] ; then
         TOMCAT=tomcat9
+        TOMCAT_USER=tomcat
     else
     if [ -f /usr/share/tomcat8/bin/version.sh ] ; then
         TOMCAT=tomcat8
+        TOMCAT_USER=tomcat8
         else
         if [ -f /usr/share/tomcat7/bin/version.sh ] ; then
             TOMCAT=tomcat7
+            TOMCAT_USER=tomcat7
         fi
     fi
 fi
@@ -97,7 +100,7 @@ drugref_url=http://localhost:8080/drugref/DrugrefService
 logintitle="OSCAR EMR ${VERSION}"
 
 ## OSCAR 14 additions  TO DO CHANGE THE RESOURCE BASE
-resource_base_url=http://www.oscarmanual.org/oscar_emr_12/
+resource_base_url=https://worldoscar.org/
 moh_file_management_enabled=false
 ONEDT_INBOX=${SRC}OscarDocument/${PROGRAM}/onEDTDocs/inbox/
 ONEDT_OUTBOX=${SRC}OscarDocument/${PROGRAM}/onEDTDocs/outbox/
@@ -822,7 +825,8 @@ if [ "${UPGRADE}" = "true" ] ; then
             if [ "${csearch}" = "" ]; then
                 echo "adding custom search setting and setting them to duck duck go."  >>$LOG_FILE 
                 echo "# Custom search for eChart" >> ${C_HOME}${PROGRAM}.properties
-                echo "odb_formulary_file=/usr/share/oscar-emr/OscarDocument/oscar/eform/images/data_extract.xml" >> ${C_HOME}${PROGRAM}.properties
+                echo "customSearchUrl=https://duckduckgo.com?q=" >> ${C_HOME}${PROGRAM}.properties
+                echo "customSearchName=DuckDuckGo" >> ${C_HOME}${PROGRAM}.properties
                 echo "" >> ${C_HOME}${PROGRAM}.properties 
             fi
 
@@ -830,10 +834,34 @@ if [ "${UPGRADE}" = "true" ] ; then
             if [ "${ocean}" = "" ]; then
                 echo "adding ocean"  >>$LOG_FILE 
                 echo "# The default URL for Ocean's live instance" >> ${C_HOME}${PROGRAM}.properties
-                echo "customSearchUrl=https://duckduckgo.com?q=" >> ${C_HOME}${PROGRAM}.properties
-                echo "customSearchName=DuckDuckGo" >> ${C_HOME}${PROGRAM}.properties
+                echo "ocean_host=https://ocean.cognisantmd.com" >> ${C_HOME}${PROGRAM}.properties
                 echo "" >> ${C_HOME}${PROGRAM}.properties 
             fi
+
+            cvc=$(grep 'cvc.url'  ${C_HOME}${PROGRAM}.properties  | tail -n 1 | cut -d "=" -f2 ) 2>>$LOG_FILE
+            if [ "${cvc}" = "" ]; then
+                echo "Activating Canadian Vaccine Catalog"  >>$LOG_FILE 
+                echo "# The default URL for CVC's live instance" >> ${C_HOME}${PROGRAM}.properties
+                echo "cvc.url=https://cvc.canimmunize.ca/v3" >> ${C_HOME}${PROGRAM}.properties
+                echo "" >> ${C_HOME}${PROGRAM}.properties 
+            fi
+
+            oneid=$(grep 'oneid.oauth2.clientId'  ${C_HOME}${PROGRAM}.properties  | tail -n 1 | cut -d "=" -f2 ) 2>>$LOG_FILE
+            if [ "${oneid}" = "" ]; then
+                echo "A oneid is necessary to access the CVC so lets set a default as one is not already set"  >>$LOG_FILE 
+                echo "# Oneid needs to be set to access CVC's live instance" >> ${C_HOME}${PROGRAM}.properties
+                echo "oneid.oauth2.clientId=TEST@ONEID.ON.CA" >> ${C_HOME}${PROGRAM}.properties
+                echo "" >> ${C_HOME}${PROGRAM}.properties 
+            fi
+
+            help=$(grep 'HELP_SEARCH_URL'  ${C_HOME}${PROGRAM}.properties  | tail -n 1 | cut -d "=" -f2 ) 2>>$LOG_FILE
+            if [ "${help}" != "https://worldoscar.org/?s=%s" ]; then
+                echo "update help url to worldoscar.org"  >>$LOG_FILE 
+                echo "HELP_SEARCH_URL=https://worldoscar.org/?s=%s" >> ${C_HOME}${PROGRAM}.properties
+                echo "resource_base_url=https://worldoscar.org" >> ${C_HOME}${PROGRAM}.properties
+                echo "" >> ${C_HOME}${PROGRAM}.properties 
+            fi
+
 
 			echo "${PROGRAM}.war file updated so exiting config normally" >> $LOG_FILE
 			exit 0
@@ -1008,7 +1036,7 @@ else
 	echo BASE_DOCUMENT_DIR=${BASE_DOCUMENT_DIR}>> ${PROGRAM}.tmp 2>>$LOG_FILE
 	#echo "eform_image=${SRC}OscarDocument/${PROGRAM}/eform/images/">> ${PROGRAM}.tmp 2>>$LOG_FILE
 	#echo "TMP_DIR: ${SRC}OscarDocument/${PROGRAM}/export/">> ${PROGRAM}.tmp 2>>$LOG_FILE
-	chown -R ${TOMCAT}:${TOMCAT} ${SRC}OscarDocument
+	chown -R ${TOMCAT_USER}:${TOMCAT_USER} ${SRC}OscarDocument
 
 fi
 
@@ -1407,11 +1435,11 @@ echo  ${C_HOME}${PROGRAM}.properties created >>$LOG_FILE
 # some look for /var/lib/tomcat8/oscar.properties but we are using /usr/share/tomcat8
 # so create a symlink for that in C_BASE, overwrite if necessary
 ln -sf ${C_HOME}/${PROGRAM}.properties ${C_BASE}/${PROGRAM}.properties
-chown ${TOMCAT}:${TOMCAT} ${C_BASE}${PROGRAM}.properties 2>>$LOG_FILE
+chown -R ${TOMCAT_USER}:${TOMCAT_USER} ${C_BASE}${PROGRAM}.properties 2>>$LOG_FILE
 
 echo "the oscar properties file contains a plaintext password..." >>$LOG_FILE
 echo "so let only tomcat read it" >>$LOG_FILE
-chown ${TOMCAT}:${TOMCAT} ${C_HOME}${PROGRAM}.properties 2>>$LOG_FILE
+chown -R ${TOMCAT_USER}:${TOMCAT_USER} ${C_HOME}${PROGRAM}.properties 2>>$LOG_FILE
 chmod 640 ${C_HOME}${PROGRAM}.properties 2>>$LOG_FILE
 
 
@@ -1468,8 +1496,3 @@ fi
 echo "install new cron file" >>$LOG_FILE
 crontab c.temp 2>>$LOG_FILE
 rm c.temp 2>>$LOG_FILE
-
-
-
-
-
