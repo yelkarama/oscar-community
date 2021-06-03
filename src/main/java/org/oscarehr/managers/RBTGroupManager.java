@@ -52,8 +52,8 @@ public class RBTGroupManager {
 	 * 		Group name to be deleted
 	 */
 	public void delTemplateGroup(LoggedInInfo loggedInInfo, String name) {
-		if ( ! securityInfoManager.hasPrivilege(loggedInInfo, "_admin", SecurityInfoManager.WRITE, null) ) {
-			throw new RuntimeException("Unauthorised Access. Object[_admin]");
+		if ( ! securityInfoManager.hasPrivilege(loggedInInfo, "_admin", SecurityInfoManager.WRITE, null) && ! securityInfoManager.hasPrivilege(loggedInInfo, "_report", SecurityInfoManager.WRITE, null)) {
+			throw new RuntimeException("Unauthorised Access. Object[_admin, _report]");
 		}
 		rbtGroupDao.deleteByName(name);
 	}
@@ -68,8 +68,8 @@ public class RBTGroupManager {
 	 * 		Template id of the group to be added
 	 */
 	public void addTemplateToGroup(LoggedInInfo loggedInInfo, String groupName, int tid) {
-		if ( ! securityInfoManager.hasPrivilege(loggedInInfo, "_admin", SecurityInfoManager.WRITE, null) ) {
-			throw new RuntimeException("Unauthorised Access. Object[_admin]");
+		if ( ! securityInfoManager.hasPrivilege(loggedInInfo, "_admin", SecurityInfoManager.WRITE, null) && ! securityInfoManager.hasPrivilege(loggedInInfo, "_report", SecurityInfoManager.WRITE, null)) {
+			throw new RuntimeException("Unauthorised Access. Object[_admin, _report]");
 		}
 		
 		groupName = groupName.trim();
@@ -91,8 +91,8 @@ public class RBTGroupManager {
 	 * 		Template id of the template to delete from the group
 	 */
 	public void remTemplateFromGroup(LoggedInInfo loggedInInfo, String groupName, int tid) {
-		if ( ! securityInfoManager.hasPrivilege(loggedInInfo, "_admin", SecurityInfoManager.WRITE, null) ) {
-			throw new RuntimeException("Unauthorised Access. Object[_admin]");
+		if ( ! securityInfoManager.hasPrivilege(loggedInInfo, "_admin", SecurityInfoManager.WRITE, null) && ! securityInfoManager.hasPrivilege(loggedInInfo, "_report", SecurityInfoManager.WRITE, null)) {
+			throw new RuntimeException("Unauthorised Access. Object[_admin, _report]");
 		}
 		
 		rbtGroupDao.deleteByNameAndTemplateId(groupName, tid);
@@ -104,8 +104,8 @@ public class RBTGroupManager {
 	 * 		User current login information and credentials
 	 */
 	public List<String> getTemplateGroups(LoggedInInfo loggedInInfo) {
-		if ( ! securityInfoManager.hasPrivilege(loggedInInfo, "_admin", SecurityInfoManager.READ, null) ) {
-			throw new RuntimeException("Unauthorised Access. Object[_admin]");
+		if ( ! securityInfoManager.hasPrivilege(loggedInInfo, "_admin", SecurityInfoManager.READ, null) && ! securityInfoManager.hasPrivilege(loggedInInfo, "_report", SecurityInfoManager.READE, null)) {
+			throw new RuntimeException("Unauthorised Access. Object[_admin, _report]");
 		}
 
 		return rbtGroupDao.getGroupNames();
@@ -119,8 +119,8 @@ public class RBTGroupManager {
 	 * 		Name of the group to retrieve
 	 */
 	public List<RBTGroup> getGroup(LoggedInInfo loggedInInfo, String groupName) {
-		if ( ! securityInfoManager.hasPrivilege(loggedInInfo, "_admin", SecurityInfoManager.READ, null) ) {
-			throw new RuntimeException("Unauthorised Access. Object[_admin]");
+		if ( ! securityInfoManager.hasPrivilege(loggedInInfo, "_admin", SecurityInfoManager.READ, null) && ! securityInfoManager.hasPrivilege(loggedInInfo, "_report", SecurityInfoManager.READ, null)) {
+			throw new RuntimeException("Unauthorised Access. Object[_admin, _report]");
 		}
 
 		return rbtGroupDao.getByGroupName(groupName);
