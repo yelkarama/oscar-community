@@ -40,7 +40,8 @@
 %>
 <%@ page import="oscar.eform.actions.DisplayImageAction,java.lang.*,java.io.File,oscar.OscarProperties,java.io.*,oscar.eform.*,oscar.eform.data.*,java.util.*,org.apache.log4j.Logger"%>
 <!--
-eForm Generator version 6.6
+eForm Generator version 7.0
+		7.0 Tickler support, refactored signatures to simplify, bug fixes
 		6.5 further adjusted defaults for width to 825
 		6.4 adjusted defaults for width to 825
         6.3 selection for snappiness
@@ -709,19 +710,23 @@ function GetTextTop(){
         }
     }
 
-
-    if ((document.getElementById('includePdfPrintControl').checked) || (document.getElementById("includeFaxControl").checked)
-        	|| (document.getElementById('AddSignature').checked) || (document.getElementById('XboxType').checked)
-        	|| (xPresent) || document.getElementById('radioX').checked || document.getElementById('radio')
-        	|| document.getElementById('preCheckGender')) {
-     	textTop += "&lt;!-- jQuery for greater functionality --&gt;\n"
-	    // dependency on jquery up to version 2.2.1 for pdf and faxing hack. (3.1.1 does NOT work.)  Lets reference something from google
-	    textTop += "&lt;script type=&quot;text/javascript&quot; src=&quot;https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js&quot;&gt;&lt;/script&gt;\n";	
-	    // if unavailable reference the one in OSCAR
-	    textTop += "&lt;script&gt; window.jQuery || document.write('&lt;script src=&quot;../js/jquery-1.7.1.min.js&quot;&gt;&lt; &#92;/script&gt;') &lt;/script&gt;\n";
-	    // ole darn it, I knew I left a copy of jQuery lying around somewhere... perhaps under my nose?
-	    textTop += "&lt;script&gt; window.jQuery || document.write('&lt;script src=&quot;jquery-1.7.1.min.js&quot;&gt;&lt; &#92;/script&gt;') &lt;/script&gt;\n\n";
-    }
+		if ((document.getElementById('includePdfPrintControl').checked) || 
+		(document.getElementById("includeFaxControl").checked) || 
+		(document.getElementById('AddSignature').checked) || 
+		(document.getElementById('AddSignatureClassic').checked) ||
+		(document.getElementById('XboxType').checked) || 
+		(document.getElementById('includeTicklerControl').checked) ||
+		(xPresent) ) {
+		textTop += "&lt;!-- jQuery for greater functionality --&gt;\n"
+		// dependency on jquery up to version 2.2.1 for pdf and faxing hack it helps that you are not referencing a local version
+		textTop += "&lt;script type=&quot;text/javascript&quot; src=&quot;https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js&quot;&gt;&lt;/script&gt;\n";	
+		// if unavailable reference the one in OSCAR
+		textTop += "&lt;script&gt;\nif (typeof jQuery === 'undefined') {\n\tdocument.write(unescape('%3Cscript%20src%3D%22../js/jquery-1.7.1.min.js%22%3E%3C/script%3E'));\n}\n"
+		textTop += "&lt;/script&gt;\n";
+		// ole darn it, I knew I left a copy of jQuery lying around somewhere... perhaps under my nose?
+		textTop += "&lt;script&gt;\nif (typeof jQuery === 'undefined') {\n\tdocument.write(unescape('%3Cscript%20src%3D%22jquery-1.7.1.min.js%22%3E%3C/script%3E'));\n}\n"
+		textTop += "&lt;/script&gt;\n";
+	}
  
     //Peter Hutten-Czapski's Xbox scripts   
     if (xPresent){
@@ -765,7 +770,7 @@ function GetTextTop(){
         textTop += "&lt;/script&gt;\n\n"
     }
     
-    if (parentPresent  || document.getElementById('radioX').checked || document.getElementById('radio') || document.getElementById('preCheckGender')) {   
+    if (parentPresent  || document.getElementById('radioX').checked || document.getElementById('radio').checked || document.getElementById('preCheckGender').checked) {   
         // Adding jquery code for checkbox parent-child-fields (Bell Eapen, nuchange.ca)
         textTop += "\n&lt;!-- jQuery for parent-child and radio fields --&gt;\n"
         textTop += "&lt;script&gt;\n";
@@ -793,16 +798,37 @@ function GetTextTop(){
 		textTop += "&lt;script type=&quot;text/javascript&quot; src=&quot;$%7Boscar_javascript_path%7Deforms/faxControl.js&quot;&gt;&lt;/script&gt;\n";
 	}
 
-	//reference built in signatureControl
-	if (document.getElementById('AddSignatureClassic').checked){		
-		textTop += "&lt;script type=&quot;text/javascript&quot; src=&quot;$%7Boscar_javascript_path%7Deforms/signatureControl.jsp&quot;&gt;&lt;/script&gt;\n";
+		//reference built in signatureControl
+	if (document.getElementById('AddSignatureClassic').checked){
+		textTop += "\n&lt;!-- Classic Signatures --&gt;\n\n"	
+		textTop += "&lt;script type=&quot;text/javascript&quot; src=&quot;${oscar_javascript_path}eforms/signatureControl.jsp&quot;&gt;&lt;/script&gt;\n";
 		textTop += "&lt;script type=&quot;text/javascript&quot;&gt;\n";	
 		textTop += "if (typeof jQuery != &quot;undefined&quot; &amp;&amp; typeof signatureControl != &quot;undefined&quot;) {";
 		textTop += "jQuery(document).ready(function() {";
 		var totalpx = SignatureHolderY + sigOffset;
 		textTop += "signatureControl.initialize({eform:true, height:"+SignatureHolderH+", width:"+SignatureHolderW+", top:"+totalpx+", left:"+SignatureHolderX+"});";
-		textTop += "});}";
-		textTop +="&lt;/script&gt;\n";		
+		textTop += "});}\n";
+		textTop += "\t \n";
+		textTop += "function SignForm2() {\n";
+		if (document.getElementById('Delegation').checked){
+			textTop += "\t//stamp by delegation model \n";
+			textTop += "\tvar provNum = '';\n";
+			textTop += "\tvar userBillingNo = $('#user_ohip_no').val();\n";
+			textTop += "\tif (parseInt(userBillingNo) > 100) {\n";
+			textTop += "\t\t// then a valid billing number so use the current user id \n";
+			textTop += "\t\tprovNum = $('#user_id').val(); \n";
+			textTop += "\t} else { \n";
+			textTop += "\t\tprovNum = $('#doctor_no').val(); \n";
+			textTop += "\t}\n";
+		} else {
+			textTop += "\t//stamp by user model \n";
+			textTop += "\tvar provNum = $('#doctor_no').val(); \n";
+		}
+		textTop += "\tdocument.getElementById('signature').src = '../eform/displayImage.do?imagefile=consult_sig_'+provNum+'.png';\n";        
+		textTop += "\t$('#signature').error(function() {$(this).hide();});\n";
+		textTop += "\t$('#signature').click(function() {$(this).hide();});\n";        
+		textTop += "}\n"; 
+ 		textTop += "&lt;/script&gt;\n\n";		
 	}
 
 	//reference Signature library
@@ -831,9 +857,10 @@ function GetTextTop(){
         //In OSCAR 15 jSignature is available within the source  
 
 		textTop += "&lt;script type=&quot;text/javascript&quot; src=&quot;$%7Boscar_javascript_path%7Djquery/jSignature.min.js&quot;&gt;&lt;/script&gt;\n\n";
-		textTop += "&lt;!--[if lt IE 9]&gt;\n"
-		textTop += "&lt;script type=&quot;text/javascript&quot; src=&quot;$%7Boscar_javascript_path%7Dflashcanvas.js&quot;&gt;&lt;/script&gt;\n";
-		textTop += "&lt;![endif]--&gt;\n\n"
+		//flash and IE support deprecated
+		//textTop += "&lt;!--[if lt IE 9]&gt;\n"
+		//textTop += "&lt;script type=&quot;text/javascript&quot; src=&quot;$%7Boscar_javascript_path%7Dflashcanvas.js&quot;&gt;&lt;/script&gt;\n";
+		//textTop += "&lt;![endif]--&gt;\n\n"
 
 		textTop += "&lt;script type=&quot;text/javascript&quot;&gt;\n";	
 		textTop += "jQuery(document).ready(function() {\n";
@@ -871,16 +898,33 @@ function GetTextTop(){
 		textTop += "}\n";
 
 		textTop += "function loadSig(){\n"
+		if (document.getElementById('Delegation').checked){
+			textTop += "\tvar provNum = '';\n";
+			textTop += "\tvar userBillingNo = $('#user_ohip_no').val();\n";
+			textTop += "\tif (parseInt(userBillingNo) > 100) {\n";
+			textTop += "\t\t// then a valid billing number so use the current user id \n";
+			textTop += "\t\tprovNum = $('#user_id').val(); \n";
+			textTop += "\t} else { \n";
+			textTop += "\t\tprovNum = $('#doctor_no').val(); \n";
+			textTop += "\t}\n"; 
+		}
 		for (j=0; (j < (sigArray.length) ); j++){
 			textTop += "\tvar $sig=$(&quot;#Canvas"+sigArray[j]+"&quot;);\n"
 			textTop += "\tvar data\n"
-			textTop += "\tdata=document.getElementById(&quot;Store"+sigArray[j]+"&quot;).value;\n"
+			textTop += "\tdata=document.getElementById(&quot;Store"+sigArray[j]+"&quot;).value;\n"	
 			textTop += "\t$sig.jSignature(&quot;setData&quot;,&quot;data:&quot;+ data) ;\n"
+			if (document.getElementById('Delegation').checked){
+				textTop += "\tif (data.length == 0) {;\n"	
+				textTop += "\t\tdocument.getElementById('"+sigArray[j]+"').src = '../eform/displayImage.do?imagefile=consult_sig_'+provNum+'.png';\n";        
+				textTop += "\t\t$('#"+sigArray[j]+"').error(function() {$(this).hide();});\n";
+				textTop += "\t\t$('#"+sigArray[j]+"').click(function() {$(this).hide();});\n"; 
+				textTop += "\t}\n"
+			}
 		}
 		textTop += "}\n";
 		textTop += "&lt;/script&gt;\n\n"
 	}
-
+	
 	//auto ticking gender Xboxes OR checkboxes
 	if ((document.getElementById('preCheckGender').checked)||(document.getElementById('XboxType').checked)){
 		textTop += "&lt;!-- auto ticking gender Xboxes OR checkboxes --&gt;\n"	
@@ -922,20 +966,65 @@ function GetTextTop(){
 
 <% } %>
 
+	// Tickler Support
+	if (document.getElementById('includeTicklerControl').checked){
+		textTop += "\n&lt;!-- Tickler Support --&gt;\n\n"	
+		textTop += "&lt;script language=&quot;javascript&quot;&gt;\n"
+		textTop += "function setDate(weeks){\n"
+		textTop += "\tvar now = new Date();\n"
+		textTop += "\tnow.setDate(now.getDate() + weeks * 7);\n"
+		textTop += "\treturn (now.toISOString().substring(0,10));\n"
+		textTop += "\t}\n\n"	
+		textTop += "function setAtickler(){\n"
+		textTop += "\tvar today = new Date().toISOString().slice(0, 10);\n"
+		textTop += "\tvar subject=( $('#subject').val() ? $('#subject').val() : 'test');\n"
+		textTop += "\tvar demographicNo = ($('#tickler_patient_id').val() ? $('#tickler_patient_id').val() : '-1'); // patient_id\n"
+		textTop += "\tvar taskAssignedTo = ($('#tickler_send_to').val() ? $('#tickler_send_to').val() : '-1'); // -1 is reserved for the system user\n"
+		textTop += "\tvar weeks = ($('#tickler_weeks').val() ? $('#tickler_weeks').val() : '6');\n"
+		textTop += "\tvar message = ($('#tickler_message').val() ? $('#tickler_message').val() : 'Check for results of '+subject+' ordered ' + today);\n"
+		textTop += "\tvar ticklerDate = setDate(weeks);\n"
+		textTop += "\tvar urgency = ($('#tickler_priority').val() ? $('#ticklerpriority').val() : 'Normal'); // case sensitive: Low Normal High\n"
+		textTop += "\tvar ticklerToSend = {};\n"
+		textTop += "\tticklerToSend.demographicNo = demographicNo;\n"
+		textTop += "\tticklerToSend.message = message;\n"
+		textTop += "\tticklerToSend.taskAssignedTo = taskAssignedTo;\n"
+		textTop += "\tticklerToSend.serviceDate = ticklerDate;\n"
+		textTop += "\tticklerToSend.priority = urgency;\n"
+		textTop += "\treturn $.ajax({\n"
+		textTop += "\t\ttype: 'POST',\n"
+		textTop += "\t\turl: '../ws/rs/tickler/add',\n"
+		textTop += "\t\tdataType:'json',\n"
+		textTop += "\t\tcontentType:'application/json',\n"
+		textTop += "\t\tdata: JSON.stringify(ticklerToSend)\n"
+		textTop += "\t\t});\n"
+		textTop += "\t}\n"
+		textTop += "&lt;/script&gt;\n\n"				
+	}
+
 	//Peter Hutten-Czapski's script to confirm closing of window if eform changed
 	textTop += "&lt;!-- scripts to confirm closing of window if it hadnt been saved yet --&gt;\n"
 	textTop += "&lt;script language=&quot;javascript&quot;&gt;\n"
 	textTop += "//keypress events trigger dirty flag\n"
 	textTop += "var needToConfirm = false;\n"
 	textTop += "document.onkeyup=setDirtyFlag;\n"
+	
 	textTop += "function setDirtyFlag(){\n"
 	textTop += "\tneedToConfirm = true;\n"
 	textTop += "}\n"
+	
 	textTop += "function releaseDirtyFlag(){\n"
 	textTop += "\tneedToConfirm = false; //Call this function to prevent an alert.\n"
-	textTop += "//this could be called when save button is clicked\n"
+	if (document.getElementById('includeTicklerControl').checked){
+	textTop += "\t$.when(setAtickler()).then(function( data, textStatus, jqXHR ) {\n"
+		textTop += "\t\tif ( jqXHR.status != 200 ){ alert('ERROR ('+jqXHR.status+') automatic tickler FAILED to be set');}\n"
+		textTop += "\t\tdocument.getElementById('FormName').submit()\n"		
+		textTop += "\t});\n"
+	} else {
+	textTop += "\tdocument.getElementById('FormName').submit()\n"
+	}
 	textTop += "}\n"
 	textTop += "window.onbeforeunload = confirmExit;\n"
+	
 	textTop += "function confirmExit(){\n"
 	textTop += "\tif (needToConfirm){\n"
 	textTop += "\t\t return &quot;You have attempted to leave this page. If you have made any changes to the fields without clicking the Save button, your changes will be lost. Are you sure you want to exit this page?&quot;;\n"
@@ -944,8 +1033,9 @@ function GetTextTop(){
 	textTop += "&lt;/script&gt;\n\n"
 
 	//maximize window script
-	//fix by Adrian Starzynski to fix the maximize window option to work when checked
+	//fix by Adrian Starzynski for the maximize window option to work when selected
 	if (document.getElementById('maximizeWindow').checked){
+		textTop += "&lt;!-- scripts to maximise window on load --&gt;\n"
         textTop += "&lt;script language=&quot;JavaScript&quot;&gt;\n"
         textTop += "\t top.window.moveTo(0,0);\n"
         textTop += "\t top.window.resizeTo(screen.availWidth,screen.availHeight);\n"
@@ -1061,10 +1151,12 @@ function GetTextTop(){
 	if (document.getElementById('AddStamp').checked){
 		textTop += "SignForm();"
 	}
+    if (document.getElementById('AddSignatureClassic').checked){
+		textTop += "SignForm2();"
+	}
 	if (document.getElementById('AddSignature').checked){
 		textTop += "loadSig();"
-	}
-	 
+	} 
 	<% if (eformGeneratorIndivicaFaxEnabled) { %>
 	if ((document.getElementById('faxno').value.length >0)){
 		textTop += "setFaxNo();"
@@ -1288,26 +1380,35 @@ var InputType = P[0];
 		}
 		m += "&gt;"
 
-	} else if (InputType == "Signature"){
+		} else if (InputType == "Signature"){
+		var x0 = parseInt(P[1]);
+		var y0 = parseInt(P[2]);
+		var width = parseInt(P[3]);
+		var height = parseInt(P[4]);
+		m = "";
+		var mstyle = " style=&quot;position:absolute; left:";
+		mstyle += x0;
+		mstyle += "px; top:"
+		mstyle += y0
+		mstyle += "px; width:"
+		mstyle += width
+		mstyle += "px; height:"
+		mstyle += height
+		mstyle += "px;";
+		
 		if (P[5] == "ClassicSignature"){
-			m="";
+			m = "&lt;img id=&quot;signature&quot; src=&quot;${oscar_image_path}BNK.png&quot;"
+			m += mstyle;
+			m += "&quot; &gt;";
 		} else {
-			var x0 = parseInt(P[1]);
-			var y0 = parseInt(P[2]);
-			var width = parseInt(P[3]);
-			var height = parseInt(P[4]);
-			m ="";
-			m +="\t&lt;div id=&quot;Canvas"+P[5]+"&quot; class=&quot;sig&quot; style=&quot;position:absolute; left:";
-			m += x0;
-			m += "px; top:"
-			m += y0;
-			m += "px; width:"
-			m += width;
-			m += "px; height:"
-			m += height;
+			m +="&lt;div id=&quot;Canvas"+P[5]+"&quot; class=&quot;sig&quot;"
+			m += mstyle;
 			m += "; z-index:10;&quot;&gt;\n";
-	 		m +="\t&lt;/div&gt;\n\n";
-			m +="\t&lt;input type=&quot;hidden&quot; name=&quot;Store"+P[5]+"&quot; id=&quot;Store"+P[5]+"&quot; value=&quot;&quot;&gt;";
+	 		m +="&lt;/div&gt;\n";
+			m +="&lt;input type=&quot;hidden&quot; name=&quot;Store"+P[5]+"&quot; id=&quot;Store"+P[5]+"&quot; value=&quot;&quot;&gt;\n";
+			m += "&lt;img id=&quot;"+P[5]+"&quot; src=&quot;${oscar_image_path}BNK.png&quot;"
+			m += mstyle;
+			m += "; z-index:12;&quot;&gt;\n";			
 		}
 
 	} else if (InputType == "Stamp"){
@@ -1338,27 +1439,58 @@ function GetTextBottom(){
 	}
 
 	//auto load signature images
-	if (document.getElementById('AddStamp').checked){
+	if ((document.getElementById('AddStamp').checked)||(document.getElementById('AddSignatureClassic').checked)||(document.getElementById('AddSignature').checked)){
 		textBottom +="&lt;input type=&quot;hidden&quot; name=&quot;DoctorName&quot; id=&quot;DoctorName&quot; oscarDB=doctor&gt;\n"
 		textBottom +="&lt;input type=&quot;hidden&quot; name=&quot;CurrentUserName&quot; id=&quot;CurrentUserName&quot; oscarDB=current_user&gt;\n"
 		textBottom +="&lt;input type=&quot;hidden&quot; name=&quot;SubmittedBy&quot; id=&quot;SubmittedBy&quot;&gt;\n"
+		textBottom +="&lt;input type=&quot;hidden&quot; name=&quot;user_id&quot; id=&quot;user_id&quot; oscarDB=current_user_id&gt;\n"
+		textBottom +="&lt;input type=&quot;hidden&quot; name=&quot;user_ohip_no&quot; id=&quot;user_ohip_no&quot; oscarDB=current_user_ohip_no&gt;\n"
+		textBottom +="&lt;input type=&quot;hidden&quot; name=&quot;doctor_no&quot; id=&quot;doctor_no&quot; oscarDB=doctor_provider_no&gt;\n"
+		textBottom +="&lt;div id=&quot;signatureDisplay&quot;&gt;&lt;&#47;div&gt;\n"
+        textBottom +="&lt;input type=&quot;hidden&quot; name=&quot;signatureValue&quot; id=&quot;signatureValue&quot;&gt;\n"
 	}
+	//tickler settings
+	if (document.getElementById('includeTicklerControl').checked){
+		textBottom += "&lt;input id=&quot;tickler_patient_id&quot; type=&quot;hidden&quot; oscarDB=patient_id&gt;\n"
+		textBottom += "&lt;input id=&quot;tickler_send_to&quot; type=&quot;hidden&quot; oscarDB=" + document.getElementById('tickler_send_to').value + "&gt;\n"
+		if (!document.getElementById('endUserTicklerWeekAdj').checked){
+			textBottom += "&lt;input id=&quot;tickler_weeks&quot; type=&quot;hidden&quot; value=&quot;" + document.getElementById('tickler_weeks').value + "&quot;&gt;\n"
+		}
+		textBottom += "&lt;input id=&quot;tickler_priority&quot; type=&quot;hidden&quot; value=&quot;" + document.getElementById('tickler_priority').value + "&quot;&gt;\n"
+		if (document.getElementById('tickler_message').value.length > 0 ){
+			textBottom += "&lt;input id=&quot;tickler_message&quot; type=&quot;hidden&quot; value=&quot;" + document.getElementById('tickler_message').value + "&quot;&gt;\n"
+		}
+	}	
 
 	//classic signature
-	if (document.getElementById('AddSignatureClassic').checked){
-		textBottom +="&lt;div id=&quot;signatureDisplay&quot;&gt;&lt;/div&gt;&lt;input type=&quot;hidden&quot; name=&quot;signatureValue&quot; id=&quot;signatureValue&quot; value=&quot;&quot; &gt;&lt;/input&gt;\n"	
-	}
+	//if (document.getElementById('AddSignatureClassic').checked){
+	//	textBottom +="&lt;div id=&quot;signatureDisplay&quot;&gt;&lt;/div&gt;&lt;input type=&quot;hidden&quot; name=&quot;signatureValue&quot; id=&quot;signatureValue&quot; value=&quot;&quot; &gt;&lt;/input&gt;\n"	
+	//}
 
 	//bottom submit boxes
-    textBottom += "\n\n&lt;div class=&quot;DoNotPrint&quot; id=&quot;BottomButtons&quot; style=&quot;position: absolute; top:"
- 
-    textBottom += parseInt(BGHeight);
-	textBottom += "px; left:0px;&quot;&gt;\n"
-
-	textBottom += "\t &lt;table&gt;&lt;tr&gt;&lt;td&gt;\n"
-	textBottom += "\t\t Subject: &lt;input name=&quot;subject&quot; size=&quot;40&quot; type=&quot;text&quot;&gt; &lt;br&gt; \n"
-	textBottom += "\t\t&lt;input value=&quot;Submit&quot; name=&quot;SubmitButton&quot; id=&quot;SubmitButton&quot; type=&quot;submit&quot; onclick=&quot;"
-
+	textBottom += "\n\n&lt;div class=&quot;DoNotPrint&quot; id=&quot;BottomButtons&quot; style=&quot;position: absolute; top:"
+	textBottom += parseInt(BGHeight);
+	textBottom += "px; left:0px;&quot;&gt;\n";
+	textBottom += "\t&lt;table&gt;&lt;tr&gt;&lt;td&gt;\n";
+	textBottom += "\t\tSubject: &lt;input name=&quot;subject&quot; id=&quot;subject&quot; size=&quot;40&quot; type=&quot;text&quot;&gt; &lt;br&gt; \n";
+	//tickler settings
+	if (document.getElementById('includeTicklerControl').checked){
+		textBottom += "On Save this form will create a tickler for the ";
+		if (document.getElementById('tickler_send_to').value == "current_user_id"){
+			textBottom += "current user";
+		} else {
+			textBottom += "MRP";
+		}
+		textBottom += " of " + document.getElementById('tickler_priority').value + " urgency for ";
+		if (!document.getElementById('endUserTicklerWeekAdj').checked){
+			textBottom += document.getElementById('tickler_weeks').value;
+		} else {
+			textBottom += "&lt;input id=&quot;tickler_weeks&quot; size=&quot;3&quot; type=&quot;number&quot; value=&quot;" + document.getElementById('tickler_weeks').value + "&quot;&gt;";
+		}
+		textBottom += " weeks time. &lt;br&gt;\n";
+	}			
+	//buttons
+	textBottom += "\t\t&lt;input value=&quot;Submit&quot; name=&quot;SubmitButton&quot; id=&quot;SubmitButton&quot; type=&quot;button&quot; onclick=&quot;"
     if (document.getElementById('AddSignature').checked){
         textBottom += " saveSig(); releaseDirtyFlag();&quot;&gt; \n"
         textBottom += "\t\t&lt;input value=&quot;Save Sig&quot; name=&quot;SaveSigButton&quot; id=&quot;SaveSigButton&quot; type=&quot;button&quot; onclick=&quot;saveSig();&quot;&gt; \n"
@@ -1368,7 +1500,7 @@ function GetTextBottom(){
 	}
 	textBottom += "\t\t &lt;input value=&quot;Reset&quot; name=&quot;ResetButton&quot; id=&quot;ResetButton&quot; type=&quot;reset&quot;&gt; \n"
 	textBottom += "\t\t	&lt;input value=&quot;Print&quot; name=&quot;PrintButton&quot; id=&quot;PrintButton&quot; type=&quot;button&quot; onclick=&quot;formPrint();&quot;&gt; \n"
-	textBottom += "\t\t	&lt;input value=&quot;Print &amp; Submit&quot; name=&quot;PrintSubmitButton&quot; id=&quot;PrintSubmitButton&quot; type=&quot;button&quot; onclick=&quot;formPrint();releaseDirtyFlag();setTimeout('SubmitButton.click()',1800);&quot;&gt; \n"
+	//textBottom += "\t\t	&lt;input value=&quot;Print &amp; Submit&quot; name=&quot;PrintSubmitButton&quot; id=&quot;PrintSubmitButton&quot; type=&quot;button&quot; onclick=&quot;formPrint();releaseDirtyFlag();setTimeout('SubmitButton.click()',1800);&quot;&gt; \n"
 
 	textBottom += "\t&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;\n"
 	textBottom += "\n&lt;!-- Copy Left --&gt;\n"
@@ -1548,7 +1680,7 @@ show('classic');
 	onmouseup="SetMouseUp(); DrawMarker();loadInputList();"
 	onload="finishLoadingImage()">
 
-<h1><bean:message key="eFormGenerator.title"/> 6.6</h1>
+<h1><bean:message key="eFormGenerator.title"/> 7.0</h1>
 
 <!-- this form  used for injecting html in to Edit E-Form  efmformmanageredit.jsp -->
 <form method="post" action="efmformmanageredit.jsp" id="toSave">
@@ -1673,7 +1805,19 @@ show('classic');
 <span class='h2'>4. <bean:message key="eFormGenerator.signature"/></span><a onclick="show('Section4');"><bean:message key="eFormGenerator.expand"/></a>/<a onclick="hide('Section4');"><bean:message key="eFormGenerator.collapse"/></a>
 <div id="Section4">
 	<p>
-		<input type="checkbox" name="AddSignature" id="AddSignature" 
+	<input type="checkbox" name="Delegation" id="Delegation"><i><b>Delegate Authorised Signatures</b></i>
+	<span id="classic" style="display:none">
+		<p>
+		<input type="checkbox" name="AddSignatureClassic" id="AddSignatureClassic" 
+			onclick="	toggleView(this.checked,'Section4d');"><bean:message key="eFormGenerator.classic"/>
+		<br>
+	</span>
+		<div id="Section4d" style="display:none"> 
+			<input type="button" name="AddClassicSignatureBox" id="AddClassicSignatureBox" style="width:400px" value="<bean:message key="eFormGenerator.signatureLocationButton"/>" onclick="SetSwitchOn('ClassicSignature');document.getElementById('AddSignatureClassic').disabled=true; document.getElementById('AddClassicSignatureBox').disabled=true;">
+			<br>
+		</div> 
+	<p>
+	<input type="checkbox" name="AddSignature" id="AddSignature" 
 			onclick="	toggleView(this.checked,'Section4a');"><bean:message key="eFormGenerator.freehand"/>
 <!-- Add A Freehand Signature area to this form--> <br>
 			<div id="Section4a" style="display:none"> 
@@ -1758,14 +1902,7 @@ onclick="SetSwitchOn('Stamp');document.getElementById('AddStamp').disabled=true;
 			</div>
 	</p>
 
-	<span id="classic" style="display:none">
-	<p>
-		<input type="checkbox" name="AddSignatureClassic" id="AddSignatureClassic" 
-			onclick="	toggleView(this.checked,'Section4d');"><bean:message key="eFormGenerator.classic"/>
-<br>	</span>
-			<div id="Section4d" style="display:none"> 
-				<input type="button" name="AddClassicSignatureBox" id="AddClassicSignatureBox" style="width:400px" value="<bean:message key="eFormGenerator.signatureLocationButton"/>" onclick="SetSwitchOn('ClassicSignature');document.getElementById('AddSignatureClassic').disabled=true; document.getElementById('AddClassicSignatureBox').disabled=true;">
-			</div> 
+
 
 
 </div>
@@ -2070,8 +2207,42 @@ onclick="SetSwitchOn('Stamp');document.getElementById('AddStamp').disabled=true;
 
 <div id='pdfOption' <%=eformGeneratorIndivicaPrintEnabled ? "" : "style=\"display: none;\"" %>>
 <p><span class='h2'><bean:message key="eFormGenerator.PDFprint"/></span><br>
-	<input name="includePdfPrintControl" id="includePdfPrintControl" type="checkBox">
+	<input name="includePdfPrintControl" id="includePdfPrintControl" type="checkBox" checked>
 <bean:message key="eFormGenerator.includePDFprint"/>
+</p>
+</div>
+<div id='ticklerOptions'>
+<p><span class='h2'>Tickler Options</span><br>
+	<input name="includeTicklerControl" id="includeTicklerControl" type="checkBox">
+Include automatic ticklers (requires PDF print)<br>
+Priority
+<select name="tickler_priority" id="tickler_priority">
+	<option value="Normal">Normal</option>
+	<option value="High">High</option>
+	<option value="Low">Low</option>
+</select><br>
+Assign to
+<select name="tickler_send_to" id="tickler_send_to">
+	<option value="doctor_provider_no">Patients MRP</option>
+	<option value="current_user_id">Current User</option>
+</select><br>
+Due in 
+	<select name="tickler_weeks" id="tickler_weeks">
+	<option value="6">6 weeks</option>
+	<option value="1">1 week</option>
+	<option value="2">2 weeks</option>
+	<option value="3">3 weeks</option>
+	<option value="4">4 weeks</option>
+	<option value="8">2 months</option>
+	<option value="12">3 months</option>
+	<option value="16">4 months</option>
+	<option value="24">6 months</option>
+	<option value="36">9 months</option>
+	<option value="52">1 year</option>
+</select>&nbsp;&nbsp;allow end user to adjust<input name="endUserTicklerWeekAdj" id="endUserTicklerWeekAdj" type="checkBox">
+<br>
+Tickler message <input type="text" name="tickler_message" id="tickler_message" style="width:200px;"> <br>
+(leave blank to have the message read "Check for results of [subject] ordered [today]")	<br>
 </p>
 </div>
 
