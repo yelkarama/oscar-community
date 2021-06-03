@@ -104,7 +104,7 @@ public class RBTGroupManager {
 	 * 		User current login information and credentials
 	 */
 	public List<String> getTemplateGroups(LoggedInInfo loggedInInfo) {
-		if ( ! securityInfoManager.hasPrivilege(loggedInInfo, "_admin", SecurityInfoManager.READ, null) && ! securityInfoManager.hasPrivilege(loggedInInfo, "_report", SecurityInfoManager.READE, null)) {
+		if ( ! securityInfoManager.hasPrivilege(loggedInInfo, "_admin", SecurityInfoManager.READ, null) && ! securityInfoManager.hasPrivilege(loggedInInfo, "_report", SecurityInfoManager.READ, null)) {
 			throw new RuntimeException("Unauthorised Access. Object[_admin, _report]");
 		}
 
