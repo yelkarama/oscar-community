@@ -406,8 +406,8 @@ try
 					<!-- channel -->
 					<select id="channel">
                     <%
-                        String customSearchNameProperty = OscarProperties.getInstance().getProperty("customSearchName").trim();
-                        String customSearchUrlProperty = OscarProperties.getInstance().getProperty("customSearchUrl").trim();
+                        String customSearchNameProperty = OscarProperties.getInstance().getProperty("customSearchName");
+                        String customSearchUrlProperty = OscarProperties.getInstance().getProperty("customSearchUrl");
                         if (customSearchNameProperty != null && customSearchNameProperty !="" && customSearchUrlProperty!="" ) {
 					%>
                     <option value="<%=customSearchUrlProperty%>"><%=customSearchNameProperty%></option>
@@ -415,8 +415,8 @@ try
 						}
 					%>
                     <%
-                        String customSearchNameProperty2 = OscarProperties.getInstance().getProperty("customSearchName2").trim();
-                        String customSearchUrlProperty2 = OscarProperties.getInstance().getProperty("customSearchUrl2").trim();
+                        String customSearchNameProperty2 = OscarProperties.getInstance().getProperty("customSearchName2");
+                        String customSearchUrlProperty2 = OscarProperties.getInstance().getProperty("customSearchUrl2");
                         if (customSearchNameProperty2 != null && customSearchNameProperty2 !="" && customSearchUrlProperty2!="" ) {
 					%>
                     <option value="<%=customSearchUrlProperty2%>"><%=customSearchNameProperty2%></option>
@@ -424,8 +424,8 @@ try
 						}
 					%>
                     <%
-                        String customSearchNameProperty3 = OscarProperties.getInstance().getProperty("customSearchName3").trim();
-                        String customSearchUrlProperty3 = OscarProperties.getInstance().getProperty("customSearchUrl3").trim();
+                        String customSearchNameProperty3 = OscarProperties.getInstance().getProperty("customSearchName3");
+                        String customSearchUrlProperty3 = OscarProperties.getInstance().getProperty("customSearchUrl3");
                         if (customSearchNameProperty3 != null && customSearchNameProperty2 !="" && customSearchUrlProperty3!="" ) {
 					%>
                     <option value="<%=customSearchUrlProperty3%>"><%=customSearchNameProperty3%></option>
