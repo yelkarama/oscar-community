@@ -1471,7 +1471,7 @@ if (curProvider_no[provIndex].equals(provNum)) {
 
 <caisi:isModuleLoad moduleName="TORONTO_RFQ" reverse="true">
 <form method="post" name="findprovider" onSubmit="findProvider(<%=year%>,<%=month%>,<%=day%>);return false;" target="apptReception" action="receptionistfindprovider.jsp" style="display:inline;margin:0px;padding:0px;padding-right:10px">
-<INPUT TYPE="text" NAME="providername" VALUE="" WIDTH="2" HEIGHT="10" border="0" size="10" maxlength="10" class="noprint" title="Find a Provider" placeholder="Enter Lastname">
+<INPUT TYPE="text" NAME="providername" VALUE="" WIDTH="2" HEIGHT="10" border="0" size="13" maxlength="10" class="noprint" title="Find a Provider" placeholder="Enter Lastname">
 <INPUT TYPE="SUBMIT" NAME="Go" VALUE='<bean:message key="provider.appointmentprovideradminmonth.btnGo"/>' class="noprint" onClick="findProvider(<%=year%>,<%=month%>,<%=day%>);return false;">
 </form>
 </caisi:isModuleLoad>
