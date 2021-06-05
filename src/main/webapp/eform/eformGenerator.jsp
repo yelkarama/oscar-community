@@ -801,7 +801,7 @@ function GetTextTop(){
 		//reference built in signatureControl
 	if (document.getElementById('AddSignatureClassic').checked){
 		textTop += "\n&lt;!-- Classic Signatures --&gt;\n\n"	
-		textTop += "&lt;script type=&quot;text/javascript&quot; src=&quot;${oscar_javascript_path}eforms/signatureControl.jsp&quot;&gt;&lt;/script&gt;\n";
+		textTop += "&lt;script type=&quot;text/javascript&quot; src=&quot;$%7Boscar_javascript_path%7Deforms/signatureControl.jsp&quot;&gt;&lt;/script&gt;\n";
 		textTop += "&lt;script type=&quot;text/javascript&quot;&gt;\n";	
 		textTop += "if (typeof jQuery != &quot;undefined&quot; &amp;&amp; typeof signatureControl != &quot;undefined&quot;) {";
 		textTop += "jQuery(document).ready(function() {";
