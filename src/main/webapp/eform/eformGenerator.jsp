@@ -49,11 +49,11 @@ eForm Generator version 7.0
         6.2 file selector for images
         revert changed relative to absolute positions for page ids
         6.1 added some snap to form elements 
-	copyright by the OSCAR community including notably
+	origional copyright by the OSCAR community including notably
 	Shelter Lee
 	Darius
 	Charlie Livingston
-	re-imagined by Peter Hutten-Czapski 2014-2020
+	re-imagined by Peter Hutten-Czapski 2014-2021
 	released under 
 	AGPL v2+
 	and other liscences (MIT, LGPL etc) as indicated
@@ -718,14 +718,12 @@ function GetTextTop(){
 		(document.getElementById('includeTicklerControl').checked) ||
 		(xPresent) ) {
 		textTop += "&lt;!-- jQuery for greater functionality --&gt;\n"
-		// dependency on jquery up to version 2.2.1 for pdf and faxing hack it helps that you are not referencing a local version
-		textTop += "&lt;script type=&quot;text/javascript&quot; src=&quot;https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js&quot;&gt;&lt;/script&gt;\n";	
+		// dependency on jquery up to version 2.2.1 for pdf and faxing 
+		// ensure that we check the integrety of the CDN's version
+		textTop += "&lt;script type=&quot;text/javascript&quot; src=&quot;https://code.jquery.com/jquery-2.2.1.min.js&quot; integrity=&quot;sha256-gvQgAFzTH6trSrAWoH1iPo9Xc96QxSZ3feW6kem+O00=&quot; crossorigin=&quot;anonymous&quot; &gt;&lt;/script&gt;\n";	
 		// if unavailable reference the one in OSCAR
-		textTop += "&lt;script&gt;\nif (typeof jQuery === 'undefined') {\n\tdocument.write(unescape('%3Cscript%20src%3D%22../js/jquery-1.7.1.min.js%22%3E%3C/script%3E'));\n}\n"
-		textTop += "&lt;/script&gt;\n";
-		// ole darn it, I knew I left a copy of jQuery lying around somewhere... perhaps under my nose?
-		textTop += "&lt;script&gt;\nif (typeof jQuery === 'undefined') {\n\tdocument.write(unescape('%3Cscript%20src%3D%22jquery-1.7.1.min.js%22%3E%3C/script%3E'));\n}\n"
-		textTop += "&lt;/script&gt;\n";
+		//textTop += "&lt;script&gt;\nwindow.jQuery || document.write('&lt;script src=&quot;../js/jquery-1.7.1.min.js&quot;&gt;&lt;\/script&gt;');\n\n"
+		 textTop += "&lt;script&gt; window.jQuery || document.write('&lt;script src=&quot;../js/jquery-1.7.1.min.js&quot;&gt;&lt; &#92;/script&gt;') &lt;/script&gt;\n";
 	}
  
     //Peter Hutten-Czapski's Xbox scripts   
@@ -800,7 +798,7 @@ function GetTextTop(){
 
 		//reference built in signatureControl
 	if (document.getElementById('AddSignatureClassic').checked){
-		textTop += "\n&lt;!-- Classic Signatures --&gt;\n\n"	
+		textTop += "\n&lt;!-- Classic Signatures --&gt;\n"	
 		textTop += "&lt;script type=&quot;text/javascript&quot; src=&quot;$%7Boscar_javascript_path%7Deforms/signatureControl.jsp&quot;&gt;&lt;/script&gt;\n";
 		textTop += "&lt;script type=&quot;text/javascript&quot;&gt;\n";	
 		textTop += "if (typeof jQuery != &quot;undefined&quot; &amp;&amp; typeof signatureControl != &quot;undefined&quot;) {";
@@ -1695,7 +1693,7 @@ show('classic');
 <span class="h1"><bean:message key="eFormGenerator.title"/></span>
 	<a onclick="show('all');"><bean:message key="eFormGenerator.expandAll"/></a>/
 	<a onclick="hide('all');"><bean:message key="eFormGenerator.collapseAll"/></a>
-  <label for="snappiness">Snap to grid (0 is off)</label>
+  <p><label for="snappiness">Snap to grid (0 is off)</label>
   <select name="snappiness" id="snappiness" onchange='snap = document.getElementById("snappiness").value; console.log(snap)'>
     <option>0</option>
     <option>4</option>
