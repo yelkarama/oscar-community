@@ -439,7 +439,7 @@ function pasteAppt(multipleSameDayGroupAppt) {
 
 
 	function openTypePopup () {
-		windowprops = "height=170,width=500,location=no,scrollbars=no,menubars=no,toolbars=no,resizable=yes,screenX=0,screenY=0,top=100,left=100";
+		windowprops = "height=230,width=500,location=no,scrollbars=no,menubars=no,toolbars=no,resizable=yes,screenX=0,screenY=0,top=100,left=100";
 		var popup=window.open("appointmentType.jsp?type="+document.forms['ADDAPPT'].type.value, "Appointment Type", windowprops);
 		if (popup != null) {
 			if (popup.opener == null) {
