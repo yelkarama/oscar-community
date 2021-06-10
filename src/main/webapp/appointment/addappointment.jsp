@@ -1070,15 +1070,16 @@ function pasteAppt(multipleSameDayGroupAppt) {
             </td>
         </tr>
         <tr>
-            <td>
-                <INPUT TYPE="submit" name="searchBtn" id="searchBtn" class="btn" style="margin-bottom:10px;"
-                    onclick="document.forms['ADDAPPT'].displaymode.value='Search '"
-                    VALUE="<bean:message key="appointment.addappointment.btnSearch"/>">
+            <td><input type="button" value="Do Not Book" class="btn btn-info" style="margin-bottom:10px;" onclick="onNotBook();">   
+                
             </td>
-            <td>           
+            <td>   
+<INPUT TYPE="submit" name="searchBtn" id="searchBtn" class="btn" style="margin-bottom:10px;"
+                    onclick="document.forms['ADDAPPT'].displaymode.value='Search '"
+                    VALUE="<bean:message key="appointment.addappointment.btnSearch"/>">   
                 <input type="TEXT" name="demographic_no"
-                    ONFOCUS="onBlockFieldFocus(this)" readonly
-                    value='<%=(bFirstDisp && !bFromWL)?"":request.getParameter("demographic_no").equals("")?"":request.getParameter("demographic_no")%>'>
+                    ONFOCUS="onBlockFieldFocus(this)" readonly style="width: 60px;"
+                    value='<%=(bFirstDisp && !bFromWL)?"":request.getParameter("demographic_no").equals("")?"":request.getParameter("demographic_no")%>' >
             </td>
         </tr>
         <tr>
@@ -1216,7 +1217,7 @@ function pasteAppt(multipleSameDayGroupAppt) {
             onclick="document.forms['ADDAPPT'].displaymode.value='Add Appt & PrintCard'" class="btn"
             VALUE="<bean:message key='global.btnPrint'/>"
             <%=disabled%>>
-<input type="button" value="Do Not Book" class="btn" onclick="onNotBook();">
+
 
 
         <% } %>
