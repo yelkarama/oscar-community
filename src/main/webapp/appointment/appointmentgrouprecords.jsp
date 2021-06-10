@@ -406,16 +406,17 @@ function onSub() {
 <INPUT TYPE="hidden" NAME="groupappt" value="">
 
 
-<table border=0 cellspacing=0 cellpadding=0 width="100%">
+<table >
 	<tr >
-		<H4><font face="Helvetica"><bean:message
+		<H4>&nbsp;<font face="Helvetica"><bean:message
 			key="appointment.appointmentgrouprecords.msgLabel" /></font></H4>
 	</tr>
 	<tr  id="double-booking-row" style="display: none; background-color: gold; color: red">
 		<th><bean:message key="appointment.addappointment.msgDoubleBooking" /></th>
 	</tr>
 </table>
-
+<div class="container-fluid well" >   
+    <div class ="span9">
 <%
     Properties otherAppt = new Properties();
 	String eApptDate = request.getParameter("appointment_date");
@@ -487,7 +488,7 @@ function onSub() {
   	    out.println("<input type='hidden' name='"+temp+"' value=\"" + UtilMisc.htmlEscape(request.getParameter(temp)) + "\">");
     }
 %>
-<table border=0 cellspacing=0 cellpadding=0 width="100%">
+<table >
 	<tr>
 		<td nowrap><font color='black'><%=request.getParameter("appointment_date")%>
 		| <%=request.getParameter("start_time")%> - <%=request.getParameter(MyDateFormat.getTimeXX_XXampm("end_time"))%>
@@ -495,8 +496,8 @@ function onSub() {
 		<td align='right' nowrap>Group : <%=mygroupno%></td>
 	</tr>
 </table>
-<table BORDER="0" CELLPADDING="2" CELLSPACING="2" WIDTH="100%"
-	BGCOLOR="white" class="table table-hover table-condensed>
+<table BORDER="0" CELLPADDING="2" CELLSPACING="2" 
+	BGCOLOR="white" class="table table-hover table-condensed">
 	<tr BGCOLOR="<%=tableTitle%>">
 		<th width=30% nowrap><bean:message
 			key="appointment.appointmentgrouprecords.msgProviderName" /></th>
@@ -587,7 +588,7 @@ function onSub() {
 			onclick="document.forms['groupappt'].groupappt.value='Group Delete'; document.forms['groupappt'].submit();"
 			VALUE="<bean:message key="appointment.appointmentgrouprecords.btnGroupDelete"/>"
 			onClick="onButDelete()"> <%    } else {    %> <INPUT
-			TYPE="button" class="btn"
+			TYPE="button" class="btn btn-primary"
 			onclick="document.forms['groupappt'].groupappt.value='Add Group Appointment'; document.forms['groupappt'].submit();"
 			VALUE="<bean:message key="appointment.appointmentgrouprecords.btnAddGroupAppt"/>">
 		<%    }    %>
@@ -600,7 +601,7 @@ function onSub() {
 			onClick="onExit()"></TD>
 	</tr>
 </table>
-
+</div></div>
 </form>
 </body>
 </html:html>
