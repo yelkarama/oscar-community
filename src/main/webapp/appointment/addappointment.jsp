@@ -1248,7 +1248,7 @@ function pasteAppt(multipleSameDayGroupAppt) {
        <% if (!props.getProperty("allowMultipleSameDayGroupAppt", "").equalsIgnoreCase("no")) {%>
           <input type="button" id="apptRepeatButton" class="btn" value="<bean:message key="appointment.addappointment.btnRepeat"/>" onclick="onButRepeat()" <%=disabled%>>
       <%  } %>
-<INPUT TYPE="RESET" id="backButton" class="btn-danger" VALUE="<bean:message key="appointment.addappointment.btnCancel"/>" onClick="cancelPageLock();window.close();">
+<INPUT TYPE="RESET" id="backButton" class="btn btn-link" VALUE="<bean:message key="appointment.addappointment.btnCancel"/>" onClick="cancelPageLock();window.close();">
 
 </div>
 </div>
