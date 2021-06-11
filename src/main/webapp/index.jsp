@@ -104,7 +104,7 @@ boolean oauth2Enabled= "true".equalsIgnoreCase(OscarProperties.getInstance().get
             <%= props.getProperty("logintitle", "")%>
             <% } %>
         </title>
-        <!--LINK REL="StyleSheet" HREF="web.css" TYPE="text/css"-->
+    <!--LINK REL="StyleSheet" HREF="web.css" TYPE="text/css"-->
 
     <script language="JavaScript">
         function showHideItem(id){
@@ -118,12 +118,6 @@ boolean oauth2Enabled= "true".equalsIgnoreCase(OscarProperties.getInstance().get
         function setfocus() {
             document.loginForm.username.focus();
             document.loginForm.username.select();
-        }
-
-        function popupPage(vheight,vwidth,varpage) {
-            var page = "" + varpage;
-            windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes";
-            var popup=window.open(page, "gpl", windowprops);
         }
 
   		function addStartTime() {
@@ -174,23 +168,22 @@ boolean oauth2Enabled= "true".equalsIgnoreCase(OscarProperties.getInstance().get
 <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 <link href="<%=request.getContextPath() %>/css/DT_bootstrap.css" rel="stylesheet" type="text/css">
 <link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
-<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css"> 
+
 
      </head>
-    <body onLoad="setfocus()" >
+    <body onLoad="setfocus();" >
 
 <div class="container" style="border-style: solid; border-color: #49afcd; border-radius:25px; border-width: 1px;">
 
 <br>
 <br>
 
-    <div class="row">
+<div class="row">
         <div class="span4 text-center">
             <% if (props.getProperty("loginlogo", "").equals("")) { %>
                 <html:img srcKey="loginApplication.image.logo" width="450" height="274" style="margin-left:auto; margin-right: auto;"/>
             <% } else { %>
-<html:img srcKey="loginApplication.image.logo" width="450" height="274" style="margin-left:auto; margin-right: auto;"/>
-                
+                <img src="<%=props.getProperty("loginlogo", "")%>">              
             <% } %>
 
         </div>
@@ -212,22 +205,16 @@ boolean oauth2Enabled= "true".equalsIgnoreCase(OscarProperties.getInstance().get
             <% } else { %>
                 <div> 
             <% } %>
-                <bean:message key="<%=key2%>"/><br>
+            <bean:message key="<%=key2%>"/><br>
             </div><p>
             <html:form action="login" >
-                            <%
-                            if(oscar.oscarSecurity.CRHelper.isCRFrameworkEnabled() && !net.sf.cookierevolver.CRFactory.getManager().isMachineIdentified(request)){
-                            %><img src="gatekeeper/appid/?act=image&/empty<%=System.currentTimeMillis() %>.gif" width='1' height='1'><%
-                            }
-                            %>
+                <% if(oscar.oscarSecurity.CRHelper.isCRFrameworkEnabled() && !net.sf.cookierevolver.CRFactory.getManager().isMachineIdentified(request)){ %>
+                    <img src="gatekeeper/appid/?act=image&/empty<%=System.currentTimeMillis() %>.gif" width='1' height='1'>
+                <% } %>
 	        <input type="text" id="username"  name="username" class="input-large span4" autocomplete="off" placeholder="<bean:message key="loginApplication.formUserName"/>">
 			<input type="password" id="password2" name="password" class="span4" autocomplete="off" placeholder="<bean:message key="loginApplication.formPwd"/>">
             <span class="help-block"><bean:message key="loginApplication.formCmt"/></span>
 			<input type="password" id="pin" name="pin" class="span4" autocomplete="off" placeholder="<bean:message key="index.formPIN"/>">
-
-            <label class="checkbox">
-            	<input type="checkbox" name="remember" value="1"> Remember Me
-            </label>
 
             <%if(oneIdEnabled && !oauth2Enabled) { %>
                 <a href="<%=econsultUrl %>/SAML2/login?oscarReturnURL=<%=URLEncoder.encode(oscarUrl + "/ssoLogin.do", "UTF-8") + "?loginStart="%>" id="oneIdLogin" onclick="addStartTime()"><div class="btn btn-primary btn-block oneIDLogin"><span class="oneIDLogo"></span><span class="oneIdText">ONE ID Login</span></div></a>
@@ -237,17 +224,25 @@ boolean oauth2Enabled= "true".equalsIgnoreCase(OscarProperties.getInstance().get
             <% } %>
 			<button type="submit" name="submit" class="btn btn-primary btn-block" style="width: 60%; margin: 0px auto;"><bean:message key="index.btnSignIn"/></button>		   
 		</div>
-	</div>
+        <div id='auaText' class="span3" style="display:none;">
+            <h3><bean:message key="provider.login.title.confidentiality"/></h3>
+						<p><%=AcceptableUseAgreementManager.getAUAText()%></p> </div> <!-- loads OSCARloginText.txt from DOCUMENT_DIR -->
+            <div id='liscence' class="span3" style="display:none;"> 
+-           <bean:message key="loginApplication.leftRmk2" />
+            <bean:message key="loginApplication.gplLink2" /></div>
+    </div>
     <span class="span4 offset4 text-right">
-        build date: <%= OscarProperties.getBuildDate() %> build tag: <%=OscarProperties.getBuildTag()%>&nbsp;&nbsp; <br>
+        <small><bean:message key="loginApplication.gplLink" /> <a href="javascript:void(0);" onclick="showHideItem('liscence');"><bean:message key="global.showhide"/></a><br>
         <%if (AcceptableUseAgreementManager.hasAUA()){ %>
-            <bean:message key="global.aua" /> &nbsp; <a href="javascript:void(0);" onclick="showHideItem('auaText');"><bean:message key="global.showhide"/></a>
+            <bean:message key="global.aua" /> &nbsp; <a href="javascript:void(0);" onclick="showHideItem('auaText');"><bean:message key="global.showhide"/></a><br>
         <% } %>
+	build date: <%= OscarProperties.getBuildDate() %> build tag: <%=OscarProperties.getBuildTag()%></small>&nbsp;&nbsp;
     </span>
+
 </div>     
-                        <input type=hidden name='propname' value='<bean:message key="loginApplication.propertyFile"/>' />
-                        <input type="hidden" id="oneIdKey" name="nameId" value="<%=request.getParameter("nameId") != null ? request.getParameter("nameId") : ""%>"/>
-                        <input type="hidden" id="email" name="email" value="<%=request.getParameter("email") != null ? request.getParameter("email") : ""%>"/>
-                        </html:form>   
+<input type=hidden name='propname' value='<bean:message key="loginApplication.propertyFile"/>' />
+<input type="hidden" id="oneIdKey" name="nameId" value="<%=request.getParameter("nameId") != null ? request.getParameter("nameId") : ""%>"/>
+<input type="hidden" id="email" name="email" value="<%=request.getParameter("email") != null ? request.getParameter("email") : ""%>"/>
+</html:form>   
 
 </html:html>
