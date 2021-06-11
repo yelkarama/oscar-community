@@ -323,15 +323,18 @@ for (int i = 1; i < 12; i++) {
 	<tr>
 		<td></td>
 		<td><bean:message key="appointment.appointmenteditrepeatbooking.endon"/> &nbsp;&nbsp;
-		<td nowrap valign="top">
-        <img id="f_trigger_b" src="../images/cal.gif">
+		<td nowrap >
+        <button id="f_trigger_b" class="btn">
+            <img  src="../images/cal.gif">
+            <font size="-1"><bean:message key="ddmmyyyy"/></font>
+        </button>      
         <input type="text" id="endDate"
-			name="endDate" size="10"
+			name="endDate" style="width: 90px;"
 			value="<%=UtilDateUtilities.DateToString(new Date(),"dd/MM/yyyy")%>"
 			readonly>
-		<br>
-		<font size="-1"><bean:message key="ddmmyyyy"/></font></td></td>
+		</td>
 	</tr>
+    <tr><td>&nbsp;</td></tr>
 </table>
 
 <table width="100%" BGCOLOR="silver">
@@ -339,7 +342,7 @@ for (int i = 1; i < 12; i++) {
 		<TD>
 		<%    if (bEdit) {    %> <INPUT TYPE="button" class="btn btn-primary"
 			onclick="document.forms['groupappt'].groupappt.value='Group Update'; document.forms['groupappt'].submit();"
-			VALUE="1<bean:message key="appointment.appointmentgrouprecords.btnGroupUpdate"/>">
+			VALUE="<bean:message key="appointment.appointmentgrouprecords.btnGroupUpdate"/>">
 		<INPUT TYPE="button" class="btn"
 			onclick="document.forms['groupappt'].groupappt.value='Group Cancel'; document.forms['groupappt'].submit();"
 			VALUE="<bean:message key="appointment.appointmentgrouprecords.btnGroupCancel"/>">
