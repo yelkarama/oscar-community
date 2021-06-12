@@ -46,7 +46,7 @@
 <%@page import="org.oscarehr.PMmodule.caisi_integrator.IntegratorFallBackManager" %>
 <%@page import="org.apache.commons.lang.StringEscapeUtils" %>
 
-<%@ page import="java.util.*, java.sql.*, java.net.*, oscar.*, oscar.oscarDB.*" errorPage="errorpage.jsp"%>
+<%@ page import="java.util.*, java.sql.*, java.net.*, oscar.*, oscar.oscarDB.*"%>
 <%@ page import="org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorManager, org.oscarehr.caisi_integrator.ws.CachedAppointment, org.oscarehr.caisi_integrator.ws.CachedProvider, org.oscarehr.util.LoggedInInfo" %>
 <%@ page import="org.oscarehr.caisi_integrator.ws.*"%>
 <%@ page import="org.oscarehr.common.model.CachedAppointmentComparator" %>
@@ -69,6 +69,9 @@
 <%@ page import="org.oscarehr.common.model.ProviderData"%>
 <%@ page import="org.oscarehr.common.dao.ProviderDataDao"%>
 
+<%@ page import="org.oscarehr.common.dao.LookupListItemDao" %>
+<%@ page import="org.owasp.encoder.Encode" %>
+
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
@@ -90,6 +93,7 @@ LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
 ProviderDataDao providerDao = SpringUtils.getBean(ProviderDataDao.class);
 AppointmentStatusDao appointmentStatusDao = SpringUtils.getBean(AppointmentStatusDao.class);
+LookupListItemDao lookupListItemDao = SpringUtils.getBean(LookupListItemDao.class);
 
 
 
@@ -137,7 +141,8 @@ if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) {
 <oscar:customInterface section="appthistory"/>
    
 <title><bean:message key="demographic.demographicappthistory.title" /></title>
-<link rel="stylesheet" type="text/css" href="../share/css/OscarStandardLayout.css">
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
+
 <script type="text/javascript">
 
 	function popupPageNew(vheight,vwidth,varpage) {
@@ -213,6 +218,11 @@ if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) {
 </script>
 
 <link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/datepicker.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/DT_bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 </head>
 
 <body class="BodyStyle"	demographic.demographicappthistory.msgTitle=vlink="#0000FF">
@@ -242,26 +252,25 @@ if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) {
 			<br/>
 	    </td>
 		<td class="MainTableRightColumn">
-		<table width="95%" border="0" bgcolor="#ffffff" id="apptHistoryTbl">
-			<tr  bgcolor="<%=deepColor%>">				
-				<TH width="10%"><b><bean:message key="demographic.demographicappthistory.msgApptDate" /></b></TH>
-				<TH width="10%"><b><bean:message key="demographic.demographicappthistory.msgFrom" /></b></TH>
-				<TH width="10%"><b><bean:message key="demographic.demographicappthistory.msgTo" /></b></TH>
+		<table class="table table-striped table-hover table-condensed" width="95%" border="0"  id="apptHistoryTbl">
+			 				
+				<TH width="7%"><b><bean:message key="demographic.demographicappthistory.msgApptDate" /></b></TH>
+				<TH width="7%"><b><bean:message key="demographic.demographicappthistory.msgFrom" /></b></TH>
+				<TH width="7%"><b><bean:message key="demographic.demographicappthistory.msgTo" /></b></TH>
 				<TH width="10%"><b><bean:message key="demographic.demographicappthistory.msgStatus" /></b></TH>
 				<TH width="10%"><b><bean:message key="demographic.demographicappthistory.msgType" /></b></TH>
-				<TH width="15%"><b><bean:message key="demographic.demographicappthistory.msgReason" /></b></TH>
+				<TH width="24%"><b><bean:message key="demographic.demographicappthistory.msgReason" /></b></TH>
 				<TH width="15%"><b><bean:message key="demographic.demographicappthistory.msgProvider" /></b></TH>
 				<plugin:hideWhenCompExists componentName="specialencounterComp" reverse="true">
 				<special:SpecialEncounterTag moduleName="eyeform">   
 					<TH width="5%"><b>EYE FORM</b></TH>
 				</special:SpecialEncounterTag>
 				</plugin:hideWhenCompExists>
-				<TH><b><bean:message key="demographic.demographicappthistory.msgComments" /></b></TH>
-				
+				<TH><b><bean:message key="demographic.demographicappthistory.msgComments" /></b></TH>				
 				<% if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) { %>
-					<TH width="5%">Location</TH>
+					<TH width="5%"><b>Location</b></TH>
 				<% } %>
-			</tr>
+			
 <%
   int iRSOffSet=0;
   int iPageSize=10;
@@ -334,10 +343,15 @@ if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) {
     if(provider != null) {
     	providerMap.put(provider.getId(),provider);
     }
+
+		String reasonDropDown = "";
+		if (appointment.getReasonCode()!=null && appointment.getReasonCode()>0){
+			reasonDropDown = lookupListItemDao.find(appointment.getReasonCode())!=null ? lookupListItemDao.find(appointment.getReasonCode()).getLabel() + " - " : "";
+		}
        
 %> 
-<tr <%=(deleted)?"style='text-decoration: line-through' ":"" %> bgcolor="<%=bodd?weakColor:"white"%>" appt_no="<%=appointment.getId().toString()%>" demographic_no="<%=demographic_no%>" provider_no="<%=provider!=null?provider.getId():""%>">	  
-      <td align="center"><a href=# onClick ="popupPageNew(360,680,'../appointment/appointmentcontrol.jsp?demographic_no=<%=demographic_no%>&appointment_no=<%=appointment.getId().toString()%>&displaymode=edit&dboperation=search');return false;" ><%=appointment.getAppointmentDate()%></a></td>
+<tr <%=(deleted)?"style='text-decoration: line-through' ":"" %>  appt_no="<%=appointment.getId().toString()%>" demographic_no="<%=demographic_no%>" provider_no="<%=provider!=null?provider.getId():""%>">	  
+      <td align="center"><a href=# onClick ="popupPageNew(660,810,'../appointment/appointmentcontrol.jsp?demographic_no=<%=demographic_no%>&appointment_no=<%=appointment.getId().toString()%>&displaymode=edit&dboperation=search');return false;" ><%=appointment.getAppointmentDate()%></a></td>
       <td align="center"><%=appointment.getStartTime()%></td>
       <td align="center"><%=appointment.getEndTime()%></td>
       <td align="center">
@@ -345,8 +359,8 @@ if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) {
 		<%=as.getDescription()%>
 	  <% } %>
 	  </td>
-      <td><%=appointment.getType() %></td>
-      <td><%=appointment.getReason()%></td>
+      <td><%=Encode.forHtml("null".equalsIgnoreCase(appointment.getType())?"":appointment.getType())%></td>
+      <td><%=reasonDropDown%> <%=Encode.forHtml(appointment.getReason()!=null?appointment.getReason():"")%></td>
       <% if( provider != null ) {%>
       <td><%=(provider.getLastName() == null ? "N/A" : provider.getLastName()) + "," + (provider.getFirstName() == null ? "N/A" : provider.getFirstName())%></td>
       <%}
@@ -365,30 +379,31 @@ if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) {
       if(remarks == null)
     	  remarks="";
       
-         String comments = "";
+         String notes = appointment.getNotes();
          boolean newline = false;
 
-         if (appointment.getStatus()!=null) {
-            if(appointment.getStatus().contains("N")) {
-               comments = "No Show";
-            }
-            else if (appointment.getStatus().equals("C")) {
-               comments = "Cancelled";
-            }
-        }
-
-        if (!remarks.isEmpty() && !comments.isEmpty()) {
+        if (!remarks.isEmpty() && !notes.isEmpty()) {
               newline=true;
          }
 %>
-      <td>&nbsp;<%=remarks%><% if(newline){%><br/>&nbsp;<%}%><%=comments%></td>
+      <td>&nbsp;<%=Encode.forHtml(remarks)%><% if(newline){%><br/>&nbsp;<%}%><%=Encode.forHtml(notes)%></td>
 <% 
-	if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) { 
-	String[] sbc = siteBgColor.get(appointment.getLocation()); 
+	if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) {
+	    if (appointment.getLocation() != null && !appointment.getLocation().isEmpty()) {
+	        String[] sbc = siteBgColor.get(appointment.getLocation());
+	        if (sbc != null && sbc.length > 1) { 
 %>      
-	<td style='background-color:<%= sbc[0] %>'><%= sbc[1] %></td>
+	<td </td>
+		 <% } else { %>
+	<td>none</td>
 <% 
-	} 
+			}
+		}
+		else {
+%>
+	<td>none</td>
+<%		}
+	}
 %>      
 </tr>
 <%
@@ -419,7 +434,7 @@ if (cachedAppointments != null) {
       <td><%=StringUtils.trimToEmpty(a.getReason())%></td>
       <td>
       	<%=(p != null ? p.getLastName() +","+ p.getFirstName() : "") %> (remote)</td>
-      <td>&nbsp;<%=a.getStatus()==null?"":(a.getStatus().contains("N")?"No Show":(a.getStatus().equals("C")?"Cancelled":"") ) %></td>
+      <td>&nbsp;<%=a.getNotes() %></td>
 	</tr>
 <%
 		  
