@@ -217,42 +217,25 @@ if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) {
 	}
 </script>
 
-<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
+
 <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
-<link href="<%=request.getContextPath() %>/css/datepicker.css" rel="stylesheet" type="text/css">
 <link href="<%=request.getContextPath() %>/css/DT_bootstrap.css" rel="stylesheet" type="text/css">
-<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
-<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
+
+
 </head>
 
 <body class="BodyStyle"	demographic.demographicappthistory.msgTitle=vlink="#0000FF">
 
-<table class="MainTable" id="scrollNumber1" name="encounterTable">
-	<tr class="MainTableTopRow">
-		<td class="MainTableTopRowLeftColumn"><bean:message
-			key="demographic.demographicappthistory.msgHistory" /></td>
-		<td class="MainTableTopRowRightColumn">
-		<table class="TopStatusBar">
-			<tr>
-				<td><bean:message key="demographic.demographicappthistory.msgResults" />: <%=demolastname%>,<%=demofirstname%>(<%=request.getParameter("demographic_no")%>)</td>
-				<td>&nbsp;</td>
-				<td style="text-align: right"><oscar:help keywords="appointment history" key="app.top1"/> | <a href="javascript:popupStart(300,400,'About.jsp')">
-					<bean:message key="global.about" /></a> | <a href="javascript:popupStart(300,400,'License.jsp')">
-					<bean:message key="global.license" /></a>
-				</td>
-			</tr>
-		</table>
-		</td>
-	</tr>
-	<tr>
-		<td class="MainTableLeftColumn" valign="top"><a	href="<%=request.getContextPath()%>/demographic/demographiccontrol.jsp?demographic_no=<%=request.getParameter("demographic_no")%>&apptProvider=<%=session.getAttribute("user") %>&displaymode=edit&dboperation=search_detail" onMouseOver="self.status=document.referrer;return true">
-			<bean:message key="global.btnBack" /></a> 
-			<br/>
-			<input type="checkbox" name="showDeleted" id="showDeleted" onChange="toggleShowDeleted(this.checked);"/><bean:message key="demographic.demographicappthistory.msgShowDeleted" />
-			<br/>
-	    </td>
-		<td class="MainTableRightColumn">
-		<table class="table table-striped table-hover table-condensed" width="95%" border="0"  id="apptHistoryTbl">
+<div class="span12">
+<H4 ><bean:message key="demographic.demographicappthistory.msgHistory" />
+<bean:message key="demographic.demographicappthistory.msgResults" />: 
+<%=demolastname%>,<%=demofirstname%>(<%=request.getParameter("demographic_no")%>) <a href="<%=request.getContextPath()%>/demographic/demographiccontrol.jsp?demographic_no=<%=request.getParameter("demographic_no")%>&apptProvider=<%=session.getAttribute("user") %>&displaymode=edit&dboperation=search_detail" onMouseOver="self.status=document.referrer;return true">
+			<bean:message key="global.btnBack" /></a></H4>&nbsp;
+<input type="checkbox" name="showDeleted" id="showDeleted" onChange="toggleShowDeleted(this.checked);"/>&nbsp:&nbsp;
+<bean:message key="demographic.demographicappthistory.msgShowDeleted" />
+				
+
+		<table class="table table-striped table-hover table-condensed span12" width="95%" border="0"  id="apptHistoryTbl">
 			 				
 				<TH width="7%"><b><bean:message key="demographic.demographicappthistory.msgApptDate" /></b></TH>
 				<TH width="7%"><b><bean:message key="demographic.demographicappthistory.msgFrom" /></b></TH>
@@ -421,7 +404,7 @@ if (cachedAppointments != null) {
 		  CachedProvider p = CaisiIntegratorManager.getProvider(loggedInInfo, loggedInInfo.getCurrentFacility(), providerPk);
 		  AppointmentStatus as = appointmentStatusDao.findByStatus(a.getStatus());
 %>
-	<tr bgcolor="<%=bodd?weakColor:"white"%>">
+	<tr>
       <td align="center"><%=DateUtils.formatDate(a.getAppointmentDate(), request.getLocale())%></td>
       <td align="center"><%=DateUtils.formatTime(a.getStartTime(), request.getLocale())%></td>
       <td align="center"><%=DateUtils.formatTime(a.getEndTime(), request.getLocale())%></td>
@@ -470,12 +453,9 @@ if (cachedAppointments != null) {
 <%
 }
 %>
+
 		<p>
-		</td>
-	</tr>
-	<tr>
-		<td class="MainTableBottomRowLeftColumn"></td>
-		<td class="MainTableBottomRowRightColumn">
+	
 		Filter results on this page by provider:
 		<select onChange="filterByProvider(this)">
 			<option value="">ALL</option>
@@ -487,8 +467,6 @@ if (cachedAppointments != null) {
 				}
 			%>
 		</select>
-		</td>
-	</tr>
-</table>
+		
 </body>
 </html:html>
