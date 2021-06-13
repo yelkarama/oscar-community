@@ -914,7 +914,7 @@ function pasteAppt(multipleSameDayGroupAppt) {
             	%>
                 <INPUT TYPE="TEXT" NAME="keyword"
                         VALUE="<%=name%>"
-                        placeholder="Enter Last Name">
+                        placeholder="<bean:message key="Appointment.formNamePlaceholder" />">
             </td>
         </tr>
         <tr>
@@ -1015,7 +1015,7 @@ function pasteAppt(multipleSameDayGroupAppt) {
         <% if (pros.isPropertyActive("mc_number")) { %>
         <tr>
             <td>
-                M/C number:
+                <bean:message key="Appointment.formMC" />:
             </td>
             <td>
                 <input type="text" name="appt_mc_number" tabindex="4" />
