@@ -505,8 +505,10 @@ function setType(typeSel,reasonSel,locSel,durSel,notesSel,resSel) {
     <div class="header deep">
         <div class="time" id="header"><H4>
             <!-- We display a shortened title for the mobile version -->
-            <% if (isMobileOptimized) { %><bean:message key="appointment.editappointment.msgMainLabelMobile" />
-            <% } else { %><bean:message key="appointment.editappointment.msgMainLabel" />
+            <% if (isMobileOptimized) { %>
+                <bean:message key="appointment.editappointment.msgMainLabelMobile" />
+            <% } else { %>
+                <bean:message key="appointment.editappointment.msgMainLabel" />
             <% } %>
 
  <%
@@ -522,13 +524,13 @@ function setType(typeSel,reasonSel,locSel,durSel,notesSel,resSel) {
     	if(appt != null && !StringUtils.isEmpty(appt.getProviderNo())) {
      		ProviderData prov = providerDao.find(appt.getProviderNo());
      		if(prov != null) {
-   				String providerName = prov.getLastName() + ","+ prov.getFirstName();
+   				String providerName = prov.getLastName() + ", "+ prov.getFirstName();
    		%>
 		
-		   					(<%=providerName %>)
+		   <%=providerName==""?"":"("+providerName+")"%>
 		                           	
-<%}
-	}
+<%          }
+	    }
 %>
 </H4>
         </div>
@@ -546,7 +548,15 @@ function setType(typeSel,reasonSel,locSel,durSel,notesSel,resSel) {
 <%
 			return;
 		}
-	}
+	} else {
+
+%>
+</H4>
+        </div>
+        
+    </div>
+<%
+    }
 
 
 	if (bFirstDisp) {
