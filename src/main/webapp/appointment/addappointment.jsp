@@ -1070,7 +1070,7 @@ function pasteAppt(multipleSameDayGroupAppt) {
             </td>
         </tr>
         <tr>
-            <td><input type="button" value="Do Not Book" class="btn btn-info" style="margin-bottom:10px;" onclick="onNotBook();">   
+            <td><input type="button" value="Do Not Book" class="btn btn-link" style="padding-left:0px;" onclick="onNotBook();">   
                 
             </td>
             <td>   
