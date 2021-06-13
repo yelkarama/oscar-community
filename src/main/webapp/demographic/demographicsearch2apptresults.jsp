@@ -40,6 +40,7 @@
 %>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/caisi-tag.tld" prefix="caisi"%>
@@ -59,12 +60,16 @@
 <%@page import="org.oscarehr.caisi_integrator.ws.MatchingDemographicTransferScore"%>
 <%@page import="org.oscarehr.casemgmt.service.CaseManagementManager"%>
 
-<%@ page import="java.util.*, java.sql.*,java.net.*, oscar.*" errorPage="errorpage.jsp"%>
+<%@ page import="java.util.*, java.sql.*,java.net.*, oscar.*"%>
 
 <%@page import="org.oscarehr.util.SpringUtils" %>
 <%@page import="org.oscarehr.common.model.Demographic"%>
 <%@page import="org.oscarehr.common.dao.DemographicDao" %>
 <%@ page import="oscar.oscarDemographic.data.DemographicMerged" %>
+<%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
+<%@ page import="net.sf.json.JSONObject" %>
+<%@ page import="org.oscarehr.common.dao.DemographicExtDao" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@page import="org.oscarehr.common.dao.OscarLogDao"%>
 
 <jsp:useBean id="providerBean" class="java.util.Properties" scope="session" />
@@ -92,7 +97,9 @@
 
 	List<Demographic> demoList = null;  
 	DemographicDao demographicDao = (DemographicDao)SpringUtils.getBean("demographicDao");
+	DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);
 	OscarLogDao oscarLogDao = (OscarLogDao)SpringUtils.getBean("oscarLogDao");
+
 	String providerNo = loggedInInfo.getLoggedInProviderNo();
 	boolean outOfDomain = true;
 	if(OscarProperties.getInstance().getProperty("ModuleNames","").indexOf("Caisi") != -1) {
@@ -108,8 +115,16 @@
 
 <html>
 <head>
+
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/datepicker.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/DT_bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
+<link rel="stylesheet" href="../css/helpdetails.css" type="text/css">
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="demographic.demographicsearch2apptresults.title" />(demographicsearch2apptresults)</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 
 <% 
 	if (isMobileOptimized) { 
@@ -119,8 +134,8 @@
 <% 
 	} else { 
 %>
-   <link rel="stylesheet" type="text/css" href="../share/css/searchBox.css" />
-   <link rel="stylesheet" type="text/css" media="all" href="../demographic/searchdemographicstyle.css"  />
+   <!-- <link rel="stylesheet" type="text/css" href="../share/css/searchBox.css" />
+   <link rel="stylesheet" type="text/css" media="all" href="../demographic/searchdemographicstyle.css"  />  -->
 <% 
 	} 
 %>
@@ -175,15 +190,14 @@ function searchAll() {
 </head>
 <body bgcolor="white" onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0" bottommargin="0">
 <div id="demographicSearch" class="searchBox">
-	<form method="post" name="titlesearch" action="../demographic/demographiccontrol.jsp" onSubmit="return checkTypeIn()">
+	<form class="form-horizontal" method="post" name="titlesearch" action="../demographic/demographiccontrol.jsp" onSubmit="return checkTypeIn()">
 	<%--@ include file="zdemographictitlesearch.htm"--%>
-    <div class="header deep">
-        <div class="title"></div>  
+    <div >
+        <H4><bean:message key="demographic.demographicsearch2apptresults.title" /></H4> 
     </div>
-    <ul>
-        <li>
-            <div class="label">
-            </div>
+    
+           
+            
             <select class="wideInput" name="search_mode">
                 <option value="search_name" <%=request.getParameter("search_mode").equals("search_name")?"selected":""%>>
 					<bean:message key="demographic.demographicsearch2apptresults.optName" />
@@ -203,16 +217,10 @@ function searchAll() {
                 <option value="search_chart_no" <%=request.getParameter("search_mode").equals("search_chart_no")?"selected":""%>>
                     <bean:message key="demographic.demographicsearch2apptresults.optChart"/>
                 </option>
-		<option value="search_demographic_no" <%=request.getParameter("search_mode").equals("search_demographic_no")?"selected":""%>>
-                    <bean:message key="demographic.demographicsearch2apptresults.demographicId"/>
-                </option>
             </select>
-        </li>
-        <li>
-            <div class="label"> </div>
-            <input type="text" class="wideInput" NAME="keyword" VALUE="<%=request.getParameter("keyword")%>" SIZE="17" MAXLENGTH="100"/>
-        </li>
-        <li>
+      
+          <input type="text" class="wideInput" NAME="keyword" VALUE="<%=Encode.forHtmlAttribute(request.getParameter("keyword"))%>" SIZE="17" MAXLENGTH="100"/>
+        
 	<INPUT TYPE="hidden" NAME="orderby" VALUE="last_name, first_name">
         <INPUT TYPE="hidden" NAME="dboperation" VALUE="search_titlename">
         <INPUT TYPE="hidden" NAME="limit1" VALUE="0">
@@ -220,61 +228,62 @@ function searchAll() {
         <input type="hidden" name="displaymode" value="Search ">
         <INPUT TYPE="hidden" NAME="ptstatus" VALUE="active">
         
-        <input type="hidden" name="fromAppt" value="<%=request.getParameter("fromAppt")%>">
-		<input type="hidden" name="originalPage" value="<%=request.getParameter("originalPage")%>">
-		<input type="hidden" name="bFirstDisp" value="<%=request.getParameter("bFirstDisp")%>">
-		<input type="hidden" name="provider_no" value="<%=request.getParameter("provider_no")%>">
-		<input type="hidden" name="start_time" value="<%=request.getParameter("start_time")%>">
-		<input type="hidden" name="end_time" value="<%=request.getParameter("end_time")%>">
-		<input type="hidden" name="year" value="<%=request.getParameter("year")%>">
-		<input type="hidden" name="month" value="<%=request.getParameter("month")%>">
-		<input type="hidden" name="day" value="<%=request.getParameter("day")%>">
-		<input type="hidden" name="appointment_date" value="<%=request.getParameter("appointment_date")%>">
-		<input type="hidden" name="notes" value="<%=request.getParameter("notes")%>">
-		<input type="hidden" name="reason" value="<%=request.getParameter("reason")%>">
-		<input type="hidden" name="reasonCode" value="<%=request.getParameter("reasonCode")%>">
-		<input type="hidden" name="location" value="<%=request.getParameter("location")%>">
-		<input type="hidden" name="resources" value="<%=request.getParameter("resources")%>">
-		<input type="hidden" name="type" value="<%=request.getParameter("type")%>">
-		<input type="hidden" name="style" value="<%=request.getParameter("style")%>">
-		<input type="hidden" name="billing" value="<%=request.getParameter("billing")%>">
-		<input type="hidden" name="status" value="<%=request.getParameter("status")%>">
-		<input type="hidden" name="createdatetime" value="<%=request.getParameter("createdatetime")%>">
-		<input type="hidden" name="creator" value="<%=request.getParameter("creator")%>">
-		<input type="hidden" name="remarks" value="<%=request.getParameter("remarks")%>">
+        <input type="hidden" name="fromAppt" value="<%=Encode.forHtmlAttribute(request.getParameter("fromAppt"))%>">
+		<input type="hidden" name="originalPage" value="<%=Encode.forHtmlAttribute(request.getParameter("originalPage"))%>">
+		<input type="hidden" name="bFirstDisp" value="<%=Encode.forHtmlAttribute(request.getParameter("bFirstDisp"))%>">
+		<input type="hidden" name="provider_no" value="<%=Encode.forHtmlAttribute(request.getParameter("provider_no"))%>">
+		<input type="hidden" name="start_time" value="<%=Encode.forHtmlAttribute(request.getParameter("start_time"))%>">
+		<input type="hidden" name="end_time" value="<%=Encode.forHtmlAttribute(request.getParameter("end_time"))%>">
+		<input type="hidden" name="year" value="<%=Encode.forHtmlAttribute(request.getParameter("year"))%>">
+		<input type="hidden" name="month" value="<%=Encode.forHtmlAttribute(request.getParameter("month"))%>">
+		<input type="hidden" name="day" value="<%=Encode.forHtmlAttribute(request.getParameter("day"))%>">
+		<input type="hidden" name="appointment_date" value="<%=Encode.forHtmlAttribute(request.getParameter("appointment_date"))%>">
+		<input type="hidden" name="notes" value="<%=Encode.forHtmlAttribute(request.getParameter("notes"))%>">
+		<input type="hidden" name="reasonCode" value="<%=Encode.forHtmlAttribute(request.getParameter("reasonCode"))%>">
+		<input type="hidden" name="reason" value="<%=Encode.forHtmlAttribute(request.getParameter("reason"))%>">
+		<input type="hidden" name="location" value="<%=Encode.forHtmlAttribute(request.getParameter("location"))%>">
+		<input type="hidden" name="resources" value="<%=Encode.forHtmlAttribute(request.getParameter("resources"))%>">
+		<input type="hidden" name="type" value="<%=Encode.forHtmlAttribute(request.getParameter("type"))%>">
+		<input type="hidden" name="style" value="<%=Encode.forHtmlAttribute(request.getParameter("style"))%>">
+		<input type="hidden" name="billing" value="<%=Encode.forHtmlAttribute(request.getParameter("billing"))%>">
+		<input type="hidden" name="status" value="<%=Encode.forHtmlAttribute(request.getParameter("status"))%>">
+		<input type="hidden" name="createdatetime" value="<%=Encode.forHtmlAttribute(request.getParameter("createdatetime"))%>">
+		<input type="hidden" name="creator" value="<%=Encode.forHtmlAttribute(request.getParameter("creator"))%>">
+		<input type="hidden" name="remarks" value="<%=Encode.forHtmlAttribute(request.getParameter("remarks"))%>">
 		        
 <%
 	String temp=null;
 	for (Enumeration e = request.getParameterNames() ; e.hasMoreElements() ;) {
 		temp=e.nextElement().toString();
-		if(temp.equals("keyword") || temp.equals("dboperation") ||temp.equals("displaymode") ||temp.equals("search_mode") ||temp.equals("chart_no")  ||temp.equals("ptstatus") ||temp.equals("submit") || temp.equals("includeIntegratedResults")) continue;
-  	out.println("<input type='hidden' name='"+temp+"' value='"+request.getParameter(temp)+"'>");
-  }
+		if(temp.equals("keyword") || temp.equals("dboperation") ||temp.equals("displaymode") ||temp.equals("search_mode") ||temp.equals("chart_no")  ||temp.equals("ptstatus") ||temp.equals("submit") || temp.equals("includeIntegratedResults")) continue; %>
+		<input type="hidden" name="<%=Encode.forHtmlAttribute(temp)%>" value="<%=Encode.forHtmlAttribute(request.getParameter(temp))%>">
+ <% }
 %>
-       <a href="#" onclick="showHideItem('demographicSearch');" id="cancelButton" class="leftButton top"><bean:message key="global.btnCancel" /></a>
-       <input type="SUBMIT" class="rightButton blueButton top" name="displaymode"
+       
+       <input type="SUBMIT" class="btn btn-primary top" name="displaymode"
            value='<bean:message key="global.search"/>' size="17"
            title='<bean:message key="demographic.zdemographicfulltitlesearch.tooltips.searchActive"/>'>&nbsp;&nbsp;
-       <INPUT TYPE="button" id="inactiveButton"
+       <INPUT TYPE="button" id="inactiveButton" class="btn"
            onclick="searchInactive();"
            TITLE="<bean:message key="demographic.zdemographicfulltitlesearch.tooltips.searchInactive"/>"
            VALUE="<bean:message key="demographic.search.Inactive"/>">
-       <INPUT TYPE="button" id="allButton"
+       <INPUT TYPE="button" id="allButton" class="btn"
            onclick="searchAll();"
            TITLE="<bean:message key="demographic.zdemographicfulltitlesearch.tooltips.searchAll"/>"
            VALUE="<bean:message key="demographic.search.All"/>">
+<!-- <a href="#" onclick="showHideItem('demographicSearch');" id="cancelButton" class="btn btn-link"><bean:message key="global.btnCancel" /></a>-->
 <%
 	if (loggedInInfo.getCurrentFacility().isIntegratorEnabled()){
 %>
     	<input type="checkbox" name="includeIntegratedResults" value="true"   <%="true".equals(request.getParameter("includeIntegratedResults"))?"checked":""%>/> <span style="font-size:small"><bean:message key="demographic.search.msgInclIntegratedResults"/></span>
 <%	} %>
-   </li>
+   
 <% if (loggedInInfo.getCurrentFacility().isIntegratorEnabled()){%>
-        <li>
+        
         	<jsp:include page="../admin/IntegratorStatus.jspf"></jsp:include>
-        </li>
+        
 <%	} %>
-    </ul>
+    
 	</form>
 </div>
 
@@ -287,16 +296,19 @@ function searchAll() {
     </div>
 <table width="95%" border="0">
 	<tr>
-            <td align="left">
-                    <%if(request.getParameter("keyword")!=null && request.getParameter("keyword").length()==0) { %>
+		<td align="left">
+            <%if(request.getParameter("keyword")!=null && request.getParameter("keyword").length()==0) { %>
                     <bean:message key="demographic.demographicsearch2apptresults.msgMostRecentPatients"/>
-                    <% } else { %>
-                    <bean:message key="demographic.demographicsearch2apptresults.msgKeywords" /> <%=request.getParameter("keyword")%> <%}%></td>
+            <% } else { %>
+                    <bean:message key="demographic.demographicsearch2apptresults.msgKeywords" /> 
+                    <%=Encode.forHtml(request.getParameter("keyword"))%>
+            <%}%>
+        </td>
 	</tr>
 </table>
 
 <script language="JavaScript">
-
+    var contactResults = [];
 var fullname="";
 <%-- RJ 07/10/2006 Need to pass doctor of patient back to referrer --%>
 function addName(demographic_no, lastname, firstname, chartno, messageID, doctorNo, remoteFacilityId) {  
@@ -308,13 +320,31 @@ function addName(demographic_no, lastname, firstname, chartno, messageID, doctor
    }
    else
    {
-	   document.addform.action="<%=request.getContextPath()%>/appointment/copyRemoteDemographic.jsp?originalPage=<%=URLEncoder.encode(request.getParameter("originalpage"))%>&";	  
+	   document.addform.action="<%=request.getContextPath()%>/appointment/copyRemoteDemographic.jsp?originalPage=<%=URLEncoder.encode(request.getParameter("originalpage") != null ? request.getParameter("originalpage") : "")%>&";
    }	  
   
   document.addform.action=document.addform.action+"demographic_no="+demographic_no+"&name="+fullname+"&chart_no="+chartno+"&bFirstDisp=false"+"&messageID="+messageID+"&doctor_no="+doctorNo+"&remoteFacilityId="+remoteFacilityId; 
   
   document.addform.submit();
   return true;
+}
+
+function selectContactJson(index) {
+    var contact = contactResults[index];
+
+    if (contact) {
+        opener.document.contactForm.elements['contact_contactName'].value = contact.name;
+        opener.document.contactForm.elements['contact_contactId'].value = contact.contactId;
+        opener.document.contactForm.elements['contact_phone'].value = contact.phone ? contact.phone : 'Not Set';
+        opener.document.contactForm.elements['contact_cell'].value = contact.cell ? contact.cell : 'Not Set';
+        opener.document.contactForm.elements['contact_work'].value = contact.work ? contact.work : 'Not Set';
+        opener.document.contactForm.elements['contact_work_extension'].value = contact.workExt ? contact.workExt : 'Not Set';
+        opener.document.contactForm.elements['contact_email'].value = contact.email ? contact.email : 'Not Set';
+
+        opener.document.contactForm.elements['contact_contactName'].onchange();
+        self.close();
+    }
+
 }
 
 <%if(caisi) {%>
@@ -335,42 +365,44 @@ function addNameCaisi(demographic_no,lastname,firstname,chartno,messageID) {
 
 
 	<form method="post" name="addform" action="../appointment/addappointment.jsp">
+	
         
-<table>
-        <tr class="tableHeadings deep">
+<table class="table table-striped table-hover table-condensed">
+        <tr>
         
 
-		<td class="demoIdSearch">
+		<th>
 		<bean:message key="demographic.demographicsearch2apptresults.demographicId" />
-       </td>
+       </th>
 
-		<td class="lastname">
+		<th>
 		<bean:message key="demographic.demographicsearch2apptresults.lastName" />
-                </td>
-		<td class="firstname">
+                </th>
+		<th>
 		<bean:message key="demographic.demographicsearch2apptresults.firstName" />
-                </td>
-		<td class="age">
+                </th>
+		<th>
 		<bean:message key="demographic.demographicsearch2apptresults.age" />
-                </td>
-		<td class="rosterStatus">
+                </th>
+		<th>
 		<bean:message key="demographic.demographicsearch2apptresults.rosterStatus" />
-                </td>
-		<td class="sex">
+                </th>
+		<th>
 		<bean:message key="demographic.demographicsearch2apptresults.sex" />
-                </td>
-        <td class="dob">
+                </th>
+        <th>
         <bean:message key="demographic.demographicsearch2apptresults.DOB" />
-                </td>
-		<td class="doctor">
+                </th>
+		<th>
 		<bean:message key="demographic.demographicsearch2apptresults.doctor" />
-                </td>
+                </th>
 	</tr>
 
 
 <%
+	JSONObject contactJson = new JSONObject();
 	String ptstatus = request.getParameter("ptstatus") == null ? "active" : request.getParameter("ptstatus");
-	org.oscarehr.util.MiscUtils.getLogger().debug("PSTATUS " + ptstatus);
+	MiscUtils.getLogger().debug("PSTATUS " + ptstatus);
 
 	int rowCounter=0;
 	String bgColor = rowCounter%2==0?"#EEEEFF":"white";
@@ -378,91 +410,81 @@ function addNameCaisi(demographic_no,lastname,firstname,chartno,messageID) {
 	String pstatus = props.getProperty("inactive_statuses", "IN, DE, IC, ID, MO, FI");
 	pstatus = pstatus.replaceAll("'","").replaceAll("\\s", "");
 	List<String>stati = Arrays.asList(pstatus.split(","));
-        
-        if(request.getParameter("keyword")!=null && request.getParameter("keyword").length()==0) {
-            int mostRecentPatientListSize=Integer.parseInt(OscarProperties.getInstance().getProperty("MOST_RECENT_PATIENT_LIST_SIZE","3"));
-            List<Integer> results = oscarLogDao.getRecentDemographicsAccessedByProvider(providerNo,  0, mostRecentPatientListSize);
-            demoList = new ArrayList<Demographic>();
-            for(Integer r:results) {
-                demoList.add(demographicDao.getDemographicById(r));
-            }
-        } else {
-            
-	if( "".equals(ptstatus) ) {
-		if(searchMode.equals("search_name")) {
-			demoList = demographicDao.searchDemographicByName(keyword, limit, offset,providerNo,outOfDomain);
-		}
-		else if(searchMode.equals("search_phone")) {
-			demoList = demographicDao.searchDemographicByPhone(keyword, limit, offset,providerNo,outOfDomain);
-		}
-		else if(searchMode.equals("search_dob")) {
-			demoList = demographicDao.searchDemographicByDOB(keyword, limit, offset,providerNo,outOfDomain);
-		}
-		else if(searchMode.equals("search_address")) {
-			demoList = demographicDao.searchDemographicByAddress(keyword, limit, offset,providerNo,outOfDomain);
-		}
-		else if(searchMode.equals("search_hin")) {
-			demoList = demographicDao.searchDemographicByHIN(keyword, limit, offset,providerNo,outOfDomain);
-		}
-		else if(searchMode.equals("search_chart_no")) {
-			demoList = demographicDao.findDemographicByChartNo(keyword, limit, offset,providerNo,outOfDomain);
-		}
-                else if(searchMode.equals("search_demographic_no")) {
-                        demoList = demographicDao.findDemographicByDemographicNo(keyword, limit, offset,providerNo,outOfDomain);
-                }
 
-	}
-	else if( "active".equals(ptstatus) ) {
-	    if(searchMode.equals("search_name")) {
-			demoList = demographicDao.searchDemographicByNameAndNotStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
-		}
-	    else if(searchMode.equals("search_phone")) {
-			demoList = demographicDao.searchDemographicByPhoneAndNotStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
-		}
-		else if(searchMode.equals("search_dob")) {
-			demoList = demographicDao.searchDemographicByDOBAndNotStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
-		}
-		else if(searchMode.equals("search_address")) {
-			demoList = demographicDao.searchDemographicByAddressAndNotStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
-		}
-		else if(searchMode.equals("search_hin")) {
-			demoList = demographicDao.searchDemographicByHINAndNotStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
-		}
-		else if(searchMode.equals("search_chart_no")) {
-			demoList = demographicDao.findDemographicByChartNoAndNotStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
-		}
-		else if(searchMode.equals("search_demographic_no")) {
-			demoList = demographicDao.findDemographicByDemographicNoAndNotStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
-		}
-	}
-	else if( "inactive".equals(ptstatus) ) {
-	    if(searchMode.equals("search_name")) {
-			demoList = demographicDao.searchDemographicByNameAndStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
-		}
-	    else if(searchMode.equals("search_phone")) {
-			demoList = demographicDao.searchDemographicByPhoneAndStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
-		}
-		else if(searchMode.equals("search_dob")) {
-			demoList = demographicDao.searchDemographicByDOBAndStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
-		}
-		else if(searchMode.equals("search_address")) {
-			demoList = demographicDao.searchDemographicByAddressAndStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
-		}
-		else if(searchMode.equals("search_hin")) {
-			demoList = demographicDao.searchDemographicByHINAndStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
-		}
-		else if(searchMode.equals("search_chart_no")) {
-			demoList = demographicDao.findDemographicByChartNoAndStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
-		}
-		else if(searchMode.equals("search_demographic_no")) {
-			demoList = demographicDao.findDemographicByDemographicNoAndStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
-		}
-	}
+    if(request.getParameter("keyword")!=null && request.getParameter("keyword").length()==0) {
+        int mostRecentPatientListSize=Integer.parseInt(OscarProperties.getInstance().getProperty("MOST_RECENT_PATIENT_LIST_SIZE","3"));
+        List<Integer> results = oscarLogDao.getRecentDemographicsAccessedByProvider(providerNo,  0, mostRecentPatientListSize);
+        demoList = new ArrayList<Demographic>();
+        for(Integer r:results) {
+            demoList.add(demographicDao.getDemographicById(r));
         }
+    } else {
+	    if( "".equals(ptstatus) ) {
+		    if(searchMode.equals("search_name")) {
+			    demoList = demographicDao.searchDemographicByName(keyword, limit, offset,providerNo,outOfDomain);
+		    }
+		    else if(searchMode.equals("search_phone")) {
+			    demoList = demographicDao.searchDemographicByPhone(keyword, limit, offset,providerNo,outOfDomain);
+		    }
+		    else if(searchMode.equals("search_dob")) {
+			    demoList = demographicDao.searchDemographicByDOB(keyword, limit, offset,providerNo,outOfDomain);
+		    }
+		    else if(searchMode.equals("search_address")) {
+			    demoList = demographicDao.searchDemographicByAddress(keyword, limit, offset,providerNo,outOfDomain);
+		    }
+		    else if(searchMode.equals("search_hin")) {
+			    demoList = demographicDao.searchDemographicByHIN(keyword, limit, offset,providerNo,outOfDomain);
+		    }
+		    else if(searchMode.equals("search_chart_no")) {
+			    demoList = demographicDao.findDemographicByChartNo(keyword, limit, offset,providerNo,outOfDomain);
+		    }
+	    }
+	    else if( "active".equals(ptstatus) ) {
+	        if(searchMode.equals("search_name")) {
+			    demoList = demographicDao.searchDemographicByNameAndNotStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
+		    }
+	        else if(searchMode.equals("search_phone")) {
+			    demoList = demographicDao.searchDemographicByPhoneAndNotStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
+		    }
+		    else if(searchMode.equals("search_dob")) {
+			    demoList = demographicDao.searchDemographicByDOBAndNotStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
+		    }
+		    else if(searchMode.equals("search_address")) {
+			    demoList = demographicDao.searchDemographicByAddressAndNotStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
+		    }
+		    else if(searchMode.equals("search_hin")) {
+			    demoList = demographicDao.searchDemographicByHINAndNotStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
+		    }
+		    else if(searchMode.equals("search_chart_no")) {
+			    demoList = demographicDao.findDemographicByChartNoAndNotStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
+		    }
+	    }
+	    else if( "inactive".equals(ptstatus) ) {
+	        if(searchMode.equals("search_name")) {
+			    demoList = demographicDao.searchDemographicByNameAndStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
+		    }
+	        else if(searchMode.equals("search_phone")) {
+			    demoList = demographicDao.searchDemographicByPhoneAndStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
+		    }
+		    else if(searchMode.equals("search_dob")) {
+			    demoList = demographicDao.searchDemographicByDOBAndStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
+		    }
+		    else if(searchMode.equals("search_address")) {
+			    demoList = demographicDao.searchDemographicByAddressAndStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
+		    }
+		    else if(searchMode.equals("search_hin")) {
+			    demoList = demographicDao.searchDemographicByHINAndStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
+		    }
+		    else if(searchMode.equals("search_chart_no")) {
+			    demoList = demographicDao.findDemographicByChartNoAndStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
+		    }
+	    }
+    }
 	
 	if(demoList == null) {
 	    //out.println("failed!!!");
-	} 
+	}
+
 	else {
 		Collections.sort(demoList, Demographic.LastNameComparator);
 		
@@ -472,8 +494,18 @@ function addNameCaisi(demographic_no,lastname,firstname,chartno,messageID) {
 
 			String dem_no = demo.getDemographicNo().toString();
 			String head = dmDAO.getHead(dem_no);
-			
-			if (head != null && !head.equals(dem_no)) {
+			contactJson = new JSONObject();
+			contactJson.put("name", Encode.forJavaScript(demo.getFormattedName()));
+			contactJson.put("contactId", demo.getDemographicNo());
+			contactJson.put("cell", demographicExtDao.getValueForDemoKey(demo.getDemographicNo(), "demo_cell"));
+			contactJson.put("phone", demo.getPhone());
+			contactJson.put("work", demo.getPhone2());
+			contactJson.put("workExt", demographicExtDao.getValueForDemoKey(demo.getDemographicNo(), "wPhoneExt"));
+			contactJson.put("email", demo.getEmail()); %>
+	<script type="text/javascript">
+		contactResults.push(<%=contactJson%>)
+	</script>
+<%			if (head != null && !head.equals(dem_no)) {
 				//skip non head records
 				continue;
 			}
@@ -482,19 +514,31 @@ function addNameCaisi(demographic_no,lastname,firstname,chartno,messageID) {
 			bgColor = rowCounter%2==0?"#EEEEFF":"white";
 
 %>
-<tr style="background-color: <%=bgColor%>" onMouseOver="this.style.cursor='hand';this.style.backgroundColor='pink';" onMouseout="this.style.backgroundColor='<%=bgColor%>';"
-		onClick="document.forms[0].demographic_no.value=<%=demo.getDemographicNo()%>;<% if(caisi) { out.print("addNameCaisi");} else { out.print("addName");} %>('<%=demo.getDemographicNo()%>','<%=URLEncoder.encode(demo.getLastName())%>','<%=URLEncoder.encode(demo.getFirstName())%>','<%=URLEncoder.encode(demo.getChartNo() == null ? "" : demo.getChartNo())%>','<%=request.getParameter("messageId")%>','<%=demo.getProviderNo()%>','')">
-
-		<td class="demoId"><input type="submit" class="mbttn" name="demographic_no" value="<%=demo.getDemographicNo()%>"
-			onClick="<% if(caisi) {out.print("addNameCaisi");} else {out.print("addName");} %>('<%=demo.getDemographicNo()%>','<%=URLEncoder.encode(demo.getLastName())%>','<%=URLEncoder.encode(demo.getFirstName())%>','<%=URLEncoder.encode(demo.getChartNo() == null ? "" : demo.getChartNo())%>','<%=request.getParameter("messageId")%>','<%=demo.getProviderNo()%>','')">
+<tr 
+		onClick="document.forms[0].demographic_no.value=<%=demo.getDemographicNo()%>;
+			<% if(caisi){ %>
+				addNameCaisi('<%=demo.getDemographicNo()%>','<%=URLEncoder.encode(demo.getLastName())%>','<%=URLEncoder.encode(demo.getFirstName())%>','<%=URLEncoder.encode(demo.getChartNo() == null ? "" : demo.getChartNo())%>','<%=request.getParameter("messageId")%>','<%=demo.getProviderNo()%>','')">
+			<% } else if (!caisi && OscarProperties.getInstance().isPropertyActive("NEW_CONTACTS_UI") && "contactForm".equals(request.getParameter("formName"))) { %>
+				selectContactJson('<%=demoList.indexOf(demo)%>')">
+			<% } else { %>
+				addName('<%=demo.getDemographicNo()%>','<%=URLEncoder.encode(demo.getLastName())%>','<%=URLEncoder.encode(demo.getFirstName())%>','<%=URLEncoder.encode(demo.getChartNo() == null ? "" : demo.getChartNo())%>','<%=request.getParameter("messageId")%>','<%=demo.getProviderNo()%>','')">
+			<% } %>
+		<td class="demoId"><input type="submit" class="btn btn-link" name="demographic_no" value="<%=demo.getDemographicNo()%>"
+			onClick="<% if(caisi){ %>
+					addNameCaisi('<%=demo.getDemographicNo()%>','<%=URLEncoder.encode(demo.getLastName())%>','<%=URLEncoder.encode(demo.getFirstName())%>','<%=URLEncoder.encode(demo.getChartNo() == null ? "" : demo.getChartNo())%>','<%=request.getParameter("messageId")%>','<%=demo.getProviderNo()%>','')">
+					<% } else if (!caisi && OscarProperties.getInstance().isPropertyActive("NEW_CONTACTS_UI") && "contactForm".equals(request.getParameter("formName"))) { %>
+					selectContactJson('<%=demoList.indexOf(demo)%>')">
+					<% } else { %>
+					addName('<%=demo.getDemographicNo()%>','<%=URLEncoder.encode(demo.getLastName())%>','<%=URLEncoder.encode(demo.getFirstName())%>','<%=URLEncoder.encode(demo.getChartNo() == null ? "" : demo.getChartNo())%>','<%=request.getParameter("messageId")%>','<%=demo.getProviderNo()%>','')">
+					<% } %>
         </td>
-		<td class="lastName"><%=Misc.toUpperLowerCase(demo.getLastName())%></td>
-		<td class="firstName"><%=Misc.toUpperLowerCase(demo.getFirstName())%></td>
+		<td class="lastName"><%=Encode.forHtml(Misc.toUpperLowerCase(demo.getLastName()))%></td>
+		<td class="firstName"><%=Encode.forHtml(Misc.toUpperLowerCase(demo.getFirstName()))%></td>
 		<td class="age"><%=demo.getAge()%></td>
 		<td class="rosterStatus"><%=demo.getRosterStatus()==null||demo.getRosterStatus().equals("")?"&nbsp;":demo.getRosterStatus()%></td>
 		<td class="sex"><%=demo.getSex()%></td>
 		<td class="dob"><%=demo.getYearOfBirth() + "-" + demo.getMonthOfBirth() + "-" + demo.getDateOfBirth()%></td>
-        <td class="doctor"><%=providerBean.getProperty(demo.getProviderNo()==null?"":demo.getProviderNo())==null?"":providerBean.getProperty(demo.getProviderNo())%></td>
+        <td class="doctor"><%=providerBean.getProperty(demo.getProviderNo()==null?"":demo.getProviderNo())==null?"":Encode.forHtml(providerBean.getProperty(demo.getProviderNo()))%></td>
         </tr>
 
 <%
@@ -549,7 +593,7 @@ function addNameCaisi(demographic_no,lastname,firstname,chartno,messageID) {
    			providerName=cachedProvider.getLastName()+", "+cachedProvider.getFirstName();
    		}
 %>
-        	<%=providerName%>
+        	<%=Encode.forHtml(providerName)%>
 			</td>
 		</tr>
 <%	  
@@ -557,9 +601,9 @@ function addNameCaisi(demographic_no,lastname,firstname,chartno,messageID) {
  	}
 	for (Enumeration e = request.getParameterNames() ; e.hasMoreElements() ;) {
 		temp=e.nextElement().toString();
-		if(temp.equals("keyword") || temp.equals("dboperation") ||temp.equals("displaymode")||temp.equals("submit") ||temp.equals("chart_no")) continue;
-  	out.println("<input type='hidden' name='"+temp+"' value='"+request.getParameter(temp)+"'>");
-  }
+		if(temp.equals("keyword") || temp.equals("dboperation") ||temp.equals("displaymode")||temp.equals("submit") ||temp.equals("chart_no")) continue; %>
+  	  	<input type="hidden" name="<%=Encode.forHtmlAttribute(temp)%>" value="<%=Encode.forHtmlAttribute(request.getParameter(temp))%>">
+  <% }
   
 %>
 	
@@ -569,11 +613,12 @@ function addNameCaisi(demographic_no,lastname,firstname,chartno,messageID) {
 	int nLastPage=0,nNextPage=0;
 	nNextPage=Integer.parseInt(strLimit2)+Integer.parseInt(strLimit1);
 	nLastPage=Integer.parseInt(strLimit1)-Integer.parseInt(strLimit2);
-%> 
+%>
+ 
 <%
 	if(rowCounter==0 && nLastPage<=0) {	 
 	  	     
-      	java.util.HashMap<String, String> params = new java.util.HashMap<String, String>();
+      	HashMap<String, String> params = new HashMap<String, String>();
       	params.put("originalPage", request.getParameter("originalPage"));
       	params.put("provider_no", request.getParameter("provider_no"));
 		params.put("bFirstDisp", request.getParameter("bFirstDisp"));
@@ -585,8 +630,8 @@ function addNameCaisi(demographic_no,lastname,firstname,chartno,messageID) {
   		params.put("duration", request.getParameter("duration"));
   		params.put("appointment_date", request.getParameter("appointment_date"));  		
   		params.put("notes", request.getParameter("notes"));
+		params.put("reasonCode", request.getParameter("reasonCode"));
   		params.put("reason", request.getParameter("reason"));
-  		params.put("reasonCode", request.getParameter("reasonCode"));
   		params.put("location", request.getParameter("location"));
   		params.put("resources", request.getParameter("resources"));
   		params.put("apptType", request.getParameter("type"));
@@ -608,9 +653,9 @@ function addNameCaisi(demographic_no,lastname,firstname,chartno,messageID) {
  <%
         } else {
 %>
-	<bean:message key="demographic.search.noResultsWereFound" />
+	<div><br><bean:message key="demographic.search.noResultsWereFound" /></div>
   <div class="createNew">
-		<a href="../demographic/demographicaddarecordhtm.jsp?fromAppt=1&originalPage=<%=request.getParameter("originalPage")%>&search_mode=<%=request.getParameter("search_mode")%>&keyword=<%=request.getParameter("keyword")%>&notes=<%=request.getParameter("notes")%>&appointment_date=<%=request.getParameter("appointment_date")%>&year=<%=request.getParameter("year")%>&month=<%=request.getParameter("month")%>&day=<%=request.getParameter("day")%>&start_time=<%=request.getParameter("start_time")%>&end_time=<%=request.getParameter("end_time")%>&duration=<%=request.getParameter("duration")%>&bFirstDisp=false&provider_no=<%=request.getParameter("provider_no")%>&notes=<%=request.getParameter("notes")%>&reason=<%=request.getParameter("reason")%>&reasonCode=<%=request.getParameter("reasonCode")%>&location=<%=request.getParameter("location")%>&resources=<%=request.getParameter("resources")%>&type=<%=request.getParameter("type")%>&style=<%=request.getParameter("style")%>&billing=<%=request.getParameter("billing")%>&status=<%=request.getParameter("status")%>&createdatetime=<%=request.getParameter("createdatetime")%>&creator=<%=request.getParameter("creator")%>&remarks=<%=request.getParameter("remarks")%>">
+		<a href="../demographic/demographicaddarecordhtm.jsp?fromAppt=1&originalPage=<%=request.getParameter("originalPage")%>&search_mode=<%=Encode.forUriComponent(request.getParameter("search_mode"))%>&keyword=<%=Encode.forUriComponent(request.getParameter("keyword"))%>&notes=<%=Encode.forUriComponent(request.getParameter("notes"))%>&appointment_date=<%=request.getParameter("appointment_date")%>&year=<%=request.getParameter("year")%>&month=<%=request.getParameter("month")%>&day=<%=request.getParameter("day")%>&start_time=<%=request.getParameter("start_time")%>&end_time=<%=request.getParameter("end_time")%>&duration=<%=request.getParameter("duration")%>&bFirstDisp=false&provider_no=<%=request.getParameter("provider_no")%>&notes=<%=Encode.forUriComponent(request.getParameter("notes"))%>&reasonCode=<%=Encode.forUriComponent(request.getParameter("reasonCode"))%>&reason=<%=Encode.forUriComponent(request.getParameter("reason"))%>&location=<%=Encode.forUriComponent(request.getParameter("location"))%>&resources=<%=request.getParameter("resources")%>&type=<%=request.getParameter("type")%>&style=<%=request.getParameter("style")%>&billing=<%=request.getParameter("billing")%>&status=<%=Encode.forUriComponent(request.getParameter("status"))%>&createdatetime=<%=request.getParameter("createdatetime")%>&creator=<%=Encode.forUriComponent(request.getParameter("creator"))%>&remarks=<%=request.getParameter("remarks")%>">
 		<bean:message key="demographic.search.btnCreateNew" /></a>
     </div>    
 <%
@@ -633,30 +678,49 @@ function addNameCaisi(demographic_no,lastname,firstname,chartno,messageID) {
 	}
 	//-->
 	</script>
-	<a href="#" onclick="showHideItem('demographicSearch');" id="searchPopUpButton" class="rightButton top">Search</a>
+	<!-- <a href="#" onclick="showHideItem('demographicSearch');" id="searchPopUpButton" class="btn btn-link">Search</a> -->
 	<div class="bottomBar">
 	<form method="post" name="nextform" action="../demographic/demographiccontrol.jsp">
 <%
 	if(nLastPage>=0) {
 %> 
-	<input type="submit" id="prevPageButton" name="submit"
+	<input type="submit" id="prevPageButton" name="submit" class="btn"
 	value="<bean:message key="demographic.demographicsearch2apptresults.btnPrevPage"/>"
 	onClick="last()"> 
 <%
 	}
 
-	if(rowCounter==limit) {
+	if(demoList.size()==limit) {
 %> 
-	<input type="submit" id="nextPageButton" name="submit" value="<bean:message key="demographic.demographicsearch2apptresults.btnNextPage"/>" onClick="next()"> 
+	<input type="submit" id="nextPageButton" name="submit" class="btn" value="<bean:message key="demographic.demographicsearch2apptresults.btnNextPage"/>" onClick="next()"> 
 <%
 	}
 	for (Enumeration e = request.getParameterNames() ; e.hasMoreElements() ;) {
 		temp=e.nextElement().toString();
-		if(temp.equals("dboperation") ||temp.equals("displaymode") ||temp.equals("submit")  ||temp.equals("chart_no")) continue;
-  	out.println("<input type='hidden' name='"+temp+"' value='"+request.getParameter(temp)+"'>");
-	}
+		if(temp.equals("dboperation") ||temp.equals("displaymode") ||temp.equals("submit")  ||temp.equals("chart_no")) continue; %>
+  		<input type='hidden' name="<%=Encode.forHtmlAttribute(temp)%>" value="<%=Encode.forHtmlAttribute(request.getParameter(temp))%>">
+	<% }
 %>
-
+	<% if (demoList.size() == 1) {
+		Demographic demo = demoList.get(0);
+	
+			if(caisi) {
+	%>
+			<script language="JavaScript">
+				addNameCaisi('<%=demo.getDemographicNo()%>','<%=URLEncoder.encode(demo.getLastName())%>','<%=URLEncoder.encode(demo.getFirstName())%>','<%=URLEncoder.encode(demo.getChartNo() == null ? "" : demo.getChartNo())%>','<%=request.getParameter("messageId")%>','<%=demo.getProviderNo()%>','');
+			</script>
+	<%		} else if (OscarProperties.getInstance().isPropertyActive("NEW_CONTACTS_UI") && "contactForm".equals(request.getParameter("formName"))) { %>
+        <script type="text/javascript">
+            document.forms[0].demographic_no.value = <%=demo.getDemographicNo()%>;
+            selectContactJson('<%=demoList.indexOf(demo)%>');
+        </script>
+		<% } else {%>
+				<script language="JavaScript">
+					document.forms[0].demographic_no.value = <%=demo.getDemographicNo()%>;
+					addName('<%=demo.getDemographicNo()%>','<%=URLEncoder.encode(demo.getLastName())%>','<%=URLEncoder.encode(demo.getFirstName())%>','<%=URLEncoder.encode(demo.getChartNo() == null ? "" : demo.getChartNo())%>','<%=request.getParameter("messageId")%>','<%=demo.getProviderNo()%>','');
+				</script>
+	<%		}
+	 } %>
 </form>
 </div>
 </div>
