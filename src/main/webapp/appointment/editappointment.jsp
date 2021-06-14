@@ -493,6 +493,59 @@ function setType(typeSel,reasonSel,locSel,durSel,notesSel,resSel) {
 
 // stop javascript -->
 </script>
+
+<script>
+function parseSearch() {
+    // sane defaults
+    document.getElementById("search_mode").value='search_name';
+
+    var keyObj = document.forms['EDITAPPT'].keyword;
+    var keyVal = keyObj.value;
+    console.log(keyVal);
+
+    // start with the loosest pattern
+    // address pattern 293 Meridian
+    const reAddr = /^\d{1,9}[\s]\w*/;
+    if (reAddr.exec(keyVal)) {
+        document.getElementById("search_mode").value="search_address";   
+    }
+
+    //Ontario hin 10 didgits 
+    const reHIN = /^\d{10}$/;
+    if (reHIN.exec(keyVal)) {
+        document.getElementById("search_mode").value="search_hin";   
+    }
+
+    //phone xxx-xxx-xxxx with varying delimiters 
+    const rePhone = /^\d{3}[-\s.]\d{3}[-\s.]\d{4}$/;
+    if (rePhone.exec(keyVal)) {
+        const area =  keyVal.substring(0,3);
+        const p1 = keyVal.substring(4,7);
+        const p2 = keyVal.substring(8);
+        const phone = area +"-"+p1+"-"+p2;
+        keyObj.value = phone;
+        document.getElementById("search_mode").value="search_phone";   
+    }
+
+    // DOB yyyy-mm-dd with varying delimiters 
+    const reDOB=/^(19|20)\d\d([\/.-\s])(0[1-9]|1[012])[\/.-\s](0[1-9]|[12]\d|3[01])$/;
+    if (reDOB.exec(keyVal)) {
+        const yyyy = keyVal.substring(0,4);
+        const mm = keyVal.substring(5,7);
+        const dd = keyVal.substring(8);
+        const dob = yyyy+"-"+mm+"-"+dd;
+        keyObj.value = dob;
+        document.getElementById("search_mode").value="search_dob";
+    }  
+
+    //swipe pattern
+    if (keyVal.indexOf('%b610054') == 0 && keyVal.length > 18){                  
+         keyObj.value = keyVal.substring(8,18);
+         document.getElementById("search_mode").value="search_hin";                  
+    }
+}
+</script>
+
 </head>
 <body onload="setfocus();updateTime();" bgproperties="fixed"
       topmargin="0" leftmargin="0" rightmargin="0" bottommargin="0">
@@ -837,7 +890,7 @@ function setType(typeSel,reasonSel,locSel,durSel,notesSel,resSel) {
         String mcNumber = OtherIdManager.getApptOtherId(appointment_no, "appt_mc_number"); %>
         <tr>
             <td>
-                M/C number:
+                <bean:message key="Appointment.formMC" />:
             </td>
             <td>
                 <input type="text" name="appt_mc_number" value="<%=bFirstDisp?mcNumber:request.getParameter("appt_mc_number")%>" />
@@ -916,14 +969,14 @@ function setType(typeSel,reasonSel,locSel,durSel,notesSel,resSel) {
                         searchMode = OscarProperties.getInstance().getProperty("default_search_mode","search_name");
                     }
                 %>
-                <INPUT TYPE="hidden" NAME="search_mode" VALUE="<%=searchMode%>">
+                <INPUT TYPE="hidden" NAME="search_mode" id="search_mode" VALUE="<%=searchMode%>">
                 <INPUT TYPE="hidden" NAME="originalpage" VALUE="../appointment/editappointment.jsp">
                 <INPUT TYPE="hidden" NAME="limit1" VALUE="0">
                 <INPUT TYPE="hidden" NAME="limit2" VALUE="5">
                 <INPUT TYPE="hidden" NAME="ptstatus" VALUE="active">
                 <!--input type="hidden" name="displaymode" value="Search " -->
                 <INPUT TYPE="submit" name="searchBtn" id="searchBtn" class="btn" style="margin-bottom:10px;"
-					onclick="document.forms['EDITAPPT'].displaymode.value='Search '"
+					onclick="parseSearch();document.forms['EDITAPPT'].displaymode.value='Search '"
                     value="<bean:message key="appointment.editappointment.btnSearch"/>">                
             </td>
             <td>   
@@ -1052,16 +1105,23 @@ function setType(typeSel,reasonSel,locSel,durSel,notesSel,resSel) {
 			 <a href="javascript:void(0);" title="Annotation" onclick="window.open('<%=request.getContextPath()%>/annotation/annotation.jsp?display=<%=annotation_display%>&amp;table_id=<%=appointment_no%>','anwin','width=400,height=500');">
             	<img src="<%=request.getContextPath() %>/images/notes.gif" alt="rxAnnotation" height="16" width="13" border="0"/>
             </a>
-		<input type="button" name="labelprint" id="labelButton" class="btn"
+            <input type="button" name="labelprint" id="labelButton" class="btn"
 			value="<bean:message key="appointment.editappointment.btnLabelPrint"/>"
 			onClick="window.open('../demographic/demographiclabelprintsetting.jsp?demographic_no='+document.EDITAPPT.demographic_no.value, 'labelprint','height=550,width=700,location=no,scrollbars=yes,menubars=no,toolbars=no' )">
-		<!--input type="button" name="Button" value="<bean:message key="global.btnExit"/>" onClick="self.close()"-->
-		 <% if (!props.getProperty("allowMultipleSameDayGroupAppt", "").equalsIgnoreCase("no")) {%>
+            <a class="btn"
+			onclick="document.forms['EDITAPPT'].displaymode.value='Cut';localStorage.setItem('copyPaste','1');document.forms['EDITAPPT'].submit();"/>
+			<i class="icon-cut"></i>&nbsp;<bean:message key="appointment.appointmentedit.cut"/> </a>
+            <a class="btn" class="btn"
+			onclick="document.forms['EDITAPPT'].displaymode.value='Copy';localStorage.setItem('copyPaste','1');document.forms['EDITAPPT'].submit();" />
+			<i class="icon-copy"></i>&nbsp;<bean:message key="appointment.appointmentedit.copy"/> </a>
+		    <% if (!props.getProperty("allowMultipleSameDayGroupAppt", "").equalsIgnoreCase("no")) {%>
                     <input type="button" id="repeatButton" class="btn"
-			value="<bean:message key="appointment.addappointment.btnRepeat"/>"
-			onclick="onButRepeat()"></td>
-                 <% }
-                }%>
+			        value="<bean:message key="appointment.addappointment.btnRepeat"/>"
+			        onclick="onButRepeat()">
+            <% }%>
+            <input type="button" name="Button" class="btn btn-link" value="<bean:message key="global.btnCancel"/>" onClick="self.close()"></td>
+               <% }%>
+
 	</tr>
 </table>
 <% } %>
@@ -1083,11 +1143,7 @@ function setType(typeSel,reasonSel,locSel,durSel,notesSel,resSel) {
 <% if (isSiteSelected) { %>
 <table width="95%" align="center" id="belowTbl">
 	<tr>
-		<td><input type="submit" class="btn"
-			onclick="document.forms['EDITAPPT'].displaymode.value='Cut';localStorage.setItem('copyPaste','1');"
-			value="Cut" /><input type="submit" class="btn"
-			onclick="document.forms['EDITAPPT'].displaymode.value='Copy';localStorage.setItem('copyPaste','1');"
-			value="Copy" />
+		<td>
                      <%
                      if(bFirstDisp && apptObj!=null) {
 
