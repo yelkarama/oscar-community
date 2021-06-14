@@ -794,7 +794,7 @@ function parseSearch() {
   }
   %>
   <div id="tooManySameDayGroupApptWarning" style="<%=displayStyle%>">
-    <table width="100%" BGCOLOR="red" border=1 align='center'>
+    <table width="100%" class="alert alert-error" >
         <tr>
             <th>
                 <font color='white'>
@@ -842,11 +842,11 @@ function parseSearch() {
 	        String exp = " null-undefined\n IN-inactive ID-deceased OP-out patient\n NR-not signed\n FS-fee for service\n TE-terminated\n SP-self pay\n TP-third party";
 
 %>
-<table width="100%" <%=rsbgcolor%> border=0 align='center'>
+<table width="100%" class="alert alert-info" align='center'>
 	<tr>
-		<td><font color='blue' title='<%=exp%>'> <b><bean:message key="Appointment.msgPatientStatus" />:
-                    <font color='orange'><%=patientStatus%></font>&nbsp;<bean:message key="Appointment.msgRosterStatus" />:&nbsp;
-                    <font color='orange'><%=rosterStatus%></font></b></font>
+		<td><title='<%=exp%>'> <h4><bean:message key="Appointment.msgPatientStatus" />:</h4>
+                    <%=patientStatus%>&nbsp;<bean:message key="Appointment.msgRosterStatus" />:&nbsp;
+                    <%=rosterStatus%>
                 </td>
 	</tr>
 </table>
@@ -860,10 +860,9 @@ function parseSearch() {
 		if (demographicCust != null && demographicCust.getAlert() != null && !demographicCust.getAlert().equals("") ) {
 
 %>
-<p>
-<table width="100%" BGCOLOR="yellow" border=1 align='center'>
+<table width="100%" class="alert alert-error"  align='center'>
 	<tr>
-		<td><font color='red'><bean:message key="Appointment.formAlert" />: <b><%=demographicCust.getAlert()%></b></font></td>
+		<td><h4><bean:message key="Appointment.formAlert" />:</h4> <b><%=demographicCust.getAlert()%></b></font></td>
 	</tr>
 </table>
 <%
@@ -876,27 +875,30 @@ function parseSearch() {
   if(apptnum!=0) {
 
 %>
-<div class="row">
+<table width="100%" align='center'>
+	<tr> 
 		<%--    <TH><font color='red'><%=apptnum>1?"Double ++ ":"Double"%> Booking</font></TH>--%>
-		<div class="span12"><font style="font-family:Arial Black; color:Red; font-size: 15px;"> <% if(apptnum>1) {
+		<div class="span12"> <% if(apptnum>1) {
 
-         %> <bean:message key='appointment.addappointment.msgBooking' />
+         %> <td><bean:message key='appointment.addappointment.msgBooking' />
 		<%
 
        } else {
 
-          %> <bean:message
+          %> <td class="alert alert-error" ><bean:message
 			key='appointment.addappointment.msgDoubleBooking' /> <%
 			if(bDnb) out.println("<br/>You CANNOT book an appointment on this time slot.");
        }
 
-     %> </font></div>
-</div>
+     %> 
+    </td></tr>
+</table>
+
 
 <% } %>
 
 <% if (billingRecommendations.size() > 0) { %>
-        <table width="100%" align="center" style="border:solid 3px red;padding-left:10px;line-height:150%;font-family:Arial;color: red; background-color: #ffffff; font-size: 18px; font-weight: bold; text-align:left;">
+        <table width="100%" align="center" class="alert alert-info" >
             <% for (String recommendation : billingRecommendations) { %>
                 <tr>
                     <th><%=recommendation%></th>
