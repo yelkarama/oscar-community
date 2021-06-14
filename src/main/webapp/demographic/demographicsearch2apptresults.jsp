@@ -152,19 +152,39 @@ function showHideItem(id){
     else
         document.getElementById(id).style.display = 'inline';
 }
-function checkTypeIn() {  
-  var dob = document.titlesearch.keyword;
-  
-  if (dob.value.indexOf('%b610054') == 0 && dob.value.length > 18){                  
-     document.titlesearch.keyword.value = dob.value.substring(8,18);
-     document.titlesearch.search_mode[4].checked = true;                  
-  }
-  
-  if(document.titlesearch.search_mode[2].checked) {
-    if(dob.value.length==8) {
-      dob.value = dob.value.substring(0, 4)+"-"+dob.value.substring(4, 6)+"-"+dob.value.substring(6, 8);
+function checkTypeIn() {
+    // type can be swipe, HIN, name, DOB  and others
+
+    var keyObj = document.titlesearch.keyword;
+    var keyVal = keyObj.value;
+    console.log(keyVal);
+
+    //swipe pattern
+    if (keyVal.indexOf('%b610054') == 0 && keyVal.length > 18){                  
+         keyObj.value = keyVal.substring(8,18);
+         document.titlesearch.search_mode[4].checked = true;
+         document.getElementById("search_mode").value="search_hin";                  
     }
-    if(dob.value.length != 10) {
+
+    // DOB either 
+    const reDOB=/^(19|20)\d\d([\/.-])(0[1-9]|1[012])[\/.-](0[1-9]|[12]\d|3[01])$/;
+    // DOB with delimiters of / or . or -
+    if (reDOB.exec(keyVal)) {
+        const yyyy = Number(keyVal.substring(0,4));
+        const mm =(keyVal.substring(5,7));
+        const dd = (keyVal.substring(8));
+        const dob = yyyy+"-"+mm+"-"+dd;
+        keyObj.value = dob;
+        document.titlesearch.search_mode[2].checked = true; 
+        document.getElementById("search_mode").value="search_dob";
+    }  
+
+  // if DOB is a 8 digit number AND DOB search is identified add the -
+  if(document.titlesearch.search_mode[2].checked) {
+    if(keyVal.length==8) {
+      keyVal = keyVal.substring(0, 4)+"-"+keyVal.value.substring(4, 6)+"-"+keyVal.substring(6, 8);
+    }
+    if(keyVal.length != 10) {
       alert("<bean:message key="demographic.demographicsearch2apptresults.msgWrongDOB"/>");
       return false;
     } else {
@@ -188,7 +208,7 @@ function searchAll() {
 
 </script>
 </head>
-<body bgcolor="white" onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0" bottommargin="0">
+<body bgcolor="white" onLoad="setfocus();" topmargin="0" leftmargin="0" rightmargin="0" bottommargin="0">
 <div id="demographicSearch" class="searchBox">
 	<form class="form-horizontal" method="post" name="titlesearch" action="../demographic/demographiccontrol.jsp" onSubmit="return checkTypeIn()">
 	<%--@ include file="zdemographictitlesearch.htm"--%>
@@ -198,7 +218,7 @@ function searchAll() {
     
            
             
-            <select class="wideInput" name="search_mode">
+            <select class="wideInput" name="search_mode" id="search_mode">
                 <option value="search_name" <%=request.getParameter("search_mode").equals("search_name")?"selected":""%>>
 					<bean:message key="demographic.demographicsearch2apptresults.optName" />
 				</option>
@@ -271,7 +291,11 @@ function searchAll() {
            onclick="searchAll();"
            TITLE="<bean:message key="demographic.zdemographicfulltitlesearch.tooltips.searchAll"/>"
            VALUE="<bean:message key="demographic.search.All"/>">
-<!-- <a href="#" onclick="showHideItem('demographicSearch');" id="cancelButton" class="btn btn-link"><bean:message key="global.btnCancel" /></a>-->
+        <INPUT TYPE="button" id="cancelButton" class="btn btn-link"
+           onclick="document.addform.action='<%=request.getParameter("originalpage")%>?'; document.addform.submit();"
+           TITLE="<bean:message key="demographic.zdemographicfulltitlesearch.tooltips.searchAll"/>"
+           VALUE="<bean:message key="global.btnCancel"/>">
+<!-- <a href="#" onclick="showHideItem('demographicSearch');" id="xcancelButton" class="btn btn-link"><bean:message key="global.btnCancel" /></a>-->
 <%
 	if (loggedInInfo.getCurrentFacility().isIntegratorEnabled()){
 %>
@@ -690,7 +714,7 @@ function addNameCaisi(demographic_no,lastname,firstname,chartno,messageID) {
 <%
 	}
 
-	if(demoList.size()==limit) {
+	if((demoList.size()==limit)) {
 %> 
 	<input type="submit" id="nextPageButton" name="submit" class="btn" value="<bean:message key="demographic.demographicsearch2apptresults.btnNextPage"/>" onClick="next()"> 
 <%
