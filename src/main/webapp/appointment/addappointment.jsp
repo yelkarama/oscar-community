@@ -201,6 +201,7 @@ body, html {
 </style>
 
 <script>
+
 function updateTime(){
     const reTime = /^([0-1][0-9]|2[0-3]):[0-5][0-9]$/;
       const time = document.ADDAPPT.start_time.value;
@@ -663,6 +664,60 @@ function pasteAppt(multipleSameDayGroupAppt) {
     function cancelPageLock() { //don't do anything unless timeout/locking is enabled.
     }
 </script>
+
+<script>
+function parseSearch() {
+    // sane defaults
+    document.forms['ADDAPPT'].displaymode.value='Search ';
+    document.getElementById("search_mode").value='search_name';
+
+    var keyObj = document.forms['ADDAPPT'].keyword;
+    var keyVal = keyObj.value;
+    console.log(keyVal);
+
+    // start with the loosest pattern
+    // address pattern 293 Meridian
+    const reAddr = /^\d{1,9}[\s]\w*/;
+    if (reAddr.exec(keyVal)) {
+        document.getElementById("search_mode").value="search_address";   
+    }
+
+    //Ontario hin 10 didgits 
+    const reHIN = /^\d{10}$/;
+    if (reHIN.exec(keyVal)) {
+        document.getElementById("search_mode").value="search_hin";   
+    }
+
+    //phone xxx-xxx-xxxx with varying delimiters 
+    const rePhone = /^\d{3}[-\s.]\d{3}[-\s.]\d{4}$/;
+    if (rePhone.exec(keyVal)) {
+        const area =  keyVal.substring(0,3);
+        const p1 = keyVal.substring(4,7);
+        const p2 = keyVal.substring(8);
+        const phone = area +"-"+p1+"-"+p2;
+        keyObj.value = phone;
+        document.getElementById("search_mode").value="search_phone";   
+    }
+
+    // DOB yyyy-mm-dd with varying delimiters 
+    const reDOB=/^(19|20)\d\d([\/.-\s])(0[1-9]|1[012])[\/.-\s](0[1-9]|[12]\d|3[01])$/;
+    if (reDOB.exec(keyVal)) {
+        const yyyy = keyVal.substring(0,4);
+        const mm = keyVal.substring(5,7);
+        const dd = keyVal.substring(8);
+        const dob = yyyy+"-"+mm+"-"+dd;
+        keyObj.value = dob;
+        document.getElementById("search_mode").value="search_dob";
+    }  
+
+    //swipe pattern
+    if (keyVal.indexOf('%b610054') == 0 && keyVal.length > 18){                  
+         keyObj.value = keyVal.substring(8,18);
+         document.getElementById("search_mode").value="search_hin";                  
+    }
+}
+</script>
+
 <%
   }
   String deepcolor = apptnum==0?"#E8E8E8":"gold", weakcolor = apptnum==0?"#f3f6f9":"ivory";
@@ -1075,7 +1130,7 @@ function pasteAppt(multipleSameDayGroupAppt) {
             </td>
             <td>   
 <INPUT TYPE="submit" name="searchBtn" id="searchBtn" class="btn" style="margin-bottom:10px;"
-                    onclick="document.forms['ADDAPPT'].displaymode.value='Search '"
+                    onclick="parseSearch(); document.forms['ADDAPPT'].displaymode.value='Search ';"
                     VALUE="<bean:message key="appointment.addappointment.btnSearch"/>">   
                 <input type="TEXT" name="demographic_no"
                     ONFOCUS="onBlockFieldFocus(this)" readonly style="width: 60px;"
@@ -1159,7 +1214,7 @@ function pasteAppt(multipleSameDayGroupAppt) {
         searchMode = OscarProperties.getInstance().getProperty("default_search_mode","search_name");
     }
 %> 
-            <INPUT TYPE="hidden" NAME="search_mode" VALUE="<%=searchMode%>"> 
+            <INPUT TYPE="hidden" NAME="search_mode" id="search_mode" VALUE="<%=searchMode%>"> 
             <INPUT TYPE="hidden" NAME="originalpage" VALUE="../appointment/addappointment.jsp"> 
             <INPUT TYPE="hidden" NAME="limit1" VALUE="0"> 
             <INPUT TYPE="hidden" NAME="limit2" VALUE="5"> 
