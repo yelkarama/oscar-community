@@ -604,14 +604,14 @@ function setType(typeSel,reasonSel,locSel,durSel,notesSel,resSel) {
             }
 %>
 
-<div id="tooManySameDayGroupApptWarning" style="<%=displayStyle%>">
-    <table width="98%" BGCOLOR="red" border=1 align='center'>
+<div id="tooManySameDayGroupApptWarning" >
+    <table width="98%" class="alert alert-error" align='center'>
         <tr>
             <th>
-                <font color='white'>
+                
                     <bean:message key='appointment.addappointment.titleMultipleGroupDayBooking'/><br/>
                     <bean:message key='appointment.addappointment.MultipleGroupDayBooking'/>
-                </font>
+                
             </th>
         </tr>
     </table>
@@ -1074,7 +1074,7 @@ function setType(typeSel,reasonSel,locSel,durSel,notesSel,resSel) {
 		<bean:message key="Appointment.msgRosterStatus" />: <%=StringUtils.trimToEmpty(rosterstatus)%>
 		</td>
 		<% if (alert!=null && !alert.equals("")) { %>
-		<td bgcolor='yellow'><font color='red'><b><%=alert%></b></font></td>
+		<td class="alert alert-error"><%=alert%></td>
 		<% } %>
 	</tr>
 </table>
