@@ -323,18 +323,15 @@ for (int i = 1; i < 12; i++) {
 	<tr>
 		<td></td>
 		<td><bean:message key="appointment.appointmenteditrepeatbooking.endon"/> &nbsp;&nbsp;
-		<td nowrap >
-        <button id="f_trigger_b" class="btn">
-            <img  src="../images/cal.gif">
-            <font size="-1"><bean:message key="ddmmyyyy"/></font>
-        </button>      
+		<td nowrap valign="top">
+        <img id="f_trigger_b" src="../images/cal.gif">
         <input type="text" id="endDate"
-			name="endDate" style="width: 90px;"
+			name="endDate" size="10"
 			value="<%=UtilDateUtilities.DateToString(new Date(),"dd/MM/yyyy")%>"
 			readonly>
-		</td>
+		<br>
+		<font size="-1"><bean:message key="ddmmyyyy"/></font></td></td>
 	</tr>
-    <tr><td>&nbsp;</td></tr>
 </table>
 
 <table width="100%" BGCOLOR="silver">
@@ -342,24 +339,29 @@ for (int i = 1; i < 12; i++) {
 		<TD>
 		<%    if (bEdit) {    %> <INPUT TYPE="button" class="btn btn-primary"
 			onclick="document.forms['groupappt'].groupappt.value='Group Update'; document.forms['groupappt'].submit();"
-			VALUE="<bean:message key="appointment.appointmentgrouprecords.btnGroupUpdate"/>">
+			VALUE="1<bean:message key="appointment.appointmentgrouprecords.btnGroupUpdate"/>">
 		<INPUT TYPE="button" class="btn"
 			onclick="document.forms['groupappt'].groupappt.value='Group Cancel'; document.forms['groupappt'].submit();"
 			VALUE="<bean:message key="appointment.appointmentgrouprecords.btnGroupCancel"/>">
 		<INPUT TYPE="button" class="btn"
 			onclick="document.forms['groupappt'].groupappt.value='Group Delete'; document.forms['groupappt'].submit();"
 			VALUE="<bean:message key="appointment.appointmentgrouprecords.btnGroupDelete"/>"
-			onClick="onButDelete()"> <%    } else {    %> <INPUT
+			onClick="onButDelete()"> 
+        <%    } else {    %> 
+        <INPUT
 			TYPE="button" class="btn btn-primary"
 			onclick="document.forms['groupappt'].groupappt.value='Add Group Appointment'; document.forms['groupappt'].submit();"
 			VALUE="<bean:message key="appointment.appointmentgrouprecords.btnAddGroupAppt"/>">
 		<%    }    %>
 		</TD>
-		<TD align="right"><INPUT TYPE="button"
-			VALUE=" <bean:message key="global.btnBack"/> "
-			onClick="window.history.go(-1);return false;"> <INPUT
-			TYPE="button" class="btn btn-link" VALUE=" <bean:message key="global.btnCancel"/> "
-			onClick="onExit()"></TD>
+		<TD align="right">
+        <INPUT TYPE="button" class="btn btn-link"
+			VALUE=" <bean:message key="global.btnCancel"/> "
+			onClick="window.history.go(-1);return false;">
+        <!-- <INPUT
+			TYPE="button" class="btn btn-link" VALUE=" <bean:message key="global.btnExit"/> "
+			onClick="onExit()">-->
+        </TD>
 	</tr>
 </table>
 </div>
