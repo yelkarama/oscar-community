@@ -93,6 +93,7 @@ boolean oauth2Enabled= "true".equalsIgnoreCase(OscarProperties.getInstance().get
 
 <html:html locale="true">
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="shortcut icon" href="images/Oscar.ico" />
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
         <html:base/>
@@ -166,7 +167,6 @@ boolean oauth2Enabled= "true".equalsIgnoreCase(OscarProperties.getInstance().get
     <% } %>
 
 <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
-<link href="<%=request.getContextPath() %>/css/DT_bootstrap.css" rel="stylesheet" type="text/css">
 <link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
 
 
