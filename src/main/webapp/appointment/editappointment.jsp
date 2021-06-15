@@ -951,12 +951,11 @@ function parseSearch() {
         </tr>
         <tr>
             <td>
-                <bean:message key="Appointment.formChartNo" />:
+                <bean:message key="Appointment.formDoctor" />:
             </td>
-            <td>              
-                <input type="TEXT" name="chart_no"
-                    readonly value="<%=bFirstDisp?StringUtils.trimToEmpty(chartno):request.getParameter("chart_no")%>"
-                    >
+            <td>
+                <INPUT type="TEXT" readonly name="doctorNo"
+                       value="<%=StringEscapeUtils.escapeHtml(providerBean.getProperty(doctorNo,""))%>">
             </td>
         </tr>
         <tr>
@@ -985,11 +984,12 @@ function parseSearch() {
         </tr>
         <tr>
             <td>
-                <bean:message key="Appointment.formDoctor" />:
+                <bean:message key="Appointment.formChartNo" />:
             </td>
-            <td>
-                <INPUT type="TEXT" readonly name="doctorNo"
-                       value="<%=StringEscapeUtils.escapeHtml(providerBean.getProperty(doctorNo,""))%>">
+            <td>              
+                <input type="TEXT" name="chart_no"
+                    readonly value="<%=bFirstDisp?StringUtils.trimToEmpty(chartno):request.getParameter("chart_no")%>"
+                    >
             </td>
         </tr>
         <tr>
