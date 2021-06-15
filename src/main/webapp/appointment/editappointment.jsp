@@ -158,10 +158,9 @@
 <%@page import="org.oscarehr.common.dao.SiteDao"%>
 <%@page import="org.oscarehr.common.model.Site"%><html:html locale="true">
 <head>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 <link href="<%=request.getContextPath() %>/css/datepicker.css" rel="stylesheet" type="text/css">
-<link href="<%=request.getContextPath() %>/css/DT_bootstrap.css" rel="stylesheet" type="text/css">
 <link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
 <link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 <link rel="stylesheet" href="../css/helpdetails.css" type="text/css">
@@ -974,16 +973,23 @@ function parseSearch() {
                 <INPUT TYPE="hidden" NAME="limit1" VALUE="0">
                 <INPUT TYPE="hidden" NAME="limit2" VALUE="5">
                 <INPUT TYPE="hidden" NAME="ptstatus" VALUE="active">
-                <!--input type="hidden" name="displaymode" value="Search " -->
                 <INPUT TYPE="submit" name="searchBtn" id="searchBtn" class="btn" style="margin-bottom:10px;"
 					onclick="parseSearch();document.forms['EDITAPPT'].displaymode.value='Search '"
                     value="<bean:message key="appointment.editappointment.btnSearch"/>">                
             </td>
             <td>   
-
                 <input type="TEXT" name="demographic_no"
                     ONFOCUS="onBlockFieldFocus(this)" readonly 
        		    value="<%=bFirstDisp?( (appt.getDemographicNo())==0?"":(""+appt.getDemographicNo()) ):request.getParameter("demographic_no")%>">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <bean:message key="Appointment.formDoctor" />:
+            </td>
+            <td>
+                <INPUT type="TEXT" readonly name="doctorNo"
+                       value="<%=StringEscapeUtils.escapeHtml(providerBean.getProperty(doctorNo,""))%>">
             </td>
         </tr>
         <tr>
@@ -1007,6 +1013,27 @@ function parseSearch() {
         </tr>
         <tr>
             <td>
+                <bean:message key="Appointment.formLastCreator" />:
+            </td>
+            <td>
+        <%  lastCreatorNo = request.getParameter("user_id");
+        	if( bFirstDisp ) {
+        		if( appt.getLastUpdateUser() != null ) {   
+	    	        ProviderData provider = providerDao.findByProviderNo(appt.getLastUpdateUser());
+        	    	if( provider != null ) {
+                        lastCreatorNo = provider.getLastName() + ", " + provider.getFirstName();
+	    	        }
+        		} else {
+		        lastCreatorNo = appt.getCreator();
+        		}
+	        }
+        %> 
+                <INPUT TYPE="TEXT" readonly
+					VALUE="<%=lastCreatorNo%>" >
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <bean:message key="Appointment.formLastTime" />:
             </td>
             <td>
@@ -1019,15 +1046,6 @@ function parseSearch() {
                 <INPUT TYPE="hidden" NAME="creator" VALUE="<%=userlastname+", "+userfirstname%>">
                 <INPUT TYPE="hidden" NAME="remarks" VALUE="<%=remarks%>">
                 <INPUT TYPE="hidden" NAME="appointment_no" VALUE="<%=appointment_no%>">
-            </td>
-        </tr>
-        <tr>
-            <td>
-                Last Editor:
-            </td>
-            <td>
-                <INPUT TYPE="TEXT" readonly
-					VALUE="<%=lastCreatorNo%>" >
             </td>
         </tr> 
         <tr>
