@@ -163,11 +163,10 @@
 <%@page import="org.oscarehr.common.model.Site"%>
 <html:html locale="true">
 <head>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 <link href="<%=request.getContextPath() %>/css/datepicker.css" rel="stylesheet" type="text/css">
-<link href="<%=request.getContextPath() %>/css/DT_bootstrap.css" rel="stylesheet" type="text/css">
 <link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
 <link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 <link rel="stylesheet" href="../css/helpdetails.css" type="text/css">
