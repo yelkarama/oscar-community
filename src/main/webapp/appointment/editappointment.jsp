@@ -1349,6 +1349,6 @@ jQuery(document).ready(function(){
 	} 
 });
 
-</script>
+</script> 
 
 </html:html>
