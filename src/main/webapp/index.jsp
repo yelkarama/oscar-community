@@ -173,7 +173,7 @@ boolean oauth2Enabled= "true".equalsIgnoreCase(OscarProperties.getInstance().get
      </head>
     <body onLoad="setfocus();" >
 
-<div class="container" style="border-style: solid; border-color: #49afcd; border-radius:25px; border-width: 1px;">
+<div class="container" style="border-style: solid; border-color: #49afcd; border-radius:25px; border-width: 1px; margin-top: 25px;">
 
 <br>
 <br>
@@ -185,8 +185,7 @@ boolean oauth2Enabled= "true".equalsIgnoreCase(OscarProperties.getInstance().get
             <% } else { %>
                 <img src="<%=props.getProperty("loginlogo", "")%>">              
             <% } %>
-
-        </div>
+        </div> 
 		<div class="span4 well">
 			<legend>
                 <h4><%=ssoLoginMessage%></h4>
@@ -222,16 +221,22 @@ boolean oauth2Enabled= "true".equalsIgnoreCase(OscarProperties.getInstance().get
             <%if(oneIdEnabled && oauth2Enabled) { %>
                 <a href="<%=request.getContextPath() %>/eho/login2.jsp" id="oneIdLoginOauth"><div class="btn btn-primary btn-block oneIDLogin"><span class="oneIDLogo"></span><span class="oneIdText">ONE ID Login</span></div></a>
             <% } %>
-			<button type="submit" name="submit" class="btn btn-primary btn-block" style="width: 60%; margin: 0px auto;"><bean:message key="index.btnSignIn"/></button>		   
+			<button type="submit" name="submit" class="btn btn-primary btn-block" style="width: 60%; margin: 0px auto;"><bean:message key="index.btnSignIn"/></button>
+
+               <br><p><small><%=props.getProperty("logintext", "")%></small></p> 		   
 		</div>
-        <div id='auaText' class="span3" style="display:none;">
-            <h3><bean:message key="provider.login.title.confidentiality"/></h3>
-						<p><%=AcceptableUseAgreementManager.getAUAText()%></p> </div> <!-- loads OSCARloginText.txt from DOCUMENT_DIR -->
-            <div id='liscence' class="span3" style="display:none;"> 
--           <bean:message key="loginApplication.leftRmk2" />
-            <bean:message key="loginApplication.gplLink2" /></div>
+ 
+    <div id='auaText' class="span3" style="display:none;">
+        <h3><bean:message key="provider.login.title.confidentiality"/></h3>
+        <p><%=AcceptableUseAgreementManager.getAUAText()%></p> 
+    </div> <!-- loads OSCARloginText.txt from DOCUMENT_DIR -->
+               
+    <div id='liscence' class="span3" style="display:none;"> 
+        <p><bean:message key="loginApplication.leftRmk2" /></p>
     </div>
-    <span class="span4 offset4 text-right">
+</div>
+    
+<span class="span4 offset4 text-right">
         <small><bean:message key="loginApplication.gplLink" /> <a href="javascript:void(0);" onclick="showHideItem('liscence');"><bean:message key="global.showhide"/></a><br>
         <%if (AcceptableUseAgreementManager.hasAUA()){ %>
             <bean:message key="global.aua" /> &nbsp; <a href="javascript:void(0);" onclick="showHideItem('auaText');"><bean:message key="global.showhide"/></a><br>
