@@ -166,10 +166,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
-<link href="<%=request.getContextPath() %>/css/datepicker.css" rel="stylesheet" type="text/css">
 <link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
-<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
-<link rel="stylesheet" href="../css/helpdetails.css" type="text/css">
 
 <script type="text/javascript" src="../js/jquery-1.7.1.min.js"></script>
 <script src="<%=request.getContextPath()%>/js/jquery-ui-1.8.18.custom.min.js"></script>
@@ -664,6 +661,27 @@ function pasteAppt(multipleSameDayGroupAppt) {
     }
 </script>
 
+<%
+  }
+  String deepcolor = apptnum==0?"#E8E8E8":"gold", weakcolor = apptnum==0?"#f3f6f9":"ivory";
+
+  boolean bDnb = false;
+  for(Appointment a : appts) {
+	  String apptName = a.getName();
+	  if (apptName.equalsIgnoreCase(DONOTBOOK)) bDnb = true;
+  }
+ 
+
+  // select provider lastname & firstname
+  String pLastname = "";
+  String pFirstname = "";
+  Provider p = providerDao.getProvider(curProvider_no);
+  if(p != null) {
+	  pLastname = p.getLastName();
+      pFirstname = p.getFirstName();
+  }
+%>
+
 <script>
 function parseSearch() {
     // sane defaults
@@ -717,35 +735,6 @@ function parseSearch() {
 }
 </script>
 
-<%
-  }
-  String deepcolor = apptnum==0?"#E8E8E8":"gold", weakcolor = apptnum==0?"#f3f6f9":"ivory";
-  if (!isMobileOptimized) {
-%>
-      <!-- Change the background color of deep/weak sections -->
-      <style type="text/css">
-          .deep { background-color: <%= deepcolor %>; }
-          .weak { background-color: <%= weakcolor %>; }
-      </style>
-  
-<%
-  }
-  boolean bDnb = false;
-  for(Appointment a : appts) {
-	  String apptName = a.getName();
-	  if (apptName.equalsIgnoreCase(DONOTBOOK)) bDnb = true;
-  }
- 
-
-  // select provider lastname & firstname
-  String pLastname = "";
-  String pFirstname = "";
-  Provider p = providerDao.getProvider(curProvider_no);
-  if(p != null) {
-	  pLastname = p.getLastName();
-      pFirstname = p.getFirstName();
-  }
-%>
 </head>
 <body bgproperties="fixed" 
 	onLoad="setfocus(); moveAppt(); updateTime(); " topmargin="0" leftmargin="0" rightmargin="0" bottommargin="0">
@@ -788,23 +777,15 @@ function parseSearch() {
         }
 
         if (bMultipleSameDayGroupAppt){
-            displayStyle="display:block";
+        %>
+<div id="tooManySameDayGroupApptWarning" class="alert alert-error" >
+    <h4><bean:message key='appointment.addappointment.titleMultipleGroupDayBooking'/></h4>
+                    <bean:message key='appointment.addappointment.MultipleGroupDayBooking'/>
+</div>
+        <%
         }
   }
-  %>
-  <div id="tooManySameDayGroupApptWarning" style="<%=displayStyle%>">
-    <table width="100%" class="alert alert-error" >
-        <tr>
-            <th>
-                <font color='white'>
-                    <bean:message key='appointment.addappointment.titleMultipleGroupDayBooking'/><br/>
-                    <bean:message key='appointment.addappointment.MultipleGroupDayBooking'/>
-                </font>
-            </th>
-        </tr>
-    </table>
-</div>
-<%
+
   if (!bFirstDisp && request.getParameter("demographic_no") != null && !request.getParameter("demographic_no").equals("")) {
 	  Demographic d = demographicDao.getDemographic(request.getParameter("demographic_no"));
 	  if(d != null) {
@@ -837,19 +818,15 @@ function parseSearch() {
 	      }
 
 	      if(!patientStatus.equals("") || !rosterStatus.equals("") ) {
-	      	String rsbgcolor = "BGCOLOR=\"orange\"" ;
 	        String exp = " null-undefined\n IN-inactive ID-deceased OP-out patient\n NR-not signed\n FS-fee for service\n TE-terminated\n SP-self pay\n TP-third party";
 
-%>
-<table width="100%" class="alert alert-info" align='center'>
-	<tr>
-		<td><title='<%=exp%>'> <h4><bean:message key="Appointment.msgPatientStatus" />:</h4>
-                    <%=patientStatus%>&nbsp;<bean:message key="Appointment.msgRosterStatus" />:&nbsp;
-                    <%=rosterStatus%>
-                </td>
-	</tr>
-</table>
-<%
+        %>
+<div class="alert alert-info">
+	<title='<%=exp%>'> 
+    <h4><bean:message key="Appointment.msgPatientStatus" />:</h4>
+    <%=patientStatus%>&nbsp;<bean:message key="Appointment.msgRosterStatus" />:&nbsp;<%=rosterStatus%>  
+</div>
+        <%
 
         }
 	}
@@ -859,11 +836,10 @@ function parseSearch() {
 		if (demographicCust != null && demographicCust.getAlert() != null && !demographicCust.getAlert().equals("") ) {
 
 %>
-<table width="100%" class="alert alert-error"  align='center'>
-	<tr>
-		<td><h4><bean:message key="Appointment.formAlert" />:</h4> <b><%=demographicCust.getAlert()%></b></font></td>
-	</tr>
-</table>
+<div class="alert alert-info">
+	<h4><bean:message key="Appointment.formAlert" />:</h4> <%=demographicCust.getAlert()%>
+</div>
+
 <%
 
 		}
@@ -884,20 +860,23 @@ function parseSearch() {
 
        } else {
 
-          %> <td class="alert alert-error" ><bean:message
-			key='appointment.addappointment.msgDoubleBooking' /> <%
+          %> 
+        <td class="alert alert-error" >
+            <h4><bean:message key='appointment.addappointment.msgDoubleBooking' /></h4>
+          <%
 			if(bDnb) out.println("<br/>You CANNOT book an appointment on this time slot.");
        }
 
      %> 
-    </td></tr>
+        </td>
+    </tr>
 </table>
 
 
 <% } %>
 
 <% if (billingRecommendations.size() > 0) { %>
-        <table width="100%" align="center" class="alert alert-info" >
+        <table width="100%"  class="alert alert-info" >
             <% for (String recommendation : billingRecommendations) { %>
                 <tr>
                     <th><%=recommendation%></th>
@@ -914,7 +893,7 @@ function parseSearch() {
     <input type="hidden" name="day" value="<%=request.getParameter("day") %>" >
     <input type="hidden" name="fromAppt" value="1" >
 	
-<div>
+<div class="sapn12">
     <div class="time" id="header"><H4>
         <!-- We display a shortened title for the mobile version -->
         <% if (isMobileOptimized) { %><bean:message key="appointment.addappointment.msgMainLabelMobile" />
@@ -961,7 +940,9 @@ function parseSearch() {
         </tr>
         <tr>
             <td>
-                <bean:message key="appointment.addappointment.formSurName" />:
+                 <INPUT TYPE="submit" name="searchBtn" id="searchBtn" class="btn" style="margin-bottom:10px;"
+                    onclick="parseSearch(); document.forms['ADDAPPT'].displaymode.value='Search ';"
+                    VALUE="<bean:message key="appointment.addappointment.btnSearch"/>"> 
             </td>
             <td>
             	<% 
@@ -1130,11 +1111,9 @@ function parseSearch() {
                 
             </td>
             <td>   
-<INPUT TYPE="submit" name="searchBtn" id="searchBtn" class="btn" style="margin-bottom:10px;"
-                    onclick="parseSearch(); document.forms['ADDAPPT'].displaymode.value='Search ';"
-                    VALUE="<bean:message key="appointment.addappointment.btnSearch"/>">   
+
                 <input type="TEXT" name="demographic_no"
-                    ONFOCUS="onBlockFieldFocus(this)" readonly style="width: 60px;"
+                    ONFOCUS="onBlockFieldFocus(this)" readonly 
                     value='<%=(bFirstDisp && !bFromWL)?"":request.getParameter("demographic_no").equals("")?"":request.getParameter("demographic_no")%>' >
             </td>
         </tr>
