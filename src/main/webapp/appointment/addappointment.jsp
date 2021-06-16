@@ -777,15 +777,17 @@ function parseSearch() {
         }
 
         if (bMultipleSameDayGroupAppt){
-        %>
-<div id="tooManySameDayGroupApptWarning" class="alert alert-error" >
-    <h4><bean:message key='appointment.addappointment.titleMultipleGroupDayBooking'/></h4>
-                    <bean:message key='appointment.addappointment.MultipleGroupDayBooking'/>
-</div>
-        <%
+            displayStyle="display:block";
         }
   }
-
+  %>
+  <div id="tooManySameDayGroupApptWarning" style="<%=displayStyle%>">
+    <div class="alert alert-error" >
+        <h4><bean:message key='appointment.addappointment.titleMultipleGroupDayBooking'/></h4>
+        <bean:message key='appointment.addappointment.MultipleGroupDayBooking'/>
+    </div>
+</div>
+<%
   if (!bFirstDisp && request.getParameter("demographic_no") != null && !request.getParameter("demographic_no").equals("")) {
 	  Demographic d = demographicDao.getDemographic(request.getParameter("demographic_no"));
 	  if(d != null) {
@@ -850,36 +852,21 @@ function parseSearch() {
   if(apptnum!=0) {
 
 %>
-<table width="100%" align='center'>
-	<tr> 
-		<%--    <TH><font color='red'><%=apptnum>1?"Double ++ ":"Double"%> Booking</font></TH>--%>
-		<div class="span12"> <% if(apptnum>1) {
-
-         %> <td><bean:message key='appointment.addappointment.msgBooking' />
-		<%
-
-       } else {
-
-          %> 
-        <td class="alert alert-error" >
-            <h4><bean:message key='appointment.addappointment.msgDoubleBooking' /></h4>
-          <%
+<div class="alert alert-error" >
+    <h4><bean:message key='appointment.addappointment.msgDoubleBooking' /></h4>
+    <%
 			if(bDnb) out.println("<br/>You CANNOT book an appointment on this time slot.");
-       }
-
-     %> 
-        </td>
-    </tr>
-</table>
+    %> 
+</div>
 
 
 <% } %>
 
 <% if (billingRecommendations.size() > 0) { %>
-        <table width="100%"  class="alert alert-info" >
+        <table width="100%" class="alert alert-info" >
             <% for (String recommendation : billingRecommendations) { %>
                 <tr>
-                    <th><%=recommendation%></th>
+                    <td><%=recommendation%></td>
                 </tr>
             <% } %>
         </table>
