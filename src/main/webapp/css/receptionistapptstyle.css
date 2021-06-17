@@ -129,6 +129,7 @@ p {
         font-weight:bold;
         font-family: "Times New Roman";
         font-size: 14px;
+		cursor: pointer;
 }
 
 .datephour {
