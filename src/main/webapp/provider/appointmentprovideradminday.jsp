@@ -554,9 +554,28 @@ if (isMobileOptimized) {
 
 
 <script type="text/javascript">
+
+function goDate(aDate){
+	// initialize array and get values
+	initializeQSArray();
+	getQSValues();
+
+    // parse the date string
+    var res = aDate.split('-');
+    if (res.length!=3) { alert("BAD Date"); return;}
+
+	// build the new location string
+	destination  = 'providercontrol.jsp?year=' + res[0] + '&month='+ res[1] +'&day='+res[2]+'&view=' +qsParm['view']+ '&curProvider='+qsParm['curProvider']+'&curProviderName='+qsParm['curProviderName'] + '&displaymode='+qsParm['displaymode']+'&dboperation='+qsParm['dboperation']	
+
+	// move the calendar to the new date
+	window.location = destination;	
+
+}
+
+
+
 // calendar shortcuts
-function getLocation(ID,Multiplier)
-{
+function getLocation(ID,Multiplier){
 	// initialize array
 	initializeQSArray();
 	
@@ -568,7 +587,11 @@ function getLocation(ID,Multiplier)
 
 	// set the item type and value to be added
 	switch (ID)
-	{	    
+	{
+		case 'dayForward':
+			itemType = 'd';
+			valueToAdd = Multiplier;
+			break;	    
 		case 'weekBackward':
 			itemType = 'w';
 			// negative * 7 days * weeks
@@ -589,24 +612,27 @@ function getLocation(ID,Multiplier)
 	}
 
     //get new date
-    dateDestination = DateAdd(itemType, dateSelected, valueToAdd);
-  	
-	// check the day of the new date - if Saturday or Sunday move to the following Monday - 0:Sunday 1:Monday 2:Tuesday 3:Wednesday 4:Thursday 5:Friday 6:Saturday
-	var DayID = dateDestination.getDay();
-	switch (DayID)
-	{
-		case 0: // Sunday			
-			dateDestination = DateAdd('d', dateDestination, 1);			
-			break;
-		case 6: // Saturday			
-			dateDestination = DateAdd('d', dateDestination, 2);
-			break;
-	}
+        dateDestination = DateAdd(itemType, dateSelected, valueToAdd);
+  
+
+    if (ID == "m"){  	
+	    // check the day of the new date - if Saturday or Sunday move to the following Monday 
+	    var DayID = dateDestination.getDay();
+	    switch (DayID)
+	    {
+		    case 0: // Sunday			
+			    dateDestination = DateAdd('d', dateDestination, 1);			
+			    break;
+		    case 6: // Saturday			
+			    dateDestination = DateAdd('d', dateDestination, 2);
+			    break;
+	    }
+    }
 	
 	// build the new location string
-	destination  = 'providercontrol.jsp?year=' + dateDestination.getFullYear() + '&month='+ getMonthNumber(dateDestination.getMonth()) +'&day='+dateDestination.getDate()+'&view=' +qsParm['view']+ '&curProvider='+qsParm['curProvider']+'&curProviderName='+qsParm['curProviderName'] + '&displaymode='+qsParm['displaymode']+'&dboperation='+qsParm['dboperation']
-	
+	destination  = 'providercontrol.jsp?year=' + dateDestination.getFullYear() + '&month='+ getMonthNumber(dateDestination.getMonth()) +'&day='+dateDestination.getDate()+'&view=' +qsParm['view']+ '&curProvider='+qsParm['curProvider']+'&curProviderName='+qsParm['curProviderName'] + '&displaymode='+qsParm['displaymode']+'&dboperation='+qsParm['dboperation']	
 	// move the calendar to the new date
+alert(destination);
 	window.location = destination;	
 }
 
@@ -632,8 +658,7 @@ function getQSValues()
 
 var qsParm = new Array();
 
-function initializeQSArray()
-{
+function initializeQSArray() {
 	
      //initialize array
 	qsParm['year'] = null;
@@ -646,14 +671,12 @@ function initializeQSArray()
 	qsParm['dboperation'] = null;
 }
 
-function getMonthNumber(month)
-{	
+function getMonthNumber(month) {	
 	// add 1 to the month for the oscar querystring
     return month + 1;
 }
 
-function DateAdd(ItemType, DateToWorkOn, ValueToBeAdded)
-{
+function DateAdd(ItemType, DateToWorkOn, ValueToBeAdded) {
     switch (ItemType)
     {    
         case 'd': //add days
@@ -679,6 +702,7 @@ function DateAdd(ItemType, DateToWorkOn, ValueToBeAdded)
         case 's': //add seconds
             DateToWorkOn.setSeconds(DateToWorkOn.getSeconds() + ValueToBeAdded);
             break;
+ 
     }
     return DateToWorkOn;
 }
@@ -707,10 +731,10 @@ if(newGroupNo.indexOf("_grp_") != -1) {
 }
 
 function ts1(s) {
-popupPage(600,840,('../appointment/addappointment.jsp?'+s));
+popupPage(700,840,('../appointment/addappointment.jsp?'+s));
 }
 function tsr(s) {
-popupPage(600,840,('../appointment/appointmentcontrol.jsp?displaymode=edit&dboperation=search&'+s));
+popupPage(700,840,('../appointment/appointmentcontrol.jsp?displaymode=edit&dboperation=search&'+s));
 }
 function goFilpView(s) {
 self.location.href = "../schedule/scheduleflipview.jsp?originalpage=../provider/providercontrol.jsp&startDate=<%=year+"-"+month+"-"+day%>" + "&provider_no="+s ;
@@ -757,6 +781,12 @@ function review(key) {
 <%
 	}
 %>
+<script type="text/javascript" src="../share/calendar/calendar.js"></script>
+<script type="text/javascript" src="../share/calendar/lang/calendar-<bean:message key="global.i18nLanguagecode"/>.js"></script>
+<script type="text/javascript" src="../share/calendar/calendar-setup.js"></script>
+<link rel="stylesheet" type="text/css" media="all" href="../share/calendar/calendar.css" title="win2k-cold-1" />
+
+
 
 </head>
 <%
@@ -1370,20 +1400,24 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 <td id="dateAndCalendar" BGCOLOR="ivory" width="45%">
  <a class="redArrow" href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=isWeekView?(day-7):(day-1)%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+URLEncoder.encode(request.getParameter("curProviderName"),"UTF-8") )%>&displaymode=day&dboperation=searchappointmentday<%=isWeekView?"&provider_no="+provNum:""%>&viewall=<%=viewall%>">
  &nbsp;&nbsp;<img src="../images/previous.gif" WIDTH="10" HEIGHT="9" BORDER="0" class="noprint" ALT="<bean:message key="provider.appointmentProviderAdminDay.viewPrevDay"/>" vspace="2"></a>
- <b><span class="dateAppointment"><%
+
+ <b><span class="dateAppointment" id="theday" ><%
  	if (isWeekView) {
  %><bean:message key="provider.appointmentProviderAdminDay.week"/> <%=week%><%
  	} else {
  %><%=formatDate%><%
  	}
  %></span></b>
+<input type="hidden" id="storeday" onchange="goDate(this.value);">
+
  <a class="redArrow" href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=isWeekView?(day+7):(day+1)%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+URLEncoder.encode(request.getParameter("curProviderName"),"UTF-8") )%>&displaymode=day&dboperation=searchappointmentday<%=isWeekView?"&provider_no="+provNum:""%>&viewall=<%=viewall%>">
  <img src="../images/next.gif" WIDTH="10" HEIGHT="9" BORDER="0" class="noprint" ALT="<bean:message key="provider.appointmentProviderAdminDay.viewNextDay"/>" vspace="2">&nbsp;&nbsp;</a>
-<a id="calendarLink" href=# onClick ="popupPage(425,430,'../share/CalendarPopup.jsp?urlfrom=../provider/providercontrol.jsp&year=<%=strYear%>&month=<%=strMonth%>&param=<%=URLEncoder.encode("&view=0&displaymode=day&dboperation=searchappointmentday&viewall="+viewall,"UTF-8")%><%=isWeekView?URLEncoder.encode("&provider_no="+provNum, "UTF-8"):""%>')"><bean:message key="global.calendar"/></a>
+
+<!-- <a id="calendarLink" href=# onClick ="popupPage(425,430,'../share/CalendarPopup.jsp?urlfrom=../provider/providercontrol.jsp&year=<%=strYear%>&month=<%=strMonth%>&param=<%=URLEncoder.encode("&view=0&displaymode=day&dboperation=searchappointmentday&viewall="+viewall,"UTF-8")%><%=isWeekView?URLEncoder.encode("&provider_no="+provNum, "UTF-8"):""%>')"><bean:message key="global.calendar"/></a> -->
 
 
 <logic:notEqual name="infirmaryView_isOscar" value="false">
-| <% if(request.getParameter("viewall")!=null && request.getParameter("viewall").equals("1") ) { %>
+ <% if(request.getParameter("viewall")!=null && request.getParameter("viewall").equals("1") ) { %>
  <!-- <span style="color:#333"><bean:message key="provider.appointmentProviderAdminDay.viewAll"/></span> -->
  <u><a href=# onClick = "review('0')" title="<bean:message key="provider.appointmentProviderAdminDay.viewAllProv"/>"><bean:message key="provider.appointmentProviderAdminDay.schedView"/></a></u>
  
@@ -1911,7 +1945,7 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
 %>
           <tr>
             <td align="RIGHT" class="<%=bColorHour?"scheduleTime00":"scheduleTimeNot00"%>" NOWRAP>
-             <a href=# onClick="confirmPopupPage(600,840,'../appointment/addappointment.jsp?provider_no=<%=curProvider_no[nProvider]%>&bFirstDisp=<%=true%>&year=<%=strYear%>&month=<%=strMonth%>&day=<%=strDay%>&start_time=<%=(hourCursor>9?(""+hourCursor):("0"+hourCursor))+":"+ (minuteCursor<10?"0":"") +minuteCursor%>&end_time=<%=(hourCursor>9?(""+hourCursor):("0"+hourCursor))+":"+(minuteCursor+depth-1)%>&duration=<%=dateTimeCodeBean.get("duration"+hourmin.toString())%>','<%=dateTimeCodeBean.get("confirm"+hourmin.toString())%>','<%=allowDay%>','<%=allowWeek%>');return false;"
+             <a href=# onClick="confirmPopupPage(600,842,'../appointment/addappointment.jsp?provider_no=<%=curProvider_no[nProvider]%>&bFirstDisp=<%=true%>&year=<%=strYear%>&month=<%=strMonth%>&day=<%=strDay%>&start_time=<%=(hourCursor>9?(""+hourCursor):("0"+hourCursor))+":"+ (minuteCursor<10?"0":"") +minuteCursor%>&end_time=<%=(hourCursor>9?(""+hourCursor):("0"+hourCursor))+":"+(minuteCursor+depth-1)%>&duration=<%=dateTimeCodeBean.get("duration"+hourmin.toString())%>','<%=dateTimeCodeBean.get("confirm"+hourmin.toString())%>','<%=allowDay%>','<%=allowWeek%>');return false;"
   title='<%=MyDateFormat.getTimeXX_XXampm(hourCursor +":"+ (minuteCursor<10?"0":"")+minuteCursor)%> - <%=MyDateFormat.getTimeXX_XXampm(hourCursor +":"+((minuteCursor+depth-1)<10?"0":"")+(minuteCursor+depth-1))%>' class="adhour">
              <%=(hourCursor<10?"0":"") +hourCursor+ ":"%><%=(minuteCursor<10?"0":"")+minuteCursor%>&nbsp;</a></td>
             <td class="hourmin" width='1%' <%=dateTimeCodeBean.get("color"+hourmin.toString())!=null?("bgcolor="+dateTimeCodeBean.get("color"+hourmin.toString()) ):""%> title='<%=dateTimeCodeBean.get("description"+hourmin.toString())%>'><font color='<%=(dateTimeCodeBean.get("color"+hourmin.toString())!=null && !dateTimeCodeBean.get("color"+hourmin.toString()).equals(bgcolordef) )?"black":"white"%>'><%=hourmin.toString()%></font></td>
@@ -2131,7 +2165,7 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
     		<% }    }%>
     		
     		
-<a href=# onClick ="popupPage(535,860,'../appointment/appointmentcontrol.jsp?appointment_no=<%=appointment.getId()%>&provider_no=<%=curProvider_no[nProvider]%>&year=<%=year%>&month=<%=month%>&day=<%=day%>&start_time=<%=iS+":"+iSm%>&demographic_no=0&displaymode=edit&dboperation=search');return false;" title="<%=iS+":"+(iSm>10?"":"0")+iSm%>-<%=iE+":"+iEm%>
+<a href=# onClick ="popupPage(700,800,'../appointment/appointmentcontrol.jsp?appointment_no=<%=appointment.getId()%>&provider_no=<%=curProvider_no[nProvider]%>&year=<%=year%>&month=<%=month%>&day=<%=day%>&start_time=<%=iS+":"+iSm%>&demographic_no=0&displaymode=edit&dboperation=search');return false;" title="<%=iS+":"+(iSm>10?"":"0")+iSm%>-<%=iE+":"+iEm%>
 <%=name%>
 	<%=type != null ? "type: " + type : "" %>
 	reason: <%=reasonCodeName!=null?reasonCodeName:""%> <%if(reason!=null && !reason.isEmpty()){%>- <%=UtilMisc.htmlEscape(reason)%>
@@ -2221,7 +2255,7 @@ if( iSm < 10 ) {
 start_time += iSm + ":00";
 %>
 
-<a class="apptLink" href=# onClick ="popupPage(535,860,'../appointment/appointmentcontrol.jsp?appointment_no=<%=appointment.getId()%>&provider_no=<%=curProvider_no[nProvider]%>&year=<%=year%>&month=<%=month%>&day=<%=day%>&start_time=<%=iS+":"+iSm%>&demographic_no=<%=demographic_no%>&displaymode=edit&dboperation=search');return false;" 
+<a class="apptLink" href=# onClick ="popupPage(790,791,'../appointment/appointmentcontrol.jsp?appointment_no=<%=appointment.getId()%>&provider_no=<%=curProvider_no[nProvider]%>&year=<%=year%>&month=<%=month%>&day=<%=day%>&start_time=<%=iS+":"+iSm%>&demographic_no=<%=demographic_no%>&displaymode=edit&dboperation=search');return false;" 
 <oscar:oscarPropertiesCheck property="SHOW_APPT_REASON_TOOLTIP" value="yes" defaultVal="true"> 
 	title="<%=name%>
 	type: <%=type != null ? type : "" %>
@@ -2480,7 +2514,7 @@ start_time += iSm + ":00";
                       <td BGCOLOR="ivory" width="60%">
                           <a href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=isWeekView ? (day - 7) : (day - 1)%>&view=<%=view == 0 ? "0" : ("1&curProvider=" + request.getParameter("curProvider") + "&curProviderName=" + URLEncoder.encode(request.getParameter("curProviderName"),"UTF-8"))%>&displaymode=day&dboperation=searchappointmentday<%=isWeekView ? "&provider_no=" + provNum : ""%>">
                               &nbsp;&nbsp;<img src="../images/previous.gif" WIDTH="10" HEIGHT="9" BORDER="0" ALT="<bean:message key="provider.appointmentProviderAdminDay.viewPrevDay"/>" vspace="2"></a>
-                          <b><span class="dateAppointment"><% if (isWeekView) {%><bean:message key="provider.appointmentProviderAdminDay.week"/> <%=week%><% } else {%><%=formatDate%><% }%></span></b>
+                          <b><span class="dateAppointment" id="otherDate"><% if (isWeekView) {%><bean:message key="provider.appointmentProviderAdminDay.week"/> <%=week%><% } else {%><%=formatDate%><% }%></span></b>
                           <a href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=isWeekView ? (day + 7) : (day + 1)%>&view=<%=view == 0 ? "0" : ("1&curProvider=" + request.getParameter("curProvider") + "&curProviderName=" + URLEncoder.encode(request.getParameter("curProviderName"),"UTF-8"))%>&displaymode=day&dboperation=searchappointmentday<%=isWeekView ? "&provider_no=" + provNum : ""%>">
                               <img src="../images/next.gif" WIDTH="10" HEIGHT="9" BORDER="0" ALT="<bean:message key="provider.appointmentProviderAdminDay.viewNextDay"/>" vspace="2">&nbsp;&nbsp;</a>
                           <a id="calendarLinkBottom" href=# onClick ="popupPage(425,430,'../share/CalendarPopup.jsp?urlfrom=../provider/providercontrol.jsp&year=<%=strYear%>&month=<%=strMonth%>&param=<%=URLEncoder.encode("&view=0&displaymode=day&dboperation=searchappointmentday", "UTF-8")%><%=isWeekView ? URLEncoder.encode("&provider_no=" + provNum, "UTF-8") : ""%>')"><bean:message key="global.calendar"/></a></td>
@@ -2592,6 +2626,13 @@ jQuery(document).ready(function(){
 });
 </script>
 <!-- end of keycode block -->
+<script type="text/javascript">
+// get the date from the passed values
+    var extdate= "<%=strYear%>"+"-"+"<%=strMonth%>"+"-"+"<%=strDay%>";
+console.log(extdate[1]);
+	Calendar.setup( { inputField : "storeday", ifFormat : "%Y-%m-%d",  button : "theday" } );
+Calendar.setup( { inputField : "storeday", ifFormat : "%Y-%m-%d",  button : "otherDate" } );
+</script>
 <% if (OscarProperties.getInstance().getBooleanProperty("indivica_hc_read_enabled", "true")) { %>
 <jsp:include page="/hcHandler/hcHandler.html"/>
 <% } %>
