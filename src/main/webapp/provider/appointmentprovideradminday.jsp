@@ -107,7 +107,8 @@
     boolean showNotes = schedulePreferences.getOrDefault("displayNotesOnScheduleScreen", true);
     boolean showQuickDateMultiplier = schedulePreferences.getOrDefault("display_quick_date_multiplier", true);
     boolean showQuickDatePicker = schedulePreferences.getOrDefault("display_quick_date_picker", true);
-    boolean showEyeForm = schedulePreferences.getOrDefault("new_eyeform_enabled", false);
+    boolean showLargeCalendar = schedulePreferences.getOrDefault("display_large_calendar", true);
+    boolean showEyeForm = schedulePreferences.getOrDefault("new_eyeform_enabled", true);
     boolean bShortcutIntakeForm =  schedulePreferences.getOrDefault("appt_intake_form", true);   
     
 	UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
@@ -556,6 +557,8 @@ if (isMobileOptimized) {
 <script type="text/javascript">
 
 function goDate(aDate){
+    if (calendar.dateClicked) {
+        //OK this was not just a change in the month/year
 	// initialize array and get values
 	initializeQSArray();
 	getQSValues();
@@ -569,6 +572,7 @@ function goDate(aDate){
 
 	// move the calendar to the new date
 	window.location = destination;	
+}
 
 }
 
@@ -781,11 +785,12 @@ function review(key) {
 <%
 	}
 %>
+<% if (!showLargeCalendar) { %>
 <script type="text/javascript" src="../share/calendar/calendar.js"></script>
 <script type="text/javascript" src="../share/calendar/lang/calendar-<bean:message key="global.i18nLanguagecode"/>.js"></script>
 <script type="text/javascript" src="../share/calendar/calendar-setup.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="../share/calendar/calendar.css" title="win2k-cold-1" />
-
+<% } %>
 
 
 </head>
@@ -1408,13 +1413,14 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
  %><%=formatDate%><%
  	}
  %></span></b>
-<input type="hidden" id="storeday" onchange="goDate(this.value);">
+<input type="hidden" id="storeday" onchange="goDate(this.value)";>
 
  <a class="redArrow" href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=isWeekView?(day+7):(day+1)%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+URLEncoder.encode(request.getParameter("curProviderName"),"UTF-8") )%>&displaymode=day&dboperation=searchappointmentday<%=isWeekView?"&provider_no="+provNum:""%>&viewall=<%=viewall%>">
  <img src="../images/next.gif" WIDTH="10" HEIGHT="9" BORDER="0" class="noprint" ALT="<bean:message key="provider.appointmentProviderAdminDay.viewNextDay"/>" vspace="2">&nbsp;&nbsp;</a>
 
-<a id="calendarLink" href=# onClick ="popupPage(425,430,'../share/CalendarPopup.jsp?urlfrom=../provider/providercontrol.jsp&year=<%=strYear%>&month=<%=strMonth%>&param=<%=URLEncoder.encode("&view=0&displaymode=day&dboperation=searchappointmentday&viewall="+viewall,"UTF-8")%><%=isWeekView?URLEncoder.encode("&provider_no="+provNum, "UTF-8"):""%>')"><bean:message key="global.calendar"/></a> 
-
+<% if (showLargeCalendar) { %>
+<a id="calendarLink" href=# onClick ="popupPage(425,430,'../share/CalendarPopup.jsp?urlfrom=../provider/providercontrol.jsp&year=<%=strYear%>&month=<%=strMonth%>&param=<%=URLEncoder.encode("&view=0&displaymode=day&dboperation=searchappointmentday&viewall="+viewall,"UTF-8")%><%=isWeekView?URLEncoder.encode("&provider_no="+provNum, "UTF-8"):""%>')"><bean:message key="global.calendar"/></a> |
+<% } %>
 
 <logic:notEqual name="infirmaryView_isOscar" value="false">
  <% if(request.getParameter("viewall")!=null && request.getParameter("viewall").equals("1") ) { %>
@@ -2626,13 +2632,16 @@ jQuery(document).ready(function(){
 });
 </script>
 <!-- end of keycode block -->
-<script type="text/javascript">
-// get the date from the passed values
+
+<% if (!showLargeCalendar) { %>
+    <script type="text/javascript">
+    // setup small calendars with the date from the passed values
     var extdate= "<%=strYear%>"+"-"+"<%=strMonth%>"+"-"+"<%=strDay%>";
-console.log(extdate[1]);
-	Calendar.setup( { inputField : "storeday", ifFormat : "%Y-%m-%d",  button : "theday" } );
-Calendar.setup( { inputField : "storeday", ifFormat : "%Y-%m-%d",  button : "otherDate" } );
-</script>
+	Calendar.setup( { inputField : "storeday", ifFormat : "%Y-%m-%d",  button : "theday"} );
+    Calendar.setup( { inputField : "storeday", ifFormat : "%Y-%m-%d",  button : "otherDate"} );
+    </script>
+<% } %>
+
 <% if (OscarProperties.getInstance().getBooleanProperty("indivica_hc_read_enabled", "true")) { %>
 <jsp:include page="/hcHandler/hcHandler.html"/>
 <% } %>
