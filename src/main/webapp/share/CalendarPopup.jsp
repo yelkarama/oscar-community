@@ -178,11 +178,15 @@ int [][] dateGrid = aDate.getMonthDateGrid();
 for (int i=0; i<dateGrid.length; i++) {
 	out.println("<tr>");
 	for (int j=0; j<7; j++) {
-		if(dateGrid[i][j]==0) out.println("<td></td>");
-		else {
+		if(dateGrid[i][j]==0) {
+            out.println("<td></td>");
+		} else {
+            bTodayDate = false;
 			now.add(now.DATE, 1);
-			if(todayDate == now.get(Calendar.DATE)) bTodayDate = true;
-			else bTodayDate = false;
+			if ( (todayDate == now.get(Calendar.DATE)) && ( (month - 1) == (cal.get(Calendar.MONTH)) ) ) {
+                bTodayDate = true; 
+            }
+			//if(month != now.get(Calendar.MONTH)) { bTodayDate = false; }
 %>
 	<td align="center" bgcolor='<%=bTodayDate?"gold":"#EEEEFF"%>'><a
 		href="#"
