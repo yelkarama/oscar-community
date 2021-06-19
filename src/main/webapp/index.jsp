@@ -165,7 +165,7 @@ boolean oauth2Enabled= "true".equalsIgnoreCase(OscarProperties.getInstance().get
             #mobileMsg { display: inline; }
     </style>
     <% } %>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 <link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
 
