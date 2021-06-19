@@ -181,9 +181,9 @@ boolean oauth2Enabled= "true".equalsIgnoreCase(OscarProperties.getInstance().get
 <div class="row">
         <div class="span4 text-center">
             <% if (props.getProperty("loginlogo", "").equals("")) { %>
-                <html:img srcKey="loginApplication.image.logo" width="450" height="274" style="margin-left:auto; margin-right: auto;"/>
+                <html:img srcKey="loginApplication.image.logo" width="450" height="274" style="margin:auto; padding:14px;"/>
             <% } else { %>
-                <img src="<%=props.getProperty("loginlogo", "")%>">              
+                <img src="<%=props.getProperty("loginlogo", "")%>" <%=props.getProperty("loginlogo.attributes", "style='margin:auto; padding:14px;'")%>>              
             <% } %>
         </div> 
 		<div class="span4 well">
