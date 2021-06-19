@@ -173,7 +173,7 @@ boolean oauth2Enabled= "true".equalsIgnoreCase(OscarProperties.getInstance().get
      </head>
     <body onLoad="setfocus();" >
 
-<div class="container" style="border-style: solid; border-color: #49afcd; border-radius:25px; border-width: 1px; margin-top: 25px;">
+<div class="container" style="border-style: solid; border-color: #49afcd; border-radius:25px; border-width: 1px; margin-top: 25px; padding: 14px;">
 
 <br>
 <br>
