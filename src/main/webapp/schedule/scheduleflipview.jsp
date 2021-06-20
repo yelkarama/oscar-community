@@ -117,7 +117,7 @@ function selectprovider(s) {
 function t(s1,s2,s3,s4,s5,s6, doConfirm, allowDay, allowWeek) {
 	if (doConfirm == "Yes") {
         if (confirm("<bean:message key="provider.appointmentProviderAdminDay.confirmBooking"/>")){
-        	popupPage(360,680,('../appointment/addappointment.jsp?demographic_no=<%=curDemoNo%>&name=<%=curDemoName%>&provider_no=<%=curProvider_no%>&bFirstDisp=<%=true%>&year='+s1+'&month='+s2+'&day='+s3+'&start_time='+s4+'&end_time='+s5+'&duration='+s6 ) );
+        	popupPage(580,800,('../appointment/addappointment.jsp?demographic_no=<%=curDemoNo%>&name=<%=curDemoName%>&provider_no=<%=curProvider_no%>&bFirstDisp=<%=true%>&year='+s1+'&month='+s2+'&day='+s3+'&start_time='+s4+'&end_time='+s5+'&duration='+s6 ) );
         }
 	}
 	else if (doConfirm == "Day"){
@@ -125,7 +125,7 @@ function t(s1,s2,s3,s4,s5,s6, doConfirm, allowDay, allowWeek) {
 	                alert("<bean:message key="provider.appointmentProviderAdminDay.sameDay"/>");
 	        }
 	        else {
-	        	popupPage(360,680,('../appointment/addappointment.jsp?demographic_no=<%=curDemoNo%>&name=<%=curDemoName%>&provider_no=<%=curProvider_no%>&bFirstDisp=<%=true%>&year='+s1+'&month='+s2+'&day='+s3+'&start_time='+s4+'&end_time='+s5+'&duration='+s6 ) );
+	        	popupPage(580,800,('../appointment/addappointment.jsp?demographic_no=<%=curDemoNo%>&name=<%=curDemoName%>&provider_no=<%=curProvider_no%>&bFirstDisp=<%=true%>&year='+s1+'&month='+s2+'&day='+s3+'&start_time='+s4+'&end_time='+s5+'&duration='+s6 ) );
 	        }
 	}
 	else if (doConfirm == "Wk"){
@@ -133,21 +133,21 @@ function t(s1,s2,s3,s4,s5,s6, doConfirm, allowDay, allowWeek) {
 	                alert("<bean:message key="provider.appointmentProviderAdminDay.sameWeek"/>");
 	        }
 	        else {
-	        	popupPage(360,680,('../appointment/addappointment.jsp?demographic_no=<%=curDemoNo%>&name=<%=curDemoName%>&provider_no=<%=curProvider_no%>&bFirstDisp=<%=true%>&year='+s1+'&month='+s2+'&day='+s3+'&start_time='+s4+'&end_time='+s5+'&duration='+s6 ) );
+	        	popupPage(580,800,('../appointment/addappointment.jsp?demographic_no=<%=curDemoNo%>&name=<%=curDemoName%>&provider_no=<%=curProvider_no%>&bFirstDisp=<%=true%>&year='+s1+'&month='+s2+'&day='+s3+'&start_time='+s4+'&end_time='+s5+'&duration='+s6 ) );
 	        }
 	}
 	else if( doConfirm == "Onc" ) {
 		if( allowDay == "No" ) {
 			if( confirm("This is an On Call Urgent appointment.  Are you sure you want to book?") ) {
-				popupPage(360,680,('../appointment/addappointment.jsp?demographic_no=<%=curDemoNo%>&name=<%=curDemoName%>&provider_no=<%=curProvider_no%>&bFirstDisp=<%=true%>&year='+s1+'&month='+s2+'&day='+s3+'&start_time='+s4+'&end_time='+s5+'&duration='+s6 ) );
+				popupPage(580,800,('../appointment/addappointment.jsp?demographic_no=<%=curDemoNo%>&name=<%=curDemoName%>&provider_no=<%=curProvider_no%>&bFirstDisp=<%=true%>&year='+s1+'&month='+s2+'&day='+s3+'&start_time='+s4+'&end_time='+s5+'&duration='+s6 ) );
 			}
 		}
 		else {
-			popupPage(360,680,('../appointment/addappointment.jsp?demographic_no=<%=curDemoNo%>&name=<%=curDemoName%>&provider_no=<%=curProvider_no%>&bFirstDisp=<%=true%>&year='+s1+'&month='+s2+'&day='+s3+'&start_time='+s4+'&end_time='+s5+'&duration='+s6 ) );
+			popupPage(580,800,('../appointment/addappointment.jsp?demographic_no=<%=curDemoNo%>&name=<%=curDemoName%>&provider_no=<%=curProvider_no%>&bFirstDisp=<%=true%>&year='+s1+'&month='+s2+'&day='+s3+'&start_time='+s4+'&end_time='+s5+'&duration='+s6 ) );
 		}
 	}
 	else {
-		popupPage(360,680,('../appointment/addappointment.jsp?demographic_no=<%=curDemoNo%>&name=<%=curDemoName%>&provider_no=<%=curProvider_no%>&bFirstDisp=<%=true%>&year='+s1+'&month='+s2+'&day='+s3+'&start_time='+s4+'&end_time='+s5+'&duration='+s6 ) );
+		popupPage(580,800,('../appointment/addappointment.jsp?demographic_no=<%=curDemoNo%>&name=<%=curDemoName%>&provider_no=<%=curProvider_no%>&bFirstDisp=<%=true%>&year='+s1+'&month='+s2+'&day='+s3+'&start_time='+s4+'&end_time='+s5+'&duration='+s6 ) );
 	}
   
 }
@@ -161,6 +161,7 @@ function t(s1,s2,s3,s4,s5,s6, doConfirm, allowDay, allowWeek) {
   int colscode = (nEndTime-nStartTime)*60/nStep;
   String rColor1 = "#FFFFE0", rColor2 = "#FFFFE0", bgcolor = "gold";
   String startDate = request.getParameter("startDate")!=null?request.getParameter("startDate"):"today";
+  // i18n note getLocale() yields OS locale not browser locale
   SimpleDateFormat inform = new SimpleDateFormat ("yyyy-MM-dd", request.getLocale());
   SimpleDateFormat outform = new SimpleDateFormat ("EEE, yyyy/MM/dd", request.getLocale());
   GregorianCalendar now = new GregorianCalendar();
@@ -174,15 +175,17 @@ function t(s1,s2,s3,s4,s5,s6, doConfirm, allowDay, allowWeek) {
   // note: brain-dead calendar numbers months from 0, thus all the +1s in the expressions below
 //  String dateString1 = outform.format(inform.parse(cal.get(Calendar.YEAR)+"-"+(cal.get(Calendar.MONTH)+1)+"-"+cal.get(Calendar.DATE)) );
 %>
-<body bgcolor="#999FFF" text="#000000" topmargin="0" leftmargin="0"
+<body  topmargin="0" leftmargin="0"
 	rightmargin="0">
 
 
-<div style="colur: #FF0000; text-decoration: none"><a
-	href="javascript:history.go(-1)"
-	style="text-decoration: none; color: #000000">Go Back</a> <a
-	href="../provider/providercontrol.jsp"
-	style="text-decoration: none; color: #000000">Day Page</a></div>
+<div >
+    <a href="javascript:history.go(-1)"	\>
+        <bean:message key="global.btnCancel"/>
+    </a> | 
+    <a href="../provider/providercontrol.jsp"><bean:message key="global.today"/>
+    </a>
+</div>
 <table width="100%" border="1" cellspacing="0" cellpadding="0">
 	<tr align="center" bgcolor="#CCCCFF">
 <% if (bMultisites) out.print("<td>Site</td>"); %>	
@@ -205,7 +208,7 @@ function t(s1,s2,s3,s4,s5,s6, doConfirm, allowDay, allowWeek) {
 				List<MyGroup> mgs = myGroupDao.getGroupByGroupNo(mygroupno);
 				for(MyGroup mg:mgs) {
 					%>
-					<option value="<%=mg.getId().getProviderNo()%>" <%=mg.getId().getProviderNo().equals(curProvider_no)?"selected":""%>><%=Misc.getShortStr(mg.getLastName() + "," + mg.getFirstName(),"",12)%></option>
+					<option value="<%=mg.getId().getProviderNo()%>" <%=mg.getId().getProviderNo().equals(curProvider_no)?"selected":""%>><%=Misc.getShortStr(mg.getLastName() + "," + mg.getFirstName(),"",14)%></option>
 					<%
 				}
 			}
