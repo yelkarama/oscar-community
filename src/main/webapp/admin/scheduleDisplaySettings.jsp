@@ -275,7 +275,20 @@
 	                    No
 	                    &nbsp;&nbsp;&nbsp;
 	                </td>
-	            </tr>                      
+	            </tr>  
+	            <tr>
+	                <td>Display Large Calendar Selector: </td>
+	                <td>
+	                    <input id="display_large_calendar-true" type="radio" value="true" name="display_large_calendar"
+	                            <%=(dataBean.getProperty("display_large_calendar", "true").equals("true")) ? "checked" : ""%> />
+	                    Yes
+	                    &nbsp;&nbsp;&nbsp;
+	                    <input id="display_large_calendar-false" type="radio" value="false" name="display_large_calendar"
+	                            <%=(dataBean.getProperty("display_large_calendar", "true").equals("false")) ? "checked" : ""%> />
+	                    No
+	                    &nbsp;&nbsp;&nbsp;
+	                </td>
+	            </tr>
 	            <tr>
 	                <td>Display Quick Date Selector with Fixed Intervals: </td>
 	                <td>
