@@ -478,7 +478,7 @@ function signatureHandler(e) {
 	if (e.isSave) {
 		<% if (OscarProperties.getInstance().isRxFaxEnabled()) { //%>
 		if (hasFaxNumber) {
-			e.target.onbeforeunload = unloadMess;
+			//e.target.onbeforeunload = alert(unloadMess());
 		}
 		<% } %>
 		refreshImage();			
