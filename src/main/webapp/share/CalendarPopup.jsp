@@ -118,7 +118,7 @@ int [][] dateGrid = aDate.getMonthDateGrid();
 <table BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="100%" >
     <tr>
         <td align="left">
-            <h2><%=arrayMonth[month-1]%>&nbsp;<%=year%>&nbsp;</h2>
+            <h2>&nbsp;<%=arrayMonth[month-1]%>&nbsp;<%=year%>&nbsp;</h2>
         </td>
         <td align="right"><H2>
             <a href="CalendarPopup.jsp?urlfrom=<%=urlfrom%>&year=<%=year%>&month=<%=month%>&param=<%=URLEncoder.encode(param)%>&delta=-12">
@@ -132,7 +132,7 @@ int [][] dateGrid = aDate.getMonthDateGrid();
 			</a>
             <a href="CalendarPopup.jsp?urlfrom=<%=urlfrom%>&year=<%=year%>&month=<%=month%>&param=<%=URLEncoder.encode(param)%>&delta=12">
 		        <i class="icon-double-angle-right" TITLE="<bean:message key="share.CalendarPopUp.msgNextYear"/>"></i>
-            </a></H2>
+            </a>&nbsp;</H2>
 
         </td>
     </tr>
@@ -154,7 +154,7 @@ int [][] dateGrid = aDate.getMonthDateGrid();
 </table>
 
 <table width="100%" border="0" cellspacing="1" cellpadding="2"
-	  class="table table-striped">
+	  class="table ">
 	<tr  align="center">
 		<th width="14%"><font color="red"><bean:message
 			key="share.CalendarPopUp.msgSun" /></font>
@@ -188,7 +188,7 @@ for (int i=0; i<dateGrid.length; i++) {
             }
 			//if(month != now.get(Calendar.MONTH)) { bTodayDate = false; }
 %>
-	<td align="center" bgcolor='<%=bTodayDate?"gold":"#EEEEFF"%>'><a
+	<td align="center" bgcolor='<%=bTodayDate?"gold":"white"%>'><a
 		href="#"
 		onClick="typeInDate(<%=year%>,<%=month%>,<%= dateGrid[i][j] %>)">
 	<%= dateGrid[i][j] %></a></td>
