@@ -148,6 +148,19 @@
         <table id="displaySettingsTable" class="table table-bordered table-striped table-hover table-condensed">
             <tbody>
 	            <tr>
+	                <td>Show Classic Schedule: </td>
+	                <td>
+	                    <input id="old_schedule_enabled-true" type="radio" value="true" name="old_schedule_enabled"
+	                            <%=(dataBean.getProperty("old_schedule_enabled", "false").equals("true")) ? "checked" : ""%> />
+	                    Yes
+	                    &nbsp;&nbsp;&nbsp;
+	                    <input id="old_schedule_enabled-false" type="radio" value="false" name="old_schedule_enabled"
+	                            <%=(dataBean.getProperty("old_schedule_enabled", "false").equals("false")) ? "checked" : ""%> />
+	                    No
+	                    &nbsp;&nbsp;&nbsp;
+	                </td>
+	            </tr>
+	            <tr>
 	                <td>Activate Eyeform: </td>
 	                <td>
 	                    <input id="new_eyeform_enabled-true" type="radio" value="true" name="new_eyeform_enabled"
