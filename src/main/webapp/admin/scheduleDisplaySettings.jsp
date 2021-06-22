@@ -425,7 +425,7 @@
             </tbody>
         </table>
 
-        <input type="button" onclick="document.forms['displaySettingsForm'].dboperation.value='Save'; document.forms['displaySettingsForm'].submit();" name="saveDisplaySettings" value="Save"/>
+        <input type="button" class="btn btn-primary" onclick="document.forms['displaySettingsForm'].dboperation.value='Save'; document.forms['displaySettingsForm'].submit();" name="saveDisplaySettings" value="Save"/>
     </form>
     </body>
 </html:html>
