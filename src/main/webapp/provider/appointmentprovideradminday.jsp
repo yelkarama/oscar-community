@@ -108,8 +108,10 @@
     boolean showQuickDateMultiplier = schedulePreferences.getOrDefault("display_quick_date_multiplier", true);
     boolean showQuickDatePicker = schedulePreferences.getOrDefault("display_quick_date_picker", true);
     boolean showLargeCalendar = schedulePreferences.getOrDefault("display_large_calendar", true);
-    boolean showEyeForm = schedulePreferences.getOrDefault("new_eyeform_enabled", true);
     boolean bShortcutIntakeForm =  schedulePreferences.getOrDefault("appt_intake_form", true);   
+
+    boolean showClassicSchedule = schedulePreferences.getOrDefault("old_schedule_enabled", false); 
+    boolean showEyeForm = schedulePreferences.getOrDefault("new_eyeform_enabled", false);
     
 	UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
@@ -538,14 +540,14 @@ th, td {
 	font-family: "Arial";
 
 	font-size: 12px;
-    color: white;
+    color: <%=(showClassicSchedule? "black;" : "white;")%>
     font-weight: bold;
 
-	background-color: steelblue; //#202020;//darkslategray;
+    background-color: <%=(showClassicSchedule? "ivory;" : "steelblue;")%>  
 }
 
 .topbar a {
-    color: white;
+    color: <%=(showClassicSchedule? "black;" : "white;")%>
     text-decoration: none;
 }
 
@@ -564,8 +566,8 @@ th, td {
     width:25px;
     font-size:8pt;
     font-weight: bold;
-    color: white;
-    background-color: steelblue;
+    color: <%=(showClassicSchedule? "black;" : "white;")%>
+    background-color: <%=(showClassicSchedule? "ivory;" : "steelblue;")%> 
 }
 
 .quick:hover {
@@ -664,17 +666,16 @@ th, td {
 
 
 #ivoryBar {
-    fornt-size: 11px;
+    font-size: 11px;
 }
 
 #providerSchedule {
-    background-color: gainsboro;
+    background-color: <%=(showClassicSchedule? "#486ebd;" : "gainsboro;")%> 
 	font-weight: bold;
 	font-size: 12px;
 }
 
 #providerSchedule a {
-    color: black;
     text-decoration: none;
 }
 
@@ -700,9 +701,21 @@ th, td {
 
 }
 
-.scheduleTime00 { background-color: gainsboro; }
 
-.scheduleTimeNot00 { background-color: #E8E8E8; }
+.scheduleTime00 { 
+    background-color: <%=(showClassicSchedule? "#3EA4E1;" : "gainsboro;")%> 
+}
+
+.scheduleTimeNot00 { 
+    background-color: <%=(showClassicSchedule? "#00A488;" : "#E8E8E8;")%> 
+}
+
+.scheduleTime00 a, .scheduleTimeNot00 a {
+    color: <%=(showClassicSchedule? "white" : "gray")%>
+}
+.appt a { color: black; }  //best to leave it black
+
+
 
 @media print {
 
