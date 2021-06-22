@@ -521,6 +521,7 @@ if (isMobileOptimized) {
 %>
 <!-- <link rel="stylesheet" href="../css/receptionistapptstyle.css" type="text/css">-->
 <!-- <link rel="stylesheet" href="../css/helpdetails.css" type="text/css"> -->
+<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 <style>
 body {
 	font-family: "Arial";
@@ -711,7 +712,7 @@ th, td {
 }
 
 .scheduleTime00 a, .scheduleTimeNot00 a {
-    color: <%=(showClassicSchedule? "white" : "gray")%>
+    color: <%=(showClassicSchedule? "white" : "#606060")%>
 }
 .appt a { color: black; }  //best to leave it black
 
@@ -955,7 +956,7 @@ function goZoomView(s, n) {
 self.location.href = "providercontrol.jsp?year=<%=strYear%>&month=<%=strMonth%>&day=<%=strDay%>&view=1&curProvider="+s+"&curProviderName="+encodeURIComponent(n)+"&displaymode=day&dboperation=searchappointmentday" ;
 }
 function findProvider(p,m,d) {
-popupPage(300,400, "receptionistfindprovider.jsp?pyear=" +p+ "&pmonth=" +m+ "&pday=" +d+ "&providername="+ document.findprovider.providername.value );
+popupPage(400,500, "receptionistfindprovider.jsp?pyear=" +p+ "&pmonth=" +m+ "&pday=" +d+ "&providername="+ document.findprovider.providername.value );
 }
 function goSearchView(s) {
 	popupPage(600,650,"../appointment/appointmentsearch.jsp?provider_no="+s);
@@ -1510,7 +1511,7 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 
 
 <td align="right" valign="bottom" >
-	<a href="javascript: function myFunction() {return false; }" onClick="popup(700,1024,'../scratch/index.jsp','scratch')"><span id="oscar_scratch"></span></a>&nbsp;
+	<a href="javascript: function myFunction() {return false; }" onClick="popup(700,1024,'../scratch/index.jsp','scratch')"><i class="icon-pencil"></i></a>&nbsp;
 
 	<%if(resourcehelpHtml==""){ %>
 		<a href="javascript:void(0)" onClick ="popupPage(600,750,'<%=resourcebaseurl%>')"><bean:message key="global.help"/></a>
@@ -1722,7 +1723,8 @@ if (curProvider_no[provIndex].equals(provNum)) {
 
 <caisi:isModuleLoad moduleName="TORONTO_RFQ" reverse="true">
 <form method="post" name="findprovider" onSubmit="findProvider(<%=year%>,<%=month%>,<%=day%>);return false;" target="apptReception" action="receptionistfindprovider.jsp" style="display:inline;margin:0px;padding:0px;padding-right:10px">
-<INPUT TYPE="text" NAME="providername" VALUE="" WIDTH="2" HEIGHT="10" border="0" size="13" maxlength="10" class="noprint" title="Find a Provider" placeholder="Enter Lastname">
+<INPUT TYPE="text" NAME="providername" VALUE="" WIDTH="2" HEIGHT="10" border="0" size="13" maxlength="10" 
+class="noprint" title="Find a Provider" placeholder='<bean:message key="receptionist.receptionistfindprovider.lastname"/>'>
 <INPUT TYPE="SUBMIT" NAME="Go" VALUE='<bean:message key="provider.appointmentprovideradminmonth.btnGo"/>' class="noprint" onClick="findProvider(<%=year%>,<%=month%>,<%=day%>);return false;">
 </form>
 </caisi:isModuleLoad>
