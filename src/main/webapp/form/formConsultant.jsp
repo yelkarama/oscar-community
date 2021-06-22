@@ -135,7 +135,7 @@
                                 <TD align="left">Address:</TD>
                                 <TD align="left">
 
-                                    <textarea id="t_address1" name = "t_address1" style="font-size: 13px; text-decoration: underline; width: 90%;"><%=props.getProperty("t_address1", "")%></textarea>
+                                    <textarea id="t_address1" name = "t_address1" style="font-size: 13px; resize:none; text-decoration: underline; width: 90%;"><%=props.getProperty("t_address1", "")%></textarea>
 
                                 </TD>
                             </TR>
@@ -163,7 +163,7 @@
                             <TD align="left" width="40%">Patient:</TD>
                             <TD align="left">
 
-                                    <INPUT NAME="p_name" style="border: none; font-size: 13px; text-decoration: underline; width: 100%;" TYPE="text" value="<%=props.getProperty("p_name","")%>">
+                                    <INPUT NAME="p_name" style="border: none; font-size: 13px; text-decoration: underline; width: 99%;" TYPE="text" value="<%=props.getProperty("p_name","")%>">
                                     </INPUT>
 
                             </TD>
@@ -172,7 +172,7 @@
                             <TD align="left">Address:</TD>
                             <TD align="left">
 
-                                    <INPUT NAME="p_address1" style="border: none; font-size: 13px; text-decoration: underline; width: 100%;" TYPE="text" value="<%=props.getProperty("p_address1","")%>">
+                                    <INPUT NAME="p_address1" style="border: none; font-size: 13px; text-decoration: underline; width: 99%;" TYPE="text" value="<%=props.getProperty("p_address1","")%>">
                                     </INPUT>
 
                             </TD>
@@ -181,7 +181,7 @@
                             <TD align="left">&nbsp;</TD>
                             <TD align="left">
 
-                                    <INPUT NAME="p_address2" style="border: none; font-size: 13px; text-decoration: underline; width: 100%;" TYPE="text" value="<%=props.getProperty("p_address2","")%>">
+                                    <INPUT NAME="p_address2" style="border: none; font-size: 13px; text-decoration: underline; width: 99%;" TYPE="text" value="<%=props.getProperty("p_address2","")%>">
                                     </INPUT>
 
                             </TD>
@@ -189,7 +189,7 @@
                         <TR>
                             <TD align="left">Phone:</TD>
                             <TD align="left">
-                                <INPUT NAME="p_phone" style="border: none; font-size: 13px; text-decoration: underline; width: 100%;" TYPE="text" value="<%=props.getProperty("p_phone","")%>">
+                                <INPUT NAME="p_phone" style="border: none; font-size: 13px; text-decoration: underline; width: 99%;" TYPE="text" value="<%=props.getProperty("p_phone","")%>">
                                    </INPUT>
 
                             </TD>
@@ -197,14 +197,14 @@
                         <TR>
                             <TD align="left">Birthdate:</TD>
                             <TD align="left">
-                                <INPUT NAME="p_birthdate" style="border: none; font-size: 13px; text-decoration: underline; width: 100%;" TYPE="text" value="<%=props.getProperty("p_birthdate","")%>">
+                                <INPUT NAME="p_birthdate" style="border: none; font-size: 13px; text-decoration: underline; width: 99%;" TYPE="text" value="<%=props.getProperty("p_birthdate","")%>">
                                 </INPUT>
                             </TD>
                         </TR>
                         <TR>
                             <TD align="left">Health Card No:</TD>
                             <TD align="left">
-                                <INPUT NAME="p_healthcard" style="border: none; font-size: 13px; text-decoration: underline; width: 100%;" TYPE="text" value="<%=props.getProperty("p_healthcard","")%>">
+                                <INPUT NAME="p_healthcard" style="border: none; font-size: 13px; text-decoration: underline; width: 99%;" TYPE="text" value="<%=props.getProperty("p_healthcard","")%>">
                                 </INPUT>
                             </TD>
                         </TR>
