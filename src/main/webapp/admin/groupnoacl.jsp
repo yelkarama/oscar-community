@@ -87,6 +87,11 @@
 
 <html:html locale="true">
 <head>
+
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="../css/helpdetails.css" type="text/css">
+
+
 	<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 	<script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery-1.7.1.min.js"></script>
 	<title><bean:message key="admin.groupacl.title" /></title>
@@ -111,11 +116,12 @@
 	<input type="hidden" id="method" name="method"/>
 	
 	<table border=0 cellspacing=0 cellpadding=0 width="100%">
-		<tr bgcolor="#486ebd">
+		<tr>
 			<th align=CENTER NOWRAP>
-				<font face="Helvetica" color="#FFFFFF">
-					<bean:message key="admin.groupacl.description" />
+				<font style="text-align:left">
+					<h3><bean:message key="admin.groupacl.description" /></h3>
 				</font>
+<p>Checked boxes mean the checked provider won't be able to view the selected group</p>
 			</th>
 	</tr>
 </table>
@@ -125,15 +131,14 @@
 <table border="0" cellpadding="0" cellspacing="0" width="80%">
 	<tr>
 		<td width="100%">
-
-		<table BORDER="0" CELLPADDING="0" CELLSPACING="1" WIDTH="100%" BGCOLOR="#C0C0C0">
-			<tr BGCOLOR="#CCFFFF">
+		<table class="table">
+			<tr class="btn-inverse">
 				<td ALIGN="center">
 					<font face="arial">
 						Select Group:
 					</font>
 				</td>
-				<td ALIGN="center">					
+		<td ALIGN="center">					
 					<select id="chosen_group" name="chosen_group" onChange="changeGroup()">
 						<option value=""></option>
 						<%
@@ -156,7 +161,11 @@
 						<% } %>
 					</select>
 				</td>
-			</tr>
+</tr>
+	</table>
+
+<table class="table table-striped table-hover" border="0" cellpadding="0" cellspacing="0" width="80%">
+	<tr>		
 			<%			
 				int i=0;
    				for (Provider provider:providers) {
@@ -168,7 +177,8 @@
    					   					
      				i++;
 			%>
-			<tr BGCOLOR="<%=i%2==0?"ivory":"white"%>">
+
+			<tr BGCOLOR="<%=i%2==0?"ivory":"white"%>" style="font-family:Arial;">
 				<td>&nbsp; <%=provider.getLastName()%>, <%=provider.getFirstName()%></td>
 				<td ALIGN="center">
 					<input type="checkbox" name="data" <%=selected%> value="<%=provider.getProviderNo()%>"> 					
@@ -186,8 +196,8 @@
 <table width="100%" BGCOLOR="#486ebd">
 	<tr>
 		<TD align="center">
-			<input type=button name="Submit" onClick="save_acl()" value="<bean:message key="admin.adminnewgroup.btnSubmit"/>"/>
-			<INPUT TYPE="RESET" VALUE="<bean:message key="global.btnClose"/>" onClick="window.close();">
+			<input type=button class="btn btn-primary" name="Submit" onClick="save_acl()" value="<bean:message key="admin.adminnewgroup.btnSubmit"/>"/>
+			<INPUT TYPE="RESET" class="btn btn" VALUE="<bean:message key="global.btnReset"/>" onClick="window.close();">
 		</TD>
 	</tr>
 </TABLE>
