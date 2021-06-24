@@ -539,11 +539,9 @@ th, td {
 
 .topbar {
 	font-family: "Arial";
-
-	font-size: 12px;
+	font-size: 14px;
     color: <%=(showClassicSchedule? "black;" : "white;")%>
     font-weight: bold;
-
     background-color: <%=(showClassicSchedule? "ivory;" : "steelblue;")%>  
 }
 
@@ -553,122 +551,80 @@ th, td {
 }
 
 .topbar a:hover {
-    color: grey;
+    color: red;
 }
 
 .tabalert {
-
 	color: red;
-
 }
 
 .quick {
     border:none;
-    width:25px;
+    width:18px;
     font-size:8pt;
+    padding:0px;
     font-weight: bold;
-    color: <%=(showClassicSchedule? "black;" : "white;")%>
-    background-color: <%=(showClassicSchedule? "ivory;" : "steelblue;")%> 
+    color: <%=(showClassicSchedule? "black" : "white")%>;
+    background-color: <%=(showClassicSchedule? "ivory" : "steelblue")%>; 
 }
 
 .quick:hover {
-    color: grey;
+    color: red;
+}
+
+#theday {
+    color: <%=(showClassicSchedule? "black" : "white")%>;  
 }
 
 #theday:hover {
-    color: grey; 
+    color: red; 
     cursor: pointer;   
 }
 
 
 #navlist{
-
     margin: 0;
-
     padding: 0;
-
     white-space: nowrap;
-
 }
-
 
 #navlist li {
-
     padding-top: 0.5px;
-
     padding-bottom: 0.5px;
-
-    padding-left: 2.5px;
-
-    padding-right: 2.5px;
-
+    padding-left: 3px;
+    padding-right: 3px;
     display: inline;
-
 }
 
-
-#navlist li:hover { color: gray;}
-
-#navlist li a:hover { color: gray;}
-
+#navlist li:hover { color: red;}
+#navlist li a:hover { color: red;}
 #navlist #logoutMobile { display:none; }
 
 .dropdown {
-
 	display: inline-block !important;
-
 	position: relative;
-
 }
-
-
 
 .dashboardDropdown {
-
     display: none;
-
     position: absolute;
-
     background-color: #f9f9f9;
-
     min-width: 160px;
-
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-
 }
-
-
-#dateAndCalendar a {
-    hover; gray;
-}
-
 
 .dashboardDropdown a {
-
     color: black;
-
     text-decoration: none;
-
     display: block;
-
     text-align: left;
-
 	padding:2px 5px;
-
 }
-
-
 
 .dropdown:hover .dashboardDropdown {
-
     display: block;
-
 }
 
-
-#ivoryBar {
-    font-size: 11px;
-}
 
 #providerSchedule {
     background-color: <%=(showClassicSchedule? "#486ebd;" : "gainsboro;")%> 
@@ -681,11 +637,8 @@ th, td {
 }
 
 #integratorMessageCount {
-
 	color: #bf6cf7 !important;
-
 	font-weight: bold !important;
-
 }
 
 .infirmaryView {
@@ -697,16 +650,12 @@ th, td {
 }
 
 .scheduleTime00, .scheduleTimeNot00{
-
     width:5%;
-
 }
-
 
 .scheduleTime00 { 
     background-color: <%=(showClassicSchedule? "#3EA4E1;" : "gainsboro;")%> 
 }
-
 .scheduleTimeNot00 { 
     background-color: <%=(showClassicSchedule? "#00A488;" : "#E8E8E8;")%> 
 }
@@ -717,11 +666,8 @@ th, td {
 .appt a { color: black; }  //best to leave it black
 
 
-
 @media print {
-
  .noprint {display:none !important;}
-
 }
 </style>
 <%
@@ -974,13 +920,7 @@ function review(key) {
 
 
 </script>
-<style type="text/css">
-.ds-btn{
-	background-color: #f4ead7;
-    border: 1px solid #0097cf;
-    font-size: 11px;
-}
-</style>
+
 
 <%
 	if (OscarProperties.getInstance().getBooleanProperty("indivica_hc_read_enabled", "true")) {
@@ -993,7 +933,7 @@ function review(key) {
 %>
 <% if (!showLargeCalendar) { %>
 <script type="text/javascript" src="../share/calendar/calendar.js"></script>
-<script type="text/javascript" src="../share/calendar/lang/calendar-<bean:message key="global.i18nLanguagecode"/>.js"></script>
+<script type="text/javascript" src="../share/calendar/lang/<bean:message key="global.javascript.calendar"/>"></script>
 <script type="text/javascript" src="../share/calendar/calendar-setup.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="../share/calendar/calendar.css" title="win2k-cold-2" />
 <% } %>
@@ -1178,12 +1118,13 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 
 <table WIDTH="100%" id="firstTable" class="noprint topbar">
 <tr>
-<td align="center" >
+<td rowspan=2 align="center" >&nbsp;
 <%if("true".equals(OscarProperties.getInstance().getProperty("newui.enabled", "false"))) { %>
-	<a href="../web/" title="OSCAR EMR"><img src="<%=request.getContextPath()%>/images/oscar_small.png" border="0"></a>
+	<a href="../web/" title="OSCAR EMR"><img src="<%=request.getContextPath()%>/images/oscar_logo_small.png" width="30" height="30" border="0"></a>
 <% } else { %>
-	<img src="<%=request.getContextPath()%>/images/oscar_small.png" border="0">
-<% } %>
+    <a href="#" ONCLICK ="popupPage2('<%=resourcebaseurl%>');return false;" title="<bean:message key="provider.appointmentProviderAdminDay.viewResources"/>" onmouseover="window.status='<bean:message key="provider.appointmentProviderAdminDay.viewResources"/>';return true" title="<bean:message key="oscarEncounter.Index.clinicalResources"/>">
+	<img src="<%=request.getContextPath()%>/images/oscar_logo_small.png" width="30" height="30"  border="0"></a>
+<% } %>&nbsp;
 </td>
 <td id="firstMenu">
 <ul id="navlist">
@@ -1206,9 +1147,7 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 
 <caisi:isModuleLoad moduleName="TORONTO_RFQ" reverse="true">
  <security:oscarSec roleName="<%=roleName$%>" objectName="_resource" rights="r">
- <li>
-    <a href="#" ONCLICK ="popupPage2('<%=resourcebaseurl%>');return false;" title="<bean:message key="provider.appointmentProviderAdminDay.viewResources"/>" onmouseover="window.status='<bean:message key="provider.appointmentProviderAdminDay.viewResources"/>';return true"><bean:message key="oscarEncounter.Index.clinicalResources"/></a>
- </li>
+
  </security:oscarSec>
 </caisi:isModuleLoad>
 
@@ -1511,10 +1450,10 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 
 
 <td align="right" valign="bottom" >
-	<a href="javascript: function myFunction() {return false; }" onClick="popup(700,1024,'../scratch/index.jsp','scratch')"><i class="icon-pencil"></i></a>&nbsp;
+	<a href="javascript: function myFunction() {return false; }" onClick="popup(700,1024,'../scratch/index.jsp','scratch')"><i class="icon-pencil" title="<bean:message key="ScratchPad.title"/>"></i></a>&nbsp;
 
 	<%if(resourcehelpHtml==""){ %>
-		<a href="javascript:void(0)" onClick ="popupPage(600,750,'<%=resourcebaseurl%>')"><bean:message key="global.help"/></a>
+		<a href="javascript:void(0)" onClick ="popupPage(600,750,'<%=resourcebaseurl%>')"><i class="icon-question" title="<bean:message key="global.help"/>"></i></a>
 	<%}else{%>
 <div id="help-link">
 	    <a href="javascript:void(0)" onclick="document.getElementById('helpHtml').style.display='block';document.getElementById('helpHtml').style.right='0px';"><bean:message key="global.help"/></a>
@@ -1566,14 +1505,14 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 				| <a href="../logoutSSO.jsp">Global Logout</a>
  		<% }
 		   else { %>
-				| <a href="../logout.jsp"><bean:message key="global.btnLogout"/>&nbsp;</a>
+				 &nbsp;&nbsp;&nbsp;<a href="../logout.jsp"><i class="icon-off icon-large" title="<bean:message key="global.btnLogout"/>"></i>&nbsp;</a>
 		<% } %>
 
 </td>
 
 
 </tr>
-</table>
+
 
 
 <script>
@@ -1606,21 +1545,23 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 	} else {
 %>
 
-<table  WIDTH="100%" >
 <tr id="ivoryBar" class="topbar noprint">
-<td id="dateAndCalendar"  width="45%">
- <a class="redArrow" href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=isWeekView?(day-7):(day-1)%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+URLEncoder.encode(request.getParameter("curProviderName"),"UTF-8") )%>&displaymode=day&dboperation=searchappointmentday<%=isWeekView?"&provider_no="+provNum:""%>&viewall=<%=viewall%>">
- &nbsp;&nbsp;<img src="../images/previous.gif" WIDTH="10" HEIGHT="9" BORDER="0" class="noprint" ALT="<bean:message key="provider.appointmentProviderAdminDay.viewPrevDay"/>" vspace="2"></a>
+<td colspan="3">
+    <table width="100%">
+        <tr class="topbar" >
+        <td id="dateAndCalendar" width="45%">
+         <a class="redArrow" href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=isWeekView?(day-7):(day-1)%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+URLEncoder.encode(request.getParameter("curProviderName"),"UTF-8") )%>&displaymode=day&dboperation=searchappointmentday<%=isWeekView?"&provider_no="+provNum:""%>&viewall=<%=viewall%>">
+         &nbsp;&nbsp;<i class="icon-angle-left icon-large" title="<bean:message key="provider.appointmentProviderAdminDay.viewPrevDay"/>"></i></a>
 
 
 
- <b><span class="dateAppointment" id="theday" ><%
+ <span class="dateAppointment" id="theday" ><%
  	if (isWeekView) {
  %><bean:message key="provider.appointmentProviderAdminDay.week"/> <%=week%><%
  	} else {
  %>
     <% if (showLargeCalendar) { %>
-    <a id="calendarLink" href=# onClick ="popupPage(425,430,'../share/CalendarPopup.jsp?urlfrom=../provider/providercontrol.jsp&year=<%=strYear%>&month=<%=strMonth%>&param=<%=URLEncoder.encode("&view=0&displaymode=day&dboperation=searchappointmentday&viewall="+viewall,"UTF-8")%><%=isWeekView?URLEncoder.encode("&provider_no="+provNum, "UTF-8"):""%>')"><%=formatDate%></a>
+    <a id="calendarLink" href=# onClick ="popupPage(425,430,'../share/CalendarPopup.jsp?urlfrom=../provider/providercontrol.jsp&year=<%=strYear%>&month=<%=strMonth%>&param=<%=URLEncoder.encode("&view=0&displaymode=day&dboperation=searchappointmentday&viewall="+viewall,"UTF-8")%><%=isWeekView?URLEncoder.encode("&provider_no="+provNum, "UTF-8"):""%>')" title="<bean:message key="tickler.ticklerEdit.calendarLookup"/>" ><%=formatDate%></a>
     <% } else { %>
 
 <%=formatDate%><%
@@ -1628,19 +1569,19 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
  %>
 <%
  	}
- %></span></b>
+ %></span>
 <input type="hidden" id="storeday" onchange="goDate(this.value)";>
 
  <a class="redArrow" href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=isWeekView?(day+7):(day+1)%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+URLEncoder.encode(request.getParameter("curProviderName"),"UTF-8") )%>&displaymode=day&dboperation=searchappointmentday<%=isWeekView?"&provider_no="+provNum:""%>&viewall=<%=viewall%>">
- <img src="../images/next.gif" WIDTH="10" HEIGHT="9" BORDER="0" class="noprint" ALT="<bean:message key="provider.appointmentProviderAdminDay.viewNextDay"/>" vspace="2">&nbsp;&nbsp;</a>
+ <i class="icon-angle-right icon-large" title="<bean:message key="provider.appointmentProviderAdminDay.viewNextDay"/>"></i>&nbsp;&nbsp;</a>
 
 <logic:notEqual name="infirmaryView_isOscar" value="false">
  <% if(request.getParameter("viewall")!=null && request.getParameter("viewall").equals("1") ) { %>
  <!-- <span style="color:#333"><bean:message key="provider.appointmentProviderAdminDay.viewAll"/></span> -->
- <u><a href=# onClick = "review('0')" title="<bean:message key="provider.appointmentProviderAdminDay.viewAllProv"/>"><bean:message key="provider.appointmentProviderAdminDay.schedView"/></a></u>
+ <a href=# onClick = "review('0')" title="<bean:message key="provider.appointmentProviderAdminDay.viewAllProv"/>"><bean:message key="provider.appointmentProviderAdminDay.schedView"/></a>
  
 <%}else{%>
-	<u><a href=# onClick = "review('1')" title="<bean:message key="provider.appointmentProviderAdminDay.viewAllProv"/>"><bean:message key="provider.appointmentProviderAdminDay.viewAll"/></a></u>
+	<a href=# onClick = "review('1')" title="<bean:message key="provider.appointmentProviderAdminDay.viewAllProv"/>"><bean:message key="provider.appointmentProviderAdminDay.viewAll"/></a>
 <%}%>
 </logic:notEqual>
 
@@ -1679,7 +1620,7 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 	}
 %>
 <% if (showQuickDateMultiplier) { %> 
-<input id="monthBackward" type="button" value="M-" class="quick" onclick="getLocation(this.id,document.getElementById('multiplier').value);"/><input id="weekBackward" type="button" value="W-" class="quick" onclick="getLocation(this.id,document.getElementById('multiplier').value)"/><input id="multiplier" type="text"  value="1" maxlength="2" class="quick"  style="text-align: center; background-color: white; color: black;" /><input id="weekForward" type="button" value="W+" class="quick" style="width:30px" onclick="getLocation(this.id,document.getElementById('multiplier').value)"/><input id="monthForward" type="button" value="M+" class="quick" onclick="getLocation(this.id,document.getElementById('multiplier').value)"/>
+<input id="monthBackward" type="button" value="M-" class="quick" onclick="getLocation(this.id,document.getElementById('multiplier').value);"/><input id="weekBackward" type="button" value="W-" class="quick" onclick="getLocation(this.id,document.getElementById('multiplier').value)"/><input id="multiplier" type="text"  value="1" maxlength="2" class="quick"  style="text-align: center; background-color: white; color: black;" /><input id="weekForward" type="button" value="W+" class="quick" style="width:22px" onclick="getLocation(this.id,document.getElementById('multiplier').value)"/><input id="monthForward" type="button" value="M+" class="quick" onclick="getLocation(this.id,document.getElementById('multiplier').value)"/>
 <% } %> 
 <% if (showQuickDatePicker && !showQuickDateMultiplier) { %> 
 <input id="weekForward1" type="button" value="1W" class="quick" onclick="getLocation('weekForward',1) "/>
@@ -1701,7 +1642,7 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 
 </td>
 
-<td  ALIGN="center"  width="15%">
+<td  ALIGN="center"  width="16%">
 
 <%
 	if (isWeekView) {
@@ -1887,7 +1828,10 @@ class="noprint" title="Find a Provider" placeholder='<bean:message key="receptio
 
       </td>
       </tr>
+</table>
+</td></tr>
 
+	
       <tr><td colspan="3">
         <table width="100%">
         <tr>
@@ -2042,7 +1986,7 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
       <%
       	if (isWeekView) {
       %>
-          <b><a href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=day%>&view=0&displaymode=day&dboperation=searchappointmentday"><%=formatDate%></a></b>
+          <a href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=day%>&view=0&displaymode=day&dboperation=searchappointmentday"><%=formatDate%></a>
       <%
       	} else {
       %>
@@ -2059,7 +2003,7 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
 				<c:set value="true" var="hideReason" />
 		</oscar:oscarPropertiesCheck>	
 </b>
-          <button class="ds-btn" type="button" data-provider_no="<%=curProvider_no[nProvider]%>">DS</button>
+          <input class="ds-btn noprint s" type="button" value="DS" name="daysheet" data-provider_no="<%=curProvider_no[nProvider]%>" title="<bean:message key="report.reportindex.formDaySheet"/>">
       <% } %>
 
           <%
@@ -2731,12 +2675,37 @@ start_time += iSm + ":00";
               <table  WIDTH="100%" class="noprint">
                   <tr>
                       <td class="topBar" width="60%">
-                          <a href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=isWeekView ? (day - 7) : (day - 1)%>&view=<%=view == 0 ? "0" : ("1&curProvider=" + request.getParameter("curProvider") + "&curProviderName=" + URLEncoder.encode(request.getParameter("curProviderName"),"UTF-8"))%>&displaymode=day&dboperation=searchappointmentday<%=isWeekView ? "&provider_no=" + provNum : ""%>">
-                              &nbsp;&nbsp;<img src="../images/previous.gif" WIDTH="10" HEIGHT="9" BORDER="0" ALT="<bean:message key="provider.appointmentProviderAdminDay.viewPrevDay"/>" vspace="2"></a>
-                          <b><span class="dateAppointment" id="otherDate"><% if (isWeekView) {%><bean:message key="provider.appointmentProviderAdminDay.week"/> <%=week%><% } else {%><%=formatDate%><% }%></span></b>
-                          <a href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=isWeekView ? (day + 7) : (day + 1)%>&view=<%=view == 0 ? "0" : ("1&curProvider=" + request.getParameter("curProvider") + "&curProviderName=" + URLEncoder.encode(request.getParameter("curProviderName"),"UTF-8"))%>&displaymode=day&dboperation=searchappointmentday<%=isWeekView ? "&provider_no=" + provNum : ""%>">
-                              <img src="../images/next.gif" WIDTH="10" HEIGHT="9" BORDER="0" ALT="<bean:message key="provider.appointmentProviderAdminDay.viewNextDay"/>" vspace="2">&nbsp;&nbsp;</a>
-                          <a id="calendarLinkBottom" href=# onClick ="popupPage(425,430,'../share/CalendarPopup.jsp?urlfrom=../provider/providercontrol.jsp&year=<%=strYear%>&month=<%=strMonth%>&param=<%=URLEncoder.encode("&view=0&displaymode=day&dboperation=searchappointmentday", "UTF-8")%><%=isWeekView ? URLEncoder.encode("&provider_no=" + provNum, "UTF-8") : ""%>')"><bean:message key="global.calendar"/></a></td>
+
+
+
+
+                                 <a class="redArrow" href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=isWeekView?(day-7):(day-1)%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+URLEncoder.encode(request.getParameter("curProviderName"),"UTF-8") )%>&displaymode=day&dboperation=searchappointmentday<%=isWeekView?"&provider_no="+provNum:""%>&viewall=<%=viewall%>">
+         &nbsp;&nbsp;<i class="icon-angle-left icon-large" title="<bean:message key="provider.appointmentProviderAdminDay.viewPrevDay"/>"></i></a>
+
+
+
+ <span class="dateAppointment" id="otherDate" ><%
+ 	if (isWeekView) {
+ %><bean:message key="provider.appointmentProviderAdminDay.week"/> <%=week%><%
+ 	} else {
+ %>
+    <% if (showLargeCalendar) { %>
+    <a id="calendarLink" href=# onClick ="popupPage(425,430,'../share/CalendarPopup.jsp?urlfrom=../provider/providercontrol.jsp&year=<%=strYear%>&month=<%=strMonth%>&param=<%=URLEncoder.encode("&view=0&displaymode=day&dboperation=searchappointmentday&viewall="+viewall,"UTF-8")%><%=isWeekView?URLEncoder.encode("&provider_no="+provNum, "UTF-8"):""%>')" title="<bean:message key="tickler.ticklerEdit.calendarLookup"/>" ><%=formatDate%></a>
+    <% } else { %>
+
+<%=formatDate%><%
+ 	}
+ %>
+<%
+ 	}
+ %></span>
+
+ <a class="redArrow" href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=isWeekView?(day+7):(day+1)%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+URLEncoder.encode(request.getParameter("curProviderName"),"UTF-8") )%>&displaymode=day&dboperation=searchappointmentday<%=isWeekView?"&provider_no="+provNum:""%>&viewall=<%=viewall%>">
+ <i class="icon-angle-right icon-large" title="<bean:message key="provider.appointmentProviderAdminDay.viewNextDay"/>"></i>&nbsp;&nbsp;</a>
+
+
+
+</td>
                       <td ALIGN="RIGHT" class="topBar">
                           <a href="../logout.jsp"><bean:message key="global.btnLogout"/> &nbsp;</a>
                       </td>
