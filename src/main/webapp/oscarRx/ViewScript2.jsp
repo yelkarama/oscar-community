@@ -271,9 +271,9 @@ if (userAgent != null) {
       }%>
               var action="../form/createcustomedpdf?__title=Rx&__method=" +  method+"&useSC="+useSC+"&scAddress="+scAddress+"&rxPageSize="+rxPageSize+"&scriptId="+scriptId;
             document.getElementById("preview").contentWindow.document.getElementById("preview2Form").action = action;
-            if (method!="oscarRxFax"){
+            //if (method!="oscarRxFax"){
              document.getElementById("preview").contentWindow.document.getElementById("preview2Form").target="_blank";
-            }
+            //}
             document.getElementById("preview").contentWindow.document.getElementById("preview2Form").submit();
        return true;
     }
