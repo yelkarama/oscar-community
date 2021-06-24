@@ -168,10 +168,10 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 			        if( validFaxNumber ) {
 			        	
 			        	LogAction.addLog(provider_no, LogConst.SENT, LogConst.CON_FAX, "PRESCRIPTION " + pdfFile );
-						//String htm1 = "<html><head><link rel='stylesheet' type='text/css' href='../oscarEncounter/encounterStyles.css'></head><body onload=setTimeout('window.close()',2500);><table class='MainTable' id='scrollNumber1' name='encounterTable'><tr class='MainTableTopRow'><td class='MainTableTopRowLeftColumn'>Rx Fax</td><td class='MainTableTopRowRightColumn'></td></tr><tr style='vertical-align: top'><td class='MainTableLeftColumn' width='10%'>&nbsp;</td><td class='MainTableRightColumn'><table width='100%' height='100%'><tr><td>";
-						//String htm2 = "</td></tr><tr><td>This window will close in 5 seconds</td></tr><tr></tr></table></td></tr><tr><td class='MainTableBottomRowLeftColumn'></td><td class='MainTableBottomRowRightColumn'></td></tr></table></body></html>";
-						//writer.println(htm1 + req.getParameter("pharmaName") + " (" + req.getParameter("pharmaFax") + ")" + htm2);
-						writer.println("<script>alert('Fax sent to: " + req.getParameter("pharmaName") + " (" + req.getParameter("pharmaFax") + ")');window.parent.clearPendingFax();</script>");
+						String htm1 = "<html><head><link rel='stylesheet' type='text/css' href='../oscarEncounter/encounterStyles.css'></head><body onload=setTimeout('window.close()',2500);><table class='MainTable' id='scrollNumber1' name='encounterTable'><tr class='MainTableTopRow'><td class='MainTableTopRowLeftColumn'>Rx Fax</td><td class='MainTableTopRowRightColumn'></td></tr><tr style='vertical-align: top'><td class='MainTableLeftColumn' width='10%'>&nbsp;</td><td class='MainTableRightColumn'><table width='100%' height='100%'><tr><td>";
+						String htm2 = "</td></tr><tr><td>This window will close in 5 seconds</td></tr><tr></tr></table></td></tr><tr><td class='MainTableBottomRowLeftColumn'></td><td class='MainTableBottomRowRightColumn'></td></tr></table></body></html>";
+						writer.println(htm1 + req.getParameter("pharmaName") + " (" + req.getParameter("pharmaFax") + ")" + htm2 +"<script>window.parent.clearPendingFax();</script>);
+						//writer.println("<script>alert('Fax sent to: " + req.getParameter("pharmaName") + " (" + req.getParameter("pharmaFax") + ")');window.parent.clearPendingFax();</script>");
 	
 			        }
 				}
