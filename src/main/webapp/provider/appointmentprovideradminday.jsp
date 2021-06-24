@@ -596,8 +596,8 @@ th, td {
     display: inline;
 }
 
-#navlist li:hover { color: red;}
-#navlist li a:hover { color: red;}
+#navlist li:hover { color: #fff; background-color: blue; }
+#navlist li a:hover { color: #fff; background-color: blue; }
 #navlist #logoutMobile { display:none; }
 
 .dropdown {
