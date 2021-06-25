@@ -80,22 +80,18 @@ public class CustomInterfaceTag extends TagSupport {
 			JspWriter out = super.pageContext.getOut();
 			String contextPath = this.pageContext.getServletContext().getContextPath();
 			try {
-				out.println("<link rel=\"stylesheet\" href=\""+contextPath+"/js/custom/global.css\" type=\"text/css\">");
+				// PHC consider the next two lines if they are usefull
+				//out.println("<link rel=\"stylesheet\" href=\""+contextPath+"/js/custom/global.css\" type=\"text/css\">");
 				out.println("<script src=\""+contextPath+"/js/custom/"+customJs+"/global.js\"></script>");
 				if(getSection()!=null && getSection().length()>0) {
 					boolean hide_ConReport = OscarProperties.getInstance().isPropertyActive("hide_ConReport_link");
 					boolean cardswipe = props.getBooleanProperty("cardswipe", "false");
-					if("main".equals(getSection()) && hide_ConReport){
-						// do nothing
-					} else {
-						String customTag = "";
-						if (customJs.equalsIgnoreCase("ocean")) {
+					String customTag = "";
+					int randomNo = new Random().nextInt();
+					if (customJs.equalsIgnoreCase("ocean")) {
 							customTag = "ocean-host=" + Encode.forUriComponent(props.getProperty("ocean_host"));
-						}
-						
-						int randomNo = new Random().nextInt();
-						out.println("<script id=\"mainScript\" src=\""+contextPath+"/js/custom/"+customJs+"/"+getSection()+".js?no-cache="+randomNo+"&autoRefresh=true\" hide_ConReport=\""+hide_ConReport+"\" cardswipe=\""+cardswipe+"\" " + customTag + " ></script>");
 					}
+					out.println("<script id=\"mainScript\" src=\""+contextPath+"/js/custom/"+customJs+"/"+getSection()+".js?no-cache="+randomNo+"&autoRefresh=true\" hide_ConReport=\""+hide_ConReport+"\" cardswipe=\""+cardswipe+"\" " + customTag + " ></script>");
 				}
 			}catch(IOException e) {
 				logger.error("Error",e);
