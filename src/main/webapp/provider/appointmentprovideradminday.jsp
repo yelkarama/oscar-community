@@ -1633,6 +1633,7 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 	}
 %>
 <% if (showQuickDateMultiplier) { %> 
+&nbsp;&nbsp;
 <input id="monthBackward" type="button" value="<bean:message key="provider.appointmentProviderAdminDay.monthLetter"/>-" class="quick" onclick="getLocation(this.id,document.getElementById('multiplier').value);"/><input id="weekBackward" type="button" value="<bean:message key="provider.appointmentProviderAdminDay.weekLetter"/>-" class="quick" onclick="getLocation(this.id,document.getElementById('multiplier').value)"/><input id="multiplier" type="text"  value="1" maxlength="2" class="quick"  style="text-align: center; background-color: white; color: black;" /><input id="weekForward" type="button" value="<bean:message key="provider.appointmentProviderAdminDay.weekLetter"/>+" class="quick" style="width:22px" onclick="getLocation(this.id,document.getElementById('multiplier').value)"/><input id="monthForward" type="button" value="<bean:message key="provider.appointmentProviderAdminDay.monthLetter"/>+" class="quick" onclick="getLocation(this.id,document.getElementById('multiplier').value)"/>
 <% } %> 
 <% if (showQuickDatePicker && !showQuickDateMultiplier) { %> 
@@ -2073,7 +2074,7 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
 <!-- caisi infirmary view exteion add end ffffffffffffffffff-->
 <!-- =============== following block is the original oscar code. -->
         <!-- table for hours of day start -->
-        <table id="providerSchedule"  <%=userAvail?"":"bgcolor='white'"%>  width="100%">
+        <table id="providerSchedule"  <%=userAvail?"":"style=\"background-color:silver;\""%>  width="100%">
 <%
 		bFirstTimeRs=true;
         bFirstFirstR=true;
@@ -2734,7 +2735,7 @@ start_time += iSm + ":00";
 
 </td>
                       <td ALIGN="RIGHT" class="topBar">
-                          <a href="../logout.jsp"><bean:message key="global.btnLogout"/> &nbsp;</a>
+                          <a href="../logout.jsp"><i class="icon-off icon-large" title="<bean:message key="global.btnLogout"/>"></i>&nbsp;</a>
                       </td>
                   </tr>
               </table>
