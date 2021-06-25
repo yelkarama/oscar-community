@@ -1620,24 +1620,24 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 	}
 %>
 <% if (showQuickDateMultiplier) { %> 
-<input id="monthBackward" type="button" value="M-" class="quick" onclick="getLocation(this.id,document.getElementById('multiplier').value);"/><input id="weekBackward" type="button" value="W-" class="quick" onclick="getLocation(this.id,document.getElementById('multiplier').value)"/><input id="multiplier" type="text"  value="1" maxlength="2" class="quick"  style="text-align: center; background-color: white; color: black;" /><input id="weekForward" type="button" value="W+" class="quick" style="width:22px" onclick="getLocation(this.id,document.getElementById('multiplier').value)"/><input id="monthForward" type="button" value="M+" class="quick" onclick="getLocation(this.id,document.getElementById('multiplier').value)"/>
+<input id="monthBackward" type="button" value="<bean:message key="provider.appointmentProviderAdminDay.monthLetter"/>-" class="quick" onclick="getLocation(this.id,document.getElementById('multiplier').value);"/><input id="weekBackward" type="button" value="<bean:message key="provider.appointmentProviderAdminDay.weekLetter"/>-" class="quick" onclick="getLocation(this.id,document.getElementById('multiplier').value)"/><input id="multiplier" type="text"  value="1" maxlength="2" class="quick"  style="text-align: center; background-color: white; color: black;" /><input id="weekForward" type="button" value="<bean:message key="provider.appointmentProviderAdminDay.weekLetter"/>+" class="quick" style="width:22px" onclick="getLocation(this.id,document.getElementById('multiplier').value)"/><input id="monthForward" type="button" value="<bean:message key="provider.appointmentProviderAdminDay.monthLetter"/>+" class="quick" onclick="getLocation(this.id,document.getElementById('multiplier').value)"/>
 <% } %> 
 <% if (showQuickDatePicker && !showQuickDateMultiplier) { %> 
 <input id="weekForward1" type="button" value="1W" class="quick" onclick="getLocation('weekForward',1) "/>
 <% } %>
 <% if (showQuickDatePicker) { %> 
-<input id="weekForward2" type="button" value="2W" class="quick"  onclick="getLocation('weekForward',2) "/>
-<input id="weekForward3" type="button" value="3W" class="quick"  onclick="getLocation('weekForward',3) "/>
-<input id="weekForward4" type="button" value="4W" class="quick"  onclick="getLocation('weekForward',4) "/>
-<input id="weekForward6" type="button" value="6W" class="quick"  onclick="getLocation('weekForward',6) "/>
+<input id="weekForward2" type="button" value="2<bean:message key="provider.appointmentProviderAdminDay.weekLetter"/>" class="quick"  onclick="getLocation('weekForward',2) "/>
+<input id="weekForward3" type="button" value="3<bean:message key="provider.appointmentProviderAdminDay.weekLetter"/>" class="quick"  onclick="getLocation('weekForward',3) "/>
+<input id="weekForward4" type="button" value="4<bean:message key="provider.appointmentProviderAdminDay.weekLetter"/>" class="quick"  onclick="getLocation('weekForward',4) "/>
+<input id="weekForward6" type="button" value="6<bean:message key="provider.appointmentProviderAdminDay.weekLetter"/>" class="quick"  onclick="getLocation('weekForward',6) "/>
 <% } %>
 <% if (showQuickDatePicker && !showQuickDateMultiplier) { %> 
-<input id="monthForward1" type="button" value="1M" class="quick"  onclick="getLocation('weekForward',4) "/>
+<input id="monthForward1" type="button" value="1<bean:message key="provider.appointmentProviderAdminDay.monthLetter"/>" class="quick"  onclick="getLocation('weekForward',4) "/>
 <% } %>
 <% if (showQuickDatePicker) { %>
-<input id="monthForward3" type="button" value="3M" class="quick"  onclick="getLocation('weekForward',12) "/>
-<input id="monthForward6" type="button" value="6M" class="quick"  onclick="getLocation('weekForward',25) "/>
-<input id="monthForward12" type="button" value="1Y" class="quick" style="width:30px"  onclick="getLocation('weekForward',367/7) "/>
+<input id="monthForward3" type="button" value="3<bean:message key="provider.appointmentProviderAdminDay.monthLetter"/>" class="quick"  onclick="getLocation('weekForward',12) "/>
+<input id="monthForward6" type="button" value="6<bean:message key="provider.appointmentProviderAdminDay.monthLetter"/>" class="quick"  onclick="getLocation('weekForward',25) "/>
+<input id="monthForward12" type="button" value="1<bean:message key="provider.appointmentProviderAdminDay.yearLetter"/>" class="quick" style="width:30px"  onclick="getLocation('weekForward',367/7) "/>
 <% } %> 
 
 </td>
