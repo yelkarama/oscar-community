@@ -1131,7 +1131,7 @@ function parseSearch() {
 			        value="<bean:message key="appointment.addappointment.btnRepeat"/>"
 			        onclick="onButRepeat()">
             <% }%>
-            <input type="button" name="Button" class="btn btn-link" value="<bean:message key="global.btnCancel"/>" onClick="self.close()"></td>
+            <input type="button" name="Button" class="btn btn-link" value="<bean:message key="global.btnExit"/>" onClick="self.close()"></td>
                <% }%>
 
 	</tr>
