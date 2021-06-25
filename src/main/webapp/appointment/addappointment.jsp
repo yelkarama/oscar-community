@@ -1201,7 +1201,7 @@ function parseSearch() {
         <% if(!(bDnb || bMultipleSameDayGroupAppt)) { %>
 
         <%    if (!props.getProperty("allowMultipleSameDayGroupAppt", "").equalsIgnoreCase("no")) {%>
-        <INPUT TYPE="submit" id="addButton" class="btn-primary"
+        <INPUT TYPE="submit" id="addButton" class="btn btn-primary"
             onclick="document.forms['ADDAPPT'].displaymode.value='Add Appointment'"
             tabindex="6"
             VALUE="<% if (isMobileOptimized) { %><bean:message key="appointment.addappointment.btnAddAppointmentMobile" />
