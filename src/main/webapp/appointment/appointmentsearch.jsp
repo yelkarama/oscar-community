@@ -167,7 +167,7 @@ function validate() {
 
 
 		<h4>
-			<font face="Helvetica"><bean:message key="appointment.searchnext.2ndtitle" /></font>
+			&nbsp;<bean:message key="appointment.searchnext.2ndtitle" />
 		<h4>
 
 <form name="searchForm" action="<%=request.getContextPath()%>/appointment/appointmentsearch.jsp" method="get" onsubmit="return validate()">
