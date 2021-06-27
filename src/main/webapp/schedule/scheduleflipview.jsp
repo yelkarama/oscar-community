@@ -57,7 +57,7 @@ private String [] curScheduleMultisite;
 private String getSiteHTML(String scDate, String provider_no, List<Site> sites) {
 	 if (!bMultisites) return "";
 	 String _loc = jdbc.getLocationFromSchedule(scDate, provider_no);
-	 return "<span style='background-color:"+ApptUtil.getColorFromLocation(sites, _loc)+"'>"+ApptUtil.getShortNameFromLocation(sites, _loc)+"</span>";	
+	 return "<td align='right' style='background-color:"+ApptUtil.getColorFromLocation(sites, _loc)+"'>"+ApptUtil.getShortNameFromLocation(sites, _loc)+"</td>";	
 }
 %>
 <% if (bMultisites) {
@@ -308,7 +308,7 @@ function t(s1,s2,s3,s4,s5,s6, doConfirm, allowDay, allowWeek) {
     appointmentTime.add(Calendar.MINUTE, -1);
 %>
 	<tr align="center" bgcolor="<%=bgcolor%>">
-<% if (bMultisites) out.print("<td align='right'>"+getSiteHTML(strTempDate, curProvider_no, sites)+"</td>"); %>			
+<% if (bMultisites) out.print(getSiteHTML(strTempDate, curProvider_no, sites)); %>			
 		<td align="right" nowrap><a
 			href="<%=request.getParameter("originalpage")%>?year=<%=cal.get(Calendar.YEAR)%>&month=<%=cal.get(Calendar.MONTH)+1%>&day=<%=cal.get(Calendar.DATE)%>&view=0&displaymode=day&dboperation=searchappointmentday"><%=outform.format(inform.parse(strTempDate) )%>&nbsp;</a></td>
 		<%
