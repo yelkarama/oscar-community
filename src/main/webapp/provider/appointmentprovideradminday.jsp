@@ -423,7 +423,7 @@ if (org.oscarehr.common.IsPropertiesOn.isCaisiEnable() && org.oscarehr.common.Is
     	resourcebaseurl = rbu.getValue();
     }
     
-    String resourcehelpHtml = ""; 
+    String resourcehelpHtml = oscarVariables.getProperty("HELP_SEARCH_URL");
     UserProperty rbuHtml = userPropertyDao.getProp("resource_helpHtml");
     if(rbuHtml != null) {
     	resourcehelpHtml = rbuHtml.getValue();
@@ -1473,23 +1473,13 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 	<%if(resourcehelpHtml==""){ %>
 		<a href="javascript:void(0)" onClick ="popupPage(600,750,'<%=resourcebaseurl%>')"><i class="icon-question-sign" title="<bean:message key="app.top1"/>"></i></a>
 
-        <a href="javascript:void(0)" onclick="window.open('/oscar/oscarEncounter/About.jsp','About OSCAR','scrollbars=1,resizable=1,width=800,height=600,left=0,top=0')"><i class="icon-info-sign" title="<bean:message key="app.top2"/>"></i></a>
+        
 	<%}else{%>
-<div id="help-link">
-	    <a href="javascript:void(0)" onclick="document.getElementById('helpHtml').style.display='block';document.getElementById('helpHtml').style.right='0px';"><bean:message key="global.help"/></a>
-	    
-		<div id="helpHtml">
-		<div class="help-title">Help</div>
-		
-		<div class="help-body">
-		
-		<%=resourcehelpHtml%>
-		</div>
-		<a href="javascript:void(0)" class="help-close" onclick="document.getElementById('helpHtml').style.right='-280px';document.getElementById('helpHtml').style.display='none'">(X)</a>
-		</div>
+		<a href="javascript:void(0)" onClick ="popupPage(600,750,'<%=resourcehelpHtml%>'+'Booking%2FAppointment')"><i class="icon-question-sign" title="<bean:message key="app.top1"/>"></i></a>
 
 </div>
 	<%}%>
+<a href="javascript:void(0)" onclick="window.open('/oscar/oscarEncounter/About.jsp','About OSCAR','scrollbars=1,resizable=1,width=800,height=600,left=0,top=0')"><i class="icon-info-sign" title="<bean:message key="app.top2"/>"></i></a>
 	
 		<%  	if(loggedInInfo1.getOneIdGatewayData() != null){ 
 				int numberOfMinutesUntilRefreshTokenIsInvalid = loggedInInfo1.getOneIdGatewayData().numberOfMinutesUntilRefreshTokenIsInvalid();
