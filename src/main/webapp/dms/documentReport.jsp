@@ -88,8 +88,24 @@ List<AffinityDomainDataObject> affinityDomains = affDao.getAllAffinityDomains();
 	}
 %>
 
+<%@ page import="oscar.OscarProperties" %>
 
 <%
+UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
+Properties oscarVariables = OscarProperties.getInstance();
+String resourcebaseurl =  oscarVariables.getProperty("resource_base_url");
+
+ 	    UserProperty rbu = userPropertyDao.getProp("resource_baseurl");
+ 	    if(rbu != null) {
+ 	    	resourcebaseurl = rbu.getValue();
+ 	    }
+ 	     	    
+ 	    String resourcehelpHtml = oscarVariables.getProperty("HELP_SEARCH_URL"); 
+ 	    UserProperty rbuHtml = userPropertyDao.getProp("resource_helpHtml");
+ 	    if(rbuHtml != null) {
+ 	    	resourcehelpHtml = rbuHtml.getValue();
+ 	    }
+   
 
 //if delete request is made
 if (request.getParameter("delDocumentNo") != null) {
@@ -185,31 +201,18 @@ if ( up != null && up.getValue() != null && up.getValue().equals("yes")){
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="dms.documentReport.title" /></title>
-<link rel="stylesheet" type="text/css"
-  href="../share/css/OscarStandardLayout.css" />
+
 <script type="text/javascript" src="../share/javascript/Oscar.js"></script>
-<script type="text/javascript" src="../share/javascript/prototype.js"></script>
+<script type="text/javascript" src="../share/javascript/prototype.js"></script> 
 
-<link rel="stylesheet" type="text/css"
-  href="../share/css/niftyCorners.css" />
-<link rel="stylesheet" type="text/css" href="dms.css" />
-<link rel="stylesheet" type="text/css"
-  href="../share/css/niftyPrint.css" media="print" />
-<script type="text/javascript" src="../share/javascript/nifty.js"></script>
-<script type="text/javascript" src="../phr/phr.js"></script>
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+
+<link href="<%=request.getContextPath() %>/css/datepicker.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
+
 <script type="text/javascript">
-window.onload=function(){
-if(!NiftyCheck())
-    return;
 
-Rounded("div.doclist","top","transparent", "#ccccd7", "small border #ccccd7");
-Rounded("div.doclist","bottom","transparent", "#e0ecff", "small border #ccccd7");
-Rounded("div.leftplane","top", "transparent", "#CCCCFF","small border #ccccff");
-Rounded("div.leftplane","bottom","transparent","#EEEEFF","small border #ccccff");
-onloadfunction();
-setup();  //reload parent content if necessary
-
-}
 
 
 var awnd=null;
@@ -328,26 +331,39 @@ function popup1(height, width, url, windowName){
 </script>
 
 <script src="../share/javascript/prototype.js" type="text/javascript"></script>
-<body class="bodystyle">
+<body>
 
-<table class="MainTable" id="scrollNumber1" name="encounterTable"
-	style="margin: 0px;">
+<table class="MainTable" id="scrollNumber1" name="encounterTable" width="100%"
+	>
 	<tr class="MainTableRowTop">
-		<td class="MainTableTopRowLeftColumn" width="60px">eDocs</td>
+
 		<td class="MainTableTopRowRightColumn">
-		<table class="TopStatusBar">
+		<table class="TopStatusBar" width="100%">
 			<tr>
-				<td><bean:message key="dms.documentReport.msgDocuments"/> &nbsp;
+				<td><h4><bean:message key="dms.documentReport.msgDocuments"/> &nbsp;
 				<% if(module.equals("demographic")) { %>
 					<oscar:nameage demographicNo="<%=moduleid%>"/> &nbsp; <oscar:phrverification demographicNo="<%=moduleid%>"><bean:message key="phr.verification.link"/></oscar:phrverification>
 				<%} %>
-				</td>
+				</h4></td>
 				<td>&nbsp;</td>
 				<td style="text-align: right;">
-				<span class="HelpAboutLogout">
-					<oscar:help keywords="&Title=eDocuments&portal_type%3Alist=Document" key="app.top1" style="color:white; font-size:10px;font-style:normal;"/>&nbsp;|
-        				<a style="color:white; font-size:10px;font-style:normal;" href="<%=request.getContextPath()%>/oscarEncounter/About.jsp" target="_new"><bean:message key="global.about" /></a>
-				</span>
+
+
+<div class="row-fluid hidden-print" style="text-align:right">
+<i class=" icon-question-sign"></i> 
+	<%if(resourcehelpHtml==""){ %>
+		<a href="#" ONCLICK ="popupPage(600,750,'<%=resourcebaseurl%>');return false;" title="" onmouseover="window.status='';return true">Help</a> 
+	<%}else{%>
+
+	    <a href="javascript:void(0)" onClick ="popupPage(600,750,'<%=resourcehelpHtml%>'+'eDoc+Document')"><bean:message key="app.top1"/></a>
+	    
+
+	<%}%>
+
+<i class=" icon-info-sign" style="margin-left:10px;"></i> <a href="javascript:void(0)"  onClick="window.open('<%=request.getContextPath()%>/oscarEncounter/About.jsp','About OSCAR','scrollbars=1,resizable=1,width=800,height=600,left=0,top=0')" ><bean:message key="global.about" /></a>
+</div><!-- hidden print -->
+
+
 				</td>
 			</tr>
 		</table>
@@ -393,12 +409,12 @@ function popup1(height, width, url, windowName){
                     ArrayList category = (ArrayList) categories.get(i);
              %>
       <div class="doclist">
-      <div class="headerline">
+      <div class="headerline" style="background-color: #d1d5bd;">
       <div class="docHeading">
       <% if( i == 0 ) {
                          %> <span class="tabs" style="float: right">
-      <bean:message key="dms.documentReport.msgViewStatus"/> <select id="viewstatus" name="viewstatus"
-        style="text-size: 8px; margin-bottom: -4px;"
+      <bean:message key="dms.documentReport.msgViewStatus"/> <select class="input-medium" id="viewstatus" name="viewstatus"
+        style="margin-bottom: -4px;"
         onchange="window.location.href='?function=<%=module%>&functionid=<%=moduleid%>&view=<%=view%>&viewstatus='+this.options[this.selectedIndex].value;">
         <option value="all"
           <%=viewstatus.equalsIgnoreCase("all") ? "selected":""%>><bean:message key="dms.documentReport.msgAll"/></option>
@@ -414,10 +430,9 @@ function popup1(height, width, url, windowName){
       <!-- Enter the deleted code here -->
       <%if(DocumentBrowserLink) {%><a href="../dms/documentBrowser.jsp?function=<%=module%>&functionid=<%=moduleid%>&categorykey=<%=currentkey%>"><bean:message key="dms.documentReport.msgBrowser"/></a><%}%>
       <span class="tabs"> <bean:message key="dms.documentReport.msgView"/>: 
-      <select id="viewdoctype" name="view"
-        style="text-size: 8px; margin-bottom: -4px;"
-        onchange="window.location.href='?function=<%=module%>&functionid=<%=moduleid%>&view='+this.options[this.selectedIndex].value;">
-      
+      <select id="viewdoctype" name="view" class="input-medium"
+        style="margin-bottom: -4px;"
+        onchange="window.location.href='?function=<%=module%>&functionid=<%=moduleid%>&view='+this.options[this.selectedIndex].value;">     
           <option value="">All</option>
         <%
                  for (int i3=0; i3<doctypes.size(); i3++) {
@@ -430,8 +445,8 @@ function popup1(height, width, url, windowName){
       </span>
       </div>
       </div>
-      <div id="documentsInnerDiv<%=i%>" style="background-color: #f2f7ff;">
-      <table id="privateDocs" class="docTable">
+      <div id="documentsInnerDiv<%=i%>" >
+      <table id="privateDocs" class="table table-striped table-hover table-condensed">
         <tr>
           <td>
             <input class="tightCheckbox" type="checkbox" id="pdfCheck<%=i%>" onclick="selectAll('pdfCheck<%=i%>','privateDocsDiv', 'tightCheckbox<%=i%>');" />
@@ -496,27 +511,27 @@ function popup1(height, width, url, windowName){
 
           %>  <a <%=curdoc.getStatus() == 'D' ? "style='text-decoration:line-through'" : ""%>
             href="javascript:void(0);" onclick="popupFocusPage(500,700,'<%=url%>','demographic_document');"> <%=curdoc.getDescription()%></a></td>
-          <td><%=contentType%></td>
+          <td><div style="width: 70px; overflow:hidden; text-overflow: ellipsis;" title="<%=contentType%>"><%=contentType%></div></td>
           <td><%=curdoc.getType()==null ? "N/A" : curdoc.getType()%></td>
           <td><%=curdoc.getCreatorName()%></td>
           <td><%=curdoc.getResponsibleName()%></td>
           <td><%=curdoc.getObservationDate()%></td>
           <td><%=reviewerName%></td>
-          <%-- <td><%=curdoc.getStatus() == 'D'? "Deleted" : "Active"%></td> --%>
-          <td valign="top">
+          
+ 
+         <td valign="top" style="width:50px;">
+<div class="btn-group">
             <%
               if (curdoc.getRemoteFacilityId()==null)
               {
                 if( curdoc.getCreatorId().equalsIgnoreCase(user_no)) {
                   if( curdoc.getStatus() == 'D' ) { %>
-                    <a href="documentReport.jsp?undelDocumentNo=<%=curdoc.getDocId()%>&function=<%=module%>&functionid=<%=moduleid%>&viewstatus=<%=viewstatus%>"><img
-                  src="<c:out value="${ctx}/images/user-trash.png"/>"
-                  title="<bean:message key="dms.documentReport.btnUnDelete"/>"></a>
+                    <a href="documentReport.jsp?undelDocumentNo=<%=curdoc.getDocId()%>&function=<%=module%>&functionid=<%=moduleid%>&viewstatus=<%=viewstatus%>" class="btn btn-link"
+                  title="<bean:message key="dms.documentReport.btnUnDelete"/>"><i class="icon-retweet"></i></a>
                   <%
                   } else {
                   %>
-                    <a href="javascript: checkDelete('documentReport.jsp?delDocumentNo=<%=curdoc.getDocId()%>&function=<%=module%>&functionid=<%=moduleid%>&viewstatus=<%=viewstatus%>','<%=StringEscapeUtils.escapeJavaScript(curdoc.getDescription())%>')"><img
-                  src="<c:out value="${ctx}/images/clear.png"/>" title="Delete"></a>
+                    <a href="javascript: checkDelete('documentReport.jsp?delDocumentNo=<%=curdoc.getDocId()%>&function=<%=module%>&functionid=<%=moduleid%>&viewstatus=<%=viewstatus%>','<%=StringEscapeUtils.escapeJavaScript(curdoc.getDescription())%>')" class="btn btn-link" title="Delete"><i class="icon-trash"></i></a>
                   <%
                   }
               } else {
@@ -524,14 +539,12 @@ function popup1(height, width, url, windowName){
                 <security:oscarSec roleName="<%=roleName$%>" objectName="_admin,_admin.edocdelete" rights="r">
                   <%
                   if( curdoc.getStatus() == 'D' ) {%>
-                    <a href="documentReport.jsp?undelDocumentNo=<%=curdoc.getDocId()%>&function=<%=module%>&functionid=<%=moduleid%>&viewstatus=<%=viewstatus%>"><img
-                  src="<c:out value="${ctx}/images/user-trash.png"/>"
-                  title="<bean:message key="dms.documentReport.btnUnDelete"/>"></a> &nbsp;
+                    <a href="documentReport.jsp?undelDocumentNo=<%=curdoc.getDocId()%>&function=<%=module%>&functionid=<%=moduleid%>&viewstatus=<%=viewstatus%>" 
+                  title="<bean:message key="dms.documentReport.btnUnDelete"/>"><i class="icon-retweet"></i></a>
                   <%
                   } else {
                   %>
-                    <a href="javascript: checkDelete('documentReport.jsp?delDocumentNo=<%=curdoc.getDocId()%>&function=<%=module%>&functionid=<%=moduleid%>&viewstatus=<%=viewstatus%>','<%=StringEscapeUtils.escapeJavaScript(curdoc.getDescription())%>')"><img
-                  src="<c:out value="${ctx}/images/clear.png"/>" title="Delete"></a> &nbsp;
+                    <a href="javascript: checkDelete('documentReport.jsp?delDocumentNo=<%=curdoc.getDocId()%>&function=<%=module%>&functionid=<%=moduleid%>&viewstatus=<%=viewstatus%>','<%=StringEscapeUtils.escapeJavaScript(curdoc.getDescription())%>')" class="btn btn-link" title="Delete"><i class="icon-trash"></i></a>
                   <%
                   }
                   %>
@@ -541,23 +554,21 @@ function popup1(height, width, url, windowName){
 
                 if( curdoc.getStatus() != 'D' ) {
                   if (curdoc.getStatus() == 'H') { %>
-                  <a href="#" onclick="popup(450, 600, 'addedithtmldocument.jsp?editDocumentNo=<%=curdoc.getDocId()%>&function=<%=module%>&functionid=<%=moduleid%>', 'EditDoc')">
+                  <a href="#" onclick="popup(450, 600, 'addedithtmldocument.jsp?editDocumentNo=<%=curdoc.getDocId()%>&function=<%=module%>&functionid=<%=moduleid%>', 'EditDoc')" title="<bean:message key="dms.documentReport.btnEdit"/>" class="btn btn-link">
                   <%
                   } else {
                   %>
-                  <a href="#" onclick="popup(350, 500, 'editDocument.jsp?editDocumentNo=<%=curdoc.getDocId()%>&function=<%=module%>&functionid=<%=moduleid%>', 'EditDoc')">
+                  <a href="#" onclick="popup(350, 500, 'editDocument.jsp?editDocumentNo=<%=curdoc.getDocId()%>&function=<%=module%>&functionid=<%=moduleid%>', 'EditDoc')" class="btn btn-link" title="<bean:message key="dms.documentReport.btnEdit"/>" class="btn btn-link">
                   <%
                   }
                   %>
-
-                <img height="15px" width="15px" src="<c:out value="${ctx}/images/notepad.gif"/>" title="<bean:message key="dms.documentReport.btnEdit"/>"></a>
+            <i class="icon-pencil"></i></a>
                   <%
                 }
 
                 if(module.equals("demographic")){%>
-                  <a href="#" title="Annotation" onclick="window.open('../annotation/annotation.jsp?display=<%=annotation_display%>&table_id=<%=curdoc.getDocId()%>&demo=<%=moduleid%>','anwin','width=400,height=500');">
-                    <img src="../images/notes.gif" border="0">
-                  </a>
+                  <a href="#" title="Annotation" onclick="window.open('../annotation/annotation.jsp?display=<%=annotation_display%>&table_id=<%=curdoc.getDocId()%>&demo=<%=moduleid%>','anwin','width=400,height=500');"  class="btn btn-link">
+                    <i class="icon-pencil"></i></a>
                            <%
                            }
 
@@ -572,7 +583,7 @@ function popup1(height, width, url, windowName){
 
                               %>
 
-                              &nbsp;<a href="javascript:void(0);" title="Tickler" onclick="popup(450,600,'<%=tickler_url%>','tickler')">T</a>
+                              &nbsp;<a href="javascript:void(0);" title="Tickler" class="btn btn-link" onclick="popup(450,600,'<%=tickler_url%>','tickler')"><i class="icon-star"></i></a>
 
                            <%
                            }
@@ -584,7 +595,9 @@ function popup1(height, width, url, windowName){
                 <%
               }
                          %>
+</div><!-- button grouping -->
                      </td>
+
         </tr>
 
         <%}
@@ -624,7 +637,8 @@ function popup1(height, width, url, windowName){
                       if (isSharingCenterEnabled) {
                       %>
                         <span style="float: right;">
-                          <select name="affinityDomain">
+                          <select name="affinityDomain"
+                            style="margin-bottom: -4px;" class="input-medium">
 
                             <% for(AffinityDomainDataObject domain : affinityDomains) { %>
                               <option value="<%=domain.getId()%>"><%=domain.getName()%></option>
