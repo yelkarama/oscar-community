@@ -439,7 +439,9 @@ function notesIncrementAndLoadMore() {
 		if($("encMainDiv").scrollHeight > $("encMainDiv").getHeight()) {	
 			notesOffset += notesIncrement;
 			notesRetrieveOk = false;
-			notesCurrentTop = $("encMainDiv").children[0].id;
+            if (typeof $("encMainDiv").children[0] != 'undefined') {
+			    notesCurrentTop = $("encMainDiv").children[0].id;
+            }
 			notesLoader(notesOffset, notesIncrement, demographicNo);
 		}
 	}
@@ -471,7 +473,7 @@ function notesLoader(offset, numToReturn, demoNo) {
 				insertion: Insertion.Top,
 				onSuccess: function(data) {
 					notesRetrieveOk = (data.responseText.replace(/\s+/g, '').length > 0);
-					if (!notesRetrieveOk) clearInterval(scrollCheckInterval);
+					if (!notesRetrieveOk) clearInterval(notesSrollCheckInterval);
 				},
 				onComplete: function() {
 					$("notesLoading").style.display = "none";
@@ -1353,6 +1355,9 @@ function loadDiv(div,url,limit) {
         //setTimeout("$(caseNote).scrollTop="+scrollHeight, 0);  // setTimeout is needed to allow browser to realize that text field has been updated
         $(caseNote).focus();
         adjustCaseNote();
+        //if (typeof chartNoteAutosave !== 'undefined') {
+        //        chartNoteAutosave.setChanged();
+        //}
         setCaretPosition($(caseNote),curPos);
     }
 
