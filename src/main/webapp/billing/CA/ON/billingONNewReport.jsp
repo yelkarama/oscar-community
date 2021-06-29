@@ -45,6 +45,13 @@ String providerview = request.getParameter("providerview")==null?"all":request.g
 <%@ page import="org.oscarehr.common.model.ReportProvider" %>
 <%@ page import="org.oscarehr.common.dao.ReportProviderDao" %>
 <%@ page import="org.oscarehr.common.model.Provider" %>
+<%@ page import="oscar.OscarProperties"%>
+<%@ page import="org.oscarehr.common.dao.SiteDao"%>
+<%@ page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
+<%@ page import="org.oscarehr.common.model.Site"%>
+<%@ page import="org.oscarehr.common.model.Provider"%>
+<%@ page import="org.apache.commons.lang.StringUtils"%>
+
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 
 <%
@@ -331,11 +338,7 @@ if("unpaid".equals(action)) {
 %>
 
 
-<%@page import="org.oscarehr.common.dao.SiteDao"%>
-<%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
-<%@page import="org.oscarehr.common.model.Site"%>
-<%@page import="org.oscarehr.common.model.Provider"%>
-<%@page import="org.apache.commons.lang.StringUtils"%><html>
+<html>
 <head>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -400,9 +403,12 @@ function calToday(field) {
 		<H4><a style="color:black;"
 			href="billingReportCenter.jsp">OSCARbilling</a></H4>
 		</td>
-		<td align="right"><a href=#
-			onClick="popupPage(700,720,'../../../oscarReport/manageProvider.jsp?action=billingreport')" >
-		Manage Provider List</a></td>
+        <td align="right">
+		    <i class=" icon-question-sign"></i> 
+	        <a href="javascript:void(0)" onClick ="popupPage(600,750,'<%=(OscarProperties.getInstance()).getProperty("HELP_SEARCH_URL")%>'+'OscarBilling+Billing')"><bean:message key="app.top1"/></a>
+	        <i class=" icon-info-sign" style="margin-left:10px;"></i> 
+            <a href="javascript:void(0)"  onClick="window.open('<%=request.getContextPath()%>/oscarEncounter/About.jsp','About OSCAR','scrollbars=1,resizable=1,width=800,height=600,left=0,top=0')" ><bean:message key="global.about" /></a>
+        </td>
 		<td width="1%"></td>
 	</tr>
 </table>
@@ -430,7 +436,7 @@ function calToday(field) {
                 <input type="radio" name="reportAction" value="unpaid" <%="unpaid".equals(action)? "checked" : "" %>>Unpaid 
             </label>
 end broken -->
-            
+           
 		    <br>&nbsp;Provider  
 <% if (bMultisites) 
 { // multisite start ==========================================
@@ -529,7 +535,8 @@ for(Object[] res:reportProviderDao.search_reportprovider("billingreport")) {
 			value="Create Report"> </font></td>
 	</tr>
 	<tr>
-<tr><td>&nbsp;</td></tr>
+<tr><td><a href=# onClick="popupPage(700,720,'../../../oscarReport/manageProvider.jsp?action=billingreport')" class="btn btn-link" >
+		Manage Provider List</a> </td></tr>
 		</form>
 </table>
 
