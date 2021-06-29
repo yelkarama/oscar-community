@@ -24,10 +24,10 @@
 
 --%>
 
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
+<%@ page import="org.oscarehr.util.LoggedInInfo"%>
 <%@ page import="java.lang.*"%>
-<%@page import="oscar.OscarProperties"%>
-<%@page import="org.apache.commons.lang.StringEscapeUtils"%>
+<%@ page import="oscar.OscarProperties"%>
+<%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
 
 <%
         boolean fromMessenger = request.getParameter("fromMessenger") == null ? false : (request.getParameter("fromMessenger")).equalsIgnoreCase("true")?true:false;
@@ -70,8 +70,10 @@ function searchOutOfDomain() {
 	</div>
     </td>
     <td align="right">
-		<span class="btn btn-link"><oscar:help keywords="Search" key="app.top1" /></span> |
-        		<a class="btn btn-link" href="<%=request.getContextPath()%>/oscarEncounter/About.jsp" target="_new"><bean:message key="global.about" /></a>	 
+		<i class=" icon-question-sign"></i> 
+	    <a href="javascript:void(0)" onClick ="popupPage(600,750,'<%=(OscarProperties.getInstance()).getProperty("HELP_SEARCH_URL")%>'+'Search')"><bean:message key="app.top1"/></a>
+	    <i class=" icon-info-sign" style="margin-left:10px;"></i> 
+        <a href="javascript:void(0)"  onClick="window.open('<%=request.getContextPath()%>/oscarEncounter/About.jsp','About OSCAR','scrollbars=1,resizable=1,width=800,height=600,left=0,top=0')" ><bean:message key="global.about" /></a>
     </td>
 </tr>
 </table>
