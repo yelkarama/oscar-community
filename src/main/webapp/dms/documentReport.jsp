@@ -568,7 +568,7 @@ function popup1(height, width, url, windowName){
 
                 if(module.equals("demographic")){%>
                   <a href="#" title="Annotation" onclick="window.open('../annotation/annotation.jsp?display=<%=annotation_display%>&table_id=<%=curdoc.getDocId()%>&demo=<%=moduleid%>','anwin','width=400,height=500');"  class="btn btn-link">
-                    <i class="icon-pencil"></i></a>
+                    <i class="icon-quote-right"></i></a>
                            <%
                            }
 
