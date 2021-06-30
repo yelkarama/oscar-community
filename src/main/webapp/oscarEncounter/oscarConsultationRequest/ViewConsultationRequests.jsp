@@ -39,8 +39,8 @@ if(!authed) {
 }
 %>
 
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
-<%@page import="org.oscarehr.common.dao.ConsultationRequestDao"%>
+<%@ page import="org.oscarehr.util.LoggedInInfo"%>
+<%@ page import="org.oscarehr.common.dao.ConsultationRequestDao"%>
 <%@ page import="oscar.oscarEncounter.pageUtil.*,java.text.*,java.util.*"%>
 <%@ page import="java.sql.ResultSet"%>
 <%@ page import="org.oscarehr.common.dao.UserPropertyDAO, org.oscarehr.common.model.UserProperty, org.springframework.web.context.support.WebApplicationContextUtils" %>
@@ -52,8 +52,9 @@ if(!authed) {
 <%@ page import="org.oscarehr.common.model.ProviderData"%>
 <%@ page import="org.oscarehr.common.dao.ProviderDataDao"%>
 
-<%@page import="org.oscarehr.common.dao.ConsultationServiceDao" %>
-<%@page import="org.oscarehr.common.model.ConsultationServices" %>
+<%@ page import="org.oscarehr.common.dao.ConsultationServiceDao" %>
+<%@ page import="org.oscarehr.common.model.ConsultationServices" %>
+<%@ page import="oscar.OscarProperties"%>
 
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
@@ -204,29 +205,6 @@ ArrayList tickerList = new ArrayList();
 <script type="text/javascript" src="../../share/calendar/calendar-setup.js"></script>
 <!--META HTTP-EQUIV="Refresh" CONTENT="20;"-->
 
-<style type="text/css">
-td.stat1 {
-background-color: #eeeeFF;
-}
-
-th,td.stat2 {
-background-color: #ccccFF;
-}
-
-td.stat3 {
-background-color: #B8B8FF;
-}
-
-td.stat4 {
-background-color: #eeeeff;
-}
-
-th.VCRheads {
-background-color: #ddddff;
-color : black;
-}
-
-</style>
 
 
 <%="<script>\nvar provider_no=\""+curProvider_no+"\";\nvar default_filter=\""+defaultFilterValue+"\";\n</script>"%>
@@ -292,7 +270,7 @@ function gotoPage(next) {
 
 
 
-<link rel="stylesheet" type="text/css" href="../encounterStyles.css">
+<!-- <link rel="stylesheet" type="text/css" href="../encounterStyles.css"> -->
 <style>
 .searchDate{width:90px}
 
@@ -311,19 +289,20 @@ cursor: pointer;
 cursor: hand;
 }
 </style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/datepicker.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
+
 </head>
 <body class="BodyStyle" vlink="#0000FF" >
 <!--  -->
-    <table  class="MainTable" id="scrollNumber1" name="encounterTable">
-        <tr class="MainTableTopRow">
-            <td class="MainTableTopRowLeftColumn">
-                Consultation
-            </td>
-            <td class="MainTableTopRowRightColumn">
-                <table class="TopStatusBar">
+
+                <table class="TopStatusBar" width="100%">
                     <tr>
                         <td class="Header" NOWRAP >
-                            <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msfConsReqForTeam"/> = 
+                            <h4><bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msfConsReqForTeam"/> = 
                             <%
                                if (team.equals("-1")){
                             %>
@@ -332,34 +311,33 @@ cursor: hand;
                             <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.formViewAll"/>
                             <% } else { %>
                             <%= team %>
-                            <% } %>               
+                            <% } %></h4>             
                         </td>
-                        <td  >
-                        </td>                        
+                        <td align="right">
+		                    <i class=" icon-question-sign"></i> 
+	                        <a href="javascript:void(0)" onClick ="popupOscarConsultationConfig(700,960,'<%=(OscarProperties.getInstance()).getProperty("HELP_SEARCH_URL")%>'+'Consultation+Tab')"><bean:message key="app.top1"/></a>
+	                        <i class=" icon-info-sign" style="margin-left:10px;"></i> 
+                            <a href="javascript:void(0)"  onClick="window.open('<%=request.getContextPath()%>/oscarEncounter/About.jsp','About OSCAR','scrollbars=1,resizable=1,width=800,height=600,left=0,top=0')" ><bean:message key="global.about" /></a>
+                        </td>                      
                     </tr>
                 </table>
-            </td>
-        </tr>
-        <tr style="vertical-align:top">
-            <td class="MainTableLeftColumn">
-                <table>
-                    <tr>
-                        <td NOWRAP>
-                        <a href="javascript:popupOscarConsultationConfig(700,960,'<%=request.getContextPath()%>/oscarEncounter/oscarConsultationRequest/config/ShowAllServices.jsp')" class="consultButtonsActive">
-                            <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgEditSpecialists"/>
-                        </a>                                                
-                        </td>
-                    </tr>                    
-                </table>
-            </td>
-            <td class="MainTableRightColumn">
-                <table width="100%" >
+
+        
+                <table width="100%" class="table table-striped table-hover">
                 <tr>
                     <td style="margin: 0; padding: 0;">
-                        <html:form action="/oscarEncounter/ViewConsultation"  method="get">
+                        <html:form action="/oscarEncounter/ViewConsultation"  method="get">  
+
+                        <a href="javascript:popupOscarConsultationConfig(700,960,'<%=request.getContextPath()%>/oscarEncounter/oscarConsultationRequest/config/ShowAllServices.jsp')" class="btn">
+                            <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgEditSpecialists"/>
+                        </a>
+                    <div class="form-inline control-group">
+                        <label class="control-label" for="sendTo">
                             <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.formSelectTeam"/>:
-                            <select name="sendTo">                                
-				<option value=""><bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.formViewAll"/></option>                                
+                        </label>                        
+                            <select name="sendTo" class="input-medium">                                
+				                <option value=""><bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.formViewAll"/></option>
+                                                            
                                 <%                                
                                    if (team.equals("-1")) { %>
                                 <option value="-1" selected ><bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.formTeamNotApplicable"/></option>
@@ -377,31 +355,44 @@ cursor: hand;
                                     <option value="<%=te%>"><%=te%></option>
                                 <%}}%>
                             </select> 
-
-                            <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgStart"/>:<html:text property="startDate" styleClass="searchDate" size="6" styleId="startDate"/><a id="SCal"><img title="Calendar" src="../../images/cal.gif" alt="Calendar" border="0" /></a>
-                            <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgEnd"/>:<html:text property="endDate" styleClass="searchDate"   styleId="endDate"/><a id="ECal"><img title="Calendar" src="../../images/cal.gif" alt="Calendar" border="0" /></a>
-
-                            <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgSearchon"/><html:radio property="searchDate" value="0" titleKey="Search on Referal Date"/>
-                            <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgApptDate"/><html:radio property="searchDate" value="1" titleKey="Search on Appt. Date"/>
+                        
+                        <label class="control-label" for="startDate">
+                            <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgStart"/>:
+                        </label> 
+                            <html:text property="startDate" styleClass="input-small" /><a id="SCal"><img title="Calendar" src="../../images/cal.gif" alt="Calendar" border="0" /></a>
+                        <label class="control-label" for="endDate">
+                            <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgEnd"/>:
+                        </label> 
+                            <html:text property="endDate" styleClass="searchDate"   styleId="endDate"/><a id="ECal"><img title="Calendar" src="../../images/cal.gif" alt="Calendar" border="0" /></a>
+                        <label class="radio">
+                            <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgSearchon"/><html:radio property="searchDate" value="0" titleKey="Search on Referal Date"/> </label>
+                        <label class="radio">
+                            <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgApptDate"/><html:radio property="searchDate" value="1" titleKey="Search on Appt. Date"/></label>
                             <html:hidden property="currentTeam"/>
                             <html:hidden property="orderby"/>
                             <html:hidden property="desc"/>
                             <html:hidden property="offset"/>
                             <html:hidden property="limit"/>
-
-                            <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgIncludeCompleted"/>:<html:checkbox property="includeCompleted" value="include" />
+                        <label class="checkbox">
+                            <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgIncludeCompleted"/>:<html:checkbox property="includeCompleted" value="include" /></label>
 
 
 			    <div style="width:100%"> 
-				MRP <input type="text" class="form-control" id="mrpName" size="14" onKeyup="mrpSearch(this.value)" placeholder="lastname, firstname" autocomplete="off" onFocus="toggleTempBin(1, 'mrpName')" onBlur="toggleTempBin(0, 'mrpName')">
-				<html:hidden property="mrpNo" styleId="mrpNo" value="<%=mrpNo%>" /> 
-
-
-				Patient <input type="text" class="form-control" id="patientName" size="14" onKeyup="patientSearch(this.value)" placeholder="lastname, firstname" autocomplete="off" onFocus="toggleTempBin(1, 'patientName')" onBlur="toggleTempBin(0, 'patientName')">
+                        <label class="control-label" for="mrpName">
+				            MRP 
+                        </label>
+                    <input type="text" class="form-control input-medium" id="mrpName" size="14" onKeyup="mrpSearch(this.value)" placeholder="lastname, firstname" autocomplete="off" onFocus="toggleTempBin(1, 'mrpName')" onBlur="toggleTempBin(0, 'mrpName')">
+				    <html:hidden property="mrpNo" styleId="mrpNo" value="<%=mrpNo%>" /> 
+                        <label class="control-label" for="patientName">
+				           Patient  
+                        </label>
+                    <input type="text" class="form-control input-medium" id="patientName" onKeyup="patientSearch(this.value)" placeholder="lastname, firstname" autocomplete="off" onFocus="toggleTempBin(1, 'patientName')" onBlur="toggleTempBin(0, 'patientName')">
 				<html:hidden property="patientId" styleId="patientId" />
-
-				Service <select name="serviceFilter" data-new="2">
-				<option value="">select</option>
+                        <label class="control-label" for="tz">
+				            Service 
+                        </label>
+                    <select name="serviceFilter" data-new="2" id="tz" class="input-medium">
+				    <option value="">select</option>
 				<%
 				ConsultationServiceDao consultationServiceDao = SpringUtils.getBean(ConsultationServiceDao.class);
 
@@ -412,22 +403,26 @@ cursor: hand;
 				}
 				%></select>
 
-				Consultant  <input type="text" class="form-control" id="consultantName" size="14" onKeyup="consultantSearch(this.value)" placeholder="lastname, firstname" autocomplete="off" onFocus="toggleTempBin(1, 'consultantName')" onBlur="toggleTempBin(0, 'consultantName')">
-				<html:hidden property="consultantFilter" styleId="consultantFilter" />
+                        <label class="control-label" for="consultantName">
+				            Consultant
+                        </label>
+                        <input type="text" class="form-control input-medium" id="consultantName" onKeyup="consultantSearch(this.value)" placeholder="lastname, firstname" autocomplete="off" onFocus="toggleTempBin(1, 'consultantName')" onBlur="toggleTempBin(0, 'consultantName')">
+				        <html:hidden property="consultantFilter" styleId="consultantFilter" />
 
-				Urgency <select name="urgencyFilter">
+                        <label class="control-label" for="urg">
+				            Urgency </label>
+                        <select name="urgencyFilter" id="urg" class="input-small">
 					  <option value="">select</option> 
 					  <option value="1">Urgent</option> 
 					  <option value="2">Non-Urgent</option> 
 					  <option value="3">Return</option>
 					</select>
+                    </div><!-- control-group -->
 
-
-				<div id="tempBin" onmouseover="tempBinHover(true)" onmouseout="tempBinHover(false)" style="display:none;position:absolute;padding:4px; background-color:white;border:thin solid #cccccc">You must enter at least 2 characters of a patients name!</div>
+				<div id="tempBin" onmouseover="tempBinHover(true)" onmouseout="tempBinHover(false)" style="display:none;position:absolute;padding:4px; background-color:white;border:thin solid #cccccc">You must enter at least 2 characters of the name!</div>
 			    </div>
-
-			   <div style="width:100%;display:none;"><b>For Testing Preference Only:</b><br><%=defaultFilterValue%></div>		
-<input class="btn" type="submit" value="Apply Filter"/> <!-- <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.btnConsReq"/> -->
+		
+<input class="btn btn-primary" type="submit" value="Apply Filter"/> <!-- <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.btnConsReq"/> -->
 <input type="reset" class="btn" value="Clear Filter"/>
 <input type="reset" class="btn" value="Reload" onclick="reloadConsults();"/>
                             <!--/div-->
@@ -436,7 +431,7 @@ cursor: hand;
                 </tr>
                 <tr>
                     <td>                    
-                        <table border="0" width="90%" cellspacing="1" style="border: thin solid #C0C0C0;">
+                        <table border="0" width="100%" cellspacing="1" style="border: thin solid #C0C0C0;">
                             <tr>
                                 <th align="left" class="VCRheads" width="20">
                                    <a href=# onclick="setOrder('1'); return false;">
@@ -587,16 +582,20 @@ cursor: hand;
 
 
                         %>
-                        <tr <%=overdue?"style='color:red;'":""%>>
-                                <td class="stat<%=status%>">
-                                    <% if (status.equals("1")){ %>
-                                    <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgND"/>      
-                                    <% }else if(status.equals("2")) { %>
-                                    <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgSR"/>      
-                                    <% }else if(status.equals("3")) { %>
-                                    <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgPR"/>      
-                                    <% }else if(status.equals("4")) { %>
-                                    <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgDONE"/>    
+                        <tr <%=overdue?"class='error'":""%> onclick="popupOscarRx(700,960,'<%=request.getContextPath()%>/oscarEncounter/ViewRequest.do?requestId=<%=id%>')">
+                            <td class="stat<%=status%>">
+                            <% if (status.equals("1")){ %>
+                                <a href="javascript:popupOscarRx(700,960,'<%=request.getContextPath()%>/oscarEncounter/ViewRequest.do?requestId=<%=id%>')"
+                                title="Nothing"><bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgND"/></a>  
+                            <% }else if(status.equals("2")) { %>
+                                <a href="javascript:popupOscarRx(700,960,'<%=request.getContextPath()%>/oscarEncounter/ViewRequest.do?requestId=<%=id%>')"
+                                title="Pending Specialist Callback"><bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgSR"/></a>
+                            <% }else if(status.equals("3")) { %>
+                                <a href="javascript:popupOscarRx(700,960,'<%=request.getContextPath()%>/oscarEncounter/ViewRequest.do?requestId=<%=id%>')"
+                                title="Pending Patient Callback"><bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgPR"/></a>    
+                            <% }else if(status.equals("4")) { %>
+                                <a href="javascript:popupOscarRx(700,960,'<%=request.getContextPath()%>/oscarEncounter/ViewRequest.do?requestId=<%=id%>')"
+                                title="Completed"><bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgDONE"/></a>
                                     <% } %>
 								</td>
                                 <td class="stat<%=status%>">
@@ -611,28 +610,28 @@ cursor: hand;
 
                                 </td>
                                 <td class="stat<%=status%>">
-                                    <a href="javascript:popupOscarRx(700,960,'<%=request.getContextPath()%>/oscarEncounter/ViewRequest.do?requestId=<%=id%>')">
+                                    
                                     <%=sendTo.equals("-1")?"N/A":sendTo%>
-                                    </a>
+                                    
                                 </td>
                                 <td class="stat<%=status%>">
-                                    <a href="javascript:popupOscarRx(700,960,'<%=request.getContextPath()%>/oscarEncounter/ViewRequest.do?requestId=<%=id%>')">
+      
                                     <%=patient%>
-                                    </a>
+                                   
                                 </td>
-                                <td class="stat<%=status%>">
+                                <td>
                                     <%=provide%>
                                 </td>
-                                <td class="stat<%=status%>">
-                                    <a href="javascript:popupOscarRx(700,960,'<%=request.getContextPath()%>/oscarEncounter/ViewRequest.do?requestId=<%=id%>')">
+                                <td >
+                                    
                                     <%=service%>
-                                    </a>
+                                    
 
                                 </td>
                                 <td class="stat<%=status%>">
-                                    <a href="javascript:popupOscarRx(700,960,'<%=request.getContextPath()%>/oscarEncounter/ViewRequest.do?requestId=<%=id%>')">
+                                   
                                         <%=specialist%>
-                                    </a>
+                                   
 
                                 </td>
                                 <td class="stat<%=status%>">
@@ -646,9 +645,9 @@ cursor: hand;
                                    <%}%>
                                 </td>
                                 <td class="stat<%=status%>">
-                                    <a href="javascript:popupOscarRx(700,960,'<%=request.getContextPath()%>/oscarEncounter/ViewRequest.do?requestId=<%=id%>')">
+                                    
                                         <%=followUpDate%>
-                                    </a>
+                                  
 
                                 </td>
                                 <% if (bMultisites) { %>   
@@ -668,21 +667,15 @@ cursor: hand;
                 	<%
                 	if(offset > 0) {
 //                		String queryString = getNewQueryString(request.getQueryString(),offset-limit,limit);
-                		%><input type="button" value="Prev" onClick="gotoPage(false);"/><%
+                		%><input type="button" class="btn" value="Prev" onClick="gotoPage(false);"/><%
                 	}
                 	if(theRequests.ids.size() == limit) {
 //                		String queryString = getNewQueryString(request.getQueryString(),offset+limit,limit);
-	               		%><input type="button" value="Next" onClick="gotoPage(true);"/><%
+	               		%><input type="button" class="btn" value="Next" onClick="gotoPage(true);"/><%
                 	}
                 	%>
                
-            </td>
-        </tr>
-        <tr>
-            <td class="MainTableBottomRowLeftColumn">
-
-            </td>
-            <td class="MainTableBottomRowRightColumn">
+            
             <% if ( tickerList.size() > 0 ) { 
                   String queryStr = "";
                   for (int i = 0; i < tickerList.size(); i++){
@@ -693,11 +686,9 @@ cursor: hand;
                         queryStr += "&demo="+demo;  
                      }
                    }%>                        
-             <a target="_blank" href="../../tickler/AddTickler.do?<%=queryStr%>&message=<%=java.net.URLEncoder.encode("Patient has Consultation Letter with a status of 'Nothing Done' for over one week","UTF-8")%>">Add Tickler for Consults with ND for more than one week</a>
+             <a target="_blank" href="../../tickler/AddTickler.do?<%=queryStr%>&message=<%=java.net.URLEncoder.encode("Patient has Consultation Letter with a status of 'Nothing Done' for over one week","UTF-8")%>">Add Tickler</a> for Consults with ND for more than one week
             <%}%>
-            </td>
-        </tr>
-    </table>
+
     <script language='javascript'>
        Calendar.setup({inputField:"startDate",ifFormat:"%Y-%m-%d",showsTime:false,button:"SCal",singleClick:true,step:1});          
        Calendar.setup({inputField:"endDate",ifFormat:"%Y-%m-%d",showsTime:false,button:"ECal",singleClick:true,step:1});    
