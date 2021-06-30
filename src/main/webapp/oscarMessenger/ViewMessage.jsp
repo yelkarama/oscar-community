@@ -32,6 +32,7 @@
 <%@page import="org.oscarehr.common.model.ResidentOscarMsg"%>
 <%@page import="org.oscarehr.common.dao.ResidentOscarMsgDao"%>
 <%@page import="org.oscarehr.common.model.OscarMsgType"%>
+<%@ page import="oscar.OscarProperties"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
 	  String providerNo = (String) request.getAttribute("providerNo");
@@ -77,11 +78,28 @@ if (request.getParameter("bFirstDisp")!=null) bFirstDisp= (request.getParameter(
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 
-<link rel="stylesheet" type="text/css" href="encounterStyles.css"
-	media="screen">
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 <link rel="stylesheet" type="text/css" href="printable.css"
 	media="print">
-
+<style type="text/css">
+    .subheader {
+	    background-color:silver;
+	}
+    .modal {
+      font-size: 11px;
+      display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      z-index: 1; /* Sit on top */
+      left: 0;
+      top: 0;
+      width: 100%; /* Full width */
+      height: 100%; /* Full height */
+      overflow: auto; /* Enable scroll if needed */
+      background-color: rgb(0,0,0); /* Fallback color */
+      background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    }
+</style>
 <%
 String boxType = request.getParameter("boxType");
 %>
@@ -233,21 +251,24 @@ function fmtOscarMsg() {
 
 	<table class="MainTable" id="scrollNumber1" name="encounterTable">
 		<tr class="MainTableTopRow">
-			<td class="MainTableTopRowLeftColumn"><bean:message
-				key="oscarMessenger.ViewMessage.msgMessenger" /></td>
+			<td class="MainTableTopRowLeftColumn"><h4><bean:message
+				key="oscarMessenger.ViewMessage.msgMessenger" />:</h4></td>
 			<td class="MainTableTopRowRightColumn">
 			<table class="TopStatusBar">
 				<tr>
-					<td><h2><bean:message
-						key="oscarMessenger.ViewMessage.msgViewMessage" /></h2></td>
+					<td><h4><bean:message
+						key="oscarMessenger.ViewMessage.msgViewMessage" /></h4></td>
 					<td></td>
-					<td style="text-align: right">
-					  <oscar:help keywords="message" key="app.top1"/> | 
-					  <a href="javascript:void(0)" onclick="javascript:popupPage(600,700,'../oscarEncounter/About.jsp')"><bean:message key="global.about" /></a>
-				    </td>
+
 				</tr>
 			</table>
 			</td>
+            <td align="right" >
+            <i class=" icon-question-sign"></i> 
+            <a href="javascript:void(0)" onClick ="popupOscarConsultationConfig(700,960,'<%=(OscarProperties.getInstance()).getProperty("HELP_SEARCH_URL")%>'+'Messenger')"><bean:message key="app.top1"/></a>
+            <i class=" icon-info-sign" style="margin-left:10px;"></i> 
+            <a href="javascript:void(0)"  onClick="window.open('<%=request.getContextPath()%>/oscarEncounter/About.jsp','About OSCAR','scrollbars=1,resizable=1,width=800,height=600,left=0,top=0')" ><bean:message key="global.about" /></a>
+        </td>
 		</tr>
 		<tr>
 			<td class="MainTableLeftColumn">&nbsp;</td>
@@ -264,7 +285,7 @@ function fmtOscarMsg() {
 									<tr>
 										<td class="messengerButtonsA"><html:link
 											page="/oscarMessenger/CreateMessage.jsp"
-											styleClass="messengerButtons">
+											styleClass="btn">
 											<bean:message key="oscarMessenger.ViewMessage.btnCompose" />
 										</html:link></td>
 									</tr>
@@ -276,7 +297,7 @@ function fmtOscarMsg() {
 							<table class=messButtonsA cellspacing=0 cellpadding=3>
 								<tr>
 									<td class="messengerButtonsA"><a
-										href="javascript:window.print()" class="messengerButtons"><bean:message
+										href="javascript:window.print()" class="btn"><bean:message
 										key="oscarMessenger.ViewMessage.btnPrint" /></a></td>
 								</tr>
 							</table>
@@ -289,7 +310,7 @@ function fmtOscarMsg() {
 									<tr>
 										<td class="messengerButtonsA"><html:link
 											page="/oscarMessenger/DisplayMessages.jsp"
-											styleClass="messengerButtons">
+											styleClass="btn">
 											<bean:message key="oscarMessenger.ViewMessage.btnInbox" />
 										</html:link></td>
 									</tr>
@@ -326,30 +347,30 @@ function fmtOscarMsg() {
 				</tr>
 				<tr>
 					<td class="Printable">
-					<table valign="top">
+					<table valign="top" class="well"><!-- the messageblock -->
 						<tr>
-							<td class="Printable" bgcolor="#DDDDFF"><bean:message
+							<td class="Printable" ><bean:message
 								key="oscarMessenger.ViewMessage.msgFrom" />:</td>
-							<td colspan="2" id="sentBy" class="Printable" bgcolor="#CCCCFF"><%= request.getAttribute("viewMessageSentby") %>
+							<td colspan="2" id="sentBy" class="Printable" ><%= request.getAttribute("viewMessageSentby") %>
 							</td>
 						</tr>
 						<tr>
-							<td class="Printable" bgcolor="#DDDDFF"><bean:message
+							<td class="Printable" ><bean:message
 								key="oscarMessenger.ViewMessage.msgTo" />:</td>
-							<td colspan="2" id="sentTo" class="Printable" bgcolor="#BFBFFF"><%= request.getAttribute("viewMessageSentto") %>
+							<td colspan="2" id="sentTo" class="Printable" ><%= request.getAttribute("viewMessageSentto") %>
 							</td>
 						</tr>
 						<tr>
-							<td class="Printable" bgcolor="#DDDDFF"><bean:message
+							<td class="Printable" ><bean:message
 								key="oscarMessenger.ViewMessage.msgSubject" />:</td>
-							<td colspan="2" id="msgSubject" class="Printable" bgcolor="#BBBBFF"><%= request.getAttribute("viewMessageSubject") %>
+							<td colspan="2" id="msgSubject" class="Printable" ><%= request.getAttribute("viewMessageSubject") %>
 							</td>
 						</tr>
 
 						<tr>
-							<td class="Printable" bgcolor="#DDDDFF"><bean:message
+							<td class="Printable" ><bean:message
 								key="oscarMessenger.ViewMessage.msgDate" />:</td>
-							<td colspan="2" id="sentDate" class="Printable" bgcolor="#B8B8FF">
+							<td colspan="2" id="sentDate" class="Printable" >
 								<c:out value="${ viewMessageDate }" /> <c:out value="${ viewMessageTime }" /> 
 							</td>
 						</tr>
@@ -358,9 +379,9 @@ function fmtOscarMsg() {
                                     if ( attach != null && attach.equals("1") ){
                                     %>
 						<tr>
-							<td bgcolor="#DDDDFF"><bean:message
+							<td><bean:message
 								key="oscarMessenger.ViewMessage.msgAttachments" />:</td>
-							<td bgcolor="#B8B8FF" colspan="2"><a
+							<td colspan="2"><a
 								href="javascript:popupViewAttach(700,960,'ViewAttach.do?attachId=<%=id%>')">
 							<bean:message key="oscarMessenger.ViewMessage.btnAttach" /> </a></td>
 						</tr>
@@ -372,9 +393,9 @@ function fmtOscarMsg() {
                                     if ( pdfAttach != null && pdfAttach.equals("1") ){
                                     %>
 						<tr>
-							<td bgcolor="#DDDDFF"><bean:message
+							<td><bean:message
 								key="oscarMessenger.ViewMessage.msgAttachments" />:</td>
-							<td bgcolor="#B8B8FF" colspan="2"><a
+							<td colspan="2"><a
 								href="javascript:popupViewAttach(700,960,'ViewPDFAttach.do?attachId=<%=id%>')">
 							<bean:message key="oscarMessenger.ViewMessage.btnAttach" /> </a></td>
 						</tr>
@@ -383,9 +404,9 @@ function fmtOscarMsg() {
                                 %>
 
 						<tr>
-							<td bgcolor="#EEEEFF"></td>
-							<td bgcolor="#EEEEFF" colspan="2">
-								<textarea id="msgBody" name="Message" wrap="hard" readonly="true" rows="18" cols="60"><c:out value="${ viewMessageMessage }"/></textarea>
+							<td></td>
+							<td colspan="2">
+								<textarea id="msgBody" name="Message" wrap="hard" readonly="true" rows="18" style="min-width: 100%"><c:out value="${ viewMessageMessage }"/></textarea>
 							</td>
 						</tr>
 						
@@ -395,8 +416,8 @@ function fmtOscarMsg() {
 						<%-- If view request is from the encounter, display the following: --%>
 						<c:when test="${ from eq 'encounter' }">
 							<tr>
-								<td bgcolor="#EEEEFF"></td>
-								<td bgcolor="#EEEEFF">
+								<td></td>
+								<td>
 								<strong>
 									Demographic(s) linked to this message
 								</strong>
@@ -408,18 +429,18 @@ function fmtOscarMsg() {
 								<c:when test="${ not empty attachedDemographics }">
 									<c:forEach items="${ attachedDemographics }" var="demoattached">
 										<tr>
-										<td bgcolor="#EEEEFF"></td>
-										<td bgcolor="#EEEEFF" colspan="2">
+										<td></td>
+										<td  colspan="2">
 										
 											<c:out value="${ demoattached.value }" /> <br />
 
 											<c:if test="${ demoattached.key eq demographic_no }">
 												<input
 													onclick="javascript:popup('${ demographic_no }', '${ messageID }', '${ providerNo }');"
-													class="ControlPushButton" type="button" name="writeToEncounter"
+													class="btn" type="button" name="writeToEncounter"
 													value="Write To Encounter"> <input
 													onclick="return paste2Encounter('${ demographic_no }');"
-													class="ControlPushButton" type="button" name="pasteToEncounter"
+													class="btn" type="button" name="pasteToEncounter"
 													value="Paste To Encounter"> 												
 											 </c:if>
 										</td>
@@ -427,11 +448,11 @@ function fmtOscarMsg() {
 									</c:forEach>							
 								</c:when>
 								
-								<%--  or send a message that no demogrpahic is linked --%>
+								<%--  or send a message that no demographic is linked --%>
 								<c:otherwise>
 									<tr>
-									<td bgcolor="#EEEEFF"></td>
-									<td bgcolor="#EEEEFF">
+									<td ></td>
+									<td>
 										No demographic is linked to this message
 									</td>
 								</tr>
@@ -439,26 +460,26 @@ function fmtOscarMsg() {
 							</c:choose>						
 						</c:when>
 						
-						<%-- If veiw request is from the inbox, display the following --%>
+						<%-- If view request is from the inbox, display the following --%>
 						<c:otherwise>
 						<tr>
-							<td bgcolor="#EEEEFF"></td>
-							<td bgcolor="#EEEEFF" colspan="2">
-								<html:submit styleClass="ControlPushButton" property="reply">
+							<td ></td>
+							<td  colspan="2">
+								<html:submit styleClass="btn" property="reply">
 									<bean:message key="oscarMessenger.ViewMessage.btnReply" />
-								</html:submit> <html:submit styleClass="ControlPushButton" property="replyAll">
+								</html:submit> <html:submit styleClass="btn" property="replyAll">
 									<bean:message key="oscarMessenger.ViewMessage.btnReplyAll" />
-								</html:submit> <html:submit styleClass="ControlPushButton" property="forward">
+								</html:submit> <html:submit styleClass="btn" property="forward">
 									<bean:message key="oscarMessenger.ViewMessage.btnForward" />
-								</html:submit> <html:submit styleClass="ControlPushButton" property="delete">
+								</html:submit> <html:submit styleClass="btn" property="delete">
 									<bean:message key="oscarMessenger.ViewMessage.btnDelete" />
 								</html:submit> 
 								<html:hidden property="messageNo" value="${ viewMessageNo }" />
 							</td>
 						</tr>
-						<tr>
-							<td bgcolor="#B8B8FF"></td>
-							<td bgcolor="#B8B8FF" colspan="2">
+						<tr class="subheader">
+							<td></td>
+							<td colspan="2">
 							<strong>
 								Link this message to ...
 							</strong>
@@ -466,22 +487,22 @@ function fmtOscarMsg() {
 						</tr>
 
 						<tr>
-							<td bgcolor="#EEEEFF"></td>
-							<td bgcolor="#EEEEFF"><input type="text" name="keyword"
+							<td></td>
+							<td><input type="text" name="keyword"
 								size="30" /> 
 							</td>
-							<td bgcolor="#EEEEFF"> 
-							<input type="hidden" class="ControlPushButton"
+							<td> 
+							<input type="hidden" class="btn"
 								name="demographic_no" /> <input type="button"
-								class="ControlPushButton" name="searchDemo"
+								class="btn" name="searchDemo"
 								value="Search Demographic"
 								onclick="popupSearchDemo(document.forms[0].keyword.value)" />
 							</td>
 
 						</tr>
 						<tr>
-							<td bgcolor="#EEEEFF"></td>
-							<td bgcolor="#EEEEFF" colspan="2"><strong>Selected Demographic</strong></td>
+							<td></td>
+							<td colspan="2"><strong>Selected Demographic</strong></td>
 						</tr>
 
 						<%
@@ -499,10 +520,10 @@ function fmtOscarMsg() {
                                                                        
                                 } %>
 						<tr>
-							<td bgcolor="#EEEEFF"></td>
-							<td bgcolor="#EEEEFF" ><input type="text"
+							<td></td>
+							<td><input type="text"
 								name="selectedDemo" size="30" readonly
-								style="background: #EEEEFF; border: none" value="none" /> <script>
+								style="border: none" value="none" /> <script>
                                             if ( "<%=demoName%>" != "null" && "<%=demoName%>" != "") {
                                                 document.forms[0].selectedDemo.value = "<%=demoName%>"
                                                 document.forms[0].demographic_no.value = "<%=demographic_no%>"
@@ -510,13 +531,13 @@ function fmtOscarMsg() {
                                         </script> 
                                 </td>
                                 
-                                <td bgcolor="#EEEEFF">        
+                                <td>        
                                         <input type="button"
-								class="ControlPushButton" name="linkDemo"
+								class="btn" name="linkDemo"
 								value="Link to demographic"
 								onclick="popup(document.forms[0].demographic_no.value,'<%=request.getAttribute("viewMessageId")%>','<%=request.getAttribute("providerNo")%>','linkToDemographic')" />
 
-							<input type="button" class="ControlPushButton"
+							<input type="button" class="btn"
 								name="clearDemographic" value="Clear selected demographic"
 								onclick='document.forms[0].demographic_no.value = ""; document.forms[0].selectedDemo.value = "none"' />
 							</td>
@@ -525,8 +546,8 @@ function fmtOscarMsg() {
 
 
 						<tr>
-							<td bgcolor="#EEEEFF"></td>
-							<td bgcolor="#EEEEFF" colspan="2">
+							<td></td>
+							<td colspan="2">
 								<strong>
 									Demographic(s) linked to this message
 								</strong>
@@ -535,15 +556,15 @@ function fmtOscarMsg() {
 						<c:if test="${ not empty unlinkedDemographics }">
 							<c:forEach items="${ unlinkedDemographics }" var="unlinkedDemographic" >
 								<tr id="unlinkedDemographicDetails" >
-									<td bgcolor="#EEEEFF"></td>
-									<td bgcolor="#EEEEFF"> 
+									<td></td>
+									<td> 
 										<input type="hidden" name="unlinkedIntegratorDemographicName" value="${ unlinkedDemographic.lastName }, ${ unlinkedDemographic.firstName }" />
 										<c:out value="${ unlinkedDemographic.lastName }" />, <c:out value="${ unlinkedDemographic.firstName }" /> <br />
 										<strong>Gender:</strong> <c:out value="${ unlinkedDemographic.gender }" /><br />
 										<strong>HIN:</strong> <c:out value="${ unlinkedDemographic.hin }" /><br />
 										<strong>File Location:</strong> <c:out value="${ demographicLocation }" />							
 									</td>
-									<td bgcolor="#EEEEFF">
+									<td>
 										<a title="Import" 
 											href="<%= request.getContextPath() %>/oscarMessenger/ImportDemographic.do?remoteFacilityId=${ unlinkedDemographic.integratorFacilityId }&remoteDemographicNo=${ unlinkedDemographic.caisiDemographicId }&messageID=${ viewMessageNo }" >
 										Import
@@ -556,16 +577,16 @@ function fmtOscarMsg() {
                         <c:forEach items="${ attachedDemographics }" var="demographic">
              			<c:set var="demographicNumber" value="${ demographic.key }" />
 							<tr>
-								<td bgcolor="#EEEEFF"></td>
-								<td bgcolor="#EEEEFF">
+								<td></td>
+								<td>
 								<input type="text" size="30" readonly
-									style="background: #EEEEFF; border: none"
+									style=" border: none"
 									value="${ demographic.value }" /> 
 								</td>
-								<td bgcolor="#EEEEFF">	
+								<td>	
 								<a href="javascript:popupViewAttach(700,960,'../demographic/demographiccontrol.jsp?demographic_no=${ demographic.key }&displaymode=edit&dboperation=search_detail')">M</a>
 									
-								<a href="javascript:void(0)" onclick="window.opener.location.href='../web/#/record/${ demographic.key }/summary'">E2</a>
+								<!--<a href="javascript:void(0)" onclick="window.opener.location.href='../web/#/record/${ demographic.key }/summary'">E2</a> -->
 								<%
 									//Hide old echart link
 									boolean showOldEchartLink = true;
@@ -630,18 +651,18 @@ function fmtOscarMsg() {
 								
 									
 									
-								<input type="button" class="ControlPushButton"
+								<input type="button" class="btn"
 									name="writeEncounter" value="Write to encounter"
 									onclick="popup( '${ demographic.key }','<%=request.getAttribute("viewMessageId")%>','<%=request.getAttribute("providerNo")%>','writeToEncounter')" />
 								</td>
 							</tr>
 							<tr>
-								<td bgcolor="#EEEEFF"></td>
-								<td bgcolor="#EEEEFF"><a
+								<td></td>
+								<td><a
 									href="javascript:popupStart(400,850,'../demographic/demographiccontrol.jsp?demographic_no=${ demographic.key }&last_name=<%=demoLastName%>&first_name=<%=demoFirstName%>&orderby=appointment_date&displaymode=appt_history&dboperation=appt_history&limit1=0&limit2=25','ApptHist')"
 									title="Click to see appointment history">Next Appt: <oscar:nextAppt
 									demographicNo="${ demographic.key }" /></a></td>
-								<td bgcolor="#EEEEFF"></td>
+								<td></td>
 							</tr>						
 						<% ++demoCount; %>						
 						</c:forEach>
@@ -663,7 +684,7 @@ function fmtOscarMsg() {
 </html:form>
 <%  String bodyTextAsHTML = (String) request.getAttribute("viewMessageMessage");
     bodyTextAsHTML = bodyTextAsHTML.replaceAll("\n|\r\n?","<br/>"); %>
-<p class="NotDisplayable Printable"><%= bodyTextAsHTML %></p>
+<p style="display:none;"><%= bodyTextAsHTML %></p>
 
 
 	<!-- Select demographic modal window for the import demographic process -->
