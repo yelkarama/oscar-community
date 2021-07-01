@@ -82,12 +82,16 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 <!-- calendar style sheet -->
 <link rel="stylesheet" type="text/css" media="all" href="<%=request.getContextPath()%>/share/calendar/calendar.css" title="win2k-cold-1" />
 
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/datepicker.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 
 <script type="text/javascript" src="<%=request.getContextPath()%>/share/javascript/prototype.js"></script>
 <script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/scriptaculous.js"></script>
 <script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/oscarMDSIndex.js"></script>
 
-<script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery-1.9.1.js"></script>
+<script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery-1.12.3.js"></script>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery-ui-1.10.2.custom.min.js"></script>
 <script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/jquery/jquery.form.js"></script>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery.tablesorter.js"></script>
@@ -104,7 +108,7 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
         <link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/share/yui/css/autocomplete.css"/>
         <link rel="stylesheet" type="text/css" media="all" href="<%=request.getContextPath()%>/share/css/demographicProviderAutocomplete.css"  />
         
-        <link rel="stylesheet" type="text/css" media="all" href="<%=request.getContextPath()%>/share/css/oscarMDSIndex.css"  />
+       <link rel="stylesheet" type="text/css" media="all" href="<%=request.getContextPath()%>/share/css/oscarMDSIndex.css"  /> 
 
   <script type="text/javascript" src="<%=request.getContextPath()%>/dms/showDocument.js"></script>        
 
@@ -115,7 +119,7 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 </title>
 <html:base/>
 
-<link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/oscarMDS/encounterStyles.css">
+<!--<link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/oscarMDS/encounterStyles.css">-->
 
 <script type="text/javascript" >
 	jQuery.noConflict();
@@ -337,6 +341,7 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 		//un_bold($("totalAll"));
 		currentBold = "totalAll";
 		refreshCategoryList();
+
 	});
 	function ForwardSelectedRows() {
 		var query = jQuery(document.reassignForm).formSerialize();
@@ -410,6 +415,13 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 
 
 <style type="text/css">
+    h4 {
+
+        font-size: large;
+    }
+    .subheader {
+        background-color:silver;
+    }
 	.multiPage {
 		background-color: RED;
 		color: WHITE;
@@ -436,13 +448,19 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 	.TDISRes	{font-weight: bold; font-size: 10pt; color: black; font-family:
                Verdana, Arial, Helvetica}
 </style>
+
+<script>
+
+
+
+</script>
 </head>
 
-<body oldclass="BodyStyle" vlink="#0000FF"  >
+<body oldclass="xBodyStyle"  >
     <form name="reassignForm" method="post" action="ReportReassign.do" id="lab_form">
         <table  oldclass="MainTable" id="scrollNumber1" border="0" name="encounterTable" cellspacing="0" cellpadding="3" width="100%">
-            <tr oldclass="MainTableTopRow">
-                <td class="MainTableTopRowRightColumn" colspan="10" align="left">
+            <tr oldclass="xMainTableTopRow">
+                <td class="xMainTableTopRowRightColumn" colspan="10" align="left">
                  <table width="100%">
 
                         <tr>
@@ -456,32 +474,39 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
                                 <input type="hidden" name="selectedProviders" />
                                 <input type="hidden" name="favorites" value="" />
                                 <input type="hidden" name="isListView" value="" />
-                                <input id="listSwitcher" type="button" style="display:none;" class="smallButton" value="<bean:message key="inboxmanager.document.listView"/>" onClick="switchView();" />
-                                <input id="readerSwitcher" type="button" class="smallButton" value="<bean:message key="inboxmanager.document.readerView"/>" onClick="switchView();" />
+<table width=100%>
+<tr><td valign="top">
+<h4>Inbox</h4>
+</td><td>
+                                <input id="listSwitcher" type="button" style="display:none;" class="btn" value="<bean:message key="inboxmanager.document.listView"/>" onClick="switchView();" />
+                                <input id="readerSwitcher" type="button" class="btn" value="<bean:message key="inboxmanager.document.readerView"/>" onClick="switchView();" />
                                 <% if (demographicNo == null) { %>
-                                    <input type="button" class="smallButton" value="<bean:message key="oscarMDS.index.btnSearch"/>" onClick="window.location='<%=request.getContextPath()%>/oscarMDS/Search.jsp?providerNo=<%= providerNo %>'" />
+                                    <input type="button" class="btn" value="<bean:message key="oscarMDS.index.btnSearch"/>" onClick="window.location='<%=request.getContextPath()%>/oscarMDS/Search.jsp?providerNo=<%= providerNo %>'" />
                                 <% } %>
-                                <input type="button" class="smallButton" value="<bean:message key="oscarMDS.index.btnClose"/>" onClick="wrapUp()" />
+                                <input type="button" class="btn" value="<bean:message key="oscarMDS.index.btnClose"/>" onClick="wrapUp()" />
+</td></tr>
+</table>
+
                       		</td>
 
                             <td align="right" valign="center" width="35%">
 								<span class="HelpAboutLogout">
-									<oscar:help keywords="&Title=Inbox&portal_type%3Alist=Document" key="app.top1" style="color: #FFFFFF"/>
-                                	| <a href="javascript:popupStart(300,400,'<%=request.getContextPath()%>/oscarEncounter/About.jsp')" style="color: #FFFFFF;" ><bean:message key="global.about"/></a>
+									<oscar:help keywords="&Title=Inbox&portal_type%3Alist=Document" key="app.top1" />
+                                	| <a href="javascript:popupStart(300,400,'<%=request.getContextPath()%>/oscarEncounter/About.jsp')" ><bean:message key="global.about"/></a>
 								</span>
-                                | <a href="javascript:parent.reportWindow('<%=request.getContextPath()%>/oscarMDS/ForwardingRules.jsp?providerNo=<%= providerNo %>');" style="color: #FFFFFF;" >Forwarding Rules</a>
-                                | <a href="javascript:popupStart(800,1000,'<%=request.getContextPath()%>/lab/CA/ALL/testUploader.jsp')" style="color: #FFFFFF; "><bean:message key="admin.admin.hl7LabUpload"/></a>
+                                | <a href="javascript:parent.reportWindow('<%=request.getContextPath()%>/oscarMDS/ForwardingRules.jsp?providerNo=<%= providerNo %>');"  >Forwarding Rules</a>
+                                | <a href="javascript:popupStart(800,1000,'<%=request.getContextPath()%>/lab/CA/ALL/testUploader.jsp')" ><bean:message key="admin.admin.hl7LabUpload"/></a>
                                 <% if (OscarProperties.getInstance().getBooleanProperty("legacy_document_upload_enabled", "true")) { %>
-                                | <a href="javascript:popupStart(600,500,'<%=request.getContextPath()%>/dms/html5AddDocuments.jsp')" style="color: #FFFFFF; "><bean:message key="inboxmanager.document.uploadDoc"/></a>
+                                | <a href="javascript:popupStart(600,500,'<%=request.getContextPath()%>/dms/html5AddDocuments.jsp')" ><bean:message key="inboxmanager.document.uploadDoc"/></a>
                                 <% } else { %>
-                                | <a href="javascript:popupStart(800,1000,'<%=request.getContextPath()%>/dms/documentUploader.jsp')" style="color: #FFFFFF; "><bean:message key="inboxmanager.document.uploadDoc"/></a>
+                                | <a href="javascript:popupStart(800,1000,'<%=request.getContextPath()%>/dms/documentUploader.jsp')"><bean:message key="inboxmanager.document.uploadDoc"/></a>
                                 <% } %>
 								<br />
-								<a href="javascript:popupStart(700,1100,'../dms/inboxManage.do?method=getDocumentsInQueues')" style="color: #FFFFFF;"><bean:message key="inboxmanager.document.pendingDocs"/></a>
-                                                                | <a href="javascript:popupStart(800,1000,'<%=request.getContextPath() %>/dms/incomingDocs.jsp')" style="color: #FFFFFF;" ><bean:message key="inboxmanager.document.incomingDocs"/></a>
-								| <a href="javascript:popupStart(800,1000, '<%=request.getContextPath() %>/oscarMDS/CreateLab.jsp')" style="color: #FFFFFF;"><bean:message key="global.createLab" /></a>
-                                | <a href="javascript:popupStart(1000,1300, '<%=request.getContextPath() %>/olis/Search.jsp')" style="color: #FFFFFF;"><bean:message key="olis.olisSearch" /></a>
-                                | <a href="javascript:popupPage(400, 400,'<html:rewrite page="/hospitalReportManager/hospitalReportManager.jsp"/>')" style="color: #FFFFFF;">HRM Status/Upload</a>
+								<a href="javascript:popupStart(700,1100,'../dms/inboxManage.do?method=getDocumentsInQueues')" ><bean:message key="inboxmanager.document.pendingDocs"/></a>
+                                                                | <a href="javascript:popupStart(800,1000,'<%=request.getContextPath() %>/dms/incomingDocs.jsp')"  ><bean:message key="inboxmanager.document.incomingDocs"/></a>
+								| <a href="javascript:popupStart(800,1000, '<%=request.getContextPath() %>/oscarMDS/CreateLab.jsp')" ><bean:message key="global.createLab" /></a>
+                                | <a href="javascript:popupStart(1000,1300, '<%=request.getContextPath() %>/olis/Search.jsp')" ><bean:message key="olis.olisSearch" /></a>
+                                | <a href="javascript:popupPage(400, 400,'<html:rewrite page="/hospitalReportManager/hospitalReportManager.jsp"/>')" >HRM Status/Upload</a>
 
                             </td>
                         </tr>
@@ -490,16 +515,16 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
             </tr>
         </table>
 
-        <table id="readerViewTable" style="table-layout: fixed;border-color: blue;border-width: thin;border-spacing: 0px;background-color: #E0E1FF" width="100%" border="1">
+        <table id="readerViewTable" style="table-layout: fixed;border-width: thin;border-spacing: 0px;" width="100%" border="1">
                                                      <col width="120">
                                                      <col width="100%">
-          <tr height="600px">
-              <td id="categoryList" valign="top" style="overflow:hidden;border-color: blue;border-width: thin;background-color: #E0E1FF" >
+          <tr>
+              <td id="categoryList" valign="top" style="overflow:hidden;border-width: thin; max-height: 100vh;" >
 <% } // end if(!ajax)
    else {
 %>
 					<input type="hidden" id="categoryHash" value="<%=categoryHash%>" />
-                    <div style="height:600px; overflow:auto;">
+                    <div style="height:auto; overflow:auto;">
                     <%
                     	//Enumeration en=patientIdNames.keys();
                         if((totalNumDocs) > 0){
@@ -546,12 +571,17 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 				         for (PatientInfo info : patients) {
 				                        String patientId= info.id + "";
 				                        String patientName= info.toString();
+                                        String[] names = patientName.split(", ");
+				                        String shortName= names[0]+" "+ names[1].charAt(0);
 				                        int numDocs= info.getDocCount() + info.getLabCount();
 				   %>
 
    					   <dt> <img id="plus<%=patientId%>" alt="plus" src="<%=request.getContextPath()%>/images/plus.png" onclick="showhideSubCat('plus','<%=patientId%>');"/>
        					    <img id="minus<%=patientId%>" alt="minus" style="display:none;" src="<%=request.getContextPath()%>/images/minus.png" onclick="showhideSubCat('minus','<%=patientId%>');"/>
-       						<a id="patient<%=patientId%>all" href="javascript:void(0);"  onclick="un_bold(this);changeView(CATEGORY_PATIENT,<%=patientId%>);" title="<%=patientName%>"><%=patientName%> (<span id="patientNumDocs<%=patientId%>"><%=numDocs%></span>)</a>
+       						<a id="patient<%=patientId%>all" href="javascript:void(0);"  onclick="un_bold(this);changeView(CATEGORY_PATIENT,<%=patientId%>);" 
+                            title="<%=patientName%>">
+                            <%=shortName%> (<span id="patientNumDocs<%=patientId%>"><%=numDocs%></span>)
+                            </a>
                     		<dl id="labdoc<%=patientId%>showSublist" style="display:none" >
                    <%if (info.getDocCount() > 0) {%>
                         		<dt>
@@ -607,8 +637,8 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 	if (!ajax) {
 %>
              </td>
-             <td style="width:100%;height:600px;background-color: #E0E1FF">
-                 <div id="docViews" style="width:100%;height:600px;overflow:auto;" onscroll="handleScroll(this)">
+             <td style="width:100%;height:auto;" valign="top">
+                 <div id="docViews" style="width:100%;height:auto;overflow:auto;" onscroll="handleScroll(this)">
 
                  </div>
              </td>
