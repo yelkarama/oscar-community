@@ -113,7 +113,7 @@ if(recall){
 <html:html locale="true">
 <head>
 <title><bean:message key="oscarMessenger.CreateMessage.title" /></title>
-
+<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 
 <style type="text/css">
     .subheader {
@@ -290,7 +290,7 @@ if(recall){
         </td>
         <td align="right" >
             <i class=" icon-question-sign"></i> 
-            <a href="javascript:void(0)" onClick ="popupOscarConsultationConfig(700,960,'<%=(OscarProperties.getInstance()).getProperty("HELP_SEARCH_URL")%>'+'Messenger')"><bean:message key="app.top1"/></a>
+            <a href="javascript:void(0)" onClick ="popupPage(700,960,'<%=(OscarProperties.getInstance()).getProperty("HELP_SEARCH_URL")%>'+'Messenger create')"><bean:message key="app.top1"/></a>
             <i class=" icon-info-sign" style="margin-left:10px;"></i> 
             <a href="javascript:void(0)"  onClick="window.open('<%=request.getContextPath()%>/oscarEncounter/About.jsp','About OSCAR','scrollbars=1,resizable=1,width=800,height=600,left=0,top=0')" ><bean:message key="global.about" /></a>
         </td>
