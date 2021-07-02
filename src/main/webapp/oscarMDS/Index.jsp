@@ -112,7 +112,16 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 
   <script type="text/javascript" src="<%=request.getContextPath()%>/dms/showDocument.js"></script>        
 
-
+<!-- important leave this last to override the css above -->
+<style>
+hr  {
+border: 1px solid red;
+margin:1px;
+}
+.Cell {
+background-color:silver;
+}
+</style>
 
 <title>
 <bean:message key="oscarMDS.index.title"/>
@@ -524,7 +533,7 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
    else {
 %>
 					<input type="hidden" id="categoryHash" value="<%=categoryHash%>" />
-                    <div style="height:auto; overflow:auto;">
+                    <div style="height:auto; max-height: 90vh; overflow:auto;">
                     <%
                     	//Enumeration en=patientIdNames.keys();
                         if((totalNumDocs) > 0){
@@ -638,7 +647,7 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 %>
              </td>
              <td style="width:100%;height:auto;" valign="top">
-                 <div id="docViews" style="width:100%;height:auto;overflow:auto;" onscroll="handleScroll(this)">
+                 <div id="docViews" style="width:100%;height:90vh;overflow:auto;" onscroll="handleScroll(this)">
 
                  </div>
              </td>
