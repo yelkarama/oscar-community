@@ -709,7 +709,7 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
 							    if(LabTicklers!=null && LabTicklers.size()>0){
 							    %>
 							    <div id="ticklerWrap" class="DoNotPrint">
-							    <h3 style="color:#fff"><a href="javascript:void(0)" id="open-ticklers" onclick="showHideItem('ticklerDisplay')">View Ticklers</a> Linked to this Lab</h3><br>
+							    <h4 style="color:#fff"><a href="javascript:void(0)" id="open-ticklers" onclick="showHideItem('ticklerDisplay')">View Ticklers</a> Linked to this Lab</h4><br>
 							    
 							           <div id="ticklerDisplay" style="display:none">
 							   <%
