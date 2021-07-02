@@ -134,7 +134,7 @@ String curUser_no = (String) session.getAttribute("user");
                         </tr>
 					</table>
 					 --%>
-					<div id="listViewDocs" style="height:auto; overflow:scroll;" onscroll="handleScroll(this)">
+					<div id="listViewDocs" style="max-height:850px; overflow-y:scroll;" onscroll="handleScroll(this)">
 					<style type="text/css">
 						#summaryView td, #summaryView th {
 							padding: 0px 5px;
@@ -314,7 +314,7 @@ String bgcolor="";
                                 else {
                         		%>
                                 <tr id="labdoc_<%=segmentID%>" bgcolor="<%=bgcolor%>" <%if(result.isDocument()){%> name="scannedDoc" <%} else{%> name="HL7lab" <%}%> class="<%= (result.isAbnormal() ? "AbnormalRes error" : "NormalRes" ) + " " + (result.isMatchedToPatient() ? "AssignedRes" : "UnassignedRes") %>">
-                                <td nowrap>
+                                <td nowrap width="15">
                                     <input type="hidden" id="totalNumberRow" value="<%=total_row_index+1%>">
                                     <input type="checkbox" name="flaggedLabs" value="<%=segmentID%>">
                                     <input type="hidden" name="labType<%=segmentID+result.labType%>" value="<%=result.labType%>"/>
