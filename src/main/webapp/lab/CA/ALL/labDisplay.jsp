@@ -701,6 +701,13 @@ input[type=button], button, input[id^='acklabel_']{ font-size:12px !important;pa
 <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 <!-- important leave this last to override the css above -->
 <style>
+body {
+    line-height: 12px;
+}
+pre {
+    padding:2px;
+    line-height: 12px;
+}
 hr  {
 border: 1px solid red;
 margin:1px;
@@ -2069,7 +2076,7 @@ for(int mcount=0; mcount<multiID.length; mcount++){
                             <tr>
                                 <td align="left" width="50%">
                                     <% if ( !ackFlag ) { %>
-                                    <input type="button" class="btn" value="<bean:message key="oscarMDS.segmentDisplay.btnAcknowledge" />" onclick="<%=ackLabFunc%>" >
+                                    <input type="button" class="btn btn-primary" value="<bean:message key="oscarMDS.segmentDisplay.btnAcknowledge" />" onclick="<%=ackLabFunc%>" >
                                     <input type="button" class="btn" value="<bean:message key="oscarMDS.segmentDisplay.btnComment"/>" onclick="return getComment('addComment',<%=segmentID%>);">
                                     <% } %>
                                     <input type="button" class="btn" value="<bean:message key="oscarMDS.index.btnForward"/>" onClick="popupStart(397, 700, '../../../oscarMDS/SelectProvider.jsp?docId=<%=segmentID%>&labDisplay=true', 'providerselect')">
