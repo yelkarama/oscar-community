@@ -114,23 +114,37 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 
 <!-- important leave this last to override the css above -->
 <style>
-body {
-    line-height: 12px;
-}
-pre {
-    padding:2px;
-    line-height: 12px;
-}
-hr  {
-border: 1px solid red;
-margin:1px;
-}
-.Cell {
-background-color:silver;
-}
-.Field2 {
-    color:black;
-}
+    form {
+        margin: 0px;
+    }
+
+    body {
+        line-height: 12px;
+    }
+
+    pre {
+        padding:2px;
+        line-height: 12px;
+    }
+
+    hr  {
+        border: 1px solid black;
+        margin:1px;
+    }
+
+    .Cell {
+        background-color:silver;
+        border: black;
+    }
+
+    .Field2 {
+        
+    }
+
+    .MainTableTopRowRightColumn {
+        background-color: silver;
+    }
+
 </style>
 
 <title>
