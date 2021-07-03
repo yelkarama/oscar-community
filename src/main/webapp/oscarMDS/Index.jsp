@@ -114,12 +114,22 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 
 <!-- important leave this last to override the css above -->
 <style>
+body {
+    line-height: 12px;
+}
+pre {
+    padding:2px;
+    line-height: 12px;
+}
 hr  {
 border: 1px solid red;
 margin:1px;
 }
 .Cell {
 background-color:silver;
+}
+.Field2 {
+    color:black;
 }
 </style>
 
@@ -484,7 +494,7 @@ background-color:silver;
                                 <input type="hidden" name="favorites" value="" />
                                 <input type="hidden" name="isListView" value="" />
 <table width=100%>
-<tr><td valign="top">
+<tr><td valign="top" width="120px">
 <h4>Inbox</h4>
 </td><td>
                                 <input id="listSwitcher" type="button" style="display:none;" class="btn" value="<bean:message key="inboxmanager.document.listView"/>" onClick="switchView();" />
@@ -498,7 +508,7 @@ background-color:silver;
 
                       		</td>
 
-                            <td align="right" valign="center" width="35%">
+                            <td align="right" valign="center" width="40%">
 								<span class="HelpAboutLogout">
 									<oscar:help keywords="&Title=Inbox&portal_type%3Alist=Document" key="app.top1" />
                                 	| <a href="javascript:popupStart(300,400,'<%=request.getContextPath()%>/oscarEncounter/About.jsp')" ><bean:message key="global.about"/></a>
@@ -528,12 +538,12 @@ background-color:silver;
                                                      <col width="120">
                                                      <col width="100%">
           <tr>
-              <td id="categoryList" valign="top" style="overflow:hidden;border-width: thin; max-height: 100vh;" >
+              <td id="categoryList" valign="top" style="overflow:hidden;border-width: thin; max-height: 100vh; min-width: 140px;" >
 <% } // end if(!ajax)
    else {
 %>
 					<input type="hidden" id="categoryHash" value="<%=categoryHash%>" />
-                    <div style="height:auto; max-height: 90vh; overflow:auto;">
+                    <div style="height:auto; max-height: 96vh; overflow:auto; min-width: 140px;">
                     <%
                     	//Enumeration en=patientIdNames.keys();
                         if((totalNumDocs) > 0){
@@ -647,7 +657,7 @@ background-color:silver;
 %>
              </td>
              <td style="width:100%;height:auto;" valign="top">
-                 <div id="docViews" style="width:100%;height:90vh;overflow:auto;" onscroll="handleScroll(this)">
+                 <div id="docViews" style="width:100%;height:96vh;overflow:auto;" onscroll="handleScroll(this)">
 
                  </div>
              </td>
