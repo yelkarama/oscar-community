@@ -1067,7 +1067,7 @@ window.onbeforeunload = onClosing;
 				readonly value=""><br>
 			<div style="margin-top: 5px; text-align: center">
 				<input type="submit" id="printOp" style="border: 1px solid #7682b1;"
-					value="Print" onclick="return printNotes();">
+					value="PDF" onclick="return printNotes();">
 				
 					<indivo:indivoRegistered
 						demographic="<%=(String) request.getAttribute(\"demographicNo\")%>"
