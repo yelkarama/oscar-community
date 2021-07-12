@@ -333,6 +333,8 @@
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery.js"></script>
 <title><bean:message
 	key="appointment.appointmentgrouprecords.title" /></title>
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+
 <script language="JavaScript">
 <!--
 
@@ -402,42 +404,19 @@ function onSub() {
 <form name="groupappt" method="POST"
 	action="appointmentgrouprecords.jsp" onSubmit="return ( onSub());">
 <INPUT TYPE="hidden" NAME="groupappt" value="">
-<table width="100%" BGCOLOR="silver">
-	<tr>
-		<TD>
-		<%    if (bEdit) {    %> <INPUT TYPE="button"
-			onclick="document.forms['groupappt'].groupappt.value='Group Update'; document.forms['groupappt'].submit();"
-			VALUE="<bean:message key="appointment.appointmentgrouprecords.btnGroupUpdate"/>">
-		<INPUT TYPE="button"
-			onclick="document.forms['groupappt'].groupappt.value='Group Cancel'; document.forms['groupappt'].submit();"
-			VALUE="<bean:message key="appointment.appointmentgrouprecords.btnGroupCancel"/>">
-		<INPUT TYPE="button"
-			onclick="document.forms['groupappt'].groupappt.value='Group Delete'; document.forms['groupappt'].submit();"
-			VALUE="<bean:message key="appointment.appointmentgrouprecords.btnGroupDelete"/>"
-			onClick="onButDelete()"> <%    } else {    %> <INPUT
-			TYPE="button"
-			onclick="document.forms['groupappt'].groupappt.value='Add Group Appointment'; document.forms['groupappt'].submit();"
-			VALUE="<bean:message key="appointment.appointmentgrouprecords.btnAddGroupAppt"/>">
-		<%    }    %>
-		</TD>
-		<TD align="right"><INPUT TYPE="button"
-			VALUE=" <bean:message key="global.btnBack"/> "
-			onClick="window.history.go(-1);return false;"> <INPUT
-			TYPE="button" VALUE=" <bean:message key="global.btnExit"/> "
-			onClick="onExit()"></TD>
-	</tr>
-</table>
 
-<table border=0 cellspacing=0 cellpadding=0 width="100%">
-	<tr bgcolor="<%=deepcolor%>">
-		<th><font face="Helvetica"><bean:message
-			key="appointment.appointmentgrouprecords.msgLabel" /></font></th>
+
+<table >
+	<tr >
+		<H4>&nbsp;<font face="Helvetica"><bean:message
+			key="appointment.appointmentgrouprecords.msgLabel" /></font></H4>
 	</tr>
 	<tr  id="double-booking-row" style="display: none; background-color: gold; color: red">
 		<th><bean:message key="appointment.addappointment.msgDoubleBooking" /></th>
 	</tr>
 </table>
-
+<div class="container-fluid well" >   
+    <div class ="span9">
 <%
     Properties otherAppt = new Properties();
 	String eApptDate = request.getParameter("appointment_date");
@@ -509,7 +488,7 @@ function onSub() {
   	    out.println("<input type='hidden' name='"+temp+"' value=\"" + UtilMisc.htmlEscape(request.getParameter(temp)) + "\">");
     }
 %>
-<table border=0 cellspacing=0 cellpadding=0 width="100%">
+<table >
 	<tr>
 		<td nowrap><font color='black'><%=request.getParameter("appointment_date")%>
 		| <%=request.getParameter("start_time")%> - <%=request.getParameter(MyDateFormat.getTimeXX_XXampm("end_time"))%>
@@ -517,8 +496,8 @@ function onSub() {
 		<td align='right' nowrap>Group : <%=mygroupno%></td>
 	</tr>
 </table>
-<table BORDER="0" CELLPADDING="2" CELLSPACING="2" WIDTH="100%"
-	BGCOLOR="white">
+<table BORDER="0" CELLPADDING="2" CELLSPACING="2" 
+	BGCOLOR="white" class="table table-hover table-condensed">
 	<tr BGCOLOR="<%=tableTitle%>">
 		<th width=30% nowrap><bean:message
 			key="appointment.appointmentgrouprecords.msgProviderName" /></th>
@@ -584,8 +563,8 @@ function onSub() {
 	  i = 0;
     }
 %>
-	<tr bgcolor='silver'>
-		<td align='right' colspan=2><a href=#
+	<tr>
+		<td style='text-align:right;' colspan=2><a href=#
 			onClick='checkAll("one", "true", "two"); return false;'>Check All</a>
 		|<a href=# onClick='checkAll("one", "false", "two"); return false;'>Clear
 		All</a></td>
@@ -596,32 +575,33 @@ function onSub() {
 	</tr>
 </table>
 
-<table width="100%" BGCOLOR="silver">
+<table width="100%" >
 	<tr>
 		<TD>
-		<%    if (bEdit) {    %> <INPUT TYPE="button"
+		<%    if (bEdit) {    %> <INPUT TYPE="button" class="btn btn-primary"
 			onclick="document.forms['groupappt'].groupappt.value='Group Update'; document.forms['groupappt'].submit();"
 			VALUE="<bean:message key="appointment.appointmentgrouprecords.btnGroupUpdate"/>">
-		<INPUT TYPE="button"
+		<INPUT TYPE="button" class="btn"
 			onclick="document.forms['groupappt'].groupappt.value='Group Cancel'; document.forms['groupappt'].submit();"
 			VALUE="<bean:message key="appointment.appointmentgrouprecords.btnGroupCancel"/>">
-		<INPUT TYPE="button"
+		<INPUT TYPE="button"  class="btn"
 			onclick="document.forms['groupappt'].groupappt.value='Group Delete'; document.forms['groupappt'].submit();"
 			VALUE="<bean:message key="appointment.appointmentgrouprecords.btnGroupDelete"/>"
 			onClick="onButDelete()"> <%    } else {    %> <INPUT
-			TYPE="button"
+			TYPE="button" class="btn btn-primary"
 			onclick="document.forms['groupappt'].groupappt.value='Add Group Appointment'; document.forms['groupappt'].submit();"
 			VALUE="<bean:message key="appointment.appointmentgrouprecords.btnAddGroupAppt"/>">
 		<%    }    %>
 		</TD>
-		<TD align="right"><INPUT TYPE="button"
+		<TD align="right"><INPUT TYPE="button"  class="btn"
 			VALUE=" <bean:message key="global.btnBack"/> "
-			onClick="window.history.go(-1);return false;"> <INPUT
-			TYPE="button" VALUE=" <bean:message key="global.btnExit"/> "
+			onClick="window.history.go(-1);return false;"> 
+            <INPUT TYPE="button" class="btn btn-link" 
+            VALUE=" <bean:message key="global.btnCancel"/> "
 			onClick="onExit()"></TD>
 	</tr>
 </table>
-
+</div></div>
 </form>
 </body>
 </html:html>

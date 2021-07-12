@@ -117,6 +117,13 @@
 
 <html>
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/datepicker.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
+
+
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="appointment.searchnext.title" /></title>
 <link rel="stylesheet" href="../web.css">
@@ -140,7 +147,7 @@ function popupPage2(varpage, windowname, vheight, vwidth) {
 
 function selectSlot(providerNo,year,month,day,startTime,endTime,duration) {
 	var queryString = '<%=request.getContextPath()%>/appointment/addappointment.jsp?provider_no='+providerNo + '&year='+year+'&month='+month+'&day='+day+'&start_time='+startTime+'&end_time='+endTime+'&duration='+duration;
-	popupPage2(queryString, 'appointment', 400, 780);
+	popupPage2(queryString, 'appointment', 641, 791);
 
 }
 
@@ -156,15 +163,13 @@ function validate() {
 </script>
 </head>
 
-<body bgcolor="ivory" bgproperties="fixed" onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
+<body bgproperties="fixed" onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
 
-<table border="0" cellspacing="0" cellpadding="0" width="100%">
-	<tr>
-		<th NOWRAP bgcolor="#CCCCFF">
-			<font face="Helvetica"><bean:message key="appointment.searchnext.2ndtitle" /></font>
-		</th>
-	</tr>
-</table>
+
+		<h4>
+			&nbsp;<bean:message key="appointment.searchnext.2ndtitle" />
+		<h4>
+
 <form name="searchForm" action="<%=request.getContextPath()%>/appointment/appointmentsearch.jsp" method="get" onsubmit="return validate()">
 <input type="hidden" name="method" value="search"/>
 <table width="100%" border="0">
@@ -204,7 +209,7 @@ function validate() {
 	<tr>
 		<td><bean:message key="appointment.searchnext.time_of_day" />:</td>
 		<td>
-			<select name="startTime">
+			<select name="startTime" style="width: 90px">
 				<%
 					for(LabelValueBean lvb:startTimeOfDayOptions) {
 						String selected = new String();
@@ -216,7 +221,7 @@ function validate() {
 				%>
 			</select>
 			&nbsp;<bean:message key="appointment.searchnext.to" />&nbsp;
-			<select name="endTime">
+			<select name="endTime" style="width: 90px">
 				<%
 					for(LabelValueBean lvb:endTimeOfDayOptions) {
 						String selected = new String();
@@ -263,10 +268,10 @@ function validate() {
 		</td>
 	</tr>
 	<tr>
-		<td colspan="2">
-			<input type="submit" value="Search" />
+		<td ></td><td>
+			<input type="submit" value="<bean:message key="global.search" />" class="btn btn-primary" />
 			&nbsp;&nbsp;
-			<input type="button" value="Close" onclick="window.close();window.opener.location.reload();"/>
+			<input type="button" value="<bean:message key="global.btnCancel" />" onclick="window.close();window.opener.location.reload();" class="btn btn-link"/>
 		</td>
 	</tr>
 </table>
@@ -274,8 +279,8 @@ function validate() {
 
 <%if(results != null)  { %>
 <CENTER>
-<table width="100%" border="1" bgcolor="#ffffff" cellspacing="1" cellpadding="0">
-	<tr bgcolor="#CCCCFF">
+<table width="100%" border="1" class="table table-bordered table-hover table-striped" cellspacing="1" cellpadding="0">
+	<tr >
 		<TH width="20%"><bean:message key="appointment.searchnext.date" /></TH>
 		<TH width="20%"><bean:message key="appointment.searchnext.time" /></TH>
 		<TH width="60%"><bean:message key="appointment.searchnext.provider" /></TH>
@@ -283,7 +288,7 @@ function validate() {
 	<%for(int x=0;x<Math.min(results.size(),Integer.parseInt(numberOfResults));x++)  {
 		NextAppointmentSearchResult result = results.get(x);
 	%>
-		<tr onmouseover="this.style.cursor='hand';this.style.backgroundColor='pink';" onmouseout="this.style.backgroundColor='#FFFFFF';" onclick="selectSlot('<%=result.getProviderNo()%>','<%=result.getYear()%>','<%=result.getMonth()%>','<%=result.getDay()%>','<%=result.getStartTime()%>','<%=result.getEndTime()%>','<%=result.getDuration()%>');">
+		<tr onclick="selectSlot('<%=result.getProviderNo()%>','<%=result.getYear()%>','<%=result.getMonth()%>','<%=result.getDay()%>','<%=result.getStartTime()%>','<%=result.getEndTime()%>','<%=result.getDuration()%>');">
 			<td><%=dayFormatter.format(result.getDate()) %></td>
 			<td><%=timeFormatter.format(result.getDate()) %></td>
 			<td><%=result.getProvider().getFormattedName() %></td>

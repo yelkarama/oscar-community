@@ -40,6 +40,7 @@
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@page import="org.oscarehr.util.MiscUtils"%>
+<%@ page import="oscar.OscarProperties"%>
 <%
       String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
 	  boolean authed=true;
@@ -112,11 +113,12 @@ if(recall){
 <html:html locale="true">
 <head>
 <title><bean:message key="oscarMessenger.CreateMessage.title" /></title>
-
-<link rel="stylesheet" type="text/css" href="encounterStyles.css">
-<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
+<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 
 <style type="text/css">
+    .subheader {
+	    background-color:silver;
+	}
 
 	summary {
 		cursor: pointer;
@@ -134,15 +136,17 @@ if(recall){
 	}
 </style>
 
-<script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery-1.7.1.min.js"></script>
-<script src="<%=request.getContextPath()%>/js/jquery-ui-1.8.18.custom.min.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery-1.12.3.js" ></script>
+ 
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 
 <script type="text/javascript">
 
     function checkGroup(group)
     {
     	$.each($("input." + group.id), function(){
-    	    $(this).attr("checked", $(group).attr("checked") ? "checked" : false);
+            $(this).prop("checked", $(group).prop("checked") ? "checked" : false);
 		})
     }
 
@@ -272,98 +276,78 @@ if(recall){
 	 	 
 </script>
 </head>
-<body class="BodyStyle" vlink="#0000FF">
-<table class="MainTable" id="scrollNumber1">
-	<tr class="MainTableTopRow">
-		<td class="MainTableTopRowLeftColumn">
-		<bean:message key="oscarMessenger.CreateMessage.msgMessenger" />
-		</td>
-		<td class="MainTableTopRowRightColumn">
-		<table class="TopStatusBar">
-			<tr>
-				<td><h2><bean:message key="oscarMessenger.CreateMessage.msgCreate" /></h2>
-				</td>
-				<td>&nbsp;</td>
-				<td style="text-align: right">
-				<oscar:help keywords="message" key="app.top1"/> | 
-				<a href="javascript:void(0)" onclick="javascript:popupPage(600,700,'../oscarEncounter/About.jsp')"><bean:message key="global.about" /></a>
-			   </td>
-			</tr>
-		</table>
-		</td>
-	</tr>
+<body class="BodyStyle" >
+
+
+<table width=100%>
+    <tr>
+        <td valign="top">
+            <h4>&nbsp;<bean:message key="oscarMessenger.DisplayMessages.msgMessenger"/>:&nbsp;
+            <bean:message key="oscarMessenger.CreateMessage.msgCreate" />
+            </h4>  	
+        </td>
+        <td>
+        </td>
+        <td align="right" >
+            <i class=" icon-question-sign"></i> 
+            <a href="javascript:void(0)" onClick ="popupPage(700,960,'<%=(OscarProperties.getInstance()).getProperty("HELP_SEARCH_URL")%>'+'Messenger create')"><bean:message key="app.top1"/></a>
+            <i class=" icon-info-sign" style="margin-left:10px;"></i> 
+            <a href="javascript:void(0)"  onClick="window.open('<%=request.getContextPath()%>/oscarEncounter/About.jsp','About OSCAR','scrollbars=1,resizable=1,width=800,height=600,left=0,top=0')" ><bean:message key="global.about" /></a>
+        </td>
+    </tr>
+</table>
+
+<table class="MainTable" id="scrollNumber1" width="100%">
+
 	<tr>
-		<td class="MainTableLeftColumn">&nbsp;</td>
 		<td class="MainTableRightColumn">
-		<table>
+		<table width=100%">
 
 			<tr>
-				<td>
-				<table cellspacing=3>
-					<tr>
+
 						<td>
-						<table class=messButtonsA cellspacing=0 cellpadding=3>
-							<tr>
-								<td class="messengerButtonsA"><html:link
-									page="/oscarMessenger/DisplayMessages.jsp"
-									styleClass="messengerButtons">
-									<bean:message key="oscarMessenger.ViewMessage.btnInbox" />
-								</html:link></td>
-							</tr>
-						</table>
+						    <a class="btn" href="<%=request.getContextPath()%>/oscarMessenger/DisplayMessages.jsp">
+								<bean:message key="oscarMessenger.ViewMessage.btnInbox" />
+							</a>
+                            <a class="btn" href="<%=request.getContextPath()%>/oscarMessenger/ClearMessage.do">
+								<bean:message key="oscarMessenger.CreateMessage.btnClear" />
+							</a>
+                            <a href="javascript:BackToOscar()" class="btn">
+                                <bean:message key="oscarMessenger.CreateMessage.btnExit" />
+                            </a>
+                            <br>&nbsp;
 						</td>
-						<td>
-						<table class=messButtonsA cellspacing=0 cellpadding=3>
-							<tr>
-								<td class="messengerButtonsA"><html:link
-									page="/oscarMessenger/ClearMessage.do"
-									styleClass="messengerButtons">
-									<bean:message key="oscarMessenger.CreateMessage.btnClear" />
-								</html:link></td>
-							</tr>
-						</table>
-						</td>
-						<td>
-						<table class=messButtonsA cellspacing=0 cellpadding=3>
-							<tr>
-								<td class="messengerButtonsA"><a
-									href="javascript:BackToOscar()" class="messengerButtons"><bean:message
-									key="oscarMessenger.CreateMessage.btnExit" /></a></td>
-							</tr>
-						</table>
-						</td>
-					</tr>
-				</table>
-				</td>
+
+
 			</tr>
 
 			<tr>
-				<td>
+				<td colspan="3">
 				<html:form action="/oscarMessenger/CreateMessage" onsubmit="return validatefields()">
-				<table>
-						<tr>
-							<th bgcolor="#DDDDFF" width="75"><bean:message
+				<table class="well" width="100%">
+						<tr class="subheader">
+							<th><bean:message
 								key="oscarMessenger.CreateMessage.msgRecipients" /></th>
-							<th colspan="2" align="left" bgcolor="#DDDDFF"><bean:message
+							<th colspan="2" align="left"><bean:message
 								key="oscarMessenger.CreateMessage.msgMessage" /></th>
 						</tr>
 						<tr>
 						
-						<td bgcolor="#EEEEFF" valign=top>
+						<td valign=top><br>
 							<table>
 								<tr>
-									<td><input type="submit" class="ControlPushButton"
+									<td><input type="submit" class="btn btn-primary"
 										value="<bean:message key="oscarMessenger.CreateMessage.btnSendMessage"/>">
 									</td>
-									<td><input type="button" class="ControlPushButton"
+									<td><input type="button" class="btn"
 										value="<bean:message key="oscarMessenger.CreateMessage.btnSendnArchiveMessage"/>" onClick="XMLHttpRequestSendnArch()">
 									</td>
 								</tr>
 							</table>
-							<div class="ChooseRecipientsBox">
+							<div class="ChooseRecipientsBox" style="max-height: 450px; overflow-y: scroll;">
 							<table>                                                     
                                 <tr>
-								<td style="padding: 10px 5px;"><!--list of the providers cell Start-->												
+								<td style="padding: 10px 5px;"  class="form-inline"><!--list of the providers cell Start-->												
 									<%if(recall){ %>
 										<div>
 											<input name="provider" value="<%=delegate%>" type="checkbox" checked> 
@@ -477,11 +461,12 @@ if(recall){
 							</table>
 						</div> <!-- end ChooseRecipientsBox -->
 					</td>
-					<td bgcolor="#EEEEFF" valign=top colspan="2"><!--Message and Subject Cell-->
+					<td valign=top colspan="2"><!--Message and Subject Cell-->
+                    <br>
 					<bean:message key="oscarMessenger.CreateMessage.formSubject" /> :
-					<html:text name="msgCreateMessageForm" property="subject" size="67" value="${messageSubject}"/> <br>
+					<html:text name="msgCreateMessageForm" property="subject" styleClass="input-large" value="${messageSubject}"/> <br>
 					<br>
-					<html:textarea name="msgCreateMessageForm" property="message" cols="60" rows="18" value="${messageBody}"/> 
+					<html:textarea name="msgCreateMessageForm" property="message" rows="18" style="min-width: 100%" value="${messageBody}"/> 
 					<%
                        String att = bean.getAttachment();
                        String pdfAtt = bean.getPDFAttachment();
@@ -498,35 +483,35 @@ if(recall){
 				</tr>
 
 				<tr>
-					<td bgcolor="#B8B8FF"></td>
-					<td bgcolor="#B8B8FF" colspan="2"><font style="font-weight: bold"><bean:message key="oscarMessenger.CreateMessage.msgLinkThisMessage" /></font></td>
+					<td class="subheader"></td>
+					<td class="subheader" colspan="2"><font style="font-weight: bold"><bean:message key="oscarMessenger.CreateMessage.msgLinkThisMessage" /></font></td>
 				</tr>
                                                       
 				<tr>
-					<td bgcolor="#EEEEFF"></td>
-					<td bgcolor="#EEEEFF">
-                      <input type="text" name="keyword" size="30" /> <input type="hidden" name="demographic_no" value="<%=demographic_no%>" /> 
+					<td><br><br>&nbsp;</td>
+					<td>
+                      <input type="text" name="keyword" class="input-medium" /> <input type="hidden" name="demographic_no" value="<%=demographic_no%>" /> 
                     </td>
-	                <td bgcolor="#EEEEFF"> 
-                      <input type="button" class="ControlPushButton" name="searchDemo" value="<bean:message key="oscarMessenger.CreateMessage.msgSearchDemographic" />" onclick="popupSearchDemo(document.forms[0].keyword.value)" />
+	                <td> 
+                      <input type="button" class="btn" name="searchDemo" value="<bean:message key="oscarMessenger.CreateMessage.msgSearchDemographic" />" onclick="popupSearchDemo(document.forms[0].keyword.value)" />
                   	</td>
 				</tr>
 				<tr>
-					<td bgcolor="#EEEEFF"></td>
-					<td bgcolor="#EEEEFF" colspan="2"><font style="font-weight: bold"><bean:message key="oscarMessenger.CreateMessage.msgSelectedDemographic" /></font></td>
+					<td></td>
+					<td colspan="2"><font style="font-weight: bold"><bean:message key="oscarMessenger.CreateMessage.msgSelectedDemographic" /></font></td>
 				</tr>
 				<tr>
-					<td bgcolor="#EEEEFF"></td>
+					<td></td>
 					
-					<td bgcolor="#EEEEFF">
+					<td>
 
 						<c:choose>					
 							<c:when test="${ not empty unlinkedIntegratorDemographicName }">
 								<input type="text" name="selectedDemo" value="${ unlinkedIntegratorDemographicName }" 
-									size="30" style="background: #EEEEFF; border: none;" readonly />
+									class="input-medium" style="border: none;" readonly />
 							</c:when>
 							<c:otherwise>
-								<input type="text" name="selectedDemo" size="30" readonly style="background: #EEEEFF; border: none" value="none" /> 
+								<input type="text" name="selectedDemo" class="input-medium" readonly style="border: none" value="none" /> 
 								<script type="text/javascript">
 			                          if ( "<%=demoName%>" != "null" && "<%=demoName%>" != "") {
 			                              document.forms[0].selectedDemo.value = "<%=demoName%>";
@@ -537,12 +522,12 @@ if(recall){
 						</c:choose>
 				           
 	                </td>
-	                <td bgcolor="#EEEEFF"> 
+	                <td> 
                     <input type="button"
-						class="ControlPushButton" name="clearDemographic"
+						class="btn" name="clearDemographic"
 						value="<bean:message key="oscarMessenger.CreateMessage.msgClearSelectedDemographic" />"
 						onclick='document.forms[0].demographic_no.value = ""; document.forms[0].selectedDemo.value = "none"' />
-					<input type="button" class="ControlPushButton" name="attachDemo"
+					<input type="button" class="btn" name="attachDemo"
 						value="<bean:message key="oscarMessenger.CreateMessage.msgAttachDemographic" />"
 						onclick="popupAttachDemo(document.forms[0].demographic_no.value)"
 						style="display: " />

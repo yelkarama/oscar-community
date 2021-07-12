@@ -655,18 +655,11 @@ function parseSearch() {
                 displayStyle="display:block";
             }
 %>
-
-<div id="tooManySameDayGroupApptWarning" >
-    <table width="98%" class="alert alert-error" align='center'>
-        <tr>
-            <th>
-                
-                    <bean:message key='appointment.addappointment.titleMultipleGroupDayBooking'/><br/>
-                    <bean:message key='appointment.addappointment.MultipleGroupDayBooking'/>
-                
-            </th>
-        </tr>
-    </table>
+  <div id="tooManySameDayGroupApptWarning" style="<%=displayStyle%>">
+    <div class="alert alert-error" >
+        <h4><bean:message key='appointment.addappointment.titleMultipleGroupDayBooking'/></h4>
+        <bean:message key='appointment.addappointment.MultipleGroupDayBooking'/>
+    </div>
 </div>
  <%
         }
@@ -748,8 +741,21 @@ function parseSearch() {
         </tr>
         <tr>
             <td>
-                <a href="#"onclick="demographicdetail(550,700)">
-                    <bean:message key="Appointment.formName" /></a>:
+                <%
+                    String searchMode = request.getParameter("search_mode");
+                    if (searchMode == null || searchMode.isEmpty()) {
+                        searchMode = OscarProperties.getInstance().getProperty("default_search_mode","search_name");
+                    }
+                %>
+        		<INPUT TYPE="hidden" NAME="orderby" VALUE="last_name, first_name">
+                <INPUT TYPE="hidden" NAME="search_mode" id="search_mode" VALUE="<%=searchMode%>">
+                <INPUT TYPE="hidden" NAME="originalpage" VALUE="../appointment/editappointment.jsp">
+                <INPUT TYPE="hidden" NAME="limit1" VALUE="0">
+                <INPUT TYPE="hidden" NAME="limit2" VALUE="5">
+                <INPUT TYPE="hidden" NAME="ptstatus" VALUE="active">
+                <INPUT TYPE="submit" name="searchBtn" id="searchBtn" class="btn" style="margin-bottom:10px;"
+					onclick="parseSearch();document.forms['EDITAPPT'].displaymode.value='Search '"
+                    value="<bean:message key="appointment.editappointment.btnSearch"/>"> 
             </td>
             <td>
             	<INPUT TYPE="TEXT" NAME="keyword"
@@ -960,21 +966,8 @@ function parseSearch() {
         </tr>
         <tr>
             <td> 
-		<INPUT TYPE="hidden" NAME="orderby" VALUE="last_name, first_name">
-                <%
-                    String searchMode = request.getParameter("search_mode");
-                    if (searchMode == null || searchMode.isEmpty()) {
-                        searchMode = OscarProperties.getInstance().getProperty("default_search_mode","search_name");
-                    }
-                %>
-                <INPUT TYPE="hidden" NAME="search_mode" id="search_mode" VALUE="<%=searchMode%>">
-                <INPUT TYPE="hidden" NAME="originalpage" VALUE="../appointment/editappointment.jsp">
-                <INPUT TYPE="hidden" NAME="limit1" VALUE="0">
-                <INPUT TYPE="hidden" NAME="limit2" VALUE="5">
-                <INPUT TYPE="hidden" NAME="ptstatus" VALUE="active">
-                <INPUT TYPE="submit" name="searchBtn" id="searchBtn" class="btn" style="margin-bottom:10px;"
-					onclick="parseSearch();document.forms['EDITAPPT'].displaymode.value='Search '"
-                    value="<bean:message key="appointment.editappointment.btnSearch"/>">                
+                <a href="#"onclick="demographicdetail(550,700)" class="btn btn-link" style="padding-left:0px;">
+                    <bean:message key="global.master" /></a>              
             </td>
             <td>   
                 <input type="TEXT" name="demographic_no"
@@ -1138,7 +1131,7 @@ function parseSearch() {
 			        value="<bean:message key="appointment.addappointment.btnRepeat"/>"
 			        onclick="onButRepeat()">
             <% }%>
-            <input type="button" name="Button" class="btn btn-link" value="<bean:message key="global.btnCancel"/>" onClick="self.close()"></td>
+            <input type="button" name="Button" class="btn btn-link" value="<bean:message key="global.btnExit"/>" onClick="self.close()"></td>
                <% }%>
 
 	</tr>
@@ -1356,6 +1349,6 @@ jQuery(document).ready(function(){
 	} 
 });
 
-</script>
+</script> 
 
 </html:html>

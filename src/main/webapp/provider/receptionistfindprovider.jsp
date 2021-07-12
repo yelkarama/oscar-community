@@ -101,6 +101,7 @@
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="receptionist.receptionistfindprovider.title" /></title>
 <link rel="stylesheet" href="../web.css">
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 <script language="JavaScript">
 
 
@@ -129,27 +130,22 @@ function selectProviderCustom(p,pn) {
 <body bgcolor="ivory" bgproperties="fixed" onLoad="setfocus()"
 	topmargin="0" leftmargin="0" rightmargin="0">
 
-<table border="0" cellspacing="0" cellpadding="0" width="100%">
-	<tr>
-		<th NOWRAP bgcolor="#CCCCFF"><font face="Helvetica"><bean:message
-			key="receptionist.receptionistfindprovider.2ndtitle" /></font></th>
-	</tr>
-</table>
+<H4>&nbsp;<bean:message
+			key="receptionist.receptionistfindprovider.2ndtitle" /></H4>
 
 <table width="100%" border="0">
 	<tr>
 		<td align="left"><i><bean:message
 			key="receptionist.receptionistfindprovider.keywords" /></i> <%=providername%></td>
-		<td align="right"><INPUT TYPE="SUBMIT" NAME="displaymode"
-			VALUE="<bean:message key="receptionist.receptionistfindprovider.btnExit"/>"
+		<td align="right"><INPUT TYPE="SUBMIT" class="btn btn-link" NAME="displaymode"
+			VALUE="<bean:message key="global.btnCancel"/>"
 			SIZE="17" onClick="window.close();"></td>
 	</tr>
 </table>
 
 <CENTER>
-<table width="100%" border="1" bgcolor="#ffffff" cellspacing="1"
-	cellpadding="0">
-	<tr bgcolor="#CCCCFF">
+<table width="100%" class="table table-striped table-hover">
+	<tr >
 		<TH width="20%"><bean:message
 			key="receptionist.receptionistfindprovider.no" /></TH>
 		<TH width="40%"><bean:message
@@ -212,7 +208,7 @@ function selectProviderCustom(p,pn) {
      bColor = bColor?false:true ;
    
 %>
-	<tr bgcolor="<%=bColor?bgcolordef:"white"%>">
+	<tr>
 		<td>
 		<%if(caisi) { %> <a href=#
 			onClick="selectProviderCaisi('<%=sp%>','<%=spnl+", "+spnf%>')"><%=sp%></a></td>
@@ -244,7 +240,7 @@ function selectProviderCustom(p,pn) {
 		
       sp = String.valueOf(mg.getId().getMyGroupNo());
 %>
-	<tr bgcolor="#CCCCFF">
+	<tr>
 		<td colspan='3'>
 		<%if(caisi) { %> <a href=# onClick="selectProviderCaisi('<%=sp%>','')"><%=sp%></a></td>
 		<%} else { %>

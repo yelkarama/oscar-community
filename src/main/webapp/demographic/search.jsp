@@ -102,13 +102,20 @@
          
         </script>
 <% if (isMobileOptimized) { %>
-   <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, width=device-width" />
-   <link rel="stylesheet" type="text/css" href="../mobile/searchdemographicstyle.css">
+<!--    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, width=device-width" />
+   <link rel="stylesheet" type="text/css" href="../mobile/searchdemographicstyle.css">  
+-->
 <% } else { %>
- <link rel="stylesheet" type="text/css" media="all" href="../demographic/searchdemographicstyle.css"  />
+<!-- <link rel="stylesheet" type="text/css" media="all" href="../demographic/searchdemographicstyle.css"  />
  <link rel="stylesheet" type="text/css" href="../share/css/searchBox.css" />
-
+-->
 <% } %>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/datepicker.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 </head>
 <body onload="setfocus()">
 <div id="demographicSearch">
@@ -118,9 +125,9 @@
 <p>
 <!-- we may want to not allow students to create new patients? -->
 <!-- <security:oscarSec roleName="<%=roleName$%>" objectName="_demographic.addnew" rights="r">  -->
-    <div class="createNew">
-	<a href="demographicaddarecordhtm.jsp"><b><font size="+1"><bean:message
-	key="demographic.search.btnCreateNew" /></font></b></a> 
+    <div class="btn btn-link createNew">
+	<a href="demographicaddarecordhtm.jsp"><b><bean:message
+	key="demographic.search.btnCreateNew" /></b></a> 
     </div>
 <!-- </security:oscarSec> -->
 		

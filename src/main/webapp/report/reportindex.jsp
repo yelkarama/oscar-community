@@ -90,7 +90,10 @@ String billingRegion = (oscar.OscarProperties.getInstance()).getProperty("billre
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="report.reportindex.title" /></title>
-<link rel="stylesheet" href="../web.css" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 
 <link rel="stylesheet" type="text/css" media="all"
 	href="../share/calendar/calendar.css" title="win2k-cold-1" />
@@ -262,19 +265,20 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 %>
 <form name='report'>
 <table border=0 cellspacing=0 cellpadding=0 width="100%">
-	<tr bgcolor="#486ebd">
-		<td align=LEFT><font face="Helvetica" color="#FFFFFF"><bean:message key="report.reportindex.msgTitle" /></td>
-		<td align=RIGHT>
-		<span class="HelpAboutLogout">
-			<oscar:help keywords="&Title=Report+Tab&portal_type%3Alist=Document" key="app.top1" style="color:white; font-size:10px;font-style:normal;"/>&nbsp;
-        		<a style="color:white; font-size:10px;font-style:normal;" href="<%=request.getContextPath()%>/oscarEncounter/About.jsp" target="_new"><bean:message key="global.about" /></a>
-		</span> </font>
+	<tr>
+		<td align=LEFT><h4>&nbsp;<bean:message key="report.reportindex.msgTitle" /></h4></td>
+		<td>
+            <div class="row-fluid hidden-print" style="text-align:right">
+        <i class=" icon-question-sign"></i> 
+	    <a href="javascript:void(0)" onClick ="popupPage(600,750,'<%=(oscar.OscarProperties.getInstance()).getProperty("HELP_SEARCH_URL")%>'+'Report+Tab')"><bean:message key="app.top1"/></a>
+        <i class=" icon-info-sign" style="margin-left:10px;"></i> <a href="javascript:void(0)"  onClick="window.open('<%=request.getContextPath()%>/oscarEncounter/About.jsp','About OSCAR','scrollbars=1,resizable=1,width=800,height=600,left=0,top=0')" ><bean:message key="app.top2" /></a>
+            </div><!-- hidden print -->
 		</td>
 	</tr>
 </table>
-<table border="0" cellpadding="0" cellspacing="0" width="95%">
-	<tr>
-		<td>&nbsp;</td>
+<table class="table table-condensed table-striped" id="reportsTbl" width="95%">
+
+	<tr><td colspan='7'>&nbsp;</td>
 	</tr>
 	<%int j = 1; %>
 	<tr>
@@ -293,13 +297,14 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 			onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=../report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('startDate')[0].value")%>')">
 		<bean:message key="report.reportindex.formFrom" /></a> 
 		<%-- any early default start date should suffice for reporting all --%>
-		<INPUT TYPE="text" NAME="startDate" VALUE="<%=today%>" size='10'>
+		<INPUT TYPE="text" NAME="startDate" VALUE="<%=today%>" class="input-small">
 		</td>
 		<td><a HREF="#"
 			onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=../report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('endDate')[0].value")%>')">
-		<bean:message key="report.reportindex.formTo" /></a> <INPUT TYPE="text"
-			NAME="endDate" VALUE="<%=today%>" size='10'></td>
-		<td><INPUT TYPE="button" NAME="button"
+		<bean:message key="report.reportindex.formTo" /></a> 
+        <INPUT TYPE="text" class="input-small"
+			NAME="endDate" VALUE="<%=today%>" ></td>
+		<td><INPUT TYPE="button" NAME="button" class="btn"
 			VALUE="<bean:message key="report.reportindex.btnCreateReport"/>"
 			onClick="ogo()"></td>
 		<td></td>
@@ -326,7 +331,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 		<td width="1"></td>
 		<td width="300"><bean:message
 			key="report.reportindex.formDaySheet" /></td>
-		<td><select name="provider_no">
+		<td><select name="provider_no" class="input-medium">
 			<%
                ResultSet rsgroup = reportMainBean.queryResults(mygroup_dboperation);
                      while (rsgroup.next()) {
@@ -362,23 +367,23 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
                         <sup>*</sup><a HREF="#" ONCLICK="gonew('all')">Hospital Appointment</a><br>
 </oscar:oscarPropertiesCheck>
                         <sup>*</sup><a HREF="#" ONCLICK="go('all')"><bean:message
-			key="report.reportindex.btnAllAppt" /></a><br>&nbsp;&nbsp; <bean:message key="report.reportindex.chkRostered"/> <input type="checkbox" id="rosteredOnly" value="true"> </td>
+			key="report.reportindex.btnAllAppt" /></a><br>&nbsp;&nbsp; <bean:message key="report.reportindex.chkRostered"/> <input type="checkbox" id="rosteredOnly" value="true" > </td>
 		<td><a HREF="#"
 			onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=../report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('asdate')[0].value")%>')"><bean:message
 			key="report.reportindex.formFrom" /></a> <input type='text' name="asdate"
-			VALUE="<%=today%>" size=10></td>
+			VALUE="<%=today%>" class="input-small"></td>
 		<td><a HREF="#"
 			onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=../report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('aedate')[0].value")%>')"><bean:message
 			key="report.reportindex.formTo" /> </a> <input type='text' name="aedate"
-			VALUE="<%=today%>" size=10></td>
-		<td><select name="sTime">
+			VALUE="<%=today%>" class="input-small"></td>
+		<td><select name="sTime" class="input-small">
 			<%
               for(int i=0; i<24; i++) {
                 String timeString = i<12&&i>=0? (i+" am") : ((i==12?i:i-12)+ " pm") ;
             %>
 			<option value="<%=""+i%>" <%=i==8?"selected":""%>><%=timeString%></option>
 			<% } %>
-		</select> - <select name="eTime">
+		</select> - <select name="eTime" class="input-small">
 			<%
               for(int i=0; i<24; i++) {
                 String timeString = i<12&&i>=0? (i+" am") : ((i==12?i:i-12)+ " pm") ;
@@ -394,7 +399,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
                     <td width="300"><sup>*</sup><a HREF="#" ONCLICK="go('new')"
 			title="<bean:message key="report.reportindex.msgNewApptsOld"/>"><bean:message
 			key="report.reportindex.btnPrintDaySheet" /></a></td>
-		<td><select name="sdate">
+		<td><select name="sdate" class="input-medium">
 			<%
               cal.add(cal.DATE, -1) ;
               for(int i=0; i<31; i++) {
@@ -430,7 +435,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
         <td width="1">*</td>
         <td width="300"><a HREF="#" ONCLICK ="labgo('labDaySheet')" title="lab day sheet"/>Lab Day Sheet</a></td>
         <td>
-            <select name="apptDate" >
+            <select name="apptDate" class="input-medium">
             <%
                           cal.add(cal.DATE, -31) ;
               cal.add(cal.DATE, -1) ;
@@ -453,7 +458,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
         <td width="1">*</td>
         <td width="300"><a HREF="#" ONCLICK ="labgo1('billingDaySheet')" title="billing day sheet"/>Billing Day Sheet</a></td>
         <td>
-            <select name="apptDate1" >
+            <select name="apptDate1" class="input-medium">
             <%
               cal.add(cal.DATE, -31) ;
               cal.add(cal.DATE, -1) ;
@@ -480,7 +485,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 		</td>
 		<td width="1"></td>
 		<td width="300"><a href="#" ONCLICK="go('tab')"><bean:message key="report.reportindex.btnDaySheetTable"/></a></td>
-		<td><input type='text' name="tabDay" VALUE="<%=today%>" size=10></td>
+		<td><input type='text' name="tabDay" VALUE="<%=today%>" class="input-small"></td>
 		<td></td>
 		<td></td>
 	</tr>
@@ -491,7 +496,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 		<td width="1"></td>
 		<td width="300"><a HREF="#" ONCLICK="ggo('all')"><bean:message
 			key="report.reportindex.formBadAppt" /></a></td>
-		<td><select name="pprovider_no">
+		<td><select name="pprovider_no" class="input-medium">
 			<%
                rsgroup = reportMainBean.queryResults(mygroup_dboperation);
                      while (rsgroup.next()) {
@@ -515,7 +520,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 			<option value="*"><bean:message
 				key="report.reportindex.formAllProviders" /></option>
 		</select></td>
-		<td><select name="ssdate">
+		<td><select name="ssdate" class="input-medium">
 			<%
               cal.add(cal.DATE, -31) ;
               for(int i=0; i<31; i++) {
@@ -537,7 +542,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 		<td width="1"></td>
 		<td width="300"><a HREF="#" ONCLICK="pcgo()"><bean:message
 			key="report.reportindex.btnPatientChartList" /></a></td>
-		<td><select name="pcprovider_no">
+		<td><select name="pcprovider_no" class="input-medium">
 			<%
                rsgroup = reportMainBean.queryResults(mygroup_dboperation);
                      while (rsgroup.next()) {
@@ -570,7 +575,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 		<td width="1"></td>
 		<td width="300"><a HREF="#" ONCLICK="opcgo()"><bean:message
 			key="report.reportindex.btnOldPatient" /></a></td>
-		<td><select name="opcprovider_no">
+		<td><select name="opcprovider_no" class="input-medium">
 			<%
                rsgroup = reportMainBean.queryResults(mygroup_dboperation);
                      while (rsgroup.next()) {
@@ -593,7 +598,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
             %>
 		</select></td>
 		<td><bean:message key="report.reportindex.btnOldPatientAge" /><input
-			type=text name=age value='65'></td>
+			type=text name=age value='65' class="input-small"></td>
 		<td></td>
 		<td></td>
 	</tr>
@@ -604,7 +609,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 		<td width="1"></td>
 		<td width="300"><a HREF="#" ONCLICK="nsgo()"><bean:message
 			key="report.reportindex.btnNoShowAppointmentList" /></a></td>
-		<td><select name="nsprovider_no">
+		<td><select name="nsprovider_no" class="input-medium">
 			<%
                rsgroup = reportMainBean.queryResults(mygroup_dboperation);
                      while (rsgroup.next()) {
@@ -630,7 +635,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 		<%
 		cal.add(cal.DATE, 0);
                 String NoShowEDate = cal.get(Calendar.YEAR)+"-"+(cal.get(Calendar.MONTH)+1)+"-"+cal.get(Calendar.DATE);
-            	%> <bean:message key="report.reportindex.msgStart"/>: <input name="nsdate" type="input" size="8"
+            	%> <bean:message key="report.reportindex.msgStart"/>: <input name="nsdate" type="input" class="input-small"
 			id="NoShowDate" <%=NoShowEDate%>> <a HREF="#"
 			onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=../report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('nsdate')[0].value")%>')"><img
 			title=Calendar " src="../images/cal.gif" alt="Calendar" border="0"><a>
@@ -638,7 +643,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 
 
 		<!-- 
-            <select name="nsdate" >
+            <select name="nsdate" class="input-medium">
  <%
               cal.add(cal.DATE, -61) ;
               for(int i=0; i<31; i++) {
@@ -835,25 +840,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
      <tr></tr>  
      <tr></tr>
      
-    <tr><td width="2"></td>
-    	<td colspan='3' align="left">
-    <c:if
-	test="${sessionScope.userrole ne 'er_clerk' and sessionScope.userrole ne 'Vaccine Provider'}">
 
-	<div><span>CAISI Reporting Tools</span> 
-	<caisi:isModuleLoad moduleName="caisi">
-		<div><a HREF="../PMmodule/ClientManager.do?method=getGeneralFormsReport" target="generalFormsReport">General Forms Reports</a></div>
-		<div><a href="javascript:void(0);" onclick="javascript:getIntakeReport('quick');return false;">Registration Intake Report</a></div>
-		<div><a href="javascript:void(0);" onclick="javascript:getIntakeReport('indepth');return false;">Follow-up Intake Report</a></div>
-		<div><html:link action="/PMmodule/Reports/ProgramActivityReport.do">Activity Report</html:link></div>
-		<div><html:link action="/SurveyManager.do?method=reportForm">User Created Form Report</html:link></div>
-		<div><html:link action="QuatroReport/ReportList.do">Quatro Report Runner</html:link></div>
-		<div><a href="javascript:void(0);" onclick="javascript:createStreetHealthReport();return false;">Street Health Mental Health Report</a></div>
-	</caisi:isModuleLoad></div>
-</c:if> 
-	
-    </td>
-    </tr>
 
 
 <security:oscarSec roleName="<%=roleName2$%>" objectName="_admin,_admin.reporting" rights="r" reverse="<%=false%>">
@@ -865,9 +852,29 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
     </tr>      
 </security:oscarSec>
 
-    <tr><td>&nbsp;</td></tr>
+    <c:if
+	test="${sessionScope.userrole ne 'er_clerk' and sessionScope.userrole ne 'Vaccine Provider'}">
+
+
+	<caisi:isModuleLoad moduleName="caisi">
+    <tr><td width="2"></td>
+    	<td colspan='3' align="left">
+	<div><span>CAISI Reporting Tools</span> 
+		<div><a HREF="../PMmodule/ClientManager.do?method=getGeneralFormsReport" target="generalFormsReport">General Forms Reports</a></div>
+		<div><a href="javascript:void(0);" onclick="javascript:getIntakeReport('quick');return false;">Registration Intake Report</a></div>
+		<div><a href="javascript:void(0);" onclick="javascript:getIntakeReport('indepth');return false;">Follow-up Intake Report</a></div>
+		<div><html:link action="/PMmodule/Reports/ProgramActivityReport.do">Activity Report</html:link></div>
+		<div><html:link action="/SurveyManager.do?method=reportForm">User Created Form Report</html:link></div>
+		<div><html:link action="QuatroReport/ReportList.do">Quatro Report Runner</html:link></div>
+		<div><a href="javascript:void(0);" onclick="javascript:createStreetHealthReport();return false;">Street Health Mental Health Report</a></div>
+	</caisi:isModuleLoad></div>
+    </td>
+    </tr>
+    </c:if> 
+	
+
     <tr>
-        <td colspan='3' align="left"><input type="button" name="Button" value="<bean:message key="report.reportindex.btnCancel"/>" onClick="window.close()"></td>
+        <td colspan='3' align="left"><input type="button" class="btn" name="Button" value="<bean:message key="report.reportindex.btnCancel"/>" onClick="window.close()"></td>
         <td></td>
         <td></td>
         <td></td>
@@ -875,4 +882,5 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 </table>
 </body>
 </form>
+
 </html:html>

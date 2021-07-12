@@ -52,6 +52,7 @@
 <%@ page import="java.text.DateFormat" %>
 <%@ page import="java.text.SimpleDateFormat" %>
 <%@ page import="java.util.Locale" %>
+<%@ page import="java.net.URLEncoder" %>
 
 <%
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -175,7 +176,7 @@
 <head>
 <title><bean:message key="tickler.ticklerMain.title"/></title>
 
-<link rel="stylesheet" type="text/css" media="all" href="<c:out value="${ctx}"/>/css/print.css" />
+<link rel="stylesheet" type="text/css" media="print" href="<c:out value="${ctx}"/>/css/print.css" />
 
 <!-- Prototype and scriptaculous -->
 <script src="<c:out value="${ctx}"/>/share/javascript/prototype.js" type="text/javascript"></script>
@@ -183,7 +184,8 @@
 <script src="<%=request.getContextPath()%>/js/jquery-1.7.1.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/js/jquery-ui-1.8.18.custom.min.js"></script>
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/cupertino/jquery-ui-1.8.18.custom.css">
-
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 <script>
 jQuery.noConflict();
 </script>
@@ -499,6 +501,7 @@ var beginD = "1900-01-01"
 	}
 
 </script>
+<!--
 <style type="text/css">
 	<!--
         th {text-align: left; border-bottom: 1px solid black; padding-top:5px; padding-bottom:5px; }
@@ -553,62 +556,59 @@ var beginD = "1900-01-01"
 	.sbttn {background: #EEEEFF;border-bottom: 1px solid #104A7B;border-right: 1px solid #104A7B;border-left: 1px solid #AFC4D5;border-top:1px solid #AFC4D5;color:#000066;height:19px;text-decoration:none;cursor: hand}
 .mbttn {background: #D7DBF2;border-bottom: 1px solid #104A7B;border-right: 1px solid #104A7B;border-left: 1px solid #AFC4D5;border-top:1px solid #AFC4D5;color:#000066;height:19px;text-decoration:none;cursor: hand}
 
-	-->
-</style>
+	
+</style> -->
 </head>
 
 <oscar:customInterface section="ticklerMain"/>
-<body bgcolor="#FFFFFF" text="#000000" leftmargin="0" rightmargin="0" topmargin="10">
+<body  leftmargin="0" rightmargin="0" topmargin="10">
+
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
-  <tr bgcolor="#FFFFFF">
-    <td height="10" width="70%"> </td>
-    <td height="10" width="30%" align=right></td>
-</tr>
-</table>
-<table width="100%" border="0" cellspacing="0" cellpadding="0">
-  <tr bgcolor="#000000" class="noprint">
-    <td height="40" width="10%"><input type='button' name='print' value='<bean:message key="global.btnPrint"/>' onClick='window.print()' class="sbttn"></td>
+  <tr class="noprint">
     <td width="80%" align="left">
-      <p><font face="Verdana, Arial, Helvetica, sans-serif" color="#FFFFFF"><b><font face="Arial, Helvetica, sans-serif" size="4"><bean:message key="tickler.ticklerMain.msgTickler"/></font></b></font>
-      </p>
+      <h4>&nbsp;<bean:message key="tickler.ticklerMain.msgTickler"/>
+      </h4>
     </td>
-	<td align = right>
-		<span class="HelpAboutLogout">
-			<oscar:help keywords="&Title=Tickler&portal_type%3Alist=Document" key="app.top1" style="color:white; font-size:10px;font-style:normal;"/>&nbsp;|
-        		<a style="color:white; font-size:10px;font-style:normal;" href="<%=request.getContextPath()%>/oscarEncounter/About.jsp" target="_new"><bean:message key="global.about" /></a>
-		</span>                        
-	</td>
+	<td align="right" >
+            <i class="icon-question-sign"></i> 
+            <a href="javascript:void(0)" onClick ="popupOscarConsultationConfig(700,960,'<%=(OscarProperties.getInstance()).getProperty("HELP_SEARCH_URL")%>'+'Tickler')"><bean:message key="app.top1"/></a>
+            <i class=" icon-info-sign" style="margin-left:10px;"></i> 
+            <a href="javascript:void(0)"  onClick="window.open('<%=request.getContextPath()%>/oscarEncounter/About.jsp','About OSCAR','scrollbars=1,resizable=1,width=800,height=600,left=0,top=0')" ><bean:message key="global.about" /></a>
+    </td>
   </tr>        
 </table>
              
-<form name="serviceform" method="get" action="ticklerMain.jsp">
-<table width="100%" border="0" bgcolor="#EEEEFF">  
-    <tr>
+<form name="serviceform" method="get" action="ticklerMain.jsp" class="form-inline">
+<table width="100%" >  
+    <tr class="inline">
       <td width="19%">
-        <div align="right"> <font color="#003366"><font face="Arial, Helvetica, sans-serif" size="2"><b>
-          <font color="#333333"><bean:message key="tickler.ticklerMain.formDateRange"/></font></b></font></font> </div>
+        <div align="right"> 
+          <bean:message key="tickler.ticklerMain.formDateRange"/></div>
       </td>
-      <td width="41%">
+      <td>
         <div align="center">
-          <input type="text" id="xml_vdate" name="xml_vdate" value="<%=xml_vdate%>">
-          <font size="1" face="Arial, Helvetica, sans-serif"><a href="#" onClick="openBrWindow('../billing/billingCalendarPopup.jsp?type=admission&amp;year=<%=curYear%>&amp;month=<%=curMonth%>','','width=300,height=300')"><bean:message key="tickler.ticklerMain.btnBegin"/>:</a></font>
+        <label for="xml_vdate">
+        <a HREF="#"	onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=../tickler/ticklerMain.jsp&year=<%=curYear%>&month=<%=curMonth%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('xml_vdate')[0].value")%>')"><bean:message key="tickler.ticklerMain.btnBegin"/>:</a></label>
+          <input type="text" class="input-small" id="xml_vdate" name="xml_vdate" value="<%=xml_vdate%>">
+        <label for="xml_appointment_date">
+        <a HREF="#"	onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=../tickler/ticklerMain.jsp&year=<%=curYear%>&month=<%=curMonth%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('xml_appointment_date')[0].value")%>')"><bean:message key="tickler.ticklerMain.btnEnd"/>:</a></label>
+        <input type="text" class="input-small" id="xml_appointment_date" name="xml_appointment_date" value="<%=xml_appointment_date%>">
         </div>
       </td>
-      <td width="40%">
-        <input type="text" id="xml_appointment_date" name="xml_appointment_date" value="<%=xml_appointment_date%>">
-        <font size="1" face="Arial, Helvetica, sans-serif"><a href="#" onClick="openBrWindow('../billing/billingCalendarPopup.jsp?type=end&amp;year=<%=curYear%>&amp;month=<%=curMonth%>','','width=300,height=300')"><bean:message key="tickler.ticklerMain.btnEnd"/>:</a> &nbsp; &nbsp; <a href="#" onClick="allYear()"><bean:message key="tickler.ticklerMain.btnViewAll"/></a></font>
+      <td width="40%">      
+        <a href="#" onClick="allYear()"><bean:message key="tickler.ticklerMain.btnViewAll"/></a>
       </td>
     </tr>
     <tr>
 
         <td colspan="3">
-        <font face="Verdana, Arial, Helvetica, sans-serif" size="2" color="#333333"><b><bean:message key="tickler.ticklerMain.formMoveTo"/> </b>
+        <label for="ticklerview"><bean:message key="tickler.ticklerMain.formMoveTo"/></label>
         <select id="ticklerview" name="ticklerview">
         <option value="A" <%=ticklerview.equals("A")?"selected":""%>><bean:message key="tickler.ticklerMain.formActive"/></option>
         <option value="C" <%=ticklerview.equals("C")?"selected":""%>><bean:message key="tickler.ticklerMain.formCompleted"/></option>
         <option value="D" <%=ticklerview.equals("D")?"selected":""%>><bean:message key="tickler.ticklerMain.formDeleted"/></option>                   
         </select>
-        &nbsp; &nbsp; <font face="Verdana, Arial, Helvetica, sans-serif" size="2" color="#333333"><b>MRP</b></font> 
+        &nbsp; &nbsp;<label for="mrpview"> MRP</label>
         <select id="mrpview" name="mrpview">
         <option value="all" <%=mrpview.equals("all")?"selected":""%>><bean:message key="tickler.ticklerMain.formAllProviders"/></option>
         <%
@@ -622,7 +622,7 @@ var beginD = "1900-01-01"
         %>
           </select>
         
-        &nbsp; &nbsp; <font face="Verdana, Arial, Helvetica, sans-serif" size="2" color="#333333"><b><bean:message key="tickler.ticklerMain.msgCreator"/> </b></font>
+        &nbsp; &nbsp; <label for="providerview"><bean:message key="tickler.ticklerMain.msgCreator"/></label>
 
         <select id="providerview" name="providerview">
         <option value="all" <%=providerview.equals("all")?"selected":""%>><bean:message key="tickler.ticklerMain.formAllProviders"/></option>
@@ -637,7 +637,7 @@ var beginD = "1900-01-01"
 
 
           <!-- -->
-          &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<font face="Verdana, Arial, Helvetica, sans-serif" size="2" color="#333333"><b><bean:message key="tickler.ticklerMain.msgAssignedTo"/></b></font>
+          <br><label for="assignedTo"><bean:message key="tickler.ticklerMain.msgAssignedTo"/></label>
 <%
 	if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable())
 { // multisite start ==========================================
@@ -705,14 +705,14 @@ function changeSite(sel) {
 
       <!--/td>
       <td -->
-        <font color="#333333" size="2" face="Verdana, Arial, Helvetica, sans-serif">
+        <span class="pull-right">
         <input type="hidden" name="Submit" value="">
-        <input type="button" value="<bean:message key="tickler.ticklerMain.btnCreateReport"/>" class="mbttn noprint" onclick="document.forms['serviceform'].Submit.value='Create Report'; document.forms['serviceform'].submit();">
-        <oscar:oscarPropertiesCheck property="TICKLERSAVEVIEW" value="yes">
+        <input type="button" class="btn btn-primary" value="<bean:message key="tickler.ticklerMain.btnCreateReport"/>" class="mbttn noprint" onclick="document.forms['serviceform'].Submit.value='Create Report'; document.forms['serviceform'].submit();">
+        
         &nbsp;
-        <input type="button" value="<bean:message key="tickler.ticklerMain.msgSaveView"/>" class="mbttn" onclick="saveView();">
-        </oscar:oscarPropertiesCheck>
-        </font>
+        <input type="button" class="btn" value="<bean:message key="tickler.ticklerMain.msgSaveView"/>" class="mbttn" onclick="saveView();">
+        </span>
+     
         </td>
     </tr>  
 </table>
@@ -757,60 +757,60 @@ function changeSite(sel) {
         <c:set var="sortByPriority" scope="request"><%=TicklerManager.PRIORITY%></c:set>
         <c:set var="sortByTAT" scope="request"><%=TicklerManager.TASK_ASSIGNED_TO%></c:set>
                         
-<table bgcolor=#666699 border="0" cellpadding="0" cellspacing="0" width="100%">
+<table class="table table-striped table-compact"  width="100%">
     <thead>
-        <TR bgcolor=#EEEEFF>
-            <th style="color:#000000; font-size:xsmall; font-family:verdana,arial,helvetica;" width="3%">&nbsp;</th>
+        <TR>
+            <th  width="3%">&nbsp;</th>
 <% 
             boolean ticklerEditEnabled = Boolean.parseBoolean(OscarProperties.getInstance().getProperty("tickler_edit_enabled")); 
             if (ticklerEditEnabled) { 
 %>
-            <th style="color:#000000; font-size:xsmall; font-family:verdana,arial,helvetica;" width="3%">&nbsp;</th>
+            <th width="3%">&nbsp;</th>
 <%          
             }
 %>            
-            <th style="color:#000000; font-size:xsmall; font-family:verdana,arial,helvetica;" width="15%"> 
+            <th width="15%"> 
                 <a href="#" onClick="document.forms['ticklerform'].sort_order.value='<%=sortOrderStr%>';document.forms['ticklerform'].sort_column.value='<c:out value="${sortByDemoName}"/>'; document.forms['ticklerform'].submit();"><bean:message key="tickler.ticklerMain.msgDemographicName"/></a>                
                 <c:if test="${sortColumn == sortByDemoName}">
                     <c:out value="${imgTag}" escapeXml="false"/>                    
                 </c:if>
             </th>
-            <th style="color:#000000; font-size:xsmall; font-family:verdana,arial,helvetica;" width="8%">
+            <th width="8%">
                 <a href="#" onClick="document.forms['ticklerform'].sort_order.value='<%=sortOrderStr%>';document.forms['ticklerform'].sort_column.value='<c:out value="${sortByCreator}"/>'; document.forms['ticklerform'].submit();"><bean:message key="tickler.ticklerMain.msgCreator"/></a>               
                 <c:if test="${sortColumn == sortByCreator}">
                     <c:out value="${imgTag}" escapeXml="false"/>                    
                 </c:if>
             </th>           
-            <th style="color:#000000; font-size:xsmall; font-family:verdana,arial,helvetica;" width="12%">
+            <th width="12%">
                 <a href="#" onClick="document.forms['ticklerform'].sort_order.value='<%=sortOrderStr%>';document.forms['ticklerform'].sort_column.value='<c:out value="${sortByServiceDate}"/>'; document.forms['ticklerform'].submit();"><bean:message key="tickler.ticklerMain.msgDate"/></a>
                  <c:if test="${sortColumn == sortByServiceDate}">
                     <c:out value="${imgTag}" escapeXml="false"/>                    
                 </c:if>
             </th>
-            <th style="color:#000000; font-size:xsmall; font-family:verdana,arial,helvetica;" width="15%">  
+            <th width="12%">  
                 <a href="#" onClick="document.forms['ticklerform'].sort_order.value='<%=sortOrderStr%>';document.forms['ticklerform'].sort_column.value='<c:out value="${sortByCreationDate}"/>'; document.forms['ticklerform'].submit();"><bean:message key="tickler.ticklerMain.msgCreationDate"/></a> 
                 <c:if test="${sortColumn == sortByCreationDate}">
                     <c:out value="${imgTag}" escapeXml="false"/>                   
                 </c:if> 
             </th>
 
-            <th style="color:#000000; font-size:xsmall; font-family:verdana,arial,helvetica;" width="8%">
+            <th width="8%">
                 <a href="#" onClick="document.forms['ticklerform'].sort_order.value='<%=sortOrderStr%>';document.forms['ticklerform'].sort_column.value='<c:out value="${sortByPriority}"/>'; document.forms['ticklerform'].submit();"><bean:message key="tickler.ticklerMain.Priority"/></a>  
                 <c:if test="${sortColumn == sortByPriority}">
                     <c:out value="${imgTag}" escapeXml="false"/>                   
                 </c:if>
             </th>
 
-            <th style="color:#000000; font-size:xsmall; font-family:verdana,arial,helvetica;" width="15%">
+            <th width="15%">
                 <a href="#" onClick="document.forms['ticklerform'].sort_order.value='<%=sortOrderStr%>';document.forms['ticklerform'].sort_column.value='<c:out value="${sortByTAT}"/>'; document.forms['ticklerform'].submit();"><bean:message key="tickler.ticklerMain.taskAssignedTo"/></a>
                 <c:if test="${sortColumn == sortByTAT}">
                     <c:out value="${imgTag}" escapeXml="false"/>                   
                 </c:if>
             </th>
 
-            <th style="color:#000000; font-size:xsmall; font-family:verdana,arial,helvetica;" width="6%"><bean:message key="tickler.ticklerMain.msgStatus"/></th>
-            <th style="color:#000000; font-size:xsmall; font-family:verdana,arial,helvetica;" width="39%"><bean:message key="tickler.ticklerMain.msgMessage"/></th>
-            <th style="color:#000000; font-size:xsmall; font-family:verdana,arial,helvetica;" width="4%">&nbsp;</th>
+            <th width="6%"><bean:message key="tickler.ticklerMain.msgStatus"/></th>
+            <th width="39%"><bean:message key="tickler.ticklerMain.msgMessage"/></th>
+            <th width="4%">&nbsp;</th>
         </TR>
     </thead>
     <tfoot>
@@ -821,21 +821,21 @@ function changeSite(sel) {
                                 }
 %>
                                 <tr class="noprint"><td colspan="<%=footerColSpan%>" class="white"><a id="checkAllLink" name="checkAllLink" href="javascript:CheckAll();"><bean:message key="tickler.ticklerMain.btnCheckAll"/></a> - <a href="javascript:ClearAll();"><bean:message key="tickler.ticklerMain.btnClearAll"/></a> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
-                                    <input type="button" name="button" value="<bean:message key="tickler.ticklerMain.btnAddTickler"/>" onClick="popupPage('400','600', 'ticklerAdd.jsp')" class="sbttn">
+                                    <input type="button" class="btn" name="button" value="<bean:message key="tickler.ticklerMain.btnAddTickler"/>" onClick="popupPage('400','600', 'ticklerAdd.jsp')" class="sbttn">
                                     <input type="hidden" name="submit_form" value="">
                                     <%
                                     	if (ticklerview.compareTo("D") == 0){
                                     %>
-                                    <input type="button" value="<bean:message key="tickler.ticklerMain.btnEraseCompletely"/>" class="sbttn" onclick="document.forms['ticklerform'].submit_form.value='Erase Completely'; document.forms['ticklerform'].submit();">
+                                    <input type="button" class="btn" value="<bean:message key="tickler.ticklerMain.btnEraseCompletely"/>" class="sbttn" onclick="document.forms['ticklerform'].submit_form.value='Erase Completely'; document.forms['ticklerform'].submit();">
                                     <%
                                     	} else{
                                     %>
-                                    <input type="button" value="<bean:message key="tickler.ticklerMain.btnComplete"/>" class="sbttn" onclick="document.forms['ticklerform'].submit_form.value='Complete'; document.forms['ticklerform'].submit();">
-                                    <input type="button" value="<bean:message key="tickler.ticklerMain.btnDelete"/>" class="sbttn" onclick="document.forms['ticklerform'].submit_form.value='Delete'; document.forms['ticklerform'].submit();">
+                                    <input type="button" class="btn" value="<bean:message key="tickler.ticklerMain.btnComplete"/>" class="sbttn" onclick="document.forms['ticklerform'].submit_form.value='Complete'; document.forms['ticklerform'].submit();">
+                                    <input type="button" class="btn btn-danger" value="<bean:message key="tickler.ticklerMain.btnDelete"/>" class="sbttn" onclick="document.forms['ticklerform'].submit_form.value='Delete'; document.forms['ticklerform'].submit();">
                                     <%
                                     	}
                                     %>
-                            <input type="button" name="button" value="<bean:message key="global.btnCancel"/>" onClick="window.close()" class="sbttn"> </td></tr>
+                            <input type="button" name="button" class="btn" value="<bean:message key="global.btnCancel"/>" onClick="window.close()" class="sbttn"> </td></tr>
                         </tfoot>
 
 
@@ -895,12 +895,13 @@ function changeSite(sel) {
 								      String numDaysUntilWarn = OscarProperties.getInstance().getProperty("tickler_warn_period");
 								      long ticklerWarnDays = Long.parseLong(numDaysUntilWarn);
 								      boolean ignoreWarning = (ticklerWarnDays < 0);
-								      
+								      boolean warning = false;
 								      
 								      //Set the colour of the table cell 
 								      String warnColour = "";
 								      if (!ignoreWarning && (daysDifference >= ticklerWarnDays)){
 								          warnColour = "Red";
+                                          warning = true;
 								      }
 								      
 								      if (rowColour.equals("lilac")){
@@ -912,12 +913,12 @@ function changeSite(sel) {
 								      String cellColour = rowColour + warnColour;
                             %>
 
-                                <tr >
+                                <tr <%=warning?"class='error'":""%>>
                                     <TD width="3%"  ROWSPAN="1" class="<%=cellColour%>"><input type="checkbox" name="checkbox" value="<%=t.getId()%>" class="noprint"></TD>
                                     <%
                                     	if (ticklerEditEnabled) {
                                     %>
-                                    <td width="3%" ROWSPAN="1" class="<%=cellColour%>"><a href=#  onClick="popupPage(600,800, '../tickler/ticklerEdit.jsp?tickler_no=<%=t.getId()%>')"><bean:message key="tickler.ticklerMain.editTickler"/></a></td>
+                                    <td width="3%" ROWSPAN="1" class="<%=cellColour%>"><a href=# title="<bean:message key="tickler.ticklerMain.editTickler"/>" onClick="popupPage(600,800, '../tickler/ticklerEdit.jsp?tickler_no=<%=t.getId()%>')"><i class="icon-pencil"></i></a></td>
                                     <%
                                     	}
                                     %>                                    
@@ -971,8 +972,8 @@ function changeSite(sel) {
                                         
                                     </TD>
                                     <td ROWSPAN="1" class="<%=cellColour%> noprint">
-                                    	<a href="#" onClick="return openNoteDialog('<%=demo.getDemographicNo() %>','<%=t.getId() %>');return false;">
-                                    		<img border="0" src="<%=request.getContextPath()%>/images/notepad.gif"/>
+                                    	<a href="#" onClick="return openNoteDialog('<%=demo.getDemographicNo() %>','<%=t.getId() %>');return false;" title="note">
+                                    		<i class="icon-comment"></i>
                                     	</a>
                                     </td>
                                 </tr>
@@ -1011,9 +1012,7 @@ function changeSite(sel) {
         
 </table></form>
                         
-<p><font face="Arial, Helvetica, sans-serif" size="2"> </font></p>
-  <p></p>
-<%@ include file="../demographic/zfooterbackclose.jsp" %>
+
   
   
 <p class="yesprint">
@@ -1052,7 +1051,7 @@ function changeSite(sel) {
 				</tr>
 			
 			</table>
-			
+	<input type='button' class="btn" name='print' value='<bean:message key="global.btnPrint"/>' onClick='window.print()' class="sbttn">		
 	</form>	
 </div>
 

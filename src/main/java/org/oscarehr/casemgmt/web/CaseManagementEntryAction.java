@@ -1911,12 +1911,12 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		}
 
 		//We are exiting note so we have to make sure we clean up tmpSave
-		try {
-			CaseManagementEntryFormBean cform = (CaseManagementEntryFormBean) session.getAttribute(sessionFrmName);
-			caseManagementMgr.deleteTmpSave(providerNo, demoNo, cform.getCaseNote().getProgram_no());
-		} catch (Exception e) {
-			logger.error("Could not remove tmpSave", e);
-		}
+		//try {
+		//	CaseManagementEntryFormBean cform = (CaseManagementEntryFormBean) session.getAttribute(sessionFrmName);
+		//	caseManagementMgr.deleteTmpSave(providerNo, demoNo, cform.getCaseNote().getProgram_no());
+		//} catch (Exception e) {
+		//	logger.error("Could not remove tmpSave", e);
+		//}
 
 		if (closingEChart) {
             String logData = null;//"Message=" + tickler.getMessage();

@@ -274,6 +274,7 @@ function onSub() {
 <!-- the following script defines the Calendar.setup helper function, which makes
        adding a calendar a matter of 1 or 2 lines of code. -->
 <script type="text/javascript" src="../share/calendar/calendar-setup.js"></script>
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 </head>
 
 <body bgcolor="ivory" onLoad="setfocus()" topmargin="0" leftmargin="0"
@@ -281,39 +282,15 @@ function onSub() {
 <form name="groupappt" method="POST"
 	action="appointmentrepeatbooking.jsp" onSubmit="return ( onSub());">
 <INPUT TYPE="hidden" NAME="groupappt" value="">
-<table width="100%" BGCOLOR="silver">
-	<tr>
-		<TD>
-		<%    if (bEdit) {    %> <INPUT TYPE="button"
-			onclick="document.forms['groupappt'].groupappt.value='Group Update'; document.forms['groupappt'].submit();"
-			VALUE="<bean:message key="appointment.appointmentgrouprecords.btnGroupUpdate"/>">
-		<INPUT TYPE="button"
-			onclick="document.forms['groupappt'].groupappt.value='Group Cancel'; document.forms['groupappt'].submit();"
-			VALUE="<bean:message key="appointment.appointmentgrouprecords.btnGroupCancel"/>">
-		<INPUT TYPE="button"
-			onclick="document.forms['groupappt'].groupappt.value='Group Delete'; document.forms['groupappt'].submit();"
-			VALUE="<bean:message key="appointment.appointmentgrouprecords.btnGroupDelete"/>"
-			onClick="onButDelete()"> <%    } else {    %> <INPUT
-			TYPE="button"
-			onclick="document.forms['groupappt'].groupappt.value='Add Group Appointment'; document.forms['groupappt'].submit();"
-			VALUE="<bean:message key="appointment.appointmentgrouprecords.btnAddGroupAppt"/>">
-		<%    }    %>
-		</TD>
-		<TD align="right"><INPUT TYPE="button"
-			VALUE=" <bean:message key="global.btnBack"/> "
-			onClick="window.history.go(-1);return false;"> <INPUT
-			TYPE="button" VALUE=" <bean:message key="global.btnExit"/> "
-			onClick="onExit()"></TD>
-	</tr>
-</table>
 
-<table border=0 cellspacing=0 cellpadding=0 width="100%">
-	<tr bgcolor="<%=deepcolor%>">
-		<th><font face="Helvetica"><bean:message key="appointment.appointmenteditrepeatbooking.title"/></font></th>
-	</tr>
-</table>
 
-<table border="0" cellspacing="1" cellpadding="2" width="100%">
+
+		<H4>&nbsp;<bean:message key="appointment.appointmenteditrepeatbooking.title"/></H4>
+
+<div class="container-fluid well" >   
+    <div class ="span8"> 
+
+<table border="0" cellspacing="1" cellpadding="2" width="100%" BGCOLOR="white" class="table table-hover table-condensed">
 	<tr>
 		<td width="20%"></td>
 		<td nowrap><bean:message key="appointment.appointmenteditrepeatbooking.howoften"/></td>
@@ -340,21 +317,56 @@ for (int i = 1; i < 12; i++) {
 			<%
 }
 %>
-		</select> <input type="text" name="everyUnit" id="everyUnit" size="10"
+		</select> <input type="text" name="everyUnit" id="everyUnit" style="width: 90px;"
 			value="<%="day"%>" readonly></td>
 	</tr>
 	<tr>
 		<td></td>
 		<td><bean:message key="appointment.appointmenteditrepeatbooking.endon"/> &nbsp;&nbsp;
-		<button type="button" id="f_trigger_b">...</button>
-		<br>
-		<font size="-1"><bean:message key="ddmmyyyy"/></font></td>
-		<td nowrap valign="top"><input type="text" id="endDate"
+		<td nowrap valign="top">
+        <img id="f_trigger_b" src="../images/cal.gif">
+        <input type="text" id="endDate"
 			name="endDate" size="10"
 			value="<%=UtilDateUtilities.DateToString(new Date(),"dd/MM/yyyy")%>"
-			readonly></td>
+			readonly>
+		<br>
+		<font size="-1"><bean:message key="ddmmyyyy"/></font></td></td>
 	</tr>
 </table>
+
+<table width="100%" BGCOLOR="silver">
+	<tr>
+		<TD>
+		<%    if (bEdit) {    %> <INPUT TYPE="button" class="btn btn-primary"
+			onclick="document.forms['groupappt'].groupappt.value='Group Update'; document.forms['groupappt'].submit();"
+			VALUE="1<bean:message key="appointment.appointmentgrouprecords.btnGroupUpdate"/>">
+		<INPUT TYPE="button" class="btn"
+			onclick="document.forms['groupappt'].groupappt.value='Group Cancel'; document.forms['groupappt'].submit();"
+			VALUE="<bean:message key="appointment.appointmentgrouprecords.btnGroupCancel"/>">
+		<INPUT TYPE="button" class="btn"
+			onclick="document.forms['groupappt'].groupappt.value='Group Delete'; document.forms['groupappt'].submit();"
+			VALUE="<bean:message key="appointment.appointmentgrouprecords.btnGroupDelete"/>"
+			onClick="onButDelete()"> 
+        <%    } else {    %> 
+        <INPUT
+			TYPE="button" class="btn btn-primary"
+			onclick="document.forms['groupappt'].groupappt.value='Add Group Appointment'; document.forms['groupappt'].submit();"
+			VALUE="<bean:message key="appointment.appointmentgrouprecords.btnAddGroupAppt"/>">
+		<%    }    %>
+		</TD>
+		<TD align="right">
+        <INPUT TYPE="button" class="btn btn-link"
+			VALUE=" <bean:message key="global.btnCancel"/> "
+			onClick="window.history.go(-1);return false;">
+        <!-- <INPUT
+			TYPE="button" class="btn btn-link" VALUE=" <bean:message key="global.btnExit"/> "
+			onClick="onExit()">-->
+        </TD>
+	</tr>
+</table>
+</div>
+</div>
+
 <%
 String temp = null;
 for (Enumeration e = request.getParameterNames() ; e.hasMoreElements() ;) {

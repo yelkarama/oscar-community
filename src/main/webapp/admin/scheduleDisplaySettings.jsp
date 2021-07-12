@@ -148,6 +148,19 @@
         <table id="displaySettingsTable" class="table table-bordered table-striped table-hover table-condensed">
             <tbody>
 	            <tr>
+	                <td>Show Classic Schedule: </td>
+	                <td>
+	                    <input id="old_schedule_enabled-true" type="radio" value="true" name="old_schedule_enabled"
+	                            <%=(dataBean.getProperty("old_schedule_enabled", "false").equals("true")) ? "checked" : ""%> />
+	                    Yes
+	                    &nbsp;&nbsp;&nbsp;
+	                    <input id="old_schedule_enabled-false" type="radio" value="false" name="old_schedule_enabled"
+	                            <%=(dataBean.getProperty("old_schedule_enabled", "false").equals("false")) ? "checked" : ""%> />
+	                    No
+	                    &nbsp;&nbsp;&nbsp;
+	                </td>
+	            </tr>
+	            <tr>
 	                <td>Activate Eyeform: </td>
 	                <td>
 	                    <input id="new_eyeform_enabled-true" type="radio" value="true" name="new_eyeform_enabled"
@@ -275,7 +288,20 @@
 	                    No
 	                    &nbsp;&nbsp;&nbsp;
 	                </td>
-	            </tr>                      
+	            </tr>  
+	            <tr>
+	                <td>Display Large Calendar Selector: </td>
+	                <td>
+	                    <input id="display_large_calendar-true" type="radio" value="true" name="display_large_calendar"
+	                            <%=(dataBean.getProperty("display_large_calendar", "true").equals("true")) ? "checked" : ""%> />
+	                    Yes
+	                    &nbsp;&nbsp;&nbsp;
+	                    <input id="display_large_calendar-false" type="radio" value="false" name="display_large_calendar"
+	                            <%=(dataBean.getProperty("display_large_calendar", "true").equals("false")) ? "checked" : ""%> />
+	                    No
+	                    &nbsp;&nbsp;&nbsp;
+	                </td>
+	            </tr>
 	            <tr>
 	                <td>Display Quick Date Selector with Fixed Intervals: </td>
 	                <td>
@@ -399,7 +425,7 @@
             </tbody>
         </table>
 
-        <input type="button" onclick="document.forms['displaySettingsForm'].dboperation.value='Save'; document.forms['displaySettingsForm'].submit();" name="saveDisplaySettings" value="Save"/>
+        <input type="button" class="btn btn-primary" onclick="document.forms['displaySettingsForm'].dboperation.value='Save'; document.forms['displaySettingsForm'].submit();" name="saveDisplaySettings" value="Save"/>
     </form>
     </body>
 </html:html>

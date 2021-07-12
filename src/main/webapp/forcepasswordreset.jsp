@@ -51,6 +51,9 @@
 
 <html:html locale="true">
 <head>
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/checkPassword.js.jsp"></script>
 <title><bean:message key="provider.providerchangepassword.title" /></title>
@@ -143,12 +146,10 @@ function validatePassword(pwd) {
 
 <body onLoad="setfocus('oldPassword')" topmargin="0" leftmargin="0" rightmargin="0">
 <html:form method="post" action="login" onsubmit="return checkPwdPolicy();">
-<table border=0 cellspacing=0 cellpadding=0 width="100%">
-	<tr bgcolor="#486ebd">
-		<th align=CENTER NOWRAP><font face="Helvetica" color="#FFFFFF"><bean:message
-			key="provider.providerchangepassword.description" /></font></th>
-	</tr>
-</table>
+<div class="container" style="border-style: solid; border-color: #49afcd; border-radius:25px; border-width: 1px; margin-top: 25px; padding: 14px;">
+
+<h4><bean:message key="provider.providerchangepassword.description" /><h4>
+
 
 <table width="100%" border="0" cellpadding="2" bgcolor="#eeeeee">
 	<tr>
@@ -198,12 +199,12 @@ function validatePassword(pwd) {
 	<tr>
 		<TD align="center" width="50%"><INPUT TYPE="submit"
 			VALUE='<bean:message key="provider.providerchangepassword.btnSubmit"/>'
-			SIZE="7" onSubmit="return(checkPwdPolicy())"> </TD>			
+			class="btn btn-primary" onSubmit="return(checkPwdPolicy())"> </TD>			
 	</tr>
 </table>
 
     <input type=hidden name='forcedpasswordchange' value='true' />
-
+</div>
 </html:form>
 </body>
 </html:html>

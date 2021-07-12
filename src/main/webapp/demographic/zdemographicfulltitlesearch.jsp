@@ -24,10 +24,10 @@
 
 --%>
 
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
+<%@ page import="org.oscarehr.util.LoggedInInfo"%>
 <%@ page import="java.lang.*"%>
-<%@page import="oscar.OscarProperties"%>
-<%@page import="org.apache.commons.lang.StringEscapeUtils"%>
+<%@ page import="oscar.OscarProperties"%>
+<%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
 
 <%
         boolean fromMessenger = request.getParameter("fromMessenger") == null ? false : (request.getParameter("fromMessenger")).equalsIgnoreCase("true")?true:false;
@@ -56,24 +56,33 @@ function searchOutOfDomain() {
 
 </script>
 
+
+
 <form method="get" name="titlesearch" action="<%=request.getContextPath()%>/demographic/demographiccontrol.jsp"
 	onsubmit="return checkTypeIn()">
 <div class="searchBox">
 <div class="RowTop header">
+<table width=100%>
+  <tr>
+    <td>
 	<div class="title">
-		<bean:message key="demographic.search.msgSearchPatient" />
+		<h4>&nbsp;<bean:message key="demographic.search.msgSearchPatient" /></h4>
 	</div>
-	<div class="createNew">
-		<span class="HelpAboutLogout" style="font-size:12px; font-style:normal;">
-			<oscar:help keywords="&Title=Patient+Search&portal_type%3Alist=Document" key="app.top1" style="color:black; font-size:10px;font-style:normal;"/> |
-        		<a style="color:black; font-size:10px;font-style:normal;" href="<%=request.getContextPath()%>/oscarEncounter/About.jsp" target="_new"><bean:message key="global.about" /></a>
-		</span> 
-	</div>
+    </td>
+    <td align="right">
+		<i class=" icon-question-sign"></i> 
+	    <a href="javascript:void(0)" onClick ="popupPage(600,750,'<%=(OscarProperties.getInstance()).getProperty("HELP_SEARCH_URL")%>'+'Search')"><bean:message key="app.top1"/></a>
+	    <i class=" icon-info-sign" style="margin-left:10px;"></i> 
+        <a href="javascript:void(0)"  onClick="window.open('<%=request.getContextPath()%>/oscarEncounter/About.jsp','About OSCAR','scrollbars=1,resizable=1,width=800,height=600,left=0,top=0')" ><bean:message key="global.about" /></a>
+    </td>
+</tr>
+</table>
+
+	</div> 
 </div> 
-<ul>
-    <li>
-        <div class="label">
-        </div>
+<div class="form-inline">
+    <label class="select">
+        
 	<% String searchMode = request.getParameter("search_mode");
          String keyWord = request.getParameter("keyword");
          if (searchMode == null || searchMode.equals("")) {
@@ -106,27 +115,28 @@ function searchOutOfDomain() {
                 <bean:message key="demographic.zdemographicfulltitlesearch.formDemographicNo" />
             </option>
          </select>
-    </li>
-    <li>
-        <div class="label">
-        </div>
-        <input class="wideInput" type="text" NAME="keyword" VALUE="<%=StringEscapeUtils.escapeHtml(keyWord)%>" SIZE="17" MAXLENGTH="100">
-    </li>
-    <li>
+    </label>
+    <label class="text">
+        <input type="text" NAME="keyword" VALUE="<%=StringEscapeUtils.escapeHtml(keyWord)%>" SIZE="17" MAXLENGTH="100">
+    </label>
+    
 				<INPUT TYPE="hidden" NAME="orderby" VALUE="last_name, first_name">
 				<INPUT TYPE="hidden" NAME="dboperation" VALUE="search_titlename">
-    <INPUT TYPE="hidden" NAME="limit1" VALUE="0">
-    <INPUT TYPE="hidden" NAME="limit2" VALUE="10">
-    <INPUT TYPE="hidden" NAME="displaymode" VALUE="Search">
-    <INPUT TYPE="hidden" NAME="ptstatus" VALUE="active">
-    <INPUT TYPE="hidden" NAME="fromMessenger" VALUE="<%=fromMessenger%>">
-					<INPUT TYPE="hidden" NAME="outofdomain" VALUE="">
-    <INPUT TYPE="SUBMIT" class="rightButton blueButton top" VALUE="<bean:message key="demographic.zdemographicfulltitlesearch.msgSearch" />" SIZE="17"
+                <INPUT TYPE="hidden" NAME="limit1" VALUE="0">
+                <INPUT TYPE="hidden" NAME="limit2" VALUE="10">
+                <INPUT TYPE="hidden" NAME="displaymode" VALUE="Search">
+                <INPUT TYPE="hidden" NAME="ptstatus" VALUE="active">
+                <INPUT TYPE="hidden" NAME="fromMessenger" VALUE="<%=fromMessenger%>">
+	            <INPUT TYPE="hidden" NAME="outofdomain" VALUE="">
+
+				<INPUT TYPE="SUBMIT" class="btn btn-primary" 
+                    VALUE="<bean:message key="demographic.zdemographicfulltitlesearch.msgSearch" />" SIZE="17"
 					TITLE="<bean:message key="demographic.zdemographicfulltitlesearch.tooltips.searchActive"/>">
-				&nbsp;&nbsp;&nbsp; <INPUT TYPE="button" onclick="searchInactive();"
+				&nbsp;&nbsp;&nbsp; 
+                <INPUT TYPE="button" class="btn" onclick="searchInactive();"
 					TITLE="<bean:message key="demographic.zdemographicfulltitlesearch.tooltips.searchInactive"/>"
 					VALUE="<bean:message key="demographic.search.Inactive"/>">
-				<INPUT TYPE="button" onclick="searchAll();"
+				<INPUT TYPE="button" class="btn" onclick="searchAll();"
 					TITLE="<bean:message key="demographic.zdemographicfulltitlesearch.tooltips.searchAll"/>"
 					VALUE="<bean:message key="demographic.search.All"/>">
 					
@@ -138,15 +148,15 @@ function searchOutOfDomain() {
 				<%}%>
 				
 					<security:oscarSec roleName="<%=roleName%>" objectName="_search.outofdomain" rights="r">  
-						<INPUT TYPE="button" onclick="searchOutOfDomain();"
+						<INPUT TYPE="button" class="btn" onclick="searchOutOfDomain();"
 							TITLE="<bean:message key="demographic.zdemographicfulltitlesearch.tooltips.searchOutOfDomain"/>"
 							VALUE="<bean:message key="demographic.search.OutOfDomain"/>">
 					</security:oscarSec>
 					
 				<caisi:isModuleLoad moduleName="caisi">
-				<input type="button" value="cancel" onclick="location.href='<html:rewrite page="/PMmodule/ProviderInfo.do"/>'" >
+				<input type="button" class="btn" value="cancel" onclick="location.href='<html:rewrite page="/PMmodule/ProviderInfo.do"/>'" >
 				</caisi:isModuleLoad>			
-    </li>
-</ul>
-</div>
+    <input type="button" value="<bean:message key="global.btnCancel" />" onclick="window.close();window.opener.location.reload();" class="btn btn-link"/>
+</div> <!-- end inline form-->
+</div> <!-- end searchbox-->
 </form>
