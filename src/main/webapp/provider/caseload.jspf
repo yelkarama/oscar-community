@@ -21,6 +21,7 @@
 <%@ page import="org.oscarehr.util.LoggedInInfo" %>
 <%@ page import="org.oscarehr.util.LocaleUtils" %>
 <%@ page import="java.util.Locale" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
 
@@ -51,6 +52,9 @@
 }
 #caseloadTable form {
 	display: inline;
+}
+#caseloadTable .selectedCategory {
+	background-color: #bfefff;
 }
 #caseloadTable a {
     color:black;
@@ -111,13 +115,13 @@ clH = ["<bean:message key="caseload.msgDemographic" />", "", "<bean:message key=
 						<option value='all'><bean:message key="caseload.msgAllProviders" /></option>
 					<%} %>
 		<%
-		List<Provider> providerList = providerDao1.getProviders();
+		List<Provider> providerList = providerDao1.getActiveProviders();
 		for (Provider provider : providerList) {
 			if (caseloadProv.equals(provider.getProviderNo()) && !bDefaultAllProviders) {
 		%>
- 				<option value='<%=provider.getProviderNo()%>' selected><%=provider.getLastName()+", "+provider.getFirstName()%></option>
+ 				<option value='<%=provider.getProviderNo()%>' selected><%=Encode.forHtmlContent(provider.getLastName()+", "+provider.getFirstName())%></option>
  			<%} else {%>
-				<option value='<%=provider.getProviderNo()%>'><%=provider.getLastName()+", "+provider.getFirstName()%></option>
+				<option value='<%=provider.getProviderNo()%>'><%=Encode.forHtmlContent(provider.getLastName()+", "+provider.getFirstName())%></option>
 			<%}%>
 		<% } %>
 					</select>
@@ -164,10 +168,10 @@ String[] objIds = new String[] {"Demographic", "_caseload.DisplayMode", "_caselo
 
 <% for (int i=0; i < clH.length; i++) { %>
 	<% if (i == 0) { %>
-	<td class='selectedCategory'  onclick='changeCategory("<%=i%>")'><b><%=clH[i]%> &Delta;</b></td>
+	<td class='selectedCategory' bgcolor='#c0c0c0' onclick='changeCategory("<%=i%>")'><b><%=clH[i]%> &Delta;</b></td>
 	<% } else if (i == 1) { %>
 	<security:oscarSec roleName="<%=caseloadroleName$%>" objectName="<%=objIds[i]%>" rights="r" reverse="<%=false%>" >
-		<td <%="style='width:267px'"%>><b><%=clH[i]%></b></td>
+		<td bgcolor='#c0c0c0' <%="style='width:267px'"%>><b><%=clH[i]%></b></td>
 	</security:oscarSec>
 	<% } else{ %>
 	<security:oscarSec roleName="<%=caseloadroleName$%>" objectName="<%=objIds[i]%>" rights="r" reverse="<%=false%>" >
