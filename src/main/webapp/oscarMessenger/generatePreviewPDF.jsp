@@ -90,16 +90,19 @@ request.getSession().setAttribute("EctSessionBean",bean);
 
 
 
+<!-- 
 <link rel="stylesheet" type="text/css" href="encounterStyles.css">
+<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
+<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
+-->
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 <html:html locale="true">
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="oscarMessenger.CreateMessage.title" />
 </title>
 
-<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
 
-<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
 
 
 <script type="text/javascript">   
@@ -219,20 +222,21 @@ request.getSession().setAttribute("EctSessionBean",bean);
 <body class="BodyStyle" vlink="#0000FF">
 
 <!--  -->
-<table class="MainTable" id="scrollNumber1" name="encounterTable">
+<table class="MainTable" id="scrollNumber1" name="encounterTable" width=100%>
 	<tr class="MainTableTopRow">
-		<td class="MainTableTopRowLeftColumn"><bean:message
-			key="oscarMessenger.CreateMessage.msgMessenger" /></td>
+		<td class="MainTableTopRowLeftColumn"><H4>&nbsp;<bean:message
+			key="oscarMessenger.CreateMessage.msgMessenger" /></H4></td>
 		<td class="MainTableTopRowRightColumn">
-		<table class="TopStatusBar">
+		<table class="TopStatusBar" width=100%>
 			<tr>
 				<td>Attach document for: <%=demoName%></td>
 				<td>&nbsp;</td>
-				<td style="text-align: right"><oscar:help keywords="message" key="app.top1"/> | <a
-					href="javascript:popupStart(300,400,'About.jsp')"><bean:message
-					key="global.about" /></a> | <a
-					href="javascript:popupStart(300,400,'License.jsp')"><bean:message
-					key="global.license" /></a></td>
+				        <td align="right" >
+            <i class=" icon-question-sign"></i> 
+            <a href="javascript:void(0)" onClick ="popupPage(700,960,'<%=(OscarProperties.getInstance()).getProperty("HELP_SEARCH_URL")%>'+'Messenger')"><bean:message key="app.top1"/></a>
+            <i class=" icon-info-sign" style="margin-left:10px;"></i> 
+            <a href="javascript:void(0)"  onClick="window.open('<%=request.getContextPath()%>/oscarEncounter/About.jsp','About OSCAR','scrollbars=1,resizable=1,width=800,height=600,left=0,top=0')" ><bean:message key="global.about" /></a>
+        </td>
 			</tr>
 		</table>
 		</td>
@@ -251,7 +255,7 @@ request.getSession().setAttribute("EctSessionBean",bean);
 							<tr>
 								<td class="messengerButtonsA"><a href="#"
 									onclick="javascript:top.window.close()"
-									class="messengerButtons"> Close Attachment </a></td>
+									class="btn btn-link"> Close Attachment </a></td>
 							</tr>
 						</table>
 						</td>
@@ -263,14 +267,14 @@ request.getSession().setAttribute("EctSessionBean",bean);
 
 			<tr>
 
-				<td bgcolor="#EEEEFF"><html:form
+				<td ><html:form
 					action="/oscarMessenger/Doc2PDF">
 
 
 
-					<table border="0" cellpadding="0" cellspacing="1" width="400">
+					<table border="0" cellpadding="0" cellspacing="1" width="400" class="table table-striped">
 						<tr>
-							<th align="left" bgcolor="#DDDDFF" colspan="3">Demographic
+							<th align="left"  colspan="3">Demographic
 							information</th>
 						</tr>
 						<tr>
@@ -284,14 +288,14 @@ request.getSession().setAttribute("EctSessionBean",bean);
 							<td><%=demoName%> Information</td>
 							<td>
 							<% if ( request.getParameter("isAttaching") == null ) { %> <input
-								type="button" value=Preview onclick="PreviewPDF( '<%=currentURI%>')" />
+								type="button" class="btn" value=Preview onclick="PreviewPDF( '<%=currentURI%>')" />
 							<% } %> &nbsp;</td>
 						</tr>
 
 
 						<tr>
 
-							<th align="left" bgcolor="#DDDDFF" colspan="3">Encounters:</th>
+							<th align="left"  colspan="3">Encounters:</th>
 
 						</tr>
 						<%
@@ -315,7 +319,7 @@ request.getSession().setAttribute("EctSessionBean",bean);
 							<td><%=ec.getTimestamp().toString()%></td>
 							<td>
 							<% if ( request.getParameter("isAttaching") == null ) { %> <input
-								type=button value="Preview" onclick="PreviewPDF( '<%=currentURI%>')" />
+								type=button class="btn" value="Preview" onclick="PreviewPDF( '<%=currentURI%>')" />
 							<% } %> &nbsp;</td>
 						</tr>
 
@@ -326,7 +330,7 @@ request.getSession().setAttribute("EctSessionBean",bean);
 
 						<tr>
 
-							<th align="left" bgcolor="#DDDDFF" colspan="3">
+							<th align="left" colspan="3">
 							Prescriptions</th>
 
 
@@ -365,7 +369,7 @@ request.getSession().setAttribute("EctSessionBean",bean);
 							<td>Current prescriptions</td>
 							<td>
 							<% if ( request.getParameter("isAttaching") == null ) { %> <input
-								type="button" value=Preview onclick="PreviewPDF( '<%=currentURI%>')" />
+								type="button" class="btn" value=Preview onclick="PreviewPDF( '<%=currentURI%>')" />
 							<% } %> &nbsp;</td>
 						</tr>
 
@@ -379,7 +383,7 @@ request.getSession().setAttribute("EctSessionBean",bean);
 
                                     <tr>
                                     <td colspan="2">
-                                        <input type="button" name="setURL" value="setURL" onclick="SetBottomURL( document.forms[0].url.value);" />
+                                        <input type="button" class="btn" name="setURL" value="setURL" onclick="SetBottomURL( document.forms[0].url.value);" />
                                     </td>
                                     </tr>
                                     -->
@@ -388,7 +392,7 @@ request.getSession().setAttribute("EctSessionBean",bean);
 							<td colspan="3" align="center">
 							<% if ( request.getParameter("isAttaching") != null ) { %> <input
 								type=text name=status value='' /> <% } else { %> <input
-								type="button" name="Attach" value="Attach Document"
+								type="button" class="btn btn-primary" name="Attach" value="Attach Document"
 								onclick="AttachingPDF(-1)" /> <% } %> <br />
 							</td>
 						</tr>
