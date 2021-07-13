@@ -334,16 +334,7 @@ if(recall){
 						<tr>
 						
 						<td valign=top><br>
-							<table>
-								<tr>
-									<td><input type="submit" class="btn btn-primary"
-										value="<bean:message key="oscarMessenger.CreateMessage.btnSendMessage"/>">
-									</td>
-									<td><input type="button" class="btn"
-										value="<bean:message key="oscarMessenger.CreateMessage.btnSendnArchiveMessage"/>" onClick="XMLHttpRequestSendnArch()">
-									</td>
-								</tr>
-							</table>
+
 							<div class="ChooseRecipientsBox" style="max-height: 450px; overflow-y: scroll;">
 							<table>                                                     
                                 <tr>
@@ -466,7 +457,17 @@ if(recall){
 					<bean:message key="oscarMessenger.CreateMessage.formSubject" /> :
 					<html:text name="msgCreateMessageForm" property="subject" styleClass="input-large" value="${messageSubject}"/> <br>
 					<br>
-					<html:textarea name="msgCreateMessageForm" property="message" rows="18" style="min-width: 100%" value="${messageBody}"/> 
+					<html:textarea name="msgCreateMessageForm" property="message" rows="15" style="min-width: 100%" value="${messageBody}"/> 
+							<table>
+								<tr>
+									<td><input type="submit" class="btn btn-primary"
+										value="<bean:message key="oscarMessenger.CreateMessage.btnSendMessage"/>">
+									</td>
+									<td><input type="button" class="btn"
+										value="<bean:message key="oscarMessenger.CreateMessage.btnSendnArchiveMessage"/>" onClick="XMLHttpRequestSendnArch()">
+									</td>
+								</tr>
+							</table>
 					<%
                        String att = bean.getAttachment();
                        String pdfAtt = bean.getPDFAttachment();
