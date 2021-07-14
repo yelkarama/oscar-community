@@ -130,6 +130,7 @@
 	demographic.setLastName(request.getParameter("last_name").trim());
 	demographic.setFirstName(request.getParameter("first_name").trim());
 	demographic.setMiddleNames(request.getParameter("middleNames").trim());
+	demographic.setAlias(request.getParameter("alias").trim());
 	demographic.setAddress(request.getParameter("address"));
 	demographic.setCity(request.getParameter("city"));
 	demographic.setProvince(request.getParameter("province"));
