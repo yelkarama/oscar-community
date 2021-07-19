@@ -140,6 +140,9 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
     .Field2 {
         
     }
+.UnassignedRes {
+    background-color: #FFCC00;
+}
 
     .MainTableTopRowRightColumn {
         background-color: silver;
@@ -170,7 +173,7 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 	}
 
 	var page = 1;
-	var pageSize = 20;
+	var pageSize = 40;
 	var selected_category = <%=(selectedCategory == null ? "1" : selectedCategory)%>;
 	var selected_category_patient = <%=(selectedCategoryPatient == null ? "\"\"" : selectedCategoryPatient)%>;
 	var selected_category_type = <%=(selectedCategoryType == null ? "\"\"" : selectedCategoryType)%>;
@@ -352,12 +355,12 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 		var view = document.getElementById("readerSwitcher");
 		var active, passive;
 		if (isListView) {
-			pageSize = 20;
+			pageSize = 40;
 			active = view;
 			passive = list;
 		}
 		else {
-			pageSize = 5;
+			pageSize = 10;
 			active = list;
 			passive = view;
 		}
