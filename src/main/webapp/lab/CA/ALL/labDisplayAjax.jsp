@@ -471,7 +471,7 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
                                                 <table width="100%" border="0" cellpadding="2" cellspacing="0" valign="top">
                                                     <tr>
                                                         <td valign="top" align="left">
-                                                            <table width="100%" border="0" cellpadding="2" cellspacing="0" valign="top"  <% if ( demographicID.equals("") || demographicID.equals("0")){ %> bgcolor="orange" <% } %> id="DemoTable<%=segmentID%>" >
+                                                            <table width="100%" border="0" cellpadding="2" cellspacing="0" valign="top"  <% if ( demographicID.equals("") || demographicID.equals("0")){ %> style="background-color:orange;" <% } %> id="DemoTable<%=segmentID%>" >
                                                                 <tr>
                                                                     <td nowrap>
                                                                         <div class="FieldData">
