@@ -3895,6 +3895,58 @@ console.log(year+"-"+month+"-"+day);
 			</select>
             </div>
         </div>
+
+<%-- TOGGLED OFF PROGRAM ADMISSIONS --%>
+        <oscar:oscarPropertiesCheck property="DEMOGRAPHIC_PROGRAM_ADMISSIONS" value="true">
+                <div class="control-group span5">
+                    <label class="control-label" for="rsid"><bean:message key="demographic.demographiceditdemographic.programAdmissions" /></label>
+                    <div class="controls">
+                        <select id="rsid" name="rps">
+                            <option value=""></option>
+                                <%
+                                GenericIntakeEditAction gieat = new GenericIntakeEditAction();
+                                gieat.setProgramManager(pm);
+                                String _pvid =loggedInInfo.getLoggedInProviderNo();
+                                Set<Program> pset = gieat.getActiveProviderProgramsInFacility(loggedInInfo,_pvid,loggedInInfo.getCurrentFacility().getId());
+                                List<Program> bedP = gieat.getBedPrograms(pset,_pvid);
+                                List<Program> commP = gieat.getCommunityPrograms();
+                              	Program oscarp = programDao.getProgramByName("OSCAR");              
+                                for(Program _p:bedP){
+                                %>
+                            <option value="<%=_p.getId()%>" <%=isProgramSelected(bedAdmission, _p.getId()) %>><%=_p.getName()%></option>
+                                <%
+                                    }                    
+                                %>
+                        </select>
+                    </div>
+                </div>
+                <div class="control-group span5">
+                    <label class="control-label" for="sp"><bean:message key="demographic.demographiceditdemographic.servicePrograms" /></label>
+                    <div class="controls">
+			                    <%
+			                    	ProgramManager programManager = SpringUtils.getBean(ProgramManager.class);
+			                    	List<Program> servP = programManager.getServicePrograms();
+			                       
+			                        for(Program _p:servP){
+			                        	boolean readOnly=false;
+			                        	if(!pset.contains(_p)) {
+			                        		readOnly=true;
+			                        	}
+			                        	String selected = isProgramSelected(serviceAdmissions, _p.getId());
+			                        	
+			                        	if(readOnly && selected.length() == 0) {
+			                        		continue;
+			                        	}
+			                        	
+			                    %>
+			                        <input type="checkbox" name="sp" id="sp" value="<%=_p.getId()%>" <%=selected %> <%=(readOnly)?" disabled=\"disabled\" ":"" %> />
+			                        <%=_p.getName()%>
+			                    <%}%>
+                    </div>
+                </div>
+        </oscar:oscarPropertiesCheck>
+<%-- END TOGGLE OFF PROGRAM ADMISSIONS --%>	
+
         <oscar:oscarPropertiesCheck property="INTEGRATOR_LOCAL_STORE" value="yes">		
                 <div class="control-group span5">
                     <label class="control-label" for="primaryEMR"><bean:message key="demographic.demographiceditdemographic.primaryEMR" /></label>
@@ -3987,74 +4039,7 @@ console.log(year+"-"+month+"-"+day);
 </oscar:oscarPropertiesCheck>
 <%-- END AUTHOR DENNIS WARREN O/A COLCAMEX RESOURCES --%>
 
-<%-- TOGGLED OFF PROGRAM ADMISSIONS --%>
-<oscar:oscarPropertiesCheck property="DEMOGRAPHIC_PROGRAM_ADMISSIONS" value="true">
-							
-			<tr valign="top">
-			    <td colspan="4">
-			        <table border="1" width="100%">
-			            <tr>
-			                <td colspan="2" >Program Admissions</td>
-			            </tr>
-			            <tr>
-			                <td>Residential Status<font color="red">:</font></td>
-			                <td>Service Programs</td>
-			            </tr>
-			            <tr>
-			                <td>
-                                <select id="rsid" name="rps">
-                                	<option value=""></option>
-                                    <%
-                                        GenericIntakeEditAction gieat = new GenericIntakeEditAction();
-                                        gieat.setProgramManager(pm);
-                                     
-                                        
-                                        String _pvid =loggedInInfo.getLoggedInProviderNo();
-                                        Set<Program> pset = gieat.getActiveProviderProgramsInFacility(loggedInInfo,_pvid,loggedInInfo.getCurrentFacility().getId());
-                                        List<Program> bedP = gieat.getBedPrograms(pset,_pvid);
-                                        List<Program> commP = gieat.getCommunityPrograms();
-                      	                Program oscarp = programDao.getProgramByName("OSCAR");
-                      	                
-                      	                
-                                        for(Program _p:bedP){
-                                    %>
-                                        <option value="<%=_p.getId()%>" <%=isProgramSelected(bedAdmission, _p.getId()) %>><%=_p.getName()%></option>
-                                    <%
-                                        }
-                                        
-                                      %>
-                                </select>
-                                
-			                </td>
-			                <td>
-			                    <%
-			                    	ProgramManager programManager = SpringUtils.getBean(ProgramManager.class);
-			                    	List<Program> servP = programManager.getServicePrograms();
-			                       
-			                        for(Program _p:servP){
-			                        	boolean readOnly=false;
-			                        	if(!pset.contains(_p)) {
-			                        		readOnly=true;
-			                        	}
-			                        	String selected = isProgramSelected(serviceAdmissions, _p.getId());
-			                        	
-			                        	if(readOnly && selected.length() == 0) {
-			                        		continue;
-			                        	}
-			                        	
-			                    %>
-			                        <input type="checkbox" name="sp" value="<%=_p.getId()%>" <%=selected %> <%=(readOnly)?" disabled=\"disabled\" ":"" %> />
-			                        <%=_p.getName()%>
-			                        <br/>
-			                    <%}%>
-			                </td>
-			            </tr>
-			        </table>
-			    </td>
-			</tr>
-
-</oscar:oscarPropertiesCheck>
-<%-- END TOGGLE OFF PROGRAM ADMISSIONS --%>							
+						
 							
 <% // customized key + "Has Primary Care Physician" & "Employment Status"
 	if (hasHasPrimary || hasEmpStatus) {
