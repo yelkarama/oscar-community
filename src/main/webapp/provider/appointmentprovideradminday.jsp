@@ -1468,6 +1468,7 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 
 
 <td align="right" valign="bottom" >
+<div class="btn-group">
 	<a href="javascript: function myFunction() {return false; }" onClick="popup(700,1024,'../scratch/index.jsp','scratch')"><i class="icon-pencil" title="<bean:message key="ScratchPad.title"/>"></i></a>&nbsp;
 
 	<%if(resourcehelpHtml==""){ %>
@@ -1477,7 +1478,7 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 	<%}else{%>
 		<a href="javascript:void(0)" onClick ="popupPage(600,750,'<%=resourcehelpHtml%>'+'Booking%2FAppointment')"><i class="icon-question-sign" title="<bean:message key="app.top1"/>"></i></a>
 
-</div>
+
 	<%}%>
 <a href="javascript:void(0)" onclick="window.open('/oscar/oscarEncounter/About.jsp','About OSCAR','scrollbars=1,resizable=1,width=800,height=600,left=0,top=0')"><i class="icon-info-sign" title="<bean:message key="app.top2"/>"></i></a>
 	
@@ -1517,7 +1518,7 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 		   else { %>
 				 &nbsp;&nbsp;&nbsp;<a href="../logout.jsp"><i class="icon-off icon-large" title="<bean:message key="global.btnLogout"/>"></i>&nbsp;</a>
 		<% } %>
-
+</div>
 </td>
 
 

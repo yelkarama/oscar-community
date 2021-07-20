@@ -996,7 +996,7 @@ input[type=button], button, input[id^='acklabel_']{ font-size:12px !important;pa
                                     <table valign="top" border="0" cellpadding="2" cellspacing="0" width="100%">
                                         <tr valign="top">
                                             <td valign="top" width="33%" align="left">
-                                                <table width="100%" border="0" cellpadding="2" cellspacing="0" valign="top"  <% if ( !isLinkedToDemographic){ %> bgcolor="orange" <% } %> id="DemoTable<%=segmentID%>" >                                                    <tr>
+                                                <table width="100%" border="0" cellpadding="2" cellspacing="0" valign="top"  <% if ( !isLinkedToDemographic){ %> style="background-color:orange;" <% } %> id="DemoTable<%=segmentID%>" >                                                    <tr>
                                                         <td valign="top" align="left">
                                                             <table valign="top" border="0" cellpadding="3" cellspacing="0" width="100%">
                                                                 <tr>
