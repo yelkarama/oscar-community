@@ -757,6 +757,13 @@ function updateResidentialProvinces(province) {
 
 
 </script>
+<style>
+
+input[type="text"], input[type="date"], input[type="email"] {
+    height: 30px;
+    line-height: 30px;
+}
+</style>
 </head>
 <!-- Databases have alias for today. It is not necessary give the current date -->
 
@@ -860,21 +867,21 @@ function updateResidentialProvinces(province) {
                 key="demographic.demographiceditdemographic.formLastName" /><span style="color:red">*</span></label>
             <div class="controls">
               <input type="text"  placeholder="<bean:message key="demographic.demographiceditdemographic.formLastName" />"
-                    name="last_name" id="last_name"  onBlur="upCaseCtrl(this)" value="<%=Encode.forHtmlAttribute(lastNameVal)%>">
+                    name="last_name" id="last_name" required onBlur="upCaseCtrl(this)" value="<%=Encode.forHtmlAttribute(lastNameVal)%>">
             </div>
         </div>
         <div class="control-group span5">
             <label class="control-label" for="first_name"><bean:message key="demographic.demographiceditdemographic.formFirstName" /><span style="color:red">*</span></label>
             <div class="controls">
               <input type="text" placeholder="<bean:message key="demographic.demographiceditdemographic.formFirstName" />"
-                    name="first_name" id="first_name" onBlur="upCaseCtrl(this)"  value="<%=Encode.forHtmlAttribute(firstNameVal)%>">
+                    name="first_name" id="first_name" required onBlur="upCaseCtrl(this)"  value="<%=Encode.forHtmlAttribute(firstNameVal)%>">
             </div>
         </div>
         <div class="control-group span5">
             <label class="control-label" for="inputDOB"><bean:message key="demographic.demographiceditdemographic.formDOB" /> <bean:message key="demographic.demographiceditdemographic.formDOBDetais" /><span style="color:red">*</span></label>
             <div class="controls" style="white-space: nowrap;">
                 <input type="date" id="inputDOB" 
-                    class="input input-medium"
+                    class="input input-medium" required
                     name="inputDOB" 
 					onchange="parsedob_date();">
                 <input type="hidden" id="year_of_birth" placeholder="yyyy" name="year_of_birth"
@@ -888,7 +895,7 @@ function updateResidentialProvinces(province) {
         <div class="control-group span5">
             <label class="control-label" for="sex"><bean:message key="demographic.demographiceditdemographic.formSex" /><span style="color:red">*</span></label>
             <div class="controls">
-              <select  name="sex" id="sex">
+              <select  name="sex" id="sex" required>
 			                        <option value=""></option>
 			                		<% for(Gender gn : Gender.values()){ %>
 			                        <option value=<%=gn.name()%> ><%=gn.getText()%></option>
@@ -1016,7 +1023,7 @@ function updateResidentialProvinces(province) {
             <label class="control-label" for="city"><bean:message key="demographic.demographiceditdemographic.formCity" /></label>
             <div class="controls">
               <input type="text" id="city" placeholder="<bean:message key="demographic.demographiceditdemographic.formCity" />" name="city"
-					value="<%=defaultCity%>" />
+					value="<%=StringUtils.trimToEmpty(defaultCity)%>" />
             </div>
         </div>
         <div class="control-group span5">
@@ -1122,24 +1129,20 @@ function updateResidentialProvinces(province) {
         </div>
         <div class="control-group span5">
             <label class="control-label" for="postal"><% if(oscarProps.getProperty("demographicLabelPostal") == null) { %>
-								<bean:message
-									key="demographic.demographiceditdemographic.formPostal" /> <% } else {
+								<bean:message key="demographic.demographiceditdemographic.formPostal" /> <% } else {
                                   out.print(oscarProps.getProperty("demographicLabelPostal"));
                               	 } %></label>
             <div class="controls">
-              <input type="text" id="postal" placeholder="<% if(oscarProps.getProperty("demographicLabelPostal") == null) { %>
-								<bean:message
-									key="demographic.demographiceditdemographic.formPostal" /> <% } else {
-                                  out.print(oscarProps.getProperty("demographicLabelPostal"));
-                              	 } %>" name="postal" value="<%=postal%>"
-									onBlur="upCaseCtrl(this)" onChange="isPostalCode()">
+                <input type="text" id="postal" placeholder="<bean:message key="demographic.demographiceditdemographic.formPostal" /> " 
+                    name="postal" value="<%=StringUtils.trimToEmpty(postal)%>" 
+					onBlur="upCaseCtrl(this)" onChange="isPostalCode()">
             </div>
         </div>
 <!-- end postal -->
         <div class="control-group span5">
             <label class="control-label" for="inputEmail"><bean:message key="demographic.demographiceditdemographic.formEmail" /></label>
             <div class="controls">
-              <input type="text" id="inputEmail" placeholder="<bean:message key="demographic.demographiceditdemographic.formEmail" />"
+              <input type="email" id="inputEmail" placeholder="<bean:message key="demographic.demographiceditdemographic.formEmail" />"
                     name="email" >
             </div>
         </div>
@@ -1375,7 +1378,7 @@ function updateResidentialProvinces(province) {
 					class="input-small" >
             <bean:message key="demographic.demographiceditdemographic.formVer" />
             <input type="text" placeholder="<bean:message key="demographic.demographiceditdemographic.formVer" />"
-                    name="ver" 
+                    name="ver" class="input input-small"
 									
 									onBlur="upCaseCtrl(this)" id="verBox">
 									<%if("online".equals(oscarProps.getProperty("hcv.type", "simple"))) { %>
