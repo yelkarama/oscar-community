@@ -69,8 +69,8 @@
 	<html>
 	<head>
 	
-	<link rel="stylesheet" type="text/css" href="${ pageContext.request.contextPath }/css/healthCareTeam.css" />
-	<link rel="stylesheet" type="text/css" href="${ pageContext.request.contextPath }/share/css/OscarStandardLayout.css" />
+	<!--<link rel="stylesheet" type="text/css" href="${ pageContext.request.contextPath }/css/healthCareTeam.css" />-->
+	<!--<link rel="stylesheet" type="text/css" href="${ pageContext.request.contextPath }/share/css/OscarStandardLayout.css" />-->
 	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jquery.js" ></script>
 
 </c:if>
@@ -140,7 +140,7 @@
 
 <%-- DETACHED VIEW ENABLED  --%>
 
-	<h3 id="tableTitle">Health Care Team</h3>
+	<h4 id="tableTitle">&nbsp;Health Care Team</h4>
 	
 <%-- END DETACHED VIEW ENABLED  --%>
 
@@ -156,7 +156,7 @@
 			
 			<li id="${ dContact.id }" class="hovereffect ${ rowclass }" >
 			
-				<span class="label"> 
+				<span class="labels"> 
 					<c:out value="${ dContact.role }" />					
 				</span>
 				
