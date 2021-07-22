@@ -975,7 +975,7 @@ background-color: grey;
 }
 </style>
 </head>
-<body onLoad="setfocus(); checkONReferralNo(); formatPhoneNum(); checkRosterStatus2(); parseeff_date(); parsehc_renew_date(); parseroster_date(); parseend_date(); parseexp_date(); parseroster_termination_date(); parsepatientstatus_date(); parsedate_joined(); loaddob();"
+<body onLoad="setfocus(); checkONReferralNo(); formatPhoneNum(); checkRosterStatus2(); parseeff_date(); parsehc_renew_date(); parseroster_date(); parseend_date();  parseroster_termination_date(); parsepatientstatus_date(); parsedate_joined(); loaddob();"
 	topmargin="0" leftmargin="0" rightmargin="0" id="demographiceditdemographic">
 
 <table class="xMainTable" id="scrollNumber1" name="encounterTable">
@@ -3127,145 +3127,157 @@ if ( Dead.equals(PatStat) ) {%>
             <label class="control-label" for="effDate"><bean:message key="demographic.demographiceditdemographic.formEFFDate" /></label>
             <div class="controls">
 <script>
+
 function loaddob(){
-console.log("DOB is "+document.getElementById('year_of_birth').value+"-"+document.getElementById('month_of_birth').value+"-"+document.getElementById('date_of_birth').value);
+    console.log("DOB is "+document.getElementById('year_of_birth').value+"-"+document.getElementById('month_of_birth').value+"-"+document.getElementById('date_of_birth').value);
     document.getElementById('inputDOB').value=document.getElementById('year_of_birth').value+"-"+document.getElementById('month_of_birth').value+"-"+document.getElementById('date_of_birth').value;
 
 }
+
 function parsedob_date(){
     var input=document.getElementById('inputDOB').value;
-    var d = new Date(input);
-
-    if ( !!d.valueOf() ) {
-        year = d.getFullYear();
-        month = d.getMonth()+1;
-        day = d.getDate();
-console.log("DOB="+year+"-"+month+"-"+day);
-        document.getElementById('year_of_birth').value = year
-        document.getElementById('month_of_birth').value = month
-        document.getElementById('date_of_birth').value = day
+    year="";
+    month="";
+    day="";
+    if (input != ""){
+        const myArr = input.split("-");
+        year = myArr[0];
+        month = myArr[1];
+        day = myArr[2];
     }
+    console.log("DOB="+year+"-"+month+"-"+day);
+    document.getElementById('year_of_birth').value = year;
+    document.getElementById('month_of_birth').value = month;
+    document.getElementById('date_of_birth').value = day;
 }
+
 function parseeff_date(){
     var input=document.getElementById('eff_date').value;
-    var d = new Date(input);
-
-    if ( !!d.valueOf() ) {
-        year = d.getFullYear();
-        month = d.getMonth()+1;
-        day = d.getDate();
-console.log(year+"-"+month+"-"+day);
-        document.getElementById('eff_date_year').value = year
-        document.getElementById('eff_date_month').value = month
-        document.getElementById('eff_date_day').value = day
+    year="";
+    month="";
+    day="";
+    if (input != "") {
+        const myArr = input.split("-");
+        year = myArr[0];
+        month = myArr[1];
+        day = myArr[2];
     }
+    console.log("eff="+year+"-"+month+"-"+day);
+    document.getElementById('eff_date_year').value = year;
+    document.getElementById('eff_date_month').value = month;
+    document.getElementById('eff_date_day').value = day;
 }
+
 function parsehc_renew_date(){
     var input=document.getElementById('hc_renew_date').value;
-    var d = new Date(input);
-
-    if ( !!d.valueOf() ) {
-        year = d.getFullYear();
-        month = d.getMonth()+1;
-        day = d.getDate();
-console.log(year+"-"+month+"-"+day);
+    year="";
+    month="";
+    day="";
+    if (input != ""){
+    const myArr = input.split("-");
+        year = myArr[0];
+        month = myArr[1];
+        day = myArr[2];
+    }
+    console.log("hc_renew="+year+"-"+month+"-"+day);
         document.getElementById('hc_renew_date_year').value = year
         document.getElementById('hc_renew_date_month').value = month
         document.getElementById('hc_renew_date_day').value = day
-    }
+
 }
 
 function parseroster_date(){
     var input=document.getElementById('roster_date').value;
-    var d = new Date(input);
-
-    if ( !!d.valueOf() ) {
-        year = d.getFullYear();
-        month = d.getMonth()+1;
-        day = d.getDate();
-console.log(year+"-"+month+"-"+day);
+    year="";
+    month="";
+    day="";
+    if (input != ""){
+    const myArr = input.split("-");
+        year = myArr[0];
+        month = myArr[1];
+        day = myArr[2];
+    }
+    console.log("rosterd="+year+"-"+month+"-"+day);
         document.getElementById('roster_date_year').value = year
         document.getElementById('roster_date_month').value = month
         document.getElementById('roster_date_day').value = day
-    }
+   
 }
 
 function parseend_date(){
     var input=document.getElementById('end_date').value;
-    var d = new Date(input);
-
-    if ( !!d.valueOf() ) {
-        year = d.getFullYear();
-        month = d.getMonth()+1;
-        day = d.getDate();
-console.log(year+"-"+month+"-"+day);
+    year="";
+    month="";
+    day="";
+    if (input != ""){
+    const myArr = input.split("-");
+        year = myArr[0];
+        month = myArr[1];
+        day = myArr[2];
+    }
+    console.log("end="+year+"-"+month+"-"+day);
         document.getElementById('end_date_year').value = year
         document.getElementById('end_date_month').value = month
         document.getElementById('end_date_day').value = day
-    }
+   
 }
 
-function parseexp_date(){
-    var input=document.getElementById('exp_date').value;
-    var d = new Date(input);
-
-    if ( !!d.valueOf() ) {
-        year = d.getFullYear();
-        month = d.getMonth()+1;
-        day = d.getDate();
-console.log(year+"-"+month+"-"+day);
-        document.getElementById('exp_date_year').value = year
-        document.getElementById('exp_date_month').value = month
-        document.getElementById('exp_date_day').value = day
-    }
-}
 
 function parseroster_termination_date(){
     var input=document.getElementById('roster_termination_date').value;
-    var d = new Date(input);
-
-    if ( !!d.valueOf() ) {
-        year = d.getFullYear();
-        month = d.getMonth()+1;
-        day = d.getDate();
-console.log(year+"-"+month+"-"+day);
+    year="";
+    month="";
+    day="";
+    if (input != ""){
+    const myArr = input.split("-");
+        year = myArr[0];
+        month = myArr[1];
+        day = myArr[2];
+    }
+    console.log("term="+year+"-"+month+"-"+day);
         document.getElementById('roster_termination_date_year').value = year
         document.getElementById('roster_termination_date_month').value = month
         document.getElementById('roster_termination_date_day').value = day
-    }
+
 }
 
 function parsepatientstatus_date(){
     var input=document.getElementById('patientstatus_date').value;
-    var d = new Date(input);
-
-    if ( !!d.valueOf() ) {
-        year = d.getFullYear();
-        month = d.getMonth()+1;
-        day = d.getDate();
-console.log(year+"-"+month+"-"+day);
+    year="";
+    month="";
+    day="";
+    if (input != ""){
+    const myArr = input.split("-");
+        year = myArr[0];
+        month = myArr[1];
+        day = myArr[2];
+    }
+    console.log("psdate="+year+"-"+month+"-"+day);
         document.getElementById('patientstatus_date_year').value = year
         document.getElementById('patientstatus_date_month').value = month
         document.getElementById('patientstatus_date_day').value = day
-    }
+    
 }
 
 function parsedate_joined(){
     var input=document.getElementById('date_joined').value;
-    var d = new Date(input);
-
-    if ( !!d.valueOf() ) {
-        year = d.getFullYear();
-        month = d.getMonth()+1;
-        day = d.getDate();
-console.log(year+"-"+month+"-"+day);
+    year="";
+    month="";
+    day="";
+    if (input != ""){
+    const myArr = input.split("-");
+        year = myArr[0];
+        month = myArr[1];
+        day = myArr[2];
+    }
+    console.log("joined="+year+"-"+month+"-"+day);
         document.getElementById('date_joined_year').value = year
         document.getElementById('date_joined_month').value = month
         document.getElementById('date_joined_day').value = day
-    }
+    
 }
 </script>
-                <input type="date" id="eff_date" name="eff_date" value="<%=demographic.getEffDate()%>"  <%=getDisabled("eff_date_year")%> onchange="parseeff_date();">
+                <input type="date" id="eff_date" name="eff_date" value="<%=MyDateFormat.getMyStandardDate(demographic.getEffDate())%>"  <%=getDisabled("eff_date_year")%> onchange="parseeff_date();">
                 <input type="hidden" name="eff_date_year" id="eff_date_year">
                 <input type="hidden" name="eff_date_month" id="eff_date_month">
                 <input type="hidden" name="eff_date_day" id="eff_date_day">
@@ -3362,7 +3374,7 @@ console.log(year+"-"+month+"-"+day);
         <div class="control-group span5">
             <label class="control-label" for="hc_renew_date"><bean:message key="demographic.demographiceditdemographic.formHCRenewDate" /></label>
             <div class="controls">
-                <input type="date" id="hc_renew_date" name="hc_renew_date" value="<%=demographic.getHcRenewDate()%>" onchange="parsehc_renew_date();" <%=getDisabled("hc_renew_date_year")%>>
+                <input type="date" id="hc_renew_date" name="hc_renew_date" value="<%=MyDateFormat.getMyStandardDate(demographic.getHcRenewDate())%>" onchange="parsehc_renew_date();" <%=getDisabled("hc_renew_date_year")%>>
                 <input type="hidden" name="hc_renew_date_year" id="hc_renew_date_year">
                 <input type="hidden" name="hc_renew_date_month" id="hc_renew_date_month">
                 <input type="hidden" name="hc_renew_date_day" id="hc_renew_date_day">
@@ -3371,25 +3383,17 @@ console.log(year+"-"+month+"-"+day);
         <div class="control-group span5">
             <label class="control-label" for="date_joined"><bean:message key="demographic.demographiceditdemographic.formDateJoined1" /></label>
             <div class="controls">
-                <input type="date" id="date_joined" name="date_joined" value="<%=demographic.getDateJoined()%>" onchange="parsedate_joined();" <%=getDisabled("date_joined_year")%>>
+                <input type="date" id="date_joined" name="date_joined" value="<%=MyDateFormat.getMyStandardDate(demographic.getDateJoined())%>" onchange="parsedate_joined();" <%=getDisabled("date_joined_year")%>>
                 <input type="hidden" name="date_joined_year" id="date_joined_year">
                 <input type="hidden" name="date_joined_month" id="date_joined_month">
                 <input type="hidden" name="date_joined_day" id="date_joined_day">
             </div>
         </div> 
-        <div class="control-group span5">
-            <label class="control-label" for="exp_date"><bean:message key="admin.securityrecord.formExpiryDate" /></label>
-            <div class="controls">
-                <input type="date" id="exp_date" name="exp_date" value="<%=demographic.getHcRenewDate()%>" onchange="parseexp_date();" <%=getDisabled("exp_date_year")%>>
-                <input type="hidden" name="exp_date_year" id="exp_date_year">
-                <input type="hidden" name="exp_date_month" id="exp_date_month">
-                <input type="hidden" name="exp_date_day" id="exp_date_day">
-            </div>
-        </div> 
+
         <div class="control-group span5">
             <label class="control-label" for="roster_date" title="<bean:message key="demographic.demographiceditdemographic.DateJoined" />"><bean:message key="demographic.demographiceditdemographic.DateJoined" /></label>
             <div class="controls">
-              <input type="date" id="roster_date" name="roster_date" value="<%=demographic.getDateJoined()%>"  onchange="parseroster_date();" <%=getDisabled("roster_date_year")%>>
+              <input type="date" id="roster_date" name="roster_date" value="<%=MyDateFormat.getMyStandardDate(demographic.getRosterDate())%>"  onchange="parseroster_date();" <%=getDisabled("roster_date_year")%>>
 <input  type="hidden" name="roster_date_year" id="roster_date_year">
 <input  type="hidden" name="roster_date_month" id="roster_date_month">
 <input  type="hidden" name="roster_date_day" id="roster_date_day">
@@ -3398,10 +3402,10 @@ console.log(year+"-"+month+"-"+day);
         <div class="control-group span5">
             <label class="control-label" for="end_date" ><bean:message key="demographic.demographiceditdemographic.formEndDate" /></label>
             <div class="controls">
-              <input type="date" id="end_date" name="end_date" value="<%=demographic.getEndDate()%>"  onchange="parseend_date();" <%=getDisabled("end_date_year")%>>
-<input type="hidden" name="end_date_year"> 
-<input type="hidden" name="end_date_month"> 
-<input type="hidden" name="end_date_day" >
+              <input type="date" id="end_date" name="end_date" value="<%=MyDateFormat.getMyStandardDate(demographic.getEndDate())%>"  onchange="parseend_date();" <%=getDisabled("end_date_year")%>>
+<input type="hidden" name="end_date_year" id="end_date_year"> 
+<input type="hidden" name="end_date_month" id="end_date_month"> 
+<input type="hidden" name="end_date_day" id="end_date_day">
             </div>
         </div>
 
@@ -3469,7 +3473,7 @@ console.log(year+"-"+month+"-"+day);
         <div class="control-group span5">
             <label class="control-label" for="roster_termination_date"><bean:message key="demographic.demographiceditdemographic.RosterTerminationDate" /></label>
             <div class="controls">
-              <input type="date" id="roster_termination_date" name="roster_termination_date" value="<%=demographic.getRosterTerminationDate()%>" onchange="parseroster_termination_date();" <%=getDisabled("roster_termination_date_year")%>>
+              <input type="date" id="roster_termination_date" name="roster_termination_date" value="<%=MyDateFormat.getMyStandardDate(demographic.getRosterTerminationDate())%>" onchange="parseroster_termination_date();" <%=getDisabled("roster_termination_date_year")%>>
 <input  type="hidden" name="roster_termination_date_year" id="roster_termination_date_year">
 <input  type="hidden" name="roster_termination_date_month" id="roster_termination_date_month">
 <input  type="hidden" name="roster_termination_date_day" id="roster_termination_date_day">
@@ -3529,7 +3533,7 @@ console.log(year+"-"+month+"-"+day);
         <div class="control-group span5">
             <label class="control-label" for="patientstatus_date"><bean:message key="demographic.demographiceditdemographic.PatientStatusDate" /></label>
             <div class="controls">
-                <input type="date" id="patientstatus_date" name="patientstatus_date" onchange="parsepatientstatus_date();" value="<%=demographic.getPatientStatusDate()%>">
+                <input type="date" id="patientstatus_date" name="patientstatus_date" onchange="parsepatientstatus_date();" value="<%=MyDateFormat.getMyStandardDate(demographic.getPatientStatusDate())%>">
 <input type="hidden" name="patientstatus_date_year" id="patientstatus_date_year">
 <input type="hidden" name="patientstatus_date_month" id="patientstatus_date_month">
 <input type="hidden" name="patientstatus_date_day" id="patientstatus_date_day">
@@ -3939,7 +3943,7 @@ console.log(year+"-"+month+"-"+day);
 			                        	}
 			                        	
 			                    %>
-			                        <input type="checkbox" name="sp" id="sp" value="<%=_p.getId()%>" <%=selected %> <%=(readOnly)?" disabled=\"disabled\" ":"" %> />
+			                        <input type="checkbox" name="sp" value="<%=_p.getId()%>" <%=selected %> <%=(readOnly)?" disabled=\"disabled\" ":"" %> />
 			                        <%=_p.getName()%>
 			                    <%}%>
                     </div>
