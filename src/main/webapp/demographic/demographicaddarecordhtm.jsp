@@ -83,9 +83,10 @@
 <%@page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%@page import="org.oscarehr.managers.ProgramManager2" %>
 <%@page import="org.oscarehr.PMmodule.model.ProgramProvider" %>
+<%@page import="org.oscarehr.common.Gender" %>
 
 <%@page import="org.oscarehr.managers.PatientConsentManager" %>
-
+<%@ page import="org.owasp.encoder.Encode" %>
 <jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="session" />
 <%
 	ProfessionalSpecialistDao professionalSpecialistDao = (ProfessionalSpecialistDao) SpringUtils.getBean("professionalSpecialistDao");
@@ -173,6 +174,9 @@
 %>
 <html:html locale="true">
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery.js"></script> 
    <script>
@@ -239,15 +243,12 @@
 <script type="text/javascript"
 	src="../share/calendar/lang/<bean:message key="global.javascript.calendar"/>"></script>
 
-<!-- the following script defines the Calendar.setup helper function, which makes
-       adding a calendar a matter of 1 or 2 lines of code. -->
-<script type="text/javascript" src="../share/calendar/calendar-setup.js"></script>
 
 <script type="text/javascript" src="<%=request.getContextPath() %>/js/check_hin.js"></script>
 
 <!-- Stylesheet for zdemographicfulltitlesearch.jsp -->
-<link rel="stylesheet" type="text/css" href="../share/css/searchBox.css" />
-<link rel="stylesheet" type="text/css" href="<%=request.getContextPath() %>/css/Demographic.css" />
+<!--<link rel="stylesheet" type="text/css" href="../share/css/searchBox.css" />-->
+<!--<link rel="stylesheet" type="text/css" href="<%=request.getContextPath() %>/css/Demographic.css" />-->
 
 <!--link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  /-->
 <script language="JavaScript">
@@ -762,14 +763,14 @@ function updateResidentialProvinces(province) {
 <body bgproperties="fixed" topmargin="0"
 	leftmargin="0" rightmargin="0">
 <table border="0" cellspacing="0" cellpadding="0" width="100%">
-	<tr bgcolor="#CCCCFF">
+	<tr >
 		<th class="subject"><bean:message
 			key="demographic.demographicaddrecordhtm.msgMainLabel" /></th>
 	</tr>
 </table>
 
 <%@ include file="zdemographicfulltitlesearch.jsp"%>
-<table width="100%" bgcolor="#CCCCFF">
+<table width="100%" >
 <tr><td class="RowTop">
     <b><bean:message key="demographic.record"/></b>
     <% if (OscarProperties.getInstance().getBooleanProperty("indivica_hc_read_enabled", "true")) { %>
@@ -780,46 +781,46 @@ function updateResidentialProvinces(province) {
 </td></tr>
 <tr><td>
 <form method="post" id="adddemographic" name="adddemographic" action="demographicaddarecord.jsp" onsubmit="return aSubmit()">
-<input type="hidden" name="fromAppt" value="<%=request.getParameter("fromAppt")%>">
-<input type="hidden" name="originalPage" value="<%=request.getParameter("originalPage")%>">
-<input type="hidden" name="bFirstDisp" value="<%=request.getParameter("bFirstDisp")%>">
-<input type="hidden" name="provider_no" value="<%=request.getParameter("provider_no")%>">
-<input type="hidden" name="start_time" value="<%=request.getParameter("start_time")%>">
-<input type="hidden" name="end_time" value="<%=request.getParameter("end_time")%>">
-<input type="hidden" name="duration" value="<%=request.getParameter("duration")%>">
-<input type="hidden" name="year" value="<%=request.getParameter("year")%>">
-<input type="hidden" name="month" value="<%=request.getParameter("month")%>">
-<input type="hidden" name="day" value="<%=request.getParameter("day")%>">
-<input type="hidden" name="appointment_date" value="<%=request.getParameter("appointment_date")%>">
-<input type="hidden" name="notes" value="<%=request.getParameter("notes")%>">
-<input type="hidden" name="reason" value="<%=request.getParameter("reason")%>">
-<input type="hidden" name="location" value="<%=request.getParameter("location")%>">
-<input type="hidden" name="resources" value="<%=request.getParameter("resources")%>">
-<input type="hidden" name="type" value="<%=request.getParameter("type")%>">
-<input type="hidden" name="style" value="<%=request.getParameter("style")%>">
-<input type="hidden" name="billing" value="<%=request.getParameter("billing")%>">
-<input type="hidden" name="status" value="<%=request.getParameter("status")%>">
-<input type="hidden" name="createdatetime" value="<%=request.getParameter("createdatetime")%>">
-<input type="hidden" name="creator" value="<%=request.getParameter("creator")%>">
-<input type="hidden" name="remarks" value="<%=request.getParameter("remarks")%>">
+<input type="hidden" name="fromAppt" value="<%=Encode.forHtmlAttribute(request.getParameter("fromAppt"))%>">
+<input type="hidden" name="originalPage" value="<%=Encode.forHtmlAttribute(request.getParameter("originalPage"))%>">
+<input type="hidden" name="bFirstDisp" value="<%=Encode.forHtmlAttribute(request.getParameter("bFirstDisp"))%>">
+<input type="hidden" name="provider_no" value="<%=Encode.forHtmlAttribute(request.getParameter("provider_no"))%>">
+<input type="hidden" name="start_time" value="<%=Encode.forHtmlAttribute(request.getParameter("start_time"))%>">
+<input type="hidden" name="end_time" value="<%=Encode.forHtmlAttribute(request.getParameter("end_time"))%>">
+<input type="hidden" name="duration" value="<%=Encode.forHtmlAttribute(request.getParameter("duration"))%>">
+<input type="hidden" name="year" value="<%=Encode.forHtmlAttribute(request.getParameter("year"))%>">
+<input type="hidden" name="month" value="<%=Encode.forHtmlAttribute(request.getParameter("month"))%>">
+<input type="hidden" name="day" value="<%=Encode.forHtmlAttribute(request.getParameter("day"))%>">
+<input type="hidden" name="appointment_date" value="<%=Encode.forHtmlAttribute(request.getParameter("appointment_date"))%>">
+<input type="hidden" name="notes" value="<%=Encode.forHtmlAttribute(request.getParameter("notes"))%>">
+<input type="hidden" name="reason" value="<%=Encode.forHtmlAttribute(request.getParameter("reason"))%>">
+<input type="hidden" name="location" value="<%=Encode.forHtmlAttribute(request.getParameter("location"))%>">
+<input type="hidden" name="resources" value="<%=Encode.forHtmlAttribute(request.getParameter("resources"))%>">
+<input type="hidden" name="type" value="<%=Encode.forHtmlAttribute(request.getParameter("type"))%>">
+<input type="hidden" name="style" value="<%=Encode.forHtmlAttribute(request.getParameter("style"))%>">
+<input type="hidden" name="billing" value="<%=Encode.forHtmlAttribute(request.getParameter("billing"))%>">
+<input type="hidden" name="status" value="<%=Encode.forHtmlAttribute(request.getParameter("status"))%>">
+<input type="hidden" name="createdatetime" value="<%=Encode.forHtmlAttribute(request.getParameter("createdatetime"))%>">
+<input type="hidden" name="creator" value="<%=Encode.forHtmlAttribute(request.getParameter("creator"))%>">
+<input type="hidden" name="remarks" value="<%=Encode.forHtmlAttribute(request.getParameter("remarks"))%>">
 
 
-<table id="addDemographicTbl" border="0" cellpadding="1" cellspacing="0" width="100%" bgcolor="#EEEEFF">
+<table id="addDemographicTbl" border="0" cellpadding="1" cellspacing="0" width="100%" >
 
     
     <%if (OscarProperties.getInstance().getProperty("workflow_enhance")!=null && OscarProperties.getInstance().getProperty("workflow_enhance").equals("true")) { %>
-   		 <tr bgcolor="#CCCCFF">
+   		 <tr>
 				<td colspan="4">
 				<div align="center"><input type="hidden" name="dboperation"
 					value="add_record">
           <input type="hidden" name="displaymode" value="Add Record">
-				<input type="submit" name="submit"
+				<input type="submit" name="submit" class="btn btn-primary"
 					value="<bean:message key="demographic.demographicaddrecordhtm.btnAddRecord"/>">
-					<input type="submit" name="submit" value="Save & Add Family Member">
-				<input type="button" name="Button"
+					<input type="submit" name="submit" class="btn" value="Save & Add Family Member">
+				<input type="button" name="Button" class="btn"
 					value="<bean:message key="demographic.demographicaddrecordhtm.btnSwipeCard"/>"
 					onclick="window.open('zadddemographicswipe.htm','', 'scrollbars=yes,resizable=yes,width=600,height=300')";>
-				&nbsp; <input type="button" name="Button"
+				&nbsp; <input type="button" name="Button" class="btn btn-link"
 					value="<bean:message key="demographic.demographicaddrecordhtm.btnCancel"/>"
 					onclick=self.close();></div>
 				</td>
@@ -847,100 +848,185 @@ function updateResidentialProvinces(province) {
   }
 %>
 
-    <tr id="rowWithLastName" >
-      <td align="right"> <b><bean:message key="demographic.demographicaddrecordhtm.formLastName"/><font color="red">:</font> </b></td>
-      <td id="lastName" align="left">
-        <input type="text" name="last_name" id="last_name" onBlur="upCaseCtrl(this)" size=30 value="<%=lastNameVal%>">
-
-      </td>
-      <td align="right" id="firstNameLbl"><b><bean:message key="demographic.demographicaddrecordhtm.formFirstName"/><font color="red">:</font> </b> </td>
-      <td id="firstName" align="left">
-        <input type="text" name="first_name" id="first_name" onBlur="upCaseCtrl(this)"  value="<%=firstNameVal%>" size=30>
-      </td>
-    </tr>
-    <tr>
-    	<td align="right"> <b><bean:message key="demographic.demographicaddrecordhtm.formMiddleNames"/>: </b></td>
-      <td id="lastName" align="left">
-        <input type="text" name="middleNames" id="middleNames" onBlur="upCaseCtrl(this)" size=50 value="">
-
-      </td>
-      <td align="right"></td>
-      <td id="lastName" align="left"></td>
-    </tr>
-    <tr>
-	<td id="languageLbl" align="right"><b><bean:message key="demographic.demographicaddrecordhtm.msgDemoLanguage"/><font color="red">:</font></b></td>
-	<td id="languageCell" align="left">
-	    <select id="official_lang" name="official_lang">
-		<option value="English" <%= vLocale.getLanguage().equals("en") ? " selected":"" %>><bean:message key="demographic.demographiceaddrecordhtm.msgEnglish"/></option>
-		<option value="French"  <%= vLocale.getLanguage().equals("fr") ? " selected":"" %>><bean:message key="demographic.demographiceaddrecordhtm.msgFrench"/></option>
-	    </select>
-	</td>
-	<td id="titleLbl" align="right"><b><bean:message key="demographic.demographicaddrecordhtm.msgDemoTitle"/><font color="red">:</font></b></td>
-	<td id="titleCell" align="left">
-	    <select id="title" name="title" onchange="checkTitleSex(value);">
-                <option value=""><bean:message key="demographic.demographicaddrecordhtm.msgNotSet"/></option>                    
-                <option value="DR"><bean:message key="demographic.demographicaddrecordhtm.msgDr"/></option>
-                <option value="MS"><bean:message key="demographic.demographicaddrecordhtm.msgMs"/></option>
-                <option value="MISS"><bean:message key="demographic.demographicaddrecordhtm.msgMiss"/></option>
-                <option value="MRS"><bean:message key="demographic.demographicaddrecordhtm.msgMrs"/></option>
-                <option value="MR"><bean:message key="demographic.demographicaddrecordhtm.msgMr"/></option>
-                <option value="MSSR"><bean:message key="demographic.demographicaddrecordhtm.msgMssr"/></option>
-                <option value="PROF"><bean:message key="demographic.demographicaddrecordhtm.msgProf"/></option>
-                <option value="REEVE"><bean:message key="demographic.demographicaddrecordhtm.msgReeve"/></option>
-                <option value="REV"><bean:message key="demographic.demographicaddrecordhtm.msgRev"/></option>
-                <option value="RT_HON"><bean:message key="demographic.demographicaddrecordhtm.msgRtHon"/></option>
-                <option value="SEN"><bean:message key="demographic.demographicaddrecordhtm.msgSen"/></option>
-                <option value="SGT"><bean:message key="demographic.demographicaddrecordhtm.msgSgt"/></option>
-                <option value="SR"><bean:message key="demographic.demographicaddrecordhtm.msgSr"/></option>
-                
-                 <option value="MADAM"><bean:message key="demographic.demographicaddrecordhtm.msgMadam"/></option>
-                 <option value="MME"><bean:message key="demographic.demographicaddrecordhtm.msgMme"/></option>
-                 <option value="MLLE"><bean:message key="demographic.demographicaddrecordhtm.msgMlle"/></option>
-                 <option value="MAJOR"><bean:message key="demographic.demographicaddrecordhtm.msgMajor"/></option>
-                 <option value="MAYOR"><bean:message key="demographic.demographicaddrecordhtm.msgMayor"/></option>
-                
-                 <option value="BRO"><bean:message key="demographic.demographicaddrecordhtm.msgBro"/></option>
-                 <option value="CAPT"><bean:message key="demographic.demographicaddrecordhtm.msgCapt"/></option>
-                 <option value="Chief"><bean:message key="demographic.demographicaddrecordhtm.msgChief"/></option>
-                 <option value="Cst"><bean:message key="demographic.demographicaddrecordhtm.msgCst"/></option>
-                 <option value="Corp"><bean:message key="demographic.demographicaddrecordhtm.msgCorp"/></option>
-                 <option value="FR"><bean:message key="demographic.demographicaddrecordhtm.msgFr"/></option>
-                 <option value="HON"><bean:message key="demographic.demographicaddrecordhtm.msgHon"/></option>
-                 <option value="LT"><bean:message key="demographic.demographicaddrecordhtm.msgLt"/></option>
-	    </select>
-	</td>
-    </tr>
-    <tr>
-        <td id="spokenLbl" align="right"><b><bean:message key="demographic.demographicaddrecordhtm.msgSpoken"/>:</b></td>
-        <td id="spokenCell"><select name="spoken_lang">
-<%for (String sp_lang : Util.spokenLangProperties.getLangSorted()) { %>
-                <option value="<%=sp_lang %>"><%=sp_lang %></option>
-<%} %>
+   		 <tr>
+				<td colspan="4">
+<div class="container-fluid well form-horizontal span12" id="editWrapper">
+    <div  id="demographicSection" class="span12">
+		<fieldset>
+			<legend><bean:message key="demographic.demographiceditdemographic.msgDemographic" /></legend>
+		</fieldset>
+        <div class="control-group span5"  >
+            <label class="control-label" for="last_name"><bean:message
+                key="demographic.demographiceditdemographic.formLastName" /><span style="color:red">*</span></label>
+            <div class="controls">
+              <input type="text"  placeholder="<bean:message key="demographic.demographiceditdemographic.formLastName" />"
+                    name="last_name" id="last_name"  onBlur="upCaseCtrl(this)" value="<%=Encode.forHtmlAttribute(lastNameVal)%>">
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="first_name"><bean:message key="demographic.demographiceditdemographic.formFirstName" /><span style="color:red">*</span></label>
+            <div class="controls">
+              <input type="text" placeholder="<bean:message key="demographic.demographiceditdemographic.formFirstName" />"
+                    name="first_name" id="first_name" onBlur="upCaseCtrl(this)"  value="<%=Encode.forHtmlAttribute(firstNameVal)%>">
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="inputDOB"><bean:message key="demographic.demographiceditdemographic.formDOB" /> <bean:message key="demographic.demographiceditdemographic.formDOBDetais" /><span style="color:red">*</span></label>
+            <div class="controls" style="white-space: nowrap;">
+                <input type="date" id="inputDOB" 
+                    class="input input-medium"
+                    name="inputDOB" 
+					onchange="parsedob_date();">
+                <input type="hidden" id="year_of_birth" placeholder="yyyy" name="year_of_birth"
+				    >
+                <input type="hidden" name="month_of_birth" id="month_of_birth" 
+                    >
+				<input type="hidden" name="date_of_birth" id="date_of_birth" 
+				    >			
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="sex"><bean:message key="demographic.demographiceditdemographic.formSex" /><span style="color:red">*</span></label>
+            <div class="controls">
+              <select  name="sex" id="sex">
+			                        <option value=""></option>
+			                		<% for(Gender gn : Gender.values()){ %>
+			                        <option value=<%=gn.name()%> ><%=gn.getText()%></option>
+			                        <% } %>
             </select>
-        </td>
-    </tr>
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="inputAlias"><bean:message
+					key="demographic.demographiceditdemographic.alias" /></label>
+            <div class="controls">
+              <input type="text" id="inputAlias" placeholder="<bean:message
+					key="demographic.demographiceditdemographic.alias" />"
+                    name="alias"
+					onBlur="upCaseCtrl(this)">
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="inputMN"><bean:message
+					key="demographic.demographiceditdemographic.formMiddleNames" /></label>
+            <div class="controls">
+              <input type="text" id="inputMN" name="middleNames" placeholder="<bean:message
+					key="demographic.demographiceditdemographic.formMiddleNames" />"
+					onBlur="upCaseCtrl(this)">
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="selectTitle"><bean:message key="demographic.demographiceditdemographic.msgDemoTitle"/></label>
+            <div class="controls">
+								<select name="title" id="selectTitle" >
+									<option value="" ><bean:message key="demographic.demographiceditdemographic.msgNotSet"/></option>
+									<option value="DR"  ><bean:message key="demographic.demographicaddrecordhtm.msgDr"/></option>
+								    <option value="MS"  ><bean:message key="demographic.demographiceditdemographic.msgMs"/></option>
+								    <option value="MISS" ><bean:message key="demographic.demographiceditdemographic.msgMiss"/></option>
+								    <option value="MRS" ><bean:message key="demographic.demographiceditdemographic.msgMrs"/></option>
+								    <option value="MR" ><bean:message key="demographic.demographiceditdemographic.msgMr"/></option>
+								    <option value="MSSR" ><bean:message key="demographic.demographiceditdemographic.msgMssr"/></option>
+								    <option value="PROF" ><bean:message key="demographic.demographiceditdemographic.msgProf"/></option>
+								    <option value="REEVE"><bean:message key="demographic.demographiceditdemographic.msgReeve"/></option>
+								    <option value="REV" ><bean:message key="demographic.demographiceditdemographic.msgRev"/></option>
+								    <option value="RT_HON" ><bean:message key="demographic.demographiceditdemographic.msgRtHon"/></option>
+								    <option value="SEN" ><bean:message key="demographic.demographiceditdemographic.msgSen"/></option>
+								    <option value="SGT" ><bean:message key="demographic.demographiceditdemographic.msgSgt"/></option>
+								    <option value="SR"  ><bean:message key="demographic.demographiceditdemographic.msgSr"/></option>								    
+								    <option value="MADAM" ><bean:message key="demographic.demographiceditdemographic.msgMadam"/></option>
+								    <option value="MME" ><bean:message key="demographic.demographiceditdemographic.msgMme"/></option>
+								    <option value="MLLE"  ><bean:message key="demographic.demographiceditdemographic.msgMlle"/></option>
+								    <option value="MAJOR" ><bean:message key="demographic.demographiceditdemographic.msgMajor"/></option>
+								    <option value="MAYOR" ><bean:message key="demographic.demographiceditdemographic.msgMayor"/></option>
+								    
+								    <option value="BRO" ><bean:message key="demographic.demographiceditdemographic.msgBro"/></option>
+								    <option value="CAPT" ><bean:message key="demographic.demographiceditdemographic.msgCapt"/></option>
+								    <option value="CHIEF" ><bean:message key="demographic.demographiceditdemographic.msgChief"/></option>
+								    <option value="CST" ><bean:message key="demographic.demographiceditdemographic.msgCst"/></option>
+								    <option value="CORP"  ><bean:message key="demographic.demographiceditdemographic.msgCorp"/></option>
+								    <option value="FR" ><bean:message key="demographic.demographiceditdemographic.msgFr"/></option>
+								    <option value="HON"  ><bean:message key="demographic.demographiceditdemographic.msgHon"/></option>
+								    <option value="LT"  ><bean:message key="demographic.demographiceditdemographic.msgLt"/></option>
+								    
+								</select>
+            </div>
+        </div> 
+        <div class="control-group span5">
+            <label class="control-label" for="official_lang"><bean:message key="demographic.demographiceditdemographic.msgDemoLanguage"/></label>
+            <div class="controls">
+								<select name="official_lang" id="official_lang" >
+								    <option value="English" ><bean:message key="demographic.demographiceditdemographic.msgEnglish"/></option>
+								    <option value="French" ><bean:message key="demographic.demographiceditdemographic.msgFrench"/></option>
+								    <option value="Other" ><bean:message key="demographic.demographiceditdemographic.optOther"/></option>
+								</select>
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="spoken"><bean:message key="demographic.demographiceditdemographic.msgSpoken"/></label>
+            <div class="controls">
+			    <select name="spoken_lang" id="spoken" >
+<%for (String splang : Util.spokenLangProperties.getLangSorted()) { %>
+                    <option value="<%=splang %>" ><%=splang %></option>
+<%} %>
+				</select>
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="firstNation"><bean:message key="demographic.demographiceditdemographic.aboriginal" /></label>
+            <div class="controls">
+                <select name="aboriginal" id="firstNation" >
+									<option value="" >Unknown</option>
+									<option value="No" >No</option>
+									<option value="Yes" >Yes</option>
+				</select>
+                <input type="hidden" name="aboriginalOrig"  />
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="origin"><bean:message key="demographic.demographiceditdemographic.msgCountryOfOrigin"/></label>
+            <div class="controls">
+                <select id="countryOfOrigin" name="countryOfOrigin" id="origin" >
+									<option value="-1"><bean:message key="demographic.demographiceditdemographic.msgNotSet"/></option>
+									<%for(CountryCode cc : countryList){ %>
+									<option value="<%=cc.getCountryId()%>"
+										><%=cc.getCountryName() %></option>
+									<%}%>
+                </select>
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="sin"><bean:message key="web.record.details.sin" /></label>
+            <div class="controls">
+              <input type="text" id="sin" placeholder="<bean:message key="web.record.details.sin" />" name="sin" id="sin" >
+            </div>
 
-			<tr valign="top">
-				<td id="addrLbl" align="right"><b><bean:message
-					key="demographic.demographicaddrecordhtm.formAddress" />: </b></td>
-				<td id="addressCell" align="left"><input id="address" type="text" name="address" value="<%=address%>" size=40 />
-
-				</td>
-				<td id="cityLbl" align="right"><b><bean:message
-					key="demographic.demographicaddrecordhtm.formCity" />: </b></td>
-				<td id="cityCell" align="left"><input type="text" id="city" name="city"
-					value="<%=defaultCity %>" /></td>
-			</tr>
-			
-			<tr valign="top">
-				<td id="provLbl" align="right"><b> 
-				<% if(oscarProps.getProperty("demographicLabelProvince") == null) { %>
-				<bean:message key="demographic.demographicaddrecordhtm.formprovince" />
-				<% } else {
-          			out.print(oscarProps.getProperty("demographicLabelProvince"));
-      	 		} %> : </b></td>
-				<td id="provCell" align="left">
-				<%
+    </div><!-- demographicSection -->
+    <div id="contactSection" class="span11">
+		<fieldset>
+			<legend><bean:message key="demographic.demographiceditdemographic.msgContactInfo" /></legend>
+		</fieldset>
+<!-- "postalfield" -->
+        <div class="control-group span5">
+            <label class="control-label" for="address"><bean:message key="demographic.demographiceditdemographic.formAddr" /></label>
+            <div class="controls">
+              <input type="text" placeholder="<bean:message key="demographic.demographiceditdemographic.formAddr" />"  id="address" name="address" value="<%=Encode.forHtmlAttribute(address)%>" />
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="city"><bean:message key="demographic.demographiceditdemographic.formCity" /></label>
+            <div class="controls">
+              <input type="text" id="city" placeholder="<bean:message key="demographic.demographiceditdemographic.formCity" />" name="city"
+					value="<%=defaultCity%>" />
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="province"><% if(oscarProps.getProperty("demographicLabelProvince") == null) { %>
+								<bean:message
+									key="demographic.demographiceditdemographic.formProcvince" /> <% } else {
+                                  out.print(oscarProps.getProperty("demographicLabelProvince"));
+                              	 } %></label>
+            <div class="controls">
+<%
 					if("true".equals(OscarProperties.getInstance().getProperty("iso3166.2.enabled","false"))) { 	
 				%>
 					<select name="province" id="province"></select> 
@@ -1032,37 +1118,62 @@ function updateResidentialProvinces(province) {
 					<% } %>
 				</select>
 				<% } %>
-				</td>
-				<td id="postalLbl" align="right"><b> <% if(oscarProps.getProperty("demographicLabelPostal") == null) { %>
-				<bean:message key="demographic.demographicaddrecordhtm.formPostal" />
-				 <% if("false".equals(OscarProperties.getInstance().getProperty("skip_postal_code_validation","false"))) { %>
- 					<span style="color:red">*</span>				
- 				 <% } %>
-  
-				<% } else {
-          out.print(oscarProps.getProperty("demographicLabelPostal"));
-      	 } %> : </b></td>
-				<td id="postalCell" align="left"><input type="text" id="postal" name="postal" value="<%=postal%>"
-					onBlur="upCaseCtrl(this)"></td>
-			</tr>
-			
-			
-			<tr valign="top">
-				<td id="addrLbl" align="right"><b><bean:message
-					key="demographic.demographicaddrecordhtm.formResidentialAddress" />: </b></td>
-				<td id="addressCell" align="left"><input id="residentialAddress" type="text" name="residentialAddress" size=40 />
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="postal"><% if(oscarProps.getProperty("demographicLabelPostal") == null) { %>
+								<bean:message
+									key="demographic.demographiceditdemographic.formPostal" /> <% } else {
+                                  out.print(oscarProps.getProperty("demographicLabelPostal"));
+                              	 } %></label>
+            <div class="controls">
+              <input type="text" id="postal" placeholder="<% if(oscarProps.getProperty("demographicLabelPostal") == null) { %>
+								<bean:message
+									key="demographic.demographiceditdemographic.formPostal" /> <% } else {
+                                  out.print(oscarProps.getProperty("demographicLabelPostal"));
+                              	 } %>" name="postal" value="<%=postal%>"
+									onBlur="upCaseCtrl(this)" onChange="isPostalCode()">
+            </div>
+        </div>
+<!-- end postal -->
+        <div class="control-group span5">
+            <label class="control-label" for="inputEmail"><bean:message key="demographic.demographiceditdemographic.formEmail" /></label>
+            <div class="controls">
+              <input type="text" id="inputEmail" placeholder="<bean:message key="demographic.demographiceditdemographic.formEmail" />"
+                    name="email" >
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="consentEmail"><bean:message key="demographic.demographiceditdemographic.consentToUseEmailForCare" /></label>
+            <div class="controls" style="white-space: nowrap;">
+              <bean:message key="WriteScript.msgYes"/> 
+            								<input type="radio" value="yes" name="consentToUseEmailForCare" />
+          							 <bean:message key="WriteScript.msgNo"/>
+            								<input type="radio" value="no" name="consentToUseEmailForCare"  />
+									 <bean:message key="WriteScript.msgUnset"/>
+            								<input type="radio" value="unset" name="consentToUseEmailForCare" checked />
+            </div>
+        </div>
+<!-- residential -->
+        <div class="control-group span5">
+            <label class="control-label" for="residence"><bean:message key="demographic.demographiceditdemographic.formResidentialAddr" /></label>
+            <div class="controls">
+              <input type="text" id="residence" placeholder="<bean:message key="demographic.demographiceditdemographic.formResidentialAddr" />"
+                    name="residentialAddress" 
+					>
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="rCity"><bean:message key="demographic.demographiceditdemographic.formResidentialCity" /></label>
+            <div class="controls">
+              <input type="text" id="rCity" placeholder="<bean:message key="demographic.demographiceditdemographic.formResidentialCity" />"
+                    name="residentialCity">
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="residentialProvince"><bean:message key="demographic.demographiceditdemographic.formResidentialProvince" /></label>
+            <div class="controls">
 
-				</td>
-				<td id="cityLbl" align="right"><b><bean:message
-					key="demographic.demographicaddrecordhtm.formResidentialCity" />: </b></td>
-				<td id="cityCell" align="left"><input type="text" id="residentialCity" name="residentialCity"
-					value="" /></td>
-			</tr>
-			
-			<tr valign="top">
-				<td id="provLbl" align="right"><b> 
-				<bean:message key="demographic.demographicaddrecordhtm.formResidentialProvince" />  : </b></td>
-				<td id="provCell" align="left">
 				<%
 					if("true".equals(OscarProperties.getInstance().getProperty("iso3166.2.enabled","false"))) { 	
 				%>
@@ -1155,190 +1266,263 @@ function updateResidentialProvinces(province) {
 					<% } %>
 				</select>
 				<% } %>
-				</td>
-				<td id="postalLbl" align="right"><b>
-				<bean:message key="demographic.demographicaddrecordhtm.formResidentialPostal" />
-				 : </b></td>
-				<td id="postalCell" align="left"><input type="text" id="residentialPostal" name="residentialPostal"
-					onBlur="upCaseCtrl(this)"></td>
-			</tr>
-
-			<tr valign="top">
-				<td id="phoneLbl" align="right"><b><bean:message
-					key="demographic.demographicaddrecordhtm.formPhoneHome" />: </b></td>
-				<td id="phoneCell" align="left"><input type="text" id="phone" name="phone"
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="rPostal"><bean:message key="demographic.demographiceditdemographic.formResidentialPostal" />
+            <% if("false".equals(OscarProperties.getInstance().getProperty("skip_postal_code_validation","false"))) { %>
+ 					<span style="color:red">*</span>				
+ 				 <% } %> 
+                </label>
+            <div class="controls">
+              <input type="text" id="rPostal" placeholder="<bean:message key="demographic.demographiceditdemographic.formResidentialPostal" />"
+                    name="residentialPostal" 
+					onBlur="upCaseCtrl(this)" onChange="isPostalCode2()">
+            </div>
+        </div>
+<!-- end residential -->
+        <div class="control-group span5">
+            <label class="control-label" for="phoneH"><bean:message key="demographic.demographiceditdemographic.formPhoneH" /><input type="checkbox"></label>
+            <div class="controls"  style="white-space:nowrap" >
+              <input type="text" placeholder="<bean:message key="demographic.demographiceditdemographic.formPhoneH" />"
+                    id="phone" name="phone"
 					onBlur="formatPhoneNum()"
-					value="<%=phone%>"> <bean:message
-					key="demographic.demographicaddrecordhtm.Ext" />:<input
-					type="text" id="hPhoneExt" name="hPhoneExt" value="" size="4" /></td>
-				<td id="phoneWorkLbl" align="right"><b><bean:message
-					key="demographic.demographicaddrecordhtm.formPhoneWork" />:</b></td>
-				<td id="phoneWorkCell" align="left"><input type="text" name="phone2"
-					onBlur="formatPhoneNum()" value=""> <bean:message
-					key="demographic.demographicaddrecordhtm.Ext" />:<input type="text"
-					name="wPhoneExt" value="" style="display: inline" size="4" /></td>
-			</tr>
-			<tr valign="top">
-				<td id="phoneCellLbl" align="right"><b><bean:message
-					key="demographic.demographicaddrecordhtm.formPhoneCell" />: </b></td>
-				<td id="phoneCellCell" align="left"><input type="text" name="demo_cell"
-					onBlur="formatPhoneNum()"></td>
-				<td align="right"><b><bean:message
-						key="demographic.demographicaddrecordhtm.formPhoneComment" />: </b></td>
-				<td align="left" colspan="3">
-						<textarea rows="2" cols="30" name="phoneComment"></textarea>
-				</td>
-			</tr>
-			<tr valign="top">
-				<td id="newsletterLbl" align="right"><b><bean:message
-					key="demographic.demographicaddrecordhtm.formNewsLetter" />: </b></td>
-				<td id="newsletterCell" align="left"><select name="newsletter">
-					<option value="Unknown" selected><bean:message
-						key="demographic.demographicaddrecordhtm.formNewsLetter.optUnknown" /></option>
-					<option value="No"><bean:message
-						key="demographic.demographicaddrecordhtm.formNewsLetter.optNo" /></option>
-					<option value="Paper"><bean:message
-						key="demographic.demographicaddrecordhtm.formNewsLetter.optPaper" /></option>
-					<option value="Electronic"><bean:message
-						key="demographic.demographicaddrecordhtm.formNewsLetter.optElectronic" /></option>
-				</select></td>
-				<td align="right"><b><bean:message
-					key="demographic.demographiceditdemographic.aboriginal" />: </b></td>
-				<td align="left">
-				<select name="aboriginal">
-					<option value="">Unknown</option>
-					<option value="No">No</option>
-					<option value="Yes" >Yes</option>
-				</select>
-			</tr>
-			<tr valign="top">
-				<td id="emailLbl" align="right"><b><bean:message
-					key="demographic.demographicaddrecordhtm.formEMail" />: </b></td>
-				<td id="emailCell" align="left"><input type="text" id="email" name="email" value="">
-				</td>
-				<td id="myOscarLbl" align="right"><b><bean:message
-					key="demographic.demographicaddrecordhtm.formPHRUserName" />:</b></td>
-				<td id="myOscarCell"  align="left"><input type="text" name="myOscarUserName" value="">
-				</td>
-			</tr>
-			<tr valign="top">
-				<td id="dobLbl" align="right"><b><bean:message
-					key="demographic.demographicaddrecordhtm.formDOB" /></b><font size="-2">(yyyymmdd)</font><b><font
-					color="red">:</font></b></td>
-				<td id="dobTbl" align="left" nowrap>
-				<table border="0" cellpadding="0" cellspacing="0">
-					<tr>
-						<td><input type="text" name="year_of_birth" size="4" id="year_of_birth"
-							maxlength="4" value="yyyy"
-							onFocus="if(this.value=='yyyy')this.value='';"
-							onBlur="if(this.value=='')this.value='yyyy';"></td>
-						<td>-</td>
-						<td><!--input type="text" name="month_of_birth" size="2" maxlength="2"-->
-                                                    <select name="month_of_birth" id="month_of_birth">
-							<option value="01">01
-							<option value="02">02
-							<option value="03">03
-							<option value="04">04
-							<option value="05">05
-							<option selected value="06">06
-							<option value="07">07
-							<option value="08">08
-							<option value="09">09
-							<option value="10">10
-							<option value="11">11
-							<option value="12">12
-						</select></td>
-						<td>-</td>
-						<td><!--input type="text" name="date_of_birth" size="2" maxlength="2"-->
-						<select name="date_of_birth" id="date_of_birth">
-							<option value="01">01
-							<option value="02">02
-							<option value="03">03
-							<option value="04">04
-							<option value="05">05
-							<option value="06">06
-							<option value="07">07
-							<option value="08">08
-							<option value="09">09
-							<option value="10">10
-							<option value="11">11
-							<option value="12">12
-							<option value="13">13
-							<option value="14">14
-							<option selected value="15">15
-							<option value="16">16
-							<option value="17">17
-							<option value="18">18
-							<option value="19">19
-							<option value="20">20
-							<option value="21">21
-							<option value="22">22
-							<option value="23">23
-							<option value="24">24
-							<option value="25">25
-							<option value="26">26
-							<option value="27">27
-							<option value="28">28
-							<option value="29">29
-							<option value="30">30
-							<option value="31">31
-						</select></td>
-						<td><b></b></td>
-						<td>&nbsp;</td>
-					</tr>
-				</table>
-				</td>
-				<td align="right" id="genderLbl"><b><bean:message
-					key="demographic.demographicaddrecordhtm.formSex" /><font
-					color="red">:</font></b></td>
+					value="<%=phone%>" 
+					class="input-small"
+					>
+            <input type="text" name="hPhoneExt" 
+                    placeholder="<bean:message key="demographic.demographiceditdemographic.msgExt"/>"
+                    class="input-small"
+					/> 
+            <input type="hidden" name="hPhoneExtOrig"
+					 />
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="phoneW"><bean:message key="demographic.demographiceditdemographic.formPhoneW" /><input type="checkbox"></label>
+            <div class="controls" style="white-space:nowrap" >
+                <input type="text" id="phoneW" placeholder="<bean:message key="demographic.demographiceditdemographic.formPhoneW" />" 
+                    name="phone2" 
+					onblur="formatPhoneNum();"
+                    class="input-small"
+					> 
+                <input type="text" name="wPhoneExt" 
+                    placeholder="<bean:message key="demographic.demographiceditdemographic.msgExt"/>"
+                    class="input-small" /> 
+                <input type="hidden" name="wPhoneExtOrig"
+					 />
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="cell"><bean:message key="demographic.demographiceditdemographic.formPhoneC" /><input type="checkbox"></label>
+            <div class="controls">
+              <input type="text" id="cell" placeholder="<bean:message key="demographic.demographiceditdemographic.formPhoneC" />"
+                    name="demo_cell" onblur="formatPhoneNum();"
+					>
+				<input type="hidden" name="demo_cellOrig"  />
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="commentP"><bean:message key="demographic.demographicaddrecordhtm.formPhoneComment" /></label>
+            <div class="controls">
+              <input type="text" id="commentP" placeholder="<bean:message key="demographic.demographicaddrecordhtm.formPhoneComment" />"
+                    name="phoneComment"
+                    >
+               <input type="hidden" name="phoneCommentOrig"
+					 />
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="news"><bean:message key="demographic.demographiceditdemographic.formNewsLetter" /></label>
+            <div class="controls">
+              <% String newsletter =  "Unknown";
+								     
+								  %> 
+                <select name="newsletter" id="news" >
+								    <option value="Unknown" ><bean:message
+								        key="demographic.demographicaddrecordhtm.formNewsLetter.optUnknown" /></option>
+								    <option value="No" ><bean:message
+								        key="demographic.demographicaddrecordhtm.formNewsLetter.optNo" /></option>
+								    <option value="Paper" ><bean:message
+								        key="demographic.demographicaddrecordhtm.formNewsLetter.optPaper" /></option>
+								    <option value="Electronic"
+								        ><bean:message
+								        key="demographic.demographicaddrecordhtm.formNewsLetter.optElectronic" /></option>
+                </select>
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="phr"><bean:message key="demographic.demographiceditdemographic.formPHRUserName" /></label>
+            <div class="controls">
+              <input type="text" id="phr" placeholder="<bean:message key="demographic.demographiceditdemographic.formPHRUserName" />"
+                    name="myOscarUserName" 
+									>
+								
+								
+            </div>
+        </div>
+    </div><!--end contactSection -->
+    <div id="insurance" class="span11">
+		<fieldset>
+			<legend><bean:message key="demographic.demographiceditdemographic.msgHealthIns"/></legend>
+		</fieldset>
+        </div>
+        <div class="control-group span5" style="white-space:nowrap">
+            <label class="control-label" for="hinBox"><bean:message key="demographic.demographiceditdemographic.formHin" /></label>
+            <div class="controls">
+              <input type="text" placeholder="<bean:message key="demographic.demographiceditdemographic.formHin" />"
+                    name="hin" id="hinBox" 
+					class="input-small" >
+            <bean:message key="demographic.demographiceditdemographic.formVer" />
+            <input type="text" placeholder="<bean:message key="demographic.demographiceditdemographic.formVer" />"
+                    name="ver" 
+									
+									onBlur="upCaseCtrl(this)" id="verBox">
+									<%if("online".equals(oscarProps.getProperty("hcv.type", "simple"))) { %>
+										<input type="button" class="btn" value="Validate" onClick="validateHC()"/>
+									<% } %>
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="effDate"><bean:message key="demographic.demographiceditdemographic.formEFFDate" /></label>
+            <div class="controls">
+<script>
+function loaddob(){
+console.log("DOB is "+document.getElementById('year_of_birth').value+"-"+document.getElementById('month_of_birth').value+"-"+document.getElementById('date_of_birth').value);
+    document.getElementById('inputDOB').value=document.getElementById('year_of_birth').value+"-"+document.getElementById('month_of_birth').value+"-"+document.getElementById('date_of_birth').value;
 
-				<% // Determine if curUser has selected a default sex in preferences
-                                   UserProperty sexProp = userPropertyDAO.getProp(curUser_no,  UserProperty.DEFAULT_SEX);
-                                   String sex = "";
-                                   if (sexProp != null) {
-                                       sex = sexProp.getValue();
-                                   } else {
-                                       // Access defaultsex system property
-                                       sex = props.getProperty("defaultsex","");
-                                   }
-                                %>
-                                <td id="gender" align="left">
-                                
-                                
-                                
-                                <select  name="sex" id="sex">
-			                        <option value=""></option>
-			                		<% for(org.oscarehr.common.Gender gn : org.oscarehr.common.Gender.values()){ %>
-			                        <option value=<%=gn.name()%> <%=((sex.toUpperCase().equals(gn.name())) ? "selected" : "") %>><%=gn.getText()%></option>
-			                        <% } %>
-			                        </select>
-			                        
-			                       
-                                </select>
-                                
-                                
-                                </td>
-			</tr>
-			<tr valign="top">
-				<td align="right" id="hinLbl"><b><bean:message
-					key="demographic.demographicaddrecordhtm.formHIN" />: </b></td>
-				<td align="left" id="hinVer" nowrap><input type="text" name="hin" id="hin"
-                                                               size="15" onfocus="autoFillHin()" > <b><bean:message
-					key="demographic.demographicaddrecordhtm.formVer" />: <input
-					type="text" id="ver" name="ver" value="" size="3" onBlur="upCaseCtrl(this)">
-				</b></td>
-				<td id="effDateLbl" align="right"><b><bean:message
-					key="demographic.demographicaddrecordhtm.formEFFDate" /></b><b>: </b></td>
-				<td id="effDate" align="left"><b> <input type="text"
-					id="eff_date_year" name="eff_date_year" size="4" maxlength="4"> <input
-					type="text" id="eff_date_month" name="eff_date_month" size="2" maxlength="2"> <input
-					type="text" id="eff_date_date" name="eff_date_date" size="2" maxlength="2"> </b></td>
-			</tr>                       
-			<tr>
-				<td id="hcTypeLbl" align="right"><b><bean:message
-					key="demographic.demographicaddrecordhtm.formHCType" />: </b></td>
-				<td id="hcType">
-				
+}
+function parsedob_date(){
+    var input=document.getElementById('inputDOB').value;
+    year="";
+    month="";
+    day="";
+    if (input != ""){
+        const myArr = input.split("-");
+        year = myArr[0];
+        month = myArr[1];
+        day = myArr[2];
+    }
+        document.getElementById('year_of_birth').value = year
+        document.getElementById('month_of_birth').value = month
+        document.getElementById('date_of_birth').value = day
+}
+
+function parseeff_date(){
+    var input=document.getElementById('eff_date').value;
+    year="";
+    month="";
+    day="";
+    if (input != ""){
+        const myArr = input.split("-");
+        year = myArr[0];
+        month = myArr[1];
+        day = myArr[2];
+    }
+console.log(year+"-"+month+"-"+day);
+        document.getElementById('eff_date_year').value = year
+        document.getElementById('eff_date_month').value = month
+        document.getElementById('eff_date_day').value = day
+}
+function parsehc_renew_date(){
+    var input=document.getElementById('hc_renew_date').value;
+    year="";
+    month="";
+    day="";
+    if (input != ""){
+        const myArr = input.split("-");
+        year = myArr[0];
+        month = myArr[1];
+        day = myArr[2];
+    }
+console.log(year+"-"+month+"-"+day);
+        document.getElementById('hc_renew_date_year').value = year
+        document.getElementById('hc_renew_date_month').value = month
+        document.getElementById('hc_renew_date_day').value = day
+}
+
+function parseroster_date(){
+    var input=document.getElementById('roster_date').value;
+    year="";
+    month="";
+    day="";
+    if (input != ""){
+        const myArr = input.split("-");
+        year = myArr[0];
+        month = myArr[1];
+        day = myArr[2];
+    }
+console.log(year+"-"+month+"-"+day);
+        document.getElementById('roster_date_year').value = year
+        document.getElementById('roster_date_month').value = month
+        document.getElementById('roster_date_day').value = day
+    
+}
+
+function parseend_date(){
+    var input=document.getElementById('end_date').value;
+    year="";
+    month="";
+    day="";
+    if (input != ""){
+        const myArr = input.split("-");
+        year = myArr[0];
+        month = myArr[1];
+        day = myArr[2];
+    }
+console.log(year+"-"+month+"-"+day);
+        document.getElementById('end_date_year').value = year
+        document.getElementById('end_date_month').value = month
+        document.getElementById('end_date_day').value = day
+
+}
+
+
+
+function parsepatient_status_date(){
+    var input=document.getElementById('patient_status_date').value;
+    year="";
+    month="";
+    day="";
+    if (input != ""){
+        const myArr = input.split("-");
+        year = myArr[0];
+        month = myArr[1];
+        day = myArr[2];
+    }
+console.log(year+"-"+month+"-"+day);
+        document.getElementById('patient_status_date_year').value = year
+        document.getElementById('patient_status_date_month').value = month
+        document.getElementById('patient_status_date_day').value = day
+}
+
+function parsedate_joined(){
+    var input=document.getElementById('date_joined').value;
+    year="";
+    month="";
+    day="";
+    if (input != ""){
+        const myArr = input.split("-");
+        year = myArr[0];
+        month = myArr[1];
+        day = myArr[2];
+    }
+console.log(year+"-"+month+"-"+day);
+        document.getElementById('date_joined_year').value = year
+        document.getElementById('date_joined_month').value = month
+        document.getElementById('date_joined_day').value = day
+}
+</script>
+                <input type="date" id="eff_date" name="eff_date"  onchange="parseeff_date();">
+                <input type="hidden" name="eff_date_year" id="eff_date_year">
+                <input type="hidden" name="eff_date_month" id="eff_date_month">
+                <input type="hidden" name="eff_date_day" id="eff_date_day">
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="hcType"><bean:message key="demographic.demographiceditdemographic.formHCType" /></label>
+            <div class="controls">
+              
 				<select name="hc_type" id="hc_type">
 					<option value="OT"
 						<%=HCType.equals("")||HCType.equals("OT")?" selected":""%>>Other</option>
@@ -1420,26 +1604,588 @@ function updateResidentialProvinces(province) {
 		<option value="US-WY" <%=HCType.equals("US-WY")?" selected":""%>>US-WY-Wyoming</option>
           <% } %>
           </select>
-       
-      </td>
-      <td id="renewDateLbl" align="right"><b>*<bean:message key="demographic.demographiceditdemographic.formHCRenewDate" />:</b></td>
-      <td id="renewDate" align="left"> <input type="text" id="hc_renew_date_year" name="hc_renew_date_year" size="4" maxlength="4" value="">
-                                       <input type="text" id="hc_renew_date_month" name="hc_renew_date_month" size="2" maxlength="2" value="">
-                                       <input type="text" id="hc_renew_date_date" name="hc_renew_date_date" size="2" maxlength="2" value="">
-      </td>
-     </tr>
-     <tr>
-      <td id="countryLbl" align="right">
-         <b><bean:message key="demographic.demographicaddrecordhtm.msgCountryOfOrigin"/>:</b>
-      </td>
-      <td id="countryCell">
-          <select id="countryOfOrigin" name="countryOfOrigin">
-              <option value="-1"><bean:message key="demographic.demographicaddrecordhtm.msgNotSet"/></option>
-              <%for(CountryCode cc : countryList){ %>
-              <option value="<%=cc.getCountryId()%>"><%=cc.getCountryName() %></option>
-              <%}%>
-          </select>
-      </td>
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="hc_renew_date"><bean:message key="demographic.demographiceditdemographic.formHCRenewDate" /></label>
+            <div class="controls">
+                <input type="date" id="hc_renew_date" name="hc_renew_date" onchange="parsehc_renew_date();" >
+                <input type="hidden" name="hc_renew_date_year" id="hc_renew_date_year">
+                <input type="hidden" name="hc_renew_date_month" id="hc_renew_date_month">
+                <input type="hidden" name="hc_renew_date_day" id="hc_renew_date_day">
+            </div>
+        </div> 
+        <div class="control-group span5">
+            <label class="control-label" for="date_joined"><bean:message key="demographic.demographiceditdemographic.formDateJoined1" /></label>
+            <div class="controls">
+                <input type="date" id="date_joined" name="date_joined" onchange="parsedate_joined();" >
+                <input type="hidden" name="date_joined_year" id="date_joined_year">
+                <input type="hidden" name="date_joined_month" id="date_joined_month">
+                <input type="hidden" name="date_joined_day" id="date_joined_day">
+            </div>
+        </div> 
+        <div class="control-group span5">
+            <label class="control-label" for="roster_date" title="<bean:message key="demographic.demographiceditdemographic.DateJoined" />"><bean:message key="demographic.demographiceditdemographic.DateJoined" /></label>
+            <div class="controls">
+              <input type="date" id="roster_date" name="roster_date" onchange="parseroster_date();" >
+<input  type="hidden" name="roster_date_year" id="roster_date_year">
+<input  type="hidden" name="roster_date_month" id="roster_date_month">
+<input  type="hidden" name="roster_date_day" id="roster_date_day">
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="end_date" ><bean:message key="demographic.demographiceditdemographic.formEndDate" /></label>
+            <div class="controls">
+              <input type="date" id="end_date" name="end_date" onchange="parseend_date();" >
+<input type="hidden" name="end_date_year" id="end_date_year"> 
+<input type="hidden" name="end_date_month" id="end_date_month"> 
+<input type="hidden" name="end_date_day" id="end_date_day">
+            </div>
+        </div>
+
+                            
+<%-- TOGGLE OFF PATIENT ROSTERING - NOT USED IN ALL PROVINCES. --%>
+<oscar:oscarPropertiesCheck property="DEMOGRAPHIC_PATIENT_ROSTERING" value="true">
+
+        <div class="control-group span5">
+            <label class="control-label" for="roster_status"><bean:message key="demographic.demographiceditdemographic.formRosterStatus" /></label>
+            <div class="controls">
+                <%String rosterStatus = "";%>
+                <input type="hidden" name="initial_rosterstatus" />
+                <select id="roster_status" name="roster_status" style="width: 120" onchange="checkRosterStatus2()">
+									<option value=""></option>
+									<option value="RO"
+										>
+									<bean:message key="demographic.demographiceditdemographic.optRostered"/></option>
+									<!-- 
+									<option value="NR"
+										>
+									<bean:message key="demographic.demographiceditdemographic.optNotRostered"/></option>
+									-->
+									<option value="TE"
+										>
+									<bean:message key="demographic.demographiceditdemographic.optTerminated"/></option>
+									
+									<option value="FS"
+										>
+									<bean:message key="demographic.demographiceditdemographic.optFeeService"/></option>
+									<% 
+									for(String status: demographicDao.getRosterStatuses()) {
+									%>
+									<option
+										><%=status%></option>
+									<% }
+                                    
+                                   // end while %>
+                </select>
+                <security:oscarSec roleName="<%=roleName$%>" objectName="_admin.demographic" rights="r" reverse="<%=false%>">
+                    <sup><input type="button" class="btn btn-link" onClick="newStatus1();" value="<bean:message key="demographic.demographiceditdemographic.btnAddNew"/>"></sup>
+                </security:oscarSec>
+            </div>
+        </div>
+
+        <div class="control-group span5">
+            <label class="control-label" for="enrolled_to"><bean:message key="demographic.demographiceditdemographic.RosterEnrolledTo" /></label>
+            <div class="controls">
+                <select id="roster_enrolled_to"  name="roster_enrolled_to" style="width: 160">
+					<option value=""></option>
+					<%
+						for (Provider p : providerDao.getActiveProvidersByRole("doctor")) {
+								String docProviderNo = p.getProviderNo();
+					%>
+					<option id="<%=docProviderNo%>" value="<%=docProviderNo%>"><%=p.getFormattedName()%></option>
+					<%
+						}
+					%>
+					<option value=""></option>
+				</select>
+            </div>
+        </div>
+
+
+</oscar:oscarPropertiesCheck>														
+<%-- END TOGGLE OFF PATIENT ROSTERING --%>
+        <div class="control-group span5">
+            <label class="control-label" for="pstatus"><bean:message key="demographic.demographiceditdemographic.formPatientStatus" /></label>
+            <div class="controls">
+								<%
+                                String patientStatus = "";%>
+                                <input type="hidden" name="initial_patientstatus" value="<%=patientStatus%>">
+								<select name="patient_status" id="pstatus" style="width: 120" onChange="updatePatientStatusDate()">
+									<option value="AC"
+										>
+									<bean:message key="demographic.demographiceditdemographic.optActive"/></option>
+									<option value="IN"
+										>
+									<bean:message key="demographic.demographiceditdemographic.optInActive"/></option>
+									<option value="DE"
+										>
+									<bean:message key="demographic.demographiceditdemographic.optDeceased"/></option>
+									<option value="MO"
+										>
+									<bean:message key="demographic.demographiceditdemographic.optMoved"/></option>
+									<option value="FI"
+										>
+									<bean:message key="demographic.demographiceditdemographic.optFired"/></option>
+									<%
+									for(String status : demographicDao.search_ptstatus()) {
+                                     %>
+									<option
+										><%=status%></option>
+									<% }
+                                 
+                                   // end while %>
+								</select>
+                        <security:oscarSec roleName="<%=roleName$%>" objectName="_admin.demographic" rights="r" reverse="<%=false%>">
+                                 <sup><input type="button" class="btn btn-link" onClick="newStatus();" value="<bean:message key="demographic.demographiceditdemographic.btnAddNew"/>"></sup>
+						</security:oscarSec>
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="patientstatus_date"><bean:message key="demographic.demographiceditdemographic.PatientStatusDate" /></label>
+            <div class="controls">
+                <input type="date" id="patient_status_date" name="patient_status_date" onchange="parsepatient_status_date();" >
+<input type="hidden" name="patient_status_date_year" id="patient_status_date_year">
+<input type="hidden" name="patient_status_date_month" id="patient_status_date_month">
+<input type="hidden" name="patient_status_date_day" id="patient_status_date_day">
+            </div>
+        </div>
+        
+
+<%-- TOGGLE OFF PATIENT CLINIC STATUS --%>
+<oscar:oscarPropertiesCheck property="DEMOGRAPHIC_PATIENT_CLINIC_STATUS" value="true">    
+    <div id="team" class="span11"><!--Care Team -->
+		<fieldset>
+			<legend><bean:message key="web.record.details.careTeam" /></legend>
+		</fieldset>
+
+
+        <div class="control-group span5">
+            <label class="control-label" for="mrp"><% if(oscarProps.getProperty("demographicLabelDoctor") != null) { out.print(oscarProps.getProperty("demographicLabelDoctor","")); } else { %>
+								<bean:message key="demographic.demographiceditdemographic.formMRP" />
+								<% } %></label>
+            <div class="controls">
+                <select name="staff">
+					<option value=""></option>
+					<%
+						for (Provider p : providerDao.getActiveProvidersByRole("doctor")) {
+								String docProviderNo = p.getProviderNo();
+					%>
+					<option id="doc<%=docProviderNo%>" value="<%=docProviderNo%>"><%=Misc.getShortStr((p.getFormattedName()), "", 12)%></option>
+					<%
+						}
+					%>
+					<option value=""></option>
+				</select>
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="cust1"><bean:message key="demographic.demographiceditdemographic.formNurse" /></label>
+            <div class="controls">
+              <select name="cust1">
+					<option value=""></option>
+					<%
+					for(Provider p: providerDao.getActiveProvidersByRole("nurse")) {
+%>
+					<option value="<%=p.getProviderNo()%>"><%=Encode.forHtmlContent(Misc.getShortStr( (p.getFormattedName()),"",12))%></option>
+					<%
+  }
+ 
+%>
+				</select>
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="cust4"><bean:message key="demographic.demographiceditdemographic.formMidwife" /></label>
+            <div class="controls">
+              <select name="cust4">
+					<option value=""></option>
+					<%
+					for(Provider p: providerDao.getActiveProvidersByRole("midwife")) {
+%>
+					<option value="<%=p.getProviderNo()%>">
+					<%=Encode.forHtmlContent(Misc.getShortStr( (p.getFormattedName()),"",12))%></option>
+					<%
+  }
+ 
+%>
+				</select>
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="cust2"><bean:message key="demographic.demographiceditdemographic.formResident" /></label>
+            <div class="controls">
+              <select name="cust2">
+					<option value=""></option>
+					<%
+					for(Provider p: providerDao.getActiveProvidersByRole("doctor")) {
+%>
+					<option value="<%=p.getProviderNo()%>">
+					<%=Encode.forHtmlContent(Misc.getShortStr( (p.getFormattedName()),"",12))%></option>
+					<%
+  }
+ 
+%>
+				</select>
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="r_doc"><bean:message key="demographic.demographiceditdemographic.formRefDoc" /></label>
+            <div class="controls">
+              <% if(!oscarProps.getProperty("isMRefDocSelectList", "").equals("false") ) {
+                    // drop down list
+					Properties prop = null;
+					Vector vecRef = new Vector();
+					List<ProfessionalSpecialist> specialists = professionalSpecialistDao.findAll();
+                    for(ProfessionalSpecialist specialist : specialists) {
+                         prop = new Properties();
+                         if (specialist != null && specialist.getReferralNo() != null && ! specialist.getReferralNo().equals("")) {
+	                          prop.setProperty("referral_no", specialist.getReferralNo());
+	                          prop.setProperty("last_name", specialist.getLastName());
+	                          prop.setProperty("first_name", specialist.getFirstName());
+	                          vecRef.add(prop);
+                         }
+                     }
+
+             %> <select name="r_doctor" 
+					onChange="changeRefDoc()" id="r_doc">
+					<option value=""></option>
+					<% for(int k=0; k<vecRef.size(); k++) {
+                         prop= (Properties) vecRef.get(k);
+                    %>
+					<option
+						value="<%=prop.getProperty("last_name")+","+prop.getProperty("first_name")%>"
+						>
+					    <%=prop.getProperty("last_name")+","+prop.getProperty("first_name")%></option>
+					<% } %>
+                </select> 
+<script language="Javascript">
+<!--
+function changeRefDoc() {
+//alert(document.forms[1].r_doctor.value);
+var refName = document.forms[1].r_doctor.options[document.forms[1].r_doctor.selectedIndex].value;
+var refNo = "";
+  	<% for(int k=0; k<vecRef.size(); k++) {
+  		prop= (Properties) vecRef.get(k);
+  	%>
+if(refName.indexOf("<%=prop.getProperty("last_name")+","+prop.getProperty("first_name")%>")>=0) {
+  refNo = '<%=prop.getProperty("referral_no", "")%>';
+}
+<% } %>
+document.forms[1].r_doctor_ohip.value = refNo;
+}
+//-->
+</script> <% } else {%>
+                <input type="text" name="r_doctor" id="r_doctor"  <% } %>
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="r_doctor_ohip"><bean:message key="demographic.demographiceditdemographic.formRefDocNo" /></label>
+            <div class="controls">
+              <input type="text" name="r_doctor_ohip" id=r_doctor_ohip" 
+					> <% if("ON".equals(prov)) { %>
+					    <sup><a class="btn btn-link" href="javascript:referralScriptAttach2('r_doctor_ohip','r_doctor')">
+                        <bean:message key="demographic.demographiceditdemographic.btnSearch"/>#</a> </sup>
+                    <% } %>
+            </div>
+        </div>
+
+
+
+    </div><!--end Team -->
+</oscar:oscarPropertiesCheck>
+<%-- END TOGGLE OFF PATIENT CLINIC STATUS --%>
+<%-- WAITING LIST MODULE --%>
+        <oscar:oscarPropertiesCheck property="DEMOGRAPHIC_WAITING_LIST" value="true">
+    <div id="wl" class="span11"><!--additional -->
+		<fieldset>
+			<legend><bean:message key="demographic.demographiceditdemographic.msgWaitList"/></legend>
+		</fieldset>
+            <div class="control-group span5">
+                <label class="control-label" for="list_id"><bean:message key="demographic.demographiceditdemographic.msgWaitList"/></label>
+                <div class="controls">
+<% 
+
+        String wLReadonly = "";
+        WaitingList wL = WaitingList.getInstance();
+        if(!wL.getFound()){
+            wLReadonly = "readonly";
+            }
+    %>
+			        <select id="name_list_id" name="list_id">
+							<% if(wLReadonly.equals("")){ %>
+							<option value="0">--Select Waiting List--</option>
+							<%}else{ %>
+							<option value="0"><bean:message key="demographic.demographicaddarecordhtm.optCreateWaitList"/>
+							</option>
+							<%} %>
+							<%
+							for(WaitingListName wln : waitingListNameDao.findCurrentByGroup(((ProviderPreference)session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER_PREFERENCE)).getMyGroupNo())) {
+                                    
+                                    %>
+							<option value="<%=wln.getId()%>"><%=wln.getName()%></option>
+							<%
+                                       }
+                                     %>
+				    </select>
+                </div>
+            </div>
+            <div class="control-group span5">
+                <label class="control-label" for="wlnote"><bean:message key="demographic.demographiceditdemographic.msgWaitListNote"/></label>
+                <div class="controls">
+                    <input type="text" id="wlnote" placeholder="<bean:message key="demographic.demographiceditdemographic.msgWaitListNote"/>"
+                        name="waiting_list_note" >
+                </div>
+            </div>		
+            <div class="control-group span5">
+                <label class="control-label" for="waiting_list_referral_date"><bean:message key="demographic.demographiceditdemographic.msgDateOfReq"/></label>
+                <div class="controls">
+                    <input type="date" id="wldate" placeholder="<bean:message key="demographic.demographiceditdemographic.msgWaitListNote"/>"
+                        name="waiting_list_referral_date"
+						id="waiting_list_referral_date"
+						>
+                </div>
+            </div>
+    </div><!--end wl -->			
+        </oscar:oscarPropertiesCheck>
+<%-- END WAITING LIST MODULE --%>
+    <div id="additional" class="span11"><!--additional -->
+		<fieldset>
+			<legend><bean:message key="web.record.details.addInformation" /></legend>
+		</fieldset>
+        <div class="control-group span5">
+            <label class="control-label" for="cyto"><bean:message key="demographic.demographiceditdemographic.cytolNum" /></label>
+            <div class="controls">
+              <input type="text" id="cyto" placeholder="<bean:message key="demographic.demographiceditdemographic.cytolNum" />"
+                    name="cytolNum" 
+					>
+			    <input type="hidden" name="cytolNumOrig"
+					>
+            </div>
+        </div>
+ <%if(!"true".equals(OscarProperties.getInstance().getProperty("phu.hide","false"))) { %>
+        <div class="control-group span5">
+            <label class="control-label" for="PHU"><bean:message key="demographic.demographiceditdemographic.formPHU" /></label>
+            <div class="controls">
+                	<select id="PHU" name="PHU" >
+					<option value="">Select Below</option>
+					<%
+						String defaultPhu = OscarProperties.getInstance().getProperty("default_phu");
+						
+						LookupListManager lookupListManager = SpringUtils.getBean(LookupListManager.class);
+						LookupList ll = lookupListManager.findLookupListByName(LoggedInInfo.getLoggedInInfoFromSession(request), "phu");
+						if(ll != null) {
+							for(LookupListItem llItem : ll.getItems()) {
+								String selected = "";
+								if(llItem.getValue().equals(defaultPhu)) {
+									selected = " selected=\"selected\" ";	
+								}
+								%>
+									<option value="<%=llItem.getValue()%>" <%=selected%>><%=llItem.getLabel()%></option>
+								<%
+							}
+						} else {
+							%>
+							<option value="">None Available</option>
+						<%
+						}
+					
+					%>
+				</select>
+            </div>
+        </div>
+    <% } else { %>
+        <input type="hidden" name="PHU" value=""/></td>
+    <% } %>  
+        <div class="control-group span5">
+            <label class="control-label" for="chart_no"><bean:message key="demographic.demographiceditdemographic.formChartNo" /></label>
+            <div class="controls">
+                <input type="text" id="chart_no" name="chart_no" placeholder="<bean:message key="demographic.demographiceditdemographic.formChartNo" />"  >
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="paper_chart_archived"><bean:message key="web.record.details.archivedPaperChart" /></label>
+            <div class="controls">
+
+	             <select name="paper_chart_archived" id="paper_chart_archived" style="width:50px;" onChange="updatePaperArchive()">
+		            <option value="" >
+		                            	</option>
+					<option value="NO" >
+											<bean:message key="demographic.demographiceditdemographic.paperChartIndicator.no"/>
+										</option>
+					<option value="YES"	>
+											<bean:message key="demographic.demographiceditdemographic.paperChartIndicator.yes"/>
+										</option>
+				</select>
+                <input type="date" name="paper_chart_archived_date" class="input-medium" id="paper_chart_archived_date"  >
+				<input type="hidden" name="paper_chart_archived_program" id="paper_chart_archived_program" >
+            </div>
+        </div>
+				<c:forEach items="${ consentTypes }" var="consentType" varStatus="count">
+					<c:set var="patientConsent" value="" />
+					<c:forEach items="${ patientConsents }" var="consent" >
+						<c:if test="${ consent.consentType.id eq consentType.id }">
+							<c:set var="patientConsent" value="${ consent }" />
+						</c:if>													
+					</c:forEach>
+
+        <div class="control-group span5"  title="${ consentType.description }">
+            <label class="control-label" for="consent_${ count.index }"><c:out value="${ consentType.name }" /></label>
+							
+							<c:if test="${ not empty patientConsent and not empty patientConsent.optout }" >
+								<c:choose>
+									<c:when test="${ patientConsent.optout }">
+										<div id="consentDate_${consentType.type}" style="color:red;white-space:nowrap;">
+											Opted Out:<c:out value="${ patientConsent.optoutDate }" />
+										</div>
+									</c:when>					
+									<c:otherwise>
+										<div id="consentDate_${consentType.type}" style="color:green;white-space:nowrap;">
+											Consented:<c:out value="${ patientConsent.consentDate }" />
+										</div>
+									</c:otherwise>				
+								</c:choose>															
+							</c:if>	
+            <div class="controls" style="white-space:nowrap;" >
+                <input type="hidden" id="consent_${ count.index }" >
+				<input type="radio"
+                                   name="${ consentType.type }"
+                                   id="optin_${ consentType.type }"
+                                   value="0"
+                                   <c:if test="${ not empty patientConsent and not empty patientConsent.optout and not patientConsent.optout }">
+                                       <c:out value="checked" />
+                                   </c:if>
+                            />
+                            Opt-In
+                            <input type="radio"
+                                   name="${ consentType.type }"
+                                   id="optout_${ consentType.type }"
+                                   value="1"
+                                   <c:if test="${ not empty patientConsent and not empty patientConsent.optout and patientConsent.optout }">
+                                       <c:out value="checked" />
+                                   </c:if>
+                            />
+                            Opt-Out
+                            <input type="button" class="btn btn-link"
+                                   name="clearRadio_${consentType.type}_btn"
+                                   onclick="consentClearBtn('${consentType.type}')" value="Clear" />
+                             
+                            <%-- Was this consent set by the user? Or by the database?  --%>
+                            <input type="hidden" name="consentPreset_${consentType.type}" id="consentPreset_${consentType.type}" 
+                            	value="${ not empty patientConsent }" /> 
+                            
+                            <%-- This consent will be labeled for delete when the clear button is clicked. --%>   
+                            <input type="hidden" name="deleteConsent_${consentType.type}" id="deleteConsent_${consentType.type}" value="0" />
+            </div>
+        </div>																													
+						
+				</c:forEach>
+        <div class="control-group span5">
+            <label class="control-label" for="meditech_id">Meditech ID</label>
+            <div class="controls">
+                <input type="text" id="meditech_id" placeholder="Meditech ID"
+                    name="meditech_id">
+                <input type="hidden" name="meditech_idOrig"
+					>
+            </div>
+        </div>
+        <div class="control-group span5">
+            <label class="control-label" for="rxInteractionWarningLevel"><bean:message key="demographic.demographiceditdemographic.rxInteractionWarningLevel" /></label>
+            <div class="controls">
+                <input type="hidden" name="rxInteractionWarningLevelOrig"
+							>
+			<select id="rxInteractionWarningLevel" name="rxInteractionWarningLevel">
+				<option value="0" >Not Specified</option>
+				<option value="1" >Low</option>
+				<option value="2" >Medium</option>
+				<option value="3" >High</option>
+				<option value="4" >None</option>
+			</select>
+            </div>
+        </div>
+
+<%--  PROGRAM ADMISSIONS --%>
+        
+                <div class="control-group span5">
+                    <label class="control-label" for="rsid"><bean:message key="demographic.demographiceditdemographic.programAdmissions" /></label>
+                    <div class="controls">
+                        <select id="rsid" name="rps">
+                                    <%
+                                        GenericIntakeEditAction gieat = new GenericIntakeEditAction();
+                                        gieat.setProgramManager(pm);
+
+                                        String _pvid = loggedInInfo.getLoggedInProviderNo();
+                                        Set<Program> pset = gieat.getActiveProviderProgramsInFacility(loggedInInfo,_pvid,loggedInInfo.getCurrentFacility().getId());
+                                        List<Program> bedP = gieat.getBedPrograms(pset,_pvid);
+                                        List<Program> commP = gieat.getCommunityPrograms();
+                      	                
+                                        for(Program _p:bedP){
+                                    %>
+                                        <option value="<%=_p.getId()%>" <%=("OSCAR".equals(_p.getName())?" selected=\"selected\" ":"")%> ><%=_p.getName()%></option>
+                                    <%
+                                        }
+                                     %>
+                        </select>
+                    </div>
+                </div>
+                <div class="control-group span5">
+                    <label class="control-label" for="sp"><bean:message key="demographic.demographiceditdemographic.servicePrograms" /></label>
+                    <div class="controls">
+<%
+			                        List<Program> servP = gieat.getServicePrograms(pset,_pvid);
+			                        for(Program _p:servP){
+			                    %>
+			                        <input type="checkbox" name="sp" value="<%=_p.getId()%>"/><%=_p.getName()%><br/>
+			                    <%}%>
+
+                    </div>
+                </div>
+        
+<%-- END PROGRAM ADMISSIONS --%>	
+
+        <oscar:oscarPropertiesCheck property="INTEGRATOR_LOCAL_STORE" value="yes">		
+                <div class="control-group span5">
+                    <label class="control-label" for="primaryEMR"><bean:message key="demographic.demographiceditdemographic.primaryEMR" /></label>
+                    <div class="controls">
+                        <input type="hidden" name="rxInteractionWarningLevelOrig"
+							        />
+		            <%
+		               	String primaryEMR ="0";
+		            %>
+			        <input type="hidden" name="primaryEMROrig"  />
+			        <select id="primaryEMR" name="primaryEMR">
+				        <option value="0" <%=(primaryEMR.equals("0")?"selected=\"selected\"":"") %>>No</option>
+				        <option value="1" <%=(primaryEMR.equals("1")?"selected=\"selected\"":"") %>>Yes</option>
+			        </select>
+                    </div>
+                </div>
+
+		</oscar:oscarPropertiesCheck>
+<%-- PATIENT NOTES MODULE --%>		
+							
+        <div class="control-group span12">
+            <label class="control-label" for="inputAlert">
+                <span style="color:red"><bean:message key="demographic.demographiceditdemographic.formAlert" /></span>
+            </label>
+            <div class="controls">
+                <textarea name="alert" id="inputAlert" class="span8" ></textarea>
+            </div>
+        </div>
+        <div class="control-group span12">
+            <label class="control-label" for="inputNote"><bean:message key="demographic.demographiceditdemographic.formNotes" /></label>
+            <div class="controls">
+                <textarea name="notes" id="inputNote" class="span8" ></textarea>
+            </div>
+        </div>			
+<%-- END PATIENT NOTES MODULE --%>
+    </div><!--end additional -->
+
+</div><!-- editWrapper -->
+                </td>
+        </tr>
+ 
+
+<tr>
 		<oscar:oscarPropertiesCheck property="privateConsentEnabled" value="true">
 		<%
 			String[] privateConsentPrograms = OscarProperties.getInstance().getProperty("privateConsentPrograms","").split(",");
@@ -1466,253 +2212,8 @@ function updateResidentialProvinces(province) {
 		</oscar:oscarPropertiesCheck>
     </tr>
     
-    
-    <tr valign="top">
-	<td  id="sinNoLbl" align="right"><b><bean:message key="demographic.demographicaddrecordhtm.msgSIN"/>:</b> </td>
-	<td id="sinNoCell" align="left"  >
-	    <input type="text" name="sin">
-	</td>
 
-
-	<td  id="cytologyLbl" align="right"><b> <bean:message key="demographic.demographicaddrecordhtm.cytolNum"/>:</b> </td>
-	<td id="cytologyCell" align="left"  >
-	    <input type="text" name="cytolNum">
-
-	</td>
-    </tr>
-    <tr valign="top">
-      <td id="demoDoctorLbl" align="right"><b><% if(oscarProps.getProperty("demographicLabelDoctor") != null) { out.print(oscarProps.getProperty("demographicLabelDoctor","")); } else { %>
-                                                <bean:message key="demographic.demographicaddrecordhtm.formDoctor"/> <% } %>
-                                                : </b></td>
-      <td id="demoDoctorCell" align="left" >
-        <select name="staff">
-					<option value=""></option>
-					<%
-						for (Provider p : providerDao.getActiveProvidersByRole("doctor")) {
-								String docProviderNo = p.getProviderNo();
-					%>
-					<option id="doc<%=docProviderNo%>" value="<%=docProviderNo%>"><%=Misc.getShortStr((p.getFormattedName()), "", 12)%></option>
-					<%
-						}
-					%>
-					<option value=""></option>
-				</select></td>
-				<td id="nurseLbl" align="right"><b><bean:message
-					key="demographic.demographicaddrecordhtm.formNurse" />: </b></td>
-				<td id="nurseCell" ><select name="cust1">
-					<option value=""></option>
-					<%
-					for(Provider p: providerDao.getActiveProvidersByRole("nurse")) {
-%>
-					<option value="<%=p.getProviderNo()%>"><%=Misc.getShortStr( (p.getFormattedName()),"",12)%></option>
-					<%
-  }
  
-%>
-				</select></td>
-			</tr>
-			<tr valign="top">
-				<td id="midwifeLbl" align="right"><b><bean:message
-					key="demographic.demographicaddrecordhtm.formMidwife" />: </b></td>
-				<td id="midwifeCell"><select name="cust4">
-					<option value=""></option>
-					<%
-					for(Provider p: providerDao.getActiveProvidersByRole("midwife")) {
-%>
-					<option value="<%=p.getProviderNo()%>">
-					<%=Misc.getShortStr( (p.getFormattedName()),"",12)%></option>
-					<%
-  }
- 
-%>
-				</select></td>
-				<td id="residentLbl" align="right"><b><bean:message
-					key="demographic.demographicaddrecordhtm.formResident" />: </b></td>
-				<td id="residentCell" align="left"><select name="cust2">
-					<option value=""></option>
-					<%
-					for(Provider p: providerDao.getActiveProvidersByRole("doctor")) {
-%>
-					<option value="<%=p.getProviderNo()%>">
-					<%=Misc.getShortStr( (p.getFormattedName()),"",12)%></option>
-					<%
-  }
- 
-%>
-				</select></td>
-			</tr>
-			<tr id="rowWithReferralDoc" valign="top">
-				<td id="referralDocLbl" align="right" height="10"><b><bean:message
-					key="demographic.demographicaddrecordhtm.formReferalDoctor" />:</b></td>
-				<td id="referralDocCell" align="left" height="10">
-				<% if(oscarProps.getProperty("isMRefDocSelectList", "").equals("true") ) {
-                                  		// drop down list
-									  Properties prop = null;
-									  Vector vecRef = new Vector();
-
-                                      List<ProfessionalSpecialist> specialists = professionalSpecialistDao.findAll();
-                                      for(ProfessionalSpecialist specialist : specialists) {
-                                    	  
-                                    	  if (specialist != null && specialist.getReferralNo() != null && ! specialist.getReferralNo().equals("")) {
-                                    		  prop = new Properties();
-                                    		  prop.setProperty("referral_no", specialist.getReferralNo());
-                                          	  prop.setProperty("last_name", specialist.getLastName());
-                                          	  prop.setProperty("first_name", specialist.getFirstName());
-                                          	  vecRef.add(prop);
-                                    	  }
-                                      }
-                                  %> <select name="r_doctor"
-					onChange="changeRefDoc()" style="width: 200px">
-					<option value=""></option>
-					<% for(int k=0; k<vecRef.size(); k++) {
-                                  		prop= (Properties) vecRef.get(k);
-                                  	%>
-					<option
-						value="<%=prop.getProperty("last_name")+","+prop.getProperty("first_name")%>">
-					<%=Misc.getShortStr( (prop.getProperty("last_name")+","+prop.getProperty("first_name")),"",nStrShowLen)%></option>
-					<% } %>
-				</select> <script language="Javascript">
-<!--
-function changeRefDoc() {
-//alert(document.forms[1].r_doctor.value);
-var refName = document.forms[1].r_doctor.options[document.forms[1].r_doctor.selectedIndex].value;
-var refNo = "";
-  	<% for(int k=0; k<vecRef.size(); k++) {
-  		prop= (Properties) vecRef.get(k);
-  	%>
-if(refName.indexOf("<%=prop.getProperty("last_name")+","+prop.getProperty("first_name")%>")>=0) {
-  refNo = '<%=prop.getProperty("referral_no", "")%>';
-}
-<% } %>
-document.forms[1].r_doctor_ohip.value = refNo;
-}
-//-->
-</script> <% } else {%> <input type="text" name="r_doctor" size="30" maxlength="40"
-					value=""> <% } %>
-				</td>
-				<td id="referralDocNoLbl" align="right" nowrap height="10"><b><bean:message
-					key="demographic.demographicaddrecordhtm.formReferalDoctorN" />:</b></td>
-				<td id="referralDocNoCell" align="left" height="10"><input type="text"
-					name="r_doctor_ohip" maxlength="6"> <% if("ON".equals(prov)) { %>
-								<a
-									href="javascript:referralScriptAttach2('r_doctor_ohip','r_doctor')"><bean:message key="demographic.demographiceditdemographic.btnSearch"/>
-								#</a> <% } %>
-				</td>
-			</tr>
-			<tr valign="top">
-				<td align="right" id="rosterStatusLbl" nowrap><b><bean:message
-					key="demographic.demographicaddrecordhtm.formPCNRosterStatus" />: </b></td>
-				<td id="rosterStatus" align="left"><!--input type="text" name="roster_status" onBlur="upCaseCtrl(this)"-->
-				<select id="roster_status"  name="roster_status" style="width: 160">
-					<option value=""></option>
-					<option value="RO"><bean:message key="demographic.demographicaddrecordhtm.RO-rostered" /></option>
-<!-- 
-					<option value="NR"><bean:message key="demographic.demographicaddrecordhtm.NR-notrostered" /></option>
-					<option value="TE"><bean:message key="demographic.demographicaddrecordhtm.TE-terminated" /></option>
--->
-					<option value="FS"><bean:message key="demographic.demographicaddrecordhtm.FS-feeforservice" /></option>
-
-					<% 
-					for(String status : demographicDao.getRosterStatuses()) {%>
-					<option value="<%=status%>"><%=status%></option>
-					<% } // end while %>
-				</select> <input type="button" onClick="newStatus1();" value="<bean:message
-					key="demographic.demographicaddrecordhtm.AddNewRosterStatus"/> " /></td>
-				<td id="rosterDateLbl" align="right" nowrap><b><bean:message
-					key="demographic.demographicaddrecordhtm.formPCNDateJoined" />: </b></td>
-				<td id="rosterDateCell" align="left"><input type="text" name="roster_date_year"
-					size="4" maxlength="4"> <input type="text"
-					name="roster_date_month" size="2" maxlength="2"> <input
-					type="text" name="roster_date_date" size="2" maxlength="2">
-				</td>
-			</tr>
-			<tr valign="top">
-				<td align="right" id="rosterEnrolledToLbl" nowrap><b><bean:message
-					key="demographic.demographicaddrecordhtm.formRosterEnrolledTo" />: </b></td>
-				<td id="rosterEnrolledTo" align="left"><!--input type="text" name="roster_status" onBlur="upCaseCtrl(this)"-->
-				<select id="roster_enrolled_to"  name="roster_enrolled_to" style="width: 160">
-					<option value=""></option>
-					<%
-						for (Provider p : providerDao.getActiveProvidersByRole("doctor")) {
-								String docProviderNo = p.getProviderNo();
-					%>
-					<option id="<%=docProviderNo%>" value="<%=docProviderNo%>"><%=p.getFormattedName()%></option>
-					<%
-						}
-					%>
-					<option value=""></option>
-				</td>
-				<td id="chartNoLbl" align="right"><b><bean:message
-					key="demographic.demographicaddrecordhtm.formChartNo" />:</b></td>
-				<td id="chartNo" align="left"><input type="text" id="chart_no" name="chart_no" value="<%=StringEscapeUtils.escapeHtml(chartNoVal)%>">
-				</td>
-				<td id="rosterDateCell" align="left">
-				</td>
-			</tr>
-			<tr valign="top">
-                            <td id="ptStatusLbl" align="right"><b><bean:message
-					key="demographic.demographicaddrecordhtm.formPatientStatus" />:</b></td>
-				<td id="ptStatusCell" align="left">
-				<select id="patient_status" name="patient_status" style="width: 160">
-					<option value="AC"><bean:message key="demographic.demographicaddrecordhtm.AC-Active" /></option>
-					<option value="IN"><bean:message key="demographic.demographicaddrecordhtm.IN-InActive" /></option>
-					<option value="DE"><bean:message key="demographic.demographicaddrecordhtm.DE-Deceased" /></option>
-					<option value="MO"><bean:message key="demographic.demographicaddrecordhtm.MO-Moved" /></option>
-					<option value="FI"><bean:message key="demographic.demographicaddrecordhtm.FI-Fired" /></option>
-					<% 
-					for(String status : demographicDao.search_ptstatus()) { %>
-					<option value="<%=status%>"><%=status%></option>
-					<% } // end while %>
-				</select> <input type="button" onClick="newStatus();" value="<bean:message
-					key="demographic.demographicaddrecordhtm.AddNewPatient"/> ">
-				
-				</td>
-				<td align="right" nowrap>
-					<b>Patient Status Date:</b>
-				</td>
-				<td align="left">
-					<input type="text"
-							name="patient_status_date" id="patient_status_date"
-							value="<%=today %>" size="12"> <img
-							src="../images/cal.gif" id="patient_status_date_cal">(yyyy-mm-dd)
-				</td>
-			</tr>
-			
-			<tr valign="top">
-                            <td id="phuLbl" align="right"><b><bean:message
-					key="demographic.demographicaddrecordhtm.formPHU" />:</b></td>
-				<td id="phuLblCell" align="left">
-				<select id="PHU" name="PHU" >
-					<option value="">Select Below</option>
-					<%
-						String defaultPhu = OscarProperties.getInstance().getProperty("default_phu");
-						
-						LookupListManager lookupListManager = SpringUtils.getBean(LookupListManager.class);
-						LookupList ll = lookupListManager.findLookupListByName(LoggedInInfo.getLoggedInInfoFromSession(request), "phu");
-						if(ll != null) {
-							for(LookupListItem llItem : ll.getItems()) {
-								String selected = "";
-								if(llItem.getValue().equals(defaultPhu)) {
-									selected = " selected=\"selected\" ";	
-								}
-								%>
-									<option value="<%=llItem.getValue()%>" <%=selected%>><%=llItem.getLabel()%></option>
-								<%
-							}
-						} else {
-							%>
-							<option value="">None Available</option>
-						<%
-						}
-					
-					%>
-				</select>
-				</td>
-				<td align="right">&nbsp;
-				</td>
-			</tr>
-			
-
 			<%if (oscarProps.getProperty("EXTRA_DEMO_FIELDS") !=null){
       String fieldJSP = oscarProps.getProperty("EXTRA_DEMO_FIELDS");
       fieldJSP+= ".jsp";
@@ -1722,199 +2223,8 @@ document.forms[1].r_doctor_ohip.value = refNo;
 			<%}%>
 
 
-			<%
-
-   if (props.isPropertyActive("meditech_id")) { %>
-                         <tr valign="top">
-                             <td align="right"><b>Meditech ID:</b></td>
-                             <td align="left"><input type="text" name="meditech_id" value=""></td>
-                             <td align="right"><b>&nbsp;</b></td>
-                             <td align="left">&nbsp;</td>
-                         </tr>
-<% }
-
-        String wLReadonly = "";
-        WaitingList wL = WaitingList.getInstance();
-        if(!wL.getFound()){
-            wLReadonly = "readonly";
-            }
-    %>
-			<tr>
-				<td id="waitListTbl" colspan="4">
-				<table border="1" width="100%">
-					<tr valign="top">
-                                            <td align="right" width="15%" nowrap><b> <bean:message key="demographic.demographicaddarecordhtm.msgWaitList"/>: </b></td>
-						<td align="left" width="38%"><select id="name_list_id" name="list_id">
-							<% if(wLReadonly.equals("")){ %>
-							<option value="0">--Select Waiting List--</option>
-							<%}else{ %>
-							<option value="0"><bean:message key="demographic.demographicaddarecordhtm.optCreateWaitList"/>
-							</option>
-							<%} %>
-							<%
-							for(WaitingListName wln : waitingListNameDao.findCurrentByGroup(((ProviderPreference)session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER_PREFERENCE)).getMyGroupNo())) {
-                                    
-                                    %>
-							<option value="<%=wln.getId()%>"><%=wln.getName()%></option>
-							<%
-                                       }
-                                     %>
-						</select></td>
-						<td align="right" nowrap><b><bean:message key="demographic.demographicaddarecordhtm.msgWaitListNote"/>: </b></td>
-						<td align="left"><input type="text" id="waiting_list_note" name="waiting_list_note"
-							size="36" <%=wLReadonly%>></td>
-					</tr>
-
-					<tr>
-						<td colspan="2" align="right">&nbsp;</td>
-						<td align="right" nowrap><b><bean:message key="demographic.demographicaddarecordhtm.msgDateOfReq"/>:</b></td>
-						<td align="left"><input type="text"
-							name="waiting_list_referral_date" id="waiting_list_referral_date"
-							value="" size="12" <%=wLReadonly%>> <img
-							src="../images/cal.gif" id="referral_date_cal">(yyyy-mm-dd)
-						</td>
-					</tr>
-				</table>
-				</td>
-			</tr>
 
 
-<%-- TOGGLE PRIVACY CONSENT MODULE --%>			
-<oscar:oscarPropertiesCheck property="privateConsentEnabled" value="true">			
-
-			<%
-				String[] privateConsentPrograms2 = OscarProperties.getInstance().getProperty("privateConsentPrograms","").split(",");
-				ProgramProvider pp3 = programManager2.getCurrentProgramInDomain(loggedInInfo,loggedInInfo.getLoggedInProviderNo());
-				boolean showConsents = false;
-				if(pp3 != null) {
-					for(int x=0;x<privateConsentPrograms2.length;x++) {
-						if(privateConsentPrograms2[x].equals(pp3.getProgramId().toString())) {
-							showConsents=true;
-						}
-					}
-				}
-						
-			if(showConsents) { %>
-			<!-- consents -->
-			<tr valign="top">
-	
-				<td colspan="4">
-					<input type="checkbox" name="privacyConsent" value="yes"><b>Privacy Consent (verbal) Obtained</b> 
-					<br/>
-					<input type="checkbox" name="informedConsent" value="yes"><b>Informed Consent (verbal) Obtained</b>
-					<br/>
-				</td>
-
-		  	</tr>
-		  			  	
-			<% } %>
-
-		<oscar:oscarPropertiesCheck property="USE_NEW_PATIENT_CONSENT_MODULE" value="true" >
-			
-				<c:forEach items="${ consentTypes }" var="consentType" varStatus="count">
-					<c:set var="patientConsent" value="" />
-					<c:forEach items="${ patientConsents }" var="consent" >
-						<c:if test="${ consent.consentType.id eq consentType.id }">
-							<c:set var="patientConsent" value="${ consent }" />
-						</c:if>													
-					</c:forEach>
-					<tr class="privacyConsentRow" id="${ count.index }" >
-						<td class="alignRight" style="width:16%;vertical-align:top;">
-							<div style="font-weight:bold;white-space:nowrap;" >
-								<c:out value="${ consentType.name }" />
-							</div>
-						</td>
-												
-						<td colspan="2" style="padding-left:10px;vertical-align:top;">
-							<c:out value="${ consentType.description }" />
-						</td>
-						
-						<td id="consentStatusDate" style="width:31%;vertical-align:top;" >	
-                            <input type="radio"
-                                   name="${ consentType.type }"
-                                   id="optin_${ consentType.type }"
-                                   value="0"
-                            />
-                            <label for="optin_${ consentType.type }" >Opt-In</label>
-                            <input type="radio"
-                                   name="${ consentType.type }"
-                                   id="optout_${ consentType.type }"
-                                   value="1"                         
-                            />
-                            <label for="optout_${ consentType.type }" >Opt-Out</label>
-                            <input type="button"
-                                   name="clearRadio_${consentType.type}_btn"
-                                   onclick="consentClearBtn('${consentType.type}')" value="Clear" />
-																						
-						</td>
-						
-					</tr>
-				</c:forEach>
-				
-		</oscar:oscarPropertiesCheck>
-
-</oscar:oscarPropertiesCheck>
-
-			<tr valign="top">
-				<td id="joinDateLbl" align="right"><b><bean:message
-					key="demographic.demographicaddrecordhtm.formDateJoined" /></b><b>:
-				</b></td>
-				<td id="joinDateCell" align="left"><input type="text" name="date_joined_year"
-					size="4" maxlength="4" value="<%=curYear%>"> <input
-					type="text" name="date_joined_month" size="2" maxlength="2"
-					value="<%=curMonth%>"> <input type="text"
-					name="date_joined_date" size="2" maxlength="2" value="<%=curDay%>">
-				</td>
-				<td id="endDateLbl" align="right"><b><bean:message
-					key="demographic.demographicaddrecordhtm.formEndDate" /></b><b>: </b></td>
-				<td id="endDateCell" align="left"><input type="text" name="end_date_year"
-					size="4" maxlength="4"> <input type="text"
-					name="end_date_month" size="2" maxlength="2"> <input
-					type="text" name="end_date_date" size="2" maxlength="2"></td>
-			</tr>
-
-			<tr valign="top">
-			    <td colspan="4">
-			        <table border="1" width="100%">
-			            <tr bgcolor="#CCCCFF">
-			                <td colspan="2" >Program Admissions</td>
-			            </tr>
-			            <tr>
-			                <td>Residential Status<font color="red">:</font></td>
-			                <td>Service Programs</td>
-			            </tr>
-			            <tr>
-			                <td>
-                                <select id="rsid" name="rps">
-                                    <%
-                                        GenericIntakeEditAction gieat = new GenericIntakeEditAction();
-                                        gieat.setProgramManager(pm);
-
-                                        String _pvid = loggedInInfo.getLoggedInProviderNo();
-                                        Set<Program> pset = gieat.getActiveProviderProgramsInFacility(loggedInInfo,_pvid,loggedInInfo.getCurrentFacility().getId());
-                                        List<Program> bedP = gieat.getBedPrograms(pset,_pvid);
-                                        List<Program> commP = gieat.getCommunityPrograms();
-                      	                
-                                        for(Program _p:bedP){
-                                    %>
-                                        <option value="<%=_p.getId()%>" <%=("OSCAR".equals(_p.getName())?" selected=\"selected\" ":"")%> ><%=_p.getName()%></option>
-                                    <%
-                                        }
-                                     %>
-                                </select>
-			                </td>
-			                <td>
-			                    <%
-			                        List<Program> servP = gieat.getServicePrograms(pset,_pvid);
-			                        for(Program _p:servP){
-			                    %>
-			                        <input type="checkbox" name="sp" value="<%=_p.getId()%>"/><%=_p.getName()%><br/>
-			                    <%}%>
-			                </td>
-			            </tr>
-			        </table>
-			    </td>
-			</tr>
 
 
 <% //"Has Primary Care Physician" & "Employment Status" fields
@@ -1926,7 +2236,7 @@ document.forms[1].r_doctor_ohip.value = refNo;
 	String employmentStatus = "N/A";
 	
 	if (hasHasPrimary || hasEmpStatus) {
-%>							<tr valign="top" bgcolor="#CCCCFF">
+%>							<tr valign="top" >
 <%		if (hasHasPrimary) {
 %>								<td><b><%=hasPrimary.replace(" ", "&nbsp;")%>:</b></td>
 								<td>
@@ -1960,7 +2270,7 @@ document.forms[1].r_doctor_ohip.value = refNo;
 	String [] propDemoExt = oscarVariables.getProperty("demographicExt","").split("\\|");
 	for(int k=0; k<propDemoExt.length; k=k+2) {
 %>
-			<tr valign="top" bgcolor="#CCCCFF">
+			<tr valign="top" >
 				<td align="right"><b><%=propDemoExt[k] %></b><b>: </b></td>
 				<td align="left">
 				<% if(bExtForm) {
@@ -1981,24 +2291,7 @@ document.forms[1].r_doctor_ohip.value = refNo;
 }
 if(oscarVariables.getProperty("demographicExtJScript") != null) { out.println(oscarVariables.getProperty("demographicExtJScript")); }
 %>
-			<tr>
-				<td colspan="4">
-				<table width="100%" bgcolor="#EEEEFF">
-					<tr>
-						<td id="alertLbl" width="10%" align="right"><font color="#FF0000"><b><bean:message
-							key="demographic.demographicaddrecordhtm.formAlert" />: </b></font></td>
-						<td id="alertCell"><textarea id="cust3" name="cust3" style="width: 100%" rows="2"></textarea>
-						</td>
-					</tr>
-					<tr>
-						<td id="notesLbl" align="right"><b><bean:message
-							key="demographic.demographicaddrecordhtm.formNotes" /> : </b></td>
-						<td id="notesCell"><textarea id="content" name="content" style="width: 100%" rows="2"></textarea>
-						</td>
-					</tr>
-				</table>
-				</td>
-			</tr>
+
 			<tr>
 			    <td colspan="4">
 			        <div>
@@ -2018,32 +2311,32 @@ if(oscarVariables.getProperty("demographicExtJScript") != null) { out.println(os
 			        </div>
 			    </td>
 			</tr>
-			<tr bgcolor="#CCCCFF">
+			<tr >
 				<td colspan="4">
 				<div align="center"><input type="hidden" name="dboperation"
 					value="add_record"> <input type="hidden" name="displaymode" value="Add Record">
-				<input type="submit" id="btnAddRecord" name="btnAddRecord" 
+				<input type="submit" id="btnAddRecord" name="btnAddRecord" class="btn btn-primary"
 					value="<bean:message key="demographic.demographicaddrecordhtm.btnAddRecord"/>">
 					<input type="submit" name="submit" value="Save & Add Family Member">
-				<input type="button" id="btnSwipeCard" name="Button"
+				<input type="button" id="btnSwipeCard" name="Button" class="btn"
 					value="<bean:message key="demographic.demographicaddrecordhtm.btnSwipeCard"/>"
 					onclick="window.open('zadddemographicswipe.htm','', 'scrollbars=yes,resizable=yes,width=600,height=300')";>
 				&nbsp; 
 				<caisi:isModuleLoad moduleName="caisi" reverse="true">
-				<input type="button" name="closeButton"
+				<input type="button" name="closeButton" class="btn"
 					value="<bean:message key="demographic.demographicaddrecordhtm.btnCancel"/>"
 					onclick="self.close();">
 				</caisi:isModuleLoad>				
 				</div>
 				&nbsp; 				
 				<caisi:isModuleLoad moduleName="caisi" reverse="true">
-				<input type="button" name="closeButton"
+				<input type="button" name="closeButton" class="btn btn-link"
 					value="<bean:message key="demographic.demographicaddrecordhtm.btnCancel"/>"
 					onclick="self.close();">
 				</caisi:isModuleLoad>
 				<caisi:isModuleLoad moduleName="caisi">
-				<input type="button" name="closeButton"
-					value="<bean:message key="demographic.demographicaddrecordhtm.btnReturnToSchedule"/>"
+				<input type="button" name="closeButton" class="btn"
+					value="<bean:message key="global.btnExit"/>"
 					onclick="window.location.href='../provider/providercontrol.jsp';">
 				</caisi:isModuleLoad>
 				</td>
@@ -2061,8 +2354,6 @@ if(oscarVariables.getProperty("demographicExtJScript") != null) { out.println(os
 	key="demographic.demographicaddrecordhtm.formDateFormat" /> </font>
 
 <script type="text/javascript">
-Calendar.setup({ inputField : "waiting_list_referral_date", ifFormat : "%Y-%m-%d", showsTime :false, button : "referral_date_cal", singleClick : true, step : 1 });
-Calendar.setup({ inputField : "patient_status_date", ifFormat : "%Y-%m-%d", showsTime :false, button : "patient_status_date_cal", singleClick : true, step : 1 });
 
 <%
 if (privateConsentEnabled) {
