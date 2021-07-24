@@ -114,11 +114,19 @@
     boolean showHIN = echartPreferences.getOrDefault("echart_show_HIN", false);
     boolean showDOB = echartPreferences.getOrDefault("echart_show_DOB", false);
     boolean showCell = echartPreferences.getOrDefault("echart_show_cell", true);
-    
+
     StringBuilder patientName = new StringBuilder();
     patientName.append(bean.getPatientLastName())
                .append(", ");
+    if (replaceNameWithPreferred && !demographic.getAlias().isEmpty()) {
+        patientName.append(demographic.getAlias());
+    } else {
         patientName.append(bean.getPatientFirstName());
+        if (!demographic.getAlias().isEmpty()) {
+            patientName.append(" (").append(demographic.getAlias()).append(")");
+        }
+    }
+
     %>
 
 <script>
