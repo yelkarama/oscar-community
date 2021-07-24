@@ -164,7 +164,7 @@
         <input type="hidden" name="dboperation" value="">
         <table id="displaySettingsTable" class="table table-bordered table-striped table-hover table-condensed">
             <tbody>                                              
- <!--           <tr>
+               <tr>
                 <td><bean:message key="admin.admin.generalSettings.alias"/>: </td>
                 <td>
                     <input id="replace_demographic_name_with_preferred-true" type="radio" value="true" name="replace_demographic_name_with_preferred"
@@ -184,7 +184,6 @@
                             <%=(dataBean.getProperty("msg_use_create_date", "false").equals("true")) ? "checked" : ""%> />
                 </td>
             </tr>
- -->
             <tr>
                 <td><bean:message key="admin.admin.generalSettings.force_logout"/>: </td>
                 <td>
