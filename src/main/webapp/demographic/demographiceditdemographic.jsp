@@ -196,7 +196,9 @@ if(!authed) {
 	Boolean isMobileOptimized = session.getAttribute("mobileOptimized") != null;
 	ProvinceNames pNames = ProvinceNames.getInstance();
 	Map<String,String> demoExt = demographicExtDao.getAllValuesForDemo(Integer.parseInt(demographic_no));
-
+    SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+    Map<String, Boolean> generalSettingsMap = systemPreferencesDao.findByKeysAsMap(SystemPreferences.GENERAL_SETTINGS_KEYS);
+    boolean replaceNameWithPreferred = generalSettingsMap.getOrDefault("replace_demographic_name_with_preferred", false);
 	
 	String usSigned = StringUtils.defaultString(apptMainBean.getString(demoExt.get("usSigned")));
     String privacyConsent = StringUtils.defaultString(apptMainBean.getString(demoExt.get("privacyConsent")), "");
@@ -1067,9 +1069,18 @@ background-color: grey;
                                 }
                             %>         
 
-
-<%=demographic.getLastName()%>,
-				<%=demographic.getFirstName()%> <%=demographic.getSex()%>
+<%    StringBuilder patientName = new StringBuilder();
+    patientName.append(demographic.getLastName())
+               .append(", ");
+    if (replaceNameWithPreferred && StringUtils.isNotEmpty(demographic.getAlias())) {
+        patientName.append(demographic.getAlias());
+    } else {
+        patientName.append(demographic.getFirstName());
+        if (StringUtils.isNotEmpty(demographic.getAlias())) {
+            patientName.append(" (").append(demographic.getAlias()).append(")");
+        }
+    } %>
+				<%=patientName.toString()%> <%=demographic.getSex()%>
 				<%=age%> years &nbsp;
 				<oscar:phrverification demographicNo='<%=demographic.getDemographicNo().toString()%>' ><bean:message key="phr.verification.link"/></oscar:phrverification>
 
