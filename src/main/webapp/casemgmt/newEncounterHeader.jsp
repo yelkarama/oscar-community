@@ -116,16 +116,16 @@
     boolean showCell = echartPreferences.getOrDefault("echart_show_cell", true);
 
     StringBuilder patientName = new StringBuilder();
-    patientName.append(bean.getPatientLastName())
+    patientName.append(demographic.getLastName())
                .append(", ");
-    if (replaceNameWithPreferred && !demographic.getAlias().isEmpty()) {
+    if (replaceNameWithPreferred && StringUtils.isNotEmpty(demographic.getAlias())) {
         patientName.append(demographic.getAlias());
     } else {
-        patientName.append(bean.getPatientFirstName());
-        if (!demographic.getAlias().isEmpty()) {
+        patientName.append(demographic.getFirstName());
+        if (StringUtils.isNotEmpty(demographic.getAlias())) {
             patientName.append(" (").append(demographic.getAlias()).append(")");
         }
-    }
+    } 
 
     %>
 
