@@ -496,6 +496,11 @@ if (apptDate.before(minDate)) {
     } else {
     allowWeek = "No";
 }
+
+
+Map<String, Boolean> generalSettingsMap = systemPreferencesDao.findByKeysAsMap(SystemPreferences.GENERAL_SETTINGS_KEYS);
+boolean replaceNameWithPreferred = generalSettingsMap.getOrDefault("replace_demographic_name_with_preferred", false);
+
 %>
 <%@page import="oscar.util.*"%>
 <%@page import="oscar.oscarDB.*"%>
@@ -508,6 +513,7 @@ if (apptDate.before(minDate)) {
 <%@page import="org.oscarehr.common.model.ProviderPreference"%>
 <%@page import="org.oscarehr.web.AppointmentProviderAdminDayUIBean"%>
 <%@page import="org.oscarehr.common.model.EForm"%><html:html locale="true">
+<%@page import="org.apache.commons.lang.StringUtils"%>
 <head>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script>
 <title><%=WordUtils.capitalize(userlastname + ", " +  org.apache.commons.lang.StringUtils.substring(userfirstname, 0, 1)) + "-"%><bean:message key="provider.appointmentProviderAdminDay.title"/></title>
@@ -646,7 +652,7 @@ th, td {
     background-color: <%=(showClassicSchedule? "#486ebd;" : "gainsboro;")%> 
 	font-weight: bold;
 	font-size: 13px;
-    border-spacing: 0px 1px;
+    border-spacing: 0px 0.5px;
 }
 
 #providerSchedule a {
@@ -2174,8 +2180,17 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
                   if ((demographic_no != 0)&& (demographicDao != null)) {
                         Demographic demo = demographicDao.getDemographic(String.valueOf(demographic_no));
                         nameSb.append(demo.getLastName())
-                              .append(",")
-                              .append(demo.getFirstName());
+                              .append(",");
+                        if (replaceNameWithPreferred && StringUtils.isNotEmpty(demo.getAlias())) {
+                              nameSb.append(demo.getAlias());
+                        } else {
+                                nameSb.append(demo.getFirstName());
+                                if (StringUtils.isNotEmpty(demo.getAlias())) { 
+                                    nameSb.append(" (")
+                                        .append(demo.getAlias())
+                                        .append(")"); 
+                                }
+                        }
                   }
                   else {
                         nameSb.append(String.valueOf(appointment.getName()));
