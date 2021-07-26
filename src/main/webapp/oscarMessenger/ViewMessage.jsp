@@ -79,8 +79,8 @@ if (request.getParameter("bFirstDisp")!=null) bFirstDisp= (request.getParameter(
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 <link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
-<link rel="stylesheet" type="text/css" href="printable.css"
-	media="print">
+<!--<link rel="stylesheet" type="text/css" href="printable.css"
+	media="print">-->
 <style type="text/css">
     .subheader {
 	    background-color:silver;
@@ -98,6 +98,10 @@ if (request.getParameter("bFirstDisp")!=null) bFirstDisp= (request.getParameter(
       background-color: rgb(0,0,0); /* Fallback color */
       background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
     }
+</style>
+<style type="text/css" media="print">
+ .DoNotPrint {
+	display: none;
 </style>
 <%
 String boxType = request.getParameter("boxType");
@@ -273,7 +277,7 @@ function fmtOscarMsg() {
 			<td class="MainTableLeftColumn">&nbsp;</td>
 			<td class="MainTableRightColumn Printable">
 			<table>
-				<tr>
+				<tr class="DoNotPrint">
 					<td>
 					<table cellspacing=3>
 						<tr>
@@ -404,7 +408,7 @@ function fmtOscarMsg() {
 
 						<tr>
 							<td></td>
-							<td colspan="2">
+							<td colspan="2" class="Printable">
 								<textarea id="msgBody" name="Message" wrap="hard" readonly="true" rows="18" style="min-width: 100%"><c:out value="${ viewMessageMessage }"/></textarea>
 							</td>
 						</tr>
@@ -461,7 +465,7 @@ function fmtOscarMsg() {
 						
 						<%-- If view request is from the inbox, display the following --%>
 						<c:otherwise>
-						<tr>
+						<tr class="DoNotPrint">>
 							<td ></td>
 							<td  colspan="2">
 								<html:submit styleClass="btn" property="reply">
@@ -476,7 +480,7 @@ function fmtOscarMsg() {
 								<html:hidden property="messageNo" value="${ viewMessageNo }" />
 							</td>
 						</tr>
-						<tr class="subheader">
+						<tr class="subheader" class="DoNotPrint">
 							<td></td>
 							<td colspan="2">
 							<strong>
@@ -485,7 +489,7 @@ function fmtOscarMsg() {
 							</td>
 						</tr>
 
-						<tr>
+						<tr class="DoNotPrint">
 							<td></td>
 							<td><input type="text" name="keyword"
 								size="30" /> 
@@ -518,7 +522,7 @@ function fmtOscarMsg() {
                                     demoFirstName = demo.getLastName();
                                                                        
                                 } %>
-						<tr>
+						<tr class="DoNotPrint">
 							<td></td>
 							<td><input type="text"
 								name="selectedDemo" size="30" readonly
