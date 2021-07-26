@@ -187,7 +187,7 @@ String curUser_no = (String) session.getAttribute("user");
                                 	%> <input type="hidden" name="NoMoreItems" value="true" /> <%
                             		if (isListView) { %>
 		                                <tr>
-		                                    <tdcolspan="9" align="center">
+		                                    <td colspan="9" align="center">
 		                                        <i>	<% if (pageNum == 1) { %>
 		                                        	<bean:message key="oscarMDS.index.msgNoReports"/>
 		                                        	<% } else { %>
