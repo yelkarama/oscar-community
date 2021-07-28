@@ -218,7 +218,7 @@ window.opener.location.reload();
 <table class="preferenceTable" width="100%">
     <tr>
         <td class="preferenceLabel">
-		    <H4>&nbsp;	<bean:message key="provider.providerpreference.title"/></H4>
+		    <H4>&nbsp;<i class="icon-cogs"></i>&nbsp;<bean:message key="provider.providerpreference.title"/></H4>
         </td>
         <td style="text-align: right">	&nbsp;	
 			<INPUT TYPE="submit" class="btn btn-primary" VALUE='<bean:message key="provider.providerpreference.btnSubmit"/>' SIZE="7">
