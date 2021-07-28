@@ -400,7 +400,7 @@ function calToday(field) {
 	<tr>
 		<td width="1%"></td>
 		<td width="80%" align="left">
-		<H4><a style="color:black;"
+		<H4><i class="icon-money"></i>&nbsp;<a style="color:black;"
 			href="billingReportCenter.jsp">OSCARbilling</a></H4>
 		</td>
         <td align="right">
