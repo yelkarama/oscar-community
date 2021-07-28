@@ -252,10 +252,10 @@ function fmtOscarMsg() {
 <body class="BodyStyle" vlink="#0000FF">
 <html:form action="/oscarMessenger/HandleMessages">
 
-	<table class="MainTable" id="scrollNumber1" name="encounterTable">
+	<table class="MainTable" id="scrollNumber1" name="encounterTable" width="90%">
 		<tr class="MainTableTopRow">
-			<td class="MainTableTopRowLeftColumn"><h4><bean:message
-				key="oscarMessenger.ViewMessage.msgMessenger" />:</h4></td>
+			<td class="MainTableTopRowLeftColumn"><h4>&nbsp;<i class="icon-envelope" title='<bean:message
+				key="oscarMessenger.ViewMessage.msgMessenger" />'</i>&nbsp;</h4></td>
 			<td class="MainTableTopRowRightColumn">
 			<table class="TopStatusBar">
 				<tr>
@@ -266,7 +266,7 @@ function fmtOscarMsg() {
 				</tr>
 			</table>
 			</td>
-            <td align="right" >
+            <td style="text-align: right;" >
             <i class=" icon-question-sign"></i> 
             <a href="javascript:void(0)" onClick ="popupPage(700,960,'<%=(OscarProperties.getInstance()).getProperty("HELP_SEARCH_URL")%>'+'Messenger view')"><bean:message key="app.top1"/></a>
             <i class=" icon-info-sign" style="margin-left:10px;"></i> 
@@ -350,6 +350,7 @@ function fmtOscarMsg() {
 				</tr>
 				<tr>
 					<td class="Printable">
+
 					<table valign="top" class="well"><!-- the messageblock -->
 						<tr>
 							<td class="Printable" ><bean:message
@@ -465,7 +466,7 @@ function fmtOscarMsg() {
 						
 						<%-- If view request is from the inbox, display the following --%>
 						<c:otherwise>
-						<tr class="DoNotPrint">>
+						<tr class="DoNotPrint">
 							<td ></td>
 							<td  colspan="2">
 								<html:submit styleClass="btn" property="reply">
