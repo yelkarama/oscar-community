@@ -175,10 +175,7 @@ width:100% !important;
 	//background-color: #EEEEFF;
 	//color: black;
 }
-span.recipientList {
-    text-overflow:ellipsis;
-    overflow: hidden;
-}
+
 
 span.recipientList:hover{
 	position: relative;
@@ -225,7 +222,11 @@ $(document).ready(function(){
 	
 	$.each(recipientLists, function(key, value){		
 		var text = $(value).text();
-		var shortText = $.trim(text).substring(0, lengthText).split(" ").slice(0, 1).join(" ") + "...";
+        var shortText = $.trim(text).substring(0, lengthText);
+        var names = shortText.split(",");
+        if ( names.length > 1 ) {
+            shortText = names[0] + "," + names[1].substring(0,2) + "...";
+        }
 		$(value).text(shortText);
 		$(value).attr("title", $.trim(text));
 	})
@@ -456,17 +457,23 @@ $(document).ready(function(){
                                      <bean:message key="<%= key %>"/>
                                     </td>
                                     <td class='<%= dm.getType() == 3 ? "integratedMessage" : "normalMessage" %>'>
-                                        <span class="recipientList">
+                                        
                                         <%
-                                            if( pageType == 1 ) {                       
+                                            if( pageType == 1 ) { 
+%>
+<span class="recipientList">
+<%                      
                                                 out.print(dm.getSentto());
+%>
+</span>
+<% 
                                             }
                                             else 
                                             {
                                                 out.print(dm.getSentby());
                                             }
                                         %>
-                                    	</span>
+                                    	
                                     </td>
                                     <td class='<%= dm.getType() == 3 ? "integratedMessage" : "normalMessage" %>'>
                                     <a href="<%=request.getContextPath()%>/oscarMessenger/ViewMessage.do?messageID=<%=dm.getMessageId()%>&boxType=<%=pageType%>">

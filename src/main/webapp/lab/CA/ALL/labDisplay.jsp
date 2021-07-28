@@ -851,7 +851,7 @@ input[type=button], button, input[id^='acklabel_']{ font-size:12px !important;pa
                     <td valign="top">
                         <table width="100%" border="0" cellspacing="0" cellpadding="3">
                             <tr>
-                                <td align="left" class="xMainTableTopRowRightColumn" width="100%">
+                                <td align="left" class="MainTableTopRowRightColumn" width="100%">
                                     <input type="hidden" name="segmentID" value="<%= segmentID %>"/>
                                     <input type="hidden" name="multiID" value="<%= multiLabId %>" />
                                     <input type="hidden" name="providerNo" id="providerNo" value="<%= providerNo %>"/>

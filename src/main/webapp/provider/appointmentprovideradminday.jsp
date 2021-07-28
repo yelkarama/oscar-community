@@ -496,6 +496,11 @@ if (apptDate.before(minDate)) {
     } else {
     allowWeek = "No";
 }
+
+
+Map<String, Boolean> generalSettingsMap = systemPreferencesDao.findByKeysAsMap(SystemPreferences.GENERAL_SETTINGS_KEYS);
+boolean replaceNameWithPreferred = generalSettingsMap.getOrDefault("replace_demographic_name_with_preferred", false);
+
 %>
 <%@page import="oscar.util.*"%>
 <%@page import="oscar.oscarDB.*"%>
@@ -508,6 +513,7 @@ if (apptDate.before(minDate)) {
 <%@page import="org.oscarehr.common.model.ProviderPreference"%>
 <%@page import="org.oscarehr.web.AppointmentProviderAdminDayUIBean"%>
 <%@page import="org.oscarehr.common.model.EForm"%><html:html locale="true">
+<%@page import="org.apache.commons.lang.StringUtils"%>
 <head>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script>
 <title><%=WordUtils.capitalize(userlastname + ", " +  org.apache.commons.lang.StringUtils.substring(userfirstname, 0, 1)) + "-"%><bean:message key="provider.appointmentProviderAdminDay.title"/></title>
@@ -538,6 +544,7 @@ table {
 
 th, td {
     padding: 0px;
+
 }
 
 #logo {
@@ -645,6 +652,7 @@ th, td {
     background-color: <%=(showClassicSchedule? "#486ebd;" : "gainsboro;")%> 
 	font-weight: bold;
 	font-size: 13px;
+    border-spacing: 0px 0.5px;
 }
 
 #providerSchedule a {
@@ -2002,7 +2010,7 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
 %>
             <td valign="top" width="<%=isWeekView?100/7:100/numProvider%>%" <%=hideColumn?"style=\"display:none\" ":"" %>> <!-- for the first provider's schedule -->
 
-        <table  width="100%"><!-- for the first provider's name -->
+        <table  width="100%" id="providertable"><!-- for the first provider's name -->
           <tr><td class="infirmaryView" NOWRAP ALIGN="center" BGCOLOR="<%=bColor?"silver":"silver"%>">
  <!-- caisi infirmary view extension modify ffffffffffff-->
   <logic:notEqual name="infirmaryView_isOscar" value="false">
@@ -2172,8 +2180,17 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
                   if ((demographic_no != 0)&& (demographicDao != null)) {
                         Demographic demo = demographicDao.getDemographic(String.valueOf(demographic_no));
                         nameSb.append(demo.getLastName())
-                              .append(",")
-                              .append(demo.getFirstName());
+                              .append(",");
+                        if (replaceNameWithPreferred && StringUtils.isNotEmpty(demo.getAlias())) {
+                              nameSb.append(demo.getAlias());
+                        } else {
+                                nameSb.append(demo.getFirstName());
+                                if (StringUtils.isNotEmpty(demo.getAlias())) { 
+                                    nameSb.append(" (")
+                                        .append(demo.getAlias())
+                                        .append(")"); 
+                                }
+                        }
                   }
                   else {
                         nameSb.append(String.valueOf(appointment.getName()));
@@ -2354,7 +2371,7 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
     		<% }    }%>
     		
     		
-<a href=# onClick ="popupPage(790,791,'../appointment/appointmentcontrol.jsp?appointment_no=<%=appointment.getId()%>&provider_no=<%=curProvider_no[nProvider]%>&year=<%=year%>&month=<%=month%>&day=<%=day%>&start_time=<%=iS+":"+iSm%>&demographic_no=0&displaymode=edit&dboperation=search');return false;" title="<%=iS+":"+(iSm>10?"":"0")+iSm%>-<%=iE+":"+iEm%>
+<a href=# onClick ="popupPage(790,801,'../appointment/appointmentcontrol.jsp?appointment_no=<%=appointment.getId()%>&provider_no=<%=curProvider_no[nProvider]%>&year=<%=year%>&month=<%=month%>&day=<%=day%>&start_time=<%=iS+":"+iSm%>&demographic_no=0&displaymode=edit&dboperation=search');return false;" title="<%=iS+":"+(iSm>10?"":"0")+iSm%>-<%=iE+":"+iEm%>
 <%=name%>
 	<%=type != null ? "type: " + type : "" %>
 	reason: <%=reasonCodeName!=null?reasonCodeName:""%> <%if(reason!=null && !reason.isEmpty()){%>- <%=UtilMisc.htmlEscape(reason)%>
@@ -2444,7 +2461,7 @@ if( iSm < 10 ) {
 start_time += iSm + ":00";
 %>
 
-<a class="apptLink" href=# onClick ="popupPage(790,791,'../appointment/appointmentcontrol.jsp?appointment_no=<%=appointment.getId()%>&provider_no=<%=curProvider_no[nProvider]%>&year=<%=year%>&month=<%=month%>&day=<%=day%>&start_time=<%=iS+":"+iSm%>&demographic_no=<%=demographic_no%>&displaymode=edit&dboperation=search');return false;" 
+<a class="apptLink" href=# onClick ="popupPage(790,801,'../appointment/appointmentcontrol.jsp?appointment_no=<%=appointment.getId()%>&provider_no=<%=curProvider_no[nProvider]%>&year=<%=year%>&month=<%=month%>&day=<%=day%>&start_time=<%=iS+":"+iSm%>&demographic_no=<%=demographic_no%>&displaymode=edit&dboperation=search');return false;" 
 <oscar:oscarPropertiesCheck property="SHOW_APPT_REASON_TOOLTIP" value="yes" defaultVal="true"> 
 	title="<%=name%>
 	type: <%=type != null ? type : "" %>
