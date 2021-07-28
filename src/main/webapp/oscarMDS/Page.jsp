@@ -176,7 +176,7 @@ String curUser_no = (String) session.getAttribute("user");
                             </th>
                         </tr>
                           </thead>    
-                          <tbody>
+                          <!--<tbody>-->
                                             <%
 							} // End if(pageNum == 1)
                             List<String> doclabid_seq=new ArrayList<String>();
@@ -314,7 +314,7 @@ String bgcolor="";
                                 else {
                         		%>
                                 <tr id="labdoc_<%=segmentID%>" bgcolor="<%=bgcolor%>" <%if(result.isDocument()){%> name="scannedDoc" <%} else{%> name="HL7lab" <%}%> class="<%= (result.isAbnormal() ? "AbnormalRes error" : "NormalRes" ) + " " + (result.isMatchedToPatient() ? "AssignedRes" : "UnassignedRes") %>">
-                                <td nowrap width="15">
+                                <td nowrap width="130px">
                                     <input type="hidden" id="totalNumberRow" value="<%=total_row_index+1%>">
                                     <input type="checkbox" name="flaggedLabs" value="<%=segmentID%>">
                                     <input type="hidden" name="labType<%=segmentID+result.labType%>" value="<%=result.labType%>"/>
