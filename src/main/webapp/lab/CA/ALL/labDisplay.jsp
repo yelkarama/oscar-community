@@ -274,7 +274,7 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
         <script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/prototype.js"></script>
         <script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/scriptaculous.js"></script>
         <script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/effects.js"></script>
-        <script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/jquery/jquery-1.4.2.js"></script>
+        <script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.7.1.min.js"></script>
       	<script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/jquery/jquery.form.js"></script>
         <script type="text/javascript" charset="utf-8">jQuery.noConflict();</script>
 	
@@ -419,50 +419,8 @@ input[type=button], button, input[id^='acklabel_']{ font-size:12px !important;pa
 .DoNotPrint{display:none;}
 }      
         </style>
+<script type="text/javascript" src="<%=request.getContextPath() %>/js/bootstrap.min.js"></script>
 
-<style>
-/* Dropdown Button */
-.dropbtn {
-/*  background-color: #4CAF50;
-  color: white;
-  padding: 16px;
-  font-size: 16px;
-  border: none;*/
-}
-
-/* The container <div> - needed to position the dropdown content */
-.dropdown {
-  position: relative;
-  display: inline-block;
-}
-
-/* Dropdown Content (Hidden by Default) */
-.dropdown-content {
-  display: none;
-  position: absolute;
-  background-color: #f1f1f1;
-  min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-  z-index: 1;
-}
-
-/* Links inside the dropdown */
-.dropdown-content a {
-  color: black;
-  padding: 12px 16px;
-  text-decoration: none;
-  display: block;
-}
-
-/* Change color of dropdown links on hover */
-.dropdown-content a:hover {background-color: #ddd;}
-
-/* Show the dropdown menu on hover */
-.dropdown:hover .dropdown-content {display: block;}
-
-/* Change the background color of the dropdown button when the dropdown content is shown */
-.dropdown:hover .dropbtn {background-color: #3e8e41;}
-</style>
 
         <script language="JavaScript">
         var labNo = '<%=segmentID%>';
@@ -866,9 +824,9 @@ input[type=button], button, input[id^='acklabel_']{ font-size:12px !important;pa
 										UserProperty up = upDao.getProp(LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo(),UserProperty.LAB_MACRO_JSON);
 										if(up != null && !StringUtils.isEmpty(up.getValue())) {
 									%>
-											<div class="dropdown">
-											  <button class="dropbtn">Macros</button>
-											  <div class="dropdown-content">
+											<div class="btn-group">
+											  <button class=""btn dropdown-toggle" data-toggle="dropdown">Macros <span class="caret" style="vertical-align: middle;"></span></button>
+											  <ul class="dropdown-menu">
 											  <%
 											    try {
 												  	JSONArray macros = (JSONArray) JSONSerializer.toJSON(up.getValue());
@@ -878,7 +836,7 @@ input[type=button], button, input[id^='acklabel_']{ font-size:12px !important;pa
 													  		String name = macro.getString("name");
 													  		boolean closeOnSuccess = macro.has("closeOnSuccess") && macro.getBoolean("closeOnSuccess");
 													  		
-													  		%><a href="javascript:void(0);" onClick="runMacro('<%=name%>','acknowledgeForm_<%=segmentID%>',<%=closeOnSuccess%>)"><%=name %></a><%
+													  		%><li><a href="javascript:void(0);" onClick="runMacro('<%=name%>','acknowledgeForm_<%=segmentID%>',<%=closeOnSuccess%>)"><%=name %></a></li><%
 													  	}
 												  	}
 											    }catch(JSONException e ) {
@@ -886,7 +844,7 @@ input[type=button], button, input[id^='acklabel_']{ font-size:12px !important;pa
 											    }
 											  %>
 											    
-											  </div>
+											  </ul>
 											</div>
 									<% } %>
                                     <input type="button" class="btn btn-primary" value="<bean:message key="oscarMDS.segmentDisplay.btnAcknowledge"/>" onclick="<%=ackLabFunc%>" >
