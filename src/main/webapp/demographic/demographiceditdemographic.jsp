@@ -272,12 +272,12 @@ if(!authed) {
 <!-- calendar stylesheet -->
 <link rel="stylesheet" type="text/css" media="all"
 	href="../share/calendar/calendar.css" title="win2k-cold-1" />
-<!--<script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery.js"></script>-->
+
 <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 <link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
 <script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.7.1.min.js"></script>
-<!--<script type="text/javascript" src="<%=request.getContextPath() %>/library/bootstrap/3.0.0/js/bootstrap.js"></script>-->
 
+<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 
 
 <% if (oscarProps.getBooleanProperty("workflow_enhance", "true")) { %>
@@ -982,8 +982,8 @@ background-color: grey;
 
 <table class="xMainTable" id="scrollNumber1" name="encounterTable">
 	<tr class="xMainTableTopRow">
-		<td class="xMainTableTopRowLeftColumn" width="150px"><b><bean:message
-			key="demographic.demographiceditdemographic.msgPatientDetailRecord" /></b>
+		<td class="xMainTableTopRowLeftColumn" width="150px">&nbsp;&nbsp;<i class="icon-user icon-large" title="<bean:message
+			key="demographic.demographiceditdemographic.msgPatientDetailRecord" />"></i>
 		</td>
 		<td class="xMainTableTopRowRightColumn">
 		<table class="xTopStatusBar">
