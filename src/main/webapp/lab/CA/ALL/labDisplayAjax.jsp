@@ -1146,7 +1146,7 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
 
                                     <input type="button"  class="btn"  value=" <bean:message key="global.btnPrint"/> " onClick="printPDF('<%=segmentID%>')">
                                         <indivo:indivoRegistered demographic="<%=demographicID%>" provider="<%=providerNo%>">
-                                        <input type="button" value="<bean:message key="global.btnSendToPHR"/>" onClick="sendToPHR('<%=segmentID%>', '<%=demographicID%>')">
+                                        <input type="button" class="btn" value="<bean:message key="global.btnSendToPHR"/>" onClick="sendToPHR('<%=segmentID%>', '<%=demographicID%>')">
                                         </indivo:indivoRegistered>
                                     <% if ( searchProviderNo != null ) { // we were called from e-chart %>
                                     <input type="button" class="btn" value=" <bean:message key="oscarMDS.segmentDisplay.btnEChart"/> " onClick="popupStart(360, 680, '../oscarMDS/SearchPatient.do?labType=HL7&segmentID=<%= segmentID %>&name=<%=java.net.URLEncoder.encode(handler.getLastName()+", "+handler.getFirstName())%>', 'searchPatientWindow')">
