@@ -513,7 +513,7 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 				sql += " d.LastName like :lastName"+x+" ";
 				paramMap.put("lastName"+x, (leadingWildcard?"%":"") + searchStr.split(",")[0].trim() + "%");
 				if(searchStr.split(",").length == 2) {
-					sql += " AND d.FirstName like :firstName"+x+" ";
+					sql += " AND (d.FirstName like :firstName"+x+" OR d.Alias like :firstName"+x+") ";
 					paramMap.put("firstName"+x, (leadingWildcard?"%":"") + searchStr.split(",")[1].trim() + "%");
 				}
 				sql += ") ";
