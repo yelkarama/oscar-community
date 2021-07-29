@@ -751,7 +751,7 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 		StringBuilder sqlParameters = new StringBuilder();
 
 		if (hin != null) sqlParameters.append(" and d.Hin like :hin");
-		if (firstName != null) sqlParameters.append(" and d.FirstName like :firstName");
+		if (firstName != null) sqlParameters.append(" and ( d.FirstName like :firstName or d.Alias like :firstName )");
 		if (lastName != null) sqlParameters.append(" and d.LastName like :lastName");
 		if (gender != null) sqlParameters.append(" and d.Sex = :gender");
 
