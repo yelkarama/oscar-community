@@ -275,6 +275,7 @@ if(recall){
 	})
 	 	 
 </script>
+<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 </head>
 <body class="BodyStyle" >
 
@@ -282,7 +283,7 @@ if(recall){
 <table width=100%>
     <tr>
         <td valign="top">
-            <h4>&nbsp;<bean:message key="oscarMessenger.DisplayMessages.msgMessenger"/>:&nbsp;
+            <h4>&nbsp;<i class="icon-envelope" title='<bean:message key="oscarMessenger.DisplayMessages.msgMessenger"/>'></i>&nbsp;
             <bean:message key="oscarMessenger.CreateMessage.msgCreate" />
             </h4>  	
         </td>

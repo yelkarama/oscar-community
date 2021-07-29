@@ -566,7 +566,7 @@ var beginD = "1900-01-01"
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
   <tr class="noprint">
     <td width="80%" align="left">
-      <h4>&nbsp;<bean:message key="tickler.ticklerMain.msgTickler"/>
+      <h4>&nbsp;<i class="icon-lightbulb" title='<bean:message key="tickler.ticklerMain.msgTickler"/>'></i>&nbsp;<bean:message key="tickler.ticklerMain.msgTickler"/>
       </h4>
     </td>
 	<td align="right" >

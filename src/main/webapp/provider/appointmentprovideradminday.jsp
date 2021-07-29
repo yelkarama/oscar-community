@@ -652,7 +652,7 @@ th, td {
     background-color: <%=(showClassicSchedule? "#486ebd;" : "gainsboro;")%> 
 	font-weight: bold;
 	font-size: 13px;
-    border-spacing: 0px 0.5px;
+    border-spacing: 0px 1px;
 }
 
 #providerSchedule a {

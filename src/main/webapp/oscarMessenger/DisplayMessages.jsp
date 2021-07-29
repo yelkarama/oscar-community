@@ -225,7 +225,7 @@ $(document).ready(function(){
         var shortText = $.trim(text).substring(0, lengthText);
         var names = shortText.split(",");
         if ( names.length > 1 ) {
-            shortText = names[0] + "," + names[1].substring(0,2) + "...";
+            shortText = names[0] + ", "+names[1].substring(0,2)+ "...";
         }
 		$(value).text(shortText);
 		$(value).attr("title", $.trim(text));
@@ -241,7 +241,7 @@ $(document).ready(function(){
 <table width=100%>
   <tr>
     <td valign="top">
-			<h4>&nbsp;<bean:message key="oscarMessenger.DisplayMessages.msgMessenger"/>:&nbsp;
+			<h4>&nbsp;<i class="icon-envelope" title="<bean:message key="oscarMessenger.DisplayMessages.msgMessenger"/>"></i>&nbsp;
                         <% String inbxStyle = "messengerButtonsA";
                            String sentStyle = "messengerButtonsA";
                            String delStyle  = "messengerButtonsA";

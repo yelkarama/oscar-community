@@ -66,7 +66,7 @@ function searchOutOfDomain() {
   <tr>
     <td>
 	<div class="title">
-		<h4>&nbsp;<bean:message key="demographic.search.msgSearchPatient" /></h4>
+		<h4>&nbsp;<i class="icon-search" title="<bean:message key="demographic.search.msgSearchPatient" />"></i>&nbsp;<bean:message key="demographic.search.msgSearchPatient" /></h4>
 	</div>
     </td>
     <td align="right">

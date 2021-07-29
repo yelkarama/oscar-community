@@ -140,9 +140,9 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
     .Field2 {
         
     }
-.UnassignedRes {
-    background-color: #FFCC00;
-}
+    .UnassignedRes {
+        background-color: #FFCC00;
+    }
 
     .MainTableTopRowRightColumn {
         background-color: silver;
@@ -512,7 +512,7 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
                                 <input type="hidden" name="isListView" value="" />
 <table width=100%>
 <tr><td valign="top" width="120px">
-<h4>Inbox</h4>
+<h4><i class= "icon-beaker"></i>&nbsp;<bean:message key="oscarEncounter.Labs.title"/></h4>
 </td><td>
                                 <input id="listSwitcher" type="button" style="display:none;" class="btn" value="<bean:message key="inboxmanager.document.listView"/>" onClick="switchView();" />
                                 <input id="readerSwitcher" type="button" class="btn" value="<bean:message key="inboxmanager.document.readerView"/>" onClick="switchView();" />

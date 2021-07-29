@@ -302,7 +302,7 @@ cursor: hand;
                 <table class="TopStatusBar" width="100%">
                     <tr>
                         <td class="Header" NOWRAP >
-                            <h4><bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msfConsReqForTeam"/> = 
+                            <h4>&nbsp;<i class="icon-external-link"></i>&nbsp;<bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msfConsReqForTeam"/> = 
                             <%
                                if (team.equals("-1")){
                             %>

@@ -65,6 +65,7 @@
 	
 	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jquery.ui.widget.js" ></script>
 	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jquery.fileupload.js" ></script>
+    <link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 	
 </head>
 <body>
@@ -82,7 +83,7 @@
             <span class="icon-bar"></span>
           </button>
           <b>
-          <a class="navbar-brand" href="#">Health Report Manager</a>
+          <a class="navbar-brand" href="#"><i class="icon-hospital"></i>&nbsp;Health Report Manager</a>
           </b>
         </div>
         <div id="navbar" class="navbar-collapse collapse">

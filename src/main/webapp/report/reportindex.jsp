@@ -266,7 +266,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 <form name='report'>
 <table border=0 cellspacing=0 cellpadding=0 width="100%">
 	<tr>
-		<td align=LEFT><h4>&nbsp;<bean:message key="report.reportindex.msgTitle" /></h4></td>
+		<td align=LEFT><h4>&nbsp;<i class="icon-list" title="<bean:message key="report.reportindex.msgTitle" />"></i>&nbsp;<bean:message key="report.reportindex.msgTitle" /></h4></td>
 		<td>
             <div class="row-fluid hidden-print" style="text-align:right">
         <i class=" icon-question-sign"></i> 
