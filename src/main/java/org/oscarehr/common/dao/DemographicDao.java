@@ -458,7 +458,7 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 
 		String[] name = searchStr.split(",");
 		if (name.length == 2) {
-			queryString += " and first_name like :firstName ";
+			queryString += " and ( d.FirstName like :firstName or d.Alias like :firstName ) ";
 		}
 		
 		if(statuses != null) {
@@ -503,7 +503,7 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 
 		String[] name = searchStr.split(",");
 		if (name.length == 2) {
-			queryString += " and first_name like :firstName ";
+			queryString += " and ( d.FirstName like :firstName or d.Alias like :firstName ) ";
 		}
 
 		Session session = this.getSession();
