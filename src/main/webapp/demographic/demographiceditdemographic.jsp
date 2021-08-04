@@ -331,6 +331,9 @@ if(!authed) {
      jQuery.noConflict();
    </script>
 <script>
+
+var preferredPhone="";
+
 jQuery( document ).ready( function() {
 	
     <% if (updatedFamily!=null && !updatedFamily.isEmpty()){ %>
@@ -341,7 +344,100 @@ jQuery( document ).ready( function() {
 
         alert("Updated demographic and the following family members:" + familyMembers+"");
     <% }%>
+
+	var defPhTitle = "Check to set preferred contact number";
+	var prefPhTitle = "Preferred contact number";
+
+  jQuery('#cell_check').change(function() 
+  {
+    if(this.checked == true)
+    {
+	preferredPhone="C";
+	jQuery('#cell_check').prop('title', prefPhTitle);
+	jQuery('#phone_check').prop('title', defPhTitle);
+	jQuery('#phone2_check').prop('title', defPhTitle);
+	jQuery('#phone2_check').prop('checked', false);
+	jQuery('#phone_check').prop('checked', false);
+    }
+  }); 
+  jQuery('#phone_check').change(function() 
+  {
+    if(this.checked == true)
+    {
+	preferredPhone="H";
+	jQuery('#cell_check').prop('title', defPhTitle);
+	jQuery('#phone_check').prop('title', prefPhTitle);
+	jQuery('#phone2_check').prop('title', defPhTitle);
+	jQuery('#phone2_check').prop('checked', false);
+	jQuery('#cell_check').prop('checked', false);
+    }
+  });
+  jQuery('#phone2_check').change(function() 
+  {
+    if(this.checked == true)
+    {
+	preferredPhone="W";
+	jQuery('#cell_check').prop('title', defPhTitle);
+	jQuery('#phone_check').prop('title', defPhTitle);
+	jQuery('#phone2_check').prop('title', prefPhTitle);
+	jQuery('#phone_check').prop('checked', false);
+	jQuery('#cell_check').prop('checked', false);
+    }
+  }); 
+
+    jQuery('#cell_check').prop('title', defPhTitle);
+    jQuery('#phone_check').prop('title', defPhTitle);
+    jQuery('#phone2_check').prop('title', defPhTitle);
+
+	var cellPhone = getPhoneNum(jQuery('#cell').val());
+	var homePhone = getPhoneNum(jQuery('#phone').val());
+	var workPhone = getPhoneNum(jQuery('#phone2').val());
+	if ( isPreferredPhone(jQuery('#cell').val()) ) {
+		jQuery('#cell_check').prop('checked', true);
+		jQuery('#cell').val(cellPhone); 
+        jQuery('#cell_check').prop('title', prefPhTitle);
+    }
+	else if ( isPreferredPhone(jQuery('#phone').val()) ) {
+		jQuery('#phone_check').prop('checked', true);
+		jQuery('#phone').val(homePhone);
+        jQuery('#phone_check').prop('title', prefPhTitle);
+	}
+	else if ( isPreferredPhone(jQuery('#phone2').val()) ) {
+		jQuery('#phone2_check2').prop('checked', true);
+		jQuery('#phone2').val(workPhone);
+        jQuery('#phone2_check').prop('title', prefPhTitle);
+	}
+
 });
+
+function isPreferredPhone(phone) {
+	if (phone!=null && phone!="") {
+		if (phone.charAt(phone.length-1)=="*") return true;
+	}
+	return false;
+}
+
+function getPhoneNum(phone) {
+	if (isPreferredPhone(phone)) {
+		phone = phone.substring(0, phone.length-1);
+	}
+	return phone;
+}
+
+jQuery(function(){
+    jQuery('form').submit(function(){
+	    if (preferredPhone=="C") {jQuery("#cell").val(function(i, val) {
+		    return val + "*";
+	    });}
+			    else if (preferredPhone=="H") {jQuery("#phone").val(function(i, val) {
+		    return val + "*";
+	    });}
+			    else if (preferredPhone=="W"){jQuery("#phone2").val(function(i, val) {
+		    return val + "*";
+	    });}
+    });
+});
+
 </script>
 <oscar:customInterface section="master"/>
 
@@ -1495,7 +1591,7 @@ if (iviewTag!=null && !"".equalsIgnoreCase(iviewTag.trim())){
 				<td>
 				<form method="post" name="updatedelete" id="updatedelete"
 					action="demographiccontrol.jsp"
-					onSubmit="return checkTypeInEdit();"><input type="hidden"
+					onSubmit="return checkTypeInEdit(); "><input type="hidden"
 					name="demographic_no"
 					value="<%=demographic.getDemographicNo()%>">
 				<table width="100%" class="xdemographicDetail">
@@ -2994,8 +3090,8 @@ if ( Dead.equals(PatStat) ) {%>
             </div>
         </div>
 <!-- end residential -->
-        <div class="control-group span5">
-            <label class="control-label" for="phoneH"><bean:message key="demographic.demographiceditdemographic.formPhoneH" /><input type="checkbox"></label>
+        <div class="control-group span5" id="phone_div">
+            <label class="control-label" for="phoneH"><bean:message key="demographic.demographiceditdemographic.formPhoneH" /><input type="checkbox" id="phone_check"></label>
             <div class="controls"  style="white-space:nowrap" >
               <input type="text" id="phoneH" placeholder="<bean:message key="demographic.demographiceditdemographic.formPhoneH" />"
                     name="phone" onblur="formatPhoneNum();" <%=getDisabled("phone")%>
@@ -3009,8 +3105,8 @@ if ( Dead.equals(PatStat) ) {%>
 					value="<%=StringUtils.trimToEmpty(StringUtils.trimToEmpty(demoExt.get("hPhoneExt")))%>" />
             </div>
         </div>
-        <div class="control-group span5">
-            <label class="control-label" for="phoneW"><bean:message key="demographic.demographiceditdemographic.formPhoneW" /><input type="checkbox"></label>
+        <div class="control-group span5" id="phone2_div">
+            <label class="control-label" for="phoneW"><bean:message key="demographic.demographiceditdemographic.formPhoneW" /><input type="checkbox" id="phone2_check"></label>
             <div class="controls" style="white-space:nowrap" >
                 <input type="text" id="phoneW" placeholder="<bean:message key="demographic.demographiceditdemographic.formPhoneW" />" 
                     name="phone2" <%=getDisabled("phone2")%>
@@ -3025,8 +3121,8 @@ if ( Dead.equals(PatStat) ) {%>
 					value="<%=StringUtils.trimToEmpty(StringUtils.trimToEmpty(demoExt.get("wPhoneExt")))%>" />
             </div>
         </div>
-        <div class="control-group span5">
-            <label class="control-label" for="cell"><bean:message key="demographic.demographiceditdemographic.formPhoneC" /><input type="checkbox"></label>
+        <div class="control-group span5" id="cell_div">
+            <label class="control-label" for="cell"><bean:message key="demographic.demographiceditdemographic.formPhoneC" /><input type="checkbox" id="cell_check"></label>
             <div class="controls">
               <input type="text" id="cell" placeholder="<bean:message key="demographic.demographiceditdemographic.formPhoneC" />"
                     name="demo_cell" onblur="formatPhoneNum();"
