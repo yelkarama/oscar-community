@@ -245,7 +245,7 @@ if (rx_enhance!=null && rx_enhance.equals("true")) {
         <script type="text/javascript" src="<c:out value="${ctx}/share/lightwindow/javascript/lightwindow.js"/>"></script>
         <!--script type="text/javascript" src="<%--c:out value="modaldbox.js"/--%>"></script-->
         <script type="text/javascript" src="<c:out value="${ctx}/js/checkDate.js"/>"></script>
-<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<!-- <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">-->
 <link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
         <link rel="stylesheet" type="text/css" href="<c:out value="${ctx}/share/yui/css/fonts-min.css"/>" >
         <link rel="stylesheet" type="text/css" href="<c:out value="${ctx}/share/yui/css/autocomplete.css"/>" >
@@ -720,10 +720,27 @@ function checkFav(){
 <style type="text/css">
 <!-- .selected { font: Arial, Verdana; color:#000000; text-decoration: none; } -->
 
+    a {
+        color: #0088CC;
+        text-decoration: none;
+    }
+
     .ControlPushButton{
         font-size:x-small !important;
         padding:3px !important;
+        border: 1px solid #cccccc;
+        border-radius: 4px;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
     }
+
+    .btn-primary{
+        color: #ffffff;
+        text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+        background-color: #006dcc;
+        background-image: linear-gradient(to bottom, #0088cc, #0044cc);
+        background-repeat: repeat-x;
+        border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+    }    
 
     #verificationLink{
     	color:white;
