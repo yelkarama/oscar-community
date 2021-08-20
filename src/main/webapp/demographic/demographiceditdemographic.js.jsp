@@ -264,6 +264,7 @@ return true;
 
 function isCanadian(){
 	e = document.updatedelete.province;
+    if(e.selectedIndex < 0) { return false; }
     var province = e.options[e.selectedIndex].value;
     
     if ( province.indexOf("US")>-1 || province=="OT"){ //if not canadian

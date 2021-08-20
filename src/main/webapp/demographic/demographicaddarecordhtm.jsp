@@ -178,7 +178,7 @@
 <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 <link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
-<script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery.js"></script> 
+<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.7.1.min.js"></script>
    <script>
      jQuery.noConflict();     
    </script>
@@ -360,10 +360,10 @@ function checkName() {
 function checkDob() {
 	var typeInOK = false;
 	var yyyy = document.adddemographic.year_of_birth.value;
-	var selectBox = document.adddemographic.month_of_birth;
-	var mm = selectBox.options[selectBox.selectedIndex].value
-	selectBox = document.adddemographic.date_of_birth;
-	var dd = selectBox.options[selectBox.selectedIndex].value
+	//var selectBox = document.adddemographic.month_of_birth;
+	var mm = document.adddemographic.month_of_birth.value
+	//selectBox = document.adddemographic.date_of_birth;
+	var dd = document.adddemographic.date_of_birth.value
 
 	if(checkTypeNum(yyyy) && checkTypeNum(mm) && checkTypeNum(dd) ){
         //alert(yyyy); alert(mm); alert(dd);
@@ -444,16 +444,16 @@ function checkResidentStatus(){
 
 function checkAllDate() {
 	var typeInOK = false;
-	typeInOK = checkDateYMD( document.adddemographic.date_joined_year.value , document.adddemographic.date_joined_month.value , document.adddemographic.date_joined_date.value , "Date Joined" );
+	typeInOK = checkDateYMD( document.adddemographic.date_joined_year.value , document.adddemographic.date_joined_month.value , document.adddemographic.date_joined_day.value , "Date Joined" );
 	if (!typeInOK) { return false; }
 
-	typeInOK = checkDateYMD( document.adddemographic.end_date_year.value , document.adddemographic.end_date_month.value , document.adddemographic.end_date_date.value , "End Date" );
+	typeInOK = checkDateYMD( document.adddemographic.end_date_year.value , document.adddemographic.end_date_month.value , document.adddemographic.end_date_day.value , "End Date" );
 	if (!typeInOK) { return false; }
 
-	typeInOK = checkDateYMD( document.adddemographic.hc_renew_date_year.value , document.adddemographic.hc_renew_date_month.value , document.adddemographic.hc_renew_date_date.value , "PCN Date" );
+	typeInOK = checkDateYMD( document.adddemographic.hc_renew_date_year.value , document.adddemographic.hc_renew_date_month.value , document.adddemographic.hc_renew_date_day.value , "PCN Date" );
 	if (!typeInOK) { return false; }
 
-	typeInOK = checkDateYMD( document.adddemographic.eff_date_year.value , document.adddemographic.eff_date_month.value , document.adddemographic.eff_date_date.value , "EFF Date" );
+	typeInOK = checkDateYMD( document.adddemographic.eff_date_year.value , document.adddemographic.eff_date_month.value , document.adddemographic.eff_date_day.value , "EFF Date" );
 	if (!typeInOK) { return false; }
 
 	return typeInOK;
@@ -629,6 +629,73 @@ function consentClearBtn(radioBtnName)
 
 	}
 }
+
+
+var preferredPhone="";
+
+jQuery( document ).ready( function() {
+
+	var defPhTitle = "Check to set preferred contact number";
+	var prefPhTitle = "Preferred contact number";
+
+  jQuery('#cell_check').change(function() 
+  {
+    if(this.checked == true)
+    {
+	preferredPhone="C";
+	jQuery('#cell_check').prop('title', prefPhTitle);
+	jQuery('#phone_check').prop('title', defPhTitle);
+	jQuery('#phone2_check').prop('title', defPhTitle);
+	jQuery('#phone2_check').prop('checked', false);
+	jQuery('#phone_check').prop('checked', false);
+    }
+  }); 
+  jQuery('#phone_check').change(function() 
+  {
+    if(this.checked == true)
+    {
+	preferredPhone="H";
+	jQuery('#cell_check').prop('title', defPhTitle);
+	jQuery('#phone_check').prop('title', prefPhTitle);
+	jQuery('#phone2_check').prop('title', defPhTitle);
+	jQuery('#phone2_check').prop('checked', false);
+	jQuery('#cell_check').prop('checked', false);
+    }
+  });
+  jQuery('#phone2_check').change(function() 
+  {
+    if(this.checked == true)
+    {
+	preferredPhone="W";
+	jQuery('#cell_check').prop('title', defPhTitle);
+	jQuery('#phone_check').prop('title', defPhTitle);
+	jQuery('#phone2_check').prop('title', prefPhTitle);
+	jQuery('#phone_check').prop('checked', false);
+	jQuery('#cell_check').prop('checked', false);
+    }
+  }); 
+
+    jQuery('#cell_check').prop('title', defPhTitle);
+    jQuery('#phone_check').prop('title', defPhTitle);
+    jQuery('#phone2_check').prop('title', defPhTitle);
+
+
+});
+
+
+jQuery(function(){
+    jQuery('form').submit(function(){
+	    if (preferredPhone=="C") {jQuery("#cell").val(function(i, val) {
+		    return val + "*";
+	    });}
+			    else if (preferredPhone=="H") {jQuery("#phone").val(function(i, val) {
+		    return val + "*";
+	    });}
+			    else if (preferredPhone=="W"){jQuery("#phone2").val(function(i, val) {
+		    return val + "*";
+	    });}
+    });
+});
 
 <%
 if("true".equals(OscarProperties.getInstance().getProperty("iso3166.2.enabled","false"))) { 	
@@ -1285,7 +1352,7 @@ input[type="text"], input[type="date"], input[type="email"] {
         </div>
 <!-- end residential -->
         <div class="control-group span5">
-            <label class="control-label" for="phoneH"><bean:message key="demographic.demographiceditdemographic.formPhoneH" /><input type="checkbox"></label>
+            <label class="control-label" for="phoneH"><bean:message key="demographic.demographiceditdemographic.formPhoneH" /><input type="checkbox" id="phone_check"></label>
             <div class="controls"  style="white-space:nowrap" >
               <input type="text" placeholder="<bean:message key="demographic.demographiceditdemographic.formPhoneH" />"
                     id="phone" name="phone"
@@ -1302,7 +1369,7 @@ input[type="text"], input[type="date"], input[type="email"] {
             </div>
         </div>
         <div class="control-group span5">
-            <label class="control-label" for="phoneW"><bean:message key="demographic.demographiceditdemographic.formPhoneW" /><input type="checkbox"></label>
+            <label class="control-label" for="phoneW"><bean:message key="demographic.demographiceditdemographic.formPhoneW" /><input type="checkbox" id=""phone2_check"></label>
             <div class="controls" style="white-space:nowrap" >
                 <input type="text" id="phoneW" placeholder="<bean:message key="demographic.demographiceditdemographic.formPhoneW" />" 
                     name="phone2" 
@@ -1317,7 +1384,7 @@ input[type="text"], input[type="date"], input[type="email"] {
             </div>
         </div>
         <div class="control-group span5">
-            <label class="control-label" for="cell"><bean:message key="demographic.demographiceditdemographic.formPhoneC" /><input type="checkbox"></label>
+            <label class="control-label" for="cell"><bean:message key="demographic.demographiceditdemographic.formPhoneC" /><input type="checkbox" id="cell_check"></label>
             <div class="controls">
               <input type="text" id="cell" placeholder="<bean:message key="demographic.demographiceditdemographic.formPhoneC" />"
                     name="demo_cell" onblur="formatPhoneNum();"
