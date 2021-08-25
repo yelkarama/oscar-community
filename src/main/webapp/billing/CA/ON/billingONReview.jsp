@@ -275,7 +275,12 @@ boolean dupServiceCode = false;
 <%@page import="org.oscarehr.common.model.Site"%><html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>OscarBilling</title>
-<link rel="stylesheet" type="text/css" href="billingON.css" />
+<!--<link rel="stylesheet" type="text/css" href="billingON.css" /> -->
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery.js"></script>
    <script>
      jQuery.noConflict();
@@ -478,7 +483,7 @@ boolean dupServiceCode = false;
 
 <style type="text/css">
 div.wrapper{
-    background-color: #eeeeff;
+    background-color: silver;
     margin-top:0px;
     padding-top:0px;
     margin-bottom:0px;
@@ -491,7 +496,7 @@ div.wrapper br{
 
 div.wrapper ul{
     width: 80%;
-    background-color: #eeeeff;
+    background-color: silver;
     list-style:none;
     list-style-type:none;
     list-style-position:outside;
@@ -504,12 +509,12 @@ div.wrapper ul{
 }
 
 div.wrapper ul li{
-    background-color: #eeeeff;
+    background-color: silver;
 }
 
 div.dxBox{
     width:90%;
-    background-color: #eeeeff;
+    background-color: silver;
     margin-top: 2px;
     margin-left:3px;
     margin-right:3px;
@@ -520,7 +525,7 @@ div.dxBox{
 
 
 div.dxBox h3 {
-    background-color: #ccccff;
+    background-color: silver;
   /*font-size: 1.25em;*/
     font-size: 10pt;
     font-variant:small-caps;
@@ -576,7 +581,7 @@ window.onload=function(){
 		<td>
 		<table border="0" cellspacing="0" cellpadding="0" width="100%" class="myDarkGreen">
 			<tr>
-				<td><b><font color="#FFFFFF">&nbsp;Confirmation </font></b></td>
+				<td><H4><font>&nbsp;Confirmation </font></H4></td>
 				<td align="right"><input type="hidden" name="addition" value="Confirm" /></td>
 			</tr>
 		</table>
@@ -970,10 +975,10 @@ function onCheckMaster() {
 			<tr>
 
 				<td colspan='3' align='center' bgcolor="silver">
-				    <input type="submit" name="button" value="Back to Edit" style="width: 120px;" />
+				    <input type="submit" name="button" value="Back to Edit" class="btn" style="width: 120px;" />
                                     <% if (codeValid && !dupServiceCode) { %>
-                                    <input type="submit" name="submit" value="Save" style="width: 120px;" onClick="onClickSave();"/>
-				    <input type="submit" name="submit" value="Save & Add Another Bill" onClick="onClickSave();"/>
+                                    <input type="submit" name="submit" value="Save"  class="btn btn-primary" style="width: 120px;" onClick="onClickSave();"/>
+				    <input type="submit" name="submit" value="Save & Add Another Bill"  class="btn" onClick="onClickSave();"/>
                                     <% }else if (dupServiceCode){%>
                                     <td><div class='myError'>Warning: Duplicated service codes. </div></td>
                                     <% }
@@ -1002,7 +1007,7 @@ function onCheckMaster() {
 			tempLoc = request.getParameter("site");
 		}
 			%>
-			<textarea name="comment" cols=60 rows=4><%=tempLoc %></textarea>
+			<textarea name="comment" style="width:600px;"><%=tempLoc %></textarea>
 			</td>
 	</tr>
 <%      }
@@ -1139,8 +1144,10 @@ Properties prop = oscar.OscarProperties.getInstance();
 			<% } %>
 			</td></tr>
 			<tr>
-				<td colspan='2' align='center' bgcolor="silver"><input type="submit" name="submit" value="Save & Print Invoice"
-					style="width: 150px;" /><input type="submit" name="submit" id="settlePrintBtn"
+				<td colspan='2' align='center' bgcolor="silver">
+                    <input type="submit" name="submit" value="Save & Print Invoice" class="btn"
+					style="width: 150px;" />
+                    <input type="submit" name="submit" id="settlePrintBtn" class="btn btn-primary"
 					value="Settle & Print Invoice" onClick="document.forms['titlesearch'].btnPressed.value='Settle'; document.forms['titlesearch'].submit();javascript:popupPage(700,720,'billingON3rdInv.jsp');" style="width: 160px;" />
 				<input type="hidden"  name="btnPressed" value="">
 				<input type="hidden" name="total_payment" id="total_payment" value="0.00"/>
@@ -1281,7 +1288,7 @@ function getNewCurrentDxCodeList(origRequest){
           <jsp:param name="demographicNo" value="<%=demo_no%>"/>
        </jsp:include>
        </div>
-       <input type="button" value="Add To Disease Registry" onclick="addToDiseaseRegistry()"/>
+       <input type="button" value="Add To Disease Registry" class="btn" onclick="addToDiseaseRegistry()"/>
        </form>
 </div>
 
