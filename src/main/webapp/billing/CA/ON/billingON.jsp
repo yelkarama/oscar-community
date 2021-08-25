@@ -1609,7 +1609,7 @@ function changeSite(sel) {
 												<%
 													}
 												%>
-										</select> Manual: <input type="checkbox" name="m_review" value="Y"
+										</select> Manual Flag: <input type="checkbox" name="m_review" value="Y"
 											<%=m_review.equals("Y")?"checked":""%>></td>
 									</tr>
 									<tr>
