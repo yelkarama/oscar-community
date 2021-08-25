@@ -340,7 +340,7 @@ function popup1(height, width, url, windowName){
 		<td class="MainTableTopRowRightColumn">
 		<table class="TopStatusBar" width="100%">
 			<tr>
-				<td><h4><bean:message key="dms.documentReport.msgDocuments"/> &nbsp;
+				<td><h4><i class="icon-book" style="margin-left:10px;"></i>&nbsp;<bean:message key="dms.documentReport.msgDocuments"/> &nbsp;
 				<% if(module.equals("demographic")) { %>
 					<oscar:nameage demographicNo="<%=moduleid%>"/> &nbsp; <oscar:phrverification demographicNo="<%=moduleid%>"><bean:message key="phr.verification.link"/></oscar:phrverification>
 				<%} %>
