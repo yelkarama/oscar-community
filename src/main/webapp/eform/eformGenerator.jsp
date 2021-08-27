@@ -817,6 +817,13 @@ function GetTextTop(){
 		}
 		textTop += "\tdocument.getElementById('Stamp').src = '../eform/displayImage.do?imagefile=consult_sig_'+provNum+'.png';\n";              
 		textTop += "}\n";
+		textTop += "function toggleMe(){\n"
+		textTop += "\tif (document.getElementById(&quot;Stamp&quot;).src.indexOf(&quot;BNK.png&quot;)>0){\n"
+		textTop += "\t\tSignForm()\n"
+		textTop += "\t} else {\n"
+		textTop += "\t\tdocument.getElementById(&quot;Stamp&quot;).src = &quot;../eform/displayImage.do?imagefile=BNK.png&quot;;\n"
+		textTop += "\t}\n"
+		textTop += "}\n"
  		textTop += "&lt;/script&gt;\n\n";		
 	}
 
