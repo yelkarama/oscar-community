@@ -889,7 +889,7 @@ THEME 2*/
 							<%if(securityManager.hasWriteAccess("_rx",roleName2$,true)) {%>
                                 <html:form action="/oscarRx/searchDrug"  onsubmit="return checkEnterSendRx();" style="display: inline; margin-bottom:0;" styleId="drugForm">
                                     <div id="interactingDrugErrorMsg" style="display:none"></div>
-                                    <div id="rxText" style="float:left;"></div><br style="clear:left;">
+                                    <div id="rxText" ></div><br style="clear:left;">
                                     <input type="hidden" id="deleteOnCloseRxBox" value="false">
                                     <input type="hidden" id="rxPharmacyId" name="rxPharmacyId" value="" />
                                     
@@ -1355,7 +1355,7 @@ function changeLt(drugId){
         if(ss.length==0)
             $('autocomplete_choices').setStyle({height:'0%'});
         else
-            $('autocomplete_choices').setStyle({height:'100%'});
+            $('autocomplete_choices').setStyle({height:'90%'});
     }
     function addInstruction(content,randomId){
         $('instructions_'+randomId).value=content;
