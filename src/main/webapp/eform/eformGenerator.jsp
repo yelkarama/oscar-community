@@ -796,6 +796,37 @@ function GetTextTop(){
 		textTop += "&lt;script type=&quot;text/javascript&quot; src=&quot;$%7Boscar_javascript_path%7Deforms/faxControl.js&quot;&gt;&lt;/script&gt;\n";
 	}
 
+	// Support for consult_sig_xxx.png signatures
+	if (document.getElementById('AddStamp2').checked){
+	textTop += "\n&lt;!-- Classic Signatures --&gt;\n\n"
+		textTop += "&lt;script type=&quot;text/javascript&quot;&gt;\n";	
+		textTop += "function SignForm2() {\n";
+		if (document.getElementById('Delegation').checked){
+			textTop += "\t//stamp by delegation model \n";
+			textTop += "\tvar provNum = '';\n";
+			textTop += "\tvar userBillingNo = document.getElementById('user_ohip_no').value;\n";	
+			textTop += "\tif (parseInt(userBillingNo) > 100) {\n";
+			textTop += "\t\t// then a valid billing number so use the current user id \n";
+			textTop += "\t\tprovNum = document.getElementById('user_id').value; \n";
+			textTop += "\t} else { \n";
+			textTop += "\t\tprovNum = document.getElementById('doctor_no').value; \n";
+			textTop += "\t}\n";
+		} else {
+			textTop += "\t//stamp by user model \n";
+			textTop += "\tvar provNum = document.getElementById('doctor_no').value; \n";
+		}
+		textTop += "\tdocument.getElementById('Stamp').src = '../eform/displayImage.do?imagefile=consult_sig_'+provNum+'.png';\n";              
+		textTop += "}\n";
+		textTop += "function toggleMe(){\n"
+		textTop += "\tif (document.getElementById(&quot;Stamp&quot;).src.indexOf(&quot;BNK.png&quot;)>0){\n"
+		textTop += "\t\tSignForm()\n"
+		textTop += "\t} else {\n"
+		textTop += "\t\tdocument.getElementById(&quot;Stamp&quot;).src = &quot;../eform/displayImage.do?imagefile=BNK.png&quot;;\n"
+		textTop += "\t}\n"
+		textTop += "}\n"
+ 		textTop += "&lt;/script&gt;\n\n";		
+	}
+
 		//reference built in signatureControl
 	if (document.getElementById('AddSignatureClassic').checked){
 		textTop += "\n&lt;!-- Classic Signatures --&gt;\n"	
@@ -807,25 +838,6 @@ function GetTextTop(){
 		textTop += "signatureControl.initialize({eform:true, height:"+SignatureHolderH+", width:"+SignatureHolderW+", top:"+totalpx+", left:"+SignatureHolderX+"});";
 		textTop += "});}\n";
 		textTop += "\t \n";
-		textTop += "function SignForm2() {\n";
-		if (document.getElementById('Delegation').checked){
-			textTop += "\t//stamp by delegation model \n";
-			textTop += "\tvar provNum = '';\n";
-			textTop += "\tvar userBillingNo = $('#user_ohip_no').val();\n";
-			textTop += "\tif (parseInt(userBillingNo) > 100) {\n";
-			textTop += "\t\t// then a valid billing number so use the current user id \n";
-			textTop += "\t\tprovNum = $('#user_id').val(); \n";
-			textTop += "\t} else { \n";
-			textTop += "\t\tprovNum = $('#doctor_no').val(); \n";
-			textTop += "\t}\n";
-		} else {
-			textTop += "\t//stamp by user model \n";
-			textTop += "\tvar provNum = $('#doctor_no').val(); \n";
-		}
-		textTop += "\tdocument.getElementById('signature').src = '../eform/displayImage.do?imagefile=consult_sig_'+provNum+'.png';\n";        
-		textTop += "\t$('#signature').error(function() {$(this).hide();});\n";
-		textTop += "\t$('#signature').click(function() {$(this).hide();});\n";        
-		textTop += "}\n"; 
  		textTop += "&lt;/script&gt;\n\n";		
 	}
 
@@ -911,18 +923,11 @@ function GetTextTop(){
 			textTop += "\tvar data\n"
 			textTop += "\tdata=document.getElementById(&quot;Store"+sigArray[j]+"&quot;).value;\n"	
 			textTop += "\t$sig.jSignature(&quot;setData&quot;,&quot;data:&quot;+ data) ;\n"
-			if (document.getElementById('Delegation').checked){
-				textTop += "\tif (data.length == 0) {;\n"	
-				textTop += "\t\tdocument.getElementById('"+sigArray[j]+"').src = '../eform/displayImage.do?imagefile=consult_sig_'+provNum+'.png';\n";        
-				textTop += "\t\t$('#"+sigArray[j]+"').error(function() {$(this).hide();});\n";
-				textTop += "\t\t$('#"+sigArray[j]+"').click(function() {$(this).hide();});\n"; 
-				textTop += "\t}\n"
-			}
 		}
 		textTop += "}\n";
 		textTop += "&lt;/script&gt;\n\n"
 	}
-	
+
 	//auto ticking gender Xboxes OR checkboxes
 	if ((document.getElementById('preCheckGender').checked)||(document.getElementById('XboxType').checked)){
 		textTop += "&lt;!-- auto ticking gender Xboxes OR checkboxes --&gt;\n"	
@@ -1149,7 +1154,7 @@ function GetTextTop(){
 	if (document.getElementById('AddStamp').checked){
 		textTop += "SignForm();"
 	}
-    if (document.getElementById('AddSignatureClassic').checked){
+    if (document.getElementById('AddStamp2').checked){
 		textTop += "SignForm2();"
 	}
 	if (document.getElementById('AddSignature').checked){
@@ -1437,7 +1442,7 @@ function GetTextBottom(){
 	}
 
 	//auto load signature images
-	if ((document.getElementById('AddStamp').checked)||(document.getElementById('AddSignatureClassic').checked)||(document.getElementById('AddSignature').checked)){
+	if ((document.getElementById('AddStamp').checked)||(document.getElementById('AddStamp2').checked)||(document.getElementById('AddSignatureClassic').checked)||(document.getElementById('AddSignature').checked)){
 		textBottom +="&lt;input type=&quot;hidden&quot; name=&quot;DoctorName&quot; id=&quot;DoctorName&quot; oscarDB=doctor&gt;\n"
 		textBottom +="&lt;input type=&quot;hidden&quot; name=&quot;CurrentUserName&quot; id=&quot;CurrentUserName&quot; oscarDB=current_user&gt;\n"
 		textBottom +="&lt;input type=&quot;hidden&quot; name=&quot;SubmittedBy&quot; id=&quot;SubmittedBy&quot;&gt;\n"
@@ -1802,8 +1807,17 @@ show('classic');
 
 <span class='h2'>4. <bean:message key="eFormGenerator.signature"/></span><a onclick="show('Section4');"><bean:message key="eFormGenerator.expand"/></a>/<a onclick="hide('Section4');"><bean:message key="eFormGenerator.collapse"/></a>
 <div id="Section4">
-	<p>
-	<input type="checkbox" name="Delegation" id="Delegation"><i><b>Delegate Authorised Signatures</b></i>
+	<input type="checkbox" name="AddStamp2" id="AddStamp2" 
+		onclick="toggleView(this.checked,'Section4e');toggleView(this.checked,'Section4f');"><span><b>Add Signature Stamps to this form<b></span><br>
+		<div id="Section4e" style="display:none">			
+			<input type="radio" name="D" id="Delegation" checked ><span><b>MRP Signature by Delegation</b> If no sig file Sig of MRP used</span><br>
+			<input type="radio" name="D" id="Strict" ><span><i>Strict User Signatures</i> Only signed in users can stamp</span>			
+		</div>
+		<div id="Section4f" style="display:none">
+			<input type="button" name="AddSignatureBox3" id="AddSignatureBox3" style="width:400px; color:red" value="Click here, then drag a box around the signature area" 
+onclick="SetSwitchOn('Stamp');document.getElementById('AddStamp2').disabled=true; document.getElementById('AddSignatureBox3').disabled=true;"><br>
+			<span>Signatures image files <code>consult_sig_xxx.png</code> where xxx is the OSCAR provider no., are uploaded to eform images</span><br>	
+		</div>
 	<span id="classic" style="display:none">
 		<p>
 		<input type="checkbox" name="AddSignatureClassic" id="AddSignatureClassic" 
