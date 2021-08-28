@@ -746,6 +746,12 @@ function checkAllDates() {
     return b;
 }
 
+function updateDate(){
+    if (!document.forms[0].xml_visittype.options[2].selected || !document.forms[0].xml_visittype.options[4].selected) {
+       document.getElementById("xml_vdate").value = "" ;  //only nursing homes and hospitals have admission dates
+    }
+}
+
 function checkServiceDate(s) {
 	var calDate=new Date();
 	varYear = calDate.getFullYear();
@@ -1510,7 +1516,7 @@ function changeSite(sel) {
  	}
  %>
 										</b></td>
-										<td width="20%"><select name="xml_visittype">
+										<td width="20%"><select name="xml_visittype" onchange="updateDate()">
 												<%
 													if (OscarProperties.getInstance().getBooleanProperty("rma_enabled", "true")) {
 												%>
@@ -1596,20 +1602,22 @@ function changeSite(sel) {
 												<%
 													//
 													    String billLocationNo="", billLocation="";
+String strLocation ="";
 													    List lLocation = tdbObj.getFacilty_num();
+                                                        String last_location = getDefaultValue(request.getParameter("xml_visittype"),vecHist,"clinic_ref_code");
 													    for (int i = 0; i < lLocation.size(); i = i + 2) {
 														billLocationNo = (String) lLocation.get(i);
 														billLocation = (String) lLocation.get(i + 1);
-														String strLocation = request.getParameter("xml_location") != null ? request.getParameter("xml_location") : clinicview;
+														strLocation = request.getParameter("xml_location") != null ? request.getParameter("xml_location") : last_location != null ? last_location  : clinicview;	
 												%>
 												<option value="<%=billLocationNo + "|" + billLocation%>"
-													<%=strLocation.startsWith(billLocationNo)?"selected":""%>>
-													<%=billLocation%>
+													<%=strLocation.startsWith(billLocationNo)?"selected":""%>>	
+                                                    <%=billLocation%>											
 												</option>
 												<%
 													}
 												%>
-										</select> Manual Flag: <input type="checkbox" name="m_review" value="Y"
+										</select>Manual Review Flag: <input type="checkbox" name="m_review" value="Y"
 											<%=m_review.equals("Y")?"checked":""%>></td>
 									</tr>
 									<tr>
@@ -1677,8 +1685,7 @@ function changeSite(sel) {
 											        	  MiscUtils.getLogger().error("Error", inPatientEx);
 												     admDate = "";
 											          }
-
-												  if (visitType.startsWith("02")) admDate = visitdate;
+												  if (visitType.startsWith("02") || visitType.startsWith("04")) admDate = getDefaultValue(request.getParameter("visitdate"),vecHist,"visitdate");
 											%> <!--input type="text" name="xml_vdate" id="xml_vdate" value="<%--=request.getParameter("xml_vdate")!=null? request.getParameter("xml_vdate"):visitdate--%>" size='10' maxlength='10' -->
 											<input type="text" name="xml_vdate" id="xml_vdate"
 											value="<%=request.getParameter("xml_vdate")!=null? request.getParameter("xml_vdate"):admDate%>"
