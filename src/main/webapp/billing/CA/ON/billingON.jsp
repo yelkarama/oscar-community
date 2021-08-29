@@ -1430,7 +1430,7 @@ function changeSite(sel) {
 	sel.style.backgroundColor=sel.options[sel.selectedIndex].style.backgroundColor;
 }
       </script> <select id="site" name="site" onchange="changeSite(this)"
-											style="width: 140px">
+											>
 												<option value="none" style="background-color: white">---select
 													clinic---</option>
 												<%
@@ -1455,7 +1455,7 @@ function changeSite(sel) {
 													}
 												%>
 										</select> <select id="xml_provider" name="xml_provider"
-											style="width: 140px"></select> <script>
+											></select> <script>
      	changeSite(document.getElementById("site"));
       	document.getElementById("xml_provider").value='<%=request.getParameter("xml_provider")==null?xmlp:request.getParameter("xml_provider")%>';
       	</script> <%
@@ -1502,7 +1502,7 @@ function changeSite(sel) {
 										</td>
 										<td nowrap width="30%"><b>Assig. Phys.</b></td>
 										<td width="20%"><%=providerBean.getProperty(assgProvider_no, "").length() > 15
-					    ? providerBean.getProperty(assgProvider_no, "").substring(0, 15)
+					    ? providerBean.getProperty(assgProvider_no, "").substring(0, 14)
 					    : providerBean.getProperty(assgProvider_no, "")%></td>
 									</tr>
 									<tr>
