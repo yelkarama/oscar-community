@@ -3,17 +3,18 @@
 	<groupId>org.oscarehr</groupId>
 	<artifactId>oscar</artifactId>
 	<packaging>war</packaging>
-	<version>14.0.0-SNAPSHOT</version>
+	<!--<version>14.0.0-SNAPSHOT</version>-->
+	<version>19.0.0-SNAPSHOT</version>
 	<name>oscar</name>
 	<description>OSCAR McMaster is a web-based electronic medical record (EMR) system initially developed for academic primary care clinics. It has grown into a comprehensive EMR and billing system used by many doctor's offices and private medical clinics in Canada and other parts of the world. The name is derived from where it was created and an acronym; OSCAR stands for Open Source Clinical Application and Resource and McMaster refers to McMaster University, where it was developed. It enables the delivery of evidence resources at the point of care.</description>
 	<issueManagement>
-		<system>SourceForge Tracker</system>
-		<url>https://sourceforge.net/tracker/?group_id=66701</url>
+		<system>Atlassian Tracker</system>
+		<url>https://oscaremr.atlassian.net/jira/software/c/projects/OSCAREMR/pages</url>
 	</issueManagement>
-	<ciManagement>
+	<!-- deprecated <ciManagement>
 		<system>Jenkins</system>
 		<url>https://demo.oscarmcmaster.org:11042/</url>
-	</ciManagement>
+	</ciManagement> -->
 	<inceptionYear>2001</inceptionYear>
 	<mailingLists>
 		<mailingList>
@@ -25,20 +26,19 @@
 	</mailingLists>
 	<licenses>
 		<license>
-			<name>GPLv2</name>
+			<name>GPLv2+</name>
 			<url>http://www.gnu.org/licenses/gpl-2.0.txt</url>
 		</license>
 	</licenses>
 	<url>http://www.oscarcanada.org</url>
 	<scm>
-		<url>http://oscarmcmaster.git.sourceforge.net/git/gitweb.cgi?p=oscarmcmaster/oscar</url>
-		<connection>scm:git:git://oscarmcmaster.git.sourceforge.net/gitroot/oscarmcmaster/oscar</connection>
-		<developerConnection>scm:git:ssh://user@source.oscartools.org:29418/oscar</developerConnection>
-		<tag>master</tag>
+		<url>https://bitbucket.org/oscaremr/oscar/src/stable/</url>
+		<connection>scm:git:git://bitbucket.org/oscaremr/oscar/branch/stable</connection>
+		<tag>stable</tag>
 	</scm>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	 <netbeans.hint.deploy.server>Tomcat60</netbeans.hint.deploy.server>
+	 <netbeans.hint.deploy.server>Tomcat85</netbeans.hint.deploy.server>
 	</properties>
 
 	<repositories>
