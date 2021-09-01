@@ -346,7 +346,17 @@ jQuery( document ).ready( function() {
     <% }%>
 
 	var defPhTitle = "Check to set preferred contact number";
-	var prefPhTitle = "Preferred contact number";
+
+    jQuery('#cell_check').prop('title', defPhTitle);
+    jQuery('#phone_check').prop('title', defPhTitle);
+    jQuery('#phone2_check').prop('title', defPhTitle);
+
+	var cellPhone = getPhoneNum(jQuery('#cell').val());
+	var homePhone = getPhoneNum(jQuery('#phone').val());
+	var workPhone = getPhoneNum(jQuery('#phone2').val());
+
+
+
 
   jQuery('#cell_check').change(function() 
   {
@@ -385,13 +395,17 @@ jQuery( document ).ready( function() {
     }
   }); 
 
-    jQuery('#cell_check').prop('title', defPhTitle);
-    jQuery('#phone_check').prop('title', defPhTitle);
-    jQuery('#phone2_check').prop('title', defPhTitle);
 
+
+});
+
+function setPhone() {
 	var cellPhone = getPhoneNum(jQuery('#cell').val());
 	var homePhone = getPhoneNum(jQuery('#phone').val());
 	var workPhone = getPhoneNum(jQuery('#phone2').val());
+	var prefPhTitle = "Preferred contact number";
+    console.log("H="+homePhone+"W="+workPhone+"C="+cellPhone);
+
 	if ( isPreferredPhone(jQuery('#cell').val()) ) {
 		jQuery('#cell_check').prop('checked', true);
 		jQuery('#cell').val(cellPhone); 
@@ -403,12 +417,11 @@ jQuery( document ).ready( function() {
         jQuery('#phone_check').prop('title', prefPhTitle);
 	}
 	else if ( isPreferredPhone(jQuery('#phone2').val()) ) {
-		jQuery('#phone2_check2').prop('checked', true);
+		jQuery('#phone2_check').prop('checked', true);
 		jQuery('#phone2').val(workPhone);
         jQuery('#phone2_check').prop('title', prefPhTitle);
 	}
-
-});
+}
 
 function isPreferredPhone(phone) {
 	if (phone!=null && phone!="") {
@@ -423,6 +436,7 @@ function getPhoneNum(phone) {
 	}
 	return phone;
 }
+
 
 jQuery(function(){
     jQuery('form').submit(function(){
@@ -716,6 +730,9 @@ function showHideDetail(){
     showHideItem('updateButton');
     showHideItem('swipeButton');
     showHideItem('editWrapper');
+    if(document.getElementById('editWrapper').style.display == 'block'){
+        setPhone();
+    }
     showHideBtn('editBtn');
     showHideBtn('closeBtn');
    
@@ -3091,9 +3108,9 @@ if ( Dead.equals(PatStat) ) {%>
         </div>
 <!-- end residential -->
         <div class="control-group span5" id="phone_div">
-            <label class="control-label" for="phoneH"><bean:message key="demographic.demographiceditdemographic.formPhoneH" /><input type="checkbox" id="phone_check"></label>
+            <label class="control-label" for="phone"><bean:message key="demographic.demographiceditdemographic.formPhoneH" /><input type="checkbox" id="phone_check"></label>
             <div class="controls"  style="white-space:nowrap" >
-              <input type="text" id="phoneH" placeholder="<bean:message key="demographic.demographiceditdemographic.formPhoneH" />"
+              <input type="text" id="phone" placeholder="<bean:message key="demographic.demographiceditdemographic.formPhoneH" />"
                     name="phone" onblur="formatPhoneNum();" <%=getDisabled("phone")%>
 					class="input-small"
 					value="<%=StringUtils.trimToEmpty(StringUtils.trimToEmpty(demographic.getPhone()))%>">
@@ -3106,9 +3123,9 @@ if ( Dead.equals(PatStat) ) {%>
             </div>
         </div>
         <div class="control-group span5" id="phone2_div">
-            <label class="control-label" for="phoneW"><bean:message key="demographic.demographiceditdemographic.formPhoneW" /><input type="checkbox" id="phone2_check"></label>
+            <label class="control-label" for="phone2"><bean:message key="demographic.demographiceditdemographic.formPhoneW" /><input type="checkbox" id="phone2_check"></label>
             <div class="controls" style="white-space:nowrap" >
-                <input type="text" id="phoneW" placeholder="<bean:message key="demographic.demographiceditdemographic.formPhoneW" />" 
+                <input type="text" id="phone2" placeholder="<bean:message key="demographic.demographiceditdemographic.formPhoneW" />" 
                     name="phone2" <%=getDisabled("phone2")%>
 					onblur="formatPhoneNum();"
                     class="input-small"
