@@ -346,7 +346,7 @@ jQuery( document ).ready( function() {
     <% }%>
 
 	var defPhTitle = "Check to set preferred contact number";
-
+	var prefPhTitle = "Preferred contact number";
     jQuery('#cell_check').prop('title', defPhTitle);
     jQuery('#phone_check').prop('title', defPhTitle);
     jQuery('#phone2_check').prop('title', defPhTitle);
