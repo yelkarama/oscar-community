@@ -1079,6 +1079,17 @@ function validateHC() {
 body {
     line-height:12px
 }
+h4{
+background-color:gainsboro;
+}
+ul{
+background-color:white;
+}
+legend{
+background-color:gainsboro;
+}
+
+
 li  {
     line-height:12px;
 }
@@ -1101,7 +1112,7 @@ background-color: grey;
 		<td class="xMainTableTopRowRightColumn">
 		<table class="xTopStatusBar">
 			<tr>
-				<td><h4>
+				<td><h3>
 				<%
                            java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.struts.Globals.LOCALE_KEY);
                                 //----------------------------REFERRAL DOCTOR------------------------------
@@ -1205,7 +1216,7 @@ background-color: grey;
 				if (loggedInInfo.getCurrentFacility().isIntegratorEnabled()){%>
         		<jsp:include page="../admin/IntegratorStatus.jspf"/>
         		<%}%>
-				</h4>
+				</h3>
 				</td>
 			</tr>
 		</table>
