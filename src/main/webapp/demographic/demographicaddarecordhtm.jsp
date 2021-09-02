@@ -830,6 +830,12 @@ input[type="text"], input[type="date"], input[type="email"] {
     height: 30px;
     line-height: 30px;
 }
+
+
+legend{
+background-color:gainsboro;
+}
+
 </style>
 </head>
 <!-- Databases have alias for today. It is not necessary give the current date -->
