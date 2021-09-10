@@ -220,7 +220,18 @@ function updateOpener(t1,t2) {
   }
 
   String orderby="", limit="", limit1="", limit2="";
-  if(request.getParameter("orderby")!=null) orderby="order by "+request.getParameter("orderby");
+  if(request.getParameter("orderby")!=null) {
+ 	if(request.getParameter("orderby").equals("address")) orderby="order by address"; 
+	if(request.getParameter("orderby").equals("phone")) orderby="order by phone"; 
+ 	if(request.getParameter("orderby").equals("hin")) orderby="order by hin"; 
+	if(request.getParameter("orderby").equals("chart_no")) orderby="order by chart_no";  
+ 	if(request.getParameter("orderby").equals("last_name")) orderby="order by last_name"; 
+	if(request.getParameter("orderby").equals("first_name")) orderby="order by first_name";
+	if(request.getParameter("orderby").equals("roster_status")) orderby="order by roster_status";  
+ 	if(request.getParameter("orderby").equals("patient_status")) orderby="order by patient_status"; 
+	if(request.getParameter("orderby").equals("sex")) orderby="order by sex";
+	// to prevent SQL injection all other values are ignored
+  }
   if(request.getParameter("limit1")!=null) limit1=request.getParameter("limit1");
   if(request.getParameter("limit2")!=null) {
     limit2=request.getParameter("limit2");
