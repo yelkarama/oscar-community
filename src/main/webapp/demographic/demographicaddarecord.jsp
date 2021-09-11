@@ -179,59 +179,43 @@
 	demographic.setRosterStatus(request.getParameter("roster_status"));
 	demographic.setRosterEnrolledTo(request.getParameter("roster_enrolled_to"));	
 	demographic.setPatientStatus(request.getParameter("patient_status"));
-	demographic.setDateJoined(MyDateFormat.getSysDate(request.getParameter("date_joined_year")+"-"+request.getParameter("date_joined_month")+"-"+request.getParameter("date_joined_date")));
+
 	demographic.setChartNo(request.getParameter("chart_no"));
 	demographic.setProviderNo(request.getParameter("staff"));
 	demographic.setSex(request.getParameter("sex"));
 
-	year = StringUtils.trimToNull(request.getParameter("end_date_year"));
-	month = StringUtils.trimToNull(request.getParameter("end_date_month"));
-	day = StringUtils.trimToNull(request.getParameter("end_date_date"));
-	if (year!=null && month!=null && day!=null) {
-	 		demographic.setEndDate(MyDateFormat.getSysDate(year + "-" + month + "-" + day));
+
+
+	if (StringUtils.trimToNull(request.getParameter("date_joined"))!=null) {
+		demographic.setDateJoined(MyDateFormat.getSysDate(StringUtils.trimToNull(request.getParameter("date_joined"))));
+	} else {
+		demographic.setDateJoined(null);
+	}
+
+	if (StringUtils.trimToNull(request.getParameter("end_date"))!=null) {
+		demographic.setEndDate(MyDateFormat.getSysDate(StringUtils.trimToNull(request.getParameter("end_date"))));
 	} else {
 		demographic.setEndDate(null);
 	}
-	
-	year = StringUtils.trimToNull(request.getParameter("eff_date_year"));
-	month = StringUtils.trimToNull(request.getParameter("eff_date_month"));
-	day = StringUtils.trimToNull(request.getParameter("eff_date_date"));
-	if (year!=null && month!=null && day!=null) {
-		demographic.setEffDate(MyDateFormat.getSysDate(year + "-" + month + "-" + day));
+
+	if (StringUtils.trimToNull(request.getParameter("eff_date"))!=null) {
+		demographic.setEffDate(MyDateFormat.getSysDate(StringUtils.trimToNull(request.getParameter("eff_date"))));
 	} else {
 		demographic.setEffDate(null);
 	}
-
-	demographic.setPcnIndicator(request.getParameter("pcn_indicator"));
-	demographic.setHcType(request.getParameter("hc_type"));
 	
-	year = StringUtils.trimToNull(request.getParameter("roster_date_year"));
-	month = StringUtils.trimToNull(request.getParameter("roster_date_month"));
-	day = StringUtils.trimToNull(request.getParameter("roster_date_date"));
-	if (year!=null && month!=null && day!=null) {
-		demographic.setRosterDate(MyDateFormat.getSysDate( year + "-" + month + "-" + day));
-	} else {
-		demographic.setRosterDate(null);
-	}
-	          
-	year = StringUtils.trimToNull(request.getParameter("hc_renew_date_year"));
-	month = StringUtils.trimToNull(request.getParameter("hc_renew_date_month"));
-	day = StringUtils.trimToNull(request.getParameter("hc_renew_date_date"));
-	if (year!=null && month!=null && day!=null) {
-		demographic.setHcRenewDate(MyDateFormat.getSysDate( year + "-" + month + "-" + day));
+	if (StringUtils.trimToNull(request.getParameter("hc_renew_date"))!=null) {
+		demographic.setHcRenewDate(MyDateFormat.getSysDate(StringUtils.trimToNull(request.getParameter("hc_renew_date"))));
 	} else {
 		demographic.setHcRenewDate(null);
 	}
-	         
-	demographic.setFamilyDoctor("<rdohip>" + request.getParameter("r_doctor_ohip") + "</rdohip>" + "<rd>" + request.getParameter("r_doctor") + "</rd>"+ (request.getParameter("family_doc")!=null? ("<family_doc>" + request.getParameter("family_doc") + "</family_doc>") : ""));
-	demographic.setCountryOfOrigin(request.getParameter("countryOfOrigin"));
-	demographic.setNewsletter(request.getParameter("newsletter"));
-	demographic.setSin(request.getParameter("sin"));
-	demographic.setTitle(request.getParameter("title"));
-	demographic.setOfficialLanguage(request.getParameter("official_lang"));
-	demographic.setSpokenLanguage(request.getParameter("spoken_lang"));
-	demographic.setLastUpdateUser(curUser_no);
-	demographic.setLastUpdateDate(new java.util.Date());
+
+	if (StringUtils.trimToNull(request.getParameter("roster_date"))!=null) {
+		demographic.setRosterDate(MyDateFormat.getSysDate(StringUtils.trimToNull(request.getParameter("roster_date"))));
+	} else {
+		demographic.setRosterDate(null);
+	}
+
 	
 	if(request.getParameter("patient_status_date") != null) {
 		SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
@@ -243,6 +227,25 @@
 	} else {
 		demographic.setPatientStatusDate(new java.util.Date());
 	}
+
+
+	demographic.setPcnIndicator(request.getParameter("pcn_indicator"));
+	demographic.setHcType(request.getParameter("hc_type"));
+	
+
+
+
+	         
+	demographic.setFamilyDoctor("<rdohip>" + request.getParameter("r_doctor_ohip") + "</rdohip>" + "<rd>" + request.getParameter("r_doctor") + "</rd>"+ (request.getParameter("family_doc")!=null? ("<family_doc>" + request.getParameter("family_doc") + "</family_doc>") : ""));
+	demographic.setCountryOfOrigin(request.getParameter("countryOfOrigin"));
+	demographic.setNewsletter(request.getParameter("newsletter"));
+	demographic.setSin(request.getParameter("sin"));
+	demographic.setTitle(request.getParameter("title"));
+	demographic.setOfficialLanguage(request.getParameter("official_lang"));
+	demographic.setSpokenLanguage(request.getParameter("spoken_lang"));
+	demographic.setLastUpdateUser(curUser_no);
+	demographic.setLastUpdateDate(new java.util.Date());
+
 	
 	
 	

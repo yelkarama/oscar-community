@@ -177,88 +177,50 @@
 	String yearTmp=StringUtils.trimToNull(request.getParameter("date_joined_year"));
 	String monthTmp=StringUtils.trimToNull(request.getParameter("date_joined_month"));
 	String dayTmp=StringUtils.trimToNull(request.getParameter("date_joined_date"));
-	if( yearTmp != null && monthTmp!=null && dayTmp!=null )
-	{
-		demographic.setDateJoined(MyDateFormat.getSysDate(yearTmp+'-'+monthTmp+'-'+dayTmp));
-	}
-	else
-	{
+
+	if (StringUtils.trimToNull(request.getParameter("date_joined"))!=null) {
+		demographic.setDateJoined(MyDateFormat.getSysDate(StringUtils.trimToNull(request.getParameter("date_joined"))));
+	} else {
 		demographic.setDateJoined(null);
 	}
-	
-	yearTmp=StringUtils.trimToNull(request.getParameter("end_date_year"));
-	monthTmp=StringUtils.trimToNull(request.getParameter("end_date_month"));
-	dayTmp=StringUtils.trimToNull(request.getParameter("end_date_date"));
-	if( yearTmp != null && monthTmp!=null && dayTmp!=null )
-	{
-		demographic.setEndDate(MyDateFormat.getSysDate(yearTmp+'-'+monthTmp+'-'+dayTmp));
-	}
-	else
-	{
+
+	if (StringUtils.trimToNull(request.getParameter("end_date"))!=null) {
+		demographic.setEndDate(MyDateFormat.getSysDate(StringUtils.trimToNull(request.getParameter("end_date"))));
+	} else {
 		demographic.setEndDate(null);
 	}
-	
-	yearTmp=StringUtils.trimToNull(request.getParameter("eff_date_year"));
-	monthTmp=StringUtils.trimToNull(request.getParameter("eff_date_month"));
-	dayTmp=StringUtils.trimToNull(request.getParameter("eff_date_date"));
-	if( yearTmp != null && monthTmp!=null && dayTmp!=null )
-	{
-		demographic.setEffDate(MyDateFormat.getSysDate(yearTmp+'-'+monthTmp+'-'+dayTmp));
-	}
-	else
-	{
+
+	if (StringUtils.trimToNull(request.getParameter("eff_date"))!=null) {
+		demographic.setEffDate(MyDateFormat.getSysDate(StringUtils.trimToNull(request.getParameter("eff_date"))));
+	} else {
 		demographic.setEffDate(null);
 	}
 	
-	yearTmp=StringUtils.trimToNull(request.getParameter("hc_renew_date_year"));
-	monthTmp=StringUtils.trimToNull(request.getParameter("hc_renew_date_month"));
-	dayTmp=StringUtils.trimToNull(request.getParameter("hc_renew_date_date"));
-	if( yearTmp != null && monthTmp!=null && dayTmp!=null )
-	{
-		demographic.setHcRenewDate(MyDateFormat.getSysDate(yearTmp+'-'+monthTmp+'-'+dayTmp));
-	}
-	else
-	{
+	if (StringUtils.trimToNull(request.getParameter("hc_renew_date"))!=null) {
+		demographic.setHcRenewDate(MyDateFormat.getSysDate(StringUtils.trimToNull(request.getParameter("hc_renew_date"))));
+	} else {
 		demographic.setHcRenewDate(null);
 	}
-	
-	              yearTmp=StringUtils.trimToNull(request.getParameter("roster_date_year"));
-	monthTmp=StringUtils.trimToNull(request.getParameter("roster_date_month"));
-	dayTmp=StringUtils.trimToNull(request.getParameter("roster_date_day"));
-	
-	if( yearTmp != null && monthTmp!=null && dayTmp!=null )
-	{
-		demographic.setRosterDate(MyDateFormat.getSysDate(yearTmp+'-'+monthTmp+'-'+dayTmp));
-	}
-	else
-	{
+
+	if (StringUtils.trimToNull(request.getParameter("roster_date"))!=null) {
+		demographic.setRosterDate(MyDateFormat.getSysDate(StringUtils.trimToNull(request.getParameter("roster_date"))));
+	} else {
 		demographic.setRosterDate(null);
 	}
-	yearTmp=StringUtils.trimToNull(request.getParameter("roster_termination_date_year"));
-	monthTmp=StringUtils.trimToNull(request.getParameter("roster_termination_date_month"));
-	dayTmp=StringUtils.trimToNull(request.getParameter("roster_termination_date_day"));
-	
-	if( yearTmp != null && monthTmp!=null && dayTmp!=null )
-	{
-		demographic.setRosterTerminationDate(MyDateFormat.getSysDate(yearTmp+'-'+monthTmp+'-'+dayTmp));
-	}
-	else
-	{
+
+	if (StringUtils.trimToNull(request.getParameter("roster_termination_date"))!=null) {
+		demographic.setRosterTerminationDate(MyDateFormat.getSysDate(StringUtils.trimToNull(request.getParameter("roster_termination_date"))));
+	} else {
 		demographic.setRosterTerminationDate(null);
 	}
-	
-	              yearTmp=StringUtils.trimToNull(request.getParameter("patientstatus_date_year"));
-	monthTmp=StringUtils.trimToNull(request.getParameter("patientstatus_date_month"));
-	dayTmp=StringUtils.trimToNull(request.getParameter("patientstatus_date_day"));
-	
-	if( yearTmp != null && monthTmp!=null && dayTmp!=null )
-	{
-		demographic.setPatientStatusDate(MyDateFormat.getSysDate(yearTmp+'-'+monthTmp+'-'+dayTmp));
-	}
-	else
-	{
+
+	if (StringUtils.trimToNull(request.getParameter("patientstatus_date"))!=null) {
+		demographic.setPatientStatusDate(MyDateFormat.getSysDate(StringUtils.trimToNull(request.getParameter("patientstatus_date"))));
+	} else {
 		demographic.setPatientStatusDate(null);
 	}
+
+
 	
 	if( OscarProperties.getInstance().getBooleanProperty("USE_NEW_PATIENT_CONSENT_MODULE", "true") ) {
 		// Retrieve and set patient consents.
