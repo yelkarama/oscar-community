@@ -359,7 +359,7 @@ cursor: hand;
                         <label class="control-label" for="startDate">
                             <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgStart"/>:
                         </label> 
-                            <html:text property="startDate" styleClass="input-small" /><a id="SCal"><img title="Calendar" src="../../images/cal.gif" alt="Calendar" border="0" /></a>
+                            <html:text property="startDate" styleClass="input-small"  styleId="startDate"/><a id="SCal"><img title="Calendar" src="../../images/cal.gif" alt="Calendar" border="0" /></a>
                         <label class="control-label" for="endDate">
                             <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgEnd"/>:
                         </label> 
