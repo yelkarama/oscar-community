@@ -164,6 +164,13 @@ label{margin-top:6px;margin-bottom:0px;}
 			<select name="content" >
 				<option value="admin">Admin</option>
 				<option value="login">Log in</option>
+				<option value="eChart">Chart</option>
+				<option value="lab">Lab</option>
+				<option value="document">Document</option>
+				<option value="demographic">Demographic</option>
+				<option value="bill">Billing</option>
+				<option value="appointment">Appointment</option>
+				<option value="Preventions">Preventions</option>
 			</select>
 			</div>
 		
