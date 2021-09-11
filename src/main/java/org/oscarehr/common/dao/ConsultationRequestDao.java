@@ -33,7 +33,6 @@ import org.apache.commons.lang.time.DateFormatUtils;
 import org.oscarehr.common.NativeSql;
 import org.oscarehr.common.model.ConsultationRequest;
 
-
 @SuppressWarnings("unchecked")
 public class ConsultationRequestDao extends AbstractDao<ConsultationRequest> {
 	
@@ -86,7 +85,14 @@ public class ConsultationRequestDao extends AbstractDao<ConsultationRequest> {
             }
 
             if( !team.isEmpty()) {
-                whereSql.append("and cr.sendTo = '").append(team).append("' ");
+                oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFormRequestUtil consultUtil;
+	            consultUtil = new  oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFormRequestUtil();
+			    for (int i =0; i < consultUtil.teamVec.size();i++){
+                String te = (String) consultUtil.teamVec.elementAt(i);                                                                        
+					if (te.equals(team)){  
+						whereSql.append("and cr.sendTo = '").append(team).append("' ");				
+					}
+				}               
             }
 
             if(startDate != null){
