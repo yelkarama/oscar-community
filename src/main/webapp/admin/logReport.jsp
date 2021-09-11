@@ -201,9 +201,16 @@ label{margin-top:6px;margin-bottom:0px;}
 	if (request.getParameter("submit") != null) {
 	  providerNo = request.getParameter("providerNo");
 	  String action = request.getParameter("submit");
-	  String content = request.getParameter("content");
-	  if(content.equals("login")) content = "login";
-	  if(content.equals("admin")) content = "%";
+	  // to prevent SQL injection validate content filter.  Note login is the only filter in the UI at the moment
+	  String content =  "%";
+	  if(request.getParameter("content").equals("login")) content="login"; 
+	  if(request.getParameter("content").equals("lab")) content="lab";
+	  if(request.getParameter("content").equals("document")) content="document"; 
+	  if(request.getParameter("content").equals("bill")) content="bill";
+	  if(request.getParameter("content").equals("appointment")) content="appointment"; 
+	  if(request.getParameter("content").equals("Preventions")) content="Preventions";
+	  if(request.getParameter("content").equals("demographic")) content="demographic"; 
+	  if(request.getParameter("content").equals("eChart")) content="eChart";
 	  
 	  String sDate = request.getParameter("startDate");
 	  String eDate = request.getParameter("endDate");
