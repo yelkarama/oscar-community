@@ -39,6 +39,7 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import oscar.OscarProperties;
 
 /**
  *
@@ -48,20 +49,28 @@ public class ImportLogDownloadAction extends Action {
    
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws FileNotFoundException, IOException {
 
-	String importLog = request.getParameter("importlog");
-	File importLogFile = new File(importLog);
-	InputStream in = new FileInputStream(importLog);
-	OutputStream out = response.getOutputStream();
 
-	response.setContentType("application/octet-stream");
-	response.setHeader("Content-Disposition", "attachment; filename=\""+importLogFile.getName()+"\"" );
+		String importLog = request.getParameter("importlog");
 
-	byte[] buf = new byte[1024];
-	int len;
-	while ((len=in.read(buf)) > 0) out.write(buf,0,len);
-	in.close();
-	out.close();
+		String tmpDir = OscarProperties.getInstance().getProperty("TMP_DIR");
+		File parent = new File(tmpDir);
+		File importLogFile = new File(parent, importLog);
+		if (!importLogFile.exists() || !importLogFile.getParent().equals(parent.getAbsolutePath())) {
+			// either the file doesn't exist or it's a directory traversal attack.
+			throw new FileNotFoundException("Invalid file.");
+		}
+		InputStream in = new FileInputStream(importLogFile);
+		OutputStream out = response.getOutputStream();
 
-	return null;
+		response.setContentType("application/octet-stream");
+		response.setHeader("Content-Disposition", "attachment; filename=\""+importLog+"\"" );
+
+		byte[] buf = new byte[1024];
+		int len;
+		while ((len=in.read(buf)) > 0) out.write(buf,0,len);
+		in.close();
+		out.close();
+
+		return null;
     }
 }
