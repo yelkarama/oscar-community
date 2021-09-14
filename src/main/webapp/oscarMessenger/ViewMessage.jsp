@@ -98,10 +98,21 @@ if (request.getParameter("bFirstDisp")!=null) bFirstDisp= (request.getParameter(
       background-color: rgb(0,0,0); /* Fallback color */
       background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
     }
+#print_helper {
+  display: none;
+}
 </style>
 <style type="text/css" media="print">
  .DoNotPrint {
 	display: none;
+}
+#print_helper { 
+    display: block;
+    overflow: visible;
+    font-family: Menlo, "Deja Vu Sans Mono", "Bitstream Vera Sans Mono", Monaco, monospace;
+    white-space: pre;
+    white-space: pre-wrap;
+}
 </style>
 <%
 String boxType = request.getParameter("boxType");
@@ -410,7 +421,8 @@ function fmtOscarMsg() {
 						<tr>
 							<td></td>
 							<td colspan="2" class="Printable">
-								<textarea id="msgBody" name="Message" wrap="hard" readonly="true" rows="18" style="min-width: 100%"><c:out value="${ viewMessageMessage }"/></textarea>
+								<textarea id="msgBody" name="Message" wrap="hard" readonly="true" rows="18" class="DoNotPrint" style="min-width: 100%"><c:out value="${ viewMessageMessage }"/></textarea>
+                            <div id="print_helper"><c:out value="${ viewMessageMessage }"/></div>
 							</td>
 						</tr>
 						
