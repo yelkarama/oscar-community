@@ -277,7 +277,7 @@ function fmtOscarMsg() {
 				</tr>
 			</table>
 			</td>
-            <td style="text-align: right;" >
+            <td style="text-align: right;" class="DoNotPrint" >
             <i class=" icon-question-sign"></i> 
             <a href="javascript:void(0)" onClick ="popupPage(700,960,'<%=(OscarProperties.getInstance()).getProperty("HELP_SEARCH_URL")%>'+'Messenger view')"><bean:message key="app.top1"/></a>
             <i class=" icon-info-sign" style="margin-left:10px;"></i> 
