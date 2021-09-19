@@ -257,7 +257,7 @@ label{margin-top:6px;margin-bottom:0px;}
         prop.setProperty("ip", Misc.getString(rs,"ip"));
         prop.setProperty("provider_no", Encode.forHtmlContent(Misc.getString(rs,"provider_no")));
         prop.setProperty("demographic_no",Encode.forHtmlContent(Misc.getString(rs,"demographic_no")));
-        prop.setProperty("data", Encode.forHtmlContent(Misc.getString(rs, "data")).replaceAll("\n", "\n<br/>"));
+        prop.setProperty("data", Encode.forHtmlContent(Misc.getString(rs, "data")));
         vec.add(prop);
       }
 
