@@ -173,6 +173,8 @@ label{margin-top:6px;margin-bottom:0px;}
 				<option value="bill">Billing</option>
 				<option value="appointment">Appointment</option>
 				<option value="Preventions">Preventions</option>
+				<option value="fax">Fax</option>
+				<option value="prescription">Prescription</option>
 			</select>
 			</div>
 		
@@ -296,15 +298,15 @@ for (int i = 0; i < vec.size(); i++) {
     color = i%2==0?tdInterlColor:"white";
 %>
 	<tr bgcolor="<%=color %>" align="center">
-		<td><%=prop.getProperty("dateTime")%>&nbsp;</td>
-		<td><%=prop.getProperty("action")%>&nbsp;</td>
-		<td><%=prop.getProperty("content")%>&nbsp;</td>
-		<td><%=prop.getProperty("contentId")%>&nbsp;</td>
-		<td><%=prop.getProperty("ip")%>&nbsp;</td>
+		<td><%=StringEscapeUtils.escapeHtml(prop.getProperty("dateTime"))%>&nbsp;</td>
+		<td><%=StringEscapeUtils.escapeHtml(prop.getProperty("action"))%>&nbsp;</td>
+		<td><%=StringEscapeUtils.escapeHtml(prop.getProperty("content"))%>&nbsp;</td>
+		<td><%=StringEscapeUtils.escapeHtml(prop.getProperty("contentId"))%>&nbsp;</td>
+		<td><%=StringEscapeUtils.escapeHtml(prop.getProperty("ip"))%>&nbsp;</td>
 		<% if(bAll) { %>
-		<td><%=propName.getProperty(prop.getProperty("provider_no"), "")%>&nbsp;</td>
-		<% } %>
-        <td><%=prop.getProperty("demographic_no")%>&nbsp;</td>
+		<td><%=StringEscapeUtils.escapeHtml(propName.getProperty(prop.getProperty("provider_no"), ""))%>&nbsp;</td>
+		<% } %>        
+		<td><%=StringEscapeUtils.escapeHtml(prop.getProperty("demographic_no"))%>&nbsp;</td>
         <td><%=StringEscapeUtils.escapeHtml(prop.getProperty("data")).replaceAll("\n", "\n<br/>") %>&nbsp;</td>
 	</tr>
 	<% } %>
