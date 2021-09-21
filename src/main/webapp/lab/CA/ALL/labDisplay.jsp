@@ -68,6 +68,8 @@
 <jsp:useBean id="oscarVariables" class="java.util.Properties" scope="session" />
 <%@	page import="javax.swing.text.rtf.RTFEditorKit"%>
 <%@	page import="java.io.ByteArrayInputStream"%>
+<%@ page import="org.owasp.encoder.Encode" %>
+
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
@@ -1220,7 +1222,7 @@ input[type=button], button, input[id^='acklabel_']{ font-size:12px !important;pa
                                             </td>
                                             <td>
                                                 <div class="FieldData" nowrap="nowrap">
-                                                   <%= comment %>
+                                                   <%= Encode.forHtmlContent(comment) %>
                                                 </div>
                                             </td>
                                         </tr>
@@ -1359,7 +1361,7 @@ for(int mcount=0; mcount<multiID.length; mcount++){
                                                                         <% if ( ackStatus.equals("Acknowledged") ) { %>
                                                                             <%= report.getTimestamp() %>,
                                                                         <% } %>
-                                                                        <span id="<%=report.getOscarProviderNo() + "_" + segmentID%>commentLabel"><%=report.getComment() == null || report.getComment().equals("") ? "no comment" : "comment : "%></span><span id="<%=report.getOscarProviderNo() + "_" + segmentID%>commentText"><%=report.getComment()==null ? "" : report.getComment()%></span>
+                                                                        <span id="<%=report.getOscarProviderNo() + "_" + segmentID%>commentLabel"><%=report.getComment() == null || report.getComment().equals("") ? "no comment" : "comment : "%></span><span id="<%=report.getOscarProviderNo() + "_" + segmentID%>commentText"><%=report.getComment()==null ? "" : Encode.forHtmlContent(report.getComment())%></span>
                                                                         <br>
                                                                     <% }
                                                                     if (ackList.size() == 0){
