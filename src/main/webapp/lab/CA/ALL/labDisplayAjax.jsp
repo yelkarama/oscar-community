@@ -45,7 +45,9 @@
 <%@ page import="org.oscarehr.common.model.Tickler" %>
 <%@ page import="org.oscarehr.managers.TicklerManager" %>
 <%@ page import="org.oscarehr.common.model.Demographic" %>
-<%@ page import="org.oscarehr.common.dao.DemographicDao" %>		
+<%@ page import="org.oscarehr.common.dao.DemographicDao" %>	
+<%@ page import="org.owasp.encoder.Encode" %>
+	
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
@@ -803,7 +805,7 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
                                                                         	   	commentTitle = "comment: ";
                                                                                }
                                                                             %>
-                                                                            <span id="<%="V" + j + "commentLabel" + segmentID + report.getProviderNo()%>"><%=commentTitle%></span><span id="<%="V" + j + "commentText" + segmentID + report.getProviderNo()%>"> <%=report.getComment() == null ? "" : report.getComment()%></span>
+                                                                            <span id="<%="V" + j + "commentLabel" + segmentID + report.getProviderNo()%>"><%=commentTitle%></span><span id="<%="V" + j + "commentText" + segmentID + report.getProviderNo()%>"> <%=report.getComment() == null ? "" : Encode.forHtmlContent(report.getComment())%></span>
                                                                         
                                                                         <br>
                                                                     <% }
