@@ -46,6 +46,7 @@ if(!authed) {
 <%@page import="org.oscarehr.common.dao.DepartmentDao" %>
 <%@page import="org.oscarehr.common.model.Department" %>
 <%@page import="java.util.List" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
 	DepartmentDao departmentDao = SpringUtils.getBean(DepartmentDao.class);
@@ -56,10 +57,19 @@ if(!authed) {
 <html:html locale="true">
 
 <head>
-<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
+
 <title>Edit Departments</title>
 <html:base />
-<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
+
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+<style>
+
+.MainTableLeftColumn td{
+    font-size: 12px;
+
+}
+</style>
 </head>
 <script language="javascript">
 function BackToOscar()
@@ -67,18 +77,18 @@ function BackToOscar()
        window.close();
 }
 </script>
-<link rel="stylesheet" type="text/css" href="../../encounterStyles.css">
+
 <body class="BodyStyle" vlink="#0000FF">
 
 <html:errors />
 <!--  -->
 <table class="MainTable" id="scrollNumber1" name="encounterTable">
 	<tr class="MainTableTopRow">
-		<td class="MainTableTopRowLeftColumn">Consultation</td>
+		<td class="MainTableTopRowLeftColumn"><h4>Consultation</h4></td>
 		<td class="MainTableTopRowRightColumn">
 		<table class="TopStatusBar">
 			<tr>
-				<td class="Header">Edit Departments
+				<td class="Header"><h4>Edit Departments</h4>
 				</td>
 			</tr>
 		</table>
@@ -129,7 +139,7 @@ function BackToOscar()
 								<td>
 								<%
 	                                      out.print("<a href=\"../../EditDepartments.do?id="+i.getId()+"\"/>");
-	                                      out.print(i.getName());
+	                                      out.print(Encode.forHtml(i.getName()));
 	                                      out.print("</a>");
 	                                    %>
 								</td>
