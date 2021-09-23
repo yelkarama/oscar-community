@@ -40,7 +40,7 @@ if(!authed) {
 %>
 
 <%@ page import="java.util.ResourceBundle"%>
-
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
@@ -53,23 +53,32 @@ if(!authed) {
 <html:html locale="true">
 
 <head>
-<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
+<!-- <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>-->
 <title>Show All Institutions</title>
 <html:base />
-<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
+<!-- <link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+<style>
+
+.MainTableLeftColumn td{
+    font-size: 12px;
+
+}
+</style>
 </head>
 
-<link rel="stylesheet" type="text/css" href="../../encounterStyles.css">
-<body class="BodyStyle" vlink="#0000FF">
+<body class="BodyStyle" vlink="#0000FF"> 
 <html:errors />
 <!--  -->
 <table class="MainTable" id="scrollNumber1" name="encounterTable">
 	<tr class="MainTableTopRow">
-		<td class="MainTableTopRowLeftColumn">Consultation</td>
+		<td class="MainTableTopRowLeftColumn"><h4>Consultation</h4></td>
 		<td class="MainTableTopRowRightColumn">
 		<table class="TopStatusBar">
 			<tr>
-				<td class="Header">Select Institution</td>
+				<td class="Header"><h4>Select Institution</h4></td>
 			</tr>
 		</table>
 		</td>
@@ -82,8 +91,7 @@ if(!authed) {
 		</td>
 		<td class="MainTableRightColumn">
 		<table cellpadding="0" cellspacing="2"
-			style="border-collapse: collapse" bordercolor="#111111" width="100%"
-			height="100%">
+			style="border-collapse: collapse" width="100%" height="100%"> <!-- bordercolor="#111111" width="100%" -->
 
 			<!----Start new rows here-->
 			<tr>
@@ -104,7 +112,7 @@ if(!authed) {
 								<tr>
 									<td>
 									<%
-                                          out.print("<a href=\"../../../oscarEncounter/ShowAllInstitutions.do?id="+i.getId()+"&name="+i.getName()+"\">"+i.getName()+"</a>");
+                                          out.print("<a href=\"../../../oscarEncounter/ShowAllInstitutions.do?id="+i.getId()+"&name="+i.getName()+"\">"+Encode.forHtml(i.getName())+"</a>");
 
                                        %>
 									</td>

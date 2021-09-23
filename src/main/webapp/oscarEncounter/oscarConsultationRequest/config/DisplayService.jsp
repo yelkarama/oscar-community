@@ -40,6 +40,7 @@ if(!authed) {
 %>
 
 <%@ page import="java.util.ResourceBundle"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -53,12 +54,14 @@ String serviceId = (String) request.getAttribute("serviceId");
 String serviceDesc = displayServiceUtil.getServiceDesc(serviceId);
 %>
 <head>
-<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
+
 <title><bean:message
 	key="oscarEncounter.oscarConsultationRequest.config.DisplayService.title" />
 </title>
 <html:base />
 <link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
 </head>
 <script language="javascript">
 function BackToOscar()
@@ -98,13 +101,13 @@ function BackToOscar()
 			<tr>
 				<td><bean:message
 					key="oscarEncounter.oscarConsultationRequest.config.DisplayService.msgCheckOff"
-					arg0="<%=serviceDesc %>" /></td>
+					arg0="<%=Encode.forHtml(serviceDesc) %>" /></td>
 			</tr>
 			<tr>
 				<td><html:form
 					action="/oscarEncounter/UpdateServiceSpecialists">
 					<input type="hidden" name="serviceId" value="<%=serviceId %>">
-					<input type="submit"
+					<input type="submit" class="btn btn-primary"
 						value="<bean:message key="oscarEncounter.oscarConsultationRequest.config.DisplayService.btnUpdateServices"/>">
 					<div class="ChooseRecipientsBox1">
 					<table>
@@ -129,12 +132,12 @@ function BackToOscar()
                                  java.util.Vector  specialistInField = displayServiceUtil.getSpecialistInField(serviceId);
                                  for(int i=0;i < displayServiceUtil.specIdVec.size(); i++){
                                  String  specId     = displayServiceUtil.specIdVec.elementAt(i);
-                                 String  fName      = displayServiceUtil.fNameVec.elementAt(i);
-                                 String  lName      = displayServiceUtil.lNameVec.elementAt(i);
-                                 String  proLetters = displayServiceUtil.proLettersVec.elementAt(i);
-                                 String  address    = displayServiceUtil.addressVec.elementAt(i);
-                                 String  phone      = displayServiceUtil.phoneVec.elementAt(i);
-                                 String  fax        = displayServiceUtil.faxVec.elementAt(i);
+                                 String  fName      = Encode.forHtml(displayServiceUtil.fNameVec.elementAt(i));
+                                 String  lName      = Encode.forHtml(displayServiceUtil.lNameVec.elementAt(i));
+                                 String  proLetters = Encode.forHtml(displayServiceUtil.proLettersVec.elementAt(i));
+                                 String  address    = Encode.forHtml(displayServiceUtil.addressVec.elementAt(i));
+                                 String  phone      = Encode.forHtml(displayServiceUtil.phoneVec.elementAt(i));
+                                 String  fax        = Encode.forHtml(displayServiceUtil.faxVec.elementAt(i));
 
                               %>
 							
