@@ -31,6 +31,7 @@
 <%@page import="org.oscarehr.common.dao.InstitutionDao" %>
 <%@page import="org.oscarehr.common.model.Institution" %>
 <%@page import="java.util.List" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
 	InstitutionDao institutionDao = SpringUtils.getBean(InstitutionDao.class);
@@ -41,10 +42,19 @@
 <html:html locale="true">
 
 <head>
-<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
+
 <title>Edit Institutions</title>
 <html:base />
-<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
+
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+<style>
+
+.MainTableLeftColumn td{
+    font-size: 12px;
+
+}
+</style>
 </head>
 <script language="javascript">
 function BackToOscar()
@@ -52,18 +62,18 @@ function BackToOscar()
        window.close();
 }
 </script>
-<link rel="stylesheet" type="text/css" href="../../encounterStyles.css">
+
 <body class="BodyStyle" vlink="#0000FF">
 
 <html:errors />
 <!--  -->
 <table class="MainTable" id="scrollNumber1" name="encounterTable">
 	<tr class="MainTableTopRow">
-		<td class="MainTableTopRowLeftColumn">Consultation</td>
+		<td class="MainTableTopRowLeftColumn"><h4>Consultation</h4></td>
 		<td class="MainTableTopRowRightColumn">
 		<table class="TopStatusBar">
 			<tr>
-				<td class="Header">Edit Institutions
+				<td class="Header"><h4>Edit Institutions</h4>
 				</td>
 			</tr>
 		</table>
@@ -115,13 +125,13 @@ function BackToOscar()
 								<td>
 								<%
 	                                      out.print("<a href=\"../../EditInstitutions.do?id="+i.getId()+"\"/>");
-	                                      out.print(i.getName());
+	                                      out.print(Encode.forHtml(i.getName()));
 	                                      out.print("</a>");
 	                                    %>
 								</td>
 								
-								<td><%=i.getPhone()%></td>
-								<td><%=i.getFax()%></td>
+								<td><%=Encode.forHtml(i.getPhone())%></td>
+								<td><%=Encode.forHtml(i.getFax())%></td>
 							</tr>
 						<% }%>
 						</td>
