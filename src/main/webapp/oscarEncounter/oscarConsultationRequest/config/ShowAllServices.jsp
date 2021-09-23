@@ -23,7 +23,6 @@
     Ontario, Canada
 
 --%>
-
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
       String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -40,7 +39,7 @@ if(!authed) {
 %>
 
 <%@ page import="java.util.ResourceBundle"%>
-
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
@@ -52,12 +51,20 @@ if(!authed) {
 
 
 <head>
-<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
+
 <title><bean:message
 	key="oscarEncounter.oscarConsultationRequest.config.ShowAllServices.title" />
 </title>
 <html:base />
-<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
+
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+<style>
+.MainTableLeftColumn td{
+    font-size: 12px;
+
+}
+</style>
 </head>
 <script language="javascript">
 function BackToOscar()
@@ -65,18 +72,18 @@ function BackToOscar()
        window.close();
 }
 </script>
-<link rel="stylesheet" type="text/css" href="../../encounterStyles.css">
+
 <body class="BodyStyle" vlink="#0000FF">
 <html:errors />
 <!--  -->
 <table class="MainTable" id="scrollNumber1" name="encounterTable">
 	<tr class="MainTableTopRow">
-		<td class="MainTableTopRowLeftColumn">Consultation</td>
+		<td class="MainTableTopRowLeftColumn"><h4>Consultation</h4></td>
 		<td class="MainTableTopRowRightColumn">
 		<table class="TopStatusBar">
 			<tr>
-				<td class="Header"><bean:message
-					key="oscarEncounter.oscarConsultationRequest.config.ShowAllServices.title" />
+				<td class="Header"><h4><bean:message
+					key="oscarEncounter.oscarConsultationRequest.config.ShowAllServices.title" /></h4>
 				</td>
 			</tr>
 		</table>
@@ -113,7 +120,7 @@ function BackToOscar()
                                  showAllServicesUtil.estServicesVectors();
                                  for (int i= 0; i < showAllServicesUtil.serviceIdVec.size();i++){
                                     String id = (String) showAllServicesUtil.serviceIdVec.elementAt(i);
-                                    String desc = (String) showAllServicesUtil.serviceDescVec.elementAt(i);
+                                    String desc = Encode.forHtml((String) showAllServicesUtil.serviceDescVec.elementAt(i));
                               %>
 								<tr>
 									<td>

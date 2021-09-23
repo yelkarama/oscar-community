@@ -38,7 +38,7 @@ if(!authed) {
 	return;
 }
 %>
-
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
@@ -54,7 +54,23 @@ displayServiceUtil.estSpecialistVector();
 	key="oscarEncounter.oscarConsultationRequest.config.EditSpecialists.title" />
 </title>
 <html:base />
-<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
+<!--<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />-->
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/DT_bootstrap.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.9.1.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery.dataTables.1.10.11.min.js"></script>
+<style>
+.dtable{
+    table-layout: fixed;
+    word-wrap:break-word;
+    font-size: 12px;
+}
+.MainTableLeftColumn td{
+    font-size: 12px;
+
+}
+</style>
 </head>
 <script language="javascript">
 function BackToOscar()
@@ -62,19 +78,19 @@ function BackToOscar()
        window.close();
 }
 </script>
-<link rel="stylesheet" type="text/css" href="../../encounterStyles.css">
-<body class="BodyStyle" vlink="#0000FF">
+<!--<link rel="stylesheet" type="text/css" href="../../encounterStyles.css">-->
+<body class="BodyStyle"  vlink="#0000FF">
 
 <html:errors />
 <!--  -->
 <table class="MainTable" id="scrollNumber1" name="encounterTable">
 	<tr class="MainTableTopRow">
-		<td class="MainTableTopRowLeftColumn">Consultation</td>
+		<td class="MainTableTopRowLeftColumn"><h4>Consultation</h4></td>
 		<td class="MainTableTopRowRightColumn">
 		<table class="TopStatusBar">
 			<tr>
-				<td class="Header"><bean:message
-					key="oscarEncounter.oscarConsultationRequest.config.EditSpecialists.title" />
+				<td class="Header"><h4><bean:message
+					key="oscarEncounter.oscarConsultationRequest.config.EditSpecialists.title" /></h4>
 				</td>
 			</tr>
 		</table>
@@ -89,7 +105,8 @@ function BackToOscar()
 		<td class="MainTableRightColumn">
 		<table cellpadding="0" cellspacing="2"
 			style="border-collapse: collapse" bordercolor="#111111" width="100%"
-			height="100%">
+			height="100%"
+            >
 
 			<!----Start new rows here-->
 			<tr>
@@ -106,53 +123,56 @@ function BackToOscar()
 					<%-- input type="submit" name="delete"
 						value="<bean:message key="oscarEncounter.oscarConsultationRequest.config.EditSpecialists.btnDeleteSpecialist"/>"--%>
 					<div class="ChooseRecipientsBox1">
-					<table>
+					<table class="table table-condensed table-striped dtable" id="specialistsTbl">
+                        <thead>
+						    <tr>
+							    <!--<th>&nbsp;</th>-->
+							    <th><bean:message
+								    key="oscarEncounter.oscarConsultationRequest.config.EditSpecialists.specialist" />
+							    </th>
+							    <th style="width: 300px;"><bean:message
+								    key="oscarEncounter.oscarConsultationRequest.config.EditSpecialists.address" />
+							    </th>
+							    <th><bean:message
+								    key="oscarEncounter.oscarConsultationRequest.config.EditSpecialists.phone" />
+							    </th>
+							    <th><bean:message
+								    key="oscarEncounter.oscarConsultationRequest.config.EditSpecialists.fax" />
+							    </th>
+						    </tr>
+                        </thead>
+                        <tbody>
 						<tr>
-							<th>&nbsp;</th>
-							<th><bean:message
-								key="oscarEncounter.oscarConsultationRequest.config.EditSpecialists.specialist" />
-							</th>
-							<th><bean:message
-								key="oscarEncounter.oscarConsultationRequest.config.EditSpecialists.address" />
-							</th>
-							<th><bean:message
-								key="oscarEncounter.oscarConsultationRequest.config.EditSpecialists.phone" />
-							</th>
-							<th><bean:message
-								key="oscarEncounter.oscarConsultationRequest.config.EditSpecialists.fax" />
-							</th>
-
-						</tr>
-						<tr>
-							<td><!--<div class="ChooseRecipientsBox1">--> <%
+							<!--<div class="ChooseRecipientsBox1">--> <%
 
                                  for(int i=0;i < displayServiceUtil.specIdVec.size(); i++){
                                  String  specId     = displayServiceUtil.specIdVec.elementAt(i);
-                                 String  fName      = displayServiceUtil.fNameVec.elementAt(i);
-                                 String  lName      = displayServiceUtil.lNameVec.elementAt(i);
+                                 String  fName      = Encode.forHtml(displayServiceUtil.fNameVec.elementAt(i));
+                                 String  lName      = Encode.forHtml(displayServiceUtil.lNameVec.elementAt(i));
                                  String  proLetters = displayServiceUtil.proLettersVec.elementAt(i);
-                                 String  address    = displayServiceUtil.addressVec.elementAt(i);
-                                 String  phone      = displayServiceUtil.phoneVec.elementAt(i);
-                                 String  fax        = displayServiceUtil.faxVec.elementAt(i);
+                                 proLetters = (proLetters==null?"":Encode.forHtml(displayServiceUtil.proLettersVec.elementAt(i)));
+                                 String  address    = Encode.forHtml(displayServiceUtil.addressVec.elementAt(i));
+                                 String  phone      = Encode.forHtml(displayServiceUtil.phoneVec.elementAt(i));
+                                 String  fax        = Encode.forHtml(displayServiceUtil.faxVec.elementAt(i));
                               %>
 							
-						<tr>
-							<td><input type="checkbox" name="specialists"
-								value="<%=specId%>"></td>
+						
+							<!--<td><input type="checkbox" name="specialists"
+								value="<%=specId%>"></td>-->
 							<td>
 							<%
                                       out.print("<a href=\"../../EditSpecialists.do?specId="+specId+"\"/>");
-                                      out.print(lName+" "+fName+" "+(proLetters==null?"":proLetters));
+                                      out.print(lName+" "+fName+" "+proLetters);
                                       out.print("</a>");
                                     %>
 							</td>
-							<td><%=address %></td>
+							<td style="overflow:hidden; white-space: nowrap; text-overflow:ellipsis" title="<%=address%>"><%=address %></td>
 							<td><%=phone%></td>
 							<td><%=fax%></td>
 						</tr>
 						<% }%>
-						</td>
-						</tr>
+						
+</tbody>
 					</table>
 					</div>
 				</html:form></td>
@@ -170,5 +190,13 @@ function BackToOscar()
 		<td class="MainTableBottomRowRightColumn"></td>
 	</tr>
 </table>
+
+<script>
+$(document).ready(function() {
+    $('#specialistsTbl').DataTable({
+       "pageLength": 15
+    } );
+} );
+</script>
 </body>
 </html:html>

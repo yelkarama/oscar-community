@@ -86,12 +86,12 @@ public class EctConTitlebar
         for(int i = 0; i < jspVect.size(); i++){
             if(uri.equals(jspVect.get(i)) && request.getAttribute("upd") == null)
             {
-                strBuf.append("      <td bgcolor=\"#ccccff\">\n");
+                strBuf.append("      <td bgcolor=\"#dcdcdc\">\n");
                 strBuf.append("         <a href="+jspVect.get(i)+" class=\"consultButtonsDormant\">"+displayNameVect.get(i)+"</a>\n" );
                 strBuf.append("      </td>\n");
             } else
             {
-                strBuf.append("      <td bgcolor=\"#9999ff\">\n");
+                strBuf.append("      <td bgcolor=\"#d3d3d3\">\n");
                 strBuf.append(String.valueOf(String.valueOf((new StringBuilder("         <a href=")).append(jspVect.get(i)).append(" class=\"consultButtonsActive\">").append(displayNameVect.get(i)).append("</a>\n"))));
                 strBuf.append("      </td>\n");
             }

@@ -25,6 +25,7 @@
 --%>
 
 <%@ page import="java.util.ResourceBundle"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -48,12 +49,13 @@ if(!authed) {
 
 
 <head>
-<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message
 	key="oscarEncounter.oscarConsultationRequest.config.AddService.title" />
 </title>
 <html:base />
-<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
+
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+
 </head>
 <script language="javascript">
 function BackToOscar()
@@ -74,17 +76,23 @@ function checkServiceName()
 }
 </script>
 
-<link rel="stylesheet" type="text/css" href="../../encounterStyles.css">
+<style>
+
+.MainTableLeftColumn td{
+    font-size: 12px;
+
+}
+</style>
 <body class="BodyStyle" vlink="#0000FF">
 <!--  -->
 <table class="MainTable" id="scrollNumber1" name="encounterTable">
 	<tr class="MainTableTopRow">
-		<td class="MainTableTopRowLeftColumn">Consultation</td>
+		<td class="MainTableTopRowLeftColumn"><h4>Consultation</h4></td>
 		<td class="MainTableTopRowRightColumn">
 		<table class="TopStatusBar">
 			<tr>
-				<td class="Header"><bean:message
-					key="oscarEncounter.oscarConsultationRequest.config.AddService.title" />
+				<td class="Header"><h4><bean:message
+					key="oscarEncounter.oscarConsultationRequest.config.AddService.title" /></h4>
 				</td>
 				<td></td>
 			</tr>
@@ -113,7 +121,7 @@ function checkServiceName()
 			<tr>
 				<td><font color="red"><bean:message
 					key="oscarEncounter.oscarConsultationRequest.config.AddService.msgServiceAdded"
-					arg0="<%=added%>" /></font></td>
+					arg0="<%=Encode.forHtml(added)%>" /></font></td>
 			</tr>
 			<%}%>
 			<tr>
@@ -128,7 +136,7 @@ function checkServiceName()
 							<td><input type="text" name="service" /></td>
 						</tr>
 						<tr>
-							<td colspan="2"><input type="submit"
+							<td colspan="2"><input type="submit" class="btn btn-primary"
 								value="<bean:message key="oscarEncounter.oscarConsultationRequest.config.AddService.btnAddService"/>" />
 							</td>
 						</tr>

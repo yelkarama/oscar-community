@@ -55,7 +55,7 @@ if(!authed) {
 <%@ page import="org.oscarehr.common.dao.ConsultationServiceDao" %>
 <%@ page import="org.oscarehr.common.model.ConsultationServices" %>
 <%@ page import="oscar.OscarProperties"%>
-
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
@@ -359,7 +359,7 @@ cursor: hand;
                         <label class="control-label" for="startDate">
                             <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgStart"/>:
                         </label> 
-                            <html:text property="startDate" styleClass="input-small" /><a id="SCal"><img title="Calendar" src="../../images/cal.gif" alt="Calendar" border="0" /></a>
+                            <html:text property="startDate" styleClass="input-small" styleId="startDate" /><a id="SCal"><img title="Calendar" src="../../images/cal.gif" alt="Calendar" border="0" /></a>
                         <label class="control-label" for="endDate">
                             <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgEnd"/>:
                         </label> 
@@ -399,7 +399,7 @@ cursor: hand;
 				List<ConsultationServices> services = consultationServiceDao.findActive();
 
 				for(ConsultationServices cs:services) {
-				out.print("<option value=\""+String.valueOf(cs.getServiceId())+"\">"+cs.getServiceDesc()+"</option>\n");
+				out.print("<option value=\""+String.valueOf(cs.getServiceId())+"\">"+Encode.forHtml(cs.getServiceDesc())+"</option>\n");
 				}
 				%></select>
 
@@ -533,9 +533,9 @@ cursor: hand;
                             	
                             String id      =  theRequests.ids.elementAt(i);
                             String status  =  theRequests.status.elementAt(i);
-                            String patient =  theRequests.patient.elementAt(i);
-                            String provide =  theRequests.provider.elementAt(i);
-                            String service =  theRequests.service.elementAt(i);
+                            String patient =  Encode.forHtml(theRequests.patient.elementAt(i));
+                            String provide =  Encode.forHtml(theRequests.provider.elementAt(i));
+                            String service =  Encode.forHtml(theRequests.service.elementAt(i));
                             String date    =  theRequests.date.elementAt(i);
                             String demo    =  theRequests.demographicNo.elementAt(i);
                             String appt    =  theRequests.apptDate.elementAt(i);
@@ -543,11 +543,11 @@ cursor: hand;
                             String urgency =  theRequests.urgency.elementAt(i);
                             String sendTo  =  theRequests.teams.elementAt(i);
                             if (sendTo==null) sendTo = "-1";
-                            String specialist = theRequests.vSpecialist.elementAt(i);
+                            String specialist = Encode.forHtml(theRequests.vSpecialist.elementAt(i));
                             String followUpDate = theRequests.followUpDate.elementAt(i);
                             String siteName = ""; 
                             if (bMultisites) {
-                            	siteName =  theRequests.siteName.elementAt(i);
+                            	siteName =  Encode.forHtml(theRequests.siteName.elementAt(i));
                             }
                             if(status.equals("1") && dateGreaterThan(date, Calendar.WEEK_OF_YEAR, -1)){
                                 tickerList.add(demo);
