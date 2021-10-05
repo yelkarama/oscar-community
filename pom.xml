@@ -672,6 +672,13 @@
 			<artifactId>jaxm-api</artifactId>
 			<version>UNKNOWN</version>
 		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/javax.xml/soap -->
+		<dependency>
+		    <groupId>javax.xml</groupId>
+		    <artifactId>soap</artifactId>
+		    <version>1.2.0</version>
+		</dependency>	
 
 		<!-- apache poi -->
 		<dependency>
