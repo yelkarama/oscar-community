@@ -71,6 +71,19 @@ public class Contact extends AbstractModel<Integer> implements ContactInterface 
 	private String fax;
 	private String note;
 	boolean deleted=false;
+	
+	public Contact() {
+	}
+
+	public Contact(String lastName, String firstName, String residencePhone, String cellPhone, String workPhone, String workPhoneExtension, String email) {
+		this.lastName = lastName;
+		this.firstName = firstName;
+		this.residencePhone = residencePhone;
+		this.cellPhone = cellPhone;
+		this.workPhone = workPhone;
+		this.workPhoneExtension = workPhoneExtension;
+		this.email = email;
+	}
 
     @Transient
     private ContactRelationship contactRelationship;
@@ -242,7 +255,11 @@ public class Contact extends AbstractModel<Integer> implements ContactInterface 
 	}
 	
 	public String getFormattedName() {
-		return getLastName() + "," + getFirstName();
+		return getLastName() + ", " + getFirstName();
+	}
+	
+	public String getCpso() {
+		return "";
 	}
 
 	@Override
