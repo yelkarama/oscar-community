@@ -281,9 +281,9 @@ public class DemographicContact extends AbstractModel<Integer> {
 		this.active = active;
 	}
 
-	public Contact getDetails() {
-	    return details;
-    }
+//	public Contact getDetails() {
+//	    return details;
+//    }
 
 	public void setDetails(Contact details) {
 	    this.details = details;
