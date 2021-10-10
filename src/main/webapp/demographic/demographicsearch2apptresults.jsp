@@ -59,7 +59,7 @@
 <%@page import="org.oscarehr.caisi_integrator.ws.DemographicTransfer"%>
 <%@page import="org.oscarehr.caisi_integrator.ws.MatchingDemographicTransferScore"%>
 <%@page import="org.oscarehr.casemgmt.service.CaseManagementManager"%>
-
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="java.util.*, java.sql.*,java.net.*, oscar.*"%>
 
 <%@page import="org.oscarehr.util.SpringUtils" %>
@@ -69,7 +69,6 @@
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
 <%@ page import="net.sf.json.JSONObject" %>
 <%@ page import="org.oscarehr.common.dao.DemographicExtDao" %>
-<%@ page import="org.owasp.encoder.Encode" %>
 <%@page import="org.oscarehr.common.dao.OscarLogDao"%>
 
 <jsp:useBean id="providerBean" class="java.util.Properties" scope="session" />

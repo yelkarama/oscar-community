@@ -25,8 +25,10 @@
 
 package org.oscarehr.common.model;
 
+import java.util.Comparator;
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -53,6 +55,12 @@ public class DemographicContact extends AbstractModel<Integer> {
 	public static final String CATEGORY_PERSONAL = "personal";
 	public static final String CATEGORY_PROFESSIONAL = "professional";
 
+	public static final String ROLE_GUARDIAN = "Guardian";
+	
+    public static final String CONTACT_CELL = "cell";
+    public static final String CONTACT_EMAIL = "email";
+    public static final String CONTACT_PHONE = "phone";
+    public static final String CONTACT_WORK = "work";
 
 	private static final long serialVersionUID = 1L;
 	@Id
@@ -62,7 +70,7 @@ public class DemographicContact extends AbstractModel<Integer> {
 	private Date created;
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date updateDate;
-	private boolean deleted;
+	private boolean deleted = false;
 	private int demographicNo;
 	private String contactId;
 	private String role;
@@ -76,12 +84,39 @@ public class DemographicContact extends AbstractModel<Integer> {
 	private String creator;
 
 	private Boolean consentToContact = true;
-	private Boolean active = true;
+
+    @Column(name = "best_contact")
+    private String bestContact = "";
+
+	@Column(name = "health_care_team")
+	private Boolean healthCareTeam = false;
 	
+	private Boolean active = true;
+
 	@Transient
 	private String contactName;
 	@Transient
 	private Contact details;
+
+	public DemographicContact() {
+	}
+
+	public DemographicContact(int demographicNo, String contactId, String role, int type, String category, String sdm, String ec, String note, int facilityId, String creator, Boolean consentToContact, String bestContact, Boolean healthCareTeam, Boolean active) {
+		this.demographicNo = demographicNo;
+		this.contactId = contactId;
+		this.role = role;
+		this.type = type;
+		this.category = category;
+		this.sdm = sdm;
+		this.ec = ec;
+		this.note = note;
+		this.facilityId = facilityId;
+		this.creator = creator;
+		this.consentToContact = consentToContact;
+		this.bestContact = bestContact;
+		this.healthCareTeam = healthCareTeam;
+		this.active = active;
+	}
 
 	@Override
 	public Integer getId() {
@@ -153,11 +188,6 @@ public class DemographicContact extends AbstractModel<Integer> {
 	public void setCategory(String category) {
     	this.category = category;
     }
-/*
-	public void setId(Integer id) {
-    	this.id = id;
-    }
-*/
 
 	public String getContactName() {
     	return contactName;
@@ -228,6 +258,21 @@ public class DemographicContact extends AbstractModel<Integer> {
 		this.consentToContact = consentToContact;
 	}
 
+	public String getBestContact() {
+		return bestContact;
+	}
+
+	public void setBestContact(String bestContact) {
+		this.bestContact = bestContact;
+	}
+
+	public Boolean getHealthCareTeam() {
+		return healthCareTeam;
+	}
+	public void setHealthCareTeam(Boolean healthCareTeam) {
+		this.healthCareTeam = healthCareTeam;
+	}
+
 	public boolean isActive() {
 		return active;
 	}
@@ -244,5 +289,30 @@ public class DemographicContact extends AbstractModel<Integer> {
 	    this.details = details;
     }
 
-	
+	public static final Comparator<DemographicContact> CategoryComparator = new Comparator<DemographicContact>() {
+		@Override
+		public int compare(DemographicContact dc1, DemographicContact dc2) {
+			String category = dc1.getCategory() != null ? dc1.getCategory() : "";
+			String category2 = dc2.getCategory() != null ? dc2.getCategory() : "";
+			return category.compareToIgnoreCase(category2);
+		}
+	};
+
+	public static final Comparator<DemographicContact> NameComparator = new Comparator<DemographicContact>() {
+		@Override
+		public int compare(DemographicContact dc1, DemographicContact dc2) {
+			String name = dc1.getContactName() != null ? dc1.getContactName() : "";
+			String name2 = dc2.getContactName() != null ? dc2.getContactName() : "";
+			return name.compareToIgnoreCase(name2);
+		}
+	};
+
+	public static final Comparator<DemographicContact> RoleComparator = new Comparator<DemographicContact>() {
+		@Override
+		public int compare(DemographicContact dc1, DemographicContact dc2) {
+			String role = dc1.getRole() != null ? dc1.getRole() : "";
+			String role2 = dc2.getRole() != null ? dc2.getRole() : "";
+			return role.compareToIgnoreCase(role2);
+		}
+	};
 }
