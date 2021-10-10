@@ -95,8 +95,8 @@ public class DemographicContact extends AbstractModel<Integer> {
 
 	@Transient
 	private String contactName;
-	@Transient
-	private Contact details;
+	//@Transient
+	//private Contact details;
 
 	public DemographicContact() {
 	}
