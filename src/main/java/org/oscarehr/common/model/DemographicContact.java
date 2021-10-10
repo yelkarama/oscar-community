@@ -285,9 +285,9 @@ public class DemographicContact extends AbstractModel<Integer> {
 //	    return details;
 //    }
 
-	public void setDetails(Contact details) {
-	    this.details = details;
-    }
+//	public void setDetails(Contact details) {
+//	    this.details = details;
+//    }
 
 	public static final Comparator<DemographicContact> CategoryComparator = new Comparator<DemographicContact>() {
 		@Override
