@@ -1226,7 +1226,7 @@ background-color: grey;
 		<td class="MainTableLeftColumn" valign="top">
 		<table border=0 cellspacing=0 width="100%" id="appt_table" style="font-size: 12px; line-height: 18px;">
 			<tr class="Header">
-				<td style="font-weight: bold"><bean:message key="demographic.demographiceditdemographic.msgAppt"/>&nbsp;&nbsp;</td>
+				<td style="font-weight: bold; background: #DCDCDC;"><bean:message key="demographic.demographiceditdemographic.msgAppt"/>&nbsp;&nbsp;</td>
 			</tr>
 			<tr id="appt_hx">
 				<td><a
@@ -1254,7 +1254,7 @@ if(wLReadonly.equals("")){
 <%}%>
 <security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="r">
 			<tr class="Header">
-				<td style="font-weight: bold"><bean:message
+				<td style="font-weight: bold; background: #DCDCDC;"><bean:message
 					key="admin.admin.billing" /></td>
 			</tr>
 			<tr>
@@ -1345,7 +1345,7 @@ if(wLReadonly.equals("")){
 
 </security:oscarSec>
 			<tr class="Header">
-				<td style="font-weight: bold"><bean:message
+				<td style="font-weight: bold; background: #DCDCDC;"><bean:message
 					key="oscarEncounter.Index.clinicalModules" /></td>
 			</tr>
 			<tr>
@@ -1513,7 +1513,7 @@ if(wLReadonly.equals("")){
 			</tr>
 <% } %>
 			<tr class="Header">
-				<td style="font-weight: bold"><bean:message
+				<td style="font-weight: bold; background: #DCDCDC;"><bean:message
 					key="oscarEncounter.Index.clinicalResources" /></td>
 			</tr>
                 <special:SpecialPlugin moduleName="inboxmnger">
