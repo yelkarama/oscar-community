@@ -25,15 +25,14 @@
 
 package org.oscarehr.common.model;
 
+import java.util.Comparator;
 import java.util.Date;
 
-import javax.persistence.DiscriminatorColumn;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
 import javax.persistence.PrePersist;
 import javax.persistence.PreRemove;
 import javax.persistence.PreUpdate;
@@ -41,188 +40,203 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
-import org.oscarehr.integration.fhir.interfaces.ContactInterface;
-import org.oscarehr.integration.fhir.resources.constants.ContactRelationship;
-import org.oscarehr.integration.fhir.resources.constants.ContactType;
-
 @Entity
-@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name="type")
-public class Contact extends AbstractModel<Integer> implements ContactInterface {
+public class DemographicContact extends AbstractModel<Integer> {
 
+	//link to the provider table
+	public static final int TYPE_PROVIDER = 0;
+	//link to the demographic table
+	public static final int TYPE_DEMOGRAPHIC = 1;
+	//link to the contact table
+	public static final int TYPE_CONTACT = 2;
+	//link to the professional specialists table
+	public static final int TYPE_PROFESSIONALSPECIALIST = 3;
+
+	public static final String CATEGORY_PERSONAL = "personal";
+	public static final String CATEGORY_PROFESSIONAL = "professional";
+
+	public static final String ROLE_GUARDIAN = "Guardian";
+	
+    public static final String CONTACT_CELL = "cell";
+    public static final String CONTACT_EMAIL = "email";
+    public static final String CONTACT_PHONE = "phone";
+    public static final String CONTACT_WORK = "work";
+
+	private static final long serialVersionUID = 1L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer id;	
+	private Integer id;
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date created;
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date updateDate;
-	private String lastName;
-	private String firstName;	
-	private String address;
-	private String address2;
-	private String city;
-	private String province;
-	private String country;
-	private String postal;
-	private String residencePhone;
-	private String cellPhone;
-	private String workPhone;
-	private String workPhoneExtension;
-	private String email;
-	private String fax;
+	private boolean deleted = false;
+	private int demographicNo;
+	private String contactId;
+	private String role;
+	private int type;
+	private String category;
+	private String sdm;
+	private String ec;
 	private String note;
-	boolean deleted=false;
 
-    @Transient
-    private ContactRelationship contactRelationship;
-    
-    @Transient
-    private ContactType contactType = ContactType.personal;
+	private int facilityId;
+	private String creator;
+
+	private Boolean consentToContact = true;
+
+    @Column(name = "best_contact")
+    private String bestContact = "";
+
+	@Column(name = "health_care_team")
+	private Boolean healthCareTeam = false;
 	
+	private Boolean active = true;
+
+	@Transient
+	private String contactName;
+	@Transient
+	private Contact details;
+
+	public DemographicContact() {
+	}
+
+	public DemographicContact(int demographicNo, String contactId, String role, int type, String category, String sdm, String ec, String note, int facilityId, String creator, Boolean consentToContact, String bestContact, Boolean healthCareTeam, Boolean active) {
+		this.demographicNo = demographicNo;
+		this.contactId = contactId;
+		this.role = role;
+		this.type = type;
+		this.category = category;
+		this.sdm = sdm;
+		this.ec = ec;
+		this.note = note;
+		this.facilityId = facilityId;
+		this.creator = creator;
+		this.consentToContact = consentToContact;
+		this.bestContact = bestContact;
+		this.healthCareTeam = healthCareTeam;
+		this.active = active;
+	}
+
 	@Override
 	public Integer getId() {
 		return this.id;
 	}
 
-	public void setId(Integer id) {
-		this.id = id;
+	public Date getCreated() {
+		return created;
 	}
 
-	public String getLastName() {
-		return lastName;
+	public void setCreated(Date created) {
+		this.created = created;
 	}
 
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
-
-	public String getFirstName() {
-		return firstName;
-	}
-
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
-
-	public String getAddress() {
-		return address;
-	}
-
-	public void setAddress(String address) {
-		this.address = address;
-	}
-
-	public String getAddress2() {
-		return address2;
-	}
-
-	public void setAddress2(String address2) {
-		this.address2 = address2;
-	}
-
-	public String getCity() {
-		return city;
-	}
-
-	public void setCity(String city) {
-		this.city = city;
-	}
-
-	public String getProvince() {
-		return province;
-	}
-
-	public void setProvince(String province) {
-		this.province = province;
-	}
-
-	public String getCountry() {
-		return country;
-	}
-
-	public void setCountry(String country) {
-		this.country = country;
-	}
-
-	public String getPostal() {
-		return postal;
-	}
-
-	public void setPostal(String postal) {
-		this.postal = postal;
-	}
-
-	public String getFax() {
-		return fax;
-	}
-
-	public void setFax(String fax) {
-		this.fax = fax;
-	}
-
-	
-
-	public String getResidencePhone() {
-		return residencePhone;
-	}
-
-	public void setResidencePhone(String residencePhone) {
-		this.residencePhone = residencePhone;
-	}
-
-	public String getCellPhone() {
-		return cellPhone;
-	}
-
-	public void setCellPhone(String cellPhone) {
-		this.cellPhone = cellPhone;
-	}
-
-	public String getWorkPhone() {
-		return workPhone;
-	}
-
-	public void setWorkPhone(String workPhone) {
-		this.workPhone = workPhone;
-	}
-
-	public String getWorkPhoneExtension() {
-		return workPhoneExtension;
-	}
-
-	public void setWorkPhoneExtension(String workPhoneExtension) {
-		this.workPhoneExtension = workPhoneExtension;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public String getNote() {
-		return note;
-	}
-
-	public void setNote(String note) {
-		this.note = note;
-	}
-	
-	public Date getUpdateDate() {
-    	return updateDate;
-    }
-
-	public void setUpdateDate(Date updateDate) {
-    	this.updateDate = updateDate;
-    }
-	
 	public boolean isDeleted() {
-    	return deleted;
-    }
+		return deleted;
+	}
 
 	public void setDeleted(boolean deleted) {
-    	this.deleted = deleted;
+		this.deleted = deleted;
+	}
+
+	public int getDemographicNo() {
+		return demographicNo;
+	}
+
+	public void setDemographicNo(int demographicNo) {
+		this.demographicNo = demographicNo;
+	}
+
+	public String getContactId() {
+		return contactId;
+	}
+
+	public void setContactId(String contactId) {
+		this.contactId = contactId;
+	}
+
+
+	public Date getUpdateDate() {
+		return updateDate;
+	}
+
+	public void setUpdateDate(Date updateDate) {
+		this.updateDate = updateDate;
+	}
+
+
+	public String getRole() {
+		return role;
+	}
+
+	public void setRole(String role) {
+		this.role = role;
+	}
+
+	public int getType() {
+		return type;
+	}
+
+	public void setType(int type) {
+		this.type = type;
+	}
+
+	public String getCategory() {
+    	return category;
+    }
+
+	public void setCategory(String category) {
+    	this.category = category;
+    }
+
+	public String getContactName() {
+    	return contactName;
+    }
+
+	public void setContactName(String contactName) {
+    	this.contactName = contactName;
+    }
+
+	public String getSdm() {
+    	return sdm;
+    }
+
+	public void setSdm(String sdm) {
+    	this.sdm = sdm;
+    }
+
+	public String getEc() {
+    	return ec;
+    }
+
+	public void setEc(String ec) {
+    	this.ec = ec;
+    }
+
+	public String getNote() {
+    	return note;
+    }
+
+	public void setNote(String note) {
+    	this.note = note;
+    }
+
+
+
+	public int getFacilityId() {
+    	return facilityId;
+    }
+
+	public void setFacilityId(int facilityId) {
+    	this.facilityId = facilityId;
+    }
+
+	public String getCreator() {
+    	return creator;
+    }
+
+	public void setCreator(String creator) {
+    	this.creator = creator;
     }
 
 	@PreRemove
@@ -236,72 +250,69 @@ public class Contact extends AbstractModel<Integer> implements ContactInterface 
 		this.setUpdateDate(new Date());
 	}
 
-	@Override
-	public String toString() {
-		return "Contact - id:"+getId();
-	}
-	
-	public String getFormattedName() {
-		return getLastName() + "," + getFirstName();
+	public boolean isConsentToContact() {
+		return consentToContact;
 	}
 
-	@Override
-	public void setContactRelationship(ContactRelationship contactRelationship) {
-		this.contactRelationship = contactRelationship;
+	public void setConsentToContact(boolean consentToContact) {
+		this.consentToContact = consentToContact;
 	}
 
-	@Override
-	public ContactRelationship getContactRelationship() {
-		return this.contactRelationship;
+	public String getBestContact() {
+		return bestContact;
 	}
 
-	@Override
-	public void setContactType(ContactType contactType) {
-		this.contactType = contactType; 
+	public void setBestContact(String bestContact) {
+		this.bestContact = bestContact;
 	}
 
-	@Override
-	public ContactType getContactType() {
-		return this.contactType;
+	public Boolean getHealthCareTeam() {
+		return healthCareTeam;
+	}
+	public void setHealthCareTeam(Boolean healthCareTeam) {
+		this.healthCareTeam = healthCareTeam;
 	}
 
-	@Override
-	public void setLocationCode(String locationCode) {
-		// unused		
+	public boolean isActive() {
+		return active;
 	}
 
-	@Override
-	public String getLocationCode() {
-		return null;
+	public void setActive(boolean active) {
+		this.active = active;
 	}
 
-	@Override
-	public void setOrganizationName(String organizationName) {
-		// unused
-	}
+	public Contact getDetails() {
+	    return details;
+    }
 
-	@Override
-	public String getOrganizationName() {
-		return null;
-	}
+	public void setDetails(Contact details) {
+	    this.details = details;
+    }
 
-	@Override
-	public void setProviderCpso(String providerCPSO) {
-		// unused		
-	}
+	public static final Comparator<DemographicContact> CategoryComparator = new Comparator<DemographicContact>() {
+		@Override
+		public int compare(DemographicContact dc1, DemographicContact dc2) {
+			String category = dc1.getCategory() != null ? dc1.getCategory() : "";
+			String category2 = dc2.getCategory() != null ? dc2.getCategory() : "";
+			return category.compareToIgnoreCase(category2);
+		}
+	};
 
-	@Override
-	public String getProviderCpso() {
-		return null;
-	}
+	public static final Comparator<DemographicContact> NameComparator = new Comparator<DemographicContact>() {
+		@Override
+		public int compare(DemographicContact dc1, DemographicContact dc2) {
+			String name = dc1.getContactName() != null ? dc1.getContactName() : "";
+			String name2 = dc2.getContactName() != null ? dc2.getContactName() : "";
+			return name.compareToIgnoreCase(name2);
+		}
+	};
 
-	@Override
-	public void setPhone(String phone) {
-		this.setResidencePhone(phone);
-	}
-
-	@Override
-	public String getPhone() {
-		return this.getResidencePhone();
-	}
+	public static final Comparator<DemographicContact> RoleComparator = new Comparator<DemographicContact>() {
+		@Override
+		public int compare(DemographicContact dc1, DemographicContact dc2) {
+			String role = dc1.getRole() != null ? dc1.getRole() : "";
+			String role2 = dc2.getRole() != null ? dc2.getRole() : "";
+			return role.compareToIgnoreCase(role2);
+		}
+	};
 }

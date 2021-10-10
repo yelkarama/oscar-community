@@ -36,6 +36,7 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Add/Edit Professional Contact</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <script type="text/javascript">
 
 //<!--
@@ -310,15 +311,21 @@
 	<tr>
 		<td align="right"><b>Specialty</b></td>
 		<td>
-<oscar:oscarPropertiesCheck property="DEMOGRAPHIC_PATIENT_HEALTH_CARE_TEAM" value="true">	
-
+<oscar:oscarPropertiesCheck property="DEMOGRAPHIC_PATIENT_HEALTH_CARE_TEAM" value="true">
+	<c:choose>
+		<c:when test=" ${requestScope.contactRole.matches('[0-9]+')}">
 			<select id="pcontact.specialty" name="pcontact.specialty" >					
 				<c:forEach items="${ specialties }" var="specialtyType">			
 					<option value="${ specialtyType.id }" ${ specialtyType.id eq requestScope.contactRole ? 'selected' : '' } >  
-						<c:out value="${ specialtyType.specialty }" />
+						<c:out value="${ specialtyType.serviceDesc }" />
 					</option>
 				</c:forEach>
-			</select>
+			</select> 
+		</c:when>
+		<c:otherwise>
+			<input type="text" name="pcontact.specialty" value="<c:out value="${ requestScope.contactRole }"/>" size="30">
+		</c:otherwise>
+	</c:choose>
 </oscar:oscarPropertiesCheck>
 <oscar:oscarPropertiesCheck property="DEMOGRAPHIC_PATIENT_HEALTH_CARE_TEAM" value="false">			
 			<input type="text" name="pcontact.specialty" value="<c:out value="${ pcontact.specialty }"/>" size="30">
