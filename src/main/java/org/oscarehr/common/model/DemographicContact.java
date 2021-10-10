@@ -95,8 +95,8 @@ public class DemographicContact extends AbstractModel<Integer> {
 
 	@Transient
 	private String contactName;
-	//@Transient
-	//private Contact details;
+	@Transient
+	private Contact details;
 
 	public DemographicContact() {
 	}
@@ -281,13 +281,13 @@ public class DemographicContact extends AbstractModel<Integer> {
 		this.active = active;
 	}
 
-//	public Contact getDetails() {
-//	    return details;
-//    }
+	public Contact getDetails() {
+	    return details;
+    }
 
-//	public void setDetails(Contact details) {
-//	    this.details = details;
-//    }
+	public void setDetails(Contact details) {
+	    this.details = details;
+    }
 
 	public static final Comparator<DemographicContact> CategoryComparator = new Comparator<DemographicContact>() {
 		@Override
