@@ -101,11 +101,11 @@
 <script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 		<!--I18n-->
 		<link rel="stylesheet" href="<%=request.getContextPath() %>/library/bootstrap/3.0.0/css/bootstrap.min.css" />
-		<link rel="stylesheet" type="text/css" href="../share/css/OscarStandardLayout.css" />
-		<link rel="stylesheet" type="text/css" href="../css/main-kai.min.css" />
+		<!-- <link rel="stylesheet" type="text/css" href="../share/css/OscarStandardLayout.css" /> -->
+		<!-- <link rel="stylesheet" type="text/css" href="../css/main-kai.min.css" /> -->
 		<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css" />
 		<link rel="stylesheet" type="text/css" href="<%=request.getContextPath() %>/demographic/manageContacts.css" />
-		<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css" />
+		<!-- <link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css" /> -->
 		<script type="text/javascript">
             var contacts = [];
 			var $independentHealthCareTeam = <%=independentHealthCareTeam%>;

@@ -85,8 +85,8 @@
         <html>
         <head>
 
-        <link rel="stylesheet" type="text/css" href="${ pageContext.request.contextPath }/css/healthCareTeam.css" />
-        <link rel="stylesheet" type="text/css" href="${ pageContext.request.contextPath }/share/css/OscarStandardLayout.css" />
+        <!-- <link rel="stylesheet" type="text/css" href="${ pageContext.request.contextPath }/css/healthCareTeam.css" />
+        <link rel="stylesheet" type="text/css" href="${ pageContext.request.contextPath }/share/css/OscarStandardLayout.css" /> -->
         <script type="text/javascript" src="${ pageContext.request.contextPath }/js/jquery.js" ></script>
 
     </c:if>
@@ -152,23 +152,23 @@
 
 
     <%-- HEALTH CARE TEAM MODULE --%>
-    <div class="demographicSection" id="otherContacts2" style="overflow-x: scroll;">
+    <div class="demographicSection" id="otherContacts2" style="overflow: hidden;">
 
             <%-- DETACHED VIEW ENABLED  --%>
 
-        <h3>&nbsp;<bean:message key="demographic.demographiceditdemographic.msgOtherContacts"/>:
-            <b><a href="javascript: function myFunction() {return false; }" onClick="popup(700,960,'Contact.do?method=manage&demographic_no=<%=demographic.getDemographicNo()%>','ManageContacts')">
-            <bean:message key="demographic.demographiceditdemographic.msgManageContacts"/></a></b>
-        </h3>
+        <h4>&nbsp;<bean:message key="demographic.demographiceditdemographic.msgOtherContacts"/>
+            <input type="button" class="btn btn-link" onClick="popup(700,960,'Contact.do?method=manage&demographic_no=<%=demographic.getDemographicNo()%>','ManageContacts')" value=
+            "<bean:message key="demographic.demographiceditdemographic.msgManageContacts"/>">
+        </h4>
 
             <%-- END DETACHED VIEW ENABLED  --%>
 
         <table style="border-spacing: 0px;">
             <thead class="header-xs" style="text-align: left">
-            <th style="width: 83px;">Relationship</th>
+            <th style="width: 83px;">Role</th>
             <th>Name</th>
             <th>Preferred Contact</th>
-            <th style="width: 83px;">Responsibility</th>
+            <th style="width: 83px;">Type</th>
             <th>Notes</th>
             </thead>
 
@@ -216,8 +216,8 @@
                 <td><%=Encode.forHtmlContent(dContact.getRole())%></td>
                 <td>&nbsp;<%=Encode.forHtmlContent(dContact.getContactName())%>
                     <% if (dContact.getType() == DemographicContact.TYPE_DEMOGRAPHIC) { %>
-                    <a href="javascript: return false;" onClick="goToPage(window.name, '<%=request.getContextPath()%>/demographic/demographiccontrol.jsp?demographic_no=<%=dContact.getContactId()%>&displaymode=edit&dboperation=search_detail')">M</a>
-                    <a href="javascript: return false;" onClick="goToPage('encounter','<%=request.getContextPath()%>/oscarEncounter/IncomingEncounter.do?demographicNo=<%=dContact.getContactId()%>&providerNo=<%=curProviderNo%>&appointmentNo=&curProviderNo=&reason=&appointmentDate=&startTime=&status=&userName=<%=URLEncoder.encode(userFirstName + " " + userLastName)%>&curDate=<%=curYear%>-<%=curMonth%>-<%=curDay%>')">E</a>
+                    <a href='<%=request.getContextPath()%>/demographic/demographiccontrol.jsp?demographic_no=<%=dContact.getContactId()%>&displaymode=edit&dboperation=search_detail'>M</a>
+                    <a href='<%=request.getContextPath()%>/oscarEncounter/IncomingEncounter.do?demographicNo=<%=dContact.getContactId()%>&providerNo=<%=curProviderNo%>&appointmentNo=&curProviderNo=&reason=&appointmentDate=&startTime=&status=&userName=<%=URLEncoder.encode(userFirstName + " " + userLastName)%>&curDate=<%=curYear%>-<%=curMonth%>-<%=curDay%>'>E</a>             
                     <% } %> </td>
                 <td>&nbsp;<%=preferredContact%></td>
                 <td class="text-warning" style="font-weight: bold;">&nbsp;<%=responsibility%></td>
