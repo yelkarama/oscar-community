@@ -48,6 +48,7 @@
 <%@page import="org.oscarehr.myoscar.utils.MyOscarLoggedInInfo"%>
 <%@page import="org.oscarehr.phr.util.MyOscarUtils"%>
 <%@page import="org.oscarehr.util.LoggedInInfo" %>
+<%@ page import="oscar.util.UtilMisc" %>
 <%@page import="org.oscarehr.PMmodule.caisi_integrator.ConformanceTestHelper"%>
 <%@page import="org.oscarehr.common.dao.DemographicExtDao" %>
 <%@page import="org.oscarehr.common.dao.DemographicArchiveDao" %>
@@ -1867,11 +1868,11 @@ if (iviewTag!=null && !"".equalsIgnoreCase(iviewTag.trim())){
 						<jsp:include page="displayOtherContacts2.jsp">
 						<jsp:param name="demographicNo" value="<%= demographic_no %>" />
 						</jsp:include>
-						<!--   <div class="demographicSection" id="otherContacts2">
+						   <!--<div class="demographicSection" id="otherContacts2">
 						<h4>&nbsp;<bean:message key="demographic.demographiceditdemographic.msgOtherContacts"/> <input type="button" class="btn btn-link"
 							onClick="popup(700,960,'Contact.do?method=manage&demographic_no=<%=demographic.getDemographicNo()%>','ManageContacts')" value=
 						"<bean:message key="demographic.demographiceditdemographic.msgManageContacts"/>"><!--i18n--></h4>
-						<ul> -->
+						<!--<ul> -->
 						<%
 							ContactDao contactDao = (ContactDao)SpringUtils.getBean("contactDao");
 							DemographicContactDao dContactDao = (DemographicContactDao)SpringUtils.getBean("demographicContactDao");
