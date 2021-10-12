@@ -1372,20 +1372,20 @@ if(wLReadonly.equals("")){
                     <tr><td>
 					<a href="javascript: function myFunction() {return false; }" onClick="popupEChart(710, 1024,encURL);return false;" title="<bean:message key="demographic.demographiceditdemographic.btnEChart"/>">
 					<bean:message key="demographic.demographiceditdemographic.btnEChart" /></a>&nbsp;<a style="text-decoration: none;" href="javascript: function myFunction() {return false; }" onmouseover="return !showMenu('1', event);">+</a>
-					<div id='menu1' class='menu' onclick='event.cancelBubble = true;'>
-					<h3 style='text-align: center'><bean:message key="demographic.demographiceditdemographic.msgEncType"/></h4>
-					<br>
+					<div id='menu1' class="menu" onclick='event.cancelBubble = true;'>
+					<h4 style='text-align: center; color: black;' ><bean:message key="demographic.demographiceditdemographic.msgEncType"/></h4>
+					
 					<ul>
-						<li><a href="#" onmouseover='this.style.color="black"' onmouseout='this.style.color="white"' onclick="return add2url('<bean:message key="oscarEncounter.faceToFaceEnc.title"/>');"><bean:message key="oscarEncounter.faceToFaceEnc.title"/>
+						<li><a href="#" style="color: #0088cc;" onclick="return add2url('<bean:message key="oscarEncounter.faceToFaceEnc.title"/>');"><bean:message key="oscarEncounter.faceToFaceEnc.title"/>
 						</a><br>
 						</li>
-						<li><a href="#" onmouseover='this.style.color="black"' onmouseout='this.style.color="white"' onclick="return add2url('<bean:message key="oscarEncounter.telephoneEnc.title"/>');"><bean:message key="oscarEncounter.telephoneEnc.title"/>
+						<li><a href="#" style="color: #0088cc;"  onclick="return add2url('<bean:message key="oscarEncounter.telephoneEnc.title"/>');"><bean:message key="oscarEncounter.telephoneEnc.title"/>
 						</a><br>
 						</li>
-						<li><a href="#" onmouseover='this.style.color="black"' onmouseout='this.style.color="white"' onclick="return add2url('<bean:message key="oscarEncounter.noClientEnc.title"/>');"><bean:message key="oscarEncounter.noClientEnc.title"/>
+						<li><a href="#" style="color: #0088cc;"  onclick="return add2url('<bean:message key="oscarEncounter.noClientEnc.title"/>');"><bean:message key="oscarEncounter.noClientEnc.title"/>
 						</a><br>
 						</li>
-						<li><a href="#" onmouseover='this.style.color="black"' onmouseout='this.style.color="white"' onclick="return customReason();"><bean:message key="demographic.demographiceditdemographic.msgCustom"/></a></li>
+						<li><a href="#" style="color: #0088cc;"  onclick="return customReason();"><bean:message key="demographic.demographiceditdemographic.msgCustom"/></a></li>
 						<li id="listCustom" style="display: none;"><input id="txtCustom" type="text" size="16" maxlength="32" onkeypress="return grabEnterCustomReason(event);"></li>
 					</ul>
 					</div>
@@ -2422,14 +2422,14 @@ if ( Dead.equals(PatStat) ) {%>
 						%>
                                                 <a style="text-decoration: none;" href="#" onclick="return !showAppt('_doctor_<%=thisDateArr[0]%>', event);"><b><%=thisDispDate%></b></a>
                                                 <div id='menu_doctor_<%=thisDateArr[0]%>' class='menu' onclick='event.cancelBubble = true;' >
-                                                <h3 style='text-align: center; color: black;'>Available Appts. (<%=thisDispDate%>)</h4>
+                                                <h4 style='text-align: center; color: black;'>Available Appts. (<%=thisDispDate%>)</h4>
 						<ul>
                                                 <%
                                                 ArrayList<String> sortedTimes = new ArrayList(provMap.get("doctor").get(thisDate).keySet());
                                                 Collections.sort(sortedTimes);
                                                 for (String thisTime : sortedTimes) {
 							String[] thisTimeArr = thisTime.split(",");
-                                                        %><li>[<%=thisTimeArr[1]%>] <a href="#" onClick="popupPage(400,780,'<%=provMap.get("doctor").get(thisDate).get(thisTime) %>');return false;"><%= thisTimeArr[0] %></a></li><%
+                                                        %><li>[<%=thisTimeArr[1]%>] <a style='color: #0088cc;' href="#" onClick="popupPage(600,843,'<%=provMap.get("doctor").get(thisDate).get(thisTime) %>');return false;"><%= thisTimeArr[0] %></a></li><%
                                                 }
                                                 %></ul></div><%                                        }
                                 }
@@ -2451,15 +2451,15 @@ if ( Dead.equals(PatStat) ) {%>
 						String thisDispDate = thisDateArr[1];
 						%>
                                                 <a style="text-decoration: none;" href="#" onclick="return !showAppt('_prov1_<%=thisDateArr[0]%>', event);"><b><%=thisDispDate%></b></a>
-                                                <div id='menu_prov1_<%=thisDateArr[0]%>' class='menu' onclick='event.cancelBubble = true;'>
-                                                <h3 style='text-align: center; color: black;'>Available Appts. (<%=thisDispDate%>)</h4> 
+                                                <div id='menu_prov1_<%=thisDateArr[0]%>' class='xmenu' onclick='event.cancelBubble = true;'>
+                                                <h4 style='text-align: center; color: black;'>Available Appts. (<%=thisDispDate%>)</h4> 
                                                 <ul>
                                                 <%
                                                 ArrayList<String> sortedTimes = new ArrayList(provMap.get("prov1").get(thisDate).keySet());
                                                 Collections.sort(sortedTimes);
                                                 for (String thisTime : sortedTimes) {
 							String[] thisTimeArr = thisTime.split(",");
-                                                        %><li>[<%=thisTimeArr[1]%>] <a href="#" onClick="popupPage(400,780,'<%=provMap.get("prov1").get(thisDate).get(thisTime) %>');return false;"><%= thisTimeArr[0] %></a></li><%
+                                                        %><li>[<%=thisTimeArr[1]%>] <a href="#" onClick="popupPage(600,843,'<%=provMap.get("prov1").get(thisDate).get(thisTime) %>');return false;"><%= thisTimeArr[0] %></a></li><%
                                                 }
                                                 %></ul></div><%
                                         }
@@ -2482,15 +2482,15 @@ if ( Dead.equals(PatStat) ) {%>
 						String thisDispDate = thisDateArr[1];
 						%>
                                                 <a style="text-decoration: none;" href="#" onclick="return !showAppt('_prov2_<%=thisDateArr[0]%>', event);"><b><%=thisDispDate%></b></a>
-                                                <div id='menu_prov2_<%=thisDateArr[0]%>' class='menu' onclick='event.cancelBubble = true;'>
-                                                <h3 style='text-align: center; color: black;'>Available Appts. (<%=thisDispDate%>)</h4> 
+                                                <div id='menu_prov2_<%=thisDateArr[0]%>' class='xmenu' onclick='event.cancelBubble = true;'>
+                                                <h4 style='text-align: center; color: black;'>Available Appts. (<%=thisDispDate%>)</h4> 
                                                 <ul>
                                                 <%
                                                 ArrayList<String> sortedTimes = new ArrayList(provMap.get("prov2").get(thisDate).keySet());
                                                 Collections.sort(sortedTimes);
                                                 for (String thisTime : sortedTimes) {
 							String[] thisTimeArr = thisTime.split(",");
-                                                        %><li>[<%=thisTimeArr[1]%>] <a href="#" onClick="popupPage(400,780,'<%=provMap.get("prov2").get(thisDate).get(thisTime) %>');return false;"><%= thisTimeArr[0] %></a></li><%
+                                                        %><li>[<%=thisTimeArr[1]%>] <a href="#" onClick="popupPage(600,843,'<%=provMap.get("prov2").get(thisDate).get(thisTime) %>');return false;"><%= thisTimeArr[0] %></a></li><%
                                                 }
                                                 %></ul></div><%
                                         }
@@ -2513,15 +2513,15 @@ if ( Dead.equals(PatStat) ) {%>
 						String thisDispDate = thisDateArr[1];
 						%>
                                                 <a style="text-decoration: none;" href="#" onclick="return !showAppt('_prov3_<%=thisDateArr[0]%>', event);"><b><%=thisDispDate%></b></a>
-                                                <div id='menu_prov3_<%=thisDateArr[0]%>' class='menu' onclick='event.cancelBubble = true;'>
-                                                <h3 style='text-align: center; color: black;'>Available Appts. (<%=thisDispDate%>)</h4> 
+                                                <div id='menu_prov3_<%=thisDateArr[0]%>' class='xmenu' onclick='event.cancelBubble = true;'>
+                                                <h4 style='text-align: center; color: black;'>Available Appts. (<%=thisDispDate%>)</h4> 
                                                 <ul>
                                                 <%
                                                 ArrayList<String> sortedTimes = new ArrayList(provMap.get("prov3").get(thisDate).keySet());
                                                 Collections.sort(sortedTimes);
                                                 for (String thisTime : sortedTimes) {
 							String[] thisTimeArr = thisTime.split(",");
-                                                        %><li>[<%=thisTimeArr[1]%>] <a href="#" onClick="popupPage(400,780,'<%=provMap.get("prov3").get(thisDate).get(thisTime) %>');return false;"><%= thisTimeArr[0] %></a></li><%
+                                                        %><li>[<%=thisTimeArr[1]%>] <a href="#" onClick="popupPage(600,843,'<%=provMap.get("prov3").get(thisDate).get(thisTime) %>');return false;"><%= thisTimeArr[0] %></a></li><%
                                                 }
                                                 %></ul></div><%
                                         }
