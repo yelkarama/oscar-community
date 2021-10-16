@@ -763,7 +763,7 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 
 		if (city != null) sqlParameters.append(" and d.City like :city");
 		if (province != null) sqlParameters.append(" and d.Province = :province");
-		if (phone != null) sqlParameters.append(" and (d.Phone like :phone or d.Phone2 like :phone)");
+		if (phone != null) sqlParameters.append(" and (d.Phone like :phone or d.Phone2 like :phone or d.cellPhone like :phone)");
 		if (email != null) sqlParameters.append(" and d.Email like :email");
 		if (alias != null) sqlParameters.append(" and d.Alias like :alias");
 
