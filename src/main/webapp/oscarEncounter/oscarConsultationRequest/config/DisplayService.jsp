@@ -122,7 +122,8 @@ function BackToOscar()
 					action="/oscarEncounter/UpdateServiceSpecialists">
 					<input type="hidden" name="serviceId" value="<%=serviceId %>">
 					<input type="submit" class="btn btn-primary"
-						value="<bean:message key="oscarEncounter.oscarConsultationRequest.config.DisplayService.btnUpdateServices"/>">
+						value="<bean:message key="oscarEncounter.oscarConsultationRequest.config.DisplayService.btnUpdateServices"/>"
+onclick=" var table= $('#specialistsTbl').DataTable(); table.search('').draw();">
 					<div class="ChooseRecipientsBox1">
 					<table class="table table-condensed table-striped dtable" id="specialistsTbl">
                         <thead>
@@ -195,6 +196,7 @@ $(document).ready(function() {
     $('#specialistsTbl').DataTable({
        "paging": false
     } );
+
 } );
 </script>
 </body>
