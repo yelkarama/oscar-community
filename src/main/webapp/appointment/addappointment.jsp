@@ -167,6 +167,7 @@
 
 <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 <link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 
 <script type="text/javascript" src="../js/jquery-1.7.1.min.js"></script>
 <script src="<%=request.getContextPath()%>/js/jquery-ui-1.8.18.custom.min.js"></script>
@@ -1144,7 +1145,7 @@ function parseSearch() {
         </tr> 
         <tr>
             <td>
-                <bean:message key="Appointment.formCritical" />:
+                <bean:message key="Appointment.formCritical" /> <i class="icon-warning-sign"></i>:
             </td>
             <td>
             	<input type="checkbox" name="urgency" value="critical"/><span class="checkmark"></span>
