@@ -85,6 +85,7 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 	private String postal;
 	private Date hcRenewDate;
 	private String phone2;
+	private String cellPhone;
 	private String pcnIndicator;
 	private Date endDate;
 	private String lastName;
@@ -123,7 +124,7 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 
     private String countryOfOrigin;
     private String newsletter;
-
+	
     private String middleNames;
     private String rosterEnrolledTo;
     
@@ -1309,6 +1310,14 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 		return sb.toString();
 	}
 
+	public String getCellPhone() {
+		return cellPhone;
+	}
+	
+	public void setCellPhone(String cellPhone) {
+		this.cellPhone = cellPhone;
+	}
+	
 	@Override
 	public Integer getId() {
 		return this.getDemographicNo();

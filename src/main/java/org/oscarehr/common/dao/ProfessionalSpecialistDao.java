@@ -164,6 +164,41 @@ public class ProfessionalSpecialistDao extends AbstractDao<ProfessionalSpecialis
 		List<ProfessionalSpecialist> contacts = query.getResultList();
 		return contacts;
 	}
+
+
+	public List<ProfessionalSpecialist> searchSpecialty(String keyword, String specialty) {
+		StringBuilder where = new StringBuilder();
+		List<String> paramList = new ArrayList<String>();
+
+		String searchMode = "search_name";
+		String orderBy = "c.lastName,c.firstName";
+		where.append("c.specialtyType = ?1 and ");
+		paramList.add(specialty);
+
+		if(searchMode.equals("search_name")) {
+			String[] temp = keyword.split("\\,\\p{Space}*");
+			if(temp.length>1) {
+				where.append("c.lastName like ?2 and c.firstName like ?3");
+				paramList.add(temp[0]+"%");
+				paramList.add(temp[1]+"%");
+			} else {
+				where.append("c.lastName like ?2");
+				paramList.add(temp[0]+"%");
+			}
+		}
+
+
+		String sql = "SELECT c from ProfessionalSpecialist c where " + where.toString() + " order by " + orderBy;
+		MiscUtils.getLogger().info(sql);
+		Query query = entityManager.createQuery(sql);
+		for(int x=0;x<paramList.size();x++) {
+			query.setParameter(x+1,paramList.get(x));
+		}
+
+		@SuppressWarnings("unchecked")
+		List<ProfessionalSpecialist> contacts = query.getResultList();
+		return contacts;
+	}	
 	
 	public List<ProfessionalSpecialist> findByFullNameAndSpecialtyAndAddress(String lastName, String firstName, String specialty, String address, Boolean showHidden) {
 		String sql = "select x from " + modelClass.getName() + " x WHERE (x.lastName like ? and x.firstName like ?) ";

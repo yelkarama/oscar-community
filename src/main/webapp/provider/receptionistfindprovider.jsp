@@ -25,6 +25,12 @@
 --%>
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.oscarehr.util.SessionConstants"%>
+<%@page import="org.oscarehr.util.LoggedInInfo"%>
+<%@page import="org.oscarehr.common.model.ProviderPreference"%>
+<%@page import="org.oscarehr.web.admin.ProviderPreferencesUIBean"%>
+<%@ page import="net.sf.json.JSONObject" %>
+<%@ page import="org.owasp.encoder.Encode" %>
+
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
@@ -95,15 +101,20 @@
  
 %>
 
-<%@page import="org.oscarehr.common.model.ProviderPreference"%>
-<%@page import="org.oscarehr.web.admin.ProviderPreferencesUIBean"%><html>
+
+
+
+<html>
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="receptionist.receptionistfindprovider.title" /></title>
 <link rel="stylesheet" href="../web.css">
 <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
+
 <script language="JavaScript">
 
+var contactResults = [];
 
 function selectProvider(p,pn) {
 	  newGroupNo = p;
@@ -125,6 +136,21 @@ function selectProviderCustom(p,pn) {
 	opener.document.<%=form%>.elements['<%=elementId%>'].value=p;
 	self.close();
 }
+
+function selectContactJson(index) {
+    var contact = contactResults[index];
+    if (contact) {
+        opener.document.contactForm.elements['contact_contactName'].value = contact.name;
+        opener.document.contactForm.elements['contact_contactId'].value = contact.contactId;
+        opener.document.contactForm.elements['contact_phone'].value = contact.phone ? contact.phone : 'Not Set';
+        opener.document.contactForm.elements['contact_cell'].value = contact.cell ? contact.cell : 'Not Set';
+        opener.document.contactForm.elements['contact_work'].value = contact.work ? contact.work : 'Not Set';
+        opener.document.contactForm.elements['contact_email'].value = contact.email ? contact.email : 'Not Set';
+        opener.document.contactForm.elements['contact_contactName'].onchange();
+        self.close();
+    }
+}
+        
 </SCRIPT>
 </head>
 <body bgcolor="ivory" bgproperties="fixed" onLoad="setfocus()"
@@ -172,7 +198,8 @@ function selectProviderCustom(p,pn) {
   
   int nItems = 0;
   String sp =null, spnl =null, spnf =null;
-  
+  JSONObject contactJson = new JSONObject();
+
   Collection results = null;
   if(bGrpSearch) {
 	  results = myGroupDao.search_providersgroup(param[0],param[1]);
@@ -198,6 +225,19 @@ function selectProviderCustom(p,pn) {
 	  }
 	  else {
 		  p = (Provider)o;
+		  contactJson = new JSONObject();
+		  contactJson.put("name", Encode.forJavaScript(p.getFormattedName()));
+		  contactJson.put("contactId", p.getProviderNo());
+		  String cell = SxmlMisc.getXmlContent(p.getComments(),"xml_p_cell")==null ? "" : SxmlMisc.getXmlContent(p.getComments(),"xml_p_cell");
+		  contactJson.put("cell", cell);
+		  contactJson.put("phone", p.getPhone());
+		  contactJson.put("work", p.getWorkPhone());
+		  contactJson.put("email", p.getEmail());
+%>
+	<script type="text/javascript">
+		contactResults.push(<%=contactJson.toString()%>);
+	</script>
+<%
 		  sp = String.valueOf(p.getProviderNo());
 		  spnl = String.valueOf(p.getLastName());
 		  spnf = String.valueOf(p.getFirstName());
@@ -211,19 +251,21 @@ function selectProviderCustom(p,pn) {
 	<tr>
 		<td>
 		<%if(caisi) { %> <a href=#
-			onClick="selectProviderCaisi('<%=sp%>','<%=spnl+", "+spnf%>')"><%=sp%></a></td>
+			onClick="selectProviderCaisi('<%=sp%>','<%=Encode.forJavaScript(spnl)+", "+Encode.forJavaScript(spnf)%>')"><%=sp%></a></td>
+		<% } else if (OscarProperties.getInstance().isPropertyActive("NEW_CONTACTS_UI") && "contactForm".equals(form) && "true".equals(custom)) { %>
+			<a href="#" onClick="selectContactJson('<%=((ArrayList) results).indexOf(o)%>')"><%=sp%></a></td>
 		<% } else if(custom != null && custom.equals("true")) { %>
-			<a href="#" onClick="selectProviderCustom('<%=sp%>','<%=spnl+", "+spnf%>')"><%=sp%></a></td>
+			<a href="#" onClick="selectProviderCustom('<%=sp%>','<%=Encode.forJavaScript(spnl)+", "+Encode.forJavaScript(spnf)%>')"><%=sp%></a></td>
 		<%} else { %>
-		<a href=#
+			<a href=#
 			onClick="selectProvider('<%=sp%>','<%=URLEncoder.encode(spnl+", "+spnf)%>')"><%=sp%></a>
-		</td>
+			</td>
 		<%} %>
-		<td><%=spnl%></td>
-		<td><%=spnf%></td>
+		<td><%=Encode.forHtml(spnl)%></td>
+		<td><%=Encode.forHtml(spnf)%></td>
 		<caisi:isModuleLoad moduleName="ticklerplus">
 			<input type="hidden" name="<%=sp%>_name" id="<%=sp%>_name"
-				value="<%=new String(spnl+","+ spnf)%>" />
+				value="<%=Encode.forHtmlAttribute(spnl+","+ spnf)%>" />
 		</caisi:isModuleLoad>
 	</tr>
 	<%

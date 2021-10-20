@@ -51,7 +51,7 @@ if(!authed) {
 <%
 displayServiceUtil.estSpecialistVector();
 String serviceId = (String) request.getAttribute("serviceId");
-String serviceDesc = displayServiceUtil.getServiceDesc(serviceId);
+String serviceDesc = Encode.forHtml(displayServiceUtil.getServiceDesc(serviceId));
 %>
 <head>
 
@@ -59,9 +59,23 @@ String serviceDesc = displayServiceUtil.getServiceDesc(serviceId);
 	key="oscarEncounter.oscarConsultationRequest.config.DisplayService.title" />
 </title>
 <html:base />
-<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
+
 <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 <link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/DT_bootstrap.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.9.1.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery.dataTables.1.10.11.min.js"></script>
+<style>
+.dtable{
+    table-layout: fixed;
+    word-wrap:break-word;
+    font-size: 12px;
+}
+.MainTableLeftColumn td{
+    font-size: 12px;
+
+}
+</style>
 </head>
 <script language="javascript">
 function BackToOscar()
@@ -69,18 +83,18 @@ function BackToOscar()
        window.close();
 }
 </script>
-<link rel="stylesheet" type="text/css" href="../../encounterStyles.css">
+
 <body class="BodyStyle" vlink="#0000FF">
 <html:errors />
 <!--  -->
 <table class="MainTable" id="scrollNumber1" name="encounterTable">
 	<tr class="MainTableTopRow">
-		<td class="MainTableTopRowLeftColumn">Consultation</td>
+		<td class="MainTableTopRowLeftColumn"><h4>Consultation</h4></td>
 		<td class="MainTableTopRowRightColumn">
 		<table class="TopStatusBar">
 			<tr>
-				<td class="Header"><bean:message
-					key="oscarEncounter.oscarConsultationRequest.config.DisplayService.title" />
+				<td class="Header"><h4><bean:message
+					key="oscarEncounter.oscarConsultationRequest.config.DisplayService.title" /></h4>
 				</td>
 			</tr>
 		</table>
@@ -108,15 +122,17 @@ function BackToOscar()
 					action="/oscarEncounter/UpdateServiceSpecialists">
 					<input type="hidden" name="serviceId" value="<%=serviceId %>">
 					<input type="submit" class="btn btn-primary"
-						value="<bean:message key="oscarEncounter.oscarConsultationRequest.config.DisplayService.btnUpdateServices"/>">
+						value="<bean:message key="oscarEncounter.oscarConsultationRequest.config.DisplayService.btnUpdateServices"/>"
+onclick=" var table= $('#specialistsTbl').DataTable(); table.search('').draw();">
 					<div class="ChooseRecipientsBox1">
-					<table>
-						<tr>
-							<th>&nbsp;</th>
+					<table class="table table-condensed table-striped dtable" id="specialistsTbl">
+                        <thead>
+						    <tr>
+							<th style="width: 30px;">&nbsp;</th>
 							<th><bean:message
 								key="oscarEncounter.oscarConsultationRequest.config.DisplayService.specialist" />
 							</th>
-							<th><bean:message
+							<th style="width: 300px;"><bean:message
 								key="oscarEncounter.oscarConsultationRequest.config.DisplayService.address" />
 							</th>
 							<th><bean:message
@@ -124,25 +140,26 @@ function BackToOscar()
 							</th>
 							<th><bean:message
 								key="oscarEncounter.oscarConsultationRequest.config.DisplayService.fax" />
-							</th>
-
-						</tr>
-						<tr>
-							<td><!--<div class="ChooseRecipientsBox1">--> <%
+                            </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+						
+							<div class="ChooseRecipientsBox1"> <%
                                  java.util.Vector  specialistInField = displayServiceUtil.getSpecialistInField(serviceId);
                                  for(int i=0;i < displayServiceUtil.specIdVec.size(); i++){
                                  String  specId     = displayServiceUtil.specIdVec.elementAt(i);
                                  String  fName      = Encode.forHtml(displayServiceUtil.fNameVec.elementAt(i));
                                  String  lName      = Encode.forHtml(displayServiceUtil.lNameVec.elementAt(i));
-                                 String  proLetters = Encode.forHtml(displayServiceUtil.proLettersVec.elementAt(i));
+                                 String  proLetters = displayServiceUtil.proLettersVec.elementAt(i);
+                                 proLetters = (proLetters==null?"":Encode.forHtml(displayServiceUtil.proLettersVec.elementAt(i)));
                                  String  address    = Encode.forHtml(displayServiceUtil.addressVec.elementAt(i));
                                  String  phone      = Encode.forHtml(displayServiceUtil.phoneVec.elementAt(i));
                                  String  fax        = Encode.forHtml(displayServiceUtil.faxVec.elementAt(i));
 
                               %>
-							
-						<tr>
-							<td>
+							<tr>
+						    <td>
 							<%if (specialistInField.contains(specId)){ %> <input type=checkbox
 								name="specialists" value=<%=specId%> checked> <%}else{%>
 							<input type=checkbox name="specialists" value=<%=specId%>>
@@ -151,14 +168,12 @@ function BackToOscar()
 							<td>
 							<% out.print(lName+" "+fName + (proLetters == null ? "" : " " + proLetters)); %>
 							</td>
-							<td><%=address %></td>
+							<td style="overflow:hidden; white-space: nowrap; text-overflow:ellipsis" title="<%=address%>"><%=address %></td>
 							<td><%=phone%></td>
 							<td><%=fax%></td>
 						</tr>
-						<% }%>
-						<!--</div>-->
-						</td>
-						</tr>
+						<% }%>			
+                        </tbody>
 					</table>
 					</div>
 				</html:form></td>
@@ -176,5 +191,13 @@ function BackToOscar()
 		<td class="MainTableBottomRowRightColumn"></td>
 	</tr>
 </table>
+<script>
+$(document).ready(function() {
+    $('#specialistsTbl').DataTable({
+       "paging": false
+    } );
+
+} );
+</script>
 </body>
 </html:html>
