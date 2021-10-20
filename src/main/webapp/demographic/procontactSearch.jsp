@@ -49,6 +49,10 @@
 <%@ page import="org.oscarehr.common.model.Contact"%>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%@ page import="org.apache.commons.lang.WordUtils"%>
+<%@ page import="org.oscarehr.common.dao.ConsultationServiceDao" %>
+<%@ page import="org.oscarehr.util.SpringUtils" %>
+<%@ page import="net.sf.json.JSONObject" %>
+<%@ page import="oscar.OscarProperties" %>
 
 <%@ include file="/taglibs.jsp"%>
 
@@ -76,12 +80,18 @@
 	  String search_mode = request.getParameter("search_mode")==null?"search_name":request.getParameter("search_mode");
 	  String orderBy = request.getParameter("orderby")==null?"c.lastName,c.firstName":request.getParameter("orderby");
 	  String list = request.getParameter("list");
+	  String specialityId = request.getParameter("contactRole");
+	  ConsultationServiceDao consultationServiceDao = SpringUtils.getBean(ConsultationServiceDao.class);
 	  List<?> contacts;
 
-	  if( "all".equalsIgnoreCase(list) ) {
+	  if( "all".equalsIgnoreCase(list) && "all".equals(specialityId)) {
 		  contacts = ContactAction.searchAllContacts(search_mode, orderBy, keyword);
 		  pageContext.setAttribute("toggleSearchTool", list);
-	  } else {
+	  }
+	  else if (specialityId!=null && consultationServiceDao.find(Integer.parseInt(specialityId))!=null){
+	      contacts = ContactAction.searchProfessionalSpecialistsBySpecialty(search_mode, orderBy, keyword, consultationServiceDao.find(Integer.parseInt(specialityId)).getServiceDesc());
+	  }
+	  else {
 		  contacts = ContactAction.searchProContacts(search_mode, orderBy, keyword);
 	  }
 	  
@@ -96,11 +106,13 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Search Professional Contacts</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
 <link rel="stylesheet" type="text/css" href="../share/css/OscarStandardLayout.css" />
 <script type="text/javascript">
 
 //<!--
+var contactResults = [];
 		function setfocus() {
 		  var toggleSearchTool = "<c:out value="${ toggleSearchTool }" />"; 
 		  if( toggleSearchTool ) {
@@ -116,6 +128,23 @@
 		  document.forms[0].submit.value="Search";
 		  return true;
 		}
+
+function selectContactJson(index) {
+    var contact = contactResults[index];
+
+    if (contact) {
+        opener.document.contactForm.elements['contact_contactName'].value = contact.name;
+        opener.document.contactForm.elements['contact_contactId'].value = contact.contactId;
+        opener.document.contactForm.elements['contact_phone'].value = contact.phone ? contact.phone : '';
+        opener.document.contactForm.elements['contact_cell'].value = contact.cell ? contact.cell : '';
+        opener.document.contactForm.elements['contact_work'].value = contact.work ? contact.work : '';
+        opener.document.contactForm.elements['contact_email'].value = contact.email ? contact.email : '';
+
+        opener.document.contactForm.elements['contact_contactName'].onchange();
+        self.close();
+    }
+
+}
 		
 		function selectResult(data1,data2) {
 
@@ -226,10 +255,27 @@
 	<c:forEach var="contact" items="${contacts}" varStatus="i">
 		<%
 			ProfessionalContact contact = (ProfessionalContact)pageContext.getAttribute("contact");
+			JSONObject contactJson = new JSONObject();
+			contactJson = new JSONObject();
+			contactJson.put("name", contact.getFormattedName());
+			contactJson.put("contactId", contact.getId());
+			contactJson.put("cell", contact.getCellPhone());
+			contactJson.put("phone", contact.getResidencePhone());
+			contactJson.put("work", contact.getWorkPhone());
+			contactJson.put("email", contact.getEmail());
+		%>
+		<script type="text/javascript">
+            contactResults.push(<%=contactJson.toString()%>);
+		</script>
+		<%
 			javax.servlet.jsp.jstl.core.LoopTagStatus i = (javax.servlet.jsp.jstl.core.LoopTagStatus) pageContext.getAttribute("i");
 			String bgColor = i.getIndex()%2==0?"#EEEEFF":"ivory";	
-			String strOnClick; 
-            strOnClick = "selectResult('" + contact.getSystemId() + "_" + contact.getId() + "','"+StringEscapeUtils.escapeJavaScript(contact.getLastName()+ "," + contact.getFirstName()) + "')";
+			String strOnClick;
+			if (OscarProperties.getInstance().isPropertyActive("NEW_CONTACTS_UI") && "contactForm".equals(form)) {
+				strOnClick = "selectContactJson('" + i.getIndex() + "')";
+			} else {
+				strOnClick = "selectResult('" + contact.getSystemId() + "_" + contact.getId() + "','" + StringEscapeUtils.escapeJavaScript(contact.getLastName() + "," + contact.getFirstName()) + "')";
+			}
                         
 		%>
 		<tr bgcolor="<%=bgColor%>" 

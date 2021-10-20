@@ -29,6 +29,10 @@
 <%@ page import="org.oscarehr.common.model.Contact"%>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%@ page import="org.apache.commons.lang.WordUtils"%>
+<%@ page import="net.sf.json.JSONObject" %>
+<%@ page import="javax.servlet.jsp.jstl.core.LoopTagStatus" %>
+<%@ page import="oscar.SxmlMisc" %>
+<%@ page import="oscar.OscarProperties" %>
 
 <%@ include file="/taglibs.jsp"%>
 
@@ -43,28 +47,7 @@
   String form = request.getParameter("form")==null?"":request.getParameter("form") ;
   String elementName = request.getParameter("elementName")==null?"":request.getParameter("elementName") ;
   String elementId = request.getParameter("elementId")==null?"":request.getParameter("elementId") ;
-  String keyword = request.getParameter("keyword");
-
-	if (request.getParameter("submit") != null 
-		&& (request.getParameter("submit").equals("Search")
-		|| request.getParameter("submit").equals("Next Page") 
-		|| request.getParameter("submit").equals("Last Page")) ) {
-			  
-	  String search_mode = request.getParameter("search_mode")==null?"search_name":request.getParameter("search_mode");
-	  String orderBy = request.getParameter("orderby")==null?"c.lastName,c.firstName":request.getParameter("orderby");
-	  String list = request.getParameter("list");
-	  List<Contact> contacts;
-	  
-	  if( "all".equalsIgnoreCase(list) ) {
-		  contacts = ContactAction.searchAllContacts(search_mode, orderBy, keyword);
-	  } else {
-		  contacts = ContactAction.searchContacts(search_mode, orderBy, keyword);
-	  }
-	   
-	  nItems = contacts.size();
-	  pageContext.setAttribute("contacts",contacts);
-	}
-	
+  String keyword = request.getParameter("keyword") == null ? "" : request.getParameter("keyword");
 	
 %>
 
@@ -72,10 +55,12 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Search Contacts</title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
 <script type="text/javascript" >
 
 <!--
+var contactResults = [];
 		function setfocus() {
 		  this.focus();
 		  document.forms[0].keyword.focus();
@@ -85,6 +70,24 @@
 		  document.forms[0].submit.value="Search";
 		  return true;
 		}
+
+
+function selectContactJson(index) {
+    var contact = contactResults[index];
+
+    if (contact) {
+        opener.document.contactForm.elements['contact_contactName'].value = contact.name;
+        opener.document.contactForm.elements['contact_contactId'].value = contact.contactId;
+        opener.document.contactForm.elements['contact_phone'].value = contact.phone ? contact.phone : '';
+        opener.document.contactForm.elements['contact_cell'].value = contact.cell ? contact.cell : '';
+        opener.document.contactForm.elements['contact_work'].value = contact.work ? contact.work : '';
+        opener.document.contactForm.elements['contact_email'].value = contact.email ? contact.email : '';
+
+        opener.document.contactForm.elements['contact_contactName'].onchange();
+        self.close();
+    }
+}
+
 		function selectResult(data1,data2) {
 			
 			try {
@@ -121,7 +124,7 @@
 			<input type="radio" name="search_mode" value="search_name" checked="checked"> Name
 		</td>
 		<td valign="middle" rowspan="2" align="left">
-			<input type="text" name="keyword" value="" size="17" maxlength="100"> 
+			<input type="text" name="elementName" value="" size="17" maxlength="100"> 
 			<input type="hidden" name="orderby" value="c.lastName, c.firstName"> 
 			<input type="hidden" name="limit1" value="0"> 
 			<input type="hidden" name="limit2" value="10"> 
@@ -132,13 +135,29 @@
 </table>
 <table>
 	<tr>
-		<td align="left">Results based on keyword(s): <%=keyword==null?"":keyword%></td>
+		<td align="left">Results based on keyword(s): <%=keyword%></td>
 	</tr>
 </table>
 <input type='hidden' name='form' value="<%=StringEscapeUtils.escapeHtml(form)%>"/>
 <input type='hidden' name='elementName' value="<%=StringEscapeUtils.escapeHtml(elementName)%>"/>
 <input type='hidden' name='elementId' value="<%=StringEscapeUtils.escapeHtml(elementId)%>"/>
 </form>
+
+<%
+	String list = request.getParameter("list");
+	List<Contact> contacts;
+
+	if( "all".equalsIgnoreCase(list) ) {
+		contacts = ContactAction.searchAllContacts("search_name", "c.lastName, c.firstName", keyword);
+	} else if("personal".equalsIgnoreCase(list)) {
+		contacts = ContactAction.searchPersonalContacts("search_name", "c.lastName, c.firstName", keyword);
+	} else {
+		contacts = ContactAction.searchContacts("search_name", "c.lastName, c.firstName", keyword);
+	}
+
+	nItems = contacts.size();
+	pageContext.setAttribute("contacts",contacts);
+%>
 
 <table bgcolor="#C0C0C0" width="100%">
 	<tr class="title" >
@@ -151,17 +170,35 @@
 	<c:forEach var="contact" items="${ contacts }" varStatus="i">
 		<%
 			Contact contact = (Contact)pageContext.getAttribute("contact");
-			javax.servlet.jsp.jstl.core.LoopTagStatus i = (javax.servlet.jsp.jstl.core.LoopTagStatus) pageContext.getAttribute("i");
+			JSONObject contactJson = new JSONObject();
+			contactJson = new JSONObject();
+			contactJson.put("name", contact.getFormattedName());
+			contactJson.put("contactId", contact.getId());
+			contactJson.put("cell", contact.getCellPhone());
+			contactJson.put("phone", contact.getResidencePhone());
+			contactJson.put("work", contact.getWorkPhone());
+			contactJson.put("email", contact.getEmail());
+		%>
+		<script type="text/javascript">
+			contactResults.push(<%=contactJson.toString()%>);
+		</script>
+		<%
+			LoopTagStatus i = (LoopTagStatus) pageContext.getAttribute("i");
 			String bgColor = i.getIndex()%2==0?"#EEEEFF":"ivory";	
 			
-			String strOnClick; 
-            strOnClick = "selectResult('" + contact.getId() + "','"+StringEscapeUtils.escapeJavaScript(contact.getLastName()+ "," + contact.getFirstName()) + "')";
+			String strOnClick;
+			if (OscarProperties.getInstance().isPropertyActive("NEW_CONTACTS_UI") && "contactForm".equals(form)) {
+			    strOnClick = "selectContactJson('" + i.getIndex() + "')";
+			} else {
+				strOnClick = "selectResult('" + contact.getId() + "','"+StringEscapeUtils.escapeJavaScript(contact.getLastName()+ "," + contact.getFirstName()) + "')";
+			}
+
                         
 		%>
 		<tr bgcolor="<%=bgColor%>"
 		onMouseOver="this.style.cursor='hand';this.style.backgroundColor='pink';"
 		onMouseout="this.style.backgroundColor='<%=bgColor%>';" onClick="<%=strOnClick%>">
-			<td></td>
+			<td><c:catch var="err"><c:out value="${contact.specialty }" /><</c:catch></td>
 			<td><c:out value="${contact.lastName}"/></td>
 			<td><c:out value="${contact.firstName}"/></td>
 			<td><c:out value="${contact.residencePhone}"/></td>
@@ -208,6 +245,6 @@ function next() {
 %>
 </form>
 <br>
-<a href="Contact.do?method=addContact">Add/Edit Contact</a>
+<a href="addEditContact.jsp">Add/Edit Contact</a>
 </body>
 </html:html>

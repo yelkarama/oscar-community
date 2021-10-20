@@ -1,6 +1,6 @@
 <%--
 
-    Copyright (c) 2015-2019. The Pharmacists Clinic, Faculty of Pharmaceutical Sciences, University of British Columbia. All Rights Reserved.
+    Copyright (c) 2001-2002. Department of Family Medicine, McMaster University. All Rights Reserved.
     This software is published under the GPL GNU General Public License.
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -17,10 +17,10 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
     This software was written for the
-    The Pharmacists Clinic
-    Faculty of Pharmaceutical Sciences
-    University of British Columbia
-    Vancouver, British Columbia, Canada
+    Department of Family Medicine
+    McMaster University
+    Hamilton
+    Ontario, Canada
 
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -34,22 +34,28 @@
 <%@ page import="org.oscarehr.common.dao.DemographicDao" %>
 <%@ page import="org.oscarehr.common.dao.ContactSpecialtyDao" %>
 <%@ page import="org.oscarehr.common.model.ContactSpecialty" %>
+<%@ page import="oscar.OscarProperties" %>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 
 <security:oscarSec roleName="${ sessionScope.userrole }" objectName="_demographic" rights="r" reverse="${ false }">
 
-<% 
+<%
+	OscarProperties oscarProps = OscarProperties.getInstance();
 	List<DemographicContact> demographicContacts = null;
 	DemographicDao demographicDao = null;
 	Demographic demographic = null;
 	ContactSpecialtyDao specialtyDao = null;
 	List<ContactSpecialty> specialty = null;
 	String demographicNoString = request.getParameter("demographicNo");
+	// Demographic Contacts and Health Care Team are linked bt default
+	boolean linkedHealthCareTeam = oscarProps.getProperty("NEW_CONTACTS_UI_HEALTH_CARE_TEAM_LINKED", "true").equals("true");
 	
 	if ( ! StringUtils.isBlank( demographicNoString ) ) {		
 		demographicDao = SpringUtils.getBean(DemographicDao.class);
 		demographic = demographicDao.getClientByDemographicNo( Integer.parseInt(demographicNoString) );
-		demographicContacts = ContactAction.getDemographicContacts(demographic);
+		// if linked health care team, get all professional contacts
+		// otherwise get only professional contacts on the health care team
+		demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContacts(demographic, "professional") : ContactAction.getDemographicContacts(demographic, "professional", true);
 		specialtyDao = SpringUtils.getBean(ContactSpecialtyDao.class);
 		specialty = specialtyDao.findAll();
 	}
@@ -69,8 +75,8 @@
 	<html>
 	<head>
 	
-	<!--<link rel="stylesheet" type="text/css" href="${ pageContext.request.contextPath }/css/healthCareTeam.css" />-->
-	<!--<link rel="stylesheet" type="text/css" href="${ pageContext.request.contextPath }/share/css/OscarStandardLayout.css" />-->
+	<link rel="stylesheet" type="text/css" href="${ pageContext.request.contextPath }/css/healthCareTeam.css" />
+	<link rel="stylesheet" type="text/css" href="${ pageContext.request.contextPath }/share/css/OscarStandardLayout.css" />
 	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jquery.js" ></script>
 
 </c:if>
@@ -140,7 +146,7 @@
 
 <%-- DETACHED VIEW ENABLED  --%>
 
-	<h4 id="tableTitle">&nbsp;Health Care Team</h4>
+	<h3 id="tableTitle">Health Care Team</h3>
 	
 <%-- END DETACHED VIEW ENABLED  --%>
 
@@ -156,7 +162,7 @@
 			
 			<li id="${ dContact.id }" class="hovereffect ${ rowclass }" >
 			
-				<span class="labels"> 
+				<span class="label"> 
 					<c:out value="${ dContact.role }" />					
 				</span>
 				
@@ -199,7 +205,7 @@
 				</tr>
 				<tr>
 					<td class="alignRight alignTop smallText">CPSO: </td>
-					<td><c:catch var="exception">${ dContact.details.cpso }</c:catch></td>
+					<td><c:out value="${ dContact.details.cpso }" /></td>
 				</tr>
 			</table>
 			
