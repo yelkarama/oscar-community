@@ -321,21 +321,29 @@ function newStatus1() {
     }
 }
 
-function formatPhoneNum() {
-    if (document.adddemographic.phone.value.length == 10) {
-        document.adddemographic.phone.value = document.adddemographic.phone.value.substring(0,3) + "-" + document.adddemographic.phone.value.substring(3,6) + "-" + document.adddemographic.phone.value.substring(6);
-        }
-    if (document.adddemographic.phone.value.length == 11 && document.adddemographic.phone.value.charAt(3) == '-') {
-        document.adddemographic.phone.value = document.adddemographic.phone.value.substring(0,3) + "-" + document.adddemographic.phone.value.substring(4,7) + "-" + document.adddemographic.phone.value.substring(7);
+function formatPhone(obj) {
+    // formats to North American xxx-xxx-xxxx standard numbers that are exactly 10 digits long
+    var x=obj.value;
+    //strip the formatting to get the numbers
+    var matches = x.match(/\d+/g);
+    if (!matches || x.substring(0,1) == "+"){
+        // don't do anything if non numberic and or international format
+        return;
     }
-
-    if (document.adddemographic.phone2.value.length == 10) {
-        document.adddemographic.phone2.value = document.adddemographic.phone2.value.substring(0,3) + "-" + document.adddemographic.phone2.value.substring(3,6) + "-" + document.adddemographic.phone2.value.substring(6);
-        }
-    if (document.adddemographic.phone2.value.length == 11 && document.adddemographic.phone2.value.charAt(3) == '-') {
-        document.adddemographic.phone2.value = document.adddemographic.phone2.value.substring(0,3) + "-" + document.adddemographic.phone2.value.substring(4,7) + "-" + document.adddemographic.phone2.value.substring(7);
+    var num = '';
+    for (var i=0; i< matches.length; i++) {
+        console.log(matches[i]);
+        num = num + matches[i];
+    }
+    if (num.length == 10){
+        obj.value = num.substring(0,3)+"-"+num.substring(3,6) + "-"+ num.substring(6);
+    } else {
+        if (num.length == 11 && x.substring(0,1) == "1"){
+            obj.value = num.substring(0,1)+"-"+num.substring(1,4) + "-"+ num.substring(4,7)+ "-"+ num.substring(7);
+        } 
     }
 }
+
 function rs(n,u,w,h,x) {
   args="width="+w+",height="+h+",resizable=yes,scrollbars=yes,status=0,top=60,left=30";
   remote=window.open(u,n,args);
@@ -1362,13 +1370,13 @@ background-color:gainsboro;
             <div class="controls"  style="white-space:nowrap" >
               <input type="text" placeholder="<bean:message key="demographic.demographiceditdemographic.formPhoneH" />"
                     id="phone" name="phone"
-					onBlur="formatPhoneNum()"
+					onBlur="formatPhone(this)"
 					value="<%=phone%>" 
-					class="input-small"
+					class="input-medium"
 					>
             <input type="text" name="hPhoneExt" 
                     placeholder="<bean:message key="demographic.demographiceditdemographic.msgExt"/>"
-                    class="input-small"
+                    class="input-mini"
 					/> 
             <input type="hidden" name="hPhoneExtOrig"
 					 />
@@ -1379,12 +1387,12 @@ background-color:gainsboro;
             <div class="controls" style="white-space:nowrap" >
                 <input type="text" id="phoneW" placeholder="<bean:message key="demographic.demographiceditdemographic.formPhoneW" />" 
                     name="phone2" 
-					onblur="formatPhoneNum();"
-                    class="input-small"
+					onblur="formatPhone(this);"
+                    class="input-medium"
 					> 
                 <input type="text" name="wPhoneExt" 
                     placeholder="<bean:message key="demographic.demographiceditdemographic.msgExt"/>"
-                    class="input-small" /> 
+                    class="input-mini" /> 
                 <input type="hidden" name="wPhoneExtOrig"
 					 />
             </div>
@@ -1393,7 +1401,7 @@ background-color:gainsboro;
             <label class="control-label" for="cell"><bean:message key="demographic.demographiceditdemographic.formPhoneC" /><input type="checkbox" id="cell_check"></label>
             <div class="controls">
               <input type="text" id="cell" placeholder="<bean:message key="demographic.demographiceditdemographic.formPhoneC" />"
-                    name="demo_cell" onblur="formatPhoneNum();"
+                    name="demo_cell" onblur="formatPhone(this);"
 					>
 				<input type="hidden" name="demo_cellOrig"  />
             </div>
