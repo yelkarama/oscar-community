@@ -1044,7 +1044,7 @@ function parseSearch() {
         </tr> 
         <tr>
             <td>
-                <bean:message key="Appointment.formCritical" />:
+                <bean:message key="Appointment.formCritical" /> <i class="icon-warning-sign"></i>:
             </td>
             <td>
             	<%
@@ -1061,7 +1061,7 @@ function parseSearch() {
             			}
             		}
             	%>
-            	<input type="checkbox" name="urgency" value="critical" <%=urgencyChecked%>/>
+            	<input type="checkbox" name="urgency" value="critical" <%=urgencyChecked%>/> 
             </td>
         </tr> 
             <% String emailReminder = pros.getProperty("emailApptReminder");
