@@ -91,10 +91,11 @@
 <%@ page import="org.oscarehr.common.model.LookupList"%>
 <%@ page import="org.oscarehr.common.model.LookupListItem"%>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
-<%@page import="oscar.oscarBilling.ca.on.data.BillingDataHlp" %>
-<%@page import="org.oscarehr.common.dao.BillingONExtDao" %>
-<%@page import="org.oscarehr.billing.CA.ON.dao.*" %>
-<%@page import="java.math.*" %>
+<%@ page import="oscar.oscarBilling.ca.on.data.BillingDataHlp" %>
+<%@ page import="org.oscarehr.common.dao.BillingONExtDao" %>
+<%@ page import="org.oscarehr.billing.CA.ON.dao.*" %>
+<%@ page import="java.math.*" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%
     String mrpName = "";
 	DemographicCustDao demographicCustDao = (DemographicCustDao)SpringUtils.getBean("demographicCustDao");
@@ -438,16 +439,16 @@ function pasteAppt(multipleSameDayGroupAppt) {
         //else {
         //   warnMsgId.style.display = "none";
         //}
-	document.EDITAPPT.status.value = "<%=apptObj.getStatus()%>";
-	document.EDITAPPT.duration.value = "<%=apptObj.getDuration()%>";
-	document.EDITAPPT.chart_no.value = "<%=apptObj.getChart_no()%>";
-	document.EDITAPPT.keyword.value = "<%=apptObj.getName()%>";
-	document.EDITAPPT.demographic_no.value = "<%=apptObj.getDemographic_no()%>";
-	document.forms[0].reason.value = "<%= StringEscapeUtils.escapeJavaScript(apptObj.getReason()) %>"; 
-        document.forms[0].notes.value = "<%= StringEscapeUtils.escapeJavaScript(apptObj.getNotes()) %>"; 
-	document.EDITAPPT.location.value = "<%=apptObj.getLocation()%>";
-	document.EDITAPPT.resources.value = "<%=apptObj.getResources()%>";
-	document.EDITAPPT.type.value = "<%=apptObj.getType()%>";
+	document.EDITAPPT.status.value = "<%=Encode.forHtmlAttribute(apptObj.getStatus())%>";
+	document.EDITAPPT.duration.value = "<%=Encode.forHtmlAttribute(apptObj.getDuration())%>";
+	document.EDITAPPT.chart_no.value = "<%=Encode.forHtmlAttribute(apptObj.getChart_no())%>";
+	document.EDITAPPT.keyword.value = "<%=Encode.forHtmlAttribute(apptObj.getName())%>";
+	document.EDITAPPT.demographic_no.value = "<%=Encode.forHtmlAttribute(apptObj.getDemographic_no())%>";
+	document.forms[0].reason.value = "<%= Encode.forHtmlAttribute(apptObj.getReason()) %>"; 
+    document.forms[0].notes.value = "<%= Encode.forHtmlAttribute(apptObj.getNotes()) %>"; 
+	document.EDITAPPT.location.value = "<%=Encode.forHtmlAttribute(apptObj.getLocation())%>";
+	document.EDITAPPT.resources.value = "<%=Encode.forHtmlAttribute(apptObj.getResources())%>";
+	document.EDITAPPT.type.value = "<%=Encode.forHtmlAttribute(apptObj.getType())%>";
 	if('<%=apptObj.getUrgency()%>' == 'critical') {
 		document.EDITAPPT.urgency.checked = "checked";
 	}
@@ -794,7 +795,7 @@ function parseSearch() {
         <tr>
             <td></td><td>
 				<textarea id="reason" name="reason" tabindex="2" rows="2" wrap="virtual" placeholder="<bean:message key="Appointment.formReason" />"
-					cols="18"><%=bFirstDisp?appt.getReason():request.getParameter("reason")%></textarea>
+					cols="18"><%=Encode.forHtml(bFirstDisp?appt.getReason():request.getParameter("reason"))%></textarea>
             </td>
         </tr>
         <tr>
