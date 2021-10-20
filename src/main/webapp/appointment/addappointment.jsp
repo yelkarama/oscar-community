@@ -411,9 +411,9 @@ function pasteAppt(multipleSameDayGroupAppt) {
         //document.forms[0].chart_no.value = "<%=Encode.forJavaScriptBlock(apptObj.getChart_no())%>";
         document.forms[0].keyword.value = "<%=Encode.forJavaScriptBlock(apptObj.getName())%>";
         document.forms[0].demographic_no.value = "<%=Encode.forJavaScriptBlock(apptObj.getDemographic_no())%>";
-        document.forms[0].reason.value = "<%= StringEscapeUtils.escapeJavaScript(apptObj.getReason()) %>";
-        document.forms[0].reasonCode.value = "<%= StringEscapeUtils.escapeJavaScript(apptObj.getReasonCode()) %>";
-        document.forms[0].notes.value = "<%= StringEscapeUtils.escapeJavaScript(apptObj.getNotes()) %>";       
+        document.forms[0].reason.value = "<%= Encode.forHtml(apptObj.getReason()) %>";
+        document.forms[0].reasonCode.value = "<%= Encode.forHtml(apptObj.getReasonCode()) %>";
+        document.forms[0].notes.value = "<%= Encode.forHtml(apptObj.getNotes()) %>";       
         document.forms[0].resources.value = "<%=Encode.forJavaScriptBlock(apptObj.getResources())%>";
         document.forms[0].type.value = "<%=Encode.forJavaScriptBlock(apptObj.getType())%>";
         document.forms[0].location.value = "<%=Encode.forJavaScriptBlock(apptObj.getLocation())%>";   
