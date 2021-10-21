@@ -31,6 +31,7 @@
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
 <%@ page import="oscar.oscarDemographic.data.DemographicData"%>
 <%@ page import="oscar.OscarProperties"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
       String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -266,14 +267,14 @@ $(document).ready(function(){
         </h4>  	
     </td>
 <td>
-<!-- edit 2006-0811-01 by wreby -->
+
                             <html:form action="/oscarMessenger/DisplayMessages">
                             <input name="boxType" type="hidden" value="<%=pageType%>">
                             <input name="searchString" type="text" class="input-large"  value="<jsp:getProperty name="DisplayMessagesBeanId" property="filter"/>">
                             <input name="btnSearch" type="submit" class="btn" style="margin-bottom:10px;" value="<bean:message key="oscarMessenger.DisplayMessages.btnSearch"/>">
                             <input name="btnClearSearch" type="submit" class="btn" style="margin-bottom:10px;" value="<bean:message key="oscarMessenger.DisplayMessages.btnClearSearch"/>">
                             </html:form>
-                            <!-- end edit 2006-0811-01 by wreby -->
+                           
 </td>
     <td align="right" >
 		<i class=" icon-question-sign"></i> 
@@ -463,26 +464,26 @@ $(document).ready(function(){
 %>
 <span class="recipientList">
 <%                      
-                                                out.print(dm.getSentto());
+                                                out.print(Encode.forHtml(dm.getSentto()));
 %>
 </span>
 <% 
                                             }
                                             else 
                                             {
-                                                out.print(dm.getSentby());
+                                                out.print(Encode.forHtml(dm.getSentby()));
                                             }
                                         %>
                                     	
                                     </td>
                                     <td class='<%= dm.getType() == 3 ? "integratedMessage" : "normalMessage" %>'>
                                     <a href="<%=request.getContextPath()%>/oscarMessenger/ViewMessage.do?messageID=<%=dm.getMessageId()%>&boxType=<%=pageType%>">
-                                        <%=dm.getThesubject()%>
+                                        <%=Encode.forHtml(dm.getThesubject())%>
                                     </a>
 
                                     </td>
                                     <td class='<%= dm.getType() == 3 ? "integratedMessage" : "normalMessage" %>' title="<%= dm.getThedate() %>&nbsp;&nbsp;<%= dm.getThetime() %>">
-                                    	<%= dm.getThedate() %>
+                                    	<%=Encode.forHtml(dm.getThedate())%>
                                
                                     </td>
                                     <td class='<%= dm.getType() == 3 ? "integratedMessage" : "normalMessage" %>'>
