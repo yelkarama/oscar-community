@@ -55,7 +55,7 @@ if(!authed) {
 <%@page import="org.oscarehr.common.dao.UserPropertyDAO"%>
 <%@page import="org.oscarehr.common.model.UserProperty"%>
 <%@page import="org.oscarehr.util.SpringUtils"%>
-
+<%@page import="org.owasp.encoder.Encode" %>
 
 <%
 String providerview = request.getParameter("providerview")==null?"all":request.getParameter("providerview") ;
@@ -263,20 +263,15 @@ function fmtOscarMsg() {
 <body class="BodyStyle" vlink="#0000FF">
 <html:form action="/oscarMessenger/HandleMessages">
 
-	<table class="MainTable" id="scrollNumber1" name="encounterTable" width="90%">
+	<table class="MainTable" id="scrollNumber1" name="encounterTable" width="95%">
 		<tr class="MainTableTopRow">
 			<td class="MainTableTopRowLeftColumn"><h4>&nbsp;<i class="icon-envelope" title='<bean:message
 				key="oscarMessenger.ViewMessage.msgMessenger" />'</i>&nbsp;</h4></td>
 			<td class="MainTableTopRowRightColumn">
-			<table class="TopStatusBar">
+			<table class="TopStatusBar" width = 100%>
 				<tr>
 					<td><h4><bean:message
 						key="oscarMessenger.ViewMessage.msgViewMessage" /></h4></td>
-					<td></td>
-
-				</tr>
-			</table>
-			</td>
             <td style="text-align: right;" class="DoNotPrint" >
             <i class=" icon-question-sign"></i> 
             <a href="javascript:void(0)" onClick ="popupPage(700,960,'<%=(OscarProperties.getInstance()).getProperty("HELP_SEARCH_URL")%>'+'Messenger view')"><bean:message key="app.top1"/></a>
@@ -284,10 +279,12 @@ function fmtOscarMsg() {
             <a href="javascript:void(0)"  onClick="window.open('<%=request.getContextPath()%>/oscarEncounter/About.jsp','About OSCAR','scrollbars=1,resizable=1,width=800,height=600,left=0,top=0')" ><bean:message key="global.about" /></a>
         </td>
 		</tr>
-		<tr>
+			</table>
+			</td>
+		<tr width=100%>
 			<td class="MainTableLeftColumn">&nbsp;</td>
-			<td class="MainTableRightColumn Printable">
-			<table>
+			<td class="MainTableRightColumn Printable" colspan="2">
+			<table width=100%>
 				<tr class="DoNotPrint">
 					<td>
 					<table cellspacing=3>
@@ -362,23 +359,23 @@ function fmtOscarMsg() {
 				<tr>
 					<td class="Printable">
 
-					<table valign="top" class="well"><!-- the messageblock -->
+					<table valign="top" class="well"  width=100%><!-- the messageblock -->
 						<tr>
 							<td class="Printable" ><bean:message
 								key="oscarMessenger.ViewMessage.msgFrom" />:</td>
-							<td colspan="2" id="sentBy" class="Printable" ><%= request.getAttribute("viewMessageSentby") %>
+							<td colspan="2" id="sentBy" class="Printable" ><%= Encode.forHtml((String) request.getAttribute("viewMessageSentby")) %>
 							</td>
 						</tr>
 						<tr>
 							<td class="Printable" ><bean:message
 								key="oscarMessenger.ViewMessage.msgTo" />:</td>
-							<td colspan="2" id="sentTo" class="Printable" ><%= request.getAttribute("viewMessageSentto") %>
+							<td colspan="2" id="sentTo" class="Printable" ><%= Encode.forHtml((String) request.getAttribute("viewMessageSentto")) %>
 							</td>
 						</tr>
 						<tr>
 							<td class="Printable" ><bean:message
 								key="oscarMessenger.ViewMessage.msgSubject" />:</td>
-							<td colspan="2" id="msgSubject" class="Printable" ><%= request.getAttribute("viewMessageSubject") %>
+							<td colspan="2" id="msgSubject" class="Printable" ><%= Encode.forHtml((String) request.getAttribute("viewMessageSubject")) %>
 							</td>
 						</tr>
 
