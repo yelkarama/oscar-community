@@ -75,7 +75,7 @@ public class Startup implements ServletContextListener {
 			char sep = System.getProperty("file.separator").toCharArray()[0];
 			propFileName = System.getProperty("user.home") + sep + propName;
 			logger.info("looking up " + propFileName);
-			// oscar.OscarProperties p = oscar.OscarProperties.getInstance();
+
 			try {
 				// This has been used to look in the users home directory that started tomcat
 				p.readFromFile(propFileName);
@@ -84,13 +84,27 @@ public class Startup implements ServletContextListener {
 				logger.info(propFileName + " not found");
 			}
 			if (p.isEmpty()) {
-				/* if the file not found in the user root, look in the WEB-INF directory */
+				/* if the file not found in the user root, look next in $CATALINA_HOME */
+				try {
+					logger.info("looking up $CATALINA_HOME" + propName);
+					p.readFromFile("../../" + propName);
+					logger.info("loading properties from ../../" + propName);
+				} catch (java.io.FileNotFoundException e) {
+					logger.error("../../" + propName + " not found");
+					return;
+				} catch (Exception e) {
+					logger.error("Error", e);
+					return;
+				}
+			}
+			if (p.isEmpty()) {
+				/* if the file is still not found, look in the WEB-INF directory */
 				try {
 					logger.info("looking up  /WEB-INF/" + propName);
 					p.readFromFile("/WEB-INF/" + propName);
 					logger.info("loading properties from /WEB-INF/" + propName);
 				} catch (java.io.FileNotFoundException e) {
-					logger.error("Configuration file: " + propName + " cannot be found, it should be put either in the User's home or in WEB-INF ");
+					logger.error("Configuration file: " + propName + " cannot be found, it should be put either in the User's home, in $CATALINA_HOME or in WEB-INF ");
 					return;
 				} catch (Exception e) {
 					logger.error("Error", e);
