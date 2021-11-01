@@ -86,11 +86,11 @@ public class Startup implements ServletContextListener {
 			if (p.isEmpty()) {
 				/* if the file not found in the user root, look next in $CATALINA_HOME */
 				try {
-					logger.info("looking up $CATALINA_HOME" + propName);
-					p.readFromFile("../../" + propName);
-					logger.info("loading properties from ../../" + propName);
+					propFileName = System.getProperty("CATALINA_HOME") + sep + propName;					
+					p.readFromFile(propFileName);
+					logger.info("looking up " + propFileName);
 				} catch (java.io.FileNotFoundException e) {
-					logger.error("../../" + propName + " not found");
+					logger.info(propFileName + " not found");
 					return;
 				} catch (Exception e) {
 					logger.error("Error", e);
