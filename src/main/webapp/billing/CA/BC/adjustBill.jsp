@@ -299,10 +299,11 @@ function checkSubmitType(){
 	       return false;
 	    }
 	}
-
-    if(document.forms[0].submit.value=="Reprocess and Resubmit Bill"){
-       window.close()
-    }
+  //commented out as window.close() will shutdown the form, which will not
+        // yield any values to the class BillingReProcessBillAction
+    //if(document.forms[0].submit.value=="Reprocess and Resubmit Bill"){
+    //   window.close()
+   // }
 }
 function popup( height, width, url, windowName){
   var page = url;
