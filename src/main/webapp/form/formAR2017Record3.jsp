@@ -978,6 +978,10 @@ var maxYear=9900;
 						<td align="center"><input type="text" name="pg3_svd12" id="pg3_svd12" placeholder="YY/MM/DD" size="8" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svd12",""))%>" maxlength="8" class="spe" onDblClick="calToday(this);calcWeek('pg3_svg12')" onChange="calcWeek('pg3_svg12')"><img src="../images/cal.gif" id="pg3_svd12_cal"></td>
 						<td align="center"><input type="text" name="pg3_svg12" id="pg3_svg12" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svg12",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svw12" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svp12",""))%>" maxlength="7"></td>
+                        <td align="center"><input type="text" name="pg3_svb12" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svb12",""))%>" maxlength="7"></td>
+						<td align="center"><input type="text" name="pg3_svu12" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svu12",""))%>" maxlength="7"></td>
+						<td align="center"><input type="text" name="pg3_svs12" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svs12",""))%>" maxlength="7"></td>
+						<td align="center"><input type="text" name="pg3_svp12" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svp12",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svfh12" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svfh12",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svfm12" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svfm12",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svc12" style="width: 80%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svc12",""))%>" maxlength="82"></td>
