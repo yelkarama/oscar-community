@@ -320,6 +320,7 @@ function htEnglish2Metric(obj) {
 	}
 }
 
+
 function calcBMIMetric(obj) {
    	if(isNumber(document.forms[0].c_ppwt) && isNumber(document.forms[0].c_ppht)) {
    		weight = document.forms[0].c_ppwt.value / 1;
@@ -823,7 +824,7 @@ var maxYear=9900;
 					<tr>
 						<td align="center"><input type="text" name="pg3_svd1" id="pg3_svd1" placeholder="YY/MM/DD" size="8" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svd1",""))%>" maxlength="8" class="spe" onDblClick="calToday(this);calcWeek('pg3_svg1')" onChange="calcWeek('pg3_svg1')"><img src="../images/cal.gif" id="pg3_svd1_cal"></td>
 						<td align="center"><input type="text" name="pg3_svg1" id="pg3_svg1" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svg1",""))%>","") maxlength="7"></td>
-						<td align="center"><input type="text" name="pg3_svw1" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svw1",""))%>" maxlength="7"></td>
+						<td align="center"><input type="text" name="pg3_svw1" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svw1",""))%>" maxlength="7" onDblClick="wtEnglish2Metric(this)" title="Enter a value in pounds(lbs) then double click to convert to kilograms(kg)"></td>
 						<td align="center"><input type="text" name="pg3_svb1" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svb1",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svu1" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svu1",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svs1" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svs1",""))%>" maxlength="7"></td>
@@ -837,7 +838,7 @@ var maxYear=9900;
 					<tr>
 						<td align="center"><input type="text" name="pg3_svd2" id="pg3_svd2" placeholder="YY/MM/DD" size="8" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svd2",""))%>" maxlength="8" class="spe" onDblClick="calToday(this);calcWeek('pg3_svg2')" onChange="calcWeek('pg3_svg2')"><img src="../images/cal.gif" id="pg3_svd2_cal"></td>
 						<td align="center"><input type="text" name="pg3_svg2" id="pg3_svg2" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svg2",""))%>" maxlength="7"></td>
-						<td align="center"><input type="text" name="pg3_svw2" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svw2",""))%>" maxlength="7"></td>
+						<td align="center"><input type="text" name="pg3_svw2" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svw2",""))%>" maxlength="7" onDblClick="wtEnglish2Metric(this)" title="Enter a value in pounds(lbs) then double click to convert to kilograms(kg)"></td>
 						<td align="center"><input type="text" name="pg3_svb2" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svb2",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svu2" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svu2",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svs2" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svs2",""))%>" maxlength="7"></td>
@@ -851,7 +852,7 @@ var maxYear=9900;
 					<tr>
 						<td align="center"><input type="text" name="pg3_svd3" id="pg3_svd3" placeholder="YY/MM/DD" size="8" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svd3",""))%>" maxlength="8" class="spe" onDblClick="calToday(this);calcWeek('pg3_svg3')" onChange="calcWeek('pg3_svg3')"><img src="../images/cal.gif" id="pg3_svd3_cal"></td>
 						<td align="center"><input type="text" name="pg3_svg3" id="pg3_svg3"style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svg3",""))%>" maxlength="7"></td>
-						<td align="center"><input type="text" name="pg3_svw3" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svw3",""))%>" maxlength="7"></td>
+						<td align="center"><input type="text" name="pg3_svw3" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svw3",""))%>" maxlength="7" onDblClick="wtEnglish2Metric(this)" title="Enter a value in pounds(lbs) then double click to convert to kilograms(kg)"></td>
 						<td align="center"><input type="text" name="pg3_svb3" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svb3",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svu3" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svu3",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svs3" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svs3",""))%>" maxlength="7"></td>
@@ -865,7 +866,7 @@ var maxYear=9900;
 					<tr>
 						<td align="center"><input type="text" name="pg3_svd4" id="pg3_svd4" placeholder="YY/MM/DD" size="8" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svd4",""))%>" maxlength="8" class="spe" onDblClick="calToday(this);calcWeek('pg3_svg4')" onChange="calcWeek('pg3_svg4')"><img src="../images/cal.gif" id="pg3_svd4_cal"></td>
 						<td align="center"><input type="text" name="pg3_svg4" id="pg3_svg4" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svg4",""))%>" maxlength="7"></td>
-						<td align="center"><input type="text" name="pg3_svw4" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svw4",""))%>" maxlength="7"></td>
+						<td align="center"><input type="text" name="pg3_svw4" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svw4",""))%>" maxlength="7" onDblClick="wtEnglish2Metric(this)" title="Enter a value in pounds(lbs) then double click to convert to kilograms(kg)"></td>
 						<td align="center"><input type="text" name="pg3_svb4" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svb4",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svu4" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svu4",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svs4" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svs4",""))%>" maxlength="7"></td>
@@ -879,7 +880,7 @@ var maxYear=9900;
 					<tr>
 						<td align="center"><input type="text" name="pg3_svd5" id="pg3_svd5" placeholder="YY/MM/DD" size="8" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svd5",""))%>" maxlength="8" class="spe" onDblClick="calToday(this);calcWeek('pg3_svg5')" onChange="calcWeek('pg3_svg5')"><img src="../images/cal.gif" id="pg3_svd5_cal"></td>
 						<td align="center"><input type="text" name="pg3_svg5" id="pg3_svg5" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svg5",""))%>" maxlength="7"></td>
-						<td align="center"><input type="text" name="pg3_svw5" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svw5",""))%>" maxlength="7"></td>
+						<td align="center"><input type="text" name="pg3_svw5" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svw5",""))%>" maxlength="7" onDblClick="wtEnglish2Metric(this)" title="Enter a value in pounds(lbs) then double click to convert to kilograms(kg)"></td>
 						<td align="center"><input type="text" name="pg3_svb5" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svb5",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svu5" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svu5",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svs5" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svs5",""))%>" maxlength="7"></td>
@@ -893,7 +894,7 @@ var maxYear=9900;
 					<tr>
 						<td align="center"><input type="text" name="pg3_svd6" id="pg3_svd6" placeholder="YY/MM/DD" size="8" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svd6",""))%>" maxlength="8" class="spe" onDblClick="calToday(this);calcWeek('pg3_svg6')" onChange="calcWeek('pg3_svg6')"><img src="../images/cal.gif" id="pg3_svd6_cal"></td>
 						<td align="center"><input type="text" name="pg3_svg6" id="pg3_svg6" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svg6",""))%>" maxlength="7"></td>
-						<td align="center"><input type="text" name="pg3_svw6" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svw6",""))%>" maxlength="7"></td>
+						<td align="center"><input type="text" name="pg3_svw6" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svw6",""))%>" maxlength="7" onDblClick="wtEnglish2Metric(this)" title="Enter a value in pounds(lbs) then double click to convert to kilograms(kg)"></td>
 						<td align="center"><input type="text" name="pg3_svb6" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svb6",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svu6" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svu6",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svs6" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svs6",""))%>" maxlength="7"></td>
@@ -907,7 +908,7 @@ var maxYear=9900;
 					<tr>
 						<td align="center"><input type="text" name="pg3_svd7" id="pg3_svd7" placeholder="YY/MM/DD" size="8" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svd7",""))%>" maxlength="8" class="spe" onDblClick="calToday(this);calcWeek('pg3_svg7')" onChange="calcWeek('pg3_svg7')"><img src="../images/cal.gif" id="pg3_svd7_cal"></td>
 						<td align="center"><input type="text" name="pg3_svg7" id="pg3_svg7"style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svg7",""))%>" maxlength="7"></td>
-						<td align="center"><input type="text" name="pg3_svw7" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svw7",""))%>" maxlength="7"></td>
+						<td align="center"><input type="text" name="pg3_svw7" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svw7",""))%>" maxlength="7" onDblClick="wtEnglish2Metric(this)" title="Enter a value in pounds(lbs) then double click to convert to kilograms(kg)"></td>
 						<td align="center"><input type="text" name="pg3_svb7" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svb7",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svu7" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svu7",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svs7" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svs7",""))%>" maxlength="7"></td>
@@ -921,7 +922,7 @@ var maxYear=9900;
 					<tr>
 						<td align="center"><input type="text" name="pg3_svd8" id="pg3_svd8" placeholder="YY/MM/DD" size="8" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svd8",""))%>" maxlength="8" class="spe" onDblClick="calToday(this);calcWeek('pg3_svg8')" onChange="calcWeek('pg3_svg8')"><img src="../images/cal.gif" id="pg3_svd8_cal"></td>
 						<td align="center"><input type="text" name="pg3_svg8" id="pg3_svg8" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svg8",""))%>" maxlength="7"></td>
-						<td align="center"><input type="text" name="pg3_svw8" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svw8",""))%>" maxlength="7"></td>
+						<td align="center"><input type="text" name="pg3_svw8" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svw8",""))%>" maxlength="7" onDblClick="wtEnglish2Metric(this)" title="Enter a value in pounds(lbs) then double click to convert to kilograms(kg)"></td>
 						<td align="center"><input type="text" name="pg3_svb8" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svb8",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svu8" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svu8",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svs8" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svs8",""))%>" maxlength="7"></td>
@@ -935,7 +936,7 @@ var maxYear=9900;
 					<tr>
 						<td align="center"><input type="text" name="pg3_svd9" id="pg3_svd9" placeholder="YY/MM/DD" size="8" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svd9",""))%>" maxlength="8" class="spe" onDblClick="calToday(this);calcWeek('pg3_svg9')" onChange="calcWeek('pg3_svg9')"><img src="../images/cal.gif" id="pg3_svd9_cal"></td>
 						<td align="center"><input type="text" name="pg3_svg9" id="pg3_svg9" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svg9",""))%>" maxlength="7"></td>
-						<td align="center"><input type="text" name="pg3_svw9" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svw9",""))%>" maxlength="7"></td>
+						<td align="center"><input type="text" name="pg3_svw9" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svw9",""))%>" maxlength="7" onDblClick="wtEnglish2Metric(this)" title="Enter a value in pounds(lbs) then double click to convert to kilograms(kg)"></td>
 						<td align="center"><input type="text" name="pg3_svb9" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svb9",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svu9" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svu9",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svs9" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svs9",""))%>" maxlength="7"></td>
@@ -949,7 +950,7 @@ var maxYear=9900;
 					<tr>
 						<td align="center"><input type="text" name="pg3_svd10" id="pg3_svd10" placeholder="YY/MM/DD" size="8" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svd10",""))%>" maxlength="8" class="spe" onDblClick="calToday(this);calcWeek('pg3_svg10')" onChange="calcWeek('pg3_svg10')"><img src="../images/cal.gif" id="pg3_svd10_cal"></td>
 						<td align="center"><input type="text" name="pg3_svg10" id="pg3_svg10" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svg10",""))%>" maxlength="7"></td>
-						<td align="center"><input type="text" name="pg3_svw10" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svw10",""))%>" maxlength="7"></td>
+						<td align="center"><input type="text" name="pg3_svw10" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svw10",""))%>" maxlength="7" onDblClick="wtEnglish2Metric(this)" title="Enter a value in pounds(lbs) then double click to convert to kilograms(kg)"></td>
 						<td align="center"><input type="text" name="pg3_svb10" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svb10",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svu10" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svu10",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svs10" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svs10",""))%>" maxlength="7"></td>
@@ -963,7 +964,7 @@ var maxYear=9900;
 					<tr>
 						<td align="center"><input type="text" name="pg3_svd11" id="pg3_svd11" placeholder="YY/MM/DD" size="8" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svd11",""))%>" maxlength="8" class="spe" onDblClick="calToday(this);calcWeek('pg3_svg11')" onChange="calcWeek('pg3_svg11')"><img src="../images/cal.gif" id="pg3_svd11_cal"></td>
 						<td align="center"><input type="text" name="pg3_svg11" id="pg3_svg11" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svg11",""))%>" maxlength="7""></td>
-						<td align="center"><input type="text" name="pg3_svw11" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svw11",""))%>" maxlength="7"></td>
+						<td align="center"><input type="text" name="pg3_svw11" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svw11",""))%>" maxlength="7" onDblClick="wtEnglish2Metric(this)" title="Enter a value in pounds(lbs) then double click to convert to kilograms(kg)"></td>
 						<td align="center"><input type="text" name="pg3_svb11" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svb11",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svu11" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svu11",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svs11" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svs11",""))%>" maxlength="7"></td>
@@ -977,7 +978,7 @@ var maxYear=9900;
 					<tr>
 						<td align="center"><input type="text" name="pg3_svd12" id="pg3_svd12" placeholder="YY/MM/DD" size="8" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svd12",""))%>" maxlength="8" class="spe" onDblClick="calToday(this);calcWeek('pg3_svg12')" onChange="calcWeek('pg3_svg12')"><img src="../images/cal.gif" id="pg3_svd12_cal"></td>
 						<td align="center"><input type="text" name="pg3_svg12" id="pg3_svg12" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svg12",""))%>" maxlength="7"></td>
-						<td align="center"><input type="text" name="pg3_svw12" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svp12",""))%>" maxlength="7"></td>
+						<td align="center"><input type="text" name="pg3_svw12" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svp12",""))%>" maxlength="7" onDblClick="wtEnglish2Metric(this)" title="Enter a value in pounds(lbs) then double click to convert to kilograms(kg)"></td>
                         <td align="center"><input type="text" name="pg3_svb12" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svb12",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svu12" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svu12",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svs12" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svs12",""))%>" maxlength="7"></td>
@@ -991,7 +992,7 @@ var maxYear=9900;
 					<tr>
 						<td align="center"><input type="text" name="pg3_svd13" id="pg3_svd13" placeholder="YY/MM/DD" size="8" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svd13",""))%>" maxlength="8" class="spe" onDblClick="calToday(this);calcWeek('pg3_svg13')" onChange="calcWeek('pg3_svg13')"><img src="../images/cal.gif" id="pg3_svd13_cal"></td>
 						<td align="center"><input type="text" name="pg3_svg13" id="pg3_svg13" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svg13",""))%>" maxlength="7"></td>
-						<td align="center"><input type="text" name="pg3_svw13" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svw13",""))%>" maxlength="7"></td>
+						<td align="center"><input type="text" name="pg3_svw13" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svw13",""))%>" maxlength="7" onDblClick="wtEnglish2Metric(this)" title="Enter a value in pounds(lbs) then double click to convert to kilograms(kg)"></td>
 						<td align="center"><input type="text" name="pg3_svb13" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svb13",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svu13" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svu13",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svs13" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svs13",""))%>" maxlength="7"></td>
@@ -1005,7 +1006,7 @@ var maxYear=9900;
 					<tr>
 						<td align="center"><input type="text" name="pg3_svd14" id="pg3_svd14" placeholder="YY/MM/DD" size="8" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svd14",""))%>" maxlength="8" class="spe" onDblClick="calToday(this);calcWeek('pg3_svg14')" onChange="calcWeek('pg3_svg14')"><img src="../images/cal.gif" id="pg3_svd14_cal"></td>
 						<td align="center"><input type="text" name="pg3_svg14" id="pg3_svg14" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svg14",""))%>" maxlength="7"></td>
-						<td align="center"><input type="text" name="pg3_svw14" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svw14",""))%>" maxlength="7"></td>
+						<td align="center"><input type="text" name="pg3_svw14" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svw14",""))%>" maxlength="7" onDblClick="wtEnglish2Metric(this)" title="Enter a value in pounds(lbs) then double click to convert to kilograms(kg)"></td>
 						<td align="center"><input type="text" name="pg3_svb14" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svb14",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svu14" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svu14",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svs14" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svs14",""))%>" maxlength="7"></td>
@@ -1019,7 +1020,7 @@ var maxYear=9900;
 					<tr>
 						<td align="center"><input type="text" name="pg3_svd15" id="pg3_svd15" placeholder="YY/MM/DD" size="8" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svd15",""))%>" maxlength="8" class="spe" onDblClick="calToday(this);calcWeek('pg3_svg15')" onChange="calcWeek('pg3_svg15')"><img src="../images/cal.gif" id="pg3_svd15_cal"></td>
 						<td align="center"><input type="text" name="pg3_svg15" id="pg3_svg15" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svg15",""))%>" maxlength="7"></td>
-						<td align="center"><input type="text" name="pg3_svw15" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svw15",""))%>" maxlength="7"></td>
+						<td align="center"><input type="text" name="pg3_svw15" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svw15",""))%>" maxlength="7" onDblClick="wtEnglish2Metric(this)" title="Enter a value in pounds(lbs) then double click to convert to kilograms(kg)"></td>
 						<td align="center"><input type="text" name="pg3_svb15" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svb15",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svu15" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svu15",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svs15" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svs15",""))%>" maxlength="7"></td>
@@ -1033,7 +1034,7 @@ var maxYear=9900;
 					<tr>
 						<td align="center"><input type="text" name="pg3_svd16" id="pg3_svd16" placeholder="YY/MM/DD" size="8" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svd16",""))%>" maxlength="8" class="spe" onDblClick="calToday(this);calcWeek('pg3_svg16')" onChange="calcWeek('pg3_svg16')"><img src="../images/cal.gif" id="pg3_svd16_cal"></td>
 						<td align="center"><input type="text" name="pg3_svg16" id="pg3_svg16" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svg16",""))%>" maxlength="7"></td>
-						<td align="center"><input type="text" name="pg3_svw16" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svw16",""))%>" maxlength="7"></td>
+						<td align="center"><input type="text" name="pg3_svw16" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svw16",""))%>" maxlength="7" onDblClick="wtEnglish2Metric(this)" title="Enter a value in pounds(lbs) then double click to convert to kilograms(kg)"></td>
 						<td align="center"><input type="text" name="pg3_svb16" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svb16",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svu16" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svu16",""))%>" maxlength="7"></td>
 						<td align="center"><input type="text" name="pg3_svs16" style="width: 90%;" value="<%= UtilMisc.htmlEscape(props.getProperty("pg3_svs16",""))%>" maxlength="7"></td>
