@@ -659,8 +659,8 @@ text-decoration:none;
 
 			<a tabindex="18" class="btn" href="#" id="newNoteImg" onclick="newNote(event); return false;" title='<bean:message key="oscarEncounter.Index.btnNew"/>'><i class="icon-file icon-large"></i></a>
 
-			<a tabindex="19" class="btn" href="#" id="signSaveImg" onclick="document.forms['caseManagementEntryForm'].sign.value='on';Event.stop(event);return savePage('saveAndExit', '');" title='<bean:message key="oscarEncounter.Index.btnSignSave"/>'><i class="icon-thumbs-up icon-large"></i></a>
-			<a tabindex="20" class="btn" href="#" id="signVerifyImg" onclick="document.forms['caseManagementEntryForm'].sign.value='on';document.forms['caseManagementEntryForm'].verify.value='on';Event.stop(event);return savePage('saveAndExit', '');" title='<bean:message key="oscarEncounter.Index.btnSign"/>'><i class="icon-edit icon-large"></i></a>
+			<a tabindex="19" class="btn" href="#" id="signSaveImg" onclick="document.forms['caseManagementEntryForm'].sign.value='on';Event.stop(event);return savePage('saveAndExit', '');" title='<bean:message key="oscarEncounter.Index.btnSignSave"/>'><i class="icon-edit icon-large"></i></a>
+			<a tabindex="20" class="btn" href="#" id="signVerifyImg" onclick="document.forms['caseManagementEntryForm'].sign.value='on';document.forms['caseManagementEntryForm'].verify.value='on';Event.stop(event);return savePage('saveAndExit', '');" title='<bean:message key="oscarEncounter.Index.btnSign"/>'><i class="icon-thumbs-up icon-large"></i></a>
 
 			<%
 				if(bean.source == null)  {
