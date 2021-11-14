@@ -21,7 +21,6 @@
  * Hamilton
  * Ontario, Canada
  */
- 
 package oscar.form;
 
 import java.sql.SQLException;
