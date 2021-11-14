@@ -644,7 +644,7 @@ text-decoration:none;
 
 
 
-  <a class="btn" tabindex="17" href="#" onclick="Event.stop(event);return saveNoteAjax('save', 'list');" title='<bean:message key="oscarEncounter.Index.btnSave"/>'><i class="icon-check-sign icon-large"></i></a>
+  <a class="btn" tabindex="17" href="#" onclick="Event.stop(event);return saveNoteAjax('save', 'list');" title='<bean:message key="oscarEncounter.Index.btnSave"/>'><i class="icon-save icon-large"></i></a>
 
 		
 		<%
