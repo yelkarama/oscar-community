@@ -2323,7 +2323,7 @@ private String updateApptStatus(String status, String type) {
 		}
 		// need to apply issue filter
 		List<CaseManagementNote> notes = getNotes(demoNo, issueIds);
-		StringBuffer noteStr = new StringBuffer();
+		StringBuilder noteStr = new StringBuilder();
 		for (CaseManagementNote n : notes)
 		{
 			if (!n.isLocked() && !n.isArchived()) noteStr.append(n.getNote() + "\n");
