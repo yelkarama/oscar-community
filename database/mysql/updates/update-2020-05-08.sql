@@ -1,4 +1,4 @@
-INSERT INTO encounterForm (form_name,form_value,form_table,hidden) VALUES ("ON AR 2017","../form/formAR2017Record1.jsp?demographic_no=","formONAR2017",'0');
+INSERT INTO `encounterForm` (`form_name`,`form_value`,`form_table`,`hidden`) VALUES ('ON AR 2017','../form/formAR2017Record1.jsp?demographic_no=','formONAR2017','0');
 
 CREATE TABLE IF NOT EXISTS `formONAR2017` (
   `id` int(10) PRIMARY KEY auto_increment,
@@ -679,4 +679,4 @@ CREATE TABLE IF NOT EXISTS `formONAR2017` (
   `pg3_ni3` varchar(50),
   `pg3_ni4` varchar(50),
   `pg3_ni5` varchar(50)
-) ENGINE=MyISAM; 
+); 
