@@ -80,8 +80,11 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 	private String sexDesc;
 	private Date dateJoined;
 	private String familyDoctor;
+	private String familyPhysician;
 	private String city;
 	private String firstName;
+	private String prefName = "";
+	private String middleName;
 	private String postal;
 	private Date hcRenewDate;
 	private String phone2;
@@ -506,6 +509,22 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 	public void setDateJoined(Date dateJoined) {
 		this.dateJoined = dateJoined;
 	}
+	
+	/**
+	 * Set the value related to the column: family_physician
+	 *
+	 * @param familyPhysician the family_doctor value
+	 */
+	public void setFamilyPhysician(String familyPhysician) {
+		this.familyPhysician = familyPhysician;
+	}
+	
+	/**
+     * Return the value associated with the column: family_physician
+     */
+    public String getFamilyPhysician() {
+        return familyPhysician;
+    }
 
 	/**
 	 * Return the value associated with the column: family_doctor
@@ -578,7 +597,7 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 
 	/**
 	 * Return the last name as parsed from column: family_physician
-	 
+	 */
 	public String getFamilyPhysicianLastName() {
 
 		Matcher m = FD_LAST_NAME.matcher(getFamilyPhysician());
@@ -591,7 +610,7 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 
 	/**
 	 * Return the first name as parsed from column: family_physician
-	 
+	 */
 	public String getFamilyPhysicianFirstName() {
 		Matcher m = FD_FIRST_NAME.matcher(getFamilyPhysician());
 
@@ -603,7 +622,7 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 
 	/**
 	 * Return the first name as parsed from column: family_physician
-	 
+	 */
 	public String getFamilyPhysicianFullName() {
 		Matcher m = FD_FULL_NAME.matcher(getFamilyPhysician());
 
@@ -615,7 +634,7 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 
 	/**
 	 * Return the FP OHIP number as parsed from column: family_physician
-	 
+	 */
 	public String getFamilyPhysicianNumber() {
 
 		Matcher m = FD_OHIP.matcher(getFamilyPhysician());
@@ -668,6 +687,22 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 	public void setFirstName(String firstName) {
 		this.firstName = firstName;
 	}
+	
+	/**
+	 * Gets demographic's preferred name.
+	 *
+	 * @return
+	 * 		Returns the preferred name.
+	 */
+	public String getPrefName() {return prefName;}
+
+	/**
+	 * Set the value related to the column: pref_name
+	 *
+	 * @param prefName the pref_name value
+	 */
+	public void setPrefName(String prefName) {this.prefName = prefName;}
+
 
 	/**
 	 * Return the value associated with the column: postal
