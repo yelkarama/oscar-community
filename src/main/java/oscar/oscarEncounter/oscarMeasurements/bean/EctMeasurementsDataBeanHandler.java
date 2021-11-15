@@ -137,7 +137,7 @@ public class EctMeasurementsDataBeanHandler {
     public Collection<EctMeasurementsDataBean> getMeasurementsDataVector(){
         return measurementsDataVector;
     }
-
+    
     public Collection<EctMeasurementsDataBean> getMeasurementsDataCollection(){
         return measurementsDataVector;
     }
