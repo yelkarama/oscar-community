@@ -28,4 +28,5 @@ CREATE TABLE IF NOT EXISTS `formBCAR2020Text` (
 
 INSERT INTO `encounterForm` VALUES ('BC-AR 2020', '../form/formBCAR2020pg1.jsp?demographic_no=', 'formBCAR2020', 1);
 
+ALTER TABLE `demographic` ADD `family_physician` VARCHAR(80) NOT NULL AFTER `consentToUseEmailForCare`;
 ALTER TABLE `demographic` ADD `pref_name` VARCHAR(30) NOT NULL AFTER `consentToUseEmailForCare`;
