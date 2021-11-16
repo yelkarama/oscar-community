@@ -244,7 +244,9 @@
 
 	<!-- Encounter Form DAO -->
 	<bean id="Rourke2009DAO" class="oscar.form.dao.Rourke2009DAO" autowire="byName"/>
-
+	<bean id="FormBCAR2020Dao" class="oscar.form.dao.FormBCAR2020Dao" autowire="byName"/>
+	<bean id="FormBCAR2020DataDao" class="oscar.form.dao.FormBCAR2020DataDao" autowire="byName"/>
+	<bean id="FormBCAR2020TextDao" class="oscar.form.dao.FormBCAR2020TextDao" autowire="byName"/>
 
         <!--Email Support -->
         <context:component-scan base-package="oscar.service"/>
