@@ -854,7 +854,7 @@ input[type=button], button, input[id^='acklabel_']{ font-size:12px !important;pa
                                     <% } %>
                                     <input type="button" class="btn" value="<bean:message key="oscarMDS.index.btnForward"/>" onClick="popupStart(355, 675, '../../../oscarMDS/SelectProvider.jsp?docId=<%=segmentID%>&labDisplay=true', 'providerselect')">
                                     <input type="button" class="btn" value=" <bean:message key="global.btnClose"/> " onClick="window.close()">
-                                    <input type="button" class="btn" value=" <bean:message key="global.btnPrint"/> " onClick="printPDF('<%=segmentID%>')">
+                                    <input type="button" class="btn" value=" <bean:message key="global.btnPDF"/> " onClick="printPDF('<%=segmentID%>')">
 
                                     <input type="button" class="btn" value="Msg" onclick="handleLab('','<%=segmentID%>','msgLab');"/>
                                     <input type="button" class="btn" value="Tickler" onclick="handleLab('','<%=segmentID%>','ticklerLab');"/>
