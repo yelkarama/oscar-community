@@ -233,6 +233,22 @@ public class ProviderDao extends HibernateDaoSupport {
 		return rs;
 	}
 
+	public List<Provider> getActiveProviders(boolean filterOutSystemAndImportedProviders ) {
+
+		List<Provider> rs = null;
+		if(!filterOutSystemAndImportedProviders) {
+			rs = getHibernateTemplate().find(
+				"FROM  Provider p where p.Status='1' ORDER BY p.LastName");
+		} else {
+			rs = getHibernateTemplate().find(
+					"FROM  Provider p where p.Status='1' AND p.ProviderNo > -1 ORDER BY p.LastName");	
+		}
+		if (log.isDebugEnabled()) {
+			log.debug("getProviders: # of results=" + rs.size());
+		}
+		return rs;
+	}
+
 	public List<Provider> getActiveProvidersByRole(String role) {
 		
 		List<Provider> rs = getHibernateTemplate().find(
@@ -291,6 +307,18 @@ public class ProviderDao extends HibernateDaoSupport {
 
 		if (log.isDebugEnabled()) {
 			log.debug("getProviders: # of results=" + rs.size());
+		}
+		return rs;
+	}
+
+    public List<Provider> getActiveProvider(String providerNo) {
+    	String sql = "FROM Provider p where p.Status='1' and p.ProviderNo =?";
+    	ArrayList<Object> paramList = new ArrayList<Object>();
+    	paramList.add(providerNo);
+    	Object params[] = paramList.toArray(new Object[paramList.size()]);
+    	List<Provider> rs = getHibernateTemplate().find(sql,params);
+		if (log.isDebugEnabled()) {
+			log.debug("getProvider: # of results=" + rs.size());
 		}
 		return rs;
 	}
