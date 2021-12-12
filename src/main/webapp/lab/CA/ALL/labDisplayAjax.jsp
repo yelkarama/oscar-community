@@ -386,7 +386,7 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
                                     <input type="button" class="btn" value="<bean:message key="oscarMDS.segmentDisplay.btnComment"/>" onclick="return getComment('<%=segmentID%>','addComment');">
                                     <% } %>
                                     <input type="button" class="btn" value="<bean:message key="oscarMDS.index.btnForward"/>" onClick="popupStart(300, 400, '../oscarMDS/SelectProviderAltView.jsp?doc_no=<%=segmentID%>&providerNo=<%=providerNo%>&searchProviderNo=<%=searchProviderNo%>', 'providerselect')">
-                                    <input type="button" class="btn" value=" <bean:message key="global.btnPrint"/> " onClick="printPDF('<%=segmentID%>')">
+                                    <input type="button" class="btn" value=" <bean:message key="global.btnPDF"/> " onClick="printPDF('<%=segmentID%>')">
 
                                     <input type="button" class="btn" value="Msg" onclick="handleLab('','<%=segmentID%>','msgLab');"/>
                                     <input type="button" class="btn" value="Tickler" onclick="handleLab('','<%=segmentID%>','ticklerLab');"/>
