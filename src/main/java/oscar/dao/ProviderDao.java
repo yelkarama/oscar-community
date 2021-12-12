@@ -21,103 +21,624 @@
  * Toronto, Ontario, Canada
  */
 
-package oscar.dao;
+package org.oscarehr.PMmodule.dao;
 
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
-import org.springframework.jdbc.core.RowMapper;
+import org.apache.log4j.Logger;
+import org.hibernate.Criteria;
+import org.hibernate.Hibernate;
+import org.hibernate.Query;
+import org.hibernate.SQLQuery;
+import org.hibernate.Session;
+import org.hibernate.criterion.Expression;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
+import org.oscarehr.common.NativeSql;
+import org.oscarehr.common.dao.ProviderFacilityDao;
+import org.oscarehr.common.model.Provider;
+import org.oscarehr.common.model.ProviderFacility;
+import org.oscarehr.common.model.ProviderFacilityPK;
+import org.oscarehr.util.MiscUtils;
+import org.oscarehr.util.SpringUtils;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-/**
- * Oscar Provider DAO implementation created to extract database access code
- * from provider related JSP files. This class contains only actual sql
- * queries and row mappers.
- *
- * @author Eugene Petruhin
- *
- */
-public class ProviderDao extends OscarSuperDao {
+import oscar.OscarProperties;
 
-	private Map<String, RowMapper> rowMappers = new TreeMap<String, RowMapper>();
+import com.quatro.model.security.SecProvider;
 
-	public ProviderDao() {
+@SuppressWarnings("unchecked")
+public class ProviderDao extends HibernateDaoSupport {
+	
+	public static final String PR_TYPE_DOCTOR = "doctor";
+        public static final String PR_TYPE_RESIDENT = "resident";
+	private static final String SQL_ORDER_BY_NAME = "ORDER BY last_name, first_name";
+	private static final String HQL_ORDER_BY_NAME = "ORDER BY p.LastName, p.FirstName";
+	
+	private static Logger log = MiscUtils.getLogger();
+
+	public boolean providerExists(String providerNo) {
+		return getHibernateTemplate().get(Provider.class, providerNo) != null;
 	}
 
-	private String [][] dbQueries = new String[][] {
-			{"searchappointmentday", "select * from appointment where provider_no=? and appointment_date=? and program_id=? order by start_time, status desc "},
-			{"searchappointmentdaywithlocation", "select * from appointment where provider_no=? and appointment_date=? and program_id=? and location=? order by start_time, status desc "},
-			{"searchmygroupprovider", "select provider_no, last_name, first_name from mygroup where mygroup_no=? order by vieworder,provider_no"},
+	public Provider getProvider(String providerNo) {
+		if (providerNo == null || providerNo.length() <= 0) {
+			return null;
+		}
 
-			{"searchmygroupno", "select mygroup_no from mygroup group by mygroup_no order by mygroup_no"},
-            {"updateapptstatus", "update appointment set status=?, lastupdateuser=?, updatedatetime=now() where appointment_no=? "},
-            {"updatepreference", "update preference set start_hour=?, end_hour=?, every_min=?, mygroup_no=?, default_servicetype=?, color_template=? where provider_no=? "},
+		Provider provider = getHibernateTemplate().get(Provider.class, providerNo);
+
+		if (log.isDebugEnabled()) {
+			log.debug("getProvider: providerNo=" + providerNo + ",found=" + (provider != null));
+		}
+
+		return provider;
+	}
+
+	public String getProviderName(String providerNo) {	
+
+		String providerName = "";
+		Provider provider = getProvider(providerNo);
+
+		if (provider != null) {
+			if (provider.getFirstName() != null) {
+				providerName = provider.getFirstName() + " ";
+			}
+	
+			if (provider.getLastName() != null) {
+				providerName += provider.getLastName();
+			}
+	
+			if (log.isDebugEnabled()) {
+				log.debug("getProviderName: providerNo=" + providerNo + ",result=" + providerName);
+			}
+		}
+
+		return providerName;
+	}
+
+	public String getProviderNameLastFirst(String providerNo) {
+		if (providerNo == null || providerNo.length() <= 0) {
+			throw new IllegalArgumentException();
+		}
+
+		String providerName = "";
+		Provider provider = getProvider(providerNo);
+
+		if (provider != null) {
+			if (provider.getLastName() != null) {
+				providerName = provider.getLastName() + ", ";
+			}
+	
+			if (provider.getFirstName() != null) {
+				providerName += provider.getFirstName();
+			}
+	
+			if (log.isDebugEnabled()) {
+				log.debug("getProviderNameLastFirst: providerNo=" + providerNo + ",result=" + providerName);
+			}
+		}
+
+		return providerName;
+	}
+
+	public List<Provider> getProviders() {
+		
+		List<Provider> rs = getHibernateTemplate().find(
+				"FROM  Provider p " + HQL_ORDER_BY_NAME);
+
+		if (log.isDebugEnabled()) {
+			log.debug("getProviders: # of results=" + rs.size());
+		}
+		return rs;
+	}
+	
+	public List<Provider> getProviders(String[] providers) {
+		List<Provider> rs = getHibernateTemplate().find(
+				"FROM Provider p WHERE p.providerNumber IN (?)", (Object[]) providers);
+		return rs;
+	}
+
+
+    public List<Provider> getProviderFromFirstLastName(String firstname,String lastname){
+            firstname=firstname.trim();
+            lastname=lastname.trim();
+            String s="From Provider p where p.FirstName=? and p.LastName=?";
+            ArrayList<Object> paramList=new ArrayList<Object>();
+            paramList.add(firstname);
+            paramList.add(lastname);
+            Object params[]=paramList.toArray(new Object[paramList.size()]);
+            return getHibernateTemplate().find(s,params);
+    }
+
+    public List<Provider> getProviderLikeFirstLastName(String firstname,String lastname){
+    	firstname=firstname.trim();
+    	lastname=lastname.trim();
+    	String s="From Provider p where p.FirstName like ? and p.LastName like ?";
+    	ArrayList<Object> paramList=new ArrayList<Object>();
+    	paramList.add(firstname);
+    	paramList.add(lastname);
+    	Object params[]=paramList.toArray(new Object[paramList.size()]);
+    	return getHibernateTemplate().find(s,params);
+	}
+
+    public List<Provider> getActiveProviderLikeFirstLastName(String firstname,String lastname){
+    	firstname=firstname.trim();
+    	lastname=lastname.trim();
+    	String s="From Provider p where p.FirstName like ? and p.LastName like ? and p.Status='1'";
+    	ArrayList<Object> paramList=new ArrayList<Object>();
+    	paramList.add(firstname);
+    	paramList.add(lastname);
+    	Object params[]=paramList.toArray(new Object[paramList.size()]);
+    	return getHibernateTemplate().find(s,params);
+	}
+
+    public List<SecProvider> getActiveProviders(Integer programId) {
+        ArrayList<Object> paramList = new ArrayList<Object>();
+
+    	String sSQL="FROM  SecProvider p where p.status='1' and p.providerNo in " +
+    	"(select sr.providerNo from secUserRole sr, LstOrgcd o " +
+    	" where o.code = 'P' || ? " +
+    	" and o.codecsv  like '%' || sr.orgcd || ',%' " +
+    	" and not (sr.orgcd like 'R%' or sr.orgcd like 'O%')) " +
+    	HQL_ORDER_BY_NAME;
+
+    	paramList.add(programId);
+    	Object params[] = paramList.toArray(new Object[paramList.size()]);
+
+    	return  getHibernateTemplate().find(sSQL ,params);
+	}
+
+	public List<Provider> getActiveProviders(String facilityId, String programId) {
+		ArrayList<Object> paramList = new ArrayList<Object>();
+
+		String sSQL;
+		List<Provider> rs;
+		if (programId != null && "0".equals(programId) == false) {
+			sSQL = "FROM  Provider p where p.Status='1' and p.ProviderNo in "
+					+ "(select c.ProviderNo from ProgramProvider c where c.ProgramId =?) " + HQL_ORDER_BY_NAME;
+			paramList.add(Long.valueOf(programId));
+			Object params[] = paramList.toArray(new Object[paramList.size()]);
+			rs = getHibernateTemplate().find(sSQL, params);
+		} else if (facilityId != null && "0".equals(facilityId) == false) {
+			sSQL = "FROM  Provider p where p.Status='1' and p.ProviderNo in "
+					+ "(select c.ProviderNo from ProgramProvider c where c.ProgramId in "
+					+ "(select a.id from Program a where a.facilityId=?)) " + HQL_ORDER_BY_NAME;
+			// JS 2192700 - string facilityId seems to be throwing class cast
+			// exception
+			Integer intFacilityId = Integer.valueOf(facilityId);
+			paramList.add(intFacilityId);
+			Object params[] = paramList.toArray(new Object[paramList.size()]);
+			rs = getHibernateTemplate().find(sSQL, params);
+		} else {
+			sSQL = "FROM  Provider p where p.Status='1' " + HQL_ORDER_BY_NAME;
+			rs = getHibernateTemplate().find(sSQL);
+		}
+		// List<Provider> rs =
+		// getHibernateTemplate().find("FROM  Provider p ORDER BY p.LastName");
+
+		return rs;
+	}
+
+	public List<Provider> getActiveProviders() {
+		
+		List<Provider> rs = getHibernateTemplate().find(
+				"FROM  Provider p where p.Status='1' " + HQL_ORDER_BY_NAME);
+
+		if (log.isDebugEnabled()) {
+			log.debug("getProviders: # of results=" + rs.size());
+		}
+		return rs;
+	}
+
+	public List<Provider> getActiveProvidersByRole(String role) {
+		
+		List<Provider> rs = getHibernateTemplate().find(
+			"select p FROM Provider p, SecUserRole s where p.ProviderNo = s.ProviderNo and p.Status='1' and s.RoleName = ? " + HQL_ORDER_BY_NAME, role);
+
+		if (log.isDebugEnabled()) {
+			log.debug("getActiveProvidersByRole: # of results=" + rs.size());
+		}
+		return rs;
+	}
+
+	public List<Provider> getDoctorsWithOhip(){
+		return getHibernateTemplate().find(
+				"FROM Provider p " + 
+					"WHERE p.ProviderType = 'doctor' " +
+					"AND p.Status = '1' " +
+					"AND p.OhipNo IS NOT NULL " +
+					HQL_ORDER_BY_NAME);
+	}
+	
+    public List<Provider> getBillableProviders() {
+		List<Provider> rs = getHibernateTemplate().find("FROM Provider p where p.OhipNo != '' and p.Status = '1' " + HQL_ORDER_BY_NAME);
+		return rs;
+	}
+	
+	@SuppressWarnings("unchecked")
+    public List<Provider> getBillableProvidersInBC() {
+		List<Provider> rs = getHibernateTemplate().find("FROM Provider p where (p.OhipNo <> '' or p.RmaNo <> ''  or p.BillingNo <> '' or p.HsoNo <> '')and p.Status = '1' " + HQL_ORDER_BY_NAME);
+		return rs;
+	}
+
+	public List<Provider> getProviders(boolean active) {
+		
+		List<Provider> rs = getHibernateTemplate().find(
+				"FROM  Provider p where p.Status='" + (active?1:0) + "' " + HQL_ORDER_BY_NAME);
+		return rs;
+	}
+
+    public List<Provider> getActiveProviders(String providerNo, Integer shelterId) {
+    	//
+		String codecsvLike = "o.codecsv like '%' || srb.orgcd || ',%' and srb.providerNo =?)) ";
+		if (shelterId != null && shelterId != 0) {
+			codecsvLike = "o.codecsv like '%S" + shelterId.toString()+ ",%' and " + codecsvLike;
+		}
+		String hql = "FROM Provider p where p.Status='1' " +
+    				"and p.ProviderNo in (select sr.providerNo from Secuserrole sr " +
+    				"where sr.orgcd in (select o.code from LstOrgcd o, Secuserrole srb " +
+    				"where " + codecsvLike + HQL_ORDER_BY_NAME;
+
+    	ArrayList<Object> paramList = new ArrayList<Object>();
+    	paramList.add(providerNo);
+
+    	Object params[] = paramList.toArray(new Object[paramList.size()]);
+
+    	List<Provider> rs = getHibernateTemplate().find(hql,params);
+
+		if (log.isDebugEnabled()) {
+			log.debug("getProviders: # of results=" + rs.size());
+		}
+		return rs;
+	}
+
+    
+	public List<Provider> search(String name) {
+		boolean isOracle = OscarProperties.getInstance().getDbType().equals(
+				"oracle");
+		Session session = getSession();
+		
+		Criteria c = session.createCriteria(Provider.class);
+		if (isOracle) {
+			c.add(Restrictions.or(Expression.ilike("FirstName", name + "%"),
+					Expression.ilike("LastName", name + "%")));
+		} else {
+			c.add(Restrictions.or(Expression.like("FirstName", name + "%"),
+					Expression.like("LastName", name + "%")));
+		}
+		c.addOrder(Order.asc("ProviderNo"));
+
+		List<Provider> results = new ArrayList<Provider>();
+		
+		try {
+			results = c.list();
+		}finally {
+			this.releaseSession(session);
+		}
+
+		if (log.isDebugEnabled()) {
+			log.debug("search: # of results=" + results.size());
+		}
+		return results;
+	}
+
+	public List<Provider> getProvidersByTypeWithNonEmptyOhipNo(String type) {
+		List<Provider> results = this.getHibernateTemplate().find(
+				"from Provider p where p.ProviderType = ? and p.OhipNo <> ''", type);
+		return results;
+	}
+
+	
+	public List<Provider> getProvidersByType(String type) {
+		
+		List<Provider> results = this.getHibernateTemplate().find(
+				"from Provider p where p.ProviderType = ?", type);
+
+		if (log.isDebugEnabled()) {
+			log.debug("getProvidersByType: type=" + type + ",# of results="
+					+ results.size());
+		}
+
+		return results;
+	}
+	
+	public List<Provider> getProvidersByTypePattern(String typePattern) {
+		
+		List<Provider> results = this.getHibernateTemplate().find(
+				"from Provider p where p.ProviderType like ?", typePattern);
+		return results;
+	}
+
+	public List getShelterIds(String provider_no)
+	{
+		
+		String sql ="select distinct c.id as shelter_id from lst_shelter c, lst_orgcd a, secUserRole b  where instr('RO',substr(b.orgcd,1,1)) = 0 and a.codecsv like '%' || b.orgcd || ',%'" +
+				" and b.provider_no=? and a.codecsv like '%S' || c.id  || ',%'";
+		Session session = getSession();
+		
+		Query query = session.createSQLQuery(sql);
+    	((SQLQuery) query).addScalar("shelter_id", Hibernate.INTEGER);
+    	query.setString(0, provider_no);
+    	List lst = new ArrayList();
+    	try {
+    		lst=query.list();
+    	}finally {
+    		this.releaseSession(session);
+    	}
+        return lst;
+
+	}
+
+	public static void addProviderToFacility(String provider_no, int facilityId) {
+		try {
+			ProviderFacility pf = new ProviderFacility();
+			pf.setId(new ProviderFacilityPK());
+			pf.getId().setProviderNo(provider_no);
+			pf.getId().setFacilityId(facilityId);
+			ProviderFacilityDao pfDao = SpringUtils.getBean(ProviderFacilityDao.class);
+			pfDao.persist(pf);
+		} catch (RuntimeException e) {
+			// chances are it's a duplicate unique entry exception so it's safe
+			// to ignore.
+			// this is still unexpected because duplicate calls shouldn't be
+			// made
+			log.warn("Unexpected exception occurred.", e);
+		}
+	}
+
+	public static void removeProviderFromFacility(String provider_no,
+			int facilityId) {
+		ProviderFacilityDao dao = SpringUtils.getBean(ProviderFacilityDao.class);
+		for(ProviderFacility p:dao.findByProviderNoAndFacilityId(provider_no,facilityId)) {
+			dao.remove(p.getId());
+		}
+	}
+
+	
+	public List<Integer> getFacilityIds(String provider_no) {
+		Session session = getSession();
+		try {
+			SQLQuery query = session.createSQLQuery("select facility_id from provider_facility,Facility where Facility.id=provider_facility.facility_id and Facility.disabled=0 and provider_no=\'"+provider_no +"\'");
+			List<Integer> results = query.list();
+			return results;
+		}finally {
+			this.releaseSession(session);
+		}
+	}
+
+	
+	public List<String> getProviderIds(int facilityId) {
+		Session session = getSession();
+		try {
+			SQLQuery query = session.createSQLQuery("select provider_no from provider_facility where facility_id="+facilityId);
+			List<String> results = query.list();
+			return results;
+		}finally {
+			this.releaseSession(session);
+		}
+	
+	}
+
+    public void updateProvider( Provider provider) {
+        this.getHibernateTemplate().update(provider);
+    }
+
+    public void saveProvider( Provider provider) {
+        this.getHibernateTemplate().save(provider);
+    }
+
+	public Provider getProviderByPractitionerNo(String practitionerNo) {
+		if (practitionerNo == null || practitionerNo.length() <= 0) {
+			return null;
+		}
+
+		List<Provider> providerList = getHibernateTemplate().find("From Provider p where p.practitionerNo=?",new Object[]{practitionerNo});
+
+		if(providerList.size()>1) {
+			logger.warn("Found more than 1 provider with practitionerNo="+practitionerNo);
+		}
+		if(providerList.size()>0)
+			return providerList.get(0);
+
+		return null;
+	}
+	
+	public Provider getProviderByPractitionerNo(String practitionerNoType, String practitionerNo) {
+		return getProviderByPractitionerNo(new String[] {practitionerNoType},practitionerNo);
+	}
+	
+	public Provider getProviderByPractitionerNo(String[] practitionerNoTypes, String practitionerNo) {
+		if (practitionerNoTypes == null || practitionerNoTypes.length <= 0) {
+			throw new IllegalArgumentException();
+		}
+		if (practitionerNo == null || practitionerNo.length() <= 0) {
+			throw new IllegalArgumentException();
+		}
+
+		List<Provider> providerList = getHibernateTemplate().findByNamedParam("From Provider p where p.practitionerNoType IN (:types) AND p.practitionerNo=:pId", new String[] {"types","pId"}, new Object[] {practitionerNoTypes,practitionerNo});
+//		List<Provider> providerList = getHibernateTemplate().find("From Provider p where p.practitionerNoType IN (:types) AND p.practitionerNo=?",new Object[]{practitionerNo});
+
+		if(providerList.size()>1) {
+			logger.warn("Found more than 1 provider with practitionerNo="+practitionerNo);
+		}
+		if(providerList.size()>0)
+			return providerList.get(0);
+
+		return null;
+	}
+
+	public List<String> getUniqueTeams() {
+		
+		List<String> providerList = getHibernateTemplate().find("select distinct p.Team From Provider p");
+
+		return providerList;
+	}
+        
+        public List<Provider> getBillableProvidersOnTeam(Provider p) {                        
             
-            {"search_demograph", "select *  from demographic where demographic_no=?"},
-            {"search_encountersingle", "select * from encounter where encounter_no = ?"},
+            List<Provider> providers = this.getHibernateTemplate().find("from Provider p where status='1' and ohip_no!='' and p.Team=? " + SQL_ORDER_BY_NAME, p.getTeam());
             
-			{"search_form", "select * from form where form_no=? "}, //new?delete
+            return providers;
+        }
+        
+        public List<Provider> getBillableProvidersByOHIPNo(String ohipNo) {                        
+            if (ohipNo == null || ohipNo.length() <= 0) {
+		throw new IllegalArgumentException();
+            }
+
+            
+            List<Provider> providers = this.getHibernateTemplate().find("from Provider p where ohip_no like ? " + SQL_ORDER_BY_NAME, ohipNo);
+            
+            if(providers.size()>1) {
+                logger.warn("Found more than 1 provider with ohipNo="+ohipNo);
+            }
+            if(providers.isEmpty())
+                return null;
+            else		
+                return providers;
+        }
+        
+        /**
+         * Gets all providers with non-empty OHIP number ordered by last,then first name
+         * 
+         * @return
+         * 		Returns the all found providers 
+         */
+        
+        public List<Provider> getProvidersWithNonEmptyOhip() {
+        	return getHibernateTemplate().find("FROM Provider WHERE ohip_no != '' " + SQL_ORDER_BY_NAME);
+        }
+        
+        public List<Provider> getCurrentTeamProviders(String providerNo) {
+        	String hql = "SELECT p FROM Provider p "
+    				+ "WHERE p.Status='1' and p.OhipNo != '' " 
+        			+  "AND (p.ProviderNo='"+providerNo+"' or team=(SELECT p2.Team FROM Provider p2 where p2.ProviderNo='"+providerNo+"')) "
+        			+ HQL_ORDER_BY_NAME;
+    		
+        	return this.getHibernateTemplate().find(hql);
+        }
+
+		public List<String> getActiveTeams() {	        
+			List<String> providerList = getHibernateTemplate().find("select distinct p.Team From Provider p where p.Status = '1' and p.Team != '' order by p.Team");
+			return providerList;
+        }
+		
+		@NativeSql({"provider", "providersite"})
+		
+        public List<String> getActiveTeamsViaSites(String providerNo) {
+			Session session = getSession();
+			try {
+				// providersite is not mapped in hibernate - this can be rewritten w.o. subselect with a cross product IHMO 
+				SQLQuery query = session.createSQLQuery("select distinct team from provider p inner join providersite s on s.provider_no = p.provider_no " +
+	            		" where s.site_id in (select site_id from providersite where provider_no = '" + providerNo + "') order by team ");
+				return query.list();
+			}finally {
+				this.releaseSession(session);
+			}
+        }
+
+		
+        public List<Provider> getProviderByPatientId(Integer patientId) {
+	        String hql = "SELECT p FROM Provider p, Demographic d "
+	    				+ "WHERE d.ProviderNo = p.ProviderNo " 
+	        			+ "AND d.DemographicNo = ?";
+        	return this.getHibernateTemplate().find(hql, patientId);
+        }
+		
+		public List<Provider> getDoctorsWithNonEmptyCredentials() {
+			String sql = "FROM Provider p WHERE p.ProviderType = 'doctor' " +
+					"AND p.Status='1' " +
+					"AND p.OhipNo IS NOT NULL " +
+					"AND p.OhipNo != '' " +
+					HQL_ORDER_BY_NAME;
+			return getHibernateTemplate().find(sql);
+		}
+		
+		public List<Provider> getProvidersWithNonEmptyCredentials() {
+			String sql = "FROM Provider p WHERE p.Status='1' " +
+					"AND p.OhipNo IS NOT NULL " +
+					"AND p.OhipNo != '' " +
+					HQL_ORDER_BY_NAME;
+			return getHibernateTemplate().find(sql);
+		}
+
+		public List<String> getProvidersInTeam(String teamName) {
+			List<String> providerList = getHibernateTemplate().find("select distinct p.ProviderNo from Provider p  where p.Team = ?",new Object[]{teamName});			
+			return providerList;
+		}
+
+		public List<Object[]> getDistinctProviders() {
+			List<Object[]> providerList = getHibernateTemplate().find("select distinct p.ProviderNo, p.ProviderType from Provider p " + HQL_ORDER_BY_NAME);
+			return providerList;
+        }
+		
+		public List<String> getRecordsAddedAndUpdatedSinceTime(Date date) {
+			@SuppressWarnings("unchecked")
+			List<String> providers = getHibernateTemplate().find("select distinct p.ProviderNo From Provider p where p.lastUpdateDate > ? ",date);
 			
-			{"searchloginteam", "select provider_no, last_name, first_name from provider where (provider_no=? || team=(select team from provider where provider_no=?)) and status='1' order by last_name"},
-			{"searchprovider", "select provider_no, last_name, first_name from provider where provider_type='doctor' and status='1' order by last_name"},
-			{"search_scheduleholiday", "select * from scheduleholiday where sdate > ?" },
-			{"search_scheduledate_datep",   "select * from scheduledate where sdate between ? and ? and status = 'A' order by sdate" },
-			{"search_scheduledate_singlep", "select * from scheduledate where sdate between ? and ? and provider_no=? and status = 'A' order by sdate" },
-			{"search_scheduledate_single", "select * from scheduledate where sdate=? and provider_no=? and status = 'A'" },
-            {"search_signed_confidentiality", "select signed_confidentiality from provider where provider_no = ?"},
-			{"search_scheduledate_teamp", "select * from scheduledate where sdate between ? and ? and status = 'A' and provider_no in (select distinct provider_no from provider where team=(select team from provider where provider_no=?) || provider_no=?) order by sdate" },
+			return providers;
+		}
+		
+		@SuppressWarnings("unchecked")
+		public List<Provider> searchProviderByNamesString(String searchString, int startIndex, int itemsToReturn) {
+			String sqlCommand = "select x from Provider x";
+			if (searchString != null)  {
+				if(searchString.indexOf(",") != -1 &&  searchString.split(",").length>1 && searchString.split(",")[1].length()>0) {
+					sqlCommand = sqlCommand + " where x.LastName like :ln AND x.FirstName like :fn";
+				} else {
+					sqlCommand = sqlCommand + " where x.LastName like :ln";
+				}
+				
+			}
 
-			{"search_appttimecode", "select scheduledate.provider_no, scheduletemplate.timecode, scheduledate.sdate from scheduletemplate, scheduledate where scheduletemplate.name=scheduledate.hour and scheduledate.sdate=? and  scheduledate.provider_no=? and scheduledate.status = 'A' and (scheduletemplate.provider_no=scheduledate.provider_no or scheduletemplate.provider_no='Public') order by scheduledate.sdate"},
-			{"search_timecode", "select * from scheduletemplatecode order by code"},
+			Session session = this.getSession();
+			try {
+				Query q = session.createQuery(sqlCommand);
+				if (searchString != null) {
+					q.setParameter("ln", "%" + searchString.split(",")[0] + "%");
+					if(searchString.indexOf(",") != -1 && searchString.split(",").length>1 && searchString.split(",")[1].length()>0) {
+						q.setParameter("fn", "%" +  searchString.split(",")[1] + "%");
+						
+					} 
+				}
+				q.setFirstResult(startIndex);
+				q.setMaxResults(itemsToReturn);
+				return (q.list());
+			} finally {
+				this.releaseSession(session);
+			}
+		}
+		
+		@SuppressWarnings("unchecked")
+		public List<Provider> search(String term, boolean active, int startIndex, int itemsToReturn) {
+			String sqlCommand = "select p from Provider p WHERE p.Status = :status ";
 			
-			{"search_numgrpscheduledate", "select count(scheduledate.provider_no) from mygroup, scheduledate where mygroup_no = ? and scheduledate.sdate=? and mygroup.provider_no=scheduledate.provider_no and scheduledate.available = '1'  and scheduledate.status = 'A'"},
+			
+			if(term != null && term.length()>0) {
+				sqlCommand += "AND (p.LastName like :term  OR p.FirstName like :term) ";
+			}
+			
+			sqlCommand += HQL_ORDER_BY_NAME;
 
 			
-		    {"search_provider", "select provider_no, last_name, first_name from provider where last_name like ? and first_name like ? order by last_name"},
-		    {"search_providersgroup", "select mygroup_no, last_name, first_name from mygroup where last_name like ? and first_name like ? order by last_name, first_name, mygroup_no"},
-		    //multi-site query, schedule day view page
-			{"site_searchmygroupcount", "select count(provider_no) from mygroup where mygroup_no=?  and provider_no in (select ps.provider_no from providersite ps inner join site s on ps.site_id = s.site_id where s.name = ?)"},
-			{"site_search_numgrpscheduledate", "select count(scheduledate.provider_no) from mygroup, scheduledate where mygroup_no = ? and scheduledate.sdate=? and mygroup.provider_no=scheduledate.provider_no and scheduledate.available = '1'  and scheduledate.status = 'A'  and mygroup.provider_no in (select ps.provider_no from providersite ps inner join site s on ps.site_id = s.site_id where s.name = ?) "},
-			{"site_searchmygroupprovider", "select provider_no, last_name, first_name from mygroup where mygroup_no=?  and provider_no in (select ps.provider_no from providersite ps inner join site s on ps.site_id = s.site_id where s.name = ?)"},
-			{"site_search_scheduledate_datep", "select * from scheduledate where sdate between ? and ? and status = 'A' and provider_no in (select ps.provider_no from providersite ps inner join site s on ps.site_id = s.site_id where s.name = ?) order by sdate" },
 
-			{"intake_pharmacy","SELECT * FROM  pharmacyInfo where recordID = (select d.pharmacyID from demographicPharmacy d where  d.status = 1 and d.demographic_no = ? order by addDate desc limit 1) order by recordID desc limit 1"},
-			{"intake_allergies","SELECT * FROM allergies WHERE demographic_no = ? and archived = '0' ORDER BY DESCRIPTION"},
-			{"intake_medications","select * from drugs as D where demographic_no = ? and archived = 0 and drugId = (select max(drugId) from drugs where demographic_no = D.demographic_no and archived = 0 and regional_identifier = D.regional_identifier)  and (long_term=1 or (end_date is not null and end_date > now())) ORDER BY rx_date DESC, drugId DESC"},
-			{"intake_demographic","select last_name, first_name, year_of_birth, month_of_birth, date_of_birth from demographic where demographic_no=?"},
-			{"intake_get_measurement","select * from measurements where type=? and demographicNo=? order by dateObserved desc, dateEntered desc limit 1"},
-			{"intake_get_measurement_ex","select * from measurements where type=? and demographicNo=? and measuringInstruction=? order by dateObserved desc, dateEntered desc limit 1"},
-			{"intake_reminders","select distinct casemgmt_note.* from casemgmt_note, (select max(cmn2.note_id) as note_id from casemgmt_issue_notes as cmin2 left join casemgmt_note cmn2 USE INDEX (demographic_no) using (note_id) left join casemgmt_issue as cmi2 using (id) where cmn2.note_id = cmin2.note_id and cmin2.id = cmi2.id and cmi2.issue_id in (38) and cmn2.demographic_no = ? group by cmn2.uuid) as rem_notes where casemgmt_note.note_id=rem_notes.note_id and casemgmt_note.archived=0"},
-			{"intake_preventions","select * from preventions where demographic_no = ? and deleted != 1 order by prevention_type,prevention_date"},
-			{"intake_patient_dxcode","select * from dxresearch where demographic_no=? and status='A' and dxresearch_code=?"},
-
-			{"search_rsstatus", "select distinct roster_status from demographic where roster_status not in ('', 'RO', 'NR', 'TE', 'FS')"},
-			{"cl_demographic_query","select last_name, first_name, sex, month_of_birth, date_of_birth, CAST((DATE_FORMAT(NOW(), '%Y') - DATE_FORMAT(concat(year_of_birth,month_of_birth,date_of_birth), '%Y') - (DATE_FORMAT(NOW(), '00-%m-%d') < DATE_FORMAT(concat(year_of_birth,month_of_birth,date_of_birth), '00-%m-%d'))) as UNSIGNED INTEGER) as age from demographic where demographic_no=?"},
-			{"cl_demographic_query_roster","select last_name, first_name, sex, month_of_birth, date_of_birth, CAST((DATE_FORMAT(NOW(), '%Y') - DATE_FORMAT(concat(year_of_birth,month_of_birth,date_of_birth), '%Y') - (DATE_FORMAT(NOW(), '00-%m-%d') < DATE_FORMAT(concat(year_of_birth,month_of_birth,date_of_birth), '00-%m-%d'))) as UNSIGNED INTEGER) as age from demographic where demographic_no=? AND roster_status=?"},
-			{"cl_last_appt","select max(appointment_date) from appointment where appointment_date < now() and demographic_no=?"},
-			{"cl_next_appt","select min(appointment_date) from appointment where appointment_date > now() and demographic_no=?"},
-			{"cl_num_appts","select count(*) from appointment where demographic_no=? and appointment_date > DATE(NOW()-INTERVAL 1 YEAR)"},
-			{"cl_new_labs","select count(*) from providerLabRouting left join patientLabRouting using (lab_no) where providerLabRouting.lab_type='HL7' and status='N' and provider_no=? and demographic_no=?"},
-			{"cl_new_docs","select count(*) from providerLabRouting left join patientLabRouting using (lab_no) where providerLabRouting.lab_type='DOC' and status='N' and provider_no=? and demographic_no=?"},
-			{"cl_new_ticklers","select count(*) from tickler where status='A' and demographic_no=?"},
-			{"cl_new_msgs","select count(*) from msgDemoMap left join messagelisttbl on message = messageID where demographic_no=? and status='new'"},
-			{"cl_measurement","select * from measurements where type=? and demographicNo=? order by dateObserved desc limit 1"},
-
-	};
-
-	/**
-	 * Need to provide this method in order to let parent.getDbQueries() access child.dbQueries array.
-	 */
-	@Override
-	protected String[][] getDbQueries() {
-		return dbQueries;
-	}
-
-	/**
-	 * Need to provide this method in order to let parent.getRowMappers() access child.rowMappers map.
-	 */
-	@Override
-	protected Map<String, RowMapper> getRowMappers() {
-		return rowMappers;
-	}
-
+			Session session = this.getSession();
+			try {
+				Query q = session.createQuery(sqlCommand);
+				
+				q.setString("status", active?"1":"0");
+				if(term != null && term.length()>0) {
+					q.setString("term", term + "%");
+				}
+				
+				q.setFirstResult(startIndex);
+				q.setMaxResults(itemsToReturn);
+				return (q.list());
+			} finally {
+				this.releaseSession(session);
+			}
+		}
 }
