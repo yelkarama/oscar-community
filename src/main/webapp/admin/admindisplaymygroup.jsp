@@ -106,7 +106,7 @@ if(isSiteAccessPrivacy) {
 
 // filter out inactive providers by default
 boolean showActiveOnly = request.getParameter("showInactive") == null;
-Map<String, Provider> providerMap = new HashMap<>();
+Map<String, Provider> providerMap = new HashMap<String, Provider>();
 List<Provider> providers = providerDao.getProviders();
 for (Provider p : providers) {
 	providerMap.put(p.getProviderNo(), p);
