@@ -1637,7 +1637,7 @@
 				 -->
 				<configuration>
 					<sourceEncoding>ISO-8859-1</sourceEncoding>
-					<targetJdk>1.6</targetJdk>
+					<targetJdk>1.8</targetJdk>
 					<rulesets>
 						<ruleset>utils/pmd_rules.xml</ruleset>
 					</rulesets>
