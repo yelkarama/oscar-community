@@ -146,7 +146,7 @@
 
 <%-- DETACHED VIEW ENABLED  --%>
 
-	<h3 id="tableTitle">Health Care Team</h3>
+	<h4 id="tableTitle">Health Care Team</h3>
 	
 <%-- END DETACHED VIEW ENABLED  --%>
 
