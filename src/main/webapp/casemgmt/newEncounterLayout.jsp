@@ -584,7 +584,7 @@ div.autocomplete ul li {
 	position: absolute;
 	display: none;
 	z-index: 1;
-	width: 200px;
+	width: 230px;
 	right: 100px;
 	bottom: 200px;
 }
@@ -1040,30 +1040,29 @@ window.onbeforeunload = onClosing;
 						value="dates">
 					<bean:message key="oscarEncounter.Index.PrintDates" />&nbsp;<a
 						style="font-variant: small-caps;" href="#"
-						onclick="return printToday(event);"><bean:message
-								key="oscarEncounter.Index.PrintToday" /></a></td>
+						onclick="return printToday(event);"><bean:message  key="oscarEncounter.Index.PrintToday" /></a></td>
 					<td></td>
 				</tr>
 			</table>
 
 			<div style="float: left; margin-left: 5px; width: 30px;">
-				<bean:message key="oscarEncounter.Index.PrintFrom" />
-				:
+				<bean:message key="oscarEncounter.Index.PrintFrom" />:
+				
 			</div>
 			<img src="<c:out value="${ctx}/images/cal.gif" />"
 				id="printStartDate_cal" alt="calendar">&nbsp;<input
 				type="text" id="printStartDate" name="printStartDate"
 				ondblclick="this.value='';"
-				style="font-style: italic; border: 1px solid #7682b1; width: 125px; background-color: #FFFFFF;"
+				style="font-style: italic; border: 1px solid #7682b1; width: 90px; background-color: #FFFFFF;"
 				readonly value=""><br>
 			<div style="float: left; margin-left: 5px; width: 30px;">
-				<bean:message key="oscarEncounter.Index.PrintTo" />
-				:
+				<bean:message key="oscarEncounter.Index.PrintTo" />:
+				
 			</div>
 			<img src="<c:out value="${ctx}/images/cal.gif" />"
 				id="printEndDate_cal" alt="calendar">&nbsp;<input type="text"
 				id="printEndDate" name="printEndDate" ondblclick="this.value='';"
-				style="font-style: italic; border: 1px solid #7682b1; width: 125px; background-color: #FFFFFF;"
+				style="font-style: italic; border: 1px solid #7682b1; width: 90px; background-color: #FFFFFF;"
 				readonly value=""><br>
 			<div style="margin-top: 5px; text-align: center">
 				<input type="submit" id="printOp" style="border: 1px solid #7682b1;"

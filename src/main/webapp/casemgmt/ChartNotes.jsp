@@ -385,7 +385,7 @@ try
 		<div style="float: left; clear: both; margin-top: 5px; margin-bottom: 3px; width: 100%; text-align: center;">
 			<div style="display:inline-block">
 				
-				<input id="enTemplate" tabindex="6" style="width:160px" type="text" value="" onkeypress="return grabEnterGetTemplate(event)">
+				<input id="enTemplate" tabindex="6" style="width:160px" placeholder='<bean:message key="global.search" />!' type="text" value="" onkeypress="return grabEnterGetTemplate(event)">
 
 				<div class="enTemplate_name_auto_complete" id="enTemplate_list" style="z-index: 1; display: none">&nbsp;</div>						
 

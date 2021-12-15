@@ -137,4 +137,19 @@ public class MyGroup  extends AbstractModel<MyGroupPrimaryKey> implements Serial
         }
     };
 
+    public static final Comparator<MyGroup> MyGroupNoNameComparator = new Comparator<MyGroup>() {
+        @Override
+        public int compare(MyGroup o1, MyGroup o2) {
+        	if (o1.getId() != null && o2.getId() != null) {
+        		int result = o1.getId().getMyGroupNo().compareTo(o2.getId().getMyGroupNo());
+        		if (result == 0) {
+        			String name1 = o1.getLastName() + o1.getFirstName();
+        			return name1.compareTo(o2.getLastName() + o2.getFirstName());
+        		}
+        		return result;
+        	}
+        	return 0;
+        }
+    };
+
 }
