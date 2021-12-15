@@ -584,7 +584,7 @@ div.autocomplete ul li {
 	position: absolute;
 	display: none;
 	z-index: 1;
-	width: 200px;
+	width: 230px;
 	right: 100px;
 	bottom: 200px;
 }
