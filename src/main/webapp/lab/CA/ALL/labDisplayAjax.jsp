@@ -394,6 +394,11 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
                                     <% if ( searchProviderNo != null ) { // null if we were called from e-chart%>
                                     <input type="button" class="btn" value=" <bean:message key="oscarMDS.segmentDisplay.btnEChart"/> " onClick="popupStart(360, 680, '../oscarMDS/SearchPatient.do?labType=HL7&segmentID=<%= segmentID %>&name=<%=java.net.URLEncoder.encode(handler.getLastName()+", "+handler.getFirstName())%>', 'searchPatientWindow')">
                                     <% } %>
+                                    <%
+                                        String mRecordWinName = "Master" + demographicID;
+                                        String mRecordUrl = "../demographic/demographiccontrol.jsp?demographic_no=" + demographicID + "&displaymode=edit&dboperation=search_detail";
+                                    %>
+                                    <input type="button" class="btn" value="<bean:message key="oscarMDS.segmentDisplay.btnMRecord"/>" onClick="popupStart(700,1000,'<%=mRecordUrl%>', '<%=mRecordWinName%>');">
 				    <input type="button" class="btn" value="Req# <%=reqTableID%>" title="Link to Requisition" onclick="linkreq('<%=segmentID%>','<%=reqID%>');" />
 
 <% if(recall){%>
@@ -1154,6 +1159,7 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
                                     <input type="button" class="btn" value=" <bean:message key="oscarMDS.segmentDisplay.btnEChart"/> " onClick="popupStart(360, 680, '../oscarMDS/SearchPatient.do?labType=HL7&segmentID=<%= segmentID %>&name=<%=java.net.URLEncoder.encode(handler.getLastName()+", "+handler.getFirstName())%>', 'searchPatientWindow')">
 
                                     <% } %>
+                                    <input type="button" class="btn" value="<bean:message key="oscarMDS.segmentDisplay.btnMRecord"/>" onClick="popupStart(700,1000,'<%=mRecordUrl%>', '<%=mRecordWinName%>');">
                                 </td>
                                 <td width="50%" valign="center" align="left">
                                     <span class="Field2"><i><bean:message key="oscarMDS.segmentDisplay.msgReportEnd"/></i></span>
