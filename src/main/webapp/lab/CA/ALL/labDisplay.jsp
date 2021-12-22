@@ -863,6 +863,11 @@ input[type=button], button, input[id^='acklabel_']{ font-size:12px !important;pa
                                     <% if ( searchProviderNo != null ) { // null if we were called from e-chart%>
                                     <input type="button" class="btn" value=" <bean:message key="oscarMDS.segmentDisplay.btnEChart"/>" onClick="popupStart(360, 680, '../../../oscarMDS/SearchPatient.do?labType=HL7&segmentID=<%= segmentID %>&name=<%=java.net.URLEncoder.encode(handler.getLastName()+", "+handler.getFirstName())%>', 'encounter')">
                                     <% } %>
+                                    <%
+                                        String mRecordWinName = "Master" + demographicID;
+                                        String mRecordUrl = "../../../demographic/demographiccontrol.jsp?demographic_no=" + demographicID + "&displaymode=edit&dboperation=search_detail";
+                                    %>
+                                    <input type="button" class="btn" value="<bean:message key="oscarMDS.segmentDisplay.btnMRecord"/>" onClick="popupStart(700,1000,'<%=mRecordUrl%>', '<%=mRecordWinName%>');">
 				    <input type="button" class="btn" value="Req# <%=reqTableID%>" title="Link to Requisition" onclick="linkreq('<%=segmentID%>','<%=reqID%>');" />
 
 
@@ -2065,6 +2070,7 @@ for(int mcount=0; mcount<multiID.length; mcount++){
                                     <input type="button" class="btn" value=" <bean:message key="oscarMDS.segmentDisplay.btnEChart"/> " onClick="popupStart(360, 680, '../../../oscarMDS/SearchPatient.do?labType=HL7&segmentID=<%= segmentID %>&name=<%=java.net.URLEncoder.encode(handler.getLastName()+", "+handler.getFirstName())%>', 'encounter')">
 
                                     <% } %>
+                                    <input type="button" class="btn" value="<bean:message key="oscarMDS.segmentDisplay.btnMRecord"/>" onClick="popupStart(700,1000,'<%=mRecordUrl%>', '<%=mRecordWinName%>');">
                                 </td>
                                 <td width="50%" valign="center" align="left">
                                 <% if ("CLS".equals(handler.getMsgType())) { %>
