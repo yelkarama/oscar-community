@@ -112,6 +112,15 @@
 		noteReason = "";
 	}
 
+//reset session attributes
+session.setAttribute("labLastName","");
+session.setAttribute("labFirstName","");
+session.setAttribute("labDOB","");
+session.setAttribute("labHIN","");
+session.setAttribute("labHphone","");
+session.setAttribute("labWphone","");
+session.setAttribute("labSex","");
+
 %>
 <html:html locale="true">
 <head>
