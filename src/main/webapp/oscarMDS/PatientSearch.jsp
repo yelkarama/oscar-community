@@ -25,6 +25,8 @@
 --%>
 <%@ page import="java.util.*, java.sql.*,java.net.*, oscar.oscarDB.DBPreparedHandler, oscar.MyDateFormat, oscar.Misc"%>
 <%@ page import="oscar.oscarDemographic.data.DemographicMerged"%>
+<%@ page import="org.owasp.encoder.Encode" %>
+
 	
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -55,6 +57,7 @@ if(!authed) {
   StringBuffer bufChart = null, bufName = null, bufNo = null;
   if(request.getParameter("limit1")!=null) strLimit1 = request.getParameter("limit1");
   if(request.getParameter("limit2")!=null) strLimit2 = request.getParameter("limit2");
+  String keyWord=Encode.forHtmlAttribute(request.getParameter("keyword"));
 %>
 
 
@@ -90,7 +93,7 @@ function checkTypeIn() {
 </SCRIPT>
 
 </head>
-<body onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
+<body onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0" font face="Helvetica">
 <table border="0" cellspacing="0" cellpadding="0" width="100%">
 	<tr bgcolor="#486ebd">
 		<th align=CENTER NOWRAP><font face="Helvetica" color="#FFFFFF">PATIENT
@@ -123,7 +126,7 @@ function checkTypeIn() {
 			key="oscarMDS.segmentDisplay.patientSearch.formDOB" /> </font></td>
 		<td valign="middle" rowspan="2" ALIGN="left"><input type="text"
 			NAME="keyword" SIZE="17" MAXLENGTH="100"
-			value="<%=request.getParameter("keyword")%>"> <INPUT
+			value="<%=Encode.forHtmlAttribute(request.getParameter("keyword"))%>"> <INPUT
 			TYPE="hidden" NAME="orderby" VALUE="last_name"> <INPUT
 			TYPE="hidden" NAME="dboperation" VALUE="search_titlename"> <INPUT
 			TYPE="hidden" NAME="limit1" VALUE="0"> <INPUT TYPE="hidden"
@@ -405,6 +408,8 @@ function next() {
 
 <bean:message
 	key="oscarMDS.segmentDisplay.patientSearch.msgSearchMessage" /></center>
+<a href="../demographic/demographicaddarecordhtm.jsp?search_mode=search_name&keyword=<%=keyword.replace(" ","").replace("%","")%>" title="<bean:message key="demographic.search.btnCreateNewTitle" />">
+<bean:message key="demographic.search.btnCreateNew" />
 </body>
 </html>
 <%!
