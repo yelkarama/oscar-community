@@ -136,6 +136,14 @@ if(getRecallTicklerAssignee.getValue().equals("yes")){
 }
 }
 
+//reset session attributes
+session.setAttribute("labLastName","");
+session.setAttribute("labFirstName","");
+session.setAttribute("labDOB","");
+session.setAttribute("labHIN","");
+session.setAttribute("labHphone","");
+session.setAttribute("labWphone","");
+session.setAttribute("labSex","");
 
 //Need date lab was received by OSCAR
 Hl7TextMessageDao hl7TxtMsgDao = (Hl7TextMessageDao)SpringUtils.getBean("hl7TextMessageDao");
@@ -489,7 +497,17 @@ input[type=button], button, input[id^='acklabel_']{ font-size:12px !important;pa
         }
 
         function matchMe() {
-            <% if ( !isLinkedToDemographic) { %>
+            <% if ( !isLinkedToDemographic) { 
+
+                    session.setAttribute("labLastName",handler.getLastName());
+					session.setAttribute("labFirstName",handler.getFirstName());
+                    session.setAttribute("labDOB",handler.getDOB());
+					session.setAttribute("labHIN",handler.getHealthNum());
+                    session.setAttribute("labHphone",handler.getHomePhone());
+					session.setAttribute("labWphone",handler.getWorkPhone());
+                    session.setAttribute("labSex",handler.getSex());
+
+            %>
                	popupStart(360, 680, '../../../oscarMDS/SearchPatient.do?labType=HL7&segmentID=<%= segmentID %>&name=<%=java.net.URLEncoder.encode(handler.getLastName()+", "+handler.getFirstName())%>', 'searchPatientWindow');
             <% } %>
 	}
