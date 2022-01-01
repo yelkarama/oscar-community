@@ -489,7 +489,17 @@ input[type=button], button, input[id^='acklabel_']{ font-size:12px !important;pa
         }
 
         function matchMe() {
-            <% if ( !isLinkedToDemographic) { %>
+            <% if ( !isLinkedToDemographic) { 
+
+                    session.setAttribute("labLastName",handler.getLastName());
+					session.setAttribute("labFirstName",handler.getFirstName());
+                    session.setAttribute("labDOB",handler.getDOB());
+					session.setAttribute("labHIN",handler.getHealthNum());
+                    session.setAttribute("labHphone",handler.getHomePhone());
+					session.setAttribute("labWphone",handler.getWorkPhone());
+                    session.setAttribute("labSex",handler.getSex());
+
+            %>
                	popupStart(360, 680, '../../../oscarMDS/SearchPatient.do?labType=HL7&segmentID=<%= segmentID %>&name=<%=java.net.URLEncoder.encode(handler.getLastName()+", "+handler.getFirstName())%>', 'searchPatientWindow');
             <% } %>
 	}
