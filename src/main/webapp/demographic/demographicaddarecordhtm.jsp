@@ -194,6 +194,12 @@
    <script>
      jQuery.noConflict();     
    </script>
+<script>
+    window.onunload = refreshParent;
+    function refreshParent() {
+        window.opener.location.reload();
+    }
+</script>
 
    <script type="text/javascript">
         function aSubmit(){
@@ -655,6 +661,11 @@ var preferredPhone="";
 
 jQuery( document ).ready( function() {
 
+    console.log( "ready!" );
+    parsedob_date();
+    formatPhone(document.getElementById("phone"));
+    formatPhone(document.getElementById("phoneW"));
+
 	var defPhTitle = "Check to set preferred contact number";
 	var prefPhTitle = "Preferred contact number";
 
@@ -705,6 +716,7 @@ jQuery( document ).ready( function() {
 
 jQuery(function(){
     jQuery('form').submit(function(){
+
 	    if (preferredPhone=="C") {jQuery("#cell").val(function(i, val) {
 		    return val + "*";
 	    });}
@@ -717,9 +729,13 @@ jQuery(function(){
     });
 });
 
+
+
 <%
 if("true".equals(OscarProperties.getInstance().getProperty("iso3166.2.enabled","false"))) { 	
 %>
+
+
 jQuery(document).ready(function(){
 	
 	jQuery("#country").bind('change',function(){
@@ -880,7 +896,7 @@ background-color:gainsboro;
 	<% } %>
 </td></tr>
 <tr><td>
-<form method="post" id="adddemographic" name="adddemographic" action="demographicaddarecord.jsp" onsubmit="parsedob_date();return aSubmit()">
+<form method="post" id="adddemographic" name="adddemographic" action="demographicaddarecord.jsp" onsubmit="return aSubmit()" >
 <input type="hidden" name="fromAppt" value="<%=Encode.forHtmlAttribute(request.getParameter("fromAppt"))%>">
 <input type="hidden" name="originalPage" value="<%=Encode.forHtmlAttribute(request.getParameter("originalPage"))%>">
 <input type="hidden" name="bFirstDisp" value="<%=Encode.forHtmlAttribute(request.getParameter("bFirstDisp"))%>">
@@ -2417,7 +2433,7 @@ if(oscarVariables.getProperty("demographicExtJScript") != null) { out.println(os
 					value="add_record"> <input type="hidden" name="displaymode" value="Add Record">
 				<input type="submit" id="btnAddRecord" name="btnAddRecord" class="btn btn-primary"
 					value="<bean:message key="demographic.demographicaddrecordhtm.btnAddRecord"/>" >
-					<input type="submit" name="submit" value="Save & Add Family Member">
+					<input type="submit" name="submit" value="Save & Add Family Member" class="btn">
 				<input type="button" id="btnSwipeCard" name="Button" class="btn"
 					value="<bean:message key="demographic.demographicaddrecordhtm.btnSwipeCard"/>"
 					onclick="window.open('zadddemographicswipe.htm','', 'scrollbars=yes,resizable=yes,width=600,height=300')";>
