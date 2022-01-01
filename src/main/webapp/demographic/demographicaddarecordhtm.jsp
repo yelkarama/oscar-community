@@ -129,7 +129,12 @@
   String defaultCity = session.getAttribute("city")!=null? (String) session.getAttribute("city") : (prov.equals("ON") ? (billingCentre.equals("N") ? "Toronto" : OscarProperties.getInstance().getProperty("default_city")) : "");
 
   String postal = session.getAttribute("postal")!=null? (String) session.getAttribute("postal") : "";
-  String phone = session.getAttribute("phone")!=null? (String) session.getAttribute("phone") : props.getProperty("phoneprefix", "905-");
+
+  String phone = session.getAttribute("phone")!=null? (String) session.getAttribute("phone") : session.getAttribute("labHphone")!=null? (String) session.getAttribute("labHphone") : props.getProperty("phoneprefix", "905-");
+  String phone2 = session.getAttribute("labWphone")!=null? (String) session.getAttribute("labWphone") : "";
+  String dob = session.getAttribute("labDOB")!=null? (String) session.getAttribute("labDOB") : "";
+  String hin = session.getAttribute("labHIN")!=null? (String) session.getAttribute("labHIN") : "";  
+  String sex = session.getAttribute("labSex")!=null? (String) session.getAttribute("labSex") : "";
 
   WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
   CountryCodeDao ccDAO =  (CountryCodeDao) ctx.getBean("countryCodeDao");
@@ -161,6 +166,13 @@
 	session.removeAttribute("province");
 	session.removeAttribute("postal");
 	session.removeAttribute("phone");  
+	session.removeAttribute("labLastName");
+	session.removeAttribute("labFirstName");
+	session.removeAttribute("labDOB");
+	session.removeAttribute("labHIN");
+	session.removeAttribute("labHphone");
+	session.removeAttribute("labWphone");
+	session.removeAttribute("labSex");
 		  
 	//get a list of programs the patient has consented to. 
 	if( OscarProperties.getInstance().getBooleanProperty("USE_NEW_PATIENT_CONSENT_MODULE", "true") ) {
@@ -182,6 +194,12 @@
    <script>
      jQuery.noConflict();     
    </script>
+<script>
+    window.onunload = refreshParent;
+    function refreshParent() {
+        window.opener.location.reload();
+    }
+</script>
 
    <script type="text/javascript">
         function aSubmit(){
@@ -643,6 +661,11 @@ var preferredPhone="";
 
 jQuery( document ).ready( function() {
 
+    console.log( "ready!" );
+    parsedob_date();
+    formatPhone(document.getElementById("phone"));
+    formatPhone(document.getElementById("phoneW"));
+
 	var defPhTitle = "Check to set preferred contact number";
 	var prefPhTitle = "Preferred contact number";
 
@@ -693,6 +716,7 @@ jQuery( document ).ready( function() {
 
 jQuery(function(){
     jQuery('form').submit(function(){
+
 	    if (preferredPhone=="C") {jQuery("#cell").val(function(i, val) {
 		    return val + "*";
 	    });}
@@ -705,9 +729,13 @@ jQuery(function(){
     });
 });
 
+
+
 <%
 if("true".equals(OscarProperties.getInstance().getProperty("iso3166.2.enabled","false"))) { 	
 %>
+
+
 jQuery(document).ready(function(){
 	
 	jQuery("#country").bind('change',function(){
@@ -868,7 +896,7 @@ background-color:gainsboro;
 	<% } %>
 </td></tr>
 <tr><td>
-<form method="post" id="adddemographic" name="adddemographic" action="demographicaddarecord.jsp" onsubmit="return aSubmit()">
+<form method="post" id="adddemographic" name="adddemographic" action="demographicaddarecord.jsp" onsubmit="return aSubmit()" >
 <input type="hidden" name="fromAppt" value="<%=Encode.forHtmlAttribute(request.getParameter("fromAppt"))%>">
 <input type="hidden" name="originalPage" value="<%=Encode.forHtmlAttribute(request.getParameter("originalPage"))%>">
 <input type="hidden" name="bFirstDisp" value="<%=Encode.forHtmlAttribute(request.getParameter("bFirstDisp"))%>">
@@ -963,7 +991,8 @@ background-color:gainsboro;
             <div class="controls" style="white-space: nowrap;">
                 <input type="date" id="inputDOB" 
                     class="input input-medium" required
-                    name="inputDOB" 
+                    name="inputDOB"
+                    value="<%=Encode.forHtmlAttribute(dob)%>" 
 					onchange="parsedob_date();">
                 <input type="hidden" id="year_of_birth" placeholder="yyyy" name="year_of_birth"
 				    >
@@ -979,7 +1008,7 @@ background-color:gainsboro;
               <select  name="sex" id="sex" required>
 			                        <option value=""></option>
 			                		<% for(Gender gn : Gender.values()){ %>
-			                        <option value=<%=gn.name()%> ><%=gn.getText()%></option>
+			                        <option value=<%=gn.name()%> <%=((sex.equals(gn.name())) ? " selected=\"selected\" " : "") %>><%=gn.getText()%></option>
 			                        <% } %>
             </select>
             </div>
@@ -1371,7 +1400,7 @@ background-color:gainsboro;
               <input type="text" placeholder="<bean:message key="demographic.demographiceditdemographic.formPhoneH" />"
                     id="phone" name="phone"
 					onBlur="formatPhone(this)"
-					value="<%=phone%>" 
+					value="<%=Encode.forHtmlAttribute(phone)%>"
 					class="input-medium"
 					>
             <input type="text" name="hPhoneExt" 
@@ -1387,6 +1416,7 @@ background-color:gainsboro;
             <div class="controls" style="white-space:nowrap" >
                 <input type="text" id="phoneW" placeholder="<bean:message key="demographic.demographiceditdemographic.formPhoneW" />" 
                     name="phone2" 
+                    value="<%=Encode.forHtmlAttribute(phone2)%>"
 					onblur="formatPhone(this);"
                     class="input-medium"
 					> 
@@ -1543,6 +1573,7 @@ background-color:gainsboro;
             <div class="controls">
               <input type="text" placeholder="<bean:message key="demographic.demographiceditdemographic.formHin" />"
                     name="hin" id="hinBox" 
+                    value="<%=Encode.forHtmlAttribute(hin)%>"
 					class="input-medium" >
             <bean:message key="demographic.demographiceditdemographic.formVer" />
             <input type="text" placeholder="<bean:message key="demographic.demographiceditdemographic.formVer" />"
@@ -2401,8 +2432,8 @@ if(oscarVariables.getProperty("demographicExtJScript") != null) { out.println(os
 				<div align="center"><input type="hidden" name="dboperation"
 					value="add_record"> <input type="hidden" name="displaymode" value="Add Record">
 				<input type="submit" id="btnAddRecord" name="btnAddRecord" class="btn btn-primary"
-					value="<bean:message key="demographic.demographicaddrecordhtm.btnAddRecord"/>">
-					<input type="submit" name="submit" value="Save & Add Family Member">
+					value="<bean:message key="demographic.demographicaddrecordhtm.btnAddRecord"/>" >
+					<input type="submit" name="submit" value="Save & Add Family Member" class="btn">
 				<input type="button" id="btnSwipeCard" name="Button" class="btn"
 					value="<bean:message key="demographic.demographicaddrecordhtm.btnSwipeCard"/>"
 					onclick="window.open('zadddemographicswipe.htm','', 'scrollbars=yes,resizable=yes,width=600,height=300')";>

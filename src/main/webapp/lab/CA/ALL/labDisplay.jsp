@@ -136,6 +136,14 @@ if(getRecallTicklerAssignee.getValue().equals("yes")){
 }
 }
 
+//reset session attributes
+session.setAttribute("labLastName","");
+session.setAttribute("labFirstName","");
+session.setAttribute("labDOB","");
+session.setAttribute("labHIN","");
+session.setAttribute("labHphone","");
+session.setAttribute("labWphone","");
+session.setAttribute("labSex","");
 
 //Need date lab was received by OSCAR
 Hl7TextMessageDao hl7TxtMsgDao = (Hl7TextMessageDao)SpringUtils.getBean("hl7TextMessageDao");

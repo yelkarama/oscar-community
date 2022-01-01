@@ -101,6 +101,14 @@ if(getRecallTicklerAssignee.getValue().equals("yes")){
 }
 }
 
+//reset session attributes
+session.setAttribute("labLastName","");
+session.setAttribute("labFirstName","");
+session.setAttribute("labDOB","");
+session.setAttribute("labHIN","");
+session.setAttribute("labHphone","");
+session.setAttribute("labWphone","");
+session.setAttribute("labSex","");
 String ackLabFunc;
 if( skipComment ) {
 	ackLabFunc = "handleLab('acknowledgeForm_" + segmentID + "','" + segmentID + "','ackLab');";
