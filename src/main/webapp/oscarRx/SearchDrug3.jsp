@@ -2331,7 +2331,7 @@ function updateQty(element){
         var x = true;
         jQuery('input[name^="quantity_"]').each(function(){
             var str1  = jQuery(this).val();
-            if ((str1.length == 0)||(parseFloat(str1) == 0)) {
+            if ((str1.length == 0)||(parseFloat(str1) == 0)||(isNaN(parseFloat(str1)))) {
             	jQuery(this).focus();
                 x = confirm('WARNING no quantity entered.\nProceed anyway?');
                 return;
