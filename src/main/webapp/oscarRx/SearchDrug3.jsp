@@ -2327,7 +2327,19 @@ function updateQty(element){
              return x;
          }
 
-         
+    function validateRxQuantity() {
+        var x = true;
+        jQuery('input[name^="quantity_"]').each(function(){
+            var str1  = jQuery(this).val();
+            if ((str1.length == 0)||(parseFloat(str1) == 0)) {
+            	jQuery(this).focus();
+                x = confirm('WARNING no quantity entered.\nProceed anyway?');
+                return;
+     	        }
+             });
+             return x;
+         }
+       
 
 
     function validateWrittenDate() {
@@ -2400,7 +2412,9 @@ function updateQty(element){
 		if(!validateRxDate()) {
     		return false;
     	}
-
+		if(!validateRxQuantity()) {
+    		return false;
+    	}
 		<%if (OscarProperties.getInstance().isPropertyActive("rx_strict_med_term")) {%>
 		if(!checkMedTerm()){
 			return false;
