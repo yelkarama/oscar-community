@@ -48,7 +48,6 @@ import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
 import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 
 import oscar.oscarMessenger.data.ContactIdentifier;
 import oscar.oscarMessenger.data.MsgProviderData;
