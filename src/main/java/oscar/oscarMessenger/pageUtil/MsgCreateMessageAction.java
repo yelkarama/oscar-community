@@ -47,7 +47,8 @@ import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
-import com.google.gson.Gson;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 import oscar.oscarMessenger.data.ContactIdentifier;
 import oscar.oscarMessenger.data.MsgProviderData;
@@ -159,7 +160,8 @@ public class MsgCreateMessageAction extends Action {
 			request.setAttribute("messageBody", form.getMessage());
 			request.setAttribute("demographic_no", form.getDemographic_no());
 			List<ContactIdentifier> replyList = MessagingManager.createContactIdentifierList(form.getProvider());
-			request.setAttribute("replyList", new Gson().toJson(replyList));
+			JSONArray jsonArray = new JSONArray();
+			request.setAttribute("replyList", jsonArray.addAll(replyList));
 	    	return mapping.findForward("error");
     }
 
