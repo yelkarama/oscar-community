@@ -40,6 +40,7 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<netbeans.hint.deploy.server>Tomcat85</netbeans.hint.deploy.server>
+		<hapifhir.version>5.4.0</hapifhir.version>
 	</properties>
 
 	<repositories>
@@ -1187,7 +1188,7 @@
 		<dependency>
 			<groupId>ca.uhn.hapi.fhir</groupId>
 			<artifactId>hapi-fhir-base</artifactId>
-			<version>4.0.3</version>
+			<version>${hapifhir.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>
@@ -1202,23 +1203,23 @@
 		<dependency>
 		   <groupId>ca.uhn.hapi.fhir</groupId>
 		   <artifactId>hapi-fhir-structures-dstu2</artifactId>
-		   <version>4.0.3</version>
+		   <version>${hapifhir.version}</version>
 		</dependency>
 		<dependency>
 		   <groupId>ca.uhn.hapi.fhir</groupId>
 		   <artifactId>hapi-fhir-structures-dstu3</artifactId>
-		   <version>4.0.3</version>
+		   <version>${hapifhir.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>ca.uhn.hapi.fhir</groupId>
 			<artifactId>hapi-fhir-structures-r4</artifactId>
-			<version>4.0.3</version>
+			<version>${hapifhir.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>ca.uhn.hapi.fhir</groupId>
 			<artifactId>hapi-fhir-client</artifactId>
-			<version>4.0.3</version>
+			<version>${hapifhir.version}</version>
 		</dependency>
 
 
