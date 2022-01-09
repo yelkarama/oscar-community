@@ -678,6 +678,7 @@ function GetTextTop(){
     textTop += "&lt;/title&gt;\n"
     textTop += "&lt;style type=&quot;text/css&quot; media=&quot;screen&quot; &gt;\n";
     textTop += " input {\n\t-moz-box-sizing: content-box;\n\t-webkit-print-color-adjust: exact;\n\t-webkit-box-sizing: content-box;\n\tbox-sizing: content-box\n }\n"
+	textTop += " .noborder {\n\border: 1px solid #d2d2d2 !important;\n }\n"
     if (document.getElementById('AddSignature').checked){
         textTop += " .sig {\n\tborder: "+SignatureBorder+";\n\tcolor: "+SignatureColor+";\n\tbackground-color: white;\n }\n"
     }
@@ -1220,7 +1221,7 @@ var InputType = P[0];
 		m += inputName
 		m += "&quot; type=&quot;text&quot; class=&quot;"
 		m += inputClassValue
-		m += " noborder&quot; style=&quot;position:absolute; left:"
+		m += "noborder&quot; style=&quot;position:absolute; left:"
 		m += x0
 		m += "px; top:"
 		m += y0
