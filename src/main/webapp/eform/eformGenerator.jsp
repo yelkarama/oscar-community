@@ -649,6 +649,7 @@ function resetAll(){
 	document.getElementById('preCheckGender').checked = false;
 	document.getElementById('XboxType').checked = false;
 	document.getElementById('maximizeWindow').checked = false;
+	document.getElementById('removeHeadersFooters').checked = false;
 	var l = document.getElementById('oscarDB');
 		l[0].selected = true;
 	document.getElementById('AddSignature').checked = false;
@@ -1044,6 +1045,24 @@ function GetTextTop(){
         textTop += "\t top.window.resizeTo(screen.availWidth,screen.availHeight);\n"
         textTop += "\t\n\n &lt;/script&gt;\n\n"
 	}
+	
+	//By Adrian Starzynski: Option to remove headers and footers on print
+	if (document.getElementById('maximizeWindow').checked){
+		textTop += "&lt;!-- style to remove headers and footers on print --&gt;\n"
+        textTop += "&lt;style type=&quot;text/css&quot; media=&quot;print&quot;&gt;\n"
+        textTop += "\t &commat;media print {\n"
+        textTop += "\t &commat;page &#123;\n"
+		textTop += "\t margin-top: 0;\n"
+		textTop += "\t margin-bottom: 0;\n"
+		textTop += "\t &#125;\n"
+		textTop += "\t body &#123;\n"
+		textTop += "\t padding-top: 36px;\n"
+		textTop += "\t padding-bottom: 36px;\n"
+		textTop += "\t &#125;\n"
+		textTop += "\t &#125;\n"
+		textTop += "\t\n\n &lt;/style&gt;\n\n"
+	}
+	
 	//scripts for scaling up checkboxes
 	if (document.getElementById('ScaleCheckmark').checked){
 		textTop += "&lt;!-- scripts for scaling up checkboxes --&gt;\n"	
@@ -2199,6 +2218,9 @@ onclick="SetSwitchOn('Stamp');document.getElementById('AddStamp').disabled=true;
 <div id="Section7">
 <p><span class="h2"><bean:message key="eFormGenerator.miscMax"/></span><br>
 	<input name="maximizeWindow" id="maximizeWindow" type="checkbox"><bean:message key="eFormGenerator.miscMaxhint"/>
+</p>
+<p><span class="h2">Hide Headers/Footers on Print</span><br>
+	<input name="removeHeadersFooters" id="removeHeadersFooters" type="checkbox">Removes headers/footers on print (so your OSCAR link isn't displayed on the printed eForm...)
 </p>
 <p><span class='h2'><bean:message key="eFormGenerator.date"/></span><br>
 	<input name="AddDate" id="AddDate" type="checkBox" checked><bean:message key="eFormGenerator.dateDescription"/>
