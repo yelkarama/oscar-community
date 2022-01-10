@@ -146,14 +146,14 @@ $(function() {
 			</tr>
 			
 			<tr>
-				<td>Start Date:(yyyy-mm-dd)
+				<td>Start Date:
 				</td>
-				<td><input type="text" id="startDate" name="startDate" size="15" id="startDate"></td>
+				<td><input type="date" id="startDate" name="startDate" size="15" id="startDate"></td>
 			</tr>
 			<tr>
-				<td>End Date:(yyyy-mm-dd)
+				<td>End Date:
 				</td>
-				<td><input type="text" id="endDate" name="endDate" size="15" id="endDate"></td>
+				<td><input type="date" id="endDate" name="endDate" size="15" id="endDate"></td>
 			</tr>
 			
 			
