@@ -36,7 +36,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.HttpRequest;
+
 import org.oscarehr.common.dao.forms.FormsDao;
 import org.oscarehr.util.DbConnectionFilter;
 import org.oscarehr.util.LoggedInInfo;
@@ -47,7 +47,7 @@ import oscar.OscarProperties;
 import oscar.oscarDB.DBHandler;
 import oscar.util.UtilDateUtilities;
 
-import javax.persistence.Query;
+
 
 public class FrmONAREnhancedRecord extends FrmRecord {
 	
