@@ -178,8 +178,9 @@
         <oscar:phrverification demographicNo="<%=demoNo%>"><bean:message key="phr.verification.link"/></oscar:phrverification> 
         &nbsp;
         <% String STAR="*";
-            if (showCell && (!demoExt.get("demo_cell").trim().isEmpty() ) &&  !StringUtils.endsWith(StringUtils.trimToEmpty(bean.phone),STAR)) { %> 
-	        <bean:message key="oscarencounter.header.cell"/>&nbsp;<span id="cell" title="<bean:message key="oscarencounter.header.phone"/>&nbsp;<%=bean.phone%>" onclick="copySpanToClipboard(this.id)"><%=StringUtils.trimToEmpty(demoExt.get("demo_cell"))%></span>
+            if ( showCell && !StringUtils.isEmpty(StringUtils.trimToEmpty(demoExt.get("demo_cell"))) &&  !StringUtils.endsWith(StringUtils.trimToEmpty(bean.phone),STAR) ) { %>
+	        <bean:message key="oscarencounter.header.cell"/>&nbsp;
+            <span id="cell" title="<bean:message key="oscarencounter.header.phone"/>&nbsp;<%=bean.phone%>" onclick="copySpanToClipboard(this.id)"><%=StringUtils.trimToEmpty(demoExt.get("demo_cell"))%></span>
         <% } else { %>
         	<bean:message key="oscarencounter.header.phone"/>&nbsp;<span id="tel" title="<bean:message key="oscarencounter.header.cell"/>&nbsp;<%=StringUtils.trimToEmpty(demoExt.get("demo_cell"))%>" onclick="copySpanToClipboard(this.id)"><%=bean.phone%></span>
         <% }  %>
