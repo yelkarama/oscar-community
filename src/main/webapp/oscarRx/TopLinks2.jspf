@@ -1,13 +1,3 @@
-<%@page import="java.io.StringWriter"%>
-<%@page import="org.codehaus.jackson.map.ObjectMapper"%>
-<%@page import="org.apache.commons.lang.StringEscapeUtils"%>
-<%@page import="net.sf.json.JSONObject"%>
-<%@page import="org.oscarehr.common.model.PharmacyInfo"%>
-<%@ page import="oscar.oscarRx.data.*,oscar.oscarProvider.data.ProviderMyOscarIdData,oscar.oscarDemographic.data.DemographicData,oscar.OscarProperties,oscar.log.*"%>
-
-
-<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
-<%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
 
 <%/*
  * Copyright (c) 2001-2002. Department of Family Medicine, McMaster University. All Rights Reserved. *
@@ -32,6 +22,16 @@
  * Ontario, Canada 
  */%> 
  
+<%@page import="java.io.StringWriter"%>
+<%@page import="org.codehaus.jackson.map.ObjectMapper"%>
+<%@page import="org.apache.commons.lang.StringEscapeUtils"%>
+<%@page import="net.sf.json.JSONObject"%>
+<%@page import="org.oscarehr.common.model.PharmacyInfo"%>
+<%@ page import="oscar.oscarRx.data.*,oscar.oscarProvider.data.ProviderMyOscarIdData,oscar.oscarDemographic.data.DemographicData,oscar.OscarProperties,oscar.log.*"%>
+<%@ page import="oscar.oscarRx.util.RxUtil" %>
+
+<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
+<%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
  
 <script language="javascript" type="text/javascript">
 
@@ -51,9 +51,10 @@ function newWindow(url) {
             <table width="100%" border="0" height="100%">
                 <tr>
                     <td style="color:white;text-transform:uppercase;" >     
-					<b>&nbsp;&nbsp;<bean:message key="SearchDrug.nameText" /></b> <a style="color:white;text-decoration:underline;" href="<%=request.getContextPath() %>/demographic/demographiccontrol.jsp?demographic_no=<%=patient.getDemographicNo()%>&displaymode=edit&dboperation=search_detail)"> <jsp:getProperty name="patient" property="surname" />, <jsp:getProperty name="patient" property="firstName" /></a> &nbsp;&nbsp;&nbsp;&nbsp;<b><bean:message key="SearchDrug.sexText" /> </b><jsp:getProperty name="patient" property="sex" />
+					<b>&nbsp;&nbsp;<bean:message key="SearchDrug.nameText" /></b> <a style="color:white;text-decoration:underline;" href="<%=request.getContextPath() %>/demographic/demographiccontrol.jsp?demographic_no=<%=patient.getDemographicNo()%>&displaymode=edit&dboperation=search_detail)"> 
+                    <jsp:getProperty name="patient" property="surname" />, <jsp:getProperty name="patient" property="firstName" /></a> &nbsp;&nbsp;&nbsp;&nbsp;<b><bean:message key="SearchDrug.sexText" /> </b><jsp:getProperty name="patient" property="sex" />
 
-			<b>&nbsp;&nbsp;&nbsp;&nbsp;Age:</b> <jsp:getProperty name="patient" property="age" />
+			<b>&nbsp;&nbsp;&nbsp;&nbsp;<bean:message key="SearchDrug.DOBtext%> </b><%= RxUtil.DateToString(patient.getDOB(), "MMM d, yyyy") %>
 		     		
                     <b>&nbsp;&nbsp;&nbsp;&nbsp;<u><a style="color:white; "href="SelectPharmacy2.jsp"><bean:message key="SearchDrug.PreferredPharmacy" /></a></u>:</b>
                     <select style="text-transform:uppercase;" id="Calcs" name="pharmacyId" onchange="populatePharmacy(this.options[this.selectedIndex].value);showpic('Layer1');"> 
