@@ -925,6 +925,7 @@ String curProvider_no = (String)session.getAttribute("user");
                     	<li><a href='javascript:void(0);' class="xlink" rel="${ctx}/admin/QuestimedConfiguration.jsp"><bean:message key="admin.admin.QuestimedConfig" /></a></li>
                     <%}%>
 					<li><a  href='javascript:void(0);' class="xlink" rel="${ctx}/admin/cvc.jsp"><bean:message key="admin.admin.cvc" /></a></li>
+					<li><a  href='javascript:void(0);' class="xlink" rel="${ctx}/admin/onlinebooking.jsp"><bean:message key="global.Online Booking" /></a></li>
 					<% if (OscarProperties.getInstance().getBooleanProperty("oneid.oauth2.enabled", "true")) { %>                                          
 					<li><a  href='javascript:void(0);' class="xlink" rel="${ctx}/admin/uaoConfig.jsp">UAO Config</a></li>
 					<li><a  href='javascript:void(0);' class="xlink" rel="${ctx}/admin/omdGatewayLogAll.jsp">Gateway Log</a></li>
@@ -1178,4 +1179,3 @@ function getUrlVars()
     return vars;
 }
 </script>
-
