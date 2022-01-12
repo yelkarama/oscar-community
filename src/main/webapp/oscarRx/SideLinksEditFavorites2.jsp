@@ -124,8 +124,8 @@ for (Dxresearch dx:dxreasearchDao.getByDemographicNo(bean2.getDemographicNo())){
 </security:oscarSec>
 
 <p class="PropSheetLevel1CurrentItem"><bean:message key="oscarRx.sideLinks.msgFavorites"/>
-<a href="EditFavorites2.jsp">edit</a>
-<a href="CopyFavorites2.jsp">copy</a>  <%-- <bean:message key="oscarRx.sideLinks.msgCopyFavorites"/> --%>
+<a href="EditFavorites2.jsp"><bean:message key="oscarRx.sideLinks.EditFavorites"/></a>&nbsp;
+<a href="CopyFavorites2.jsp"><bean:message key="oscarRx.sideLinks.CopyFavorites"/></a>  <%-- <bean:message key="oscarRx.sideLinks.msgCopyFavorites"/> --%>
 </p>
 <p class="PropSheetMenuItemLevel1">
 <%
