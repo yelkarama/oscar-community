@@ -726,15 +726,7 @@ function checkFav(){
     }
     a:hover{
     text-decoration:underline;
-    }
-
-    .btn-primary{
-        color: #ffffff;
-	background-color:#007bff;
-	border-color:#007bff;
-	font-family:Helvetica Neue,Helvetica,Arial,sans-serif;
-        cursor: pointer;
-    }    
+    }   
 
     #verificationLink{
     	color:white;
@@ -907,7 +899,7 @@ top.window.resizeTo(screen.availWidth,screen.availHeight);
                                     <table border="0" style="border-collapse:collapse;">
                                         <tr width="100%" valign="top">
                                             <td style="width:330px;">
-                                            	&nbsp;<span style="font-size:20px;"><i class="icon-search"></i></span> &nbsp;&nbsp;
+                                            	&nbsp;&nbsp;<span style="font-size:20px;"><i class="icon-search"></i></span> &nbsp;&nbsp;
                                                 <html:text styleId="searchString" property="searchString" onfocus="changeContainerHeight();" onblur="changeContainerHeight();" onclick="changeContainerHeight();" onkeydown="changeContainerHeight();" style="width:278px;\" autocomplete=\"off" />
                                                 <div id="autocomplete_choices" class="drugchoices" style="color:black;overflow:auto;width:600px"></div>
                                                 <span id="indicator1" style="display: none"> <!--img src="/images/spinner.gif" alt="Working..." --></span>
@@ -960,7 +952,7 @@ top.window.resizeTo(screen.availWidth,screen.availHeight);
                                     <table width="100%"><!--drug profile, view and listdrugs.jsp-->
                                         <tr>
                                             <td>
-                                                <div class="DivContentSectionHead" style="text-align:right;text-decoration:underline;">
+                                                <div class="DivContentSectionHead" style="text-decoration:underline;">
                                                     <bean:message key="SearchDrug.section2Title" />
                                                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
@@ -1000,7 +992,7 @@ top.window.resizeTo(screen.availWidth,screen.availHeight);
 																			+ "medicalDataType=Prescriptions" + "&"
 																			+ "parentPage=" + request.getRequestURI();
 																	%>
-																		<a href="<%=sendDataPath%>"><%=LocaleUtils.getMessage(request, "SendToPHR")%></a>
+																		&nbsp;&nbsp; <a href="<%=sendDataPath%>"><%=LocaleUtils.getMessage(request, "SendToPHR")%></a>
 																	<%
 																}
 																else
@@ -1144,7 +1136,7 @@ top.window.resizeTo(screen.availWidth,screen.availHeight);
                                         <tr>
                                             <td>
                                                 <div class="DivContentSectionHead" style="text-decoration:underline;">
-                                                Other Medications
+                                                <bean:message key='oscarRx.OtherMedications'/>
                                              </div>
                                             </td>
                                         </tr>
