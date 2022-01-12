@@ -156,6 +156,7 @@
   
 </script>
 <title><bean:message key="ManagePharmacy.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <html:base />
 
 <logic:notPresent name="RxSessionBean" scope="session">
@@ -169,34 +170,38 @@
 	</logic:equal>
 </logic:present>
 <% oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean)pageContext.findAttribute("bean"); %>
-<link rel="stylesheet" type="text/css" href="styles.css">
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/datepicker.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/DT_bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
+<link rel="stylesheet" href="../css/helpdetails.css" type="text/css">
 </head>
 <body topmargin="0" leftmargin="0" vlink="#0000FF">
 
 <table border="0" cellpadding="0" cellspacing="0"
 	style="border-collapse: collapse" bordercolor="#111111" width="100%"
 	id="AutoNumber1" height="100%">
-	<%@ include file="TopLinks.jsp"%><!-- Row One included here-->
+
 	<tr>
-		<td width="100%" style="border-left: 2px solid #A9A9A9;" height="100%"
+		<td width="100%" height="100%"
 			valign="top" colspan="2">
 		<table cellpadding="0" cellspacing="2"
-			style="border-collapse: collapse" bordercolor="#111111" width="100%"
-			height="100%">
+			style="border-collapse: collapse" width="100%" height="100%">
 			<tr>
-				<td width="0%" valign="top">
-				<div class="DivCCBreadCrumbs"><a href="SearchDrug3.jsp"> <bean:message
+				<td width="0%" valign="top" style="font-size:12px;"><br>
+				<div class="DivCCBreadCrumbs"><a href="SearchDrug3.jsp" target="_parent"> <bean:message
 					key="SearchDrug.title" /></a> > <bean:message key="SelectPharmacy.title" /> > <bean:message
-					key="ManagePharmacy.title" /> </div>
+					key="ManagePharmacy.title" /> </div><br>
 				</td>
 			</tr>
 			<!----Start new rows here-->
 			<tr>
-				<td>
+				<td style="font-weight:bold;text-decoration:underline;">
 				<div class="DivContentSectionHead">
 				<% if (request.getParameter("ID") ==  null){ %> <bean:message
 					key="ManagePharmacy.subTitle.add" /> <%}else{%> <bean:message
-					key="ManagePharmacy.subTitle.update" /> <%}%>
+					key="ManagePharmacy.subTitle.update" /> <%}%> <br><br>
 				</div>
 				</td>
 			</tr>
@@ -208,63 +213,57 @@
 							<% %>
 							<input type="hidden" id="pharmacyId" name="pharmacyId"/>
 							<input type="hidden" id="demographicNo" name="demographicNo" value="<%=bean.getDemographicNo()%>"/>
-							<bean:message key="ManagePharmacy.txtfld.label.pharmacyName" /> :</td>
+							<bean:message key="ManagePharmacy.txtfld.label.pharmacyName" />:</td>
 							<td><input type="text" id="pharmacyName" name="pharmacyName" /></td>
 						</tr>
 						<tr>
-							<td><bean:message key="ManagePharmacy.txtfld.label.address" />
-							:</td>
+							<td><bean:message key="ManagePharmacy.txtfld.label.address" />:</td>
 							<td><input type="text" id="pharmacyAddress" name="pharmacyAddress" /></td>
 						</tr>
 						<tr>
-							<td><bean:message key="ManagePharmacy.txtfld.label.city" />
-							:</td>
+							<td><bean:message key="ManagePharmacy.txtfld.label.city" />:</td>
 							<td><input type="text" id="pharmacyCity" name="pharmacyCity" /></td>
 						</tr>
 						<tr>
-							<td><bean:message key="ManagePharmacy.txtfld.label.province" />
-							:</td>
+							<td><bean:message key="ManagePharmacy.txtfld.label.province" />:</td>
 							<td><input type="text" id="pharmacyProvince" name="pharmacyProvince" /></td>
 						</tr>
 						<tr>
 							<td><bean:message
-								key="ManagePharmacy.txtfld.label.postalCode" /> :</td>
+								key="ManagePharmacy.txtfld.label.postalCode" />:</td>
 							<td><input type="text" id="pharmacyPostalCode" name="pharmacyPostalCode" /></td>
 						</tr>
 						<tr>
-							<td><bean:message key="ManagePharmacy.txtfld.label.phone1" />
-							:</td>
+							<td><bean:message key="ManagePharmacy.txtfld.label.phone1" />:</td>
 							<td><input type="text" id="pharmacyPhone1" name="pharmacyPhone1" /></td>
 						</tr>
 						<tr>
-							<td><bean:message key="ManagePharmacy.txtfld.label.phone2" />
-							:</td>
+							<td><bean:message key="ManagePharmacy.txtfld.label.phone2" />:</td>
 							<td><input type="text" id="pharmacyPhone1" name="pharmacyPhone1" /></td>
 						</tr>
 						<tr>
-							<td><bean:message key="ManagePharmacy.txtfld.label.fax" /> :
+							<td><bean:message key="ManagePharmacy.txtfld.label.fax" />:
 							</td>
 							<td><input type="text" id="pharmacyFax" name="pharmacyFax" /></td>
 						</tr>
 						<tr>
-							<td><bean:message key="ManagePharmacy.txtfld.label.email" />
-							:</td>
+							<td><bean:message key="ManagePharmacy.txtfld.label.email" />:</td>
 							<td><input type="text" id="pharmacyEmail" name="pharmacyEmail" /></td>
 						</tr>
 						<tr>
-							<td><bean:message key="ManagePharmacy.txtfld.label.serviceLocationIdentifier" /> :
+							<td><bean:message key="ManagePharmacy.txtfld.label.serviceLocationIdentifier" />:
 							</td>
 							<td><input type="text" id="pharmacyServiceLocationId" name="pharmacyServiceLocationId" /></td>
 						</tr>
 
 						<tr>
 							<td><bean:message
-								key="ManagePharmacy.txtfld.label.notes" /> :</td>
-							<td><textarea id="pharmacyNotes" name="pharmacyNotes" rows="4"></textarea></td>
+								key="ManagePharmacy.txtfld.label.notes" />:</td>
+							<td><textarea style="resize:none;" id="pharmacyNotes" name="pharmacyNotes" rows="4"></textarea></td>
 						</tr>
 
 						<tr>
-                                                    <td><input type="button" onclick="savePharmacy();"
+                                                    <td><input type="button" onclick="savePharmacy();" class="btn btn-primary" 
 								value="<bean:message key="ManagePharmacy.submitBtn.label.submit"/>" />
 							</td>
 						</tr>
