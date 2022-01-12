@@ -717,6 +717,16 @@ TABLE {
         cursor: pointer;
     }
 
+    .btn-primary{
+        color: #ffffff;
+	background-color:#007bff;
+	border-color:#007bff;
+	font-family:Helvetica Neue,Helvetica,Arial,sans-serif;
+        cursor: pointer;
+        font-size:small !important;
+        padding:3px !important;
+    } 
+
 .ControlTextField {
 	font-family: Helvetica Neue,Helvetica,Arial,sans-serif;
 	font-size: 100%;
