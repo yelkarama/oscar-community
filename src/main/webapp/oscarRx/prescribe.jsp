@@ -271,7 +271,7 @@ if(listRxDrugs!=null){
 		</div>
         
         <%if(genericName!=null&&!genericName.equalsIgnoreCase("null")){%>
-        <div class="tooltip">Ingredient:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a alt="See drug information on Epocrates" href="https://online.epocrates.com/results?query=<%=genericName%>" target="popup" onclick="window.open('https://online.epocrates.com/results?query=<%=genericName%>','name','width=+screen.availWidth+,height=+screen.availHeight+')"><%=genericName%></a><span class="tooltiptext">See drug information on Epocrates</span></div><%}%>
+        <div class="tooltip">Ingredient:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a style="cursor:pointer;" onclick="window.open('https://online.epocrates.com/results?query=<%=genericName%>',width=1030,height=895)"><%=genericName%></a><span class="tooltiptext">See drug information on Epocrates</span></div><%}%>
        <div class="rxStr" title="not what you mean?" >
            <a tabindex="-1" href="javascript:void(0);" onclick="focusTo('method_<%=rand%>')">Method:</a><a   id="method_<%=rand%>" onclick="focusTo(this.id)" onfocus="lookEdittable(this.id)" onblur="lookNonEdittable(this.id);updateProperty(this.id);"><%=methodStr%></a>
            <a tabindex="-1" href="javascript:void(0);" onclick="focusTo('route_<%=rand%>')">Route:</a><a id="route_<%=rand%>" onclick="focusTo(this.id)" onfocus="lookEdittable(this.id)" onblur="lookNonEdittable(this.id);updateProperty(this.id);"> <%=routeStr%></a>
