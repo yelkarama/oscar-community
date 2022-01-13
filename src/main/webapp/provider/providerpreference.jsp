@@ -259,15 +259,18 @@ window.opener.location.reload();
 					<INPUT TYPE="TEXT" NAME="every_min" VALUE='<%=everyMin%>' size="2" maxlength="2">
 				</td>
 			</tr>
+            <security:oscarSec roleName="<%=roleName$%>" objectName="_admin,_admin.schedule,_admin.schedule.curprovider_only" rights="r" reverse="<%=false%>">
 			<tr>
 				<td class="preferenceLabel">
 					<bean:message key="provider.preference.formGroupNo" />
 				</td>
 				<td class="preferenceValue">
 					<INPUT TYPE="TEXT" NAME="mygroup_no" VALUE='<%=myGroupNo%>' size="12" maxlength="10">
+
 					<input type="button" class="btn btn-link" value="<bean:message key="provider.providerpreference.viewedit" />" onClick="popupPage(360,680,'providerdisplaymygroup.jsp' );return false;" />
 				</td>
 			</tr>
+            </security:oscarSec>
 			<caisi:isModuleLoad moduleName="ticklerplus">
 				<tr id="ticklerPlus">
 					<!-- check box of new-tickler-warnning-windows -->
