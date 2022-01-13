@@ -142,7 +142,7 @@
 
     <c:set var="ctx" value="${pageContext.request.contextPath}" scope="request"/>
     
-<div style="float:left; width: 100%; padding-left:2px; text-align:left; font-size: 12px; color:<%=inverseUserColour%>; background-color:<%=userColour%>" id="encounterHeader">
+<div style="float:left; width: 99.8%; padding-left:2px; text-align:left; font-size: 12px; color:<%=inverseUserColour%>; background-color:<%=userColour%>" id="encounterHeader">
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
 <tr>
 <td>
