@@ -582,12 +582,6 @@ function toggleView(form) {
                                     parent.myLightWindow.deactivate();
                                 }
 
-                                function ShowDrugInfo(drug){
-                                    window.open("https://online.epocrates.com/results?query=" + escape(drug), "_blank",
-                                        "location=no, menubar=no, toolbar=no, scrollbars=yes, status=yes, resizable=yes");
-                                }
-
-
                                 function printPharmacy(id,name){
                                     //ajax call to get all info about a pharmacy
                                     //use json to write to html
@@ -758,26 +752,7 @@ function toggleView(form) {
                         </td>
 					</tr>
 		            <%}%>
-                    <tr>
-						<td colspan=2 style="font-size:15px;font-weight: bold"><span><bean:message key="ViewScript.msgDrugInfo"/></span></td>
-					</tr>
-					<%
-                        for(int i=0; i<bean.getStashSize(); i++){
-                            oscar.oscarRx.data.RxPrescriptionData.Prescription rx
-                                = bean.getStashItem(i);
-
-                            if (! rx.isCustom()){
-                            %>
-					<tr>
-						<!--td width=10px></td-->
-						<td><span><a
-							href="javascript:ShowDrugInfo('<%= rx.getGenericName() %>');">
-						<%= rx.getGenericName() %> (<%= rx.getBrandName() %>) </a></span></td>
-					</tr>
-					<%
-                            }
-                        }
-                        %>
+                    			
 				</table>
 				</td>
 			</tr>
