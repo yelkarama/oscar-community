@@ -53,6 +53,7 @@ if(!authed) {
 <%@page import="org.oscarehr.common.model.InstitutionDepartment" %>
 <%@page import="org.oscarehr.common.model.InstitutionDepartmentPK" %>
 <%@page import="org.oscarehr.common.dao.InstitutitionDepartmentDao" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%
 	InstitutionDao institutionDao = SpringUtils.getBean(InstitutionDao.class);
     DepartmentDao departmentDao = SpringUtils.getBean(DepartmentDao.class);
@@ -65,23 +66,30 @@ String id = (String) request.getAttribute("id");
 String name = (String) request.getAttribute("name");
 %>
 <head>
-<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
+
 <title>Display Institution</title>
 <html:base />
-<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
+
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+<style>
+.MainTableLeftColumn td{
+    font-size: 12px;
+
+}
+</style>
 </head>
 
-<link rel="stylesheet" type="text/css" href="../../encounterStyles.css">
 <body class="BodyStyle" vlink="#0000FF">
 <html:errors />
 <!--  -->
 <table class="MainTable" id="scrollNumber1" name="encounterTable">
 	<tr class="MainTableTopRow">
-		<td class="MainTableTopRowLeftColumn">Consultation</td>
+		<td class="MainTableTopRowLeftColumn"><h4>Consultation</h4></td>
 		<td class="MainTableTopRowRightColumn">
 		<table class="TopStatusBar">
 			<tr>
-				<td class="Header">Adjust Institutions 
+				<td class="Header"><h4>Adjust Institutions</h4>
 				</td>
 			</tr>
 		</table>
@@ -100,13 +108,13 @@ String name = (String) request.getAttribute("name");
 
 			<!----Start new rows here-->
 			<tr>
-				<td>Please check off all the departments offered by <%=name%>.</td>
+				<td>Please check off all the departments offered by <%=Encode.forHtml(name)%>.</td>
 			</tr>
 			<tr>
 				<td><html:form
 					action="/oscarEncounter/UpdateInstitutionDepartment">
 					<input type="hidden" name="id" value="<%=id %>">
-					<input type="submit"
+					<input type="submit" class="btn btn-primary" 
 						value="Update Institution Department">
 					<div class="ChooseRecipientsBox1">
 					<table>
@@ -128,7 +136,7 @@ String name = (String) request.getAttribute("name");
 							
 							</td>
 							<td>
-							<% out.print(i.getName()); %>
+							<% out.print(Encode.forHtml(i.getName())); %>
 							</td>
 							
 						</tr>
