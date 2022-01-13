@@ -93,19 +93,7 @@ List<AffinityDomainDataObject> affinityDomains = affDao.getAllAffinityDomains();
 <%
 UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 Properties oscarVariables = OscarProperties.getInstance();
-String resourcebaseurl =  oscarVariables.getProperty("resource_base_url");
 
- 	    UserProperty rbu = userPropertyDao.getProp("resource_baseurl");
- 	    if(rbu != null) {
- 	    	resourcebaseurl = rbu.getValue();
- 	    }
- 	     	    
- 	    String resourcehelpHtml = oscarVariables.getProperty("HELP_SEARCH_URL"); 
- 	    UserProperty rbuHtml = userPropertyDao.getProp("resource_helpHtml");
- 	    if(rbuHtml != null) {
- 	    	resourcehelpHtml = rbuHtml.getValue();
- 	    }
-   
 
 //if delete request is made
 if (request.getParameter("delDocumentNo") != null) {
@@ -351,14 +339,7 @@ function popup1(height, width, url, windowName){
 
 <div class="row-fluid hidden-print" style="text-align:right">
 <i class=" icon-question-sign"></i> 
-	<%if(resourcehelpHtml==""){ %>
-		<a href="#" ONCLICK ="popupPage(600,750,'<%=resourcebaseurl%>');return false;" title="" onmouseover="window.status='';return true">Help</a> 
-	<%}else{%>
-
-	    <a href="javascript:void(0)" onClick ="popupPage(600,750,'<%=resourcehelpHtml%>'+'eDoc+Document')"><bean:message key="app.top1"/></a>
-	    
-
-	<%}%>
+<a href="https://worldoscar.org/knowledge-base/patient-document-management/" target="_blank"><bean:message key="app.top1"/></a>
 
 <i class=" icon-info-sign" style="margin-left:10px;"></i> <a href="javascript:void(0)"  onClick="window.open('<%=request.getContextPath()%>/oscarEncounter/About.jsp','About OSCAR','scrollbars=1,resizable=1,width=800,height=600,left=0,top=0')" ><bean:message key="global.about" /></a>
 </div><!-- hidden print -->
@@ -410,7 +391,7 @@ function popup1(height, width, url, windowName){
              %>
       <div class="doclist">
       <div class="headerline" style="background-color: #d1d5bd;">
-      <div class="docHeading">
+      <div class="docHeading" style="padding:8px;">
       <% if( i == 0 ) {
                          %> <span class="tabs" style="float: right">
       <bean:message key="dms.documentReport.msgViewStatus"/> <select class="input-medium" id="viewstatus" name="viewstatus"
@@ -429,6 +410,7 @@ function popup1(height, width, url, windowName){
       -- <%= currentkey%> </a> 
       <!-- Enter the deleted code here -->
       <%if(DocumentBrowserLink) {%><a href="../dms/documentBrowser.jsp?function=<%=module%>&functionid=<%=moduleid%>&categorykey=<%=currentkey%>"><bean:message key="dms.documentReport.msgBrowser"/></a><%}%>
+      &nbsp;&nbsp;
       <span class="tabs"> <bean:message key="dms.documentReport.msgView"/>: 
       <select id="viewdoctype" name="view" class="input-medium"
         style="margin-bottom: -4px;"
@@ -612,12 +594,12 @@ function popup1(height, width, url, windowName){
       </div>
       <%}%>
       </div>
-      <div><input type="button" name="Button"
+      <div><input type="button" name="Button" class="btn btn-primary"
         value="<bean:message key="dms.documentReport.btnDoneClose"/>"
-        onclick=self.close();> <input type="button" name="print"
-        value='<bean:message key="global.btnPrint"/>'
+        onclick=self.close();> <input type="button" name="print" class="btn"
+        value='<bean:message key="dms.documentReport.btnPrintThisPageList"/>'
         onClick="window.print()"> <input type="button"
-        value="<bean:message key="dms.documentReport.btnCombinePDF"/>"
+        value="<bean:message key="dms.documentReport.btnCombinePDF"/>" class="btn"
         onclick="return submitForm('<rewrite:reWrite jspPage="combinePDFs.do"/>');" />
         <%
                     if( module.equals("demographic") ) {
