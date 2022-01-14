@@ -998,7 +998,7 @@ top.window.resizeTo(screen.availWidth,screen.availHeight);
 																else
 																{
 																	%>
-																		<span style="color:grey;text-decoration:underline"><%=LocaleUtils.getMessage(request, "SendToPHR")%></span>
+																		&nbsp;&nbsp;<span style="color:grey;text-decoration:underline"><%=LocaleUtils.getMessage(request, "SendToPHR")%></span>
 																	<%
 																}
 									                  	  }
