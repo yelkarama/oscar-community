@@ -73,8 +73,8 @@ A:hover {color: black;}
 		<table width="560"  align="center" cellspacing="0" cellpadding="0">
 			<td>
 			
-			<p class="build_info">Build date: <%= OscarProperties.getBuildDate() %><br />
-			   Build tag: <%=OscarProperties.getBuildTag()%>	
+			<p class="build_info">Build Date: <%= OscarProperties.getBuildDate() %><br />
+			   Build Tag: <%=OscarProperties.getBuildTag()%>	
 			</p>
 			
 			<table width="85%" align="center">
@@ -89,8 +89,7 @@ A:hover {color: black;}
 				<p><u>Terms</u></p>
 				
 				<p style="text-align:justify;">
-				Copyright (c) 2001-<script>document.write(new Date().getFullYear())</script>
-. Department of Family
+				Copyright &copy; 2001-<script>document.write(new Date().getFullYear())</script>. Department of Family
 				Medicine, McMaster University. All Rights Reserved. This software is
 				published under the GPL GNU General Public License. This program is
 				free software; you can redistribute it and/or modify it under the
