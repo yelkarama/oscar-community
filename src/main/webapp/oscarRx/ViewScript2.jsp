@@ -151,7 +151,7 @@ if(bMultisites) {
 	for (int i=0;i<sites.size();i++) {
 		Site s = sites.get(i);
         vecAddressName.add(s.getName());
-        vecAddress.add("<b>"+doctorName+"</b><br>"+s.getName()+"<br>"+s.getAddress() + "<br>" + s.getCity() + ", " + s.getProvince() + " " + s.getPostal() + "<br>"+rb.getString("RxPreview.msgTel")+": &nbsp;" + s.getPhone() + "<br>"+rb.getString("RxPreview.msgFax")+": &nbsp;" + s.getFax());
+        vecAddress.add("<b>"+doctorName+"</b><br>"+s.getName()+"<br>"+s.getAddress() + "<br>" + s.getCity() + ", " + s.getProvince() + " " + s.getPostal() + "<br>"+rb.getString("RxPreview.msgTel")+": " + s.getPhone() + "<br>"+rb.getString("RxPreview.msgFax")+": " + s.getFax());
         if (s.getName().equals(location))
         	session.setAttribute("RX_ADDR",String.valueOf(i));
 	}
