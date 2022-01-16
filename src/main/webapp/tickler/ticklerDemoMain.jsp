@@ -531,7 +531,7 @@ function reportWindow(page) {
 					key="tickler.ticklerMain.msgDemographicName" /></B></FONT></TD>
 				<TD width="8%"><FONT FACE="verdana,arial,helvetica"
 					COLOR="#FFFFFF" SIZE="-2"><B><bean:message
-					key="tickler.ticklerMain.msgDoctorName" /></B></FONT></TD>
+					key="tickler.ticklerMain.MRP" /></B></FONT></TD>
 				<TD width="9%"><FONT FACE="verdana,arial,helvetica"
 					COLOR="#FFFFFF" SIZE="-2"><B><bean:message
 					key="tickler.ticklerMain.msgDate" /></B></FONT></TD>
@@ -635,7 +635,7 @@ function reportWindow(page) {
 					</TD>
 				<TD ROWSPAN="1" class="<%=cellColour%>"><a
 					href=#
-					onClick="popupPage(600,800,'../demographic/demographiccontrol.jsp?demographic_no=<%=t.getDemographicNo()%>&displaymode=edit&dboperation=search_detail')"><%=d.getLastName()%>,<%=d.getFirstName()%></a></TD>
+					onClick="window.open('../demographic/demographiccontrol.jsp?demographic_no=<%=t.getDemographicNo()%>&displaymode=edit&dboperation=search_detail')"><%=d.getLastName()%>,<%=d.getFirstName()%></a></TD>
 				<TD ROWSPAN="1" class="<%=cellColour%>"><%=provider%></TD>
 				<TD ROWSPAN="1" class="<%=cellColour%>">
 				<%
@@ -749,7 +749,7 @@ if (nItems == 0) {
 					key="tickler.ticklerDemoMain.btnClearAll" /></a> &nbsp; &nbsp; &nbsp;
 				&nbsp; &nbsp; <input type="button" name="button"
 					value="<bean:message key="tickler.ticklerDemoMain.btnAddTickler"/>"
-					onClick="popupPage('400','600', 'ticklerAdd.jsp?updateParent=true&parentAjaxId=<%=parentAjaxId%>&bFirstDisp=false&messageID=null&demographic_no=<%=d.getDemographicNo()%>&chart_no=<%=d.getChartNo()%>&name=<%=d.getDisplayName()%>')"
+					onClick="popupPage('450','650', 'ticklerAdd.jsp?updateParent=true&parentAjaxId=<%=parentAjaxId%>&bFirstDisp=false&messageID=null&demographic_no=<%=d.getDemographicNo()%>&chart_no=<%=d.getChartNo()%>&name=<%=d.getDisplayName()%>')"
 					class="sbttn"> <input type="hidden" name="submit_form"
 					value=""> <% if (ticklerview.compareTo("D") == 0){%> <input
 					type="button"
