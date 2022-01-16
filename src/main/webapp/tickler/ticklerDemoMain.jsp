@@ -749,7 +749,7 @@ if (nItems == 0) {
 					key="tickler.ticklerDemoMain.btnClearAll" /></a> &nbsp; &nbsp; &nbsp;
 				&nbsp; &nbsp; <input type="button" name="button"
 					value="<bean:message key="tickler.ticklerDemoMain.btnAddTickler"/>"
-					onClick="popupPage('400','600', 'ticklerAdd.jsp?updateParent=true&parentAjaxId=<%=parentAjaxId%>&bFirstDisp=false&messageID=null&demographic_no=<%=d.getDemographicNo()%>&chart_no=<%=d.getChartNo()%>&name=<%=d.getDisplayName()%>')"
+					onClick="popupPage('450','650', 'ticklerAdd.jsp?updateParent=true&parentAjaxId=<%=parentAjaxId%>&bFirstDisp=false&messageID=null&demographic_no=<%=d.getDemographicNo()%>&chart_no=<%=d.getChartNo()%>&name=<%=d.getDisplayName()%>')"
 					class="sbttn"> <input type="hidden" name="submit_form"
 					value=""> <% if (ticklerview.compareTo("D") == 0){%> <input
 					type="button"
