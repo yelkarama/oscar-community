@@ -967,10 +967,11 @@ background-color:gainsboro;
    		 <tr>
 				<td colspan="4">
 <div class="container-fluid well form-horizontal span12" id="editWrapper">
-    <div  id="demographicSection" class="span12">
+    <div  id="demographicSection" class="span11">
 		<fieldset>
 			<legend><bean:message key="demographic.demographiceditdemographic.msgDemographic" /></legend>
 		</fieldset>
+    </div>
         <div class="control-group span5"  >
             <label class="control-label" for="last_name"><bean:message
                 key="demographic.demographiceditdemographic.formLastName" /><span style="color:red">*</span></label>
