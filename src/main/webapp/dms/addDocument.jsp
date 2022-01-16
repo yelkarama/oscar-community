@@ -368,17 +368,17 @@ for (String reportClass : reportClasses) {
         <div class="autocomplete_style" id="docSubClass_list"></div>
         &nbsp;
         <input type="checkbox" name="restrictToProgram"> Restrict to current program
-        <br />
+        <br /><br>
 	<input type="hidden" name="mode" value="add">
-	<input type="submit" name="Submit" value="Add">
-	<input type="button" name="Button"
+	<input type="submit" name="Submit" value="Add" class="btn btn-primary">
+	<input type="button" name="Button" class="btn"
 		value="<bean:message key="global.btnCancel"/>"
 		onclick="javascript: window.location='documentReport.jsp?function=<%=module%>&functionid=<%=moduleid%>'">
 </html:form></div>
 <div id="addLinkDiv" class="addDocDiv"
 	style="background-color: #f2f5e3; display: none;"><html:form
 	action="/dms/addLink" method="POST" styleClass="forms"
-	onsubmit="return submitUploadLink(this)">
+	onsubmit="return submitUploadLink(this)"><br><br>
 	<%-- Lists Errors --%>
 	<% for (Enumeration errorkeys = linkhtmlerrors.keys(); errorkeys.hasMoreElements();) {%>
 	<font class="warning">Error: <bean:message
