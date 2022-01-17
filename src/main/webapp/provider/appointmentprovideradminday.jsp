@@ -740,11 +740,11 @@ th, td {
 <script type="text/javascript">
 
 function pop1(url) {
-  return pop4(600, 1024, url, "oscar_appt");
+  return pop4(700, 1024, url, "oscar_appt");
 }
 
 function pop2(url,windowName) {
-  return pop4(600, 1024, 0, 0, url, windowName);
+  return pop4(700, 1024, 0, 0, url, windowName);
 }
 
 function pop3(vheight, vwidth, varpage) { 
@@ -752,18 +752,27 @@ function pop3(vheight, vwidth, varpage) {
 }
 
 function pop4(vheight, vwidth, varpage, windowName) { //open a new popup window
+    windowName  = typeof(windowName)!= 'undefined' ? windowName : 'apptProviderSearch';
 <% if (!openInTabs) { %>
-  var page = varpage;
-  windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=0,screenY=0,top=0,left=0";
-  var popup=window.open(varpage, windowName, windowprops);
-  if (popup != null) {
-    if (popup.opener == null) {
-      popup.opener = self;
+    vheight     = typeof(vheight)   != 'undefined' ? vheight : '700px';
+    vwidth      = typeof(vwidth)    != 'undefined' ? vwidth : '1024px';
+    var page = "" + varpage;
+    var page = varpage;
+    windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=0,screenY=0,top=0,left=0";
+    var popup=window.open(varpage, windowName, windowprops);
+    if (popup != null) {
+        if (popup.opener == null) {
+            popup.opener = self;
+        }
     }
-  }
 <% } else { %>
   window.open(varpage,windowName);
 <% } %>
+}
+
+function pop4WithApptNo(vheight,vwidth,varpage,windowName,apptNo) {
+    if (apptNo) storeApptNo(apptNo);
+    pop4(vheight, vwidth, varpage, windowName);
 }
 
 function goDate(aDate){
@@ -1332,7 +1341,7 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 	<a href=# onClick ="popupPage(715,680,'providerpreference.jsp?provider_no=<%=curUser_no%>&start_hour=<%=startHour%>&end_hour=<%=endHour%>&every_min=<%=everyMin%>&mygroup_no=<%=mygroupno%>&new_tickler_warning_window=<%=newticklerwarningwindow%>&default_pmm=<%=default_pmm%>&caisiBillingPreferenceNotDelete=<%=caisiBillingPreferenceNotDelete%>&tklerproviderno=<%=tklerProviderNo%>');return false;" TITLE='<bean:message key="provider.appointmentProviderAdminDay.msgSettings"/>' OnMouseOver="window.status='<bean:message key="provider.appointmentProviderAdminDay.msgSettings"/>' ; return true"><bean:message key="global.pref"/></a>
     </caisi:isModuleLoad>
     <caisi:isModuleLoad moduleName="ticklerplus" reverse="true">
-	<a href=# onClick ="popupPage(715,1005,'providerpreference.jsp?provider_no=<%=curUser_no%>&start_hour=<%=startHour%>&end_hour=<%=endHour%>&every_min=<%=everyMin%>&mygroup_no=<%=mygroupno%>');return false;" TITLE='<bean:message key="provider.appointmentProviderAdminDay.msgSettings"/>' OnMouseOver="window.status='<bean:message key="provider.appointmentProviderAdminDay.msgSettings"/>' ; return true"><bean:message key="global.pref"/></a>
+	<a href=# onClick ="pop3(715,1005,'providerpreference.jsp?provider_no=<%=curUser_no%>&start_hour=<%=startHour%>&end_hour=<%=endHour%>&every_min=<%=everyMin%>&mygroup_no=<%=mygroupno%>');return false;" TITLE='<bean:message key="provider.appointmentProviderAdminDay.msgSettings"/>' OnMouseOver="window.status='<bean:message key="provider.appointmentProviderAdminDay.msgSettings"/>' ; return true"><bean:message key="global.pref"/></a>
     </caisi:isModuleLoad>
 </li>
 </security:oscarSec>
@@ -1365,7 +1374,7 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 <oscar:oscarPropertiesCheck property="referral_menu" value="yes">
 <security:oscarSec roleName="<%=roleName$%>" objectName="_admin,_admin.misc" rights="r">
 <li id="ref">
- <a href="#" onclick="popupPage(550,800,'../admin/ManageBillingReferral.do');return false;"><bean:message key="global.manageReferrals"/></a>
+ <a href="#" onclick="pop3(550,800,'../admin/ManageBillingReferral.do');return false;"><bean:message key="global.manageReferrals"/></a>
 </li>
 </security:oscarSec>
 </oscar:oscarPropertiesCheck>
@@ -1516,11 +1525,11 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 	<a href="javascript: function myFunction() {return false; }" onClick="popup(700,1024,'../scratch/index.jsp','scratch')"><i class="icon-pencil" title="<bean:message key="ScratchPad.title"/>"></i></a>&nbsp;
 
 	<%if(resourcehelpHtml==""){ %>
-		<a href="javascript:void(0)" onClick ="popupPage(600,750,'<%=resourcebaseurl%>')"><i class="icon-question-sign" title="<bean:message key="app.top1"/>"></i></a>
+		<a href="javascript:void(0)" onClick ="pop3(600,750,'<%=resourcebaseurl%>')"><i class="icon-question-sign" title="<bean:message key="app.top1"/>"></i></a>
 
         
 	<%}else{%>
-		<a href="javascript:void(0)" onClick ="popupPage(600,750,'<%=resourcehelpHtml%>'+'Booking%2FAppointment')"><i class="icon-question-sign" title="<bean:message key="app.top1"/>"></i></a>
+		<a href="javascript:void(0)" onClick ="pop3(600,750,'<%=resourcehelpHtml%>'+'Booking%2FAppointment')"><i class="icon-question-sign" title="<bean:message key="app.top1"/>"></i></a>
 
 
 	<%}%>
@@ -2554,7 +2563,7 @@ start_time += iSm + ":00";
 	+ curProvider_no[nProvider];%>
 	
 <% if (showOldEchartLink) { %>
-&#124; <a href=# class="encounterBtn" onClick="popupWithApptNo(710, 1024,'<%=eURL%>','encounter',<%=appointment.getId()%>);return false;" title="<bean:message key="global.encounter"/>">
+&#124; <a href=# class="encounterBtn" onClick="pop4WithApptNo(710, 1024,'<%=eURL%>','encounter',<%=appointment.getId()%>);return false;" title="<bean:message key="global.encounter"/>">
 <bean:message key="provider.appointmentProviderAdminDay.btnE"/></a>
 <% }} %>
 
@@ -2572,7 +2581,7 @@ start_time += iSm + ":00";
 	if(status.indexOf('B')==-1) 
 	{ 
 	%>
-		&#124; <a href=# onClick='popupPage(755,1200, "../billing.do?billRegion=<%=URLEncoder.encode(prov)%>&billForm=<%=URLEncoder.encode(oscarVariables.getProperty("default_view"))%>&hotclick=<%=URLEncoder.encode("")%>&appointment_no=<%=appointment.getId()%>&demographic_name=<%=URLEncoder.encode(name)%>&status=<%=status%>&demographic_no=<%=demographic_no%>&providerview=<%=curProvider_no[nProvider]%>&user_no=<%=curUser_no%>&apptProvider_no=<%=curProvider_no[nProvider]%>&appointment_date=<%=year+"-"+month+"-"+day%>&start_time=<%=start_time%>&bNewForm=1");return false;' title="<bean:message key="global.billingtag"/>"><bean:message key="provider.appointmentProviderAdminDay.btnB"/></a>
+		&#124; <a href=# onClick='pop3(755,1200, "../billing.do?billRegion=<%=URLEncoder.encode(prov)%>&billForm=<%=URLEncoder.encode(oscarVariables.getProperty("default_view"))%>&hotclick=<%=URLEncoder.encode("")%>&appointment_no=<%=appointment.getId()%>&demographic_name=<%=URLEncoder.encode(name)%>&status=<%=status%>&demographic_no=<%=demographic_no%>&providerview=<%=curProvider_no[nProvider]%>&user_no=<%=curUser_no%>&apptProvider_no=<%=curProvider_no[nProvider]%>&appointment_date=<%=year+"-"+month+"-"+day%>&start_time=<%=start_time%>&bNewForm=1");return false;' title="<bean:message key="global.billingtag"/>"><bean:message key="provider.appointmentProviderAdminDay.btnB"/></a>
 	<% 
 	}
 	else 
@@ -2598,7 +2607,7 @@ start_time += iSm + ":00";
 <!-- billing code block -->
 <security:oscarSec roleName="<%=roleName$%>" objectName="_masterLink" rights="r">
    
-    &#124; <a class="masterBtn" href="javascript: function myFunction() {return false; }" onClick="popupWithApptNo(700,1024,'../demographic/demographiccontrol.jsp?demographic_no=<%=demographic_no%>&apptProvider=<%=curProvider_no[nProvider]%>&appointment=<%=appointment.getId()%>&displaymode=edit&dboperation=search_detail','master',<%=appointment.getId()%>)"
+    &#124; <a class="masterBtn" href="javascript: function myFunction() {return false; }" onClick="pop4WithApptNo(700,1024,'../demographic/demographiccontrol.jsp?demographic_no=<%=demographic_no%>&apptProvider=<%=curProvider_no[nProvider]%>&appointment=<%=appointment.getId()%>&displaymode=edit&dboperation=search_detail','master',<%=appointment.getId()%>)"
     title="<bean:message key="provider.appointmentProviderAdminDay.msgMasterFile"/>"><bean:message key="provider.appointmentProviderAdminDay.btnM"/></a>
   
 </security:oscarSec>
@@ -2607,12 +2616,12 @@ start_time += iSm + ":00";
 <!-- doctor code block 4 -->
 
 <security:oscarSec roleName="<%=roleName$%>" objectName="_appointment.doctorLink" rights="r">
-     &#124; <a href=# onClick="popupWithApptNo(700,1027,'../oscarRx/choosePatient.do?providerNo=<%=curUser_no%>&demographicNo=<%=demographic_no%>','rx',<%=appointment.getId()%>)" title="<bean:message key="global.prescriptions"/>"><bean:message key="global.rx"/>
+     &#124; <a href=# onClick="pop4WithApptNo(737,1027,'../oscarRx/choosePatient.do?providerNo=<%=curUser_no%>&demographicNo=<%=demographic_no%>','rx',<%=appointment.getId()%>)" title="<bean:message key="global.prescriptions"/>"><bean:message key="global.rx"/>
       </a>
       <%if("true".equals(OscarProperties.getInstance().getProperty("newui.enabled", "false")) && OscarProperties.getInstance().isPropertyActive("RX2")) {
     		// This is temporary for testing the angularRx
     	  %>
-	&#124; <a href=# onClick="popupWithApptNo(700,1027,'../webp/#!/record/<%=demographic_no%>/rx','rx',<%=appointment.getId()%>)" title="<bean:message key="global.prescriptions"/>"><bean:message key="global.rx"/>2
+	&#124; <a href=# onClick="pop4WithApptNo(737,1027,'../webp/#!/record/<%=demographic_no%>/rx','rx',<%=appointment.getId()%>)" title="<bean:message key="global.prescriptions"/>"><bean:message key="global.rx"/>2
       </a>
       <%} %>
 
