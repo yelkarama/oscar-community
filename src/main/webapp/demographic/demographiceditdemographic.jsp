@@ -1221,6 +1221,12 @@ background-color: grey;
         		<%}%>
 				</h3>
 				</td>
+				<td width="10%" align="right" style="text-align:right;font-size:14px;">
+		<i class=" icon-question-sign"></i> 
+	    <a href="https://worldoscar.org/knowledge-base/master-demographic-page/" target="_blank"><bean:message key="app.top1"/></a>
+	    <i class=" icon-info-sign" style="margin-left:10px;"></i> 
+        <a href="javascript:void(0)"  onClick="window.open('<%=request.getContextPath()%>/oscarEncounter/About.jsp','About OSCAR','scrollbars=1,resizable=1,width=800,height=600,left=0,top=0')" ><bean:message key="global.about" /></a>
+				</td>
 			</tr>
 		</table>
 		</td>
@@ -1275,7 +1281,7 @@ if(wLReadonly.equals("")){
 					{
 					%>
 						<a href="javascript: function myFunction() {return false; }"
-							onClick="popupPage(500,800,'../billing/CA/ON/billinghistory.jsp?demographic_no=<%=demographic.getDemographicNo()%>&last_name=<%=URLEncoder.encode(demographic.getLastName())%>&first_name=<%=URLEncoder.encode(demographic.getFirstName())%>&orderby=appointment_date&displaymode=appt_history&dboperation=appt_history&limit1=0&limit2=10')">
+							onClick="popupPage(499,1088,'../billing/CA/ON/billinghistory.jsp?demographic_no=<%=demographic.getDemographicNo()%>&last_name=<%=URLEncoder.encode(demographic.getLastName())%>&first_name=<%=URLEncoder.encode(demographic.getFirstName())%>&orderby=appointment_date&displaymode=appt_history&dboperation=appt_history&limit1=0&limit2=10')">
 						<bean:message key="demographic.demographiceditdemographic.msgBillHistory"/></a>
 					<%
 					}
@@ -1517,7 +1523,7 @@ if(wLReadonly.equals("")){
 <% } %>
 			<tr class="Header">
 				<td style="font-weight: bold; background: #DCDCDC;"><bean:message
-					key="oscarEncounter.Index.clinicalResources" /></td>
+					key="demographic.resources" /></td>
 			</tr>
                 <special:SpecialPlugin moduleName="inboxmnger">
                 <tr>
@@ -1708,7 +1714,7 @@ if (iviewTag!=null && !"".equalsIgnoreCase(iviewTag.trim())){
                              </security:oscarSec>
                              <input type="button" name="Button" class="btn"
                                     value="Add Family Member"
-                                    onclick="window.open('demographicaddarecordhtm.jsp?search_mode=search_name&keyword=','', 'scrollbars=yes,resizable=yes,width=1000,height=500, top=100, left=0')">
+                                    onclick="window.open('demographicaddarecordhtm.jsp?search_mode=search_name&keyword=','', 'scrollbars=yes,resizable=yes,width=1300,height=650, top=80, left=0')">
 <% if (oscarProps.getBooleanProperty("workflow_enhance", "true")) { %>
 									<span style="position: relative; float: right; font-style: italic; background: black; color: white; padding: 4px; font-size: 12px; border-radius: 3px;">
 										<span class="_hc_status_icon _hc_status_success"></span>Ready for Card Swipe
@@ -2150,15 +2156,15 @@ if ( Dead.equals(PatStat) ) {%>
 						<h4>&nbsp;<bean:message key="demographic.demographiceditdemographic.msgContactInfo"/></h4>
 						<ul>
                                                     <li><span class="labels"><bean:message
-                                                            key="demographic.demographiceditdemographic.formPhoneH" />(<span class="popup"  onmouseover="nhpup.popup(homePhoneHistory);" title="Home phone History">History</span>):</span>
+                                                            key="demographic.demographiceditdemographic.formPhoneH" /> (<span class="popup"  onmouseover="nhpup.popup(homePhoneHistory);" title="Home phone History">History</span>):</span>
                                                         <span class="info"><%=Encode.forHtml(StringUtils.trimToEmpty(demographic.getPhone()) + " " + StringUtils.trimToEmpty(demoExt.get("hPhoneExt")))%></span>
 							</li>
                                                     <li><span class="labels"><bean:message
-                                                            key="demographic.demographiceditdemographic.formPhoneW" />(<span class="popup"  onmouseover="nhpup.popup(workPhoneHistory);" title="Work phone History">History</span>):</span>
+                                                            key="demographic.demographiceditdemographic.formPhoneW" /> (<span class="popup"  onmouseover="nhpup.popup(workPhoneHistory);" title="Work phone History">History</span>):</span>
                                                         <span class="info"><%=Encode.forHtml(StringUtils.trimToEmpty(demographic.getPhone2()) + " " + StringUtils.trimToEmpty(demoExt.get("wPhoneExt")))%></span>
 							</li>
 	                        						<li><span class="labels"><bean:message
-                                                            key="demographic.demographiceditdemographic.formPhoneC" />(<span class="popup"  onmouseover="nhpup.popup(cellPhoneHistory);" title="cell phone History">History</span>):</span>
+                                                            key="demographic.demographiceditdemographic.formPhoneC" /> (<span class="popup"  onmouseover="nhpup.popup(cellPhoneHistory);" title="cell phone History">History</span>):</span>
                                                         <span class="info"><%=Encode.forHtml(StringUtils.trimToEmpty(demoExt.get("demo_cell")))%></span></li>
                                                     <li><span class="labels"><bean:message
                                                             key="demographic.demographicaddrecordhtm.formPhoneComment" />:</span>
@@ -2406,7 +2412,7 @@ if ( Dead.equals(PatStat) ) {%>
                             <li>
 <% if(oscarProps.getProperty("demographicLabelDoctor") != null) { out.print(oscarProps.getProperty("demographicLabelDoctor","")); } else { %>
                             <bean:message
-                                key="demographic.demographiceditdemographic.formDoctor" />
+                                key="demographic.demographiceditdemographic.formMRP" />
                             <% } %>: <b><%=providerBean.getProperty(demographic.getProviderNo(),"")%></b>
                         <% // ===== quick appointment booking for doctor =====
                         if (provMap.get("doctor") != null) {
@@ -2671,7 +2677,7 @@ if ( Dead.equals(PatStat) ) {%>
 						</div>
 
 						<!--newEnd-->
-<div class="container-fluid well form-horizontal span11" id="editWrapper" style="display:none;">
+<div class="container-fluid well form-horizontal span12" id="editWrapper" style="display:none;">
     <div  id="demographicSection" class="span11">
 		<fieldset>
 			<legend><bean:message key="demographic.demographiceditdemographic.msgDemographic" /></legend>
@@ -2698,8 +2704,8 @@ if ( Dead.equals(PatStat) ) {%>
         <div class="control-group span5">
             <label class="control-label" for="inputDOB"><bean:message key="demographic.demographiceditdemographic.formDOB" /> <bean:message key="demographic.demographiceditdemographic.formDOBDetais" /><span style="color:red">*</span></label>
             <div class="controls" style="white-space: nowrap;">
-                <input type="date" id="inputDOB" 
-                    class="input input-medium"
+                <input id="inputDOB"
+                    class="input input-medium" type="date"
                     name="inputDOB" <%=getDisabled("year_of_birth")%>
 					onchange="parsedob_date();">
                 <input type="hidden" id="year_of_birth" placeholder="yyyy" name="year_of_birth"
@@ -2872,8 +2878,8 @@ if ( Dead.equals(PatStat) ) {%>
 					if("true".equals(OscarProperties.getInstance().getProperty("iso3166.2.enabled","false"))) { 	
 				%>
 					<select name="province" id="province"></select> 
-					<br/>
-					Filter by Country: <select name="country" id="country" ></select>
+					<br/><br>
+					Filter by Country:<br><br> <select name="country" id="country" ></select>
 							
 						<% } else { %> 
 								<select name="province" style="width: 200px" <%=getDisabled("province")%>>
@@ -3023,8 +3029,8 @@ if ( Dead.equals(PatStat) ) {%>
 					if("true".equals(OscarProperties.getInstance().getProperty("iso3166.2.enabled","false"))) { 	
 				%>
 					<select name="residentialProvince" id="residentialProvince"></select> 
-					<br/>
-					Filter by Country: <select name="residentialCountry" id="residentialCountry" ></select>
+					<br/><br>
+					Filter by Country:<br><br> <select name="residentialCountry" id="residentialCountry" ></select>
 							
 						<% } else { %> 
 
@@ -3344,7 +3350,7 @@ if ( Dead.equals(PatStat) ) {%>
             <bean:message key="demographic.demographiceditdemographic.formVer" />
             <input type="text" placeholder="<bean:message key="demographic.demographiceditdemographic.formVer" />"
                     name="ver" <%=getDisabled("ver")%>
-									value="<%=StringUtils.trimToEmpty(demographic.getVer())%>" style="width: 17px;""
+									value="<%=StringUtils.trimToEmpty(demographic.getVer())%>" style="width: 20px;""
 									onBlur="upCaseCtrl(this)" id="verBox">
 									<%if("online".equals(oscarProps.getProperty("hcv.type", "simple"))) { %>
 										<input type="button" class="btn" value="Validate" onClick="validateHC()"/>
@@ -4171,9 +4177,6 @@ function parsedate_joined(){
 
 <%-- END TOGGLE OFF EXTRA DEMO FIELDS (NATIVE HEALTH) --%>	
 
-
-
-
 <%-- AUTHOR DENNIS WARREN O/A COLCAMEX RESOURCES --%>
 <oscar:oscarPropertiesCheck property="DEMOGRAPHIC_PATIENT_HEALTH_CARE_TEAM" value="true">
 	<tr><td colspan="4" >
@@ -4281,7 +4284,7 @@ if(oscarProps.getProperty("demographicExtJScript") != null) { out.println(oscarP
 										boolean showCbiReminder=oscarProps.getBooleanProperty("CBI_REMIND_ON_UPDATE_DEMOGRAPHIC", "true");
 									%>
 									<input type="submit" <%=(showCbiReminder?"onclick='showCbiReminder()'":"")%> class="btn btn-primary"
-										value="<bean:message key="demographic.demographiceditdemographic.btnUpdate"/>">
+										id="updaterecord" value="<bean:message key="demographic.demographiceditdemographic.btnUpdate"/>">
 										<input type="submit" name="submit" <%=(showCbiReminder?"onclick='showCbiReminder()'":"")%> class="btn"
 											   value="Save & Update Family Members">
 								</security:oscarSec> </span> <!-- security code block -->
@@ -4356,7 +4359,7 @@ if(oscarProps.getProperty("demographicExtJScript") != null) { out.println(oscarP
 						</td>
 					</tr>
 				</table>
-				
+
                                 </form>
 				<%
                     }
