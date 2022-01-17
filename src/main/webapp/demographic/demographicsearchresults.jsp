@@ -232,11 +232,17 @@ session.setAttribute("labSex","");
 
 <body onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0" bottommargin="0">
 
+<div style="text-align:right">
+		<i class=" icon-question-sign"></i> 
+	    <a href="https://worldoscar.org/knowledge-base/search/" target="_blank"><bean:message key="app.top1"/></a>
+	    <i class=" icon-info-sign" style="margin-left:10px;"></i> 
+        <a href="javascript:void(0)"  onClick="window.open('<%=request.getContextPath()%>/oscarEncounter/About.jsp','About OSCAR','scrollbars=1,resizable=1,width=800,height=600,left=0,top=0')" ><bean:message key="global.about" /></a>
+</div>
+
 <div id="demographicSearch">
     <!-- <a href="#" onclick="showHideItem('demographicSearch');" id="cancelButton" class="leftButton top"> <bean:message key="global.btnCancel" /> </a> -->
 	<%@ include file="zdemographicfulltitlesearch.jsp"%>
 </div>
-
 
 <div id="searchResults">
 <!-- <a href="#" onclick="showHideItem('demographicSearch');" id="searchPopUpButton" class="rightButton top">Search</a>-->
@@ -277,7 +283,7 @@ session.setAttribute("labSex","");
                 </th>
 		<th class="dob"><a
 			href="demographiccontrol.jsp?fromMessenger=<%=fromMessenger%>&keyword=<%=StringEscapeUtils.escapeHtml(request.getParameter("keyword"))%>&displaymode=<%=request.getParameter("displaymode")%>&search_mode=<%=request.getParameter("search_mode")%>&dboperation=<%=request.getParameter("dboperation")%>&orderby=dob&limit1=0&limit2=<%=strLimit%>"><bean:message
-			key="demographic.demographicsearchresults.btnDOB" /> <span class="dateFormat"><bean:message key="demographic.demographicsearchresults.btnDOBFormat" /></span></a>
+			key="demographic.demographicsearchresults.btnDOB" /> <span class="dateFormat">DOB <bean:message key="demographic.demographicsearchresults.btnDOBFormat" /></span></a>
                 </th>
 		<th class="doctor"><a
 			href="demographiccontrol.jsp?fromMessenger=<%=fromMessenger%>&keyword=<%=StringEscapeUtils.escapeHtml(request.getParameter("keyword"))%>&displaymode=<%=request.getParameter("displaymode")%>&search_mode=<%=request.getParameter("search_mode")%>&dboperation=<%=request.getParameter("dboperation")%>&orderby=provider_no&limit1=0&limit2=<%=strLimit%>"><bean:message
