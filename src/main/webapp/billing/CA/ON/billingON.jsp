@@ -1500,7 +1500,7 @@ function changeSite(sel) {
  %>
 
 										</td>
-										<td nowrap width="30%"><b>MRP</b></td>
+										<td nowrap width="30%"><b>Assig. Phys.</b></td>
 										<td width="20%"><%=providerBean.getProperty(assgProvider_no, "").length() > 15
 					    ? providerBean.getProperty(assgProvider_no, "").substring(0, 14)
 					    : providerBean.getProperty(assgProvider_no, "")%></td>
@@ -1694,7 +1694,7 @@ String strLocation ="";
 										</td>
 										<td colspan="2"><a href="#"
 											onclick="showHideLayers('Layer1','','show');return false;">
-												Billing Form</a>: <input type="text" name="billFormName" class="input-large"
+												Billing form</a>: <input type="text" name="billFormName" class="input-large"
 											id="billFormName" size="30" readonly
 											value="<%=currentFormName.length() < 40 ? currentFormName : currentFormName.substring(0, 40)%>" />
 											<input type="hidden" name="billForm" id="billForm" size="30"
@@ -2009,7 +2009,7 @@ String strLocation ="";
 				<td><%=demoname%> - <b>Billing History</b> (last 5 records)</td>
 				<td width="20%" align="right">Last <input type="text"
 					name="day" value="365" class="input-small" /> days <input type="button"
-					name="buttonDay" class="btn" value="Go" onClick="onHistory(); return false;" />
+					name="buttonDay" value="Go" onClick="onHistory(); return false;" />
 				</td>
 			</tr>
 		</table>
