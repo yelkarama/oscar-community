@@ -218,7 +218,12 @@ if (bMultisites) {
 	import="java.lang.*, java.util.*, java.text.*,java.net.*,java.sql.*,oscar.*"
 	errorPage="errorpage.jsp"%>
 <% 
-	java.util.Properties oscarVariables = OscarProperties.getInstance();
+	boolean openInTabs = false;
+    java.util.Properties oscarVariables = OscarProperties.getInstance();
+    String oit = oscarVariables.getProperty("open_in_tabs", "").trim().toUpperCase();
+    if( oit != null && oit.equals("TRUE")) {
+    	openInTabs = true);
+	}
 %>
 	
 <jsp:useBean id="scheduleHolidayBean" class="java.util.Hashtable"
@@ -363,6 +368,7 @@ function setfocus() {
 
 //<!--oscarMessenger code block-->
 function popupOscarRx(vheight,vwidth,varpage) { //open a new popup window
+<% if (!openInTabs) { %>
   var page = varpage;
   windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=0,screenY=0,top=0,left=0";
   var popup=window.open(varpage, "oscar_appt", windowprops);
@@ -371,6 +377,9 @@ function popupOscarRx(vheight,vwidth,varpage) { //open a new popup window
       popup.opener = self;
     }
   }
+<% } else { %>
+  window.open(varpage);
+<% } %>
 }
 //<!--/oscarMessenger code block -->
 
@@ -580,10 +589,10 @@ function refreshTabAlerts(id) {
 		
 		<td align="right" valign="bottom">
 		
-		  <a href="javascript: function myFunction() {return false; }" onClick="popup(700,1000,'../scratch/index.jsp','scratch')"><span id="oscar_scratch"></span></a>&nbsp;
+		  <a href="javascript: function myFunction() {return false; }" onClick="popupOscarRx(700,1000,'../scratch/index.jsp')"><span id="oscar_scratch"></span></a>&nbsp;
 		  
 			<%if(resourcehelpHtml==""){ %>
-				<a href="javascript:void(0)" onClick ="popupPage(600,750,'<%=resourcebaseurl%>')"><bean:message key="global.help"/></a>
+				<a href="javascript:void(0)" onClick ="popupOscarRx(600,750,'<%=resourcebaseurl%>')"><bean:message key="global.help"/></a>
 			<%}else{%>
 			<div id="help-link">
 				
