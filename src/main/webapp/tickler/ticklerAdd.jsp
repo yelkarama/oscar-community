@@ -391,7 +391,7 @@ function refresh() {
     </tr>
 
     <tr> 
-      <td height="21" valign="top"><font color="#003366" size="2" face="Verdana, Arial, Helvetica, sans-serif"><strong><bean:message key="tickler.ticklerMain.taskAssignedTo"/>:</strong></font></td>
+      <td height="21" valign="top"><font color="#003366" size="2" face="Verdana, Arial, Helvetica, sans-serif"><strong><bean:message key="tickler.ticklerAdd.assignTaskTo"/>:</strong></font></td>
       <td valign="top"> <font face="Verdana, Arial, Helvetica, sans-serif" size="2" color="#333333">
 <% if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) 
 { // multisite start ==========================================
