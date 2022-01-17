@@ -515,6 +515,7 @@ boolean replaceNameWithPreferred = generalSettingsMap.getOrDefault("replace_demo
 <%@page import="org.oscarehr.common.model.EForm"%><html:html locale="true">
 <%@page import="org.apache.commons.lang.StringUtils"%>
 <head>
+<link rel="shortcut icon" href="../images/Oscar.ico"> 
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script>
 <title><%=WordUtils.capitalize(userlastname + ", " +  org.apache.commons.lang.StringUtils.substring(userfirstname, 0, 1)) + "-"%><bean:message key="provider.appointmentProviderAdminDay.title"/></title>
 
