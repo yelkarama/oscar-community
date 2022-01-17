@@ -62,7 +62,16 @@
 <head>
 <c:set var="ctx" value="${pageContext.request.contextPath}"	scope="request" />
 <link rel="stylesheet" href="<c:out value="${ctx}"/>/css/casemgmt.css" type="text/css">
+
+
+<!-- Added by Adrian Starzynski: Show larger font size for eChart based on properties setting -->
+<%if (OscarProperties.getInstance().getProperty("echart_show_larger_font_size").equals("false")) {%>
 <link rel="stylesheet" href="<c:out value="${ctx}"/>/oscarEncounter/encounterStyles.css" type="text/css">
+<%} else { %>
+<link rel="stylesheet" href="<c:out value="${ctx}"/>/oscarEncounter/encounterStylesWithBiggerFont.css" type="text/css">
+<%} %>
+
+
 <link rel="stylesheet" type="text/css" href="<c:out value="${ctx}"/>/css/print.css" media="print">
 
 <!-- 
