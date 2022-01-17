@@ -56,8 +56,6 @@ function searchOutOfDomain() {
 
 </script>
 
-
-
 <form method="get" name="titlesearch" action="<%=request.getContextPath()%>/demographic/demographiccontrol.jsp"
 	onsubmit="return checkTypeIn()">
 <div class="searchBox">
@@ -69,12 +67,7 @@ function searchOutOfDomain() {
 		<h4>&nbsp;<i class="icon-search" title="<bean:message key="demographic.search.msgSearchPatient" />"></i>&nbsp;<bean:message key="demographic.search.msgSearchPatient" /></h4>
 	</div>
     </td>
-    <td align="right">
-		<i class=" icon-question-sign"></i> 
-	    <a href="javascript:void(0)" onClick ="popupPage(600,750,'<%=(OscarProperties.getInstance()).getProperty("HELP_SEARCH_URL")%>'+'Search')"><bean:message key="app.top1"/></a>
-	    <i class=" icon-info-sign" style="margin-left:10px;"></i> 
-        <a href="javascript:void(0)"  onClick="window.open('<%=request.getContextPath()%>/oscarEncounter/About.jsp','About OSCAR','scrollbars=1,resizable=1,width=800,height=600,left=0,top=0')" ><bean:message key="global.about" /></a>
-    </td>
+    
 </tr>
 </table>
 
@@ -117,7 +110,7 @@ function searchOutOfDomain() {
          </select>
     </label>
     <label class="text">
-        <input type="text" NAME="keyword" VALUE="<%=StringEscapeUtils.escapeHtml(keyWord)%>" SIZE="17" MAXLENGTH="100">
+        <input type="text" NAME="keyword" VALUE="<%=StringEscapeUtils.escapeHtml(keyWord)%>" SIZE="17" MAXLENGTH="100" placeholder="Enter Search Keyword..." required>
     </label>
     
 				<INPUT TYPE="hidden" NAME="orderby" VALUE="last_name, first_name">
