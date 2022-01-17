@@ -404,7 +404,7 @@ jQuery(document).ready( function($) {
 					<c:if test="${ demographicContact.type gt 0 }">
 						<input type="button" 
 							id="edit<c:out value="${ demographicContact.type }" />_<c:out value="${ demographicContact.id }" />" 
-							class="actionlink" value="edit" />
+							class="actionlink" value="Edit" />
 					</c:if>
 				</td>
             </tr>	
@@ -415,11 +415,11 @@ jQuery(document).ready( function($) {
 		<%-- ADD NEW MEMBER TO HEALTH CARE TEAM --%>
 
 		<tr>
-			<td class="alignLeft"><strong>add a provider:</strong></td>		
+			<td class="alignLeft"><strong>Add a Provider:</strong></td>		
 			<td class="alignLeft">
 				<select name="searchInternalExternal" id="searchInternalExternal" >
-					<option value="${ providerType }" >internal</option>
-		            <option value="${ professionalContactType }" >external</option>
+					<option value="${ providerType }" >Internal</option>
+		            <option value="${ professionalContactType }" >External</option>
 				</select>
 			</td>
 			
