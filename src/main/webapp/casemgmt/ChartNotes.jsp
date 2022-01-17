@@ -390,7 +390,7 @@ try
 				<div class="enTemplate_name_auto_complete" id="enTemplate_list" style="z-index: 1; display: none">&nbsp;</div>						
 
 				<!-- <input type="text" id="keyword" name="keyword" value="" style="width: 10px; text-align: center;" onkeypress="return grabEnter('searchButton',event)">-->
-				<button class="btn" id="searchButton" name="button" alt="<bean:message key="oscarEncounter.msgFind"/>" onClick="popupPage(600,800,'<bean:message key="oscarEncounter.Index.popupSearchPageWindow"/>' ,$('channel').options[$('channel').selectedIndex].value+urlencode($F('enTemplate')) ); return false;"><i class="icon-search"></i></button>
+				<button id="searchButton" name="button" alt="<bean:message key="oscarEncounter.msgFind"/>" onClick="popupPage(600,800,'<bean:message key="oscarEncounter.Index.popupSearchPageWindow"/>' ,$('channel').options[$('channel').selectedIndex].value+urlencode($F('enTemplate')) ); return false;"><i class="icon-search"></i></button>
 
 				<div style="display:inline-block; text-align: left;">
 					<%
@@ -588,6 +588,11 @@ try
 	<input type="hidden" name="pStartDate" id="pStartDate" value="">
 	<input type="hidden" name="pEndDate" id="pEndDate" value="">
 	<input type="hidden" id="annotation_attribname" name="annotation_attribname" value="">
+	
+<script>
+document.getElementById('assignIssueSection').scrollIntoView();
+</script>
+	
 	<%
  	if (OscarProperties.getInstance().getBooleanProperty("note_program_ui_enabled", "true")) {
  	%>
@@ -638,6 +643,8 @@ try
 .btn {
 color:#4a4a4a ;
 text-decoration:none;
+font-size: 17px;	
+padding: 2px;
 }
 </style>
 
@@ -657,7 +664,7 @@ text-decoration:none;
 			<a class="btn" tabindex="25" id="attachNoteImg"  href="#" onclick="Event.stop(event);return assign(document.forms['caseManagementEntryForm'].elements['caseNote.program_no'].value,document.forms['caseManagementEntryForm'].elements['demographicNo'].value);" title='<bean:message key="oscarEncounter.Index.btnAttachNote"/>'><i class="icon-paper-clip icon-large"></i></a>
 		<%  } %>
 
-			<a tabindex="18" class="btn" href="#" id="newNoteImg" onclick="newNote(event); return false;" title='<bean:message key="oscarEncounter.Index.btnNew"/>'><i class="icon-file icon-large"></i></a>
+			<a tabindex="18" class="btn" href="#" id="newNoteImg" onclick="newNote(event); return false;" title='<bean:message key="oscarEncounter.Index.btnNew"/>'><i class="icon-file-text icon-large"></i></a>
 
 			<a tabindex="19" class="btn" href="#" id="signSaveImg" onclick="document.forms['caseManagementEntryForm'].sign.value='on';Event.stop(event);return savePage('saveAndExit', '');" title='<bean:message key="oscarEncounter.Index.btnSignSave"/>'><i class="icon-edit icon-large"></i></a>
 			<a tabindex="20" class="btn" href="#" id="signVerifyImg" onclick="document.forms['caseManagementEntryForm'].sign.value='on';document.forms['caseManagementEntryForm'].verify.value='on';Event.stop(event);return savePage('saveAndExit', '');" title='<bean:message key="oscarEncounter.Index.btnSign"/>'><i class="icon-thumbs-up icon-large"></i></a>
@@ -679,7 +686,7 @@ text-decoration:none;
     	</span>
     	<div id="assignIssueSection">
 	    	<!-- input type='image' id='toggleIssue' onclick="return showIssues(event);" src="<c:out value="${ctx}/oscarEncounter/graphics/issues.png"/>" title='<bean:message key="oscarEncounter.Index.btnDisplayIssues"/>'>&nbsp; -->
-	    	<input tabindex="8" type="text" id="issueAutocomplete" name="issueSearch" style="z-index: 2;" onkeypress="return submitIssue(event);" size="30">&nbsp; <input tabindex="9" type="button" id="asgnIssues" value="<bean:message key="oscarEncounter.assign.title"/>">
+	    	<input tabindex="8" type="text" id="issueAutocomplete" name="issueSearch" style="z-index: 2;" onkeypress="return submitIssue(event);" size="25">&nbsp; <input tabindex="9" type="button" id="asgnIssues" value="<bean:message key="oscarEncounter.assign.title"/>">
 	    	<span id="busy" style="display: none">
 	    		<img style="position: absolute;" src="<c:out value="${ctx}/oscarEncounter/graphics/busy.gif"/>" alt="<bean:message key="oscarEncounter.Index.btnWorking" />">
 	    	</span>
