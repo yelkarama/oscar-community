@@ -222,7 +222,7 @@ if (bMultisites) {
     java.util.Properties oscarVariables = OscarProperties.getInstance();
     String oit = oscarVariables.getProperty("open_in_tabs", "").trim().toUpperCase();
     if( oit != null && oit.equals("TRUE")) {
-    	openInTabs = true);
+    	openInTabs = true;
 	}
 %>
 	
