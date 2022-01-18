@@ -241,7 +241,7 @@ session.setAttribute("labSex","");
 		    }
 		    popup.focus();
 		  }
-	<%< } %>
+	<% } %>
 		}
 </SCRIPT>
 </head>
@@ -409,7 +409,7 @@ session.setAttribute("labSex","");
 		%>
 				   <tr class="<%=toggleLine?"even":"odd"%>">
 				   <td class="demoIdSearch">
-				   	<a title="Import" href="#"  onclick="popup(700,1027,'../appointment/copyRemoteDemographic.jsp?remoteFacilityId=<%=demographicTransfer.getIntegratorFacilityId()%>&demographic_no=<%=String.valueOf(demographicTransfer.getCaisiDemographicId())%>&originalPage=../demographic/demographiceditdemographic.jsp&provider_no=<%=curProvider_no%>','T<%=dem_no%>')" >Import</a></td>
+				   	<a title="Import" href="#"  onclick="popup(700,1027,'../appointment/copyRemoteDemographic.jsp?remoteFacilityId=<%=demographicTransfer.getIntegratorFacilityId()%>&demographic_no=<%=String.valueOf(demographicTransfer.getCaisiDemographicId())%>&originalPage=../demographic/demographiceditdemographic.jsp&provider_no=<%=curProvider_no%>','T<%=String.valueOf(demographicTransfer.getCaisiDemographicId())%>')" >Import</a></td>
 				   <td class="links">Remote</td>
 				   <td class="name"><%=Encode.forHtml(Misc.toUpperLowerCase(demographicTransfer.getLastName()))%>, <%=Encode.forHtml(Misc.toUpperLowerCase(demographicTransfer.getFirstName()))%></td>
 				   <td class="chartNo"></td>
@@ -472,7 +472,7 @@ session.setAttribute("labSex","");
 	<%	
 		} else { 
 	%>
-		<a title="Master Demographic File" href="#"  onclick="popup(700,1027,'demographiccontrol.jsp?demographic_no=<%=head%>&displaymode=edit&dboperation=search_detail','M<%=dem_no%>')" ><%=dem_no%></a></td>
+		<a title="Master Demographic File" href="#"  onclick="popup(700,1027,'demographiccontrol.jsp?demographic_no=<%=head%>&displaymode=edit&dboperation=search_detail','M<%=head%>')" ><%=head%></a></td>
 	
 		<!-- Rights -->
 		<td class="links"><security:oscarSec roleName="<%=roleName$%>"
