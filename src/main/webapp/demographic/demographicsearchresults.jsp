@@ -54,6 +54,7 @@
 <%@page import="org.oscarehr.caisi_integrator.ws.DemographicTransfer"%>
 <%@page import="org.oscarehr.caisi_integrator.ws.MatchingDemographicTransferScore"%>
 <%@page import="org.oscarehr.casemgmt.service.CaseManagementManager"%>
+<%@page import="org.owasp.encoder.Encode" %>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -111,6 +112,14 @@
 			&& OscarProperties.getInstance().getProperty("disableTelProgressNoteTitleInEncouterNotes").equals("yes")) {
 		noteReason = "";
 	}
+	
+	Properties oscarVariables = OscarProperties.getInstance();
+	boolean openInTabs = false;
+    String oit = oscarVariables.getProperty("open_in_tabs", "").trim().toUpperCase();
+
+	if( oit != null && oit.equals("TRUE")) {
+			openInTabs = true;
+    }
 
 //reset session attributes
 session.setAttribute("labLastName","");
@@ -199,7 +208,10 @@ session.setAttribute("labSex","");
 		}
 	}
 
-	function popup(vheight, vwidth, varpage) {
+	function popup(vheight, vwidth, varpage, windowName) {
+	<% if (openInTabs) { %>
+		  window.open(varpage,windowName);	
+	<% } else { %>
 		var page = varpage;
 		windowprops = "height="
 				+ vheight
@@ -213,9 +225,13 @@ session.setAttribute("labSex","");
 			}
 			popup.focus();
 		}
+	<%< } %>
 	}
 
-	function popupEChart(vheight,vwidth,varpage) { //open a new popup window
+	function popupEChart(vheight,vwidth,varpage, windowName) { //open a new popup window
+	<% if (openInTabs) { %>
+		  window.open(varpage,windowName);	
+	<% } else { %>
 		  var page = "" + varpage;
 		  windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=50,screenY=50,top=20,left=20";
 		  var popup=window.open(page, "encounter", windowprops);
@@ -225,6 +241,7 @@ session.setAttribute("labSex","");
 		    }
 		    popup.focus();
 		  }
+	<%< } %>
 		}
 </SCRIPT>
 </head>
@@ -392,9 +409,9 @@ session.setAttribute("labSex","");
 		%>
 				   <tr class="<%=toggleLine?"even":"odd"%>">
 				   <td class="demoIdSearch">
-				   	<a title="Import" href="#"  onclick="popup(700,1027,'../appointment/copyRemoteDemographic.jsp?remoteFacilityId=<%=demographicTransfer.getIntegratorFacilityId()%>&demographic_no=<%=String.valueOf(demographicTransfer.getCaisiDemographicId())%>&originalPage=../demographic/demographiceditdemographic.jsp&provider_no=<%=curProvider_no%>')" >Import</a></td>
+				   	<a title="Import" href="#"  onclick="popup(700,1027,'../appointment/copyRemoteDemographic.jsp?remoteFacilityId=<%=demographicTransfer.getIntegratorFacilityId()%>&demographic_no=<%=String.valueOf(demographicTransfer.getCaisiDemographicId())%>&originalPage=../demographic/demographiceditdemographic.jsp&provider_no=<%=curProvider_no%>','T<%=dem_no%>')" >Import</a></td>
 				   <td class="links">Remote</td>
-				   <td class="name"><%=Misc.toUpperLowerCase(demographicTransfer.getLastName())%>, <%=Misc.toUpperLowerCase(demographicTransfer.getFirstName())%></td>
+				   <td class="name"><%=Encode.forHtml(Misc.toUpperLowerCase(demographicTransfer.getLastName()))%>, <%=Encode.forHtml(Misc.toUpperLowerCase(demographicTransfer.getFirstName()))%></td>
 				   <td class="chartNo"></td>
 				   <td class="sex"><%=demographicTransfer.getGender()%></td>
 				   <td class="dob"><%=demographicTransfer.getBirthDate() != null ?  DateFormatUtils.ISO_DATE_FORMAT.format(demographicTransfer.getBirthDate()) : ""%></td>
@@ -455,16 +472,16 @@ session.setAttribute("labSex","");
 	<%	
 		} else { 
 	%>
-		<a title="Master Demographic File" href="#"  onclick="popup(700,1027,'demographiccontrol.jsp?demographic_no=<%=head%>&displaymode=edit&dboperation=search_detail')" ><%=dem_no%></a></td>
+		<a title="Master Demographic File" href="#"  onclick="popup(700,1027,'demographiccontrol.jsp?demographic_no=<%=head%>&displaymode=edit&dboperation=search_detail','M<%=dem_no%>')" ><%=dem_no%></a></td>
 	
 		<!-- Rights -->
 		<td class="links"><security:oscarSec roleName="<%=roleName$%>"
 			objectName="_eChart" rights="r">
 			<a class="encounterBtn" title="Encounter" href="#"
-				onclick="popupEChart(710,1024,'<c:out value="${ctx}"/>/oscarEncounter/IncomingEncounter.do?providerNo=<%=curProvider_no%>&appointmentNo=&demographicNo=<%=dem_no%>&curProviderNo=&reason=<%=URLEncoder.encode(noteReason)%>&encType=&curDate=<%=""+curYear%>-<%=""+curMonth%>-<%=""+curDay%>&appointmentDate=&startTime=&status=');return false;">E</a>
+				onclick="popupEChart(710,1024,'<c:out value="${ctx}"/>/oscarEncounter/IncomingEncounter.do?providerNo=<%=curProvider_no%>&appointmentNo=&demographicNo=<%=dem_no%>&curProviderNo=&reason=<%=URLEncoder.encode(noteReason)%>&encType=&curDate=<%=""+curYear%>-<%=""+curMonth%>-<%=""+curDay%>&appointmentDate=&startTime=&status=','E<%=dem_no%>');return false;">E</a>
 		</security:oscarSec> <!-- Rights --> <security:oscarSec roleName="<%=roleName$%>"
 			objectName="_rx" rights="r">
-			<a class="rxBtn" title="Prescriptions" href="#" onclick="popup(700,1027,'../oscarRx/choosePatient.do?providerNo=<%=demo.getProviderNo()%>&demographicNo=<%=dem_no%>')">Rx</a>
+			<a class="rxBtn" title="Prescriptions" href="#" onclick="popup(700,1027,'../oscarRx/choosePatient.do?providerNo=<%=demo.getProviderNo()%>&demographicNo=<%=dem_no%>','Rx<%=dem_no%>')">Rx</a>
 		</security:oscarSec></td>
 
 	<%	
@@ -472,7 +489,7 @@ session.setAttribute("labSex","");
 		if (OscarProperties.getInstance().isPropertyActive("new_eyeform_enabled")) { 
 	%>
 		<security:oscarSec roleName="<%=roleName$%>" objectName="_eChart" rights="r">
-			<a title="Eyeform" href="#" onclick="popup(800, 1280, '../eyeform/eyeform.jsp?demographic_no=<%=dem_no %>&reason=')">EF</a>
+			<a title="Eyeform" href="#" onclick="popup(800, 1280, '../eyeform/eyeform.jsp?demographic_no=<%=dem_no %>&reason=','EF<%=dem_no%>')">EF</a>
 		</security:oscarSec>
 	<% 
 		} 
