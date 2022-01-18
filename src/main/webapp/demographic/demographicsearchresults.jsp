@@ -225,7 +225,7 @@ session.setAttribute("labSex","");
 			}
 			popup.focus();
 		}
-	<%< } %>
+	<% } %>
 	}
 
 	function popupEChart(vheight,vwidth,varpage, windowName) { //open a new popup window
