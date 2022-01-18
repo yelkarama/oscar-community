@@ -25,11 +25,8 @@
 --%>
 <%@page import="oscar.OscarProperties" %>
 <%
-	Properties oscarVariables = OscarProperties.getInstance();
 	boolean openInTabs = false;
-    String oit = oscarVariables.getProperty("open_in_tabs", "").trim().toUpperCase();
-    
-    if( oit != null && oit.equals("TRUE")) {
+    if (OscarProperties.getInstance().getBooleanProperty("indivica_hc_read_enabled", "true")) {
     	openInTabs = true;
     }
 %>
