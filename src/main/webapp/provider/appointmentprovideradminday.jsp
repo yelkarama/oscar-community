@@ -567,7 +567,9 @@ th, td {
 	font-size: 13px;
     color: <%=(showClassicSchedule? "black;" : "white;")%>
     font-weight: bold;
-    background-color: <%=(showClassicSchedule? "ivory;" : "steelblue;")%>  
+    background-color: <%=(showClassicSchedule? "ivory;" : "steelblue;")%>
+    height: 30px;
+    padding: 5px 0px 0px 0px;
 }
 
 .topbar a {
@@ -627,8 +629,8 @@ th, td {
     display: inline;
 }
 
-#navlist li:hover { color: red;} //#fff; background-color: blue; }
-#navlist li a:hover { color: red;} //#fff; background-color: blue; }
+#navlist li:hover { color: red; }
+#navlist li a:hover { color: red; }
 #navlist #logoutMobile { display:none; }
 
 .dropdown {
@@ -675,6 +677,7 @@ th, td {
 
 .infirmaryView {
 	font-size: 15px;
+    padding: 2px;
 }
 .infirmaryView a {
     color: black;
@@ -696,6 +699,22 @@ th, td {
     color: <%=(showClassicSchedule? "white" : "#606060")%>
 }
 .appt a { color: black; }  //best to leave it black
+
+.dateAppointment a {
+
+	hover: black!important;
+
+}
+
+.bottombar {
+    font-family: "Arial";
+	font-size: 13px;
+    color: <%=(showClassicSchedule? "black;" : "white;")%>
+    font-weight: bold;
+    height: 30px;
+    padding: 3px;
+    background-color: <%=(showClassicSchedule? "ivory;" : "steelblue;")%>  
+}
 
 @media print {
  .noprint {display:none !important;}
@@ -1194,7 +1213,7 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 <% } %>&nbsp;
 </td>
 <td id="firstMenu">
-<ul id="navlist">
+<ul id="navlist">&nbsp;
 <logic:notEqual name="infirmaryView_isOscar" value="false">
 <% if(request.getParameter("viewall")!=null && request.getParameter("viewall").equals("1") && caseload) { %>
          <li>
@@ -2565,7 +2584,7 @@ start_time += iSm + ":00";
 	+ curProvider_no[nProvider];%>
 	
 <% if (showOldEchartLink) { %>
-&#124; <a href=# class="encounterBtn" onClick="pop4WithApptNo(710, 1024,'<%=eURL%>','encounter',<%=appointment.getId()%>);return false;" title="<bean:message key="global.encounter"/>">
+&#124; <a href=# class="encounterBtn" onClick="pop4WithApptNo(710, 1024,'<%=eURL%>','E<%=demographic_no %>',<%=appointment.getId()%>);return false;" title="<bean:message key="global.encounter"/>">
 <bean:message key="provider.appointmentProviderAdminDay.btnE"/></a>
 <% }} %>
 
@@ -2573,7 +2592,7 @@ start_time += iSm + ":00";
 
 <!--  eyeform open link -->
 <% if (showEyeForm && !isWeekView) { %>
-&#124; <a href="#" onClick='popupPage(800, 1280, "../eyeform/eyeform.jsp?demographic_no=<%=demographic_no %>&appointment_no=<%=appointment.getId()%>");return false;' title="EyeForm">EF</a>
+&#124; <a href="#" onClick='pop4(800, 1280, "../eyeform/eyeform.jsp?demographic_no=<%=demographic_no %>&appointment_no=<%=appointment.getId()%>","EF<%=demographic_no %>");return false;' title="EyeForm">EF</a>
 <% } %>
 
 <!-- billing code block -->
@@ -2583,7 +2602,7 @@ start_time += iSm + ":00";
 	if(status.indexOf('B')==-1) 
 	{ 
 	%>
-		&#124; <a href=# onClick='pop4(755,1200, "../billing.do?billRegion=<%=URLEncoder.encode(prov)%>&billForm=<%=URLEncoder.encode(oscarVariables.getProperty("default_view"))%>&hotclick=<%=URLEncoder.encode("")%>&appointment_no=<%=appointment.getId()%>&demographic_name=<%=URLEncoder.encode(name)%>&status=<%=status%>&demographic_no=<%=demographic_no%>&providerview=<%=curProvider_no[nProvider]%>&user_no=<%=curUser_no%>&apptProvider_no=<%=curProvider_no[nProvider]%>&appointment_date=<%=year+"-"+month+"-"+day%>&start_time=<%=start_time%>&bNewForm=1","bill")';return false; title="<bean:message key="global.billingtag"/>"><bean:message key="provider.appointmentProviderAdminDay.btnB"/></a>
+		&#124; <a href=# onClick='pop4(755,1200, "../billing.do?billRegion=<%=URLEncoder.encode(prov)%>&billForm=<%=URLEncoder.encode(oscarVariables.getProperty("default_view"))%>&hotclick=<%=URLEncoder.encode("")%>&appointment_no=<%=appointment.getId()%>&demographic_name=<%=URLEncoder.encode(name)%>&status=<%=status%>&demographic_no=<%=demographic_no%>&providerview=<%=curProvider_no[nProvider]%>&user_no=<%=curUser_no%>&apptProvider_no=<%=curProvider_no[nProvider]%>&appointment_date=<%=year+"-"+month+"-"+day%>&start_time=<%=start_time%>&bNewForm=1","B");return false;' title="<bean:message key="global.billingtag"/>"><bean:message key="provider.appointmentProviderAdminDay.btnB"/></a>
 	<% 
 	}
 	else 
@@ -2591,7 +2610,7 @@ start_time += iSm + ":00";
 		if(caisiBillingPreferenceNotDelete!=null && caisiBillingPreferenceNotDelete.equals("1")) 
 		{
 	%>
-			&#124; <a href=# onClick='pop4(700,720,"../billing/CA/ON/billingEditWithApptNo.jsp?billRegion=<%=URLEncoder.encode(prov)%>&billForm=<%=URLEncoder.encode(oscarVariables.getProperty("default_view"))%>&hotclick=<%=URLEncoder.encode("")%>&appointment_no=<%=appointment.getId()%>&demographic_name=<%=URLEncoder.encode(name)%>&status=<%=status%>&demographic_no=<%=demographic_no%>&providerview=<%=curProvider_no[nProvider]%>&user_no=<%=curUser_no%>&apptProvider_no=<%=curProvider_no[nProvider]%>&appointment_date=<%=year+"-"+month+"-"+day%>&start_time=<%=iS+":"+iSm%>&bNewForm=1",'bill');return false;' title="<bean:message key="global.billingtag"/>">=<bean:message key="provider.appointmentProviderAdminDay.btnB"/></a>
+			&#124; <a href=# onClick='pop4(700,720,"../billing/CA/ON/billingEditWithApptNo.jsp?billRegion=<%=URLEncoder.encode(prov)%>&billForm=<%=URLEncoder.encode(oscarVariables.getProperty("default_view"))%>&hotclick=<%=URLEncoder.encode("")%>&appointment_no=<%=appointment.getId()%>&demographic_name=<%=URLEncoder.encode(name)%>&status=<%=status%>&demographic_no=<%=demographic_no%>&providerview=<%=curProvider_no[nProvider]%>&user_no=<%=curUser_no%>&apptProvider_no=<%=curProvider_no[nProvider]%>&appointment_date=<%=year+"-"+month+"-"+day%>&start_time=<%=iS+":"+iSm%>&bNewForm=1","B");return false;' title="<bean:message key="global.billingtag"/>">=<bean:message key="provider.appointmentProviderAdminDay.btnB"/></a>
 	<% 
 		} 
 		else 
@@ -2609,7 +2628,7 @@ start_time += iSm + ":00";
 <!-- billing code block -->
 <security:oscarSec roleName="<%=roleName$%>" objectName="_masterLink" rights="r">
    
-    &#124; <a class="masterBtn" href="javascript: function myFunction() {return false; }" onClick="pop4WithApptNo(700,1024,'../demographic/demographiccontrol.jsp?demographic_no=<%=demographic_no%>&apptProvider=<%=curProvider_no[nProvider]%>&appointment=<%=appointment.getId()%>&displaymode=edit&dboperation=search_detail','master',<%=appointment.getId()%>)"
+    &#124; <a class="masterBtn" href="javascript: function myFunction() {return false; }" onClick="pop4WithApptNo(700,1024,'../demographic/demographiccontrol.jsp?demographic_no=<%=demographic_no%>&apptProvider=<%=curProvider_no[nProvider]%>&appointment=<%=appointment.getId()%>&displaymode=edit&dboperation=search_detail','M<%=demographic_no%>',<%=appointment.getId()%>)"
     title="<bean:message key="provider.appointmentProviderAdminDay.msgMasterFile"/>"><bean:message key="provider.appointmentProviderAdminDay.btnM"/></a>
   
 </security:oscarSec>
@@ -2618,7 +2637,7 @@ start_time += iSm + ":00";
 <!-- doctor code block 4 -->
 
 <security:oscarSec roleName="<%=roleName$%>" objectName="_appointment.doctorLink" rights="r">
-     &#124; <a href=# onClick="pop4WithApptNo(737,1027,'../oscarRx/choosePatient.do?providerNo=<%=curUser_no%>&demographicNo=<%=demographic_no%>','rx',<%=appointment.getId()%>)" title="<bean:message key="global.prescriptions"/>"><bean:message key="global.rx"/>
+     &#124; <a href=# onClick="pop4WithApptNo(737,1027,'../oscarRx/choosePatient.do?providerNo=<%=curUser_no%>&demographicNo=<%=demographic_no%>','Rx<%=demographic_no%>',<%=appointment.getId()%>)" title="<bean:message key="global.prescriptions"/>"><bean:message key="global.rx"/>
       </a>
       <%if("true".equals(OscarProperties.getInstance().getProperty("newui.enabled", "false")) && OscarProperties.getInstance().isPropertyActive("RX2")) {
     		// This is temporary for testing the angularRx
@@ -2764,7 +2783,7 @@ start_time += iSm + ":00";
       <tr><td colspan="3">
               <table  WIDTH="100%" class="noprint">
                   <tr>
-                      <td class="topBar" width="60%">
+                      <td class="bottombar" width="60%">
 
 
 
