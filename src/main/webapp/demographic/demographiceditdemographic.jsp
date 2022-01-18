@@ -841,7 +841,7 @@ function add2url(txt) {
     part1 = encURL.substring(0,beg);
     part2 = encURL.substr(end);
     encURL = part1 + encodeURI(txt) + part2;
-    popupEChart(710, 1024,encURL);
+    pop4(710, 1024,encURL,'E<%=demographic_no%>');
     return false;
 }
 
@@ -1367,7 +1367,7 @@ if(wLReadonly.equals("")){
 			<tr>
 				<td><a
 					href="javascript: function myFunction() {return false; }"
-					onClick="popupOscarRx(700,1027,'../oscarRx/choosePatient.do?providerNo=<%=curProvider_no%>&demographicNo=<%=demographic_no%>')"><bean:message
+					onClick="pop4(700,1027,'../oscarRx/choosePatient.do?providerNo=<%=curProvider_no%>&demographicNo=<%=demographic_no%>','Rx<%=demographic_no%>')"><bean:message
 					key="global.prescriptions" /></a>
 				</td>
 			</tr>
@@ -1376,7 +1376,7 @@ if(wLReadonly.equals("")){
 				rights="r" reverse="<%=false%>">
                     <special:SpecialEncounterTag moduleName="eyeform" reverse="true">
                     <tr><td>
-					<a href="javascript: function myFunction() {return false; }" onClick="popupEChart(710, 1024,encURL);return false;" title="<bean:message key="demographic.demographiceditdemographic.btnEChart"/>">
+					<a href="javascript: function myFunction() {return false; }" onClick="pop4(710, 1024,encURL,'E<%=demographic_no%>');return false;" title="<bean:message key="demographic.demographiceditdemographic.btnEChart"/>">
 					<bean:message key="demographic.demographiceditdemographic.btnEChart" /></a>&nbsp;<a style="text-decoration: none;" href="javascript: function myFunction() {return false; }" onmouseover="return !showMenu('1', event);">+</a>
 					<div id='menu1' class="menu" onclick='event.cancelBubble = true;'>
 					<h4 style='text-align: center; color: black;' ><bean:message key="demographic.demographiceditdemographic.msgEncType"/></h4>
@@ -1399,7 +1399,7 @@ if(wLReadonly.equals("")){
                     </special:SpecialEncounterTag>
                     <special:SpecialEncounterTag moduleName="eyeform">
                     <tr><td>
-                            <a href="javascript: function myFunction() {return false; }" onClick="popupEChart(710, 1024,encURL);return false;" title="<bean:message key="demographic.demographiceditdemographic.btnEChart"/>">
+                            <a href="javascript: function myFunction() {return false; }" onClick="pop4(710, 1024,encURL,'EF<%=demographic_no%>');return false;" title="<bean:message key="demographic.demographiceditdemographic.btnEChart"/>">
                             <bean:message key="demographic.demographiceditdemographic.btnEChart"/></a>
                     </td></tr>
                     </special:SpecialEncounterTag>
@@ -1860,7 +1860,7 @@ if (iviewTag!=null && !"".equalsIgnoreCase(iviewTag.trim())){
                                              String sdb = relHash.get("subDecisionMaker") == null?"":((Boolean) relHash.get("subDecisionMaker")).booleanValue()?"<span title=\"SDM\" >/SDM</span>":"";
                                              String ec = relHash.get("emergencyContact") == null?"":((Boolean) relHash.get("emergencyContact")).booleanValue()?"<span title=\"Emergency Contact\">/EC</span>":"";
 											 String masterLink = "<a target=\"demographic"+dNo+"\" href=\"" + request.getContextPath() + "/demographic/demographiccontrol.jsp?demographic_no="+dNo+"&displaymode=edit&dboperation=search_detail\">M</a>";
-											 String encounterLink = "<a target=\"encounter"+dNo+"\" href=\"javascript: function myFunction() {return false; }\" onClick=\"popupEChart(710,1024,'" + request.getContextPath() + "/oscarEncounter/IncomingEncounter.do?demographicNo="+dNo+"&providerNo="+loggedInInfo.getLoggedInProviderNo()+"&appointmentNo=&curProviderNo=&reason=&appointmentDate=&startTime=&status=&userName="+URLEncoder.encode( userfirstname+" "+userlastname)+"&curDate="+curYear+"-"+curMonth+"-"+curDay+"');return false;\">E</a>";												 
+											 String encounterLink = "<a target=\"encounter"+dNo+"\" href=\"javascript: function myFunction() {return false; }\" onClick=\"popup4(710,1024,'" + request.getContextPath() + "/oscarEncounter/IncomingEncounter.do?demographicNo="+dNo+"&providerNo="+loggedInInfo.getLoggedInProviderNo()+"&appointmentNo=&curProviderNo=&reason=&appointmentDate=&startTime=&status=&userName="+URLEncoder.encode( userfirstname+" "+userlastname)+"&curDate="+curYear+"-"+curMonth+"-"+curDay+",\"E"+demographic_no+"\");return false;\">E</a>";												 
                                           %>
 							<li><span class="label"><%= Encode.forHtmlContent((String)relHash.get("relation"))%><%=sdb%><%=ec%>:</span>
                             	<span class="info"><%=Encode.forHtml(relHash.get("lastName")+", "+relHash.get("firstName"))%>, H:<%=relHash.get("phone")== null?"":relHash.get("phone")%><%=formattedWorkPhone%> <%=masterLink%> <%=encounterLink %></span>
