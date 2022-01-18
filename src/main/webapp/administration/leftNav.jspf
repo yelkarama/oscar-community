@@ -44,7 +44,7 @@ String curProvider_no = (String)session.getAttribute("user");
 			<div class="accordion-group nav nav-tabs">
 			
 			<div class="accordion-heading well-small" style="margin-bottom:0px;color:#000">
-			<a href="${ctx}/administration/"><i class="icon-cog"></i> <bean:message key="admin.admin.page.title" /></a>
+			<a href="${ctx}/administration/"><i class="icon-cog"></i> <bean:message key="admin.admin.title" /></a>
 			</div>
 
 <!-- #USER MANAGEMENT -->
