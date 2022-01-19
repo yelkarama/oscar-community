@@ -194,7 +194,6 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
             vheight     = typeof(vheight)   != 'undefined' ? vheight : '700px';
             vwidth      = typeof(vwidth)    != 'undefined' ? vwidth : '1024px';
             var page = "" + varpage;
-            var page = varpage;
             windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=0,screenY=0,top=0,left=0";
             var popup=window.open(varpage, windowName, windowprops);
             if (popup != null) {
@@ -207,7 +206,7 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
           window.open(varpage,windowName);
         <% } %>
         }
-         
+
          
      	<%
      		int version = 0;
@@ -426,7 +425,7 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
                                     <input type="button" class="btn" value="Tickler" onclick="handleLab('','<%=segmentID%>','ticklerLab');"/>
 
                                     <% if ( searchProviderNo != null ) { // null if we were called from e-chart%>
-                                    <input type="button" class="btn" value=" <bean:message key="oscarMDS.segmentDisplay.btnEChart"/> " onClick="popupStart(360, 680, '../oscarMDS/SearchPatient.do?labType=HL7&segmentID=<%= segmentID %>&name=<%=java.net.URLEncoder.encode(handler.getLastName()+", "+handler.getFirstName())%>', 'searchPatientWindow')">
+                                    <input type="button" class="btn" value=" <bean:message key="oscarMDS.segmentDisplay.btnEChart"/> " onClick="pop4(360, 680, '../oscarMDS/SearchPatient.do?labType=HL7&segmentID=<%= segmentID %>&name=<%=java.net.URLEncoder.encode(handler.getLastName()+", "+handler.getFirstName())%>', 'searchPatientWindow')">
                                     <% } %>
                                     <%
                                         String mRecordWinName = "M" + demographicID;
