@@ -685,7 +685,8 @@ th, td {
 }
 
 .scheduleTime00, .scheduleTimeNot00{
-    width:5%;
+    width:3%;
+    padding: 2px 4px;
 }
 
 .scheduleTime00 { 
