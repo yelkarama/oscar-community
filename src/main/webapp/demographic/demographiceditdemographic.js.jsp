@@ -31,6 +31,8 @@
     }
 %>
 
+ctx = "${pageContext.request.contextPath}";
+
 function rs(n,u,w,h,x) {
   args="width="+w+",height="+h+",resizable=yes,scrollbars=yes,status=0,top=360,left=30";
   remote=window.open(u,n,args);
@@ -55,81 +57,62 @@ function setfocus() {
 function upCaseCtrl(ctrl) {
 	ctrl.value = ctrl.value.toUpperCase();
 }
-function popupPage(vheight,vwidth,varpage) { //open a new popup window
-  var page = "" + varpage;
-  windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=50,screenY=50,top=20,left=20";
-  var popup=window.open(page, "demodetail", windowprops);
-  if (popup != null) {
-    if (popup.opener == null) {
-      popup.opener = self;
-    }
-    popup.focus();
-  }
-}
+function popupPage(vheight, vwidth, varpage, inTabs) { //open a new popup window
 
-function pop4(vheight, vwidth, varpage, windowName) { //open a new popup window
-    windowName  = typeof(windowName)!= 'undefined' ? windowName : 'demoEdit';
-<% if (!openInTabs) { %>
-    vheight     = typeof(vheight)   != 'undefined' ? vheight : '700px';
-    vwidth      = typeof(vwidth)    != 'undefined' ? vwidth : '1024px';
-    var page = "" + varpage;
-    var page = varpage;
-    windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=0,screenY=0,top=0,left=0";
-    var popup=window.open(varpage, windowName, windowprops);
+  windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=50,screenY=50,top=20,left=20";
+
+    inTabs      = typeof(inTabs)     != 'undefined' ? inTabs : <%=openInTabs%>;
+    var windowName  = 'Master';
+
+	if (varpage == null || varpage == -1) {
+		  	return false;
+	}
+    if( varpage.indexOf("..") == 0 ) {
+            varpage = ctx + varpage.substr(2);
+    }
+
+    if (inTabs) {
+                popup = window.open(varpage, windowName);
+    } else {
+                popup = window.open(varpage, windowName, windowprops);
+    }
     if (popup != null) {
         if (popup.opener == null) {
             popup.opener = self;
         }
         popup.focus();
     }
-<% } else { %>
-  window.open(varpage,windowName);
-<% } %>
 }
 
-function popupEChart(vheight,vwidth,varpage) { //open a new popup window
-  var page = "" + varpage;
-  windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=50,screenY=50,top=20,left=20";
-  var popup=window.open(page, "encounter", windowprops);
-  if (popup != null) {
-    if (popup.opener == null) {
-      popup.opener = self;
-    }
-    popup.focus();
-  }
-}
-function popupOscarRx(vheight,vwidth,varpage) { //open a new popup window
+
+function popupOscarRx(vheight,vwidth,varpage, inTabs) { //open a new popup window
   var page = varpage;
   windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=0,screenY=0,top=0,left=0";
-  var popup=window.open(varpage, "oscarRx", windowprops);
-  if (popup != null) {
-    if (popup.opener == null) {
-      popup.opener = self;
+
+    inTabs      = typeof(inTabs)     != 'undefined' ? inTabs : <%=openInTabs%>;
+    var windowName  = 'Master';
+
+	if (varpage == null || varpage == -1) {
+		  	return false;
+	}
+    if( varpage.indexOf("..") == 0 ) {
+            varpage = ctx + varpage.substr(2);
     }
-    popup.focus();
-  }
-}
-function popupQuestimed(vheight,vwidth,varpage) { //open a new popup window
-  var page = varpage;
-  windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=0,screenY=0,top=0,left=0";
-  var popup=window.open(varpage, "Questimed", windowprops);
-  if (popup != null) {
-    if (popup.opener == null) {
-      popup.opener = self;
+
+    if (inTabs) {
+                popup = window.open(varpage, windowName);
+    } else {
+                popup = window.open(varpage, windowName, windowprops);
     }
-    popup.focus();
-  }
+    if (popup != null) {
+        if (popup.opener == null) {
+            popup.opener = self;
+        }
+        popup.focus();
+    }
 }
-function popupS(varpage) {
-	if (! window.focus)return true;
-	var href;
-	if (typeof(varpage) == 'string')
-	   href=varpage;
-	else
-	   href=varpage.href;
-	window.open(href, "fullwin", ',type=fullWindow,fullscreen,scrollbars=yes');
-	return false;
-}
+
+
 
 
 function checkRosterStatus() {
