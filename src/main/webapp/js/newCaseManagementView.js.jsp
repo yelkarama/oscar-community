@@ -41,6 +41,10 @@
 
 <jsp:useBean id="dataBean" class="java.util.Properties"/>
 
+<%
+boolean openInTabs=OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true");
+%>
+
     let chartNoteAutosave = null;
 	var numNotes = 0;   //How many saved notes do we have?
     var ctx;        //url context
@@ -94,8 +98,17 @@
 			return c;
 		
 		}
-		
-        function popupPage(vheight,vwidth,name,varpage) { //open a new popup window
+
+    function popupPage(vheight,vwidth,name,varpage,inTabs) { //open a new popup window
+        console.log("newCaseManagementView.js.jsp popup");
+        vheight      = typeof(vheight)    != 'undefined' ? vheight : '700px';
+        vwidth       = typeof(vwidth)     != 'undefined' ? vwidth : '1024px';
+        varpage      = typeof(varpage)    != 'undefined' ? varpage : '';
+        name         = typeof(name)       != 'undefined' ? name : 'encounter';
+        inTabs       = typeof(inTabs)     != 'undefined' ? inTabs : <%=openInTabs%>;
+
+        name = name.replace(/\s+/g,"_");
+        
 		  if (varpage == null || varpage == -1) {
 		  	return false;
 		  }
@@ -104,8 +117,11 @@
           }
           var page = "" + varpage;
           windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=600,screenY=200,top=0,left=0";
-                //var popup =window.open(page, "<bean:message key="oscarEncounter.Index.popupPageWindow"/>", windowprops);
+            if (inTabs) {
+                openWindows[name] = window.open(page, name);
+            } else {
                 openWindows[name] = window.open(page, name, windowprops);
+            }
 
                 if (openWindows[name] != null) {
                     if (openWindows[name].opener == null) {
@@ -4066,4 +4082,3 @@ function receiveMessage(event) {
 	}
 	
 %>
-
