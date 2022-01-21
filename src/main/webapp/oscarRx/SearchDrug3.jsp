@@ -861,11 +861,10 @@ THEME 2*/
 		if (request.getParameter("show") != null) if (request.getParameter("show").equals("all")) showall = true;
     %>
 
-
 <script language="JavaScript">
-top.window.moveTo(0,0);
-top.window.resizeTo(screen.availWidth,screen.availHeight);
+top.window.resizeTo(1280,1024);  //width,height for 19" LCD allowing for most Rx to be in two rows
 </script>
+
 
     <body  vlink="#0000FF" onload="setplaceholder();checkFav();iterateStash();rxPageSizeSelect();checkReRxLongTerm();load()" class="yui-skin-sam">
     <script>
