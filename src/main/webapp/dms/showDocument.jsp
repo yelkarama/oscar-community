@@ -271,7 +271,8 @@ if (openInTabs){
         var contextpath = "<%=request.getContextPath()%>";
         
 
-        <script type="text/javascript" src="showDocument.js"></script>
+</script>
+<script type="text/javascript" src="showDocument.js"></script>
 
 
 
@@ -337,7 +338,7 @@ if (openInTabs){
                                                         
                                                         %>
                                                         <input type="button" id="msgBtn_<%=docId%>" class="btn" value="Msg" onclick="popupPatient(700,960,'<%= request.getContextPath() %>/oscarMessenger/SendDemoMessage.do?demographic_no=','msg', '<%=docId%>')" <%=btnDisabled %>/>
-                                                        <input type="button" id="RxBtn_<%=docId%>" class="btn" value="&nbsp;Rx&nbsp;" onclick="popupPatient(700,960,'<%= request.getContextPath() %>/oscarRx/choosePatient.do?providerNo=<%= providerNo%>&demographicNo=','Rx<%=demographicID%>', '<%=docId%>', <%=openInTabs%>)" <%=btnDisabled %>/>
+                                                        <input type="button" id="RxBtn_<%=docId%>" class="btn" value="&nbsp;Rx&nbsp;" onclick="popupPatientRx(1024,500,'<%= request.getContextPath() %>/oscarRx/choosePatient.do?providerNo=<%= providerNo%>&demographicNo=','Rx<%=demographicID%>', '<%=docId%>', false)" <%=btnDisabled %>/>
 
 
                                                         <!--input type="button" id="ticklerBtn_<%=docId%>" class="btn" value="Tickler" onclick="handleDocSave('<%=docId%>','addTickler')"/-->
