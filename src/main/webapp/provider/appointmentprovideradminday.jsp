@@ -1112,11 +1112,14 @@ if(mygroupno != null && providerBean.get(mygroupno) != null) { //single appointe
        curProviderName = new String []{(userlastname+", "+userfirstname)}; //[numProvider];
      } else {
        if(request.getParameter("viewall")!=null && request.getParameter("viewall").equals("1") ) {
-         if(numProvider >= 5) {lenLimitedL = 2; lenLimitedS = 3; }
+         if(numProvider >= 6) {lenLimitedL = 6; lenLimitedS = 3; }
        } else {
-         if(numAvailProvider >= 5) {lenLimitedL = 2; lenLimitedS = 3; }
-         if(numAvailProvider == 2) {lenLimitedL = 20; lenLimitedS = 10; len = 20;}
-         if(numAvailProvider == 1) {lenLimitedL = 30; lenLimitedS = 30; len = 30; }
+         if(numAvailProvider >= 7) {lenLimitedL = 6; lenLimitedS = 3; }
+         if(numAvailProvider == 6) {lenLimitedL = 10; lenLimitedS = 6; }
+         if(numAvailProvider == 5) {lenLimitedL = 15; lenLimitedS = 10; len = 10;}
+         if(numAvailProvider == 4) {lenLimitedL = 20; lenLimitedS = 13; len = 20;}
+         if(numAvailProvider == 3) {lenLimitedL = 30; lenLimitedS = 20; len = 30;}
+         if(numAvailProvider <= 2) {lenLimitedL = 30; lenLimitedS = 30; len = 30;}
        }
       UserProperty uppatientNameLength = userPropertyDao.getProp(curUser_no, UserProperty.PATIENT_NAME_LENGTH);
       int NameLength=0;
