@@ -24,9 +24,13 @@
 
 --%>
 <%@page import="oscar.OscarProperties" %>
-<%@page import="org.oscarehr.common.dao.UserPropertyDAO" %>
+
+<%@page import="org.oscarehr.util.SpringUtils"%>
+<%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
+<%@ page import="org.oscarehr.common.model.UserProperty" %>
 <%
-	String curUser_no = (String) session.getAttribute("user"); 
+	String curUser_no = (String) session.getAttribute("user");
+	UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class); 
 	UserProperty tabViewProp = userPropertyDao.getProp(curUser_no, UserProperty.OPEN_IN_TABS);
     boolean openInTabs = false;
     if ( tabViewProp == null ) {
