@@ -113,12 +113,12 @@
 		noteReason = "";
 	}
 	
-	Properties oscarVariables = OscarProperties.getInstance();
-	boolean openInTabs = false;
-    String oit = oscarVariables.getProperty("open_in_tabs", "").trim().toUpperCase();
-
-	if( oit != null && oit.equals("TRUE")) {
-			openInTabs = true;
+	UserProperty tabViewProp = userPropertyDao.getProp(curProvider_no, UserProperty.OPEN_IN_TABS);
+    boolean openInTabs = false;
+    if ( tabViewProp == null ) {
+        openInTabs = oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true");
+    } else {
+        openInTabs = oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true") || Boolean.parseBoolean(tabViewProp.getValue());
     }
 
 //reset session attributes
