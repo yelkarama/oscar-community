@@ -24,6 +24,7 @@
 
 --%>
 <%@page import="oscar.OscarProperties" %>
+<%@page import="org.oscarehr.common.dao.UserPropertyDAO" %>
 <%
 	String curUser_no = (String) session.getAttribute("user"); 
 	UserProperty tabViewProp = userPropertyDao.getProp(curUser_no, UserProperty.OPEN_IN_TABS);
