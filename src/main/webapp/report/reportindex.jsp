@@ -23,6 +23,9 @@
     Ontario, Canada
 
 --%>
+<%@page import="org.oscarehr.common.dao.UserPropertyDAO" %>
+<%@ page import="org.oscarehr.common.model.UserProperty" %>
+<%@page import="org.oscarehr.util.SpringUtils" %>
 
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
@@ -42,7 +45,7 @@ if(!authed2) {
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%
 String country = request.getLocale() .getCountry();
-
+UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 ProviderPreference providerPreference=(ProviderPreference)session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER_PREFERENCE);
 String curUser_no = (String) session.getAttribute("user");
 String mygroupno = providerPreference.getMyGroupNo();
@@ -65,7 +68,14 @@ String billingRegion = (oscar.OscarProperties.getInstance()).getProperty("billre
 <%@ taglib uri="/WEB-INF/caisi-tag.tld" prefix="caisi"%>
 
 <%
-    boolean openInTabs = oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true"); 	
+    UserProperty tabViewProp = userPropertyDao.getProp(curUser_no, UserProperty.OPEN_IN_TABS);
+    boolean openInTabs = false;
+    if ( tabViewProp == null ) {
+        openInTabs = oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true");
+    } else {
+        openInTabs = oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true") || Boolean.parseBoolean(tabViewProp.getValue());
+    }
+
     boolean isSiteAccessPrivacy=false;
     boolean isTeamAccessPrivacy=false; 
     String provider_dboperation = "search_provider";

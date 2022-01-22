@@ -218,12 +218,13 @@ if (bMultisites) {
 	import="java.lang.*, java.util.*, java.text.*,java.net.*,java.sql.*,oscar.*"
 	errorPage="errorpage.jsp"%>
 <% 
-	boolean openInTabs = false;
-    java.util.Properties oscarVariables = OscarProperties.getInstance();
-    String oit = oscarVariables.getProperty("open_in_tabs", "").trim().toUpperCase();
-    if( oit != null && oit.equals("TRUE")) {
-    	openInTabs = true;
-	}
+	UserProperty tabViewProp = userPropertyDao.getProp(curUser_no, UserProperty.OPEN_IN_TABS);
+    boolean openInTabs = false;
+    if ( tabViewProp == null ) {
+        openInTabs = oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true");
+    } else {
+        openInTabs = oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true") || Boolean.parseBoolean(tabViewProp.getValue());
+    }
 %>
 	
 <jsp:useBean id="scheduleHolidayBean" class="java.util.Hashtable"

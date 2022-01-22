@@ -265,15 +265,9 @@ private HashMap<String,String> CurrentSiteMap = new HashMap<String,String>();%>
 <jsp:useBean id="as" class="oscar.appt.ApptStatusData" scope="page" />
 <jsp:useBean id="dateTimeCodeBean" class="java.util.Hashtable" scope="page" />
 <%
-	Properties oscarVariables = OscarProperties.getInstance();
+	Properties oscarVariables = OscarProperties.getInstance();   
 
-	boolean openInTabs = false;
-
-    String oit = oscarVariables.getProperty("open_in_tabs", "").trim().toUpperCase();
-    if( oit != null && oit.equals("TRUE")) {
-    	openInTabs = true;
-    }
-	String econsultUrl = oscarVariables.getProperty("backendEconsultUrl");
+    String econsultUrl = oscarVariables.getProperty("backendEconsultUrl");
 	
 	//Gets the request URL
 	StringBuffer oscarUrl = request.getRequestURL();
@@ -302,6 +296,15 @@ public boolean patientHasOutstandingPrivateBills(String demographicNo){
         response.sendRedirect("../logout.jsp");
 
 	String curUser_no = (String) session.getAttribute("user");
+
+    UserProperty tabViewProp = userPropertyDao.getProp(curUser_no, UserProperty.OPEN_IN_TABS);
+    boolean openInTabs = false;
+    if ( tabViewProp == null ) {
+        openInTabs = oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true");
+    } else {
+        openInTabs = oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true") || Boolean.parseBoolean(tabViewProp.getValue());
+    }
+
 
     ProviderPreference providerPreference2=(ProviderPreference)session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER_PREFERENCE);
 

@@ -55,7 +55,8 @@
 <%@page import="org.oscarehr.caisi_integrator.ws.MatchingDemographicTransferScore"%>
 <%@page import="org.oscarehr.casemgmt.service.CaseManagementManager"%>
 <%@page import="org.owasp.encoder.Encode" %>
-
+<%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
+<%@ page import="org.oscarehr.common.model.UserProperty" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
@@ -112,13 +113,13 @@
 			&& OscarProperties.getInstance().getProperty("disableTelProgressNoteTitleInEncouterNotes").equals("yes")) {
 		noteReason = "";
 	}
-	
-	Properties oscarVariables = OscarProperties.getInstance();
-	boolean openInTabs = false;
-    String oit = oscarVariables.getProperty("open_in_tabs", "").trim().toUpperCase();
-
-	if( oit != null && oit.equals("TRUE")) {
-			openInTabs = true;
+	UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);	
+	UserProperty tabViewProp = userPropertyDao.getProp(curProvider_no, UserProperty.OPEN_IN_TABS);
+    boolean openInTabs = false;
+    if ( tabViewProp == null ) {
+        openInTabs = oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true");
+    } else {
+        openInTabs = oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true") || Boolean.parseBoolean(tabViewProp.getValue());
     }
 
 //reset session attributes

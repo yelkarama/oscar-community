@@ -47,6 +47,7 @@
 <%@ page import="org.oscarehr.common.model.Demographic" %>
 <%@ page import="org.oscarehr.common.dao.DemographicDao" %>	
 <%@ page import="org.owasp.encoder.Encode" %>
+
 	
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
@@ -70,11 +71,19 @@ if(!authed) {
 %>
 
 <%
-LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-oscar.OscarProperties props = oscar.OscarProperties.getInstance();
-boolean openInTabs = props.getBooleanProperty("open_in_tabs", "true"); // true if one of case insensitive "true", "yes", "on"
+    LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+    oscar.OscarProperties props = oscar.OscarProperties.getInstance();
+    UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
+	String curUser_no = (String) session.getAttribute("user"); 
+	UserProperty tabViewProp = userPropertyDao.getProp(curUser_no, UserProperty.OPEN_IN_TABS);
+    boolean openInTabs = false;
+    if ( tabViewProp == null ) {
+        openInTabs = oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true");
+    } else {
+        openInTabs = oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true") || Boolean.parseBoolean(tabViewProp.getValue());
+    }
 
-if (openInTabs){
+    if (openInTabs){
 %>
 <script language="JavaScript">
     console.log("openInTabs is active");

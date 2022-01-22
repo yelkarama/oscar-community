@@ -61,6 +61,9 @@
 
 <%
 	CtlBillingServiceDao ctlBillingServiceDao = SpringUtils.getBean(CtlBillingServiceDao.class);
+
+    
+    UserPropertyDAO propertyDao = (UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO"); 
 %>
 
 <html:html locale="true">
@@ -409,6 +412,25 @@ window.opener.location.reload();
 	            </td>
 			</tr>
 
+			<!-- OSCAR in Tabs setting -->
+			<tr>
+				<td class="preferenceLabel">
+					<bean:message key="provider.providerpreference.openInTabs" />
+				</td>
+				<td class="preferenceValue">
+					<%
+						UserProperty tabViewProp = propertyDao.getProp(providerNo, UserProperty.OPEN_IN_TABS);
+                        boolean tabEnabled = false;
+                        if ( tabViewProp == null ) {
+                            tabEnabled=false;
+                        } else {
+                            tabEnabled = Boolean.parseBoolean(tabViewProp.getValue());
+                        }
+					%>
+					<input type="checkbox" name="tab_view" value="true" <%=tabEnabled ? "checked=\"checked\"" : ""%> />
+				</td>
+			</tr>
+
 			<%-- links to display on the appointment screen --%>
 			<tr>
 				<td class="preferenceLabel">
@@ -511,7 +533,6 @@ window.opener.location.reload();
 
 			<tr>
 				<%
-					UserPropertyDAO propertyDao = (UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
 					UserProperty prop = propertyDao.getProp(providerNo,"rxInteractionWarningLevel");
 					String warningLevel = "0";
 					if(prop!=null) {
