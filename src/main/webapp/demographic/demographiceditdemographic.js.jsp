@@ -25,9 +25,13 @@
 --%>
 <%@page import="oscar.OscarProperties" %>
 <%
-	boolean openInTabs = false;
-    if (OscarProperties.getInstance().getBooleanProperty("indivica_hc_read_enabled", "true")) {
-    	openInTabs = true;
+	String curUser_no = (String) session.getAttribute("user"); 
+	UserProperty tabViewProp = userPropertyDao.getProp(curUser_no, UserProperty.OPEN_IN_TABS);
+    boolean openInTabs = false;
+    if ( tabViewProp == null ) {
+        openInTabs = oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true");
+    } else {
+        openInTabs = oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true") || Boolean.parseBoolean(tabViewProp.getValue());
     }
 %>
 
