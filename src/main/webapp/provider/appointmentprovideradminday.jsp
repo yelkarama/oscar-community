@@ -267,13 +267,11 @@ private HashMap<String,String> CurrentSiteMap = new HashMap<String,String>();%>
 <%
 	Properties oscarVariables = OscarProperties.getInstance();
 
-	boolean openInTabs = false;
+    UserProperty tabViewProp = userPropertyDao.getProp(curUser_no, UserProperty.OPEN_IN_TABS);
+    boolean openInTabs = tabViewProp == null || Boolean.parseBoolean(tabViewProp.getValue());
+    boolean openInTabs = openInTabs || oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true");    
 
-    String oit = oscarVariables.getProperty("open_in_tabs", "").trim().toUpperCase();
-    if( oit != null && oit.equals("TRUE")) {
-    	openInTabs = true;
-    }
-	String econsultUrl = oscarVariables.getProperty("backendEconsultUrl");
+    String econsultUrl = oscarVariables.getProperty("backendEconsultUrl");
 	
 	//Gets the request URL
 	StringBuffer oscarUrl = request.getRequestURL();
