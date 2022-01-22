@@ -527,7 +527,7 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 
                             <td align="right" valign="center" width="40%">
 								<span class="HelpAboutLogout">
-									<oscar:help keywords="&Title=Inbox&portal_type%3Alist=Document" key="app.top1" />
+									<a href="https://worldoscar.org/knowledge-base/inbox/" target="_blank"><bean:message key="app.top1" /></a>
                                 	| <a href="javascript:popupStart(300,400,'<%=request.getContextPath()%>/oscarEncounter/About.jsp')" ><bean:message key="global.about"/></a>
 								</span>
                                 | <a href="javascript:parent.reportWindow('<%=request.getContextPath()%>/oscarMDS/ForwardingRules.jsp?providerNo=<%= providerNo %>');"  >Forwarding Rules</a>
