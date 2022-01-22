@@ -409,6 +409,20 @@ window.opener.location.reload();
 	            </td>
 			</tr>
 
+			<!-- OSCAR in Tabs setting -->
+			<tr>
+				<td class="preferenceLabel">
+					<bean:message key="provider.providerpreference.openInTabs" />
+				</td>
+				<td class="preferenceValue">
+					<%
+						UserProperty tabViewProp = propertyDao.getProp(providerNo, UserProperty.OPEN_IN_TABS);
+						boolean tabEnabled = tabViewProp == null || Boolean.parseBoolean(tabViewProp.getValue());
+					%>
+					<input type="checkbox" name="tab_view" value="true" <%=tabEnabled ? "checked=\"checked\"" : ""%> />
+				</td>
+			</tr>
+
 			<%-- links to display on the appointment screen --%>
 			<tr>
 				<td class="preferenceLabel">
