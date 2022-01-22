@@ -278,7 +278,7 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
 <html>
     <head>
         <html:base/>
-        <title><%=handler.getPatientName()+" Lab Results"%></title>
+        <title><%=handler.getLastName()+", "+handler.getFirstName()+" Lab Results"%></title>
         <script language="javascript" type="text/javascript" src="../../../share/javascript/Oscar.js" ></script>
         <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
         <script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/prototype.js"></script>
@@ -871,15 +871,15 @@ input[type=button], button, input[id^='acklabel_']{ font-size:12px !important;pa
                                     <input type="button" class="btn" value="<bean:message key="oscarMDS.segmentDisplay.btnComment"/>" onclick="return getComment('addComment',<%=segmentID%>);">
                                     <% } %>
                                     <input type="button" class="btn" value="<bean:message key="oscarMDS.index.btnForward"/>" onClick="popupStart(355, 675, '../../../oscarMDS/SelectProvider.jsp?docId=<%=segmentID%>&labDisplay=true', 'providerselect')">
-                                    <input type="button" class="btn" value=" <bean:message key="global.btnClose"/> " onClick="window.close()">
-                                    <input type="button" class="btn" value=" <bean:message key="global.btnPDF"/> " onClick="printPDF('<%=segmentID%>')">
+                                    <input type="button" class="btn" value="<bean:message key="global.btnClose"/>" onClick="window.close()">
+                                    <input type="button" class="btn" value="<bean:message key="global.btnPDF"/>" onClick="printPDF('<%=segmentID%>')">
 
                                     <input type="button" class="btn" value="Msg" onclick="handleLab('','<%=segmentID%>','msgLab');"/>
                                     <input type="button" class="btn" value="Tickler" onclick="handleLab('','<%=segmentID%>','ticklerLab');"/>
                                     <input type="button" class="btn" value="<bean:message key="oscarMDS.segmentDisplay.btnUnlinkDemo"/>" onclick="handleLab('','<%=segmentID%>','unlinkDemo');"/>
 
                                     <% if ( searchProviderNo != null ) { // null if we were called from e-chart%>
-                                    <input type="button" class="btn" value=" <bean:message key="oscarMDS.segmentDisplay.btnEChart"/>" onClick="popupStart(360, 680, '../../../oscarMDS/SearchPatient.do?labType=HL7&segmentID=<%= segmentID %>&name=<%=java.net.URLEncoder.encode(handler.getLastName()+", "+handler.getFirstName())%>', 'encounter')">
+                                    <input type="button" class="btn" value="<bean:message key="oscarMDS.segmentDisplay.btnEChart"/>" onClick="popupStart(360, 680, '../../../oscarMDS/SearchPatient.do?labType=HL7&segmentID=<%= segmentID %>&name=<%=java.net.URLEncoder.encode(handler.getLastName()+", "+handler.getFirstName())%>', 'encounter')">
                                     <% } %>
                                     <%
                                         String mRecordWinName = "Master" + demographicID;
@@ -995,7 +995,7 @@ input[type=button], button, input[id^='acklabel_']{ font-size:12px !important;pa
                                                                             <% } else { // we were called from lab module%>
                                                                             <a href="javascript:popupStart(360, 680, '../../../oscarMDS/SearchPatient.do?labType=HL7&segmentID=<%= segmentID %>&name=<%=java.net.URLEncoder.encode(handler.getLastName()+", "+handler.getFirstName())%>', 'searchPatientWindow')">
                                                                                 <% } %>
-                                                                                <%=handler.getPatientName()%>
+                                                                                <%=handler.getLastName()+", "+handler.getFirstName()%>
                                                                             </a>
                                                                         </div>
                                                                     </td>
@@ -2079,13 +2079,13 @@ for(int mcount=0; mcount<multiID.length; mcount++){
                                     <input type="button" class="btn" value="<bean:message key="oscarMDS.segmentDisplay.btnComment"/>" onclick="return getComment('addComment',<%=segmentID%>);">
                                     <% } %>
                                     <input type="button" class="btn" value="<bean:message key="oscarMDS.index.btnForward"/>" onClick="popupStart(397, 700, '../../../oscarMDS/SelectProvider.jsp?docId=<%=segmentID%>&labDisplay=true', 'providerselect')">
-                                    <input type="button" class="btn" value=" <bean:message key="global.btnClose"/> " onClick="window.close()">
-                                    <input type="button" class="btn" value=" <bean:message key="global.btnPDF"/> " onClick="printPDF('<%=segmentID%>')">
+                                    <input type="button" class="btn" value="<bean:message key="global.btnClose"/>" onClick="window.close()">
+                                    <input type="button" class="btn" value="<bean:message key="global.btnPDF"/>" onClick="printPDF('<%=segmentID%>')">
                                         <indivo:indivoRegistered demographic="<%=demographicID%>" provider="<%=providerNo%>">
                                         <input type="button" class="btn" value="<bean:message key="global.btnSendToPHR"/>" onClick="sendToPHR('<%=segmentID%>', '<%=demographicID%>')">
                                         </indivo:indivoRegistered>
                                     <% if ( searchProviderNo != null ) { // we were called from e-chart %>
-                                    <input type="button" class="btn" value=" <bean:message key="oscarMDS.segmentDisplay.btnEChart"/> " onClick="popupStart(360, 680, '../../../oscarMDS/SearchPatient.do?labType=HL7&segmentID=<%= segmentID %>&name=<%=java.net.URLEncoder.encode(handler.getLastName()+", "+handler.getFirstName())%>', 'encounter')">
+                                    <input type="button" class="btn" value="<bean:message key="oscarMDS.segmentDisplay.btnEChart"/>" onClick="popupStart(360, 680, '../../../oscarMDS/SearchPatient.do?labType=HL7&segmentID=<%= segmentID %>&name=<%=java.net.URLEncoder.encode(handler.getLastName()+", "+handler.getFirstName())%>', 'encounter')">
 
                                     <% } %>
                                     <input type="button" class="btn" value="<bean:message key="oscarMDS.segmentDisplay.btnMRecord"/>" onClick="popupStart(700,1000,'<%=mRecordUrl%>', '<%=mRecordWinName%>');">
