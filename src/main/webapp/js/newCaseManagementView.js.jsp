@@ -42,7 +42,14 @@
 <jsp:useBean id="dataBean" class="java.util.Properties"/>
 
 <%
-boolean openInTabs=OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true");
+	String curUser_no = (String) session.getAttribute("user"); 
+	UserProperty tabViewProp = userPropertyDao.getProp(curUser_no, UserProperty.OPEN_IN_TABS);
+    boolean openInTabs = false;
+    if ( tabViewProp == null ) {
+        openInTabs = oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true");
+    } else {
+        openInTabs = oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true") || Boolean.parseBoolean(tabViewProp.getValue());
+    }
 %>
 
     let chartNoteAutosave = null;
