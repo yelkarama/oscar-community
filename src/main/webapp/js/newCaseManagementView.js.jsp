@@ -25,7 +25,10 @@
 <%@page import="org.oscarehr.common.model.UserProperty"%>
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.oscarehr.util.SpringUtils"%>
-<%@page import="org.oscarehr.common.dao.UserPropertyDAO"%>
+
+<%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
+<%@ page import="org.oscarehr.common.model.UserProperty" %>
+
 <%@page import="oscar.OscarProperties"%>
 <%@page import="org.oscarehr.casemgmt.common.Colour"%>
 <%@ page import="java.util.List"%>
@@ -42,8 +45,10 @@
 <jsp:useBean id="dataBean" class="java.util.Properties"/>
 
 <%
-	String curUser_no = (String) session.getAttribute("user"); 
-	UserProperty tabViewProp = userPropertyDao.getProp(curUser_no, UserProperty.OPEN_IN_TABS);
+	String curUser_no = (String) session.getAttribute("user");
+	UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
+
+    UserProperty tabViewProp = userPropertyDao.getProp(curUser_no, UserProperty.OPEN_IN_TABS);
     boolean openInTabs = false;
     if ( tabViewProp == null ) {
         openInTabs = oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true");
@@ -51,6 +56,7 @@
         openInTabs = oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true") || Boolean.parseBoolean(tabViewProp.getValue());
     }
 %>
+
 
     let chartNoteAutosave = null;
 	var numNotes = 0;   //How many saved notes do we have?
@@ -326,6 +332,7 @@ function setupNotes(){
     let autosaveDemographicNo = document.forms['caseManagementEntryForm'].demographicNo.value;
     chartNoteAutosave = new ChartNoteAutosave(caseNote, autosaveDemographicNo, autosaveProgramId, autosaveNoteId, 5, ctx, updateAutosaveMessage, true);
     console.log('chartNoteAutosave instance created, noteId: ' + autosaveNoteId + ', programId:  ' + autosaveProgramId);
+
 }
 function updateAutosaveMessage() {
     var d = new Date();
