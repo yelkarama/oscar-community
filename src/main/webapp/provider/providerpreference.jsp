@@ -412,7 +412,8 @@ window.opener.location.reload();
 	            </td>
 			</tr>
 
-			<!-- OSCAR in Tabs setting -->
+			<!-- individual option for OSCAR in Tabs setting, if not set globally in oscar.proterties -->
+          <oscar:oscarPropertiesCheck property="open_in_tabs" value="false">
 			<tr>
 				<td class="preferenceLabel">
 					<bean:message key="provider.providerpreference.openInTabs" />
@@ -430,6 +431,7 @@ window.opener.location.reload();
 					<input type="checkbox" name="tab_view" value="true" <%=tabEnabled ? "checked=\"checked\"" : ""%> />
 				</td>
 			</tr>
+          </oscar:oscarPropertiesCheck>
 
 			<%-- links to display on the appointment screen --%>
 			<tr>
