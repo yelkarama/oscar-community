@@ -413,7 +413,7 @@ window.opener.location.reload();
 			</tr>
 
 			<!-- individual option for OSCAR in Tabs setting, if not set globally in oscar.proterties -->
-          <oscar:oscarPropertiesCheck property="open_in_tabs" value="false">
+          <oscar:oscarPropertiesCheck property="open_in_tabs" value="optional">
 			<tr>
 				<td class="preferenceLabel">
 					<bean:message key="provider.providerpreference.openInTabs" />
