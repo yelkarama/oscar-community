@@ -46,8 +46,19 @@
 <%@page import="org.oscarehr.decisionSupport.model.DSConsequence"%>
 <%@page import="org.oscarehr.util.MiscUtils"%>
 <%@page import="java.util.Set,java.util.HashSet"%>
+
+<%@ page import="java.util.ResourceBundle"%>
+<%@ page import="java.util.ResourceBundle"%>
+<%@ page import="java.text.SimpleDateFormat"%>
+<%@ page import="java.util.Locale"%>
+<%@ page import="java.util.Date" %>
+<%@ page import="java.time.LocalDateTime" %>
+<%@ page import="java.time.format.DateTimeFormatter" %>
+<%@ page import="java.time.format.FormatStyle" %>
+<%@ page import="java.time.ZoneId" %>
 <%@page import="org.oscarehr.managers.ProgramManager2"%>
 <%@page import="oscar.OscarProperties" %>
+<%@ page import="oscar.util.UtilDateUtilities" %>
 <%@page import="org.owasp.encoder.Encode" %>
 <%
  
@@ -498,7 +509,14 @@ function pasteAppt(multipleSameDayGroupAppt) {
         (request.getParameter("appointment_date") + " " + request.getParameter("start_time"))) ;
   }
 
-  String dateString1 = outform.format(apptDate );
+
+// Get localized pattern for UI
+DateTimeFormatter pattern2 = DateTimeFormatter.ofPattern("EEE").withLocale(request.getLocale());
+// Convert Java Date to Java LocalDateTime
+LocalDateTime apptd=apptDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+
+  //String dateString1 = outform.format(apptDate );
+  String dateString1 = pattern2.format(apptd);
   String dateString2 = inform.format(apptDate );
 
   GregorianCalendar caltime =new GregorianCalendar( );
@@ -1135,8 +1153,13 @@ function parseSearch() {
             cal.add(GregorianCalendar.DATE, 1);
             String strDateTime=now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.get(Calendar.DAY_OF_MONTH)+" "
                 + now.get(Calendar.HOUR_OF_DAY)+":"+now.get(Calendar.MINUTE)+":"+now.get(Calendar.SECOND);
+
+            LocalDateTime create=now.toZonedDateTime().toLocalDateTime();
+            DateTimeFormatter pattern = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).withLocale(request.getLocale()).withZone(ZoneId.systemDefault());
+
 %>
-                <INPUT TYPE="TEXT" NAME="createdatetime" readonly VALUE="<%=strDateTime%>" WIDTH="25" HEIGHT="20" border="0" hspace="2">
+                <INPUT TYPE="hidden" NAME="createdatetime" readonly VALUE="<%=strDateTime%>" WIDTH="25" HEIGHT="20" border="0" hspace="2">
+                <%=create.format(pattern)%>
                 <INPUT TYPE="hidden" NAME="provider_no" VALUE="<%=curProvider_no%>">
                 <INPUT TYPE="hidden" NAME="dboperation" VALUE="search_titlename">
                 <INPUT TYPE="hidden" NAME="creator" VALUE='<%=StringEscapeUtils.escapeHtml(userlastname)+", "+StringEscapeUtils.escapeHtml(userfirstname)%>'>

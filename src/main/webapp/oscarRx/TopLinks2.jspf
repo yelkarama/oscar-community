@@ -53,8 +53,7 @@ function newWindow(url) {
                     <td style="color:white;text-transform:uppercase;" >     
 					<b>&nbsp;&nbsp;<bean:message key="SearchDrug.nameText" /></b> 
                     <span style="color:white;text-decoration:underline;cursor:pointer;" onclick="window.open('<%=request.getContextPath() %>/demographic/demographiccontrol.jsp?demographic_no=<%=patient.getDemographicNo()%>&displaymode=edit&dboperation=search_detail',width=929,height=895)"> 
-                    	<jsp:getProperty name="patient" property="surname" />, <jsp:getProperty name="patient" property="firstName" />
-                    </span>
+                    	<jsp:getProperty name="patient" property="surname" />, <jsp:getProperty name="patient" property="firstName"/></span>
                     &nbsp;&nbsp;&nbsp;&nbsp;
                     <b><bean:message key="SearchDrug.sexText" /> </b><jsp:getProperty name="patient" property="sex" />
                     &nbsp;&nbsp;&nbsp;&nbsp;

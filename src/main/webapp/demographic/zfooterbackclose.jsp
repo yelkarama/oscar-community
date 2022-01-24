@@ -31,8 +31,6 @@
 <table border="0" cellspacing="0" cellpadding="0" width="100%" class="noprint">
 	<tr>
 		<td align="right"><a href="" onClick="self.close();"><bean:message
-			key="demographic.zfooterbackclose.btnClose" /> <img
-			src="../images/rightarrow.gif" border="0" width="25" height="20"
-			align="absmiddle"></a></td>
+			key="demographic.zfooterbackclose.btnClose" /> </a></td>
 	</tr>
 </table>
