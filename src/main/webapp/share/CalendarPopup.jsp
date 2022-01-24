@@ -37,6 +37,10 @@
 <%
   
 %>
+<%@ page import="java.util.ResourceBundle"%>
+<%@ page import="java.util.GregorianCalendar"%>
+<%@ page import="java.util.Locale"%>
+<%@ page import="oscar.DateInMonthTable"%>
 <%@ page
 	import="java.util.*, java.sql.*, oscar.*, java.text.*, java.lang.*,java.net.*"
 	errorPage="../appointment/errorpage.jsp"%>
@@ -93,7 +97,9 @@ function typeInDate(year1,month1,day1) {
 </head>
 <body bgcolor="ivory" onLoad="setfocus()" leftmargin="0" rightmargin="0">
 <%
-ResourceBundle oscarRec = ResourceBundle.getBundle("oscarResources");
+java.util.ResourceBundle oscarRec = ResourceBundle.getBundle("oscarResources", request.getLocale());
+
+
 String jan = oscarRec.getString("share.CalendarPopUp.msgJan");
 String feb = oscarRec.getString("share.CalendarPopUp.msgFeb");
 String mar = oscarRec.getString("share.CalendarPopUp.msgMar");
@@ -115,6 +121,7 @@ now.add(now.DATE, -1);
 DateInMonthTable aDate = new DateInMonthTable(year, month-1, 1);
 int [][] dateGrid = aDate.getMonthDateGrid();
 %>
+
 <table BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="100%" >
     <tr>
         <td align="left">
