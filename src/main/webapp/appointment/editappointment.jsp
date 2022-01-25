@@ -59,28 +59,42 @@
   if (request.getParameter("bFirstDisp")!=null) bFirstDisp = (request.getParameter("bFirstDisp")).equals("true");
 %>
 
-<%@page import="oscar.oscarDemographic.data.*, java.util.*, java.sql.*, oscar.appt.*, oscar.*, oscar.util.*, java.text.*, java.net.*, org.oscarehr.common.OtherIdManager"%>
+
+<%@ page import="java.util.*"%> 
+<%@ page import="java.sql.*"%> 
+<%@ page import="java.text.*"%> 
+<%@ page import="java.net.*"%> 
+<%@ page import="java.math.*"%>
+<%@ page import="java.time.LocalDateTime" %>
+<%@ page import="java.time.format.DateTimeFormatter" %>
+<%@ page import="java.time.format.FormatStyle" %>
+<%@ page import="java.time.ZoneId" %>
+<%@ page import="oscar.appt.*"%>
+<%@ page import="oscar.util.*"%> 
+<%@ page import="oscar.oscarDemographic.data.*"%> 
 <%@ page import="oscar.appt.status.service.AppointmentStatusMgr"%>
+<%@ page import="oscar.OscarProperties"%>
+<%@ page import="org.oscarehr.common.OtherIdManager"%>
+<%@ page import="org.oscarehr.PMmodule.dao.ProviderDao"%> 
+<%@ page import="org.oscarehr.common.model.*"%> 
+<%@ page import="org.oscarehr.util.SpringUtils"%>
+<%@ page import="org.oscarehr.util.SessionConstants"%>
 <%@ page import="org.oscarehr.common.model.AppointmentStatus"%>
-<%@page import="org.oscarehr.common.dao.BillingONCHeader1Dao"%>
-<%@page import="org.oscarehr.common.model.BillingONCHeader1"%>
-<%@ page import="org.oscarehr.common.dao.DemographicDao, org.oscarehr.PMmodule.dao.ProviderDao, org.oscarehr.common.model.*, org.oscarehr.util.SpringUtils"%>
-<%@ page import="oscar.oscarEncounter.data.EctFormData"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
-<%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
-<%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
-<jsp:useBean id="providerBean" class="java.util.Properties" scope="session" />
-<%@page import="org.oscarehr.common.model.DemographicCust" %>
-<%@page import="org.oscarehr.common.dao.DemographicCustDao" %>
+<%@ page import="org.oscarehr.common.dao.BillingONCHeader1Dao"%>
+<%@ page import="org.oscarehr.common.model.BillingONCHeader1"%>
+<%@ page import="org.oscarehr.common.dao.DemographicDao"%>
+<%@ page import="org.oscarehr.common.model.DemographicCust" %>
+<%@ page import="org.oscarehr.common.dao.DemographicCustDao" %>
 <%@ page import="org.oscarehr.common.model.EncounterForm" %>
 <%@ page import="org.oscarehr.common.dao.EncounterFormDao" %>
-<%@page import="org.oscarehr.common.model.ProviderPreference"%>
-<%@page import="org.oscarehr.common.model.ProviderData"%>
-<%@page import="org.oscarehr.util.SessionConstants"%>
-<%@page import="org.oscarehr.common.model.Appointment" %>
-<%@page import="org.oscarehr.common.dao.OscarAppointmentDao" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.oscarehr.common.model.ProviderPreference"%>
+<%@ page import="org.oscarehr.common.model.ProviderData"%>
+<%@ page import="org.oscarehr.common.model.Appointment" %>
+<%@ page import="org.oscarehr.common.dao.OscarAppointmentDao" %>
+<%@ page import="org.oscarehr.common.dao.SiteDao"%>
+<%@ page import="org.oscarehr.common.model.Site"%>
+<%@ page import="org.oscarehr.common.dao.BillingONExtDao" %>
+<%@ page import="org.oscarehr.billing.CA.ON.dao.*" %>
 <%@ page import="org.oscarehr.PMmodule.model.Program" %>
 <%@ page import="org.oscarehr.PMmodule.model.ProgramProvider" %>
 <%@ page import="org.oscarehr.common.model.Facility" %>
@@ -90,12 +104,18 @@
 <%@ page import="org.oscarehr.managers.LookupListManager"%>
 <%@ page import="org.oscarehr.common.model.LookupList"%>
 <%@ page import="org.oscarehr.common.model.LookupListItem"%>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
+<%@ page import="oscar.oscarEncounter.data.EctFormData"%>
 <%@ page import="oscar.oscarBilling.ca.on.data.BillingDataHlp" %>
-<%@ page import="org.oscarehr.common.dao.BillingONExtDao" %>
-<%@ page import="org.oscarehr.billing.CA.ON.dao.*" %>
-<%@ page import="java.math.*" %>
 <%@ page import="org.owasp.encoder.Encode" %>
+
+
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
+<%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
+<%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
+<jsp:useBean id="providerBean" class="java.util.Properties" scope="session" />
 <%
     String mrpName = "";
 	DemographicCustDao demographicCustDao = (DemographicCustDao)SpringUtils.getBean("demographicCustDao");
@@ -156,17 +176,16 @@
 	String annotation_display = org.oscarehr.casemgmt.model.CaseManagementNoteLink.DISP_APPOINTMENT;
 	CaseManagementManager caseManagementManager = (CaseManagementManager) SpringUtils.getBean("caseManagementManager");
 %>
-<%@page import="org.oscarehr.common.dao.SiteDao"%>
-<%@page import="org.oscarehr.common.model.Site"%><html:html locale="true">
+<html:html locale="true">
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 <link href="<%=request.getContextPath() %>/css/datepicker.css" rel="stylesheet" type="text/css">
 <link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
 <link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
-<link rel="stylesheet" href="../css/helpdetails.css" type="text/css">
+<link rel="stylesheet" href="<%=request.getContextPath() %>/css/helpdetails.css" type="text/css">
 
-<script type="text/javascript" src="../js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.7.1.min.js"></script>
 <script src="<%=request.getContextPath()%>/js/jquery-ui-1.8.18.custom.min.js"></script>
 <script src="<%=request.getContextPath()%>/js/fg.menu.js"></script>
 <style type="text/css">
@@ -214,7 +233,7 @@ console.log("minute="+minute+" minDeg ="+minuteDeg);
 
 <% if (isMobileOptimized) { %>
     <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, width=device-width" />
-    <link rel="stylesheet" href="../mobile/appointmentstyle.css" type="text/css">
+    <link rel="stylesheet" href="<%=request.getContextPath() %>/mobile/appointmentstyle.css" type="text/css">
 <% } else { %>
     <link rel="stylesheet" href="appointmentstyle.css" type="text/css">
 
@@ -235,9 +254,9 @@ function toggleView() {
 function demographicdetail(vheight,vwidth) {
   if(document.forms['EDITAPPT'].demographic_no.value=="") return;
   self.close();
-  var page = "../demographic/demographiccontrol.jsp?demographic_no=" + document.forms['EDITAPPT'].demographic_no.value+"&displaymode=edit&dboperation=search_detail";
-  windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=600,screenY=200,top=0,left=0";
-  var popup=window.open(page, "demographic", windowprops);
+  var page = "<%=request.getContextPath() %>/demographic/demographiccontrol.jsp?demographic_no=" + document.forms['EDITAPPT'].demographic_no.value+"&displaymode=edit&dboperation=search_detail";
+  //windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=600,screenY=200,top=0,left=0";
+  var popup=window.open(page, "demographic")//, windowprops);
 }
 function onButRepeat() {
 	if(calculateEndTime()) {
@@ -750,7 +769,7 @@ function parseSearch() {
                 %>
         		<INPUT TYPE="hidden" NAME="orderby" VALUE="last_name, first_name">
                 <INPUT TYPE="hidden" NAME="search_mode" id="search_mode" VALUE="<%=searchMode%>">
-                <INPUT TYPE="hidden" NAME="originalpage" VALUE="../appointment/editappointment.jsp">
+                <INPUT TYPE="hidden" NAME="originalpage" VALUE="<%=request.getContextPath() %>/appointment/editappointment.jsp">
                 <INPUT TYPE="hidden" NAME="limit1" VALUE="0">
                 <INPUT TYPE="hidden" NAME="limit2" VALUE="5">
                 <INPUT TYPE="hidden" NAME="ptstatus" VALUE="active">
@@ -881,15 +900,25 @@ function parseSearch() {
                  if (bFirstDisp && appt.getRemarks()!=null) {
                      remarks = appt.getRemarks();
                  }
+                // Convert String to Java LocalDateTime
+                DateTimeFormatter pattern1 = DateTimeFormatter.ofPattern("yyyy-M-d H:m:s");
+                LocalDateTime origDT = LocalDateTime.parse(origDate,pattern1);
+                LocalDateTime lastDT = LocalDateTime.parse(lastDateTime,pattern1);
+                //LocalDateTime strDT = LocalDateTime.parse(strDateTime,pattern1);
+                // Get localized pattern for UI
+                DateTimeFormatter pattern2 = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).withLocale(request.getLocale()).withZone(ZoneId.systemDefault());
+  String dateString1 = pattern2.format(origDT);
+  String dateString2 = pattern2.format(lastDT);
+  //String dateString3 = pattern2.format(strDT); watch for non padded seconds etc
 
                 %>
         <tr>
             <td>
-                Create Date:
+                <bean:message key="Appointment.CreateDate" />:
             </td>
             <td>
-                <INPUT TYPE="TEXT" NAME="createDate" readonly
-					VALUE="<%=origDate%>">
+                <INPUT TYPE="hidden" NAME="createDate" readonly	VALUE="<%=origDate%>">
+                <%=dateString1%>
             </td>
         </tr>
         <% if (pros.isPropertyActive("mc_number")) { 
@@ -1031,9 +1060,9 @@ function parseSearch() {
                 <bean:message key="Appointment.formLastTime" />:
             </td>
             <td>
-                <INPUT TYPE="TEXT" NAME="lastcreatedatetime" readonly
+                <INPUT TYPE="hidden" NAME="lastcreatedatetime" readonly
                     VALUE="<%=bFirstDisp?lastDateTime:request.getParameter("lastcreatedatetime")%>"
-                    >
+                    > <%=dateString2%>
                 <INPUT TYPE="hidden" NAME="createdatetime" VALUE="<%=strDateTime%>">
 				<INPUT TYPE="hidden" NAME="provider_no" VALUE="<%=curProvider_no%>">
 				<INPUT TYPE="hidden" NAME="dboperation" VALUE="">
@@ -1103,27 +1132,26 @@ function parseSearch() {
 		<input type="submit" class="btn btn-danger" id="deleteButton"
 			onclick="document.forms['EDITAPPT'].displaymode.value='Delete Appt'; onButDelete();"
 			value="<bean:message key="appointment.editappointment.btnDeleteAppointment"/>">
-		<input type="button" name="buttoncancel" id="cancelButton" class="btn btn-primary"
+		<input type="button" name="buttoncancel" id="cancelButton" class="btn btn-inverse"
 			value="<bean:message key="appointment.editappointment.btnCancelAppointment"/>"
 			onClick="onButCancel();"> 
         <input type="button"
 			name="buttoncancel" id="noShowButton" class="btn"
 			value="<bean:message key="appointment.editappointment.btnNoShow"/>"
 			onClick="window.location='appointmentcontrol.jsp?buttoncancel=No Show&displaymode=Update Appt&appointment_no=<%=appointment_no%>'">
-		<input type="button"
-			name="buttonprintcard" id="printCardButton" class="btn"
-			value="Print Card"
-			onClick="window.location='appointmentcontrol.jsp?displaymode=PrintCard&appointment_no=<%=appointment_no%>'">
-			
+		<br>
 			 <a href="javascript:void(0);" title="Annotation" onclick="window.open('<%=request.getContextPath()%>/annotation/annotation.jsp?display=<%=annotation_display%>&amp;table_id=<%=appointment_no%>','anwin','width=400,height=500');">
             	<img src="<%=request.getContextPath() %>/images/notes.gif" alt="rxAnnotation" height="16" width="13" border="0"/>
             </a>
-            <input type="button" name="labelprint" id="labelButton" class="btn"
-			value="<bean:message key="appointment.editappointment.btnLabelPrint"/>"
-			onClick="window.open('../demographic/demographiclabelprintsetting.jsp?demographic_no='+document.EDITAPPT.demographic_no.value, 'labelprint','height=550,width=700,location=no,scrollbars=yes,menubars=no,toolbars=no' )">
+            <a class="btn"
+			onClick="window.location='appointmentcontrol.jsp?displaymode=PrintCard&appointment_no=<%=appointment_no%>'">
+			<i class="icon-print"></i>&nbsp;<bean:message key="appointment.editappointment.btnPrintCard"/>"</a>			
+            <a class="btn"
+			onClick="window.open('<%=request.getContextPath() %>/demographic/demographiclabelprintsetting.jsp?demographic_no='+document.EDITAPPT.demographic_no.value, 'labelprint','height=550,width=700,location=no,scrollbars=yes,menubars=no,toolbars=no' )">
+			<i class="icon-print"></i>&nbsp;<bean:message key="appointment.editappointment.btnLabelPrint"/></a>
             <a class="btn"
 			onclick="document.forms['EDITAPPT'].displaymode.value='Cut';localStorage.setItem('copyPaste','1');document.forms['EDITAPPT'].submit();"/>
-			<i class="icon-cut"></i>&nbsp;<bean:message key="appointment.appointmentedit.cut"/> </a>
+			<i class="icon-cut"></i>&nbsp;<bean:message key="appointment.appointmentedit.cut"/></a>
             <a class="btn" class="btn"
 			onclick="document.forms['EDITAPPT'].displaymode.value='Copy';localStorage.setItem('copyPaste','1');document.forms['EDITAPPT'].submit();" />
 			<i class="icon-copy"></i>&nbsp;<bean:message key="appointment.appointmentedit.copy"/> </a>
@@ -1309,7 +1337,7 @@ Currently this is only used in the mobile version -->
             <li><div class="label"><bean:message key="Appointment.formStatus" />: </div>
                 <div class="info">
                 <font style="background-color:<%=apptStatus.getColor()%>; font-weight:bold;">
-                    <img src="../images/<%=apptStatus.getIcon()%>" />
+                    <img src="<%=request.getContextPath() %>/images/<%=apptStatus.getIcon()%>" />
                     <%=apptStatus.getDescription()%>
                 </font>
                 </div>
