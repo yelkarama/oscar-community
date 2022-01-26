@@ -113,6 +113,7 @@
 
     boolean showClassicSchedule = schedulePreferences.getOrDefault("old_schedule_enabled", false); 
     boolean showEyeForm = schedulePreferences.getOrDefault("new_eyeform_enabled", false);
+    boolean isTimeline = schedulePreferences.getOrDefault("display_timeline", true);
     
 	UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
@@ -1946,6 +1947,23 @@ boolean bShowEncounterLink = false;
 
 
 <%
+
+  
+SimpleDateFormat formatHour = new SimpleDateFormat("HH");
+SimpleDateFormat formatMin = new SimpleDateFormat("mm");
+SimpleDateFormat formatAdate = new SimpleDateFormat("yyyyMMdd");
+Date curDate = new Date();
+String curHour = formatHour.format(curDate);
+String curMin = formatMin.format(curDate);
+String curDate2 = formatAdate.format(curDate);
+boolean isToday = false;
+isToday = curDate2.equals(strYear+strMonth+strDay);
+int curH = Integer.parseInt(curHour);
+int totalM = Integer.parseInt(curMin) + curH*60;
+
+
+
+
 	int hourCursor=0, minuteCursor=0, depth=everyMin; //depth is the period, e.g. 10,15,30,60min.
 String am_pm=null;
 boolean bColor=true, bColorHour=true; //to change color
@@ -2201,7 +2219,7 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
             		module=request.getParameter("module");
             	}
         List<Object[]> confirmTimeCode = scheduleDateDao.search_appttimecode(ConversionUtils.fromDateString(strDate), curProvider_no[nProvider]);
-            	
+         	
 	    for(ih=startHour*60; ih<=(endHour*60+(60/depth-1)*depth); ih+=depth) { // use minutes as base
             hourCursor = ih/60;
             minuteCursor = ih%60;
@@ -2213,6 +2231,9 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
 	          int ratio = (hourCursor*60+minuteCursor)/nLen;
               hourmin = new StringBuffer(dateTimeCodeBean.get(curProvider_no[nProvider])!=null?((String) dateTimeCodeBean.get(curProvider_no[nProvider])).substring(ratio,ratio+1):" " );
             } else { hourmin = new StringBuffer(); }
+
+if ( (ih >= totalM)&&(ih < (totalM+depth)) && !isWeekView && isToday && isTimeline ) {%><tr style="font-size:2px;"><td colspan="8"  ><hr color="tomato"  ></td></tr> <%}
+
 %>
           <tr>
             <td align="RIGHT" class="<%=bColorHour?"scheduleTime00":"scheduleTimeNot00"%>" NOWRAP>
@@ -2243,6 +2264,9 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
           	  	continue;
           	  }
          	    iRows=((iE*60+iEm)-ih)/depth+1; //to see if the period across an hour period
+
+                if ( ih > (totalM -depth) && (ih < totalM) && !isWeekView && isToday && isTimeline) {iRows = iRows+1; }  // to allow for extra row with time indicator
+
          	    //iRows=(iE-iS)*60/depth+iEm/depth-iSm/depth+1; //to see if the period across an hour period
 
  
