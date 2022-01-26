@@ -2269,7 +2269,7 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
                   else {
                         nameSb.append(String.valueOf(appointment.getName()));
                   }
-                  String name = WordUtils.capitalizeFully(nameSb.toString(), new char[] {',','-','('});
+                  String name = WordUtils.capitalizeFully(nameSb.toString(), new char[] {',','-','(','\''});
 
                   paramTickler[0]=String.valueOf(demographic_no);
                   paramTickler[1]=MyDateFormat.getSysDate(strDate); //year+"-"+month+"-"+day;//e.g."2001-02-02";
