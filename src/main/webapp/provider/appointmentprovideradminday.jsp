@@ -23,7 +23,8 @@
     Ontario, Canada
 
 --%>
-<%@page import="org.apache.commons.lang.StringUtils"%>
+<%@ page import="org.apache.commons.lang.StringUtils"%>
+<%@ page import="org.apache.commons.text.WordUtils"%>
 <%@ page import="org.oscarehr.phr.util.MyOscarUtils"%>
 <%@ page import="org.oscarehr.common.model.Appointment.BookingSource"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
@@ -60,14 +61,14 @@
 <%@ page import="org.oscarehr.common.model.AppointmentDxLink" %>
 <%@ page import="org.oscarehr.managers.AppointmentDxLinkManager" %>
 <%@ page import="org.oscarehr.managers.TicklerManager" %>
-<%@page import="org.oscarehr.managers.ProgramManager2"%>
-<%@page import="org.oscarehr.PMmodule.model.ProgramProvider"%>
-<%@page import="org.oscarehr.managers.LookupListManager" %>
-<%@page import="org.oscarehr.common.model.LookupList" %>
-<%@page import="org.oscarehr.common.model.LookupListItem" %>
-<%@page import="org.oscarehr.managers.SecurityInfoManager" %>
-<%@page import="org.oscarehr.managers.AppManager" %>
-<%@page import="org.oscarehr.managers.DashboardManager" %>
+<%@ page import="org.oscarehr.managers.ProgramManager2"%>
+<%@ page import="org.oscarehr.PMmodule.model.ProgramProvider"%>
+<%@ page import="org.oscarehr.managers.LookupListManager" %>
+<%@ page import="org.oscarehr.common.model.LookupList" %>
+<%@ page import="org.oscarehr.common.model.LookupListItem" %>
+<%@ page import="org.oscarehr.managers.SecurityInfoManager" %>
+<%@ page import="org.oscarehr.managers.AppManager" %>
+<%@ page import="org.oscarehr.managers.DashboardManager" %>
 <%@ page import="org.oscarehr.common.model.Dashboard" %>
 <%@ page import="org.oscarehr.util.LoggedInInfo" %>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
@@ -2268,7 +2269,7 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
                   else {
                         nameSb.append(String.valueOf(appointment.getName()));
                   }
-                  String name = UtilMisc.toUpperLowerCase(nameSb.toString());
+                  String name = WordUtils.capitalizeFully(nameSb.toString(), new char[] {',','-','('});
 
                   paramTickler[0]=String.valueOf(demographic_no);
                   paramTickler[1]=MyDateFormat.getSysDate(strDate); //year+"-"+month+"-"+day;//e.g."2001-02-02";
