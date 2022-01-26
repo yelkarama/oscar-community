@@ -48,7 +48,7 @@
 <%@page import="org.oscarehr.myoscar.utils.MyOscarLoggedInInfo"%>
 <%@page import="org.oscarehr.phr.util.MyOscarUtils"%>
 <%@page import="org.oscarehr.util.LoggedInInfo" %>
-<%@ page import="oscar.util.UtilMisc" %>
+<%@page import="oscar.util.UtilMisc" %>
 <%@page import="org.oscarehr.PMmodule.caisi_integrator.ConformanceTestHelper"%>
 <%@page import="org.oscarehr.common.dao.DemographicExtDao" %>
 <%@page import="org.oscarehr.common.dao.DemographicArchiveDao" %>
@@ -60,7 +60,6 @@
 <%@page import="org.oscarehr.common.dao.WaitingListDao" %>
 <%@page import="org.oscarehr.common.dao.WaitingListNameDao" %>
 <%@page import="org.oscarehr.common.model.WaitingListName" %>
-<%@page import="org.apache.commons.lang.StringEscapeUtils" %>
 <%@page import="org.oscarehr.common.Gender" %>
 <%@page import="org.oscarehr.util.SpringUtils" %>
 <%@page import="org.oscarehr.managers.ProgramManager2" %>
@@ -70,8 +69,10 @@
 <%@page import="org.oscarehr.managers.PatientConsentManager" %>
 <%@page import="org.oscarehr.common.model.Consent" %>
 <%@page import="org.oscarehr.common.model.ConsentType" %>
-<%@ page import="org.oscarehr.ws.rest.util.QuestimedUtil" %>
-<%@ page import="org.owasp.encoder.Encode" %>
+<%@page import="org.oscarehr.ws.rest.util.QuestimedUtil" %>
+<%@page import="org.apache.commons.lang.StringEscapeUtils" %>
+<%@page import="org.apache.commons.text.WordUtils"%>
+<%@page import="org.owasp.encoder.Encode" %>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="session" />
@@ -1773,16 +1774,16 @@ if (iviewTag!=null && !"".equalsIgnoreCase(iviewTag.trim())){
 						<ul>
                                                     <li><span class="labels"><bean:message
                                                             key="demographic.demographiceditdemographic.formLastName" />:</span>
-                                                        <span class="info"><%=Encode.forHtml(UtilMisc.toUpperLowerCase(demographic.getLastName()))%></span>
+                                                        <span class="info"><%=Encode.forHtml(WordUtils.capitalizeFully(demographic.getLastName(), new char[] {',','-','\''}))%></span>
                                                     </li>
                                                     <li><span class="labels">
 							<bean:message
                                                                 key="demographic.demographiceditdemographic.formFirstName" />:</span>
-                                                        <span class="info"><%=Encode.forHtml(UtilMisc.toUpperLowerCase(demographic.getFirstName()))%></span>
+                                                        <span class="info"><%=Encode.forHtml(WordUtils.capitalizeFully(demographic.getFirstName()))%></span>
 							</li>
 							   <li><span class="labels"><bean:message
                                                             key="demographic.demographiceditdemographic.formMiddleNames" />:</span>
-                                                        <span class="info"><%=Encode.forHtml(demographic.getMiddleNames())%></span>
+                                                        <span class="info"><%=Encode.forHtml((WordUtils.capitalizeFully(demographic.getMiddleNames())))%></span>
                                                     </li>
                                                     <li><span class="labels"><bean:message key="demographic.demographiceditdemographic.msgDemoTitle"/>:</span>
                                                         <span class="info"><%=Encode.forHtml(StringUtils.trimToEmpty(demographic.getTitle()))%></span>
