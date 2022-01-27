@@ -42,7 +42,7 @@
 %>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<%-- @ taglib uri="../WEB-INF/taglibs-log.tld" prefix="log" --%>
+<%-- @ taglib uri=request.getContextPath() +  "/WEB-INF/taglibs-log.tld" prefix="log" --%>
 <%@page import="org.oscarehr.sharingcenter.SharingCenterUtil"%>
 <%@page import="oscar.util.ConversionUtils"%>
 <%@page import="org.oscarehr.myoscar.utils.MyOscarLoggedInInfo"%>
@@ -103,7 +103,7 @@
 	objectName='<%="_demographic$"+demographic$%>' rights="o"
 	reverse="<%=false%>">
 <bean:message key="demographic.demographiceditdemographic.accessDenied"/>
-<% response.sendRedirect("../acctLocked.html"); 
+<% response.sendRedirect(request.getContextPath() +  "/acctLocked.html"); 
 authed=false;
 %>
 </security:oscarSec>
@@ -170,7 +170,7 @@ if(!authed) {
 <%
 	if(session.getAttribute("user") == null)
 	{
-		response.sendRedirect("../logout.jsp");
+		response.sendRedirect(request.getContextPath() +  "/logout.jsp");
 		return;
 	}
 
@@ -275,7 +275,7 @@ if(!authed) {
 
 <!-- calendar stylesheet -->
 <link rel="stylesheet" type="text/css" media="all"
-	href="../share/calendar/calendar.css" title="win2k-cold-1" />
+	href="<%= request.getContextPath() %>/share/calendar/calendar.css" title="win2k-cold-1" />
 
 <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 <link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
@@ -294,15 +294,15 @@ if(!authed) {
 
 
 <!-- main calendar program -->
-<script type="text/javascript" src="../share/calendar/calendar.js"></script>
+<script type="text/javascript" src="<%= request.getContextPath() %>/share/calendar/calendar.js"></script>
 
 <!-- language for the calendar -->
 <script type="text/javascript"
-	src="../share/calendar/lang/<bean:message key="global.javascript.calendar"/>"></script>
+	src="<%= request.getContextPath() %>/share/calendar/lang/<bean:message key="global.javascript.calendar"/>"></script>
 
 <!-- the following script defines the Calendar.setup helper function, which makes
        adding a calendar a matter of 1 or 2 lines of code. -->
-<script type="text/javascript" src="../share/calendar/calendar-setup.js"></script>
+<script type="text/javascript" src="<%= request.getContextPath() %>/share/calendar/calendar-setup.js"></script>
 
 <script type="text/javascript" src="<%=request.getContextPath() %>/js/check_hin.js"></script>
 
@@ -310,17 +310,17 @@ if(!authed) {
 
 <!-- calendar stylesheet -->
 <link rel="stylesheet" type="text/css" media="all"
-	href="../share/calendar/calendar.css" title="win2k-cold-1" />
+	href="<%= request.getContextPath() %>/share/calendar/calendar.css" title="win2k-cold-1" />
 <% if (isMobileOptimized) { %>
     <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, width=device-width" />
-    <link rel="stylesheet" type="text/css" href="../mobile/editdemographicstyle.css">
+    <link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/mobile/editdemographicstyle.css">
 <% } else { %>
-    <!--<link rel="stylesheet" type="text/css" href="../oscarEncounter/encounterStyles.css">-->
-    <!--<link rel="stylesheet" type="text/css" href="../share/css/searchBox.css">-->
+    <!--<link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/oscarEncounter/encounterStyles.css">-->
+    <!--<link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/share/css/searchBox.css">-->
     <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <% } %>
 <script language="javascript" type="text/javascript"
-	src="../share/javascript/Oscar.js"></script>
+	src="<%= request.getContextPath() %>/share/javascript/Oscar.js"></script>
 
 <!--popup menu for encounter type -->
 <script src="<c:out value="${ctx}"/>/share/javascript/popupmenu.js"
@@ -330,7 +330,7 @@ if(!authed) {
 
 <script type="text/javascript" src="<%=request.getContextPath() %>/js/bootstrap.min.js"></script>
 
-<script type="text/javascript" src="../share/javascript/prototype.js"></script>
+<script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/prototype.js"></script>
    <script>
      jQuery.noConflict();
    </script>
@@ -961,7 +961,7 @@ function updatePatientStatusDate() {
 jQuery(document).ready(function() {
 	var addresses;
 	
-	 jQuery.getJSON("../demographicSupport.do",
+	 jQuery.getJSON("<%=request.getContextPath() %>/demographicSupport.do",
              {
                      method: "getAddressAndPhoneHistoryAsJson",
                      demographicNo: demographicNo
@@ -1055,7 +1055,7 @@ function validateHC() {
 		
     jQuery.ajax({
         type: "GET",
-        url:  '<%=request.getContextPath()%>/ws/rs/patientDetailStatusService/validateHC?hin='+hin+'&ver='+ver,
+        url:  '<%=request.getContextPath() %>/ws/rs/patientDetailStatusService/validateHC?hin='+hin+'&ver='+ver,
         dataType:'json',
         contentType:'application/json',
         success: function (data) {
@@ -1255,7 +1255,7 @@ if(wLReadonly.equals("")){
 %>
 			<tr>
 				<td><a
-					href="../oscarWaitingList/SetupDisplayPatientWaitingList.do?demographic_no=<%=demographic.getDemographicNo()%>">
+					href="<%= request.getContextPath() %>/oscarWaitingList/SetupDisplayPatientWaitingList.do?demographic_no=<%=demographic.getDemographicNo()%>">
 				<bean:message key="demographic.demographiceditdemographic.msgWaitList"/></a>
 				</td>
 			</tr>
@@ -1273,7 +1273,7 @@ if(wLReadonly.equals("")){
 					if ("CLINICAID".equals(prov)) 
 					{
 						%>
-							<a href="../billing.do?billRegion=CLINICAID&action=invoice_reports" target="_blank">
+							<a href="<%= request.getContextPath() %>/billing.do?billRegion=CLINICAID&action=invoice_reports" target="_blank">
 							<bean:message key="demographic.demographiceditdemographic.msgInvoiceList"/>
 							</a>
 						<%
@@ -1282,7 +1282,7 @@ if(wLReadonly.equals("")){
 					{
 					%>
 						<a href="javascript: function myFunction() {return false; }"
-							onClick="popupPage(600,1088,'../billing/CA/ON/billinghistory.jsp?demographic_no=<%=demographic.getDemographicNo()%>&last_name=<%=URLEncoder.encode(demographic.getLastName())%>&first_name=<%=URLEncoder.encode(demographic.getFirstName())%>&orderby=appointment_date&displaymode=appt_history&dboperation=appt_history&limit1=0&limit2=10')">
+							onClick="popupPage(600,1088,'<%= request.getContextPath() %>/billing/CA/ON/billinghistory.jsp?demographic_no=<%=demographic.getDemographicNo()%>&last_name=<%=URLEncoder.encode(demographic.getLastName())%>&first_name=<%=URLEncoder.encode(demographic.getFirstName())%>&orderby=appointment_date&displaymode=appt_history&dboperation=appt_history&limit1=0&limit2=10')">
 						<bean:message key="demographic.demographiceditdemographic.msgBillHistory"/></a>
 					<%
 					}
@@ -1290,12 +1290,12 @@ if(wLReadonly.equals("")){
 					{
 					%>
 						<a href="#"
-							onclick="popupPage(600,1088,'../billing/CA/BC/billStatus.jsp?lastName=<%=URLEncoder.encode(demographic.getLastName())%>&firstName=<%=URLEncoder.encode(demographic.getFirstName())%>&filterPatient=true&demographicNo=<%=demographic.getDemographicNo()%>');return false;">
+							onclick="popupPage(600,1088,'<%= request.getContextPath() %>/billing/CA/BC/billStatus.jsp?lastName=<%=URLEncoder.encode(demographic.getLastName())%>&firstName=<%=URLEncoder.encode(demographic.getFirstName())%>&filterPatient=true&demographicNo=<%=demographic.getDemographicNo()%>');return false;">
 						<bean:message key="demographic.demographiceditdemographic.msgInvoiceList"/></a>
 
 
 						<br/>
-						<a  href="javascript: void();" onclick="return !showMenu('2', event);" onmouseover="callEligibilityWebService('../billing/CA/BC/ManageTeleplan.do','returnTeleplanMsg');"><bean:message key="demographic.demographiceditdemographic.btnCheckElig"/></a>
+						<a  href="javascript: void();" onclick="return !showMenu('2', event);" onmouseover="callEligibilityWebService('<%= request.getContextPath() %>/billing/CA/BC/ManageTeleplan.do','returnTeleplanMsg');"><bean:message key="demographic.demographiceditdemographic.btnCheckElig"/></a>
 						<div id='menu2' class='menu' onclick='event.cancelBubble = true;' style="width:350px;">
 							<span id="search_spinner" ><bean:message key="demographic.demographiceditdemographic.msgLoading"/></span>
 							<span id="returnTeleplanMsg"></span>
@@ -1306,7 +1306,7 @@ if(wLReadonly.equals("")){
 			<tr>
 				<td><a
 					href="javascript: function myFunction() {return false; }"
-					onClick="popupPage(900, 1200, '../billing.do?billRegion=<%=URLEncoder.encode(prov)%>&billForm=<%=URLEncoder.encode(oscarProps.getProperty("default_view"))%>&hotclick=&appointment_no=0&demographic_name=<%=URLEncoder.encode(demographic.getLastName())%>%2C<%=URLEncoder.encode(demographic.getFirstName())%>&demographic_no=<%=demographic.getDemographicNo()%>&providerview=<%=demographic.getProviderNo()%>&user_no=<%=curProvider_no%>&apptProvider_no=none&appointment_date=<%=dateString%>&start_time=00:00:00&bNewForm=1&status=t');return false;"
+					onClick="popupPage(900, 1200, '<%= request.getContextPath() %>/billing.do?billRegion=<%=URLEncoder.encode(prov)%>&billForm=<%=URLEncoder.encode(oscarProps.getProperty("default_view"))%>&hotclick=&appointment_no=0&demographic_name=<%=URLEncoder.encode(demographic.getLastName())%>%2C<%=URLEncoder.encode(demographic.getFirstName())%>&demographic_no=<%=demographic.getDemographicNo()%>&providerview=<%=demographic.getProviderNo()%>&user_no=<%=curProvider_no%>&apptProvider_no=none&appointment_date=<%=dateString%>&start_time=00:00:00&bNewForm=1&status=t');return false;"
 					title="<bean:message key="demographic.demographiceditdemographic.msgBillPatient"/>"><bean:message key="demographic.demographiceditdemographic.msgCreateInvoice"/></a></td>
 			</tr>
 			<%
@@ -1318,34 +1318,34 @@ if(wLReadonly.equals("")){
 				<tr>
 					<td><a
 						href="javascript: function myFunction() {return false; }"
-						onClick="popupOscarRx(500, 720,'../billing/CA/ON/specialtyBilling/fluBilling/addFluBilling.jsp?function=demographic&functionid=<%=demographic.getDemographicNo()%>&creator=<%=curProvider_no%>&demographic_name=<%=URLEncoder.encode(demographic.getLastName())%>%2C<%=URLEncoder.encode(demographic.getFirstName())%>&hin=<%=URLEncoder.encode(demographic.getHin()!=null?demographic.getHin():"")%><%=URLEncoder.encode(demographic.getVer()!=null?demographic.getVer():"")%>&demo_sex=<%=URLEncoder.encode(demographic.getSex())%>&demo_hctype=<%=URLEncoder.encode(demographic.getHcType()==null?"null":demographic.getHcType())%>&rd=<%=URLEncoder.encode(rd==null?"null":rd)%>&rdohip=<%=URLEncoder.encode(rdohip==null?"null":rdohip)%>&dob=<%=MyDateFormat.getStandardDate(Integer.parseInt(birthYear),Integer.parseInt(birthMonth),Integer.parseInt(birthDate))%>&mrp=<%=demographic.getProviderNo() != null ? demographic.getProviderNo() : ""%>');return false;"
+						onClick="popupOscarRx(500, 720,'<%= request.getContextPath() %>/billing/CA/ON/specialtyBilling/fluBilling/addFluBilling.jsp?function=demographic&functionid=<%=demographic.getDemographicNo()%>&creator=<%=curProvider_no%>&demographic_name=<%=URLEncoder.encode(demographic.getLastName())%>%2C<%=URLEncoder.encode(demographic.getFirstName())%>&hin=<%=URLEncoder.encode(demographic.getHin()!=null?demographic.getHin():"")%><%=URLEncoder.encode(demographic.getVer()!=null?demographic.getVer():"")%>&demo_sex=<%=URLEncoder.encode(demographic.getSex())%>&demo_hctype=<%=URLEncoder.encode(demographic.getHcType()==null?"null":demographic.getHcType())%>&rd=<%=URLEncoder.encode(rd==null?"null":rd)%>&rdohip=<%=URLEncoder.encode(rdohip==null?"null":rdohip)%>&dob=<%=MyDateFormat.getStandardDate(Integer.parseInt(birthYear),Integer.parseInt(birthMonth),Integer.parseInt(birthDate))%>&mrp=<%=demographic.getProviderNo() != null ? demographic.getProviderNo() : ""%>');return false;"
 						title='<bean:message key="demographic.demographiceditdemographic.msgAddFluBill"/>'><bean:message key="demographic.demographiceditdemographic.msgFluBilling"/></a></td>
 				</tr>
 	<%          } %>
 				<tr>
 					<td><a
 						href="javascript: function myFunction() {return false; }"
-						onClick="popupOscarRx(900, 1200,'../billing/CA/ON/billingShortcutPg1.jsp?billRegion=<%=URLEncoder.encode(prov)%>&billForm=<%=URLEncoder.encode(oscarProps.getProperty("hospital_view", default_view))%>&hotclick=&appointment_no=0&demographic_name=<%=URLEncoder.encode(demographic.getLastName())%>%2C<%=URLEncoder.encode(demographic.getFirstName())%>&demographic_no=<%=demographic.getDemographicNo()%>&providerview=<%=demographic.getProviderNo()%>&user_no=<%=curProvider_no%>&apptProvider_no=none&appointment_date=<%=dateString%>&start_time=00:00:00&bNewForm=1&status=t');return false;"
+						onClick="popupOscarRx(900, 1200,'<%= request.getContextPath() %>/billing/CA/ON/billingShortcutPg1.jsp?billRegion=<%=URLEncoder.encode(prov)%>&billForm=<%=URLEncoder.encode(oscarProps.getProperty("hospital_view", default_view))%>&hotclick=&appointment_no=0&demographic_name=<%=URLEncoder.encode(demographic.getLastName())%>%2C<%=URLEncoder.encode(demographic.getFirstName())%>&demographic_no=<%=demographic.getDemographicNo()%>&providerview=<%=demographic.getProviderNo()%>&user_no=<%=curProvider_no%>&apptProvider_no=none&appointment_date=<%=dateString%>&start_time=00:00:00&bNewForm=1&status=t');return false;"
 						title="<bean:message key="demographic.demographiceditdemographic.msgBillPatient"/>"><bean:message key="demographic.demographiceditdemographic.msgHospitalBilling"/></a></td>
 				</tr>
 				<tr>
 					<td><a
 						href="javascript: function myFunction() {return false; }"
-						onClick="popupOscarRx(400, 600,'../billing/CA/ON/addBatchBilling.jsp?demographic_no=<%=demographic.getDemographicNo().toString()%>&creator=<%=curProvider_no%>&demographic_name=<%=URLEncoder.encode(demographic.getLastName())%>%2C<%=URLEncoder.encode(demographic.getFirstName())%>&hin=<%=URLEncoder.encode(demographic.getHin()!=null?demographic.getHin():"")%><%=URLEncoder.encode(demographic.getVer()!=null?demographic.getVer():"")%>&dob=<%=MyDateFormat.getStandardDate(Integer.parseInt(birthYear),Integer.parseInt(birthMonth),Integer.parseInt(birthDate))%>');return false;"
+						onClick="popupOscarRx(400, 600,'<%= request.getContextPath() %>/billing/CA/ON/addBatchBilling.jsp?demographic_no=<%=demographic.getDemographicNo().toString()%>&creator=<%=curProvider_no%>&demographic_name=<%=URLEncoder.encode(demographic.getLastName())%>%2C<%=URLEncoder.encode(demographic.getFirstName())%>&hin=<%=URLEncoder.encode(demographic.getHin()!=null?demographic.getHin():"")%><%=URLEncoder.encode(demographic.getVer()!=null?demographic.getVer():"")%>&dob=<%=MyDateFormat.getStandardDate(Integer.parseInt(birthYear),Integer.parseInt(birthMonth),Integer.parseInt(birthDate))%>');return false;"
 						title='<bean:message key="demographic.demographiceditdemographic.msgAddBatchBilling"/>'><bean:message key="demographic.demographiceditdemographic.msgAddBatchBilling"/></a>
 					</td>
 				</tr>
 				<tr>
 					<td><a
 						href="javascript: function myFunction() {return false; }"
-						onClick="popupOscarRx(400, 600,'../billing/CA/ON/inr/addINRbilling.jsp?function=demographic&functionid=<%=demographic.getDemographicNo()%>&creator=<%=curProvider_no%>&demographic_name=<%=URLEncoder.encode(demographic.getLastName())%>%2C<%=URLEncoder.encode(demographic.getFirstName())%>&hin=<%=URLEncoder.encode(demographic.getHin()!=null?demographic.getHin():"")%><%=URLEncoder.encode(demographic.getVer()!=null?demographic.getVer():"")%>&dob=<%=MyDateFormat.getStandardDate(Integer.parseInt(birthYear),Integer.parseInt(birthMonth),Integer.parseInt(birthDate))%>');return false;"
+						onClick="popupOscarRx(400, 600,'<%= request.getContextPath() %>/billing/CA/ON/inr/addINRbilling.jsp?function=demographic&functionid=<%=demographic.getDemographicNo()%>&creator=<%=curProvider_no%>&demographic_name=<%=URLEncoder.encode(demographic.getLastName())%>%2C<%=URLEncoder.encode(demographic.getFirstName())%>&hin=<%=URLEncoder.encode(demographic.getHin()!=null?demographic.getHin():"")%><%=URLEncoder.encode(demographic.getVer()!=null?demographic.getVer():"")%>&dob=<%=MyDateFormat.getStandardDate(Integer.parseInt(birthYear),Integer.parseInt(birthMonth),Integer.parseInt(birthDate))%>');return false;"
 						title='<bean:message key="demographic.demographiceditdemographic.msgAddINRBilling"/>'><bean:message key="demographic.demographiceditdemographic.msgAddINR"/></a>
 					</td>
 				</tr>
 				<tr>
 					<td><a
 						href="javascript: function myFunction() {return false; }"
-						onClick="popupOscarRx(600, 600,'../billing/CA/ON/inr/reportINR.jsp?provider_no=<%=curProvider_no%>');return false;"
+						onClick="popupOscarRx(600, 600,'<%= request.getContextPath() %>/billing/CA/ON/inr/reportINR.jsp?provider_no=<%=curProvider_no%>');return false;"
 						title='<bean:message key="demographic.demographiceditdemographic.msgINRBilling"/>'><bean:message key="demographic.demographiceditdemographic.msgINRBill"/></a>
 					</td>
 				</tr>
@@ -1361,14 +1361,14 @@ if(wLReadonly.equals("")){
 			<tr>
 				<td><a
 					href="javascript: function myFunction() {return false; }"
-					onClick="popupPage(700,960,'../oscarEncounter/oscarConsultationRequest/DisplayDemographicConsultationRequests.jsp?de=<%=demographic.getDemographicNo()%>&proNo=<%=demographic.getProviderNo()%>')"><bean:message
+					onClick="popupPage(700,960,'<%= request.getContextPath() %>/oscarEncounter/oscarConsultationRequest/DisplayDemographicConsultationRequests.jsp?de=<%=demographic.getDemographicNo()%>&proNo=<%=demographic.getProviderNo()%>')"><bean:message
 					key="demographic.demographiceditdemographic.btnConsultation" /></a></td>
 			</tr>
 
 			<tr>
 				<td><a
 					href="javascript: function myFunction() {return false; }"
-					onClick="popupOscarRx(700,1027,'../oscarRx/choosePatient.do?providerNo=<%=curProvider_no%>&demographicNo=<%=demographic_no%>','Rx<%=demographic_no%>')"><bean:message
+					onClick="popupOscarRx(700,1027,'<%= request.getContextPath() %>/oscarRx/choosePatient.do?providerNo=<%=curProvider_no%>&demographicNo=<%=demographic_no%>','Rx<%=demographic_no%>')"><bean:message
 					key="global.prescriptions" /></a>
 				</td>
 			</tr>
@@ -1443,12 +1443,12 @@ if(wLReadonly.equals("")){
 <%if( org.oscarehr.common.IsPropertiesOn.isTicklerPlusEnable() ) {%>
 				<a
 					href="javascript: function myFunction() {return false; }"
-					onClick="popupPage(700,1000,'../Tickler.do?filter.demographic_no=<%=demographic_no%>');return false;">
+					onClick="popupPage(700,1000,'<%= request.getContextPath() %>/Tickler.do?filter.demographic_no=<%=demographic_no%>');return false;">
 				<bean:message key="global.tickler" /></a>
 				<% }else { %>
 				<a
 					href="javascript: function myFunction() {return false; }"
-					onClick="popupPage(700,1000,'../tickler/ticklerDemoMain.jsp?demoview=<%=demographic_no%>');return false;">
+					onClick="popupPage(700,1000,'<%= request.getContextPath() %>/tickler/ticklerDemoMain.jsp?demoview=<%=demographic_no%>');return false;">
 				<bean:message key="global.tickler" /></a>
 				<% } %>
 				</td>
@@ -1456,7 +1456,7 @@ if(wLReadonly.equals("")){
 			<tr>
 				<td><a
 					href="javascript: function myFunction() {return false; }"
-					onClick="popup(700,960,'../oscarMessenger/SendDemoMessage.do?demographic_no=<%=demographic.getDemographicNo()%>','msg')">
+					onClick="popup(700,960,'<%= request.getContextPath() %>/oscarMessenger/SendDemoMessage.do?demographic_no=<%=demographic.getDemographicNo()%>','msg')">
 				<bean:message key="demographic.demographiceditdemographic.msgSendMsg"/></a></td>
 			</tr>
                         <tr>
@@ -1468,7 +1468,7 @@ if(wLReadonly.equals("")){
            	if(loggedInInfo.getCurrentFacility().isIntegratorEnabled()) {
            %>             
            <tr>
-               <td> <a href="#" onclick="popup(500,500,'../integrator/manage_linked_clients.jsp?demographicId=<%=demographic.getDemographicNo()%>', 'manage_linked_clients'); return false;">Integrator Linking</a>
+               <td> <a href="#" onclick="popup(500,500,'<%= request.getContextPath() %>/integrator/manage_linked_clients.jsp?demographicId=<%=demographic.getDemographicNo()%>', 'manage_linked_clients'); return false;">Integrator Linking</a>
                </td>
            </tr>
            <% } %>
@@ -1483,7 +1483,7 @@ if(wLReadonly.equals("")){
 								String onclickString="alert('Please login to MyOscar first.')";
 
 								MyOscarLoggedInInfo myOscarLoggedInInfo=MyOscarLoggedInInfo.getLoggedInInfo(session);
-								if (myOscarLoggedInInfo!=null && myOscarLoggedInInfo.isLoggedIn()) onclickString="popupOscarRx(600,900,'../phr/PhrMessage.do?method=createMessage&providerNo="+curProvider_no+"&demographicNo="+demographic_no+"')";
+								if (myOscarLoggedInInfo!=null && myOscarLoggedInInfo.isLoggedIn()) onclickString="popupOscarRx(600,900,request.getContextPath() +  '/phr/PhrMessage.do?method=createMessage&providerNo="+curProvider_no+"&demographicNo="+demographic_no+"')";
 							%>
 							<a href="javascript: function myFunction() {return false; }" ONCLICK="<%=onclickString%>"	title="myOscar">
 								<bean:message key="demographic.demographiceditdemographic.msgSendMsgPHR"/>
@@ -1512,13 +1512,13 @@ if(wLReadonly.equals("")){
 			<tr>
 				<td><a
 					href="javascript: function myFunction() {return false; }"
-					onClick="popupPage(700,1000,'../form/forwardshortcutname.jsp?formname=AR1&demographic_no=<%=request.getParameter("demographic_no")%>');">AR1</a>
+					onClick="popupPage(700,1000,'<%= request.getContextPath() %>/form/forwardshortcutname.jsp?formname=AR1&demographic_no=<%=request.getParameter("demographic_no")%>');">AR1</a>
 				</td>
 			</tr>
 			<tr>
 				<td><a
 					href="javascript: function myFunction() {return false; }"
-					onClick="popupPage(700,1000,'../form/forwardshortcutname.jsp?formname=AR2&demographic_no=<%=request.getParameter("demographic_no")%>');">AR2</a>
+					onClick="popupPage(700,1000,'<%= request.getContextPath() %>/form/forwardshortcutname.jsp?formname=AR2&demographic_no=<%=request.getParameter("demographic_no")%>');">AR2</a>
 				</td>
 			</tr>
 <% } %>
@@ -1537,7 +1537,7 @@ if(wLReadonly.equals("")){
                  <special:SpecialPlugin moduleName="inboxmnger" reverse="true">
 			<tr><td>
 				<a href="javascript: function myFunction() {return false; }"
-					onClick="popupPage(710,970,'../dms/documentReport.jsp?function=demographic&doctype=lab&functionid=<%=demographic.getDemographicNo()%>&curUser=<%=curProvider_no%>')"><bean:message
+					onClick="popupPage(710,970,'<%= request.getContextPath() %>/dms/documentReport.jsp?function=demographic&doctype=lab&functionid=<%=demographic.getDemographicNo()%>&curUser=<%=curProvider_no%>')"><bean:message
 					key="demographic.demographiceditdemographic.msgDocuments" /></a></td>
 			</tr>
                         <%
@@ -1545,14 +1545,14 @@ if(wLReadonly.equals("")){
                         if ( upDocumentBrowserLink != null && upDocumentBrowserLink.getValue() != null && upDocumentBrowserLink.getValue().equals("yes")) {%>
                         <tr><td>
 				<a href="javascript: function myFunction() {return false; }"
-					onClick="popupPage(710,970,'../dms/documentBrowser.jsp?function=demographic&doctype=lab&functionid=<%=demographic.getDemographicNo()%>&categorykey=Private Documents')"><bean:message
+					onClick="popupPage(710,970,'<%= request.getContextPath() %>/dms/documentBrowser.jsp?function=demographic&doctype=lab&functionid=<%=demographic.getDemographicNo()%>&categorykey=Private Documents')"><bean:message
 					key="demographic.demographiceditdemographic.msgDocumentBrowser" /></a></td>
 			</tr>
                         <%}%>
 			<tr>
 				<td><a
 					href="javascript: function myFunction() {return false; }"
-					onClick="popupPage(710,970,'../dms/documentReport.jsp?function=demographic&doctype=lab&functionid=<%=demographic.getDemographicNo()%>&curUser=<%=curProvider_no%>&mode=add')"><bean:message
+					onClick="popupPage(710,970,'<%= request.getContextPath() %>/dms/documentReport.jsp?function=demographic&doctype=lab&functionid=<%=demographic.getDemographicNo()%>&curUser=<%=curProvider_no%>&mode=add')"><bean:message
 					key="demographic.demographiceditdemographic.btnAddDocument" /></a></td>
 			</tr>
                 </special:SpecialPlugin>
@@ -1569,18 +1569,18 @@ if (iviewTag!=null && !"".equalsIgnoreCase(iviewTag.trim())){
 		</special:SpecialEncounterTag>
 			<tr>
 				<td><a
-					href="../eform/efmpatientformlist.jsp?demographic_no=<%=demographic_no%>&apptProvider=<%=apptProvider%>&appointment=<%=appointment%>"><bean:message
+					href="<%= request.getContextPath() %>/eform/efmpatientformlist.jsp?demographic_no=<%=demographic_no%>&apptProvider=<%=apptProvider%>&appointment=<%=appointment%>"><bean:message
 					key="demographic.demographiceditdemographic.btnEForm" /></a></td>
 			</tr>
 			<tr>
 				<td><a
-					href="../eform/efmformslistadd.jsp?demographic_no=<%=demographic_no%>&appointment=<%=appointment%>">
+					href="<%= request.getContextPath() %>/eform/efmformslistadd.jsp?demographic_no=<%=demographic_no%>&appointment=<%=appointment%>">
 				<bean:message
 					key="demographic.demographiceditdemographic.btnAddEForm" /> </a></td>
 			</tr>
                         <% if(OscarProperties.getInstance().getBooleanProperty("questimed.enabled","true") && QuestimedUtil.isServiceConnectionReady()) { %>
 			<tr>
-				<td><a href=# onclick="popupPage(700,960,'../questimed/launch.jsp?demographic_no=<%=demographic_no%>');return false;"					>
+				<td><a href=# onclick="popupPage(700,960,'<%= request.getContextPath() %>/questimed/launch.jsp?demographic_no=<%=demographic_no%>');return false;"					>
 				<bean:message
 					key="demographic.demographiceditdemographic.Questimed" /> </a></td>
 			</tr>
@@ -1588,10 +1588,10 @@ if (iviewTag!=null && !"".equalsIgnoreCase(iviewTag.trim())){
 			<% if (isSharingCenterEnabled) { %>
 			<!-- Sharing Center Links -->
 			<tr>
-			  <td><a href="../sharingcenter/networks/sharingnetworks.jsp?demographic_no=<%=demographic_no%>"><bean:message key="sharingcenter.networks.sharingnetworks" /></a></td>
+			  <td><a href="<%= request.getContextPath() %>/sharingcenter/networks/sharingnetworks.jsp?demographic_no=<%=demographic_no%>"><bean:message key="sharingcenter.networks.sharingnetworks" /></a></td>
 			</tr>
 			<tr>
-			  <td><a href="../sharingcenter/documents/SharedDocuments.do?demographic_no=<%=demographic_no%>"><bean:message key="sharingcenter.documents.shareddocuments" /></a></td>
+			  <td><a href="<%= request.getContextPath() %>/sharingcenter/documents/SharedDocuments.do?demographic_no=<%=demographic_no%>"><bean:message key="sharingcenter.documents.shareddocuments" /></a></td>
 			</tr>
 			<% } // endif isSharingCenterEnabled %>
 
@@ -1660,7 +1660,7 @@ if (iviewTag!=null && !"".equalsIgnoreCase(iviewTag.trim())){
 
                             }else{
 
-	                            printEnvelope = "../report/GenerateEnvelopes.do?demos=";
+	                            printEnvelope = request.getContextPath() +  "/report/GenerateEnvelopes.do?demos=";
 	                            printLbl = "printDemoLabelAction.do?demographic_no=";
 	                            printAddressLbl = "printDemoAddressLabelAction.do?demographic_no=";
 	                            printChartLbl = "printDemoChartLabelAction.do?demographic_no=";
@@ -1672,7 +1672,7 @@ if (iviewTag!=null && !"".equalsIgnoreCase(iviewTag.trim())){
 
                             %>
                             <div class="btn-group">
-								<button class="btn dropdown-toggle" data-toggle="dropdown" >Labels <span class="caret"></span></button>
+								<button class="btn dropdown-toggle" data-toggle="dropdown" ><bean:message key="demographic.demographiceditdemographic.btnLabels"/> <span class="caret"></span></button>
                                 <ul class="dropdown-menu">
 								    <li><a href="#" onclick="popupPage(400,700,'<%=printEnvelope%><%=demographic.getDemographicNo()%>');return false;">
                                         <bean:message key="demographic.demographiceditdemographic.btnCreatePDFEnvelope"/></a>
@@ -1714,7 +1714,7 @@ if (iviewTag!=null && !"".equalsIgnoreCase(iviewTag.trim())){
                                     onclick="window.open('demographicExport.jsp?demographicNo=<%=demographic.getDemographicNo()%>');">
                              </security:oscarSec>
                              <input type="button" name="Button" class="btn"
-                                    value="Add Family Member"
+                                    value="<bean:message key="demographic.demographiceditdemographic.btnAddFamilyMember"/>"
                                     onclick="popupOscarRx(650, 1300,'demographicaddarecordhtm.jsp?search_mode=search_name&keyword=')">
 <% if (oscarProps.getBooleanProperty("workflow_enhance", "true")) { %>
 									<span style="position: relative; float: right; font-style: italic; background: black; color: white; padding: 4px; font-size: 12px; border-radius: 3px;">
@@ -1779,7 +1779,7 @@ if (iviewTag!=null && !"".equalsIgnoreCase(iviewTag.trim())){
                                                     <li><span class="labels">
 							<bean:message
                                                                 key="demographic.demographiceditdemographic.formFirstName" />:</span>
-                                                        <span class="info"><%=Encode.forHtml(WordUtils.capitalizeFully(demographic.getFirstName()))%></span>
+                                                        <span class="info"><%=Encode.forHtml(WordUtils.capitalizeFully(demographic.getFirstName(), new char[] {',','-','\''}))%></span>
 							</li>
 							   <li><span class="labels"><bean:message
                                                             key="demographic.demographiceditdemographic.formMiddleNames" />:</span>
@@ -2393,7 +2393,7 @@ if ( Dead.equals(PatStat) ) {%>
 									startTimeStr = String.format("%02d",startHour)+":"+String.format("%02d",startMin);
 									endTimeStr = String.format("%02d",startHour)+":"+String.format("%02d",startMin+timecodeInterval-1);
 
-									provMap.get(thisProv).get(sortDateStr+","+qApptWkDay+" "+qApptMonth+"-"+qApptDay).put(startTimeStr+","+timecodeChar, "../appointment/addappointment.jsp?demographic_no="+demographic.getDemographicNo()+"&name="+URLEncoder.encode(demographic.getLastName()+","+demographic.getFirstName())+"&provider_no="+thisProvNo+"&bFirstDisp=true&year="+qApptYear+"&month="+qApptMonth+"&day="+qApptDay+"&start_time="+startTimeStr+"&end_time="+endTimeStr+"&duration="+templateDuration+"&search=true");
+									provMap.get(thisProv).get(sortDateStr+","+qApptWkDay+" "+qApptMonth+"-"+qApptDay).put(startTimeStr+","+timecodeChar, request.getContextPath() +  "/appointment/addappointment.jsp?demographic_no="+demographic.getDemographicNo()+"&name="+URLEncoder.encode(demographic.getLastName()+","+demographic.getFirstName())+"&provider_no="+thisProvNo+"&bFirstDisp=true&year="+qApptYear+"&month="+qApptMonth+"&day="+qApptDay+"&start_time="+startTimeStr+"&end_time="+endTimeStr+"&duration="+templateDuration+"&search=true");
 								}
 							}
 						}
@@ -2598,8 +2598,8 @@ if ( Dead.equals(PatStat) ) {%>
 
                                                     <%=Encode.forHtmlContent(notes)%>&nbsp;
 <%if (hasImportExtra) { %>
-		                <a href="javascript:void(0);" title="Extra data from Import" onclick="popupOscarRx(250, 400,'../annotation/importExtra.jsp?display=<%=annotation_display %>&amp;table_id=<%=demographic_no %>&amp;demo=<%=demographic_no %>',false);">
-		                    <img src="../images/notes.gif" align="right" alt="Extra data from Import" height="16" width="13" border="0"> </a>
+		                <a href="javascript:void(0);" title="Extra data from Import" onclick="popupOscarRx(250, 400,'<%= request.getContextPath() %>/annotation/importExtra.jsp?display=<%=annotation_display %>&amp;table_id=<%=demographic_no %>&amp;demo=<%=demographic_no %>',false);">
+		                    <img src="<%= request.getContextPath() %>/images/notes.gif" align="right" alt="Extra data from Import" height="16" width="13" border="0"> </a>
 <%} %>
 
 		                
@@ -2721,10 +2721,22 @@ if ( Dead.equals(PatStat) ) {%>
         <div class="control-group span5">
             <label class="control-label" for="sex"><bean:message key="demographic.demographiceditdemographic.formSex" /><span style="color:red">*</span></label>
             <div class="controls">
-              <select  name="sex" id="sex">
-			                        <option value=""></option>
-			                		<% for(Gender gn : Gender.values()){ %>
-			                        <option value=<%=gn.name()%> <%=((demographic.getSex().toUpperCase().equals(gn.name())) ? " selected=\"selected\" " : "") %>><%=gn.getText()%></option>
+               <select  name="sex" id="sex">//Value are Codes F M T O U Texts are Female Male Transgender Other Undefined
+                <option value=""></option>
+                <% 
+                String iterSex = "";
+                String sexTag = "";
+                for(Gender gn : Gender.values()){ 
+                    sexTag = "global."+gn.getText();
+                try{
+                        iterSex = oscarResources.getString(sexTag) ;
+                    } catch(Exception ex) {
+                        //MiscUtils.getLogger().error("Error", ex);
+                        //Fine then lets use the English default
+                        iterSex = gn.getText();
+                }
+                %>
+                <option value=<%=gn.name()%> <%=((demographic.getSex().toUpperCase().equals(gn.name())) ? " selected=\"selected\" " : "") %>><%=iterSex%></option>
 			                        <% } %>
             </select>
             </div>
@@ -3216,7 +3228,7 @@ if ( Dead.equals(PatStat) ) {%>
 									<script>
 										function sendEmailInvite(demoNo) {
 											var http = new XMLHttpRequest();
-											var url = "../ws/rs/app/PHREmailInvite/"+demoNo;
+											var url = "<%=request.getContextPath() %>/ws/rs/app/PHREmailInvite/"+demoNo;
 											http.open("GET", url, true);
 											http.onreadystatechange = function() {
 												if(http.readyState == 4 && http.status == 200) {
@@ -3236,7 +3248,7 @@ if ( Dead.equals(PatStat) ) {%>
 								<%if (demographic.getMyOscarUserName()==null ||demographic.getMyOscarUserName().equals("")) {%>
 
 								<%
-									String onclickString="popup(900, 800, '../phr/indivo/RegisterIndivo.jsp?demographicNo="+demographic_no+"', 'indivoRegistration');";
+									String onclickString="popup(900, 800, request.getContextPath() +  '/phr/indivo/RegisterIndivo.jsp?demographicNo="+demographic_no+"', 'indivoRegistration');";
 									MyOscarLoggedInInfo myOscarLoggedInInfo=MyOscarLoggedInInfo.getLoggedInInfo(session);
 									if (myOscarLoggedInInfo==null || !myOscarLoggedInInfo.isLoggedIn()) onclickString="alert('Please login to MyOscar first.')";
 								%>
@@ -4287,13 +4299,13 @@ if(oscarProps.getProperty("demographicExtJScript") != null) { out.println(oscarP
 									<input type="submit" <%=(showCbiReminder?"onclick='showCbiReminder()'":"")%> class="btn btn-primary"
 										id="updaterecord" value="<bean:message key="demographic.demographiceditdemographic.btnUpdate"/>">
 										<input type="submit" name="submit" <%=(showCbiReminder?"onclick='showCbiReminder()'":"")%> class="btn"
-											   value="Save & Update Family Members">
+											   value="<bean:message key="demographic.demographiceditdemographic.btnSaveUpdateFamilyMember"/>">
 								</security:oscarSec> </span> <!-- security code block -->
 
 
 </td><td>
 <div class="btn-group">
-								<button class="btn dropdown-toggle" data-toggle="dropdown" >Labels <span class="caret"></span></button>
+								<button class="btn dropdown-toggle" data-toggle="dropdown" ><bean:message key="demographic.demographiceditdemographic.btnLabels"/> <span class="caret"></span></button>
                                 <ul class="dropdown-menu">
 								    <li><a href="#" onclick="popupPage(400,700,'<%=printEnvelope%><%=demographic.getDemographicNo()%>');return false;">
                                         <bean:message key="demographic.demographiceditdemographic.btnCreatePDFEnvelope"/></a>
@@ -4429,7 +4441,7 @@ jQuery(document).ready(function(){
 	PHR Active & Consent exists.    TRUE       CONSENTED
 	*/
 	jQuery.ajax({
-		url: "<%=request.getContextPath()%>/ws/rs/app/PHRActive/consentGiven/<%=demographic_no%>",
+		url: "<%=request.getContextPath() %>/ws/rs/app/PHRActive/consentGiven/<%=demographic_no%>",
 		dataType: 'json',
 		success: function (data) {
 			console.log("PHR CONSENT",data);
@@ -4442,7 +4454,7 @@ jQuery(document).ready(function(){
 	});
 	
 	jQuery.ajax({
-		url: "<%=request.getContextPath()%>/ws/rs/app/PHRActive/",
+		url: "<%=request.getContextPath() %>/ws/rs/app/PHRActive/",
 		dataType: 'json',
 		success: function (data) {
 			console.log("PHR Active",data);
@@ -4455,7 +4467,7 @@ jQuery(document).ready(function(){
 	jQuery("#phrConsent").click(function() {
   		jQuery.ajax({
   			type: "POST",
-	        url: "<%=request.getContextPath()%>/ws/rs/app/PHRActive/consentGiven/<%=demographic_no%>",
+	        url: "<%=request.getContextPath() %>/ws/rs/app/PHRActive/consentGiven/<%=demographic_no%>",
 	        dataType: 'json',
 	        success: function (data) {
 	       		console.log("PHR CONSENT POST",data);
