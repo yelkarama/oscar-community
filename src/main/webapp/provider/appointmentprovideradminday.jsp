@@ -1291,7 +1291,7 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 
 <security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="r">
 <li>
-	<a HREF="#" ONCLICK ="pop2('<%=request.getContextPath()%><%=request.getContextPath()%>/billing/CA/<%=prov%>/billingReportCenter.jsp?displaymode=billreport&providerview=<%=curUser_no%>','BillingReports');return false;" TITLE='<bean:message key="global.genBillReport"/>' onMouseOver="window.status='<bean:message key="global.genBillReport"/>';return true"><bean:message key="global.billing"/></a>
+	<a HREF="#" ONCLICK ="pop2('<%=request.getContextPath()%>/billing/CA/<%=prov%>/billingReportCenter.jsp?displaymode=billreport&providerview=<%=curUser_no%>','BillingReports');return false;" TITLE='<bean:message key="global.genBillReport"/>' onMouseOver="window.status='<bean:message key="global.genBillReport"/>';return true"><bean:message key="global.billing"/></a>
 </li>
 </security:oscarSec>
 
