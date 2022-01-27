@@ -39,7 +39,7 @@ public class SystemPreferences extends AbstractModel<Integer>
     public static final List<String> SCHEDULE_PREFERENCE_KEYS = Arrays.asList("schedule_display_type", "schedule_display_custom_roster_status", "schedule_tp_link_enabled", "schedule_tp_link_type", "schedule_tp_link_display", 
             "schedule_eligibility_enabled", "schedule_display_enrollment_dr_enabled", "appt_show_full_name", "display_large_calendar", "appt_intake_form", "show_appt_reason","receptionist_alt_view",
             "show_NonScheduledDays_In_WeekView", "show_appt_type_with_reason", "appt_show_short_letters", "displayAlertsOnScheduleScreen", "displayNotesOnScheduleScreen", "display_quick_date_multiplier", 
-            "display_quick_date_picker", "new_eyeform_enabled", "old_schedule_enabled");
+            "display_quick_date_picker", "new_eyeform_enabled", "old_schedule_enabled","display_timeline");
     public static final List<String> ECHART_PREFERENCE_KEYS = Arrays.asList("echart_show_timer", "echart_email_indicator", "echart_show_OLIS","echart_show_HIN","echart_show_cell","echart_show_DOB", "echart_show_fam_doc_widget", "echart_show_ref_doc_widget", "echart_show_ocean");
     public static final List<String> MASTER_FILE_PREFERENCE_KEYS = Arrays.asList("display_former_name", "redirect_for_contact");
     public static final List<String> GENERAL_SETTINGS_KEYS = Arrays.asList("replace_demographic_name_with_preferred", "msg_use_create_date", "invoice_custom_clinic_info","force_logout_when_inactive", "force_logout_when_inactive_time");
