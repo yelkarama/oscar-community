@@ -598,7 +598,7 @@ function ignoreDuplicates() {
 				if(data.hasDuplicates != null) {
 					if(data.hasDuplicates) {
 						
-						if(confirm('There are other patients in this system with the same name and date of birth. Are you sure you want to create this new patient record?')) {
+						if(confirm('<bean:message key="demographic.demographiceditdemographic.alertduplicate"/>')) {
 							//submit the form
 							ret = true;
 						}
@@ -634,7 +634,7 @@ function isCanadian(){
 function consentClearBtn(radioBtnName)
 {
 	
-	if( confirm("Proceed to clear all record of this consent?") ) 
+	if( confirm("<bean:message key="demographic.demographiceditdemographic.alertclearconsent"/>") ) 
 	{
 
 	    //clear out opt-in/opt-out radio buttons
