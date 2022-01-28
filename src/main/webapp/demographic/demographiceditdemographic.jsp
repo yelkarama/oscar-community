@@ -346,7 +346,7 @@ jQuery( document ).ready( function() {
 			familyMembers += "\n<%=Encode.forJavaScript(member)%>"
 		<%}%>
 
-        alert("Updated demographic and the following family members:" + familyMembers+"");
+        alert("<bean:message key="demographic.demographiceditdemographic.alertupdated"/> " + familyMembers+"");
     <% }%>
 
 	var defPhTitle = "Check to set preferred contact number";
@@ -1480,7 +1480,7 @@ if(wLReadonly.equals("")){
 					<tr>
 						<td>
 							<%
-								String onclickString="alert('Please login to MyOscar first.')";
+								String onclickString="alert('Login to PHR First')";
 
 								MyOscarLoggedInInfo myOscarLoggedInInfo=MyOscarLoggedInInfo.getLoggedInInfo(session);
 								if (myOscarLoggedInInfo!=null && myOscarLoggedInInfo.isLoggedIn()) onclickString="popupOscarRx(600,900,request.getContextPath() +  '/phr/PhrMessage.do?method=createMessage&providerNo="+curProvider_no+"&demographicNo="+demographic_no+"')";
@@ -3250,7 +3250,7 @@ if ( Dead.equals(PatStat) ) {%>
 								<%
 									String onclickString="popup(900, 800, request.getContextPath() +  '/phr/indivo/RegisterIndivo.jsp?demographicNo="+demographic_no+"', 'indivoRegistration');";
 									MyOscarLoggedInInfo myOscarLoggedInInfo=MyOscarLoggedInInfo.getLoggedInInfo(session);
-									if (myOscarLoggedInInfo==null || !myOscarLoggedInInfo.isLoggedIn()) onclickString="alert('Please login to MyOscar first.')";
+									if (myOscarLoggedInInfo==null || !myOscarLoggedInInfo.isLoggedIn()) onclickString="alert('Login to PHR First')";
 								%>
 								<br />
 								<sup><a class="btn btn-link" href="javascript:"
@@ -4474,7 +4474,7 @@ jQuery(document).ready(function(){
 	       		if(data.success && data.message === "NEED_CONSENT"){
 	       			jQuery("#phrConsent").show();
 	       		}else{
-	       			alert("Successfully confirmed");
+	       			alert("<bean:message key="indivio.successMsg"/>");
 	       			jQuery("#phrConsent").hide();
 	       		}
 	    		}

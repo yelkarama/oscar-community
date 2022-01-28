@@ -99,7 +99,7 @@
 	ProgramManager2 programManager2 = SpringUtils.getBean(ProgramManager2.class);
     String privateConsentEnabledProperty = OscarProperties.getInstance().getProperty("privateConsentEnabled");
     boolean privateConsentEnabled = privateConsentEnabledProperty != null && privateConsentEnabledProperty.equals("true");
-    
+    boolean checkP = "false".equals(OscarProperties.getInstance().getProperty("skip_postal_code_validation","false"));    
     LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 %>
 <jsp:useBean id="providerBean" class="java.util.Properties" scope="session" />
@@ -202,7 +202,9 @@
                         submitError: function($form, event, errors) {
                             // Here I do nothing, but you could do something like display 
                             // the error messages to the user, log, etc.
+                            event.preventDefault();
                         },
+
                         submitSuccess: function($form, event) {
 	                    if (preferredPhone=="C") {
 	                                $("#cell").val(function(i, val) { return val + "*"; });
@@ -211,11 +213,12 @@
 	                        }  else if (preferredPhone=="W") {
 	                                $("#phone2").val(function(i, val) { return val + "*"; });
 	                        }
-                            aSubmit();
+                           // aSubmit();
                         },
                         filter: function() {
                             return $(this).is(":visible");
-                        }
+                        },
+
                     }
                 );
 
@@ -237,6 +240,7 @@
 
    <script type="text/javascript">
         function aSubmit(){
+
             if(document.getElementById("eform_iframe")!=null)document.getElementById("eform_iframe").contentWindow.document.forms[0].submit();
                         
             if(!checkFormTypeIn()) return false;
@@ -244,9 +248,6 @@
             if( !ignoreDuplicates() ) return false;
             //document.getElementById("adddemographic").submit();
 
-             <% if("false".equals(OscarProperties.getInstance().getProperty("skip_postal_code_validation","false"))) { %>
-  				if ( !isPostalCode() ) return false;
-  			<% } %>
   
   			var rosterStatus = document.adddemographic.roster_status.value;
   			if(rosterStatus == 'RO') {
@@ -256,14 +257,14 @@
   	  			var rosterDateDate = document.adddemographic.roster_date_date.value;
 			
   	  			if(rosterEnrolledTo == '') {
-  	  				alert('<bean:message key="demographic.demographiceditdemographic.alertenrollto" />');
-                    roster_enrolled_to.focus();
+  	  				//alert('<bean:message key="demographic.demographiceditdemographic.alertenrollto" />');
+                    //document.adddemographic.roster_enrolled_to.focus();
   	  				return false;
   	  			}
   	  			
   	  			if(rosterDateYear == '' || rosterDateMonth == '' || rosterDateDate == '') {
-	  				alert('<bean:message key="demographic.demographiceditdemographic.alertrosterdate" />');
-                    roster_date.focus();
+	  				//alert('<bean:message key="demographic.demographiceditdemographic.alertrosterdate" />');
+                    //document.adddemographic.roster_date.focus();
 	  				return false;
 	  			}
   				
@@ -339,7 +340,7 @@ function newStatus() {
         document.adddemographic.patient_status.options[document.adddemographic.patient_status.length] = new Option(newOpt, newOpt);
         document.adddemographic.patient_status.options[document.adddemographic.patient_status.length-1].selected = true;
     } else {
-        alert("bean:message	key="global.alertinvalid" />");
+        alert("<bean:message	key="global.alertinvalid" />");
     }
 }
 function newStatus1() {
@@ -348,7 +349,7 @@ function newStatus1() {
         document.adddemographic.roster_status.options[document.adddemographic.roster_status.length] = new Option(newOpt, newOpt);
         document.adddemographic.roster_status.options[document.adddemographic.roster_status.length-1].selected = true;
     } else {
-        alert("bean:message	key="global.alertinvalid" />");
+        alert("<bean:message	key="global.alertinvalid" />");
     }
 }
 
@@ -425,13 +426,13 @@ function checkDob() {
 	}
 
 	if (!typeInOK){
-        alert ("You must type in the right DOB.");
-        inputDOB.focus();
+        //alert ("You must type in the right DOB.");
+        //inputDOB.focus();
    }
 
    if (!isValidDate(dd,mm,yyyy)){
-        alert ("DOB Date is an incorrect date");
-        inputDOB.focus();
+        //alert ("DOB Date is an incorrect date");
+        //inputDOB.focus();
         typeInOK = false;
    }
 
@@ -466,8 +467,8 @@ function checkSex() {
 	
 	if(sex.length == 0)
 	{
-		alert ("You must select a Gender.");
-        sex.focus();
+		//alert ("You must select a Gender.");
+        //document.adddemographic.sex.focus();
 		return(false);
 	}
 
@@ -479,7 +480,7 @@ function checkResidentStatus(){
     var rs = document.adddemographic.rsid.value;
     if(rs!="")return true;
     else{
-        alert("bean:message	key="demographic.demographiceditdemographic.alertresstat" />");
+        alert("<bean:message	key="demographic.demographiceditdemographic.alertresstat" />");
         document.adddemographic.rsid.focus();
      return false;}
 }
@@ -509,8 +510,8 @@ function checkAllDate() {
 				typeInOK = true;
 			}
 		}
-		if (!typeInOK) { alert ("Invalid Entry.  Please verify and retry."); return false; }
-        fieldName.focus();
+		//if (!typeInOK) { alert ("Invalid Entry.  Please verify and retry."); return false; }
+        //fieldName.focus();
 		return typeInOK;
 	}
 
@@ -597,7 +598,7 @@ function ignoreDuplicates() {
 				if(data.hasDuplicates != null) {
 					if(data.hasDuplicates) {
 						
-						if(confirm('There are other patients in this system with the same name and date of birth. Are you sure you want to create this new patient record?')) {
+						if(confirm('<bean:message key="demographic.demographiceditdemographic.alertduplicate"/>')) {
 							//submit the form
 							ret = true;
 						}
@@ -620,39 +621,20 @@ function ignoreDuplicates() {
 	return ret;
 }
 
-function isPostalCode()
-{
-    if(isCanadian()){
-         e = document.adddemographic.postal;
-         postalcode = e.value;
-        	
-         rePC = new RegExp(/(^s*([a-z](\s)?\d(\s)?){3}$)s*/i);
-    
-         if (!rePC.test(postalcode)) {
-              e.focus();
-              alert("<bean:message key="demographic.demographiceditdemographic.alertpostal" />");
-              postal.focus();
-              return false;
-         }
-    }//end cdn check
-
-return true;
-}
 
 function isCanadian(){
+
     if($("#province").val()==""||$("#province").val() === null){ return false; }
-    var province = $("#province").val();
-    
-    if ( province.indexOf("US")>-1 || province=="OT"){ //if not canadian
-            return false;
-    }
-    return true;
+    if($("#country").val()=="CA"){ return true; }
+    var province = $("#province").val();   
+    if ( province.indexOf("CA")>-1 ) { return true; }
+    return false;
 }
 
 function consentClearBtn(radioBtnName)
 {
 	
-	if( confirm("Proceed to clear all record of this consent?") ) 
+	if( confirm("<bean:message key="demographic.demographiceditdemographic.alertclearconsent"/>") ) 
 	{
 
 	    //clear out opt-in/opt-out radio buttons
@@ -899,7 +881,7 @@ background-color:gainsboro;
 	<% } %>
 </td></tr>
 <tr><td>
-<form method="post" id="adddemographic" name="adddemographic" action="demographicaddarecord.jsp" novalidate >
+<form method="post" id="adddemographic" name="adddemographic" action="demographicaddarecord.jsp" novalidate onsubmit="return aSubmit()">
 <input type="hidden" name="fromAppt" value="<%=Encode.forHtmlAttribute(request.getParameter("fromAppt"))%>">
 <input type="hidden" name="originalPage" value="<%=Encode.forHtmlAttribute(request.getParameter("originalPage"))%>">
 <input type="hidden" name="bFirstDisp" value="<%=Encode.forHtmlAttribute(request.getParameter("bFirstDisp"))%>">
@@ -935,7 +917,7 @@ background-color:gainsboro;
           <input type="hidden" name="displaymode" value="Add Record">
 				<input type="submit" name="submit" class="btn btn-primary"
 					value="<bean:message key="demographic.demographicaddrecordhtm.btnAddRecord"/>">
-					<input type="submit" name="submit" class="btn" value="<bean:message key="demographic.demographicaddrecordhtm.btnSaveAddFamilyMember"/>">
+					<input type="submit" name="submit" class="btn" value="<bean:message key="demographic.demographiceditdemographic.btnSaveAddFamilyMember"/>">
 				<input type="button" name="Button" class="btn"
 					value="<bean:message key="demographic.demographicaddrecordhtm.btnSwipeCard"/>"
 					onclick="window.open('zadddemographicswipe.htm','', 'scrollbars=yes,resizable=yes,width=600,height=300')";>
@@ -1264,8 +1246,14 @@ background-color:gainsboro;
                               	 } %></label>
             <div class="controls">
                 <input type="text" id="postal" placeholder="<bean:message key="demographic.demographiceditdemographic.formPostal" /> " 
-                    name="postal" value="<%=StringUtils.trimToEmpty(postal)%>" maxlength=10
-					onBlur="upCaseCtrl(this)" onChange="isPostalCode()">
+                    name="postal" value="<%=StringUtils.trimToEmpty(postal)%>" onBlur="upCaseCtrl(this)" maxlength=10
+<% if (checkP) { %>
+pattern="[ABCEGHJ-NPRSTVXY]\d[ABCEGHJ-NPRSTVXY]\s\d[ABCEGHJ-NPRSTVXY]\d"
+required
+data-validation-pattern-message="<bean:message key="demographic.demographiceditdemographic.alertpostal" />"
+<% } %>
+					>
+        <p class="help-block text-danger"></p>
             </div>
         </div>
 <!-- end postal -->
@@ -1288,7 +1276,43 @@ background-color:gainsboro;
             </div>
         </div>
 <!-- residential -->
+<script>
+function loadResidence(){
+    $('#residence_div').show();
+    $('#raddress_div').show();
+    $('#rcity_div').show();
+    $('#rprovince_div').show();
+    $('#rpostal_div').show();
+    $('#rPostal').val($('#postal').val());
+    $('#rCity').val($('#city').val());
+    $('#residence').val($('#address').val());
+    $('#residentialCountry')
+         .val($('#country').val())
+         .trigger('change');
+    updateResidentialProvinces($('#province').val());
+}
+
+function clearResidence(){
+    $('#residence_div').hide();
+    $('#raddress_div').hide();
+    $('#rcity_div').hide();
+    $('#rprovince_div').hide();
+    $('#rpostal_div').hide();
+}
+</script>
+
         <div class="control-group span5">
+            <label class="control-label" for="residential"><bean:message key="demographic.demographiceditdemographic.sameresidence" /></label>
+            <div class="controls" style="white-space: nowrap;">
+              <bean:message key="WriteScript.msgYes"/> 
+            		<input type="radio" value="yes" name="residential" onclick="loadResidence();" />
+          		<bean:message key="WriteScript.msgNo"/>
+            		<input type="radio" value="no" name="residential" onclick="loadResidence();" />
+				<bean:message key="WriteScript.msgUnset"/>
+            		<input type="radio" value="unset" name="residential" onclick="clearResidence();" checked />
+            </div>
+        </div>
+        <div class="control-group span5" id="residence_div">
             <label class="control-label" for="residence"><bean:message key="demographic.demographiceditdemographic.formResidentialAddr" /></label>
             <div class="controls">
               <input type="text" id="residence" placeholder="<bean:message key="demographic.demographiceditdemographic.formResidentialAddr" />"
@@ -1296,14 +1320,14 @@ background-color:gainsboro;
 					>
             </div>
         </div>
-        <div class="control-group span5">
+        <div class="control-group span5" id="rcity_div">
             <label class="control-label" for="rCity"><bean:message key="demographic.demographiceditdemographic.formResidentialCity" /></label>
             <div class="controls">
               <input type="text" id="rCity" placeholder="<bean:message key="demographic.demographiceditdemographic.formResidentialCity" />"
                     name="residentialCity">
             </div>
         </div>
-        <div class="control-group span5">
+        <div class="control-group span5" id="rprovince_div">
             <label class="control-label" for="residentialProvince"><bean:message key="demographic.demographiceditdemographic.formResidentialProvince" /></label>
             <div class="controls">
 
@@ -1402,16 +1426,21 @@ background-color:gainsboro;
 				<% } %>
             </div>
         </div>
-        <div class="control-group span5">
+        <div class="control-group span5" id="rpostal_div">
             <label class="control-label" for="rPostal"><bean:message key="demographic.demographiceditdemographic.formResidentialPostal" />
-            <% if("false".equals(OscarProperties.getInstance().getProperty("skip_postal_code_validation","false"))) { %>
+            <% 
+                if (checkP) { %>
  					<span style="color:red">*</span>				
  				 <% } %> 
                 </label>
             <div class="controls">
               <input type="text" id="rPostal" placeholder="<bean:message key="demographic.demographiceditdemographic.formResidentialPostal" />"
                     name="residentialPostal" 
-					onBlur="upCaseCtrl(this)" onChange="isPostalCode2()">
+<% if (checkP) { %>
+pattern="[ABCEGHJ-NPRSTVXY]\d[ABCEGHJ-NPRSTVXY]\s\d[ABCEGHJ-NPRSTVXY]\d"
+data-validation-pattern-message="<bean:message key="demographic.demographiceditdemographic.alertpostal" />"
+<% } %>
+					onBlur="upCaseCtrl(this)" >
             </div>
         </div>
 <!-- end residential -->
@@ -1761,15 +1790,7 @@ console.log(year+"-"+month+"-"+day);
                 <input type="hidden" name="date_joined_day" id="date_joined_day">
             </div>
         </div> 
-        <div class="control-group span5">
-            <label class="control-label" for="roster_date" title="<bean:message key="demographic.demographiceditdemographic.DateJoined" />"><bean:message key="demographic.demographiceditdemographic.DateJoined" /></label>
-            <div class="controls">
-              <input type="date" id="roster_date" name="roster_date" onchange="parseroster_date();" >
-<input  type="hidden" name="roster_date_year" id="roster_date_year">
-<input  type="hidden" name="roster_date_month" id="roster_date_month">
-<input  type="hidden" name="roster_date_day" id="roster_date_day">
-            </div>
-        </div>
+
         <div class="control-group span5">
             <label class="control-label" for="end_date" ><bean:message key="demographic.demographiceditdemographic.formEndDate" /></label>
             <div class="controls">
@@ -1789,7 +1810,9 @@ console.log(year+"-"+month+"-"+day);
             <div class="controls">
                 <%String rosterStatus = "";%>
                 <input type="hidden" name="initial_rosterstatus" />
-                <select id="roster_status" name="roster_status" style="width: 120" onchange="checkRosterStatus2()">
+                <select id="roster_status" name="roster_status" style="width: 120" 
+                onchange="if (this.value=='RO'){$('#roster_to_div').show();$('#roster_date_div').show(); } else {$('#roster_to_div').hide();$('#roster_date_div').hide();}"
+                >
 									<option value=""></option>
 									<option value="RO"
 										>
@@ -1820,11 +1843,19 @@ console.log(year+"-"+month+"-"+day);
                 </security:oscarSec>
             </div>
         </div>
-
-        <div class="control-group span5">
+        <div class="control-group span5" id="roster_date_div" >
+            <label class="control-label" for="roster_date" title="<bean:message key="demographic.demographiceditdemographic.DateJoined" />"><bean:message key="demographic.demographiceditdemographic.DateJoined" /></label>
+            <div class="controls">
+              <input type="date" id="roster_date" name="roster_date" onchange="parseroster_date();" data-validation-required-message="<bean:message key="demographic.demographiceditdemographic.alertrosterdate" />">
+<input  type="hidden" name="roster_date_year" id="roster_date_year">
+<input  type="hidden" name="roster_date_month" id="roster_date_month">
+<input  type="hidden" name="roster_date_day" id="roster_date_day">
+            </div>
+        </div>
+        <div class="control-group span5" id="roster_to_div" >
             <label class="control-label" for="enrolled_to"><bean:message key="demographic.demographiceditdemographic.RosterEnrolledTo" /></label>
             <div class="controls">
-                <select id="roster_enrolled_to"  name="roster_enrolled_to" style="width: 160">
+                <select id="roster_enrolled_to"  name="roster_enrolled_to" style="width: 160" data-validation-required-message="<bean:message key="demographic.demographiceditdemographic.alertenrollto" />" >
 					<option value=""></option>
 					<%
 						for (Provider p : providerDao.getActiveProvidersByRole("doctor")) {
@@ -1836,6 +1867,7 @@ console.log(year+"-"+month+"-"+day);
 					%>
 					<option value=""></option>
 				</select>
+                <p class="help-block text-danger"></p>
             </div>
         </div>
 
@@ -2193,7 +2225,7 @@ document.forms[1].r_doctor_ohip.value = refNo;
                                        <c:out value="checked" />
                                    </c:if>
                             />
-                            value="<bean:message key="global.optin"/>"
+                            <bean:message key="global.optin"/>
                             <input type="radio"
                                    name="${ consentType.type }"
                                    id="optout_${ consentType.type }"
@@ -2202,7 +2234,7 @@ document.forms[1].r_doctor_ohip.value = refNo;
                                        <c:out value="checked" />
                                    </c:if>
                             />
-                             value="<bean:message key="global.optout"/>"
+                             <bean:message key="global.optout"/>
                             <input type="button" class="btn btn-link"
                                    name="clearRadio_${consentType.type}_btn"
                                    onclick="consentClearBtn('${consentType.type}')" value="<bean:message key="global.clear"/>" />
@@ -2454,7 +2486,7 @@ if(oscarVariables.getProperty("demographicExtJScript") != null) { out.println(os
 					value="add_record"> <input type="hidden" name="displaymode" value="Add Record">
 				<input type="submit" id="btnAddRecord" name="btnAddRecord" class="btn btn-primary"
 					value="<bean:message key="demographic.demographicaddrecordhtm.btnAddRecord"/>" >
-					<input type="submit" name="submit" value="<bean:message key="demographic.demographicaddrecordhtm.btnSaveAddFamilyMember"/>" class="btn">
+					<input type="submit" name="submit" value="<bean:message key="demographic.demographiceditdemographic.btnSaveAddFamilyMember"/>" class="btn">
 				<input type="button" id="btnSwipeCard" name="Button" class="btn"
 					value="<bean:message key="demographic.demographicaddrecordhtm.btnSwipeCard"/>"
 					onclick="window.open('zadddemographicswipe.htm','', 'scrollbars=yes,resizable=yes,width=600,height=300')";>
@@ -2496,6 +2528,9 @@ if(oscarVariables.getProperty("demographicExtJScript") != null) { out.println(os
 if (privateConsentEnabled) {
 %>
 $(document).ready(function(){
+    $('#roster_to_div').hide();
+    $('#roster_date_div').hide();
+    clearResidence();
 	var countryOfOrigin = $("#countryOfOrigin").val();
 	if("US" != countryOfOrigin) {
 		$("#usSigned").hide();
