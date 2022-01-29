@@ -252,7 +252,8 @@ public class DemographicService extends AbstractServiceImpl {
 		if (demoCust!=null) {
 			result.setNurse(demoCust.getNurse());
 			result.setResident(demoCust.getResident());
-			result.setAlert(demoCust.getBookingAlert());
+			//alert and alert_dismissal tables and code not present in OSCAR 19.5
+			//result.setAlert(demoCust.getBookingAlert());
 			result.setMidwife(demoCust.getMidwife());
 			result.setNotes(demoCust.getNotes());
 		}
@@ -431,7 +432,7 @@ public class DemographicService extends AbstractServiceImpl {
 		if (demoCust!=null) {
 			result.setNurse(demoCust.getNurse());
 			result.setResident(demoCust.getResident());
-			result.setAlert(demoCust.getBookingAlert());
+			//result.setAlert(demoCust.getBookingAlert());
 			result.setMidwife(demoCust.getMidwife());
 			result.setNotes(demoCust.getNotes());
 		}
@@ -640,8 +641,8 @@ public class DemographicService extends AbstractServiceImpl {
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	public DemographicTo1 updateDemographicData(DemographicTo1 data) {
-		//update demographiccust
-		if (data.getNurse()!=null || data.getResident()!=null || data.getAlert()!=null || data.getMidwife()!=null || data.getNotes()!=null) {
+		//update demographiccust but not || data.getAlert()!=null 
+		if (data.getNurse()!=null || data.getResident()!=null || data.getMidwife()!=null || data.getNotes()!=null) {
 			DemographicCust demoCust = demographicManager.getDemographicCust(getLoggedInInfo(),data.getDemographicNo());
 			if (demoCust==null) {
 				demoCust = new DemographicCust();
@@ -649,7 +650,7 @@ public class DemographicService extends AbstractServiceImpl {
 			}
 			demoCust.setNurse(data.getNurse());
 			demoCust.setResident(data.getResident());
-			demoCust.setBookingAlert(data.getAlert());
+			//demoCust.setBookingAlert(data.getAlert());
 			demoCust.setMidwife(data.getMidwife());
 			demoCust.setNotes(data.getNotes());
 			demographicManager.createUpdateDemographicCust(getLoggedInInfo(),demoCust);
