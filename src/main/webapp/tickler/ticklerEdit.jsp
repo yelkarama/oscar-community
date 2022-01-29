@@ -40,6 +40,10 @@
 <%@ page import="org.oscarehr.util.LoggedInInfo" %>
 <%@ page import="org.oscarehr.managers.TicklerManager" %>
 
+<%@ page import="java.text.DateFormat" %>
+<%@ page import="java.text.SimpleDateFormat" %>
+
+
 <%
 	TicklerManager ticklerManager = SpringUtils.getBean(TicklerManager.class);
    	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
@@ -322,8 +326,16 @@
                     <th colspan="2" style="background-color: #666699;color:white;"><bean:message key="tickler.ticklerEdit.serviceDate"/></th>         
                 </tr>
                 <tr>
-                    <td colspan="2"></td>      
-                    <td colspan="2"><bean:message key="tickler.ticklerEdit.calendarLookup"/><input name="xml_appointment_date" type="date" style="height:26px;" maxlength="10" value="<%=t.getServiceDate()%>"/></td>
+                    <td colspan="2"></td>    
+<%
+
+
+DateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd");
+String strDate = dateformat.format(t.getServiceDate());
+
+
+%>  
+                    <td colspan="2"><bean:message key="tickler.ticklerEdit.calendarLookup"/><input name="xml_appointment_date" type="date" style="height:26px;" maxlength="10" value="<%=strDate%>"/></td>
 
                 </tr>
                 <tr>
