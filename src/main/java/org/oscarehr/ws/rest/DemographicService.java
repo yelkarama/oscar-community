@@ -23,7 +23,9 @@
  */
 package org.oscarehr.ws.rest;
 
-//import java.io.IOException;
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -68,7 +70,6 @@ import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.DemographicContact;
 import org.oscarehr.common.model.DemographicCust;
 import org.oscarehr.common.model.DemographicExt;
-import org.oscarehr.common.model.DemographicExt.DemographicProperty;
 import org.oscarehr.common.model.Document;
 import org.oscarehr.common.model.Measurement;
 import org.oscarehr.common.model.ProfessionalSpecialist;
@@ -79,6 +80,7 @@ import org.oscarehr.managers.AllergyManager;
 import org.oscarehr.managers.ConsultationManager;
 import org.oscarehr.managers.DemographicManager;
 import org.oscarehr.managers.DocumentManager;
+import org.oscarehr.managers.FormsManager;
 import org.oscarehr.managers.MeasurementManager;
 import org.oscarehr.managers.NoteManager;
 import org.oscarehr.managers.RxManager;
@@ -157,6 +159,9 @@ public class DemographicService extends AbstractServiceImpl {
 	
 	@Autowired
 	private SecurityInfoManager securityInfoManager;
+	
+	@Autowired
+	private FormsManager formsManager;
 	
 	@Autowired
 	private AllergyManager allergyManager;
@@ -247,7 +252,7 @@ public class DemographicService extends AbstractServiceImpl {
 		if (demoCust!=null) {
 			result.setNurse(demoCust.getNurse());
 			result.setResident(demoCust.getResident());
-			result.setAlert(demoCust.getAlert());
+			result.setAlert(demoCust.getBookingAlert());
 			result.setMidwife(demoCust.getMidwife());
 			result.setNotes(demoCust.getNotes());
 		}
@@ -394,22 +399,100 @@ public class DemographicService extends AbstractServiceImpl {
 		
 		return result;
 	}
-	
+
 	/**
-	 * Returns a shorter summary of the Demographic profile.
-	 * Reduces bandwidth and processing time.
+	 * Gets basic demographic data.
+	 *
+	 * @param id
+	 * 		Id of the demographic to get data for 
+	 * @param includes
+	 * 		An array of strings that include additional information in the returned data
+	 * 		Possible includes are:
+	 * 			- contacts = includes the DemographicContacts in the results	
+	 * @return
+	 * 		Returns data for the demographic provided 
 	 */
 	@GET
-	@Path("/summary/{demographicNo}")
-	@Produces({MediaType.APPLICATION_JSON})
-	public DemographicTo1 getDemographicSummary(@PathParam("demographicNo") Integer demographicNo) {
-		Demographic demographic = demographicManager.getDemographic(getLoggedInInfo(), demographicNo);
-		DemographicExt demographicExt = demographicManager.getDemographicExt(getLoggedInInfo(), demographicNo, DemographicProperty.demo_cell);
-		DemographicTo1 result = demoConverter.getAsTransferObject(getLoggedInInfo(), demographic);
-		if(demographicExt != null) {
-			result.setAlternativePhone(demographicExt.getValue());
+	@Path("/basic/{dataId}")
+	@Produces({MediaType.APPLICATION_JSON , MediaType.APPLICATION_XML})
+	public DemographicTo1 getBasicDemographicData(@PathParam("dataId") Integer id, @QueryParam("includes[]") List<String> includes) throws PatientDirectiveException {
+		Demographic demo = demographicManager.getDemographic(getLoggedInInfo(),id);
+		if (demo == null) return null;
+
+		List<DemographicExt> demoExts = demographicManager.getDemographicExts(getLoggedInInfo(),id);
+		if (demoExts!=null && !demoExts.isEmpty()) {
+			DemographicExt[] demoExtArray = demoExts.toArray(new DemographicExt[demoExts.size()]);
+			demo.setExtras(demoExtArray);
+		}
+
+		DemographicTo1 result = demoConverter.getAsTransferObject(getLoggedInInfo(),demo);
+
+		DemographicCust demoCust = demographicManager.getDemographicCust(getLoggedInInfo(),id);
+		if (demoCust!=null) {
+			result.setNurse(demoCust.getNurse());
+			result.setResident(demoCust.getResident());
+			result.setAlert(demoCust.getBookingAlert());
+			result.setMidwife(demoCust.getMidwife());
+			result.setNotes(demoCust.getNotes());
+		}
+
+		List<WaitingList> waitingList = waitingListDao.search_wlstatus(id);
+		if (waitingList!=null && !waitingList.isEmpty()) {
+			WaitingList wl = waitingList.get(0);
+			result.setWaitingListID(wl.getListId());
+			result.setWaitingListNote(wl.getNote());
+			result.setOnWaitingListSinceDate(wl.getOnListSince());
 		}
 		
+		List<String> patientStatusList = demographicManager.getPatientStatusList();
+		List<String> rosterStatusList = demographicManager.getRosterStatusList();
+		if (patientStatusList!=null) {
+			for (String ps : patientStatusList) {
+				StatusValueTo1 value = new StatusValueTo1(ps);
+				result.getPatientStatusList().add(value);
+			}
+		}
+		if (rosterStatusList!=null) {
+			for (String rs : rosterStatusList) {
+				StatusValueTo1 value = new StatusValueTo1(rs);
+				result.getRosterStatusList().add(value);
+			}
+		}
+
+		// If the contacts are included add Demographic Contacts to the basic results (relationships/healthcareteam/etc)
+		if (includes.contains(CONTACTS)) {
+			List<DemographicContact> demoContacts = demographicManager.getDemographicContacts(getLoggedInInfo(), id);
+			if (demoContacts != null) {
+				for (DemographicContact demoContact : demoContacts) {
+					Integer contactId = Integer.valueOf(demoContact.getContactId());
+					DemographicContactFewTo1 demoContactTo1 = new DemographicContactFewTo1();
+
+					if (demoContact.getCategory().equals(DemographicContact.CATEGORY_PERSONAL)) {
+						if (demoContact.getType() == DemographicContact.TYPE_DEMOGRAPHIC) {
+							Demographic contactD = demographicManager.getDemographic(getLoggedInInfo(), contactId);
+							demoContactTo1 = demoContactFewConverter.getAsTransferObject(demoContact, contactD);
+							if (demoContactTo1.getPhone() == null || demoContactTo1.getPhone().equals("")) {
+								DemographicExt ext = demographicManager.getDemographicExt(getLoggedInInfo(), id, "demo_cell");
+								if (ext != null) demoContactTo1.setPhone(ext.getValue());
+							}
+						} else if (demoContact.getType() == DemographicContact.TYPE_CONTACT) {
+							Contact contactC = contactDao.find(contactId);
+							demoContactTo1 = demoContactFewConverter.getAsTransferObject(demoContact, contactC);
+						}
+						result.getDemoContacts().add(demoContactTo1);
+					} else if (demoContact.getCategory().equals(DemographicContact.CATEGORY_PROFESSIONAL)) {
+						if (demoContact.getType() == DemographicContact.TYPE_PROVIDER) {
+							Provider contactP = providerDao.getProvider(contactId.toString());
+							demoContactTo1 = demoContactFewConverter.getAsTransferObject(demoContact, contactP);
+						} else if (demoContact.getType() == DemographicContact.TYPE_PROFESSIONALSPECIALIST) {
+							ProfessionalSpecialist contactS = specialistDao.find(contactId);
+							demoContactTo1 = demoContactFewConverter.getAsTransferObject(demoContact, contactS);
+						}
+						result.getDemoContactPros().add(demoContactTo1);
+					}
+				}
+			}
+		}
 		return result;
 	}
 
@@ -530,7 +613,7 @@ public class DemographicService extends AbstractServiceImpl {
 					document = documentManager.createDocument(getLoggedInInfo(), document, demographic.getDemographicNo(), documentTo1.getProviderNo(), documentTo1.getFileContents());
 					documentTo1.setId(document.getDocumentNo());
 					responseDocuments.add(documentTo1);
-				} catch (Exception e) {
+				} catch (IOException e) {
 					logger.error("An error has occurred copying the document", e);
 				}
 			}
@@ -566,7 +649,7 @@ public class DemographicService extends AbstractServiceImpl {
 			}
 			demoCust.setNurse(data.getNurse());
 			demoCust.setResident(data.getResident());
-			demoCust.setAlert(data.getAlert());
+			demoCust.setBookingAlert(data.getAlert());
 			demoCust.setMidwife(data.getMidwife());
 			demoCust.setNotes(data.getNotes());
 			demographicManager.createUpdateDemographicCust(getLoggedInInfo(),demoCust);
@@ -763,6 +846,31 @@ public class DemographicService extends AbstractServiceImpl {
 	}
 	
 	@POST
+	@Path("/matchDemographic")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public JSONObject matchDemographic(JSONObject json) {
+		JSONObject responseObject;
+		Calendar dateOfBirth = Calendar.getInstance();
+		String hin = json.getString("hin");
+		String dob = json.getString("dob");
+		try {
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+			dateOfBirth.setTime(sdf.parse(dob));
+
+			responseObject = demographicManager.matchDemographic(getLoggedInInfo(), dateOfBirth, hin);
+		} catch (ParseException e) {
+			logger.warn("Could not parse the provided date of birth: " + dob);
+			responseObject = new JSONObject();
+			responseObject.put("code", "E");
+			responseObject.put("message", "The date of birth could not be correctly read.\nPlease review your information and try again or contact the clinic for further assistance.");
+		}
+		
+		return responseObject;
+	}
+	
+	
+	@POST
 	@Path("/matchDemographicPartial")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -790,7 +898,7 @@ public class DemographicService extends AbstractServiceImpl {
 				
 				response = Response.ok().entity(demographicTs).build();
 			} catch (IllegalArgumentException e) {
-				//e.print Stack Trace();
+				e.printStackTrace();
 				response = Response.status(Response.Status.BAD_REQUEST).entity("The date of birth must be a valid date in the format yyyy-MM-dd. There is an issue with " + e.getMessage()).build();
 			}
 		}
