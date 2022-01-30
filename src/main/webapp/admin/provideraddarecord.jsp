@@ -48,22 +48,31 @@
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
-<%@ page import="java.sql.*, java.util.*, oscar.*" errorPage="errorpage.jsp"%>
-<%@ page import="oscar.log.LogAction,oscar.log.LogConst"%>
-<%@ page import="oscar.log.*, oscar.oscarDB.*"%>
+<%@ page import="java.sql.*, java.util.*" errorPage="errorpage.jsp"%>
+<%@ page import="java.util.regex.Pattern" %>
 
-<%@page import="org.oscarehr.common.dao.SiteDao"%>
-<%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
-<%@page import="org.oscarehr.common.model.Site"%>
+<%@ page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
 
-<%@ page import="org.apache.commons.lang.StringEscapeUtils,oscar.oscarProvider.data.ProviderBillCenter"%>
+<%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 
+<%@ page import="oscar.*"%>
+<%@ page import="oscar.log.LogAction"%>
+<%@ page import="oscar.log.LogConst"%>
+<%@ page import="oscar.log.*"%>
+<%@ page import="oscar.oscarDB.*"%>
+<%@ page import="oscar.oscarProvider.data.ProviderBillCenter"%>
+
+
+<%@ page import="org.oscarehr.common.model.Site"%>
+<%@ page import="org.oscarehr.common.dao.SiteDao"%>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.Provider" %>
 <%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
-<%@page import="org.oscarehr.common.model.ProviderSite"%>
-<%@page import="org.oscarehr.common.model.ProviderSitePK"%>
-<%@page import="org.oscarehr.common.dao.ProviderSiteDao"%>
+<%@ page import="org.oscarehr.common.model.ProviderSite"%>
+<%@ page import="org.oscarehr.common.model.ProviderSitePK"%>
+<%@ page import="org.oscarehr.common.dao.ProviderSiteDao"%>
+
 <%
 	ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
 	ProviderSiteDao providerSiteDao = SpringUtils.getBean(ProviderSiteDao.class);
@@ -73,18 +82,16 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="admin.provideraddrecord.title" /></title>
-<link rel="stylesheet" href="../web.css">
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+
 </head>
 
 <body bgproperties="fixed" topmargin="0" leftmargin="0" rightmargin="0">
-<center>
-<table border="0" cellspacing="0" cellpadding="0" width="100%">
-	<tr bgcolor="#486ebd">
-		<th><font face="Helvetica" color="#FFFFFF">
-			<bean:message key="admin.provideraddrecord.description" />
-		</font></th>
-	</tr>
-</table>
+<div class="span12">
+    <div  id="header"><H3><bean:message key="admin.provideraddrecord.description" /></H3>
+    </div>
+</div>
+
 <%
 boolean isOk = false;
 int retry = 0;
@@ -184,12 +191,20 @@ DBPreparedHandler dbObj = new DBPreparedHandler();
   	p.setProviderNo(dbObj.getNewProviderNo());
   }
   
+  
+  Pattern pattern = Pattern.compile("[<>/\";&]");
   if(providerDao.providerExists(p.getProviderNo())) {
 	  isOk=false;
 	  alreadyExists=true;
-  } else {
-  	providerDao.saveProvider(p);
- 	 isOk=true;
+  } else if(pattern.matcher(p.getLastName()).find()) {
+	  isOk = false;
+  } else if ((StringUtils.isNumeric(p.getProviderNo()) ||
+		  (StringUtils.isNotEmpty(p.getProviderNo())) && p.getProviderNo().equals("-new-")) &&
+  			StringUtils.isNotEmpty(p.getLastName()) &&
+  			StringUtils.isNotEmpty(p.getFirstName()) &&
+  			StringUtils.isNotEmpty(p.getProviderType())) {
+		providerDao.saveProvider(p);
+		isOk = true;
   }
 
 if (isOk && org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) {
@@ -211,15 +226,24 @@ if (isOk) {
 	billCenter.addBillCenter(request.getParameter("provider_no"),request.getParameter("billcenter"));
 
 %>
-<h1><bean:message key="admin.provideraddrecord.msgAdditionSuccess" />
-</h1>
+<p>
+<div class="alert alert-success">
+    <h4><bean:message key="admin.provideraddrecord.msgAdditionSuccess" />
+    </h4>
+</div>
 <%
   } else {
 %>
-<h1><bean:message key="admin.provideraddrecord.msgAdditionFailure" /></h1>
+<div class="alert alert-error" >
+    <h4><bean:message key="admin.provideraddrecord.msgAdditionFailure" /></h4>
+</div>
 <%
 	if(alreadyExists) {
-		%><h2><bean:message key="admin.provideraddrecord.msgAlreadyExists" /></h2><%
+        %>
+        <div class="alert alert-error" >
+		    <h4><bean:message key="admin.provideraddrecord.msgAlreadyExists" /></h4>
+        </div>
+        <%
 	}
 
   }
@@ -227,8 +251,12 @@ if (isOk) {
 else {
 		if 	(!isProviderFormalize) {
 	%>
+        <div class="alert alert-error" >
 		<h1><bean:message key="<%=errMsgProviderFormalize%>" /> </h1>
+        </div>
+        <div class="alert alert-info">
 		Provider # range from : <%=min_value %> To : <%=max_value %>
+        </div>
 	<%
 		}
 	}
