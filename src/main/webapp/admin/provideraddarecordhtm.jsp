@@ -67,7 +67,7 @@
   }
 
   String suggestProviderNo = "";
-  for (Integer i=1; i<1000000; i++) {
+  for (Integer i=100; i<1000000; i++) {
       if (!providerList.contains(i)) {
           suggestProviderNo = i.toString();
           break;
