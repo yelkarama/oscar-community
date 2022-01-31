@@ -69,19 +69,10 @@ if(!authed) {
 %>
 <html:html locale="true">
 <head>
-<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="admin.providerupdate.title" /></title>
-</head>
-<link rel="stylesheet" href="../web.css" />
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 
-<body bgproperties="fixed" topmargin="0" leftmargin="0" rightmargin="0">
-<center>
-<table border="0" cellspacing="0" cellpadding="0" width="100%">
-	<tr bgcolor="#486ebd">
-		<th><font face="Helvetica" color="#FFFFFF"><bean:message
-			key="admin.providerupdate.description" /></font></th>
-	</tr>
-</table>
+</head>
 
 <%
   ProviderBillCenter billCenter = new ProviderBillCenter();
@@ -204,9 +195,10 @@ if(!authed) {
 		 
 		  String clinicalConnectId = request.getParameter("clinicalConnectId");
 		  String clinicalConnectType = request.getParameter("clinicalConnectType");
-		  
-		  userPropertyDAO.saveProp(provider.getProviderNo(), UserProperty.CLINICALCONNECT_ID, clinicalConnectId);
-		  userPropertyDAO.saveProp(provider.getProviderNo(), UserProperty.CLINICALCONNECT_TYPE, clinicalConnectType);
+          if( clinicalConnectId != null &&  !clinicalConnectId.equals("")){	  
+		      userPropertyDAO.saveProp(provider.getProviderNo(), UserProperty.CLINICALCONNECT_ID, clinicalConnectId);
+		      userPropertyDAO.saveProp(provider.getProviderNo(), UserProperty.CLINICALCONNECT_TYPE, clinicalConnectType);
+            }
                   
                   if(OscarProperties.getInstance().getBooleanProperty("questimed.enabled", "true")) {
                     String questimedUserName = request.getParameter("questimedUserName");
@@ -263,13 +255,18 @@ if(!authed) {
 		LogAction.addChangeLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.UPDATE, "adminUpdateUser", keyword, changedFields);
 %>
 <p>
-<h2><bean:message key="admin.providerupdate.msgUpdateSuccess" />
-<a href="providerupdateprovider.jsp?keyword=<%=request.getParameter("provider_no")%>"><%= request.getParameter("provider_no") %></a>
-</h2>
+<div class="alert alert-success">
+    <h4><bean:message key="admin.providerupdate.msgUpdateSuccess" /><a href="providerupdateprovider.jsp?keyword=<%=request.getParameter("provider_no")%>"><%= request.getParameter("provider_no") %></a>
+    </h4>
+</div>
+
 <%
   } else {
 %>
-<h1><bean:message key="admin.providerupdate.msgUpdateFailure" /><%= request.getParameter("provider_no") %>.</h1>
+<div class="alert alert-error" >
+<h4><bean:message key="admin.providerupdate.msgUpdateFailure" />
+<%= request.getParameter("provider_no") %>.</h4>
+</div>
 <%
   }
 }
@@ -277,8 +274,10 @@ else {
 	if (!isProviderFormalize) {
 		//output ProviderFormalize error message
 	%>
-		<h1><bean:message key="<%=errMsgProviderFormalize%>" />  </h1>
+<div class="alert alert-error" >
+		<h4><bean:message key="<%=errMsgProviderFormalize%>" />  </h4>
 		Provider # range from : <%=min_value %> To : <%=max_value %>
+</div>
 	<%
 	}
 }
