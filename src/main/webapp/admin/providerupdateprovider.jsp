@@ -420,9 +420,9 @@ for (int i=0; i<sites.size(); i++) {
 <div id="registrationNumbers">
     <div class="control-group span5">
         <label class="control-label" for="practitionerNo"><bean:message 
-                key="admin.provider.formCPSID" />#<span style="color:red">*</span></label>
+                key="admin.provider.formCPSID" />#</label>
         <div class="controls">
-		    <input type="text" name="practitionerNo" id="practitionerNo" required="required"  maxlength="20"
+		    <input type="text" name="practitionerNo" id="practitionerNo" maxlength="20"
 		    value="<%= provider.getPractitionerNo()==null ? "" : Encode.forHtmlAttribute(provider.getPractitionerNo()) %>"    
                 pattern="\d{1,20}" 
                 data-validation-pattern-message="<bean:message 
