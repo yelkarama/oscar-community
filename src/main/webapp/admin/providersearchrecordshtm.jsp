@@ -54,8 +54,10 @@
 
 <html:html locale="true">
 <head>
-<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 <title><bean:message key="admin.providersearchrecordshtm.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <link rel="stylesheet" href="../web.css">
 <script LANGUAGE="JavaScript">
     <!--
@@ -77,42 +79,62 @@
 
     //-->
     </script>
+	<style>
+		.small-blue-text {
+			font-size: x-small;
+			font-family: Verdana, serif;
+			color: #0000FF;
+		}
+	</style>
 </head>
 
 <body onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
+<h4>
+<i class="icon-search" title="Patient Search"></i>&nbsp;<bean:message key="admin.providersearchrecordshtm.description" /></h4>
 
-<center>
-<table border="0" cellspacing="0" cellpadding="0" width="100%">
-	<tr bgcolor="#486ebd">
-		<th align="CENTER"><font face="Helvetica" color="#FFFFFF"><bean:message
-			key="admin.providersearchrecordshtm.description" /></font></th>
-	</tr>
-</table>
 
-<table cellspacing="0" cellpadding="2" width="100%" border="0"
-	BGCOLOR="#C4D9E7">
+<table cellspacing="0" cellpadding="2" width="100%" border="0" class="table-condensed">
 
 	<form method="post" action="providersearchresults.jsp" name="searchprovider"	onsubmit="return onsub()">
 	<tr valign="top">
-		<td rowspan="2" align="right" valign="middle"><font	face="Verdana" color="#0000FF">
-			<b><i><bean:message key="admin.search.formSearchCriteria" /></i></b></font></td>
-		<td nowrap><font size="1" face="Verdana" color="#0000FF">
-			<input type="radio" checked name="search_mode" value="search_name" onclick="document.forms['searchprovider'].keyword.focus();">
-			<bean:message key="admin.providersearch.formLastName" /></font></td>
-		<td nowrap><font size="1" face="Verdana" color="#0000FF">
-			<input type="radio" name="search_mode" value="search_providerno" onclick="document.forms['searchprovider'].keyword.focus();">
-			<bean:message key="admin.providersearch.formNo" /></font></td>
-		<td nowrap><font size="1" face="Verdana" color="#0000FF">
-			<input type="checkbox" name="search_status" value="1">
-			<bean:message key="admin.providersearch.formActiveStatus" /><br />
-			<input type="checkbox" name="search_status" value="0">
-			<bean:message key="admin.providersearch.formInactiveStatus" /> </font></td>
-		<td valign="middle" rowspan="2" ALIGN="left"><input type="text"	NAME="keyword" SIZE="17" MAXLENGTH="100"> 
-			<INPUT TYPE="hidden" NAME="orderby" VALUE="last_name"> 
+		<td rowspan="2" align="right" valign="middle">
+			<b class="blue-text"><i><bean:message key="admin.search.formSearchCriteria" /></i></b>
+		</td>
+		<td nowrap>
 
-			<INPUT TYPE="hidden" NAME="limit1" VALUE="0"> <INPUT TYPE="hidden" NAME="limit2" VALUE="10"> 
+				<input type="radio" checked="checked" name="search_mode"
+					   value="search_name" onclick="document.forms['searchprovider'].keyword.focus();">
+				<bean:message key="admin.providersearch.formLastName" />
+
+		</td>
+		<td nowrap>
+
+				<input type="radio"	name="search_mode" 
+					   value="search_providerno" onclick="document.forms['searchprovider'].keyword.focus();">
+				<bean:message key="admin.providersearch.formNo" />
+
+		</td>
+		<td nowrap>
+
+				<input type="radio" name="search_status" value="All">
+				<bean:message key="admin.providersearch.formAllStatus" />
+            <br/>
+
+				<input type="radio" name="search_status" value="1" checked="checked">
+				<bean:message key="admin.providersearch.formActiveStatus" />
+			<br/>
 			
-			<INPUT TYPE="SUBMIT" NAME="button" VALUE=<bean:message key="admin.search.btnSubmit"/> SIZE="17"></td>
+				<input type="radio" name="search_status" value="0">
+				<bean:message key="admin.providersearch.formInactiveStatus" />
+			
+		</td>
+		<td valign="middle" rowspan="2" ALIGN="left">
+			<input type="text" NAME="keyword" SIZE="17" MAXLENGTH="100">
+			<INPUT TYPE="hidden" NAME="orderby" VALUE="last_name">
+			<INPUT TYPE="hidden" NAME="limit1" VALUE="0">
+			<INPUT TYPE="hidden" NAME="limit2" VALUE="10">
+			<INPUT TYPE="SUBMIT" NAME="button" class="btn btn-primary" VALUE=<bean:message key="admin.search.btnSubmit"/> SIZE="17">
+		</td>
 	</tr>
 	</form>
 </table>
