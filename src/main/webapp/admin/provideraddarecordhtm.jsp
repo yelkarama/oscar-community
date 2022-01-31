@@ -296,7 +296,7 @@ for (int i=0; i<sites.size(); i++) {
         </div>
     </div>
     <div class="control-group span5">
-        <label class="control-label" for="first_name"><bean:message 
+        <label class="control-label" for="status"><bean:message 
                 key="admin.provider.formStatus" /><span style="color:red">*</span></label>
         <div class="controls">
 		    <input type="radio" id="statusActive" name="status" value="1" checked><bean:message key="admin.provider.formStatusActive"/>&nbsp;&nbsp;
@@ -373,12 +373,17 @@ for (int i=0; i<sites.size(); i++) {
 					<%
 						LookupListManager lookupListManager = SpringUtils.getBean(LookupListManager.class);
 						LookupList ll = lookupListManager.findLookupListByName(LoggedInInfo.getLoggedInInfoFromSession(request), "practitionerNoType");
-						for(LookupListItem llItem : ll.getItems()) {
-							%>
-								<option value="<%=llItem.getValue()%>"><%=llItem.getLabel()%></option>
-							<%
-						}
-					
+                        if(ll != null) {
+						    for(LookupListItem llItem : ll.getItems()) {
+							    %>
+								    <option value="<%=llItem.getValue()%>"><%=llItem.getLabel()%></option>
+							    <%
+						    }
+                        } else {
+							%>						
+							<option value="" ><bean:message key="global.missing" /></option>
+						    <%
+						}					
 					%>
 			</select>
             <p class="help-block"></p>
@@ -594,7 +599,7 @@ for (int i=0; i<sites.size(); i++) {
         <label class="control-label" for="phone"><bean:message 
 				key="admin.provider.formHomePhone" /></label>
         <div class="controls">
-            <input type="text" name="phone" maxlength="20" onblur="formatPhone(this);"></td>
+            <input type="text" name="phone" maxlength="20" onblur="formatPhone(this);">
             <p class="help-block"></p>
         </div>
     </div>
@@ -655,8 +660,8 @@ for (int i=0; i<sites.size(); i++) {
     </div>
 		<input type="hidden" name="provider_activity" value="">
 		
-		<input type="hidden" name="xml_p_slpusername"></td>
-		<input type="hidden" name="xml_p_slppassword"></td>
+		<input type="hidden" name="xml_p_slpusername">
+		<input type="hidden" name="xml_p_slppassword">
 
 			
  </div>
