@@ -173,14 +173,14 @@
 </script>
 </head>
 
-<body onLoad="setfocus('user_name')" topmargin="0" leftmargin="0" rightmargin="0">
+<body onLoad="" topmargin="0" leftmargin="0" rightmargin="0">
 <div class="span9">
     <div id="header"><H4><i class="icon-lock"></i>&nbsp;<bean:message
 			key="admin.securityaddarecord.description" /></H4>
     </div>
 </div>
 
-<form method="post" action="securityaddsecurity.jsp" name="searchprovider" 
+<form method="post" action="securityaddsecurity.jsp" name="searchprovider" autocomplete="off"
 	novalidate>
 <table width="400px" align="center">
 <tr><td >
@@ -201,7 +201,7 @@
                 key="admin.securityrecord.formPassword" /><span style="color:red">*</span></label>
         <div class="controls">
 		    <input type="password" 
-            autocomplete="off" name="password" required ="required" 
+            autocomplete="new-password" name="password" required ="required" 
             data-validation-required-message='<bean:message key="admin.securityrecord.formPassword" /> <bean:message key="admin.securityrecord.msgIsRequired"/>'
             data-validation-compexity-regex="(?=.*\d)(?=.*[a-z])(?=.*[\W]).*" 
             data-validation-compexity-message="<bean:message key="password.policy.violation.msgPasswordStrengthError"/> 
