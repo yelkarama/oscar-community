@@ -385,7 +385,7 @@ for (int i=0; i<sites.size(); i++) {
         <label class="control-label" for="practitionerNoType"><bean:message 
                 key="admin.provider.formCPSIDType" /></label>
         <div class="controls">
-		    <select name="practitionerNoType" id="practitionerNoType" onchange="if (this.value==''){$('#registrationNumbers').hide()}else{$('#registrationNumbers').show();}">
+		    <select name="practitionerNoType" id="practitionerNoType" >
 					<option value="">- <bean:message key="admin.provider.formCPSIDType" /> -</option>
 					<%
 						LookupListManager lookupListManager = SpringUtils.getBean(LookupListManager.class);
@@ -424,13 +424,12 @@ for (int i=0; i<sites.size(); i++) {
         <div class="controls">
 		    <input type="text" name="practitionerNo" id="practitionerNo" maxlength="20"
 		    value="<%= provider.getPractitionerNo()==null ? "" : Encode.forHtmlAttribute(provider.getPractitionerNo()) %>"    
-                pattern="\d{1,20}" 
+                pattern="\d{0,20}" 
                 data-validation-pattern-message="<bean:message 
                 key="admin.provider.formPractitionerNo" /> <bean:message 
                 key="oscarEncounter.oscarMeasurements.MeasurementsAction.mustBe" />  <bean:message 
                 key="oscarEncounter.oscarMeasurements.MeasurementsAction.numericValue" />" 
-                data-validation-required-message="<bean:message key="global.missing" /> <bean:message 
-                key="admin.provider.formPractitionerNo" />"> 
+                > 
             <p class="help-block"></p>
         </div>
     </div>
