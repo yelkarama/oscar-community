@@ -112,7 +112,7 @@ if(!authed) {
 
       </script>
 </head>
-<body bgcolor="ivory" onLoad="setfocus()" style="margin: 0px">
+<body>
 <div width="100%">
     <div id="header"><H4><i class="icon-unlock"></i>&nbsp;<bean:message key="admin.admin.unlockAcct" /></H4>
     </div>
