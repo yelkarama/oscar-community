@@ -125,7 +125,7 @@ if(!authed) {
         </div>
 <% } %>
         <div class="well" >
-<b><bean:message key="admin.admin.provider" /></b>
+<b><bean:message key="admin.providersearchresults.ID" /></b>
         <select name="userName">
 			<% for(int i=0; i<vec.size(); i++) { %>
 			<option value="<%=(String) vec.get(i) %>"><%=(String) vec.get(i) %></option>
