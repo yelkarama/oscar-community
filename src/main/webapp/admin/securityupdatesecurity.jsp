@@ -150,7 +150,7 @@
 </head>
 
 <body onLoad="" topmargin="0" leftmargin="0" rightmargin="0">
-<div class="span9">
+<div width="100%">
     <div id="header"><H4><i class="icon-lock"></i>&nbsp;<bean:message
 			key="admin.securityupdatesecurity.description" /></H4>
     </div>
