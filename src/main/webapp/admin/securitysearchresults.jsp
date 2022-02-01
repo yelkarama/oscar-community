@@ -28,7 +28,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
-<%@ page import="java.sql.*, java.util.*, oscar.*" buffer="none" errorPage="errorpage.jsp"%>
+<%@ page import="java.sql.*, java.util.*, oscar.*" buffer="none"%>
 	
 <%@ page import="java.util.*" %>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
@@ -36,6 +36,7 @@
 <%@ page import="org.oscarehr.common.dao.SecurityDao" %>
 <%@ page import="org.oscarehr.common.model.UserProperty" %>
 <%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
     
@@ -67,8 +68,10 @@
 
 <html:html locale="true">
 <head>
-<script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script>
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 <title><bean:message key="admin.securitysearchresults.title" /></title>
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
 <c:set var="ctx" value="${pageContext.request.contextPath}"
 	scope="request" />
 <link rel="stylesheet" href="../web.css" />
@@ -96,13 +99,11 @@
 
 
 <body onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
-<center>
-<table border="0" cellspacing="0" cellpadding="0" width="100%">
-	<tr bgcolor="#486ebd">
-		<th align="CENTER"><font face="Helvetica" color="#FFFFFF"><bean:message
-			key="admin.securitysearchresults.description" /></font></th>
-	</tr>
-</table>
+
+<h4>
+<i class="icon-search" title=""></i>&nbsp;<bean:message key="admin.securitysearchresults.description" /></h4>
+<div class="well">
+<table cellspacing="0" cellpadding="2" width="100%" border="0" class="table-condensed">
 
 <%--@ include file="zprovidertitlesearch.htm" --%>
 <table cellspacing="0" cellpadding="0" width="100%" border="0"
@@ -110,38 +111,33 @@
 
 	<form method="post" action="securitysearchresults.jsp" name="searchprovider">
 	<tr valign="top">
-		<td rowspan="2" align="right" valign="middle"><font
-			face="Verdana" color="#0000FF"><b><i><bean:message
-			key="admin.search.formSearchCriteria" /></i></b></font></td>
-		<td nowrap><font size="1" face="Verdana" color="#0000FF">
-		<input type="radio" name="search_mode" value="search_username"><bean:message
-			key="admin.securityrecord.formUserName" /></font></td>
-		<td nowrap><font size="1" face="Verdana" color="#0000FF">
+		<td rowspan="2" align="right" valign="middle"><b><i><bean:message
+			key="admin.securitysearchrecordshtm.msgCriteria" /></i></b>&nbsp;&nbsp;</td>
+		<td nowrap>
+		<input type="radio" name="search_mode" value="search_username">
+		<bean:message key="admin.securityrecord.formUserName" /></td>
+
+		<td nowrap>
 		<input type="radio" checked name="search_mode"
-			value="search_providerno"><bean:message
-			key="admin.securityrecord.formProviderNo" /></font></td>
+			value="search_providerno"> <bean:message
+			key="admin.securityrecord.formProviderNo" /></td>
 		<td valign="middle" rowspan="2" ALIGN="left"><input type="text"
 			NAME="keyword" SIZE="17" MAXLENGTH="100"> <INPUT
 			TYPE="hidden" NAME="orderby" VALUE="user_name"> 
 
-		<INPUT TYPE="hidden" NAME="limit1" VALUE="0"> <INPUT
-			TYPE="hidden" NAME="limit2" VALUE="10"> <INPUT
-			TYPE="SUBMIT" NAME="button"
-			VALUE='<bean:message key="admin.search.btnSubmit"/>' SIZE="17"></td>
-	</tr>
-	<tr>
-		<td nowrap><font size="1" face="Verdana" color="#0000FF"><bean:message
-			key="admin.securitysearchresults.reserved" /></font></td>
-		<td nowrap><font size="1" face="Verdana" color="#0000FF">
-		</font></td>
+		<INPUT TYPE="hidden" NAME="limit1" VALUE="0"> 
+        <INPUT TYPE="hidden" NAME="limit2" VALUE="10">
+        <INPUT TYPE="SUBMIT" NAME="button" class="btn btn-primary"
+			VALUE="<bean:message key="admin.securitysearchrecordshtm.btnSearch"/>"
+			SIZE="17"></td>
 	</tr>
 	</form>
 </table>
-
+</div>
 <table width="100%" border="0">
 	<tr>
 		<td align="left"><i><bean:message key="admin.search.keywords" /></i>:
-		<%=request.getParameter("keyword")%> &nbsp; <%
+		<%=Encode.forHtmlContent(request.getParameter("keyword"))%> &nbsp; <%
 		boolean enc=false;
 		UserProperty prop = userPropertyDao.getProp("IS_PIN_ENCRYPTED");
 		if(prop == null) {
@@ -159,8 +155,7 @@
 	</tr>
 </table>
 <CENTER>
-<table width="100%" cellspacing="0" cellpadding="2" border="1"
-	bgcolor="#ffffff">
+<table width="100%" cellspacing="0" cellpadding="2" border="1" class="table table-bordered table-hover table-striped table-condensed">
 	<tr bgcolor="#339999">
 		<TH align="center" width="20%"><b><bean:message
 			key="admin.securityrecord.formUserName" /></b></TH>
@@ -196,7 +191,7 @@
 
 	<tr bgcolor="<%=toggleLine?"ivory":"white"%>">
 
-		<td><a href='securityupdatesecurity.jsp?keyword=<%=securityRecord.getId()%>'><%= securityRecord.getUserName() %></a></td>
+		<td><a href='securityupdatesecurity.jsp?keyword=<%=securityRecord.getId()%>'><%= Encode.forHtmlContent(securityRecord.getUserName()) %></a></td>
 		<td nowrap>*********</td>
 		<td align="center"><%= securityRecord.getProviderNo() %></td>
 		<td align="center">****</td>
