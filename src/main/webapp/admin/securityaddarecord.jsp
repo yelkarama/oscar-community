@@ -63,6 +63,7 @@
 <%@page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
 <%@page import="org.oscarehr.common.model.Security" %>
 <%@page import="org.oscarehr.common.dao.SecurityDao" %>
+<%@page import="com.quatro.web.admin.SecurityAddSecurityHelper"%>
 <%
 	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 	SecurityDao securityDao = SpringUtils.getBean(SecurityDao.class);
@@ -171,16 +172,30 @@
 	}
 //-->
 </script>
+
+
+
 </head>
 
 <body onLoad="" topmargin="0" leftmargin="0" rightmargin="0">
-<div class="span9">
+<div width="100%">
     <div id="header"><H4><i class="icon-lock"></i>&nbsp;<bean:message
 			key="admin.securityaddarecord.description" /></H4>
     </div>
 </div>
 
-<form method="post" action="securityaddsecurity.jsp" name="searchprovider" autocomplete="off"
+<%
+    String sPass = request.getParameter("password");
+    if ( sPass != null && sPass != "" ){
+    SecurityAddSecurityHelper helper = new SecurityAddSecurityHelper();
+	helper.addProvider(pageContext);
+%>
+<div class="alert alert-info" >
+    <strong><bean:message key="${message}" /><strong>
+</div>
+<% } %>
+
+<form method="post" action="securityaddarecord.jsp" name="searchprovider" autocomplete="off"
 	novalidate>
 <table width="400px" align="center">
 <tr><td >
