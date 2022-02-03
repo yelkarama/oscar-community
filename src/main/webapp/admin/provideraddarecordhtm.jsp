@@ -23,29 +23,57 @@
     Ontario, Canada
 
 --%>
-<%@page import="org.oscarehr.common.model.LookupListItem"%>
-<%@page import="org.oscarehr.common.model.LookupList"%>
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
-<%@page import="org.oscarehr.managers.LookupListManager"%>
+
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/caisi-tag.tld" prefix="caisi"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 
+<%@ page import="java.util.*"%>
+<%@ page import="java.util.regex.Pattern" %>
+<%@ page import="java.sql.*" errorPage="errorpage.jsp"%>
+
+<%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
+
+<%@ page import="oscar.oscarProvider.data.*"%>
+<%@ page import="oscar.OscarProperties"%>
+<%@ page import="oscar.*"%>
+<%@ page import="oscar.log.LogAction"%>
+<%@ page import="oscar.log.LogConst"%>
+<%@ page import="oscar.log.*"%>
+<%@ page import="oscar.oscarDB.*"%>
+<%@ page import="oscar.oscarProvider.data.ProviderBillCenter"%>
+<%@ page import="org.oscarehr.util.SpringUtils" %>
+
+<%@ page import="org.oscarehr.common.model.ProviderSite"%>
+<%@ page import="org.oscarehr.common.model.ProviderSitePK"%>
+<%@ page import="org.oscarehr.common.dao.ProviderSiteDao"%>
+<%@ page import="org.oscarehr.common.dao.SiteDao"%>
+<%@ page import="org.oscarehr.common.model.Site"%>
+<%@ page import="org.oscarehr.common.model.Provider" %>
+<%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
+<%@ page import="org.oscarehr.common.dao.ProviderDataDao"%>
+<%@ page import="org.oscarehr.common.model.ProviderData"%>
+<%@ page import="org.oscarehr.common.model.LookupListItem"%>
+<%@ page import="org.oscarehr.common.model.LookupList"%>
 <%@ page import="org.oscarehr.common.model.ClinicNbr"%>
 <%@ page import="org.oscarehr.common.dao.ClinicNbrDao"%>
 <%@ page import="org.oscarehr.util.SpringUtils"%>
-<%@ page import="java.util.*,oscar.oscarProvider.data.*"%>
-<%@ page import="oscar.OscarProperties"%>
-<%@ page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
-<%@ page import="org.oscarehr.common.dao.SiteDao"%>
-<%@ page import="org.oscarehr.common.model.Site"%>
-<%@ page import="org.oscarehr.common.dao.ProviderDataDao"%>
-<%@page  import="org.oscarehr.common.model.ProviderData"%>
+<%@ page import="org.oscarehr.util.LoggedInInfo"%>
+<%@ page import="org.oscarehr.managers.LookupListManager"%>
+<%@ page import="org.oscarehr.common.Gender" %>
+
 <%@ page import="org.owasp.encoder.Encode" %>
 
-<%@page import="org.oscarehr.common.Gender" %>
+
+
 <%
+	ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
+	ProviderSiteDao providerSiteDao = SpringUtils.getBean(ProviderSiteDao.class);
+	boolean alreadyExists=false;
+
 
   String curProvider_no,userfirstname,userlastname;
   curProvider_no = (String) session.getAttribute("user");
@@ -99,6 +127,8 @@
 	%>
 </security:oscarSec>
 <html:html locale="true">
+
+
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
@@ -188,13 +218,192 @@ function upCaseCtrl(ctrl) {
 <body onLoad="$('#registrationNumbers').hide();$('#provider_type_div').hide();$('#contact_div').hide();" topmargin="0" leftmargin="0" rightmargin="0">
 
 
-<div class="span12">
+<div width="100%">
     <div id="header"><H4><bean:message
 			key="admin.provideraddrecordhtm.description" /></H4>
     </div>
 </div>
 
-<form method="post" action="provideraddarecord.jsp" name="searchprovider"  novalidate >
+<%
+    String sName = request.getParameter("last_name");
+    if ( sName != null && sName != "" ){
+
+
+boolean isOk = false;
+int retry = 0;
+String curUser_no = (String)session.getAttribute("user");
+
+Provider p = new Provider();
+p.setProviderNo(request.getParameter("provider_no"));
+p.setLastName(request.getParameter("last_name"));
+p.setFirstName(request.getParameter("first_name"));
+p.setProviderType(request.getParameter("provider_type"));
+p.setSpecialty(request.getParameter("specialty"));
+p.setTeam(request.getParameter("team"));
+p.setSex(request.getParameter("sex"));
+p.setDob(MyDateFormat.getSysDate(request.getParameter("dob")));
+p.setAddress(request.getParameter("address"));
+p.setPhone(request.getParameter("phone"));
+p.setWorkPhone(request.getParameter("workphone"));
+p.setEmail(request.getParameter("email"));
+p.setOhipNo(request.getParameter("ohip_no"));
+p.setRmaNo(request.getParameter("rma_no"));
+p.setBillingNo(request.getParameter("billing_no"));
+p.setHsoNo(request.getParameter("hso_no"));
+p.setStatus(request.getParameter("status"));
+p.setComments(SxmlMisc.createXmlDataString(request,"xml_p"));
+p.setProviderActivity(request.getParameter("provider_activity"));
+p.setPractitionerNo(request.getParameter("practitionerNo"));
+p.setPractitionerNoType(request.getParameter("practitionerNoType"));
+p.setLastUpdateUser((String)session.getAttribute("user"));
+p.setLastUpdateDate(new java.util.Date());
+p.setSupervisor(request.getParameter("supervisor"));
+p.setSignedConfidentiality(MyDateFormat.getSysDate(request.getParameter("confidentiality")));
+
+//multi-office provide id formalize check, can be turn off on properties multioffice.formalize.provider.id
+boolean isProviderFormalize = true;
+String  errMsgProviderFormalize = "admin.provideraddrecord.msgAdditionFailure";
+Integer min_value = 0;
+Integer max_value = 0;
+
+if (org.oscarehr.common.IsPropertiesOn.isProviderFormalizeEnable()) {
+
+	String StrProviderId = request.getParameter("provider_no");
+	OscarProperties props = OscarProperties.getInstance();
+
+	String[] provider_sites = {};
+
+	// get provider id ranger
+	if (request.getParameter("provider_type").equalsIgnoreCase("doctor")) {
+		//provider is doctor, get provider id range from Property
+		min_value = new Integer(props.getProperty("multioffice.formalize.doctor.minimum.provider.id", ""));
+		max_value = new Integer(props.getProperty("multioffice.formalize.doctor.maximum.provider.id", ""));
+	}
+	else {
+		//non-doctor role
+		provider_sites = request.getParameterValues("sites");
+		provider_sites = (provider_sites == null ? new String[] {} : provider_sites);
+
+		if (provider_sites.length > 1) {
+			//non-doctor can only have one site
+			isProviderFormalize = false;
+			errMsgProviderFormalize = "admin.provideraddrecord.msgFormalizeProviderIdMultiSiteFailure";
+		}
+		else {
+			if (provider_sites.length == 1) {
+				//get provider id range from site
+				String provider_site_id =  provider_sites[0];
+				SiteDao siteDao = (SiteDao)WebApplicationContextUtils.getWebApplicationContext(application).getBean("siteDao");
+				Site provider_site = siteDao.getById(new Integer(provider_site_id));
+				min_value = provider_site.getProviderIdFrom();
+				max_value = provider_site.getProviderIdTo();
+			}
+		}
+	}
+	if (isProviderFormalize) {
+		try {
+			    Integer providerId = Integer.parseInt(StrProviderId);
+			    if (request.getParameter("provider_type").equalsIgnoreCase("doctor") ||  provider_sites.length == 1) {
+				    if  (!(providerId >= min_value && providerId <=max_value)) {
+				    	// providerId is not in the range
+						isProviderFormalize = false;
+						errMsgProviderFormalize = "admin.provideraddrecord.msgFormalizeProviderIdFailure";
+				    }
+			    }
+		} catch(NumberFormatException e) {
+			//providerId is not a number
+			isProviderFormalize = false;
+			errMsgProviderFormalize = "admin.provideraddrecord.msgFormalizeProviderIdFailure";
+		}
+	}
+}
+
+if (!org.oscarehr.common.IsPropertiesOn.isProviderFormalizeEnable() || isProviderFormalize) {
+
+DBPreparedHandler dbObj = new DBPreparedHandler();
+
+  // check if the provider no need to be auto generated
+  if (OscarProperties.getInstance().isProviderNoAuto())
+  {
+  	p.setProviderNo(dbObj.getNewProviderNo());
+  }
+  
+  
+  Pattern pattern = Pattern.compile("[<>/\";&]");
+  if(providerDao.providerExists(p.getProviderNo())) {
+	  isOk=false;
+	  alreadyExists=true;
+  } else if(pattern.matcher(p.getLastName()).find()) {
+	  isOk = false;
+  } else if ((StringUtils.isNumeric(p.getProviderNo()) ||
+		  (StringUtils.isNotEmpty(p.getProviderNo())) && p.getProviderNo().equals("-new-")) &&
+  			StringUtils.isNotEmpty(p.getLastName()) &&
+  			StringUtils.isNotEmpty(p.getFirstName()) &&
+  			StringUtils.isNotEmpty(p.getProviderType())) {
+		providerDao.saveProvider(p);
+		isOk = true;
+  }
+
+if (isOk && org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) {
+	String[] sites = request.getParameterValues("sites");
+	if (sites!=null)
+		for (int i=0; i<sites.length; i++) {
+			ProviderSite ps = new ProviderSite();
+        	ps.setId(new ProviderSitePK(p.getProviderNo(),Integer.parseInt(sites[i])));
+        	providerSiteDao.persist(ps);
+		}
+}
+
+if (isOk) {
+	String proId = p.getPractitionerNo();
+	String ip = request.getRemoteAddr();
+	LogAction.addLog(curUser_no, LogConst.ADD, "adminAddUser", proId, ip);
+
+	ProviderBillCenter billCenter = new ProviderBillCenter();
+	billCenter.addBillCenter(request.getParameter("provider_no"),request.getParameter("billcenter"));
+
+%>
+<p>
+<div class="alert alert-success">
+    <h4><bean:message key="admin.provideraddrecord.msgAdditionSuccess" />
+    </h4>
+</div>
+<%
+  } else {
+%>
+<div class="alert alert-error" >
+    <h4><bean:message key="admin.provideraddrecord.msgAdditionFailure" /></h4>
+</div>
+<%
+	if(alreadyExists) {
+        %>
+        <div class="alert alert-error" >
+		    <h4><bean:message key="admin.provideraddrecord.msgAlreadyExists" /></h4>
+        </div>
+        <%
+	}
+
+  }
+}
+else {
+		if 	(!isProviderFormalize) {
+	%>
+        <div class="alert alert-error" >
+		<h1><bean:message key="<%=errMsgProviderFormalize%>" /> </h1>
+        </div>
+        <div class="alert alert-info">
+		Provider # range from : <%=min_value %> To : <%=max_value %>
+        </div>
+	<%
+		}
+	}
+%>
+
+
+
+<% } %>
+
+<form method="post" action="provideraddarecordhtm.jsp" name="searchprovider" autocomplete="off" novalidate >
 <div class="container-fluid well form-horizontal span12" >  
 
  <div  id="requiredSection" class="span11">
@@ -668,7 +877,7 @@ for (int i=0; i<sites.size(); i++) {
 </div>
 </div>
 
-		<div align="center">
+		<div width="100%" align="center" class="span12">
 		
 		<input type="submit" name="submitbtn" class="btn btn-primary"
 			value="<bean:message key="admin.provideraddrecordhtm.btnProviderAddRecord"/>">&nbsp;&nbsp;
