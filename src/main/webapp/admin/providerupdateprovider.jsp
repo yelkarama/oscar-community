@@ -25,11 +25,17 @@
 --%>
 <%@ page import="java.sql.*"%>
 <%@ page import="java.util.*"%>
+
+<%@ page import="oscar.*,oscar.oscarDB.*"
+	%>
+
+<%@page import="org.apache.commons.beanutils.BeanUtils"%>
+
 <%@ page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
 <%@ page import="org.apache.commons.lang.StringUtils"%>
-<%@ page import="org.owasp.encoder.Encode" %>
+
 <%@ page import="org.oscarehr.common.model.LookupListItem"%>
-<%@ page import="org.oscarehr.util.LoggedInInfo"%>
+
 <%@ page import="org.oscarehr.common.model.LookupList"%>
 <%@ page import="org.oscarehr.managers.LookupListManager"%>
 <%@ page import="org.oscarehr.common.Gender" %>
@@ -41,17 +47,29 @@
 <%@ page import="org.oscarehr.common.dao.UserPropertyDAO"%>
 <%@ page import="org.oscarehr.common.model.UserProperty"%>
 <%@ page import="org.oscarehr.common.model.ClinicNbr"%>
-<%@ page import="org.oscarehr.util.SpringUtils"%>
+<%@ page import="org.oscarehr.common.model.ProviderArchive"%>
+<%@ page import="org.oscarehr.common.dao.ProviderArchiveDao"%>
 <%@ page import="org.oscarehr.common.dao.SiteDao"%>
 <%@ page import="org.oscarehr.common.model.Site"%>
 <%@ page import="org.oscarehr.PMmodule.dao.ProviderDao"%>
 <%@ page import="org.oscarehr.common.model.ProviderSite"%>
 <%@ page import="org.oscarehr.common.model.ProviderSitePK"%>
 <%@ page import="org.oscarehr.common.dao.ProviderSiteDao"%>
+<%@ page import="org.oscarehr.common.model.Provider"%>
+<%@ page import="org.oscarehr.util.LoggedInInfo" %>
+<%@ page import="org.oscarehr.util.SpringUtils"%>
+
 <%@ page import="oscar.OscarProperties"%>
 <%@ page import="oscar.SxmlMisc"%>
 <%@ page import="oscar.oscarProvider.data.ProviderBillCenter"%>
 <%@ page import="oscar.login.*"%>
+<%@ page import="oscar.log.LogAction" %>
+<%@ page import="oscar.log.LogConst" %>
+<%@ page import="oscar.util.ChangedField" %>
+
+<%@ page import="oscar.util.*" %>
+
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -74,6 +92,10 @@
 <%
   java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.struts.Globals.LOCALE_KEY);
   ProviderDataDao providerDao = SpringUtils.getBean(ProviderDataDao.class);
+	ProviderDao providerDao2 = (ProviderDao)SpringUtils.getBean("providerDao");
+
+	ProviderSiteDao providerSiteDao = SpringUtils.getBean(ProviderSiteDao.class);
+
 %>
 
 <html:html locale="true">
@@ -180,7 +202,6 @@ function formatPhone(obj) {
 <%
 	isSiteAccessPrivacy = true;
 
-	ProviderSiteDao providerSiteDao = (ProviderSiteDao) SpringUtils.getBean("providerSiteDao");
 	
 	List<ProviderSite> psList = providerSiteDao.findByProviderNo(curProvider_no);
 	for (ProviderSite pSite : psList) {
@@ -190,36 +211,266 @@ function formatPhone(obj) {
 %>
 </security:oscarSec>
 
-<body onLoad="$('#contact_div').hide();" topmargin="0" leftmargin="0" rightmargin="0">
+<body onLoad="$('#contact_div').hide(); " topmargin="0" leftmargin="0" rightmargin="0">
 <%
 	String keyword = request.getParameter("keyword");
+
+
 	ProviderData provider = providerDao.findByProviderNo(keyword);
 	
-	SecurityDao securityDao = (SecurityDao) SpringUtils.getBean("securityDao");
-	List<Security>  results = securityDao.findByProviderNo(provider.getId());
-	Security security = null;
-	if (results.size() > 0) security = results.get(0);
+	//SecurityDao securityDao = (SecurityDao) SpringUtils.getBean("securityDao");
+	//List<Security>  results = securityDao.findByProviderNo(provider.getId());
+	//Security security = null;
+	//if (results.size() > 0) security = results.get(0);
 	
 	if(provider == null) {
 	    out.println("failed");
 	} 
 	else {
     
-    String provider_no = provider.getId();
+    String provider_no2 = provider.getId();
 %>
 
 
 
-<div class="span12">
+<div width="100%">
     <div id="header"><H4><bean:message
-			key="admin.providerupdateprovider.description" />&nbsp;<%= Encode.forHtmlAttribute(provider_no) %></H4>
+			key="admin.providerupdateprovider.description" />&nbsp;<%= Encode.forHtmlAttribute(provider_no2) %></H4>
     </div>
 </div>
 
-<form method="post" action="providerupdate.jsp" name="updatearecord" novalidate>
+
+<%
+String sName = request.getParameter("last_name");
+    if ( sName != null && sName != "" ){
+
+  ProviderBillCenter billCenter = new ProviderBillCenter();
+  billCenter.updateBillCenter(request.getParameter("provider_no"),request.getParameter("billcenter"));
+
+
+
+//multi-office provide id formalize check, can be turn off on properties multioffice.formalize.provider.id
+  boolean isProviderFormalize = true;
+  String  errMsgProviderFormalize = "admin.provideraddrecord.msgAdditionFailure";
+  Integer min_value = 0;
+  Integer max_value = 0;
+
+  if (org.oscarehr.common.IsPropertiesOn.isProviderFormalizeEnable()) {
+
+  	String StrProviderId = request.getParameter("provider_no");
+  	OscarProperties props = OscarProperties.getInstance();
+
+  	String[] provider_sites = {};
+
+  	// get provider id ranger
+  	if (request.getParameter("provider_type").equalsIgnoreCase("doctor")) {
+  		//provider is doctor, get provider id range from Property
+  		min_value = new Integer(props.getProperty("multioffice.formalize.doctor.minimum.provider.id", ""));
+  		max_value = new Integer(props.getProperty("multioffice.formalize.doctor.maximum.provider.id", ""));
+  	}
+  	else {
+  		//non-doctor role
+  		provider_sites = request.getParameterValues("sites");
+  		provider_sites = (provider_sites == null ? new String[] {} : provider_sites);
+
+  		if (provider_sites.length > 1) {
+  			//non-doctor can only have one site
+  			isProviderFormalize = false;
+  			errMsgProviderFormalize = "admin.provideraddrecord.msgFormalizeProviderIdMultiSiteFailure";
+  		}
+  		else {
+  			if (provider_sites.length == 1) {
+  				//get provider id range from site
+  				String provider_site_id =  provider_sites[0];
+  				SiteDao siteDao = (SiteDao)WebApplicationContextUtils.getWebApplicationContext(application).getBean("siteDao");
+  				Site provider_site = siteDao.getById(new Integer(provider_site_id));
+  				min_value = provider_site.getProviderIdFrom();
+  				max_value = provider_site.getProviderIdTo();
+  			}
+  		}
+  	}
+
+  	if (isProviderFormalize) {
+  		try {
+  			    Integer providerId = Integer.parseInt(StrProviderId);
+
+  			    if (request.getParameter("provider_type").equalsIgnoreCase("doctor") ||  provider_sites.length == 1) {
+  				    if  (!(providerId >= min_value && providerId <=max_value)) {
+  				    	// providerId is not in the range
+  						isProviderFormalize = false;
+  						errMsgProviderFormalize = "admin.provideraddrecord.msgFormalizeProviderIdFailure";
+  				    }
+
+  			    }
+
+  		} catch(NumberFormatException e) {
+  			//providerId is not a number
+  			isProviderFormalize = false;
+  			errMsgProviderFormalize = "admin.provideraddrecord.msgFormalizeProviderIdFailure";
+  		}
+  	}
+
+  }
+
+  if (!org.oscarehr.common.IsPropertiesOn.isProviderFormalizeEnable() || isProviderFormalize) {
+    ProviderArchiveDao providerArchiveDao = (ProviderArchiveDao)SpringUtils.getBean("providerArchiveDao");
+	Provider provider2 = providerDao2.getProvider(request.getParameter("provider_no"));
+	ProviderArchive pa = new ProviderArchive();
+	BeanUtils.copyProperties(pa, provider2);
+	pa.setId(null);
+	providerArchiveDao.persist(pa);
+
+
+
+	  Provider p = providerDao2.getProvider(request.getParameter("provider_no"));
+	  if(p != null) {
+		  List<ChangedField> changedFields = new ArrayList<ChangedField>();
+		  Provider beforeChange = new Provider(p);
+		  p.setLastName(request.getParameter("last_name"));
+		  p.setFirstName(request.getParameter("first_name"));
+		  p.setProviderType(request.getParameter("provider_type"));
+		  p.setSpecialty(request.getParameter("specialty"));
+		  p.setTeam(request.getParameter("team"));
+		  p.setSex(request.getParameter("sex"));
+		  p.setDob(MyDateFormat.getSysDate(request.getParameter("dob")));
+		  p.setAddress(request.getParameter("address"));
+		  p.setPhone(request.getParameter("phone"));
+		  p.setWorkPhone(request.getParameter("workphone"));
+		  p.setEmail(request.getParameter("email"));
+		  p.setOhipNo(request.getParameter("ohip_no"));
+		  p.setRmaNo(request.getParameter("rma_no"));
+		  p.setBillingNo(request.getParameter("billing_no"));
+		  p.setHsoNo(request.getParameter("hso_no"));
+		  p.setStatus(request.getParameter("status"));
+		  p.setComments(SxmlMisc.createXmlDataString(request,"xml_p"));
+		  p.setProviderActivity(request.getParameter("provider_activity"));
+		  p.setPractitionerNo(request.getParameter("practitionerNo"));
+		  p.setPractitionerNoType(request.getParameter("practitionerNoType"));
+		  p.setLastUpdateUser((String)session.getAttribute("user"));
+		  p.setLastUpdateDate(new java.util.Date());
+                  String supervisor = request.getParameter("supervisor");
+                  
+                  if( supervisor == null || supervisor.equalsIgnoreCase("null") || supervisor.equals("")) {
+                      p.setSupervisor(null);
+                  }
+                  else {
+                    p.setSupervisor(supervisor);
+                  }
+		  
+		  providerDao2.updateProvider(p);
+		  
+		  
+		  UserPropertyDAO userPropertyDAO = (UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
+		 
+		  String clinicalConnectId = request.getParameter("clinicalConnectId");
+		  String clinicalConnectType = request.getParameter("clinicalConnectType");
+          if( clinicalConnectId != null &&  !clinicalConnectId.equals("")){	  
+		      userPropertyDAO.saveProp(provider2.getProviderNo(), UserProperty.CLINICALCONNECT_ID, clinicalConnectId);
+		      userPropertyDAO.saveProp(provider2.getProviderNo(), UserProperty.CLINICALCONNECT_TYPE, clinicalConnectType);
+            }
+                  
+                  if(OscarProperties.getInstance().getBooleanProperty("questimed.enabled", "true")) {
+                    String questimedUserName = request.getParameter("questimedUserName");
+                    userPropertyDAO.saveProp(provider2.getProviderNo(), UserProperty.QUESTIMED_USERNAME, questimedUserName);
+                  }
+
+		  String officialFirstName = request.getParameter("officialFirstName");
+		  String officialSecondName = request.getParameter("officialSecondName");
+		  String officialLastName = request.getParameter("officialLastName");
+		  String officialOlisIdtype = request.getParameter("officialOlisIdtype");
+		  String oldOfficialFirstName = (userPropertyDAO.getStringValue(provider2.getProviderNo(), UserProperty.OFFICIAL_FIRST_NAME));
+		  String oldOfficialSecondName = (userPropertyDAO.getStringValue(provider2.getProviderNo(), UserProperty.OFFICIAL_SECOND_NAME));
+		  String oldOfficialLastName = (userPropertyDAO.getStringValue(provider2.getProviderNo(), UserProperty.OFFICIAL_LAST_NAME));
+		  String oldOfficialOlisIdtype = (userPropertyDAO.getStringValue(provider2.getProviderNo(), UserProperty.OFFICIAL_OLIS_IDTYPE));
+		  
+oldOfficialFirstName = StringUtils.trimToEmpty(oldOfficialFirstName);
+oldOfficialSecondName = StringUtils.trimToEmpty(oldOfficialSecondName);
+oldOfficialLastName = StringUtils.trimToEmpty(oldOfficialLastName);
+oldOfficialOlisIdtype = StringUtils.trimToEmpty(oldOfficialOlisIdtype);
+		  userPropertyDAO.saveProp(provider2.getProviderNo(), UserProperty.OFFICIAL_FIRST_NAME, officialFirstName);
+		  userPropertyDAO.saveProp(provider2.getProviderNo(), UserProperty.OFFICIAL_SECOND_NAME, officialSecondName);
+		  userPropertyDAO.saveProp(provider2.getProviderNo(), UserProperty.OFFICIAL_LAST_NAME, officialLastName);
+		  userPropertyDAO.saveProp(provider2.getProviderNo(), UserProperty.OFFICIAL_OLIS_IDTYPE, officialOlisIdtype);
+		  if (!oldOfficialFirstName.equals(officialFirstName)) {
+		      changedFields.add(new ChangedField(UserProperty.OFFICIAL_FIRST_NAME, oldOfficialFirstName, officialFirstName));
+		  }
+		  if (!oldOfficialSecondName.equals(officialSecondName)) {
+		      changedFields.add(new ChangedField(UserProperty.OFFICIAL_SECOND_NAME, oldOfficialSecondName, officialSecondName));
+		  }
+		  if (!oldOfficialLastName.equals(officialLastName)) {
+		      changedFields.add(new ChangedField(UserProperty.OFFICIAL_LAST_NAME, oldOfficialLastName, officialLastName));
+		  }
+		  if (!oldOfficialOlisIdtype.equals(officialOlisIdtype)) {
+			  changedFields.add(new ChangedField(UserProperty.OFFICIAL_OLIS_IDTYPE, oldOfficialOlisIdtype, officialOlisIdtype));
+		  }
+		
+        if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) {
+            String[] sites = request.getParameterValues("sites");
+            DBPreparedHandler dbObj = new DBPreparedHandler();
+            String provider_no = request.getParameter("provider_no");
+            List<ProviderSite> pss = providerSiteDao.findByProviderNo(provider_no);
+            for(ProviderSite ps:pss) {
+            	providerSiteDao.remove(ps.getId());
+            }
+            if (sites!=null) {
+                for (int i=0; i<sites.length; i++) {
+                	ProviderSite ps = new ProviderSite();
+                	ps.setId(new ProviderSitePK(provider_no,Integer.parseInt(sites[i])));
+                	providerSiteDao.persist(ps);
+                }
+            }
+        }
+		changedFields.addAll(ChangedField.getChangedFieldsAndValues(beforeChange, p));
+        
+        String keyword2 = "providerNo=" + p.getProviderNo();
+        if (request.getParameter("keyword") != null) { keyword2 += "\n" + request.getParameter("keyword"); }
+        
+		LogAction.addChangeLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.UPDATE, "adminUpdateUser", keyword2, changedFields);
+%>
+<p>
+<div class="alert alert-success">
+    <h4><bean:message key="admin.providerupdate.msgUpdateSuccess" /><a href="providerupdateprovider.jsp?keyword=<%=request.getParameter("provider_no")%>"><%= request.getParameter("provider_no") %></a>
+    </h4>
+</div>
+<script>
+
+setTimeout(() => {
+    window.history.go(-2);
+},2000);
+</script>
+
+<%
+  } else {
+%>
+<div class="alert alert-error" >
+<h4><bean:message key="admin.providerupdate.msgUpdateFailure" />
+<%= request.getParameter("provider_no") %>.</h4>
+</div>
+<%
+  }
+}
+else {
+	if (!isProviderFormalize) {
+		//output ProviderFormalize error message
+	%>
+<div class="alert alert-error" >
+		<h4><bean:message key="<%=errMsgProviderFormalize%>" />  </h4>
+		Provider # range from : <%=min_value %> To : <%=max_value %>
+</div>
+	<%
+	}
+}
+}
+%>
+
+
+<form method="post" action="providerupdateprovider.jsp" name="updatearecord" novalidate>
+
+<input type="hidden" name="keyword" value="<%=keyword%>">
+
 
 <div class="container-fluid well form-horizontal span12" >  
-            <input type="hidden" name="provider_no"  value="<%= provider_no %>">
+            <input type="hidden" name="provider_no"  value="<%= provider_no2 %>">
 
  <div  id="requiredSection" class="span11">
 		<fieldset>
@@ -258,7 +509,7 @@ function formatPhone(obj) {
 
 <%
 SiteDao siteDao = (SiteDao)WebApplicationContextUtils.getWebApplicationContext(application).getBean("siteDao");
-List<Site> psites = siteDao.getActiveSitesByProviderNo(provider_no);
+List<Site> psites = siteDao.getActiveSitesByProviderNo(provider_no2);
 List<Site> sites = siteDao.getAllActiveSites();
 for (int i=0; i<sites.size(); i++) {
 %>
@@ -533,7 +784,7 @@ for (int i=0; i<sites.size(); i++) {
                               String billCode = "";
                               String codeDesc = "";
                               Enumeration<?> keys = billCenter.getAllBillCenter().propertyNames();
-                              String currentBillCode = billCenter.getBillCenter(provider_no);
+                              String currentBillCode = billCenter.getBillCenter(provider_no2);
                               for(int i=0;i<billCenter.getAllBillCenter().size();i++){
                                   billCode=(String)keys.nextElement();
                                   codeDesc=billCenter.getAllBillCenter().getProperty(billCode);
@@ -559,7 +810,7 @@ for (int i=0; i<sites.size(); i++) {
 		
 		<%
 		UserPropertyDAO userPropertyDAO = (UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
-		String ccType = StringUtils.trimToEmpty(userPropertyDAO.getStringValue(provider_no, UserProperty.CLINICALCONNECT_TYPE));
+		String ccType = StringUtils.trimToEmpty(userPropertyDAO.getStringValue(provider_no2, UserProperty.CLINICALCONNECT_TYPE));
 		%>
 		
     <div class="control-group span5">
@@ -567,7 +818,7 @@ for (int i=0; i<sites.size(); i++) {
                 key="admin.provider.formClinicalConnectId" /></label>
         <div class="controls">
             <input type="text" name="clinicalConnectId" 
-            value="<%=Encode.forHtmlAttribute(StringUtils.trimToEmpty(userPropertyDAO.getStringValue(provider_no, UserProperty.CLINICALCONNECT_ID)))%>" 
+            value="<%=Encode.forHtmlAttribute(StringUtils.trimToEmpty(userPropertyDAO.getStringValue(provider_no2, UserProperty.CLINICALCONNECT_ID)))%>" 
             maxlength="255">
         </div>
     </div>
@@ -588,7 +839,7 @@ for (int i=0; i<sites.size(); i++) {
                 key="admin.provider.formOfficialFirstName" /></label>
         <div class="controls">
             <input type="text" name="officialFirstName" 
-            value="<%=Encode.forHtmlAttribute(StringUtils.trimToEmpty(userPropertyDAO.getStringValue(provider_no, UserProperty.OFFICIAL_FIRST_NAME)))%>" 
+            value="<%=Encode.forHtmlAttribute(StringUtils.trimToEmpty(userPropertyDAO.getStringValue(provider_no2, UserProperty.OFFICIAL_FIRST_NAME)))%>" 
                 maxlength="255">
         </div>
     </div> 
@@ -597,7 +848,7 @@ for (int i=0; i<sites.size(); i++) {
                 key="admin.provider.formOfficialSecondName"  /></label>
         <div class="controls">
             <input type="text" name="officialSecondName" 
-            value="<%=Encode.forHtmlAttribute(StringUtils.trimToEmpty(userPropertyDAO.getStringValue(provider_no, UserProperty.OFFICIAL_SECOND_NAME)))%>" 
+            value="<%=Encode.forHtmlAttribute(StringUtils.trimToEmpty(userPropertyDAO.getStringValue(provider_no2, UserProperty.OFFICIAL_SECOND_NAME)))%>" 
                 maxlength="255">
         </div>
     </div>   
@@ -606,7 +857,7 @@ for (int i=0; i<sites.size(); i++) {
                 key="admin.provider.formOfficialLastName"  /></label>
         <div class="controls">
             <input type="text" name="officialLastName" 
-            value="<%=Encode.forHtmlAttribute(StringUtils.trimToEmpty(userPropertyDAO.getStringValue(provider_no, UserProperty.OFFICIAL_LAST_NAME)))%>" 
+            value="<%=Encode.forHtmlAttribute(StringUtils.trimToEmpty(userPropertyDAO.getStringValue(provider_no2, UserProperty.OFFICIAL_LAST_NAME)))%>" 
                 maxlength="255">
         </div>
     </div>  
@@ -616,16 +867,16 @@ for (int i=0; i<sites.size(); i++) {
         <div class="controls">
                 <select name="officialOlisIdtype">
                         <option value=""><bean:message key="admin.provider.formOfficialOlisIdentifierType.option.notset" /></option>
-		        <option value="MDL" <%="MDL".equals(userPropertyDAO.getStringValue(provider_no, UserProperty.OFFICIAL_OLIS_IDTYPE))?"SELECTED":""%>>
+		        <option value="MDL" <%="MDL".equals(userPropertyDAO.getStringValue(provider_no2, UserProperty.OFFICIAL_OLIS_IDTYPE))?"SELECTED":""%>>
 			        <bean:message key="admin.provider.formOfficialOlisIdentifierType.option.mdl" />
 			</option> 
-			<option value="DDSL" <%="DDSL".equals(userPropertyDAO.getStringValue(provider_no, UserProperty.OFFICIAL_OLIS_IDTYPE))?"SELECTED":""%>>
+			<option value="DDSL" <%="DDSL".equals(userPropertyDAO.getStringValue(provider_no2, UserProperty.OFFICIAL_OLIS_IDTYPE))?"SELECTED":""%>>
 			        <bean:message key="admin.provider.formOfficialOlisIdentifierType.option.ddsl" />
 			</option>
-			<option value="NPL" <%="NPL".equals(userPropertyDAO.getStringValue(provider_no, UserProperty.OFFICIAL_OLIS_IDTYPE))?"SELECTED":""%>>
+			<option value="NPL" <%="NPL".equals(userPropertyDAO.getStringValue(provider_no2, UserProperty.OFFICIAL_OLIS_IDTYPE))?"SELECTED":""%>>
 			        <bean:message key="admin.provider.formOfficialOlisIdentifierType.option.npl" />
 			</option>
-			<option value="ML" <%="ML".equals(userPropertyDAO.getStringValue(provider_no, UserProperty.OFFICIAL_OLIS_IDTYPE))?"SELECTED":""%>>
+			<option value="ML" <%="ML".equals(userPropertyDAO.getStringValue(provider_no2, UserProperty.OFFICIAL_OLIS_IDTYPE))?"SELECTED":""%>>
 			        <bean:message key="admin.provider.formOfficialOlisIdentifierType.option.ml" />
 			</option>
 		</select>
