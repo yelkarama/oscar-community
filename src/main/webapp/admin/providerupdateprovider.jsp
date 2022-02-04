@@ -26,16 +26,12 @@
 <%@ page import="java.sql.*"%>
 <%@ page import="java.util.*"%>
 
-<%@ page import="oscar.*,oscar.oscarDB.*"
-	%>
-
-<%@page import="org.apache.commons.beanutils.BeanUtils"%>
-
-<%@ page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
+<%@ page import="org.apache.commons.beanutils.BeanUtils"%>
 <%@ page import="org.apache.commons.lang.StringUtils"%>
 
-<%@ page import="org.oscarehr.common.model.LookupListItem"%>
+<%@ page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
 
+<%@ page import="org.oscarehr.common.model.LookupListItem"%>
 <%@ page import="org.oscarehr.common.model.LookupList"%>
 <%@ page import="org.oscarehr.managers.LookupListManager"%>
 <%@ page import="org.oscarehr.common.Gender" %>
@@ -59,6 +55,8 @@
 <%@ page import="org.oscarehr.util.LoggedInInfo" %>
 <%@ page import="org.oscarehr.util.SpringUtils"%>
 
+<%@ page import="oscar.*"%>
+<%@ page import="oscar.oscarDB.*"%>
 <%@ page import="oscar.OscarProperties"%>
 <%@ page import="oscar.SxmlMisc"%>
 <%@ page import="oscar.oscarProvider.data.ProviderBillCenter"%>
@@ -66,7 +64,6 @@
 <%@ page import="oscar.log.LogAction" %>
 <%@ page import="oscar.log.LogConst" %>
 <%@ page import="oscar.util.ChangedField" %>
-
 <%@ page import="oscar.util.*" %>
 
 <%@ page import="org.owasp.encoder.Encode" %>
@@ -90,12 +87,10 @@
 %>
 
 <%
-  java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.struts.Globals.LOCALE_KEY);
-  ProviderDataDao providerDao = SpringUtils.getBean(ProviderDataDao.class);
+	java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.struts.Globals.LOCALE_KEY);
+	ProviderDataDao providerDao = SpringUtils.getBean(ProviderDataDao.class);
 	ProviderDao providerDao2 = (ProviderDao)SpringUtils.getBean("providerDao");
-
 	ProviderSiteDao providerSiteDao = SpringUtils.getBean(ProviderSiteDao.class);
-
 %>
 
 <html:html locale="true">
@@ -140,8 +135,6 @@
 </script>
 
 <script LANGUAGE="JavaScript">
-
-
 
 
 jQuery(document).ready( function() {
@@ -383,10 +376,11 @@ String sName = request.getParameter("last_name");
 		  String oldOfficialLastName = (userPropertyDAO.getStringValue(provider2.getProviderNo(), UserProperty.OFFICIAL_LAST_NAME));
 		  String oldOfficialOlisIdtype = (userPropertyDAO.getStringValue(provider2.getProviderNo(), UserProperty.OFFICIAL_OLIS_IDTYPE));
 		  
-oldOfficialFirstName = StringUtils.trimToEmpty(oldOfficialFirstName);
-oldOfficialSecondName = StringUtils.trimToEmpty(oldOfficialSecondName);
-oldOfficialLastName = StringUtils.trimToEmpty(oldOfficialLastName);
-oldOfficialOlisIdtype = StringUtils.trimToEmpty(oldOfficialOlisIdtype);
+		  oldOfficialFirstName = StringUtils.trimToEmpty(oldOfficialFirstName);
+		  oldOfficialSecondName = StringUtils.trimToEmpty(oldOfficialSecondName);
+		  oldOfficialLastName = StringUtils.trimToEmpty(oldOfficialLastName);
+		  oldOfficialOlisIdtype = StringUtils.trimToEmpty(oldOfficialOlisIdtype);
+          
 		  userPropertyDAO.saveProp(provider2.getProviderNo(), UserProperty.OFFICIAL_FIRST_NAME, officialFirstName);
 		  userPropertyDAO.saveProp(provider2.getProviderNo(), UserProperty.OFFICIAL_SECOND_NAME, officialSecondName);
 		  userPropertyDAO.saveProp(provider2.getProviderNo(), UserProperty.OFFICIAL_LAST_NAME, officialLastName);
@@ -406,7 +400,7 @@ oldOfficialOlisIdtype = StringUtils.trimToEmpty(oldOfficialOlisIdtype);
 		
         if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) {
             String[] sites = request.getParameterValues("sites");
-            DBPreparedHandler dbObj = new DBPreparedHandler();
+
             String provider_no = request.getParameter("provider_no");
             List<ProviderSite> pss = providerSiteDao.findByProviderNo(provider_no);
             for(ProviderSite ps:pss) {
@@ -433,10 +427,9 @@ oldOfficialOlisIdtype = StringUtils.trimToEmpty(oldOfficialOlisIdtype);
     </h4>
 </div>
 <script>
-
-setTimeout(() => {
-    window.history.go(-2);
-},2000);
+    setTimeout(() => {
+        window.history.go(-2);
+    },2000);    		  
 </script>
 
 <%

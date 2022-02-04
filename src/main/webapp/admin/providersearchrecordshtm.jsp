@@ -92,7 +92,7 @@
 <h4>
 <i class="icon-search" title="Patient Search"></i>&nbsp;<bean:message key="admin.providersearchrecordshtm.description" /></h4>
 
-
+<div class="well">
 <table cellspacing="0" cellpadding="2" width="100%" border="0" class="table-condensed">
 
 	<form method="post" action="providersearchresults.jsp" name="searchprovider"	onsubmit="return onsub()">
@@ -138,7 +138,7 @@
 	</tr>
 	</form>
 </table>
-
+</div>
 </center>
 </body>
 </html:html>

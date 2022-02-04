@@ -557,7 +557,6 @@ table {
 
 th, td {
     padding: 0px;
-
 }
 
 #logo {
@@ -1959,12 +1958,10 @@ String curDate2 = formatAdate.format(curDate);
 boolean isToday = false;
 isToday = curDate2.equals(strYear+strMonth+strDay);
 int curH = Integer.parseInt(curHour);
-int totalM = Integer.parseInt(curMin) + curH*60;
+int totalM = Integer.parseInt(curMin) + curH*60 -6;  //6min grace offset
 
 
-
-
-	int hourCursor=0, minuteCursor=0, depth=everyMin; //depth is the period, e.g. 10,15,30,60min.
+int hourCursor=0, minuteCursor=0, depth=everyMin; //depth is the period, e.g. 10,15,30,60min.
 String am_pm=null;
 boolean bColor=true, bColorHour=true; //to change color
 
@@ -2232,7 +2229,7 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
               hourmin = new StringBuffer(dateTimeCodeBean.get(curProvider_no[nProvider])!=null?((String) dateTimeCodeBean.get(curProvider_no[nProvider])).substring(ratio,ratio+1):" " );
             } else { hourmin = new StringBuffer(); }
 
-if ( (ih >= totalM)&&(ih < (totalM+depth)) && !isWeekView && isToday && isTimeline ) {%><tr style="font-size:2px;"><td colspan="8"  ><hr color="tomato"  ></td></tr> <%}
+if ( (ih >= totalM)&&(ih < (totalM+depth)) && !isWeekView && isToday && isTimeline ) {%><tr style="font-size:1px;"><td colspan="8"  ><hr color="tomato" style="border:1px dotted" ></td></tr> <%}
 
 %>
           <tr>
@@ -2265,7 +2262,7 @@ if ( (ih >= totalM)&&(ih < (totalM+depth)) && !isWeekView && isToday && isTimeli
           	  }
          	    iRows=((iE*60+iEm)-ih)/depth+1; //to see if the period across an hour period
 
-                if ( ih > (totalM -depth) && (ih < totalM) && !isWeekView && isToday && isTimeline) {iRows = iRows+1; }  // to allow for extra row with time indicator
+                if ( ih >= (totalM -depth) && (ih < totalM) && !isWeekView && isToday && isTimeline) {iRows = iRows+1; }  // to allow for extra row with time indicator
 
          	    //iRows=(iE-iS)*60/depth+iEm/depth-iSm/depth+1; //to see if the period across an hour period
 

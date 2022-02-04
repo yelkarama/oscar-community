@@ -106,6 +106,7 @@
 <i class="icon-search" title="Patient Search"></i>&nbsp;<bean:message key="admin.providersearchresults.description" /></h4>
 
 <form method="post" action="providersearchresults.jsp" name="searchprovider" onsubmit="return onsub()">
+<div class="well">
 <table cellspacing="0" cellpadding="0" width="100%" border="0" class="table-condensed">
 	<tr valign="top">
 		<td rowspan="2" align="right" valign="middle">
@@ -143,10 +144,11 @@
 			<INPUT TYPE="hidden" NAME="orderby" VALUE="last_name">
 			<INPUT TYPE="hidden" NAME="limit1" VALUE="0"> 
 			<INPUT TYPE="hidden" NAME="limit2" VALUE="10">
-			<INPUT TYPE="SUBMIT" NAME="button" VALUE=<bean:message key="admin.providersearchresults.btnSubmit"/> SIZE="17">
+			<INPUT TYPE="SUBMIT" NAME="button" class="btn btn-primary" VALUE=<bean:message key="admin.providersearchresults.btnSubmit"/> SIZE="17">
 		</td>
 	</tr>
 </table>
+</div>
 </form>
 
 <table width="100%" border="0">
@@ -228,6 +230,7 @@
 %>
 
 </table>
+
 <br>
 <%
   int nLastPage=0,nNextPage=0;
