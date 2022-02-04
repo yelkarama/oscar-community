@@ -320,12 +320,10 @@ if (org.oscarehr.common.IsPropertiesOn.isProviderFormalizeEnable()) {
 
 if (!org.oscarehr.common.IsPropertiesOn.isProviderFormalizeEnable() || isProviderFormalize) {
 
-DBPreparedHandler dbObj = new DBPreparedHandler();
-
   // check if the provider no need to be auto generated
   if (OscarProperties.getInstance().isProviderNoAuto())
   {
-  	p.setProviderNo(dbObj.getNewProviderNo());
+  	p.setProviderNo(suggestProviderNo);
   }
   
   
