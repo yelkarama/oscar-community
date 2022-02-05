@@ -23,29 +23,47 @@
     Ontario, Canada
 
 --%>
-<%@page import="oscar.oscarRx.data.RxPatientData"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%@ taglib uri="/WEB-INF/oscarProperties-tag.tld" prefix="oscar"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<%@ page import="oscar.oscarProvider.data.ProSignatureData, oscar.oscarProvider.data.ProviderData"%>
-<%@ page import="oscar.log.*,oscar.oscarRx.data.*"%>
+
 <%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%@ page import="org.apache.log4j.Logger" %>
 
-<%@ page import="oscar.*,java.lang.*,java.util.Date,java.text.SimpleDateFormat,oscar.oscarRx.util.RxUtil,org.springframework.web.context.WebApplicationContext,
-         org.springframework.web.context.support.WebApplicationContextUtils,
-         org.oscarehr.common.dao.UserPropertyDAO,org.oscarehr.common.model.UserProperty"%>
+<%@ page import="java.text.SimpleDateFormat"%>
+<%@ page import="java.util.Date"%>
+<%@ page import="java.lang.*"%>
+<%@ page import="java.util.Locale"%>
+
+<%@ page import="org.owasp.encoder.Encode" %>
+
+<%@ page import="org.springframework.web.context.WebApplicationContext"%>
+<%@ page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
+
+<%@ page import="oscar.*"%>
+<%@ page import="oscar.oscarRx.data.*"%>
+<%@ page import="oscar.oscarRx.data.RxPatientData"%>
+<%@ page import="oscar.oscarRx.util.RxUtil"%>
+<%@ page import="oscar.oscarProvider.data.ProSignatureData"%>
+<%@ page import="oscar.oscarProvider.data.ProviderData"%>
+<%@ page import="oscar.log.*"%>
+
+<%@ page import="org.oscarehr.common.dao.UserPropertyDAO"%>
+<%@ page import="org.oscarehr.common.model.UserProperty"%>
 <%@ page import="org.oscarehr.util.SpringUtils"%>
+<%@ page import="org.oscarehr.util.LocaleUtils"%>
+<%@ page import="org.oscarehr.web.PrescriptionQrCodeUIBean"%>
 
 <!-- Classes needed for signature injection -->
-<%@page import="org.oscarehr.util.SessionConstants"%>
-<%@page import="org.oscarehr.common.dao.*"%>
-<%@page import="org.oscarehr.common.model.*"%>
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
-<%@page import="org.oscarehr.util.DigitalSignatureUtils"%>
-<%@page import="org.oscarehr.ui.servlet.ImageRenderingServlet"%>
+<%@ page import="org.oscarehr.util.SessionConstants"%>
+<%@ page import="org.oscarehr.common.dao.*"%>
+<%@ page import="org.oscarehr.common.model.*"%>
+<%@ page import="org.oscarehr.util.LoggedInInfo"%>
+<%@ page import="org.oscarehr.util.DigitalSignatureUtils"%>
+<%@ page import="org.oscarehr.ui.servlet.ImageRenderingServlet"%>
+
 <!-- end -->
 <%
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
@@ -54,7 +72,6 @@
 	String rx_enhance = OscarProperties.getInstance().getProperty("rx_enhance");
 %>	
 
-<%@page import="org.oscarehr.web.PrescriptionQrCodeUIBean"%>
 
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
@@ -114,6 +131,7 @@
 
 <%
 Date rxDate = oscar.oscarRx.util.RxUtil.Today();
+Locale locale = request.getLocale();
 //String rePrint = request.getParameter("rePrint");
 String rePrint = (String)request.getSession().getAttribute("rePrint");
 //String rePrint = (String)request.getSession().getAttribute("rePrint");
@@ -178,8 +196,13 @@ ProviderData user = new ProviderData(strUser);
 String pharmaFax = "";
 String pharmaFax2 = "";
 String pharmaName = "";
+String pharmaTel="";
+String pharmaAddress1="";
+String pharmaAddress2="";
+String pharmaEmail="";
+String pharmaNote="";
 RxPharmacyData pharmacyData = new RxPharmacyData();
-PharmacyInfo pharmacy;
+PharmacyInfo pharmacy = null;
 String pharmacyId = request.getParameter("pharmacyId");
 
 if (pharmacyId != null && !"null".equalsIgnoreCase(pharmacyId)) {
@@ -187,7 +210,11 @@ if (pharmacyId != null && !"null".equalsIgnoreCase(pharmacyId)) {
     if( pharmacy != null ) {
 		pharmaFax = pharmacy.getFax();
 		pharmaFax2 = "<bean:message key='RxPreview.msgFax'/>"+": " + pharmacy.getFax();
-		pharmaName = pharmacy.getName();
+		pharmaTel = pharmacy.getPhone1() + ((pharmacy.getPhone2()!=null && !pharmacy.getPhone2().isEmpty())? "," + pharmacy.getPhone2():"");
+		pharmaAddress1 = pharmacy.getAddress();
+		pharmaAddress2 = pharmacy.getCity() + ", " + pharmacy.getProvince() + " " +pharmacy.getPostalCode();
+		pharmaEmail = pharmacy.getEmail();
+		pharmaNote = pharmacy.getNotes();
     }
 }
 
@@ -312,6 +339,12 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                             <input type="hidden" name="patientDOB" value="<%= StringEscapeUtils.escapeHtml(patientDOBStr) %>" />
                                             <input type="hidden" name="pharmaFax" value="<%=pharmaFax%>" />
                                             <input type="hidden" name="pharmaName" value="<%=pharmaName%>" />
+                                            <input type="hidden" name="pharmaTel" value="<%=pharmaTel%>" />
+                                            <input type="hidden" name="pharmaAddress1" value="<%=pharmaAddress1%>" />
+                                            <input type="hidden" name="pharmaAddress2" value="<%=pharmaAddress2%>" />
+                                            <input type="hidden" name="pharmaEmail" value="<%=pharmaEmail%>" />
+                                            <input type="hidden" name="pharmaNote" value="<%=pharmaNote%>" />
+                                            <input type="hidden" name="pharmaShow" id="pharmaShow" value="false" />                                           
                                             <input type="hidden" name="pracNo" value="<%= StringEscapeUtils.escapeHtml(pracNo) %>" />
                                             <input type="hidden" name="showPatientDOB" value="<%=showPatientDOB%>"/>
                                             <input type="hidden" name="pdfId" id="pdfId" value="" />
@@ -339,14 +372,14 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                                     value="<%= StringEscapeUtils.escapeHtml(oscar.oscarRx.util.RxUtil.DateToString(rxDate, "MMMM d, yyyy")) %>" />
                                             <input type="hidden" name="sigDoctorName" value="<%= StringEscapeUtils.escapeHtml(doctorName) %>" /> <!--img src="img/rx.gif" border="0"-->
                                             </td>
-                                            <td valign=top height="100px" id="clinicAddress"><b><%=doctorName%></b><br>
+                                            <td valign=top height="100px" id="clinicAddress"><b><%=Encode.forHtml(doctorName)%></b><br>
                                             <c:choose>
                                                     <c:when test="${empty infirmaryView_programAddress}">
-                                                            <%= provider.getClinicName().replaceAll("\\(\\d{6}\\)","") %><br>
-                                                            <%= provider.getClinicAddress() %><br>
-                                                            <%= provider.getClinicCity() %>&nbsp;&nbsp;<%=provider.getClinicProvince()%>&nbsp;&nbsp;
+                                                            <%= Encode.forHtml(provider.getClinicName().replaceAll("\\(\\d{6}\\)","")) %><br>
+                                                            <%= Encode.forHtml(provider.getClinicAddress()) %><br>
+                                                            <%= Encode.forHtml(provider.getClinicCity()) %>&nbsp;&nbsp;<%=provider.getClinicProvince()%>&nbsp;&nbsp;
                                                 <%= provider.getClinicPostal() %>
-                                                <% if(provider.getPractitionerNo() != null && !provider.getPractitionerNo().equals("")){ %><br><bean:message key="RxPreview.PractNo"/>:<%= provider.getPractitionerNo() %><% } %>
+                                                <% if(provider.getPractitionerNo() != null && !provider.getPractitionerNo().equals("")){ %><br><bean:message key="RxPreview.PractNo"/>:<%= Encode.forHtml(provider.getPractitionerNo()) %><% } %>
                                                 <br>
                                                <%
                                                 	UserProperty phoneProp = userPropertyDAO.getProp(provider.getProviderNo(),"rxPhone");
@@ -368,9 +401,9 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                                 	request.setAttribute("phone",finalPhone);
                                                 
                                              	%>                                                        
-                                                <bean:message key="RxPreview.msgTel"/>: <%= finalPhone %><br>
+                                                <bean:message key="RxPreview.msgTel"/>: <%= Encode.forHtml(finalPhone) %><br>
                                                 <oscar:oscarPropertiesCheck property="RXFAX" value="yes">
-                                                    <bean:message key="RxPreview.msgFax"/>: <%= finalFax %><br>
+                                                    <bean:message key="RxPreview.msgFax"/>: <%= Encode.forHtml(finalFax) %><br>
                                                 </oscar:oscarPropertiesCheck>
                                                     </c:when>
                                                     <c:otherwise>
@@ -397,10 +430,10 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                              	%>                                                    
                                                             <c:out value="${infirmaryView_programAddress}" escapeXml="false" />
                                                             <br />
-                                                    <bean:message key="RxPreview.msgTel"/>: <%=finalPhone %>
+                                                    <bean:message key="RxPreview.msgTel"/>: <%=Encode.forHtml(finalPhone) %>
                                                             <br />
                                                             <oscar:oscarPropertiesCheck property="RXFAX" value="yes">
-                                                        <bean:message key="RxPreview.msgFax"/>: <%=finalFax %>
+                                                        <bean:message key="RxPreview.msgFax"/>: <%=Encode.forHtml(finalFax) %>
                                                     </oscar:oscarPropertiesCheck>
                                                     </c:otherwise>
                                             </c:choose></td>
@@ -410,16 +443,16 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                             <table width=100% cellspacing=0 cellpadding=0>
                                                     <tr>
                                                             <td align=left valign=top><br>
-                                                                <%= patient.getFirstName() %> <%= patient.getSurname() %> <%if(showPatientDOB){%>&nbsp;&nbsp; DOB:<%= StringEscapeUtils.escapeHtml(patientDOBStr) %> <%}%><br>
-                                                            <%= patientAddress %><br>
-                                                            <%= patientCityPostal %><br>
-                                                            <%= patientPhone %><br>
+                                                                <%= Encode.forHtml(patient.getFirstName()) %> <%= Encode.forHtml(patient.getSurname()) %> <%if(showPatientDOB){%>&nbsp;&nbsp; DOB:<%= StringEscapeUtils.escapeHtml(patientDOBStr) %> <%}%><br>
+                                                            <%= Encode.forHtml(patientAddress) %><br>
+                                                            <%= Encode.forHtml(patientCityPostal) %><br>
+                                                            <%= Encode.forHtml(patientPhone) %><br>
                                                             <b> <% if(!props.getProperty("showRxHin", "").equals("false")) { %>
-                                                            <bean:message key="oscar.oscarRx.hin" /><%= patientHin %> <% } %>                                                            
+                                                            <bean:message key="oscar.oscarRx.hin" /><%= Encode.forHtml(patientHin) %> <% } %>                                                            
                                                             </b><br>
                                                                 <% if(props.getProperty("showRxChartNo", "").equalsIgnoreCase("true")) { %>
-                                                            <bean:message key="oscar.oscarRx.chartNo" /><%=ptChartNo%><% } %></td>
-                                                            <td align=right valign=top><b> <%= oscar.oscarRx.util.RxUtil.DateToString(rxDate, "MMMM d, yyyy",request.getLocale()) %>
+                                                            <bean:message key="oscar.oscarRx.chartNo" /><%= Encode.forHtml(ptChartNo)%><% } %></td>
+                                                            <td align=right valign=top><b> <%= oscar.oscarRx.util.RxUtil.DateToString(rxDate, "MMMM d, yyyy",locale) %>
                                                             </b></td>
                                                     </tr>
                                             </table>
@@ -479,16 +512,50 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
 																	String imageUrl=null;
 																	String startimageUrl=null;
 																	String statusUrl=null;
+// PHC FUDGE
+                                                                    UserProperty signatureProperty = userPropertyDAO.getProp(providerNo,UserProperty.PROVIDER_CONSULT_SIGNATURE);
+																	boolean stampSignature = signatureProperty != null && signatureProperty.getValue() != null && !signatureProperty.getValue().trim().isEmpty(); //&& OscarProperties.getInstance().isPropertyActive("consult_auto_load_signature") 
+																	//boolean stampSignature = true;
 
 																	signatureRequestId=loggedInInfo.getLoggedInProviderNo();
 																	imageUrl=request.getContextPath()+"/imageRenderingServlet?source="+ImageRenderingServlet.Source.signature_preview.name()+"&"+DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY+"="+signatureRequestId;
 																	startimageUrl=request.getContextPath()+"/images/1x1.gif";		
 																	statusUrl = request.getContextPath()+"/PMmodule/ClientManager/check_signature_status.jsp?" + DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY+"="+signatureRequestId;
+																	String imgFile = "";
+																		if (stampSignature) {																
+                                                                        String eAuth = LocaleUtils.getMessage(locale,"RxPreview.eAuth") != "RxPreview.eAuth" ? LocaleUtils.getMessage(locale,"RxPreview.eAuth") : "Authorized Electronically by ";
+                                                                        String at = LocaleUtils.getMessage(locale,"RxPreview.at") != "RxPreview.at" ? LocaleUtils.getMessage(locale,"RxPreview.eAuth") : "at";
+																		String signatureMessage = eAuth + Encode.forHtml(doctorName.replace("Dr. ", "").replaceAll("\\d{5}",""))
+																								+ " " + at + " " 
++ oscar.oscarRx.util.RxUtil.DateToString(new Date(), "HH:mma",locale);
+																		%>
+                                                                    	<p id="electronic_signature" style="display:none;"><%=signatureMessage%></p>
+                                                                    	<input type="hidden" id="electronicSignature" name="electronicSignature" value=""/> <%
+																			signatureRequestId=loggedInInfo.getLoggedInProviderNo();
+    																		imageUrl=request.getContextPath()+"/eform/displayImage.do?imagefile="+signatureProperty.getValue();
+																			startimageUrl=request.getContextPath() + "/images/1x1.gif";
+																			statusUrl = request.getContextPath()+"/PMmodule/ClientManager/check_signature_status.jsp?" + DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY+"="+signatureRequestId;
+																			imgFile = OscarProperties.getInstance().getProperty("eform_image") +  signatureProperty.getValue();
+																		} else {
+																			signatureRequestId = loggedInInfo.getLoggedInProviderNo();
+																			imageUrl = request.getContextPath() + "/imageRenderingServlet?source=" + ImageRenderingServlet.Source.signature_preview.name() + "&" + DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY + "=" + signatureRequestId;
+																			startimageUrl = request.getContextPath() + "/images/1x1.gif";
+																			statusUrl = request.getContextPath() + "/PMmodule/ClientManager/check_signature_status.jsp?" + DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY + "=" + signatureRequestId;
+																		}
+
+
+
+
+
+
+
+
+/// END FUDGE
 																	%>
 																	<input type="hidden" name="<%=DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY%>" value="<%=signatureRequestId%>" />	
 
 																	<img id="signature" style="width:300px; height:60px" src="<%=startimageUrl%>" alt="digital_signature" />
-				 													<input type="hidden" name="imgFile" id="imgFile" value="" />
+				 													<input type="hidden" name="imgFile" id="imgFile" value="<%=imgFile%>" />
 																	<script type="text/javascript">
 																		
 																		var POLL_TIME=2500;
@@ -519,7 +586,32 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                                             <td height=25px>
                                                             <% if (props.getProperty("signature_tablet", "").equals("yes")) { %>
                                                             <input type="button" value=<bean:message key="RxPreview.digitallySign"/> class="noprint" onclick="setInterval('refreshImage()', POLL_TIME); document.location='<%=request.getContextPath()%>/signature_pad/topaz_signature_pad.jnlp.jsp?<%=DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY%>=<%=signatureRequestId%>'"  />
-                                                            	<% } %>
+                                                            	<% } // PHC Fundge
+	                                                            if (stampSignature) { %> 
+
+		                                                            <input type="button" value=<bean:message key="RxPreview.digitallySign"/> class="noprint" onclick="electronicallySign();"  />
+		                                                            <script type="text/javascript">
+		                                                            	function electronicallySign() {
+		                                                            		document.getElementById('electronic_signature').style.display = 'block';
+		                                                            		document.getElementById('electronicSignature').value = document.getElementById('electronic_signature').innerHTML;
+                                                                            var img=document.getElementById("signature");
+																			img.src='<%=imageUrl%>';
+			                                                            <% if (OscarProperties.getInstance().isRxFaxEnabled() && pharmacy != null) { %>
+			                                                            	var hasFaxNumber = <%= pharmacy != null && pharmacy.getFax().trim().length() > 0 ? "true" : "false" %>;
+			                                                            	parent.document.getElementById("faxButton").disabled = !hasFaxNumber;
+																			
+                                                            			<% } %>	
+                                                                         }																	
+		                                                            </script>
+															<% } else {
+																if (stampSignature && OscarProperties.getInstance().isRxFaxEnabled() && pharmacy != null) { %>
+																	<script type="text/javascript">
+                                                                        var hasFaxNumber = <%= pharmacy != null && pharmacy.getFax().trim().length() > 0 ? "true" : "false" %>;
+                                                                        parent.document.getElementById("faxButton").disabled = !hasFaxNumber;
+                                                                        //parent.document.getElementById("faxPasteButton").disabled = !hasFaxNumber;
+																	</script>
+																<% } %>
+                                                                <% } %>
                                                             </td>
                                                             <td height=25px>&nbsp; <%= doctorName%> <% if ( pracNo != null && ! pracNo.equals("") && !pracNo.equalsIgnoreCase("null")) { %>
                                                                 <br /> &nbsp; <bean:message key="RxPreview.PractNo"/> <%= pracNo%> <% } %>                                                         
