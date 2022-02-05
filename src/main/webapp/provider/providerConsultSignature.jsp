@@ -51,29 +51,23 @@
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
-<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
+
 <html:html locale="true">
 	<head>
-		<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
-
-		<html:base/>
-		<link rel="stylesheet" type="text/css"
-			  href="../oscarEncounter/encounterStyles.css">
-
+        <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 		<title><bean:message key="provider.consultSignatureStamp.title"/></title>
-<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
-
 	</head>
 
-	<body class="BodyStyle" vlink="#0000FF">
-	<table class="MainTable" id="scrollNumber1" name="encounterTable">
-		<tr class="MainTableTopRow">
-			<td class="MainTableTopRowLeftColumn"><bean:message
-					key="provider.providerSignature.msgPrefs"/></td>
+	<body>
+	<table class=" MainTable" id="scrollNumber1" name="encounterTable" >
+		<tr class="MainTableTopRow" width="100%">
+			<td class="MainTableTopRowLeftColumn"><H4>&nbsp;<i class="icon-cogs"></i>&nbsp;<bean:message
+					key="provider.providerSignature.msgPrefs"/>&nbsp;</h4></td>
 			<td class="MainTableTopRowRightColumn">
-				<table class="TopStatusBar">
+				<table class="table TopStatusBar">
 					<tr>
-						<td><bean:message key="provider.consultSignatureStamp.title"/>
+						<td><strong><bean:message key="provider.consultSignatureStamp.title"/></strong>
 						</td>
 						<td>&nbsp;</td>
 						<td style="text-align: right">
@@ -101,16 +95,18 @@
 					<% } else { %>
 						<bean:message key="provider.providerSignature.msgSigNotSet"/>
 					<% } %>
+                    <br/>
 					<br/>
 					<bean:message key="provider.consultSignatureStamp.edit"/>
+                    <br/>
 					<br/>
-					<input type="file" id="image" name="image" onchange="changeSignature()"/>
+					<input type="file"  id="image" name="image" onchange="changeSignature()"/>
 					<br/>
 					<img id="consult_signature_img" src="" style="border: 1px solid black;"/>
 					<br/>
-					<span title="<bean:message key="global.uploadWarningBody"/>" style="vertical-align:middle;font-family:arial;font-size:20px;font-weight:bold;color:#ABABAB;cursor:pointer"><img border="0" src="../images/icon_alertsml.gif"/></span>
-					<input type="submit" name="submit" id="submit" value="<bean:message key="provider.editSignature.btnUpdate"/>" disabled/>
-					<input type="submit" name="submit" value="Remove Signature" onclick="document.getElementById('method').value = 'removeProviderImage'"/>
+					<span title="<bean:message key="global.uploadWarningBody"/>" style="vertical-align:middle;font-family:arial;font-size:20px;font-weight:bold;color:#ABABAB;cursor:pointer"><img border="0" src="<%=request.getContextPath()%>/images/icon_alertsml.gif"/></span>
+					<input type="submit" name="submit" class="btn" id="submit" value="<bean:message key="provider.editSignature.btnUpdate"/>" disabled/>
+					<input type="submit" name="submit" class="btn" value="Remove Signature" onclick="document.getElementById('method').value = 'removeProviderImage'"/<%= hasSig ? "":"disabled"%>>
 				</html:form>
 				<script type="application/javascript">
 

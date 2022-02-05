@@ -270,13 +270,23 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 		private String origPrintDate = null;
 		private String numPrint = null;
 		private String imgPath;
+		private String electronicSignature;
+		private String pharmaName;
+		private String pharmaTel;
+		private String pharmaFax;
+		private String pharmaAddress1;
+		private String pharmaAddress2;
+		private String pharmaEmail;
+		private String pharmaNote;
+		private boolean pharmaShow;
                 Locale locale = null;
                 
 		public EndPage() {
 		}
 
         public EndPage(String clinicName, String clinicTel, String clinicFax, String patientPhone, String patientCityPostal, String patientAddress,
-                String patientName,String patientDOB, String sigDoctorName, String rxDate,String origPrintDate,String numPrint, String imgPath, String patientHIN, String patientChartNo,String pracNo, Locale locale) {
+                String patientName,String patientDOB, String sigDoctorName, String rxDate,String origPrintDate,String numPrint, String imgPath, String electronicSignature, String patientHIN, String patientChartNo, String bandNumber, String pracNo, String pharmaName, String pharmaAddress1, String pharmaAddress2, String pharmaTel, String pharmaFax, String pharmaEmail, String pharmaNote, boolean pharmaShow, Locale locale) {
+ 			this.clinicName = clinicName==null ? "" : clinicName;
 			this.clinicName = clinicName==null ? "" : clinicName;
 			this.clinicTel = clinicTel==null ? "" : clinicTel;
 			this.clinicFax = clinicFax==null ? "" : clinicFax;
@@ -294,9 +304,19 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 				promoText = "";
 			}
 			this.imgPath = imgPath;
+			this.electronicSignature = electronicSignature;
 			this.patientHIN = patientHIN==null ? "" : patientHIN;
 			this.patientChartNo = patientChartNo==null ? "" : patientChartNo;
+			this.bandNumber = bandNumber;
 			this.pracNo = pracNo==null ? "" : pracNo;
+			this.pharmaName = pharmaName==null ? "" : pharmaName;
+			this.pharmaTel=pharmaTel==null ? "" : pharmaTel;
+			this.pharmaFax=pharmaFax==null ? "" : pharmaFax;
+			this.pharmaAddress1=pharmaAddress1==null ? "" : pharmaAddress1;
+			this.pharmaAddress2=pharmaAddress2==null ? "" : pharmaAddress2;
+			this.pharmaEmail=pharmaEmail==null ? "" : pharmaEmail;
+			this.pharmaNote=pharmaNote==null ? "" : pharmaNote;
+			this.pharmaShow=pharmaShow;
 			this.locale = locale;
 		}
 
@@ -385,9 +405,20 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 					writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, str2, 188, (page.getHeight() - 80), 0);
 					writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, geti18nTagValue(locale, "RxPreview.msgFax")+":" + this.clinicFax, 188, (page.getHeight() - 88), 0);
 				}
-
+					if (this.pharmaShow) {
+						writeDirectContent(cb,bf,10,PdfContentByte.ALIGN_LEFT,this.pharmaName,290,(page.getHeight()-30),0);
+						writeDirectContent(cb,bf,10,PdfContentByte.ALIGN_LEFT,this.pharmaAddress1,290,(page.getHeight()-42),0);
+						writeDirectContent(cb,bf,10,PdfContentByte.ALIGN_LEFT,this.pharmaAddress2,290,(page.getHeight()-54),0);
+						writeDirectContent(cb,bf,10,PdfContentByte.ALIGN_LEFT,"Tel:" + this.pharmaTel,290,(page.getHeight()-66),0);
+						writeDirectContent(cb,bf,10,PdfContentByte.ALIGN_LEFT,"Fax:" + this.pharmaFax,290,(page.getHeight()-78),0);
+						writeDirectContent(cb,bf,10,PdfContentByte.ALIGN_LEFT,"Email:" + this.pharmaEmail,290,(page.getHeight()-90),0);
+						writeDirectContent(cb,bf,10,PdfContentByte.ALIGN_LEFT,"Note:" + this.pharmaNote,290,(page.getHeight()-102),0);
+					}
 				// get the end of paragraph
 				float endPara = writer.getVerticalPosition(true);
+				if (document.getPageSize().getWidth() == PageSize.A6.getWidth() && document.getPageSize().getHeight() == PageSize.A6.getHeight()) {
+					endPara = endPara + 10;
+				}				
 				// draw left line
 				cb.setRGBColorStrokeF(0f, 0f, 0f);
 				cb.setLineWidth(0.5f);
@@ -431,16 +462,19 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 				if (this.imgPath != null) {
 					Image img = Image.getInstance(this.imgPath);
 					// image, image_width, 0, 0, image_height, x, y
-					//         131, 55, 375, 75, 0
 					cb.addImage(img, 157, 0, 0, 40, 90f, endPara-56f);
+				} else if (!this.electronicSignature.equals("") || this.electronicSignature != null) {
+					String[] lines = this.electronicSignature.split(System.getProperty("line.separator"));
+					writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, lines[0], 72f, endPara - 48f, 0);
+					writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, lines[1], 72f, endPara - 57f, 0);
 				}
 
 				// Render doctor name
-				writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, this.sigDoctorName, 90, endPara - 60f, 0);
+				writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, this.sigDoctorName, 90, endPara - 60f, 0);
 				// public void writeDirectContent(PdfContentByte cb, BaseFont bf, float fontSize, int alignment, String text, float x, float y, float rotation)
 				// render reprint origPrintDate and numPrint
 				if (origPrintDate != null && numPrint != null) {
-					String rePrintStr = geti18nTagValue(locale, "RxPreview.msgReprintBy")+" " + this.sigDoctorName + "; "+geti18nTagValue(locale, "RxPreview.msgOrigPrinted")+": " + origPrintDate + "; "+geti18nTagValue(locale, "RxPreview.msgTimesPrinted") +": " + numPrint;writeDirectContent(cb, bf, 6, PdfContentByte.ALIGN_LEFT, rePrintStr, 50, endPara - 68, 0);
+					String rePrintStr = geti18nTagValue(locale, "RxPreview.msgReprintBy")+" " + this.sigDoctorName + "; "+geti18nTagValue(locale, "RxPreview.msgOrigPrinted")+": " + origPrintDate + "; "+geti18nTagValue(locale, "RxPreview.msgTimesPrinted") +": " + numPrint;writeDirectContent(cb, bf, 6, PdfContentByte.ALIGN_LEFT, rePrintStr, 45, endPara - 67, 0);
 				}
 				// print promoText
 				writeDirectContent(cb, bf, 6, PdfContentByte.ALIGN_LEFT, this.promoText, 70, endPara - 77, 0);
@@ -535,9 +569,19 @@ public class FrmCustomedPDFServlet extends HttpServlet {
         String patientDOB=req.getParameter("patientDOB");
         String showPatientDOB=req.getParameter("showPatientDOB");
         String imgFile=req.getParameter("imgFile");
+        String electronicSignature = req.getParameter("electronicSignature");
         String patientHIN=req.getParameter("patientHIN");
         String patientChartNo = req.getParameter("patientChartNo");
+        String patientBandNumber = req.getParameter("bandNumber");
         String pracNo=req.getParameter("pracNo");
+        String pharmaName = req.getParameter("pharmaName");
+        String pharmaAddress1 = req.getParameter("pharmaAddress1");
+        String pharmaAddress2 = req.getParameter("pharmaAddress2");
+        String pharmaTel = req.getParameter("pharmaTel");
+        String pharmaFax = req.getParameter("pharmaFax");
+        String pharmaEmail = req.getParameter("pharmaEmail");
+        String pharmaNote = req.getParameter("pharmaNote");
+        boolean pharmaShow = (req.getParameter("pharmaShow").equals("true")?true:false);
         Locale locale = req.getLocale();
         
 		if (clinicName==null) clinicName = "";
@@ -645,7 +689,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 
 			// writer = PdfWriter.getInstance(document, baosPDF);
 			writer = PdfWriterFactory.newInstance(document, baosPDF, FontSettings.HELVETICA_10PT);
-			writer.setPageEvent(new EndPage(clinicName, clinicTel, clinicFax, patientPhone, patientCityPostal, patientAddress, patientName,patientDOB, sigDoctorName, rxDate, origPrintDate, numPrint, imgFile, patientHIN, patientChartNo, pracNo, locale));
+			writer.setPageEvent(new EndPage(clinicName, clinicTel, clinicFax, patientPhone, patientCityPostal, patientAddress, patientName,patientDOB, sigDoctorName, rxDate, origPrintDate, numPrint, imgFile, electronicSignature, patientHIN, patientChartNo, patientBandNumber, pracNo, pharmaName, pharmaAddress1, pharmaAddress2, pharmaTel, pharmaFax, pharmaEmail, pharmaNote, pharmaShow, locale));
 			document.addTitle(title);
 			document.addSubject("");
 			document.addKeywords("pdf, itext");

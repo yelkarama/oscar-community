@@ -467,21 +467,36 @@ var isSignatureDirty = false;
 var isSignatureSaved = false;
 function signatureHandler(e) {
 	<% if (OscarProperties.getInstance().isRxFaxEnabled()) { %>
-	var hasFaxNumber = <%= pharmacy != null && pharmacy.getFax().trim().length() > 0 ? "true" : "false" %>;
+	var hasFaxNumber = <%= pharmacy != null && pharmacy.getFax() != null && pharmacy.getFax().trim().length() > 0 ? "true" : "false" %>;
 	<% } %>
 	isSignatureDirty = e.isDirty;
 	isSignatureSaved = e.isSave;
 	e.target.onbeforeunload = null;
 	<% if (OscarProperties.getInstance().isRxFaxEnabled()) { //%>
-	e.target.document.getElementById("faxButton").disabled = !hasFaxNumber || !e.isSave;
+	let disabled = !hasFaxNumber || !e.isSave;
+	toggleFaxButtons(disabled);
 	<% } %>
 	if (e.isSave) {
 		<% if (OscarProperties.getInstance().isRxFaxEnabled()) { //%>
 		if (hasFaxNumber) {
-			//e.target.onbeforeunload = alert(unloadMess());
+			e.target.onbeforeunload = unloadMess;
 		}
 		<% } %>
 		refreshImage();			
+	}
+}
+
+function toggleFaxButtons(disabled) {
+	document.getElementById("faxButton").disabled = disabled;
+	//document.getElementById("faxPasteButton").disabled = disabled;
+}
+
+function enableExistingSignature() {
+	toggleFaxButtons(false);
+	frames["preview"].document.onreadystatechange = function(event, readystate) {
+		if (frames["preview"].document.readyState === "complete") {
+			refreshImage();
+		}
 	}
 }
 var requestIdKey = "<%=signatureRequestId %>";
@@ -606,6 +621,7 @@ function toggleView(form) {
                                     frames['preview'].document.getElementById('pharmInfo').innerHTML=text;
                                     //frames['preview'].document.getElementById('removePharm').show();
                                     $("selectedPharmacy").innerHTML='<bean:message key="oscarRx.printPharmacyInfo.paperSizeWarning"/>';
+                                    frames['preview'].document.getElementById('pharmaShow').value='true';
 
                                 }
                                 function reducePreview(){
@@ -614,6 +630,7 @@ function toggleView(form) {
                                     document.getElementById('preview').style.width="420px";
                                     frames['preview'].document.getElementById('pharmInfo').innerHTML="";
                                     $("selectedPharmacy").innerHTML="";
+                                    frames['preview'].document.getElementById('pharmaShow').value='false';
                                 }
                             </script>
 
