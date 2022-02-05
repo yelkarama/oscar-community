@@ -208,6 +208,7 @@ String pharmacyId = request.getParameter("pharmacyId");
 if (pharmacyId != null && !"null".equalsIgnoreCase(pharmacyId)) {
     pharmacy = pharmacyData.getPharmacy(pharmacyId);
     if( pharmacy != null ) {
+        pharmaName = pharmacy.getName();
 		pharmaFax = pharmacy.getFax();
 		pharmaFax2 = "<bean:message key='RxPreview.msgFax'/>"+": " + pharmacy.getFax();
 		pharmaTel = pharmacy.getPhone1() + ((pharmacy.getPhone2()!=null && !pharmacy.getPhone2().isEmpty())? "," + pharmacy.getPhone2():"");
@@ -523,13 +524,13 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
 																	statusUrl = request.getContextPath()+"/PMmodule/ClientManager/check_signature_status.jsp?" + DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY+"="+signatureRequestId;
 																	String imgFile = "";
 																		if (stampSignature) {																
-                                                                        String eAuth = LocaleUtils.getMessage(locale,"RxPreview.eAuth") != "RxPreview.eAuth" ? LocaleUtils.getMessage(locale,"RxPreview.eAuth") : "Authorized Electronically by ";
-                                                                        String at = LocaleUtils.getMessage(locale,"RxPreview.at") != "RxPreview.at" ? LocaleUtils.getMessage(locale,"RxPreview.eAuth") : "at";
-																		String signatureMessage = eAuth + Encode.forHtml(doctorName.replace("Dr. ", "").replaceAll("\\d{5}",""))
+                                                                        String eAuth = LocaleUtils.getMessage(locale,"RxPreview.eAuth") != "RxPreview.eAuth" ? LocaleUtils.getMessage(locale,"RxPreview.eAuth") : "Authorized Electronically by";
+                                                                        String at = LocaleUtils.getMessage(locale,"RxPreview.at") != "RxPreview.at" ? LocaleUtils.getMessage(locale,"RxPreview.at") : "at";
+																		String signatureMessage = eAuth + " " + Encode.forHtml(doctorName.replace("Dr. ", "").replaceAll("\\d{5}",""))
 																								+ " " + at + " " 
 + oscar.oscarRx.util.RxUtil.DateToString(new Date(), "HH:mma",locale);
 																		%>
-                                                                    	<p id="electronic_signature" style="display:none;"><%=signatureMessage%></p>
+                                                                    	<p id="electronic_signature" name="electronic_signature" style="display:none;"><%=signatureMessage%></p>
                                                                     	<input type="hidden" id="electronicSignature" name="electronicSignature" value=""/> <%
 																			signatureRequestId=loggedInInfo.getLoggedInProviderNo();
     																		imageUrl=request.getContextPath()+"/eform/displayImage.do?imagefile="+signatureProperty.getValue();
