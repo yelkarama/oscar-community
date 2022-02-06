@@ -63,6 +63,7 @@
 <%@page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
 <%@page import="org.oscarehr.common.model.Security" %>
 <%@page import="org.oscarehr.common.dao.SecurityDao" %>
+<%@page import="com.quatro.web.admin.SecurityAddSecurityHelper"%>
 <%
 	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 	SecurityDao securityDao = SpringUtils.getBean(SecurityDao.class);
@@ -83,25 +84,45 @@
 		color: black;
 	}
 </style>
-<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
-<script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery.js"></script>
+
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/checkPassword.js.jsp"></script>
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
+
+<script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery-1.9.1.js"></script>
+<script src="<%=request.getContextPath() %>/js/jqBootstrapValidation-1.3.7.min.js"></script>
 <title><bean:message key="admin.securityaddarecord.title" /></title>
-<!-- calendar stylesheet -->
-<link rel="stylesheet" type="text/css" media="all"
-	href="../share/calendar/calendar.css" title="win2k-cold-1" />
+  <script>
 
-<!-- main calendar program -->
-<script type="text/javascript" src="../share/calendar/calendar.js"></script>
+     $(function () { $("input,textarea,select").jqBootstrapValidation(
+                    {
+                        preventSubmit: true,
+                        submitError: function($form, event, errors) {
+                            // Here I do nothing, but you could do something like display 
+                            // the error messages to the user, log, etc.
+                            event.preventDefault();
+                        },
 
-<!-- language for the calendar -->
-<script type="text/javascript"
-	src="../share/calendar/lang/<bean:message key="global.javascript.calendar"/>"></script>
+                        submitSuccess: function($form, event) {
+	                     
+                        },
+                        filter: function() {
+                            return $(this).is(":visible");
+                        },
 
-<!-- the following script defines the Calendar.setup helper function, which makes
-       adding a calendar a matter of 1 or 2 lines of code. -->
-<script type="text/javascript" src="../share/calendar/calendar-setup.js"></script>
-<link rel="stylesheet" href="../web.css">
+                    }
+                );
+
+                $("a[data-toggle=\"tab\"]").click(function(e) {
+                    e.preventDefault();
+                    $(this).tab("show");
+                });
+
+            });          
+
+</script>
+
+
 <script type="text/javascript">
 <!--
 	function setfocus(el) {
@@ -110,7 +131,7 @@
 		document.searchprovider.elements[el].select();
 	}
 	function onsub() {
-		var selectedOption = jQuery('#provider_no option:selected');
+		var selectedOption = $('#provider_no option:selected');
 		if (selectedOption) {
 			var optionClass = selectedOption.attr("class");
 			if (optionClass == "providerSecurity1") {
@@ -118,17 +139,7 @@
 				return false;
 			}
 		}
-		
-		if (document.searchprovider.user_name.value=="") {
-			alert('<bean:message key="admin.securityrecord.formUserName" /> <bean:message key="admin.securityrecord.msgIsRequired"/>');
-			setfocus('user_name');
-			return false;
-		}
-		if (document.searchprovider.password.value=="") {
-			alert('<bean:message key="admin.securityrecord.formPassword" /> <bean:message key="admin.securityrecord.msgIsRequired"/>');
-			setfocus('password');
-			return false;
-		}
+
 
 		<%
 			boolean ignorePasswordReq=Boolean.parseBoolean(op.getProperty("IGNORE_PASSWORD_REQUIREMENTS"));
@@ -142,15 +153,8 @@
 				<%
 			}
 		%>
-		if (document.forms[0].password.value != document.forms[0].conPassword.value) {
-			alert('<bean:message key="admin.securityrecord.msgPasswordNotConfirmed" />');
-			setfocus('conPassword');
-			return false;
-		}
-		if (document.searchprovider.provider_no.value=="") {
-			alert('<bean:message key="admin.securityrecord.formProviderNo" /> <bean:message key="admin.securityrecord.msgIsRequired"/>');
-			return false;
-		}
+
+
 		if (document.forms[0].b_ExpireSet.checked && document.forms[0].date_ExpireDate.value.length<10) {
 			alert('<bean:message key="admin.securityrecord.formDate" /> <bean:message key="admin.securityrecord.msgIsRequired"/>');
 			setfocus('date_ExpireDate');
@@ -163,66 +167,89 @@
 				return false;
 			}
 		}
-		if (document.forms[0].pin.value != "" && !validatePin(document.forms[0].pin.value)) {
-			setfocus('pin');
-			return false;
-		}
-		if (document.forms[0].pin.value != document.forms[0].conPin.value) {
-			alert('<bean:message key="admin.securityrecord.msgPinNotConfirmed" />');
-			setfocus('conPin');
-			return false;
-		}
+
 		return true;
 	}
 //-->
 </script>
+
+
+
 </head>
 
-<body onLoad="setfocus('user_name')" topmargin="0" leftmargin="0" rightmargin="0">
-<center>
-<table border="0" cellspacing="0" cellpadding="0" width="100%">
-	<tr bgcolor="#486ebd">
-		<th align="CENTER"><font face="Helvetica" color="#FFFFFF"><bean:message
-			key="admin.securityaddarecord.description" /></font></th>
-	</tr>
-</table>
-<form method="post" action="securityaddsecurity.jsp" name="searchprovider"
-	onsubmit="return onsub()">
+<body onLoad="" topmargin="0" leftmargin="0" rightmargin="0">
+<div width="100%">
+    <div id="header"><H4><i class="icon-lock"></i>&nbsp;<bean:message
+			key="admin.securityaddarecord.description" /></H4>
+    </div>
+</div>
 
-<table cellspacing="0" cellpadding="2" width="90%" border="0">
-	<tr>
-		<td>
-		<div align="right"><bean:message
-			key="admin.securityrecord.formUserName" />:
-		</div>
-		</td>
-		<td><input type="text" name="user_name" size="20" maxlength="30">
-		</td>
-	</tr>
-	<tr>
-		<td>
-		<div align="right"><bean:message
-			key="admin.securityrecord.formPassword" />:
-		</div>
-		</td>
-		<td><input type="password" name="password" size="20" maxlength="32"> <font size="-2">(<bean:message
-			key="admin.securityrecord.msgAtLeast" />
-			<%=op.getProperty("password_min_length")%> <bean:message
-			key="admin.securityrecord.msgSymbols" />)</font></td>
-	</tr>
-	<tr>
-		<td>
-		<div align="right"><bean:message
-			key="admin.securityrecord.formConfirm" />:</div>
-		</td>
-		<td><input type="password" name="conPassword" size="20" maxlength="32"></td>
-	</tr>
-	<tr>
-		<td width="50%" align="right"><bean:message
-			key="admin.securityrecord.formProviderNo" />:
-		</td>
-		<td><select name="provider_no" id="provider_no">
-			<option value="">-- select one --</option>
+<%
+    String sPass = request.getParameter("password");
+    if ( sPass != null && sPass != "" ){
+    SecurityAddSecurityHelper helper = new SecurityAddSecurityHelper();
+	helper.addProvider(pageContext);
+%>
+<div class="alert alert-info" >
+    <strong><bean:message key="${message}" /><strong>
+</div>
+<% } %>
+
+<form method="post" action="securityaddarecord.jsp" name="searchprovider" autocomplete="off"
+	novalidate>
+<table width="400px" align="center">
+<tr><td >
+<div class="container-fluid well form-horizontal" >
+    <div class="control-group span7">
+        <label class="control-label" for="user_name"><bean:message 
+                key="admin.securityrecord.formUserName" /><span style="color:red">*</span></label>
+        <div class="controls">
+		    <input type="text" name="user_name" 
+		    value=""  
+		    maxlength="30" required ="required" 
+            data-validation-required-message='<bean:message key="admin.securityrecord.formUserName" /> <bean:message key="admin.securityrecord.msgIsRequired"/>'>
+            <p class="help-block text-danger"></p>
+        </div>
+    </div>
+    <div class="control-group span7">
+        <label class="control-label" for="password"><bean:message 
+                key="admin.securityrecord.formPassword" /><span style="color:red">*</span></label>
+        <div class="controls">
+		    <input type="password" 
+            autocomplete="new-password" name="password" required ="required" 
+            data-validation-required-message='<bean:message key="admin.securityrecord.formPassword" /> <bean:message key="admin.securityrecord.msgIsRequired"/>'
+            data-validation-compexity-regex="(?=.*\d)(?=.*[a-z])(?=.*[\W]).*" 
+            data-validation-compexity-message="<bean:message key="password.policy.violation.msgPasswordStrengthError"/> 
+        <%=op.getProperty("password_min_groups")%>   <bean:message key="password.policy.violation.msgPasswordGroups"/>" 
+            data-validation-length-regex=".{<%=op.getProperty("password_min_length")%>,255}"
+            data-validation-length-message="<bean:message key="password.policy.violation.msgPasswordStrengthError"/> <%=op.getProperty("password_min_length")%> <bean:message key="admin.securityrecord.msgSymbols" />"
+		    > 
+            <p class="help-block text-danger"></p>
+        </div>
+    </div>
+    <div class="control-group span7">
+        <label class="control-label" for="conPassword"><bean:message 
+                key="admin.securityrecord.formConfirm"  /><span style="color:red">*</span></label>
+        <div class="controls">
+		    <input type="password"
+            autocomplete="off" name="conPassword" 
+		    data-validation-match-match="password"
+            data-validation-match-message='<bean:message key="admin.securityrecord.msgPasswordNotConfirmed" />'
+            required ="required" 
+            data-validation-required-message="<bean:message key="global.missing" /> <bean:message key="admin.securityrecord.formConfirm" />"> 
+            <p class="help-block text-danger"></p>
+        </div>
+    </div>
+    <div class="control-group span7">
+        <label class="control-label" for="provider_no"><bean:message 
+                key="admin.securityrecord.formProviderNo" /><span style="color:red">*</span></label>
+        <div class="controls">
+		    <select name="provider_no" id="provider_no"
+            required ="required" 
+            data-validation-required-message='<bean:message key="admin.securityrecord.formProviderNo" /> <bean:message key="admin.securityrecord.msgIsRequired"/>'> 
+            >
+			<option value="">- <bean:message 
+                key="admin.securityrecord.formProviderNo" /> -</option>
 <%
 	List<Map<String,Object>> resultList ;
     if (isSiteAccessPrivacy) {
@@ -246,30 +273,42 @@
     	}
     }
 %>
-		</select></td>
-	</tr>
-	<!-- new security -->
-	<tr>
-		<td align="right" nowrap><bean:message
-			key="admin.securityrecord.formExpiryDate" />:</td>
-		<td><input type="checkbox" name="b_ExpireSet" value="1" <%="checked" %>" /> <bean:message
-			key="admin.securityrecord.formDate" />: <input type="text" name="date_ExpireDate" id="date_ExpireDate"
-			value="" size="10" readonly /> <img src="../images/cal.gif"
-			id="date_ExpireDate_cal" /></td>
-	</tr>
+		</select> 
+            <p class="help-block text-danger"></p>
+        </div>
+    </div>
+    <div class="control-group span7">
+        <label class="control-label" for="date_ExpireDate"><bean:message 
+                key="admin.securityrecord.formExpiryDate" /></label>
+        <div class="controls">
+		    <input type="checkbox" name="b_ExpireSet" value="1" <%="checked" %>" /> <bean:message
+			key="admin.securityrecord.formDate" />: <input type="date" name="date_ExpireDate" id="date_ExpireDate"
+			value="" class="input-medium" /> 
+            <p class="help-block text-danger"></p>
+        </div>
+    </div>
 <%
-	if (op.getBooleanProperty("NEW_USER_PIN_CONTROL","yes")) {
+	if (!op.getBooleanProperty("NEW_USER_PIN_CONTROL","yes")) {
 %>
 	<input type="hidden" name="pinIsRequired" value="0" />
-	<tr>
-		<td align="right" nowrap><bean:message
-			key="admin.securityrecord.formRemotePIN" />:</td>
-		<td><input type="checkbox" name="b_RemoteLockSet"
-			value="1" <%=op.getBooleanProperty("caisi","on")?"":"checked" %> />
-		<bean:message
-			key="admin.securityrecord.formLocalPIN" />: <input type="checkbox" name="b_LocalLockSet"
-			value="1" <%=op.getBooleanProperty("caisi","on")?"checked":"" %> /></td>
-	</tr>
+    <div class="control-group span7">
+        <label class="control-label" for="b_RemoteLockSet"><bean:message 
+                key="admin.securityrecord.formRemotePIN" /></label>
+        <div class="controls">
+		    <input type="checkbox" name="b_RemoteLockSet" value="1" <%="checked" %>" /> 
+            <p class="help-block text-danger"></p>
+        </div>
+    </div>
+    <div class="control-group span7">
+        <label class="control-label" for="b_LocalLockSet"><bean:message 
+                key="admin.securityrecord.formLocalPIN" /></label>
+        <div class="controls">
+		    <input type="checkbox" name="b_LocalLockSet"
+			value="1" <%=op.getBooleanProperty("caisi","on")?"checked":"" %> /> 
+            <p class="help-block text-danger"></p>
+        </div>
+    </div>
+
 <%
 	} else {
 %>
@@ -279,59 +318,62 @@
 <%
 	}
 %>
-	<!-- new security -->
-	<tr>
-		<td>
-		<div align="right"><bean:message
-			key="admin.securityrecord.formPIN" />:</div>
-		</td>
-		<td><input type="password" name="pin" size="6" maxlength="6" /> <font size="-2">(<bean:message
-			key="admin.securityrecord.msgAtLeast" />
-			<%=op.getProperty("password_pin_min_length")%> <bean:message
-			key="admin.securityrecord.msgDigits" />)</font>
-		</td>
-	</tr>
-	<tr>
-		<td>
-		<div align="right"><bean:message
-			key="admin.securityrecord.formConfirm" />:</div>
-		</td>
-		<td><input type="password" name="conPin" size="6" maxlength="6" /></td>
-	</tr>
+
+
+    <div class="control-group span7">
+        <label class="control-label" for="pin"><bean:message 
+                key="admin.securityrecord.formPIN"  /></label>
+        <div class="controls">
+		    <input type="password" name="pin" 
+            autocomplete="off"
+            minlength="<%=op.getProperty("password_pin_min_length")%>"
+            data-validation-minlength-message="<bean:message key="admin.securityrecord.msgAtLeast" /> <%=op.getProperty("password_pin_min_length")%> <bean:message
+			key="admin.securityrecord.msgDigits" />"
+            pattern="\d*"
+            data-validation-pattern-message="<bean:message key="password.policy.violation.msgPinGroups"/>"
+            >
+            <p class="help-block text-danger"></p>
+        </div>
+    </div>
+    <div class="control-group span7">
+        <label class="control-label" for="conPin"><bean:message 
+                key="admin.securityrecord.formConfirm"  /></label>
+        <div class="controls">
+		    <input type="password" name="conPin" 
+            autocomplete="off"
+		    data-validation-match-match="pin"
+            data-validation-match-message='<bean:message key="admin.securityrecord.msgPinNotConfirmed" />'
+             >
+            <p class="help-block text-danger"></p>
+        </div>
+    </div>
 	
 	<%
 		if (!OscarProperties.getInstance().getBooleanProperty("mandatory_password_reset", "false")) {
-	%>		  
-			<tr>		
-				<td align="right"><bean:message key="admin.provider.forcePasswordReset" />:
-				</td>
-				<td>
-						<select name="forcePasswordReset">
-								<option value="1">true</option>
-								<option value="0">false</option>
-						</select>	
-				</td>
-			</tr>
+	%>
+    <div class="control-group span7">
+        <label class="control-label" for="forcePasswordReset"><bean:message 
+                key="admin.provider.forcePasswordReset"  /></label>
+        <div class="controls">
+			<select name="forcePasswordReset">
+								<option value="1"><bean:message key="global.yes" /></option>
+								<option value="0"><bean:message key="global.no" /></option>
+			</select>
+            <p class="help-block text-danger"></p>
+        </div>
+    </div>
    <%} %>
-	
-	<tr>
-		<td colspan="2">
-		<div align="center">
+</div>
+
+		<div align="center" class="span9">
 		
-		<input type="submit" name="subbutton" value='<bean:message key="admin.securityaddarecord.btnSubmit"/>'>
+		<input type="submit" name="subbutton" class="btn btn-primary" onclick="return onsub();"
+			value='<bean:message key="admin.securityaddarecord.btnSubmit"/>'>
 		</div>
-		</td>
-	</tr>
+</td></tr>
 </table>
+
 </form>
 
-
-
-
-
-</center>
-<script type="text/javascript">
-Calendar.setup({ inputField : "date_ExpireDate", ifFormat : "%Y-%m-%d", showsTime :false, button : "date_ExpireDate_cal" });
-</script>
 </body>
 </html:html>

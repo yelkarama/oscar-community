@@ -53,6 +53,7 @@
 <%@ page import="java.util.Arrays" %>
 <%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="oscar.util.StringUtils" %>
+<%@ page import="org.oscarehr.util.MiscUtils" %>
 <%@ page import="org.oscarehr.common.dao.AppointmentTypeDao" %>
 <%@ page import="org.oscarehr.common.model.AppointmentType" %>
 <%@ page import="oscar.OscarProperties" %>
@@ -64,38 +65,20 @@
     List<AppointmentType> appointmentTypeList = appointmentTypeDao.listAll();
     OscarProperties oscarProps = OscarProperties.getInstance();
 
-    if (request.getParameter("dboperation") != null && !request.getParameter("dboperation").isEmpty() && request.getParameter("dboperation").equals("Save")) {
-        for(String key : SystemPreferences.SCHEDULE_PREFERENCE_KEYS) {
-            SystemPreferences preference = systemPreferencesDao.findPreferenceByName(key);
-            String newValue = request.getParameter(key);
-            
-            if (preference != null) {
-                if (!preference.getValue().equals(newValue)) {
-                    preference.setUpdateDate(new Date());
-                    preference.setValue(newValue);
-                    systemPreferencesDao.merge(preference);
-                }
-            } else {
-                preference = new SystemPreferences();
-                preference.setName(key);
-                preference.setUpdateDate(new Date());
-                preference.setValue(newValue);
-                systemPreferencesDao.persist(preference);
-            }
-        }
-    }
+
 %>
 
 <html:html locale="true">
     <head>
-        <title>Mandatory Fields - Master File</title>
-<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
-        <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+        <title><bean:message key="admin.admin.scheduleDisplay.pagetitle" /></title>
+        <script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
+        <link href="<%=request.getContextPath()%>/css/bootstrap.css" rel="stylesheet" type="text/css">
 
-        <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
+        <script type="text/javascript" src="<%=request.getContextPath() %>/js/global.js"></script>
         <script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.7.1.min.js"></script>
         <script type="text/javascript" src="<%=request.getContextPath() %>/js/bootstrap.js"></script>
-        <script type="text/javascript" language="JavaScript" src="<%= request.getContextPath() %>/share/javascript/Oscar.js"></script>
+        <script type="text/javascript" language="JavaScript" src="<%=request.getContextPath() %>/share/javascript/Oscar.js"></script>
+
         <script type="text/javascript" language="JavaScript">
             function toggleThirdPartyInputs(){
                 var thirdPartyInputsEnabled = document.getElementById('schedule_tp_link_enabled-true');
@@ -142,111 +125,124 @@
     %>
 
     <body vlink="#0000FF" class="BodyStyle">
-    <h4>Manage Schedule Display Settings</h4>
+    <h4><bean:message key="admin.admin.scheduleDisplay.pagetitle" /></h4>
     <form name="displaySettingsForm" method="post" action="scheduleDisplaySettings.jsp">
         <input type="hidden" name="dboperation" value="">
         <table id="displaySettingsTable" class="table table-bordered table-striped table-hover table-condensed">
             <tbody>
 	            <tr>
-	                <td>Show Classic Schedule: </td>
+	                <td><bean:message key="admin.admin.scheduleDisplay.oldSchedule" />: </td>
 	                <td>
 	                    <input id="old_schedule_enabled-true" type="radio" value="true" name="old_schedule_enabled"
 	                            <%=(dataBean.getProperty("old_schedule_enabled", "false").equals("true")) ? "checked" : ""%> />
-	                    Yes
+	                    <bean:message key="global.yes" />
 	                    &nbsp;&nbsp;&nbsp;
 	                    <input id="old_schedule_enabled-false" type="radio" value="false" name="old_schedule_enabled"
 	                            <%=(dataBean.getProperty("old_schedule_enabled", "false").equals("false")) ? "checked" : ""%> />
-	                    No
+	                    <bean:message key="global.no" />
 	                    &nbsp;&nbsp;&nbsp;
 	                </td>
 	            </tr>
 	            <tr>
-	                <td>Activate Eyeform: </td>
+	                <td><bean:message key="admin.admin.scheduleDisplay.timeLine" />: </td>
+	                <td>
+	                    <input id="display_timeline-true" type="radio" value="true" name="display_timeline"
+	                            <%=(dataBean.getProperty("display_timeline", "true").equals("true")) ? "checked" : ""%> />
+	                    <bean:message key="global.yes" />
+	                    &nbsp;&nbsp;&nbsp;
+	                    <input id="display_timeline-false" type="radio" value="false" name="display_timeline"
+	                            <%=(dataBean.getProperty("display_timeline", "true").equals("false")) ? "checked" : ""%> />
+	                    <bean:message key="global.no" />
+	                    &nbsp;&nbsp;&nbsp;
+	                </td>
+	            </tr> 
+	            <tr>
+	                <td><bean:message key="admin.admin.scheduleDisplay.eye" />: </td>
 	                <td>
 	                    <input id="new_eyeform_enabled-true" type="radio" value="true" name="new_eyeform_enabled"
 	                            <%=(dataBean.getProperty("new_eyeform_enabled", "false").equals("true")) ? "checked" : ""%> />
-	                    Yes
+	                    <bean:message key="global.yes" />
 	                    &nbsp;&nbsp;&nbsp;
 	                    <input id="new_eyeform_enabled-false" type="radio" value="false" name="new_eyeform_enabled"
 	                            <%=(dataBean.getProperty("new_eyeform_enabled", "false").equals("false")) ? "checked" : ""%> />
-	                    No
+	                    <bean:message key="global.no" />
 	                    &nbsp;&nbsp;&nbsp;
 	                </td>
 	            </tr>
-	            <td>Activate Appointment Screen Intake Link: </td>
+	            <td><bean:message key="admin.admin.scheduleDisplay.intake" />: </td>
 	                <td>
 	                    <input id="appt_intake_form-true" type="radio" value="true" name="appt_intake_form"
 	                            <%=(dataBean.getProperty("appt_intake_form", "true").equals("true")) ? "checked" : ""%> />
-	                    Yes
+	                    <bean:message key="global.yes" />
 	                    &nbsp;&nbsp;&nbsp;
 	                    <input id="appt_intake_form-false" type="radio" value="false" name="appt_intake_form"
 	                            <%=(dataBean.getProperty("appt_intake_form", "true").equals("false")) ? "checked" : ""%> />
-	                    No
+	                    <bean:message key="global.no" />
 	                    &nbsp;&nbsp;&nbsp;
 	                </td>
 	            </tr>
 	            <tr>
-	                <td>Appointment Show Full Name: </td>
+	                <td><bean:message key="admin.admin.scheduleDisplay.fullName" />: </td>
 	                <td>
 	                    <input id="appt_show_full_name-true" type="radio" value="true" name="appt_show_full_name"
 	                            <%=(dataBean.getProperty("appt_show_full_name", "true").equals("true")) ? "checked" : ""%> />
-	                    Yes
+	                    <bean:message key="global.yes" />
 	                    &nbsp;&nbsp;&nbsp;
 	                    <input id="appt_show_full_name-false" type="radio" value="false" name="appt_show_full_name"
 	                            <%=(dataBean.getProperty("appt_show_full_name", "true").equals("false")) ? "checked" : ""%> />
-	                    No
+	                    <bean:message key="global.no" />
 	                    &nbsp;&nbsp;&nbsp;
 	                </td>
 	            </tr>            
 	            <tr>
-	                <td>Appointment Show Reason: </td>
+	                <td><bean:message key="admin.admin.scheduleDisplay.reason" />: </td>
 	                <td>
 	                    <input id="show_appt_reason-true" type="radio" value="true" name="show_appt_reason"
 	                            <%=(dataBean.getProperty("show_appt_reason", "true").equals("true")) ? "checked" : ""%> />
-	                    Yes
+	                    <bean:message key="global.yes" />
 	                    &nbsp;&nbsp;&nbsp;
 	                    <input id="show_appt_reason-false" type="radio" value="false" name="show_appt_reason"
 	                            <%=(dataBean.getProperty("show_appt_reason", "true").equals("false")) ? "checked" : ""%> />
-	                    No
+	                    <bean:message key="global.no" />
 	                    &nbsp;&nbsp;&nbsp;
 	                </td>
 	            </tr>            
 	            <tr>
-	                <td>Show Non Scheduled Days in Week View: </td>
+	                <td><bean:message key="admin.admin.scheduleDisplay.allDays" />: </td>
 	                <td>
 	                    <input id="show_NonScheduledDays_In_WeekView-true" type="radio" value="true" name="show_NonScheduledDays_In_WeekView"
 	                            <%=(dataBean.getProperty("show_NonScheduledDays_In_WeekView", "true").equals("true")) ? "checked" : ""%> />
-	                    Yes
+	                    <bean:message key="global.yes" />
 	                    &nbsp;&nbsp;&nbsp;
 	                    <input id="show_NonScheduledDays_In_WeekView-false" type="radio" value="false" name="show_NonScheduledDays_In_WeekView"
 	                            <%=(dataBean.getProperty("show_NonScheduledDays_In_WeekView", "true").equals("false")) ? "checked" : ""%> />
-	                    No
+	                    <bean:message key="global.no" />
 	                    &nbsp;&nbsp;&nbsp;
 	                </td>
 	            </tr>            
 	            <tr>
-	                <td>Receptionist Alternate View: </td>
+	                <td><bean:message key="admin.admin.scheduleDisplay.recepAlt" />: </td>
 	                <td>
 	                    <input id="receptionist_alt_view-true" type="radio" value="true" name="receptionist_alt_view"
 	                            <%=(dataBean.getProperty("receptionist_alt_view", "false").equals("true")) ? "checked" : ""%> />
-	                    Yes
+	                    <bean:message key="global.yes" />
 	                    &nbsp;&nbsp;&nbsp;
 	                    <input id="receptionist_alt_view-false" type="radio" value="false" name="receptionist_alt_view"
 	                            <%=(dataBean.getProperty("receptionist_alt_view", "false").equals("false")) ? "checked" : ""%> />
-	                    No
+	                    <bean:message key="global.no" />
 	                    &nbsp;&nbsp;&nbsp;
 	                </td>
 	            </tr>            
 	            <tr>
-	                <td>Show Appointment Type With Reason: </td>
+	                <td><bean:message key="admin.admin.scheduleDisplay.typeReason" />: </td>
 	                <td>
 	                    <input id="show_appt_type_with_reason-true" type="radio" value="true" name="show_appt_type_with_reason"
 	                            <%=(dataBean.getProperty("show_appt_type_with_reason", "true").equals("true")) ? "checked" : ""%> />
-	                    Yes
+	                    <bean:message key="global.yes" />
 	                    &nbsp;&nbsp;&nbsp;
 	                    <input id="show_appt_type_with_reason-false" type="radio" value="false" name="show_appt_type_with_reason"
 	                            <%=(dataBean.getProperty("show_appt_type_with_reason", "true").equals("false")) ? "checked" : ""%> />
-	                    No
+	                    <bean:message key="global.no" />
 	                    &nbsp;&nbsp;&nbsp;
 	                </td>
 	            </tr>            
@@ -255,81 +251,81 @@
 	                <td>
 	                    <input id="appt_show_short_letters-true" type="radio" value="true" name="appt_show_short_letters"
 	                            <%=(dataBean.getProperty("appt_show_short_letters", "false").equals("true")) ? "checked" : ""%> />
-	                    Yes
+	                    <bean:message key="global.yes" />
 	                    &nbsp;&nbsp;&nbsp;
 	                    <input id="appt_show_short_letters-false" type="radio" value="false" name="appt_show_short_letters"
 	                            <%=(dataBean.getProperty("appt_show_short_letters", "false").equals("false")) ? "checked" : ""%> />
-	                    No
+	                    <bean:message key="global.no" />
 	                    &nbsp;&nbsp;&nbsp;
 	                </td>
 	            </tr>
 -->	            <tr>
-	                <td>Display Alerts on Schedule: </td>
+	                <td><bean:message key="admin.admin.scheduleDisplay.alert" />: </td>
 	                <td>
 	                    <input id="displayAlertsOnScheduleScreen-true" type="radio" value="true" name="displayAlertsOnScheduleScreen"
 	                            <%=(dataBean.getProperty("displayAlertsOnScheduleScreen", "true").equals("true")) ? "checked" : ""%> />
-	                    Yes
+	                    <bean:message key="global.yes" />
 	                    &nbsp;&nbsp;&nbsp;
 	                    <input id="displayAlertsOnScheduleScreen-false" type="radio" value="false" name="displayAlertsOnScheduleScreen"
 	                            <%=(dataBean.getProperty("displayAlertsOnScheduleScreen", "true").equals("false")) ? "checked" : ""%> />
-	                    No
+	                    <bean:message key="global.no" />
 	                    &nbsp;&nbsp;&nbsp;
 	                </td>
 	            </tr>            
 	            <tr>
-	                <td>Display Notes on Schedule: </td>
+	                <td><bean:message key="admin.admin.scheduleDisplay.notes" />: </td>
 	                <td>
 	                    <input id="displayNotesOnScheduleScreen-true" type="radio" value="true" name="displayNotesOnScheduleScreen"
 	                            <%=(dataBean.getProperty("displayNotesOnScheduleScreen", "true").equals("true")) ? "checked" : ""%> />
-	                    Yes
+	                    <bean:message key="global.yes" />
 	                    &nbsp;&nbsp;&nbsp;
 	                    <input id="displayNotesOnScheduleScreen-false" type="radio" value="false" name="displayNotesOnScheduleScreen"
 	                            <%=(dataBean.getProperty("displayNotesOnScheduleScreen", "true").equals("false")) ? "checked" : ""%> />
-	                    No
+	                    <bean:message key="global.no" />
 	                    &nbsp;&nbsp;&nbsp;
 	                </td>
 	            </tr>  
 	            <tr>
-	                <td>Display Large Calendar Selector: </td>
+	                <td><bean:message key="admin.admin.scheduleDisplay.bigCalendar" />: </td>
 	                <td>
 	                    <input id="display_large_calendar-true" type="radio" value="true" name="display_large_calendar"
 	                            <%=(dataBean.getProperty("display_large_calendar", "true").equals("true")) ? "checked" : ""%> />
-	                    Yes
+	                    <bean:message key="global.yes" />
 	                    &nbsp;&nbsp;&nbsp;
 	                    <input id="display_large_calendar-false" type="radio" value="false" name="display_large_calendar"
 	                            <%=(dataBean.getProperty("display_large_calendar", "true").equals("false")) ? "checked" : ""%> />
-	                    No
+	                    <bean:message key="global.no" />
 	                    &nbsp;&nbsp;&nbsp;
 	                </td>
 	            </tr>
 	            <tr>
-	                <td>Display Quick Date Selector with Fixed Intervals: </td>
+	                <td><bean:message key="admin.admin.scheduleDisplay.quickDate" />: </td>
 	                <td>
 	                    <input id="display_quick_date_picker-true" type="radio" value="true" name="display_quick_date_picker"
 	                            <%=(dataBean.getProperty("display_quick_date_picker", "true").equals("true")) ? "checked" : ""%> />
-	                    Yes
+	                    <bean:message key="global.yes" />
 	                    &nbsp;&nbsp;&nbsp;
 	                    <input id="display_quick_date_picker-false" type="radio" value="false" name="display_quick_date_picker"
 	                            <%=(dataBean.getProperty("display_quick_date_picker", "true").equals("false")) ? "checked" : ""%> />
-	                    No
+	                    <bean:message key="global.no" />
 	                    &nbsp;&nbsp;&nbsp;
 	                </td>
 	            </tr>  
 	            <tr>
-	                <td>Display Quick Date Selector with Multiplier: </td>
+	                <td><bean:message key="admin.admin.scheduleDisplay.multiplier" />: </td>
 	                <td>
 	                    <input id="display_quick_date_multiplier-true" type="radio" value="true" name="display_quick_date_multiplier"
 	                            <%=(dataBean.getProperty("display_quick_date_multiplier", "true").equals("true")) ? "checked" : ""%> />
-	                    Yes
+	                    <bean:message key="global.yes" />
 	                    &nbsp;&nbsp;&nbsp;
 	                    <input id="display_quick_date_multiplier-false" type="radio" value="false" name="display_quick_date_multiplier"
 	                            <%=(dataBean.getProperty("display_quick_date_multiplier", "true").equals("false")) ? "checked" : ""%> />
-	                    No
+	                    <bean:message key="global.no" />
 	                    &nbsp;&nbsp;&nbsp;
 	                </td>
 	            </tr>     
                 <tr>
-                    <td>Display Appointment Type on Schedules: </td>
+                    <td><bean:message key="admin.admin.scheduleDisplay.type" />: </td>
                     <td>
                         <input id="schedule_display_type-true" type="radio" value="true" name="schedule_display_type"
                                 <%=(dataBean.getProperty("schedule_display_type", "false").equals("true")) ? "checked" : ""%> />
@@ -425,7 +421,45 @@
             </tbody>
         </table>
 
-        <input type="button" class="btn btn-primary" onclick="document.forms['displaySettingsForm'].dboperation.value='Save'; document.forms['displaySettingsForm'].submit();" name="saveDisplaySettings" value="Save"/>
+        <input type="button" class="btn btn-primary" onclick="document.forms['displaySettingsForm'].dboperation.value='Save'; document.forms['displaySettingsForm'].submit();" name="saveDisplaySettings" value="<bean:message key="global.btnSave" />"/>
     </form>
+<%
+
+    if (request.getParameter("dboperation") != null && !request.getParameter("dboperation").isEmpty() && request.getParameter("dboperation").equals("Save")) {
+        try { 
+            for(String key : SystemPreferences.SCHEDULE_PREFERENCE_KEYS) {
+                SystemPreferences preference = systemPreferencesDao.findPreferenceByName(key);
+                String newValue = request.getParameter(key);
+                
+                if (preference != null) {
+                    if (!preference.getValue().equals(newValue)) {
+                        preference.setUpdateDate(new Date());
+                        preference.setValue(newValue);
+                        systemPreferencesDao.merge(preference);
+                    }
+                } else {
+                    preference = new SystemPreferences();
+                    preference.setName(key);
+                    preference.setUpdateDate(new Date());
+                    preference.setValue(newValue);
+                    systemPreferencesDao.persist(preference);
+                }
+            }
+%>
+    <div class="alert alert-success">
+    <bean:message key="admin.admin.scheduleDisplay.success" />
+    </div>
+<%
+        } catch(Exception ex){
+            MiscUtils.getLogger().error("Error", ex);
+%>
+    <div class="alert alert-error">
+    <bean:message key="admin.admin.scheduleDisplay.error" />
+    </div>
+<%
+        }
+    }
+%>
+
     </body>
 </html:html>

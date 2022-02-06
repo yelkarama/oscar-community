@@ -99,7 +99,7 @@
 	ProgramManager2 programManager2 = SpringUtils.getBean(ProgramManager2.class);
     String privateConsentEnabledProperty = OscarProperties.getInstance().getProperty("privateConsentEnabled");
     boolean privateConsentEnabled = privateConsentEnabledProperty != null && privateConsentEnabledProperty.equals("true");
-    
+    boolean checkP = "false".equals(OscarProperties.getInstance().getProperty("skip_postal_code_validation","false"));    
     LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 %>
 <jsp:useBean id="providerBean" class="java.util.Properties" scope="session" />
@@ -191,8 +191,45 @@
 <link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.7.1.min.js"></script>
+<script src="<%=request.getContextPath() %>/js/jqBootstrapValidation-1.3.7.min.js"></script>
    <script>
-     jQuery.noConflict();     
+     //jQuery.noConflict(); 
+    //$(function () { $("input,select,textarea").not("[type=submit]").jqBootstrapValidation(); } ); 
+
+     $(function () { $("input,textarea,select").jqBootstrapValidation(
+                    {
+                        preventSubmit: true,
+                        submitError: function($form, event, errors) {
+                            // Here I do nothing, but you could do something like display 
+                            // the error messages to the user, log, etc.
+                            event.preventDefault();
+                        },
+
+                        submitSuccess: function($form, event) {
+	                    if (preferredPhone=="C") {
+	                                $("#cell").val(function(i, val) { return val + "*"; });
+	                        }  else if (preferredPhone=="H") {
+	                                $("#phone").val(function(i, val) { return val + "*"; });
+	                        }  else if (preferredPhone=="W") {
+	                                $("#phone2").val(function(i, val) { return val + "*"; });
+	                        }
+                           // aSubmit();
+                        },
+                        filter: function() {
+                            return $(this).is(":visible");
+                        },
+
+                    }
+                );
+
+                $("a[data-toggle=\"tab\"]").click(function(e) {
+                    e.preventDefault();
+                    $(this).tab("show");
+                });
+
+            });          
+
+   
    </script>
 <script>
     window.onunload = refreshParent;
@@ -203,6 +240,7 @@
 
    <script type="text/javascript">
         function aSubmit(){
+
             if(document.getElementById("eform_iframe")!=null)document.getElementById("eform_iframe").contentWindow.document.forms[0].submit();
                         
             if(!checkFormTypeIn()) return false;
@@ -210,9 +248,6 @@
             if( !ignoreDuplicates() ) return false;
             //document.getElementById("adddemographic").submit();
 
-             <% if("false".equals(OscarProperties.getInstance().getProperty("skip_postal_code_validation","false"))) { %>
-  				if ( !isPostalCode() ) return false;
-  			<% } %>
   
   			var rosterStatus = document.adddemographic.roster_status.value;
   			if(rosterStatus == 'RO') {
@@ -222,12 +257,14 @@
   	  			var rosterDateDate = document.adddemographic.roster_date_date.value;
 			
   	  			if(rosterEnrolledTo == '') {
-  	  				alert('You must choose a valid Enrolled To physician');
+  	  				//alert('<bean:message key="demographic.demographiceditdemographic.alertenrollto" />');
+                    //document.adddemographic.roster_enrolled_to.focus();
   	  				return false;
   	  			}
   	  			
   	  			if(rosterDateYear == '' || rosterDateMonth == '' || rosterDateDate == '') {
-	  				alert('You must choose a valid Date Rostered');
+	  				//alert('<bean:message key="demographic.demographiceditdemographic.alertrosterdate" />');
+                    //document.adddemographic.roster_date.focus();
 	  				return false;
 	  			}
   				
@@ -250,39 +287,17 @@
 	<link rel="stylesheet" href="<%=request.getContextPath() %>/hcHandler/hcHandler.css" type="text/css" />
 <% } %>
 	
-<!-- calendar stylesheet -->
-<link rel="stylesheet" type="text/css" media="all"
-	href="../share/calendar/calendar.css" title="win2k-cold-1" />
-
-<!-- main calendar program -->
-<script type="text/javascript" src="../share/calendar/calendar.js"></script>
-
-<!-- language for the calendar -->
-<script type="text/javascript"
-	src="../share/calendar/lang/<bean:message key="global.javascript.calendar"/>"></script>
 
 
 <script type="text/javascript" src="<%=request.getContextPath() %>/js/check_hin.js"></script>
 
-<!-- Stylesheet for zdemographicfulltitlesearch.jsp -->
-<!--<link rel="stylesheet" type="text/css" href="../share/css/searchBox.css" />-->
-<!--<link rel="stylesheet" type="text/css" href="<%=request.getContextPath() %>/css/Demographic.css" />-->
 
-<!--link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  /-->
+
 <script language="JavaScript">
 function upCaseCtrl(ctrl) {
 	ctrl.value = ctrl.value.toUpperCase();
 }
-//function showDate(){
-//  var now=new Date();
-//  var year=now.getYear();
-//  var month=now.getMonth()+1;
-//  var date=now.getDate();
-//  //var DateVal=""+year+"-"+month+"-"+date;
-//  document.adddemographic.date_joined_year.value=year;
-//  document.adddemographic.date_joined_month.value=month;
-//  document.adddemographic.date_joined_date.value=date;
-//}
+
 
 function checkTypeIn() {
   var dob = document.titlesearch.keyword; typeInOK = false;
@@ -295,7 +310,6 @@ function checkTypeIn() {
   if(document.titlesearch.search_mode[2].checked) {
     if(dob.value.length==8) {
       dob.value = dob.value.substring(0, 4)+"-"+dob.value.substring(4, 6)+"-"+dob.value.substring(6, 8);
-      //alert(dob.value.length);
       typeInOK = true;
     }
     if(dob.value.length != 10) {
@@ -326,7 +340,7 @@ function newStatus() {
         document.adddemographic.patient_status.options[document.adddemographic.patient_status.length] = new Option(newOpt, newOpt);
         document.adddemographic.patient_status.options[document.adddemographic.patient_status.length-1].selected = true;
     } else {
-        alert("Invalid entry");
+        alert("<bean:message	key="global.alertinvalid" />");
     }
 }
 function newStatus1() {
@@ -335,7 +349,7 @@ function newStatus1() {
         document.adddemographic.roster_status.options[document.adddemographic.roster_status.length] = new Option(newOpt, newOpt);
         document.adddemographic.roster_status.options[document.adddemographic.roster_status.length-1].selected = true;
     } else {
-        alert("Invalid entry");
+        alert("<bean:message	key="global.alertinvalid" />");
     }
 }
 
@@ -370,7 +384,7 @@ function referralScriptAttach2(elementName, name2) {
      var d = elementName;
      t0 = escape("document.forms[1].elements[\'"+d+"\'].value");
      t1 = escape("document.forms[1].elements[\'"+name2+"\'].value");
-     rs('att',('../billing/CA/ON/searchRefDoc.jsp?param='+t0+'&param2='+t1),600,600,1);
+     rs('att',('<%=request.getContextPath() %>/billing/CA/ON/searchRefDoc.jsp?param='+t0+'&param2='+t1),600,600,1);
 }
 
 function checkName() {
@@ -378,7 +392,8 @@ function checkName() {
 	if(document.adddemographic.last_name.value!="" && document.adddemographic.first_name.value!="" && document.adddemographic.last_name.value!=" " && document.adddemographic.first_name.value!=" ") {
 	    typeInOK = true;
 	} else {
-		alert ("You must type in the following fields: Last Name, First Name.");
+		//alert ("You must type in the following fields: Last Name, First Name.");
+        last_name.focus();
     }
 	return typeInOK;
 }
@@ -392,21 +407,18 @@ function checkDob() {
 	var dd = document.adddemographic.date_of_birth.value
 
 	if(checkTypeNum(yyyy) && checkTypeNum(mm) && checkTypeNum(dd) ){
-        //alert(yyyy); alert(mm); alert(dd);
+
         var check_date = new Date(yyyy,(mm-1),dd);
-        //alert(check_date);
 		var now = new Date();
 		var year=now.getFullYear();
 		var month=now.getMonth()+1;
 		var date=now.getDate();
-		//alert(yyyy + " | " + mm + " | " + dd + " " + year + " " + month + " " +date);
 
 		var young = new Date(year,month,date);
 		var old = new Date(1800,01,01);
-		//alert(check_date.getTime() + " | " + young.getTime() + " | " + old.getTime());
+
 		if (check_date.getTime() <= young.getTime() && check_date.getTime() >= old.getTime() && yyyy.length==4) {
 		    typeInOK = true;
-		    //alert("failed in here 1");
 		}
 		if ( yyyy == "0000"){
         typeInOK = false;
@@ -414,12 +426,14 @@ function checkDob() {
 	}
 
 	if (!typeInOK){
-      alert ("You must type in the right DOB.");
+        //alert ("You must type in the right DOB.");
+        //inputDOB.focus();
    }
 
    if (!isValidDate(dd,mm,yyyy)){
-      alert ("DOB Date is an incorrect date");
-      typeInOK = false;
+        //alert ("DOB Date is an incorrect date");
+        //inputDOB.focus();
+        typeInOK = false;
    }
 
 	return typeInOK;
@@ -429,17 +443,18 @@ function checkDob() {
 function isValidDate(day,month,year){
    month = ( month - 1 );
    dteDate=new Date(year,month,day);
-//alert(dteDate);
    return ((day==dteDate.getDate()) && (month==dteDate.getMonth()) && (year==dteDate.getFullYear()));
 }
 
 function checkHin() {
 	var hin = document.adddemographic.hin.value;
+    if($("#hc_type").val()==""||$("#hc_type").val()=== null){ return false; }
 	var province = document.adddemographic.hc_type.value;
 
 	if (!isValidHin(hin, province))
 	{
 		alert ("You must type in the right HIN.");
+        hin.focus();
 		return(false);
 	}
 
@@ -452,7 +467,8 @@ function checkSex() {
 	
 	if(sex.length == 0)
 	{
-		alert ("You must select a Gender.");
+		//alert ("You must select a Gender.");
+        //document.adddemographic.sex.focus();
 		return(false);
 	}
 
@@ -464,22 +480,23 @@ function checkResidentStatus(){
     var rs = document.adddemographic.rsid.value;
     if(rs!="")return true;
     else{
-        alert("you must choose a Residential Status");
+        alert("<bean:message	key="demographic.demographiceditdemographic.alertresstat" />");
+        document.adddemographic.rsid.focus();
      return false;}
 }
 
 function checkAllDate() {
 	var typeInOK = false;
-	typeInOK = checkDateYMD( document.adddemographic.date_joined_year.value , document.adddemographic.date_joined_month.value , document.adddemographic.date_joined_day.value , "Date Joined" );
+	typeInOK = checkDateYMD( document.adddemographic.date_joined_year.value , document.adddemographic.date_joined_month.value , document.adddemographic.date_joined_day.value , document.adddemographic.date_joined );
 	if (!typeInOK) { return false; }
 
-	typeInOK = checkDateYMD( document.adddemographic.end_date_year.value , document.adddemographic.end_date_month.value , document.adddemographic.end_date_day.value , "End Date" );
+	typeInOK = checkDateYMD( document.adddemographic.end_date_year.value , document.adddemographic.end_date_month.value , document.adddemographic.end_date_day.value , document.adddemographic.end_date );
 	if (!typeInOK) { return false; }
 
-	typeInOK = checkDateYMD( document.adddemographic.hc_renew_date_year.value , document.adddemographic.hc_renew_date_month.value , document.adddemographic.hc_renew_date_day.value , "PCN Date" );
+	typeInOK = checkDateYMD( document.adddemographic.hc_renew_date_year.value , document.adddemographic.hc_renew_date_month.value , document.adddemographic.hc_renew_date_day.value , document.adddemographic.hc_renew_date );
 	if (!typeInOK) { return false; }
 
-	typeInOK = checkDateYMD( document.adddemographic.eff_date_year.value , document.adddemographic.eff_date_month.value , document.adddemographic.eff_date_day.value , "EFF Date" );
+	typeInOK = checkDateYMD( document.adddemographic.eff_date_year.value , document.adddemographic.eff_date_month.value , document.adddemographic.eff_date_day.value , document.adddemographic.eff_date );
 	if (!typeInOK) { return false; }
 
 	return typeInOK;
@@ -493,7 +510,8 @@ function checkAllDate() {
 				typeInOK = true;
 			}
 		}
-		if (!typeInOK) { alert ("You must type in the right '" + fieldName + "'."); return false; }
+		//if (!typeInOK) { alert ("Invalid Entry.  Please verify and retry."); return false; }
+        //fieldName.focus();
 		return typeInOK;
 	}
 
@@ -561,27 +579,26 @@ function autoFillHin(){
    	  }
 
       document.getElementById('hin').value = last + first + yob + mob + dob;
-      hin.focus();
-      hin.value = hin.value;
+     
    }
 }
 				
 
 function ignoreDuplicates() {
 		//do the check
-		var lastName = jQuery("#last_name").val();
-		var firstName = jQuery("#first_name").val();
-		var yearOfBirth = jQuery("#year_of_birth").val();
-		var monthOfBirth = jQuery("#month_of_birth").val();
-		var dayOfBirth = jQuery("#date_of_birth").val();
+		var lastName = $("#last_name").val();
+		var firstName = $("#first_name").val();
+		var yearOfBirth = $("#year_of_birth").val();
+		var monthOfBirth = $("#month_of_birth").val();
+		var dayOfBirth = $("#date_of_birth").val();
 		var ret = false;
-	jQuery.ajax({
-			url:"../demographicSupport.do?method=checkForDuplicates&lastName="+lastName+"&firstName="+firstName+"&yearOfBirth="+yearOfBirth+"&monthOfBirth="+monthOfBirth+"&dayOfBirth="+dayOfBirth,
+	$.ajax({
+			url:"<%=request.getContextPath() %>/demographicSupport.do?method=checkForDuplicates&lastName="+lastName+"&firstName="+firstName+"&yearOfBirth="+yearOfBirth+"&monthOfBirth="+monthOfBirth+"&dayOfBirth="+dayOfBirth,
 			success:function(data){
 				if(data.hasDuplicates != null) {
 					if(data.hasDuplicates) {
 						
-						if(confirm('There are other patients in this system with the same name and date of birth. Are you sure you want to create this new patient record?')) {
+						if(confirm('<bean:message key="demographic.demographiceditdemographic.alertduplicate"/>')) {
 							//submit the form
 							ret = true;
 						}
@@ -604,38 +621,20 @@ function ignoreDuplicates() {
 	return ret;
 }
 
-function isPostalCode()
-{
-    if(isCanadian()){
-         e = document.adddemographic.postal;
-         postalcode = e.value;
-        	
-         rePC = new RegExp(/(^s*([a-z](\s)?\d(\s)?){3}$)s*/i);
-    
-         if (!rePC.test(postalcode)) {
-              e.focus();
-              alert("The entered Postal Code is not valid");
-              return false;
-         }
-    }//end cdn check
-
-return true;
-}
 
 function isCanadian(){
-	e = document.adddemographic.province;
-    var province = e.options[e.selectedIndex].value;
-    
-    if ( province.indexOf("US")>-1 || province=="OT"){ //if not canadian
-            return false;
-    }
-    return true;
+
+    if($("#province").val()==""||$("#province").val() === null){ return false; }
+    if($("#country").val()=="CA"){ return true; }
+    var province = $("#province").val();   
+    if ( province.indexOf("CA")>-1 ) { return true; }
+    return false;
 }
 
 function consentClearBtn(radioBtnName)
 {
 	
-	if( confirm("Proceed to clear all record of this consent?") ) 
+	if( confirm("<bean:message key="demographic.demographiceditdemographic.alertclearconsent"/>") ) 
 	{
 
 	    //clear out opt-in/opt-out radio buttons
@@ -659,7 +658,7 @@ function consentClearBtn(radioBtnName)
 
 var preferredPhone="";
 
-jQuery( document ).ready( function() {
+$( document ).ready( function() {
 
     console.log( "ready!" );
     parsedob_date();
@@ -669,65 +668,51 @@ jQuery( document ).ready( function() {
 	var defPhTitle = "Check to set preferred contact number";
 	var prefPhTitle = "Preferred contact number";
 
-  jQuery('#cell_check').change(function() 
+  $('#cell_check').change(function() 
   {
     if(this.checked == true)
     {
 	preferredPhone="C";
-	jQuery('#cell_check').prop('title', prefPhTitle);
-	jQuery('#phone_check').prop('title', defPhTitle);
-	jQuery('#phone2_check').prop('title', defPhTitle);
-	jQuery('#phone2_check').prop('checked', false);
-	jQuery('#phone_check').prop('checked', false);
+	$('#cell_check').prop('title', prefPhTitle);
+	$('#phone_check').prop('title', defPhTitle);
+	$('#phone2_check').prop('title', defPhTitle);
+	$('#phone2_check').prop('checked', false);
+	$('#phone_check').prop('checked', false);
     }
   }); 
-  jQuery('#phone_check').change(function() 
+  $('#phone_check').change(function() 
   {
     if(this.checked == true)
     {
 	preferredPhone="H";
-	jQuery('#cell_check').prop('title', defPhTitle);
-	jQuery('#phone_check').prop('title', prefPhTitle);
-	jQuery('#phone2_check').prop('title', defPhTitle);
-	jQuery('#phone2_check').prop('checked', false);
-	jQuery('#cell_check').prop('checked', false);
+	$('#cell_check').prop('title', defPhTitle);
+	$('#phone_check').prop('title', prefPhTitle);
+	$('#phone2_check').prop('title', defPhTitle);
+	$('#phone2_check').prop('checked', false);
+	$('#cell_check').prop('checked', false);
     }
   });
-  jQuery('#phone2_check').change(function() 
+  $('#phone2_check').change(function() 
   {
     if(this.checked == true)
     {
 	preferredPhone="W";
-	jQuery('#cell_check').prop('title', defPhTitle);
-	jQuery('#phone_check').prop('title', defPhTitle);
-	jQuery('#phone2_check').prop('title', prefPhTitle);
-	jQuery('#phone_check').prop('checked', false);
-	jQuery('#cell_check').prop('checked', false);
+	$('#cell_check').prop('title', defPhTitle);
+	$('#phone_check').prop('title', defPhTitle);
+	$('#phone2_check').prop('title', prefPhTitle);
+	$('#phone_check').prop('checked', false);
+	$('#cell_check').prop('checked', false);
     }
   }); 
 
-    jQuery('#cell_check').prop('title', defPhTitle);
-    jQuery('#phone_check').prop('title', defPhTitle);
-    jQuery('#phone2_check').prop('title', defPhTitle);
+    $('#cell_check').prop('title', defPhTitle);
+    $('#phone_check').prop('title', defPhTitle);
+    $('#phone2_check').prop('title', defPhTitle);
 
 
 });
 
 
-jQuery(function(){
-    jQuery('form').submit(function(){
-
-	    if (preferredPhone=="C") {jQuery("#cell").val(function(i, val) {
-		    return val + "*";
-	    });}
-			    else if (preferredPhone=="H") {jQuery("#phone").val(function(i, val) {
-		    return val + "*";
-	    });}
-			    else if (preferredPhone=="W"){jQuery("#phone2").val(function(i, val) {
-		    return val + "*";
-	    });}
-    });
-});
 
 
 
@@ -736,25 +721,25 @@ if("true".equals(OscarProperties.getInstance().getProperty("iso3166.2.enabled","
 %>
 
 
-jQuery(document).ready(function(){
+$(document).ready(function(){
 	
-	jQuery("#country").bind('change',function(){
+	$("#country").bind('change',function(){
 		updateProvinces('');
 	});
 	
-	jQuery("#residentialCountry").bind('change',function(){
+	$("#residentialCountry").bind('change',function(){
 		updateResidentialProvinces('');
 	});
 	
-    jQuery.ajax({
+    $.ajax({
         type: "POST",
-        url:  '../demographicSupport.do',
+        url:  '<%=request.getContextPath() %>/demographicSupport.do',
         data: 'method=getCountryAndProvinceCodes',
         dataType: 'json',
         success: function (data) {
-        	jQuery('#country').append(jQuery('<option>').text('').attr('value', ''));
-        	jQuery.each(data, function(i, value) {
-                 jQuery('#country').append(jQuery('<option>').text(value.label).attr('value', value.value));
+        	$('#country').append($('<option>').text('').attr('value', ''));
+        	$.each(data, function(i, value) {
+                 $('#country').append($('<option>').text(value.label).attr('value', value.value));
              });
         	
         	var defaultProvince = '<%=OscarProperties.getInstance().getProperty("demographic.default_province","")%>';
@@ -765,22 +750,22 @@ jQuery(document).ready(function(){
         	}
         	defaultCountry = defaultProvince.substring(0,defaultProvince.indexOf('-'));
         	
-        	jQuery("#country").val(defaultCountry);
+        	$("#country").val(defaultCountry);
         	
         	updateProvinces(defaultProvince);
         	
         }
 	});
     
-    jQuery.ajax({
+    $.ajax({
         type: "POST",
-        url:  '../demographicSupport.do',
+        url:  '<%=request.getContextPath() %>/demographicSupport.do',
         data: 'method=getCountryAndProvinceCodes',
         dataType: 'json',
         success: function (data) {
-        	jQuery('#residentialCountry').append(jQuery('<option>').text('').attr('value', ''));
-        	jQuery.each(data, function(i, value) {
-                 jQuery('#residentialCountry').append(jQuery('<option>').text(value.label).attr('value', value.value));
+        	$('#residentialCountry').append($('<option>').text('').attr('value', ''));
+        	$.each(data, function(i, value) {
+                 $('#residentialCountry').append($('<option>').text(value.label).attr('value', value.value));
              });
         	
         	var defaultProvince = '<%=OscarProperties.getInstance().getProperty("demographic.default_province","")%>';
@@ -791,7 +776,7 @@ jQuery(document).ready(function(){
         	}
         	defaultCountry = defaultProvince.substring(0,defaultProvince.indexOf('-'));
         	
-        	jQuery("#residentialCountry").val(defaultCountry);
+        	$("#residentialCountry").val(defaultCountry);
         	
         	updateResidentialProvinces(defaultProvince);
         	
@@ -804,25 +789,25 @@ jQuery(document).ready(function(){
 
 
 function updateProvinces(province) {
-	var country = jQuery("#country").val();
+	var country = $("#country").val();
 	
 	console.log('country=' + country);
 	
-	jQuery.ajax({
+	$.ajax({
         type: "POST",
-        url:  '../demographicSupport.do',
+        url:  '<%=request.getContextPath() %>/demographicSupport.do',
         data: 'method=getCountryAndProvinceCodes&country=' + country,
         dataType: 'json',
         success: function (data) {
-        	jQuery('#province').empty();
+        	$('#province').empty();
         	 
-        	jQuery.each(data, function(i, value) {
-                 jQuery('#province').append(jQuery('<option>').text(value.label).attr('value', value.value));
+        	$.each(data, function(i, value) {
+                 $('#province').append($('<option>').text(value.label).attr('value', value.value));
              });
         	
         	
         	if(province != null) {
-        		jQuery("#province").val(province);
+        		$("#province").val(province);
         	}
         	
         	
@@ -832,24 +817,24 @@ function updateProvinces(province) {
 
 
 function updateResidentialProvinces(province) {
-	var country = jQuery("#residentialCountry").val();
+	var country = $("#residentialCountry").val();
 	
 	
-	jQuery.ajax({
+	$.ajax({
         type: "POST",
-        url:  '../demographicSupport.do',
+        url:  '<%=request.getContextPath() %>/demographicSupport.do',
         data: 'method=getCountryAndProvinceCodes&country=' + country,
         dataType: 'json',
         success: function (data) {
-        	jQuery('#residentialProvince').empty();
+        	$('#residentialProvince').empty();
         	 
-        	jQuery.each(data, function(i, value) {
-                 jQuery('#residentialProvince').append(jQuery('<option>').text(value.label).attr('value', value.value));
+        	$.each(data, function(i, value) {
+                 $('#residentialProvince').append($('<option>').text(value.label).attr('value', value.value));
              });
         	
         	
         	if(province != null) {
-        		jQuery("#residentialProvince").val(province);
+        		$("#residentialProvince").val(province);
         	}
         	
         	
@@ -896,7 +881,7 @@ background-color:gainsboro;
 	<% } %>
 </td></tr>
 <tr><td>
-<form method="post" id="adddemographic" name="adddemographic" action="demographicaddarecord.jsp" onsubmit="return aSubmit()" >
+<form method="post" id="adddemographic" name="adddemographic" action="demographicaddarecord.jsp" novalidate onsubmit="return aSubmit()">
 <input type="hidden" name="fromAppt" value="<%=Encode.forHtmlAttribute(request.getParameter("fromAppt"))%>">
 <input type="hidden" name="originalPage" value="<%=Encode.forHtmlAttribute(request.getParameter("originalPage"))%>">
 <input type="hidden" name="bFirstDisp" value="<%=Encode.forHtmlAttribute(request.getParameter("bFirstDisp"))%>">
@@ -932,7 +917,7 @@ background-color:gainsboro;
           <input type="hidden" name="displaymode" value="Add Record">
 				<input type="submit" name="submit" class="btn btn-primary"
 					value="<bean:message key="demographic.demographicaddrecordhtm.btnAddRecord"/>">
-					<input type="submit" name="submit" class="btn" value="Save & Add Family Member">
+					<input type="submit" name="submit" class="btn" value="<bean:message key="demographic.demographiceditdemographic.btnSaveAddFamilyMember"/>">
 				<input type="button" name="Button" class="btn"
 					value="<bean:message key="demographic.demographicaddrecordhtm.btnSwipeCard"/>"
 					onclick="window.open('zadddemographicswipe.htm','', 'scrollbars=yes,resizable=yes,width=600,height=300')";>
@@ -977,21 +962,23 @@ background-color:gainsboro;
                 key="demographic.demographiceditdemographic.formLastName" /><span style="color:red">*</span></label>
             <div class="controls">
               <input type="text"  placeholder="<bean:message key="demographic.demographiceditdemographic.formLastName" />"
-                    name="last_name" id="last_name" required onBlur="upCaseCtrl(this)" value="<%=Encode.forHtmlAttribute(lastNameVal)%>">
+                    name="last_name" id="last_name" required ="required" data-validation-required-message="<bean:message key="global.missing" />" onBlur="upCaseCtrl(this)" value="<%=Encode.forHtmlAttribute(lastNameVal)%>">
+<p class="help-block text-danger"></p>
             </div>
         </div>
         <div class="control-group span5">
             <label class="control-label" for="first_name"><bean:message key="demographic.demographiceditdemographic.formFirstName" /><span style="color:red">*</span></label>
             <div class="controls">
               <input type="text" placeholder="<bean:message key="demographic.demographiceditdemographic.formFirstName" />"
-                    name="first_name" id="first_name" required onBlur="upCaseCtrl(this)"  value="<%=Encode.forHtmlAttribute(firstNameVal)%>">
+                    name="first_name" id="first_name" required="required" data-validation-required-message="<bean:message key="global.missing" />" onBlur="upCaseCtrl(this)"  value="<%=Encode.forHtmlAttribute(firstNameVal)%>">
+<p class="help-block text-danger"></p>
             </div>
         </div>
         <div class="control-group span5">
             <label class="control-label" for="inputDOB"><bean:message key="demographic.demographiceditdemographic.formDOB" /> <bean:message key="demographic.demographiceditdemographic.formDOBDetais" /><span style="color:red">*</span></label>
             <div class="controls" style="white-space: nowrap;">
                 <input type="date" id="inputDOB" 
-                    class="input input-medium" required
+                    class="input input-medium" required="required" data-validation-required-message="<bean:message key="global.missing" />"
                     name="inputDOB"
                     value="<%=Encode.forHtmlAttribute(dob)%>" 
 					onchange="parsedob_date();">
@@ -1006,10 +993,23 @@ background-color:gainsboro;
         <div class="control-group span5">
             <label class="control-label" for="sex"><bean:message key="demographic.demographiceditdemographic.formSex" /><span style="color:red">*</span></label>
             <div class="controls">
-              <select  name="sex" id="sex" required>
-			                        <option value=""></option>
-			                		<% for(Gender gn : Gender.values()){ %>
-			                        <option value=<%=gn.name()%> <%=((sex.equals(gn.name())) ? " selected=\"selected\" " : "") %>><%=gn.getText()%></option>
+            <select  name="sex" id="sex" required data-validation-required-message="<bean:message key="global.warning" />">//Value are Codes F M T O U Texts are Female Male Transgender Other Undefined
+                <option value=""></option>
+                <% 
+            	java.util.ResourceBundle oscarResources = ResourceBundle.getBundle("oscarResources", request.getLocale());
+                String iterSex = "";
+                String sexTag = "";
+                for(Gender gn : Gender.values()){ 
+                    sexTag = "global."+gn.getText();
+                try{
+                        iterSex = oscarResources.getString(sexTag) ;
+                    } catch(Exception ex) {
+                        //MiscUtils.getLogger().error("Error", ex);
+                        //Fine then lets use the English default
+                        iterSex = gn.getText();
+                }
+                %>
+                <option value=<%=gn.name()%> <%=((sex.equals(gn.name())) ? " selected=\"selected\" " : "") %>><%=iterSex%></option>
 			                        <% } %>
             </select>
             </div>
@@ -1093,9 +1093,9 @@ background-color:gainsboro;
             <label class="control-label" for="firstNation"><bean:message key="demographic.demographiceditdemographic.aboriginal" /></label>
             <div class="controls">
                 <select name="aboriginal" id="firstNation" >
-									<option value="" >Unknown</option>
-									<option value="No" >No</option>
-									<option value="Yes" >Yes</option>
+									<option value="" ><bean:message key="global.Undetermined" /></option>
+									<option value="No" ><bean:message key="global.no" /></option>
+									<option value="Yes" ><bean:message key="global.yes" /></option>
 				</select>
                 <input type="hidden" name="aboriginalOrig"  />
             </div>
@@ -1149,7 +1149,8 @@ background-color:gainsboro;
 				%>
 					<select name="province" id="province"></select> 
 					<br/>
-					Filter by Country: <select name="country" id="country" ></select>
+					<bean:message
+					    key="demographic.demographiceditdemographic.filterByCountry" /> : <select name="country" id="country" ></select>
 							
 				<% } else  {  %>
 				<select id="province" name="province">
@@ -1245,8 +1246,14 @@ background-color:gainsboro;
                               	 } %></label>
             <div class="controls">
                 <input type="text" id="postal" placeholder="<bean:message key="demographic.demographiceditdemographic.formPostal" /> " 
-                    name="postal" value="<%=StringUtils.trimToEmpty(postal)%>" 
-					onBlur="upCaseCtrl(this)" onChange="isPostalCode()">
+                    name="postal" value="<%=StringUtils.trimToEmpty(postal)%>" onBlur="upCaseCtrl(this)" maxlength=10
+<% if (checkP) { %>
+pattern="[ABCEGHJ-NPRSTVXY]\d[ABCEGHJ-NPRSTVXY]\s\d[ABCEGHJ-NPRSTVXY]\d"
+required
+data-validation-pattern-message="<bean:message key="demographic.demographiceditdemographic.alertpostal" />"
+<% } %>
+					>
+        <p class="help-block text-danger"></p>
             </div>
         </div>
 <!-- end postal -->
@@ -1269,7 +1276,43 @@ background-color:gainsboro;
             </div>
         </div>
 <!-- residential -->
+<script>
+function loadResidence(){
+    $('#residence_div').show();
+    $('#raddress_div').show();
+    $('#rcity_div').show();
+    $('#rprovince_div').show();
+    $('#rpostal_div').show();
+    $('#rPostal').val($('#postal').val());
+    $('#rCity').val($('#city').val());
+    $('#residence').val($('#address').val());
+    $('#residentialCountry')
+         .val($('#country').val())
+         .trigger('change');
+    updateResidentialProvinces($('#province').val());
+}
+
+function clearResidence(){
+    $('#residence_div').hide();
+    $('#raddress_div').hide();
+    $('#rcity_div').hide();
+    $('#rprovince_div').hide();
+    $('#rpostal_div').hide();
+}
+</script>
+
         <div class="control-group span5">
+            <label class="control-label" for="residential"><bean:message key="demographic.demographiceditdemographic.sameresidence" /></label>
+            <div class="controls" style="white-space: nowrap;">
+              <bean:message key="WriteScript.msgYes"/> 
+            		<input type="radio" value="yes" name="residential" onclick="loadResidence();" />
+          		<bean:message key="WriteScript.msgNo"/>
+            		<input type="radio" value="no" name="residential" onclick="loadResidence();" />
+				<bean:message key="WriteScript.msgUnset"/>
+            		<input type="radio" value="unset" name="residential" onclick="clearResidence();" checked />
+            </div>
+        </div>
+        <div class="control-group span5" id="residence_div">
             <label class="control-label" for="residence"><bean:message key="demographic.demographiceditdemographic.formResidentialAddr" /></label>
             <div class="controls">
               <input type="text" id="residence" placeholder="<bean:message key="demographic.demographiceditdemographic.formResidentialAddr" />"
@@ -1277,14 +1320,14 @@ background-color:gainsboro;
 					>
             </div>
         </div>
-        <div class="control-group span5">
+        <div class="control-group span5" id="rcity_div">
             <label class="control-label" for="rCity"><bean:message key="demographic.demographiceditdemographic.formResidentialCity" /></label>
             <div class="controls">
               <input type="text" id="rCity" placeholder="<bean:message key="demographic.demographiceditdemographic.formResidentialCity" />"
                     name="residentialCity">
             </div>
         </div>
-        <div class="control-group span5">
+        <div class="control-group span5" id="rprovince_div">
             <label class="control-label" for="residentialProvince"><bean:message key="demographic.demographiceditdemographic.formResidentialProvince" /></label>
             <div class="controls">
 
@@ -1293,7 +1336,8 @@ background-color:gainsboro;
 				%>
 					<select name="residentialProvince" id="residentialProvince"></select> 
 					<br/>
-					Filter by Country: <select name="residentialCountry" id="residentialCountry" ></select>
+					<bean:message
+					    key="demographic.demographiceditdemographic.filterByCountry" />: <select name="residentialCountry" id="residentialCountry" ></select>
 							
 				<% } else { %>			
 				<select id="residentialProvince" name="residentialProvince">
@@ -1382,16 +1426,21 @@ background-color:gainsboro;
 				<% } %>
             </div>
         </div>
-        <div class="control-group span5">
+        <div class="control-group span5" id="rpostal_div">
             <label class="control-label" for="rPostal"><bean:message key="demographic.demographiceditdemographic.formResidentialPostal" />
-            <% if("false".equals(OscarProperties.getInstance().getProperty("skip_postal_code_validation","false"))) { %>
+            <% 
+                if (checkP) { %>
  					<span style="color:red">*</span>				
  				 <% } %> 
                 </label>
             <div class="controls">
               <input type="text" id="rPostal" placeholder="<bean:message key="demographic.demographiceditdemographic.formResidentialPostal" />"
                     name="residentialPostal" 
-					onBlur="upCaseCtrl(this)" onChange="isPostalCode2()">
+<% if (checkP) { %>
+pattern="[ABCEGHJ-NPRSTVXY]\d[ABCEGHJ-NPRSTVXY]\s\d[ABCEGHJ-NPRSTVXY]\d"
+data-validation-pattern-message="<bean:message key="demographic.demographiceditdemographic.alertpostal" />"
+<% } %>
+					onBlur="upCaseCtrl(this)" >
             </div>
         </div>
 <!-- end residential -->
@@ -1486,7 +1535,7 @@ background-color:gainsboro;
             <label class="control-label" for="hcType"><bean:message key="demographic.demographiceditdemographic.formHCType" /></label>
             <div class="controls">
               
-				<select name="hc_type" id="hc_type">
+				<select name="hc_type" id="hc_type" onchange="autoFillHin();">
 					<option value="OT"
 						<%=HCType.equals("")||HCType.equals("OT")?" selected":""%>>Other</option>
 					<% if (pNames.isDefined()) {
@@ -1570,10 +1619,10 @@ background-color:gainsboro;
             </div>
         </div>
         <div class="control-group span5" style="white-space:nowrap">
-            <label class="control-label" for="hinBox"><bean:message key="demographic.demographiceditdemographic.formHin" /></label>
+            <label class="control-label" for="hin"><bean:message key="demographic.demographiceditdemographic.formHin" /></label>
             <div class="controls">
               <input type="text" placeholder="<bean:message key="demographic.demographiceditdemographic.formHin" />"
-                    name="hin" id="hinBox" 
+                    name="hin" id="hin" 
                     value="<%=Encode.forHtmlAttribute(hin)%>"
 					class="input-medium" >
             <bean:message key="demographic.demographiceditdemographic.formVer" />
@@ -1741,15 +1790,7 @@ console.log(year+"-"+month+"-"+day);
                 <input type="hidden" name="date_joined_day" id="date_joined_day">
             </div>
         </div> 
-        <div class="control-group span5">
-            <label class="control-label" for="roster_date" title="<bean:message key="demographic.demographiceditdemographic.DateJoined" />"><bean:message key="demographic.demographiceditdemographic.DateJoined" /></label>
-            <div class="controls">
-              <input type="date" id="roster_date" name="roster_date" onchange="parseroster_date();" >
-<input  type="hidden" name="roster_date_year" id="roster_date_year">
-<input  type="hidden" name="roster_date_month" id="roster_date_month">
-<input  type="hidden" name="roster_date_day" id="roster_date_day">
-            </div>
-        </div>
+
         <div class="control-group span5">
             <label class="control-label" for="end_date" ><bean:message key="demographic.demographiceditdemographic.formEndDate" /></label>
             <div class="controls">
@@ -1769,7 +1810,9 @@ console.log(year+"-"+month+"-"+day);
             <div class="controls">
                 <%String rosterStatus = "";%>
                 <input type="hidden" name="initial_rosterstatus" />
-                <select id="roster_status" name="roster_status" style="width: 120" onchange="checkRosterStatus2()">
+                <select id="roster_status" name="roster_status" style="width: 120" 
+                onchange="if (this.value=='RO'){$('#roster_to_div').show();$('#roster_date_div').show(); } else {$('#roster_to_div').hide();$('#roster_date_div').hide();}"
+                >
 									<option value=""></option>
 									<option value="RO"
 										>
@@ -1800,11 +1843,19 @@ console.log(year+"-"+month+"-"+day);
                 </security:oscarSec>
             </div>
         </div>
-
-        <div class="control-group span5">
+        <div class="control-group span5" id="roster_date_div" >
+            <label class="control-label" for="roster_date" title="<bean:message key="demographic.demographiceditdemographic.DateJoined" />"><bean:message key="demographic.demographiceditdemographic.DateJoined" /></label>
+            <div class="controls">
+              <input type="date" id="roster_date" name="roster_date" onchange="parseroster_date();" data-validation-required-message="<bean:message key="demographic.demographiceditdemographic.alertrosterdate" />">
+<input  type="hidden" name="roster_date_year" id="roster_date_year">
+<input  type="hidden" name="roster_date_month" id="roster_date_month">
+<input  type="hidden" name="roster_date_day" id="roster_date_day">
+            </div>
+        </div>
+        <div class="control-group span5" id="roster_to_div" >
             <label class="control-label" for="enrolled_to"><bean:message key="demographic.demographiceditdemographic.RosterEnrolledTo" /></label>
             <div class="controls">
-                <select id="roster_enrolled_to"  name="roster_enrolled_to" style="width: 160">
+                <select id="roster_enrolled_to"  name="roster_enrolled_to" style="width: 160" data-validation-required-message="<bean:message key="demographic.demographiceditdemographic.alertenrollto" />" >
 					<option value=""></option>
 					<%
 						for (Provider p : providerDao.getActiveProvidersByRole("doctor")) {
@@ -1816,6 +1867,7 @@ console.log(year+"-"+month+"-"+day);
 					%>
 					<option value=""></option>
 				</select>
+                <p class="help-block text-danger"></p>
             </div>
         </div>
 
@@ -1979,7 +2031,7 @@ console.log(year+"-"+month+"-"+day);
 <script language="Javascript">
 <!--
 function changeRefDoc() {
-//alert(document.forms[1].r_doctor.value);
+
 var refName = document.forms[1].r_doctor.options[document.forms[1].r_doctor.selectedIndex].value;
 var refNo = "";
   	<% for(int k=0; k<vecRef.size(); k++) {
@@ -2173,7 +2225,7 @@ document.forms[1].r_doctor_ohip.value = refNo;
                                        <c:out value="checked" />
                                    </c:if>
                             />
-                            Opt-In
+                            <bean:message key="global.optin"/>
                             <input type="radio"
                                    name="${ consentType.type }"
                                    id="optout_${ consentType.type }"
@@ -2182,10 +2234,10 @@ document.forms[1].r_doctor_ohip.value = refNo;
                                        <c:out value="checked" />
                                    </c:if>
                             />
-                            Opt-Out
+                             <bean:message key="global.optout"/>
                             <input type="button" class="btn btn-link"
                                    name="clearRadio_${consentType.type}_btn"
-                                   onclick="consentClearBtn('${consentType.type}')" value="Clear" />
+                                   onclick="consentClearBtn('${consentType.type}')" value="<bean:message key="global.clear"/>" />
                              
                             <%-- Was this consent set by the user? Or by the database?  --%>
                             <input type="hidden" name="consentPreset_${consentType.type}" id="consentPreset_${consentType.type}" 
@@ -2423,7 +2475,7 @@ if(oscarVariables.getProperty("demographicExtJScript") != null) { out.println(os
     }
     if(fid!=null&&fid>=0){
 %>
-<iframe scrolling="no" id="eform_iframe" name="eform_iframe" frameborder="0" src="../eform/efmshowform_data.jsp?fid=<%=fid%>" onload="this.height=0;var fdh=(this.Document?this.Document.body.scrollHeight:this.contentDocument.body.offsetHeight);this.height=(fdh>800?fdh:800)" width="100%"></iframe>
+<iframe scrolling="no" id="eform_iframe" name="eform_iframe" frameborder="0" src="<%=request.getContextPath() %>/eform/efmshowform_data.jsp?fid=<%=fid%>" onload="this.height=0;var fdh=(this.Document?this.Document.body.scrollHeight:this.contentDocument.body.offsetHeight);this.height=(fdh>800?fdh:800)" width="100%"></iframe>
 <%}%>
 			        </div>
 			    </td>
@@ -2434,7 +2486,7 @@ if(oscarVariables.getProperty("demographicExtJScript") != null) { out.println(os
 					value="add_record"> <input type="hidden" name="displaymode" value="Add Record">
 				<input type="submit" id="btnAddRecord" name="btnAddRecord" class="btn btn-primary"
 					value="<bean:message key="demographic.demographicaddrecordhtm.btnAddRecord"/>" >
-					<input type="submit" name="submit" value="Save & Add Family Member" class="btn">
+					<input type="submit" name="submit" value="<bean:message key="demographic.demographiceditdemographic.btnSaveAddFamilyMember"/>" class="btn">
 				<input type="button" id="btnSwipeCard" name="Button" class="btn"
 					value="<bean:message key="demographic.demographicaddrecordhtm.btnSwipeCard"/>"
 					onclick="window.open('zadddemographicswipe.htm','', 'scrollbars=yes,resizable=yes,width=600,height=300')";>
@@ -2454,7 +2506,7 @@ if(oscarVariables.getProperty("demographicExtJScript") != null) { out.println(os
 				<caisi:isModuleLoad moduleName="caisi">
 				<input type="button" name="closeButton" class="btn"
 					value="<bean:message key="global.btnExit"/>"
-					onclick="window.location.href='../provider/providercontrol.jsp';">
+					onclick="window.location.href='<%=request.getContextPath() %>/provider/providercontrol.jsp';">
 				</caisi:isModuleLoad>
 				</td>
 			</tr>
@@ -2475,20 +2527,23 @@ if(oscarVariables.getProperty("demographicExtJScript") != null) { out.println(os
 <%
 if (privateConsentEnabled) {
 %>
-jQuery(document).ready(function(){
-	var countryOfOrigin = jQuery("#countryOfOrigin").val();
+$(document).ready(function(){
+    $('#roster_to_div').hide();
+    $('#roster_date_div').hide();
+    clearResidence();
+	var countryOfOrigin = $("#countryOfOrigin").val();
 	if("US" != countryOfOrigin) {
-		jQuery("#usSigned").hide();
+		$("#usSigned").hide();
 	} else {
-		jQuery("#usSigned").show();
+		$("#usSigned").show();
 	}
 	
-	jQuery("#countryOfOrigin").change(function () {
-		var countryOfOrigin = jQuery("#countryOfOrigin").val();
+	$("#countryOfOrigin").change(function () {
+		var countryOfOrigin = $("#countryOfOrigin").val();
 		if("US" == countryOfOrigin){
-		   	jQuery("#usSigned").show();
+		   	$("#usSigned").show();
 		} else {
-			jQuery("#usSigned").hide();
+			$("#usSigned").hide();
 		}
 	});
 });
@@ -2496,7 +2551,7 @@ jQuery(document).ready(function(){
 }
 %>
 </script>
-<!--<iframe src="../eform/efmshowform_data.jsp?fid=<%=fid%>" width="100%" height="100%"></iframe>-->
+<!--<iframe src="<%=request.getContextPath() %>/eform/efmshowform_data.jsp?fid=<%=fid%>" width="100%" height="100%"></iframe>-->
 <%//}%>
 </body>
 </html:html>

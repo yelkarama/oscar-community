@@ -218,6 +218,7 @@ if (bMultisites) {
 	import="java.lang.*, java.util.*, java.text.*,java.net.*,java.sql.*,oscar.*"
 	errorPage="errorpage.jsp"%>
 <% 
+
 	UserProperty tabViewProp = userPropertyDao.getProp(curUser_no, UserProperty.OPEN_IN_TABS);
     boolean openInTabs = false;
     if ( tabViewProp == null ) {
@@ -234,6 +235,7 @@ if (bMultisites) {
 
 
 <%
+    java.util.Properties oscarVariables = OscarProperties.getInstance();
 	String prov=  oscarVariables.getProperty("billregion","").trim().toUpperCase();
 	String resourcebaseurl =  oscarVariables.getProperty("resource_base_url");
 	

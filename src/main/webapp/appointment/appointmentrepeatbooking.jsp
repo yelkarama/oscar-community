@@ -209,19 +209,23 @@
 
     if (bSucc) {
 %>
-<h1><bean:message
-	key="appointment.appointmentgrouprecords.msgAddSuccess" /></h1>
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<div class="alert alert-success">
+<h4><bean:message
+	key="appointment.appointmentgrouprecords.msgAddSuccess" /></h4>
 <script LANGUAGE="JavaScript">
 	self.opener.refresh();
-	self.close();
+	setTimeout("self.close()",2000);
 </script>
+</div>
 <%
     } else {
 %>
-<p>
-<h1><bean:message
-	key="appointment.appointmentgrouprecords.msgAddFailure" /></h1>
-
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<div class="alert alert-error" >
+<h4><bean:message
+	key="appointment.appointmentgrouprecords.msgAddFailure" /></h4>
+</div>
 <%
     }
     return;
@@ -262,18 +266,19 @@ function onSub() {
 </script>
 <!-- calendar stylesheet -->
 <link rel="stylesheet" type="text/css" media="all"
-	href="../share/calendar/calendar.css" title="win2k-cold-1" />
+	href="<%=request.getContextPath() %>/share/calendar/calendar.css" title="win2k-cold-1" />
 
 <!-- main calendar program -->
 <script type="text/javascript" src="../share/calendar/calendar.js"></script>
 
 <!-- language for the calendar -->
 <script type="text/javascript"
-	src="../share/calendar/lang/<bean:message key="global.javascript.calendar"/>"></script>
+	src="<%=request.getContextPath() %>/share/calendar/lang/<bean:message key="global.javascript.calendar"/>"></script>
 
 <!-- the following script defines the Calendar.setup helper function, which makes
        adding a calendar a matter of 1 or 2 lines of code. -->
 <script type="text/javascript" src="../share/calendar/calendar-setup.js"></script>
+
 <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 </head>
 
@@ -288,28 +293,22 @@ function onSub() {
 		<H4>&nbsp;<bean:message key="appointment.appointmenteditrepeatbooking.title"/></H4>
 
 <div class="container-fluid well" >   
+
     <div class ="span8"> 
 
-<table border="0" cellspacing="1" cellpadding="2" width="100%" BGCOLOR="white" class="table table-hover table-condensed">
+<table border="0" cellspacing="1" cellpadding="2" width="100%" class="table table-hover">
 	<tr>
 		<td width="20%"></td>
 		<td nowrap><bean:message key="appointment.appointmenteditrepeatbooking.howoften"/></td>
 	</tr>
-	<tr>
-		<td></td>
-		<td nowrap>&nbsp;&nbsp;&nbsp; 
-		<input type="radio" name="dateUnit" value="day" <%="checked"%> onclick='onCheck(this, "day")'> <bean:message key="day"/> &nbsp;&nbsp; 
-		<input type="radio" name="dateUnit" value="week" <%=""%> onclick='onCheck(this, "week")'> <bean:message key="week"/> &nbsp;&nbsp; 
-		<input type="radio" name="dateUnit" value="month" <%=""%> onclick='onCheck(this, "month")'> <bean:message key="month"/> &nbsp;&nbsp; 
-		<input type="radio" name="dateUnit" value="year" <%=""%> onclick='onCheck(this, "year")'> <bean:message key="year"/></td>
-	</tr>
+
 </table>
 
 <table border="0" cellspacing="1" cellpadding="2" width="100%">
 	<tr>
 		<td width="20%"></td>
 		<td width="16%" nowrap><bean:message key="appointment.appointmenteditrepeatbooking.every"/></td>
-		<td nowrap><select name="everyNum">
+		<td nowrap><select name="everyNum" style="width: 100px">
 			<%
 for (int i = 1; i < 12; i++) {
 %>
@@ -317,22 +316,39 @@ for (int i = 1; i < 12; i++) {
 			<%
 }
 %>
-		</select> <input type="text" name="everyUnit" id="everyUnit" style="width: 90px;"
-			value="<%="day"%>" readonly></td>
+		</select> <input type="hidden" name="everyUnit" id="everyUnit" 
+			value="<%="day"%>" ></td>
 	</tr>
 	<tr>
 		<td></td>
+		<td></td>
+		<td nowrap>&nbsp;&nbsp; 
+		
+		<input type="radio" name="dateUnit" value="<bean:message key="day"/>"   <%="checked"%> onclick='onCheck(this, "day")'><bean:message key="day"/> &nbsp;&nbsp; 
+		<input type="radio" name="dateUnit" value="<bean:message key="week"/>"  <%=""%>        onclick='onCheck(this, "week")'><bean:message key="week"/> &nbsp;&nbsp; 
+		<input type="radio" name="dateUnit" value="<bean:message key="month"/>" <%=""%>        onclick='onCheck(this, "month")'><bean:message key="month"/> &nbsp;&nbsp; 
+		<input type="radio" name="dateUnit" value="<bean:message key="year"/>"  <%=""%>        onclick='onCheck(this, "year")'><bean:message key="year"/></td>
+	</tr>
+    <tr><td>&nbsp;</td></tr>
+	<tr>
+		<td></td>
 		<td><bean:message key="appointment.appointmenteditrepeatbooking.endon"/> &nbsp;&nbsp;
-		<td nowrap valign="top">
-        <img id="f_trigger_b" src="../images/cal.gif">
-        <input type="text" id="endDate"
-			name="endDate" size="10"
-			value="<%=UtilDateUtilities.DateToString(new Date(),"dd/MM/yyyy")%>"
-			readonly>
-		<br>
-		<font size="-1"><bean:message key="ddmmyyyy"/></font></td></td>
+        </td>
+        <td nowrap >
+            <!-- tempting to replace with a date field however the expected format for the value is dd/MM/yyyy 
+                way easier to obtain with a i18n calander -->
+           	<img id="f_trigger_b" src="<%=request.getContextPath() %>/images/cal.gif">
+		    <input type="text" name="endDate" style="height:22px; width:120px;" 
+			    id="endDate"
+			    value="<%=UtilDateUtilities.DateToString(new java.util.Date(),"dd/MM/yyyy")%>"
+			    readonly>
+                <font size="-1"><bean:message key="ddmmyyyy"/></font>
+        </td>
 	</tr>
 </table>
+<div>
+<p>
+<p>
 
 <table width="100%" BGCOLOR="silver">
 	<tr>
@@ -376,7 +392,6 @@ for (Enumeration e = request.getParameterNames() ; e.hasMoreElements() ;) {
 }
 %>
 </form>
-
 <script type="text/javascript">
     Calendar.setup({
         inputField     :    "endDate",      // id of the input field
@@ -387,6 +402,5 @@ for (Enumeration e = request.getParameterNames() ; e.hasMoreElements() ;) {
         step           :    1                // show all years in drop-down boxes (instead of every other year as default)
     });
 </script>
-
 </body>
 </html:html>

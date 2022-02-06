@@ -661,6 +661,13 @@ alert(value);
     <td align="center"><a href=# onClick ="popupPage(230,860,'providerSignature.jsp');return false;"><bean:message key="provider.btnEditSignature"/></a>
     </td>
   </tr>
+  <tr>
+    <td align="center">
+      <a href=# onClick ="popupPage(430,860,'providerConsultSignature.jsp');return false;"><bean:message key="provider.consultSignatureStamp.title"/></a>
+    </td>
+  </tr>
+  
+  
   <oscar:oscarPropertiesCheck property="TORONTO_RFQ" value="no" defaultVal="true">
   <security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="r">
   <tr>
