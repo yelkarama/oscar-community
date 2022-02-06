@@ -367,9 +367,9 @@ public class FrmCustomedPDFServlet extends HttpServlet {
                                     String chartNoTitle = geti18nTagValue(locale, "oscar.oscarRx.chartNo") ;
                                     hStr.append(newline).append(chartNoTitle).append(patientChartNo);
                                 }
-                    if( bandNumber != null && ! bandNumber.isEmpty() ) {
+                    if( patientBandNumber != null && ! patientBandNumber.isEmpty() ) {
 						String bandNumberTitle = org.oscarehr.util.LocaleUtils.getMessage(locale, "oscar.oscarRx.bandNumber");
-						hStr.append(newline).append(bandNumberTitle).append(bandNumber);
+						hStr.append(newline).append(bandNumberTitle).append(patientBandNumber);
 					}
 				BaseFont bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
 				Phrase hPhrase = new Phrase(hStr.toString(), new Font(bf, 10));
@@ -691,7 +691,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 
 			document.setPageSize(pageSize);
 			// 285=left margin+width of box, 5f is space for looking nice
-			document.setMargins(15, pageSize.getWidth() - 285f + 5f, 170, 60);// left, right, top , bottom
+			document.setMargins(15, pageSize.getWidth() - 285f + 5f, 180, 60);// left, right, top , bottom
 
 			// writer = PdfWriter.getInstance(document, baosPDF);
 			writer = PdfWriterFactory.newInstance(document, baosPDF, FontSettings.HELVETICA_10PT);
