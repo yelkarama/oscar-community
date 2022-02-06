@@ -468,15 +468,18 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 					// image, image_width, 0, 0, image_height, x, y
 					cb.addImage(img, 157, 0, 0, 40, 90f, endPara-56f);
 				
+				} else {	
 					if (!this.electronicSignature.equals("") || this.electronicSignature != null) {
-						String[] lines = this.electronicSignature.split(System.getProperty("line.separator"));
-						writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, lines[0], 72f, endPara - 48f, 0);
-						writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, lines[1], 72f, endPara - 57f, 0);
+						writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, this.electronicSignature, 72f, endPara - 48f, 0);
 					}
 				}
 
 				// Render doctor name
-				writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, this.sigDoctorName, 90, endPara - 60f, 0);
+				if ((!this.electronicSignature.equals("") || this.electronicSignature != null) && this.imgPath != null) {
+					writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, this.electronicSignature, 90, endPara - 60f, 0);
+				} else {
+					writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, this.sigDoctorName, 90, endPara - 60f, 0);
+				}
 				// public void writeDirectContent(PdfContentByte cb, BaseFont bf, float fontSize, int alignment, String text, float x, float y, float rotation)
 				// render reprint origPrintDate and numPrint
 				if (origPrintDate != null && numPrint != null) {
