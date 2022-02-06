@@ -475,8 +475,8 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 				}
 
 				// Render doctor name
-				if ((!this.electronicSignature.equals("") || this.electronicSignature != null) && this.imgPath != null) {
-					writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, this.electronicSignature, 90, endPara - 60f, 0);
+				if (!this.electronicSignature.equals("") || this.electronicSignature != null || this.imgPath != null) {
+					writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, this.electronicSignature, 77, endPara - 60f, 0);
 				} else {
 					writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, this.sigDoctorName, 90, endPara - 60f, 0);
 				}
