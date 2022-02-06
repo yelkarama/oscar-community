@@ -263,6 +263,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
         private String patientDOB;
         private String patientHIN;
         private String patientChartNo;
+		private String patientBandNumber;
         private String pracNo;
 		private String sigDoctorName;
 		private String rxDate;
@@ -285,7 +286,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 		}
 
         public EndPage(String clinicName, String clinicTel, String clinicFax, String patientPhone, String patientCityPostal, String patientAddress,
-                String patientName,String patientDOB, String sigDoctorName, String rxDate,String origPrintDate,String numPrint, String imgPath, String electronicSignature, String patientHIN, String patientChartNo, String bandNumber, String pracNo, String pharmaName, String pharmaAddress1, String pharmaAddress2, String pharmaTel, String pharmaFax, String pharmaEmail, String pharmaNote, boolean pharmaShow, Locale locale) {
+                String patientName,String patientDOB, String sigDoctorName, String rxDate,String origPrintDate,String numPrint, String imgPath, String electronicSignature, String patientHIN, String patientChartNo, String patientBandNumber, String pracNo, String pharmaName, String pharmaAddress1, String pharmaAddress2, String pharmaTel, String pharmaFax, String pharmaEmail, String pharmaNote, boolean pharmaShow, Locale locale) {
  			this.clinicName = clinicName==null ? "" : clinicName;
 			this.clinicName = clinicName==null ? "" : clinicName;
 			this.clinicTel = clinicTel==null ? "" : clinicTel;
@@ -307,7 +308,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 			this.electronicSignature = electronicSignature;
 			this.patientHIN = patientHIN==null ? "" : patientHIN;
 			this.patientChartNo = patientChartNo==null ? "" : patientChartNo;
-			this.bandNumber = bandNumber;
+			this.patientBandNumber = patientBandNumber==null ? "" : patientBandNumber;
 			this.pracNo = pracNo==null ? "" : pracNo;
 			this.pharmaName = pharmaName==null ? "" : pharmaName;
 			this.pharmaTel=pharmaTel==null ? "" : pharmaTel;
