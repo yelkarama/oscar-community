@@ -367,7 +367,10 @@ public class FrmCustomedPDFServlet extends HttpServlet {
                                     String chartNoTitle = geti18nTagValue(locale, "oscar.oscarRx.chartNo") ;
                                     hStr.append(newline).append(chartNoTitle).append(patientChartNo);
                                 }
-                                
+                    if( bandNumber != null && ! bandNumber.isEmpty() ) {
+						String bandNumberTitle = org.oscarehr.util.LocaleUtils.getMessage(locale, "oscar.oscarRx.bandNumber");
+						hStr.append(newline).append(bandNumberTitle).append(bandNumber);
+					}
 				BaseFont bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
 				Phrase hPhrase = new Phrase(hStr.toString(), new Font(bf, 10));
 				head.addCell(hPhrase);
@@ -464,10 +467,12 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 					Image img = Image.getInstance(this.imgPath);
 					// image, image_width, 0, 0, image_height, x, y
 					cb.addImage(img, 157, 0, 0, 40, 90f, endPara-56f);
-				} else if (!this.electronicSignature.equals("") || this.electronicSignature != null) {
-					String[] lines = this.electronicSignature.split(System.getProperty("line.separator"));
-					writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, lines[0], 72f, endPara - 48f, 0);
-					writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, lines[1], 72f, endPara - 57f, 0);
+				
+					if (!this.electronicSignature.equals("") || this.electronicSignature != null) {
+						String[] lines = this.electronicSignature.split(System.getProperty("line.separator"));
+						writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, lines[0], 72f, endPara - 48f, 0);
+						writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, lines[1], 72f, endPara - 57f, 0);
+					}
 				}
 
 				// Render doctor name
