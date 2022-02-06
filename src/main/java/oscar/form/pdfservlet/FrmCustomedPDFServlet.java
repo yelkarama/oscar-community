@@ -459,7 +459,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 				cb.setLineWidth(0.5f);
 				// cb.moveTo(75f, 50f);
 				// cb.lineTo(280f, 50f);
-				cb.moveTo(75f, endPara - 50f);
+				cb.moveTo(72f, endPara - 50f);
 				cb.lineTo(280f, endPara - 50f);
 				cb.stroke();
 
@@ -469,14 +469,14 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 					cb.addImage(img, 157, 0, 0, 40, 90f, endPara-56f);
 				
 				} else {	
-					if (!this.electronicSignature.equals("") || this.electronicSignature != null) {
+					if (!this.electronicSignature.equals("") && this.electronicSignature != null) {
 						writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, this.electronicSignature, 72f, endPara - 48f, 0);
 					}
 				}
 
 				// Render doctor name
-				if (!this.electronicSignature.equals("") || this.electronicSignature != null || this.imgPath != null) {
-					writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, this.electronicSignature, 77, endPara - 60f, 0);
+				if (!this.electronicSignature.equals("") && this.electronicSignature != null && this.imgPath != null) {
+					writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, this.electronicSignature, 72, endPara - 60f, 0);
 				} else {
 					writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, this.sigDoctorName, 90, endPara - 60f, 0);
 				}
