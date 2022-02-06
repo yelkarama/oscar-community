@@ -527,11 +527,11 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                                                         String eAuth = LocaleUtils.getMessage(locale,"RxPreview.eAuth") != "RxPreview.eAuth" ? LocaleUtils.getMessage(locale,"RxPreview.eAuth") : "Authorized Electronically by";
                                                                         String at = LocaleUtils.getMessage(locale,"RxPreview.at") != "RxPreview.at" ? LocaleUtils.getMessage(locale,"RxPreview.at") : "at";
 																		String signatureMessage = eAuth + " " + Encode.forHtml(doctorName.replace("Dr. ", "").replaceAll("\\d{5}",""))
-																								+ " " + at + " " 
-+ oscar.oscarRx.util.RxUtil.DateToString(new Date(), "HH:mma",locale);
+																								+ " " + at + " " + oscar.oscarRx.util.RxUtil.DateToString(new Date(), "HH:mma",locale);
 																		%>
                                                                     	<p id="electronic_signature" name="electronic_signature" style="display:none;"><%=signatureMessage%></p>
-                                                                    	<input type="hidden" id="electronicSignature" name="electronicSignature" value=""/> <%
+                                                                    	<input type="hidden" id="electronicSignature" name="electronicSignature" value=""/> 
+                                                                        <%
 																			signatureRequestId=loggedInInfo.getLoggedInProviderNo();
     																		imageUrl=request.getContextPath()+"/eform/displayImage.do?imagefile="+signatureProperty.getValue();
 																			startimageUrl=request.getContextPath() + "/images/1x1.gif";
@@ -543,20 +543,12 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
 																			startimageUrl = request.getContextPath() + "/images/1x1.gif";
 																			statusUrl = request.getContextPath() + "/PMmodule/ClientManager/check_signature_status.jsp?" + DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY + "=" + signatureRequestId;
 																		}
-
-
-
-
-
-
-
-
 /// END FUDGE
 																	%>
 																	<input type="hidden" name="<%=DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY%>" value="<%=signatureRequestId%>" />	
 
 																	<img id="signature" style="width:300px; height:60px" src="<%=startimageUrl%>" alt="digital_signature" />
-				 													<input type="hidden" name="imgFile" id="imgFile" value="<%=imgFile%>" />
+				 													<input type="hidden" name="imgFile" id="imgFile" value="" />
 																	<script type="text/javascript">
 																		
 																		var POLL_TIME=2500;
@@ -589,7 +581,6 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                                             <input type="button" value=<bean:message key="RxPreview.digitallySign"/> class="noprint" onclick="setInterval('refreshImage()', POLL_TIME); document.location='<%=request.getContextPath()%>/signature_pad/topaz_signature_pad.jnlp.jsp?<%=DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY%>=<%=signatureRequestId%>'"  />
                                                             	<% } // PHC Fundge
 	                                                            if (stampSignature) { %> 
-
 		                                                            <input type="button" value=<bean:message key="RxPreview.digitallySign"/> class="noprint" onclick="electronicallySign();"  />
 		                                                            <script type="text/javascript">
 		                                                            	function electronicallySign() {
@@ -597,6 +588,8 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
 		                                                            		document.getElementById('electronicSignature').value = document.getElementById('electronic_signature').innerHTML;
                                                                             var img=document.getElementById("signature");
 																			img.src='<%=imageUrl%>';
+                                                                            var imgF=document.getElementById("imgFile");
+																			imgF.value='<%=imgFile%>';
 			                                                            <% if (OscarProperties.getInstance().isRxFaxEnabled() && pharmacy != null) { %>
 			                                                            	var hasFaxNumber = <%= pharmacy != null && pharmacy.getFax().trim().length() > 0 ? "true" : "false" %>;
 			                                                            	parent.document.getElementById("faxButton").disabled = !hasFaxNumber;
