@@ -285,7 +285,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 		<td>
             <div class="row-fluid hidden-print" style="text-align:right">
         <i class=" icon-question-sign"></i> 
-	    <a href="javascript:void(0)" onClick ="popupPage(900,1024,'<%=(oscar.OscarProperties.getInstance()).getProperty("HELP_SEARCH_URL")%>'+'Report+Tab', <%=openInTabs%>)"><bean:message key="app.top1"/></a>
+	    <a href="javascript:void(0)" onClick ="popupPage(900,1024,'https://worldoscar.org/knowledge-base/report-tab/', <%=openInTabs%>)"><bean:message key="app.top1"/></a>
         <i class=" icon-info-sign" style="margin-left:10px;"></i> <a href="javascript:void(0)"  onClick="window.open('<%=request.getContextPath()%>/oscarEncounter/About.jsp','About OSCAR','scrollbars=1,resizable=1,width=800,height=600,left=0,top=0')" ><bean:message key="app.top2" /></a>
             </div><!-- hidden print -->
 		</td>
