@@ -562,7 +562,7 @@ private void addSignature(PdfPTable infoTable, UserProperty signatureProperty) {
 		} catch (Exception e) {
 			logger.error("Unexpected error.", e);
 		}
-	}
+	
 	/**
 	 * Formats a cell to display information provided in a regular font with an underline.
 	 * @param cell the cell to format
