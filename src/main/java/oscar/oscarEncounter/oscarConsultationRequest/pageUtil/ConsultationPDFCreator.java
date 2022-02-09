@@ -9,18 +9,25 @@
 
 package oscar.oscarEncounter.oscarConsultationRequest.pageUtil;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.FileInputStream;
+
 import java.util.ResourceBundle;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
+import org.apache.commons.lang.StringUtils;
+
 import org.oscarehr.PMmodule.dao.ProgramDao;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.dao.DigitalSignatureDao;
+import org.oscarehr.common.dao.UserPropertyDAO;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.DigitalSignature;
+import org.oscarehr.common.model.UserProperty;
 import org.oscarehr.common.printing.FontSettings;
 import org.oscarehr.common.printing.PdfWriterFactory;
 import org.oscarehr.managers.DemographicManager;
@@ -39,6 +46,7 @@ import com.lowagie.text.Element;
 import com.lowagie.text.Font;
 import com.lowagie.text.Image;
 import com.lowagie.text.PageSize;
+import com.lowagie.text.Paragraph;
 import com.lowagie.text.Phrase;
 import com.lowagie.text.pdf.BaseFont;
 import com.lowagie.text.pdf.PdfPCell;
@@ -99,8 +107,8 @@ public class ConsultationPDFCreator extends PdfPageEventHelper {
 				BaseFont.NOT_EMBEDDED);
 		headerFont = new Font(bf, 14, Font.BOLD);
 		infoFont = new Font(bf, 12, Font.NORMAL);
-		font = new Font(bf, 9, Font.NORMAL);
-		boldFont = new Font(bf, 10, Font.BOLD);
+		font = new Font(bf, 10, Font.NORMAL);
+		boldFont = new Font(bf, 12, Font.BOLD);
 
 		createConsultationRequest(loggedInInfo);
 
@@ -137,7 +145,7 @@ public class ConsultationPDFCreator extends PdfPageEventHelper {
 		addToTable(border2, infoTable, true);
 
 		// Adding patient info to main table.
-		infoTable = createPatientTable();
+		infoTable = createPatientTable(loggedInInfo);
 		addToTable(border2, infoTable, true);
 
 		// Creating a table with details for the consultation request.
@@ -243,6 +251,14 @@ public class ConsultationPDFCreator extends PdfPageEventHelper {
 		cell.setBorder(0);
 		cell.setPaddingLeft(25);
 		infoTable.addCell(cell);
+		
+        	if (reqFrm.siteName != null && !reqFrm.siteName.isEmpty()) {
+        	        cell = new PdfPCell((new Phrase(reqFrm.siteName, headerFont)));
+        	        cell.setBorder(0);
+        	        cell.setPaddingLeft(25);
+		        infoTable.addCell(cell);
+	        }
+	
 
 		cell.setPhrase(new Phrase(
 				(reqFrm.letterheadAddress != null && reqFrm.letterheadAddress.trim().length() > 0 ?
@@ -251,6 +267,9 @@ public class ConsultationPDFCreator extends PdfPageEventHelper {
 						 	   clinic.getClinicAddress(),  clinic.getClinicCity(),
 							   clinic.getClinicProvince(), clinic.getClinicPostal())), font));
 		infoTable.addCell(cell);
+		
+		// Don't reformat the provided fax and phone numbers as formatting varies by country
+		
 
 		cell.setPhrase(new Phrase(String.format("Tel: %s Fax: %s",
 				(reqFrm.letterheadPhone != null && reqFrm.letterheadPhone.trim().length() > 0 ? reqFrm.letterheadPhone : clinic.getClinicPhone()),
@@ -357,12 +376,15 @@ public class ConsultationPDFCreator extends PdfPageEventHelper {
 	 * Creates the table containing information about the patient.
 	 * @return the table produced
 	 */
-	private PdfPTable createPatientTable() {
+	private PdfPTable createPatientTable(LoggedInInfo loggedInInfo) {
 		float[] tableWidths;
 		PdfPCell cell;
 		tableWidths = new float[]{ 2, 2.5f };
 		PdfPTable infoTable = new PdfPTable(tableWidths);
 		cell = new PdfPCell();
+		
+		//String alias = reqFrm.alias != null && reqFrm.alias.trim().length() > 0 ? " ("+ reqFrm.alias + ")" : "";
+		
 		infoTable.addCell(setInfoCell(cell, getResource("msgPat")));
 		infoTable.addCell(setDataCell(cell, reqFrm.patientName));
 
@@ -461,7 +483,7 @@ public class ConsultationPDFCreator extends PdfPageEventHelper {
 
 		ProviderDao proDAO = (ProviderDao) SpringUtils.getBean("providerDao");
 		org.oscarehr.common.model.Provider pro = proDAO.getProvider(reqFrm.providerNo);
-		String ohipNo = pro.getOhipNo();
+		String ohipNo = pro!=null?pro.getOhipNo():"";
 		
 		DemographicManager demographicManager = SpringUtils.getBean(DemographicManager.class);
 		Demographic demo = demographicManager.getDemographic(loggedInInfo, reqFrm.demoNo);
@@ -469,23 +491,28 @@ public class ConsultationPDFCreator extends PdfPageEventHelper {
 		String famDocOhipNo = "";
 		if(demo.getProviderNo()!=null && !demo.getProviderNo().equals("")) {
 			pro = proDAO.getProvider(demo.getProviderNo());
-			famDocOhipNo = pro.getOhipNo();
+			famDocOhipNo =  pro!=null?pro.getOhipNo();
 		}
 
-		if (OscarProperties.getInstance().getBooleanProperty("printPDF_referring_prac", "yes")) {
-		infoTable.addCell(setFooterCell(cell, getResource("msgAssociated2"), reqFrm.getProviderName(reqFrm.providerNo) + ((getlen(ohipNo) > 0) ? " (" + ohipNo + ")" : "")));
+		if (OscarProperties.getInstance().getBooleanProperty("printPDF_referring_prac", "yes") || OscarProperties.getInstance().getBooleanProperty("mrp_model", "yes")) {
+		        infoTable.addCell(setFooterCell(cell, getResource("msgAssociated2"), reqFrm.getProviderName(reqFrm.providerNo) + ((getlen(ohipNo) > 0) ? " (" + ohipNo + ")" : "")));
 		}
 
                 if (OscarProperties.getInstance().getBooleanProperty("mrp_model", "yes")) {
-  		    infoTable.addCell(setFooterCell(cell, getResource("msgFamilyDoc2"), reqFrm.getFamilyDoctor() + ((getlen(famDocOhipNo) > 0) ? " (" + famDocOhipNo + ")" : "")));
+  		        infoTable.addCell(setFooterCell(cell, getResource("msgFamilyDoc2"), reqFrm.getFamilyDoctor() + ((getlen(famDocOhipNo) > 0) ? " (" + famDocOhipNo + ")" : "")));
                 }
-		if (getlen(reqFrm.signatureImg) > 0) {
-			addSignature(infoTable);
+                
+                UserProperty signatureProperty = null;
+                UserPropertyDAO userPropertyDAO = SpringUtils.getBean(UserPropertyDAO.class);
+                signatureProperty = userPropertyDAO.getProp(reqFrm.providerNo,UserProperty.PROVIDER_CONSULT_SIGNATURE);              
+                
+		if (getlen(reqFrm.signatureImg) > 0 || signatureProperty != null) {
+			addSignature(infoTable, signatureProperty);
 		}
 		return infoTable;
 	}
 
-private void addSignature(PdfPTable infoTable) {
+private void addSignature(PdfPTable infoTable, UserProperty signatureProperty) {
 		float[] tableWidths;
 		PdfPCell cell;
 		tableWidths = new float[]{ 0.55f, 2.75f };
@@ -495,11 +522,30 @@ private void addSignature(PdfPTable infoTable) {
 		cell.setHorizontalAlignment(PdfPCell.ALIGN_BOTTOM);
 		table.addCell(cell);
 		try {
+                    if (signatureProperty != null) {
+                        File signatureFolder = new File(OscarProperties.getInstance().getProperty("eform_image"));
+                        File file = new File(signatureFolder.toString() + "/" + signatureProperty.getValue());
+                        FileInputStream fileInputStream = new FileInputStream(file);
+                        byte[] imageBtyes = new byte[1024 * 256];
+                        fileInputStream.read(imageBtyes);
+                        Image image = Image.getInstance(imageBtyes);
+                        image.scalePercent(80f);
+                        image.setBorder(0);
+                        cell = new PdfPCell(image);
+                        cell.setBorder(0);
+                        table.addCell(cell);
+                        cell = new PdfPCell(table);
+                        cell.setBorder(0);
+                        cell.setPadding(0);
+                        cell.setColspan(1);
+                        infoTable.addCell(cell);
+                        return;
+                    } else {		        	        
 			DigitalSignatureDao digitalSignatureDao = (DigitalSignatureDao) SpringUtils.getBean("digitalSignatureDao");
 			DigitalSignature digitalSignature = digitalSignatureDao.find(Integer.parseInt(reqFrm.signatureImg));
 			if (digitalSignature != null) {
 				Image image = Image.getInstance(digitalSignature.getSignatureImage());
-				image.scalePercent(80f);
+				image.scalePercent(70f);
 				image.setBorder(0);
 				cell = new PdfPCell(image);
 				cell.setBorder(0);
@@ -512,6 +558,7 @@ private void addSignature(PdfPTable infoTable) {
 
 				return;
 			}
+		     }
 		} catch (Exception e) {
 			logger.error("Unexpected error.", e);
 		}

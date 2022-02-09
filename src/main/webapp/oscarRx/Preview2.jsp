@@ -513,44 +513,40 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
 																	String imageUrl=null;
 																	String startimageUrl=null;
 																	String statusUrl=null;
-// PHC FUDGE
                                                                     UserProperty signatureProperty = userPropertyDAO.getProp(providerNo,UserProperty.PROVIDER_CONSULT_SIGNATURE);
-																	boolean stampSignature = signatureProperty != null && signatureProperty.getValue() != null && !signatureProperty.getValue().trim().isEmpty(); //&& OscarProperties.getInstance().isPropertyActive("consult_auto_load_signature") 
-																	//boolean stampSignature = true;
+																	boolean stampSignature = signatureProperty != null && signatureProperty.getValue() != null && !signatureProperty.getValue().trim().isEmpty();  
 
 																	signatureRequestId=loggedInInfo.getLoggedInProviderNo();
 																	imageUrl=request.getContextPath()+"/imageRenderingServlet?source="+ImageRenderingServlet.Source.signature_preview.name()+"&"+DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY+"="+signatureRequestId;
 																	startimageUrl=request.getContextPath()+"/images/1x1.gif";		
 																	statusUrl = request.getContextPath()+"/PMmodule/ClientManager/check_signature_status.jsp?" + DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY+"="+signatureRequestId;
 																	String imgFile = "";
-																		if (stampSignature) {																
+                                                                    String signatureMessage="";
+																		
+                                                                    if (stampSignature) {																
                                                                         String eAuth = LocaleUtils.getMessage(locale,"RxPreview.eAuth") != "RxPreview.eAuth" ? LocaleUtils.getMessage(locale,"RxPreview.eAuth") : "Authorized Electronically by";
                                                                         String at = LocaleUtils.getMessage(locale,"RxPreview.at") != "RxPreview.at" ? LocaleUtils.getMessage(locale,"RxPreview.at") : "at";
-																		String signatureMessage = eAuth + " " + Encode.forHtml(doctorName.replace("Dr. ", "").replaceAll("\\d{5}",""))
+																	    signatureMessage = eAuth + " " + Encode.forHtml(doctorName.replace("Dr. ", "").replaceAll("\\d{5}",""))
 																								+ " " + at + " " + oscar.oscarRx.util.RxUtil.DateToString(new Date(), "HH:mma",locale);
-																		%>
-                                                                    	<p id="electronic_signature" name="electronic_signature" style="display:none;"><%=signatureMessage%></p>
-                                                                    	<input type="hidden" id="electronicSignature" name="electronicSignature" value=""/> 
-                                                                        <%
-																			signatureRequestId=loggedInInfo.getLoggedInProviderNo();
-    																		imageUrl=request.getContextPath()+"/eform/displayImage.do?imagefile="+signatureProperty.getValue();
-																			startimageUrl=request.getContextPath() + "/images/1x1.gif";
-																			statusUrl = request.getContextPath()+"/PMmodule/ClientManager/check_signature_status.jsp?" + DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY+"="+signatureRequestId;
-																			imgFile = OscarProperties.getInstance().getProperty("eform_image") +  signatureProperty.getValue();
-																		} else {
-																			signatureRequestId = loggedInInfo.getLoggedInProviderNo();
-																			imageUrl = request.getContextPath() + "/imageRenderingServlet?source=" + ImageRenderingServlet.Source.signature_preview.name() + "&" + DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY + "=" + signatureRequestId;
-																			startimageUrl = request.getContextPath() + "/images/1x1.gif";
-																			statusUrl = request.getContextPath() + "/PMmodule/ClientManager/check_signature_status.jsp?" + DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY + "=" + signatureRequestId;
-																		}
-/// END FUDGE
+						
+																	    signatureRequestId=loggedInInfo.getLoggedInProviderNo();
+    																    imageUrl=request.getContextPath()+"/eform/displayImage.do?imagefile="+signatureProperty.getValue();
+																	    startimageUrl=request.getContextPath() + "/images/1x1.gif";
+																	    statusUrl = request.getContextPath()+"/PMmodule/ClientManager/check_signature_status.jsp?" + DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY+"="+signatureRequestId;
+																	    imgFile = OscarProperties.getInstance().getProperty("eform_image") +  signatureProperty.getValue();
+																	} else {
+																	    signatureRequestId = loggedInInfo.getLoggedInProviderNo();
+																	    imageUrl = request.getContextPath() + "/imageRenderingServlet?source=" + ImageRenderingServlet.Source.signature_preview.name() + "&" + DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY + "=" + signatureRequestId;
+																	    startimageUrl = request.getContextPath() + "/images/1x1.gif";
+																	    statusUrl = request.getContextPath() + "/PMmodule/ClientManager/check_signature_status.jsp?" + DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY + "=" + signatureRequestId;
+																	}
+
 																	%>
 																	<input type="hidden" name="<%=DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY%>" value="<%=signatureRequestId%>" />	
-
+                         										    <input type="hidden" id="electronicSignature" name="electronicSignature" value=""/> 
 																	<img id="signature" style="width:300px; height:60px" src="<%=startimageUrl%>" alt="digital_signature" />
 				 													<input type="hidden" name="imgFile" id="imgFile" value="" />
-																	<script type="text/javascript">
-																		
+																	<script type="text/javascript">	
 																		var POLL_TIME=2500;
 																		var counter=0;
 
@@ -579,13 +575,13 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                                             <td height=25px>
                                                             <% if (props.getProperty("signature_tablet", "").equals("yes")) { %>
                                                             <input type="button" value=<bean:message key="RxPreview.digitallySign"/> class="noprint" onclick="setInterval('refreshImage()', POLL_TIME); document.location='<%=request.getContextPath()%>/signature_pad/topaz_signature_pad.jnlp.jsp?<%=DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY%>=<%=signatureRequestId%>'"  />
-                                                            	<% } // PHC Fundge
+                                                            	<% } 
 	                                                            if (stampSignature) { %> 
 		                                                            <input type="button" value=<bean:message key="RxPreview.digitallySign"/> class="noprint" onclick="electronicallySign();"  />
 		                                                            <script type="text/javascript">
 		                                                            	function electronicallySign() {
-		                                                            		document.getElementById('electronic_signature').style.display = 'block';
-		                                                            		document.getElementById('electronicSignature').value = document.getElementById('electronic_signature').innerHTML;
+		                                                            		document.getElementById('electronicSignature').value = "<%=signatureMessage%>";
+		                                                            		document.getElementById('sline').textContent = "<%=signatureMessage%>";
                                                                             var img=document.getElementById("signature");
 																			img.src='<%=imageUrl%>';
                                                                             var imgF=document.getElementById("imgFile");
@@ -607,8 +603,8 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
 																<% } %>
                                                                 <% } %>
                                                             </td>
-                                                            <td height=25px>&nbsp; <%= doctorName%> <% if ( pracNo != null && ! pracNo.equals("") && !pracNo.equalsIgnoreCase("null")) { %>
-                                                                <br /> &nbsp; <bean:message key="RxPreview.PractNo"/> <%= pracNo%> <% } %>                                                         
+                                                            <td height=25px><span id="sline">&nbsp; <%= doctorName%></span> <% if ( pracNo != null && ! pracNo.equals("") && !pracNo.equalsIgnoreCase("null")) { %>
+                                                                <!-- <br /> &nbsp; <bean:message key="RxPreview.PractNo"/> <%= pracNo%> <% } %>                                                         -->
                                                             </td>
                                                     </tr>
                                                     <% 
