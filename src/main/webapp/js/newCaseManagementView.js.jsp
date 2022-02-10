@@ -3631,10 +3631,16 @@ function autoCompleteShowMenuCPP(element, update) {
     //print today's notes
     function printToday(e) {
         clearAll(e);
-
+        var date = new Date();
+        // add a day
+        date.setDate(date.getDate() + 1);
+        const day = date.toLocaleString('en',{ day: '2-digit' });
+        const month = date.toLocaleString('en',{ month: 'short' });
+        const year = date.toLocaleString('en',{ year: 'numeric' });
+        $("printEndDate").value = day + "-" + month.substr(0,3) + "-" + year;
         var today = $F("serverDate").split(" ");
         $("printStartDate").value = today[1].substr(0,today[1].indexOf(",")) + "-" + today[0] + "-" + today[2];
-        $("printEndDate").value = $F("printStartDate");
+        //$("printEndDate").value = $F("printStartDate");
         $("printopDates").checked = true;
 
         printNotes();
