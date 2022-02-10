@@ -136,7 +136,7 @@
          ticklerview = request.getParameter("ticklerview");
      }
 
-    String xml_vdate = "";
+    String xml_vdate = "2000-01-01";
     View beginDateView = ticklerView.get("dateBegin");
 
     if( beginDateView != null && !doCreateReport)
@@ -593,10 +593,11 @@ var beginD = "1900-01-01"
         <label for="xml_appointment_date">
         <a HREF="#"	onClick="popupPage(405,430,'../share/CalendarPopup.jsp?urlfrom=../tickler/ticklerMain.jsp&year=<%=curYear%>&month=<%=curMonth%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('xml_appointment_date')[0].value")%>')"><bean:message key="tickler.ticklerMain.btnEnd"/>:</a></label>
         <input type="text" class="input-small" id="xml_appointment_date" name="xml_appointment_date" value="<%=xml_appointment_date%>">
+        &nbsp;&nbsp;<a href="#" onClick="allYear()"><bean:message key="tickler.ticklerMain.btnViewAll"/></a>
         </div>
       </td>
       <td width="40%">      
-        <a href="#" onClick="allYear()"><bean:message key="tickler.ticklerMain.btnViewAll"/></a>
+        
       </td>
     </tr>
     <tr>
