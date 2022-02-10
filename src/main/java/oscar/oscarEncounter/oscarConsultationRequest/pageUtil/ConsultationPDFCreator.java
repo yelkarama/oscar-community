@@ -9,18 +9,24 @@
 
 package oscar.oscarEncounter.oscarConsultationRequest.pageUtil;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.FileInputStream;
+
 import java.util.ResourceBundle;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
+
 import org.oscarehr.PMmodule.dao.ProgramDao;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.dao.DigitalSignatureDao;
+import org.oscarehr.common.dao.UserPropertyDAO;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.DigitalSignature;
+import org.oscarehr.common.model.UserProperty;
 import org.oscarehr.common.printing.FontSettings;
 import org.oscarehr.common.printing.PdfWriterFactory;
 import org.oscarehr.managers.DemographicManager;
@@ -70,11 +76,11 @@ public class ConsultationPDFCreator extends PdfPageEventHelper {
 	 */
 	public ConsultationPDFCreator(HttpServletRequest request, OutputStream os) {
 		this.os = os;
-	    reqFrm = new EctConsultationFormRequestUtil ();
-	    reqFrm.estRequestFromId(LoggedInInfo.getLoggedInInfoFromSession(request), request.getParameter("reqId") == null ? (String)request.getAttribute("reqId") : request.getParameter("reqId"));
-	    props = OscarProperties.getInstance();
-	    clinic = new ClinicData();
-		oscarR = ResourceBundle.getBundle("oscarResources",request.getLocale());
+		reqFrm = new EctConsultationFormRequestUtil();
+		reqFrm.estRequestFromId(LoggedInInfo.getLoggedInInfoFromSession(request), request.getParameter("reqId") == null ? (String) request.getAttribute("reqId") : request.getParameter("reqId"));
+		props = OscarProperties.getInstance();
+		clinic = new ClinicData();
+		oscarR = ResourceBundle.getBundle("oscarResources", request.getLocale());
 	}
 
 	/**
@@ -95,12 +101,11 @@ public class ConsultationPDFCreator extends PdfPageEventHelper {
 		document.open();
 
 		// Create the fonts that we are going to use
-		bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252,
-				BaseFont.NOT_EMBEDDED);
+		bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
 		headerFont = new Font(bf, 14, Font.BOLD);
 		infoFont = new Font(bf, 12, Font.NORMAL);
-		font = new Font(bf, 9, Font.NORMAL);
-		boldFont = new Font(bf, 10, Font.BOLD);
+		font = new Font(bf, 10, Font.NORMAL);
+		boldFont = new Font(bf, 12, Font.BOLD);
 
 		createConsultationRequest(loggedInInfo);
 
@@ -115,7 +120,7 @@ public class ConsultationPDFCreator extends PdfPageEventHelper {
 
 		float[] tableWidths = { 1f, 1f };
 		PdfPTable table = new PdfPTable(1);
-//		PdfPCell cell;
+		//		PdfPCell cell;
 		PdfPTable border, border2;
 		table.setWidthPercentage(95);
 
@@ -137,22 +142,22 @@ public class ConsultationPDFCreator extends PdfPageEventHelper {
 		addToTable(border2, infoTable, true);
 
 		// Adding patient info to main table.
-		infoTable = createPatientTable();
+		infoTable = createPatientTable(loggedInInfo);
 		addToTable(border2, infoTable, true);
 
 		// Creating a table with details for the consultation request.
 		infoTable = createConsultDetailTable(loggedInInfo);
 
-//		// Adding promotional information if appropriate.
-//		if (props.getProperty("FORMS_PROMOTEXT") != null){
-//			cell = new PdfPCell(new Phrase(props.getProperty(""), font));
-//			cell.setBorder(0);
-//			infoTable.addCell(cell);
-//			cell.setPhrase(new Phrase(props.getProperty("FORMS_PROMOTEXT"), font));
-//			cell.setVerticalAlignment(Element.ALIGN_BOTTOM);
-//			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-//			infoTable.addCell(cell);
-//		}
+		//		// Adding promotional information if appropriate.
+		//		if (props.getProperty("FORMS_PROMOTEXT") != null){
+		//			cell = new PdfPCell(new Phrase(props.getProperty(""), font));
+		//			cell.setBorder(0);
+		//			infoTable.addCell(cell);
+		//			cell.setPhrase(new Phrase(props.getProperty("FORMS_PROMOTEXT"), font));
+		//			cell.setVerticalAlignment(Element.ALIGN_BOTTOM);
+		//			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+		//			infoTable.addCell(cell);
+		//		}
 
 		// Adding details and promotional information.
 		addTable(border, infoTable);
@@ -180,7 +185,9 @@ public class ConsultationPDFCreator extends PdfPageEventHelper {
 	private PdfPCell addToTable(PdfPTable main, PdfPTable add, boolean border) {
 		PdfPCell cell;
 		cell = new PdfPCell(add);
-		if (!border) { cell.setBorder(0); }
+		if (!border) {
+			cell.setBorder(0);
+		}
 		cell.setPadding(3);
 		cell.setColspan(1);
 		main.addCell(cell);
@@ -200,35 +207,31 @@ public class ConsultationPDFCreator extends PdfPageEventHelper {
 			letterheadName = programDao.getProgramName(programNo);
 		} else if (reqFrm.letterheadName != null && !reqFrm.letterheadName.equals("-1") && clinic != null && !reqFrm.letterheadName.equals(clinic.getClinicName())) {
 			Provider letterheadNameProvider = (reqFrm.letterheadName != null ? new RxProviderData().getProvider(reqFrm.letterheadName) : null);
-			if (letterheadNameProvider != null && letterheadNameProvider.getSurname() != null){			
+			if (letterheadNameProvider != null && letterheadNameProvider.getSurname() != null) {
 				String firstName = "";
-				if(reqFrm.letterheadTitle!=null && reqFrm.letterheadTitle.equals("Dr")){
+				if (reqFrm.letterheadTitle != null && reqFrm.letterheadTitle.equals("Dr")) {
 					firstName = letterheadNameProvider.getFirstName();
-				}else{
+				} else {
 					firstName = letterheadNameProvider.getFirstName().replace("Dr. ", "");
 				}
-				
+
 				letterheadName = firstName + " " + letterheadNameProvider.getSurname();
 
-				if (OscarProperties.getInstance().getBooleanProperty("consultation_display_practitioner_no", "true"))
-				{
+				if (OscarProperties.getInstance().getBooleanProperty("consultation_display_practitioner_no", "true")) {
 					ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
 					String providerNo = letterheadNameProvider.getProviderNo();
-					if (providerNo != null)
-					{
+					if (providerNo != null) {
 						org.oscarehr.common.model.Provider provider = providerDao.getProvider(letterheadNameProvider.getProviderNo());
-						if (provider != null)
-						{
+						if (provider != null) {
 							String ohipNo = provider.getOhipNo();
 
-							if ( ohipNo != null && !ohipNo.isEmpty())
-							{
+							if (ohipNo != null && !ohipNo.isEmpty()) {
 								letterheadName += " (" + ohipNo + ")";
 							}
 						}
 					}
 				}
-			}else{
+			} else {
 				letterheadName = clinic.getClinicName();
 			}
 		} else {
@@ -244,50 +247,49 @@ public class ConsultationPDFCreator extends PdfPageEventHelper {
 		cell.setPaddingLeft(25);
 		infoTable.addCell(cell);
 
-		cell.setPhrase(new Phrase(
-				(reqFrm.letterheadAddress != null && reqFrm.letterheadAddress.trim().length() > 0 ?
-						String.format("%s", reqFrm.letterheadAddress)
-					  : String.format("%s, %s, %s %s",
-						 	   clinic.getClinicAddress(),  clinic.getClinicCity(),
-							   clinic.getClinicProvince(), clinic.getClinicPostal())), font));
+		if (reqFrm.siteName != null && !reqFrm.siteName.isEmpty()) {
+			cell = new PdfPCell((new Phrase(reqFrm.siteName, headerFont)));
+			cell.setBorder(0);
+			cell.setPaddingLeft(25);
+			infoTable.addCell(cell);
+		}
+
+		cell.setPhrase(new Phrase((reqFrm.letterheadAddress != null && reqFrm.letterheadAddress.trim().length() > 0 ? String.format("%s", reqFrm.letterheadAddress) : String.format("%s, %s, %s %s", clinic.getClinicAddress(), clinic.getClinicCity(), clinic.getClinicProvince(), clinic.getClinicPostal())), font));
 		infoTable.addCell(cell);
 
-		cell.setPhrase(new Phrase(String.format("Tel: %s Fax: %s",
-				(reqFrm.letterheadPhone != null && reqFrm.letterheadPhone.trim().length() > 0 ? reqFrm.letterheadPhone : clinic.getClinicPhone()),
-				(reqFrm.letterheadFax != null && reqFrm.letterheadFax.trim().length() > 0 ? reqFrm.letterheadFax : clinic.getClinicFax())), font));
+		// Don't reformat the provided fax and phone numbers as formatting varies by country
+
+		cell.setPhrase(new Phrase(String.format("Tel: %s Fax: %s", (reqFrm.letterheadPhone != null && reqFrm.letterheadPhone.trim().length() > 0 ? reqFrm.letterheadPhone : clinic.getClinicPhone()), (reqFrm.letterheadFax != null && reqFrm.letterheadFax.trim().length() > 0 ? reqFrm.letterheadFax : clinic.getClinicFax())), font));
 		infoTable.addCell(cell);
 
 		cell.setPadding(0);
 		cell.setPhrase(new Phrase(getResource("msgConsReq"), font));
 		cell.setHorizontalAlignment(Element.ALIGN_CENTER);
 		infoTable.addCell(cell);
-	
+
 		// Use a Custom Appointment Instruction - if it is set up.
-		if( OscarProperties.getInstance().getBooleanProperty("CONSULTATION_APPOINTMENT_INSTRUCTIONS_LOOKUP", "true") ) {
-			cell.setPhrase( new Phrase( reqFrm.getAppointmentInstructionsLabel(), boldFont ));	
-		} 
-		
-		else if ( "1".equals(reqFrm.pwb) ){
+		if (OscarProperties.getInstance().getBooleanProperty("CONSULTATION_APPOINTMENT_INSTRUCTIONS_LOOKUP", "true")) {
+			cell.setPhrase(new Phrase(reqFrm.getAppointmentInstructionsLabel(), boldFont));
+		}
+
+		else if ("1".equals(reqFrm.pwb)) {
 			//cell.setPhrase(new Phrase(getResource("msgPleaseReplyPatient"), boldFont));
 			// msgPleaseReplyPatient does not exist. Using Part1 and Part2 method instead
-			cell.setPhrase(new Phrase(
-					String.format("%s %s %s", getResource("msgPleaseReplyPart1"),
-											  clinic.getClinicName(),
-											  getResource("msgPleaseReplyPart2")), boldFont));
+			cell.setPhrase(new Phrase(String.format("%s %s %s", getResource("msgPleaseReplyPart1"), clinic.getClinicName(), getResource("msgPleaseReplyPart2")), boldFont));
 		}
 
 		else if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) {
 			cell.setPhrase(new Phrase("Please reply", boldFont));
 		}
-		
+
 		// REDUNDANT CODE commented out.
-//		else {
-//			cell.setPhrase(new Phrase(
-//					String.format("%s %s %s", getResource("msgPleaseReplyPart1"),
-//											  clinic.getClinicName(),
-//											  getResource("msgPleaseReplyPart2")), boldFont));
-//		}
-		
+		//		else {
+		//			cell.setPhrase(new Phrase(
+		//					String.format("%s %s %s", getResource("msgPleaseReplyPart1"),
+		//											  clinic.getClinicName(),
+		//											  getResource("msgPleaseReplyPart2")), boldFont));
+		//		}
+
 		infoTable.addCell(cell);
 
 		return infoTable;
@@ -300,17 +302,14 @@ public class ConsultationPDFCreator extends PdfPageEventHelper {
 	private PdfPTable createSpecialistTable() {
 		float[] tableWidths;
 		PdfPCell cell = new PdfPCell();
-		tableWidths = new float[]{ 1.5f, 2.5f };
+		tableWidths = new float[] { 1.5f, 2.5f };
 		PdfPTable infoTable = new PdfPTable(tableWidths);
 
 		infoTable.addCell(setInfoCell(cell, getResource("msgDate")));
 		infoTable.addCell(setDataCell(cell, reqFrm.pwb.equals("1") ? getResource("pwb") : reqFrm.referalDate));
 
 		infoTable.addCell(setInfoCell(cell, getResource("msgStatus")));
-		infoTable.addCell(setDataCell(cell, (reqFrm.urgency.equals("1") ?  getResource("msgUrgent") :
-											 (reqFrm.urgency.equals("2") ?  getResource("msgNUrgent") :
-										     (reqFrm.urgency.equals("3")) ? getResource("msgReturn")
-										     : "  "))));
+		infoTable.addCell(setDataCell(cell, (reqFrm.urgency.equals("1") ? getResource("msgUrgent") : (reqFrm.urgency.equals("2") ? getResource("msgNUrgent") : (reqFrm.urgency.equals("3")) ? getResource("msgReturn") : "  "))));
 
 		infoTable.addCell(setInfoCell(cell, getResource("msgService")));
 		infoTable.addCell(setDataCell(cell, reqFrm.getServiceName(reqFrm.service)));
@@ -318,25 +317,22 @@ public class ConsultationPDFCreator extends PdfPageEventHelper {
 		infoTable.addCell(setInfoCell(cell, getResource("msgConsultant")));
 		infoTable.addCell(setDataCell(cell, reqFrm.getSpecailistsName(reqFrm.specialist)));
 
-
-
 		infoTable.addCell(setInfoCell(cell, getResource("msgPhone")));
-		if ((reqFrm.getSpecailistsName(reqFrm.specialist) == null) ||(reqFrm.getSpecailistsName(reqFrm.specialist).equals("-1"))||(reqFrm.getSpecailistsName(reqFrm.specialist).equals(""))) {
+		if ((reqFrm.getSpecailistsName(reqFrm.specialist) == null) || (reqFrm.getSpecailistsName(reqFrm.specialist).equals("-1")) || (reqFrm.getSpecailistsName(reqFrm.specialist).equals(""))) {
 			infoTable.addCell(setDataCell(cell, ""));
 		} else {
 			infoTable.addCell(setDataCell(cell, reqFrm.specPhone));
 		}
 
-
 		infoTable.addCell(setInfoCell(cell, getResource("msgFax")));
-		if ((reqFrm.getSpecailistsName(reqFrm.specialist) == null) || (reqFrm.getSpecailistsName(reqFrm.specialist).equals("-1"))||(reqFrm.getSpecailistsName(reqFrm.specialist).equals(""))) {
+		if ((reqFrm.getSpecailistsName(reqFrm.specialist) == null) || (reqFrm.getSpecailistsName(reqFrm.specialist).equals("-1")) || (reqFrm.getSpecailistsName(reqFrm.specialist).equals(""))) {
 			infoTable.addCell(setDataCell(cell, ""));
 		} else {
 			infoTable.addCell(setDataCell(cell, reqFrm.specFax));
 		}
 
 		infoTable.addCell(setInfoCell(cell, getResource("msgAddr")));
-		if ((reqFrm.getSpecailistsName(reqFrm.specialist) == null)||(reqFrm.getSpecailistsName(reqFrm.specialist).equals("-1"))||(reqFrm.getSpecailistsName(reqFrm.specialist).equals(""))) {
+		if ((reqFrm.getSpecailistsName(reqFrm.specialist) == null) || (reqFrm.getSpecailistsName(reqFrm.specialist).equals("-1")) || (reqFrm.getSpecailistsName(reqFrm.specialist).equals(""))) {
 			infoTable.addCell(setDataCell(cell, ""));
 		} else {
 			infoTable.addCell(setDataCell(cell, divy(reqFrm.specAddr)));
@@ -357,12 +353,15 @@ public class ConsultationPDFCreator extends PdfPageEventHelper {
 	 * Creates the table containing information about the patient.
 	 * @return the table produced
 	 */
-	private PdfPTable createPatientTable() {
+	private PdfPTable createPatientTable(LoggedInInfo loggedInInfo) {
 		float[] tableWidths;
 		PdfPCell cell;
-		tableWidths = new float[]{ 2, 2.5f };
+		tableWidths = new float[] { 2, 2.5f };
 		PdfPTable infoTable = new PdfPTable(tableWidths);
 		cell = new PdfPCell();
+
+		//String alias = reqFrm.alias != null && reqFrm.alias.trim().length() > 0 ? " ("+ reqFrm.alias + ")" : "";
+
 		infoTable.addCell(setInfoCell(cell, getResource("msgPat")));
 		infoTable.addCell(setDataCell(cell, reqFrm.patientName));
 
@@ -374,32 +373,27 @@ public class ConsultationPDFCreator extends PdfPageEventHelper {
 
 		infoTable.addCell(setInfoCell(cell, getResource("msgWPhone")));
 		infoTable.addCell(setDataCell(cell, reqFrm.patientWPhone));
-		
+
 		infoTable.addCell(setInfoCell(cell, getResource("msgCellPhone")));
 		infoTable.addCell(setDataCell(cell, reqFrm.patientCellPhone));
-                
+
 		infoTable.addCell(setInfoCell(cell, getResource("msgEmail")));
 		infoTable.addCell(setDataCell(cell, reqFrm.patientEmail));
 
 		infoTable.addCell(setInfoCell(cell, getResource("msgBirth")));
 		infoTable.addCell(setDataCell(cell, reqFrm.patientDOB + " (y/m/d)"));
-		
+
 		infoTable.addCell(setInfoCell(cell, getResource("msgSex")));
 		infoTable.addCell(setDataCell(cell, reqFrm.patientSex));
 
 		infoTable.addCell(setInfoCell(cell, getResource("msgCard")));
-		infoTable.addCell(setDataCell(cell, String.format("(%s) %s %s", reqFrm.patientHealthCardType,
-														    reqFrm.patientHealthNum,
-														    reqFrm.patientHealthCardVersionCode)));
+		infoTable.addCell(setDataCell(cell, String.format("(%s) %s %s", reqFrm.patientHealthCardType, reqFrm.patientHealthNum, reqFrm.patientHealthCardVersionCode)));
 
 		if (!reqFrm.pwb.equals("1")) {
 			infoTable.addCell(setInfoCell(cell, getResource("msgappDate")));
 			infoTable.addCell(setDataCell(cell, reqFrm.pwb.equals("1") ? getResource("pwb") : reqFrm.appointmentDate));
 			infoTable.addCell(setInfoCell(cell, getResource("msgTime")));
-			infoTable.addCell(setDataCell(cell, String.format("%s%s%s %s", reqFrm.appointmentHour,
-					 !reqFrm.appointmentMinute.equals("") ? ":" : "",
-					 reqFrm.appointmentMinute,
-					 reqFrm.appointmentPm)));
+			infoTable.addCell(setDataCell(cell, String.format("%s%s%s %s", reqFrm.appointmentHour, !reqFrm.appointmentMinute.equals("") ? ":" : "", reqFrm.appointmentMinute, reqFrm.appointmentPm)));
 		}
 
 		infoTable.addCell(setInfoCell(cell, getResource("msgChart")));
@@ -430,22 +424,21 @@ public class ConsultationPDFCreator extends PdfPageEventHelper {
 		infoTable.addCell(setInfoCell(cell, getResource("msgReason")));
 		infoTable.addCell(setDataCell(cell, reqFrm.reasonForConsultation));
 
-		if(getlen(reqFrm.clinicalInformation) > 0) {
+		if (getlen(reqFrm.clinicalInformation) > 0) {
 			infoTable.addCell(setInfoCell(cell, getResource("msgClinicalInfom")));
 			infoTable.addCell(setDataCell(cell, divy(reqFrm.clinicalInformation)));
 		}
 
-		if(getlen(reqFrm.concurrentProblems) > 0) {
-			if (props.getProperty("significantConcurrentProblemsTitle", "")
-					.length() > 0) {
+		if (getlen(reqFrm.concurrentProblems) > 0) {
+			if (props.getProperty("significantConcurrentProblemsTitle", "").length() > 0) {
 				infoTable.addCell(setInfoCell(cell, props.getProperty("significantConcurrentProblemsTitle", "")));
 			} else {
-				infoTable.addCell(setInfoCell(cell,getResource("msgSigProb")));
+				infoTable.addCell(setInfoCell(cell, getResource("msgSigProb")));
 			}
 			infoTable.addCell(setDataCell(cell, divy(reqFrm.concurrentProblems)));
 		}
 
-		if(getlen(reqFrm.currentMedications) > 0) {
+		if (getlen(reqFrm.currentMedications) > 0) {
 			if (props.getProperty("currentMedicationsTitle", "").length() > 0) {
 				infoTable.addCell(setInfoCell(cell, props.getProperty("currentMedicationsTitle", "")));
 			} else {
@@ -454,51 +447,59 @@ public class ConsultationPDFCreator extends PdfPageEventHelper {
 			infoTable.addCell(setDataCell(cell, divy(reqFrm.currentMedications)));
 		}
 
-		if(getlen(reqFrm.allergies) > 0) {
+		if (getlen(reqFrm.allergies) > 0) {
 			infoTable.addCell(setInfoCell(cell, getResource("msgAllergies")));
 			infoTable.addCell(setDataCell(cell, divy(reqFrm.allergies)));
 		}
 
 		ProviderDao proDAO = (ProviderDao) SpringUtils.getBean("providerDao");
 		org.oscarehr.common.model.Provider pro = proDAO.getProvider(reqFrm.providerNo);
-		String ohipNo = pro.getOhipNo();
-		
+		String ohipNo = pro != null ? pro.getOhipNo() : "";
+
 		DemographicManager demographicManager = SpringUtils.getBean(DemographicManager.class);
 		Demographic demo = demographicManager.getDemographic(loggedInInfo, reqFrm.demoNo);
 
 		String famDocOhipNo = "";
-		if(demo.getProviderNo()!=null && !demo.getProviderNo().equals("")) {
+		if (demo.getProviderNo() != null && !demo.getProviderNo().equals("")) {
 			pro = proDAO.getProvider(demo.getProviderNo());
-			famDocOhipNo = pro.getOhipNo();
+			famDocOhipNo = pro != null ? pro.getOhipNo() : "";
 		}
 
-		if (OscarProperties.getInstance().getBooleanProperty("printPDF_referring_prac", "yes")) {
-		infoTable.addCell(setFooterCell(cell, getResource("msgAssociated2"), reqFrm.getProviderName(reqFrm.providerNo) + ((getlen(ohipNo) > 0) ? " (" + ohipNo + ")" : "")));
+		if (OscarProperties.getInstance().getBooleanProperty("printPDF_referring_prac", "yes") || OscarProperties.getInstance().getBooleanProperty("mrp_model", "yes")) {
+			infoTable.addCell(setFooterCell(cell, getResource("msgAssociated2"), reqFrm.getProviderName(reqFrm.providerNo) + ((getlen(ohipNo) > 0) ? " (" + ohipNo + ")" : "")));
 		}
 
-                if (OscarProperties.getInstance().getBooleanProperty("mrp_model", "yes")) {
-  		    infoTable.addCell(setFooterCell(cell, getResource("msgFamilyDoc2"), reqFrm.getFamilyDoctor() + ((getlen(famDocOhipNo) > 0) ? " (" + famDocOhipNo + ")" : "")));
-                }
-		if (getlen(reqFrm.signatureImg) > 0) {
-			addSignature(infoTable);
+		if (OscarProperties.getInstance().getBooleanProperty("mrp_model", "yes")) {
+			infoTable.addCell(setFooterCell(cell, getResource("msgFamilyDoc2"), reqFrm.getFamilyDoctor() + ((getlen(famDocOhipNo) > 0) ? " (" + famDocOhipNo + ")" : "")));
+		}
+
+		UserProperty signatureProperty = null;
+		UserPropertyDAO userPropertyDAO = SpringUtils.getBean(UserPropertyDAO.class);
+		signatureProperty = userPropertyDAO.getProp(reqFrm.providerNo, UserProperty.PROVIDER_CONSULT_SIGNATURE);
+
+		if (getlen(reqFrm.signatureImg) > 0 || signatureProperty != null) {
+			addSignature(infoTable, signatureProperty);
 		}
 		return infoTable;
 	}
 
-private void addSignature(PdfPTable infoTable) {
+	private void addSignature(PdfPTable infoTable, UserProperty signatureProperty) {
 		float[] tableWidths;
 		PdfPCell cell;
-		tableWidths = new float[]{ 0.55f, 2.75f };
+		tableWidths = new float[] { 0.55f, 2.75f };
 		PdfPTable table = new PdfPTable(tableWidths);
 		cell = new PdfPCell(new Phrase(getResource("msgSignature") + ":", infoFont));
 		cell.setBorder(0);
 		cell.setHorizontalAlignment(PdfPCell.ALIGN_BOTTOM);
 		table.addCell(cell);
 		try {
-			DigitalSignatureDao digitalSignatureDao = (DigitalSignatureDao) SpringUtils.getBean("digitalSignatureDao");
-			DigitalSignature digitalSignature = digitalSignatureDao.find(Integer.parseInt(reqFrm.signatureImg));
-			if (digitalSignature != null) {
-				Image image = Image.getInstance(digitalSignature.getSignatureImage());
+			if (signatureProperty != null) {
+				File signatureFolder = new File(OscarProperties.getInstance().getProperty("eform_image"));
+				File file = new File(signatureFolder.toString() + "/" + signatureProperty.getValue());
+				FileInputStream fileInputStream = new FileInputStream(file);
+				byte[] imageBtyes = new byte[1024 * 256];
+				fileInputStream.read(imageBtyes);
+				Image image = Image.getInstance(imageBtyes);
 				image.scalePercent(80f);
 				image.setBorder(0);
 				cell = new PdfPCell(image);
@@ -509,13 +510,31 @@ private void addSignature(PdfPTable infoTable) {
 				cell.setPadding(0);
 				cell.setColspan(1);
 				infoTable.addCell(cell);
-
 				return;
+			} else {
+				DigitalSignatureDao digitalSignatureDao = (DigitalSignatureDao) SpringUtils.getBean("digitalSignatureDao");
+				DigitalSignature digitalSignature = digitalSignatureDao.find(Integer.parseInt(reqFrm.signatureImg));
+				if (digitalSignature != null) {
+					Image image = Image.getInstance(digitalSignature.getSignatureImage());
+					image.scalePercent(70f);
+					image.setBorder(0);
+					cell = new PdfPCell(image);
+					cell.setBorder(0);
+					table.addCell(cell);
+					cell = new PdfPCell(table);
+					cell.setBorder(0);
+					cell.setPadding(0);
+					cell.setColspan(1);
+					infoTable.addCell(cell);
+
+					return;
+				}
 			}
 		} catch (Exception e) {
 			logger.error("Unexpected error.", e);
 		}
 	}
+
 	/**
 	 * Formats a cell to display information provided in a regular font with an underline.
 	 * @param cell the cell to format
@@ -563,15 +582,13 @@ private void addSignature(PdfPTable infoTable) {
 		return oscarR.getString("oscarEncounter.oscarConsultationRequest.consultationFormPrint." + key);
 	}
 
-
 	/**
 	 * Returns the length of the string provided and 0 if the string is null.
 	 * @param str the string to check
 	 * @return the length of str
 	 */
-	private int getlen (String str){
-		if (str == null)
-	            return 0;
+	private int getlen(String str) {
+		if (str == null) return 0;
 		return str.length();
 	}
 
@@ -581,10 +598,12 @@ private void addSignature(PdfPTable infoTable) {
 	 * @param str the string to modify
 	 * @return the original string with all breaking lines replaced by '\n' and all non-breaking spaces replaced by ' '
 	 */
-	private String divy (String str){
-		if (str == null) { return ""; }
-	    str = str.replaceAll("<\\s*br\\s*/?>", "\n");
-	    str = str.replaceAll("&nbsp;", " ");
+	private String divy(String str) {
+		if (str == null) {
+			return "";
+		}
+		str = str.replaceAll("<\\s*br\\s*/?>", "\n");
+		str = str.replaceAll("&nbsp;", " ");
 		return str;
 	}
 }
