@@ -91,8 +91,7 @@ boolean onIPad = http_user_agent.indexOf("iPad") >= 0;
 <title><bean:message
 	key="oscarEncounter.oscarConsultationRequest.AttachDocPopup.title" /></title>
 
-<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css" />
-
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 <script type="text/javascript">
 //<!--   
 <% 
@@ -239,24 +238,24 @@ function toggleSelectAll() {
 </style>
 
 </head>
-<body style="font-family: Verdana, Tahoma, Arial, sans-serif; background-color: #ddddff" onload="init()" >
+<body style="font-family: Verdana, Tahoma, Arial, sans-serif; background-color: #f5f5f5" onload="init()" >
 
-<h3 style="text-align: left"><bean:message
+<h3 style="text-align: left">&nbsp;<bean:message
 	key="oscarEncounter.oscarConsultationRequest.AttachDocPopup.header" />
 <%=patientName%></h3>
 <html:form action="/oscarConsultationRequest/attachDoc">
 	<html:hidden property="requestId" value="<%=requestId%>" />
 	<html:hidden property="demoNo" value="<%=demoNo%>" />
 	<html:hidden property="providerNo" value="<%=providerNo%>" />
-	<table style="width:1080px; border: solid 1px blue; font-size: x-small; background-color:white;" >
+	<table style="width:1080px; font-size: x-small; background-color:white;" >
 		<tr>
 			<th style="text-align: center"><bean:message
 				key="oscarEncounter.oscarConsultationRequest.AttachDocPopup.available" /></th>			
 			<th style="text-align: center"><bean:message
 				key="oscarEncounter.oscarConsultationRequest.AttachDocPopup.preview" /></th>
 		</tr>
-		<tr valign="top" style="border-top:thin dotted blue;">
-			<td style="width: 225px; text-align: left; background-color: white; border-right:thin dotted blue; position:absolute; height:600px;" >
+		<tr valign="top" style="border-top:thin dotted black;">
+			<td style="width: 245px; text-align: left; background-color: white; border-right:thin dotted black; position:absolute; height:600px;" >
 			<input type="submit" class="btn" style="position: absolute; left: 35px; top: 5px;"
                 name="submit"
                 value="<bean:message key="oscarEncounter.oscarConsultationRequest.AttachDocPopup.submit"/>"
@@ -288,10 +287,10 @@ function toggleSelectAll() {
                  <input class="tightCheckbox1" id="selectAll"
                         type="checkbox" onclick="toggleSelectAll()"
                         value="" title="Select/un-select all documents."
-                        style="margin: 0px; padding: 0px;"/> Select all  
+                        style="margin: 0px; padding: 0px;"/> <bean:message key="dms.documentReport.msgAll"/>
             </li>
             <% if(privatedocs.size() > 0){%>
-            	<h2>Documents</h2>
+            	<h4><bean:message key="global.Document"/></h4>
             <%}%>
             <%
 	            EDoc curDoc;
@@ -350,7 +349,7 @@ function toggleSelectAll() {
 				                        value="<%=curDoc.getDocId()%>"
 				                        style="margin: 0px; padding: 0px;" />
 				                <span class="url" style="display:none">
-		                        	<a  title="<%=curDoc.getDescription()%>" href="<%=url%>" style="color: blue; text-decoration: none;" target="_blank">
+		                        	<a  title="<%=curDoc.getDescription()%>" href="<%=url%>" target="_blank">
 										<img style="width:15px;height:15px" title="<%= printTitle %>" src="<%= printImage %>" alt="<%= printAlt %>" />
 										<%=truncatedDisplayName%>
 									</a>										
@@ -373,7 +372,7 @@ function toggleSelectAll() {
 	                }
 	            	if(labs.size() > 0){
 	            	%>
-	            		<h2>Labs</h2>	
+	            		<h4><bean:message key="caseload.msgLab"/></h4>	
 	            	<%
 	            	}
 		                 
@@ -444,7 +443,7 @@ function toggleSelectAll() {
 					printAlt = PRINTABLE_ALT;
 	                
 	                if(hrmDocumentToDemographicList.size() > 0) { %>
-						<h2><bean:message key="oscarEncounter.oscarConsultationRequest.AttachDocPopup.hrmDocuments"/></h2>
+						<h4><bean:message key="oscarEncounter.oscarConsultationRequest.AttachDocPopup.hrmDocuments"/></h4>
 				<% 	}
 
 					List<HRMDocument> docs = new ArrayList<HRMDocument>();
@@ -520,7 +519,7 @@ function toggleSelectAll() {
 					//Get eforms
 					eForms= EFormUtil.listPatientEformsCurrent(new Integer(demoNo), true, 0, 100);
 					if (!eForms.isEmpty()) { %>
-						<h2>eForms</h2>
+						<h4><bean:message key="global.eForms"/></h4>
 					<% }
 					for (EFormData eForm : eForms) {
 						url = request.getContextPath() + "/eform/efmshowform_data.jsp?fdid="+eForm.getId();
