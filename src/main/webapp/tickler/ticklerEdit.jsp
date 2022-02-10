@@ -166,9 +166,9 @@
   	  var d = new Date();
   	  d = d.addMonths(months);
   	  var mth = ((d.getMonth()+1)<10)? ("0"+(d.getMonth()+1)) : (d.getMonth()+1);
-  	  var day =  d.getDate() > 10 ? d.getDate() : ("0" + d.getDate());
+  	  var day =  d.getDate() > 9 ? d.getDate() : ("0" + d.getDate());
   	  var newD = d.getFullYear() + "-" + mth + "-" + day;
-        document.serviceform.xml_appointment_date.value = newD;
+      document.getElementById("xml_appointment_date").value = newD;
     }
     
         </script>
@@ -335,13 +335,22 @@ String strDate = dateformat.format(t.getServiceDate());
 
 
 %>  
-                    <td colspan="2"><bean:message key="tickler.ticklerEdit.calendarLookup"/><input name="xml_appointment_date" type="date" style="height:26px;" maxlength="10" value="<%=strDate%>"/></td>
+                    <td colspan="2"><bean:message key="tickler.ticklerEdit.calendarLookup"/><input name="xml_appointment_date" id="xml_appointment_date" type="date" style="height:26px;" maxlength="10" value="<%=strDate%>"/></td>
 
                 </tr>
                 <tr>
                     <td colspan="2"></td>
-                    <td style="text-align:right"><a href="#" onClick="addMonths(6)"><bean:message key="tickler.ticklerEdit.add6month"/></a></td>
-                    <td style="text-align:right"><a href="#" onClick="addMonths(12)"><bean:message key="tickler.ticklerEdit.add1year"/></a></td>
+                    <td>+&nbsp;<a href="#" onClick="addMonths(2)">2-<bean:message key="global.months"/></a>&nbsp
+                    <a href="#" onClick="addMonths(3)">3-<bean:message key="global.months"/></a>&nbsp
+                    <a href="#" onClick="addMonths(4)">4-<bean:message key="global.months"/></a>&nbsp
+                    <a href="#" onClick="addMonths(6)">6-<bean:message key="global.months"/></a>&nbsp
+                    <a href="#" onClick="addMonths(8)">8-<bean:message key="global.months"/></a>&nbsp
+                    <a href="#" onClick="addMonths(12)"><bean:message key="tickler.ticklerEdit.add1year"/></a>&nbsp;
+                    <a href="#" onClick="addMonths(24)">2-<bean:message key="global.years"/></a>&nbsp
+                    <a href="#" onClick="addMonths(36)">3-<bean:message key="global.years"/></a>&nbsp
+                    <a href="#" onClick="addMonths(60)">5-<bean:message key="global.years"/></a>&nbsp
+                    <a href="#" onClick="addMonths(120)">10-<bean:message key="global.years"/></a>&nbsp
+                    </td>
                 </tr>                 
                 <tr>
                     <td colspan="2"></td>

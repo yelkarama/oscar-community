@@ -211,13 +211,16 @@ if(!authed) {
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery.js"></script>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery_oscar_defaults.js"></script>
 <script type="text/javascript" src="<%=request.getContextPath()%>/share/javascript/prototype.js"></script>
+
 <link rel="stylesheet" type="text/css" media="all"
 	href="<%=request.getContextPath()%>/share/calendar/calendar.css" title="win2k-cold-1" />
 <!-- main calendar program -->
 <script type="text/javascript" src="<%=request.getContextPath()%>/share/calendar/calendar.js"></script>
+
 <!-- language for the calendar -->
 <script type="text/javascript"
-	src="<%=request.getContextPath()%>/share/calendar/lang/calendar-en.js"></script>
+	src="<%=request.getContextPath()%>/share/calendar/lang/<bean:message key="global.javascript.calendar"/>"></script>
+
 <!-- the following script defines the Calendar.setup helper function, which makes
        adding a calendar a matter of 1 or 2 lines of code. -->
 <script type="text/javascript"
@@ -263,6 +266,11 @@ font-size: 9pt;
 
 .hrm {
 	color: red;
+font-size: 9pt;
+}
+
+.eform {
+	color: green;
 font-size: 9pt;
 }
 
@@ -400,6 +408,15 @@ span.oceanRefer a {
     font-weight: bold;
     padding-top:20px
 
+}
+.MainTableLeftColumn {
+    max-width: 250px;
+overflow-x:hidden;
+overflow-y:scroll;
+ /*   font-size: 110%;
+    font-weight: bold;
+    padding-top:20px
+*/
 }
 .TopStatusBar {
    width:100%;
@@ -1455,8 +1472,8 @@ function AddOtherFax() {
 }
 
 function _AddOtherFax(name, number) {
-	var remove = "<a href='javascript:void(0);' onclick='removeRecipient(this)'>remove</a>";
-	var html = "<li>"+name+"<b>, Fax No: </b>"+number+ " " +remove+"<input type='hidden' name='faxRecipients' value='"+number+"'></input></li>";
+	var remove = "<a href='javascript:void(0);' onclick='removeRecipient(this)'><bean:message key="REMOVE" /></a>";
+	var html = "<li>"+name+"<b>, <bean:message key="global.fax.faxno" />: </b>"+number+ " " +remove+"<input type='hidden' name='faxRecipients' value='"+number+"'></input></li>";
 	jQuery("#faxRecipients").append(jQuery(html));
 	updateFaxButton();
 }
@@ -1482,11 +1499,23 @@ function hasFaxNumber() {
 }
 function updateFaxButton() {
 	var disabled = !hasFaxNumber();
-	if(document.getElementById("fax_button")!=null)
-	document.getElementById("fax_button").disabled = disabled;
+	if(document.getElementById("fax_button")!=null) {
+	    document.getElementById("fax_button").disabled = disabled;
+        if (disabled){
+            document.getElementById("fax_button").className = 'btn';
+        } else {
+            document.getElementById("fax_button").className = 'btn btn-primary';
+        }
+    }
 
-	if(document.getElementById("fax_button2")!=null)
-	document.getElementById("fax_button2").disabled = disabled;
+	if(document.getElementById("fax_button2")!=null) {
+	    document.getElementById("fax_button2").disabled = disabled;
+        if (disabled){
+            document.getElementById("fax_button2").className = 'btn';
+        } else {
+            document.getElementById("fax_button2").className = 'btn btn-primary';
+        }
+    }
 }
 </script>
 
@@ -1771,7 +1800,9 @@ function statusChanged(val) {
 							<span class="lab"><bean:message
 								key="oscarEncounter.oscarConsultationRequest.AttachDoc.LegendLabs" /></span><br />
 							<span class="hrm"><bean:message
-								key="oscarEncounter.oscarConsultationRequest.AttachDoc.LegendHRMs" /></span>
+								key="oscarEncounter.oscarConsultationRequest.AttachDoc.LegendHRMs" /></span><br />
+							<span class="eform"><bean:message
+								key="oscarEncounter.oscarConsultationRequest.AttachDoc.LegendEForms" /></span>
 							</td>
 						</tr>
 					</table>
@@ -1802,7 +1833,7 @@ function statusChanged(val) {
 					<% if (request.getAttribute("id") != null) { %>
 						<input name="update" type="button" class="btn" id="updateBtn1" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnUpdate"/>" onclick="return checkForm('Update Consultation Request','EctConsultationFormRequestForm');" />
 						<input name="updateAndPrint" type="button" class="btn" id="updateAndPrintBtn1" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnUpdateAndPrint"/>" onclick="return checkForm('Update Consultation Request And Print Preview','EctConsultationFormRequestForm');" />
-						<input name="printPreview" type="button" class="btn" id="updateAndPrintPreviewBtn1" value="Print Preview" onclick="return checkForm('And Print Preview','EctConsultationFormRequestForm');" />
+						<input name="printPreview" type="button" class="btn" id="updateAndPrintPreviewBtn1" value="<bean:message key="global.btnPDF"/>" onclick="return checkForm('And Print Preview','EctConsultationFormRequestForm');" />
 												
 						<logic:equal value="true" name="EctConsultationFormRequestForm" property="eReferral">
 							<input name="updateAndSendElectronicallyTop" type="button" class="btn" id="updateAndSendBtn1"
@@ -1851,7 +1882,7 @@ function statusChanged(val) {
 											if (p.getProviderNo().compareTo("-1") != 0) {
 									%>
 									<option value="<%=p.getProviderNo() %>" <%=((consultUtil.providerNo != null && consultUtil.providerNo.equalsIgnoreCase(p.getProviderNo())) || (consultUtil.providerNo == null &&  providerNo.equalsIgnoreCase(p.getProviderNo())) ? "selected='selected'" : "") %>>
-										<%=Encode.forHtmlContent(p.getFirstName() %>+" "+<%=p.getSurname()) %>
+										<%=Encode.forHtmlContent(p.getFirstName()+" "+p.getSurname()) %>
 									</option>
 									<% }
 
@@ -2344,9 +2375,9 @@ function statusChanged(val) {
 							<td>
 								<% if (thisForm.geteReferralId() == null) { %>
 								<input id="btnReminders" type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportReminders"/>" onclick="importFromEnct('Reminders',document.forms[0].clinicalInformation);" />&nbsp;								
-								<input id="fetchRiskFactors_clinicalInformation" type="button" class="btn clinicalData" value="Risk Factors" />&nbsp;
-								<input id="fetchMedications_clinicalInformation" type="button" class="btn clinicalData" value="Medications" />&nbsp;
-								<input id="fetchLongTermMedications_clinicalInformation" type="button" class="btn clinicalData" value="Long Term Medications" />&nbsp;
+								<input id="fetchRiskFactors_clinicalInformation" type="button" class="btn clinicalData" value="<bean:message key="oscarEncounter.riskFactors.title"/>" />&nbsp;
+								<input id="fetchMedications_clinicalInformation" type="button" class="btn clinicalData" value="<bean:message key="oscarEncounter.NavBar.Medications"/>" />&nbsp;
+								<input id="fetchLongTermMedications_clinicalInformation" type="button" class="btn clinicalData" value="<bean:message key="WriteScript.msgLongTermMedication"/> " />&nbsp;
 								<% } %>
 							</td>
 						</tr>
@@ -2389,9 +2420,9 @@ function statusChanged(val) {
 							<td>
 								<% if (thisForm.geteReferralId() == null) { %>
 								<input id="btnReminders2" type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportReminders"/>" onclick="importFromEnct('Reminders',document.forms[0].concurrentProblems);" />&nbsp;
-								<input id="fetchRiskFactors_concurrentProblems" type="button" class="btn clinicalData" value="Risk Factors" />&nbsp;
-								<input id="fetchMedications_concurrentProblems" type="button" class="btn clinicalData" value="Medications" />&nbsp;
-								<input id="fetchLongTermMedications_concurrentProblems" type="button" class="btn clinicalData" value="Long Term Medications" />&nbsp;
+								<input id="fetchRiskFactors_concurrentProblems" type="button" class="btn clinicalData" value="<bean:message key="oscarEncounter.riskFactors.title"/>" />&nbsp;
+								<input id="fetchMedications_concurrentProblems" type="button" class="btn clinicalData" value="<bean:message key="oscarEncounter.NavBar.Medications"/>" />&nbsp;
+								<input id="fetchLongTermMedications_concurrentProblems" type="button" class="btn clinicalData" value="<bean:message key="WriteScript.msgLongTermMedication"/> " />&nbsp;
 								<% } %>
 							</td>
 						</tr>
@@ -2434,8 +2465,8 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportOtherMeds"/>" 
 								onclick="importFromEnct('OtherMeds',document.forms[0].currentMedications);" />
 								
-								<input id="fetchMedications_currentMedications" type="button" class="btn clinicalData" value="Medications" />&nbsp;
-								<input id="fetchLongTermMedications_currentMedications" type="button" class="btn clinicalData" value="Long Term Medications" />&nbsp;
+								<input id="fetchMedications_currentMedications" type="button" class="btn clinicalData" value="<bean:message key="oscarEncounter.NavBar.Medications"/>" />&nbsp;
+								<input id="fetchLongTermMedications_currentMedications" type="button" class="btn clinicalData" value="<bean:message key="WriteScript.msgLongTermMedication"/> " />&nbsp;
 								
 								<span id="medsButtons"></span>
 								<% } %>
@@ -2458,7 +2489,7 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 							</td>
 							<td>
 								<% if (thisForm.geteReferralId() == null) { %>
-								<input id="fetchAllergies_allergies" type="button" class="btn clinicalData" value="Allergies" />
+								<input id="fetchAllergies_allergies" type="button" class="btn clinicalData" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.formAllergies" />" />
 								<% } %>
 							</td>
 						</tr>
@@ -2506,7 +2537,7 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 				<%
 				if (props.isConsultationFaxEnabled() && thisForm.geteReferralId() == null) {
 				%>
-				<tr><td colspan=2 class="tite4">Additional Fax Recipients:</td></tr>
+				<tr><td colspan=2 class="tite4"><bean:message key="global.fax.additionalrecipients" />:</td></tr>
 				<tr>
 					<td colspan=2>
 					    <%
@@ -2519,10 +2550,10 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 						<table width="100%">
 						<tr>
 
-							<td class="tite4" width="10%">  Providers: </td>
+							<td class="tite4" width="10%">  <bean:message key="global.fax.providers" />: </td>
 							<td class="tite3" width="20%">
 								<select id="otherFaxSelect">
-									<option value="">Select additional fax recipients</option>
+									<option value="">-<bean:message key="global.fax.selectanotherrecipient" />-</option>
 								<%
 								String rdName = "";
 								String rdFaxNo = "";
@@ -2550,17 +2581,17 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 								</select>
 							</td>
 							<td class="tite3">
-								<button onclick="AddOtherFaxProvider(); return false;" id="addProviderBtn">Add Provider</button>
+								<button onclick="AddOtherFaxProvider(); return false;" id="addProviderBtn"><bean:message key="global.fax.btnaddprovider" /></button>
 							</td>
 						</tr>
 						<tr>
-							<td class="tite4" width="20%"> Other Fax Number: </td>
+							<td class="tite4" width="20%"> <bean:message key="global.fax.otherfaxno" />: </td>
 							<td class="tite3" width="32%">
 								<input type="text" id="otherFaxInput"></input>
 
 							<font size="1"> <bean:message key="global.phoneformat1" />  </font></td>
 							<td class="tite3">
-								<button onclick="AddOtherFax(); return false;" id="addOtherFaxBtn">Add Other Fax Recipient</button>
+								<button onclick="AddOtherFax(); return false;" id="addOtherFaxBtn"><bean:message key="global.fax.btnaddanotherrecipient" /></button>
 							</td>
 						</tr>
 						<tr>
