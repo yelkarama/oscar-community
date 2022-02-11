@@ -754,9 +754,9 @@ function parseSearch() {
 					VALUE="<%=bFirstDisp?ConversionUtils.toTimeStringNoSeconds(appt.getEndTime()):request.getParameter("end_time")%>"
 					>
 				
-				<INPUT TYPE="TEXT" NAME="duration"
+				<INPUT TYPE="number" NAME="duration" id="duration"
 					VALUE="<%=request.getParameter("duration")!=null?(request.getParameter("duration").equals(" ")||request.getParameter("duration").equals("")||request.getParameter("duration").equals("null")?(""+everyMin) :request.getParameter("duration")):(""+everyMin)%>"
-                    >
+                    onblur="calculateEndTime();">
             </td>
         </tr>
         <tr>

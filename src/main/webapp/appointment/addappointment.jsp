@@ -937,8 +937,8 @@ function parseSearch() {
                 <bean:message key="Appointment.formDuration" />:
             </td>
             <td>            
-                <INPUT TYPE="TEXT" NAME="duration"
-                        VALUE="<%=duration%>" onChange="checkPageLock()">
+                <INPUT TYPE="number" NAME="duration" id="duration"
+                        VALUE="<%=duration%>" onChange="checkPageLock()" onblur="calculateEndTime();">
                 <INPUT TYPE="hidden" NAME="end_time"
                         VALUE='<%=request.getParameter("end_time")%>' WIDTH="25"
                          onChange="checkTimeTypeIn(this)">            
