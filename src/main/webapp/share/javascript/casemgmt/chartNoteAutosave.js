@@ -23,7 +23,7 @@ Ontario, Canada
 */
 
 class ChartNoteAutosave {
-    constructor(formId, demographicId, noteProgramId, noteId, autosaveInterval, saveEndpointContext, csrfToken, saveSuccessCallback, promptSaveOnClose = false) {
+    constructor(formId, demographicId, noteProgramId, noteId, autosaveInterval, saveEndpointContext, saveSuccessCallback, promptSaveOnClose = false) {
         let formElement = document.getElementById(formId);
         if (!formElement) {
             console.error(`FormsTimedAutosave: formElement \'${formId}\' does not exist`)
@@ -37,7 +37,7 @@ class ChartNoteAutosave {
         this.idleTime = 0;
         this.changed = false;
         this.saveEndpointContext = saveEndpointContext;
-        this.csrfToken = csrfToken;
+        //this.csrfToken = csrfToken;
         this.saveSuccessCallback = saveSuccessCallback;
         this.lastsavedDateString = "";
 
@@ -93,7 +93,7 @@ class ChartNoteAutosave {
         formData.append('programId', this.noteProgramId);
         formData.append('note_id', this.noteId);
         formData.append('note', this.formElement.value);
-        formData.append(this.csrfToken['name'], this.csrfToken['value']);
+        //formData.append(this.csrfToken['name'], this.csrfToken['value']);
 
         // bind events
         let onSendRequestSuccessEvent = this.onSendRequestSuccess.bind(this);
@@ -102,7 +102,7 @@ class ChartNoteAutosave {
         httpRequest.addEventListener('error', onSendRequestErrorEvent);
 
         httpRequest.open('POST', `${this.saveEndpointContext}/CaseManagementEntry.do`);
-        httpRequest.setRequestHeader(this.csrfToken['name'], this.csrfToken['value']);
+        //httpRequest.setRequestHeader(this.csrfToken['name'], this.csrfToken['value']);
         httpRequest.send(formData);
     }
 
