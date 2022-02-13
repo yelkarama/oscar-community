@@ -28,17 +28,33 @@
    "http://www.w3.org/TR/html4/loose.dtd">
 
 <html>
+<%@ page import="oscar.OscarProperties"%>
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>close</title>
-<script LANGUAGE="JavaScript">
+<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
+<script type="text/javascript">
 function closeWin() {
-	if (typeof opener.refreshEncounter === "function") { 
-		opener.refreshEncounter();
-	}
-	  
-      self.opener.location.reload(); 
-      self.close();     
+    <%if (request.getAttribute("textOnEncounter")!=null && !OscarProperties.getInstance().isPropertyActive("measurements_create_new_note")) {%>
+    if(opener.opener!=null || opener!=null){
+        if(opener.opener.document.forms["caseManagementEntryForm"] != undefined) {
+            //from Templateflowsheet
+            opener.opener.pasteToEncounterNote('<%=request.getAttribute("textOnEncounter")%>');
+            self.close();
+        }
+        else if(opener.document.forms["caseManagementEntryForm"] != undefined) {
+            opener.pasteToEncounterNote('<%=request.getAttribute("textOnEncounter")%>');
+            self.close();
+        }
+    }
+    <% }
+    if (request.getAttribute("refreshOpenerOnAdd") != null && (Boolean) request.getAttribute("refreshOpenerOnAdd")) { %>
+        window.opener.location.reload();
+    <% } %>
+    if (window.opener.autoSave) {
+        window.opener.autoSave(true);
+    }
+   self.close();
 }
 </script>
 
