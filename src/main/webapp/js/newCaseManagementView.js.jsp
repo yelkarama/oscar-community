@@ -1260,15 +1260,15 @@ function loadDiv(div,url,limit) {
         $("rowTwoSize").value=full;
     }
 
-    function getActiveText(e) {
+   function getActiveText(e) {
          if(document.all) {
 
             text = document.selection.createRange().text;
-            if(text != "" && $F("keyword") == "") {
-              $("keyword").value += text;
+            if(text != "" && $F("enTemplate") == "") {
+              $("enTemplate").value += text;
             }
-            if(text != "" && $F("keyword") != "") {
-              $("keyword").value = text;
+            if(text != "" && $F("enTemplate") != "") {
+              $("enTemplate").value = text;
             }
           } else {
             text = window.getSelection();
@@ -1282,11 +1282,12 @@ function loadDiv(div,url,limit) {
                text = (txtarea.value).substring(selStart, selEnd);
             }
             //
-            $("keyword").value = text;
+            $("enTemplate").value = text;
           }
 
           return true;
     }
+
 
     function setCaretPosition(inpu, pos){
 	if(inpu.setSelectionRange){
