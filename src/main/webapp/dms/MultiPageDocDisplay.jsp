@@ -473,7 +473,9 @@
                                                         };
                                                     }();
                                                     refreshParent=function(){
-                                                        window.opener.location.reload();
+                                                    if (window.opener.autoSave) {
+                                                        window.opener.autoSave(true);
+                                                    }
                                                     }
                                                     updateStatus=function(formid){
                                                     var num=formid.split("_");
