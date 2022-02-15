@@ -857,7 +857,7 @@ function parseSearch() {
 		if (demographicCust != null && demographicCust.getAlert() != null && !demographicCust.getAlert().equals("") ) {
 
 %>
-<div class="alert alert-info">
+<div class="alert alert-error">
 	<h4><bean:message key="Appointment.formAlert" />:</h4> <%=demographicCust.getAlert()%>
 </div>
 
