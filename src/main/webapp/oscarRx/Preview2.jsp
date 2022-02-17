@@ -70,6 +70,11 @@
 	String providerNo=loggedInInfo.getLoggedInProviderNo();
 	String scriptid=request.getParameter("scriptId");
 	String rx_enhance = OscarProperties.getInstance().getProperty("rx_enhance");
+    WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(request.getSession().getServletContext());
+    UserPropertyDAO userPropertyDAO = (UserPropertyDAO) ctx.getBean("UserPropertyDAO");
+    UserProperty signatureProperty = userPropertyDAO.getProp(providerNo,UserProperty.PROVIDER_CONSULT_SIGNATURE);
+    boolean stampSignature = signatureProperty != null && signatureProperty.getValue() != null && !signatureProperty.getValue().trim().isEmpty();  
+
 %>	
 
 
@@ -127,7 +132,9 @@
 </script>
 
 </head>
-<body topmargin="0" leftmargin="0" vlink="#0000FF">
+<body topmargin="0" leftmargin="0" vlink="#0000FF"
+<% if (stampSignature) { %> onload="electronicallySign()"<% } %>
+>
 
 <%
 Date rxDate = oscar.oscarRx.util.RxUtil.Today();
@@ -223,8 +230,7 @@ String patientDOBStr=RxUtil.DateToString(patient.getDOB(), "MMM d, yyyy") ;
 boolean showPatientDOB=false;
 
 //check if user prefer to show dob in print
-WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(request.getSession().getServletContext());
-UserPropertyDAO userPropertyDAO = (UserPropertyDAO) ctx.getBean("UserPropertyDAO");
+
 UserProperty prop = userPropertyDAO.getProp(signingProvider, UserProperty.RX_SHOW_PATIENT_DOB);
 if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
     showPatientDOB=true;
@@ -513,9 +519,7 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
 																	String imageUrl=null;
 																	String startimageUrl=null;
 																	String statusUrl=null;
-                                                                    UserProperty signatureProperty = userPropertyDAO.getProp(providerNo,UserProperty.PROVIDER_CONSULT_SIGNATURE);
-																	boolean stampSignature = signatureProperty != null && signatureProperty.getValue() != null && !signatureProperty.getValue().trim().isEmpty();  
-
+                                                                   
 																	signatureRequestId=loggedInInfo.getLoggedInProviderNo();
 																	imageUrl=request.getContextPath()+"/imageRenderingServlet?source="+ImageRenderingServlet.Source.signature_preview.name()+"&"+DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY+"="+signatureRequestId;
 																	startimageUrl=request.getContextPath()+"/images/1x1.gif";		
@@ -577,8 +581,8 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                                             <input type="button" value=<bean:message key="RxPreview.digitallySign"/> class="noprint" onclick="setInterval('refreshImage()', POLL_TIME); document.location='<%=request.getContextPath()%>/signature_pad/topaz_signature_pad.jnlp.jsp?<%=DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY%>=<%=signatureRequestId%>'"  />
                                                             	<% } 
 	                                                            if (stampSignature) { %> 
-		                                                            <input type="button" value=<bean:message key="RxPreview.digitallySign"/> class="noprint" onclick="electronicallySign();"  />
-		                                                            <script type="text/javascript">
+		                                                            <!--<input type="button" value=<bean:message key="RxPreview.digitallySign"/> class="noprint" onclick="electronicallySign();"  />-->
+	                                                            <script type="text/javascript">
 		                                                            	function electronicallySign() {
 		                                                            		document.getElementById('electronicSignature').value = "<%=signatureMessage%>";
 		                                                            		document.getElementById('sline').textContent = "<%=signatureMessage%>";
@@ -589,6 +593,7 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
 			                                                            <% if (OscarProperties.getInstance().isRxFaxEnabled() && pharmacy != null) { %>
 			                                                            	var hasFaxNumber = <%= pharmacy != null && pharmacy.getFax().trim().length() > 0 ? "true" : "false" %>;
 			                                                            	parent.document.getElementById("faxButton").disabled = !hasFaxNumber;
+                                                                            parent.document.getElementById("faxButton").className="btn btn-primary";
 																			
                                                             			<% } %>	
                                                                          }																	
