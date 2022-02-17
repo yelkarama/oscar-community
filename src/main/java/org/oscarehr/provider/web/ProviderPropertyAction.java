@@ -35,6 +35,7 @@ import java.util.Vector;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.beanutils.BeanComparator;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
@@ -155,6 +156,29 @@ public class ProviderPropertyAction extends DispatchAction {
          request.setAttribute("status", "success");
          return actionmapping.findForward("success");
     }
+    
+    public static void updateOrCreateProviderProperties(HttpServletRequest request) {
+        LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+        UserPropertyDAO propertyDAO = SpringUtils.getBean(UserPropertyDAO.class);
+        String providerNo = loggedInInfo.getLoggedInProviderNo();
+
+        List<UserProperty> userProperties = new ArrayList<>();
+        String propertyValue;
+        UserProperty property;
+
+        propertyValue = StringUtils.trimToNull(request.getParameter(UserProperty.OPEN_IN_TABS));
+        property = propertyDAO.getProp(providerNo, UserProperty.OPEN_IN_TABS);
+        if (property == null) {
+            property = new UserProperty();
+            property.setProviderNo(providerNo);
+            property.setName(UserProperty.OPEN_IN_TABS);
+        }
+        property.setValue(String.valueOf(Boolean.parseBoolean(propertyValue)));
+        propertyDAO.saveProp(property);
+        
+
+    }
+    
     public ActionForward viewDefaultSex(ActionMapping actionmapping,
                                ActionForm actionform,
                                HttpServletRequest request,

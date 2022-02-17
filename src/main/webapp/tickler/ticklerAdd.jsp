@@ -144,23 +144,7 @@ GregorianCalendar now=new GregorianCalendar();
 <html:html locale="true">
 <head>
 <title><bean:message key="tickler.ticklerAdd.title"/></title>
-<link rel="stylesheet" href="../billing/billing.css" >
-<style type="text/css">
-<!--
-.bodytext
-{
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 14px;
-  font-style: bold;
-  line-height: normal;
-  font-weight: normal;
-  font-variant: normal;
-  text-transform: none;
-  color: #FFFFFF;
-  text-decoration: none;
-}
--->
-</style>
+
       <script language="JavaScript">
 
     Date.prototype.addDays = function(days) {
@@ -277,26 +261,24 @@ function refresh() {
 //-->
 </script>
 
-
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 </head>
 
 <body bgcolor="#FFFFFF" text="#000000" leftmargin="0" rightmargin="0" topmargin="10" onLoad="setfocus()">
-<table width="100%" border="0" cellspacing="0" cellpadding="0">
-  <tr bgcolor="#000000"> 
-    <td height="40" width="10%"> </td>
-    <td width="90%" align="left"> 
-      <p><font face="Verdana, Arial, Helvetica, sans-serif" color="#FFFFFF"><b><font face="Arial, Helvetica, sans-serif" size="4"><bean:message key="tickler.ticklerAdd.msgTickler"/></font></b></font> 
-      </p>
-    </td>
-  </tr>
-</table>
+    <table width="100%">                       
+        <tr style="background-color: black">   
+            <td colspan="4" style="text-align:left; font-weight: 900; height:40px;font-size:large;font-family:arial,sans-serif;color:white"><bean:message key="tickler.ticklerAdd.msgTickler"/></td>
+        </tr>
+    </table>
+
+<div class="container-fluid well" > 
 <table width="100%" border="0" cellspacing="0" cellpadding="0"bgcolor="#EEEEFF">
  <form name="ADDAPPT" method="post" action="../appointment/appointmentcontrol.jsp">
 <tr> 
       <td width="35%"><font color="#003366"><font face="Verdana, Arial, Helvetica, sans-serif" size="2"><b><bean:message key="tickler.ticklerAdd.formDemoName"/>: </b></font></font></td>
       <td colspan="2" width="65%">
 <div align="left"><INPUT TYPE="TEXT" NAME="keyword" size="25" VALUE="<%=bFirstDisp?"":demoName.equals("")?session.getAttribute("appointmentname"):demoName%>">
-   	 <input type="submit" name="Submit" value="<bean:message key="tickler.ticklerAdd.btnSearch"/>">
+   	 <input type="submit" name="Submit" class="btn"  value="<bean:message key="tickler.ticklerAdd.btnSearch"/>">
   </div>
 </td>
     </tr>
@@ -346,26 +328,23 @@ function refresh() {
     </tr>
 
     <tr> 
-      <td><font color="#003366" size="2" face="Verdana, Arial, Helvetica, sans-serif"><strong><bean:message key="tickler.ticklerAdd.formServiceDate"/>:</strong></font></td>
-      <td><input type="text" name="xml_appointment_date" value="<%=xml_appointment_date%>"> 
+      <td style="text-align:left; font-weight: 900; height:40px;font-size:large;font-family:arial,sans-serif;color:white"><bean:message key="tickler.ticklerAdd.formServiceDate"/></td>
+      <td><input type="date" style="height:26px;" name="xml_appointment_date" value="<%=xml_appointment_date%>"> 
         <font color="#003366" size="1" face="Verdana, Arial, Helvetica, sans-serif">
-        <a href="javascript:void(0)" onClick="openBrWindow('../billing/billingCalendarPopup.jsp?type=end&amp;year=<%=curYear%>&amp;month=<%=curMonth%>','','width=300,height=300');return false;" title="<bean:message key="tickler.ticklerAdd.btnCalendarLookup"/>">
-            <input type="image" src="../images/cal.gif" width="25" height="22" border="0" align="top" alt="<bean:message key="tickler.ticklerAdd.btnCalendarLookup"/>"/>
-        </a>
+        
         <a href="#" onClick="toggleQuickPickDateDisplay(this)" title="<bean:message key="tickler.ticklerAdd.btnToggleQuickpickDates"/>" style="padding-left:5px; vertical-align: middle;"><bean:message key="tickler.ticklerAdd.btnHideQuickpick"/></a>
         <div id="quickPickDateOptions"  style="display:block;">
-         <a href="#" onClick="addDays(14)">14d</a>&nbsp; &nbsp;
+         <a href="#" onClick="addDays(3)">3d</a>&nbsp; &nbsp;
+         <a href="#" onClick="addDays(7)">1w</a>&nbsp; &nbsp;
+         <a href="#" onClick="addDays(14)">2w</a>&nbsp; &nbsp;
+         <a href="#" onClick="addDays(21)">3w</a>&nbsp; &nbsp;
+         <a href="#" onClick="addDays(28)">4w</a>&nbsp; &nbsp;<br>
         <a href="#" onClick="addMonths(1)">1m</a>&nbsp; &nbsp;
         <a href="#" onClick="addMonths(2)">2m</a>&nbsp; &nbsp;
         <a href="#" onClick="addMonths(3)">3m</a>&nbsp; &nbsp;
         <a href="#" onClick="addMonths(4)">4m</a>&nbsp; &nbsp;
-        <a href="#" onClick="addMonths(5)">5m</a>&nbsp; &nbsp;
         <a href="#" onClick="addMonths(6)">6m</a>&nbsp; &nbsp;
-         <a href="#" onClick="addMonths(7)">7m</a>&nbsp; &nbsp;
-         <a href="#" onClick="addMonths(8)">8m</a>&nbsp; &nbsp;
-        <a href="#" onClick="addMonths(9)">9m</a>&nbsp; &nbsp;
-        <a href="#" onClick="addMonths(10)">10m</a>&nbsp; &nbsp;
-        <a href="#" onClick="addMonths(11)">11m</a>&nbsp; &nbsp;
+        <a href="#" onClick="addMonths(9)">9m</a>&nbsp; &nbsp;<br>
         <a href="#" onClick="addMonths(12)">1yr</a>&nbsp; &nbsp;
         <a href="#" onClick="addMonths(24)">2yr</a>&nbsp; &nbsp;
         <a href="#" onClick="addMonths(36)">3yr</a>&nbsp; &nbsp;
@@ -391,7 +370,7 @@ function refresh() {
     </tr>
 
     <tr> 
-      <td height="21" valign="top"><font color="#003366" size="2" face="Verdana, Arial, Helvetica, sans-serif"><strong><bean:message key="tickler.ticklerMain.taskAssignedTo"/>:</strong></font></td>
+      <td height="21" valign="top"><font color="#003366" size="2" face="Verdana, Arial, Helvetica, sans-serif"><strong><bean:message key="tickler.ticklerAdd.assignTaskTo"/>:</strong></font></td>
       <td valign="top"> <font face="Verdana, Arial, Helvetica, sans-serif" size="2" color="#333333">
 <% if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) 
 { // multisite start ==========================================
@@ -445,11 +424,11 @@ function changeSite(sel) {
 
       	<select name="task_assigned_to" id="task_assigned_to" style="width:140px"></select>
 
-	<h3 id="preferenceLink" style="display:none"><small><a href="#" onClick="toggleWrappers()">[preference]</a></small></h3>
+	<h4 id="preferenceLink" style="display:none"><small><a href="#" onClick="toggleWrappers()">[preference]</a></small></h4>
 </div>
 
 <div id="nameWrapper" style="display:none">
-	<h3><%=taskToName%> <small><a href="#" onClick="toggleWrappers()">[change]</a></small></h3>
+	<h4><%=taskToName%> <small><a href="#" onClick="toggleWrappers()">[change]</a></small></h4>
 	<input type="hidden" id="taskToBin" value="<%=taskTo%>">
 	<input type="hidden" id="taskToNameBin" value="<%=taskToName%>">
 </div>
@@ -528,15 +507,15 @@ changeSite(selSite);
         
      <INPUT TYPE="hidden" NAME="user_no" VALUE="<%=user_no%>">
     <tr> 
-      <td><input type="button" name="Button" value="<bean:message key="tickler.ticklerAdd.btnCancel"/>" onClick="window.close()"></td>
-      <td><input type="button" name="Button" value="<bean:message key="tickler.ticklerAdd.btnSubmit"/>" onClick="validate(this.form)"></td>
+      <td><input type="button" name="Button" class="btn"value="<bean:message key="tickler.ticklerAdd.btnCancel"/>" onClick="window.close()"></td>
+      <td><input type="button" name="Button" class="btn btn-primary" value="<bean:message key="tickler.ticklerAdd.btnSubmit"/>" onClick="validate(this.form)"></td>
       <td></td>
 	  </tr>
   </form>
 </table>
 <p><font face="Arial, Helvetica, sans-serif" size="2"> </font></p>
   <p>&nbsp; </p>
-<%@ include file="../demographic/zfooterbackclose.jsp" %> 
 
+</div>
 </body>
 </html:html>

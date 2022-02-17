@@ -46,7 +46,10 @@ TH {
 A IMG {
 	border: 0px;
 }
-
+a {
+    color:#0088cc;
+    text-decoration: none;
+}
 H3 {
 	font-size: x-small;
 	font-weight: bold;

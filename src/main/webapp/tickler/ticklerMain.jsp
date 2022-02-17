@@ -136,7 +136,7 @@
          ticklerview = request.getParameter("ticklerview");
      }
 
-    String xml_vdate = "";
+    String xml_vdate = "2000-01-01";
     View beginDateView = ticklerView.get("dateBegin");
 
     if( beginDateView != null && !doCreateReport)
@@ -571,7 +571,7 @@ var beginD = "1900-01-01"
     </td>
 	<td align="right" >
             <i class="icon-question-sign"></i> 
-            <a href="javascript:void(0)" onClick ="popupOscarConsultationConfig(700,960,'<%=(OscarProperties.getInstance()).getProperty("HELP_SEARCH_URL")%>'+'Tickler')"><bean:message key="app.top1"/></a>
+            <a href="https://worldoscar.org/knowledge-base/tickler/" target="_blank"><bean:message key="app.top1"/></a>
             <i class=" icon-info-sign" style="margin-left:10px;"></i> 
             <a href="javascript:void(0)"  onClick="window.open('<%=request.getContextPath()%>/oscarEncounter/About.jsp','About OSCAR','scrollbars=1,resizable=1,width=800,height=600,left=0,top=0')" ><bean:message key="global.about" /></a>
     </td>
@@ -588,15 +588,16 @@ var beginD = "1900-01-01"
       <td>
         <div align="center">
         <label for="xml_vdate">
-        <a HREF="#"	onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=../tickler/ticklerMain.jsp&year=<%=curYear%>&month=<%=curMonth%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('xml_vdate')[0].value")%>')"><bean:message key="tickler.ticklerMain.btnBegin"/>:</a></label>
+        <a HREF="#"	onClick="popupPage(405,430,'../share/CalendarPopup.jsp?urlfrom=../tickler/ticklerMain.jsp&year=<%=curYear%>&month=<%=curMonth%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('xml_vdate')[0].value")%>')"><bean:message key="tickler.ticklerMain.btnBegin"/>:</a></label>
           <input type="text" class="input-small" id="xml_vdate" name="xml_vdate" value="<%=xml_vdate%>">
         <label for="xml_appointment_date">
-        <a HREF="#"	onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=../tickler/ticklerMain.jsp&year=<%=curYear%>&month=<%=curMonth%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('xml_appointment_date')[0].value")%>')"><bean:message key="tickler.ticklerMain.btnEnd"/>:</a></label>
+        <a HREF="#"	onClick="popupPage(405,430,'../share/CalendarPopup.jsp?urlfrom=../tickler/ticklerMain.jsp&year=<%=curYear%>&month=<%=curMonth%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('xml_appointment_date')[0].value")%>')"><bean:message key="tickler.ticklerMain.btnEnd"/>:</a></label>
         <input type="text" class="input-small" id="xml_appointment_date" name="xml_appointment_date" value="<%=xml_appointment_date%>">
+        &nbsp;&nbsp;<a href="#" onClick="allYear()"><bean:message key="tickler.ticklerMain.btnViewAll"/></a>
         </div>
       </td>
       <td width="40%">      
-        <a href="#" onClick="allYear()"><bean:message key="tickler.ticklerMain.btnViewAll"/></a>
+        
       </td>
     </tr>
     <tr>
@@ -608,7 +609,7 @@ var beginD = "1900-01-01"
         <option value="C" <%=ticklerview.equals("C")?"selected":""%>><bean:message key="tickler.ticklerMain.formCompleted"/></option>
         <option value="D" <%=ticklerview.equals("D")?"selected":""%>><bean:message key="tickler.ticklerMain.formDeleted"/></option>                   
         </select>
-        &nbsp; &nbsp;<label for="mrpview"> MRP</label>
+        &nbsp; &nbsp;<label for="mrpview"> <bean:message key="tickler.ticklerMain.MRP"/></label>
         <select id="mrpview" name="mrpview">
         <option value="all" <%=mrpview.equals("all")?"selected":""%>><bean:message key="tickler.ticklerMain.formAllProviders"/></option>
         <%
@@ -821,7 +822,7 @@ function changeSite(sel) {
                                 }
 %>
                                 <tr class="noprint"><td colspan="<%=footerColSpan%>" class="white"><a id="checkAllLink" name="checkAllLink" href="javascript:CheckAll();"><bean:message key="tickler.ticklerMain.btnCheckAll"/></a> - <a href="javascript:ClearAll();"><bean:message key="tickler.ticklerMain.btnClearAll"/></a> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
-                                    <input type="button" class="btn" name="button" value="<bean:message key="tickler.ticklerMain.btnAddTickler"/>" onClick="popupPage('400','600', 'ticklerAdd.jsp')" class="sbttn">
+                                    <input type="button" class="btn" name="button" value="<bean:message key="tickler.ticklerMain.btnAddTickler"/>" onClick="window.open('ticklerAdd.jsp')" class="sbttn">
                                     <input type="hidden" name="submit_form" value="">
                                     <%
                                     	if (ticklerview.compareTo("D") == 0){
@@ -918,11 +919,11 @@ function changeSite(sel) {
                                     <%
                                     	if (ticklerEditEnabled) {
                                     %>
-                                    <td width="3%" ROWSPAN="1" class="<%=cellColour%>"><a href=# title="<bean:message key="tickler.ticklerMain.editTickler"/>" onClick="popupPage(600,800, '../tickler/ticklerEdit.jsp?tickler_no=<%=t.getId()%>')"><i class="icon-pencil"></i></a></td>
+                                    <td width="3%" ROWSPAN="1" class="<%=cellColour%>"><a href=# title="<bean:message key="tickler.ticklerMain.editTickler"/>" onClick="window.open('../tickler/ticklerEdit.jsp?tickler_no=<%=t.getId()%>')"><i class="icon-pencil"></i></a></td>
                                     <%
                                     	}
                                     %>                                    
-                                    <TD width="12%" ROWSPAN="1" class="<%=cellColour%>"><a href=# onClick="popupPage(600,800,'../demographic/demographiccontrol.jsp?demographic_no=<%=demo.getDemographicNo()%>&displaymode=edit&dboperation=search_detail')"><%=demo.getLastName()%>,<%=demo.getFirstName()%></a></TD>                                                                       
+                                    <TD width="12%" ROWSPAN="1" class="<%=cellColour%>"><a href=# onClick="window.open('../demographic/demographiccontrol.jsp?demographic_no=<%=demo.getDemographicNo()%>&displaymode=edit&dboperation=search_detail')"><%=demo.getLastName()%>,<%=demo.getFirstName()%></a></TD>                                                                       
                                     <TD ROWSPAN="1" class="<%=cellColour%>"><%=t.getProvider() == null ? "N/A" : t.getProvider().getFormattedName()%></TD>
                                     <TD ROWSPAN="1" class="<%=cellColour%>"><%=t.getServiceDate()%></TD>
                                     <TD ROWSPAN="1" class="<%=cellColour%>"><%=t.getUpdateDate()%></TD>
