@@ -62,7 +62,16 @@
 <head>
 <c:set var="ctx" value="${pageContext.request.contextPath}"	scope="request" />
 <link rel="stylesheet" href="<c:out value="${ctx}"/>/css/casemgmt.css" type="text/css">
+
+
+<!-- Added by Adrian Starzynski: Show larger font size for eChart based on properties setting -->
+<%if (OscarProperties.getInstance().getProperty("echart_show_larger_font_size").equals("false")) {%>
 <link rel="stylesheet" href="<c:out value="${ctx}"/>/oscarEncounter/encounterStyles.css" type="text/css">
+<%} else { %>
+<link rel="stylesheet" href="<c:out value="${ctx}"/>/oscarEncounter/encounterStylesWithBiggerFont.css" type="text/css">
+<%} %>
+
+
 <link rel="stylesheet" type="text/css" href="<c:out value="${ctx}"/>/css/print.css" media="print">
 
 <!-- 
@@ -1040,7 +1049,7 @@ window.onbeforeunload = onClosing;
 						value="dates">
 					<bean:message key="oscarEncounter.Index.PrintDates" />&nbsp;<a
 						style="font-variant: small-caps;" href="#"
-						onclick="return printToday(event);"><bean:message  key="oscarEncounter.Index.PrintToday" /></a></td>
+						onclick="return printToday(event);"><bean:message  key="oscarEncounter.Index.PrintToday" />!</a></td>
 					<td></td>
 				</tr>
 			</table>
@@ -1066,21 +1075,24 @@ window.onbeforeunload = onClosing;
 				readonly value=""><br>
 			<div style="margin-top: 5px; text-align: center">
 				<input type="submit" id="printOp" style="border: 1px solid #7682b1;"
-					value="PDF" onclick="return printNotes();">
-				
+					value="<bean:message key="global.btnPDF"/>" 
+                    onclick="return printNotes();">				
 					<indivo:indivoRegistered
 						demographic="<%=(String) request.getAttribute(\"demographicNo\")%>"
 						provider="<%=(String) request.getSession().getAttribute(\"user\")%>">
-						<input type="submit" id="sendToPhr"
-							style="border: 1px solid #7682b1;" value="Send To Phr"
+						<input type="button" id="sendToPhr"
+							style="border: 1px solid #7682b1;" 
+                            value="<bean:message key="global.phr"/>" 
 							onclick="return sendToPhrr();">
 					</indivo:indivoRegistered>
-				<input type="submit" id="cancelprintOp"
-					style="border: 1px solid #7682b1;" value="Cancel"
-					onclick="$('printOps').style.display='none';"> <input
-					type="submit" id="clearprintOp" style="border: 1px solid #7682b1;"
-					value="Clear"
-					onclick="$('printOps').style.display='none'; return clearAll(event);">
+				<input type="button" id="cancelprintOp"
+					style="border: 1px solid #7682b1;" 
+                    value="<bean:message key="global.btnClose"/>" 
+					onclick="$('printOps').style.display='none';"> 
+                <input type="button" id="clearprintOp" 
+                    style="border: 1px solid #7682b1;" 
+                    value="<bean:message key="global.clear"/>" 
+					onclick="return clearAll(event);">
 			</div>
 
 			<%
@@ -1095,8 +1107,8 @@ if (OscarProperties.getInstance().getBooleanProperty("note_program_ui_enabled", 
 					<div class="under">
 						<div class="errorMessage"></div>
 						<input type="button" class="scopeBtn" value="View Note Scope" />
-						<input type="button" class="closeBtn" value="Close" /> <input
-							type="button" class="saveBtn" value="Save" />
+						<input type="button" class="closeBtn" value="Close" /> 
+                        <input type="button" class="saveBtn" value="Save" />
 					</div>
 				</div>
 			</span>

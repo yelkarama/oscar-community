@@ -51,7 +51,7 @@ ArrayList errorBill = new ArrayList();
 ArrayList errorBillNoQ = new ArrayList();
 
 
-for(RaDetail rad:raDetailDao.search_raerror35(Integer.parseInt(raNo), "I2", "33", "35", proNo+"%")) {
+for(RaDetail rad:raDetailDao.search_raerror35(Integer.parseInt(raNo), "I2", "35", proNo+"%")) {
 	account = String.valueOf(rad.getBillingNo());
 	errorBill.add(account);	
 	if(!rad.getServiceCode().matches("Q011A|Q020A|Q130A|Q131A|Q132A|Q133A|Q140A|Q141A|Q142A")) {
@@ -60,7 +60,7 @@ for(RaDetail rad:raDetailDao.search_raerror35(Integer.parseInt(raNo), "I2", "33"
 }
 
 account = "";
-List<Integer> res = raDetailDao.search_ranoerror35(Integer.parseInt(raNo),"I2","33","35",proNo+"%");
+List<Integer> res = raDetailDao.search_ranoerror35(Integer.parseInt(raNo),"I2","35",proNo+"%");
 
 for (Integer r:res) {   
 	account = String.valueOf(r);

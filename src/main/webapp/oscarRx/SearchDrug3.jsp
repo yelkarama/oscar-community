@@ -214,7 +214,7 @@ if (rx_enhance!=null && rx_enhance.equals("true")) {
     <head>
 
 
-        <title><bean:message key="SearchDrug.title" /></title>
+        <title>Rx - <jsp:getProperty name="patient" property="surname" />, <jsp:getProperty name="patient" property="firstName" /></title>
         <link rel="stylesheet" type="text/css" href="styles.css">
 
         <html:base />
@@ -403,6 +403,9 @@ if (rx_enhance!=null && rx_enhance.equals("true")) {
                
                return  display;
            };
+            <% if (Boolean.valueOf(request.getParameter("autoSaveOpenerOnOpen"))) { %>
+            self.opener.autoSave(true);
+            <% } %>
         </script>
 
         <script type="text/javascript">
@@ -724,23 +727,9 @@ function checkFav(){
         color: #0088CC;
         text-decoration: none;
     }
-
-    .ControlPushButton{
-        font-size:x-small !important;
-        padding:3px !important;
-        border: 1px solid #cccccc;
-        border-radius: 4px;
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
-    }
-
-    .btn-primary{
-        color: #ffffff;
-        text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
-        background-color: #006dcc;
-        background-image: linear-gradient(to bottom, #0088cc, #0044cc);
-        background-repeat: repeat-x;
-        border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
-    }    
+    a:hover{
+    text-decoration:underline;
+    }   
 
     #verificationLink{
     	color:white;
@@ -801,6 +790,7 @@ body {
          font-weight:bold;
      }
      .expiredDrug{
+     font-size:13px;
 
      }
 
@@ -816,6 +806,7 @@ THEME 2*/
 
      .currentDrug{
         font-weight:bold;
+        font-size:13px;
      }
      .archivedDrug{
         text-decoration: line-through;
@@ -823,9 +814,11 @@ THEME 2*/
      .expireInReference{
          color:orange;
          font-weight:bold;
+         font-size:13px;
      }
      .expiredDrug{
          color:gray;
+         font-size:13px;
      }
 
      .longTermMed{
@@ -862,6 +855,7 @@ THEME 2*/
 </style>
 <![endif]-->
 
+
     </head>
 
     <%
@@ -870,18 +864,28 @@ THEME 2*/
 		if (request.getParameter("show") != null) if (request.getParameter("show").equals("all")) showall = true;
     %>
 
+<script language="JavaScript">
+top.window.resizeTo(1280,1024);  //width,height for 19" LCD allowing for most Rx to be in two rows
+</script>
 
 
-    <body  vlink="#0000FF" onload="checkFav();iterateStash();rxPageSizeSelect();checkReRxLongTerm();load()" class="yui-skin-sam">
+    <body  vlink="#0000FF" onload="setplaceholder();checkFav();iterateStash();rxPageSizeSelect();checkReRxLongTerm();load()" class="yui-skin-sam">
+    <script>
+    function setplaceholder() {
+            $('searchString').placeholder = "<bean:message key="SearchDrug.EnterDrugName"/>";
+            }
+    </script>
+    
     	<%=WebUtilsOld.popErrorAndInfoMessagesAsHtml(session)%>
+    	
         <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1" height="100%">
             <%@ include file="TopLinks2.jspf" %><!-- Row One included here-->
             <tr>
                 <td width="10%" height="100%" valign="top"><%@ include file="SideLinksEditFavorites2.jsp"%></td><%-- <td></td>Side Bar File --%>
-                <td style="border-left: 2px solid #A9A9A9;" height="100%" valign="top"><!--Column Two Row Two-->
+                <td height="100%" valign="top" width="100%"><!--Column Two Row Two-->
 
 
-                    <table cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" >
+                    <table cellpadding="0" cellspacing="0" style="border-left:1px solid black; border-right:1px solid black; border-bottom:1px solid black; border-collapse: collapse">
 
 
                         <tr><!--put this left-->
@@ -894,12 +898,12 @@ THEME 2*/
                                     <input type="hidden" id="rxPharmacyId" name="rxPharmacyId" value="" />
                                     
                                     <html:hidden property="demographicNo" value="<%=new Integer(patient.getDemographicNo()).toString()%>" />
-                                    <table border="0">
-                                        <tr valign="top">
-                                            <td style="width:330px">
-                                            	<label for="searchString" ><bean:message key="SearchDrug.drugSearchTextBox"  /></label>
-                                                <html:text styleId="searchString" property="searchString" onfocus="changeContainerHeight();" onblur="changeContainerHeight();" onclick="changeContainerHeight();" onkeydown="changeContainerHeight();" style="width:248px;\" autocomplete=\"off"  />
-                                                <div id="autocomplete_choices" style="overflow:auto;width:600px"></div>
+                                    <table border="0" style="border-collapse:collapse;">
+                                        <tr width="100%" valign="top">
+                                            <td style="width:330px;">
+                                            	&nbsp;&nbsp;<span style="font-size:20px;"><i class="icon-search"></i></span> &nbsp;&nbsp;
+                                                <html:text styleId="searchString" property="searchString" onfocus="changeContainerHeight();" onblur="changeContainerHeight();" onclick="changeContainerHeight();" onkeydown="changeContainerHeight();" style="width:278px;\" autocomplete=\"off" />
+                                                <div id="autocomplete_choices" class="drugchoices" style="color:black;overflow:auto;width:600px"></div>
                                                 <span id="indicator1" style="display: none"> <!--img src="/images/spinner.gif" alt="Working..." --></span>
                                             </td>
                                             <td>
@@ -913,12 +917,12 @@ THEME 2*/
                                                 <%if (OscarProperties.getInstance().hasProperty("ONTARIO_MD_INCOMINGREQUESTOR")) {%>
                                                 <a href="javascript:goOMD();" title="<bean:message key="SearchDrug.help.OMD"/>"><bean:message key="SearchDrug.msgOMDLookup"/></a>
                                                 <%}%>
-                                                <br>
+                                                &nbsp;
                                                 <security:oscarSec roleName="<%=roleName2$%>" objectName="_rx" rights="x">
                                                 <input id="saveButton" type="button"  class="ControlPushButton btn btn-primary"  onclick="updateSaveAllDrugsPrint();" value="<bean:message key="SearchDrug.msgSaveAndPrint"/>" title="<bean:message key="SearchDrug.help.SaveAndPrint"/>" />
                                                 </security:oscarSec>
 
-                                                <input id="saveOnlyButton" type="button"  class="ControlPushButton btn" onclick="updateSaveAllDrugs();" value="<bean:message key="SearchDrug.msgSaveOnly"/>" title="<bean:message key="SearchDrug.help.Save"/>"/>
+                                                <input id="saveOnlyButton" type="button" class="ControlPushButton btn" onclick="updateSaveAllDrugs();" value="<bean:message key="SearchDrug.msgSaveOnly"/>" title="<bean:message key="SearchDrug.help.Save"/>"/>
 												<%
                                                     	if(OscarProperties.getInstance().getProperty("oscarrx.medrec","false").equals("true")) {
                                                 %>
@@ -937,6 +941,9 @@ THEME 2*/
                                         </tr>
                                     </table>
                                 </html:form>
+                                <br>
+                                <hr style="border:1px solid black;">
+                                
                                 <div id="previewForm" style="display:none;"></div>
                                 <%} %>
                             </td>
@@ -947,22 +954,23 @@ THEME 2*/
                                     <table width="100%"><!--drug profile, view and listdrugs.jsp-->
                                         <tr>
                                             <td>
-                                                <div class="DivContentSectionHead">
+                                                <div class="DivContentSectionHead" style="text-decoration:underline;">
                                                     <bean:message key="SearchDrug.section2Title" />
-                                                    &nbsp;
+                                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
                                                     <a href="javascript:void(0)" onClick="printDrugProfile();"><bean:message key="SearchDrug.Print"/></a>
-                                                    &nbsp;
+                                                    &nbsp;&nbsp;
 													<%if(securityManager.hasWriteAccess("_rx",roleName2$,true)) {%>
                                                     <a href="#" onclick="$('reprint').toggle();return false;"><bean:message key="SearchDrug.Reprint"/></a>
-                                                    &nbsp;
+                                                    &nbsp;&nbsp;
                                                     <a href="javascript:void(0);"name="cmdRePrescribe"  onclick="javascript:RePrescribeLongTerm();" style="width: 200px" ><bean:message key="SearchDrug.msgReprescribeLongTermMed"/></a>
-                                                    &nbsp;
+                                                    &nbsp;&nbsp;
 													<% } %>
                                                     <a href="javascript:popupWindow(720,920,'chartDrugProfile.jsp?demographic_no=<%=demoNo%>','PrintDrugProfile2')">Timeline Drug Profile</a>
-                                                    &nbsp;
-                                                    <a href="javascript: void(0);" onclick="callReplacementWebService('GetmyDrugrefInfo.do?method=view','interactionsRxMyD');" >DS run</a>
                                                     &nbsp;&nbsp;
-                                                    <oscar:oscarPropertiesCheck property="oneid.oauth2.enabled" value="true">
+                                                    <a href="javascript: void(0);" onclick="callReplacementWebService('GetmyDrugrefInfo.do?method=view','interactionsRxMyD');" >DS run</a>
+                                                    
+                                                                                                      <oscar:oscarPropertiesCheck property="oneid.oauth2.enabled" value="true">
                                                     	<% if(loggedInInfo.hasOneIdKey() && patient.getHin() != null && !patient.getHin().trim().isEmpty() && "ON".equalsIgnoreCase(patient.getHcType())){ %>
                                                     		<a href="javascript:popupWindow(720,920,'../dhdr/?demographic_no=<%=demoNo%>','OMD-CONTEXT-AWARE');" title="<%=OscarProperties.getInstance().getProperty("oneid.gateway.dhdr.version","V1")%>" ><%=OscarProperties.getInstance().getProperty("oneid.gateway.dhdr.name","DHDR")%></a>
                                                      		&nbsp;&nbsp;
@@ -986,13 +994,13 @@ THEME 2*/
 																			+ "medicalDataType=Prescriptions" + "&"
 																			+ "parentPage=" + request.getRequestURI();
 																	%>
-																		<a href="<%=sendDataPath%>"><%=LocaleUtils.getMessage(request, "SendToPHR")%></a>
+																		&nbsp;&nbsp; <a href="<%=sendDataPath%>"><%=LocaleUtils.getMessage(request, "SendToPHR")%></a>
 																	<%
 																}
 																else
 																{
 																	%>
-																		<span style="color:grey;text-decoration:underline"><%=LocaleUtils.getMessage(request, "SendToPHR")%></span>
+																		&nbsp;&nbsp;<span style="color:grey;text-decoration:underline"><%=LocaleUtils.getMessage(request, "SendToPHR")%></span>
 																	<%
 																}
 									                  	  }
@@ -1129,8 +1137,8 @@ THEME 2*/
                                     <table width="100%"><!--drug profile, view and listdrugs.jsp-->
                                         <tr>
                                             <td>
-                                                <div class="DivContentSectionHead">
-                                                Other Medications
+                                                <div class="DivContentSectionHead" style="text-decoration:underline;">
+                                                <bean:message key='oscarRx.OtherMedications'/>
                                              </div>
                                             </td>
                                         </tr>
@@ -1177,7 +1185,7 @@ THEME 2*/
             <tr><td></td><td align="center" ><a href="javascript:window.scrollTo(0,0);"><bean:message key="oscarRx.BackToTop"/></a></td></tr>
 
 <tr>
-    <td height="0%" style="border-bottom: 2px solid #A9A9A9; border-top: 2px solid #A9A9A9;" colspan="3">
+    <td height="0%" style="border:none;" colspan="3">
 </tr>
 
 <tr>
@@ -1355,7 +1363,7 @@ function changeLt(drugId){
         if(ss.length==0)
             $('autocomplete_choices').setStyle({height:'0%'});
         else
-            $('autocomplete_choices').setStyle({height:'90%'});
+            $('autocomplete_choices').setStyle({height:'100%'});
     }
     function addInstruction(content,randomId){
         $('instructions_'+randomId).value=content;
@@ -2327,7 +2335,19 @@ function updateQty(element){
              return x;
          }
 
-         
+    function validateRxQuantity() {
+        var x = true;
+        jQuery('input[name^="quantity_"]').each(function(){
+            var str1  = jQuery(this).val();
+            if ((str1.length == 0)||(parseFloat(str1) == 0)||(isNaN(parseFloat(str1)))) {
+            	jQuery(this).focus();
+                x = confirm('WARNING no quantity entered.\nProceed anyway?');
+                return;
+     	        }
+             });
+             return x;
+         }
+       
 
 
     function validateWrittenDate() {
@@ -2400,7 +2420,9 @@ function updateQty(element){
 		if(!validateRxDate()) {
     		return false;
     	}
-
+		if(!validateRxQuantity()) {
+    		return false;
+    	}
 		<%if (OscarProperties.getInstance().isPropertyActive("rx_strict_med_term")) {%>
 		if(!checkMedTerm()){
 			return false;

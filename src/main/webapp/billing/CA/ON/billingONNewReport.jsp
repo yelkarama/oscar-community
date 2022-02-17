@@ -351,7 +351,7 @@ if("unpaid".equals(action)) {
 <script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery.dataTables.1.10.11.min.js"></script>
 
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
-<title>ON Billing Report</title>
+<title>Bills - ONTARIO BILLING REPORT</title>
 
 
 <!-- calendar 

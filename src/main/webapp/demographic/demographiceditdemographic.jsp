@@ -42,13 +42,13 @@
 %>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<%-- @ taglib uri="../WEB-INF/taglibs-log.tld" prefix="log" --%>
+<%-- @ taglib uri=request.getContextPath() +  "/WEB-INF/taglibs-log.tld" prefix="log" --%>
 <%@page import="org.oscarehr.sharingcenter.SharingCenterUtil"%>
 <%@page import="oscar.util.ConversionUtils"%>
 <%@page import="org.oscarehr.myoscar.utils.MyOscarLoggedInInfo"%>
 <%@page import="org.oscarehr.phr.util.MyOscarUtils"%>
 <%@page import="org.oscarehr.util.LoggedInInfo" %>
-<%@ page import="oscar.util.UtilMisc" %>
+<%@page import="oscar.util.UtilMisc" %>
 <%@page import="org.oscarehr.PMmodule.caisi_integrator.ConformanceTestHelper"%>
 <%@page import="org.oscarehr.common.dao.DemographicExtDao" %>
 <%@page import="org.oscarehr.common.dao.DemographicArchiveDao" %>
@@ -60,7 +60,6 @@
 <%@page import="org.oscarehr.common.dao.WaitingListDao" %>
 <%@page import="org.oscarehr.common.dao.WaitingListNameDao" %>
 <%@page import="org.oscarehr.common.model.WaitingListName" %>
-<%@page import="org.apache.commons.lang.StringEscapeUtils" %>
 <%@page import="org.oscarehr.common.Gender" %>
 <%@page import="org.oscarehr.util.SpringUtils" %>
 <%@page import="org.oscarehr.managers.ProgramManager2" %>
@@ -70,8 +69,10 @@
 <%@page import="org.oscarehr.managers.PatientConsentManager" %>
 <%@page import="org.oscarehr.common.model.Consent" %>
 <%@page import="org.oscarehr.common.model.ConsentType" %>
-<%@ page import="org.oscarehr.ws.rest.util.QuestimedUtil" %>
-<%@ page import="org.owasp.encoder.Encode" %>
+<%@page import="org.oscarehr.ws.rest.util.QuestimedUtil" %>
+<%@page import="org.apache.commons.lang.StringEscapeUtils" %>
+<%@page import="org.apache.commons.text.WordUtils"%>
+<%@page import="org.owasp.encoder.Encode" %>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="session" />
@@ -102,7 +103,7 @@
 	objectName='<%="_demographic$"+demographic$%>' rights="o"
 	reverse="<%=false%>">
 <bean:message key="demographic.demographiceditdemographic.accessDenied"/>
-<% response.sendRedirect("../acctLocked.html"); 
+<% response.sendRedirect(request.getContextPath() +  "/acctLocked.html"); 
 authed=false;
 %>
 </security:oscarSec>
@@ -169,7 +170,7 @@ if(!authed) {
 <%
 	if(session.getAttribute("user") == null)
 	{
-		response.sendRedirect("../logout.jsp");
+		response.sendRedirect(request.getContextPath() +  "/logout.jsp");
 		return;
 	}
 
@@ -274,7 +275,7 @@ if(!authed) {
 
 <!-- calendar stylesheet -->
 <link rel="stylesheet" type="text/css" media="all"
-	href="../share/calendar/calendar.css" title="win2k-cold-1" />
+	href="<%= request.getContextPath() %>/share/calendar/calendar.css" title="win2k-cold-1" />
 
 <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 <link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
@@ -293,15 +294,15 @@ if(!authed) {
 
 
 <!-- main calendar program -->
-<script type="text/javascript" src="../share/calendar/calendar.js"></script>
+<script type="text/javascript" src="<%= request.getContextPath() %>/share/calendar/calendar.js"></script>
 
 <!-- language for the calendar -->
 <script type="text/javascript"
-	src="../share/calendar/lang/<bean:message key="global.javascript.calendar"/>"></script>
+	src="<%= request.getContextPath() %>/share/calendar/lang/<bean:message key="global.javascript.calendar"/>"></script>
 
 <!-- the following script defines the Calendar.setup helper function, which makes
        adding a calendar a matter of 1 or 2 lines of code. -->
-<script type="text/javascript" src="../share/calendar/calendar-setup.js"></script>
+<script type="text/javascript" src="<%= request.getContextPath() %>/share/calendar/calendar-setup.js"></script>
 
 <script type="text/javascript" src="<%=request.getContextPath() %>/js/check_hin.js"></script>
 
@@ -309,17 +310,17 @@ if(!authed) {
 
 <!-- calendar stylesheet -->
 <link rel="stylesheet" type="text/css" media="all"
-	href="../share/calendar/calendar.css" title="win2k-cold-1" />
+	href="<%= request.getContextPath() %>/share/calendar/calendar.css" title="win2k-cold-1" />
 <% if (isMobileOptimized) { %>
     <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, width=device-width" />
-    <link rel="stylesheet" type="text/css" href="../mobile/editdemographicstyle.css">
+    <link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/mobile/editdemographicstyle.css">
 <% } else { %>
-    <!--<link rel="stylesheet" type="text/css" href="../oscarEncounter/encounterStyles.css">-->
-    <!--<link rel="stylesheet" type="text/css" href="../share/css/searchBox.css">-->
+    <!--<link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/oscarEncounter/encounterStyles.css">-->
+    <!--<link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/share/css/searchBox.css">-->
     <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <% } %>
 <script language="javascript" type="text/javascript"
-	src="../share/javascript/Oscar.js"></script>
+	src="<%= request.getContextPath() %>/share/javascript/Oscar.js"></script>
 
 <!--popup menu for encounter type -->
 <script src="<c:out value="${ctx}"/>/share/javascript/popupmenu.js"
@@ -329,7 +330,7 @@ if(!authed) {
 
 <script type="text/javascript" src="<%=request.getContextPath() %>/js/bootstrap.min.js"></script>
 
-<script type="text/javascript" src="../share/javascript/prototype.js"></script>
+<script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/prototype.js"></script>
    <script>
      jQuery.noConflict();
    </script>
@@ -345,7 +346,7 @@ jQuery( document ).ready( function() {
 			familyMembers += "\n<%=Encode.forJavaScript(member)%>"
 		<%}%>
 
-        alert("Updated demographic and the following family members:" + familyMembers+"");
+        alert("<bean:message key="demographic.demographiceditdemographic.alertupdated"/> " + familyMembers+"");
     <% }%>
 
 	var defPhTitle = "Check to set preferred contact number";
@@ -841,7 +842,7 @@ function add2url(txt) {
     part1 = encURL.substring(0,beg);
     part2 = encURL.substr(end);
     encURL = part1 + encodeURI(txt) + part2;
-    popupEChart(710, 1024,encURL);
+    popupOscarRx(710, 1024,encURL,'E<%=demographic_no%>');
     return false;
 }
 
@@ -960,7 +961,7 @@ function updatePatientStatusDate() {
 jQuery(document).ready(function() {
 	var addresses;
 	
-	 jQuery.getJSON("../demographicSupport.do",
+	 jQuery.getJSON("<%=request.getContextPath() %>/demographicSupport.do",
              {
                      method: "getAddressAndPhoneHistoryAsJson",
                      demographicNo: demographicNo
@@ -1054,7 +1055,7 @@ function validateHC() {
 		
     jQuery.ajax({
         type: "GET",
-        url:  '<%=request.getContextPath()%>/ws/rs/patientDetailStatusService/validateHC?hin='+hin+'&ver='+ver,
+        url:  '<%=request.getContextPath() %>/ws/rs/patientDetailStatusService/validateHC?hin='+hin+'&ver='+ver,
         dataType:'json',
         contentType:'application/json',
         success: function (data) {
@@ -1221,6 +1222,12 @@ background-color: grey;
         		<%}%>
 				</h3>
 				</td>
+				<td width="10%" align="right" style="text-align:right;font-size:14px;">
+		<i class=" icon-question-sign"></i> 
+	    <a href="https://worldoscar.org/knowledge-base/master-demographic-page/" target="_blank"><bean:message key="app.top1"/></a>
+	    <i class=" icon-info-sign" style="margin-left:10px;"></i> 
+        <a href="javascript:void(0)"  onClick="window.open('<%=request.getContextPath()%>/oscarEncounter/About.jsp','About OSCAR','scrollbars=1,resizable=1,width=800,height=600,left=0,top=0')" ><bean:message key="global.about" /></a>
+				</td>
 			</tr>
 		</table>
 		</td>
@@ -1248,7 +1255,7 @@ if(wLReadonly.equals("")){
 %>
 			<tr>
 				<td><a
-					href="../oscarWaitingList/SetupDisplayPatientWaitingList.do?demographic_no=<%=demographic.getDemographicNo()%>">
+					href="<%= request.getContextPath() %>/oscarWaitingList/SetupDisplayPatientWaitingList.do?demographic_no=<%=demographic.getDemographicNo()%>">
 				<bean:message key="demographic.demographiceditdemographic.msgWaitList"/></a>
 				</td>
 			</tr>
@@ -1266,7 +1273,7 @@ if(wLReadonly.equals("")){
 					if ("CLINICAID".equals(prov)) 
 					{
 						%>
-							<a href="../billing.do?billRegion=CLINICAID&action=invoice_reports" target="_blank">
+							<a href="<%= request.getContextPath() %>/billing.do?billRegion=CLINICAID&action=invoice_reports" target="_blank">
 							<bean:message key="demographic.demographiceditdemographic.msgInvoiceList"/>
 							</a>
 						<%
@@ -1275,7 +1282,7 @@ if(wLReadonly.equals("")){
 					{
 					%>
 						<a href="javascript: function myFunction() {return false; }"
-							onClick="popupPage(500,800,'../billing/CA/ON/billinghistory.jsp?demographic_no=<%=demographic.getDemographicNo()%>&last_name=<%=URLEncoder.encode(demographic.getLastName())%>&first_name=<%=URLEncoder.encode(demographic.getFirstName())%>&orderby=appointment_date&displaymode=appt_history&dboperation=appt_history&limit1=0&limit2=10')">
+							onClick="popupPage(600,1088,'<%= request.getContextPath() %>/billing/CA/ON/billinghistory.jsp?demographic_no=<%=demographic.getDemographicNo()%>&last_name=<%=URLEncoder.encode(demographic.getLastName())%>&first_name=<%=URLEncoder.encode(demographic.getFirstName())%>&orderby=appointment_date&displaymode=appt_history&dboperation=appt_history&limit1=0&limit2=10')">
 						<bean:message key="demographic.demographiceditdemographic.msgBillHistory"/></a>
 					<%
 					}
@@ -1283,12 +1290,12 @@ if(wLReadonly.equals("")){
 					{
 					%>
 						<a href="#"
-							onclick="popupPage(800,1000,'../billing/CA/BC/billStatus.jsp?lastName=<%=URLEncoder.encode(demographic.getLastName())%>&firstName=<%=URLEncoder.encode(demographic.getFirstName())%>&filterPatient=true&demographicNo=<%=demographic.getDemographicNo()%>');return false;">
+							onclick="popupPage(600,1088,'<%= request.getContextPath() %>/billing/CA/BC/billStatus.jsp?lastName=<%=URLEncoder.encode(demographic.getLastName())%>&firstName=<%=URLEncoder.encode(demographic.getFirstName())%>&filterPatient=true&demographicNo=<%=demographic.getDemographicNo()%>');return false;">
 						<bean:message key="demographic.demographiceditdemographic.msgInvoiceList"/></a>
 
 
 						<br/>
-						<a  href="javascript: void();" onclick="return !showMenu('2', event);" onmouseover="callEligibilityWebService('../billing/CA/BC/ManageTeleplan.do','returnTeleplanMsg');"><bean:message key="demographic.demographiceditdemographic.btnCheckElig"/></a>
+						<a  href="javascript: void();" onclick="return !showMenu('2', event);" onmouseover="callEligibilityWebService('<%= request.getContextPath() %>/billing/CA/BC/ManageTeleplan.do','returnTeleplanMsg');"><bean:message key="demographic.demographiceditdemographic.btnCheckElig"/></a>
 						<div id='menu2' class='menu' onclick='event.cancelBubble = true;' style="width:350px;">
 							<span id="search_spinner" ><bean:message key="demographic.demographiceditdemographic.msgLoading"/></span>
 							<span id="returnTeleplanMsg"></span>
@@ -1299,7 +1306,7 @@ if(wLReadonly.equals("")){
 			<tr>
 				<td><a
 					href="javascript: function myFunction() {return false; }"
-					onClick="popupPage(700, 1000, '../billing.do?billRegion=<%=URLEncoder.encode(prov)%>&billForm=<%=URLEncoder.encode(oscarProps.getProperty("default_view"))%>&hotclick=&appointment_no=0&demographic_name=<%=URLEncoder.encode(demographic.getLastName())%>%2C<%=URLEncoder.encode(demographic.getFirstName())%>&demographic_no=<%=demographic.getDemographicNo()%>&providerview=<%=demographic.getProviderNo()%>&user_no=<%=curProvider_no%>&apptProvider_no=none&appointment_date=<%=dateString%>&start_time=00:00:00&bNewForm=1&status=t');return false;"
+					onClick="popupPage(900, 1200, '<%= request.getContextPath() %>/billing.do?billRegion=<%=URLEncoder.encode(prov)%>&billForm=<%=URLEncoder.encode(oscarProps.getProperty("default_view"))%>&hotclick=&appointment_no=0&demographic_name=<%=URLEncoder.encode(demographic.getLastName())%>%2C<%=URLEncoder.encode(demographic.getFirstName())%>&demographic_no=<%=demographic.getDemographicNo()%>&providerview=<%=demographic.getProviderNo()%>&user_no=<%=curProvider_no%>&apptProvider_no=none&appointment_date=<%=dateString%>&start_time=00:00:00&bNewForm=1&status=t');return false;"
 					title="<bean:message key="demographic.demographiceditdemographic.msgBillPatient"/>"><bean:message key="demographic.demographiceditdemographic.msgCreateInvoice"/></a></td>
 			</tr>
 			<%
@@ -1311,34 +1318,34 @@ if(wLReadonly.equals("")){
 				<tr>
 					<td><a
 						href="javascript: function myFunction() {return false; }"
-						onClick="window.open('../billing/CA/ON/specialtyBilling/fluBilling/addFluBilling.jsp?function=demographic&functionid=<%=demographic.getDemographicNo()%>&creator=<%=curProvider_no%>&demographic_name=<%=URLEncoder.encode(demographic.getLastName())%>%2C<%=URLEncoder.encode(demographic.getFirstName())%>&hin=<%=URLEncoder.encode(demographic.getHin()!=null?demographic.getHin():"")%><%=URLEncoder.encode(demographic.getVer()!=null?demographic.getVer():"")%>&demo_sex=<%=URLEncoder.encode(demographic.getSex())%>&demo_hctype=<%=URLEncoder.encode(demographic.getHcType()==null?"null":demographic.getHcType())%>&rd=<%=URLEncoder.encode(rd==null?"null":rd)%>&rdohip=<%=URLEncoder.encode(rdohip==null?"null":rdohip)%>&dob=<%=MyDateFormat.getStandardDate(Integer.parseInt(birthYear),Integer.parseInt(birthMonth),Integer.parseInt(birthDate))%>&mrp=<%=demographic.getProviderNo() != null ? demographic.getProviderNo() : ""%>','', 'scrollbars=yes,resizable=yes,width=720,height=500');return false;"
+						onClick="popupOscarRx(500, 720,'<%= request.getContextPath() %>/billing/CA/ON/specialtyBilling/fluBilling/addFluBilling.jsp?function=demographic&functionid=<%=demographic.getDemographicNo()%>&creator=<%=curProvider_no%>&demographic_name=<%=URLEncoder.encode(demographic.getLastName())%>%2C<%=URLEncoder.encode(demographic.getFirstName())%>&hin=<%=URLEncoder.encode(demographic.getHin()!=null?demographic.getHin():"")%><%=URLEncoder.encode(demographic.getVer()!=null?demographic.getVer():"")%>&demo_sex=<%=URLEncoder.encode(demographic.getSex())%>&demo_hctype=<%=URLEncoder.encode(demographic.getHcType()==null?"null":demographic.getHcType())%>&rd=<%=URLEncoder.encode(rd==null?"null":rd)%>&rdohip=<%=URLEncoder.encode(rdohip==null?"null":rdohip)%>&dob=<%=MyDateFormat.getStandardDate(Integer.parseInt(birthYear),Integer.parseInt(birthMonth),Integer.parseInt(birthDate))%>&mrp=<%=demographic.getProviderNo() != null ? demographic.getProviderNo() : ""%>');return false;"
 						title='<bean:message key="demographic.demographiceditdemographic.msgAddFluBill"/>'><bean:message key="demographic.demographiceditdemographic.msgFluBilling"/></a></td>
 				</tr>
 	<%          } %>
 				<tr>
 					<td><a
 						href="javascript: function myFunction() {return false; }"
-						onClick="popupS('../billing/CA/ON/billingShortcutPg1.jsp?billRegion=<%=URLEncoder.encode(prov)%>&billForm=<%=URLEncoder.encode(oscarProps.getProperty("hospital_view", default_view))%>&hotclick=&appointment_no=0&demographic_name=<%=URLEncoder.encode(demographic.getLastName())%>%2C<%=URLEncoder.encode(demographic.getFirstName())%>&demographic_no=<%=demographic.getDemographicNo()%>&providerview=<%=demographic.getProviderNo()%>&user_no=<%=curProvider_no%>&apptProvider_no=none&appointment_date=<%=dateString%>&start_time=00:00:00&bNewForm=1&status=t');return false;"
+						onClick="popupOscarRx(900, 1200,'<%= request.getContextPath() %>/billing/CA/ON/billingShortcutPg1.jsp?billRegion=<%=URLEncoder.encode(prov)%>&billForm=<%=URLEncoder.encode(oscarProps.getProperty("hospital_view", default_view))%>&hotclick=&appointment_no=0&demographic_name=<%=URLEncoder.encode(demographic.getLastName())%>%2C<%=URLEncoder.encode(demographic.getFirstName())%>&demographic_no=<%=demographic.getDemographicNo()%>&providerview=<%=demographic.getProviderNo()%>&user_no=<%=curProvider_no%>&apptProvider_no=none&appointment_date=<%=dateString%>&start_time=00:00:00&bNewForm=1&status=t');return false;"
 						title="<bean:message key="demographic.demographiceditdemographic.msgBillPatient"/>"><bean:message key="demographic.demographiceditdemographic.msgHospitalBilling"/></a></td>
 				</tr>
 				<tr>
 					<td><a
 						href="javascript: function myFunction() {return false; }"
-						onClick="window.open('../billing/CA/ON/addBatchBilling.jsp?demographic_no=<%=demographic.getDemographicNo().toString()%>&creator=<%=curProvider_no%>&demographic_name=<%=URLEncoder.encode(demographic.getLastName())%>%2C<%=URLEncoder.encode(demographic.getFirstName())%>&hin=<%=URLEncoder.encode(demographic.getHin()!=null?demographic.getHin():"")%><%=URLEncoder.encode(demographic.getVer()!=null?demographic.getVer():"")%>&dob=<%=MyDateFormat.getStandardDate(Integer.parseInt(birthYear),Integer.parseInt(birthMonth),Integer.parseInt(birthDate))%>','', 'scrollbars=yes,resizable=yes,width=600,height=400');return false;"
+						onClick="popupOscarRx(400, 600,'<%= request.getContextPath() %>/billing/CA/ON/addBatchBilling.jsp?demographic_no=<%=demographic.getDemographicNo().toString()%>&creator=<%=curProvider_no%>&demographic_name=<%=URLEncoder.encode(demographic.getLastName())%>%2C<%=URLEncoder.encode(demographic.getFirstName())%>&hin=<%=URLEncoder.encode(demographic.getHin()!=null?demographic.getHin():"")%><%=URLEncoder.encode(demographic.getVer()!=null?demographic.getVer():"")%>&dob=<%=MyDateFormat.getStandardDate(Integer.parseInt(birthYear),Integer.parseInt(birthMonth),Integer.parseInt(birthDate))%>');return false;"
 						title='<bean:message key="demographic.demographiceditdemographic.msgAddBatchBilling"/>'><bean:message key="demographic.demographiceditdemographic.msgAddBatchBilling"/></a>
 					</td>
 				</tr>
 				<tr>
 					<td><a
 						href="javascript: function myFunction() {return false; }"
-						onClick="window.open('../billing/CA/ON/inr/addINRbilling.jsp?function=demographic&functionid=<%=demographic.getDemographicNo()%>&creator=<%=curProvider_no%>&demographic_name=<%=URLEncoder.encode(demographic.getLastName())%>%2C<%=URLEncoder.encode(demographic.getFirstName())%>&hin=<%=URLEncoder.encode(demographic.getHin()!=null?demographic.getHin():"")%><%=URLEncoder.encode(demographic.getVer()!=null?demographic.getVer():"")%>&dob=<%=MyDateFormat.getStandardDate(Integer.parseInt(birthYear),Integer.parseInt(birthMonth),Integer.parseInt(birthDate))%>','', 'scrollbars=yes,resizable=yes,width=600,height=400');return false;"
+						onClick="popupOscarRx(400, 600,'<%= request.getContextPath() %>/billing/CA/ON/inr/addINRbilling.jsp?function=demographic&functionid=<%=demographic.getDemographicNo()%>&creator=<%=curProvider_no%>&demographic_name=<%=URLEncoder.encode(demographic.getLastName())%>%2C<%=URLEncoder.encode(demographic.getFirstName())%>&hin=<%=URLEncoder.encode(demographic.getHin()!=null?demographic.getHin():"")%><%=URLEncoder.encode(demographic.getVer()!=null?demographic.getVer():"")%>&dob=<%=MyDateFormat.getStandardDate(Integer.parseInt(birthYear),Integer.parseInt(birthMonth),Integer.parseInt(birthDate))%>');return false;"
 						title='<bean:message key="demographic.demographiceditdemographic.msgAddINRBilling"/>'><bean:message key="demographic.demographiceditdemographic.msgAddINR"/></a>
 					</td>
 				</tr>
 				<tr>
 					<td><a
 						href="javascript: function myFunction() {return false; }"
-						onClick="window.open('../billing/CA/ON/inr/reportINR.jsp?provider_no=<%=curProvider_no%>','', 'scrollbars=yes,resizable=yes,width=600,height=600');return false;"
+						onClick="popupOscarRx(600, 600,'<%= request.getContextPath() %>/billing/CA/ON/inr/reportINR.jsp?provider_no=<%=curProvider_no%>');return false;"
 						title='<bean:message key="demographic.demographiceditdemographic.msgINRBilling"/>'><bean:message key="demographic.demographiceditdemographic.msgINRBill"/></a>
 					</td>
 				</tr>
@@ -1354,14 +1361,14 @@ if(wLReadonly.equals("")){
 			<tr>
 				<td><a
 					href="javascript: function myFunction() {return false; }"
-					onClick="popupPage(700,960,'../oscarEncounter/oscarConsultationRequest/DisplayDemographicConsultationRequests.jsp?de=<%=demographic.getDemographicNo()%>&proNo=<%=demographic.getProviderNo()%>')"><bean:message
+					onClick="popupPage(700,960,'<%= request.getContextPath() %>/oscarEncounter/oscarConsultationRequest/DisplayDemographicConsultationRequests.jsp?de=<%=demographic.getDemographicNo()%>&proNo=<%=demographic.getProviderNo()%>')"><bean:message
 					key="demographic.demographiceditdemographic.btnConsultation" /></a></td>
 			</tr>
 
 			<tr>
 				<td><a
 					href="javascript: function myFunction() {return false; }"
-					onClick="popupOscarRx(700,1027,'../oscarRx/choosePatient.do?providerNo=<%=curProvider_no%>&demographicNo=<%=demographic_no%>')"><bean:message
+					onClick="popupOscarRx(700,1027,'<%= request.getContextPath() %>/oscarRx/choosePatient.do?providerNo=<%=curProvider_no%>&demographicNo=<%=demographic_no%>','Rx<%=demographic_no%>')"><bean:message
 					key="global.prescriptions" /></a>
 				</td>
 			</tr>
@@ -1370,7 +1377,7 @@ if(wLReadonly.equals("")){
 				rights="r" reverse="<%=false%>">
                     <special:SpecialEncounterTag moduleName="eyeform" reverse="true">
                     <tr><td>
-					<a href="javascript: function myFunction() {return false; }" onClick="popupEChart(710, 1024,encURL);return false;" title="<bean:message key="demographic.demographiceditdemographic.btnEChart"/>">
+					<a href="javascript: function myFunction() {return false; }" onClick="popupOscarRx(710, 1024,encURL,'E<%=demographic_no%>');return false;" title="<bean:message key="demographic.demographiceditdemographic.btnEChart"/>">
 					<bean:message key="demographic.demographiceditdemographic.btnEChart" /></a>&nbsp;<a style="text-decoration: none;" href="javascript: function myFunction() {return false; }" onmouseover="return !showMenu('1', event);">+</a>
 					<div id='menu1' class="menu" onclick='event.cancelBubble = true;'>
 					<h4 style='text-align: center; color: black;' ><bean:message key="demographic.demographiceditdemographic.msgEncType"/></h4>
@@ -1393,7 +1400,7 @@ if(wLReadonly.equals("")){
                     </special:SpecialEncounterTag>
                     <special:SpecialEncounterTag moduleName="eyeform">
                     <tr><td>
-                            <a href="javascript: function myFunction() {return false; }" onClick="popupEChart(710, 1024,encURL);return false;" title="<bean:message key="demographic.demographiceditdemographic.btnEChart"/>">
+                            <a href="javascript: function myFunction() {return false; }" onClick="popupOscarRx(710, 1024,encURL,'EF<%=demographic_no%>');return false;" title="<bean:message key="demographic.demographiceditdemographic.btnEChart"/>">
                             <bean:message key="demographic.demographiceditdemographic.btnEChart"/></a>
                     </td></tr>
                     </special:SpecialEncounterTag>
@@ -1436,12 +1443,12 @@ if(wLReadonly.equals("")){
 <%if( org.oscarehr.common.IsPropertiesOn.isTicklerPlusEnable() ) {%>
 				<a
 					href="javascript: function myFunction() {return false; }"
-					onClick="popupPage(700,1000,'../Tickler.do?filter.demographic_no=<%=demographic_no%>');return false;">
+					onClick="popupPage(700,1000,'<%= request.getContextPath() %>/Tickler.do?filter.demographic_no=<%=demographic_no%>');return false;">
 				<bean:message key="global.tickler" /></a>
 				<% }else { %>
 				<a
 					href="javascript: function myFunction() {return false; }"
-					onClick="popupPage(700,1000,'../tickler/ticklerDemoMain.jsp?demoview=<%=demographic_no%>');return false;">
+					onClick="popupPage(700,1000,'<%= request.getContextPath() %>/tickler/ticklerDemoMain.jsp?demoview=<%=demographic_no%>');return false;">
 				<bean:message key="global.tickler" /></a>
 				<% } %>
 				</td>
@@ -1449,7 +1456,7 @@ if(wLReadonly.equals("")){
 			<tr>
 				<td><a
 					href="javascript: function myFunction() {return false; }"
-					onClick="popup(700,960,'../oscarMessenger/SendDemoMessage.do?demographic_no=<%=demographic.getDemographicNo()%>','msg')">
+					onClick="popup(700,960,'<%= request.getContextPath() %>/oscarMessenger/SendDemoMessage.do?demographic_no=<%=demographic.getDemographicNo()%>','msg')">
 				<bean:message key="demographic.demographiceditdemographic.msgSendMsg"/></a></td>
 			</tr>
                         <tr>
@@ -1461,7 +1468,7 @@ if(wLReadonly.equals("")){
            	if(loggedInInfo.getCurrentFacility().isIntegratorEnabled()) {
            %>             
            <tr>
-               <td> <a href="#" onclick="popup(500,500,'../integrator/manage_linked_clients.jsp?demographicId=<%=demographic.getDemographicNo()%>', 'manage_linked_clients'); return false;">Integrator Linking</a>
+               <td> <a href="#" onclick="popup(500,500,'<%= request.getContextPath() %>/integrator/manage_linked_clients.jsp?demographicId=<%=demographic.getDemographicNo()%>', 'manage_linked_clients'); return false;">Integrator Linking</a>
                </td>
            </tr>
            <% } %>
@@ -1473,10 +1480,10 @@ if(wLReadonly.equals("")){
 					<tr>
 						<td>
 							<%
-								String onclickString="alert('Please login to MyOscar first.')";
+								String onclickString="alert('Login to PHR First')";
 
 								MyOscarLoggedInInfo myOscarLoggedInInfo=MyOscarLoggedInInfo.getLoggedInInfo(session);
-								if (myOscarLoggedInInfo!=null && myOscarLoggedInInfo.isLoggedIn()) onclickString="popupOscarRx(600,900,'../phr/PhrMessage.do?method=createMessage&providerNo="+curProvider_no+"&demographicNo="+demographic_no+"')";
+								if (myOscarLoggedInInfo!=null && myOscarLoggedInInfo.isLoggedIn()) onclickString="popupOscarRx(600,900,request.getContextPath() +  '/phr/PhrMessage.do?method=createMessage&providerNo="+curProvider_no+"&demographicNo="+demographic_no+"')";
 							%>
 							<a href="javascript: function myFunction() {return false; }" ONCLICK="<%=onclickString%>"	title="myOscar">
 								<bean:message key="demographic.demographiceditdemographic.msgSendMsgPHR"/>
@@ -1505,32 +1512,32 @@ if(wLReadonly.equals("")){
 			<tr>
 				<td><a
 					href="javascript: function myFunction() {return false; }"
-					onClick="popupPage(700,1000,'../form/forwardshortcutname.jsp?formname=AR1&demographic_no=<%=request.getParameter("demographic_no")%>');">AR1</a>
+					onClick="popupPage(700,1000,'<%= request.getContextPath() %>/form/forwardshortcutname.jsp?formname=AR1&demographic_no=<%=request.getParameter("demographic_no")%>');">AR1</a>
 				</td>
 			</tr>
 			<tr>
 				<td><a
 					href="javascript: function myFunction() {return false; }"
-					onClick="popupPage(700,1000,'../form/forwardshortcutname.jsp?formname=AR2&demographic_no=<%=request.getParameter("demographic_no")%>');">AR2</a>
+					onClick="popupPage(700,1000,'<%= request.getContextPath() %>/form/forwardshortcutname.jsp?formname=AR2&demographic_no=<%=request.getParameter("demographic_no")%>');">AR2</a>
 				</td>
 			</tr>
 <% } %>
 			<tr class="Header">
 				<td style="font-weight: bold; background: #DCDCDC;"><bean:message
-					key="oscarEncounter.Index.clinicalResources" /></td>
+					key="demographic.resources" /></td>
 			</tr>
                 <special:SpecialPlugin moduleName="inboxmnger">
                 <tr>
                 <td>
 
-                        <a href="#" onClick="window.open('../mod/docmgmtComp/DocList.do?method=list&&demographic_no=<%=demographic_no %>','_blank','resizable=yes,status=yes,scrollbars=yes');return false;">Inbox Manager</a><br>
+                        <a href="#" onClick="window.open('<%=request.getContextPath()%>/mod/docmgmtComp/DocList.do?method=list&&demographic_no=<%=demographic_no %>','_blank','resizable=yes,status=yes,scrollbars=yes');return false;">Inbox Manager</a><br>
               	</td>
               	</tr>
                  </special:SpecialPlugin>
                  <special:SpecialPlugin moduleName="inboxmnger" reverse="true">
 			<tr><td>
 				<a href="javascript: function myFunction() {return false; }"
-					onClick="popupPage(710,970,'../dms/documentReport.jsp?function=demographic&doctype=lab&functionid=<%=demographic.getDemographicNo()%>&curUser=<%=curProvider_no%>')"><bean:message
+					onClick="popupPage(710,970,'<%= request.getContextPath() %>/dms/documentReport.jsp?function=demographic&doctype=lab&functionid=<%=demographic.getDemographicNo()%>&curUser=<%=curProvider_no%>')"><bean:message
 					key="demographic.demographiceditdemographic.msgDocuments" /></a></td>
 			</tr>
                         <%
@@ -1538,14 +1545,14 @@ if(wLReadonly.equals("")){
                         if ( upDocumentBrowserLink != null && upDocumentBrowserLink.getValue() != null && upDocumentBrowserLink.getValue().equals("yes")) {%>
                         <tr><td>
 				<a href="javascript: function myFunction() {return false; }"
-					onClick="popupPage(710,970,'../dms/documentBrowser.jsp?function=demographic&doctype=lab&functionid=<%=demographic.getDemographicNo()%>&categorykey=Private Documents')"><bean:message
+					onClick="popupPage(710,970,'<%= request.getContextPath() %>/dms/documentBrowser.jsp?function=demographic&doctype=lab&functionid=<%=demographic.getDemographicNo()%>&categorykey=Private Documents')"><bean:message
 					key="demographic.demographiceditdemographic.msgDocumentBrowser" /></a></td>
 			</tr>
                         <%}%>
 			<tr>
 				<td><a
 					href="javascript: function myFunction() {return false; }"
-					onClick="popupPage(710,970,'../dms/documentReport.jsp?function=demographic&doctype=lab&functionid=<%=demographic.getDemographicNo()%>&curUser=<%=curProvider_no%>&mode=add')"><bean:message
+					onClick="popupPage(710,970,'<%= request.getContextPath() %>/dms/documentReport.jsp?function=demographic&doctype=lab&functionid=<%=demographic.getDemographicNo()%>&curUser=<%=curProvider_no%>&mode=add')"><bean:message
 					key="demographic.demographiceditdemographic.btnAddDocument" /></a></td>
 			</tr>
                 </special:SpecialPlugin>
@@ -1562,18 +1569,18 @@ if (iviewTag!=null && !"".equalsIgnoreCase(iviewTag.trim())){
 		</special:SpecialEncounterTag>
 			<tr>
 				<td><a
-					href="../eform/efmpatientformlist.jsp?demographic_no=<%=demographic_no%>&apptProvider=<%=apptProvider%>&appointment=<%=appointment%>"><bean:message
+					href="<%= request.getContextPath() %>/eform/efmpatientformlist.jsp?demographic_no=<%=demographic_no%>&apptProvider=<%=apptProvider%>&appointment=<%=appointment%>"><bean:message
 					key="demographic.demographiceditdemographic.btnEForm" /></a></td>
 			</tr>
 			<tr>
 				<td><a
-					href="../eform/efmformslistadd.jsp?demographic_no=<%=demographic_no%>&appointment=<%=appointment%>">
+					href="<%= request.getContextPath() %>/eform/efmformslistadd.jsp?demographic_no=<%=demographic_no%>&appointment=<%=appointment%>">
 				<bean:message
 					key="demographic.demographiceditdemographic.btnAddEForm" /> </a></td>
 			</tr>
                         <% if(OscarProperties.getInstance().getBooleanProperty("questimed.enabled","true") && QuestimedUtil.isServiceConnectionReady()) { %>
 			<tr>
-				<td><a href=# onclick="popupPage(700,960,'../questimed/launch.jsp?demographic_no=<%=demographic_no%>');return false;"					>
+				<td><a href=# onclick="popupPage(700,960,'<%= request.getContextPath() %>/questimed/launch.jsp?demographic_no=<%=demographic_no%>');return false;"					>
 				<bean:message
 					key="demographic.demographiceditdemographic.Questimed" /> </a></td>
 			</tr>
@@ -1581,10 +1588,10 @@ if (iviewTag!=null && !"".equalsIgnoreCase(iviewTag.trim())){
 			<% if (isSharingCenterEnabled) { %>
 			<!-- Sharing Center Links -->
 			<tr>
-			  <td><a href="../sharingcenter/networks/sharingnetworks.jsp?demographic_no=<%=demographic_no%>"><bean:message key="sharingcenter.networks.sharingnetworks" /></a></td>
+			  <td><a href="<%= request.getContextPath() %>/sharingcenter/networks/sharingnetworks.jsp?demographic_no=<%=demographic_no%>"><bean:message key="sharingcenter.networks.sharingnetworks" /></a></td>
 			</tr>
 			<tr>
-			  <td><a href="../sharingcenter/documents/SharedDocuments.do?demographic_no=<%=demographic_no%>"><bean:message key="sharingcenter.documents.shareddocuments" /></a></td>
+			  <td><a href="<%= request.getContextPath() %>/sharingcenter/documents/SharedDocuments.do?demographic_no=<%=demographic_no%>"><bean:message key="sharingcenter.documents.shareddocuments" /></a></td>
 			</tr>
 			<% } // endif isSharingCenterEnabled %>
 
@@ -1653,7 +1660,7 @@ if (iviewTag!=null && !"".equalsIgnoreCase(iviewTag.trim())){
 
                             }else{
 
-	                            printEnvelope = "../report/GenerateEnvelopes.do?demos=";
+	                            printEnvelope = request.getContextPath() +  "/report/GenerateEnvelopes.do?demos=";
 	                            printLbl = "printDemoLabelAction.do?demographic_no=";
 	                            printAddressLbl = "printDemoAddressLabelAction.do?demographic_no=";
 	                            printChartLbl = "printDemoChartLabelAction.do?demographic_no=";
@@ -1665,7 +1672,7 @@ if (iviewTag!=null && !"".equalsIgnoreCase(iviewTag.trim())){
 
                             %>
                             <div class="btn-group">
-								<button class="btn dropdown-toggle" data-toggle="dropdown" >Labels <span class="caret"></span></button>
+								<button class="btn dropdown-toggle" data-toggle="dropdown" ><bean:message key="demographic.demographiceditdemographic.btnLabels"/> <span class="caret"></span></button>
                                 <ul class="dropdown-menu">
 								    <li><a href="#" onclick="popupPage(400,700,'<%=printEnvelope%><%=demographic.getDemographicNo()%>');return false;">
                                         <bean:message key="demographic.demographiceditdemographic.btnCreatePDFEnvelope"/></a>
@@ -1707,8 +1714,8 @@ if (iviewTag!=null && !"".equalsIgnoreCase(iviewTag.trim())){
                                     onclick="window.open('demographicExport.jsp?demographicNo=<%=demographic.getDemographicNo()%>');">
                              </security:oscarSec>
                              <input type="button" name="Button" class="btn"
-                                    value="Add Family Member"
-                                    onclick="window.open('demographicaddarecordhtm.jsp?search_mode=search_name&keyword=','', 'scrollbars=yes,resizable=yes,width=1000,height=500, top=100, left=0')">
+                                    value="<bean:message key="demographic.demographiceditdemographic.btnAddFamilyMember"/>"
+                                    onclick="popupOscarRx(650, 1300,'demographicaddarecordhtm.jsp?search_mode=search_name&keyword=')">
 <% if (oscarProps.getBooleanProperty("workflow_enhance", "true")) { %>
 									<span style="position: relative; float: right; font-style: italic; background: black; color: white; padding: 4px; font-size: 12px; border-radius: 3px;">
 										<span class="_hc_status_icon _hc_status_success"></span>Ready for Card Swipe
@@ -1767,16 +1774,16 @@ if (iviewTag!=null && !"".equalsIgnoreCase(iviewTag.trim())){
 						<ul>
                                                     <li><span class="labels"><bean:message
                                                             key="demographic.demographiceditdemographic.formLastName" />:</span>
-                                                        <span class="info"><%=Encode.forHtml(UtilMisc.toUpperLowerCase(demographic.getLastName()))%></span>
+                                                        <span class="info"><%=Encode.forHtml(WordUtils.capitalizeFully(demographic.getLastName(), new char[] {',','-','\''}))%></span>
                                                     </li>
                                                     <li><span class="labels">
 							<bean:message
                                                                 key="demographic.demographiceditdemographic.formFirstName" />:</span>
-                                                        <span class="info"><%=Encode.forHtml(UtilMisc.toUpperLowerCase(demographic.getFirstName()))%></span>
+                                                        <span class="info"><%=Encode.forHtml(WordUtils.capitalizeFully(demographic.getFirstName(), new char[] {',','-','\''}))%></span>
 							</li>
 							   <li><span class="labels"><bean:message
                                                             key="demographic.demographiceditdemographic.formMiddleNames" />:</span>
-                                                        <span class="info"><%=Encode.forHtml(demographic.getMiddleNames())%></span>
+                                                        <span class="info"><%=Encode.forHtml((WordUtils.capitalizeFully(demographic.getMiddleNames())))%></span>
                                                     </li>
                                                     <li><span class="labels"><bean:message key="demographic.demographiceditdemographic.msgDemoTitle"/>:</span>
                                                         <span class="info"><%=Encode.forHtml(StringUtils.trimToEmpty(demographic.getTitle()))%></span>
@@ -1854,7 +1861,7 @@ if (iviewTag!=null && !"".equalsIgnoreCase(iviewTag.trim())){
                                              String sdb = relHash.get("subDecisionMaker") == null?"":((Boolean) relHash.get("subDecisionMaker")).booleanValue()?"<span title=\"SDM\" >/SDM</span>":"";
                                              String ec = relHash.get("emergencyContact") == null?"":((Boolean) relHash.get("emergencyContact")).booleanValue()?"<span title=\"Emergency Contact\">/EC</span>":"";
 											 String masterLink = "<a target=\"demographic"+dNo+"\" href=\"" + request.getContextPath() + "/demographic/demographiccontrol.jsp?demographic_no="+dNo+"&displaymode=edit&dboperation=search_detail\">M</a>";
-											 String encounterLink = "<a target=\"encounter"+dNo+"\" href=\"javascript: function myFunction() {return false; }\" onClick=\"popupEChart(710,1024,'" + request.getContextPath() + "/oscarEncounter/IncomingEncounter.do?demographicNo="+dNo+"&providerNo="+loggedInInfo.getLoggedInProviderNo()+"&appointmentNo=&curProviderNo=&reason=&appointmentDate=&startTime=&status=&userName="+URLEncoder.encode( userfirstname+" "+userlastname)+"&curDate="+curYear+"-"+curMonth+"-"+curDay+"');return false;\">E</a>";												 
+											 String encounterLink = "<a target=\"encounter"+dNo+"\" href=\"javascript: function myFunction() {return false; }\" onClick=\"popup4(710,1024,'" + request.getContextPath() + "/oscarEncounter/IncomingEncounter.do?demographicNo="+dNo+"&providerNo="+loggedInInfo.getLoggedInProviderNo()+"&appointmentNo=&curProviderNo=&reason=&appointmentDate=&startTime=&status=&userName="+URLEncoder.encode( userfirstname+" "+userlastname)+"&curDate="+curYear+"-"+curMonth+"-"+curDay+",\"E"+demographic_no+"\");return false;\">E</a>";												 
                                           %>
 							<li><span class="label"><%= Encode.forHtmlContent((String)relHash.get("relation"))%><%=sdb%><%=ec%>:</span>
                             	<span class="info"><%=Encode.forHtml(relHash.get("lastName")+", "+relHash.get("firstName"))%>, H:<%=relHash.get("phone")== null?"":relHash.get("phone")%><%=formattedWorkPhone%> <%=masterLink%> <%=encounterLink %></span>
@@ -2150,15 +2157,15 @@ if ( Dead.equals(PatStat) ) {%>
 						<h4>&nbsp;<bean:message key="demographic.demographiceditdemographic.msgContactInfo"/></h4>
 						<ul>
                                                     <li><span class="labels"><bean:message
-                                                            key="demographic.demographiceditdemographic.formPhoneH" />(<span class="popup"  onmouseover="nhpup.popup(homePhoneHistory);" title="Home phone History">History</span>):</span>
+                                                            key="demographic.demographiceditdemographic.formPhoneH" /> (<span class="popup"  onmouseover="nhpup.popup(homePhoneHistory);" title="Home phone History">History</span>):</span>
                                                         <span class="info"><%=Encode.forHtml(StringUtils.trimToEmpty(demographic.getPhone()) + " " + StringUtils.trimToEmpty(demoExt.get("hPhoneExt")))%></span>
 							</li>
                                                     <li><span class="labels"><bean:message
-                                                            key="demographic.demographiceditdemographic.formPhoneW" />(<span class="popup"  onmouseover="nhpup.popup(workPhoneHistory);" title="Work phone History">History</span>):</span>
+                                                            key="demographic.demographiceditdemographic.formPhoneW" /> (<span class="popup"  onmouseover="nhpup.popup(workPhoneHistory);" title="Work phone History">History</span>):</span>
                                                         <span class="info"><%=Encode.forHtml(StringUtils.trimToEmpty(demographic.getPhone2()) + " " + StringUtils.trimToEmpty(demoExt.get("wPhoneExt")))%></span>
 							</li>
 	                        						<li><span class="labels"><bean:message
-                                                            key="demographic.demographiceditdemographic.formPhoneC" />(<span class="popup"  onmouseover="nhpup.popup(cellPhoneHistory);" title="cell phone History">History</span>):</span>
+                                                            key="demographic.demographiceditdemographic.formPhoneC" /> (<span class="popup"  onmouseover="nhpup.popup(cellPhoneHistory);" title="cell phone History">History</span>):</span>
                                                         <span class="info"><%=Encode.forHtml(StringUtils.trimToEmpty(demoExt.get("demo_cell")))%></span></li>
                                                     <li><span class="labels"><bean:message
                                                             key="demographic.demographicaddrecordhtm.formPhoneComment" />:</span>
@@ -2386,7 +2393,7 @@ if ( Dead.equals(PatStat) ) {%>
 									startTimeStr = String.format("%02d",startHour)+":"+String.format("%02d",startMin);
 									endTimeStr = String.format("%02d",startHour)+":"+String.format("%02d",startMin+timecodeInterval-1);
 
-									provMap.get(thisProv).get(sortDateStr+","+qApptWkDay+" "+qApptMonth+"-"+qApptDay).put(startTimeStr+","+timecodeChar, "../appointment/addappointment.jsp?demographic_no="+demographic.getDemographicNo()+"&name="+URLEncoder.encode(demographic.getLastName()+","+demographic.getFirstName())+"&provider_no="+thisProvNo+"&bFirstDisp=true&year="+qApptYear+"&month="+qApptMonth+"&day="+qApptDay+"&start_time="+startTimeStr+"&end_time="+endTimeStr+"&duration="+templateDuration+"&search=true");
+									provMap.get(thisProv).get(sortDateStr+","+qApptWkDay+" "+qApptMonth+"-"+qApptDay).put(startTimeStr+","+timecodeChar, request.getContextPath() +  "/appointment/addappointment.jsp?demographic_no="+demographic.getDemographicNo()+"&name="+URLEncoder.encode(demographic.getLastName()+","+demographic.getFirstName())+"&provider_no="+thisProvNo+"&bFirstDisp=true&year="+qApptYear+"&month="+qApptMonth+"&day="+qApptDay+"&start_time="+startTimeStr+"&end_time="+endTimeStr+"&duration="+templateDuration+"&search=true");
 								}
 							}
 						}
@@ -2406,7 +2413,7 @@ if ( Dead.equals(PatStat) ) {%>
                             <li>
 <% if(oscarProps.getProperty("demographicLabelDoctor") != null) { out.print(oscarProps.getProperty("demographicLabelDoctor","")); } else { %>
                             <bean:message
-                                key="demographic.demographiceditdemographic.formDoctor" />
+                                key="demographic.demographiceditdemographic.formMRP" />
                             <% } %>: <b><%=providerBean.getProperty(demographic.getProviderNo(),"")%></b>
                         <% // ===== quick appointment booking for doctor =====
                         if (provMap.get("doctor") != null) {
@@ -2587,12 +2594,12 @@ if ( Dead.equals(PatStat) ) {%>
 
 						<div class="demographicSection" id="notes">
 						<h4>&nbsp;<bean:message
-							key="demographic.demographiceditdemographic.formNotes" /> <input type="button" class="btn btn-link" onclick="window.open('demographicAudit.jsp?demographic_no=<%=demographic_no %>','dawin','width=800,height=1000');" value="Audit Information"/></h4>
+							key="demographic.demographiceditdemographic.formNotes" /> <input type="button" class="btn btn-link" onclick="popupOscarRx(800, 1000,'demographicAudit.jsp?demographic_no=<%=demographic_no %>');" value="Audit Information"/></h4>
 
                                                     <%=Encode.forHtmlContent(notes)%>&nbsp;
 <%if (hasImportExtra) { %>
-		                <a href="javascript:void(0);" title="Extra data from Import" onclick="window.open('../annotation/importExtra.jsp?display=<%=annotation_display %>&amp;table_id=<%=demographic_no %>&amp;demo=<%=demographic_no %>','anwin','width=400,height=250');">
-		                    <img src="../images/notes.gif" align="right" alt="Extra data from Import" height="16" width="13" border="0"> </a>
+		                <a href="javascript:void(0);" title="Extra data from Import" onclick="popupOscarRx(250, 400,'<%= request.getContextPath() %>/annotation/importExtra.jsp?display=<%=annotation_display %>&amp;table_id=<%=demographic_no %>&amp;demo=<%=demographic_no %>',false);">
+		                    <img src="<%= request.getContextPath() %>/images/notes.gif" align="right" alt="Extra data from Import" height="16" width="13" border="0"> </a>
 <%} %>
 
 		                
@@ -2671,7 +2678,7 @@ if ( Dead.equals(PatStat) ) {%>
 						</div>
 
 						<!--newEnd-->
-<div class="container-fluid well form-horizontal span11" id="editWrapper" style="display:none;">
+<div class="container-fluid well form-horizontal span12" id="editWrapper" style="display:none;">
     <div  id="demographicSection" class="span11">
 		<fieldset>
 			<legend><bean:message key="demographic.demographiceditdemographic.msgDemographic" /></legend>
@@ -2698,8 +2705,8 @@ if ( Dead.equals(PatStat) ) {%>
         <div class="control-group span5">
             <label class="control-label" for="inputDOB"><bean:message key="demographic.demographiceditdemographic.formDOB" /> <bean:message key="demographic.demographiceditdemographic.formDOBDetais" /><span style="color:red">*</span></label>
             <div class="controls" style="white-space: nowrap;">
-                <input type="date" id="inputDOB" 
-                    class="input input-medium"
+                <input id="inputDOB"
+                    class="input input-medium" type="date"
                     name="inputDOB" <%=getDisabled("year_of_birth")%>
 					onchange="parsedob_date();">
                 <input type="hidden" id="year_of_birth" placeholder="yyyy" name="year_of_birth"
@@ -2714,10 +2721,22 @@ if ( Dead.equals(PatStat) ) {%>
         <div class="control-group span5">
             <label class="control-label" for="sex"><bean:message key="demographic.demographiceditdemographic.formSex" /><span style="color:red">*</span></label>
             <div class="controls">
-              <select  name="sex" id="sex">
-			                        <option value=""></option>
-			                		<% for(Gender gn : Gender.values()){ %>
-			                        <option value=<%=gn.name()%> <%=((demographic.getSex().toUpperCase().equals(gn.name())) ? " selected=\"selected\" " : "") %>><%=gn.getText()%></option>
+               <select  name="sex" id="sex">//Value are Codes F M T O U Texts are Female Male Transgender Other Undefined
+                <option value=""></option>
+                <% 
+                String iterSex = "";
+                String sexTag = "";
+                for(Gender gn : Gender.values()){ 
+                    sexTag = "global."+gn.getText();
+                try{
+                        iterSex = oscarResources.getString(sexTag) ;
+                    } catch(Exception ex) {
+                        //MiscUtils.getLogger().error("Error", ex);
+                        //Fine then lets use the English default
+                        iterSex = gn.getText();
+                }
+                %>
+                <option value=<%=gn.name()%> <%=((demographic.getSex().toUpperCase().equals(gn.name())) ? " selected=\"selected\" " : "") %>><%=iterSex%></option>
 			                        <% } %>
             </select>
             </div>
@@ -2872,8 +2891,8 @@ if ( Dead.equals(PatStat) ) {%>
 					if("true".equals(OscarProperties.getInstance().getProperty("iso3166.2.enabled","false"))) { 	
 				%>
 					<select name="province" id="province"></select> 
-					<br/>
-					Filter by Country: <select name="country" id="country" ></select>
+					<br/><br>
+					Filter by Country:<br><br> <select name="country" id="country" ></select>
 							
 						<% } else { %> 
 								<select name="province" style="width: 200px" <%=getDisabled("province")%>>
@@ -3023,8 +3042,8 @@ if ( Dead.equals(PatStat) ) {%>
 					if("true".equals(OscarProperties.getInstance().getProperty("iso3166.2.enabled","false"))) { 	
 				%>
 					<select name="residentialProvince" id="residentialProvince"></select> 
-					<br/>
-					Filter by Country: <select name="residentialCountry" id="residentialCountry" ></select>
+					<br/><br>
+					Filter by Country:<br><br> <select name="residentialCountry" id="residentialCountry" ></select>
 							
 						<% } else { %> 
 
@@ -3209,7 +3228,7 @@ if ( Dead.equals(PatStat) ) {%>
 									<script>
 										function sendEmailInvite(demoNo) {
 											var http = new XMLHttpRequest();
-											var url = "../ws/rs/app/PHREmailInvite/"+demoNo;
+											var url = "<%=request.getContextPath() %>/ws/rs/app/PHREmailInvite/"+demoNo;
 											http.open("GET", url, true);
 											http.onreadystatechange = function() {
 												if(http.readyState == 4 && http.status == 200) {
@@ -3229,9 +3248,9 @@ if ( Dead.equals(PatStat) ) {%>
 								<%if (demographic.getMyOscarUserName()==null ||demographic.getMyOscarUserName().equals("")) {%>
 
 								<%
-									String onclickString="popup(900, 800, '../phr/indivo/RegisterIndivo.jsp?demographicNo="+demographic_no+"', 'indivoRegistration');";
+									String onclickString="popup(900, 800, request.getContextPath() +  '/phr/indivo/RegisterIndivo.jsp?demographicNo="+demographic_no+"', 'indivoRegistration');";
 									MyOscarLoggedInInfo myOscarLoggedInInfo=MyOscarLoggedInInfo.getLoggedInInfo(session);
-									if (myOscarLoggedInInfo==null || !myOscarLoggedInInfo.isLoggedIn()) onclickString="alert('Please login to MyOscar first.')";
+									if (myOscarLoggedInInfo==null || !myOscarLoggedInInfo.isLoggedIn()) onclickString="alert('Login to PHR First')";
 								%>
 								<br />
 								<sup><a class="btn btn-link" href="javascript:"
@@ -3247,16 +3266,104 @@ if ( Dead.equals(PatStat) ) {%>
 			<legend><bean:message key="demographic.demographiceditdemographic.msgHealthIns"/></legend>
 		</fieldset>
         </div>
+        <div class="control-group span5">
+            <label class="control-label" for="hcType"><bean:message key="demographic.demographiceditdemographic.formHCType" /></label>
+            <div class="controls">
+              <% String hctype = demographic.getHcType()==null?"":demographic.getHcType(); %>
+								<select name="hc_type" id="hcTyle" <%=getDisabled("hc_type")%>>
+									<option value="OT"
+										<%=(hctype.equals("OT") || hctype.equals("") || hctype.length() > 2)?" selected":""%>><bean:message key="demographic.demographiceditdemographic.optOther"/></option>
+									<% if (pNames.isDefined()) {
+                                       for (ListIterator li = pNames.listIterator(); li.hasNext(); ) {
+                                           province = (String) li.next(); %>
+									<option value="<%=province%>"
+										<%=province.equals(hctype)?" selected":""%>><%=li.next()%></option>
+									<% } %>
+									<% } else { %>
+									<option value="AB" <%=hctype.equals("AB")?" selected":""%>>AB-Alberta</option>
+									<option value="BC" <%=hctype.equals("BC")?" selected":""%>>BC-British Columbia</option>
+									<option value="MB" <%=hctype.equals("MB")?" selected":""%>>MB-Manitoba</option>
+									<option value="NB" <%=hctype.equals("NB")?" selected":""%>>NB-New Brunswick</option>
+									<option value="NL" <%=hctype.equals("NL")?" selected":""%>>NL-Newfoundland & Labrador</option>
+									<option value="NT" <%=hctype.equals("NT")?" selected":""%>>NT-Northwest Territory</option>
+									<option value="NS" <%=hctype.equals("NS")?" selected":""%>>NS-Nova Scotia</option>
+									<option value="NU" <%=hctype.equals("NU")?" selected":""%>>NU-Nunavut</option>
+									<option value="ON" <%=hctype.equals("ON")?" selected":""%>>ON-Ontario</option>
+									<option value="PE" <%=hctype.equals("PE")?" selected":""%>>PE-Prince Edward Island</option>
+									<option value="QC" <%=hctype.equals("QC")?" selected":""%>>QC-Quebec</option>
+									<option value="SK" <%=hctype.equals("SK")?" selected":""%>>SK-Saskatchewan</option>
+									<option value="YT" <%=hctype.equals("YT")?" selected":""%>>YT-Yukon</option>
+									<option value="US" <%=hctype.equals("US")?" selected":""%>>US resident</option>
+									<option value="US-AK" <%=hctype.equals("US-AK")?" selected":""%>>US-AK-Alaska</option>
+									<option value="US-AL" <%=hctype.equals("US-AL")?" selected":""%>>US-AL-Alabama</option>
+									<option value="US-AR" <%=hctype.equals("US-AR")?" selected":""%>>US-AR-Arkansas</option>
+									<option value="US-AZ" <%=hctype.equals("US-AZ")?" selected":""%>>US-AZ-Arizona</option>
+									<option value="US-CA" <%=hctype.equals("US-CA")?" selected":""%>>US-CA-California</option>
+									<option value="US-CO" <%=hctype.equals("US-CO")?" selected":""%>>US-CO-Colorado</option>
+									<option value="US-CT" <%=hctype.equals("US-CT")?" selected":""%>>US-CT-Connecticut</option>
+									<option value="US-CZ" <%=hctype.equals("US-CZ")?" selected":""%>>US-CZ-Canal Zone</option>
+									<option value="US-DC" <%=hctype.equals("US-DC")?" selected":""%>>US-DC-District Of Columbia</option>
+									<option value="US-DE" <%=hctype.equals("US-DE")?" selected":""%>>US-DE-Delaware</option>
+									<option value="US-FL" <%=hctype.equals("US-FL")?" selected":""%>>US-FL-Florida</option>
+									<option value="US-GA" <%=hctype.equals("US-GA")?" selected":""%>>US-GA-Georgia</option>
+									<option value="US-GU" <%=hctype.equals("US-GU")?" selected":""%>>US-GU-Guam</option>
+									<option value="US-HI" <%=hctype.equals("US-HI")?" selected":""%>>US-HI-Hawaii</option>
+									<option value="US-IA" <%=hctype.equals("US-IA")?" selected":""%>>US-IA-Iowa</option>
+									<option value="US-ID" <%=hctype.equals("US-ID")?" selected":""%>>US-ID-Idaho</option>
+									<option value="US-IL" <%=hctype.equals("US-IL")?" selected":""%>>US-IL-Illinois</option>
+									<option value="US-IN" <%=hctype.equals("US-IN")?" selected":""%>>US-IN-Indiana</option>
+									<option value="US-KS" <%=hctype.equals("US-KS")?" selected":""%>>US-KS-Kansas</option>
+									<option value="US-KY" <%=hctype.equals("US-KY")?" selected":""%>>US-KY-Kentucky</option>
+									<option value="US-LA" <%=hctype.equals("US-LA")?" selected":""%>>US-LA-Louisiana</option>
+									<option value="US-MA" <%=hctype.equals("US-MA")?" selected":""%>>US-MA-Massachusetts</option>
+									<option value="US-MD" <%=hctype.equals("US-MD")?" selected":""%>>US-MD-Maryland</option>
+									<option value="US-ME" <%=hctype.equals("US-ME")?" selected":""%>>US-ME-Maine</option>
+									<option value="US-MI" <%=hctype.equals("US-MI")?" selected":""%>>US-MI-Michigan</option>
+									<option value="US-MN" <%=hctype.equals("US-MN")?" selected":""%>>US-MN-Minnesota</option>
+									<option value="US-MO" <%=hctype.equals("US-MO")?" selected":""%>>US-MO-Missouri</option>
+									<option value="US-MS" <%=hctype.equals("US-MS")?" selected":""%>>US-MS-Mississippi</option>
+									<option value="US-MT" <%=hctype.equals("US-MT")?" selected":""%>>US-MT-Montana</option>
+									<option value="US-NC" <%=hctype.equals("US-NC")?" selected":""%>>US-NC-North Carolina</option>
+									<option value="US-ND" <%=hctype.equals("US-ND")?" selected":""%>>US-ND-North Dakota</option>
+									<option value="US-NE" <%=hctype.equals("US-NE")?" selected":""%>>US-NE-Nebraska</option>
+									<option value="US-NH" <%=hctype.equals("US-NH")?" selected":""%>>US-NH-New Hampshire</option>
+									<option value="US-NJ" <%=hctype.equals("US-NJ")?" selected":""%>>US-NJ-New Jersey</option>
+									<option value="US-NM" <%=hctype.equals("US-NM")?" selected":""%>>US-NM-New Mexico</option>
+									<option value="US-NU" <%=hctype.equals("US-NU")?" selected":""%>>US-NU-Nunavut</option>
+									<option value="US-NV" <%=hctype.equals("US-NV")?" selected":""%>>US-NV-Nevada</option>
+									<option value="US-NY" <%=hctype.equals("US-NY")?" selected":""%>>US-NY-New York</option>
+									<option value="US-OH" <%=hctype.equals("US-OH")?" selected":""%>>US-OH-Ohio</option>
+									<option value="US-OK" <%=hctype.equals("US-OK")?" selected":""%>>US-OK-Oklahoma</option>
+									<option value="US-OR" <%=hctype.equals("US-OR")?" selected":""%>>US-OR-Oregon</option>
+									<option value="US-PA" <%=hctype.equals("US-PA")?" selected":""%>>US-PA-Pennsylvania</option>
+									<option value="US-PR" <%=hctype.equals("US-PR")?" selected":""%>>US-PR-Puerto Rico</option>
+									<option value="US-RI" <%=hctype.equals("US-RI")?" selected":""%>>US-RI-Rhode Island</option>
+									<option value="US-SC" <%=hctype.equals("US-SC")?" selected":""%>>US-SC-South Carolina</option>
+									<option value="US-SD" <%=hctype.equals("US-SD")?" selected":""%>>US-SD-South Dakota</option>
+									<option value="US-TN" <%=hctype.equals("US-TN")?" selected":""%>>US-TN-Tennessee</option>
+									<option value="US-TX" <%=hctype.equals("US-TX")?" selected":""%>>US-TX-Texas</option>
+									<option value="US-UT" <%=hctype.equals("US-UT")?" selected":""%>>US-UT-Utah</option>
+									<option value="US-VA" <%=hctype.equals("US-VA")?" selected":""%>>US-VA-Virginia</option>
+									<option value="US-VI" <%=hctype.equals("US-VI")?" selected":""%>>US-VI-Virgin Islands</option>
+									<option value="US-VT" <%=hctype.equals("US-VT")?" selected":""%>>US-VT-Vermont</option>
+									<option value="US-WA" <%=hctype.equals("US-WA")?" selected":""%>>US-WA-Washington</option>
+									<option value="US-WI" <%=hctype.equals("US-WI")?" selected":""%>>US-WI-Wisconsin</option>
+									<option value="US-WV" <%=hctype.equals("US-WV")?" selected":""%>>US-WV-West Virginia</option>
+									<option value="US-WY" <%=hctype.equals("US-WY")?" selected":""%>>US-WY-Wyoming</option>
+									<% } %>
+								</select>
+            </div>
+        </div>
         <div class="control-group span5" style="white-space:nowrap">
             <label class="control-label" for="hinBox"><bean:message key="demographic.demographiceditdemographic.formHin" /></label>
             <div class="controls">
               <input type="text" placeholder="<bean:message key="demographic.demographiceditdemographic.formHin" />"
                     name="hin" id="hinBox" <%=getDisabled("hin")%>
-					value="<%=StringUtils.trimToEmpty(demographic.getHin())%>" class="input-small" >
+					value="<%=StringUtils.trimToEmpty(demographic.getHin())%>" class="input-medium">
             <bean:message key="demographic.demographiceditdemographic.formVer" />
             <input type="text" placeholder="<bean:message key="demographic.demographiceditdemographic.formVer" />"
                     name="ver" <%=getDisabled("ver")%>
-									value="<%=StringUtils.trimToEmpty(demographic.getVer())%>" style="width: 40px;""
+									value="<%=StringUtils.trimToEmpty(demographic.getVer())%>" style="width: 20px;""
 									onBlur="upCaseCtrl(this)" id="verBox">
 									<%if("online".equals(oscarProps.getProperty("hcv.type", "simple"))) { %>
 										<input type="button" class="btn" value="Validate" onClick="validateHC()"/>
@@ -3423,94 +3530,7 @@ function parsedate_joined(){
                 <input type="hidden" name="eff_date_day" id="eff_date_day">
             </div>
         </div>
-        <div class="control-group span5">
-            <label class="control-label" for="hcType"><bean:message key="demographic.demographiceditdemographic.formHCType" /></label>
-            <div class="controls">
-              <% String hctype = demographic.getHcType()==null?"":demographic.getHcType(); %>
-								<select name="hc_type" id="hcTyle" <%=getDisabled("hc_type")%>>
-									<option value="OT"
-										<%=(hctype.equals("OT") || hctype.equals("") || hctype.length() > 2)?" selected":""%>><bean:message key="demographic.demographiceditdemographic.optOther"/></option>
-									<% if (pNames.isDefined()) {
-                                       for (ListIterator li = pNames.listIterator(); li.hasNext(); ) {
-                                           province = (String) li.next(); %>
-									<option value="<%=province%>"
-										<%=province.equals(hctype)?" selected":""%>><%=li.next()%></option>
-									<% } %>
-									<% } else { %>
-									<option value="AB" <%=hctype.equals("AB")?" selected":""%>>AB-Alberta</option>
-									<option value="BC" <%=hctype.equals("BC")?" selected":""%>>BC-British Columbia</option>
-									<option value="MB" <%=hctype.equals("MB")?" selected":""%>>MB-Manitoba</option>
-									<option value="NB" <%=hctype.equals("NB")?" selected":""%>>NB-New Brunswick</option>
-									<option value="NL" <%=hctype.equals("NL")?" selected":""%>>NL-Newfoundland & Labrador</option>
-									<option value="NT" <%=hctype.equals("NT")?" selected":""%>>NT-Northwest Territory</option>
-									<option value="NS" <%=hctype.equals("NS")?" selected":""%>>NS-Nova Scotia</option>
-									<option value="NU" <%=hctype.equals("NU")?" selected":""%>>NU-Nunavut</option>
-									<option value="ON" <%=hctype.equals("ON")?" selected":""%>>ON-Ontario</option>
-									<option value="PE" <%=hctype.equals("PE")?" selected":""%>>PE-Prince Edward Island</option>
-									<option value="QC" <%=hctype.equals("QC")?" selected":""%>>QC-Quebec</option>
-									<option value="SK" <%=hctype.equals("SK")?" selected":""%>>SK-Saskatchewan</option>
-									<option value="YT" <%=hctype.equals("YT")?" selected":""%>>YT-Yukon</option>
-									<option value="US" <%=hctype.equals("US")?" selected":""%>>US resident</option>
-									<option value="US-AK" <%=hctype.equals("US-AK")?" selected":""%>>US-AK-Alaska</option>
-									<option value="US-AL" <%=hctype.equals("US-AL")?" selected":""%>>US-AL-Alabama</option>
-									<option value="US-AR" <%=hctype.equals("US-AR")?" selected":""%>>US-AR-Arkansas</option>
-									<option value="US-AZ" <%=hctype.equals("US-AZ")?" selected":""%>>US-AZ-Arizona</option>
-									<option value="US-CA" <%=hctype.equals("US-CA")?" selected":""%>>US-CA-California</option>
-									<option value="US-CO" <%=hctype.equals("US-CO")?" selected":""%>>US-CO-Colorado</option>
-									<option value="US-CT" <%=hctype.equals("US-CT")?" selected":""%>>US-CT-Connecticut</option>
-									<option value="US-CZ" <%=hctype.equals("US-CZ")?" selected":""%>>US-CZ-Canal Zone</option>
-									<option value="US-DC" <%=hctype.equals("US-DC")?" selected":""%>>US-DC-District Of Columbia</option>
-									<option value="US-DE" <%=hctype.equals("US-DE")?" selected":""%>>US-DE-Delaware</option>
-									<option value="US-FL" <%=hctype.equals("US-FL")?" selected":""%>>US-FL-Florida</option>
-									<option value="US-GA" <%=hctype.equals("US-GA")?" selected":""%>>US-GA-Georgia</option>
-									<option value="US-GU" <%=hctype.equals("US-GU")?" selected":""%>>US-GU-Guam</option>
-									<option value="US-HI" <%=hctype.equals("US-HI")?" selected":""%>>US-HI-Hawaii</option>
-									<option value="US-IA" <%=hctype.equals("US-IA")?" selected":""%>>US-IA-Iowa</option>
-									<option value="US-ID" <%=hctype.equals("US-ID")?" selected":""%>>US-ID-Idaho</option>
-									<option value="US-IL" <%=hctype.equals("US-IL")?" selected":""%>>US-IL-Illinois</option>
-									<option value="US-IN" <%=hctype.equals("US-IN")?" selected":""%>>US-IN-Indiana</option>
-									<option value="US-KS" <%=hctype.equals("US-KS")?" selected":""%>>US-KS-Kansas</option>
-									<option value="US-KY" <%=hctype.equals("US-KY")?" selected":""%>>US-KY-Kentucky</option>
-									<option value="US-LA" <%=hctype.equals("US-LA")?" selected":""%>>US-LA-Louisiana</option>
-									<option value="US-MA" <%=hctype.equals("US-MA")?" selected":""%>>US-MA-Massachusetts</option>
-									<option value="US-MD" <%=hctype.equals("US-MD")?" selected":""%>>US-MD-Maryland</option>
-									<option value="US-ME" <%=hctype.equals("US-ME")?" selected":""%>>US-ME-Maine</option>
-									<option value="US-MI" <%=hctype.equals("US-MI")?" selected":""%>>US-MI-Michigan</option>
-									<option value="US-MN" <%=hctype.equals("US-MN")?" selected":""%>>US-MN-Minnesota</option>
-									<option value="US-MO" <%=hctype.equals("US-MO")?" selected":""%>>US-MO-Missouri</option>
-									<option value="US-MS" <%=hctype.equals("US-MS")?" selected":""%>>US-MS-Mississippi</option>
-									<option value="US-MT" <%=hctype.equals("US-MT")?" selected":""%>>US-MT-Montana</option>
-									<option value="US-NC" <%=hctype.equals("US-NC")?" selected":""%>>US-NC-North Carolina</option>
-									<option value="US-ND" <%=hctype.equals("US-ND")?" selected":""%>>US-ND-North Dakota</option>
-									<option value="US-NE" <%=hctype.equals("US-NE")?" selected":""%>>US-NE-Nebraska</option>
-									<option value="US-NH" <%=hctype.equals("US-NH")?" selected":""%>>US-NH-New Hampshire</option>
-									<option value="US-NJ" <%=hctype.equals("US-NJ")?" selected":""%>>US-NJ-New Jersey</option>
-									<option value="US-NM" <%=hctype.equals("US-NM")?" selected":""%>>US-NM-New Mexico</option>
-									<option value="US-NU" <%=hctype.equals("US-NU")?" selected":""%>>US-NU-Nunavut</option>
-									<option value="US-NV" <%=hctype.equals("US-NV")?" selected":""%>>US-NV-Nevada</option>
-									<option value="US-NY" <%=hctype.equals("US-NY")?" selected":""%>>US-NY-New York</option>
-									<option value="US-OH" <%=hctype.equals("US-OH")?" selected":""%>>US-OH-Ohio</option>
-									<option value="US-OK" <%=hctype.equals("US-OK")?" selected":""%>>US-OK-Oklahoma</option>
-									<option value="US-OR" <%=hctype.equals("US-OR")?" selected":""%>>US-OR-Oregon</option>
-									<option value="US-PA" <%=hctype.equals("US-PA")?" selected":""%>>US-PA-Pennsylvania</option>
-									<option value="US-PR" <%=hctype.equals("US-PR")?" selected":""%>>US-PR-Puerto Rico</option>
-									<option value="US-RI" <%=hctype.equals("US-RI")?" selected":""%>>US-RI-Rhode Island</option>
-									<option value="US-SC" <%=hctype.equals("US-SC")?" selected":""%>>US-SC-South Carolina</option>
-									<option value="US-SD" <%=hctype.equals("US-SD")?" selected":""%>>US-SD-South Dakota</option>
-									<option value="US-TN" <%=hctype.equals("US-TN")?" selected":""%>>US-TN-Tennessee</option>
-									<option value="US-TX" <%=hctype.equals("US-TX")?" selected":""%>>US-TX-Texas</option>
-									<option value="US-UT" <%=hctype.equals("US-UT")?" selected":""%>>US-UT-Utah</option>
-									<option value="US-VA" <%=hctype.equals("US-VA")?" selected":""%>>US-VA-Virginia</option>
-									<option value="US-VI" <%=hctype.equals("US-VI")?" selected":""%>>US-VI-Virgin Islands</option>
-									<option value="US-VT" <%=hctype.equals("US-VT")?" selected":""%>>US-VT-Vermont</option>
-									<option value="US-WA" <%=hctype.equals("US-WA")?" selected":""%>>US-WA-Washington</option>
-									<option value="US-WI" <%=hctype.equals("US-WI")?" selected":""%>>US-WI-Wisconsin</option>
-									<option value="US-WV" <%=hctype.equals("US-WV")?" selected":""%>>US-WV-West Virginia</option>
-									<option value="US-WY" <%=hctype.equals("US-WY")?" selected":""%>>US-WY-Wyoming</option>
-									<% } %>
-								</select>
-            </div>
-        </div>
+
         <div class="control-group span5">
             <label class="control-label" for="hc_renew_date"><bean:message key="demographic.demographiceditdemographic.formHCRenewDate" /></label>
             <div class="controls">
@@ -4170,9 +4190,6 @@ function parsedate_joined(){
 
 <%-- END TOGGLE OFF EXTRA DEMO FIELDS (NATIVE HEALTH) --%>	
 
-
-
-
 <%-- AUTHOR DENNIS WARREN O/A COLCAMEX RESOURCES --%>
 <oscar:oscarPropertiesCheck property="DEMOGRAPHIC_PATIENT_HEALTH_CARE_TEAM" value="true">
 	<tr><td colspan="4" >
@@ -4280,15 +4297,15 @@ if(oscarProps.getProperty("demographicExtJScript") != null) { out.println(oscarP
 										boolean showCbiReminder=oscarProps.getBooleanProperty("CBI_REMIND_ON_UPDATE_DEMOGRAPHIC", "true");
 									%>
 									<input type="submit" <%=(showCbiReminder?"onclick='showCbiReminder()'":"")%> class="btn btn-primary"
-										value="<bean:message key="demographic.demographiceditdemographic.btnUpdate"/>">
+										id="updaterecord" value="<bean:message key="demographic.demographiceditdemographic.btnUpdate"/>">
 										<input type="submit" name="submit" <%=(showCbiReminder?"onclick='showCbiReminder()'":"")%> class="btn"
-											   value="Save & Update Family Members">
+											   value="<bean:message key="demographic.demographiceditdemographic.btnSaveUpdateFamilyMember"/>">
 								</security:oscarSec> </span> <!-- security code block -->
 
 
 </td><td>
 <div class="btn-group">
-								<button class="btn dropdown-toggle" data-toggle="dropdown" >Labels <span class="caret"></span></button>
+								<button class="btn dropdown-toggle" data-toggle="dropdown" ><bean:message key="demographic.demographiceditdemographic.btnLabels"/> <span class="caret"></span></button>
                                 <ul class="dropdown-menu">
 								    <li><a href="#" onclick="popupPage(400,700,'<%=printEnvelope%><%=demographic.getDemographicNo()%>');return false;">
                                         <bean:message key="demographic.demographiceditdemographic.btnCreatePDFEnvelope"/></a>
@@ -4355,7 +4372,7 @@ if(oscarProps.getProperty("demographicExtJScript") != null) { out.println(oscarP
 						</td>
 					</tr>
 				</table>
-				
+
                                 </form>
 				<%
                     }
@@ -4424,7 +4441,7 @@ jQuery(document).ready(function(){
 	PHR Active & Consent exists.    TRUE       CONSENTED
 	*/
 	jQuery.ajax({
-		url: "<%=request.getContextPath()%>/ws/rs/app/PHRActive/consentGiven/<%=demographic_no%>",
+		url: "<%=request.getContextPath() %>/ws/rs/app/PHRActive/consentGiven/<%=demographic_no%>",
 		dataType: 'json',
 		success: function (data) {
 			console.log("PHR CONSENT",data);
@@ -4437,7 +4454,7 @@ jQuery(document).ready(function(){
 	});
 	
 	jQuery.ajax({
-		url: "<%=request.getContextPath()%>/ws/rs/app/PHRActive/",
+		url: "<%=request.getContextPath() %>/ws/rs/app/PHRActive/",
 		dataType: 'json',
 		success: function (data) {
 			console.log("PHR Active",data);
@@ -4450,14 +4467,14 @@ jQuery(document).ready(function(){
 	jQuery("#phrConsent").click(function() {
   		jQuery.ajax({
   			type: "POST",
-	        url: "<%=request.getContextPath()%>/ws/rs/app/PHRActive/consentGiven/<%=demographic_no%>",
+	        url: "<%=request.getContextPath() %>/ws/rs/app/PHRActive/consentGiven/<%=demographic_no%>",
 	        dataType: 'json',
 	        success: function (data) {
 	       		console.log("PHR CONSENT POST",data);
 	       		if(data.success && data.message === "NEED_CONSENT"){
 	       			jQuery("#phrConsent").show();
 	       		}else{
-	       			alert("Successfully confirmed");
+	       			alert("<bean:message key="indivio.successMsg"/>");
 	       			jQuery("#phrConsent").hide();
 	       		}
 	    		}

@@ -86,7 +86,6 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
         
 
 <style type="text/css">
-
 .ui-autocomplete {
 	background-color: #CEF6CE;
 	border: 3px outset #2EFE2E;
@@ -119,7 +118,7 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
 						pharm += preferredPharmacyInfo.postalCode + "<br />";
 						pharm += "Main Phone: " + preferredPharmacyInfo.phone1 + "<br />";
 						pharm += "Fax: " + preferredPharmacyInfo.fax + "<br />";
-                        pharm += "<a href='#'  onclick='viewPharmacy(" + preferredPharmacyInfo.id  + ");'>View More</a>" + "</td>";
+                        pharm += "<a href='#'  onclick='viewPharmacy(" + preferredPharmacyInfo.id  + ");'>View Details</a>" + "</td>";
 						pharm += "</tr><tr><td class='prefAction prefUnlink'> Unlink </td></tr><tr><td class='prefAction prefDown'>Down</td></tr></table></div>";
 
 						$("#preferredList").append(pharm);
@@ -340,24 +339,24 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
 function addPharmacy(){
 	myLightWindow.activateWindow({
 		href: "<%= request.getContextPath() %>/oscarRx/ManagePharmacy2.jsp?type=Add",
-		width: 400,
-		height: 500
+		width: 395,
+		height: 550
 	});
 }
 
 function editPharmacy(id){
 	myLightWindow.activateWindow({
 		href: "<%= request.getContextPath() %>/oscarRx/ManagePharmacy2.jsp?type=Edit&ID=" + id,
-		width: 400,
-		height: 500
+		width: 395,
+		height: 550
 	});
 }
 
 function viewPharmacy(id){
     myLightWindow.activateWindow({
         href: "<%= request.getContextPath() %>/oscarRx/ViewPharmacy.jsp?type=View&ID=" + id,
-        width: 400,
-        height: 500
+        width: 395,
+        height: 550
     });
 }
 
@@ -378,53 +377,63 @@ function returnToRx(){
 <body topmargin="0" leftmargin="0" vlink="#0000FF">
 <form id="pharmacyForm">
 <input type="hidden" id="demographicNo" name="demographicNo" value="<%=bean.getDemographicNo()%>"/>
+
 <table border="0" cellpadding="0" cellspacing="0"
-	style="border-collapse: collapse" bordercolor="#111111" width="100%"
+	style="border-collapse: collapse" width="100%"
 	id="AutoNumber1" height="100%">
-	<%@ include file="TopLinks.jsp"%><!-- Row One included here-->
+
 	<tr>
-		<td width="100%" style="border-left: 2px solid #A9A9A9;" height="100%"
+		<td width="100%" style="height="100%"
 			valign="top" colspan="2">
 		<table cellpadding="0" cellspacing="2"
-			style="border-collapse: collapse" bordercolor="#111111" width="100%"
+			style="border-collapse: collapse" width="100%"
 			height="100%">
 			<tr>
-				<td width="0%" valign="top" colspan="2">
+				<td valign="top" colspan="1">
 				<div class="DivCCBreadCrumbs"><a href="SearchDrug3.jsp"> <bean:message
 					key="SearchDrug.title" /></a> >  <bean:message key="SelectPharmacy.title" /></div>
 				</td>
+
+				<td valign="top" colspan="1" style="text-align:right;">
+				<div class="DivCCBreadCrumbs">
+				<a style="color:black;" href="https://worldoscar.org/knowledge-base/pharmacies/" target="_blank">Help</a> | 
+                 		<a style="color:black;" href="<%=request.getContextPath() %>/oscarEncounter/About.jsp" target="_new">About</a>
+            			</td>
 			</tr>
 			<!----Start new rows here-->
+	
 			<tr>
 				<td colspan="2">
+				<hr style="border:1px solid black;">
 				<div class="DivContentTitle"><b><bean:message
 					key="SearchDrug.nameText" /></b> <jsp:getProperty name="patient"
 					property="surname" />, <jsp:getProperty name="patient"
-					property="firstName" />
+					property="firstName" />&nbsp;&nbsp;&nbsp;
 
-					<input type=button class="ControlPushButton ReturnToRx" onclick="returnToRx();" value="Return to RX" />
+					<input type=button class="ControlPushButton" onclick="returnToRx();" value="<bean:message key="SelectPharmacy.ReturnToRx" />" />
 				</div>
 				<br />
-				&nbsp; <bean:message key="SelectPharmacy.instructions" /></td>
+				</td>
 			</tr>			
 			<tr>
 				<th width="33%" class="DivContentSectionHead">
-					Preferred Pharmacies
+					<p><bean:message key="SelectPharmacy.linkedPreferredPharmacy" /></p>
 				</th>
 				<th class="DivContentSectionHead">
-					Search Pharmacy&nbsp;&nbsp;<input type="text" id="pharmacySearch"/>&nbsp;&nbsp;
-					City&nbsp;&nbsp;<input type="text" id="pharmacyCitySearch" style="width: 75px"/> &nbsp;&nbsp;
-					Postal Code&nbsp;&nbsp;<input type="text" id="pharmacyPostalCodeSearch" style="width: 75px"/> &nbsp;&nbsp;
-					Phone&nbsp;&nbsp;<input type="text" id="pharmacyPhoneSearch" style="width: 75px"/> &nbsp;&nbsp;
-					Fax&nbsp;&nbsp;<input type="text" id="pharmacyFaxSearch" style="width: 75px"/> &nbsp;&nbsp;
-					Address&nbsp;&nbsp;<input type="text" id="pharmacyAddressSearch" style="width: 75px"/> &nbsp;&nbsp;
+					<bean:message key="SelectPharmacy.searchExistingLabel" />: &nbsp;&nbsp;<input placeholder="Pharmacy Name" type="text" id="pharmacySearch"/>&nbsp;&nbsp;
+					&nbsp;<input placeholder="<bean:message key="SelectPharmacy.table.city" />" type="text" id="pharmacyCitySearch" style="width: 82px"/> &nbsp;&nbsp;
+					&nbsp;<input placeholder="<bean:message key="SelectPharmacy.table.postalCode" />" type="text" id="pharmacyPostalCodeSearch" style="width: 82px"/> &nbsp;&nbsp;
+					&nbsp;<input placeholder="<bean:message key="SelectPharmacy.table.phone" />" type="text" id="pharmacyPhoneSearch" style="width: 82px"/> &nbsp;&nbsp;
+					&nbsp;<input placeholder="<bean:message key="SelectPharmacy.table.fax" />" type="text" id="pharmacyFaxSearch" style="width: 82px"/> &nbsp;&nbsp;
+					&nbsp;<input placeholder="<bean:message key="SelectPharmacy.table.address" />" type="text" id="pharmacyAddressSearch" style="width: 125px"/> &nbsp;&nbsp;&nbsp;&nbsp;
 					<a href="javascript:void(0)" onclick="addPharmacy();"><bean:message key="SelectPharmacy.addLink" /></a>
 				</th>
 			</tr>			
 			<tr>
 				<td id="preferredList">
+				
 					<div>
-							No pharmacies selected
+							<bean:message key="SelectPharmacy.noPharmaciesSelected" />
 					</div>
 				</td>
 				<td>
@@ -443,9 +452,12 @@ function returnToRx(){
 							<th>&nbsp;</th>
 							<th>&nbsp;</th>
 						</tr>
+						<br><hr style="border:1px solid black;">
+						<p style="padding:4px;background-color:#FDFEC7;font-size:12px;"><bean:message key="SelectPharmacy.instructions" /></p>
 						<% for (int i = 0 ; i < pharList.size(); i++){
 								   org.oscarehr.common.model.PharmacyInfo ph = pharList.get(i);
 								%>
+							
 						<tr class="pharmacyItem" pharmId="<%=ph.getId()%>">
 							<td class="pharmacyName" ><%=ph.getName()%></td>
 							<td class="address" ><%=ph.getAddress()%></td>
@@ -472,19 +484,11 @@ function returnToRx(){
 		</table>
 		</td>
 	</tr>
-	<tr>
-		<td height="0%"
-			style="border-bottom: 2px solid #A9A9A9; border-top: 2px solid #A9A9A9;"></td>
-		<td height="0%"
-			style="border-bottom: 2px solid #A9A9A9; border-top: 2px solid #A9A9A9;"></td>
-	</tr>
+	
 	<tr>
 		<td width="100%" height="0%" colspan="2">&nbsp;</td>
 	</tr>
-	<tr>
-		<td width="100%" height="0%" style="padding: 5" bgcolor="#DCDCDC"
-			colspan="2"></td>
-	</tr>
+	
 </table>
 </form>
 </body>

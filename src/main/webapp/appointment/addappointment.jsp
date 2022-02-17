@@ -40,15 +40,26 @@
 	}
 %>
 
-<%@page import="org.oscarehr.util.SessionConstants"%>
-<%@page import="org.oscarehr.common.model.ProviderPreference"%>
-<%@page import="oscar.oscarBilling.ca.bc.decisionSupport.BillingGuidelines"%>
-<%@page import="org.oscarehr.decisionSupport.model.DSConsequence"%>
-<%@page import="org.oscarehr.util.MiscUtils"%>
-<%@page import="java.util.Set,java.util.HashSet"%>
-<%@page import="org.oscarehr.managers.ProgramManager2"%>
-<%@page import="oscar.OscarProperties" %>
-<%@page import="org.owasp.encoder.Encode" %>
+<%@ page import="org.oscarehr.util.SessionConstants"%>
+<%@ page import="org.oscarehr.common.model.ProviderPreference"%>
+<%@ page import="oscar.oscarBilling.ca.bc.decisionSupport.BillingGuidelines"%>
+<%@ page import="org.oscarehr.decisionSupport.model.DSConsequence"%>
+<%@ page import="org.oscarehr.util.MiscUtils"%>
+<%@ page import="java.util.Set"%>
+<%@ page import="java.util.HashSet"%>
+<%@ page import="java.util.ResourceBundle"%>
+<%@ page import="java.text.SimpleDateFormat"%>
+<%@ page import="java.util.Locale"%>
+<%@ page import="java.util.Date" %>
+<%@ page import="java.time.LocalDateTime" %>
+<%@ page import="java.time.format.DateTimeFormatter" %>
+<%@ page import="java.time.format.FormatStyle" %>
+<%@ page import="java.time.ZoneId" %>
+<%@ page import="org.oscarehr.managers.ProgramManager2"%>
+<%@ page import="oscar.OscarProperties" %>
+<%@ page import="oscar.util.UtilDateUtilities" %>
+<%@ page import="org.owasp.encoder.Encode" %>
+
 <%
  
   String DONOTBOOK = "Do_Not_Book";
@@ -169,7 +180,7 @@
 <link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
 <link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 
-<script type="text/javascript" src="../js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.7.1.min.js"></script>
 <script src="<%=request.getContextPath()%>/js/jquery-ui-1.8.18.custom.min.js"></script>
 <script src="<%=request.getContextPath()%>/js/fg.menu.js"></script>
 <style type="text/css">
@@ -498,7 +509,14 @@ function pasteAppt(multipleSameDayGroupAppt) {
         (request.getParameter("appointment_date") + " " + request.getParameter("start_time"))) ;
   }
 
-  String dateString1 = outform.format(apptDate );
+
+// Get localized pattern for UI
+DateTimeFormatter pattern2 = DateTimeFormatter.ofPattern("EEE").withLocale(request.getLocale());
+// Convert Java Date to Java LocalDateTime
+LocalDateTime apptd=apptDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+
+  //String dateString1 = outform.format(apptDate );
+  String dateString1 = pattern2.format(apptd);
   String dateString2 = inform.format(apptDate );
 
   GregorianCalendar caltime =new GregorianCalendar( );
@@ -839,7 +857,7 @@ function parseSearch() {
 		if (demographicCust != null && demographicCust.getAlert() != null && !demographicCust.getAlert().equals("") ) {
 
 %>
-<div class="alert alert-info">
+<div class="alert alert-error">
 	<h4><bean:message key="Appointment.formAlert" />:</h4> <%=demographicCust.getAlert()%>
 </div>
 
@@ -919,8 +937,8 @@ function parseSearch() {
                 <bean:message key="Appointment.formDuration" />:
             </td>
             <td>            
-                <INPUT TYPE="TEXT" NAME="duration"
-                        VALUE="<%=duration%>" onChange="checkPageLock()">
+                <INPUT TYPE="number" NAME="duration" id="duration"
+                        VALUE="<%=duration%>" onChange="checkPageLock()" onblur="calculateEndTime();">
                 <INPUT TYPE="hidden" NAME="end_time"
                         VALUE='<%=request.getParameter("end_time")%>' WIDTH="25"
                          onChange="checkTimeTypeIn(this)">            
@@ -967,7 +985,7 @@ function parseSearch() {
         </tr>
         <tr>
             <td></td><td>
-				<textarea id="reason" name="reason" tabindex="2" rows="2" wrap="virtual" style="resize:none;" placeholder="Reason" cols="18"><%=bFirstDisp?"":request.getParameter("reason").equals("")?"":request.getParameter("reason")%></textarea>
+				<textarea id="reason" name="reason" tabindex="2" rows="2" wrap="virtual" style="resize:none;" placeholder="<bean:message key="Appointment.formReason" />" cols="18"><%=bFirstDisp?"":request.getParameter("reason").equals("")?"":request.getParameter("reason")%></textarea>
             </td>
         </tr>
             <%
@@ -1095,7 +1113,7 @@ function parseSearch() {
             </td>
         </tr>
         <tr>
-            <td><input type="button" value="Do Not Book" class="btn btn-link" style="padding-left:0px;" onclick="onNotBook();">   
+            <td><input type="button" value="<bean:message key="Appointment.doNotBook" />" class="btn btn-link" style="padding-left:0px;" onclick="onNotBook();">   
                 
             </td>
             <td>   
@@ -1110,7 +1128,7 @@ function parseSearch() {
                 <bean:message key="Appointment.formNotes" />:
             </td>
             <td>
-                <textarea name="notes" tabindex="3" rows="2" wrap="virtual" style="resize:none;" placeholder="Notes" cols="18"><%=bFirstDisp?"":request.getParameter("notes").equals("")?"":request.getParameter("notes")%></textarea>
+                <textarea name="notes" tabindex="3" rows="2" wrap="virtual" style="resize:none;" placeholder="<bean:message key="Appointment.formNotes" />" cols="18"><%=bFirstDisp?"":request.getParameter("notes").equals("")?"":request.getParameter("notes")%></textarea>
             </td>
         </tr>
         <tr>
@@ -1135,8 +1153,13 @@ function parseSearch() {
             cal.add(GregorianCalendar.DATE, 1);
             String strDateTime=now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.get(Calendar.DAY_OF_MONTH)+" "
                 + now.get(Calendar.HOUR_OF_DAY)+":"+now.get(Calendar.MINUTE)+":"+now.get(Calendar.SECOND);
+
+            LocalDateTime create=now.toZonedDateTime().toLocalDateTime();
+            DateTimeFormatter pattern = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).withLocale(request.getLocale()).withZone(ZoneId.systemDefault());
+
 %>
-                <INPUT TYPE="TEXT" NAME="createdatetime" readonly VALUE="<%=strDateTime%>" WIDTH="25" HEIGHT="20" border="0" hspace="2">
+                <INPUT TYPE="hidden" NAME="createdatetime" readonly VALUE="<%=strDateTime%>" WIDTH="25" HEIGHT="20" border="0" hspace="2">
+                <%=create.format(pattern)%>
                 <INPUT TYPE="hidden" NAME="provider_no" VALUE="<%=curProvider_no%>">
                 <INPUT TYPE="hidden" NAME="dboperation" VALUE="search_titlename">
                 <INPUT TYPE="hidden" NAME="creator" VALUE='<%=StringEscapeUtils.escapeHtml(userlastname)+", "+StringEscapeUtils.escapeHtml(userfirstname)%>'>
@@ -1183,7 +1206,7 @@ function parseSearch() {
     }
 %> 
             <INPUT TYPE="hidden" NAME="search_mode" id="search_mode" VALUE="<%=searchMode%>"> 
-            <INPUT TYPE="hidden" NAME="originalpage" VALUE="../appointment/addappointment.jsp"> 
+            <INPUT TYPE="hidden" NAME="originalpage" VALUE="<%=request.getContextPath() %>/appointment/addappointment.jsp"> 
             <INPUT TYPE="hidden" NAME="limit1" VALUE="0"> 
             <INPUT TYPE="hidden" NAME="limit2" VALUE="5"> 
             <INPUT TYPE="hidden" NAME="ptstatus" VALUE="active"> 
@@ -1288,7 +1311,7 @@ function parseSearch() {
             <tr bgcolor="#e8e8e8">
                 <th colspan="2">
                     <bean:message key="appointment.addappointment.msgDemgraphics"/>
-                    <a title="Master File" onclick="popup(700,1000,'../demographic/demographiccontrol.jsp?demographic_no=<%=demoNo%>&amp;displaymode=edit&amp;dboperation=search_detail','master')" href="javascript: function myFunction() {return false; }"><bean:message key="appointment.addappointment.btnEdit"/></a>
+                    <a title="Master File" onclick="popup(700,1000,'<%=request.getContextPath() %>/demographic/demographiccontrol.jsp?demographic_no=<%=demoNo%>&amp;displaymode=edit&amp;dboperation=search_detail','master')" href="javascript: function myFunction() {return false; }"><bean:message key="appointment.addappointment.btnEdit"/></a>
 
                     <bean:message key="appointment.addappointment.msgSex"/>: <%=sex%> &nbsp; <bean:message key="appointment.addappointment.msgDOB"/>: <%=dob%>
                 </th>

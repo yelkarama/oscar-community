@@ -25,7 +25,10 @@
 <%@page import="org.oscarehr.common.model.UserProperty"%>
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.oscarehr.util.SpringUtils"%>
-<%@page import="org.oscarehr.common.dao.UserPropertyDAO"%>
+
+<%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
+<%@ page import="org.oscarehr.common.model.UserProperty" %>
+
 <%@page import="oscar.OscarProperties"%>
 <%@page import="org.oscarehr.casemgmt.common.Colour"%>
 <%@ page import="java.util.List"%>
@@ -40,6 +43,20 @@
 <%@page contentType="text/javascript"%>
 
 <jsp:useBean id="dataBean" class="java.util.Properties"/>
+
+<%
+	String curUser_no = (String) session.getAttribute("user");
+	UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
+
+    UserProperty tabViewProp = userPropertyDao.getProp(curUser_no, UserProperty.OPEN_IN_TABS);
+    boolean openInTabs = false;
+    if ( tabViewProp == null ) {
+        openInTabs = oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true");
+    } else {
+        openInTabs = oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true") || Boolean.parseBoolean(tabViewProp.getValue());
+    }
+%>
+
 
     let chartNoteAutosave = null;
 	var numNotes = 0;   //How many saved notes do we have?
@@ -94,8 +111,17 @@
 			return c;
 		
 		}
-		
-        function popupPage(vheight,vwidth,name,varpage) { //open a new popup window
+
+    function popupPage(vheight,vwidth,name,varpage,inTabs) { //open a new popup window
+        console.log("newCaseManagementView.js.jsp popup");
+        vheight      = typeof(vheight)    != 'undefined' ? vheight : '700px';
+        vwidth       = typeof(vwidth)     != 'undefined' ? vwidth : '1024px';
+        varpage      = typeof(varpage)    != 'undefined' ? varpage : '';
+        name         = typeof(name)       != 'undefined' ? name : 'encounter';
+        inTabs       = typeof(inTabs)     != 'undefined' ? inTabs : <%=openInTabs%>;
+
+        name = name.replace(/\s+/g,"_");
+        
 		  if (varpage == null || varpage == -1) {
 		  	return false;
 		  }
@@ -104,8 +130,11 @@
           }
           var page = "" + varpage;
           windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=600,screenY=200,top=0,left=0";
-                //var popup =window.open(page, "<bean:message key="oscarEncounter.Index.popupPageWindow"/>", windowprops);
+            if (inTabs) {
+                openWindows[name] = window.open(page, name);
+            } else {
                 openWindows[name] = window.open(page, name, windowprops);
+            }
 
                 if (openWindows[name] != null) {
                     if (openWindows[name].opener == null) {
@@ -303,6 +332,7 @@ function setupNotes(){
     let autosaveDemographicNo = document.forms['caseManagementEntryForm'].demographicNo.value;
     chartNoteAutosave = new ChartNoteAutosave(caseNote, autosaveDemographicNo, autosaveProgramId, autosaveNoteId, 5, ctx, updateAutosaveMessage, true);
     console.log('chartNoteAutosave instance created, noteId: ' + autosaveNoteId + ', programId:  ' + autosaveProgramId);
+
 }
 function updateAutosaveMessage() {
     var d = new Date();
@@ -1230,15 +1260,15 @@ function loadDiv(div,url,limit) {
         $("rowTwoSize").value=full;
     }
 
-    function getActiveText(e) {
+   function getActiveText(e) {
          if(document.all) {
 
             text = document.selection.createRange().text;
-            if(text != "" && $F("keyword") == "") {
-              $("keyword").value += text;
+            if(text != "" && $F("enTemplate") == "") {
+              $("enTemplate").value += text;
             }
-            if(text != "" && $F("keyword") != "") {
-              $("keyword").value = text;
+            if(text != "" && $F("enTemplate") != "") {
+              $("enTemplate").value = text;
             }
           } else {
             text = window.getSelection();
@@ -1252,11 +1282,12 @@ function loadDiv(div,url,limit) {
                text = (txtarea.value).substring(selStart, selEnd);
             }
             //
-            $("keyword").value = text;
+            $("enTemplate").value = text;
           }
 
           return true;
     }
+
 
     function setCaretPosition(inpu, pos){
 	if(inpu.setSelectionRange){
@@ -4066,4 +4097,3 @@ function receiveMessage(event) {
 	}
 	
 %>
-

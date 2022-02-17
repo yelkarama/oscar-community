@@ -456,7 +456,7 @@ if(recall){
 					<td valign=top colspan="2"><!--Message and Subject Cell-->
                     <br>
 					<bean:message key="oscarMessenger.CreateMessage.formSubject" /> :
-					<html:text name="msgCreateMessageForm" property="subject" styleClass="input-large" value="${messageSubject}"/> <br>
+					<html:text name="msgCreateMessageForm" property="subject" styleClass="input-xlarge" value="${messageSubject}"/> <br>
 					<br>
 					<html:textarea name="msgCreateMessageForm" property="message" rows="15" style="min-width: 100%" value="${messageBody}"/> 
 							<table>

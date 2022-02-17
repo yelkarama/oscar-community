@@ -142,7 +142,7 @@
 
     <c:set var="ctx" value="${pageContext.request.contextPath}" scope="request"/>
     
-<div style="float:left; width: 100%; padding-left:2px; text-align:left; font-size: 12px; color:<%=inverseUserColour%>; background-color:<%=userColour%>" id="encounterHeader">
+<div style="float:left; width: 99.8%; padding-left:2px; text-align:left; font-size: 12px; color:<%=inverseUserColour%>; background-color:<%=userColour%>" id="encounterHeader">
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
 <tr>
 <td>
@@ -158,7 +158,7 @@
         %>
         
         &nbsp;
-        <a href="#" onClick="popupPage(700,1000,'<%=winName%>','<c:out value="${ctx}"/><%=url%>'); return false;" title="<bean:message key="provider.appointmentProviderAdminDay.msgMasterFile"/>"><%=Encode.forHtmlContent(patientName.toString()) %></a>
+        <a href="#" onClick="popupPage(913,1386,'<%=winName%>','<c:out value="${ctx}"/><%=url%>'); return false;" title="<bean:message key="provider.appointmentProviderAdminDay.msgMasterFile"/>"><%=Encode.forHtmlContent(patientName.toString()) %></a>
          
         <%=bean.patientSex%> 
         
@@ -168,14 +168,19 @@
         	<span id="dob" title="<%=bean.yearOfBirth%>-<%=bean.monthOfBirth%>-<%=bean.dateOfBirth%>" onclick="copySpanToClipboard(this.id)"><%=bean.patientAge%></span>
         <% }  %>
         &nbsp;
+
+
+
         <% if (showHIN) { %> 
 	        <bean:message key="oscarencounter.header.hin"/>&nbsp;<span id="hin" onclick="copySpanToClipboard(this.id)"><%=bean.hin%></span>
 	        &nbsp;
         <% } %>  
         <oscar:phrverification demographicNo="<%=demoNo%>"><bean:message key="phr.verification.link"/></oscar:phrverification> 
         &nbsp;
-        <% if (showCell && StringUtils.trimToEmpty(demoExt.get("demo_cell")) != "") { %> 
-	        <bean:message key="oscarencounter.header.cell"/>&nbsp;<span id="cell" title="<bean:message key="oscarencounter.header.phone"/>&nbsp;<%=bean.phone%>" onclick="copySpanToClipboard(this.id)"><%=StringUtils.trimToEmpty(demoExt.get("demo_cell"))%></span>
+        <% String STAR="*";
+            if ( showCell && !StringUtils.isEmpty(StringUtils.trimToEmpty(demoExt.get("demo_cell"))) &&  !StringUtils.endsWith(StringUtils.trimToEmpty(bean.phone),STAR) ) { %>
+	        <bean:message key="oscarencounter.header.cell"/>&nbsp;
+            <span id="cell" title="<bean:message key="oscarencounter.header.phone"/>&nbsp;<%=bean.phone%>" onclick="copySpanToClipboard(this.id)"><%=StringUtils.trimToEmpty(demoExt.get("demo_cell"))%></span>
         <% } else { %>
         	<bean:message key="oscarencounter.header.phone"/>&nbsp;<span id="tel" title="<bean:message key="oscarencounter.header.cell"/>&nbsp;<%=StringUtils.trimToEmpty(demoExt.get("demo_cell"))%>" onclick="copySpanToClipboard(this.id)"><%=bean.phone%></span>
         <% }  %>
@@ -190,7 +195,7 @@
         <% }  %>
 		<span id="encounterHeaderExt"></span>
 		<security:oscarSec roleName="<%=roleName$%>" objectName="_newCasemgmt.apptHistory" rights="r">
-		<a href="javascript:popupPage(400,850,'ApptHist','<c:out value="${ctx}"/>/demographic/demographiccontrol.jsp?demographic_no=<%=bean.demographicNo%>&amp;last_name=<%=bean.patientLastName.replaceAll("'", "\\\\'")%>&amp;first_name=<%=bean.patientFirstName.replaceAll("'", "\\\\'")%>&amp;orderby=appointment_date&amp;displaymode=appt_history&amp;dboperation=appt_history&amp;limit1=0&amp;limit2=25')" style="font-size: 11px;text-decoration:none;" title="<bean:message key="oscarEncounter.Header.nextApptMsg"/>"><span style="margin-left:20px;"><bean:message key="oscarEncounter.Header.nextAppt"/>: <oscar:nextAppt demographicNo="<%=bean.demographicNo%>"/></span></a>
+		<a href="javascript:popupPage(555,1000,'ApptHist','<c:out value="${ctx}"/>/demographic/demographiccontrol.jsp?demographic_no=<%=bean.demographicNo%>&amp;last_name=<%=bean.patientLastName.replaceAll("'", "\\\\'")%>&amp;first_name=<%=bean.patientFirstName.replaceAll("'", "\\\\'")%>&amp;orderby=appointment_date&amp;displaymode=appt_history&amp;dboperation=appt_history&amp;limit1=0&amp;limit2=25')" style="font-size: 11px;text-decoration:none;" title="<bean:message key="oscarEncounter.Header.nextApptMsg"/>"><span style="margin-left:20px;"><bean:message key="oscarEncounter.Header.nextAppt"/>: <oscar:nextAppt demographicNo="<%=bean.demographicNo%>"/></span></a>
 		</security:oscarSec>
         &nbsp;        
 		<% if(oscar.OscarProperties.getInstance().hasProperty("ONTARIO_MD_INCOMINGREQUESTOR")){%>
@@ -251,8 +256,8 @@
 </td>
 <td align=right>
 	<span class="HelpAboutLogout">
-	<oscar:help keywords="&Title=Chart+Interface&portal_type%3Alist=Document" key="app.top1" style="font-size:10px;font-style:normal;"/>&nbsp;|
-	<a style="font-size:10px;font-style:normal;" href="<%=request.getContextPath()%>/oscarEncounter/About.jsp" target="_new"><bean:message key="global.about" /></a>
+	<a style="font-size:10px;font-style:normal;" href="https://worldoscar.org/knowledge-base/echart/" target="_blank"><bean:message key="global.help" /></a>&nbsp;|
+	<a style="font-size:10px;font-style:normal;" href="javascript:void(0)" onclick="window.open('<%=request.getContextPath()%>/oscarEncounter/About.jsp','About OSCAR','scrollbars=1,resizable=1,width=800,height=600,top=0')"><bean:message key="global.about" /></a>
 	</span>
 </td>
 </tr>

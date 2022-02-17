@@ -61,6 +61,9 @@
 
 <%
 	CtlBillingServiceDao ctlBillingServiceDao = SpringUtils.getBean(CtlBillingServiceDao.class);
+
+    
+    UserPropertyDAO propertyDao = (UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO"); 
 %>
 
 <html:html locale="true">
@@ -259,15 +262,18 @@ window.opener.location.reload();
 					<INPUT TYPE="TEXT" NAME="every_min" VALUE='<%=everyMin%>' size="2" maxlength="2">
 				</td>
 			</tr>
+            <security:oscarSec roleName="<%=roleName$%>" objectName="_admin,_admin.schedule,_admin.schedule.curprovider_only" rights="r" reverse="<%=false%>">
 			<tr>
 				<td class="preferenceLabel">
 					<bean:message key="provider.preference.formGroupNo" />
 				</td>
 				<td class="preferenceValue">
 					<INPUT TYPE="TEXT" NAME="mygroup_no" VALUE='<%=myGroupNo%>' size="12" maxlength="10">
+
 					<input type="button" class="btn btn-link" value="<bean:message key="provider.providerpreference.viewedit" />" onClick="popupPage(360,680,'providerdisplaymygroup.jsp' );return false;" />
 				</td>
 			</tr>
+            </security:oscarSec>
 			<caisi:isModuleLoad moduleName="ticklerplus">
 				<tr id="ticklerPlus">
 					<!-- check box of new-tickler-warnning-windows -->
@@ -406,6 +412,27 @@ window.opener.location.reload();
 	            </td>
 			</tr>
 
+			<!-- individual option for OSCAR in Tabs setting, if not set globally in oscar.proterties -->
+          <oscar:oscarPropertiesCheck property="open_in_tabs" value="optional">
+			<tr>
+				<td class="preferenceLabel">
+					<bean:message key="provider.providerpreference.openInTabs" />
+				</td>
+				<td class="preferenceValue">
+					<%
+						UserProperty tabViewProp = propertyDao.getProp(providerNo, UserProperty.OPEN_IN_TABS);
+                        boolean tabEnabled = false;
+                        if ( tabViewProp == null ) {
+                            tabEnabled=false;
+                        } else {
+                            tabEnabled = Boolean.parseBoolean(tabViewProp.getValue());
+                        }
+					%>
+					<input type="checkbox" name="tab_view" value="true" <%=tabEnabled ? "checked=\"checked\"" : ""%> />
+				</td>
+			</tr>
+          </oscar:oscarPropertiesCheck>
+
 			<%-- links to display on the appointment screen --%>
 			<tr>
 				<td class="preferenceLabel">
@@ -508,7 +535,6 @@ window.opener.location.reload();
 
 			<tr>
 				<%
-					UserPropertyDAO propertyDao = (UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
 					UserProperty prop = propertyDao.getProp(providerNo,"rxInteractionWarningLevel");
 					String warningLevel = "0";
 					if(prop!=null) {
@@ -635,6 +661,13 @@ alert(value);
     <td align="center"><a href=# onClick ="popupPage(230,860,'providerSignature.jsp');return false;"><bean:message key="provider.btnEditSignature"/></a>
     </td>
   </tr>
+  <tr>
+    <td align="center">
+      <a href=# onClick ="popupPage(430,860,'providerConsultSignature.jsp');return false;"><bean:message key="provider.consultSignatureStamp.title"/></a>
+    </td>
+  </tr>
+  
+  
   <oscar:oscarPropertiesCheck property="TORONTO_RFQ" value="no" defaultVal="true">
   <security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="r">
   <tr>

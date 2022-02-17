@@ -57,7 +57,7 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>BILLING HISTORY</title>
-<link rel="stylesheet" href="billingON.css">
+
 <script language="JavaScript">
 function onUnbilled(url) {
   if(confirm("<bean:message key="provider.appointmentProviderAdminDay.onUnbilled"/>")) {
@@ -75,33 +75,35 @@ function popUpClosed() {
 </script>
 
 <oscar:customInterface section="billingONHistory"/>
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/datepicker.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/DT_bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
+<link rel="stylesheet" href="../css/helpdetails.css" type="text/css">
 </head>
 <body topmargin="0">
 
+<br>
 <table border="0" cellspacing="0" cellpadding="0" width="100%">
-	<tr class="myDarkGreen">
-		<th><font color="#FFFFFF">BILLING HISTORY </font></th>
-	</tr>
-</table>
-
-<table width="95%" border="0">
 	<tr>
-		<td align="left"><i>Results for Demographic</i> :<%=request.getParameter("last_name")%>,<%=request.getParameter("first_name")%>
-		(<%=request.getParameter("demographic_no")%>)</td>
+		<th>BILLING HISTORY FOR <i><%=request.getParameter("last_name")%>, <%=request.getParameter("first_name")%></i></th>
 	</tr>
 </table>
+<br>
+
 <CENTER>
-<table width="100%" border="0" bgcolor="#ffffff">
-	<tr class="myYellow">
-		<TH width="12%"><b>Invoice No.</b></TH>
+<table id="historyitems" width="100%" class="table table-striped table-hover table-condensed" bordercolorlight="#99A005" bordercolordark="#FFFFFF" bgcolor="#FFFFFF">
+	<tr>
+		<TH width="12%"><b>Invoice</b></TH>
 		<TH width="12%"><b>Billing Doctor</b></TH>
-		<TH width="15%"><b>Appt. Date</b></TH>
+		<TH width="15%"><b>Service Date</b></TH>
 		<TH width="10%"><b>Bill Type</b></TH>
 		<TH width="35%"><b>Service Code</b></TH>
 		<TH width="5%"><b>Dx</b></TH>
 		<TH width="8%"><b>Balance</b></TH>
 		<TH width="8%"><b>Fee</b></TH>
-		<TH><b>COMMENTS</b></TH>
+		<TH><b> </b></TH>
 	</tr>
 	<% // new billing records
 JdbcBillingReviewImpl dbObj = new JdbcBillingReviewImpl();
@@ -151,14 +153,11 @@ for(int i=0; i<aL.size(); i=i+2) {
 	}
 %>
 
-	<tr bgcolor="<%=i%2==0?"#CCFF99":"white"%>">
+	<tr>
 		<td width="5%" align="center" height="25">
-		<a href="javascript:void(0)" onClick="popupPage(600,800, 'billingONDisplay.jsp?billing_no=<%=obj.getId()%>')" title="Billing Display"><%=obj.getId()%></a>
-		
 		<security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="w">
-		<a href="javascript:void(0)" onClick="popupPage(600,800, 'billingONCorrection.jsp?billing_no=<%=obj.getId()%>')" title="Billing Correction">Edit</a>
+		<a href="javascript:void(0)" onClick="popupPage(600,800, 'billingONCorrection.jsp?billing_no=<%=obj.getId()%>')" title="Billing Correction">[<%=obj.getId()%>]</a>&nbsp;
 		</security:oscarSec>
-		
 		<a href="javascript:void(0)" onClick="popupPage(600,800, 'billingON3rdInv.jsp?billingNo=<%=obj.getId()%>')">Print</a>
 		</td>
 		<td align="center"><%=obj.getLast_name()+", "+obj.getFirst_name()%></td>
@@ -172,7 +171,7 @@ for(int i=0; i<aL.size(); i=i+2) {
 			<%="" %>
 		<%} %></td>
 		<td align="center"><%=obj.getTotal()%></td>
-
+		    <security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="w">
 		<% if (obj.getStatus().compareTo("B")==0 || obj.getStatus().compareTo("S")==0) { %>
 		<td align="center">&nbsp;</td>
 		<% } else if (OscarProperties.getInstance().getBooleanProperty("warnOnDeleteBill","true")){ %>
@@ -181,9 +180,10 @@ for(int i=0; i<aL.size(); i=i+2) {
                 </td>
 		<% } else { %>
                 <td align="center">
+                
 			<a href="billingDeleteNoAppt.jsp?billing_no=<%=obj.getId()%>&billCode=<%=obj.getStatus()%>&dboperation=delete_bill&hotclick=0">Unbill</a></td>
-
                 <% }%>
+          </security:oscarSec>
 	</tr>
 	<% 
 }
@@ -209,15 +209,10 @@ Next Page</a> <%
 //}
 %>
 <p>
-<hr width="100%">
-<table border="0" cellspacing="0" cellpadding="0" width="100%">
+<hr>
+<table border="0" cellspacing="0" cellpadding="0" width="99%">
 	<tr>
-		<td><a href=# onClick="javascript:history.go(-1);return false;">
-		<img src="images/leftarrow.gif" border="0" width="25" height="20"
-			align="absmiddle"> Back </a></td>
-		<td align="right"><a href="" onClick="self.close();">Close
-		the Window<img src="images/rightarrow.gif" border="0" width="25"
-			height="20" align="absmiddle"></a></td>
+		<td align="right"><a href="" onClick="self.close();">Close</a></td>
 	</tr>
 </table>
 

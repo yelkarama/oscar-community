@@ -51,9 +51,10 @@
 
 <html:html locale="true">
 <head>
-<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 <title><bean:message key="admin.securitysearchrecordshtm.title" /></title>
-<link rel="stylesheet" href="../web.css">
+
 <script LANGUAGE="JavaScript">
 <!--
 
@@ -74,54 +75,38 @@
 </head>
 
 <body onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
-<center>
-<table border="0" cellspacing="0" cellpadding="0" width="100%">
-	<tr bgcolor="#486ebd">
-
-		<th align="CENTER"><font face="Helvetica" color="#FFFFFF">
-		<bean:message key="admin.securitysearchrecordshtm.description" /></font></th>
-	</tr>
-</table>
-
-
-
-<table cellspacing="0" cellpadding="2" width="100%" border="0"
-	BGCOLOR="#C4D9E7">
+<h4>
+<i class="icon-search" title=""></i>&nbsp;<bean:message key="admin.securitysearchrecordshtm.description" /></h4>
+<div class="well">
+<table cellspacing="0" cellpadding="2" width="100%" border="0" class="table-condensed">
 
 	<form method="post" action="securitysearchresults.jsp" name="searchprovider"
 		onsubmit="return onsub()">
 	<tr valign="top">
-		<td rowspan="2" align="right" valign="middle"><font
-			face="Verdana" color="#0000FF"><b><i><bean:message
-			key="admin.securitysearchrecordshtm.msgCriteria" /></i></b></font></td>
-		<td nowrap><font size="1" face="Verdana" color="#0000FF">
+		<td rowspan="2" align="right" valign="middle"><b><i><bean:message
+			key="admin.securitysearchrecordshtm.msgCriteria" /></i></b>&nbsp;&nbsp;</td>
+		<td nowrap>
 		<input type="radio" name="search_mode" value="search_username">
-		<bean:message key="admin.securityrecord.formUserName" /></font></td>
+		<bean:message key="admin.securityrecord.formUserName" /></td>
 
-		<td nowrap><font size="1" face="Verdana" color="#0000FF">
+		<td nowrap>
 		<input type="radio" checked name="search_mode"
 			value="search_providerno"> <bean:message
-			key="admin.securityrecord.formProviderNo" /></font></td>
+			key="admin.securityrecord.formProviderNo" /></td>
 		<td valign="middle" rowspan="2" ALIGN="left"><input type="text"
 			NAME="keyword" SIZE="17" MAXLENGTH="100"> <INPUT
 			TYPE="hidden" NAME="orderby" VALUE="user_name"> 
 
-		<INPUT TYPE="hidden" NAME="limit1" VALUE="0"> <INPUT
-			TYPE="hidden" NAME="limit2" VALUE="10"><INPUT
-			TYPE="SUBMIT" NAME="button"
+		<INPUT TYPE="hidden" NAME="limit1" VALUE="0"> 
+        <INPUT TYPE="hidden" NAME="limit2" VALUE="10">
+        <INPUT TYPE="SUBMIT" NAME="button" class="btn btn-primary"
 			VALUE="<bean:message key="admin.securitysearchrecordshtm.btnSearch"/>"
 			SIZE="17"></td>
 	</tr>
-	<tr>
-		<td nowrap><font size="1" face="Verdana" color="#0000FF"><bean:message
-			key="admin.securitysearchrecordshtm.reserved" /> </font></td>
-		<td nowrap><font size="1" face="Verdana" color="#0000FF">
-		</font></td>
 
-	</tr>
 	</form>
 </table>
 
-</center>
+</div>
 </body>
 </html:html>

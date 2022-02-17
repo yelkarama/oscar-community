@@ -35,6 +35,7 @@
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
 <%@ page import="org.oscarehr.common.model.UserProperty" %>
+<%@ page import="org.oscarehr.provider.web.ProviderPropertyAction" %>
 
 <html:html locale="true">
 <head>
@@ -76,6 +77,7 @@
 	prop.setValue(ticklerforproviderno);
 	propDao.saveProp(prop);
 	
+	ProviderPropertyAction.updateOrCreateProviderProperties(request);
 	ProviderPreference providerPreference=ProviderPreferencesUIBean.updateOrCreateProviderPreferences(request);
 
 	//--- 

@@ -227,15 +227,19 @@ if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) {
 <body class="BodyStyle"	demographic.demographicappthistory.msgTitle=vlink="#0000FF">
 
 <div class="span12">
-<H4 ><bean:message key="demographic.demographicappthistory.msgHistory" />
-<bean:message key="demographic.demographicappthistory.msgResults" />: 
-<%=demolastname%>,<%=demofirstname%>(<%=request.getParameter("demographic_no")%>) <a href="<%=request.getContextPath()%>/demographic/demographiccontrol.jsp?demographic_no=<%=request.getParameter("demographic_no")%>&apptProvider=<%=session.getAttribute("user") %>&displaymode=edit&dboperation=search_detail" onMouseOver="self.status=document.referrer;return true">
-			<bean:message key="global.btnBack" /></a></H4>&nbsp;
-<input type="checkbox" name="showDeleted" id="showDeleted" onChange="toggleShowDeleted(this.checked);"/>&nbsp:&nbsp;
-<bean:message key="demographic.demographicappthistory.msgShowDeleted" />
-				
+<a href="<%=request.getContextPath()%>/demographic/demographiccontrol.jsp?demographic_no=<%=request.getParameter("demographic_no")%>&apptProvider=<%=session.getAttribute("user") %>&displaymode=edit&dboperation=search_detail" onMouseOver="self.status=document.referrer;return true">
+<bean:message key="global.btnBack" /> to Master Record</a>&nbsp;
 
-		<table class="table table-striped table-hover table-condensed span12" width="95%" border="0"  id="apptHistoryTbl">
+<H4><bean:message key="demographic.demographicappthistory.msgTitle" />
+<bean:message key="demographic.demographicappthistory.msgResults" />: 
+<%=demolastname%>, <%=demofirstname%> (<%=request.getParameter("demographic_no")%>)
+</H4>
+
+<bean:message key="demographic.demographicappthistory.msgShowDeleted" />&nbsp;
+<input type="checkbox" name="showDeleted" id="showDeleted" onChange="toggleShowDeleted(this.checked);"/>&nbsp;&nbsp;
+<br><br>				
+
+		<table class="table table-striped table-hover table-condensed span12" width="95%" border="0"  id="apptHistoryTbl" align="left">
 			 				
 				<TH width="7%"><b><bean:message key="demographic.demographicappthistory.msgApptDate" /></b></TH>
 				<TH width="7%"><b><bean:message key="demographic.demographicappthistory.msgFrom" /></b></TH>

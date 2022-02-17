@@ -73,7 +73,7 @@ function upCaseCtrl(ctrl) {
 		<td align="left"><%=request.getParameter("demo_name")%> (<%=request.getParameter("demographic_no")%>)
 		<%=strToday + " - " + strStartDay %></td>
 		<td align="right">Service Code <input type="text"
-			name="serviceCode" value="<%=serviceCode %>" size="4"
+			name="serviceCode" value="<%=serviceCode %>" size="6"
 			onBlur="upCaseCtrl(this)" /> <input type="hidden" name="day"
 			value="<%=strDay %>" /> <input type="hidden" name="demo_name"
 			value="<%=request.getParameter("demo_name") %>" /> <input

@@ -48,13 +48,39 @@
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/rewrite-tag.tld" prefix="rewrite"%>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
-<%@ page import="oscar.OscarProperties,oscar.log.*"%>
+<%@ page import="oscar.log.*"%>
 <%@ page import="org.oscarehr.common.dao.OscarAppointmentDao" %>
 <%@ page import="org.oscarehr.common.model.Provider" %>
 <%@ page import="oscar.util.ConversionUtils" %>
-<%@page import="org.oscarehr.PMmodule.dao.ProviderDao"%>
+<%@ page import="oscar.OscarProperties" %>
+<%@ page import="org.oscarehr.PMmodule.dao.ProviderDao"%>
+<%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
+<%@ page import="org.oscarehr.common.model.UserProperty" %>
+<%@ page import="org.oscarehr.util.SpringUtils" %>
+
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils,oscar.oscarLab.ca.all.*,oscar.oscarMDS.data.*,oscar.oscarLab.ca.all.util.*"%>
-<%@page import="org.springframework.web.context.WebApplicationContext,org.oscarehr.common.dao.*,org.oscarehr.common.model.*,org.oscarehr.util.SpringUtils"%><%
+<%@page import="org.springframework.web.context.WebApplicationContext,org.oscarehr.common.dao.*,org.oscarehr.common.model.*"%><%
+
+	String curUser_no = (String) session.getAttribute("user"); 
+	UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
+	UserProperty tabViewProp = userPropertyDao.getProp(curUser_no, UserProperty.OPEN_IN_TABS);
+    boolean openInTabs = false;
+    if ( tabViewProp == null ) {
+        openInTabs = oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true");
+    } else {
+        openInTabs = oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true") || Boolean.parseBoolean(tabViewProp.getValue());
+    }
+
+if (openInTabs){
+%>
+<script language="JavaScript">
+    console.log("openInTabs DocDisplay");
+</script>
+<% } else { %>
+<script language="JavaScript">
+    console.log("!openInTabs DocDisplay");
+</script>
+<% }
 
             WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
             ProviderInboxRoutingDao providerInboxRoutingDao = (ProviderInboxRoutingDao) ctx.getBean("providerInboxRoutingDAO");
@@ -188,6 +214,8 @@
         </style>
 
         <script type="text/javascript">
+
+
         jQuery.noConflict();
         
         function renderCalendar(id,inputFieldId){
@@ -254,11 +282,16 @@
         var _in_window = <%=( "true".equals(request.getParameter("inWindow")) ? "true" : "false" )%>;
         var contextpath = "<%=request.getContextPath()%>";
         
-        </script>
-        <script type="text/javascript" src="showDocument.js"></script>
+
+</script>
+<script type="text/javascript" src="showDocument.js"></script>
+
+
+
 </head>
 <body>
 <% } %>
+
         <div id="labdoc_<%=docId%>">
         	<%
         	 ArrayList ackList = AcknowledgementData.getAcknowledgements("DOC",docId);
@@ -317,7 +350,9 @@
                                                         
                                                         %>
                                                         <input type="button" id="msgBtn_<%=docId%>" class="btn" value="Msg" onclick="popupPatient(700,960,'<%= request.getContextPath() %>/oscarMessenger/SendDemoMessage.do?demographic_no=','msg', '<%=docId%>')" <%=btnDisabled %>/>
-                                                        
+                                                        <input type="button" id="RxBtn_<%=docId%>" class="btn" value="&nbsp;Rx&nbsp;" onclick="popupPatientRx(1024,500,'<%= request.getContextPath() %>/oscarRx/choosePatient.do?providerNo=<%= providerNo%>&demographicNo=','Rx<%=demographicID%>', '<%=docId%>', false)" <%=btnDisabled %>/>
+
+
                                                         <!--input type="button" id="ticklerBtn_<%=docId%>" class="btn" value="Tickler" onclick="handleDocSave('<%=docId%>','addTickler')"/-->
                                                        <%
                                                        if(org.oscarehr.common.IsPropertiesOn.isTicklerPlusEnable()) {
@@ -327,7 +362,7 @@
                                                         <input type="button" id="mainTickler_<%=docId%>" class="btn" value="Tickler" onClick="popupPatientTickler(710, 1024,'<%= request.getContextPath() %>/tickler/ticklerAdd.jsp?', 'Tickler','<%=docId%>')" <%=btnDisabled %>>
                                                         <% } %>
                                                         
-                                                        <input type="button" id="mainEchart_<%=docId%>" class="btn" value=" <bean:message key="oscarMDS.segmentDisplay.btnEChart"/> " onClick="popupPatient(710, 1024,'<%= request.getContextPath() %>/oscarEncounter/IncomingEncounter.do?reason=<bean:message key="oscarMDS.segmentDisplay.labResults"/>&curDate=<%=currentDate%>>&appointmentNo=&appointmentDate=&startTime=&status=&demographicNo=', 'encounter', '<%=docId%>')" <%=btnDisabled %>>
+                                                        <input type="button" id="mainEchart_<%=docId%>" class="btn" value=" <bean:message key="oscarMDS.segmentDisplay.btnEChart"/> " onClick="popupPatient(710, 1024,'<%= request.getContextPath() %>/oscarEncounter/IncomingEncounter.do?reason=<bean:message key="oscarMDS.segmentDisplay.labResults"/>&curDate=<%=currentDate%>>&appointmentNo=&appointmentDate=&startTime=&status=&demographicNo=', 'encounter', '<%=docId%>', <%=openInTabs%>)" <%=btnDisabled %>>
                                                         <input type="button" id="mainMaster_<%=docId%>" class="btn" value=" <bean:message key="oscarMDS.segmentDisplay.btnMaster"/>" onClick="popupPatient(710,1024,'<%= request.getContextPath() %>/demographic/demographiccontrol.jsp?displaymode=edit&dboperation=search_detail&demographic_no=','master','<%=docId%>')" <%=btnDisabled %>>
                                                         <input type="button" id="mainApptHistory_<%=docId%>" class="btn" value=" <bean:message key="oscarMDS.segmentDisplay.btnApptHist"/>" onClick="popupPatient(710,1024,'<%= request.getContextPath() %>/demographic/demographiccontrol.jsp?orderby=appttime&displaymode=appt_history&dboperation=appt_history&limit1=0&limit2=25&demographic_no=','ApptHist','<%=docId%>')" <%=btnDisabled %>>
 

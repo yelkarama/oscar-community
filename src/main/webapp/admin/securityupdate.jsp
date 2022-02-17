@@ -55,18 +55,17 @@
 
 <html:html locale="true">
 <head>
-<script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script>
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 <title><bean:message key="admin.securityupdate.title" /></title>
 </head>
 <link rel="stylesheet" href="../web.css" />
 <body topmargin="0" leftmargin="0" rightmargin="0">
-<center>
-<table border="0" cellspacing="0" cellpadding="0" width="100%">
-	<tr bgcolor="#486ebd">
-		<th align="CENTER"><font face="Helvetica" color="#FFFFFF"><bean:message
-			key="admin.securityupdate.description" /></font></th>
-	</tr>
-</table>
+<div >
+    <div  id="header"><H3><bean:message
+			key="admin.securityupdate.description" /></H3>
+    </div>
+</div>
+
 <%
 	StringBuffer sbTemp = new StringBuffer();
     MessageDigest md = MessageDigest.getInstance("SHA");
@@ -114,18 +113,23 @@
       LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.UPDATE, LogConst.CON_SECURITY,
     		request.getParameter("security_no") + "->" + request.getParameter("user_name"), request.getRemoteAddr());
 %>
-<p>
-<h2><bean:message key="admin.securityupdate.msgUpdateSuccess" /> <%=request.getParameter("provider_no")%></h2>
+
+<div class="alert alert-success" >
+    <h4><bean:message key="admin.securityupdate.msgUpdateSuccess" /> <%=request.getParameter("provider_no")%></h4>
+</div>
+
 <%
   } else {
 %>
-<h1><bean:message key="admin.securityupdate.msgUpdateFailure" /><%= request.getParameter("provider_no") %>.</h1>
+<div class="alert alert-error" >
+    <h4><bean:message key="admin.securityupdate.msgUpdateFailure" /><%= request.getParameter("provider_no") %>.</h4>
+</div>
+
 <%
   }
 %>
-</p>
+
 <p></p>
 
-</center>
 </body>
 </html:html>

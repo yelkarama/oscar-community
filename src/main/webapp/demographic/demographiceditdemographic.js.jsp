@@ -24,6 +24,24 @@
 
 --%>
 <%@page import="oscar.OscarProperties" %>
+
+<%@page import="org.oscarehr.util.SpringUtils"%>
+<%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
+<%@ page import="org.oscarehr.common.model.UserProperty" %>
+<%
+	String curUser_no = (String) session.getAttribute("user");
+	UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class); 
+	UserProperty tabViewProp = userPropertyDao.getProp(curUser_no, UserProperty.OPEN_IN_TABS);
+    boolean openInTabs = false;
+    if ( tabViewProp == null ) {
+        openInTabs = oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true");
+    } else {
+        openInTabs = oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true") || Boolean.parseBoolean(tabViewProp.getValue());
+    }
+%>
+
+ctx = "${pageContext.request.contextPath}";
+
 function rs(n,u,w,h,x) {
   args="width="+w+",height="+h+",resizable=yes,scrollbars=yes,status=0,top=360,left=30";
   remote=window.open(u,n,args);
@@ -48,62 +66,62 @@ function setfocus() {
 function upCaseCtrl(ctrl) {
 	ctrl.value = ctrl.value.toUpperCase();
 }
-function popupPage(vheight,vwidth,varpage) { //open a new popup window
-  var page = "" + varpage;
+function popupPage(vheight, vwidth, varpage, inTabs) { //open a new popup window
+
   windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=50,screenY=50,top=20,left=20";
-  var popup=window.open(page, "demodetail", windowprops);
-  if (popup != null) {
-    if (popup.opener == null) {
-      popup.opener = self;
+
+    inTabs      = typeof(inTabs)     != 'undefined' ? inTabs : <%=openInTabs%>;
+    var windowName  = 'Master';
+
+	if (varpage == null || varpage == -1) {
+		  	return false;
+	}
+    if( varpage.indexOf("..") == 0 ) {
+            varpage = ctx + varpage.substr(2);
     }
-    popup.focus();
-  }
+
+    if (inTabs) {
+                popup = window.open(varpage, windowName);
+    } else {
+                popup = window.open(varpage, windowName, windowprops);
+    }
+    if (popup != null) {
+        if (popup.opener == null) {
+            popup.opener = self;
+        }
+        popup.focus();
+    }
 }
 
 
-function popupEChart(vheight,vwidth,varpage) { //open a new popup window
-  var page = "" + varpage;
-  windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=50,screenY=50,top=20,left=20";
-  var popup=window.open(page, "encounter", windowprops);
-  if (popup != null) {
-    if (popup.opener == null) {
-      popup.opener = self;
-    }
-    popup.focus();
-  }
-}
-function popupOscarRx(vheight,vwidth,varpage) { //open a new popup window
+function popupOscarRx(vheight,vwidth,varpage, inTabs) { //open a new popup window
   var page = varpage;
   windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=0,screenY=0,top=0,left=0";
-  var popup=window.open(varpage, "oscarRx", windowprops);
-  if (popup != null) {
-    if (popup.opener == null) {
-      popup.opener = self;
+
+    inTabs      = typeof(inTabs)     != 'undefined' ? inTabs : <%=openInTabs%>;
+    var windowName  = 'Master';
+
+	if (varpage == null || varpage == -1) {
+		  	return false;
+	}
+    if( varpage.indexOf("..") == 0 ) {
+            varpage = ctx + varpage.substr(2);
     }
-    popup.focus();
-  }
-}
-function popupQuestimed(vheight,vwidth,varpage) { //open a new popup window
-  var page = varpage;
-  windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=0,screenY=0,top=0,left=0";
-  var popup=window.open(varpage, "Questimed", windowprops);
-  if (popup != null) {
-    if (popup.opener == null) {
-      popup.opener = self;
+
+    if (inTabs) {
+                popup = window.open(varpage, windowName);
+    } else {
+                popup = window.open(varpage, windowName, windowprops);
     }
-    popup.focus();
-  }
+    if (popup != null) {
+        if (popup.opener == null) {
+            popup.opener = self;
+        }
+        popup.focus();
+    }
 }
-function popupS(varpage) {
-	if (! window.focus)return true;
-	var href;
-	if (typeof(varpage) == 'string')
-	   href=varpage;
-	else
-	   href=varpage.href;
-	window.open(href, "fullwin", ',type=fullWindow,fullscreen,scrollbars=yes');
-	return false;
-}
+
+
 
 
 function checkRosterStatus() {

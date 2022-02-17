@@ -96,22 +96,18 @@ $(function() {
 
 </script>
 
-<style type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 
-.ui-autocomplete {
-	background-color: #CEF6CE;
-	border: 3px outset #2EFE2E;
-	width:300px;
-}
+<link href="<%=request.getContextPath() %>/css/datepicker.css" rel="stylesheet" type="text/css">
 
-.ui-menu-item:hover {
-		background-color:#426FD9;
-		color:#FFFFFF;
-}
+<link href="<%=request.getContextPath() %>/css/DT_bootstrap.css" rel="stylesheet" type="text/css">
 
-</style>
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
 
-<link rel="stylesheet" type="text/css" href="encounterStyles.css">
+<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
+
+<link rel="stylesheet" href="../css/helpdetails.css" type="text/css">
+
 <title><bean:message key="oscarMDS.search.title" /></title>
 </head>
 
@@ -123,15 +119,9 @@ $(function() {
 		<td class="MainTableTopRow" colspan="9" align="left">
 		<table width="100%">
 			<tr>
-				<td align="left"><input type="button"
+				<td align="left"><input type="button" class="btn" 
 					value=" <bean:message key="global.btnClose"/> "
 					onClick="window.close()"></td>
-				<td align="right"><oscar:help keywords="document" key="app.top1"/> | <a
-					href="javascript:popupStart(300,400,'About.jsp')"><bean:message
-					key="global.about" /></a> | <a
-					href="javascript:popupStart(300,400,'License.jsp')"><bean:message
-					key="global.license" /></a></td>
-			</tr>
 		</table>
 		</td>
 	</tr>
@@ -156,14 +146,14 @@ $(function() {
 			</tr>
 			
 			<tr>
-				<td>Start Date:(yyyy-mm-dd)
+				<td>Start Date:
 				</td>
-				<td><input type="text" id="startDate" name="startDate" size="15" id="startDate"></td>
+				<td><input type="date" id="startDate" name="startDate" size="15" id="startDate"></td>
 			</tr>
 			<tr>
-				<td>End Date:(yyyy-mm-dd)
+				<td>End Date:
 				</td>
-				<td><input type="text" id="endDate" name="endDate" size="15" id="endDate"></td>
+				<td><input type="date" id="endDate" name="endDate" size="15" id="endDate"></td>
 			</tr>
 			
 			
@@ -180,7 +170,7 @@ $(function() {
 			<td>&nbsp;</td>
 			<td>
 				<input type="hidden" name="searchProviderNo" id="provfind" />
-                <input type="text" id="autocompleteprov" name="demographicKeyword"/>
+                <input type="text" placeholder="Search Physicians..." id="autocompleteprov" name="demographicKeyword"/>
 			</td>
 			</tr>
 			<tr>
@@ -198,7 +188,7 @@ $(function() {
 			</tr>
 			<tr>
 				<td colspan="2">
-				<center><input type="submit"
+				<center><input type="submit" class="btn btn-primary" 
 					value=" <bean:message key="oscarMDS.search.btnSearch"/> ">
 				</center>
 				</td>

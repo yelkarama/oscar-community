@@ -25,8 +25,8 @@
 --%>
 
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security" %>
-<%@ page errorPage="../errorpage.jsp" %>
 <%@ page import="java.util.*" %>
+<%@ page import="java.util.ResourceBundle"%>
 <%@ page import="java.sql.*" %>
 <%@ page import="oscar.util.*,oscar.*" %>
 <%@ page import="oscar.login.*" %>
@@ -45,7 +45,8 @@
 <%@ page import="org.oscarehr.common.model.RecycleBin" %>
 <%@ page import="org.oscarehr.common.dao.RecycleBinDao" %>
 <%@ page import="org.oscarehr.common.dao.ProviderDataDao" %>
-
+<%@ page import="org.owasp.encoder.Encode" %>
+<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%
 	ProgramDao programDao = SpringUtils.getBean(ProgramDao.class);
 	SecRoleDao secRoleDao = SpringUtils.getBean(SecRoleDao.class);
@@ -144,13 +145,14 @@ if (request.getParameter("buttonUpdate") != null && request.getParameter("button
     String roleId = request.getParameter("roleId");
     String roleOld = request.getParameter("roleOld");
     String roleNew = request.getParameter("roleNew");
+    String encodedRoleNew = Encode.forHtmlContent(roleNew);
 
     if(!"-".equals(roleNew)) {
 		Secuserrole secUserRole = secUserRoleDao.findById(Integer.parseInt(roleId));
 		if(secUserRole != null) {
 			secUserRole.setRoleName(roleNew);
 			secUserRoleDao.updateRoleName(Integer.parseInt(roleId),roleNew);
-			msg = "Role " + roleNew + " is updated. (" + number + ")";
+			msg = "Role " + encodedRoleNew + " is updated. (" + number + ")";
 
 			RecycleBin recycleBin = new RecycleBin();
 			recycleBin.setProviderNo(curUser_no);
@@ -175,7 +177,7 @@ if (request.getParameter("buttonUpdate") != null && request.getParameter("button
 			}
 
 		} else {
-			msg = "Role " + roleNew + " is <font color='red'>NOT</font> updated!!! (" + number + ")";
+			msg = "Role " + encodedRoleNew + " is <font color='red'>NOT</font> updated!!! (" + number + ")";
 		}
     }
 
@@ -185,14 +187,14 @@ if (request.getParameter("buttonUpdate") != null && request.getParameter("button
 if (request.getParameter("submit") != null && request.getParameter("submit").equals("Add")) {
     String number = request.getParameter("providerId");
     String roleNew = request.getParameter("roleNew");
-
+    String encodedRoleNew = Encode.forHtmlContent(roleNew);
     if(!"-".equals(roleNew)) {
 	    Secuserrole secUserRole = new Secuserrole();
 	    secUserRole.setProviderNo(number);
 	    secUserRole.setRoleName(roleNew);
 	    secUserRole.setActiveyn(1);
 	    secUserRoleDao.save(secUserRole);
-	    msg = "Role " + roleNew + " is added. (" + number + ")";
+	    msg = "Role " + encodedRoleNew + " is added. (" + number + ")";
 	    LogAction.addLog(curUser_no, LogConst.ADD, LogConst.CON_ROLE, number +"|"+ roleNew, ip);
 	    if( newCaseManagement ) {
             ProgramProvider programProvider = programProviderDao.getProgramProvider(number, Long.valueOf(caisiProgram));
@@ -205,7 +207,7 @@ if (request.getParameter("submit") != null && request.getParameter("submit").equ
             programProviderDao.saveProgramProvider(programProvider);
 	    }
     } else {
-    	msg = "Role " + roleNew + " is <font color='red'>NOT</font> added!!! (" + number + ")";
+    	msg = "Role " + encodedRoleNew + " is <font color='red'>NOT</font> added!!! (" + number + ")";
     }
 
 }
@@ -216,11 +218,12 @@ if (request.getParameter("submit") != null && request.getParameter("submit").equ
     String roleId = request.getParameter("roleId");
     String roleOld = request.getParameter("roleOld");
     String roleNew = request.getParameter("roleNew");
+    String encodedRoleOld = Encode.forHtmlContent(roleOld);
 
     Secuserrole secUserRole = secUserRoleDao.findById(Integer.parseInt(roleId));
     if(secUserRole != null) {
     	secUserRoleDao.deleteById(secUserRole.getId());
-    	msg = "Role " + roleOld + " is deleted. (" + number + ")";
+    	msg = "Role " + encodedRoleOld + " is deleted. (" + number + ")";
 
     	RecycleBin recycleBin = new RecycleBin();
 		recycleBin.setProviderNo(curUser_no);
@@ -239,12 +242,14 @@ if (request.getParameter("submit") != null && request.getParameter("submit").equ
             }
         }
     } else {
-    	msg = "Role " + roleOld + " is <font color='red'>NOT</font> deleted!!! (" + number + ")";
+    	msg = "Role " + encodedRoleOld + " is <font color='red'>NOT</font> deleted!!! (" + number + ")";
     }
 
 }
 
 String keyword = request.getParameter("keyword")!=null?request.getParameter("keyword"):"";
+java.util.ResourceBundle oscarRec = ResourceBundle.getBundle("oscarResources", request.getLocale());
+
 %>
 <%
 String lastName = "";
@@ -305,12 +310,18 @@ if(newCaseManagement) {
 %>
   <html>
     <head>
-      <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
-      <title>
-        PROVIDER
-      </title>
-      <link rel="stylesheet" href="../css/receptionistapptstyle.css">
-       <script src="../js/jquery-1.7.1.min.js"></script>
+
+    <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
+
+    <script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery-1.9.1.js"></script>
+    <script src="<%=request.getContextPath() %>/js/jqBootstrapValidation-1.3.7.min.js"></script>
+    <title><bean:message	key="global.update" /> <bean:message key="admin.admin.provider" /> <bean:message key="role" /></title>
+    <script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
+
+
+	<script src="<%=request.getContextPath()%>/JavaScriptServlet" type="text/javascript"></script>
+
       
       <script language="JavaScript">
 <!--
@@ -329,7 +340,7 @@ function submit(form) {
         <%
                 for(Properties prop:vec) {
                         %>
-                                item={providerNo:"<%=prop.get("provider_no")%>",role_id:"<%=prop.get("role_id")%>",roleName:"<%=prop.get("role_name")%>"};
+                                item={providerNo:"<%=prop.get("provider_no")%>",role_id:"<%=prop.get("role_id")%>",roleName:"<%=Encode.forHtmlAttribute((String)prop.get("role_name"))%>"};
                                 items.push(item);
                         <%
                 }
@@ -364,73 +375,68 @@ function submit(form) {
 
     </head>
     <body bgproperties="fixed" bgcolor="ivory" onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
-      <form name="myform" action="providerRole.jsp" method="POST">
-      <table border="0" cellspacing="0" cellpadding="0" width="100%">
-        <tr bgcolor="#486ebd">
-          <th align="CENTER" width="90%">
-            <font face="Helvetica" color="#FFFFFF">
-            <% if(msg.length()>1) {%>
-			<%=msg%>
-			<% } %>
-            </font>
-          </th>
-          <td nowrap>
-            <font size="-1" color="#FFFFFF">
-              Name:
-              <input type="text" name="keyword" size="15" value="<%=keyword%>" />
-              <input type="submit" name="search" value="Search">
-            </font>
-          </td>
-        </tr>
-      </table>
-      </form>
+<div width="100%">
+    <div id="header"><H4><i class="icon-lock"></i>&nbsp;<bean:message	key="global.update" />&nbsp;<bean:message
+			key="admin.admin.provider" />&nbsp;<bean:message key="role" /></H4>
+    </div>
+</div>
 
-        <table width="100%" border="0" bgcolor="ivory" cellspacing="1" cellpadding="1">
-          <tr bgcolor="mediumaquamarine">
-          <% if( newCaseManagement ) { %>
-            <th colspan="6" align="left">
-          <%} else { %>
-           <th colspan="5" align="left">
-          <%} %>
-          </tr>
-          <tr bgcolor="silver">
-            <th width="10%" nowrap>ID</th>
-            <th width="20%" nowrap><b>First Name</b></th>
-            <th width="20%" nowrap><b>Last Name</b></th>
+<form name="myform" action="providerRole.jsp" method="POST" >
+
+    <% if(msg.length()>1) {%>
+        <div class="alert alert-info" >
+			<%=msg%>
+        </div>
+    <% } %>
+    <div class="well">
+    <bean:message key="admin.securityrecord.formUserName" />
+              <input type="text" name="keyword" size="15" value="<%=Encode.forHtmlAttribute(keyword)%>" />
+              <input type="submit" class="btn btn-primary" name="search" value="<bean:message
+			key="global.search" />">
+
+    </div>
+</form>
+
+        <table width="100%" border="0" cellspacing="1" cellpadding="1" class="table table-striped table-hover table-condensed">
+          <tr >
+            <th width="10%" nowrap><bean:message key="admin.admin.provider" /></th>
+            <th width="20%" nowrap><bean:message key="admin.provider.formFirstName" /></th>
+            <th width="20%" nowrap><bean:message key="admin.provider.formLastName" /></th>
 			<% if( newCaseManagement ) { %>
             <th width="10%" nowrap>
-              Role
+              <bean:message key="role" />
             </th>
            <th width="10%" nowrap>
-              Primary Role
+              <bean:message key="demographic.demographiceditdemographic.primaryEMR" /> <bean:message key="role" />
             </th>
 			<% } else {%>
            <th width="20%" nowrap>
-              Role
+              <bean:message key="role" />
             </th>
 			<%} %>
             
             <th nowrap>Action</th>
           </tr>
+<tbody>
 <%
-        String[] colors = { "#ccCCFF", "#EEEEFF" };
+
         for (int i = 0; i < vec.size(); i++) {
           	Properties item = vec.get(i);
           	String providerNo = item.getProperty("provider_no", "");
 %>
       <form name="myform<%= providerNo %>" action="providerRole.jsp" method="POST">
-            <tr bgcolor="<%=colors[i%2]%>">
+            <tr >
               <td><%= providerNo %></td>
-              <td><%= item.getProperty("first_name", "") %></td>
-              <td><%= item.getProperty("last_name", "") %></td>
+              <td><%= Encode.forHtmlContent(item.getProperty("first_name", "")) %></td>
+              <td><%= Encode.forHtmlContent(item.getProperty("last_name", "")) %></td>
               <td align="center">
               <select name="roleNew">
                       <option value="-" >-</option>
 <%
                     for (int j = 0; j < vecRoleName.size(); j++) {
 %>
-                      <option value="<%=vecRoleName.get(j)%>" <%= vecRoleName.get(j).equals(item.getProperty("role_name", ""))?"selected":"" %>>
-                      <%= vecRoleName.get(j) %>
+                      <option value="<%=Encode.forHtmlAttribute(String.valueOf(vecRoleName.get(j)))%>" <%= vecRoleName.get(j).equals(item.getProperty("role_name", ""))?"selected":"" %>>
+                      <%= Encode.forHtmlContent(String.valueOf(vecRoleName.get(j))) %>
                       </option>
 <%
                     }
@@ -439,26 +445,27 @@ function submit(form) {
             </td>
 			<% if( newCaseManagement ) { %>
             <td align="center">
-             <%=(primaries.get(i)!=null && (primaries.get(i)).booleanValue()==true)?"Yes":"" %>
+             <%=(primaries.get(i)!=null && (primaries.get(i)).booleanValue()==true)? oscarRec.getString("global.yes") : "" %>
             </td>
 			<% } %>
             
             <td align="center">
-              <input type="hidden" name="keyword" value="<%=keyword%>" />
+              <input type="hidden" name="keyword" value="<%=Encode.forHtmlAttribute(keyword)%>" />
               <input type="hidden" name="providerId" value="<%=providerNo%>">
               <input type="hidden" name="roleId" value="<%= item.getProperty("role_id", "")%>">
-              <input type="hidden" name="roleOld" value="<%= item.getProperty("role_name", "")%>">
-              <input type="submit" name="submit" value="Add">
+              <input type="hidden" name="roleOld" value="<%= Encode.forHtmlAttribute(item.getProperty("role_name", ""))%>">
+              <input type="submit" name="submit" class="btn" value="<bean:message key="global.btnAdd" />">
               -
-              <input type="submit" name="buttonUpdate" value="Update" <%= StringUtils.hasText(item.getProperty("role_id"))?"":"disabled"%>>
+              <input type="submit" name="buttonUpdate" class="btn" value="<bean:message	key="global.update" />" <%= StringUtils.hasText(item.getProperty("role_id"))?"":"disabled"%>>
               -
-              <input type="submit" name="submit" value="Delete" <%= StringUtils.hasText(item.getProperty("role_id"))?"":"disabled"%>>
+              <input type="submit" name="submit" class="btn-link" value="<bean:message key="global.btnDelete" />" <%= StringUtils.hasText(item.getProperty("role_id"))?"":"disabled"%>>
             </td>
             </tr>
       </form>
 <%
           }
 %>
+</tbody>
         </table>
       <hr>
 
@@ -467,10 +474,10 @@ function submit(form) {
        <form name="myform" action="providerRole.jsp" method="POST">
       <table>
       <tr>
-        <td colspan="2">Set primary role</td>
+        <td colspan="2"><bean:message key="global.update" />&nbsp;<bean:message key="demographic.demographiceditdemographic.primaryEMR" />&nbsp;<bean:message key="role" /></td>
       </tr>
       <tr>
-        <td>Provider:</td>
+        <td><bean:message key="admin.admin.provider" />:</td>
         <td>
                 <select id="primaryRoleProvider" name="primaryRoleProvider" onChange="primaryRoleChooseProvider()">
                         <option value="">Select Below</option>
@@ -480,7 +487,7 @@ function submit(form) {
                                         String providerNo = prop.getProperty("provider_no");
                                         if(!temp1.contains(providerNo)) {
                                                 %>
-                                                        <option value="<%=providerNo%>"><%=prop.getProperty("last_name") + "," + prop.getProperty("first_name") %></option>
+                                                        <option value="<%=providerNo%>"><%=Encode.forHtmlContent(prop.getProperty("last_name") + "," + prop.getProperty("first_name")) %></option>
                                                 <%
                                                 temp1.add(providerNo);
                                         }
@@ -491,7 +498,7 @@ function submit(form) {
         </tr>
       </tr>
       <tr>
-        <td>Role:</td>
+        <td><bean:message key="role" />:</td>
         <td>
                 <select id="primaryRoleRole" name="primaryRoleRole">
                 </select>
@@ -499,7 +506,7 @@ function submit(form) {
       </tr>
       <tr>
         <td colspan="2">
-                <input type="submit" name="buttonSetPrimaryRole" value="Set Primary Role" onClick="return setPrimaryRole();"/>
+                <input type="submit" name="buttonSetPrimaryRole" value="<bean:message key="global.update" />&nbsp;<bean:message key="demographic.demographiceditdemographic.primaryEMR" />&nbsp;<bean:message key="role" />" class="btn btn-primary" onClick="return setPrimaryRole();"/>
         </td>
       </tr>
       </table>
