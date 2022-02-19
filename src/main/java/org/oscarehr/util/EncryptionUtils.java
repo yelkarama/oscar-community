@@ -44,7 +44,7 @@ public final class EncryptionUtils {
             return (byte[])original.clone();
         }
     };
-    private static Logger logger = MiscUtils.getLogger();
+    private static Logger logger = org.apache.logging.log4j.LogManager.getLogger();
     private static final MessageDigest messageDigest = initMessageDigest();
     private static final QueueCache<String, byte[]> sha1Cache;
     private static final int MAX_SHA_KEY_CACHE_SIZE = 2048;
