@@ -32,7 +32,7 @@ import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.w3c.dom.Node;
 
 public class SpringPropertyConfigurer extends PropertyPlaceholderConfigurer {
-    private static Logger logger = MiscUtils.getLogger();
+    private static Logger logger = org.apache.logging.log4j.LogManager.getLogger();
 
     public SpringPropertyConfigurer() {
         HashMap<String, HashMap<String, Object>> configMap = ConfigXmlUtils.getConfig();
