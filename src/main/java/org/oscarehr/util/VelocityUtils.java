@@ -35,7 +35,7 @@ import org.apache.velocity.tools.generic.EscapeTool;
 import org.apache.velocity.tools.generic.NumberTool;
 
 public class VelocityUtils {
-    private static Logger logger = MiscUtils.getLogger();
+    private static Logger logger = org.apache.logging.log4j.LogManager.getLogger();
     public static final VelocityEngine velocityEngine = getInitialisedVelocityEngine();
     public static final EscapeTool escapeTool = new EscapeTool();
     public static final NumberTool numberTool = new NumberTool();
