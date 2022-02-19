@@ -32,7 +32,7 @@ import java.util.TimerTask;
 
 
 public final class QueueCache<K, V> {
-    private static Logger logger = MiscUtils.getLogger();
+    private static Logger logger = org.apache.logging.log4j.LogManager.getLogger();
     private static Timer timer = null;
     private HashMap<K, V>[] data;
     private int maxPoolSize;
