@@ -37,7 +37,7 @@ import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.logging.log4j.Logger;
 
 public class CxfClientUtils {
-    private static Logger logger = MiscUtils.getLogger();
+    private static Logger logger = org.apache.logging.log4j.LogManager.getLogger();
     private static long connectionTimeout = 1500L;
     private static long receiveTimeout = 4000L;
     private static boolean useGZip = true;
