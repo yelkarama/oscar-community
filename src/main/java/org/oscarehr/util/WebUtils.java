@@ -39,7 +39,7 @@ import org.apache.logging.log4j.Logger;
 
 
 public final class WebUtils {
-    private static Logger logger = MiscUtils.getLogger();
+    private static Logger logger = org.apache.logging.log4j.LogManager.getLogger();
     public static final String ERROR_MESSAGE_SESSION_KEY = WebUtils.class.getName() + ".ERROR_MESSAGE_SESSION_KEY";
     public static final String INFO_MESSAGE_SESSION_KEY = WebUtils.class.getName() + ".INFO_MESSAGE_SESSION_KEY";
 
