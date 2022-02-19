@@ -28,7 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
 public class ResponseDefaultsFilterResponseWrapper extends HttpServletResponseWrapper {
-    private static Logger logger = MiscUtils.getLogger();
+    private static Logger logger = org.apache.logging.log4j.LogManager.getLogger();
     private boolean forceStrongETag;
     private boolean warnCharsetCacheChange;
 
