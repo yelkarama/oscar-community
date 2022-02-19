@@ -36,7 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public final class ResponseDefaultsFilter implements Filter {
-    private static Logger logger = MiscUtils.getLogger();
+    private static Logger logger = org.apache.logging.log4j.LogManager.getLogger();
     private boolean setEncoding = true;
     private String encoding = "UTF-8";
     private boolean setNoCache = true;
