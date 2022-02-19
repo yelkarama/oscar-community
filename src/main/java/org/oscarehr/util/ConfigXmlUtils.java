@@ -37,7 +37,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public final class ConfigXmlUtils {
-    private static Logger logger = MiscUtils.getLogger();
+    private static Logger logger = org.apache.logging.log4j.LogManager.getLogger();
     private static final String DEFAULT_CONFIG_FILE = "/config.xml";
     private static HashMap<String, HashMap<String, Object>> config = getConfigMap();
 
