@@ -51,7 +51,7 @@ import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.SAXException;
 
 public final class XmlUtils {
-    private static Logger logger =  MiscUtils.getLogger();
+    private static Logger logger = org.apache.logging.log4j.LogManager.getLogger();
 
     public XmlUtils() {
     }
