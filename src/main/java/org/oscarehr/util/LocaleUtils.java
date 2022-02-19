@@ -38,7 +38,7 @@ import java.util.Map.Entry;
 import javax.servlet.ServletRequest;
 
 public final class LocaleUtils {
-    private static Logger logger = MiscUtils.getLogger();
+    private static Logger logger = org.apache.logging.log4j.LogManager.getLogger();
     private static final Locale DEFAULT_LOCALE;
     public static String BASE_NAME;
     private static HashMap<String, TreeMap<String, String>> provinceCache;
