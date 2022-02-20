@@ -651,8 +651,7 @@ padding: 2px;
 
 
 
-  <a class="btn" tabindex="17" href="#" onclick="Event.stop(event);return saveNoteAjax('save', 'list');" title='<bean:message key="oscarEncounter.Index.btnSave"/>'><i class="icon-save icon-large"></i></a>
-
+  <a tabindex="17" class="btn" id="saveImg" href="#" onclick="Event.stop(event);autoSave(true);" title='<bean:message key="oscarEncounter.Index.btnSave"/>'><i class="icon-save icon-large"></i></a> 
 		
 		<%
 			if(facility.isEnableGroupNotes()) {
