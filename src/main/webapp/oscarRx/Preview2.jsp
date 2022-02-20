@@ -266,8 +266,6 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
 														+ "\n" + provider.getClinicAddress() + "\n"
 														+ provider.getClinicCity() + "   "
 														+ provider.getClinicPostal() + "\n"
-														+"<bean:message key='RxPreview.PractNo'/>"+": "
-														+ Encode.forHtml(provider.getPractitionerNo()) + "\n"
 														+"<bean:message key='RxPreview.msgTel'/>"+": "
 														+ provider.getClinicPhone() + "\n"
 														+"<bean:message key='RxPreview.msgFax'/>"+": "
