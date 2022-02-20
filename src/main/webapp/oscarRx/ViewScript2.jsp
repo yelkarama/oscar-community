@@ -158,7 +158,6 @@ if(bMultisites) {
                 Encode.forHtml(s.getCity()) + ", " +
                 Encode.forHtml(s.getProvince()) + " " +
                 Encode.forHtml(s.getPostal()) + "<br>" +
-                rb.getString("RxPreview.PractNo") + ": " + Encode.forHtml(provider.getPractitionerNo()) + "<br>" +
                 rb.getString("RxPreview.msgTel") + ": " + Encode.forHtml(s.getPhone()) + "<br>" +
                 rb.getString("RxPreview.msgFax") + ": " + Encode.forHtml(s.getFax()));
         if (s.getName().equals(location))
