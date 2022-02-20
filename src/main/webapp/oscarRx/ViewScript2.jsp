@@ -47,6 +47,7 @@
 <%@page import="org.oscarehr.util.SpringUtils"%>
 <%@page import="org.oscarehr.common.model.Appointment"%>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="oscar.oscarProvider.data.ProviderData" %>
 <%@page import="org.oscarehr.common.dao.OscarAppointmentDao"%>
 <%@ page import="org.oscarehr.common.dao.FaxConfigDao, org.oscarehr.common.model.FaxConfig" %>
@@ -151,7 +152,15 @@ if(bMultisites) {
 	for (int i=0;i<sites.size();i++) {
 		Site s = sites.get(i);
         vecAddressName.add(s.getName());
-        vecAddress.add("<b>"+doctorName+"</b><br>"+s.getName()+"<br>"+s.getAddress() + "<br>" + s.getCity() + ", " + s.getProvince() + " " + s.getPostal() + "<br>"+rb.getString("RxPreview.msgTel")+": " + s.getPhone() + "<br>"+rb.getString("RxPreview.msgFax")+": " + s.getFax());
+        vecAddress.add("<b>" + Encode.forHtml(doctorName)+"</b><br>" +
+                Encode.forHtml(s.getName())+"<br>"+
+                Encode.forHtml(s.getAddress()) + "<br>" +
+                Encode.forHtml(s.getCity()) + ", " +
+                Encode.forHtml(s.getProvince()) + " " +
+                Encode.forHtml(s.getPostal()) + "<br>" +
+                rb.getString("RxPreview.PractNo") + ": " + Encode.forHtml(provider.getPractitionerNo()) + "<br>" +
+                rb.getString("RxPreview.msgTel") + ": " + Encode.forHtml(s.getPhone()) + "<br>" +
+                rb.getString("RxPreview.msgFax") + ": " + Encode.forHtml(s.getFax()));
         if (s.getName().equals(location))
         	session.setAttribute("RX_ADDR",String.valueOf(i));
 	}
