@@ -20,7 +20,7 @@
     Department of Family Medicine
     McMaster University
     Hamilton
-    Ontario, Canada 
+    Ontario, Canada
 
 --%>
 
