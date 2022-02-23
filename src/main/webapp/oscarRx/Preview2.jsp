@@ -385,9 +385,12 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                                             <%= Encode.forHtml(provider.getClinicName().replaceAll("\\(\\d{6}\\)","")) %><br>
                                                             <%= Encode.forHtml(provider.getClinicAddress()) %><br>
                                                             <%= Encode.forHtml(provider.getClinicCity()) %>&nbsp;&nbsp;<%=provider.getClinicProvince()%>&nbsp;&nbsp;
-                                                <%= provider.getClinicPostal() %>
-                                                <% if(provider.getPractitionerNo() != null && !provider.getPractitionerNo().equals("")){ %><br><bean:message key="RxPreview.PractNo"/>:<%= Encode.forHtml(provider.getPractitionerNo()) %><% } %>
-                                                <br>
+                                                            <%= Encode.forHtml(provider.getClinicPostal()) %><br>
+              
+                                                <% if(provider.getPractitionerNo() != null && !provider.getPractitionerNo().equals("")){ %>
+                                                    <bean:message key="RxPreview.PractNo"/>:<%= Encode.forHtml(provider.getPractitionerNo()) %><br>
+                                                <% } %>
+                                                
                                                <%
                                                 	UserProperty phoneProp = userPropertyDAO.getProp(provider.getProviderNo(),"rxPhone");
                                                 	UserProperty faxProp = userPropertyDAO.getProp(provider.getProviderNo(),"faxnumber");
@@ -609,7 +612,7 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                                                 <% } %>
                                                             </td>
                                                             <td height=25px><span id="sline">&nbsp; <%= doctorName%></span> <% if ( pracNo != null && ! pracNo.equals("") && !pracNo.equalsIgnoreCase("null")) { %>
-                                                                <!-- <br /> &nbsp; <bean:message key="RxPreview.PractNo"/> <%= pracNo%> <% } %>                                                         -->
+                                                                <br /><bean:message key="RxPreview.PractNo"/> <%= pracNo%> <% } %>
                                                             </td>
                                                     </tr>
                                                     <% 
