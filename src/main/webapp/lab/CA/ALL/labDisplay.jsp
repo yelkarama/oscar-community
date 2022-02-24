@@ -299,9 +299,7 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
                                     }
                                 }
 	</script>
-        <link rel="stylesheet" type="text/css" href="../../../share/css/OscarStandardLayout.css">
         <style type="text/css">
-            <!--
 .RollRes     { font-weight: 700; font-size: 8pt; color: white; font-family:
                Verdana, Arial, Helvetica }
 .RollRes a:link { color: white }
@@ -415,7 +413,6 @@ pre {
     font-size: x-small;
     font-weight:600;
 } 
-            -->
             
 input[type=button], button, input[id^='acklabel_']{ font-size:12px !important;padding:0px;}    
 #ticklerWrap{position:relative;top:0px;background-color:#FF6600;width:100%;}  
