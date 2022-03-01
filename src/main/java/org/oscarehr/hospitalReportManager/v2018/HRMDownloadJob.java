@@ -96,9 +96,6 @@ public class HRMDownloadJob implements OscarRunnable {
 		} catch (Exception e) {
 			logger.error("Error", e);
 		} finally {
-			if (connector != null) {
-				connector.close();
-			}
 			DbConnectionFilter.releaseAllThreadDbResources();
 		}
 	}
