@@ -230,8 +230,8 @@ input[type="submit"]{
 }
 
 .MainTableTopRowLeftColumn {
-	/*background-color: #003399;
-	//border-right: 2px solid #A9A9A9;
+	background-color: gainsboro;
+	/*border-right: 2px solid #A9A9A9;
 	//border-left: 2px solid #A9A9A9;
 	//border-top: 2px solid #A9A9A9;*/
 	height: 34px;
@@ -257,8 +257,8 @@ input[type="submit"]{
 
 .MainTableTopRowRightColumn {
 	/*border-right: 2px solid #A9A9A9;
-	border-top: 2px solid #A9A9A9;
-	background-color: #003399;*/
+	border-top: 2px solid #A9A9A9;*/
+	background-color: gainsboro;
 	height: 34px;
         min-width: 400px;
 }

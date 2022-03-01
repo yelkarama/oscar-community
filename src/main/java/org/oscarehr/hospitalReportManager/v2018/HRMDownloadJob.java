@@ -88,8 +88,8 @@ public class HRMDownloadJob implements OscarRunnable {
 				privateKeyDirectory = OscarProperties.getInstance().getProperty("DOCUMENT_DIR") + ".." + File.separator + "hrm" + File.separator + "OMD" + File.separator;
 			}
 			
-			
-			SFTPConnector connector = new SFTPConnector(x, hostname,Integer.parseInt(port),username,privateKeyDirectory + privateKeyFile,"Automatic");
+			SFTPConnector connector = null;			
+			connector = new SFTPConnector(x, hostname,Integer.parseInt(port),username,privateKeyDirectory + privateKeyFile,"Automatic");
 			SFTPConnector.setDecryptionKey(decryptionKey);
 			connector.startAutoFetch(x,remoteDir);
 			connector.close();
@@ -98,6 +98,9 @@ public class HRMDownloadJob implements OscarRunnable {
 			logger.error("Error", e);
 		} finally {
 			DbConnectionFilter.releaseAllThreadDbResources();
+			if (connector != null) {
+				connector.close();
+			}
 		}
 	}
 
