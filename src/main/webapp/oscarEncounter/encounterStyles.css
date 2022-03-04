@@ -226,6 +226,7 @@ input[type="submit"]{
 	//border-top: 2px solid #A9A9A9;*/
 	height: 34px;
 	max-width: 160px;
+   	min-width: 150px;
 	font-size: 110%;
 	font-weight: bold;
 	/*color: #FFFFFF;*/
