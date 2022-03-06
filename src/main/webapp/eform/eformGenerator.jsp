@@ -38,9 +38,18 @@
 		return;
 	}
 %>
-<%@ page import="oscar.eform.actions.DisplayImageAction,java.lang.*,java.io.File,oscar.OscarProperties,java.io.*,oscar.eform.*,oscar.eform.data.*,java.util.*,org.apache.log4j.Logger"%>
+<%@ page import="java.lang.*"%>
+<%@ page import="java.io.*"%>
+<%@ page import="java.io.File"%>
+<%@ page import="java.util.*"%>
+<%@ page import="oscar.eform.*"%>
+<%@ page import="oscar.eform.data.*"%>
+<%@ page import="oscar.eform.actions.DisplayImageAction"%>
+<%@ page import="oscar.OscarProperties"%>
+<%@ page import="org.apache.log4j.Logger"%>
 <!--
-eForm Generator version 7.0
+eForm Generator version 7.1
+		7.1 bug fixes
 		7.0 Tickler support, refactored signatures to simplify, bug fixes
 		6.5 further adjusted defaults for width to 825
 		6.4 adjusted defaults for width to 825
@@ -53,7 +62,8 @@ eForm Generator version 7.0
 	Shelter Lee
 	Darius
 	Charlie Livingston
-	re-imagined by Peter Hutten-Czapski 2014-2021
+	Adrian Starzynski
+	Peter Hutten-Czapski 2014-2022
 	released under 
 	AGPL v2+
 	and other liscences (MIT, LGPL etc) as indicated
@@ -711,13 +721,8 @@ function GetTextTop(){
             xPresent=true;      
         }
     }
-
-		if ((document.getElementById('includePdfPrintControl').checked) || 
-		(document.getElementById("includeFaxControl").checked) || 
-		(document.getElementById('AddSignature').checked) || 
-		(document.getElementById('AddSignatureClassic').checked) ||
-		(document.getElementById('XboxType').checked) || 
-		(document.getElementById('includeTicklerControl').checked) ||
+		if ( <% if (OscarProperties.getInstance().isPropertyActive("eform_generator_indivica_print_enabled")) { %>(document.getElementById('includePdfPrintControl').checked) || <%}%> <% if (OscarProperties.getInstance().isPropertyActive("eform_generator_indivica_fax_enabled")) { %>(document.getElementById("includeFaxControl").checked) || <% } %> (document.getElementById('AddSignature').checked) ||
+		(document.getElementById('XboxType').checked) ||
 		(xPresent) ) {
 		textTop += "&lt;!-- jQuery for greater functionality --&gt;\n"
 		// dependency on jquery up to version 2.2.1 for pdf and faxing 
@@ -810,6 +815,9 @@ function GetTextTop(){
 			textTop += "\tif (parseInt(userBillingNo) > 100) {\n";
 			textTop += "\t\t// then a valid billing number so use the current user id \n";
 			textTop += "\t\tprovNum = document.getElementById('user_id').value; \n";
+			textTop += "\t\tif (provNum != document.getElementById('doctor_no').value && !!document.getElementById('doctor')) {\n"
+			textTop += "\t\t\tdocument.getElementById('doctor').value=document.getElementById('CurrentUserName').value + ' CC: ' + document.getElementById('doctor').value;\n"
+			textTop += "\t\t}\n"			
 			textTop += "\t} else { \n";
 			textTop += "\t\tprovNum = document.getElementById('doctor_no').value; \n";
 			textTop += "\t}\n";
@@ -821,7 +829,7 @@ function GetTextTop(){
 		textTop += "}\n";
 		textTop += "function toggleMe(){\n"
 		textTop += "\tif (document.getElementById(&quot;Stamp&quot;).src.indexOf(&quot;BNK.png&quot;)>0){\n"
-		textTop += "\t\tSignForm()\n"
+		textTop += "\t\tSignForm2()\n"
 		textTop += "\t} else {\n"
 		textTop += "\t\tdocument.getElementById(&quot;Stamp&quot;).src = &quot;../eform/displayImage.do?imagefile=BNK.png&quot;;\n"
 		textTop += "\t}\n"
@@ -1038,7 +1046,6 @@ function GetTextTop(){
 	textTop += "&lt;/script&gt;\n\n"
 
 	//maximize window script
-	//fix by Adrian Starzynski for the maximize window option to work when selected
 	if (document.getElementById('maximizeWindow').checked){
 		textTop += "&lt;!-- scripts to maximise window on load --&gt;\n"
         textTop += "&lt;script language=&quot;JavaScript&quot;&gt;\n"
@@ -1165,10 +1172,6 @@ function GetTextTop(){
 	//<body>
 	textTop += "&lt;body"
 	textTop += " onload=&quot;"
-	//auto check gender boxes
-	if ((document.getElementById('preCheckGender').checked)||(document.getElementById('XboxType').checked)){
-		textTop += "checkGender();"
-	}
     //textTop += "reImg();"
 	//auto load signature stamp image, default to 'current_user'
 	if (document.getElementById('AddStamp').checked){
@@ -1180,6 +1183,10 @@ function GetTextTop(){
 	if (document.getElementById('AddSignature').checked){
 		textTop += "loadSig();"
 	} 
+	//auto check gender boxes
+	if ((document.getElementById('preCheckGender').checked)||(document.getElementById('XboxType').checked)){
+		textTop += "checkGender();"
+	}
 	<% if (eformGeneratorIndivicaFaxEnabled) { %>
 	if ((document.getElementById('faxno').value.length >0)){
 		textTop += "setFaxNo();"
@@ -1703,7 +1710,7 @@ show('classic');
 	onmouseup="SetMouseUp(); DrawMarker();loadInputList();"
 	onload="finishLoadingImage()">
 
-<h1><bean:message key="eFormGenerator.title"/> 7.0</h1>
+<h1><bean:message key="eFormGenerator.title"/> 7.1</h1>
 
 <!-- this form  used for injecting html in to Edit E-Form  efmformmanageredit.jsp -->
 <form method="post" action="efmformmanageredit.jsp" id="toSave">
