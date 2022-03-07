@@ -30,7 +30,7 @@
 		#FF8C00 = darkorange
 */
 BODY {
-	FONT-SIZE: Normal;
+	/*FONT-SIZE: Normal;*/  
 	FONT-FAMILY: Verdana, Tahoma, Arial, sans-serif;
 }
 
@@ -125,7 +125,7 @@ TH {
 
 .doctorInfo {
 	font-size: x-small;
-	text-decoration: bold;
+	/*text-decoration: bold;*/
 	background-color: #A39FC4;
 }
 
@@ -135,7 +135,7 @@ TH {
 
 .patientInfo {
 	font-size: small;
-	text-decoration: bold;
+	/*text-decoration: bold;*/
 	background-color: #CBC9E0;
 	/*#CBC9E0;*/
 }
@@ -222,8 +222,8 @@ input[type="submit"]{
 .MainTableTopRowLeftColumn {
 	background-color: gainsboro;
 	/*border-right: 2px solid #A9A9A9;
-	//border-left: 2px solid #A9A9A9;
-	//border-top: 2px solid #A9A9A9;*/
+	border-left: 2px solid #A9A9A9;
+	border-top: 2px solid #A9A9A9;*/
 	height: 34px;
 	max-width: 160px;
    	min-width: 150px;
@@ -268,7 +268,7 @@ input[type="submit"]{
 
 .TopStatusBar {
 	font-weight: bold;
-	//background-color: #6699cc;
+	/*background-color: #6699cc;*/
 	color: black;
 	height: 23px;
 	width: 100%;
@@ -376,7 +376,7 @@ div.demographicWrapper {
     position: absolute;
     visibility: hidden;
     background-color: #6699cc;
-    layer-background-color: #6699cc;
+    /*layer-background-color: #6699cc;*/
     color: white;
     border-left: 1px solid black;
     border-top: 1px solid black;
@@ -404,7 +404,7 @@ div.label {
 	background-color: #6699cc;
 	color: black;
 	height: 23px;
-	width: 500;
+	width: 500px;
 }
 
 .Title {
@@ -416,7 +416,7 @@ div.label {
 
 .fieldBox {
 	font-family: tahoma, helvetica;
-	background-color: "#ddddff";
+	background-color: #ddddff;
 }
 
 .note {
@@ -561,7 +561,7 @@ div.leftBox li { /*padding-right: 15px;*/
 	position: absolute;
 	visibility: hidden;
 	background-color: #6699cc;
-	layer-background-color: #6699cc;
+	/*layer-background-color: #6699cc;*/
 	color: white;
 	border-left: 1px solid black;
 	border-top: 1px solid black;
@@ -696,7 +696,6 @@ div.newNote pre {
     font-family:arial,sans-serif;
     font-size:1.0em;
     width:99%;
-    rows:10;
     overflow:hidden;
     border:none;
     margin: 0px 3px;
@@ -728,7 +727,6 @@ ul#issueIdList {
     /*border: thin ridge black;*/
     background-color:#CCCCFF;
     font-size:9px;
-
     position: absolute;
     display:none;
     z-index:200;
