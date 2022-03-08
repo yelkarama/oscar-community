@@ -39,7 +39,7 @@ import oscar.MyDateFormat;
 import oscar.log.LogAction;
 import oscar.log.LogConst;
 
-import com.j256.twofactorauth;
+import com.j256.twofactorauth.*;
 
 /**
  * Helper class for securityaddsecurity.jsp page.

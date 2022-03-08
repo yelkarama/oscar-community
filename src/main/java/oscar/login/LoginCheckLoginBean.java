@@ -39,7 +39,7 @@ import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
 import com.quatro.model.security.LdapSecurity;
-import com.j256.twofactorauth;
+import com.j256.twofactorauth.*;
 
 import oscar.OscarProperties;
 import oscar.log.LogAction;
