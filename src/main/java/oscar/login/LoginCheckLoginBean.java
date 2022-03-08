@@ -90,8 +90,12 @@ public final class LoginCheckLoginBean {
 		// check for 2FA type pin
 		if (security.isTotpEnabled()) {
 			String base32Secret = security.getTotpSecret();
-			Integer numDigits = security.getTotpDigits();	
-			String code = TimeBasedOneTimePasswordUtil.generateCurrentNumberString(base32Secret, numDigits);
+			Integer numDigits = security.getTotpDigits();
+			try {
+				String code = TimeBasedOneTimePasswordUtil.generateCurrentNumberString(base32Secret, numDigits);
+			} catch (Exception e) {
+				logger.error(e.getMessage());
+			}
 			if (isWAN() && security.getBRemotelockset() != null && security.getBRemotelockset().intValue() == 1 && (!sPin.equals(code) || pin.length() < 3)) {
 				return cleanNullObj(LOG_PRE + "Pin-remote 2FA needed: " + username);
 			} else if (!isWAN() && security.getBLocallockset() != null && security.getBLocallockset().intValue() == 1 && (!sPin.equals(code) || pin.length() < 3)) {
