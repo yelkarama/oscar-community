@@ -39,6 +39,7 @@ import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
 import com.quatro.model.security.LdapSecurity;
+import com.j256.twofactorauth;
 
 import oscar.OscarProperties;
 import oscar.log.LogAction;
@@ -86,10 +87,23 @@ public final class LoginCheckLoginBean {
 		String sPin = pin;
 		if (oscar.OscarProperties.getInstance().isPINEncripted()) sPin = oscar.Misc.encryptPIN(sPin);
 
-		if (isWAN() && security.getBRemotelockset() != null && security.getBRemotelockset().intValue() == 1 && (!sPin.equals(security.getPin()) || pin.length() < 3)) {
-			return cleanNullObj(LOG_PRE + "Pin-remote needed: " + username);
-		} else if (!isWAN() && security.getBLocallockset() != null && security.getBLocallockset().intValue() == 1 && (!sPin.equals(security.getPin()) || pin.length() < 3)) {
-			return cleanNullObj(LOG_PRE + "Pin-local needed: " + username);
+		// check for 2FA type pin
+		if (security.isTotpEnabled()) {
+			String base32Secret = security.getTotpSecret();
+			Integer numDigits = security.getTotpDigits();
+			Integer timeStepSeconds = security.getTotpPeriod();			
+			String code = com.j256.twofactorauth.TimeBasedOneTimePasswordUtil.generateCurrentNumberString(base32Secret, System.currentTimeMillis(), timeStepSeconds, numDigits);
+			if (isWAN() && security.getBRemotelockset() != null && security.getBRemotelockset().intValue() == 1 && (!sPin.equals(code) || pin.length() < 3)) {
+				return cleanNullObj(LOG_PRE + "Pin-remote 2FA needed: " + username);
+			} else if (!isWAN() && security.getBLocallockset() != null && security.getBLocallockset().intValue() == 1 && (!sPin.equals(code) || pin.length() < 3)) {
+				return cleanNullObj(LOG_PRE + "Pin-local 2FA needed: " + username);
+			}		
+		} else {
+			if (isWAN() && security.getBRemotelockset() != null && security.getBRemotelockset().intValue() == 1 && (!sPin.equals(security.getPin()) || pin.length() < 3)) {
+				return cleanNullObj(LOG_PRE + "Pin-remote needed: " + username);
+			} else if (!isWAN() && security.getBLocallockset() != null && security.getBLocallockset().intValue() == 1 && (!sPin.equals(security.getPin()) || pin.length() < 3)) {
+				return cleanNullObj(LOG_PRE + "Pin-local needed: " + username);
+			}
 		}
 
 		if (security.getBExpireset() != null && security.getBExpireset().intValue() == 1 && (security.getDateExpiredate() == null || security.getDateExpiredate().before(new Date()))) {

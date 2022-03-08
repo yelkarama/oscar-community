@@ -39,6 +39,7 @@ import oscar.MyDateFormat;
 import oscar.log.LogAction;
 import oscar.log.LogConst;
 
+import com.j256.twofactorauth;
 
 /**
  * Helper class for securityaddsecurity.jsp page.
@@ -96,11 +97,18 @@ public class SecurityAddSecurityHelper {
 		s.setDateExpiredate(MyDateFormat.getSysDate(request.getParameter("date_ExpireDate")));
 		s.setBLocallockset(request.getParameter("b_LocalLockSet") == null ? 0 : Integer.parseInt(request.getParameter("b_LocalLockSet")));
 		s.setBRemotelockset(request.getParameter("b_RemoteLockSet") == null ? 0 : Integer.parseInt(request.getParameter("b_RemoteLockSet")));
-		
+	    String secret =  TimeBasedOneTimePasswordUtil.generateBase32Secret();
+	    s.setTotpSecret(secret);
     	if (request.getParameter("forcePasswordReset") != null && request.getParameter("forcePasswordReset").equals("1")) {
     	    s.setForcePasswordReset(Boolean.TRUE);
     	} else {
     		s.setForcePasswordReset(Boolean.FALSE);  
+        }
+    	
+    	if (request.getParameter("2fa") != null && request.getParameter("2fa").equals("1")) {
+    	    s.setTotpEnabled(Boolean.TRUE);
+    	} else {
+    		s.setTotpEnabled(Boolean.FALSE);  
         }
 		
     	s.setPasswordUpdateDate(new Date());

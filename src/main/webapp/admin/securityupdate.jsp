@@ -43,12 +43,17 @@
 	}
 %>
 
-
-<%@ page import="java.sql.*, java.util.*,java.security.*,oscar.*,oscar.oscarDB.*" errorPage="errorpage.jsp"%>
-<%@ page import="oscar.log.LogAction,oscar.log.LogConst"%>
+<%@ page import="oscar.*" errorPage="errorpage.jsp" %>
+<%@ page import="java.sql.*" %>
+<%@ page import="java.util.*" %>
+<%@ page import="java.security.*" %>
+<%@ page import="oscar.oscarDB.*" %>
+<%@ page import="oscar.log.LogAction" %>
+<%@ page import="oscar.log.LogConst" %>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.Security" %>
 <%@ page import="org.oscarehr.common.dao.SecurityDao" %>
+<%@ page import="com.j256.twofactorauth" %>
 <%
 	SecurityDao securityDao = SpringUtils.getBean(SecurityDao.class);
 %>
@@ -76,9 +81,15 @@
     if (OscarProperties.getInstance().isPINEncripted()) sPin = Misc.encryptPIN(request.getParameter("pin"));
 
     int rowsAffected =0;
+    String secret =  TimeBasedOneTimePasswordUtil.generateBase32Secret();
 
     Security s = securityDao.find(Integer.parseInt(request.getParameter("security_no")));
     if(s != null) {
+    	if (s.getTotpSecret().equals("")) {
+    		s.setTotpSecret(secret);
+    	} else {
+    		secret = s.getTotpSecret();
+    	}
     	s.setUserName(request.getParameter("user_name"));
 	    s.setProviderNo(request.getParameter("provider_no"));
 	    s.setBExpireset(request.getParameter("b_ExpireSet")==null?0:Integer.parseInt(request.getParameter("b_ExpireSet")));
@@ -100,6 +111,12 @@
     	    s.setForcePasswordReset(Boolean.TRUE);
     	} else {
     		s.setForcePasswordReset(Boolean.FALSE);  
+        }
+    	
+    	if (request.getParameter("2fa") != null && request.getParameter("2fa").equals("1")) {
+    	    s.setTotpEnabled(Boolean.TRUE);
+    	} else {
+    		s.setTotpEnabled(Boolean.FALSE);  
         }
     	
     	s.setLastUpdateDate(new java.util.Date());
@@ -128,8 +145,12 @@
 <%
   }
 %>
-
-<p></p>
-
+<% if (request.getParameter("2fa") != null && request.getParameter("2fa").equals("1")) { 
+	String qrUrl =  TimeBasedOneTimePasswordUtil.qrImageUrl("OSCAR",secret);	
+%>
+<div class="container-fluid well" >
+	<p><%=qrUrl %></p>
+</div>
+<% } %>
 </body>
 </html:html>

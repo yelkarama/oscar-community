@@ -146,10 +146,22 @@
 		return true;
 	}
 //-->
+	function togglePins() {
+		var is2fa = document.getElementById('2fa').value;
+		var pin1 = document.getElementById("pin1");
+		var pin2 = document.getElementById("pin2");
+		if (is2fa) {
+			pin1.style.display= "none";
+			pin2.style.display= "none";
+		} else {
+			pin1.style.display= "block";
+			pin2.style.display= "block";			
+		}
+	}
 </script>
 </head>
 
-<body onLoad="" topmargin="0" leftmargin="0" rightmargin="0">
+<body onLoad="togglePins();" topmargin="0" leftmargin="0" rightmargin="0">
 <div width="100%">
     <div id="header"><H4><i class="icon-lock"></i>&nbsp;<bean:message
 			key="admin.securityupdatesecurity.description" /></H4>
@@ -242,6 +254,19 @@ value="*********"
             <p class="help-block text-danger"></p>
         </div>
     </div>
+        <div class="control-group span7">
+        <label class="control-label" for="2fa"><bean:message 
+                key="admin.provider.2fa"  /></label>
+        <div class="controls">
+			<select name="2fa" onchange="togglePins()">
+				<option value="1" <% if (security != null && security.isTotpEnabled()!= null && security.isTotpEnabled()) { %>
+					     SELECTED <%}%>><bean:message key="global.yes" /></option>
+				<option value="0" <% if (security != null && security.isTotpEnabled()!= null && !security.isTotpEnabled()) { %>
+					     SELECTED <%}%>><bean:message key="global.no" /></option>
+			</select>
+            <p class="help-block text-danger"></p>
+        </div>
+    </div>
     <div class="control-group span7">
         <label class="control-label" for="b_RemoteLockSet"><bean:message 
                 key="admin.securityrecord.formRemotePIN" /></label>
@@ -259,7 +284,7 @@ value="*********"
             <p class="help-block text-danger"></p>
         </div>
     </div>
-    <div class="control-group span7">
+    <div id="pin1" class="control-group span7">
         <label class="control-label" for="pin"><bean:message 
                 key="admin.securityrecord.formPIN"  /></label>
         <div class="controls">
@@ -275,7 +300,7 @@ value="*********"
             <p class="help-block text-danger"></p>
         </div>
     </div>
-    <div class="control-group span7">
+    <div id="pin2" class="control-group span7">
         <label class="control-label" for="conPin"><bean:message 
                 key="admin.securityrecord.formConfirm"  /></label>
         <div class="controls">
