@@ -53,7 +53,7 @@
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.Security" %>
 <%@ page import="org.oscarehr.common.dao.SecurityDao" %>
-<%@ page import="com.j256.twofactorauth" %>
+<%@ page import="com.j256.twofactorauth.TimeBasedOneTimePasswordUtil" %>
 <%
 	SecurityDao securityDao = SpringUtils.getBean(SecurityDao.class);
 %>
