@@ -149,7 +149,7 @@
 	String qrUrl =  TimeBasedOneTimePasswordUtil.qrImageUrl("OSCAR",secret);	
 %>
 <div class="container-fluid well" >
-	<p><%=qrUrl %></p>
+	<p><img src="<%=qrUrl%>"></p>
 </div>
 <% } %>
 </body>
