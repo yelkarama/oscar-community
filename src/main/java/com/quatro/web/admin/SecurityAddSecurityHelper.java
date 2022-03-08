@@ -97,7 +97,7 @@ public class SecurityAddSecurityHelper {
 		s.setDateExpiredate(MyDateFormat.getSysDate(request.getParameter("date_ExpireDate")));
 		s.setBLocallockset(request.getParameter("b_LocalLockSet") == null ? 0 : Integer.parseInt(request.getParameter("b_LocalLockSet")));
 		s.setBRemotelockset(request.getParameter("b_RemoteLockSet") == null ? 0 : Integer.parseInt(request.getParameter("b_RemoteLockSet")));
-	    String secret =  generateBase32Secret();
+	    String secret =  TimeBasedOneTimePasswordUtil.generateBase32Secret();
 	    s.setTotpSecret(secret);
     	if (request.getParameter("forcePasswordReset") != null && request.getParameter("forcePasswordReset").equals("1")) {
     	    s.setForcePasswordReset(Boolean.TRUE);
