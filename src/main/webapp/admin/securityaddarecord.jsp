@@ -136,12 +136,13 @@
 		var is2fa = document.getElementById('2fa').value;
 		var pin1 = document.getElementById("pin1");
 		var pin2 = document.getElementById("pin2");
-		if (is2fa) {
-			pin1.style.display= "none";
-			pin2.style.display= "none";
+		if (is2fa == 1) {
+			pin1.style.display = "none";
+			pin2.style.display = "none";
 		} else {
 			pin1.style.display= "block";
-			pin2.style.display= "block";			
+			pin2.style.display= "block";
+	
 		}
 	}
 	
@@ -310,7 +311,7 @@
         <label class="control-label" for="2fa"><bean:message 
                 key="admin.provider.2fa"  /></label>
         <div class="controls">
-			<select name="2fa" onchange="togglePins()">
+			<select name="2fa" id="2fa" onchange="togglePins()">
 								<option value="1"><bean:message key="global.yes" /></option>
 								<option value="0"><bean:message key="global.no" /></option>
 			</select>
