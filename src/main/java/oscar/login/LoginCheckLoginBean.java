@@ -92,7 +92,7 @@ public final class LoginCheckLoginBean {
 			String base32Secret = security.getTotpSecret();
 			Integer numDigits = security.getTotpDigits();
 			try {
-				boolean valid = TimeBasedOneTimePasswordUtil.validateCurrentNumber(base32Secret, Integer.parseInt(sPin), 10000);
+				boolean valid = TimeBasedOneTimePasswordUtil.validateCurrentNumber(base32Secret, Integer.parseInt(pin), 10000);
 				if (isWAN() && security.getBRemotelockset() != null && security.getBRemotelockset().intValue() == 1 && (!valid || pin.length() < 3)) {
 					return cleanNullObj(LOG_PRE + "Pin-remote 2FA needed: " + username);
 				} else if (!isWAN() && security.getBLocallockset() != null && security.getBLocallockset().intValue() == 1 && (!valid || pin.length() < 3)) {
