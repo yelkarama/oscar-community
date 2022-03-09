@@ -61,12 +61,13 @@
 <html:html locale="true">
 <head>
 <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
-<title><bean:message key="admin.securityupdate.title" /></title>
+<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
+<title><bean:message key="admin.securityupdate.description" /></title>
 </head>
 <link rel="stylesheet" href="../web.css" />
 <body topmargin="0" leftmargin="0" rightmargin="0">
 <div >
-    <div  id="header"><H3><bean:message
+    <div  id="header"><H3>&nbsp;<i class="icon-lock"></i>&nbsp;<bean:message
 			key="admin.securityupdate.description" /></H3>
     </div>
 </div>
@@ -85,7 +86,7 @@
 
     Security s = securityDao.find(Integer.parseInt(request.getParameter("security_no")));
     if(s != null) {
-    	if (s.getTotpSecret().equals("")) {
+    	if (s.getTotpSecret().equals("") || ( request.getParameter("resetSecret")!=null && "true".equals(request.getParameter("resetSecret")) )) {
     		s.setTotpSecret(secret);
     	} else {
     		secret = s.getTotpSecret();
@@ -149,7 +150,15 @@
 	String qrUrl =  TimeBasedOneTimePasswordUtil.qrImageUrl("OSCAR",secret);	
 %>
 <div class="container-fluid well" >
-	<p><img src="<%=qrUrl%>" alt="<%=secret%>"></p>
+    <div class="control-group span4">
+	    <p><img src="<%=qrUrl%>" alt="<%=secret%>"></p>
+    </div>
+    <div class="control-group span4">
+        <p><bean:message 
+                key="admin.provider.2fa.qr"/></p><br>
+        <input type="button" class="btn btn-primary" value="<bean:message 
+                key="global.btnPrint"/>" onclick="window.print();">
+    </div>
 </div>
 <% } %>
 </body>
