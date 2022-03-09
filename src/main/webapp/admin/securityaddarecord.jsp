@@ -55,15 +55,19 @@
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
-<%@ page
-	import="java.lang.*, java.util.*, java.text.*,java.sql.*, oscar.*"
-	errorPage="errorpage.jsp"%>
+
+<%@ page import="oscar.*" errorPage="errorpage.jsp" %>
+<%@ page import="java.sql.*" %>
+<%@ page import="java.util.*" %>
+<%@ page import="java.lang.*" %>
+
 <%@page import="org.oscarehr.util.SpringUtils" %>
 <%@page import="org.oscarehr.common.model.Provider" %>
 <%@page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
 <%@page import="org.oscarehr.common.model.Security" %>
 <%@page import="org.oscarehr.common.dao.SecurityDao" %>
 <%@page import="com.quatro.web.admin.SecurityAddSecurityHelper"%>
+<%@ page import="com.j256.twofactorauth.TimeBasedOneTimePasswordUtil" %>
 
 <%
 	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
@@ -85,7 +89,11 @@
 		color: black;
 	}
 </style>
-
+<style type="text/css" media="print">
+ .DoNotPrint {
+	display: none;
+ }
+</style>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/checkPassword.js.jsp"></script>
 <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 <link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
@@ -124,14 +132,9 @@
 </script>
 
 
+
 <script type="text/javascript">
-<!--
-	function setfocus(el) {
-		this.focus();
-		document.searchprovider.elements[el].focus();
-		document.searchprovider.elements[el].select();
-	}
-	
+
 	function togglePins() {
 		var is2fa = document.getElementById('2fa').value;
 		var pin1 = document.getElementById("pin1");
@@ -145,48 +148,16 @@
 	
 		}
 	}
-	
-	function onsub() {
+
+	function selected() {
 		var selectedOption = $('#provider_no option:selected');
 		if (selectedOption) {
 			var optionClass = selectedOption.attr("class");
 			if (optionClass == "providerSecurity1") {
 				alert('<bean:message key="admin.securityrecord.msgProviderAlreadyHasSecurityRec" />');
-				return false;
 			}
 		}
-
-
-		<%
-			boolean ignorePasswordReq=Boolean.parseBoolean(op.getProperty("IGNORE_PASSWORD_REQUIREMENTS"));
-			if (!ignorePasswordReq)
-			{
-				%>
-					if (!validatePassword(document.searchprovider.password.value)) {
-						setfocus('password');
-						return false;
-					}
-				<%
-			}
-		%>
-
-
-		if (document.forms[0].b_ExpireSet.checked && document.forms[0].date_ExpireDate.value.length<10) {
-			alert('<bean:message key="admin.securityrecord.formDate" /> <bean:message key="admin.securityrecord.msgIsRequired"/>');
-			setfocus('date_ExpireDate');
-			return false;
-		}
-		if (document.forms[0].pinIsRequired.value == 1 || document.forms[0].b_RemoteLockSet.checked || document.forms[0].b_LocalLockSet.checked) {
-			if (document.forms[0].pin.value=="") {
-				alert('<bean:message key="admin.securityrecord.formPIN" /> <bean:message key="admin.securityrecord.msgIsRequired"/>');
-				setfocus('pin');
-				return false;
-			}
-		}
-
-		return true;
-	}
-//-->
+    }
 </script>
 
 
@@ -207,13 +178,33 @@
 	helper.addProvider(pageContext);
 %>
 <div class="alert alert-info" >
-    <strong><bean:message key="${message}" /><strong>
+    <strong><bean:message key="${message}" />&nbsp;<%=request.getParameter("provider_no")%><strong>
 </div>
+
+<% if (request.getParameter("2fa") != null && request.getParameter("2fa").equals("1")) { 
+    
+List<Security> s = securityDao.findByProviderNo(request.getParameter("provider_no"));
+    String secret = s.get(0).getTotpSecret();
+	String qrUrl =  TimeBasedOneTimePasswordUtil.qrImageUrl("OSCAR",secret);	
+%>
+<div class="container-fluid well" >
+    <div class="control-group span4">
+	    <p><img src="<%=qrUrl%>" alt="<%=secret%>"></p>
+    </div>
+    <div class="control-group span4">
+        <p><bean:message 
+                key="admin.provider.2fa.qr"/></p><br>
+        <input type="button" class="btn btn-primary DoNotPrint" value="<bean:message 
+                key="global.btnPrint"/>" onclick="window.print();">
+    </div>
+</div>
+<% } %>
+
 <% } %>
 
 <form method="post" action="securityaddarecord.jsp" name="searchprovider" autocomplete="off"
 	novalidate>
-<table width="400px" align="center">
+<table width="400px" align="center" class="DoNotPrint">
 <tr><td >
 <div class="container-fluid well form-horizontal" >
     <div class="control-group span7">
@@ -260,7 +251,7 @@
         <label class="control-label" for="provider_no"><bean:message 
                 key="admin.securityrecord.formProviderNo" /><span style="color:red">*</span></label>
         <div class="controls">
-		    <select name="provider_no" id="provider_no"
+		    <select name="provider_no" id="provider_no" onchange="selected();"
             required ="required" 
             data-validation-required-message='<bean:message key="admin.securityrecord.formProviderNo" /> <bean:message key="admin.securityrecord.msgIsRequired"/>'> 
             >
@@ -268,26 +259,20 @@
                 key="admin.securityrecord.formProviderNo" /> -</option>
 <%
 	List<Map<String,Object>> resultList ;
-    if (isSiteAccessPrivacy) {
+ 
     	for(Provider p : providerDao.getActiveProviders()) {
     		List<Security> s = securityDao.findByProviderNo(p.getProviderNo());
-    		if(s.size() > 0) {
+    		if(s.size() == 0) {
     			%>
-    			<option value="<%=p.getProviderNo()%>"><%=p.getFormattedName()%></option>    			
+    			<option value="<%=p.getProviderNo()%>" class="providerSecurity0"><%=p.getFormattedName()%></option>    			
     			<%
-    		}
+    		} else {
+    			%>
+    			<option value="<%=p.getProviderNo()%>" class="providerSecurity1"><%=p.getFormattedName()%></option>    			
+    			<%
+            }
     	}
-    	
-  
-    		
-    }
-    else {
-    	for(Provider p : providerDao.getActiveProviders()) {
-    		%>
-			<option value="<%=p.getProviderNo()%>"><%=p.getFormattedName()%></option>    	
-			<%
-    	}
-    }
+    	   
 %>
 		</select> 
             <p class="help-block text-danger"></p>
