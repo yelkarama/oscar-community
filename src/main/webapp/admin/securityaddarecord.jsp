@@ -181,25 +181,29 @@
     <strong><bean:message key="${message}" />&nbsp;<%=request.getParameter("provider_no")%><strong>
 </div>
 
-<% if (request.getParameter("2fa") != null && request.getParameter("2fa").equals("1")) { 
-    
-List<Security> s = securityDao.findByProviderNo(request.getParameter("provider_no"));
-    String secret = s.get(0).getTotpSecret();
-	String qrUrl =  TimeBasedOneTimePasswordUtil.qrImageUrl("OSCAR",secret);	
-%>
-<div class="container-fluid well" >
-    <div class="control-group span4">
-	    <p><img src="<%=qrUrl%>" alt="<%=secret%>"></p>
+    <% if (request.getParameter("2fa") != null && request.getParameter("2fa").equals("1")) { 
+        
+    List<Security> s = securityDao.findByProviderNo(request.getParameter("provider_no"));
+        String secret = s.get(0).getTotpSecret();
+	    String qrUrl =  TimeBasedOneTimePasswordUtil.qrImageUrl("OSCAR",secret);	
+    %>
+    <div class="container-fluid well" id="qrdisplay">
+        <div class="control-group span4">
+	        <p><img src="<%=qrUrl%>" alt="<%=secret%>"></p>
+        </div>
+        <div class="control-group span4">
+            <p><bean:message 
+                    key="admin.provider.2fa.qr"/></p><br>
+            <input type="button" class="btn btn-primary DoNotPrint" value="<bean:message 
+                    key="global.btnPrint"/>" onclick="window.print();">
+        </div>
     </div>
-    <div class="control-group span4">
-        <p><bean:message 
-                key="admin.provider.2fa.qr"/></p><br>
-        <input type="button" class="btn btn-primary DoNotPrint" value="<bean:message 
-                key="global.btnPrint"/>" onclick="window.print();">
-    </div>
-</div>
-<% } %>
-
+<input type="button" class="btn DoNotPrint" value="<bean:message 
+                    key="global.btnReset"/>" onclick="document.getElementById('addnew').style.display='block';document.getElementById('qrdisplay').style.display='none';">
+    <div id="addnew" style="display:none;"> 
+    <% } else { %>
+    <div id="addnew">    
+    <% } %>
 <% } %>
 
 <form method="post" action="securityaddarecord.jsp" name="searchprovider" autocomplete="off"
@@ -386,6 +390,6 @@ List<Security> s = securityDao.findByProviderNo(request.getParameter("provider_n
 </table>
 
 </form>
-
+</div>
 </body>
 </html:html>
