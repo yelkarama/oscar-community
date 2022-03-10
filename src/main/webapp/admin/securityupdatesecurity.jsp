@@ -92,7 +92,7 @@
             });          
 
 </script>
-<script>
+
 <!--
 	function setfocus(el) {
 		this.focus();
@@ -134,6 +134,7 @@
 				return false;
 			}
 		}
+
 		if (document.forms[0].pin.value != "****" && !validatePin(document.forms[0].pin.value)) {
 			setfocus('pin');
 			return false;
@@ -146,10 +147,25 @@
 		return true;
 	}
 //-->
+<script>
+	function togglePins() {
+		var is2fa = document.getElementById('2fa').value;
+		var pin1 = document.getElementById("pin1");
+		var pin2 = document.getElementById("pin2");
+		if (is2fa == 1) {
+			pin1.style.display = "none";
+			pin2.style.display = "none";
+            document.getElementById("reset2fa").style.display = "block";
+		} else {
+			pin1.style.display= "block";
+			pin2.style.display= "block";
+            document.getElementById("reset2fa").style.display = "none";			
+		}
+	}
 </script>
 </head>
 
-<body onLoad="" topmargin="0" leftmargin="0" rightmargin="0">
+<body onLoad="togglePins();" topmargin="0" leftmargin="0" rightmargin="0">
 <div width="100%">
     <div id="header"><H4><i class="icon-lock"></i>&nbsp;<bean:message
 			key="admin.securityupdatesecurity.description" /></H4>
@@ -157,7 +173,7 @@
 </div>
 
 
-	<form method="post" action="securityupdate.jsp" name="updatearecord" onsubmit="return onsub()" autocomplete="off"
+	<form method="post" action="securityupdate.jsp" name="updatearecord" autocomplete="off"
 	novalidate>
 <table width="400px" align="center">
 <%
@@ -199,7 +215,7 @@
             autocomplete="new-password" name="password" required ="required" 
 value="*********"
             data-validation-required-message='<bean:message key="admin.securityrecord.formPassword" /> <bean:message key="admin.securityrecord.msgIsRequired"/>'
-            data-validation-compexity-regex="(?=.*\d)(?=.*[a-z])(?=.*[\W]).*" 
+            data-validation-compexity-regex="\*{9}|(?=.*\d)(?=.*[a-z])(?=.*[\W]).*" 
             data-validation-compexity-message="<bean:message key="password.policy.violation.msgPasswordStrengthError"/> 
         <%=op.getProperty("password_min_groups")%>   <bean:message key="password.policy.violation.msgPasswordGroups"/>" 
             data-validation-length-regex=".{<%=op.getProperty("password_min_length")%>,255}"
@@ -242,6 +258,21 @@ value="*********"
             <p class="help-block text-danger"></p>
         </div>
     </div>
+        <div class="control-group span7">
+        <label class="control-label" for="2fa"><bean:message 
+                key="admin.provider.2fa" /></label>
+        <div class="controls">
+			<select name="2fa" id="2fa" onchange="togglePins()">
+				<option value="1" <% if (security != null && security.isTotpEnabled()!= null && security.isTotpEnabled()) { %>
+					     SELECTED <%}%>><bean:message key="global.yes" /></option>
+				<option value="0" <% if (security != null && security.isTotpEnabled()!= null && !security.isTotpEnabled()) { %>
+					     SELECTED <%}%>><bean:message key="global.no" /></option>
+			</select>
+            <input type="button" id="reset2fa" class="btn" value="<bean:message key="admin.provider.2fa.reset" />" onclick="document.getElementById('resetSecret').value='true';this.disabled = true;">
+            <input type="hidden"  id="resetSecret" name="resetSecret">
+            <p class="help-block text-danger"></p>
+        </div>
+    </div>
     <div class="control-group span7">
         <label class="control-label" for="b_RemoteLockSet"><bean:message 
                 key="admin.securityrecord.formRemotePIN" /></label>
@@ -259,7 +290,7 @@ value="*********"
             <p class="help-block text-danger"></p>
         </div>
     </div>
-    <div class="control-group span7">
+    <div id="pin1" class="control-group span7">
         <label class="control-label" for="pin"><bean:message 
                 key="admin.securityrecord.formPIN"  /></label>
         <div class="controls">
@@ -269,13 +300,13 @@ value="*********"
             minlength="<%=op.getProperty("password_pin_min_length")%>"
             data-validation-minlength-message="<bean:message key="admin.securityrecord.msgAtLeast" /> <%=op.getProperty("password_pin_min_length")%> <bean:message
 			key="admin.securityrecord.msgDigits" />"
-            pattern="\d*"
+            pattern="\**|\d*"
             data-validation-pattern-message="<bean:message key="password.policy.violation.msgPinGroups"/>"
             >
             <p class="help-block text-danger"></p>
         </div>
     </div>
-    <div class="control-group span7">
+    <div id="pin2" class="control-group span7">
         <label class="control-label" for="conPin"><bean:message 
                 key="admin.securityrecord.formConfirm"  /></label>
         <div class="controls">

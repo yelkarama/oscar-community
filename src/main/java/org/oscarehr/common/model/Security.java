@@ -74,8 +74,7 @@ public class Security extends AbstractModel<Integer> {
 
 	@Column(name = "b_RemoteLockSet")
 	private Integer BRemotelockset;
-
-
+	
 	@Column(name="forcePasswordReset")
 	private Boolean forcePasswordReset = true;
 	
@@ -88,7 +87,21 @@ public class Security extends AbstractModel<Integer> {
 	@Column(name = "delegateOneIdEmail")
 	private String delagateOneIdEmail = "";
 	
+	@Column(name = "totp_enabled")
+	private Boolean totpEnabled = false;
+	
+	@Column(name = "totp_secret")
+	private String totpSecret = "";
+	
+	@Column(name = "totp_digits")
+	private Integer totpDigits = 6;
+	
+	@Column(name = "totp_algorithm")
+	private String totpAlgorithm = "sha1";
 
+	@Column(name = "totp_period")
+	private Integer totpPeriod = 30;
+	
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date passwordUpdateDate;
 	
@@ -124,7 +137,7 @@ public class Security extends AbstractModel<Integer> {
 	}
 
 	/** full constructor */
-	public Security(String userName, String password, String providerNo, String pin, Integer BRemotelockset, Integer BLocallockset, Date dateExpiredate, Integer BExpireset, Boolean forcePasswordReset) {
+	public Security(String userName, String password, String providerNo, String pin, Integer BRemotelockset, Integer BLocallockset, Date dateExpiredate, Integer BExpireset, Boolean forcePasswordReset, Boolean totpEnabled, String totpSecret, Integer totpDigits, String totpAlgorithm, Integer totpPeriod) {
 		this.userName = userName;
 		this.password = password;
 		this.providerNo = providerNo;
@@ -134,6 +147,11 @@ public class Security extends AbstractModel<Integer> {
 		this.dateExpiredate = dateExpiredate;
 		this.BExpireset = BExpireset;
 		this.forcePasswordReset = forcePasswordReset;
+		this.totpEnabled = totpEnabled;
+		this.totpSecret = totpSecret;
+		this.totpDigits = totpDigits;
+		this.totpAlgorithm = totpAlgorithm;
+		this.totpPeriod = totpPeriod;
 	}
 
 
@@ -252,7 +270,6 @@ public class Security extends AbstractModel<Integer> {
 	public Boolean isForcePasswordReset() {
 		return forcePasswordReset;
 	}
-
 	public void setForcePasswordReset(Boolean forcePasswordReset) {
 		this.forcePasswordReset = forcePasswordReset;
 	}
@@ -260,7 +277,6 @@ public class Security extends AbstractModel<Integer> {
 	public Date getPasswordUpdateDate() {
 		return passwordUpdateDate;
 	}
-
 	public void setPasswordUpdateDate(Date passwordUpdateDate) {
 		this.passwordUpdateDate = passwordUpdateDate;
 	}
@@ -268,7 +284,6 @@ public class Security extends AbstractModel<Integer> {
 	public Date getPinUpdateDate() {
 		return pinUpdateDate;
 	}
-
 	public void setPinUpdateDate(Date pinUpdateDate) {
 		this.pinUpdateDate = pinUpdateDate;
 	}
@@ -276,7 +291,6 @@ public class Security extends AbstractModel<Integer> {
 	public Date getLastUpdateDate() {
 		return lastUpdateDate;
 	}
-
 	public void setLastUpdateDate(Date lastUpdateDate) {
 		this.lastUpdateDate = lastUpdateDate;
 	}
@@ -284,7 +298,6 @@ public class Security extends AbstractModel<Integer> {
 	public String getLastUpdateUser() {
 		return lastUpdateUser;
 	}
-
 	public void setLastUpdateUser(String lastUpdateUser) {
 		this.lastUpdateUser = lastUpdateUser;
 	}
@@ -308,5 +321,40 @@ public class Security extends AbstractModel<Integer> {
 	}
 	public void setDelagateOneIdEmail(String delagateOneIdEmail) {
 		this.delagateOneIdEmail = delagateOneIdEmail;
+	}
+
+	public Boolean isTotpEnabled() {
+		return totpEnabled;
+	}	
+	public void setTotpEnabled(Boolean totpEnabled) {
+		this.totpEnabled = totpEnabled;
+	}
+
+	public String getTotpSecret() {
+		return totpSecret;
+	}
+	public void setTotpSecret(String totpSecret) {
+		this.totpSecret = totpSecret;
+	}
+		
+	public Integer getTotpDigits() {
+		return totpDigits;
+	}	
+	public void setTotpDigits(Integer totpDigits) {
+		this.totpDigits = totpDigits;
+	}
+
+	public String getTotpAlgorithm() {
+		return totpAlgorithm;
+	}
+	public void setTotpAlgorithm(String totpAlgorithm) {
+		this.totpAlgorithm = totpAlgorithm;
+	}
+	
+	public Integer getTotpPeriod() {
+		return totpPeriod;
+	}	
+	public void setTotpPeriod(Integer totpPeriod) {
+		this.totpPeriod = totpPeriod;
 	}
 }
