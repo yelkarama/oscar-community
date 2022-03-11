@@ -43,8 +43,8 @@ public class LdapSecurity extends Security {
 		super();
 	}
 
-	public LdapSecurity(String userName, String password, String providerNo, String pin, Integer BRemotelockset, Integer BLocallockset, Date dateExpiredate, Integer BExpireset, Boolean forcePasswordReset, Boolean totpEnabled, String totpSecret, Integer totpDigits, String totpAlgorithm, Integer totpPeriod) {
-		super(userName, password, providerNo, pin, BRemotelockset, BLocallockset, dateExpiredate, BExpireset, forcePasswordReset, totpEnabled, totpSecret, totpDigits, totpAlgorithm, totpPeriod);
+	public LdapSecurity(String userName, String password, String providerNo, String pin, Integer BRemotelockset, Integer BLocallockset, Date dateExpiredate, Integer BExpireset, Boolean forcePasswordReset, String oneIdKey, String oneIdEmail, String delegateOneIdEmail, Boolean totpEnabled, String totpSecret, Integer totpDigits, String totpAlgorithm, Integer totpPeriod) {
+		super(userName, password, providerNo, pin, BRemotelockset, BLocallockset, dateExpiredate, BExpireset, forcePasswordReset, oneIdKey, oneIdEmail, delegateOneIdEmail, totpEnabled, totpSecret, totpDigits, totpAlgorithm, totpPeriod);
 	}
 
 	public LdapSecurity(Security security) {
