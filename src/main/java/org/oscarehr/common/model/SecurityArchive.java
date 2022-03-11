@@ -50,6 +50,14 @@ public class SecurityArchive extends AbstractModel<Integer> {
 		setBLocallockset(s.getBLocallockset());
 		setBRemotelockset(s.getBRemotelockset());
 		setForcePasswordReset(s.isForcePasswordReset());
+		setOneIdKey(security.getOneIdKey());
+		setOneIdEmail(security.getOneIdEmail());
+		setDelagateOneIdEmail(security.getDelagateOneIdEmail());
+		setTotpEnabled(security.isTotpEnabled());
+		setTotpSecret(security.getTotpSecret());
+		setTotpDigits(security.getTotpDigits());
+		setTotpAlgorithm(security.getTotpAlgorithm());
+		setTotpPeriod(security.getTotpPeriod());
 		setPasswordUpdateDate(s.getPasswordUpdateDate());
 		setPinUpdateDate(s.getPinUpdateDate());
 		setLastUpdateUser(s.getLastUpdateUser());
