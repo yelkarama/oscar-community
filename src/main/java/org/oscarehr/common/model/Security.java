@@ -129,15 +129,23 @@ public class Security extends AbstractModel<Integer> {
 		setDateExpiredate(security.getDateExpiredate());
 		setBExpireset(security.getBExpireset());
 		setForcePasswordReset(security.isForcePasswordReset());
+		setOneIdKey(security.getOneIdKey());
+		setOneIdEmail(security.getOneIdEmail());
+		setDelagateOneIdEmail(security.getDelagateOneIdEmail());
+		setTotpEnabled(security.isTotpEnabled());
+		setTotpSecret(security.getTotpSecret());
+		setTotpDigits(security.getTotpDigits());
+		setTotpAlgorithm(security.getTotpAlgorithm());
+		setTotpPeriod(security.getTotpPeriod());
 //		setLastUpdateUser(security.getLastUpdateUser());
-//		setLastUpdateDate(security.getLastUpdateDate());
+//		setLastUpdateDate(security.getLastUpdateDate());			
 //		setLoginIP(security.getLoginIP());
 //		setLoginDate(security.getLoginDate());
 //		setLoginStatus(security.getLoginStatus());		
 	}
 
 	/** full constructor */
-	public Security(String userName, String password, String providerNo, String pin, Integer BRemotelockset, Integer BLocallockset, Date dateExpiredate, Integer BExpireset, Boolean forcePasswordReset, Boolean totpEnabled, String totpSecret, Integer totpDigits, String totpAlgorithm, Integer totpPeriod) {
+	public Security(String userName, String password, String providerNo, String pin, Integer BRemotelockset, Integer BLocallockset, Date dateExpiredate, Integer BExpireset, Boolean forcePasswordReset, String oneIdKey, String oneIdEmail, String delegateOneIdEmail, Boolean totpEnabled, String totpSecret, Integer totpDigits, String totpAlgorithm, Integer totpPeriod) {
 		this.userName = userName;
 		this.password = password;
 		this.providerNo = providerNo;
@@ -147,6 +155,9 @@ public class Security extends AbstractModel<Integer> {
 		this.dateExpiredate = dateExpiredate;
 		this.BExpireset = BExpireset;
 		this.forcePasswordReset = forcePasswordReset;
+		this.oneIdKey = oneIdKey;
+		this.oneIdEmail = oneIdEmail;
+		this.delagateOneIdEmail = delagateOneIdEmail;			
 		this.totpEnabled = totpEnabled;
 		this.totpSecret = totpSecret;
 		this.totpDigits = totpDigits;
