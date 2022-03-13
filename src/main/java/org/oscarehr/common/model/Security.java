@@ -39,6 +39,12 @@ import org.apache.log4j.Logger;
 import org.oscarehr.util.EncryptionUtils;
 import org.oscarehr.util.MiscUtils;
 
+/**
+ * This class holds the security object for the users login
+ * Related classes including LdapSecurity for LDAP authentication
+ * And SecurityArchive which keeps old settings to prevent reuse
+ * @version 0.2
+*/
 
 @Entity
 @Table(name = "security")
@@ -90,15 +96,29 @@ public class Security extends AbstractModel<Integer> {
 	@Column(name = "totp_enabled")
 	private Boolean totpEnabled = false;
 	
+	/**
+	 * the base32 secret used for totp.  
+	 * Base 32 was selected to allow for human readable code for manual entry to an authenticator app
+	 * the OSCAR interface also provides a QR code with it to reduce transscription error
+	 */	
 	@Column(name = "totp_secret")
 	private String totpSecret = "";
-	
+
+	/**
+	 * The default number of digits in the totp.  For compatability it is set to 6.
+	 */
 	@Column(name = "totp_digits")
 	private Integer totpDigits = 6;
 	
+	/**
+	 * The default encryption in the totp.  Only sha1 is supported by the library we use.
+	 */	
 	@Column(name = "totp_algorithm")
 	private String totpAlgorithm = "sha1";
 
+	/**
+	 * The default totp period.  For compatibility it defaults to 30 seconds.
+	 */	
 	@Column(name = "totp_period")
 	private Integer totpPeriod = 30;
 	
@@ -111,8 +131,8 @@ public class Security extends AbstractModel<Integer> {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date lastUpdateDate;
 	
-	private String lastUpdateUser;
-	
+	@Column(name = "lastUpdateUser")
+	private String lastUpdateUser;	
 	
 	/** default constructor */
 	public Security() {
@@ -187,6 +207,10 @@ public class Security extends AbstractModel<Integer> {
 		this.userName = userName;
 	}
 
+	/**
+	 * Get the password stored in the schema
+	 * @return the encrypted password or {@code null} if not filled.
+	 */
 	public String getPassword() {
 		return password;
 	}
@@ -203,6 +227,10 @@ public class Security extends AbstractModel<Integer> {
 		this.providerNo = providerNo;
 	}
 
+	/**
+	 * Get the pin stored in the schema
+	 * @return either the plain text pin or the encrypted pin based on property settings or {@code null} if not filled.
+	 */
 	public String getPin() {
 		return pin;
 	}
@@ -341,6 +369,10 @@ public class Security extends AbstractModel<Integer> {
 		this.totpEnabled = totpEnabled;
 	}
 
+	/**
+	 * @return the base32 secret used for totp.  Base 32 was selected to allow for human readable code for manual entry to an authenticator app
+	 * the OSCAR interface also provides a QR code with it to reduce transscription error
+	 */
 	public String getTotpSecret() {
 		return totpSecret;
 	}
