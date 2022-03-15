@@ -95,7 +95,7 @@ boolean oauth2Enabled= "true".equalsIgnoreCase(OscarProperties.getInstance().get
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="shortcut icon" href="images/Oscar.ico" />
-<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
+<!-- script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script -->
         <html:base/>
         <% if (isMobileOptimized) { %><meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, width=device-width"/><% } %>
         <title>
@@ -125,6 +125,41 @@ boolean oauth2Enabled= "true".equalsIgnoreCase(OscarProperties.getInstance().get
             	document.getElementById("oneIdLogin").href += (Math.round(new Date().getTime() / 1000).toString());
 		}
 
+        function showPwd(id){
+            if ('password' == document.getElementById(id).type ){
+                document.getElementById(id).type="text"
+            }else{
+                document.getElementById(id).type='password';
+            }
+        }
+
+        function maskMe(){
+            var key = event.keyCode || event.charCode;
+            if( key == 8 ){
+            	//backspace pressed
+                let str = document.getElementById('pin').value;
+                str = str.substring(0, str.length - 1);
+                document.getElementById('pin').value = str;
+            } else {
+            document.getElementById('pin').value += document.getElementById('pin2').value.slice(-1);
+            document.getElementById('pin2').value = document.getElementById('pin2').value.replace(/./g,"*");
+            }
+        }
+
+        function checkMe(){
+            //if you have deleted
+            if (document.getElementById('pin2').value == "") {
+                document.getElementById('pin').value = "";
+            }
+        }
+
+        function toggleMask(){
+            if (document.getElementById('pin2').value.slice(0,1) != "*" ){
+                document.getElementById('pin2').value = document.getElementById('pin').value.replace(/./g,"*");
+            }else{
+                document.getElementById('pin2').value = document.getElementById('pin').value;
+            }
+        }
     </script>
         
     <style type="text/css">
@@ -168,6 +203,7 @@ boolean oauth2Enabled= "true".equalsIgnoreCase(OscarProperties.getInstance().get
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 <link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/font-awesome.min.css" rel="stylesheet" type="text/css">
 
 
      </head>
@@ -210,10 +246,18 @@ boolean oauth2Enabled= "true".equalsIgnoreCase(OscarProperties.getInstance().get
                 <% if(oscar.oscarSecurity.CRHelper.isCRFrameworkEnabled() && !net.sf.cookierevolver.CRFactory.getManager().isMachineIdentified(request)){ %>
                     <img src="gatekeeper/appid/?act=image&/empty<%=System.currentTimeMillis() %>.gif" width='1' height='1'>
                 <% } %>
-	        <input type="text" id="username"  name="username" class="input-large span4" autocomplete="off" placeholder="<bean:message key="loginApplication.formUserName"/>">
-			<input type="password" id="password2" name="password" class="span4" autocomplete="off" placeholder="<bean:message key="loginApplication.formPwd"/>">
+	        <input type="text" id="username"  name="username" class="input-large span4" autocomplete="off" placeholder="<bean:message key="loginApplication.formUserName"/>" style="height:28px;">
+
+
+            <input type="password" id="password2" name="password" class="input-large span4" placeholder="<bean:message key="loginApplication.formPwd"/>" style="height:30px;">
+            <i class="icon-eye-open" style="color: darkgray; margin-left: -40px; align: top; cursor: pointer; font-size:24px;" onclick="showPwd('password2');"></i>
+
             <span class="help-block"><bean:message key="loginApplication.formCmt"/></span>
-			<input type="password" id="pin" name="pin" class="span4" autocomplete="off" placeholder="<bean:message key="index.formPIN"/>">
+			
+			<input type="text" id="pin2" name="pin2" class="input-large span4" placeholder="<bean:message key="index.formPIN"/>" style="height:30px;"
+onkeyup="maskMe();" onchange="checkMe();">
+            <i class="icon-eye-open" style="color: darkgray; margin-left: -40px; align: top; cursor: pointer; font-size:24px;" onclick="toggleMask();"></i>
+<input type="hidden" id="pin" name="pin">
 
             <%if(oneIdEnabled && !oauth2Enabled) { %>
                 <a href="<%=econsultUrl %>/SAML2/login?oscarReturnURL=<%=URLEncoder.encode(oscarUrl + "/ssoLogin.do", "UTF-8") + "?loginStart="%>" id="oneIdLogin" onclick="addStartTime()"><div class="btn btn-primary btn-block oneIDLogin"><span class="oneIDLogo"></span><span class="oneIdText">ONE ID Login</span></div></a>
@@ -221,7 +265,7 @@ boolean oauth2Enabled= "true".equalsIgnoreCase(OscarProperties.getInstance().get
             <%if(oneIdEnabled && oauth2Enabled) { %>
                 <a href="<%=request.getContextPath() %>/eho/login2.jsp" id="oneIdLoginOauth"><div class="btn btn-primary btn-block oneIDLogin"><span class="oneIDLogo"></span><span class="oneIdText">ONE ID Login</span></div></a>
             <% } %>
-			<button type="submit" name="submit" class="btn btn-primary btn-block" style="width: 60%; margin: 0px auto;"><bean:message key="index.btnSignIn"/></button>
+			<button type="submit" name="submit" class="btn btn-primary btn-block" style="width: 60%; margin: 0px auto;" ><bean:message key="index.btnSignIn"/></button>
 
                <br><p><small><%=props.getProperty("logintext", "")%></small></p> 		   
 		</div>
