@@ -26,6 +26,7 @@
 
 <%@page import="org.oscarehr.common.dao.DemographicDao"%>
 <%@page import="org.oscarehr.common.model.Demographic"%>
+<%@page import="org.apache.commons.lang.StringUtils"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -388,37 +389,42 @@ function refresh() {
       %> 
       <script>
 var _providers = [];
+
 <%	
 String taskToName = "";
 
 if(defaultTaskAssignee.equals("mrp"))
-taskToName = "Prefernce set to MRP, attach a patient.";
+taskToName = "Preference set to MRP, attach a patient.";
 
 if(!taskTo.isEmpty())
 taskToName = providerDao.getProviderNameLastFirst(taskTo);
 
 Site site = null;
-for (int i=0; i<sites.size(); i++) { %>
-	_providers["<%= sites.get(i).getSiteId() %>"]="<% Iterator<Provider> iter = sites.get(i).getProviders().iterator();
+for (int i=0; i<sites.size(); i++) { 
+    Set<Provider> siteProviders = sites.get(i).getProviders();
+	List<Provider>  siteProvidersList = new ArrayList<Provider> (siteProviders);
+     Collections.sort(siteProvidersList,(new Provider()).ComparatorName());%>
+	_providers["<%= sites.get(i).getName() %>"]="<% Iterator<Provider> iter = siteProvidersList.iterator();
 	while (iter.hasNext()) {
 		Provider p=iter.next();
 		if ("1".equals(p.getStatus())) {
 	%><option value='<%= p.getProviderNo() %>'><%= p.getLastName() %>, <%= p.getFirstName() %></option><% }} %>";
-<%	if (sites.get(i).getName().equals(location))
-		site = sites.get(i);
+<%
 	} %>
 function changeSite(sel) {
 	sel.form.task_assigned_to.innerHTML=sel.value=="none"?"":_providers[sel.value];
+	sel.style.backgroundColor=sel.options[sel.selectedIndex].style.backgroundColor;
 }
       </script>
  
 <div id="selectWrapper">
       	<select id="site" name="site" onchange="changeSite(this)">
-      		<option value="none">---select clinic---</option>
+      		<option value="none" style="background-color: white">---select clinic---</option>
       	<%
       	for (int i=0; i<sites.size(); i++) {
       	%>
-      		<option value="<%= sites.get(i).getSiteId() %>"><%= sites.get(i).getName() %></option>
+      		<option value="<%=sites.get(i).getName()%>"
+													style="background-color:<%=sites.get(i).getBgColor()%>"><%=sites.get(i).getName()%></option>
       	<% } %>
       	</select>
 
