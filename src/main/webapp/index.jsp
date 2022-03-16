@@ -133,7 +133,12 @@ boolean oauth2Enabled= "true".equalsIgnoreCase(OscarProperties.getInstance().get
             }
         }
 
+        var mask=true;
         function maskMe(){
+            if (!mask){
+                document.getElementById('pin').value=document.getElementById('pin2').value;
+                return;
+            }
             var key = event.keyCode || event.charCode;
             if( key == 8 ){
             	//backspace pressed
@@ -153,17 +158,53 @@ boolean oauth2Enabled= "true".equalsIgnoreCase(OscarProperties.getInstance().get
             }
         }
 
+
         function toggleMask(){
             if (document.getElementById('pin2').value.slice(0,1) != "*" ){
                 document.getElementById('pin2').value = document.getElementById('pin').value.replace(/./g,"*");
+                mask = true;
             }else{
                 document.getElementById('pin2').value = document.getElementById('pin').value;
+                mask = false;
             }
         }
     </script>
         
+
+    <% if (isMobileOptimized) { %>
+        <!-- Small adjustments are made to the mobile stylesheet -->
+        <style type="text/css">
+            html { -webkit-text-size-adjust: none; }
+            td.topbar{ width: 75%; }
+            td.leftbar{ width: 25%; }
+            span.extrasmall{ font-size: small; }
+            #browserInfo, #logoImg, #buildInfo { display: none; }
+            #mobileMsg { display: inline; }
+    </style>
+    <% } %>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     <style type="text/css">
              #mobileMsg { display: none; }
+                       
+            input[type="text"],input[type="password"] {
+                width: 100%; 
+                margin: 0px auto;
+                height:30px;
+                margin-bottom: 10px;
+            }
+
+            i {
+                color: darkgray;  
+                cursor: pointer; 
+                font-size:24px;
+                position: relative;
+                margin-left: -36px;
+                margin-bottom: 6px;
+                
+            }
 
             .oneIdLogin {
                 //background-color: #000;
@@ -189,25 +230,9 @@ boolean oauth2Enabled= "true".equalsIgnoreCase(OscarProperties.getInstance().get
                 padding-left: 10px
             }
     </style>
-    <% if (isMobileOptimized) { %>
-        <!-- Small adjustments are made to the mobile stylesheet -->
-        <style type="text/css">
-            html { -webkit-text-size-adjust: none; }
-            td.topbar{ width: 75%; }
-            td.leftbar{ width: 25%; }
-            span.extrasmall{ font-size: small; }
-            #browserInfo, #logoImg, #buildInfo { display: none; }
-            #mobileMsg { display: inline; }
-    </style>
-    <% } %>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
-<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
-<link href="<%=request.getContextPath() %>/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-
 
      </head>
-    <body onLoad="setfocus();" >
+    <body onLoad="setfocus();checkMe();" >
 
 <div class="container" style="border-style: solid; border-color: #49afcd; border-radius:25px; border-width: 1px; margin-top: 25px; padding: 14px;">
 
@@ -246,19 +271,17 @@ boolean oauth2Enabled= "true".equalsIgnoreCase(OscarProperties.getInstance().get
                 <% if(oscar.oscarSecurity.CRHelper.isCRFrameworkEnabled() && !net.sf.cookierevolver.CRFactory.getManager().isMachineIdentified(request)){ %>
                     <img src="gatekeeper/appid/?act=image&/empty<%=System.currentTimeMillis() %>.gif" width='1' height='1'>
                 <% } %>
-	        <input type="text" id="username"  name="username" class="input-large span4" autocomplete="off" placeholder="<bean:message key="loginApplication.formUserName"/>" style="height:28px;">
-
-
-            <input type="password" id="password2" name="password" class="input-large span4" placeholder="<bean:message key="loginApplication.formPwd"/>" style="height:30px;">
-            <i class="icon-eye-open" style="color: darkgray; margin-left: -40px; align: top; cursor: pointer; font-size:24px;" onclick="showPwd('password2');"></i>
+           
+            <input type="text" id="username"  name="username" autocomplete="off" placeholder="<bean:message key="loginApplication.formUserName"/>">
+            <input type="password" id="password2" name="password" placeholder="<bean:message key="loginApplication.formPwd"/>" >
+            <i class="icon-eye-open" onclick="showPwd('password2');"></i>
 
             <span class="help-block"><bean:message key="loginApplication.formCmt"/></span>
-			
-			<input type="text" id="pin2" name="pin2" class="input-large span4" autocomplete="off" placeholder="<bean:message key="index.formPIN"/>" style="height:30px;"
+			<input type="text" id="pin2" name="pin2" autocomplete="off" placeholder="<bean:message key="index.formPIN"/>" 
 onkeyup="maskMe();" onchange="checkMe();">
-            <i class="icon-eye-open" style="color: darkgray; margin-left: -40px; align: top; cursor: pointer; font-size:24px;" onclick="toggleMask();"></i>
-<input type="hidden" id="pin" name="pin">
-
+            <i class="icon-eye-open" onclick="toggleMask();"></i>
+            <input type="hidden" id="pin" name="pin" value="">
+            
             <%if(oneIdEnabled && !oauth2Enabled) { %>
                 <a href="<%=econsultUrl %>/SAML2/login?oscarReturnURL=<%=URLEncoder.encode(oscarUrl + "/ssoLogin.do", "UTF-8") + "?loginStart="%>" id="oneIdLogin" onclick="addStartTime()"><div class="btn btn-primary btn-block oneIDLogin"><span class="oneIDLogo"></span><span class="oneIdText">ONE ID Login</span></div></a>
             <% } %>
