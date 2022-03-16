@@ -254,7 +254,7 @@ boolean oauth2Enabled= "true".equalsIgnoreCase(OscarProperties.getInstance().get
 
             <span class="help-block"><bean:message key="loginApplication.formCmt"/></span>
 			
-			<input type="text" id="pin2" name="pin2" class="input-large span4" placeholder="<bean:message key="index.formPIN"/>" style="height:30px;"
+			<input type="text" id="pin2" name="pin2" class="input-large span4" autocomplete="off" placeholder="<bean:message key="index.formPIN"/>" style="height:30px;"
 onkeyup="maskMe();" onchange="checkMe();">
             <i class="icon-eye-open" style="color: darkgray; margin-left: -40px; align: top; cursor: pointer; font-size:24px;" onclick="toggleMask();"></i>
 <input type="hidden" id="pin" name="pin">
