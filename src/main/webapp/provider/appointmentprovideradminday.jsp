@@ -1401,7 +1401,7 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 <oscar:oscarPropertiesCheck property="referral_menu" value="yes">
 <security:oscarSec roleName="<%=roleName$%>" objectName="_admin,_admin.misc" rights="r">
 <li id="ref">
- <a href="#" onclick="pop4(550,800,'<%=request.getContextPath()%>/admin/ManageBillingReferral.do','bill_ref');return false;"><bean:message key="global.manageReferrals"/></a>
+ <a href="#" onclick="pop4(550,800,'<%=request.getContextPath()%>/oscarEncounter/oscarConsultationRequest/config/EditSpecialists.jsp','bill_ref');return false;"><bean:message key="global.manageReferrals"/></a>
 </li>
 </security:oscarSec>
 </oscar:oscarPropertiesCheck>
