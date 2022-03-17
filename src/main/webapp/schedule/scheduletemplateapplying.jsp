@@ -444,8 +444,9 @@ function addDataString1() {
 				</th>
 			</tr>
 		</table>
+        <br>
 		<table width="98%" border="0" cellspacing="0" cellpadding="0">
-			<tr>
+			<tr style="color:white;">
 				<td>
 				<p><font size="-1"><bean:message
 					key="schedule.scheduletemplateapplying.msgStepOne" /></font></p>
@@ -455,8 +456,6 @@ function addDataString1() {
 					key="schedule.scheduletemplateapplying.msgStepThree" /></font></p>
 				<p><font size="-1"><bean:message
 					key="schedule.scheduletemplateapplying.msgStepFour" /></font></p>
-				<p><font size="-1"><bean:message
-					key="schedule.scheduletemplateapplying.msgObs" /></font></p>
 				<p>&nbsp;</p>
 				</td>
 			</tr>
