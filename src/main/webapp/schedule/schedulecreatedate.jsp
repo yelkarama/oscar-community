@@ -269,7 +269,7 @@ function refresh() {
 			</tr>
 		</table>
 		<table width="100%" border="0" cellspacing="0" cellpadding="0">
-			<tr>
+			<tr style="color:white;">
 				<td>
 				<p>&nbsp;</p>
 				<p><font size="-1"><bean:message
@@ -321,7 +321,7 @@ function refresh() {
 					CLASS=title><%=year%>-<%=month%></span></b> <a
 					href="schedulecreatedate.jsp?provider_no=<%=provider_no%>&provider_name=<%=URLEncoder.encode(provider_name)%>&year=<%=year%>&month=<%=month%>&day=<%=day%>&delta=1&bFirstDisp=0">
 				&nbsp;&nbsp;<bean:message
-					key="schedule.schedulecreatedate.btnNextMonth" /><img
+					key="schedule.schedulecreatedate.btnNextMonth" />&nbsp;<img
 					src="../images/next.gif" WIDTH="10" HEIGHT="9" BORDER="0"
 					ALT='<bean:message key="schedule.schedulecreatedate.btnNextMonthTip"/>'
 					vspace="2">&nbsp;&nbsp;</a></td>
