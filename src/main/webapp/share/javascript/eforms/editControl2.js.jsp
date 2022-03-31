@@ -998,9 +998,11 @@ function baseUrl() {
 		//	"doctor|SignatureFile.png",
 		//	];
 		
-		<% 
-        String home_dir = OscarProperties.getInstance().getProperty("eform_image");
-        File f = new File(home_dir+"consult_sig_"+curUser_no+".png");
+	<% 
+    String curUser_no;
+    curUser_no = (String) session.getAttribute("user");
+    String home_dir = OscarProperties.getInstance().getProperty("eform_image");
+    File f = new File(home_dir+"consult_sig_"+curUser_no+".png");
 
     if ( f.isFile()) {
 	%>
