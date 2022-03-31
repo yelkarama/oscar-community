@@ -26,16 +26,9 @@
 
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.util.LoggedInInfo" %>
-<%@ page import="org.oscarehr.common.model.UserProperty" %>
-<%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
-<%
-	UserPropertyDAO userPropertyDAO = SpringUtils.getBean(UserPropertyDAO.class);
-	String curUser_no;
-	curUser_no = (String) session.getAttribute("user");
-	UserProperty prop = userPropertyDAO.getProp(curUser_no, UserProperty.PROVIDER_CONSULT_SIGNATURE);
-	boolean hasSig = (prop != null); 
-%>
-	
+<%@ page import="oscar.OscarProperties" %>
+<%@ page import="java.io.File" %>
+
 
 /*  editControl - a WYSIWYG edit control using iFrames and designMode
     Copyright (C) 2009-2020 Peter Hutten-Czapski
@@ -1006,9 +999,12 @@ function baseUrl() {
 		//	];
 		
 		<% 
-	if (hasSig) {
+        String home_dir = OscarProperties.getInstance().getProperty("eform_image");
+        File f = new File(home_dir+"consult_sig_"+curUser_no+".png");
+
+    if ( f.isFile()) {
 	%>
-		mystamp ='<img src="../eform/displayImage.do?imagefile=consult_sig_<%=curUser_no%>.png" width="250" height="80">';
+		var mystamp ='<img src="../eform/displayImage.do?imagefile=consult_sig_<%=curUser_no%>.png" width="250" height="80">';
 		return mystamp;
 	<% } else { %>
 		var mystamp ='<img src="../eform/displayImage.do?imagefile=stamp.png" width="250" height="80">';
