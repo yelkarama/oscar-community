@@ -44,6 +44,8 @@ import org.oscarehr.util.MiscUtils;
 /**
  * This is the object class that relates to the demographic table. Any customizations belong here.
  */
+@Entity   
+@Table(name = "demographic") 
 public class Demographic extends AbstractModel<Integer> implements Serializable {
 
 	private static final String DEFAULT_MONTH = "01";
@@ -63,80 +65,137 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 	
 	
 	private int hashCode = Integer.MIN_VALUE;// primary key
+
+	@Column(name = "demographic_no")	
 	private Integer demographicNo;// fields
-	private String phone;
-	private String patientStatus;
-	private Date patientStatusDate;
-	private String rosterStatus;
-	private String providerNo;
-	private String myOscarUserName;
-	private String hin;
-	private String address;
-	private String province;
-	private String monthOfBirth;
-	private String ver;
-	private String dateOfBirth;
-	private String sex;
-	private String sexDesc;
-	private Date dateJoined;
-	private String familyDoctor;
-	private String familyPhysician;
-	private String city;
-	private String firstName;
-	private String prefName = "";
-	private String middleName;
-	private String postal;
-	private Date hcRenewDate;
-	private String phone2;
-	private String cellPhone;
-	private String pcnIndicator;
-	private Date endDate;
+	@Column(name = "title")
+	private String title;
+	@Column(name = "last_name")
 	private String lastName;
-	private String hcType;
-	private String chartNo;
+	@Column(name = "first_name")
+	private String firstName;
+	// Depreccated not used
+	private String middleName;
+	@Column(name = "middleNames")
+	private String middleNames;
+	@Column(name = "alias")
+	private String alias;
+	@Column(name = "pref_name")
+	private String prefName = "";
+	@Column(name = "pref_name")
+	private String address;
+	@Column(name = "address")
+	private String city;
+	@Column(name = "city")
+	private String province;
+	@Column(name = "province")
+	private String postal;
+	@Column(name = "phone")
+	private String phone;
+	@Column(name = "phone2")
+	private String phone2;
+	@Column(name = "email")
 	private String email;
+	@Column(name = "consentToUseEmailForCare")
 	private Boolean consentToUseEmailForCare;
+	@Column(name = "myOscarUserName")
+	private String myOscarUserName;
+	@Column(name = "year_of_birth")
 	private String yearOfBirth;
+	@Column(name = "month_of_birth")
+	private String monthOfBirth;
+	@Column(name = "date_of_birth")
+	private String dateOfBirth;
+	@Column(name = "hin")
+	private String hin;
+	@Column(name = "ver")
+	private String ver;
+	@Column(name = "roster_status")
+	private String rosterStatus;
+	@Column(name = "patient_status")
+	private String patientStatus;
+	@Column(name = "date_joined")
+	// this is the date that the demographic was created in OSCAR
+	private Date dateJoined;
+	@Column(name = "chart_no")
+	private String chartNo;
+	@Column(name = "official_lang")
+	private String officialLanguage;
+	@Column(name = "spoken_lang")
+	private String spokenLanguage;
+	@Column(name = "provider_no")
+	private String providerNo;
+	@Column(name = "sex")
+	private String sex;
+	@Column(name = "end_date")
+	private Date endDate;
+	@Column(name = "eff_date")
 	private Date effDate;
+	@Column(name = "pcn_indicator")
+	private String pcnIndicator;
+	@Column(name = "hc_type")
+	private String hcType;
+	@Column(name = "hc_renew_date")
+	private Date hcRenewDate;
+	@Column(name = "family_doctor")
+	private String familyDoctor;
+	@Column(name = "family_physican") 
+	// Kai concept
+	private String familyPhysician;
+	@Column(name = "previousAddress")
+	private String previousAddress;
+	@Column(name = "children")
+	// deprecated use contacts
+	private String children;
+	@Column(name = "sourceOfIncome")
+	private String sourceOfIncome;
+	@Column(name = "citizenship")
+	private String citizenship;
+	@Column(name = "sin")
+	private String sin;
+	@Column(name = "country_of_origin")
+    private String countryOfOrigin;
+	@Column(name = "newsletter")
+    private String newsletter;
+	@Column(name = "anonymous")
+	private String anonymous = null;
+	@Column(name = "lastUpdateUser")
+	private String lastUpdateUser = null;
+	@Column(name = "lastUpdateDate")
+	private Date lastUpdateDate = new Date();
+	@Column(name = "roster_date")
 	private Date rosterDate;
+	@Column(name = "patient_status_date")
+	private Date patientStatusDate;
+	@Column(name = "roster_termination_date")
 	private Date rosterTerminationDate;
+	@Column(name = "roster_termination_reason")
 	private String rosterTerminationReason;
+	@Column(name = "residentialAddress")
+	// new concepts for OSCAR 19
+	private String residentialAddress;
+	@Column(name = "residentialCity")
+    private String residentialCity;
+	@Column(name = "residentialProvince")
+	private String residentialProvince;
+	@Column(name = "residentialPostal")
+	private String residentialPostal;
+	@Column(name = "roster_enrolled_to)
+    private String rosterEnrolledTo;
+	
+	private String sexDesc;
+	private String cellPhone;
 	private String links;
 	private DemographicExt[] extras;
-	private String alias;
-	private String previousAddress;
-	private String children;
-	private String sourceOfIncome;
-	private String citizenship;
-	private String sin;
 	private Integer headRecord = null;
 	private Set<Integer> subRecord = null;
-	private String anonymous = null;
-	private String spokenLanguage;
-
 	private int activeCount = 0;
 	private int hsAlertCount = 0;
 	private String displayName=null;
 
 	private Provider provider;
-	private String lastUpdateUser = null;
-	private Date lastUpdateDate = new Date();
 
-	private String title;
-	private String officialLanguage;
-
-    private String countryOfOrigin;
-    private String newsletter;
-	
-    private String middleNames;
-    private String rosterEnrolledTo;
-    
-    private String residentialAddress;
-    private String residentialCity;
-	private String residentialProvince;
-	private String residentialPostal;
-	
-    
+   
         public String getTitle() {
         	return title;
         }
