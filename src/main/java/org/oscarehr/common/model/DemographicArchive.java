@@ -55,6 +55,12 @@ public class DemographicArchive extends AbstractModel<Long> implements Serializa
 	@Column(name = "first_name")
 	private String firstName = null;
 	@Column(name = "address")
+	
+	@Column(name = "alias")
+	private String alias;
+	@Column(name = "pref_name")
+	private String prefName = "";
+	
 	private String address = null;
 	@Column(name = "city")
 	private String city = null;
@@ -68,6 +74,7 @@ public class DemographicArchive extends AbstractModel<Long> implements Serializa
 	private String phone2 = null;
 	@Column(name = "email")
 	private String email = null;
+	@Column(name = "myOscarUserName")
 	private String myOscarUserName = null;
 	@Column(name = "year_of_birth")
 	private String yearOfBirth = null;
@@ -122,8 +129,8 @@ public class DemographicArchive extends AbstractModel<Long> implements Serializa
 	Date hcRenewDate = null;
 	@Column(name = "family_doctor")
 	private String familyDoctor = null;
-	@Column(name = "alias")
-	private String alias = null;
+
+
 	@Column(name = "previousAddress")
 	private String previousAddress = null;
 	@Column(name = "children")
@@ -146,14 +153,27 @@ public class DemographicArchive extends AbstractModel<Long> implements Serializa
 	@Temporal(TemporalType.DATE)
 	private Date lastUpdateDate = null;
 	
+	@Column(name = "middleNames")
 	private String middleNames;
 	@Column(name="roster_enrolled_to")
 	private String rosterEnrolledTo;
-	
+
+	@Column(name = "residentialAddress")
 	private String residentialAddress;
+	@Column(name = "residentialCity")
     private String residentialCity;
+	@Column(name = "residentialProvince")
 	private String residentialProvince;
+	@Column(name = "residentialPostal")
 	private String residentialPostal;
+
+	@Column(name = "family_physican") 
+	// Kai concept
+	private String familyPhysician;
+	@Column(name = "consentToUseEmailForCare")
+	private Boolean consentToUseEmailForCare;	
+	
+	
 
 	public DemographicArchive() {}
 	
@@ -210,6 +230,12 @@ public class DemographicArchive extends AbstractModel<Long> implements Serializa
 		this.residentialCity = demographic.getResidentialCity();
 		this.residentialProvince = demographic.getResidentialProvince();
 		this.residentialPostal = demographic.getResidentialPostal();
+		this.prefName = demographic.getprefName();
+		this.familyPhysician = demographic.getFamilyPhysician();		
+		this.prefName = demographic.getprefName();
+		this.familyPhysician = demographic.getFamilyPhysician();
+		this.consentToUseEmailForCare = demographic.getConsentToUseEmailForCare();
+		
 	}
 
 	public Integer getDemographicNo() {
@@ -595,6 +621,46 @@ public class DemographicArchive extends AbstractModel<Long> implements Serializa
 		public void setResidentialPostal(String residentialPostal) {
 			this.residentialPostal = residentialPostal;
 		}
+		
+		public Boolean getConsentToUseEmailForCare() {
+			return consentToUseEmailForCare;
+		}
+
+		public void setConsentToUseEmailForCare(Boolean consentToUseEmailForCare) {
+			this.consentToUseEmailForCare = consentToUseEmailForCare;
+		}
+		
+		/**
+		 * Gets demographic's preferred name.
+		 *
+		 * @return
+		 * 		Returns the preferred name.
+		 */
+		public String getPrefName() {return prefName;}
+
+		/**
+		 * Set the value related to the column: pref_name
+		 *
+		 * @param prefName the pref_name value
+		 */
+		public void setPrefName(String prefName) {this.prefName = prefName;}
+		
+		/**
+		 * Set the value related to the column: family_physician
+		 *
+		 * @param familyPhysician the family_doctor value
+		 */
+		public void setFamilyPhysician(String familyPhysician) {
+			this.familyPhysician = familyPhysician;
+		}
+
+		/**
+		 * Return the value associated with the column: family_physician
+		 */
+		public String getFamilyPhysician() {
+			return familyPhysician;
+		}
+
 		
 		
 }
