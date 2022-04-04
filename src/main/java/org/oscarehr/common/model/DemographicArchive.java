@@ -54,14 +54,12 @@ public class DemographicArchive extends AbstractModel<Long> implements Serializa
 	private String lastName = null;
 	@Column(name = "first_name")
 	private String firstName = null;
-	@Column(name = "address")
-	
 	@Column(name = "alias")
 	private String alias;
 	@Column(name = "pref_name")
 	private String prefName = "";
-	
-	private String address = null;
+	@Column(name = "address")
+	private String address = null;	
 	@Column(name = "city")
 	private String city = null;
 	@Column(name = "province")
