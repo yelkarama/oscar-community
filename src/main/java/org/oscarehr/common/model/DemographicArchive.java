@@ -165,7 +165,7 @@ public class DemographicArchive extends AbstractModel<Long> implements Serializa
 	@Column(name = "residentialPostal")
 	private String residentialPostal;
 
-	@Column(name = "family_physican") 
+	@Column(name = "family_physician") 
 	// Kai concept
 	private String familyPhysician;
 	@Column(name = "consentToUseEmailForCare")
