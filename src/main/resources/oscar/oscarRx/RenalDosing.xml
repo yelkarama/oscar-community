@@ -3,6 +3,7 @@
 	<!--
 		Document : RenalDosing.xml Created on : December 18, 2006, 1:44 PM
 		Author : jay Description: Purpose of the document follows.
+		Updated : phc April 10, 2022 with additional commonly used drugs
 	-->
 
 <root>
@@ -16,7 +17,46 @@
             When CLcr&lt; 50 mL/min:  Monitor blood glucose BID to QID with any medication change until stable.
         </moreinfo>
     </medication>
-    
+
+	<medication name="sitagliptan" atccode="A10BH01">
+		<dose clcrrange="30-45">50mg po od</dose>
+        <dose clcrrange="&lt;30">25mg po od</dose>
+        <moreinfo>    
+            Normal dose: 25-100mg OD
+            
+            When CLcr&lt; 50 mL/min:  Monitor blood glucose BID to QID with any medication change until stable.
+        </moreinfo>
+    </medication>
+	
+	<medication name="glibenclamide" atccode="A10BB01">
+        <dose clcrrange="&lt;50">AVOID</dose>
+        <moreinfo>    
+            Normal dose: 2.5-20mg OD
+            
+            Gliclazide or Repaglinide preferred secretagogues in kidney disease.
+        </moreinfo>
+    </medication>
+
+	<medication name="empagliflozin" atccode="A10BK03">
+		<dose clcrrange="&gt;60">10mg po od</dose>
+        <dose clcrrange="&lt;45">Limited glycemic effect</dose>
+        <dose clcrrange="&lt;15">Stop on Dialysis</dose>
+        <moreinfo>    
+            Normal dose: 10-25mg OD
+            
+			Use at lower eGFR justified if HF or significant renal or CVD risks present.
+        </moreinfo>
+    </medication>
+ 
+	<medication name="rosuvastatin" atccode="C10AA07">
+        <dose clcrrange="&lt;30">5-10mg po od</dose>
+        <moreinfo>    
+            Normal dose: 5-40mg OD
+            
+            When CLcr&lt; 50 mL/min:  Monitor blood glucose BID to QID with any medication change until stable.
+        </moreinfo>
+    </medication>
+	
     <medication name="digoxin" atccode="C01AA05">
         <dose clcrrange="10-50">give 25-75% of dose q36h</dose>
         <dose clcrrange="&lt;10">give 10-25% of dose q48h</dose>
@@ -67,5 +107,22 @@
         <dose clcrrange="10-50">Administer 500 mg stat, then 250 mg q24-48h</dose>
         <dose clcrrange="&lt;10">Administer 500 mg stat, then 250 mg q48h</dose>
         
+    </medication>
+	
+	<medication name="gabapentin" atccode="N03AX12">
+        <dose clcrrange="30-59">400 to 1,400 mg twice daily</dose>
+        <dose clcrrange="15-29">200 to 700 mg daily</dose>
+        <dose clcrrange="&lt;15">100 to 300 mg daily</dose>
+        <moreinfo>    
+            Normal dose: 300-3600 mg TID
+        </moreinfo>
+    </medication>
+	
+	<medication name="metoclopramide" atccode="A03FA01">
+        <dose clcrrange="10-50">give 75% of dose</dose>
+        <dose clcrrange="&lt;10">give 50% of dose</dose>
+        <moreinfo>    
+            Normal dose: 10 mg TID
+        </moreinfo>
     </medication>
 </root>
