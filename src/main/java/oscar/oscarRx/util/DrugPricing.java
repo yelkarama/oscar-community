@@ -30,9 +30,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.Hashmap;
 import java.util.Iterator;
-import java.util.List;
+
 
 import org.apache.log4j.Logger;
 import org.jdom.Document;
@@ -48,21 +48,21 @@ import oscar.OscarProperties;
 
 
 /**
- * Parses xml file, storing an array of din and price
+ * Parses xml file, storing an Hashmap
  * @author phc
  */
 public class DrugPriceLookup {
 
 	private static Logger log = MiscUtils.getLogger();
 
-	static Hashtable<String, ArrayList<DrugPriceCode>> costLookup = new Hashtable<String, ArrayList<DrugPriceCode>>();
+	static Hashmap<String, String> costLookup = new Hashmap<String, String>();
 	static boolean loaded = false;
 
 	/** Creates a new instance  */
 	protected DrugPriceLookup() {
 	}
 
-	static public ArrayList<DrugPriceCode> getPriceInfoForDin(String din) {
+	static public String getPriceInfoForDin(String din) {
 		loadCostLookupInformation();
 		if (din == null) {
 			log.info("din null returning null");
