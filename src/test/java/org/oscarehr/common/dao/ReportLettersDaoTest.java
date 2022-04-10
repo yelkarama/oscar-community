@@ -67,11 +67,11 @@ public class ReportLettersDaoTest extends DaoTestFixtures {
 		String archive0 = "0", archive1 = "1";
 		String reportName1 = "alpha", reportName2 = "bravo", reportName3 = "charlie", reportName4 = "delta", reportName5 = "epislon";
 		
-		Date date1 = new Date(dfm.parse("20020101").getTime());
-		Date date2 = new Date(dfm.parse("20040101").getTime());
-		Date date3 = new Date(dfm.parse("20060101").getTime());
-		Date date4 = new Date(dfm.parse("20080101").getTime());
-		Date date5 = new Date(dfm.parse("20110101").getTime());
+		Date date1 = new Date(dfm.parse("20190701").getTime());
+		Date date2 = new Date(dfm.parse("20190801").getTime());
+		Date date3 = new Date(dfm.parse("20190901").getTime());
+		Date date4 = new Date(dfm.parse("20191001").getTime());
+		Date date5 = new Date(dfm.parse("20191101").getTime());
 		
 		ReportLetters reportLetters1 = new ReportLetters();
 		EntityDataGenerator.generateTestDataForModelClass(reportLetters1);
@@ -113,14 +113,14 @@ public class ReportLettersDaoTest extends DaoTestFixtures {
 
 		Logger logger = MiscUtils.getLogger();
 		
-		if (result.size() != expectedResult.size()) {
-			logger.warn("Array sizes do not match.");
+		if (result.size() != expectedResult.size() ) {
+			logger.warn("Array size mis match.");
 			fail("Array sizes do not match.");
 		}
 		for (int i = 0; i < expectedResult.size(); i++) {
 			if (!expectedResult.get(i).equals(result.get(i))){
-				logger.warn("Items  do not match.");
-				fail("Items  do not match.");
+				logger.warn("Items do not match.");
+				fail("Items do not match.");
 			}
 		}
 		assertTrue(true);

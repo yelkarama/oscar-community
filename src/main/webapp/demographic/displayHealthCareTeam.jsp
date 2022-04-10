@@ -34,22 +34,28 @@
 <%@ page import="org.oscarehr.common.dao.DemographicDao" %>
 <%@ page import="org.oscarehr.common.dao.ContactSpecialtyDao" %>
 <%@ page import="org.oscarehr.common.model.ContactSpecialty" %>
+<%@ page import="oscar.OscarProperties" %>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 
 <security:oscarSec roleName="${ sessionScope.userrole }" objectName="_demographic" rights="r" reverse="${ false }">
 
-<% 
+<%
+	OscarProperties oscarProps = OscarProperties.getInstance();
 	List<DemographicContact> demographicContacts = null;
 	DemographicDao demographicDao = null;
 	Demographic demographic = null;
 	ContactSpecialtyDao specialtyDao = null;
 	List<ContactSpecialty> specialty = null;
 	String demographicNoString = request.getParameter("demographicNo");
+	// Demographic Contacts and Health Care Team are linked bt default
+	boolean linkedHealthCareTeam = oscarProps.getProperty("NEW_CONTACTS_UI_HEALTH_CARE_TEAM_LINKED", "true").equals("true");
 	
 	if ( ! StringUtils.isBlank( demographicNoString ) ) {		
 		demographicDao = SpringUtils.getBean(DemographicDao.class);
 		demographic = demographicDao.getClientByDemographicNo( Integer.parseInt(demographicNoString) );
-		demographicContacts = ContactAction.getDemographicContacts(demographic);
+		// if linked health care team, get all professional contacts
+		// otherwise get only professional contacts on the health care team
+		demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContacts(demographic, "professional") : ContactAction.getDemographicContacts(demographic, "professional", true);
 		specialtyDao = SpringUtils.getBean(ContactSpecialtyDao.class);
 		specialty = specialtyDao.findAll();
 	}
@@ -140,7 +146,7 @@
 
 <%-- DETACHED VIEW ENABLED  --%>
 
-	<h3 id="tableTitle">Health Care Team</h3>
+	<h4 id="tableTitle">Health Care Team</h3>
 	
 <%-- END DETACHED VIEW ENABLED  --%>
 
@@ -199,7 +205,7 @@
 				</tr>
 				<tr>
 					<td class="alignRight alignTop smallText">CPSO: </td>
-					<td><c:catch var="exception">${ dContact.details.cpso }</c:catch></td>
+					<td><c:out value="${ dContact.details.cpso }" /></td>
 				</tr>
 			</table>
 			

@@ -92,7 +92,9 @@ public final class ApptStatusData {
     }
 
     public String getNextStatus() {
-        if (strEditable!=null&&strEditable.equalsIgnoreCase("yes"))
+    		if("h".equals(apptStatus)){
+    			return "H";
+    		}else if (strEditable!=null&&strEditable.equalsIgnoreCase("yes"))
             return getStr("nextstatus");
         else
             return getStr(aStatus, aNextStatus);
@@ -113,6 +115,9 @@ public final class ApptStatusData {
     public String getTitleString(Locale locale) {
     	ResourceBundle bundle = ResourceBundle.getBundle("oscarResources",locale);
     	
+    	 if (strEditable!=null&&strEditable.equalsIgnoreCase("yes")) {
+    		 return getStr("desc");
+    	 }
     	String value = "";
     	if(bundle != null) {
     		String keyName = getStr(aStatus, aTitle);

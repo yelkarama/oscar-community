@@ -41,14 +41,12 @@
 
     AllergyDao allergyDao = (AllergyDao)SpringUtils.getBean("allergyDao");
 %>
-<oscar:oscarPropertiesCheck property="SPEC3" value="yes">
     <security:oscarSec roleName="<%=roleName$%>" objectName="_flowsheet" rights="r" reverse="<%=true%>">
         "You have no right to access this page!"
         <%
          LogAction.addLog((String) session.getAttribute("user"), LogConst.NORIGHT+LogConst.READ, LogConst.CON_FLOWSHEET,  temp , request.getRemoteAddr(),demographic_no);
         response.sendRedirect("../../noRights.html"); %>
     </security:oscarSec>
-</oscar:oscarPropertiesCheck>
 
 
 <%
@@ -345,7 +343,7 @@ ArrayList<String> recomendations = mi.getRecommendations();
 			window.scrollTo(x, y);
 
 			//if scroll to position then page is being reloaded due to saving so refresh encounter
-			self.opener.location.reload();
+			self.opener.autoSave(true);
 		}
 
 		window.onload = setScrollPos;

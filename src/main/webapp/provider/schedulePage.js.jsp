@@ -296,7 +296,7 @@ setTimeout("refreshTabAlerts('"+id+"')", 10);
 
 function refreshTabAlerts(id) {
 var url = "../provider/tabAlertsRefresh.jsp";
-var pars = "id=" + id;
+var pars = "id=" + id + "&autoRefresh=true";
 
 var myAjax = new Ajax.Updater(id, url, {method: 'get', parameters: pars});
 }

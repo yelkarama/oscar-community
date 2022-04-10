@@ -58,6 +58,7 @@ if(!authed) {
 <%@page import="org.oscarehr.common.dao.DepartmentDao" %>
 <%@page import="org.oscarehr.common.model.Department" %>
 <%@page import="org.oscarehr.common.model.EForm" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
 	InstitutionDao institutionDao = SpringUtils.getBean(InstitutionDao.class);
@@ -86,12 +87,13 @@ if(!authed) {
 %>
 
 <head>
-<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
+
 <script src="<%= request.getContextPath() %>/js/jquery-1.7.1.min.js"></script>
 <title><%=transactionType%></title>
 <html:base />
-<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
 
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
 <script>
 function updateDepartments(i) {
 <%
@@ -99,6 +101,7 @@ for(Institution i: institutionDao.findAll()) {
 	%> if(i == '<%=i.getId()%>') {
 		$('#department').empty();
 		$('#department').append($("<option></option>").attr("value", '0').text('Select Below'));
+
 	<%
 	for(InstitutionDepartment id : idDao.findByInstitutionId(i.getId())) {
 		
@@ -116,10 +119,36 @@ for(Institution i: institutionDao.findAll()) {
 </script>
 
 <script>
+
+function formatPhone(obj) {
+    // formats to North American xxx-xxx-xxxx standard numbers that are exactly 10 digits long
+    var x=obj.value;
+    //strip the formatting to get the numbers
+    var matches = x.match(/\d+/g);
+    if (!matches || x.substring(0,1) == "+"){
+        // don't do anything if non numberic and or international format
+        return;
+    }
+    var num = '';
+    for (var i=0; i< matches.length; i++) {
+        console.log(matches[i]);
+        num = num + matches[i];
+    }
+    if (num.length == 10){
+        obj.value = num.substring(0,3)+"-"+num.substring(3,6) + "-"+ num.substring(6);
+    } else {
+        if (num.length == 11 && x.substring(0,1) == "1"){
+            obj.value = num.substring(0,1)+"-"+num.substring(1,4) + "-"+ num.substring(4,7)+ "-"+ num.substring(7);
+        } 
+    }
+}
+
+
 	$(document).ready(function(){
 		$('#institution').change(function(){
 			changeInstitution();
-		});	
+		});
+
 	});
 	
 	function changeInstitution() {
@@ -131,7 +160,18 @@ for(Institution i: institutionDao.findAll()) {
 			updateDepartments(id);
 		}
 	}
+
+
+
+
 </script>
+<style>
+
+.MainTableLeftColumn td{
+    font-size: 12px;
+
+}
+</style>
 </head>
 <script language="javascript">
 function BackToOscar() {
@@ -139,18 +179,18 @@ function BackToOscar() {
 }
 </script>
 
-<link rel="stylesheet" type="text/css" href="../../encounterStyles.css">
+
 <body class="BodyStyle" vlink="#0000FF">
 
 <html:errors />
 <!--  -->
 <table class="MainTable" id="scrollNumber1" name="encounterTable">
 	<tr class="MainTableTopRow">
-		<td class="MainTableTopRowLeftColumn">Consultation</td>
+		<td class="MainTableTopRowLeftColumn"><h4>Consultation</h4></td>
 		<td class="MainTableTopRowRightColumn">
 		<table class="TopStatusBar">
 			<tr>
-				<td class="Header"><%=transactionType%></td>
+				<td class="Header"><h4><%=transactionType%></h4></td>
 			</tr>
 		</table>
 		</td>
@@ -173,7 +213,7 @@ function BackToOscar() {
 			<tr>
 				<td><font color="red"> <bean:message
 					key="oscarEncounter.oscarConsultationRequest.config.AddSpecialist.msgSpecialistAdded"
-					arg0="<%=added%>" /> </font></td>
+					arg0="<%=Encode.forHtml(added)%>" /> </font></td>
 			</tr>
 			<%}%>
 			<tr>
@@ -184,28 +224,29 @@ function BackToOscar() {
 						   if (request.getAttribute("specId") != null ){
 							   EctConAddSpecialistForm thisForm;
 							   thisForm = (EctConAddSpecialistForm) request.getAttribute("EctConAddSpecialistForm");
-							   thisForm.setFirstName( (String) request.getAttribute("fName"));
-							   thisForm.setLastName( (String) request.getAttribute("lName"));
-							   thisForm.setProLetters( (String) request.getAttribute("proLetters"));
-							   thisForm.setAddress( (String) request.getAttribute("address"));
-							   thisForm.setPhone( (String) request.getAttribute("phone"));
-							   thisForm.setFax( (String) request.getAttribute("fax"));
-							   thisForm.setWebsite( (String) request.getAttribute("website"));
-							   thisForm.setEmail( (String) request.getAttribute("email"));
-							   thisForm.setSpecType( (String) request.getAttribute("specType"));
+							   thisForm.setFirstName((String) request.getAttribute("fName") != null ? Encode.forHtml( (String) request.getAttribute("fName")):"");
+							   thisForm.setLastName((String) request.getAttribute("lName") != null ? Encode.forHtml( (String) request.getAttribute("lName")):"");
+							   thisForm.setProLetters((String) request.getAttribute("proLetters") != null ? Encode.forHtml( (String) request.getAttribute("proLetters")):"");
+							   thisForm.setAddress((String) request.getAttribute("address") != null ? Encode.forHtmlContent( (String) request.getAttribute("address")):"");
+							   thisForm.setPhone((String) request.getAttribute("phone") != null ? Encode.forHtml( (String) request.getAttribute("phone")):"");
+							   thisForm.setFax((String) request.getAttribute("fax") != null ? Encode.forHtml( (String) request.getAttribute("fax")):"");
+
+							   thisForm.setWebsite((String) request.getAttribute("website") != null ? Encode.forHtml( (String) request.getAttribute("website")):"");
+							   thisForm.setEmail((String) request.getAttribute("email") != null ? Encode.forHtml( (String) request.getAttribute("email")):"");
+							   thisForm.setSpecType((String) request.getAttribute("specType") != null ? Encode.forHtml( (String) request.getAttribute("specType")):"");
 							   thisForm.setSpecId( (String) request.getAttribute("specId"));
-							   thisForm.seteDataUrl( (String) request.getAttribute("eDataUrl"));
-							   thisForm.seteDataOscarKey( (String) request.getAttribute("eDataOscarKey"));
-							   thisForm.seteDataServiceKey( (String) request.getAttribute("eDataServiceKey"));
-							   thisForm.seteDataServiceName( (String) request.getAttribute("eDataServiceName"));
-							   thisForm.setAnnotation((String)request.getAttribute("annotation"));
-							   thisForm.setReferralNo((String)request.getAttribute("referralNo"));
-							   thisForm.setInstitution((String)request.getAttribute("institution"));
-							   thisForm.setDepartment((String)request.getAttribute("department"));
-				                           thisForm.setPrivatePhoneNumber((String)request.getAttribute("privatePhoneNumber"));
-                          				   thisForm.setCellPhoneNumber((String)request.getAttribute("cellPhoneNumber"));
-				                           thisForm.setPagerNumber((String)request.getAttribute("pagerNumber"));
-				                           thisForm.setSalutation((String)request.getAttribute("salutation"));
+							   thisForm.seteDataUrl((String) request.getAttribute("eDataUrl") != null ? Encode.forHtmlAttribute( (String) request.getAttribute("eDataUrl")):"");
+							   thisForm.seteDataOscarKey((String) request.getAttribute("eDataOscarKey") != null ? Encode.forHtmlAttribute( (String) request.getAttribute("eDataOscarKey")):"");
+							   thisForm.seteDataServiceKey((String) request.getAttribute("eDataServiceKey") != null ? Encode.forHtmlAttribute( (String) request.getAttribute("eDataServiceKey")):"");
+							   thisForm.seteDataServiceName((String) request.getAttribute("eDataServiceName") != null ? Encode.forHtmlAttribute( (String) request.getAttribute("eDataServiceName")):"");
+							   thisForm.setAnnotation((String)request.getAttribute("annotation") != null ? Encode.forHtmlContent((String)request.getAttribute("annotation")):"");
+							   thisForm.setReferralNo((String)request.getAttribute("referralNo") != null ? Encode.forHtmlAttribute((String)request.getAttribute("referralNo")):"");
+							   thisForm.setInstitution((String)request.getAttribute("institution") != null ? Encode.forHtmlAttribute((String)request.getAttribute("institution")):"");
+							   thisForm.setDepartment((String)request.getAttribute("department") != null ? Encode.forHtmlAttribute((String)request.getAttribute("department")):"");
+				               thisForm.setPrivatePhoneNumber((String)request.getAttribute("privatePhoneNumber") != null ? Encode.forHtmlAttribute((String)request.getAttribute("privatePhoneNumber")):"");
+                          	   thisForm.setCellPhoneNumber((String)request.getAttribute("cellPhoneNumber") != null ? Encode.forHtmlAttribute((String)request.getAttribute("cellPhoneNumber")):"");
+				               thisForm.setPagerNumber((String)request.getAttribute("pagerNumber") != null ? Encode.forHtmlAttribute((String)request.getAttribute("pagerNumber")):"");
+				               thisForm.setSalutation(Encode.forHtmlAttribute((String)request.getAttribute("salutation")));
 				                           thisForm.setHideFromView((Boolean) request.getAttribute("hideFromView"));
 				                           thisForm.setEformId((Integer)request.getAttribute("eformId"));
 
@@ -216,6 +257,7 @@ function BackToOscar() {
 						   		changeInstitution();
 						   		$('#department').val('<%=request.getAttribute("department")%>');
 						   		});
+
 						   	</script>
 						   <%
 						   }
@@ -235,7 +277,7 @@ function BackToOscar() {
 						<tr>
 							<td><bean:message key="oscarEncounter.oscarConsultationRequest.config.AddSpecialist.address" />
 							</td>
-							<td><html:textarea name="EctConAddSpecialistForm" property="address" cols="30" rows="3" /> <%=oscarVariables.getProperty("consultation_comments","") %>
+							<td><html:textarea name="EctConAddSpecialistForm" property="address" cols="30" rows="3" /> <%=Encode.forHtml(oscarVariables.getProperty("consultation_comments","")) %>
 							</td>
                                                         <td><bean:message key="oscarEncounter.oscarConsultationRequest.config.EditSpecialists.Annotation" />
 							</td>
@@ -245,21 +287,21 @@ function BackToOscar() {
 						<tr>
 							<td><bean:message key="oscarEncounter.oscarConsultationRequest.config.AddSpecialist.phone" />
 							</td>
-							<td><html:text name="EctConAddSpecialistForm" property="phone" /></td>
+							<td><html:text name="EctConAddSpecialistForm" property="phone" title="xxx-xxx-xxxx" onblur="formatPhone(this)" /></td>
 							<td><bean:message key="oscarEncounter.oscarConsultationRequest.config.AddSpecialist.fax" />
 							</td>
-							<td colspan="4"><html:text name="EctConAddSpecialistForm" property="fax" /></td>
+							<td colspan="4"><html:text name="EctConAddSpecialistForm" property="fax" title="xxx-xxx-xxxx" onblur="formatPhone(this)" /></td>
 						</tr>
 						<tr>
 							<td><bean:message key="oscarEncounter.oscarConsultationRequest.config.AddSpecialist.privatePhoneNumber" /></td>
-							<td><html:text name="EctConAddSpecialistForm" property="privatePhoneNumber" /></td>
+							<td><html:text name="EctConAddSpecialistForm" property="privatePhoneNumber" title="xxx-xxx-xxxx" onblur="formatPhone(this)" /></td>
 							<td><bean:message key="oscarEncounter.oscarConsultationRequest.config.AddSpecialist.cellPhoneNumber" /></td>
-							<td colspan="4"><html:text name="EctConAddSpecialistForm" property="cellPhoneNumber" /></td>
+							<td colspan="4"><html:text name="EctConAddSpecialistForm" property="cellPhoneNumber" title="xxx-xxx-xxxx" onblur="formatPhone(this)" /></td>
 						</tr>
 						
 						<tr>
 							<td><bean:message key="oscarEncounter.oscarConsultationRequest.config.AddSpecialist.pagerNumber" /></td>
-							<td><html:text name="EctConAddSpecialistForm" property="pagerNumber" /></td>
+							<td><html:text name="EctConAddSpecialistForm" property="pagerNumber" title="xxx-xxx-xxxx" onblur="formatPhone(this)" /></td>
 							<td><bean:message key="oscarEncounter.oscarConsultationRequest.config.AddSpecialist.salutation" /></td>
 							<td colspan="4">
 								<html:select name="EctConAddSpecialistForm" property="salutation">
@@ -300,7 +342,7 @@ function BackToOscar() {
 								<html:select property="institution" styleId="institution">
 									<option value="0">Select Below</option>
 									<%for(Institution institution: institutionDao.findAll()) { %>
-									<option value="<%=institution.getId()%>"><%=institution.getName() %></option>
+									<option value="<%=institution.getId()%>"><%=Encode.forHtmlAttribute(institution.getName()) %></option>
 									<%} %>
 								</html:select>
 								
@@ -353,7 +395,7 @@ function BackToOscar() {
 						<tr>
 							<td colspan="6">
 								<input type="hidden" name="whichType" value="<%=whichType%>" />
-								<input type="submit" name="transType" value="<%=transactionType%>" />
+								<input type="submit" name="transType" class="btn btn-primary" value="<%=transactionType%>" />
 							</td>
 						</tr>
 					</table>

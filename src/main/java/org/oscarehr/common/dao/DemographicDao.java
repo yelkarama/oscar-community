@@ -31,6 +31,7 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+//import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -136,6 +137,50 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 		logger.error("No one should be calling this method, this is a good way to run out of memory and crash a server... this is too large of a result set, it should be pagenated.", new IllegalArgumentException("The entire demographic table is too big to allow a full select."));
 		return this.getHibernateTemplate().find("from Demographic d order by d.LastName");
 	}
+
+	public List<Demographic> getDemographicFamilyMembers(String demographic_no) {
+		List params = new ArrayList<String>();
+		boolean allNull = true;
+		if (demographic_no == null || demographic_no.length() == 0 || demographic_no == "test") {
+			return null;
+		}
+
+		Demographic demographic = getDemographic(demographic_no);
+		String sql = "FROM Demographic d " + " WHERE d.PatientStatus = 'AC' ";
+		sql += " AND d.id <> "+ demographic_no;
+
+		// To be part of a family, the demographics must have a matching street address and other address field
+		// excluding province in the slim chance there are demographics of more than one family that live at an
+		// address that are located in different cities of the same province.
+		if(demographic.getAddress() !=null && !demographic.getAddress().trim().equals("")){
+			sql += " AND d.Address = '" + demographic.getAddress().trim() + "' ";
+
+			if(demographic.getCity() !=null){
+				sql += " AND d.City = '" + demographic.getCity().trim() + "' ";
+				allNull = false;
+			}
+
+			if(demographic.getProvince()!=null){
+				sql += " AND d.Province = '" + demographic.getProvince().trim() + "' ";
+			}
+
+			if(demographic.getPostal()!=null){
+				sql += " AND d.Postal = '" + demographic.getPostal().trim() + "' ";
+				allNull = false;
+			}
+
+			if(demographic.getPhone()!=null){
+				sql += " AND d.Phone  = '" + demographic.getPhone().trim() + "' ";
+				allNull = false;
+			}
+		}
+
+		if(allNull){
+			return null;
+		}
+
+		return this.getHibernateTemplate().find(sql);
+	}
 	
 	public Long getActiveDemographicCount() {
 		List<?> res = this.getHibernateTemplate().find("SELECT COUNT(*) FROM Demographic d WHERE d.PatientStatus = 'AC'");
@@ -187,6 +232,15 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 			q = "From Demographic d where d.ProviderNo = ? and d.PatientStatus = 'AC' ";
 		}
 		List<Demographic> rs = getHibernateTemplate().find(q, new Object[] { providerNo });
+		return rs;
+	}
+	
+	public List<Integer> getDemographicNosByProvider(String providerNo, boolean onlyActive) {
+		String q = "From Demographic d where d.ProviderNo = ? ";
+		if (onlyActive) {
+			q = "Select d.DemographicNo From Demographic d where d.ProviderNo = ?  ";
+		}
+		List<Integer> rs = getHibernateTemplate().find(q, new Object[] { providerNo });
 		return rs;
 	}
 
@@ -404,7 +458,7 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 
 		String[] name = searchStr.split(",");
 		if (name.length == 2) {
-			queryString += " and first_name like :firstName ";
+			queryString += " and ( d.FirstName like :firstName or d.Alias like :firstName ) ";
 		}
 		
 		if(statuses != null) {
@@ -449,7 +503,7 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 
 		String[] name = searchStr.split(",");
 		if (name.length == 2) {
-			queryString += " and first_name like :firstName ";
+			queryString += " and ( d.FirstName like :firstName or d.Alias like :firstName ) ";
 		}
 
 		Session session = this.getSession();
@@ -697,7 +751,7 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 		StringBuilder sqlParameters = new StringBuilder();
 
 		if (hin != null) sqlParameters.append(" and d.Hin like :hin");
-		if (firstName != null) sqlParameters.append(" and d.FirstName like :firstName");
+		if (firstName != null) sqlParameters.append(" and ( d.FirstName like :firstName or d.Alias like :firstName )");
 		if (lastName != null) sqlParameters.append(" and d.LastName like :lastName");
 		if (gender != null) sqlParameters.append(" and d.Sex = :gender");
 
@@ -709,7 +763,7 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 
 		if (city != null) sqlParameters.append(" and d.City like :city");
 		if (province != null) sqlParameters.append(" and d.Province = :province");
-		if (phone != null) sqlParameters.append(" and (d.Phone like :phone or d.Phone2 like :phone)");
+		if (phone != null) sqlParameters.append(" and (d.Phone like :phone or d.Phone2 like :phone or d.cellPhone like :phone)");
 		if (email != null) sqlParameters.append(" and d.Email like :email");
 		if (alias != null) sqlParameters.append(" and d.Alias like :alias");
 
@@ -1021,7 +1075,7 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 
 	@SuppressWarnings("unchecked")
 	public List<String> getRosterStatuses() {
-		List<String> results = getHibernateTemplate().find("SELECT DISTINCT d.RosterStatus FROM Demographic d where d.RosterStatus != '' and d.RosterStatus != 'RO' and d.RosterStatus != 'NR' and d.RosterStatus != 'TE' and d.RosterStatus != 'FS'");
+		List<String> results = getHibernateTemplate().find("SELECT DISTINCT d.RosterStatus FROM Demographic d where d.RosterStatus != '' and d.RosterStatus != 'RO' and d.RosterStatus != 'TE' and d.RosterStatus != 'FS'");
 		return results;
 	}
 
@@ -2157,7 +2211,7 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 	public List<Integer> getBORNKidsMissingExtKey(String keyName) {
 		Calendar cal = Calendar.getInstance();
 		//TODO: change this to use a similar AGE calculation like in RptDemographicQueryBuilder
-		int year = cal.get(Calendar.YEAR) - 8;
+		int year = cal.get(Calendar.YEAR) - 18;
 		Session session = getSession();
 		try {
 			SQLQuery sqlQuery = session.createSQLQuery("select distinct d.demographic_no from demographic d where d.year_of_birth >= :year1 and  d.demographic_no not in (select distinct d.demographic_no from demographic d, demographicExt e where d.demographic_no = e.demographic_no and d.year_of_birth >= :year2 and key_val=:key)");
@@ -2173,5 +2227,18 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 		
 	}
 
+	@SuppressWarnings("unchecked")
+	public List<Demographic> getActiveDemographicAfter(Date afterDatetimeExclusive) {
+		String q = "From Demographic d where d.PatientStatus='AC'";
+		if (afterDatetimeExclusive!=null) q += " and d.lastUpdateDate > ?";
+		
+		List<Demographic> rs = null;
+		rs = afterDatetimeExclusive!=null ? getHibernateTemplate().find(q, afterDatetimeExclusive) : getHibernateTemplate().find(q);
+		
+		return rs;
+	}
 	
+	public List<Demographic> findByLastNameAndDob(String lastName, Calendar dateOfBirth) {
+		return findByAttributes(null, null, lastName, null, dateOfBirth, null, null, null, null, null, 0, 99);
+	}
 }

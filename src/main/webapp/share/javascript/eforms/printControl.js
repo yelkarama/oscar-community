@@ -35,8 +35,60 @@ var printControl = {
 	}
 };
 
+function setFutureDate(weeks){
+	var now = new Date();
+	now.setDate(now.getDate() + weeks * 7);
+	return (now.toISOString().substring(0,10));
+}
+     
+function setTickler(){
+    var today = new Date().toISOString().slice(0, 10);
+    var subject=( $('#subject').val() ? $('#subject').val() : "test");
+	var demographicNo = ($("#tickler_patient_id").val() ? $("#tickler_patient_id").val() : "-1"); // patient_id
+    var taskAssignedTo = ($("#tickler_send_to").val() ? $("#tickler_send_to").val() : "-1"); // id from doctor_provider_no current_user_id etc
+	var weeks = ($("#tickler_weeks").val() ? $("#tickler_weeks").val() : "6");
+	var message = ($("#tickler_message").val() ? $("#tickler_message").val() : "Check for results of "+subject+" ordered " + today);
+  	var ticklerDate = setFutureDate(weeks);
+	var urgency = ($("#tickler_priority").val() ? $("#ticklerpriority").val() : "Normal"); // case sensitive, can be Low Normal High
+	var ticklerToSend = {};
+	ticklerToSend.demographicNo = demographicNo; 
+	ticklerToSend.message = message;
+	ticklerToSend.taskAssignedTo = taskAssignedTo; 
+	ticklerToSend.serviceDate = ticklerDate;
+	ticklerToSend.priority = urgency; 
+ 	console.log("pringControl.js is setting a tickler: "+JSON.stringify(ticklerToSend));		
+    return $.ajax({
+        type: "POST",
+  		url:  '../ws/rs/tickler/add',
+  		dataType:'json',
+  		contentType:'application/json',
+  		data: JSON.stringify(ticklerToSend)
+  	});
+  			 
+}
+  	
+function wrapsetTickler() {
+$.when(setTickler()).then(function( data, textStatus, jqXHR ) {
+            console.log("printControl.js1 reports tickler "+textStatus);
+            if ( jqXHR.status != 200 ){ alert("ERROR ("+jqXHR.status+") automatic tickler FAILED to be set");}
+            
+        });
+}
+
 function submitPrintButton(save) {
-	
+	var ticklerFlag = $("#tickler_send_to");     
+    if (ticklerFlag.size() >0) { 
+        $.when(setTickler()).then(function( data, textStatus, jqXHR ) {
+            console.log("printControl.js reports tickler "+textStatus);
+            if ( jqXHR.status != 200 ){ alert("ERROR ("+jqXHR.status+") automatic tickler FAILED to be set");}
+            finishPdf(save);
+        });
+    } else {
+        finishPdf(save);
+    }
+}
+
+function finishPdf(save) {
 	// Setting this form to print.
 	var printHolder = jQuery('#printHolder');
 	if (printHolder == null || printHolder.size() == 0) {

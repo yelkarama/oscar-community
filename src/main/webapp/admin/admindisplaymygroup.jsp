@@ -33,9 +33,12 @@
 <%@ page import="org.oscarehr.common.model.MyGroup" %>
 <%@ page import="org.oscarehr.common.model.MyGroupPrimaryKey" %>
 <%@ page import="org.oscarehr.common.dao.MyGroupDao" %>
+<%@ page import="org.oscarehr.common.model.Provider"%>
+<%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
 
 <%
 	MyGroupDao myGroupDao = SpringUtils.getBean(MyGroupDao.class);
+	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 
     String curProvider_no = (String) session.getAttribute("user");
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -95,14 +98,26 @@ String oldNumber="";
 boolean toggleLine=false;
 
 List<MyGroup> groupList = myGroupDao.findAll();
-Collections.sort(groupList, MyGroup.MyGroupNoComparator);
+Collections.sort(groupList, MyGroup.MyGroupNoNameComparator);
 
 if(isSiteAccessPrivacy) {
 	groupList = myGroupDao.getProviderGroups(curProvider_no);
 }
 
+// filter out inactive providers by default
+boolean showActiveOnly = request.getParameter("showInactive") == null;
+Map<String, Provider> providerMap = new HashMap<String, Provider>();
+List<Provider> providers = providerDao.getProviders();
+for (Provider p : providers) {
+	providerMap.put(p.getProviderNo(), p);
+}
 
 for(MyGroup myGroup : groupList) {
+
+	Provider p = providerMap.get(myGroup.getId().getProviderNo());
+	if (p == null || (showActiveOnly && !"1".equals(p.getStatus()))) {
+		continue; // skip unknown or inactive providers
+	}
 
 	if(!myGroup.getId().getMyGroupNo().equals(oldNumber)) {
 		toggleLine = !toggleLine;
@@ -116,7 +131,7 @@ for(MyGroup myGroup : groupList) {
 					value="<%=myGroup.getId().getMyGroupNo()%>">
 				</td>
 				<td><%=myGroup.getId().getMyGroupNo()%></td>
-				<td> <%=myGroup.getLastName()+","+ myGroup.getFirstName()%>
+				<td> <%=p.getFormattedName()%>
 				</td>
 			</tr>
 <%
@@ -132,6 +147,11 @@ for(MyGroup myGroup : groupList) {
 			SIZE="7"> 
 					
 			<a href="adminnewgroup.jsp" class="btn btn-primary"><bean:message key="admin.admindisplaymygroup.btnSubmit2"/></a>
+			<% if (showActiveOnly) { %>
+			<a href="admindisplaymygroup.jsp?showInactive=1" class="btn"><bean:message key="admin.admindisplaymygroup.showInactive"/></a>
+			<% } else { %>
+			<a href="admindisplaymygroup.jsp" class="btn"><bean:message key="admin.admindisplaymygroup.hideInactive"/></a>
+			<% } %>
 
 </FORM>
 

@@ -86,7 +86,7 @@ function upCaseCtrl(ctrl) {
 			</tr>
 		</table>
 		<table width="98%" border="0" cellspacing="0" cellpadding="0">
-			<tr>
+			<tr style="color:white;">
 				<td>
 				<p>&nbsp;</p>
 				<p><font size="-1"><bean:message
@@ -121,8 +121,8 @@ function upCaseCtrl(ctrl) {
 				<td>&nbsp;</td>
 			</tr>
 			<tr>
-				<td bgcolor="#CCFFCC">
-				<div align="right"><input type="button" name="Button"
+				<td>
+				<div align="left"><input type="button" name="Button"
 					value='<bean:message key="schedule.scheduledatefinal.btnDoAgain"/>'
 					onclick="self.location.href='scheduletemplatesetting.jsp'">
 				</div>

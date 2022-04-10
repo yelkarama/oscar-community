@@ -58,25 +58,21 @@ if(!authed) {
 <%@page import="org.oscarehr.common.dao.ProviderSiteDao"%>
 <%@page import="org.oscarehr.common.dao.UserPropertyDAO"%>
 <%@page import="org.oscarehr.common.model.UserProperty"%>
+<%@ page import="oscar.log.LogAction" %>
+<%@ page import="oscar.log.LogConst" %>
+<%@ page import="oscar.util.ChangedField" %>
+<%@ page import="org.oscarehr.util.LoggedInInfo" %>
+<%@ page import="oscar.util.StringUtils" %>
 <%
 	ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
 	ProviderSiteDao providerSiteDao = SpringUtils.getBean(ProviderSiteDao.class);
 %>
 <html:html locale="true">
 <head>
-<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="admin.providerupdate.title" /></title>
-</head>
-<link rel="stylesheet" href="../web.css" />
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 
-<body bgproperties="fixed" topmargin="0" leftmargin="0" rightmargin="0">
-<center>
-<table border="0" cellspacing="0" cellpadding="0" width="100%">
-	<tr bgcolor="#486ebd">
-		<th><font face="Helvetica" color="#FFFFFF"><bean:message
-			key="admin.providerupdate.description" /></font></th>
-	</tr>
-</table>
+</head>
 
 <%
   ProviderBillCenter billCenter = new ProviderBillCenter();
@@ -152,12 +148,15 @@ if(!authed) {
 	Provider provider = providerDao.getProvider(request.getParameter("provider_no"));
 	ProviderArchive pa = new ProviderArchive();
 	BeanUtils.copyProperties(pa, provider);
+	pa.setId(null);
 	providerArchiveDao.persist(pa);
 
 
 
 	  Provider p = providerDao.getProvider(request.getParameter("provider_no"));
 	  if(p != null) {
+		  List<ChangedField> changedFields = new ArrayList<ChangedField>();
+		  Provider beforeChange = new Provider(p);
 		  p.setLastName(request.getParameter("last_name"));
 		  p.setFirstName(request.getParameter("first_name"));
 		  p.setProviderType(request.getParameter("provider_type"));
@@ -196,20 +195,41 @@ if(!authed) {
 		 
 		  String clinicalConnectId = request.getParameter("clinicalConnectId");
 		  String clinicalConnectType = request.getParameter("clinicalConnectType");
-		  
-		  userPropertyDAO.saveProp(provider.getProviderNo(), UserProperty.CLINICALCONNECT_ID, clinicalConnectId);
-		  userPropertyDAO.saveProp(provider.getProviderNo(), UserProperty.CLINICALCONNECT_TYPE, clinicalConnectType);
-		  
+          if( clinicalConnectId != null &&  !clinicalConnectId.equals("")){	  
+		      userPropertyDAO.saveProp(provider.getProviderNo(), UserProperty.CLINICALCONNECT_ID, clinicalConnectId);
+		      userPropertyDAO.saveProp(provider.getProviderNo(), UserProperty.CLINICALCONNECT_TYPE, clinicalConnectType);
+            }
+                  
+                  if(OscarProperties.getInstance().getBooleanProperty("questimed.enabled", "true")) {
+                    String questimedUserName = request.getParameter("questimedUserName");
+                    userPropertyDAO.saveProp(provider.getProviderNo(), UserProperty.QUESTIMED_USERNAME, questimedUserName);
+                  }
+
 		  String officialFirstName = request.getParameter("officialFirstName");
 		  String officialSecondName = request.getParameter("officialSecondName");
 		  String officialLastName = request.getParameter("officialLastName");
 		  String officialOlisIdtype = request.getParameter("officialOlisIdtype");
-		
+		  String oldOfficialFirstName = StringUtils.noNull(userPropertyDAO.getStringValue(provider.getProviderNo(), UserProperty.OFFICIAL_FIRST_NAME));
+		  String oldOfficialSecondName = StringUtils.noNull(userPropertyDAO.getStringValue(provider.getProviderNo(), UserProperty.OFFICIAL_SECOND_NAME));
+		  String oldOfficialLastName = StringUtils.noNull(userPropertyDAO.getStringValue(provider.getProviderNo(), UserProperty.OFFICIAL_LAST_NAME));
+		  String oldOfficialOlisIdtype = StringUtils.noNull(userPropertyDAO.getStringValue(provider.getProviderNo(), UserProperty.OFFICIAL_OLIS_IDTYPE));
+		  
 		  userPropertyDAO.saveProp(provider.getProviderNo(), UserProperty.OFFICIAL_FIRST_NAME, officialFirstName);
 		  userPropertyDAO.saveProp(provider.getProviderNo(), UserProperty.OFFICIAL_SECOND_NAME, officialSecondName);
 		  userPropertyDAO.saveProp(provider.getProviderNo(), UserProperty.OFFICIAL_LAST_NAME, officialLastName);
 		  userPropertyDAO.saveProp(provider.getProviderNo(), UserProperty.OFFICIAL_OLIS_IDTYPE, officialOlisIdtype);
-		  
+		  if (!oldOfficialFirstName.equals(officialFirstName)) {
+		      changedFields.add(new ChangedField(UserProperty.OFFICIAL_FIRST_NAME, oldOfficialFirstName, officialFirstName));
+		  }
+		  if (!oldOfficialSecondName.equals(officialSecondName)) {
+		      changedFields.add(new ChangedField(UserProperty.OFFICIAL_SECOND_NAME, oldOfficialSecondName, officialSecondName));
+		  }
+		  if (!oldOfficialLastName.equals(officialLastName)) {
+		      changedFields.add(new ChangedField(UserProperty.OFFICIAL_LAST_NAME, oldOfficialLastName, officialLastName));
+		  }
+		  if (!oldOfficialOlisIdtype.equals(officialOlisIdtype)) {
+			  changedFields.add(new ChangedField(UserProperty.OFFICIAL_OLIS_IDTYPE, oldOfficialOlisIdtype, officialOlisIdtype));
+		  }
 		
         if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) {
             String[] sites = request.getParameterValues("sites");
@@ -227,15 +247,26 @@ if(!authed) {
                 }
             }
         }
+		changedFields.addAll(ChangedField.getChangedFieldsAndValues(beforeChange, p));
+        
+        String keyword = "providerNo=" + p.getProviderNo();
+        if (request.getParameter("keyword") != null) { keyword += "\n" + request.getParameter("keyword"); }
+        
+		LogAction.addChangeLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.UPDATE, "adminUpdateUser", keyword, changedFields);
 %>
 <p>
-<h2><bean:message key="admin.providerupdate.msgUpdateSuccess" />
-<a href="providerupdateprovider.jsp?keyword=<%=request.getParameter("provider_no")%>"><%= request.getParameter("provider_no") %></a>
-</h2>
+<div class="alert alert-success">
+    <h4><bean:message key="admin.providerupdate.msgUpdateSuccess" /><a href="providerupdateprovider.jsp?keyword=<%=request.getParameter("provider_no")%>"><%= request.getParameter("provider_no") %></a>
+    </h4>
+</div>
+
 <%
   } else {
 %>
-<h1><bean:message key="admin.providerupdate.msgUpdateFailure" /><%= request.getParameter("provider_no") %>.</h1>
+<div class="alert alert-error" >
+<h4><bean:message key="admin.providerupdate.msgUpdateFailure" />
+<%= request.getParameter("provider_no") %>.</h4>
+</div>
 <%
   }
 }
@@ -243,8 +274,10 @@ else {
 	if (!isProviderFormalize) {
 		//output ProviderFormalize error message
 	%>
-		<h1><bean:message key="<%=errMsgProviderFormalize%>" />  </h1>
+<div class="alert alert-error" >
+		<h4><bean:message key="<%=errMsgProviderFormalize%>" />  </h4>
 		Provider # range from : <%=min_value %> To : <%=max_value %>
+</div>
 	<%
 	}
 }

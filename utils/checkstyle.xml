@@ -85,12 +85,12 @@
 		<property name="dataStoreFilename" value="utils/TrackingRegexpCheck_java_jsp.data.xml"/>
 	</module>
 
-	<module name="org.oscarehr.util.checkstyle.TrackingRegexpCheck">
+	<!--<module name="org.oscarehr.util.checkstyle.TrackingRegexpCheck">
 		<property name="fileExtensions" value=".java,.jsp,.jspf,.jsf"/>
 		<property name="illegalRegex" value=".*LogManager\.getLogger\s*\(.*"/>
 		<property name="violationDescription" value="not really an error, but MiscUtils.getLogger() is probably a better choice."/>
 		<property name="dataStoreFilename" value="utils/TrackingRegexpCheck_java_jsp.data.xml"/>
-	</module>
+	</module>-->
 
 	<module name="org.oscarehr.util.checkstyle.TrackingRegexpCheck">
 		<property name="fileExtensions" value=".java,.jsp,.jspf,.jsf"/>
@@ -288,7 +288,7 @@
         <module name="EmptyStatement"/>
         <module name="EqualsHashCode"/>
         -->
-        <module name="DoubleCheckedLocking"/>
+<!--         <module name="DoubleCheckedLocking"/> -->
         <module name="IllegalInstantiation"/>
 
         <!-- 

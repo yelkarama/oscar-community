@@ -40,14 +40,14 @@ padding-left: 36px;
 p 
 {
 color: #666666;
-font-family: verdana;
+font-family: Arial;sans-serif;Helvetica;
 font-size: 10px;
 }
 
 p.close 
 {
 color: #666666;
-font-family: verdana;
+font-family: Arial;sans-serif;Helvetica;
 font-size: 16px;
 }
 
@@ -73,22 +73,23 @@ A:hover {color: black;}
 		<table width="560"  align="center" cellspacing="0" cellpadding="0">
 			<td>
 			
-			<p class="build_info">build date: <%= OscarProperties.getBuildDate() %><br />
-			   build tag: <%=OscarProperties.getBuildTag()%>	
+			<p class="build_info">Build Date: <%= OscarProperties.getBuildDate() %><br />
+			   Build Tag: <%=OscarProperties.getBuildTag()%>	
 			</p>
 			
 			<table width="85%" align="center">
 				<td>
-				<p><u>About Us</u></p>
+				<p><u>About OSCAR</u></p>
 				
-				<p>OSCAR through its product suite and partnerships offers a unique model for connecting care and creating community. The OSCAR CMS has been collaboratively developed based on the collective work, ideas and support of numerous health care providers and developers across the nation. Together these individuals form the OSCAR community known as the OSCAR Canada Users Society (OCUS). The enthusiasm of the OSCAR Community to improve patient care has brought together dedicated individuals from across the country who work towards continuously developing the not only the software tools to enable this, but also a strong community to support it.</p>
+				<p style="text-align:justify;">OSCAR through its product suite and partnerships offers a unique model for connecting care and creating community. The OSCAR EMR has been collaboratively developed based on the collective work, ideas and support of numerous health care providers and developers across the nation. Together these individuals form the OSCAR community known as the OSCAR Canada Users Society (OCUS). The enthusiasm of the OSCAR Community to improve patient care has brought together dedicated individuals from across the country who work towards continuously developing the not only the software tools to enable this, but also a strong community to support it.</p>
+				<p>For more information on OSCAR, click <a href="https://worldoscar.org/about/" target="_blank">here</a>.</p>
 				
 				<br />
 				
 				<p><u>Terms</u></p>
 				
-				<p>
-				Copyright (c) 2001-2015. Department of Family
+				<p style="text-align:justify;">
+				Copyright &copy; 2001-<script>document.write(new Date().getFullYear())</script>. Department of Family
 				Medicine, McMaster University. All Rights Reserved. This software is
 				published under the GPL GNU General Public License. This program is
 				free software; you can redistribute it and/or modify it under the
@@ -110,7 +111,7 @@ A:hover {color: black;}
 				<br>
 				</p>
 				
-				<p class="close" align="right"><a href="javascript: self.close()"> Close| </a></p>
+				<p class="close" align="right"><a href="javascript: self.close()">Close</a></p>
 				
 				</td>
 			</table>	

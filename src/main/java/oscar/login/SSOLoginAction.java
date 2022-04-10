@@ -26,15 +26,23 @@
 package oscar.login;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 
-import javax.servlet.ServletException;
+import javax.crypto.Cipher;
+import javax.crypto.Mac;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import net.sf.json.JSONObject;
-
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
@@ -56,6 +64,8 @@ import org.oscarehr.common.model.Security;
 import org.oscarehr.common.model.ServiceRequestToken;
 import org.oscarehr.common.model.UserProperty;
 import org.oscarehr.decisionSupport.service.DSService;
+import org.oscarehr.integration.OneIDTokenUtils;
+import org.oscarehr.integration.OneIdGatewayData;
 import org.oscarehr.managers.AppManager;
 import org.oscarehr.phr.util.MyOscarUtils;
 import org.oscarehr.util.LoggedInInfo;
@@ -64,6 +74,7 @@ import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SessionConstants;
 import org.oscarehr.util.SpringUtils;
 
+import net.sf.json.JSONObject;
 import oscar.OscarProperties;
 import oscar.log.LogAction;
 import oscar.log.LogConst;
@@ -102,7 +113,7 @@ public final class SSOLoginAction extends MappingDispatchAction {
 	String[] providerInformation;
 	String providerNumber = "";
 	
-    public ActionForward econsultLogin(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public ActionForward econsultLogin(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)  throws IOException {
         boolean ajaxResponse = request.getParameter("ajaxResponse") != null ? Boolean.valueOf(request.getParameter("ajaxResponse")) : false;
         ParameterActionForward actionForward = null;
         
@@ -113,7 +124,46 @@ public final class SSOLoginAction extends MappingDispatchAction {
         //Sets the oneIdKey and email
         oneIdKey = request.getParameter("nameId");
         oneIdEmail = request.getParameter("email");
-        requestStartTime = request.getParameter("loginStart");
+        requestStartTime = request.getParameter("ts");
+ String encryptedOneIdToken = request.getParameter("encryptedOneIdToken");
+        
+        String signature = request.getParameter("signature");
+        String ts = request.getParameter("ts");
+        
+        if(!StringUtils.isEmpty(signature)) {
+        	logger.info("Found signature " + signature);
+        	try {
+        		Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
+        		SecretKeySpec secret_key = new SecretKeySpec(OscarProperties.getInstance().getProperty("oneid.encryptionKey").getBytes("UTF-8"), "HmacSHA256");
+        		sha256_HMAC.init(secret_key);
+        		String ourSig = Hex.encodeHexString(sha256_HMAC.doFinal((oneIdKey + oneIdEmail + encryptedOneIdToken + ts).getBytes("UTF-8")));
+        		if(!ourSig.equals(signature)) {
+        			logger.warn("SSO Login: invalid HMAC signature");
+                	ActionRedirect redirect = new ActionRedirect(mapping.findForward("ssoLoginError"));
+                    redirect.addParameter("errorMessage", "Invalid signature found");
+                    return redirect;
+        		}
+        	}catch(Exception e) {
+        		MiscUtils.getLogger().error("Error",e);
+        	}
+        	
+        } else {
+        	logger.warn("SSO Login: expected HMAC signature");
+        	ActionRedirect redirect = new ActionRedirect(mapping.findForward("ssoLoginError"));
+            redirect.addParameter("errorMessage", "No signature found");
+            return redirect;
+        }
+        
+        String oneIdToken = null;
+        if(!StringUtils.isEmpty(encryptedOneIdToken)) {
+        	oneIdToken = decrypt(OscarProperties.getInstance().getProperty("oneid.encryptionKey"),encryptedOneIdToken);
+        	logger.info("token from encryption is " + oneIdToken);	
+        } else {
+        	logger.warn("SSO Login: expected an encrypted token");
+        	ActionRedirect redirect = new ActionRedirect(mapping.findForward("ssoLoginError"));
+            redirect.addParameter("errorMessage", "No token found");
+            return redirect;
+        }
 
         Boolean valid = isSessionValid();
 
@@ -157,10 +207,21 @@ public final class SSOLoginAction extends MappingDispatchAction {
         	if (loggedInProviderNumber.equals(providerNumber)){
         		//Sets the oneIdEmail session attribute
     			session.setAttribute("oneIdEmail", oneIdEmail);
+    			session.setAttribute("oneid_token", oneIdToken );
+    			 
     			if (providerInformation[6] != null && !providerInformation[6].equals("")) {
                     session.setAttribute("delegateOneIdEmail", providerInformation[6]);
                 }
-        		actionForward = new ParameterActionForward(mapping.findForward("success"));
+    			
+    			String operation = request.getParameter("operation");
+    			if(operation != null && "launch".equals(operation)) {
+    				ActionForward af = new ActionForward();
+    				af.setPath("/clinicalConnectEHRViewer.do");
+    				actionForward = new ParameterActionForward(af);
+    				actionForward.addParameter("method", "launchNonPatientContext");
+    			} else {
+    				actionForward = new ParameterActionForward(mapping.findForward("success"));
+    			}
         	}
         	else {
         		actionForward = new ParameterActionForward(mapping.findForward("error"));
@@ -183,6 +244,7 @@ public final class SSOLoginAction extends MappingDispatchAction {
 	        			securityRecord.setOneIdEmail(oneIdEmail);
 	        			
 	        			securityDao.updateOneIdKey(securityRecord);
+	        			session.setAttribute("oneid_oauth2", true);
 	        			
 	        			//Logs the linking of the key
 	        			logger.info("Linked ONE ID Key " + oneIdKey + " to provider " + loggedInProviderNumber);
@@ -213,7 +275,7 @@ public final class SSOLoginAction extends MappingDispatchAction {
         return actionForward;
     }
     
-    public ActionForward ssoLogin(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public ActionForward ssoLogin(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
     	boolean ajaxResponse = request.getParameter("ajaxResponse") != null ? Boolean.valueOf(request.getParameter("ajaxResponse")) : false;
     	//Gets the IP address
     	String ip = request.getRemoteAddr();
@@ -223,22 +285,70 @@ public final class SSOLoginAction extends MappingDispatchAction {
     	//Declares providerInformation String Array
     	String[] providerInformation;
     	String providerNumber = "";
-    	
+    	OneIdGatewayData oneIdGatewayData = null;
     	//Gets the ssoKey parameter
     	oneIdKey = request.getParameter("nameId");
     	oneIdEmail = request.getParameter("email");
-        requestStartTime = request.getParameter("loginStart");
-
+        requestStartTime = request.getParameter("ts");
+        String encryptedOneIdToken = request.getParameter("encryptedOneIdToken");
+        
+        String signature = request.getParameter("signature");
+        String ts = request.getParameter("ts");
+        String oauth2Param = request.getParameter("oauth2");
+        Boolean oauth2 = false;
+        if(!StringUtils.isEmpty(oauth2Param) && "true".equals(oauth2Param)) {
+        	oauth2=true;
+        }
+        
+        if(!StringUtils.isEmpty(signature)) {
+        	logger.debug("Found signature " + signature);
+        	try {
+        		Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
+        		SecretKeySpec secret_key = new SecretKeySpec(OscarProperties.getInstance().getProperty("oneid.encryptionKey").getBytes("UTF-8"), "HmacSHA256");
+        		sha256_HMAC.init(secret_key);
+        		String ourSig = Hex.encodeHexString(sha256_HMAC.doFinal((oneIdKey + oneIdEmail + encryptedOneIdToken + ts).getBytes("UTF-8")));
+        		if(!ourSig.equals(signature)) {
+        			logger.warn("SSO Login: invalid HMAC signature");
+                	ActionRedirect redirect = new ActionRedirect(mapping.findForward("ssoLoginError"));
+                    redirect.addParameter("errorMessage", "Invalid signature found");
+                    return redirect;
+        		}
+        	}catch(Exception e) {
+        		MiscUtils.getLogger().error("Error",e);
+        	}
+        	
+        } else {
+        	logger.warn("SSO Login: expected HMAC signature");
+        	ActionRedirect redirect = new ActionRedirect(mapping.findForward("ssoLoginError"));
+            redirect.addParameter("errorMessage", "No signature found");
+            return redirect;
+        }
+        
+        String oneIdToken = null;
+        if(!StringUtils.isEmpty(encryptedOneIdToken)) {
+        	oneIdToken = decrypt(OscarProperties.getInstance().getProperty("oneid.encryptionKey"),encryptedOneIdToken);
+        	logger.debug("token from encryption is " + oneIdToken);	
+        } else {
+        	logger.warn("SSO Login: expected an encrypted token");
+        	ActionRedirect redirect = new ActionRedirect(mapping.findForward("ssoLoginError"));
+            redirect.addParameter("errorMessage", "No token found");
+            return redirect;
+        }
+        
         Boolean valid = isSessionValid();
 
         if (!valid) {
             ActionRedirect redirect = new ActionRedirect(mapping.findForward("ssoLoginError"));
             redirect.addParameter("errorMessage", "The session has timed out");
-
-
             return redirect;
         }
 
+        if(oneIdToken == null) {
+        	ActionRedirect redirect = new ActionRedirect(mapping.findForward("ssoLoginError"));
+            redirect.addParameter("errorMessage", "No valid token found");
+            return redirect;
+        }
+        
     	//Creates a new LoginCheckLogin object
         LoginCheckLogin loginCheck = new LoginCheckLogin();
         
@@ -267,7 +377,7 @@ public final class SSOLoginAction extends MappingDispatchAction {
         	return(new ActionForward(newURL));
         }
     	
-        logger.error("providerInformation : " + Arrays.toString(providerInformation));
+        logger.info("providerInformation : " + Arrays.toString(providerInformation));
         if (providerInformation != null && providerInformation.length != 1) {
         	providerNumber = providerInformation[0];
         	//Checks if the provider is inactive
@@ -286,6 +396,7 @@ public final class SSOLoginAction extends MappingDispatchAction {
         	// invalidate the existing session
             HttpSession session = request.getSession(false);
             if (session != null) {
+            		oneIdGatewayData = (OneIdGatewayData) session.getAttribute(SessionConstants.OH_GATEWAY_DATA);
             	if(request.getParameter("invalidate_session") != null && request.getParameter("invalidate_session").equals("false")) {
             		//don't invalidate in this case..messes up authenticity of OAUTH
             	} else {
@@ -309,11 +420,12 @@ public final class SSOLoginAction extends MappingDispatchAction {
             session.setAttribute("oscar_context_path", request.getContextPath());
             session.setAttribute("expired_days", providerInformation[5]);
             session.setAttribute("oneIdEmail", oneIdEmail);
-            
+            session.setAttribute("oneid_token", oneIdToken );
+            session.setAttribute("oneid_oauth2", oauth2);
             if (providerInformation[6] != null && !providerInformation[6].equals("")) {
                 session.setAttribute("delegateOneIdEmail", providerInformation[6]);
             }
-            
+            logger.debug(OneIDTokenUtils.debugTokens(session));
             // If a new session has been created, we must set the mobile attribute again
             if (isMobileOptimized) session.setAttribute("mobileOptimized","true");
             // initiate security manager
@@ -384,8 +496,21 @@ public final class SSOLoginAction extends MappingDispatchAction {
             Provider provider = providerManager.getProvider(username);
             session.setAttribute(SessionConstants.LOGGED_IN_PROVIDER, provider);
             session.setAttribute(SessionConstants.LOGGED_IN_SECURITY, loginCheck.getSecurity());
-
+            
+    			if(oneIdGatewayData != null ){
+    				oneIdGatewayData.processOneIdString(oneIdToken);
+    			}else{
+    				oneIdGatewayData = new OneIdGatewayData(oneIdToken);
+    			}
+    			session.setAttribute(SessionConstants.OH_GATEWAY_DATA,oneIdGatewayData);
+            
             LoggedInInfo loggedInInfo = LoggedInUserFilter.generateLoggedInInfoFromSession(request);
+            
+            //try {
+            	//   CMSManager.userLogin(loggedInInfo); // Currently not required to login to CMS before being needed
+            //}catch(Exception e) {
+            	//	logger.error("Error creating Hub Topic",e);
+            //}
             
             if (destination.equals("provider")) {
                 UserProperty drugrefProperty = propDao.getProp(UserProperty.MYDRUGREF_ID);
@@ -501,4 +626,29 @@ public final class SSOLoginAction extends MappingDispatchAction {
 
         return isSessionValid;
     }
+
+    public static String decrypt(String key, String data) {
+
+	    try {
+	      String[] parts = data.split(":");
+
+	      IvParameterSpec iv = new IvParameterSpec( Base64.decodeBase64(parts[1]) );
+	  //    IvParameterSpec iv = new IvParameterSpec(java.util.Base64.getDecoder().decode(parts[1]));
+	      SecretKeySpec secretKey = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+
+	      Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+	      cipher.init(Cipher.DECRYPT_MODE, secretKey, iv);
+
+	      byte[] decodedEncryptedData = java.util.Base64.getDecoder().decode(parts[0]);
+
+	      byte[] original = cipher.doFinal(decodedEncryptedData);
+
+	      return new String(original);
+	    } catch (Exception ex) {
+	    	logger.error("Error",ex);
+	    	return null;
+	    }
+	  }
+    
+   
 }

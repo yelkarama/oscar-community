@@ -39,6 +39,7 @@ import oscar.OscarProperties;
 
 public class ImageUploadForm extends ActionForm {
     private FormFile image = null;
+    private String method = null; 
     
     public ImageUploadForm() {
     }
@@ -53,14 +54,19 @@ public class ImageUploadForm extends ActionForm {
     
     public ActionErrors validate(ActionMapping mapping, HttpServletRequest request) {
         ActionErrors errors = new ActionErrors();
+        boolean signatureRemove = (request.getParameter("method") != null && request.getParameter("method").equals("removeProviderImage"));
+        if (signatureRemove) {
+            request.setAttribute("status", "success");
+            return errors;
+        }
         if (image.getFileSize() == 0) {
             errors.add("image", new ActionMessage("eform.uploadimages.imageMissing"));
         }
         
         String serverImagePath = OscarProperties.getInstance().getProperty("eform_image") + "/" + image.getFileName();
         File testimage = new File(serverImagePath);
-        
-        if (testimage.exists()) {
+        boolean signatureUpload = (request.getParameter("method") != null && request.getParameter("method").equals("uploadProviderImage"));
+        if (testimage.exists() && !signatureUpload) {
             errors.add("image", new ActionMessage("eform.uploadimages.imageAlreadyExists", image.getFileName()));
         }
         

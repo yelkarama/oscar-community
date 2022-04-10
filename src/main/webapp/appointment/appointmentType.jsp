@@ -17,7 +17,9 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
+<%@page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%@ page import="java.util.*, java.sql.*, oscar.*, java.text.*, java.lang.*,java.net.*, oscar.appt.*, org.oscarehr.common.dao.AppointmentTypeDao, org.oscarehr.common.model.AppointmentType, org.oscarehr.util.SpringUtils" %>
+<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <%
 	AppointmentTypeDao appDao = (AppointmentTypeDao) SpringUtils.getBean("appointmentTypeDao");
@@ -39,7 +41,7 @@ var names = '';
 		loc = loc + '<%= types.get(j).getLocation() %>'+',';
 		notes = notes + '<%= types.get(j).getNotes() %>'+',';
 		resources = resources + '<%= types.get(j).getResources() %>'+',';
-		names = names + '<%= types.get(j).getName() %>'+',';
+		names = names + '<%=StringEscapeUtils.escapeJavaScript(types.get(j).getName()) %>'+',';
 <%   } %>
 	var durArray = dur.split(",");
 	var reasonArray = reason.split(",");
@@ -66,9 +68,13 @@ function getFields(idx) {
 	}	
 }
 </script>
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+
+
+<link rel="stylesheet" href="../css/helpdetails.css" type="text/css">
 </head>
 <body bgcolor="#EEEEFF" bgproperties="fixed" topmargin="0" leftmargin="0" rightmargin="0">
-<table width="100%">
+<table class="table table-hover table-condensed">
 	<tr>
 		<td width="100">Type</td>
 		<td width="200">
@@ -80,26 +86,26 @@ function getFields(idx) {
 <%   } %>
 			</select>
 		</td>
-		<td><input type="button" name="Select" value="Select" onclick="window.opener.setType(typeSel,reasonSel,locSel,durSel,notesSel,resSel); window.close()">
+		<td><input type="button" name="Select" value="<bean:message key="global.btnAdd" />" class="btn btn-primary" style="margin-bottom:10px;" onclick="window.opener.setType(typeSel,reasonSel,locSel,durSel,notesSel,resSel); window.close()"><INPUT TYPE="RESET" id="backButton" class="btn btn-link" style="margin-bottom:10px;" VALUE="<bean:message key="global.btnCancel" />" onClick="window.close();">
 	</tr>
 	<tr>
-		<td>Duration</td>
+		<td><bean:message key="Appointment.formDuration" /></td>
 		<td colspan="2"><div id="durId"></div></td>
 	</tr>
 	<tr>
-		<td>Reason</td>
+		<td><bean:message key="Appointment.formReason" /></td>
 		<td colspan="2"><span id="reasonId"/></td>
 	</tr>
 	<tr>
-		<td>Location</td>
+		<td><bean:message key="Appointment.formLocation" /></td>
 		<td colspan="2"><span id="locId"/></td>
 	</tr>
 	<tr>
-		<td>Notes</td>
+		<td><bean:message key="Appointment.formNotes" /></td>
 		<td colspan="2"><span id="notesId"/></td>
 	</tr>
 	<tr>
-		<td>Resources</td>
+		<td><bean:message key="Appointment.formResources" /></td>
 		<td colspan="2"><span id="resId"/></td>
 	</tr>
 </table>

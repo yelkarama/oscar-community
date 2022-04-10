@@ -528,6 +528,7 @@ public class CaseManagementManager {
 		else if (disp.equals(CaseManagementNoteLink.DISP_PRESCRIP)) tName = CaseManagementNoteLink.DRUGS;
 		else if (disp.equals(CaseManagementNoteLink.DISP_DEMO)) tName = CaseManagementNoteLink.DEMOGRAPHIC;
 		else if (disp.equals(CaseManagementNoteLink.DISP_PREV)) tName = CaseManagementNoteLink.PREVENTIONS;
+		else if (disp.equals(CaseManagementNoteLink.DISP_APPOINTMENT)) tName = CaseManagementNoteLink.APPOINTMENT;
 
 		return tName;
 	}
@@ -711,6 +712,10 @@ public class CaseManagementManager {
 
 	public Issue getIssueInfoByCode(String code) {
 		return issueDAO.findIssueByCode(code);
+	}
+	
+	public Issue getIssueInfoByTypeAndCode(String type, String code) {
+		return issueDAO.findIssueByTypeAndCode(type, code);
 	}
 
 	public List<Issue> getIssueInfoBySearch(String providerNo, String search, List accessRight) {
@@ -2085,7 +2090,7 @@ private String updateApptStatus(String status, String type) {
 	}
 	
 	
-	public CaseManagementNote saveCaseManagementNote(LoggedInInfo loggedInInfo, CaseManagementNote note,List<CaseManagementIssue> issuelist,CaseManagementCPP cpp,String ongoing,boolean verify,Locale locale,Date now,CaseManagementNote annotationNote,String userName,String user,String remoteAddr,String lastSavedNoteString) throws Exception {
+	public CaseManagementNote saveCaseManagementNote(LoggedInInfo loggedInInfo, CaseManagementNote note,List<CaseManagementIssue> issuelist,CaseManagementCPP cpp,String ongoing,boolean verify,Locale locale,Date now,CaseManagementNote annotationNote,String userName,String user,String remoteAddr,String lastSavedNoteString) {
 		ProgramManager programManager = (ProgramManager) SpringUtils.getBean("programManager");
 		AdmissionManager admissionManager = (AdmissionManager) SpringUtils.getBean("admissionManager");	
 		
@@ -2304,6 +2309,26 @@ private String updateApptStatus(String status, String type) {
 			}
 			cpp.setMedicalHistory(mHis);
 		}
+	}
+
+	public String listNotes(String code, String providerNo, String demoNo)
+	{
+		// filter the notes by the checked issues
+		List<Issue> issues = getIssueInfoByCode(providerNo, code);
+		String[] issueIds = new String[issues.size()];
+		int idx = 0;
+		for (Issue issue : issues)
+		{
+			issueIds[idx] = String.valueOf(issue.getId());
+		}
+		// need to apply issue filter
+		List<CaseManagementNote> notes = getNotes(demoNo, issueIds);
+		StringBuilder noteStr = new StringBuilder();
+		for (CaseManagementNote n : notes)
+		{
+			if (!n.isLocked() && !n.isArchived()) noteStr.append(n.getNote() + "\n");
+		}
+		return noteStr.toString();
 	}
 
 }

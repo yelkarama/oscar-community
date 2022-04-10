@@ -61,6 +61,9 @@
 
 <%
 	CtlBillingServiceDao ctlBillingServiceDao = SpringUtils.getBean(CtlBillingServiceDao.class);
+
+    
+    UserPropertyDAO propertyDao = (UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO"); 
 %>
 
 <html:html locale="true">
@@ -69,7 +72,17 @@
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="provider.providerpreference.title" /></title>
-<script type="text/javascript" src="../share/javascript/prototype.js"></script>
+<!-- <script type="text/javascript" src="../share/javascript/prototype.js"></script> -->
+
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/DT_bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/datepicker.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
+<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.9.1.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery.dataTables.1.10.11.min.js"></script>
 <script language="JavaScript">
 
 function setfocus() {
@@ -169,48 +182,19 @@ function isNumeric(strString) {
 }
 
 function showHideBillPref() {
-    $("billingONpref").toggle();
+    $("#billingONpref").toggle();
 }
 
 function showHideERxPref() {
-    //$("eRxPref").toggle();
+    //$("#eRxPref").toggle();
 }
+
+function reloadParentWindow(){
+window.opener.location.reload();
+}
+
 </script>
-<style type="text/css">
-	.preferenceTable td
-	{
-		border: solid white 2px;
-	}
 
-	.preferenceLabel
-	{
-		text-align:right;
-		width:25%;
-		padding-right:8px;
-		font-size:13px;
-		font-weight:bold;
-		vertical-align:top;
-	}
-
-	.preferenceUnits
-	{
-		font-size:9px;
-		font-weight:normal;
-	}
-
-	.preferenceValue
-	{
-		font-size:12px;
-	}
-	
-	table.eRxTableCenter
-	{
-        width:50%; 
-		margin-left:25%; 
-		margin-right:25%;
-    }
-	
-</style>
 </head>
 
 <%
@@ -234,11 +218,23 @@ function showHideERxPref() {
 <body bgproperties="fixed"  onLoad="setfocus();showHideBillPref();showHideERxPref();" topmargin="0"leftmargin="0" rightmargin="0" style="font-family:sans-serif">
 	<FORM NAME = "UPDATEPRE" METHOD="post" ACTION="providerupdatepreference.jsp" onSubmit="return(checkTypeInAll())">
 
-		<div style="background-color:<%=deepcolor%>;text-align:center;font-weight:bold">
-			<bean:message key="provider.providerpreference.description"/>
-		</div>
+<table class="preferenceTable" width="100%">
+    <tr>
+        <td class="preferenceLabel">
+		    <H4>&nbsp;<i class="icon-cogs"></i>&nbsp;<bean:message key="provider.providerpreference.title"/></H4>
+        </td>
+        <td style="text-align: right">	&nbsp;	
+			<INPUT TYPE="submit" class="btn btn-primary" VALUE='<bean:message key="provider.providerpreference.btnSubmit"/>' SIZE="7">
+			<INPUT TYPE = "RESET" class="btn" VALUE ='<bean:message key="global.btnClose"/>' onClick="window.close();">
+        </td>
+    </tr>
+</table>
 
-		<table class="preferenceTable" style="width:100%;border-collapse:collapse;background-color:<%=weakcolor%>;">
+<div id="containment" class="row well">
+<div class="span7">
+
+
+		<table class="preferenceTable" >
 			<tr>
 				<td class="preferenceLabel">
 					<bean:message key="provider.preference.formStartHour" />
@@ -266,15 +262,18 @@ function showHideERxPref() {
 					<INPUT TYPE="TEXT" NAME="every_min" VALUE='<%=everyMin%>' size="2" maxlength="2">
 				</td>
 			</tr>
+            <security:oscarSec roleName="<%=roleName$%>" objectName="_admin,_admin.schedule,_admin.schedule.curprovider_only" rights="r" reverse="<%=false%>">
 			<tr>
 				<td class="preferenceLabel">
 					<bean:message key="provider.preference.formGroupNo" />
 				</td>
 				<td class="preferenceValue">
 					<INPUT TYPE="TEXT" NAME="mygroup_no" VALUE='<%=myGroupNo%>' size="12" maxlength="10">
-					<input type="button" value="<bean:message key="provider.providerpreference.viewedit" />" onClick="popupPage(360,680,'providerdisplaymygroup.jsp' );return false;" />
+
+					<input type="button" class="btn btn-link" value="<bean:message key="provider.providerpreference.viewedit" />" onClick="popupPage(360,680,'providerdisplaymygroup.jsp' );return false;" />
 				</td>
 			</tr>
+            </security:oscarSec>
 			<caisi:isModuleLoad moduleName="ticklerplus">
 				<tr id="ticklerPlus">
 					<!-- check box of new-tickler-warnning-windows -->
@@ -413,6 +412,27 @@ function showHideERxPref() {
 	            </td>
 			</tr>
 
+			<!-- individual option for OSCAR in Tabs setting, if not set globally in oscar.proterties -->
+          <oscar:oscarPropertiesCheck property="open_in_tabs" value="optional">
+			<tr>
+				<td class="preferenceLabel">
+					<bean:message key="provider.providerpreference.openInTabs" />
+				</td>
+				<td class="preferenceValue">
+					<%
+						UserProperty tabViewProp = propertyDao.getProp(providerNo, UserProperty.OPEN_IN_TABS);
+                        boolean tabEnabled = false;
+                        if ( tabViewProp == null ) {
+                            tabEnabled=false;
+                        } else {
+                            tabEnabled = Boolean.parseBoolean(tabViewProp.getValue());
+                        }
+					%>
+					<input type="checkbox" name="tab_view" value="true" <%=tabEnabled ? "checked=\"checked\"" : ""%> />
+				</td>
+			</tr>
+          </oscar:oscarPropertiesCheck>
+
 			<%-- links to display on the appointment screen --%>
 			<tr>
 				<td class="preferenceLabel">
@@ -427,7 +447,7 @@ function showHideERxPref() {
 					<bean:message key="provider.providerpreference.formsToDisplayOnAppointmentScreen" />
 				</td>
 				<td class="preferenceValue">
-					<div style="height:10em;border:solid grey 1px;overflow:auto;white-space:nowrap;width:45em">
+					<div style="height:16em;border:solid grey 1px;overflow:auto;white-space:nowrap;">
 					<%
 						List<EncounterForm> encounterForms=ProviderPreferencesUIBean.getAllEncounterForms();
 						Collection<String> checkedEncounterFormNames=ProviderPreferencesUIBean.getCheckedEncounterFormNames(providerNo);
@@ -449,7 +469,7 @@ function showHideERxPref() {
 					<bean:message key="provider.providerpreference.eFormsToDisplayOnAppointmentScreen" />
 				</td>
 				<td class="preferenceValue">
-					<div style="height:10em;border:solid grey 1px;overflow:auto;white-space:nowrap;width:45em">
+					<div style="height:16em;border:solid grey 1px;overflow:auto;white-space:nowrap;">
 					<%
 						List<EForm> eforms=ProviderPreferencesUIBean.getAllEForms();
 						Collection<Integer> checkedEFormIds=ProviderPreferencesUIBean.getCheckedEFormIds(providerNo);
@@ -470,13 +490,13 @@ function showHideERxPref() {
 					<bean:message key="provider.providerpreference.quickLinksToDisplayOnAppointmentScreen" />
 				</td>
 				<td class="preferenceValue">
-					<div style="height:10em;border:solid grey 1px;overflow:auto;white-space:nowrap;width:45em">
+					<div style="height:16em;padding: 8px 12px;border:solid grey 1px;overflow:auto;">
 					<%
 						Collection<ProviderPreference.QuickLink> quickLinks=ProviderPreferencesUIBean.getQuickLinks(providerNo);
 						for(ProviderPreference.QuickLink quickLink : quickLinks)
 						{
 							%>
-								<input type="button" value="<bean:message key="REMOVE"/>" onclick="document.location='providerPreferenceQuickLinksAction.jsp?action=remove&name='+escape('<%=StringEscapeUtils.escapeHtml(quickLink.getName())%>')" />
+								<input type="button" class="btn" value="<bean:message key="REMOVE"/>" onclick="document.location='providerPreferenceQuickLinksAction.jsp?action=remove&name='+escape('<%=StringEscapeUtils.escapeHtml(quickLink.getName())%>')" />
 								<%=StringEscapeUtils.escapeHtml(quickLink.getName())%> : <%=StringEscapeUtils.escapeHtml(quickLink.getUrl())%>
 								<br />
 							<%
@@ -492,7 +512,7 @@ function showHideERxPref() {
 							<td style="border:none;text-align:right;vertical-align:top"><bean:message key="URL"/></td>
 							<td style="border:none">
 								<input type="text" name="quickLinkUrl" />
-								<div style="font-size:9px">(expanded tokens in the url are ${contextPath} and ${demographicId})</div>
+								<div style="font-size:9px">(expanded tokens in the url are \${contextPath} and \${demographicId})</div>
 							</td>
 						</tr>
 						<tr>
@@ -506,7 +526,7 @@ function showHideERxPref() {
 										document.location="providerPreferenceQuickLinksAction.jsp?action=add&name="+name+"&url="+url;
 									}
 								</script>
-								<input type="button" value="<bean:message key="ADD"/>" onclick="addQuickLink()" />
+								<input type="button" class="btn" value="<bean:message key="ADD"/>" onclick="addQuickLink()" />
 							</td>
 						</tr>
 					</table>
@@ -515,7 +535,6 @@ function showHideERxPref() {
 
 			<tr>
 				<%
-					UserPropertyDAO propertyDao = (UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
 					UserProperty prop = propertyDao.getProp(providerNo,"rxInteractionWarningLevel");
 					String warningLevel = "0";
 					if(prop!=null) {
@@ -535,12 +554,13 @@ function showHideERxPref() {
 					</select>
 	            </td>
         <script>
-Event.observe('rxInteractionWarningLevel', 'change', function(event) {
-	var value = $('rxInteractionWarningLevel').getValue();
+$('#rxInteractionWarningLevel').bind( 'change', function(event) {
+	var value = $('#rxInteractionWarningLevel').val();
 
-	new Ajax.Request('<c:out value="${ctx}"/>/provider/rxInteractionWarningLevel.do?method=update&value='+value, {
-		  method: 'get',
-		  onSuccess: function(transport) {
+    $.ajax({
+        url:'<c:out value="${ctx}"/>/provider/rxInteractionWarningLevel.do?method=update&value='+value,
+        type: 'get',
+        success: function(response) {
 		  }
 		});
 
@@ -579,28 +599,45 @@ Event.observe('rxInteractionWarningLevel', 'change', function(event) {
          </td>
         </tr>
         <script>
-        Event.observe('reviewMsg', 'change', function(event) {
-	var value = $('reviewMsg').getValue();
-
-	new Ajax.Request('<c:out value="${ctx}"/>/setProviderStaleDate.do?method=OscarMsgRecvd&value='+value+'&provider_no=<%=providerNo%>', {
-		  method: 'get',
-		  onSuccess: function(transport) {
+        $('#reviewMsg').bind('change', function(event) {
+	var value = $('#reviewMsg').val();
+alert(value);
+    $.ajax({
+        url:  '<c:out value="${ctx}"/>/setProviderStaleDate.do?method=OscarMsgRecvd&value='+value+'&provider_no=<%=providerNo%>',
+        type: 'get',
+        success: function(response) {
 		  }
 		});
 
+
 });
         </script>
+    <tr>
+        <td class="preferenceLabel">
+		    
+        </td>
+        <td style="text-align: right">	
+			<INPUT TYPE="submit" class="btn btn-primary" VALUE='<bean:message key="provider.providerpreference.btnSubmit"/>' SIZE="7">
+			<INPUT TYPE = "RESET" class="btn" VALUE ='<bean:message key="global.btnClose"/>' onClick="window.close();">
+        </td>
+    </tr>
 		</table>
 
-		<div style="background-color:<%=deepcolor%>;text-align:center;font-weight:bold">
-			<INPUT TYPE="submit" VALUE='<bean:message key="provider.providerpreference.btnSubmit"/>' SIZE="7">
-			<INPUT TYPE = "RESET" VALUE ='<bean:message key="global.btnClose"/>' onClick="window.close();">
-  		</div>
+
 
 		<INPUT TYPE="hidden" NAME="color_template" VALUE='deepblue'>
 
+</div>
+<div class="span5">
+<!-- table of assorted preferences -->
 
-<table width="100%" BGCOLOR="eeeeee">
+
+<table class="table table-condensed table-striped" id="prefTbl">
+    <thead>
+        <tr>
+            <th><bean:message key="provider.providerpreference.description" /></th>
+        </tr>
+    </thead>
 
 <caisi:isModuleLoad moduleName="NEW_CME_SWITCH">
   <oscar:oscarPropertiesCheck property="TORONTO_RFQ" value="no">
@@ -624,6 +661,13 @@ Event.observe('rxInteractionWarningLevel', 'change', function(event) {
     <td align="center"><a href=# onClick ="popupPage(230,860,'providerSignature.jsp');return false;"><bean:message key="provider.btnEditSignature"/></a>
     </td>
   </tr>
+  <tr>
+    <td align="center">
+      <a href=# onClick ="popupPage(430,860,'providerConsultSignature.jsp');return false;"><bean:message key="provider.consultSignatureStamp.title"/></a>
+    </td>
+  </tr>
+  
+  
   <oscar:oscarPropertiesCheck property="TORONTO_RFQ" value="no" defaultVal="true">
   <security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="r">
   <tr>
@@ -634,12 +678,8 @@ Event.observe('rxInteractionWarningLevel', 'change', function(event) {
 <% } else { %>
 	<a href=# onClick ="showHideBillPref();return false;"><bean:message key="provider.btnBillPreference"/></a>
 <% } %>
-    </td>
-  </tr>
-  <tr>
-      <td align="center">
-	  <div id="billingONpref">
-          <bean:message key="provider.labelDefaultBillForm"/>:
+    <div id="billingONpref">
+    <bean:message key="provider.labelDefaultBillForm"/>:
 	  <select name="default_servicetype">
 	      <option value="no">-- no --</option>
 <%
@@ -663,8 +703,9 @@ Event.observe('rxInteractionWarningLevel', 'change', function(event) {
 %>
 	  </select>
 	  </div>
-      </td>
+    </td>
   </tr>
+
 </security:oscarSec>
 	  <tr>
           <td align="center"><a href=# onClick ="popupPage(400,860,'providerAddress.jsp');return false;"><bean:message key="provider.btnEditAddress"/></a></td>
@@ -717,6 +758,10 @@ Event.observe('rxInteractionWarningLevel', 'change', function(event) {
           <td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewConsultPasteFmt');return false;"><bean:message key="provider.btnSetConsultPasteFmt"/></a></td>
       </tr>
       <tr>
+          <td align="center"><a href=# onClick ="popupPage(230,860,'../setViewConsultsPreferences.do?method=viewConsultsFilter');return false;"><bean:message key="provider.btnViewConsultationsDefaultFilter"/></a></td>
+      </tr>
+
+      <tr>
           <td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewFavouriteEformGroup');return false;"><bean:message key="provider.btnSetEformGroup"/></a></td>
       </tr>
       <tr>
@@ -742,6 +787,14 @@ Event.observe('rxInteractionWarningLevel', 'change', function(event) {
       	<tr>
           <td align="center"><a href=# onClick ="popupPage(400,860,'../provider/OlisPreferences.do');return false;"><bean:message key="provider.olisPrefs" /></a></td>
       	</tr>
+      	<security:oscarSec roleName="<%=roleName$%>" rights="r" objectName="_dashboardDisplay">
+      	<tr>
+          <td align="center"><a href=# onClick ="popupPage(400,860,'../provider/DashboardUserPreference.do');return false;"><bean:message key="provider.dashboardUserPrefs" /></a></td>
+      	</tr>
+      	 	<tr>
+    	<td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewDashboardPrefs');return false;"><bean:message key="provider.btnViewDashboardPrefs"/></a></td>
+    	</tr>
+      	</security:oscarSec>
       	<tr>
           <td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewCommentLab');return false;"><bean:message key="provider.btnDisableAckCommentLab"/></a></td>
         </tr>
@@ -858,12 +911,31 @@ Event.observe('rxInteractionWarningLevel', 'change', function(event) {
           </tr>
         </security:oscarSec>
   </oscar:oscarPropertiesCheck>
- <tr>
-    	<td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewDashboardPrefs');return false;"><bean:message key="provider.btnViewDashboardPrefs"/></a></td>
+
+ 	<tr>
+    	<td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewPreventionPrefs');return false;"><bean:message key="provider.btnViewPreventionPrefs"/></a></td>
+    </tr>
+    
+    <tr>
+    	<td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewClinicalConnectPrefs');return false;"><bean:message key="provider.btnViewClinicalConnectPrefs"/></a></td>
     </tr>
 
+    <tr>
+    	<td align="center"><a href=# onClick ="popupPage(700,860,'../setProviderStaleDate.do?method=viewLabMacroPrefs');return false;"><bean:message key="provider.btnViewLabMacroPrefs"/></a></td>
+    </tr>
+   <tr>
+    	<td align="center"><a href=# onClick ="popupPage(280,730,'../setTicklerPreferences.do?method=viewTicklerTaskAssignee');return false;"><bean:message key="provider.btnViewTicklerPreferences"/></a></td>
+    </tr>
 </table>
-</FORM>
 
+</div>
+</div>
+</FORM>
+<script>
+$('#prefTbl').dataTable({
+    "order": [],
+	"bPaginate": false
+});
+</script>
 </body>
 </html:html>

@@ -63,8 +63,8 @@ public class EctDisplayAction extends Action {
 	protected static final String ELLIPSES = "...";
 	protected static final int MAX_LEN_TITLE = 48;
 	protected static final int CROP_LEN_TITLE = 45;
-	protected static final int MAX_LEN_KEY = 12;
-	protected static final int CROP_LEN_KEY = 9;
+	protected static final int MAX_LEN_KEY = 25;
+	protected static final int CROP_LEN_KEY = 22;
 	
 	private boolean enabled;
 	
@@ -92,7 +92,7 @@ public class EctDisplayAction extends Action {
 			Actions.put("error", "/oscarEncounter/LeftNavBarError.jsp");
 			Actions.put("HRM", "/oscarEncounter/displayHRM.do");
 			Actions.put("myoscar", "/oscarEncounter/displayMyOscar.do");
-			Actions.put("eaaps", "/eaaps/displayEctEaaps.do");
+			Actions.put("eams", "/eaaps/displayEctEaaps.do");
 			
 			if (logger.isDebugEnabled()) {
 				logger.debug("Instantiated encounter display actions: " + Actions);

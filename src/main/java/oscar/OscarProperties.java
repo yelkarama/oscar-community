@@ -34,6 +34,7 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
+
 import org.oscarehr.util.MiscUtils;
 
 /**
@@ -112,12 +113,11 @@ public class OscarProperties extends Properties {
 	 */
 	public boolean getBooleanProperty(String key, String val) {
 		key = key==null ? null : key.trim();
-		val = val==null ? null : val.trim();
+		val = val==null ? null : val.trim();	
 		// if we're checking for positive value, any "active" one will do
 		if (val != null && activeMarkers.contains(val.toLowerCase())) {
 			return isPropertyActive(key);
-		}
-		
+		}		
 		return getProperty(key, "").trim().equalsIgnoreCase(val);
 	}
 
@@ -130,6 +130,7 @@ public class OscarProperties extends Properties {
 	 */
 	public boolean isPropertyActive(String key) {
 		key = key==null ? null : key.trim();
+			
 		return activeMarkers.contains(getProperty(key, "").trim().toLowerCase());
 	}
 

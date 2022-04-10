@@ -25,6 +25,8 @@
 --%>
 <%@ page import="java.util.*, java.sql.*,java.net.*, oscar.oscarDB.DBPreparedHandler, oscar.MyDateFormat, oscar.Misc"%>
 <%@ page import="oscar.oscarDemographic.data.DemographicMerged"%>
+<%@ page import="org.owasp.encoder.Encode" %>
+
 	
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -55,6 +57,7 @@ if(!authed) {
   StringBuffer bufChart = null, bufName = null, bufNo = null;
   if(request.getParameter("limit1")!=null) strLimit1 = request.getParameter("limit1");
   if(request.getParameter("limit2")!=null) strLimit2 = request.getParameter("limit2");
+  String keyWord=Encode.forHtmlAttribute(request.getParameter("keyword"));
 %>
 
 
@@ -62,7 +65,11 @@ if(!authed) {
 	scope="session" />
 <html>
 <head>
-<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
+<!-- <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script> -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 <title><bean:message
 	key="oscarMDS.segmentDisplay.patientSearch.title" /></title>
 <script language="JavaScript">
@@ -88,55 +95,55 @@ function checkTypeIn() {
 
 //-->
 </SCRIPT>
+
 </head>
-<body onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
-<table border="0" cellspacing="0" cellpadding="0" width="100%">
-	<tr bgcolor="#486ebd">
-		<th align=CENTER NOWRAP><font face="Helvetica" color="#FFFFFF">PATIENT
-		MATCHING</font></th>
-	</tr>
-</table>
+<body onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0" font face="Helvetica">
+<h4>
+<i class="icon-search" title="Patient Search"></i>&nbsp;<font face="Helvetica" >PATIENT
+		MATCHING</font></h4>
 
 <table border="0" cellpadding="1" cellspacing="0" width="100%"
 	bgcolor="#C4D9E7">
 	<form method="post" name="titlesearch" action="PatientSearch.jsp"
-		onSubmit="return checkTypeIn();"><input type="hidden"
+		onSubmit="return checkTypeIn();">
+		<input type="hidden"
+		name="from" value="<%=request.getParameter("from")%>" /> 
+		<input type="hidden"
 		name="labNo" value="<%=request.getParameter("labNo")%>" /> <input
 		type="hidden" name="labType"
 		value="<%=request.getParameter("labType")%>" /> <%--@ include file="zdemographictitlesearch.htm"--%>
 	<tr valign="top">
 		<td rowspan="2" ALIGN="right" valign="middle"><font
-			face="Verdana" color="#0000FF"><b><i>Search</i></b></font></td>
-		<td width="10%" nowrap><font size="1" face="Verdana"
-			color="#0000FF"> <input type="radio" checked
+			face="Verdana" ><b><i>Search</i></b>&nbsp;</td>
+		<td width="10%" nowrap style="font-size: small"> <input type="radio" checked
 			name="search_mode" value="search_name"> <bean:message
-			key="oscarMDS.segmentDisplay.patientSearch.formName" /> </font></td>
-		<td nowrap><font size="1" face="Verdana" color="#0000FF">
+			key="oscarMDS.segmentDisplay.patientSearch.formName" /> </td>
+		<td nowrap style="font-size: small">
 		<input type="radio" name="search_mode" value="search_phone"> <bean:message
-			key="oscarMDS.segmentDisplay.patientSearch.formPhone" /> </font></td>
-		<td nowrap><font size="1" face="Verdana" color="#0000FF">
+			key="oscarMDS.segmentDisplay.patientSearch.formPhone" /></td>
+		<td nowrap style="font-size: small">
 		<input type="radio" name="search_mode" value="search_dob"> <bean:message
-			key="oscarMDS.segmentDisplay.patientSearch.formDOB" /> </font></td>
+			key="oscarMDS.segmentDisplay.patientSearch.formDOB" /> </td>
 		<td valign="middle" rowspan="2" ALIGN="left"><input type="text"
 			NAME="keyword" SIZE="17" MAXLENGTH="100"
-			value="<%=request.getParameter("keyword")%>"> <INPUT
+			value="<%=Encode.forHtmlAttribute(request.getParameter("keyword"))%>"> <INPUT
 			TYPE="hidden" NAME="orderby" VALUE="last_name"> <INPUT
 			TYPE="hidden" NAME="dboperation" VALUE="search_titlename"> <INPUT
 			TYPE="hidden" NAME="limit1" VALUE="0"> <INPUT TYPE="hidden"
 			NAME="limit2" VALUE="5"> <input type="hidden"
-			name="displaymode" value="Search "> <input type="SUBMIT"
+			name="displaymode" value="Search "> <input type="submit" class="btn btn-primary" 
 			name="displaymode"
 			value="<bean:message key="oscarMDS.segmentDisplay.patientSearch.btnSearch"/>"
 			size="17"></td>
 	</tr>
-	<tr>
-		<td nowrap><font size="1" face="Verdana" color="#0000FF">
+	<tr >
+		<td nowrap style="font-size: small">
 		<input type="radio" name="search_mode" value="search_address">
 		<bean:message key="oscarMDS.segmentDisplay.patientSearch.formAddress" />
-		</font></td>
-		<td nowrap><font size="1" face="Verdana" color="#0000FF">
+		</td>
+		<td nowrap style="font-size: small">
 		<input type="radio" name="search_mode" value="search_hin"> <bean:message
-			key="oscarMDS.segmentDisplay.patientSearch.formHIN" /> </font></td>
+			key="oscarMDS.segmentDisplay.patientSearch.formHIN" /> </td>
 		<td>&nbsp;</td>
 	</tr>
 	</form>
@@ -162,33 +169,40 @@ function checkTypeIn() {
         }
         //-->
    </SCRIPT>
-
+<script>
+function updateOpener(t1,t2) {
+	<%if(request.getParameter("from") != null && "olis".equals(request.getParameter("from"))) {
+		%>window.opener.updateLabDemoStatus2(t1,t2);<%
+	} else {
+		%>window.opener.updateLabDemoStatus(t1);<%
+	}%>
+}
+</script>
 <CENTER>
-<table width="100%" border="1" cellpadding="0" cellspacing="1"
-	bgcolor="#ffffff">
+<table class="table table-bordered table-hover table-striped table-condensed">
 	<form method="post" name="addform" action="PatientMatch.do"><input
 		type="hidden" name="labNo" value="<%=request.getParameter("labNo")%>">
 	<input type="hidden" name="labType"
 		value="<%=request.getParameter("labType")%>" />
-	<tr bgcolor="#339999">
-		<TH align="center" width="10%"><b><bean:message
-			key="oscarMDS.segmentDisplay.patientSearch.msgPatientId" /></b></TH>
-		<TH align="center" width="20%"><b><bean:message
-			key="oscarMDS.segmentDisplay.patientSearch.msgLastName" /></b></TH>
-		<TH align="center" width="20%"><b><bean:message
-			key="oscarMDS.segmentDisplay.patientSearch.msgFirstName" /></b></TH>
-		<TH align="center" width="5%"><b><bean:message
-			key="oscarMDS.segmentDisplay.patientSearch.msgAge" /></b></TH>
-		<TH align="center" width="10%"><b><bean:message
-			key="oscarMDS.segmentDisplay.patientSearch.msgRosterStatus" /></b></TH>
-		<TH align="center" width="10%"><b><bean:message
-			key="oscarMDS.segmentDisplay.patientSearch.msgPatientStatus" /></b></TH>
-		<TH align="center" width="5%"><b><bean:message
-			key="oscarMDS.segmentDisplay.patientSearch.msgSex" /></B></TH>
-		<TH align="center" width="10%"><b><bean:message
-			key="oscarMDS.segmentDisplay.patientSearch.msgDOB" /></B></TH>
-		<TH align="center" width="10%"><b><bean:message
-			key="oscarMDS.segmentDisplay.patientSearch.msgDoctor" /></B></TH>
+	<tr >
+		<TH align="center"><bean:message
+			key="oscarMDS.segmentDisplay.patientSearch.msgPatientId" /></TH>
+		<TH align="center"><bean:message
+			key="oscarMDS.segmentDisplay.patientSearch.msgLastName" /></TH>
+		<TH align="center"><bean:message
+			key="oscarMDS.segmentDisplay.patientSearch.msgFirstName" /></TH>
+		<TH align="center"><bean:message
+			key="oscarMDS.segmentDisplay.patientSearch.msgAge" /></TH>
+		<TH align="center"><bean:message
+			key="oscarMDS.segmentDisplay.patientSearch.msgRosterStatus" /></TH>
+		<TH align="center" ><bean:message
+			key="oscarMDS.segmentDisplay.patientSearch.msgPatientStatus" /></TH>
+		<TH align="center"><bean:message
+			key="oscarMDS.segmentDisplay.patientSearch.msgSex" /></TH>
+		<TH align="center" ><bean:message
+			key="oscarMDS.segmentDisplay.patientSearch.msgDOB" /></TH>
+		<TH align="center" ><bean:message
+			key="oscarMDS.segmentDisplay.patientSearch.msgDoctor" /></TH>
 	</tr>
 
 	<%
@@ -208,7 +222,18 @@ function checkTypeIn() {
   }
 
   String orderby="", limit="", limit1="", limit2="";
-  if(request.getParameter("orderby")!=null) orderby="order by "+request.getParameter("orderby");
+  if(request.getParameter("orderby")!=null) {
+ 	if(request.getParameter("orderby").equals("address")) orderby="order by address"; 
+	if(request.getParameter("orderby").equals("phone")) orderby="order by phone"; 
+ 	if(request.getParameter("orderby").equals("hin")) orderby="order by hin"; 
+	if(request.getParameter("orderby").equals("chart_no")) orderby="order by chart_no";  
+ 	if(request.getParameter("orderby").equals("last_name")) orderby="order by last_name"; 
+	if(request.getParameter("orderby").equals("first_name")) orderby="order by first_name";
+	if(request.getParameter("orderby").equals("roster_status")) orderby="order by roster_status";  
+ 	if(request.getParameter("orderby").equals("patient_status")) orderby="order by patient_status"; 
+	if(request.getParameter("orderby").equals("sex")) orderby="order by sex";
+	// to prevent SQL injection all other values are ignored
+  }
   if(request.getParameter("limit1")!=null) limit1=request.getParameter("limit1");
   if(request.getParameter("limit2")!=null) {
     limit2=request.getParameter("limit2");
@@ -322,8 +347,8 @@ function checkTypeIn() {
 %>
 
 	<tr bgcolor="<%=bodd?"ivory":"white"%>" align="center">
-		<td><input type="submit" name="demographicNo"
-			value="<%=oscar.Misc.getString(rs,"demographic_no")%>" onclick="window.opener.updateLabDemoStatus('<%=request.getParameter("labNo")%>');"></td>
+		<td><input type="submit" name="demographicNo" class="btn btn-mini"
+			value="<%=oscar.Misc.getString(rs,"demographic_no")%>" onclick="updateOpener('<%=request.getParameter("labNo")%>','<%=oscar.Misc.getString(rs,"demographic_no")%>');"></td>
 		<td><%=nbsp( Misc.toUpperLowerCase(oscar.Misc.getString(rs,"last_name")) )%></td>
 		<td><%=nbsp( Misc.toUpperLowerCase(oscar.Misc.getString(rs,"first_name")) )%></td>
 		<td><%= age %></td>
@@ -352,11 +377,11 @@ function checkTypeIn() {
 %> <script language="JavaScript">
 <!--
 function last() {
-  document.nextform.action="PatientSearch.jsp?keyword=<%=request.getParameter("keyword")%>&search_mode=<%=request.getParameter("search_mode")%>&displaymode=<%=request.getParameter("displaymode")%>&dboperation=<%=request.getParameter("dboperation")%>&orderby=<%=request.getParameter("orderby")%>&limit1=<%=nLastPage%>&limit2=<%=strLimit2%>" ;
+  document.nextform.action="PatientSearch.jsp?keyword=<%=request.getParameter("keyword")%>&search_mode=<%=request.getParameter("search_mode")%>&displaymode=<%=request.getParameter("displaymode")%>&dboperation=<%=request.getParameter("dboperation")%>&orderby=<%=request.getParameter("orderby")%>&limit1=<%=nLastPage%>&limit2=<%=strLimit2%>&from=<%=request.getParameter("from")%>" ;
   //document.nextform.submit();  
 }
 function next() {
-  document.nextform.action="PatientSearch.jsp?keyword=<%=request.getParameter("keyword")%>&search_mode=<%=request.getParameter("search_mode")%>&displaymode=<%=request.getParameter("displaymode")%>&dboperation=<%=request.getParameter("dboperation")%>&orderby=<%=request.getParameter("orderby")%>&limit1=<%=nNextPage%>&limit2=<%=strLimit2%>" ;
+  document.nextform.action="PatientSearch.jsp?keyword=<%=request.getParameter("keyword")%>&search_mode=<%=request.getParameter("search_mode")%>&displaymode=<%=request.getParameter("displaymode")%>&dboperation=<%=request.getParameter("dboperation")%>&orderby=<%=request.getParameter("orderby")%>&limit1=<%=nNextPage%>&limit2=<%=strLimit2%>&from=<%=request.getParameter("from")%>" ;
   //document.nextform.submit();  
 }
 //-->
@@ -382,6 +407,9 @@ function next() {
 
 <bean:message
 	key="oscarMDS.segmentDisplay.patientSearch.msgSearchMessage" /></center>
+<a href="../demographic/demographicaddarecordhtm.jsp?search_mode=search_name&keyword=<%=keyword.replace(" ","").replace("%","")%>" title="<bean:message key="demographic.search.btnCreateNewTitle" />">
+<bean:message key="demographic.search.btnCreateNew" />
+</a>
 </body>
 </html>
 <%!

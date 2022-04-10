@@ -23,7 +23,7 @@
     Ontario, Canada
 
 --%>
-
+<%@ page import="oscar.OscarProperties"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
@@ -45,6 +45,10 @@ if(!authed) {
 <html:html locale="true">
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 
 <logic:notPresent name="msgSessionBean" scope="session">
 	<logic:redirect href="index.jsp" />
@@ -62,8 +66,7 @@ oscar.oscarMessenger.pageUtil.MsgSessionBean bean = (oscar.oscarMessenger.pageUt
 %>
 
 <title><bean:message key="oscarMessenger.SentMessage.title" /></title>
-<link rel="stylesheet" type="text/css" href="encounterStyles.css">
-<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
+
 
 <script type="text/javascript">
 function BackToOscar()
@@ -88,26 +91,26 @@ height:100% !important;
 
 <body class="BodyStyle" vlink="#0000FF">
 <!--  -->
-<table class="MainTable" id="scrollNumber1" name="encounterTable">
+<table class="MainTable" id="scrollNumber1" name="encounterTable" width="100%">
 	<tr class="MainTableTopRow">
-		<td class="MainTableTopRowLeftColumn"><bean:message
-			key="oscarMessenger.SentMessage.msgMessenger" /></td>
-		<td class="MainTableTopRowRightColumn">
-		<table class="TopStatusBar">
+		<td class="MainTableTopRowLeftColumn"><h4><bean:message
+			key="oscarMessenger.SentMessage.msgMessenger" />: <bean:message
+					key="oscarMessenger.SentMessage.msgMessageSent" /><h4></td>
+		<td class="MainTableTopRowRightColumn" align="left">
+		<table class="TopStatusBar" width=100%>
 			<tr>
-				<td><bean:message
-					key="oscarMessenger.SentMessage.msgMessageSent" /></td>
-				<td></td>
-				<td style="text-align: right">				
-				<oscar:help keywords="message" key="app.top1"/> | 
-				<a href="javascript:void(0)" onclick="javascript:popupPage(600,700,'../oscarEncounter/About.jsp')"><bean:message key="global.about" /></a>
-				</td>
+				<td align="right" >
+            <i class=" icon-question-sign"></i> 
+            <a href="javascript:void(0)" onClick ="popupPage(700,960,'<%=(OscarProperties.getInstance()).getProperty("HELP_SEARCH_URL")%>'+'Messenger sent')"><bean:message key="app.top1"/></a>
+            <i class=" icon-info-sign" style="margin-left:10px;"></i> 
+            <a href="javascript:void(0)"  onClick="window.open('<%=request.getContextPath()%>/oscarEncounter/About.jsp','About OSCAR','scrollbars=1,resizable=1,width=800,height=600,left=0,top=0')" ><bean:message key="global.about" /></a>
+        </td>
 			</tr>
 		</table>
 		</td>
 	</tr>
 	<tr>
-		<td class="MainTableLeftColumn">&nbsp;</td>
+		
 		<td class="MainTableRightColumn">
 		<table>
 			<tr>
@@ -122,7 +125,7 @@ height:100% !important;
 							<tr>
 								<td class="messengerButtonsA"><html:link
 									page="/oscarMessenger/CreateMessage.jsp"
-									styleClass="messengerButtons">
+									styleClass="btn">
 									<bean:message key="oscarMessenger.SentMessage.btnCompose" />
 								</html:link></td>
 							</tr>
@@ -133,7 +136,7 @@ height:100% !important;
 							<tr>
 								<td class="messengerButtonsA"><html:link
 									page="/oscarMessenger/DisplayMessages.jsp"
-									styleClass="messengerButtons">
+									styleClass="btn">
 									<bean:message key="oscarMessenger.SentMessagebtnBack" />
 								</html:link></td>
 							</tr>
@@ -143,7 +146,7 @@ height:100% !important;
 						<table class=messButtonsA cellspacing=0 cellpadding=3>
 							<tr>
 								<td class="messengerButtonsA"><a
-									href="javascript:BackToOscar()" class="messengerButtons"><bean:message
+									href="javascript:BackToOscar()" class="btn"><bean:message
 									key="oscarMessenger.SentMessage.btnExit" /></a></td>
 							</tr>
 						</table>

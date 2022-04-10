@@ -1,10 +1,4 @@
-<%@page import="java.io.StringWriter"%>
-<%@page import="org.codehaus.jackson.map.ObjectMapper"%>
-<%@page import="org.apache.commons.lang.StringEscapeUtils"%>
-<%@page import="net.sf.json.JSONObject"%>
-<%@page import="org.oscarehr.common.model.PharmacyInfo"%>
-<%@ page import="oscar.oscarRx.data.*,oscar.oscarProvider.data.ProviderMyOscarIdData,oscar.oscarDemographic.data.DemographicData,oscar.OscarProperties,oscar.log.*"%>
-<%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
+
 <%/*
  * Copyright (c) 2001-2002. Department of Family Medicine, McMaster University. All Rights Reserved. *
  * This software is published under the GPL GNU General Public License. 
@@ -27,6 +21,18 @@
  * Hamilton 
  * Ontario, Canada 
  */%> 
+ 
+<%@page import="java.io.StringWriter"%>
+<%@page import="org.codehaus.jackson.map.ObjectMapper"%>
+<%@page import="org.apache.commons.lang.StringEscapeUtils"%>
+<%@page import="net.sf.json.JSONObject"%>
+<%@page import="org.oscarehr.common.model.PharmacyInfo"%>
+<%@ page import="oscar.oscarRx.data.*,oscar.oscarProvider.data.ProviderMyOscarIdData,oscar.oscarDemographic.data.DemographicData,oscar.OscarProperties,oscar.log.*"%>
+<%@ page import="oscar.oscarRx.util.RxUtil" %>
+
+<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
+<%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
+ 
 <script language="javascript" type="text/javascript">
 
 function newWindow(url) {
@@ -38,44 +44,25 @@ function newWindow(url) {
 
 </script>
 
+
 <tr>
-	<td width="10%" height="37" bgcolor="#000000"><span class="ScreenTitle" >oscarRx</span></td>
-        <td width="100%" valign="bottom"  bgcolor="#000000" style="border-left: 2px solid #A9A9A9; padding-left: 5" height="0%" colspan="2">
+	<td height="50" bgcolor="#000000"><span class="ScreenTitle" >&nbsp;<bean:message key="global.prescriptions" /></span></td>
+        <td width="100%" valign="bottom"  bgcolor="#000000" style="border:none; padding: 5px;" height="0%" colspan="2">
             <table width="100%" border="0" height="100%">
                 <tr>
-                    <td valign="bottom" style="color:white;" >     
-			
-<% 
-if (rx_enhance!=null && rx_enhance.equals("true")) { %>
-                   --<b><bean:message key="SearchDrug.nameText" /></b> <jsp:getProperty name="patient" property="firstName" /> <jsp:getProperty name="patient" property="surname" /> &nbsp;
-		     <b><bean:message key="SearchDrug.ageText" /></b> <jsp:getProperty name="patient" property="age" />
-                     <b>
-                     <oscar:phrverification styleId="verificationLink" demographicNo="<%=Integer.toString(demoNo)%>"><bean:message key="phr.verification.link"/></oscar:phrverification> &nbsp;
-                     <a style="color:white; "href="SelectPharmacy2.jsp" onclick="return newWindow('SelectPharmacy2.jsp')"><bean:message key="SearchDrug.PreferedPharmacy"/></a>:</b> 
-                     <select id="Calcs" name="pharmacyId" onchange="populatePharmacy(this.options[this.selectedIndex].value);showpic('Layer1');"> 
-                    <%
-                    	if( pharmacyList != null ) {
-                    	    ObjectMapper mapper = new ObjectMapper();
-                    	    StringWriter jsonObject;
-	        				for( PharmacyInfo pharmacyInfo : pharmacyList ) {
-	        				    jsonObject = new StringWriter();
-	        					mapper.writeValue(jsonObject, pharmacyInfo);
-	        					
-	        						
-					%>
-								<option value='<%=jsonObject.toString().replaceAll("'", "")%>'><%=pharmacyInfo.getName() + " " + pharmacyInfo.getCity()%></option>
-					<%
-	        				}
-	       		 		}
-					%>
-				
-                    </select>                     
-                    
-<%}else {%>					
-					<b><bean:message key="SearchDrug.nameText" /></b> <jsp:getProperty name="patient" property="firstName" /> <jsp:getProperty name="patient" property="surname" />
-		     		<b><bean:message key="SearchDrug.ageText" /></b> <jsp:getProperty name="patient" property="age" />
-                    <b><a style="color:white; "href="SelectPharmacy2.jsp">Preferred Pharmacy</a>:</b>
-                    <select id="Calcs" name="pharmacyId" onchange="populatePharmacy(this.options[this.selectedIndex].value);showpic('Layer1');"> 
+                    <td style="color:white;text-transform:uppercase;" >     
+					<b>&nbsp;&nbsp;<bean:message key="SearchDrug.nameText" /></b> 
+                    <span style="color:white;text-decoration:underline;cursor:pointer;" onclick="window.open('<%=request.getContextPath() %>/demographic/demographiccontrol.jsp?demographic_no=<%=patient.getDemographicNo()%>&displaymode=edit&dboperation=search_detail',width=929,height=895)"> 
+                    	<jsp:getProperty name="patient" property="surname" />, <jsp:getProperty name="patient" property="firstName"/></span>
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <b><bean:message key="SearchDrug.sexText" /> </b><jsp:getProperty name="patient" property="sex" />
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <span title="<bean:message key="SearchDrug.ageText" />&nbsp;<jsp:getProperty name="patient" property="age" />">
+                    	<b><bean:message key="SearchDrug.DOBtext" /> </b><%= RxUtil.DateToString(patient.getDOB(), "MMM d, yyyy") %>
+                    </span>
+		     		
+                    <b>&nbsp;&nbsp;&nbsp;&nbsp;<u><a style="color:white; "href="SelectPharmacy2.jsp"><bean:message key="SearchDrug.PreferredPharmacy" /></a></u>:</b>
+                    <select style="text-transform:uppercase;" id="Calcs" name="pharmacyId" onchange="populatePharmacy(this.options[this.selectedIndex].value);showpic('Layer1');"> 
                     <%
                     	if( pharmacyList != null ) {
                     	    ObjectMapper mapper = new ObjectMapper();
@@ -84,23 +71,25 @@ if (rx_enhance!=null && rx_enhance.equals("true")) { %>
 	        					
 	        				    jsonObject = new StringWriter();
 	        					mapper.writeValue(jsonObject, pharmacyInfo);
-	        					
-	        						
+
 					%>
-								<option value='<%=jsonObject.toString().replaceAll("'", "")%>'><%=pharmacyInfo.getName() + " " + pharmacyInfo.getCity()%></option>
+								<option value='<%=jsonObject.toString().replaceAll("'", "")%>'><%=pharmacyInfo.getName() + "  (" + pharmacyInfo.getCity()%>)</option>
 					<%
 	        				}
 	       		 		}
 					%>
-                    </select>
-                    
-<%} %>
-                  
+                    </select>        
                     </td>
                     <td valign="top" align="right">
                         <span class="HelpAboutLogout" style="color:white;">
+                        		<% 
+                        		OscarProperties dProp = OscarProperties.getInstance();
+                        		if (dProp.getBooleanProperty("oneid.oauth2.enabled", "true")) { %>
+                        		<a style="color:white;" target="_blank" href="<%=dProp.getProperty("rx.EAP.link","http://www.health.gov.on.ca/en/pro/programs/sadie/")%>" >EAP</a> |
+                        		<a style="color:white;" target="_blank" href="<%=dProp.getProperty("rx.check.med.coverage.link","https://www.ontario.ca/page/check-medication-coverage/")%>" >Check Medication Coverage</a> |
+                        		<%	} %>
 							<a style="color:white;" href="javascript: popupFocusPage(200,700,'./drugrefInfo.jsp','Drugref Info');" >Drugref Info</a> |
-							<oscar:help keywords="&Title=Writing+Prescriptions&portal_type%3Alist=Document" key="app.top1" style="color:white;"/> |
+							<oscar:help keywords="prescriptions+prescribing" key="app.top1" style="color:white;"/> |
                             <a style="color:white;" href="<%=request.getContextPath()%>/oscarEncounter/About.jsp" target="_new"><bean:message key="global.about" /></a>
                             <!-- is this needed? 
                             <a style="color:white;" href="Disclaimer.htm">Disclaimer</a> 
@@ -110,4 +99,4 @@ if (rx_enhance!=null && rx_enhance.equals("true")) { %>
                 </tr>
             </table>
 	</td>
-</tr>                            
+</tr>

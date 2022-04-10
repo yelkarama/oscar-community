@@ -2,7 +2,8 @@
 # postrm
 # a script file for OSCAR that uninstalls and tweaks the necessary files
 #=================================================================
-# Copyright Peter Hutten-Czapski 2012-17 released under the GPL v2
+# Copyright Peter Hutten-Czapski 2012-20 released under the GPL v2
+# v 19.10
 #=================================================================
 
 # Source debconf library.
@@ -12,14 +13,18 @@
 PROGRAM=oscar
 PACKAGE=oscar-emr
 db_name=oscar_15
-VERSION=15
-PREVIOUS=12_1
-REVISION=71~691
-if [ -f /usr/share/tomcat8/bin/version.sh ] ; then
-        TOMCAT=tomcat8
+VERSION=19
+PREVIOUS=15
+REVISION=4~944
+if [ -f /usr/share/tomcat9/bin/version.sh ] ; then
+        TOMCAT=tomcat9
     else
-    if [ -f /usr/share/tomcat7/bin/version.sh ] ; then
-        TOMCAT=tomcat7
+    if [ -f /usr/share/tomcat8/bin/version.sh ] ; then
+        TOMCAT=tomcat8
+        else
+        if [ -f /usr/share/tomcat7/bin/version.sh ] ; then
+            TOMCAT=tomcat7
+        fi
     fi
 fi
 C_HOME=/usr/share/${TOMCAT}/
@@ -39,7 +44,10 @@ case "$1" in
     purge)
         # ignore errors and remove patient data in doing purge
         set +e
-
+    echo "Purging will delete ALL data and settings"
+    echo "***********LAST CHANCE TO SAVE YOUR DATA WITH A CTL-C ************"
+    sleep 20
+    echo "Now proceeding with Purge"
     #delete symlinks test for link file with -L (or -e as long as the link is not broken)
     echo "Removing symlinks"
 	if [ -L "/var/lib/${TOMCAT}/drugref2.properties" ]; then
@@ -49,60 +57,66 @@ case "$1" in
 	    rm -f /var/lib/${TOMCAT}/${PROGRAM}.properties 2>>$LOG_FILE 
     fi 
 
-	# remove property files but extract the password first
-	if [ -f "${C_HOME}${PROGRAM}.properties" ]; then
-		#first grep the password
-		echo "grep the password from the properties file" 2>>$LOG_FILE
-		db_password=$(sed '/^\#/d' ${C_HOME}${PROGRAM}.properties | grep 'db_password'  | tail -n 1 | cut -d "=" -f2- | sed 's/^[[:space:]]*//;s/[[:space:]]*$//') 1>>$LOG_FILE
-		echo "Deleting ${PROGRAM}.properties"
-		rm -f ${C_HOME}${PROGRAM}.properties 2>>$LOG_FILE
-	fi
 
-	# remove drugref explicitly
+	# remove both war files if not already removed in prerm 
 	if [ -f "${C_BASE}webapps/drugref.war" ]; then
 		echo "Purging drugref.war"
 		rm -f ${C_BASE}webapps/drugref.war 2>>$LOG_FILE
 	fi
-	echo "Dropping drugref"
-	mysql -u root -p${db_password} --execute="drop database if exists drugref;"  2>>$LOG_FILE
-
-	# remove oscar web app regardless
 	if [ -f "${C_BASE}webapps/${PROGRAM}.war" ]; then
 		echo "Purging ${PROGRAM}.war"
 		rm -f ${C_BASE}webapps/${PROGRAM}.war 2>>$LOG_FILE
 	fi
 
-	#...and its database WHICH CONTAINS PATIENT DATA
-	echo "Dropping ${db_name}"
-	mysql -u root -p${db_password} --execute="drop database if exists ${db_name};"  2>>$LOG_FILE
-
     # reverse the changes to Tomcat and keystore
     echo "Reversing Changes to ${TOMCAT} configuration"
-	if [ -f "/etc/default/${TOMCAT}.old" ]; then
+	if [ -e "/etc/default/${TOMCAT}.old" ]; then
 	    echo "Restoring ${TOMCAT} configuration"
         mv /etc/default/${TOMCAT}.old /etc/default/${TOMCAT} 2>>$LOG_FILE
     fi
-	if [ -f "/var/lib/${TOMCAT}/conf/server.old" ]; then
+	if [ -e "/var/lib/${TOMCAT}/conf/server.old" ]; then
 	    echo "Restoring server.xml configuration"
         mv /var/lib/${TOMCAT}/conf/server.old /var/lib/${TOMCAT}/conf/server.xml 2>>$LOG_FILE
     fi
-	if [ -f "/var/lib/${TOMCAT}/conf/context.old" ]; then
+	if [ -e "/var/lib/${TOMCAT}/conf/context.old" ]; then
 	    echo "Restoring context.xml configuration"
         mv /var/lib/${TOMCAT}/conf/context.old /var/lib/${TOMCAT}/conf/context.xml 2>>$LOG_FILE
     fi
-	if [ -f "/etc/${TOMCAT}/.keystore" ]; then
+	if [ -e "/etc/${TOMCAT}/.keystore" ]; then
 	    echo "Deleting tomcat keystore"
         rm -f /etc/${TOMCAT}/.keystore  2>>$LOG_FILE
     fi   
 
+	# remove property files but extract the password first
+	if [ -f "${C_HOME}${PROGRAM}.properties" ]; then
+		#first grep the password
+		echo "grep the password from the properties file" 2>>$LOG_FILE
+		db_password=$(sed '/^\#/d' ${C_HOME}${PROGRAM}.properties | grep 'db_password'  | tail -n 1 | cut -d "=" -f2- | sed 's/^[[:space:]]*//;s/[[:space:]]*$//') 1>>$LOG_FILE
+	    echo "Dropping drugref"
+	    mysql -u root -p${db_password} --execute="drop database if exists drugref;"  2>>$LOG_FILE
+        # delete patient data!!
+	    echo "Dropping ${db_name}"
+	    mysql -u root -p${db_password} --execute="drop database if exists ${db_name};"  2>>$LOG_FILE
+		echo "Deleting ${PROGRAM}.properties"
+		rm -f ${C_HOME}${PROGRAM}.properties 2>>$LOG_FILE
+	fi
       
 	#remove the shared directory and its contents WHICH CONTAINS DOCS and BACKUPS
-
-	if [ -f "${SRC}" ]; then
-	    echo "Deleting ${SRC}"
-	    rm -Rfv ${SRC}
+	if [ -e "${SRC}/OscarDocument/oscar/eform/images" ]; then
+	    echo "Deleting ${SRC}/OscarDocument/oscar/eform/images"
+	    rm ${SRC}/OscarDocument/oscar/eform/images/*.*
     fi 
 
+	if [ -d "${SRC}" ]; then
+	    echo "Deleting ${SRC}"
+	    rm -R ${SRC}
+    fi 
+
+    # sanity check
+    if [ -e /usr/share/debconf/confmodule ]; then
+        # source debconf library and run db_purge command to clear ALL the configuration for oscar-emr
+        . /usr/share/debconf/confmodule db_purge
+    fi
 
     ;;
 
@@ -119,4 +133,3 @@ case "$1" in
 esac
 
 exit 0
-

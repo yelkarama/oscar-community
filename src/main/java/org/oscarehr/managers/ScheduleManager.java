@@ -24,11 +24,17 @@
 
 package org.oscarehr.managers;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TreeMap;
+
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
@@ -44,6 +50,7 @@ import org.oscarehr.common.model.Appointment;
 import org.oscarehr.common.model.AppointmentArchive;
 import org.oscarehr.common.model.AppointmentStatus;
 import org.oscarehr.common.model.AppointmentType;
+import org.oscarehr.common.model.ConsentType;
 import org.oscarehr.common.model.ScheduleDate;
 import org.oscarehr.common.model.ScheduleHoliday;
 import org.oscarehr.common.model.ScheduleTemplate;
@@ -85,6 +92,16 @@ public class ScheduleManager {
 
 	@Autowired
 	private AppointmentStatusDao appointmentStatusDao;
+	
+	@Autowired
+	private SecurityInfoManager securityInfoManager;
+	
+	@Autowired
+	private PatientConsentManager patientConsentManager;
+	
+	@Autowired
+	private AppointmentManager appointmentManager;
+
 
 	/*Right now the date object passed is converted to a local time.  
 	*
@@ -250,6 +267,20 @@ public class ScheduleManager {
 
 		LogAction.addLogSynchronous(loggedInInfo, "ScheduleManager.getAppointmentUpdatedAfterDate", "updatedAfterThisDateExclusive=" + updatedAfterThisDateExclusive);
 
+		if (!securityInfoManager.hasPrivilege(loggedInInfo, "_appointment.UpdatedAfterDate", "x", null)) {
+			patientConsentManager.filterProviderSpecificConsent(loggedInInfo, results);
+        }
+		return (results);
+	}
+
+	public List<Appointment> getAppointmentByDemographicIdUpdatedAfterDate(LoggedInInfo loggedInInfo, Integer demographicId, Date updatedAfterThisDateExclusive) {
+		List<Appointment> results = new ArrayList<Appointment>();
+		//If the consent type does not exist in the table assume this consent type is not being managed by the clinic, otherwise ensure patient has consented
+		boolean hasConsent = patientConsentManager.hasProviderSpecificConsent(loggedInInfo) || patientConsentManager.getConsentType(ConsentType.PROVIDER_CONSENT_FILTER) == null;
+		if (hasConsent) {
+			results = oscarAppointmentDao.findByDemographicIdUpdateDate(demographicId, updatedAfterThisDateExclusive);
+			LogAction.addLogSynchronous(loggedInInfo, "ScheduleManager.getAppointmentByDemographicIdUpdatedAfterDate", "demographicId="+demographicId+" updatedAfterThisDateExclusive=" + updatedAfterThisDateExclusive);
+		}
 		return (results);
 	}
 
@@ -280,4 +311,116 @@ public class ScheduleManager {
 
 		return (results);
 	}
+
+	public List<Object[]> listAppointmentsByPeriodProvider(LoggedInInfo loggedInInfo, Date sDate, Date eDate, String providers) {
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+		LogAction.addLogSynchronous(loggedInInfo, "listAppointmentsByPeriodProvider", "/" + df.format(sDate)
+			+ "/" + df.format(eDate) + "/"+providers);
+
+		if (!securityInfoManager.hasPrivilege(loggedInInfo, "_appointment", "r", null)) {
+			throw new RuntimeException("Access Denied");
+		}
+
+		List<Integer> providerNos = new ArrayList<Integer>();
+		String[] providersArray = providers.split(",");
+		for(String prv : providersArray) {
+			providerNos.add(Integer.parseInt(prv));
+		}
+	
+		List<Object[]> apptsExt = oscarAppointmentDao.listAppointmentsByPeriodProvider(sDate, eDate, providerNos);
+
+		return apptsExt;
+	}
+
+	public List<Object[]> listProviderAppointmentCounts(LoggedInInfo loggedInInfo, String sDateStr, String eDateStr) {
+		LogAction.addLogSynchronous(loggedInInfo, "listProviderAppointmentCounts", "sDateStr=" + sDateStr +", eDateStr="+eDateStr);
+
+		if (!securityInfoManager.hasPrivilege(loggedInInfo, "_appointment", "r", null)) {
+			throw new RuntimeException("Access Denied");
+		}
+		
+		Date sDate = null;
+		Date eDate = null;
+		try {
+			sDate = org.apache.tools.ant.util.DateUtils.parseIso8601Date(sDateStr);
+			eDate = org.apache.tools.ant.util.DateUtils.parseIso8601Date(eDateStr);
+		} catch(Exception e) {
+			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity("Path parameter has the wrong format").build());			
+		}
+
+		List<Object[]> providerCounts = oscarAppointmentDao.listProviderAppointmentCounts(sDate, eDate);
+
+		return providerCounts;
+	}
+	
+	public  boolean removeIfDoubleBooked(LoggedInInfo loggedInInfo,Calendar startTime, Calendar endTime, String providerNo,  Appointment appointment)  {
+		logger.debug("appt saved : " + appointment + ", " + appointment.getStartTimeAsFullDate().getTime() + ", " + appointment.getEndTimeAsFullDate().getTime());
+
+		try {
+			// so what we're going to do is check the providers
+			// schedule for conflict after we book the appointment.
+			// to check, we'll have to scan for anything starting a few hours ahead
+			// if there's a conflict, we'll have to cancel the appointment.
+
+			// the get appointments call scans at the granularity of the day, not exact time
+			// so we have to do some rounding here.
+			Calendar startDoubleBlookingVerifyDate = (Calendar) startTime.clone();
+			startDoubleBlookingVerifyDate.add(Calendar.HOUR_OF_DAY, -6);
+			startDoubleBlookingVerifyDate.getTimeInMillis();
+
+			Calendar endDoubleBlookingVerifyDate = (Calendar) endTime.clone();
+			endDoubleBlookingVerifyDate.add(Calendar.DAY_OF_YEAR, 1);
+			endDoubleBlookingVerifyDate.getTimeInMillis();
+
+			logger.debug("appt conflict scan parameters : " + providerNo + ", " + startDoubleBlookingVerifyDate.getTime() + ", " + endDoubleBlookingVerifyDate.getTime());
+			List<Appointment> existingAppointments = getAppointmentsForDateRangeAndProvider(loggedInInfo,startDoubleBlookingVerifyDate.getTime(), endDoubleBlookingVerifyDate.getTime(), providerNo);
+			long myAppointmentStartTimeMs = appointment.getStartTimeAsFullDate().getTime();
+			long myAppointmentEndTimeMs = appointment.getEndTimeAsFullDate().getTime();
+			boolean conflict = false;
+			for (Appointment tempAppointment : existingAppointments) {
+				logger.debug("collision checking existing appt: " + tempAppointment.getId() + ", " + tempAppointment.getStartTimeAsFullDate().getTime() + ", " + tempAppointment.getEndTimeAsFullDate().getTime() + ", " + appointment.getStatus());
+
+				if (tempAppointment.getId().equals(appointment.getId()) || "C".equals(appointment.getStatus()))
+					continue;
+
+				// there's 4 cases
+				// |--- My appt ---|
+				// |--- conflict ---|
+				// |--- conflict ---|
+				// |----- conflict -----|
+				// |- conflict -|
+				long tempStartTimeMs = tempAppointment.getStartTimeAsFullDate().getTime();
+				if (tempStartTimeMs >= myAppointmentStartTimeMs && tempStartTimeMs < myAppointmentEndTimeMs) {
+					logger.debug("conflict case 1");
+					conflict = true;
+					break;
+				}
+
+				long tempEndTimeMs = tempAppointment.getEndTimeAsFullDate().getTime();
+				if (tempEndTimeMs > myAppointmentStartTimeMs && tempEndTimeMs <= myAppointmentEndTimeMs) {
+					logger.debug("conflict case 2");
+					conflict = true;
+					break;
+				}
+
+				if (tempStartTimeMs <= myAppointmentStartTimeMs && tempEndTimeMs >= myAppointmentEndTimeMs) {
+					logger.debug("conflict case 3");
+					conflict = true;
+					break;
+				}
+
+				logger.debug("no conflict");
+			}
+
+			logger.debug("conflict flag : " + conflict);
+			if (conflict) {
+				appointmentManager.deleteAppointment(loggedInInfo, appointment.getId());
+				return true;
+			}
+		} catch (Exception e) {
+			logger.error("unexpected error, maybe not compatible oscar", e);
+		}
+		return false;
+	}
+
 }

@@ -28,6 +28,7 @@ package org.oscarehr.common.dao;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +39,7 @@ import javax.persistence.Query;
 import org.oscarehr.common.model.ConsultDocs;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Document;
+import org.oscarehr.common.model.EFormDocs;
 import org.springframework.stereotype.Repository;
 
 import oscar.dms.EDocUtil.EDocSort;
@@ -56,7 +58,7 @@ public class DocumentDao extends AbstractDao<Document> {
 	}
 	
 	public enum DocumentType {
-		CONSULT, LAB;
+		CONSULT, LAB, ECONSULT;
 	
 		public String getName() {
 			return this.name().toLowerCase();
@@ -92,7 +94,7 @@ public class DocumentDao extends AbstractDao<Document> {
     	String sql = "FROM CtlDocument c, Document d " +
     			"WHERE c.id.module = :module " +
     			"AND c.id.documentNo = d.documentNo " +
-    			"AND d.docType = :docType " +
+    			"AND d.doctype = :docType " +
     			"AND c.id.moduleId = :moduleId";
 		Query query = entityManager.createQuery(sql);
 		query.setParameter("module", module.getName());
@@ -124,6 +126,18 @@ public class DocumentDao extends AbstractDao<Document> {
 		Query query = entityManager.createQuery(sql);
 		query.setParameter("consultationId", consultationId);
 		query.setParameter("doctype", ConsultDocs.DOCTYPE_DOC);
+		return query.getResultList();
+    }
+    
+    public List<Object[]> findDocsAndEFormDocsByFdid(Integer fdid) {
+    	String sql = "FROM Document d, EFormDocs cd " +
+    			"WHERE d.documentNo = cd.documentNo " +
+    			"AND cd.fdid = :fdid " +
+    			"AND cd.docType = :doctype " +
+    			"AND cd.deleted IS NULL";
+		Query query = entityManager.createQuery(sql);
+		query.setParameter("fdid", fdid);
+		query.setParameter("doctype", EFormDocs.DOCTYPE_DOC);
 		return query.getResultList();
     }
     
@@ -267,6 +281,8 @@ public class DocumentDao extends AbstractDao<Document> {
 	}
 	
 	/**
+	 * @Deprecated
+	 * 
 	 * Chop-chop. Please don't ask what this spagehtti does, better don't use it. 
 	 * 
 	 * @param module
@@ -345,6 +361,46 @@ public class DocumentDao extends AbstractDao<Document> {
         return documents;
     }
     
+    @SuppressWarnings("unchecked")
+	public List<Document> findByDemographicUpdateDate(Integer demographicId, Date updatedAfterThisDateInclusive) {
+	    	String sql = "select d from "
+	    			+ modelClass.getSimpleName()
+	    			+ " d, CtlDocument c "
+	    			+ "where c.id.documentNo=d.documentNo "
+	    			+ "and c.id.module LIKE 'demographic' "
+	    			+ "AND c.id.moduleId = ?1 "
+	    			+ "and d.updatedatetime >= ?2";
+	    	
+	    	Query query = entityManager.createQuery(sql);
+	    	query.setParameter(1, demographicId);
+	    	query.setParameter(2, updatedAfterThisDateInclusive);
+        List<Document> documents = query.getResultList();
+        if(documents == null) {
+        		documents = Collections.emptyList();
+        }
+        return documents;
+    }
+    
+    @SuppressWarnings("unchecked")
+	public List<Document> findByDemographicUpdateAfterDate(Integer demographicId, Date updatedAfterThisDate) {
+	    	String sql = "select d from "
+	    			+ modelClass.getSimpleName()
+	    			+ " d, CtlDocument c "
+	    			+ "where c.id.documentNo=d.documentNo "
+	    			+ "and c.id.module LIKE 'demographic' "
+	    			+ "AND c.id.moduleId = ?1 "
+	    			+ "and d.updatedatetime > ?2";
+	    	
+	    	Query query = entityManager.createQuery(sql);
+	    	query.setParameter(1, demographicId);
+	    	query.setParameter(2, updatedAfterThisDate);
+        List<Document> documents = query.getResultList();
+        if(documents == null) {
+        		documents = Collections.emptyList();
+        }
+        return documents;
+    }
+    
 	/**
 	 * @return results ordered by updatedatetime
 	 */
@@ -399,5 +455,29 @@ public class DocumentDao extends AbstractDao<Document> {
 		
 		return query.getResultList();
 		
+	}
+	
+	public List<Document> findByDemographicAndDoctype(int demographicId, DocumentType documentType) {
+		Query query = entityManager.createNativeQuery("SELECT d.* FROM document d, ctl_document c WHERE c.document_no = d.document_no AND d.doctype = :doctype AND d.status NOT LIKE 'D' AND c.module LIKE 'demographic' AND c.module_id = :demographicId", Document.class);		
+		query.setParameter("demographicId", demographicId);
+		query.setParameter("doctype", documentType.getName());
+		
+		@SuppressWarnings("unchecked")
+		List<Document> results = query.getResultList();
+		
+		if(results == null)
+		{
+			results = Collections.emptyList();
+		}
+		
+		return results;
+	}
+	
+	public Document findByDemographicAndFilename(int demographicId, String fileName) {
+		Query query = entityManager.createNativeQuery("SELECT d.* FROM document d, ctl_document c WHERE c.document_no = d.document_no AND d.docfilename = :docfilename AND d.status NOT LIKE 'D' AND c.module LIKE 'demographic' AND c.module_id = :demographicId", Document.class);
+		query.setParameter("demographicId", demographicId);
+		query.setParameter("docfilename", fileName);
+
+		return getSingleResultOrNull(query);
 	}
 }

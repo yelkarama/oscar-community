@@ -20,7 +20,7 @@
 
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
-<title>Rich Text Letter Fax
+<title>eForm Fax
 </title>
 <html:base />
 
@@ -43,7 +43,7 @@ function finishPage(secs){
 <!--  -->
 <table class="MainTable" id="scrollNumber1" name="encounterTable">
 	<tr class="MainTableTopRow">
-		<td class="MainTableTopRowLeftColumn">E From</td>
+		<td class="MainTableTopRowLeftColumn">E Form</td>
 		<td class="MainTableTopRowRightColumn"></td>
 	</tr>
 	<tr style="vertical-align: top">

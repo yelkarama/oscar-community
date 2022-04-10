@@ -23,8 +23,11 @@
  */
 package org.oscarehr.ws.rest.to.model;
 
+//import net.sf.json.JSONObject;
+
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -95,6 +98,7 @@ public class DemographicTo1 implements Serializable {
 	private Date onWaitingListSinceDate;
 	private AgeTo1 age;
 	private Integer admissionProgramId;
+	private String middleNames = "";
 	
 	private List<DemographicContactFewTo1> demoContacts = new ArrayList<DemographicContactFewTo1>();
 	private List<DemographicContactFewTo1> demoContactPros = new ArrayList<DemographicContactFewTo1>();
@@ -106,6 +110,13 @@ public class DemographicTo1 implements Serializable {
 	private List<WaitingListNameTo1> waitingListNames = new ArrayList<WaitingListNameTo1>();
 	private List<StatusValueTo1> patientStatusList = new ArrayList<StatusValueTo1>();
 	private List<StatusValueTo1> rosterStatusList = new ArrayList<StatusValueTo1>();
+	private List<AllergyTo1> allergies = new ArrayList<>();
+	private List<MeasurementTo1> measurements = new ArrayList<>();
+	private List<ConsultationRequestTo1> consultationRequests = new ArrayList<>();
+	private List<ConsultationResponseTo1> consultationResponses = new ArrayList<>();
+	private List<NoteTo1> encounterNotes = new ArrayList<>();
+	private List<DocumentTo1> documents = new ArrayList<>();
+	private List<String> medicationSummary = Collections.emptyList();
 	
 	
 	public Integer getDemographicNo() {
@@ -667,5 +678,67 @@ public class DemographicTo1 implements Serializable {
 	public void setAdmissionProgramId(Integer programId) {
 		this.admissionProgramId = programId;
 	}
+
+	public String getMiddleNames() {
+		return middleNames;
+	}
+
+	public void setMiddleNames(String middleNames) {
+		this.middleNames = middleNames;
+	}
+
+	public List<AllergyTo1> getAllergies() {
+		return allergies;
+	}
+
+	public void setAllergies(List<AllergyTo1> allergies) {
+		this.allergies = allergies;
+	}
+
+	public List<MeasurementTo1> getMeasurements() {
+		return measurements;
+	}
+
+	public void setMeasurements(List<MeasurementTo1> measurements) {
+		this.measurements = measurements;
+	}
+
+	public List<ConsultationRequestTo1> getConsultationRequests() {
+		return consultationRequests;
+	}
+
+	public void setConsultationRequests(List<ConsultationRequestTo1> consultationRequests) {
+		this.consultationRequests = consultationRequests;
+	}
+
+	public List<ConsultationResponseTo1> getConsultationResponses() {
+		return consultationResponses;
+	}
+
+	public void setConsultationResponses(List<ConsultationResponseTo1> consultationResponses) {
+		this.consultationResponses = consultationResponses;
+	}
+
+	public List<NoteTo1> getEncounterNotes() {
+		return encounterNotes;
+	}
+
+	public void setEncounterNotes(List<NoteTo1> encounterNotes) {
+		this.encounterNotes = encounterNotes;
+	}
 	
+	public List<DocumentTo1> getDocuments() {
+		return documents;
+	}
+
+	public void setDocuments(List<DocumentTo1> documents) {
+		this.documents = documents;
+	}
+
+	public List<String> getMedicationSummary() {
+		return medicationSummary;
+	}
+	public void setMedicationSummary(List<String> medicationSummary) {
+		this.medicationSummary = medicationSummary;
+	}
 }

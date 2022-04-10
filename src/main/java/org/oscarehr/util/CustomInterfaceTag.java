@@ -36,6 +36,7 @@ import javax.servlet.jsp.tagext.TagSupport;
 import org.apache.log4j.Logger;
 import org.oscarehr.provider.web.CppPreferencesUIBean;
 
+import org.owasp.encoder.Encode;
 import oscar.OscarProperties;
 
 public class CustomInterfaceTag extends TagSupport {
@@ -79,11 +80,18 @@ public class CustomInterfaceTag extends TagSupport {
 			JspWriter out = super.pageContext.getOut();
 			String contextPath = this.pageContext.getServletContext().getContextPath();
 			try {
-				out.println("<link rel=\"stylesheet\" href=\""+contextPath+"/js/custom/global.css\" type=\"text/css\">");
+				// PHC consider the next two lines if they are usefull
+				//out.println("<link rel=\"stylesheet\" href=\""+contextPath+"/js/custom/global.css\" type=\"text/css\">");
 				out.println("<script src=\""+contextPath+"/js/custom/"+customJs+"/global.js\"></script>");
 				if(getSection()!=null && getSection().length()>0) {
-                    int randomNo = new Random().nextInt();
-					out.println("<script src=\""+contextPath+"/js/custom/"+customJs+"/"+getSection()+".js?no-cache="+randomNo+"\"></script>");
+					boolean hide_ConReport = OscarProperties.getInstance().isPropertyActive("hide_ConReport_link");
+					boolean cardswipe = props.getBooleanProperty("cardswipe", "false");
+					String customTag = "";
+					int randomNo = new Random().nextInt();
+					if (customJs.equalsIgnoreCase("ocean")) {
+							customTag = "ocean-host=" + Encode.forUriComponent(props.getProperty("ocean_host"));
+					}
+					out.println("<script id=\"mainScript\" src=\""+contextPath+"/js/custom/"+customJs+"/"+getSection()+".js?no-cache="+randomNo+"&autoRefresh=true\" hide_ConReport=\""+hide_ConReport+"\" cardswipe=\""+cardswipe+"\" " + customTag + " ></script>");
 				}
 			}catch(IOException e) {
 				logger.error("Error",e);
@@ -151,6 +159,26 @@ public class CustomInterfaceTag extends TagSupport {
 		if(!row2) {	sb.append("removeCppRow(2);");}
 		
 		sb.append("init();");
+		
+		//show/hide Cpp items
+		if ("".equals(bean.getPreventionsDisplay())) { sb.append("hideCpp('preventions');"); }
+		if ("".equals(bean.getDxRegistryDisplay())) { sb.append("hideCpp('Dx');"); }
+		if ("".equals(bean.getFormsDisplay())) { sb.append("hideCpp('forms');"); }
+		if ("".equals(bean.getEformsDisplay())) { sb.append("hideCpp('eforms');"); }
+		if ("".equals(bean.getDocumentsDisplay())) { sb.append("hideCpp('docs');"); }
+		if ("".equals(bean.getLabsDisplay())) { sb.append("hideCpp('labs');"); }
+		if ("".equals(bean.getMeasurementsDisplay())) { sb.append("hideCpp('measurements');"); }
+		if ("".equals(bean.getConsultationsDisplay())) { sb.append("hideCpp('consultation');"); }
+		if ("".equals(bean.getHrmDisplay())) { sb.append("hideCpp('HRM');"); }
+		if ("".equals(bean.getAllergiesDisplay())) { sb.append("hideCpp('allergies');"); }
+		if ("".equals(bean.getMedicationsDisplay())) { sb.append("hideCpp('Rx');"); }
+		if ("".equals(bean.getOtherMedsDisplay())) { sb.append("hideCpp('OMeds');"); }
+		if ("".equals(bean.getRiskFactorsDisplay())) { sb.append("hideCpp('RiskFactors');"); }
+		if ("".equals(bean.getFamilyHxDisplay())) { sb.append("hideCpp('FamHistory');"); }
+		if ("".equals(bean.getUnresolvedIssuesDisplay())) { sb.append("hideCpp('unresolvedIssues');"); }
+		if ("".equals(bean.getResolvedIssuesDisplay())) { sb.append("hideCpp('resolvedIssues');"); }
+		if ("".equals(bean.getEpisodesDisplay())) { sb.append("hideCpp('episode');"); }
+		
 		sb.append("});");
 		sb.append("function notifyIssueUpdate() {}");
 		sb.append("function notifyDivLoaded(divId) {}");

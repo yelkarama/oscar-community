@@ -39,6 +39,12 @@ import org.apache.log4j.Logger;
 import org.oscarehr.util.EncryptionUtils;
 import org.oscarehr.util.MiscUtils;
 
+/**
+ * This class holds the security object for the users login
+ * Related classes including LdapSecurity for LDAP authentication
+ * And SecurityArchive which keeps old settings to prevent reuse
+ * @version 0.2
+*/
 
 @Entity
 @Table(name = "security")
@@ -74,8 +80,7 @@ public class Security extends AbstractModel<Integer> {
 
 	@Column(name = "b_RemoteLockSet")
 	private Integer BRemotelockset;
-
-
+	
 	@Column(name="forcePasswordReset")
 	private Boolean forcePasswordReset = true;
 	
@@ -88,7 +93,35 @@ public class Security extends AbstractModel<Integer> {
 	@Column(name = "delegateOneIdEmail")
 	private String delagateOneIdEmail = "";
 	
+	@Column(name = "totp_enabled")
+	private Boolean totpEnabled = false;
+	
+	/**
+	 * the base32 secret used for totp.  
+	 * Base 32 was selected to allow for human readable code for manual entry to an authenticator app
+	 * the OSCAR interface also provides a QR code with it to reduce transscription error
+	 */	
+	@Column(name = "totp_secret")
+	private String totpSecret = "";
 
+	/**
+	 * The default number of digits in the totp.  For compatability it is set to 6.
+	 */
+	@Column(name = "totp_digits")
+	private Integer totpDigits = 6;
+	
+	/**
+	 * The default encryption in the totp.  Only sha1 is supported by the library we use.
+	 */	
+	@Column(name = "totp_algorithm")
+	private String totpAlgorithm = "sha1";
+
+	/**
+	 * The default totp period.  For compatibility it defaults to 30 seconds.
+	 */	
+	@Column(name = "totp_period")
+	private Integer totpPeriod = 30;
+	
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date passwordUpdateDate;
 	
@@ -98,8 +131,8 @@ public class Security extends AbstractModel<Integer> {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date lastUpdateDate;
 	
-	private String lastUpdateUser;
-	
+	@Column(name = "lastUpdateUser")
+	private String lastUpdateUser;	
 	
 	/** default constructor */
 	public Security() {
@@ -116,15 +149,23 @@ public class Security extends AbstractModel<Integer> {
 		setDateExpiredate(security.getDateExpiredate());
 		setBExpireset(security.getBExpireset());
 		setForcePasswordReset(security.isForcePasswordReset());
+		setOneIdKey(security.getOneIdKey());
+		setOneIdEmail(security.getOneIdEmail());
+		setDelagateOneIdEmail(security.getDelagateOneIdEmail());
+		setTotpEnabled(security.isTotpEnabled());
+		setTotpSecret(security.getTotpSecret());
+		setTotpDigits(security.getTotpDigits());
+		setTotpAlgorithm(security.getTotpAlgorithm());
+		setTotpPeriod(security.getTotpPeriod());
 //		setLastUpdateUser(security.getLastUpdateUser());
-//		setLastUpdateDate(security.getLastUpdateDate());
+//		setLastUpdateDate(security.getLastUpdateDate());			
 //		setLoginIP(security.getLoginIP());
 //		setLoginDate(security.getLoginDate());
 //		setLoginStatus(security.getLoginStatus());		
 	}
 
 	/** full constructor */
-	public Security(String userName, String password, String providerNo, String pin, Integer BRemotelockset, Integer BLocallockset, Date dateExpiredate, Integer BExpireset, Boolean forcePasswordReset) {
+	public Security(String userName, String password, String providerNo, String pin, Integer BRemotelockset, Integer BLocallockset, Date dateExpiredate, Integer BExpireset, Boolean forcePasswordReset, String oneIdKey, String oneIdEmail, String delegateOneIdEmail, Boolean totpEnabled, String totpSecret, Integer totpDigits, String totpAlgorithm, Integer totpPeriod) {
 		this.userName = userName;
 		this.password = password;
 		this.providerNo = providerNo;
@@ -134,6 +175,14 @@ public class Security extends AbstractModel<Integer> {
 		this.dateExpiredate = dateExpiredate;
 		this.BExpireset = BExpireset;
 		this.forcePasswordReset = forcePasswordReset;
+		this.oneIdKey = oneIdKey;
+		this.oneIdEmail = oneIdEmail;
+		this.delagateOneIdEmail = delagateOneIdEmail;			
+		this.totpEnabled = totpEnabled;
+		this.totpSecret = totpSecret;
+		this.totpDigits = totpDigits;
+		this.totpAlgorithm = totpAlgorithm;
+		this.totpPeriod = totpPeriod;
 	}
 
 
@@ -158,6 +207,10 @@ public class Security extends AbstractModel<Integer> {
 		this.userName = userName;
 	}
 
+	/**
+	 * Get the password stored in the schema
+	 * @return the encrypted password or {@code null} if not filled.
+	 */
 	public String getPassword() {
 		return password;
 	}
@@ -174,6 +227,10 @@ public class Security extends AbstractModel<Integer> {
 		this.providerNo = providerNo;
 	}
 
+	/**
+	 * Get the pin stored in the schema
+	 * @return either the plain text pin or the encrypted pin based on property settings or {@code null} if not filled.
+	 */
 	public String getPin() {
 		return pin;
 	}
@@ -252,7 +309,6 @@ public class Security extends AbstractModel<Integer> {
 	public Boolean isForcePasswordReset() {
 		return forcePasswordReset;
 	}
-
 	public void setForcePasswordReset(Boolean forcePasswordReset) {
 		this.forcePasswordReset = forcePasswordReset;
 	}
@@ -260,7 +316,6 @@ public class Security extends AbstractModel<Integer> {
 	public Date getPasswordUpdateDate() {
 		return passwordUpdateDate;
 	}
-
 	public void setPasswordUpdateDate(Date passwordUpdateDate) {
 		this.passwordUpdateDate = passwordUpdateDate;
 	}
@@ -268,7 +323,6 @@ public class Security extends AbstractModel<Integer> {
 	public Date getPinUpdateDate() {
 		return pinUpdateDate;
 	}
-
 	public void setPinUpdateDate(Date pinUpdateDate) {
 		this.pinUpdateDate = pinUpdateDate;
 	}
@@ -276,7 +330,6 @@ public class Security extends AbstractModel<Integer> {
 	public Date getLastUpdateDate() {
 		return lastUpdateDate;
 	}
-
 	public void setLastUpdateDate(Date lastUpdateDate) {
 		this.lastUpdateDate = lastUpdateDate;
 	}
@@ -284,7 +337,6 @@ public class Security extends AbstractModel<Integer> {
 	public String getLastUpdateUser() {
 		return lastUpdateUser;
 	}
-
 	public void setLastUpdateUser(String lastUpdateUser) {
 		this.lastUpdateUser = lastUpdateUser;
 	}
@@ -308,5 +360,44 @@ public class Security extends AbstractModel<Integer> {
 	}
 	public void setDelagateOneIdEmail(String delagateOneIdEmail) {
 		this.delagateOneIdEmail = delagateOneIdEmail;
+	}
+
+	public Boolean isTotpEnabled() {
+		return totpEnabled;
+	}	
+	public void setTotpEnabled(Boolean totpEnabled) {
+		this.totpEnabled = totpEnabled;
+	}
+
+	/**
+	 * @return the base32 secret used for totp.  Base 32 was selected to allow for human readable code for manual entry to an authenticator app
+	 * the OSCAR interface also provides a QR code with it to reduce transscription error
+	 */
+	public String getTotpSecret() {
+		return totpSecret;
+	}
+	public void setTotpSecret(String totpSecret) {
+		this.totpSecret = totpSecret;
+	}
+		
+	public Integer getTotpDigits() {
+		return totpDigits;
+	}	
+	public void setTotpDigits(Integer totpDigits) {
+		this.totpDigits = totpDigits;
+	}
+
+	public String getTotpAlgorithm() {
+		return totpAlgorithm;
+	}
+	public void setTotpAlgorithm(String totpAlgorithm) {
+		this.totpAlgorithm = totpAlgorithm;
+	}
+	
+	public Integer getTotpPeriod() {
+		return totpPeriod;
+	}	
+	public void setTotpPeriod(Integer totpPeriod) {
+		this.totpPeriod = totpPeriod;
 	}
 }

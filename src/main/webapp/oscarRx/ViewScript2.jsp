@@ -46,6 +46,9 @@
 <%@page import="org.oscarehr.common.model.Site"%>
 <%@page import="org.oscarehr.util.SpringUtils"%>
 <%@page import="org.oscarehr.common.model.Appointment"%>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.owasp.encoder.Encode" %>
+<%@ page import="oscar.oscarProvider.data.ProviderData" %>
 <%@page import="org.oscarehr.common.dao.OscarAppointmentDao"%>
 <%@ page import="org.oscarehr.common.dao.FaxConfigDao, org.oscarehr.common.model.FaxConfig" %>
 <%
@@ -149,7 +152,14 @@ if(bMultisites) {
 	for (int i=0;i<sites.size();i++) {
 		Site s = sites.get(i);
         vecAddressName.add(s.getName());
-        vecAddress.add("<b>"+doctorName+"</b><br>"+s.getName()+"<br>"+s.getAddress() + "<br>" + s.getCity() + ", " + s.getProvince() + " " + s.getPostal() + "<br>"+rb.getString("RxPreview.msgTel")+": " + s.getPhone() + "<br>"+rb.getString("RxPreview.msgFax")+": " + s.getFax());
+        vecAddress.add("<b>" + Encode.forHtml(doctorName)+"</b><br>" +
+                Encode.forHtml(s.getName())+"<br>"+
+                Encode.forHtml(s.getAddress()) + "<br>" +
+                Encode.forHtml(s.getCity()) + ", " +
+                Encode.forHtml(s.getProvince()) + " " +
+                Encode.forHtml(s.getPostal()) + "<br>" +
+                rb.getString("RxPreview.msgTel") + ": " + Encode.forHtml(s.getPhone()) + "<br>" +
+                rb.getString("RxPreview.msgFax") + ": " + Encode.forHtml(s.getFax()));
         if (s.getName().equals(location))
         	session.setAttribute("RX_ADDR",String.valueOf(i));
 	}
@@ -192,13 +202,16 @@ PharmacyInfo pharmacy = null;
 
 String prefPharmacy = "";
 String prefPharmacyId="";
+String prefPharmacyFax="";
 if (pharmacyId != null && !"null".equalsIgnoreCase(pharmacyId)) {
 	pharmacy = pharmacyData.getPharmacy(pharmacyId);    
 	if( pharmacy != null ) {
     	prefPharmacy = pharmacy.getName().replace("'", "\\'");
     	prefPharmacyId=String.valueOf(pharmacy.getId());
+prefPharmacyFax=pharmacy.getFax();
     	prefPharmacy=prefPharmacy.trim();
     	prefPharmacyId=prefPharmacyId.trim();
+prefPharmacyFax=prefPharmacyFax.trim();
 	}
 }
 
@@ -213,7 +226,7 @@ if (userAgent != null) {
 }
 %>
 <link rel="stylesheet" type="text/css" href="styles.css" />
-<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
+
 <script type="text/javascript" src="../share/javascript/prototype.js"></script>
 <script type="text/javascript" src="../share/javascript/Oscar.js"></script>
 
@@ -266,7 +279,9 @@ if (userAgent != null) {
       }%>
               var action="../form/createcustomedpdf?__title=Rx&__method=" +  method+"&useSC="+useSC+"&scAddress="+scAddress+"&rxPageSize="+rxPageSize+"&scriptId="+scriptId;
             document.getElementById("preview").contentWindow.document.getElementById("preview2Form").action = action;
-            document.getElementById("preview").contentWindow.document.getElementById("preview2Form").target="_blank";
+            //if (method!="oscarRxFax"){
+             document.getElementById("preview").contentWindow.document.getElementById("preview2Form").target="_blank";
+            //}
             document.getElementById("preview").contentWindow.document.getElementById("preview2Form").submit();
        return true;
     }
@@ -312,29 +327,44 @@ function printIframe(){
 	            {
 	                window.print();
 	            }
+            if(rxToPaste != null) {
+                    pasteRxToEchart();
+                }
+
+
 			}
 			else
 			{
 				preview.focus();
 				preview.print();
+                
+                if(rxToPaste != null) {
+                    pasteRxToEchart();
+                }
+				self.onfocus = function () {
+                    self.setTimeout(
+                        function(){
+                        self.parent.close();
+                    }, 1000);
+                };
+				self.focus();
 			}
 	}
-
+    
 function printPaste2Parent(print){
-    //console.log("in printPaste2Parent");
    try{
-      text =""; // "****<%=oscar.oscarProvider.data.ProviderData.getProviderName(bean.getProviderNo())%>********************************************************************************";
-      //console.log("1");
-      //text = text.substring(0, 82) + "\n";
+      text =""; 
       if (document.all){
          text += preview.document.forms[0].rx_no_newlines.value
       } else {
-         text += preview.document.forms[0].rx_no_newlines.value + "\n";
+         text += preview.document.forms[0].rx_no_newlines.value;
       }
-      //console.log("2");
-      text+=document.getElementById('additionalNotes').value+"\n";
-      //text += "**********************************************************************************\n";
-      //oscarLog(text);
+      if (document.getElementById('additionalNotes').value){
+           text+=document.getElementById('additionalNotes').value+"\n";
+      }
+	  if(!print){
+            text+="Fax sent to: "+ '<%=prefPharmacy%>'+" ("+ '<%=prefPharmacyFax%>'+")";
+      }
 
       //we support pasting into orig encounter and new casemanagement
       demographicNo = <%=bean.getDemographicNo()%>;
@@ -347,10 +377,15 @@ function printPaste2Parent(print){
         window.parent.opener.document.encForm.enTextarea.value = window.parent.opener.document.encForm.enTextarea.value + text;
       }else if( window.parent.opener.document.getElementById(noteEditor) != undefined ){
     	window.parent.opener.document.getElementById(noteEditor).value = window.parent.opener.document.getElementById(noteEditor).value + text; 
+      } else {
+			rxToPaste = text;
+			if (!print) {
+			    pasteRxToEchart();
+            }
       }
       
    }catch (e){
-      alert ("ERROR: could not paste to EMR");
+      alert ("ERROR: could not paste to EMR" + e);
    }
    
    if (print) { printIframe(); }
@@ -358,7 +393,14 @@ function printPaste2Parent(print){
 }
 
 
+var rxToPaste = null;
 
+function pasteRxToEchart() {
+    var windowprops = "height=710,width=1024,location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=50,screenY=50,top=20,left=20";
+    var currentDate = new Date().toISOString().substring(0, 10);
+    var encounterWindow = window.open("../oscarEncounter/IncomingEncounter.do?providerNo=<%= bean.getProviderNo() %>&demographicNo=<%= bean.getDemographicNo() %>&curProviderNo=<%= bean.getProviderNo() %>&userName=<%=ProviderData.getProviderName(bean.getProviderNo())%>&curDate=" + currentDate, "encounter", windowprops);
+    encounterWindow.rxToPaste = rxToPaste;
+}
 
 function addressSelect() {
    <% if(vecAddressName != null) {
@@ -411,7 +453,7 @@ function refreshImage()
 {
 	counter=counter+1;
 	frames["preview"].document.getElementById("signature").src="<%=imageUrl%>&rand="+counter;
-	frames['preview'].document.getElementById('imgFile').value='<%=System.getProperty("java.io.tmpdir")%>/signature_<%=signatureRequestId%>.jpg';	
+	frames['preview'].document.getElementById('imgFile').value='<%=System.getProperty("java.io.tmpdir").replace("\\","\\\\")%>/signature_<%=signatureRequestId%>.jpg';	
 }
 
 function sendFax()
@@ -419,9 +461,7 @@ function sendFax()
 	var faxNumber = document.getElementById('faxNumber');
 	frames['preview'].document.getElementById('finalFax').value = faxNumber.options[faxNumber.selectedIndex].value;
 	frames['preview'].document.getElementById('pdfId').value='<%=signatureRequestId%>';	
-	frames['preview'].onPrint2('oscarRxFax');
-	frames['preview'].document.FrmForm.submit();	
-	window.onbeforeunload = null;
+	onPrint2('oscarRxFax', "<%=request.getParameter("scriptId")%>");
 }
 
 function unloadMess(){
@@ -435,21 +475,36 @@ var isSignatureDirty = false;
 var isSignatureSaved = false;
 function signatureHandler(e) {
 	<% if (OscarProperties.getInstance().isRxFaxEnabled()) { %>
-	var hasFaxNumber = <%= pharmacy != null && pharmacy.getFax().trim().length() > 0 ? "true" : "false" %>;
+	var hasFaxNumber = <%= pharmacy != null && pharmacy.getFax() != null && pharmacy.getFax().trim().length() > 0 ? "true" : "false" %>;
 	<% } %>
 	isSignatureDirty = e.isDirty;
 	isSignatureSaved = e.isSave;
 	e.target.onbeforeunload = null;
 	<% if (OscarProperties.getInstance().isRxFaxEnabled()) { //%>
-	e.target.document.getElementById("faxButton").disabled = !hasFaxNumber || !e.isSave;
+	let disabled = !hasFaxNumber || !e.isSave;
+	toggleFaxButtons(disabled);
 	<% } %>
 	if (e.isSave) {
 		<% if (OscarProperties.getInstance().isRxFaxEnabled()) { //%>
 		if (hasFaxNumber) {
-			e.target.onbeforeunload = unloadMess;
+			//e.target.onbeforeunload = unloadMess;
 		}
 		<% } %>
 		refreshImage();			
+	}
+}
+
+function toggleFaxButtons(disabled) {
+	document.getElementById("faxButton").disabled = disabled;
+	//document.getElementById("faxPasteButton").disabled = disabled;
+}
+
+function enableExistingSignature() {
+	toggleFaxButtons(false);
+	frames["preview"].document.onreadystatechange = function(event, readystate) {
+		if (frames["preview"].document.readyState === "complete") {
+			refreshImage();
+		}
 	}
 }
 var requestIdKey = "<%=signatureRequestId %>";
@@ -480,7 +535,7 @@ function toggleView(form) {
 
 </script>
 <div id="hsfoPop"
-	style="border: ridge; background-color: ivory; width: 550px; height: 150px; position: absolute; left: 100px; top: 100px;">
+	style="border: ridge; background-color: ivory; width: 550px; height: 155px; position: absolute; left: 100px; top: 100px;">
 <form name="hsfoForm">
 <center><BR>
 <table>
@@ -513,7 +568,7 @@ function toggleView(form) {
 
 
 <table border="0" cellpadding="0" cellspacing="0"
-	style="border-collapse: collapse" bordercolor="#111111" width="100%"
+	style="border-collapse: collapse" bordercolor="#ffffff" width="100%"
 	id="AutoNumber1" height="100%">
 	<tr>
 		<td width="100%"
@@ -525,7 +580,7 @@ function toggleView(form) {
 
 			<tr>
 		<td width="100%" class="leftGreyLine" height="100%" valign="top">
-		<table style="border-collapse: collapse" bordercolor="#111111"
+		<table style="border-collapse: collapse" bordercolor="#ffffff"
 			width="100%" height="100%">
 
 			<tr>
@@ -544,12 +599,11 @@ function toggleView(form) {
                                     document.forms.RxClearPendingForm.action.value = action;
                                     document.forms.RxClearPendingForm.submit();
                                 }
-
-                                function ShowDrugInfo(drug){
-                                    window.open("drugInfo.do?GN=" + escape(drug), "_blank",
-                                        "location=no, menubar=no, toolbar=no, scrollbars=yes, status=yes, resizable=yes");
+                                
+                                function clearPendingFax(){
+                                    parent.window.location = "../oscarRx/close.html";
+                                    parent.myLightWindow.deactivate();
                                 }
-
 
                                 function printPharmacy(id,name){
                                     //ajax call to get all info about a pharmacy
@@ -561,7 +615,7 @@ function toggleView(form) {
 
                                             if(json!=null){
                                                 var text=json.name+"<br>"+json.address+"<br>"+json.city+","+json.province+","
-                                                    +json.postalCode+"<br>Tel:"+json.phone1+","+json.phone2+"<br>Fax:"+json.fax+"<br>Email:"+json.email+"<br>Note:"+json.notes;
+                                                    +json.postalCode+"<br>Tel: "+json.phone1+","+json.phone2+"<br>Fax: "+json.fax+"<br>Email: "+json.email+"<br>Note: "+json.notes;
                                                     text+='<br><br><a class="noprint" style="text-align:center;" onclick="parent.reducePreview();" href="javascript:void(0);">Remove Pharmacy Info</a>';
                                                 expandPreview(text);
                                             }
@@ -575,6 +629,7 @@ function toggleView(form) {
                                     frames['preview'].document.getElementById('pharmInfo').innerHTML=text;
                                     //frames['preview'].document.getElementById('removePharm').show();
                                     $("selectedPharmacy").innerHTML='<bean:message key="oscarRx.printPharmacyInfo.paperSizeWarning"/>';
+                                    frames['preview'].document.getElementById('pharmaShow').value='true';
 
                                 }
                                 function reducePreview(){
@@ -583,6 +638,7 @@ function toggleView(form) {
                                     document.getElementById('preview').style.width="420px";
                                     frames['preview'].document.getElementById('pharmInfo').innerHTML="";
                                     $("selectedPharmacy").innerHTML="";
+                                    frames['preview'].document.getElementById('pharmaShow').value='false';
                                 }
                             </script>
 
@@ -607,13 +663,18 @@ function toggleView(form) {
 					</tr>
 					<% } %>
 					<tr>
-						<td colspan=2 style="font-weight: bold;"><span><bean:message key="ViewScript.msgActions"/></span>
+						<td colspan=2 style="font-size:15px;font-weight: bold;"><span><bean:message key="ViewScript.msgActions"/></span>
 						</td>
 					</tr>
 
-                                        <tr>
-                                            <!--td width=10px></td-->
-                                            <td>Size of Print PDF :
+                                        
+					<tr>
+						<!--td width=10px></td-->
+						<td>
+						<span>
+							<input type=button value="<bean:message key="oscarRx.Preview.GeneratePDF"/>" class="ControlPushButton" style="width: 155px" onClick="<%=reprint.equalsIgnoreCase("true") ? "javascript:return onPrint2('rePrint', "+request.getParameter("scriptId")+");" : "javascript:return onPrint2('print', "+request.getParameter("scriptId")+");" %>" />
+						</span>
+						&nbsp;&nbsp;&nbsp; <bean:message key="oscarRx.Preview.SizeOfGeneratePDF"/>
                                                 <select name="printPageSize" id="printPageSize" style="height:20px;font-size:10px" >
                                                      <%
                                                      String rxPageSize=(String)request.getSession().getAttribute("rxPageSize");
@@ -625,27 +686,19 @@ function toggleView(form) {
                                                     </option>
                                                     <%  }%>
                                                 </select>
-                                            </td>
-                                        </tr>
-					<tr>
-						<!--td width=10px></td-->
-						<td>
-						<span>
-							<input type=button value="Print PDF" class="ControlPushButton" style="width: 150px" onClick="<%=reprint.equalsIgnoreCase("true") ? "javascript:return onPrint2('rePrint', "+request.getParameter("scriptId")+");" : "javascript:return onPrint2('print', "+request.getParameter("scriptId")+");" %>" />
-						</span>
 						</td>
 					</tr>
 
 					<tr>
 						<!--td width=10px></td-->
 						<td><span><input type=button value="<bean:message key="ViewScript.msgPrint"/>"
-							class="ControlPushButton" style="width: 150px"
+							class="ControlPushButton" style="width: 155px"
 							onClick="javascript:printIframe();" /></span></td>
 					</tr>
 					<tr>
 						<td><span><input type=button
 							<%=reprint.equals("true")?"disabled='true'":""%> value="<bean:message key="ViewScript.msgPrintPasteEmr"/>"
-							class="ControlPushButton" style="width: 150px"
+							class="ControlPushButton" style="width: 155px"
 							onClick="javascript:printPaste2Parent(true);" /></span></td>
 					</tr>
 					<% if (OscarProperties.getInstance().isRxFaxEnabled()) {
@@ -655,10 +708,9 @@ function toggleView(form) {
 					    %>
 					<tr>                            
                             <td><span><input type=button value="Fax & Paste into EMR"
-                                    class="ControlPushButton" id="faxButton" style="width: 150px"
-                                    onClick="printPaste2Parent(false);sendFax();" disabled/></span>
-                                    
-                                 <span>
+                                    class="ControlPushButton" id="faxButton" style="width: 155px"
+                                    onClick="sendFax();printPaste2Parent(false);clearPending('close');parent.window.close();" disabled/></span> 
+                                 <span>&nbsp;&nbsp;&nbsp;
                                  	<select id="faxNumber" name="faxNumber">
                                  	<%
                                  		for( FaxConfig faxConfig : faxConfigs ) {
@@ -676,17 +728,17 @@ function toggleView(form) {
 						<!--td width=10px></td-->
 						<td><span><input type=button
 							value="<bean:message key="ViewScript.msgCreateNewRx"/>" class="ControlPushButton"
-                                                        style="width: 150px"  onClick="resetStash();resetReRxDrugList();javascript:parent.myLightWindow.deactivate();" /></span></td>
+                                                        style="width: 155px"  onClick="resetStash();resetReRxDrugList();javascript:parent.myLightWindow.deactivate();" /></span></td>
 					</tr>
 					<tr>
 						<!--td width=10px></td-->
 						<td><span><input type=button value="<bean:message key="ViewScript.msgBackToOscar"/>"
-							class="ControlPushButton" style="width: 150px"
+							class="ControlPushButton" style="width: 155px"
                                                         onClick="javascript:clearPending('close');parent.window.close();" /></span></td>
 							<!--onClick="javascript:clearPending('close');" /></span></td>-->
 					</tr>
                                        <%if(prefPharmacy.length()>0 && prefPharmacyId.length()>0){   %>
-                                           <tr><td><span><input id="selectPharmacyButton" type=button value="<bean:message key='oscarRx.printPharmacyInfo.addPharmacyButton'/>" class="ControlPushButton" style="width:150px;"
+                                           <tr><td><span><input id="selectPharmacyButton" type=button value="<bean:message key='oscarRx.printPharmacyInfo.addPharmacyButton'/>" class="ControlPushButton" style="width:155px;"
                                                              onclick="printPharmacy('<%=prefPharmacyId%>','<%=prefPharmacy%>');"/>
                                                 </span>
 
@@ -702,7 +754,7 @@ function toggleView(form) {
                         if (request.getSession().getAttribute("rePrint") == null ){%>
 
                                         <tr>
-						<td colspan=2 style="font-weight: bold"><span><bean:message key="ViewScript.msgAddNotesRx"/></span></td>
+						<td colspan=2 style="font-size:15px;font-weight: bold"><span><bean:message key="ViewScript.msgAddNotesRx"/></span></td>
 					</tr>
                                         <tr>
                                                 <!--td width=10px></td-->
@@ -716,7 +768,7 @@ function toggleView(form) {
 					<% if (OscarProperties.getInstance().isRxSignatureEnabled() && !OscarProperties.getInstance().getBooleanProperty("signature_tablet", "yes")) { %>
                                         
                     <tr>
-						<td colspan=2 style="font-weight: bold"><span>Signature</span></td>
+						<td colspan=2 style="font-size:15px;font-weight: bold"><span>Signature</span></td>
 					</tr>               
 					<tr>
                         <td>
@@ -725,26 +777,7 @@ function toggleView(form) {
                         </td>
 					</tr>
 		            <%}%>
-                    <tr>
-						<td colspan=2 style="font-weight: bold"><span><bean:message key="ViewScript.msgDrugInfo"/></span></td>
-					</tr>
-					<%
-                        for(int i=0; i<bean.getStashSize(); i++){
-                            oscar.oscarRx.data.RxPrescriptionData.Prescription rx
-                                = bean.getStashItem(i);
-
-                            if (! rx.isCustom()){
-                            %>
-					<tr>
-						<!--td width=10px></td-->
-						<td><span><a
-							href="javascript:ShowDrugInfo('<%= rx.getGenericName() %>');">
-						<%= rx.getGenericName() %> (<%= rx.getBrandName() %>) </a></span></td>
-					</tr>
-					<%
-                            }
-                        }
-                        %>
+                    			
 				</table>
 				</td>
 			</tr>

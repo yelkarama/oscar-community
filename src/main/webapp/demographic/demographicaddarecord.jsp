@@ -23,6 +23,7 @@
     Ontario, Canada
 
 --%>
+<%@page import="java.text.SimpleDateFormat"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -135,6 +136,10 @@
         String start_time2 = request.getParameter("start_time");
         String end_time2 = request.getParameter("end_time");
         String duration2 = request.getParameter("duration");
+        boolean addFamily = false;
+        if (request.getParameter("submit")!=null&&request.getParameter("submit").equalsIgnoreCase("Save & Add Family Member")){
+			addFamily = true;
+		}
 
     String dem = null;
 	String year, month, day;
@@ -145,10 +150,23 @@
 	Demographic demographic = new Demographic();
 	demographic.setLastName(request.getParameter("last_name").trim());
 	demographic.setFirstName(request.getParameter("first_name").trim());
+	demographic.setMiddleNames(request.getParameter("middleNames").trim());
 	demographic.setAddress(request.getParameter("address"));
 	demographic.setCity(request.getParameter("city"));
-	demographic.setProvince(request.getParameter("province"));
+	if(request.getParameter("province") != null) {
+		demographic.setProvince(request.getParameter("province"));
+	} else {
+		demographic.setProvince("");
+	}
 	demographic.setPostal(request.getParameter("postal"));
+	demographic.setResidentialAddress(request.getParameter("residentialAddress"));
+	demographic.setResidentialCity(request.getParameter("residentialCity"));
+	if(request.getParameter("residentialProvince") != null) {
+		demographic.setResidentialProvince(request.getParameter("residentialProvince"));
+	} else {
+		demographic.setResidentialProvince("");
+	}
+	demographic.setResidentialPostal(request.getParameter("residentialPostal"));
 	demographic.setPhone(request.getParameter("phone"));
 	demographic.setPhone2(request.getParameter("phone2"));
 	demographic.setEmail(request.getParameter("email"));
@@ -159,50 +177,64 @@
 	demographic.setHin(request.getParameter("hin"));
 	demographic.setVer(request.getParameter("ver"));
 	demographic.setRosterStatus(request.getParameter("roster_status"));
+	demographic.setRosterEnrolledTo(request.getParameter("roster_enrolled_to"));	
 	demographic.setPatientStatus(request.getParameter("patient_status"));
-	demographic.setDateJoined(MyDateFormat.getSysDate(request.getParameter("date_joined_year")+"-"+request.getParameter("date_joined_month")+"-"+request.getParameter("date_joined_date")));
+
 	demographic.setChartNo(request.getParameter("chart_no"));
 	demographic.setProviderNo(request.getParameter("staff"));
 	demographic.setSex(request.getParameter("sex"));
 
-	year = StringUtils.trimToNull(request.getParameter("end_date_year"));
-	month = StringUtils.trimToNull(request.getParameter("end_date_month"));
-	day = StringUtils.trimToNull(request.getParameter("end_date_date"));
-	if (year!=null && month!=null && day!=null) {
-	 		demographic.setEndDate(MyDateFormat.getSysDate(year + "-" + month + "-" + day));
+
+
+	if (StringUtils.trimToNull(request.getParameter("date_joined"))!=null) {
+		demographic.setDateJoined(MyDateFormat.getSysDate(StringUtils.trimToNull(request.getParameter("date_joined"))));
+	} else {
+		demographic.setDateJoined(null);
+	}
+
+	if (StringUtils.trimToNull(request.getParameter("end_date"))!=null) {
+		demographic.setEndDate(MyDateFormat.getSysDate(StringUtils.trimToNull(request.getParameter("end_date"))));
 	} else {
 		demographic.setEndDate(null);
 	}
-	
-	year = StringUtils.trimToNull(request.getParameter("eff_date_year"));
-	month = StringUtils.trimToNull(request.getParameter("eff_date_month"));
-	day = StringUtils.trimToNull(request.getParameter("eff_date_date"));
-	if (year!=null && month!=null && day!=null) {
-		demographic.setEffDate(MyDateFormat.getSysDate(year + "-" + month + "-" + day));
+
+	if (StringUtils.trimToNull(request.getParameter("eff_date"))!=null) {
+		demographic.setEffDate(MyDateFormat.getSysDate(StringUtils.trimToNull(request.getParameter("eff_date"))));
 	} else {
 		demographic.setEffDate(null);
 	}
+	
+	if (StringUtils.trimToNull(request.getParameter("hc_renew_date"))!=null) {
+		demographic.setHcRenewDate(MyDateFormat.getSysDate(StringUtils.trimToNull(request.getParameter("hc_renew_date"))));
+	} else {
+		demographic.setHcRenewDate(null);
+	}
+
+	if (StringUtils.trimToNull(request.getParameter("roster_date"))!=null) {
+		demographic.setRosterDate(MyDateFormat.getSysDate(StringUtils.trimToNull(request.getParameter("roster_date"))));
+	} else {
+		demographic.setRosterDate(null);
+	}
+
+	
+	if(request.getParameter("patient_status_date") != null) {
+		SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
+		try {
+			demographic.setPatientStatusDate(fmt.parse(request.getParameter("patient_status_date")));
+		}catch(Exception e) {
+			demographic.setPatientStatusDate(new java.util.Date());
+		}
+	} else {
+		demographic.setPatientStatusDate(new java.util.Date());
+	}
+
 
 	demographic.setPcnIndicator(request.getParameter("pcn_indicator"));
 	demographic.setHcType(request.getParameter("hc_type"));
 	
-	year = StringUtils.trimToNull(request.getParameter("roster_date_year"));
-	month = StringUtils.trimToNull(request.getParameter("roster_date_month"));
-	day = StringUtils.trimToNull(request.getParameter("roster_date_date"));
-	if (year!=null && month!=null && day!=null) {
-		demographic.setRosterDate(MyDateFormat.getSysDate( year + "-" + month + "-" + day));
-	} else {
-		demographic.setRosterDate(null);
-	}
-	          
-	year = StringUtils.trimToNull(request.getParameter("hc_renew_date_year"));
-	month = StringUtils.trimToNull(request.getParameter("hc_renew_date_month"));
-	day = StringUtils.trimToNull(request.getParameter("hc_renew_date_date"));
-	if (year!=null && month!=null && day!=null) {
-		demographic.setHcRenewDate(MyDateFormat.getSysDate( year + "-" + month + "-" + day));
-	} else {
-		demographic.setHcRenewDate(null);
-	}
+
+
+
 	         
 	demographic.setFamilyDoctor("<rdohip>" + request.getParameter("r_doctor_ohip") + "</rdohip>" + "<rd>" + request.getParameter("r_doctor") + "</rd>"+ (request.getParameter("family_doc")!=null? ("<family_doc>" + request.getParameter("family_doc") + "</family_doc>") : ""));
 	demographic.setCountryOfOrigin(request.getParameter("countryOfOrigin"));
@@ -213,7 +245,7 @@
 	demographic.setSpokenLanguage(request.getParameter("spoken_lang"));
 	demographic.setLastUpdateUser(curUser_no);
 	demographic.setLastUpdateDate(new java.util.Date());
-	demographic.setPatientStatusDate(new java.util.Date());
+
 	
 	
 	
@@ -293,20 +325,24 @@
 
        dem = demographic.getDemographicNo().toString();
        
-       // Save the patient consent values.
-	   if( OscarProperties.getInstance().getBooleanProperty("USE_NEW_PATIENT_CONSENT_MODULE", "true") ) {
-	
+		if( OscarProperties.getInstance().getBooleanProperty("USE_NEW_PATIENT_CONSENT_MODULE", "true") ) {
+			// Retrieve and set patient consents.
 			PatientConsentManager patientConsentManager = SpringUtils.getBean( PatientConsentManager.class );
-			List<ConsentType> consentTypes = patientConsentManager.getConsentTypes();
-			String consentTypeId = null;
-			int patientConsentIdInt = 0; 
+			List<ConsentType> consentTypes = patientConsentManager.getActiveConsentTypes();			
+			boolean explicitConsent = Boolean.TRUE;	
+					
+			for( ConsentType consentType : consentTypes ) 
+			{
+				String type = consentType.getType();
+				String consentRecord = request.getParameter(type);
+
+				if( consentRecord != null )
+				{
+					//either opt-in or opt-out is selected
+					boolean optOut = Integer.parseInt(consentRecord) == 1;
+					patientConsentManager.addEditConsentRecord(loggedInInfo, demographic.getDemographicNo(), consentType.getId(), explicitConsent, optOut);
+				} 
 			
-			for( ConsentType consentType : consentTypes ) {
-				consentTypeId = request.getParameter( consentType.getType() );
-				// checked box means add or edit consent. 
-				if( consentTypeId != null ) {		
-					patientConsentManager.addConsent(loggedInInfo, demographic.getDemographicNo(), Integer.parseInt( consentTypeId ) );
-				} 	
 			}
 		}
 
@@ -323,7 +359,6 @@
        demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "given_consent", request.getParameter("given_consent"), "");
        demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "rxInteractionWarningLevel", request.getParameter("rxInteractionWarningLevel"), "");
        demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "primaryEMR", request.getParameter("primaryEMR"), "");
-       demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "aboriginal", request.getParameter("aboriginal"), "");
        demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "phoneComment", request.getParameter("phoneComment"), "");
        demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "usSigned", request.getParameter("usSigned"), "");
        demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "privacyConsent", request.getParameter("privacyConsent"), "");
@@ -407,7 +442,16 @@
 	document.addappt.submit();
 	//-->
 	</SCRIPT> 
-	<% } %>
+	<% }
+
+		if(addFamily && demographic!=null) {
+            session.setAttribute("address", demographic.getAddress());
+			session.setAttribute("city", demographic.getCity());
+			session.setAttribute("province", demographic.getProvince());
+			session.setAttribute("postal", demographic.getPostal());
+			session.setAttribute("phone", demographic.getPhone());
+			response.sendRedirect("demographicaddarecordhtm.jsp");
+		} %>
 </form>
 
 

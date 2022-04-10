@@ -66,8 +66,10 @@ import com.lowagie.text.DocumentException;
 
 import oscar.OscarProperties;
 import oscar.oscarLab.ca.all.pageUtil.LabPDFCreator;
+import oscar.oscarLab.ca.all.pageUtil.OLISLabPDFCreator;
 import oscar.oscarLab.ca.all.parsers.Factory;
 import oscar.oscarLab.ca.all.parsers.MessageHandler;
+import oscar.oscarLab.ca.all.parsers.OLISHL7Handler;
 import oscar.oscarLab.ca.on.CommonLabResultData;
 import oscar.oscarLab.ca.on.LabResultData;
 import oscar.util.ConcatPDF;
@@ -94,13 +96,17 @@ public class CaseManagementPrint {
 	 *This method was in CaseManagementEntryAction but has been moved out so that both the classic Echart and the flat echart can use the same printing method.
 	 * 
 	 */
-	public void doPrint(LoggedInInfo loggedInInfo,Integer demographicNo, boolean printAllNotes,String[] noteIds,boolean printCPP,boolean printRx,boolean printLabs, boolean printPreventions, Calendar startDate, Calendar endDate,   HttpServletRequest request, OutputStream os) throws IOException, DocumentException {
+	public void doPrint(LoggedInInfo loggedInInfo,Integer demographicNo, boolean printAllNotes,String[] noteIds,boolean printCPP,boolean printRx,boolean printLabs, boolean printPreventions, boolean useDateRange, Calendar startDate, Calendar endDate,   HttpServletRequest request, OutputStream os) throws IOException, DocumentException {
 		
 		String providerNo=loggedInInfo.getLoggedInProviderNo();
 
 		
 		if (printAllNotes) {
 			noteIds = getAllNoteIds(loggedInInfo,request,""+demographicNo);
+		}
+		
+		if(useDateRange) {
+			noteIds = getAllNoteIdsWithinDateRange(loggedInInfo,request,""+demographicNo,startDate.getTime(),endDate.getTime());
 		}
 		logger.debug("NOTES2PRINT: " + noteIds);
 
@@ -125,7 +131,10 @@ public class CaseManagementPrint {
 			} else {
 				Long noteId = ConversionUtils.fromLongString(noteIds[idx]);
 				if (noteId > 0) {
-					notes.add(this.caseManagementMgr.getNote(noteId.toString()));
+					CaseManagementNote note = this.caseManagementMgr.getNote(noteId.toString());
+					if (note!=null && note.getProviderNo()!=null && Integer.parseInt(note.getProviderNo())!=-1){
+						notes.add(note);
+					}
 				}
 			}
 		}
@@ -181,7 +190,7 @@ public class CaseManagementPrint {
 				tmpNotes = caseManagementMgr.getNotes(demono, issueIds);
 				issueNotes = new ArrayList<CaseManagementNote>();
 				for (int k = 0; k < tmpNotes.size(); ++k) {
-					if (!tmpNotes.get(k).isLocked()) {
+					if (!tmpNotes.get(k).isLocked() && !tmpNotes.get(k).isArchived()) {
 						List<CaseManagementNoteExt> exts = caseManagementMgr.getExtByNote(tmpNotes.get(k).getId());
 						boolean exclude = false;
 						for (CaseManagementNoteExt ext : exts) {
@@ -229,7 +238,13 @@ public class CaseManagementPrint {
                 File file2=null;
                 FileOutputStream os2=null;
                 
+                FileOutputStream fos = null;
+                List<Object> pdfDocs = new ArrayList<Object>();
+        		
+                
                 try {
+                	
+                	
                 file= new File(fileName);
 		out = new FileOutputStream(file);
 
@@ -255,7 +270,6 @@ public class CaseManagementPrint {
 		}
 		printer.finish();
 
-		List<Object> pdfDocs = new ArrayList<Object>();
 		pdfDocs.add(fileName);
 
 		if (printLabs) {
@@ -285,9 +299,25 @@ public class CaseManagementPrint {
 				String fileName2 = OscarProperties.getInstance().getProperty("DOCUMENT_DIR") + "//" + handler.getPatientName().replaceAll("\\s", "_") + "_" + handler.getMsgDate() + "_LabReport.pdf";
                                 file2= new File(fileName2);
 				os2 = new FileOutputStream(file2);
-				LabPDFCreator pdfCreator = new LabPDFCreator(os2, segmentId, loggedInInfo.getLoggedInProviderNo());
-				pdfCreator.printPdf();
-				pdfDocs.add(fileName2);
+				if (handler instanceof OLISHL7Handler) {
+					OLISLabPDFCreator olisLabPdfCreator = new OLISLabPDFCreator(os2, request, segmentId);
+					olisLabPdfCreator.printPdf();
+					os2.close();
+					pdfDocs.add(fileName2);
+				}
+				else {
+					LabPDFCreator pdfCreator = new LabPDFCreator(os2, segmentId, loggedInInfo.getLoggedInProviderNo());
+					pdfCreator.printPdf();
+					os2.close();
+					String fileName3 = OscarProperties.getInstance().getProperty("DOCUMENT_DIR") + "//" + handler.getPatientName().replaceAll("\\s", "_") + "_" + handler.getMsgDate() + "_LabReport.1.pdf";
+					File file3= new File(fileName3);
+					
+					fos = new FileOutputStream(file3);
+					pdfCreator.addEmbeddedDocuments(file2,fos);
+					
+					pdfDocs.add(fileName3);
+				}
+
 			}
 
 		}
@@ -304,13 +334,20 @@ public class CaseManagementPrint {
                   if (os2!=null) {
                       os2.close();
                   }
+                  if (fos!=null) {
+                      fos.close();
+                  }
                   if (file!=null) {
                       file.delete();
                   }
                   if (file2!=null) {
                       file2.delete();
                   }
+                  for(Object o:pdfDocs) {
+                	  new File((String)o).delete();
+                  }
                 }
+               
 	}
 	
 	public String[] getIssueIds(List<Issue> issues) {
@@ -333,6 +370,67 @@ public class CaseManagementPrint {
 	}
 	
 	
+	@SuppressWarnings("unchecked")
+    private String[] getAllNoteIdsWithinDateRange(LoggedInInfo loggedInInfo,HttpServletRequest request,String demoNo, Date startDate, Date endDate) {
+		
+		HttpSession se = loggedInInfo.getSession();
+		
+		ProgramProvider pp = programManager2.getCurrentProgramInDomain(loggedInInfo,loggedInInfo.getLoggedInProviderNo());
+		String programId = null;
+		
+		if(pp !=null && pp.getProgramId() != null){
+			programId = ""+pp.getProgramId();
+		}else{
+			programId = String.valueOf(programMgr.getProgramIdByProgramName("OSCAR")); //Default to the oscar program if provider hasn't been assigned to a program
+		}
+			
+		NoteSelectionCriteria criteria = new NoteSelectionCriteria();
+		criteria.setStartDate(startDate);
+		criteria.setEndDate(endDate);
+		criteria.setMaxResults(Integer.MAX_VALUE);
+		criteria.setDemographicId(ConversionUtils.fromIntString(demoNo));
+		criteria.setUserRole((String) request.getSession().getAttribute("userrole"));
+		criteria.setUserName((String) request.getSession().getAttribute("user"));
+		if (request.getParameter("note_sort") != null && request.getParameter("note_sort").length() > 0) {
+			criteria.setNoteSort(request.getParameter("note_sort"));
+		}
+		if (programId != null && !programId.trim().isEmpty()) {
+			criteria.setProgramId(programId);
+		}
+		
+		
+		if (se.getAttribute("CaseManagementViewAction_filter_roles") != null) {
+			criteria.getRoles().addAll((List<String>) se.getAttribute("CaseManagementViewAction_filter_roles"));
+		}
+		
+		if (se.getAttribute("CaseManagementViewAction_filter_providers") != null) {
+			criteria.getProviders().addAll((List<String>) se.getAttribute("CaseManagementViewAction_filter_providers"));
+		}
+
+		if (se.getAttribute("CaseManagementViewAction_filter_providers") != null) {
+			criteria.getIssues().addAll((List<String>) se.getAttribute("CaseManagementViewAction_filter_issues"));
+		}
+		
+		
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("SEARCHING FOR NOTES WITH CRITERIA: " + criteria);
+		}
+		
+		NoteSelectionResult result = noteService.findNotes(loggedInInfo, criteria);
+		
+		
+		List<String>  buf = new ArrayList<String>();
+		for(NoteDisplay nd : result.getNotes()) {
+			if (!(nd instanceof NoteDisplayLocal)) {
+				continue;
+			}
+			buf.add(nd.getNoteId().toString());
+		}
+		
+		
+		return buf.toArray(new String[0]);
+    }
 	@SuppressWarnings("unchecked")
     private String[] getAllNoteIds(LoggedInInfo loggedInInfo,HttpServletRequest request,String demoNo) {
 		
@@ -368,7 +466,7 @@ public class CaseManagementPrint {
 			criteria.getProviders().addAll((List<String>) se.getAttribute("CaseManagementViewAction_filter_providers"));
 		}
 
-		if (se.getAttribute("CaseManagementViewAction_filter_providers") != null) {
+		if (se.getAttribute("CaseManagementViewAction_filter_issues") != null) {
 			criteria.getIssues().addAll((List<String>) se.getAttribute("CaseManagementViewAction_filter_issues"));
 		}
 

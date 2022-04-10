@@ -24,6 +24,7 @@
 
 --%>
 
+<%@page import="org.oscarehr.common.model.Provider"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
       String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -45,6 +46,8 @@ if(!authed) {
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%@page
 	import="oscar.oscarEncounter.pageUtil.*,oscar.oscarEncounter.data.*"%>
+<%@ page import="org.oscarehr.common.dao.ConsultationRequestExtDao" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 
 <%
 String demo = request.getParameter("de");
@@ -160,6 +163,9 @@ function popupOscarConS(vheight,vwidth,varpage) { //open a new popup window
 							key="oscarEncounter.oscarConsultationRequest.DisplayDemographicConsultationRequests.msgPat" />
 						</th>
 						<th align="left" class="VCRheads"><bean:message
+							key="oscarEncounter.oscarConsultationRequest.DisplayDemographicConsultationRequests.msgMRP" />
+						</th>
+						<th align="left" class="VCRheads"><bean:message
 							key="oscarEncounter.oscarConsultationRequest.DisplayDemographicConsultationRequests.msgProvider" />
 						</th>
 						<th align="left" class="VCRheads"><bean:message
@@ -177,6 +183,7 @@ function popupOscarConS(vheight,vwidth,varpage) { //open a new popup window
                                     String provide = (String) theRequests.provider.elementAt(i);
                                     String service = (String) theRequests.service.elementAt(i);
                                     String date    = (String) theRequests.date.elementAt(i);
+                                    Provider cProv = (Provider) theRequests.consultProvider.elementAt(i);
                                 %>
 					<tr>
 						<td class="stat<%=status%>" width="75">
@@ -194,9 +201,12 @@ function popupOscarConS(vheight,vwidth,varpage) { //open a new popup window
 							href="javascript:popupOscarRx(700,960,'../../oscarEncounter/ViewRequest.do?de=<%=demo%>&requestId=<%=id%>')">
 						<%=patient%> </a></td>
 						<td class="stat<%=status%>"><%=provide%></td>
-						<td class="stat<%=status%>"><a
-							href="javascript:popupOscarRx(700,960,'../../oscarEncounter/ViewRequest.do?de=<%=demo%>&requestId=<%=id%>')">
-						<%=service%> </a></td>
+						<td class="stat<%=status%>"><%=cProv.getFormattedName()%></td>
+						<td class="stat<%=status%>">
+							<a href="javascript:popupOscarRx(700,960,'../../oscarEncounter/ViewRequest.do?de=<%=demo%>&requestId=<%=id%>')">
+								<%=StringUtils.trimToEmpty(service)%>
+							</a>
+						</td>
 						<td class="stat<%=status%>"><%=date%></td>
 					</tr>
 					<%}%>

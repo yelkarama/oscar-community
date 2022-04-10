@@ -23,7 +23,7 @@ package org.oscarehr.integration.fhir.interfaces;
  * Ontario, Canada
  */
 
-import java.util.Date;
+import org.oscarehr.common.interfaces.Immunization;
 
 
 /**
@@ -34,79 +34,4 @@ import java.util.Date;
  * 
  * This interface is currently being used in FHIR mapping.
  */
-public interface ImmunizationInterface<T> {
-	
-	public enum ImmunizationProperty{lot,location,route,dose,comments,neverReason,manufacture,name,expiryDate}
-
-	/**
-	 * Get an immunization data value by ImmunizationProperty key
-	 */
-	public String getImmunizationProperty( ImmunizationProperty immunizationProperty );
-	
-	public boolean isImmunization();
-		
-	public String getLotNo();
-	public void setLotNo(String lotNo);
-
-	public String getSite();
-	public void setSite( String site );
-	
-	public String getRoute();
-	public void setRoute(String route);
-	
-	public String getDose();
-	public void setDose(String dose);
-	
-	public String getComment();
-	public void setComment(String comment);
-	
-	public void setImmunizationRefused(boolean refused);
-	public boolean getImmunizationRefused();
-	
-	public String getImmunizationRefusedReason();
-	public void setImmunizationRefusedReason(String reason);
-	
-	public String getManufacture();
-	public void setManufacture(String manufacture);
-	
-	public String getName();
-	public void setName(String name);
-	
-	public String getImmunizationType();
-	public void setImmunizationType(String immunizationType);
-	
-	public Date getImmunizationDate();
-	public void setImmunizationDate(Date immunizationDate);
-	
-	/**
-	 * The expiry date of this immunization.  
-	 * Returns NULL if no date is available. 
-	 * Returns a Date object parsed from a string source.
-	 */
-	public Date getExpiryDate();
-	
-	/**
-	 * Set the expiry date of this immunization
-	 * Sets an empty string field if the parameter is null. 
-	 */
-	public void setExpiryDate( Date expiryDate );
-	
-	/**
-	 * Fixed to SNOMED codes only
-	 */
-	public String getVaccineCode();
-	
-	/**
-	 * Use SNOMED codes only
-	 */
-	public void setVaccineCode(String vaccineCode);
-	
-	/**
-	 * True if the Immunization was administered by this clinician at this clinic.
-	 * For now this is hard coded to True as there is no way in Oscar to determine this. 
-	 */
-	public boolean isPrimarySource();
-	
-	public void setPrimarySource(boolean truefalse );
-	
-}
+public interface ImmunizationInterface extends Immunization {}

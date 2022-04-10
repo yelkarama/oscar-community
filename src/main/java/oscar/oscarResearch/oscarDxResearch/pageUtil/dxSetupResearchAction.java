@@ -37,6 +37,8 @@ import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.SpringUtils;
 
+import oscar.log.LogAction;
+import oscar.log.LogConst;
 import oscar.oscarResearch.oscarDxResearch.bean.dxQuickListBeanHandler;
 import oscar.oscarResearch.oscarDxResearch.bean.dxQuickListItemsHandler;
 import oscar.oscarResearch.oscarDxResearch.bean.dxResearchBeanHandler;
@@ -85,7 +87,9 @@ public final class dxSetupResearchAction extends Action {
         session.setAttribute("allQuickListItems", quicklistItemsHd);
         session.setAttribute("allDiagnostics", hd );
         session.setAttribute("demographicNo", demographicNo ); 
-        session.setAttribute("providerNo", providerNo ); 
+        session.setAttribute("providerNo", providerNo );
+
+        LogAction.addLog(loggedInInfo, LogConst.READ, "Disease Registry", null, demographicNo, (String)null);
        
         return (mapping.findForward("success"));
     }

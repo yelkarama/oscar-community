@@ -65,25 +65,32 @@ if(!authed) {
 
 
 <head>
-<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
+
 <title><bean:message
 	key="oscarEncounter.oscarConsultationRequest.config.EnableRequestResponse.title" />
 </title>
 <html:base />
-<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
+
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+<style>
+.MainTableLeftColumn td{
+    font-size: 12px;
+
+}
+</style>
 </head>
 
-<link rel="stylesheet" type="text/css" href="../../encounterStyles.css">
 <body class="BodyStyle" vlink="#0000FF">
 <!--  -->
 <table class="MainTable" id="scrollNumber1" name="encounterTable">
 	<tr class="MainTableTopRow">
-		<td class="MainTableTopRowLeftColumn">Consultation</td>
+		<td class="MainTableTopRowLeftColumn"><h4>Consultation</h4></td>
 		<td class="MainTableTopRowRightColumn">
 		<table class="TopStatusBar">
 			<tr>
-				<td class="Header"><bean:message
-					key="oscarEncounter.oscarConsultationRequest.config.EnableRequestResponse.title" />
+				<td class="Header"><h4><bean:message
+					key="oscarEncounter.oscarConsultationRequest.config.EnableRequestResponse.title" /></h4>
 				</td>
 				<td></td>
 			</tr>
@@ -123,7 +130,7 @@ if(!authed) {
 							</tr>
 							<tr><td>&nbsp;</td></tr>
 							<tr>
-								<td><input type="submit"
+								<td><input type="submit" class="btn btn-primary"
 									value="<bean:message key="oscarEncounter.oscarConsultationRequest.config.EnableRequestResponse.btnUpdate"/>" />
 								</td>
 							</tr>

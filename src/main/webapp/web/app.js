@@ -2,8 +2,8 @@
 var oscarApp = angular.module('oscarProviderViewModule', ['ui.router','ngResource','ui.bootstrap','demographicServices','programServices',
 														  'ticklerServices','scheduleServices','billingServices','securityServices','staticDataServices',
 														  'patientDetailStatusServices','formServices','providerServices','noteServices','infinite-scroll',
-														  'uxServices','ngTable','oscarFilters','messageServices','inboxServices','k2aServices', 'personaServices'
-														  ,'consultServices','appServices','diseaseRegistryServices','angular-loading-bar']);
+														  'uxServices','ngTable','oscarFilters','messageServices','inboxServices','k2aServices', 'personaServices','measurementServices'
+														  ,'consultServices','appServices','diseaseRegistryServices','rxServices','angular-loading-bar','ngSanitize','consentServices']);
 
 
 oscarApp.config(['$stateProvider', '$urlRouterProvider',function($stateProvider, $urlRouterProvider) {
@@ -185,10 +185,25 @@ oscarApp.config(['$stateProvider', '$urlRouterProvider',function($stateProvider,
 			templateUrl: 'record/phr/phr.jsp',
 			controller: 'PHRCtrl'
 		})
-	   
+	    .state('record.rx', {
+			url: '/rx', 
+			component: 'rxComponent',
+		})
 		
 		
-}]);
+}]).component('rxComponent',RxComponent)
+   .component('medsearch',MedsearchComponent)
+   .component('providername',ProviderNameComponent)
+   .component('rxPrintComponent',RxPrintComponent)
+   .component('rxProfile',RxProfileComponent)
+   .component('dsviewComponent',DsviewComponent)
+   .component('discontinueComponent',DiscontinueComponent)
+   .component('drughistoryComponent',DrughistoryComponent)
+   .component('reprintComponent',ReprintComponent)
+   .component('fullsearchComponent',FullSearchComponent)
+   .component('copytextComponent',CopytextComponent)
+   .component('rxMedrec',RxMedrecComponent)
+   .component('lucode',RxLucodeComponent);
 
 // For debugging purposes
 /*
@@ -312,6 +327,17 @@ oscarApp.factory('Navigation', function($rootScope) {
 	  this.location = msg;
 	}
   }
+});
+
+oscarApp.directive('autoFocus', function($timeout) {
+    return {
+        restrict: 'AC',
+        link: function(_scope, _element) {
+            $timeout(function(){
+                _element[0].focus();
+            }, 0);
+        }
+    };
 });
 
 /*

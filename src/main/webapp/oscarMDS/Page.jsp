@@ -79,14 +79,14 @@ String curUser_no = (String) session.getAttribute("user");
 		
         <table  oldclass="MainTable" id="scrollNumber1" border="0" name="encounterTable" cellspacing="0" cellpadding="3" width="100%">
             <tr oldclass="MainTableTopRow">
-                <td class="MainTableTopRowRightColumn" colspan="10" align="left">
+                <td class="subheader" colspan="10" align="left">
                  <table width="100%">
                      <tr>
                            <td align="left" valign="center" > <%-- width="30%" --%>
                                <% if (labdocs.size() > 0) { %>
-                                   <input id="topFBtn" type="button" class="smallButton" value="<bean:message key="oscarMDS.index.btnForward"/>" onClick="parent.checkSelected(document)">
+                                   <input id="topFBtn" type="button" class="btn" value="<bean:message key="oscarMDS.index.btnForward"/>" onClick="parent.checkSelected(document)">
                                    <% if (ackStatus.equals("N") || ackStatus.isEmpty()) {%>
-                                       <input id="topFileBtn" type="button" class="smallButton" value="File" onclick="parent.submitFile(document)"/>
+                                       <input id="topFileBtn" type="button" class="btn" value="File" onclick="parent.submitFile(document)"/>
                                    <% }
                                }%>
                                <input type="hidden" id="currentNumberOfPages" value="0"/>
@@ -134,13 +134,13 @@ String curUser_no = (String) session.getAttribute("user");
                         </tr>
 					</table>
 					 --%>
-					<div id="listViewDocs" style="height:536px; overflow:auto;" onscroll="handleScroll(this)">
+					<div id="listViewDocs" style="max-height:850px; overflow-y:scroll;" onscroll="handleScroll(this)">
 					<style type="text/css">
 						#summaryView td, #summaryView th {
 							padding: 0px 5px;
 						}
 					</style>
-					<table id="summaryView" width="100%" style="margin:0px;padding:0px;" cellpadding="0" cellspacing="0">
+					<table id="summaryView" class="tablesorter table-striped table-hover" width="100%" style="margin:0px;padding:0px;" cellpadding="0" cellspacing="0">
 					<thead>
 						<tr>
                             <th align="left" valign="bottom" class="cell" nowrap>
@@ -176,7 +176,7 @@ String curUser_no = (String) session.getAttribute("user");
                             </th>
                         </tr>
                           </thead>    
-                          <tbody>
+                          <!--<tbody>-->
                                             <%
 							} // End if(pageNum == 1)
                             List<String> doclabid_seq=new ArrayList<String>();
@@ -187,7 +187,7 @@ String curUser_no = (String) session.getAttribute("user");
                                 	%> <input type="hidden" name="NoMoreItems" value="true" /> <%
                             		if (isListView) { %>
 		                                <tr>
-		                                    <tdcolspan="9" align="center">
+		                                    <td colspan="9" align="center">
 		                                        <i>	<% if (pageNum == 1) { %>
 		                                        	<bean:message key="oscarMDS.index.msgNoReports"/>
 		                                        	<% } else { %>
@@ -221,11 +221,11 @@ String curUser_no = (String) session.getAttribute("user");
                                 String segmentID        =  result.getSegmentID();
                                 String status           =  result.getAcknowledgedStatus();
 
-                                String bgcolor = i % 2 == 0 ? "#e0e0ff" : "#ccccff" ;
-                                if (!result.isMatchedToPatient()){
-                                   bgcolor = "#FFCC00";
-                                }
-
+                                //String bgcolor = i % 2 == 0 ? "#e0e0ff" : "#ccccff" ;
+                                //if (!result.isMatchedToPatient()){
+                                //   bgcolor = "#FFCC00";
+                                //}
+String bgcolor="";
 								String labRead = "";
 								
                                 if(result.isHRM() && !oscarLogDao.hasRead(curUser_no,"hrm",segmentID)){
@@ -313,8 +313,8 @@ String curUser_no = (String) session.getAttribute("user");
                                 }
                                 else {
                         		%>
-                                <tr id="labdoc_<%=segmentID%>" bgcolor="<%=bgcolor%>" <%if(result.isDocument()){%> name="scannedDoc" <%} else{%> name="HL7lab" <%}%> class="<%= (result.isAbnormal() ? "AbnormalRes" : "NormalRes" ) + " " + (result.isMatchedToPatient() ? "AssignedRes" : "UnassignedRes") %>">
-                                <td nowrap>
+                                <tr id="labdoc_<%=segmentID%>" bgcolor="<%=bgcolor%>" <%if(result.isDocument()){%> name="scannedDoc" <%} else{%> name="HL7lab" <%}%> class="<%= (result.isAbnormal() ? "AbnormalRes error" : "NormalRes" ) + " " + (result.isMatchedToPatient() ? "AssignedRes" : "UnassignedRes") %>">
+                                <td nowrap width="130px">
                                     <input type="hidden" id="totalNumberRow" value="<%=total_row_index+1%>">
                                     <input type="checkbox" name="flaggedLabs" value="<%=segmentID%>">
                                     <input type="hidden" name="labType<%=segmentID+result.labType%>" value="<%=result.labType%>"/>
@@ -382,7 +382,7 @@ String curUser_no = (String) session.getAttribute("user");
                                     		duplicateLabIds.append(duplicateLabId);
                                     	}
                                     %>
-                                    <a href="javascript:reportWindow('../hospitalReportManager/Display.do?id=<%=segmentID%>&segmentID=<%=segmentID%>&providerNo=<%=providerNo%>&searchProviderNo=<%=searchProviderNo%>&status=<%=status%>&demoName=<%=demoName%>&duplicateLabIds=<%=duplicateLabIds.toString()%> ',850,1020)"><%=labRead%><%=result.getPatientName()%></a>
+                                    <a href="javascript:reportWindow('../hospitalReportManager/Display.do?id=<%=segmentID%>&segmentID=<%=segmentID%>&providerNo=<%=providerNo%>&searchProviderNo=<%=searchProviderNo%>&status=<%=status%>&demoName=<%=StringEscapeUtils.escapeHtml(demoName)%>&duplicateLabIds=<%=duplicateLabIds.toString()%> ',850,1020)"><%=labRead%><%=result.getPatientName()%></a>
                                     <% }else {%>
                                     <a href="javascript:parent.reportWindow('<%=request.getContextPath()%>/lab/CA/BC/labDisplay.jsp?segmentID=<%=segmentID%>&providerNo=<%=providerNo%>&searchProviderNo=<%=searchProviderNo%>&status=<%=status%>')"><%=labRead%><%=StringEscapeUtils.escapeJavaScript(result.getPatientName())%></a>
                                     <% }%>
@@ -430,14 +430,14 @@ String curUser_no = (String) session.getAttribute("user");
                        	<% if (labdocs.size() > 0) { %>
                        	<table width="100%" style="margin:0px;padding:0px;" cellpadding="0" cellspacing="0">
                             <tr class="MainTableBottomRow">
-                                <td class="MainTableBottomRowRightColumn" bgcolor="#003399" colspan="10" align="left">
+                                <td class="subheader"  colspan="10" align="left">
                                     <table width="100%">
                                         <tr>
                                             <td align="left" valign="middle" width="30%">
 
-                                                    <input type="button" class="smallButton" value="<bean:message key="oscarMDS.index.btnForward"/>" onClick="parent.checkSelected(document)">
+                                                    <input type="button" class="btn" value="<bean:message key="oscarMDS.index.btnForward"/>" onClick="parent.checkSelected(document)">
                                                     <% if (ackStatus.equals("N")) {%>
-                                                        <input type="button" class="smallButton" value="File" onclick="parent.submitFile(document)"/>
+                                                        <input type="button" class="btn" value="File" onclick="parent.submitFile(document)"/>
                                                     <% }  %>
                                             </td>
                                         <script type="text/javascript">
@@ -465,5 +465,24 @@ String curUser_no = (String) session.getAttribute("user");
                 </td>
             </tr>
         </table>
-    <% } // End if (pageNum == 1) %>
+        <script>
+	        jQuery.tablesorter.addParser({
+		  id: 'dateOfTest',
+		  is: function(s) {return false;},
+		  format: function(s) {
+		    return s.indexOf("/")?s.substr(s.indexOf("/")+2,10):s;
+		  },
+		  type: 'text'
+		});
 
+	        jQuery("#summaryView").tablesorter({
+			sortList:[[5,1]],
+			headers:{
+				5:{
+					sorter:'dateOfTest'
+				}
+			}
+	        });
+        </script>
+        
+    <% } // End if (pageNum == 1) %>

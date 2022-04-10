@@ -39,6 +39,8 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.upload.FormFile;
+import org.oscarehr.common.dao.UserPropertyDAO;
+import org.oscarehr.common.model.UserProperty;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -55,6 +57,12 @@ public class ImageUploadAction extends Action {
     	if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_eform", "w", null)) {
 			throw new SecurityException("missing required security object (_eform)");
 		}
+		
+		if (request.getParameter("method") != null && request.getParameter("method").equals("uploadProviderImage")) {
+    	    return uploadProviderImage(mapping, form, request, response);
+        } else if (request.getParameter("method") != null && request.getParameter("method").equals("removeProviderImage")) {
+            return removeProviderImage(mapping, form, request, response);
+        }
     	
          ImageUploadForm fm = (ImageUploadForm) form;
          FormFile image = fm.getImage();
@@ -77,5 +85,49 @@ public class ImageUploadAction extends Action {
         if (!imageFolder.exists() && !imageFolder.mkdirs()) throw new IOException("Could not create directory " + imageFolder.getAbsolutePath() + " check permissions and ensure the correct eform_image property is set in the properties file");
         return imageFolder;
     }
-    
+
+    public ActionForward uploadProviderImage(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+
+        ImageUploadForm fm = (ImageUploadForm) form;
+        FormFile image = fm.getImage();
+        String providerNo = LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo();
+        String signatureName = "consult_sig_" + providerNo + ".png";
+        try {
+            byte[] imagebytes = image.getFileData();
+            OutputStream fos = ImageUploadAction.getEFormImageOutputStream(signatureName);
+            fos.write(imagebytes);
+        } catch (Exception e) { MiscUtils.getLogger().error("Error", e); }
+        
+        UserPropertyDAO userPropertyDAO = SpringUtils.getBean(UserPropertyDAO.class);
+        UserProperty property = userPropertyDAO.getProp(providerNo,UserProperty.PROVIDER_CONSULT_SIGNATURE);
+        if (property == null) {
+            property = new UserProperty();
+            property.setName(UserProperty.PROVIDER_CONSULT_SIGNATURE);
+            property.setProviderNo(providerNo);
+            property.setValue(signatureName);
+            userPropertyDAO.saveProp(property);
+        }
+        return mapping.findForward("consultSignatureSuccess");
+    }
+    public ActionForward removeProviderImage(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+        
+        String providerNo = LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo();
+        
+        UserPropertyDAO userPropertyDAO = SpringUtils.getBean(UserPropertyDAO.class);
+        UserProperty property = userPropertyDAO.getProp(providerNo,UserProperty.PROVIDER_CONSULT_SIGNATURE);
+        
+        if (property != null) {
+            try {
+                String signatureName = property.getValue();
+                File sigFile = new File(OscarProperties.getInstance().getProperty("eform_image") + "/" + signatureName);
+                if (sigFile.exists()) {
+                    sigFile.delete();
+                }
+
+                userPropertyDAO.delete(property);
+            } catch (Exception e) { MiscUtils.getLogger().error("Error", e); }
+
+        }
+        return mapping.findForward("consultSignatureSuccess");
+    }
 }

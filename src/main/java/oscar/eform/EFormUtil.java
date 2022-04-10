@@ -71,10 +71,12 @@ import org.oscarehr.common.model.ConsultationRequest;
 import org.oscarehr.common.model.EFormData;
 import org.oscarehr.common.model.EFormGroup;
 import org.oscarehr.common.model.EFormValue;
+import org.oscarehr.common.model.OscarMsgType;
 import org.oscarehr.common.model.Prevention;
 import org.oscarehr.common.model.ProfessionalSpecialist;
 import org.oscarehr.common.model.SecRole;
 import org.oscarehr.common.model.Tickler;
+import org.oscarehr.managers.MessagingManager;
 import org.oscarehr.managers.PreventionManager;
 import org.oscarehr.managers.ProgramManager2;
 import org.oscarehr.managers.SecurityInfoManager;
@@ -86,7 +88,6 @@ import com.quatro.model.security.Secobjprivilege;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import org.oscarehr.common.model.OscarMsgType;
 import oscar.OscarProperties;
 import oscar.dms.EDoc;
 import oscar.dms.EDocUtil;
@@ -95,7 +96,7 @@ import oscar.eform.data.EForm;
 import oscar.eform.data.EFormBase;
 import oscar.oscarClinic.ClinicData;
 import oscar.oscarDB.DBHandler;
-import oscar.oscarMessenger.data.MsgMessageData;
+import oscar.oscarMessenger.data.MessengerSystemMessage;
 import oscar.util.ConversionUtils;
 import oscar.util.OscarRoleObjectPrivilege;
 import oscar.util.UtilDateUtilities;
@@ -246,8 +247,15 @@ public class EFormUtil {
 	public static List<EFormData> listPatientEformsCurrent(Integer demographicNo, Boolean current, int startIndex, int numToReturn) {
 		return eFormDataDao.findByDemographicIdCurrent(demographicNo, current, startIndex, numToReturn);
 	}
-	
-	public static ArrayList<HashMap<String, ? extends Object>> listPatientEForms(String sortBy, String deleted, String demographic_no, String userRoles, int offset, int itemsToReturn) {
+    public static List<EFormData> listPatientEformsCurrentAttachedToConsult(String consultationId) {
+        return eFormDataDao.findByDemographicIdCurrentAttachedToConsult(consultationId);
+    }
+    
+    public static List<EFormData> listPatientEformsCurrentAttachedToEForm(String fdid) {
+        return eFormDataDao.findByDemographicIdCurrentAttachedToEForm(fdid);
+    }
+
+    public static ArrayList<HashMap<String, ? extends Object>> listPatientEForms(String sortBy, String deleted, String demographic_no, String userRoles, int offset, int itemsToReturn) {
 
 		Boolean current = null;
 		if (deleted.equals("deleted")) current = false;
@@ -970,15 +978,21 @@ public class EFormUtil {
 			if (StringUtils.isBlank(template)) continue;
 
 			String subject = getContent("subject", template, eForm.getFormName());
-			String sentWho = getSentWho(template);
 			String[] sentList = getSentList(template);
 			String userNo = eForm.getProviderNo();
 			String userName = providerDao.getProviderName(eForm.getProviderNo());
 			String message = getContent("content", template, "");
 			message = putTemplateEformHtml(eForm.getFormHtml(), message);
+			
+			MessagingManager messagingManager = SpringUtils.getBean(MessagingManager.class);
+            MessengerSystemMessage systemMessage = new MessengerSystemMessage(sentList);
+            systemMessage.setType(OscarMsgType.GENERAL_TYPE);
+            systemMessage.setSentByNo(userNo);
+            systemMessage.setSentBy(userName);
+            systemMessage.setSubject(subject);
+            systemMessage.setMessage(message);
 
-			MsgMessageData msg = new MsgMessageData();
-			msg.sendMessage2(message, subject, userName, sentWho, userNo, msg.getProviderStructure(sentList), null, null, OscarMsgType.GENERAL_TYPE);
+            messagingManager.sendSystemMessage(loggedInInfo, systemMessage);
 		}
 		
 		/* write to ticklers
@@ -1003,9 +1017,8 @@ public class EFormUtil {
 			tickler.setMessage(message);
 			tickler.setDemographicNo(Integer.valueOf(eForm.getDemographicNo()));
 			tickler.setCreator(eForm.getProviderNo());
-			
-			ProgramManager2 programManager = SpringUtils.getBean(ProgramManager2.class);
-			ProgramProvider pp = programManager.getCurrentProgramInDomain(loggedInInfo,loggedInInfo.getLoggedInProviderNo());
+
+			ProgramProvider pp = programManager2.getCurrentProgramInDomain(loggedInInfo,loggedInInfo.getLoggedInProviderNo());
 			
 			if(pp != null) {
 				tickler.setProgramId(pp.getProgramId().intValue());
@@ -1545,22 +1558,6 @@ public class EFormUtil {
 		return sentList;
 	}
 
-	private static String getSentWho(String msgtxt) {
-		String[] sentList = getSentList(msgtxt);
-		String sentWho = "";
-		for (String sent : sentList) {
-			sent = providerDao.getProviderName(sent);
-			if( !StringUtils.isBlank(sent) ) {
-				if (!StringUtils.isBlank(sentWho) ) {
-					sentWho += ", " + sent;
-				} else {
-					sentWho += sent;
-				}
-			}
-		}
-		return sentWho;
-	}
-
 	private static void sortByProviderName(List<EFormData> allEformDatas) {
 		if (allEformDatas == null || allEformDatas.isEmpty()) return;
 		
@@ -1589,5 +1586,26 @@ public class EFormUtil {
 			if (str.trim().equalsIgnoreCase(strLst.trim())) return strLst.trim();
 		}
 		return null;
+	}
+	
+	/** 
+	 * Local EFormData Factory
+	 */
+	public static EFormData toEFormData( EForm eForm ) {
+		EFormData eFormData=new EFormData();
+		eFormData.setFormId(Integer.parseInt(eForm.getFid()));
+		eFormData.setFormName(eForm.getFormName());
+		eFormData.setSubject(eForm.getFormSubject());
+		eFormData.setDemographicId(Integer.parseInt(eForm.getDemographicNo()));
+		eFormData.setCurrent(true);
+		eFormData.setFormDate(new Date());
+		eFormData.setFormTime(eFormData.getFormDate());
+		eFormData.setProviderNo(eForm.getProviderNo());
+		eFormData.setFormData(eForm.getFormHtml());
+		eFormData.setShowLatestFormOnly(eForm.isShowLatestFormOnly());
+		eFormData.setPatientIndependent(eForm.isPatientIndependent());
+		eFormData.setRoleType(eForm.getRoleType());
+
+		return(eFormData);
 	}
 }

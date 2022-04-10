@@ -25,6 +25,7 @@
 --%>
 
 <%@ page import="java.util.ResourceBundle"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 <% java.util.Properties oscarVariables = oscar.OscarProperties.getInstance(); %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -60,29 +61,37 @@ if(!authed) {
 %>
 
 <head>
-<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
+
 <title><%=transactionType%></title>
 <html:base />
-<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
 </head>
+<style>
+.MainTableLeftColumn td{
+    font-size: 12px;
+
+}
+</style>
 <script language="javascript">
 function BackToOscar() {
        window.close();
 }
 </script>
 
-<link rel="stylesheet" type="text/css" href="../../encounterStyles.css">
 <body class="BodyStyle" vlink="#0000FF">
 
 <html:errors />
 <!--  -->
 <table class="MainTable" id="scrollNumber1" name="encounterTable">
 	<tr class="MainTableTopRow">
-		<td class="MainTableTopRowLeftColumn">Consultation</td>
+		<td class="MainTableTopRowLeftColumn"><h4>Consultation</h4></td>
 		<td class="MainTableTopRowRightColumn">
 		<table class="TopStatusBar">
 			<tr>
-				<td class="Header"><%=transactionType%></td>
+				<td class="Header"><h4><%=transactionType%></h4></td>
 			</tr>
 		</table>
 		</td>
@@ -118,16 +127,16 @@ function BackToOscar() {
                            EctConAddInstitutionForm thisForm;
                            thisForm = (EctConAddInstitutionForm) request.getAttribute("EctConAddInstitutionForm");
                            thisForm.setId((String) request.getAttribute("id"));
-                           thisForm.setName( (String) request.getAttribute("name"));
-                           thisForm.setCity( (String) request.getAttribute("city"));
-                           thisForm.setProvince( (String) request.getAttribute("province"));
-                           thisForm.setPostal( (String) request.getAttribute("postal"));
-                           thisForm.setAddress( (String) request.getAttribute("address"));
-                           thisForm.setPhone( (String) request.getAttribute("phone"));
-                           thisForm.setFax( (String) request.getAttribute("fax"));
-                           thisForm.setWebsite( (String) request.getAttribute("website"));
-                           thisForm.setEmail( (String) request.getAttribute("email"));
-                           thisForm.setAnnotation( (String) request.getAttribute("annotation"));
+                           thisForm.setName(Encode.forHtml( (String) request.getAttribute("name")));
+                           thisForm.setCity(Encode.forHtml( (String) request.getAttribute("city")));
+                           thisForm.setProvince(Encode.forHtml( (String) request.getAttribute("province")));
+                           thisForm.setPostal(Encode.forHtml( (String) request.getAttribute("postal")));
+                           thisForm.setAddress(Encode.forHtml( (String) request.getAttribute("address")));
+                           thisForm.setPhone(Encode.forHtml( (String) request.getAttribute("phone")));
+                           thisForm.setFax(Encode.forHtml( (String) request.getAttribute("fax")));
+                           thisForm.setWebsite(Encode.forHtml( (String) request.getAttribute("website")));
+                           thisForm.setEmail(Encode.forHtml( (String) request.getAttribute("email")));
+                           thisForm.setAnnotation(Encode.forHtml( (String) request.getAttribute("annotation")));
                            }
                         %>
 						<html:hidden name="EctConAddInstitutionForm" property="id" />
@@ -171,7 +180,7 @@ function BackToOscar() {
 						<tr>
 							<td colspan="6">
 								<input type="hidden" name="whichType" value="<%=whichType%>" />
-								<input type="submit" name="transType" value="<%=transactionType%>" />
+								<input type="submit" class="btn btn-primary" name="transType" value="<%=transactionType%>" />
 							</td>
 						</tr>
 					</table>

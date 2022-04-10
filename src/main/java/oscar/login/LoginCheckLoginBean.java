@@ -27,7 +27,6 @@ package oscar.login;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.oscarehr.PMmodule.dao.ProviderDao;
@@ -39,11 +38,12 @@ import org.oscarehr.common.model.Security;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
+import com.quatro.model.security.LdapSecurity;
+import com.j256.twofactorauth.TimeBasedOneTimePasswordUtil;
+
 import oscar.OscarProperties;
 import oscar.log.LogAction;
 import oscar.log.LogConst;
-
-import com.quatro.model.security.LdapSecurity;
 
 public final class LoginCheckLoginBean {
 	private static final Logger logger = MiscUtils.getLogger();
@@ -87,10 +87,26 @@ public final class LoginCheckLoginBean {
 		String sPin = pin;
 		if (oscar.OscarProperties.getInstance().isPINEncripted()) sPin = oscar.Misc.encryptPIN(sPin);
 
-		if (isWAN() && security.getBRemotelockset() != null && security.getBRemotelockset().intValue() == 1 && (!sPin.equals(security.getPin()) || pin.length() < 3)) {
-			return cleanNullObj(LOG_PRE + "Pin-remote needed: " + username);
-		} else if (!isWAN() && security.getBLocallockset() != null && security.getBLocallockset().intValue() == 1 && (!sPin.equals(security.getPin()) || pin.length() < 3)) {
-			return cleanNullObj(LOG_PRE + "Pin-local needed: " + username);
+		// check for 2FA type pin
+		if (security.isTotpEnabled()) {
+			String base32Secret = security.getTotpSecret();
+			Integer numDigits = security.getTotpDigits();
+			try {
+				boolean valid = TimeBasedOneTimePasswordUtil.validateCurrentNumber(base32Secret, Integer.parseInt(pin), 10000);
+				if (isWAN() && security.getBRemotelockset() != null && security.getBRemotelockset().intValue() == 1 && (!valid || pin.length() < 3)) {
+					return cleanNullObj(LOG_PRE + "Pin-remote 2FA needed: " + username);
+				} else if (!isWAN() && security.getBLocallockset() != null && security.getBLocallockset().intValue() == 1 && (!valid || pin.length() < 3)) {
+					return cleanNullObj(LOG_PRE + "Pin-local 2FA needed: " + username);
+				}	
+			} catch (Exception e) {
+				logger.error(e.getMessage());
+			}
+		} else {
+			if (isWAN() && security.getBRemotelockset() != null && security.getBRemotelockset().intValue() == 1 && (!sPin.equals(security.getPin()) || pin.length() < 3)) {
+				return cleanNullObj(LOG_PRE + "Pin-remote needed: " + username);
+			} else if (!isWAN() && security.getBLocallockset() != null && security.getBLocallockset().intValue() == 1 && (!sPin.equals(security.getPin()) || pin.length() < 3)) {
+				return cleanNullObj(LOG_PRE + "Pin-local needed: " + username);
+			}
 		}
 
 		if (security.getBExpireset() != null && security.getBExpireset().intValue() == 1 && (security.getDateExpiredate() == null || security.getDateExpiredate().before(new Date()))) {
@@ -247,8 +263,9 @@ public final class LoginCheckLoginBean {
 
 	public boolean isWAN() {
 		boolean bWAN = true;
-		Properties p = OscarProperties.getInstance();
-		if (ip.startsWith(p.getProperty("login_local_ip"))) bWAN = false;
+		//Properties p = OscarProperties.getInstance();
+		//if (ip.startsWith(p.getProperty("login_local_ip"))) bWAN = false;
+		if(LoginCheckLogin.ipFound(ip)) bWAN = false;
 		return bWAN;
 	}
 

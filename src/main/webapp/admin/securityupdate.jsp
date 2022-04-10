@@ -43,30 +43,35 @@
 	}
 %>
 
-
-<%@ page import="java.sql.*, java.util.*,java.security.*,oscar.*,oscar.oscarDB.*" errorPage="errorpage.jsp"%>
-<%@ page import="oscar.log.LogAction,oscar.log.LogConst"%>
+<%@ page import="oscar.*" errorPage="errorpage.jsp" %>
+<%@ page import="java.sql.*" %>
+<%@ page import="java.util.*" %>
+<%@ page import="java.security.*" %>
+<%@ page import="oscar.oscarDB.*" %>
+<%@ page import="oscar.log.LogAction" %>
+<%@ page import="oscar.log.LogConst" %>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.Security" %>
 <%@ page import="org.oscarehr.common.dao.SecurityDao" %>
+<%@ page import="com.j256.twofactorauth.TimeBasedOneTimePasswordUtil" %>
 <%
 	SecurityDao securityDao = SpringUtils.getBean(SecurityDao.class);
 %>
 
 <html:html locale="true">
 <head>
-<script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script>
-<title><bean:message key="admin.securityupdate.title" /></title>
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
+<title><bean:message key="admin.securityupdate.description" /></title>
 </head>
 <link rel="stylesheet" href="../web.css" />
 <body topmargin="0" leftmargin="0" rightmargin="0">
-<center>
-<table border="0" cellspacing="0" cellpadding="0" width="100%">
-	<tr bgcolor="#486ebd">
-		<th align="CENTER"><font face="Helvetica" color="#FFFFFF"><bean:message
-			key="admin.securityupdate.description" /></font></th>
-	</tr>
-</table>
+<div >
+    <div  id="header"><H3>&nbsp;<i class="icon-lock"></i>&nbsp;<bean:message
+			key="admin.securityupdate.description" /></H3>
+    </div>
+</div>
+
 <%
 	StringBuffer sbTemp = new StringBuffer();
     MessageDigest md = MessageDigest.getInstance("SHA");
@@ -77,9 +82,15 @@
     if (OscarProperties.getInstance().isPINEncripted()) sPin = Misc.encryptPIN(request.getParameter("pin"));
 
     int rowsAffected =0;
+    String secret =  TimeBasedOneTimePasswordUtil.generateBase32Secret();
 
     Security s = securityDao.find(Integer.parseInt(request.getParameter("security_no")));
     if(s != null) {
+    	if (s.getTotpSecret().equals("") || ( request.getParameter("resetSecret")!=null && "true".equals(request.getParameter("resetSecret")) )) {
+    		s.setTotpSecret(secret);
+    	} else {
+    		secret = s.getTotpSecret();
+    	}
     	s.setUserName(request.getParameter("user_name"));
 	    s.setProviderNo(request.getParameter("provider_no"));
 	    s.setBExpireset(request.getParameter("b_ExpireSet")==null?0:Integer.parseInt(request.getParameter("b_ExpireSet")));
@@ -103,6 +114,12 @@
     		s.setForcePasswordReset(Boolean.FALSE);  
         }
     	
+    	if (request.getParameter("2fa") != null && request.getParameter("2fa").equals("1")) {
+    	    s.setTotpEnabled(Boolean.TRUE);
+    	} else {
+    		s.setTotpEnabled(Boolean.FALSE);  
+        }
+    	
     	s.setLastUpdateDate(new java.util.Date());
     	
     	securityDao.saveEntity(s);
@@ -114,18 +131,35 @@
       LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.UPDATE, LogConst.CON_SECURITY,
     		request.getParameter("security_no") + "->" + request.getParameter("user_name"), request.getRemoteAddr());
 %>
-<p>
-<h2><bean:message key="admin.securityupdate.msgUpdateSuccess" /> <%=request.getParameter("provider_no")%></h2>
+
+<div class="alert alert-success" >
+    <h4><bean:message key="admin.securityupdate.msgUpdateSuccess" /> <%=request.getParameter("provider_no")%></h4>
+</div>
+
 <%
   } else {
 %>
-<h1><bean:message key="admin.securityupdate.msgUpdateFailure" /><%= request.getParameter("provider_no") %>.</h1>
+<div class="alert alert-error" >
+    <h4><bean:message key="admin.securityupdate.msgUpdateFailure" /><%= request.getParameter("provider_no") %>.</h4>
+</div>
+
 <%
   }
 %>
-</p>
-<p></p>
-
-</center>
+<% if (request.getParameter("2fa") != null && request.getParameter("2fa").equals("1")) { 
+	String qrUrl =  TimeBasedOneTimePasswordUtil.qrImageUrl("OSCAR",secret);	
+%>
+<div class="container-fluid well" >
+    <div class="control-group span4">
+	    <p><img src="<%=qrUrl%>" alt="<%=secret%>"></p>
+    </div>
+    <div class="control-group span4">
+        <p><bean:message 
+                key="admin.provider.2fa.qr"/></p><br>
+        <input type="button" class="btn btn-primary" value="<bean:message 
+                key="global.btnPrint"/>" onclick="window.print();">
+    </div>
+</div>
+<% } %>
 </body>
 </html:html>

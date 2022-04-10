@@ -35,6 +35,7 @@ import org.oscarehr.common.dao.MeasurementDao;
 import org.oscarehr.common.dao.MeasurementGroupStyleDao;
 import org.oscarehr.common.dao.MeasurementMapDao;
 import org.oscarehr.common.dao.PropertyDao;
+import org.oscarehr.common.model.ConsentType;
 import org.oscarehr.common.model.Measurement;
 import org.oscarehr.common.model.MeasurementGroupStyle;
 import org.oscarehr.common.model.MeasurementMap;
@@ -55,6 +56,9 @@ public class MeasurementManager {
 
 	@Autowired
 	private MeasurementMapDao measurementMapDao;
+	
+	@Autowired
+	private PatientConsentManager patientConsentManager;
 	
 	public List<Measurement> getCreatedAfterDate(LoggedInInfo loggedInInfo, Date updatedAfterThisDateExclusive, int itemsToReturn) {
 		List<Measurement> results = measurementDao.findByCreateDate(updatedAfterThisDateExclusive, itemsToReturn);
@@ -79,6 +83,31 @@ public class MeasurementManager {
 		List<Measurement> results = measurementDao.findByType(id, types);
 		if (results.size() > 0) {
 			LogAction.addLogSynchronous(loggedInInfo, "MeasurementManager.getMeasurementByType", "id=" + id);
+		}
+		return results;
+	}
+
+	public List<Measurement> getMeasurementByDemographicIdAfter(LoggedInInfo loggedInInfo, Integer demographicId, Date updateAfter) {
+		List<Measurement> results = new ArrayList<Measurement>();
+		//If the consent type does not exist in the table assume this consent type is not being managed by the clinic, otherwise ensure patient has consented
+		boolean hasConsent = patientConsentManager.hasProviderSpecificConsent(loggedInInfo) || patientConsentManager.getConsentType(ConsentType.PROVIDER_CONSENT_FILTER) == null;
+		if (hasConsent) {
+			results = measurementDao.findByDemographicLastUpdateAfterDate(demographicId, updateAfter);
+			if (results.size() > 0) {
+				LogAction.addLogSynchronous(loggedInInfo, "MeasurementManager.getMeasurementByDemographicIdAfter", "demographicId="+demographicId+" updateAfter="+updateAfter);
+			}
+		}
+		return results;
+	}
+	public List<Measurement> getLatestMeasurementsByDemographicIdObservedAfter(LoggedInInfo loggedInInfo, Integer demographicId, Date observedDate) {
+		List<Measurement> results = new ArrayList<>();
+		//If the consent type does not exist in the table assume this consent type is not being managed by the clinic, otherwise ensure patient has consented
+		boolean hasConsent = patientConsentManager.hasProviderSpecificConsent(loggedInInfo) || patientConsentManager.getConsentType(ConsentType.PROVIDER_CONSENT_FILTER) == null;
+		if (hasConsent) {
+			results = measurementDao.findLatestByDemographicObservedAfterDate(demographicId, observedDate);
+			if (results.size() > 0) {
+				LogAction.addLogSynchronous(loggedInInfo, "MeasurementManager.getMeasurementByDemographicIdAfter", "demographicId="+demographicId+" updateAfter="+ observedDate);
+			}
 		}
 		return results;
 	}

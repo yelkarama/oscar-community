@@ -120,6 +120,7 @@ request.setAttribute("pageMethod",pageMethod);
         <script type="text/javascript" src="../../share/javascript/prototype.js"></script>
         <script type="text/javascript" src="../../share/javascript/Oscar.js"></script>
         <script type="text/javascript" src="../../phr/phr.js"></script>
+        <script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery.js"></script>
         <style type="text/css">
         td.messengerButtonsA{
             /*background-color: #6666ff;*/
@@ -299,6 +300,19 @@ request.setAttribute("pageMethod",pageMethod);
                 <table width="100%">
                     <tr>
                         <td>
+                        		<span id="buttonArea">
+                        		<button style="float:right" onclick="refreshPassword();" title="This will set a new strong password for your account">Refresh Password</button>
+                            <%
+                            	if (MyOscarUtils.isMyOscarEnabled((String) session.getAttribute("user")) && myOscarLoggedInInfo!=null && myOscarLoggedInInfo.isLoggedIn())
+                            	{
+                            		%>
+                           				<button style="float:right" onclick="window.open('<%=request.getContextPath()%>/myoscar/myoscar_page_link_action.jsp?redirectPage=/v2/external_message_settings.jsp');">PHR Message Settings</button>
+                           				
+                           			<%
+                           		}
+                           	%>
+                           	
+                           	</span>
                             <table  cellspacing=3 style="display:inline">
                                 <tr>
                                     <td >
@@ -367,14 +381,7 @@ request.setAttribute("pageMethod",pageMethod);
                                     %>
                                 </tr>
                             </table><!--cell spacing=3-->
-                            <%
-                            	if (MyOscarUtils.isMyOscarEnabled((String) session.getAttribute("user")) && myOscarLoggedInInfo!=null && myOscarLoggedInInfo.isLoggedIn())
-                            	{
-                            		%>
-                           				<button style="float:right" onclick="window.open('<%=request.getContextPath()%>/myoscar/myoscar_page_link_action.jsp?redirectPage=/v2/external_message_settings.jsp');">PHR Message Settings</button>
-                           			<%
-                           		}
-                           	%>
+                            
                         </td>
                     </tr>
                 </table><!--table width="100%">-->
@@ -617,4 +624,44 @@ request.setAttribute("pageMethod",pageMethod);
         
     </table>
     </body>
+    
+    <script>
+    
+    function refreshPassword(){
+    		jQuery.ajax({
+  			type: "POST",
+	        url: "<%=request.getContextPath()%>/ws/rs/app/updatePHRPW",
+	        dataType: 'json',
+	        success: function (data) {
+	       		alert(data.message);
+	       		location.reload(); 
+	    		}
+		});
+
+    	
+    }
+    
+    jQuery(document).ready(function(){
+    		jQuery.ajax({
+  			type: "GET",
+	        url: "<%=request.getContextPath()%>/ws/rs/app/providerLaunchItems",
+	        dataType: 'json',
+	        success: function (data) {
+	        	
+		        	data.forEach(function(dataElement,idx){
+		        		console.log("data "+idx,dataElement);
+		       		jQuery("#buttonArea").append(
+		       		jQuery("<button style='float: right;' id='"+dataElement.link+"'/>")
+		       		    .text(dataElement.heading)
+		       		    .click(function () { window.open('../../ws/rs/app/openProviderPHRWindow/'+dataElement.link); console.log("d",dataElement); }));
+		        	});
+
+	    		}
+		});
+    });
+    
+    
+    
+   // https://localhost:8081/oscar/ws/rs/app/providerLaunchItems
+    	</script>
 </html>

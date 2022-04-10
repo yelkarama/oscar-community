@@ -5,17 +5,20 @@
 	the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
 	Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. <OSCAR TEAM> This software was written for the Department of Family Medicine McMaster University Hamilton Ontario, Canada
 -->
-<web-app version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
-
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
 	<display-name>oscar_mcmaster</display-name>
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
-		<param-value>classpath:applicationContext*.xml</param-value>
+		<param-value>
+			classpath:net/bull/javamelody/monitoring-spring.xml
+			classpath:applicationContext*.xml
+		</param-value>
 	</context-param>
 
         <filter>
                <filter-name>monitoring</filter-name>
                <filter-class>net.bull.javamelody.MonitoringFilter</filter-class>
+			   <async-supported>true</async-supported>
                <init-param>
                         <param-name>system-actions-enabled</param-name>
                         <param-value>true</param-value>
@@ -28,6 +31,8 @@
         <filter-mapping>
                 <filter-name>monitoring</filter-name>
                 <url-pattern>/*</url-pattern>
+				<dispatcher>REQUEST</dispatcher>
+				<dispatcher>ASYNC</dispatcher>
         </filter-mapping>
         
     <filter>
@@ -62,7 +67,7 @@
 		<filter-class>org.oscarehr.common.printing.PrivacyStatementAppendingFilter</filter-class>
 		<init-param>
 			<param-name>exclusions</param-name>
-			<param-value>/oscarMessenger,/demographic/demographiccontrol.jsp,/demographic/demographiceditdemographic.js.jsp,/demographic/demographicprintdemographic.jsp,/provider/schedulePage.js.jsp</param-value>
+			<param-value>/oscarMessenger,/demographic/demographiccontrol.jsp,/demographic/demographiceditdemographic.js.jsp,/demographic/demographicprintdemographic.jsp,/provider/schedulePage.js.jsp,/share/javascript/eforms/editControl2.js.jsp</param-value>
 		</init-param>
 	</filter>
 
@@ -90,6 +95,15 @@
 		<filter-name>PrivacyStatementAppendingFilter</filter-name>
 		<url-pattern>*.htm</url-pattern>
 	</filter-mapping>
+	
+    <filter>
+        <filter-name>UserActivityFilter</filter-name>
+        <filter-class>org.oscarehr.util.UserActivityFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>UserActivityFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
 
 	<filter>
 		<filter-name>ComponentFilter</filter-name>
@@ -528,7 +542,7 @@
 	</servlet-mapping>
 
 	<session-config>
-		<session-timeout>120</session-timeout> <!-- 120minutes -->
+		<session-timeout>120</session-timeout> <!-- doesn't work due to refreash so set at runtime by system preference force_logout_when_incative_time -->
 	</session-config>
 	 <login-config>
         <auth-method>BASIC</auth-method>

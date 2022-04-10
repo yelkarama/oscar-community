@@ -598,7 +598,7 @@ function submitLabel(lblval){
                                        boolean lineContinued = false; %>
 
 			<tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>"
-				class="<%=thisResult.resultStatus.startsWith("Corrected")?"CorrectedRes":AbnFlag.compareTo("HI")==0?"AbnormalRes":AbnFlag.compareTo("LO")==0?"HiLoRes":"NormalRes"%>">
+				class="<%=thisResult.resultStatus.startsWith("Corrected")?"CorrectedRes":AbnFlag.compareTo("HI")==0?"AbnormalRes error":AbnFlag.compareTo("LO")==0?"HiLoRes info":"NormalRes"%>">
 				<!--td valign="top" align="right"><%=thisResult.name %></td-->
 				<td valign="top" align="left"><a
 					href="../lab/CA/ON/labValues.jsp?testName=<%=thisResult.name%>&demo=<%=demoNo%>&labType=MDS"><%=thisResult.name %></a></td>
@@ -622,7 +622,7 @@ function submitLabel(lblval){
                                                        notetext = (String)iter.next();
                                                            if ( !lineContinued) { %>
 			<tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>"
-				class="<%=thisResult.resultStatus.startsWith("Corrected")?"CorrectedRes":AbnFlag.compareTo("HI")==0?"AbnormalRes":AbnFlag.compareTo("LO")==0?"HiLoRes":"NormalRes"%>">
+				class="<%=thisResult.resultStatus.startsWith("Corrected")?"CorrectedRes":AbnFlag.compareTo("HI")==0?"AbnormalRes error":AbnFlag.compareTo("LO")==0?"HiLoRes":"NormalRes"%>">
 				<td>&nbsp;</td>
 				<% } // end if !lineContinued %>
 				<td align="left" colspan="5"><%= notetext %></td>
@@ -707,7 +707,7 @@ function submitLabel(lblval){
                                        boolean lineContinued = false; %>
 
 			<tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>"
-				class="<%=thisResult.resultStatus.startsWith("Corrected")?"CorrectedRes":AbnFlag.startsWith("HI", AbnFlag.indexOf("~") + 1)?"AbnormalRes":AbnFlag.startsWith("LO", AbnFlag.indexOf("~") + 1)?"HiLoRes":"NormalRes"%>">
+				class="<%=thisResult.resultStatus.startsWith("Corrected")?"CorrectedRes":AbnFlag.startsWith("HI", AbnFlag.indexOf("~") + 1)?"AbnormalRes error":AbnFlag.startsWith("LO", AbnFlag.indexOf("~") + 1)?"HiLoRes info":"NormalRes"%>">
 				<!--td valign="top" align="left"><%=thisResult.name %></td-->
 				<td valign="top" align="left"><a
 					href="../lab/CA/ON/labValues.jsp?testName=<%=thisResult.name%>&demo=<%=demoNo%>&labType=MDS"><%=thisResult.name %></a></td>
@@ -731,7 +731,7 @@ function submitLabel(lblval){
                                                        notetext = (String)iter.next(); 
                                                            if ( !lineContinued) { %>
 			<tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>"
-				class="<%=thisResult.resultStatus.startsWith("Corrected")?"CorrectedRes":AbnFlag.compareTo("HI")==0?"AbnormalRes":AbnFlag.compareTo("LO")==0?"HiLoRes":"NormalRes"%>">
+				class="<%=thisResult.resultStatus.startsWith("Corrected")?"CorrectedRes":AbnFlag.compareTo("HI")==0?"AbnormalRes error":AbnFlag.compareTo("LO")==0?"HiLoRes info":"NormalRes"%>">
 				<td>&nbsp;</td>
 				<% } // end if !lineContinued %>
 				<td align="left" colspan="5"><%= notetext %></td>

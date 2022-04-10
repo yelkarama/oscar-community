@@ -26,7 +26,9 @@
 package oscar.oscarPrevention.pageUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -35,13 +37,34 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.hl7.fhir.r4.model.Bundle;
+import org.oscarehr.PMmodule.dao.ProviderDao;
+import org.oscarehr.common.dao.CVCImmunizationDao;
+import org.oscarehr.common.dao.ConsentDao;
+import org.oscarehr.common.dao.DemographicDao;
+import org.oscarehr.common.dao.DemographicExtDao;
+import org.oscarehr.common.dao.LookupListDao;
+import org.oscarehr.common.dao.LookupListItemDao;
+import org.oscarehr.common.dao.PartialDateDao;
+import org.oscarehr.common.dao.PreventionDao;
+import org.oscarehr.common.model.CVCImmunization;
+import org.oscarehr.common.model.Consent;
+import org.oscarehr.common.model.LookupList;
+import org.oscarehr.common.model.LookupListItem;
+import org.oscarehr.common.model.PartialDate;
+import org.oscarehr.common.model.Provider;
+import org.oscarehr.integration.fhirR4.api.DHIR;
+import org.oscarehr.integration.fhirR4.builder.FhirBundleBuilder;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.provider.model.PreventionManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
+import oscar.log.LogAction;
+import oscar.log.LogConst;
 import oscar.oscarPrevention.PreventionData;
+import oscar.oscarPrevention.PreventionDisplayConfig;
 /**
  *
  * @author Jay Gallagher
@@ -50,6 +73,15 @@ public class AddPreventionAction  extends Action {
    
 
 	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
+	CVCImmunizationDao cvcImmunizationDao = SpringUtils.getBean(CVCImmunizationDao.class);
+    ConsentDao consentDao = SpringUtils.getBean(ConsentDao.class);
+    DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
+    DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);
+    LookupListDao lookupListDao = SpringUtils.getBean(LookupListDao.class);
+    LookupListItemDao lookupListItemDao = SpringUtils.getBean(LookupListItemDao.class);
+    ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
+	PartialDateDao partialDateDao = SpringUtils.getBean(PartialDateDao.class);
+	
 	
    public AddPreventionAction() {
    }
@@ -69,6 +101,15 @@ public class AddPreventionAction  extends Action {
          String id = request.getParameter("id");
          String delete = request.getParameter("delete");
          
+         String action = request.getParameter("action");
+         
+         boolean submitToDhir = false;
+         if(action != null && "Save & Submit".equals(action)) {
+        	 submitToDhir = true;
+         }
+         MiscUtils.getLogger().debug("submitToDhir "+ submitToDhir);
+         
+         
          MiscUtils.getLogger().debug("id "+id+"  delete "+ delete);
          
          MiscUtils.getLogger().debug("prevention Type "+preventionType);
@@ -84,9 +125,21 @@ public class AddPreventionAction  extends Action {
          
          //generic
          String snomedId = request.getParameter("snomedId");
-         if(prevDate != null && prevDate.length() == 10) {
+         
+         String partialDateFormat = partialDateDao.getFormat(prevDate);
+         
+         if(PartialDate.YEARONLY.equals(partialDateFormat)) {
+        	 prevDate += "-01-01 00:00";
+        	
+         }
+         if(PartialDate.YEARMONTH.equals(partialDateFormat)) {
+        	 prevDate += "-01 00:00";
+         }
+         
+         if(prevDate.length() == 10) {
         	 prevDate += " 00:00";
          }
+         
          
          MiscUtils.getLogger().debug("nextDate "+nextDate+" neverWarn "+neverWarn);
          
@@ -112,7 +165,10 @@ public class AddPreventionAction  extends Action {
          
          ArrayList<Map<String,String>> extraData = new ArrayList<Map<String,String>>();
                   
-         addHashtoArray(extraData,request.getParameter("location"),"location");
+         addHashtoArray(extraData,request.getParameter("location2"),"location2");
+        
+         addHashtoArray(extraData,request.getParameter("din"),"din");
+         
          String lotItem = request.getParameter("lotItem");
          if (lotItem != null && !lotItem.equals("-1") && !lotItem.equals("0"))
     	 {
@@ -123,8 +179,33 @@ public class AddPreventionAction  extends Action {
         	 addHashtoArray(extraData,request.getParameter("lot"),"lot"); 
          }
                          
-         addHashtoArray(extraData,request.getParameter("route"),"route");
-         addHashtoArray(extraData,request.getParameter("dose"),"dose");
+         
+         LookupListDao lookupListDao = SpringUtils.getBean(LookupListDao.class);
+         LookupListItemDao lookupListItemDao = SpringUtils.getBean(LookupListItemDao.class);
+	     LookupList ll = lookupListDao.findByName("AnatomicalSite");
+	    if(ll != null) {
+	    	LookupListItem lli = lookupListItemDao.findByLookupListIdAndValue(ll.getId(),request.getParameter("location"));
+	    	if(lli != null) {
+	    		addHashtoArray(extraData,lli.getLabel(),"locationDisplay");
+	    	}
+	    } 
+	    addHashtoArray(extraData,request.getParameter("location"),"location");
+	    
+	    ll = lookupListDao.findByName("RouteOfAdmin");
+	    if(ll != null) {
+	    	LookupListItem lli = lookupListItemDao.findByLookupListIdAndValue(ll.getId(),request.getParameter("route"));
+	    	if(lli != null) {
+	    		addHashtoArray(extraData,lli.getLabel(),"routeDisplay");
+	    	}
+	    }
+	    addHashtoArray(extraData,request.getParameter("route"),"route");
+        	    
+         String dose = request.getParameter("dose");
+         String doseUnit = request.getParameter("doseUnit");
+         if(doseUnit != null && doseUnit.length()>0) {
+        	 dose = (dose + " " + doseUnit).trim();
+         }
+         addHashtoArray(extraData,dose,"dose");
          addHashtoArray(extraData,request.getParameter("comments"),"comments");                 
          addHashtoArray(extraData,request.getParameter("result"),"result");                 
          addHashtoArray(extraData,request.getParameter("reason"),"reason");           
@@ -148,27 +229,156 @@ public class AddPreventionAction  extends Action {
          addHashtoArray(extraData,request.getParameter("firstnations"),"firstnations");
          addHashtoArray(extraData,request.getParameter("name"),"name");
          addHashtoArray(extraData,request.getParameter("expiryDate"),"expiryDate");
+         addHashtoArray(extraData,request.getParameter("providerName"),"providerName");
+         
          if(request.getParameter("cvcName") != null && !request.getParameter("cvcName").equals("-1") ) {
         	 addHashtoArray(extraData,request.getParameter("cvcName"),"brandSnomedId");
          }
-                                                                                                                           
+         
+         MiscUtils.getLogger().debug("about to validate");
+         
+         //let's do some validation
+         List<String> valid = validate(preventionType,demographic_no,id,delete,action,submitToDhir,given,prevDate,providerNo,nextDate,neverWarn,
+        		 snomedId,refused,extraData,lotItem,dose,doseUnit);
+         
+         MiscUtils.getLogger().debug("validate done " + valid);
+         
+         if(valid != null && valid.size()>0) {
+        	 request.setAttribute("errors", valid);
+        	 return mapping.findForward("form");
+         }
+         
+         Integer preventionId = id != null ? Integer.parseInt(id) : null;
+         String operation = null;
+         
          if (id == null || id.equals("null")){ //New                                             
-        	 PreventionData.insertPreventionData(sessionUser,demographic_no,prevDate,providerNo,providerName,preventionType,refused,nextDate,neverWarn,extraData,snomedId);            
+        	 preventionId = PreventionData.insertPreventionData(sessionUser,demographic_no,prevDate,providerNo,providerName,preventionType,refused,nextDate,neverWarn,extraData,snomedId,null);
+        	 operation="new_prevention";
          }else if (id != null &&  delete != null  ){  // Delete
-        	 PreventionData.deletePreventionData(id);               
+        	 PreventionData.deletePreventionData(id);    
+        	 operation="delete_prevention";
          }else if (id != null && delete == null ){ //Update
             addHashtoArray(extraData,id,"previousId"); 
-            PreventionData.updatetPreventionData(id,sessionUser,demographic_no,prevDate,providerNo,providerName,preventionType,refused,nextDate,neverWarn,extraData,snomedId);
+            preventionId = PreventionData.updatetPreventionData(id,sessionUser,demographic_no,prevDate,providerNo,providerName,preventionType,refused,nextDate,neverWarn,extraData,snomedId);
+            operation="update_prevention";
+         }
+         
+         if(PartialDate.YEARONLY == partialDateFormat || PartialDate.YEARMONTH == partialDateFormat) {
+        	 partialDateDao.setPartialDate(PartialDate.PREVENTION, preventionId, PartialDate.PREVENTION_PREVENTIONDATE , partialDateFormat);
          }
 
          PreventionManager prvMgr = (PreventionManager) SpringUtils.getBean("preventionMgr");
          prvMgr.removePrevention(demographic_no); 
          MiscUtils.getLogger().debug("Given "+given+" prevDate "+prevDate+" providerName "+providerName+" provider "+providerNo);
+        String contentId = "preventionType=" + preventionType;
+        LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.ADD, 
+                "Preventions", contentId, demographic_no, (String)null);
 
+         
+         if(submitToDhir) {
+	         CVCImmunization imm =  cvcImmunizationDao.findBySnomedConceptId(snomedId);
+	         Consent ispaConsent =  consentDao.findByDemographicAndConsentType(Integer.parseInt(demographic_no), "dhir_ispa_consent");
+			 Consent nonIspaConsent =  consentDao.findByDemographicAndConsentType(Integer.parseInt(demographic_no), "dhir_non_ispa_consent");
+			 boolean hasIspaConsent = ispaConsent != null && !ispaConsent.isOptout();
+			 boolean hasNonIspaConsent = nonIspaConsent != null && !nonIspaConsent.isOptout();
+
+			 boolean ispa = Boolean.valueOf(imm != null && imm.isIspa());
+				
+//			 if((ispa && hasIspaConsent) || (!ispa && hasNonIspaConsent)) {
+	        	 
+	        	 if("given".equals(given) || "given_ext".equals(given)) {
+	        		 Provider externalProvider = null; 
+	        		if("given_ext".equals(given)) {
+	        			try {
+	        			//firstname, lastname (cspo:#####)
+	        			String nameToParse = request.getParameter("providerName");
+	        			String[] firstSection = nameToParse.split(",");
+	        			String firstName = firstSection[0];
+	        			String secondPart = firstSection[1];
+	        			
+	        			/* Not required to have the license # for external providers
+	        			int firstBracket =  secondPart.indexOf('(');
+	        			String lastName = secondPart.substring(0,firstBracket).trim();
+	        			
+	        			String licenseToParse = secondPart.substring((firstBracket+1),secondPart.indexOf(')')).trim();
+	        			
+	        			String[] licenseSections = licenseToParse.split(":");
+	        			String licenceType = licenseSections[0].trim();
+	        			String licenceNo = licenseSections[1].trim();
+	        			*/
+	        			externalProvider = new Provider();
+	        			externalProvider.setProviderNo(UUID.randomUUID().toString().substring(0,8));
+	        			//externalProvider.setPractitionerNo(licenceNo);	        			
+	        			//externalProvider.setPractitionerNoType(licenceType);
+	        			externalProvider.setLastName(secondPart);
+	        			externalProvider.setFirstName(firstName);
+	        			
+	        			
+	        			
+	        			}catch(Exception e) {
+	        				MiscUtils.getLogger().error("Error Parsing "+request.getParameter("providerName"),e);
+	        			}
+	        			
+	        		}
+	        			
+	        	
+		        	FhirBundleBuilder fbb = DHIR.getFhirBundleBuilder(LoggedInInfo.getLoggedInInfoFromSession(request), Integer.parseInt(demographic_no), preventionId,externalProvider);
+		        	 
+		        	Bundle bundle = fbb.getBundle();
+		        	request.setAttribute("bundle", bundle);
+		        	
+		        	Map<String,Bundle> bundles = (Map<String,Bundle>)request.getSession().getAttribute("bundles");
+		        	if(bundles == null) {
+		        		 bundles = new HashMap<String,Bundle>();
+		        	}
+		        	bundles.put(bundle.getId(), bundle);
+		        	request.getSession().setAttribute("bundles", bundles);
+		        	
+		        	MiscUtils.getLogger().info(fbb.getMessageJson());
+		        	
+		        	request.setAttribute("preventionId", preventionId);
+		        	request.setAttribute("demographicNo", demographic_no);
+		        	return mapping.findForward("review");
+	        	 }
+//	         }
+         }
+         
+         
       return mapping.findForward("success");                                
    }
    
          
+  private List<String> validate(String preventionType,String demographic_no,String id,String delete,String action,
+		  boolean submitToDhir,String given,String prevDate, String providerNo,String nextDate,
+		  String neverWarn,String snomedId,String refused,ArrayList<Map<String,String>> extraData,String lotItem,String dose,String doseUnit) {
+	  List<String> result = new ArrayList<String>();
+	  
+	  PreventionDisplayConfig pdc = PreventionDisplayConfig.getInstance();	 
+	  HashMap<String,String> prevention = pdc.getPrevention(preventionType);
+	  if(prevention == null) {
+		  result.add("Invalid Prevention Type");
+	  }
+	  
+	  DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
+	  if(!demographicDao.clientExists(Integer.parseInt(demographic_no))) {
+		  result.add("Patient not found");
+	  }
+	  
+	  if(id != null) {
+		  PreventionDao preventionDao = SpringUtils.getBean(PreventionDao.class);
+		  if(preventionDao.find(Integer.parseInt(id)) == null) {
+			  result.add("Prevention record not found");
+		  }
+	  }
+	  
+//	  if(UtilDateUtilities.StringToDate(prevDate, "yyyy-MM-dd HH:mm") == null) {
+//		  result.add("Prevention date not valid");
+//	  }
+	  
+	  
+	  return result;
+  }
+  
   private void addHashtoArray(ArrayList<Map<String,String>> list,String s,String key){
      if ( s != null && key != null){
         Map<String,String> h = new HashMap<String,String>();

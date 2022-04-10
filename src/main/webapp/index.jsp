@@ -86,12 +86,16 @@ StringBuffer oscarUrl = request.getRequestURL();
 Integer urlLength = oscarUrl.length() - request.getServletPath().length();
 //Sets the length of the URL, found by subtracting the length of the servlet path from the length of the full URL, that way it only gets up to the context path
 oscarUrl.setLength(urlLength);
+
+boolean oneIdEnabled = "true".equalsIgnoreCase(OscarProperties.getInstance().getProperty("oneid.enabled","false"));
+boolean oauth2Enabled= "true".equalsIgnoreCase(OscarProperties.getInstance().getProperty("oneid.oauth2.enabled","false")); 
 %>
 
 <html:html locale="true">
-    <head>
-    <link rel="shortcut icon" href="images/Oscar.ico" />
-<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="shortcut icon" href="images/Oscar.ico" />
+<!-- script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script -->
         <html:base/>
         <% if (isMobileOptimized) { %><meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, width=device-width"/><% } %>
         <title>
@@ -101,81 +105,109 @@ oscarUrl.setLength(urlLength);
             <%= props.getProperty("logintitle", "")%>
             <% } %>
         </title>
-        <!--LINK REL="StyleSheet" HREF="web.css" TYPE="text/css"-->
+    <!--LINK REL="StyleSheet" HREF="web.css" TYPE="text/css"-->
 
-        <script language="JavaScript">
+    <script language="JavaScript">
         function showHideItem(id){
-            if(document.getElementById(id).style.display == 'none')
+            if(document.getElementById(id).style.display == 'none'){
                 document.getElementById(id).style.display = 'block';
-            else
+            } else {
                 document.getElementById(id).style.display = 'none';
+            }
+        }      
+
+        function setfocus() {
+            document.loginForm.username.focus();
+            document.loginForm.username.select();
         }
-        
-  <!-- hide
-  function setfocus() {
-    document.loginForm.username.focus();
-    document.loginForm.username.select();
-  }
-  function popupPage(vheight,vwidth,varpage) {
-    var page = "" + varpage;
-    windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes";
-    var popup=window.open(page, "gpl", windowprops);
-  }
-  -->
-  			function addStartTime() {
+
+  		function addStartTime() {
             	document.getElementById("oneIdLogin").href += (Math.round(new Date().getTime() / 1000).toString());
-			}
-        </script>
+		}
+
+        function showPwd(id){
+            if ('password' == document.getElementById(id).type ){
+                document.getElementById(id).type="text"
+            }else{
+                document.getElementById(id).type='password';
+            }
+        }
+
+        var mask=true;
+        function maskMe(){
+            if (!mask){
+                document.getElementById('pin').value=document.getElementById('pin2').value;
+                return;
+            }
+            var key = event.keyCode || event.charCode;
+            if( key == 8 ){
+            	//backspace pressed
+                let str = document.getElementById('pin').value;
+                str = str.substring(0, str.length - 1);
+                document.getElementById('pin').value = str;
+            } else {
+            document.getElementById('pin').value += document.getElementById('pin2').value.slice(-1);
+            document.getElementById('pin2').value = document.getElementById('pin2').value.replace(/./g,"*");
+            }
+        }
+
+        function checkMe(){
+            //if you have deleted
+            if (document.getElementById('pin2').value == "") {
+                document.getElementById('pin').value = "";
+            }
+        }
+
+
+        function toggleMask(){
+            if (document.getElementById('pin2').value.slice(0,1) != "*" ){
+                document.getElementById('pin2').value = document.getElementById('pin').value.replace(/./g,"*");
+                mask = true;
+            }else{
+                document.getElementById('pin2').value = document.getElementById('pin').value;
+                mask = false;
+            }
+        }
+    </script>
         
+
+    <% if (isMobileOptimized) { %>
+        <!-- Small adjustments are made to the mobile stylesheet -->
         <style type="text/css">
-            body { 
-               font-family: Verdana, helvetica, sans-serif;
-               margin: 0px;
-               padding:0px;
+            html { -webkit-text-size-adjust: none; }
+            td.topbar{ width: 75%; }
+            td.leftbar{ width: 25%; }
+            span.extrasmall{ font-size: small; }
+            #browserInfo, #logoImg, #buildInfo { display: none; }
+            #mobileMsg { display: inline; }
+    </style>
+    <% } %>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <style type="text/css">
+             #mobileMsg { display: none; }
+                       
+            input[type="text"],input[type="password"] {
+                width: 100%; 
+                margin: 0px auto;
+                height:30px;
+                margin-bottom: 10px;
             }
-            
-            .login_txt_fields {
-		
-			 
-				border: 1px solid #999;
-				height: 25px;
-				-webkit-box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.3);
-				-moz-box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.3);
-				box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.3);
-			}
-			 
-			.login_txt_fields_error {
-			  border: 1px solid #F78181;
-				height: 25px;
-				-webkit-box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.3);
-				-moz-box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.3);
-				box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.3);
-			}
-            
-            td.topbar{
-               background-color: gold;
+
+            i {
+                color: darkgray;  
+                cursor: pointer; 
+                font-size:24px;
+                position: relative;
+                margin-left: -36px;
+                margin-bottom: 6px;
+                
             }
-            td.leftbar{
-                background-color:  #106B3A; /*#009966; */
-                color: white;
-            }
-            td.leftinput{
-                background-color: #f5fffa;
-            }
-            td#loginText{
-                width:200px;
-                font-size: small;
-                }
-            span#buildInfo{
-                float: right; color:#FFFFFF; font-size: xx-small; text-align: right;
-            }
-                span.extrasmall{
-                    font-size: x-small;
-                }
-            #mobileMsg { display: none; }
 
             .oneIdLogin {
-                background-color: #000;
+                //background-color: #000;
                 width: 60%;
                 height: 34px;
                 margin: 0px auto;
@@ -197,126 +229,92 @@ oscarUrl.setLength(urlLength);
                 float: left;
                 padding-left: 10px
             }
-        </style>
-        <% if (isMobileOptimized) { %>
-        <!-- Small adjustments are made to the mobile stylesheet -->
-        <style type="text/css">
-            html { -webkit-text-size-adjust: none; }
-            td.topbar{ width: 75%; }
-            td.leftbar{ width: 25%; }
-            span.extrasmall{ font-size: small; }
-            #browserInfo, #logoImg, #buildInfo { display: none; }
-            #mobileMsg { display: inline; }
-        </style>
-        <% } %>
-    </head>
-    
-    <body onLoad="setfocus()" bgcolor="#ffffff">
-        
-        <table border=0 width="100%">
-            <tr>
-                <td align="center" class="leftbar" height="20px" width="200px">
-                    <h4><%=ssoLoginMessage%></h4>
-                    <%
-                    String key = "loginApplication.formLabel" ;
-                    if(request.getParameter("login")!=null && request.getParameter("login").equals("failed") ){
-                    key = "loginApplication.formFailedLabel" ;
-                    login_input_style="login_txt_fields_error";                    
-                    }
-                    %><bean:message key="<%=key%>"/>        
-                </td>
-                <td  class="topbar" align="center" >
-                    <span id="buildInfo">build date: <%= OscarProperties.getBuildDate() %> <br/> build tag: <%=OscarProperties.getBuildTag()%> </span>
-                    <%=props.getProperty("logintitle", "")%>
-                    <% if (props.getProperty("logintitle", "").equals("")) { %>
+    </style>
+
+     </head>
+    <body onLoad="setfocus();checkMe();" >
+
+<div class="container" style="border-style: solid; border-color: #49afcd; border-radius:25px; border-width: 1px; margin-top: 25px; padding: 14px;">
+
+<br>
+<br>
+
+<div class="row">
+        <div class="span4 text-center">
+            <% if (props.getProperty("loginlogo", "").equals("")) { %>
+                <html:img srcKey="loginApplication.image.logo" width="450" height="274" style="margin:auto; padding:14px;"/>
+            <% } else { %>
+                <img src="<%=props.getProperty("loginlogo", "")%>" <%=props.getProperty("loginlogo.attributes", "style='margin:auto; padding:14px;'")%>>              
+            <% } %>
+        </div> 
+		<div class="span4 well">
+			<legend>
+                <h4><%=ssoLoginMessage%></h4>
+                <%=props.getProperty("logintitle", "")%>
+                <% if (props.getProperty("logintitle", "").equals("")) { %>
                     <bean:message key="loginApplication.alert"/>
-                    <% } %>                    
-                </td>
-            </tr>
-        </table>
-        <table class="leftinput" border="0" width="100%">
-            <tr>
-                <td id="loginText" valign="top">
-                    <!--- left side -->
-                        
-                            <html:form action="login" >
-                            <bean:message key="loginApplication.formUserName"/><%
-                            if(oscar.oscarSecurity.CRHelper.isCRFrameworkEnabled() && !net.sf.cookierevolver.CRFactory.getManager().isMachineIdentified(request)){
-                            %><img src="gatekeeper/appid/?act=image&/empty<%=System.currentTimeMillis() %>.gif" width='1' height='1'><%
-                            }
-                            %>
-                        
-                        <br/>            
-                        <input type="text" name="username" value="" size="15" maxlength="15" autocomplete="off" class="<%=login_input_style %>"/>
-                        <br/>                
-                        <bean:message key="loginApplication.formPwd"/><br/>
-                        <input type="password" name="password" value="" size="15" maxlength="32" autocomplete="off" class="<%=login_input_style %>"/><br/>
-                                <input type="submit" value="<bean:message key="index.btnSignIn"/>" />
-                        <br/>
-                        <bean:message key="index.formPIN"/>: 
-                        <br/>
-                        <input type="password" name="pin" value="" size="15" maxlength="15" autocomplete="off" class="<%=login_input_style %>"/><br/>
-                       
-                        <span class="extrasmall">
-                            <bean:message key="loginApplication.formCmt"/>
-                        </span>
-                        <input type=hidden name='propname' value='<bean:message key="loginApplication.propertyFile"/>' />
-                        <input type="hidden" id="oneIdKey" name="nameId" value="<%=request.getParameter("nameId") != null ? request.getParameter("nameId") : ""%>"/>
-                        <input type="hidden" id="email" name="email" value="<%=request.getParameter("email") != null ? request.getParameter("email") : ""%>"/>
-                        </html:form>
+                <% } %>   
+            </legend>
+          	
+            <%
+            String key2 = "loginApplication.formLabel" ;
+            if((request.getParameter("login")!=null && request.getParameter("login").equals("failed") )){
+                key2 = "loginApplication.formFailedLabel" ;
+                %>
+                <div class="alert alert-error" >                  
+            <% } else { %>
+                <div> 
+            <% } %>
+            <bean:message key="<%=key2%>"/><br>
+            </div><p>
+            <html:form action="login" >
+                <% if(oscar.oscarSecurity.CRHelper.isCRFrameworkEnabled() && !net.sf.cookierevolver.CRFactory.getManager().isMachineIdentified(request)){ %>
+                    <img src="gatekeeper/appid/?act=image&/empty<%=System.currentTimeMillis() %>.gif" width='1' height='1'>
+                <% } %>
+           
+            <input type="text" id="username"  name="username" autocomplete="off" placeholder="<bean:message key="loginApplication.formUserName"/>">
+            <input type="password" id="password2" name="password" placeholder="<bean:message key="loginApplication.formPwd"/>" >
+            <i class="icon-eye-open" onclick="showPwd('password2');"></i>
 
-			<% if("true".equalsIgnoreCase(OscarProperties.getInstance().getProperty("oneid.enabled","false"))) { %>
-                        <a href="<%=econsultUrl %>/SAML2/login?oscarReturnURL=<%=URLEncoder.encode(oscarUrl + "/ssoLogin.do", "UTF-8") + "?loginStart="%>" id="oneIdLogin" onclick="addStartTime()"><div class="btn btn-primary btn-block oneIDLogin"><span class="oneIDLogo"></span><span class="oneIdText">ONE ID Login</span></div></a>
-                        <% } %>
-                        <%if (AcceptableUseAgreementManager.hasAUA()){ %>
-                        <span class="extrasmall">
-                        	<bean:message key="global.aua" /> &nbsp; <a href="javascript:void(0);" onclick="showHideItem('auaText');"><bean:message key="global.showhide"/></a>
-                        </span>
-                        <%} %>
-                        <hr width="100%" color="navy">
-                        
-                        <span class="extrasmall">
-                            <div id="mobileMsg"><bean:message key="loginApplication.mobileMsg"/>
-                                <a href="index.jsp?full=true"><bean:message key="loginApplication.fullSite"/></a>
-                                <br/><br/>
-                            </div>
-                            <div id="browserInfo"><bean:message key="loginApplication.leftRmk1"/></div>
-                            <bean:message key="loginApplication.leftRmk2" />
-                            <a href=# onClick='popupPage(500,700,"http://www.gnu.org/licenses/gpl-2.0.txt")'><bean:message key="loginApplication.gplLink"/></a>
-                            <br/>
-                            <img style="width: 26px; height: 18px;" alt="<bean:message key="loginApplication.image.i18nAlt"/>"
-                            title="<bean:message key="loginApplication.image.i18nTitle"/>"
-                            src="<bean:message key="loginApplication.image.i18n"/>">
-                            <bean:message key="loginApplication.i18nText"/>
+            <span class="help-block"><bean:message key="loginApplication.formCmt"/></span>
+			<input type="text" id="pin2" name="pin2" autocomplete="off" placeholder="<bean:message key="index.formPIN"/>" 
+onkeyup="maskMe();" onchange="checkMe();">
+            <i class="icon-eye-open" onclick="toggleMask();"></i>
+            <input type="hidden" id="pin" name="pin" value="">
+            
+            <%if(oneIdEnabled && !oauth2Enabled) { %>
+                <a href="<%=econsultUrl %>/SAML2/login?oscarReturnURL=<%=URLEncoder.encode(oscarUrl + "/ssoLogin.do", "UTF-8") + "?loginStart="%>" id="oneIdLogin" onclick="addStartTime()"><div class="btn btn-primary btn-block oneIDLogin"><span class="oneIDLogo"></span><span class="oneIdText">ONE ID Login</span></div></a>
+            <% } %>
+            <%if(oneIdEnabled && oauth2Enabled) { %>
+                <a href="<%=request.getContextPath() %>/eho/login2.jsp" id="oneIdLoginOauth"><div class="btn btn-primary btn-block oneIDLogin"><span class="oneIDLogo"></span><span class="oneIdText">ONE ID Login</span></div></a>
+            <% } %>
+			<button type="submit" name="submit" class="btn btn-primary btn-block" style="width: 60%; margin: 0px auto;" ><bean:message key="index.btnSignIn"/></button>
 
-                        </span>
-                    <!-- left side end-->
-                </td>
-                <td id="logoImg" align="center" valign="top">
-                	<%if (AcceptableUseAgreementManager.hasAUA()){ %>
-                	<div style="float:right;text-align:center;z-index:3;display:none;" id="auaText">
-            				<h3><bean:message key="provider.login.title.confidentiality"/></h3>
-        					<div style="margin-left:auto; margin-right:auto; text-align:left; width:70%; padding:5px; border:2px groove black;"><%=AcceptableUseAgreementManager.getAUAText()%></div>
-        			</div>
-                	<%}%>
-                    <div style="margin-top:25px;"><% if (props.getProperty("loginlogo", "").equals("")) { %>
-                            <html:img srcKey="loginApplication.image.logo" width="450" height="274"/>
-                            <% } else { %>
-                            <img src="<%=props.getProperty("loginlogo", "")%>">
-                            <% } %>
-                            <p>
-                            <font face="Verdana, Arial, Helvetica, sans-serif" size="-1">
-                                <% if (props.getProperty("logintext", "").equals("")) { %>
-                                <bean:message key="loginApplication.image.logoText"/>
-                                <% } else { %>
-                                <%=props.getProperty("logintext", "")%>
-                                <% } %>
-                            </font>
-                    </div>
-                    
-                </td>
-            </tr>     
-        </table>
-        
-    </body>
+               <br><p><small><%=props.getProperty("logintext", "")%></small></p> 		   
+		</div>
+ 
+    <div id='auaText' class="span3" style="display:none;">
+        <h3><bean:message key="provider.login.title.confidentiality"/></h3>
+        <p><%=AcceptableUseAgreementManager.getAUAText()%></p> 
+    </div> <!-- loads OSCARloginText.txt from DOCUMENT_DIR -->
+               
+    <div id='liscence' class="span3" style="display:none;"> 
+        <p><bean:message key="loginApplication.leftRmk2" /></p>
+    </div>
+</div>
+    
+<span class="span4 offset4 text-right">
+        <small><bean:message key="loginApplication.gplLink" /> <a href="javascript:void(0);" onclick="showHideItem('liscence');"><bean:message key="global.showhide"/></a><br>
+        <%if (AcceptableUseAgreementManager.hasAUA()){ %>
+            <bean:message key="global.aua" /> &nbsp; <a href="javascript:void(0);" onclick="showHideItem('auaText');"><bean:message key="global.showhide"/></a><br>
+        <% } %>
+	build date: <%= OscarProperties.getBuildDate() %> build tag: <%=OscarProperties.getBuildTag()%></small>&nbsp;&nbsp;
+    </span>
+
+</div>     
+<input type=hidden name='propname' value='<bean:message key="loginApplication.propertyFile"/>' />
+<input type="hidden" id="oneIdKey" name="nameId" value="<%=request.getParameter("nameId") != null ? request.getParameter("nameId") : ""%>"/>
+<input type="hidden" id="email" name="email" value="<%=request.getParameter("email") != null ? request.getParameter("email") : ""%>"/>
+</html:form>   
+
 </html:html>

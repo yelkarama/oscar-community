@@ -100,6 +100,9 @@ public class EctConAddSpecialistAction extends Action {
 				}
 			}
 			professionalSpecialistDao.merge(professionalSpecialist);
+
+			EctConConstructSpecialistsScriptsFile constructSpecialistsScriptsFile = new EctConConstructSpecialistsScriptsFile();
+		    constructSpecialistsScriptsFile.makeString(request.getLocale());
 		}
 		else
 		{
@@ -152,8 +155,8 @@ public class EctConAddSpecialistAction extends Action {
 			}
 		}
 		address = sb.toString();
-		professionalSpecialist.setStreetAddress(addSpecailistForm.getAddress());
-
+		professionalSpecialist.setStreetAddressFromForm(addSpecailistForm.getAddress());
+	
 		professionalSpecialist.setPhoneNumber(addSpecailistForm.getPhone());
 		professionalSpecialist.setFaxNumber(addSpecailistForm.getFax());
 		professionalSpecialist.setWebSite(addSpecailistForm.getWebsite());

@@ -24,6 +24,18 @@
 
 --%>
 
+<%@page import="org.oscarehr.managers.CanadianVaccineCatalogueManager2"%>
+<%@page import="org.oscarehr.managers.SecurityInfoManager"%>
+<%@page import="org.apache.commons.lang.StringEscapeUtils"%>
+<%@page import="org.oscarehr.common.model.UserProperty"%>
+<%@page import="org.oscarehr.common.dao.UserPropertyDAO"%>
+<%@page import="org.oscarehr.common.model.CVCMapping"%>
+<%@page import="org.oscarehr.common.dao.CVCMappingDao"%>
+<%@page import="org.apache.commons.lang.StringUtils"%>
+<%@page import="org.oscarehr.common.model.DHIRSubmissionLog"%>
+<%@page import="org.oscarehr.managers.DHIRSubmissionManager"%>
+<%@page import="org.oscarehr.common.model.Consent"%>
+<%@page import="org.oscarehr.common.dao.ConsentDao"%>
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.oscarehr.util.WebUtilsOld"%>
 <%@page import="org.oscarehr.myoscar.utils.MyOscarLoggedInInfo"%>
@@ -56,10 +68,18 @@ if(!authed) {
 }
 %>
 <%
+	String demographic_no = request.getParameter("demographic_no");
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-   		 
+	
+	LogAction.addLog(loggedInInfo, LogConst.READ, "Preventions", demographic_no, demographic_no, (String)null);
+	
+	DHIRSubmissionManager submissionManager = SpringUtils.getBean(DHIRSubmissionManager.class);
+	UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
+	SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
+	
+	
   //int demographic_no = Integer.parseInt(request.getParameter("demographic_no"));
-  String demographic_no = request.getParameter("demographic_no");
+
   DemographicData demoData = new DemographicData();
   String nameAge = demoData.getNameAgeString(loggedInInfo, demographic_no);
   org.oscarehr.common.model.Demographic demo = demoData.getDemographic(loggedInInfo, demographic_no);
@@ -83,7 +103,8 @@ if(!authed) {
 
   PreventionDS pf = SpringUtils.getBean(PreventionDS.class);
 
-
+  CVCMappingDao cvcMappingDao = SpringUtils.getBean(CVCMappingDao.class);
+  
   boolean dsProblems = false;
   try{
      pf.getMessages(p);
@@ -96,6 +117,32 @@ if(!authed) {
   ArrayList recomendations = p.getReminder();
 
   boolean printError = request.getAttribute("printError") != null;
+
+  boolean dhirEnabled=false;
+  
+  	if("true".equals(OscarProperties.getInstance().getProperty("dhir.enabled", "false"))) {
+  		dhirEnabled=true;
+  	}
+
+	ConsentDao consentDao = SpringUtils.getBean(ConsentDao.class);
+	Consent ispaConsent =  consentDao.findByDemographicAndConsentType(demographicId, "dhir_ispa_consent");
+	Consent nonIspaConsent =  consentDao.findByDemographicAndConsentType(demographicId, "dhir_non_ispa_consent");
+
+	boolean isSSOLoggedIn = session.getAttribute("oneIdEmail") != null;
+	boolean hasIspaConsent = ispaConsent != null && !ispaConsent.isOptout();
+	boolean hasNonIspaConsent = nonIspaConsent != null && !nonIspaConsent.isOptout();
+
+	UserProperty ssoWarningUp = userPropertyDao.getProp(LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo(), UserProperty.PREVENTION_SSO_WARNING);
+	boolean hideSSOWarning = ssoWarningUp != null && "true".equals(ssoWarningUp.getValue());
+	
+	UserProperty ispaWarningUp = userPropertyDao.getProp(LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo(), UserProperty.PREVENTION_ISPA_WARNING);
+	boolean hideISPAWarning = ispaWarningUp != null && "true".equals(ispaWarningUp.getValue());
+	
+	UserProperty nonIspaWarningUp = userPropertyDao.getProp(LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo(), UserProperty.PREVENTION_NON_ISPA_WARNING);
+	boolean hideNonISPAWarning = nonIspaWarningUp != null && "true".equals(nonIspaWarningUp.getValue());
+	
+	boolean canUpdateCVC = securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_prevention.updateCVC", "r", null);
+	
 %>
 
 <%!
@@ -111,7 +158,10 @@ if(!authed) {
 
 
 
-<%@page import="org.oscarehr.util.SessionConstants"%><html:html
+<%@page import="org.oscarehr.util.SessionConstants"%>
+<%@ page import="oscar.log.LogAction" %>
+<%@ page import="oscar.log.LogConst" %>
+<html:html
 	locale="true">
 
 <head>
@@ -136,8 +186,16 @@ if(!authed) {
 
 <link rel="stylesheet" type="text/css" media="all" href="../share/css/demographicProviderAutocomplete.css"  />
 
+<script src="../share/javascript/popupmenu.js" type="text/javascript"></script>
+<script src="../share/javascript/menutility.js" type="text/javascript"></script>
 
 
+<script>
+function showMenu(menuNumber, eventObj) {
+    var menuId = 'menu' + menuNumber;
+    return showPopup(menuId, eventObj);
+}
+</script>
 <style type="text/css">
 div.ImmSet {
 	background-color: #ffffff;
@@ -220,12 +278,25 @@ function EnablePrint(button) {
         display(checkboxes);
         var spaces = document.getElementsByName("printSp");
         display(spaces);
-        button.form.sendToPhrButton.style.display = 'block';
+        if(button.form.sendToPhrButton != null) {
+        	button.form.sendToPhrButton.style.display = 'block';
+        }
+        showImmunizationOnlyPrintButton();
     }
     else {
         if( onPrint() )
             document.printFrm.submit();
     }
+}
+
+function printImmOnly() { 
+	 document.printFrm.immunizationOnly.value = "true";
+	 document.printFrm.submit();
+}
+
+function showImmunizationOnlyPrintButton() {
+		console.log("test");
+		$("#print_buttons").append("<input type=\"button\" class=\"noPrint\" name=\"printImmButton\" onclick=\"printImmOnly()\" value=\"Print Immunizations Only\">");
 }
 
 function onPrint() {
@@ -257,7 +328,12 @@ function sendToPhr(button) {
 function addByLot() {
 	var lotNbr = $("#lotNumberToAdd").val();
 	
-	popup(465,635,'AddPreventionData.jsp?demographic_no=<%=demographic_no%>&lotNumber=' + lotNbr,'addPreventionData' + <%=new java.util.Random().nextInt(10000) + 1%> );
+	popup(600,900,'AddPreventionData.jsp?demographic_no=<%=demographic_no%>&lotNumber=' + lotNbr,'addPreventionData' + <%=new java.util.Random().nextInt(10000) + 1%> );
+	
+}
+
+function viewDHIRSummary() {
+	popup(600,900,'ViewDHIRData.jsp?demographic_no=<%=demographic_no%>','ViewDHIRData' + <%=new java.util.Random().nextInt(10000) + 1%> );
 	
 }
 </script>
@@ -333,7 +409,7 @@ div.leftBox li {
 div.headPrevention {
 	position: relative;
 	float: left;
-	width: 8.4em;
+	width: 10em;
 	height: 2.5em;
 }
 
@@ -346,6 +422,9 @@ div.headPrevention p {
 	text-align: justify height : 2em;
 	font-family: sans-serif;
 	border-left: 0px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 div.headPrevention a {
@@ -411,9 +490,6 @@ div.recommendations ul {
 	padding-bottom: 0px;
 }
 
-div.recommendations li {
-
-}
 table.legend{
 border:0;
 padding-top:10px;
@@ -433,6 +509,16 @@ height:10px;
 border:1px solid #999999;
 }
 
+li {
+width: 200px;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+}
+
+div.recommendations li {
+width: 600px;
+}
 
 </style>
 
@@ -453,11 +539,74 @@ text-align:left;
 </style>
 <![endif]-->
 
+<script>
+function disableSSOWarning() {
+	if(confirm("Are you sure you would like to permanently disable this warning?\nYou may re-enable it from your preferences")) {
+        jQuery.ajax({
+            type: "POST",
+            url:  '<%=request.getContextPath()%>/ws/rs/persona/updatePreference',
+            dataType:'json',
+            contentType:'application/json',
+            data: JSON.stringify({key:'prevention_sso_warning',value:'true'}),
+            success: function (data) {
+               $("#ssoWarning").hide();
+            }
+		});
+	}
+}
+function disableISPAWarning() {
+	if(confirm("Are you sure you would like to permanently disable this warning?\nYou may re-enable it from your preferences")) {
+        jQuery.ajax({
+            type: "POST",
+            url:  '<%=request.getContextPath()%>/ws/rs/persona/updatePreference',
+            dataType:'json',
+            contentType:'application/json',
+            data: JSON.stringify({key:'prevention_ispa_warning',value:'true'}),
+            success: function (data) {
+               $("#ispaWarning").hide();
+            }
+		});
+	}
+}
+
+function disableNonISPAWarning() {
+	if(confirm("Are you sure you would like to permanently disable this warning?\nYou may re-enable it from your preferences")) {
+		jQuery.ajax({
+            type: "POST",
+            url:  '<%=request.getContextPath()%>/ws/rs/persona/updatePreference',
+            dataType:'json',
+            contentType:'application/json',
+            data: JSON.stringify({key:'prevention_non_ispa_warning',value:'true'}),
+            success: function (data) {
+               $("#nonIspaWarning").hide();
+            }
+		});
+	}
+}
+
+<%
+	if(canUpdateCVC) {
+%>
+function updateCVC() {
+	$.ajax({
+         type: "POST",
+         url: "<%=request.getContextPath()%>/cvc.do",
+         data: { method : "updateCVC"},
+        success: function(data,textStatus) {
+        	 alert('CVC has been updated');
+         }
+	});
+}
+<% } %>
+</script>
 </head>
 
 <body class="BodyStyle">
 <!--  -->
 <%=WebUtilsOld.popErrorAndInfoMessagesAsHtml(session)%>
+<%
+List<String> OTHERS = Arrays.asList(new String[]{"DTaP-Hib","TdP-IPV-Hib","HBTmf"});
+%>
 <table class="MainTable" id="scrollNumber1">
 	<tr class="MainTableTopRow">
 		<td class="MainTableTopRowLeftColumn"><bean:message key="oscarprevention.index.oscarpreventiontitre" /></td>
@@ -466,7 +615,13 @@ text-align:left;
 			<tr>
 				<td><%=nameAge%></td>
 				<td>&nbsp;</td>
-				<td style="text-align: right"><oscar:help keywords="prevention" key="app.top1"/> | <a
+				<td style="text-align: right">
+					<%
+					if(canUpdateCVC) {
+					%>
+						<a onClick="updateCVC()" href="javascript:void()">Update CVC</a> | 
+					<% } %>
+					<oscar:help keywords="prevention" key="app.top1"/> | <a
 					href="javascript:popupStart(300,400,'About.jsp')"><bean:message
 					key="global.about" /></a> | <a
 					href="javascript:popupStart(300,400,'License.jsp')"><bean:message
@@ -482,22 +637,102 @@ text-align:left;
 		<div class="leftBox">
 		<h3>&nbsp;Preventions</h3>
 		<div style="background-color: #EEEEFF;">
+		<p>Screenings</p>
 		<ul>
 			<%for (int i = 0 ; i < prevList.size(); i++){
 				HashMap<String,String> h = prevList.get(i);
                 String prevName = h.get("name");
                 String snomedId = h.get("snomedConceptCode") != null ? h.get("snomedConceptCode") : null;
-                           
-	            if(!preventionManager.hideItem(prevName)){%>
-					<li style="margin-top: 2px;"><a
-						href="javascript: function myFunction() {return false; }"
-						onclick="javascript:popup(465,635,'AddPreventionData.jsp?4=4&<%=snomedId != null ? "snomedId=" + snomedId + "&" : ""%>prevention=<%= java.net.URLEncoder.encode(prevName) %>&amp;demographic_no=<%=demographic_no%>&amp;prevResultDesc=<%= java.net.URLEncoder.encode(h.get("resultDesc")) %>','addPreventionData<%=Math.abs(prevName.hashCode()) %>')" title="<%=h.get("desc")%>">
-					<%=prevName%> </a></li>
-				<%
-				}
+                String hcType = h.get("healthCanadaType");
+            	if(hcType == null) {
+		            if(!preventionManager.hideItem(prevName) && !OTHERS.contains(prevName)){
+		            	List<CVCMapping> mappings = cvcMappingDao.findMultipleByOscarName(prevName);
+			            if(mappings != null && mappings.size()>1) {%>
+			            	<li style="margin-top: 2px;"><a
+								href="javascript: function myFunction() {return false; }"
+								onclick="javascript:popup(600,900,'AddPreventionDataDisambiguate.jsp?<%=snomedId != null ? "snomedId=" + snomedId + "&" : ""%>prevention=<%= java.net.URLEncoder.encode(prevName) %>&amp;demographic_no=<%=demographic_no%>&amp;prevResultDesc=<%= java.net.URLEncoder.encode(h.get("resultDesc")) %>','addPreventionData<%=Math.abs(prevName.hashCode()) %>')" title="<%=h.get("desc")%>">
+							<%=prevName%> </a></li>
+			          <%  } else {
+			            %>
+							<li style="margin-top: 2px;"><a
+								href="javascript: function myFunction() {return false; }"
+								onclick="javascript:popup(600,900,'AddPreventionData.jsp?4=4&<%=snomedId != null ? "snomedId=" + snomedId + "&" : ""%>prevention=<%= java.net.URLEncoder.encode(prevName) %>&amp;demographic_no=<%=demographic_no%>&amp;prevResultDesc=<%= java.net.URLEncoder.encode(h.get("resultDesc")) %>','addPreventionData<%=Math.abs(prevName.hashCode()) %>')" title="<%=h.get("desc")%>">
+							<%=prevName%> </a></li>
+						<%
+			            }
+		            }
+            	}
 			}
-			%>
+	        %>
+		
 		</ul>
+		<p>Immunizations</p>
+		<ul>
+			<%for (int i = 0 ; i < prevList.size(); i++){
+				HashMap<String,String> h = prevList.get(i);
+                String prevName = h.get("name");
+                String snomedId = h.get("snomedConceptCode") != null ? h.get("snomedConceptCode") : null;
+                String hcType = h.get("healthCanadaType");
+                String ispaStr = h.get("ispa");
+                boolean ispa = ispaStr != null && "true".equals(ispaStr);
+                String ispa1 = "";
+                if(ispa) {
+                	ispa1 = "*";
+                }
+                
+            	if(hcType != null) {
+		            if(!preventionManager.hideItem(prevName) && !OTHERS.contains(prevName)){
+		            	List<CVCMapping> mappings = cvcMappingDao.findMultipleByOscarName(prevName);
+			            if(mappings != null && mappings.size()>1) {%>
+			            	<li style="margin-top: 2px;"><a
+								href="javascript: function myFunction() {return false; }"
+								onclick="javascript:popup(600,900,'AddPreventionDataDisambiguate.jsp?<%=snomedId != null ? "snomedId=" + snomedId + "&" : ""%>prevention=<%= java.net.URLEncoder.encode(prevName) %>&amp;demographic_no=<%=demographic_no%>&amp;prevResultDesc=<%= java.net.URLEncoder.encode(h.get("resultDesc")) %>','addPreventionData<%=Math.abs(prevName.hashCode()) %>')" title="<%=h.get("desc")%>">
+							<%=ispa1 %><%=prevName%> </a></li>
+			          <%  } else {
+			            %>
+							<li style="margin-top: 2px;"><a
+								href="javascript: function myFunction() {return false; }"
+								onclick="javascript:popup(600,900,'AddPreventionData.jsp?4=4&<%=snomedId != null ? "snomedId=" + snomedId + "&" : ""%>prevention=<%= java.net.URLEncoder.encode(prevName) %>&amp;demographic_no=<%=demographic_no%>&amp;prevResultDesc=<%= java.net.URLEncoder.encode(h.get("resultDesc")) %>','addPreventionData<%=Math.abs(prevName.hashCode()) %>')" title="<%=h.get("desc")%>">
+							<%=ispa1 %><%=prevName%> </a></li>
+						<%
+			            }
+		            }
+            	}
+			}
+	        %>
+		</ul>
+		<p>Other</p>
+		<ul>
+			<%
+			for (int i = 0 ; i < prevList.size(); i++){
+				HashMap<String,String> h = prevList.get(i);
+                String prevName = h.get("name");
+                String snomedId = h.get("snomedConceptCode") != null ? h.get("snomedConceptCode") : null;
+                String hcType = h.get("healthCanadaType");
+            	
+	            if(!preventionManager.hideItem(prevName)){
+	            	
+	            	if(OTHERS.contains(prevName)) {
+	            	
+		            	List<CVCMapping> mappings = cvcMappingDao.findMultipleByOscarName(prevName);
+			            if(mappings != null && mappings.size()>1) {%>
+			            	<li style="margin-top: 2px;"><a
+								href="javascript: function myFunction() {return false; }"
+								onclick="javascript:popup(600,900,'AddPreventionDataDisambiguate.jsp?<%=snomedId != null ? "snomedId=" + snomedId + "&" : ""%>prevention=<%= java.net.URLEncoder.encode(prevName) %>&amp;demographic_no=<%=demographic_no%>&amp;prevResultDesc=<%= java.net.URLEncoder.encode(h.get("resultDesc")) %>','addPreventionData<%=Math.abs(prevName.hashCode()) %>')" title="<%=h.get("desc")%>">
+							<%=prevName%> </a></li>
+			          <%  } else {
+			            %>
+							<li style="margin-top: 2px;"><a
+								href="javascript: function myFunction() {return false; }"
+								onclick="javascript:popup(600,900,'AddPreventionData.jsp?4=4&<%=snomedId != null ? "snomedId=" + snomedId + "&" : ""%>prevention=<%= java.net.URLEncoder.encode(prevName) %>&amp;demographic_no=<%=demographic_no%>&amp;prevResultDesc=<%= java.net.URLEncoder.encode(h.get("resultDesc")) %>','addPreventionData<%=Math.abs(prevName.hashCode()) %>')" title="<%=h.get("desc")%>">
+							<%=prevName%> </a></li>
+						<%
+			            }
+		            }
+	            }
+			}
+	        %>
+		</ul>	
 		</div>
 		</div>
 		<oscar:oscarPropertiesCheck property="IMMUNIZATION_IN_PREVENTION"
@@ -510,7 +745,10 @@ text-align:left;
 
 		<form name="printFrm" method="post" onsubmit="return onPrint();"
 			action="<rewrite:reWrite jspPage="printPrevention.do"/>">
+			<input type="hidden" name="immunizationOnly" value="false"/>
 		<td valign="top" class="MainTableRightColumn">
+		
+
 		<a href="#" onclick="popup(600,800,'http://www.phac-aspc.gc.ca/im/is-cv/index-eng.php')">Immunization Schedules - Public Health Agency of Canada</a>
 
 		<%
@@ -568,15 +806,19 @@ text-align:left;
 		<% } %>
 
 		<br/>
+		<%if(!StringUtils.isEmpty(CanadianVaccineCatalogueManager2.getCVCURL())) { %>		
 		<table>
 			<tr>
-<!-- 
-				<td style="font-size:12pt">Add by Lot#</td><td><input type="text" id="lotNumberToAdd" name="lotNumberToAdd" size="20"/><input type="button" value="Add" onClick="addByLot()"/></td>
--->
 				<td style="font-size:12pt">Add by Brand/Generic/Lot#</td><td><input type="text" id="lotNumberToAdd2" name="lotNumberToAdd2" size="20"/><div id="lotNumberToAdd2_choices" class="autocomplete"></div></td>
 			</tr>
 		</table>
+		<% } %>
 		
+		<br/>
+		
+		<%if(dhirEnabled) {%>
+			<input type="button" value="View DHIR Data" onClick="viewDHIRSummary()"/>
+		<% } %>
 	<%
 	 String[] ColourCodesArray=new String[7];
 	 ColourCodesArray[1]="#F0F0E7"; //very light grey - completed or normal
@@ -607,8 +849,11 @@ text-align:left;
 			legend_builder +="<td> <table class='colour_codes' style=\"white-space:nowrap;\" bgcolor='"+ColourCodesArray[iLegend]+"'><tr><td> </td></tr></table> </td> <td align='center' style=\"white-space:nowrap;\">"+lblCodesArray[iLegend]+"</td>";
 
 		}
+	 	
+	 	legend_builder +="<td> <table class='colour_codes' style=\"white-space:nowrap;border:none\" bgcolor='white'><tr><td>*</td></tr></table> </td> <td align='center' style=\"white-space:nowrap;\">ISPA</td>";
 
-	 	String legend = "<table class='legend' cellspacing='0'><tr><td><b>"+legend_title+"</b></td>"+legend_builder+" </tr></table>";
+
+	 	String legend = "<table class='legend' cellspacing='0'><tr><td><b>"+legend_title+"</b></td>"+legend_builder+"</tr></table>";
 
 		out.print(legend);
 %>
@@ -623,9 +868,18 @@ text-align:left;
 		<%
                  if (!oscar.OscarProperties.getInstance().getBooleanProperty("PREVENTION_CLASSIC_VIEW","yes")){
                    ArrayList<Map<String,Object>> hiddenlist = new ArrayList<Map<String,Object>>();
+                   Map<String,String> shownBefore = new HashMap<String,String>();//See explanation below.
                   for (int i = 0 ; i < prevList.size(); i++){
                   		HashMap<String,String> h = prevList.get(i);
                         String prevName = h.get("name");
+                        
+                        //This is here because the CVC integration adds all the CVC Immunizations as possible types BUT the list is not unique. 
+                        //So there are two Mumps types. If a mumps vaccine is added without this two lines will show with the same preventions.
+                        if(shownBefore.containsKey(prevName)){
+                        		continue;
+                        }else{
+                        		shownBefore.put(prevName, prevName);
+                        }
                         ArrayList<Map<String,Object>> alist = PreventionData.getPreventionData(loggedInInfo, prevName, Integer.valueOf(demographic_no));
                         PreventionData.addRemotePreventions(loggedInInfo, alist, demographicId,prevName,demographicDateOfBirth);
                         boolean show = pdc.display(loggedInInfo, h, demographic_no,alist.size());
@@ -637,10 +891,14 @@ text-align:left;
                         }else{
                %>
 
-		<div class="preventionSection">
+		<div class="preventionSection"><!-- <%=prevName%> <%=i%> of <%=prevList.size()%> -->
 		<%
 		 String snomedId = h.get("snomedConceptCode") != null ? h.get("snomedConceptCode") : null;
-         
+         boolean ispa = h.get("ispa") != null ? Boolean.valueOf(h.get("ispa")) : false;
+         String ispa1="";
+         if(ispa) {
+        	 ispa1 = "*";
+         }
                     if( alist.size() > 0 ) {
                  
                     %>
@@ -653,10 +911,20 @@ text-align:left;
 		<span style="display: none;" name="printSp">&nbsp;</span> <%}%>
 		</div>
 		<div class="headPrevention">
-		<p><a href="javascript: function myFunction() {return false; }"
-			onclick="javascript:popup(465,635,'AddPreventionData.jsp?1=1&<%=snomedId != null ? "snomedId=" + snomedId + "&" : ""%>prevention=<%= java.net.URLEncoder.encode(h.get("name")) %>&amp;demographic_no=<%=demographic_no%>&amp;prevResultDesc=<%= java.net.URLEncoder.encode(h.get("resultDesc")) %>','addPreventionData<%=Math.abs( ( h.get("name")).hashCode() ) %>')">
-		<span title="<%=h.get("desc")%>" style="font-weight: bold;"><%=h.get("name")%></span>
+		<p>
+		<%
+		List<CVCMapping> mappings = cvcMappingDao.findMultipleByOscarName(prevName);
+        if(mappings != null && mappings.size()>1) {%>
+        <a href="javascript: function myFunction() {return false; }"
+			onclick="javascript:popup(600,900,'AddPreventionDataDisambiguate.jsp?1=1&<%=snomedId != null ? "snomedId=" + snomedId + "&" : ""%>prevention=<%= java.net.URLEncoder.encode(h.get("name")) %>&amp;demographic_no=<%=demographic_no%>&amp;prevResultDesc=<%= java.net.URLEncoder.encode(h.get("resultDesc")) %>','addPreventionData<%=Math.abs( ( h.get("name")).hashCode() ) %>')">
+		<span title="<%=h.get("desc")%>" style="font-weight: bold;"><%=ispa1%><%=h.get("name")%></span>
 		</a>
+		<% } else { %>
+		<a href="javascript: function myFunction() {return false; }"
+			onclick="javascript:popup(600,900,'AddPreventionData.jsp?1=1&<%=snomedId != null ? "snomedId=" + snomedId + "&" : ""%>prevention=<%= java.net.URLEncoder.encode(h.get("name")) %>&amp;demographic_no=<%=demographic_no%>&amp;prevResultDesc=<%= java.net.URLEncoder.encode(h.get("resultDesc")) %>','addPreventionData<%=Math.abs( ( h.get("name")).hashCode() ) %>')">
+		<span title="<%=h.get("desc")%>" style="font-weight: bold;"><%=ispa1%><%=h.get("name")%></span>
+		</a>
+		<% } %>
 		<br />
 		</p>
 		</div>
@@ -666,22 +934,41 @@ text-align:left;
                         Map<String,String> hExt = PreventionData.getPreventionKeyValues((String)hdata.get("id"));
                         result = hExt.get("result");
 
-                        String onClickCode="javascript:popup(465,635,'AddPreventionData.jsp?id="+hdata.get("id")+"&amp;demographic_no="+demographic_no+"','addPreventionData')";
+                        String onClickCode="javascript:popup(600,900,'AddPreventionData.jsp?id="+hdata.get("id")+"&amp;demographic_no="+demographic_no+"','addPreventionData')";
                         if (hdata.get("id")==null) onClickCode="popup(300,500,'display_remote_prevention.jsp?remoteFacilityId="+hdata.get("integratorFacilityId")+"&remotePreventionId="+hdata.get("integratorPreventionId")+"&amp;demographic_no="+demographic_no+"')";
                         %>
              
-		<div class="preventionProcedure" onclick="<%=onClickCode%>" title="fade=[on] header=[<%=hdata.get("age")%> -- Date:<%=hdata.get("prevention_date_no_time")%>] body=[<%=hExt.get("comments")%>&lt;br/&gt;Entered By: <%=hdata.get("provider_name")%>]">
+		<div class="preventionProcedure" onclick="<%=onClickCode%>" title="fade=[on] header=[<%=StringEscapeUtils.escapeHtml((String)hdata.get("age"))%> -- Date:<%=StringEscapeUtils.escapeHtml((String)hdata.get("prevention_date_no_time"))%>] body=[<%=StringEscapeUtils.escapeHtml((String)hExt.get("comments"))%>&lt;br/&gt;Administered By: <%=StringEscapeUtils.escapeHtml((String)hdata.get("provider_name"))%>]">
 		
-		<!--this is setting the style <%=r(hdata.get("refused"),result)%>  -->
-		<p <%=r(hdata.get("refused"),result)%> >Age: <%=hdata.get("age")%> <%if(result!=null && result.equals("abnormal")){out.print("result:"+result);}%> <br />
-		<!--<%=refused(hdata.get("refused"))%>-->Date: <%=hdata.get("prevention_date_no_time")%>
+	
+		<p <%=r(hdata.get("refused"),result)%> >Age: <%=StringEscapeUtils.escapeHtml((String)hdata.get("age"))%> <%if(result!=null && result.equals("abnormal")){out.print("result:"+StringEscapeUtils.escapeHtml(result));}%> <br />
+		<!--<%=refused(hdata.get("refused"))%>-->Date: <%=StringEscapeUtils.escapeHtml((String)hdata.get("prevention_date_no_time"))%>
 		<%if (hExt.get("comments") != null && (hExt.get("comments")).length()>0) {
                     if (oscar.OscarProperties.getInstance().getBooleanProperty("prevention_show_comments","yes")){%>
-                    <div class="comments"><span><%=hExt.get("comments")%></span></div>
+                    <div class="comments"><span><%=StringEscapeUtils.escapeHtml((String)hExt.get("comments"))%></span></div>
                <%   } else { %>
             <span class="footnote">1</span>
             <%      }
                  }%>
+               
+         <%
+         /* Integrated results dont have an "ID" key */
+         if(hdata.containsKey("id"))
+         {
+			List<DHIRSubmissionLog> dhirLogs =  submissionManager.findByPreventionId(Integer.parseInt((String)hdata.get("id")));
+			
+			if(!dhirLogs.isEmpty()) {
+			 	%> <span class="footnote" style="background-color:black;color:white"><%=dhirLogs.get(0).getStatus()%></span> <%
+			} else {
+				if(dhirEnabled && !StringUtils.isEmpty(snomedId)) {
+					if((ispa && hasIspaConsent) || (!ispa && hasNonIspaConsent)) {
+						%><span class="footnote" style="background-color:orange;color:black;white-space:nowrap">Not Submitted</span> <%
+					}
+				}
+			}			
+         }	
+         %>
+        
 		<%=getFromFacilityMsg(hdata)%></p>
 		</div>
 		<%}%>
@@ -709,14 +996,19 @@ text-align:left;
 		<div style="position: relative; float: left; padding-right: 25px;">
 		<span style="display: none;" name="printSp">&nbsp;</span> <%}
 		 String snomedId = h.get("snomedConceptCode") != null ? h.get("snomedConceptCode") : null;
-         
+		 boolean ispa = h.get("ispa") != null ? Boolean.valueOf(h.get("ispa")) : false;
+		 String ispa1="";
+         if(ispa) {
+        	 ispa1 = "*";
+         }
 		%>
 		</div>
 		<div class="headPrevention">
 		<p><a href="javascript: function myFunction() {return false; }"
-			onclick="javascript:popup(465,635,'AddPreventionData.jsp?2=2&<%=snomedId != null ? "snomedId=" + snomedId + "&" : ""%>prevention=<%= java.net.URLEncoder.encode(h.get("name")) %>&amp;demographic_no=<%=demographic_no%>&amp;prevResultDesc=<%= java.net.URLEncoder.encode(h.get("resultDesc")) %>','addPreventionData<%=Math.abs( ( h.get("name")).hashCode() ) %>')">
-		<span title="<%=h.get("desc")%>" style="font-weight: bold;"><%=h.get("name")%></span>
+			onclick="javascript:popup(600,900,'AddPreventionData.jsp?2=2&<%=snomedId != null ? "snomedId=" + snomedId + "&" : ""%>prevention=<%= java.net.URLEncoder.encode(h.get("name")) %>&amp;demographic_no=<%=demographic_no%>&amp;prevResultDesc=<%= java.net.URLEncoder.encode(h.get("resultDesc")) %>','addPreventionData<%=Math.abs( ( h.get("name")).hashCode() ) %>')">
+		<span title="<%=h.get("desc")%>" style="font-weight: bold;"><%=ispa1 %><%=h.get("name")%></span>
 		</a>
+		
 		<br />
 		</p>
 		</div>
@@ -727,16 +1019,33 @@ text-align:left;
                             Map<String,String> hExt = PreventionData.getPreventionKeyValues(hdata.get("id"));
                             result = hExt.get("result");
                             %>
-		<div class="preventionProcedure" onclick="javascript:popup(465,635,'AddPreventionData.jsp?id=<%=hdata.get("id")%>&amp;demographic_no=<%=demographic_no%>','addPreventionData')" title="fade=[on] header=[<%=hdata.get("age")%> -- Date:<%=hdata.get("prevention_date_no_time")%>] body=[<%=hExt.get("comments")%>&lt;br/&gt;Entered By: <%=hdata.get("provider_name")%>]">
+		<div class="preventionProcedure" onclick="javascript:popup(600,900,'AddPreventionData.jsp?id=<%=hdata.get("id")%>&amp;demographic_no=<%=demographic_no%>','addPreventionData')" title="fade=[on] header=[<%=StringEscapeUtils.escapeHtml((String)hdata.get("age"))%> -- Date:<%=StringEscapeUtils.escapeHtml((String)hdata.get("prevention_date_no_time"))%>] body=[<%=StringEscapeUtils.escapeHtml((String)hExt.get("comments"))%>&lt;br/&gt;Administered By: <%=StringEscapeUtils.escapeHtml((String)hdata.get("provider_name"))%>]">
 		<p <%=r(hdata.get("refused"), result)%>>Age: <%=hdata.get("age")%> <br />
-		<!--<%=refused(hdata.get("refused"))%>-->Date: <%=hdata.get("prevention_date_no_time")%>
+		<!--<%=refused(hdata.get("refused"))%>-->Date: <%=StringEscapeUtils.escapeHtml((String)hdata.get("prevention_date_no_time"))%>
 		<%if (hExt.get("comments") != null && (hExt.get("comments")).length()>0) {
                      if (oscar.OscarProperties.getInstance().getBooleanProperty("prevention_show_comments","yes")){ %>
-                     <div class="comments"><span><%=hExt.get("comments")%></span></div>
+                     <div class="comments"><span><%=StringEscapeUtils.escapeHtml((String)hExt.get("comments"))%></span></div>
                <%   } else { %>                
             <span class="footnote">1</span>
             <%      }
                 }%>
+         <%
+         /* Integrated results dont have an "ID" key */
+         if(hdata.containsKey("id"))
+         {
+			List<DHIRSubmissionLog> dhirLogs =  submissionManager.findByPreventionId(Integer.parseInt((String)hdata.get("id")));
+			
+			if(!dhirLogs.isEmpty()) {
+			 	%> <span class="footnote" style="background-color:black;color:white"><%=dhirLogs.get(0).getStatus()%></span> <%
+			} else {
+					if(dhirEnabled && !StringUtils.isEmpty(snomedId)) {
+						if((ispa && hasIspaConsent) || (!ispa && hasNonIspaConsent)) {
+			 			%><span class="footnote" style="background-color:orange;color:black">Not Submitted</span> <%
+			 		}
+					}
+			}
+         }
+         %>
 		</p>
 		</div>
 		<%}%>
@@ -771,7 +1080,7 @@ text-align:left;
 		<div class="preventionSection">
 		<div class="headPrevention">
 		<p><a href="javascript: function myFunction() {return false; }"
-			onclick="javascript:popup(465,635,'AddPreventionData.jsp?3=3&prevention=<%= java.net.URLEncoder.encode(h.get("name")) %>&amp;demographic_no=<%=demographic_no%>&amp;prevResultDesc=<%= java.net.URLEncoder.encode(h.get("resultDesc")) %>','addPreventionData<%=Math.abs(h.get("name").hashCode())%>')">
+			onclick="javascript:popup(600,900,'AddPreventionData.jsp?3=3&prevention=<%= java.net.URLEncoder.encode(h.get("name")) %>&amp;demographic_no=<%=demographic_no%>&amp;prevResultDesc=<%= java.net.URLEncoder.encode(h.get("resultDesc")) %>','addPreventionData<%=Math.abs(h.get("name").hashCode())%>')">
 		<span title="<%=h.get("desc")%>" style="font-weight: bold;"><%=h.get("name")%></span>
 		</a>  <br />
 		</p>
@@ -786,12 +1095,12 @@ text-align:left;
           	  Map<String,String> hExt = PreventionData.getPreventionKeyValues((String)hdata.get("id"));
             result = hExt.get("result");
 
-            String onClickCode="javascript:popup(465,635,'AddPreventionData.jsp?id="+hdata.get("id")+"&amp;demographic_no="+demographic_no+"','addPreventionData')";
+            String onClickCode="javascript:popup(600,900,'AddPreventionData.jsp?id="+hdata.get("id")+"&amp;demographic_no="+demographic_no+"','addPreventionData')";
             if (hdata.get("id")==null) onClickCode="popup(300,500,'display_remote_prevention.jsp?remoteFacilityId="+hdata.get("integratorFacilityId")+"&remotePreventionId="+hdata.get("integratorPreventionId")+"&amp;demographic_no="+demographic_no+"')";
         %>
 		<div class="preventionProcedure" onclick="<%=onClickCode%>">
 		<p <%=r(hdata.get("refused"),result)%>>Age: <%=hdata.get("age")%> <br />
-		<!--<%=refused(hdata.get("refused"))%>-->Date: <%=hdata.get("prevention_date_no_time")%>
+		<!--<%=refused(hdata.get("refused"))%>-->Date: <%=StringEscapeUtils.escapeHtml((String)hdata.get("prevention_date_no_time"))%>
 		<%=getFromFacilityMsg(hdata)%></p>
 		</div>
 		<%}%>
@@ -807,7 +1116,9 @@ text-align:left;
 	</tr>
 	<tr>
 		<td class="MainTableBottomRowLeftColumn">
-			<input type="button" class="noPrint" name="printButton" onclick="EnablePrint(this)" value="Enable Print">
+			<span id="print_buttons">
+				<input type="button" class="noPrint" name="printButton" onclick="EnablePrint(this)" value="Enable Print">
+			</input>
 <!--
 			<br>
 			<input type="button" name="sendToPhrButton" value="Send To MyOscar (PDF)" style="display: none;" onclick="sendToPhr(this)">
@@ -831,6 +1142,10 @@ text-align:left;
 		            	Map<String,Object> hdata = alist.get(k);
                                 Map<String,String> hExt = PreventionData.getPreventionKeyValues((String)hdata.get("id"));
 		    %>
+		    
+		<input type="hidden" id="preventProcedureProvider<%=i%>-<%=k%>"
+			name="preventProcedureProvider<%=i%>-<%=k%>" value="<%=hdata.get("provider_name")%>"/>
+			
 		<input type="hidden" id="preventProcedureStatus<%=i%>-<%=k%>"
 			name="preventProcedureStatus<%=i%>-<%=k%>"
 			value="<%=hdata.get("refused")%>">
@@ -839,12 +1154,12 @@ text-align:left;
 			value="<%=hdata.get("age")%>">
 		<input type="hidden" id="preventProcedureDate<%=i%>-<%=k%>"
 			name="preventProcedureDate<%=i%>-<%=k%>"
-			value="<%=hdata.get("prevention_date_no_time")%>">
+			value="<%=StringEscapeUtils.escapeHtml((String)hdata.get("prevention_date_no_time"))%>">
                     <%  String comments = hExt.get("comments");
                         if (comments != null && !comments.isEmpty() && OscarProperties.getInstance().getBooleanProperty("prevention_show_comments","true")) {%>      
                 <input type="hidden" id="preventProcedureComments<%=i%>-<%=k%>"
 			name="preventProcedureComments<%=i%>-<%=k%>"
-			value="<%=comments%>">
+			value="<%=StringEscapeUtils.escapeHtml(comments)%>">
                     <% }
                             	     }
                                        }

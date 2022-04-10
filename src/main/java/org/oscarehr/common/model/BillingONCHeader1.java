@@ -116,6 +116,46 @@ public class BillingONCHeader1 extends AbstractModel<Integer> implements Seriali
         private List<BillingONItem>billingItems = new ArrayList<BillingONItem>(); 
 
 	public BillingONCHeader1() {}
+
+    public BillingONCHeader1(BillingONCHeader1 bONCH) {
+        super();
+        this.id = bONCH.getId();
+        this.headerId = bONCH.getHeaderId();
+        this.transcId = bONCH.getTranscId();
+        this.recId = bONCH.getRecId();
+        this.hin = bONCH.getHin();
+        this.ver = bONCH.getVer();
+        this.dob = bONCH.getDob();
+        this.payProgram = bONCH.getPayProgram();
+        this.payee = bONCH.getPayee();
+        this.refNum = bONCH.getRefNum();
+        this.faciltyNum = bONCH.getFaciltyNum();
+        this.admissionDate = bONCH.admissionDate;
+        this.refLabNum = bONCH.getRefLabNum();
+        this.manReview = bONCH.getManReview();
+        this.location = bONCH.getLocation();
+        this.demographicNo = bONCH.getDemographicNo();
+        this.providerNo = bONCH.getProviderNo();
+        this.appointmentNo = bONCH.getAppointmentNo();
+        this.demographicName = bONCH.getDemographicName();
+        this.sex = bONCH.getSex();
+        this.province = bONCH.getProvince();
+        this.billingDate = bONCH.billingDate;
+        this.billingTime = bONCH.billingTime;
+        this.total = bONCH.getTotal();
+        this.paid = bONCH.getPaid();
+        this.status = bONCH.getStatus();
+        this.comment = bONCH.getComment();
+        this.visitType = bONCH.getVisitType();
+        this.providerOhipNo = bONCH.getProviderOhipNo();
+        this.providerRmaNo = bONCH.getProviderRmaNo();
+        this.apptProviderNo = bONCH.getApptProviderNo();
+        this.asstProviderNo = bONCH.getAsstProviderNo();
+        this.creator = bONCH.getCreator();
+        this.timestamp = bONCH.getTimestamp();
+        this.clinic = bONCH.getClinic();
+        this.billingItems = bONCH.getBillingItems();
+    }
 	
 	public BillingONCHeader1(Integer headerId, String transcId, String recId,
 			String hin, String ver, String dob, String payProgram,

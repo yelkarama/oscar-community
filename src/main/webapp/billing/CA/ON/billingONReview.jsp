@@ -247,9 +247,9 @@ boolean dupServiceCode = false;
 				if (demo.getHin() == null) {
 					errorFlag = "1";
 					errorMsg = errorMsg
-							+ "<br><div class='myError'>Error: The patient does not have a valid HIN. </div><br>";
+							+ "<br><div class='myError'>Error: The patient does not have a HIN </div><br>";
 				} else if (demo.getHin().equals("")) {
-					warningMsg += "<br><div class='myError'>Warning: The patient does not have a valid HIN. </div><br>";
+					warningMsg += "<br><div class='myError'>Warning: The patient does not have a HIN </div><br>";
 				}
 				if (r_doctor_ohip != null && r_doctor_ohip.length() > 0 && r_doctor_ohip.length() != 6) {
 					warningMsg += "<br><div class='myError'>Warning: the referral doctor's no is wrong. </div><br>";
@@ -275,7 +275,12 @@ boolean dupServiceCode = false;
 <%@page import="org.oscarehr.common.model.Site"%><html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>OscarBilling</title>
-<link rel="stylesheet" type="text/css" href="billingON.css" />
+<!--<link rel="stylesheet" type="text/css" href="billingON.css" /> -->
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery.js"></script>
    <script>
      jQuery.noConflict();
@@ -478,7 +483,7 @@ boolean dupServiceCode = false;
 
 <style type="text/css">
 div.wrapper{
-    background-color: #eeeeff;
+    background-color: silver;
     margin-top:0px;
     padding-top:0px;
     margin-bottom:0px;
@@ -491,7 +496,7 @@ div.wrapper br{
 
 div.wrapper ul{
     width: 80%;
-    background-color: #eeeeff;
+    background-color: silver;
     list-style:none;
     list-style-type:none;
     list-style-position:outside;
@@ -504,12 +509,12 @@ div.wrapper ul{
 }
 
 div.wrapper ul li{
-    background-color: #eeeeff;
+    background-color: silver;
 }
 
 div.dxBox{
     width:90%;
-    background-color: #eeeeff;
+    background-color: silver;
     margin-top: 2px;
     margin-left:3px;
     margin-right:3px;
@@ -520,7 +525,7 @@ div.dxBox{
 
 
 div.dxBox h3 {
-    background-color: #ccccff;
+    background-color: silver;
   /*font-size: 1.25em;*/
     font-size: 10pt;
     font-variant:small-caps;
@@ -544,6 +549,20 @@ div.dxBox input {
     padding-top:0px;
     margin-bottom: 0px;
     padding-bottom: 0px;
+}
+
+.myerror {
+color:red;
+font-weight:bold;
+background-color:yellow;
+font-size:20px;
+}
+
+.myerrortext {
+color:red;
+font-weight:bold;
+background-color:yellow;
+font-size:20px;
 }
 
 </style>
@@ -576,7 +595,7 @@ window.onload=function(){
 		<td>
 		<table border="0" cellspacing="0" cellpadding="0" width="100%" class="myDarkGreen">
 			<tr>
-				<td><b><font color="#FFFFFF">&nbsp;Confirmation </font></b></td>
+				<td><H4><font>&nbsp;Billing Confirmation </font></H4></td>
 				<td align="right"><input type="hidden" name="addition" value="Confirm" /></td>
 			</tr>
 		</table>
@@ -586,19 +605,19 @@ window.onload=function(){
 		<td>
 		<table border="0" cellspacing="0" cellpadding="0" width="100%" class="myYellow">
 			<tr>
-				<td nowrap width="10%" align="center"><%=demoname%> <%=demoSex.equals("1") ? "Male" : "Female"%>
-				<%=" DOB: " + demoDOBYY + "/" + demoDOBMM + "/" + demoDOBDD + " HIN: " + demoHIN + "" + demoVer%>
+				<td nowrap width="10%" align="center"><%=demoname%> &nbsp;&nbsp; <%=demoSex.equals("1") ? "Male" : "Female"%> &nbsp;&nbsp;
+				<%=" DOB: " + demoDOBYY + "/" + demoDOBMM + "/" + demoDOBDD + " &nbsp;&nbsp; HIN: " + demoHIN + "" + demoVer%>
 				</td>
 				<td align="center"><%=wrongMsg%></td>
 			</tr>
 		</table>
 
-		<table border="1" cellspacing="0" cellpadding="0" width="100%" bordercolorlight="#99A005" bordercolordark="#FFFFFF"
+		<table border="0" cellspacing="0" cellpadding="0" width="100%" bordercolorlight="#99A005" bordercolordark="#FFFFFF"
 			 class="myIvory">
 			<tr>
 				<td width="50%">
 
-				<table border="1" cellspacing="2" cellpadding="0" width="100%" bordercolorlight="#99A005" bordercolordark="#FFFFFF"
+				<table border="0" cellspacing="2" cellpadding="0" width="100%" bordercolorlight="#99A005" bordercolordark="#FFFFFF"
 					>
 					<tr>
 						<!--<input type="text" name="checkFlag" id="checkFlag" value="<%=request.getParameter("checkFlag") %>" />  -->
@@ -618,12 +637,12 @@ window.onload=function(){
 				</td>
 				<td valign="top">
 
-				<table border="1" cellspacing="2" cellpadding="0" width="100%" bordercolorlight="#99A005" bordercolordark="#FFFFFF"
+				<table border="0" cellspacing="2" cellpadding="0" width="100%" bordercolorlight="#99A005" bordercolordark="#FFFFFF"
 					 class="myGreen">
 					<tr>
 						<td nowrap width="30%"><b>Billing Physician</b></td>
 						<td width="20%"><%=providerBean.getProperty(request.getParameter("xml_provider")!=null?request.getParameter("xml_provider").substring(0,request.getParameter("xml_provider").indexOf("|")):"", "")%></td>
-						<td nowrap width="30%"><b>Assig. Physician</b></td>
+						<td nowrap width="30%"><b>MRP</b></td>
 						<td width="20%"><%=assgProvider_no == null ? "N/A" : providerBean.getProperty(assgProvider_no, "")%></td>
 					</tr>
 					<tr>
@@ -858,7 +877,7 @@ window.onload=function(){
 							String percTotal = (Float.parseFloat((String)vecPercTotal.get(j)) )*Integer.parseInt(codeUnit) + "";
 				if (codeValid) {
                                                         %>
-						<input type="checkbox" name="percCode_<%=i %>" value="<%=percTotal %>" onclick="onCheckMaster();" /> <%=percTotal %><font size='-2'>(<%=vecPercFee.get(j) %>x<%=percFee %>x<%=codeUnit %>)</font> |
+						<input type="checkbox" id="percentCode" name="percCode_<%=i %>" value="<%=percTotal %>" onclick="onCheckMaster();" /> <%=percTotal %><font size='-2'>(<%=vecPercFee.get(j) %>x<%=percFee %>x<%=codeUnit %>)</font> |
 				<%
                                 }
                                                 }
@@ -887,6 +906,7 @@ window.onload=function(){
 			<tr>
 				<td align='right' colspan='3' class="myGreen">Total: <input type="text" id="total" name="total" size="5" value="0.00" onchange="onTotalChanged();"/>
 				<input type="hidden" name="totalItem" value="<%=vecServiceParam[0].size() %>" /></td>
+
 <script Language="JavaScript">
 <!--
 function onCheckMaster() {
@@ -970,12 +990,12 @@ function onCheckMaster() {
 			<tr>
 
 				<td colspan='3' align='center' bgcolor="silver">
-				    <input type="submit" name="button" value="Back to Edit" style="width: 120px;" />
+				    <input type="submit" name="button" value="Back to Edit" class="btn" style="width: 120px;" />
                                     <% if (codeValid && !dupServiceCode) { %>
-                                    <input type="submit" name="submit" value="Save" style="width: 120px;" onClick="onClickSave();"/>
-				    <input type="submit" name="submit" value="Save & Add Another Bill" onClick="onClickSave();"/>
+                                    <input type="submit" name="submit" value="Save"  class="btn btn-primary" style="width: 120px;" onClick="onClickSave();"/>
+				    <input type="submit" name="submit" value="Save & Add Another Bill"  class="btn" onClick="onClickSave();"/>
                                     <% }else if (dupServiceCode){%>
-                                    <td><div class='myError'>Warning: Duplicated service codes. </div></td>
+                                    <td><div class='myError'>Warning: Duplicate service codes entered </div></td>
                                     <% }
                                     %>
                                     </td>
@@ -986,7 +1006,8 @@ function onCheckMaster() {
 <% if (codeValid) {
         if(request.getParameter("xml_billtype")!=null && request.getParameter("xml_billtype").matches("ODP.*|WCB.*|NOT.*|BON.*")) { %>
 	<tr>
-			<td >
+			<td>
+			<br>
 			Billing Notes:<br>
 			<%
 			String tempLoc = "";
@@ -1002,7 +1023,7 @@ function onCheckMaster() {
 			tempLoc = request.getParameter("site");
 		}
 			%>
-			<textarea name="comment" cols=60 rows=4><%=tempLoc %></textarea>
+			<textarea name="comment" style="width:600px;"><%=tempLoc %></textarea>
 			</td>
 	</tr>
 <%      }
@@ -1139,8 +1160,10 @@ Properties prop = oscar.OscarProperties.getInstance();
 			<% } %>
 			</td></tr>
 			<tr>
-				<td colspan='2' align='center' bgcolor="silver"><input type="submit" name="submit" value="Save & Print Invoice"
-					style="width: 150px;" /><input type="submit" name="submit" id="settlePrintBtn"
+				<td colspan='2' align='center' bgcolor="silver">
+                    <input type="submit" name="submit" value="Save & Print Invoice" class="btn"
+					style="width: 150px;" />
+                    <input type="submit" name="submit" id="settlePrintBtn" class="btn btn-primary"
 					value="Settle & Print Invoice" onClick="document.forms['titlesearch'].btnPressed.value='Settle'; document.forms['titlesearch'].submit();javascript:popupPage(700,720,'billingON3rdInv.jsp');" style="width: 160px;" />
 				<input type="hidden"  name="btnPressed" value="">
 				<input type="hidden" name="total_payment" id="total_payment" value="0.00"/>
@@ -1281,7 +1304,7 @@ function getNewCurrentDxCodeList(origRequest){
           <jsp:param name="demographicNo" value="<%=demo_no%>"/>
        </jsp:include>
        </div>
-       <input type="button" value="Add To Disease Registry" onclick="addToDiseaseRegistry()"/>
+       <input type="button" value="Add To Disease Registry" class="btn" onclick="addToDiseaseRegistry()"/>
        </form>
 </div>
 

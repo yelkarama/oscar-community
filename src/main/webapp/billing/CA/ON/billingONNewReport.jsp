@@ -45,7 +45,14 @@ String providerview = request.getParameter("providerview")==null?"all":request.g
 <%@ page import="org.oscarehr.common.model.ReportProvider" %>
 <%@ page import="org.oscarehr.common.dao.ReportProviderDao" %>
 <%@ page import="org.oscarehr.common.model.Provider" %>
+<%@ page import="oscar.OscarProperties"%>
+<%@ page import="org.oscarehr.common.dao.SiteDao"%>
+<%@ page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
+<%@ page import="org.oscarehr.common.model.Site"%>
+<%@ page import="org.oscarehr.common.model.Provider"%>
+<%@ page import="org.apache.commons.lang.StringUtils"%>
 
+<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 
 <%
 	ReportProviderDao reportProviderDao = SpringUtils.getBean(ReportProviderDao.class);
@@ -80,7 +87,7 @@ if("unbilled".equals(action)) {
     
     sql = "select * from appointment where provider_no='" + providerview + "' and appointment_date >='" + xml_vdate   
             + "' and appointment_date<='" + xml_appointment_date 
-            + "' and (BINARY status NOT LIKE 'B%' AND BINARY status NOT LIKE 'C%' AND BINARY status NOT LIKE 'N%' AND BINARY status NOT LIKE 'T%' AND BINARY status NOT LIKE 't%')"
+            + "' and (BINARY status NOT LIKE 'B%' AND BINARY status NOT LIKE 'C%' AND BINARY status NOT LIKE 'N%')"
             + " and demographic_no != 0 order by appointment_date , start_time ";
     
     rs = dbObj.searchDBRecord(sql);
@@ -331,28 +338,29 @@ if("unpaid".equals(action)) {
 %>
 
 
-<%@page import="org.oscarehr.common.dao.SiteDao"%>
-<%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
-<%@page import="org.oscarehr.common.model.Site"%>
-<%@page import="org.oscarehr.common.model.Provider"%>
-<%@page import="org.apache.commons.lang.StringUtils"%><html>
+<html>
 <head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/DT_bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/datepicker.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
+<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.9.1.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery.dataTables.1.10.11.min.js"></script>
+
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
-<title>ON Billing Report</title>
-<link rel="stylesheet" href="../../web.css">
-<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
-<!-- calendar stylesheet -->
-<link rel="stylesheet" type="text/css" media="all"
-	href="../../../share/calendar/calendar.css" title="win2k-cold-1" />
-<!-- main calendar program -->
-<script type="text/javascript" src="../../../share/calendar/calendar.js"></script>
-<!-- language for the calendar -->
-<script type="text/javascript"
-	src="../../../share/calendar/lang/calendar-en.js"></script>
-<!-- the following script defines the Calendar.setup helper function, which makes
-       adding a calendar a matter of 1 or 2 lines of code. -->
-<script type="text/javascript"
-	src="../../../share/calendar/calendar-setup.js"></script>
+<title>Bills - ONTARIO BILLING REPORT</title>
+
+
+<!-- calendar 
+<script type="text/javascript" src="<%=request.getContextPath() %>/share/calendar/calendar.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath() %>/share/calendar/lang/<bean:message key="global.javascript.calendar"/>"></script>
+<script type="text/javascript" src="<%=request.getContextPath() %>/share/calendar/calendar-setup.js"></script>
+<link rel="stylesheet" type="text/css" media="all" href="<%=request.getContextPath() %>/share/calendar/calendar.css" title="win2k-cold-2" />
+-->
+
 <script type="text/javascript">
 <!--
 
@@ -384,32 +392,52 @@ function calToday(field) {
 </script>
 </head>
 
-<body bgcolor="#FFFFFF" text="#000000" leftmargin="0" rightmargin="0"
+<body leftmargin="0" rightmargin="0"
 	topmargin="0">
+
+
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
-	<tr bgcolor="#CCCCFF">
-		<td width="5%"></td>
+	<tr>
+		<td width="1%"></td>
 		<td width="80%" align="left">
-		<p><b><font face="Verdana, Arial" color="#FFFFFF" size="3"><a
-			href="billingReportCenter.jsp">OSCARbilling</a></font></b></p>
+		<H4><i class="icon-money"></i>&nbsp;<a style="color:black;"
+			href="billingReportCenter.jsp">OSCARbilling</a></H4>
 		</td>
-		<td align="right"><a href=#
-			onClick="popupPage(700,720,'../../../oscarReport/manageProvider.jsp?action=billingreport')">
-		<font size="1">Manage Provider List </font></a></td>
+        <td align="right">
+		    <i class=" icon-question-sign"></i> 
+	        <a href="javascript:void(0)" onClick ="popupPage(600,750,'<%=(OscarProperties.getInstance()).getProperty("HELP_SEARCH_URL")%>'+'OscarBilling+Billing')"><bean:message key="app.top1"/></a>
+	        <i class=" icon-info-sign" style="margin-left:10px;"></i> 
+            <a href="javascript:void(0)"  onClick="window.open('<%=request.getContextPath()%>/oscarEncounter/About.jsp','About OSCAR','scrollbars=1,resizable=1,width=800,height=600,left=0,top=0')" ><bean:message key="global.about" /></a>
+        </td>
+		<td width="1%"></td>
 	</tr>
 </table>
-
-<table width="100%" border="0" bgcolor="#EEEEFF">
+<div class="well">
+<table width="100%" border="0">
 	<form name="serviceform" method="post" action="billingONReport.jsp">
-	<tr>
-		<td width="30%" align="center"><font size="2"> <input
-			type="radio" name="reportAction" value="unbilled"
-			<%="unbilled".equals(action)? "checked" : "" %>>Unbilled <input
-			type="radio" name="reportAction" value="billed"
-			<%="billed".equals(action)? "checked" : "" %>>Billed <!--  input type="radio" name="reportAction" value="paid" <%="paid".equals(action)? "checked" : "" %>>Paid 
-	<input type="radio" name="reportAction" value="unpaid" <%="unpaid".equals(action)? "checked" : "" %>>Unpaid -->
-		</font></td>
-		<td width="20%" align="right" nowrap><b>Provider </b></font> 
+	<tr class="form-inline">
+		<td  > 
+            <label class="radio inline">
+                <input
+			    type="radio" name="reportAction" value="unbilled"
+			    <%="unbilled".equals(action)? "checked" : "" %>>Unbilled 
+            </label>
+            <label class="radio inline">
+                <input
+			    type="radio" name="reportAction" value="billed"
+			    <%="billed".equals(action)? "checked" : "" %>>Billed 
+            </label>
+  <!-- broken
+          <label class="radio inline">
+                <input
+                type="radio" name="reportAction" value="paid" <%="paid".equals(action)? "checked" : "" %>>Paid 
+            </label>
+            <label class="radio inline">            
+                <input type="radio" name="reportAction" value="unpaid" <%="unpaid".equals(action)? "checked" : "" %>>Unpaid 
+            </label>
+end broken -->
+           
+		    <br>&nbsp;Provider  
 <% if (bMultisites) 
 { // multisite start ==========================================
         	SiteDao siteDao = (SiteDao)WebApplicationContextUtils.getWebApplicationContext(application).getBean("siteDao");
@@ -489,31 +517,39 @@ for(Object[] res:reportProviderDao.search_reportprovider("billingreport")) {
 <% } %>
 		
 		
-		</td>
-		<td align="center" nowrap><font size="1"> From:</font> <input
-			type="text" name="xml_vdate" id="xml_vdate" size="10"
-			value="<%=xml_vdate%>"> <font size="1"> <img
-			src="../../../images/cal.gif" id="xml_vdate_cal"> To:</font> <input
-			type="text" name="xml_appointment_date" id="xml_appointment_date"
-			onDblClick="calToday(this)" size="10"
-			value="<%=xml_appointment_date%>"> <img
-			src="../../../images/cal.gif" id="xml_appointment_date_cal"></td>
-		<td align="right"><input type="submit" name="Submit"
+		 
+        <label class="date">
+            From: 
+            <input class="input-medium" style="height:30px;"
+			type="date" name="xml_vdate" id="xml_vdate"
+			value="<%=xml_vdate%>"> 
+        </label>
+        <label class="date">
+            To: 
+            <input class="input-medium" style="height:30px;"
+			type="date" name="xml_appointment_date" id="xml_appointment_date"
+			value="<%=xml_appointment_date%>">
+        </label>
+ </td>
+		<td align="right"><input type="submit" name="Submit" class="btn btn-primary"
 			value="Create Report"> </font></td>
 	</tr>
 	<tr>
+<tr><td><a href=# onClick="popupPage(700,720,'../../../oscarReport/manageProvider.jsp?action=billingreport')" class="btn btn-link" >
+		Manage Provider List</a> </td></tr>
 		</form>
 </table>
 
-<table border="1" cellspacing="0" cellpadding="0" width="100%"
+<table id="reportTbl" border="1" cellspacing="0" cellpadding="0" width="100%" class="table table-condensed table-striped table-hover"
 	bordercolorlight="#99A005" bordercolordark="#FFFFFF" bgcolor="#FFFFFF">
-	<tr bgcolor=<%="#ccffcc" %>>
+<thead>
+	<tr>
 		<% for (int i=0; i<vecHeader.size(); i++) {%>
 		<th><%=vecHeader.get(i) %></th>
 		<% } %>
 		<% for (int i=0; i<vecValue.size(); i++) {%>
-	
-	<tr bgcolor="<%=i%2==0? "ivory" : "#EEEEFF" %>">
+	</thead>
+	<tr>
 		<% for (int j=0; j<vecHeader.size(); j++) {
 	    prop = (Properties)vecValue.get(i);
 	%>
@@ -532,25 +568,23 @@ for(Object[] res:reportProviderDao.search_reportprovider("billingreport")) {
 
 </table>
 
-<br>
+</div> <!-- well end -->
 
 <hr width="100%">
 <table border="0" cellspacing="0" cellpadding="0" width="100%">
 	<tr>
-		<td><a href=# onClick="javascript:history.go(-1);return false;">
-		<img src="images/leftarrow.gif" border="0" width="25" height="20"
-			align="absmiddle"> Back </a></td>
-		<td align="right"><a href="" onClick="self.close();">Close
-		the Window<img src="images/rightarrow.gif" border="0" width="25"
-			height="20" align="absmiddle"></a></td>
+		<td><a href=# onClick="javascript:history.go(-1);return false;" class="btn btn-link">
+		<bean:message key="global.btnCancel"/></a></td>
+		<td align="right"><a href="" onClick="self.close();" class="btn btn-link">
+        <bean:message key="global.btnExit"/></a></td>
 	</tr>
 </table>
-
-</body>
-<script type="text/javascript">
-Calendar.setup( { inputField : "xml_vdate", ifFormat : "%Y/%m/%d", showsTime :false, button : "xml_vdate_cal", singleClick : true, step : 1 } );
-Calendar.setup( { inputField : "xml_appointment_date", ifFormat : "%Y/%m/%d", showsTime :false, button : "xml_appointment_date_cal", singleClick : true, step : 1 } );
+<script>
+$('#reportTbl').dataTable({
+    "order": [],
+});
 </script>
+
 </html>
 <%! 
 String getFormatDateStr(String str) {

@@ -25,11 +25,14 @@ package org.oscarehr.dashboard.handler;
 
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.log4j.Logger;
+import org.oscarehr.dashboard.display.beans.AbstractDataDisplayBean;
 import org.oscarehr.dashboard.query.Column;
+import org.oscarehr.dashboard.query.DrillDownAction;
 import org.oscarehr.dashboard.query.Parameter;
 import org.oscarehr.dashboard.query.RangeInterface;
 import org.oscarehr.dashboard.query.RangeLowerLimit;
@@ -48,15 +51,17 @@ public class IndicatorTemplateXML {
 	private static Logger logger = MiscUtils.getLogger();
 	
 	private enum Root {heading, author, indicatorQuery, drillDownQuery, shared}
-	private enum Heading {category, subCategory, framework, frameworkVersion, name, definition, notes, metricSetName, metricLabel}
+	private enum Heading {category, subCategory, order, framework, frameworkVersion, name, definition, notes, metricSetName, metricLabel, graphType}
 	private enum Indicator {version, params, parameter, range, query}
-	private enum Drilldown {version, params, parameter, range, displayColumns, column, exportColumns, query}
+	private enum Drilldown {version, params, parameter, range, displayColumns, column, exportColumns, drillDownActions, action, query}
 	private enum ParameterAttribute {id, name, value}
 	private enum ColumnAttribute {id, name, title, primary}
 	private enum RangeAttribute {id, label, name, value}
+	private enum ActionAttribute {id, name, value}
 	
 	private static enum ManditoryParameter { provider }
 	private static enum ProviderValueAlias { all, loggedinprovider }
+	private static enum ExcludedPatientAlias { none, excludedpatient }
 	public static enum RangeType {upperLimit, lowerLimit}
 		
 	private Integer id;
@@ -71,6 +76,8 @@ public class IndicatorTemplateXML {
 	
 	private String providerNo = null;
 	private String sharedMetricLabel = null;
+	
+	private ExcludeDemographicHandler excludeDemographicHandler = new ExcludeDemographicHandler();
 
 	public IndicatorTemplateXML( LoggedInInfo loggedInInfo, Document xmlDocument ) {
 		this( xmlDocument );
@@ -202,6 +209,18 @@ public class IndicatorTemplateXML {
 	public String getSubCategory() {
 		return getHeadingNode().getElementsByTagName( Heading.subCategory.name() ).item(0).getTextContent();
 	}
+	
+	/**
+	 * optional element
+	 * @return
+	 */
+	public Integer getOrder() {
+		NodeList nl =  getHeadingNode().getElementsByTagName( Heading.order.name() );
+		if(nl != null && nl.getLength()>0) {
+			return Integer.parseInt(nl.item(0).getTextContent());
+		}
+		return null;
+	}
 
 	public String getMetricSetName() {
 		NodeList nl = getHeadingNode().getElementsByTagName( Heading.metricSetName.name() );
@@ -217,6 +236,14 @@ public class IndicatorTemplateXML {
 			return nl.item(0).getTextContent();
 		}
 		return null;
+	}
+	
+	public String getGraphType() {
+		NodeList nl = getHeadingNode().getElementsByTagName( Heading.graphType.name() );
+		if(nl != null && nl.getLength() > 0) {
+			return nl.item(0).getTextContent();
+		}
+		return AbstractDataDisplayBean.GraphType.pie.toString();
 	}
 	
 	/**
@@ -333,6 +360,22 @@ public class IndicatorTemplateXML {
 	/**
 	 * Optional Element - returns null if the node or element is missing.
 	 */
+	public List<DrillDownAction> getDrilldownActions( ) {
+		NodeList actionsNodeList = getDrillDownQueryNode().getElementsByTagName( Drilldown.drillDownActions.name() );
+		Element drillDownActionsElement = null;
+		NodeList actions = null;
+		if( actionsNodeList != null ) {		
+			drillDownActionsElement = (Element) actionsNodeList.item(0);
+		}
+		if( drillDownActionsElement != null ) {
+			actions = drillDownActionsElement.getElementsByTagName( Drilldown.action.name() ); 
+		}
+		return createActionList( actions );
+	}
+	
+	/**
+	 * Optional Element - returns null if the node or element is missing.
+	 */
 	public List<Column> getDrilldownDisplayColumns() {
 		NodeList columnNodeList = getDrillDownQueryNode().getElementsByTagName( Drilldown.displayColumns.name() );
 		return createColumnList( columnNodeList );
@@ -435,7 +478,7 @@ public class IndicatorTemplateXML {
 	
 	private static List<Column> createColumnList( NodeList columnNodeList ) {
 		
-		List<Column> columnList = null;	
+		List<Column> columnList = new ArrayList<Column>();	
 		Element columnsNode = null;
 		NodeList columns = null;
 		
@@ -533,6 +576,34 @@ public class IndicatorTemplateXML {
 		return parameterList;
 	}
 	
+	private List<DrillDownAction> createActionList( NodeList actions ) {
+		List<DrillDownAction> actionList = null;
+		if( actions == null ) {
+			return actionList;
+		}
+		for(int i = 0; i < actions.getLength(); i++) {
+			
+			if( actionList == null ) {
+				actionList = new ArrayList<DrillDownAction>();
+			}
+			Node actionNode = actions.item(i);
+			NamedNodeMap actionAttributes = actionNode.getAttributes();
+			DrillDownAction action = new DrillDownAction();
+			String id = actionAttributes.getNamedItem( ActionAttribute.id.name() ).getTextContent();
+			String name = actionAttributes.getNamedItem( ActionAttribute.name.name() ).getTextContent();
+			String value = null;
+			if ("dxUpdate".equals(id)) {
+				value = actionAttributes.getNamedItem( ActionAttribute.value.name() ).getTextContent();
+			}
+			action.setId(id);
+			action.setName(name);
+			action.setValue(value);
+			
+			actionList.add(action);
+		}
+		return actionList;
+	}
+	
 	private String[] setParameterAliasWithValue( String parameterId, String[] parameterValues ) {
 		
 		String[] newParameterValues = new String[ parameterValues.length ];
@@ -540,7 +611,7 @@ public class IndicatorTemplateXML {
 		for( int i = 0; i < parameterValues.length; i++ ) {
 			newParameterValues[i] = setParameterAliasWithValue( parameterId, parameterValues[i] );
 		}
-		
+
 		return newParameterValues;
 	}
 	
@@ -554,7 +625,28 @@ public class IndicatorTemplateXML {
 		
 		//TODO for now only captures one required parameter value
 		// A switch will be required here to handle more values.
-		if( ! ( ManditoryParameter.provider.name() ).equalsIgnoreCase( parameterId ) ) {			
+		if( ! ( ManditoryParameter.provider.name() ).equalsIgnoreCase( parameterId ) ) {
+			if ( ( ExcludedPatientAlias.excludedpatient.name().equalsIgnoreCase(parameterId))) {
+				switch( ExcludedPatientAlias.valueOf(parameterValue.toLowerCase())) {
+					case excludedpatient:
+						excludeDemographicHandler.setLoggedinInfo(loggedInInfo);
+						String indicatorName = excludeDemographicHandler.getDrilldownIdentifier(this.getName(),this.getSubCategory(),this.getCategory());
+						List<Integer> demoNos = excludeDemographicHandler.getDemoIds(indicatorName);
+						if (demoNos != null && !demoNos.isEmpty()) {
+							logger.info("excluding patients for " + indicatorName);
+							String result = "(";
+							for (Integer i: demoNos) {
+								result += i + ",";
+							}
+							parameterValue = result.substring(0, result.length() - 1) + ")";
+						} else {
+							parameterValue = "(-1)";
+						}
+						break;
+					case none: parameterValue = "(-1)";
+						break;
+				}
+			}
 			return parameterValue;
 		}
 		
@@ -575,6 +667,10 @@ public class IndicatorTemplateXML {
 		
 		switch( ProviderValueAlias.valueOf( parameterValue ) ) {
 		case loggedinprovider : parameterValue = getLoggedInProvider().trim();
+//				String surrogate = surrogateForProvider(parameterValue);
+//				if (!surrogate.isEmpty()) {
+//					parameterValue = surrogate;
+//				}
 				break;
 		
 		case all : parameterValue = "%";
@@ -599,6 +695,17 @@ public class IndicatorTemplateXML {
 		this.providerNo = providerNo;
 	}
 	
+//	/**
+//	 *Retrieve provider for which current provider is acting as a surrogate.
+//	 */
+//	public static String surrogateForProvider(String surrogate_providerNo) {
+//		PropertyDao dao = SpringUtils.getBean(PropertyDao.class);
+//		List<Property> props = dao.findByNameAndProvider("surrogate_for_provider", surrogate_providerNo);
+//		if(props.size()>0) {
+//			return props.get(0).getValue();
+//		}
+//		return new String();
+//	}
 	
 	public void setSharedMetricLabel(String sharedMetricLabel) {
 		this.sharedMetricLabel = sharedMetricLabel;
@@ -609,4 +716,17 @@ public class IndicatorTemplateXML {
 	   return ReflectionToStringBuilder.toString(this);
 	}
 
+	 public static final Comparator<IndicatorTemplateXML> OrderComparator = new Comparator<IndicatorTemplateXML>() {
+	        public int compare(IndicatorTemplateXML i1, IndicatorTemplateXML i2) {
+	        	Integer o1 = i1.getOrder();
+	        	Integer o2 = i2.getOrder();
+	        	
+	        	if(o1 != null && o2 != null) {
+	        		return o1.compareTo(o2);
+	        	}
+	        	return 0;
+	        }
+	 };
+
+	    
 }

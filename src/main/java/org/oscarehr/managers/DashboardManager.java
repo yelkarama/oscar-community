@@ -23,7 +23,9 @@
  */
 package org.oscarehr.managers;
 import java.security.Security;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -72,7 +74,8 @@ public class DashboardManager {
 	
 	@Autowired
 	ClinicDAO clinicDAO;
-	
+
+	private Map<String,String> requestedProviderNumMap = new HashMap<String, String>();
 	
 	private Logger logger = MiscUtils.getLogger();
 	/**
@@ -188,12 +191,6 @@ public class DashboardManager {
         }
 		
 		List<Dashboard> dashboards = dashboardDao.getActiveDashboards();
-		
-		if( dashboards != null) {
-			LogAction.addLog(loggedInInfo, "DashboardManager.getActiveDashboards", null, null, null, "returning dashboard entries");
-		} else {
-			LogAction.addLog(loggedInInfo, "DashboardManager.getActiveDashboards", null, null, null, "Failed to find any Dashboards");	
-		}
 		
 		return dashboards;
 	}
@@ -525,8 +522,12 @@ public class DashboardManager {
 		return drilldownBean;
 
 	}
-	
+
 	public String exportDrilldownQueryResultsToCSV( LoggedInInfo loggedInInfo, int indicatorId ) {
+		return exportDrilldownQueryResultsToCSV(loggedInInfo, null, indicatorId);
+	}
+	
+	public String exportDrilldownQueryResultsToCSV( LoggedInInfo loggedInInfo, String providerNo, int indicatorId ) {
 		
 		if( ! securityInfoManager.hasPrivilege(loggedInInfo, "_dashboardDrilldown", SecurityInfoManager.READ, null ) ) {	
 			LogAction.addLog(loggedInInfo, "DashboardManager.exportDrilldownQueryResultsToCSV", null, null, null,"User missing _dashboardDrilldown role with read access");
@@ -534,6 +535,9 @@ public class DashboardManager {
         }
 		
 		IndicatorTemplateXML templateXML = getIndicatorTemplateXML( loggedInInfo, indicatorId );
+		if (providerNo != null) {
+			templateXML.setProviderNo(providerNo);
+		}
 
 		ExportQueryHandler exportQueryHandler = SpringUtils.getBean( ExportQueryHandler.class );
 		exportQueryHandler.setLoggedInInfo( loggedInInfo );
@@ -561,7 +565,7 @@ public class DashboardManager {
         }
 		
 		IndicatorTemplateXML indicatorTemplateXML = getIndicatorTemplateXML( loggedInInfo, indicatorId );
-		
+
 		// The id needs to be force set.
 		if( indicatorTemplateXML != null ) {
 			indicatorTemplateXML.setId( indicatorId );
@@ -628,67 +632,87 @@ public class DashboardManager {
 	
 	
 	public String getSharedOutcomesDashboardLaunchURL(LoggedInInfo loggedInInfo) {
-		
+
 		String url = OscarProperties.getInstance().getProperty("shared_outcomes_dashboard_url");
-		if(url == null) {
+		if (url == null) {
 			return null;
 		}
-		
+
 		org.oscarehr.common.model.Clinic oClinic = clinicDAO.getClinic();
-    	Clinic clinic = new Clinic();
-    	clinic.setApplication("oscar");
-    	
-    	String clinicIdentifier = OscarProperties.getInstance().getProperty("shared_outcomes_dashboard_clinic_id");
-		
-		if(clinicIdentifier == null || clinicIdentifier.length() == 0 || clinicIdentifier.length() > 42 ) {
+		Clinic clinic = new Clinic();
+		clinic.setApplication("oscar");
+
+		String clinicIdentifier = OscarProperties.getInstance().getProperty("shared_outcomes_dashboard_clinic_id");
+
+		if (clinicIdentifier == null || clinicIdentifier.length() == 0 || clinicIdentifier.length() > 42) {
 			clinicIdentifier = oClinic.getClinicName();
 		}
-		
+
 		clinic.setIdentifier(clinicIdentifier);
-		
-    	clinic.setName(oClinic.getClinicName());
-    	
-    	
-    	Provider provider = loggedInInfo.getLoggedInProvider();
-    	
-    	User user = new User();
-    	user.setCity("");
-    	user.setFirstName(provider.getFirstName());
-    	//TODO: not sure yet how we want to implement this
-    	//user.setAuthorizedUsernameList(null);
-    	user.setLastName(provider.getLastName());
-    	user.setPostalCode("");
-    	user.setProvince(Province.ON);
-    	//user.setUniqueIdentifier(uniqueIdentifier);
-    	user.setUsername(provider.getProviderNo());
-    	user.setRole("provider");
-    	
-    	
+
+		clinic.setName(oClinic.getClinicName());
+
+
+		Provider provider = loggedInInfo.getLoggedInProvider();
+
+		User user = new User();
+		user.setCity("");
+		user.setFirstName(provider.getFirstName());
+		//TODO: not sure yet how we want to implement this
+		//user.setAuthorizedUsernameList(null);
+		user.setLastName(provider.getLastName());
+		user.setPostalCode("");
+		user.setProvince(Province.ON);
+		//user.setUniqueIdentifier(uniqueIdentifier);
+		user.setUsername(provider.getProviderNo());
+		user.setRole("provider");
+
+
 		JSONObject response = new JSONObject();
 		response.put("clinic", clinic);
 		response.put("user", user);
-		
+
 		String json = response.toString();
-		
+
 		logger.debug(json);
-		
+
 		String encrypted = null;
 		String b64 = null;
-		
+
 		//system must have the UnlimitedJCEPolicyJDK7.zip installed for this to work
 		try {
 			Security.addProvider(new BouncyCastleProvider());
-			
+
 			StandardPBEStringEncryptor encrypter = new StandardPBEStringEncryptor();
 			encrypter.setAlgorithm("PBEWITHSHA256AND256BITAES-CBC-BC");
 			encrypter.setProviderName("BC");
-			encrypter.setPassword(OscarProperties.getInstance().getProperty("shared_outcomes_dashboard_key"));			
+			encrypter.setPassword(OscarProperties.getInstance().getProperty("shared_outcomes_dashboard_key"));
 			encrypted = encrypter.encrypt(json);
 			b64 = Base64.toBase64String(encrypted.getBytes());
-	       } catch(Exception e) {
-	    	  logger.error("error",e);
-	       }
+		} catch (Exception e) {
+			logger.error("error", e);
+		}
 
 		return url + "?" + "encodedParams=" + b64 + "&version=1.1";
+	}
+
+	public void setRequestedProviderNo(LoggedInInfo loggedInInfo, String providerNo) {
+		String loggedInInfoStr = loggedInInfo.getLoggedInProviderNo();
+		if (loggedInInfoStr != null && !loggedInInfoStr.isEmpty())
+			this.requestedProviderNumMap.put(loggedInInfoStr,providerNo);
+	}
+
+	public String getRequestedProviderNo(LoggedInInfo loggedInInfo) {
+		if (loggedInInfo != null) {
+			return this.requestedProviderNumMap.get(loggedInInfo.getLoggedInProviderNo());
+		} else {
+			return null;
+		}
+	}
+
+	public void deleteIndicator(LoggedInInfo loggedInInfo, Integer indicatorId) {
+		if (loggedInInfo != null) {
+			indicatorTemplateDao.remove(indicatorId);
+		}
 	}
 }

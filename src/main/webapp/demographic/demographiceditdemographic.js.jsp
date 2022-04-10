@@ -24,6 +24,24 @@
 
 --%>
 <%@page import="oscar.OscarProperties" %>
+
+<%@page import="org.oscarehr.util.SpringUtils"%>
+<%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
+<%@ page import="org.oscarehr.common.model.UserProperty" %>
+<%
+	String curUser_no = (String) session.getAttribute("user");
+	UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class); 
+	UserProperty tabViewProp = userPropertyDao.getProp(curUser_no, UserProperty.OPEN_IN_TABS);
+    boolean openInTabs = false;
+    if ( tabViewProp == null ) {
+        openInTabs = oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true");
+    } else {
+        openInTabs = oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true") || Boolean.parseBoolean(tabViewProp.getValue());
+    }
+%>
+
+ctx = "${pageContext.request.contextPath}";
+
 function rs(n,u,w,h,x) {
   args="width="+w+",height="+h+",resizable=yes,scrollbars=yes,status=0,top=360,left=30";
   remote=window.open(u,n,args);
@@ -48,65 +66,88 @@ function setfocus() {
 function upCaseCtrl(ctrl) {
 	ctrl.value = ctrl.value.toUpperCase();
 }
-function popupPage(vheight,vwidth,varpage) { //open a new popup window
-  var page = "" + varpage;
+function popupPage(vheight, vwidth, varpage, inTabs) { //open a new popup window
+
   windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=50,screenY=50,top=20,left=20";
-  var popup=window.open(page, "demodetail", windowprops);
-  if (popup != null) {
-    if (popup.opener == null) {
-      popup.opener = self;
+
+    inTabs      = typeof(inTabs)     != 'undefined' ? inTabs : <%=openInTabs%>;
+    var windowName  = 'Master';
+
+	if (varpage == null || varpage == -1) {
+		  	return false;
+	}
+    if( varpage.indexOf("..") == 0 ) {
+            varpage = ctx + varpage.substr(2);
     }
-    popup.focus();
-  }
+
+    if (inTabs) {
+                popup = window.open(varpage, windowName);
+    } else {
+                popup = window.open(varpage, windowName, windowprops);
+    }
+    if (popup != null) {
+        if (popup.opener == null) {
+            popup.opener = self;
+        }
+        popup.focus();
+    }
 }
 
 
-function popupEChart(vheight,vwidth,varpage) { //open a new popup window
-  var page = "" + varpage;
-  windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=50,screenY=50,top=20,left=20";
-  var popup=window.open(page, "encounter", windowprops);
-  if (popup != null) {
-    if (popup.opener == null) {
-      popup.opener = self;
-    }
-    popup.focus();
-  }
-}
-function popupOscarRx(vheight,vwidth,varpage) { //open a new popup window
+function popupOscarRx(vheight,vwidth,varpage, inTabs) { //open a new popup window
   var page = varpage;
   windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=0,screenY=0,top=0,left=0";
-  var popup=window.open(varpage, "oscarRx", windowprops);
-  if (popup != null) {
-    if (popup.opener == null) {
-      popup.opener = self;
+
+    inTabs      = typeof(inTabs)     != 'undefined' ? inTabs : <%=openInTabs%>;
+    var windowName  = 'Master';
+
+	if (varpage == null || varpage == -1) {
+		  	return false;
+	}
+    if( varpage.indexOf("..") == 0 ) {
+            varpage = ctx + varpage.substr(2);
     }
-    popup.focus();
-  }
+
+    if (inTabs) {
+                popup = window.open(varpage, windowName);
+    } else {
+                popup = window.open(varpage, windowName, windowprops);
+    }
+    if (popup != null) {
+        if (popup.opener == null) {
+            popup.opener = self;
+        }
+        popup.focus();
+    }
 }
-function popupS(varpage) {
-	if (! window.focus)return true;
-	var href;
-	if (typeof(varpage) == 'string')
-	   href=varpage;
-	else
-	   href=varpage.href;
-	window.open(href, "fullwin", ',type=fullWindow,fullscreen,scrollbars=yes');
-	return false;
-}
+
+
+
+
 function checkRosterStatus() {
 	if (rosterStatusChangedNotBlank()) {
 		if (document.updatedelete.roster_status.value=="RO") { //Patient rostered
 			if (!rosterStatusDateValid(false)) return false;
-		}
-		else {
+			if (!rosterEnrolledToValid(false)) return false;
+			if(rosterStatusTerminationDateFilled() || rosterStatusTerminationReasonFilled() ) {
+				alert('Please clear the roster termination date and roster termination reason fields');
+				return false;
+			}
+			return true;
+		} else if(document.updatedelete.roster_status.value=="TE") {
+			if (!rosterStatusDateValid(false)) return false;
 			if (!rosterStatusTerminationDateValid(false)) return false;
 			if (!rosterStatusTerminationReasonNotBlank()) return false;
+			return true;
+		} else {
+			return true;
 		}
 	}
 
 	if (rosterStatusDateAllowed()) {
 		if (document.updatedelete.roster_status.value=="RO") { //Patient rostered
 			if (!rosterStatusDateValid(false)) return false;
+			if (!rosterEnrolledToValid(false)) return false;
 		}
 		else {
 			if (!rosterStatusTerminationDateValid(true)) return false;
@@ -114,8 +155,10 @@ function checkRosterStatus() {
 	} else {
 		return false;
 	}
+	
 	if (!rosterStatusDateValid(true)) return false;
 	if (!rosterStatusTerminationDateValid(true)) return false;
+	if (!rosterEnrolledToValid(true)) return false;
 	return true;
 }
 
@@ -219,12 +262,145 @@ function isPostalCode()
 return true;
 }
 
+function isPostalCode2()
+{
+    if(isCanadian()){
+         e = document.updatedelete.residentialPostal;
+         postalcode = e.value;
+        	
+         rePC = new RegExp(/(^s*([a-z](\s)?\d(\s)?){3}$)s*/i);
+    
+         if (!rePC.test(postalcode)) {
+              e.focus();
+              alert("The entered residential Postal Code is not valid");
+              return false;
+         }
+    }//end cdn check
+
+return true;
+}
+
 function isCanadian(){
 	e = document.updatedelete.province;
+    if(e.selectedIndex < 0) { return false; }
     var province = e.options[e.selectedIndex].value;
     
     if ( province.indexOf("US")>-1 || province=="OT"){ //if not canadian
             return false;
     }
     return true;
+}
+
+
+function setProvince(sdCode) {
+	jQuery("#country").bind('change',function(){
+		updateProvinces('');
+	});
+	
+    jQuery.ajax({
+        type: "POST",
+        url:  '../demographicSupport.do',
+        data: 'method=getCountryAndProvinceCodes',
+        dataType: 'json',
+        success: function (data) {
+        	jQuery('#country').append(jQuery('<option>').text('').attr('value', ''));
+        	jQuery.each(data, function(i, value) {
+                 jQuery('#country').append(jQuery('<option>').text(value.label).attr('value', value.value));
+             });
+        	
+        	 if(sdCode.indexOf('-') != -1) {
+            	 jQuery("#country").val(sdCode.split("-")[0]);
+             } else {
+           	//  jQuery("#country").val('CA');
+             }
+        	
+        	updateProvinces(sdCode);
+        }
+	});
+  }
+
+
+function updateProvinces(province) {
+	var country = jQuery("#country").val();
+	console.log('country is ' + country );
+	if(country == '') {
+		console.log('t1');
+		return;
+	}
+	
+	jQuery.ajax({
+        type: "POST",
+        url:  '../demographicSupport.do',
+        data: 'method=getCountryAndProvinceCodes&country=' + country,
+        dataType: 'json',
+        success: function (data) {
+        	jQuery('#province').empty();
+        	jQuery.each(data, function(i, value) {
+                 jQuery('#province').append(jQuery('<option>').text(value.label).attr('value', value.value));
+             });
+        	
+        	
+        	if(province != null) {
+        		jQuery("#province").val(province);
+        	}
+        	
+        	
+        }
+	});
+}
+
+
+function setResidentialProvince(sdCode) {
+	jQuery("#residentialCountry").bind('change',function(){
+		updateResidentialProvinces('');
+	});
+	
+    jQuery.ajax({
+        type: "POST",
+        url:  '../demographicSupport.do',
+        data: 'method=getCountryAndProvinceCodes',
+        dataType: 'json',
+        success: function (data) {
+        	jQuery('#residentialCountry').append(jQuery('<option>').text('').attr('value', ''));
+        	jQuery.each(data, function(i, value) {
+                 jQuery('#residentialCountry').append(jQuery('<option>').text(value.label).attr('value', value.value));
+             });
+             
+             if(sdCode.indexOf('-') != -1) {
+            	 jQuery("#residentialCountry").val(sdCode.split("-")[0]);
+             } else {
+           	//  jQuery("#residentialCountry").val('CA');
+             }
+        	
+        	updateResidentialProvinces(sdCode);
+        }
+	});
+  }
+
+
+function updateResidentialProvinces(province) {
+	var country = jQuery("#residentialCountry").val();
+	if(country == '') {
+		return;
+	}
+	jQuery.ajax({
+        type: "POST",
+        url:  '../demographicSupport.do',
+        data: 'method=getCountryAndProvinceCodes&country=' + country,
+        dataType: 'json',
+        success: function (data) {
+        	jQuery('#residentialProvince').empty();
+        	 
+        	jQuery.each(data, function(i, value) {
+                 jQuery('#residentialProvince').append(jQuery('<option>').text(value.label).attr('value', value.value));
+             });
+        	
+        	
+        	if(province != null) {
+        		jQuery("#residentialProvince").val(province);
+        	}
+        	
+        	
+        }
+	});
 }

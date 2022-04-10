@@ -22,9 +22,43 @@
     Toronto, Ontario, Canada
 
 --%>
-<%@page contentType="text/javascript"%>
-<%@page import="org.oscarehr.casemgmt.common.Colour"%>
+<%@page import="org.oscarehr.common.model.UserProperty"%>
+<%@page import="org.oscarehr.util.LoggedInInfo"%>
+<%@page import="org.oscarehr.util.SpringUtils"%>
 
+<%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
+<%@ page import="org.oscarehr.common.model.UserProperty" %>
+
+<%@page import="oscar.OscarProperties"%>
+<%@page import="org.oscarehr.casemgmt.common.Colour"%>
+<%@ page import="java.util.List"%>
+<%@ page import="java.util.Collections"%>
+<%@ page import="org.oscarehr.common.model.Property"%>
+<%@ page import="org.oscarehr.common.dao.PropertyDao"%>
+<%@ page import="org.oscarehr.provider.web.CppPreferencesUIBean"%>
+<%@ page import="org.apache.xpath.operations.Bool"%>
+<%@ page import="org.oscarehr.common.model.SystemPreferences"%>
+<%@ page import="org.oscarehr.common.dao.SystemPreferencesDao"%>
+
+<%@page contentType="text/javascript"%>
+
+<jsp:useBean id="dataBean" class="java.util.Properties"/>
+
+<%
+	String curUser_no = (String) session.getAttribute("user");
+	UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
+
+    UserProperty tabViewProp = userPropertyDao.getProp(curUser_no, UserProperty.OPEN_IN_TABS);
+    boolean openInTabs = false;
+    if ( tabViewProp == null ) {
+        openInTabs = oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true");
+    } else {
+        openInTabs = oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true") || Boolean.parseBoolean(tabViewProp.getValue());
+    }
+%>
+
+
+    let chartNoteAutosave = null;
 	var numNotes = 0;   //How many saved notes do we have?
     var ctx;        //url context
     var providerNo;
@@ -59,6 +93,12 @@
 		var updateDivTimer = null;
 		var reloadDivUrl;
 		var reloadDiv;
+		var activeCCWindows = [];
+	
+	function openCCEHRWindow(url,demographicNo) {
+		var w = window.open(url,'CC_EHR_' + demographicNo,'width=800,height=650');
+		activeCCWindows.push(w);
+	}
 		
 		function checkLengthofObject(o) {
 			var c = 0;
@@ -71,8 +111,17 @@
 			return c;
 		
 		}
-		
-        function popupPage(vheight,vwidth,name,varpage) { //open a new popup window
+
+    function popupPage(vheight,vwidth,name,varpage,inTabs) { //open a new popup window
+        console.log("newCaseManagementView.js.jsp popup");
+        vheight      = typeof(vheight)    != 'undefined' ? vheight : '700px';
+        vwidth       = typeof(vwidth)     != 'undefined' ? vwidth : '1024px';
+        varpage      = typeof(varpage)    != 'undefined' ? varpage : '';
+        name         = typeof(name)       != 'undefined' ? name : 'encounter';
+        inTabs       = typeof(inTabs)     != 'undefined' ? inTabs : <%=openInTabs%>;
+
+        name = name.replace(/\s+/g,"_");
+        
 		  if (varpage == null || varpage == -1) {
 		  	return false;
 		  }
@@ -81,8 +130,11 @@
           }
           var page = "" + varpage;
           windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=600,screenY=200,top=0,left=0";
-                //var popup =window.open(page, "<bean:message key="oscarEncounter.Index.popupPageWindow"/>", windowprops);
+            if (inTabs) {
+                openWindows[name] = window.open(page, name);
+            } else {
                 openWindows[name] = window.open(page, name, windowprops);
+            }
 
                 if (openWindows[name] != null) {
                     if (openWindows[name].opener == null) {
@@ -158,7 +210,8 @@
 				//release lock on note
 				var url = ctx + "/CaseManagementEntry.do";
 				var nId = document.forms['caseManagementEntryForm'].noteId.value;
-				var params = "method=releaseNoteLock&providerNo=" + providerNo + "&demographicNo=" + demographicNo + "&noteId=" + nId;
+				var params = "method=releaseNoteLock&providerNo=" + providerNo + "&demographicNo=" + demographicNo 
+					+ "&noteId=" + nId + "&closingEChart=true";
 				new Ajax.Request (
 					url,
 					{
@@ -274,7 +327,23 @@ function setupNotes(){
     setCaretPosition($(caseNote), $(caseNote).value.length);
 
     $(caseNote).focus();
+    let autosaveNoteId = document.forms['caseManagementEntryForm'].noteId.value;
+    let autosaveProgramId = document.forms['caseManagementEntryForm']['caseNote.program_no'].value;
+    let autosaveDemographicNo = document.forms['caseManagementEntryForm'].demographicNo.value;
+    chartNoteAutosave = new ChartNoteAutosave(caseNote, autosaveDemographicNo, autosaveProgramId, autosaveNoteId, 5, ctx, updateAutosaveMessage, true);
+    console.log('chartNoteAutosave instance created, noteId: ' + autosaveNoteId + ', programId:  ' + autosaveProgramId);
+
 }
+function updateAutosaveMessage() {
+    var d = new Date();
+    var min = d.getMinutes();
+    min = min < 10 ? "0" + min : min;
+    var seconds = d.getSeconds();
+    seconds = seconds < 10 ? "0" + seconds : seconds;
+    var fmtDate = "<i>" + msgDraftSaved + " " + d.getDate() + "-" + month[d.getMonth()]  + "-" + d.getFullYear() + " " + d.getHours() + ":" + min +  ":" + seconds + "<\/i>";
+    $("autosaveTime").update(fmtDate);
+}
+
 
 function setupOneNote(note) {
 	if (!NiftyCheck())
@@ -400,7 +469,9 @@ function notesIncrementAndLoadMore() {
 		if($("encMainDiv").scrollHeight > $("encMainDiv").getHeight()) {	
 			notesOffset += notesIncrement;
 			notesRetrieveOk = false;
-			notesCurrentTop = $("encMainDiv").children[0].id;
+            if (typeof $("encMainDiv").children[0] != 'undefined') {
+			    notesCurrentTop = $("encMainDiv").children[0].id;
+            }
 			notesLoader(notesOffset, notesIncrement, demographicNo);
 		}
 	}
@@ -432,7 +503,7 @@ function notesLoader(offset, numToReturn, demoNo) {
 				insertion: Insertion.Top,
 				onSuccess: function(data) {
 					notesRetrieveOk = (data.responseText.replace(/\s+/g, '').length > 0);
-					if (!notesRetrieveOk) clearInterval(scrollCheckInterval);
+					if (!notesRetrieveOk) clearInterval(notesSrollCheckInterval);
 				},
 				onComplete: function() {
 					$("notesLoading").style.display = "none";
@@ -474,12 +545,56 @@ function navBarLoader() {
                   ctx + "/oscarEncounter/displayMeasurements.do?hC=" + Colour.measurements,
                   ctx + "/oscarEncounter/displayConsultation.do?hC=" + Colour.consultation,
                   ctx + "/oscarEncounter/displayHRM.do?hC=",
-                  ctx + "/oscarEncounter/displayMyOscar.do?hC=",
                   ctx + "/eaaps/displayEctEaaps.do?hC=",
                   ctx + "/oscarEncounter/displayEconsultation.do?hC=",
-              ];
+                  ctx + "/oscarEncounter/displayQuestimed.do?hC="
+                   ];
 
-            var leftNavBarTitles = [ "preventions", "tickler", "Dx", "forms", "eforms", "docs","labs", "msgs", "measurements", "consultation", "HRM","PHR", "eaaps", "eConsult"];
+            var leftNavBarTitles = [ "preventions", "tickler", "Dx", "forms", "eforms", "docs","labs", "msgs", "measurements", "consultation", "HRM", "eams", "eConsult","Questimed"];
+            
+        <% if (Boolean.parseBoolean(OscarProperties.getInstance().getProperty("DEMOGRAPHIC_PATIENT_CLINIC_STATUS", "true"))) {
+            SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+            List<SystemPreferences> preferences = systemPreferencesDao.findPreferencesByNames(SystemPreferences.ECHART_PREFERENCE_KEYS);
+            for(SystemPreferences preference : preferences) {
+                 dataBean.setProperty(preference.getName(), preference.getValue());
+            }
+            if (Boolean.parseBoolean(dataBean.getProperty("echart_show_ref_doc_widget", "false"))) { %>
+                // to beginning of array to display at top
+                leftNavBar.unshift(ctx + "/oscarEncounter/displayPatientClinicStatus.do?cmd=patientClinicStatus&widget=rDoc&hC=");
+                leftNavBarTitles.unshift("rDoc");
+        <% } %>
+
+        <% if (Boolean.parseBoolean(dataBean.getProperty("echart_show_fam_doc_widget", "false"))) { %>
+            // to beginning of array to display at top, before ref doc widget (if displayed)
+            leftNavBar.unshift(ctx + "/oscarEncounter/displayPatientClinicStatus.do?cmd=patientClinicStatus&widget=fDoc&hC=");
+            leftNavBarTitles.unshift("fDoc");
+        <% }
+        }
+        %>
+            <% if (!OscarProperties.getInstance().getProperty("clinicalConnect.CMS.url", "").isEmpty()) { %>
+                leftNavBar.push(ctx + "/oscarEncounter/displayEHR.do?hC=");
+                leftNavBarTitles.push("ehr");
+            <% } %>
+
+            <%
+            if (OscarProperties.getInstance().getBooleanProperty("MY_OSCAR", "yes")) { %>
+                leftNavBar.push(ctx + '/oscarEncounter/displayMyOscar.do?hC=');
+                leftNavBarTitles.push('PHR')
+            <%}
+            if (OscarProperties.getInstance().getBooleanProperty("echart_show_progress_sheet", "true")) { %>
+        		leftNavBar.unshift(ctx + '/oscarEncounter/displayProgressSheet.do?hC=003468');
+        		leftNavBarTitles.unshift('progressSheet');
+            <% }
+           // List<String> propertyNoteCodes = OscarProperties.getInstance().getCommaSeparatedProperty("leftnav_notes_issue_codes");
+        	//Collections.reverse(propertyNoteCodes); // Reverse List to add to the javascript array in the entered order
+            //for (String code : propertyNoteCodes) { %>
+			<%--	leftNavBar.unshift(ctx + "/CaseManagementView.do?method=listNotes&providerNo=" + providerNo +
+					"&demographicNo=" + demographicNo + "&issue_code=<%=code%>&title=<%=code%>" +
+					"&cmd=<%=code%>" + "&appointment_no=" + appointmentNo + "&hc=996633");
+				leftNavBarTitles.unshift('<%=code%>');
+				--%>
+			<% //} %>
+        
             var rightNavBar = [
                   ctx + "/oscarEncounter/displayAllergy.do?hC=" + Colour.allergy,
                   ctx + "/oscarEncounter/displayRx.do?hC=" + Colour.rx + "&numToDisplay=12",
@@ -861,8 +976,9 @@ function getCPP(issueCode) {
     return "";
 }
 
-var exFields = new Array(11);
-var exKeys = new Array(11);
+var exFields = new Array(12);
+var exKeys = new Array(12);
+
 exFields[0] = "startdate";
 exFields[1] = "resolutiondate";
 exFields[2] = "proceduredate";
@@ -874,6 +990,8 @@ exFields[7] = "relationship";
 exFields[8] = "lifestage";
 exFields[9] = "hidecpp";
 exFields[10] = "problemdescription";
+exFields[11] = "procedure";
+
 exKeys[0] = "Start Date";
 exKeys[1] = "Resolution Date";
 exKeys[2] = "Procedure Date";
@@ -885,16 +1003,20 @@ exKeys[7] = "Relationship";
 exKeys[8] = "Life Stage";
 exKeys[9] = "Hide Cpp";
 exKeys[10] = "Problem Description";
+exKeys[11] = "Procedure";
 
 function prepareExtraFields(cpp,exts) {
 	//commented out..this causes a problem in Firefox
-	//console.log("prepare Extra Fields");
-    var rowIDs = new Array(10);
+
+	console.log("prepare Extra Fields");
+    var rowIDs = new Array(12);
     for (var i=2; i<exFields.length; i++) {
-	rowIDs[i] = "Item"+exFields[i];
-	$(rowIDs[i]).hide();
+    	console.log(i);
+		rowIDs[i] = "Item"+exFields[i];
+		$(rowIDs[i]).hide();
     }
-    if (cpp==cppNames[1]) $(rowIDs[2],rowIDs[4],rowIDs[8],rowIDs[9]).invoke("show");
+
+    if (cpp==cppNames[1]) $(rowIDs[2],rowIDs[4],rowIDs[5],rowIDs[8],rowIDs[9],rowIDs[11]).invoke("show");
     if (cpp==cppNames[2]) $(rowIDs[3],rowIDs[4],rowIDs[7],rowIDs[8],rowIDs[9]).invoke("show");
     if (cpp==cppNames[3]) $(rowIDs[5],rowIDs[8],rowIDs[9],rowIDs[10]).invoke("show");
     if (cpp==cppNames[4]) $(rowIDs[3],rowIDs[6],rowIDs[8],rowIDs[9]).invoke("show");
@@ -912,6 +1034,7 @@ function prepareExtraFields(cpp,exts) {
 	    	}
 		}
     }
+    
 }
 
 function openAnnotation() {
@@ -1137,15 +1260,15 @@ function loadDiv(div,url,limit) {
         $("rowTwoSize").value=full;
     }
 
-    function getActiveText(e) {
+   function getActiveText(e) {
          if(document.all) {
 
             text = document.selection.createRange().text;
-            if(text != "" && $F("keyword") == "") {
-              $("keyword").value += text;
+            if(text != "" && $F("enTemplate") == "") {
+              $("enTemplate").value += text;
             }
-            if(text != "" && $F("keyword") != "") {
-              $("keyword").value = text;
+            if(text != "" && $F("enTemplate") != "") {
+              $("enTemplate").value = text;
             }
           } else {
             text = window.getSelection();
@@ -1159,11 +1282,12 @@ function loadDiv(div,url,limit) {
                text = (txtarea.value).substring(selStart, selEnd);
             }
             //
-            $("keyword").value = text;
+            $("enTemplate").value = text;
           }
 
           return true;
     }
+
 
     function setCaretPosition(inpu, pos){
 	if(inpu.setSelectionRange){
@@ -1204,11 +1328,24 @@ function loadDiv(div,url,limit) {
 
     }
 
+    var encounterNotesReadyCheckInterval;
+    if (window.rxToPaste != null) {
+        encounterNotesReadyCheckInterval = setInterval(function() {
+            if ($(caseNote) != null) {
+                clearInterval(encounterNotesReadyCheckInterval);
+                pasteToEncounterNote(window.rxToPaste);
+                window.rxToPaste = null;
+            }
+        }, 100);
+    }
+
     function pasteToEncounterNote(txt) {
         $(caseNote).value += "\n" + txt;
         adjustCaseNote();
         setCaretPosition($(caseNote),$(caseNote).value.length);
-
+        if (typeof chartNoteAutosave !== 'undefined') {
+            chartNoteAutosave.setChanged();
+         }
     }
 
     function writeToEncounterNote(request) {
@@ -1249,6 +1386,9 @@ function loadDiv(div,url,limit) {
         //setTimeout("$(caseNote).scrollTop="+scrollHeight, 0);  // setTimeout is needed to allow browser to realize that text field has been updated
         $(caseNote).focus();
         adjustCaseNote();
+        //if (typeof chartNoteAutosave !== 'undefined') {
+        //        chartNoteAutosave.setChanged();
+        //}
         setCaretPosition($(caseNote),curPos);
     }
 
@@ -1406,9 +1546,7 @@ function changeToView(id) {
             }
         }
     } */
-
-    //clear auto save
-    clearTimeout(autoSaveTimer);
+    
     deleteAutoSave();
 
     if( $("notePasswd") != null ) {
@@ -1513,7 +1651,10 @@ function changeToView(id) {
         
 
          if( nId.substr(0,1) != "0" ) {
-            Element.remove(printImg);
+            let imageElement = $(printImg);
+             if (imageElement) {
+                 imageElement.parentNode.removeChild(imageElement);
+			 }
             new Insertion.Before(editId, printimg);
             new Insertion.After(editId, attribAnchor);
             new Insertion.Top(parent, img);
@@ -2051,6 +2192,9 @@ function editNote(e) {
     //AutoCompleter for Issues
     var issueURL = ctx + "/CaseManagementEntry.do?method=issueList&demographicNo=" + demographicNo + "&providerNo=" + providerNo;
 	issueAutoCompleter = new Ajax.Autocompleter("issueAutocomplete", "issueAutocompleteList", issueURL, {minChars: 4, indicator: 'busy', afterUpdateElement: saveIssueId, onShow: autoCompleteShowMenu, onHide: autoCompleteHideMenu});
+    let autosaveProgramId = document.forms['caseManagementEntryForm']['caseNote.program_no'].value;
+    chartNoteAutosave = new ChartNoteAutosave(caseNote, demographicNo, autosaveProgramId, nId, 5, ctx, updateAutosaveMessage, true);
+    console.log('chartNoteAutosave instance created, noteId: ' + nId + ', programId:  ' + autosaveProgramId);
 
     //if note is already signed, remove save button to force edits to be signed
     var sign = "signed" + nId;
@@ -2059,8 +2203,6 @@ function editNote(e) {
     else
         $("saveImg").style.visibility = "visible";
 
-    //start AutoSave
-    setTimer();
 }
 
 function collapseView(e) {
@@ -2369,8 +2511,11 @@ function ajaxSaveNote(div,noteId,noteTxt) {
 		
 		}
     }
-
-
+    // Stop autosave on manual save
+    if (typeof chartNoteAutosave !== 'undefined') {
+        chartNoteAutosave.setChangedFalse();
+    }
+    
     document.forms["caseManagementEntryForm"].method.value = 'ajaxsave';
 
     var idx = 0;
@@ -2481,7 +2626,7 @@ function saveNoteAjax(method, chain) {
     document.forms["caseManagementEntryForm"].chain.value = chain;
     document.forms["caseManagementEntryForm"].includeIssue.value = "off";
 
-    clearAutoSaveTimer();
+    //clearAutoSaveTimer();
 
     var caseMgtEntryfrm = document.forms["caseManagementEntryForm"];
 
@@ -2679,7 +2824,7 @@ function savePage(method, chain) {
 
     var caseMgtEntryfrm = document.forms["caseManagementEntryForm"];
 
-    clearAutoSaveTimer();
+    // clearAutoSaveTimer();
 
     if( method == "saveAndExit" ) {
     	needToReleaseLock = false;
@@ -2689,6 +2834,9 @@ function savePage(method, chain) {
     }
 
 	origCaseNote = $F(caseNote);
+    if (typeof chartNoteAutosave !== 'undefined') {
+        chartNoteAutosave.setChangedFalse();
+	}
     caseMgtEntryfrm.submit();
 
 	jQuery("span[note_addon]").each(function(i){
@@ -3010,7 +3158,7 @@ function newNote(e) {
         $("saveImg").style.visibility = "visible";
 
         //start AutoSave
-        setTimer();
+        //setTimer();
     }
     else
         $(caseNote).focus();
@@ -3098,18 +3246,6 @@ function backup() {
         autoSave(true);        
     }
 
-	if( !lostNoteLock ) {
-    	setTimer();
-    }
-}
-
-var autoSaveTimer;
-function setTimer() {
-    autoSaveTimer = setTimeout("backup()", 5000);
-}
-
-function clearAutoSaveTimer() {
-    clearTimeout(autoSaveTimer);
 }
 
 var unsavedNoteMsg;
@@ -3467,8 +3603,8 @@ function autoCompleteShowMenuCPP(element, update) {
         }else if( $("printopAll").checked ){
             printAll();
         }
-
-        if( $F("notes2print").length == 0 && $F("printCPP") == "false" && $F("printRx") == "false" && $F("printLabs") == "false" && $F("printPreventions") == "false" ) {
+		
+		if( $F("notes2print").length == 0 && $F("printCPP") == "false" && $F("printRx") == "false" && $F("printLabs") == "false" && $F("printPreventions") == "false" ) {
             alert(nothing2PrintMsg);
             return false;
         }
@@ -3480,6 +3616,8 @@ function autoCompleteShowMenuCPP(element, update) {
 
         frm.pStartDate.value = $F("printStartDate");
         frm.pEndDate.value = $F("printEndDate");
+        frm.pType.value = $F("printopDates");
+        
         frm.submit();
 
         return false;
@@ -3524,10 +3662,16 @@ function autoCompleteShowMenuCPP(element, update) {
     //print today's notes
     function printToday(e) {
         clearAll(e);
-
+        var date = new Date();
+        // add a day
+        date.setDate(date.getDate() + 1);
+        const day = date.toLocaleString('en',{ day: '2-digit' });
+        const month = date.toLocaleString('en',{ month: 'short' });
+        const year = date.toLocaleString('en',{ year: 'numeric' });
+        $("printEndDate").value = day + "-" + month.substr(0,3) + "-" + year;
         var today = $F("serverDate").split(" ");
         $("printStartDate").value = today[1].substr(0,today[1].indexOf(",")) + "-" + today[0] + "-" + today[2];
-        $("printEndDate").value = $F("printStartDate");
+        //$("printEndDate").value = $F("printStartDate");
         $("printopDates").checked = true;
 
         printNotes();
@@ -3925,11 +4069,31 @@ function assignNoteAjax(method, chain,programId,demographicNo) {
 window.addEventListener("message", receiveMessage, false);
 	
 function receiveMessage(event) {
-	var data = JSON.parse(event.data);
-	if(data.encounterText != null && data.encounterText.length > 0) {
+	var data = event.data;
+	if(!(typeof data === 'object')) {
+		data = JSON.parse(event.data);
+	}
+	if(data != null && data.encounterText != null && data.encounterText.length > 0) {
 		var x = {};
 		x.responseText = data.encounterText;
 		writeToEncounterNote(x);
 	}
 	
 }
+
+<%
+	UserPropertyDAO userPropertyDAO = SpringUtils.getBean(UserPropertyDAO.class);
+	UserProperty prop = userPropertyDAO.getProp(LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo(), "clinicalConnectDisableCloseWindow");
+	if(prop != null && "true".equals(prop.getValue()) ) {
+		
+	} else {
+%>
+	window.addEventListener("beforeunload", function(){
+		for(var x=0;x<activeCCWindows.length;x++) {
+			activeCCWindows[x].close();
+		}
+	});
+<%		
+	}
+	
+%>

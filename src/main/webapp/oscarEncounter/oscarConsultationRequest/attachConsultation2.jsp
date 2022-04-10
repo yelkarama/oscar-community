@@ -41,6 +41,14 @@ String userlastname = (String) session.getAttribute("userlastname");
 <%@ page import="oscar.oscarLab.ca.all.Hl7textResultsData"%>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%@page import="org.oscarehr.util.SessionConstants"%>
+<%@ page import="org.oscarehr.util.SpringUtils" %>
+<%@page import="org.oscarehr.hospitalReportManager.dao.HRMDocumentDao"%>
+<%@page import="org.oscarehr.hospitalReportManager.dao.HRMDocumentToDemographicDao"%>
+<%@page import="org.oscarehr.hospitalReportManager.model.HRMDocument"%>
+<%@page import="org.oscarehr.hospitalReportManager.model.HRMDocumentToDemographic"%>
+<%@ page import="java.text.SimpleDateFormat" %>
+<%@ page import="org.oscarehr.common.model.EFormData" %>
+<%@ page import="oscar.eform.EFormUtil" %>
 
 <%
 
@@ -63,8 +71,11 @@ if( demoNo == null || demoNo.equals("null")  ) {
     
 }
 
+HRMDocumentToDemographicDao hrmDocumentToDemographicDao = (HRMDocumentToDemographicDao) SpringUtils.getBean("HRMDocumentToDemographicDao");
+HRMDocumentDao hrmDocumentDao = (HRMDocumentDao) SpringUtils.getBean("HRMDocumentDao");
+
 String patientName = EDocUtil.getDemographicName(loggedInInfo, demoNo);
-String[] docType = {"D","L"};
+String[] docType = {"D","L", "H", "E"};
 String http_user_agent = request.getHeader("User-Agent");
 boolean onIPad = http_user_agent.indexOf("iPad") >= 0;
 %>
@@ -80,8 +91,7 @@ boolean onIPad = http_user_agent.indexOf("iPad") >= 0;
 <title><bean:message
 	key="oscarEncounter.oscarConsultationRequest.AttachDocPopup.title" /></title>
 
-<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css" />
-
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 <script type="text/javascript">
 //<!--   
 <% 
@@ -89,6 +99,8 @@ CommonLabResultData labData = new CommonLabResultData();
 ArrayList<LabResultData> labs = labData.populateLabResultsData(loggedInInfo, demoNo, requestId, CommonLabResultData.ATTACHED);
 ArrayList<EDoc> privatedocs = new ArrayList<EDoc>();
 privatedocs = EDocUtil.listDocs(loggedInInfo, demoNo, requestId, EDocUtil.ATTACHED);
+List<HRMDocumentToDemographic> hrmDocumentsToDemographics = hrmDocumentToDemographicDao.findHRMDocumentsAttachedToConsultation(requestId);
+List<EFormData> eForms = EFormUtil.listPatientEformsCurrentAttachedToConsult(requestId);
 String attachedDocs = "";
 if (requestId == null || requestId.equals("") || requestId.equals("null")) {
 	attachedDocs = "window.opener.document.EctConsultationFormRequestForm.documents.value";
@@ -101,7 +113,14 @@ else {
 	for (int i = 0; i < labs.size(); i++) {
 	    attachedDocs += (attachedDocs.equals("") ? "" : "|") + "L" + (labs.get(i)).getSegmentID(); 
 	}
-	attachedDocs = "\"" + attachedDocs + "\"";
+	
+	for (HRMDocumentToDemographic hrmDocumentToDemographic : hrmDocumentsToDemographics) {
+		attachedDocs += (attachedDocs.equals("") ? "" : "|") + "H" + hrmDocumentToDemographic.getHrmDocumentId();  
+	}
+	for (EFormData eForm : eForms) {
+		attachedDocs += (attachedDocs.equals("") ? "" : "|") + "E" + eForm.getId();  
+	}
+	attachedDocs = "\"" + attachedDocs + "\""; 
 }
 %>  
 
@@ -116,13 +135,23 @@ function checkDocuments(docs) {
 	if (docs == null) { return; }
 	for (var idx = 0; idx < docs.length; ++idx) {
         if (docs[idx].length < 2) { continue; }
-        $("input[name='" + (docs[idx].charAt(0) == "L" ? "labNo" : "docNo") + "']"
+		var attachmentType = "docNo";
+        switch (docs[idx].charAt(0)) {
+			case "L": attachmentType = "labNo"; break;
+			case "H": attachmentType = "hrmNo"; break;
+			case "D": attachmentType = "docNo"; break;
+			case "E": attachmentType = "eFormNo"; break;
+		}
+        $("input[name='" + attachmentType + "']"
               +"[value='" + docs[idx].substring(1) + "']").attr("checked", "checked");
     }
 }
 
 
 function save() {
+	if (window.opener == null) {
+		window.close();
+	}
     var ret;    
     if(document.forms[0].requestId.value == "null") {                       
        var saved = "";       
@@ -150,6 +179,21 @@ function save() {
            listElem.className = "lab";
            list.appendChild(listElem);
        });
+       
+       $("input[name='hrmNo']:checked").each(function() {
+    	  saved += (saved == "" ? "" : "|") + "H" + $(this).attr("value");
+    	  listElem = window.opener.document.createElement("li");
+    	  listElem.innerHTML = $(this).next().get(0).innerHTML;
+          listElem.className = "hrm";
+          list.appendChild(listElem);
+       });
+		$("input[name='eFormNo']:checked").each(function() {
+			saved += (saved == "" ? "" : "|") + "E" + $(this).attr("value");
+			listElem = window.opener.document.createElement("li");
+			listElem.innerHTML = $(this).next().get(0).innerHTML;
+			listElem.className = "eForm";
+			list.appendChild(listElem);
+		});
                    
        window.opener.document.EctConsultationFormRequestForm.documents.value = saved; 
       
@@ -194,24 +238,24 @@ function toggleSelectAll() {
 </style>
 
 </head>
-<body style="font-family: Verdana, Tahoma, Arial, sans-serif; background-color: #ddddff" onload="init()" >
+<body style="font-family: Verdana, Tahoma, Arial, sans-serif; background-color: #f5f5f5" onload="init()" >
 
-<h3 style="text-align: left"><bean:message
+<h3 style="text-align: left">&nbsp;<bean:message
 	key="oscarEncounter.oscarConsultationRequest.AttachDocPopup.header" />
 <%=patientName%></h3>
 <html:form action="/oscarConsultationRequest/attachDoc">
 	<html:hidden property="requestId" value="<%=requestId%>" />
 	<html:hidden property="demoNo" value="<%=demoNo%>" />
 	<html:hidden property="providerNo" value="<%=providerNo%>" />
-	<table style="width:1080px; border: solid 1px blue; font-size: x-small; background-color:white;" >
+	<table style="width:1080px; font-size: x-small; background-color:white;" >
 		<tr>
 			<th style="text-align: center"><bean:message
 				key="oscarEncounter.oscarConsultationRequest.AttachDocPopup.available" /></th>			
 			<th style="text-align: center"><bean:message
 				key="oscarEncounter.oscarConsultationRequest.AttachDocPopup.preview" /></th>
 		</tr>
-		<tr valign="top" style="border-top:thin dotted blue;">
-			<td style="width: 225px; text-align: left; background-color: white; border-right:thin dotted blue; position:absolute; height:600px;" >
+		<tr valign="top" style="border-top:thin dotted black;">
+			<td style="width: 245px; text-align: left; background-color: white; border-right:thin dotted black; position:absolute; height:600px;" >
 			<input type="submit" class="btn" style="position: absolute; left: 35px; top: 5px;"
                 name="submit"
                 value="<bean:message key="oscarEncounter.oscarConsultationRequest.AttachDocPopup.submit"/>"
@@ -231,7 +275,9 @@ function toggleSelectAll() {
             labs = labData.populateLabResultsData(loggedInInfo, "",demoNo, "", "","","U");
             Collections.sort(labs);       
             
-            if (labs.size() == 0 && privatedocs.size() == 0) {
+            List<HRMDocumentToDemographic> hrmDocumentToDemographicList = hrmDocumentToDemographicDao.findByDemographicNo(demoNo);
+            
+            if (labs.size() == 0 && privatedocs.size() == 0 && hrmDocumentToDemographicList.size() == 0 && eForms.size() == 0) {
             %>
                 <li> There are no documents to attach. </li>
             <% }
@@ -241,10 +287,10 @@ function toggleSelectAll() {
                  <input class="tightCheckbox1" id="selectAll"
                         type="checkbox" onclick="toggleSelectAll()"
                         value="" title="Select/un-select all documents."
-                        style="margin: 0px; padding: 0px;"/> Select all  
+                        style="margin: 0px; padding: 0px;"/> <bean:message key="dms.documentReport.msgAll"/>
             </li>
             <% if(privatedocs.size() > 0){%>
-            	<h2>Documents</h2>
+            	<h4><bean:message key="global.Document"/></h4>
             <%}%>
             <%
 	            EDoc curDoc;
@@ -303,7 +349,7 @@ function toggleSelectAll() {
 				                        value="<%=curDoc.getDocId()%>"
 				                        style="margin: 0px; padding: 0px;" />
 				                <span class="url" style="display:none">
-		                        	<a  title="<%=curDoc.getDescription()%>" href="<%=url%>" style="color: blue; text-decoration: none;" target="_blank">
+		                        	<a  title="<%=curDoc.getDescription()%>" href="<%=url%>" target="_blank">
 										<img style="width:15px;height:15px" title="<%= printTitle %>" src="<%= printImage %>" alt="<%= printAlt %>" />
 										<%=truncatedDisplayName%>
 									</a>										
@@ -326,7 +372,7 @@ function toggleSelectAll() {
 	                }
 	            	if(labs.size() > 0){
 	            	%>
-	            		<h2>Labs</h2>	
+	            		<h4><bean:message key="caseload.msgLab"/></h4>	
 	            	<%
 	            	}
 		                 
@@ -385,12 +431,125 @@ function toggleSelectAll() {
 							            <span style="float:right;">... <%=date%></span>                         
 							        </a>
 							        </div>
+							        <div style="clear:both;"></div>
 						        </div>
 						    </li>
 	    
 	                <% 
-	                     } 
-                    } %>               
+	                     }
+
+					printImage = PRINTABLE_IMAGE;
+					printTitle = PRINTABLE_TITLE;
+					printAlt = PRINTABLE_ALT;
+	                
+	                if(hrmDocumentToDemographicList.size() > 0) { %>
+						<h4><bean:message key="oscarEncounter.oscarConsultationRequest.AttachDocPopup.hrmDocuments"/></h4>
+				<% 	}
+
+					List<HRMDocument> docs = new ArrayList<HRMDocument>();
+	                
+					for (HRMDocumentToDemographic hrmDocumentToDemographic : hrmDocumentToDemographicList) 
+					{
+					    List<HRMDocument> documents =  hrmDocumentDao.findById(Integer.valueOf(hrmDocumentToDemographic.getHrmDocumentId()));
+						if (documents!=null && !documents.isEmpty()){
+							docs.add(documents.get(0));
+						}
+					}
+					
+					Collections.sort(docs, new Comparator<HRMDocument>() {
+						@Override
+						public int compare(HRMDocument o1, HRMDocument o2) {
+							return o2.getReportDate().after(o1.getReportDate()) ? 1 : -1;
+						}
+					});
+				
+	                //For each hrmDocumentToDemographic in the list
+	                for (HRMDocument hrmDocument : docs) {
+	                    
+						//Declares the displayName variable
+	                	String hrmDisplayName;
+	                	//If the HRM document has a description
+	                	if (hrmDocument.getDescription() != null && !hrmDocument.getDescription().equals("")) {
+	                		//Set the displayName to the description if it is present
+	                		hrmDisplayName = hrmDocument.getDescription();
+	                	}
+	                	else {
+	                		//Sets the displayName to the reportType if there is no description
+	                		hrmDisplayName = hrmDocument.getReportType();	
+	                	}
+	                	
+	                	if (onIPad){
+	                		truncatedDisplayName = hrmDisplayName;
+	                	}
+	                	else {
+	                		truncatedDisplayName = StringUtils.maxLenString(hrmDisplayName,14,11,"");
+	                	}
+	                	//Gets the url for the display of the HRM Report
+	                	url = request.getContextPath() + "/hospitalReportManager/Display.do?id=" + hrmDocument.getId() + "&segmentID=" + hrmDocument.getId() + "&duplicateLabIds=";
+	                	//Gets the report date 
+	                	date = DateUtils.getDate(hrmDocument.getReportDate(), "dd-MMM-yyyy", request.getLocale());
+	                	%>
+		                	<li class="hrm" title="<%=hrmDisplayName%>" id="hrm<%=hrmDocument.getId()%>">
+								<div>
+									<div style="float:left; height:20px; line-height:20px; white-space:nowrap;">
+										<input class="tightCheckbox1" type="checkbox" name="hrmNo" id="hrmNo<%=hrmDocument.getId()%>" value="<%=hrmDocument.getId()%>" style="margin: 0px; padding: 0px;" />       
+										<span class="url" style="display:none">
+											<a href="<%=url%>" title="<%=hrmDisplayName%>" style="color: red; text-decoration: none;" target="_blank">
+											<img style="width:15px;height:15px" title="<%= printTitle %>" src="<%= printImage %>" alt="<%= printAlt %>" />
+											<%=truncatedDisplayName%></a>
+										</span>             
+										<img title="<%= printTitle %>" src="<%= printImage %>" alt="<%= printAlt %>">
+										<a class="hrmPreview" href="#" onclick="javascript:previewHTML('<%=url%>');">
+											<span class="text"><%=truncatedDisplayName%></span>								           
+										</a>
+								
+									</div>
+									<div style="float:right; height:25px; line-height:25px; white-space:nowrap;">
+										<a class="hrmPreview" href="#" onclick="javascript:previewHTML('<%=url%>');">
+											<span style="float:right;">... <%=date%></span>                         
+										 </a>
+									</div>
+									<div style="clear:both;"></div>    
+								</div>
+					    	</li>
+			    <%
+					}
+
+					SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy", request.getLocale());
+					//Get eforms
+					eForms= EFormUtil.listPatientEformsCurrent(new Integer(demoNo), true, 0, 100);
+					if (!eForms.isEmpty()) { %>
+						<h4><bean:message key="global.eForms"/></h4>
+					<% }
+					for (EFormData eForm : eForms) {
+						url = request.getContextPath() + "/eform/efmshowform_data.jsp?fdid="+eForm.getId();
+					%>
+						<li class="eForm" title="<%=eForm.getFormName()%>" id="eForm<%=eForm.getId()%>">
+							<div>
+								<div style="float:left; height:20px; line-height:20px; white-space:nowrap;">
+									<input class="tightCheckbox1" type="checkbox" name="eFormNo" id="eFormNo<%=eForm.getId()%>" value="<%=eForm.getId()%>" style="margin: 0px; padding: 0px;" />
+									<span class="url" style="display:none">
+															<a href="<%=url%>" title="<%=eForm.getFormName()%>" style="color: #917611; text-decoration: none;" target="_blank">
+															<img style="width:15px;height:15px" title="<%= printTitle %>" src="<%= printImage %>" alt="<%= printAlt %>" />
+															<%=eForm.getFormName()%></a>
+														</span>
+									<img title="<%= printTitle %>" src="<%= printImage %>" alt="<%= printAlt %>">
+									<a class="eFormPreview" href="#" onclick="javascript:previewHTML('<%=url%>', true);">
+										<span class="text"><%=(eForm.getFormName().length()>14)?eForm.getFormName().substring(0, 11)+"...":eForm.getFormName()%></span>
+									</a>
+		
+								</div>
+								<div style="float:right; height:25px; line-height:25px; white-space:nowrap;">
+									<a class="eFormPreview" href="#" onclick="javascript:previewHTML('<%=url%>', true);">
+										<span style="float:right;"><%=sdf.format(eForm.getFormDate())%></span>
+									</a>
+								</div>
+								<div style="clear:both;"></div>
+							</div>
+						</li>
+					<%
+					}
+				} %>               
                          
             </ul>
             <input type="submit" class="btn" style="position: absolute; left: 35px; bottom: 5px;"

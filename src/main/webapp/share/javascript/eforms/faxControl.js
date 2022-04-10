@@ -126,8 +126,20 @@ function hasFaxNumber() {
 }
 
 function submitFaxButtonAjax(save) {
+	var ticklerFlag = $("#tickler_send_to");
+    if (ticklerFlag.size() >0) { 
+        $.when(setTickler()).then(function( data, textStatus, jqXHR ) {
+            console.log("faxControl.js reports tickler "+textStatus);
+            if ( jqXHR.status != 200 ){ alert("ERROR ("+jqXHR.status+") automatic tickler FAILED to be set");}
+            finishFax(save);
+        });
+    } else {
+        finishFax(save);
+    }
+}
+
+function finishFax(save) {
 	document.getElementById('faxEForm').value=true;
-	
 	var saveHolder = jQuery("#saveHolder");
 	if (saveHolder == null || saveHolder.size() == 0) {
 		jQuery("form").append("<input id='saveHolder' type='hidden' name='skipSave' value='"+!save+"' >");

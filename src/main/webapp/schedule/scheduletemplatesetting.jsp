@@ -137,7 +137,7 @@ function go() {
 		</table>
 		<table width="98%" border="0" cellspacing="0" cellpadding="0"
 			height="500">
-			<tr>
+			<tr style="color:white;">
 				<td>
 				<p>&nbsp;</p>
 				<p><font size="-1"><bean:message
@@ -159,13 +159,7 @@ function go() {
 		<table width="95%" border="0" cellspacing="0" cellpadding="0">
 			<tr>
 				<td><bean:message
-					key="schedule.scheduletemplatesetting.formSelectProvider" />:</td>
-			</tr>
-			<tr>
-				<td>&nbsp;</td>
-			</tr>
-			<tr>
-				<td bgcolor="#CCFFCC">&nbsp; <select name="provider_no"
+					key="schedule.scheduletemplatesetting.formSelectProvider" />:&nbsp;&nbsp;<select name="provider_no"
 					onChange="selectprovider(this)">
 					<option value=""><bean:message
 						key="schedule.scheduletemplatesetting.msgNoProvider" /></option>
@@ -200,6 +194,9 @@ function go() {
 						<% } %>
 				
 				</select></td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
 			</tr>
 			<tr>
 				<td>&nbsp;</td>

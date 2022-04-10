@@ -96,7 +96,8 @@ public final class EctConsultationFormRequestForm extends ActionForm {
 	private String patientAddress;
 	private String patientPhone;
 	private String patientWPhone;
-        private String patientEmail;
+	private String patientCellPhone;
+    private String patientEmail;
 	private String patientDOB;
 	private String patientSex;
 	private String patientHealthNum;
@@ -109,6 +110,8 @@ public final class EctConsultationFormRequestForm extends ActionForm {
 	private String professionalSpecialistAddress;
         private String followUpDate;
 	private boolean eReferral = false;
+	private String eReferralService = "";
+	private String eReferralId = null;
 	private Integer hl7TextMessageId;
 
 	private String letterheadName, letterheadAddress, letterheadPhone, letterheadFax;
@@ -149,6 +152,20 @@ public final class EctConsultationFormRequestForm extends ActionForm {
 
 	public void seteReferral(boolean eReferral) {
 		this.eReferral = eReferral;
+	}
+
+	public String geteReferralService() {
+		return eReferralService;
+	}
+	public void seteReferralService(String eReferralService) {
+		this.eReferralService = eReferralService;
+	}
+
+	public String geteReferralId() {
+		return eReferralId;
+	}
+	public void seteReferralId(String eReferralId) {
+		this.eReferralId = eReferralId;
 	}
 
 	public String getProviderName() {
@@ -419,8 +436,16 @@ public final class EctConsultationFormRequestForm extends ActionForm {
 	public void setPatientWPhone(String patientWPhone) {
 		this.patientWPhone = patientWPhone;
 	}
+	
+    public String getPatientCellPhone() {
+		return StringUtils.trimToEmpty(patientCellPhone);
+	}
 
-        public void setPatientEmail(String patientEmail) {
+	public void setPatientCellPhone(String patientCellPhone) {
+		this.patientCellPhone = patientCellPhone;
+	}
+
+		public void setPatientEmail(String patientEmail) {
             this.patientEmail = patientEmail;
         }
         

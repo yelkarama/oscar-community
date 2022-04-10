@@ -72,7 +72,7 @@ function showMessenger(url, notificationId, message) {
 	var messageContent = "";
 	// in case URL is specified - make sure it's clickable
 	if (url) {
-		messageContent = "<a style='color: white' href='" + url + "' target='_blank'>" + message + "</a>";
+		messageContent = "<a href='javascript:void();' style='color: white' onclick='window.open(\"" + url + "\",\"eaaps\",\"height=700,width=1000,left=10,top=10,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no,status=yes\");return false;'  >"+message+"</a>";
 	} else { // otherwise - just show the message provided
 		messageContent = message;
 	}
@@ -91,13 +91,6 @@ function showMessenger(url, notificationId, message) {
 						type: "success",
 						actions: false
 					});
-				}
-			},
-			dismiss: {
-				label: 'Dismiss',
-				action: function() {
-					dismissHandler(notificationId);
-					return msg;
 				}
 			}
 		}

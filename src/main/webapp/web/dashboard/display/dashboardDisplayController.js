@@ -23,6 +23,8 @@
 */
 
 var jqplotOptions;
+var jqplotOptionsBar;
+
 var placeHolderCount = 0;
 var indicatorPanels = [];
 
@@ -36,7 +38,10 @@ $(document).ready( function() {
 				rendererOptions: { 
 					startAngle: 180, 
 					sliceMargin: 4, 
-					showDataLabels: true } 
+					showDataLabels: true,
+					dataLabels: 'value',
+					dataLabelThreshold: 0
+				}
 			},
 			grid: {
 			    drawGridLines: false,        	// wether to draw lines across the grid or not.
@@ -53,8 +58,56 @@ $(document).ready( function() {
 			legend: { show:true, location: 's' }
 			
 		};
-
-
+	
+	jqplotOptionsBar = {		
+			title: ' ',
+			seriesDefaults: {
+				renderer: $.jqplot.BarRenderer, 
+				 pointLabels: { show: false }, 
+			     showLabel: true,
+			     rendererOptions: { varyBarColor : true },
+				
+			},
+			legend: {
+				 show: true,
+		            placement: 'outsideGrid',
+		            location: 's',
+		          //  labels: ticks
+	        },
+			highlighter:{
+		        show:true,
+		        tooltipContentEditor:tooltipContentEditor
+		    },
+	        axesDefaults: {
+	        	showLabel:false,
+	        	 showTickMarks:false,
+	        	 showTicks:false,
+	        	 show:false,
+	        	 showTicks: false
+	        },
+			 axes: {
+				 xaxis: {
+	                    renderer: $.jqplot.CategoryAxisRenderer,
+	                    showLabel:false,
+	                    show:false
+	                },
+	                yaxis : {
+	                	showLabel:true,
+	   	        	 showTickMarks:false,
+	   	        	 showTicks:true,
+	   	        	 min:0
+	                }
+	            },
+	            
+		};
+	
+	function tooltipContentEditor(str, seriesIndex, pointIndex, plot) {
+	    // display series_label, x-axis_tick, y-axis value
+		//console.log(JSON.stringify(plot.data[seriesIndex][pointIndex]));
+		//return plot.series[seriesIndex]["label"] + ", " + plot.data[seriesIndex][pointIndex];
+		return plot.data[seriesIndex][pointIndex][0];
+	}
+	
 	// get the drill down page
 	$(".indicatorWrapper").on('click', ".indicatorDrilldownBtn", function(event) {
     	event.preventDefault();
@@ -65,7 +118,17 @@ $(document).ready( function() {
 
     	sendData(url, data, null);
     });
-	
+
+	$(".indicatorWrapper").on("click", ".indicatorGraph", function(event) {
+		event.preventDefault();
+		var url = "/web/dashboard/display/DrilldownDisplay.do";
+		var data = new Object();
+		data.indicatorTemplateId = (this.id).split("_")[1];
+		data.method = "getDrilldown";
+
+		sendData(url, data, null);
+	});
+
 	// get the dashboard manager page
 	$(".dashboardManagerBtn").on('click', function(event) {
     	event.preventDefault();
@@ -91,10 +154,50 @@ $(document).ready( function() {
 		data.indicatorId = this.id.split("_")[1];
 
 		sendData("/web/dashboard/display/DisplayIndicator.do", data, this.id.split("_")[0]);
-	})
+	});
+	
+	$(".indicatorWrapper").on('click', ".reloadIndicatorBtn", function(event) {
+    	event.preventDefault();
+    	
+    	$("#indicatorId_" + this.id.split("_")[1]).html("<div><span class=\"glyphicon glyphicon-refresh glyphicon-refresh-animate\"></span>Loading...</div>");
+    	
+    	var data = new Object();
+		data.method = "getIndicator";
+		data.indicatorId = this.id.split("_")[1];
+
+		sendData("/web/dashboard/display/DisplayIndicator.do", data, "indicatorId");
+    });
+	
+	$(".indicatorWrapper").on('click', ".disableReloadIndicatorBtn", function(event) {
+    	event.preventDefault();
+    	
+    	
+    	var hasClass = $("#indicatorId_" +  this.id.split("_")[1]).hasClass('disableRefresh');
+    	if(!hasClass) {
+    		$("#indicatorId_" +  this.id.split("_")[1]).addClass('disableRefresh');
+    		$("#disableReloadIndicator_" + this.id.split("_")[1]).css('color','red');
+    	} else {
+    		$("#indicatorId_" +  this.id.split("_")[1]).removeClass('disableRefresh');
+    		$("#disableReloadIndicator_" + this.id.split("_")[1]).css('color','rgb(42, 100, 150)');
+    		
+    	}
+    });
+	
 	
 	placeHolderCount = $(".indicatorWrapper").length;
 
+	
+	
+	$(".indicatorWrapper").on("click", ".indicatorTrendBtn", function(event) {
+		event.preventDefault();
+		console.log('trend going modal '  + (this.id).split("_")[1]);
+		
+		window.open('indicatorTrend.jsp?providerNo=' + $("#providerNo").val() + "&indicatorTemplateId=" + (this.id).split("_")[1],'trending','toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=900px,height=500px');
+		
+	});
+
+	
+	
 })
 
 // build Indicator panel with Pie chart.
@@ -110,7 +213,59 @@ function buildIndicatorPanel( html, target, id ) {
 	var data = "[" + panel.find( "#graphPlots_" + id ).val() + "]";
 	data = data.replace(/'/g, '"');
 	data = JSON.parse( data )
-	indicatorGraph = $.jqplot ( 'graphContainer_' + id, data, jqplotOptions ).replot();
+	
+	var labels = "[" + panel.find( "#graphLabels_" + id ).val() + "]";
+	labels = labels.replace(/'/g, '"');
+	labels = JSON.parse( labels )
+	
+	
+	var graphType = panel.find( "#graphType_" + id ).val();
+	
+	console.log('plot data = ' + "[" + panel.find( "#graphPlots_" + id ).val() + "]");
+	if(graphType === 'bar') {
+		//need to massage the data variable
+		//var data =  [[['% Smokers',1.0],['% Not documented',0.0],['% Non-smokers',1.0]],[],[]];
+		//var data =  [[1.0,0.0,1.0],[],[]];
+		
+		var newData = [];
+		
+		var ticks = [];
+		var d1 = data[0];
+		for(var x=0;x<d1.length;x++) {
+			console.log('element ' + x + ' -> ' + d1[x]);
+			ticks[x] = d1[x][0];
+			newData[x] = d1[x][1];
+		}
+		
+		var newData2 = [];
+		newData2[0] = newData;
+		for(var x=0;x<d1.length-1;x++) {
+			newData2[x+1] = [];
+		}
+		
+		jqplotOptionsBar.series = [];
+		jqplotOptionsBar.series[0] = {};
+		for(var x=0;x<d1.length;x++) {
+			jqplotOptionsBar.series[x+1] =  {renderer: $.jqplot.LineRenderer};
+		}
+		jqplotOptionsBar.legend.labels = ticks;
+		
+		
+		indicatorGraph = $.jqplot ( 'graphContainer_' + id, newData2, jqplotOptionsBar ).replot();
+	} else if(graphType === 'pie') {
+		indicatorGraph = $.jqplot ( 'graphContainer_' + id, data, jqplotOptions ).replot();
+	} else if(graphType === 'table') {
+		var tableHtml = '<table class="table">';
+		var d1 = data[0];
+		for(var x=0;x<d1.length;x++) {
+			tableHtml += "<tr><td>"+d1[x][0]+"</td><td>"+d1[x][1]+"</td></tr>";
+		}
+		tableHtml += "</table>";
+		$('#graphContainer_' + id).html(tableHtml);
+		console.log('table rendering not yet implemented');
+	} else if(graphType === 'stacked') {
+		console.log('stacked bar graph type not yet implemented');
+	}
 	
 	window.onresize = function(event) {
 		indicatorGraph.replot();
@@ -141,7 +296,7 @@ function buildIndicatorPanel( html, target, id ) {
 
 		}		
 		return panelList;
-	}
+	} 
 }
 
 function sendData(path, param, target) {
@@ -163,4 +318,32 @@ function sendData(path, param, target) {
 	    	}
 	    }
 	});
+}
+
+function setupRefreshIndicators(numMinutes) {
+	//will need to eventual exclude some of them.
+	console.log('setting up refresh of indicators every ' + numMinutes + " minutes.");
+	setInterval(function(){
+		refreshIndicators();
+	},numMinutes*60*1000);
+	
+}
+
+function refreshIndicators() {
+	console.log('refreshing indicators ' + new Date().toString());
+	//loop through all indicators...is it disabled?..refresh it
+	$(".indicatorWrapper").each(function(){	
+		var hasClass = $("#indicatorId_" +  this.id.split("_")[1]).hasClass('disableRefresh');
+		if(hasClass) {
+			//console.log('skipping' + this.id + " because it's refresh is disabled");
+			return;
+		}
+		//console.log('refreshing indicator' + this.id);
+		var data = new Object();
+		data.method = "getIndicator";
+		data.indicatorId = this.id.split("_")[1];
+
+		sendData("/web/dashboard/display/DisplayIndicator.do", data, "indicatorId");
+	});
+	
 }

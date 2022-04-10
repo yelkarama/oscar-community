@@ -62,7 +62,16 @@
 <head>
 <c:set var="ctx" value="${pageContext.request.contextPath}"	scope="request" />
 <link rel="stylesheet" href="<c:out value="${ctx}"/>/css/casemgmt.css" type="text/css">
+
+
+<!-- Added by Adrian Starzynski: Show larger font size for eChart based on properties setting -->
+<%if (OscarProperties.getInstance().getProperty("echart_show_larger_font_size").equals("false")) {%>
 <link rel="stylesheet" href="<c:out value="${ctx}"/>/oscarEncounter/encounterStyles.css" type="text/css">
+<%} else { %>
+<link rel="stylesheet" href="<c:out value="${ctx}"/>/oscarEncounter/encounterStylesWithBiggerFont.css" type="text/css">
+<%} %>
+
+
 <link rel="stylesheet" type="text/css" href="<c:out value="${ctx}"/>/css/print.css" media="print">
 
 <!-- 
@@ -112,6 +121,8 @@
 <!-- phr popups -->
 <script type="text/javascript" src="<c:out value="${ctx}/phr/phr.js"/>"></script>
 
+<!-- note autosaving -->
+<script type="text/javascript" src="<c:out value="${ctx}"/>/share/javascript/casemgmt/chartNoteAutosave.js"></script>
 
 <link rel="stylesheet" type="text/css" href="<c:out value="${ctx}/css/oscarRx.css" />">
 
@@ -252,6 +263,10 @@ LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
    function removeCppRow(rowNumber) {
 	   jQuery("#divR"+rowNumber).remove();
    }
+   
+   function hideCpp(title) {
+	   jQuery("#"+title).remove();
+   }
 
    function popColumn(url,div,params, navBar, navBarObj) {
 	   params = "reloadURL=" + url + "&numToDisplay=6&cmd=" + params;
@@ -373,7 +388,6 @@ LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 	}
 %>
 <oscar:customInterface section="cme" />
-
 <style type="text/css">
 
 /*CPP Format */
@@ -579,7 +593,7 @@ div.autocomplete ul li {
 	position: absolute;
 	display: none;
 	z-index: 1;
-	width: 200px;
+	width: 230px;
 	right: 100px;
 	bottom: 200px;
 }
@@ -855,6 +869,12 @@ window.onbeforeunload = onClosing;
 					<td><input type="text" id="resolutiondate"
 						name="resolutiondate" value="" size="12"> (YYYY-MM-DD)</td>
 				</tr>
+				<tr id="Itemprocedure">
+					<td><bean:message
+							key="oscarEncounter.procedure.title" />:</td>
+					<td><input type="text" id="procedure"
+						name="procedure" value=""></td>
+				</tr>
 				<tr id="Itemageatonset">
 					<td><bean:message key="oscarEncounter.ageAtOnset.title" />:</td>
 					<td><input type="text" id="ageatonset" name="ageatonset"
@@ -1029,48 +1049,50 @@ window.onbeforeunload = onClosing;
 						value="dates">
 					<bean:message key="oscarEncounter.Index.PrintDates" />&nbsp;<a
 						style="font-variant: small-caps;" href="#"
-						onclick="return printToday(event);"><bean:message
-								key="oscarEncounter.Index.PrintToday" /></a></td>
+						onclick="return printToday(event);"><bean:message  key="oscarEncounter.Index.PrintToday" />!</a></td>
 					<td></td>
 				</tr>
 			</table>
 
 			<div style="float: left; margin-left: 5px; width: 30px;">
-				<bean:message key="oscarEncounter.Index.PrintFrom" />
-				:
+				<bean:message key="oscarEncounter.Index.PrintFrom" />:
+				
 			</div>
 			<img src="<c:out value="${ctx}/images/cal.gif" />"
 				id="printStartDate_cal" alt="calendar">&nbsp;<input
 				type="text" id="printStartDate" name="printStartDate"
 				ondblclick="this.value='';"
-				style="font-style: italic; border: 1px solid #7682b1; width: 125px; background-color: #FFFFFF;"
+				style="font-style: italic; border: 1px solid #7682b1; width: 90px; background-color: #FFFFFF;"
 				readonly value=""><br>
 			<div style="float: left; margin-left: 5px; width: 30px;">
-				<bean:message key="oscarEncounter.Index.PrintTo" />
-				:
+				<bean:message key="oscarEncounter.Index.PrintTo" />:
+				
 			</div>
 			<img src="<c:out value="${ctx}/images/cal.gif" />"
 				id="printEndDate_cal" alt="calendar">&nbsp;<input type="text"
 				id="printEndDate" name="printEndDate" ondblclick="this.value='';"
-				style="font-style: italic; border: 1px solid #7682b1; width: 125px; background-color: #FFFFFF;"
+				style="font-style: italic; border: 1px solid #7682b1; width: 90px; background-color: #FFFFFF;"
 				readonly value=""><br>
 			<div style="margin-top: 5px; text-align: center">
 				<input type="submit" id="printOp" style="border: 1px solid #7682b1;"
-					value="Print" onclick="return printNotes();">
-				
+					value="<bean:message key="global.btnPDF"/>" 
+                    onclick="return printNotes();">				
 					<indivo:indivoRegistered
 						demographic="<%=(String) request.getAttribute(\"demographicNo\")%>"
 						provider="<%=(String) request.getSession().getAttribute(\"user\")%>">
-						<input type="submit" id="sendToPhr"
-							style="border: 1px solid #7682b1;" value="Send To Phr"
+						<input type="button" id="sendToPhr"
+							style="border: 1px solid #7682b1;" 
+                            value="<bean:message key="global.phr"/>" 
 							onclick="return sendToPhrr();">
 					</indivo:indivoRegistered>
-				<input type="submit" id="cancelprintOp"
-					style="border: 1px solid #7682b1;" value="Cancel"
-					onclick="$('printOps').style.display='none';"> <input
-					type="submit" id="clearprintOp" style="border: 1px solid #7682b1;"
-					value="Clear"
-					onclick="$('printOps').style.display='none'; return clearAll(event);">
+				<input type="button" id="cancelprintOp"
+					style="border: 1px solid #7682b1;" 
+                    value="<bean:message key="global.btnClose"/>" 
+					onclick="$('printOps').style.display='none';"> 
+                <input type="button" id="clearprintOp" 
+                    style="border: 1px solid #7682b1;" 
+                    value="<bean:message key="global.clear"/>" 
+					onclick="return clearAll(event);">
 			</div>
 
 			<%
@@ -1085,8 +1107,8 @@ if (OscarProperties.getInstance().getBooleanProperty("note_program_ui_enabled", 
 					<div class="under">
 						<div class="errorMessage"></div>
 						<input type="button" class="scopeBtn" value="View Note Scope" />
-						<input type="button" class="closeBtn" value="Close" /> <input
-							type="button" class="saveBtn" value="Save" />
+						<input type="button" class="closeBtn" value="Close" /> 
+                        <input type="button" class="saveBtn" value="Save" />
 					</div>
 				</div>
 			</span>

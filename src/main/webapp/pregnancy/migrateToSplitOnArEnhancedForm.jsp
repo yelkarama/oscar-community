@@ -170,7 +170,7 @@ if(!authed) {
 				String theName = name.split("\\|")[0];
 				String type = name.split("\\|")[1];
 				
-				if(type.equals("VARCHAR") || type.equals("CHAR")) {
+				if(type.equals("VARCHAR") || type.equals("CHAR") || type.equals("TEXT")) {
 					String value = rs.getString(theName);
 					if(value == null) {
 						preparedStmt.setNull(x+1, getType(type));
@@ -178,7 +178,7 @@ if(!authed) {
 						preparedStmt.setString(x+1,value);
 					}
 				}
-				else if(type.equals("INT") || type.equals("TINYINT")) {
+				else if(type.equals("INT") || type.equals("TINYINT") || type.equals("BIT")) {
 					preparedStmt.setInt(x+1, rs.getInt(theName));
 				} else if(type.equals("DATE")) {
 					java.sql.Date val = rs.getDate(theName);

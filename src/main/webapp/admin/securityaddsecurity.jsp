@@ -53,24 +53,24 @@
 %>
 <%@page import="org.oscarehr.util.MiscUtils"%><html:html locale="true">
 <head>
-<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="admin.securityaddsecurity.title" /></title>
-<link rel="stylesheet" href="../web.css">
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 </head>
-<body topmargin="0" leftmargin="0" rightmargin="0">
-<center>
-<table border="0" cellspacing="0" cellpadding="0" width="100%">
-	<tr bgcolor="#486ebd">
-		<th align="CENTER"><font face="Helvetica" color="#FFFFFF"><bean:message
-			key="admin.securityaddsecurity.description" /></font></th>
-	</tr>
-</table>
+
+<body bgproperties="fixed" topmargin="0" leftmargin="0" rightmargin="0">
+<div >
+    <div  id="header"><H3><bean:message
+			key="admin.securityaddsecurity.description" /></H3>
+    </div>
+</div>
+
 <%
     SecurityAddSecurityHelper helper = new SecurityAddSecurityHelper();
 	helper.addProvider(pageContext);
 %>
-<h1><bean:message key="${message}" /></h1>
 
-</center>
+<div class="alert alert-info" >
+    <h4><bean:message key="${message}" /></h4>
+</div>
 </body>
 </html:html>

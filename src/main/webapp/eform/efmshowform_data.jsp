@@ -24,6 +24,9 @@
 
 --%>
 <%@ page import="java.sql.*, oscar.eform.data.*"%>
+<%@ page import="oscar.log.LogAction" %>
+<%@ page import="org.oscarehr.util.LoggedInInfo" %>
+<%@ page import="oscar.log.LogConst" %>
 <%
 	String id = request.getParameter("fid");
 	String messageOnFailure = "No eform or appointment is available";
@@ -35,11 +38,17 @@
       EForm eForm = new EForm(id);
       eForm.setContextPath(request.getContextPath());
       eForm.setOscarOPEN(request.getRequestURI());
+      eForm.setFdid(id);
+      
       if ( appointmentNo != null ) eForm.setAppointmentNo(appointmentNo);
       if ( eformLink != null ) eForm.setEformLink(eformLink);
 
       String parentAjaxId = request.getParameter("parentAjaxId");
       if( parentAjaxId != null ) eForm.setAction(parentAjaxId);
+	  String logData = "fdid=" + request.getParameter("fdid") + "\nFormName=" + eForm.getFormName();
+	  if (request.getParameter("appointment") != null) { logData += "\nappointment_no=" + request.getParameter("appointment"); }
+	  LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.READ, "eForm",
+			  request.getParameter("fdid"), eForm.getDemographicNo(), logData);
       out.print(eForm.getFormHtml());
   } else {  //if form is viewed from admin screen
       EForm eForm = new EForm(id, "-1"); //form cannot be submitted, demographic_no "-1" indicate this specialty
@@ -47,6 +56,10 @@
       eForm.setupInputFields();
       eForm.setOscarOPEN(request.getRequestURI());
       eForm.setImagePath();
+	  String logData = "fdid=" + request.getParameter("fdid") + "\nid=" + id;
+	  if (request.getParameter("appointment") != null) { logData += "\nappointment_no=" + request.getParameter("appointment"); }
+	  LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.READ, "eForm",
+			  request.getParameter("fdid"), eForm.getDemographicNo(), logData);
       out.print(eForm.getFormHtml());
   }
 %>

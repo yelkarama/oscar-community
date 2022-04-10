@@ -30,6 +30,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -45,15 +47,20 @@ import org.apache.xml.security.exceptions.Base64DecodingException;
 import org.apache.xml.security.utils.Base64;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.dao.ConsultationRequestDao;
+import org.oscarehr.common.dao.ConsultationRequestExtDao;
 import org.oscarehr.common.dao.Hl7TextMessageDao;
 import org.oscarehr.common.hl7.v2.oscar_to_oscar.DataTypeUtils;
 import org.oscarehr.common.hl7.v2.oscar_to_oscar.OscarToOscarUtils;
 import org.oscarehr.common.hl7.v2.oscar_to_oscar.RefI12;
 import org.oscarehr.common.model.ConsultationRequest;
+import org.oscarehr.common.model.ConsultationRequestExt;
 import org.oscarehr.common.model.Demographic;
+import org.oscarehr.common.model.DemographicExt;
+import org.oscarehr.common.model.DemographicExt.DemographicProperty;
 import org.oscarehr.common.model.Hl7TextMessage;
 import org.oscarehr.common.model.ProfessionalSpecialist;
 import org.oscarehr.common.model.Provider;
+import org.oscarehr.managers.ConsultationManager;
 import org.oscarehr.managers.DemographicManager;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
@@ -122,10 +129,14 @@ public class EctViewRequestAction extends Action {
 
 
         public static void fillFormValues(LoggedInInfo loggedInInfo, EctConsultationFormRequestForm thisForm, Integer requestId) {
+            ConsultationManager consultationManager = SpringUtils.getBean(ConsultationManager.class);
+            ConsultationRequestExtDao consultationRequestExtDao = (ConsultationRequestExtDao) SpringUtils.getBean("consultationRequestExtDao");
         	checkPrivilege(loggedInInfo);
         	
             ConsultationRequestDao consultDao = (ConsultationRequestDao)SpringUtils.getBean("consultationRequestDao");
             ConsultationRequest consult = consultDao.find(requestId);
+            List<ConsultationRequestExt> extras = consultationRequestExtDao.getConsultationRequestExts(requestId);
+            Map<String, String> extraMap = consultationManager.getExtValuesAsMap(extras);
 
             thisForm.setAllergies(consult.getAllergies());
             thisForm.setReasonForConsultation(consult.getReasonForReferral());
@@ -156,7 +167,11 @@ public class EctViewRequestAction extends Action {
 
             DemographicManager demographicManager = SpringUtils.getBean(DemographicManager.class);
             Demographic demo = demographicManager.getDemographic(loggedInInfo, consult.getDemographicId());
-
+            DemographicExt demographicExt = demographicManager.getDemographicExt(loggedInInfo, consult.getDemographicId(), DemographicProperty.demo_cell);
+            String demographicCellPhone = "";
+            if(demographicExt != null) {		
+            	demographicCellPhone = demographicExt.getValue();
+        	}
             thisForm.setPatientAddress(demo.getAddress());
             thisForm.setPatientDOB(demo.getFormattedDob());
             thisForm.setPatientHealthNum(demo.getHin());
@@ -167,6 +182,7 @@ public class EctViewRequestAction extends Action {
             thisForm.setPatientPhone(demo.getPhone());
             thisForm.setPatientSex(demo.getSex());
             thisForm.setPatientWPhone(demo.getPhone2());
+            thisForm.setPatientCellPhone(demographicCellPhone);
             thisForm.setPatientEmail(demo.getEmail());
             thisForm.setPatientAge(demo.getAge());
 
@@ -174,7 +190,14 @@ public class EctViewRequestAction extends Action {
             Provider prov = provDao.getProvider(consult.getProviderNo());
             thisForm.setProviderName(prov.getFormattedName());
 
-            thisForm.seteReferral(false);
+            boolean isEReferral = extraMap.containsKey("ereferral_ref");
+            thisForm.seteReferral(isEReferral);
+            if (isEReferral) {
+                thisForm.setProfessionalSpecialistName(extraMap.getOrDefault("ereferral_doctor", ""));
+                thisForm.seteReferralService(extraMap.getOrDefault("ereferral_service", ""));
+                thisForm.seteReferralId(extraMap.get("ereferral_ref"));
+            }
+            
             thisForm.setFdid(consult.getFdid());
         }
 
@@ -215,6 +238,7 @@ public class EctViewRequestAction extends Action {
         thisForm.setPatientPhone(consultUtil.patientPhone);
         thisForm.setPatientSex(consultUtil.patientSex);
         thisForm.setPatientWPhone(consultUtil.patientWPhone);
+        thisForm.setPatientCellPhone(consultUtil.patientCellPhone);
         thisForm.setPatientEmail(consultUtil.patientEmail);
         thisForm.setPatientAge(consultUtil.patientAge);
         

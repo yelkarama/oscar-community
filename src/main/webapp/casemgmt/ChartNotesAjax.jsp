@@ -956,8 +956,8 @@ CasemgmtNoteLock casemgmtNoteLock = (CasemgmtNoteLock)session.getAttribute("case
     <c:url value="/CaseManagementEntry.do?method=issueList&demographicNo=${param.demographicNo}&providerNo=${param.providerNo}" var="issueURL" />
     var issueAutoCompleter = new Ajax.Autocompleter("issueAutocomplete", "issueAutocompleteList", "<c:out value="${issueURL}"/>", {minChars: 3, indicator: 'busy', afterUpdateElement: saveIssueId, onShow: autoCompleteShowMenu, onHide: autoCompleteHideMenu});
 
-    <%int MaxLen = 20;
-			int TruncLen = 17;
+    <%int MaxLen = 50;
+			int TruncLen = 50;
 			String ellipses = "...";
 			for (int j = 0; j < bean.templateNames.size(); j++)
 			{
@@ -979,7 +979,7 @@ CasemgmtNoteLock casemgmtNoteLock = (CasemgmtNoteLock)session.getAttribute("case
    new Autocompleter.Local('enTemplate', 'enTemplate_list', autoCompList, { colours: itemColours, afterUpdateElement: menuAction }  );
 
    //start timer for autosave
-   setTimer();
+   //setTimer();
 
     //$("encMainDiv").scrollTop = $("n<%=savedId%>").offsetTop - $("encMainDiv").offsetTop;
     reason = "<%=insertReason(request)%>";    //function defined bottom of file

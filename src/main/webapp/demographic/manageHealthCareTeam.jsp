@@ -33,30 +33,37 @@
 <%@ page import="org.oscarehr.common.model.DemographicContact" %>
 <%@ page import="org.oscarehr.common.model.Demographic" %>
 <%@ page import="org.oscarehr.common.dao.DemographicDao" %>
-<%@ page import="org.oscarehr.common.dao.ContactSpecialtyDao" %>
-<%@ page import="org.oscarehr.common.model.ContactSpecialty" %>
+<%@ page import="org.oscarehr.common.dao.ConsultationServiceDao" %>
+<%@ page import="org.oscarehr.common.model.ConsultationServices" %>
+<%@ page import="oscar.OscarProperties" %>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 
 <security:oscarSec roleName="${ sessionScope.userrole }" objectName="_demographic" rights="r" reverse="${ false }">
 
-<% 
+<%
+	OscarProperties oscarProps = OscarProperties.getInstance();
 	List<DemographicContact> demographicContacts = null;
 	List<Provider> providerList = null;
 	ProviderDao providerDao = null;
 	DemographicDao demographicDao = null;
 	Demographic demographic = null;
-	ContactSpecialtyDao contactSpecialtyDao = null;
-	List<ContactSpecialty> specialty = null;
+	ConsultationServiceDao consultationServiceDao = null;
+	List<ConsultationServices> specialty = null;
 	String demographicNoString = request.getParameter("demographicNo");
+	// Demographic Contacts and Health Care Team are linked bt default
+	boolean linkedHealthCareTeam = oscarProps.getProperty("NEW_CONTACTS_UI_HEALTH_CARE_TEAM_LINKED", "true").equals("true");
 	
 	if ( ! StringUtils.isBlank( demographicNoString ) ) {		
 		providerDao = SpringUtils.getBean(ProviderDao.class);
 		providerList = providerDao.getActiveProviders();
 		demographicDao = SpringUtils.getBean(DemographicDao.class);
-		demographic = demographicDao.getClientByDemographicNo( Integer.parseInt(demographicNoString) );
-		demographicContacts = ContactAction.getDemographicContacts(demographic);
-		contactSpecialtyDao = SpringUtils.getBean(ContactSpecialtyDao.class);
-		specialty = contactSpecialtyDao.findAll();
+		demographic = demographicDao.getClientByDemographicNo( Integer.parseInt(demographicNoString));
+		// if linked health care team, get all professional contacts
+		// otherwise get only professional contacts on the health care team
+		demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContacts(demographic, "professional") : ContactAction.getDemographicContacts(demographic, "professional", true);
+		
+		consultationServiceDao = SpringUtils.getBean(ConsultationServiceDao.class);
+		specialty = consultationServiceDao.findActive();
 	}	
 	
 	pageContext.setAttribute("professionalSpecialistType", DemographicContact.TYPE_PROFESSIONALSPECIALIST);
@@ -201,7 +208,6 @@ function renderResponse(html, id) {
 	
 	try{
 		jQuery("input:submit").eq(1).focus();
-		jQuery().resetFields();
 	} catch(error) {
 		// do nothing
 	}
@@ -214,11 +220,6 @@ function renderResponse(html, id) {
     },3000); */
 }
 
-//--> reset all list input fields
-jQuery.fn.resetFields = function() {
-	// clean search fields and re-focus
-	jQuery('#searchHealthCareTeamInput').val("Last Name, First Name").css('color', 'grey');
-}
 
 //--> Remove/Edit contact action. Wrapped in a function to re-bind after postback
 jQuery.fn.bindFunctions = function() {
@@ -297,19 +298,6 @@ jQuery(document).ready( function($) {
 	    	searchExternalProviders("Search");
 	    }     
 	});
-	
-	jQuery('#searchHealthCareTeamInput').val("Last Name, First Name").css('color','grey')
-	.focus(function(){
-	    if(this.value == "Last Name, First Name"){
-	         this.value = "";
-	         jQuery('#searchHealthCareTeamInput').css('color','black')
-	    }		
-	}).blur(function(){
-	    if(this.value==""){
-	         this.value = "Last Name, First Name";
-	         jQuery('#searchHealthCareTeamInput').css('color','grey')
-	    }
-	});
 			
 	jQuery('#searchHealthCareTeamButton').bind("click", function(){
 		searchExternalProviders(this.value);
@@ -331,7 +319,6 @@ jQuery(document).ready( function($) {
 	
 	
 	//--> do on page ready
-	jQuery().resetFields();	
 	jQuery().bindFunctions();
 	
 })
@@ -417,7 +404,7 @@ jQuery(document).ready( function($) {
 					<c:if test="${ demographicContact.type gt 0 }">
 						<input type="button" 
 							id="edit<c:out value="${ demographicContact.type }" />_<c:out value="${ demographicContact.id }" />" 
-							class="actionlink" value="edit" />
+							class="actionlink" value="Edit" />
 					</c:if>
 				</td>
             </tr>	
@@ -428,11 +415,11 @@ jQuery(document).ready( function($) {
 		<%-- ADD NEW MEMBER TO HEALTH CARE TEAM --%>
 
 		<tr>
-			<td class="alignLeft"><strong>add a provider:</strong></td>		
+			<td class="alignLeft"><strong>Add a Provider:</strong></td>		
 			<td class="alignLeft">
 				<select name="searchInternalExternal" id="searchInternalExternal" >
-					<option value="${ providerType }" >internal</option>
-		            <option value="${ professionalContactType }" >external</option>
+					<option value="${ providerType }" >Internal</option>
+		            <option value="${ professionalContactType }" >External</option>
 				</select>
 			</td>
 			
@@ -456,10 +443,11 @@ jQuery(document).ready( function($) {
 			</td>
 			
 			<td class="external" >
-				<select id="selectHealthCareTeamRoleType" name="selectHealthCareTeamRoleType" >					
+				<select id="selectHealthCareTeamRoleType" name="selectHealthCareTeamRoleType" >
+					<option value="all">- Specialty -</option>
 					<c:forEach items="${ specialty }" var="specialtyType">						
-						<option value="${ specialtyType.id }" ${ specialtyType.specialty eq 'UNKNOWN' ? 'selected' : '' } > 						 
-							<c:out value="${ specialtyType.specialty }" />			
+						<option value="${ specialtyType.serviceId }" ${ specialtyType.serviceDesc eq 'UNKNOWN' ? 'selected' : '' } >
+							<c:out value="${ specialtyType.serviceDesc }" />
 						</option>
 					</c:forEach>
 				</select>
@@ -467,7 +455,7 @@ jQuery(document).ready( function($) {
 			
 			<td class="external" >
 				<input type="text" id="searchHealthCareTeamInput" 
-					name="searchHealthCareTeamInput" 
+					name="searchHealthCareTeamInput" placeholder="Last Name, First Name"
 					value="" />
 			</td>
 			

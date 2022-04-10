@@ -126,17 +126,16 @@ $(document).ready( function() {
 
     	sendData(url, data, null);
     });
-    
-    // Export Template button
-    $("#libraryTable tbody").on('click', ".exportTemplate", function(event) {
-    	// event.preventDefault();
+
+    $("#libraryTable tbody").on('click', ".deleteIndicatorBtn", function(event) { 
+    	event.preventDefault();
     	var url = "/web/dashboard/admin/DashboardManager.do";
     	var data = new Object();
-    	data.indicatorId = (this.id).split("_")[1];
-    	data.method = (this.id).split("_")[0];  
-
-    	sendData(url, data, "reload");
+    	data.objectId = (this.id).split("_")[1];
+    	data.method = (this.id).split("_")[0];  	
+    	sendData(url, data, "reloadThis");
     });
+
     
     // Back to dashboard button
     $(".backtoDashboardBtn").on('click', function(event) {
@@ -175,6 +174,9 @@ function sendData(path, param, target) {
 	    		document.open();
 		    	document.write(data);
 		    	document.close();
+	    	} else if( target == "reloadThis") {
+	    		window.location.href = ctx + "/web/dashboard/admin/DashboardManager.do";
+	    	
 	    	} else {			
 	    		$(data).replaceWith( $(target, data) );
 	    	}

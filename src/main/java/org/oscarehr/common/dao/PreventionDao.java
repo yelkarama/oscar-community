@@ -70,6 +70,17 @@ public class PreventionDao extends AbstractDao<Prevention> {
 
 		return (results);
 	}
+
+    public List<Prevention> findByDemographicIdAfterDatetimeExclusive(Integer demographicId, Date dateTime) {
+    	Query query = entityManager.createQuery("select x from Prevention x where demographicId=?1 and lastUpdateDate>?2 and deleted='0'");
+    	query.setParameter(1, demographicId);
+		query.setParameter(2, dateTime);
+
+		@SuppressWarnings("unchecked")
+        List<Prevention> results = query.getResultList();
+
+		return (results);
+	}
     
 	/*
 	 * for integrator
@@ -158,6 +169,18 @@ public class PreventionDao extends AbstractDao<Prevention> {
 		Query query = createQuery("p", "p.demographicId = :demoNo and p.deleted <> '1' ORDER BY p.preventionType, p.preventionDate");
 		query.setParameter("demoNo", demoId);
 		return query.getResultList();
+	}
+	
+	public List<Prevention> findActiveByDemoIdWithDates(Integer demoId, Date startDate, Date endDate) {
+		Query query = entityManager.createQuery("select x from "+modelClass.getSimpleName()+" x where demographicId=?1 and preventionDate>=?2 and preventionDate<=?3 and deleted='0' and refused='0' order by preventionDate DESC");
+		query.setParameter(1, demoId);
+		query.setParameter(2, startDate);
+		query.setParameter(3, endDate);
+
+		@SuppressWarnings("unchecked")
+        List<Prevention> results = query.getResultList();
+
+		return (results);
 	}
 	
 

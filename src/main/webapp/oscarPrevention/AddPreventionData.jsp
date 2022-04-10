@@ -24,6 +24,16 @@
 
 --%>
 
+<%@page import="org.oscarehr.common.model.LookupListItem"%>
+<%@page import="org.oscarehr.common.model.LookupList"%>
+<%@page import="org.oscarehr.common.dao.LookupListDao"%>
+<%@page import="java.text.ParseException"%>
+<%@page import="org.oscarehr.common.model.PartialDate"%>
+<%@page import="org.oscarehr.common.dao.PartialDateDao"%>
+<%@page import="oscar.OscarProperties"%>
+<%@page import="org.apache.commons.lang.StringEscapeUtils"%>
+<%@page import="org.oscarehr.common.model.Consent"%>
+<%@page import="org.oscarehr.common.dao.ConsentDao"%>
 <%@page import="org.oscarehr.common.model.CVCMapping"%>
 <%@page import="org.oscarehr.common.dao.CVCImmunizationDao"%>
 <%@page import="org.oscarehr.common.dao.CVCMappingDao"%>
@@ -31,6 +41,7 @@
 <%@page import="org.apache.commons.lang.StringUtils"%>
 <%@page import="org.oscarehr.common.model.CVCImmunization"%>
 <%@page import="org.oscarehr.managers.CanadianVaccineCatalogueManager"%>
+<%@page import="org.oscarehr.managers.CanadianVaccineCatalogueManager2"%>
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="oscar.oscarProvider.data.ProviderData"%>
 <%@ page import="oscar.oscarDemographic.data.DemographicData,java.text.SimpleDateFormat, java.util.*,oscar.oscarPrevention.*,oscar.oscarProvider.data.*,oscar.util.*"%>
@@ -40,6 +51,7 @@
 <%@page import="org.oscarehr.common.dao.DemographicExtDao" %>
 <%@page import="org.oscarehr.common.dao.PreventionsLotNrsDao" %>
 <%@page import="org.oscarehr.common.model.PreventionsLotNrs" %>
+<%@page import="org.oscarehr.common.model.Demographic" %>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
@@ -64,6 +76,7 @@ if(!authed) {
   CanadianVaccineCatalogueManager cvcManager = SpringUtils.getBean(CanadianVaccineCatalogueManager.class);
   CVCMappingDao cvcMappingDao = SpringUtils.getBean(CVCMappingDao.class);
   CVCImmunizationDao cvcImmunizationDao = SpringUtils.getBean(CVCImmunizationDao.class);
+  PartialDateDao partialDateDao = SpringUtils.getBean(PartialDateDao.class);
   
    LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
   
@@ -91,12 +104,20 @@ if(!authed) {
 	String annotation_display = CaseManagementNoteLink.DISP_PREV;
 
 	
-	
+	boolean dhirEnabled=false;
+	  
+  	if("true".equals(OscarProperties.getInstance().getProperty("dhir.enabled", "false"))) {
+  		dhirEnabled=true;
+  	}
+
+     Date creationDate = null;
   if (id != null){
 
      existingPrevention = PreventionData.getPreventionById(id);
 
      prevDate = (String) existingPrevention.get("preventionDate");
+     prevDate = partialDateDao.getDatePartial(prevDate, PartialDate.PREVENTION,  Integer.parseInt(id), PartialDate.PREVENTION_PREVENTIONDATE);
+     
      providerName = (String) existingPrevention.get("providerName");
      provider = (String) existingPrevention.get("provider_no");
      creatorProviderNo = (String) existingPrevention.get("creator");
@@ -119,6 +140,8 @@ if(!authed) {
 	List<CaseManagementNoteLink> cml = cmm.getLinkByTableId(CaseManagementNoteLink.PREVENTIONS, Long.valueOf(id));
 	hasImportExtra = (cml.size()>0);
 	 snomedId = (String) existingPrevention.get("snomedId");
+	 
+	 creationDate = parseDate((String) existingPrevention.get("creationDate"));
 	
   }
 
@@ -209,12 +232,13 @@ if(!authed) {
   
   //calc age at time of prevention
   Date dob = PreventionData.getDemographicDateOfBirth(LoggedInInfo.getLoggedInInfoFromSession(request), Integer.valueOf(demographic_no));
-  SimpleDateFormat fmt = new SimpleDateFormat(dateFmt);
-  Date dateOfPrev = fmt.parse(prevDate);
+  Date dateOfPrev = parseDate(prevDate);
   String age = UtilDateUtilities.calcAgeAtDate(dob, dateOfPrev);
   DemographicData demoData = new DemographicData();
   String[] demoInfo = demoData.getNameAgeSexArray(LoggedInInfo.getLoggedInInfoFromSession(request), Integer.valueOf(demographic_no));
   String nameage = demoInfo[0] + ", " + demoInfo[1] + " " + demoInfo[2] + " " + age;
+  
+  Demographic demoObject = demoData.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), demographic_no);
 
   HashMap<String,String> genders = new HashMap<String,String>();
   genders.put("M", "Male");
@@ -379,9 +403,11 @@ clear: left;
    //alert(ele);
     if (ele.options[ele.selectedIndex].value != -1){
        hideItem('providerName');
+       hideItem('providerNameFormat');
        //alert('hidding');
     }else{
        showItem('providerName');
+       showItem('providerNameFormat');
        document.getElementById('providerName').focus();
        //alert('showing');
     }
@@ -390,7 +416,7 @@ clear: left;
 
 <script type="text/javascript">
   function updateLotNr(elem){
-	if (elem.options[elem.selectedIndex].value != -1)
+	if (elem != null && elem.options[elem.selectedIndex].value != -1)
 	{
 		hideItem('lot');
 	}
@@ -460,7 +486,7 @@ function copyLot() {
 	
 	var cvcName = $("#cvcName option:selected").val();
 	if(cvcName !== undefined && cvcName != -1 && $("#cvcLot").is(":visible")) {
-		$("#lot").val($("#cvcLot").val());
+		//$("#lot").val($("#cvcLot").val());
 		$("#name").val($("#cvcName option:selected").text());	
 	}
 }
@@ -479,11 +505,33 @@ function displayCloseWarning(){
 
 //{"lotNumber":"M042476","expiryDate":{"date":22,"day":5,"hours":0,"minutes":0,"month":2,"nanos":0,"seconds":0,"time":1553227200000,"timezoneOffset":240,"year":119}}
 
+function escapeHtml(unsafe1) {
+	var unsafe = String(unsafe1);
+    return unsafe
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+ }
+ 
 var lots;
 var startup = false, startup2 = false;
 
+function GetSortOrder(prop) {    
+    return function(a, b) {    
+        if (a[prop] > b[prop]) {    
+            return -1;    
+        } else if (a[prop] < b[prop]) {    
+            return 1;    
+        }    
+        return 0;    
+    }    
+}
+
 function changeCVCName() {
 	lots = null;
+	$("#typicalDose").html("");
 	
 	 var snomedId = $("#cvcName").val();
 	 if(snomedId == "-1") {
@@ -495,39 +543,43 @@ function changeCVCName() {
 		 $("#name").show();
 	 } else {
 		 $("#unknownName").hide();
+		 $("#name").val($("#cvcName option:selected").text());
 		 $.ajax({
              type: "POST",
              url: "<%=request.getContextPath()%>/cvc.do",
              data: { method : "getLotNumberAndExpiryDates", snomedConceptId: snomedId},
              dataType: 'json',
              success: function(data,textStatus) {
-            	 if(data != null && data instanceof Array && data.length > 0) {
-            		 $("#lot").hide();
+            	 if(data != null && data.lots != null && data.lots instanceof Array && data.lots.length > 0) {
+            		 //$("#lot").hide();
             		 $("#cvcLot").show();
             		 $("#cvcLot").find("option").remove().end();
             		 
             		 $("#cvcLot").append('<option value=""></option>');
-         			
-            		 for(var x=0;x<data.length;x++) {
-            			 var item = data[x];
+                     
+         			 data.lots.sort(GetSortOrder("lotNumber")); //Pass the attribute to be sorted 
+            		 for(var x=0;x<data.lots.length;x++) {
+            			 var item = data.lots[x];
             			 //console.log(JSON.stringify(item));
-            			 var d = new Date(data[x].expiryDate.time);
+            			 var d = new Date(data.lots[x].expiryDate.time);
             			// console.log(d);
             			var month = ((d.getMonth()+1) > 9) ? (d.getMonth()+1) : ("0" + (d.getMonth()+1));
             			var day = ((d.getDate()) > 9) ? (d.getDate()) : ("0" + (d.getDate()));
             			var output = d.getFullYear() + "-" + month + "-" + day;
             			 
             			
-            			if(startup2 && item.lotNumber == '<%=addByLotNbr %>') {
+            			if(startup2 && escapeHtml(item.lotNumber) == '<%=addByLotNbr %>') {
             				$("#cvcLot").append('<option selected="selected" value="'+item.lotNumber+'" expiryDate="'+output+'">'+item.lotNumber+'</option>');
             				startup2=false;
-            			} else if(startup && item.lotNumber == '<%=(existingPrevention != null)?existingPrevention.get("lot"):"" %>') {
-            				$("#cvcLot").append('<option selected="selected" value="'+item.lotNumber+'" expiryDate="'+output+'">'+item.lotNumber+'</option>');
+                            updateCvcLot();
+            			} else if(startup && escapeHtml(item.lotNumber) == '<%=(existingPrevention != null)?existingPrevention.get("lot"):"" %>') {
+            				$("#cvcLot").append('<option selected="selected" value="'+escapeHtml(item.lotNumber)+'" expiryDate="'+output+'">'+escapeHtml(item.lotNumber)+'</option>');
+                            $("#lot").val(escapeHtml(item.lotNumber));
             				startup=false;
             			} else {
-            				$("#cvcLot").append('<option value="'+item.lotNumber+'" expiryDate="'+output+'">'+item.lotNumber+'</option>');
+            				$("#cvcLot").append('<option value="'+escapeHtml(item.lotNumber)+'" expiryDate="'+output+'">'+escapeHtml(item.lotNumber)+'</option>');
             			}
-            			updateCvcLot();        			 
+            			//updateCvcLot();        			 
             		 }            		 
             	 } else {
             		 $("#cvcLot").hide();
@@ -535,6 +587,45 @@ function changeCVCName() {
             		 
             		// $("#lot").val('');
             		 $("#lot").show();
+            	 }
+            	 
+            	 if(data != null && data.typicalDose != null) {
+            		 var dose = data.typicalDose.dose;
+            		 var doseUnit = data.typicalDose.UoM;
+            		 //console.log("dose = " + dose + ",doseUnit=" + doseUnit);
+            		 if(dose != null && doseUnit != null) {
+            		 	$("#typicalDose").html(dose + " " + doseUnit);
+            		 }
+            		 $("#dose").val(dose);
+            		 
+            		 if(doseUnit == 'ml') {
+            			 doseUnit = "mL";
+            		 }
+            		 $("#doseUnit").val(doseUnit);
+            		 
+            	 }
+             }
+          });
+		 
+		 
+		 
+		 $.ajax({
+             type: "POST",
+             url: "<%=request.getContextPath()%>/cvc.do",
+             data: { method : "getDIN", snomedConceptId: snomedId},
+             dataType: 'json',
+             success: function(data,textStatus) {
+            	 if(data != null) {
+            		 if(data.din != null) {
+            			 $("#din").val(data.din);
+            			 
+            		 }
+            		 if(data.manufacture != null) {
+            			 $("#manufacture").val(data.manufacture);
+            		 }
+            		 //if(data.status != null) {
+            		//	 $("#shelfStatus").html(data.status);
+            		 //}
             	 }
              }
           });
@@ -544,6 +635,7 @@ function changeCVCName() {
 function updateCvcLot() {
 	var lotNumber = $("#cvcLot").find(":selected");
 	$("#expiryDate").val(lotNumber.attr('expiryDate'));
+    $("#lot").val($("#cvcLot").val());
 }
 
 
@@ -568,6 +660,16 @@ $(document).ready(function(){
 });
 <% } %>
 
+
+function changeSite(el) {
+	var val = el.options[el.selectedIndex].value;
+	if(val == 'Other') {
+		$("#locationDiv").show();
+	} else {
+		$("#locationDiv").hide();
+		$("#location2").val('');
+	}
+}
 </script>
 </head>
 
@@ -582,7 +684,7 @@ $(document).ready(function(){
                 <table class="TopStatusBar">
                     <tr>
                         <td >
-                            <%=nameage%>
+                            <%=StringEscapeUtils.escapeHtml(nameage)%>
                         </td>
                         <td  >&nbsp;
 
@@ -596,6 +698,8 @@ $(document).ready(function(){
         </tr>
         <tr>
             <td class="MainTableLeftColumn" valign="top">
+
+
                &nbsp;
 <!--
                <%
@@ -614,6 +718,28 @@ $(document).ready(function(){
 -->
             </td>
             <td valign="top" class="MainTableRightColumn">
+<%
+			if(dhirEnabled && session.getAttribute("oneIdEmail") == null) {
+		%>
+		<div style="width:100%;background-color:pink;text-align:center;font-weight:bold;font-size:13pt">
+			Warning: You are not logged into OneId and will not be able to submit data to DHIR
+		</div>
+		<% } %>
+
+<%
+	if(request.getAttribute("errors") != null) {
+		List<String> errorList = (List<String>)request.getAttribute("errors");
+		%><ul style="color:red"><% 
+		for(String error:errorList) {
+			%>
+			<li><%=error %></li>
+			<% 
+		}
+		%></ul><%
+	}
+
+%>
+
             <% if(prevHash == null) { %>
             	<h3 style="color:red">Prevention not found!</h3>
             <%} else { %>
@@ -643,14 +769,14 @@ $(document).ready(function(){
                    <fieldset>
                       <legend>Prevention : <%=prevention%></legend>
                          <div>
-                            <input name="given" type="radio" value="given"      <%=checked(completed,"0")%>>Completed</input><br/>
-                            <input name="given" type="radio" value="given_ext"  <%=checked(completed,"3")%>>Completed externally</input><br/>
+                            <input name="given" type="radio" value="given"  id="given"    <%=checked(completed,"0")%> onClick="$('#providerDrop').val('<%=LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo() %>');hideExtraName(document.getElementById('providerDrop'))">Completed</input><br/>
+                            <input name="given" type="radio" value="given_ext" id="givenExt" <%=checked(completed,"3")%> onClick="$('#providerDrop').val('-1');hideExtraName(document.getElementById('providerDrop'))">Completed externally</input><br/>
                             <input name="given" type="radio" value="refused"    <%=checked(completed,"1")%>>Refused</input><br/>
                             <input name="given" type="radio" value="ineligible" <%=checked(completed,"2")%>>Ineligible</input>
                          </div>
                          <div>&nbsp;</div>
                          <div style="margin-left:30px;">
-                            <label for="prevDate" class="fields" >Date:</label>    <input readonly='readonly' type="text" name="prevDate" id="prevDate" value="<%=prevDate%>" size="15" > <a id="date"><img title="Calendar" src="../images/cal.gif" alt="Calendar" border="0" /></a> <br>
+                            <label for="prevDate" class="fields" >Date:</label>    <input type="text" name="prevDate" id="prevDate" value="<%=prevDate%>" size="15" > <a id="date"><img title="Calendar" src="../images/cal.gif" alt="Calendar" border="0" /></a> <br>
                             <label for="provider" class="fields">Provider:</label> <input type="text" name="providerName" id="providerName" value="<%=providerName%>"/>
                                   <select onchange="javascript:hideExtraName(this);" id="providerDrop" name="provider">
                                       <%for (int i=0; i < providers.size(); i++) {
@@ -659,6 +785,8 @@ $(document).ready(function(){
                                       <%}%>
                                       <option value="-1" <%= ( "-1".equals(provider) ? " selected" : "" ) %> >Other</option>
                                   </select>
+                                  <span id="providerNameFormat"><small>External Provider Name Format: FirstName, LastName </small>
+                                 
                                   <br/>
                              <label for="creator" class="fields" >Creator:</label> <input type="text" name="creator" value="<%=creatorName%>" readonly/> <br/>
                          </div>
@@ -690,7 +818,7 @@ $(document).ready(function(){
    		             			 				selected = "selected=\"selected\"";
    		             			 			}
    	             						}
-   	             			 			%><option value="<%=tn.getSnomedConceptId()%>" <%=selected%>><%=tn.getDisplayName() %></option><%
+   	             			 			%><option value="<%=tn.getSnomedConceptId()%>" <%=selected%>><%=tn.getPicklistName() %></option><%
    	             			 		}
    	             			 	%>
    	             		
@@ -710,9 +838,123 @@ $(document).ready(function(){
              			 
              			 
              			 
-             			 <label for="location">Location:</label> <input type="text" name="location" value="<%=str((extraData.get("location")),"")%>"/> <br/>
-                         <label for="route">Route:</label> <input type="text" name="route"   value="<%=str((extraData.get("route")),"")%>"/><br/>
-                         <label for="dose">Dose:</label> <input type="text" name="dose"  value="<%=str((extraData.get("dose")),"")%>"/><br/>
+             			 <label for="location">Location:</label> 
+             			 
+             			 <select name="location" id="location" onChange="changeSite(this)">
+             			 	 <option value=""></option>
+                         	    <%
+                         	    	String locationSelected = " selected=\"selected\" ";
+                         	    	LookupListDao lookupListDao = SpringUtils.getBean(LookupListDao.class);
+                         	    	LookupList ll = lookupListDao.findByName("AnatomicalSite");
+                         	    	if(ll != null) {
+                         	    		for(LookupListItem lli : ll.getItems()) {
+                         	    			%>
+                         	    				<option value="<%=lli.getValue() %>" <%=lli.getValue().equals(str((extraData.get("location")),"")) ? locationSelected : "" %>><%=lli.getLabel() %></option>
+                         	    			<%
+                         	    		}
+                         	    	} else {
+                         	    %>
+                         		<option value="Superior Deltoid Lt" <%="Superior Deltoid Lt".equals(str((extraData.get("location")),"")) ? locationSelected : "" %>>Superior Deltoid Lt</option>
+                         		<option value="Inferior Deltoid Lt" <%="Inferior Deltoid Lt".equals(str((extraData.get("location")),"")) ? locationSelected : "" %>>Inferior Deltoid Lt</option>
+                         		<option value="Anterolateral Thigh Lt" <%="Anterolateral Thigh Lt".equals(str((extraData.get("location")),"")) ? locationSelected : "" %>>Anterolateral Thigh Lt</option>
+                         		<option value="Gluteal Lt" <%="Gluteal Lt".equals(str((extraData.get("location")),"")) ? locationSelected : "" %>>Gluteal Lt</option>
+                         		<option value="Superior Deltoid Rt" <%="Superior Deltoid Rt".equals(str((extraData.get("location")),"")) ? locationSelected : "" %>>Superior Deltoid Rt</option>
+                         		<option value="Inferior Deltoid Rt" <%="Inferior Deltoid Rt".equals(str((extraData.get("location")),"")) ? locationSelected : "" %>>Inferior Deltoid Rt</option>
+                         		<option value="Anterolateral Thigh Rt" <%="Anterolateral Thigh Rt".equals(str((extraData.get("location")),"")) ? locationSelected : "" %>>Anterolateral Thigh Rt</option>
+                         		<option value="Gluteal Rt" <%="Gluteal Rt".equals(str((extraData.get("location")),"")) ? locationSelected : "" %>>Gluteal Rt</option>
+                         		<option value="Arm Lt" <%="Arm Lt".equals(str((extraData.get("location")),"")) ? locationSelected : "" %>>Arm Lt</option>
+                         		<option value="Arm Rt" <%="Arm Rt".equals(str((extraData.get("location")),"")) ? locationSelected : "" %>>Arm Rt</option>
+                         		<option value="Unknown" <%="Unknown".equals(str((extraData.get("location")),"")) || extraData.get("location") == null ? locationSelected : "" %>>Unknown</option>
+                         		<option value="Mouth" <%="Mouth".equals(str((extraData.get("location")),"")) ? locationSelected : "" %>>Mouth</option>
+                         		<option value="Deltoid Lt" <%="Deltoid Lt".equals(str((extraData.get("location")),"")) ? locationSelected : "" %>>Deltoid Lt</option>
+                         		<option value="Deltoid Rt" <%="Deltoid Rt".equals(str((extraData.get("location")),"")) ? locationSelected : "" %>>Deltoid Rt</option>
+                         		<option value="Naris Lt" <%="Naris Lt".equals(str((extraData.get("location")),"")) ? locationSelected : "" %>>Naris Lt</option>
+                         		<option value="Naris Rt" <%="Naris Rt".equals(str((extraData.get("location")),"")) ? locationSelected : "" %>>Naris Rt</option>
+                         		<option value="Forearm Lt" <%="Forearm Lt".equals(str((extraData.get("location")),"")) ? locationSelected : "" %>>Forearm Lt</option>
+                         		<option value="Forearm Rt" <%="Forearm Rt".equals(str((extraData.get("location")),"")) ? locationSelected : "" %>>Forearm Rt</option>
+                         		<option value="Other" <%="Other".equals(str((extraData.get("location")),"")) ? locationSelected : "" %>>Other</option>
+                         		<option value="Nares (Lt and Rt)" <%="Nares (Lt and Rt)".equals(str((extraData.get("location")),"")) ? locationSelected : "" %>>Nares (Lt and Rt)</option>
+                         		<% } %>
+             			 </select>
+             			 
+             			 <%
+             			 	String locationDisplay = "none";
+             			 	if("Other".equals(str(extraData.get("location"),""))) {
+             			 		locationDisplay="block";
+             			 	}
+             			 %>
+             			 <br>
+             			 	<div id="locationDiv" style="display:<%=locationDisplay%>">
+             				<label for="location2">Specify Location:</label> 
+             			
+             			 <input type="text" name="location2" id="location2" value="<%=str((extraData.get("location2")),"")%>"/> 
+             			 </div>
+             			 
+             			 <br/>
+                         <label for="route">Route:</label> 
+                         	
+                         	<select name="route" id="route">
+                         	    <option value=""></option>
+                         	    <%
+                         	    	String routeSelected = " selected=\"selected\" ";
+
+                    	    	ll = lookupListDao.findByName("RouteOfAdmin");
+                    	    	if(ll != null) {
+                    	    		for(LookupListItem lli : ll.getItems()) {
+                    	    			%>
+                    	    				<option value="<%=lli.getValue() %>" <%=lli.getValue().equals(str((extraData.get("route")),"")) ? routeSelected : "" %>><%=lli.getLabel() %></option>
+                    	    			<%
+                    	    		}
+                    	    	} else {
+                         	    %>
+                         		<option value="ID" <%="ID".equals(str((extraData.get("route")),"")) ? routeSelected : "" %>>Intradermal: ID</option>
+                         		<option value="IM" <%="IM".equals(str((extraData.get("route")),"")) ? routeSelected : "" %>>Intramuscular: IM</option>
+                         		<option value="IN" <%="IN".equals(str((extraData.get("route")),"")) ? routeSelected : "" %>>Intranasal: IN</option>
+                         		<option value="PO" <%="PO".equals(str((extraData.get("route")),"")) ? routeSelected : "" %>>Oral: PO</option>
+                         		<option value="SC" <%="SC".equals(str((extraData.get("route")),"")) ? routeSelected : "" %>>Subcutaneous: SC</option>
+                         		<% } %>
+                         	</select>
+                         	<br/>
+                         	
+                         	<label for="route">DIN:</label> 
+                         	<input type="text" name="din" id="din" value="<%=str((extraData.get("din")),"")%>"/> 
+             			 	<br/>
+                         	<%
+                         		String dose = str((extraData.get("dose")),"");
+                         		String d1 = "";
+                         		String d2 = "";
+                         		if(dose.split(" ").length == 2) {
+                         			String d3 = dose.split(" ")[1];
+                         			if(!d3.equals("mL") && !d3.equals("mg") && !d3.equals("g") && !d3.equals("capsule") && !d3.equals("vial") ) {
+                         				d1 = dose;
+                         			} else {
+                         				d1 = dose.split(" ")[0];
+                             			d2 = dose.split(" ")[1];
+                         			}
+                         		} else {
+                         			d1 = dose;
+                         		}
+                         		
+                         		if("".equals(dose)) {
+                         			d2 = "mL";
+                         		}
+                         	%>
+                         	<br/>
+                         <label>Typical Dose: </label><span id="typicalDose"></span><br/><br/>
+                         <label for="dose">Dose:</label> <input type="text" name="dose"  id="dose" value="<%=d1%>"/>
+                         <br>
+                          <label for="doseUnit">Dose Unit:</label>
+                          <select name="doseUnit" id="doseUnit">
+							<option value="" <%="".equals(d2)?"selected=\"selected\" ":"" %>></option>
+							<option value="mL" <%="mL".equals(d2)?"selected=\"selected\" ":"" %>>mL</option>
+							<option value="mg" <%="mg".equals(d2)?"selected=\"selected\" ":"" %>>mg</option>
+							<option value="g" <%="g".equals(d2)?"selected=\"selected\" ":"" %>>g</option>
+							<option value="capsule" <%="capsule".equals(d2)?"selected=\"selected\" ":"" %>>capsule</option>
+							<option value="vial" <%="vial".equals(d2)?"selected=\"selected\" ":"" %>>vial</option>
+                        
+                          </select>
+                         
+                          <br/>
                         <%if(!isCvc) { %>
                          <label for="lot">Lot:</label>  <input type="text" name="lot" id="lot" value="<%=str(lot,"")%>" />
                         <select onchange="javascript:updateLotNr(this);" id="lotDrop" name="lotItem" >
@@ -733,6 +975,10 @@ $(document).ready(function(){
                          <label for="expiryDate">Expiry Date:</label> <input type="text" name="expiryDate" id="expiryDate"  value="<%=str((extraData.get("expiryDate")),"")%>"/><br/>
                          <% } %>
                          <label for="manufacture">Manufacture:</label> <input type="text" name="manufacture" id="manufacture"  value="<%=str((extraData.get("manufacture")),"")%>"/><br/>
+                         <% if(generic != null){ %>
+                         <label for="shelfStatus">Status:</label> <span name="shelfStatus" id="shelfStatus"  ></span><%=generic.getShelfStatus() %><br/> <%--str((extraData.get("status")),"")--%>
+                         <% } %>
+                         
                    </fieldset>
                    <fieldset >
                       <legend >Comments</legend>
@@ -773,6 +1019,7 @@ $(document).ready(function(){
                    <fieldset>
                       <legend >Result</legend>
                          <label for="location">Location:</label> <input type="text" name="location" value="<%=str((extraData.get("location")),"")%>"/> <br/>
+                          <label for="location">Other Location:</label> <input type="text" name="location2" value="<%=str((extraData.get("location2")),"")%>"/> <br/>
                          <label for="route">Route:</label> <input type="text" name="route"   value="<%=str((extraData.get("route")),"")%>"/><br/>
                          <label for="dose">Dose:</label> <input type="text" name="dose"  value="<%=str((extraData.get("dose")),"")%>"/><br/>
 			 <label for="dose1">Dose 1:</label> <input type="checkbox" name="dose1" value="true" <%=checked(str((extraData.get("dose1")),""),"true")%>/><br/>
@@ -847,7 +1094,7 @@ $(document).ready(function(){
                    <fieldset>
                       <legend>Prevention : <%=prevention%></legend>
                          <div>
-                            <input name="given" type="radio" value="given"      <%=checked(completed,"0")%>>Completed</input><br/>
+                            <input name="given" type="radio" value="given"     <%=checked(completed,"0")%>>Completed</input><br/>
                             <input name="given" type="radio" value="given_ext"  <%=checked(completed,"3")%>>Completed externally</input><br/>
                             <input name="given" type="radio" value="refused"    <%=checked(completed,"1")%>>Refused</input><br/>
                             <input name="given" type="radio" value="ineligible" <%=checked(completed,"2")%>>Ineligible</input>
@@ -927,7 +1174,49 @@ $(document).ready(function(){
                    </fieldset>
                </div>
                <br/>
-               <input type="submit" value="Save">
+               <input type="submit" value="Save" name="action"><!-- cvcActiveCall ?  <%= CanadianVaccineCatalogueManager2.getCVCActive(creationDate)%>  <%= creationDate%> -->
+               <%
+   					ConsentDao consentDao = SpringUtils.getBean(ConsentDao.class);
+   					Consent ispaConsent =  consentDao.findByDemographicAndConsentType(Integer.parseInt(demographic_no), "dhir_ispa_consent");
+   					Consent nonIspaConsent =  consentDao.findByDemographicAndConsentType(Integer.parseInt(demographic_no), "dhir_non_ispa_consent");
+   					
+   					boolean ispa = Boolean.valueOf((String)prevHash.get("ispa"));
+   					
+   					boolean isSSOLoggedIn = session.getAttribute("oneIdEmail") != null;
+   					boolean hasIspaConsent = ispaConsent != null && !ispaConsent.isOptout();
+   					boolean hasNonIspaConsent = nonIspaConsent != null && !nonIspaConsent.isOptout();
+
+   					//if(dhirEnabled &&  isSSOLoggedIn) {
+   					//	if((ispa && hasIspaConsent) || (!ispa && hasNonIspaConsent)) {
+   						
+   					if("ON".equalsIgnoreCase(demoObject.getHcType()) && CanadianVaccineCatalogueManager2.getCVCActive(creationDate)){
+               %>
+               <script type="text/javascript">
+               	function validateSubmitSave() {
+            	    		var givenVal = document.getElementById('given');
+            	    		var givenExtVal = document.getElementById('givenExt');
+            	    		// || givenExtVal.checked != true
+            	    		console.log("givenVal",givenVal.checked);
+            	    		if( !(givenVal.checked == true || givenExtVal.checked == true)){ //if(givenVal.checked != true){   if given is not true  need it to be if given is true or given Ext is true
+            	    			alert("Only Completed Immunizations can be submitted to the DHIR");
+            	    			return false;
+            	    		}
+            	    		/*var prevDateVal = document.getElementById('prevDate');
+            	    		console.log("prevDate",prevDate,prevDate.value.length);
+            	    		if(prevDate.value.length != 16){
+            	    			alert("Partial Dates are not supported by the DHIR. This Immunization can not be submitted.")
+            	    			return false;
+            	    		}
+            	    		*/
+            	   		return true;
+               	}
+               </script>
+               <input type="submit" value="Save & Submit" name="action" onclick="return validateSubmitSave();" <%=(dhirEnabled) ? "" : "title='DHIR not enabled' disabled" %> >
+                <% } 
+   					
+   					//} 
+   					
+   					%>
                <% if ( id != null ) { %>
                <input type="submit" name="delete" value="Delete"/>
                <% } %>
@@ -973,7 +1262,7 @@ String str(String first,String second){
     }else if ( second != null){
        ret = second;
     }
-    return ret;
+    return StringEscapeUtils.escapeHtml(ret);
   }
 
 String checked(String first,String second){
@@ -984,5 +1273,28 @@ String checked(String first,String second){
        }
     }
     return ret;
+  }
+
+  Date parseDate(String dt) {
+	SimpleDateFormat fmt = null;
+			
+	if(dt.length() == 4) {
+		fmt = new SimpleDateFormat("yyyy");
+	} else if(dt.length() == 7) {
+		fmt = new SimpleDateFormat("yyyy-MM");
+	} else if(dt.length() == 10) {
+		fmt = new SimpleDateFormat("yyyy-MM-dd");
+	} else if(dt.length() == 16) {
+		fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+	}
+	
+	if(fmt != null) {
+		try {
+			return fmt.parse(dt);
+		}catch(ParseException e) {
+			return null;
+		}
+	}
+	return null;
   }
 %>

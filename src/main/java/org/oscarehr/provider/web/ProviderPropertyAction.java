@@ -26,16 +26,16 @@ package org.oscarehr.provider.web;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
 
-import java.util.Collections;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.beanutils.BeanComparator;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
@@ -43,18 +43,20 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 import org.apache.struts.actions.DispatchAction;
 import org.apache.struts.util.LabelValueBean;
+import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.dao.CtlBillingServiceDao;
 import org.oscarehr.common.dao.QueueDao;
 import org.oscarehr.common.dao.UserPropertyDAO;
-import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.model.Facility;
-import org.oscarehr.common.model.UserProperty;
 import org.oscarehr.common.model.Provider;
+import org.oscarehr.common.model.UserProperty;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
+import oscar.OscarProperties;
 import oscar.eform.EFormUtil;
+import oscar.log.LogAction;
 import oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFormRequestUtil;
 
 /**
@@ -154,6 +156,29 @@ public class ProviderPropertyAction extends DispatchAction {
          request.setAttribute("status", "success");
          return actionmapping.findForward("success");
     }
+    
+    public static void updateOrCreateProviderProperties(HttpServletRequest request) {
+        LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+        UserPropertyDAO propertyDAO = SpringUtils.getBean(UserPropertyDAO.class);
+        String providerNo = loggedInInfo.getLoggedInProviderNo();
+
+        List<UserProperty> userProperties = new ArrayList<>();
+        String propertyValue;
+        UserProperty property;
+
+        propertyValue = StringUtils.trimToNull(request.getParameter(UserProperty.OPEN_IN_TABS));
+        property = propertyDAO.getProp(providerNo, UserProperty.OPEN_IN_TABS);
+        if (property == null) {
+            property = new UserProperty();
+            property.setProviderNo(providerNo);
+            property.setName(UserProperty.OPEN_IN_TABS);
+        }
+        property.setValue(String.valueOf(Boolean.parseBoolean(propertyValue)));
+        propertyDAO.saveProp(property);
+        
+
+    }
+    
     public ActionForward viewDefaultSex(ActionMapping actionmapping,
                                ActionForm actionform,
                                HttpServletRequest request,
@@ -1971,7 +1996,194 @@ public ActionForward viewEDocBrowserInDocumentReport(ActionMapping actionmapping
 		request.setAttribute("method","saveLabRecallPrefs");
 		
 		return actionmapping.findForward("genLabRecallPrefs");
-	}     
+	}    
+
+    public ActionForward viewTicklerTaskAssignee(ActionMapping actionmapping,ActionForm actionform,HttpServletRequest request, HttpServletResponse response) {
+        DynaActionForm frm = (DynaActionForm)actionform;
+        LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+        String providerNo=loggedInInfo.getLoggedInProviderNo();
+
+	UserProperty ticklerTaskAssignee = this.userPropertyDAO.getProp(providerNo, UserProperty.TICKLER_TASK_ASSIGNEE);
+
+	String defaultTo = "";
+	if (ticklerTaskAssignee == null){
+		ticklerTaskAssignee = new UserProperty();
+		ticklerTaskAssignee.setValue("default");
+		defaultTo = ticklerTaskAssignee.getValue();
+	}else if(ticklerTaskAssignee.getValue().equals("mrp")){
+		defaultTo = "mrp";
+	}else{
+		defaultTo = "provider";
+	}
+
+	ArrayList<LabelValueBean> providerList = new ArrayList<LabelValueBean>();
+	providerList.add(new LabelValueBean("Select", ""));
+
+	ProviderDao dao = SpringUtils.getBean(ProviderDao.class);
+	List<Provider> ps = dao.getProviders();
+	Collections.sort(ps, new BeanComparator("lastName"));
+	try {
+		
+		for (Provider p : ps) {
+			if(!p.getProviderNo().equals("-1")){
+			 providerList.add(new LabelValueBean(p.getLastName() + ", " + p.getFirstName(), p.getProviderNo()));
+			}
+		}
+		
+		} catch (Exception e) {
+			MiscUtils.getLogger().error("Error", e);
+		}
+	    request.setAttribute("providerSelect",providerList);
+       
+        request.setAttribute("providertitle","provider.ticklerPreference.title"); 
+        request.setAttribute("providermsgPrefs","provider.ticklerPreference.msgPrefs"); //=Preferences
+        request.setAttribute("providerbtnSubmit","provider.ticklerPreference.btnSubmit"); //=Save
+        request.setAttribute("providerbtnCancel","provider.ticklerPreference.btnCancel"); //=Cancel
+        request.setAttribute("method","saveTicklerTaskAssignee");
+
+	request.setAttribute("taskAssigneeSelection", ticklerTaskAssignee);
+	frm.set("taskAssigneeSelection", ticklerTaskAssignee);
+
+        request.setAttribute("providerMsg","");
+
+	    request.setAttribute("taskAssigneeMRP", defaultTo);
+
+	    UserProperty t=(UserProperty)frm.get("taskAssigneeMRP");
+	    t.setValue(defaultTo);
+
+        return actionmapping.findForward("success");
+    }
+    
+
+    public ActionForward saveTicklerTaskAssignee(ActionMapping actionmapping,ActionForm actionform, HttpServletRequest request, HttpServletResponse response) {
+        LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+        String providerNo=loggedInInfo.getLoggedInProviderNo();
+        DynaActionForm frm=(DynaActionForm)actionform;
+
+	UserProperty a=(UserProperty)frm.get("taskAssigneeSelection");
+	String tickerTaskAssignee = a != null ? a.getValue() : "";
+
+	boolean delete = false;
+	if(tickerTaskAssignee.equals("")){delete=true;}
+
+	UserProperty property = this.userPropertyDAO.getProp(providerNo, UserProperty.TICKLER_TASK_ASSIGNEE);
+	if( property == null ) {
+		property = new UserProperty();
+		property.setProviderNo(providerNo);
+		property.setName(UserProperty.TICKLER_TASK_ASSIGNEE);
+	}
+
+	if(delete){
+	 userPropertyDAO.delete(property);
+	}else{
+	 property.setValue(tickerTaskAssignee);
+	 userPropertyDAO.saveProp(property);
+	}
+
+	    request.setAttribute("status", "success");
+
+        request.setAttribute("providertitle","provider.ticklerPreference.title"); 
+        request.setAttribute("providermsgPrefs","provider.ticklerPreference.msgPrefs"); //=Preferences
+        request.setAttribute("providerbtnSubmit","provider.ticklerPreference.btnSubmit"); //=Save
+        request.setAttribute("providerbtnCancel","provider.ticklerPreference.btnCancel"); //=Cancel
+
+	    request.setAttribute("providerbtnClose","provider.ticklerPreference.providerbtnClose"); //=Close Window
+
+        request.setAttribute("providerMsg","provider.ticklerPreference.savedMsg");
+
+        request.setAttribute("method","saveTicklerTaskAssignee");
+
+        return actionmapping.findForward("complete");
+
+	}
+
+public ActionForward viewConsultsFilter(ActionMapping actionmapping,ActionForm actionform,HttpServletRequest request, HttpServletResponse response) {
+        DynaActionForm frm = (DynaActionForm)actionform;
+        LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+        String providerNo=loggedInInfo.getLoggedInProviderNo();
+
+	//consultsDefaultFilter
+	UserProperty prop = this.userPropertyDAO.getProp(providerNo, UserProperty.CONSULTS_DEFAULT_FILTER);
+
+	if (prop == null){
+		prop = new UserProperty();
+		prop.setValue("");
+	}
+
+       
+
+        request.setAttribute("providertitle","provider.viewConsultsPreference.title"); 
+        request.setAttribute("providermsgPrefs","provider.viewConsultsPreference.msgPrefs");
+        request.setAttribute("providerbtnSubmit","provider.viewConsultsPreference.btnSubmit");
+        request.setAttribute("providerbtnCancel","provider.viewConsultsPreference.btnCancel"); 
+        request.setAttribute("method","saveConsultsFilter");
+
+	request.setAttribute("consultsDefaultFilter", prop);
+	frm.set("consultsDefaultFilter", prop);
+
+	request.setAttribute("providerMsg","");
+
+        return actionmapping.findForward("success");
+    }
+
+    public ActionForward saveConsultsFilter(ActionMapping actionmapping,ActionForm actionform, HttpServletRequest request, HttpServletResponse response) {
+        LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+
+
+        String providerNo=loggedInInfo.getLoggedInProviderNo();
+	String team = "";
+        DynaActionForm frm=(DynaActionForm)actionform;
+
+
+	Provider p = loggedInInfo.getLoggedInProvider();
+	if( p != null ) {
+		team = p.getTeam();
+	}
+
+	UserProperty a=(UserProperty)frm.get("consultsDefaultFilter");
+	String consultsDefaultFilter = a != null ? a.getValue() : "";
+	String propToSave = "";
+
+	consultsDefaultFilter = consultsDefaultFilter.trim();
+
+	boolean delete = false;
+	if(consultsDefaultFilter.equals("mine")){
+		propToSave="mrpNo="+providerNo;
+	}else if(consultsDefaultFilter.equals("mygroup")){
+		propToSave="sendTo="+team;
+	}else{
+
+		//catch all for now
+		propToSave=consultsDefaultFilter;
+	}
+
+	UserProperty property = this.userPropertyDAO.getProp(providerNo, UserProperty.CONSULTS_DEFAULT_FILTER);
+	if( property == null ) {
+		property = new UserProperty();
+		property.setProviderNo(providerNo);
+		property.setName(UserProperty.CONSULTS_DEFAULT_FILTER);
+	}
+
+	if(delete){
+	 userPropertyDAO.delete(property);
+	}else{
+	 property.setValue(propToSave);
+	 userPropertyDAO.saveProp(property);
+	}
+
+	request.setAttribute("status", "success");
+        request.setAttribute("providertitle","provider.viewConsultsPreference.title"); 
+        request.setAttribute("providermsgPrefs","provider.viewConsultsPreference.msgPrefs"); //=Preferences
+        request.setAttribute("providerbtnSubmit","provider.viewConsultsPreference.btnSubmit"); //=Save
+        request.setAttribute("providerbtnCancel","provider.viewConsultsPreference.btnCancel"); //=Cancel
+	request.setAttribute("providerbtnClose","provider.viewConsultsPreference.providerbtnClose"); //=Close Window
+        request.setAttribute("providerMsg","provider.viewConsultsPreference.savedMsg");
+        request.setAttribute("method","saveConsultsFilter");
+
+        return actionmapping.findForward("complete");
+
+	}
+
 
     public ActionForward viewEncounterWindowSize(ActionMapping actionmapping,ActionForm actionform,HttpServletRequest request, HttpServletResponse response) {
 
@@ -2485,7 +2697,23 @@ public ActionForward viewEDocBrowserInDocumentReport(ActionMapping actionmapping
 			checked=false;
 
 		prop.setChecked(checked);
+		
+		UserProperty propRefresh = this.userPropertyDAO.getProp(providerNo, UserProperty.DASHBOARD_REFRESH);
+		if(propRefresh == null) {
+			propRefresh = new UserProperty();
+			Integer userRefreshRate = null;
+			try {
+				userRefreshRate = Integer.parseInt(OscarProperties.getInstance().getProperty("dashboard.indicatorRefreshRate"));
+			}catch(NumberFormatException e) {
+			}
+			if(userRefreshRate != null) {
+				propRefresh.setValue(String.valueOf(userRefreshRate));
+			}
+		}
+		
+		
 		request.setAttribute("dashboardShareProperty", prop);
+		request.setAttribute("dashboardRefreshProperty", propRefresh);
 		request.setAttribute("providertitle","provider.dashboardPrefs.title"); 
 		request.setAttribute("providermsgPrefs","provider.dashboardPrefs.msgPrefs"); //=Preferences
 		request.setAttribute("providerbtnSubmit","provider.dashboardPrefs.btnSubmit"); //=Save
@@ -2493,6 +2721,7 @@ public ActionForward viewEDocBrowserInDocumentReport(ActionMapping actionmapping
 		request.setAttribute("method","saveDashboardPrefs");
 
 		frm.set("dashboardShareProperty", prop);
+		frm.set("dashboardRefreshProperty", propRefresh);
 
 		return actionmapping.findForward("genDashboardPrefs");
     }
@@ -2517,9 +2746,21 @@ public ActionForward viewEDocBrowserInDocumentReport(ActionMapping actionmapping
 
 		prop.setValue(propValue);
 		this.userPropertyDAO.saveProp(prop);
-
+		
+		
+		UserProperty refreshProp=(UserProperty)frm.get("dashboardRefreshProperty");
+		UserProperty prop2=this.userPropertyDAO.getProp(providerNo, UserProperty.DASHBOARD_REFRESH);
+		if(prop2==null){
+			prop2=new UserProperty();
+			prop2.setName(UserProperty.DASHBOARD_REFRESH);
+			prop2.setProviderNo(providerNo);
+		}
+		prop2.setValue(refreshProp.getValue());
+		this.userPropertyDAO.saveProp(prop2);
+		
 		request.setAttribute("status", "success");
 		request.setAttribute("dashboardShareProperty",prop);
+		request.setAttribute("dashboardRefreshProperty",prop2);
 		request.setAttribute("providertitle","provider.dashboardPrefs.title"); 
 		request.setAttribute("providermsgPrefs","provider.dashboardPrefs.msgPrefs"); //=Preferences
 		request.setAttribute("providerbtnClose","provider.dashboardPrefs.btnClose"); //=Close
@@ -2690,7 +2931,208 @@ public ActionForward viewEDocBrowserInDocumentReport(ActionMapping actionmapping
 
 		return actionmapping.findForward("genBornPrefs");
 	}
+
+   
+    public ActionForward viewPreventionPrefs(ActionMapping actionmapping,ActionForm actionform,HttpServletRequest request, HttpServletResponse response) {
+    	DynaActionForm frm = (DynaActionForm)actionform;
+		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+		String providerNo=loggedInInfo.getLoggedInProviderNo();
+		
+		UserProperty prop = loadProperty(providerNo, UserProperty.PREVENTION_SSO_WARNING);
+		UserProperty prop2 = loadProperty(providerNo, UserProperty.PREVENTION_ISPA_WARNING);
+		UserProperty prop3 = loadProperty(providerNo, UserProperty.PREVENTION_NON_ISPA_WARNING);
+		
+		request.setAttribute("preventionSSOWarningProperty", prop);
+		request.setAttribute("preventionISPAWarningProperty", prop2);
+		request.setAttribute("preventionNonISPAWarningProperty", prop3);
+		
+		request.setAttribute("providertitle","provider.preventionPrefs.title"); 
+		request.setAttribute("providermsgPrefs","provider.preventionPrefs.msgPrefs"); //=Preferences
+		request.setAttribute("providerbtnSubmit","provider.preventionPrefs.btnSubmit"); //=Save
+		request.setAttribute("providerbtnCancel","provider.preventionPrefs.btnCancel"); //=Cancel
+		request.setAttribute("method","savePreventionPrefs");
+
+		frm.set("preventionSSOWarningProperty", prop);
+		frm.set("preventionISPAWarningProperty", prop2);
+		frm.set("preventionNonISPAWarningProperty", prop3);
+
+		return actionmapping.findForward("genPreventionPrefs");
+    }
+
+
+    private UserProperty saveProperty(DynaActionForm frm, String providerNo, String formName, String name) {
+    	
+    	UserProperty Uprop=(UserProperty)frm.get(formName);
+
+		boolean checked=false;
+		if(Uprop!=null)
+			checked = Uprop.isChecked();
+		UserProperty prop=this.userPropertyDAO.getProp(providerNo, name);
+		if(prop==null){
+			prop=new UserProperty();
+			prop.setName(name);
+			prop.setProviderNo(providerNo);
+		}
+		String propValue="false";
+		if(checked) propValue="true";
+
+		prop.setValue(propValue);
+		this.userPropertyDAO.saveProp(prop);
+		
+		return prop;
+
+    }
+
+    private UserProperty loadProperty(String providerNo, String name) {
+        UserProperty prop = this.userPropertyDAO.getProp(providerNo, name);
+        String propValue="";
+        if (prop == null){
+                prop = new UserProperty();
+        }else{
+                propValue=prop.getValue();
+        }
+
+        boolean checked;
+        if(propValue.equals("true"))
+                checked=true;
+        else
+                checked=false;
+
+        prop.setChecked(checked);
+        
+        return prop;
+    }
     
+    public ActionForward savePreventionPrefs(ActionMapping actionmapping,ActionForm actionform, HttpServletRequest request, HttpServletResponse response) {
+    	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+		String providerNo=loggedInInfo.getLoggedInProviderNo();
+    	DynaActionForm frm=(DynaActionForm)actionform;
+    	
+    	
+    	UserProperty prop = saveProperty(frm, providerNo, "preventionSSOWarningProperty" ,UserProperty.PREVENTION_SSO_WARNING);
+    	UserProperty prop2 = saveProperty(frm, providerNo,"preventionISPAWarningProperty", UserProperty.PREVENTION_ISPA_WARNING);
+    	UserProperty prop3 = saveProperty(frm, providerNo, "preventionNonISPAWarningProperty",UserProperty.PREVENTION_NON_ISPA_WARNING);
+    	
+		request.setAttribute("status", "success");
+		request.setAttribute("preventionSSOWarningProperty",prop);
+		request.setAttribute("preventionISPAWarningProperty",prop2);
+		request.setAttribute("preventionNonISPAWarningProperty",prop3);
+		
+		request.setAttribute("providertitle","provider.preventionPrefs.title"); 
+		request.setAttribute("providermsgPrefs","provider.preventionPrefs.msgPrefs"); //=Preferences
+		request.setAttribute("providerbtnClose","provider.preventionPrefs.btnClose"); //=Close
+		
+		request.setAttribute("method","savePreventionPrefs");
+
+		return actionmapping.findForward("genPreventionPrefs");
+	}
+
+
+    
+    public ActionForward viewClinicalConnectPrefs(ActionMapping actionmapping,ActionForm actionform,HttpServletRequest request, HttpServletResponse response) {
+        DynaActionForm frm = (DynaActionForm)actionform;
+        LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+        String providerNo=loggedInInfo.getLoggedInProviderNo();
+
+        UserProperty prop = loadProperty(providerNo, UserProperty.CLINICALCONNECT_DISABLE_CLOSE_WINDOW);
+        UserProperty prop2 = loadProperty(providerNo, UserProperty.CLINICALCONNECT_DISABLE_LOGOUT_WARNING);
+        
+        request.setAttribute("clinicalConnectDisableCloseWindow", prop);
+        request.setAttribute("clinicalConnectDisableLogoutWarning", prop2);
+       
+        request.setAttribute("providertitle","provider.clinicalConnectPrefs.title"); 
+        request.setAttribute("providermsgPrefs","provider.clinicalConnectPrefs.msgPrefs"); //=Preferences
+        request.setAttribute("providerbtnSubmit","provider.clinicalConnectPrefs.btnSubmit"); //=Save
+        request.setAttribute("providerbtnCancel","provider.clinicalConnectPrefs.btnCancel"); //=Cancel
+        request.setAttribute("method","saveClinicalConnectPrefs");
+
+        frm.set("clinicalConnectDisableCloseWindow", prop);
+        frm.set("clinicalConnectDisableLogoutWarning", prop2);
+        
+        return actionmapping.findForward("genClinicalConnectPrefs");
+    }
+    
+
+    public ActionForward saveClinicalConnectPrefs(ActionMapping actionmapping,ActionForm actionform, HttpServletRequest request, HttpServletResponse response) {
+        LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+        String providerNo=loggedInInfo.getLoggedInProviderNo();
+        DynaActionForm frm=(DynaActionForm)actionform;
+
+
+        UserProperty prop = saveProperty(frm, providerNo, "clinicalConnectDisableCloseWindow" ,UserProperty.CLINICALCONNECT_DISABLE_CLOSE_WINDOW);
+        UserProperty prop2 = saveProperty(frm, providerNo,"clinicalConnectDisableLogoutWarning", UserProperty.CLINICALCONNECT_DISABLE_LOGOUT_WARNING);
+    
+        LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request),"ClinicalConnectPreferences","clinicalConnectDisableCloseWindow","",null,prop.getValue());
+        LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request),"ClinicalConnectPreferences","clinicalConnectDisableLogoutWarning","",null,prop.getValue());
+
+        request.setAttribute("status", "success");
+        request.setAttribute("clinicalConnectDisableCloseWindow",prop);
+        request.setAttribute("clinicalConnectDisableLogoutWarning",prop2);
+       
+        request.setAttribute("providertitle","provider.clinicalConnectPrefs.title"); 
+        request.setAttribute("providermsgPrefs","provider.clinicalConnectPrefs.msgPrefs"); //=Preferences
+        request.setAttribute("providerbtnClose","provider.clinicalConnectPrefs.btnClose"); //=Close
+        request.setAttribute("providermsgSuccess","provider.clinicalConnectPrefs.msgSuccess"); 
+        
+        request.setAttribute("method","saveClinicalConnectPrefs");
+
+        return actionmapping.findForward("genClinicalConnectPrefs");
+
+	}
+
+    public ActionForward viewLabMacroPrefs(ActionMapping actionmapping,ActionForm actionform,HttpServletRequest request, HttpServletResponse response) {
+        DynaActionForm frm = (DynaActionForm)actionform;
+        LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+        String providerNo=loggedInInfo.getLoggedInProviderNo();
+
+        UserProperty prop = loadProperty(providerNo, UserProperty.LAB_MACRO_JSON);
+        
+        request.setAttribute("labMacroJSON", prop);
+        
+        request.setAttribute("providertitle","provider.labMacroPrefs.title"); 
+        request.setAttribute("providermsgPrefs","provider.labMacroPrefs.msgPrefs"); //=Preferences
+        request.setAttribute("providerbtnSubmit","provider.labMacroPrefs.btnSubmit"); //=Save
+        request.setAttribute("providerbtnCancel","provider.labMacroPrefs.btnCancel"); //=Cancel
+        request.setAttribute("method","saveLabMacroPrefs");
+
+        frm.set("labMacroJSON", prop);
+        
+        return actionmapping.findForward("genLabMacroPrefs");
+    }
+    
+
+    public ActionForward saveLabMacroPrefs(ActionMapping actionmapping,ActionForm actionform, HttpServletRequest request, HttpServletResponse response) {
+        LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+        String providerNo=loggedInInfo.getLoggedInProviderNo();
+        DynaActionForm frm=(DynaActionForm)actionform;
+
+		UserProperty s = (UserProperty)frm.get("labMacroJSON");
+
+		String length = s != null ? s.getValue() : "";
+
+		UserProperty wProperty = this.userPropertyDAO.getProp(providerNo,UserProperty.LAB_MACRO_JSON);
+		if( wProperty == null ) {
+			wProperty = new UserProperty();
+			wProperty.setProviderNo(providerNo);
+			wProperty.setName(UserProperty.LAB_MACRO_JSON);
+		}
+		wProperty.setValue(length);
+		userPropertyDAO.saveProp(wProperty);
+		
+        LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request),"LabMacroPreferences","labMacroJSON","",null,wProperty.getValue());
+       
+        request.setAttribute("status", "success");
+        request.setAttribute("labMacroJSON",wProperty);
+        
+        request.setAttribute("providertitle","provider.labMacroPrefs.title"); 
+        request.setAttribute("providermsgPrefs","provider.labMacroPrefs.msgPrefs"); //=Preferences
+        request.setAttribute("providerbtnClose","provider.labMacroPrefs.btnClose"); //=Close
+        request.setAttribute("providermsgSuccess","provider.labMacroPrefs.msgSuccess"); 
+        
+        request.setAttribute("method","saveLabMacroPrefs");
+
+        return actionmapping.findForward("genLabMacroPrefs");
+    }
     /**
      * Creates a new instance of ProviderPropertyAction
      */

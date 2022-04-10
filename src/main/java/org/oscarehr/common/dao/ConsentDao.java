@@ -23,6 +23,7 @@
  */
 package org.oscarehr.common.dao;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -40,12 +41,12 @@ public class ConsentDao extends AbstractDao<Consent> {
 	}
 	
 	/**
-	 * This query should never return more than one consentType. 
+	 * This query should never return more than one consentType. Returns consents that are not deleted only. 
 	 * @param int demographic_no
 	 * @param int consentTypeId
 	 */
 	public Consent findByDemographicAndConsentTypeId( int demographic_no, int consentTypeId ) {
-		String sql = "select x from "+modelClass.getSimpleName()+" x where x.demographicNo=?1 and x.consentTypeId=?2";
+		String sql = "select x from "+modelClass.getSimpleName()+" x where x.demographicNo=?1 and x.consentTypeId=?2 AND x.deleted=0";
     	Query query = entityManager.createQuery(sql);
     	query.setParameter( 1, demographic_no );
     	query.setParameter( 2, consentTypeId );
@@ -54,8 +55,19 @@ public class ConsentDao extends AbstractDao<Consent> {
         return consent;
 	}
 	
+	public Consent findByDemographicAndConsentType(int demographic_no, String consentType ) {
+		String sql = "select x from "+modelClass.getSimpleName()+" x where x.demographicNo=?1 and x.consentType.type=?2";
+    	Query query = entityManager.createQuery(sql);
+    	query.setParameter( 1, demographic_no );
+    	query.setParameter( 2, consentType);
+
+        Consent consent = getSingleResultOrNull(query);
+        return consent;
+	}
+	
+	
 	public List<Consent> findByDemographic( int demographic_no ) {
-		String sql = "select x from "+modelClass.getSimpleName()+" x where x.demographicNo=?1";
+		String sql = "select x from "+modelClass.getSimpleName()+" x where x.demographicNo=?1 AND x.deleted=0";
     	Query query = entityManager.createQuery(sql);
     	query.setParameter( 1, demographic_no );
 
@@ -68,7 +80,7 @@ public class ConsentDao extends AbstractDao<Consent> {
 		String sql = "SELECT x FROM " 
 					+ modelClass.getSimpleName() 
 					+ " x WHERE x.consentTypeId = ?1"
-					+ " AND x.editDate  > ?2 ";
+					+ " AND x.editDate  > ?2 AND x.deleted=0";
 		
     	Query query = entityManager.createQuery(sql);
     	query.setParameter( 1, consentTypeId );
@@ -79,5 +91,28 @@ public class ConsentDao extends AbstractDao<Consent> {
         return consents;
 	}
 	
+	/**
+	 * Returns all demographic ids that have consented (opt-in) to the given consent type id.
+	 * @param consentTypeId
+	 * @return
+	 */
+	public List<Integer> findAllDemoIdsConsentedToType(int consentTypeId) {
+		String sql = "SELECT x.demographicNo FROM " 
+				+ modelClass.getSimpleName() 
+				+ " x WHERE x.consentTypeId = ?1"
+				+ " AND x.optout = 0 "
+				+ " AND x.deleted = 0";
+	
+		Query query = entityManager.createQuery(sql);
+		query.setParameter( 1, consentTypeId );
+	
+		@SuppressWarnings("unchecked")
+		List<Integer> consents = query.getResultList();
+		if(consents == null)
+		{
+			consents = Collections.emptyList();
+		}
+	    return consents;
+	}
 
 }

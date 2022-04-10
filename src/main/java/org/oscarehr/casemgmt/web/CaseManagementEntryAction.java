@@ -264,7 +264,7 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 
 		logger.debug("NoteId " + nId);
 
-		String maxTmpSave = oscar.OscarProperties.getInstance().getProperty("maxTmpSave", "");
+		String maxTmpSave = oscar.OscarProperties.getInstance().getProperty("maxTmpSave", "off");
 		logger.debug("maxTmpSave " + maxTmpSave);
 		// set date 2 weeks in past so we retrieve more recent saved notes
 		Calendar cal = Calendar.getInstance();
@@ -446,8 +446,6 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		current = System.currentTimeMillis();
 		logger.debug("The End of Edit " + String.valueOf(current - beginning));
 		start = current;
-
-		LogAction.addLog((String) session.getAttribute("user"), LogConst.EDIT, LogConst.CON_CME_NOTE, String.valueOf(note.getId()), request.getRemoteAddr(), demono, note.getAuditString());
 
 		//check to see if someone else is editing note in this chart
 		String ipAddress = request.getRemoteAddr();
@@ -799,8 +797,8 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		String appointmentNo = request.getParameter("appointmentNo");
 		HttpSession session = request.getSession();
 
-		String[] extNames = { "startdate", "resolutiondate", "proceduredate", "ageatonset", "problemstatus", "treatment", "exposuredetail", "relationship", "lifestage", "hidecpp", "problemdescription" };
-		String[] extKeys = { CaseManagementNoteExt.STARTDATE, CaseManagementNoteExt.RESOLUTIONDATE, CaseManagementNoteExt.PROCEDUREDATE, CaseManagementNoteExt.AGEATONSET, CaseManagementNoteExt.PROBLEMSTATUS, CaseManagementNoteExt.TREATMENT, CaseManagementNoteExt.EXPOSUREDETAIL, CaseManagementNoteExt.RELATIONSHIP, CaseManagementNoteExt.LIFESTAGE, CaseManagementNoteExt.HIDECPP, CaseManagementNoteExt.PROBLEMDESC };
+		String[] extNames = { "startdate", "resolutiondate", "proceduredate", "ageatonset", "problemstatus", "treatment", "exposuredetail", "relationship", "lifestage", "hidecpp", "problemdescription", "procedure" };
+		String[] extKeys = { CaseManagementNoteExt.STARTDATE, CaseManagementNoteExt.RESOLUTIONDATE, CaseManagementNoteExt.PROCEDUREDATE, CaseManagementNoteExt.AGEATONSET, CaseManagementNoteExt.PROBLEMSTATUS, CaseManagementNoteExt.TREATMENT, CaseManagementNoteExt.EXPOSUREDETAIL, CaseManagementNoteExt.RELATIONSHIP, CaseManagementNoteExt.LIFESTAGE, CaseManagementNoteExt.HIDECPP, CaseManagementNoteExt.PROBLEMDESC, CaseManagementNoteExt.PROCEDURE };
 
 		// strNote = strNote.trim();
 		logger.debug("Saving: " + strNote);
@@ -1891,6 +1889,7 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		String demoNo = getDemographicNo(request);
 		String noteId = request.getParameter("noteId");
 		String forceRelease = request.getParameter("force");
+        Boolean closingEChart = "true".equalsIgnoreCase(request.getParameter("closingEChart"));
 		HttpSession session = request.getSession();
 		String sessionFrmName = "caseManagementEntryForm" + demoNo;
 
@@ -1911,7 +1910,20 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 			//nothing to do. lock was not found 
 		}
 
-		
+		//We are exiting note so we have to make sure we clean up tmpSave
+		//try {
+		//	CaseManagementEntryFormBean cform = (CaseManagementEntryFormBean) session.getAttribute(sessionFrmName);
+		//	caseManagementMgr.deleteTmpSave(providerNo, demoNo, cform.getCaseNote().getProgram_no());
+		//} catch (Exception e) {
+		//	logger.error("Could not remove tmpSave", e);
+		//}
+
+		if (closingEChart) {
+            String logData = null;//"Message=" + tickler.getMessage();
+            LogAction.addLog(loggedInInfo, LogConst.CLOSED, LogConst.CON_ECHART,
+                    demoNo, demoNo, logData);
+        }
+        
 		return null;
 	}
 
@@ -2089,6 +2101,9 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 			fwd.setPath(chain);
 			return fwd;
 		}
+        String logData = null;//"Message=" + tickler.getMessage();
+        LogAction.addLog(loggedInInfo, LogConst.CLOSED, LogConst.CON_ECHART,
+                demoNo, demoNo, logData);
 
 		return mapping.findForward("windowClose");
 	}
@@ -2795,6 +2810,7 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		}
 
 		if (note == null || note.length() == 0) {
+			response.setHeader("message","note is empty");
 			return null;
 		}
 
@@ -2810,6 +2826,7 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		cform.getCaseNote().setNote(note);
 
 		response.setStatus(HttpServletResponse.SC_OK);
+		response.setHeader("success","true");
 		return null;
 	}
 
@@ -2890,12 +2907,14 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		
 		String pStartDate = null;
 		String pEndDate = null;
+		String pType = null;
 		
 		Calendar cStartDate = null;
 		Calendar cEndDate = null;
 		
 		pStartDate = request.getParameter("pStartDate");
 		pEndDate = request.getParameter("pEndDate");
+		pType = request.getParameter("pType");
 		
 		SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy");
 		
@@ -2925,7 +2944,7 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		
 		
 		CaseManagementPrint cmp = new CaseManagementPrint();
-		cmp.doPrint(loggedInInfo,demographicNo, printAllNotes,noteIds,printCPP,printRx,printLabs,printPreventions,cStartDate,cEndDate,request, response.getOutputStream());
+		cmp.doPrint(loggedInInfo,demographicNo, printAllNotes,noteIds,printCPP,printRx,printLabs,printPreventions,(pType != null && "dates".equals(pType))?true:false,cStartDate,cEndDate,request, response.getOutputStream());
 		
 		return null;
 	}

@@ -48,13 +48,18 @@ if(!authed) {
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.Security" %>
 <%@ page import="org.oscarehr.common.dao.SecurityDao" %>
+<%@ page import="org.oscarehr.util.LoggedInInfo" %>
+<%@ page import="org.oscarehr.managers.SecurityManager" %>
 <%
 	SecurityDao securityDao = SpringUtils.getBean(SecurityDao.class);
+	org.oscarehr.managers.SecurityManager securityManager = SpringUtils.getBean(org.oscarehr.managers.SecurityManager.class);
+   	LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+
 %>
 <html:html locale="true">
 <head>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script></head>
-<link rel="stylesheet" href="../web.css" />
+<link rel="stylesheet" href="<%=request.getContextPath()%>/web.css" />
 <body topmargin="0" leftmargin="0" rightmargin="0">
 <center>
 <table border="0" cellspacing="0" cellpadding="0" width="100%">
@@ -67,6 +72,7 @@ if(!authed) {
 	int rowsAffected=0;
 	Security s = securityDao.find(Integer.parseInt(request.getParameter("keyword")));
 	if(s != null) {
+        securityManager.updateSecurityRecord(loggedInInfo, s);
 		securityDao.remove(s.getId());
 		rowsAffected=1;
 		LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.DELETE, LogConst.CON_SECURITY,

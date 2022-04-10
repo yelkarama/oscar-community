@@ -51,6 +51,7 @@
 <%@ page import="org.oscarehr.common.model.Clinic"%>
 <%@ page import="org.oscarehr.common.dao.UserPropertyDAO"%>
 <%@ page import="org.oscarehr.common.model.UserProperty"%>
+<%@ page import="oscar.OscarProperties"%>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -168,13 +169,20 @@
 </div>
 
 --%>
-
+<%
+String logowidth="0px";
+String filename = OscarProperties.getInstance().getProperty("CLINIC_LOGO_FILE");
+			if(filename != null ){
+			logowidth="200px";
+			}
+%>
+			
 <table border="1" bgcolor="white" >
 	<tr><td style="padding: 10px 10px 10px 10px">
 	<table>
 	<tr> <!-- first row is logo | prov info -->
 		<td style="padding-right: 10px">
-			<img src="../imageRenderingServlet?source=clinic_logo" width="200px"/>
+			<img src="../imageRenderingServlet?source=clinic_logo" width="<%=logowidth%>"/>
 		</td>
 		<td>
 		<%

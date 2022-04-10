@@ -41,6 +41,7 @@ if(!authed) {
 
 
 <%@ page import="java.util.ResourceBundle"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -60,31 +61,39 @@ displayServiceUtil.estServicesVectors();
 	key="oscarEncounter.oscarConsultationRequest.config.DeleteServices.title" />
 </title>
 <html:base />
-<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
-</head>
+<style>
+
+.MainTableLeftColumn td{
+    font-size: 12px;
+
+}
+</style>
 <script language="javascript">
 function BackToOscar()
 {
        window.close();
 }
 </script>
-<link rel="stylesheet" type="text/css" href="../../encounterStyles.css">
+
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+</head>
 <body class="BodyStyle" vlink="#0000FF">
 <html:errors />
 <!--  -->
 <table class="MainTable" id="scrollNumber1" name="encounterTable">
 	<tr class="MainTableTopRow">
-		<td class="MainTableTopRowLeftColumn">Consultation</td>
+		<td class="MainTableTopRowLeftColumn"><h4>Consultation</h4></td>
 		<td class="MainTableTopRowRightColumn">
-		<table class="TopStatusBar">
+		<table class="TopStatusBar" width="100%">
 			<tr>
-				<td class="Header"><bean:message
-					key="oscarEncounter.oscarConsultationRequest.config.DeleteServices.title" />
+				<td class="Header"><h4><bean:message
+					key="oscarEncounter.oscarConsultationRequest.config.DeleteServices.title" /></h4>
 				</td>
 				<td></td>
 				<td style="text-align: right" NOWRAP><a
 					href="javascript:window.close();"><bean:message
-					key="global.btnClose" /></a> |</td>
+					key="global.btnClose" /></a> </td>
 			</tr>
 		</table>
 		</td>
@@ -109,7 +118,7 @@ function BackToOscar()
 			</tr>
 			<tr>
 				<td><html:form action="/oscarEncounter/DelService">
-					<input type="submit" name="delete"
+					<input type="submit" name="delete" class="btn btn-primary"
 						value="<bean:message key="oscarEncounter.oscarConsultationRequest.config.DeleteServices.btnDeleteService"/>">
 					<div class="ChooseRecipientsBox1">
 					<table>
@@ -132,7 +141,7 @@ function BackToOscar()
 						<tr>
 							<td><input type="checkbox" name="service" value="<%=serId%>">
 							</td>
-							<td><%= serName%></td>
+							<td><%=Encode.forHtml(serName)%></td>
 						</tr>
 						<% }%>
 						</td>

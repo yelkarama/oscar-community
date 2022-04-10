@@ -23,6 +23,9 @@
     Ontario, Canada
 
 --%>
+<%@page import="org.oscarehr.common.dao.UserPropertyDAO" %>
+<%@ page import="org.oscarehr.common.model.UserProperty" %>
+<%@page import="org.oscarehr.util.SpringUtils" %>
 
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
@@ -42,7 +45,7 @@ if(!authed2) {
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%
 String country = request.getLocale() .getCountry();
-
+UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 ProviderPreference providerPreference=(ProviderPreference)session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER_PREFERENCE);
 String curUser_no = (String) session.getAttribute("user");
 String mygroupno = providerPreference.getMyGroupNo();
@@ -65,8 +68,14 @@ String billingRegion = (oscar.OscarProperties.getInstance()).getProperty("billre
 <%@ taglib uri="/WEB-INF/caisi-tag.tld" prefix="caisi"%>
 
 <%
+    UserProperty tabViewProp = userPropertyDao.getProp(curUser_no, UserProperty.OPEN_IN_TABS);
+    boolean openInTabs = false;
+    if ( tabViewProp == null ) {
+        openInTabs = oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true");
+    } else {
+        openInTabs = oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true") || Boolean.parseBoolean(tabViewProp.getValue());
+    }
 
-	
     boolean isSiteAccessPrivacy=false;
     boolean isTeamAccessPrivacy=false; 
     String provider_dboperation = "search_provider";
@@ -90,23 +99,26 @@ String billingRegion = (oscar.OscarProperties.getInstance()).getProperty("billre
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="report.reportindex.title" /></title>
-<link rel="stylesheet" href="../web.css" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 
 <link rel="stylesheet" type="text/css" media="all"
 	href="../share/calendar/calendar.css" title="win2k-cold-1" />
-<script type="text/javascript" src="../share/calendar/calendar.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath() %>/share/calendar/calendar.js"></script>
 <script type="text/javascript"
 	src="../share/calendar/lang/calendar-en.js"></script>
-<script type="text/javascript" src="../share/calendar/calendar-setup.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath() %>/share/calendar/calendar-setup.js"></script>
 
 
-<script type="text/javascript" src="../dojoAjax/dojo.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath() %>/dojoAjax/dojo.js"></script>
 <script type="text/javascript" language="JavaScript">
             dojo.require("dojo.date.format");
 			dojo.require("dojo.widget.*");
 			dojo.require("dojo.validate.*");
 		</script>
-<script type="text/javascript" src="../js/caisi_report_tools.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath() %>/js/caisi_report_tools.js"></script>
 
 
 <script language="JavaScript">
@@ -129,7 +141,7 @@ function ogo() {
   var u = '';
   if (region == "BC") u = 'reportbcedblist.jsp?startDate=' + s + '&endDate=' + e;
   else  u = 'reportnewedblist.jsp?startDate=' + s + '&endDate=' + e;
-	popupPage(700,900,u);
+	popupPage(900,1024,u, <%=openInTabs%>);
 }
 
 function ogo2() {
@@ -141,13 +153,18 @@ function ogo2() {
   var u = '';
   if (region == "BC") u = 'reportbcedblist2007.jsp?startDate=' + s + '&endDate=' + e;
   else u = 'reportonedblist.jsp?startDate=' + s + '&endDate=' + e;
-  popupPage(700,900,u);
+  popupPage(900,1024,u, <%=openInTabs%>);
 }
 
-function popupPageNew(vheight,vwidth,varpage) {
+function popupPageNew(vheight, vwidth, varpage, inTabs) {
   var page = "" + varpage;
+  inTabs      = typeof(inTabs)    != 'undefined' ? inTabs : <%=openInTabs%>;
   windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes";
-  var popup=window.open(page, "demographicprofile", windowprops);
+  if (inTabs) {
+	        var popup=window.open(page, "demographicprofile");
+  } else {
+	        var popup=window.open(page, "demographicprofile", windowprops);
+  }
   if (popup != null) {
     if (popup.opener == null) {
       popup.opener = self;
@@ -173,17 +190,17 @@ function go(r) {
 
 if (r=='tab')
 {
-	popupPage(600,750, y2);
+	popupPage(900,1024, y2, <%=openInTabs%>);
 }
 else if(r=='new') {
     if(confirm("<bean:message key="report.reportindex.msgGoConfirm"/>") ) {
-	  popupPage(600,750,w);
+	  popupPage(900,1024,w, <%=openInTabs%>);
 	}
  }
  else if( ro == true ) {
-        popupPageNew(600,750,x2);
+        popupPageNew(900,1200,x2);
   }else {
-	popupPageNew(600,750,x);
+	popupPageNew(900,1200,x);
   }
 }
 
@@ -205,17 +222,17 @@ var y2 =  'tabulardaysheetreport.jsp?provider_no=' + s +'&sdate=' + td.replace('
 
 if (r=='tab')
  {
-popupPage(600,750, y2);
+popupPage(900,1024, y2, <%=openInTabs%>);
 }
 else if(r=='new') {
 if(confirm("<bean:message key="report.reportindex.msgGoConfirm"/>") ) {
-popupPage(600,750,w);
+popupPage(900,1024,w, <%=openInTabs%>);
   }
       }
  else if( ro == true ) {
- popupPage(600,750,x2);
+ popupPage(900,1024,x2, <%=openInTabs%>);
   }else {
- popupPageNew(600,750,x);
+ popupPageNew(900,1024,x);
   }
    }
 
@@ -224,25 +241,25 @@ function ggo(r) {
   var t = document.getElementsByName("ssdate")[0].value;
   
   var u = 'reportapptsheet.jsp?dsmode=' + r + '&provider_no=' + s +'&sdate='+ t;
-	popupPage(600,750,u);
+	popupPage(900,1024,u, <%=openInTabs%>);
 }
-ONCLICK ="popupPage(600,750,'reportpatientchartlist.jsp')"
+ONCLICK ="popupPage(900,1024,'reportpatientchartlist.jsp', <%=openInTabs%>)"
 function pcgo() {
   var s = document.getElementsByName("pcprovider_no")[0].value;
   var u = 'reportpatientchartlist.jsp?provider_no=' + s;
-	popupPage(600,750,u);
+	popupPage(600,750,u, <%=openInTabs%>);
 }
 function opcgo() {
   var s = document.getElementsByName("opcprovider_no")[0].value;
   var a = document.getElementsByName("age")[0].value;
   var u = 'reportpatientchartlistspecial.jsp?provider_no=' + s + '&age=' + a;
-	popupPage(600,1010,u);
+	popupPage(900,1024,u, <%=openInTabs%>);
 }
 function nsgo() {
   var s = document.getElementsByName("nsprovider_no")[0].value;
   var t = document.getElementsByName("nsdate")[0].value;
   var u = 'reportnoshowapptlist.jsp?provider_no=' + s +'&sdate='+ t;
-	popupPage(600,750,u);
+	popupPage(900,1024,u, <%=openInTabs%>);
 }
 function popUpWaitingList(vheight,vwidth,varpage) {
 	var listIdObject = document.getElementsByName("list_id")[0];
@@ -252,6 +269,7 @@ function popUpWaitingList(vheight,vwidth,varpage) {
 }
 //-->
 </script>
+
 </head>
 <body bgcolor="ivory" bgproperties="fixed" onLoad="setfocus()"
 	topmargin="0" leftmargin="0" rightmargin="0">
@@ -262,19 +280,20 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 %>
 <form name='report'>
 <table border=0 cellspacing=0 cellpadding=0 width="100%">
-	<tr bgcolor="#486ebd">
-		<td align=LEFT><font face="Helvetica" color="#FFFFFF"><bean:message key="report.reportindex.msgTitle" /></td>
-		<td align=RIGHT>
-		<span class="HelpAboutLogout">
-			<oscar:help keywords="&Title=Report+Tab&portal_type%3Alist=Document" key="app.top1" style="color:white; font-size:10px;font-style:normal;"/>&nbsp;
-        		<a style="color:white; font-size:10px;font-style:normal;" href="<%=request.getContextPath()%>/oscarEncounter/About.jsp" target="_new"><bean:message key="global.about" /></a>
-		</span> </font>
+	<tr>
+		<td align=LEFT><h4>&nbsp;<i class="icon-list" title="<bean:message key="report.reportindex.msgTitle" />"></i>&nbsp;<bean:message key="report.reportindex.msgTitle" /></h4></td>
+		<td>
+            <div class="row-fluid hidden-print" style="text-align:right">
+        <i class=" icon-question-sign"></i> 
+	    <a href="javascript:void(0)" onClick ="popupPage(900,1024,'https://worldoscar.org/knowledge-base/report-tab/', <%=openInTabs%>)"><bean:message key="app.top1"/></a>
+        <i class=" icon-info-sign" style="margin-left:10px;"></i> <a href="javascript:void(0)"  onClick="window.open('<%=request.getContextPath()%>/oscarEncounter/About.jsp','About OSCAR','scrollbars=1,resizable=1,width=800,height=600,left=0,top=0')" ><bean:message key="app.top2" /></a>
+            </div><!-- hidden print -->
 		</td>
 	</tr>
 </table>
-<table border="0" cellpadding="0" cellspacing="0" width="95%">
-	<tr>
-		<td>&nbsp;</td>
+<table class="table table-condensed table-striped" id="reportsTbl" width="95%">
+
+	<tr><td colspan='7'>&nbsp;</td>
 	</tr>
 	<%int j = 1; %>
 	<tr>
@@ -290,28 +309,28 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 			ONCLICK="ogo2()">05</a> <% } %>
 		</td>
 		<td><a HREF="#"
-			onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=../report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('startDate')[0].value")%>')">
+			onClick="popupPage(430,430,'../share/CalendarPopup.jsp?urlfrom=../report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('startDate')[0].value")%>')">
 		<bean:message key="report.reportindex.formFrom" /></a> 
 		<%-- any early default start date should suffice for reporting all --%>
-		<INPUT TYPE="text" NAME="startDate" VALUE="<%=today%>" size='10'>
+		<INPUT TYPE="text" NAME="startDate" VALUE="<%=today%>" class="input-small">
 		</td>
 		<td><a HREF="#"
-			onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=../report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('endDate')[0].value")%>')">
-		<bean:message key="report.reportindex.formTo" /></a> <INPUT TYPE="text"
-			NAME="endDate" VALUE="<%=today%>" size='10'></td>
-		<td><INPUT TYPE="button" NAME="button"
+			onClick="popupPage(430,430,'../share/CalendarPopup.jsp?urlfrom=../report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('endDate')[0].value")%>')">
+		<bean:message key="report.reportindex.formTo" /></a> 
+        <INPUT TYPE="text" class="input-small"
+			NAME="endDate" VALUE="<%=today%>" ></td>
+		<td><INPUT TYPE="button" NAME="button" class="btn"
 			VALUE="<bean:message key="report.reportindex.btnCreateReport"/>"
 			onClick="ogo()"></td>
 		<td></td>
-	</tr>
-	
+	</tr>	
 	<tr>
 		<td width="2"><%=j%>
 		<%j++;%>
 		</td>
 		<td width="1"></td>
 		<td width="300"><a HREF="#"
-			ONCLICK="popupPage(600,750,'reportactivepatientlist.jsp')"><bean:message
+			ONCLICK="popupPage(900,1024,'reportactivepatientlist.jsp', <%=openInTabs%>)"><bean:message
 			key="report.reportindex.btnActivePList" /></a></td>
 		<td></td>
 		<td></td>
@@ -326,7 +345,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 		<td width="1"></td>
 		<td width="300"><bean:message
 			key="report.reportindex.formDaySheet" /></td>
-		<td><select name="provider_no">
+		<td><select name="provider_no" class="input-large">
 			<%
                ResultSet rsgroup = reportMainBean.queryResults(mygroup_dboperation);
                      while (rsgroup.next()) {
@@ -362,23 +381,23 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
                         <sup>*</sup><a HREF="#" ONCLICK="gonew('all')">Hospital Appointment</a><br>
 </oscar:oscarPropertiesCheck>
                         <sup>*</sup><a HREF="#" ONCLICK="go('all')"><bean:message
-			key="report.reportindex.btnAllAppt" /></a><br>&nbsp;&nbsp; <bean:message key="report.reportindex.chkRostered"/> <input type="checkbox" id="rosteredOnly" value="true"> </td>
+			key="report.reportindex.btnAllAppt" /></a><br>&nbsp;&nbsp; <bean:message key="report.reportindex.chkRostered"/> <input type="checkbox" id="rosteredOnly" value="true" > </td>
 		<td><a HREF="#"
-			onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=../report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('asdate')[0].value")%>')"><bean:message
+			onClick="popupPage(430,430,'../share/CalendarPopup.jsp?urlfrom=../report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('asdate')[0].value")%>')"><bean:message
 			key="report.reportindex.formFrom" /></a> <input type='text' name="asdate"
-			VALUE="<%=today%>" size=10></td>
+			VALUE="<%=today%>" class="input-small"></td>
 		<td><a HREF="#"
-			onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=../report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('aedate')[0].value")%>')"><bean:message
+			onClick="popupPage(430,430,'../share/CalendarPopup.jsp?urlfrom=../report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('aedate')[0].value")%>')"><bean:message
 			key="report.reportindex.formTo" /> </a> <input type='text' name="aedate"
-			VALUE="<%=today%>" size=10></td>
-		<td><select name="sTime">
+			VALUE="<%=today%>" class="input-small"></td>
+		<td><select name="sTime" class="input-small">
 			<%
               for(int i=0; i<24; i++) {
                 String timeString = i<12&&i>=0? (i+" am") : ((i==12?i:i-12)+ " pm") ;
             %>
 			<option value="<%=""+i%>" <%=i==8?"selected":""%>><%=timeString%></option>
 			<% } %>
-		</select> - <select name="eTime">
+		</select> - <select name="eTime" class="input-small">
 			<%
               for(int i=0; i<24; i++) {
                 String timeString = i<12&&i>=0? (i+" am") : ((i==12?i:i-12)+ " pm") ;
@@ -394,7 +413,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
                     <td width="300"><sup>*</sup><a HREF="#" ONCLICK="go('new')"
 			title="<bean:message key="report.reportindex.msgNewApptsOld"/>"><bean:message
 			key="report.reportindex.btnPrintDaySheet" /></a></td>
-		<td><select name="sdate">
+		<td><select name="sdate" class="input-medium">
 			<%
               cal.add(cal.DATE, -1) ;
               for(int i=0; i<31; i++) {
@@ -417,12 +436,12 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
         function labgo(s) {
                 var t = document.getElementsByName("apptDate")[0].value;
                 var u = 'printLabDaySheetAction.do?xmlStyle=labDaySheet.xml&input_date=' + t;
-                popupPage(600,1000,u);
+                popupPage(900,1024,u, <%=openInTabs%>);
         }
         function labgo1(s) {
         	var t = document.getElementsByName("apptDate1")[0].value;
                 var u = 'printLabDaySheetAction.do?xmlStyle=billDaySheet.xml&input_date=' + t;
-                popupPage(600,1000,u);
+                popupPage(900,1024,u, <%=openInTabs%>);
         }
         </script>
     <tr>
@@ -430,7 +449,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
         <td width="1">*</td>
         <td width="300"><a HREF="#" ONCLICK ="labgo('labDaySheet')" title="lab day sheet"/>Lab Day Sheet</a></td>
         <td>
-            <select name="apptDate" >
+            <select name="apptDate" class="input-medium">
             <%
                           cal.add(cal.DATE, -31) ;
               cal.add(cal.DATE, -1) ;
@@ -453,7 +472,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
         <td width="1">*</td>
         <td width="300"><a HREF="#" ONCLICK ="labgo1('billingDaySheet')" title="billing day sheet"/>Billing Day Sheet</a></td>
         <td>
-            <select name="apptDate1" >
+            <select name="apptDate1" class="input-medium">
             <%
               cal.add(cal.DATE, -31) ;
               cal.add(cal.DATE, -1) ;
@@ -480,7 +499,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 		</td>
 		<td width="1"></td>
 		<td width="300"><a href="#" ONCLICK="go('tab')"><bean:message key="report.reportindex.btnDaySheetTable"/></a></td>
-		<td><input type='text' name="tabDay" VALUE="<%=today%>" size=10></td>
+		<td><input type='date' name="tabDay" VALUE="<%=today%>" class="input-medium"></td>
 		<td></td>
 		<td></td>
 	</tr>
@@ -491,7 +510,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 		<td width="1"></td>
 		<td width="300"><a HREF="#" ONCLICK="ggo('all')"><bean:message
 			key="report.reportindex.formBadAppt" /></a></td>
-		<td><select name="pprovider_no">
+		<td><select name="pprovider_no" class="input-medium">
 			<%
                rsgroup = reportMainBean.queryResults(mygroup_dboperation);
                      while (rsgroup.next()) {
@@ -515,7 +534,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 			<option value="*"><bean:message
 				key="report.reportindex.formAllProviders" /></option>
 		</select></td>
-		<td><select name="ssdate">
+		<td><select name="ssdate" class="input-medium">
 			<%
               cal.add(cal.DATE, -31) ;
               for(int i=0; i<31; i++) {
@@ -537,7 +556,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 		<td width="1"></td>
 		<td width="300"><a HREF="#" ONCLICK="pcgo()"><bean:message
 			key="report.reportindex.btnPatientChartList" /></a></td>
-		<td><select name="pcprovider_no">
+		<td><select name="pcprovider_no" class="input-medium">
 			<%
                rsgroup = reportMainBean.queryResults(mygroup_dboperation);
                      while (rsgroup.next()) {
@@ -570,7 +589,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 		<td width="1"></td>
 		<td width="300"><a HREF="#" ONCLICK="opcgo()"><bean:message
 			key="report.reportindex.btnOldPatient" /></a></td>
-		<td><select name="opcprovider_no">
+		<td><select name="opcprovider_no" class="input-medium">
 			<%
                rsgroup = reportMainBean.queryResults(mygroup_dboperation);
                      while (rsgroup.next()) {
@@ -593,7 +612,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
             %>
 		</select></td>
 		<td><bean:message key="report.reportindex.btnOldPatientAge" /><input
-			type=text name=age value='65'></td>
+			type=text name=age value='65' class="input-small"></td>
 		<td></td>
 		<td></td>
 	</tr>
@@ -604,7 +623,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 		<td width="1"></td>
 		<td width="300"><a HREF="#" ONCLICK="nsgo()"><bean:message
 			key="report.reportindex.btnNoShowAppointmentList" /></a></td>
-		<td><select name="nsprovider_no">
+		<td><select name="nsprovider_no" class="input-medium">
 			<%
                rsgroup = reportMainBean.queryResults(mygroup_dboperation);
                      while (rsgroup.next()) {
@@ -630,15 +649,15 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 		<%
 		cal.add(cal.DATE, 0);
                 String NoShowEDate = cal.get(Calendar.YEAR)+"-"+(cal.get(Calendar.MONTH)+1)+"-"+cal.get(Calendar.DATE);
-            	%> <bean:message key="report.reportindex.msgStart"/>: <input name="nsdate" type="input" size="8"
-			id="NoShowDate" <%=NoShowEDate%>> <a HREF="#"
-			onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=../report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('nsdate')[0].value")%>')"><img
-			title=Calendar " src="../images/cal.gif" alt="Calendar" border="0"><a>
+            	%> 
+        <bean:message key="report.reportindex.msgStart"/>: 
+        <input name="nsdate" type="date" class="input-medium" id="NoShowDate" <%=NoShowEDate%>> 
+           
 
 
 
 		<!-- 
-            <select name="nsdate" >
+            <select name="nsdate" class="input-medium">
  <%
               cal.add(cal.DATE, -61) ;
               for(int i=0; i<31; i++) {
@@ -700,6 +719,18 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 		<%j++;%>
 		</td>
 		<td width="1"></td>
+		<td width="300"><a
+			href="PreventionReport.jsp" target="_blank"><bean:message key="report.reportindex.btnReport18n"/> 2019</a></td>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td width="2"><%=j%>
+		<%j++;%>
+		</td>
+		<td width="1"></td>
 		<td width="300"><a href="../oscarReport/demographicSetEdit.jsp"
 			target="_blank"><bean:message key="report.reportindex.btnDemoSetEdit"/></a></td>
 		<td></td>
@@ -728,7 +759,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 		</td>
 		<td width="1"></td>
 		<td width="300"><a href=#
-			onClick="popupPage(600,750,'demographicstudyreport.jsp')"><bean:message
+			onClick="popupPage(900,1024,'demographicstudyreport.jsp', <%=openInTabs%>)"><bean:message
 			key="report.reportindex.btnDemographicStudyList" /></a></td>
 		<td></td>
 		<td></td>
@@ -823,13 +854,26 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
      <tr></tr>  
      <tr></tr>
      
-    <tr><td width="2"></td>
-    	<td colspan='3' align="left">
+
+
+
+<security:oscarSec roleName="<%=roleName2$%>" objectName="_admin,_admin.reporting" rights="r" reverse="<%=false%>">
+    <tr>
+	<td width="2"><%=j%><%j++;%></td>
+	<td width="1"></td>
+	<td width="300"><a href="javascript:void(0);" onclick="popupPage(900,1024,'../oscarReport/reportByTemplate/homePage.jsp', <%=openInTabs%>)"><bean:message key="admin.admin.rptbyTemplate" /></a></td>
+
+    </tr>      
+</security:oscarSec>
+
     <c:if
 	test="${sessionScope.userrole ne 'er_clerk' and sessionScope.userrole ne 'Vaccine Provider'}">
 
-	<div><span>CAISI Reporting Tools</span> 
+
 	<caisi:isModuleLoad moduleName="caisi">
+    <tr><td width="2"></td>
+    	<td colspan='3' align="left">
+	<div><span>CAISI Reporting Tools</span> 
 		<div><a HREF="../PMmodule/ClientManager.do?method=getGeneralFormsReport" target="generalFormsReport">General Forms Reports</a></div>
 		<div><a href="javascript:void(0);" onclick="javascript:getIntakeReport('quick');return false;">Registration Intake Report</a></div>
 		<div><a href="javascript:void(0);" onclick="javascript:getIntakeReport('indepth');return false;">Follow-up Intake Report</a></div>
@@ -838,24 +882,13 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 		<div><html:link action="QuatroReport/ReportList.do">Quatro Report Runner</html:link></div>
 		<div><a href="javascript:void(0);" onclick="javascript:createStreetHealthReport();return false;">Street Health Mental Health Report</a></div>
 	</caisi:isModuleLoad></div>
-</c:if> 
-	
     </td>
     </tr>
+    </c:if> 
+	
 
-
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_admin,_admin.reporting" rights="r" reverse="<%=false%>">
     <tr>
-	<td width="2"><%=j%><%j++;%></td>
-	<td width="1"></td>
-	<td width="300"><a href="javascript:void(0);" onclick="popupPage(600,800,'../oscarReport/reportByTemplate/homePage.jsp')"><bean:message key="admin.admin.rptbyTemplate" /></a></td>
-
-    </tr>      
-</security:oscarSec>
-
-    <tr><td>&nbsp;</td></tr>
-    <tr>
-        <td colspan='3' align="left"><input type="button" name="Button" value="<bean:message key="report.reportindex.btnCancel"/>" onClick="window.close()"></td>
+        <td colspan='3' align="left"><input type="button" class="btn" name="Button" value="<bean:message key="report.reportindex.btnCancel"/>" onClick="window.close()"></td>
         <td></td>
         <td></td>
         <td></td>
@@ -863,4 +896,5 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 </table>
 </body>
 </form>
+
 </html:html>

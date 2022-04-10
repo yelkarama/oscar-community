@@ -69,4 +69,13 @@ public class CasemgmtNoteLockDao extends AbstractDao<CasemgmtNoteLock> {
 		
 		return results;
 	}
+	
+	public CasemgmtNoteLock isNoteLocked(Long noteId) {
+		Query query = entityManager.createQuery("select lock from CasemgmtNoteLock lock where lock.noteId = :noteId");
+		query.setParameter("noteId", noteId);
+		query.setMaxResults(1);
+		List<CasemgmtNoteLock> results = query.getResultList();
+		return results.isEmpty() ? null : results.get(0);
+	}
+
 }

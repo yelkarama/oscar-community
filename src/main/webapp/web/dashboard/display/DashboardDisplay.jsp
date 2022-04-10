@@ -27,6 +27,7 @@
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 
 <security:oscarSec roleName='${ sessionScope[userrole] }, ${ sessionScope[user] }' rights="w" objectName="_dashboardDisplay">
 	<c:redirect url="securityError.jsp?type=_dashboardDisplay" />
@@ -47,10 +48,25 @@
 	<script>var ctx = "${pageContext.request.contextPath}"</script>
 	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jquery-1.9.1.min.js"></script>		
 	<script type="text/javascript" src="${ pageContext.request.contextPath }/library/bootstrap/3.0.0/js/bootstrap.min.js" ></script>	
-	<script type="text/javascript" src="${ pageContext.request.contextPath }/web/dashboard/display/dashboardDisplayController.js" ></script>
+	<script type="text/javascript" src="${ pageContext.request.contextPath }/web/dashboard/display/dashboardDisplayController.js?rand=<%=(int)(Math.random() * 10000) %>" ></script>
 	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jqplot/jquery.jqplot2.min.js" ></script>
 	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jqplot/plugins/jqplot.pieRenderer.js" ></script>
+	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jqplot/plugins/jqplot.barRenderer.js" ></script>
+	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jqplot/plugins/jqplot.categoryAxisRenderer.js" ></script>
+	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jqplot/plugins/jqplot.highlighter.js" ></script>
+	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jqplot/plugins/jqplot.canvasTextRenderer.js" ></script>
+	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jqplot/plugins/jqplot.canvasAxisLabelRenderer.js" ></script>
 	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/jqplot/plugins/jqplot.json2.js" ></script>
+	
+	<script type="text/javascript" src="${ pageContext.request.contextPath }/js/checkLoginStatus.js"></script>
+	<script>
+		startCheckLoginStatus('${ pageContext.request.contextPath }');
+		
+		<c:if test="${not empty indicatorRefreshRate}">
+			setupRefreshIndicators(${indicatorRefreshRate});
+		</c:if>
+		
+	</script>
 </head>
 
 <body>
@@ -66,19 +82,77 @@
 		</h2>
 		<hr />
 	</div>
+	<center>
+	<c:if test="${fn:length(providers) eq 0}">
+	<b><c:out value="${ preferredProvider.fullName }"/></b>
+	</c:if>
+	<c:if test="${fn:length(providers) gt 0}">
+	<div class="dropdown">
+		<form action="<%=request.getContextPath()%>/web/dashboard/display/DashboardDisplay.do?method=getDashboard&dashboardId=${ dashboard.id }" method="post">
+			<select id="providerNo" name="providerNo">
+			<option value="${ preferredProvider.providerNo }"><c:out value="${ preferredProvider.fullName }"/></option>
+			<c:forEach items="${ providers }" var="provider">
+				<option value="${ provider.providerNo }">
+					<c:out value="${ provider.formattedName }"/>
+				</option>
+			</c:forEach>
+			</select>
+			<input type="submit" value="Change Dashboard Provider"><%-- onclick="newWindow('<%=request.getContextPath()%>/web/dashboard/display/DashboardDisplay.do?method=getDashboard&dashboardId=${ dashboard.id }','dashboard'>)">--%>
+		</form>
+	</div>
+	</c:if>
+	<br>
+	</center>
+	<div class="form-group">
+			<%--             <div class="dropdown btn-group" id="selectProviderDashboardButtonContainer">
+                                 <button class="btn btn-default dropdown-toggle btn-md" type="button"
+                                         id="providerDashboardMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                         <c:out value="Select provider" />
+                                         <span class="caret"></span>
+                                 </button>
+                                 <ul class="dropdown-menu" aria-labelledby="providerDashboardMenu">
+                                                 <li><c:out value="${ providers.get(1).getFullName() }" />
+                                 abc
+                                 def
+                                                 </li>
+                                 </ul>
+                         </div>--%>
+<%--		<center>
+			<div class="col-md-6">
+				<label></label>
+				<select class="form-control required" name="providerNo" id="getDashboard_${ dashboard.id }" >
+					<option value="${ preferredProvider.providerNo }"><c:out value="${ preferredProvider.fullName }"/></option>
+					<c:forEach items="${ providers }" var="provider">
+						<option value="${ provider.providerNo }">
+							<c:out value="${ provider.formattedName }"/>
+						</option>
+					</c:forEach>
+				</select>
+			</div>
+		</center>--%>
 	<div class="row dashboardSubHeading" >
 		<div class="col-md-6">
 			Last loaded: 
 			<c:out value="${ dashboard.lastChecked }" />
-			<a href="#" title="refresh" class="reloadDashboardBtn" id="getDashboard_${ dashboard.id }" >
+			<a href="#" title="Refresh Dashboard" class="reloadDashboardBtn" id="getDashboard_${ dashboard.id }" >
 				<span class="glyphicon glyphicon-refresh"></span>
 			</a>
+			&nbsp;&nbsp;
+			Indicator Refresh Rate: 
+			<c:if test="${empty indicatorRefreshRate}">
+				<span style="color:red">Never</span>
+			</c:if>
+			<c:if test="${not empty indicatorRefreshRate}">
+				${indicatorRefreshRate} minutes
+			</c:if>
+			
 		</div>
 		<div class="col-md-6">
 			<a href="#" title="Dashboard Manager" class="pull-right dashboardManagerBtn" id="${ dashboard.id }" >
 				<span class="glyphicon glyphicon glyphicon-cog"></span>
 			</a>
 		</div>
+	</div>
 	</div>
 	<!-- end Dashboard Heading -->
 	

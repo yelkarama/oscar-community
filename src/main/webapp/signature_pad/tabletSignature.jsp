@@ -58,8 +58,8 @@ var contextPath = "<%=request.getContextPath() %>";
 
 <div class="verticalCenterDiv">
 	<div class="centerDiv">
-		<canvas id='canvas'></canvas>
-		<div><span id="signMessage" style="color:#FFFFFF;">Please sign in the box above this message.</span><button id="clear" style="display:none">Clear</button><button id="save" style="display:none;">Save</button></div>
+		<canvas style="background-color:white;" id='canvas'></canvas>
+		<div><span id="signMessage" style="color:#FFFFFF; font-family: Arial;">Please sign in the box above this message.</span><button id="clear" style="display:none">Clear</button><button id="save" style="display:none;">Save</button></div>
 	</div>
 </div>
 

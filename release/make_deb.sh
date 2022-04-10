@@ -4,11 +4,11 @@
 # makes a debian installer release from source
 
 #===================================================================
-# Copyright Peter Hutten-Czapski 2012-2015 released under the GPL v2
+# Copyright Peter Hutten-Czapski 2012-2021 released under the GPL v2
 #===================================================================
 
 
-# for OSCAR 14
+# for OSCAR 14 **transitional**
 # v 1 - pre-release
 # v 2 - added in oscar_documents incoming docs directories needed
 #     - added in code to set the billingcenter 
@@ -28,6 +28,7 @@
 # v 14 - ported lintian fixes from v63 of the 12_1 release installation script and added wkhtmltopdf dependency
 # v 15 - switched to tomcat7, updated drugref to Feb 10 2015, cleaned changelog and disabled updating
 # v 16 - added Rourke eForm installation under liscence
+# last deb oscar_emr14-10alpha15.deb
 
 # for OSCAR 15
 # v 0 - fixed the Rourke unzip and copy and sent its console output to the install log
@@ -113,11 +114,124 @@
 # v 54 - updated drugref to Feb 17, 2017 and removed addition of index in postinst
 # v 55 - fixed order in patch.sql to add LookupList.listTitle prior to filling it
 # v 56 - fixed spelling mistake in patch.sql for hort_term
-
 # v 57 - migrated to jenkins/bitbucket pointing to the stable release branch
+# v 58 - added tomcat8 support
+# v 59 - updated drugref to June 1, 2017
+# v 60 - server.xml fixes and hardening
+# v 61 - fixed bug in writing server.xml and added purge configuration lines
+# v 62 - added context.xml tweak and added purge configuration lines
+# v 63 - changed server.xml to add back in connector at 8080 redirect 8443 for drugref
+# v 64 - added OPR-2017 and fixed purge to 
+#      - fixed test to remove symlink to -L from -f
+#      - split patch into patch1.sql
+# v 65 - rebuild the build directory and simplified
+# v 66 - Updated OPR to v1.5, simplified logging, fixed purge bug to clear usr/share/oscar-emr
+# v 67 - Now runs tallMANdrugref.sql on drugref 
+#      - Updated drugref to Aug 31, 2017
+#      - and added 50 additional labs for demo
+# v 68 - tallMANdrugref.sql now removes generic entries for search 
+#      - Updated drugref to Sep 13, 2017
+# v 69 - Updated OPR-2017 to v1.55 Sept 25 
+#      - Added option to warn admin by email if backup getting full 
+# v 70 - Got rid of some unscaped characters
+# v 71 - Fixed OPR-2017 update when not needed
+# v 72 - Prevent reset of pre-seeded answers until end 
+# v 73 - Updated drugref2 to Jenkins build #6
+# v 74 - Rourke 2017
+# v 75 - Nothing really different than 74
+# v 76 - Acccounts for updates that need both patches pre 64 ie oscar_emr15-63~667.deb
+#      - Move db_clear to inside remove case in prerm
+#      - reverted clearing sensitive data
+# v 77 - Updated and resumed polling Jenkins for the latest drugref build (#8)
+#      - updated drugref.sql to Dec 12, 2017
+# v 78 - Updated oscar.properties and update-2017-12-13 for audit log feature
+# v 79 - Fixed bug in line 231 of patch.sql
+# v 80 - Extracted xsd files from war to OscarDocuments
+# v 81 - Typo in undemo and error in March 7th config file
+# v 82 - Added National Rourke
+# v 83 - Removed deprecated ifconfig in config and changed mv to cp for tomcat8 wars
+# v 84 - Fixed empty property file key value settings that would not be caught and would be added with each update
+# v 85 - Fixed consultation_display_practitioner_no to add once
+# v 86 - Added in the ability to force at the command line to download the current war even if not stable
+# v 87 - labelling corrections
+# v 88 - tomcat 8 setup bugs, fix postrm to remove /usr/share/oscar-emr/
+# v 89 - lets encrypt
+# v 90 - lets encrypt renewal script
+# v 91 - altered server.xml settings and Java memory settings for tomcat min 960 max to 6000
+# v 92 - altered patch to add some Ontario tables to BC for ease of upkeep
+# v 93 - Added stopping Tomcat and deleting the old oscar directory to ensure full expansion of the new war
+# v 94 - refactored Java detection and selection in postinst
+#      - Drugref build 16 DPD Capitalisation and SQL fixes Jan 22-23, 2019
+# v 95 - corrected deprecated setting for tomcat8 server.xml
+# v 96 - re-enabled port 8080 for drugref2
+# v 97 - disabled the new interface as default
+#      - fixed file test operators in postrm
+# v 98 - initial tomcat9 support (never released)
+# final OSCAR 15 production deb oscar_emr15-97final858.deb Feb 22 2019
 
-DEB_SUBVERSION=57
+# for OSCAR 18 **transitional** March 11 2019
+# v 0  - inital DEB in the OSCAR 18 series oscar_emr18beta-1~859.deb
+# v 1  - changed database to oscar_15
+# v 2  - changed program version to oscar_18
+# v 3  - changed program version to oscar_18 alpha
+# v 4  - fixed bug in patch.sql and duplicate rm in purge
+# v 5  - fixed bug for new installs with inadequate property settings
+# v 6  - updated drugref and sql to April 18, 2019
+# v 7  - redid java detection and handling for 11
+# last alpha oscar_emr18alpha-7~928.deb April 27, 2019
 
+# for OSCAR 19 May 1, 2019 inital DEB in the OSCAR 19 series oscar_emr19beta-0~929.deb
+# v 0  - java alternatives fix for Java 11
+# v 1  - added debconf db_purge for postrm purge script
+# v 2  - added June 1 FIT and Ontario Lab forms for testing
+# v 3  - added wkhtmltopdf detection for configuration and installed the OSCAR 19 verision of RTL
+# v 4  - added logic to prevent drugref update if its not necessary
+# v 5  - updated backup script to detect tomcat version 
+#      - updated drugref.sql to May 22, 2019
+# REVERTED v 6  - updated drugref and sql to May 22, 2019
+# v 6  - redid build files to behave a bit more sanely when the install is broken and updated copyright
+# v 7  - Minor changes in the backup script.  A July drugref, and forcing NEW CONTACT UI in patch1.sql
+# v 8  - Fixed typo in patch.sql
+# v 9  - Fixed ISO 3166-2:CA in patch1.sql for setting the province to CA-QC and not QU
+# v 9  - updated Drugref 
+# v 11 - some internal changes to symlinks on tomcat8 systems
+# v 12 - disabled tomcat shutdown during backup script
+# v 13 - updated LU codes to 2019-09-25 and placed them into eforms images 
+#      - increased shutdown wait in reOscar.sh to 240
+# v 14 - v19.03 reOscar.sh better Tomcat detection, limit concurancy, and added Tomcat monitoring/starting
+#      - updated drugref.sql to 2019-10-16
+# v 15 - v19.04 reOscar.sh fixed automated restarts
+# v 16 - v19.05 reOscar.sh prevent more than one instance running
+# v 17 - fixed up a ln and tomcat ownership issues for oscar.properties in config
+# v 18 - first go for BC schema support
+# v 19 - Restrict to TLS 1.2 for Tomcat8
+# v 20 - Restrict to TLS 1.2 for Tomcat7 per Kevin Lai and a tighened suite of ciphers
+# v 21 - Remove the ability for the user to reboot from the GUI and the automated friday restart
+# v 22 - add in the ability to load a custom war
+# v 23 - bouncycastle at 1.67 RTL at 2.0 Rourke at 2020
+# v 24 - eform Generator at 6.6 and COVIC-19 preventions, reverted Bouncycastle to 1.51
+# v 25 - fixed java home in postinst for new installs
+# v 26 - fixed AppointmentDxLink for ageRange
+# v 27 - update-2020-07-07.sql
+# v 28 - fixed restore.sh altered cd ${DOCS}/${PROGRAM} to cd ${DOCS}
+# v 29 - added customSearchUrl and customSearchName properties and fixing typeo for ocean in config
+# v 30 - added --enable-local-file-access to wkhtmltopdf commands for versions above 2.6.1
+# v 31 - updated demo.sql to v6.3 to deal with Msg 
+# v 32 - updated specific war number to upload from bitbucket, CVC initial support
+# v 33 - updated to upload drugref from bitbucket 
+# v 34 - upload drugref from bitbucket, and modification for tomcat 9 experimental install
+# v 35 - reverted drugref after issues
+
+# --- sanity check
+if [ "$(id -u)" != "0" ];
+then
+	echo "This script must be run as root" 1>&2
+	exit 1
+fi
+
+
+
+DEB_SUBVERSION=35
 PROGRAM=oscar
 PACKAGE=oscar-emr
 
@@ -132,8 +246,8 @@ db_name=oscar_15
 db_switch=\'?characterEncoding=UTF-8\\\&zeroDateTimeBehavior=round\\\&useOldAliasMetadataBehavior=true\\\&jdbcCompliantTruncation=false\'
 
 # Debian versioning conventions don't allow _ so use .
-VERSION=15
-PREVIOUS=12_1
+VERSION=19
+PREVIOUS=15
 
 # ... and of course Jenkins is using another convention
 WGET_VERSION=oscar-stable
@@ -142,24 +256,73 @@ WGET_VERSION=oscar-stable
 # for TRUNK and 15 BETA oscar-14.0.0-SNAPSHOT.war
 TARGET=oscar-14.0.0-SNAPSHOT.war
 
-echo "grep the build from Jenkins" 
+echo "grep the build from Bitbucket" 
 
-##curl --insecure -SSLv3 -o lastStableBuild https://demo.oscarmcmaster.org:11042/job/$WGET_VERSION/lastStableBuild/
 
-curl -o lastStableBuild http://jenkins.oscar-emr.com:8080/job/$WGET_VERSION/lastStableBuild/
-##TEMPORARILY USE THE LAST BUILD REGARDLESS OF STABILITY WHILE CONGURATION CHANGES ARE MADE
+## check command line for a switch eg sudo ./make_deb c
+## f for force the last build regardless of stability
+## number for specific build eg 999
+## c for custom build using a local war
+## default is no switch for last stable build
+if [ -z "$1" ];
+    then
+        echo "No argument supplied.. proceed with last stable build"
+        ##curl -o build http://jenkins.oscar-emr.com:8080/job/$WGET_VERSION/lastStableBuild/
+        curl -L -o latestStable https://bitbucket.org/oscaremr/oscar/downloads/latestBuild
+        curl -L -o latestDrugref https://bitbucket.org/oscaremr/drugref2/downloads/latestBuild
+    else
+        if [ -n "$1" ] && [ "$1" -eq "$1" ] 2>/dev/null; then
+          echo "numeric argument supplied.. proceed with build ${1}"
+          curl -o build http://jenkins.oscar-emr.com:8080/job/$WGET_VERSION/${1}/
+        else
+          if [ "$1" == "f" ]; then
+            echo "force.. proceed with last build regardless of stability"
+            curl -o build http://jenkins.oscar-emr.com:8080/job/$WGET_VERSION/lastBuild/
+            else
+                echo "custom.. proceed with custom build local to this directory"
+                SKIP_NEW_WAR=true
+                custom=true
+            fi
+        fi
+fi
+
+
+
 ##curl -o lastStableBuild http://jenkins.oscar-emr.com:8080/job/$WGET_VERSION/lastBuild/
+##TEMPORARILY USE either THE LAST BUILD or the last Successful Build REGARDLESS OF STABILITY WHILE CONGURATION CHANGES ARE MADE
 
-## <title>may2014alphaMaster #13 [Jenkins]</title>
-# oct2014AlphaMaster #1 [Jenkins]
-BUILD=$(grep '<title>' lastStableBuild | head -n 1 | sed "s/<title>$WGET_VERSION #\([0-9]*\).*/\1/;s/^[[:space:]]*//;s/[[:space:]]*$//")
 
+if [ ! $custom ]; then
+    echo getting build information from Bitbucket
+    ## <title>may2014alphaMaster #13 [Jenkins]</title>
+    # oct2014AlphaMaster #1 [Jenkins]
+
+    BUILD=$(grep 'BUILD_NUMBER'  latestStable  | tail -n 1 | cut -d "=" -f2 ) 
+    buildDateTime=$(grep 'BUILD_DATE'  latestStable  | tail -n 1 | cut -d "=" -f2 )   
+    WAR_URL=$(grep 'WAR_URL'  latestStable  | tail -n 1 | cut -d "=" -f2 ) 
+    OSCAR_COMMIT=$(grep 'COMMIT_MESSAGE'  latestStable  | tail -n 1 | cut -d "=" -f2 ) 
+    SHA1=""
+
+    D_BUILD=$(grep 'BUILD_NUMBER'  latestDrugref  | tail -n 1 | cut -d "=" -f2 ) 
+    D_buildDateTime=$(grep 'BUILD_DATE'  latestDrugref  | tail -n 1 | cut -d "=" -f2 )   
+    D_WAR_URL=$(grep 'WAR_URL'  latestDrugref  | tail -n 1 | cut -d "=" -f2 ) 
+    D_COMMIT=$(grep 'COMMIT_MESSAGE'  latestDrugref  | tail -n 1 | cut -d "=" -f2 ) 
+
+    #BUILD=$(grep '<title>' build | head -n 1 | sed "s/<title>$WGET_VERSION #\([0-9]*\).*/\1/;s/^[[:space:]]*//;s/[[:space:]]*$//")
+    ##buildDateTime=$(grep '       (' build | head -n 1 |sed 's/^[[:space:]]*(//;s/)[[:space:]]*$//')
+    ##SHA1=$(grep 'Revision' build | head -n 1 |sed 's/.*Revision.* \(.*\)/\1/')
+   else
+      echo build is custom
+      BUILD=custom
+      buildDateTime=date 
+      SHA1=""
+fi
 echo "+++++++++++++++++++++++"
 echo build=$BUILD
-buildDateTime=$(grep '       (' lastStableBuild | head -n 1 |sed 's/^[[:space:]]*(//;s/)[[:space:]]*$//')
+
+echo WAR_URL=$WAR_URL
 echo buildDateTime=$buildDateTime
-SHA1=$(grep 'Revision' lastStableBuild | head -n 1 |sed 's/.*Revision.* \(.*\)/\1/')
-echo SHA1=$SHA1
+echo "current date="$(date)
 
 # you can tick up when a newer build of the installer is made 
 # or when the release tag needs to change eg beta to RC
@@ -170,10 +333,10 @@ ICD=9
 
 # For simplicity lets pick Tomcat 7
 TOMCAT=tomcat7
-C_HOME=/usr/share/${TOMCAT}/
+#C_HOME=/usr/share/${TOMCAT}/
 C_BASE=/var/lib/${TOMCAT}/
 # FILEREPO=~/Documents/release/
-tomcat_path=${C_HOME}
+#tomcat_path=${C_HOME}
 TODAY=$(date)
 
 # used to pick up virgin properties file and if building a deb directly from source
@@ -183,7 +346,7 @@ SRC=~/git/oscar
 # TODO Check the dir from which you are being called
 
 
-DEBNAME="oscar_emr$VERSION-$REVISION"
+DEBNAME="oscar_emr${VERSION}-${REVISION}"
 
 
 if [ -d "$DEBNAME" ]; then
@@ -191,13 +354,20 @@ if [ -d "$DEBNAME" ]; then
 	SKIP_NEW_WAR=true
 	rm -R ./${DEBNAME}/
 else
-	rm *.war
+    if [ $custom ]; then
+        echo custom build
+    else
+        echo cleaning up prior build
+	    rm ${TARGET}
+        ##rm drugref2-1.0-SNAPSHOT.war
+    fi
 fi
 
 echo "cleaning up"
 
 
-rm changes
+
+
 rm tmp*
 rm -R -f ./oscar_documents
 
@@ -208,9 +378,66 @@ cp -R copyright ./${DEBNAME}/usr/share/doc/${PACKAGE}/
 # echo "loading control scripts"
 mkdir -p ./${DEBNAME}/DEBIAN/
 
+
+if [ "${SKIP_NEW_WAR}" = "true" ] ; then
+	    echo skipping redownloading of wars
+    else
+
+
+
+## fudge to account for missing Jenkins build
+    #echo "using existing drugref war TEMPORARY"
+    #curl -o drugref2-1.0-SNAPSHOT.war http://jenkins.oscar-emr.com:8080/job/drugref2/lastSuccessfulBuild/org.drugref\$drugref2/artifact/org.drugref/drugref2/1.0-SNAPSHOT/drugref2-1.0-SNAPSHOT.war
+
+        #curl -o drugref2-1.0-SNAPSHOT.war http://jenkins.oscar-emr.com:8080/job/drugref2/ws/target/drugref2.war
+# reverted due to upstream drugref issue
+        #curl -L -o drugref2-1.0-SNAPSHOT.war ${D_WAR_URL}
+        echo "drugref war up"
+	#curl -o $TARGET http://jenkins.oscar-emr.com:8080/job/$WGET_VERSION/lastStableBuild/artifact/target/$TARGET
+	
+##TEMPORARILY USE THE LAST BUILD or last Sucessful Build REGARDLESS OF STABILITY WHILE CONGURATION CHANGES ARE MADE
+##curl -o $TARGET http://jenkins.oscar-emr.com:8080/job/$WGET_VERSION/lastBuild/artifact/target/$TARGET
+##curl -o $TARGET http://jenkins.oscar-emr.com:8080/job/$WGET_VERSION/lastSuccessfulBuild/artifact/target/$TARGET
+##curl -o $TARGET http://jenkins.oscar-emr.com:8080/job/oscar-stable/999/artifact/target/$TARGET
+# http://jenkins.oscar-emr.com:8080/job/oscar-stable/994/artifact/target/oscar-14.0.0-SNAPSHOT.war
+
+    if [ -z "$1" ]
+        then
+            echo "No argument supplied.. proceed with last stable build at ${WAR_URL} and saving to ${TARGET}"
+            #curl -o $TARGET http://jenkins.oscar-emr.com:8080/job/$WGET_VERSION/lastStableBuild/artifact/target/$TARGET
+            curl -L -o $TARGET ${WAR_URL}
+        else
+            if [ -n "$1" ] && [ "$1" -eq "$1" ] 2>/dev/null; then
+              echo "numeric argument supplied.. proceed with build ${1} from bitbucket using -L to follow redirects"
+                curl -L -o $TARGET https://bitbucket.org/oscaremr/oscar/downloads/oscar-19.${1}.war
+              ##curl -o $TARGET http://jenkins.oscar-emr.com:8080/job/$WGET_VERSION/${1}/artifact/target/$TARGET
+            else
+            curl -L -o $TARGET ${WAR_URL}
+            fi
+    fi
+fi
+
+SHA1=$(sha1sum ${TARGET})
+echo The ${TARGET} SHA1=$SHA1
+
+
 echo "changelog"
 
-curl -o changes http://jenkins.oscar-emr.com:8080/job/oscar-stable/changes
+
+if [ -z "$1" ]
+    then
+        echo "No argument supplied.. proceed with last stable build"
+        ##curl -o changes http://jenkins.oscar-emr.com:8080/job/oscar-stable/changes
+    else
+        if [ -n "$1" ] && [ "$1" -eq "$1" ] 2>/dev/null; then
+          echo "numeric argument supplied.. proceed with build ${1}"
+            ##curl -o changes http://jenkins.oscar-emr.com:8080/job/oscar-stable/${1}/changes
+        else
+          echo "non numeric argument supplied.. proceed with last build regardless of stability"
+            ##curl -o changes http://jenkins.oscar-emr.com:8080/job/oscar-stable/changes
+        fi
+fi
+#curl -o changes http://jenkins.oscar-emr.com:8080/job/oscar-stable/changes
 
 sed \
 -e 's/yyy-1.0/'"$VERSION"'-'"$BUILD"'/' \
@@ -223,7 +450,10 @@ head -n 1 tmp > tmp2
 #grep "^                [ a-zA-Z#]" changes | tail -n +13 |sed 's/&#039\;//;s/&nbsp\;/ /;s/&quot\;/\"/;s/&quot\;/\"/;s/&quot\;/\"/;s/&quot\;/\"/;s/id:\;//;s/ID://;s/ID \#//;s/Bug \#//;s/Bug ID //;s/Oscar Host - //;s/\#//;s/^[[:space:]]*/  * /;s/[[:space:]]*$//' >tmp3
 # lots of cleanup to extract the pith from the changes and then truncate at 80 columns as per DEBIAN requirement
 
-grep "<\/h2>"  changes | sed 's/^[[:space:]]*/  * /;s/, [0-9]* [0-9]*:[0-9][0-9]:[0-9][0-9] [A|P]M//;s/<\/a><\/h2><ol><li>//;s/OSCAREMR-//;s/[[:space:]]*$//' > tmp3
+#grep "<\/h2>"  changes | sed 's/^[[:space:]]*/  * /;s/, [0-9]* [0-9]*:[0-9][0-9]:[0-9][0-9] [A|P]M//;s/<\/a><\/h2><ol><li>//;s/OSCAREMR-//;s/[[:space:]]*$//' > tmp3
+#grep 'COMMIT_MESSAGE'  latestStable  | tail -n 1 | cut -d "=" -f2 > tmp3
+echo  ${OSCAR_COMMIT} > tmp3
+echo  ${D_COMMIT} >> tmp3
 
 sed -r 's/(^.{80}).*/\1/' tmp3 > tmp4
 tail -n 1 tmp > tmp5
@@ -234,29 +464,37 @@ tmp4 \
 tmp5 \
 > changelog.Debian
 
-curl  -o drugrefChanges http://jenkins.oscar-emr.com:8080/job/drugref2/changes
+cat latestStable >> cumulative
+cat latestDrugref >> cumulative
+
+#curl -o summary http://jenkins.oscar-emr.com:8080/job/oscar-stable/$BUILD/changes
+## Commit f8a5567c8a733b6990f70a8c857079b5b1d0c75d
+#SHA1=$(sed -n '12p' summary)
+
+
+#curl  -o drugrefChanges http://jenkins.oscar-emr.com:8080/job/drugref2/changes
 
 #grep "^                [ a-zA-Z#]" drugrefChanges | sed 's/&#039\;//;s/&nbsp\;/ /;s/&quot\;/\"/;s/&quot\;/\"/;s/&quot\;/\"/;s/&quot\;/\"/;s/id:\;//;s/ID://;s/ID \#//;s/Bug \#//;s/Bug ID //;s/Oscar Host - //;s/\#//;s/^[[:space:]]*/  * /;s/[[:space:]]*$//' >drugrefChangesClean
 
-grep "<\/h2>"  drugrefChanges | sed 's/^[[:space:]]*/  * /;s/, [0-9]* [0-9]*:[0-9][0-9]:[0-9][0-9] [A|P]M//;s/<\/a><\/h2><ol><li>//;s/OSCAREMR-//;s/[[:space:]]*$//' > drugrefChangesClean
+#grep "<\/h2>"  drugrefChanges | sed 's/^[[:space:]]*/  * /;s/, [0-9]* [0-9]*:[0-9][0-9]:[0-9][0-9] [A|P]M//;s/<\/a><\/h2><ol><li>//;s/OSCAREMR-//;s/[[:space:]]*$//' > drugrefChangesClean
 
 echo "+++++++++++++++++++++++"
 echo build=$BUILD
-buildDateTime=$(grep '       (' lastStableBuild | head -n 1 |sed 's/^[[:space:]]*(//;s/)[[:space:]]*$//')
+#buildDateTime=$(grep '       (' build | head -n 1 |sed 's/^[[:space:]]*(//;s/)[[:space:]]*$//')
 echo buildDateTime=$buildDateTime
-SHA1=$(grep 'Revision' lastStableBuild | head -n 1 |sed 's/.*Revision.* \(.*\)/\1/')
+#SHA1=$(grep 'Revision' build | head -n 1 |sed 's/.*Revision.* \(.*\)/\1/')
 echo SHA1=$SHA1
 echo DEBNAME=${DEBNAME}
 echo ""
 echo "OSCAR changes"
 head -n 5 changelog.Debian
 echo ""
-echo "Drugref2 Changes"
-cat drugrefChangesClean
+#echo "Drugref2 Changes"
+#cat drugrefChangesClean
 echo "+++++++++++++++++++++++"
 
-rm lastStableBuild
-rm drugrefChangesClean
+#rm build
+#rm drugrefChangesClean
 
 gzip -9 changelog.Debian
 mv changelog.Debian.gz ./${DEBNAME}/usr/share/doc/${PACKAGE}/
@@ -266,7 +504,7 @@ mv changelog.Debian.gz ./${DEBNAME}/usr/share/doc/${PACKAGE}/
 # 4+2+0  4+0+0  4+0+0  = 644
 #chmod 644 ./${DEBNAME}/DEBIAN/changelog
 
-echo config
+echo "Configuring config"
 sed -e 's/^PROGRAM.*/PROGRAM='"$PROGRAM"'/' \
 -e 's/^PACKAGE.*/PACKAGE='"$PACKAGE"'/' \
 -e 's/^db_name.*/db_name='"$db_name"'/' \
@@ -275,10 +513,6 @@ sed -e 's/^PROGRAM.*/PROGRAM='"$PROGRAM"'/' \
 -e 's/^PREVIOUS.*/PREVIOUS='"$PREVIOUS"'/' \
 -e 's/^REVISION.*/REVISION='"$REVISION"'/' \
 -e 's/^buildDateTime.*/buildDateTime=\"'"$buildDateTime"'\"/' \
--e 's/^TOMCAT.*/TOMCAT=\"'"$TOMCAT"'\"/' \
--e 's%^C_HOME.*%C_HOME='"$C_HOME"'%' \
--e 's%^C_BASE.*%C_BASE='"$C_BASE"'%' \
--e 's%^tomcat_path.*%tomcat_path='"$tomcat_path"'%' \
 config > ./${DEBNAME}/DEBIAN/config
 
 # 7       5     5
@@ -287,48 +521,55 @@ config > ./${DEBNAME}/DEBIAN/config
 # 4+2+1  4+0+1  4+0+1  = 755
 chmod 755 ./${DEBNAME}/DEBIAN/config
 
+echo "Configuring control"
 sed -e 's/Version: 8-x.x/Version: '"$VERSION"'-'"$REVISION"'/' \
 control > ./${DEBNAME}/DEBIAN/control
 
 chmod 644 ./${DEBNAME}/DEBIAN/control
 
+echo "Configuring postinst"
+# note that this requires a drugref.sql with DROP TABLE syntax
+# mysqldump -uroot -p --add-drop-table drugref > drugref.sql
+
+# determine the date of the drugref.sql that we have to load 
+# lets take the last history revision on the line by cutting backwards
+newdate=$(grep "INSERT INTO \`history\`" drugref.sql | rev | cut -f 4 -d "'" | rev | cut -f 1 -d " ")
+
+echo "SANITY CHECK THIS..."
+echo "... the DEB will provide a drugref from " $newdate
+echo ""
+
 sed -e 's/^PROGRAM.*/PROGRAM='"$PROGRAM"'/' \
 -e 's/^PACKAGE.*/PACKAGE='"$PACKAGE"'/' \
 -e 's/^db_name.*/db_name='"$db_name"'/' \
 -e 's/^VERSION.*/VERSION='"$VERSION"'/' \
 -e 's/^PREVIOUS.*/PREVIOUS='"$PREVIOUS"'/' \
 -e 's/^REVISION.*/REVISION='"$REVISION"'/' \
--e 's/^TOMCAT.*/TOMCAT='"$TOMCAT"'/' \
 -e 's/^buildDateTime.*/buildDateTime=\"'"$buildDateTime"'\"/' \
--e 's%^C_HOME.*%C_HOME='"$C_HOME"'%' \
--e 's%^C_BASE.*%C_BASE='"$C_BASE"'%' \
+-e 's/^newdate.*/newdate='"$newdate"'/' \
 postinst > ./${DEBNAME}/DEBIAN/postinst
-
+#
 chmod 755 ./${DEBNAME}/DEBIAN/postinst
 
+echo "Configuring postrm"
 sed -e 's/^PROGRAM.*/PROGRAM='"$PROGRAM"'/' \
 -e 's/^PACKAGE.*/PACKAGE='"$PACKAGE"'/' \
 -e 's/^db_name.*/db_name='"$db_name"'/' \
 -e 's/^VERSION.*/VERSION='"$VERSION"'/' \
 -e 's/^PREVIOUS.*/PREVIOUS='"$PREVIOUS"'/' \
 -e 's/^REVISION.*/REVISION='"$REVISION"'/' \
--e 's/^TOMCAT.*/TOMCAT=\"'"$TOMCAT"'\"/' \
 -e 's/^buildDateTime.*/buildDateTime=\"'"$buildDateTime"'\"/' \
--e 's%^C_HOME.*%C_HOME='"$C_HOME"'%' \
--e 's%^C_BASE.*%C_BASE='"$C_BASE"'%' \
 postrm > ./${DEBNAME}/DEBIAN/postrm
 
 chmod 755 ./${DEBNAME}/DEBIAN/postrm
 
+echo "Configuring prerm"
 sed -e 's/^PROGRAM.*/PROGRAM='"$PROGRAM"'/' \
 -e 's/^PACKAGE.*/PACKAGE='"$PACKAGE"'/' \
 -e 's/^db_name.*/db_name='"$db_name"'/' \
 -e 's/^VERSION.*/VERSION='"$VERSION"'/' \
 -e 's/^PREVIOUS.*/PREVIOUS='"$PREVIOUS"'/' \
 -e 's/^REVISION.*/REVISION='"$REVISION"'/' \
--e 's/^TOMCAT.*/TOMCAT=\"'"$TOMCAT"'\"/' \
--e 's%^C_HOME.*%C_HOME='"$C_HOME"'%' \
--e 's%^C_BASE.*%C_BASE='"$C_BASE"'%' \
 prerm > ./${DEBNAME}/DEBIAN/prerm
 
 
@@ -338,32 +579,38 @@ cp -R templates ./${DEBNAME}/DEBIAN/
 
 chmod 644 ./${DEBNAME}/DEBIAN/templates
 
-# echo "loading utilities and properties"
+echo "loading utilities and properties"
 mkdir -p ./${DEBNAME}/usr/share/${PACKAGE}/
 
-# echo make up the appropriate source.txt for this build
+echo "make up the appropriate source.txt for this build"
+echo SHA1=${SHA1}
+
+
+
 sed -e 's/SHA1/'"$SHA1"'/' \
 -e 's/yyy-x.x/'"$VERSION"'-'"$REVISION"'/' \
 -e 's/oscarprogram/'"$PROGRAM"'/' \
 -e 's/build xxx/build '"$BUILD"'/' \
 source.txt > ./${DEBNAME}/usr/share/${PACKAGE}/source.txt
 
-# echo make up the appropriate rebooting script
+echo "make up the appropriate rebooting script"
 sed -e 's/^PROGRAM.*/PROGRAM='"$PROGRAM"'/' \
-reOscar2.sh > ./${DEBNAME}/usr/share/${PACKAGE}/reOscar.sh
+reOscar.sh > ./${DEBNAME}/usr/share/${PACKAGE}/reOscar.sh
 chmod 711 ./${DEBNAME}/usr/share/${PACKAGE}/reOscar.sh
 cp gateway.cron ./${DEBNAME}/usr/share/${PACKAGE}/gateway.cron
 chmod 755 ./${DEBNAME}/usr/share/${PACKAGE}/gateway.cron
 
-cd NDSS/
-zip ../ndss.zip *
-cd ../
-cd rbr2014/
-zip ../rbr2014.zip *
-cd ../
+#cd NDSS/
+#zip ../ndss.zip *
+#cd ../
+#cd rbr2014/
+#zip ../rbr2014.zip *
+#cd ../
 
+echo "copying over utility scripts"
 cp -R demo.sql ./${DEBNAME}/usr/share/${PACKAGE}/
 cp -R drugref.sql ./${DEBNAME}/usr/share/${PACKAGE}/
+cp -R CVC.sql ./${DEBNAME}/usr/share/${PACKAGE}/
 cp -R OfficeCodes.sql ./${DEBNAME}/usr/share/${PACKAGE}/
 cp -R OLIS.sql ./${DEBNAME}/usr/share/${PACKAGE}/
 cp -R Oscar11_to_oscar_12.sql ./${DEBNAME}/usr/share/${PACKAGE}/
@@ -372,20 +619,24 @@ cp -R oscar_12_to_oscar_12_1.sql ./${DEBNAME}/usr/share/${PACKAGE}/
 cp -R rbr2014.zip ./${DEBNAME}/usr/share/${PACKAGE}/
 cp -R ndss.zip ./${DEBNAME}/usr/share/${PACKAGE}/
 cp -R RourkeEform.sql ./${DEBNAME}/usr/share/${PACKAGE}/
+cp -R RourkeEformNational.sql ./${DEBNAME}/usr/share/${PACKAGE}/
 cp -R ndss.sql ./${DEBNAME}/usr/share/${PACKAGE}/
 
 cp -R tallMAN.sql ./${DEBNAME}/usr/share/${PACKAGE}/
 cp -R tallMANdrugref.sql ./${DEBNAME}/usr/share/${PACKAGE}/
 
 cp -R ontarioLab.sql ./${DEBNAME}/usr/share/${PACKAGE}/
+cp -R FIT.sql ./${DEBNAME}/usr/share/${PACKAGE}/
+cp -R opr2017.sql ./${DEBNAME}/usr/share/${PACKAGE}/
 
-rm ndss.zip
-rm rbr2014.zip
+#rm ndss.zip
+#rm rbr2014.zip
 
 chmod 644 ./${DEBNAME}/usr/share/${PACKAGE}/rbr2014.zip
 chmod 644 ./${DEBNAME}/usr/share/${PACKAGE}/ndss.zip
 
-cp -R patch.sql ./${DEBNAME}/usr/share/${PACKAGE}/
+cp -R patch19.sql ./${DEBNAME}/usr/share/${PACKAGE}/patch.sql
+cp -R patch1.sql ./${DEBNAME}/usr/share/${PACKAGE}/
 cp -R oscar_12_1_to_oscar_12_1_1.sql ./${DEBNAME}/usr/share/${PACKAGE}/
 cp -R oscar_12_1_1_to_oscar_15.sql ./${DEBNAME}/usr/share/${PACKAGE}/
 cp -R legacyMyISAM.sql ./${DEBNAME}/usr/share/${PACKAGE}/
@@ -394,9 +645,16 @@ cp -R legacyMyISAM.sql ./${DEBNAME}/usr/share/${PACKAGE}/
 # use the specific one for this build from this makers folder
 cp -R oscar_mcmaster.properties ./${DEBNAME}/usr/share/${PACKAGE}/oscar_mcmaster.properties
 
-cp -R OscarON${VERSION}.sql ./${DEBNAME}/usr/share/${PACKAGE}/OscarON${VERSION}.sql
+#cp -R OscarON15.sql ./${DEBNAME}/usr/share/${PACKAGE}/OscarON15.sql
+cp -R OscarON19.sql ./${DEBNAME}/usr/share/${PACKAGE}/OscarON19.sql
+#cp -R OscarBC15.sql ./${DEBNAME}/usr/share/${PACKAGE}/OscarBC15.sql
+cp -R OscarBC19.sql ./${DEBNAME}/usr/share/${PACKAGE}/OscarBC19.sql
 
-cp -R OscarBC${VERSION}.sql ./${DEBNAME}/usr/share/${PACKAGE}/OscarBC${VERSION}.sql
+## TODO make consolidated sql's to start off for version 20
+
+#cp -R OscarON${VERSION}.sql ./${DEBNAME}/usr/share/${PACKAGE}/OscarON${VERSION}.sql
+#cp -R OscarBC${VERSION}.sql ./${DEBNAME}/usr/share/${PACKAGE}/OscarBC${VERSION}.sql
+
 cp -R README.txt ./${DEBNAME}/usr/share/${PACKAGE}/
 
 cp -R RNGPA.sql ./${DEBNAME}/usr/share/${PACKAGE}/
@@ -404,16 +662,18 @@ cp -R special.sql ./${DEBNAME}/usr/share/${PACKAGE}/
 cp -R unDemo.sql ./${DEBNAME}/usr/share/${PACKAGE}/
 cp -R OLIS.sql ./${DEBNAME}/usr/share/${PACKAGE}/
 
-cp -R server.xml ./${DEBNAME}/usr/share/${PACKAGE}/
+cp -R tomcat7server.xml ./${DEBNAME}/usr/share/${PACKAGE}/
+cp -R tomcat8server.xml ./${DEBNAME}/usr/share/${PACKAGE}/
+cp -R tomcat8LEserver.xml ./${DEBNAME}/usr/share/${PACKAGE}/
 
-cp -R run_query.sh ./${DEBNAME}/usr/share/${PACKAGE}/run_rxquery.sh
+cp -R run_rxquery.sh ./${DEBNAME}/usr/share/${PACKAGE}/
 chmod 711 ./${DEBNAME}/usr/share/${PACKAGE}/run_rxquery.sh
 
-# now the backup scripts
-cp -R backup2.sh ./${DEBNAME}/usr/share/${PACKAGE}/oscar_backup.sh
+echo "copying over now the backup scripts"
+cp -R oscar_backup.sh ./${DEBNAME}/usr/share/${PACKAGE}/
 chmod 711 ./${DEBNAME}/usr/share/${PACKAGE}/oscar_backup.sh
-mkdir -p ./${DEBNAME}/usr/share/${PACKAGE}/oscar_backup/
-cp -R restore2.sh ./${DEBNAME}/usr/share/${PACKAGE}/restore.sh
+#mkdir -p ./${DEBNAME}/usr/share/${PACKAGE}/oscar_backup/
+cp -R restore.sh ./${DEBNAME}/usr/share/${PACKAGE}/
 chmod 711 ./${DEBNAME}/usr/share/${PACKAGE}/restore.sh
 
 echo "getting and loading wars"
@@ -422,19 +682,9 @@ mkdir -p ./${DEBNAME}${C_BASE}webapps/
 echo "build directory made to receive wars"
 
 
-if [ "${SKIP_NEW_WAR}" = "true" ] ; then
-	echo skipping redownloading of wars
-else
-    curl -o drugref2-1.0-SNAPSHOT.war http://jenkins.oscar-emr.com:8080/job/drugref2/lastSuccessfulBuild/org.drugref\$drugref2/artifact/org.drugref/drugref2/1.0-SNAPSHOT/drugref2-1.0-SNAPSHOT.war
-    echo "drugref war up"
-	curl -o $TARGET http://jenkins.oscar-emr.com:8080/job/oscar-stable/lastStableBuild/artifact/target/$TARGET
-	
-##TEMPORARILY USE THE LAST BUILD REGARDLESS OF STABILITY WHILE CONGURATION CHANGES ARE MADE
-##	curl -o $TARGET http://jenkins.oscar-emr.com:8080/job/oscar-stable/lastBuild/artifact/target/$TARGET
-    echo "oscar war up"
-fi
 
-cp drugref2-1.0-SNAPSHOT.war ./${DEBNAME}${C_BASE}webapps/drugref.war
+cp drugref2-1.0-SNAPSHOT.war drugref.war
+cp drugref.war ./${DEBNAME}${C_BASE}webapps/drugref.war
 cp $TARGET ./${DEBNAME}${C_BASE}webapps/$PROGRAM.war
 
 ##cd ../
@@ -462,23 +712,33 @@ mkdir -p ./${DEBNAME}/usr/share/${PACKAGE}/OscarDocument/${PROGRAM}/incomingdocs
 
 echo "now adding in Ontario Lab eform"
 cp -R labDecisionSupport.js ./${DEBNAME}/usr/share/${PACKAGE}/OscarDocument/${PROGRAM}/eform/images/
-cp -R 4422-84labReq.png ./${DEBNAME}/usr/share/${PACKAGE}/OscarDocument/${PROGRAM}/eform/images/
+cp -R 4422-84v9-1.png ./${DEBNAME}/usr/share/${PACKAGE}/OscarDocument/${PROGRAM}/eform/images/
+#cp -R OscarDocument/${PROGRAM}/eform/images/4422-84labReq.png ./${DEBNAME}/usr/share/${PACKAGE}/OscarDocument/${PROGRAM}/eform/images/
 
+echo "now adding in Ontario OPR 2017 files"
+cp -R OscarDocument/${PROGRAM}/eform/images/OPR-2017a.png ./${DEBNAME}/usr/share/${PACKAGE}/OscarDocument/${PROGRAM}/eform/images/
+cp -R OscarDocument/${PROGRAM}/eform/images/OPR-2017b.png ./${DEBNAME}/usr/share/${PACKAGE}/OscarDocument/${PROGRAM}/eform/images/
+cp -R OscarDocument/${PROGRAM}/eform/images/OPR-2017c.png ./${DEBNAME}/usr/share/${PACKAGE}/OscarDocument/${PROGRAM}/eform/images/
+cp -R OscarDocument/${PROGRAM}/eform/images/OPR-2017d.png ./${DEBNAME}/usr/share/${PACKAGE}/OscarDocument/${PROGRAM}/eform/images/
+cp -R OscarDocument/${PROGRAM}/eform/images/OPR-2017e.png ./${DEBNAME}/usr/share/${PACKAGE}/OscarDocument/${PROGRAM}/eform/images/
+
+echo "now adding in Ontario pharmacy file for LU codes"
+cp -R OscarDocument/${PROGRAM}/eform/images/data_extract.xml ./${DEBNAME}/usr/share/${PACKAGE}/OscarDocument/${PROGRAM}/eform/images/
 
 echo "now invoking dpkg -b ${DEBNAME}"
 
 dpkg -b ${DEBNAME}
 echo ""
+echo "Testing the deb for update locally"
+dpkg -i ${DEBNAME}.deb
 echo ""
-echo "remember to"
+echo ""
+echo ""
+echo "If it works please remember to"
 echo scp ${DEBNAME}.deb peter_hc@frs.sourceforge.net:\"/home/frs/project/oscarmcmaster/Oscar\\ Debian\\+Ubuntu\\ deb\\ Package/\"
 echo ""
-echo "they you can"
+echo "so then people can"
 echo wget http://sourceforge.net/projects/oscarmcmaster/files/Oscar\\ Debian\\+Ubuntu\\ deb\\ Package/${DEBNAME}.deb
-echo "" 
+echo "the md5sum is" 
 md5sum ${DEBNAME}.deb
-
-
-
-
 

@@ -49,7 +49,8 @@ input#searchHealthCareTeamInput:focus {
 /* OVERRIDE ELEMENTS IN HOST PAGE */
 body#demographiceditdemographic table#demographicPatientNotes,
 body#demographiceditdemographic table#waitingListTable,
-body#demographiceditdemographic table#privacyConsentTable {
+body#demographiceditdemographic table#privacyConsentTable,
+body#demographiceditdemographic table#rxinteractionTable {
   background-color:white !important;
   border-collapse: collapse !important;
   border-bottom:thin solid #CCCCFF !important;
@@ -66,7 +67,8 @@ div#healthCareTeam li {
   background-color: inherit;
 }
 
-div#healthCareTeam li:hover {
+div#healthCareTeam li:hover,
+div#otherContacts2 tbody tr:hover{
   background-color: yellow;
   cursor: default;
 }
@@ -119,7 +121,7 @@ table#addEditHealthCareTeam {
 }
 
 /* ENABLE HIDDEN ELEMENTS */
-tr#privacyConsentHeading, tr#paitientNotesHeading, tr#waitingListHeading {
+tr#privacyConsentHeading, tr#paitientNotesHeading, tr#waitingListHeading, .category_table_heading {
   display: table-row !important;
   display: '' !important;
 }
@@ -128,7 +130,7 @@ table#privacyConsentTable {
   width:100%;
 }
 
-tr#privacyConsentHeading th, tr#paitientNotesHeading th, tr#waitingListHeading th {
+tr#privacyConsentHeading th, tr#paitientNotesHeading th, tr#waitingListHeading th, .category_table_heading th  {
   padding-left: 5px;
   background-color: #CCCCFF;
    font-size: 7.5pt; 
@@ -201,8 +203,8 @@ table.MainTable {
    background-color: #A9A9A9;
 }
 
-body#detachedView 
-table.healthCareTeamMemberDetailTable {
+body#detachedView
+.healthCareTeamMemberDetailTable {
   border-top:#CCCCFF 1px solid;
     border-bottom:#CCCCFF 1px solid;
   width:100%;

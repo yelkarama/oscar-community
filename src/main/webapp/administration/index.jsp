@@ -53,19 +53,7 @@ String userfirstname = (String) session.getAttribute("userfirstname");
 String userlastname = (String) session.getAttribute("userlastname");
 String prov= (oscarVariables.getProperty("billregion","")).trim().toUpperCase();
 
-String resourcebaseurl =  oscarVariables.getProperty("resource_base_url");
-
- 	    UserProperty rbu = userPropertyDao.getProp("resource_baseurl");
- 	    if(rbu != null) {
- 	    	resourcebaseurl = rbu.getValue();
- 	    }
- 	     	    
- 	    String resourcehelpHtml = ""; 
- 	    UserProperty rbuHtml = userPropertyDao.getProp("resource_helpHtml");
- 	    if(rbuHtml != null) {
- 	    	resourcehelpHtml = rbuHtml.getValue();
- 	    }
-    		
+   		
 GregorianCalendar cal = new GregorianCalendar();
 int curYear = cal.get(Calendar.YEAR);
 int curMonth = (cal.get(Calendar.MONTH)+1);
@@ -268,29 +256,12 @@ i[class*='icon-']:hover {color:#0088cc;}
 
 <body>
 
-<!--<oscar:help keywords="admin" key="app.top1"/> --> 
 
 <div class="container-fluid">
 <div class="row-fluid hidden-print" style="text-align:right">
 <i class=" icon-question-sign"></i> 
-	<%if(resourcehelpHtml==""){ %>
-		<a href="#" ONCLICK ="popupPage(600,750,'<%=resourcebaseurl%>');return false;" title="" onmouseover="window.status='';return true">Help</a> 
-	<%}else{%>
-<div id="help-link">
-	    <a href="javascript:void(0)" onclick="document.getElementById('helpHtml').style.display='block';document.getElementById('helpHtml').style.right='0px';"><bean:message key="global.help"/></a>
-	    
-		<div id="helpHtml">
-		<div class="help-title">Help</div>
-		
-		<div class="help-body">
-		
-		<%=resourcehelpHtml%>
-		</div>
-		<a href="javascript:void(0)" class="help-close" onclick="document.getElementById('helpHtml').style.right='-280px';document.getElementById('helpHtml').style.display='none'">(X)</a>
-		</div>
 
-</div>
-	<%}%>
+		<a href="https://worldoscar.org/knowledge-base/category/administration/" target="_blank">Help</a> 
 
 <i class=" icon-info-sign" style="margin-left:10px;"></i> <a href="javascript:void(0)"  onClick="window.open('<%=request.getContextPath()%>/oscarEncounter/About.jsp','About OSCAR','scrollbars=1,resizable=1,width=800,height=600,left=0,top=0')" ><bean:message key="global.about" /></a></div>
 
@@ -361,6 +332,7 @@ if(showMenu==null && loadPage==null){
         <h5><bean:message key="admin.admin.assignRightsObject"/></h5></a>
       </div>
 	</security:oscarSec>
+
  </div>     
               
 <%}%>             

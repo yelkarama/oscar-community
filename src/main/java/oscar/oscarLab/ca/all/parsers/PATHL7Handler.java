@@ -43,16 +43,21 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import oscar.util.UtilDateUtilities;
 import ca.uhn.hl7v2.HL7Exception;
+import ca.uhn.hl7v2.model.Type;
+import ca.uhn.hl7v2.model.Varies;
+import ca.uhn.hl7v2.model.v23.datatype.ED;
+import ca.uhn.hl7v2.model.v23.datatype.HD;
 import ca.uhn.hl7v2.model.v23.datatype.XCN;
 import ca.uhn.hl7v2.model.v23.message.ORU_R01;
 import ca.uhn.hl7v2.parser.Parser;
 import ca.uhn.hl7v2.parser.PipeParser;
 import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.impl.NoValidation;
+import oscar.util.UtilDateUtilities;
 
 
 /**
@@ -66,7 +71,7 @@ public class PATHL7Handler implements MessageHandler {
 
 	private static List<String> labDocuments = Arrays.asList("BCCACSP","BCCASMP","BLOODBANKT",
 			"CELLPATH","CELLPATHR","DIAG IMAGE","MICRO3T", 
-			"MICROGCMT","MICROGRT", "MICROBCT","TRANSCRIP", "NOTIF");
+			"MICROGCMT","MICROGRT", "MICROBCT","TRANSCRIP", "NOTIF","CYTO");
 	
 	public static final String VIHARTF = "CELLPATHR";
 	public static enum OBX_DATA_TYPES {NM,ST,CE,TX,FT} // Numeric, String, Coded Element, Text, String
@@ -405,8 +410,8 @@ public class PATHL7Handler implements MessageHandler {
             count = msg.getRESPONSE().getORDER_OBSERVATION(i).getOBSERVATIONReps();
             // if count is 1 there may only be an nte segment and no obx segments so check
             if (count == 1){
-                String test = msg.getRESPONSE().getORDER_OBSERVATION(i).getOBSERVATION(0).getOBX().getObservationIdentifier().getText().getValue();
-                logger.info("name: "+test);
+                String test = msg.getRESPONSE().getORDER_OBSERVATION(i).getOBSERVATION(0).getOBX().getObservationIdentifier().getIdentifier().getValue();
+              // logger.info("name: "+test);
                 if (test == null)
                     count = 0;
             }
@@ -435,14 +440,81 @@ public class PATHL7Handler implements MessageHandler {
 
     public String getOBXName(int i, int j){
         try{
+        	//legacy PDF is "special"
+        	if("PDF".equals(getOBXIdentifier(i,j))) {
+        		return getString(msg.getRESPONSE().getORDER_OBSERVATION(i).getOBR().getUniversalServiceIdentifier().getText().getValue());
+        	}
             return(getString(msg.getRESPONSE().getORDER_OBSERVATION(i).getOBSERVATION(j).getOBX().getObservationIdentifier().getText().getValue()));
         }catch(Exception e){
             return("");
         }
     }
 
-    public String getOBXResult(int i, int j){
+    @Override
+    public String getOBXNameLong(int i, int j) {
         try{
+            return(getString(msg.getRESPONSE().getORDER_OBSERVATION(i).getOBSERVATION(j).getOBX().getObservationIdentifier().getComponent(2).toString()));
+        }catch(Exception e){
+            return("");
+        }
+    }
+
+    public String getOBXResult(int i, int j){
+    	try{
+    		if("ED".equals(getOBXValueType(i,j))) {
+    			ED ed = (ED)msg.getRESPONSE().getORDER_OBSERVATION(i).getOBSERVATION(j).getOBX().getObx5_ObservationValue()[0].getData();
+    			
+    			if(msg.getRESPONSE().getORDER_OBSERVATION(i).getOBR().getObr24_DiagnosticServiceSectionID() != null &&
+    					"CELLPATHR".equals(msg.getRESPONSE().getORDER_OBSERVATION(i).getOBR().getObr24_DiagnosticServiceSectionID().getValue())) {
+    			
+    				HD sourceApp = ed.getEd1_SourceApplication();
+        			if(!StringUtils.isEmpty(sourceApp.getHd1_NamespaceID().getValue())) {
+        				return sourceApp.getHd1_NamespaceID().getValue()/*.replaceAll("\\E\\", "\\")*/;
+        			}
+    			}
+    			 
+    			if(ed.getData() != null) {
+    				return ed.getData().getValue();
+	    			
+    			}
+    		}
+            return(getString(Terser.get(msg.getRESPONSE().getORDER_OBSERVATION(i).getOBSERVATION(j).getOBX(),5,0,1,1)));
+        }catch(Exception e){
+            return("");
+        }
+    }
+    
+    public boolean isLegacy(int i,int j)  {
+    	if("PDF".equals(getOBXIdentifier(i,j))) {
+    		try {
+    		
+    			Varies[] v = msg.getRESPONSE().getORDER_OBSERVATION(i).getOBSERVATION(j).getOBX().getObservationValue();
+    			if(v != null && v.length>0) {
+    				Varies va = v[0];
+    				Type t = va.getData();
+    				if(t instanceof ED) {
+    					ED ed = (ED)t;
+    					if(ed.getEd2_TypeOfData().getValue() == null && ed.getEd3_DataSubtype().getValue() == null && ed.getEd4_Encoding().getValue() == null && ed.getEd5_Data().getValue() == null) {
+    						return true;
+    					}
+    				}
+    			}
+    		}catch(HL7Exception e) {
+    			logger.error("Error",e);
+    			return false;
+    		}
+    	}
+    	return false;
+    }
+    
+    public String getLegacyOBXResult(int i, int j){
+    	try{
+    		if("ED".equals(getOBXValueType(i,j))) {
+    			ED ed = (ED)msg.getRESPONSE().getORDER_OBSERVATION(i).getOBSERVATION(j).getOBX().getObx5_ObservationValue()[0].getData();
+    			if(ed.getSourceApplication() != null) {
+    				return ed.getSourceApplication().getNamespaceID().getValue();
+    			}
+    		}
             return(getString(Terser.get(msg.getRESPONSE().getORDER_OBSERVATION(i).getOBSERVATION(j).getOBX(),5,0,1,1)));
         }catch(Exception e){
             return("");
@@ -581,7 +653,7 @@ public class PATHL7Handler implements MessageHandler {
                 currentHeader = getObservationHeader(i, 0);
                 arraySize = headers.size();
                 if (arraySize == 0 || !currentHeader.equals(headers.get(arraySize-1))){
-                    logger.info("Adding header: '"+currentHeader+"' to list");
+                    //logger.info("Adding header: '"+currentHeader+"' to list");
                     headers.add(currentHeader);
                 }
 
@@ -687,8 +759,20 @@ public class PATHL7Handler implements MessageHandler {
 	 * 
 	 */
 	public boolean isReportData() {		
-		return ( OBX_DATA_TYPES.TX.name().equals( getOBXValueType(0, 0) ) 
-				|| OBX_DATA_TYPES.FT.name().equals( getOBXValueType(0, 0) )  );		
+		boolean result = true;
+		for(int x=0;x<getOBRCount();x++) {
+			for(int y=0;y<getOBXCount(x);y++) {
+				if(!OBX_DATA_TYPES.TX.name().equals( getOBXValueType(x, y))) {
+					result=false;
+				}
+			}
+		}
+		return result;
 	}
+    
+    //for OMD validation
+    public boolean isTestResultBlocked(int i, int j) {
+    	return false;
+    }
     
 }

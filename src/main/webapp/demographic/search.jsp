@@ -102,25 +102,40 @@
          
         </script>
 <% if (isMobileOptimized) { %>
-   <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, width=device-width" />
-   <link rel="stylesheet" type="text/css" href="../mobile/searchdemographicstyle.css">
+<!--    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, width=device-width" />
+   <link rel="stylesheet" type="text/css" href="../mobile/searchdemographicstyle.css">  
+-->
 <% } else { %>
- <link rel="stylesheet" type="text/css" media="all" href="../demographic/searchdemographicstyle.css"  />
+<!-- <link rel="stylesheet" type="text/css" media="all" href="../demographic/searchdemographicstyle.css"  />
  <link rel="stylesheet" type="text/css" href="../share/css/searchBox.css" />
-
+-->
 <% } %>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/datepicker.css" rel="stylesheet" type="text/css">
+<link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 </head>
 <body onload="setfocus()">
 <div id="demographicSearch">
 </div>
+
+<div style="text-align:right">
+		<i class=" icon-question-sign"></i> 
+	    <a href="https://worldoscar.org/knowledge-base/search/" target="_blank"><bean:message key="app.top1"/></a>
+	    <i class=" icon-info-sign" style="margin-left:10px;"></i> 
+        <a href="javascript:void(0)"  onClick="window.open('<%=request.getContextPath()%>/oscarEncounter/About.jsp','About OSCAR','scrollbars=1,resizable=1,width=800,height=600,left=0,top=0')" ><bean:message key="global.about" /></a>
+</div>
+
     <!-- Search Box -->
     <%@ include file="zdemographicfulltitlesearch.jsp"%>
 <p>
 <!-- we may want to not allow students to create new patients? -->
 <!-- <security:oscarSec roleName="<%=roleName$%>" objectName="_demographic.addnew" rights="r">  -->
-    <div class="createNew">
-	<a href="demographicaddarecordhtm.jsp"><b><font size="+1"><bean:message
-	key="demographic.search.btnCreateNew" /></font></b></a> 
+    <div class="btn btn-link createNew">
+	<a href="demographicaddarecordhtm.jsp"><b><bean:message
+	key="demographic.search.btnCreateNew" /></b></a> 
     </div>
 <!-- </security:oscarSec> -->
 		

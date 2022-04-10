@@ -23,7 +23,7 @@
     Ontario, Canada
 
 --%>
-
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@page import="java.util.HashMap, oscar.log.*"
 	errorPage="errorpage.jsp"%>
 <%
@@ -35,7 +35,11 @@
       session.invalidate();
       request.getSession();
       String ip = request.getRemoteAddr();
-	  LogAction.addLog((String)user, LogConst.LOGOUT, LogConst.CON_LOGIN, "", ip);
+      String logMessage = "";
+      if ("true".equalsIgnoreCase(request.getParameter("autoLogout"))) {
+          logMessage = "autoLogout";
+      }
+      LogAction.addLog((String)user, LogConst.LOGOUT, LogConst.CON_LOGIN, logMessage, ip);
     }
   }
   String param = "";
@@ -46,7 +50,7 @@
 	  }
   }
   else if (request.getParameter("errorMessage") != null) {
-	  param = "?errorMessage=" + request.getParameter("errorMessage");
+	  param = "?errorMessage=" + Encode.forUriComponent(request.getParameter("errorMessage"));
   }
   
   response.sendRedirect("index.jsp"+param);

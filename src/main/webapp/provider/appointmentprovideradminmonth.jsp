@@ -218,7 +218,14 @@ if (bMultisites) {
 	import="java.lang.*, java.util.*, java.text.*,java.net.*,java.sql.*,oscar.*"
 	errorPage="errorpage.jsp"%>
 <% 
-	java.util.Properties oscarVariables = OscarProperties.getInstance();
+
+	UserProperty tabViewProp = userPropertyDao.getProp(curUser_no, UserProperty.OPEN_IN_TABS);
+    boolean openInTabs = false;
+    if ( tabViewProp == null ) {
+        openInTabs = oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true");
+    } else {
+        openInTabs = oscar.OscarProperties.getInstance().getBooleanProperty("open_in_tabs", "true") || Boolean.parseBoolean(tabViewProp.getValue());
+    }
 %>
 	
 <jsp:useBean id="scheduleHolidayBean" class="java.util.Hashtable"
@@ -228,6 +235,7 @@ if (bMultisites) {
 
 
 <%
+    java.util.Properties oscarVariables = OscarProperties.getInstance();
 	String prov=  oscarVariables.getProperty("billregion","").trim().toUpperCase();
 	String resourcebaseurl =  oscarVariables.getProperty("resource_base_url");
 	
@@ -363,6 +371,7 @@ function setfocus() {
 
 //<!--oscarMessenger code block-->
 function popupOscarRx(vheight,vwidth,varpage) { //open a new popup window
+<% if (!openInTabs) { %>
   var page = varpage;
   windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=0,screenY=0,top=0,left=0";
   var popup=window.open(varpage, "oscar_appt", windowprops);
@@ -371,6 +380,9 @@ function popupOscarRx(vheight,vwidth,varpage) { //open a new popup window
       popup.opener = self;
     }
   }
+<% } else { %>
+  window.open(varpage);
+<% } %>
 }
 //<!--/oscarMessenger code block -->
 
@@ -425,7 +437,7 @@ function callRefreshTabAlerts(id) {
 
 function refreshTabAlerts(id) {
     var url = "../provider/tabAlertsRefresh.jsp";
-    var pars = "id=" + id;
+    var pars = "id=" + id + "&autoRefresh=true";
     
     var myAjax = new Ajax.Updater(id, url, {method: 'get', parameters: pars});
 }
@@ -564,8 +576,9 @@ function refreshTabAlerts(id) {
 				objectName="_admin,_admin.userAdmin,_admin.schedule,_admin.billing,_admin.resource,_admin.reporting,_admin.backup,_admin.messenger,_admin.eform,_admin.encounter,_admin.misc"
 				rights="r">
 				<li><a HREF="#"
-					ONCLICK="popupOscarRx(700,687,'../admin/admin.jsp', 'Admin');return false;"><bean:message
+					ONCLICK="popupOscarRx(700,687,'../administration/', 'Admin');return false;"><bean:message
 					key="global.admin" /></a></li>
+
 			</security:oscarSec>
 
 			<%int menuTagNumber=0; %>
@@ -580,10 +593,10 @@ function refreshTabAlerts(id) {
 		
 		<td align="right" valign="bottom">
 		
-		  <a href="javascript: function myFunction() {return false; }" onClick="popup(700,1000,'../scratch/index.jsp','scratch')"><span id="oscar_scratch"></span></a>&nbsp;
+		  <a href="javascript: function myFunction() {return false; }" onClick="popupOscarRx(700,1000,'../scratch/index.jsp')"><span id="oscar_scratch"></span></a>&nbsp;
 		  
 			<%if(resourcehelpHtml==""){ %>
-				<a href="javascript:void(0)" onClick ="popupPage(600,750,'<%=resourcebaseurl%>')"><bean:message key="global.help"/></a>
+				<a href="javascript:void(0)" onClick ="popupOscarRx(600,750,'<%=resourcebaseurl%>')"><bean:message key="global.help"/></a>
 			<%}else{%>
 			<div id="help-link">
 				

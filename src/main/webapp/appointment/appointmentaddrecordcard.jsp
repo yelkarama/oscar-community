@@ -44,20 +44,78 @@
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@page import="org.oscarehr.common.dao.AppointmentArchiveDao" %>
+<%@page import="org.oscarehr.util.SessionConstants"%>
 <%@page import="org.oscarehr.common.dao.OscarAppointmentDao" %>
 <%@page import="org.oscarehr.common.model.Appointment" %>
 <%@page import="org.oscarehr.common.model.Provider" %>
+<%@ page import="org.oscarehr.common.model.ProviderPreference" %>
+<%@ page import="oscar.log.LogAction" %>
+<%@ page import="oscar.log.LogConst" %>
+<%@ page import="java.text.SimpleDateFormat" %>
+<%@ page import="org.oscarehr.util.LoggedInInfo" %>
+<%@ page import="oscar.util.ChangedField" %>
 <%
 	AppointmentArchiveDao appointmentArchiveDao = (AppointmentArchiveDao)SpringUtils.getBean("appointmentArchiveDao");
 	OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
+
+	ProviderPreference providerPreference=(ProviderPreference)session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER_PREFERENCE);
+	
+	
 %>
 <html:html locale="true">
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
-<style type="text/css" media="print">
-    .DoNotPrint {
-        display: none;
-    }
+<script type="text/javascript">
+	function printApptCard(){
+	    document.getElementById("PrintAppointmentLabel").style.zoom = "1.1";
+	    window.print();
+	}
+</script>
+
+<style type="text/css">
+.appointmentLabelContainer {
+	border: 1px solid black;
+	background-color: #FFFFFF;
+}
+
+#PrintAppointmentLabel {
+	display: none;
+}
+
+@media print {
+	 .DoNotPrint {
+		 display: none;
+	 }
+
+	 @page {
+		 size: auto;
+		 margin: 0mm 0mm 0mm 0mm;
+	 }
+
+     body{
+         margin: 3mm 3mm 3mm 3mm;
+     }
+
+	 #appointmentLabel {
+		 display: none;
+	 }
+
+     #PrintAppointmentLabel{
+		 display: block;
+		 text-align: center;
+		 margin-left: auto;
+		 margin-right: auto;
+     }
+
+     .appointmentLabelContainer{
+         border: 0px;
+     }
+
+     .info{
+		font-family: Arial, Sans-Serif;
+		font-size: 8pt;
+     }
+ }
 </style>
 </head>
 <body>
@@ -82,7 +140,7 @@
     	Appointment a = new Appointment();
     	a.setProviderNo(request.getParameter("provider_no"));
     	a.setAppointmentDate(ConversionUtils.fromDateString(request.getParameter("appointment_date")));
-    	a.setStartTime(ConversionUtils.fromTimeStringNoSeconds(request.getParameter("start_time")));
+    	a.setStartTime(ConversionUtils.fromTimeStringNoSeconds(MyDateFormat.getTimeXX_XX_XX(request.getParameter("start_time"))));
     	a.setEndTime(ConversionUtils.fromTimeStringNoSeconds(request.getParameter("end_time")));
     	a.setName(request.getParameter("keyword"));
     	a.setNotes(request.getParameter("notes"));
@@ -107,11 +165,16 @@
     	a.setCreateDateTime(ConversionUtils.fromDateString(request.getParameter("createdatetime")));
     	a.setReasonCode(Integer.parseInt(request.getParameter("reasonCode")));
     	appointmentDao.persist(a);
+		SimpleDateFormat sdf = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
+		String logData = "startTime=" + sdf.format(a.getStartTimeAsFullDate()) +
+				";\n endTime=" + sdf.format(a.getEndTimeAsFullDate()) + ";\n status=" + a.getStatus();
+		LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.ADD, LogConst.CON_APPT, "appointment_no=" + a.getId(), String.valueOf(a.getDemographicNo()), logData);
    		rowsAffected=1;
     }
     if(request.getParameter("appointment_no") != null) {
 	    Appointment appt = appointmentDao.find(Integer.parseInt(request.getParameter("appointment_no")));
 	    if(appt != null) {
+			Appointment oldAppointment = new Appointment(appt);
 	    	appt.setProviderNo(request.getParameter("provider_no"));
 	    	appt.setAppointmentDate(ConversionUtils.fromDateString(request.getParameter("appointment_date")));
 	    	appt.setStartTime(ConversionUtils.fromTimeString(MyDateFormat.getTimeXX_XX_XX(request.getParameter("start_time"))));
@@ -139,6 +202,9 @@
 	    	appt.setCreateDateTime(ConversionUtils.fromDateString(request.getParameter("createdatetime")));
 	    	appt.setReasonCode(Integer.parseInt(request.getParameter("reasonCode")));
 	    	appointmentDao.merge(appt);
+			List<ChangedField> changedFields = new ArrayList<ChangedField>(ChangedField.getChangedFieldsAndValues(oldAppointment, appt));
+			LogAction.addChangeLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.UPDATE, LogConst.CON_APPT,
+					"appointment_no=" + appt.getId(), String.valueOf(appt.getDemographicNo()), changedFields);
 	    	rowsAffected=1;
 	    }
     
@@ -162,24 +228,25 @@
 
     </div>
 <form>
-    <table border="1" bgcolor="white" >
+    <table class="appointmentLabelContainer">
         <tr><td>
  
-        <table style="font-size: 8pt;"  align="left" valign="top">
+        <table style="font-size: 8pt;"  align="left" valign="top" id="appointmentLabel">
 
-            <tr style="font-family: arial, sans-serif; font-size: 6pt;" >
+            <tr style="font-family: arial, sans-serif; font-size: 8pt;" >
                 <th colspan="3"><%=patientname%></th>
             </tr>
              <tr style="font-family: arial, sans-serif; font-size: 8pt;" >
-		<th style="padding-right: 10px"><bean:message key="Appointment.formDate" /></th>
+		<th width="60" style="padding-right: 10px"><bean:message key="Appointment.formDate" /></th>
  		<th width="60" style="padding-right: 10px"><bean:message key="Appointment.formStartTime" /></th>
-		<th width="120" style="padding-right: 10px"><bean:message key="appointment.addappointment.msgProvider" /></th>
+		<th width="100" style="padding-right: 10px"><bean:message key="appointment.addappointment.msgProvider" /></th>
 
             </tr>
         <%
         String demoNo = String.valueOf(demographicNo);
         String appt_date = request.getParameter("appointment_date");
-        String appt_time = MyDateFormat.getTimeXX_XXampm(MyDateFormat.getTimeXX_XX_XX(request.getParameter("start_time")));
+        String appt_time = MyDateFormat.getTimeXX_XX_XX(request.getParameter("start_time"));
+
         int iRow=0;
         int iPageSize=5;
         String pname="";
@@ -205,14 +272,12 @@
             	Provider p =  (Provider)appt1[1];
                 iRow ++;
                 if (iRow > iPageSize) break;
-                appt_time = MyDateFormat.getTimeXX_XXampm(ConversionUtils.toTimeStringNoSeconds(ap.getStartTime()));
-                pname = "" + p.getFirstName();
-                pname = ""+ p.getLastName()+ ", "+ pname.substring(0,1);
+                pname = "Dr. "+  p.getLastName() + ", " + p.getFirstName();
     %>
             <tr bgcolor="#eeeeff">
 		<td style="padding-right: 10px"><%=ConversionUtils.toDateString(ap.getAppointmentDate())%></td>
-		<td style="padding-right: 10px"><%=appt_time%></td>
-		<td style="padding-right: 10px"><%=pname%></td>
+		<td style="padding-right: 10px"><%=MyDateFormat.getTimeXX_XXampm(ConversionUtils.toTimeStringNoSeconds(ap.getStartTime()))%></td>
+		<td class="DoNotPrint" style="padding-right: 10px"><%=pname%></td>
             </tr>
 	<%
             }
@@ -220,13 +285,25 @@
     %>
     
             <tr class="DoNotPrint">
-		<td style="padding-left: 10px"><input type="button" value="<bean:message key="global.btnPrint"/>" onClick="window.print();"></td>
+		<td style="padding-left: 10px"><input type="button" value="<bean:message key="global.btnPrint"/>" onClick="printApptCard();"></td>
                 <td>&nbsp;</td>
 		<td>&nbsp;</td>
             </tr>
        </table>
+        <table id="PrintAppointmentLabel">
+            <tr class="info">
+                <td><span style="font-weight: bold;"><%=patientname%></span></td>
+            </tr>
+            <tr class="info">
+                <td><span style="font-weight: bold;">Date:&nbsp;</span><%=appt_date%><span style="font-weight: bold;">,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Time:&nbsp;</span><%=appt_time%></td>
+            </tr>
+            <tr class="info" colspan="2">
+                <td><span style="font-weight: bold;">Provider:&nbsp;</span><%=pname%></td>
+            </tr>
+        </table>
        </td></tr>
 </table>
+
 <%
 		int demoNo1 = 0;
 		if (request.getParameter("demographic_no") != null && !(request.getParameter("demographic_no").equals(""))) {

@@ -63,6 +63,8 @@ if( request.getParameter("updateParent") != null )
     updateParent = request.getParameter("updateParent");
 else
     updateParent = "false";
+
+	LogAction.addLog(loggedInInfo, LogConst.READ, "Tickler", demoview, "all".equals(demoview)?null:demoview, (String)null);
 %>
 <%@ page import="java.util.*,java.text.*, oscar.*"%>
 <%@page import="org.oscarehr.util.SpringUtils" %>
@@ -78,12 +80,18 @@ else
 <%@ page import="org.oscarehr.common.model.TicklerComment" %>
 <%@ page import="org.oscarehr.common.model.TicklerUpdate" %>
 <%@ page import="org.oscarehr.managers.TicklerManager" %>
-
+<%@ page import="org.oscarehr.common.model.TicklerLink" %>
+<%@ page import="org.oscarehr.common.dao.TicklerLinkDao" %>
+<%@ page import="oscar.oscarLab.ca.on.*"%>
+<%@ page import="oscar.log.LogAction" %>
+<%@ page import="oscar.log.LogConst" %>
 <%
 	TicklerManager ticklerManager = SpringUtils.getBean(TicklerManager.class);
 	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 	OscarAppointmentDao appointmentDao = SpringUtils.getBean(OscarAppointmentDao.class);
 	DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
+	
+	TicklerLinkDao ticklerLinkDao = (TicklerLinkDao) SpringUtils.getBean("ticklerLinkDao");
 %>
 
 
@@ -101,13 +109,14 @@ if(labReqVer.equals("")) {labReqVer="07";}
 <%
 	//String providerview=request.getParameter("provider")==null?"":request.getParameter("provider");
   String ticklerview=request.getParameter("ticklerview")==null?"A":request.getParameter("ticklerview");
-   String xml_vdate=request.getParameter("xml_vdate") == null?"":request.getParameter("xml_vdate");
-   String xml_appointment_date = request.getParameter("xml_appointment_date")==null?"8888-12-31":request.getParameter("xml_appointment_date");
+   String xml_vdate=request.getParameter("xml_vdate") == null?"2000-01-01":request.getParameter("xml_vdate");
+   String xml_appointment_date = request.getParameter("xml_appointment_date")==null?"3000-12-31":request.getParameter("xml_appointment_date");
 %>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <html:html locale="true">
+
 <head>
  <script src="<%=request.getContextPath()%>/js/jquery-1.7.1.min.js" type="text/javascript"></script>
  <script src="<%=request.getContextPath()%>/js/jquery-ui-1.8.18.custom.min.js"></script>
@@ -353,8 +362,8 @@ function refresh() {
     
     function allYear()
     {       
-    var newD = "8888-12-31";
-    var beginD = "1900-01-01"
+    var newD = "3000-12-31";
+    var beginD = "2000-01-01"
     	document.serviceform.xml_appointment_date.value = newD;
     		document.serviceform.xml_vdate.value = beginD;
 }
@@ -381,6 +390,11 @@ function generateRenalLabReq(demographicNo) {
 	}});
 }
 
+function reportWindow(page) {
+    windowprops="height=660, width=960, location=no, scrollbars=yes, menubars=no, toolbars=no, resizable=yes, top=0, left=0";
+    var popup = window.open(page, "labreport", windowprops);
+    popup.focus();
+}
 </script>
 <style type="text/css">
 	<!--
@@ -439,7 +453,7 @@ function generateRenalLabReq(demographicNo) {
 </style>
 <link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
 <link rel="stylesheet" type="text/css" media="all" href="../css/print.css"  />
-
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 </head>
 <oscar:customInterface section="ticklerMain"/>
 <body onload="setup();" bgcolor="#FFFFFF" text="#000000" leftmargin="0" rightmargin="0" topmargin="10">
@@ -447,17 +461,15 @@ function generateRenalLabReq(demographicNo) {
 
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
 	<tr bgcolor="#000000">
-		<td height="40" width="10%" class="noprint"><input type='button' name='print'
+		<td height="40" width="10%" class="noprint"><input type='button' name='print' class="btn"
 			value=<bean:message key="global.btnPrint"/>
 			' onClick='window.print()' class="sbttn"></td>
-		<td width="90%" align="left">
-		<p><font face="Verdana, Arial, Helvetica, sans-serif"
-			color="#FFFFFF"><b><font
-			face="Arial, Helvetica, sans-serif" size="4"><bean:message
-			key="tickler.ticklerDemoMain.msgTitle" /></font></b></font></p>
+		<td width="90%" style="text-align:left; font-weight: 900; height:40px;font-size:large;font-family:arial,sans-serif;color:white"><bean:message
+			key="tickler.ticklerDemoMain.msgTitle" />
 		</td>
 	</tr>
 </table>
+<div class="container-fluid well" >
 <form name="serviceform" method="get" action="ticklerDemoMain.jsp">
 <table width="100%" border="0" bgcolor="#EEEEFF">
 	<tr class="noprint">
@@ -475,24 +487,21 @@ function generateRenalLabReq(demographicNo) {
 		</select> </font></div>
 		</td>
 		<td width="30%">
-		<div align="center"><input type="text" name="xml_vdate"
-			value="<%=xml_vdate%>"> <font size="1"
-			face="Arial, Helvetica, sans-serif"> <a href="#"
-			onClick="openBrWindow('../billing/billingCalendarPopup.jsp?type=admission&amp;year=<%=curYear%>&amp;month=<%=curMonth%>','','width=300,height=300')"><bean:message
-			key="tickler.ticklerDemoMain.btnBegin" />:</a></font></div>
+		<div align="center"><bean:message
+			key="tickler.ticklerDemoMain.btnBegin" />:<input type="date" style="height:26px;" name="xml_vdate"
+			value="<%=xml_vdate%>">  </div>
 		</td>
-		<td width="30%"><input type="text" name="xml_appointment_date"
-			value="<%=xml_appointment_date%>"> <font size="1"
-			face="Arial, Helvetica, sans-serif"><a href="#"
-			onClick="openBrWindow('../billing/billingCalendarPopup.jsp?type=end&amp;year=<%=curYear%>&amp;month=<%=curMonth%>','','width=300,height=300')"><bean:message
-			key="tickler.ticklerDemoMain.btnEnd" />:</a></font></td>
+		<td width="30%"><bean:message
+			key="tickler.ticklerDemoMain.btnEnd" />:
+            <input type="date" style="height:26px;" name="xml_appointment_date"
+			value="<%=xml_appointment_date%>"> </td>
 		<td width="20%">
 		<div align="right"><input type="hidden" name="demoview"
 			value="<%=demoview%>"> <input type="hidden" name="Submit"
 			value=""> <input type="hidden" name="parentAjaxId"
 			value="<%=parentAjaxId%>"> <input type="submit"
 			value="<bean:message key="tickler.ticklerDemoMain.btnCreateReport"/>"
-			class="mbttn"
+			class="btn btn-primary"
 			onclick="document.forms['serviceform'].Submit.value='Create Report'; document.forms['serviceform'].submit();">
 		</div>
 		</td>
@@ -501,6 +510,7 @@ function generateRenalLabReq(demographicNo) {
 	</form>
 	
 	<form name="ticklerform" method="post" action="dbTicklerDemoMain.jsp">
+
 <table bgcolor=#666699 border=0 cellspacing=0 width=100%>
 	
 	<tr>
@@ -518,7 +528,7 @@ function generateRenalLabReq(demographicNo) {
 					key="tickler.ticklerMain.msgDemographicName" /></B></FONT></TD>
 				<TD width="8%"><FONT FACE="verdana,arial,helvetica"
 					COLOR="#FFFFFF" SIZE="-2"><B><bean:message
-					key="tickler.ticklerMain.msgDoctorName" /></B></FONT></TD>
+					key="tickler.ticklerMain.MRP" /></B></FONT></TD>
 				<TD width="9%"><FONT FACE="verdana,arial,helvetica"
 					COLOR="#FFFFFF" SIZE="-2"><B><bean:message
 					key="tickler.ticklerMain.msgDate" /></B></FONT></TD>
@@ -550,8 +560,8 @@ function generateRenalLabReq(demographicNo) {
 				String provider = "";
 				String taskAssignedTo = "";
 
-				if (dateEnd.compareTo("") == 0) dateEnd = "8888-12-31";
-				if (dateBegin.compareTo("") == 0) dateBegin="1900-01-01";
+				if (dateEnd.compareTo("") == 0) dateEnd = "3000-12-31";
+				if (dateBegin.compareTo("") == 0) dateBegin="2000-01-01";
 
 				List<Tickler> ticklers = ticklerManager.search_tickler_bydemo(loggedInInfo, request.getParameter("demoview")==null?null: Integer.parseInt(request.getParameter("demoview")),ticklerview,ConversionUtils.fromDateString(dateBegin),ConversionUtils.fromDateString(dateEnd));
 				String rowColour = "lilac";
@@ -617,12 +627,12 @@ function generateRenalLabReq(demographicNo) {
 					value="<%=t.getId()%>"></TD>
 					<TD ROWSPAN="1" class="<%=cellColour%>">
 					<%if(Boolean.parseBoolean(OscarProperties.getInstance().getProperty("tickler_edit_enabled"))) {%>
-					<a href=#  onClick="popupPage(600,800, '../tickler/ticklerEdit.jsp?tickler_no=<%=t.getId()%>')"><bean:message key="tickler.ticklerMain.editTickler"/></a>
+					<a href=#  onClick="popupPage(600,800, '<%=request.getContextPath() %>/tickler/ticklerEdit.jsp?tickler_no=<%=t.getId()%>')"><bean:message key="tickler.ticklerMain.editTickler"/></a>
 					<% } %>
 					</TD>
 				<TD ROWSPAN="1" class="<%=cellColour%>"><a
 					href=#
-					onClick="popupPage(600,800,'../demographic/demographiccontrol.jsp?demographic_no=<%=t.getDemographicNo()%>&displaymode=edit&dboperation=search_detail')"><%=d.getLastName()%>,<%=d.getFirstName()%></a></TD>
+					onClick="window.open('<%=request.getContextPath() %>/demographic/demographiccontrol.jsp?demographic_no=<%=t.getDemographicNo()%>&displaymode=edit&dboperation=search_detail')"><%=d.getLastName()%>,<%=d.getFirstName()%></a></TD>
 				<TD ROWSPAN="1" class="<%=cellColour%>"><%=provider%></TD>
 				<TD ROWSPAN="1" class="<%=cellColour%>">
 				<%
@@ -643,7 +653,51 @@ function generateRenalLabReq(demographicNo) {
 				<TD ROWSPAN="1" class="<%=cellColour%>"><%=t.getPriority()%></TD>
 				<TD ROWSPAN="1" class="<%=cellColour%>"><%=taskAssignedTo%></TD>
 				<TD ROWSPAN="1" class="<%=cellColour%>"><%=String.valueOf(t.getStatus()).equals("A")?"Active":String.valueOf(t.getStatus()).equals("C")?"Completed":String.valueOf(t.getStatus()).equals("D")?"Deleted":String.valueOf(t.getStatus())%></TD>
-				<TD ROWSPAN="1" class="<%=cellColour%>"><%=t.getMessage()%></TD>
+				<TD ROWSPAN="1" class="<%=cellColour%>"><%=t.getMessage()%>
+
+<%
+                                             	List<TicklerLink> linkList = ticklerLinkDao.getLinkByTickler(t.getId().intValue());
+                                                if (linkList != null){
+                                                    for(TicklerLink tl : linkList){
+                                                        String type = tl.getTableName();
+%>
+
+                                                <%
+                                                	if ( LabResultData.isMDS(type) ){
+                                                %>
+                                                <a href="javascript:reportWindow('SegmentDisplay.jsp?segmentID=<%=tl.getTableId()%>&providerNo=<%=user_no%>&searchProviderNo=<%=user_no%>&status=')">ATT</a>
+                                                <%
+                                                	}else if (LabResultData.isCML(type)){
+                                                %>
+                                                <a href="javascript:reportWindow('<%=request.getContextPath() %>/lab/CA/ON/CMLDisplay.jsp?segmentID=<%=tl.getTableId()%>&providerNo=<%=user_no%>&searchProviderNo=<%=user_no%>&status=')">ATT</a>
+                                                <%
+                                                	}else if (LabResultData.isHL7TEXT(type)){
+                                                %>
+                                                <a href="javascript:reportWindow('<%=request.getContextPath() %>/lab/CA/ALL/labDisplay.jsp?segmentID=<%=tl.getTableId()%>&providerNo=<%=user_no%>&searchProviderNo=<%=user_no%>&status=')">ATT</a>
+                                                <%
+                                                	}else if (LabResultData.isDocument(type)){
+                                                %>
+                                                <a href="javascript:reportWindow('<%=request.getContextPath() %>/dms/ManageDocument.do?method=display&doc_no=<%=tl.getTableId()%>&providerNo=<%=user_no%>&searchProviderNo=<%=user_no%>&status=')">ATT</a>
+                                                <%
+                                                	}else if (LabResultData.isHRM(type)){
+                                                %>
+                                                <a href="javascript:reportWindow('<%=request.getContextPath() %>/hospitalReportManager/Display.do?id=<%=tl.getTableId()%>')">ATT</a>                                                
+                                                <%
+                                                	}else {
+                                                %>
+                                                <a href="javascript:reportWindow('<%=request.getContextPath() %>/lab/CA/BC/labDisplay.jsp?segmentID=<%=tl.getTableId()%>&providerNo=<%=user_no%>&searchProviderNo=<%=user_no%>&status=')">ATT</a>
+                                                <%
+                                                	}
+                                                %>
+                                        <%
+                                        	}
+                                                                                }
+                                        %>				
+				
+				
+				
+				
+				</TD>
 				  <td ROWSPAN="1" class="<%=cellColour%> noprint">
                 	<a href="javascript:void(0)" onClick="openNoteDialog('<%=t.getDemographicNo() %>','<%=t.getId() %>');return false;">
                 		<img border="0" src="<%=request.getContextPath()%>/images/notepad.gif"/>
@@ -690,26 +744,26 @@ if (nItems == 0) {
 					key="tickler.ticklerDemoMain.btnCheckAll" /></a> - <a
 					href="javascript:ClearAll();"><bean:message
 					key="tickler.ticklerDemoMain.btnClearAll" /></a> &nbsp; &nbsp; &nbsp;
-				&nbsp; &nbsp; <input type="button" name="button"
+				&nbsp; &nbsp; <input type="button" name="button" class="btn btn-primary"
 					value="<bean:message key="tickler.ticklerDemoMain.btnAddTickler"/>"
-					onClick="popupPage('400','600', 'ticklerAdd.jsp?updateParent=true&parentAjaxId=<%=parentAjaxId%>&bFirstDisp=false&messageID=null&demographic_no=<%=d.getDemographicNo()%>&chart_no=<%=d.getChartNo()%>&name=<%=d.getDisplayName()%>')"
-					class="sbttn"> <input type="hidden" name="submit_form"
+					onClick="popupPage('450','650', 'ticklerAdd.jsp?updateParent=true&parentAjaxId=<%=parentAjaxId%>&bFirstDisp=false&messageID=null&demographic_no=<%=d.getDemographicNo()%>&chart_no=<%=d.getChartNo()%>&name=<%=d.getDisplayName()%>')"
+					> <input type="hidden" name="submit_form"
 					value=""> <% if (ticklerview.compareTo("D") == 0){%> <input
 					type="button"
 					value="<bean:message key="tickler.ticklerDemoMain.btnErase"/>"
-					class="sbttn"
+					class="btn"
 					onclick="document.forms['ticklerform'].submit_form.value='Erase Completely'; document.forms['ticklerform'].submit();">
 				<%} else{%> <input type="button"
 					value="<bean:message key="tickler.ticklerDemoMain.btnComplete"/>"
-					class="sbttn"
+					class="btn"
 					onclick="document.forms['ticklerform'].submit_form.value='Complete'; document.forms['ticklerform'].submit();">
 				<input type="button"
 					value="<bean:message key="tickler.ticklerDemoMain.btnDelete"/>"
-					class="sbttn"
+					class="btn"
 					onclick="document.forms['ticklerform'].submit_form.value='Delete'; document.forms['ticklerform'].submit();">
 				<%}%> <input type="button" name="button"
 					value="<bean:message key="global.btnCancel"/>"
-					onClick="window.close()" class="sbttn"></td>
+					onClick="window.close()" class="btn"></td>
 			</tr>
 		</table>
 		</td>
@@ -756,6 +810,6 @@ if (nItems == 0) {
 <%@ include file="../demographic/zfooterbackclose.jsp"%>
 </p>
 
-
+</div>
 </body>
 </html:html>

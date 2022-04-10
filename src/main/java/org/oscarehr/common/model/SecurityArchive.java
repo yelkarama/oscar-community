@@ -50,6 +50,14 @@ public class SecurityArchive extends AbstractModel<Integer> {
 		setBLocallockset(s.getBLocallockset());
 		setBRemotelockset(s.getBRemotelockset());
 		setForcePasswordReset(s.isForcePasswordReset());
+		setOneIdKey(s.getOneIdKey());
+		setOneIdEmail(s.getOneIdEmail());
+		setDelagateOneIdEmail(s.getDelagateOneIdEmail());
+		setTotpEnabled(s.isTotpEnabled());
+		setTotpSecret(s.getTotpSecret());
+		setTotpDigits(s.getTotpDigits());
+		setTotpAlgorithm(s.getTotpAlgorithm());
+		setTotpPeriod(s.getTotpPeriod());
 		setPasswordUpdateDate(s.getPasswordUpdateDate());
 		setPinUpdateDate(s.getPinUpdateDate());
 		setLastUpdateUser(s.getLastUpdateUser());
@@ -87,9 +95,32 @@ public class SecurityArchive extends AbstractModel<Integer> {
 	@Column(name = "b_RemoteLockSet")
 	private Integer BRemotelockset;
 
-
 	@Column(name="forcePasswordReset")
 	private Boolean forcePasswordReset;
+	
+	@Column(name="oneIdKey")
+	private String oneIdKey = "";
+	
+	@Column(name = "oneIdEmail")
+	private String oneIdEmail = "";
+	
+	@Column(name = "delegateOneIdEmail")
+	private String delagateOneIdEmail = "";
+	
+	@Column(name = "totp_enabled")
+	private Boolean totpEnabled = false;
+	
+	@Column(name = "totp_secret")
+	private String totpSecret = "";
+	
+	@Column(name = "totp_digits")
+	private Integer totpDigits = 6;
+	
+	@Column(name = "totp_algorithm")
+	private String totpAlgorithm = "sha1";
+
+	@Column(name = "totp_period")
+	private Integer totpPeriod = 30;
 
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date passwordUpdateDate;
@@ -97,16 +128,16 @@ public class SecurityArchive extends AbstractModel<Integer> {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date pinUpdateDate;
 	
-	private String lastUpdateUser;
-	
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date lastUpdateDate;
+		
+	private String lastUpdateUser;
+
+
 	
 	public Integer getId() {
 		return id;
 	}
-
-
 	public void setId(Integer id) {
 		this.id = id;
 	}
@@ -115,8 +146,6 @@ public class SecurityArchive extends AbstractModel<Integer> {
 	public Integer getSecurityNo() {
 		return securityNo;
 	}
-
-
 	public void setSecurityNo(Integer securityNo) {
 		this.securityNo = securityNo;
 	}
@@ -125,8 +154,6 @@ public class SecurityArchive extends AbstractModel<Integer> {
 	public String getUserName() {
 		return userName;
 	}
-
-
 	public void setUserName(String userName) {
 		this.userName = userName;
 	}
@@ -135,8 +162,6 @@ public class SecurityArchive extends AbstractModel<Integer> {
 	public String getPassword() {
 		return password;
 	}
-
-
 	public void setPassword(String password) {
 		this.password = password;
 	}
@@ -145,8 +170,6 @@ public class SecurityArchive extends AbstractModel<Integer> {
 	public String getProviderNo() {
 		return providerNo;
 	}
-
-
 	public void setProviderNo(String providerNo) {
 		this.providerNo = providerNo;
 	}
@@ -155,8 +178,6 @@ public class SecurityArchive extends AbstractModel<Integer> {
 	public String getPin() {
 		return pin;
 	}
-
-
 	public void setPin(String pin) {
 		this.pin = pin;
 	}
@@ -165,8 +186,6 @@ public class SecurityArchive extends AbstractModel<Integer> {
 	public Integer getBExpireset() {
 		return BExpireset;
 	}
-
-
 	public void setBExpireset(Integer bExpireset) {
 		BExpireset = bExpireset;
 	}
@@ -175,8 +194,6 @@ public class SecurityArchive extends AbstractModel<Integer> {
 	public Date getDateExpiredate() {
 		return dateExpiredate;
 	}
-
-
 	public void setDateExpiredate(Date dateExpiredate) {
 		this.dateExpiredate = dateExpiredate;
 	}
@@ -185,8 +202,6 @@ public class SecurityArchive extends AbstractModel<Integer> {
 	public Integer getBLocallockset() {
 		return BLocallockset;
 	}
-
-
 	public void setBLocallockset(Integer bLocallockset) {
 		BLocallockset = bLocallockset;
 	}
@@ -195,8 +210,6 @@ public class SecurityArchive extends AbstractModel<Integer> {
 	public Integer getBRemotelockset() {
 		return BRemotelockset;
 	}
-
-
 	public void setBRemotelockset(Integer bRemotelockset) {
 		BRemotelockset = bRemotelockset;
 	}
@@ -205,8 +218,6 @@ public class SecurityArchive extends AbstractModel<Integer> {
 	public Boolean getForcePasswordReset() {
 		return forcePasswordReset;
 	}
-
-
 	public void setForcePasswordReset(Boolean forcePasswordReset) {
 		this.forcePasswordReset = forcePasswordReset;
 	}
@@ -214,7 +225,6 @@ public class SecurityArchive extends AbstractModel<Integer> {
 	public Date getPasswordUpdateDate() {
 		return passwordUpdateDate;
 	}
-
 	public void setPasswordUpdateDate(Date passwordUpdateDate) {
 		this.passwordUpdateDate = passwordUpdateDate;
 	}
@@ -222,7 +232,6 @@ public class SecurityArchive extends AbstractModel<Integer> {
 	public Date getPinUpdateDate() {
 		return pinUpdateDate;
 	}
-
 	public void setPinUpdateDate(Date pinUpdateDate) {
 		this.pinUpdateDate = pinUpdateDate;
 	}
@@ -230,7 +239,6 @@ public class SecurityArchive extends AbstractModel<Integer> {
 	public String getLastUpdateUser() {
 		return lastUpdateUser;
 	}
-
 	public void setLastUpdateUser(String lastUpdateUser) {
 		this.lastUpdateUser = lastUpdateUser;
 	}
@@ -238,10 +246,63 @@ public class SecurityArchive extends AbstractModel<Integer> {
 	public Date getLastUpdateDate() {
 		return lastUpdateDate;
 	}
-
 	public void setLastUpdateDate(Date lastUpdateDate) {
 		this.lastUpdateDate = lastUpdateDate;
 	}
 	
+	public String getOneIdKey() {
+		return oneIdKey;
+	}
+	public void setOneIdKey(String oneIdKey) {
+		this.oneIdKey = oneIdKey;
+	}
+
+	public String getOneIdEmail() {
+		return oneIdEmail;
+	}
+	public void setOneIdEmail(String oneIdEmail) {
+		this.oneIdEmail = oneIdEmail;
+	}
+
+	public String getDelagateOneIdEmail() {
+		return delagateOneIdEmail;
+	}
+	public void setDelagateOneIdEmail(String delagateOneIdEmail) {
+		this.delagateOneIdEmail = delagateOneIdEmail;
+	}
+
+	public Boolean isTotpEnabled() {
+		return totpEnabled;
+	}	
+	public void setTotpEnabled(Boolean totpEnabled) {
+		this.totpEnabled = totpEnabled;
+	}
+
+	public String getTotpSecret() {
+		return totpSecret;
+	}
+	public void setTotpSecret(String totpSecret) {
+		this.totpSecret = totpSecret;
+	}
+		
+	public Integer getTotpDigits() {
+		return totpDigits;
+	}	
+	public void setTotpDigits(Integer totpDigits) {
+		this.totpDigits = totpDigits;
+	}
+
+	public String getTotpAlgorithm() {
+		return totpAlgorithm;
+	}
+	public void setTotpAlgorithm(String totpAlgorithm) {
+		this.totpAlgorithm = totpAlgorithm;
+	}
 	
+	public Integer getTotpPeriod() {
+		return totpPeriod;
+	}	
+	public void setTotpPeriod(Integer totpPeriod) {
+		this.totpPeriod = totpPeriod;
+	}
 }

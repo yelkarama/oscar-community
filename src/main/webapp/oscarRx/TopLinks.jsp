@@ -40,7 +40,7 @@
 		<td id="topLinkCenterColumn" >
 
 		<c:if test="${ not empty param.patientName }" >
-	        <a href="#" onClick="popupPage(700,1000,'${ param.title }','${ url }'); return false;" 
+	        <a href="javascript:void(0)" onClick="popupPage(700,1000,'${ url }'); return false;" 
 	        	title="<bean:message key="provider.appointmentProviderAdminDay.msgMasterFile"/>" > 
 	        	<c:out value="${ param.patientName }" />
 	        </a> 
@@ -86,9 +86,9 @@
 		</td>
 
 	<td id="topLinkRightColumn">
-	 		<span class="HelpAboutLogout" style="color:white;">
-                 <oscar:help keywords="2.2.4" key="app.top1" style="color:white;" />
-                 <a style="color:white;" href="${ ctx }/oscarEncounter/About.jsp" target="_new">About</a>
+	 		<span class="HelpAboutLogout" style="color:black;">
+		<oscar:help keywords="Preferred+Pharmacies" key="app.top1" style="color:white;"/> |
+                 <a style="color:black;" href="${ ctx }/oscarEncounter/About.jsp" target="_new">About</a>
              </span>
 	</td>
 </tr>

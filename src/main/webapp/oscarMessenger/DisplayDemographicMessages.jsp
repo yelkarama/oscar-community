@@ -150,8 +150,8 @@ function unlink(){
 		<table class="TopStatusBar">
 			<tr>
 				<td>
-				<div class="DivContentTitle">Messages related to <%=demographic_name%>
-				</div>
+				<div class="DivContentTitle"><h2>Messages related to <%=demographic_name%>
+				</h2></div>
 				</td>
 				<td></td>
 				<td style="text-align: right">
@@ -246,21 +246,21 @@ function unlink(){
                                         String isLastMsg = "false";
                             %>
 						<tr>
-							<td bgcolor="#EEEEFF" width="75"><html:checkbox
-								property="messageNo" value="<%=dm.messageId %>" /> <% String atta = dm.attach;
+							<td class='<%= dm.getType() == 3 ? "integratedMessage" : "normalMessage" %>' width="75"><html:checkbox
+								property="messageNo" value="<%=dm.getMessageId() %>" /> <% String atta = dm.getAttach();
                                             if (atta.equals("1")){
                                             %><img src="img/clip4.jpg">
 							<%
                                             }
                                          %> &nbsp;</td>
 
-							<td bgcolor="#EEEEFF"><%= dm.sentby  %></td>
-							<td bgcolor="#EEEEFF"><a
-								href="<%=request.getContextPath()%>/oscarMessenger/ViewMessage.do?from=encounter&demographic_no=<%=demographic_no%>&msgCount=<%=msgCount%>&orderBy=<%=orderby%>&messageID=<%=dm.messageId%>&messagePosition=<%=dm.messagePosition%>">
-							<%=dm.thesubject%> </a></td>
-							<td bgcolor="#EEEEFF"><%= dm.thedate  %></td>
-                                                        <td bgcolor="#EEEEFF">
-                                                            <oscar:nameage demographicNo="<%=dm.demographic_no%>"></oscar:nameage>
+							<td class='<%= dm.getType() == 3 ? "integratedMessage" : "normalMessage" %>'><%= dm.getSentby()  %></td>
+							<td class='<%= dm.getType() == 3 ? "integratedMessage" : "normalMessage" %>'><a
+								href="<%=request.getContextPath()%>/oscarMessenger/ViewMessage.do?from=encounter&demographic_no=<%=demographic_no%>&msgCount=<%=msgCount%>&orderBy=<%=orderby%>&messageID=<%=dm.getMessageId()%>&messagePosition=<%=dm.getMessagePosition()%>">
+							<%=dm.getThesubject()%> </a></td>
+							<td class='<%= dm.getType() == 3 ? "integratedMessage" : "normalMessage" %>'><%= dm.getThedate()  %></td>
+                                                        <td class='<%= dm.getType() == 3 ? "integratedMessage" : "normalMessage" %>'>
+                                                            <oscar:nameage demographicNo="<%=dm.getDemographic_no()%>"></oscar:nameage>
                                                         </td>
 						</tr>
 						<%}%>

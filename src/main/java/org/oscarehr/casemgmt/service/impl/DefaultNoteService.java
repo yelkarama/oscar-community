@@ -41,6 +41,7 @@ import org.oscarehr.caisi_integrator.ws.CachedDemographicNote;
 import org.oscarehr.caisi_integrator.ws.CachedDemographicNoteCompositePk;
 import org.oscarehr.casemgmt.common.EChartNoteEntry;
 import org.oscarehr.casemgmt.dao.CaseManagementNoteDAO;
+import org.oscarehr.casemgmt.model.CaseManagementIssue;
 import org.oscarehr.casemgmt.model.CaseManagementNote;
 import org.oscarehr.casemgmt.service.CaseManagementManager;
 import org.oscarehr.casemgmt.service.NoteSelectionCriteria;
@@ -209,7 +210,7 @@ public class DefaultNoteService implements NoteService {
 				try {
 					e.setDate(sdf.parse(date));
 				} catch (ParseException e1) {
-					logger.error("Unable to parse date " + date, e1);
+					logger.error("Unable to parse date " + date + " for note " + e.getId(), e1);
 				}
 				e.setProviderNo((String) h1.get("provider_no"));
 				//e.setProgramId(Integer.parseInt((String)note[3]));
@@ -261,6 +262,11 @@ public class DefaultNoteService implements NoteService {
 		//apply issues filter
 		entries = applyIssueFilter1(entries, criteria.getIssues());
 		logger.debug("FILTER NOTES ISSUES " + (System.currentTimeMillis() - intTime) + "ms entries size "+entries.size());
+		intTime = System.currentTimeMillis();
+
+		//apply date range filter
+		entries = applyDateRangeFilter1(entries,criteria.getStartDate(),criteria.getEndDate());
+		logger.debug("FILTER NOTES BY DATE " + (System.currentTimeMillis() - intTime) + "ms entries size "+entries.size());
 		intTime = System.currentTimeMillis();
 
 		NoteSelectionResult result = new NoteSelectionResult();
@@ -532,13 +538,48 @@ public class DefaultNoteService implements NoteService {
 		return filteredNotes;
 	}
 
+	private List<EChartNoteEntry> applyDateRangeFilter1(List<EChartNoteEntry> notes, Date startDate, Date endDate) {
+		List<EChartNoteEntry> filteredNotes = new ArrayList<EChartNoteEntry>();
+
+		for(EChartNoteEntry note:notes) {
+			if(startDate == null && endDate == null) {
+				filteredNotes.add(note);
+			} else if(startDate != null && endDate == null) {
+				if(note.getDate().after(startDate)) {
+					filteredNotes.add(note);
+				}
+			} else if(startDate == null && endDate != null) {
+				if(note.getDate().before(endDate)) {
+					filteredNotes.add(note);
+				}
+			} else {
+				if(note.getDate().after(startDate) && note.getDate().before(endDate)) {
+					filteredNotes.add(note);
+				}
+			}
+		}
+		return filteredNotes;
+	}
+	
 	private List<EChartNoteEntry> applyIssueFilter1(List<EChartNoteEntry> notes, List<String> issueId) {
 		if (issueId.isEmpty() || issueId.contains("a")) {
 			return notes;
 		}
-
+		
 		List<EChartNoteEntry> filteredNotes = new ArrayList<EChartNoteEntry>();
 
+		
+		if(issueId.contains("n")) {
+			for(EChartNoteEntry e:notes) {
+				List<CaseManagementIssue> issues = cmeIssueNotesDao.getNoteIssues((Integer.valueOf(e.getId().toString())));
+				if(issues.size() == 0 ) {
+					filteredNotes.add(e);
+				}
+			}
+			return filteredNotes;
+		}
+
+		
 		List<Integer> noteIds = cmeIssueNotesDao.getNoteIdsWhichHaveIssues(issueId.toArray(new String[] {}));
 
 		//Integer

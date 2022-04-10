@@ -97,6 +97,10 @@ public class ProgramManager2 {
 		return (results);
 	}
 	
+	public ProgramProvider getCurrentProgramInDomain(LoggedInInfo loggedInInfo) {
+		return getCurrentProgramInDomain(loggedInInfo, loggedInInfo.getLoggedInProviderNo());
+	}
+	
 	public ProgramProvider getCurrentProgramInDomain(LoggedInInfo loggedInInfo, String providerNo) {
 		ProgramProvider result = null;
 		int defProgramId = 0;
@@ -107,11 +111,7 @@ public class ProgramManager2 {
     		   result =  programProviderDAO.getProgramProvider(providerNo, Long.valueOf(defProgramId));
     	   }
         }
-        
-        if(result !=null) {
-        	LogAction.addLogSynchronous(loggedInInfo, "ProgramManager2.getCurrentProgramInDomain", "id returned=" + result.getId());
-        }
-        
+               
         return (result);
 	}
 	

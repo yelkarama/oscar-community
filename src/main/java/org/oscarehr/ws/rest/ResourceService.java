@@ -378,8 +378,12 @@ public class ResourceService extends AbstractServiceImpl {
 		try{
 			LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
 			String notificationStr = getResource(loggedInInfo,"/ws/api/notification","/ws/api/notification");
-			JSONObject notifyObject = JSONObject.fromObject(notificationStr);
-			k2aNoficationCount = notifyObject.getString("numberOfNotifications");
+			if( notificationStr != null ){
+			  JSONObject notifyObject = JSONObject.fromObject(notificationStr);
+			  if(notifyObject.has("numberOfNotifications")) {
+				k2aNoficationCount = notifyObject.getString("numberOfNotifications");
+			  }
+			}
 		}catch(Exception e){
 			logger.error("Error geting notifcations",e);
 		}

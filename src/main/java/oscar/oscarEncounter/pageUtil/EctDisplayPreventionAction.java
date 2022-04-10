@@ -29,11 +29,13 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.struts.util.MessageResources;
+import org.oscarehr.caisi_integrator.ws.CachedDemographicPrevention;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.SpringUtils;
 
@@ -59,6 +61,7 @@ public class EctDisplayPreventionAction extends EctDisplayAction {
 
         //set lefthand module heading and link
         String winName = "prevention" + bean.demographicNo;
+        int demographicNumber = Integer.valueOf(bean.demographicNo);
         String url = "popupPage(700,960,'" + winName + "', '" + request.getContextPath() + "/oscarPrevention/index.jsp?demographic_no=" + bean.demographicNo + "')";
         Dao.setLeftHeading(messages.getMessage(request.getLocale(), "oscarEncounter.LeftNavBar.Prevent"));
         Dao.setLeftURL(url);
@@ -83,32 +86,44 @@ public class EctDisplayPreventionAction extends EctDisplayAction {
         ArrayList<HashMap<String,String>> prevList = pdc.getPreventions();
         Map warningTable = p.getWarningMsgs();
 
-
-
         String highliteColour = "#FF0000";
         String inelligibleColour = "#FF6600";
         String pendingColour = "#FF00FF";
         Date date = null;
-        //Date defaultDate = new Date(System.currentTimeMillis());
+
         url += "; return false;";
         ArrayList<NavBarDisplayDAO.Item> warnings = new ArrayList<NavBarDisplayDAO.Item>();
         ArrayList<NavBarDisplayDAO.Item> items = new ArrayList<NavBarDisplayDAO.Item>();
         String result;
-        Date demographicDateOfBirth=PreventionData.getDemographicDateOfBirth(loggedInInfo, Integer.valueOf(bean.demographicNo));
+        Date demographicDateOfBirth=PreventionData.getDemographicDateOfBirth(loggedInInfo, demographicNumber);
+
+        // fetch and cache any remote integrated preventions.
+        List<CachedDemographicPrevention> integratedPreventions = null;
+        List<CachedDemographicPrevention> remotePreventions = PreventionData.getRemotePreventions(loggedInInfo, demographicNumber);
+        
+        if(remotePreventions.size() > 0)
+        {
+        	integratedPreventions = new ArrayList<CachedDemographicPrevention>();
+        	integratedPreventions.addAll(remotePreventions);
+        }
 
         for (int i = 0 ; i < prevList.size(); i++){
             NavBarDisplayDAO.Item item = NavBarDisplayDAO.Item();
             HashMap<String,String> h = prevList.get(i);
             String prevName = h.get("name");
-            ArrayList<Map<String,Object>> alist = PreventionData.getPreventionData(loggedInInfo, prevName, Integer.valueOf(bean.demographicNo));
-            PreventionData.addRemotePreventions(loggedInInfo, alist, Integer.valueOf(bean.demographicNo),prevName,demographicDateOfBirth);
+            ArrayList<Map<String,Object>> alist = PreventionData.getPreventionData(loggedInInfo, prevName, demographicNumber);
+            
+            if(integratedPreventions != null) {
+            	PreventionData.addRemotePreventions(loggedInInfo, integratedPreventions, alist, prevName,demographicDateOfBirth);
+            }
+            
             boolean show = pdc.display(loggedInInfo, h, bean.demographicNo,alist.size());
             if( show ) {
                 if( alist.size() > 0 ) {
                     Map<String,Object> hdata = alist.get(alist.size()-1);
                     Map<String,String> hExt = PreventionData.getPreventionKeyValues((String)hdata.get("id"));
                     result = hExt.get("result");
-
+                    
                     Object dateObj = hdata.get("prevention_date_asDate");
                     if(dateObj instanceof Date){
                     	date = (Date) dateObj;
@@ -124,6 +139,12 @@ public class EctDisplayPreventionAction extends EctDisplayAction {
                     }
                     else if( result != null && result.equalsIgnoreCase("pending") ) {
                         item.setColour(pendingColour);
+                    }
+                    
+                    if(hdata.containsKey("integratorDemographicId"))
+                    {
+                    	item.setBgColour("#FFCCCC");
+                    	
                     }
                 }
                 else {
@@ -151,11 +172,15 @@ public class EctDisplayPreventionAction extends EctDisplayAction {
 
         //add warnings to Dao array first so they will be at top of list
         for(int idx = 0; idx < warnings.size(); ++idx )
+        {
             Dao.addItem(warnings.get(idx));
+        }
 
         //now copy remaining sorted items
         for(int idx = 0; idx < items.size(); ++idx)
+        {
             Dao.addItem(items.get(idx));
+        }
 
         return true;
     }

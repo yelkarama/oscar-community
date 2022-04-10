@@ -27,31 +27,25 @@ package org.oscarehr.common.model;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.Hashtable;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
-
-import javax.persistence.OneToMany;
-import javax.persistence.Transient;
-
 import java.util.regex.Matcher;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.oscarehr.PMmodule.utility.DateTimeFormatUtils;
 import org.oscarehr.PMmodule.utility.Utility;
-import org.oscarehr.common.model.DemographicExt.DemographicProperty;
 import org.oscarehr.util.MiscUtils;
 
 /**
  * This is the object class that relates to the demographic table. Any customizations belong here.
  */
+//@Entity   
+//@Table(name = "demographic") 
 public class Demographic extends AbstractModel<Integer> implements Serializable {
 
 	private static final String DEFAULT_MONTH = "01";
@@ -64,78 +58,144 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 	public static final String ANONYMOUS = "ANONYMOUS";
 	public static final String UNIQUE_ANONYMOUS = "UNIQUE_ANONYMOUS";
 	
-	private final static Pattern FD_LAST_NAME = Pattern.compile(".*<rd>([^,]*),.*</rd>.*");
-	private final static Pattern FD_FIRST_NAME = Pattern.compile(".*<rd>[^,]*,(.*)</rd>.*");
-	private final static Pattern FD_OHIP = Pattern.compile("<rdohip>(.*)</rdohip>.*");
+	private final static Pattern FD_LAST_NAME = Pattern.compile(".*<([fr])d>([^,]*),.*</([fr])d>.*");
+	private final static Pattern FD_FIRST_NAME = Pattern.compile(".*<([fr])d>[^,]*,(.*)</([fr])d>.*");
+	private final static Pattern FD_FULL_NAME = Pattern.compile(".*<([fr])d>(.*)</([fr])d>.*");
+	private final static Pattern FD_OHIP = Pattern.compile("<([fr])dohip>(.*)</[fr]dohip>.*");
 	
 	
 	private int hashCode = Integer.MIN_VALUE;// primary key
+
+	// @Column(name = "demographic_no")	
 	private Integer demographicNo;// fields
-	private String phone;
-	private String patientStatus;
-	private Date patientStatusDate;
-	private String rosterStatus;
-	private String providerNo;
-	private String myOscarUserName;
-	private String hin;
-	private String address;
-	private String province;
-	private String monthOfBirth;
-	private String ver;
-	private String dateOfBirth;
-	private String sex;
-	private String sexDesc;
-	private Date dateJoined;
-	private String familyDoctor;
-	private String city;
-	private String firstName;
-	private String postal;
-	private Date hcRenewDate;
-	private String phone2;
-	private String pcnIndicator;
-	private Date endDate;
+	// @Column(name = "title")
+	private String title;
+	// @Column(name = "last_name")
 	private String lastName;
-	private String hcType;
-	private String chartNo;
+	// @Column(name = "first_name")
+	private String firstName;
+	// Depreccated not used
+	private String middleName;
+	// @Column(name = "middleNames")
+	private String middleNames;
+	// @Column(name = "alias")
+	private String alias;
+	// @Column(name = "pref_name")
+	private String prefName = "";
+	// @Column(name = "pref_name")
+	private String address;
+	// @Column(name = "address")
+	private String city;
+	// @Column(name = "city")
+	private String province;
+	// @Column(name = "province")
+	private String postal;
+	// @Column(name = "phone")
+	private String phone;
+	// @Column(name = "phone2")
+	private String phone2;
+	// @Column(name = "email")
 	private String email;
+	// @Column(name = "consentToUseEmailForCare")
+	private Boolean consentToUseEmailForCare;
+	// @Column(name = "myOscarUserName")
+	private String myOscarUserName;
+	// @Column(name = "year_of_birth")
 	private String yearOfBirth;
+	// @Column(name = "month_of_birth")
+	private String monthOfBirth;
+	// @Column(name = "date_of_birth")
+	private String dateOfBirth;
+	// @Column(name = "hin")
+	private String hin;
+	// @Column(name = "ver")
+	private String ver;
+	// @Column(name = "roster_status")
+	private String rosterStatus;
+	// @Column(name = "patient_status")
+	private String patientStatus;
+	// @Column(name = "date_joined")
+	// this is the date that the demographic was created in OSCAR
+	private Date dateJoined;
+	// @Column(name = "chart_no")
+	private String chartNo;
+	// @Column(name = "official_lang")
+	private String officialLanguage;
+	// @Column(name = "spoken_lang")
+	private String spokenLanguage;
+	// @Column(name = "provider_no")
+	private String providerNo;
+	// @Column(name = "sex")
+	private String sex;
+	// @Column(name = "end_date")
+	private Date endDate;
+	// @Column(name = "eff_date")
 	private Date effDate;
+	// @Column(name = "pcn_indicator")
+	private String pcnIndicator;
+	// @Column(name = "hc_type")
+	private String hcType;
+	// @Column(name = "hc_renew_date")
+	private Date hcRenewDate;
+	// @Column(name = "family_doctor")
+	private String familyDoctor;
+	// @Column(name = "family_physican") 
+	// Kai concept
+	private String familyPhysician;
+	// @Column(name = "previousAddress")
+	private String previousAddress;
+	// @Column(name = "children")
+	// deprecated use contacts
+	private String children;
+	// @Column(name = "sourceOfIncome")
+	private String sourceOfIncome;
+	// @Column(name = "citizenship")
+	private String citizenship;
+	// @Column(name = "sin")
+	private String sin;
+	// @Column(name = "country_of_origin")
+    private String countryOfOrigin;
+	// @Column(name = "newsletter")
+    private String newsletter;
+	// @Column(name = "anonymous")
+	private String anonymous = null;
+	// @Column(name = "lastUpdateUser")
+	private String lastUpdateUser = null;
+	// @Column(name = "lastUpdateDate")
+	private Date lastUpdateDate = new Date();
+	// @Column(name = "roster_date")
 	private Date rosterDate;
+	// @Column(name = "patient_status_date")
+	private Date patientStatusDate;
+	// @Column(name = "roster_termination_date")
 	private Date rosterTerminationDate;
+	// @Column(name = "roster_termination_reason")
 	private String rosterTerminationReason;
+	// @Column(name = "residentialAddress")
+	// new concepts for OSCAR 19
+	private String residentialAddress;
+	// @Column(name = "residentialCity")
+    private String residentialCity;
+	// @Column(name = "residentialProvince")
+	private String residentialProvince;
+	// @Column(name = "residentialPostal")
+	private String residentialPostal;
+	// @Column(name = "roster_enrolled_to")
+    private String rosterEnrolledTo;
+	
+	private String sexDesc;
+	private String cellPhone;
 	private String links;
 	private DemographicExt[] extras;
-	private String alias;
-	private String previousAddress;
-	private String children;
-	private String sourceOfIncome;
-	private String citizenship;
-	private String sin;
 	private Integer headRecord = null;
 	private Set<Integer> subRecord = null;
-	private String anonymous = null;
-	private String spokenLanguage;
-
 	private int activeCount = 0;
 	private int hsAlertCount = 0;
 	private String displayName=null;
 
 	private Provider provider;
-	private String lastUpdateUser = null;
-	private Date lastUpdateDate = new Date();
 
-	private String title;
-	private String officialLanguage;
-
-    private String countryOfOrigin;
-    private String newsletter;
-    
-	@OneToMany(mappedBy="demographic")
-    private List<DemographicExt> demographicExts;
-	
-	@Transient
-	private Hashtable<String, String> demographicExtendedProperties;
-
+   
         public String getTitle() {
         	return title;
         }
@@ -508,6 +568,22 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 	public void setDateJoined(Date dateJoined) {
 		this.dateJoined = dateJoined;
 	}
+	
+	/**
+	 * Set the value related to the column: family_physician
+	 *
+	 * @param familyPhysician the family_doctor value
+	 */
+	public void setFamilyPhysician(String familyPhysician) {
+		this.familyPhysician = familyPhysician;
+	}
+	
+	/**
+     * Return the value associated with the column: family_physician
+     */
+    public String getFamilyPhysician() {
+        return familyPhysician;
+    }
 
 	/**
 	 * Return the value associated with the column: family_doctor
@@ -552,6 +628,17 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 		}
 		return "";
 	}
+	
+	/**
+	 * Return the full name as parsed from column: family_doctor
+	 */	
+	public String getFamilyDoctorFullName() {
+		Matcher m = FD_FULL_NAME.matcher(getFamilyDoctor());
+		if(m.find()) {
+			return m.group(2);
+		}
+		return "";
+	}
 
 	/**
 	 * Return the doctor number as parsed from column: family_doctor
@@ -567,6 +654,57 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 		return "";
 	}
 
+	/**
+	 * Return the last name as parsed from column: family_physician
+	 */
+	public String getFamilyPhysicianLastName() {
+
+		Matcher m = FD_LAST_NAME.matcher(getFamilyPhysician());
+
+		if(m.find()) {
+			return m.group(1);
+		}
+		return "";
+	}
+
+	/**
+	 * Return the first name as parsed from column: family_physician
+	 */
+	public String getFamilyPhysicianFirstName() {
+		Matcher m = FD_FIRST_NAME.matcher(getFamilyPhysician());
+
+		if(m.find()) {
+			return m.group(1);
+		}
+		return "";
+	}
+
+	/**
+	 * Return the first name as parsed from column: family_physician
+	 */
+	public String getFamilyPhysicianFullName() {
+		Matcher m = FD_FULL_NAME.matcher(getFamilyPhysician());
+
+		if(m.find()) {
+			return m.group(2);
+		}
+		return "";
+	}
+
+	/**
+	 * Return the FP OHIP number as parsed from column: family_physician
+	 */
+	public String getFamilyPhysicianNumber() {
+
+		Matcher m = FD_OHIP.matcher(getFamilyPhysician());
+
+		if(m.find()) {
+			return m.group(1);
+		}
+		
+		return "";
+	}
+	
 	/**
 	 * Return the value associated with the column: city
 	 */
@@ -608,6 +746,22 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 	public void setFirstName(String firstName) {
 		this.firstName = firstName;
 	}
+	
+	/**
+	 * Gets demographic's preferred name.
+	 *
+	 * @return
+	 * 		Returns the preferred name.
+	 */
+	public String getPrefName() {return prefName;}
+
+	/**
+	 * Set the value related to the column: pref_name
+	 *
+	 * @param prefName the pref_name value
+	 */
+	public void setPrefName(String prefName) {this.prefName = prefName;}
+
 
 	/**
 	 * Return the value associated with the column: postal
@@ -922,7 +1076,6 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 
 	protected void initialize() {
 		links = StringUtils.EMPTY;
-		this.demographicExts = new ArrayList<DemographicExt>();
 	}
 
 	public String addZero(String text, int num) {
@@ -1138,172 +1291,25 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
     	this.newsletter = newsletter;
     }
 
-    public List<DemographicExt> getDemographicExts() {
-		return demographicExts;
+	public String getMiddleNames() {
+		return middleNames;
 	}
 
-	public void setDemographicExts(List<DemographicExt> demographicExts) {
-		this.demographicExts = demographicExts;
+	public void setMiddleNames(String middleNames) {
+		this.middleNames = middleNames;
 	}
+
 	
-	public DemographicExt addDemographicExt( DemographicExt demographicExt ) {
-		getDemographicExts().add( demographicExt );
-		demographicExt.setDemographic(this);
-		return demographicExt;
+
+	public String getRosterEnrolledTo() {
+		return rosterEnrolledTo;
 	}
 
-	public Hashtable<String, String> getDemographicExtendedProperties() {
-		if( demographicExtendedProperties == null ) {
-			demographicExtendedProperties = new Hashtable<String, String>();
-		}
-		return demographicExtendedProperties;
-	}
-	
-	public void addDemographicExtendedProperty( DemographicExt demographicExtendedProperty ) {
-		getDemographicExtendedProperties().put(demographicExtendedProperty.getKey(), demographicExtendedProperty.getValue() );
-	}
-	
-	public String getDemographicExtendedProperty( DemographicProperty property ) {
-		return getDemographicExtendedProperties().get( property.name() );
+	public void setRosterEnrolledTo(String rosterEnrolledTo) {
+		this.rosterEnrolledTo = rosterEnrolledTo;
 	}
 
-	public void setDemographicExtendedProperties( Hashtable<String, String> demographicExtendedProperties ) {
-		if( this.getDemographicExts() != null && demographicExtendedProperties.isEmpty() ) {
-			for( DemographicExt demographicExt : getDemographicExts() ) {
-				addDemographicExtendedProperty( demographicExt );
-			}
-		}
-		
-		this.demographicExtendedProperties = demographicExtendedProperties;
-	}
-	
-	public void addDemographicExtendedProperty( DemographicProperty key, String value ) {		
-		DemographicExt demographicExt = new DemographicExt();
-		demographicExt.setKey( key.name() );
-		demographicExt.setValue(value);
-		
-		addDemographicExt( demographicExt );
-	}
 
-	public String getPHU() {
-		return getDemographicExtendedProperty( DemographicProperty.PHU );
-	}
-
-	public void setPHU(String PHU) {
-		addDemographicExtendedProperty( DemographicProperty.PHU, PHU );
-	}
-
-	public String getEmploymentStatus() {
-		return getDemographicExtendedProperty( DemographicProperty.EmploymentStatus );
-	}
-
-	public void setEmploymentStatus(String employmentStatus) {
-		addDemographicExtendedProperty( DemographicProperty.EmploymentStatus , employmentStatus );
-	}
-
-	public String getHasPrimaryCarePhyscian() {
-		return getDemographicExtendedProperty( DemographicProperty.HasPrimaryCarePhyscian );
-	}
-
-	public void setHasPrimaryCarePhyscian(String hasPrimaryCarePhyscian) {
-		addDemographicExtendedProperty( DemographicProperty.HasPrimaryCarePhyscian , hasPrimaryCarePhyscian );
-	}
-
-	public String getInformedConsent() {
-		return getDemographicExtendedProperty( DemographicProperty.informedConsent );
-	}
-
-	public void setInformedConsent(String informedConsent) {
-		addDemographicExtendedProperty( DemographicProperty.informedConsent , informedConsent );
-	}
-
-	public String getPrivacyConsent() {
-		return getDemographicExtendedProperty( DemographicProperty.privacyConsent );
-	}
-
-	public void setPrivacyConsent(String privacyConsent) {
-		addDemographicExtendedProperty( DemographicProperty.privacyConsent , privacyConsent );
-	}
-
-	public String getUsSigned() {
-		return getDemographicExtendedProperty( DemographicProperty.usSigned );
-	}
-
-	public void setUsSigned(String usSigned) {
-		addDemographicExtendedProperty( DemographicProperty.usSigned , usSigned );
-	}
-
-	public String getfNationCom() {
-		return getDemographicExtendedProperty( DemographicProperty.fNationCom );
-	}
-
-	public void setfNationCom(String fNationCom) {
-		addDemographicExtendedProperty( DemographicProperty.fNationCom , fNationCom );
-	}
-
-	public String getStatusNum() {
-		return getDemographicExtendedProperty( DemographicProperty.statusNum );
-	}
-
-	public void setStatusNum(String statusNum) {
-		addDemographicExtendedProperty( DemographicProperty.statusNum , statusNum );
-	}
-
-	public String getArea() {
-		return getDemographicExtendedProperty( DemographicProperty.area );
-	}
-
-	public void setArea(String area) {
-		addDemographicExtendedProperty( DemographicProperty.area , area );
-	}
-
-	public String getEthnicity() {
-		return getDemographicExtendedProperty( DemographicProperty.ethnicity);
-	}
-
-	public void setEthnicity(String ethnicity) {
-		addDemographicExtendedProperty( DemographicProperty.ethnicity , ethnicity );
-	}
-
-	public String getCytolNum() {
-		return getDemographicExtendedProperty( DemographicProperty.cytolNum );
-	}
-
-	public void setCytolNum(String cytolNum) {
-		addDemographicExtendedProperty( DemographicProperty.cytolNum , cytolNum );
-	}
-
-	public String getwPhoneExt() {
-		return getDemographicExtendedProperty( DemographicProperty.wPhoneExt );
-	}
-
-	public void setwPhoneExt(String wPhoneExt) {
-		addDemographicExtendedProperty( DemographicProperty.wPhoneExt , wPhoneExt );
-	}
-
-	public String gethPhoneExt() {
-		return getDemographicExtendedProperty( DemographicProperty.hPhoneExt );
-	}
-
-	public void sethPhoneExt(String hPhoneExt) {
-		addDemographicExtendedProperty( DemographicProperty.hPhoneExt , hPhoneExt );
-	}
-
-	public String getDemo_cell() {
-		return getDemographicExtendedProperty( DemographicProperty.demo_cell );
-	}
-
-	public void setDemo_cell(String demo_cell) {
-		addDemographicExtendedProperty( DemographicProperty.demo_cell , demo_cell );
-	}
-
-	public String getPhoneComment() {
-		return getDemographicExtendedProperty( DemographicProperty.phoneComment );
-	}
-
-	public void setPhoneComment(String phoneComment) {
-		addDemographicExtendedProperty( DemographicProperty.phoneComment , phoneComment );
-	}
 
 	public static final Comparator<Demographic> FormattedNameComparator = new Comparator<Demographic>() {	
         @Override	
@@ -1398,9 +1404,77 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 		return sb.toString();
 	}
 
+	public String getCellPhone() {
+		return cellPhone;
+	}
+	
+	public void setCellPhone(String cellPhone) {
+		this.cellPhone = cellPhone;
+	}
+	
 	@Override
 	public Integer getId() {
 		return this.getDemographicNo();
 	}
+	
+	
+	public String getRosterStatusDisplay() {
+		String rs = StringUtils.trimToNull(this.getRosterStatus());
+		if(rs != null) {
+			if("RO".equals(rs)) {
+				return "ROSTERED";
+			}
+			if("TE".equals(rs)) {
+				return "TERMINATED";
+			}
+			if("FS".equals(rs)) {
+				return "FEE FOR SERVICE";
+			}
+			return rs;
+		}else {
+			return "";
+		}
+	}
+
+	public String getResidentialAddress() {
+		return residentialAddress;
+	}
+
+	public void setResidentialAddress(String residentialAddress) {
+		this.residentialAddress = residentialAddress;
+	}
+
+	public String getResidentialCity() {
+		return residentialCity;
+	}
+
+	public void setResidentialCity(String residentialCity) {
+		this.residentialCity = residentialCity;
+	}
+
+	public String getResidentialProvince() {
+		return residentialProvince;
+	}
+
+	public void setResidentialProvince(String residentialProvince) {
+		this.residentialProvince = residentialProvince;
+	}
+
+	public String getResidentialPostal() {
+		return residentialPostal;
+	}
+
+	public void setResidentialPostal(String residentialPostal) {
+		this.residentialPostal = residentialPostal;
+	}
+
+	public Boolean getConsentToUseEmailForCare() {
+		return consentToUseEmailForCare;
+	}
+
+	public void setConsentToUseEmailForCare(Boolean consentToUseEmailForCare) {
+		this.consentToUseEmailForCare = consentToUseEmailForCare;
+	}
+	
 	
 }

@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-
+import java.util.regex.Pattern;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -52,6 +52,8 @@ import org.oscarehr.common.dao.ProviderPreferenceDao;
 import org.oscarehr.common.dao.SecurityDao;
 import org.oscarehr.common.dao.ServiceRequestTokenDao;
 import org.oscarehr.common.dao.UserPropertyDAO;
+import org.oscarehr.common.dao.SystemPreferencesDao;
+import org.oscarehr.common.model.SystemPreferences;
 import org.oscarehr.common.model.Facility;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.ProviderPreference;
@@ -66,6 +68,7 @@ import org.oscarehr.util.LoggedInUserFilter;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SessionConstants;
 import org.oscarehr.util.SpringUtils;
+import org.owasp.encoder.Encode;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -115,10 +118,17 @@ public final class LoginAction extends DispatchAction {
         String where = "failure";
         
     	if (request.getParameter("forcedpasswordchange") != null && request.getParameter("forcedpasswordchange").equalsIgnoreCase("true")) {
-    		//Coming back from force password change.
+    		// Coming back from force password change.
+            // Allow a username upto the schema of varchar 30 but force letters and numbers
     	    userName = (String) request.getSession().getAttribute("userName");
+            if(! Pattern.matches("[a-zA-Z0-9]{1,30}", userName)) {
+        	    userName = "Invalid Username";
+			}
     	    password = (String) request.getSession().getAttribute("password");
     	    pin = (String) request.getSession().getAttribute("pin");
+            if(! Pattern.matches("[0-9]{4}", pin) ) {
+        	    pin = "";
+            }
     	    nextPage = (String) request.getSession().getAttribute("nextPage");
     	    
     	    String newPassword = ((LoginForm) form).getNewPassword();
@@ -159,8 +169,14 @@ public final class LoginAction extends DispatchAction {
     	    
     	} else {
     		userName = ((LoginForm) form).getUsername();
+            if(! Pattern.matches("[a-zA-Z0-9]{1,30}", userName)) {
+        	    userName = "Invalid Username";
+			}
     	    password = ((LoginForm) form).getPassword();
     	    pin = ((LoginForm) form).getPin();
+            if(! Pattern.matches("[0-9]{4}", pin) ) {
+        	    pin = "";
+            }
     	    nextPage=request.getParameter("nextPage");
     		        
 	        logger.debug("nextPage: "+nextPage);
@@ -273,7 +289,12 @@ public final class LoginAction extends DispatchAction {
             	}
             }
             session = request.getSession(); // Create a new session for this user
-
+            // set session max interval from system preference
+            SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+            SystemPreferences forceLogoutInactivePref = systemPreferencesDao.findPreferenceByName("force_logout_when_inactive");
+            SystemPreferences forceLogoutInactiveTimePref = systemPreferencesDao.findPreferenceByName("force_logout_when_inactive_time");
+            session.setMaxInactiveInterval((forceLogoutInactivePref != null && forceLogoutInactivePref.getValueAsBoolean() && forceLogoutInactiveTimePref != null ? Integer.parseInt(forceLogoutInactiveTimePref.getValue()) : 120) * 60);
+            
           //If the ondIdKey parameter is not null and is not an empty string
         	if (oneIdKey != null && !oneIdKey.equals("")) {
         		String providerNumber = strAuth[0];
@@ -431,9 +452,11 @@ public final class LoginAction extends DispatchAction {
             }
             
             //are they using the new UI?
-            UserProperty prop = propDao.getProp(provider.getProviderNo(), UserProperty.COBALT);
-            if(prop != null && prop.getValue() != null && prop.getValue().equals("yes")) {
-            	where="cobalt";
+            if("true".equals(OscarProperties.getInstance().getProperty("newui.enabled", "false"))) {
+	            UserProperty prop = propDao.getProp(provider.getProviderNo(), UserProperty.COBALT);
+	            if(prop != null && prop.getValue() != null && prop.getValue().equals("yes")) {
+	            	where="cobalt";
+	            }
             }
         }
         // expired password
@@ -457,9 +480,6 @@ public final class LoginAction extends DispatchAction {
         else { 
         	logger.debug("go to normal directory");
 
-        	// go to normal directory
-            // request.setAttribute("login", "failed");
-            // LogAction.addLog(userName, "failed", LogConst.CON_LOGIN, "", ip);
             cl.updateLoginList(ip, userName);
             CRHelper.recordLoginFailure(userName, request);
             
@@ -497,7 +517,7 @@ public final class LoginAction extends DispatchAction {
         	Provider prov = providerDao.getProvider((String)request.getSession().getAttribute("user"));
         	JSONObject json = new JSONObject();
         	json.put("success", true);
-        	json.put("providerName", prov.getFormattedName());
+        	json.put("providerName", Encode.forJavaScript(prov.getFormattedName()));
         	json.put("providerNo", prov.getProviderNo());
         	response.setContentType("text/x-json");
         	json.write(response.getWriter());

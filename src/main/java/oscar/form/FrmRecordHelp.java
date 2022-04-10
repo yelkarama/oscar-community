@@ -28,6 +28,8 @@ package oscar.form;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -47,7 +49,7 @@ public class FrmRecordHelp {
     private String _dateFormat = "yyyy/MM/dd";
     private String _newDateFormat = "yyyy-MM-dd"; //handles both date formats, but yyyy/MM/dd is displayed to avoid deprecation
 
-    public void setDateFormat(String s) {// "dd/MM/yyyy"
+    public void setDateFormat(String s) {
         _dateFormat = s;
     }
 
@@ -63,7 +65,7 @@ public class FrmRecordHelp {
                 String name = md.getColumnName(i);
                 String value;
 
-                if (md.getColumnTypeName(i).startsWith("TINY")) {
+                if (md.getColumnTypeName(i).toUpperCase().startsWith("TINYINT") || md.getColumnTypeName(i).equalsIgnoreCase("bit")) {
                     if (rs.getInt(i) == 1)
                         value = "checked='checked'";
                     else
@@ -150,7 +152,7 @@ public class FrmRecordHelp {
 
             String value = props.getProperty(name, null);
 
-            if (md.getColumnTypeName(i).startsWith("TINY")) {
+            if (md.getColumnTypeName(i).toUpperCase().startsWith("TINYINT") || md.getColumnTypeName(i).equalsIgnoreCase("bit")) {
                 if (value != null) {
                     if (value.equalsIgnoreCase("on") || value.equalsIgnoreCase("checked='checked'")) {
                         rs.updateInt(name, 1);
@@ -247,7 +249,7 @@ public class FrmRecordHelp {
             String name = md.getColumnName(i);
             String value;
 
-            if (md.getColumnTypeName(i).startsWith("TINY") && md.getScale(i) == 1) {
+            if ((md.getColumnTypeName(i).toUpperCase().startsWith("TINYINT") || md.getColumnTypeName(i).equalsIgnoreCase("bit")) && md.getScale(i) == 1) {
                 if (rs.getInt(i) == 1)
                     value = "on";
                 else
@@ -288,6 +290,16 @@ public class FrmRecordHelp {
             return "printAll";
         } else if (submit != null && submit.equalsIgnoreCase("printLabReq")) {
             return "printLabReq";
+        } else if (submit != null && submit.equalsIgnoreCase("printConsultLetter")) {
+            return "printConsultLetter";
+        } else if (submit != null && submit.equalsIgnoreCase("printNewOBConsult")) {
+            return "printNewOBConsult";
+        } else if (submit != null && submit.equalsIgnoreCase("printMaleConsultLetter")) {
+            return "printMaleConsultLetter";
+        } else if (submit != null && submit.equalsIgnoreCase("printIUDTemplate")) {
+            return "printIUDTemplate";
+        } else if (submit != null && submit.equalsIgnoreCase("printAllJasperReport")) {
+            return "printAllJasperReport";
         } else {
             return "failure";
         }
@@ -308,6 +320,10 @@ public class FrmRecordHelp {
             temp = where;
         } else if (action.equals("printAll")) {
             temp = where + "?demographic_no=" + demoId + "&formId=" + formId;
+        }  else if (action.equalsIgnoreCase("printConsultLetter")) {
+        	temp = where +  "?formId=" + formId;
+        } else if (action.equalsIgnoreCase("printMaleConsultLetter")) {
+        	temp = where +  "?formId=" + formId;
         }else {
             temp = where;
         }
@@ -337,5 +353,27 @@ public class FrmRecordHelp {
     			}
     		}
     	}
+    }
+
+    public Date getDateFieldOrNull(Properties props, String fieldName) {
+        String value = props.getProperty(fieldName);
+        Date result = null;
+        if (value != null) {
+            try {
+                if (value.contains("/")) {
+                    result = new SimpleDateFormat(_dateFormat).parse(value);
+                } else {
+                    result = new SimpleDateFormat(_newDateFormat).parse(value);
+                }
+            } catch (ParseException e) { /* do nothing, keep result == null */ }
+        }
+        return result;
+    }
+    public String parseDateFieldOrNull(Date date) {
+        String result = null;
+        if (date != null) {
+            result = new SimpleDateFormat(_dateFormat).format(date);
+        }
+        return result;
     }
 }

@@ -39,8 +39,10 @@ import org.oscarehr.common.model.Clinic;
 import org.oscarehr.common.model.ConsultationRequest;
 import org.oscarehr.common.model.ConsultationServices;
 import org.oscarehr.common.model.Demographic;
+import org.oscarehr.common.model.DemographicExt;
 import org.oscarehr.common.model.ProfessionalSpecialist;
 import org.oscarehr.common.model.Provider;
+import org.oscarehr.common.model.DemographicExt.DemographicProperty;
 import org.oscarehr.managers.DemographicManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -57,6 +59,7 @@ public class EctConsultationFormRequestUtil {
 	public String patientAddress;
 	public String patientPhone;
 	public String patientWPhone;
+	public String patientCellPhone;
 	public String patientEmail;
 	public String patientDOB;
 	public String patientHealthNum;
@@ -104,6 +107,8 @@ public class EctConsultationFormRequestUtil {
 	
 	private String appointmentInstructions;
 	private String appointmentInstructionsLabel;
+
+	public boolean isEReferral = false;
 	
 	private ConsultationServiceDao consultationServiceDao = (ConsultationServiceDao) SpringUtils.getBean("consultationServiceDao");
 	private DemographicManager demographicManager = SpringUtils.getBean(DemographicManager.class);
@@ -112,8 +117,14 @@ public class EctConsultationFormRequestUtil {
 
 	public boolean estPatient(LoggedInInfo loggedInInfo, String demographicNo) {
 
-		Demographic demographic = demographicManager.getDemographic(loggedInInfo, Integer.parseInt(demographicNo));
+		int demographic_number = Integer.parseInt(demographicNo);
+		Demographic demographic = demographicManager.getDemographic(loggedInInfo, demographic_number);
 		boolean estPatient = false;
+        DemographicExt demographicExt = demographicManager.getDemographicExt(loggedInInfo, demographic_number, DemographicProperty.demo_cell);
+        String demographicCellPhone = "";
+        if(demographicExt != null) {		
+        	demographicCellPhone = demographicExt.getValue();
+    	}
 
 		if (demographic != null) {
 			demoNo = demographicNo;
@@ -129,6 +140,7 @@ public class EctConsultationFormRequestUtil {
 			patientAddress = patientAddressSb.toString();
 			patientPhone = StringUtils.noNull(demographic.getPhone());
 			patientWPhone = StringUtils.noNull(demographic.getPhone2());
+			patientCellPhone = StringUtils.noNull(demographicCellPhone);
 			patientEmail = StringUtils.noNull(demographic.getEmail());
 			patientDOB = demographic.getFormattedDob();
 			patientHealthNum = StringUtils.noNull(demographic.getHin());
@@ -151,7 +163,7 @@ public class EctConsultationFormRequestUtil {
 
 		ProviderDao dao = SpringUtils.getBean(ProviderDao.class);
 		for (String teamName : dao.getActiveTeams()) {
-			if (!teamName.equals("")) {
+			if (teamName != null && !teamName.equals("")) {
 				teamVec.add(teamName);
 			}
 		}
@@ -164,7 +176,7 @@ public class EctConsultationFormRequestUtil {
 
 		ProviderDao dao = SpringUtils.getBean(ProviderDao.class);
 		for (String teamName : dao.getActiveTeams()) {
-			if (!teamName.equals("")) {
+			if (teamName != null && !teamName.equals("")) {
 				teamVec.add(teamName);
 			}
 		}
@@ -176,7 +188,7 @@ public class EctConsultationFormRequestUtil {
 		teamVec = new Vector();
 		ProviderDao dao = SpringUtils.getBean(ProviderDao.class);
 		for (String teamName : dao.getActiveTeamsViaSites(providerNo)) {
-			if (!teamName.equals("")) {
+			if (teamName!= null && !teamName.equals("")) {
 				teamVec.add(teamName);
 			}
 		}
@@ -190,7 +202,7 @@ public class EctConsultationFormRequestUtil {
 
 		ProviderDao dao = SpringUtils.getBean(ProviderDao.class);
 		for (String teamName : dao.getUniqueTeams()) {
-			if (!teamName.equals("")) {
+			if (teamName != null && !teamName.equals("")) {
 				teamVec.add(teamName);
 			}
 		}
@@ -280,6 +292,8 @@ public class EctConsultationFormRequestUtil {
                 	appointmentPm = "";
 				}
             }
+
+			isEReferral = daoExt.getConsultationRequestExtsByKey(ConversionUtils.fromIntString(id),"ereferral_ref") != null;
         }
 
 		return verdict;
