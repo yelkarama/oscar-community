@@ -29,7 +29,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Hashmap;
+import java.util.HashMap;
 import java.util.Iterator;
 
 
@@ -47,14 +47,14 @@ import oscar.OscarProperties;
 
 
 /**
- * Parses xml file, storing an Hashmap
+ * Parses xml file, storing an HashMap
  * @author phc
  */
 public class DrugPriceLookup {
 
 	private static Logger log = MiscUtils.getLogger();
 
-	static Hashmap<String, String> costLookup = new Hashmap<String, String>();
+	static HashMap<String, String> costLookup = new HashMap<String, String>();
 	static boolean loaded = false;
 
 	/** Creates a new instance  */
