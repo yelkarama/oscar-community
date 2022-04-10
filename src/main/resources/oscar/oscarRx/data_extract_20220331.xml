@@ -1,0 +1,2325 @@
+<extract createDate="2022-03-31">
+	<manufacturerList>
+		<manufacturer id="AAP">A A Pharma Inc.</manufacturer>
+		<manufacturer id="ABB">Abbott Laboratories Limited</manufacturer>
+		<manufacturer id="ABD">Abbott Diabetes Care</manufacturer>
+		<manufacturer id="ABH">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="ABI">Abiogen Pharma</manufacturer>
+		<manufacturer id="ABP">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="ABT">Albert Pharma Inc - &quot; DO NOT USE &quot;</manufacturer>
+		<manufacturer id="ABV">AbbVie Corporation</manufacturer>
+		<manufacturer id="ACC">Accel Pharma Inc.</manufacturer>
+		<manufacturer id="ACH">Accord Healthcare Inc.</manufacturer>
+		<manufacturer id="ACO">Acon Laboratories Incorporated</manufacturer>
+		<manufacturer id="ACP">Accelera Pharma Canada, Inc.</manufacturer>
+		<manufacturer id="ACT">Actelion Pharmaceutiques Canada Inc.</manufacturer>
+		<manufacturer id="ACV">Actavis Pharma Company</manufacturer>
+		<manufacturer id="ADC">Ascensia Diabetes Care Canada Inc.</manufacturer>
+		<manufacturer id="ADI">Adria Laboratories of Canada Ltd.</manufacturer>
+		<manufacturer id="ADR">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="AEZ">AEterna Zentaris Inc.</manufacturer>
+		<manufacturer id="AGI">Agila Specialties Pvt. Ltd.</manufacturer>
+		<manufacturer id="AGN">Agnes Pharmaceutical Products Inc.</manufacturer>
+		<manufacturer id="AGO">Agouron Pharmaceuticals Canada Inc.</manufacturer>
+		<manufacturer id="AGP">Actavis Group PTC ehf</manufacturer>
+		<manufacturer id="AHA">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="AJC">Agila-Jamp Canada Inc.</manufacturer>
+		<manufacturer id="AKC">Akcea Therapeutics, Inc.</manufacturer>
+		<manufacturer id="AKN">Akorn Pharmaceuticals Canada Inc. - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="AKO">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="ALA">Altana Pharma Inc.</manufacturer>
+		<manufacturer id="ALB">Albert Pharma Inc. - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="ALC">Alcon Canada Inc.</manufacturer>
+		<manufacturer id="ALE">Alexion Pharmaceuticals Inc.</manufacturer>
+		<manufacturer id="ALG">Alexion Pharma GMBH</manufacturer>
+		<manufacturer id="ALH">Altius Healthcare Inc.</manufacturer>
+		<manufacturer id="ALK">ALK-Abello A/S</manufacturer>
+		<manufacturer id="ALL">Allergan Inc.</manufacturer>
+		<manufacturer id="ALM">Almirall Limited</manufacturer>
+		<manufacturer id="ALN">Alnylam Netherlands B.V.</manufacturer>
+		<manufacturer id="ALR">AllerPharma Inc.</manufacturer>
+		<manufacturer id="ALT">Altimed Pharmaceutical Company</manufacturer>
+		<manufacturer id="ALV">Alveda Pharmaceuticals Inc.</manufacturer>
+		<manufacturer id="ALZ">ALZA Canada</manufacturer>
+		<manufacturer id="AMA">Amada (Nutritional Products)</manufacturer>
+		<manufacturer id="AMC">Allmedicus Co., Ltd.</manufacturer>
+		<manufacturer id="AMD">Amdipharm Limited</manufacturer>
+		<manufacturer id="AMG">Amgen Canada Inc.</manufacturer>
+		<manufacturer id="AMT">Amicus Therapeutics UK Ltd., Buckinghamshire</manufacturer>
+		<manufacturer id="ANC">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="ANG">Angita Pharma Inc.</manufacturer>
+		<manufacturer id="APC">Acerus Pharmaceuticals Corporation</manufacturer>
+		<manufacturer id="APO">ApoPharma Inc.</manufacturer>
+		<manufacturer id="APP">APP Pharmaceuticals LLC</manufacturer>
+		<manufacturer id="APU">Atnahs Pharma UK Limited</manufacturer>
+		<manufacturer id="APX">Apotex Inc.</manufacturer>
+		<manufacturer id="ARA">ARA Pharmaceuticals Inc.</manufacturer>
+		<manufacturer id="ARZ">Aralez Pharmaceuticals Canada Inc.</manufacturer>
+		<manufacturer id="ASC">Actavis Specialty Pharmaceuticals Co.</manufacturer>
+		<manufacturer id="ASE">Astellas Pharma Canada Inc.</manufacturer>
+		<manufacturer id="ASI">Aspen Pharmacare Canada Inc.</manufacturer>
+		<manufacturer id="ASN">Aspen Pharma Trading Limited</manufacturer>
+		<manufacturer id="ASP">Aspri Pharma Canada Inc.</manufacturer>
+		<manufacturer id="AST">Astra Pharma Inc.</manufacturer>
+		<manufacturer id="ASZ">Astra Zeneca - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="ATO">Aton Pharma Inc.</manufacturer>
+		<manufacturer id="AUR">Auro Pharma Inc.</manufacturer>
+		<manufacturer id="AUT">Auto Control Medical</manufacturer>
+		<manufacturer id="AVE">Aventis Pharma</manufacturer>
+		<manufacturer id="AVN">Aventis Pasteur Limited (S8)</manufacturer>
+		<manufacturer id="AVP">Avir Pharma Inc.</manufacturer>
+		<manufacturer id="AVR">Advanced Vision Research, Inc. (S8)</manufacturer>
+		<manufacturer id="AXC">Axcan Pharma Inc.</manufacturer>
+		<manufacturer id="AXX">Axxess Pharma Inc.</manufacturer>
+		<manufacturer id="AYE">Ayerst Laboratories, Division of Ayerst, McKenna &amp; Harrison</manufacturer>
+		<manufacturer id="AZC">AstraZeneca</manufacturer>
+		<manufacturer id="AZU">AstraZeneca USA</manufacturer>
+		<manufacturer id="BAC">Baxter Corporation - Clintec Nutrition Division (S8)</manufacturer>
+		<manufacturer id="BAH">Bayer Inc., Health Care Division</manufacturer>
+		<manufacturer id="BAK">Baker Cummins Inc</manufacturer>
+		<manufacturer id="BAL">Bayer Healthcare LLC Subsidiary of Bayer Corporation</manufacturer>
+		<manufacturer id="BAR">Barr Laboratories Inc.</manufacturer>
+		<manufacturer id="BAU">Bausch &amp; Lomb Canada Inc. - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="BAX">Baxter Corporation</manufacturer>
+		<manufacturer id="BAY">Bayer Inc., Consumer Care Division</manufacturer>
+		<manufacturer id="BCA">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="BCI">Baker Cummins Inc. - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="BDH">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="BED">BD Consumer Healthcare</manufacturer>
+		<manufacturer id="BEE">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="BER">Berlex Canada Inc. - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="BEX">Berlex Canada Inc</manufacturer>
+		<manufacturer id="BFI">Axcan Pharma Inc.</manufacturer>
+		<manufacturer id="BGP">BGP Pharma ULC</manufacturer>
+		<manufacturer id="BHC">Bausch Health Canada Inc.</manufacturer>
+		<manufacturer id="BIC">Biocodex SA</manufacturer>
+		<manufacturer id="BIG">Biogen Idec Canada Inc.</manufacturer>
+		<manufacturer id="BII">Biomed 2002 Inc.</manufacturer>
+		<manufacturer id="BIM">BioMarin International Ltd.</manufacturer>
+		<manufacturer id="BIN">Bionime Corporation</manufacturer>
+		<manufacturer id="BIO">Biovail Pharmaceuticals Canada</manufacturer>
+		<manufacturer id="BIS">Biosyent Pharma Inc.</manufacturer>
+		<manufacturer id="BJH">Draxis Health Inc.</manufacturer>
+		<manufacturer id="BLI">Bausch &amp; Lomb Inc.</manufacturer>
+		<manufacturer id="BMN">Biomarin International Limited</manufacturer>
+		<manufacturer id="BMP">Biomed Pharma</manufacturer>
+		<manufacturer id="BMS">Bristol-Myers Squibb Canada Inc. - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="BNQ">Bioniche Pharma (Canada) Ltd. (S8)</manufacturer>
+		<manufacturer id="BNT">BioNTech Manufacturing GmbH</manufacturer>
+		<manufacturer id="BNY">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="BOE">Boehringer-Ingelheim (Canada) Ltd./Ltee</manufacturer>
+		<manufacturer id="BOM">Boehringer - Mannheim Canada</manufacturer>
+		<manufacturer id="BOP">Boots Pharmaceuticals - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="BQU">Bristol Myers Squibb Canada Inc</manufacturer>
+		<manufacturer id="BRA">B. Braun Medical Inc. (S8)</manufacturer>
+		<manufacturer id="BRD">Bard Pharmaceuticals (1990) Inc.</manufacturer>
+		<manufacturer id="BRI">Bristol-Myers Squibb Canada Inc. Nutritional Div. Ottawa</manufacturer>
+		<manufacturer id="BSH">Bausch &amp; Lomb Canada Inc</manufacturer>
+		<manufacturer id="BSS">Bauch &amp; Lomb Surgical Inc. (S8)</manufacturer>
+		<manufacturer id="BWE">Burroughs Wellcome Inc.</manufacturer>
+		<manufacturer id="BYK">Byk Canada Inc.</manufacturer>
+		<manufacturer id="CAM">Ajinomoto Cambrooke, Inc.</manufacturer>
+		<manufacturer id="CBS">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="CBV">CIBA Vision</manufacturer>
+		<manufacturer id="CCI">Clement Clark International Ltd.</manufacturer>
+		<manufacturer id="CCP">CellChem Pharmaceuticals Inc.</manufacturer>
+		<manufacturer id="CDC">Church &amp; Dwight Canada Corp., Inc.</manufacturer>
+		<manufacturer id="CDI">Concordia Laboratories Inc.</manufacturer>
+		<manufacturer id="CDM">Canderm Pharmacal Ltd./Ltee - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="CDX">Canderm Pharmacal Ltd</manufacturer>
+		<manufacturer id="CEH">Celltrion Healthcare Co. Ltd.</manufacturer>
+		<manufacturer id="CEL">Celgene Inc.</manufacturer>
+		<manufacturer id="CEN">Centocor Ortho Biotech Inc</manufacturer>
+		<manufacturer id="CEP">Cephalon Inc.</manufacturer>
+		<manufacturer id="CGP">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="CGS">Ciba-Geigy Self Medication Products</manufacturer>
+		<manufacturer id="CHE">Cheplapharm Arzneimittel GmbH</manufacturer>
+		<manufacturer id="CHU">Church and Dwight Canada Corp.</manufacturer>
+		<manufacturer id="CIB">Ciba Pharmaceuticals, Division of Ciba-Geigy Canada Ltd.</manufacturer>
+		<manufacturer id="CIL">Chilcott Laboratories-Division of Warner-Lambert Canada Inc.</manufacturer>
+		<manufacturer id="CIP">Cipher Pharmaceuticals Inc.</manufacturer>
+		<manufacturer id="CLI">Clinigen Healthcare Ltd.</manufacturer>
+		<manufacturer id="CLK">Clark Laboratory - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="CLT">Clintec (Non-Formulary) - &quot; DO NOT USE&quot;</manufacturer>
+		<manufacturer id="CMA">Cosmair Canada Inc.</manufacturer>
+		<manufacturer id="CMH">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="CMP">Can-Med Pharma Inc.</manufacturer>
+		<manufacturer id="CNG">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="CNN">Connaught Novo Nordisk Canada Inc. - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="COB">Cobalt Pharmaceuticals Company</manufacturer>
+		<manufacturer id="COL">Columbia Laboratories</manufacturer>
+		<manufacturer id="CON">Pasteur Merieux Connaught Canada</manufacturer>
+		<manufacturer id="COP">Covis Pharma GmbH</manufacturer>
+		<manufacturer id="COV">Covis Pharma B.V.</manufacturer>
+		<manufacturer id="CPL">Clay-Park Labs Inc.</manufacturer>
+		<manufacturer id="CRY">Crystaal Corp.</manufacturer>
+		<manufacturer id="CTS">Custom Pharmaceuticals - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="CUB">Cubist Pharmaceuticals</manufacturer>
+		<manufacturer id="CUV">Chauvin Pharmaceuticals Limited (S8)</manufacturer>
+		<manufacturer id="CYI">Cytex Pharmaceutical Co.</manufacturer>
+		<manufacturer id="DBL">David Bull Laboratories - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="DBU">David Bull Laboratories (Canada) Inc.</manufacturer>
+		<manufacturer id="DCL">DC Labs</manufacturer>
+		<manufacturer id="DDC">Ddrops Company</manufacturer>
+		<manufacturer id="DER">Dermik Laboratories Canada Inc.</manufacturer>
+		<manufacturer id="DES">Desbergers Limited</manufacturer>
+		<manufacturer id="DKT">Dioptic Laboratories, Division of Akorn Pharmaceuticals Cana</manufacturer>
+		<manufacturer id="DLU">L. P. Dey (S8)</manufacturer>
+		<manufacturer id="DME">Dupont Merck Pharma (Endo Canada Division) - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="DPC">Dominion Pharmacal</manufacturer>
+		<manufacturer id="DPL">DPT Laboratories - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="DPM">Dupont Merck Pharma - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="DPT">Dermtek Pharmaceuticals Ltd.</manufacturer>
+		<manufacturer id="DPY">Manufacturer Name currently not available</manufacturer>
+		<manufacturer id="DRR">Dr. Reddy&apos;s Laboratories Inc.</manufacturer>
+		<manufacturer id="DTC">Drug Trading Company Ltd. - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="DUI">Duchesnay Inc.</manufacturer>
+		<manufacturer id="DUP">Du Pont Pharma</manufacturer>
+		<manufacturer id="EAT">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="ECL">ECL Pharma Group Ltd.</manufacturer>
+		<manufacturer id="EDM">Endo Canada Division Du Pont Merck Pharma</manufacturer>
+		<manufacturer id="EDO">Endo Pharmaceuticals Inc.</manufacturer>
+		<manufacturer id="EFM">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="EHS">Entra Health Systems.</manufacturer>
+		<manufacturer id="EIS">Eisai Limited</manufacturer>
+		<manufacturer id="ELA">Elan Pharmaceuticals, Inc.</manufacturer>
+		<manufacturer id="ELD">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="ELN">Elan Pharma International Ltd.</manufacturer>
+		<manufacturer id="ELV">Elvium Life Sciences</manufacturer>
+		<manufacturer id="EMS">EMD Serono Canada Inc.</manufacturer>
+		<manufacturer id="ENZ">Enzon Inc. (S8)</manufacturer>
+		<manufacturer id="EPI">Endo Par Innovation Company, LLC</manufacturer>
+		<manufacturer id="ERF">Erfa Canada Inc.</manufacturer>
+		<manufacturer id="ETH">Ethypharm Inc.</manufacturer>
+		<manufacturer id="EUG">Euro Generics</manufacturer>
+		<manufacturer id="EUR">Euro-Pharm International Canada</manufacturer>
+		<manufacturer id="EVL">Endo Ventures Ltd.</manufacturer>
+		<manufacturer id="EVM">Evans Medical Ltd.</manufacturer>
+		<manufacturer id="FAB">Fabrigen Inc.</manufacturer>
+		<manufacturer id="FAM">Famy Care Ltd</manufacturer>
+		<manufacturer id="FAU">Faulding Canada Inc.</manufacturer>
+		<manufacturer id="FEI">Ferring Inc.</manufacturer>
+		<manufacturer id="FIC">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="FIS">Fisons Corporation Limited</manufacturer>
+		<manufacturer id="FKC">Fresenius Kabi Canada Ltd.</manufacturer>
+		<manufacturer id="FLI">Boots Pharmaceuticals Ltd.</manufacturer>
+		<manufacturer id="FOU">Fournier Pharma Inc.</manufacturer>
+		<manufacturer id="FRS">Merck Frosst Canada &amp; Cie, Merck Frosst Canada &amp; Co.</manufacturer>
+		<manufacturer id="FUJ">Fujisawa Canada Inc.</manufacturer>
+		<manufacturer id="GAC">Galderma Canada Inc</manufacturer>
+		<manufacturer id="GAL">Galderma - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="GCC">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="GCH">GlaxoSmithKline Consumer Healthcare Inc.</manufacturer>
+		<manufacturer id="GEB">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="GED">GenDerm Canada Inc. - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="GEI">Geigy Pharmaceuticals,Division of Ciba-Geigy Canada Ltd.</manufacturer>
+		<manufacturer id="GEM">Genmed, A Division of Pfizer Canada Inc.</manufacturer>
+		<manufacturer id="GEN">Genpharm Inc.</manufacturer>
+		<manufacturer id="GET">Genentech Inc. - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="GEZ">Genzyme - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="GIL">Gilead Sciences Canada, Inc.</manufacturer>
+		<manufacturer id="GLA">Glaxo Canada Inc.</manufacturer>
+		<manufacturer id="GLC">Glenwood Laboratories Canada Ltd. - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="GLD">Glades, Division of Stiefel Canada Inc. - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="GLE">Glenwood Laboratories Canada Ltd</manufacturer>
+		<manufacturer id="GLP">Glenmark Pharmaceuticals Canada Inc.</manufacturer>
+		<manufacturer id="GLW">Glaxo Wellcome Inc.</manufacturer>
+		<manufacturer id="GMP">Generic Medical Partners Inc.</manufacturer>
+		<manufacturer id="GPB">G Pohl Boskamp GMBH &amp; Co KG, hohenlockstedt</manufacturer>
+		<manufacturer id="GPM">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="GRA">Graceway Pharmaceuticals</manufacturer>
+		<manufacturer id="GRI">Grifols Therapeutics Inc.</manufacturer>
+		<manufacturer id="GSK">GlaxoSmithKline Inc., GlaxoSmithKline Consumer Health Care</manufacturer>
+		<manufacturer id="GSS">GlaxoSmithKline Shire Biochem</manufacturer>
+		<manufacturer id="GWP">GW Pharma Limited</manufacturer>
+		<manufacturer id="GZM">Genzyme Canada Inc.</manufacturer>
+		<manufacturer id="HCI">Les Lab Charton, Division of Herdt &amp; Charton - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="HCM">Healthcomm International Inc. (S8)</manufacturer>
+		<manufacturer id="HEA">Healthpoint Canada</manufacturer>
+		<manufacturer id="HER">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="HEY">HEYL Chemisch-pharmazeutische Fabrik GmbH &amp; Co. KG</manufacturer>
+		<manufacturer id="HIL">Hill Dermaceuticals Inc.</manufacturer>
+		<manufacturer id="HJS">H.J. Sutton Industries Ltd.</manufacturer>
+		<manufacturer id="HLL">Hollister Stier Laboratories LLC</manufacturer>
+		<manufacturer id="HLR">Hoffmann-La Roche Limited</manufacturer>
+		<manufacturer id="HLS">HLS Therapeutics Inc.</manufacturer>
+		<manufacturer id="HLZ">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="HMR">Hoechst Marion Roussel Canada Inc.</manufacturer>
+		<manufacturer id="HOE">Hoechst Canada Inc.,Pharmaceutical Div.(Hoechst-Roussel Cana</manufacturer>
+		<manufacturer id="HOL">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="HOM">Home Diagnostics Inc</manufacturer>
+		<manufacturer id="HOP">Hope Pharmaceuticals Ltd.</manufacturer>
+		<manufacturer id="HOR">Frank W. Horner Inc.</manufacturer>
+		<manufacturer id="HOS">Hospira Healthcare Corporation.</manufacturer>
+		<manufacturer id="HPI">Horizon Pharma Ireland Ltd.</manufacturer>
+		<manufacturer id="HRA">HRA Pharma Rare Diseases</manufacturer>
+		<manufacturer id="HRU">Hoechst-Roussel Canada Inc.</manufacturer>
+		<manufacturer id="ICI">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="ICN">ICN Canada Limited</manufacturer>
+		<manufacturer id="IDB">ID Biomedical Corporation of Quebec.</manufacturer>
+		<manufacturer id="IDL">Ideal Life Inc.</manufacturer>
+		<manufacturer id="IGN">Ignite Pharma Inc.</manufacturer>
+		<manufacturer id="IMM">Immunotech Research Ltd.</manufacturer>
+		<manufacturer id="IMU">Immunex Corporation</manufacturer>
+		<manufacturer id="IND">Indivior UK Limited</manufacturer>
+		<manufacturer id="INF">Interfalk Canada Inc. - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="INK">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="INP">Intercept Pharmaceuticals Inc.</manufacturer>
+		<manufacturer id="INR">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="INS">InspiRx Inc.</manufacturer>
+		<manufacturer id="INT">InterMune Canada, Inc.</manufacturer>
+		<manufacturer id="IOB">Iolab Canada Inc.</manufacturer>
+		<manufacturer id="IOL">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="IPB">Ipsen Biopharmaceuticals Canada Inc.</manufacturer>
+		<manufacturer id="IPC">Insight Pharmaceuticals Corporation</manufacturer>
+		<manufacturer id="IPL">Insight Pharmaceuticals, LLC</manufacturer>
+		<manufacturer id="IPS">Ipsen Limited</manufacturer>
+		<manufacturer id="ISE">I-Sens, Inc.</manufacturer>
+		<manufacturer id="IVA">Ivax Laboratories Incorporated</manufacturer>
+		<manufacturer id="JAC">Jacobus Pharmaceutical Company Inc.</manufacturer>
+		<manufacturer id="JAJ">Johnson &amp; Johnson Inc</manufacturer>
+		<manufacturer id="JAM">Jamieson Laboratories Ltd.</manufacturer>
+		<manufacturer id="JAN">Janssen Inc.</manufacturer>
+		<manufacturer id="JAS">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="JAZ">Jazz Pharmaceuticals Canada Inc.</manufacturer>
+		<manufacturer id="JFO">Chiron Canada ULC (S8)</manufacturer>
+		<manufacturer id="JHP">JHP Pharmaceuticals LLC</manufacturer>
+		<manufacturer id="JNO">Janssen-Ortho Inc.</manufacturer>
+		<manufacturer id="JOU">Jouveinal Inc.</manufacturer>
+		<manufacturer id="JPC">Jamp Pharma Corporation</manufacturer>
+		<manufacturer id="JUN">Juno Pharmaceuticals Corp.</manufacturer>
+		<manufacturer id="KAL">Kaleo Inc.</manufacturer>
+		<manufacturer id="KAP">Kabi Pharmacia</manufacturer>
+		<manufacturer id="KEY">Key Pharmaceuticals,Div.of Schering Canada Inc.</manufacturer>
+		<manufacturer id="KGW">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="KNL">Knoll Pharma Inc. - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="KNO">Knoll Pharma Inc.</manufacturer>
+		<manufacturer id="KNR">Kenral Inc.,Division of The Upjohn Company of Canada</manufacturer>
+		<manufacturer id="KNT">Knight Therapeutics Inc.</manufacturer>
+		<manufacturer id="KUC">Kremers-Urban (Canada) - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="KUR">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="KVR">KVR Pharmaceuticals</manufacturer>
+		<manufacturer id="KYK">Kyowa Kirin Limited</manufacturer>
+		<manufacturer id="LAA">Laboratoire Atlas Inc.</manufacturer>
+		<manufacturer id="LAB">Labopharm Inc.</manufacturer>
+		<manufacturer id="LAF">Laboratoires Fournier S.A.</manufacturer>
+		<manufacturer id="LAT">Laboratoires Trianon Inc.</manufacturer>
+		<manufacturer id="LBI">Leadiant Biosciences, Inc.</manufacturer>
+		<manufacturer id="LBT">Laboratoires Thea</manufacturer>
+		<manufacturer id="LDA">Leda Health Innovations Inc.</manufacturer>
+		<manufacturer id="LEA">Lee-Adams Lab.</manufacturer>
+		<manufacturer id="LED">Lederle Division-of Cyanamid Canada Inc.</manufacturer>
+		<manufacturer id="LEO">Leo Pharma Inc.</manufacturer>
+		<manufacturer id="LIF">Lifescan Canada Ltd.</manufacturer>
+		<manufacturer id="LIL">Eli Lilly Canada Inc.</manufacturer>
+		<manufacturer id="LIN">Linepharma International Limited</manufacturer>
+		<manufacturer id="LIO">LIOH Inc.</manufacturer>
+		<manufacturer id="LIP">The Liposome Company Inc. (S8)</manufacturer>
+		<manufacturer id="LON">Linson Pharma Inc.</manufacturer>
+		<manufacturer id="LUI">Luitpold Pharmaceuticals Inc.</manufacturer>
+		<manufacturer id="LUN">Lundbeck Inc.</manufacturer>
+		<manufacturer id="LUP">Lupin Pharma Canada Limited</manufacturer>
+		<manufacturer id="LYP">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="MAB">Meda AB</manufacturer>
+		<manufacturer id="MAL">Mallinckrodt Canada ULC</manufacturer>
+		<manufacturer id="MAN">Paul Maney Labs., Division of Canapharm Ind. Inc.</manufacturer>
+		<manufacturer id="MAR">Marcan Pharmaceuticals Inc.</manufacturer>
+		<manufacturer id="MAT">Mantra Pharma Inc.</manufacturer>
+		<manufacturer id="MAY">Mayne Pharma (Canada) Inc.</manufacturer>
+		<manufacturer id="MCL">McNeil Consumer Products Co.</manufacturer>
+		<manufacturer id="MCN">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="MDA">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="MDF">Medfhar Inc.</manufacturer>
+		<manufacturer id="MDI">MDA Inc.</manufacturer>
+		<manufacturer id="MDK">Medunik Canada</manufacturer>
+		<manufacturer id="MDO">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="MDP">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="MDX">Medexus Inc.</manufacturer>
+		<manufacturer id="MEA">Meta Pharmaceuticals Inc.</manufacturer>
+		<manufacturer id="MEC">Medicis Canada Ltd.</manufacturer>
+		<manufacturer id="MED">Medisense Canada Inc.</manufacturer>
+		<manufacturer id="MEF">Medical Futures Inc.</manufacturer>
+		<manufacturer id="MEH">MediHub International Inc., Ajax</manufacturer>
+		<manufacturer id="MEI">Medican Pharma</manufacturer>
+		<manufacturer id="MEK">Merck Canada Inc.</manufacturer>
+		<manufacturer id="MEL">MeliaPharm Inc.</manufacturer>
+		<manufacturer id="MEM">Medical Mart Supplies - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="MEP">MedTech Products Inc.</manufacturer>
+		<manufacturer id="MER">Merrell Dow Pharmaceuticals (Canada) Inc.</manufacturer>
+		<manufacturer id="MET">Medican Technologies Inc.</manufacturer>
+		<manufacturer id="MEU">Merus Labs Inc.</manufacturer>
+		<manufacturer id="MEV">Meda Valeant Pharma Canada Inc.</manufacturer>
+		<manufacturer id="MEZ">Merz Pharmaceutical Gmbh</manufacturer>
+		<manufacturer id="MFC">Merck Frosst Canada Ltd.</manufacturer>
+		<manufacturer id="MFS">Merck Frosst/Schering Pharma GP</manufacturer>
+		<manufacturer id="MGI">MGI Pharma Inc.</manufacturer>
+		<manufacturer id="MIB">Mitsubishi-Tanabe Pharma Corporation</manufacturer>
+		<manufacturer id="MIN">Mint Pharmaceuticals Inc.</manufacturer>
+		<manufacturer id="MIP">Miles Canada Inc Pharmaceutical Division - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="MIS">Miles Canada Inc.Diagnostic Division - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="MIT">Miles Canada Inc., Pharmaceuticals Division</manufacturer>
+		<manufacturer id="MJN">Mead Johnson Nutritionals</manufacturer>
+		<manufacturer id="MJO">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="MJS">Mead Johnson Canada</manufacturer>
+		<manufacturer id="MMH">3M Pharmaceuticals, Division 3M Canada Inc.</manufacturer>
+		<manufacturer id="MMT">MM Therapeutics Inc.</manufacturer>
+		<manufacturer id="MMZ">Medical Mart Supplies Ltd</manufacturer>
+		<manufacturer id="MOD">Moderna Therapeutics Inc.</manufacturer>
+		<manufacturer id="MOG">Med-O-Gen Medical Inc.</manufacturer>
+		<manufacturer id="MPC">Mission Pharmacal Company</manufacturer>
+		<manufacturer id="MPH">Mayne Pharma (Canada) Inc. (S8)</manufacturer>
+		<manufacturer id="MPU">Merit Pharmaceuticals - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="MRR">Marion Merrell Dow Canada</manufacturer>
+		<manufacturer id="MSD">Merck Sharp &amp; Dohme Canada, Division of Merck Frosst Canada</manufacturer>
+		<manufacturer id="MYL">Mylan Pharmaceuticals ULC</manufacturer>
+		<manufacturer id="MYS">Mylan Specialty LP</manufacturer>
+		<manufacturer id="NAM">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="NAT">Natco Pharma (Canada) Inc.</manufacturer>
+		<manufacturer id="NDA">Nadeau Laboratory Ltd.</manufacturer>
+		<manufacturer id="NEO">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="NEP">Nephro-Tech, Inc. (S8)</manufacturer>
+		<manufacturer id="NES">Nestle Health Science</manufacturer>
+		<manufacturer id="NGP">Next Generation Pharma Inc.</manufacturer>
+		<manufacturer id="NOA">Novartis Vaccines And Diagnostics Inc.</manufacturer>
+		<manufacturer id="NOB">Nova Biomedical Corporation.</manufacturer>
+		<manufacturer id="NON">Novartis Nutrition Corporation</manufacturer>
+		<manufacturer id="NOO">Novo Nordisk Canada Inc</manufacturer>
+		<manufacturer id="NOP">Novopharm Ltd.</manufacturer>
+		<manufacturer id="NOV">Novartis Pharma Canada Inc.</manufacturer>
+		<manufacturer id="NOW">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="NPI">Nutravite Pharmaceuticals Inc.</manufacturer>
+		<manufacturer id="NPS">NPS Pharma Holding Limited.</manufacturer>
+		<manufacturer id="NRA">Nora Pharma</manufacturer>
+		<manufacturer id="NRD">Nordic Laboratories Inc., Marion Merrell Dow (Canada) Inc.</manufacturer>
+		<manufacturer id="NSA">Nestle Enterprises S.A.</manufacturer>
+		<manufacturer id="NTP">NT Pharma Canada Ltd</manufacturer>
+		<manufacturer id="NUT">Nutricia North America</manufacturer>
+		<manufacturer id="NVV">Novavax Inc.</manufacturer>
+		<manufacturer id="NXP">Nu-Pharm Inc.</manufacturer>
+		<manufacturer id="NYC">Nycomed Canada Inc.</manufacturer>
+		<manufacturer id="OCI">Organon Canada Inc.</manufacturer>
+		<manufacturer id="OCU">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="ODN">Odan Laboratories Ltd.</manufacturer>
+		<manufacturer id="OGN">Organon Teknika Canada Inc</manufacturer>
+		<manufacturer id="OGS">Organon Sanofi-Synthelabo Canada</manufacturer>
+		<manufacturer id="OMC">Ortho McNeil</manufacturer>
+		<manufacturer id="OMG">Omega Laboratories Ltd.</manufacturer>
+		<manufacturer id="OPI">OptimaPharma, a Division of Taro Pharmaceuticals Inc.</manufacturer>
+		<manufacturer id="OPS">OPI S.A.</manufacturer>
+		<manufacturer id="OPT">Optimer Pharmaceuticals Canada Inc.</manufacturer>
+		<manufacturer id="ORC">Orchid Healthcare</manufacturer>
+		<manufacturer id="ORG">Organon Canada Ltd./Ltee</manufacturer>
+		<manufacturer id="ORI">Orimed Pharma</manufacturer>
+		<manufacturer id="ORP">Orphan Medical Inc. (S8)</manufacturer>
+		<manufacturer id="ORT">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="ORY">Oryx Pharmaceuticals Inc.</manufacturer>
+		<manufacturer id="OTK">Organon Teknika Inc. - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="OTS">Otsuka Pharmaceutical Co. Ltd.</manufacturer>
+		<manufacturer id="OVA">Ovation Pharmaceuticals Inc.</manufacturer>
+		<manufacturer id="PAL">Paladin Labs Inc.</manufacturer>
+		<manufacturer id="PAP">PAR Pharmaceutical</manufacturer>
+		<manufacturer id="PAR">Patriot, A Division of Janssen Inc.</manufacturer>
+		<manufacturer id="PAT">Pathogenesis Canada Ltd.</manufacturer>
+		<manufacturer id="PBN">Pharmalab (1982) Inc. (S8)</manufacturer>
+		<manufacturer id="PCO">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="PDA">Parke-Davis,Division Warner-Lambert Canada Inc.</manufacturer>
+		<manufacturer id="PDL">Pro Doc Laboratories - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="PED">Pediapharm Licensing Inc.</manufacturer>
+		<manufacturer id="PEN">Pendopharm, Division of Pharmascience Inc.</manufacturer>
+		<manufacturer id="PER">Perrigo International</manufacturer>
+		<manufacturer id="PFC">Pfizer Consumer Healthcare</manufacturer>
+		<manufacturer id="PFD">Pierre Fabre Dermo-Cosmetique Canada Inc.</manufacturer>
+		<manufacturer id="PFI">Pfizer Canada Inc.</manufacturer>
+		<manufacturer id="PFP">Purdue Pharma</manufacturer>
+		<manufacturer id="PFR">Purdue Frederick Inc.</manufacturer>
+		<manufacturer id="PGI">Proctor &amp; Gamble Inc.</manufacturer>
+		<manufacturer id="PGO">PanGeo Pharma (Canada) Inc.</manufacturer>
+		<manufacturer id="PGP">Proctor &amp; Gamble Pharmaceuticals Canada, Inc.</manufacturer>
+		<manufacturer id="PHA">Pharmacia Canada Inc.</manufacturer>
+		<manufacturer id="PHB">Phebra Canada</manufacturer>
+		<manufacturer id="PHC">Pharmacosmos A/S</manufacturer>
+		<manufacturer id="PHD">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="PHE">Pharmel Inc.</manufacturer>
+		<manufacturer id="PHI">Pharmetics (2011) Inc.</manufacturer>
+		<manufacturer id="PHO">Pharmaco Canada Inc. - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="PHP">Pharmapar Inc.</manufacturer>
+		<manufacturer id="PHR">Pharmaco Canada Inc</manufacturer>
+		<manufacturer id="PHS">Pharma Stulln Inc.</manufacturer>
+		<manufacturer id="PMJ">Pharmacia &amp; Upjohn</manufacturer>
+		<manufacturer id="PMS">Pharmascience Inc.</manufacturer>
+		<manufacturer id="PMT">Pharmetics Inc. (S8)</manufacturer>
+		<manufacturer id="PMV">Pharmavite Lab. - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="POU">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="PPC">Pharmaceutical Partners of Canada</manufacturer>
+		<manufacturer id="PRD">Pro Doc Limitee</manufacturer>
+		<manufacturer id="PRE">Prempharm Inc.</manufacturer>
+		<manufacturer id="PRO">Proval Pharma Inc.</manufacturer>
+		<manufacturer id="PRZ">Pharmaris Canada Inc.</manufacturer>
+		<manufacturer id="PVR">Pharmavite Corporation</manufacturer>
+		<manufacturer id="PWC">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="QHP">Quality Home Products, a division of H.J. Sutton Ind. Ltd.</manufacturer>
+		<manufacturer id="QUO">Questcor Operations Ltd.</manufacturer>
+		<manufacturer id="QVS">Quest Vitamins, Division of Pangeo Health Brands Inc. (S8)</manufacturer>
+		<manufacturer id="RAI">Ratiopharm Inc. (DO NOT USE)</manufacturer>
+		<manufacturer id="RAN">Ranbaxy Pharmaceuticals Canada Inc.</manufacturer>
+		<manufacturer id="RBP">RB Pharmaceuticals Ltd.</manufacturer>
+		<manufacturer id="RBT">Roberts Pharmaceutical of Canada Inc.</manufacturer>
+		<manufacturer id="RCA">Reed &amp; Carnrick,Division of Block Drug Company (Canada) Ltd.</manufacturer>
+		<manufacturer id="RCH">Roche Diabetes Care GmbH</manufacturer>
+		<manufacturer id="RDC">Reddy-Cheminor Inc.</manufacturer>
+		<manufacturer id="REK">Rekah Pharmaceuticals Industry Ltd.</manufacturer>
+		<manufacturer id="RHO">Rhoxalpharma Inc.</manufacturer>
+		<manufacturer id="RHP">Rhodiapharm Inc.</manufacturer>
+		<manufacturer id="RIA">Laboratoire Riva Inc.</manufacturer>
+		<manufacturer id="RIC">Richmond Pharmaceuticals Inc.</manufacturer>
+		<manufacturer id="RIK">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="RIP">Richmond Pharmaceuticals Inc.</manufacturer>
+		<manufacturer id="RIV">Rivex Pharma Inc.</manufacturer>
+		<manufacturer id="ROB">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="ROC">Manufacturer Name currently not available</manufacturer>
+		<manufacturer id="ROD">Roche Diagnostics, a division of Hoffmann-La Roche Limited</manufacturer>
+		<manufacturer id="ROG">Rougier Pharma, Division of Ratiopharm Inc.</manufacturer>
+		<manufacturer id="ROM">Romark Laboratories</manufacturer>
+		<manufacturer id="ROP">Roberts Pharmaceutical - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="ROR">Rhone-Poulenc Rorer Consumer Inc. - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="ROS">Ross Laboratories-Abbott (Nutritional Products)</manufacturer>
+		<manufacturer id="ROU">Roussel Canada Inc.(Hoechst-Roussel Canada Inc.)</manufacturer>
+		<manufacturer id="ROY">C. A. Roy Limited - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="RPH">Ratiopharm Inc.</manufacturer>
+		<manufacturer id="RPP">Rhone-Poulenc Rorer-Ethical Division</manufacturer>
+		<manufacturer id="RPR">Rhone-Poulenc Rorer Consumer Inc.</manufacturer>
+		<manufacturer id="RRD">Respironics Respiratory Drug Delivery (UK) Ltd.</manufacturer>
+		<manufacturer id="SAB">Sabex Inc. - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="SAC">Sanofi-Aventis Canada Inc.</manufacturer>
+		<manufacturer id="SAE">Savient Pharmaceuticals Inc.</manufacturer>
+		<manufacturer id="SAF">Sanofi Pasteur Limited.</manufacturer>
+		<manufacturer id="SAG">Sanofi Genzyme</manufacturer>
+		<manufacturer id="SAI">Sanis Health Inc.</manufacturer>
+		<manufacturer id="SAL">Salix Pharmaceuticals Inc.</manufacturer>
+		<manufacturer id="SAM">Samsung Bioepis Co. Ltd</manufacturer>
+		<manufacturer id="SAN">Sandoz Canada Inc. - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="SAO">Sanofi Canada Inc.</manufacturer>
+		<manufacturer id="SAS">Sanofi - Synthelabo Canada Inc.</manufacturer>
+		<manufacturer id="SAT">Santen Inc.</manufacturer>
+		<manufacturer id="SAV">Sanofi Aventis Pharma</manufacturer>
+		<manufacturer id="SAW">Sanofi Winthrop - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="SBI">Shire BioChem Inc.</manufacturer>
+		<manufacturer id="SBP">STIEFFEL BCD PHARMA</manufacturer>
+		<manufacturer id="SCC">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="SCE">Schein Pharmaceutical</manufacturer>
+		<manufacturer id="SCH">Schering Canada Inc.</manufacturer>
+		<manufacturer id="SCJ">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="SCK">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="SCP">Schering-Plough Canada Inc.</manufacturer>
+		<manufacturer id="SDM">Shoppers Drug Mart</manufacturer>
+		<manufacturer id="SDR">Stanley Pharmaceuticals Ltd.</manufacturer>
+		<manufacturer id="SDZ">Sandoz Canada Inc.</manufacturer>
+		<manufacturer id="SEA">Searle Canada Inc.</manufacturer>
+		<manufacturer id="SEF">Seaford Pharmaceuticals Inc</manufacturer>
+		<manufacturer id="SEG">Seattle Generics Inc.</manufacturer>
+		<manufacturer id="SEP">Sepracor Pharmaceuticals Inc.</manufacturer>
+		<manufacturer id="SEQ">Seqirus PTY LTD.</manufacturer>
+		<manufacturer id="SER">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="SET">Septa Pharmaceuticals Inc.</manufacturer>
+		<manufacturer id="SEV">Servier Canada Inc.</manufacturer>
+		<manufacturer id="SHE">Shenzhen Techdow Pharmaceutical Co., Ltd.</manufacturer>
+		<manufacturer id="SHG">Shire Human Genetic Therapies Inc.</manufacturer>
+		<manufacturer id="SHI">Shire Pharma Canada ULC</manufacturer>
+		<manufacturer id="SHL">SHS International Ltd.</manufacturer>
+		<manufacturer id="SHM">Sherwood Inc.</manufacturer>
+		<manufacturer id="SHS">SHS North America</manufacturer>
+		<manufacturer id="SIG">Sigma-Tau Pharmaceutical Inc.</manufacturer>
+		<manufacturer id="SIL">Sabex 2002 Inc</manufacturer>
+		<manufacturer id="SIV">Sivem Pharmaceuticals ULC</manufacturer>
+		<manufacturer id="SKB">SmithKline Beecham Consumer Healthcare.</manufacturer>
+		<manufacturer id="SKF">Seaford Pharmaceuticals Inc. (S8)</manufacturer>
+		<manufacturer id="SKY">Skymed Corporation</manufacturer>
+		<manufacturer id="SLL">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="SLO">Solvay Kingswood Inc. - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="SLP">Searchlight Pharma Inc.</manufacturer>
+		<manufacturer id="SMJ">Smith Kline Beecham Pharma Inc</manufacturer>
+		<manufacturer id="SNE">Smith &amp; Nephew Inc.</manufacturer>
+		<manufacturer id="SOL">Solvay Kingswood Inc. - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="SOR">Sorres Pharma Inc.</manufacturer>
+		<manufacturer id="SOT">Shire Orphan Therapies Inc.</manufacturer>
+		<manufacturer id="SPC">Sun Pharma</manufacturer>
+		<manufacturer id="SPG">Sun Pharma Global FZE</manufacturer>
+		<manufacturer id="SPH">Solvay Pharma Inc.</manufacturer>
+		<manufacturer id="SPI">Shire Pharmaceuticals Ireland Limited.</manufacturer>
+		<manufacturer id="SQI">Squire Pharmaceuticals Inc.</manufacturer>
+		<manufacturer id="SQU">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="SRO">Serono Canada Inc.</manufacturer>
+		<manufacturer id="STA">Stason Pharmaceuticals Inc., Irvine</manufacturer>
+		<manufacturer id="STE">Sterimax Inc.</manufacturer>
+		<manufacturer id="STH">Sterling Health</manufacturer>
+		<manufacturer id="STI">Stiefel Canada Inc.</manufacturer>
+		<manufacturer id="STL">Stallergenes Canada Inc.</manufacturer>
+		<manufacturer id="STN">Sterinova Inc.</manufacturer>
+		<manufacturer id="STR">Strides Pharma Canada Inc.</manufacturer>
+		<manufacturer id="STW">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="SUN">Sun Pharmaceutical Inc</manufacturer>
+		<manufacturer id="SUO">Sunovion Pharmaceuticals Canada Inc.</manufacturer>
+		<manufacturer id="SUP">Supplements Aromatik Inc.</manufacturer>
+		<manufacturer id="SWE">Swedish Orphan BioVitrum</manufacturer>
+		<manufacturer id="SWS">Swiss Herbal Remedies Ltd.</manufacturer>
+		<manufacturer id="SYN">Syntex Inc.</manufacturer>
+		<manufacturer id="SYP">SynCare Pharmaceutical Inc.</manufacturer>
+		<manufacturer id="TAH">Taiho Pharma Canada Inc.</manufacturer>
+		<manufacturer id="TAI">Taidoc Technology Corporation</manufacturer>
+		<manufacturer id="TAK">Takeda Canada Inc.</manufacturer>
+		<manufacturer id="TAN">Tanta Pharmaceutical Co.</manufacturer>
+		<manufacturer id="TAP">TAP Pharmaceuticals</manufacturer>
+		<manufacturer id="TAR">Taro Pharmaceuticals Inc.</manufacturer>
+		<manufacturer id="TBP">Teva Branded Pharmaceutical Products R&amp;D Inc.</manufacturer>
+		<manufacturer id="TCD">Trans Canaderm Inc.</manufacturer>
+		<manufacturer id="TCH">Technilab Inc.</manufacturer>
+		<manufacturer id="TCI">Teligent Canada Inc.</manufacturer>
+		<manufacturer id="TEI">Teva Canada Innovation.</manufacturer>
+		<manufacturer id="TEL">Teligent OU</manufacturer>
+		<manufacturer id="TEP">Teligent Pharma Inc.</manufacturer>
+		<manufacturer id="TER">Therasense Canada Inc.</manufacturer>
+		<manufacturer id="TEV">Teva Canada Limited</manufacturer>
+		<manufacturer id="TEW">Teva Women&apos;s Health Inc.</manufacturer>
+		<manufacturer id="THE">Theramed Corporation</manufacturer>
+		<manufacturer id="THO">Thrombogenics NV</manufacturer>
+		<manufacturer id="THR">Thermor Ltd.</manufacturer>
+		<manufacturer id="TIC">Tican Pharmaceuticals Ltd.</manufacturer>
+		<manufacturer id="TIL">Tillomed Laboratories Ltd.</manufacturer>
+		<manufacturer id="TKJ">TEVA Pharmaceutical Industries Ltd.</manufacturer>
+		<manufacturer id="TLI">Laboratory Trianon Inc. - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="TMI">Trudell Medical International</manufacturer>
+		<manufacturer id="TMP">3M Pharmaceuticals/3M Canada Inc. - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="TOL">Tolmar International Ltd.</manufacturer>
+		<manufacturer id="TPA">Takeda Pharmaceuticals America Inc.</manufacturer>
+		<manufacturer id="TPG">Tillotts Pharma GMBH:</manufacturer>
+		<manufacturer id="TPH">TaroPharma, a Division of Taro Pharmaceuticals Inc.</manufacturer>
+		<manufacturer id="TRA">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="TRE">Tremblay Harrison Inc.</manufacturer>
+		<manufacturer id="TRI">Trillium Health Care Products Inc.</manufacturer>
+		<manufacturer id="TRO">Trophic Canada Ltd.</manufacturer>
+		<manufacturer id="TRS">TerSera Therapeutics LLC</manufacturer>
+		<manufacturer id="TRT">Triton Pharma Inc.</manufacturer>
+		<manufacturer id="UCB">UCB Canada Inc.</manufacturer>
+		<manufacturer id="UJC">Upjohn Canada ULC</manufacturer>
+		<manufacturer id="UME">Unimed Canada Inc.</manufacturer>
+		<manufacturer id="UNV">Univar Ltd.</manufacturer>
+		<manufacturer id="UPJ">The Upjohn Company of Canada</manufacturer>
+		<manufacturer id="UPS">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="USV">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="UTC">United Therapeutics Corporation (S8)</manufacturer>
+		<manufacturer id="VAE">Valeo Pharma Inc.</manufacturer>
+		<manufacturer id="VAL">Valeant Canada Ltd.</manufacturer>
+		<manufacturer id="VAN">Vanc Pharmaceuticals Inc.</manufacturer>
+		<manufacturer id="VER">Vertex Pharmaceuticals (Canada) Inc.</manufacturer>
+		<manufacturer id="VET">Verity Pharmaceuticals Inc.</manufacturer>
+		<manufacturer id="VHL">Vita Health Products Inc. (S8)</manufacturer>
+		<manufacturer id="VIA">Viatris</manufacturer>
+		<manufacturer id="VIF">Vifor Fresenius Medical Care Renal Pharma Ltd.</manufacturer>
+		<manufacturer id="VIH">ViiV Healthcare ULC</manufacturer>
+		<manufacturer id="VIP">Vita Health Products Inc.</manufacturer>
+		<manufacturer id="VIT">Vitaflo USA, LLC</manufacturer>
+		<manufacturer id="VIU">Vivus Inc.</manufacturer>
+		<manufacturer id="VIV">Viva Pharmaceuticals</manufacturer>
+		<manufacturer id="VLH">Lundbeck Canada Inc.</manufacturer>
+		<manufacturer id="VPI">VPI Pharmaceuticals Inc.</manufacturer>
+		<manufacturer id="VRO">Virco Pharmaceutical (Canada) Inc.</manufacturer>
+		<manufacturer id="WAB">Waymar Pharmaceuticals Inc.</manufacturer>
+		<manufacturer id="WAM">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="WAP">Wampole</manufacturer>
+		<manufacturer id="WAR">Warner Chilcott Canada Co.</manufacturer>
+		<manufacturer id="WAT">Watson Laboratories Inc.</manufacturer>
+		<manufacturer id="WAY">Wyeth Pharmaceuticals</manufacturer>
+		<manufacturer id="WBP">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="WCC">Women&apos;s Capital Corporation</manufacturer>
+		<manufacturer id="WEL">WellSpring Pharmaceutical Canada Corp.</manufacturer>
+		<manufacturer id="WHB">Whitehall-Robins Inc</manufacturer>
+		<manufacturer id="WHH">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="WIN">Winthrop Laboratories</manufacturer>
+		<manufacturer id="WLA">Warner-Lambert - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="WLN">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="WNP">WN Pharmaceuticals Ltd.</manufacturer>
+		<manufacturer id="WOC">Wockhardt UK Ltd. (S8)</manufacturer>
+		<manufacturer id="WRI">Whitehall-Robins Inc. - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="WSD">Manufacturer name not currently available</manufacturer>
+		<manufacturer id="WSQ">Westwood Squibb Pharmaceuticals</manufacturer>
+		<manufacturer id="WTR">Westcan Pharmaceuticals - &quot;DO NOT USE&quot;</manufacturer>
+		<manufacturer id="WYA">Wyeth-Ayerst Canada Inc.</manufacturer>
+		<manufacturer id="WYE">Wyeth Ltd.</manufacturer>
+		<manufacturer id="XED">Xediton Pharmaceuticals Inc.</manufacturer>
+		<manufacturer id="XEN">Xenex Laboratories Inc.</manufacturer>
+		<manufacturer id="XXX">Manufacturer cannot be identified</manufacturer>
+		<manufacturer id="YNO">Baxter AG (S8)</manufacturer>
+		<manufacturer id="YYY">Manufacturer for Gov&apos;t Pharmacy Items</manufacturer>
+		<manufacturer id="ZEN">Zeneca Pharma Inc.</manufacturer>
+		<manufacturer id="ZIL">Zila Pharmaceuticals Inc.</manufacturer>
+		<manufacturer id="ZOG">Zogenix, Inc.</manufacturer>
+		<manufacturer id="ZYN">Zymcan Pharmaceuticals Inc.</manufacturer>
+	</manufacturerList>
+	<formulary edition="4322" updateVer="A" formularyDate="2022-03-31" createDate="2022-03-31">
+		<pcg2 id="040000000">
+			<name>ANTIHISTAMINES</name>
+			<pcg6>
+				<genericName id="00005">
+					<name>CETIRIZINE HYDROCHLORIDE</name>
+					<pcgGroup>
+						<pcg9 id="040000086">
+							<itemNumber>0001</itemNumber>
+							<strength>10mg</strength>
+							<dosageForm>Tab</dosageForm>
+							<drug id="02223554" notABenefit="Y" sec3b="Y" sec3="Y">
+								<name>Reactine</name>
+								<manufacturerId>MCL</manufacturerId>
+								<listingDate>2007-12-19</listingDate>
+							</drug>
+							<drug id="02231603" notABenefit="Y" sec3b="Y" sec3="Y">
+								<name>Apo-Cetirizine</name>
+								<manufacturerId>APX</manufacturerId>
+								<individualPrice>.4083</individualPrice>
+								<listingDate>2007-12-19</listingDate>
+							</drug>
+							<drug id="02315955" notABenefit="Y" sec3b="Y" sec3="Y">
+								<name>Extra Strength Allergy Relief</name>
+								<manufacturerId>PMS</manufacturerId>
+								<individualPrice>.3938</individualPrice>
+								<listingDate>2009-11-13</listingDate>
+							</drug>
+							<drug id="02427133" notABenefit="Y" sec3b="Y" sec3="Y">
+								<name>Mar-Cetirizine</name>
+								<manufacturerId>MAR</manufacturerId>
+								<individualPrice>.4083</individualPrice>
+								<listingDate>2014-10-29</listingDate>
+							</drug>
+							<drug id="02451778" notABenefit="Y" sec3b="Y" sec3="Y">
+								<name>Jamp-Cetirizine</name>
+								<manufacturerId>JPC</manufacturerId>
+								<individualPrice>.4083</individualPrice>
+								<listingDate>2016-08-30</listingDate>
+							</drug>
+							<drug id="02496461" notABenefit="Y" sec3b="Y" sec3="Y">
+								<name>Nat-Cetirizine</name>
+								<manufacturerId>NAT</manufacturerId>
+								<individualPrice>.4083</individualPrice>
+								<listingDate>2020-05-29</listingDate>
+							</drug>
+						</pcg9>
+						<pcg9 id="040000087">
+							<itemNumber>0002</itemNumber>
+							<strength>20mg</strength>
+							<dosageForm>Tab</dosageForm>
+							<drug id="01900978" notABenefit="Y" sec3b="Y" sec3="Y">
+								<name>Reactine</name>
+								<manufacturerId>MCL</manufacturerId>
+								<listingDate>2008-12-23</listingDate>
+							</drug>
+							<drug id="02315963" notABenefit="Y" sec3b="Y" sec3="Y">
+								<name>PMS-Cetirizine</name>
+								<manufacturerId>PMS</manufacturerId>
+								<individualPrice>.7535</individualPrice>
+								<listingDate>2008-12-23</listingDate>
+							</drug>
+							<drug id="02427141" notABenefit="Y" sec3b="Y" sec3="Y">
+								<name>Mar-Cetirizine</name>
+								<manufacturerId>MAR</manufacturerId>
+								<individualPrice>.7535</individualPrice>
+								<listingDate>2014-10-29</listingDate>
+							</drug>
+							<drug id="02453363" notABenefit="Y" sec3b="Y" sec3="Y">
+								<name>Apo-Cetirizine</name>
+								<manufacturerId>APX</manufacturerId>
+								<individualPrice>.7535</individualPrice>
+								<listingDate>2016-06-29</listingDate>
+							</drug>
+							<drug id="02466171" notABenefit="Y" sec3b="Y" sec3="Y">
+								<name>Jamp-Cetirizine</name>
+								<manufacturerId>JPC</manufacturerId>
+								<individualPrice>.7535</individualPrice>
+								<listingDate>2017-10-30</listingDate>
+							</drug>
+							<drug id="02491125" notABenefit="Y" sec3b="Y" sec3="Y">
+								<name>Mint-Cetirizine</name>
+								<manufacturerId>MIN</manufacturerId>
+								<individualPrice>.7535</individualPrice>
+								<listingDate>2020-02-28</listingDate>
+							</drug>
+							<drug id="02496488" notABenefit="Y" sec3b="Y" sec3="Y">
+								<name>Nat-Cetirizine</name>
+								<manufacturerId>NAT</manufacturerId>
+								<individualPrice>.7535</individualPrice>
+								<listingDate>2020-05-29</listingDate>
+							</drug>
+							<drug id="02512025" notABenefit="Y" sec3b="Y" sec3="Y">
+								<name>M-Cetirizine</name>
+								<manufacturerId>MAT</manufacturerId>
+								<individualPrice>.7535</individualPrice>
+								<listingDate>2021-11-30</listingDate>
+							</drug>
+							<drug id="02515695" notABenefit="Y" sec3b="Y" sec3="Y">
+								<name>Cetirizine</name>
+								<manufacturerId>SAI</manufacturerId>
+								<individualPrice>.7535</individualPrice>
+								<listingDate>2021-07-30</listingDate>
+							</drug>
+						</pcg9>
+					</pcgGroup>
+				</genericName>
+				<genericName id="00015">
+					<name>LORATADINE</name>
+					<pcgGroup>
+						<pcg9 id="040000061">
+							<itemNumber>0003</itemNumber>
+							<strength>10mg</strength>
+							<dosageForm>Tab</dosageForm>
+							<drug id="00782696" sec3b="Y" sec3bEAP="Y" sec3="Y">
+								<name>Claritin</name>
+								<manufacturerId>SCP</manufacturerId>
+								<listingDate>2007-12-19</listingDate>
+							</drug>
+							<drug id="02243880" sec3b="Y" sec3bEAP="Y" sec3="Y">
+								<name>Apo-Loratadine</name>
+								<manufacturerId>APX</manufacturerId>
+								<individualPrice>.6267</individualPrice>
+								<listingDate>2007-12-19</listingDate>
+								<amountMOHLTCPays>.6267</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+					</pcgGroup>
+				</genericName>
+				<genericName id="00003">
+					<name>PROMETHAZINE HCL</name>
+					<pcgGroup>
+						<pcg9 id="040000022">
+							<itemNumber>0004</itemNumber>
+							<strength>2mg/mL</strength>
+							<dosageForm>O/L</dosageForm>
+							<drug id="00583979" notABenefit="Y" sec3="Y">
+								<name>PMS-Promethazine</name>
+								<manufacturerId>PMS</manufacturerId>
+								<listingDate>1996-10-01</listingDate>
+							</drug>
+							<drug id="01937693" notABenefit="Y" sec3="Y">
+								<name>Phenergan</name>
+								<manufacturerId>RPR</manufacturerId>
+								<listingDate>1996-10-01</listingDate>
+							</drug>
+						</pcg9>
+					</pcgGroup>
+				</genericName>
+			</pcg6>
+		</pcg2>
+		<pcg2 id="080000000">
+			<name>ANTI-INFECTIVE AGENTS</name>
+			<pcg6 id="080800000">
+				<name>ANTHELMINTICS</name>
+				<genericName id="00021">
+					<name>MEBENDAZOLE</name>
+					<pcgGroup>
+						<pcg9 id="080800013">
+							<itemNumber>0005</itemNumber>
+							<strength>100mg</strength>
+							<dosageForm>Tab</dosageForm>
+							<drug id="00556734" sec3="Y">
+								<name>Vermox</name>
+								<manufacturerId>JAN</manufacturerId>
+								<individualPrice>8.5000</individualPrice>
+								<listingDate>1996-10-01</listingDate>
+								<amountMOHLTCPays>8.5000</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+					</pcgGroup>
+				</genericName>
+			</pcg6>
+			<pcg6 id="081204000">
+				<name>ANTIBIOTICS ANTIFUNGALS</name>
+				<genericName id="00023">
+					<name>AMPHOTERICIN B</name>
+					<pcgGroup>
+						<pcg9 id="081204001">
+							<itemNumber>0006</itemNumber>
+							<dosageForm>Inj Pd-50mg Pk</dosageForm>
+							<drug id="00029149" sec3="Y">
+								<name>Fungizone</name>
+								<manufacturerId>CHE</manufacturerId>
+								<individualPrice>88.7500</individualPrice>
+								<listingDate>1996-10-01</listingDate>
+								<amountMOHLTCPays>88.7500</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+					</pcgGroup>
+				</genericName>
+				<genericName id="01604">
+					<name>CASPOFUNGIN ACETATE</name>
+					<pcgGroup>
+						<pcg9 id="081204027">
+							<itemNumber>0007</itemNumber>
+							<strength>50mg/Vial</strength>
+							<dosageForm>Inj-Vial Pk</dosageForm>
+							<drug id="02244265" sec3b="Y" sec3bEAP="Y" sec3="Y">
+								<name>Cancidas</name>
+								<manufacturerId>FRS</manufacturerId>
+								<listingDate>2017-08-30</listingDate>
+							</drug>
+							<drug id="02460947" sec3b="Y" sec3bEAP="Y" sec3="Y">
+								<name>Caspofungin for Injection</name>
+								<manufacturerId>MDI</manufacturerId>
+								<individualPrice>188.7000</individualPrice>
+								<listingDate>2017-08-30</listingDate>
+								<amountMOHLTCPays>188.7000</amountMOHLTCPays>
+							</drug>
+							<drug id="02486989" sec3b="Y" sec3bEAP="Y" sec3="Y">
+								<name>Caspofungin for Injection</name>
+								<manufacturerId>FKC</manufacturerId>
+								<individualPrice>222.5000</individualPrice>
+								<listingDate>2020-05-29</listingDate>
+								<amountMOHLTCPays>222.5000</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+					</pcgGroup>
+				</genericName>
+				<genericName id="00032">
+					<name>FLUCONAZOLE</name>
+					<pcgGroup lccId="00001">
+						<pcg9 id="081204025">
+							<itemNumber>0008</itemNumber>
+							<strength>10mg/mL</strength>
+							<dosageForm>O/L</dosageForm>
+							<drug id="02024152" sec3="Y" sec12="Y">
+								<name>Diflucan P.O.S.</name>
+								<manufacturerId>PFI</manufacturerId>
+								<individualPrice>1.2796</individualPrice>
+								<listingDate>1999-04-15</listingDate>
+								<amountMOHLTCPays>1.2796</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+						<lccNote seq="001" reasonForUseId="528">For patients who are unable to swallow or tolerate solid oral dosage forms.</lccNote>
+						<lccNote seq="002" type="R">LU Authorization Period: 1 year</lccNote>
+					</pcgGroup>
+					<pcgGroup lccId="00002">
+						<pcg9 id="081204023">
+							<itemNumber>0009</itemNumber>
+							<strength>50mg</strength>
+							<dosageForm>Tab</dosageForm>
+							<dailyCost>2.5808</dailyCost>
+							<drug id="00891800" notABenefit="Y" sec3="Y">
+								<name>Diflucan</name>
+								<manufacturerId>PFI</manufacturerId>
+								<listingDate>1996-10-01</listingDate>
+							</drug>
+							<drug id="02236978" sec3="Y">
+								<name>Teva-Fluconazole</name>
+								<manufacturerId>TEV</manufacturerId>
+								<individualPrice>1.2904</individualPrice>
+								<dailyCost>2.5808</dailyCost>
+								<listingDate>2003-04-16</listingDate>
+								<amountMOHLTCPays>1.2904</amountMOHLTCPays>
+							</drug>
+							<drug id="02237370" sec3="Y">
+								<name>Apo-Fluconazole</name>
+								<manufacturerId>APX</manufacturerId>
+								<individualPrice>1.2904</individualPrice>
+								<dailyCost>2.5808</dailyCost>
+								<listingDate>1999-09-15</listingDate>
+								<amountMOHLTCPays>1.2904</amountMOHLTCPays>
+							</drug>
+							<drug id="02245292" sec3="Y">
+								<name>Mylan-Fluconazole</name>
+								<manufacturerId>MYL</manufacturerId>
+								<individualPrice>1.2904</individualPrice>
+								<dailyCost>2.5808</dailyCost>
+								<listingDate>2003-04-16</listingDate>
+								<amountMOHLTCPays>1.2904</amountMOHLTCPays>
+							</drug>
+							<drug id="02245643" sec3="Y">
+								<name>PMS-Fluconazole</name>
+								<manufacturerId>PMS</manufacturerId>
+								<individualPrice>1.2904</individualPrice>
+								<dailyCost>2.5808</dailyCost>
+								<listingDate>2003-01-30</listingDate>
+								<amountMOHLTCPays>1.2904</amountMOHLTCPays>
+							</drug>
+							<drug id="02249294" notABenefit="Y" sec3="Y">
+								<name>Taro-Fluconazole</name>
+								<manufacturerId>TAR</manufacturerId>
+								<listingDate>2004-12-21</listingDate>
+							</drug>
+							<drug id="02281260" sec3="Y">
+								<name>ACT Fluconazole</name>
+								<manufacturerId>ACV</manufacturerId>
+								<individualPrice>1.2904</individualPrice>
+								<dailyCost>2.5808</dailyCost>
+								<listingDate>2008-01-15</listingDate>
+								<amountMOHLTCPays>1.2904</amountMOHLTCPays>
+							</drug>
+							<drug id="02517396" sec3="Y">
+								<name>Fluconazole</name>
+								<manufacturerId>SAI</manufacturerId>
+								<individualPrice>1.2904</individualPrice>
+								<dailyCost>2.5808</dailyCost>
+								<listingDate>2022-03-31</listingDate>
+								<amountMOHLTCPays>1.2904</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+						<pcg9 id="081204024">
+							<itemNumber>0010</itemNumber>
+							<strength>100mg</strength>
+							<dosageForm>Tab</dosageForm>
+							<dailyCost>2.2891</dailyCost>
+							<drug id="00891819" notABenefit="Y" sec3="Y">
+								<name>Diflucan</name>
+								<manufacturerId>PFI</manufacturerId>
+								<listingDate>1996-10-01</listingDate>
+							</drug>
+							<drug id="02236979" sec3="Y">
+								<name>Teva-Fluconazole</name>
+								<manufacturerId>TEV</manufacturerId>
+								<individualPrice>2.2891</individualPrice>
+								<dailyCost>2.2891</dailyCost>
+								<listingDate>2003-04-16</listingDate>
+								<amountMOHLTCPays>2.2891</amountMOHLTCPays>
+							</drug>
+							<drug id="02237371" sec3="Y">
+								<name>Apo-Fluconazole</name>
+								<manufacturerId>APX</manufacturerId>
+								<individualPrice>2.2891</individualPrice>
+								<dailyCost>2.2891</dailyCost>
+								<listingDate>1999-09-15</listingDate>
+								<amountMOHLTCPays>2.2891</amountMOHLTCPays>
+							</drug>
+							<drug id="02245293" sec3="Y">
+								<name>Mylan-Fluconazole</name>
+								<manufacturerId>MYL</manufacturerId>
+								<individualPrice>2.2891</individualPrice>
+								<dailyCost>2.2891</dailyCost>
+								<listingDate>2003-04-16</listingDate>
+								<amountMOHLTCPays>2.2891</amountMOHLTCPays>
+							</drug>
+							<drug id="02245644" sec3="Y">
+								<name>PMS-Fluconazole</name>
+								<manufacturerId>PMS</manufacturerId>
+								<individualPrice>2.2891</individualPrice>
+								<dailyCost>2.2891</dailyCost>
+								<listingDate>2003-01-30</listingDate>
+								<amountMOHLTCPays>2.2891</amountMOHLTCPays>
+							</drug>
+							<drug id="02249308" notABenefit="Y" sec3="Y">
+								<name>Taro-Fluconazole</name>
+								<manufacturerId>TAR</manufacturerId>
+								<listingDate>2004-12-21</listingDate>
+							</drug>
+							<drug id="02281279" sec3="Y">
+								<name>ACT Fluconazole</name>
+								<manufacturerId>ACV</manufacturerId>
+								<individualPrice>2.2891</individualPrice>
+								<dailyCost>2.2891</dailyCost>
+								<listingDate>2008-01-15</listingDate>
+								<amountMOHLTCPays>2.2891</amountMOHLTCPays>
+							</drug>
+							<drug id="02517418" sec3="Y">
+								<name>Fluconazole</name>
+								<manufacturerId>SAI</manufacturerId>
+								<individualPrice>2.2891</individualPrice>
+								<dailyCost>2.2891</dailyCost>
+								<listingDate>2022-03-31</listingDate>
+								<amountMOHLTCPays>2.2891</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+					</pcgGroup>
+				</genericName>
+				<genericName id="00031">
+					<name>ITRACONAZOLE</name>
+					<pcgGroup>
+						<pcg9 id="081204040">
+							<itemNumber>0011</itemNumber>
+							<strength>100mg</strength>
+							<dosageForm>Cap</dosageForm>
+							<drug id="02047454" sec3="Y">
+								<name>Sporanox</name>
+								<manufacturerId>JAN</manufacturerId>
+								<individualPrice>5.4880</individualPrice>
+								<listingDate>1996-10-01</listingDate>
+								<amountMOHLTCPays>3.9270</amountMOHLTCPays>
+							</drug>
+							<drug id="02462559" sec3="Y">
+								<name>Mint-Itraconazole</name>
+								<manufacturerId>MIN</manufacturerId>
+								<individualPrice>3.9270</individualPrice>
+								<listingDate>2017-07-31</listingDate>
+								<amountMOHLTCPays>3.9270</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+					</pcgGroup>
+					<pcgGroup lccId="00327">
+						<pcg9 id="081204043">
+							<itemNumber>0012</itemNumber>
+							<strength>10mg/mL</strength>
+							<dosageForm>Oral Sol</dosageForm>
+							<drug id="02231347" sec3="Y" sec12="Y">
+								<name>Sporanox</name>
+								<manufacturerId>JAN</manufacturerId>
+								<individualPrice>1.0236</individualPrice>
+								<listingDate>1998-12-31</listingDate>
+								<amountMOHLTCPays>.4111</amountMOHLTCPays>
+							</drug>
+							<drug id="02484315" sec3="Y" sec12="Y">
+								<name>Jamp Itraconazole Oral Solution</name>
+								<manufacturerId>JPC</manufacturerId>
+								<individualPrice>.4111</individualPrice>
+								<listingDate>2020-04-30</listingDate>
+								<amountMOHLTCPays>.4111</amountMOHLTCPays>
+							</drug>
+							<drug id="02495988" sec3="Y" sec12="Y">
+								<name>Odan-Itraconazole</name>
+								<manufacturerId>ODN</manufacturerId>
+								<individualPrice>.4111</individualPrice>
+								<listingDate>2020-08-28</listingDate>
+								<amountMOHLTCPays>.4111</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+						<lccNote seq="001" reasonForUseId="570">For patients who are unable to swallow or tolerate solid oral dosage forms.
+</lccNote>
+						<lccNote seq="002" type="R">LU Authorization Period: 1 year</lccNote>
+					</pcgGroup>
+				</genericName>
+				<genericName id="00027">
+					<name>KETOCONAZOLE</name>
+					<pcgGroup>
+						<pcg9 id="081204010">
+							<itemNumber>0013</itemNumber>
+							<strength>200mg</strength>
+							<dosageForm>Tab</dosageForm>
+							<dailyCost>.9393</dailyCost>
+							<drug id="00633836" notABenefit="Y" sec3="Y">
+								<name>Nizoral</name>
+								<manufacturerId>JAN</manufacturerId>
+								<note>A low pH is necessary for absorption. Antacids, anticholinergics/antispasmodics, H2-blockers, and omeprazole may decrease absorption. Ketoconazole is a potent inhibitor of hepatic oxidation of drugs and may cause significant elevation of blood levels of astemizole, cisapride, cyclosporine, terfenadine, theophylline and warfarin. Potentially fatal arrhythmias (torsade de pointes) can occur with the combination of ketoconazole and astemizole, cisapride or terfenadine. Insulin requirements may be reduced. Hepatotoxicity occurs in approximately 1 in 1500 patients treated with ketoconazole for onychomycosis; female gender, pre-existing disease, alcoholism and greater than 2 weeks of therapy are pre-disposing factors.</note>
+								<listingDate>1996-10-01</listingDate>
+							</drug>
+							<drug id="02231061" sec3="Y">
+								<name>Teva-Ketoconazole</name>
+								<manufacturerId>TEV</manufacturerId>
+								<individualPrice>.9393</individualPrice>
+								<dailyCost>.9393</dailyCost>
+								<note>A low pH is necessary for absorption. Antacids, anticholinergics/antispasmodics, H2-blockers, and omeprazole may decrease absorption. Ketoconazole is a potent inhibitor of hepatic oxidation of drugs and may cause significant elevation of blood levels of astemizole, cisapride, cyclosporine, terfenadine, theophylline and warfarin. Potentially fatal arrhythmias (torsade de pointes) can occur with the combination of ketoconazole and astemizole, cisapride or terfenadine. Insulin requirements may be reduced. Hepatotoxicity occurs in approximately 1 in 1500 patients treated with ketoconazole for onychomycosis; female gender, pre-existing disease, alcoholism and greater than 2 weeks of therapy are pre-disposing factors.</note>
+								<listingDate>2000-01-17</listingDate>
+								<amountMOHLTCPays>.9393</amountMOHLTCPays>
+							</drug>
+							<drug id="02237235" sec3="Y">
+								<name>Apo-Ketoconazole</name>
+								<manufacturerId>APX</manufacturerId>
+								<individualPrice>.9393</individualPrice>
+								<dailyCost>.9393</dailyCost>
+								<note>A low pH is necessary for absorption. Antacids, anticholinergics/antispasmodics, H2-blockers, and omeprazole may decrease absorption. Ketoconazole is a potent inhibitor of hepatic oxidation of drugs and may cause significant elevation of blood levels of astemizole, cisapride, cyclosporine, terfenadine, theophylline and warfarin. Potentially fatal arrhythmias (torsade de pointes) can occur with the combination of ketoconazole and astemizole, cisapride or terfenadine. Insulin requirements may be reduced. Hepatotoxicity occurs in approximately 1 in 1500 patients treated with ketoconazole for onychomycosis; female gender, pre-existing disease, alcoholism and greater than 2 weeks of therapy are pre-disposing factors.</note>
+								<listingDate>1999-09-15</listingDate>
+								<amountMOHLTCPays>.9393</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+					</pcgGroup>
+				</genericName>
+				<genericName id="00025">
+					<name>NYSTATIN</name>
+					<pcgGroup>
+						<pcg9 id="081204006">
+							<itemNumber>0014</itemNumber>
+							<strength>100000U/mL</strength>
+							<dosageForm>O/L</dosageForm>
+							<dailyCost>.2072</dailyCost>
+							<drug id="00248169" notABenefit="Y" sec3="Y">
+								<name>Mycostatin</name>
+								<manufacturerId>BQU</manufacturerId>
+								<listingDate>1996-10-01</listingDate>
+							</drug>
+							<drug id="02194201" sec3="Y">
+								<name>Ratio-Nystatin</name>
+								<manufacturerId>RPH</manufacturerId>
+								<individualPrice>.0518</individualPrice>
+								<dailyCost>.2072</dailyCost>
+								<listingDate>1997-10-31</listingDate>
+								<amountMOHLTCPays>.0518</amountMOHLTCPays>
+							</drug>
+							<drug id="02433443" sec3="Y">
+								<name>Jamp-Nystatin Oral Suspension USP</name>
+								<manufacturerId>JPC</manufacturerId>
+								<individualPrice>.0518</individualPrice>
+								<dailyCost>.2072</dailyCost>
+								<listingDate>2021-11-30</listingDate>
+								<amountMOHLTCPays>.0518</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+					</pcgGroup>
+				</genericName>
+				<genericName id="01704">
+					<name>POSACONAZOLE</name>
+					<pcgGroup>
+						<pcg9 id="081204038">
+							<itemNumber>0015</itemNumber>
+							<strength>100mg</strength>
+							<dosageForm>DR Tab</dosageForm>
+							<drug id="02424622" sec3b="Y" sec3bEAP="Y" sec3="Y">
+								<name>Posanol</name>
+								<manufacturerId>MEK</manufacturerId>
+								<individualPrice>51.4244</individualPrice>
+								<listingDate>2021-01-29</listingDate>
+								<amountMOHLTCPays>42.6030</amountMOHLTCPays>
+							</drug>
+							<drug id="02496259" sec3b="Y" sec3bEAP="Y" sec3="Y">
+								<name>Sandoz Posaconazole</name>
+								<manufacturerId>SDZ</manufacturerId>
+								<individualPrice>42.6030</individualPrice>
+								<listingDate>2021-01-29</listingDate>
+								<amountMOHLTCPays>42.6030</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+					</pcgGroup>
+				</genericName>
+				<genericName id="00030">
+					<name>TERBINAFINE HCL</name>
+					<pcgGroup>
+						<pcg9 id="081204016">
+							<itemNumber>0016</itemNumber>
+							<strength>250mg</strength>
+							<dosageForm>Tab</dosageForm>
+							<drug id="02031116" notABenefit="Y" sec3="Y">
+								<name>Lamisil</name>
+								<manufacturerId>NOV</manufacturerId>
+								<listingDate>2007-12-19</listingDate>
+							</drug>
+							<drug id="02239893" sec3="Y">
+								<name>Apo-Terbinafine</name>
+								<manufacturerId>APX</manufacturerId>
+								<individualPrice>.7714</individualPrice>
+								<listingDate>2007-12-19</listingDate>
+								<amountMOHLTCPays>.7714</amountMOHLTCPays>
+							</drug>
+							<drug id="02240346" sec3="Y">
+								<name>Teva-Terbinafine</name>
+								<manufacturerId>TEV</manufacturerId>
+								<individualPrice>.7714</individualPrice>
+								<listingDate>2007-12-19</listingDate>
+								<amountMOHLTCPays>.7714</amountMOHLTCPays>
+							</drug>
+							<drug id="02254727" sec3="Y">
+								<name>Co Terbinafine</name>
+								<manufacturerId>COB</manufacturerId>
+								<individualPrice>.7714</individualPrice>
+								<listingDate>2007-12-19</listingDate>
+								<amountMOHLTCPays>.7714</amountMOHLTCPays>
+							</drug>
+							<drug id="02294273" sec3="Y">
+								<name>PMS-Terbinafine</name>
+								<manufacturerId>PMS</manufacturerId>
+								<individualPrice>.7714</individualPrice>
+								<listingDate>2009-09-30</listingDate>
+								<amountMOHLTCPays>.7714</amountMOHLTCPays>
+							</drug>
+							<drug id="02320134" sec3="Y">
+								<name>Auro-Terbinafine</name>
+								<manufacturerId>AUR</manufacturerId>
+								<individualPrice>.7714</individualPrice>
+								<listingDate>2011-09-15</listingDate>
+								<amountMOHLTCPays>.7714</amountMOHLTCPays>
+							</drug>
+							<drug id="02353121" sec3="Y">
+								<name>Terbinafine</name>
+								<manufacturerId>SAI</manufacturerId>
+								<individualPrice>.7714</individualPrice>
+								<listingDate>2011-08-04</listingDate>
+								<amountMOHLTCPays>.7714</amountMOHLTCPays>
+							</drug>
+							<drug id="02385279" sec3="Y">
+								<name>Terbinafine</name>
+								<manufacturerId>SIV</manufacturerId>
+								<individualPrice>.7714</individualPrice>
+								<listingDate>2020-11-30</listingDate>
+								<amountMOHLTCPays>.7714</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+					</pcgGroup>
+				</genericName>
+				<genericName id="01634">
+					<name>VORICONAZOLE</name>
+					<pcgGroup lccId="00165">
+						<pcg9 id="081204029">
+							<itemNumber>0017</itemNumber>
+							<strength>50mg</strength>
+							<dosageForm>Tab</dosageForm>
+							<drug id="02256460" sec3="Y" sec12="Y">
+								<name>Vfend</name>
+								<manufacturerId>PFI</manufacturerId>
+								<individualPrice>13.5635</individualPrice>
+								<listingDate>2005-09-27</listingDate>
+								<amountMOHLTCPays>6.7818</amountMOHLTCPays>
+							</drug>
+							<drug id="02396866" sec3="Y" sec12="Y">
+								<name>Teva-Voriconazole</name>
+								<manufacturerId>TEV</manufacturerId>
+								<individualPrice>6.7818</individualPrice>
+								<listingDate>2014-05-29</listingDate>
+								<amountMOHLTCPays>6.7818</amountMOHLTCPays>
+							</drug>
+							<drug id="02399245" sec3="Y" sec12="Y">
+								<name>Sandoz Voriconazole</name>
+								<manufacturerId>SDZ</manufacturerId>
+								<individualPrice>6.7818</individualPrice>
+								<listingDate>2014-05-29</listingDate>
+								<amountMOHLTCPays>6.7818</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+						<pcg9 id="081204030">
+							<itemNumber>0018</itemNumber>
+							<strength>200mg</strength>
+							<dosageForm>Tab</dosageForm>
+							<drug id="02256479" sec3="Y" sec12="Y">
+								<name>Vfend</name>
+								<manufacturerId>PFI</manufacturerId>
+								<individualPrice>54.2323</individualPrice>
+								<listingDate>2005-09-27</listingDate>
+								<amountMOHLTCPays>26.4807</amountMOHLTCPays>
+							</drug>
+							<drug id="02396874" sec3="Y" sec12="Y">
+								<name>Teva-Voriconazole</name>
+								<manufacturerId>TEV</manufacturerId>
+								<individualPrice>26.4807</individualPrice>
+								<listingDate>2014-05-29</listingDate>
+								<amountMOHLTCPays>26.4807</amountMOHLTCPays>
+							</drug>
+							<drug id="02399253" sec3="Y" sec12="Y">
+								<name>Sandoz Voriconazole</name>
+								<manufacturerId>SDZ</manufacturerId>
+								<individualPrice>26.4807</individualPrice>
+								<listingDate>2014-05-29</listingDate>
+								<amountMOHLTCPays>26.4807</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+						<lccNote seq="001" reasonForUseId="399">Outpatient continuation of treatment for documented invasive aspergillosis in patients who have demonstrated a clinical response to either oral or parenteral voriconazole.
+* The first prescription must be written by a physician based at the hospital where the patient was hospitalized.
+Note: Limited to 3 months of reimbursement.</lccNote>
+						<lccNote seq="002" type="R">LU Authorization Period: 1 year</lccNote>
+					</pcgGroup>
+				</genericName>
+			</pcg6>
+			<pcg6 id="081207000">
+				<name>ANTIBIOTICS CARBAPENEMS</name>
+				<genericName id="01375">
+					<name>MEROPENEM</name>
+					<pcgGroup>
+						<pcg9 id="081207003">
+							<itemNumber>0019</itemNumber>
+							<strength>1g/Vial</strength>
+							<dosageForm>Pd for Inj Sol</dosageForm>
+							<drug id="02218496" sec3b="Y" sec3bEAP="Y" sec3="Y">
+								<name>Merrem</name>
+								<manufacturerId>PFI</manufacturerId>
+								<listingDate>2021-04-30</listingDate>
+							</drug>
+							<drug id="02378795" sec3b="Y" sec3bEAP="Y" sec3="Y">
+								<name>Meropenem for Injection</name>
+								<manufacturerId>SDZ</manufacturerId>
+								<individualPrice>47.9900</individualPrice>
+								<listingDate>2021-10-29</listingDate>
+								<amountMOHLTCPays>47.9900</amountMOHLTCPays>
+							</drug>
+							<drug id="02421526" sec3b="Y" sec3bEAP="Y" sec3="Y">
+								<name>Taro-Meropenem</name>
+								<manufacturerId>SPC</manufacturerId>
+								<individualPrice>47.9900</individualPrice>
+								<listingDate>2021-04-30</listingDate>
+								<amountMOHLTCPays>47.9900</amountMOHLTCPays>
+							</drug>
+							<drug id="02493349" sec3b="Y" sec3bEAP="Y" sec3="Y">
+								<name>Meropenem for Injection</name>
+								<manufacturerId>STE</manufacturerId>
+								<individualPrice>47.9900</individualPrice>
+								<listingDate>2021-09-30</listingDate>
+								<amountMOHLTCPays>47.9900</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+						<pcg9 id="081207002">
+							<itemNumber>0020</itemNumber>
+							<strength>500mg/Vial</strength>
+							<dosageForm>Pd for Inj Sol</dosageForm>
+							<drug id="02218488" sec3b="Y" sec3bEAP="Y" sec3="Y">
+								<name>Merrem</name>
+								<manufacturerId>PFI</manufacturerId>
+								<listingDate>2021-04-30</listingDate>
+							</drug>
+							<drug id="02378787" sec3b="Y" sec3bEAP="Y" sec3="Y">
+								<name>Meropenem for Injection</name>
+								<manufacturerId>SDZ</manufacturerId>
+								<individualPrice>23.9950</individualPrice>
+								<listingDate>2021-10-29</listingDate>
+								<amountMOHLTCPays>23.9950</amountMOHLTCPays>
+							</drug>
+							<drug id="02421518" sec3b="Y" sec3bEAP="Y" sec3="Y">
+								<name>Taro-Meropenem</name>
+								<manufacturerId>SPC</manufacturerId>
+								<individualPrice>23.9950</individualPrice>
+								<listingDate>2021-04-30</listingDate>
+								<amountMOHLTCPays>23.9950</amountMOHLTCPays>
+							</drug>
+							<drug id="02493330" sec3b="Y" sec3bEAP="Y" sec3="Y">
+								<name>Meropenem for Injection</name>
+								<manufacturerId>STE</manufacturerId>
+								<individualPrice>23.9950</individualPrice>
+								<listingDate>2021-09-30</listingDate>
+								<amountMOHLTCPays>23.9950</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+					</pcgGroup>
+				</genericName>
+			</pcg6>
+			<pcg6 id="081212000">
+				<name>ANTIBIOTICS ERYTHROMYCINS</name>
+				<note>Erythromycin alone is not adequate for the treatment of H. influenzae infections. It lacks consistently reliable activity against this organism. Erythromycin is a potent inhibitor of hepatic oxidation of some drugs and may cause significant elevation of blood levels of astemizole, carbamazepine, cyclosporine, digoxin, dihydropyridines, terfenadine, theophylline and warfarin. Potentially fatal arrhythmias (torsade de pointes) can occur with the combination of erythromycin and astemizole or terfenadine.</note>
+				<genericName id="00040">
+					<name>AZITHROMYCIN</name>
+					<pcgGroup>
+						<pcg9 id="081212025">
+							<itemNumber>0021</itemNumber>
+							<strength>100mg/5mL</strength>
+							<dosageForm>O/L-15mL Pk</dosageForm>
+							<drug id="02223716" sec3="Y">
+								<name>Zithromax</name>
+								<manufacturerId>PFI</manufacturerId>
+								<individualPrice>17.6415</individualPrice>
+								<listingDate>1997-08-28</listingDate>
+								<amountMOHLTCPays>8.8208</amountMOHLTCPays>
+							</drug>
+							<drug id="02332388" sec3="Y">
+								<name>Sandoz Azithromycin</name>
+								<manufacturerId>SDZ</manufacturerId>
+								<individualPrice>8.8208</individualPrice>
+								<listingDate>2010-04-23</listingDate>
+								<amountMOHLTCPays>8.8208</amountMOHLTCPays>
+							</drug>
+							<drug id="02482363" sec3="Y">
+								<name>Auro-Azithromycin</name>
+								<manufacturerId>AUR</manufacturerId>
+								<individualPrice>8.8208</individualPrice>
+								<listingDate>2020-04-30</listingDate>
+								<amountMOHLTCPays>8.8208</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+						<pcg9 id="081212026">
+							<itemNumber>0022</itemNumber>
+							<strength>200mg/5mL</strength>
+							<dosageForm>O/L-15mL Pk</dosageForm>
+							<drug id="02223724" sec3="Y">
+								<name>Zithromax</name>
+								<manufacturerId>PFI</manufacturerId>
+								<individualPrice>24.9885</individualPrice>
+								<listingDate>1997-08-28</listingDate>
+								<amountMOHLTCPays>12.4943</amountMOHLTCPays>
+							</drug>
+							<drug id="02332396" sec3="Y">
+								<name>Sandoz Azithromycin</name>
+								<manufacturerId>SDZ</manufacturerId>
+								<individualPrice>12.4943</individualPrice>
+								<listingDate>2010-04-23</listingDate>
+								<amountMOHLTCPays>12.4943</amountMOHLTCPays>
+							</drug>
+							<drug id="02482371" sec3="Y">
+								<name>Auro-Azithromycin</name>
+								<manufacturerId>AUR</manufacturerId>
+								<individualPrice>12.4943</individualPrice>
+								<listingDate>2020-04-30</listingDate>
+								<amountMOHLTCPays>12.4943</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+						<pcg9 id="081212036">
+							<itemNumber>0023</itemNumber>
+							<strength>200mg/5mL</strength>
+							<dosageForm>O/L-22.5mL Pk</dosageForm>
+							<drug id="09857315" sec3="Y">
+								<name>Zithromax</name>
+								<manufacturerId>PFI</manufacturerId>
+								<individualPrice>37.4828</individualPrice>
+								<listingDate>2009-03-02</listingDate>
+								<amountMOHLTCPays>18.7425</amountMOHLTCPays>
+							</drug>
+							<drug id="09857351" sec3="Y">
+								<name>Sandoz Azithromycin</name>
+								<manufacturerId>SDZ</manufacturerId>
+								<individualPrice>18.7425</individualPrice>
+								<listingDate>2010-04-23</listingDate>
+								<amountMOHLTCPays>18.7425</amountMOHLTCPays>
+							</drug>
+							<drug id="09857636" sec3="Y">
+								<name>Auro-Azithromycin</name>
+								<manufacturerId>AUR</manufacturerId>
+								<individualPrice>18.7425</individualPrice>
+								<listingDate>2020-04-30</listingDate>
+								<amountMOHLTCPays>18.7425</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+						<pcg9 id="081212041">
+							<itemNumber>0024</itemNumber>
+							<strength>200mg/5mL</strength>
+							<dosageForm>O/L-37.5mL Pk</dosageForm>
+							<note>Zithromax 200mg/5mL oral solution is not commercially available in the 37.5mL pack size and it is only shown in this interchangeable category to facilitate the interchangeability designation with Auro-Azithromycin 200mg/5mL - 37.5mL pack.</note>
+							<drug id="09857637" notABenefit="Y" sec3="Y">
+								<name>Zithromax</name>
+								<manufacturerId>PFI</manufacturerId>
+								<listingDate>2020-05-29</listingDate>
+							</drug>
+							<drug id="09857638" sec3="Y">
+								<name>Auro-Azithromycin</name>
+								<manufacturerId>AUR</manufacturerId>
+								<individualPrice>31.2375</individualPrice>
+								<listingDate>2020-05-29</listingDate>
+								<amountMOHLTCPays>31.2375</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+						<pcg9 id="081212029">
+							<itemNumber>0025</itemNumber>
+							<strength>250mg</strength>
+							<dosageForm>Tab</dosageForm>
+							<drug id="02212021" sec3="Y">
+								<name>Zithromax</name>
+								<manufacturerId>PFI</manufacturerId>
+								<individualPrice>5.4382</individualPrice>
+								<listingDate>1999-04-15</listingDate>
+								<amountMOHLTCPays>.9410</amountMOHLTCPays>
+							</drug>
+							<drug id="02247423" sec3="Y">
+								<name>Apo-Azithromycin</name>
+								<manufacturerId>APX</manufacturerId>
+								<individualPrice>.9410</individualPrice>
+								<listingDate>2006-01-24</listingDate>
+								<amountMOHLTCPays>.9410</amountMOHLTCPays>
+							</drug>
+							<drug id="02261634" sec3="Y">
+								<name>PMS-Azithromycin</name>
+								<manufacturerId>PMS</manufacturerId>
+								<individualPrice>.9410</individualPrice>
+								<listingDate>2006-03-01</listingDate>
+								<amountMOHLTCPays>.9410</amountMOHLTCPays>
+							</drug>
+							<drug id="02265826" sec3="Y">
+								<name>Sandoz Azithromycin</name>
+								<manufacturerId>SDZ</manufacturerId>
+								<individualPrice>.9410</individualPrice>
+								<listingDate>2006-01-24</listingDate>
+								<amountMOHLTCPays>.9410</amountMOHLTCPays>
+							</drug>
+							<drug id="02267845" sec3="Y">
+								<name>Novo-Azithromycin</name>
+								<manufacturerId>NOP</manufacturerId>
+								<individualPrice>.9410</individualPrice>
+								<listingDate>2006-01-24</listingDate>
+								<amountMOHLTCPays>.9410</amountMOHLTCPays>
+							</drug>
+							<drug id="02275309" sec3="Y">
+								<name>Riva-Azithromycin</name>
+								<manufacturerId>RIA</manufacturerId>
+								<individualPrice>.9410</individualPrice>
+								<listingDate>2021-08-31</listingDate>
+								<amountMOHLTCPays>.9410</amountMOHLTCPays>
+							</drug>
+							<drug id="02330881" sec3="Y">
+								<name>Azithromycin</name>
+								<manufacturerId>SAI</manufacturerId>
+								<individualPrice>.9410</individualPrice>
+								<listingDate>2011-08-04</listingDate>
+								<amountMOHLTCPays>.9410</amountMOHLTCPays>
+							</drug>
+							<drug id="02415542" sec3="Y">
+								<name>Apo-Azithromycin Z</name>
+								<manufacturerId>APX</manufacturerId>
+								<individualPrice>.9410</individualPrice>
+								<listingDate>2014-01-30</listingDate>
+								<amountMOHLTCPays>.9410</amountMOHLTCPays>
+							</drug>
+							<drug id="02442434" sec3="Y">
+								<name>Azithromycin</name>
+								<manufacturerId>SIV</manufacturerId>
+								<individualPrice>.9410</individualPrice>
+								<listingDate>2020-04-30</listingDate>
+								<amountMOHLTCPays>.9410</amountMOHLTCPays>
+							</drug>
+							<drug id="02452308" sec3="Y">
+								<name>Jamp-Azithromycin</name>
+								<manufacturerId>JPC</manufacturerId>
+								<individualPrice>.9410</individualPrice>
+								<listingDate>2016-11-30</listingDate>
+								<amountMOHLTCPays>.9410</amountMOHLTCPays>
+							</drug>
+							<drug id="02452324" sec3="Y">
+								<name>Mar-Azithromycin</name>
+								<manufacturerId>MAR</manufacturerId>
+								<individualPrice>.9410</individualPrice>
+								<listingDate>2016-11-30</listingDate>
+								<amountMOHLTCPays>.9410</amountMOHLTCPays>
+							</drug>
+							<drug id="02479680" sec3="Y">
+								<name>NRA-Azithromycin</name>
+								<manufacturerId>NRA</manufacturerId>
+								<individualPrice>.9410</individualPrice>
+								<listingDate>2020-06-30</listingDate>
+								<amountMOHLTCPays>.9410</amountMOHLTCPays>
+							</drug>
+							<drug id="02480700" sec3="Y">
+								<name>AG-Azithromycin</name>
+								<manufacturerId>ANG</manufacturerId>
+								<individualPrice>.9410</individualPrice>
+								<listingDate>2020-10-30</listingDate>
+								<amountMOHLTCPays>.9410</amountMOHLTCPays>
+							</drug>
+							<drug id="02502038" sec3="Y">
+								<name>M-Azithromycin</name>
+								<manufacturerId>MAT</manufacturerId>
+								<individualPrice>.9410</individualPrice>
+								<listingDate>2021-08-31</listingDate>
+								<amountMOHLTCPays>.9410</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+					</pcgGroup>
+					<pcgGroup lccId="00313">
+						<pcg9 id="081212028">
+							<itemNumber>0026</itemNumber>
+							<strength>600mg</strength>
+							<dosageForm>Tab</dosageForm>
+							<drug id="02231143" notABenefit="Y" sec3="Y">
+								<name>Zithromax</name>
+								<manufacturerId>PFI</manufacturerId>
+								<listingDate>1998-12-31</listingDate>
+							</drug>
+							<drug id="02261642" sec3="Y" sec12="Y">
+								<name>PMS-Azithromycin</name>
+								<manufacturerId>PMS</manufacturerId>
+								<individualPrice>10.6652</individualPrice>
+								<listingDate>2011-10-25</listingDate>
+								<amountMOHLTCPays>10.6652</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+						<lccNote seq="001" reasonForUseId="549">For the prevention of disseminated Mycobacterium avium complex (MAC) disease in persons with advanced HIV infections.</lccNote>
+						<lccNote seq="002" type="R">LU Authorization Period: 1 year</lccNote>
+					</pcgGroup>
+				</genericName>
+				<genericName id="00039">
+					<name>CLARITHROMYCIN</name>
+					<pcgGroup>
+						<pcg9 id="081212032">
+							<itemNumber>0027</itemNumber>
+							<strength>500mg</strength>
+							<dosageForm>ER Tab</dosageForm>
+							<dailyCost>2.5144</dailyCost>
+							<drug id="02244756" sec3="Y">
+								<name>Biaxin XL</name>
+								<manufacturerId>BGP</manufacturerId>
+								<individualPrice>2.5672</individualPrice>
+								<dailyCost>5.1344</dailyCost>
+								<listingDate>2003-01-30</listingDate>
+								<amountMOHLTCPays>1.2572</amountMOHLTCPays>
+							</drug>
+							<drug id="02403196" sec3="Y">
+								<name>Act Clarithromycin XL</name>
+								<manufacturerId>ACV</manufacturerId>
+								<individualPrice>1.2572</individualPrice>
+								<dailyCost>2.5144</dailyCost>
+								<listingDate>2014-12-18</listingDate>
+								<amountMOHLTCPays>1.2572</amountMOHLTCPays>
+							</drug>
+							<drug id="02413345" sec3="Y">
+								<name>Apo-Clarithromycin XL</name>
+								<manufacturerId>APX</manufacturerId>
+								<individualPrice>1.2572</individualPrice>
+								<dailyCost>2.5144</dailyCost>
+								<listingDate>2014-10-29</listingDate>
+								<amountMOHLTCPays>1.2572</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+						<pcg9 id="081212030">
+							<itemNumber>0028</itemNumber>
+							<strength>125mg/5mL</strength>
+							<dosageForm>Ped Gran</dosageForm>
+							<dailyCost>2.0470</dailyCost>
+							<drug id="02146908" sec3="Y">
+								<name>Biaxin</name>
+								<manufacturerId>BGP</manufacturerId>
+								<individualPrice>.3029</individualPrice>
+								<dailyCost>3.0290</dailyCost>
+								<listingDate>1997-08-28</listingDate>
+								<amountMOHLTCPays>.2047</amountMOHLTCPays>
+							</drug>
+							<drug id="02390442" sec3="Y">
+								<name>Taro-Clarithromycin</name>
+								<manufacturerId>TAR</manufacturerId>
+								<individualPrice>.2047</individualPrice>
+								<dailyCost>2.0470</dailyCost>
+								<listingDate>2013-01-29</listingDate>
+								<amountMOHLTCPays>.2047</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+						<pcg9 id="081212031">
+							<itemNumber>0029</itemNumber>
+							<strength>250mg/5mL</strength>
+							<dosageForm>Susp</dosageForm>
+							<dailyCost>3.9980</dailyCost>
+							<drug id="02244641" sec3="Y">
+								<name>Biaxin</name>
+								<manufacturerId>BGP</manufacturerId>
+								<individualPrice>.5944</individualPrice>
+								<dailyCost>5.9440</dailyCost>
+								<listingDate>2003-01-30</listingDate>
+								<amountMOHLTCPays>.3998</amountMOHLTCPays>
+							</drug>
+							<drug id="02390450" sec3="Y">
+								<name>Taro-Clarithromycin</name>
+								<manufacturerId>TAR</manufacturerId>
+								<individualPrice>.3998</individualPrice>
+								<dailyCost>3.9980</dailyCost>
+								<listingDate>2013-01-29</listingDate>
+								<amountMOHLTCPays>.3998</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+						<pcg9 id="081212020">
+							<itemNumber>0030</itemNumber>
+							<strength>250mg</strength>
+							<dosageForm>Tab</dosageForm>
+							<dailyCost>.8244</dailyCost>
+							<drug id="01984853" sec3="Y">
+								<name>Biaxin BID</name>
+								<manufacturerId>BGP</manufacturerId>
+								<individualPrice>1.6833</individualPrice>
+								<dailyCost>3.3666</dailyCost>
+								<listingDate>1996-10-01</listingDate>
+								<amountMOHLTCPays>.4122</amountMOHLTCPays>
+							</drug>
+							<drug id="02247573" sec3="Y">
+								<name>PMS-Clarithromycin</name>
+								<manufacturerId>PMS</manufacturerId>
+								<individualPrice>.4122</individualPrice>
+								<dailyCost>.8244</dailyCost>
+								<listingDate>2007-10-03</listingDate>
+								<amountMOHLTCPays>.4122</amountMOHLTCPays>
+							</drug>
+							<drug id="02248804" sec3="Y">
+								<name>Teva-Clarithromycin</name>
+								<manufacturerId>TEV</manufacturerId>
+								<individualPrice>.4122</individualPrice>
+								<dailyCost>.8244</dailyCost>
+								<listingDate>2012-12-21</listingDate>
+								<amountMOHLTCPays>.4122</amountMOHLTCPays>
+							</drug>
+							<drug id="02266539" sec3="Y">
+								<name>Sandoz Clarithromycin</name>
+								<manufacturerId>SDZ</manufacturerId>
+								<individualPrice>.4122</individualPrice>
+								<dailyCost>.8244</dailyCost>
+								<listingDate>2008-08-28</listingDate>
+								<amountMOHLTCPays>.4122</amountMOHLTCPays>
+							</drug>
+							<drug id="02274744" sec3="Y">
+								<name>Apo-Clarithromycin</name>
+								<manufacturerId>APX</manufacturerId>
+								<individualPrice>.4122</individualPrice>
+								<dailyCost>.8244</dailyCost>
+								<listingDate>2007-09-04</listingDate>
+								<amountMOHLTCPays>.4122</amountMOHLTCPays>
+							</drug>
+							<drug id="02361426" sec3="Y">
+								<name>Ran-Clarithromycin</name>
+								<manufacturerId>RAN</manufacturerId>
+								<individualPrice>.4122</individualPrice>
+								<dailyCost>.8244</dailyCost>
+								<listingDate>2011-08-04</listingDate>
+								<amountMOHLTCPays>.4122</amountMOHLTCPays>
+							</drug>
+							<drug id="02442469" sec3="Y">
+								<name>Clarithromycin</name>
+								<manufacturerId>SIV</manufacturerId>
+								<individualPrice>.4122</individualPrice>
+								<dailyCost>.8244</dailyCost>
+								<listingDate>2020-06-30</listingDate>
+								<amountMOHLTCPays>.4122</amountMOHLTCPays>
+							</drug>
+							<drug id="02466120" sec3="Y">
+								<name>Clarithromycin</name>
+								<manufacturerId>SAI</manufacturerId>
+								<individualPrice>.4122</individualPrice>
+								<dailyCost>.8244</dailyCost>
+								<listingDate>2020-04-30</listingDate>
+								<amountMOHLTCPays>.4122</amountMOHLTCPays>
+							</drug>
+							<drug id="02471388" sec3="Y">
+								<name>M-Clarithromycin</name>
+								<manufacturerId>MAT</manufacturerId>
+								<individualPrice>.4122</individualPrice>
+								<dailyCost>.8244</dailyCost>
+								<listingDate>2021-10-29</listingDate>
+								<amountMOHLTCPays>.4122</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+						<pcg9 id="081212024">
+							<itemNumber>0031</itemNumber>
+							<strength>500mg</strength>
+							<dosageForm>Tab</dosageForm>
+							<drug id="02126710" notABenefit="Y" sec3b="Y" sec3="Y">
+								<name>Biaxin BID</name>
+								<manufacturerId>BGP</manufacturerId>
+								<listingDate>2007-10-03</listingDate>
+							</drug>
+							<drug id="02247574" notABenefit="Y" sec3b="Y" sec3="Y">
+								<name>PMS-Clarithromycin</name>
+								<manufacturerId>PMS</manufacturerId>
+								<individualPrice>2.2009</individualPrice>
+								<listingDate>2007-10-03</listingDate>
+							</drug>
+							<drug id="02248805" notABenefit="Y" sec3b="Y" sec3="Y">
+								<name>Teva-Clarithromycin</name>
+								<manufacturerId>TEV</manufacturerId>
+								<individualPrice>2.2009</individualPrice>
+								<listingDate>2013-01-29</listingDate>
+							</drug>
+							<drug id="02266547" notABenefit="Y" sec3b="Y" sec3="Y">
+								<name>Sandoz Clarithromycin</name>
+								<manufacturerId>SDZ</manufacturerId>
+								<individualPrice>2.2009</individualPrice>
+								<listingDate>2008-08-28</listingDate>
+							</drug>
+							<drug id="02274752" notABenefit="Y" sec3b="Y" sec3="Y">
+								<name>Apo-Clarithromycin</name>
+								<manufacturerId>APX</manufacturerId>
+								<individualPrice>2.2009</individualPrice>
+								<listingDate>2007-10-03</listingDate>
+							</drug>
+							<drug id="02346532" notABenefit="Y" sec3b="Y" sec3="Y">
+								<name>Riva-Clarithromycin</name>
+								<manufacturerId>RIA</manufacturerId>
+								<individualPrice>2.2009</individualPrice>
+								<listingDate>2021-08-31</listingDate>
+							</drug>
+							<drug id="02361434" notABenefit="Y" sec3b="Y" sec3="Y">
+								<name>Ran-Clarithromycin</name>
+								<manufacturerId>RAN</manufacturerId>
+								<individualPrice>2.2009</individualPrice>
+								<listingDate>2011-08-04</listingDate>
+							</drug>
+							<drug id="02442485" notABenefit="Y" sec3b="Y" sec3="Y">
+								<name>Clarithromycin</name>
+								<manufacturerId>SIV</manufacturerId>
+								<individualPrice>2.2009</individualPrice>
+								<listingDate>2020-06-30</listingDate>
+							</drug>
+							<drug id="02466139" notABenefit="Y" sec3b="Y" sec3="Y">
+								<name>Clarithromycin</name>
+								<manufacturerId>SAI</manufacturerId>
+								<individualPrice>2.2009</individualPrice>
+								<listingDate>2021-05-31</listingDate>
+							</drug>
+							<drug id="02471396" notABenefit="Y" sec3b="Y" sec3="Y">
+								<name>M-Clarithromycin</name>
+								<manufacturerId>MAT</manufacturerId>
+								<individualPrice>2.2009</individualPrice>
+								<listingDate>2021-10-29</listingDate>
+							</drug>
+						</pcg9>
+					</pcgGroup>
+				</genericName>
+				<genericName id="00033">
+					<name>ERYTHROMYCIN BASE</name>
+					<pcgGroup>
+						<pcg9 id="081212001">
+							<itemNumber>0032</itemNumber>
+							<strength>250mg</strength>
+							<dosageForm>Tab</dosageForm>
+							<dailyCost>.7460</dailyCost>
+							<drug id="00244635" notABenefit="Y" sec3="Y">
+								<name>Erythromid</name>
+								<manufacturerId>ABB</manufacturerId>
+								<listingDate>1996-10-01</listingDate>
+							</drug>
+							<drug id="00682020" sec3="Y">
+								<name>Erythro-Base</name>
+								<manufacturerId>AAP</manufacturerId>
+								<individualPrice>.1865</individualPrice>
+								<dailyCost>.7460</dailyCost>
+								<listingDate>1996-10-01</listingDate>
+								<amountMOHLTCPays>.1865</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+					</pcgGroup>
+				</genericName>
+				<genericName id="00036">
+					<name>ERYTHROMYCIN ESTOLATE</name>
+					<pcgGroup>
+						<pcg9 id="081212007">
+							<itemNumber>0033</itemNumber>
+							<strength>50mg/mL</strength>
+							<dosageForm>O/L</dosageForm>
+							<dailyCost>1.4260</dailyCost>
+							<drug id="00210641" notABenefit="Y" sec3="Y">
+								<name>Ilosone</name>
+								<manufacturerId>LIL</manufacturerId>
+								<listingDate>1996-10-01</listingDate>
+							</drug>
+							<drug id="00262595" sec3="Y">
+								<name>Novo-Rythro Estolate</name>
+								<manufacturerId>NOP</manufacturerId>
+								<individualPrice>.0713</individualPrice>
+								<dailyCost>1.4260</dailyCost>
+								<listingDate>1996-10-01</listingDate>
+								<amountMOHLTCPays>.0713</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+					</pcgGroup>
+				</genericName>
+				<genericName id="00034">
+					<name>ERYTHROMYCIN ETHYLSUCCINATE</name>
+					<pcgGroup>
+						<pcg9 id="081212002">
+							<itemNumber>0034</itemNumber>
+							<strength>40mg/mL</strength>
+							<dosageForm>O/L</dosageForm>
+							<dailyCost>1.0035</dailyCost>
+							<drug id="00000299" notABenefit="Y" sec3="Y">
+								<name>EES-200</name>
+								<manufacturerId>ABB</manufacturerId>
+								<listingDate>1996-10-01</listingDate>
+							</drug>
+							<drug id="00605859" sec3="Y">
+								<name>Novo-Rythro Ethyl Succinate</name>
+								<manufacturerId>NOP</manufacturerId>
+								<individualPrice>.0669</individualPrice>
+								<dailyCost>1.0035</dailyCost>
+								<listingDate>1996-10-01</listingDate>
+								<amountMOHLTCPays>.0669</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+						<pcg9 id="081212009">
+							<itemNumber>0035</itemNumber>
+							<strength>80mg/mL</strength>
+							<dosageForm>O/L</dosageForm>
+							<dailyCost>1.5195</dailyCost>
+							<drug id="00453617" notABenefit="Y" sec3="Y">
+								<name>EES-400</name>
+								<manufacturerId>ABB</manufacturerId>
+								<listingDate>1996-10-01</listingDate>
+							</drug>
+							<drug id="00652318" sec3="Y">
+								<name>Novo-Rythro Ethyl Succinate</name>
+								<manufacturerId>NOP</manufacturerId>
+								<individualPrice>.1013</individualPrice>
+								<dailyCost>1.5195</dailyCost>
+								<listingDate>1996-10-01</listingDate>
+								<amountMOHLTCPays>.1013</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+					</pcgGroup>
+				</genericName>
+			</pcg6>
+			<pcg6 id="081216000">
+				<name>ANTIBIOTICS PENICILLINS</name>
+				<genericName id="00050">
+					<name>AMOXICILLIN</name>
+					<note>The activity of amoxicillin is essentially identical to ampicillin. However, amoxicillin is more completely absorbed and causes diarrhea less frequently than ampicillin. The only situation where amoxicillin should not be used to replace oral ampicillin is Shigellosis.</note>
+					<pcgGroup>
+						<pcg9 id="081216036">
+							<itemNumber>0036</itemNumber>
+							<strength>250mg</strength>
+							<dosageForm>Cap</dosageForm>
+							<dailyCost>.2016</dailyCost>
+							<drug id="00406724" sec3="Y">
+								<name>Novamoxin</name>
+								<manufacturerId>TEV</manufacturerId>
+								<individualPrice>.0672</individualPrice>
+								<dailyCost>.2016</dailyCost>
+								<listingDate>1996-10-01</listingDate>
+								<amountMOHLTCPays>.0672</amountMOHLTCPays>
+							</drug>
+							<drug id="00628115" sec3="Y">
+								<name>Apo-Amoxi</name>
+								<manufacturerId>APX</manufacturerId>
+								<individualPrice>.0672</individualPrice>
+								<dailyCost>.2016</dailyCost>
+								<listingDate>1996-10-01</listingDate>
+								<amountMOHLTCPays>.0672</amountMOHLTCPays>
+							</drug>
+							<drug id="02041294" notABenefit="Y" sec3="Y">
+								<name>Amoxil</name>
+								<manufacturerId>WAY</manufacturerId>
+								<listingDate>1996-10-01</listingDate>
+							</drug>
+							<drug id="02352710" sec3="Y">
+								<name>Amoxicillin</name>
+								<manufacturerId>SAI</manufacturerId>
+								<individualPrice>.0672</individualPrice>
+								<dailyCost>.2016</dailyCost>
+								<listingDate>2020-08-28</listingDate>
+								<amountMOHLTCPays>.0672</amountMOHLTCPays>
+							</drug>
+							<drug id="02388073" sec3="Y">
+								<name>Auro-Amoxicillin</name>
+								<manufacturerId>AUR</manufacturerId>
+								<individualPrice>.0672</individualPrice>
+								<dailyCost>.2016</dailyCost>
+								<listingDate>2012-12-21</listingDate>
+								<amountMOHLTCPays>.0672</amountMOHLTCPays>
+							</drug>
+							<drug id="02433060" sec3="Y">
+								<name>Jamp-Amoxicillin</name>
+								<manufacturerId>JPC</manufacturerId>
+								<individualPrice>.0672</individualPrice>
+								<dailyCost>.2016</dailyCost>
+								<listingDate>2019-03-28</listingDate>
+								<amountMOHLTCPays>.0672</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+						<pcg9 id="081216039">
+							<itemNumber>0037</itemNumber>
+							<strength>500mg</strength>
+							<dosageForm>Cap</dosageForm>
+							<dailyCost>.3924</dailyCost>
+							<drug id="00406716" sec3="Y">
+								<name>Novamoxin</name>
+								<manufacturerId>TEV</manufacturerId>
+								<individualPrice>.1308</individualPrice>
+								<dailyCost>.3924</dailyCost>
+								<listingDate>1996-10-01</listingDate>
+								<amountMOHLTCPays>.1308</amountMOHLTCPays>
+							</drug>
+							<drug id="00628123" sec3="Y">
+								<name>Apo-Amoxi</name>
+								<manufacturerId>APX</manufacturerId>
+								<individualPrice>.1308</individualPrice>
+								<dailyCost>.3924</dailyCost>
+								<listingDate>1996-10-01</listingDate>
+								<amountMOHLTCPays>.1308</amountMOHLTCPays>
+							</drug>
+							<drug id="02041308" notABenefit="Y" sec3="Y">
+								<name>Amoxil</name>
+								<manufacturerId>WAY</manufacturerId>
+								<listingDate>1996-10-01</listingDate>
+							</drug>
+							<drug id="02230244" sec3="Y">
+								<name>PMS-Amoxicillin</name>
+								<manufacturerId>PMS</manufacturerId>
+								<individualPrice>.3417</individualPrice>
+								<dailyCost>1.0251</dailyCost>
+								<listingDate>2004-04-06</listingDate>
+								<amountMOHLTCPays>.1308</amountMOHLTCPays>
+							</drug>
+							<drug id="02352729" sec3="Y">
+								<name>Amoxicillin</name>
+								<manufacturerId>SAI</manufacturerId>
+								<individualPrice>.1308</individualPrice>
+								<dailyCost>.3924</dailyCost>
+								<listingDate>2020-08-28</listingDate>
+								<amountMOHLTCPays>.1308</amountMOHLTCPays>
+							</drug>
+							<drug id="02388081" sec3="Y">
+								<name>Auro-Amoxicillin</name>
+								<manufacturerId>AUR</manufacturerId>
+								<individualPrice>.1308</individualPrice>
+								<dailyCost>.3924</dailyCost>
+								<listingDate>2012-12-21</listingDate>
+								<amountMOHLTCPays>.1308</amountMOHLTCPays>
+							</drug>
+							<drug id="02401509" sec3="Y">
+								<name>Amoxicillin</name>
+								<manufacturerId>SIV</manufacturerId>
+								<individualPrice>.1308</individualPrice>
+								<dailyCost>.3924</dailyCost>
+								<listingDate>2020-12-18</listingDate>
+								<amountMOHLTCPays>.1308</amountMOHLTCPays>
+							</drug>
+							<drug id="02433079" sec3="Y">
+								<name>Jamp-Amoxicillin</name>
+								<manufacturerId>JPC</manufacturerId>
+								<individualPrice>.1308</individualPrice>
+								<dailyCost>.3924</dailyCost>
+								<listingDate>2019-03-28</listingDate>
+								<amountMOHLTCPays>.1308</amountMOHLTCPays>
+							</drug>
+							<drug id="02477726" sec3="Y">
+								<name>AG-Amoxicillin</name>
+								<manufacturerId>ANG</manufacturerId>
+								<individualPrice>.1308</individualPrice>
+								<dailyCost>.3924</dailyCost>
+								<listingDate>2020-12-18</listingDate>
+								<amountMOHLTCPays>.1308</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+						<pcg9 id="081216090">
+							<itemNumber>0038</itemNumber>
+							<strength>125mg</strength>
+							<dosageForm>Chew Tab</dosageForm>
+							<drug id="02036347" notABenefit="Y" sec3b="Y" sec3="Y">
+								<name>Novamoxin Chewable</name>
+								<manufacturerId>TEV</manufacturerId>
+								<individualPrice>.5099</individualPrice>
+								<listingDate>2008-11-04</listingDate>
+							</drug>
+							<drug id="02041685" notABenefit="Y" sec3b="Y" sec3="Y">
+								<name>Amoxil Chewable</name>
+								<manufacturerId>AYE</manufacturerId>
+								<listingDate>2008-11-04</listingDate>
+							</drug>
+						</pcg9>
+						<pcg9 id="081216091">
+							<itemNumber>0039</itemNumber>
+							<strength>250mg</strength>
+							<dosageForm>Chew Tab</dosageForm>
+							<drug id="02036355" notABenefit="Y" sec3b="Y" sec3="Y">
+								<name>Novamoxin Chewable</name>
+								<manufacturerId>TEV</manufacturerId>
+								<individualPrice>.7512</individualPrice>
+								<listingDate>2008-11-04</listingDate>
+							</drug>
+							<drug id="02041286" notABenefit="Y" sec3b="Y" sec3="Y">
+								<name>Amoxil Chewable</name>
+								<manufacturerId>AYE</manufacturerId>
+								<listingDate>2008-11-04</listingDate>
+							</drug>
+						</pcg9>
+						<pcg9 id="081216038">
+							<itemNumber>0040</itemNumber>
+							<strength>25mg/mL</strength>
+							<dosageForm>O/L</dosageForm>
+							<dailyCost>.5295</dailyCost>
+							<drug id="00452149" dinStatus="E" sec3="Y">
+								<name>Novamoxin</name>
+								<manufacturerId>TEV</manufacturerId>
+								<individualPrice>.0353</individualPrice>
+								<dailyCost>.5295</dailyCost>
+								<listingDate>1996-10-01</listingDate>
+								<amountMOHLTCPays>.0353</amountMOHLTCPays>
+							</drug>
+							<drug id="00628131" sec3="Y">
+								<name>Apo-Amoxi</name>
+								<manufacturerId>APX</manufacturerId>
+								<individualPrice>.0353</individualPrice>
+								<dailyCost>.5295</dailyCost>
+								<listingDate>1996-10-01</listingDate>
+								<amountMOHLTCPays>.0353</amountMOHLTCPays>
+							</drug>
+							<drug id="01934171" dinStatus="E" sec3="Y">
+								<name>Novamoxin (Sugar Reduced)</name>
+								<manufacturerId>TEV</manufacturerId>
+								<individualPrice>.0353</individualPrice>
+								<dailyCost>.5295</dailyCost>
+								<listingDate>1996-10-01</listingDate>
+								<amountMOHLTCPays>.0353</amountMOHLTCPays>
+							</drug>
+							<drug id="02041316" notABenefit="Y" sec3="Y">
+								<name>Amoxil</name>
+								<manufacturerId>WAY</manufacturerId>
+								<listingDate>1996-10-01</listingDate>
+							</drug>
+						</pcg9>
+						<pcg9 id="081216037">
+							<itemNumber>0041</itemNumber>
+							<strength>50mg/mL</strength>
+							<dosageForm>O/L</dosageForm>
+							<dailyCost>.8100</dailyCost>
+							<drug id="00452130" sec3="Y">
+								<name>Novamoxin</name>
+								<manufacturerId>TEV</manufacturerId>
+								<individualPrice>.0540</individualPrice>
+								<dailyCost>.8100</dailyCost>
+								<listingDate>1996-10-01</listingDate>
+								<amountMOHLTCPays>.0540</amountMOHLTCPays>
+							</drug>
+							<drug id="00628158" sec3="Y">
+								<name>Apo-Amoxi</name>
+								<manufacturerId>APX</manufacturerId>
+								<individualPrice>.0540</individualPrice>
+								<dailyCost>.8100</dailyCost>
+								<listingDate>1996-10-01</listingDate>
+								<amountMOHLTCPays>.0540</amountMOHLTCPays>
+							</drug>
+							<drug id="01934163" sec3="Y">
+								<name>Novamoxin (Sugar Reduced)</name>
+								<manufacturerId>TEV</manufacturerId>
+								<individualPrice>.0540</individualPrice>
+								<dailyCost>.8100</dailyCost>
+								<listingDate>1996-10-01</listingDate>
+								<amountMOHLTCPays>.0540</amountMOHLTCPays>
+							</drug>
+							<drug id="02042592" notABenefit="Y" sec3="Y">
+								<name>Amoxil</name>
+								<manufacturerId>WAY</manufacturerId>
+								<listingDate>1996-10-01</listingDate>
+							</drug>
+							<drug id="02352753" sec3="Y">
+								<name>Amoxicillin</name>
+								<manufacturerId>SAI</manufacturerId>
+								<individualPrice>.0540</individualPrice>
+								<dailyCost>.8100</dailyCost>
+								<listingDate>2020-08-28</listingDate>
+								<amountMOHLTCPays>.0540</amountMOHLTCPays>
+							</drug>
+							<drug id="02352788" sec3="Y">
+								<name>Amoxicillin (Sugar Reduced)</name>
+								<manufacturerId>SAI</manufacturerId>
+								<individualPrice>.0540</individualPrice>
+								<dailyCost>.8100</dailyCost>
+								<listingDate>2020-10-30</listingDate>
+								<amountMOHLTCPays>.0540</amountMOHLTCPays>
+							</drug>
+							<drug id="02401541" sec3="Y">
+								<name>Amoxicillin</name>
+								<manufacturerId>SIV</manufacturerId>
+								<individualPrice>.0540</individualPrice>
+								<dailyCost>.8100</dailyCost>
+								<listingDate>2020-08-28</listingDate>
+								<amountMOHLTCPays>.0540</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+					</pcgGroup>
+				</genericName>
+				<genericName id="00054">
+					<name>AMOXICILLIN &amp; CLAVULANIC ACID</name>
+					<note>Amoxicillin/clavulanic acid is not recommended as first line treatment for acute otitis media and sinusitis. Antibiotic resistance (H. influenzae, M. catarrhalis) due to B-lactamase production has caused only a minority of treatment failures with amoxicillin. Amoxicillin/clavulanic acid is first line treatment for infected bites of cat, dog or human.</note>
+					<pcgGroup>
+						<pcg9 id="081216054">
+							<itemNumber>0042</itemNumber>
+							<strength>25mg &amp; 6.25mg/mL</strength>
+							<dosageForm>O/L</dosageForm>
+							<dailyCost>1.4970</dailyCost>
+							<drug id="01916882" sec3="Y">
+								<name>Clavulin</name>
+								<manufacturerId>GSK</manufacturerId>
+								<individualPrice>.0998</individualPrice>
+								<dailyCost>1.4970</dailyCost>
+								<listingDate>1996-10-01</listingDate>
+								<amountMOHLTCPays>.0998</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+						<pcg9 id="081216053">
+							<itemNumber>0043</itemNumber>
+							<strength>50mg &amp; 12.5mg/mL</strength>
+							<dosageForm>O/L</dosageForm>
+							<dailyCost>3.2595</dailyCost>
+							<drug id="01916874" sec3="Y">
+								<name>Clavulin</name>
+								<manufacturerId>GSK</manufacturerId>
+								<individualPrice>.2173</individualPrice>
+								<dailyCost>3.2595</dailyCost>
+								<listingDate>1996-10-01</listingDate>
+								<amountMOHLTCPays>.2173</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+						<pcg9 id="081216081">
+							<itemNumber>0044</itemNumber>
+							<strength>200mg &amp; 28.5mg/5mL</strength>
+							<dosageForm>Susp</dosageForm>
+							<drug id="02238831" sec3="Y">
+								<name>Clavulin (BID)</name>
+								<manufacturerId>GSK</manufacturerId>
+								<individualPrice>.1559</individualPrice>
+								<listingDate>2000-01-17</listingDate>
+								<amountMOHLTCPays>.1559</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+						<pcg9 id="081216082">
+							<itemNumber>0045</itemNumber>
+							<strength>400mg &amp; 57mg/5mL</strength>
+							<dosageForm>Susp</dosageForm>
+							<drug id="02238830" sec3="Y">
+								<name>Clavulin (BID)</name>
+								<manufacturerId>GSK</manufacturerId>
+								<individualPrice>.3039</individualPrice>
+								<listingDate>2000-01-17</listingDate>
+								<amountMOHLTCPays>.3039</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+						<pcg9 id="081216052">
+							<itemNumber>0046</itemNumber>
+							<strength>250mg &amp; 125mg</strength>
+							<dosageForm>Tab</dosageForm>
+							<dailyCost>1.4802</dailyCost>
+							<drug id="01916866" notABenefit="Y" sec3="Y">
+								<name>Clavulin</name>
+								<manufacturerId>GSK</manufacturerId>
+								<listingDate>1996-10-01</listingDate>
+							</drug>
+							<drug id="02243350" sec3="Y">
+								<name>Apo-Amoxi Clav</name>
+								<manufacturerId>APX</manufacturerId>
+								<individualPrice>.4934</individualPrice>
+								<dailyCost>1.4802</dailyCost>
+								<listingDate>2001-10-11</listingDate>
+								<amountMOHLTCPays>.4934</amountMOHLTCPays>
+							</drug>
+							<drug id="02508249" sec3="Y">
+								<name>Jamp Amoxi Clav</name>
+								<manufacturerId>JPC</manufacturerId>
+								<individualPrice>.4934</individualPrice>
+								<dailyCost>1.4802</dailyCost>
+								<listingDate>2022-02-28</listingDate>
+								<amountMOHLTCPays>.4934</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+						<pcg9 id="081216051">
+							<itemNumber>0047</itemNumber>
+							<strength>500mg &amp; 125mg</strength>
+							<dosageForm>Tab</dosageForm>
+							<dailyCost>1.1334</dailyCost>
+							<drug id="01916858" sec3="Y">
+								<name>Clavulin</name>
+								<manufacturerId>GSK</manufacturerId>
+								<individualPrice>1.6060</individualPrice>
+								<dailyCost>4.8180</dailyCost>
+								<listingDate>1996-10-01</listingDate>
+								<amountMOHLTCPays>.3778</amountMOHLTCPays>
+							</drug>
+							<drug id="02243351" sec3="Y">
+								<name>Apo-Amoxi Clav</name>
+								<manufacturerId>APX</manufacturerId>
+								<individualPrice>.3778</individualPrice>
+								<dailyCost>1.1334</dailyCost>
+								<listingDate>2001-10-11</listingDate>
+								<amountMOHLTCPays>.3778</amountMOHLTCPays>
+							</drug>
+							<drug id="02482576" sec3="Y">
+								<name>Sandoz Amoxi-Clav Tablets</name>
+								<manufacturerId>SDZ</manufacturerId>
+								<individualPrice>.3778</individualPrice>
+								<dailyCost>1.1334</dailyCost>
+								<listingDate>2019-04-30</listingDate>
+								<amountMOHLTCPays>.3778</amountMOHLTCPays>
+							</drug>
+							<drug id="02508257" sec3="Y">
+								<name>Jamp Amoxi Clav</name>
+								<manufacturerId>JPC</manufacturerId>
+								<individualPrice>.3778</individualPrice>
+								<dailyCost>1.1334</dailyCost>
+								<listingDate>2022-02-28</listingDate>
+								<amountMOHLTCPays>.3778</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+						<pcg9 id="081216080">
+							<itemNumber>0048</itemNumber>
+							<strength>875mg &amp; 125mg</strength>
+							<dosageForm>Tab</dosageForm>
+							<drug id="02238829" sec3="Y">
+								<name>Clavulin (BID)</name>
+								<manufacturerId>GSK</manufacturerId>
+								<individualPrice>2.3415</individualPrice>
+								<listingDate>2000-01-17</listingDate>
+								<amountMOHLTCPays>.5551</amountMOHLTCPays>
+							</drug>
+							<drug id="02245623" sec3="Y">
+								<name>Apo-Amoxi Clav</name>
+								<manufacturerId>APX</manufacturerId>
+								<individualPrice>.5551</individualPrice>
+								<listingDate>2003-09-04</listingDate>
+								<amountMOHLTCPays>.5551</amountMOHLTCPays>
+							</drug>
+							<drug id="02482584" sec3="Y">
+								<name>Sandoz Amoxi-Clav Tablets</name>
+								<manufacturerId>SDZ</manufacturerId>
+								<individualPrice>.5551</individualPrice>
+								<listingDate>2019-04-30</listingDate>
+								<amountMOHLTCPays>.5551</amountMOHLTCPays>
+							</drug>
+							<drug id="02508265" sec3="Y">
+								<name>Jamp Amoxi Clav</name>
+								<manufacturerId>JPC</manufacturerId>
+								<individualPrice>.5551</individualPrice>
+								<listingDate>2022-02-28</listingDate>
+								<amountMOHLTCPays>.5551</amountMOHLTCPays>
+							</drug>
+						</pcg9>
+					</pcgGroup>
+				</genericName>
