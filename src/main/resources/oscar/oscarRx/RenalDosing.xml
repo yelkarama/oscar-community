@@ -18,7 +18,7 @@
         </moreinfo>
     </medication>
 
-	<medication name="sitagliptan" atccode="A10BH01">
+	<medication name="sitagliptin" atccode="A10BH01">
 		<dose clcrrange="30-45">50mg po od</dose>
         <dose clcrrange="&lt;30">25mg po od</dose>
         <moreinfo>    
@@ -28,7 +28,7 @@
         </moreinfo>
     </medication>
 	
-	<medication name="glibenclamide" atccode="A10BB01">
+	<medication name="glyburide" atccode="A10BB01">
         <dose clcrrange="&lt;50">AVOID</dose>
         <moreinfo>    
             Normal dose: 2.5-20mg OD
@@ -37,7 +37,7 @@
         </moreinfo>
     </medication>
 
-	<medication name="empagliflozin" atccode="A10BK03">
+	<medication name="empagliflozin" atccode="A10BX12">
 		<dose clcrrange="&gt;60">10mg po od</dose>
         <dose clcrrange="&lt;45">Limited glycemic effect</dose>
         <dose clcrrange="&lt;15">Stop on Dialysis</dose>
