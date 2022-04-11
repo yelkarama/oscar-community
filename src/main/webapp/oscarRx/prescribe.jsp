@@ -251,6 +251,8 @@ if(listRxDrugs!=null){
 		<div>
         <label id="labelQuantity_<%=rand%>"  style="float:left;width:80px;">Qty/Mitte:</label><input size="8" <%if(rx.isCustomNote()){%> disabled <%}%> type="text" id="quantity_<%=rand%>"     name="quantity_<%=rand%>"     value="<%=quantityText%>" onblur="updateQty(this);" />
         <label style="">Repeats:</label><input type="text" size="5" id="repeats_<%=rand%>"  <%if(rx.isCustomNote()){%> disabled <%}%>    name="repeats_<%=rand%>"   value="<%=repeats%>" onInput="updateLongTerm('<%=rand %>',this)" onblur="updateProperty(this.id)"/>
+        <span id="cost_<%=rand%>" ></span>
+        <script type="text/javascript">getCost('cost_<%=rand%>','<%=rand%>','<%=rx.getRegionalIdentifier()%>','<%=quantityText%>');</script>
 		</div>
 		<div id="medTerm_<%=rand%>">
 			<label><bean:message key="WriteScript.msgLongTermMedication" />: </label>
