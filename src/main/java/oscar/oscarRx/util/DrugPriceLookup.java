@@ -67,6 +67,7 @@ public class DrugPriceLookup {
 			log.info("din null returning null");
 			return null;
 		}
+		log.debug("current lookup for din " + din + " yields " + costLookup.get(din));
 		return costLookup.get(din);
 	}
 
