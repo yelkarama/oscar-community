@@ -125,7 +125,7 @@ public class DrugPriceLookup {
 				while (drugs.hasNext()) {
 					Element drug = drugs.next();
 					String din = drug.getAttribute("id").getValue();
-					String cost = getVal(drug, "individualPrice");
+					String cost = drug.getChildText("individualPrice");
 					costLookup.put(din, cost);
 				}
 						
@@ -147,3 +147,4 @@ public class DrugPriceLookup {
 
 	}
 }
+
