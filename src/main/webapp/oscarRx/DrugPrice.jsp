@@ -36,28 +36,30 @@
 <%@page import="java.util.*" %>
 <%@page import="java.text.*" %>
 <%@page import="oscar.util.*" %>
-
+<%@page import="oscar.oscarRx.util.DrugPriceLookup" %>
 
            <%
-           String din = request.getParameter("din");
-           String randomId = request.getParameter("randomId");
-           String quantity = request.getParameter("qty");
-           String cost = getPriceInfoForDin(din);
-			
-            if (cost != null  && cost.matches("\\d*(\\.\\d+)?")){
+		    String din = request.getParameter("din");
+		    String randomId = request.getParameter("randomId");
+		    String quantity = request.getParameter("qty");
+		    String cost = oscar.oscarRx.util.DrugPriceLookup.getPriceInfoForDin(din);
+		    String moneyString = "";
+		    NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("en", "US"));
+		
+            if (cost != null && cost !="" && cost.matches("\\d*(\\.\\d+)?")){
 				//lets cast to float
 				float fa = Float.valueOf(cost);
 				float money = fa;
-				if (quantity != null && quantity.matches("\\d*(\\.\\d+)?")){
+				if (quantity != null && quantity !="" && quantity !="0" && quantity.matches("\\d*(\\.\\d+)?")){
 					float fb = Float.valueOf(quantity);
 					money = fa * fb;
-				}
-				//lets format it
-				NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("en", "US"));
-				String moneyString = formatter.format(money);			
-				
+					moneyString = formatter.format(money)+"/"+quantity;
+				} else {
+				    //lets format it
+					moneyString = formatter.format(money)+"/1";			
+                }				
          %>
-            <span style="float:left; margin-left:2px; margin-right: 2px;">
+            <span style="margin-left:2px; margin-right: 2px;">
 			<%=moneyString%>	
             </span>
             <%}%>
