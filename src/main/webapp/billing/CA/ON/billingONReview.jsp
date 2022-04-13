@@ -276,7 +276,11 @@ boolean dupServiceCode = false;
 <head>
 <title>OscarBilling</title>
 <!--<link rel="stylesheet" type="text/css" href="billingON.css" /> -->
-
+<style>
+	.myYellow {
+		border-bottom: 1px solid;
+	}
+</style>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 <link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
