@@ -4,7 +4,7 @@
 # makes a debian installer release from source
 
 #===================================================================
-# Copyright Peter Hutten-Czapski 2012-2021 released under the GPL v2
+# Copyright Peter Hutten-Czapski 2012-2022 released under the GPL v2
 #===================================================================
 
 
@@ -221,6 +221,36 @@
 # v 33 - updated to upload drugref from bitbucket 
 # v 34 - upload drugref from bitbucket, and modification for tomcat 9 experimental install
 # v 35 - reverted drugref after issues
+# v 36 - config bugs for oscar.properties
+# v 40 - resume sourcing drugref from bitbucket, initial 19.5
+# v 41 - initial Tomcat 9 tested release
+# v 42 - fixes for certbot pem copy bug
+# v 43 - switch chgrp to chown which is more appropriate and purge of purge bugs
+# v 44 - OscarBC19.sql changes for MariaDB 10.3 to match earlier ones for ON
+# v 45 - made link for properties files into WEB-INF/classes
+# v 46 - initial support for Java 11
+# v 47 - initial support for migrating existing data to MariaDD 10.3
+# v 48 - added missing patch statement
+# v 49 - added override.conf for tomcat9 to allow read/write to /usr/share/oscar-emr/
+# v 50 - changed skip_postal_code_validation default to true
+# v 51 - disabled code to activate password access to MariaDb as if varies by version
+# v 52 - remove directory check
+# v 53 - minor tomcat 9 config changes
+# v 54 - set fax_file_location=/usr/share/oscar-emr/OscarDocument/fax/ in config
+# v 55 - bug fix overrides tomcat 9 sandbox
+# v 56 - added indicatorTemplatePANEL.sql and 2FA.sh scripts and deactivated K2A
+# v 57 - reverted deactivating K2A to only do so on new installs
+# v 58 - changed varchar to TEXT in formONAR2017 in patch19/patch.sql 
+# v 59 - added in DoBC sourced dashboards
+# v 60 - DoBC sourced dashboards fixes
+# v 61 - More DoBC sourced dashboards fixes and additional indicators
+# v 62 - More patching patch.sql including RTL fix for attaching files
+# v 63 - Renamed patch1.sql to oscar_15_to_oscar_19.sql fixed config of oscar.properties and crontab for letsencrypt
+# v 64 - Changes for Ubuntu 22.04 March 29, 2022 and more dashboard fixes
+# v 65 - db_driver = com.mysql.cj.jdbc.Driver as needed for the mysql Driver version 8.0
+#      - quarterly update of Drugref April 7, 2022
+#      - update to OHIP schedule to April 1, 2022 (for new installs only, but could be extracted)
+#      - update CVC to final version April 7, 2022
 
 # --- sanity check
 if [ "$(id -u)" != "0" ];
@@ -229,9 +259,9 @@ then
 	exit 1
 fi
 
+echo "#########" `date` "#########" 
 
-
-DEB_SUBVERSION=35
+DEB_SUBVERSION=65
 PROGRAM=oscar
 PACKAGE=oscar-emr
 
@@ -267,7 +297,6 @@ echo "grep the build from Bitbucket"
 if [ -z "$1" ];
     then
         echo "No argument supplied.. proceed with last stable build"
-        ##curl -o build http://jenkins.oscar-emr.com:8080/job/$WGET_VERSION/lastStableBuild/
         curl -L -o latestStable https://bitbucket.org/oscaremr/oscar/downloads/latestBuild
         curl -L -o latestDrugref https://bitbucket.org/oscaremr/drugref2/downloads/latestBuild
     else
@@ -383,34 +412,17 @@ if [ "${SKIP_NEW_WAR}" = "true" ] ; then
 	    echo skipping redownloading of wars
     else
 
-
-
-## fudge to account for missing Jenkins build
-    #echo "using existing drugref war TEMPORARY"
-    #curl -o drugref2-1.0-SNAPSHOT.war http://jenkins.oscar-emr.com:8080/job/drugref2/lastSuccessfulBuild/org.drugref\$drugref2/artifact/org.drugref/drugref2/1.0-SNAPSHOT/drugref2-1.0-SNAPSHOT.war
-
-        #curl -o drugref2-1.0-SNAPSHOT.war http://jenkins.oscar-emr.com:8080/job/drugref2/ws/target/drugref2.war
-# reverted due to upstream drugref issue
-        #curl -L -o drugref2-1.0-SNAPSHOT.war ${D_WAR_URL}
-        echo "drugref war up"
-	#curl -o $TARGET http://jenkins.oscar-emr.com:8080/job/$WGET_VERSION/lastStableBuild/artifact/target/$TARGET
-	
-##TEMPORARILY USE THE LAST BUILD or last Sucessful Build REGARDLESS OF STABILITY WHILE CONGURATION CHANGES ARE MADE
-##curl -o $TARGET http://jenkins.oscar-emr.com:8080/job/$WGET_VERSION/lastBuild/artifact/target/$TARGET
-##curl -o $TARGET http://jenkins.oscar-emr.com:8080/job/$WGET_VERSION/lastSuccessfulBuild/artifact/target/$TARGET
-##curl -o $TARGET http://jenkins.oscar-emr.com:8080/job/oscar-stable/999/artifact/target/$TARGET
-# http://jenkins.oscar-emr.com:8080/job/oscar-stable/994/artifact/target/oscar-14.0.0-SNAPSHOT.war
+        curl -L -o drugref2-1.0-SNAPSHOT.war ${D_WAR_URL}
+        echo "drugref war build ${D_BUILD} of ${D_buildDateTime} up"
 
     if [ -z "$1" ]
         then
             echo "No argument supplied.. proceed with last stable build at ${WAR_URL} and saving to ${TARGET}"
-            #curl -o $TARGET http://jenkins.oscar-emr.com:8080/job/$WGET_VERSION/lastStableBuild/artifact/target/$TARGET
             curl -L -o $TARGET ${WAR_URL}
         else
             if [ -n "$1" ] && [ "$1" -eq "$1" ] 2>/dev/null; then
               echo "numeric argument supplied.. proceed with build ${1} from bitbucket using -L to follow redirects"
                 curl -L -o $TARGET https://bitbucket.org/oscaremr/oscar/downloads/oscar-19.${1}.war
-              ##curl -o $TARGET http://jenkins.oscar-emr.com:8080/job/$WGET_VERSION/${1}/artifact/target/$TARGET
             else
             curl -L -o $TARGET ${WAR_URL}
             fi
@@ -427,7 +439,6 @@ echo "changelog"
 if [ -z "$1" ]
     then
         echo "No argument supplied.. proceed with last stable build"
-        ##curl -o changes http://jenkins.oscar-emr.com:8080/job/oscar-stable/changes
     else
         if [ -n "$1" ] && [ "$1" -eq "$1" ] 2>/dev/null; then
           echo "numeric argument supplied.. proceed with build ${1}"
@@ -470,13 +481,6 @@ cat latestDrugref >> cumulative
 #curl -o summary http://jenkins.oscar-emr.com:8080/job/oscar-stable/$BUILD/changes
 ## Commit f8a5567c8a733b6990f70a8c857079b5b1d0c75d
 #SHA1=$(sed -n '12p' summary)
-
-
-#curl  -o drugrefChanges http://jenkins.oscar-emr.com:8080/job/drugref2/changes
-
-#grep "^                [ a-zA-Z#]" drugrefChanges | sed 's/&#039\;//;s/&nbsp\;/ /;s/&quot\;/\"/;s/&quot\;/\"/;s/&quot\;/\"/;s/&quot\;/\"/;s/id:\;//;s/ID://;s/ID \#//;s/Bug \#//;s/Bug ID //;s/Oscar Host - //;s/\#//;s/^[[:space:]]*/  * /;s/[[:space:]]*$//' >drugrefChangesClean
-
-#grep "<\/h2>"  drugrefChanges | sed 's/^[[:space:]]*/  * /;s/, [0-9]* [0-9]*:[0-9][0-9]:[0-9][0-9] [A|P]M//;s/<\/a><\/h2><ol><li>//;s/OSCAREMR-//;s/[[:space:]]*$//' > drugrefChangesClean
 
 echo "+++++++++++++++++++++++"
 echo build=$BUILD
@@ -636,9 +640,10 @@ chmod 644 ./${DEBNAME}/usr/share/${PACKAGE}/rbr2014.zip
 chmod 644 ./${DEBNAME}/usr/share/${PACKAGE}/ndss.zip
 
 cp -R patch19.sql ./${DEBNAME}/usr/share/${PACKAGE}/patch.sql
-cp -R patch1.sql ./${DEBNAME}/usr/share/${PACKAGE}/
+
 cp -R oscar_12_1_to_oscar_12_1_1.sql ./${DEBNAME}/usr/share/${PACKAGE}/
 cp -R oscar_12_1_1_to_oscar_15.sql ./${DEBNAME}/usr/share/${PACKAGE}/
+cp -R oscar_15_to_oscar_19.sql ./${DEBNAME}/usr/share/${PACKAGE}/
 cp -R legacyMyISAM.sql ./${DEBNAME}/usr/share/${PACKAGE}/
 
 # use the stock properties file as config will fix as needed
@@ -661,13 +666,20 @@ cp -R RNGPA.sql ./${DEBNAME}/usr/share/${PACKAGE}/
 cp -R special.sql ./${DEBNAME}/usr/share/${PACKAGE}/
 cp -R unDemo.sql ./${DEBNAME}/usr/share/${PACKAGE}/
 cp -R OLIS.sql ./${DEBNAME}/usr/share/${PACKAGE}/
+cp -R indicatorTemplatePANEL.sql ./${DEBNAME}/usr/share/${PACKAGE}/
+cp -R DoBC_dashboard.sql ./${DEBNAME}/usr/share/${PACKAGE}/
+cp -R bc_billing_dashboard.sql ./${DEBNAME}/usr/share/${PACKAGE}/
 
 cp -R tomcat7server.xml ./${DEBNAME}/usr/share/${PACKAGE}/
 cp -R tomcat8server.xml ./${DEBNAME}/usr/share/${PACKAGE}/
 cp -R tomcat8LEserver.xml ./${DEBNAME}/usr/share/${PACKAGE}/
+cp -R tomcat9server.xml ./${DEBNAME}/usr/share/${PACKAGE}/
+cp -R tomcat9LEserver.xml ./${DEBNAME}/usr/share/${PACKAGE}/
 
 cp -R run_rxquery.sh ./${DEBNAME}/usr/share/${PACKAGE}/
 chmod 711 ./${DEBNAME}/usr/share/${PACKAGE}/run_rxquery.sh
+#cp -R 2FA.sh ./${DEBNAME}/usr/share/${PACKAGE}/
+#chmod 711 ./${DEBNAME}/usr/share/${PACKAGE}/2FA.sh
 
 echo "copying over now the backup scripts"
 cp -R oscar_backup.sh ./${DEBNAME}/usr/share/${PACKAGE}/
@@ -730,6 +742,7 @@ echo "now invoking dpkg -b ${DEBNAME}"
 dpkg -b ${DEBNAME}
 echo ""
 echo "Testing the deb for update locally"
+echo "#########" `date` "#########" 
 dpkg -i ${DEBNAME}.deb
 echo ""
 echo ""
@@ -741,4 +754,4 @@ echo "so then people can"
 echo wget http://sourceforge.net/projects/oscarmcmaster/files/Oscar\\ Debian\\+Ubuntu\\ deb\\ Package/${DEBNAME}.deb
 echo "the md5sum is" 
 md5sum ${DEBNAME}.deb
-
+echo "#########" `date` "#########" 
