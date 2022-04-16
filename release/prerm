@@ -17,7 +17,7 @@ PACKAGE=oscar-emr
 db_name=oscar_15
 VERSION=19
 PREVIOUS=15
-REVISION=4~944
+REVISION=65~1842
 if [ -f /usr/share/tomcat9/bin/version.sh ] ; then
         TOMCAT=tomcat9
     else
@@ -87,7 +87,9 @@ case "$1" in
 	    fi
 	fi
     # clear temporary storage of configuration variables
-    #db_clear        
+    #db_clear   fails as this process is running
+
+    
     ;;
 
 
@@ -102,3 +104,4 @@ case "$1" in
 esac
 
 exit 0
+
