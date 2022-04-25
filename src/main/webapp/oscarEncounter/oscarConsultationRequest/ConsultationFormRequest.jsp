@@ -95,6 +95,7 @@ if(!authed) {
 
 <%
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+	boolean isConsultationDateReadOnly = OscarProperties.getInstance().getBooleanProperty("CONSULTATION_LOCK_REFERRAL_DATE", "true");
 
 	displayServiceUtil.estSpecialist();	
 
@@ -1899,31 +1900,19 @@ function statusChanged(val) {
 							<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.formRefDate" />:
 						</td>
 								
-						<oscar:oscarPropertiesCheck value="false" property="CONSULTATION_LOCK_REFERRAL_DATE">	
+
 	                            <td class="tite3">
 	                            <img alt="calendar" id="referalDate_cal" src="../../images/cal.gif" /> 
-								<%
-								if (request.getAttribute("id") != null)	{
-								%> 
-								<html:text styleId="referalDate" property="referalDate" ondblclick="this.value='';"/>
-								 <%
-	 							} else {
-	 							%> 
-	 							<html:text styleId="referalDate" property="referalDate" ondblclick="this.value='';" value="<%=formattedDate%>"/>
-	 							<%
-	 							}
-		 						%>
-								</td>							
-						</oscar:oscarPropertiesCheck>
-						
-						<oscar:oscarPropertiesCheck value="true" property="CONSULTATION_LOCK_REFERRAL_DATE">
-						
-								<td  class="tite3" >
-									<html:text styleId="referalDate" property="referalDate" 
-										readonly="true"  value="<%=formattedDate%>" />
+								<% 	if (request.getAttribute("id") != null)
+								{ %>
+									<html:text styleId="referalDate" readonly="<%=isConsultationDateReadOnly%>" property="referalDate" ondblclick="this.value='';"/>
+							<% 	}
+					 			else
+					 			{ %>
+									<html:text styleId="referalDate" readonly="<%=isConsultationDateReadOnly%>" property="referalDate" ondblclick="this.value='';" value="<%=formattedDate%>" />
+							<% 	} %>
 								</td>
-													
-						</oscar:oscarPropertiesCheck>
+
 
 						</tr>
 						<tr>
