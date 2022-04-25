@@ -500,7 +500,11 @@ public class ConsultationPDFCreator extends PdfPageEventHelper {
 				byte[] imageBtyes = new byte[1024 * 256];
 				fileInputStream.read(imageBtyes);
 				Image image = Image.getInstance(imageBtyes);
-				image.scalePercent(80f);
+				 // The width and height parameters of scaleToFit() define the maximum dimensions of the image.
+				 // If the width/height ratio differs from the aspect ratio of the image, either the width, or the height, will be smaller than the corresponding parameter of this method.
+				 // The "suggested" image size for the signature is 200px wide by 80px tall.  
+				 // For the Rx they are rendered to 300px 60px for html and 157 and 40 for the pdf.
+				image.scaleToFit(157f,40f);
 				image.setBorder(0);
 				cell = new PdfPCell(image);
 				cell.setBorder(0);
@@ -516,7 +520,7 @@ public class ConsultationPDFCreator extends PdfPageEventHelper {
 				DigitalSignature digitalSignature = digitalSignatureDao.find(Integer.parseInt(reqFrm.signatureImg));
 				if (digitalSignature != null) {
 					Image image = Image.getInstance(digitalSignature.getSignatureImage());
-					image.scalePercent(70f);
+					image.scaleToFit(157f,40f);
 					image.setBorder(0);
 					cell = new PdfPCell(image);
 					cell.setBorder(0);
