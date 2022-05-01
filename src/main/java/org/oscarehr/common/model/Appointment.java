@@ -86,7 +86,7 @@ public class Appointment extends AbstractModel<Integer> implements Serializable,
 	private String type;
 	private String style;
 	private String billing;
-	private String status;
+	private String status = "t";
 
 	@Column(name = "imported_status")
 	private String importedStatus;
