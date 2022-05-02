@@ -62,7 +62,7 @@
     int provNo = Integer.parseInt((String) session.getAttribute("user"));
     String remoteFacilityId = request.getParameter("remoteFacilityId");
 	String appointmentNo = request.getParameter("appointmentNo");
-	Demographic demographic = demographicDao.getDemographic(demoNo);
+	Demographic demographic = demographicDao.getDemographic(request.getParameter("demographic_no"));
     
     java.util.Properties props = (java.util.Properties)request.getAttribute("frmProperties"); //rec.getFormRecord(demoNo, formId);
     FrmRecord rec = (FrmRecord) request.getAttribute("frmRecord");
