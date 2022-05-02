@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS `formRourke2017` (
    `c_birthWeight` varchar(7),
    `c_dischargeWeight` varchar(7),
    `c_fsa` char(3),
+   `start_of_gestation` DATE,
    `c_APGAR1min` int(11),
    `c_APGAR5min` int(11),
    `p1_date1w` date,
