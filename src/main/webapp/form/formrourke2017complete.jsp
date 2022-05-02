@@ -42,7 +42,7 @@
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
-<%@ taglib prefix="csrf" uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" %>
+
 
 <%@ page import="oscar.util.*, oscar.form.*, oscar.form.data.*"%>
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
