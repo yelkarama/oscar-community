@@ -53,6 +53,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -116,7 +117,11 @@ public class FrmRourke2017Record extends FrmRecord implements JasperReportPdfPri
                     props.setProperty("c_birthDate", demoVal);
                     updated = "true";
                 }
-                String gestationalAge = calculateGestationalAgeInWeeks(form.getFormEdited(), dob) + " weeks";
+                
+				String gestationalAge = "";
+                if (form.getStartOfGestation() != null) {
+					gestationalAge = calculateGestationalAgeInWeeks(form.getStartOfGestation(), dob) + " weeks";
+				}
                 props.setProperty("c_gestationalAge", gestationalAge);
 
                 demoVal = demo.getPostal();
@@ -465,16 +470,16 @@ public class FrmRourke2017Record extends FrmRecord implements JasperReportPdfPri
         }
     }
     
-    private int calculateGestationalAgeInWeeks(Date formEditedDate, Date birthDate) {
+    private int calculateGestationalAgeInWeeks(Date pregnancyStartDate, Date birthDate) {
 
-        if (formEditedDate.before(birthDate)) {
+        if (birthDate.before(pregnancyStartDate)) {
             return 0;
         }
 
         Calendar cal = new GregorianCalendar();
-        cal.setTime(birthDate);
+        cal.setTime(pregnancyStartDate);
         int weeks = 0;
-        while (cal.getTime().before(formEditedDate)) {
+        while (cal.getTime().before(birthDate)) {
             // add another week
             cal.add(Calendar.WEEK_OF_YEAR, 1);
             weeks++;
