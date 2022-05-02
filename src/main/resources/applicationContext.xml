@@ -52,7 +52,8 @@
 	<bean id="CaseManagementNoteExtDAO" class="org.oscarehr.casemgmt.dao.CaseManagementNoteExtDAO" autowire="byName" />
 	<bean id="CaseManagementNoteLinkDAO" class="org.oscarehr.casemgmt.dao.CaseManagementNoteLinkDAO" autowire="byName" />
 	<bean id="CaseManagementCPPDAO" class="org.oscarehr.casemgmt.dao.CaseManagementCPPDAO" autowire="byName" />
-	
+	<!-- bean id="demoExpListDao" class="org.oscarehr.common.dao.DemographicToExportPCDS_Dao" autowire="byName" / -->
+	<!-- bean id="diseaseRegistryPCDSDao" class="org.oscarehr.common.dao.DiseaseRegistryPCDS_Dao" autowire="byName" / -->	
 	
 	
 	<bean id="AppointmentArchiveDao" class="org.oscarehr.common.dao.AppointmentArchiveDao" autowire="byName" />
@@ -92,7 +93,11 @@
 	
     <bean id="MacroDAO" class="org.oscarehr.eyeform.dao.MacroDao" autowire="byName" />
 	<bean id="rourke2009Dao" class="oscar.form.dao.Rourke2009DAO" autowire="byName" />
+	<bean id="Rourke2017Dao" class="oscar.form.dao.Rourke2017Dao" autowire="byName"/>
+    <bean id="FormBooleanValueDao" class="oscar.form.dao.FormBooleanValueDao" autowire="byName"/>
 	<bean id="ocanSubmissionLogDao" class="org.oscarehr.PMmodule.dao.OcanSubmissionLogDao" autowire="byName" />
+	<!-- bean id="Perinatal2017Dao" class="oscar.form.dao.ONPerinatal2017Dao" autowire="byName"/ -->
+	<!-- bean id="Perinatal2017CommentDao" class="oscar.form.dao.ONPerinatal2017CommentDao" autowire="byName"/ -->
 
 	<bean id="lookupDao" class="com.quatro.dao.LookupDao" autowire="byName" />
 	<bean id="documentDao" class="org.oscarehr.document.dao.DocumentMergeDemographicDAO" autowire="byName" />
@@ -100,7 +105,7 @@
 	<bean id="providerInboxRoutingDAO" class="org.oscarehr.common.dao.ProviderInboxRoutingDao" autowire="byName"/>
 	<bean id="ProviderLabRoutingFavoritesDao" class="org.oscarehr.common.dao.ProviderLabRoutingFavoritesDao" autowire="byName"/>
 
-        <bean id="queueDocumentLinkDAO" class="org.oscarehr.common.dao.QueueDocumentLinkDao" autowire="byName"/>
+    <bean id="queueDocumentLinkDAO" class="org.oscarehr.common.dao.QueueDocumentLinkDao" autowire="byName"/>
 
 	<bean id="caseloadDao" class="org.oscarehr.common.dao.CaseloadDao" autowire="byName" />
 	<bean id="inboxResultsDao" class="org.oscarehr.common.dao.InboxResultsDao" autowire="byName" />
