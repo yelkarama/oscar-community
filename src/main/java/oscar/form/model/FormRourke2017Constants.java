@@ -437,5 +437,11 @@ public class FormRourke2017Constants  {
             "p4_inquireVegetarian18m",
             "p4_pesticides18m",
             "p4_waterSafety24m",
-            "p1_breastFeeding1m" };
+            "p1_breastFeeding1m",
+            "p1_vitaminD1w",
+            "p1_vitaminD2w",
+            "p1_vitaminD1m",
+            "p2_vitaminD2m",
+            "p2_vitaminD4m",
+            "p2_vitaminD6m"};
 }
