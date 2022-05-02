@@ -26,7 +26,6 @@
 package oscar.form.model;
 
 import org.oscarehr.common.model.AbstractModel;
-//import org.springframework.web.util.UriUtils;
 import oscar.form.FrmRecordHelp;
 
 import javax.persistence.Column;
@@ -44,542 +43,571 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 @Entity
 @Table(name = "formRourke2017")
 public class FormRourke2017 extends AbstractModel<Integer> implements Serializable, BooleanValueForm {
-    public static final String FORM_TABLE = "formRourke2017";
+	public static final String FORM_TABLE = "formRourke2017";
 
-    @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
-    @Column(name="ID")
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@Column(name="ID")
 	private Integer id;
-    @Column(name="provider_no")
-    private String providerNo;
-    @Column(name="demographic_no")
-    private Integer demographicNo;
-    @Column(name = "c_male")
-    private String cMale;
-    @Column(name = "c_female")
-    private String cFemale;
-    @Temporal(TemporalType.DATE)
-    private Date formCreated;
-    private Timestamp formEdited;
+	@Column(name="provider_no")
+	private String providerNo;
+	@Column(name="demographic_no")
+	private Integer demographicNo;
+	@Column(name = "c_male")
+	private String cMale;
+	@Column(name = "c_female")
+	private String cFemale;
+	@Temporal(TemporalType.DATE)
+	private Date formCreated;
+	private Timestamp formEdited;
 	private Integer c_APGAR1min;
 	private Integer c_APGAR5min;
-    @Temporal( TemporalType.DATE)
+	@Temporal( TemporalType.DATE)
 	private Date c_birthDate;
-    @Lob()
+	@Lob()
 	private String c_birthRemarks;
 	private String c_birthWeight;
 	private String c_dischargeWeight;
-    @Lob()
+	@Lob()
 	private String c_famHistory;
-    @Column(name="c_fsa")
+	@Column(name="c_fsa")
 	private String cFsa;
+    @Column(name="start_of_gestation")
+    private Date startOfGestation;
 	private String c_headCirc;
 	private String c_lastVisited;
-    @Column(name="c_length")
+	@Column(name="c_length")
 	private String cLength;
 	private String c_pName;
-    @Lob()
+	@Lob()
 	private String c_riskFactors;
-    @Temporal( TemporalType.DATE)
-    @Column(name="p1_date1m")
+	@Temporal( TemporalType.DATE)
+	@Column(name="p1_date1m")
 	private Date p1Date1m;
-    @Temporal( TemporalType.DATE)
-    @Column(name="p1_date1w")
+	@Temporal( TemporalType.DATE)
+	@Column(name="p1_date1w")
 	private Date p1Date1w;
-    @Temporal( TemporalType.DATE)
-    @Column(name="p1_date2w")
+	@Temporal( TemporalType.DATE)
+	@Column(name="p1_date2w")
 	private Date p1Date2w;
-    @Lob()
-    @Column(name="p1_development1m")
+	@Lob()
+	@Column(name="p1_development1m")
 	private String p1Development1m;
-    @Lob()
-    @Column(name="p1_development1w")
+	@Lob()
+	@Column(name="p1_development1w")
 	private String p1Development1w;
-    @Lob()
-    @Column(name="p1_development2w")
+	@Lob()
+	@Column(name="p1_development2w")
 	private String p1Development2w;
-    @Column(name="p1_hc1m")
+	@Column(name="p1_hc1m")
 	private String p1Hc1m;
-    @Column(name="p1_hc1w")
+	@Column(name="p1_hc1w")
 	private String p1Hc1w;
-    @Column(name="p1_hc2w")
+	@Column(name="p1_hc2w")
 	private String p1Hc2w;
-    @Column(name="p1_ht1m")
+	@Column(name="p1_ht1m")
 	private String p1Ht1m;
-    @Column(name="p1_ht1w")
+	@Column(name="p1_ht1w")
 	private String p1Ht1w;
-    @Column(name="p1_ht2w")
+	@Column(name="p1_ht2w")
 	private String p1Ht2w;
-    @Lob()
-    @Column(name="p1_immunization1m")
+	@Lob()
+	@Column(name="p1_immunization1m")
 	private String p1Immunization1m;
-    @Lob()
-    @Column(name="p1_immunization1w")
+	@Lob()
+	@Column(name="p1_immunization1w")
 	private String p1Immunization1w;
-    @Lob()
-    @Column(name="p1_immunization2w")
+	@Lob()
+	@Column(name="p1_immunization2w")
 	private String p1Immunization2w;
-    @Lob()
+	@Lob()
 	private String p1_pConcern1m;
-    @Lob()
+	@Lob()
 	private String p1_pConcern1w;
-    @Lob()
+	@Lob()
 	private String p1_pConcern2w;
-    @Lob()
-	private String p1_pEducation;
-    @Lob()
+	@Lob()
+	@Column(name="p1_education1w")
+	private String p1Education1w;
+	@Lob()
+	@Column(name="p1_education2w")
+	private String p1Education2w;
+	@Lob()
+	@Column(name="p1_education1m")
+	private String p1Education1m;
+	@Lob()
 	private String p1_pNutrition1m;
-    @Lob()
+	@Lob()
 	private String p1_pNutrition1w;
-    @Lob()
+	@Lob()
 	private String p1_pNutrition2w;
-    @Lob()
+	@Lob()
 	private String p1_pPhysical1m;
-    @Lob()
+	@Lob()
 	private String p1_pPhysical1w;
-    @Lob()
+	@Lob()
 	private String p1_pPhysical2w;
-    @Lob()
-    @Column(name="p1_problems1m")
+	@Lob()
+	@Column(name="p1_problems1m")
 	private String p1Problems1m;
-    @Lob()
-    @Column(name="p1_problems1w")
+	@Lob()
+	@Column(name="p1_problems1w")
 	private String p1Problems1w;
-    @Lob()
-    @Column(name="p1_problems2w")
+	@Lob()
+	@Column(name="p1_problems2w")
 	private String p1Problems2w;
-    @Column(name="p1_signature1m")
+	@Column(name="p1_signature1m")
 	private String p1Signature1m;
-    @Column(name="p1_signature1w")
+	@Column(name="p1_signature1w")
 	private String p1Signature1w;
-    @Column(name="p1_signature2w")
+	@Column(name="p1_signature2w")
 	private String p1Signature2w;
-    @Column(name="p1_wt1m")
+	@Column(name="p1_wt1m")
 	private String p1Wt1m;
-    @Column(name="p1_wt1w")
+	@Column(name="p1_wt1w")
 	private String p1Wt1w;
-    @Column(name="p1_wt2w")
+	@Column(name="p1_wt2w")
 	private String p1Wt2w;
-    @Temporal( TemporalType.DATE)
-    @Column(name="p2_date2m")
+	@Temporal( TemporalType.DATE)
+	@Column(name="p2_date2m")
 	private Date p2Date2m;
-    @Temporal( TemporalType.DATE)
-    @Column(name="p2_date4m")
+	@Temporal( TemporalType.DATE)
+	@Column(name="p2_date4m")
 	private Date p2Date4m;
-    @Temporal( TemporalType.DATE)
-    @Column(name="p2_date6m")
+	@Temporal( TemporalType.DATE)
+	@Column(name="p2_date6m")
 	private Date p2Date6m;
-    @Lob()
-    @Column(name="p2_development2m")
+	@Lob()
+	@Column(name="p2_development2m")
 	private String p2Development2m;
-    @Lob()
-    @Column(name="p2_development4m")
+	@Lob()
+	@Column(name="p2_development4m")
 	private String p2Development4m;
-    @Lob()
-    @Column(name="p2_development6m")
+	@Lob()
+	@Column(name="p2_development6m")
 	private String p2Development6m;
-    @Lob()
-    @Column(name="p2_education")
-	private String p2Education;
-    @Column(name="p2_hc2m")
+	@Lob()
+	@Column(name="p2_education2m")
+	private String p2Education2m;
+	@Column(name="p2_education4m")
+	private String p2Education4m;
+	@Column(name="p2_education6m")
+	private String p2Education6m;
+	@Column(name="p2_hc2m")
 	private String p2Hc2m;
-    @Column(name="p2_hc4m")
+	@Column(name="p2_hc4m")
 	private String p2Hc4m;
-    @Column(name="p2_hc6m")
+	@Column(name="p2_hc6m")
 	private String p2Hc6m;
-    @Column(name="p2_ht2m")
+	@Column(name="p2_ht2m")
 	private String p2Ht2m;
-    @Column(name="p2_ht4m")
+	@Column(name="p2_ht4m")
 	private String p2Ht4m;
-    @Column(name="p2_ht6m")
+	@Column(name="p2_ht6m")
 	private String p2Ht6m;
-    @Lob()
-    @Column(name="p2_immunization6m")
+	@Lob()
+	@Column(name="p2_immunization6m")
 	private String p2Immunization6m;
-    @Lob()
-    @Column(name="p2_nutrition2m")
+	@Lob()
+	@Column(name="p2_nutrition2m")
 	private String p2Nutrition2m;
-    @Lob()
-    @Column(name="p2_nutrition4m")
+	@Lob()
+	@Column(name="p2_nutrition4m")
 	private String p2Nutrition4m;
-    @Lob()
-    @Column(name="p2_nutrition6m")
+	@Lob()
+	@Column(name="p2_nutrition6m")
 	private String p2Nutrition6m;
-    @Lob()
+	@Lob()
 	private String p2_pConcern2m;
-    @Lob()
+	@Lob()
 	private String p2_pConcern4m;
-    @Lob()
+	@Lob()
 	private String p2_pConcern6m;
-    @Lob()
-    @Column(name="p2_physical2m")
+	@Lob()
+	@Column(name="p2_physical2m")
 	private String p2Physical2m;
-    @Lob()
-    @Column(name="p2_physical4m")
+	@Lob()
+	@Column(name="p2_physical4m")
 	private String p2Physical4m;
-    @Lob()
-    @Column(name="p2_physical6m")
+	@Lob()
+	@Column(name="p2_physical6m")
 	private String p2Physical6m;
-    @Lob()
-    @Column(name="p2_problems2m")
+	@Lob()
+	@Column(name="p2_problems2m")
 	private String p2Problems2m;
-    @Lob()
-    @Column(name="p2_problems4m")
+	@Lob()
+	@Column(name="p2_problems4m")
 	private String p2Problems4m;
-    @Lob()
-    @Column(name="p2_problems6m")
+	@Lob()
+	@Column(name="p2_problems6m")
 	private String p2Problems6m;
-    @Column(name="p2_signature2m")
+	@Column(name="p2_signature2m")
 	private String p2Signature2m;
-    @Column(name="p2_signature4m")
+	@Column(name="p2_signature4m")
 	private String p2Signature4m;
-    @Column(name="p2_signature6m")
+	@Column(name="p2_signature6m")
 	private String p2Signature6m;
-    @Column(name="p2_wt2m")
+	@Column(name="p2_wt2m")
 	private String p2Wt2m;
-    @Column(name="p2_wt4m")
+	@Column(name="p2_wt4m")
 	private String p2Wt4m;
-    @Column(name="p2_wt6m")
+	@Column(name="p2_wt6m")
 	private String p2Wt6m;
-    @Temporal( TemporalType.DATE)
-    @Column(name="p3_date12m")
+	@Temporal( TemporalType.DATE)
+	@Column(name="p3_date12m")
 	private Date p3Date12m;
-    @Temporal( TemporalType.DATE)
-    @Column(name="p3_date15m")
+	@Temporal( TemporalType.DATE)
+	@Column(name="p3_date15m")
 	private Date p3Date15m;
-    @Temporal( TemporalType.DATE)
-    @Column(name="p3_date9m")
+	@Temporal( TemporalType.DATE)
+	@Column(name="p3_date9m")
 	private Date p3Date9m;
-    @Lob()
-    @Column(name="p3_development12m")
+	@Lob()
+	@Column(name="p3_development12m")
 	private String p3Development12m;
-    @Lob()
-    @Column(name="p3_development15m")
+	@Lob()
+	@Column(name="p3_development15m")
 	private String p3Development15m;
-    @Lob()
-    @Column(name="p3_development9m")
+	@Lob()
+	@Column(name="p3_development9m")
 	private String p3Development9m;
-    @Lob()
-    @Column(name="p3_education")
-	private String p3Education;
-    @Column(name="p3_hc12m")
+	@Lob()
+	@Column(name="p3_education9m")
+	private String p3Education9m;
+	@Column(name="p3_education12m")
+	private String p3Education12m;
+	@Column(name="p3_education15m")
+	private String p3Education15m;
+	@Column(name="p3_hc12m")
 	private String p3Hc12m;
-    @Column(name="p3_hc15m")
+	@Column(name="p3_hc15m")
 	private String p3Hc15m;
-    @Column(name="p3_hc9m")
+	@Column(name="p3_hc9m")
 	private String p3Hc9m;
-    @Column(name="p3_ht12m")
+	@Column(name="p3_ht12m")
 	private String p3Ht12m;
-    @Column(name="p3_ht15m")
+	@Column(name="p3_ht15m")
 	private String p3Ht15m;
-    @Column(name="p3_ht9m")
+	@Column(name="p3_ht9m")
 	private String p3Ht9m;
-    @Lob()
-    @Column(name="p3_nutrition12m")
+	@Lob()
+	@Column(name="p3_nutrition12m")
 	private String p3Nutrition12m;
-    @Lob()
-    @Column(name="p3_nutrition15m")
+	@Lob()
+	@Column(name="p3_nutrition15m")
 	private String p3Nutrition15m;
-    @Lob()
-    @Column(name="p3_nutrition9m")
+	@Lob()
+	@Column(name="p3_nutrition9m")
 	private String p3Nutrition9m;
-    @Lob()
+	@Lob()
 	private String p3_pConcern12m;
-    @Lob()
+	@Lob()
 	private String p3_pConcern15m;
-    @Lob()
+	@Lob()
 	private String p3_pConcern9m;
-    @Lob()
-    @Column(name="p3_physical12m")
+	@Lob()
+	@Column(name="p3_physical12m")
 	private String p3Physical12m;
-    @Lob()
-    @Column(name="p3_physical15m")
+	@Lob()
+	@Column(name="p3_physical15m")
 	private String p3Physical15m;
-    @Lob()
-    @Column(name="p3_physical9m")
+	@Lob()
+	@Column(name="p3_physical9m")
 	private String p3Physical9m;
-    @Lob()
-    @Column(name="p3_problems12m")
+	@Lob()
+	@Column(name="p3_problems12m")
 	private String p3Problems12m;
-    @Lob()
-    @Column(name="p3_problems15m")
+	@Lob()
+	@Column(name="p3_problems15m")
 	private String p3Problems15m;
-    @Lob()
-    @Column(name="p3_problems9m")
+	@Lob()
+	@Column(name="p3_problems9m")
 	private String p3Problems9m;
-    @Column(name="p3_signature12m")
+	@Column(name="p3_signature12m")
 	private String p3Signature12m;
-    @Column(name="p3_signature15m")
+	@Column(name="p3_signature15m")
 	private String p3Signature15m;
-    @Column(name="p3_signature9m")
+	@Column(name="p3_signature9m")
 	private String p3Signature9m;
-    @Column(name="p3_wt12m")
+	@Column(name="p3_wt12m")
 	private String p3Wt12m;
-    @Column(name="p3_wt15m")
+	@Column(name="p3_wt15m")
 	private String p3Wt15m;
-    @Column(name="p3_wt9m")
+	@Column(name="p3_wt9m")
 	private String p3Wt9m;
-    @Temporal( TemporalType.DATE)
-    @Column(name="p4_date18m")
+	@Temporal( TemporalType.DATE)
+	@Column(name="p4_date18m")
 	private Date p4Date18m;
-    @Temporal( TemporalType.DATE)
-    @Column(name="p4_date24m")
+	@Temporal( TemporalType.DATE)
+	@Column(name="p4_date24m")
 	private Date p4Date24m;
-    @Temporal( TemporalType.DATE)
-    @Column(name="p4_date48m")
+	@Temporal( TemporalType.DATE)
+	@Column(name="p4_date48m")
 	private Date p4Date48m;
-    @Lob()
-    @Column(name="p4_development18m")
+	@Lob()
+	@Column(name="p4_development18m")
 	private String p4Development18m;
-    @Lob()
-    @Column(name="p4_development24m")
+	@Lob()
+	@Column(name="p4_development24m")
 	private String p4Development24m;
-    @Lob()
-    @Column(name="p4_development36m")
+	@Lob()
+	@Column(name="p4_development36m")
 	private String p4Development36m;
-    @Lob()
-    @Column(name="p4_development48m")
+	@Lob()
+	@Column(name="p4_development48m")
 	private String p4Development48m;
-    @Lob()
-    @Column(name="p4_development60m")
+	@Lob()
+	@Column(name="p4_development60m")
 	private String p4Development60m;
-    @Lob()
-    @Column(name="p4_education18m")
+	@Lob()
+	@Column(name="p4_education18m")
 	private String p4Education18m;
-    @Lob()
-    @Column(name="p4_education48m")
+	@Lob()
+	@Column(name="p4_education24m")
+	private String p4Education24m;
+	@Lob()
+	@Column(name="p4_education48m")
 	private String p4Education48m;
-    @Column(name="p4_hc18m")
+	@Column(name="p4_hc18m")
 	private String p4Hc18m;
-    @Column(name="p4_hc24m")
+	@Column(name="p4_hc24m")
 	private String p4Hc24m;
-    @Column(name="p4_ht18m")
+	@Column(name="p4_ht18m")
 	private String p4Ht18m;
-    @Column(name="p4_ht24m")
+	@Column(name="p4_ht24m")
 	private String p4Ht24m;
-    @Column(name="p4_ht48m")
+	@Column(name="p4_ht48m")
 	private String p4Ht48m;
-    @Column(name="p4_bmi24m")
-    private String p4Bmi24m;
-    @Column(name="p4_bmi48m")
-    private String p4Bmi48m;
-    @Lob()
-    @Column(name="p4_nippisingattained")
+	@Column(name="p4_bmi24m")
+	private String p4Bmi24m;
+	@Column(name="p4_bmi48m")
+	private String p4Bmi48m;
+	@Lob()
+	@Column(name="p4_nippisingattained")
 	private String p4Nippisingattained;
-    @Lob()
-    @Column(name="p4_nutrition18m")
+	@Lob()
+	@Column(name="p4_nutrition18m")
 	private String p4Nutrition18m;
-    @Lob()
-    @Column(name="p4_nutrition24m")
+	@Lob()
+	@Column(name="p4_nutrition24m")
 	private String p4Nutrition24m;
-    @Lob()
-    @Column(name="p4_nutrition48m")
+	@Lob()
+	@Column(name="p4_nutrition48m")
 	private String p4Nutrition48m;
-    @Lob()
+	@Lob()
 	private String p4_pConcern18m;
-    @Lob()
+	@Lob()
 	private String p4_pConcern24m;
-    @Lob()
+	@Lob()
 	private String p4_pConcern48m;
-    @Lob()
-    @Column(name="p4_physical18m")
+	@Lob()
+	@Column(name="p4_physical18m")
 	private String p4Physical18m;
-    @Lob()
-    @Column(name="p4_physical24m")
+	@Lob()
+	@Column(name="p4_physical24m")
 	private String p4Physical24m;
-    @Lob()
-    @Column(name="p4_physical48m")
+	@Lob()
+	@Column(name="p4_physical48m")
 	private String p4Physical48m;
-    @Lob()
-    @Column(name="p4_problems18m")
+	@Lob()
+	@Column(name="p4_problems18m")
 	private String p4Problems18m;
-    @Lob()
-    @Column(name="p4_problems24m")
+	@Lob()
+	@Column(name="p4_problems24m")
 	private String p4Problems24m;
-    @Lob()
-    @Column(name="p4_problems48m")
+	@Lob()
+	@Column(name="p4_problems48m")
 	private String p4Problems48m;
-    @Column(name="p4_signature18m")
+	@Column(name="p4_signature18m")
 	private String p4Signature18m;
-    @Column(name="p4_signature24m")
+	@Column(name="p4_signature24m")
 	private String p4Signature24m;
-    @Column(name="p4_signature48m")
+	@Column(name="p4_signature48m")
 	private String p4Signature48m;
-    @Column(name="p4_wt18m")
+	@Column(name="p4_wt18m")
 	private String p4Wt18m;
-    @Column(name="p4_wt24m")
+	@Column(name="p4_wt24m")
 	private String p4Wt24m;
-    @Column(name="p4_wt48m")
+	@Column(name="p4_wt48m")
 	private String p4Wt48m;
 	
 	@Transient
-    private HashMap<String, FormBooleanValue> booleanValueMap = new HashMap<String, FormBooleanValue>();
+	private Map<String, FormBooleanValue> booleanValueMap = new HashMap<String, FormBooleanValue>();
 
-    public FormRourke2017() { }
-    public FormRourke2017(Properties props) {
-        FrmRecordHelp frmRecordHelp = new FrmRecordHelp();
-        frmRecordHelp.setDateFormat("dd/MM/yyyy");
-        
-        this.providerNo = props.getProperty("provider_no");
-        this.demographicNo = Integer.valueOf(props.getProperty("demographic_no"));
-        this.cMale = props.getProperty("c_male", "");
-        this.cFemale = props.getProperty("c_female", "");
-        this.formCreated = frmRecordHelp.getDateFieldOrNull(props, "formCreated");
-        this.formEdited = new Timestamp(new Date().getTime());
-        this.c_APGAR1min = Integer.valueOf(props.getProperty("c_APGAR1min", "-1"));
-        this.c_APGAR5min = Integer.valueOf(props.getProperty("c_APGAR5min", "-1"));
-        this.c_birthDate = frmRecordHelp.getDateFieldOrNull(props, "c_birthDate");
-        this.c_birthRemarks = props.getProperty("c_birthRemarks", "");
-        this.c_birthWeight = props.getProperty("c_birthWeight", "");
-        this.c_dischargeWeight = props.getProperty("c_dischargeWeight", "");
-        this.c_famHistory = props.getProperty("c_famHistory", "");
-        this.cFsa = props.getProperty("c_fsa", "");
-        this.c_headCirc = props.getProperty("c_headCirc", "");
-        this.c_lastVisited = props.getProperty("c_lastVisited", "");
-        this.cLength = props.getProperty("c_length", "");
-        this.c_pName = props.getProperty("c_pName", "");
-        this.c_riskFactors = props.getProperty("c_riskFactors", "");
-        this.p1Date1m = frmRecordHelp.getDateFieldOrNull(props, "p1_date1m");
-        this.p1Date1w = frmRecordHelp.getDateFieldOrNull(props, "p1_date1w");
-        this.p1Date2w = frmRecordHelp.getDateFieldOrNull(props, "p1_date2w");
-        this.p1Development1m = props.getProperty("p1_development1m", "");
-        this.p1Development1w = props.getProperty("p1_development1w", "");
-        this.p1Development2w = props.getProperty("p1_development2w", "");
-        this.p1Hc1m = props.getProperty("p1_hc1m", "");
-        this.p1Hc1w = props.getProperty("p1_hc1w", "");
-        this.p1Hc2w = props.getProperty("p1_hc2w", "");
-        this.p1Ht1m = props.getProperty("p1_ht1m", "");
-        this.p1Ht1w = props.getProperty("p1_ht1w", "");
-        this.p1Ht2w = props.getProperty("p1_ht2w", "");
-        this.p1Immunization1m = props.getProperty("p1_immunization1m", "");
-        this.p1Immunization1w = props.getProperty("p1_immunization1w", "");
-        this.p1Immunization2w = props.getProperty("p1_immunization2w", "");
-        this.p1_pConcern1m = props.getProperty("p1_pConcern1m", "");
-        this.p1_pConcern1w = props.getProperty("p1_pConcern1w", "");
-        this.p1_pConcern2w = props.getProperty("p1_pConcern2w", "");
-        this.p1_pEducation = props.getProperty("p1_pEducation", "");
-        this.p1_pNutrition1m = props.getProperty("p1_pNutrition1m", "");
-        this.p1_pNutrition1w = props.getProperty("p1_pNutrition1w", "");
-        this.p1_pNutrition2w = props.getProperty("p1_pNutrition2w", "");
-        this.p1_pPhysical1m = props.getProperty("p1_pPhysical1m", "");
-        this.p1_pPhysical1w = props.getProperty("p1_pPhysical1w", "");
-        this.p1_pPhysical2w = props.getProperty("p1_pPhysical2w", "");
-        this.p1Problems1m = props.getProperty("p1_problems1m", "");
-        this.p1Problems1w = props.getProperty("p1_problems1w", "");
-        this.p1Problems2w = props.getProperty("p1_problems2w", "");
-        this.p1Signature1m = props.getProperty("p1_signature1m", "");
-        this.p1Signature1w = props.getProperty("p1_signature1w", "");
-        this.p1Signature2w = props.getProperty("p1_signature2w", "");
-        this.p1Wt1m = props.getProperty("p1_wt1m", "");
-        this.p1Wt1w = props.getProperty("p1_wt1w", "");
-        this.p1Wt2w = props.getProperty("p1_wt2w", "");
-        this.p2Date2m = frmRecordHelp.getDateFieldOrNull(props, "p2_date2m");
-        this.p2Date4m = frmRecordHelp.getDateFieldOrNull(props, "p2_date4m");
-        this.p2Date6m = frmRecordHelp.getDateFieldOrNull(props, "p2_date6m");
-        this.p2Development2m = props.getProperty("p2_development2m", "");
-        this.p2Development4m = props.getProperty("p2_development4m", "");
-        this.p2Development6m = props.getProperty("p2_development6m", "");
-        this.p2Education = props.getProperty("p2_education", "");
-        this.p2Hc2m = props.getProperty("p2_hc2m", "");
-        this.p2Hc4m = props.getProperty("p2_hc4m", "");
-        this.p2Hc6m = props.getProperty("p2_hc6m", "");
-        this.p2Ht2m = props.getProperty("p2_ht2m", "");
-        this.p2Ht4m = props.getProperty("p2_ht4m", "");
-        this.p2Ht6m = props.getProperty("p2_ht6m", "");
-        this.p2Immunization6m = props.getProperty("p2_immunization6m", "");
-        this.p2Nutrition2m = props.getProperty("p2_nutrition2m", "");
-        this.p2Nutrition4m = props.getProperty("p2_nutrition4m", "");
-        this.p2Nutrition6m = props.getProperty("p2_nutrition6m", "");
-        this.p2_pConcern2m = props.getProperty("p2_pConcern2m", "");
-        this.p2_pConcern4m = props.getProperty("p2_pConcern4m", "");
-        this.p2_pConcern6m = props.getProperty("p2_pConcern6m", "");
-        this.p2Physical2m = props.getProperty("p2_physical2m", "");
-        this.p2Physical4m = props.getProperty("p2_physical4m", "");
-        this.p2Physical6m = props.getProperty("p2_physical6m", "");
-        this.p2Problems2m = props.getProperty("p2_problems2m", "");
-        this.p2Problems4m = props.getProperty("p2_problems4m", "");
-        this.p2Problems6m = props.getProperty("p2_problems6m", "");
-        this.p2Signature2m = props.getProperty("p2_signature2m", "");
-        this.p2Signature4m = props.getProperty("p2_signature4m", "");
-        this.p2Signature6m = props.getProperty("p2_signature6m", "");
-        this.p2Wt2m = props.getProperty("p2_wt2m", "");
-        this.p2Wt4m = props.getProperty("p2_wt4m", "");
-        this.p2Wt6m = props.getProperty("p2_wt6m", "");
-        this.p3Date12m = frmRecordHelp.getDateFieldOrNull(props, "p3_date12m");
-        this.p3Date15m = frmRecordHelp.getDateFieldOrNull(props, "p3_date15m");
-        this.p3Date9m = frmRecordHelp.getDateFieldOrNull(props, "p3_date9m");
-        this.p3Development12m = props.getProperty("p3_development12m", "");
-        this.p3Development15m = props.getProperty("p3_development15m", "");
-        this.p3Development9m = props.getProperty("p3_development9m", "");
-        this.p3Education = props.getProperty("p3_education", "");
-        this.p3Hc12m = props.getProperty("p3_hc12m", "");
-        this.p3Hc15m = props.getProperty("p3_hc15m", "");
-        this.p3Hc9m = props.getProperty("p3_hc9m", "");
-        this.p3Ht12m = props.getProperty("p3_ht12m", "");
-        this.p3Ht15m = props.getProperty("p3_ht15m", "");
-        this.p3Ht9m = props.getProperty("p3_ht9m", "");
-        this.p3Nutrition12m = props.getProperty("p3_nutrition12m", "");
-        this.p3Nutrition15m = props.getProperty("p3_nutrition15m", "");
-        this.p3Nutrition9m = props.getProperty("p3_nutrition9m", "");
-        this.p3_pConcern12m = props.getProperty("p3_pConcern12m", "");
-        this.p3_pConcern15m = props.getProperty("p3_pConcern15m", "");
-        this.p3_pConcern9m = props.getProperty("p3_pConcern9m", "");
-        this.p3Physical12m = props.getProperty("p3_physical12m", "");
-        this.p3Physical15m = props.getProperty("p3_physical15m", "");
-        this.p3Physical9m = props.getProperty("p3_physical9m", "");
-        this.p3Problems12m = props.getProperty("p3_problems12m", "");
-        this.p3Problems15m = props.getProperty("p3_problems15m", "");
-        this.p3Problems9m = props.getProperty("p3_problems9m", "");
-        this.p3Signature12m = props.getProperty("p3_signature12m", "");
-        this.p3Signature15m = props.getProperty("p3_signature15m", "");
-        this.p3Signature9m = props.getProperty("p3_signature9m", "");
-        this.p3Wt12m = props.getProperty("p3_wt12m", "");
-        this.p3Wt15m = props.getProperty("p3_wt15m", "");
-        this.p3Wt9m = props.getProperty("p3_wt9m", "");
-        this.p4Date18m = frmRecordHelp.getDateFieldOrNull(props, "p4_date18m");
-        this.p4Date24m = frmRecordHelp.getDateFieldOrNull(props, "p4_date24m");
-        this.p4Date48m = frmRecordHelp.getDateFieldOrNull(props, "p4_date48m");
-        this.p4Development18m = props.getProperty("p4_development18m", "");
-        this.p4Development24m = props.getProperty("p4_development24m", "");
-        this.p4Development36m = props.getProperty("p4_development36m", "");
-        this.p4Development48m = props.getProperty("p4_development48m", "");
-        this.p4Development60m = props.getProperty("p4_development60m", "");
-        this.p4Education18m = props.getProperty("p4_education18m", "");
-        this.p4Education48m = props.getProperty("p4_education48m", "");
-        this.p4Hc18m = props.getProperty("p4_hc18m", "");
-        this.p4Hc24m = props.getProperty("p4_hc24m", "");
-        this.p4Ht18m = props.getProperty("p4_ht18m", "");
-        this.p4Ht24m = props.getProperty("p4_ht24m", "");
-        this.p4Ht48m = props.getProperty("p4_ht48m", "");
-        this.p4Bmi24m = props.getProperty("p4_bmi24m", "");
-        this.p4Bmi48m = props.getProperty("p4_bmi48m", "");
-        this.p4Nippisingattained = props.getProperty("p4_nippisingattained", "");
-        this.p4Nutrition18m = props.getProperty("p4_nutrition18m", "");
-        this.p4Nutrition24m = props.getProperty("p4_nutrition24m", "");
-        this.p4Nutrition48m = props.getProperty("p4_nutrition48m", "");
-        this.p4_pConcern18m = props.getProperty("p4_pConcern18m", "");
-        this.p4_pConcern24m = props.getProperty("p4_pConcern24m", "");
-        this.p4_pConcern48m = props.getProperty("p4_pConcern48m", "");
-        this.p4Physical18m = props.getProperty("p4_physical18m", "");
-        this.p4Physical24m = props.getProperty("p4_physical24m", "");
-        this.p4Physical48m = props.getProperty("p4_physical48m", "");
-        this.p4Problems18m = props.getProperty("p4_problems18m", "");
-        this.p4Problems24m = props.getProperty("p4_problems24m", "");
-        this.p4Problems48m = props.getProperty("p4_problems48m", "");
-        this.p4Signature18m = props.getProperty("p4_signature18m", "");
-        this.p4Signature24m = props.getProperty("p4_signature24m", "");
-        this.p4Signature48m = props.getProperty("p4_signature48m", "");
-        this.p4Wt18m = props.getProperty("p4_wt18m", "");
-        this.p4Wt24m = props.getProperty("p4_wt24m", "");
-        this.p4Wt48m = props.getProperty("p4_wt48m", "");
-    }
+	public FormRourke2017() { }
+	public FormRourke2017(Properties props) {
+		FrmRecordHelp frmRecordHelp = new FrmRecordHelp();
+		frmRecordHelp.setDateFormat("dd/MM/yyyy");
+		
+		this.providerNo = props.getProperty("provider_no");
+		this.demographicNo = Integer.valueOf(props.getProperty("demographic_no"));
+		this.cMale = props.getProperty("c_male", "");
+		this.cFemale = props.getProperty("c_female", "");
+		this.formCreated = frmRecordHelp.getDateFieldOrNull(props, "formCreated");
+		this.formEdited = new Timestamp(new Date().getTime());
+		this.c_APGAR1min = Integer.valueOf(props.getProperty("c_APGAR1min", "-1"));
+		this.c_APGAR5min = Integer.valueOf(props.getProperty("c_APGAR5min", "-1"));
+		this.c_birthDate = frmRecordHelp.getDateFieldOrNull(props, "c_birthDate");
+		this.c_birthRemarks = props.getProperty("c_birthRemarks", "");
+		this.c_birthWeight = props.getProperty("c_birthWeight", "");
+		this.c_dischargeWeight = props.getProperty("c_dischargeWeight", "");
+		this.c_famHistory = props.getProperty("c_famHistory", "");
+		this.cFsa = props.getProperty("c_fsa", "");
+        this.startOfGestation = frmRecordHelp.getDateFieldOrNull(props,"c_startOfGestation");
+		this.c_headCirc = props.getProperty("c_headCirc", "");
+		this.c_lastVisited = props.getProperty("c_lastVisited", "");
+		this.cLength = props.getProperty("c_length", "");
+		this.c_pName = props.getProperty("c_pName", "");
+		this.c_riskFactors = props.getProperty("c_riskFactors", "");
+		this.p1Date1m = frmRecordHelp.getDateFieldOrNull(props, "p1_date1m");
+		this.p1Date1w = frmRecordHelp.getDateFieldOrNull(props, "p1_date1w");
+		this.p1Date2w = frmRecordHelp.getDateFieldOrNull(props, "p1_date2w");
+		this.p1Development1m = props.getProperty("p1_development1m", "");
+		this.p1Development1w = props.getProperty("p1_development1w", "");
+		this.p1Development2w = props.getProperty("p1_development2w", "");
+		this.p1Hc1m = props.getProperty("p1_hc1m", "");
+		this.p1Hc1w = props.getProperty("p1_hc1w", "");
+		this.p1Hc2w = props.getProperty("p1_hc2w", "");
+		this.p1Ht1m = props.getProperty("p1_ht1m", "");
+		this.p1Ht1w = props.getProperty("p1_ht1w", "");
+		this.p1Ht2w = props.getProperty("p1_ht2w", "");
+		this.p1Immunization1m = props.getProperty("p1_immunization1m", "");
+		this.p1Immunization1w = props.getProperty("p1_immunization1w", "");
+		this.p1Immunization2w = props.getProperty("p1_immunization2w", "");
+		this.p1_pConcern1m = props.getProperty("p1_pConcern1m", "");
+		this.p1_pConcern1w = props.getProperty("p1_pConcern1w", "");
+		this.p1_pConcern2w = props.getProperty("p1_pConcern2w", "");
+		this.p1Education1w = props.getProperty("p1_education1w", "");
+		this.p1Education2w = props.getProperty("p1_education2w", "");
+		this.p1Education1m = props.getProperty("p1_education1m", "");
+		this.p1_pNutrition1m = props.getProperty("p1_pNutrition1m", "");
+		this.p1_pNutrition1w = props.getProperty("p1_pNutrition1w", "");
+		this.p1_pNutrition2w = props.getProperty("p1_pNutrition2w", "");
+		this.p1_pPhysical1m = props.getProperty("p1_pPhysical1m", "");
+		this.p1_pPhysical1w = props.getProperty("p1_pPhysical1w", "");
+		this.p1_pPhysical2w = props.getProperty("p1_pPhysical2w", "");
+		this.p1Problems1m = props.getProperty("p1_problems1m", "");
+		this.p1Problems1w = props.getProperty("p1_problems1w", "");
+		this.p1Problems2w = props.getProperty("p1_problems2w", "");
+		this.p1Signature1m = props.getProperty("p1_signature1m", "");
+		this.p1Signature1w = props.getProperty("p1_signature1w", "");
+		this.p1Signature2w = props.getProperty("p1_signature2w", "");
+		this.p1Wt1m = props.getProperty("p1_wt1m", "");
+		this.p1Wt1w = props.getProperty("p1_wt1w", "");
+		this.p1Wt2w = props.getProperty("p1_wt2w", "");
+		this.p2Date2m = frmRecordHelp.getDateFieldOrNull(props, "p2_date2m");
+		this.p2Date4m = frmRecordHelp.getDateFieldOrNull(props, "p2_date4m");
+		this.p2Date6m = frmRecordHelp.getDateFieldOrNull(props, "p2_date6m");
+		this.p2Development2m = props.getProperty("p2_development2m", "");
+		this.p2Development4m = props.getProperty("p2_development4m", "");
+		this.p2Development6m = props.getProperty("p2_development6m", "");
+		this.p2Education2m = props.getProperty("p2_education2m", "");
+		this.p2Education4m = props.getProperty("p2_education4m", "");
+		this.p2Education6m = props.getProperty("p2_education6m", "");
+		this.p2Hc2m = props.getProperty("p2_hc2m", "");
+		this.p2Hc4m = props.getProperty("p2_hc4m", "");
+		this.p2Hc6m = props.getProperty("p2_hc6m", "");
+		this.p2Ht2m = props.getProperty("p2_ht2m", "");
+		this.p2Ht4m = props.getProperty("p2_ht4m", "");
+		this.p2Ht6m = props.getProperty("p2_ht6m", "");
+		this.p2Immunization6m = props.getProperty("p2_immunization6m", "");
+		this.p2Nutrition2m = props.getProperty("p2_nutrition2m", "");
+		this.p2Nutrition4m = props.getProperty("p2_nutrition4m", "");
+		this.p2Nutrition6m = props.getProperty("p2_nutrition6m", "");
+		this.p2_pConcern2m = props.getProperty("p2_pConcern2m", "");
+		this.p2_pConcern4m = props.getProperty("p2_pConcern4m", "");
+		this.p2_pConcern6m = props.getProperty("p2_pConcern6m", "");
+		this.p2Physical2m = props.getProperty("p2_physical2m", "");
+		this.p2Physical4m = props.getProperty("p2_physical4m", "");
+		this.p2Physical6m = props.getProperty("p2_physical6m", "");
+		this.p2Problems2m = props.getProperty("p2_problems2m", "");
+		this.p2Problems4m = props.getProperty("p2_problems4m", "");
+		this.p2Problems6m = props.getProperty("p2_problems6m", "");
+		this.p2Signature2m = props.getProperty("p2_signature2m", "");
+		this.p2Signature4m = props.getProperty("p2_signature4m", "");
+		this.p2Signature6m = props.getProperty("p2_signature6m", "");
+		this.p2Wt2m = props.getProperty("p2_wt2m", "");
+		this.p2Wt4m = props.getProperty("p2_wt4m", "");
+		this.p2Wt6m = props.getProperty("p2_wt6m", "");
+		this.p3Date12m = frmRecordHelp.getDateFieldOrNull(props, "p3_date12m");
+		this.p3Date15m = frmRecordHelp.getDateFieldOrNull(props, "p3_date15m");
+		this.p3Date9m = frmRecordHelp.getDateFieldOrNull(props, "p3_date9m");
+		this.p3Development12m = props.getProperty("p3_development12m", "");
+		this.p3Development15m = props.getProperty("p3_development15m", "");
+		this.p3Development9m = props.getProperty("p3_development9m", "");
+		this.p3Education9m = props.getProperty("p3_education9m", "");
+		this.p3Education12m = props.getProperty("p3_education12m", "");
+		this.p3Education15m = props.getProperty("p3_education15m", "");
+		this.p3Hc12m = props.getProperty("p3_hc12m", "");
+		this.p3Hc15m = props.getProperty("p3_hc15m", "");
+		this.p3Hc9m = props.getProperty("p3_hc9m", "");
+		this.p3Ht12m = props.getProperty("p3_ht12m", "");
+		this.p3Ht15m = props.getProperty("p3_ht15m", "");
+		this.p3Ht9m = props.getProperty("p3_ht9m", "");
+		this.p3Nutrition12m = props.getProperty("p3_nutrition12m", "");
+		this.p3Nutrition15m = props.getProperty("p3_nutrition15m", "");
+		this.p3Nutrition9m = props.getProperty("p3_nutrition9m", "");
+		this.p3_pConcern12m = props.getProperty("p3_pConcern12m", "");
+		this.p3_pConcern15m = props.getProperty("p3_pConcern15m", "");
+		this.p3_pConcern9m = props.getProperty("p3_pConcern9m", "");
+		this.p3Physical12m = props.getProperty("p3_physical12m", "");
+		this.p3Physical15m = props.getProperty("p3_physical15m", "");
+		this.p3Physical9m = props.getProperty("p3_physical9m", "");
+		this.p3Problems12m = props.getProperty("p3_problems12m", "");
+		this.p3Problems15m = props.getProperty("p3_problems15m", "");
+		this.p3Problems9m = props.getProperty("p3_problems9m", "");
+		this.p3Signature12m = props.getProperty("p3_signature12m", "");
+		this.p3Signature15m = props.getProperty("p3_signature15m", "");
+		this.p3Signature9m = props.getProperty("p3_signature9m", "");
+		this.p3Wt12m = props.getProperty("p3_wt12m", "");
+		this.p3Wt15m = props.getProperty("p3_wt15m", "");
+		this.p3Wt9m = props.getProperty("p3_wt9m", "");
+		this.p4Date18m = frmRecordHelp.getDateFieldOrNull(props, "p4_date18m");
+		this.p4Date24m = frmRecordHelp.getDateFieldOrNull(props, "p4_date24m");
+		this.p4Date48m = frmRecordHelp.getDateFieldOrNull(props, "p4_date48m");
+		this.p4Development18m = props.getProperty("p4_development18m", "");
+		this.p4Development24m = props.getProperty("p4_development24m", "");
+		this.p4Development36m = props.getProperty("p4_development36m", "");
+		this.p4Development48m = props.getProperty("p4_development48m", "");
+		this.p4Development60m = props.getProperty("p4_development60m", "");
+		this.p4Education18m = props.getProperty("p4_education18m", "");
+		this.p4Education24m = props.getProperty("p4_education24m", "");
+		this.p4Education48m = props.getProperty("p4_education48m", "");
+		this.p4Hc18m = props.getProperty("p4_hc18m", "");
+		this.p4Hc24m = props.getProperty("p4_hc24m", "");
+		this.p4Ht18m = props.getProperty("p4_ht18m", "");
+		this.p4Ht24m = props.getProperty("p4_ht24m", "");
+		this.p4Ht48m = props.getProperty("p4_ht48m", "");
+		this.p4Bmi24m = props.getProperty("p4_bmi24m", "");
+		this.p4Bmi48m = props.getProperty("p4_bmi48m", "");
+		this.p4Nippisingattained = props.getProperty("p4_nippisingattained", "");
+		this.p4Nutrition18m = props.getProperty("p4_nutrition18m", "");
+		this.p4Nutrition24m = props.getProperty("p4_nutrition24m", "");
+		this.p4Nutrition48m = props.getProperty("p4_nutrition48m", "");
+		this.p4_pConcern18m = props.getProperty("p4_pConcern18m", "");
+		this.p4_pConcern24m = props.getProperty("p4_pConcern24m", "");
+		this.p4_pConcern48m = props.getProperty("p4_pConcern48m", "");
+		this.p4Physical18m = props.getProperty("p4_physical18m", "");
+		this.p4Physical24m = props.getProperty("p4_physical24m", "");
+		this.p4Physical48m = props.getProperty("p4_physical48m", "");
+		this.p4Problems18m = props.getProperty("p4_problems18m", "");
+		this.p4Problems24m = props.getProperty("p4_problems24m", "");
+		this.p4Problems48m = props.getProperty("p4_problems48m", "");
+		this.p4Signature18m = props.getProperty("p4_signature18m", "");
+		this.p4Signature24m = props.getProperty("p4_signature24m", "");
+		this.p4Signature48m = props.getProperty("p4_signature48m", "");
+		this.p4Wt18m = props.getProperty("p4_wt18m", "");
+		this.p4Wt24m = props.getProperty("p4_wt24m", "");
+		this.p4Wt48m = props.getProperty("p4_wt48m", "");
+	}
 
-    public Integer getId() {
+	public Integer getId() {
 		return this.id;
 	}
 
@@ -587,67 +615,67 @@ public class FormRourke2017 extends AbstractModel<Integer> implements Serializab
 		this.id = id;
 	}
 
-    public String getProviderNo() {
-        return this.providerNo;
-    }
+	public String getProviderNo() {
+		return this.providerNo;
+	}
 
-    public void setProviderNo(String providerNo) {
-        this.providerNo = providerNo;
-    }
+	public void setProviderNo(String providerNo) {
+		this.providerNo = providerNo;
+	}
 
-    public int getDemographicNo() {
-        return this.demographicNo;
-    }
+	public int getDemographicNo() {
+		return this.demographicNo;
+	}
 
-    public void setDemographicNo(int demographicNo) {
-        this.demographicNo = demographicNo;
-    }
+	public void setDemographicNo(int demographicNo) {
+		this.demographicNo = demographicNo;
+	}
 
-    public String getcMale() {
-        return cMale;
-    }
-    public void setcMale(String cMale) {
-        this.cMale = cMale;
-    }
+	public String getcMale() {
+		return cMale;
+	}
+	public void setcMale(String cMale) {
+		this.cMale = cMale;
+	}
 
-    public String getcFemale() {
-        return cFemale;
-    }
-    public void setcFemale(String cFemale) {
-        this.cFemale = cFemale;
-    }
+	public String getcFemale() {
+		return cFemale;
+	}
+	public void setcFemale(String cFemale) {
+		this.cFemale = cFemale;
+	}
 
-    public Date getFormCreated() {
-        return this.formCreated;
-    }
+	public Date getFormCreated() {
+		return this.formCreated;
+	}
 
-    public void setFormCreated(Date formCreated) {
-        this.formCreated = formCreated;
-    }
+	public void setFormCreated(Date formCreated) {
+		this.formCreated = formCreated;
+	}
 
-    public Timestamp getFormEdited() {
-        return this.formEdited;
-    }
+	public Timestamp getFormEdited() {
+		return this.formEdited;
+	}
 
-    public void setFormEdited(Timestamp formEdited) {
-        this.formEdited = formEdited;
-    }
+	public void setFormEdited(Timestamp formEdited) {
+		this.formEdited = formEdited;
+	}
 
-    public HashMap<String, FormBooleanValue> getBooleanValueMap() {
-        return booleanValueMap;
-    }
-    public void setBooleanValueMap(HashMap<String, FormBooleanValue> booleanValueMap) {
-        this.booleanValueMap = booleanValueMap;
-    }
-    
-    public Boolean getBooleanValue(String fieldName) {
-        if (booleanValueMap.containsKey(fieldName)) {
-            return booleanValueMap.get(fieldName).getValue();
-        }
-        return null;
-    }
+	public Map<String, FormBooleanValue> getBooleanValueMap() {
+		return booleanValueMap;
+	}
+	public void setBooleanValueMap(Map<String, FormBooleanValue> booleanValueMap) {
+		this.booleanValueMap = booleanValueMap;
+	}
+	
+	public Boolean getBooleanValue(String fieldName) {
+		if (booleanValueMap.containsKey(fieldName)) {
+			return booleanValueMap.get(fieldName).getValue();
+		}
+		return null;
+	}
 
-    public Integer getC_APGAR1min() {
+	public Integer getC_APGAR1min() {
 		return this.c_APGAR1min;
 	}
 
@@ -710,6 +738,14 @@ public class FormRourke2017 extends AbstractModel<Integer> implements Serializab
 	public void setCFsa(String cFsa) {
 		this.cFsa = cFsa;
 	}
+
+    public Date getStartOfGestation() {
+        return startOfGestation;
+    }
+
+    public void setStartOfGestation(Date startOfGestation) {
+        this.startOfGestation = startOfGestation;
+    }
 
 	public String getC_headCirc() {
 		return this.c_headCirc;
@@ -895,12 +931,28 @@ public class FormRourke2017 extends AbstractModel<Integer> implements Serializab
 		this.p1_pConcern2w = p1_pConcern2w;
 	}
 
-	public String getP1_pEducation() {
-		return this.p1_pEducation;
+	public String getP1Education1w() {
+		return p1Education1w;
 	}
 
-	public void setP1_pEducation(String p1_pEducation) {
-		this.p1_pEducation = p1_pEducation;
+	public void setP1Education1w(String p1Education1w) {
+		this.p1Education1w = p1Education1w;
+	}
+
+	public String getP1Education2w() {
+		return p1Education2w;
+	}
+
+	public void setP1Education2w(String p1Education2w) {
+		this.p1Education2w = p1Education2w;
+	}
+
+	public String getP1Education1m() {
+		return p1Education1m;
+	}
+
+	public void setP1Education1m(String p1Education1m) {
+		this.p1Education1m = p1Education1m;
 	}
 
 	public String getP1_pNutrition1m() {
@@ -1070,13 +1122,30 @@ public class FormRourke2017 extends AbstractModel<Integer> implements Serializab
 	public void setP2Development6m(String p2Development6m) {
 		this.p2Development6m = p2Development6m;
 	}
-	
-	public String getP2Education() {
-		return this.p2Education;
+
+
+	public String getP2Education2m() {
+		return p2Education2m;
 	}
 
-	public void setP2Education(String p2Education) {
-		this.p2Education = p2Education;
+	public void setP2Education2m(String p2Education2m) {
+		this.p2Education2m = p2Education2m;
+	}
+
+	public String getP2Education4m() {
+		return p2Education4m;
+	}
+
+	public void setP2Education4m(String p2Education4m) {
+		this.p2Education4m = p2Education4m;
+	}
+
+	public String getP2Education6m() {
+		return p2Education6m;
+	}
+
+	public void setP2Education6m(String p2Education6m) {
+		this.p2Education6m = p2Education6m;
 	}
 
 	public String getP2Hc2m() {
@@ -1326,13 +1395,29 @@ public class FormRourke2017 extends AbstractModel<Integer> implements Serializab
 	public void setP3Development9m(String p3Development9m) {
 		this.p3Development9m = p3Development9m;
 	}
-	
-	public String getP3Education() {
-		return this.p3Education;
+
+	public String getP3Education9m() {
+		return p3Education9m;
 	}
 
-	public void setP3Education(String p3Education) {
-		this.p3Education = p3Education;
+	public void setP3Education9m(String p3Education9m) {
+		this.p3Education9m = p3Education9m;
+	}
+
+	public String getP3Education12m() {
+		return p3Education12m;
+	}
+
+	public void setP3Education12m(String p3Education12m) {
+		this.p3Education12m = p3Education12m;
+	}
+
+	public String getP3Education15m() {
+		return p3Education15m;
+	}
+
+	public void setP3Education15m(String p3Education15m) {
+		this.p3Education15m = p3Education15m;
 	}
 
 	public String getP3Hc12m() {
@@ -1598,6 +1683,14 @@ public class FormRourke2017 extends AbstractModel<Integer> implements Serializab
 	public void setP4Education18m(String p4Education18m) {
 		this.p4Education18m = p4Education18m;
 	}
+
+	public String getP4Education24m() {
+		return p4Education24m;
+	}
+
+	public void setP4Education24m(String p4Education24m) {
+		this.p4Education24m = p4Education24m;
+	}
 	
 	public String getP4Education48m() {
 		return this.p4Education48m;
@@ -1647,23 +1740,23 @@ public class FormRourke2017 extends AbstractModel<Integer> implements Serializab
 		this.p4Ht48m = p4Ht48m;
 	}
 
-    public String getP4Bmi24m() {
-        return p4Bmi24m;
-    }
+	public String getP4Bmi24m() {
+		return p4Bmi24m;
+	}
 
-    public void setP4Bmi24m(String p4Bmi24m) {
-        this.p4Bmi24m = p4Bmi24m;
-    }
+	public void setP4Bmi24m(String p4Bmi24m) {
+		this.p4Bmi24m = p4Bmi24m;
+	}
 
-    public String getP4Bmi48m() {
-        return p4Bmi48m;
-    }
+	public String getP4Bmi48m() {
+		return p4Bmi48m;
+	}
 
-    public void setP4Bmi48m(String p4Bmi48m) {
-        this.p4Bmi48m = p4Bmi48m;
-    }
+	public void setP4Bmi48m(String p4Bmi48m) {
+		this.p4Bmi48m = p4Bmi48m;
+	}
 
-    public String getP4Nippisingattained() {
+	public String getP4Nippisingattained() {
 		return this.p4Nippisingattained;
 	}
 
@@ -1816,191 +1909,200 @@ public class FormRourke2017 extends AbstractModel<Integer> implements Serializab
 	}
 	
 	public String getFormTable() {
-        return FORM_TABLE;
-    }
+		return FORM_TABLE;
+	}
 
-    /**
-     * Sets the booleanValueMap using values taken from the provided Properties object
-     * @param properties
-     */
-    public void createBooleanValueMapFromFormProperties(Properties properties) {
-        HashMap<String, FormBooleanValue> booleanMap = new HashMap<String, FormBooleanValue>();
-        // Look over every known radiobutton/checkbox field with each permutation of a suffix
-        for (String fieldName : FormRourke2017Constants.BOOLEAN_FIELD_NAMES) {
-            for (String suffix : FormRourke2017Constants.BOOLEAN_FIELD_SUFFIXES) {
-                String fullFieldName = fieldName + suffix;
-                String value = properties.getProperty(fullFieldName, null);
-                if (value != null) {
-                    FormBooleanValue valueObject = new FormBooleanValue(FORM_TABLE, id, fullFieldName, value.equalsIgnoreCase("on") || value.equalsIgnoreCase("checked='checked'"));
-                    booleanMap.put(fullFieldName, valueObject);
-                }
+	/**
+	 * Sets the booleanValueMap using values taken from the provided Properties object
+	 * @param properties
+	 */
+	public void createBooleanValueMapFromFormProperties(Properties properties) {
+		HashMap<String, FormBooleanValue> booleanMap = new HashMap<String, FormBooleanValue>();
+		// Look over every known radiobutton/checkbox field with each permutation of a suffix
+		for (String fieldName : FormRourke2017Constants.BOOLEAN_FIELD_NAMES) {
+			for (String suffix : FormRourke2017Constants.BOOLEAN_FIELD_SUFFIXES) {
+				String fullFieldName = fieldName + suffix;
+				String value = properties.getProperty(fullFieldName, null);
+				if (value != null) {
+					FormBooleanValue valueObject = new FormBooleanValue(FORM_TABLE, id, fullFieldName, value.equalsIgnoreCase("on") || value.equalsIgnoreCase("checked='checked'"));
+					booleanMap.put(fullFieldName, valueObject);
+				}
 
-            }
-        }
-        setBooleanValueMap(booleanMap);
-    }
+			}
+		}
+		setBooleanValueMap(booleanMap);
+	}
 
-    public Properties toProperties() {
-        FrmRecordHelp frmRecordHelp = new FrmRecordHelp();
-        frmRecordHelp.setDateFormat("dd/MM/yyyy");
+	public Properties toProperties() {
+		FrmRecordHelp frmRecordHelp = new FrmRecordHelp();
+		frmRecordHelp.setDateFormat("dd/MM/yyyy");
 
-        Properties props = new Properties();
-        props.setProperty("provider_no", getProviderNo());
-        props.setProperty("demographic_no", String.valueOf(getDemographicNo()));
-        props.setProperty("c_male", getcMale());
-        props.setProperty("c_female", getcFemale());
-        props.setProperty("formCreated", frmRecordHelp.parseDateFieldOrNull(getFormCreated()));
-        props.setProperty("formEdited", new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(getFormEdited()));
-        props.setProperty("c_APGAR1min", String.valueOf(getC_APGAR1min()));
-        props.setProperty("c_APGAR5min", String.valueOf(getC_APGAR5min()));
-        if (getC_birthDate() != null) { props.setProperty("c_birthDate", frmRecordHelp.parseDateFieldOrNull(getC_birthDate())); }
-        props.setProperty("c_birthRemarks", getC_birthRemarks());
-        props.setProperty("c_birthWeight", getC_birthWeight());
-        props.setProperty("c_dischargeWeight", getC_dischargeWeight());
-        props.setProperty("c_famHistory", getC_famHistory());
-        props.setProperty("c_fsa", getCFsa());
+		Properties props = new Properties();
+		props.setProperty("provider_no", getProviderNo());
+		props.setProperty("demographic_no", String.valueOf(getDemographicNo()));
+		props.setProperty("c_male", getcMale());
+		props.setProperty("c_female", getcFemale());
+		props.setProperty("formCreated", frmRecordHelp.parseDateFieldOrNull(getFormCreated()));
+		props.setProperty("formEdited", new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(getFormEdited()));
+		props.setProperty("c_APGAR1min", String.valueOf(getC_APGAR1min()));
+		props.setProperty("c_APGAR5min", String.valueOf(getC_APGAR5min()));
+		if (getC_birthDate() != null) { props.setProperty("c_birthDate", frmRecordHelp.parseDateFieldOrNull(getC_birthDate())); }
+		props.setProperty("c_birthRemarks", getC_birthRemarks());
+		props.setProperty("c_birthWeight", getC_birthWeight());
+		props.setProperty("c_dischargeWeight", getC_dischargeWeight());
+		props.setProperty("c_famHistory", getC_famHistory());
+		props.setProperty("c_fsa", getCFsa());
+		if (getStartOfGestation() != null) { props.setProperty("c_startOfGestation", frmRecordHelp.parseDateFieldOrNull(getStartOfGestation())); }
         props.setProperty("c_headCirc", getC_headCirc());
-        props.setProperty("c_lastVisited", getC_lastVisited());
-        props.setProperty("c_length", getCLength());
-        props.setProperty("c_pName", getC_pName());
-        props.setProperty("c_riskFactors", getC_riskFactors());
-        if (getP1Date1m() != null) { props.setProperty("p1_date1m", frmRecordHelp.parseDateFieldOrNull(getP1Date1m())); }
-        if (getP1Date1w() != null) { props.setProperty("p1_date1w", frmRecordHelp.parseDateFieldOrNull(getP1Date1w())); }
-        if (getP1Date2w() != null) { props.setProperty("p1_date2w", frmRecordHelp.parseDateFieldOrNull(getP1Date2w())); }
-        props.setProperty("p1_development1m", getP1Development1m());
-        props.setProperty("p1_development1w", getP1Development1w());
-        props.setProperty("p1_development2w", getP1Development2w());
-        props.setProperty("p1_hc1m", getP1Hc1m());
-        props.setProperty("p1_hc1w", getP1Hc1w());
-        props.setProperty("p1_hc2w", getP1Hc2w());
-        props.setProperty("p1_ht1m", getP1Ht1m());
-        props.setProperty("p1_ht1w", getP1Ht1w());
-        props.setProperty("p1_ht2w", getP1Ht2w());
-        props.setProperty("p1_immunization1m", getP1Immunization1m());
-        props.setProperty("p1_immunization1w", getP1Immunization1w());
-        props.setProperty("p1_immunization2w", getP1Immunization2w());
-        props.setProperty("p1_pConcern1m", getP1_pConcern1m());
-        props.setProperty("p1_pConcern1w", getP1_pConcern1w());
-        props.setProperty("p1_pConcern2w", getP1_pConcern2w());
-        props.setProperty("p1_pEducation", getP1_pEducation());
-        props.setProperty("p1_pNutrition1m", getP1_pNutrition1m());
-        props.setProperty("p1_pNutrition1w", getP1_pNutrition1w());
-        props.setProperty("p1_pNutrition2w", getP1_pNutrition2w());
-        props.setProperty("p1_pPhysical1m", getP1_pPhysical1m());
-        props.setProperty("p1_pPhysical1w", getP1_pPhysical1w());
-        props.setProperty("p1_pPhysical2w", getP1_pPhysical2w());
-        props.setProperty("p1_problems1m", getP1Problems1m());
-        props.setProperty("p1_problems1w", getP1Problems1w());
-        props.setProperty("p1_problems2w", getP1Problems2w());
-        props.setProperty("p1_signature1m", getP1Signature1m());
-        props.setProperty("p1_signature1w", getP1Signature1w());
-        props.setProperty("p1_signature2w", getP1Signature2w());
-        props.setProperty("p1_wt1m", getP1Wt1m());
-        props.setProperty("p1_wt1w", getP1Wt1w());
-        props.setProperty("p1_wt2w", getP1Wt2w());
-        if (getP2Date2m() != null) { props.setProperty("p2_date2m", frmRecordHelp.parseDateFieldOrNull(getP2Date2m())); }
-        if (getP2Date4m() != null) { props.setProperty("p2_date4m", frmRecordHelp.parseDateFieldOrNull(getP2Date4m())); }
-        if (getP2Date6m() != null) { props.setProperty("p2_date6m", frmRecordHelp.parseDateFieldOrNull(getP2Date6m())); }
-        props.setProperty("p2_development2m", getP2Development2m());
-        props.setProperty("p2_development4m", getP2Development4m());
-        props.setProperty("p2_development6m", getP2Development6m());
-        props.setProperty("p2_education", getP2Education());
-        props.setProperty("p2_hc2m", getP2Hc2m());
-        props.setProperty("p2_hc4m", getP2Hc4m());
-        props.setProperty("p2_hc6m", getP2Hc6m());
-        props.setProperty("p2_ht2m", getP2Ht2m());
-        props.setProperty("p2_ht4m", getP2Ht4m());
-        props.setProperty("p2_ht6m", getP2Ht6m());
-        props.setProperty("p2_immunization6m", getP2Immunization6m());
-        props.setProperty("p2_nutrition2m", getP2Nutrition2m());
-        props.setProperty("p2_nutrition4m", getP2Nutrition4m());
-        props.setProperty("p2_nutrition6m", getP2Nutrition6m());
-        props.setProperty("p2_pConcern2m", getP2_pConcern2m());
-        props.setProperty("p2_pConcern4m", getP2_pConcern4m());
-        props.setProperty("p2_pConcern6m", getP2_pConcern6m());
-        props.setProperty("p2_physical2m", getP2Physical2m());
-        props.setProperty("p2_physical4m", getP2Physical4m());
-        props.setProperty("p2_physical6m", getP2Physical6m());
-        props.setProperty("p2_problems2m", getP2Problems2m());
-        props.setProperty("p2_problems4m", getP2Problems4m());
-        props.setProperty("p2_problems6m", getP2Problems6m());
-        props.setProperty("p2_signature2m", getP2Signature2m());
-        props.setProperty("p2_signature4m", getP2Signature4m());
-        props.setProperty("p2_signature6m", getP2Signature6m());
-        props.setProperty("p2_wt2m", getP2Wt2m());
-        props.setProperty("p2_wt4m", getP2Wt4m());
-        props.setProperty("p2_wt6m", getP2Wt6m());
-        if (getP3Date12m() != null) { props.setProperty("p3_date12m", frmRecordHelp.parseDateFieldOrNull(getP3Date12m())); }
-        if (getP3Date15m() != null) { props.setProperty("p3_date15m", frmRecordHelp.parseDateFieldOrNull(getP3Date15m())); }
-        if (getP3Date9m() != null) { props.setProperty("p3_date9m", frmRecordHelp.parseDateFieldOrNull(getP3Date9m())); }
-        props.setProperty("p3_development12m", getP3Development12m());
-        props.setProperty("p3_development15m", getP3Development15m());
-        props.setProperty("p3_development9m", getP3Development9m());
-        props.setProperty("p3_education", getP3Education());
-        props.setProperty("p3_hc12m", getP3Hc12m());
-        props.setProperty("p3_hc15m", getP3Hc15m());
-        props.setProperty("p3_hc9m", getP3Hc9m());
-        props.setProperty("p3_ht12m", getP3Ht12m());
-        props.setProperty("p3_ht15m", getP3Ht15m());
-        props.setProperty("p3_ht9m", getP3Ht9m());
-        props.setProperty("p3_nutrition12m", getP3Nutrition12m());
-        props.setProperty("p3_nutrition15m", getP3Nutrition15m());
-        props.setProperty("p3_nutrition9m", getP3Nutrition9m());
-        props.setProperty("p3_pConcern12m", getP3_pConcern12m());
-        props.setProperty("p3_pConcern15m", getP3_pConcern15m());
-        props.setProperty("p3_pConcern9m", getP3_pConcern9m());
-        props.setProperty("p3_physical12m", getP3Physical12m());
-        props.setProperty("p3_physical15m", getP3Physical15m());
-        props.setProperty("p3_physical9m", getP3Physical9m());
-        props.setProperty("p3_problems12m", getP3Problems12m());
-        props.setProperty("p3_problems15m", getP3Problems15m());
-        props.setProperty("p3_problems9m", getP3Problems9m());
-        props.setProperty("p3_signature12m", getP3Signature12m());
-        props.setProperty("p3_signature15m", getP3Signature15m());
-        props.setProperty("p3_signature9m", getP3Signature9m());
-        props.setProperty("p3_wt12m", getP3Wt12m());
-        props.setProperty("p3_wt15m", getP3Wt15m());
-        props.setProperty("p3_wt9m", getP3Wt9m());
-        if (getP4Date18m() != null) { props.setProperty("p4_date18m", frmRecordHelp.parseDateFieldOrNull(getP4Date18m())); }
-        if (getP4Date24m() != null) { props.setProperty("p4_date24m", frmRecordHelp.parseDateFieldOrNull(getP4Date24m())); }
-        if (getP4Date48m() != null) { props.setProperty("p4_date48m", frmRecordHelp.parseDateFieldOrNull(getP4Date48m())); }
-        props.setProperty("p4_development18m", getP4Development18m());
-        props.setProperty("p4_development24m", getP4Development24m());
-        props.setProperty("p4_development36m", getP4Development36m());
-        props.setProperty("p4_development48m", getP4Development48m());
-        props.setProperty("p4_development60m", getP4Development60m());
-        props.setProperty("p4_education18m", getP4Education18m());
-        props.setProperty("p4_education48m", getP4Education48m());
-        props.setProperty("p4_hc18m", getP4Hc18m());
-        props.setProperty("p4_hc24m", getP4Hc24m());
-        props.setProperty("p4_ht18m", getP4Ht18m());
-        props.setProperty("p4_ht24m", getP4Ht24m());
-        props.setProperty("p4_ht48m", getP4Ht48m());
-        props.setProperty("p4_bmi24m", getP4Bmi24m());
-        props.setProperty("p4_bmi48m", getP4Bmi48m());
-        props.setProperty("p4_nippisingattained", getP4Nippisingattained());
-        props.setProperty("p4_nutrition18m", getP4Nutrition18m());
-        props.setProperty("p4_nutrition24m", getP4Nutrition24m());
-        props.setProperty("p4_nutrition48m", getP4Nutrition48m());
-        props.setProperty("p4_pConcern18m", getP4_pConcern18m());
-        props.setProperty("p4_pConcern24m", getP4_pConcern24m());
-        props.setProperty("p4_pConcern48m", getP4_pConcern48m());
-        props.setProperty("p4_physical18m", getP4Physical18m());
-        props.setProperty("p4_physical24m", getP4Physical24m());
-        props.setProperty("p4_physical48m", getP4Physical48m());
-        props.setProperty("p4_problems18m", getP4Problems18m());
-        props.setProperty("p4_problems24m", getP4Problems24m());
-        props.setProperty("p4_problems48m", getP4Problems48m());
-        props.setProperty("p4_signature18m", getP4Signature18m());
-        props.setProperty("p4_signature24m", getP4Signature24m());
-        props.setProperty("p4_signature48m", getP4Signature48m());
-        props.setProperty("p4_wt18m", getP4Wt18m());
-        props.setProperty("p4_wt24m", getP4Wt24m());
-        props.setProperty("p4_wt48m", getP4Wt48m());
+		props.setProperty("c_headCirc", getC_headCirc());
+		props.setProperty("c_lastVisited", getC_lastVisited());
+		props.setProperty("c_length", getCLength());
+		props.setProperty("c_pName", getC_pName());
+		props.setProperty("c_riskFactors", getC_riskFactors());
+		if (getP1Date1m() != null) { props.setProperty("p1_date1m", frmRecordHelp.parseDateFieldOrNull(getP1Date1m())); }
+		if (getP1Date1w() != null) { props.setProperty("p1_date1w", frmRecordHelp.parseDateFieldOrNull(getP1Date1w())); }
+		if (getP1Date2w() != null) { props.setProperty("p1_date2w", frmRecordHelp.parseDateFieldOrNull(getP1Date2w())); }
+		props.setProperty("p1_development1m", getP1Development1m());
+		props.setProperty("p1_development1w", getP1Development1w());
+		props.setProperty("p1_development2w", getP1Development2w());
+		props.setProperty("p1_hc1m", getP1Hc1m());
+		props.setProperty("p1_hc1w", getP1Hc1w());
+		props.setProperty("p1_hc2w", getP1Hc2w());
+		props.setProperty("p1_ht1m", getP1Ht1m());
+		props.setProperty("p1_ht1w", getP1Ht1w());
+		props.setProperty("p1_ht2w", getP1Ht2w());
+		props.setProperty("p1_immunization1m", getP1Immunization1m());
+		props.setProperty("p1_immunization1w", getP1Immunization1w());
+		props.setProperty("p1_immunization2w", getP1Immunization2w());
+		props.setProperty("p1_pConcern1m", getP1_pConcern1m());
+		props.setProperty("p1_pConcern1w", getP1_pConcern1w());
+		props.setProperty("p1_pConcern2w", getP1_pConcern2w());
+		props.setProperty("p1_education1w", getP1Education1w());
+		props.setProperty("p1_education2w", getP1Education2w());
+		props.setProperty("p1_education1m", getP1Education1m());
+		props.setProperty("p1_pNutrition1m", getP1_pNutrition1m());
+		props.setProperty("p1_pNutrition1w", getP1_pNutrition1w());
+		props.setProperty("p1_pNutrition2w", getP1_pNutrition2w());
+		props.setProperty("p1_pPhysical1m", getP1_pPhysical1m());
+		props.setProperty("p1_pPhysical1w", getP1_pPhysical1w());
+		props.setProperty("p1_pPhysical2w", getP1_pPhysical2w());
+		props.setProperty("p1_problems1m", getP1Problems1m());
+		props.setProperty("p1_problems1w", getP1Problems1w());
+		props.setProperty("p1_problems2w", getP1Problems2w());
+		props.setProperty("p1_signature1m", getP1Signature1m());
+		props.setProperty("p1_signature1w", getP1Signature1w());
+		props.setProperty("p1_signature2w", getP1Signature2w());
+		props.setProperty("p1_wt1m", getP1Wt1m());
+		props.setProperty("p1_wt1w", getP1Wt1w());
+		props.setProperty("p1_wt2w", getP1Wt2w());
+		if (getP2Date2m() != null) { props.setProperty("p2_date2m", frmRecordHelp.parseDateFieldOrNull(getP2Date2m())); }
+		if (getP2Date4m() != null) { props.setProperty("p2_date4m", frmRecordHelp.parseDateFieldOrNull(getP2Date4m())); }
+		if (getP2Date6m() != null) { props.setProperty("p2_date6m", frmRecordHelp.parseDateFieldOrNull(getP2Date6m())); }
+		props.setProperty("p2_development2m", getP2Development2m());
+		props.setProperty("p2_development4m", getP2Development4m());
+		props.setProperty("p2_development6m", getP2Development6m());
+		props.setProperty("p2_education2m", getP2Education2m());
+		props.setProperty("p2_education4m", getP2Education4m());
+		props.setProperty("p2_education6m", getP2Education6m());
+		props.setProperty("p2_hc2m", getP2Hc2m());
+		props.setProperty("p2_hc4m", getP2Hc4m());
+		props.setProperty("p2_hc6m", getP2Hc6m());
+		props.setProperty("p2_ht2m", getP2Ht2m());
+		props.setProperty("p2_ht4m", getP2Ht4m());
+		props.setProperty("p2_ht6m", getP2Ht6m());
+		props.setProperty("p2_immunization6m", getP2Immunization6m());
+		props.setProperty("p2_nutrition2m", getP2Nutrition2m());
+		props.setProperty("p2_nutrition4m", getP2Nutrition4m());
+		props.setProperty("p2_nutrition6m", getP2Nutrition6m());
+		props.setProperty("p2_pConcern2m", getP2_pConcern2m());
+		props.setProperty("p2_pConcern4m", getP2_pConcern4m());
+		props.setProperty("p2_pConcern6m", getP2_pConcern6m());
+		props.setProperty("p2_physical2m", getP2Physical2m());
+		props.setProperty("p2_physical4m", getP2Physical4m());
+		props.setProperty("p2_physical6m", getP2Physical6m());
+		props.setProperty("p2_problems2m", getP2Problems2m());
+		props.setProperty("p2_problems4m", getP2Problems4m());
+		props.setProperty("p2_problems6m", getP2Problems6m());
+		props.setProperty("p2_signature2m", getP2Signature2m());
+		props.setProperty("p2_signature4m", getP2Signature4m());
+		props.setProperty("p2_signature6m", getP2Signature6m());
+		props.setProperty("p2_wt2m", getP2Wt2m());
+		props.setProperty("p2_wt4m", getP2Wt4m());
+		props.setProperty("p2_wt6m", getP2Wt6m());
+		if (getP3Date12m() != null) { props.setProperty("p3_date12m", frmRecordHelp.parseDateFieldOrNull(getP3Date12m())); }
+		if (getP3Date15m() != null) { props.setProperty("p3_date15m", frmRecordHelp.parseDateFieldOrNull(getP3Date15m())); }
+		if (getP3Date9m() != null) { props.setProperty("p3_date9m", frmRecordHelp.parseDateFieldOrNull(getP3Date9m())); }
+		props.setProperty("p3_development12m", getP3Development12m());
+		props.setProperty("p3_development15m", getP3Development15m());
+		props.setProperty("p3_development9m", getP3Development9m());
+		props.setProperty("p3_education9m", getP3Education9m());
+		props.setProperty("p3_education12m", getP3Education12m());
+		props.setProperty("p3_education15m", getP3Education15m());
+		props.setProperty("p3_hc12m", getP3Hc12m());
+		props.setProperty("p3_hc15m", getP3Hc15m());
+		props.setProperty("p3_hc9m", getP3Hc9m());
+		props.setProperty("p3_ht12m", getP3Ht12m());
+		props.setProperty("p3_ht15m", getP3Ht15m());
+		props.setProperty("p3_ht9m", getP3Ht9m());
+		props.setProperty("p3_nutrition12m", getP3Nutrition12m());
+		props.setProperty("p3_nutrition15m", getP3Nutrition15m());
+		props.setProperty("p3_nutrition9m", getP3Nutrition9m());
+		props.setProperty("p3_pConcern12m", getP3_pConcern12m());
+		props.setProperty("p3_pConcern15m", getP3_pConcern15m());
+		props.setProperty("p3_pConcern9m", getP3_pConcern9m());
+		props.setProperty("p3_physical12m", getP3Physical12m());
+		props.setProperty("p3_physical15m", getP3Physical15m());
+		props.setProperty("p3_physical9m", getP3Physical9m());
+		props.setProperty("p3_problems12m", getP3Problems12m());
+		props.setProperty("p3_problems15m", getP3Problems15m());
+		props.setProperty("p3_problems9m", getP3Problems9m());
+		props.setProperty("p3_signature12m", getP3Signature12m());
+		props.setProperty("p3_signature15m", getP3Signature15m());
+		props.setProperty("p3_signature9m", getP3Signature9m());
+		props.setProperty("p3_wt12m", getP3Wt12m());
+		props.setProperty("p3_wt15m", getP3Wt15m());
+		props.setProperty("p3_wt9m", getP3Wt9m());
+		if (getP4Date18m() != null) { props.setProperty("p4_date18m", frmRecordHelp.parseDateFieldOrNull(getP4Date18m())); }
+		if (getP4Date24m() != null) { props.setProperty("p4_date24m", frmRecordHelp.parseDateFieldOrNull(getP4Date24m())); }
+		if (getP4Date48m() != null) { props.setProperty("p4_date48m", frmRecordHelp.parseDateFieldOrNull(getP4Date48m())); }
+		props.setProperty("p4_development18m", getP4Development18m());
+		props.setProperty("p4_development24m", getP4Development24m());
+		props.setProperty("p4_development36m", getP4Development36m());
+		props.setProperty("p4_development48m", getP4Development48m());
+		props.setProperty("p4_development60m", getP4Development60m());
+		props.setProperty("p4_education18m", getP4Education18m());
+		props.setProperty("p4_education24m", getP4Education24m());
+		props.setProperty("p4_education48m", getP4Education48m());
+		props.setProperty("p4_hc18m", getP4Hc18m());
+		props.setProperty("p4_hc24m", getP4Hc24m());
+		props.setProperty("p4_ht18m", getP4Ht18m());
+		props.setProperty("p4_ht24m", getP4Ht24m());
+		props.setProperty("p4_ht48m", getP4Ht48m());
+		props.setProperty("p4_bmi24m", getP4Bmi24m());
+		props.setProperty("p4_bmi48m", getP4Bmi48m());
+		props.setProperty("p4_nippisingattained", getP4Nippisingattained());
+		props.setProperty("p4_nutrition18m", getP4Nutrition18m());
+		props.setProperty("p4_nutrition24m", getP4Nutrition24m());
+		props.setProperty("p4_nutrition48m", getP4Nutrition48m());
+		props.setProperty("p4_pConcern18m", getP4_pConcern18m());
+		props.setProperty("p4_pConcern24m", getP4_pConcern24m());
+		props.setProperty("p4_pConcern48m", getP4_pConcern48m());
+		props.setProperty("p4_physical18m", getP4Physical18m());
+		props.setProperty("p4_physical24m", getP4Physical24m());
+		props.setProperty("p4_physical48m", getP4Physical48m());
+		props.setProperty("p4_problems18m", getP4Problems18m());
+		props.setProperty("p4_problems24m", getP4Problems24m());
+		props.setProperty("p4_problems48m", getP4Problems48m());
+		props.setProperty("p4_signature18m", getP4Signature18m());
+		props.setProperty("p4_signature24m", getP4Signature24m());
+		props.setProperty("p4_signature48m", getP4Signature48m());
+		props.setProperty("p4_wt18m", getP4Wt18m());
+		props.setProperty("p4_wt24m", getP4Wt24m());
+		props.setProperty("p4_wt48m", getP4Wt48m());
 
-        for (FormBooleanValue booleanValue : getBooleanValueMap().values()) {
-            props.setProperty(booleanValue.getId().getFieldName(), booleanValue.getValue() ? "checked='checked'" : "");
-        }
-        return props;
-    }
+		for (FormBooleanValue booleanValue : getBooleanValueMap().values()) {
+			props.setProperty(booleanValue.getId().getFieldName(), booleanValue.getValue() ? "checked='checked'" : "");
+		}
+		return props;
+	}
 }
