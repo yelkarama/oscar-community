@@ -25,15 +25,15 @@
 
 package oscar.form.model;
 
-import java.util.HashMap;
+import java.util.Map;
 
 public interface BooleanValueForm {
 
     Integer getId();
     
-    HashMap<String, FormBooleanValue> getBooleanValueMap();
+    Map<String, FormBooleanValue> getBooleanValueMap();
     
-    void setBooleanValueMap(HashMap<String, FormBooleanValue> booleanValueMap);
+    void setBooleanValueMap(Map<String, FormBooleanValue> booleanValueMap);
 
     String getFormTable();
 }
