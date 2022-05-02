@@ -56,7 +56,7 @@
 	DemographicDao demographicDao = (DemographicDao) SpringUtils.getBean("demographicDao");
 	String appointmentNo = request.getParameter("appointmentNo");
     int demoNo = Integer.parseInt(request.getParameter("demographic_no"));
-	Demographic demographic = demographicDao.getDemographic(demoNo);
+	Demographic demographic = demographicDao.getDemographic(request.getParameter("demographic_no"));
     int formId = Integer.parseInt(request.getParameter("formId"));
     int provNo = Integer.parseInt((String) session.getAttribute("user"));
     java.util.Properties props = (java.util.Properties)request.getAttribute("frmProperties"); //rec.getFormRecord(demoNo, formId);
