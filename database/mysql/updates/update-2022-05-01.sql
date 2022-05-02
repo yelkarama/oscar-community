@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS `formRourke2017` (
    `c_female` varchar(2),
    `provider_no` varchar(6),
    `formCreated` date,
-   `formEdited` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+   `formEdited` timestamp NOT NULL ON UPDATE CURRENT_TIMESTAMP,
    `c_lastVisited` char(3),
    `c_birthRemarks` text,
    `c_riskFactors` text,
@@ -163,7 +163,7 @@ CREATE TABLE IF NOT EXISTS `formRourke2017` (
    `p4_nippisingattained` text,
    PRIMARY KEY (`ID`),
    KEY `formRourke2017_demographic_no` (`demographic_no`)
- ) ENGINE=MyISAM; 
+ ); 
  
 CREATE TABLE IF NOT EXISTS `form_boolean_value` (
    `form_name` varchar(50) NOT NULL,
