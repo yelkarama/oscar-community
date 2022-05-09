@@ -73,6 +73,8 @@
 <%@page import="org.apache.commons.lang.StringEscapeUtils" %>
 <%@page import="org.apache.commons.text.WordUtils"%>
 <%@page import="org.owasp.encoder.Encode" %>
+<%@page import="java.text.DateFormatSymbols"%>
+<%@page import="java.util.Locale"%>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="session" />
@@ -2312,12 +2314,16 @@ if( demographic!=null) {
 					return Integer.parseInt(temp[0])*60+Integer.parseInt(temp[1]);
 				}
 			%>
+
 			<%	// ===== quick appointment booking =====
 				// database access object, data objects for looking things up
 				
 				
+                DateFormatSymbols symbols = new DateFormatSymbols(Locale.getDefault());
+                // OK its three letters, but its local to the current value of the default locale of this JVM
+                String[] twoLetterDate = symbols.getShortWeekdays();    
 				
-				String[] twoLetterDate = {"", "Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"};
+				//String[] twoLetterDate = {"", "Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"};
 						
 				// build templateMap, which maps template codes to their associated duration
 				Map<String, String> templateMap = new HashMap<String, String>();
@@ -2432,6 +2438,7 @@ if( demographic!=null) {
 										enoughRoom=false;
 									}
 								}
+enoughRoom=true;
 								if (enoughRoom) {
 									validDay = true;
 									sortDateStr = qApptYear+"-"+String.format("%02d",qApptMonth)+"-"+String.format("%02d",qApptDay);
@@ -2443,7 +2450,7 @@ if( demographic!=null) {
 									startTimeStr = String.format("%02d",startHour)+":"+String.format("%02d",startMin);
 									endTimeStr = String.format("%02d",startHour)+":"+String.format("%02d",startMin+timecodeInterval-1);
 
-									provMap.get(thisProv).get(sortDateStr+","+qApptWkDay+" "+qApptMonth+"-"+qApptDay).put(startTimeStr+","+timecodeChar, request.getContextPath() +  "/appointment/addappointment.jsp?demographic_no="+demographic.getDemographicNo()+"&name="+URLEncoder.encode(demographic.getLastName()+","+demographic.getFirstName())+"&provider_no="+thisProvNo+"&bFirstDisp=true&year="+qApptYear+"&month="+qApptMonth+"&day="+qApptDay+"&start_time="+startTimeStr+"&end_time="+endTimeStr+"&duration="+templateDuration+"&search=true");
+									provMap.get(thisProv).get(sortDateStr+","+qApptWkDay+" "+qApptMonth+"-"+qApptDay).put(startTimeStr+","+timecodeChar+","+templateDuration, request.getContextPath() +  "/appointment/addappointment.jsp?demographic_no="+demographic.getDemographicNo()+"&name="+URLEncoder.encode(demographic.getLastName()+","+demographic.getFirstName())+"&provider_no="+thisProvNo+"&bFirstDisp=true&year="+qApptYear+"&month="+qApptMonth+"&day="+qApptDay+"&start_time="+startTimeStr+"&end_time="+endTimeStr+"&duration="+templateDuration+"&search=true");
 								}
 							}
 						}
@@ -2480,14 +2487,18 @@ if( demographic!=null) {
 						%>
                                                 <a style="text-decoration: none;" href="#" onclick="return !showAppt('_doctor_<%=thisDateArr[0]%>', event);"><b><%=thisDispDate%></b></a>
                                                 <div id='menu_doctor_<%=thisDateArr[0]%>' class='menu' onclick='event.cancelBubble = true;' >
-                                                <h4 style='text-align: center; color: black;'>Available Appts. (<%=thisDispDate%>)</h4>
+                                                <h4 style='text-align: center; color: black;'> <bean:message
+                key="schedule.scheduledatepopup.formAvailable" />&nbsp;<bean:message
+                key="report.reportdaysheet.msgAppointmentTime" />&nbsp;<br>
+(<%=thisDispDate%>)</h4>
 						<ul>
                                                 <%
                                                 ArrayList<String> sortedTimes = new ArrayList(provMap.get("doctor").get(thisDate).keySet());
                                                 Collections.sort(sortedTimes);
                                                 for (String thisTime : sortedTimes) {
 							String[] thisTimeArr = thisTime.split(",");
-                                                        %><li>[<%=thisTimeArr[1]%>] <a style='color: #0088cc;' href="#" onClick="popupPage(600,843,'<%=provMap.get("doctor").get(thisDate).get(thisTime) %>');return false;"><%= thisTimeArr[0] %></a></li><%
+                                                        %><li style="color:black;">[<%=thisTimeArr[1]%>] <%=thisTimeArr[2]%> <bean:message
+                key="provider.preference.min" /> <a style='color: #0088cc;' href="#" onClick="popupPage(600,843,'<%=provMap.get("doctor").get(thisDate).get(thisTime) %>');return false;"><%= thisTimeArr[0] %></a></li><%
                                                 }
                                                 %></ul></div><%                                        }
                                 }
@@ -2509,14 +2520,18 @@ if( demographic!=null) {
 						%>
                                                 <a style="text-decoration: none;" href="#" onclick="return !showAppt('_prov1_<%=thisDateArr[0]%>', event);"><b><%=thisDispDate%></b></a>
                                                 <div id='menu_prov1_<%=thisDateArr[0]%>' class='menu' onclick='event.cancelBubble = true;'>
-                                                <h4 style='text-align: center; color: black;'>Available Appts. (<%=thisDispDate%>)</h4> 
+                                                <h4 style='text-align: center; color: black;'> <bean:message
+                key="schedule.scheduledatepopup.formAvailable" />&nbsp;<bean:message
+                key="report.reportdaysheet.msgAppointmentTime" />&nbsp;<br>
+(<%=thisDispDate%>)</h4>
                                                 <ul>
                                                 <%
                                                 ArrayList<String> sortedTimes = new ArrayList(provMap.get("prov1").get(thisDate).keySet());
                                                 Collections.sort(sortedTimes);
                                                 for (String thisTime : sortedTimes) {
 							String[] thisTimeArr = thisTime.split(",");
-                                                        %><li>[<%=thisTimeArr[1]%>] <a href="#" onClick="popupPage(600,843,'<%=provMap.get("prov1").get(thisDate).get(thisTime) %>');return false;"><%= thisTimeArr[0] %></a></li><%
+                                                        %><li style="color:black;">[<%=thisTimeArr[1]%>] <%=thisTimeArr[2]%> <bean:message
+                key="provider.preference.min" />  <a style='color: #0088cc;'  href="#" onClick="popupPage(600,843,'<%=provMap.get("prov1").get(thisDate).get(thisTime) %>');return false;"><%= thisTimeArr[0] %></a></li><%
                                                 }
                                                 %></ul></div><%
                                         }
@@ -2538,15 +2553,19 @@ if( demographic!=null) {
 						String thisDispDate = thisDateArr[1];
 						%>
                                                 <a style="text-decoration: none;" href="#" onclick="return !showAppt('_prov2_<%=thisDateArr[0]%>', event);"><b><%=thisDispDate%></b></a>
-                                                <div id='menu_prov2_<%=thisDateArr[0]%>' class='xmenu' onclick='event.cancelBubble = true;'>
-                                                <h4 style='text-align: center; color: black;'>Available Appts. (<%=thisDispDate%>)</h4> 
+                                                <div id='menu_prov2_<%=thisDateArr[0]%>' class='menu' onclick='event.cancelBubble = true;'>
+                                                <h4 style='text-align: center; color: black;'> <bean:message
+                key="schedule.scheduledatepopup.formAvailable" />&nbsp;<bean:message
+                key="report.reportdaysheet.msgAppointmentTime" />&nbsp;<br>
+(<%=thisDispDate%>)</h4>
                                                 <ul>
                                                 <%
                                                 ArrayList<String> sortedTimes = new ArrayList(provMap.get("prov2").get(thisDate).keySet());
                                                 Collections.sort(sortedTimes);
                                                 for (String thisTime : sortedTimes) {
 							String[] thisTimeArr = thisTime.split(",");
-                                                        %><li>[<%=thisTimeArr[1]%>] <a href="#" onClick="popupPage(600,843,'<%=provMap.get("prov2").get(thisDate).get(thisTime) %>');return false;"><%= thisTimeArr[0] %></a></li><%
+                                                        %><li style="color:black;">[<%=thisTimeArr[1]%>] <%=thisTimeArr[2]%> <bean:message
+                key="provider.preference.min" /> <a style='color: #0088cc;'  href="#" onClick="popupPage(600,843,'<%=provMap.get("prov2").get(thisDate).get(thisTime) %>');return false;"><%= thisTimeArr[0] %></a></li><%
                                                 }
                                                 %></ul></div><%
                                         }
@@ -2568,15 +2587,19 @@ if( demographic!=null) {
 						String thisDispDate = thisDateArr[1];
 						%>
                                                 <a style="text-decoration: none;" href="#" onclick="return !showAppt('_prov3_<%=thisDateArr[0]%>', event);"><b><%=thisDispDate%></b></a>
-                                                <div id='menu_prov3_<%=thisDateArr[0]%>' class='xmenu' onclick='event.cancelBubble = true;'>
-                                                <h4 style='text-align: center; color: black;'>Available Appts. (<%=thisDispDate%>)</h4> 
+                                                <div id='menu_prov3_<%=thisDateArr[0]%>' class='menu' onclick='event.cancelBubble = true;'>
+                                                <h4 style='text-align: center; color: black;'> <bean:message
+                key="schedule.scheduledatepopup.formAvailable" />&nbsp;<bean:message
+                key="report.reportdaysheet.msgAppointmentTime" />&nbsp;<br>
+(<%=thisDispDate%>)</h4> 
                                                 <ul>
                                                 <%
                                                 ArrayList<String> sortedTimes = new ArrayList(provMap.get("prov3").get(thisDate).keySet());
                                                 Collections.sort(sortedTimes);
                                                 for (String thisTime : sortedTimes) {
 							String[] thisTimeArr = thisTime.split(",");
-                                                        %><li>[<%=thisTimeArr[1]%>] <a href="#" onClick="popupPage(600,843,'<%=provMap.get("prov3").get(thisDate).get(thisTime) %>');return false;"><%= thisTimeArr[0] %></a></li><%
+                                                        %><li style="color:black;">[<%=thisTimeArr[1]%>] <%=thisTimeArr[2]%> <bean:message
+                key="provider.preference.min" /> <a style='color: #0088cc;'  href="#" onClick="popupPage(600,843,'<%=provMap.get("prov3").get(thisDate).get(thisTime) %>');return false;"><%= thisTimeArr[0] %></a></li><%
                                                 }
                                                 %></ul></div><%
                                         }
