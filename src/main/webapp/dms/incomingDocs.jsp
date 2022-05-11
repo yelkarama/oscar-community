@@ -206,6 +206,20 @@
     }
 
     ArrayList docTypes = EDocUtil.getDoctypes("demographic");
+
+
+    // iterate through the list of demographic doctypes and remove from
+    // the list in use for this page any that have the status of I, 
+    // inactive.
+       
+    for (int docIndex = 0; docIndex < docTypes.size(); docIndex++) {
+        String docType = (String) docTypes.get(docIndex);
+        if (EDocUtil.getDocStatus("demographic",docType).equals("I")) { 
+		docTypes.remove(docIndex);
+       		docIndex--;
+        }
+    }
+
     String todayDate = UtilDateUtilities.DateToString(new Date(),"yyyy-MM-dd");
 
 
@@ -865,8 +879,11 @@
                                 <% if (entryMode.equals("Fast")) {%>
                                 <tr><td colspan="2" width="350">
                                         <%for (int j = 0; j < docTypes.size(); j++) {
-                                                String docType = (String) docTypes.get(j);%>
-                                        <input type="button" value="<%=docType.length()<3?docType:docType.substring(0, 3)%>" title="<%=docType%>" onclick="selectDocType(<%=j%>+1);"> <%}%>
+                                                String docType = (String) docTypes.get(j);
+						%>	
+                                        		<input type="button" value="<%=docType.length()<3?docType:docType.substring(0, 3)%>" title="<%=docType%>" onclick="selectDocType(<%=j%>+1);">
+						<%
+					}%> 
                                     </td>
                                 </tr> <%}%>
                                 <tr>
@@ -875,9 +892,11 @@
                                         <select tabIndex="<%=tabIndex++%>" name ="docType" id="docType" onchange="addDocumentDescriptionTemplateButton()">
                                             <option value=""><bean:message key="dms.incomingDocs.selectType" /></option>
                                             <%for (int j = 0; j < docTypes.size(); j++) {
-                                                    String docType = (String) docTypes.get(j);%>
-                                            <option value="<%= docType%>" ><%= docType%></option>
-                                            <%}%>
+                                                    String docType = (String) docTypes.get(j);
+						    if (!EDocUtil.getDocStatus("demographic",docType).equals("I")) { %> 
+						    <option value="<%= docType%>" ><%= docType%></option>
+						    <%} 
+                                            }%>
                                         </select>
                                     </td>
                                 </tr>
