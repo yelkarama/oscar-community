@@ -148,15 +148,20 @@ GregorianCalendar now=new GregorianCalendar();
 
       <script language="JavaScript">
 
-    Date.prototype.addDays = function(days) {
-    	  var dat = new Date(this.valueOf());
-    	  dat.setDate(dat.getDate() + days);
-    	  return dat;
+
+    function addMonths(months) {
+      var d = new Date();
+  	  d = new Date(d.setMonth(d.getMonth() + months));
+  	  var mth = ((d.getMonth()+1)<10)? ("0"+(d.getMonth()+1)) : (d.getMonth()+1);
+  	  var day =  d.getDate() > 10 ? d.getDate() : ("0" + d.getDate());
+  	  var newD = d.getFullYear() + "-" + mth + "-" + day;
+        document.serviceform.xml_appointment_date.value = newD;
     }
+    
       
       function addDays(numDays) {
     	  var d = new Date();
-    	  d = d.addDays(numDays);  
+    	  d = new Date(d.setDate(d.getDate() + numDays));  
     	  var mth = ((d.getMonth()+1)<10)? ("0"+(d.getMonth()+1)) : (d.getMonth()+1);
     	  var day =  d.getDate() > 10 ? d.getDate() : ("0" + d.getDate());
     	  var newD = d.getFullYear() + "-" + mth + "-" + day;
@@ -324,18 +329,18 @@ function refresh() {
          <a href="#" onClick="addDays(14)">2w</a>&nbsp; &nbsp;
          <a href="#" onClick="addDays(21)">3w</a>&nbsp; &nbsp;
          <a href="#" onClick="addDays(28)">4w</a>&nbsp; &nbsp;<br>
-        <a href="#" onClick="addDays(30)">1m</a>&nbsp; &nbsp;
-        <a href="#" onClick="addDays(60)">2m</a>&nbsp; &nbsp;
-        <a href="#" onClick="addDays(90)">3m</a>&nbsp; &nbsp;
-        <a href="#" onClick="addDays(120)">4m</a>&nbsp; &nbsp;
-        <a href="#" onClick="addDays(180)">6m</a>&nbsp; &nbsp;
-        <a href="#" onClick="addDays(270)">9m</a>&nbsp; &nbsp;<br>
-        <a href="#" onClick="addDays(364)">1yr</a>&nbsp; &nbsp;
-        <a href="#" onClick="addDays(730)">2yr</a>&nbsp; &nbsp;
-        <a href="#" onClick="addDays(1095)">3yr</a>&nbsp; &nbsp;
-        <a href="#" onClick="addDays(1825)">5yr</a>&nbsp; &nbsp;
-        <a href="#" onClick="addDays(2925)">8yr</a>&nbsp; &nbsp;
-        <a href="#" onClick="addDays(3650)">10yr</a>
+        <a href="#" onClick="addMonths(1)">1m</a>&nbsp; &nbsp;
+        <a href="#" onClick="addMonths(2)">2m</a>&nbsp; &nbsp;
+        <a href="#" onClick="addMonths(3)">3m</a>&nbsp; &nbsp;
+        <a href="#" onClick="addMonths(4)">4m</a>&nbsp; &nbsp;
+        <a href="#" onClick="addMonths(6)">6m</a>&nbsp; &nbsp;
+        <a href="#" onClick="addMonths(9)">9m</a>&nbsp; &nbsp;<br>
+        <a href="#" onClick="addMonths(12)">1yr</a>&nbsp; &nbsp;
+        <a href="#" onClick="addMonths(24)">2yr</a>&nbsp; &nbsp;
+        <a href="#" onClick="addMonths(36)">3yr</a>&nbsp; &nbsp;
+        <a href="#" onClick="addMonths(60)">5yr</a>&nbsp; &nbsp;
+        <a href="#" onClick="addMonths(96)">8yr</a>&nbsp; &nbsp;
+        <a href="#" onClick="addMonths(120)">10yr</a>
         </div>
         </font> </td>
         
