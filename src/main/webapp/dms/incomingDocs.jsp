@@ -58,6 +58,7 @@
 <%@page import="org.oscarehr.common.model.Provider"%>
 <%@page import="org.oscarehr.common.model.Demographic"%>
 <%@page import="org.oscarehr.common.model.ProviderLabRoutingModel" %>
+<%@ page import="org.owasp.encoder.Encode" %>
     
 <%@page import="oscar.dms.IncomingDocUtil" %>
     
@@ -947,7 +948,7 @@
                                                 Demographic demo = demographicDao.getDemographic(valueid);
                                                 if (demo != null) {
                                         %>   
-                                        <input type="button" value="<%=demo.getLastName()%>, <%=demo.getFirstName()%> (<%=demo.getYearOfBirth()%>-<%=demo.getMonthOfBirth()%>-<%=demo.getDateOfBirth()%>)" id="demvalueid<%=valueid%>" onclick="loadRecentDemo('<%=valueid%>','<%=demo.getLastName()%>, <%=demo.getFirstName()%> (<%=demo.getYearOfBirth()%>-<%=demo.getMonthOfBirth()%>-<%=demo.getDateOfBirth()%>)')" />
+                                        <input type="button" value="<%=Encode.forHtmlAttribute(demo.getLastName()+", "+demo.getFirstName())%> (<%=demo.getYearOfBirth()%>-<%=demo.getMonthOfBirth()%>-<%=demo.getDateOfBirth()%>)" id="demvalueid<%=valueid%>" onclick="loadRecentDemo('<%=valueid%>','<%=Encode.forHtml(demo.getLastName()+", "+demo.getFirstName())%> (<%=demo.getYearOfBirth()%>-<%=demo.getMonthOfBirth()%>-<%=demo.getDateOfBirth()%>)')" />
                                         <%
                                             
                                                     }
@@ -1009,7 +1010,9 @@
                                                         StringBuilder sbInitials = new StringBuilder();
                                                         String[] nameParts = pname.split(" ");
                                                         for (String part : nameParts) {
-                                                            sbInitials.append(part.charAt(0));
+                                                            if (part.length() > 0) {
+                                                                sbInitials.append(part.charAt(0));
+                                                            }
                                                         }
                                                         String initials = sbInitials.toString();
                                         %>
