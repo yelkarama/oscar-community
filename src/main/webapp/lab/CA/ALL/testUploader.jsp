@@ -167,7 +167,7 @@ $(document).attr('title', 'Administration Panel | <bean:message key="lab.ca.all.
 $("#uploadForm").submit(function() {
 	
 	var lab = $('#importFile').val();
-	var ext = lab.substring((lab.length - 3), lab.length);
+	var ext = lab.substring((lab.length - 3), lab.length).toLowerCase();
 
 	var type=$('#type').val();
 	var other = $('input[name=otherType]').val();

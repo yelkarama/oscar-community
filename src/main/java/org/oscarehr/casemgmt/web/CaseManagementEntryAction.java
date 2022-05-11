@@ -1210,29 +1210,25 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		String sessionFrmName = "caseManagementEntryForm" + demo;
 
 		CaseManagementEntryFormBean sessionFrm = (CaseManagementEntryFormBean) session.getAttribute(sessionFrmName);
-
+		CaseManagementNote note = sessionFrm.getCaseNote();
+		
 		//compare locks and see if they are the same
 		CasemgmtNoteLock casemgmtNoteLockSession = (CasemgmtNoteLock) session.getAttribute("casemgmtNoteLock" + demo);
+		
+        if (casemgmtNoteLockSession == null) {
+            // Create new lock for new note
+            casemgmtNoteLockSession = new CasemgmtNoteLock();
+            casemgmtNoteLockSession.setDemographicNo(Integer.parseInt(demo));
+            casemgmtNoteLockSession.setIpAddress(request.getRemoteAddr());
+            casemgmtNoteLockSession.setProviderNo(providerNo);
+            casemgmtNoteLockSession.setSessionId(session.getId());
+            casemgmtNoteLockSession.setLockAcquired(new Date());
 
-		try {
+            // the note session was already removed, so this note is no longer part of a
+            // a note history. Save as a new note to prevent data loss
+            logger.warn("Lock not found for " + demo + " provider " + providerNo + " IP " + request.getRemoteAddr());
+        }
 
-			if (casemgmtNoteLockSession == null) {
-				throw new Exception("SESSION CASEMANAGEMENT NOTE LOCK OBJECT IS NULL");
-			}
-
-			CasemgmtNoteLock casemgmtNoteLock = casemgmtNoteLockDao.find(casemgmtNoteLockSession.getId());
-			//if other window has acquired lock we reject save									
-			if (!casemgmtNoteLock.getSessionId().equals(casemgmtNoteLockSession.getSessionId()) || !request.getRequestedSessionId().equals(casemgmtNoteLockSession.getSessionId())) {
-				logger.debug("DO NOT HAVE LOCK FOR " + demo + " PROVIDER " + providerNo + " CONTINUE SAVING LOCAL SESSION " + request.getRequestedSessionId() + " LOCAL IP " + request.getRemoteAddr() + " LOCK SESSION " + casemgmtNoteLockSession.getSessionId() + " LOCK IP " + casemgmtNoteLockSession.getIpAddress());
-				return -1L;
-			}
-		} catch (Exception e) {
-			//Exception thrown if other window has saved and exited so lock is gone
-			logger.error("Lock not found for " + demo + " provider " + providerNo + " IP " + request.getRemoteAddr(), e);
-			return -1L;
-		}
-
-		CaseManagementNote note = sessionFrm.getCaseNote();
 		String noteTxt = cform.getCaseNote_note();
 		noteTxt = org.apache.commons.lang.StringUtils.trimToNull(noteTxt);
 		if (noteTxt == null || noteTxt.equals("")) return -1L;

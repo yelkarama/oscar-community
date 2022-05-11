@@ -1369,6 +1369,11 @@ function updateQty(element){
              var params="randomId="+randomId+"&din="+din;
              new Ajax.Updater(divId,url,{method:'get',parameters:params,insertion:Insertion.Bottom,asynchronous:true});
          }
+         function getCost(divId,randomId,din,qty){
+             var url="DrugPrice.jsp";
+             var params="randomId="+randomId+"&din="+din+"&qty="+qty;
+             new Ajax.Updater(divId,url,{method:'get',parameters:params,insertion:Insertion.Bottom,asynchronous:true});
+         }
 
       function validateRxDate() {
           	var rx=true;
@@ -1487,7 +1492,3 @@ function checkEnterSendRx(){
 
 
 $("searchString").focus();
-
-
-
-  
