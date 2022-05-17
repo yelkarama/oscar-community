@@ -195,12 +195,11 @@ if (message != null){
 					<option value="ALPHA">ALPHA</option>
 					<option value="CML">CML</option>
 					<option value="EPSILON">EPSILON/MHL</option>
-
 					<option value="PATHL7"
 					<oscar:oscarPropertiesCheck property="PATHNET_LABS" value="yes">
 					selected
 					</oscar:oscarPropertiesCheck>>EXCELLERIS</option>
-
+                    
 					<option value="GDML">GDML</option>
 					<option value="HHSEMR">HHSEMR</option>
 					<option value="HRMXML">HRM XML</option>
@@ -208,6 +207,7 @@ if (message != null){
 					<option value="IHA">IHA</option>
 					<option value="IHAPOI">IHAPOI</option>
 					<option value="MDS">MDS/Lifelabs</option>
+                    <option value="MEDITECH" >MEDITECH</option>
 					<option value="MEDVUE">MEDVUE</option>
 					<!-- <option value="HL7">HL7</option> -->
 					<option value="OLIS_HL7">OLIS HL7</option>
@@ -216,7 +216,7 @@ if (message != null){
 					<option value="SIOUX">SIOUX</option>
 					<option value="TDIS">TDIS</option>
 					<option value="Spire">Spire</option>
-                                        <option value="PDFDOC">PDFDOC</option>
+                    <option value="PDFDOC">PDFDOC</option>
 					<option value="BIOTEST">BioTest</option>
 					<option value="CLS">Calgary Lab Service (CLS)</option>
 					<option value="TRUENORTH">TRUENORTH</option>
