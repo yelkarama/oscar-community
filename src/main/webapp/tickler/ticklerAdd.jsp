@@ -71,6 +71,20 @@ if ( request.getAttribute("demographic_no") != null){
 }
 if(demoName == null){demoName ="";}
 
+Boolean writeToEncounter = false;
+    LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+    Boolean caisiEnabled = OscarProperties.getInstance().isPropertyActive("caisi");
+    Integer defaultProgramId = null;
+    List<ProgramProvider> programProviders = new ArrayList<ProgramProvider>();
+
+    if (caisiEnabled) {
+        ProgramProviderDAO programProviderDao = SpringUtils.getBean(ProgramProviderDAO.class);
+        programProviders = programProviderDao.getProgramProviderByProviderNo(loggedInInfo.getLoggedInProviderNo());
+        if (programProviders.size() == 1) {
+            defaultProgramId = programProviders.get(0).getProgram().getId();
+        }
+    }
+
 //Retrieve encounter id for updating encounter navbar if info this page changes anything
 String parentAjaxId;
 if( request.getParameter("parentAjaxId") != null )
@@ -138,9 +152,12 @@ GregorianCalendar now=new GregorianCalendar();
 <%@page import="org.oscarehr.common.dao.SiteDao"%>
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
 <%@page import="org.oscarehr.common.model.Site"%>
+<%@ page import="org.oscarehr.util.LoggedInInfo" %>
 <%@page import="org.oscarehr.common.model.Provider"%>
 <%@ page import="org.oscarehr.common.dao.UserPropertyDAO"%>
 <%@ page import="org.oscarehr.common.model.UserProperty"%>
+<%@ page import="org.oscarehr.PMmodule.dao.ProgramProviderDAO" %>
+<%@ page import="org.oscarehr.PMmodule.model.ProgramProvider" %>
 
 <html:html locale="true">
 <head>
@@ -148,17 +165,15 @@ GregorianCalendar now=new GregorianCalendar();
 
       <script language="JavaScript">
 
-
-    function addMonths(months) {
-      var d = new Date();
-  	  d = new Date(d.setMonth(d.getMonth() + months));
-  	  var mth = ((d.getMonth()+1)<10)? ("0"+(d.getMonth()+1)) : (d.getMonth()+1);
-  	  var day =  d.getDate() > 10 ? d.getDate() : ("0" + d.getDate());
-  	  var newD = d.getFullYear() + "-" + mth + "-" + day;
-        document.serviceform.xml_appointment_date.value = newD;
-    }
-    
-      
+      function addMonths(months) {
+    	  var d = new Date();
+    	  d = new Date(d.setMonth(d.getMonth() + months));
+    	  var mth = ((d.getMonth()+1)<10)? ("0"+(d.getMonth()+1)) : (d.getMonth()+1);
+    	  var day =  d.getDate() > 10 ? d.getDate() : ("0" + d.getDate());
+    	  var newD = d.getFullYear() + "-" + mth + "-" + day;
+    	  document.serviceform.xml_appointment_date.value = newD;
+      }
+	
       function addDays(numDays) {
     	  var d = new Date();
     	  d = new Date(d.setDate(d.getDate() + numDays));  
@@ -210,13 +225,20 @@ function setfocus() {
 }
 
 function validate(form){
-if (validateDemoNo(form)){
-form.action = "dbTicklerAdd.jsp";
-form.submit();
+validate(form, false);
+}
+function validate(form, writeToEncounter){
+    if (validateDemoNo(form) <%=caisiEnabled?"&& validateSelectedProgram()":""%>){
+        if(writeToEncounter){
+            form.action = "dbTicklerAdd.jsp?writeToEncounter=true";
+        }
+        else{
+            form.action = "dbTicklerAdd.jsp";
+        }
+        form.submit();
+    }
+}
 
-}
-else{}
-}
 function validateDemoNo() {
   if (document.serviceform.demographic_no.value == "") {
 alert("<bean:message key="tickler.ticklerAdd.msgInvalidDemographic"/>");
@@ -329,18 +351,18 @@ function refresh() {
          <a href="#" onClick="addDays(14)">2w</a>&nbsp; &nbsp;
          <a href="#" onClick="addDays(21)">3w</a>&nbsp; &nbsp;
          <a href="#" onClick="addDays(28)">4w</a>&nbsp; &nbsp;<br>
-        <a href="#" onClick="addMonths(1)">1m</a>&nbsp; &nbsp;
-        <a href="#" onClick="addMonths(2)">2m</a>&nbsp; &nbsp;
-        <a href="#" onClick="addMonths(3)">3m</a>&nbsp; &nbsp;
-        <a href="#" onClick="addMonths(4)">4m</a>&nbsp; &nbsp;
-        <a href="#" onClick="addMonths(6)">6m</a>&nbsp; &nbsp;
-        <a href="#" onClick="addMonths(9)">9m</a>&nbsp; &nbsp;<br>
-        <a href="#" onClick="addMonths(12)">1yr</a>&nbsp; &nbsp;
-        <a href="#" onClick="addMonths(24)">2yr</a>&nbsp; &nbsp;
-        <a href="#" onClick="addMonths(36)">3yr</a>&nbsp; &nbsp;
-        <a href="#" onClick="addMonths(60)">5yr</a>&nbsp; &nbsp;
-        <a href="#" onClick="addMonths(96)">8yr</a>&nbsp; &nbsp;
-        <a href="#" onClick="addMonths(120)">10yr</a>
+         <a href="#" onClick="addMonths(1)">1m</a>&nbsp; &nbsp;
+         <a href="#" onClick="addMonths(2)">2m</a>&nbsp; &nbsp;
+         <a href="#" onClick="addMonths(3)">3m</a>&nbsp; &nbsp;
+         <a href="#" onClick="addMonths(4)">4m</a>&nbsp; &nbsp;
+         <a href="#" onClick="addMonths(6)">6m</a>&nbsp; &nbsp;
+         <a href="#" onClick="addMonths(9)">9m</a>&nbsp; &nbsp;<br>
+         <a href="#" onClick="addMonths(12)">1yr</a>&nbsp; &nbsp;
+         <a href="#" onClick="addMonths(24)">2yr</a>&nbsp; &nbsp;
+         <a href="#" onClick="addMonths(36)">3yr</a>&nbsp; &nbsp;
+         <a href="#" onClick="addMonths(60)">5yr</a>&nbsp; &nbsp;
+         <a href="#" onClick="addMonths(96)">8yr</a>&nbsp; &nbsp;
+         <a href="#" onClick="addMonths(120)">10yr</a>
         </div>
         </font> </td>
         
@@ -496,16 +518,18 @@ changeSite(selSite);
     </tr>
     <tr> 
       <td height="21" valign="top"><font color="#003366" size="2" face="Verdana, Arial, Helvetica, sans-serif"><strong><bean:message key="tickler.ticklerAdd.formReminder"/>:</strong></font></td>
-      <td valign="top"> <textarea style="font-face:Verdana, Arial, Helvetica, sans-serif"name="textarea" cols="50" rows="10"></textarea></td>
-      <td>&nbsp;</td>
-    </tr>
-        
+          <td valign="top"> <textarea style="font-face:Verdana, Arial, Helvetica, sans-serif"name="textarea" cols="50" rows="10"></textarea></td>
+          <td>&nbsp;</td>
+      </tr>
      <INPUT TYPE="hidden" NAME="user_no" VALUE="<%=user_no%>">
-    <tr> 
-      <td><input type="button" name="Button" class="btn"value="<bean:message key="tickler.ticklerAdd.btnCancel"/>" onClick="window.close()"></td>
-      <td><input type="button" name="Button" class="btn btn-primary" value="<bean:message key="tickler.ticklerAdd.btnSubmit"/>" onClick="validate(this.form)"></td>
+      <input type="hidden" name="writeToEncounter" value="<%=writeToEncounter%>"/>
+    <tr>
+      <td><input type="button" name="Button" class="btn" value="<bean:message key="tickler.ticklerAdd.btnCancel"/>" onClick="window.close()"></td>
+      <td><input type="button" name="Button" class="btn" value="<bean:message key="tickler.ticklerAdd.btnSubmit"/>" onClick="validate(this.form)">
+          <input type="button" name="Button" class="btn btn-primary" value="<bean:message key="tickler.ticklerAdd.btnWriteSubmit"/>" onClick="validate(this.form, true)">
+      </td>
       <td></td>
-	  </tr>
+          </tr>
   </form>
 </table>
 <p><font face="Arial, Helvetica, sans-serif" size="2"> </font></p>
