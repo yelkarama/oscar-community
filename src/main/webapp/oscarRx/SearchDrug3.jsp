@@ -59,6 +59,8 @@
 <%@page import="org.oscarehr.casemgmt.model.CaseManagementNote" %>
 <%@page import="org.oscarehr.casemgmt.model.Issue" %>
 
+<%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
+<%@ page import="org.oscarehr.common.model.UserProperty" %>
 <%
 String rx_enhance = OscarProperties.getInstance().getProperty("rx_enhance");
 %>	
@@ -120,8 +122,16 @@ if (rx_enhance!=null && rx_enhance.equals("true")) {
 <%         
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
             String providerNo=bean.getProviderNo();
+            UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class); 
+	        UserProperty rxViewProp = userPropertyDao.getProp(providerNo, UserProperty.RX_PROFILE_VIEW);
+
+
             //String reRxDrugId=request.getParameter("reRxDrugId");
-            HashMap hm=(HashMap)session.getAttribute("profileViewSpec");
+            //HashMap hm=(HashMap)session.getAttribute("profileViewSpec");
+            String defaultView="show_current";
+            if ( rxViewProp != null ) { 
+                defaultView=rxViewProp.getValue().trim();
+            }
             boolean show_current=true;
             boolean show_all=true;
             boolean active=true;
@@ -129,36 +139,6 @@ if (rx_enhance!=null && rx_enhance.equals("true")) {
             //boolean all=true;
             boolean longterm_acute=true;
             boolean longterm_acute_inactive_external=true;
-            if(hm!=null) {
-             if(hm.get("show_current")!=null)
-                show_current=(Boolean)hm.get("show_current");
-             else
-                show_current=false;
-             if(hm.get("show_all")!=null)
-                show_all=(Boolean)hm.get("show_all");
-             else
-                 show_all=false;
-             if(hm.get("active")!=null)
-                active=(Boolean)hm.get("active");
-             else
-                 active=false ;
-             if(hm.get("inactive")!=null)
-                inactive=(Boolean)hm.get("inactive");
-             else
-                 inactive=false;
-             //if(hm.get("all")!=null)
-             //   all=(Boolean)hm.get("all");
-             //else
-             //    all=false;
-             if(hm.get("longterm_acute")!=null)
-                longterm_acute=(Boolean)hm.get("longterm_acute");
-             else
-                longterm_acute=false;
-             if(hm.get("longterm_acute_inactive_external")!=null)
-                longterm_acute_inactive_external=(Boolean)hm.get("longterm_acute_inactive_external");
-             else
-                longterm_acute_inactive_external=false;
-            }
 
             RxPharmacyData pharmacyData = new RxPharmacyData();
             List<PharmacyInfo> pharmacyList;
@@ -654,7 +634,7 @@ function checkFav(){
     var Lst;
 
     function CngClass(obj){
-    	document.getElementById("selected_default").removeAttribute("style");
+    	document.getElementById("show_current").removeAttribute("style");
      if (Lst) Lst.className='';
      obj.className='selected';
      Lst=obj;
@@ -705,7 +685,8 @@ function checkFav(){
     	}
     }
     
-    
+ 
+
 </script>
                
                <style type="text/css" media="print">
@@ -865,11 +846,11 @@ THEME 2*/
     %>
 
 <script language="JavaScript">
-top.window.resizeTo(1280,1024);  //width,height for 19" LCD allowing for most Rx to be in two rows
+top.window.resizeTo(1440,900);  //width,height for 19" LCD allowing for most Rx to be in two rows
+
 </script>
 
-
-    <body  vlink="#0000FF" onload="setplaceholder();checkFav();iterateStash();rxPageSizeSelect();checkReRxLongTerm();load()" class="yui-skin-sam">
+    <body  vlink="#0000FF" onload="document.getElementById('<%=defaultView%>').click();setplaceholder();checkFav();iterateStash();rxPageSizeSelect();checkReRxLongTerm();load()" class="yui-skin-sam">
     <script>
     function setplaceholder() {
             $('searchString').placeholder = "<bean:message key="SearchDrug.EnterDrugName"/>";
@@ -1066,28 +1047,28 @@ top.window.resizeTo(1280,1024);  //width,height for 19" LCD allowing for most Rx
 																				<%if(show_current){%>
 																				<td >
 		                                                                            <a href="javascript:void(0);" onclick="callReplacementWebService('ListDrugs.jsp','drugProfile');CngClass(this);" 
-		                                                                            	id="selected_default" style="font: Arial; color:#000000; text-decoration: none;" 
+		                                                                            	id="show_current" style="font: Arial; color:#000000; text-decoration: none;" 
 		                                                                            	TITLE="<bean:message key='SearchDrug.msgShowCurrentDesc'/>">
 		                                                                            	<bean:message key="SearchDrug.msgShowCurrent"/>
 		                                                                            </a>
 	                                                                            </td>
 																				<%}if(show_all){%>
 	                                                                            <td >
-																					<a href="javascript:void(0);" onclick="callReplacementWebService('ListDrugs.jsp?show=all','drugProfile');CngClass(this);" 
+																					<a href="javascript:void(0);" id="show_all" onclick="callReplacementWebService('ListDrugs.jsp?show=all','drugProfile');CngClass(this);" 
 																						Title="<bean:message key='SearchDrug.msgShowAllDesc'/>">
 																						<bean:message key="SearchDrug.msgShowAll"/>
 																					</a>
 	                                                                            </td>
 																				<%}if(active){%>
 																				<td >
-																					<a href="javascript:void(0);" onclick="callReplacementWebService('ListDrugs.jsp?status=active','drugProfile');CngClass(this);" 
+																					<a href="javascript:void(0);" id="active" onclick="callReplacementWebService('ListDrugs.jsp?status=active','drugProfile');CngClass(this);" 
 																						TITLE="<bean:message key='SearchDrug.msgActiveDesc'/>">
 																						<bean:message key="SearchDrug.msgActive"/>
 																					</a>
 	                                                                            </td>
 																				<%}if(inactive){%>
 																				<td >
-																					<a href="javascript:void(0);" onclick="callReplacementWebService('ListDrugs.jsp?status=inactive','drugProfile');CngClass(this);" 
+																					<a href="javascript:void(0);" id="inactive" onclick="callReplacementWebService('ListDrugs.jsp?status=inactive','drugProfile');CngClass(this);" 
 																						TITLE="<bean:message key='SearchDrug.msgInactiveDesc'/>">
 																						<bean:message key="SearchDrug.msgInactive"/>
 																					</a>
@@ -1096,14 +1077,14 @@ top.window.resizeTo(1280,1024);  //width,height for 19" LCD allowing for most Rx
 
 																				if(longterm_acute){%>
 																				<td >
-																					<a href="javascript:void(0);" onclick="callReplacementWebService('ListDrugs.jsp?longTermOnly=true&heading=Long Term Meds','drugProfile'); callAdditionWebService('ListDrugs.jsp?longTermOnly=acute&heading=Acute','drugProfile');CngClass(this);" 
+																					<a href="javascript:void(0);" id="longterm_acute" onclick="callReplacementWebService('ListDrugs.jsp?longTermOnly=true&heading=Long Term Meds','drugProfile'); callAdditionWebService('ListDrugs.jsp?longTermOnly=acute&heading=Acute','drugProfile');CngClass(this);" 
 																						TITLE="<bean:message key='SearchDrug.msgLongTermAcuteDesc'/>">
 																						<bean:message key="SearchDrug.msgLongTermAcute"/>
 																					</a>
 	                                                                            </td>
 																				<%}if(longterm_acute_inactive_external){%>
 																				<td >
-																					<a href="javascript:void(0);" onclick="callReplacementWebService('ListDrugs.jsp?longTermOnly=true&heading=Long Term Meds','drugProfile'); callAdditionWebService('ListDrugs.jsp?longTermOnly=acute&heading=Acute&status=active','drugProfile');callAdditionWebService('ListDrugs.jsp?longTermOnly=acute&heading=Inactive&status=inactive','drugProfile');callAdditionWebService('ListDrugs.jsp?heading=External&drugLocation=external','drugProfile');CngClass(this);" 
+																					<a href="javascript:void(0);" id="longterm_acute_inactive_external" onclick="callReplacementWebService('ListDrugs.jsp?longTermOnly=true&heading=Long Term Meds','drugProfile'); callAdditionWebService('ListDrugs.jsp?longTermOnly=acute&heading=Acute&status=active','drugProfile');callAdditionWebService('ListDrugs.jsp?longTermOnly=acute&heading=Inactive&status=inactive','drugProfile');callAdditionWebService('ListDrugs.jsp?heading=External&drugLocation=external','drugProfile');CngClass(this);" 
 																						TITLE="<bean:message key='SearchDrug.msgLongTermAcuteInactiveExternalDesc'/>">
 																						<bean:message key="SearchDrug.msgLongTermAcuteInactiveExternal"/>
 																					</a>
