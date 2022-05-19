@@ -145,6 +145,7 @@ $(function() {
 					<option value="CLS">Calgary Lab Services (CLS)</option>
 					<option value="CDL">CDL</option>
 					<option value="TRUENORTH">TRUENORTH</option>
+					<option value="MEDITECH">MEDITECH</option>
 					<option value="OTHER">Other</option>
 				</select>
 			<br />
