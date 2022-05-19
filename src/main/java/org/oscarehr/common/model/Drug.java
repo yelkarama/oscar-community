@@ -958,6 +958,22 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 			
 		}
 	}
+
+	public static final Comparator<Drug> START_DATE_COMPARATOR = new Comparator<Drug>() {
+		public int compare(Drug d1, Drug d2) {
+			if( d1.rxDate == null && d2.rxDate == null) {
+				return d2.createDate.compareTo(d1.createDate);
+			}
+			if( d2.rxDate == null && d1.rxDate != null ) {
+				return d2.createDate.compareTo(d1.rxDate);
+			}
+			if( d1.rxDate == null && d2.rxDate != null ) {
+				return d2.rxDate.compareTo(d1.createDate);
+			}
+
+			return (d2.rxDate.compareTo(d1.rxDate));
+		}
+	};
 	
 	public static class RxDateCompator  implements Comparator<Drug> {
 		  public int compare(Drug o1, Drug o2) {
