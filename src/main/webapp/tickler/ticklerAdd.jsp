@@ -525,8 +525,8 @@ changeSite(selSite);
       <input type="hidden" name="writeToEncounter" value="<%=writeToEncounter%>"/>
     <tr>
       <td><input type="button" name="Button" class="btn" value="<bean:message key="tickler.ticklerAdd.btnCancel"/>" onClick="window.close()"></td>
-      <td><input type="button" name="Button" class="btn btn-primary" value="<bean:message key="tickler.ticklerAdd.btnSubmit"/>" onClick="validate(this.form)">
-          <input type="button" name="Button" class="btn btn-primary" value="Submit & Write to Encounter" onClick="validate(this.form, true)">
+      <td><input type="button" name="Button" class="btn" value="<bean:message key="tickler.ticklerAdd.btnSubmit"/>" onClick="validate(this.form)">
+          <input type="button" name="Button" class="btn btn-primary" value="<bean:message key="tickler.ticklerAdd.btnWriteSubmit"/>" onClick="validate(this.form, true)">
       </td>
       <td></td>
           </tr>
