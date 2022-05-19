@@ -729,6 +729,9 @@ alert(value);
           <td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewUseRx3');return false;"><bean:message key="provider.btnSetRx3"/></a></td>
       </tr>
       <tr>
+          <td align="center"><a href=# onClick ="popupPage(230,960,'../setProviderStaleDate.do?method=viewRxProfileView');return false;"><bean:message key="provider.setRxProfileView.title"/></a></td>
+      </tr>
+      <tr>
           <td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewCppSingleLine');return false;"><bean:message key="provider.btnSetCppSingleLine"/></a></td>
       </tr>
       <tr>
