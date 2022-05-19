@@ -25,9 +25,6 @@
 --%>
 
 <%@ taglib uri="/WEB-INF/rewrite-tag.tld" prefix="rewrite" %>
-
-<%@ page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
-<%@ page import="org.springframework.web.context.WebApplicationContext"%>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.Tickler" %>
 <%@ page import="org.oscarehr.common.model.TicklerLink" %>
@@ -36,6 +33,11 @@
 <%@page import="org.oscarehr.util.MiscUtils"%>
 <%@ page import="org.oscarehr.util.LoggedInInfo" %>
 <%@ page import="org.oscarehr.managers.TicklerManager" %>
+<%@ page import="java.util.GregorianCalendar" %>
+<%@ page import="java.util.Calendar" %>
+<%@ page import="java.util.Date" %>
+<%@ page import="java.util.Locale" %>
+<%@ page import="org.oscarehr.casemgmt.util.WriteToEncounterUtil" %>
 
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
@@ -65,11 +67,17 @@ docdate = request.getParameter("xml_appointment_date");
 docfilename =request.getParameter("textarea");
 docpriority =request.getParameter("priority");
 docassigned =request.getParameter("task_assigned_to");
+String programAssignedTo = request.getParameter("program_assigned_to");
 
 String docType =request.getParameter("docType");
 String docId = request.getParameter("docId");
-
-
+String writeToEncounter = request.getParameter("writeToEncounter");
+GregorianCalendar now=new GregorianCalendar();
+int curYear = now.get(Calendar.YEAR);
+int curMonth = (now.get(Calendar.MONTH)+1);
+String monthStr = now.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.CANADA);
+int curDay = now.get(Calendar.DAY_OF_MONTH);
+String dateString = curDay+"-"+monthStr+"-"+curYear;
 
 Tickler tickler = new Tickler();
     tickler.setDemographicNo(Integer.parseInt(module_id));
@@ -81,17 +89,22 @@ Tickler tickler = new Tickler();
       	 tickler.setPriority(Tickler.PRIORITY.Low);
     }
     tickler.setTaskAssignedTo(docassigned);
+    if (programAssignedTo != null) {
+        tickler.setProgramId(Integer.valueOf(programAssignedTo));
+    }
     tickler.setCreator(doccreator);
     tickler.setMessage(docfilename);
-    tickler.setServiceDate(UtilDateUtilities.StringToDate(docdate));
+    Date serviceDate = UtilDateUtilities.StringToDate(docdate);
+    if (serviceDate == null) {
+        serviceDate = new Date();
+    }
+    tickler.setServiceDate(serviceDate);
 
 
    ticklerManager.addTickler(loggedInInfo,tickler);
 
-
+   int ticklerNo = tickler.getId();
    if (docType != null && docId != null && !docType.trim().equals("") && !docId.trim().equals("") && !docId.equalsIgnoreCase("null") ){
-
-      int ticklerNo = tickler.getId();
       if (ticklerNo > 0){
           try{
              TicklerLink tLink = new TicklerLink();
@@ -106,11 +119,21 @@ Tickler tickler = new Tickler();
       }
    }
 
+    if (writeToEncounter!=null && writeToEncounter.equals("true") && ticklerNo > 0){
+		WriteToEncounterUtil.addToCurrentNote(loggedInInfo, session, module_id, docfilename, "tickler");
+%>
+<script>
+    var windowFeatures = "height=700,width=960";
+    // Open encounter window
+    window.open('../oscarEncounter/IncomingEncounter.do?demographicNo=<%=module_id%>&providerNo=<%=loggedInInfo.getLoggedInProviderNo()%>&curDate=<%=curYear%>-<%=curMonth%>-<%=curDay%>&encType=&status=', 'encounter', windowFeatures)
+</script>
+<%
+    }
+
    boolean rowsAffected = true;
 
 String parentAjaxId = request.getParameter("parentAjaxId");
 String updateParent = request.getParameter("updateParent");
-
 if (rowsAffected ){
 %>
 <script LANGUAGE="JavaScript">
@@ -124,13 +147,17 @@ if (rowsAffected ){
         to reconstruct it if necessary
       */
       if( parentId != "" && updateParent == true && !window.opener.closed ) {
-        var ref = window.opener.location.href;
-        if( ref.indexOf("?") > -1 && ref.indexOf("updateParent") == -1 )
-            ref = ref + "&updateParent=true";
-        else if( ref.indexOf("?") == -1 )
-            ref = ref + "?demoview=" + demo + "&parentAjaxId=" + parentId + "&updateParent=true";
-
-        window.opener.location = ref;
+          var ref = window.opener.location.href;
+          let useAmp = ref.includes('?');
+          if(!ref.includes('demoview')) {
+              ref += (useAmp?'&':'?') + 'demoview=' + demo + '&parentAjaxId=' + parentId + '&updateParent=true';
+              useAmp = true;
+          }
+          if (!ref.includes('updateParent')) {
+              ref += (useAmp?'&':'?') + 'updateParent=true';
+              useAmp = true;
+          }
+          window.opener.location = ref;
       }
       else if( parentId != "" && !window.opener.closed ) {
         if (window.opener.document.forms['encForm']) { window.opener.document.forms['encForm'].elements['reloadDiv'].value=parentId; }
