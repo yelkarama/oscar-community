@@ -412,27 +412,6 @@ window.opener.location.reload();
 	            </td>
 			</tr>
 
-			<!-- individual option for OSCAR in Tabs setting, if not set globally in oscar.proterties -->
-          <oscar:oscarPropertiesCheck property="open_in_tabs" value="optional">
-			<tr>
-				<td class="preferenceLabel">
-					<bean:message key="provider.providerpreference.openInTabs" />
-				</td>
-				<td class="preferenceValue">
-					<%
-						UserProperty tabViewProp = propertyDao.getProp(providerNo, UserProperty.OPEN_IN_TABS);
-                        boolean tabEnabled = false;
-                        if ( tabViewProp == null ) {
-                            tabEnabled=false;
-                        } else {
-                            tabEnabled = Boolean.parseBoolean(tabViewProp.getValue());
-                        }
-					%>
-					<input type="checkbox" name="tab_view" value="true" <%=tabEnabled ? "checked=\"checked\"" : ""%> />
-				</td>
-			</tr>
-          </oscar:oscarPropertiesCheck>
-
 			<%-- links to display on the appointment screen --%>
 			<tr>
 				<td class="preferenceLabel">
@@ -638,7 +617,12 @@ alert(value);
             <th><bean:message key="provider.providerpreference.description" /></th>
         </tr>
     </thead>
-
+  <!-- individual option for OSCAR in Tabs setting, if not set globally in oscar.proterties -->
+  <oscar:oscarPropertiesCheck property="open_in_tabs" value="optional">
+	  <tr>
+		  <td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewInTabs');return false;"><bean:message key="provider.providerpreference.openInTabs" /></a></td>
+	  </tr>
+  </oscar:oscarPropertiesCheck>
 <caisi:isModuleLoad moduleName="NEW_CME_SWITCH">
   <oscar:oscarPropertiesCheck property="TORONTO_RFQ" value="no">
 	<tr>
