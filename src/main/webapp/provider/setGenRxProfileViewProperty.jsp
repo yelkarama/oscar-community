@@ -45,44 +45,25 @@ if(session.getValue("user") == null)
 
 <link rel="stylesheet" type="text/css"
 	href="../oscarEncounter/encounterStyles.css">
-<!-- calendar stylesheet -->
-<link rel="stylesheet" type="text/css" media="all"
-	href="<c:out value="${ctx}"/>/share/calendar/calendar.css"
-	title="win2k-cold-1">
 
-<script src="<c:out value="${ctx}"/>/share/javascript/prototype.js"
-	type="text/javascript"></script>
-<script src="<c:out value="${ctx}"/>/share/javascript/scriptaculous.js"
-	type="text/javascript"></script>
 
-<!-- main calendar program -->
-<script type="text/javascript"
-	src="<c:out value="${ctx}"/>/share/calendar/calendar.js"></script>
+<!-- jQuery for radio fields -->
+<script src="<%=request.getContextPath() %>/js/jquery-1.9.1.min.js"></script>
 
-<!-- language for the calendar -->
-<script type="text/javascript"
-	src="<c:out value="${ctx}"/>/share/calendar/lang/<bean:message key="global.javascript.calendar"/>"></script>
+<script>
+$(document).ready(function() {
 
-<!-- the following script defines the Calendar.setup helper function, which makes
-               adding a calendar a matter of 1 or 2 lines of code. -->
-<script type="text/javascript"
-	src="<c:out value="${ctx}"/>/share/calendar/calendar-setup.js"></script>
-<script type="text/javascript">
-            function setup() {
-                Calendar.setup({ inputField : "staleDate", ifFormat : "%Y-%m-%d", showsTime :false, button : "staleDate_cal", singleClick : true, step : 1 });
-            }
+    $('input[type="checkbox"]').addClass("only-one-");
 
-            function validate() {
-                var date = document.getElementById("staleDate");
-                if( date.value == "" ) {
-                    alert("Please select a date before saving");
-                    return false;
-                }
+	$('[class^="only-one-"]').click(function() {
+		if ( $(this).is('input:checkbox') ){
+			$('.'+$(this).attr('class')).prop('checked', false);
+			$(this).prop('checked', true);
+		}
 
-                return true;
-            }
-        </script>
-
+	});
+});
+</script>
 </head>
 
 <body class="BodyStyle" vlink="#0000FF" onBlur="this.focus();">
