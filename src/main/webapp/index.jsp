@@ -183,9 +183,10 @@ boolean oauth2Enabled= "true".equalsIgnoreCase(OscarProperties.getInstance().get
     </style>
     <% } %>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- link href="<%=request.getContextPath() %>/css/font-awesome.min.css" rel="stylesheet" type="text/css" -->
 <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 <link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
-<link href="<%=request.getContextPath() %>/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
     <style type="text/css">
              #mobileMsg { display: none; }
                        
@@ -195,15 +196,25 @@ boolean oauth2Enabled= "true".equalsIgnoreCase(OscarProperties.getInstance().get
                 height:30px;
                 margin-bottom: 10px;
             }
+            
+            @supports (-webkit-box-reflect:unset) {  
+                [class^="icon-"], [class*=" icon-"] {
+                    display: none;
+                }
+            }
 
-            i {
-                color: darkgray;  
-                cursor: pointer; 
-                font-size:24px;
-                position: relative;
-                margin-left: -36px;
-                margin-bottom: 6px;
-                
+            @-moz-document url-prefix() { 
+                [class^="icon-"], [class*=" icon-"] {
+                    display: inline block;
+                }
+                i {
+                    color: black;  
+                    cursor: pointer; 
+                    font-size:14px;
+                    position: relative;
+                    margin-left: -36px;
+                    margin-bottom: 6px;               
+                } 
             }
 
             .oneIdLogin {
