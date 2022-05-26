@@ -503,8 +503,14 @@ if (openInTabs){
                                             <div id="providerList<%=docId%>"></div>
                                         </td>
                                     </tr>
-
-
+				    <tr>
+                                        <td>
+                                             <bean:message key="inboxmanager.document.FlagAbnormalMsg" />
+                                        </td>
+                                        <td>
+                                             <input id="abnormal<%=docId%>" type="checkbox" name="abnormalFlag" <%= curdoc.isAbnormal() ? "checked='checked'" : "" %> />
+                                        </td>
+                                    </tr>
 
                                     <tr>
                                         <td><bean:message key="dms.documentReport.msgCreator"/>:</td>

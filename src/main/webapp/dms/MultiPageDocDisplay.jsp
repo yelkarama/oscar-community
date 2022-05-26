@@ -679,15 +679,19 @@ function sendMRP(ele){
                                             </script>
                                             <div id="providerList<%=docId%>"></div>
                                         </td>
+				    </tr>
+				    <tr>
+                                        <td>
+                                            <bean:message key="dms.documentReport.msgFlagAbnormal" />
+                                        </td>
+                                        <td>
+                                            <input id="abnormal<%=docId%>" type="checkbox" name="abnormalFlag" <%= curdoc.isAbnormal() ? "checked='checked'" : "" %> />
+                                        </td>
                                     </tr>
-
-
-
                                     <tr>
                                         <td><bean:message key="dms.documentReport.msgCreator"/>:</td>
                                         <td><%=curdoc.getCreatorName()%></td>
                                     </tr>
-
                                     <tr>
                                         <td colspan="2" align="right"><a id="saveSucessMsg_<%=docId%>" style="display:none;color:blue;"><bean:message key="inboxmanager.document.SuccessfullySavedMsg"/></a><%if(!demographicID.equals("-1")){%><input type="submit" name="save" tabindex="<%=tabindex++%>" id="save<%=docId%>" value="Save" /><%} else{%><input type="submit" name="save" tabindex="<%=tabindex++%>" id="save<%=docId%>" disabled value="Save" /> <%}%></td>
                                     </tr>
