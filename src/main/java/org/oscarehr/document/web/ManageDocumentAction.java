@@ -90,6 +90,7 @@ import org.oscarehr.sharingcenter.model.DemographicExport;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
+import org.oscarehr.util.WebUtils;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -132,6 +133,7 @@ public class ManageDocumentAction extends DispatchAction {
 		String documentDescription = request.getParameter("documentDescription");// :test2<
 		String documentId = request.getParameter("documentId");// :29<
 		String docType = request.getParameter("docType");// :consult<
+                boolean isAbnormal = WebUtils.isChecked(request, "abnormalFlag"); 
 
 		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_edoc", "w", null)) {
         	throw new SecurityException("missing required security object (_edoc)");
@@ -178,7 +180,8 @@ public class ManageDocumentAction extends DispatchAction {
 			d.setDocdesc(documentDescription);
 			d.setDoctype(docType);
 			Date obDate = UtilDateUtilities.StringToDate(observationDate);
-	
+	                d.setAbnormal(true); 
+
 			if (obDate != null) {
 				d.setObservationdate(obDate);
 			}
@@ -297,6 +300,7 @@ public class ManageDocumentAction extends DispatchAction {
 		String documentDescription = request.getParameter("documentDescription");// :test2<
 		String documentId = request.getParameter("documentId");// :29<
 		String docType = request.getParameter("docType");// :consult<
+		boolean abnormal = WebUtils.isChecked(request, "abnormalFlag"); 
 
 		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_edoc", "w", null)) {
         	throw new SecurityException("missing required security object (_edoc)");
@@ -327,12 +331,12 @@ public class ManageDocumentAction extends DispatchAction {
 			d.setDocdesc(documentDescription);
 			d.setDoctype(docType);
 			Date obDate = UtilDateUtilities.StringToDate(observationDate);
-	
+			d.setAbnormal(abnormal);
 			if (obDate != null) {
 				d.setObservationdate(obDate);
 			}
 	
-			documentDao.merge(d);
+			documentDao.merge(d); 
 		}
 
 		try {
