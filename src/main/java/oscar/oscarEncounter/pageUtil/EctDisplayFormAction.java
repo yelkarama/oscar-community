@@ -124,7 +124,7 @@ public class EctDisplayFormAction extends EctDisplayAction {
 
 							// convert date to that specified in base class
 							DateFormat formatter = new SimpleDateFormat(dbFormat);
-							String dateStr = pfrm.getCreated();
+							String dateStr = pfrm.getEdited(); 
 							try {
 								date = formatter.parse(dateStr);
 							} catch (ParseException ex) {
