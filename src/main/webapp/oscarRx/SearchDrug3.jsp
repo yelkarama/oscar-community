@@ -850,7 +850,7 @@ top.window.resizeTo(1440,900);  //width,height for 19" LCD allowing for most Rx 
 
 </script>
 
-    <body  vlink="#0000FF" onload="document.getElementById('<%=defaultView%>').click();setplaceholder();checkFav();iterateStash();rxPageSizeSelect();checkReRxLongTerm();load()" class="yui-skin-sam">
+    <body  vlink="#0000FF" onload="setplaceholder();checkFav();iterateStash();rxPageSizeSelect();checkReRxLongTerm();load()" class="yui-skin-sam">
     <script>
     function setplaceholder() {
             $('searchString').placeholder = "<bean:message key="SearchDrug.EnterDrugName"/>";
@@ -2540,6 +2540,7 @@ jQuery( document ).ready(function() {
 	    //var el = jQuery( this );
 	    //medTermCheckOne(randId, el);
     });
+document.getElementById('<%=defaultView%>').click();
 });
 </script>
 
