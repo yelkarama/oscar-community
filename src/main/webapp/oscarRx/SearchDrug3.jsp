@@ -395,7 +395,6 @@ var SORT_COLUMN_INDEX;
 
 function sortables_init() {
     // Find all tables with class sortable and make them sortable
-
     if (!document.getElementsByTagName) return;
 
     tbls = document.getElementsByTagName("table");
@@ -411,7 +410,7 @@ function sortables_init() {
 }
 
 function ts_makeSortable(table) {
-    oscarLog('making '+table+' sortable');
+    console.log('making '+table.id+' sortable');
     if (table.rows && table.rows.length > 0) {
         var firstRow = table.rows[0];
     }
@@ -2540,7 +2539,9 @@ jQuery( document ).ready(function() {
 	    //var el = jQuery( this );
 	    //medTermCheckOne(randId, el);
     });
-document.getElementById('<%=defaultView%>').click();
+setTimeout("document.getElementById('<%=defaultView%>').click();console.log('default view setting');", 3000);
+console.log("Timeout running");
+
 });
 </script>
 
