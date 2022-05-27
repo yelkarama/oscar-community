@@ -1344,7 +1344,7 @@ function changeLt(drugId){
         if(ss.length==0)
             $('autocomplete_choices').setStyle({height:'0%'});
         else
-            $('autocomplete_choices').setStyle({height:'100%'});
+            $('autocomplete_choices').setStyle({height:'80%'});
     }
     function addInstruction(content,randomId){
         $('instructions_'+randomId).value=content;
