@@ -181,7 +181,11 @@ public class EctDisplayDocsAction extends EctDisplayAction {
     			javascript.append(js);				
     			item.setURL(url);
     			item.setURLJavaScript(true);
-    			
+    		        
+	                if(curDoc.isAbnormal()){
+                            item.setColour("red");
+                        }
+	
     			if("integrator".equalsIgnoreCase(curDoc.getSource()))
     			{
         			item.setBgColour("#FFCCCC");

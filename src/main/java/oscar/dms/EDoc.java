@@ -88,7 +88,7 @@ public class EDoc extends TagObject implements Comparable<EDoc> {
 	private org.oscarehr.common.model.Document document;
 	private CtlDocument ctlDocument;
 	private String filePath;
-	private String abnormal = "0";
+	private boolean abnormal = false;
 	private String receivedDate = "";
 
 
@@ -433,15 +433,21 @@ public class EDoc extends TagObject implements Comparable<EDoc> {
 		else this.docPublic = docPublic;
 	}
 
-	
-	public String getAbnormal() {
+	public boolean isAbnormal() {
 		return abnormal;
 	}
 
+	public boolean getAbnormal() {
+		return abnormal;
+	}
+
+	public void setAbnormal(Boolean abnormal) {
+		this.abnormal = abnormal;
+	}
+
 	public void setAbnormal(String abnormal) {
-		if (abnormal.equalsIgnoreCase("checked")) this.abnormal = "1";
-		else if (abnormal == null || abnormal.length() == 0) this.abnormal = "0";
-		else this.abnormal = abnormal;
+		if (abnormal.equalsIgnoreCase("checked")) this.abnormal = true;
+		else if (abnormal == null) this.abnormal = false;
 	}
 
 	public String getReceivedDate() {
