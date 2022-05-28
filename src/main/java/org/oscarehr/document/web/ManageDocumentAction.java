@@ -133,7 +133,7 @@ public class ManageDocumentAction extends DispatchAction {
 		String documentDescription = request.getParameter("documentDescription");// :test2<
 		String documentId = request.getParameter("documentId");// :29<
 		String docType = request.getParameter("docType");// :consult<
-                boolean isAbnormal = WebUtils.isChecked(request, "abnormalFlag"); 
+		boolean isAbnormal = WebUtils.isChecked(request, "abnormalFlag"); 
 
 		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_edoc", "w", null)) {
         	throw new SecurityException("missing required security object (_edoc)");
@@ -180,7 +180,7 @@ public class ManageDocumentAction extends DispatchAction {
 			d.setDocdesc(documentDescription);
 			d.setDoctype(docType);
 			Date obDate = UtilDateUtilities.StringToDate(observationDate);
-	                d.setAbnormal(true); 
+			d.setAbnormal(isAbnormal);
 
 			if (obDate != null) {
 				d.setObservationdate(obDate);
