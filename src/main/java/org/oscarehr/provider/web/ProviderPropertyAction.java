@@ -195,9 +195,15 @@ public class ProviderPropertyAction extends DispatchAction {
          }
 
          ArrayList<LabelValueBean> serviceList = new ArrayList<LabelValueBean>();
-         serviceList.add(new LabelValueBean("M", "M"));
-         serviceList.add(new LabelValueBean("F", "F"));
-
+         //Value are Codes F M T O U Texts are Female Male Transgender Other Undefined
+         serviceList.add(new LabelValueBean("No Default", ""));
+         serviceList.add(new LabelValueBean("Male", "M"));
+         serviceList.add(new LabelValueBean("Female", "F"));
+         serviceList.add(new LabelValueBean("Transgender", "T"));
+         serviceList.add(new LabelValueBean("Other", "O"));
+         serviceList.add(new LabelValueBean("Undefined", "U"));
+         
+         
          request.setAttribute("dropOpts",serviceList);
 
          request.setAttribute("dateProperty",prop);
@@ -294,7 +300,7 @@ public class ProviderPropertyAction extends DispatchAction {
 		saveProperty.setValue(fmt);
 		this.userPropertyDAO.saveProp(saveProperty);
 
-		request.setAttribute("dateProperty",prop);
+		request.setAttribute("status", "success");
 		request.setAttribute("providertitle","provider.providerpreference.openInTabs");
 		request.setAttribute("providermsgPrefs","provider.providerpreference.description"); //=PREFERENCES
 		request.setAttribute("providermsgProvider","provider.providerpreference.openInTabs");
