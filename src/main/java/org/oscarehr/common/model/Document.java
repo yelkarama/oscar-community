@@ -147,7 +147,7 @@ public class Document extends AbstractModel<Integer> implements Serializable {
     @Column(name="appointment_no")
     private Integer appointmentNo;
     @Column(name="abnormal")
-    private Boolean abnormal;
+    private Boolean abnormal=false;
     private Boolean restrictToProgram=false;
     @Temporal(TemporalType.DATE)
     private Date receivedDate;
