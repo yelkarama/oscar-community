@@ -295,7 +295,11 @@ if(!authed) {
 <link rel="stylesheet" href="<%=request.getContextPath() %>/demographic/demographiceditdemographic.css" type="text/css" />
 <% } %>
 
-
+<style type="text/css">
+ .form-horizontal .control-group {
+	margin-bottom: 0px;
+ }
+</style>
 
 <!-- main calendar program -->
 <script type="text/javascript" src="<%= request.getContextPath() %>/share/calendar/calendar.js"></script>
@@ -727,6 +731,7 @@ function showEdit(){
     document.getElementById('editDemographic').style.display = 'block';
     document.getElementById('viewDemographics2').style.display = 'none';
     document.getElementById('updateButton').style.display = 'block';
+    document.getElementById('topupdateButtons').style.display = 'block';
     document.getElementById('swipeButton').style.display = 'block';
     document.getElementById('editBtn').style.display = 'none';
     document.getElementById('closeBtn').style.display = 'inline';
@@ -736,6 +741,7 @@ function showHideDetail(){
     showHideItem('editDemographic');
     showHideItem('viewDemographics2');
     showHideItem('updateButton');
+    showHideItem('topupdateButtons');
     showHideItem('swipeButton');
     showHideItem('editWrapper');
     if(document.getElementById('editWrapper').style.display == 'block'){
@@ -2609,7 +2615,7 @@ enoughRoom=true;
                             <% } %> 
 <%
 
-// Link to providers from Contacts adapted from oroginal code by DENNIS WARREN O/A COLCAMEX RESOURCES --
+// Link to providers from Contacts adapted from original code by DENNIS WARREN O/A COLCAMEX RESOURCES --
 ContactSpecialtyDao specialtyDao = null;
 
 	List<DemographicContact> demographicContacts = null;
@@ -2746,6 +2752,24 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
 						</div>
 
 						<!--newEnd-->
+
+
+<!-- security code block --> 
+<span id="topupdateButtons" class="span" style="display: none;"> <p><p>
+    <security:oscarSec roleName="<%=roleName$%>" objectName="_demographic" rights="w">
+    <%
+        boolean showCbiReminder=oscarProps.getBooleanProperty("CBI_REMIND_ON_UPDATE_DEMOGRAPHIC", "true");
+    %>
+    <input type="submit" <%=(showCbiReminder?"onclick='showCbiReminder()'":"")%> class="btn btn-primary"
+	    id="updaterecord" value="<bean:message key="demographic.demographiceditdemographic.btnUpdate"/>">
+    <input type="submit" name="submit" <%=(showCbiReminder?"onclick='showCbiReminder()'":"")%> class="btn"
+											   value="<bean:message key="demographic.demographiceditdemographic.btnSaveUpdateFamilyMember"/>">
+	</security:oscarSec> 
+</span> 
+<!-- security code block -->
+
+
+
 <div class="container-fluid well form-horizontal span12" id="editWrapper" style="display:none;">
     <div  id="demographicSection" class="span11">
 		<fieldset>
