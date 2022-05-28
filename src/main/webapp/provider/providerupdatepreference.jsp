@@ -59,6 +59,7 @@
 <%
 	String programId_forCME = request.getParameter("case_program_id");
 	request.getSession().setAttribute("case_program_id",programId_forCME);
+	//Boolean updateGroupOnly = Boolean.parseBoolean(request.getParameter("groupOnly"));
 	
 	String selected_site = (String) request.getParameter("site") ;
 	if (selected_site != null) {
@@ -76,9 +77,27 @@
 	}
 	prop.setValue(ticklerforproviderno);
 	propDao.saveProp(prop);
-	
-	ProviderPropertyAction.updateOrCreateProviderProperties(request);
-	ProviderPreference providerPreference=ProviderPreferencesUIBean.updateOrCreateProviderPreferences(request);
+
+	String defaultTabs = request.getParameter("tab_view");
+	prop = propDao.getProp(curUser_providerno, UserProperty.OPEN_IN_TABS);
+
+	if (prop==null)
+	{
+	    prop = new UserProperty();
+	    prop.setProviderNo(curUser_providerno);
+	    prop.setName(UserProperty.OPEN_IN_TABS);
+	}
+	prop.setValue(defaultTabs);
+	propDao.saveProp(prop);
+
+	ProviderPreference providerPreference;
+	//if (updateGroupOnly) {
+	//	providerPreference = ProviderPreferencesUIBean.updateGroupNo(loggedInInfo.getLoggedInProviderNo(), request.getParameter("mygroup_no"));
+	//} else {
+        ProviderPropertyAction.updateOrCreateProviderProperties(request);
+        
+        providerPreference = ProviderPreferencesUIBean.updateOrCreateProviderPreferences(request);
+	//}
 
 	//--- 
 	session.setAttribute(SessionConstants.LOGGED_IN_PROVIDER_PREFERENCE, providerPreference);

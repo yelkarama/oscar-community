@@ -53,7 +53,7 @@ public class DocumentConverter extends AbstractConverter<Document, DocumentTo1> 
         int numberOfPages = t.getNumberOfPages() != null ? t.getNumberOfPages() : 0;
         d.setNumberofpages(numberOfPages);
         d.setAppointmentNo(t.getAppointmentNo());
-        d.setAbnormal(t.getAbnormal() ? 1 : 0);
+        d.setAbnormal(t.getAbnormal());
         d.setRestrictToProgram(t.getRestrictToProgram());
         
         return d;
@@ -83,7 +83,7 @@ public class DocumentConverter extends AbstractConverter<Document, DocumentTo1> 
         t.setObservationDate(d.getObservationdate());
         t.setNumberOfPages(d.getNumberofpages());
         t.setAppointmentNo(d.getAppointmentNo());
-        t.setAbnormal(d.getAbnormal() > 0);
+        t.setAbnormal(d.isAbnormal());
         t.setRestrictToProgram(d.isRestrictToProgram());
 
         return t;

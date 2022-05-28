@@ -395,7 +395,6 @@ var SORT_COLUMN_INDEX;
 
 function sortables_init() {
     // Find all tables with class sortable and make them sortable
-
     if (!document.getElementsByTagName) return;
 
     tbls = document.getElementsByTagName("table");
@@ -411,7 +410,7 @@ function sortables_init() {
 }
 
 function ts_makeSortable(table) {
-    oscarLog('making '+table+' sortable');
+    console.log('making '+table.id+' sortable');
     if (table.rows && table.rows.length > 0) {
         var firstRow = table.rows[0];
     }
@@ -850,7 +849,7 @@ top.window.resizeTo(1440,900);  //width,height for 19" LCD allowing for most Rx 
 
 </script>
 
-    <body  vlink="#0000FF" onload="document.getElementById('<%=defaultView%>').click();setplaceholder();checkFav();iterateStash();rxPageSizeSelect();checkReRxLongTerm();load()" class="yui-skin-sam">
+    <body  vlink="#0000FF" onload="setplaceholder();checkFav();iterateStash();rxPageSizeSelect();checkReRxLongTerm();load()" class="yui-skin-sam">
     <script>
     function setplaceholder() {
             $('searchString').placeholder = "<bean:message key="SearchDrug.EnterDrugName"/>";
@@ -1344,7 +1343,7 @@ function changeLt(drugId){
         if(ss.length==0)
             $('autocomplete_choices').setStyle({height:'0%'});
         else
-            $('autocomplete_choices').setStyle({height:'100%'});
+            $('autocomplete_choices').setStyle({height:'80%'});
     }
     function addInstruction(content,randomId){
         $('instructions_'+randomId).value=content;
@@ -2540,6 +2539,9 @@ jQuery( document ).ready(function() {
 	    //var el = jQuery( this );
 	    //medTermCheckOne(randId, el);
     });
+setTimeout("document.getElementById('<%=defaultView%>').click();console.log('default view setting');", 3000);
+console.log("Timeout running");
+
 });
 </script>
 

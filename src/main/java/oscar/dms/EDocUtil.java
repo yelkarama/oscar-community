@@ -349,7 +349,7 @@ public final class EDocUtil {
                                 doc.setContentdatetime(newDocument.getContentDateTime());
 			}
 			
-			doc.setAbnormal(ConversionUtils.fromIntString(newDocument.getAbnormal()));
+			doc.setAbnormal(newDocument.getAbnormal());
 			doc.setReceivedDate(MyDateFormat.getSysDate(newDocument.getReceivedDate()));
 			documentDao.merge(doc);
 		}
@@ -432,8 +432,8 @@ public final class EDocUtil {
 			currentdoc.setReviewerId(d.getReviewer());
 			currentdoc.setReviewDateTime(ConversionUtils.toTimestampString(d.getReviewdatetime()));
 			currentdoc.setReviewDateTimeDate(d.getReviewdatetime());
-            currentdoc.setContentDateTime(d.getContentdatetime());
-            
+            		currentdoc.setContentDateTime(d.getContentdatetime());
+
             if(d.isRestrictToProgram() != null){            
             	currentdoc.setRestrictToProgram(d.isRestrictToProgram());
             }
@@ -526,6 +526,7 @@ public final class EDocUtil {
 			currentdoc.setReviewDateTime(ConversionUtils.toTimestampString(d.getReviewdatetime()));
 			currentdoc.setReviewDateTimeDate(d.getReviewdatetime());
                         currentdoc.setContentDateTime(d.getContentdatetime());
+			currentdoc.setAbnormal(d.isAbnormal());
 		}
 
 		return currentdoc;
@@ -630,15 +631,16 @@ public final class EDocUtil {
 		currentdoc.setReviewerId(d.getReviewer());
 		currentdoc.setReviewDateTime(ConversionUtils.toDateString(d.getReviewdatetime()));
 		currentdoc.setReviewDateTimeDate(d.getReviewdatetime());
-        currentdoc.setDateTimeStamp(ConversionUtils.toDateString(d.getUpdatedatetime()));
-        currentdoc.setDateTimeStampAsDate(d.getUpdatedatetime());
-        currentdoc.setDocClass(d.getDocClass());
-        currentdoc.setDocSubClass(d.getDocSubClass());
-        currentdoc.setContentDateTime(d.getContentdatetime());
-        if(d.isRestrictToProgram() != null && d.isRestrictToProgram()) {
-        	currentdoc.setRestrictToProgram(true);
-        }
-	    return currentdoc;
+        	currentdoc.setDateTimeStamp(ConversionUtils.toDateString(d.getUpdatedatetime()));
+        	currentdoc.setDateTimeStampAsDate(d.getUpdatedatetime());
+        	currentdoc.setDocClass(d.getDocClass());
+        	currentdoc.setDocSubClass(d.getDocSubClass());
+        	currentdoc.setContentDateTime(d.getContentdatetime());
+		currentdoc.setAbnormal(d.isAbnormal());
+        	if(d.isRestrictToProgram() != null && d.isRestrictToProgram()) {
+        		currentdoc.setRestrictToProgram(true);
+        	}
+	    	return currentdoc;
     }
 
 	public ArrayList<EDoc> getUnmatchedDocuments(String creator, String responsible, Date startDate, Date endDate, boolean unmatchedDemographics) {
@@ -794,13 +796,13 @@ public final class EDocUtil {
 			currentdoc.setStatus(d.getStatus());
 			currentdoc.setContentType(d.getContenttype());
 			currentdoc.setNumberOfPages(d.getNumberofpages());
-            currentdoc.setContentDateTime(d.getContentdatetime());
+            		currentdoc.setContentDateTime(d.getContentdatetime());
             
-            currentdoc.setAbnormal("" + d.getAbnormal());
-            currentdoc.setReceivedDate(d.getReceivedDate());
-            if(d.isRestrictToProgram() != null){
-            	currentdoc.setRestrictToProgram(d.isRestrictToProgram());
-            }
+	                currentdoc.setAbnormal(d.getAbnormal());
+           		currentdoc.setReceivedDate(d.getReceivedDate());
+            		if(d.isRestrictToProgram() != null){
+            			currentdoc.setRestrictToProgram(d.isRestrictToProgram());
+            		}
             
 			IndivoDocs id = iDao.findByOscarDocNo(d.getDocumentNo(), "document");
 			if (id != null) {

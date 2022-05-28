@@ -146,11 +146,12 @@ public class Document extends AbstractModel<Integer> implements Serializable {
     private Integer numberofpages;
     @Column(name="appointment_no")
     private Integer appointmentNo;
-
+    @Column(name="abnormal")
+    private Boolean abnormal=false;
     private Boolean restrictToProgram=false;
     @Temporal(TemporalType.DATE)
     private Date receivedDate;
-    private int abnormal = 0;
+    
 
     @Transient
     private byte[] base64Binary;
@@ -323,13 +324,31 @@ public class Document extends AbstractModel<Integer> implements Serializable {
         this.numberofpages = numberOfPages;
     }
 
-	public Integer getAppointmentNo() {
-		return appointmentNo;
-	}
+    public Integer getAppointmentNo() {
+	return appointmentNo;
+    }
 
-	public void setAppointmentNo(Integer appointmentNo) {
-		this.appointmentNo = appointmentNo;
-	}
+    public void setAppointmentNo(Integer appointmentNo) {
+	this.appointmentNo = appointmentNo;
+    }
+
+    public boolean isAbnormal() {
+         if (abnormal == null)
+             abnormal = false;
+
+             return abnormal;
+    }
+
+    public boolean getAbnormal() {
+	  if (abnormal == null)
+             abnormal = false;
+
+             return abnormal;
+    }
+
+    public void setAbnormal(boolean abnormal) {
+        this.abnormal = abnormal;
+    }
 
 	public String getDocClass() {
     	return docClass;
@@ -391,14 +410,6 @@ public class Document extends AbstractModel<Integer> implements Serializable {
 		this.receivedDate = receivedDate;
 	}
 
-	public int getAbnormal() {
-		return abnormal;
-	}
-
-	public void setAbnormal(int abnormal) {
-		this.abnormal = abnormal;
-	}
-	
     public byte[] getBase64Binary() {
 		return base64Binary;
 	}

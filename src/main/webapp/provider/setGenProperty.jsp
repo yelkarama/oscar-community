@@ -41,11 +41,15 @@ if(session.getValue("user") == null)
 <html:html>
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
+
 <html:base />
 <title><bean-el:message key="${providertitle}" /></title>
 
 <link rel="stylesheet" type="text/css"
 	href="../oscarEncounter/encounterStyles.css">
+
+<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
+
 <!-- calendar stylesheet -->
 <link rel="stylesheet" type="text/css" media="all"
 	href="<c:out value="${ctx}"/>/share/calendar/calendar.css"
@@ -129,7 +133,7 @@ if(session.getValue("user") == null)
 			<%}%>
 			<input type="submit"
 				value="<bean-el:message key="${providerbtnSubmit}" />" />
-		</html:form> <%}else {%> <bean-el:message key="${providermsgSuccess}" /> <br>
+		</html:form> <%}else {%> <p><div class="alert alert-success" > </button><bean-el:message key="${providermsgSuccess}" /> </div> <br>
 		<%}%>
 		</td>
 	</tr>

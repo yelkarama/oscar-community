@@ -1047,10 +1047,11 @@ function checkForm(submissionVal,formName){
   var hasApptTime = document.EctConsultationFormRequestForm.appointmentHour.options.selectedIndex != 0 && 
   	document.EctConsultationFormRequestForm.appointmentMinute.options.selectedIndex != 0;
   
-  if(apptDate.length > 0 && !hasApptTime) {
-	  alert('Please enter appointment time. You cannot choose appointment date only.');
-	  return false;
-  }
+  //if(apptDate.length > 0 && !hasApptTime) {
+  //	  alert('Please enter appointment time. You cannot choose appointment date only.');
+  //	  return false;
+  //}
+  
   $("saved").value = "true";
   document.forms[formName].submission.value=submissionVal;
   document.forms[formName].submit();
@@ -1528,7 +1529,7 @@ jQuery(document).ready(function(){
 });
 
 function statusChanged1(val) {
-	if(val == 4) {
+	if(val == 5) {
 		jQuery("#reasonForConsultation").attr('readonly','readonly');
 		jQuery("#clinicalInformation").attr('readonly','readonly');
 		jQuery("#concurrentProblems").attr('readonly','readonly');
@@ -1560,7 +1561,7 @@ function statusChanged1(val) {
 }
 function statusChanged(val) {
 	
-	if(val == 4) {
+	if(val == 5) {
 		//lock fields
 	//	alert(jQuery("#reasonForConsultation").val());
 	

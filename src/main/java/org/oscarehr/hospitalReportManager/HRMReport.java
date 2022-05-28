@@ -353,6 +353,18 @@ public class HRMReport {
 		
 		return null;
 	}
+
+	public String getFirstAccompanyingSubClass() {
+                if (hrmReport.getPatientRecord().getReportsReceived() != null &&
+                                !hrmReport.getPatientRecord().getReportsReceived().isEmpty() &&
+                                hrmReport.getPatientRecord().getReportsReceived().get(0).getOBRContent() != null &&
+                                hrmReport.getPatientRecord().getReportsReceived().get(0).getOBRContent().get(0) != null &&
+                                hrmReport.getPatientRecord().getReportsReceived().get(0).getOBRContent().get(0).getObservationDateTime() != null) {
+                        return (hrmReport.getPatientRecord().getReportsReceived().get(0).getOBRContent().get(0).getAccompanyingDescription());
+                }
+
+                return null;
+        }
 	
 	public String getMessageUniqueId() {
 		if(hrmReport.getPatientRecord().getTransactionInformation() == null || hrmReport.getPatientRecord().getTransactionInformation().isEmpty()){
