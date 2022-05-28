@@ -77,24 +77,26 @@
 	}
 	prop.setValue(ticklerforproviderno);
 	propDao.saveProp(prop);
+	
+	// deprecated
+	//String defaultTabs = request.getParameter("tab_view");
+	//prop = propDao.getProp(curUser_providerno, UserProperty.OPEN_IN_TABS);
 
-	String defaultTabs = request.getParameter("tab_view");
-	prop = propDao.getProp(curUser_providerno, UserProperty.OPEN_IN_TABS);
-
-	if (prop==null)
-	{
-	    prop = new UserProperty();
-	    prop.setProviderNo(curUser_providerno);
-	    prop.setName(UserProperty.OPEN_IN_TABS);
-	}
-	prop.setValue(defaultTabs);
-	propDao.saveProp(prop);
+	//if (prop==null)
+	//{
+	//    prop = new UserProperty();
+	//    prop.setProviderNo(curUser_providerno);
+	//    prop.setName(UserProperty.OPEN_IN_TABS);
+	//}
+	//prop.setValue(defaultTabs);
+	//propDao.saveProp(prop);
 
 	ProviderPreference providerPreference;
 	//if (updateGroupOnly) {
 	//	providerPreference = ProviderPreferencesUIBean.updateGroupNo(loggedInInfo.getLoggedInProviderNo(), request.getParameter("mygroup_no"));
 	//} else {
-        ProviderPropertyAction.updateOrCreateProviderProperties(request);
+	//  deprecated, this method is for OPEN_IN_TABS which is now dealth with elsewhere
+    //   ProviderPropertyAction.updateOrCreateProviderProperties(request);
         
         providerPreference = ProviderPreferencesUIBean.updateOrCreateProviderPreferences(request);
 	//}
