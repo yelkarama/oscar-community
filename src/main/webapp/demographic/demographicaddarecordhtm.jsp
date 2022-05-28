@@ -202,6 +202,9 @@
  .form-horizontal .control-group {
 	margin-bottom: 0px;
  }
+ .help-block {
+	margin-top: 0px;
+ }
 </style>
 
 
