@@ -258,8 +258,8 @@ public class ProviderPropertyAction extends DispatchAction {
 
 		ArrayList<LabelValueBean> optionList = new ArrayList<LabelValueBean>();
 		
-		optionList.add(new LabelValueBean("Yes", "yes"));
-		optionList.add(new LabelValueBean("No", "no"));
+		optionList.add(new LabelValueBean("Yes", "true"));
+		optionList.add(new LabelValueBean("No", "false"));
 		request.setAttribute("dropOpts",optionList);
 
 		request.setAttribute("dateProperty",prop);
