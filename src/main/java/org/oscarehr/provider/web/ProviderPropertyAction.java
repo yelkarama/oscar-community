@@ -195,9 +195,15 @@ public class ProviderPropertyAction extends DispatchAction {
          }
 
          ArrayList<LabelValueBean> serviceList = new ArrayList<LabelValueBean>();
-         serviceList.add(new LabelValueBean("M", "M"));
-         serviceList.add(new LabelValueBean("F", "F"));
-
+         //Value are Codes F M T O U Texts are Female Male Transgender Other Undefined
+         serviceList.add(new LabelValueBean("No Default", ""));
+         serviceList.add(new LabelValueBean("Male", "M"));
+         serviceList.add(new LabelValueBean("Female", "F"));
+         serviceList.add(new LabelValueBean("Transgender", "T"));
+         serviceList.add(new LabelValueBean("Other", "O"));
+         serviceList.add(new LabelValueBean("Undefined", "U"));
+         
+         
          request.setAttribute("dropOpts",serviceList);
 
          request.setAttribute("dateProperty",prop);
@@ -248,7 +254,65 @@ public class ProviderPropertyAction extends DispatchAction {
          return actionmapping.findForward("gen");
     }
     /////
+	public ActionForward viewInTabs(ActionMapping actionmapping, ActionForm actionform, HttpServletRequest request, HttpServletResponse response) {
+		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+		String providerNo = loggedInInfo.getLoggedInProviderNo();
+		DynaActionForm frm = (DynaActionForm)actionform;
+		UserProperty prop = this.userPropertyDAO.getProp(providerNo, UserProperty.OPEN_IN_TABS);
 
+		if (prop == null){ prop = new UserProperty(); }
+
+		ArrayList<LabelValueBean> optionList = new ArrayList<LabelValueBean>();
+		
+		optionList.add(new LabelValueBean("Yes", "true"));
+		optionList.add(new LabelValueBean("No", "false"));
+		request.setAttribute("dropOpts",optionList);
+
+		request.setAttribute("dateProperty",prop);
+		request.setAttribute("providertitle","provider.providerpreference.openInTabs");
+		request.setAttribute("providermsgPrefs","provider.providerpreference.description"); //=PREFERENCES
+		request.setAttribute("providermsgProvider","provider.providerpreference.openInTabs");
+		request.setAttribute("providermsgEdit","provider.providerpreference.openInTabs");
+		request.setAttribute("providerbtnSubmit","global.btnSubmit");
+		request.setAttribute("providermsgSuccess","admin.preferenceupdate.msgUpdateSuccess");
+		request.setAttribute("method","saveviewInTabs");
+
+		frm.set("dateProperty", prop);
+
+		return  actionmapping.findForward("gen");
+	}
+	public ActionForward saveviewInTabs(ActionMapping actionmapping, ActionForm actionform, HttpServletRequest request, HttpServletResponse response) {
+		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+		String providerNo=loggedInInfo.getLoggedInProviderNo();
+
+ 
+		DynaActionForm frm = (DynaActionForm)actionform;
+		UserProperty prop = (UserProperty)frm.get("dateProperty");
+		String fmt = prop != null ? prop.getValue() : "";
+		UserProperty saveProperty = this.userPropertyDAO.getProp(providerNo,UserProperty.OPEN_IN_TABS);
+
+		if( saveProperty == null ) {
+			saveProperty = new UserProperty();
+			saveProperty.setProviderNo(providerNo);
+			saveProperty.setName(UserProperty.OPEN_IN_TABS);
+		}
+
+		saveProperty.setValue(fmt);
+		this.userPropertyDAO.saveProp(saveProperty);
+
+		request.setAttribute("status", "success");
+		request.setAttribute("providertitle","provider.providerpreference.openInTabs");
+		request.setAttribute("providermsgPrefs","provider.providerpreference.description"); //=PREFERENCES
+		request.setAttribute("providermsgProvider","provider.providerpreference.openInTabs");
+		request.setAttribute("providermsgEdit","provider.providerpreference.openInTabs");
+		request.setAttribute("providerbtnSubmit","global.btnSubmit");
+		request.setAttribute("providermsgSuccess","admin.preferenceupdate.msgUpdateSuccess");
+		request.setAttribute("method","saveviewInTabs");
+
+		return actionmapping.findForward("gen");
+	}
+    
+    
     public ActionForward viewHCType(ActionMapping actionmapping,
                                ActionForm actionform,
                                HttpServletRequest request,

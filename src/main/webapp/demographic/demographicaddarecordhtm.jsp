@@ -144,6 +144,14 @@
   // Used to retrieve properties from user (i.e. HC_Type & default_sex)
   UserPropertyDAO userPropertyDAO = (UserPropertyDAO) ctx.getBean("UserPropertyDAO");
 
+  UserProperty sexProp = userPropertyDAO.getProp(curUser_no,  UserProperty.DEFAULT_SEX);
+    if (sexProp != null) {
+        sex = sexProp.getValue();
+    } else {
+        // Access defaultsex system property
+        sex = props.getProperty("defaultsex","");
+    }
+
   String HCType = "";
   // Determine if curUser has selected a default HC Type
   UserProperty HCTypeProp = userPropertyDAO.getProp(curUser_no,  UserProperty.HC_TYPE);
@@ -189,6 +197,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
 <link href="<%=request.getContextPath() %>/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+
+<style type="text/css">
+ .form-horizontal .control-group {
+	margin-bottom: 0px;
+ }
+ .help-block {
+	margin-top: 0px;
+ }
+</style>
+
+
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.7.1.min.js"></script>
 <script src="<%=request.getContextPath() %>/js/jqBootstrapValidation-1.3.7.min.js"></script>
@@ -547,14 +566,14 @@ function checkTitleSex(ttl) {
 function removeAccents(s){
         var r=s.toLowerCase();
         r = r.replace(new RegExp("\\s", 'g'),"");
-        r = r.replace(new RegExp("[������]", 'g'),"a");
-        r = r.replace(new RegExp("�", 'g'),"c");
-        r = r.replace(new RegExp("[����]", 'g'),"e");
-        r = r.replace(new RegExp("[����]", 'g'),"i");
-        r = r.replace(new RegExp("�", 'g'),"n");
-        r = r.replace(new RegExp("[�����]", 'g'),"o");
-        r = r.replace(new RegExp("[����]", 'g'),"u");
-        r = r.replace(new RegExp("[��]", 'g'),"y");
+        r = r.replace(new RegExp("[\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd]", 'g'),"a");
+        r = r.replace(new RegExp("\ufffd", 'g'),"c");
+        r = r.replace(new RegExp("[\ufffd\ufffd\ufffd\ufffd]", 'g'),"e");
+        r = r.replace(new RegExp("[\ufffd\ufffd\ufffd\ufffd]", 'g'),"i");
+        r = r.replace(new RegExp("\ufffd", 'g'),"n");
+        r = r.replace(new RegExp("[\ufffd\ufffd\ufffd\ufffd\ufffd]", 'g'),"o");
+        r = r.replace(new RegExp("[\ufffd\ufffd\ufffd\ufffd]", 'g'),"u");
+        r = r.replace(new RegExp("[\ufffd\ufffd]", 'g'),"y");
         r = r.replace(new RegExp("\\W", 'g'),"");
         return r;
 }
