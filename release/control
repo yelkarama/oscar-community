@@ -1,6 +1,6 @@
 Source: oscar-emr
 Package: oscar-emr
-Version: 8-x.x
+Version: 19-65~1842
 Section: base
 Installed-Size: 348160
 Priority: optional
@@ -9,7 +9,7 @@ Pre-depends:  curl
 Depends: tomcat7 | tomcat8 | tomcat9, mysql-server (>= 5.0) | mariadb-server, libmysql-java (>= 5.0) | libmariadb-java,  unzip 
 Recommends: xfonts-75dpi, firefox | chromium-browser , wkhtmltopdf
 Maintainer: Peter Hutten-Czapski <phc@srpc.ca>
-Homepage: http://oscarmanual.org
+Homepage: http://worldoscar.org
 Description: OSCAR (Web) A web application for electronic medical records
   * Patient registration 
   * Scheduling
@@ -20,4 +20,5 @@ Description: OSCAR (Web) A web application for electronic medical records
   * Supports importing digital(HL7) lab results
   * Complete electronic charting of all encounters
   * Ability to link to Oscar Kiosk for self sign in
+  * Works wiht Selfbook for internet booking by patients
   * Integration with MyOscar for Personal Health record

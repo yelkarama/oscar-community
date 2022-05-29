@@ -1,7 +1,7 @@
 #!/bin/sh
 #=================================================================
 # Copyright Peter Hutten-Czapski 2012-19 released under the GPL v2
-# v 19.11
+# v 19.13
 #=================================================================
 
 set -e
@@ -14,7 +14,7 @@ PROGRAM=oscar
 PACKAGE=oscar-emr
 VERSION=19
 PREVIOUS=15
-REVISION=6~952
+REVISION=65~1842
 if [ -f /usr/share/tomcat9/bin/version.sh ] ; then
         TOMCAT=tomcat9
         TOMCAT_USER=tomcat
@@ -59,7 +59,7 @@ appt_intake_form=off
 new_flowsheet_enabled=true
 NEW_CONTACTS_UI=true
 enableFax=false
-buildDateTime="May 21, 2019 4:31:35 PM"
+buildDateTime="22.04.10-170928"
 logintext="OSCAR EMR"
 faxEnable=false
 rx_fax_enabled=false
@@ -85,7 +85,7 @@ eform_generator_indivica_print_enabled=true
 indivica_rich_text_letter_enabled=true
 #DOCUMENT_DIR=${SRC}OscarDocument/${PROGRAM}/document/
 HL7_COMPLETED_DIR=${SRC}OscarDocument/${PROGRAM}/document/
-backup_path=${SRC}/backup/
+backup_path=${SRC}backup/
 tickler_warn_period=1
 seconds_till_considered_stale=-1
 enable_wait_list_email_notifications=false
@@ -105,7 +105,7 @@ moh_file_management_enabled=false
 ONEDT_INBOX=${SRC}OscarDocument/${PROGRAM}/onEDTDocs/inbox/
 ONEDT_OUTBOX=${SRC}OscarDocument/${PROGRAM}/onEDTDocs/outbox/
 ONEDT_SENT=${SRC}OscarDocument/${PROGRAM}/onEDTDocs/sent/
-ONEDT_ARCHIVE=/${SRC}OscarDocument/${PROGRAM}/onEDTDocs/archive/
+ONEDT_ARCHIVE=${SRC}OscarDocument/${PROGRAM}/onEDTDocs/archive/
 
 ModuleNames=REST
 onare_labreqver=10
@@ -230,11 +230,11 @@ echo Configuration of VERSION=${VERSION}-${REVISION}>>$LOG_FILE
 mysql -V  >> $LOG_FILE
 echo "" >>$LOG_FILE
 
-invoke-rc.d ${TOMCAT} stop 2>>$LOG_FILE
+service ${TOMCAT} stop 2>>$LOG_FILE
 
-if [ -f ${C_BASE}/${PACKAGE}/WEB-INF/classes/clientKeystore.properties ] ; then
+if [ -f "${C_BASE}${PACKAGE}/WEB-INF/classes/clientKeystore.properties" ] ; then
         echo "retrieve existing clientKeystore.properties" >> $LOG_FILE
-        cp ${C_BASE}/${PACKAGE}/WEB-INF/classes/clientKeystore.properties ${C_BASE}/${PACKAGE}/ck.properties 1>> $LOG_FILE
+        cp ${C_BASE}${PACKAGE}/WEB-INF/classes/clientKeystore.properties ${C_BASE}${PACKAGE}/ck.properties 1>> $LOG_FILE
 fi
 
 # if tomcat8 then need to move the wars from the DEB installed directories to the tomcat8 directory
@@ -243,10 +243,63 @@ if [ -f /usr/share/tomcat8/bin/version.sh ] ; then
         cp /var/lib/tomcat7/webapps/drugref.war /var/lib/tomcat8/webapps/drugref.war
 fi
 
-# if tomcat9 then need to move the wars from the DEB installed directories to the tomcat9 directory
+# if tomcat 9 then 
 if [ -f /usr/share/tomcat9/bin/version.sh ] ; then
+
+        # move the wars from the DEB installed directories to the tomcat9 directory
         cp /var/lib/tomcat7/webapps/oscar.war /var/lib/tomcat9/webapps/oscar.war
         cp /var/lib/tomcat7/webapps/drugref.war /var/lib/tomcat9/webapps/drugref.war
+        
+        # add OSCAR directory structure to the paths that tomcat 9 can read and write to
+        # DO NOT ADD read write to non existing paths or Tomcat will fail to start
+        if [ -d "etc/systemd/system/tomcat9.service.d" ] ; then
+                if [ ! -f etc/systemd/system/tomcat9.service.d/override.conf ] ; then
+                        touch /etc/systemd/system/tomcat9.service.d/override.conf
+                        echo "[Service]" >> /etc/systemd/system/tomcat9.service.d/override.conf
+                        echo "ReadWritePaths=/usr/share/oscar-emr/" >> /etc/systemd/system/tomcat9.service.d/override.conf
+                        echo "ReadWritePaths=/tmp/" >> /etc/systemd/system/tomcat9.service.d/override.conf
+                        echo "Created /etc/systemd/system/tomcat9.service.d/override.conf so that Tomcat 9 read and write on /usr/share/oscar-emr " >>$LOG_FILE
+                        echo "Allowing Tomcat 9 read and write on /usr/share/oscar-emr and /tmp by override"
+                        systemctl daemon-reload
+                else
+               #test to see if entry present already
+                        if grep -Fq "/usr/share/oscar-emr/" /etc/systemd/system/tomcat9.service.d/override.conf ; then
+                                echo "Tomcat 9 already has an override set, not modified"
+                        else
+                                sed -i '/ReadWritePaths=\/var\/log\/tomcat9\//a ReadWritePaths=/usr/share/oscar-emr/' /etc/systemd/system/tomcat9.service.d/override.conf
+                                echo "Edited override to allow Tomcat 9 read write on /usr/share/oscar-emr"
+                                echo "Added Tomcat 9 read and write on /usr/share/oscar-emr to existing override /etc/systemd/system/tomcat9.service.d/override.conf"  >>$LOG_FILE
+                                systemctl daemon-reload
+                        fi                
+                fi
+        fi
+        if [ ! -d "/etc/systemd/system/tomcat9.service.d" ] ; then
+                if [ -f /lib/systemd/system/tomcat9.service ] ; then
+                #test to see if entry present already
+                        if grep -Fq "/usr/share/oscar-emr/" /lib/systemd/system/tomcat9.service ; then
+                                echo "Tomcat 9 already has read write on /usr/share/oscar-emr"
+                        else
+                                sed -i '/ReadWritePaths=\/var\/log\/tomcat9\//a ReadWritePaths=/usr/share/oscar-emr/' /lib/systemd/system/tomcat9.service
+                                echo "Edited tomcat9.service to allow Tomcat 9 read write on /usr/share/oscar-emr"
+                                echo "Edited /lib/systemd/system/tomcat9.service to allow Tomcat 9 read write on /usr/share/oscar-emr" >>$LOG_FILE 
+                                systemctl daemon-reload
+                        fi
+                fi
+        fi
+        if [ -f /etc/systemd/system/multi-user.target.wants/tomcat9.service ] ; then
+                #test to see if entry present already
+                        if grep -Fq "/usr/share/oscar-emr/" /etc/systemd/system/multi-user.target.wants/tomcat9.service ; then
+                                # in Ubuntu this file is actually a link to tomcat9.service
+                                echo "Tomcat 9 already has read write on /usr/share/oscar-emr with an entry in tomcat9.service" >>$LOG_FILE 
+                        else
+                                sed -i '/ReadWritePaths=\/var\/log\/tomcat9\//a ReadWritePaths=/usr/share/oscar-emr/' /etc/systemd/system/multi-user.target.wants/tomcat9.service        
+                                echo "Edited tomcat9.service to allow Tomcat 9 read write on /usr/share/oscar-emr"
+                                echo "Edited /etc/systemd/system/multi-user.target.wants/tomcat9.service to allow Tomcat 9 read write on /usr/share/oscar-emr" >>$LOG_FILE 
+                                systemctl daemon-reload 
+                        fi        
+        fi      
+        
+        
 fi
 
 #GEOIP=$(curl --silent -f http://freegeoip.net/csv/ |  tr -d '"')
@@ -287,7 +340,7 @@ echo State=${STATE} >>$LOG_FILE
 #fi
 
 echo "Checking for Upgrade possibility" >>$LOG_FILE
-if [ -f /usr/share/${TOMCAT}/oscar.properties ] ; then
+if [ -f "/usr/share/${TOMCAT}/oscar.properties" ] ; then
 	echo "Previous OSCAR Installation Detected" >> $LOG_FILE
 	UPGRADE=true
 	echo "UPGRADE=${UPGRADE}" 1>> $LOG_FILE
@@ -385,6 +438,7 @@ if [ "${triumvirate}" = "true" ] ; then
 	eform_generator_indivica_signature_enabled=true
 	eform_generator_indivica_print_enabled=true
 	eform_generator_indivica_fax_enabled=true
+	
 
 fi
 
@@ -392,7 +446,7 @@ if [ "${UPGRADE}" = "true" ] ; then
 	db_set oscar-emr/upgrade true  || true
 
 	echo "check to see if minor upgrade of war is all that is necessary" >>$LOG_FILE
-	if [ -f ${C_HOME}${PROGRAM}.properties ] ; then
+	if [ -f "${C_HOME}${PROGRAM}.properties" ] ; then
 
 		echo "grep the password from the properties file" >> $LOG_FILE
 		db_password=$(sed '/^\#/d' ${C_HOME}${PROGRAM}.properties | grep 'db_password'  | tail -n 1 | cut -d "=" -f2 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//') 2>>$LOG_FILE
@@ -526,7 +580,7 @@ if [ "${UPGRADE}" = "true" ] ; then
                 echo "USE_NEW_PATIENT_CONSENT_MODULE=true" >> ${C_HOME}${PROGRAM}.properties 
                 echo "" >> ${C_HOME}${PROGRAM}.properties 
                 echo "#in the master demo" >> ${C_HOME}${PROGRAM}.properties 
-                echo "skip_postal_code_validation=false" >> ${C_HOME}${PROGRAM}.properties 
+                echo "skip_postal_code_validation=true" >> ${C_HOME}${PROGRAM}.properties 
                 echo "" >> ${C_HOME}${PROGRAM}.properties 
                 echo "#don't include MRP in print report by setting to false" >> ${C_HOME}${PROGRAM}.properties 
                 echo "print.includeMRP=true" >> ${C_HOME}${PROGRAM}.properties 
@@ -821,12 +875,16 @@ if [ "${UPGRADE}" = "true" ] ; then
                 echo "" >> ${C_HOME}${PROGRAM}.properties 
             fi
 
-            csearch=$(grep 'customSearchUrl'  ${C_HOME}${PROGRAM}.properties  | tail -n 1 | cut -d "=" -f2 ) 2>>$LOG_FILE
+            csearch=$(grep 'customSearchUrl2'  ${C_HOME}${PROGRAM}.properties  | tail -n 1 | cut -d "=" -f2 ) 2>>$LOG_FILE
             if [ "${csearch}" = "" ]; then
                 echo "adding custom search setting and setting them to duck duck go."  >>$LOG_FILE 
                 echo "# Custom search for eChart" >> ${C_HOME}${PROGRAM}.properties
-                echo "customSearchUrl=https://duckduckgo.com?q=" >> ${C_HOME}${PROGRAM}.properties
-                echo "customSearchName=DuckDuckGo" >> ${C_HOME}${PROGRAM}.properties
+                echo "customSearchUrl=https://www.uptodate.com/contents/search?search=" >> ${C_HOME}${PROGRAM}.properties
+                echo "customSearchName=UpToDate" >> ${C_HOME}${PROGRAM}.properties
+                echo "customSearchUrl2=https://online.epocrates.com/results?query=" >> ${C_HOME}${PROGRAM}.properties
+                echo "customSearchName2=Epocrates" >> ${C_HOME}${PROGRAM}.properties
+                echo "customSearchUrl3=https://duckduckgo.com?q=" >> ${C_HOME}${PROGRAM}.properties
+                echo "customSearchName3=DuckDuckGo" >> ${C_HOME}${PROGRAM}.properties
                 echo "" >> ${C_HOME}${PROGRAM}.properties 
             fi
 
@@ -853,9 +911,50 @@ if [ "${UPGRADE}" = "true" ] ; then
                 echo "oneid.oauth2.clientId=TEST@ONEID.ON.CA" >> ${C_HOME}${PROGRAM}.properties
                 echo "" >> ${C_HOME}${PROGRAM}.properties 
             fi
+            
+            openInTabs=$(grep 'open_in_tabs'  ${C_HOME}${PROGRAM}.properties  | tail -n 1 | cut -d "=" -f2 ) 2>>$LOG_FILE
+            if [ "${openInTabs}" = "" ]; then           
+                    # Set OSCAR to open in tabs
+                echo "Set OSCAR to open in tabs options"  >>$LOG_FILE 
+                echo "# Open in Tabs Options:" >> ${C_HOME}${PROGRAM}.properties
+                echo "# false > traditional popups system wide" >> ${C_HOME}${PROGRAM}.properties
+                echo "# true > Open In Tabs Feature system wide" >> ${C_HOME}${PROGRAM}.properties
+                echo "# optional > Allow each provider to set" >> ${C_HOME}${PROGRAM}.properties
+                echo "open_in_tabs=optional" >> ${C_HOME}${PROGRAM}.properties
+                echo "" >> ${C_HOME}${PROGRAM}.properties 
+            fi
+
+            contacts=$(grep 'NEW_CONTACTS_UI'  ${C_HOME}${PROGRAM}.properties  | tail -n 1 | cut -d "=" -f2 ) 2>>$LOG_FILE
+            if [ "${contacts}" = "" ]; then
+                echo "The contacts have a new UI so lets enable"  >>$LOG_FILE 
+                echo "#enable to have better demographic relationship support. acceptable values are true and false" >> ${C_HOME}${PROGRAM}.properties
+                echo "NEW_CONTACTS_UI=true" >> ${C_HOME}${PROGRAM}.properties
+                echo "# true: Professional contacts added in either Manage Contacts or Health Care team will show up in BOTH modules" >> ${C_HOME}${PROGRAM}.properties
+                echo "#       This is the default value to maintain existing functionality" >> ${C_HOME}${PROGRAM}.properties
+                echo "# false: Manage Contacts and Health Care Team act independently" >> ${C_HOME}${PROGRAM}.properties
+                echo "NEW_CONTACTS_UI_HEALTH_CARE_TEAM_LINKED=true" >> ${C_HOME}${PROGRAM}.properties
+                echo "NEW_CONTACTS_UI_EXTERNAL_CONTACT=true" >> ${C_HOME}${PROGRAM}.properties
+                echo "" >> ${C_HOME}${PROGRAM}.properties 
+            fi
+                    
+            hct=$(grep 'DEMOGRAPHIC_PATIENT_HEALTH_CARE_TEAM'  ${C_HOME}${PROGRAM}.properties  | tail -n 1 | cut -d "=" -f2 ) 2>>$LOG_FILE
+            if [ "${hct}" = "" ]; then
+                echo "Turning off Demographic Patient Health Care Team"  >>$LOG_FILE 
+                echo "#enable to have fuller health care team documentation. acceptable values are true and false" >> ${C_HOME}${PROGRAM}.properties
+                echo "DEMOGRAPHIC_PATIENT_HEALTH_CARE_TEAM=false" >> ${C_HOME}${PROGRAM}.properties
+                echo "" >> ${C_HOME}${PROGRAM}.properties 
+            fi
+                  
+            mysql_d=$(grep 'db_driver'  ${C_HOME}${PROGRAM}.properties  | tail -n 1 | cut -d "=" -f2 ) 2>>$LOG_FILE
+            if [ "${mysql_d##*( )}" = "com.mysql.jdbc.Driver" ]; then
+                echo "Switching to new jdbc driver"  >>$LOG_FILE 
+                echo "#Reference version 8 of the mysql jdbc Driver" >> ${C_HOME}${PROGRAM}.properties
+                echo "db_driver = com.mysql.cj.jdbc.Driver" >> ${C_HOME}${PROGRAM}.properties
+                echo "" >> ${C_HOME}${PROGRAM}.properties 
+            fi                 
 
             help=$(grep 'HELP_SEARCH_URL'  ${C_HOME}${PROGRAM}.properties  | tail -n 1 | cut -d "=" -f2 ) 2>>$LOG_FILE
-            if [ "${help}" != "https://worldoscar.org/?s=%s" ]; then
+            if [ "${help}" != "https://worldoscar.org/?s" ]; then
                 echo "update help url to worldoscar.org"  >>$LOG_FILE 
                 echo "HELP_SEARCH_URL=https://worldoscar.org/?s=%s" >> ${C_HOME}${PROGRAM}.properties
                 echo "resource_base_url=https://worldoscar.org" >> ${C_HOME}${PROGRAM}.properties
@@ -873,7 +972,7 @@ if [ "${UPGRADE}" = "true" ] ; then
 	fi
 
 	echo "save a copy of the previous properties file"  >>$LOG_FILE
-	if [ -f /usr/share/${TOMCAT}/Oscar${PREVIOUS}.properties ] ; then
+	if [ -f "/usr/share/${TOMCAT}/Oscar${PREVIOUS}.properties" ] ; then
 		echo Oscar${PREVIOUS}.properties found 1>> $LOG_FILE
 		cp /usr/share/${TOMCAT}/Oscar${PREVIOUS}.properties ${PROGRAM}.tmp
 		skip12=true
@@ -1114,6 +1213,7 @@ if [ "${skip121}" = "false" ] ; then
 	echo tickler_email_from_address=${tickler_email_from_address}>> ${PROGRAM}.tmp 2>>$LOG_FILE
 	echo tickler_email_subject=${tickler_email_subject}>> ${PROGRAM}.tmp 2>>$LOG_FILE
 	echo "# Fax related">> ${PROGRAM}.tmp 2>>$LOG_FILE
+	echo fax_file_location=/usr/share/oscar-emr/OscarDocument/fax/>> ${PROGRAM}.tmp 2>>$LOG_FILE	
 	echo enableFax=${enableFax}>> ${PROGRAM}.tmp 2>>$LOG_FILE
 	echo faxEnable=${faxEnable}>> ${PROGRAM}.tmp 2>>$LOG_FILE
 	echo rx_fax_enabled=${rx_fax_enabled}>> ${PROGRAM}.tmp 2>>$LOG_FILE
@@ -1123,6 +1223,8 @@ if [ "${skip121}" = "false" ] ; then
 	echo eform_fax_enabled=${eform_fax_enabled}>> ${PROGRAM}.tmp 2>>$LOG_FILE
 	echo eform_generator_indivica_fax_enabled=${eform_generator_indivica_fax_enabled}>> ${PROGRAM}.tmp 2>>$LOG_FILE
 	echo consultation_dynamic_labelling_enabled=${consultation_dynamic_labelling_enabled}>> ${PROGRAM}.tmp 2>>$LOG_FILE
+	
+	
 fi
 
 if [ "${eyeform}" = "true" ] ; then
@@ -1353,6 +1455,11 @@ echo "">> ${PROGRAM}.tmp 2>>$LOG_FILE
 echo mandatory_password_reset=${mandatory_password_reset}>> ${PROGRAM}.tmp 2>>$LOG_FILE
 echo "">> ${PROGRAM}.tmp 2>>$LOG_FILE
 
+
+echo "#MY_DRUGREF_URL=http://know2act.org/backend/api" >> ${PROGRAM}.tmp 2>>$LOG_FILE
+echo "#leave blank if not useing mydrugref or Know 2 Act" >> ${PROGRAM}.tmp 2>>$LOG_FILE
+echo "MY_DRUGREF_URL=" >> ${PROGRAM}.tmp 2>>$LOG_FILE
+
 echo "CBI"  >>$LOG_FILE
 echo "### CBI data submission : start ###" >> ${PROGRAM}.tmp 2>>$LOG_FILE
 echo "#to start the scheduler for data submission uncomment this" >> ${PROGRAM}.tmp 2>>$LOG_FILE
@@ -1432,16 +1539,30 @@ mv ${PROGRAM}.tmp ${C_HOME}${PROGRAM}.properties 2>>$LOG_FILE
 rm -f ${PROGRAM}.tmp
 echo  ${C_HOME}${PROGRAM}.properties created >>$LOG_FILE
 
-# some look for /var/lib/tomcat8/oscar.properties but we are using /usr/share/tomcat8
-# so create a symlink for that in C_BASE, overwrite if necessary
-ln -sf ${C_HOME}/${PROGRAM}.properties ${C_BASE}/${PROGRAM}.properties
-chown -R ${TOMCAT_USER}:${TOMCAT_USER} ${C_BASE}${PROGRAM}.properties 2>>$LOG_FILE
-
 echo "the oscar properties file contains a plaintext password..." >>$LOG_FILE
 echo "so let only tomcat read it" >>$LOG_FILE
 chown -R ${TOMCAT_USER}:${TOMCAT_USER} ${C_HOME}${PROGRAM}.properties 2>>$LOG_FILE
 chmod 640 ${C_HOME}${PROGRAM}.properties 2>>$LOG_FILE
 
+
+
+    if [ -f /usr/share/tomcat8/bin/version.sh ] ; then
+        # some look for /var/lib/tomcat8/oscar.properties but we are using /usr/share/tomcat8
+        # so create a symlink for that in C_BASE, overwrite if necessary
+        ln -sf ${C_HOME}${PROGRAM}.properties ${C_BASE}${PROGRAM}.properties
+        chown -R ${TOMCAT_USER}:${TOMCAT_USER} ${C_BASE}${PROGRAM}.properties 2>>$LOG_FILE
+    fi
+    if [ -f /usr/share/tomcat9/bin/version.sh ] ; then
+        # -e tests for existance of the file or linked file, -L tests for existance of the Link broken or not
+        if [ ! -e /var/lib/tomcat ] ; then
+            ln -s /var/lib/tomcat9 /var/lib/tomcat 2>>$LOG_FILE
+            # some look for /var/lib/tomcat/oscar.properties but we are using /usr/share/tomcat8
+            # so create a symlink for that, overwrite if necessary
+            if [ ! -e "/var/lib/tomcat/${PROGRAM}.properties" ] ; then
+                ln -sf ${C_HOME}${PROGRAM}.properties /var/lib/tomcat/${PROGRAM}.properties 2>>$LOG_FILE
+            fi
+        fi
+    fi
 
 echo "configure crontab" >>$LOG_FILE
 
@@ -1496,3 +1617,9 @@ fi
 echo "install new cron file" >>$LOG_FILE
 crontab c.temp 2>>$LOG_FILE
 rm c.temp 2>>$LOG_FILE
+
+
+
+
+
+

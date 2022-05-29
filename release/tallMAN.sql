@@ -1,5 +1,5 @@
--- Copyright P Hutten-Czapski 2016-2017 released under GPL v2+
--- v 1.2
+-- Copyright P Hutten-Czapski 2016-2021 released under GPL v2+
+-- v 1.3
 -- this script changes all prexisting OSCAR Rx into TALLman format
 -- by altering both the special and the BN brand name columns to match
 -- and cleans out generic company prefixes
@@ -116,20 +116,23 @@ UPDATE `drugs` SET `BN` = REPLACE(`BN`, '.0 ' , ' ') WHERE `BN` LIKE '%.0 %';
 UPDATE `drugs` SET `BN` = REPLACE(`BN`, '.0MG' , 'MG') WHERE `BN` LIKE '%.0MG%';
 UPDATE `drugs` SET `BN` = REPLACE(`BN`, '.0MCG' , 'MCG') WHERE `BN` LIKE '%.0MCG%';
 UPDATE `drugs` SET `BN` = REPLACE(`BN`, '?' , 'MC') WHERE `BN` LIKE '%?%';
-UPDATE `drugs` SET `BN` = REPLACE(`BN`, '�' , 'MC') WHERE `BN` LIKE '%�%';
-UPDATE `drugs` SET `BN` = REPLACE(`BN`, 'µG' , 'MCG') WHERE `BN` LIKE '%µG%';
+UPDATE `drugs` SET `BN` = REPLACE(`BN`, 'ï¿½' , 'MC') WHERE `BN` LIKE '%ï¿½%';
+UPDATE `drugs` SET `BN` = REPLACE(`BN`, 'ÂµG' , 'MCG') WHERE `BN` LIKE '%ÂµG%';
 
 
 UPDATE `drugs` SET `GN` = REPLACE(`GN`, ' .' , ' 0.') WHERE `GN` LIKE '% .%';
 UPDATE `drugs` SET `GN` = REPLACE(`GN`, '.0 ' , ' ') WHERE `GN` LIKE '%.0 %';
 UPDATE `drugs` SET `GN` = REPLACE(`GN`, '.0MG' , 'MG') WHERE `GN` LIKE '%.0MG%';
-UPDATE `drugs` SET `GN` = REPLACE(`GN`, 'µG' , 'MCG') WHERE `GN` LIKE '%µG%';
+UPDATE `drugs` SET `GN` = REPLACE(`GN`, 'ÂµG' , 'MCG') WHERE `GN` LIKE '%ÂµG%';
 UPDATE `drugs` SET `GN` = REPLACE(`GN`, '.0MCG' , 'MCG') WHERE `GN` LIKE '%.0MCG%';
 
 UPDATE `drugs` SET `BN` = REPLACE(`BN`, 'ABBOTT-' , '') WHERE `BN` LIKE 'ABBOTT-%';
 UPDATE `drugs` SET `BN` = REPLACE(`BN`, 'ACCEL-' , '') WHERE `BN` LIKE 'ACCEL-%';
+UPDATE `drugs` SET `BN` = REPLACE(`BN`, 'ACH-' , '') WHERE `BN` LIKE 'ACH-%';
 UPDATE `drugs` SET `BN` = REPLACE(`BN`, 'ACT ' , '') WHERE `BN` LIKE 'ACT %';
 UPDATE `drugs` SET `BN` = REPLACE(`BN`, 'ACT-' , '') WHERE `BN` LIKE 'ACT-%';
+UPDATE `drugs` SET `BN` = REPLACE(`BN`, 'ACTI-' , '') WHERE `BN` LIKE 'ACTI-%';
+UPDATE `drugs` SET `BN` = REPLACE(`BN`, 'AG-' , '') WHERE `BN` LIKE 'AG-%';
 UPDATE `drugs` SET `BN` = REPLACE(`BN`, 'ALTI-' , '') WHERE `BN` LIKE 'ALTI-%';
 UPDATE `drugs` SET `BN` = REPLACE(`BN`, 'AMI-' , '') WHERE `BN` LIKE 'AMI-%';
 UPDATE `drugs` SET `BN` = REPLACE(`BN`, 'APO ' , '') WHERE `BN` LIKE 'APO %';
@@ -152,6 +155,7 @@ UPDATE `drugs` SET `BN` = REPLACE(`BN`, 'JAMP-' , '') WHERE `BN` LIKE 'JAMP-%';
 UPDATE `drugs` SET `BN` = REPLACE(`BN`, 'KYE-' , '') WHERE `BN` LIKE 'KYE-%';
 UPDATE `drugs` SET `BN` = REPLACE(`BN`, 'LIN-' , '') WHERE `BN` LIKE 'LIN-%';
 UPDATE `drugs` SET `BN` = REPLACE(`BN`, 'MANDA-' , '') WHERE `BN` LIKE 'MANDA-%';
+UPDATE `drugs` SET `BN` = REPLACE(`BN`, 'M-' , '') WHERE `BN` LIKE 'M-%';
 UPDATE `drugs` SET `BN` = REPLACE(`BN`, 'MAR-' , '') WHERE `BN` LIKE 'MAR-%';
 UPDATE `drugs` SET `BN` = REPLACE(`BN`, 'MED ' , '') WHERE `BN` LIKE 'MED %';
 UPDATE `drugs` SET `BN` = REPLACE(`BN`, 'MED-' , '') WHERE `BN` LIKE 'MED-%';
@@ -160,6 +164,7 @@ UPDATE `drugs` SET `BN` = REPLACE(`BN`, 'MYL-' , '') WHERE `BN` LIKE 'MYL-%';
 UPDATE `drugs` SET `BN` = REPLACE(`BN`, 'NAT-' , '') WHERE `BN` LIKE 'NAT-%';
 UPDATE `drugs` SET `BN` = REPLACE(`BN`, 'NG-' , '') WHERE `BN` LIKE 'NG-%';
 UPDATE `drugs` SET `BN` = REPLACE(`BN`, 'NOVO-' , '') WHERE `BN` LIKE 'NOVO-%';
+UPDATE `drugs` SET `BN` = REPLACE(`BN`, 'NRA-' , '') WHERE `BN` LIKE 'NRA-%';
 UPDATE `drugs` SET `BN` = REPLACE(`BN`, 'NTP-' , '') WHERE `BN` LIKE 'NTP-%';
 UPDATE `drugs` SET `BN` = REPLACE(`BN`, 'NU-' , '') WHERE `BN` LIKE 'NU-%';
 UPDATE `drugs` SET `BN` = REPLACE(`BN`, 'PENTA-' , '') WHERE `BN` LIKE 'PENTA-%';
@@ -196,8 +201,8 @@ UPDATE `drugs` SET `special` = REPLACE(`special` , '.0', ' ' ) WHERE `special` L
 UPDATE `drugs` SET `special` = REPLACE(`special`, '.0MG' , 'MG') WHERE `special` LIKE '%.0MG%';
 UPDATE `drugs` SET `special` = REPLACE(`special`, '.00MG' , 'MG') WHERE `special` LIKE '%.00MG%';
 UPDATE `drugs` SET `special` = REPLACE(`special`, '?' , 'MC') WHERE `special` LIKE '%?%';
-UPDATE `drugs` SET `special` = REPLACE(`special`, '�' , 'MC') WHERE `special` LIKE '%�%';
-UPDATE `drugs` SET `special` = REPLACE(`special`, 'µG' , 'MCG') WHERE `special` LIKE '%µG%';
+UPDATE `drugs` SET `special` = REPLACE(`special`, 'ï¿½' , 'MC') WHERE `special` LIKE '%ï¿½%';
+UPDATE `drugs` SET `special` = REPLACE(`special`, 'ÂµG' , 'MCG') WHERE `special` LIKE '%ÂµG%';
 
 UPDATE `drugs` SET `special` = REPLACE(`special`, 'ABBOTT-' , '') WHERE `special` LIKE 'ABBOTT-%';
 UPDATE `drugs` SET `special` = REPLACE(`special`, 'ACCEL-' , '') WHERE `special` LIKE 'ACCEL-%';
@@ -254,3 +259,4 @@ UPDATE `drugs` SET `special` = REPLACE(`special`, 'TEVA-' , '') WHERE `special` 
 UPDATE `drugs` SET `special` = REPLACE(`special`, 'VAL-' , '') WHERE `special` LIKE 'VAL-%';
 UPDATE `drugs` SET `special` = REPLACE(`special`, 'VAN-' , '') WHERE `special` LIKE 'VAN-%';
 UPDATE `drugs` SET `special` = REPLACE(`special`, 'ZYM-' , '') WHERE `special` LIKE 'ZYM-%';
+

@@ -33,10 +33,11 @@ DELETE FROM `providerLabRouting` WHERE `lab_no`<60;
 DELETE FROM `professionalSpecialists` WHERE `fName`="Sam" AND `lName`="Spade";
 DELETE FROM `serviceSpecialists` WHERE `specId` <2;
 
-DELETE FROM `messagelisttbl` WHERE `messagelisttbl`.`id` = 1;
-DELETE FROM `messagetbl` WHERE `messagetbl`.`messageid` = 1;
+-- DELETE FROM `messagelisttbl` WHERE `messagelisttbl`.`id` = 1;
+-- DELETE FROM `messagetbl` WHERE `messagetbl`.`messageid` = 1;
 
 
 DELETE FROM `drugs` WHERE `drugid`=1;
 DELETE FROM `preventions` WHERE demographic_no IN (@id, @id2);
 DELETE FROM `client_image` WHERE demographic_no IN (@id, @id2);
+

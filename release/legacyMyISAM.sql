@@ -1,4 +1,8 @@
 --
+-- Legacy MyISAM structures v 1.00
+--
+
+--
 -- Table structure for table `formONAREnhanced`
 --
 

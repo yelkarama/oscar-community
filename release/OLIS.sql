@@ -1,5 +1,30 @@
 -- OLIS init --
 
+CREATE TABLE IF NOT EXISTS `OLISResults` (
+    id int(11) auto_increment,
+    requestingHICProviderNo varchar(30),
+    providerNo varchar(30),
+    queryType varchar(20),
+    results text,
+    hash varchar(255),
+    status varchar(10),
+    uuid varchar(255),
+    query varchar(255),
+    demographicNo integer,
+    queryUuid varchar(255),
+    PRIMARY KEY(id)
+);
+CREATE TABLE IF NOT EXISTS `OLISQueryLog` (
+    id int(11) auto_increment,
+    initiatingProviderNo varchar(30),
+    queryType varchar(20),
+    queryExecutionDate datetime,
+    uuid varchar(255),
+    requestingHIC varchar(30),
+    demographicNo integer,
+    PRIMARY KEY(id)
+);
+
 -- --------------------------------------------------------
 
 --
@@ -44680,6 +44705,7 @@ INSERT IGNORE INTO `OLISResultNomenclature` (`id`, `nameId`, `name`) VALUES
 CREATE TABLE IF NOT EXISTS  OLISProviderPreferences (
      providerId  VARCHAR(10),
      startTime VARCHAR(20),
+     lastRun datetime,
          PRIMARY KEY(providerId));
 CREATE TABLE IF NOT EXISTS  OLISSystemPreferences (
      id INT NOT NULL AUTO_INCREMENT,
