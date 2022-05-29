@@ -710,8 +710,10 @@ function toggleView(form) {
                             <td><span><input type=button value="Fax & Paste into EMR"
                                     class="ControlPushButton" id="faxButton" style="width: 155px"
                                     onClick="sendFax();printPaste2Parent(false);clearPending('close');parent.window.close();" disabled/></span> 
-                                 <span>&nbsp;&nbsp;&nbsp;
-                                 	<select id="faxNumber" name="faxNumber">
+		        	    <span>&nbsp;&nbsp;&nbsp;
+                                           <select id="faxNumber" name="faxNumber" <% if (faxConfigs.size() == 1) {
+                                                   // hide the picklist of fax gateways if only exists
+                                                  %> hidden <%}%>>
                                  	<%
                                  		for( FaxConfig faxConfig : faxConfigs ) {
                                  	%>
