@@ -1,8 +1,8 @@
 if (typeof jQuery == "undefined") { alert("The faxControl library requires jQuery. Please ensure that it is loaded first"); }
 
 var faxControlPlaceholder = "<br/>Fax Recipients:<br/><div id='faxForm'>Loading fax options..</div>";
-var faxControlFaxButton     = "<span>&nbsp;</span><input value='Fax' name='FaxButton' id='fax_button' disabled type='button' onclick='submitFaxButtonAjax(false)'>";
-var faxControlFaxSaveButton = "<span>&nbsp;</span><input value='Submit & Fax' name='FaxSaveButton' id='faxSave_button' disabled type='button' onclick='submitFaxButtonAjax(true)'>";
+var faxControlFaxButton     = "<span>&nbsp;</span><input value='Fax' name='FaxButton' id='fax_button' disabled type='button' onclick='paste2Note();submitFaxButtonAjax(false)'>";
+var faxControlFaxSaveButton = "<span>&nbsp;</span><input value='Submit & Fax' name='FaxSaveButton' id='faxSave_button' disabled type='button' onclick='paste2Note();submitFaxButtonAjax(true)'>";
 var faxControlMemoryInput = "<input value='false' name='faxEForm' id='faxEForm' type='hidden' />";	
 var faxControl = {
 	initialize: function () {
@@ -64,6 +64,63 @@ var faxControl = {
 jQuery(document).ready(function() {
 	faxControl.initialize();
 });
+
+
+function paste2Note(){
+	//try{
+                //if(pasteFaxNote == 0)
+                //        return;
+                var demoNo = getSearchValue("demographic_no");
+                if (demoNo == "") { demoNo = getSearchValue("efmdemographic_no", jQuery("form").attr('action')); }
+                var faxName = "";
+                var faxNo = "";
+
+                for(var i = 0;i < $("#faxRecipients li").length;i ++){
+                        var num = 0;
+                        if($("#faxRecipients li")[i].innerHTML.indexOf("<b>,") > 0){
+                                num = $("#faxRecipients li")[i].innerHTML.indexOf("<b>,");
+                                var toName = $("#faxRecipients li")[i].innerHTML.substring(0, num);
+                                var toFaxNo = jQuery("input[name='faxRecipients']")[i].value;
+                                if(toName != toFaxNo){
+                                        if(i == 0){
+                                                faxName = toName;
+                                        }else{
+                                                faxName = faxName + "," + toName;
+                                        }
+                                }
+                        }
+                }
+
+                for(var i = 0;i < jQuery("input[name='faxRecipients']").length;i ++){
+                        if(i == 0){
+                                faxNo = jQuery("input[name='faxRecipients']")[i].value;
+                        }else{
+                                faxNo = faxNo + ", " + jQuery("input[name='faxRecipients']")[i].value;
+                        }
+                }
+                var text ="[Faxed eform " + setEformName + " to " + faxName.trim() + " Fax#: " + faxNo + " by " + setProviderName + ", " + currentTimeStamp + "]"+"\n";
+                var noteEditor = "noteEditor"+demoNo;
+		alert(text); 
+
+                if( window.parent.opener.document.forms["caseManagementEntryForm"] != undefined ) {
+                window.parent.opener.pasteToEncounterNote(text);
+              }else if( window.parent.opener.document.encForm != undefined ){
+                window.parent.opener.document.encForm.enTextarea.value = window.parent.opener.document.encForm.enTextarea.value + text;
+              }else if( window.parent.opener.document.getElementById(noteEditor) != undefined ){
+                window.parent.opener.document.getElementById(noteEditor).value = window.parent.opener.document.getElementById(noteEditor).value + text;
+              }else if(window.parent.opener.parent.opener.document.forms["caseManagementEntryForm"] != undefined){
+                  window.parent.opener.parent.opener.pasteToEncounterNote(text);
+              }else if( window.parent.opener.parent.opener.document.encForm != undefined ){
+                window.parent.opener.parent.opener.document.encForm.enTextarea.value = window.parent.opener.parent.opener.document.encForm.enTextarea.value + text;
+              }else if( window.parent.opener.parent.opener.document.getElementById(noteEditor) != undefined ){
+                window.parent.opener.parent.opener.document.getElementById(noteEditor).value = window.parent.opener.parent.opener.document.getElementById(noteEditor).value + text;
+              }
+        //}catch (e){
+        //      alert ("ERROR: could not paste to EMR");
+        //}
+}
+
+
 
 
 function getSearchValue(name, url)
