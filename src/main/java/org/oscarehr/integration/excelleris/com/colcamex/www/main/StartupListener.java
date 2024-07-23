@@ -52,7 +52,7 @@ import oscar.OscarProperties;
  */
 public class StartupListener implements ServletContextListener {
 
-	public static Logger logger = org.oscarehr.util.MiscUtils.getLogger("ExpediusStartupListener");
+	public static Logger logger = org.oscarehr.util.MiscUtils.getLogger();
 	private static Properties properties;
 	private static final String keyFilePath = "./keys.txt";
 	
