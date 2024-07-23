@@ -52,7 +52,7 @@ import oscar.OscarProperties;
  */
 public class StartupListener implements ServletContextListener {
 
-	public static Logger logger = org.oscarehr.util.MiscUtils.getLogger();
+	public static Logger logger = org.oscarehr.util.MiscUtils.getLogger("ExpediusStartupListener");
 	private static Properties properties;
 	private static final String keyFilePath = "./keys.txt";
 	
@@ -73,6 +73,7 @@ public class StartupListener implements ServletContextListener {
 		ControllerHandler controllerHandler = null;
 		
 		if( properties != null && Boolean.parseBoolean( properties.getProperty("EXCELLERIS") )) {
+			logger.info("Starting EXCELLERIS listener");
 			controllerHandler = ControllerHandler.getInstance(properties);
 		} else {
 			logger.error("Failed to start autodownloader. Is EXCELLERIS set to true? Is Oscar Properties accessable?");
