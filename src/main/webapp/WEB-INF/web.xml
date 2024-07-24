@@ -225,6 +225,10 @@
 	<listener>
 		<listener-class>org.oscarehr.web.OscarSessionListener</listener-class>
 	</listener>
+	<listener>
+		<listener-class>org.oscarehr.integration.excelleris.com.colcamex.www.main.StartupListener</listener-class>
+	</listener>
+	
 
 	<!-- CXF -->
 	<servlet>
