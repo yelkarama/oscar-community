@@ -39,7 +39,9 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.xml.transform.TransformerException;
-import org.apache.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Level;
 import org.oscarehr.integration.excelleris.com.colcamex.www.main.*;
 import org.oscarehr.integration.excelleris.com.colcamex.www.security.SSLSocket;
 import org.w3c.dom.Document;
@@ -57,7 +59,7 @@ import org.w3c.dom.Document;
  */
 public abstract class AbstractConnectionController implements Runnable {
 
-	protected static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger("ExpediusConnectionController");
+	protected static Logger logger = LogManager.getLogger("ExpediusConnectionController");
 	protected static Logger customLogger = null;
 	
 	public static final int DOWNLOAD_MODE = 1;
