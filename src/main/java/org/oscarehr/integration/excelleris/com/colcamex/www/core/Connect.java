@@ -23,6 +23,7 @@
  */
 package org.oscarehr.integration.excelleris.com.colcamex.www.core;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -554,39 +555,58 @@ public class Connect {
 		this.loggedIn = loggedIn;
 	}
 
-	/**
+ 	/**
 	 * Execute get and post commands to the server
 	 * Returns an input stream.
-	 * @param query
+	 * @param  httpsUri URL that contains parameters in a GET pattern https://<base>?parameter=value&parameter2=value2
 	 * @return
-	 * @throws IOException
+	 * @throws MalformedURLException
 	 */
-	private InputStream execute(URL httpsUri) throws IOException {
+	private InputStream execute(URL httpsUri) throws MalformedURLException {
 
 		if(httpsUri != null) {
-
-			sconn = (HttpsURLConnection) httpsUri.openConnection();
-			sconn.setConnectTimeout(5000);
-			sconn.setReadTimeout(10000);
-			sconn.setRequestMethod("GET");
-			//sconn.setDoOutput(false);
-			sconn.setDoInput(true);
-			
-			if(getSocketFactory() != null) {
-				sconn.setSSLSocketFactory(this.getSocketFactory());
-			}
-			
-			sconn.connect();
-
-			setResponseCode(sconn.getResponseCode());
-			
-			if(getResponseCode() == HttpsURLConnection.HTTP_OK) {
-				return sconn.getInputStream();
-			}				
+			String str = httpsUri.toString(); 
+			String urlParameters = "";
+			int s = str.indexOf('?');
+			if (s > -1) {  
+				urlParameters = str.substring(s + 1);
+				httpsUri = new URL(str.substring(0 , s);
+			}  
+			return executePostRequest(httpsUri, urlParameters);		
 		}
 			
 		return null;		
 	}
+	
+    /**
+     * Make post request for given URL with given parameters and save response into RESPONSE_FILE_LOCATION
+     *
+     * @param httpsUri   URL to send POST request
+     * @param urlParameters String of URL encoded POST request parameters. 
+     * @return
+     * @throws IOException
+     */
+        private InputStream executePostRequest(URL httpsUri, String urlParameters) throws IOException {
+                if(httpsUri != null) {
+                        sconn = (HttpsURLConnection) httpsUri.openConnection();
+                        sconn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.2; OSCAR19; 1.0) Gecko/20100101 Firefox/32.0");
+                        sconn.setConnectTimeout(5000);
+                        sconn.setReadTimeout(10000);
+		        sconn.setRequestMethod("POST");
+		        //sconn.setDoOutput(false);
+		        sconn.setDoInput(true);
+		        DataOutputStream wr = new DataOutputStream(sconn.getOutputStream());
+                wr.writeBytes(urlParameters);
+                wr.flush();
+                wr.close();
+         		sconn.connect();
+                setResponseCode(sconn.getResponseCode());
+		        if(getResponseCode() == HttpsURLConnection.HTTP_OK) {
+                                return sconn.getInputStream();
+		        }				
+	        }
+	        return null;		       
+        }
 
 	public W3CDocumentHandler getDocumentHandler() {
 		return documentHandler;
