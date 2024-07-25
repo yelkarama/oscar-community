@@ -561,8 +561,9 @@ public class Connect {
 	 * @param  httpsUri URL that contains parameters in a GET pattern https://<base>?parameter=value&parameter2=value2
 	 * @return
 	 * @throws MalformedURLException
+     * @throws IOException
 	 */
-	private InputStream execute(URL httpsUri) throws MalformedURLException {
+	private InputStream execute(URL httpsUri) throws MalformedURLException, IOException {
 
 		if(httpsUri != null) {
 			String str = httpsUri.toString(); 
