@@ -570,7 +570,7 @@ public class Connect {
 			int s = str.indexOf('?');
 			if (s > -1) {  
 				urlParameters = str.substring(s + 1);
-				httpsUri = new URL(str.substring(0 , s);
+				httpsUri = new URL(str.substring(0 , s));
 			}  
 			return executePostRequest(httpsUri, urlParameters);		
 		}
