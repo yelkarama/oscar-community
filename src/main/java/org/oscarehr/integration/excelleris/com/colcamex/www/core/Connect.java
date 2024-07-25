@@ -586,27 +586,31 @@ public class Connect {
      * @return
      * @throws IOException
      */
-        private InputStream executePostRequest(URL httpsUri, String urlParameters) throws IOException {
-                if(httpsUri != null) {
-                        sconn = (HttpsURLConnection) httpsUri.openConnection();
-                        sconn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.2; OSCAR19; 1.0) Gecko/20100101 Firefox/32.0");
-                        sconn.setConnectTimeout(5000);
-                        sconn.setReadTimeout(10000);
-		        sconn.setRequestMethod("POST");
-		        //sconn.setDoOutput(false);
-		        sconn.setDoInput(true);
-		        DataOutputStream wr = new DataOutputStream(sconn.getOutputStream());
-                wr.writeBytes(urlParameters);
-                wr.flush();
-                wr.close();
-         		sconn.connect();
-                setResponseCode(sconn.getResponseCode());
-		        if(getResponseCode() == HttpsURLConnection.HTTP_OK) {
-                                return sconn.getInputStream();
-		        }				
-	        }
-	        return null;		       
-        }
+	private InputStream executePostRequest(URL httpsUri, String urlParameters) throws IOException {
+
+		if(httpsUri != null) {
+			sconn = (HttpsURLConnection) httpsUri.openConnection();
+			sconn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.2; OSCAR19; 1.0) Gecko/20100101 Firefox/32.0");
+			sconn.setConnectTimeout(5000);
+			sconn.setReadTimeout(10000);
+			sconn.setRequestMethod("POST");
+			//sconn.setDoOutput(false);
+			sconn.setDoInput(true);
+			DataOutputStream wr = new DataOutputStream(sconn.getOutputStream());
+			wr.writeBytes(urlParameters);
+			wr.flush();
+			wr.close();
+			if(getSocketFactory() != null) {
+				sconn.setSSLSocketFactory(this.getSocketFactory());
+			}
+			sconn.connect();
+			setResponseCode(sconn.getResponseCode());
+			if(getResponseCode() == HttpsURLConnection.HTTP_OK) {
+				return sconn.getInputStream();
+			}				
+		}
+		return null;		       
+	}
 
 	public W3CDocumentHandler getDocumentHandler() {
 		return documentHandler;
