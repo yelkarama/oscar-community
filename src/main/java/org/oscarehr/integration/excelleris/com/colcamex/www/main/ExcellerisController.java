@@ -44,7 +44,7 @@ import org.w3c.dom.Node;
  */
 public class ExcellerisController extends AbstractConnectionController {
 
-	private static final String DEFAULT_EXCELLERIS_LAB_TYPE = "PATHHL7";
+	private static final String DEFAULT_EXCELLERIS_LAB_TYPE = "PATHL7";
 	//private static final String NODE_AUTHENTICATED = "authentication";
 	private static final String ACK_RETURN_CODE = "0";
 	private static final String RESPONSE_ACCESSGRANTED = "accessgranted";
