@@ -63,7 +63,7 @@ public class HL7LabHandler {
 
 	public static Logger logger = org.oscarehr.util.MiscUtils.getLogger();
 	
-	private static final String DEFAULT_SAVE_PATH = "/var/lib/expedius/labs/";
+	private static final String DEFAULT_SAVE_PATH = "/usr/share/oscar-emr/OscarDocument/excelleris/labs/";
 	private static final String DOCUMENT_FORMAT = "UTF-8";
 	public static final int HTTP_WEBSERVICE_ERROR = 100;
 	public static final int OK = HttpsURLConnection.HTTP_OK;
@@ -206,7 +206,7 @@ public class HL7LabHandler {
 		
 		if( (savePath == null) || (savePath.equals(" ")) ) {
 			
-			if( ! confirmDirectory(DEFAULT_SAVE_PATH, null) ) {				
+			if( ! confirmDirectory(DEFAULT_SAVE_PATH, null) ) {	
 				createDirectory(DEFAULT_SAVE_PATH);				
 			}
 			
@@ -219,7 +219,7 @@ public class HL7LabHandler {
 			}
 			
 			
-			if( ! confirmDirectory(savePath, null) ) {			
+			if( ! confirmDirectory(savePath, null) ) {
 				createDirectory(savePath);
 			}
 				
