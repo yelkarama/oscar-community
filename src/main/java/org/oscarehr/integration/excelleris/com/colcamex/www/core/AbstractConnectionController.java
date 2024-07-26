@@ -105,9 +105,9 @@ public abstract class AbstractConnectionController implements Runnable {
     public AbstractConnectionController(Properties properties, ExcellerisConfigurationBean configurationBean) {
     	
     	// contains dynamic properties
-    	if(configurationBean != null) {
-    		setConfigurationBean(configurationBean);
-    	}
+    	//if(configurationBean != null) {
+    	//	setConfigurationBean(configurationBean);
+    	//}
     	
     	// contains static properties
     	if(properties != null) {
@@ -134,7 +134,6 @@ public abstract class AbstractConnectionController implements Runnable {
 					KEYSTORE_URL));
         } 
     	
-    	//_init(); no dynamic variables needed to set
 		
 		Boolean errorFlag = false;
 
@@ -193,22 +192,23 @@ public abstract class AbstractConnectionController implements Runnable {
 			logger.error("Missing configuration parameters, correct properties file and restart OSCAR.");
 			return;		
 		}
+    	_init(); 
     }
     
     /**
-     * Initialize connection parameters from configuration bean.
+     * Initialize send configuration to bean to allow for use elsewhere.
      */
 	protected void _init() {
 		
 		if(configurationBean != null) {
-			
-			USER = configurationBean.getUserName();
-			PASS = configurationBean.getPassword();		
-			URI = configurationBean.getServicePath();
-			LOGIN = configurationBean.getLoginPath();	
-			FETCH = configurationBean.getFetchPath();
-			ACKNOWLEDGE = configurationBean.getAcknowledgePath();
-			LOGOUT = configurationBean.getLogoutPath();    	
+				
+			configurationBean.setUserName(USER);
+			configurationBean.setPassword(PASS);		
+			configurationBean.setServicePath(URI);
+			configurationBean.setLoginPath(LOGIN);	
+			configurationBean.setFetchPath(FETCH);
+			configurationBean.setAcknowledgePath(ACKNOWLEDGE);
+			configurationBean.setLogoutPath(LOGOUT);
 
 		} else {
 			logger.error("Missing configuration information.");
