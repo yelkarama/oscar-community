@@ -101,14 +101,16 @@ public class StartupListener implements ServletContextListener {
     private void _init(Properties properties){ //, String context) {	
 
 		if(properties != null) {
-
+			/*
+			* we will verify only essential keys for others if absent will make provide safe defaults
+			*/
 			try {
 	            verifyProperties(properties);
             } catch (IOException e) {
-            	logger.error("Failed to initialize properties file. Verification failed.");
+            	logger.error("Failed to initialize properties file. Essential property keys are listed in keys.text");
             	StartupListener.properties = null;
             }
-
+			
 			StartupListener.properties = properties;
 			
 		} else {
