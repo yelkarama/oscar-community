@@ -186,7 +186,7 @@ public abstract class AbstractConnectionController implements Runnable {
 			return;		
 		}
     	//_init(); 
-		configurationBean.initialize(URI,FETCH,LOGIN,LOGOUT,ACKNOWLEDGE);
+		//configurationBean.initialize(URI,FETCH,LOGIN,LOGOUT,ACKNOWLEDGE);
 		
 		setSocket(SSLSocket.getInstance(
 					TRUSTSTORE_URL, 
