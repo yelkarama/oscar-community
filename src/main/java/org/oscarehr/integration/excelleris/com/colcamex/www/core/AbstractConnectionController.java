@@ -134,7 +134,7 @@ public abstract class AbstractConnectionController implements Runnable {
 					KEYSTORE_URL));
         } 
     	
-    	_init();
+    	//_init(); no dynamic variables needed to set
 		
 		Boolean errorFlag = false;
 
