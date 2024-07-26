@@ -118,7 +118,12 @@ public abstract class AbstractConnectionController implements Runnable {
 			STORE_PASS = properties.getProperty("STORE_PASS").trim();
 			HTTPS_PROTOCOL = properties.getProperty("HTTPS_PROTOCOL").trim();
 			KEYSTORE_URL = properties.getProperty("KEYSTORE_URL").trim();
-			ACKNOWLEDGE_DOWNLOADS = properties.getProperty("ACKNOWLEDGE_DOWNLOADS").trim();
+			if(!properties.containsKey("ACKNOWLEDGE_DOWNLOADS")) { 
+			        ACKNOWLEDGE_DOWNLOADS = "false";
+			        logger.info("Missing Excelleris ACKNOWLEDGE_DOWNLOADS in properties, setting to development default of false, set to true for production use.");
+			} else {
+			        ACKNOWLEDGE_DOWNLOADS = properties.getProperty("ACKNOWLEDGE_DOWNLOADS").trim();
+			}
 			
 			setSocket(SSLSocket.getInstance(
 					TRUSTSTORE_URL, 
@@ -129,6 +134,64 @@ public abstract class AbstractConnectionController implements Runnable {
         } 
     	
     	_init();
+		
+		Boolean errorFlag = false;
+
+		if(properties.containsKey("EXCELLERIS_USER")) {
+				USER = properties.getProperty("EXCELLERIS_USER").trim();
+		} else {
+				logger.error("Missing EXCELLERIS_USER in properties.");
+				errorFlag = true;
+		}
+		if(properties.containsKey("EXCELLERIS_PASS")) {
+				PASS = properties.getProperty("EXCELLERIS_PASS").trim();
+		} else {
+				logger.error("Missing EXCELLERIS_PASS in properties.");
+				errorFlag = true;
+		}
+		if(properties.containsKey("EXCELLERIS_URI")) {
+				URI = properties.getProperty("EXCELLERIS_URI").trim();
+		} else {
+				if(properties.containsKey("billregion")) {
+						if(properties.getProperty("billregion").trim() == "ON") {
+								URI = "https://api.on.excelleris.com/hl7pull.aspx";
+						}
+						if(properties.getProperty("billregion").trim() == "BC") {
+								URI = "https://api.bc.excelleris.com/hl7pull.aspx";
+						}              
+						logger.info("Missing EXCELLERIS_URI in properties, setting to default of " + URI);
+				} else {
+						logger.error("Missing billregion in properties.");
+						errorFlag = true;       
+				}
+		}
+		if(properties.containsKey("LOGIN_PARAMS")) {
+				LOGIN = URI + "?" + properties.getProperty("LOGIN_PARAMS").trim();
+		} else {
+				LOGIN = URI + "?Page=Login&Mode=Silent&UserID=@username&Password=@password";
+				logger.info("Missing Excelleris LOGIN_PARAMS in properties, setting to default of Page=Login&Mode=Silent&UserID=@username&Password=@password");
+		}
+		if(properties.containsKey("PULLXMLPARAMS")) {
+				FETCH = URI + "?" + properties.getProperty("PULLXMLPARAMS").trim();
+		} else {
+				FETCH = URI + "?Page=HL7&Query=NewRequests&Pending=Yes";
+				logger.info("Missing Excelleris PULLXMLPARAMS in properties, setting to default of Page=HL7&Query=NewRequests&Pending=Yes");
+		}
+		if(ACKNOWLEDGE_DOWNLOADS == "true") {
+				ACKNOWLEDGE = URI + "?Page=HL7&&ACK=Positive";
+		} else {
+				ACKNOWLEDGE = URI + "?Page=HL7&ACK=Negative";
+		}
+		if(properties.containsKey("LOGOUT_PARAMS")) {
+				LOGOUT = URI + "?" + properties.getProperty("LOGOUT_PARAMS").trim();
+		} else {
+				LOGOUT = URI + "?Logout=Yes";
+				logger.info("Missing Excelleris LOGOUT_PARAMS in properties, setting to default of Logout=Yes");
+		}
+		if (errorFlag) {
+			logger.error("Missing configuration parameters, correct properties file and restart OSCAR.");
+			return;		
+		}
     }
     
     /**
