@@ -112,12 +112,14 @@ public class ControllerHandler {
 				providerNumber = properties.getProperty("SERVICE_NUMBER").trim();
 			} else {
 				providerNumber = DEFAULT_PROVIDER;
+				logger.info("Missing SERVICE_NUMBER, set to DEFAULT_PROVIDER");
 			}
 			
 			if(properties.containsKey("SERVICE_NAME")) {
 				serviceName = properties.getProperty("SERVICE_NAME").trim();
 			}else {
 				serviceName = DEFAULT_SERVICE_NAME;
+				logger.info("Missing SERVICE_NAME, set to DEFAULT_SERVICE_NAME");
 			}
 			
 			if(properties.containsKey("HL7_SAVE_PATH")) {
@@ -131,7 +133,7 @@ public class ControllerHandler {
 			if ( StringUtils.isNumeric( frequency ) ){				
 				 setPollFrequency( frequency );				
 			} else {
-				logger.error("Missing poll frequency in properties. Setting to default.");
+				logger.error("Missing PULL_INTERVAL in properties. A default polling frequency will be used.");
 			}
 	
 		} else {
