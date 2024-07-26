@@ -237,7 +237,7 @@ public class HL7LabHandler {
 		
 		File newDirectory = new File(directoryPath);
 		
-		if( newDirectory.mkdir() ) {
+		if( newDirectory.mkdirs() ) {
 			logger.info("New lab save directory created at " + newDirectory.getAbsolutePath());
 		} else {
 			logger.error("Failed to create new save directory:"  + newDirectory);
