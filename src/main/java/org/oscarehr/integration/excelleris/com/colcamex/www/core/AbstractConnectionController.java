@@ -105,9 +105,9 @@ public abstract class AbstractConnectionController implements Runnable {
     public AbstractConnectionController(Properties properties, ExcellerisConfigurationBean configurationBean) {
     	
     	// contains dynamic properties
-    	//if(configurationBean != null) {
-    	//	setConfigurationBean(configurationBean);
-    	//}
+    	if(configurationBean != null) {
+    		setConfigurationBean(configurationBean);
+    	}
     	
     	// contains static properties
     	if(properties != null) {
@@ -126,14 +126,7 @@ public abstract class AbstractConnectionController implements Runnable {
 			        ACKNOWLEDGE_DOWNLOADS = properties.getProperty("ACKNOWLEDGE_DOWNLOADS").trim();
 			}
 			
-			setSocket(SSLSocket.getInstance(
-					TRUSTSTORE_URL, 
-					STORE_TYPE, 
-					STORE_PASS, 
-					HTTPS_PROTOCOL, 
-					KEYSTORE_URL));
-        } 
-    	
+	
 		
 		Boolean errorFlag = false;
 
@@ -192,7 +185,16 @@ public abstract class AbstractConnectionController implements Runnable {
 			logger.error("Missing configuration parameters, correct properties file and restart OSCAR.");
 			return;		
 		}
-    	_init(); 
+    	//_init(); 
+		configurationBean.initialize(URI,REQUEST,LOGIN,LOGOUT,ACKNOWLEDGE);
+		
+		setSocket(SSLSocket.getInstance(
+					TRUSTSTORE_URL, 
+					STORE_TYPE, 
+					STORE_PASS, 
+					HTTPS_PROTOCOL, 
+					KEYSTORE_URL));
+        }
     }
     
     /**
