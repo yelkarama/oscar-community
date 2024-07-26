@@ -41,6 +41,7 @@ import javax.xml.transform.TransformerException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Level;
+import oscar.OscarProperties;
 import org.oscarehr.integration.excelleris.com.colcamex.www.main.*;
 import org.oscarehr.integration.excelleris.com.colcamex.www.security.SSLSocket;
 import org.w3c.dom.Document;
@@ -86,7 +87,7 @@ public abstract class AbstractConnectionController implements Runnable {
     protected HL7LabHandler labHandler;
     protected ExcellerisConfigurationBean configurationBean;
     protected String serviceName;
-    protected Properties properties;
+	protected Properties properties = OscarProperties.getInstance();
     protected MessageHandler messageHandler;
     protected int lastFileCount;
     protected W3CDocumentHandler documentHandler;
