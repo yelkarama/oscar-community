@@ -116,12 +116,12 @@ public class StartupListener implements ServletContextListener {
     
     private Boolean _init(Properties properties, ExcellerisConfigurationBean notABean){ //, String context) {	
 
+		Boolean errorFlag = false;
+		
 		if(properties != null) {
 			
-			//load the oscar.propreties file into ExcellerisConfigurationBean
+			//load the oscar.propreties file into ExcellerisConfigurationBean	
 			
-			Boolean errorFlag = false;
-
 			if(properties.containsKey("EXCELLERIS_USER")) {
 					USER = properties.getProperty("EXCELLERIS_USER").trim();
 			} else {
