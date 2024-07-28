@@ -87,7 +87,7 @@ public class StartupListener implements ServletContextListener {
 		
 		if( properties != null && Boolean.parseBoolean( properties.getProperty("EXCELLERIS") )) {
 			logger.info("Starting EXCELLERIS listener");
-			controllerHandler = ControllerHandler.getInstance(properties);
+			controllerHandler = ControllerHandler.getInstance(properties, notABean);
 		} else {
 			logger.error("Failed to start autodownloader. Is EXCELLERIS set to true? Is Oscar Properties accessable?");
 		}
