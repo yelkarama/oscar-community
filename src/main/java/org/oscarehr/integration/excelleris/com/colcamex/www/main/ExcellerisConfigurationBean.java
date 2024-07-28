@@ -63,14 +63,29 @@ public class ExcellerisConfigurationBean  {
 			String REQUEST,
 			String LOGIN,
 			String LOGOUT,
-			String ACKNOWLEDGE) {
+			String ACKNOWLEDGE,
+			String USER,
+			String PASS,
+			String ACKNOWLEDGE_DOWNLOADS,
+			String TRUSTSTORE_URL,
+			String KEYSTORE_URL,
+			String STORE_PASS,
+			String SERVICE_NAME,
+			String HTTPS_PROTOCOL
+			) {
 		
 		setServicePath(URI);
 		setLoginPath(LOGIN);
 		setLogoutPath(LOGOUT);
 		setFetchPath(REQUEST);
 		setAcknowledgePath(ACKNOWLEDGE);
-		
+		setUserName(USER);
+		setPassword(PASS);
+		setSecretKey(STORE_PASS);
+		setCertPath(TRUSTSTORE_URL);
+		setKeyPath(KEYSTORE_URL);
+		setServiceName(SERVICE_NAME);
+		// HTTPS_PROTOCOL
 	}
 	
 	
@@ -105,7 +120,7 @@ public class ExcellerisConfigurationBean  {
 		return userName;
 	}
 
-	public void setUserName (String userName) {
+	public void setUserName(String userName) {
 		this.userName = userName;
 
 	}
