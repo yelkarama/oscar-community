@@ -68,9 +68,10 @@ public class ControllerHandler {
 		return instance;
 	}
 
-	public static ControllerHandler getInstance(Properties properties) {
+	public static ControllerHandler getInstance(Properties properties, 
+			ExcellerisConfigurationBean configurationBean {
 		if(instance == null) {
-			instance = new ControllerHandler(properties, null);
+			instance = new ControllerHandler(properties, configurationBean);
 		}
 		return instance;
 	}
