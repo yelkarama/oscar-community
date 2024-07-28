@@ -101,6 +101,10 @@ public class StartupListener implements ServletContextListener {
     private void _init(Properties properties){ //, String context) {	
 
 		if(properties != null) {
+			//instantiate ExcellerisConfigurationBean
+			ExcellerisConfigurationBean notABean = new ExcellerisConfigurationBean(); 
+			//load the oscar.propreties file into ExcellerisConfigurationBean
+			notABean.initialize(properties); 
 			/*
 			* we will verify only essential keys for others if absent will make provide safe defaults
 			*
