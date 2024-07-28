@@ -82,8 +82,8 @@ public class ExcellerisConfigurationBean  {
 		setUserName(USER);
 		setPassword(PASS);
 		setSecretKey(STORE_PASS);
-		setCertPath(TRUSTSTORE_URL);
-		setKeyPath(KEYSTORE_URL);
+		//setCertPath(TRUSTSTORE_URL); need to change the passed String to a File
+		//setKeyPath(KEYSTORE_URL); need to change the passed String to a File
 		setServiceName(SERVICE_NAME);
 		// HTTPS_PROTOCOL
 	}
