@@ -55,6 +55,19 @@ public class StartupListener implements ServletContextListener {
 	public static Logger logger = org.oscarehr.util.MiscUtils.getLogger();
 	private static Properties properties;
 	private static final String keyFilePath = "./keys.txt";
+	protected static String  TRUSTSTORE_URL ;
+	protected static String  STORE_TYPE ;
+	protected static String  STORE_PASS ;
+	protected static String  HTTPS_PROTOCOL ;
+	protected static String  KEYSTORE_URL ;
+	protected static String  USER;
+	protected static String  PASS;	
+	protected static String  URI;
+	protected static String  LOGIN;	
+	protected static String  FETCH;
+	protected static String  ACKNOWLEDGE;
+	protected static String  LOGOUT;
+	protected static String  ACKNOWLEDGE_DOWNLOADS;
 	
     /**
      * Default constructor. 
@@ -104,7 +117,65 @@ public class StartupListener implements ServletContextListener {
 			//instantiate ExcellerisConfigurationBean
 			ExcellerisConfigurationBean notABean = new ExcellerisConfigurationBean(); 
 			//load the oscar.propreties file into ExcellerisConfigurationBean
-			notABean.initialize(properties); 
+			
+			Boolean errorFlag = false;
+
+			if(properties.containsKey("EXCELLERIS_USER")) {
+					USER = properties.getProperty("EXCELLERIS_USER").trim();
+			} else {
+					logger.error("Missing EXCELLERIS_USER in properties.");
+					errorFlag = true;
+			}
+			if(properties.containsKey("EXCELLERIS_PASS")) {
+					PASS = properties.getProperty("EXCELLERIS_PASS").trim();
+			} else {
+					logger.error("Missing EXCELLERIS_PASS in properties.");
+					errorFlag = true;
+			}
+			if(properties.containsKey("EXCELLERIS_URI")) {
+					URI = properties.getProperty("EXCELLERIS_URI").trim();
+			} else {
+					if(properties.containsKey("billregion")) {
+							if(properties.getProperty("billregion").trim() == "ON") {
+									URI = "https://api.on.excelleris.com/hl7pull.aspx";
+							}
+							if(properties.getProperty("billregion").trim() == "BC") {
+									URI = "https://api.bc.excelleris.com/hl7pull.aspx";
+							}              
+							logger.info("Missing EXCELLERIS_URI in properties, setting to default of " + URI);
+					} else {
+							logger.error("Missing billregion in properties.");
+							errorFlag = true;       
+					}
+			}
+			if(properties.containsKey("LOGIN_PARAMS")) {
+					LOGIN = URI + "?" + properties.getProperty("LOGIN_PARAMS").trim();
+			} else {
+					LOGIN = URI + "?Page=Login&Mode=Silent&UserID=@username&Password=@password";
+					logger.info("Missing Excelleris LOGIN_PARAMS in properties, setting to default of Page=Login&Mode=Silent&UserID=@username&Password=@password");
+			}
+			if(properties.containsKey("PULLXMLPARAMS")) {
+					FETCH = URI + "?" + properties.getProperty("PULLXMLPARAMS").trim();
+			} else {
+					FETCH = URI + "?Page=HL7&Query=NewRequests&Pending=Yes";
+					logger.info("Missing Excelleris PULLXMLPARAMS in properties, setting to default of Page=HL7&Query=NewRequests&Pending=Yes");
+			}
+			if(ACKNOWLEDGE_DOWNLOADS == "true") {
+					ACKNOWLEDGE = URI + "?Page=HL7&&ACK=Positive";
+			} else {
+					ACKNOWLEDGE = URI + "?Page=HL7&ACK=Negative";
+			}
+			if(properties.containsKey("LOGOUT_PARAMS")) {
+					LOGOUT = URI + "?" + properties.getProperty("LOGOUT_PARAMS").trim();
+			} else {
+					LOGOUT = URI + "?Logout=Yes";
+					logger.info("Missing Excelleris LOGOUT_PARAMS in properties, setting to default of Logout=Yes");
+			}
+			if (errorFlag) {
+				logger.error("Missing configuration parameters, correct properties file and restart OSCAR.");
+				return;		
+			}
+			notABean.initialize(URI,FETCH,LOGIN,LOGOUT,ACKNOWLEDGE); 
 			/*
 			* we will verify only essential keys for others if absent will make provide safe defaults
 			*
