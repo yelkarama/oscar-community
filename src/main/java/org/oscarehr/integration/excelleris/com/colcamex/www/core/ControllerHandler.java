@@ -69,7 +69,7 @@ public class ControllerHandler {
 	}
 
 	public static ControllerHandler getInstance(Properties properties, 
-			ExcellerisConfigurationBean notABean {
+			ExcellerisConfigurationBean notABean) {
 		if(instance == null) {
 			instance = new ControllerHandler(properties, notABean);
 		}
