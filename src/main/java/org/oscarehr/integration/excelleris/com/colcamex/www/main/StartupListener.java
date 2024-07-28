@@ -55,6 +55,7 @@ public class StartupListener implements ServletContextListener {
 	public static Logger logger = org.oscarehr.util.MiscUtils.getLogger();
 	private static Properties properties;
 	private static final String keyFilePath = "./keys.txt";
+	protected static String  SERVICE_NAME ; 
 	protected static String  TRUSTSTORE_URL ;
 	protected static String  STORE_TYPE ;
 	protected static String  STORE_PASS ;
@@ -83,11 +84,11 @@ public class StartupListener implements ServletContextListener {
 
 		//instantiate ExcellerisConfigurationBean
 		ExcellerisConfigurationBean notABean = new ExcellerisConfigurationBean(); 
-    	_init(OscarProperties.getInstance(), notABean);
+    	Boolean isBeanLoadedWithProperties = _init(OscarProperties.getInstance(), notABean);
 
 		ControllerHandler controllerHandler = null;
 		
-		if( properties != null && Boolean.parseBoolean( properties.getProperty("EXCELLERIS") )) {
+		if( isBeanLoadedWithProperties && properties != null && Boolean.parseBoolean( properties.getProperty("EXCELLERIS") )) {
 			logger.info("Starting EXCELLERIS listener");
 			controllerHandler = ControllerHandler.getInstance(properties, notABean);
 		} else {
@@ -113,7 +114,7 @@ public class StartupListener implements ServletContextListener {
 		logger.info(" Autolab download server shutdown occurred.");
     }
     
-    private void _init(Properties properties, ExcellerisConfigurationBean notABean){ //, String context) {	
+    private Boolean _init(Properties properties, ExcellerisConfigurationBean notABean){ //, String context) {	
 
 		if(properties != null) {
 			
@@ -172,11 +173,55 @@ public class StartupListener implements ServletContextListener {
 					LOGOUT = URI + "?Logout=Yes";
 					logger.info("Missing Excelleris LOGOUT_PARAMS in properties, setting to default of Logout=Yes");
 			}
+			if(!properties.containsKey("ACKNOWLEDGE_DOWNLOADS")) { 
+			        ACKNOWLEDGE_DOWNLOADS = "false";
+			        logger.info("Missing Excelleris ACKNOWLEDGE_DOWNLOADS in properties, setting to false, **set to true for production use.**");
+			} else {
+			        ACKNOWLEDGE_DOWNLOADS = properties.getProperty("ACKNOWLEDGE_DOWNLOADS").trim();
+			}
+			if(properties.containsKey("TRUSTSTORE_URL")) {
+					TRUSTSTORE_URL = properties.getProperty("TRUSTSTORE_URL").trim();
+			} else {
+					logger.error("Missing TRUSTSTORE_URL in properties.");
+					errorFlag = true;
+			}
+			if(properties.containsKey("KEYSTORE_URL")) {
+					KEYSTORE_URL = properties.getProperty("KEYSTORE_URL").trim();
+			} else {
+					logger.error("Missing KEYSTORE_URL in properties.");
+					errorFlag = true;
+			}
+			if(properties.containsKey("STORE_PASS")) {
+					STORE_PASS = properties.getProperty("STORE_PASS").trim();
+			} else {
+					logger.error("Missing STORE_PASS in properties.");
+					errorFlag = true;
+			}
+			if(properties.containsKey("STORE_TYPE")) {
+					STORE_TYPE = properties.getProperty("STORE_TYPE").trim();
+			} else {
+					logger.info("Missing STORE_TYPE in properties, setting to JKS");
+					STORE_TYPE = "JKS";
+			}
+			if(properties.containsKey("SERVICE_NAME")) {
+					SERVICE_NAME = properties.getProperty("SERVICE_NAME").trim();
+			} else {
+					logger.info("Missing SERVICE_NAME in properties, setting to Excelleris");
+					SERVICE_NAME = "Excelleris";
+			}
+			if(properties.containsKey("HTTPS_PROTOCOL")) {
+					HTTPS_PROTOCOL = properties.getProperty("HTTPS_PROTOCOL").trim();
+			} else {
+					logger.info("Missing HTTPS_PROTOCOL in properties, setting to TLSv1");
+					HTTPS_PROTOCOL = "TLSv1";
+			}
+
+			// if any errors drop a useful error message and prevent Instantiating the Controller Handler
 			if (errorFlag) {
 				logger.error("Missing configuration parameters, correct properties file and restart OSCAR.");
-				return;		
+				return !errorFlag;		
 			}
-			notABean.initialize(URI,FETCH,LOGIN,LOGOUT,ACKNOWLEDGE); 
+			notABean.initialize(URI,FETCH,LOGIN,LOGOUT,ACKNOWLEDGE,USER,PASS,ACKNOWLEDGE_DOWNLOADS,TRUSTSTORE_URL,KEYSTORE_URL,STORE_PASS,SERVICE_NAME,HTTPS_PROTOCOL);
 			/*
 			* we will verify only essential keys for others if absent will make provide safe defaults
 			*
@@ -192,6 +237,7 @@ public class StartupListener implements ServletContextListener {
 		} else {
 			logger.error("Properties file path is missing.");
 		}
+		return !errorFlag;
 	}
     
     private static final boolean verifyProperties(Properties properties) throws IOException {
