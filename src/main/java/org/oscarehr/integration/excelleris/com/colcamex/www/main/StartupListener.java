@@ -68,7 +68,6 @@ public class StartupListener implements ServletContextListener {
 	protected static String  ACKNOWLEDGE;
 	protected static String  LOGOUT;
 	protected static String  ACKNOWLEDGE_DOWNLOADS;
-	protected static notABean;
 	
     /**
      * Default constructor. 
