@@ -68,6 +68,7 @@ public class StartupListener implements ServletContextListener {
 	protected static String  ACKNOWLEDGE;
 	protected static String  LOGOUT;
 	protected static String  ACKNOWLEDGE_DOWNLOADS;
+	protected static notABean;
 	
     /**
      * Default constructor. 
@@ -81,7 +82,9 @@ public class StartupListener implements ServletContextListener {
      */
     public void contextInitialized(ServletContextEvent event) {
 
-    	_init(OscarProperties.getInstance());
+		//instantiate ExcellerisConfigurationBean
+		ExcellerisConfigurationBean notABean = new ExcellerisConfigurationBean(); 
+    	_init(OscarProperties.getInstance(), notABean);
 
 		ControllerHandler controllerHandler = null;
 		
@@ -111,11 +114,10 @@ public class StartupListener implements ServletContextListener {
 		logger.info(" Autolab download server shutdown occurred.");
     }
     
-    private void _init(Properties properties){ //, String context) {	
+    private void _init(Properties properties, ExcellerisConfigurationBean notABean){ //, String context) {	
 
 		if(properties != null) {
-			//instantiate ExcellerisConfigurationBean
-			ExcellerisConfigurationBean notABean = new ExcellerisConfigurationBean(); 
+			
 			//load the oscar.propreties file into ExcellerisConfigurationBean
 			
 			Boolean errorFlag = false;
