@@ -527,7 +527,6 @@ input[id^='acklabel_']{
 					session.setAttribute("labFirstName",handler.getFirstName());
                     session.setAttribute("labDOB",handler.getDOB());
 					session.setAttribute("labHIN",handler.getHealthNum());
-                    session.setAttribute("labHINver",handler.getHealthNumVersion();
                     session.setAttribute("labHphone",handler.getHomePhone());
 					session.setAttribute("labWphone",handler.getWorkPhone());
                     session.setAttribute("labSex",handler.getSex());
@@ -1394,7 +1393,7 @@ input[id^='acklabel_']{
                                                 </td>
                                                 <td>
                                                     <div class="FieldDatas" style="white-space:nowrap;">
-                                                        <%= ((ExcellerisOntarioHandler) handler).getReportStatusChangeDate(0) %>
+                                                        <%= ((ExcellerisOntarioHandler) handler).getReportStatusChangeDate() %>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -1843,7 +1842,7 @@ for(int mcount=0; mcount<multiID.length; mcount++){
                         	   String lastObxSetId = "0";
                                boolean obrFlag = false;
                                int obxCount = handler.getOBXCount(j);
-                               
+
                                if (handler.getMsgType().equals("ExcellerisON") && handler.getObservationHeader(j, 0).equals(headers.get(i))) {
                                String orderRequestStatus = ((ExcellerisOntarioHandler) handler).getOrderStatus(j);
                                %>
@@ -1852,8 +1851,8 @@ for(int mcount=0; mcount<multiID.length; mcount++){
                                         <td colspan="1"><%=orderRequestStatus%></td>
                                     </tr>
                                <%
-                               }   
-                               
+                               }
+
                                for (k=0; k < obxCount; k++){
 
                                	String obxName = handler.getOBXName(j, k);
