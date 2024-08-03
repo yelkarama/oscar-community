@@ -536,9 +536,13 @@ public class LabPDFCreator extends PdfPageEventHelper {
 													// MDS messages
 							String obrName = handler.getOBRName(j);
 							// add the obrname if necessary
-							if ( !obrFlag && !obrName.equals("")
-									&& ( !(obxName.contains(obrName) && obxCount < 2 && !isUnstructuredDoc) ) ) {
-	
+
+							boolean showOBRTestName = ( !(obxName.contains(obrName) && obxCount < 2 && !isUnstructuredDoc) );
+							// For 'ExcellerisON' type reports, showing test names (OBR4.2) for all OBRs is required.
+							if (handler.getMsgType().equals("ExcellerisON")) {
+								showOBRTestName = !isUnstructuredDoc && obxCount > 0;
+							}
+							if ( !obrFlag && !obrName.equals("") && showOBRTestName) {
 								cell.setPhrase(new Phrase(obrName, boldFont));
 								if(handler.getMsgType().equals("ExcellerisON")) { 
 									cell.setColspan(1);
@@ -914,7 +918,7 @@ public class LabPDFCreator extends PdfPageEventHelper {
 						// the obrName should only be set if it has not been
 						// set already which will only have occured if the
 						// obx name is "" or if it is the same as the obr name
-						if (!obrFlag && handler.getOBXName(j, 0).equals("")) {
+						if (!obrFlag && handler.getOBXName(j, 0).equals("") && !handler.getMsgType().equals("ExcellerisON")) {
 
 							cell.setPhrase(new Phrase(handler.getOBRName(j),
 									boldFont));
@@ -1013,7 +1017,7 @@ public class LabPDFCreator extends PdfPageEventHelper {
         pInfoTable.addCell(cell);
         cell.setPhrase(new Phrase(handler.getSex(), font));
         pInfoTable.addCell(cell);
-        cell.setPhrase(new Phrase("Health #: ", boldFont));
+        cell.setPhrase(new Phrase("Health Care #: ", boldFont));
         pInfoTable.addCell(cell);
         cell.setPhrase(new Phrase(handler.getHealthNum(), font));
         pInfoTable.addCell(cell);
@@ -1031,7 +1035,7 @@ public class LabPDFCreator extends PdfPageEventHelper {
 		if (handler.getMsgType().equals("ExcellerisON")) {
 			cell.setPhrase(new Phrase("Reported on: ", boldFont));
 			rInfoTable.addCell(cell);
-			cell.setPhrase(new Phrase(((ExcellerisOntarioHandler) handler).getReportStatusChangeDate(0), font));
+			cell.setPhrase(new Phrase(((ExcellerisOntarioHandler) handler).getReportStatusChangeDate(), font));
 			rInfoTable.addCell(cell);
 		}
         cell.setPhrase(new Phrase("Date Received: ", boldFont));
@@ -1214,11 +1218,12 @@ public class LabPDFCreator extends PdfPageEventHelper {
             float width = page.getWidth();
             float height = page.getHeight();
 
-            //add patient name header for every page but the first.
             if (pageNum > 1){
+				//add patient name header for every page but the first.
+				String pageIdentifier = getPageIdentifier();
                 cb.beginText();
                 cb.setFontAndSize(bf, 8);
-                cb.showTextAligned(PdfContentByte.ALIGN_RIGHT, handler.getPatientName(), 575, height - 30, 0);
+                cb.showTextAligned(PdfContentByte.ALIGN_RIGHT, pageIdentifier, 575, height - 30, 0);
                 cb.endText();
 
             }
@@ -1229,6 +1234,17 @@ public class LabPDFCreator extends PdfPageEventHelper {
             throw new ExceptionConverter(e);
         }        
     }
+
+	private String getPageIdentifier() {
+		if (handler.getMsgType().equals("ExcellerisON")) {
+			if (!handler.getHealthNum().isEmpty()) {
+				return handler.getPatientName() + " " + handler.getHealthNum();
+			} else if (!handler.getHealthNum().equalsIgnoreCase("UNKNOWN")) {
+				return handler.getPatientName() + " " + handler.getDOB();
+			}
+		}
+		return handler.getPatientName();
+	}
 
 	public boolean isUnstructuredDoc() {
 		return isUnstructuredDoc;
