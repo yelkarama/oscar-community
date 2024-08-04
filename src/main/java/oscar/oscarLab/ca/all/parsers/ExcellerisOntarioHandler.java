@@ -838,7 +838,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
             }
             return(headers);
         }catch(Exception e){
-            logger.error("Could not create header list at i="+String.valueOf(i), e);
+            logger.error("Could not create header list", e);
 
             return(null);
         }
