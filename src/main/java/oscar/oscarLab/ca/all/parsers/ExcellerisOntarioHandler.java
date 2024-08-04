@@ -41,9 +41,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 
@@ -73,33 +71,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
 	
 	public static final String VIHARTF = "CELLPATHR";
 	public static enum OBX_DATA_TYPES {NM,ST,CE,TX,FT} // Numeric, String, Coded Element, Text, String
-
-    // OBR-25
-    /*
-     * the value "C" supersedes all others and the mimimum requirement is that the overall report status be displayed as "Corrected." 
-     * the value "A" or "I" supersedes "F" or Completed and the requirement is that the overall report status be displayed as "Pending" or "Partial."
-     */
-    public enum OrderStatus {
-        CORRECTED("C", "Corrected"),
-        PENDING("I", "Pending"),
-        PARTIAL_RESULTS("A", "Partial results"),
-        PRELIMINARY("P", "Preliminary"),
-        COMPLETED("F", "Completed"),
-        RETRANSMITTED("R", "Retransmitted"),
-        DELETED("X", "Deleted");
-
-        private final String code;
-        private final String description;
-
-        OrderStatus(String code, String description) {
-            this.code = code;
-            this.description = description;
-        }
-
-        public String getCode() { return code; }
-        public String getDescription() { return description; }
-    }
-
+    private boolean reportBlocked = false;
     /** Creates a new instance */
     public ExcellerisOntarioHandler() {
     }
@@ -170,12 +142,12 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(formatDateTime(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getPIDPD1NK1NTEPV1PV2().getPID().getPid7_DateTimeOfBirth().getTimeOfAnEvent().getValue())).substring(0, 10));
         }catch(Exception e){
-            return("UNKNOWN");
+            return("");
         }
     }
 
     public String getAge(){
-        String age = "UNKNOWN";
+        String age = "N/A";
         String dob = getDOB();
         String service = getServiceDate(); 
         try {
@@ -202,20 +174,18 @@ public class ExcellerisOntarioHandler implements MessageHandler {
     	if(data.length>0) {
     		CX cx = data[0];
     		String hin = cx.getCx1_ID().getValue();
-    		String type = cx.getCx5_IdentifierTypeCode().getValue();
-    		String ver = "";
-    		if(cx.getExtraComponents() != null && cx.getExtraComponents().numComponents() == 5) {
-    			Varies v = cx.getExtraComponents().getComponent(4);
-    			ver = v.getData().toString();
-    		}
-    		
-    		return(getString(hin + ver));
+            String type = cx.getCx5_IdentifierTypeCode().getValue();
+            String ver = "";
+            if(cx.getExtraComponents() != null && cx.getExtraComponents().numComponents() == 5) {
+	            Varies v = cx.getExtraComponents().getComponent(4);
+	            ver = v.getData().toString();
+            }
+            return(getString(hin + ver));    
     	}
-    	return "";
-        
+    	return "";      
     }
 
-     public String getHealthNumVersion() {
+    public String getHealthNumVersion() {
         CX[] data = msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getPIDPD1NK1NTEPV1PV2().getPID().getPid3_PatientIdentifierList();
         if(data.length>0) {
             CX cx = data[0];
@@ -286,21 +256,19 @@ public class ExcellerisOntarioHandler implements MessageHandler {
 
             String accessionNum = getString(str);
 
-            // String[] nums = accessionNum.split("-");
-            // if (nums.length == 3){
-            //     return nums[0];
-            // }else if (nums.length == 5){
-            //     return nums[0]+"-"+nums[1]+"-"+nums[2];
-            // }else{
+            String[] nums = accessionNum.split("-");
+            if (nums.length == 3){
+                return nums[0];
+            }else if (nums.length == 5){
+                return nums[0]+"-"+nums[1]+"-"+nums[2];
+            }else{
 
 
-            //     if(nums.length>1)
-            //         return nums[0]+"-"+nums[1];
-            //     else
-            //         return "";
-            // }
-
-            return accessionNum;
+                if(nums.length>1)
+                    return nums[0]+"-"+nums[1];
+                else
+                    return "";
+            }
         }catch(Exception e){
             logger.error("Could not return accession number", e);
 
@@ -324,7 +292,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
             return("");
         }
     }
-
+    
     public String getOBRIdentifier(int i){
         try{
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBR().getObr4_UniversalServiceID().getCe1_Identifier().getValue()));
@@ -383,26 +351,6 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         }
     }
 
-    //OBR-22
-    public String getReportStatusChangeDate() {
-        int obrCount = getOBRCount();
-        String latestReportStatusChangeDate = "";
-        List<String> reportStatusChangeDates = new ArrayList<>();
-        for (int i = 0; i < obrCount; i++) {
-            try {
-                String date = getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBR().getResultsRptStatusChngDateTime().getTimeOfAnEvent().getValue());
-                reportStatusChangeDates.add(date);
-            } catch(Exception e){
-                reportStatusChangeDates.add("");
-            }
-        }
-        
-        for (String reportStatusChangeDate : reportStatusChangeDates) {
-            if (latestReportStatusChangeDate.isEmpty() || reportStatusChangeDate.compareTo(latestReportStatusChangeDate) > 0) { latestReportStatusChangeDate = reportStatusChangeDate; }
-        }
-        return latestReportStatusChangeDate.isEmpty() ? latestReportStatusChangeDate : formatDateTime(latestReportStatusChangeDate);
-    }
-
     //OBR-25
     /*
     * I = pending
@@ -416,60 +364,48 @@ public class ExcellerisOntarioHandler implements MessageHandler {
     * @see oscar.oscarLab.ca.all.parsers.MessageHandler#getOrderStatus()
     */
     public String getOrderStatus(){
-    	Set<String> orderStatuses = new HashSet<>();
+    	String orderStatus = null;
         try{
         	for(int x=0;x<msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTIReps();x++) {
         		ORU_R01_PIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI items =  msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI(x);
         		for(int y=0;y<items.getORCOBRNTEOBXNTECTIReps();y++) {
         			String status = items.getORCOBRNTEOBXNTECTI(y).getOBR().getResultStatus().getValue();
-        			if(status == null) { continue; }
-                    orderStatuses.add(status);
+        			if(orderStatus == null && status != null) {
+            			orderStatus = status;
+            		}
+            		if("C".equals(status)) {
+            			return "Corrected";
+            		}
         		}
         		
         	}
         	
-            /*
-             * the value "C" supersedes all others and the mimimum requirement is that the overall report status be displayed as "Corrected." 
-             * the value "A" or "I" supersedes "F" or Completed and the requirement is that the overall report status be displayed as "Pending" or "Partial."
-             */
-            for (OrderStatus status : OrderStatus.values()) {
-                if (!orderStatuses.contains(status.getCode())) { continue; }
-                return status.getDescription();
+            if("P".equals(orderStatus)) {
+            	return "preliminary";
+            }
+            if("I".equals(orderStatus)) {
+            	return "Results are pending...";
+            }
+            if("A".equals(orderStatus)) {
+            	return "partial results";
+            }
+            if("F".equals(orderStatus)) {
+            	return "complete";
+            }
+            if("R".equals(orderStatus)) {
+            	return "Retransmitted";
+            }
+            if("C".equals(orderStatus)) {
+            	return "corrected";
+            }
+            if("X".equals(orderStatus)) {
+            	return "deleted";
             }
         }catch(Exception e){
             return("");
         }
         
         return "N/A";
-    }
-
-    /*
-     * All Reports/Tests that contain an OBR.25 value of "I", "P", and "C" need to be individually identified on the report display.
-     */
-    public String getOrderStatus(int y) {
-        String statusDescription = "";
-        try {
-            String status = getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(y).getOBR().getResultStatus().getValue());
-            
-            for (OrderStatus orderStatus : OrderStatus.values()) {
-                if (status.equals(orderStatus.getCode())) {
-                    switch (orderStatus) {
-                        case PENDING:
-                            statusDescription = "Results are pending...";
-                            break;
-                        case PRELIMINARY:
-                        case CORRECTED:
-                            statusDescription = orderStatus.getDescription();
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-        } catch (Exception e) {
-            //
-        }
-        return statusDescription;
     }
 
     //OBR-16
@@ -615,7 +551,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
             return("");
         }
     }
-
+    
     public String getOBXResult(int i, int j){
         try{
             return(getString(Terser.get(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX(),5,0,1,1)));
@@ -632,12 +568,15 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getObx4_ObservationSubID().getValue() ) );
         }catch(Exception e){
-            return "";
+            return(null);
         }
     }
 
+    /**
+     * Get the sub id and add the observation (for oo)
+     */
     //OBX-4 + OBX-5
-    public String getOBXSubIdWithObservationValue(int i, int j) {
+	public String getOBXSubIdWithObservationValue(int i, int j) {
         try{
             String subId = getOBXSubId(i, j);
             String observationResult = getOBXResult(i, j);
@@ -647,9 +586,9 @@ public class ExcellerisOntarioHandler implements MessageHandler {
             return subId + ") " + observationResult;
         }catch(Exception e){
             return "";
-        }
-    }
-
+         }
+     }
+     
     //OBX-7
     public String getOBXReferenceRange(int i, int j){
         try{
@@ -922,10 +861,8 @@ public class ExcellerisOntarioHandler implements MessageHandler {
 		return ( OBX_DATA_TYPES.TX.name().equals( getOBXValueType(0, 0) ) 
 				|| OBX_DATA_TYPES.FT.name().equals( getOBXValueType(0, 0) )  );		
 	}
-    
-    //for OMD validation
-    public boolean isTestResultBlocked(int i, int j) {
-    	return false;
+
+    public Boolean isReportBlocked(){
+        return reportBlocked;
     }
-    
 }
