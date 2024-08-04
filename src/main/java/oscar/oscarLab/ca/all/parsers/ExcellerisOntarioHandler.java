@@ -907,20 +907,20 @@ public class ExcellerisOntarioHandler implements MessageHandler {
     }
 
     public String getFillerOrderNumber(){
-        logger.error("getFillerOrderNumber is not implimented here", e);
+        logger.error("getFillerOrderNumber is not implimented here");
 		return "";
 	}
     public String getEncounterId(){
-        logger.error("getEncounterId is not implimented here", e);
+        logger.error("getEncounterId is not implimented here");
     	return "";
     }
     public String getRadiologistInfo(){
-        logger.error("getRadiologistInfo is not implimented here", e);
+        logger.error("getRadiologistInfo is not implimented here");
 		return "";
 	}
 
     public String getNteForOBX(int i, int j){
-        logger.error("getNteForOBX is not implimented here", e);
+        logger.error("getNteForOBX is not implimented here");
     	return "";
     }
 
@@ -936,7 +936,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
 	}
 
     public String getNteForPID(){
-    	logger.error("getNteForPID is not implimented here", e);
+    	logger.error("getNteForPID is not implimented here");
     	return "";
     }
     
