@@ -95,10 +95,11 @@ public final class MessageUploader {
 	}
 	
 	public static String routeReport(LoggedInInfo loggedInInfo, String serviceName, MessageHandler h, String hl7Body, int fileId, RouteReportResults results) throws Exception {
-			
+		logger.debug("routeReport");	
 		String retVal = "";
 
 		if(h == null) {
+			logger.error("handler is null");
 			throw new Exception("Unabled to continue. No valid handler found.");
 		}
 		String type = h.getMsgType();
@@ -320,6 +321,7 @@ public final class MessageUploader {
 	 * spire labs don't have a valid ohip number associated with them).
 	 */ 
 	private static ArrayList<String> findProvidersForSpireLab(List<String> docNames) {
+		logger.debug("findProvidersForSpireLab");
 		List<String> docNums = new ArrayList<String>();
 		ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
 		
@@ -356,6 +358,8 @@ public final class MessageUploader {
 	 * Finds the provider with the shortest first name in a list of providers.
 	 */ 
 	private static int findProviderWithShortestFirstName(List<Provider> provList) {
+		
+		logger.debug("findProviderWithShortestFirstName");
 		if (provList == null || provList.isEmpty())
 			return -1;
 			
@@ -376,6 +380,7 @@ public final class MessageUploader {
 	 * Attempt to match the doctors from the lab to a provider
 	 */ 
 	private static void providerRouteReport(String labId, ArrayList<String> docNums, Connection conn, String altProviderNo, String labType, String search_on, Integer limit, boolean orderByLength) throws Exception {
+		logger.debug("providerRouteReport");
 		// Using HashSet to avoid duplicate provider numbers
 	    LinkedHashSet<String> providerNums = new LinkedHashSet<>();
 		PreparedStatement pstmt;
@@ -644,7 +649,7 @@ public final class MessageUploader {
 	 * Attempt to match the patient from the lab to a demographic, return the patients provider which is to be used then no other provider can be found to match the patient to.
 	 */
 	private static String patientRouteReport(LoggedInInfo loggedInInfo, String labType, int labId, String lastName, String firstName, String sex, String dob, String hin, Connection conn) throws SQLException {
-		
+		logger.debug("patientRouteReport");
 		if("OLIS_HL7".equals(labType)) {
 			return patientRouteReportOLIS(loggedInInfo, labId, lastName, sex,dob,hin,conn);
 		}
@@ -763,7 +768,7 @@ public final class MessageUploader {
 	 * Used when errors occur to clean the database of labs that have not been inserted into all of the necessary tables
 	 */
 	public static void clean(int fileId) {
-		
+		logger.debug("clean");
 		List<Hl7TextMessage> results = hl7TextMessageDao.findByFileUploadCheckId(fileId);
 		
 
@@ -882,6 +887,7 @@ public final class MessageUploader {
 	 */
 	public static String mergeLabLabels(List<Hl7TextInfo> currentLabs, String incoming) {
 		// If a past lab with the same AccessionNumber exist carry over the label
+		logger.debug("mergeLabLabels");
 		String mergedLabel = StringUtils.trimToEmpty(incoming);
 		if(currentLabs == null) {
 			currentLabs = Collections.emptyList();
