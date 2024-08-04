@@ -38,10 +38,7 @@ package oscar.oscarLab.ca.all.parsers;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
@@ -53,10 +50,13 @@ import ca.uhn.hl7v2.model.v23.datatype.ED;
 import ca.uhn.hl7v2.model.v23.datatype.HD;
 import ca.uhn.hl7v2.model.v23.datatype.XCN;
 import ca.uhn.hl7v2.model.v23.message.ORU_R01;
+import ca.uhn.hl7v2.parser.DefaultXMLParser;
 import ca.uhn.hl7v2.parser.Parser;
 import ca.uhn.hl7v2.parser.PipeParser;
+import ca.uhn.hl7v2.parser.XMLParser;
 import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.impl.NoValidation;
+import org.oscarehr.util.MiscUtils;
 import oscar.util.UtilDateUtilities;
 
 
@@ -66,76 +66,75 @@ import oscar.util.UtilDateUtilities;
  */
 public class PATHL7Handler implements MessageHandler {
 
-	Logger logger = org.oscarehr.util.MiscUtils.getLogger();
+    Logger logger = org.oscarehr.util.MiscUtils.getLogger();
     ORU_R01 msg = null;
 
-	private static List<String> labDocuments = Arrays.asList("BCCACSP","BCCASMP","BLOODBANKT",
-			"CELLPATH","CELLPATHR","DIAG IMAGE","MICRO3T", 
-			"MICROGCMT","MICROGRT", "MICROBCT","TRANSCRIP", "NOTIF","CYTO");
-	
-	public static final String VIHARTF = "CELLPATHR";
-	public static enum OBX_DATA_TYPES {NM,ST,CE,TX,FT} // Numeric, String, Coded Element, Text, String
+    private static List<String> labDocuments = Arrays.asList("BCCACSP", "BCCASMP", "BLOODBANKT",
+            "CELLPATH", "CELLPATHR", "DIAG IMAGE", "MICRO3T",
+            "MICROGCMT", "MICROGRT", "MICROBCT", "TRANSCRIP", "NOTIF", "CYTO");
 
-    /** Creates a new instance of CMLHandler */
-    public PATHL7Handler(){
+    public static final String VIHARTF = "CELLPATHR";
+
+    public static enum OBX_DATA_TYPES {NM, ST, CE, TX, FT} // Numeric, String, Coded Element, Text, String
+
+    /**
+     * Creates a new instance of CMLHandler
+     */
+    public PATHL7Handler() {
     }
 
     public void init(String hl7Body) throws HL7Exception {
         Parser p = new PipeParser();
         p.setValidationContext(new NoValidation());
-        msg = (ORU_R01) p.parse(hl7Body.replaceAll( "\n", "\r\n" ).replace("\\.Zt\\", "\t"));
+        msg = (ORU_R01) p.parse(hl7Body.replaceAll("\n", "\r\n").replace("\\.Zt\\", "\t"));
     }
 
-    public String getMsgType(){
-        return("PATHL7");
+    public String getMsgType() {
+        return ("PATHL7");
     }
 
-    public String getMsgPriority(){
-        return("");
+    public String getMsgPriority() {
+        return ("");
     }
+
     /*
      *  MSH METHODS
      */
-
-    public String getMsgDate(){
-        //try {
-        return(formatDateTime(getString(msg.getMSH().getDateTimeOfMessage().getTimeOfAnEvent().getValue())));
-        //return(formatDateTime(getString(msg.getRESPONSE().getORDER_OBSERVATION(0).getOBR().getObservationDateTime().getTimeOfAnEvent().getValue())));
-        //} catch (HL7Exception ex) {
-        //    return ("");
-        //}
+    public String getMsgDate() {
+        return (formatDateTime(getString(msg.getMSH().getDateTimeOfMessage().getTimeOfAnEvent().getValue())));
     }
 
     /*
      *  PID METHODS
      */
-    public String getPatientName(){
-        return(getFirstName()+" "+getMiddleName()+" "+getLastName());
+    public String getPatientName() {
+        return (getFirstName() + " " + getMiddleName() + " " + getLastName());
     }
 
-    public String getFirstName(){
-        return(getString(msg.getRESPONSE().getPATIENT().getPID().getPatientName().getGivenName().getValue()));
+    public String getFirstName() {
+        return (getString(msg.getRESPONSE().getPATIENT().getPID().getPatientName().getGivenName().getValue()));
     }
 
-    public String getMiddleName(){
-    	return (getString(msg.getRESPONSE().getPATIENT().getPID().getPatientName().getXpn3_MiddleInitialOrName().getValue()));
-    }
-    public String getLastName(){
-        return(getString(msg.getRESPONSE().getPATIENT().getPID().getPatientName().getFamilyName().getValue()));
+    public String getMiddleName() {
+        return (getString(msg.getRESPONSE().getPATIENT().getPID().getPatientName().getXpn3_MiddleInitialOrName().getValue()));
     }
 
-    public String getDOB(){
-        try{
-            return(formatDateTime(getString(msg.getRESPONSE().getPATIENT().getPID().getDateOfBirth().getTimeOfAnEvent().getValue())).substring(0, 10));
-        }catch(Exception e){
-            return("");
+    public String getLastName() {
+        return (getString(msg.getRESPONSE().getPATIENT().getPID().getPatientName().getFamilyName().getValue()));
+    }
+
+    public String getDOB() {
+        try {
+            return (formatDate(getString(msg.getRESPONSE().getPATIENT().getPID().getDateOfBirth().getTimeOfAnEvent().getValue())));
+        } catch (Exception e) {
+            return ("");
         }
     }
 
-    public String getAge(){
+    public String getAge() {
         String age = "N/A";
         String dob = getDOB();
-        String service = getServiceDate(); 
+        String service = getServiceDate();
         try {
             // Some examples
             DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
@@ -143,91 +142,90 @@ public class PATHL7Handler implements MessageHandler {
             java.util.Date serviceDate = formatter.parse(service);
             age = UtilDateUtilities.calcAgeAtDate(birthDate, serviceDate);
         } catch (ParseException e) {
-            logger.error("Could not get age", e);
-
+            logger.error("Could not get age from DOB: " + dob, e);
         }
         return age;
     }
 
-    public String getSex(){
-        return(getString(msg.getRESPONSE().getPATIENT().getPID().getSex().getValue()));
+    public String getSex() {
+        return (getString(msg.getRESPONSE().getPATIENT().getPID().getSex().getValue()));
     }
 
-    public String getHealthNum(){
-        return(getString(msg.getRESPONSE().getPATIENT().getPID().getPatientIDExternalID().getID().getValue()));
+    public String getHealthNum() {
+        return (getString(msg.getRESPONSE().getPATIENT().getPID().getPatientIDExternalID().getID().getValue()));
     }
 
-    public String getHomePhone(){
+    public String getHomePhone() {
         String phone = "";
-        int i=0;
-        try{
-            while(!getString(msg.getRESPONSE().getPATIENT().getPID().getPhoneNumberHome(i).get9999999X99999CAnyText().getValue()).equals("")){
-                if (i==0){
+        int i = 0;
+        try {
+            while (!getString(msg.getRESPONSE().getPATIENT().getPID().getPhoneNumberHome(i).get9999999X99999CAnyText().getValue()).equals("")) {
+                if (i == 0) {
                     phone = getString(msg.getRESPONSE().getPATIENT().getPID().getPhoneNumberHome(i).get9999999X99999CAnyText().getValue());
-                }else{
+                } else {
                     phone = phone + ", " + getString(msg.getRESPONSE().getPATIENT().getPID().getPhoneNumberHome(i).get9999999X99999CAnyText().getValue());
                 }
                 i++;
             }
-            return(phone);
-        }catch(Exception e){
+            return (phone);
+        } catch (Exception e) {
             logger.error("Could not return phone number", e);
 
-            return("");
+            return ("");
         }
     }
 
-    public String getWorkPhone(){
+    public String getWorkPhone() {
         String phone = "";
-        int i=0;
-        try{
-            while(!getString(msg.getRESPONSE().getPATIENT().getPID().getPhoneNumberBusiness(i).get9999999X99999CAnyText().getValue()).equals("")){
-                if (i==0){
+        int i = 0;
+        try {
+            while (!getString(msg.getRESPONSE().getPATIENT().getPID().getPhoneNumberBusiness(i).get9999999X99999CAnyText().getValue()).equals("")) {
+                if (i == 0) {
                     phone = getString(msg.getRESPONSE().getPATIENT().getPID().getPhoneNumberBusiness(i).get9999999X99999CAnyText().getValue());
-                }else{
+                } else {
                     phone = phone + ", " + getString(msg.getRESPONSE().getPATIENT().getPID().getPhoneNumberBusiness(i).get9999999X99999CAnyText().getValue());
                 }
                 i++;
             }
-            return(phone);
-        }catch(Exception e){
+            return (phone);
+        } catch (Exception e) {
             logger.error("Could not return phone number", e);
 
-            return("");
+            return ("");
         }
     }
 
-    public String getPatientLocation(){
-        return(getString(msg.getMSH().getSendingFacility().getNamespaceID().getValue()));
+    public String getPatientLocation() {
+        return (getString(msg.getMSH().getSendingFacility().getNamespaceID().getValue()));
     }
 
     /*
      *  OBC METHODS
      */
-    public String getAccessionNum(){
-        try{
+    public String getAccessionNum() {
+        try {
 
-            String str=msg.getRESPONSE().getORDER_OBSERVATION(0).getORC().getFillerOrderNumber().getEntityIdentifier().getValue();
+            String str = msg.getRESPONSE().getORDER_OBSERVATION(0).getORC().getFillerOrderNumber().getEntityIdentifier().getValue();
 
             String accessionNum = getString(str);
 
             String[] nums = accessionNum.split("-");
-            if (nums.length == 3){
+            if (nums.length == 3) {
                 return nums[0];
-            }else if (nums.length == 5){
-                return nums[0]+"-"+nums[1]+"-"+nums[2];
-            }else{
+            } else if (nums.length == 5) {
+                return nums[0] + "-" + nums[1] + "-" + nums[2];
+            } else {
 
 
-                if(nums.length>1)
-                    return nums[0]+"-"+nums[1];
+                if (nums.length > 1)
+                    return nums[0] + "-" + nums[1];
                 else
                     return "";
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             logger.error("Could not return accession number", e);
 
-            return("");
+            return ("");
         }
     }
 
@@ -235,15 +233,31 @@ public class PATHL7Handler implements MessageHandler {
      *  OBR METHODS
      */
 
-    public int getOBRCount(){
-        return(msg.getRESPONSE().getORDER_OBSERVATIONReps());
+    public int getOBRCount() {
+        return (msg.getRESPONSE().getORDER_OBSERVATIONReps());
     }
 
-    public String getOBRName(int i){
-        try{
-            return(getString(msg.getRESPONSE().getORDER_OBSERVATION(i).getOBR().getUniversalServiceIdentifier().getText().getValue()));
-        }catch(Exception e){
-            return("");
+    public String getOBRName(int i) {
+        try {
+            return (getString(msg.getRESPONSE().getORDER_OBSERVATION(i).getOBR().getUniversalServiceIdentifier().getText().getValue()));
+        } catch (Exception e) {
+            return ("");
+        }
+    }
+
+    public String getOBRIdentifier(int i) {
+        try {
+            return (getString(msg.getRESPONSE().getORDER_OBSERVATION(i).getOBR().getUniversalServiceIdentifier().getCe1_Identifier().getValue()));
+        } catch (Exception e) {
+            return ("");
+        }
+    }
+
+    public String getUniversalServiceIdentifier(int i) {
+        try {
+            return (getString(msg.getRESPONSE().getORDER_OBSERVATION(i).getOBR().getUniversalServiceIdentifier().getCe2_Text().getValue()));
+        } catch (Exception e) {
+            return ("");
         }
     }
 
@@ -278,7 +292,6 @@ public class PATHL7Handler implements MessageHandler {
     public String getServiceDate(){
         try{
             return(formatDateTime(getString(msg.getRESPONSE().getORDER_OBSERVATION(0).getOBR().getObservationDateTime().getTimeOfAnEvent().getValue())));
-            //return(formatDateTime(getString(msg.getRESPONSE().getORDER_OBSERVATION(0).getOBR().getObservationDateTime().getTimeOfAnEvent().getValue())));
         }catch(Exception e){
             return("");
         }
@@ -287,6 +300,14 @@ public class PATHL7Handler implements MessageHandler {
     public String getRequestDate(int i){
         try{
             return(formatDateTime(getString(msg.getRESPONSE().getORDER_OBSERVATION(i).getOBR().getRequestedDateTime().getTimeOfAnEvent().getValue())));
+        }catch(Exception e){
+            return("");
+        }
+    }
+
+    public String getObservationDate(int i) {
+        try{
+            return formatDateTime( getString( msg.getRESPONSE().getORDER_OBSERVATION(i).getOBR().getObservationDateTime().getTimeOfAnEvent().getValue() ) ) ;
         }catch(Exception e){
             return("");
         }
@@ -302,19 +323,40 @@ public class PATHL7Handler implements MessageHandler {
                 obxCount = getOBXCount(i);
                 for (int j=0; j < obxCount; j++){
                     String obxStatus = getOBXResultStatus(i, j);
-                    if (obxStatus.equalsIgnoreCase("C"))
+                    if (obxStatus.equalsIgnoreCase("C")) {
                         count++;
+                    }
                 }
             }
             if(count >= 1){//if any of the OBX's have been corrected, mark the entire report as corrected
-            	orderStatus = "C";
-            	return orderStatus;
-            }else{
-            	return orderStatus;
+            	return "corrected";
+            }
+
+            if("P".equals(orderStatus)) {
+                return "preliminary";
+            }
+            if("I".equals(orderStatus)) {
+                return "pending";
+            }
+            if("A".equals(orderStatus)) {
+                return "partial results";
+            }
+            if("F".equals(orderStatus)) {
+                return "complete";
+            }
+            if("R".equals(orderStatus)) {
+                return "retransmitted";
+            }
+            if("C".equals(orderStatus)) {
+                return "corrected";
+            }
+            if("X".equals(orderStatus)) {
+                return "deleted";
             }
         }catch(Exception e){
             return("");
         }
+        return "N/A";
     }
 
     public String getClientRef(){
@@ -564,8 +606,9 @@ public class PATHL7Handler implements MessageHandler {
             obxCount = getOBXCount(i);
             for (int j=0; j < obxCount; j++){
                 String status = getOBXResultStatus(i, j);
-                if (status.equalsIgnoreCase("F") || status.equalsIgnoreCase("C"))
+                if (status.equalsIgnoreCase("F") || status.equalsIgnoreCase("C")) {
                     count++;
+                }
             }
         }
 
@@ -573,11 +616,12 @@ public class PATHL7Handler implements MessageHandler {
         String orderStatus = getOrderStatus();
         // add extra so final reports are always the ordered as the latest except
         // if the report has been changed in which case that report should be the latest
-        if (orderStatus.equalsIgnoreCase("F"))
+        if ("complete".equalsIgnoreCase(orderStatus)) {
             count = count + 100;
-        else if (orderStatus.equalsIgnoreCase("C"))
+        }
+        else if ("corrected".equalsIgnoreCase(orderStatus)) {
             count = count + 150;
-
+        }
         return count;
     }
 
@@ -667,6 +711,28 @@ public class PATHL7Handler implements MessageHandler {
 
     }
 
+    /**
+     * Get the OBR universal service identifier(s) as the label for this lab.
+     */
+    public String getLabel() {
+        Set<String> labels = new HashSet<>();
+        StringBuilder stringBuilder = new StringBuilder(" ");
+
+        for (int i=0; i < msg.getRESPONSE().getORDER_OBSERVATIONReps(); i++){
+            String usi = getUniversalServiceIdentifier(i);
+            labels.add(usi);
+        }
+
+        String comma = "";
+        for(String label : labels) {
+            stringBuilder.append(comma);
+            comma =" | ";
+            stringBuilder.append(label);
+        }
+
+        return stringBuilder.toString().trim();
+    }
+
     public String audit(){
         return "";
     }
@@ -702,16 +768,49 @@ public class PATHL7Handler implements MessageHandler {
     }
 
 
-    private String formatDateTime(String plain){
-    	if (plain==null || plain.trim().equals("")) return "";
+    /**
+     * Format HL7 datetime into ISO standard date.
+     * @param plain date string
+     * @return ISO standard
+     */
+    protected static String formatDateTime(String plain){
+    	if (plain==null || plain.isEmpty()) {
+            return "";
+        }
 
-        String dateFormat = "yyyyMMddHHmmss";
-        dateFormat = dateFormat.substring(0, plain.length());
-        String stringFormat = "yyyy-MM-dd HH:mm:ss";
-        stringFormat = stringFormat.substring(0, stringFormat.lastIndexOf(dateFormat.charAt(dateFormat.length()-1))+1);
+        /* pad with "000000" for time if the time string
+         * does not contain the time.
+         */
+        if(plain.trim().length() == 8) {
+            plain += "000100";
+        }
 
-        Date date = UtilDateUtilities.StringToDate(plain, dateFormat);
-        return UtilDateUtilities.DateToString(date, stringFormat);
+        SimpleDateFormat stringToDate = new SimpleDateFormat("yyyyMMddHHmmss");
+        SimpleDateFormat dateToString = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+
+        try {
+            Date date = stringToDate.parse(plain);
+            plain = dateToString.format(date);
+        } catch (ParseException e) {
+           MiscUtils.getLogger().error("error while parsing date time: " + plain, e);
+        }
+        return plain;
+    }
+
+    protected static String formatDate(String plain) {
+        if (plain == null) {
+            plain = "";
+        }
+        SimpleDateFormat stringToDate = new SimpleDateFormat("yyyyMMdd");
+        SimpleDateFormat dateToString = new SimpleDateFormat("yyyy-MM-dd");
+
+        try {
+            Date date = stringToDate.parse(plain);
+            plain = dateToString.format(date);
+        } catch (ParseException e) {
+            MiscUtils.getLogger().error("error while parsing date: " + plain, e);
+        }
+        return plain;
     }
 
     private String getString(String retrieve){
@@ -770,9 +869,25 @@ public class PATHL7Handler implements MessageHandler {
 		return result;
 	}
     
+
     //for OMD validation
     public boolean isTestResultBlocked(int i, int j) {
     	return false;
     }
     
+
+	public String getXML() {
+
+		XMLParser xmlParser = new DefaultXMLParser();
+		String messageInXML = "";
+		try {
+			messageInXML = xmlParser.encode(msg);
+		} catch (HL7Exception e) {
+			messageInXML = "";
+		}
+
+		return messageInXML;
+
+	}
+
 }
