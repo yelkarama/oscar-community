@@ -70,7 +70,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
 					logger.debug("uploading starting at "+hl7Body.substring(0,10)+"...");
 				}
 			} catch (Exception e) {
-				logger.error("Could not upload "+serviceName+" Excelleris Ontario file "+fileName+", e);
+				logger.error("Could not upload "+serviceName+" Excelleris Ontario file "+fileName, e);
 				logger.error("FileId "+fileId+" last message "+ String.valueOf(i), e);
 				MiscUtils.getLogger().error("Error", e);
 				MessageUploader.clean(fileId);
