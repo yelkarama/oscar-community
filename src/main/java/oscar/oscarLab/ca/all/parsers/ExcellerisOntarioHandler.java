@@ -742,7 +742,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
             }
 
         }catch(Exception e){
-            logger.debug("Setting abnormal flag to default false for i="+String.valueOf(i)+" j="+String.valueOf(j), e)
+            logger.debug("Setting abnormal flag to default false for i="+String.valueOf(i)+" j="+String.valueOf(j), e);
             return(false);
         }
     }
