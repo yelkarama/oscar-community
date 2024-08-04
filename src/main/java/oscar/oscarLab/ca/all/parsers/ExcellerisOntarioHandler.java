@@ -41,7 +41,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 
@@ -72,6 +74,33 @@ public class ExcellerisOntarioHandler implements MessageHandler {
 	public static final String VIHARTF = "CELLPATHR";
 	public static enum OBX_DATA_TYPES {NM,ST,CE,TX,FT} // Numeric, String, Coded Element, Text, String
     private boolean reportBlocked = false;
+    
+    // OBR-25
+    /*
+     * the value "C" supersedes all others and the mimimum requirement is that the overall report status be displayed as "Corrected." 
+     * the value "A" or "I" supersedes "F" or Completed and the requirement is that the overall report status be displayed as "Pending" or "Partial."
+     */
+    public enum OrderStatus {
+        CORRECTED("C", "Corrected"),
+        PENDING("I", "Pending"),
+        PARTIAL_RESULTS("A", "Partial results"),
+        PRELIMINARY("P", "Preliminary"),
+        COMPLETED("F", "Completed"),
+        RETRANSMITTED("R", "Retransmitted"),
+        DELETED("X", "Deleted");
+
+        private final String code;
+        private final String description;
+
+        OrderStatus(String code, String description) {
+            this.code = code;
+            this.description = description;
+        }
+
+        public String getCode() { return code; }
+        public String getDescription() { return description; }
+    }
+    
     /** Creates a new instance */
     public ExcellerisOntarioHandler() {
     }
@@ -351,6 +380,26 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         }
     }
 
+    //OBR-22
+    public String getReportStatusChangeDate() {
+        int obrCount = getOBRCount();
+        String latestReportStatusChangeDate = "";
+        List<String> reportStatusChangeDates = new ArrayList<>();
+        for (int i = 0; i < obrCount; i++) {
+            try {
+                String date = getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBR().getResultsRptStatusChngDateTime().getTimeOfAnEvent().getValue());
+                reportStatusChangeDates.add(date);
+            } catch(Exception e){
+                reportStatusChangeDates.add("");
+            }
+        }
+        
+        for (String reportStatusChangeDate : reportStatusChangeDates) {
+            if (latestReportStatusChangeDate.isEmpty() || reportStatusChangeDate.compareTo(latestReportStatusChangeDate) > 0) { latestReportStatusChangeDate = reportStatusChangeDate; }
+        }
+        return latestReportStatusChangeDate.isEmpty() ? latestReportStatusChangeDate : formatDateTime(latestReportStatusChangeDate);
+    }
+    
     //OBR-25
     /*
     * I = pending
@@ -364,48 +413,57 @@ public class ExcellerisOntarioHandler implements MessageHandler {
     * @see oscar.oscarLab.ca.all.parsers.MessageHandler#getOrderStatus()
     */
     public String getOrderStatus(){
-    	String orderStatus = null;
+    	Set<String> orderStatuses = new HashSet<>();
         try{
         	for(int x=0;x<msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTIReps();x++) {
         		ORU_R01_PIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI items =  msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI(x);
         		for(int y=0;y<items.getORCOBRNTEOBXNTECTIReps();y++) {
         			String status = items.getORCOBRNTEOBXNTECTI(y).getOBR().getResultStatus().getValue();
-        			if(orderStatus == null && status != null) {
-            			orderStatus = status;
-            		}
-            		if("C".equals(status)) {
-            			return "Corrected";
-            		}
+        			if(status == null) { continue; }
+                    orderStatuses.add(status);
         		}
         		
         	}
         	
-            if("P".equals(orderStatus)) {
-            	return "preliminary";
-            }
-            if("I".equals(orderStatus)) {
-            	return "Results are pending...";
-            }
-            if("A".equals(orderStatus)) {
-            	return "partial results";
-            }
-            if("F".equals(orderStatus)) {
-            	return "complete";
-            }
-            if("R".equals(orderStatus)) {
-            	return "Retransmitted";
-            }
-            if("C".equals(orderStatus)) {
-            	return "corrected";
-            }
-            if("X".equals(orderStatus)) {
-            	return "deleted";
+            /*
+             * the value "C" supersedes all others and the mimimum requirement is that the overall report status be displayed as "Corrected." 
+             * the value "A" or "I" supersedes "F" or Completed and the requirement is that the overall report status be displayed as "Pending" or "Partial."
+             */
+            for (OrderStatus status : OrderStatus.values()) {
+                if (!orderStatuses.contains(status.getCode())) { continue; }
+                return status.getDescription();
             }
         }catch(Exception e){
             return("");
         }
         
         return "N/A";
+    }
+
+    public String getOrderStatus(int y) {
+        String statusDescription = "";
+        try {
+            String status = getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(y).getOBR().getResultStatus().getValue());
+            
+            for (OrderStatus orderStatus : OrderStatus.values()) {
+                if (status.equals(orderStatus.getCode())) {
+                    switch (orderStatus) {
+                        case PENDING:
+                            statusDescription = "Results are pending...";
+                            break;
+                        case PRELIMINARY:
+                        case CORRECTED:
+                            statusDescription = orderStatus.getDescription();
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            //
+        }
+        return statusDescription;
     }
 
     //OBR-16
