@@ -24,6 +24,7 @@
 
 package oscar.oscarLab.ca.all.upload.handlers;
 
+import java.lang.String;
 import java.io.FileInputStream;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -66,15 +67,18 @@ public class ExcellerisOntarioHandler implements MessageHandler {
 
 					String hl7Body = messages.item(i).getFirstChild().getTextContent();
 					MessageUploader.routeReport(loggedInInfo, serviceName, "ExcellerisON", hl7Body, fileId);
+					logger.debug("uploading starting at "+hl7Body.substring(0,10)+"...");
 				}
 			} catch (Exception e) {
-				logger.error("Could not upload Excelleris Ontario message", e);
+				logger.error("Could not upload "+serviceName+" Excelleris Ontario file "+fileName+", e);
+				logger.error("FileId "+fileId+" last message "+ String.valueOf(i), e);
 				MiscUtils.getLogger().error("Error", e);
 				MessageUploader.clean(fileId);
 				return null;
 			}
 			return ("success");
 		} else {
+			logger.error("Excelleris Ontario doc is null");
 			return null;
 		}
 
