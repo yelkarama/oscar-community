@@ -24,7 +24,6 @@
 
 package oscar.oscarLab.ca.all.upload.handlers;
 
-import java.lang.String;
 import java.io.FileInputStream;
 
 import javax.xml.parsers.DocumentBuilder;
