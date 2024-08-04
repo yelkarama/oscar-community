@@ -73,7 +73,6 @@ public class ExcellerisOntarioHandler implements MessageHandler {
 	
 	public static final String VIHARTF = "CELLPATHR";
 	public static enum OBX_DATA_TYPES {NM,ST,CE,TX,FT} // Numeric, String, Coded Element, Text, String
-    private boolean reportBlocked = false;
     
     // OBR-25
     /*
@@ -919,8 +918,9 @@ public class ExcellerisOntarioHandler implements MessageHandler {
 		return ( OBX_DATA_TYPES.TX.name().equals( getOBXValueType(0, 0) ) 
 				|| OBX_DATA_TYPES.FT.name().equals( getOBXValueType(0, 0) )  );		
 	}
-
-    public Boolean isReportBlocked(){
-        return reportBlocked;
+   
+    //for OMD validation
+    public boolean isTestResultBlocked(int i, int j) {
+    	return false;
     }
 }
