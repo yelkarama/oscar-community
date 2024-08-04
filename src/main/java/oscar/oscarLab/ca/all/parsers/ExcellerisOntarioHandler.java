@@ -162,6 +162,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
     	if(names.length>0) {
     		return (getString(names[0].getFamilyLastName().getFamilyName().getValue()));
     	}
+       logger.debug("Could not get name");
        return "";
     }
 
@@ -170,7 +171,8 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(formatDateTime(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getPIDPD1NK1NTEPV1PV2().getPID().getPid7_DateTimeOfBirth().getTimeOfAnEvent().getValue())).substring(0, 10));
         }catch(Exception e){
-            return("");
+            logger.debug("Could not get DOB", e);
+            return("UNKNOWN");
         }
     }
 
@@ -210,6 +212,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
             }
             return(getString(hin + ver));    
     	}
+        logger.debug("Could not get HIN");
     	return "";      
     }
 
@@ -224,6 +227,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
             }
             return(getString(ver));
         }
+        logger.debug("Could not get version code");
         return "";
     }
     
@@ -263,7 +267,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
             }
             return(phone);
         }catch(Exception e){
-            logger.error("Could not return phone number", e);
+            logger.error("Could not return work phone number", e);
 
             return("");
         }
@@ -284,30 +288,29 @@ public class ExcellerisOntarioHandler implements MessageHandler {
 
             String accessionNum = getString(str);
 
-            String[] nums = accessionNum.split("-");
-            if (nums.length == 3){
-                return nums[0];
-            }else if (nums.length == 5){
-                return nums[0]+"-"+nums[1]+"-"+nums[2];
-            }else{
+            //String[] nums = accessionNum.split("-");
+            //if (nums.length == 3){
+            //    return nums[0];
+           // }else if (nums.length == 5){
+            //    return nums[0]+"-"+nums[1]+"-"+nums[2];
+            //}else{
 
 
-                if(nums.length>1)
-                    return nums[0]+"-"+nums[1];
-                else
-                    return "";
-            }
+            //    if(nums.length>1)
+            //        return nums[0]+"-"+nums[1];
+            //    else
+            //        return "";
+           // }
+           return accessionNum;
         }catch(Exception e){
             logger.error("Could not return accession number", e);
-
             return("");
         }
     }
 
    
     
-    public int getOBRCount(){
-    	
+    public int getOBRCount(){   	
     	
         return(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTIReps());
     }
@@ -317,6 +320,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBR().getObr4_UniversalServiceID().getText().getValue()));
         }catch(Exception e){
+            logger.debug("Could not return OBRName", e);
             return("");
         }
     }
@@ -325,6 +329,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBR().getObr4_UniversalServiceID().getCe1_Identifier().getValue()));
         }catch(Exception e){
+            logger.debug("Could not return OBRIdentifier", e);
             return("");
         }
     }
@@ -335,6 +340,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBR().getObr24_DiagnosticServSectID().getValue()));
         }catch(Exception e){
+            logger.debug("Could not return Observation Header", e);
             return("");
         }
     }
@@ -348,6 +354,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
                 return(0);
             }
         } catch (Exception e) {
+            logger.debug("Could not return OBR Comment Count", e);
             return(0);
         }
     }
@@ -357,6 +364,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try {
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getNTE(j).getComment(0).getValue()));
         } catch (Exception e) {
+            logger.debug("Could not return OBR Comment", e);
             return("");
         }
     }
@@ -366,6 +374,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(formatDateTime(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(0).getOBR().getObservationDateTime().getTimeOfAnEvent().getValue())));
         }catch(Exception e){
+            logger.debug("Could not return Service Date", e);
             return("");
         }
     }
@@ -375,6 +384,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(formatDateTime(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBR().getRequestedDateTime().getTimeOfAnEvent().getValue())));
         }catch(Exception e){
+            logger.debug("Could not return Request Date", e);
             return("");
         }
     }
@@ -389,6 +399,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
                 String date = getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBR().getResultsRptStatusChngDateTime().getTimeOfAnEvent().getValue());
                 reportStatusChangeDates.add(date);
             } catch(Exception e){
+                logger.debug("Could not return Report Status Change Date", e);
                 reportStatusChangeDates.add("");
             }
         }
@@ -433,6 +444,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
                 return status.getDescription();
             }
         }catch(Exception e){
+            logger.debug("Could not return Order Status", e);
             return("");
         }
         
@@ -460,7 +472,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
                 }
             }
         } catch (Exception e) {
-            //
+            logger.debug("Could not return Order Status for y", e);
         }
         return statusDescription;
     }
@@ -578,6 +590,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getObservationIdentifier().getIdentifier().getValue()));
         }catch(Exception e){
+            logger.debug("Could not return OBX identifier", e);
             return("");
         }
     }
@@ -587,6 +600,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getValueType().getValue()));
         }catch(Exception e){
+            logger.debug("Could not return OBX value type", e);
             return("");
         }
     }
@@ -596,6 +610,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getObservationIdentifier().getText().getValue()));
         }catch(Exception e){
+            logger.debug("Could not return OBX Name", e);
             return("");
         }
     }
@@ -605,6 +620,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getObservationIdentifier().getText().getValue()));
         }catch(Exception e){
+            logger.debug("Could not return OBX Name Long", e);
             return("");
         }
     }
@@ -613,6 +629,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(getString(Terser.get(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX(),5,0,1,1)));
         }catch(Exception e){
+            logger.debug("Could not return OBX Result", e);
             return("");
         }
     }
@@ -625,7 +642,8 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getObx4_ObservationSubID().getValue() ) );
         }catch(Exception e){
-            return(null);
+            logger.debug("Could not return OBX Sub Id", e);
+            return("");
         }
     }
 
@@ -642,6 +660,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
             }
             return subId + ") " + observationResult;
         }catch(Exception e){
+            logger.debug("Could not return sub id and add the observation", e);
             return "";
          }
      }
@@ -651,6 +670,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getReferencesRange().getValue()));
         }catch(Exception e){
+            logger.debug("Could not return reference range", e);
             return("");
         }
     }
@@ -660,6 +680,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getUnits().getIdentifier().getValue()));
         }catch(Exception e){
+            logger.debug("Could not return units", e);
             return("");
         }
     }
@@ -669,6 +690,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getObx11_ObservationResultStatus().getValue()));
         }catch(Exception e){
+            logger.debug("Could not return OBX status", e);
             return("");
         }
     }
@@ -695,7 +717,9 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         else if (orderStatus.equalsIgnoreCase("C"))
             count = count + 150;
 
+        logger.debug("OBX count="+String.valueOf(count));
         return count;
+        
     }
 
     //OBX-14
@@ -703,6 +727,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(formatDateTime(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getDateTimeOfTheObservation().getTimeOfAnEvent().getValue())));
         }catch(Exception e){
+            logger.error("Could not return Time Stamp", e);
             return("");
         }
     }
@@ -717,6 +742,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
             }
 
         }catch(Exception e){
+            logger.debug("Setting abnormal flag to default false for i="+String.valueOf(i)+" j="+String.valueOf(j), e)
             return(false);
         }
     }
@@ -725,7 +751,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getAbnormalFlags(0).getValue()));
         }catch(Exception e){
-            logger.error("Error retrieving obx abnormal flag", e);
+            logger.error("Error retrieving obx abnormal flag for i="+String.valueOf(i)+" j="+String.valueOf(j), e);
             return("");
         }
     }
@@ -738,6 +764,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
                 return(0);
             }
         } catch (Exception e) {
+            logger.error("Error retrieving obx comment count for i="+String.valueOf(i)+" j="+String.valueOf(j), e);
             return(0);
         }
     }
@@ -746,6 +773,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try {
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getNTE(k).getComment(0).getValue()));
         } catch (Exception e) {
+            logger.debug("Error retrieving obx comment for i="+String.valueOf(i)+" j="+String.valueOf(j)+" k="+String.valueOf(k), e);
             return("");
         }
     }
@@ -755,7 +783,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
     	 try{
              return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getProducerSID().getCe1_Identifier().getValue()));
          }catch(Exception e){
-             logger.error("Error retrieving obx abnormal flag", e);
+             logger.debug("Error retrieving lab liscence no for i="+String.valueOf(i)+" j="+String.valueOf(j), e);
              return("");
          }
     }
@@ -779,7 +807,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
    		 }
    		 return s.toString();
    	 }catch(Exception e){
-            logger.error("Error retrieving obx abnormal flag", e);
+            logger.debug("Error retrieving lab liscence name for i="+String.valueOf(i)+" j="+String.valueOf(j), e);
             return("");
         }
    }
@@ -810,7 +838,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
             }
             return(headers);
         }catch(Exception e){
-            logger.error("Could not create header list", e);
+            logger.error("Could not create header list at i="+String.valueOf(i), e);
 
             return(null);
         }
@@ -879,17 +907,20 @@ public class ExcellerisOntarioHandler implements MessageHandler {
     }
 
     public String getFillerOrderNumber(){
+        logger.error("getFillerOrderNumber is not implimented here", e);
 		return "";
 	}
     public String getEncounterId(){
+        logger.error("getEncounterId is not implimented here", e);
     	return "";
     }
     public String getRadiologistInfo(){
+        logger.error("getRadiologistInfo is not implimented here", e);
 		return "";
 	}
 
     public String getNteForOBX(int i, int j){
-
+        logger.error("getNteForOBX is not implimented here", e);
     	return "";
     }
 
@@ -905,7 +936,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
 	}
 
     public String getNteForPID(){
-    	
+    	logger.error("getNteForPID is not implimented here", e);
     	return "";
     }
     
