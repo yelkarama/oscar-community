@@ -265,7 +265,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
 
     
     //ORC-3
-    //Order ID of lab performing tests (accession number-test code-tiebreaker)
+    //Order ID of lab performing tests (accession number-test code tiebreaker) eg 2017-EMR40038-2_TR12001-4
     public String getAccessionNum(){
         try{
 
@@ -377,6 +377,27 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         }catch(Exception e){
             return("");
         }
+    }
+    
+    //OBR-22
+    // overloaded
+    public String getReportStatusChangeDate() {
+        int obrCount = getOBRCount();
+        String latestReportStatusChangeDate = "";
+        List<String> reportStatusChangeDates = new ArrayList<>();
+        for (int i = 0; i < obrCount; i++) {
+            try {
+                String date = getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBR().getResultsRptStatusChngDateTime().getTimeOfAnEvent().getValue());
+                reportStatusChangeDates.add(date);
+            } catch(Exception e){
+                reportStatusChangeDates.add("");
+            }
+        }
+        
+        for (String reportStatusChangeDate : reportStatusChangeDates) {
+            if (latestReportStatusChangeDate.isEmpty() || reportStatusChangeDate.compareTo(latestReportStatusChangeDate) > 0) { latestReportStatusChangeDate = reportStatusChangeDate; }
+        }
+        return latestReportStatusChangeDate.isEmpty() ? latestReportStatusChangeDate : formatDateTime(latestReportStatusChangeDate);
     }
 
     //OBR-25
@@ -561,6 +582,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getObservationIdentifier().getIdentifier().getValue()));
         }catch(Exception e){
+            logger.debug("Could not return OBX Identifier", e);
             return("");
         }
     }
@@ -570,6 +592,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getValueType().getValue()));
         }catch(Exception e){
+            logger.debug("Could not return OBX Value Type", e);
             return("");
         }
     }
@@ -579,6 +602,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getObservationIdentifier().getText().getValue()));
         }catch(Exception e){
+            logger.debug("Could not return OBX Name", e);
             return("");
         }
     }
@@ -588,6 +612,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getObservationIdentifier().getText().getValue()));
         }catch(Exception e){
+            logger.debug("Could not return OBX Name Long", e);
             return("");
         }
     }
@@ -596,6 +621,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(getString(Terser.get(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX(),5,0,1,1)));
         }catch(Exception e){
+            logger.debug("Could not return OBX Result", e);
             return("");
         }
     }
@@ -608,6 +634,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getObx4_ObservationSubID().getValue() ) );
         }catch(Exception e){
+            logger.debug("Could not return OBX Sub Id", e);
             return "";
         }
     }
@@ -622,6 +649,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
             }
             return subId + ") " + observationResult;
         }catch(Exception e){
+            logger.debug("Could not return sub id and add the observation", e);
             return "";
         }
     }
@@ -631,6 +659,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getReferencesRange().getValue()));
         }catch(Exception e){
+            logger.debug("Could not return reference range", e);
             return("");
         }
     }
@@ -640,6 +669,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getUnits().getIdentifier().getValue()));
         }catch(Exception e){
+            logger.debug("Could not return units", e);
             return("");
         }
     }
@@ -649,6 +679,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getObx11_ObservationResultStatus().getValue()));
         }catch(Exception e){
+            logger.debug("Could not return OBX status", e);
             return("");
         }
     }
@@ -683,6 +714,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(formatDateTime(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getDateTimeOfTheObservation().getTimeOfAnEvent().getValue())));
         }catch(Exception e){
+            logger.error("Could not return Time Stamp", e);
             return("");
         }
     }
@@ -726,6 +758,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try {
             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getNTE(k).getComment(0).getValue()));
         } catch (Exception e) {
+            logger.debug("No comment obtained for OBX for i="+String.valueOf(i)+" j="+String.valueOf(j), e);
             return("");
         }
     }
@@ -798,7 +831,63 @@ public class ExcellerisOntarioHandler implements MessageHandler {
     }
 
     public String audit(){
+        logger.error("audit is not implimented for Excelleris ON");
         return "";
+    }
+    
+    public String getFillerOrderNumber(){
+    	 try{
+             return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(0).getORC().getFillerOrderNumber().getEntityIdentifier().getValue()));
+         }catch(Exception e){
+             logger.error("Error retrieving filler order number (accession)", e);
+             return("");
+         }
+	}
+    
+    public String getEncounterId(){
+        logger.error("getEncounterId is not implimented for for Excelleris ON");
+    	return "";
+    }
+    
+    public String getRadiologistInfo(){
+        logger.error("getRadiologistInfo is not implimented for Excelleris ON");
+		return "";
+	}
+
+    public String getNteForOBX(int i, int j){
+		logger.error("getNteForOBX is not implimented for Excelleris ON");
+    	return "";
+    }
+
+	/*
+	 * Checks to see if the PATHL7 lab is an unstructured document or a VIHA RTF pathology report
+	 * labs that fall into any of these categories have certain requirements per Excelleris
+	*/
+	public boolean unstructuredDocCheck(String header){
+		return (labDocuments.contains(header));
+	}
+	public boolean vihaRtfCheck(String header){
+		return (header.equals(VIHARTF));
+	}
+
+    public String getNteForPID(){
+		logger.error("getNteForPID is not implimented here"); 	
+    	return "";
+    }
+    
+	/**
+	 * If the first OBX segment is presenting a textual report and the lab type is 
+	 * not in the unstructured (PATH or ITS) lab types.  
+	 * 
+	 */
+	public boolean isReportData() {		
+		return ( OBX_DATA_TYPES.TX.name().equals( getOBXValueType(0, 0) ) 
+				|| OBX_DATA_TYPES.FT.name().equals( getOBXValueType(0, 0) )  );		
+	}
+    
+    //for OMD validation
+    public boolean isTestResultBlocked(int i, int j) {
+    	return false;
     }
 
     /*
@@ -858,50 +947,5 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         }
     }
 
-    public String getFillerOrderNumber(){
-		return "";
-	}
-    public String getEncounterId(){
-    	return "";
-    }
-    public String getRadiologistInfo(){
-		return "";
-	}
-
-    public String getNteForOBX(int i, int j){
-
-    	return "";
-    }
-
-	/*
-	 * Checks to see if the PATHL7 lab is an unstructured document or a VIHA RTF pathology report
-	 * labs that fall into any of these categories have certain requirements per Excelleris
-	*/
-	public boolean unstructuredDocCheck(String header){
-		return (labDocuments.contains(header));
-	}
-	public boolean vihaRtfCheck(String header){
-		return (header.equals(VIHARTF));
-	}
-
-    public String getNteForPID(){
-    	
-    	return "";
-    }
-    
-	/**
-	 * If the first OBX segment is presenting a textual report and the lab type is 
-	 * not in the unstructured (PATH or ITS) lab types.  
-	 * 
-	 */
-	public boolean isReportData() {		
-		return ( OBX_DATA_TYPES.TX.name().equals( getOBXValueType(0, 0) ) 
-				|| OBX_DATA_TYPES.FT.name().equals( getOBXValueType(0, 0) )  );		
-	}
-    
-    //for OMD validation
-    public boolean isTestResultBlocked(int i, int j) {
-    	return false;
-    }
     
 }
