@@ -115,6 +115,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
     }
 
     public String getMsgPriority(){
+        logger.info("getMsgPriority is not implimented in Excelleris");
         return("");
     }
    
@@ -170,12 +171,12 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(formatDateTime(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getPIDPD1NK1NTEPV1PV2().getPID().getPid7_DateTimeOfBirth().getTimeOfAnEvent().getValue())).substring(0, 10));
         }catch(Exception e){
-            return("");
+            return("UNKNOWN");
         }
     }
 
     public String getAge(){
-        String age = "N/A";
+        String age = "UNKNOWN";
         String dob = getDOB();
         String service = getServiceDate(); 
         try {
@@ -211,7 +212,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
     		
     		return(getString(hin + ver));
     	}
-    	return "";
+    	return "UNKNOWN"; //this is used in LabPDFcreator
         
     }
 
@@ -357,6 +358,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(formatDateTime(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(0).getOBR().getObservationDateTime().getTimeOfAnEvent().getValue())));
         }catch(Exception e){
+            logger.error("Could not return Service Date", e);
             return("");
         }
     }
@@ -366,6 +368,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             return(formatDateTime(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBR().getRequestedDateTime().getTimeOfAnEvent().getValue())));
         }catch(Exception e){
+            logger.error("Could not return Request Date", e);
             return("");
         }
     }
@@ -434,6 +437,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
                 return status.getDescription();
             }
         }catch(Exception e){
+            logger.error("Could not return Order Status", e);
             return("");
         }
         
@@ -464,7 +468,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
                 }
             }
         } catch (Exception e) {
-            //
+           logger.error("Could not return Order Status 2", e);            
         }
         return statusDescription;
     }
@@ -506,7 +510,6 @@ public class ExcellerisOntarioHandler implements MessageHandler {
             return(docName);
         }catch(Exception e){
             logger.error("Could not return doctor names", e);
-
             return("");
         }
     }
@@ -768,7 +771,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
     	 try{
              return(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBXNTE(j).getOBX().getProducerSID().getCe1_Identifier().getValue()));
          }catch(Exception e){
-             logger.error("Error retrieving obx abnormal flag", e);
+             logger.error("Error retrieving LabLicenseNo", e);
              return("");
          }
     }
