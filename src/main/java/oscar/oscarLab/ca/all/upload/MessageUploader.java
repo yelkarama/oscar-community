@@ -134,10 +134,24 @@ public final class MessageUploader {
 			String sendingFacility = h.getPatientLocation();
 			ArrayList<?> docNums = h.getDocNums();
 			int finalResultCount = h.getOBXFinalResultCount();
-			String obrDate = h.getTimeStamp(0,0); //this fails to empty if the first ORC has no OBX
+			String obrDate = h.getTimeStamp(0,0); //this returns "" if the first ORC has no OBX
 			if (obrDate.isEmpty()){
-				// lets use the date from the first OBR to get the obr date
-				obrDate = h.getServiceDate();
+				logger.error("Error empty Time Stamp : "+obrDate);
+				// lets first iterate through the Time Stamps
+				for (int i=0; i < h.getOBXcount(); i++) {
+					if (h.getTimeStamp(i,0) != ""){
+						obrDate = h.getTimeStamp(i,0);
+						logger.debug("Using TimeStamp : "+obrDate+" for OBX number : "+String.valueOf(i));
+					}
+				}
+				if (obrDate.isEmpty()){
+					// lets use the date from the first OBR to get the obr date
+					obrDate = h.getServiceDate();
+					logger.debug("Using Service Date : "+obrDate);
+					if (obrDate.isEmpty()){
+						logger.error("Error empty Service Date");
+					}
+				}
 			}
 
 			if(h instanceof HHSEmrDownloadHandler) {
@@ -177,9 +191,12 @@ public final class MessageUploader {
 					//obrDate = obrDate.substring(0, 19);
 					obrDate = UtilDateUtilities.DateToString(UtilDateUtilities.StringToDate(obrDate, "yyyy-MM-dd HH:mm:ss z"), "yyyy-MM-dd HH:mm:ss z");
 				} else {
-					String format = "yyyy-MM-dd HH:mm:ss".substring(0, obrDate.length() - 1);
-					obrDate = UtilDateUtilities.DateToString(UtilDateUtilities.StringToDate(obrDate, format), "yyyy-MM-dd HH:mm:ss");
+					if(obrDate.length() > 1){
+						String format = "yyyy-MM-dd HH:mm:ss".substring(0, obrDate.length() - 1);
+						obrDate = UtilDateUtilities.DateToString(UtilDateUtilities.StringToDate(obrDate, format), "yyyy-MM-dd HH:mm:ss");
+					}
 				}
+				logger.debug("Using obr date : "+obrDate);
 			} catch (Exception e) {				
 				logger.error("Error parsing obr date : "+obrDate, e);
 				throw e;
