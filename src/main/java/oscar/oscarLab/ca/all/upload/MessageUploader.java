@@ -138,10 +138,11 @@ public final class MessageUploader {
 			if (obrDate.isEmpty()){
 				logger.error("Error empty Time Stamp : "+obrDate);
 				// lets first iterate through the Time Stamps
-				for (int i=0; i < h.getOBRcount(); i++) {
+				int obrCount = h.getOBRCount();
+				for (int i=0; i < obrCount; i++) {
 					if (h.getTimeStamp(i,0) != ""){
 						obrDate = h.getTimeStamp(i,0);
-						logger.debug("Using TimeStamp : "+obrDate+" for OBR number : "+String.valueOf(i));
+						logger.debug("Using TimeStamp : "+obrDate+" for OBR number : "+String.valueOf(i)+"/"+String.valueOf(obrCount));
 					}
 				}
 				if (obrDate.isEmpty()){
