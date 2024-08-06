@@ -738,11 +738,13 @@ public final class MessageUploader {
 	
 				if (dob != null && !dob.equals("")) {
 					String[] dobArray = dob.trim().split("-");
-					dobYear = dobArray[0];
-					dobMonth = dobArray[1];
-					dobDay = dobArray[2];
+					if (dobArray.length() == 3) {
+						dobYear = dobArray[0];
+						dobMonth = dobArray[1];
+						dobDay = dobArray[2];
+					}
 				}
-	
+				logger.debug("Finding demo for given name : "+firstName+" surname : "+lastName+" with hinMod : "+hinMod+" dob y/m/d : "+dobYear+"/"+dobMonth+"/"+dobDay);
 				
 				// if no hin but there is a dob try for a complete match against the full name
 				if( ( hinMod == null || hinMod.equals("") ) && (dob != null && !dob.equals("")) ) {
@@ -750,13 +752,8 @@ public final class MessageUploader {
 				}
 
 				// only the first letter of names
-				if (!firstName.equals("")) firstName = firstName.substring(0, 1);
-				if (!lastName.equals("")) lastName = lastName.substring(0, 1);
-	
-				// there are too many wild cards for this query to work with any amount of accuracy.
-//				if (hinMod.equals("%")) {
-//					sql = "select demographic_no, provider_no from demographic where" + " last_name like '" + lastName + "%' and " + " first_name like '" + firstName + "%' and " + " year_of_birth like '" + dobYear + "' and " + " month_of_birth like '" + dobMonth + "' and " + " date_of_birth like '" + dobDay + "' and " + " sex like '" + sex + "%' ";
-//				} 
+				if (firstName.length() > 0) { firstName = firstName.substring(0, 1);}
+				if (lastName.length() > 0) { lastName = lastName.substring(0, 1);}
 				
 				// HIN is ALWAYS required for lab matching. Please do not revert this code. Previous iterations have caused fatal patient miss-matches.	
 				// relax need to match gender for non binary labeled demographics " ( sex like '"+sex+"%' OR sex NOT IN ('F','M') ";
