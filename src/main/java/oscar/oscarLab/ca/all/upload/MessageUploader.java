@@ -738,16 +738,16 @@ public final class MessageUploader {
 	
 				if (dob != null && !dob.equals("")) {
 					String[] dobArray = dob.trim().split("-");
-					if (dobArray.length() == 3) {
+					if (dobArray.length == 3) {
 						dobYear = dobArray[0];
 						dobMonth = dobArray[1];
 						dobDay = dobArray[2];
 					}
 				}
-				logger.debug("Finding demo for given name : "+firstName+" surname : "+lastName+" with hinMod : "+hinMod+" dob y/m/d : "+dobYear+"/"+dobMonth+"/"+dobDay);
 				
 				// if no hin but there is a dob try for a complete match against the full name
 				if( ( hinMod == null || hinMod.equals("") ) && (dob != null && !dob.equals("")) ) {
+					logger.debug("Finding demo for given name : "+firstName+"% surname : "+lastName+"% with dob y/m/d : "+dobYear+"/"+dobMonth+"/"+dobDay+" sex of : "+sex);
 					sql = "select demographic_no, provider_no from demographic where" + " last_name like '" + lastName + "%' and " + " first_name like '" + firstName + "%' and " + " year_of_birth like '" + dobYear + "' and " + " month_of_birth like '" + dobMonth + "' and " + " date_of_birth like '" + dobDay + "' and " + " sex like '" + sex + "%' ";
 				}
 
@@ -758,6 +758,7 @@ public final class MessageUploader {
 				// HIN is ALWAYS required for lab matching. Please do not revert this code. Previous iterations have caused fatal patient miss-matches.	
 				// relax need to match gender for non binary labeled demographics " ( sex like '"+sex+"%' OR sex NOT IN ('F','M') ";
 				if( hinMod != null && !hinMod.equals("") ) {
+					logger.debug("Finding demo for given name : "+firstName+"% surname : "+lastName+"% with hinMod : "+hinMod+" dob y/m/d : "+dobYear+"/"+dobMonth+"/"+dobDay+" sex* of : "+sex);
 					if (OscarProperties.getInstance().getBooleanProperty("LAB_NOMATCH_NAMES", "yes")) {
 						sql = "select demographic_no, provider_no from demographic where hin='" + hinMod + "' and " + " year_of_birth like '" + dobYear + "' and " + " month_of_birth like '" + dobMonth + "' and " + " date_of_birth like '" + dobDay + "' and " + " ( sex like '" + sex + "%' OR sex NOT IN ('F', 'M') )";
 					} else {
