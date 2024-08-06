@@ -314,7 +314,7 @@ public final class MessageUploader {
 				try {
 					c.close();
 				}catch(SQLException e) {
-					
+					logger.error("SQL error for patient routing",e);
 				}
 			}
 			if(type.equals("OLIS_HL7") && demProviderNo.equals("0")) {
@@ -332,21 +332,21 @@ public final class MessageUploader {
 					try {
 						c.close();
 					}catch(SQLException e) {
-						
+						logger.error("SQL error for provider routing",e);
 					}
 				}
 			} else {
 				Integer limit = null;
 				boolean orderByLength = false;
-				String search = null;
+				String search = null;  // null search defaults to <oscarDB>.Provider.ohip_no
 				if (type.equals("Spire")) {
 					limit = new Integer(1);
 					orderByLength = true;
-					search = "provider_no";
+					search = "provider_no"; //ie the OSCAR <oscarDB>.Provider.provider_no
 				}
 				
 				if( "MEDITECH".equals(type) ) {
-					search = "practitionerNo";
+					search = "practitionerNo"; // ie the college number <oscarDB>.Provider.practitionerNo
 				}
 				
 				if( "IHAPOI".equals(type) ) {
@@ -360,7 +360,7 @@ public final class MessageUploader {
 					try {
 						c.close();
 					}catch(SQLException e) {
-						
+						logger.error("SQL error for provider routing",e);
 					}
 				}
 			}
@@ -369,7 +369,7 @@ public final class MessageUploader {
 				results.segmentId = insertID;
 			}
 		} catch (Exception e) {
-			logger.error("Error uploading lab to database");
+			logger.error("SQL error uploading lab to database",e);
 			throw e;
 		}
 
@@ -650,6 +650,7 @@ public final class MessageUploader {
 				}
 				
 			} catch (SQLException sqlE) {
+				logger.error("error with sql : "+sql,sqlE);
 				throw sqlE;
 			}
 
@@ -693,7 +694,7 @@ public final class MessageUploader {
 						pstmt.close();	
 						c.close();
 					}catch(SQLException e) {
-						
+						logger.error("error with sql : "+sql,e);
 					}
 				}
 				
@@ -788,6 +789,7 @@ public final class MessageUploader {
 					}
 				}
 			} catch (SQLException sqlE) {
+				logger.error("error with sql : "+sql,sqlE);
 				throw sqlE;
 			}
 
@@ -831,7 +833,7 @@ public final class MessageUploader {
 						pstmt.close();	
 						c.close();
 					}catch(SQLException e) {
-						
+						logger.error("error with sql : "+sql,e);	
 					}
 				}
 				
@@ -850,7 +852,7 @@ public final class MessageUploader {
 	public static void clean(int fileId) {
 		
 		List<Hl7TextMessage> results = hl7TextMessageDao.findByFileUploadCheckId(fileId);
-		
+		logger.info("cleaning up database due to prior errors");
 
 		for (Hl7TextMessage result:results) {
 			int lab_id = result.getId();
