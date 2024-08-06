@@ -134,8 +134,11 @@ public final class MessageUploader {
 			String sendingFacility = h.getPatientLocation();
 			ArrayList<?> docNums = h.getDocNums();
 			int finalResultCount = h.getOBXFinalResultCount();
-			//String obrDate = h.getMsgDate();
-			String obrDate = h.getTimeStamp(0,0);
+			String obrDate = h.getTimeStamp(0,0); //this fails to empty if the first ORC has no OBX
+			if (obrDate.isEmpty()){
+				// lets use the date from the first OBR to get the obr date
+				obrDate = h.getServiceDate();
+			}
 
 			if(h instanceof HHSEmrDownloadHandler) {
 				try{
@@ -169,7 +172,7 @@ public final class MessageUploader {
 			}
 
 			try {
-				// reformat date 2012-01-20 00:00:00 EST
+				// reformat 20240718132400 date 2012-01-20 00:00:00 EST
 				if(obrDate.length() == 23) {
 					//obrDate = obrDate.substring(0, 19);
 					obrDate = UtilDateUtilities.DateToString(UtilDateUtilities.StringToDate(obrDate, "yyyy-MM-dd HH:mm:ss z"), "yyyy-MM-dd HH:mm:ss z");
@@ -178,7 +181,7 @@ public final class MessageUploader {
 					obrDate = UtilDateUtilities.DateToString(UtilDateUtilities.StringToDate(obrDate, format), "yyyy-MM-dd HH:mm:ss");
 				}
 			} catch (Exception e) {				
-				logger.error("Error parsing obr date : ", e);
+				logger.error("Error parsing obr date : "+obrDate, e);
 				throw e;
 			}
 
