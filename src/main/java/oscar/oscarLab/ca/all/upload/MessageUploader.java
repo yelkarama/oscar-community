@@ -132,7 +132,7 @@ public final class MessageUploader {
 			String accessionNum = h.getAccessionNum();
 			String fillerOrderNum = h.getFillerOrderNumber();
 			String sendingFacility = h.getPatientLocation();
-			ArrayList<?> docNums = h.getDocNums();
+			ArrayList<String> docNums = h.getDocNums();
 			int finalResultCount = h.getOBXFinalResultCount();
 			String obrDate = h.getTimeStamp(0,0); //this returns "" if the first ORC has no OBX
 			if (obrDate.isEmpty()){
@@ -461,9 +461,9 @@ public final class MessageUploader {
 		if (docNums != null) {
 			for (int i = 0; i < docNums.size(); i++) {
 
-				if (docNums.get(i) != null && !((String) docNums.get(i)).trim().equals("")) {
+				if (docNums.get(i) != null && !(docNums.get(i)).trim().equals("")) {
 					if("ON".equals(OscarProperties.getInstance().getProperty("billregion","ON"))) {
-						StringBuilder practitionerNum = new StringBuilder(((String)docNums.get(i)).trim());
+						StringBuilder practitionerNum = new StringBuilder((docNums.get(i)).trim());
 						if( sqlSearchOn.equalsIgnoreCase("ohip_no")) {
 							while( practitionerNum.length() < 6 ) {
 								practitionerNum.insert(0, "0");
@@ -471,7 +471,7 @@ public final class MessageUploader {
 						}
 						sql = "select provider_no from provider where "+ sqlSearchOn +" = '" + practitionerNum.toString() + "'" + sqlOrderByLength + sqlLimit;
 					} else {
-						sql = "select provider_no from provider where "+ sqlSearchOn +" LIKE '" + ((String) docNums.get(i)) + "'" + sqlOrderByLength + sqlLimit;
+						sql = "select provider_no from provider where "+ sqlSearchOn +" LIKE '" + (docNums.get(i)) + "'" + sqlOrderByLength + sqlLimit;
 					}
 					pstmt = conn.prepareStatement(sql);
 					ResultSet rs = pstmt.executeQuery();
@@ -483,7 +483,7 @@ public final class MessageUploader {
 
 					String otherIdMatchKey = OscarProperties.getInstance().getProperty("lab.other_id_matching", "");
 					if(otherIdMatchKey.length()>0) {
-						OtherId otherId = OtherIdManager.searchTable(OtherIdManager.PROVIDER, otherIdMatchKey, (String)docNums.get(i));
+						OtherId otherId = OtherIdManager.searchTable(OtherIdManager.PROVIDER, otherIdMatchKey, docNums.get(i));
 						if(otherId != null) {
 							providerNums.add(otherId.getTableId());
 						}
