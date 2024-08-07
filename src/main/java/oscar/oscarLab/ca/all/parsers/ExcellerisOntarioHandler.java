@@ -232,8 +232,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
             }
             return(phone);
         }catch(Exception e){
-            logger.error("Could not return phone number", e);
-
+            logger.error("Could not return home phone number", e);
             return("");
         }
     }
@@ -254,7 +253,6 @@ public class ExcellerisOntarioHandler implements MessageHandler {
             return(phone);
         }catch(Exception e){
             logger.error("Could not return phone number", e);
-
             return("");
         }
     }
@@ -280,13 +278,13 @@ public class ExcellerisOntarioHandler implements MessageHandler {
                 if(nums.length>1) {
                     return nums[0]+"-"+nums[1];
                 }else{
-                    return "";
+                    // Current spec it should never get here, but if it does, lets return what we got
+                    logger.debug("Unable to parse Accession so returning entire Order ID : "+accessionNum);
+                    return accessionNum;  
                 }
-            }
-            return accessionNum;
+            }         
         }catch(Exception e){
             logger.error("Could not return accession number", e);
-
             return("");
         }
     }
