@@ -438,7 +438,7 @@ public final class MessageUploader {
 	/**
 	 * Attempt to match the doctors from the lab to a provider
 	 */ 
-	private static void providerRouteReport(String labId, ArrayList<?> docNums, Connection conn, String altProviderNo, String labType, String search_on, Integer limit, boolean orderByLength) throws Exception {
+	private static void providerRouteReport(String labId, ArrayList<String> docNums, Connection conn, String altProviderNo, String labType, String search_on, Integer limit, boolean orderByLength) throws Exception {
 		ArrayList<String> providerNums = new ArrayList<String>();
 		PreparedStatement pstmt;
 		String sql = "";
