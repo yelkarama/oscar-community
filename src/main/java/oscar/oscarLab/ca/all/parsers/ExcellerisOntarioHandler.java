@@ -269,25 +269,19 @@ public class ExcellerisOntarioHandler implements MessageHandler {
     //Order ID of lab performing tests (accession number-test code tiebreaker) eg 2017-EMR40038-2_TR12001-4
     public String getAccessionNum(){
         try{
-
             String str=msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(0).getORC().getFillerOrderNumber().getEntityIdentifier().getValue();
-
             String accessionNum = getString(str);
-
-            // String[] nums = accessionNum.split("-");
-            // if (nums.length == 3){
-            //     return nums[0];
-            // }else if (nums.length == 5){
-            //     return nums[0]+"-"+nums[1]+"-"+nums[2];
-            // }else{
-
-
-            //     if(nums.length>1)
-            //         return nums[0]+"-"+nums[1];
-            //     else
-            //         return "";
-            // }
-
+            String[] nums = accessionNum.split("-");
+            if (nums.length == 3){
+                return nums[0];
+            }else if (nums.length == 5){
+                return nums[0]+"-"+nums[1]+"-"+nums[2];
+            }else{
+                if(nums.length>1)
+                    return nums[0]+"-"+nums[1];
+                else
+                    return "";
+            }
             return accessionNum;
         }catch(Exception e){
             logger.error("Could not return accession number", e);
@@ -296,11 +290,8 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         }
     }
 
-   
-    
-    public int getOBRCount(){
-    	
-    	
+      
+    public int getOBRCount(){  	    	
         return(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTIReps());
     }
 
