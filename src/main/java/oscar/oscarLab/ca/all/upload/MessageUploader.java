@@ -283,6 +283,7 @@ public final class MessageUploader {
 				hl7TextInfo.setReportStatus(reportStatus);
 				hl7TextInfo.setAccessionNumber(accessionNum);
 				hl7TextInfo.setFillerOrderNum(fillerOrderNum);
+				hl7TextInfo.setSendingFacility(sendingFacility);
 				hl7TextInfoDao.persist(hl7TextInfo);
 			}
 			
