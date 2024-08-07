@@ -277,10 +277,11 @@ public class ExcellerisOntarioHandler implements MessageHandler {
             }else if (nums.length == 5){
                 return nums[0]+"-"+nums[1]+"-"+nums[2];
             }else{
-                if(nums.length>1)
+                if(nums.length>1) {
                     return nums[0]+"-"+nums[1];
-                else
+                }else{
                     return "";
+                }
             }
             return accessionNum;
         }catch(Exception e){
