@@ -270,12 +270,10 @@ public class ExcellerisOntarioHandler implements MessageHandler {
             String str=msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(0).getORC().getFillerOrderNumber().getEntityIdentifier().getValue();
             String accessionNum = getString(str);
             String[] nums = accessionNum.split("-");
-            if (nums.length == 3){
-                return nums[0];
-            }else if (nums.length == 5){
+            if (nums.length == 5){
                 return nums[0]+"-"+nums[1]+"-"+nums[2];
             }else{
-                if(nums.length>1) {
+                if(nums.length>1) { // 2017-EMR40038-2_TR12001-4, 2023-OSC240472-KLIN
                     return nums[0]+"-"+nums[1];
                 }else{
                     // Current spec it should never get here, but if it does, lets return what we got
