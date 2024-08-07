@@ -1236,12 +1236,10 @@ public class LabPDFCreator extends PdfPageEventHelper {
     }
 
 	private String getPageIdentifier() {
-		if (handler.getMsgType().equals("ExcellerisON")) {
-			if (!handler.getHealthNum().isEmpty()) {
-				return handler.getPatientName() + " " + handler.getHealthNum();
-			} else if (!handler.getHealthNum().equalsIgnoreCase("UNKNOWN")) {
-				return handler.getPatientName() + " " + handler.getDOB();
-			}
+		if (!handler.getHealthNum().isEmpty() && !handler.getHealthNum().equalsIgnoreCase("UNKNOWN") && !handler.getHealthNum().equalsIgnoreCase("N/A")) {
+			return handler.getPatientName() + " " + handler.getHealthNum();
+		} else if (!handler.getDOB().isEmpty() && !handler.getDOB().equalsIgnoreCase("UNKNOWN") && !handler.getDOB().equalsIgnoreCase("N/A")) {
+			return handler.getPatientName() + " " + handler.getDOB();
 		}
 		return handler.getPatientName();
 	}
