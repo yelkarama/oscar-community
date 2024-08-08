@@ -558,7 +558,7 @@ public class InboxResultsDao {
 
 
 				// the "C" is for corrected excelleris labs
-				if (lbData.reportStatus != null && (lbData.reportStatus.equals("F") || lbData.reportStatus.equals("C") || lbData.reportStatus.equals("Completed")))) {
+				if (lbData.reportStatus != null && ( lbData.reportStatus.equals("F") || lbData.reportStatus.equals("C") || lbData.reportStatus.equals("Completed") ) ) {
 					lbData.finalRes = true;
 				} else if (lbData.reportStatus != null && lbData.reportStatus.equals("X")){
 					lbData.cancelledReport = true;
