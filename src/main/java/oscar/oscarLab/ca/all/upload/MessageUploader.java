@@ -776,7 +776,7 @@ public final class MessageUploader {
 						pstmt.setString(3, dobYear);
 						pstmt.setString(4, dobMonth);
 						pstmt.setString(5, dobDay);
-						pstmt.setString(5, sex+"%");
+						pstmt.setString(6, sex+"%");
 					}
 					ResultSet rs = pstmt.executeQuery();
 					int count = 0;
