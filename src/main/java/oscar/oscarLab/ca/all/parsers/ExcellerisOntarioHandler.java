@@ -635,9 +635,10 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         try{
             String subId = getOBXSubId(i, j);
             String observationResult = getOBXResult(i, j);
-            if (observationResult.length() == 1) {
-                observationResult =  getOBXName(i, j) + " " + observationResult; 
-            }
+            // spec is not to repeat the Name
+            //if (observationResult.length() == 1) {
+           //    observationResult =  getOBXName(i, j) + " " + observationResult; 
+          //  }
             return subId + ") " + observationResult;
         }catch(Exception e){
             logger.debug("Could not return sub id and add the observation", e);
