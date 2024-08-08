@@ -472,8 +472,8 @@ public class Hl7textResultsData {
 		lbData.requestingClient = info.getRequestingProvider();
 		lbData.reportStatus = info.getReportStatus();
 
-		// the "C" is for corrected excelleris labs
-		if (lbData.reportStatus != null && (lbData.reportStatus.equals("F") || lbData.reportStatus.equals("C"))) {
+		// the "C" is for corrected excelleris labs ExcellerisON uses F but is stored internally as "Completed"
+		if (lbData.reportStatus != null && (lbData.reportStatus.equals("F") || lbData.reportStatus.equals("C")  || lbData.reportStatus.equals("Completed"))) {
 			lbData.finalRes = true;
 		} else {
 			lbData.finalRes = false;
