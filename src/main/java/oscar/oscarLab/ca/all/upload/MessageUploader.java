@@ -746,10 +746,12 @@ public final class MessageUploader {
 					}
 				}
 				
+				int parameterSet = 0;
 				// if no hin but there is a dob try for a complete match against the full name
 				if( ( hinMod == null || hinMod.equals("") ) && (dob != null && !dob.equals("")) ) {
 					logger.debug("Finding demo for given name : "+firstName+"% surname : "+lastName+"% with dob y/m/d : "+dobYear+"/"+dobMonth+"/"+dobDay+" sex of : "+sex);
-					sql = "select demographic_no, provider_no from demographic where last_name like ? and first_name like ? and year_of_birth like ? and month_of_birth like ? and date_of_birth like ? and sex like ? ";
+					sql = "select demographic_no, provider_no from demographic where year_of_birth like ? and month_of_birth like ? and date_of_birth like ? and ( sex like ? OR sex NOT IN ('F', 'M') ) and last_name like ? and first_name like ?";
+					parameterSet = 6;
 				}
 
 				// only the first letter of names
@@ -761,22 +763,32 @@ public final class MessageUploader {
 				if( hinMod != null && !hinMod.equals("") ) {
 					logger.debug("Finding demo for given name : "+firstName+"% surname : "+lastName+"% with hinMod : "+hinMod+" dob y/m/d : "+dobYear+"/"+dobMonth+"/"+dobDay+" sex* of : "+sex);
 					if (OscarProperties.getInstance().getBooleanProperty("LAB_NOMATCH_NAMES", "yes")) {
-						sql = "select demographic_no, provider_no from demographic where hin='" + hinMod + "' and " + " year_of_birth like '" + dobYear + "' and " + " month_of_birth like '" + dobMonth + "' and " + " date_of_birth like '" + dobDay + "' and " + " ( sex like '" + sex + "%' OR sex NOT IN ('F', 'M') )";
+						sql = "select demographic_no, provider_no from demographic where year_of_birth like ? and month_of_birth like ? and date_of_birth like ? and ( sex like ? OR sex NOT IN ('F', 'M') ) and hin=?";
+						parameterSet = 5;
 					} else {
-						sql = "select demographic_no, provider_no from demographic where hin='" + hinMod + "' and last_name like ? and first_name like ? and year_of_birth like ? and month_of_birth like ? and date_of_birth like ? and ( sex like ? OR sex NOT IN ('F', 'M') )";
+						sql = "select demographic_no, provider_no from demographic where year_of_birth like ? and month_of_birth like ? and date_of_birth like ? and ( sex like ? OR sex NOT IN ('F', 'M') ) and last_name like ? and first_name like ? and hin=?";
+						parameterSet = 7;
 					}
 				}
 				
 				if( sql != null ) {
 					logger.debug(sql);
 					PreparedStatement pstmt = conn.prepareStatement(sql);
-					if ( ( ( hinMod == null || hinMod.equals("") ) && (dob != null && !dob.equals("")) ) || (( hinMod != null && !hinMod.equals("") ) && (OscarProperties.getInstance().getBooleanProperty("LAB_NOMATCH_NAMES", "yes")) ) ){
-						pstmt.setString(1, lastName+"%");
-						pstmt.setString(2, firstName+"%");
-						pstmt.setString(3, dobYear);
-						pstmt.setString(4, dobMonth);
-						pstmt.setString(5, dobDay);
-						pstmt.setString(6, sex+"%");
+					if (parameterSet > 4){
+						pstmt.setString(1, dobYear);
+						pstmt.setString(2, dobMonth);
+						pstmt.setString(3, dobDay);
+						pstmt.setString(4, sex+"%");
+					}
+					if (parameterSet == 5){
+						pstmt.setString(5, hinMod);
+					}
+					if (parameterSet > 5){
+						pstmt.setString(5, lastName+"%");
+						pstmt.setString(6, firstName+"%");
+					}
+					if (parameterSet > 6){	
+						pstmt.setString(7, hinMod);
 					}
 					ResultSet rs = pstmt.executeQuery();
 					int count = 0;
