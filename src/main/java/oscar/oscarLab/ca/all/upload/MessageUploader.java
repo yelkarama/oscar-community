@@ -770,7 +770,7 @@ public final class MessageUploader {
 				if( sql != null ) {
 					logger.debug(sql);
 					PreparedStatement pstmt = conn.prepareStatement(sql);
-					if (!OscarProperties.getInstance().getBooleanProperty("LAB_NOMATCH_NAMES", "yes") &&  hinMod != null && !hinMod.equals("")){
+					if ( ( ( hinMod == null || hinMod.equals("") ) && (dob != null && !dob.equals("")) ) || (( hinMod != null && !hinMod.equals("") ) && (OscarProperties.getInstance().getBooleanProperty("LAB_NOMATCH_NAMES", "yes")) ) ){
 						pstmt.setString(1, lastName+"%");
 						pstmt.setString(2, firstName+"%");
 						pstmt.setString(3, dobYear);
