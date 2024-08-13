@@ -490,7 +490,7 @@ public class LabPDFCreator extends PdfPageEventHelper {
 				if (obxCount == 0 && handler.getMsgType().equals("ExcellerisON") && header.equals(handler.getObservationHeader(j, 0))) {
 					String orderRequestStatus = ((ExcellerisOntarioHandler) handler).getOrderStatus(j);
 					int obrCommentCount = handler.getOBRCommentCount(j);
-					if (!orderRequestStatus.isEmpty() || obrCommentCount > 0) {
+					if ((!orderRequestStatus.isEmpty() || obrCommentCount > 0 ) && (!orderRequestStatus.equals("Deleted"))) {
 						cell.setHorizontalAlignment(Element.ALIGN_LEFT);
 						cell.setBackgroundColor( Color.WHITE );
 						cell.setPhrase(new Phrase(handler.getOBRName(j), boldFont));
