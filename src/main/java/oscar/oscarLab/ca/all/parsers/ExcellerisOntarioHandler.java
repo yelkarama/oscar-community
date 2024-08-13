@@ -82,7 +82,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
     public enum OrderStatus {
         CORRECTED("C", "Corrected"),
         PENDING("I", "Pending"),
-        PARTIAL_RESULTS("A", "Partial results"),
+        PARTIAL_RESULTS("A", "Partial"),
         PRELIMINARY("P", "Preliminary"),
         COMPLETED("F", "Completed"),
         RETRANSMITTED("R", "Retransmitted"),
