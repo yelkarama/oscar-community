@@ -365,7 +365,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         
         for (String reportObservationDate : reportObservationDates) {
             if (!reportObservationDate.isEmpty() && !earliestReportObservation.isEmpty()) {
-                int obj = Long.compare(Long.parseLong(reportObservationDate), Long.parseLong(earliestReportObservation)));
+                int obj = Long.compare(Long.parseLong(reportObservationDate), Long.parseLong(earliestReportObservation));
                 if( obj < 0 ) {
                     logger.debug("Earliest Report Observation reset to : " + reportObservationDate);
                     earliestReportObservation = reportObservationDate; 
