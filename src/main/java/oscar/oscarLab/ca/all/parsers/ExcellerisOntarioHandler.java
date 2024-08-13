@@ -344,6 +344,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
     //OBR-7 Observation Date/Time there may be several, the earliest is expected   
      public String getServiceDate(){   
         int obrCount = getOBRCount();
+        logger.debug("obrCount :" + String.valueOf(obrCount));
         String earliestReportObservation = "";
         List<String> reportObservationDates = new ArrayList<>();
         for (int i = 0; i < obrCount; i++) {
@@ -358,11 +359,17 @@ public class ExcellerisOntarioHandler implements MessageHandler {
                 }
                 reportObservationDates.add(date);
                 earliestReportObservation = date;
+                logger.debug(" DATE found : " + date + " for i : " + String.valueOf(i));
             } catch(Exception e){
                 reportObservationDates.add("");
             }
         }
         
+        for (String reportObservationDate : reportObservationDates) {
+            if (earliestReportObservation.isEmpty() || reportObservationDate.compareTo(earliestReportObservation) < 0) { earliestReportObservation = reportObservationDate; }
+        }
+        logger.debug("2nd method Service date set at  : " + earliestReportObservation);
+  
         for (String reportObservationDate : reportObservationDates) {
             if (!reportObservationDate.isEmpty() && !earliestReportObservation.isEmpty()) {
                 Long s1 = Long.parseLong(reportObservationDate);
@@ -375,11 +382,6 @@ public class ExcellerisOntarioHandler implements MessageHandler {
             }
         }
         logger.debug("Service date set at  : " + earliestReportObservation);
-        for (String reportObservationDate : reportObservationDates) {
-            if (earliestReportObservation.isEmpty() || reportObservationDate.compareTo(earliestReportObservation) < 0) { earliestReportObservation = reportObservationDate; }
-        }
-
-        logger.debug("2nd method Service date set at  : " + earliestReportObservation);
         return formatDateTime(earliestReportObservation);
     }
 
