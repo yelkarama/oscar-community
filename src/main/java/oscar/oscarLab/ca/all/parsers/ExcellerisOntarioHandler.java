@@ -358,7 +358,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         for (String reportObservationDate : reportObservationDates) {
             if (reportObservationDate.length() > 14) {
                 // truncate past the seconds for comparison
-                reportObservationDate = reportObservationDate.sbustring(0,14);        
+                reportObservationDate = reportObservationDate.substring(0,14);        
             }
             if (!reportObservationDate.isEmpty() && reportObservationDate.length() < 14) {
                 // right pad with 0's for comparison
@@ -366,7 +366,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
             }
             if (!reportObservationDate.isEmpty() && Integer.parseInt(reportObservationDate) < Integer.parseInt(earliestReportObservation)) { earliestReportObservation = reportObservationDate; }
         }
-        return earliestReportObservation() ? earliestReportObservation : formatDateTime(earliestReportObservatione);
+        return formatDateTime(earliestReportObservatione);
     }
 
     //OBR-6
@@ -446,7 +446,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
                 if (status.getCode() == "C") { descriptionC = status.getDescription(); }
                 if (status.getCode() == "A") { descriptionA = status.getDescription(); }
                 if (status.getCode() == "I") { descriptionA = status.getDescription(); }
-                description = status.getDescription;
+                description = status.getDescription();
             }
             if (descriptionC.length() > 0) { 
                 if (descriptionA.length() > 0) {
