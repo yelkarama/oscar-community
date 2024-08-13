@@ -364,7 +364,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
                 // right pad with 0's for comparison
                 reportObservationDate = String.format("%-14s", reportObservationDate ).replace(' ', '0');
             }
-            if (!reportObservationDate.isEmpty() && Integer.parseInt(reportObservationDate) < Integer.parseInt(earliestReportObservation)) { earliestReportObservation = reportObservationDate; }
+            if (!reportObservationDate.isEmpty() && Long.parseLong(reportObservationDate) < Long.parseLong(earliestReportObservation)) { earliestReportObservation = reportObservationDate; }
         }
         return formatDateTime(earliestReportObservation);
     }
@@ -857,7 +857,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
     }
 
     public String audit(){
-        logger.error("audit is not implimented for Excelleris ON");
+        logger.info("audit is not implimented for Excelleris ON");
         return "";
     }
     
@@ -871,17 +871,17 @@ public class ExcellerisOntarioHandler implements MessageHandler {
 	}
     
     public String getEncounterId(){
-        logger.error("getEncounterId is not implimented for for Excelleris ON");
+        logger.info("getEncounterId is not implimented for for Excelleris ON");
     	return "";
     }
     
     public String getRadiologistInfo(){
-        logger.error("getRadiologistInfo is not implimented for Excelleris ON");
+        logger.info("getRadiologistInfo is not implimented for Excelleris ON");
 		return "";
 	}
 
     public String getNteForOBX(int i, int j){
-		logger.error("getNteForOBX is not implimented for Excelleris ON");
+		logger.info("getNteForOBX is not implimented for Excelleris ON");
     	return "";
     }
 
@@ -897,7 +897,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
 	}
 
     public String getNteForPID(){
-		logger.error("getNteForPID is not implimented here"); 	
+		logger.info("getNteForPID is not implimented here"); 	
     	return "";
     }
     
