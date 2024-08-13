@@ -349,26 +349,27 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         for (int i = 0; i < obrCount; i++) {
             try {
                 String date = getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(0).getOBR().getObservationDateTime().getTimeOfAnEvent().getValue());
+                if (date.length() > 14) {
+                    date = date.substring(0,14);        
+                }
+                if (!date.isEmpty() && date.length() < 14) {
+                    // right pad with 0's for comparison
+                    date = String.format("%-14s", reportObservationDate ).replace(' ', '0');
+                }
                 reportObservationDates.add(date);
+                earliestReportObservation = date;
             } catch(Exception e){
                 reportObservationDates.add("");
             }
         }
         
         for (String reportObservationDate : reportObservationDates) {
-            if (reportObservationDate.length() > 14) {
-                // truncate past the seconds for comparison
-                reportObservationDate = reportObservationDate.substring(0,14);        
-            }
-            if (!reportObservationDate.isEmpty() && reportObservationDate.length() < 14) {
-                // right pad with 0's for comparison
-                reportObservationDate = String.format("%-14s", reportObservationDate ).replace(' ', '0');
-            }
-            if (!reportObservationDate.isEmpty() && earliestReportObservation.isEmpty()) { 
-                earliestReportObservation = reportObservationDate; 
-            }
-            if (!reportObservationDate.isEmpty() && !earliestReportObservation.isEmpty() && Long.parseLong(reportObservationDate) < Long.parseLong(earliestReportObservation)) { 
-                earliestReportObservation = reportObservationDate; 
+            if (!reportObservationDate.isEmpty() && !earliestReportObservation.isEmpty()) {
+                int obj = Long.compare(Long.parseLong(reportObservationDate), Long.parseLong(earliestReportObservation)));
+                if( obj < 0 ) {
+                    logger.debug("Earliest Report Observation reset to : " + reportObservationDate);
+                    earliestReportObservation = reportObservationDate; 
+                }
             }
         }
         return formatDateTime(earliestReportObservation);
