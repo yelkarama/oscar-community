@@ -344,11 +344,11 @@ public class LabPDFCreator extends PdfPageEventHelper {
 			table.setWidthPercentage(100);
 			
 			if(isUnstructuredDoc){
-				// The table header will only be visible if more than 1 rows are added to the table
+				// The table will only render in the PDF if more than 1 row is added to the table
 				table.setHeaderRows(1);
 			}
 			else{
-				// The table header will only be visible if more than 3 rows are added to the table
+				// The table will only render in the PDF if more than 3 rows is added to the table
 				table.setHeaderRows(3);
 			}
 	
@@ -488,14 +488,19 @@ public class LabPDFCreator extends PdfPageEventHelper {
 				int obxCount = handler.getOBXCount(j);
 
 				if (obxCount == 0 && handler.getMsgType().equals("ExcellerisON") && header.equals(handler.getObservationHeader(j, 0))) {
-					cell.setHorizontalAlignment(Element.ALIGN_LEFT);
-					cell.setBackgroundColor( Color.WHITE );
-					cell.setPhrase(new Phrase(handler.getOBRName(j), boldFont));
-					cell.setColspan(1);
-					table.addCell(cell);
-					cell.setPhrase(new Phrase(((ExcellerisOntarioHandler) handler).getOrderStatus(j), new Font(bf, 9, Font.NORMAL)));
-					cell.setColspan(7);
-					table.addCell(cell);
+					String orderRequestStatus = ((ExcellerisOntarioHandler) handler).getOrderStatus(j);
+					int obrCommentCount = handler.getOBRCommentCount(j);
+					if (!orderRequestStatus.isEmpty() || obrCommentCount > 0) {
+						cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+						cell.setBackgroundColor( Color.WHITE );
+						cell.setPhrase(new Phrase(handler.getOBRName(j), boldFont));
+						cell.setColspan(1);
+						table.addCell(cell);
+						cell.setPhrase(new Phrase(((ExcellerisOntarioHandler) handler).getOrderStatus(j), new Font(bf, 9, Font.NORMAL)));
+						cell.setColspan(7);
+						table.addCell(cell);
+						obrFlag = true;
+					}
 				}
 
 				for (int k = 0; k < obxCount; k++) {
@@ -1237,7 +1242,7 @@ public class LabPDFCreator extends PdfPageEventHelper {
 
 	private String getPageIdentifier() {
 		if (!handler.getHealthNum().isEmpty() && !handler.getHealthNum().equalsIgnoreCase("UNKNOWN") && !handler.getHealthNum().equalsIgnoreCase("N/A")) {
-			return handler.getPatientName() + " " + handler.getHealthNum();
+        		return handler.getPatientName() + " " + handler.getHealthNum();
 		} else if (!handler.getDOB().isEmpty() && !handler.getDOB().equalsIgnoreCase("UNKNOWN") && !handler.getDOB().equalsIgnoreCase("N/A")) {
 			return handler.getPatientName() + " " + handler.getDOB();
 		}
