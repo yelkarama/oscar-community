@@ -485,11 +485,8 @@ public class ExcellerisOntarioHandler implements MessageHandler {
                         case PENDING:
                             statusDescription = "Results are pending...";
                             break;
-                        case PRELIMINARY:
-                        case CORRECTED:
-                            statusDescription = orderStatus.getDescription();
-                            break;
                         default:
+                            statusDescription = orderStatus.getDescription();
                             break;
                     }
                 }
