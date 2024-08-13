@@ -366,7 +366,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
             }
             if (!reportObservationDate.isEmpty() && Integer.parseInt(reportObservationDate) < Integer.parseInt(earliestReportObservation)) { earliestReportObservation = reportObservationDate; }
         }
-        return formatDateTime(earliestReportObservatione);
+        return formatDateTime(earliestReportObservation);
     }
 
     //OBR-6
