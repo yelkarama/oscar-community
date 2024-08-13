@@ -364,7 +364,12 @@ public class ExcellerisOntarioHandler implements MessageHandler {
                 // right pad with 0's for comparison
                 reportObservationDate = String.format("%-14s", reportObservationDate ).replace(' ', '0');
             }
-            if (!reportObservationDate.isEmpty() && Long.parseLong(reportObservationDate) < Long.parseLong(earliestReportObservation)) { earliestReportObservation = reportObservationDate; }
+            if (!reportObservationDate.isEmpty() && earliestReportObservation.isEmpty()) { 
+                earliestReportObservation = reportObservationDate; 
+            }
+            if (!reportObservationDate.isEmpty() && !earliestReportObservation.isEmpty() && Long.parseLong(reportObservationDate) < Long.parseLong(earliestReportObservation)) { 
+                earliestReportObservation = reportObservationDate; 
+            }
         }
         return formatDateTime(earliestReportObservation);
     }
