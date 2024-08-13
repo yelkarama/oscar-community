@@ -430,10 +430,8 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         			String status = items.getORCOBRNTEOBXNTECTI(y).getOBR().getResultStatus().getValue();
         			if(status == null) { continue; }
                     orderStatuses.add(status);
-        		}
-        		
-        	}
-        	
+        		}        		
+        	}   	
             /*
              * the value "C" supersedes all others and the mimimum requirement is that the overall report status be displayed as "Corrected." 
              * the value "A" or "I" supersedes "F" or Completed and the requirement is that the overall report status be displayed as "Pending" or "Partial."
@@ -457,9 +455,11 @@ public class ExcellerisOntarioHandler implements MessageHandler {
             if (descriptionA.length() > 0) {
                     description = descriptionA;
             }
-            return description.trim();
+            if (description.length() > 0) {
+                   return description.trim();
+            }                
         }catch(Exception e){
-            logger.error("Could not return Order Status", e);
+            logger.error("Could not return an overall Order Status", e);
             return("");
         }
         
@@ -490,7 +490,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
                 }
             }
         } catch (Exception e) {
-           logger.error("Could not return Order Status 2", e);            
+           logger.error("Could not return Order Status for OBR " + String.valueOf(y), e);            
         }
         return statusDescription;
     }
