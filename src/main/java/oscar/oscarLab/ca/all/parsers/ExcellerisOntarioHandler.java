@@ -341,14 +341,32 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         }
     }
 
-    //OBR-7
-    public String getServiceDate(){
-        try{
-            return(formatDateTime(getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(0).getOBR().getObservationDateTime().getTimeOfAnEvent().getValue())));
-        }catch(Exception e){
-            logger.error("Could not return Service Date", e);
-            return("");
+    //OBR-7 Observation Date/Time there may be several, the earliest is expected   
+     public String getServiceDate(){   
+        int obrCount = getOBRCount();
+        String earliestReportObservation = "";
+        List<String> reportObservationDates = new ArrayList<>();
+        for (int i = 0; i < obrCount; i++) {
+            try {
+                String date = getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(0).getOBR().getObservationDateTime().getTimeOfAnEvent().getValue());
+                reportObservationDates.add(date);
+            } catch(Exception e){
+                reportObservationDates.add("");
+            }
         }
+        
+        for (String reportObservationDate : reportObservationDates) {
+            if (reportObservationDate.length() > 14) {
+                // truncate past the seconds for comparison
+                reportObservationDate = reportObservationDate.sbustring(0,14);        
+            }
+            if (!reportObservationDate.isEmpty() && reportObservationDate.length() < 14) {
+                // right pad with 0's for comparison
+                reportObservationDate = String.format("%-14s", reportObservationDate ).replace(' ', '0');
+            }
+            if (!reportObservationDate.isEmpty() && valueOf(reportObservationDate) < valueOf.(earliestReportObservation) < 0) { earliestReportObservation = reportObservationDate; }
+        }
+        return earliestReportObservation() ? earliestReportObservation : formatDateTime(earliestReportObservatione);
     }
 
     //OBR-6
@@ -420,10 +438,26 @@ public class ExcellerisOntarioHandler implements MessageHandler {
              * the value "C" supersedes all others and the mimimum requirement is that the overall report status be displayed as "Corrected." 
              * the value "A" or "I" supersedes "F" or Completed and the requirement is that the overall report status be displayed as "Pending" or "Partial."
              */
+            String descriptionC = "";
+            String descriptionA = "";
+            String description = "";
             for (OrderStatus status : OrderStatus.values()) {
                 if (!orderStatuses.contains(status.getCode())) { continue; }
-                return status.getDescription();
+                if (status.getCode() == "C") { descriptionC = status.getDescription(); }
+                if (status.getCode() == "A") { descriptionA = status.getDescription(); }
+                if (status.getCode() == "I") { descriptionA = status.getDescription(); }
+                description = status.getDescription;
             }
+            if (descriptionC.length() > 0) { 
+                if (descriptionA.length() > 0) {
+                    descriptionC = descriptionA + "/" + descriptionC;
+                }
+                return (descriptionC).trim();
+            }
+            if (descriptionA.length() > 0) {
+                    description = descriptionA;
+            }
+            return description.trim();
         }catch(Exception e){
             logger.error("Could not return Order Status", e);
             return("");
@@ -914,6 +948,21 @@ public class ExcellerisOntarioHandler implements MessageHandler {
 
 
     private String formatDateTime(String plain){
+        // formats plain yyyyMMddHHmmss string
+        // conformance requires empty string for missing time component
+        if (plain.length() == 14) { 
+            // remove 00 seconds timestamp value for readability
+            if ( plain.substring(12).equals("00") ) {
+                plain = plain.substring(0,12);
+            }
+        }
+        if (plain.length() == 12) { 
+            // remove 0000 hours and minutes timestamp value for readability
+            if ( plain.substring(8).equals("0000") ) {
+                plain = plain.substring(0,8);
+            }
+        } 
+    
     	String stringFormat = "yyyy-MM-dd HH:mm:ss";
         
     	if (plain==null || plain.trim().equals("")) return "";
