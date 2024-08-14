@@ -157,11 +157,15 @@ public class Hl7textResultsData {
 				
 				Measurement m = new Measurement();
 				m.setType(measType);
+				logger.debug("type : " + measType);
 				m.setDemographicId(Integer.parseInt(demographic_no));
+				logger.debug("demo : " + demographic_no);
 				m.setProviderNo("0");
 				m.setDataField(result);
+				logger.debug("result : " + result);
 				m.setMeasuringInstruction(measInst);
-				logger.debug("DATETIME FOR MEASUREMENT " + datetime);
+				logger.debug("instructions : " + measInst);
+				logger.debug("DATETIME FOR MEASUREMENT : " + datetime);
 				if(datetime != null && datetime.length()>0) {
 					m.setDateObserved(UtilDateUtilities.StringToDate(datetime, "yyyy-MM-dd hh:mm:ss"));
 				} 
