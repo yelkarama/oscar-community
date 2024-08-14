@@ -358,31 +358,16 @@ public class ExcellerisOntarioHandler implements MessageHandler {
                     date = String.format("%-14s", date ).replace(' ', '0');
                 }
                 reportObservationDates.add(date);
-                earliestReportObservation = date;
                 //logger.debug(" DATE found : " + date + " for i : " + String.valueOf(i));
             } catch(Exception e){
                 reportObservationDates.add("");
             }
-        }
-        
+        }       
         for (String reportObservationDate : reportObservationDates) {
             if (earliestReportObservation.isEmpty() || reportObservationDate.compareTo(earliestReportObservation) < 0) { earliestReportObservation = reportObservationDate; }
         }
-        logger.debug("2nd method Service date set at  : " + earliestReportObservation);
-  
-        for (String reportObservationDate : reportObservationDates) {
-            if (!reportObservationDate.isEmpty() && !earliestReportObservation.isEmpty()) {
-                Long s1 = Long.parseLong(reportObservationDate);
-                Long s2 = Long.parseLong(earliestReportObservation);
-                int obj = Long.compare(s1,s2);
-                if( obj < 0 ) {
-                    logger.debug("Earliest Report Observation reset to : " + reportObservationDate);
-                    earliestReportObservation = reportObservationDate; 
-                }
-            }
-        }
         logger.debug("Service date set at  : " + earliestReportObservation);
-        return formatDateTime(earliestReportObservation);
+        return earliestReportObservation.isEmpty() ? earliestReportObservation : formatDateTime(earliestReportObservation);
     }
 
     //OBR-6
