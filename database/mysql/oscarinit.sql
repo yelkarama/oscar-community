@@ -12085,7 +12085,7 @@ CREATE TABLE `measurementMap` (
   `loinc_code` varchar(20) NOT NULL,
   `ident_code` varchar(20) NOT NULL,
   `name` varchar(255) DEFAULT NULL,
-  `lab_type` varchar(10) NOT NULL,
+  `lab_type` varchar(20) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `ident_code` (`ident_code`)
 );
