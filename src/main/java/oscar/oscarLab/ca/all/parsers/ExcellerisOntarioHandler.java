@@ -349,7 +349,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         List<String> reportObservationDates = new ArrayList<>();
         for (int i = 0; i < obrCount; i++) {
             try {
-                String date = getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(0).getOBR().getObservationDateTime().getTimeOfAnEvent().getValue());
+                String date = getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(i).getOBR().getObservationDateTime().getTimeOfAnEvent().getValue());
                 if (date.length() > 14) {
                     date = date.substring(0,14);        
                 }
@@ -359,7 +359,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
                 }
                 reportObservationDates.add(date);
                 earliestReportObservation = date;
-                logger.debug(" DATE found : " + date + " for i : " + String.valueOf(i));
+                //logger.debug(" DATE found : " + date + " for i : " + String.valueOf(i));
             } catch(Exception e){
                 reportObservationDates.add("");
             }
