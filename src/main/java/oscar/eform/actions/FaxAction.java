@@ -244,7 +244,7 @@ public final class FaxAction {
 			// Removing the eform pdf.
 			tempFile.delete();			
 						
-		} catch (com.lowagie.text.DocumentException | IOException e) {
+		} catch (DocumentException | IOException e) {
 			MiscUtils.getLogger().error("Error converting and sending eform. id="+formId, e);
 		} 
 	}
