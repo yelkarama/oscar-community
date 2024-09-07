@@ -152,7 +152,7 @@ public class PrintAction extends Action {
 						ImagePDFCreator ipdfc = new ImagePDFCreator(request, bos);
 						try {
 							ipdfc.printPdf();
-						} catch(com.lowagie.text.DocumentException de) {
+						} catch(com.itextpdf.text.DocumentException de) {
 							logger.error("PrintAction : " +de);
 						}
 						
