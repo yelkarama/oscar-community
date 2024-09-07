@@ -123,11 +123,7 @@ public class EctConsultationFormRequestPrintAction2 extends Action {
 						request.setAttribute("imageTitle", doc.getDescription());
 
 						ImagePDFCreator ipdfc = new ImagePDFCreator(request, fos2);
-						try {
-							ipdfc.printPdf();
-						} catch(DocumentException de) {
-							logger.error("EctConsultation2 : " +de);
-						}
+						ipdfc.printPdf();
 						
 						fos2.close();
 						
@@ -161,11 +157,7 @@ public class EctConsultationFormRequestPrintAction2 extends Action {
 				if (messageHandler instanceof OLISHL7Handler){
 					//If the lab is HL7, use the OLISLabPDFCreator to print the lab
 					OLISLabPDFCreator olisLabPdfCreator = new OLISLabPDFCreator(request, fos2);
-					try {
-						olisLabPdfCreator.printPdf();
-					} catch(DocumentException de) {
-						logger.error("OLIS2 : " +de);
-					}
+					olisLabPdfCreator.printPdf();
 					fis2 = new FileInputStream(f2);
 				}
 				else {
