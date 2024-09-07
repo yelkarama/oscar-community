@@ -23,7 +23,6 @@
  */
 package oscar.oscarLab.ca.all.pageUtil;
 
-import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
