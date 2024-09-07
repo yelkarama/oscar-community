@@ -45,7 +45,7 @@ import oscar.oscarLab.ca.on.LabResultData;
 import oscar.OscarProperties;
 import oscar.util.ConcatPDF;
 
-import com.lowagie.text.DocumentException;
+import com.itextpdf.text.DocumentException;
 
 public final class FaxAction {
 
