@@ -43,7 +43,7 @@ import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 import org.oscarehr.util.WKHtmlToPdfUtils;
 
-import com.lowagie.text.DocumentException;
+import com.itextpdf.text.DocumentException;
 
 import oscar.OscarProperties;
 import oscar.dms.EDoc;
@@ -123,7 +123,11 @@ public class EctConsultationFormRequestPrintAction2 extends Action {
 						request.setAttribute("imageTitle", doc.getDescription());
 
 						ImagePDFCreator ipdfc = new ImagePDFCreator(request, fos2);
-						ipdfc.printPdf();
+						try {
+							ipdfc.printPdf();
+						} catch(DocumentException de) {
+							logger.error("EctConsultation2 : " +de);
+						}
 						
 						fos2.close();
 						
@@ -157,7 +161,11 @@ public class EctConsultationFormRequestPrintAction2 extends Action {
 				if (messageHandler instanceof OLISHL7Handler){
 					//If the lab is HL7, use the OLISLabPDFCreator to print the lab
 					OLISLabPDFCreator olisLabPdfCreator = new OLISLabPDFCreator(request, fos2);
-					olisLabPdfCreator.printPdf();
+					try {
+						olisLabPdfCreator.printPdf();
+					} catch(DocumentException de) {
+						logger.error("OLIS2 : " +de);
+					}
 					fis2 = new FileInputStream(f2);
 				}
 				else {
