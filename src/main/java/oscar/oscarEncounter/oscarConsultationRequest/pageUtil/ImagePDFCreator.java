@@ -14,8 +14,8 @@ import java.io.OutputStream;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.logging.log4j.Logger;
-import org.oscarehr.common.printing.FontSettings;
-import org.oscarehr.common.printing.PdfWriterFactory;
+//import org.oscarehr.common.printing.FontSettings;
+//import org.oscarehr.common.printing.PdfWriterFactory;
 import org.oscarehr.util.MiscUtils;
 
 import com.itextpdf.text.Document;
@@ -67,8 +67,8 @@ public class ImagePDFCreator extends PdfPageEventHelper {
 		
 		// Create the document we are going to write to
 		document = new Document();
-		// PdfWriter writer = PdfWriter.getInstance(document, os);
-		PdfWriter writer = PdfWriterFactory.newInstance(document, os, FontSettings.HELVETICA_6PT);
+		PdfWriter writer = PdfWriter.getInstance(document, os);
+		//PdfWriter writer = PdfWriterFactory.newInstance(document, os, FontSettings.HELVETICA_6PT);
 
 		
 		document.setPageSize(PageSize.LETTER);
