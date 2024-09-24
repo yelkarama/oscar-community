@@ -954,7 +954,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
     private String formatDateTime(String plain){
         // formats plain yyyyMMddHHmmss string
         // conformance requires empty string for missing time component
-        if (plain.length() == 14) { 
+        /*if (plain.length() == 14) { 
             // remove 00 seconds timestamp value for readability
             if ( plain.substring(12).equals("00") ) {
                 plain = plain.substring(0,12);
@@ -965,7 +965,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
             if ( plain.substring(8).equals("0000") ) {
                 plain = plain.substring(0,8);
             }
-        } 
+        }*/ 
     
     	String stringFormat = "yyyy-MM-dd HH:mm:ss";
         
