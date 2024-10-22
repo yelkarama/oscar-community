@@ -1140,7 +1140,7 @@ function toggleDiv(selectedBillForm, selectedBillFormName,billType)
 </script>
 </head>
 
-<body onload="prepareBack();changeCodeDesc();" >
+<body onload="prepareBack();changeCodeDesc();getDays();">
 	<div id="Instrdiv" class="demo1">
 
 		<table style="width: 99%;">
@@ -1297,8 +1297,8 @@ if(checkFlag == null) checkFlag = "0";
 								style="width: 80px; height:14px;  vertical-align: bottom;">
                                 <img src="${ pageContext.request.contextPath }/images/cal.gif" id="service_date_cal" style="height:14px;  vertical-align: bottom;" class="add-on" alt="cal"></span>
                             <%} else {%>
-                                <input type="text" name="service_date"
-								readonly value="<%=request.getParameter("appointment_date")%>"
+                                <input type="text" id="service_date" name="service_date" readonly
+								value="<%=request.getParameter("appointment_date")%>"
 								maxlength="10" style="width: 80px;" > <%}%></td>
 							<%
                                                               String warningClass = "";
@@ -1688,7 +1688,7 @@ String strLocation ="";
 									</tr>
 									<tr>
 										<td><b>Admission Date</b></td>
-										<td  class="input-append">
+										<td>
 											<%
 												String admDate = "";
 											          String inPatient = oscarVariables.getProperty("inPatient");
@@ -1703,10 +1703,13 @@ String strLocation ="";
 											          }
 												  if (visitType.startsWith("02") || visitType.startsWith("04")) admDate = getDefaultValue(request.getParameter("visitdate"),vecHist,"visitdate");
 											%>
-											<input type="text" name="xml_vdate" id="xml_vdate"
+											<span class="input-append">
+											    <input type="text" name="xml_vdate" id="xml_vdate"
 											value="<%=request.getParameter("xml_vdate")!=null? request.getParameter("xml_vdate"):admDate%>"
 											class="input-small" style="height: 14px; margin-top:4px;" readonly> <img alt="cal" class="add-on" style="height:14px;  margin-top:4px;"
-											src="${ pageContext.request.contextPath }/images/cal.gif" id="xml_vdate_cal" />
+											src="${ pageContext.request.contextPath }/images/cal.gif" id="xml_vdate_cal">
+											</span>
+                                            <span id="duration_display"></span>
 										</td>
 										<td colspan="2"><a href="javascript:void(0);"
 											onclick="showHideLayers('Layer1','','show');return false;">
@@ -2060,12 +2063,36 @@ String strLocation ="";
 		</tr>
 	</table>
 
-	<script type="text/javascript">
+	<script>
 
 Calendar.setup( { inputField : "xml_vdate", ifFormat : "%Y-%m-%d", showsTime :false, button : "xml_vdate_cal", singleClick : true, step : 1 } );
 <%if (appt_no.compareTo("0") == 0) {%>
     Calendar.setup( { inputField : "service_date", ifFormat : "%Y-%m-%d", showsTime :false, button : "service_date_cal", singleClick : true, step : 1 } );
 <%}%>
+
+function getDays() {
+    if (!document.getElementById("xml_vdate") || !document.getElementById("service_date")) { return; }
+    if (document.getElementById("xml_vdate").value == "" || document.getElementById("service_date").value == "" ) { return; }
+
+    let date_xml_vdate = new Date(document.getElementById("xml_vdate").value);
+    let date_service_date = new Date(document.getElementById("service_date").value);
+
+    // Convert dates to UTC timestamps
+    let utc1 =
+        Date.UTC(date_xml_vdate.getFullYear(), date_xml_vdate.getMonth(), date_xml_vdate.getDate());
+    let utc2 =
+        Date.UTC(date_service_date.getFullYear(), date_service_date.getMonth(), date_service_date.getDate());
+
+    // Calculate the time difference in milliseconds
+    let timeDiff = Math.abs(utc2 - utc1);
+
+    // Convert milliseconds to days
+    let daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+
+    // Display the result
+    document.getElementById("duration_display").textContent =" "+daysDiff+" d";
+}
+
 </script>
 
 	<%!String getDefaultValue(String paraName, Vector vec, String propName) {
