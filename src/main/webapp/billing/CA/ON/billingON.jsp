@@ -2089,8 +2089,16 @@ function getDays() {
     // Convert milliseconds to days
     let daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
 
+	let display = " "+daysDiff+"d";
+
+    if (daysDiff > 34){
+        let weeksDiff = Math.floor(daysDiff/7);
+        let remainder = daysDiff - (weeksDiff*7);
+        display = " "+weeksDiff+"w "+remainder+"d";
+    }
+
     // Display the result
-    document.getElementById("duration_display").textContent =" "+daysDiff+" d";
+    document.getElementById("duration_display").textContent = display;
 }
 
 </script>
