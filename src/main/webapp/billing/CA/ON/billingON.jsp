@@ -1704,7 +1704,7 @@ String strLocation ="";
 												  if (visitType.startsWith("02") || visitType.startsWith("04")) admDate = getDefaultValue(request.getParameter("visitdate"),vecHist,"visitdate");
 											%>
 											<span class="input-append">
-											    <input type="text" name="xml_vdate" id="xml_vdate"
+											    <input type="text" name="xml_vdate" id="xml_vdate" onchange="getDays();"
 											value="<%=request.getParameter("xml_vdate")!=null? request.getParameter("xml_vdate"):admDate%>"
 											class="input-small" style="height: 14px; margin-top:4px;" readonly> <img alt="cal" class="add-on" style="height:14px;  margin-top:4px;"
 											src="${ pageContext.request.contextPath }/images/cal.gif" id="xml_vdate_cal">
