@@ -1349,7 +1349,7 @@ function loadDiv(div,url,limit) {
          }
     }
 
-    function writeToEncounterNote(request) {
+   function writeToEncounterNote(request) {
 
         //$("templatejs").update(request.responseText);
         var text = request.responseText;
@@ -1361,36 +1361,31 @@ function loadDiv(div,url,limit) {
         text = text.replace(/\\u0022/g, "\u0022");
         text = text.replace(/\\u0027/g, "\u0027");
 
-        //if( $(caseNote).value.length > 0 )
-            //$(caseNote).value += "\n\n";
-
-        var curPos = $(caseNote).value.length;
-        //subtract \r chars from total length for IE
-        if( document.all ) {
-            var newLines = $(caseNote).value.match(/.*\n.*/g);
-            if( newLines != null ) {
-                curPos -= newLines.length;
-            }
-        }
-        ++curPos;
-
-        //if insert text begins with a new line char jump to second new line
-        var newlinePos;
-        if( (newlinePos = text.indexOf('\n')) == 0 ) {
-            ++newlinePos;
-            var subtxt = text.substr(newlinePos);
-            curPos += subtxt.indexOf('\n');
-        }
-
-        $(caseNote).value += text;
-
-        //setTimeout("$(caseNote).scrollTop="+scrollHeight, 0);  // setTimeout is needed to allow browser to realize that text field has been updated
         $(caseNote).focus();
+
+        // Gets the case note text and the position of the start and end of the selection (Same spot if nothing is highlighted)
+        let currentText = $(caseNote).value;
+        let start = $(caseNote).selectionStart;
+        let end = $(caseNote).selectionEnd;
+
+        // If the next character isn't a whitespace or the end of the current text, add a space to separate the texts
+        let nextChar = currentText[end];
+
+        if (nextChar != undefined && /\S/.test(nextChar)) {
+            text += " ";
+        }
+
+        // Sets the note text with the new template inserted into the cursor position
+        $(caseNote).value = currentText.slice(0, start) + text + currentText.slice(end);
+        // Sets the cursor position to the end of the entered text
+        $(caseNote).selectionStart = start + text.length;
+        $(caseNote).selectionEnd = start + text.length;
+
         adjustCaseNote();
         //if (typeof chartNoteAutosave !== 'undefined') {
         //        chartNoteAutosave.setChanged();
         //}
-        setCaretPosition($(caseNote),curPos);
+
     }
 
      var insertTemplateError="";
