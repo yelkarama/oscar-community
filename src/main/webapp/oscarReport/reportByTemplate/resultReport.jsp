@@ -63,8 +63,15 @@
 	    new Ajax.Request('clearSession.jsp','{asynchronous:true}');
 	}
 	jQuery(document).ready( function () {
-	    jQuery('.reportTable').DataTable();
+	    jQuery('.reportTable').DataTable({
+			"lengthMenu": [ [25, 50, 100, -1], [25, 50, 100, "<bean:message key="oscarEncounter.LeftNavBar.AllLabs"/>"] ],
+			"order": [],
+			"language": {
+				"url": "<%=request.getContextPath() %>/library/DataTables/i18n/<bean:message key="global.i18nLanguagecode"/>.json"
+				}
+		});
 	});
+
 </script>
 <style media="print">
 	.noprint,.showhidequery,.sqlBorderDiv,.controls,.dataTables_length,.dataTables_filter,.dataTables_paginate
@@ -132,8 +139,8 @@
 		<div class="noprint form-actions">
 
 			<div style="margin-bottom:15px;" class="controls controls-row">
-				<input type="button" class="btn btn-primary" value="Back" onclick="document.location='reportConfiguration.jsp?templateid=${ reportobject.templateId }'">
-				<input type="button" class="btn btn-primary" value="Print" onclick="window.print();">
+				<input type="button" class="btn btn-primary" value="<bean:message key="global.btnBack"/>" onclick="document.location='reportConfiguration.jsp?templateid=${ reportobject.templateId }'">
+				<input type="button" class="btn btn-primary" value="<bean:message key="print"/>" onclick="window.print();">
 
 			<%
 				for(int x=0;x<csvList.size();x++) {
@@ -144,8 +151,8 @@
 						<label><%=(x+1)%></label>
 					<%}%>
 					<input type="hidden" class="btn" name="csv" value="<%=StringEscapeUtils.escapeHtml(csvList.get(x))%>">
-					<input type="submit" class="btn" name="getCSV" value="Export to CSV">
-					<input type="submit" class="btn" name="getXLS" value="Export to XLS">
+					<input type="submit" class="btn" name="getCSV" value="<bean:message key="report.ClinicalReports.msgExporttoCSV"/>">
+					<input type="submit" class="btn" name="getXLS" value="<bean:message key="report.ClinicalReports.msgExporttoXLS"/>"
 				</html:form>
 
 			<% } %>
