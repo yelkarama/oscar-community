@@ -31,12 +31,12 @@ Top navigation bar for Report by Template
 
 <div class="navbar navbar-fixed noprint">
     <div class="navbar-inner">
-	    <a class="brand" href="#">Report By Template</a> <!-- oscarreport.reportbytemplate=Report By Template -->
+	    <a class="brand" href="#"><bean:message key="oscarreport.reportbytemplate"/></a>
 	    <ul class="nav">
-		    <li><a href="${pageContext.request.contextPath}/oscarReport/reportByTemplate/homePage.jsp" class="contentLink">Template Library</a></li>
-		    <li><a href="${pageContext.request.contextPath}/oscarReport/reportByTemplate/rbtGroup.do" class="contentLink">Template Groups</a></li>
-			<li><a href="${pageContext.request.contextPath}/oscarReport/reportByTemplate/addEditTemplate.jsp" class="contentLink">Add Template</a></li>
-			<li><a href="${pageContext.request.contextPath}/oscarReport/reportByTemplate/k2aTemplates.jsp" class="contentLink">Download Template</a></li>
+		    <li><a href="${pageContext.request.contextPath}/oscarReport/reportByTemplate/homePage.jsp" class="contentLink"><bean:message key="oscarreport.reportbytemplate.library"/></a></li>
+		    <li><a href="${pageContext.request.contextPath}/oscarReport/reportByTemplate/rbtGroup.do" class="contentLink"><bean:message key="oscarreport.reportbytemplate.groups"/></a></li>
+			<li><a href="${pageContext.request.contextPath}/oscarReport/reportByTemplate/addEditTemplate.jsp" class="contentLink"><bean:message key="oscarreport.reportbytemplate.add"/></a></li>
+			<li><a href="${pageContext.request.contextPath}/oscarReport/reportByTemplate/k2aTemplates.jsp" class="contentLink"><bean:message key="oscarreport.reportbytemplate.download"/></a></li>
 	    </ul>
    	</div>
 </div>
