@@ -42,7 +42,7 @@
 
 <!DOCTYPE html>
 <html>
-<!-- Eform Generator 0.2.079 -->
+<!-- Eform Generator 0.2.080 -->
 <!--
 The origional 2852 line generator was penned by Robert Martin for OSCAR Host
 This generator incorperates numerous innovations from the OSCAR community
@@ -61,6 +61,7 @@ version 0.2.076 fixed BNK.png
 version 0.2.077 now converts checkboxes to xBoxes
 version 0.2.078 fixed datepicker, and wet signature print/pdf
 version 0.2.079 support for converting checkboxes that are checked
+version 0.2.080 fixed BNK.png again for export
 -->
 <!--
 FOR STAND ALONE USE
@@ -2484,7 +2485,7 @@ FOR STAND ALONE USE
                         if (runStandaloneVersion){
 						    $(this).attr("src", "BNK.png");
                         } else {
-						    $(this).attr("src", OSCAR_DISPLAY_IMG_SRC + "BNK.png");
+						    $(this).attr("src", "../eform/displayImage.do?imagefile=BNK.png");
                         }
 						$(this).attr("onclick", "toggleMe(this);");
 						$(this).attr("alt", "stamp");
