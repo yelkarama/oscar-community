@@ -613,7 +613,7 @@ public final class MessageUploader {
 
 			try {	
 				if (hin != null) {
-					hinMod = new String(hin);
+					hinMod = new String(hin.toUpperCase());
 					if (hinMod.length() == 12 && Character.isDigit(hinMod.charAt(1))) {
 						hinMod = hinMod.substring(0, 10);
 					}
