@@ -470,16 +470,17 @@ public class PreventionPrintPdf {
             }
         }
         
-        //Make sure last page has the footer
-        ColumnText.showTextAligned(cb, Phrase.ALIGN_CENTER, new Phrase("-" + curPage + "-"), document.right()/2f, document.bottom()-(document.bottomMargin()/2f), 0f);
-        addPromoText(); 
+        // NOT NEEDED
+        // Note that footer with promotext date and Page 1 of 2 is added in PdfWriterFactory.java
+        //ColumnText.showTextAligned(cb, Phrase.ALIGN_CENTER, new Phrase("-" + curPage + "-"), document.right()/2f, document.bottom()-(document.bottomMargin()/2f), 0f);
+        //addPromoText(); 
         
         document.close();
     }
 
     private float goToNewPage(HeaderFooter header, Font font) throws IOException {
-        ColumnText.showTextAligned(cb, Phrase.ALIGN_CENTER, new Phrase("-" + curPage + "-"), document.right() / 2f, document.bottom() - (document.bottomMargin() / 2f), 0f);
-        addPromoText(); // Assuming this method is accessible within your class
+        //ColumnText.showTextAligned(cb, Phrase.ALIGN_CENTER, new Phrase("-" + curPage + "-"), document.right() / 2f, document.bottom() - (document.bottomMargin() / 2f), 0f);
+        //addPromoText(); // Assuming this method is accessible within your class
         float upperYcoord = document.top() - header.getHeight() - font.getCalculatedLeading(LINESPACING);
         document.newPage();
         ct.setSimpleColumn(document.left(), document.bottom(), document.right() / 2f, upperYcoord);
