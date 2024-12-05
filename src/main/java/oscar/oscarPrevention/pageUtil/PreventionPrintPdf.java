@@ -498,7 +498,7 @@ public class PreventionPrintPdf {
     private void addLabelsAndValuesToProcedure(HttpServletRequest request, Phrase procedure, String labelParameter, String label, String[] headerIds,
             int idx, int subIdx, Font font) throws DocumentException, IOException {
         String labelValue = request.getParameter(labelParameter + headerIds[idx] + "-" + subIdx);
-        if (labelValue != null && !labelValue.isEmpty()) {
+        if (labelValue != null && !labelValue.isEmpty() && !labelValue.equals("null")) {
             if (!labelParameter.equals("preventProcedureDate")) {
                 procedure.add(label);
             }
