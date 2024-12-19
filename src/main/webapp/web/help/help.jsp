@@ -34,15 +34,15 @@ Official project page on SourceForge <a target="_blank" href="http://sourceforge
 </p>
 
 <p>
-Report a bug to development community <a target="_blank" href="https://sourceforge.net/p/oscarmcmaster/bugs/new/">here</a>.
+Report a bug to development community <a target="_blank" href="https://oscaremr.atlassian.net/jira/software/c/projects/OSCAREMR/boards/12">here</a>.
 </p>
 
 <p>
-Share your feature request with the development community <a target="_blank" href="https://sourceforge.net/p/oscarmcmaster/feature-requests/new/">here</a>.
+Share your feature request with the development community <a target="_blank" href="https://oscaremr.atlassian.net/jira/software/c/projects/OSCAREMR/boards/12">here</a>.
 </p>
 
 <p>
-See the (latest) code <a target="_blank" href="https://sourceforge.net/p/oscarmcmaster/oscar/ci/master/tree/">here</a>.
+See the (latest) code in bitbucket <a target="_blank" href="https://bitbucket.org/oscaremr/oscar/src/stable/">here</a>.
 </p>
 
 <p>
@@ -54,11 +54,11 @@ Connect with developers <a target="_blank" href="https://lists.sourceforge.net/l
 </p>
 
 <p>
-Need eforms? try <a target="_blank" href="http://oscarcanada.org/oscar-users/emr-resource/eform">here</a>.
+Need eforms? try <a target="_blank" href="https://oscargalaxy.org/downloads/eform-sharing/">here</a>.
 </p>
 
 <p>
-Not sure what to do, try <a target="_blank" href="http://oscar-emr.com">here</a>.
+Not sure what to do, try <a target="_blank" href="https://oscargalaxy.org">here</a>.
 </p>
 
-<p class="bg-info"><a href="javascript:void()" onClick="window.open('http://oscarmanual.org/14','manual','width=600,height=600');return false;"><span class="glyphicon glyphicon-book"></span>OSCAR 14 Manual</a></p>
+<p class="bg-info"><a href="javascript:void()" onClick="window.open('https://oscargalaxy.org','manual','width=600,height=600');return false;"><span class="glyphicon glyphicon-book"></span>OSCAR 14 Manual</a></p>
