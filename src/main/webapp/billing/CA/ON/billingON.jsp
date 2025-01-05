@@ -148,64 +148,7 @@
 
 
 
-			if (curBillForm!=null) {
-			    // user picks a bill form from browser
-			    ctlBillForm = curBillForm;
-			} else {
-                            //check if patient's roster status determines which billing form to display (this superceeds provider preference)
-                            String rosterStatus = demo.getRosterStatus();
 
-                            CtlBillingServiceDao ctlBillingServiceDao = (CtlBillingServiceDao) SpringUtils.getBean("ctlBillingServiceDao");
-                            List<CtlBillingService> ctlBillSrvList = ctlBillingServiceDao.findByServiceTypeId(rosterStatus);
-
-                            if (!ctlBillSrvList.isEmpty() && !rosterStatus.isEmpty()) {
-                                ctlBillForm = ctlBillSrvList.get(0).getServiceType();
-                            }
-                            else {
-                                // check user preference to show a bill form
-                                ProviderPreferenceDao providerPreferenceDao=(ProviderPreferenceDao)SpringUtils.getBean("providerPreferenceDao");
-                                ProviderPreference providerPreference=null;
-
-                                //use the appointment provider's preferences first if we can
-                                //otherwise, use the preferences of the logged in user
-                                if( apptProvider_no.equalsIgnoreCase("none") ) {
-                                    providerPreference = providerPreferenceDao.find(user_no);
-                                } else {
-                                    providerPreference = providerPreferenceDao.find(apptProvider_no);
-                                }
-
-                                String defaultServiceType = "";
-                                if (providerPreference!=null) {
-                                    defaultServiceType = providerPreference.getDefaultServiceType();
-                                }
-
-                                if (defaultServiceType != null && !defaultServiceType.isEmpty() && !defaultServiceType.equals("no")) {
-									ctlBillForm = providerPreference.getDefaultServiceType();
-                                } else {
-                                        //check if there is a group preference for default billing
-                                        MyGroupDao myGroupDao = (MyGroupDao) SpringUtils.getBean("myGroupDao");
-                                        List<MyGroup> myGroups = myGroupDao.getProviderGroups(provider_no);
-                                        String groupBillForm = "";
-                                        for (MyGroup group : myGroups) {
-                                            groupBillForm = group.getDefaultBillingForm();
-                                            if (groupBillForm != null && !groupBillForm.isEmpty()) {
-                                                ctlBillForm = groupBillForm;
-                                                break;
-                                            }
-                                        }
-
-                                        if (ctlBillForm == null || ctlBillForm.isEmpty()) {
-                                            // check oscar.properties to show a default bill form
-                                            String dv = OscarProperties.getInstance().getProperty("default_view");
-                                            if (dv!=null) ctlBillForm = dv;
-                                        }
-                                }
-                            }
-			}
-
-			if( ctlBillForm == null ) {
-				ctlBillForm = "";
-			}
 
 			GregorianCalendar now = new GregorianCalendar();
 			int curYear = now.get(Calendar.YEAR);
@@ -280,6 +223,10 @@
 				}
 			//}
 
+
+
+
+
 			// get patient's billing history
 			boolean bFirst = true;
 			JdbcBillingReviewImpl hdbObj = new JdbcBillingReviewImpl();
@@ -345,6 +292,75 @@
 			} else {
 				visitType = visitType == null ? "" : visitType;
 			}
+
+            String defaultServiceType = "";
+
+			if (curBillForm!=null) {
+			    // user picks a bill form from browser
+			    ctlBillForm = curBillForm;
+			} else {
+                            //check if patient's roster status determines which billing form to display (this superceeds provider preference)
+                            String rosterStatus = demo.getRosterStatus();
+
+                            CtlBillingServiceDao ctlBillingServiceDao = (CtlBillingServiceDao) SpringUtils.getBean("ctlBillingServiceDao");
+                            List<CtlBillingService> ctlBillSrvList = ctlBillingServiceDao.findByServiceTypeId(rosterStatus);
+
+                            if (!ctlBillSrvList.isEmpty() && !rosterStatus.isEmpty()) {
+                                ctlBillForm = ctlBillSrvList.get(0).getServiceType();
+                            }
+                            else {
+                                // check user preference to show a bill form
+                                ProviderPreferenceDao providerPreferenceDao=(ProviderPreferenceDao)SpringUtils.getBean("providerPreferenceDao");
+                                ProviderPreference providerPreference=null;
+
+                                //use the appointment provider's preferences first if we can
+                                //otherwise, use the preferences of the logged in user
+                                if( apptProvider_no.equalsIgnoreCase("none") ) {
+                                    providerPreference = providerPreferenceDao.find(user_no);
+                                } else {
+                                    providerPreference = providerPreferenceDao.find(apptProvider_no);
+                                }
+
+
+                                if (providerPreference!=null) {
+                                    defaultServiceType = providerPreference.getDefaultServiceType();
+                                }
+
+                                if ((roster_status.equals("QU - Quebec")||roster_status.equals("FS")) && !defaultServiceType.equals("RN")) { defaultServiceType = "PRI"; }
+                                if (defaultServiceType != null && !defaultServiceType.isEmpty() && !defaultServiceType.equals("no")) {
+									ctlBillForm = providerPreference.getDefaultServiceType();
+                                } else {
+                                        //check if there is a group preference for default billing
+                                        MyGroupDao myGroupDao = (MyGroupDao) SpringUtils.getBean("myGroupDao");
+                                        List<MyGroup> myGroups = myGroupDao.getProviderGroups(provider_no);
+                                        String groupBillForm = "";
+                                        for (MyGroup group : myGroups) {
+                                            groupBillForm = group.getDefaultBillingForm();
+                                            if (groupBillForm != null && !groupBillForm.isEmpty()) {
+                                                ctlBillForm = groupBillForm;
+                                                break;
+                                            }
+                                        }
+
+                                        if (ctlBillForm == null || ctlBillForm.isEmpty()) {
+                                            // check oscar.properties to show a default bill form
+                                            String dv = OscarProperties.getInstance().getProperty("default_view");
+                                            if (dv!=null) ctlBillForm = dv;
+                                        }
+                                }
+                            }
+			}
+
+			if( ctlBillForm == null ) {
+				ctlBillForm = "";
+			}
+
+			if((visitType.startsWith("02") || visitType.startsWith("04")) && !defaultServiceType.equals("RN")){
+				ctlBillForm = "MIP"; // This is a reference to the "MIP" ctl_billingservice.servicetype, blank service type if not exist
+            }
+            if ((roster_status.equals("QU - Quebec")||roster_status.equals("FS")) && !defaultServiceType.equals("RN")) {
+                ctlBillForm = "PRI";
+            } // "PRI" ctl_billingservice.servicetype, blank if not exist
 
 			paraName = request.getParameter("xml_location");
 			String xml_location = getDefaultValue(paraName, vecHist, "clinic_ref_code");
@@ -541,6 +557,7 @@
             	defaultBillType = t.getBillType();
            }
 
+
 			// create msg
 			msg += errorMsg + warningMsg;
 %>
@@ -553,8 +570,9 @@
 <%@page import="org.oscarehr.util.MiscUtils"%>
 <%@page import="org.oscarehr.common.dao.ProviderPreferenceDao"%>
 <%@page import="org.oscarehr.util.SpringUtils"%>
-<%@page import="org.oscarehr.common.model.ProviderPreference"%><html>
+<%@page import="org.oscarehr.common.model.ProviderPreference"%>
 <%@ page import="org.owasp.encoder.Encode" %>
+<html>
 <head>
 <title>Ontario Billing</title>
 
@@ -1096,6 +1114,7 @@ function changeCodeDesc() {
 //this function will show the content within the <div> tag of billing codes
 function toggleDiv(selectedBillForm, selectedBillFormName,billType)
 {
+
         document.getElementById("billForm").value=selectedBillForm;
         document.getElementById("billFormName").value=selectedBillFormName;
 
@@ -1285,8 +1304,7 @@ if(checkFlag == null) checkFlag = "0";
 		<table style="width: 100%; border-spacing:2px;">
 			<tr>
 				<td>
-					<table  style="width: 100%;"
-						>
+					<table  style="width: 100%;">
 						<tr>
 							<td style="white-space:nowrap; width: 10%; text-align: center"><b>&nbsp;<oscar:nameage
 										demographicNo="<%=demo_no%>" /> <%=roster_status%></b>
@@ -1579,6 +1597,9 @@ function changeSite(sel) {
 										<td style="width: 30%"><b>Billing Type</b></td>
 										<td style="width: 20%">
 											<%
+												if ((roster_status.equals("QU - Quebec")||roster_status.equals("FS")) && !defaultServiceType.equals("RN")) {
+												    defaultBillType = "PAT";
+												}
 												String srtBillType = request.getParameter("xml_billtype")!=null ? request.getParameter("xml_billtype") : defaultBillType;
 											%> <select name="xml_billtype" onchange="onChangePrivate();">
 												<option value="ODP | Bill OHIP"
@@ -1714,7 +1735,7 @@ String strLocation ="";
 										<td colspan="2"><a href="javascript:void(0);"
 											onclick="showHideLayers('Layer1','','show');return false;">
 												Billing form</a>: <input type="text" name="billFormName" class="input-large"
-											id="billFormName" size="30" readonly
+											id="billFormName" readonly
 											value="<%=currentFormName.length() < 40 ? currentFormName : currentFormName.substring(0, 40)%>" />
 											<input type="hidden" name="billForm" id="billForm"
 											value="<%=ctlBillForm%>" /></td>
