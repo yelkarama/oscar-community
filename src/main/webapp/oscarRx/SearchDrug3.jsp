@@ -276,8 +276,7 @@
             let drugsStr = drugs.toString().replace(/,/gi,', ');
             let alertlist = "<strong>"+ drugsStr +" <br> the interactions service has been discontinued by RxNorm. </strong>";
             //document.getElementById('interactionsRxMyD').innerHTML += alertlist;
-            document.getElementById('interactionsRxMyD').innerHTML ='<div style="background-color:silver;margin-right:100px;margin-left:20px;margin-top:10px;padding-left:10px;padding-top:10px;padding-bottom:5px;border-bottom: 2px solid gray;border-right: 2px solid #999;border-top: 1px solid #CCC;border-left: 1px solid #CCC;width:300px;">' + alertlist + ' Use a publically available alternative <a href="https://go.drugbank.com/drug-interaction-checker" target="blank_">Drugbank Interaction checker</a></div>';
-
+            document.getElementById('interactionsRxMyD').innerHTML ='<div style="width: 300px; font-size: 9pt; background-color:silver;margin-right:3px;margin-top:2px;padding-left:3px;padding-top:3px;padding-bottom:3px;">' + alertlist + ' Use a publically available alternative <a href="https://go.drugbank.com/drug-interaction-checker" target="blank_">Drugbank Interaction checker</a></div>';
         }
 
         async function getInteractionsDEFUNCT(drugs) {
@@ -1362,8 +1361,9 @@ THEME 2*/
                 </table>
                     <%-- End List Drugs Prescribed --%>
             </td>
-            <td width="300px" valign="top">
+            <td style="width:300px; vertical-align:top">
                 <div id="interactionsRxMyD" style="float:right;"></div>
+                <div id="interactionsRx" style="float:right;"></div>                
             </td>
         </tr>
         <tr>
@@ -1954,6 +1954,9 @@ THEME 2*/
         }
 
         function updateCurrentInteractions() {
+            <oscar:oscarPropertiesCheck property="HOLBROOK" value="yes">
+                callReplacementWebService("InteractionDisplay.jsp",'interactionsRx');
+            </oscar:oscarPropertiesCheck>
             new Ajax.Request("GetmyDrugrefInfo.do?method=findInteractingDrugList&rand=" + Math.floor(Math.random() * 10001), {
                 method: 'get', onSuccess: function (transport) {
                     new Ajax.Request("UpdateInteractingDrugs.jsp?rand=" + Math.floor(Math.random() * 10001), {
