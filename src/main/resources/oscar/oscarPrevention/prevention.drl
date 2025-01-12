@@ -438,8 +438,8 @@
 		<java:condition>!prev.isNextDateSet("HPV-CERVIX")</java:condition>
 		<java:condition>!prev.isInelligible("HPV-CERVIX")</java:condition>
 		<java:consequence>
-              prev.log("PAP 1");
-              prev.addReminder("PAP is coming due for this patient");
+              prev.log("HPV-CERVIX");
+              prev.addReminder("HPV-CERVIX is coming due for this patient");
         </java:consequence>
 	</rule>
 	<rule name="PAP 1">
@@ -449,6 +449,7 @@
 		<java:condition>prev.getAgeInYears() &gt;= 25</java:condition>
 		<java:condition>prev.getAgeInYears() &lt; 70</java:condition>
 		<java:condition>prev.isFemale()</java:condition>
+		<java:condition>prev.isPreventionNever("HPV-CERVIX")</java:condition>
 		<java:condition>prev.getHowManyMonthsSinceLast("PAP") &gt;= 34</java:condition>
 		<java:condition>prev.getHowManyMonthsSinceLast("PAP") &lt;= 36</java:condition>
 		<java:condition>!prev.isPreventionNever("PAP")</java:condition>
