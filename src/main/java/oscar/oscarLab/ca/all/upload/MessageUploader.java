@@ -346,7 +346,7 @@ public final class MessageUploader {
 					search = "provider_no"; //ie the OSCAR <oscarDB>.Provider.provider_no
 				}
 				
-				if( "MEDITECH".equals(type) ) {
+				if( "MEDITECH".equals(type) || "ExcellerisON".equals(type)) {
 					search = "practitionerNo"; // ie the college number <oscarDB>.Provider.practitionerNo
 				}
 				
