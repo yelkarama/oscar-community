@@ -71,12 +71,26 @@ jQuery("document").ready(function(){
 		if( localStorage.getItem(key) == "true" ) {
 			jQuery(key).show();
 		}
+        if (key == "eye") {
+		    if( localStorage.getItem(key) == "closed" ) {
+			    toggleCancelled();
+		    }
+        }
 	}
 })
-function toggleReason( providerNo ) { 
+function toggleReason( providerNo ) {
 	var id = ".reason_" + providerNo;
     jQuery( id ).toggle();
     localStorage.setItem( id, jQuery( id ).is( ":visible" ) );
+}
+
+function toggleCancelled() {
+    eye = "open";
+    jQuery('.Cancelled').toggleClass('hideMe');
+    jQuery('.icon-eye-close').toggleClass('icon-eye-open-open');
+    jQuery('.icon-eye-open').toggleClass('icon-eye-close');
+    if (jQuery( 'i' ).hasClass( "icon-eye-close" ) ) { eye = "closed"}
+    localStorage.setItem( "eye", eye);
 }
     
 

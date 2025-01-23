@@ -721,6 +721,10 @@ th, td {
     background-color: <%=(showClassicSchedule? "ivory;" : "steelblue;")%>
 }
 
+.Cancelled.hideMe {
+    display:none !important;
+}
+
 @media print {
  .noprint {display:none !important;}
 }
@@ -1550,6 +1554,7 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 <td align="right" valign="bottom" >
 <div class="btn-group">
 	<a href="javascript: function myFunction() {return false; }" onClick="popup(700,1024,'<%=request.getContextPath()%>/scratch/index.jsp','scratch')"><i class="icon-pencil" title="<bean:message key="ScratchPad.title"/>"></i></a>&nbsp;
+	<a href="javascript: function myFunction() {return false; }" onClick="toggleCancelled();"><i class="icon-eye-open" title="<bean:message key="global.btnToggle"/> <bean:message key="oscar.appt.ApptStatusData.msgCanceled"/>"></i></a>&nbsp;
 
 	<%if(resourcehelpHtml==""){ %>
 		<a href="javascript:void(0)" onClick ="pop3(600,750,'<%=resourcebaseurl%>')"><i class="icon-question-sign" title="<bean:message key="app.top1"/>"></i></a>
