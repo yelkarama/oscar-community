@@ -1669,14 +1669,23 @@ function updateStatus(formid){//acknowledge Document
 
 				    }
 
-				    if (_in_window) {
+				    if (typeof _in_window !== 'undefined' && _in_window) {
+
 					    jQuery(':button').prop('disabled',true);
 					    jQuery(':submit').prop('disabled',true);
 					    jQuery('#loader').show();
 					    close = window.opener.openNext(doclabid);
 					    window.opener.refreshCategoryList();
 					    window.opener.updateCountTotal(0);
-					    window.opener.hideLab('labdoc_'+doclabid);
+						// if only one Id eg all Docs you can simply hide it
+						window.opener.hideLab('labdoc_'+doclabid);
+						// The version _in_window may be newer than the one in the list
+                        const multiIds = data.multiID.split(","); 
+						// Hide any in the list that are older versions
+                        for (const id of multiIds) {
+					        window.opener.hideLab('labdoc_'+id);
+                            if (id === doclabid) break;
+                        }
 					    //self.opener.removeReport(doclabid);
 					    //if (close == "close" ) { popup.close(); }
 				    }

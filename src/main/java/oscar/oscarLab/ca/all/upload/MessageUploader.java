@@ -493,9 +493,11 @@ public final class MessageUploader {
 				}
 			}
 		}
-		
-		//if (!labType.equals("Spire"))
-		//	labType = "HL7";
+
+		// always send to MRP, ie add the demographic's provider ProviderNo if found
+		if (altProviderNo != null) {
+			providerNums.add(altProviderNo);
+		}
 		
 		
 		ProviderLabRouting routing = new ProviderLabRouting();
