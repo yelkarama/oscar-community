@@ -225,8 +225,25 @@ if (remoteFacilityIdString==null) // local lab
 		segmentIDs = multiLabId.split(",");
 
 		int totalMatchingLabs = segmentIDs.length;
+		String labStatus = "";
 		if (showLatest != null && "true".equals(showLatest) && totalMatchingLabs > 1) {
-			segmentID = segmentIDs[totalMatchingLabs - 1];
+			String segmentIDtest = segmentIDs[totalMatchingLabs - 1];
+			ackList = AcknowledgementData.getAcknowledgements(segmentIDtest);
+			if (ackList != null) {
+				for (int i = 0; i < ackList.size(); i++) {
+					ReportStatus reportStatus = ackList.get(i);
+					if (reportStatus.getOscarProviderNo() != null && reportStatus.getOscarProviderNo().equals(providerNo)) {
+						labStatus = reportStatus.getStatus();
+						if (labStatus.equals("A")) {
+							//latest lab has been ack by this provider, show the origional segmentID
+							break;
+						} else {
+							//latest lab has been not been ack by this provider show it
+							segmentID = segmentIDtest;
+						}
+					}
+				}
+			}
 		}
 
 		List<String> segmentIdList = new ArrayList<String>();
@@ -2450,7 +2467,7 @@ for(int mcount=0; mcount<multiID.length; mcount++){
 									<input type="button" <%=isLinkedToDemographic ? "" : "disabled" %> class="btn" value="<%=formName2Short%>" onClick="popupStart(700, 1024, '../../../form/forwardshortcutname.jsp?formname=<%=formName2%>&demographic_no=<%=demographicID%>', '<%=formName2Short%>')" >
 									<% } %>
 									<input type="button" class="btn" value="<bean:message key="global.btnPDF"/>" onClick="printPDF('<%=segmentID%>')">
-                                    <input type="button" class="btn" id="next" value="<bean:message key="global.Next"/>" onclick="jQuery(':button').prop('disabled',true); jQuery('#loader').show(); close = window.opener.openNext(<%=segmentID%>);">
+                                    <input type="button" class="btn" id="next" value="<bean:message key="global.Next"/>" onclick="jQuery(':button').prop('disabled',true); jQuery('#loader').show(); close = window.opener.openNext(<%=request.getParameter("segmentID")%>);">
                                 </td>
                             </tr><tr>
                                 <td style="text-align:center">
