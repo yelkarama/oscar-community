@@ -461,6 +461,7 @@ input[id^='acklabel_']{
     </style>
 
     <script>
+    var baseSegment = '<%=request.getParameter("segmentID")%>';
     var labNo = '<%=segmentID%>';
     var providerNo = '<%=providerNo%>';
     var demographicNo = '<%=isLinkedToDemographic ? demographicID : ""%>';
@@ -724,12 +725,12 @@ input[id^='acklabel_']{
             data: "method=fileLabAjax&flaggedLabId=" + labid + "&labType=HL7",
             success: function (data) {
                 if( window.opener.document.getElementById('labdoc_'+labid) != null ) {
-                    window.opener.hideLab('labdoc_'+labid);
+                    window.opener.hideLab('labdoc_'+baseSegment);
                     window.opener.refreshCategoryList();
                     window.opener.updateCountTotal(0);
                     jQuery(':button').prop('disabled',true);
                     jQuery('#loader').show();
-                    close = window.opener.openNext(labid);
+                    close = window.opener.openNext(baseSegment);
             	} else {
                 	window.close();
                 }
@@ -757,12 +758,13 @@ input[id^='acklabel_']{
             	else if( window.opener.document.getElementById('labdoc_'+labid) != null ) {
                     // opened from the Inbox
                 	//window.opener.Effect.BlindUp('labdoc_'+labid); // invoke script.aculo.us to hide the entry
-                    window.opener.hideLab('labdoc_'+labid);
+
+                    window.opener.hideLab('labdoc_'+baseSegment);
                     window.opener.refreshCategoryList();
                     window.opener.updateCountTotal(0);
                     jQuery(':button').prop('disabled',true);
                     jQuery('#loader').show();
-                    close = window.opener.openNext(labid);
+                    close = window.opener.openNext(baseSegment);
 
             	}
                 else {
@@ -1040,12 +1042,12 @@ input[id^='acklabel_']{
 	                    	if(closeOnSuccess) {
                                 if(window.opener && (typeof window.opener.refreshCategoryList == 'function')) {
                         	        //window.opener.Effect.BlindUp('labdoc_'+labid);
-                                    window.opener.hideLab('labdoc_'+labid);
+                                    window.opener.hideLab('labdoc_'+baseSegment);
                                     window.opener.refreshCategoryList();
                                     window.opener.updateCountTotal(0);
                                     jQuery('#loader').show();
                                     jQuery(':button').prop('disabled',true);
-                                    close = window.opener.openNext(labid);
+                                    close = window.opener.openNext(baseSegment);
                                 } else {
                                     if(parent.popup) parent.popup.close();
                                 }
@@ -2467,7 +2469,7 @@ for(int mcount=0; mcount<multiID.length; mcount++){
 									<input type="button" <%=isLinkedToDemographic ? "" : "disabled" %> class="btn" value="<%=formName2Short%>" onClick="popupStart(700, 1024, '../../../form/forwardshortcutname.jsp?formname=<%=formName2%>&demographic_no=<%=demographicID%>', '<%=formName2Short%>')" >
 									<% } %>
 									<input type="button" class="btn" value="<bean:message key="global.btnPDF"/>" onClick="printPDF('<%=segmentID%>')">
-                                    <input type="button" class="btn" id="next" value="<bean:message key="global.Next"/>" onclick="jQuery(':button').prop('disabled',true); jQuery('#loader').show(); close = window.opener.openNext(<%=request.getParameter("segmentID")%>);">
+                                    <input type="button" class="btn" id="next" value="<bean:message key="global.Next"/>" onclick="jQuery(':button').prop('disabled',true); jQuery('#loader').show(); close = window.opener.openNext(baseSegment);">
                                 </td>
                             </tr><tr>
                                 <td style="text-align:center">
