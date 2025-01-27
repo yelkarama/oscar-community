@@ -755,7 +755,7 @@ input[id^='acklabel_']{
             	if( <%=showAll%> ) {
                 	window.location.reload();
                 }
-            	else if( window.opener.document.getElementById('labdoc_'+labid) != null ) {
+            	else if( window.opener.document.getElementById('labdoc_'+baseSegment) != null ) {
                     // opened from the Inbox
                 	//window.opener.Effect.BlindUp('labdoc_'+labid); // invoke script.aculo.us to hide the entry
 
