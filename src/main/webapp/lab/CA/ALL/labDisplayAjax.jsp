@@ -1154,7 +1154,8 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
                                         <td colspan="1"><%=orderRequestStatus%></td>
                                     </tr>
                                 <%
-
+                                }
+                                
                                 for (k=0; k < obxCount; k++){
                                     String obxName = handler.getOBXName(j, k);
 									boolean isAllowedDuplicate = false;
