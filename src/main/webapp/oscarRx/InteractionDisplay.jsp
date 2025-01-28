@@ -43,7 +43,7 @@
 <%@ page import="oscar.oscarRx.data.*"%>
 <%@ page import="oscar.oscarRx.pageUtil.*"%>
 
-<%@ page import="java.net.http.HttpRequest"%>
+<%@ page import="javax.servlet.http.HttpServletRequest"%>
 <%@ page import="java.util.*"%>
 <%@ page import="java.util.Locale"%>
 <%@ page import="java.util.ResourceBundle"%>
