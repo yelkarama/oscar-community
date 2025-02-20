@@ -113,7 +113,7 @@ String curUser_no = (String) session.getAttribute("user");
                                        <input id="topFileBtn" type="button" class="btn" value="<bean:message key="global.File"/>" onclick="parent.submitFile(document)"/>
                                    <% }
                                     %>
-                                       &nbsp; <bean:message key="oscarMDS.index.RapidReview"/>: <input type="checkbox" id="ack_next_chk" <%=rapid_review%>>
+                                       &nbsp; <bean:message key="oscarMDS.index.RapidReview"/>: <input type="checkbox" id="ack_next_chk" onclick="toggleRapidReview();" <%=rapid_review%>>
 &nbsp; <bean:message key="oscarMDS.search.formReportStatusAcknowledged"/>: <input type="checkbox" id="showAck" onclick='toggleReviewed()'>
                                     <%
                                }%><span style="float:right;">
@@ -446,6 +446,20 @@ String curUser_no = (String) session.getAttribute("user");
 
                                                 oldestLab = '<%=request.getAttribute("oldestLab") %>';
 
+	                                            for( var i = 0; i < localStorage.length; i++ ) {
+		                                            var key = localStorage.key(i);
+	                                            	if( key == "rapidreview" && typeof document.getElementById('ack_next_chk') !== 'undefined'){
+                                                        console.log("rapid review checkbox set to "+localStorage.getItem(key));
+                                                        if (localStorage.getItem(key) == "true" ){
+                                            			    document.getElementById('ack_next_chk').checked = true;
+                                                        }
+                                                    }
+		                                        }
+
+                                                function toggleRapidReview() {
+                                                    localStorage.setItem("rapidreview",document.getElementById('ack_next_chk').checked);
+
+                                                }
                                         </script>
                                         </tr>
                                     </table>
