@@ -70,11 +70,15 @@
 <%@ page import="oscar.oscarLab.ca.all.*" %>
 <%@ page import="oscar.oscarLab.ca.all.parsers.*" %>
 <%@ page import="oscar.oscarLab.ca.all.util.*" %>
+
 <%@ page import="oscar.oscarLab.ca.all.web.LabDisplayHelper" %>
 <%@ page import="oscar.oscarMDS.data.ReportStatus" %>
 <%@ page import="oscar.log.*" %>
 <%@ page import="oscar.util.ConversionUtils"%>
 <%@ page import="oscar.util.UtilDateUtilities" %>
+
+<%@ page import ="oscar.oscarLab.ca.all.parsers.ExcellerisOntarioHandler.OrderStatus" %>
+<%@ page import ="oscar.oscarLab.ca.all.parsers.ExcellerisOntarioHandler" %>
 <jsp:useBean id="oscarVariables" class="java.util.Properties" scope="session" />
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
@@ -84,6 +88,7 @@
 <%@ taglib uri="/WEB-INF/oscarProperties-tag.tld" prefix="oscarProperties"%>
 <%@ taglib uri="/WEB-INF/indivo-tag.tld" prefix="indivo"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%
       String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
 	  boolean authed=true;
@@ -185,6 +190,9 @@ List<MessageHandler>handlers = new ArrayList<MessageHandler>();
 String []segmentIDs = null;
 Boolean showAll = showAllstr != null && !"null".equalsIgnoreCase(showAllstr);
 
+String duplicateOfLab = null;
+Map<String, String> missingTests = new HashMap<>();
+
 if (remoteFacilityIdString==null) // local lab
 {
 
@@ -249,6 +257,61 @@ if (remoteFacilityIdString==null) // local lab
 		List<String> segmentIdList = new ArrayList<String>();
 		handler = Factory.getHandler(segmentID);
 		handlers.add(handler);
+        if ("ExcellerisON".equals(handler.getMsgType()) && segmentIDs.length > 1) {
+            Map<String, String> testStatusMap = new HashMap<>();
+            for (int i = 0; i < handler.getOBRCount(); i++) {
+                String testName = ((ExcellerisOntarioHandler) handler).getOBRName(i)  + " (" + ((ExcellerisOntarioHandler) handler).getOBRIdentifier(i) + ")";
+                String orderStatus =((ExcellerisOntarioHandler) handler).getOrderStatus(i);
+                testStatusMap.put(testName, orderStatus);
+            }
+
+            Map<String, String> accessionTestStatusMap = new HashMap<>();
+            handlers.add(Factory.getHandler(segmentIDs[0]));
+            handler = handlers.get(handlers.size()-1);
+            //handler = handlers.get(1);
+            for (int i = 0; i < handler.getOBRCount(); i++) {
+                String testName = ((ExcellerisOntarioHandler) handler).getOBRName(i)  + " (" + ((ExcellerisOntarioHandler) handler).getOBRIdentifier(i) + ")";
+                String orderStatus =((ExcellerisOntarioHandler) handler).getOrderStatus(i);
+                accessionTestStatusMap.put(testName, orderStatus);
+            }
+
+
+            Map<String, String> missingEntries = new HashMap<>();
+            for (Map.Entry<String, String> entry : accessionTestStatusMap.entrySet()) {
+                if (!testStatusMap.containsKey(entry.getKey())) {
+                    missingEntries.put(entry.getKey(), entry.getValue());
+                }
+            }
+
+
+            duplicateOfLab = null;
+            missingTests = missingEntries;
+        }
+
+Integer priorLabIdx = -1;
+if (segmentIDs.length > 1) {
+    for (int i = 0; i < totalMatchingLabs; i++) {
+        if (segmentID.equals(segmentIDs[i])) {
+            priorLabIdx = i-1;
+            break;
+        }
+    }
+}
+
+if (priorLabIdx > -1){
+    String hl7i = Factory.getHL7Body(segmentID);
+    String[] lines = hl7i.split("\n", 2);
+    hl7i = lines.length > 1 ? lines[1] : ""; // subsequent lines in the hl7 (or an empty string if no second part exists)
+    String priorhl7 = Factory.getHL7Body(segmentIDs[priorLabIdx]);
+    String[] lines2 = priorhl7.split("\n", 2);
+    priorhl7 = lines2.length > 1 ? lines2[1] : "";
+    if (hl7i.equals(priorhl7)){
+        priorLabIdx = priorLabIdx +1;
+        duplicateOfLab = priorLabIdx.toString();
+    }
+}
+
+
 		segmentIdList.add(segmentID);
 
 		//this is where it gets weird. We want to show all messages with different filler order num but same accession in a single report
@@ -286,6 +349,9 @@ else // remote lab
 	}
 }
 
+request.setAttribute("duplicateOfLab", duplicateOfLab);
+request.setAttribute("missingTests", missingTests);
+
 /********************** Converted to this spot *****************************/
 DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
 Demographic demographic = demographicDao.getDemographic(demographicID);
@@ -312,8 +378,6 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
         <script src="<%=request.getContextPath() %>/share/javascript/Oscar.js" ></script>
         <script src="<%=request.getContextPath() %>/js/global.js"></script>
         <script src="<%=request.getContextPath() %>/library/jquery/jquery-3.6.4.min.js"></script>
-        <script>jQuery.noConflict();</script>
-
 	<oscar:customInterface section="labView"/>
 
 	<script>
@@ -939,6 +1003,7 @@ input[id^='acklabel_']{
 /* Change the background color of the dropdown button when the dropdown content is shown */
 .dropdowns:hover .dropbtns {background-color: #e6e6e6;}
 
+
 </style>
     <body onLoad="matchMe();next();">
 <div id='loader' style="display:none"><img src='<%=request.getContextPath()%>/images/DMSLoader.gif'> <bean:message key="caseload.msgLoading"/></div>
@@ -1058,6 +1123,9 @@ input[id^='acklabel_']{
 		</script>
 
 		<div id="lab_<%=segmentID%>">
+        <c:set var="hasDuplicateInfo" value="${not empty duplicateOfLab}" />
+        <c:set var="hasMissingTests" value="${not empty missingTests}" />
+
         <form name="reassignForm_<%=segmentID%>" method="post" action="Forward.do">
             <input type="hidden" name="flaggedLabs" value="<%=segmentID%>" >
             <input type="hidden" name="selectedProviders" value="" >
@@ -1459,6 +1527,9 @@ input[id^='acklabel_']{
                                             </td>
                                              <td>
                                                 <div class="FieldDatas" style="white-space:nowrap;">
+                                                <c:if test="${hasMissingTests}">
+                                                    <b>PARTIALLY&nbsp;</b>
+                                                </c:if>
                                                     <%= ( handler.getOrderStatus().equals("F") ? "Final" : handler.getOrderStatus().equals("C") ? "Corrected" : (handler.getMsgType().equals("PATHL7") && handler.getOrderStatus().equals("P")) ? "Preliminary": handler.getOrderStatus().equals("X") ? "DELETED": handler.getOrderStatus()) %>
                                                 </div>
                                             </td>
@@ -1629,6 +1700,21 @@ for(int mcount=0; mcount<multiID.length; mcount++){
                             </div><!-- end ticklerWrap-->
     <%
     }
+%>
+            <c:if test="${hasDuplicateInfo}">
+                <table style="width:100%; height:20px">
+                    <tr>
+                        <td class="alert alert-error">
+                                    <!-- Duplicate Information Section -->
+                                    <div class="info-section">
+                                        <p><b>Warning:</b> You are viewing a version of a lab result that is a duplicate of previously received version <b>v<c:out value="${duplicateOfLab}" /></b>.</p>
+                                    </div>
+                        </td>
+                    </tr>
+                </table>
+            </c:if>
+<%
+
 
 
                                     ReportStatus report;
@@ -2485,7 +2571,29 @@ for(int mcount=0; mcount<multiID.length; mcount++){
                         </tr>
                         <tr>
                         <td>
-                        <table>
+
+                    </td>
+                </tr>
+            </table>
+                        <table style="width: 100%">
+
+                    <c:if test="${hasMissingTests}">
+<tr><td class="alert-block alert-info">
+                        <!-- Missing Tests Information Section -->
+                        <div class="info-section">
+                            <p>&nbsp;&nbsp<b>Info:</b> The following tests were not included in this version of the lab results:</p>
+                            <table class="test-list" >
+                                <c:forEach var="entry" items="${missingTests}">
+                                    <tr>
+                                        <td><span>&nbsp;&nbsp;&nbsp&nbsp;&nbsp&nbsp;&nbsp;${entry.key}</span></td>
+                                        <td><b>&nbsp;&nbsp;&nbsp&nbsp;&nbsp&nbsp;&nbsp;<span class="status">${entry.value}</span></b></td>
+                                    </tr>
+                                </c:forEach>
+                            </table>
+                        </div>
+</td></tr>
+                    </c:if>
+
                         	<%
                         		for(String lName : allLicenseNames) {
                         	%>
@@ -2495,10 +2603,6 @@ for(int mcount=0; mcount<multiID.length; mcount++){
 
                         	<% } %>
                         </table>
-                    </td>
-                </tr>
-            </table>
-
         </form>
 
         <%String s = ""+System.currentTimeMillis();%>

@@ -43,6 +43,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
@@ -66,6 +67,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
 
     Logger logger = org.oscarehr.util.MiscUtils.getLogger();
     ORU_R01 msg = null;
+    private String hl7Body;
 
 	private static List<String> labDocuments = Arrays.asList("BCCACSP","BCCASMP","BLOODBANKT",
 			"CELLPATH","CELLPATHR","DIAG IMAGE","MICRO3T", 
@@ -86,7 +88,7 @@ public class ExcellerisOntarioHandler implements MessageHandler {
         PRELIMINARY("P", "Preliminary"),
         COMPLETED("F", "Completed"),
         RETRANSMITTED("R", "Retransmitted"),
-        DELETED("X", "Deleted");
+        DELETED("X", "Cancelled");
 
         private final String code;
         private final String description;
@@ -105,9 +107,18 @@ public class ExcellerisOntarioHandler implements MessageHandler {
     }
 
     public void init(String hl7Body) throws HL7Exception {
+        this.hl7Body = hl7Body;
         Parser p = new PipeParser();
         p.setValidationContext(new NoValidation());
         msg = (ORU_R01) p.parse(hl7Body.replaceAll( "\n", "\r\n" ).replace("\\.Zt\\", "\t"));
+    }
+
+    public String getHl7Body() {
+        return hl7Body;
+    }
+
+    public void setHl7Body(String hl7Body) {
+        this.hl7Body = hl7Body;
     }
 
     public String getMsgType(){
@@ -497,6 +508,19 @@ public class ExcellerisOntarioHandler implements MessageHandler {
            logger.error("Could not return Order Status for OBR " + String.valueOf(y), e);            
         }
         return statusDescription;
+    }
+    
+    public Optional<OrderStatus> getOrderStatusEnum(int y) {
+        try {
+            String status = getString(msg.getPIDPD1NK1NTEPV1PV2ORCOBRNTEOBXNTECTI().getORCOBRNTEOBXNTECTI(y).getOBR().getResultStatus().getValue());
+            for (OrderStatus orderStatus : OrderStatus.values()) {
+                if (!status.equals(orderStatus.getCode())) { continue; }
+                return Optional.of(orderStatus);
+            }
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+        return Optional.empty();
     }
 
     //OBR-16

@@ -59,6 +59,18 @@ public class Hl7TextMessageDao extends AbstractDao<Hl7TextMessage> {
 		return results;
 	}
 	
+	
+	public List<Hl7TextMessage> findByIds(List<Integer> ids){
+		Query query = entityManager.createQuery("SELECT x FROM Hl7TextMessage x WHERE x.id IN :ids");
+        query.setParameter("ids", ids);
+
+        @SuppressWarnings("unchecked")
+        List<Hl7TextMessage> results = query.getResultList();
+
+        return results;
+	}
+	
+	
 	@SuppressWarnings("unchecked")
 	public List<Integer> getLabResultsSince(Integer demographicNo, Date updateDate) {
 		String query = "select m.id from Hl7TextMessage m, PatientLabRouting p WHERE m.id = p.labNo and p.labType='HL7' and p.demographicNo = ?1 and (m.created > ?2 or p.dateModified > ?3) ";
