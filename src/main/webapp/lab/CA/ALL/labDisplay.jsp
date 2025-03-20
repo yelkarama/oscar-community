@@ -2578,20 +2578,24 @@ for(int mcount=0; mcount<multiID.length; mcount++){
                         <table style="width: 100%">
 
                     <c:if test="${hasMissingTests}">
-<tr><td class="alert-block alert-info">
+                        <tr><td class="alert-block alert-info">
                         <!-- Missing Tests Information Section -->
                         <div class="info-section">
                             <p>&nbsp;&nbsp<b>Info:</b> The following tests were not included in this version of the lab results:</p>
                             <table class="test-list" >
                                 <c:forEach var="entry" items="${missingTests}">
                                     <tr>
-                                        <td><span>&nbsp;&nbsp;&nbsp&nbsp;&nbsp&nbsp;&nbsp;${entry.key}</span></td>
-                                        <td><b>&nbsp;&nbsp;&nbsp&nbsp;&nbsp&nbsp;&nbsp;<span class="status">${entry.value}</span></b></td>
+                                        <td><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${entry.key}</span></td>
+                                        <td><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="status">${entry.value}</span></b></td>
                                     </tr>
                                 </c:forEach>
+                                    <tr>
+                                        <td><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If items are *reported under separate cover* see v1</span></td>
+                                        <td></td>
+                                    </tr>
                             </table>
                         </div>
-</td></tr>
+                        </td></tr>
                     </c:if>
 
                         	<%
