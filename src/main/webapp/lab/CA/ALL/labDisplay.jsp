@@ -234,24 +234,29 @@ if (remoteFacilityIdString==null) // local lab
 
 		int totalMatchingLabs = segmentIDs.length;
 		String labStatus = "";
-		if (showLatest != null && "true".equals(showLatest) && totalMatchingLabs > 1) {
-			String segmentIDtest = segmentIDs[totalMatchingLabs - 1];
-			ackList = AcknowledgementData.getAcknowledgements(segmentIDtest);
-			if (ackList != null) {
-				for (int i = 0; i < ackList.size(); i++) {
-					ReportStatus reportStatus = ackList.get(i);
-					if (reportStatus.getOscarProviderNo() != null && reportStatus.getOscarProviderNo().equals(providerNo)) {
-						labStatus = reportStatus.getStatus();
-						if (labStatus.equals("A")) {
-							//latest lab has been ack by this provider, show the origional segmentID
-							break;
-						} else {
-							//latest lab has been not been ack by this provider show it
-							segmentID = segmentIDtest;
-						}
-					}
-				}
+		if (totalMatchingLabs > 1) {
+            if (request.getParameter("multiID") != null && request.getParameter("multiID").equals("null") ) {
+			    segmentID = segmentIDs[totalMatchingLabs - 1];            
 			}
+			if (showLatest != null && "true".equals(showLatest) ) {
+			    String segmentIDtest = segmentIDs[totalMatchingLabs - 1];
+			    ackList = AcknowledgementData.getAcknowledgements(segmentIDtest);
+			    if (ackList != null) {
+				    for (int i = 0; i < ackList.size(); i++) {
+					    ReportStatus reportStatus = ackList.get(i);
+					    if (reportStatus.getOscarProviderNo() != null && reportStatus.getOscarProviderNo().equals(providerNo)) {
+						    labStatus = reportStatus.getStatus();
+						    if (labStatus.equals("A")) {
+							    //latest lab has been ack by this provider, show the origional segmentID
+							    break;
+						    } else {
+							    //latest lab has been not been ack by this provider show it
+							    segmentID = segmentIDtest;
+						    }
+					    }
+				    }
+			    }
+            }
 		}
 
 		List<String> segmentIdList = new ArrayList<String>();
