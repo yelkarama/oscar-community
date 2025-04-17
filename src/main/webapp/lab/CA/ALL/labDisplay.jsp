@@ -694,7 +694,7 @@ input[id^='acklabel_']{
                         } else if (action == 'msgLabPAP') {
                             demoid = json.demoId;
                             if (demoid != null && demoid.length > 0) {
-                                window.popup(700, 980, '<%=request.getContextPath()%>/oscarPrevention/AddPreventionData.jsp?demographic_no=' + demoid + '&prevention=PAP', 'prevention');
+                                window.popup(700, 980, '<%=request.getContextPath()%>/oscarPrevention/AddPreventionData.jsp?demographic_no=' + demoid + '&prevention=HPV-CERVIX', 'prevention');
                                 <%
                                 if (props.getProperty("billregion", "").trim().toUpperCase().equals("ON")) {
                                     %>
@@ -1210,7 +1210,7 @@ input[id^='acklabel_']{
                                 <button class="dropbtns btn"  ><bean:message key="global.other"/>&nbsp;<span class="caret" ></span></button>
                                 <div class="dropdowns-content">
                                     <a href="javascript:;" onclick="handleLab('','<%=segmentID%>','msgLabMAM'); return false;"><bean:message key="oscarEncounter.formFemaleAnnual.formMammogram"/></a>
-                                    <a href="javascript:;" onclick="handleLab('','<%=segmentID%>','msgLabPAP'); return false;"><bean:message key="oscarEncounter.formFemaleAnnual.formPapSmear"/></a>
+                                    <a href="javascript:;" onclick="handleLab('','<%=segmentID%>','msgLabPAP'); return false;">HPV-CERVIX</a>
                                     <a href="javascript:;" onclick="handleLab('','<%=segmentID%>','msgLabFIT'); return false;">FIT</a>
                                     <a href="javascript:;" onclick="handleLab('','<%=segmentID%>','msgLabCOLONOSCOPY'); return false;">Colonoscopy</a>
                                     <a href="javascript:;" onclick="handleLab('','<%=segmentID%>','msgLabBMD'); return false;">BMD</a>
@@ -2533,7 +2533,7 @@ for(int mcount=0; mcount<multiID.length; mcount++){
                                 <button class="dropbtns btn"  ><bean:message key="global.other"/>&nbsp;<span class="caret" ></span></button>
                                 <div class="dropdowns-content">
                                     <a href="javascript:;" onclick="handleLab('','<%=segmentID%>','msgLabMAM'); return false;"><bean:message key="oscarEncounter.formFemaleAnnual.formMammogram"/></a>
-                                    <a href="javascript:;" onclick="handleLab('','<%=segmentID%>','msgLabPAP'); return false;"><bean:message key="oscarEncounter.formFemaleAnnual.formPapSmear"/></a>
+                                    <a href="javascript:;" onclick="handleLab('','<%=segmentID%>','msgLabPAP'); return false;">HPV-CERVIX</a>
                                     <a href="javascript:;" onclick="handleLab('','<%=segmentID%>','msgLabFIT'); return false;">FIT</a>
                                     <a href="javascript:;" onclick="handleLab('','<%=segmentID%>','msgLabCOLONOSCOPY'); return false;">Colonoscopy</a>
                                     <a href="javascript:;" onclick="handleLab('','<%=segmentID%>','msgLabBMD'); return false;">BMD</a>
