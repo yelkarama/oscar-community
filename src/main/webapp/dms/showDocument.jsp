@@ -402,7 +402,7 @@
                                 window.popup(450,1280,'<%=request.getContextPath()%>/tickler/ticklerDemoMain.jsp?demoview='+demoid);
                                 break;
                             case "msgLabPAP":
-                                window.popup(700,980,'<%=request.getContextPath()%>/oscarPrevention/AddPreventionData.jsp?demographic_no='+demoid+'&prevention=PAP','prevention');
+                                window.popup(700,980,'<%=request.getContextPath()%>/oscarPrevention/AddPreventionData.jsp?demographic_no='+demoid+'&prevention=HPV-CERVIX','prevention');
                             <% if (props.getProperty("billregion", "").trim().toUpperCase().equals("ON")) { %>
                                 window.popup(700,1280,'<%=request.getContextPath()%>/billing/CA/ON/billingOB.jsp?billRegion=ON&billForm=MFP&hotclick=&appointment_no=0&demographic_name=&status=a&demographic_no='+demoid+'&providerview=<%=curUser_no%>&user_no=<%=curUser_no%>&apptProvider_no=<%=curUser_no%>&appointment_date=&start_time=00:00:00&bNewForm=1&serviceCode0=Q011A','billing');
                             <% } %>
@@ -647,7 +647,7 @@
                                                     <button class="dropbtns btn"  ><bean:message key="global.other"/>&nbsp;<span class="caret"></span></button>
                                                     <div class="dropdowns-content">
                                                         <a href="javascript:void(0);" onclick="handleDocSave('<%=docId%>','msgLabMAM'); return false;"><bean:message key="oscarEncounter.formFemaleAnnual.formMammogram"/></a>
-                                                        <a href="javascript:void(0);" onclick="handleDocSave('<%=docId%>','msgLabPAP'); return false;"><bean:message key="oscarEncounter.formFemaleAnnual.formPapSmear"/></a>
+                                                        <a href="javascript:void(0);" onclick="handleDocSave('<%=docId%>','msgLabPAP'); return false;">HPV-CERVIX</a>
                                                         <a href="javascript:void(0);" onclick="handleDocSave('<%=docId%>','msgLabFIT'); return false;">FIT</a>
                                                         <a href="javascript:void(0);" onclick="handleDocSave('<%=docId%>','msgLabCOLONOSCOPY'); return false;">Colonoscopy</a>
                                                         <a href="javascript:void(0);" onclick="handleDocSave('<%=docId%>','msgLabBMD'); return false;">BMD</a>
@@ -1218,7 +1218,7 @@ popup2(710,1024,0,0,'<%=request.getContextPath()%>/dms/incomingDocs.jsp?pdfDir=R
                                                     <button class="dropbtns btn"  ><bean:message key="global.other"/>&nbsp;<span class="caret"></span></button>
                                                     <div class="dropdowns-content">
                                                         <a href="javascript:void(0);" onclick="handleDocSave('<%=docId%>','msgLabMAM'); return false;"><bean:message key="oscarEncounter.formFemaleAnnual.formMammogram"/></a>
-                                                        <a href="javascript:void(0);" onclick="handleDocSave('<%=docId%>','msgLabPAP'); return false;"><bean:message key="oscarEncounter.formFemaleAnnual.formPapSmear"/></a>
+                                                        <a href="javascript:void(0);" onclick="handleDocSave('<%=docId%>','msgLabPAP'); return false;">HPV-CERVIX</a>
                                                         <a href="javascript:void(0);" onclick="handleDocSave('<%=docId%>','msgLabFIT'); return false;">FIT</a>
                                                         <a href="javascript:void(0);" onclick="handleDocSave('<%=docId%>','msgLabCOLONOSCOPY'); return false;">Colonoscopy</a>
                                                         <a href="javascript:void(0);" onclick="handleDocSave('<%=docId%>','msgLabBMD'); return false;">BMD</a>
