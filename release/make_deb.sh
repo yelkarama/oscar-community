@@ -262,8 +262,30 @@
 # v 74 - drugref.sql of Nov 9, 2022
 # v 75 - referencing on line patch19.sql
 # v 76 - apparmor patch for wkhtmltopdf 
-# v 77 - server.xml relaxedQueryChars="[,]"
-# v 78 - added formBCAR2007 to the MyISAM conversions in patch.sql
+# v 78 - server.xml relaxedQueryChars="[,]"
+#      - added formBCAR2007 to the MyISAM conversions in patch.sql
+# v 79 - updated properties file
+# v 80 - updated config to supply all the directories explicitly set
+# v 81 - drugref.sql updated to Feb 22, 2023
+# v 82 - updated to drugref2.43.war 
+# v 83 - experimental and incomplete Tomcat 10 support
+# v 84 - drugref.sql updated to Nov 12, 2023
+#      - Ontario Lab 2019 assorted support files added
+#      - reverted patch.sql back to local
+# v 85 - updated to drugref2.46.war (also in 19-84~3743)
+#      - drugref.sql updated to Jan 15, 2024
+# v 86 - added cron to pre-depends
+# v 87 - bug fix
+# v 88 - fixes for Ubuntu 24.04 for Tomcat9 ReadWritePaths
+# v 89 - fixes for Ubuntu 24.04 for wkhtmltopdf apparmor
+# v 90 - moved war expansion to the end
+# v 91 - LU codes costing and drugs updated to March 2024
+# v 92 - matching column widths for some archice tables patch19.sql
+# v 93 - updated measurements table patch19.sql
+# v 94 - fixed some paths in oscar.properties
+# v 95 - added updateDrugref.cron utility script
+# v 96 - fixed config reference to gateway.sh
+# v 97 - ExcellerisDownload.sh
 
 # --- sanity check
 if [ "$(id -u)" != "0" ];
@@ -274,7 +296,7 @@ fi
 
 echo "#########" `date` "#########" 
 
-DEB_SUBVERSION=78
+DEB_SUBVERSION=97
 PROGRAM=oscar
 PACKAGE=oscar-emr
 
@@ -331,7 +353,8 @@ fi
 ## get the patch19.sql from source
 ## curl this way to overwrite the existing patch19.sql
 ## NOTE THIS URL will need to be updated at you edit changes in the patch19.sql file on line
-curl https://bitbucket.org/oscaremr/oscar/raw/6b784a12de3039c42cc74828dca8629805e7600d/release/patch19.sql > patch19.sql
+##curl https://bitbucket.org/oscaremr/oscar/raw/6b784a12de3039c42cc74828dca8629805e7600d/release/patch19.sql > patch19.sql
+##curl https://bitbucket.org/oscaremr/oscar/raw/cfe49416cd3a2625b497fa1a73bdcd8bbc23a23b/release/patch19.sql > patch19.sql
 
 ##curl -o lastStableBuild http://jenkins.oscar-emr.com:8080/job/$WGET_VERSION/lastBuild/
 
@@ -624,9 +647,14 @@ source.txt > ./${DEBNAME}/usr/share/${PACKAGE}/source.txt
 echo "make up the appropriate rebooting script"
 sed -e 's/^PROGRAM.*/PROGRAM='"$PROGRAM"'/' \
 reOscar.sh > ./${DEBNAME}/usr/share/${PACKAGE}/reOscar.sh
+# note that the origional scripts are .sh
+# end users should rename to prevent overwrites
+
 chmod 711 ./${DEBNAME}/usr/share/${PACKAGE}/reOscar.sh
-cp gateway.cron ./${DEBNAME}/usr/share/${PACKAGE}/gateway.cron
-chmod 755 ./${DEBNAME}/usr/share/${PACKAGE}/gateway.cron
+cp gateway.sh ./${DEBNAME}/usr/share/${PACKAGE}/gateway.sh
+cp letsencrypt.cron ./${DEBNAME}/usr/share/${PACKAGE}/letsencrypt.sh
+chmod 755 ./${DEBNAME}/usr/share/${PACKAGE}/gateway.sh
+chmod 755 ./${DEBNAME}/usr/share/${PACKAGE}/letsencrypt.sh
 
 #cd NDSS/
 #zip ../ndss.zip *
@@ -636,10 +664,12 @@ chmod 755 ./${DEBNAME}/usr/share/${PACKAGE}/gateway.cron
 #cd ../
 
 echo "copying over utility scripts"
+cp -R ExcellerisDownload.sh ./${DEBNAME}/usr/share/${PACKAGE}/
 cp -R usr.local.bin.wkhtmltopdf ./${DEBNAME}/usr/share/${PACKAGE}/
+cp -R usr.bin.wkhtmltopdf ./${DEBNAME}/usr/share/${PACKAGE}/
 cp -R demo.sql ./${DEBNAME}/usr/share/${PACKAGE}/
 cp -R drugref.sql ./${DEBNAME}/usr/share/${PACKAGE}/
-cp -R CVC.sql ./${DEBNAME}/usr/share/${PACKAGE}/
+##cp -R CVC.sql ./${DEBNAME}/usr/share/${PACKAGE}/
 cp -R OfficeCodes.sql ./${DEBNAME}/usr/share/${PACKAGE}/
 cp -R OLIS.sql ./${DEBNAME}/usr/share/${PACKAGE}/
 cp -R Oscar11_to_oscar_12.sql ./${DEBNAME}/usr/share/${PACKAGE}/
@@ -713,6 +743,8 @@ chmod 711 ./${DEBNAME}/usr/share/${PACKAGE}/oscar_backup.sh
 #mkdir -p ./${DEBNAME}/usr/share/${PACKAGE}/oscar_backup/
 cp -R restore.sh ./${DEBNAME}/usr/share/${PACKAGE}/
 chmod 711 ./${DEBNAME}/usr/share/${PACKAGE}/restore.sh
+cp -R drugrefUpdate.cron ./${DEBNAME}/usr/share/${PACKAGE}/
+chmod +x ./${DEBNAME}/usr/share/${PACKAGE}/drugrefUpdate.cron
 
 echo "getting and loading wars"
 mkdir -p ./${DEBNAME}${C_BASE}webapps/
@@ -781,4 +813,8 @@ echo wget http://sourceforge.net/projects/oscarmcmaster/files/Oscar\\ Debian\\+U
 echo "the md5sum is" 
 md5sum ${DEBNAME}.deb
 echo "#########" `date` "#########" 
+
+
+
+
 
