@@ -1,7 +1,7 @@
 #!/bin/sh
 #=================================================================
-# Copyright Peter Hutten-Czapski 2012-19 released under the GPL v2
-# v 19.13
+# Copyright Peter Hutten-Czapski 2012-22 released under the GPL v2
+# v 19.14
 #=================================================================
 
 set -e
@@ -14,21 +14,26 @@ PROGRAM=oscar
 PACKAGE=oscar-emr
 VERSION=19
 PREVIOUS=15
-REVISION=65~1842
-if [ -f /usr/share/tomcat9/bin/version.sh ] ; then
-        TOMCAT=tomcat9
+REVISION=6~952
+if [ -f /usr/share/tomcat10/bin/version.sh ] ; then
+        TOMCAT=tomcat10
         TOMCAT_USER=tomcat
     else
-    if [ -f /usr/share/tomcat8/bin/version.sh ] ; then
-        TOMCAT=tomcat8
-        TOMCAT_USER=tomcat8
+    if [ -f /usr/share/tomcat9/bin/version.sh ] ; then
+            TOMCAT=tomcat9
+            TOMCAT_USER=tomcat
         else
-        if [ -f /usr/share/tomcat7/bin/version.sh ] ; then
-            TOMCAT=tomcat7
-            TOMCAT_USER=tomcat7
-        fi
-    fi
-fi
+        if [ -f /usr/share/tomcat8/bin/version.sh ] ; then
+                TOMCAT=tomcat8
+                TOMCAT_USER=tomcat8
+             else
+             if [ -f /usr/share/tomcat7/bin/version.sh ] ; then
+                    TOMCAT=tomcat7
+                    TOMCAT_USER=tomcat7
+             fi
+         fi
+     fi
+ fi
 tomcat_path=/usr/share/${TOMCAT}/
 C_HOME=/usr/share/${TOMCAT}/
 C_BASE=/var/lib/${TOMCAT}/
@@ -59,7 +64,7 @@ appt_intake_form=off
 new_flowsheet_enabled=true
 NEW_CONTACTS_UI=true
 enableFax=false
-buildDateTime="22.04.10-170928"
+buildDateTime="May 21, 2019 4:31:35 PM"
 logintext="OSCAR EMR"
 faxEnable=false
 rx_fax_enabled=false
@@ -100,7 +105,7 @@ drugref_url=http://localhost:8080/drugref/DrugrefService
 logintitle="OSCAR EMR ${VERSION}"
 
 ## OSCAR 14 additions  TO DO CHANGE THE RESOURCE BASE
-resource_base_url=https://worldoscar.org/
+resource_base_url=https://oscargalaxy.org/
 moh_file_management_enabled=false
 ONEDT_INBOX=${SRC}OscarDocument/${PROGRAM}/onEDTDocs/inbox/
 ONEDT_OUTBOX=${SRC}OscarDocument/${PROGRAM}/onEDTDocs/outbox/
@@ -237,69 +242,79 @@ if [ -f "${C_BASE}${PACKAGE}/WEB-INF/classes/clientKeystore.properties" ] ; then
         cp ${C_BASE}${PACKAGE}/WEB-INF/classes/clientKeystore.properties ${C_BASE}${PACKAGE}/ck.properties 1>> $LOG_FILE
 fi
 
-# if tomcat8 then need to move the wars from the DEB installed directories to the tomcat8 directory
-if [ -f /usr/share/tomcat8/bin/version.sh ] ; then
-        cp /var/lib/tomcat7/webapps/oscar.war /var/lib/tomcat8/webapps/oscar.war
-        cp /var/lib/tomcat7/webapps/drugref.war /var/lib/tomcat8/webapps/drugref.war
-fi
 
-# if tomcat 9 then 
-if [ -f /usr/share/tomcat9/bin/version.sh ] ; then
+if [ -f /usr/share/tomcat7/bin/version.sh ] ; then
+        echo "WARNING installing on Tomcat 7 will soon be deprecated" 
+        echo "WARNING installing on outdated Tomcat 7 !!"  >> $LOG_FILE
+else
+        # if tomcat8 then need to move the wars from the DEB installed directories to the tomcat8 directory
+        if [ -f /usr/share/tomcat8/bin/version.sh ] ; then
+                cp /var/lib/tomcat7/webapps/oscar.war /var/lib/tomcat8/webapps/oscar.war
+                cp /var/lib/tomcat7/webapps/drugref.war /var/lib/tomcat8/webapps/drugref.war
+        else
 
-        # move the wars from the DEB installed directories to the tomcat9 directory
-        cp /var/lib/tomcat7/webapps/oscar.war /var/lib/tomcat9/webapps/oscar.war
-        cp /var/lib/tomcat7/webapps/drugref.war /var/lib/tomcat9/webapps/drugref.war
-        
-        # add OSCAR directory structure to the paths that tomcat 9 can read and write to
-        # DO NOT ADD read write to non existing paths or Tomcat will fail to start
-        if [ -d "etc/systemd/system/tomcat9.service.d" ] ; then
-                if [ ! -f etc/systemd/system/tomcat9.service.d/override.conf ] ; then
-                        touch /etc/systemd/system/tomcat9.service.d/override.conf
-                        echo "[Service]" >> /etc/systemd/system/tomcat9.service.d/override.conf
-                        echo "ReadWritePaths=/usr/share/oscar-emr/" >> /etc/systemd/system/tomcat9.service.d/override.conf
-                        echo "ReadWritePaths=/tmp/" >> /etc/systemd/system/tomcat9.service.d/override.conf
-                        echo "Created /etc/systemd/system/tomcat9.service.d/override.conf so that Tomcat 9 read and write on /usr/share/oscar-emr " >>$LOG_FILE
-                        echo "Allowing Tomcat 9 read and write on /usr/share/oscar-emr and /tmp by override"
-                        systemctl daemon-reload
-                else
-               #test to see if entry present already
-                        if grep -Fq "/usr/share/oscar-emr/" /etc/systemd/system/tomcat9.service.d/override.conf ; then
-                                echo "Tomcat 9 already has an override set, not modified"
-                        else
-                                sed -i '/ReadWritePaths=\/var\/log\/tomcat9\//a ReadWritePaths=/usr/share/oscar-emr/' /etc/systemd/system/tomcat9.service.d/override.conf
-                                echo "Edited override to allow Tomcat 9 read write on /usr/share/oscar-emr"
-                                echo "Added Tomcat 9 read and write on /usr/share/oscar-emr to existing override /etc/systemd/system/tomcat9.service.d/override.conf"  >>$LOG_FILE
-                                systemctl daemon-reload
-                        fi                
-                fi
-        fi
-        if [ ! -d "/etc/systemd/system/tomcat9.service.d" ] ; then
-                if [ -f /lib/systemd/system/tomcat9.service ] ; then
-                #test to see if entry present already
-                        if grep -Fq "/usr/share/oscar-emr/" /lib/systemd/system/tomcat9.service ; then
-                                echo "Tomcat 9 already has read write on /usr/share/oscar-emr"
-                        else
-                                sed -i '/ReadWritePaths=\/var\/log\/tomcat9\//a ReadWritePaths=/usr/share/oscar-emr/' /lib/systemd/system/tomcat9.service
-                                echo "Edited tomcat9.service to allow Tomcat 9 read write on /usr/share/oscar-emr"
-                                echo "Edited /lib/systemd/system/tomcat9.service to allow Tomcat 9 read write on /usr/share/oscar-emr" >>$LOG_FILE 
-                                systemctl daemon-reload
+                # if tomcat 9 its a different move AND we need to add read write paths (tomcat 10 not supported)
+                if [ -f /usr/share/tomcat9/bin/version.sh ] ; then
+
+                        # move the wars from the DEB installed directories to the tomcat9 directory
+                        cp /var/lib/tomcat7/webapps/oscar.war /var/lib/tomcat9/webapps/oscar.war
+                        cp /var/lib/tomcat7/webapps/drugref.war /var/lib/tomcat9/webapps/drugref.war
+                        
+                        # add OSCAR directory structure to the paths that tomcat9 can read and write to
+                        # DO NOT ADD read write to non existing paths or Tomcat will fail to start
+                        if [ -d "etc/systemd/system/tomcat9.service.d" ] ; then
+                                if [ ! -f etc/systemd/system/tomcat9.service.d/override.conf ] ; then
+                                        touch /etc/systemd/system/tomcat9.service.d/override.conf
+                                        echo "[Service]" >> /etc/systemd/system/tomcat9.service.d/override.conf
+                                        echo "ReadWritePaths=/usr/share/oscar-emr/" >> /etc/systemd/system/tomcat9.service.d/override.conf
+                                        echo "ReadWritePaths=/tmp/" >> /etc/systemd/system/tomcat9.service.d/override.conf
+                                        echo "Created /etc/systemd/system/tomcat9.service.d/override.conf so that tomcat9 read and write on /usr/share/oscar-emr " >>$LOG_FILE
+                                        echo "Allowing tomcat9 read and write on /usr/share/oscar-emr and /tmp by override"
+                                        systemctl daemon-reload
+                                else
+                               #test to see if entry present already
+                                        if grep -Fq "/usr/share/oscar-emr/" /etc/systemd/system/tomcat9.service.d/override.conf ; then
+                                                echo "Tomcat already has an override set, not modified"
+                                        else
+                                                sed -i '/ReadWritePaths=\/var\/log\/tomcat9\//a ReadWritePaths=/usr/share/oscar-emr/' /etc/systemd/system/tomcat9.service.d/override.conf
+                                                sed -i '/ReadWritePaths=\/var\/log\/tomcat9\//a ReadWritePaths=/tmp/' /etc/systemd/system/tomcat9.service.d/override.conf
+                                                echo "Edited override to allow Tomcat read write on /usr/share/oscar-emr and /tmp"
+                                                echo "Added Tomcat read and write on /usr/share/oscar-emr and /tmp to existing override /etc/systemd/system/tomcat9.service.d/override.conf"  >>$LOG_FILE
+                                                systemctl daemon-reload
+                                        fi                
+                                fi
                         fi
+                        if [ ! -d "/etc/systemd/system/tomcat9.service.d" ] ; then
+                                if [ -f /lib/systemd/system/tomcat9.service ] ; then
+                                #test to see if entry present already
+                                        if grep -Fq "/usr/share/oscar-emr/" /lib/systemd/system/tomcat9.service ; then
+                                                echo "Tomcat already has read write on /usr/share/oscar-emr"
+                                        else
+                                                sed -i '/ReadWritePaths=\/var\/log\/tomcat9\//a ReadWritePaths=/usr/share/oscar-emr/' /lib/systemd/system/tomcat9.service
+                                                sed -i '/ReadWritePaths=\/var\/log\/tomcat9\//a ReadWritePaths=/tmp/' /lib/systemd/system/tomcat9.service
+                                                echo "Edited tomcat9.service to allow Tomcat read write on /usr/share/oscar-emr and /tmp"
+                                                echo "Edited /lib/systemd/system/tomcat9.service to allow Tomcat read write on /usr/share/oscar-emr and /tmp" >>$LOG_FILE 
+                                                systemctl daemon-reload
+                                        fi
+                                fi
+                        fi
+                        if [ -f /etc/systemd/system/multi-user.target.wants/tomcat9.service ] ; then
+                                #test to see if entry present already
+                                        if grep -Fq "/usr/share/oscar-emr/" /etc/systemd/system/multi-user.target.wants/tomcat9.service ; then
+                                                # in Ubuntu this file is actually a link to tomcatX.service
+                                                echo "Tomcat already has read write on /usr/share/oscar-emr with an entry in tomcatX.service" >>$LOG_FILE 
+                                        else
+                                                sed -i '/ReadWritePaths=\/var\/log\/tomcat9\//a ReadWritePaths=/usr/share/oscar-emr/' /etc/systemd/system/multi-user.target.wants/tomcat9.service 
+                                                sed -i '/ReadWritePaths=\/var\/log\/tomcat9\//a ReadWritePaths=/tmp/' /etc/systemd/system/multi-user.target.wants/tomcat9.service        
+                                                echo "Edited tomcatX.service to allow Tomcat read write on /usr/share/oscar-emr and /tmp"
+                                                echo "Edited /etc/systemd/system/multi-user.target.wants/tomcatX.service to allow Tomcat read write on /usr/share/oscar-emr and /tmp" >>$LOG_FILE 
+                                                systemctl daemon-reload 
+                                        fi        
+                        fi      
+                        
+                        
                 fi
         fi
-        if [ -f /etc/systemd/system/multi-user.target.wants/tomcat9.service ] ; then
-                #test to see if entry present already
-                        if grep -Fq "/usr/share/oscar-emr/" /etc/systemd/system/multi-user.target.wants/tomcat9.service ; then
-                                # in Ubuntu this file is actually a link to tomcat9.service
-                                echo "Tomcat 9 already has read write on /usr/share/oscar-emr with an entry in tomcat9.service" >>$LOG_FILE 
-                        else
-                                sed -i '/ReadWritePaths=\/var\/log\/tomcat9\//a ReadWritePaths=/usr/share/oscar-emr/' /etc/systemd/system/multi-user.target.wants/tomcat9.service        
-                                echo "Edited tomcat9.service to allow Tomcat 9 read write on /usr/share/oscar-emr"
-                                echo "Edited /etc/systemd/system/multi-user.target.wants/tomcat9.service to allow Tomcat 9 read write on /usr/share/oscar-emr" >>$LOG_FILE 
-                                systemctl daemon-reload 
-                        fi        
-        fi      
-        
-        
 fi
 
 #GEOIP=$(curl --silent -f http://freegeoip.net/csv/ |  tr -d '"')
@@ -329,6 +344,16 @@ echo State=${STATE} >>$LOG_FILE
 #fi
 
 
+echo "Determined prefered locale" >>$LOG_FILE
+db_input high oscar-emr/billregion || true
+db_go ||true
+db_get oscar-emr/billregion
+STATE=$RET
+echo "Chosen region =${STATE}" 1>> $LOG_FILE
+
+
+
+	
 #echo "If upgrade possible, ask about upgrade" >>$LOG_FILE
 #if [ -f /usr/share/tomcat7/oscar.properties ] ; then
 #	echo "Previous Oscar 15 Installation Detected" >> $LOG_FILE
@@ -356,13 +381,13 @@ echo "For a new install from console so probe for some settings" >>$LOG_FILE
 	db_password=$RET
 
 	#echo ${db_password} >>$LOG_FILE
-	db_reset oscar-emr/billregion || true
+	## db_reset oscar-emr/billregion || true
 	# use probed state and configure for BC if required
 	if [ "${STATE}" = "BC" ]; then
 		billregion="BC"
 	fi
 	echo "billregion=${billregion}" 1>> $LOG_FILE
-	db_set oscar-emr/billregion $billregion || true
+	##db_set oscar-emr/billregion $billregion || true
 	db_reset oscar-emr/phoneprefix || true
 	# probe for local area code
 	phoneprefix=$(curl --silent -f https://www.zip-codes.com/canadian/city.asp?city=$LOCALITY\&province=$STATE |  grep '<a href="/canadian/area-code.asp?areacode='| sed "s/.*areacode=\([0-9]*\).*/\1/;s/^[[:space:]]*//;s/[[:space:]]*$//" )
@@ -899,8 +924,14 @@ if [ "${UPGRADE}" = "true" ] ; then
             cvc=$(grep 'cvc.url'  ${C_HOME}${PROGRAM}.properties  | tail -n 1 | cut -d "=" -f2 ) 2>>$LOG_FILE
             if [ "${cvc}" = "" ]; then
                 echo "Activating Canadian Vaccine Catalog"  >>$LOG_FILE 
-                echo "# The default URL for CVC's live instance" >> ${C_HOME}${PROGRAM}.properties
-                echo "cvc.url=https://cvc.canimmunize.ca/v3" >> ${C_HOME}${PROGRAM}.properties
+                echo "# The default URL for NVC's live instance" >> ${C_HOME}${PROGRAM}.properties
+                echo "cvc.url=https://nvc-cnv.canada.ca/v1" >> ${C_HOME}${PROGRAM}.properties
+                echo "" >> ${C_HOME}${PROGRAM}.properties 
+            fi
+            if [ "${cvc}" = "https://cvc.canimmunize.ca/v3" ]; then
+                echo "Changing from defunct Canadian Vaccine Catalog URL to NVC"  >>$LOG_FILE 
+                echo "# The default URL for NVC's live instance" >> ${C_HOME}${PROGRAM}.properties
+                echo "cvc.url=https://nvc-cnv.canada.ca/v1" >> ${C_HOME}${PROGRAM}.properties
                 echo "" >> ${C_HOME}${PROGRAM}.properties 
             fi
 
@@ -954,13 +985,38 @@ if [ "${UPGRADE}" = "true" ] ; then
             fi                 
 
             help=$(grep 'HELP_SEARCH_URL'  ${C_HOME}${PROGRAM}.properties  | tail -n 1 | cut -d "=" -f2 ) 2>>$LOG_FILE
-            if [ "${help}" != "https://worldoscar.org/?s" ]; then
-                echo "update help url to worldoscar.org"  >>$LOG_FILE 
-                echo "HELP_SEARCH_URL=https://worldoscar.org/?s=%s" >> ${C_HOME}${PROGRAM}.properties
-                echo "resource_base_url=https://worldoscar.org" >> ${C_HOME}${PROGRAM}.properties
+            if [ "${help}" = "https://worldoscar.org/?s" ] || [ "${help}" = "https://oscargalaxy.org/?s=%s" ]; then
+                echo "update help url to oscargalaxy.org"  >>$LOG_FILE 
+                echo "HELP_SEARCH_URL=https://oscargalaxy.org/" >> ${C_HOME}${PROGRAM}.properties
+                echo "resource_base_url=https://oscargalaxy.org" >> ${C_HOME}${PROGRAM}.properties
                 echo "" >> ${C_HOME}${PROGRAM}.properties 
             fi
-
+            
+            # Jan 24, 2023
+            doc_d=$(sed '/^\#/d' ${C_HOME}${PROGRAM}.properties | grep 'BASE_DOCUMENT_DIR'  | tail -n 1 | cut -d "=" -f2 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//') 2>>$LOG_FILE
+            if [ "${doc_d}" = "${BASE_DOCUMENT_DIR}" ]; then
+                doc_d2=$(sed '/^\#/d' ${C_HOME}${PROGRAM}.properties | grep 'HOME_DIR' | tail -n 1 | cut -d "=" -f2 ) 2>>$LOG_FILE
+                if [ "${doc_d2}" != "${BASE_DOCUMENT_DIR}/oscar/billing/download/" ]; then
+                        echo "Expressly setting directories"  >>$LOG_FILE                 
+                        echo "HOME_DIR=${BASE_DOCUMENT_DIR}/oscar/billing/download/" >> ${C_HOME}${PROGRAM}.properties 
+                        echo "DOCUMENT_DIR=${BASE_DOCUMENT_DIR}/oscar/document/" >> ${C_HOME}${PROGRAM}.properties 
+                        echo "OMD_hrm=${BASE_DOCUMENT_DIR}/oscar/hrm/" >> ${C_HOME}${PROGRAM}.properties 
+                        echo "OMD_directory=${BASE_DOCUMENT_DIR}/oscar/hrm/OMD/" >> ${C_HOME}${PROGRAM}.properties 
+                        echo "OMD_log_directory=${BASE_DOCUMENT_DIR}/oscar/hrm/logs/" >> ${C_HOME}${PROGRAM}.properties 
+                        echo "OMD_stored=${BASE_DOCUMENT_DIR}/oscar/hrm/stored/" >> ${C_HOME}${PROGRAM}.properties 
+                        echo "OMD_downloads=${BASE_DOCUMENT_DIR}/oscar/hrm/sftp_downloads/" >> ${C_HOME}${PROGRAM}.properties
+                fi
+            fi
+            # Jan 6, 2025
+            interactions=$(grep 'HOLBROOK'  ${C_HOME}${PROGRAM}.properties  | tail -n 1 | cut -d "=" -f2 ) 2>>$LOG_FILE
+            if [ "${interactions}" = "" ]; then           
+                echo "Set OSCAR to provide Holbrook interactions"  >>$LOG_FILE 
+                echo "# Local Drugref Interactions Options:" >> ${C_HOME}${PROGRAM}.properties
+                echo "# yes > found interactions posted" >> ${C_HOME}${PROGRAM}.properties
+                echo "# no > supress these notifications" >> ${C_HOME}${PROGRAM}.properties
+                echo "HOLBROOK=yes" >> ${C_HOME}${PROGRAM}.properties
+                echo "" >> ${C_HOME}${PROGRAM}.properties 
+            fi
 
 			echo "${PROGRAM}.war file updated so exiting config normally" >> $LOG_FILE
 			exit 0
@@ -1017,7 +1073,7 @@ else
 	echo "and comment out all of the properties that will be set below" >>$LOG_FILE
 	#-e 's/\(^backup_path\)/#\1/' \  ## the backup moves to the new spot
 	sed \
-	-e 's/\/usr\/local\/tomcat/\/var\/lib\/${TOMCAT}/' \
+	-e 's/\/var\/lib\/tomcat/\/var\/lib\/${TOMCAT}/' \
 	-e 's/\(^project_home\)/#\1/' \
 	-e 's/\(^tomcat_path\)/#\1/' \
 	-e 's/\(^login_local_ip\)/#\1/' \
@@ -1160,8 +1216,8 @@ else
 fi
 
 # Letter page size, margins as indicated, use print media stylesheet
-echo WKHTMLTOPDF_ARGS=-s Letter -T 10mm -L 8mm -R 8mm --print-media-type --enable-local-file-acess --zoom 1.2>> ${PROGRAM}.tmp 2>>$LOG_FILE
-# This deb will install a server.xml that directs Tomcat for port 8443 for https connections
+echo WKHTMLTOPDF_ARGS=-s Letter -T 10mm -L 8mm -R 8mm --print-media-type --zoom 1.2 >> ${PROGRAM}.tmp 2>>$LOG_FILE
+# This deb will install a server.xml in postinst that directs Tomcat for port 8443 for https connections
 echo oscar_port=8443>> ${PROGRAM}.tmp 2>>$LOG_FILE
 
 echo priorschema=${priorschema}>> ${PROGRAM}.tmp 2>>$LOG_FILE
@@ -1552,11 +1608,11 @@ chmod 640 ${C_HOME}${PROGRAM}.properties 2>>$LOG_FILE
         ln -sf ${C_HOME}${PROGRAM}.properties ${C_BASE}${PROGRAM}.properties
         chown -R ${TOMCAT_USER}:${TOMCAT_USER} ${C_BASE}${PROGRAM}.properties 2>>$LOG_FILE
     fi
-    if [ -f /usr/share/tomcat9/bin/version.sh ] ; then
+    if [ -f /usr/share/tomcat9/bin/version.sh ] || [ -f /usr/share/tomcat10/bin/version.sh ] ; then
         # -e tests for existance of the file or linked file, -L tests for existance of the Link broken or not
         if [ ! -e /var/lib/tomcat ] ; then
-            ln -s /var/lib/tomcat9 /var/lib/tomcat 2>>$LOG_FILE
-            # some look for /var/lib/tomcat/oscar.properties but we are using /usr/share/tomcat8
+            ln -s /var/lib/${TOMCAT} /var/lib/tomcat 2>>$LOG_FILE
+            # some look for /var/lib/tomcat/oscar.properties but we are using /usr/share/tomcatX
             # so create a symlink for that, overwrite if necessary
             if [ ! -e "/var/lib/tomcat/${PROGRAM}.properties" ] ; then
                 ln -sf ${C_HOME}${PROGRAM}.properties /var/lib/tomcat/${PROGRAM}.properties 2>>$LOG_FILE
@@ -1568,7 +1624,7 @@ echo "configure crontab" >>$LOG_FILE
 
 chmod 711 ${SRC}oscar_backup.sh  2>>$LOG_FILE
 chmod 711 ${SRC}reOscar.sh  2>>$LOG_FILE
-chmod 711 ${SRC}gateway.cron  2>>$LOG_FILE
+chmod 711 ${SRC}gateway.sh  2>>$LOG_FILE
 
 if [ -f /var/spool/cron/crontabs/root ] ; then
 	# "checking existing crontab" >>$LOG_FILE
@@ -1617,9 +1673,3 @@ fi
 echo "install new cron file" >>$LOG_FILE
 crontab c.temp 2>>$LOG_FILE
 rm c.temp 2>>$LOG_FILE
-
-
-
-
-
-
