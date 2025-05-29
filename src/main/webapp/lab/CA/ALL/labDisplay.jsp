@@ -24,61 +24,65 @@
 
 --%>
 
-<%@ page import="java.io.ByteArrayInputStream"%>
-<%@ page import="java.net.URLEncoder"%>
+<%@ page import="java.io.ByteArrayInputStream" %>
+<%@ page import="java.net.URLEncoder" %>
 <%@ page import="java.sql.*" %>
+<%@ page import="java.time.format.DateTimeFormatter" %>
+<%@ page import="java.time.LocalDate" %>
 <%@ page import="java.util.*" %>
 <%@ page import="java.util.ResourceBundle" %>
-<%@ page import="javax.swing.text.rtf.RTFEditorKit"%>
-<%@ page import="net.sf.json.JSONArray"%>
-<%@ page import="net.sf.json.JSONException"%>
-<%@ page import="net.sf.json.JSONObject"%>
-<%@ page import="net.sf.json.JSONSerializer"%>
+<%@ page import="javax.swing.text.rtf.RTFEditorKit" %>
+<%@ page import="net.sf.json.JSONArray" %>
+<%@ page import="net.sf.json.JSONException" %>
+<%@ page import="net.sf.json.JSONObject" %>
+<%@ page import="net.sf.json.JSONSerializer" %>
 <%@ page import="org.apache.commons.codec.binary.Base64" %>
-<%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
+<%@ page import="org.apache.commons.lang.builder.ReflectionToStringBuilder" %>
+<%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
-<%@ page import="org.apache.commons.lang.builder.ReflectionToStringBuilder"%>
 <%@ page import="org.oscarehr.caisi_integrator.ws.CachedDemographicLabResult" %>
-<%@ page import="org.oscarehr.casemgmt.model.CaseManagementNote"%>
-<%@ page import="org.oscarehr.casemgmt.model.CaseManagementNoteLink"%>
-<%@ page import="org.oscarehr.casemgmt.service.CaseManagementManager"%>
+<%@ page import="org.oscarehr.casemgmt.model.CaseManagementNote" %>
+<%@ page import="org.oscarehr.casemgmt.model.CaseManagementNoteLink" %>
+<%@ page import="org.oscarehr.casemgmt.service.CaseManagementManager" %>
 <%@ page import="org.oscarehr.common.dao.DemographicDao" %>
-<%@ page import="org.oscarehr.common.dao.Hl7TextInfoDao"%>
+<%@ page import="org.oscarehr.common.dao.Hl7TextInfoDao" %>
 <%@ page import="org.oscarehr.common.dao.Hl7TextMessageDao"%>
 <%@ page import="org.oscarehr.common.dao.MeasurementMapDao" %>
-<%@ page import="org.oscarehr.common.dao.PatientLabRoutingDao"%>
-<%@ page import="org.oscarehr.common.dao.UserPropertyDAO"%>
+<%@ page import="org.oscarehr.common.dao.PatientLabRoutingDao" %>
+<%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
 <%@ page import="org.oscarehr.common.model.Demographic" %>
 <%@ page import="org.oscarehr.common.model.Hl7TextInfo"%>
-<%@ page import="org.oscarehr.common.model.Hl7TextMessage"%>
-<%@ page import="org.oscarehr.common.model.MeasurementMap"%>
+<%@ page import="org.oscarehr.common.model.Hl7TextMessage" %>
+<%@ page import="org.oscarehr.common.model.MeasurementMap" %>
 <%@ page import="org.oscarehr.common.model.PatientLabRouting"%>
 <%@ page import="org.oscarehr.common.model.Tickler" %>
 <%@ page import="org.oscarehr.common.model.UserProperty" %>
+<%@ page import="org.oscarehr.managers.SecurityInfoManager" %>
 <%@ page import="org.oscarehr.managers.TicklerManager" %>
-<%@ page import="org.oscarehr.myoscar.utils.MyOscarLoggedInInfo"%>
-<%@ page import="org.oscarehr.phr.util.MyOscarUtils"%>
-<%@ page import="org.oscarehr.util.LoggedInInfo"%>
-<%@ page import="org.oscarehr.util.MiscUtils"%>
-<%@ page import="org.oscarehr.util.SpringUtils"%>
+<%@ page import="org.oscarehr.managers.TicklerManager" %>
+<%@ page import="org.oscarehr.myoscar.utils.MyOscarLoggedInInfo" %>
+<%@ page import="org.oscarehr.phr.util.MyOscarUtils" %>
+<%@ page import="org.oscarehr.util.LoggedInInfo" %>
+<%@ page import="org.oscarehr.util.MiscUtils" %>
+<%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.owasp.encoder.Encode" %>
-<%@ page import="org.w3c.dom.Document"%>
-<%@ page import="oscar.OscarProperties" %>
+<%@ page import="org.w3c.dom.Document" %>
+<%@ page import="oscar.log.*" %>
+<%@ page import="oscar.MyDateFormat" %>
 <%@ page import="oscar.oscarDB.*" %>
-<%@ page import="oscar.oscarLab.FileUploadCheck" %>
-<%@ page import="oscar.oscarLab.LabRequestReportLink" %>
 <%@ page import="oscar.oscarLab.ca.all.*" %>
 <%@ page import="oscar.oscarLab.ca.all.parsers.*" %>
+<%@ page import="oscar.oscarLab.ca.all.parsers.ExcellerisOntarioHandler" %>
+<%@ page import="oscar.oscarLab.ca.all.parsers.ExcellerisOntarioHandler.OrderStatus" %>
 <%@ page import="oscar.oscarLab.ca.all.util.*" %>
-
 <%@ page import="oscar.oscarLab.ca.all.web.LabDisplayHelper" %>
+<%@ page import="oscar.oscarLab.FileUploadCheck" %>
+<%@ page import="oscar.oscarLab.LabRequestReportLink" %>
 <%@ page import="oscar.oscarMDS.data.ReportStatus" %>
-<%@ page import="oscar.log.*" %>
-<%@ page import="oscar.util.ConversionUtils"%>
+<%@ page import="oscar.OscarProperties" %>
+<%@ page import="oscar.util.ConversionUtils" %>
 <%@ page import="oscar.util.UtilDateUtilities" %>
 
-<%@ page import ="oscar.oscarLab.ca.all.parsers.ExcellerisOntarioHandler.OrderStatus" %>
-<%@ page import ="oscar.oscarLab.ca.all.parsers.ExcellerisOntarioHandler" %>
 <jsp:useBean id="oscarVariables" class="java.util.Properties" scope="session" />
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
@@ -106,6 +110,7 @@ if(!authed) {
 <%
 LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 oscar.OscarProperties props = oscar.OscarProperties.getInstance();
+boolean showReconciliation = (!props.hasProperty("SHOW_LAB_TICKLER_RECONCILIATION") || props.isPropertyActive("SHOW_LAB_TICKLER_RECONCILIATION"));
 boolean rememberComment = (!props.hasProperty("REMEMBER_LAST_LAB_COMMENT") || props.isPropertyActive("REMEMBER_LAST_LAB_COMMENT"));
 ResourceBundle oscarRec = ResourceBundle.getBundle("oscarResources", request.getLocale());
 String segmentID = request.getParameter("segmentID");
@@ -118,6 +123,8 @@ String remoteLabKey = request.getParameter("remoteLabKey");
 String demographicID = request.getParameter("demographicId");
 String showAllstr = request.getParameter("all");
 String showLatest = request.getParameter("showLatest");
+
+
 
 List<String> allLicenseNames = new ArrayList<String>();
 String lastLicenseNo = null, currentLicenseNo = null;
@@ -180,10 +187,10 @@ String hl7 = null;
 String reqID = null, reqTableID = null;
 String remoteFacilityIdQueryString="";
 
-boolean bShortcutForm = OscarProperties.getInstance().getProperty("appt_formview", "").equalsIgnoreCase("on") ? true : false;
-String formName = bShortcutForm ? OscarProperties.getInstance().getProperty("appt_formview_name") : "";
+boolean bShortcutForm = props.getProperty("appt_formview", "").equalsIgnoreCase("on") ? true : false;
+String formName = bShortcutForm ? props.getProperty("appt_formview_name") : "";
 String formNameShort = formName.length() > 3 ? (formName.substring(0,2)+".") : formName;
-String formName2 = bShortcutForm ? OscarProperties.getInstance().getProperty("appt_formview_name2", "") : "";
+String formName2 = bShortcutForm ? props.getProperty("appt_formview_name2", "") : "";
 String formName2Short = formName2.length() > 3 ? (formName2.substring(0,2)+".") : formName2;
 boolean bShortcutForm2 = bShortcutForm && !formName2.equals("");
 List<MessageHandler>handlers = new ArrayList<MessageHandler>();
@@ -219,6 +226,11 @@ if (remoteFacilityIdString==null) // local lab
 	}
 
 
+
+
+
+
+
 	if( showAll ) {
 		multiLabId = request.getParameter("multiID");
 		segmentIDs = multiLabId.split(",");
@@ -236,7 +248,7 @@ if (remoteFacilityIdString==null) // local lab
 		String labStatus = "";
 		if (totalMatchingLabs > 1) {
             if (request.getParameter("multiID") != null && request.getParameter("multiID").equals("null") ) {
-			    segmentID = segmentIDs[totalMatchingLabs - 1];            
+			    segmentID = segmentIDs[totalMatchingLabs - 1];
 			}
 			if (showLatest != null && "true".equals(showLatest) ) {
 			    String segmentIDtest = segmentIDs[totalMatchingLabs - 1];
@@ -292,6 +304,11 @@ if (remoteFacilityIdString==null) // local lab
             duplicateOfLab = null;
             missingTests = missingEntries;
         }
+
+
+
+
+
 
 Integer priorLabIdx = -1;
 if (segmentIDs.length > 1) {
@@ -358,6 +375,31 @@ request.setAttribute("duplicateOfLab", duplicateOfLab);
 request.setAttribute("missingTests", missingTests);
 
 /********************** Converted to this spot *****************************/
+
+
+String tickler_no="";
+String tickler_note="";
+Integer demoI = 0;
+
+if (demographicID != null && !demographicID.isEmpty() && showReconciliation) {
+    demoI = Integer.parseInt(demographicID);
+}
+
+
+LocalDate today = LocalDate.now().plusWeeks(6);
+DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+String strDate = today.format(formatter);
+
+SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
+TicklerManager ticklerManager= SpringUtils.getBean(TicklerManager.class);
+
+if(securityInfoManager.hasPrivilege(loggedInInfo, "_tickler", "r", demoI) && isLinkedToDemographic && showReconciliation) {
+    for(Tickler t: ticklerManager.search_tickler(loggedInInfo, demoI, MyDateFormat.getSysDate(strDate) ) ) {
+        tickler_no = t.getId().toString();
+        tickler_note = t.getMessage()==null?tickler_note:tickler_note + "\n" + t.getMessage();
+    }
+}
+
 DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
 Demographic demographic = demographicDao.getDemographic(demographicID);
 
@@ -1330,16 +1372,21 @@ input[id^='acklabel_']{
                                                                     </td>
                                                                     <td style="white-space:nowrap; width:25%;">
                                                                         <div class="FieldDatas" style="white-space:nowrap;">
-                                                                            <% if ( searchProviderNo == null ) { // we were called from e-chart%>
+                                                                            <% if ( searchProviderNo == null || searchProviderNo.isEmpty()) { // we were called from e-chart%>
                                                                             <a href="javascript:window.close()">
                                                                             <% } else { // we were called from lab module%>
                                                                             <a href="javascript:popupStart(360, 680, '<%=request.getContextPath()%>/oscarMDS/SearchPatient.do?labType=HL7&segmentID=<%= segmentID %>&name=<%=java.net.URLEncoder.encode(handler.getLastName()+", "+handler.getFirstName())%>', 'searchPatientWindow')">
                                                                                 <% } %>
                                                                                 <%=handler.getLastName()+", "+handler.getFirstName()%>
                                                                             </a>
+                                                                        <security:oscarSec roleName="<%=roleName$%>" objectName="_tickler" rights="r">
+                                                                            <% if (tickler_no.compareTo("") != 0 && !searchProviderNo.isEmpty() && showReconciliation) {%>
+                                                                            <a class="btn btn-warning btn-mini" href="javascript:popupStart(700,1024, '<%=request.getContextPath()%>/tickler/ticklerDemoMain.jsp?demoview=<%=demoI%>', 'Tickler')" title="<bean:message key="provider.appointmentProviderAdminDay.ticklerMsg"/>: <%=Encode.forHtmlAttribute(tickler_note)%>"><bean:message key="admin.admin.reconciliationReport"/>
+                                                                            </a>
+                                                                            <%} %>
+                                                                        </security:oscarSec>
                                                                         </div>
                                                                     </td>
-
                                                                 </tr>
                                                                 <tr>
                                                                     <td style="white-space:nowrap;">
@@ -1638,7 +1685,7 @@ String[] multiID = multiLabId.split(",");
 boolean isTickler = false;
 for(int mcount=0; mcount<multiID.length; mcount++){
 	if(demographicID!=null && !demographicID.equals("")){
-							    TicklerManager ticklerManager = SpringUtils.getBean(TicklerManager.class);
+
 							    List<Tickler> LabTicklers = null;
 							    if(demographicID != null) {
 							    	LabTicklers = ticklerManager.getTicklerByLabIdAnyProvider(loggedInInfo, Integer.valueOf(multiID[mcount]), Integer.valueOf(demographicID));
