@@ -80,6 +80,16 @@
 <%@ page import="org.oscarehr.common.dao.*"%>
 <%@ page import="org.oscarehr.common.model.*"%>
 
+<%@ page import="oscar.oscarDemographic.data.DemographicData" %>
+<%@ page import="oscar.oscarEncounter.data.*"%>
+<%@ page import="oscar.oscarEncounter.pageUtil.*"%>
+<%@ page import="oscar.oscarProvider.data.ProviderData" %>
+<%@ page import="org.oscarehr.common.dao.ConsultationRequestExtDao" %>
+<%@ page import="org.oscarehr.common.model.Demographic" %>
+<%@ page import="org.oscarehr.util.LoggedInInfo"%>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.owasp.encoder.Encode" %>
+
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -97,6 +107,12 @@
     Demographic demographic = null;
     String familyDoctor = null;
     String rdohip = "";
+
+    String proNo = (String) session.getAttribute("user");
+    String consult_services = "";
+    Integer numOutstanding = 0;
+
+
     if (demoNo != null) {
         demoData = new oscar.oscarDemographic.data.DemographicData();
         demographic = demoData.getDemographic(loggedInInfo, demoNo);
@@ -106,9 +122,11 @@
             rdohip = SxmlMisc.getXmlContent(familyDoctor, "rdohip");
             rdohip = rdohip == null ? "" : rdohip.trim();
         }
+
     }
 
-    oscar.OscarProperties props = oscar.OscarProperties.getInstance();
+	oscar.OscarProperties props = oscar.OscarProperties.getInstance();
+	boolean showConsults = (!props.hasProperty("SHOW_LAB_CONSULT_RECONCILIATION") || props.isPropertyActive("SHOW_LAB_CONSULT_RECONCILIATION"));
 	String curUser_no = (String) session.getAttribute("user");
 	UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 	UserProperty tabViewProp = userPropertyDao.getProp(curUser_no, UserProperty.OPEN_IN_TABS);
@@ -191,6 +209,34 @@
                 //Demographic demographic = demographicDao.getDemographic(demographicID);
 				//demoName = demographic.getLastName()+","+demographic.getFirstName();
 				LogAction.addLog((String) session.getAttribute("user"), LogConst.READ, LogConst.CON_DOCUMENT, documentNo, request.getRemoteAddr(),demographicID);
+
+                if (showConsults){
+                    ProviderData pdata = new ProviderData(proNo);
+                    String team = pdata.getTeam();
+                    oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFormRequestUtil consultUtil;
+                    consultUtil = new  oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFormRequestUtil();
+                    consultUtil.estPatient(LoggedInInfo.getLoggedInInfoFromSession(request), demographicID);
+
+                    oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctViewConsultationRequestsUtil theRequests;
+                    theRequests = new  oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctViewConsultationRequestsUtil();
+                    theRequests.estConsultationVecByDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), demographicID);
+
+                    String linkf="\n <a href=\'"+request.getContextPath()+"/oscarEncounter/ViewRequest.do?de=";
+
+                    for (int i = theRequests.ids.size() -1; i > -1; i--){
+	                    String id       = (String) theRequests.ids.elementAt(i);
+	                    String cstatus  = (String) theRequests.status.elementAt(i);
+	                    String service  = (String) theRequests.service.elementAt(i);
+	                    String date     = (String) theRequests.date.elementAt(i);
+	                    if(!cstatus.equals("4")) {
+                            if (service != null) {
+                                if (numOutstanding != 0 ) {consult_services =  consult_services + ", "; }
+		                        consult_services = consult_services + "" +linkf + demographicID + "&requestId=" + id + "\' target=\'_blank\'>" + Encode.forHtml(service) + " " + date + "</a>";
+		                        numOutstanding += 1;
+                            }
+	                    }
+                    }
+                }
             }
 
             String docId = curdoc.getDocId();
@@ -240,6 +286,7 @@
 <!-- jquery -->
     <script src="<%=request.getContextPath()%>/library/jquery/jquery-3.6.4.min.js"></script>
     <script src="<%=request.getContextPath()%>/library/jquery/jquery-ui-1.12.1.min.js"></script>
+    <script src="<%=request.getContextPath()%>/js/bootstrap.min.js"></script> <!-- needed for alert close -->
 
 <!-- oscar -->
     <script src="<%=request.getContextPath()%>/share/javascript/Oscar.js" ></script>
@@ -771,6 +818,20 @@ popup2(710,1024,0,0,'<%=request.getContextPath()%>/dms/incomingDocs.jsp?pdfDir=R
                                             </select>
                                         </td>
                                     </tr>
+                                <security:oscarSec roleName="<%=roleName$%>" objectName="_con" rights="r" >
+                                    <%
+                                    if ((curdoc.getType().toLowerCase().contains("consult") || curdoc.getType().toLowerCase().contains("appointment")|| curdoc.getType().toLowerCase().contains("refer")) && numOutstanding > 0){
+                                    %>
+                                    <tr>
+                                    <td colspan=2>
+                                        <div class="alert in fade">
+                                          <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                          <strong>INFO</strong> The following <%=numOutstanding%> consult <a onclick="popup(450, 1200, '<%=request.getContextPath()%>/oscarEncounter/oscarConsultationRequest/DisplayDemographicConsultationRequests.jsp?de=<%=demographicID%>', 'openConsults')">requests</a> are marked pending:<%=consult_services%>.
+                                        </div>
+                                    </td>
+                                    </tr>
+                                    <%}%>
+                                </security:oscarSec>
                                     <tr>
                                         <td><bean:message key="dms.documentReport.msgDocDesc"/>:</td>
                                         <td>
