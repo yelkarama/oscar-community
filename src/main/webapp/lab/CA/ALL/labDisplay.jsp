@@ -380,6 +380,7 @@ request.setAttribute("missingTests", missingTests);
 String tickler_no="";
 String tickler_note="";
 Integer demoI = 0;
+Integer numTickler = 0;
 
 if (demographicID != null && !demographicID.isEmpty() && showReconciliation) {
     demoI = Integer.parseInt(demographicID);
@@ -394,9 +395,12 @@ SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManage
 TicklerManager ticklerManager= SpringUtils.getBean(TicklerManager.class);
 
 if(securityInfoManager.hasPrivilege(loggedInInfo, "_tickler", "r", demoI) && isLinkedToDemographic && showReconciliation) {
+    String tlinkf="\n <a href=\'"+request.getContextPath()+"/tickler/ticklerEdit.jsp?tickler_no=";
     for(Tickler t: ticklerManager.search_tickler(loggedInInfo, demoI, MyDateFormat.getSysDate(strDate) ) ) {
+        if (numTickler != 0 ) {tickler_note =  tickler_note + ", "; }
         tickler_no = t.getId().toString();
-        tickler_note = t.getMessage()==null?tickler_note:tickler_note + "\n" + t.getMessage();
+        tickler_note = t.getMessage()==null?tickler_note:tickler_note + tlinkf + tickler_no + "\' target=\'_blank\'>" + Encode.forHtml(t.getMessage()) + "</a>";
+        numTickler += 1;
     }
 }
 
@@ -406,7 +410,7 @@ Demographic demographic = demographicDao.getDemographic(demographicID);
 // check for errors printing
 if (request.getAttribute("printError") != null && (Boolean) request.getAttribute("printError")){
 %>
-<script language="JavaScript">
+<script>
     alert("The lab could not be printed due to an error. Please see the server logs for more detail.");
 </script>
 <%}
@@ -425,6 +429,7 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
         <script src="<%=request.getContextPath() %>/share/javascript/Oscar.js" ></script>
         <script src="<%=request.getContextPath() %>/js/global.js"></script>
         <script src="<%=request.getContextPath() %>/library/jquery/jquery-3.6.4.min.js"></script>
+        <script src="<%=request.getContextPath()%>/js/bootstrap.min.js"></script> <!-- needed for alert close -->
 	<oscar:customInterface section="labView"/>
 
 	<script>
@@ -1379,12 +1384,6 @@ input[id^='acklabel_']{
                                                                                 <% } %>
                                                                                 <%=handler.getLastName()+", "+handler.getFirstName()%>
                                                                             </a>
-                                                                        <security:oscarSec roleName="<%=roleName$%>" objectName="_tickler" rights="r">
-                                                                            <% if (tickler_no.compareTo("") != 0 && !searchProviderNo.isEmpty() && showReconciliation) {%>
-                                                                            <a class="btn btn-warning btn-mini" href="javascript:popupStart(700,1024, '<%=request.getContextPath()%>/tickler/ticklerDemoMain.jsp?demoview=<%=demoI%>', 'Tickler')" title="<bean:message key="provider.appointmentProviderAdminDay.ticklerMsg"/>: <%=Encode.forHtmlAttribute(tickler_note)%>"><bean:message key="admin.admin.reconciliationReport"/>
-                                                                            </a>
-                                                                            <%} %>
-                                                                        </security:oscarSec>
                                                                         </div>
                                                                     </td>
                                                                 </tr>
@@ -1753,6 +1752,18 @@ for(int mcount=0; mcount<multiID.length; mcount++){
     <%
     }
 %>
+<security:oscarSec roleName="<%=roleName$%>" objectName="_tickler" rights="r">
+    <% if (numTickler > 0 && !searchProviderNo.isEmpty() && showReconciliation) {%>
+        <table style="width:100%;">
+            <tr>
+                <td class="alert fade in"><button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>INFO</strong> The following <%=numTickler%> <a onclick="popup(450, 1200, '<%=request.getContextPath()%>/tickler/ticklerDemoMain.jsp?demoview=<%=demographicID%>', 'openTicklers')">ticklers</a> are marked pending:<%=tickler_note%>
+                </td>
+            </tr>
+         </table>
+    <% } %>
+</security:oscarSec>
+
             <c:if test="${hasDuplicateInfo}">
                 <table style="width:100%; height:20px">
                     <tr>

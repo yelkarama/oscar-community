@@ -29,6 +29,8 @@
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="java.util.ResourceBundle" %>
 
+
+
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -45,6 +47,8 @@
 %>
 
 <%@ page import="java.text.SimpleDateFormat"%>
+<%@ page import="java.time.format.DateTimeFormatter" %>
+<%@ page import="java.time.LocalDate" %>
 <%@ page import="java.util.*" %>
 <%@ page import="net.sf.json.JSONException"%>
 <%@ page import="net.sf.json.JSONSerializer"%>
@@ -59,6 +63,7 @@
 <%@ page import="oscar.dms.*" %>
 <%@ page import="oscar.util.ConversionUtils" %>
 
+<%@ page import="oscar.MyDateFormat" %>
 <%@ page import="oscar.OscarProperties" %>
 <%@ page import="oscar.oscarLab.ca.all.*"%>
 <%@ page import="oscar.oscarMDS.data.*"%>
@@ -73,6 +78,7 @@
 <%@ page import="org.oscarehr.common.model.UserProperty" %>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.Tickler" %>
+<%@ page import="org.oscarehr.managers.SecurityInfoManager" %>
 <%@ page import="org.oscarehr.managers.TicklerManager" %>
 <%@ page import="org.oscarehr.managers.CanadianVaccineCatalogueManager2"%>
 <%@ page import="org.oscarehr.common.dao.OscarAppointmentDao" %>
@@ -127,6 +133,9 @@
 
 	oscar.OscarProperties props = oscar.OscarProperties.getInstance();
 	boolean showConsults = (!props.hasProperty("SHOW_LAB_CONSULT_RECONCILIATION") || props.isPropertyActive("SHOW_LAB_CONSULT_RECONCILIATION"));
+	boolean showReconciliation = (!props.hasProperty("SHOW_LAB_TICKLER_RECONCILIATION") || props.isPropertyActive("SHOW_LAB_TICKLER_RECONCILIATION"));
+
+
 	String curUser_no = (String) session.getAttribute("user");
 	UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 	UserProperty tabViewProp = userPropertyDao.getProp(curUser_no, UserProperty.OPEN_IN_TABS);
@@ -202,6 +211,10 @@
             String creator = (String) session.getAttribute("user");
             ArrayList doctypes = EDocUtil.getActiveDocTypes("demographic");
             EDoc curdoc = EDocUtil.getDoc(documentNo);
+            String tickler_no="";
+            String tickler_note="";
+            Integer demoI = 0;
+            Integer numTickler = 0;
 
             String demographicID = curdoc.getModuleId();
             if ((demographicID != null) && !demographicID.isEmpty() && !demographicID.equals("-1")){
@@ -237,7 +250,33 @@
 	                    }
                     }
                 }
+
+
+                if (demographicID != null && !demographicID.isEmpty() && showReconciliation) {
+                    demoI = Integer.parseInt(demographicID);
+                }
+
+                LocalDate today = LocalDate.now().plusWeeks(6);
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                String strDate = today.format(formatter);
+                SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
+                TicklerManager ticklerManager2 = SpringUtils.getBean(TicklerManager.class);
+                LoggedInInfo loggedInInfo2 = LoggedInInfo.getLoggedInInfoFromSession(request);
+                String tlinkf="\n <a href=\'"+request.getContextPath()+"/tickler/ticklerEdit.jsp?tickler_no=";
+
+                if(securityInfoManager.hasPrivilege(loggedInInfo2, "_tickler", "r", demoI)  && showReconciliation) {
+                    for(Tickler t: ticklerManager2.search_tickler(loggedInInfo2, demoI, MyDateFormat.getSysDate(strDate) ) ) {
+                        if (numTickler != 0 ) {tickler_note =  tickler_note + ", "; }
+                        tickler_no = t.getId().toString();
+                        tickler_note = t.getMessage()==null?tickler_note:tickler_note + tlinkf + tickler_no + "\' target=\'_blank\'>" + Encode.forHtml(t.getMessage()) + "</a>";
+                        numTickler += 1;
+
+                    }
+                }
             }
+
+
+
 
             String docId = curdoc.getDocId();
 
@@ -818,20 +857,6 @@ popup2(710,1024,0,0,'<%=request.getContextPath()%>/dms/incomingDocs.jsp?pdfDir=R
                                             </select>
                                         </td>
                                     </tr>
-                                <security:oscarSec roleName="<%=roleName$%>" objectName="_con" rights="r" >
-                                    <%
-                                    if ((curdoc.getType().toLowerCase().contains("consult") || curdoc.getType().toLowerCase().contains("appointment")|| curdoc.getType().toLowerCase().contains("refer")) && numOutstanding > 0){
-                                    %>
-                                    <tr>
-                                    <td colspan=2>
-                                        <div class="alert in fade">
-                                          <button type="button" class="close" data-dismiss="alert">&times;</button>
-                                          <strong>INFO</strong> The following <%=numOutstanding%> consult <a onclick="popup(450, 1200, '<%=request.getContextPath()%>/oscarEncounter/oscarConsultationRequest/DisplayDemographicConsultationRequests.jsp?de=<%=demographicID%>', 'openConsults')">requests</a> are marked pending:<%=consult_services%>.
-                                        </div>
-                                    </td>
-                                    </tr>
-                                    <%}%>
-                                </security:oscarSec>
                                     <tr>
                                         <td><bean:message key="dms.documentReport.msgDocDesc"/>:</td>
                                         <td>
@@ -926,6 +951,30 @@ popup2(710,1024,0,0,'<%=request.getContextPath()%>/dms/incomingDocs.jsp?pdfDir=R
                                             </ul>
                                         </td>
                                     </tr>
+                                <security:oscarSec roleName="<%=roleName$%>" objectName="_con" rights="r" >
+                                    <%
+                                    if ((curdoc.getType().toLowerCase().contains("consult") || curdoc.getType().toLowerCase().contains("appointment")|| curdoc.getType().toLowerCase().contains("refer")) && numOutstanding > 0){
+                                    %>
+                                    <tr>
+                                    <td colspan=2 class="alert in fade">
+                                          <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                          <strong>INFO</strong> The following <%=numOutstanding%> consult <a onclick="popup(450, 1200, '<%=request.getContextPath()%>/oscarEncounter/oscarConsultationRequest/DisplayDemographicConsultationRequests.jsp?de=<%=demographicID%>', 'openConsults')">requests</a> are marked pending:<%=consult_services%>.
+
+                                    </tr>
+                                    <%}%>
+                                </security:oscarSec>
+                                <security:oscarSec roleName="<%=roleName$%>" objectName="_tickler" rights="r" >
+                                    <%
+                                    if ( numTickler > 0){
+                                    %>
+                                    <tr>
+                                    <td colspan=2 class="alert fade in"><button type="button" class="close" data-dismiss="alert">&times;</button>
+      <strong>INFO</strong> The following <%=numTickler%> <a onclick="popup(450, 1200, '<%=request.getContextPath()%>/tickler/ticklerDemoMain.jsp?demoview=<%=demographicID%>', 'openTicklers')">ticklers</a> are marked pending:<%=tickler_note%>
+
+                                    </td>
+                                    </tr>
+                                    <%}%>
+                                </security:oscarSec>
                                 </table>
 
                             </form>
