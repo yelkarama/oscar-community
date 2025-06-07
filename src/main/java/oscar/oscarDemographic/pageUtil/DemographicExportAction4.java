@@ -56,6 +56,7 @@ import javax.xml.validation.Validator;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -328,6 +329,10 @@ public class DemographicExportAction4 extends Action {
 		ArrayList<String> dirs = new ArrayList<String>();
 		exportError = new ArrayList<String>();
 		for (String demoNo : list) {
+		
+        String exceptionString = null;
+		OmdCdsDocument omdCdsDoc = OmdCdsDocument.Factory.newInstance();
+        try{
 			if (StringUtils.empty(demoNo)) {
 				exportError.add("Error! No Demographic Number");
 				continue;
@@ -352,7 +357,7 @@ public class DemographicExportAction4 extends Action {
 			HashMap<String,String> demoExt = new HashMap<String,String>();
 			demoExt.putAll(demographicExtDao.getAllValuesForDemo(Integer.parseInt(demoNo)));
 
-			OmdCdsDocument omdCdsDoc = OmdCdsDocument.Factory.newInstance();
+			
 			OmdCdsDocument.OmdCds omdCds = omdCdsDoc.addNewOmdCds();
 			PatientRecord patientRec = omdCds.addNewPatientRecord();
 			Demographics demo = patientRec.addNewDemographics();
@@ -2445,6 +2450,12 @@ public class DemographicExportAction4 extends Action {
 				}
 			}
 			exportNo++;
+
+            } catch (Exception e) {
+                logger.error ("Error: Unable to export patient " + demographic.getDemographicNo() + " due to an unexpected error. This demographic has been skipped.", e);
+                exportError.add("Error: Unable to export patient " + demographic.getDemographicNo() + " due to an unexpected error. This demographic has been skipped.");
+                exceptionString = ExceptionUtils.getStackTrace(e);
+            } finally {
 
 
 			//export file to temp directory
