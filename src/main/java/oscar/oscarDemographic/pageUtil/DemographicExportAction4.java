@@ -2452,8 +2452,8 @@ public class DemographicExportAction4 extends Action {
 			exportNo++;
 
             } catch (Exception e) {
-                logger.error ("Error: Unable to export patient " + demographic.getDemographicNo() + " due to an unexpected error. This demographic has been skipped.", e);
-                exportError.add("Error: Unable to export patient " + demographic.getDemographicNo() + " due to an unexpected error. This demographic has been skipped.");
+                logger.error ("Error: Unable to export patient " + demoNo + " due to an unexpected error. This demographic has been skipped.", e);
+                exportError.add("Error: Unable to export patient " + demoNo + " due to an unexpected error. This demographic has been skipped.");
                 exceptionString = ExceptionUtils.getStackTrace(e);
             } finally {
 
