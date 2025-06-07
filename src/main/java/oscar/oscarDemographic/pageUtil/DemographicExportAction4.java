@@ -332,7 +332,7 @@ public class DemographicExportAction4 extends Action {
 		
         String exceptionString = null;
 		OmdCdsDocument omdCdsDoc = OmdCdsDocument.Factory.newInstance();
-        try{
+        try {
 			if (StringUtils.empty(demoNo)) {
 				exportError.add("Error! No Demographic Number");
 				continue;
