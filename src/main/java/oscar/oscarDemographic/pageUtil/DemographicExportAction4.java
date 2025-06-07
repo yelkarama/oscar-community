@@ -2465,8 +2465,10 @@ public class DemographicExportAction4 extends Action {
 					//this would never happen
 					throw new Exception("Temporary Export Directory does not exist!");
 				}
-			org.oscarehr.common.model.Demographic demographic = null;
-			demographic = d.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), demoNo);
+                
+                DemographicData d = new DemographicData();
+                org.oscarehr.common.model.Demographic demographic = null;
+                demographic = d.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), demoNo);
 
 				//Standard format for xml exported file : PatientFN_PatientLN_PatientUniqueID_DOB (DOB: ddmmyyyy)
 				String expFile = demographic.getFirstName()+"_"+demographic.getLastName();
