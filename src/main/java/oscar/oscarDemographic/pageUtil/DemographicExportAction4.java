@@ -2487,7 +2487,6 @@ public class DemographicExportAction4 extends Action {
 					throw new Exception("Cannot write .xml file(s) to export directory.\n Please check directory permissions.");
 		}
 	}
-
 	// Validate export against xsd
 	for (File f: files) {
 		Boolean valid = validateExport(f);
