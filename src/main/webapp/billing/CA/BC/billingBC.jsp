@@ -23,7 +23,7 @@
     Ontario, Canada
 
 --%>
-
+<!DOCTYPE html>
 <%@page import="java.net.URLEncoder"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
@@ -46,6 +46,7 @@ if(!authed) {
 <%@taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%@taglib uri="/WEB-INF/rewrite-tag.tld" prefix="rewrite"%>
+<%@taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
 <%@ page import="org.springframework.web.context.WebApplicationContext"%>
 <%@ page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
 <%@page import="oscar.oscarDemographic.data.*"%>
@@ -129,9 +130,9 @@ if(!authed) {
   }
 
   BillingreferralDao billingReferralDao = (BillingreferralDao)SpringUtils.getBean("BillingreferralDAO");
-  
+
   String newWCBClaim = (String)request.getAttribute("newWCBClaim");
-  
+
   String mRecRefDoctor = "";
   String mRecRefDoctorNum = "";
 
@@ -150,10 +151,10 @@ if(!authed) {
 <bean:message key="billing.bc.title"/>
 </title>
 <html:base/>
-<link rel="stylesheet" type="text/css" media="all" href="${pageContext.request.contextPath}/share/calendar/calendar.css" title="win2k-cold-1"/>
-<link rel="stylesheet" type="text/css" media="all" href="${pageContext.request.contextPath}/library/bootstrap/3.0.0/css/bootstrap.min.css" />
-<link rel="stylesheet" type="text/css" media="all" href="${pageContext.request.contextPath}/css/bootstrap-datetimepicker-standalone.css" />
-<link rel="stylesheet" type="text/css" media="all" href="${pageContext.request.contextPath}/css/bootstrap-datetimepicker.min.css" />
+<link rel="stylesheet" media="all" href="${pageContext.request.contextPath}/share/calendar/calendar.css" title="win2k-cold-1">
+<link rel="stylesheet" media="all" href="${pageContext.request.contextPath}/library/bootstrap/3.0.0/css/bootstrap.min.css" >
+<link rel="stylesheet" media="all" href="${pageContext.request.contextPath}/css/bootstrap-datetimepicker-standalone.css" >
+<link rel="stylesheet" media="all" href="${pageContext.request.contextPath}/css/bootstrap-datetimepicker.min.css" >
 
 <script src="${pageContext.request.contextPath}/library/moment.js"></script>
 <script src="${pageContext.request.contextPath}/js/jquery-1.12.3.js"></script>
@@ -167,7 +168,7 @@ if(!authed) {
 <script src="${pageContext.request.contextPath}/share/javascript/prototype.js"></script>
 <script src="${pageContext.request.contextPath}/share/javascript/Oscar.js"></script>
 <script src="${pageContext.request.contextPath}/share/javascript/boxover.js"></script>
-<style type="text/css">
+<style>
   <!--
     A, BODY, INPUT, OPTION ,SELECT , TABLE, TEXTAREA, TD, TR {font-family:tahoma,Verdana, Arial, Helvetica,sans-serif; font-size:10px;}
   -->
@@ -193,19 +194,19 @@ body {
   background-color:#ccccff;
   font-size:10pt;
   }
-  
+
    div.container{
   	padding: 0 !important;
   }
-  
+
   .form-control {
 	  font-size: 10px !important;
 	}
-	
+
 	#patientIdRow span, #patientIdRow a {
 	  margin:10px;
 	}
-	
+
 	h3 {
 	  font-size:small;
 	  width:100%;
@@ -215,7 +216,7 @@ body {
 	  margin-top:5px;
 	  padding-left:20px;
 	}
-	
+
   #billingFormTable table {
 	  border:black thin solid;
 		width:100%;
@@ -237,16 +238,16 @@ body {
 		background-color:black;
 		margin:3px auto;
 	  }
-	
+
 	#billingFormTable table tr td {
 	  padding:1px 5px !important;
 	}
-	
+
 	tr#buttonRow td {
 		border-bottom: #ccc thin solid;
 		padding-bottom: 5px !important;
 	}
-	
+
 </style>
 <script>
 
@@ -361,8 +362,8 @@ function CheckType(){
 function callReplacementWebService(url,id){
                var ran_number=Math.round(Math.random()*1000000);
                var params = "demographicNo=<%=bean.getPatientNo()%>&wcb=&rand="+ran_number;  //hack to get around ie caching the page
-               new Ajax.Updater(id,url, {method:'get',parameters:params,asynchronous:true}); 
-         } 
+               new Ajax.Updater(id,url, {method:'get',parameters:params,asynchronous:true});
+         }
           <%
           String wcb = "";
           Integer wcbid = (Integer) request.getAttribute("WCBFormId");
@@ -574,7 +575,7 @@ function grabEnter(event,callb){
 }
 
 </script>
-<script type="text/javascript">
+<script>
 <!--
 <!--
 function reloadPage(init) {  //reloads the window if Nav4 resized
@@ -660,7 +661,7 @@ function setCodeToChecked(svcCode){
             return;
         }
     }
-    
+
     if(codeEntered(svcCode) == false){
         if (myform.xml_other1.value == "") {
             myform.xml_other1.value = svcCode;
@@ -674,14 +675,14 @@ function setCodeToChecked(svcCode){
             //myform.xml_diagnostic_detail3.value = "";
         }
     }
-    
-    
-    
+
+
+
 }
 
 
 function checkifSet(icd9,feeitem,extrafeeitem){
-   myform = document.forms[0]; 
+   myform = document.forms[0];
    oscarLog("icd9 "+icd9+" ,feeitem "+feeitem+" "+codeEntered(feeitem)+" extrafeeitem "+extrafeeitem+ " "+codeEntered(extrafeeitem));
    if (myform.xml_diagnostic_detail1.value == ""){
        myform.xml_diagnostic_detail1.value = icd9;
@@ -689,29 +690,29 @@ function checkifSet(icd9,feeitem,extrafeeitem){
    setCodeToChecked(feeitem);
    oscarLog("feeitem did put "+codeEntered(feeitem));
    setCodeToChecked(extrafeeitem);
-   
+
    oscarLog("extra feeitem did put"+codeEntered(extrafeeitem));
 }
 
 jQuery(document).ready(function(){
-	
+
 	/* for setting times */
     jQuery(function () {
         jQuery('.datetimepicker').datetimepicker({
             format: 'HH:mm'
         });
     });
-    
+
 	/* New billing form selection method*/
     jQuery("#selectBillingForm").on('change',function() {
       	window.location.replace("../../../" + this.value);
     });
-	
+
 	/*  For dynamically setting the hours and minutes required for the start and end times.
-	<input type='text' id="serviceStartTime" class="form-control" />
-  	<input type=hidden id="xml_starttime_hr" name="xml_starttime_hr" />
-    <input type=hidden id="xml_starttime_min" name="xml_starttime_min" /> */
-    
+	<input type='text' id="serviceStartTime" class="form-control" >
+  	<input type=hidden id="xml_starttime_hr" name="xml_starttime_hr" >
+    <input type=hidden id="xml_starttime_min" name="xml_starttime_min" > */
+
 	jQuery("#serviceStartTime").on('blur', function() {
 	    var time = this.value;
 	    if(time) {
@@ -725,12 +726,12 @@ jQuery(document).ready(function(){
 			jQuery("#xml_starttime_min").val(minute);
 	    }
 	 })
-	 
-	 
+
+
 	 jQuery("#serviceEndTime").on('blur', function() {
 	    var time = this.value;
-	    
-	    if(time) {    	
+
+	    if(time) {
 	        var hour = time.split(":")[0];
 	        var minute = time.split(":")[1];
 	        var starttime = jQuery("#serviceStartTime").val();
@@ -739,21 +740,21 @@ jQuery(document).ready(function(){
 			jQuery("#xml_endtime_min").val(minute);
 	    }
 	 })
-	 
+
 	 function timeCompare( start, end ) {
 	    if( !start || start > end ) {
 	    	alert("Warning: the start time is greater than the end time.");
-	    }	
+	    }
 	 }
-  
- 
+
+
  jQuery(".referral-doctor").on('click', function() {
-  mRecordRefDocNum = jQuery(this).attr('data-num');  
-  mRecordRefDoc= jQuery(this).attr('data-doc');  
-  
+  mRecordRefDocNum = jQuery(this).attr('data-num');
+  mRecordRefDoc= jQuery(this).attr('data-doc');
+
   one = jQuery('[name="xml_refer1"]');
   two = jQuery('[name="xml_refer2"]');
-  
+
   if(one.val().length>0){
 	  two.val(mRecordRefDocNum);
 	  two.attr("title", mRecordRefDoc );
@@ -762,11 +763,11 @@ jQuery(document).ready(function(){
 	  one.attr("title", mRecordRefDoc );
   }
  });
-	 
-	 
+
+
 })
 </script>
-<link rel="stylesheet" href="../billing/billing.css" type="text/css" />
+<link rel="stylesheet" href="../billing/billing.css">
 </head>
 <%!
   /**
@@ -789,9 +790,9 @@ jQuery(document).ready(function(){
   }
 %>
 <body style="background-color:#FFFFFF;" onLoad="CheckType();correspondenceNote();">
-<iframe id="DivShim" src="javascript:false;" scrolling="no" frameborder="0" style="position:absolute; top:0px; left:0px; display:none;"></iframe>
+<iframe id="DivShim" src="javascript:false;" scrolling="no" style="position:absolute; top:0px; left:0px; display:none; border:0px"></iframe>
 <div id="Layer2" class="popUp" style="position:absolute; left:298px; top:26px; width:332px; height:600px;">
-  <table width="100%">
+  <table style="width:100%">
     <tr class="popupHeader">
       <th>Dx Code</th>
       <th>Description</th>
@@ -820,14 +821,12 @@ jQuery(document).ready(function(){
 <!--  end popout layer  -->
 
 
-<table width="100%" border="0" cellspacing="0" cellpadding="0">
+<table style="width:100%; border-spacing:0px; border-width:0px">
   <tr style="background-color:#000000;">
-    <td height="40" width="10%">    </td>
-    <td width="90%" align="left">
-      <p>
-        <font color="#FFFFFF" size="4">
+    <td style="width:10%; height:40px" >    </td>
+    <td style="width:90%; text-align:left">
+      <p style="color:#FFFFFF; font-size:large">
           <strong>oscar<bean:message key="billing.bc.title"/></strong>
-        </font>
       </p>
     </td>
   </tr>
@@ -853,7 +852,7 @@ if(wcbneeds != null){%>
 
 <div class="container">
 <html:form action="/billing/CA/BC/CreateBilling" onsubmit="toggleWCB();return checkUnits();">
-  <input type="hidden" name="fromBilling" value=""/>
+  <input type="hidden" name="fromBilling" value="">
 
 <%
   BillingCreateBillingForm thisForm;
@@ -910,60 +909,60 @@ if(wcbneeds != null){%>
 <!-- end ??? row -->
 
 
-  <table width="100%" >
+  <table style="width:100%" >
     <tr>
       <td>
-        <table width="100%" id="billingPatientInfo">
+        <table style="width:100%" id="billingPatientInfo">
           <tr id="patientIdRow" >
             <td colspan="5">
-          
+
                 <span class="badge badge-primary"><bean:message key="billing.patient"/></span>
                 <strong><%=demo.getLastName()%>, <%=demo.getFirstName()%></strong>
-            	
-            	<span class="badge badge-primary"><bean:message key="billing.patient.age"/></span>  
+
+            	<span class="badge badge-primary"><bean:message key="billing.patient.age"/></span>
             	<strong><%=demo.getAge()%></strong>
-            	
+
             	<a class="badge badge-primary" href="javascript: void();" onclick="popup(800, 1000, 'billStatus.jsp?lastName=<%=demo.getLastName()%>&firstName=<%=demo.getFirstName()%>&filterPatient=true&demographicNo=<%=demo.getDemographicNo()%>','InvoiceList');return false;">
 				<bean:message key="demographic.demographiceditdemographic.msgInvoiceList"/>
 				</a>
- 			
-				<span class="badge badge-primary"><bean:message key="billing.patient.status"/></span> 
+
+				<span class="badge badge-primary"><bean:message key="billing.patient.status"/></span>
 				<strong><%=demo.getPatientStatus()%></strong>
 
-                <span class="badge badge-primary"><bean:message key="billing.patient.roster"/></span> 
+                <span class="badge badge-primary"><bean:message key="billing.patient.roster"/></span>
                 <strong><%=demo.getRosterStatus()%></strong>
-         
+
                 <span class="badge badge-primary"><bean:message key="billing.provider.assignedProvider"/></span>
-                <strong><%=billform.getProviderName(demo.getProviderNo())%></strong>  
-	
+                <strong><%=billform.getProviderName(demo.getProviderNo())%></strong>
+
           </tr>
 
           <tr>
           	<td>
 
-	          	<div class="form-group" > 
-			      <div class='input-group select'> 
+	          	<div class="form-group" >
+			      <div class='input-group select'>
 			        <strong><bean:message key="billing.billingform"/></strong>
-			        
+
           		    <select class="form-control" id="selectBillingForm">
           		      <% for (int i = 0; i < billformlist.length; i++) { %>
-          		       <option <% if( bean.getBillForm().equalsIgnoreCase( billformlist[i].getFormCode() ) ) {%> 
-          		       				selected 
-          		       			<% } %> 
+          		       <option <% if( bean.getBillForm().equalsIgnoreCase( billformlist[i].getFormCode() ) ) {%>
+          		       				selected
+          		       			<% } %>
           		      		value="billing.do?billRegion=<%=bean.getBillRegion()%>&billForm=<%=billformlist[i].getFormCode()%>&hotclick=&appointment_no=<%=bean.getApptNo()%>&demographic_name=<%=bean.getPatientName()%>&demographic_no=<%=bean.getPatientNo()%>&user_no=<%=bean.getCreator()%>&apptProvider_no=<%=bean.getApptProviderNo()%>&providerview=<%=bean.getProviderView()%>&appointment_date=<%=bean.getApptDate()%>&status=<%=bean.getApptStatus()%>&start_time=<%=bean.getApptStart()%>&bNewForm=1&billType=<%=bean.getBillForm()%>" >
           		      		<%= billformlist[i].getDescription() %>
-          		      	</option>          		      
+          		      	</option>
           		      <%} %>
           		    </select>
-          		    
+
           		   </div>
           		</div>
           	</td>
-          
+
              <td>
-              <div class="form-group" > 
+              <div class="form-group" >
 		      <div class='input-group select'>
-		      
+
 		        <strong><bean:message key="billing.provider.billProvider"/></strong>
                 <html:select styleClass="form-control" property="xml_provider" value="<%=sxml_provider%>">
                   <html:option value="000000">
@@ -973,13 +972,13 @@ if(wcbneeds != null){%>
                   <html:option value="<%=billphysician[j].getProviderNo()%>"><%=billphysician[j].getProviderName()%>                  </html:option>
                 <%}                %>
                 </html:select>
-                
+
                 </div>
                 </div>
             </td>
 
             <td>
-                         <div class="form-group" > 
+                         <div class="form-group" >
 		      <div class='input-group select'>
            		 <bean:message key="billing.billingtype"/>
                 <html:select styleClass="form-control" property="xml_billtype" onchange="CheckType();gotoPrivate();">
@@ -989,12 +988,12 @@ if(wcbneeds != null){%>
                   <html:option value="Pri">Private</html:option>
                   <html:option value="DONOTBILL">Do Not Bill</html:option>
                 </html:select>
-                
+
                 </div>
                 </div>
             </td>
             <td>
-               <div class="form-group" > 
+               <div class="form-group" >
 		      <div class='input-group select'>
                 <strong>Clarification Code</strong>
                 <html:select styleClass="form-control" property="xml_location">
@@ -1004,15 +1003,15 @@ if(wcbneeds != null){%>
                 %>
                   <html:option value="<%=locationDescription%>"><%=billlocation[i].getDescription()%>                  </html:option>
                 <%}                %>
-                </html:select> 
+                </html:select>
                 </div>
-                </div>           
+                </div>
             </td>
 
             <td>
-             <div class="form-group" > 
+             <div class="form-group" >
 		      <div class='input-group select'>
-		      
+
 		      <strong>Service Location</strong>
                 <html:select styleClass="form-control" property="xml_visittype">
                 <%
@@ -1022,7 +1021,7 @@ if(wcbneeds != null){%>
                   <html:option value="<%=visitTypeDescription%>"><%=visitTypeDescription%>                  </html:option>
                 <%}                %>
                 </html:select>
-                
+
                 </div>
                 </div>
             </td>
@@ -1032,10 +1031,10 @@ if(wcbneeds != null){%>
 </tr>
 <tr>
 <td>
-        <table width="100%" >
+        <table style="width:100%" >
           <tr>
             <td>
-				<div class="form-group" > 
+				<div class="form-group" >
 		      <div class='input-group select'>
               <a href="javascript: function myFunction() {return false; }" id="hlSDate">
                   <strong><bean:message key="billing.servicedate"/></strong>
@@ -1044,19 +1043,19 @@ if(wcbneeds != null){%>
               </div>
               </div>
             </td>
-            <td nowrap>
-			<div class="form-group" > 
+            <td style="white-space:nowrap">
+			<div class="form-group" >
 		      <div class='input-group text'>
               <a href="javascript: function myFunction() {return false; }" id="serviceToDate">
                   <strong>Service to date</strong>
               </a>
-              <br />
+              <br>
               <html:text styleClass="form-control" property="service_to_date" size="2" maxlength="2" styleId="service_to_date"/>
               </div>
               </div>
             </td>
-            <td>              
-            <div class="form-group" > 
+            <td>
+            <div class="form-group" >
 		      <div class='input-group select'>
             After Hours
               <html:select styleClass="form-control" property="afterHours">
@@ -1076,24 +1075,24 @@ if(wcbneeds != null){%>
               </div>
               </div>
             </td>
-            
+
 			<td>
 			    <strong>
                   <bean:message key="billing.servicedate.starttime"/>
                 </strong>
 		            <div class="form-group">
-		                <div class='input-group date datetimepicker'> 
-		                    <input type='text' id="serviceStartTime" class="form-control" />
-		                  	<input type=hidden id="xml_starttime_hr" name="xml_starttime_hr" />
-		                    <input type=hidden id="xml_starttime_min" name="xml_starttime_min" />
+		                <div class='input-group date datetimepicker'>
+		                    <input type='text' id="serviceStartTime" class="form-control" >
+		                  	<input type=hidden id="xml_starttime_hr" name="xml_starttime_hr" >
+		                    <input type=hidden id="xml_starttime_min" name="xml_starttime_min" >
 		                    <span class="input-group-addon">
 		                        <span class="glyphicon glyphicon-time"></span>
 		                    </span>
 		                </div>
 		            </div>
 			</td>
-			
-			<td>			
+
+			<td>
 			    <strong>
                   <bean:message key="billing.servicedate.endtime"/>
                 </strong>
@@ -1109,10 +1108,10 @@ if(wcbneeds != null){%>
 		            </div>
 
 			</td>
-                        
+
             <td>
-               <div class="form-group" > 
-		      <div class='input-group select'>            
+               <div class="form-group" >
+		      <div class='input-group select'>
                          Dependent
               <html:select styleClass="form-control"  property="dependent">
                 <html:option value="00">No</html:option>
@@ -1121,8 +1120,8 @@ if(wcbneeds != null){%>
               </div>
               </div>
             </td>
-            <td title="Submission Code">              
-             <div class="form-group" > 
+            <td title="Submission Code">
+             <div class="form-group" >
 		      <div class='input-group select'>
             Sub Code
               <html:select styleClass="form-control" property="submissionCode">
@@ -1140,7 +1139,7 @@ if(wcbneeds != null){%>
               </div>
             </td>
             <td>
-            <div class="form-group" > 
+            <div class="form-group" >
 		      <div class='input-group select'>
                 <strong>Payment Method</strong>
             <%
@@ -1171,24 +1170,24 @@ if(wcbneeds != null){%>
               </div>
               </div>
             </td>
-            <td nowrap>
+            <td style="white-space:nowrap">
               <a href="javascript: function myFunction() {return false; }" onClick="checkFACILITY();">
                   <strong>Facility</strong>
               </a>
-  			<div class="form-group" style="display: none;" id="FACILITY" > 
+  			<div class="form-group" style="display: none;" id="FACILITY" >
 		      <div class='input-group text'>
-              	<table>  
-              		<tr>   
-              		<td title="Facilty Num">  
-              			Fac Num <html:text styleClass="form-control"  property="facilityNum" size="5" maxlength="5"/> 
-              		</td>   
-              		<td title="Facilty Sub Num">  
-              			Fac Sub Num <html:text styleClass="form-control"  property="facilitySubNum" size="5" maxlength="5"/> 
-              		</td>  
-              	</tr>  
+              	<table>
+              		<tr>
+              		<td title="Facilty Num">
+              			Fac Num <html:text styleClass="form-control"  property="facilityNum" size="5" maxlength="5"/>
+              		</td>
+              		<td title="Facilty Sub Num">
+              			Fac Sub Num <html:text styleClass="form-control"  property="facilitySubNum" size="5" maxlength="5"/>
+              		</td>
+              	</tr>
               	</table>
               	</div>
-              	</div>  
+              	</div>
 
             </td>
           </tr>
@@ -1201,13 +1200,13 @@ if(wcbneeds != null){%>
           <table>
             <tr>
               <td>
-                            <div class="form-group" > 
+                            <div class="form-group" >
 		      <div class='input-group select'>
                 <bean:message key="billing.admissiondate"/>
                 :
                 <html:text property="xml_vdate" readonly="true" value="" size="10" styleId="xml_vdate"/>
                 <a id="hlADate">
-                  <img title="Calendar" src="../../../images/cal.gif" alt="Calendar" border="0"/>
+                  <img title="Calendar" src="../../../images/cal.gif" alt="Calendar">
                 </a>
                 </div>
                 </div>
@@ -1215,7 +1214,7 @@ if(wcbneeds != null){%>
             </tr>
           </table>
         </div>
-		<script type="text/javascript">
+		<script>
            Calendar.setup({inputField:"xml_appointment_date",ifFormat:"%Y-%m-%d",showsTime:false,button:"hlSDate",singleClick:true,step:1});
            //Calendar.setup({inputField:"xml_appointment_date", ifFormat:""%d/%m/%Y",",button:"hlSDate", align:"Bl", singleClick:true});
            Calendar.setup({inputField:"xml_vdate",ifFormat:"%Y-%m-%d",showsTime:false,button:"hlADate",singleClick:true,step:1});
@@ -1226,7 +1225,7 @@ if(wcbneeds != null){%>
           <table>
             <tr>
               <td>
-              <div class="form-group" > 
+              <div class="form-group" >
 		      <div class='input-group text'>
                               ICBC Claim No:
                 <html:text styleClass="form-control" property="icbc_claim_no" maxlength="8"/>
@@ -1234,8 +1233,8 @@ if(wcbneeds != null){%>
                 </div>
               </td>
                <td>
-                            <div class="form-group" > 
-		      <div class='input-group select'>  
+                            <div class="form-group" >
+		      <div class='input-group select'>
                 MVA:
                 <html:select styleClass="form-control" property="mva_claim_code">
                   <html:option value="N">No</html:option>
@@ -1251,25 +1250,25 @@ if(wcbneeds != null){%>
 </tr>
 <tr>
 <td>
-        <table width="100%" id="billingFormTable">
+        <table style="width:100%" id="billingFormTable">
           <tr>
-            <td valign="top" style="width:32%; padding-right:5px;" >
-              <table width="100%" border="1" class="serviceCodesTable" >
+            <td style="width:32%; padding-right:5px; vertical-align:top" >
+              <table style="width:100%; border-width:0px" class="serviceCodesTable" >
                 <tr style="background-color:#CCCCFF;">
-                  <td width="25%">
-                    <div align="left">
+                  <td style="width:25%">
+                    <div style="text-align:left">
                         <strong>
                           <%=group1Header%>
                         </strong>
                     </div>
                   </td>
-                  <td width="61%" style="background-color:#CCCCFF;">
+                  <td style="width:61%; background-color:#CCCCFF;">
                     <strong>
                         <bean:message key="billing.service.desc"/>
                     </strong>
                   </td>
-                  <td width="14%">
-                    <div align="right">
+                  <td style="width:14%">
+                    <div style="text-align:right">
                       <strong>&dollar;<bean:message key="billing.service.fee"/></strong>
                     </div>
                   </td>
@@ -1277,27 +1276,27 @@ if(wcbneeds != null){%>
               <%for (int i = 0; i < billlist1.length; i++) {              %>
                 <tr >
                 <%String svcCall = "addSvcCode('" + billlist1[i].getServiceCode() + "')";                %>
-                  <td width="25%" valign="middle">
+                  <td style="width:25%; vertical-align:middle">
                     <label>
                       <html:multibox property="service" value="<%=billlist1[i].getServiceCode()%>" onclick="<%=svcCall%>"/>
                       <%=billlist1[i].getServiceCode()%>
                     </label>
                   </td>
-                  <td width="61%">
-                    <%=billlist1[i].getDescription()%> 
+                  <td style="width:61%">
+                    <%=billlist1[i].getDescription()%>
                   </td>
-                  <td width="14%">
-                    <div align="right">
-                      <%=billlist1[i].getPrice()%>                 
+                  <td style="width:14%">
+                    <div style="text-align:right">
+                      <%=billlist1[i].getPrice()%>
                     </div>
                   </td>
                 </tr>
               <%}              %>
               </table>
-              <table width="100%" style="background-color:#CC0000;">
+              <table style="width:100%; background-color:#CC0000;">
                 <tr>
-                  <td width="91%" valign="top">
-                    <table width="100%" style="background-color:#EEEEFF;">
+                  <td style="width:91%; vertical-align:top">
+                    <table style="width:100%; background-color:#EEEEFF;">
                       <tr>
                         <td>
                           <strong>
@@ -1325,7 +1324,7 @@ if(wcbneeds != null){%>
                       <tr>
                         <td colspan="2">
                           <a href="javascript:ReferralScriptAttach('xml_refer1')">
-                            <img src="../../../images/search_code.jpg" border="0">
+                            <img src="../../../images/search_code.jpg" alt="search">
                           </a>
                         </td>
                       </tr>
@@ -1344,22 +1343,22 @@ if(wcbneeds != null){%>
                       <tr>
                         <td colspan="2">
                           <a href="javascript:ReferralScriptAttach('xml_refer2')">
-                            <img src="../../../images/search_code.jpg" border="0">
+                            <img src="../../../images/search_code.jpg" alt="search">
                           </a>
                         </td>
                       </tr>
                     </table>
                   </td>
-                  <td width="9%">
+                  <td style="width:9%">
                    &nbsp;
                   </td>
                 </tr>
                 <tr>
-                <td colspan="3" valign="top" >
+                <td colspan="2" style="vertical-align:top" > <!-- WTF -->
 
-                <table style="background-color:#fff;width:97%;" align="left">
-                <tr><td width="50%" valign="top">
-                
+                <table style="background-color:#fff;width:97%; text-align:left">
+                <tr><td style="width:50%; vertical-align:top">
+
                 <table style="background-color:#fff;width:100%;border:0">
                 <tr><th colspan="2">Recent Referral Doctors Used</th></tr>
                   <%
@@ -1367,68 +1366,67 @@ if(wcbneeds != null){%>
                   String rProvider = "";
 
 		  if(recentList.size()>0){
-                  for (String r : recentList){ 
+                  for (String r : recentList){
                   rProvider = billingReferralDao.getReferralDocName(r);
                   %>
-                	  <tr bgcolor="<%=bgColor%>"><td width="20%"><a href="javascript:void(0)" class="referral-doctor" data-num="<%=r%>" data-doc="<%=rProvider%>"><%=r%></a></td><td><%=rProvider%></td></tr> 
+                	  <tr bgcolor="<%=bgColor%>"><td style="width:20%"><a href="javascript:void(0)" class="referral-doctor" data-num="<%=r%>" data-doc="<%=rProvider%>"><%=r%></a></td><td><%=rProvider%></td></tr>
                   <%
                   if(bgColor=="#fff"){bgColor="#ccc";}else{bgColor="#fff";}
-                  
+
                   }
 		  }else{
 		  %>
-                	  <tr><td width="20%"></td><td>none</td></tr> 
+                	  <tr><td style="width:20%"></td><td>none</td></tr>
 		  <%
 		  }
                   %>
-                 </table> 
-                 
+                 </table>
+
                  </td>
-                 <td width="50%" valign="top">
-                 
+                 <td style="width:50%; vertical-align:top">
+
                 <table style="background-color:#fff;width:100%;border:0">
                 <tr><th colspan="2">Referral Doctor on Master Record</th></tr>
-                <tr><td width="20%"><a href="javascript:void(0)" title="Populate referral doctor from master record" class="referral-doctor" data-num="<%=mRecRefDoctorNum%>" data-doc="<%=mRecRefDoctor%>"><%=mRecRefDoctorNum%></a></td><td><%=mRecRefDoctor%></td></tr> 
+                <tr><td style="width:20%"><a href="javascript:void(0)" title="Populate referral doctor from master record" class="referral-doctor" data-num="<%=mRecRefDoctorNum%>" data-doc="<%=mRecRefDoctor%>"><%=mRecRefDoctorNum%></a></td><td><%=mRecRefDoctor%></td></tr>
                 </table>
-                
+
                 </td></tr>
                  </table>
-                 
                 </td>
                 </tr>
               </table>
-              
+
             </td>
-            <td valign="top" style="width:32%; padding-right:5px;">
-              <table width="100%" border="1" class="serviceCodesTable">
+            <td style="width:32%; padding-right:5px; vertical-align:top">
+              <table style="width:100%; border-width:2px" class="serviceCodesTable">
                 <tr style="background-color:#CCCCFF;">
-                  <td width="21%">
+                  <td style="width:21%">
                         <strong>
                           <%=group2Header%>
                         </strong>
                   </td>
-                  <td width="60%" style="background-color:#CCCCFF;">
+                  <td style="width:60%; background-color:#CCCCFF;">
                     <strong><bean:message key="billing.service.desc"/></strong>
                   </td>
-                  <td width="19%" align="right" >
+                  <td style="width:19%; text-align:right" >
                       <strong>&dollar;<bean:message key="billing.service.fee"/></strong>
                   </td>
                 </tr>
               <%for (int i = 0; i < billlist2.length; i++) {              %>
                 <tr >
                 <%String svcCall = "addSvcCode('" + billlist2[i].getServiceCode() + "')";                %>
-                  <td width="21%">
+                  <td style="width:21%">
                   <label>
                       <html:multibox property="service" value="<%=billlist2[i].getServiceCode()%>" onclick="<%=svcCall%>"/>
                       <%=billlist2[i].getServiceCode()%>
                   </label>
                   </td>
-                  <td width="60%">
+                  <td style="width:60%">
                    <%=billlist2[i].getDescription()%>
                   </td>
-                  <td width="19%">
-                    <div align="right">
-                     <%=billlist2[i].getPrice()%> 
+                  <td style="width:19%">
+                    <div style="text-align:right">
+                     <%=billlist2[i].getPrice()%>
                     </div>
                   </td>
                 </tr>
@@ -1436,18 +1434,18 @@ if(wcbneeds != null){%>
               </table>
               <table style="background-color:#999900;">
                 <tr>
-                  <td width="91%" valign="top">
-                    <table width="100%" style="background-color:#EEEEFF;">
+                  <td style="width:91%; vertical-align:top">
+                    <table style="width:100%; background-color:#EEEEFF;">
                       <tr>
-                        <td width="85%">
+                        <td style="width:85%">
                           <strong><bean:message key="billing.service.otherservice"/></strong>
                         </td>
-                        <td width="15%">
+                        <td style="width:15%">
                           <strong><bean:message key="billing.service.unit"/></strong>
                         </td>
                       </tr>
                       <tr>
-                        <td nowrap>
+                        <td style="white-space:nowrap">
                             <html:text property="xml_other1" onblur="checkSelectedCodes()" size="40" onkeypress="return grabEnter(event,'OtherScriptAttach()')"/>
                             <input type="button" value=".5" onClick="$('xml_other1_unit').value = '0.5'"/>
                         </td>
@@ -1456,7 +1454,7 @@ if(wcbneeds != null){%>
                         </td>
                       </tr>
                       <tr>
-                        <td nowrap>
+                        <td style="white-space:nowrap">
                             <html:text property="xml_other2" onblur="checkSelectedCodes()" size="40" onkeypress="return grabEnter(event,'OtherScriptAttach()')"/>
                             <input type="button" value=".5" onClick="$('xml_other2_unit').value = '0.5'"/>
                         </td>
@@ -1465,7 +1463,7 @@ if(wcbneeds != null){%>
                         </td>
                       </tr>
                       <tr>
-                        <td nowrap>
+                        <td style="white-space:nowrap">
                             <html:text property="xml_other3" onblur="checkSelectedCodes()" size="40" onkeypress="return grabEnter(event,'OtherScriptAttach()')"/>
                             <input type="button" value=".5" onClick="$('xml_other3_unit').value = '0.5'"/>
                         </td>
@@ -1476,59 +1474,59 @@ if(wcbneeds != null){%>
                       <tr>
                         <td colspan="2">
                           <a href="javascript:OtherScriptAttach()">
-                            <img src="../../../images/search_code.jpg" border="0">
+                            <img src="../../../images/search_code.jpg" alt="search">
                           </a>
                         </td>
                       </tr>
                     </table>
                   </td>
-                  <td width="9%">
+                  <td style="width:9%">
                  	&nbsp;
                   </td>
                 </tr>
               </table>
             </td>
-            <td valign="top" style="width:32%;" >
-              <table width="100%" border="1" class="serviceCodesTable">
+            <td style="width:32%;vertical-align:top" >
+              <table style="width:100%; border-width:2px" class="serviceCodesTable">
                 <tr style="background-color:#CCCCFF;">
-                  <td width="25%" align="left" valign="middle">
+                  <td style="width:25%; text-align:left; vertical-align:middle">
                         <strong><%=group3Header%></strong>
                   </td>
-                  <td width="61%" style="background-color:#CCCCFF;">
+                  <td style="width:61%; background-color:#CCCCFF;">
                     <strong><bean:message key="billing.service.desc"/></strong>
                   </td>
-                  <td width="14%" align="right">      
+                  <td style="width:14%; text-align:right">
                       <strong>&dollar;<bean:message key="billing.service.fee"/></strong>
                   </td>
                 </tr>
               <%for (int i = 0; i < billlist3.length; i++) {              %>
                 <tr >
                 <%String svcCall = "addSvcCode('" + billlist3[i].getServiceCode() + "')";                %>
-                  <td width="25%" >
+                  <td style="width:25%" >
                   	<label>
                       <html:multibox property="service" value="<%=billlist3[i].getServiceCode()%>" onclick="<%=svcCall%>"/>
                       <%=billlist3[i].getServiceCode()%>
                       </label>
                   </td>
-                  <td width="61%" >
+                  <td style="width:61%" >
                     <%=billlist3[i].getDescription()%>
                   </td>
-                  <td width="14%" align="right">
+                  <td style="width:14%; text-align:right">
                       <%=billlist3[i].getPrice()%>
                   </td>
                 </tr>
               <%}              %>
               </table>
               <!-- ONSCREEN DX CODE DISPLAY -->
-              <table width="100%" style="background-color:#CCCCFF;">
+              <table style="width:100%; background-color:#CCCCFF;">
                 <tr>
-                  <td valign="top" width="10%">
+                  <td style="width:10%; vertical-align:top">
                     <table style="background-color:#EEEEFF;">
                       <tr>
-                        <th align="left">
+                        <th style="text-align:left">
                               <a href="#" id="pop2" onClick="formPopup(this.id,'Layer2');return false;">
                                 <bean:message key="billing.diagnostic.code"/>
-                              </a>   
+                              </a>
                         </th>
                       </tr>
                       <tr>
@@ -1548,48 +1546,48 @@ if(wcbneeds != null){%>
                       </tr>
                       <tr>
                         <td>
-                            <a href="javascript:ScriptAttach()"><img src="../../../images/search_dx_code.jpg" border="0"></a> 
+                            <a href="javascript:ScriptAttach()"><img src="../../../images/search_dx_code.jpg" alt="search"></a>
                         </td>
                       </tr>
                     </table>
                   </td>
-                  <td align="left" valign="top">
+                  <td style="text-align:left; vertical-align:top">
                       <div id="DX_REFERENCE"></div>
                        <oscar:oscarPropertiesCheck property="BILLING_DX_REFERENCE" value="yes">
-                         <script type="text/javascript">
+                         <script>
                          function getDxInformation(origRequest){
                                var url = "DxReference.jsp";
                                var ran_number=Math.round(Math.random()*1000000);
                                var params = "demographicNo=<%=bean.getPatientNo()%>&rand="+ran_number;  //hack to get around ie caching the page
                                //alert(params);
-                               new Ajax.Updater('DX_REFERENCE',url, {method:'get',parameters:params,asynchronous:true}); 
+                               new Ajax.Updater('DX_REFERENCE',url, {method:'get',parameters:params,asynchronous:true});
                                //alert(origRequest.responseText);
                          }
                          getDxInformation();
                          </script>
                        </oscar:oscarPropertiesCheck>
-                     
+
                   </td>
                 </tr>
               </table>
               <!-- ONSCREEN DX CODE DISPLAY END-->
-              
-              <table width="100%">
+
+              <table style="width:100%">
                 <tr>
                   <td>
                       <strong>Short Claim Note</strong>
                     <html:text property="shortClaimNote" size="23" maxlength="20"/>
                   </td>
-                  <td align="left">
+                  <td style="text-align:left">
                   	<label>
-                        <input type="checkbox" name="ignoreWarn" /> 
+                        <input type="checkbox" name="ignoreWarn">
                         Ignore Warnings
                     </label>
                   </td>
                 </tr>
-                
+
                 <tr>
-                  <td align="left" colspan="2" >
+                  <td style="text-align:left" colspan="2" >
                     <html:select property="correspondenceCode" onchange="correspondenceNote();">
                       <html:option value="0">No Correspondence</html:option>
                       <html:option value="N">Electronic Correspondence</html:option>
@@ -1599,31 +1597,31 @@ if(wcbneeds != null){%>
                   </td>
                 </tr>
                 <tr>
-                  <td colspan="2" valign="top">
+                  <td colspan="2" style="vertical-align:top">
                     <div id="CORRESPONDENCENOTE">
                       <html:textarea cols="60" rows="5" property="notes" onkeyup="checkTextLimit(this.form.notes,400);"></html:textarea>
                       400 characters max.
                     </div>
                     <div style="background-color: #CCCCFF;">
                       <div style="background-color : #EEEEFF;">
-                      <strong>Billing Notes</strong> 
+                      <strong>Billing Notes</strong>
                       <span style="font-size:smaller;">(Notes are for internal use and will not be sent to MSP)</span>
                       </div>
                       <html:textarea cols="60" rows="5" property="messageNotes"></html:textarea>
                     </div>
                   </td>
                 </tr>
-                
+
               </table>
             </td>
           </tr>
           <tr id="buttonRow" >
-           <td align="right" colspan="3">
+           <td style="text-align:right" colspan="3">
               <input class="btn btn-md btn-primary" type="submit" name="Submit" value="Continue">
-              <input class="btn btn-md btn-danger" type="button" name="Button" value="Cancel" onClick="window.close();">                 
+              <input class="btn btn-md btn-danger" type="button" name="Button" value="Cancel" onClick="window.close();">
             </td>
           </tr>
-          <tr valign="top">
+          <tr style="vertical-align:top">
               <td colspan="3">
               	<div id="wcbForms" style="float:left;"></div>
               </td>
