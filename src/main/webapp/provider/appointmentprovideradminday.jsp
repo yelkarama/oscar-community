@@ -23,6 +23,18 @@
     Ontario, Canada
 
 --%>
+
+<%--
+2024-01-15 : Tom Le added File to deal with incoming fax to INCOMINGDIR
+--%>
+<%@page import="java.io.File"%>
+
+<%--
+2024-01-15 : Tom Le added this to deal with provider preference billingform
+--%>
+<%@page import="org.oscarehr.common.dao.ProviderPreferenceDao"%>
+
+
 <%@ page import="org.apache.commons.lang.StringUtils"%>
 <%@ page import="org.apache.commons.text.WordUtils"%>
 <%@ page import="org.oscarehr.phr.util.MyOscarUtils"%>
@@ -514,6 +526,33 @@ Map<String, Boolean> generalSettingsMap = systemPreferencesDao.findByKeysAsMap(S
 boolean replaceNameWithPreferred = generalSettingsMap.getOrDefault("replace_demographic_name_with_preferred", false);
 
 %>
+
+<%
+/*
+//////////////
+2024-01-15 : Tom Le added this section for getting provider default billing form form provid
+er preference
+*/
+
+    ProviderPreference providerPreference1 = null;
+    ProviderPreferenceDao providerPreferenceDao = (ProviderPreferenceDao) SpringUtils.getBean("providerPreferenceDao");
+//    ProviderPreferenceDao providerPreferenceDao = null; //(ProviderPreferenceDao) SpringUtils.getBean("providerPreferenceDao");
+
+    //otherwise, use the preferences of the logged in user
+    providerPreference1 = providerPreferenceDao.find(curUser_no);
+
+    String providerDefaultBillForm = oscarVariables.getProperty("default_view");
+
+    if ( (providerPreference1 != null) && !(providerPreference1.getDefaultServiceType().equalsIgnoreCase("no")) ) {
+        providerDefaultBillForm = providerPreference1.getDefaultServiceType();
+    }
+
+/*
+//////////////
+*/
+%>
+
+
 <%@page import="oscar.util.*"%>
 <%@page import="oscar.oscarDB.*"%>
 
@@ -1296,6 +1335,34 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 	<a HREF="#" ONCLICK ="pop2('<%=request.getContextPath()%>/billing/CA/<%=prov%>/billingReportCenter.jsp?displaymode=billreport&providerview=<%=curUser_no%>','BillingReports');return false;" TITLE='<bean:message key="global.genBillReport"/>' onMouseOver="window.status='<bean:message key="global.genBillReport"/>';return true"><bean:message key="global.billing"/></a>
 </li>
 </security:oscarSec>
+
+
+<%--
+////////////////////
+// Tom Le
+// 2020-05-12 - Tom Le added this section notify the user that there is new fax
+////////////////////
+--%>
+<%
+File incomingFaxDir = new File( (OscarProperties.getInstance().getProperty("INCOMINGDOCUMENT_DIR")+"/1/Fax/") );
+
+File[] files = incomingFaxDir.listFiles();
+File[] faxDirFiles = incomingFaxDir.listFiles();
+
+if ( (files != null) && (files.length > 0) ) {
+%>
+	<security:oscarSec roleName="<%=roleName$%>" objectName="_appointment.doctorLink" rights="r">
+	<li>
+    	<a class="tabalert" HREF="#" ONCLICK ="popupPage(800,1200,'../dms/incomingDocs.jsp','<bean:message key='inboxmanager.document.incomingDocs'/>');return false;" TITLE='<bean:message key="inboxmanager.document.incomingDocs"/>'>
+    	<span id="oscar_incomingdocs" style="color:red"></span>New Fax(<%=faxDirFiles.length%>)</a>
+	</li>
+	</security:oscarSec>
+
+<% } %>
+<%--
+////////////////////
+--%>
+
 
 <security:oscarSec roleName="<%=roleName$%>" objectName="_appointment.doctorLink" rights="r">
    <li>
@@ -2634,7 +2701,22 @@ start_time += iSm + ":00";
 	if(status.indexOf('B')==-1)
 	{
 	%>
-		&#124; <a href=# onClick='pop4(755,1200, "<%=request.getContextPath()%>/billing.do?billRegion=<%=URLEncoder.encode(prov)%>&billForm=<%=URLEncoder.encode(oscarVariables.getProperty("default_view"))%>&hotclick=<%=URLEncoder.encode("")%>&appointment_no=<%=appointment.getId()%>&demographic_name=<%=URLEncoder.encode(name)%>&status=<%=status%>&demographic_no=<%=demographic_no%>&providerview=<%=curProvider_no[nProvider]%>&user_no=<%=curUser_no%>&apptProvider_no=<%=curProvider_no[nProvider]%>&appointment_date=<%=year+"-"+month+"-"+day%>&start_time=<%=start_time%>&bNewForm=1","B");return false;' title="<bean:message key="global.billingtag"/>"><bean:message key="provider.appointmentProviderAdminDay.btnB"/></a>
+
+	<%--
+///////////////////
+2024-01-15 : Tom Le change =URLEncoder.encode(oscarVariables.getProperty("default_view")) to providerDefaultBillForm from above
+///////////////////
+//
+        &#124; <a href=# onClick='pop4(755,1200, "<%=request.getContextPath()%>/billing.do?billRegion=<%=URLEncoder.encode(prov)%>&billForm=<%=URLEncoder.encode(oscarVariables.getProperty("default_view"))%>&hotclick=<%=URLEncoder.encode("")%>&appointment_no=<%=appointment.getId()%>&demographic_name=<%=URLEncoder.encode(name)%>&status=<%=status%>&demographic_no=<%=demographic_no%>&providerview=<%=curProvider_no[nProvider]%>&user_no=<%=curUser_no%>&apptProvider_no=<%=curProvider_no[nProvider]%>&appointment_date=<%=year+"-"+month+"-"+day%>&start_time=<%=start_time%>&bNewForm=1","B");return false;' title="<bean:message key="global.billingtag"/>"><bean:message key="provider.appointmentProviderAdminDay.btnB"/></a>
+
+--%>
+
+        &#124; <a href=# onClick='popupPage(755,1200, "../billing.do?billRegion=<%=URLEncoder.encode(prov)%>&billForm=<%=providerDefaultBillForm%>&hotclick=<%=URLEncoder.encode("")%>&appointment_no=<%=appointment.getId()%>&demographic_name=<%=URLEncoder.encode(name)%>&status=<%=status%>&demographic_no=<%=demographic_no%>&providerview=<%=curProvider_no[nProvider]%>&user_no=<%=curUser_no%>&apptProvider_no=<%=curProvider_no[nProvider]%>&appointment_date=<%=year+"-"+month+"-"+day%>&start_time=<%=start_time%>&bNewForm=1");return false;' title="<bean:message key="global.billingtag"/>"><bean:message key="provider.appointmentProviderAdminDay.btnB"/></a>
+
+<%--
+///////////////////
+--%>
+
 	<%
 	}
 	else
