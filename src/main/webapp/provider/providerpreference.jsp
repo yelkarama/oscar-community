@@ -652,12 +652,9 @@ alert(value);
   <security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="r">
   <tr>
     <td>
-<% String br = OscarProperties.getInstance().getProperty("billregion");
-   if (br.equals("BC")) { %>
-	<a href=# onClick ="popupPage(230,400,'../billing/CA/BC/viewBillingPreferencesAction.do?providerNo=<%=providerNo%>');return false;"><bean:message key="provider.btnBillPreference"/></a>
-<% } else { %>
+
 	<a href=# onClick ="showHideBillPref();return false;"><bean:message key="provider.btnBillPreference"/></a>
-<% } %>
+
     <div id="billingONpref">
     <bean:message key="provider.labelDefaultBillForm"/>:
 	  <select name="default_servicetype">
