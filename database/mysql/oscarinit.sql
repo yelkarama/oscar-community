@@ -1854,7 +1854,7 @@ CREATE TABLE `billing` (
   `billing_time` time DEFAULT NULL,
   `clinic_ref_code` varchar(10) DEFAULT NULL,
   `content` text,
-  `total` varchar(6) DEFAULT NULL,
+  `total` varchar(7) DEFAULT NULL,
   `status` varchar(1) DEFAULT NULL,
   `dob` varchar(8) DEFAULT NULL,
   `visitdate` date DEFAULT NULL,
