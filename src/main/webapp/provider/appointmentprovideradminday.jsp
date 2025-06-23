@@ -24,24 +24,15 @@
 
 --%>
 
-<%--
-2024-01-15 : Tom Le added File to deal with incoming fax to INCOMINGDIR
---%>
-<%@page import="java.io.File"%>
-
-<%--
-2024-01-15 : Tom Le added this to deal with provider preference billingform
---%>
-<%@page import="org.oscarehr.common.dao.ProviderPreferenceDao"%>
-
 
 <%@ page import="org.apache.commons.lang.StringUtils"%>
 <%@ page import="org.apache.commons.text.WordUtils"%>
 <%@ page import="org.oscarehr.phr.util.MyOscarUtils"%>
 <%@ page import="org.oscarehr.common.model.Appointment.BookingSource"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
+
 <%@ page import="org.oscarehr.common.model.Provider,org.oscarehr.common.model.BillingONCHeader1"%>
 <%@ page import="org.oscarehr.common.model.ProviderPreference"%>
+<%@ page import="org.oscarehr.common.dao.ProviderPreferenceDao"%>
 <%@ page import="org.oscarehr.web.admin.ProviderPreferencesUIBean"%>
 <%@ page import="org.oscarehr.common.dao.DemographicDao, org.oscarehr.common.model.Demographic" %>
 <%@ page import="org.oscarehr.common.dao.DemographicCustDao, org.oscarehr.common.model.DemographicCust" %>
@@ -86,20 +77,26 @@
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.util.MiscUtils" %>
 <%@ page import="org.oscarehr.util.SessionConstants" %>
-<%@ page import="java.util.Date" %>
 <%@ page import="org.oscarehr.common.model.SystemPreferences" %>
 <%@ page import="org.oscarehr.common.dao.SystemPreferencesDao" %>
+
+<%@ page import="java.io.File"%>
+<%@ page import="java.util.Date" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="org.owasp.encoder.Encode" %>
 
-<!-- add by caisi -->
+
 <%@ taglib uri="http://www.caisi.ca/plugin-tag" prefix="plugin" %>
 <%@ taglib uri="/WEB-INF/caisi-tag.tld" prefix="caisi" %>
 <%@ taglib uri="/WEB-INF/special_tag.tld" prefix="special" %>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
+<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="/WEB-INF/indivo-tag.tld" prefix="myoscar" %>
 <%@ taglib uri="/WEB-INF/phr-tag.tld" prefix="phr" %>
+<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
+<%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
+<%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
 
 <%
 	LoggedInInfo loggedInInfo1=LoggedInInfo.getLoggedInInfoFromSession(request);
@@ -225,11 +222,6 @@ private HashMap<String,String> CurrentSiteMap = new HashMap<String,String>();%>
 %>
 
 
-
-<!-- add by caisi end<style>* {border:1px solid black;}</style> -->
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security" %>
-
 <%
 	long loadPage = System.currentTimeMillis();
     if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
@@ -275,7 +267,7 @@ private HashMap<String,String> CurrentSiteMap = new HashMap<String,String>();%>
 
 <%@ page import="org.apache.commons.lang.*" %>
 
-<%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
+
 <jsp:useBean id="providerBean" class="java.util.Properties" scope="session" />
 <jsp:useBean id="as" class="oscar.appt.ApptStatusData" scope="page" />
 <jsp:useBean id="dateTimeCodeBean" class="java.util.Hashtable" scope="page" />
@@ -291,8 +283,6 @@ private HashMap<String,String> CurrentSiteMap = new HashMap<String,String>();%>
 %>
 
 <!-- Struts for i18n -->
-<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
-<%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%
 	PreventionManager prevMgr = (PreventionManager)SpringUtils.getBean("preventionMgr");
 %>
