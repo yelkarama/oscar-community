@@ -28,6 +28,7 @@
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/caisi-tag.tld" prefix="caisi"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
+<%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
 
 <%@ page import="java.util.*"%>
 <%@ page import="java.util.regex.Pattern" %>
@@ -647,11 +648,14 @@ for (int i=0; i<sites.size(); i++) {
                 key="admin.provider.formBillingNo" /></label>
         <div class="controls">
 		    <input type="text" name="billing_no" maxlength="20"
-                pattern="\d{1,20}"
+                pattern="[A-Z]?\d{1,20}"
                 data-validation-pattern-message="<bean:message
                 key="admin.provider.formBillingNo" /> <bean:message
                 key="oscarEncounter.oscarMeasurements.MeasurementsAction.mustBe" />  <bean:message
-                key="oscarEncounter.oscarMeasurements.MeasurementsAction.numericValue" />"
+                key="oscarEncounter.oscarMeasurements.MeasurementsAction.numericValue" />
+                <oscar:oscarPropertiesCheck property="billregion" value="BC">
+                    or in the pattern A1234
+                </oscar:oscarPropertiesCheck>"
                 >
             <p class="help-block"></p>
         </div>
