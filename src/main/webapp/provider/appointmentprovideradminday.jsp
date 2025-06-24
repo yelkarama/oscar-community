@@ -1341,13 +1341,14 @@ File[] faxDirFiles = incomingFaxDir.listFiles();
 
 if ( (files != null) && (files.length > 0) ) {
 %>
+<oscar:oscarPropertiesCheck property="SHOW_INCOMING_FAXES" value="yes" defaultVal="true">
 	<security:oscarSec roleName="<%=roleName$%>" objectName="_eDoc" rights="r">
 	<li>
     	<a class="tabalert" HREF="#" ONCLICK ="popupPage(940,1200,'../dms/incomingDocs.jsp','<bean:message key='inboxmanager.document.incomingDocs'/>');return false;" TITLE='<bean:message key="inboxmanager.document.incomingDocs"/>'>
     	<span id="oscar_incomingdocs" class="tabalert"><bean:message key='dms.incomingDocs.fax'/><sup><%=faxDirFiles.length%></sup></a></span>
 	</li>
 	</security:oscarSec>
-
+</oscar:oscarPropertiesCheck>
 <% } %>
 <%--
 ////////////////////
