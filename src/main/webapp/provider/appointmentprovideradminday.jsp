@@ -24,25 +24,13 @@
 
 --%>
 
-<%--
-2024-01-15 : Tom Le added File to deal with incoming fax to INCOMINGDIR
---%>
-<%@page import="java.io.File"%>
-<%@page import="java.io.FileNotFoundException"%>
-
-<%--
-2024-01-15 : Tom Le added this to deal with provider preference billingform
---%>
-<%@page import="org.oscarehr.common.dao.ProviderPreferenceDao"%>
-
-
 <%@ page import="org.apache.commons.lang.StringUtils"%>
 <%@ page import="org.apache.commons.text.WordUtils"%>
 <%@ page import="org.oscarehr.phr.util.MyOscarUtils"%>
 <%@ page import="org.oscarehr.common.model.Appointment.BookingSource"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%@ page import="org.oscarehr.common.model.Provider,org.oscarehr.common.model.BillingONCHeader1"%>
 <%@ page import="org.oscarehr.common.model.ProviderPreference"%>
+<%@ page import="org.oscarehr.common.dao.ProviderPreferenceDao"%>
 <%@ page import="org.oscarehr.web.admin.ProviderPreferencesUIBean"%>
 <%@ page import="org.oscarehr.common.dao.DemographicDao, org.oscarehr.common.model.Demographic" %>
 <%@ page import="org.oscarehr.common.dao.DemographicCustDao, org.oscarehr.common.model.DemographicCust" %>
@@ -87,9 +75,11 @@
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.util.MiscUtils" %>
 <%@ page import="org.oscarehr.util.SessionConstants" %>
-<%@ page import="java.util.Date" %>
 <%@ page import="org.oscarehr.common.model.SystemPreferences" %>
 <%@ page import="org.oscarehr.common.dao.SystemPreferencesDao" %>
+<%@ page import="java.util.Date" %>
+<%@ page import="java.io.File"%>
+<%@ page import="java.io.FileNotFoundException"%>
 <%@ page import="java.util.Map" %>
 <%@ page import="org.owasp.encoder.Encode" %>
 
@@ -101,7 +91,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="/WEB-INF/indivo-tag.tld" prefix="myoscar" %>
 <%@ taglib uri="/WEB-INF/phr-tag.tld" prefix="phr" %>
-
+<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
 	LoggedInInfo loggedInInfo1=LoggedInInfo.getLoggedInInfoFromSession(request);
 	SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
@@ -529,28 +519,19 @@ boolean replaceNameWithPreferred = generalSettingsMap.getOrDefault("replace_demo
 %>
 
 <%
-/*
-//////////////
-2024-01-15 : Tom Le added this section for getting provider default billing form form provid
-er preference
-*/
 
     ProviderPreference providerPreference1 = null;
     ProviderPreferenceDao providerPreferenceDao = (ProviderPreferenceDao) SpringUtils.getBean("providerPreferenceDao");
-//    ProviderPreferenceDao providerPreferenceDao = null; //(ProviderPreferenceDao) SpringUtils.getBean("providerPreferenceDao");
 
     //otherwise, use the preferences of the logged in user
     providerPreference1 = providerPreferenceDao.find(curUser_no);
 
     String providerDefaultBillForm = oscarVariables.getProperty("default_view");
 
-    if ( (providerPreference1 != null) && !(providerPreference1.getDefaultServiceType().equalsIgnoreCase("no")) ) {
+    if ( (providerPreference1 != null) && (providerPreference1.getDefaultServiceType() != null) && !(providerPreference1.getDefaultServiceType().equalsIgnoreCase("no")) ) {
         providerDefaultBillForm = providerPreference1.getDefaultServiceType();
     }
 
-/*
-//////////////
-*/
 %>
 
 
@@ -564,8 +545,10 @@ er preference
 <%@page import="org.oscarehr.web.admin.ProviderPreferencesUIBean"%>
 <%@page import="org.oscarehr.common.model.ProviderPreference"%>
 <%@page import="org.oscarehr.web.AppointmentProviderAdminDayUIBean"%>
-<%@page import="org.oscarehr.common.model.EForm"%><html:html locale="true">
+<%@page import="org.oscarehr.common.model.EForm"%>
 <%@page import="org.apache.commons.lang.StringUtils"%>
+<html:html locale="true">
+
 <head>
 <link rel="shortcut icon" href="<%=request.getContextPath()%>/images/Oscar.ico">
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script>
