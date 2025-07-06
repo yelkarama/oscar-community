@@ -22,7 +22,48 @@ CREATE TABLE IF NOT EXISTS `indicatorTemplate` (
   PRIMARY KEY (`id`)
 );
 
+DELIMITER $$
+DROP PROCEDURE IF EXISTS add_column $$
+CREATE PROCEDURE add_column
+(
+    given_table    VARCHAR(64),
+    given_column   VARCHAR(64),
+    given_defin    VARCHAR(64)
+)
+
+theStart:BEGIN
+
+    DECLARE TableIsThere INTEGER;
+    DECLARE ColumnIsThere INTEGER;
+
+    SELECT COUNT(1) INTO TableIsThere
+    FROM INFORMATION_SCHEMA.STATISTICS
+    WHERE table_schema = DATABASE()
+    AND   table_name   = given_table;
+
+    IF TableIsThere = 0 THEN
+        SELECT CONCAT(DATABASE(),'.',given_table, 
+	' does not exist.  Unable to add ', given_column) add_columnMessage;
+	LEAVE theStart;
+    ELSE
+        SET ColumnIsThere = (  SELECT COUNT(*) 
+                    FROM INFORMATION_SCHEMA.COLUMNS
+                    WHERE   TABLE_SCHEMA = DATABASE() AND 
+                            TABLE_NAME = given_table AND 
+                            COLUMN_NAME = given_column );
+        IF ColumnIsThere = 0 THEN
+ 		    SET @sqlstmt = CONCAT('ALTER TABLE ',DATABASE(),'.',given_table,' ADD ',given_column,' ', given_defin);
+		    PREPARE st FROM @sqlstmt;
+		    EXECUTE st;
+		    DEALLOCATE PREPARE st;
+	    ELSE
+		    SELECT CONCAT('Column ',given_column,' Already Exists ON Table ',
+		    DATABASE(),'.',given_table) add_columnMessage;
+	    END IF;
+	 END IF;
+END $$
 DELIMITER ;
+
 
 DELIMITER $$
 
@@ -2086,6 +2127,13 @@ CREATE TABLE IF NOT EXISTS `EFormDocs` (
 -- see above for
 
 -- *****FUDGE*****
+
+-- add missing columns
+CALL add_column('DemographicContact','mrp','TINYINT(1) NULL DEFAULT NULL');
+CALL add_column('DemographicContact','best_contact','VARCHAR(30) NULL DEFAULT NULL');
+CALL add_column('DemographicContact','health_care_team','TINYINT(1) NULL DEFAULT NULL');
+CALL add_column('eform','restrictToProgram','TINYINT(1) NULL DEFAULT NULL');
+CALL add_column('eform','programNo','INT(10) NULL DEFAULT NULL');
 
 -- phc fudge to make sure that existing providers don't get a NPE and that HRM will file
 
