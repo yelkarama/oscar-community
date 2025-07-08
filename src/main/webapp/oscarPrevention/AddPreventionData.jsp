@@ -825,7 +825,7 @@
               <label for="shelfStatus">Status:</label>
               <span name="shelfStatus" id="shelfStatus"><%=(generic.getShelfStatus()==null?"n/a":generic.getShelfStatus()) %></span><br>
               <% } %>
-              <label for="route">DIN:</label>
+              <label for="din">DIN:</label>
               <input type="text" name="din" id="din" value="<%=str((extraData.get("din")),"")%>"/>
               <br/>
               <br><label>Typical Dose: </label><span id="typicalDose"></span><br/>
@@ -849,6 +849,32 @@
                 	d2 = "mL";
                 }
                 %>
+              <br/>
+              <label for="route">Route:</label><br>
+              <select name="route" id="route">
+                <option value=""></option>
+                <%
+                  String routeSelected = " selected=\"selected\" ";
+
+                  LookupListDao lookupListDao = SpringUtils.getBean(LookupListDao.class);
+                  LookupList ll = lookupListDao.findByName("AnatomicalSite");
+
+                  ll = lookupListDao.findByName("RouteOfAdmin");
+                  if(ll != null) {
+                  for(LookupListItem lli : ll.getItems()) {
+                  %>
+                <option value="<%=lli.getValue() %>" <%=lli.getValue().equals(str((extraData.get("route")),"")) ? routeSelected : "" %>><%=lli.getLabel() %></option>
+                <%
+                  }
+                  } else {
+                     %>
+                <option value="ID" <%="ID".equals(str((extraData.get("route")),"")) ? routeSelected : "" %>>Intradermal: ID</option>
+                <option value="IM" <%="IM".equals(str((extraData.get("route")),"")) ? routeSelected : "" %>>Intramuscular: IM</option>
+                <option value="IN" <%="IN".equals(str((extraData.get("route")),"")) ? routeSelected : "" %>>Intranasal: IN</option>
+                <option value="PO" <%="PO".equals(str((extraData.get("route")),"")) ? routeSelected : "" %>>Oral: PO</option>
+                <option value="SC" <%="SC".equals(str((extraData.get("route")),"")) ? routeSelected : "" %>>Subcutaneous: SC</option>
+                <% } %>
+              </select>
               <br/>
             </div>
             <div class="span5">
@@ -889,8 +915,6 @@
                 <option value=""></option>
                 <%
                   String locationSelected = " selected=\"selected\" ";
-                  LookupListDao lookupListDao = SpringUtils.getBean(LookupListDao.class);
-                  LookupList ll = lookupListDao.findByName("AnatomicalSite");
                   if(ll != null) {
                   	for(LookupListItem lli : ll.getItems()) {
                   		%>
@@ -932,29 +956,6 @@
               <!-- div style="margin-left:30px;" >-->
               <label for="location2">Specify Location:</label>
               <input type="text" name="location2" id="location2" value="<%=str((extraData.get("location2")),"")%>"/>
-              <br/>
-              <label for="route">Route:</label>
-              <select name="route" id="route">
-                <option value=""></option>
-                <%
-                  String routeSelected = " selected=\"selected\" ";
-
-                  ll = lookupListDao.findByName("RouteOfAdmin");
-                  if(ll != null) {
-                  for(LookupListItem lli : ll.getItems()) {
-                  %>
-                <option value="<%=lli.getValue() %>" <%=lli.getValue().equals(str((extraData.get("route")),"")) ? routeSelected : "" %>><%=lli.getLabel() %></option>
-                <%
-                  }
-                  } else {
-                     %>
-                <option value="ID" <%="ID".equals(str((extraData.get("route")),"")) ? routeSelected : "" %>>Intradermal: ID</option>
-                <option value="IM" <%="IM".equals(str((extraData.get("route")),"")) ? routeSelected : "" %>>Intramuscular: IM</option>
-                <option value="IN" <%="IN".equals(str((extraData.get("route")),"")) ? routeSelected : "" %>>Intranasal: IN</option>
-                <option value="PO" <%="PO".equals(str((extraData.get("route")),"")) ? routeSelected : "" %>>Oral: PO</option>
-                <option value="SC" <%="SC".equals(str((extraData.get("route")),"")) ? routeSelected : "" %>>Subcutaneous: SC</option>
-                <% } %>
-              </select>
               <br/>
             </div>
           </div>
