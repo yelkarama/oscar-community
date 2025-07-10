@@ -814,11 +814,11 @@
               <span id="unknownName" style="display:block"><label for="name">Name</label> <input type="text" id="name" name="name" value="<%=str((extraData.get("name")),"")%>"/> <br/><br/></span>
               <%
                 } else {
-                	%>  <label for="name">Name:</label> <input type="text" id="name" name="name" value="<%=str((extraData.get("name")),"")%>"/> <br/> <%
+                	%>  <label for="name">Name:</label> <input type="text" id="name" name="name" value="<%=str((extraData.get("name")),"")%>"/>  <%
                 }
 
                 } else {
-                	%>  <label for="name">Name:</label> <input type="text" id="name" name="name" value="<%=str((extraData.get("name")),prevention)%>"/> <br/>
+                	%>  <label for="name">Name:</label> <input type="text" id="name" name="name" value="<%=str((extraData.get("name")),prevention)%>"/>
               <% } %>
               <br><span id="displayName" style="font-weight:lighter; font-size:12px;"></span><br>
               <% if(generic != null){ %>
@@ -850,7 +850,7 @@
                 }
                 %>
               <br/>
-              <label for="route">Route:</label><br>
+              <label for="route">Route:</label>
               <select name="route" id="route">
                 <option value=""></option>
                 <%
@@ -914,9 +914,10 @@
               <select name="location" id="location" onChange="changeSite(this)">
                 <option value=""></option>
                 <%
+                  LookupList ll2 = lookupListDao.findByName("AnatomicalSite");
                   String locationSelected = " selected=\"selected\" ";
-                  if(ll != null) {
-                  	for(LookupListItem lli : ll.getItems()) {
+                  if(ll2 != null) {
+                  	for(LookupListItem lli : ll2.getItems()) {
                   		%>
                 <option value="<%=lli.getValue() %>" <%=lli.getValue().equals(str((extraData.get("location")),"")) ? locationSelected : "" %>><%=lli.getLabel() %></option>
                 <%
@@ -957,7 +958,10 @@
               <label for="location2">Specify Location:</label>
               <input type="text" name="location2" id="location2" value="<%=str((extraData.get("location2")),"")%>"/>
               <br/>
-            </div>
+</div>
+
+
+
           </div>
           <!-- span11 -->
           <div class="span11">
