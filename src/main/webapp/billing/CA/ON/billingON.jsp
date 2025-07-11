@@ -326,8 +326,8 @@
                                     defaultServiceType = providerPreference.getDefaultServiceType();
                                 }
 
-                                if ((roster_status.equals("QU - Quebec")||roster_status.equals("FS")) && !defaultServiceType.equals("RN")) { defaultServiceType = "PRI"; }
                                 if (defaultServiceType != null && !defaultServiceType.isEmpty() && !defaultServiceType.equals("no")) {
+	                                if ((roster_status.equals("QU - Quebec")||roster_status.equals("FS")) && !defaultServiceType.equals("RN")) { defaultServiceType = "PRI"; }
 									ctlBillForm = providerPreference.getDefaultServiceType();
                                 } else {
                                         //check if there is a group preference for default billing
