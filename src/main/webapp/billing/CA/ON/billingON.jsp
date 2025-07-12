@@ -77,6 +77,7 @@
 			String clinicview = bHospitalBilling ? oscarVariables.getProperty("clinic_hospital", "") : oscarVariables.getProperty("clinic_view", "");
 			String clinicNo = oscarVariables.getProperty("clinic_no", "").trim();
 			String visitType = bHospitalBilling ? "02" : oscarVariables.getProperty("visit_type", "");
+			boolean ffs = !oscarVariables.isPropertyActive("FFS_SUPRESS_PRIVATE_BILLING");
 
 			if (visitType.startsWith("00") || visitType.equals(""))	clinicview = "0000";
 			String appt_no = request.getParameter("appointment_no");
@@ -327,7 +328,7 @@
                                 }
 
                                 if (defaultServiceType != null && !defaultServiceType.isEmpty() && !defaultServiceType.equals("no")) {
-	                                if ((roster_status.equals("QU - Quebec")||roster_status.equals("FS")) && !defaultServiceType.equals("RN")) { defaultServiceType = "PRI"; }
+	                                if ((roster_status.equals("QU - Quebec")||(roster_status.equals("FS") && ffs)) && !defaultServiceType.equals("RN")) { defaultServiceType = "PRI"; }
 									ctlBillForm = providerPreference.getDefaultServiceType();
                                 } else {
                                         //check if there is a group preference for default billing
@@ -358,7 +359,7 @@
 			if((visitType.startsWith("02") || visitType.startsWith("04")) && !defaultServiceType.equals("RN")){
 				ctlBillForm = "MIP"; // This is a reference to the "MIP" ctl_billingservice.servicetype, blank service type if not exist
             }
-            if ((roster_status.equals("QU - Quebec")||roster_status.equals("FS")) && !defaultServiceType.equals("RN")) {
+            if ((roster_status.equals("QU - Quebec")||(roster_status.equals("FS") && ffs)) && !defaultServiceType.equals("RN")) {
                 ctlBillForm = "PRI";
             } // "PRI" ctl_billingservice.servicetype, blank if not exist
 
@@ -1597,7 +1598,7 @@ function changeSite(sel) {
 										<td style="width: 30%"><b>Billing Type</b></td>
 										<td style="width: 20%">
 											<%
-												if ((roster_status.equals("QU - Quebec")||roster_status.equals("FS")) && !defaultServiceType.equals("RN")) {
+												if ((roster_status.equals("QU - Quebec")||(roster_status.equals("FS") && ffs)) && !defaultServiceType.equals("RN")) {
 												    defaultBillType = "PAT";
 												}
 												String srtBillType = request.getParameter("xml_billtype")!=null ? request.getParameter("xml_billtype") : defaultBillType;
