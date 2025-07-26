@@ -1278,9 +1278,9 @@ int i;
 				    <bean:message key="WriteScript.msgLongTermMedication"/>:<html:checkbox property="longTerm" onchange="javascript:writeScriptDisplay();" />&nbsp;&nbsp;
 				    <bean:message key="WriteScript.msgDispenseInternal"/>:<html:checkbox property="dispenseInternal" onchange="javascript:writeScriptDisplay();" />&nbsp;&nbsp;
 				    <bean:message key="WriteScript.msgPastMedication"/>:<html:checkbox property="pastMed" onchange="javascript:writeScriptDisplay();" />&nbsp;&nbsp;
-				    <bean:message key="WriteScript.msgPatientCompliance"/>:
-                                                <bean:message key="WriteScript.msgYes"/><html:checkbox property="patientComplianceY" onchange="javascript:checkPatientCompliance('Y');" />
-                                                <bean:message key="WriteScript.msgNo"/><html:checkbox property="patientComplianceN" onchange="javascript:checkPatientCompliance('N');" />
+				    <!-- <bean:message key="WriteScript.msgPatientCompliance"/>:
+                    <bean:message key="WriteScript.msgYes"/><input type="checkbox" name="patientComplianceY" onchange="javascript:checkPatientCompliance('Y');">
+                    <bean:message key="WriteScript.msgNo"/><input type="checkbox" name="patientComplianceN" onchange="javascript:checkPatientCompliance('N');"> -->
 				</td>
 			    </tr>
                             <tr>
