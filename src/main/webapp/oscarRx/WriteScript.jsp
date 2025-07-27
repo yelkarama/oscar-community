@@ -23,15 +23,18 @@
     Ontario, Canada
 
 --%>
+<%@ page import="java.util.*"%>
+<%@ page import="oscar.oscarRx.data.*"%>
+<%@ page import="oscar.oscarRx.pageUtil.*"%>
+<%@ page import="oscar.oscarRx.util.*"%>
+<%@ page import="org.oscarehr.util.LoggedInInfo" %>
+<%@ page import="org.oscarehr.util.MiscUtils"%>
+<%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
-<%@ page import="java.util.*,oscar.oscarRx.data.*,oscar.oscarRx.pageUtil.*,oscar.oscarRx.util.*"%>
-<%@page import="org.oscarehr.util.MiscUtils"%>
-<%@page import="org.apache.commons.lang.StringEscapeUtils"%>
-<%@ page import="org.oscarehr.util.LoggedInInfo" %>
 
 <%long start = System.currentTimeMillis();%>
 
@@ -56,8 +59,8 @@
 <title><bean:message key="WriteScript.title" /></title>
 
 <link rel="stylesheet" type="text/css" href="styles.css">
-<script type="text/javascript" src="../share/javascript/Oscar.js"></script>
-<script type="text/javascript" src="../share/javascript/prototype.js"></script>
+<script src="../share/javascript/Oscar.js"></script>
+<script src="../share/javascript/prototype.js"></script>
 <html:base />
 
 <logic:notPresent name="RxSessionBean" scope="session">
@@ -301,8 +304,7 @@ LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
         }
 
         frm.repeat.value = frm.txtRepeat.value;
-//alert ("q"+calcQtyflag);
-    //alert(frm.autoQty.checked);
+
         if (frm.autoQty.checked == true){
            if (calcQtyflag){
               writeScriptDisplay();
@@ -818,6 +820,8 @@ LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
 
 <link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
 
+<link href="${pageContext.request.contextPath}/css/bootstrap.css" rel="stylesheet" type="text/css">
+
 
 
 </head>
@@ -966,7 +970,7 @@ String[] spec = codesData.getSpecialInstructions();
 int i;
 %>
 
-	<script language=javascript>
+<script>
     freqMin = new Array(<%= freq.length%>);
     freqMax = new Array(<%= freq.length%>);
 
@@ -983,13 +987,13 @@ int i;
 <html:hidden property="dosage" />
 
 
-
-<table border="0" cellpadding="0" cellspacing="0" <% /*style="border-collapse: collapse"*/%> bordercolor="#111111" width="100%" height="100%">
-    <%@ include file="TopLinks.jsp" %><!-- Row One included here-->
+<%@ include file="TopLinks.jsp" %>
+<table style="width:100%; height:100%">
+    <!-- Row One included here-->
     <tr>
-        <%@ include file="SideLinksNoEditFavorites.jsp" %><!-- <td></td>Side Bar File --->
-        <td width="100%" style="border-left: 2px solid #A9A9A9; " height="100%" valign="top">
-            <table cellpadding="0" cellspacing="2" style="border-collapse: collapse" bordercolor="#111111" width="100%" height="100%">
+        <td><%@ include file="SideLinksNoEditFavorites.jsp" %></td><!-- <td></td>Side Bar File --->
+        <td width="90%" style="border-left: 2px solid #A9A9A9; " height="100%" valign="top">
+            <table style="width:100%; height:100%; border-collapse: collapse" >
                 <tr>
                     <td width="0%" valign="top">
             	        <div class="DivCCBreadCrumbs">
@@ -1016,7 +1020,7 @@ int i;
 
                 <tr>
                     <td>
-                        <table border=1 style="border: 1px solid #A9A9A9; ">
+                        <table style="border: 1px solid #A9A9A9; ">
 
                         <% if (! isCustom) { %>
                             <tr>
@@ -1079,7 +1083,7 @@ int i;
 
 						<tr>
 							<td colspan=2><bean:message key="WriteScript.startDate"/>:</td>
-							<td colspan=2><html:text property="rxDate" /></td>
+							<td colspan=2><html:text property="rxDate" style="width:90px" /></td>
 							<!--<td >
                                   &nbsp;
                                 </td>-->
@@ -1112,7 +1116,7 @@ int i;
 								<option value="8">8</option>
 								<option value="9">9</option>
 								<option value="Other">Other</option>
-							</select> <input type=text name="takeOther" style="display: none" size="5"
+							</select> <input type=text name="takeOther" style="display: none;" class="input-small"
 								onChange="javascript:takeChg();" /> <html:select
 								property="unit" style="width:80px" onchange="calcQty();">
 								<html:option value="tab">Tabs</html:option>
@@ -1218,7 +1222,7 @@ int i;
 								size="8"
 								onchange="javascript:if( chkQty(this.value) ) {writeScriptDisplay(); customQty(this.value);}"
 								onkeypress="return validNum(event);"
-								onkeyup="customQty(this.value);" /> <input type=button
+								onkeyup="customQty(this.value);" /> <input type=button class="btn"
 								value="<<" onclick=" javascript:useQtyMax();" />
 							(<bean:message key="WriteScript.msgCalculated"/>:&nbsp;<span id="lblSugQty" style="font-weight: bold"></span>&nbsp;
 							)&nbsp;<html:text property="unitName" size="5"
@@ -1270,7 +1274,8 @@ int i;
 				    &nbsp;
                                     <bean:message key="WriteScript.noSubs"/>:<html:checkbox property="nosubs" onchange="javascript:writeScriptDisplay();" />
 				    &nbsp;
-				    <bean:message key="WriteScript.msgLastRefillDate"/>:<html:text property="lastRefillDate" onfocus="javascript:lastRefillDate.value='';" />
+				    <bean:message key="WriteScript.msgLastRefillDate"/>:<html:text property="lastRefillDate"
+style="width:90px;" onfocus="javascript:lastRefillDate.value='';" />
                                 </td>
                             </tr>
 			    <tr>
@@ -1297,10 +1302,9 @@ int i;
                                         }
                                     </script>
 
-							<table width=100% border=1>
+							<table style="width:100%; border:1px;">
 								<tr>
-									<td valign=top><html:textarea property="special" cols="50"
-										rows="5" /> <input type=button value="RD" title="Redraw"
+									<td><html:textarea property="special" style="width:300px; height: 100px;" /> <input type=button class="btn" value="RD" title="Redraw"
 										onclick="javascript:first = false; writeScriptDisplay(); clearWarning(); fillWarnings();" />
 									<div id="warningDiv" style="display: none;">
 									<ul id="warningList">
@@ -1309,7 +1313,7 @@ int i;
 									</div>
 									<oscar:oscarPropertiesCheck property="billregion" value="ON">
 										<a target="_new"
-											href="https://www.healthinfo.moh.gov.on.ca/formulary/SearchServlet?searchType=drugID&keywords=<%=regionalIdentifier%>">ODB
+											href="https://www.formulary.health.gov.on.ca/formulary/detail.xhtml?drugId=<%=regionalIdentifier%>">ODB
 										lookup</a>
 										<%
                                                 ArrayList<LimitedUseCode> luList = LimitedUseLookup.getLUInfoForDin(regionalIdentifier);
@@ -1334,7 +1338,7 @@ int i;
 										</table>
 										<%}%>
 									</oscar:oscarPropertiesCheck></td>
-									<td valign=center><input type=button name="cmdSpecial"
+									<td valign=center><input type=button class="btn" name="cmdSpecial"
 										value="<<" onclick=" javascript:cmdSpecial_click();" /></td>
 
 								</tr>
@@ -1352,7 +1356,7 @@ int i;
 							</span>
 						    </td>
 						</tr>
-						<tr><td colspan="5"><bean:message key="WriteScript.msgRxWrittenDate"/>: <html:text property="writtenDate" />
+						<tr><td colspan="5"><bean:message key="WriteScript.msgRxWrittenDate"/>: <html:text property="writtenDate" style="width:90px" />
 					</table>
 					</td>
 				</tr>
@@ -1360,20 +1364,20 @@ int i;
 				<tr>
 					<td><!--3a--> </html:form>
 					    <table width="100%"><tr><td>
-						<input type=button class="ControlPushButton" style="width: 55px" onclick="javascript:submitForm('update');"
+						<input type=button class="btn" class="ControlPushButton" style="width: 85px" onclick="javascript:submitForm('update');"
 						    value="<bean:message key="WriteScript.msgUpdate"/>" />
-						<input type=button class="ControlPushButton" style="width: 200px" onclick="javascript:submitForm('updateAddAnother');"
+						<input type=button class="btn" class="ControlPushButton" style="width: 200px" onclick="javascript:submitForm('updateAddAnother');"
 						    value="<bean:message key="WriteScript.msgUpdateAndGetNewDrug"/>" />
-						<input type=button class="ControlPushButton" style="width: 200px" onclick="javascript:submitForm('updateAndPrint');"
+						<input type=button class="btn btn-primary" class="ControlPushButton" style="width: 200px" onclick="javascript:submitForm('updateAndPrint');"
 						    value="<bean:message key="WriteScript.msgUpdatePrintAndSave"/>" />
 					    </td>
 					    <td align="right">
-						<input type=button class="ControlPushButton" style="width: 100px" onclick="window.open('<c:out value="${pageContext.request.contextPath}"/>/annotation/annotation.jsp?atbname=<%=annotation_attrib%>&demo=<%=bean.getDemographicNo()%>&display=<%=annotation_display%>','anwin','width=400,height=500');"
+						<input type=button class="btn" class="ControlPushButton" style="width: 100px" onclick="window.open('<c:out value="${pageContext.request.contextPath}"/>/annotation/annotation.jsp?atbname=<%=annotation_attrib%>&demo=<%=bean.getDemographicNo()%>&display=<%=annotation_display%>','anwin','width=400,height=500');"
 						    value="<bean:message key="WriteScript.msgAnnotation"/>" />
 					    </td></tr></table>
-		     <!-- input type=button class="ControlPushButton" style="width:200px" onclick="javascript:replaceScriptDisplay();" value="REPLACE" />
-                         <input type=button class="ControlPushButton" style="width:200px" onclick="javascript:fillWarnings();" value="RunWarning" /
-                         <input type=button class="ControlPushButton" style="width:200px" onclick="javascript:addWarning();" value="FillWarning" /-->
+		     <!-- input type=button class="btn" class="ControlPushButton" style="width:200px" onclick="javascript:replaceScriptDisplay();" value="REPLACE" />
+                         <input type=button class="btn" class="ControlPushButton" style="width:200px" onclick="javascript:fillWarnings();" value="RunWarning" /
+                         <input type=button class="btn" class="ControlPushButton" style="width:200px" onclick="javascript:addWarning();" value="FillWarning" /-->
 					<br>
 					<!-- peice Went Here --> <%//RxPatientData.Patient.Allergy[] allerg = (RxPatientData.Patient.Allergy[]) request.getAttribute("ALLERGIES");
                           org.oscarehr.common.model.Allergy[] allerg = bean.getAllergyWarnings(loggedInInfo, atcCode);
