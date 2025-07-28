@@ -18,10 +18,12 @@
 
 	<parameter name="demo" isForPrompting="true" class="java.lang.String" />
 	<queryString>
-		<![CDATA[select d.last_name, d.chart_no, d.first_name, d.address, d.city , d.province, d.postal, d.phone, d.phone2, 
-		d.year_of_birth, d.month_of_birth, d.date_of_birth, d.hin, d.ver, d.sex, CONCAT(p.last_name, ', ' ,p.first_name) as doc_name 
-		from demographic d left outer join provider p on d.provider_no = p.provider_no
-		where demographic_no =$P{demo}]]>
+		<![CDATA[select d.last_name, d.chart_no, d.first_name, d.address, d.city , d.province, d.postal, d.phone, d.phone2, d.year_of_birth, d.month_of_birth, d.date_of_birth, 
+		d.hin, d.ver, d.sex, IFNULL(CONCAT(p.last_name, CONCAT(', ',p.first_name)),'') as doc_name, IFNULL(e.value,d.phone) as tel 
+		from demographic d 
+		left outer join demographicExt e on e.demographic_no = d.demographic_no and e.key_val='demo_cell'
+		left outer join provider p on d.provider_no = p.provider_no
+		where d.demographic_no=$P{demo}]]>
 	</queryString>
 	<field name="last_name" class="java.lang.String" />
 	<field name="chart_no" class="java.lang.String" />
@@ -30,7 +32,7 @@
 	<field name="city" class="java.lang.String" />
 	<field name="province" class="java.lang.String" />
 	<field name="postal" class="java.lang.String" />
-	<field name="phone" class="java.lang.String" />
+	<field name="tel" class="java.lang.String" />
 	<field name="phone2" class="java.lang.String" />
 	<field name="year_of_birth" class="java.lang.String" />
 	<field name="month_of_birth" class="java.lang.String" />
@@ -100,7 +102,7 @@
 				<textElement>
 					<font size="10" />
 				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA["HOME: " + $F{phone} + "   " + "Dr. " + $F{doc_name}]]></textFieldExpression>
+				<textFieldExpression class="java.lang.String"><![CDATA["TEL: " + $F{tel} + "   " + "Dr. " + $F{doc_name}]]></textFieldExpression>
 			</textField>
 		</band>
 	</title>
