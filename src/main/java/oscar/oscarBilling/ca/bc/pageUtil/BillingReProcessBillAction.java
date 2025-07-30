@@ -140,6 +140,7 @@ public class BillingReProcessBillAction extends Action {
     String birthDate = DemographicData.getDob(demo); //d
     String correspondenceCode = frm.getCorrespondenceCode(); //f
     String claimComment = frm.getShortComment(); //f
+    String mvaClaimCode = frm.getMvaClaim();
     String icbcClaimNo = frm.getIcbcClaim();
 
     String billingStatus = frm.getStatus(); //f
@@ -306,6 +307,7 @@ public class BillingReProcessBillAction extends Action {
         billingmaster.setOriginalClaim(originalMSPNumber);
         billingmaster.setFacilityNo(facilityNum);
         billingmaster.setFacilitySubNo(facilitySubNum);
+        billingmaster.setMvaClaimCode(mvaClaimCode);
         billingmaster.setIcbcClaimNo(icbcClaimNo);
 
         billingmaster.setOinInsurerCode(oinInsurerCode);
