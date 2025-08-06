@@ -56,6 +56,12 @@
          <id>jitpack.io</id>
             <url>https://jitpack.io</url>
       </repository>
+      <repository>
+        <id>jboss</id>
+        <name>jboss</name>
+        <url>https://repository.jboss.org/maven2/</url>
+        <layout>default</layout>
+    </repository>
          </repositories>
    <pluginRepositories>
       <pluginRepository>
@@ -107,7 +113,6 @@
          <artifactId>log4j-1.2-api</artifactId>
          <version>${log4j2.version}</version>
       </dependency>
-      <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
       <dependency>
          <groupId>org.slf4j</groupId>
          <artifactId>slf4j-api</artifactId>
