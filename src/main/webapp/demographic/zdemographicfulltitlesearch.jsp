@@ -101,7 +101,7 @@ function searchOutOfDomain() {
              </select>
         </label>
         <label class="text">
-            <input type="text" name="keyword" value="<%=StringEscapeUtils.escapeHtml(keyWord)%>" MAXLENGTH="100" placeholder='<bean:message key="demographic.zdemographicfulltitlesearch.keyterm" />'>
+            <input type="text" name="keyword" id=="keyword" value="<%=StringEscapeUtils.escapeHtml(keyWord)%>" MAXLENGTH="100" placeholder='<bean:message key="demographic.zdemographicfulltitlesearch.keyterm" />'>
         </label>
             <input type="hidden" name="orderby" value="last_name, first_name">
             <input type="hidden" name="dboperation" value="search_titlename">
