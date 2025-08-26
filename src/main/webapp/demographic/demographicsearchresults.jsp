@@ -347,7 +347,7 @@ session.setAttribute("labSex","");
 	List<Demographic> demoList = null;
 	
         if(request.getParameter("keyword")!=null && request.getParameter("keyword").length()==0) {
-            int mostRecentPatientListSize=Integer.parseInt(OscarProperties.getInstance().getProperty("MOST_RECENT_PATIENT_LIST_SIZE","3"));
+            int mostRecentPatientListSize=Integer.parseInt(OscarProperties.getInstance().getProperty("MOST_RECENT_PATIENT_LIST_SIZE","6"));
             List<Integer> results = oscarLogDao.getRecentDemographicsAccessedByProvider(providerNo,  0, mostRecentPatientListSize);
             demoList = new ArrayList<Demographic>();
             for(Integer r:results) {
