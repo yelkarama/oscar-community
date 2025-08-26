@@ -69,13 +69,13 @@
      Boolean isMobileOptimized = session.getAttribute("mobileOptimized") != null;
 
      LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-     
+
  	GregorianCalendar now=new GregorianCalendar();
  	int curYear = now.get(Calendar.YEAR);
  	int curMonth = (now.get(Calendar.MONTH)+1);
  	int curDay = now.get(Calendar.DAY_OF_MONTH);
  	String curProvider_no = (String) session.getAttribute("user");
- 	
+
 
 %>
 
@@ -109,11 +109,11 @@
 	java.util.ResourceBundle oscarResources = ResourceBundle.getBundle("oscarResources", request.getLocale());
     String noteReason = oscarResources.getString("oscarEncounter.noteReason.TelProgress");
 
-	if (OscarProperties.getInstance().getProperty("disableTelProgressNoteTitleInEncouterNotes") != null 
+	if (OscarProperties.getInstance().getProperty("disableTelProgressNoteTitleInEncouterNotes") != null
 			&& OscarProperties.getInstance().getProperty("disableTelProgressNoteTitleInEncouterNotes").equals("yes")) {
 		noteReason = "";
 	}
-	UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);	
+	UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 	UserProperty tabViewProp = userPropertyDao.getProp(curProvider_no, UserProperty.OPEN_IN_TABS);
     boolean openInTabs = false;
     if ( tabViewProp == null ) {
@@ -158,7 +158,7 @@ session.setAttribute("labSex","");
 <% } else { %>
    <link rel="stylesheet" type="text/css" media="all" href="../demographic/searchdemographicstyle.css"  />
    <link rel="stylesheet" type="text/css" media="all" href="../share/css/searchBox.css"  />
-   <style type="text/css"> .deep { background-color: <%= deepColor %>; } .weak { background-color: <%= weakColor %>; } </style>
+   <style type="text/css"> .deep { background-color: <%= deepColor %>; } .weak { background-color: <%= weakColor %>; }</style>
 <% } %>
 -->
 <%
@@ -212,7 +212,7 @@ session.setAttribute("labSex","");
 
 	function popup(vheight, vwidth, varpage, windowName) {
 	<% if (openInTabs) { %>
-		  window.open(varpage,windowName);	
+		  window.open(varpage,windowName);
 	<% } else { %>
 		var page = varpage;
 		windowprops = "height="
@@ -232,7 +232,7 @@ session.setAttribute("labSex","");
 
 	function popupEChart(vheight,vwidth,varpage, windowName) { //open a new popup window
 	<% if (openInTabs) { %>
-		  window.open(varpage,windowName);	
+		  window.open(varpage,windowName);
 	<% } else { %>
 		  var page = "" + varpage;
 		  windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=50,screenY=50,top=20,left=20";
@@ -246,15 +246,32 @@ session.setAttribute("labSex","");
 	<% } %>
 		}
 </SCRIPT>
+
+<style>
+.doctor {
+  white-space: nowrap; /* Prevents text from wrapping to a new line */
+  overflow: hidden;    /* Hides any text that overflows the container */
+  text-overflow: ellipsis; /* Displays an ellipsis (...) for truncated text */
+  max-width: 100px;
+}
+
+.name {
+  white-space: nowrap; /* Prevents text from wrapping to a new line */
+  overflow: hidden;    /* Hides any text that overflows the container */
+  text-overflow: ellipsis; /* Displays an ellipsis (...) for truncated text */
+  max-width: 150px;
+}
+
+</style>
 </head>
-	
+
 
 <body onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0" bottommargin="0">
 
 <div style="text-align:right">
-		<i class=" icon-question-sign"></i> 
+		<i class=" icon-question-sign"></i>
 	    <a href="<%=help_url%>search/" target="_blank"><bean:message key="app.top1"/></a>
-	    <i class=" icon-info-sign" style="margin-left:10px;"></i> 
+	    <i class=" icon-info-sign" style="margin-left:10px;"></i>
         <a href="javascript:void(0)"  onClick="window.open('<%=request.getContextPath()%>/oscarEncounter/About.jsp','About OSCAR','scrollbars=1,resizable=1,width=800,height=600,left=0,top=0')" ><bean:message key="global.about" /></a>
 </div>
 
@@ -268,12 +285,12 @@ session.setAttribute("labSex","");
 <br>
 <%if(request.getParameter("keyword")!=null && request.getParameter("keyword").length()==0) { %>
 <i><bean:message key="demographic.demographicsearchresults.msgMostRecentPatients" /></i> :
-<% } else {%> 
+<% } else {%>
 <i><bean:message key="demographic.demographicsearchresults.msgSearchKeys" /></i> : <%=request.getParameter("keyword")%>
 <%}%>
     <table class="table table-bordered table-hover table-striped">
         <tr class="tableHeadings deep">
-        
+
 		<% if ( fromMessenger ) {%>
 		<!-- leave blank -->
 		                <th>
@@ -335,17 +352,17 @@ session.setAttribute("labSex","");
 			outOfDomain=true;
 		}
 	}
-	
-	
+
+
 
 	if (searchMode == null)
 		searchMode = "search_name";
 	if (orderBy == null)
 		orderBy = "last_name";
-	
-	
+
+
 	List<Demographic> demoList = null;
-	
+
         if(request.getParameter("keyword")!=null && request.getParameter("keyword").length()==0) {
             int mostRecentPatientListSize=Integer.parseInt(OscarProperties.getInstance().getProperty("MOST_RECENT_PATIENT_LIST_SIZE","6"));
             List<Integer> results = oscarLogDao.getRecentDemographicsAccessedByProvider(providerNo,  0, mostRecentPatientListSize);
@@ -353,20 +370,20 @@ session.setAttribute("labSex","");
             for(Integer r:results) {
                 demoList.add(demographicDao.getDemographicById(r));
             }
-            
+
         } else {
-            demoList = doSearch(demographicDao,searchMode,ptstatus,keyword,limit,offset,orderBy,providerNo,outOfDomain);	
-        }	
-	
+            demoList = doSearch(demographicDao,searchMode,ptstatus,keyword,limit,offset,orderBy,providerNo,outOfDomain);
+        }
+
 	boolean toggleLine = false;
 	boolean firstPageShowIntegratedResults = request.getParameter("firstPageShowIntegratedResults") != null && "true".equals(request.getParameter("firstPageShowIntegratedResults"));
 	int nItems=0;
 
 	if(demoList==null) {
 		out.println("Your Search Returned No Results!!!");
-	} 
+	}
 	else {
-		
+
 		if(orderBy.equals("last_name")) {
 			Collections.sort(demoList, Demographic.LastNameComparator);
 		}
@@ -394,19 +411,19 @@ session.setAttribute("labSex","");
 		else if(orderBy.equals("phone")) {
 			Collections.sort(demoList, Demographic.PhoneComparator);
 		}
-		
-		
+
+
 		@SuppressWarnings("unchecked")
 		  List<MatchingDemographicTransferScore> integratorSearchResults=(List<MatchingDemographicTransferScore>)request.getAttribute("integratorSearchResults");
-		  
-		  
+
+
 		  if (integratorSearchResults!=null) {
 		      firstPageShowIntegratedResults = true;
 			  for (MatchingDemographicTransferScore matchingDemographicTransferScore : integratorSearchResults) {
 			      if( isLocal(matchingDemographicTransferScore, demoList)) {
 				  	continue;
 			      }
-				  
+
 				  DemographicTransfer demographicTransfer=matchingDemographicTransferScore.getDemographicTransfer();
 		%>
 				   <tr class="<%=toggleLine?"even":"odd"%>">
@@ -418,16 +435,16 @@ session.setAttribute("labSex","");
 				   <td class="sex"><%=demographicTransfer.getGender()%></td>
 				   <td class="dob"><%=demographicTransfer.getBirthDate() != null ?  DateFormatUtils.ISO_DATE_FORMAT.format(demographicTransfer.getBirthDate()) : ""%></td>
 				   <td class="doctor">
-				   
-		<% 
+
+		<%
 		   		FacilityIdStringCompositePk providerPk=new FacilityIdStringCompositePk();
 		   		providerPk.setIntegratorFacilityId(demographicTransfer.getIntegratorFacilityId());
 		   		providerPk.setCaisiItemId(demographicTransfer.getCaisiProviderId());
 		   		CachedProvider cachedProvider=CaisiIntegratorManager.getProvider(loggedInInfo, loggedInInfo.getCurrentFacility(), providerPk);
 		   		MiscUtils.getLogger().debug("Cached provider, pk="+providerPk.getIntegratorFacilityId()+","+providerPk.getCaisiItemId()+", cachedProvider="+cachedProvider);
-		   		
+
 		   		String providerName="";
-		   		
+
 		   		if (cachedProvider!=null)
 		   		{
 		   			providerName=cachedProvider.getLastName()+", "+cachedProvider.getFirstName();
@@ -439,20 +456,20 @@ session.setAttribute("labSex","");
 					<td class="patientStatus"></td>
 					<td class="phone"><%=demographicTransfer.getPhone1()%></td>
 				</tr>
-		<%	  
+		<%
 					toggleLine = !toggleLine;
 					nItems++;
 				}
 		 	}
-		
-		
+
+
 
 		DemographicMerged dmDAO = new DemographicMerged();
 
 		for(Demographic demo : demoList) {
 
 
-			
+
 			String dem_no = demo.getDemographicNo().toString();
 			String head = dmDAO.getHead(dem_no);
 
@@ -471,11 +488,11 @@ session.setAttribute("labSex","");
 		if (fromMessenger) {
 	%>
 		<a href="demographiccontrol.jsp?keyword=<%=URLEncoder.encode(Misc.toUpperLowerCase(demo.getLastName()+", "+demo.getFirstName()))%>&demographic_no=<%= dem_no %>&displaymode=linkMsg2Demo&dboperation=search_detail" ><%=demo.getDemographicNo()%></a></td>
-	<%	
-		} else { 
+	<%
+		} else {
 	%>
 		<a title="Master Demographic File" href="#"  onclick="popup(700,1027,'demographiccontrol.jsp?demographic_no=<%=head%>&displaymode=edit&dboperation=search_detail','M<%=head%>')" ><%=head%></a></td>
-	
+
 		<!-- Rights -->
 		<td class="links"><security:oscarSec roleName="<%=roleName$%>"
 			objectName="_eChart" rights="r">
@@ -486,32 +503,32 @@ session.setAttribute("labSex","");
 			<a class="rxBtn" title="Prescriptions" href="#" onclick="popup(700,1027,'../oscarRx/choosePatient.do?providerNo=<%=demo.getProviderNo()%>&demographicNo=<%=dem_no%>','Rx<%=dem_no%>')">Rx</a>
 		</security:oscarSec></td>
 
-	<%	
+	<%
 		}
-		if (OscarProperties.getInstance().isPropertyActive("new_eyeform_enabled")) { 
+		if (OscarProperties.getInstance().isPropertyActive("new_eyeform_enabled")) {
 	%>
 		<security:oscarSec roleName="<%=roleName$%>" objectName="_eChart" rights="r">
 			<a title="Eyeform" href="#" onclick="popup(800, 1280, '../eyeform/eyeform.jsp?demographic_no=<%=dem_no %>&reason=','EF<%=dem_no%>')">EF</a>
 		</security:oscarSec>
-	<% 
-		} 
+	<%
+		}
 	%>
 		<caisi:isModuleLoad moduleName="caisi">
 		<td class="name"><a href="#" onclick="location.href='<%= request.getContextPath() %>/PMmodule/ClientManager.do?id=<%=dem_no%>'"><%=Misc.toUpperLowerCase(demo.getLastName())%>, <%=Misc.toUpperLowerCase(demo.getFirstName())%></a></td>
 		</caisi:isModuleLoad>
 		<caisi:isModuleLoad moduleName="caisi" reverse="true">
-		<td class="name"><%=Misc.toUpperLowerCase(demo.getLastName())%>, <%=Misc.toUpperLowerCase(demo.getFirstName())%></td>
+		<td class="name" title="<%=Misc.toUpperLowerCase(demo.getLastName())%>, <%=Misc.toUpperLowerCase(demo.getFirstName())%>"><%=Misc.toUpperLowerCase(demo.getLastName())%>, <%=Misc.toUpperLowerCase(demo.getFirstName())%></td>
 		</caisi:isModuleLoad>
 		<td class="chartNo"><%=demo.getChartNo()==null||demo.getChartNo().equals("")?"&nbsp;":demo.getChartNo()%></td>
 		<td class="sex"><%=demo.getSex()%></td>
 		<td class="dob"><%=demo.getFormattedDob()%></td>
-		<td class="doctor"><%=Misc.getShortStr(providerBean.getProperty(demo.getProviderNo() == null ? "" : demo.getProviderNo()),"_",12 )%></td>
+		<td class="doctor" title="<%=Misc.getShortStr(providerBean.getProperty(demo.getProviderNo() == null ? "" : demo.getProviderNo()),"_",60 )%>"><%=Misc.getShortStr(providerBean.getProperty(demo.getProviderNo() == null ? "" : demo.getProviderNo()),"_",60 )%></td>
 		<td class="rosterStatus"><%=demo.getRosterStatus()==null||demo.getRosterStatus().equals("")?"&nbsp;":demo.getRosterStatus()%></td>
 		<td class="patientStatus"><%=demo.getPatientStatus()==null||demo.getPatientStatus().equals("")?"&nbsp;":demo.getPatientStatus()%></td>
 		<td class="phone"><%=demo.getPhone()==null||demo.getPhone().equals("")?"&nbsp;":(demo.getPhone().length()==10?(demo.getPhone().substring(0,3)+"-"+demo.getPhone().substring(3)):demo.getPhone())%></td>
 	</tr>
 	<%
-		
+
 	toggleLine = !toggleLine;
 	nItems++; //to calculate if it is the end of records
 		}
@@ -520,24 +537,24 @@ session.setAttribute("labSex","");
 </table>
 <%
 
-  
+
   int nLastPage=0,nNextPage=0;
   nNextPage=Integer.parseInt(strLimit)+Integer.parseInt(strOffset);
   nLastPage=Integer.parseInt(strOffset)-Integer.parseInt(strLimit);
   if(nLastPage>=0) {
-%> 
+%>
 	<a href="demographiccontrol.jsp?keyword=<%=URLEncoder.encode(keyword,"UTF-8")%>&search_mode=<%=searchMode%>&displaymode=<%=displayMode%>&dboperation=<%=dboperation%>&orderby=<%=orderBy%>&limit1=<%=nLastPage%>&limit2=<%=strLimit%>&ptstatus=<%=ptStatus%>&firstPageShowIntegratedResults=<%=firstPageShowIntegratedResults%><%=nLastPage==0 && firstPageShowIntegratedResults?"&includeIntegratedResults=true":""%>">
 	<bean:message key="demographic.demographicsearchresults.btnLastPage" /></a> <%
   }
   if(nItems>=Integer.parseInt(strLimit)) {
       if (nLastPage>=0) {
-	%> | <%    } %> 
+	%> | <%    } %>
 	<a href="demographiccontrol.jsp?keyword=<%=URLEncoder.encode(keyword,"UTF-8")%>&search_mode=<%=searchMode%>&displaymode=<%=displayMode%>&dboperation=<%=dboperation%>&orderby=<%=orderBy%>&limit1=<%=nNextPage%>&limit2=<%=strLimit%>&ptstatus=<%=ptStatus%>&firstPageShowIntegratedResults=<%=firstPageShowIntegratedResults%>">
 	<bean:message key="demographic.demographicsearchresults.btnNextPage" /></a>
 <%
 }
 %>
-<br> 
+<br>
 <div class="createNew">
 <a href="demographicaddarecordhtm.jsp?search_mode=<%=searchMode%>&keyword=<%=StringEscapeUtils.escapeHtml(keyWord)%>" title="<bean:message key="demographic.search.btnCreateNewTitle" />">
 <bean:message key="demographic.search.btnCreateNew" />
@@ -560,27 +577,27 @@ session.setAttribute("labSex","");
 <%!
 
 Boolean isLocal(MatchingDemographicTransferScore matchingDemographicTransferScore, List<Demographic> demoList) {
-    String hin = matchingDemographicTransferScore.getDemographicTransfer().getHin(); 
+    String hin = matchingDemographicTransferScore.getDemographicTransfer().getHin();
     for( Demographic demo : demoList ) {
-		
+
 		if( hin != null && hin.equals(demo.getHin()) ) {
 		    return true;
 		}
     }
-    
+
     return false;
-    
+
 }
 
 List<Demographic> doSearch(DemographicDao demographicDao,String searchMode, String ptstatus, String keyword, int limit, int offset, String orderBy, String providerNo, boolean outOfDomain) {
-	List<Demographic> demoList = null;  
+	List<Demographic> demoList = null;
 	OscarProperties props = OscarProperties.getInstance();
-	
+
 	String pstatus = props.getProperty("inactive_statuses", "IN, DE, IC, ID, MO, FI");
 	pstatus = pstatus.replaceAll("'","").replaceAll("\\s", "");
 	List<String>stati = Arrays.asList(pstatus.split(","));
-	
-	
+
+
 
 	if( "".equals(ptstatus) ) {
 		if(searchMode.equals("search_name")) {
@@ -652,7 +669,7 @@ List<Demographic> doSearch(DemographicDao demographicDao,String searchMode, Stri
 		}
 	}
 
-	
+
 	return demoList;
 }
 %>
