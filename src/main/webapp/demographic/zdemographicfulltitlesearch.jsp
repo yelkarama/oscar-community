@@ -139,8 +139,7 @@ function searchOutOfDomain() {
         <caisi:isModuleLoad moduleName="caisi">
             <input type="button" class="btn" value="cancel" onclick="location.href='<html:rewrite page="/PMmodule/ProviderInfo.do"/>'" >
         </caisi:isModuleLoad>
-            <input type="button" value="<bean:message key="demographic.demographicsearchresults.msgMostRecentPatients" />" onclick="document.titlesearch.submit();" class="btn btn-link" >
-
+            <input type="button" value="<bean:message key="demographic.demographicsearchresults.msgMostRecentPatients" />" onclick="getElementById('keyword').value='';document.titlesearch.submit();" class="btn btn-link" >
             <input type="button" value="<bean:message key="global.btnCancel" />" onclick="window.close();window.opener.location.reload();" class="btn btn-link" >
     </div> <!-- end inline form-->
 </div> <!-- end searchbox-->
