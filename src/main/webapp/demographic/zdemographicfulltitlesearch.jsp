@@ -101,7 +101,7 @@ function searchOutOfDomain() {
              </select>
         </label>
         <label class="text">
-            <input type="text" name="keyword" value="<%=StringEscapeUtils.escapeHtml(keyWord)%>" MAXLENGTH="100" placeholder='<bean:message key="demographic.zdemographicfulltitlesearch.keyterm" />' required>
+            <input type="text" name="keyword" value="<%=StringEscapeUtils.escapeHtml(keyWord)%>" MAXLENGTH="100" placeholder='<bean:message key="demographic.zdemographicfulltitlesearch.keyterm" />'>
         </label>
             <input type="hidden" name="orderby" value="last_name, first_name">
             <input type="hidden" name="dboperation" value="search_titlename">
@@ -139,6 +139,7 @@ function searchOutOfDomain() {
         <caisi:isModuleLoad moduleName="caisi">
             <input type="button" class="btn" value="cancel" onclick="location.href='<html:rewrite page="/PMmodule/ProviderInfo.do"/>'" >
         </caisi:isModuleLoad>
+            <input type="button" value="<bean:message key="demographic.demographicsearchresults.msgMostRecentPatients" />" onclick="document.titlesearch.submit();" class="btn btn-link" >
 
             <input type="button" value="<bean:message key="global.btnCancel" />" onclick="window.close();window.opener.location.reload();" class="btn btn-link" >
     </div> <!-- end inline form-->
