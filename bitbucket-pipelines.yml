@@ -1,6 +1,4 @@
-#image: maven:3-jdk-8
-#image:  maven:3.8.5-openjdk-17
-image: maven:3-openjdk-17
+image: maven:3-jdk-8
 
 pipelines:
 
@@ -11,7 +9,7 @@ pipelines:
               caches:
                 - maven
               script:
-                - mvn -U -B -Dmaven.test.skip=True  package  # Builds the WAR
+                - mvn -B -Dmaven.test.skip=True  package  # Builds the WAR
                 - mv /opt/atlassian/pipelines/agent/build/target/oscar-19.0.0-SNAPSHOT.war /opt/atlassian/pipelines/agent/build/target/oscar-19.$BITBUCKET_BUILD_NUMBER.war
                 - curl -X POST "https://${BITBUCKET_USERNAME}:${BITBUCKET_APP_PASSWORD}@api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/downloads" --form files=@"/opt/atlassian/pipelines/agent/build/target/oscar-19.$BITBUCKET_BUILD_NUMBER.war"
                 - COMMIT_MESSAGE=`git log --format=%B -n 1 $BITBUCKET_COMMIT`
@@ -27,7 +25,7 @@ pipelines:
               caches:
                 - maven
               script:
-                - mvn -U -B -Dmaven.test.skip=True  package  # Builds the WAR
+                - mvn -B -Dmaven.test.skip=True  package  # Builds the WAR
                                 
 
         
