@@ -1466,7 +1466,7 @@
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-compiler-plugin</artifactId>
-            <version>3.8.5</version>
+            <version>3.8.1</version>
             <configuration>
                <!--  let this be determined globally by the setting of maven.compiler.source and maven.compiler.target -->
                <!-- <source>1.8</source>
