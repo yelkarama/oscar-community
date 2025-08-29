@@ -85,7 +85,6 @@ public class DbConnectionFilter implements javax.servlet.Filter {
 	public static void releaseAllThreadDbResources() {
 		releaseThreadLocalDbConnection();
 		SpringHibernateLocalSessionFactoryBean.releaseThreadSessions();
-		TrackingBasicDataSource.releaseThreadConnections();
 	}
 
 	/**
