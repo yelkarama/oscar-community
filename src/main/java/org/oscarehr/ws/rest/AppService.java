@@ -30,16 +30,16 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.security.NoSuchAlgorithmException;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
-import javax.crypto.spec.SecretKeySpec;
+
+
 import javax.net.ssl.TrustManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -70,7 +70,7 @@ import org.oscarehr.common.dao.AppDefinitionDao;
 import org.oscarehr.common.dao.AppUserDao;
 import org.oscarehr.common.dao.AppointmentSearchDao;
 import org.oscarehr.common.dao.ConsentDao;
-import org.oscarehr.common.dao.ProviderPreferenceDao;
+
 import org.oscarehr.common.dao.SecObjPrivilegeDao;
 import org.oscarehr.common.dao.SecurityDao;
 import org.oscarehr.common.model.AppDefinition;
@@ -78,20 +78,19 @@ import org.oscarehr.common.model.AppUser;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.managers.AppManager;
 import org.oscarehr.managers.DemographicManager;
-import org.oscarehr.common.model.AppointmentSearch;
+
 import org.oscarehr.common.model.Consent;
 import org.oscarehr.common.model.ConsentType;
 import org.oscarehr.common.model.Provider;
-import org.oscarehr.common.model.ProviderPreference;
+
 import org.oscarehr.common.model.SecObjPrivilege;
 import org.oscarehr.common.model.SecObjPrivilegePrimaryKey;
-import org.oscarehr.common.model.Security;
+
 import org.oscarehr.managers.PatientConsentManager;
 import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.myoscar.utils.MyOscarLoggedInInfo;
-import org.oscarehr.phr.RegistrationHelper;
-import org.oscarehr.phr.util.MyOscarUtils;
-import org.oscarehr.util.EncryptionUtils;
+
+
+
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -99,22 +98,21 @@ import org.oscarehr.ws.rest.to.Creds;
 import org.oscarehr.ws.rest.to.GenericRESTResponse;
 import org.oscarehr.ws.rest.to.RSSResponse;
 import org.oscarehr.ws.rest.to.model.AppDefinitionTo1;
-import org.oscarehr.ws.rest.to.model.PHRAccount;
+
 import org.oscarehr.ws.rest.to.model.PHRInviteTo1;
-import org.oscarehr.ws.rest.to.model.ProviderTo1;
+
 import org.oscarehr.ws.rest.to.model.RssItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import com.quatro.dao.security.SecuserroleDao;
 
-import com.quatro.model.security.Secuserrole;
-import com.quatro.web.admin.SecurityAddSecurityHelper;
+
 
 import oscar.OscarProperties;
 import oscar.log.LogAction;
 import oscar.log.LogConst;
-import oscar.oscarProvider.data.ProviderMyOscarIdData;
+
 
 import org.oscarehr.PMmodule.dao.ProviderDao;
 
@@ -122,8 +120,9 @@ import org.oscarehr.PMmodule.dao.ProviderDao;
 @Path("/app")
 public class AppService extends AbstractServiceImpl {
 	protected Logger logger = MiscUtils.getLogger();
-	
-	@Autowired
+
+
+@Autowired
 	AppManager appManager;
 	
 	@Autowired
@@ -328,202 +327,7 @@ public class AppService extends AbstractServiceImpl {
 	
 	
 	
-	//$scope.createPHRUser = function(){
- 	//-Just do it and then show report of what has happened
-	@POST
-	@Path("/PHRCreateUser/")
-	@Produces("application/json")
-	@Consumes("application/json")
-	public GenericRESTResponse createPHRUser(@Context HttpServletRequest request,ProviderTo1 provider){
-	
-		//<li>create a provider record with the name self-Book</li>
-		
-		Provider p = new Provider();
-		p.setProviderNo(provider.getProviderNo());
-		p.setLastName(provider.getLastName());
-		p.setFirstName(provider.getFirstName());
-		p.setProviderType("doctor");
-		p.setSex("F"); //has to be set to something
-		p.setSpecialty("Integration");
-		p.setStatus("1");
-		
-		if(providerDao.providerExists(p.getProviderNo())) {
-			return new GenericRESTResponse(false,"Provider # already in use");
-		} else {
-		  	providerDao.saveProvider(p);
-		}
-		
-		//<li>creating a security record with a strong random user/password</li>
-		String username = RegistrationHelper.getNewRandomPassword();
-		String password = RegistrationHelper.getNewRandomPassword();
-		
-		String encodedPassword = null;
-		try {
-			encodedPassword = SecurityAddSecurityHelper.digestPassword(password);
-		}catch(NoSuchAlgorithmException e) {
-			return new GenericRESTResponse(false,"Failed encoding password");
-		}
-		
-		Security s = new Security();
-			s.setUserName(username);
-			s.setPassword(encodedPassword);
-			s.setProviderNo(p.getProviderNo());
-			s.setPin(null);
-			s.setBExpireset(0);
-			s.setDateExpiredate(null);
-			s.setBLocallockset(0);
-			s.setBRemotelockset(0);
-	    		s.setForcePasswordReset(Boolean.FALSE);  
-	    	securityDao.persist(s);
 
-		LogAction.addLog(getLoggedInInfo().getLoggedInProviderNo(), LogConst.ADD, LogConst.CON_SECURITY, request.getParameter("user_name"), request.getRemoteAddr());
-		
-	    //<li>creating consent type to record which patients are participating with using the PHR</li>
-		ConsentType consentTypeToAdd = new ConsentType();
-		
-		consentTypeToAdd.setActive(true);
-		consentTypeToAdd.setDescription("Consent to handle PHR data");
-		consentTypeToAdd.setName("PHR");
-		consentTypeToAdd.setProviderNo(p.getProviderNo());
-		consentTypeToAdd.setRemoteEnabled(true);
-		consentTypeToAdd.setType(ConsentType.PROVIDER_CONSENT_FILTER);
-		
-		patientConsentManager.addConsentType(getLoggedInInfo(), consentTypeToAdd);
-		
-	    //<li>And communicate this user to the PHR server for integration.</li>
-		logger.error("send this to connector "+s.getId()+"  password "+password);
-		
-		AppDefinition appDef = appManager.getAppDefinition(getLoggedInInfo(), "PHR");
-		appDef.setConsentTypeId(consentTypeToAdd.getId());
-		appManager.updateAppDefinition(getLoggedInInfo(), appDef);
-		
-		Secuserrole secUserRole = new Secuserrole();
-	    secUserRole.setProviderNo(p.getProviderNo());
-	    secUserRole.setRoleName("doctor");
-	    secUserRole.setActiveyn(1);
-	    secUserRoleDao.save(secUserRole);
-	    LogAction.addLog(getLoggedInInfo().getLoggedInProviderNo(), LogConst.ADD, LogConst.CON_ROLE, p.getProviderNo() +"|doctor",request.getRemoteAddr());
-
-	    
-	    AppointmentSearch appointmentSearch = new AppointmentSearch();
-		appointmentSearch.setProviderNo(p.getProviderNo());
-		appointmentSearch.setSearchName("PHR");
-		appointmentSearch.setUuid(UUID.randomUUID().toString());
-		appointmentSearch.setSearchType(AppointmentSearch.ONLINE);
-			
-		appointmentSearchDao.persist(appointmentSearch);
-		
-		JSONObject jojb = new JSONObject();
-		jojb.element("username",""+s.getId());
-		jojb.element("password", password);
-		jojb.element("url",provider.getComments());
-		
-		try {
-			Response reps = callPHR("configurEMRConnection",getLoggedInInfo().getLoggedInProviderNo(),jojb.toString());
-			//InputStream in = (InputStream) reps.getEntity();
-			//BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
-			//String response = IOUtils.toString(bufferedReader);
-			String response = (String)  reps.getEntity();
-			//bufferedReader.close();
-		}catch(Exception e) {
-			logger.error("error",e);
-			return new GenericRESTResponse(false,"ERROR connecting to PHR");
-		}
-		
-		return new GenericRESTResponse(true,"Registered Sucessfully");
-	}
- 
-	//$scope.linkExistingUser = function(){
-	//Show drop list to select user.
-	@POST
-	@Path("/PHRLinkUser/")
-	@Produces("application/json")
-	@Consumes("application/json")
-	public GenericRESTResponse linkPHRUser(@Context HttpServletRequest request,ProviderTo1 provider){
-		//<p>This will create the consentType to record which patients are participating with using the PHR. Communicating the user information to the PHR will need to be done manually.</p>
-		
-		List<Security> secList = securityDao.findByProviderNo(provider.getProviderNo());
-		Security s = null;
-		String password = provider.getFirstName();
-		if(secList.size() == 0) {
-			//<li>creating a security record with a strong random user/password</li>
-			String username = RegistrationHelper.getNewRandomPassword();
-			//password = RegistrationHelper.getNewRandomPassword();
-			
-			String encodedPassword = null;
-			try {
-				encodedPassword = SecurityAddSecurityHelper.digestPassword(password);
-			}catch(NoSuchAlgorithmException e) {
-				return new GenericRESTResponse(false,"Failed encoding password");
-			}
-			
-			s = new Security();
-				s.setUserName(username);
-				s.setPassword(encodedPassword);
-				s.setProviderNo(provider.getProviderNo());
-				s.setPin(null);
-				s.setBExpireset(0);
-				s.setDateExpiredate(null);
-				s.setBLocallockset(0);
-				s.setBRemotelockset(0);
-		    		s.setForcePasswordReset(Boolean.FALSE);  
-		    	securityDao.persist(s);
-
-			LogAction.addLog(getLoggedInInfo().getLoggedInProviderNo(), LogConst.ADD, LogConst.CON_SECURITY, request.getParameter("user_name"), request.getRemoteAddr());
-
-		}else{
-			s = secList.get(0);
-		}
-				
-				
-	    //<li>creating consent type to record which patients are participating with using the PHR</li>
-		ConsentType consentTypeToAdd = new ConsentType();
-		
-		consentTypeToAdd.setActive(true);
-		consentTypeToAdd.setDescription("Consent to handle PHR data");
-		consentTypeToAdd.setName("PHR");
-		consentTypeToAdd.setProviderNo(provider.getProviderNo());
-		consentTypeToAdd.setRemoteEnabled(true);
-		consentTypeToAdd.setType(ConsentType.PROVIDER_CONSENT_FILTER);
-		
-		patientConsentManager.addConsentType(getLoggedInInfo(), consentTypeToAdd);
-		
-	    //<li>And communicate this user to the PHR server for integration.</li>
-		
-		AppDefinition appDef = appManager.getAppDefinition(getLoggedInInfo(), "PHR");
-		appDef.setConsentTypeId(consentTypeToAdd.getId());
-		appManager.updateAppDefinition(getLoggedInInfo(), appDef);
-		
-		if(appointmentSearchDao.findForProvider(provider.getProviderNo()) == null) {
-		    AppointmentSearch appointmentSearch = new AppointmentSearch();
-			appointmentSearch.setProviderNo(provider.getProviderNo());
-			appointmentSearch.setSearchName("PHR");
-			appointmentSearch.setUuid(UUID.randomUUID().toString());
-			appointmentSearch.setSearchType(AppointmentSearch.ONLINE);
-			appointmentSearchDao.persist(appointmentSearch);
-		}
-		JSONObject jojb = new JSONObject();
-		jojb.element("username",""+s.getId());
-		jojb.element("password", password);
-		jojb.element("url",provider.getComments());
-		
-		try {
-			Response reps = callPHR("configurEMRConnection",getLoggedInInfo().getLoggedInProviderNo(),jojb.toString());
-			//InputStream in = (InputStream) reps.getEntity();
-			//BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
-			//String response = IOUtils.toString(bufferedReader);
-			String response = (String)  reps.getEntity();
-			//bufferedReader.close();
-		}catch(Exception e) {
-			logger.error("error",e);
-			return new GenericRESTResponse(false,"ERROR connecting to PHR");
-		}
-		
-		return new GenericRESTResponse(true,"Registered Sucessfully");
-
-	}
- 
-	
 	
 	@POST
 	@Path("/PHRInit/")
@@ -782,106 +586,7 @@ public class AppService extends AbstractServiceImpl {
 		return new GenericRESTResponse(false, "Demographic/email/PHRUsername error");
 	}
 	
-	@POST
-	@Path("/updatePHRPW")
-	@Produces("application/json")
-	@Consumes("application/json")
-	public GenericRESTResponse createProviderPHRAccount(@Context HttpServletRequest request){
-		try {
-			String password = RegistrationHelper.getNewRandomPassword();
-			String providerNo = getLoggedInInfo().getLoggedInProviderNo();
-			
-			PHRAccount phrAccount = new PHRAccount();
-			phrAccount.setPassword(password);
-			phrAccount.setProviderNo(ProviderMyOscarIdData.getMyOscarId(providerNo));
-			
-			Response response = callPHR("/updatePW", providerNo, phrAccount.toJson().toString());
-			logger.error("stat "+response.getStatus()+" == "+Response.Status.OK.getStatusCode()+" ==== "+(response.getStatus()==Response.Status.CREATED.getStatusCode()));
-			
-			
-			if (response.getStatus()==Response.Status.OK.getStatusCode()) {
-				try {
-				String username = (String) response.getEntity(); 
-				//Save username to properties
-				ProviderMyOscarIdData.setId(providerNo, username);
-				
-				//Save Password
-				SecretKeySpec key=MyOscarUtils.getDeterministicallyMangledPasswordSecretKeyFromSession(request.getSession());
-		        byte[] encryptedMyOscarPassword=EncryptionUtils.encrypt(key, password.getBytes("UTF-8"));
 
-		        ProviderPreferenceDao providerPreferenceDao=(ProviderPreferenceDao) SpringUtils.getBean("providerPreferenceDao");
-		        ProviderPreference providerPreference=providerPreferenceDao.find(providerNo);
-		        providerPreference.setEncryptedMyOscarPassword(encryptedMyOscarPassword);
-		        providerPreferenceDao.merge(providerPreference);
-		        
-		        MyOscarLoggedInInfo.setLoggedInInfo(request.getSession(), null);
-				
-		        MyOscarUtils.attemptMyOscarAutoLoginIfNotAlreadyLoggedInAsynchronously(getLoggedInInfo(), false);
-				
-				return new GenericRESTResponse(true, "Password Updated");	
-				}catch(Exception e) {
-					logger.error("Error creating account ",e);
-				}
-				
-			} 
-			return new GenericRESTResponse(false, "Error connecting to PHR, try again later");
-			
-		} catch (JSONException e) {
-			logger.error("Convert PHRInvite to JSON error", e);
-			return new GenericRESTResponse(false, "Error connecting to PHR, try again later");
-		}
-		
-	}
-	
-	@POST
-	@Path("/createPHRAccount")
-	@Produces("application/json")
-	@Consumes("application/json")
-	public GenericRESTResponse createProviderPHRAccount(@Context HttpServletRequest request,PHRAccount phrAccount){
-		
-		String password = RegistrationHelper.getNewRandomPassword();
-		String providerNo = getLoggedInInfo().getLoggedInProviderNo();
-		phrAccount.setPassword(password);
-		phrAccount.setRole("PROVIDER");
-		phrAccount.setProviderNo(getLoggedInInfo().getLoggedInProviderNo());
-
-		try {
-			Response response = callPHR("/createUser", providerNo, phrAccount.toJson().toString());
-			logger.error("stat "+response.getStatus()+" == "+Response.Status.CREATED.getStatusCode()+" ==== "+(response.getStatus()==Response.Status.CREATED.getStatusCode()));
-			
-			
-			if (response.getStatus()==Response.Status.CREATED.getStatusCode()) {
-				try {
-				String username = (String) response.getEntity(); 
-				//Save username to properties
-				ProviderMyOscarIdData.setId(providerNo, username);
-				
-				//Save Password
-				SecretKeySpec key=MyOscarUtils.getDeterministicallyMangledPasswordSecretKeyFromSession(request.getSession());
-		        byte[] encryptedMyOscarPassword=EncryptionUtils.encrypt(key, password.getBytes("UTF-8"));
-
-		        ProviderPreferenceDao providerPreferenceDao=(ProviderPreferenceDao) SpringUtils.getBean("providerPreferenceDao");
-		        ProviderPreference providerPreference=providerPreferenceDao.find(providerNo);
-		        providerPreference.setEncryptedMyOscarPassword(encryptedMyOscarPassword);
-		        providerPreferenceDao.merge(providerPreference);
-				
-				
-				return new GenericRESTResponse(true, "Account Registered");	
-				}catch(Exception e) {
-					logger.error("Error creating account ",e);
-				}
-				
-			} 
-			return new GenericRESTResponse(false, "Error connecting to PHR, try again later");
-			
-		} catch (JSONException e) {
-			logger.error("Convert PHRInvite to JSON error", e);
-			return new GenericRESTResponse(false, "Error connecting to PHR, try again later");
-		}
-		
-	}
-	
-	
 	@GET
 	@Path("/providerLaunchItems")
 	public Response providerLaunchItems(@Context HttpServletRequest request,@Context HttpServletResponse resp){
@@ -927,17 +632,7 @@ public class AppService extends AbstractServiceImpl {
 		return Response.status(Status.ACCEPTED).build();
 	}
 	
-	@GET
-	@Path("/openProviderPHRWindow/{windowName}")
-	public Response openProviderPHRWindow(@Context HttpServletRequest request,@Context HttpServletResponse response,@PathParam("windowName") String windowName) throws IOException{
-		
-		String redirectUrl = callPHRWindowOpen("openWindow",getLoggedInInfo().getLoggedInProviderNo(), windowName ,"provider");
-		
-		logger.debug("URL for open window " +windowName+" url-- "+redirectUrl );
-		
-		response.sendRedirect(redirectUrl);
-		return Response.status(Status.ACCEPTED).build();
-	}
+
 	
 	@POST
 	@Path("/K2AInit/")

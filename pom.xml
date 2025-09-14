@@ -820,6 +820,11 @@
          <artifactId>bcprov-jdk15on</artifactId>
          <version>1.70</version>
       </dependency>
+      <dependency>
+         <groupId>org.springframework.security</groupId>
+         <artifactId>spring-security-crypto</artifactId>
+         <version>5.8.16</version>
+      </dependency>   
       <!-- AXIS2 (for OLIS) -->
       <dependency>
          <groupId>org.apache.axis2</groupId>

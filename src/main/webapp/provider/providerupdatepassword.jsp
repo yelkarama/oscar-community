@@ -31,26 +31,26 @@
   MessageDigest md = MessageDigest.getInstance("SHA");
 %>
 
-<%@ page
-	import="java.lang.*, java.util.*, java.text.*,java.security.*, oscar.*"
-	errorPage="errorpage.jsp"%>
+<%@ page import="java.lang.*"%>
+<%@ page import="java.util.*"%>
+<%@ page import="java.text.*"%>
+<%@ page import="java.security.*"%>
+<%@ page import="oscar.*"%>
+<%@ page import="oscar.log.LogAction" %>
+<%@ page import="oscar.log.LogConst" %>
+<%@ page import="oscar.oscarProvider.data.ProviderMyOscarIdData" %>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.Security" %>
 <%@ page import="org.oscarehr.common.dao.SecurityDao" %>
 <%@ page import="org.oscarehr.util.LoggedInInfo" %>
 <%@ page import="org.oscarehr.managers.SecurityManager" %>
 <%@ page import="org.oscarehr.myoscar.utils.MyOscarLoggedInInfo" %>
-<%@ page import="oscar.oscarProvider.data.ProviderMyOscarIdData" %>
 <%@ page import="org.oscarehr.phr.util.MyOscarUtils" %>
+
+<%@ errorPage="errorpage.jsp"%>
 <%
 	LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-	org.oscarehr.managers.SecurityManager securityManager = SpringUtils.getBean(org.oscarehr.managers.SecurityManager.class);
-
-%>
-<%@ page import="oscar.log.LogAction" %>
-<%@ page import="oscar.log.LogConst" %>
-
-<%
+	SecurityManager securityManager = SpringUtils.getBean(SecurityManager.class);
 	SecurityDao securityDao = SpringUtils.getBean(SecurityDao.class);
 	List<Security> ss = securityDao.findByProviderNo(curUser_no);
 	for(Security s:ss) {
@@ -80,39 +80,25 @@
 	     }
 		
 	     boolean passwordUpdateRequired = false;
+		 String oldPassword = request.getParameter("oldpassword");
+		 String newPassword = request.getParameter("mypassword");
+		 String confirmPassword = request.getParameter("confirmpassword");
+
 	     //check if the user will change the  Password
-	     if (request.getParameter("oldpassword") != null && request.getParameter("oldpassword").length() > 0 && 
-	         request.getParameter("mypassword") != null && request.getParameter("mypassword").length() > 0 && 
-	         request.getParameter("confirmpassword") != null && request.getParameter("confirmpassword").length() > 0) {
-				
-			 StringBuffer sbTemp = new StringBuffer();
-		     byte[] btOldPasswd= md.digest(request.getParameter("oldpassword").getBytes());
-		     for(int i=0; i<btOldPasswd.length; i++) sbTemp = sbTemp.append(btOldPasswd[i]);
-	
-		     String stroldpasswd = sbTemp.toString();
-	
-		     String strDBpasswd = s.getPassword();
-		     if (strDBpasswd.length()<20) {
-		         sbTemp = new StringBuffer();
-		         byte[] btDBPasswd= md.digest(strDBpasswd.getBytes());
-		         for(int i=0; i<btDBPasswd.length; i++) sbTemp = sbTemp.append(btDBPasswd[i]);
-		         strDBpasswd = sbTemp.toString();
-		     }
-	
-		     if( stroldpasswd.equals(strDBpasswd ) && request.getParameter("mypassword").equals(request.getParameter("confirmpassword")) ) {
-		       sbTemp = new StringBuffer();
-		       byte[] btNewPasswd= md.digest(request.getParameter("mypassword").getBytes());
-		       for(int i=0; i<btNewPasswd.length; i++) sbTemp = sbTemp.append(btNewPasswd[i]);
-	
-		       if (s.getPassword().equals(sbTemp.toString())) {
-		    	   errorMsg = errorMsg + " Password Update Error: New Password must be different from the existing Password. ";   
+	     if (oldPassword != null && !oldPassword.isEmpty() &&
+				 newPassword != null && !newPassword.isEmpty() &&
+				 confirmPassword != null && !confirmPassword.isEmpty()) {
+
+             if (securityManager.matchesPassword(oldPassword, s.getPassword()) && newPassword.equals(confirmPassword)) {
+		     	if (securityManager.matchesPassword(newPassword, s.getPassword())) {
+		    	   errorMsg = errorMsg + " Password Update Error: New Password must be different from the existing Password. ";
 		       } else {
-		         s.setPassword(sbTemp.toString());
+		         s.setPassword(securityManager.encodePassword(newPassword));
 		         s.setPasswordUpdateDate(new java.util.Date());
 		         passwordUpdateRequired = true;
 		       }  
 		     } else {
-		       errorMsg = errorMsg + " Password Update Error: Password doesn't match the exisitng one in the system. "; 
+		       errorMsg = errorMsg + " Password Update Error: Password doesn't match the existing one in the system. ";
 		     }
 	     }
 	     

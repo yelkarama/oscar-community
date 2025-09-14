@@ -26,7 +26,6 @@
 package oscar.login;
 
 import java.io.IOException;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -62,6 +61,7 @@ import org.oscarehr.common.model.ServiceRequestToken;
 import org.oscarehr.common.model.UserProperty;
 import org.oscarehr.decisionSupport.service.DSService;
 import org.oscarehr.managers.AppManager;
+import org.oscarehr.managers.SecurityManager;
 import org.oscarehr.phr.util.MyOscarUtils;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.LoggedInUserFilter;
@@ -100,7 +100,8 @@ public final class LoginAction extends DispatchAction {
     private ProviderPreferenceDao providerPreferenceDao = (ProviderPreferenceDao) SpringUtils.getBean("providerPreferenceDao");
     private ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
     private UserPropertyDAO propDao =(UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
-	
+    private final SecurityManager securityManager = SpringUtils.getBean(SecurityManager.class);
+
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     	boolean ajaxResponse = request.getParameter("ajaxResponse") != null?Boolean.valueOf(request.getParameter("ajaxResponse")):false;
     	
@@ -137,7 +138,7 @@ public final class LoginAction extends DispatchAction {
     	   
     	    
     	    try{
-        	    String errorStr = errorHandling(password, newPassword, confirmPassword, encodePassword(oldPassword), oldPassword);
+        	    String errorStr = errorHandling(password, newPassword, confirmPassword, oldPassword);
         	    
         	    //Error Handling
         	    if (errorStr != null && !errorStr.isEmpty()) {
@@ -549,7 +550,7 @@ public final class LoginAction extends DispatchAction {
      */
     private void setUserInfoToSession(HttpServletRequest request,String userName, String password, String pin,String nextPage) throws Exception{
     	request.getSession().setAttribute("userName", userName);
-    	request.getSession().setAttribute("password", encodePassword(password));
+    	request.getSession().setAttribute("password", this.securityManager.encodePassword(password));
     	request.getSession().setAttribute("pin", pin);
     	request.getSession().setAttribute("nextPage", nextPage);
     
@@ -557,17 +558,17 @@ public final class LoginAction extends DispatchAction {
     
      /**
       * Performs the error handling
-     * @param password
+     * @param oldEncodedPassword
      * @param newPassword
      * @param confirmPassword
      * @param oldPassword
      * @return
      */
-    private String errorHandling(String password, String  newPassword, String  confirmPassword, String  encodedOldPassword, String  oldPassword){
+    private String errorHandling(String oldEncodedPassword, String newPassword, String confirmPassword, String oldPassword){
 	    
     	String newURL = "";
 
-	    if (!encodedOldPassword.equals(password)) {
+	    if (!this.securityManager.matchesPassword(oldPassword, oldEncodedPassword)) {
      	   newURL = newURL + "?errormsg=Your old password, does NOT match the password in the system. Please enter your old password.";  
      	} else if (!newPassword.equals(confirmPassword)) {
       	   newURL = newURL + "?errormsg=Your new password, does NOT match the confirmed password. Please try again.";  
@@ -577,26 +578,7 @@ public final class LoginAction extends DispatchAction {
     	    
 	    return newURL;
      }
-    
-    
-    /**
-     * This method encodes the password, before setting to session.
-     * @param password
-     * @return
-     * @throws Exception
-     */
-    private String encodePassword(String password) throws Exception{
-
-    	MessageDigest md = MessageDigest.getInstance("SHA");
-    	
-    	StringBuilder sbTemp = new StringBuilder();
-	    byte[] btNewPasswd= md.digest(password.getBytes());
-	    for(int i=0; i<btNewPasswd.length; i++) sbTemp = sbTemp.append(btNewPasswd[i]);
-	
-	    return sbTemp.toString();
-	    
-    }
-    
+       
     
     /**
      * get the security record based on the username
@@ -629,7 +611,7 @@ public final class LoginAction extends DispatchAction {
     private void  persistNewPassword(String userName, String newPassword) throws Exception{
     
 	    Security security = getSecurity(userName);
-	    security.setPassword(encodePassword(newPassword));
+	    security.setPassword(this.securityManager.encodePassword(newPassword));
 	    security.setForcePasswordReset(Boolean.FALSE);
 	    SecurityDao securityDao = (SecurityDao) SpringUtils.getBean("securityDao");	    
 	    securityDao.saveEntity(security); 
