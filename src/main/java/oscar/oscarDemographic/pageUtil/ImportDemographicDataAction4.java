@@ -986,6 +986,9 @@ import oscar.util.UtilDateUtilities;
 
         String address="", city="", province="", postalCode="";
         String residentialAddress="", residentialCity="",residentialProvince="",residentialPostalCode="";
+        String pronoun="", gender="";
+        Integer pronounId=0;
+        Integer genderId=0;
 		
         if(demo.getAddressArray()!= null) {
 	        for (cdsDt.Address addr :demo.getAddressArray()) {
@@ -1169,7 +1172,7 @@ import oscar.util.UtilDateUtilities;
 
         } else { //add patient!
 */
-            demoRes = dd.addDemographic(loggedInInfo, title, lastName, firstName, middleNames, address, city, province, postalCode, residentialAddress, residentialCity, residentialProvince, residentialPostalCode, homePhone, workPhone, year_of_birth, month_of_birth, date_of_birth, hin, versionCode, rosterStatus, rosterDate, termDate, termReason, rosterEnrolledTo, patient_status, psDate, ""/*date_joined*/, chart_no, official_lang, spoken_lang, primaryPhysician, sex, ""/*end_date*/, ""/*eff_date*/, ""/*pcn_indicator*/, hc_type, hc_renew_date, ""/*family_doctor*/, email, ""/*pin*/, ""/*alias*/, ""/*previousAddress*/, ""/*children*/, ""/*sourceOfIncome*/, ""/*citizenship*/, sin);
+            demoRes = dd.addDemographic(loggedInInfo, title, lastName, firstName, middleNames, address, city, province, postalCode, residentialAddress, residentialCity, residentialProvince, residentialPostalCode, homePhone, workPhone, year_of_birth, month_of_birth, date_of_birth, hin, versionCode, rosterStatus, rosterDate, termDate, termReason, rosterEnrolledTo, patient_status, psDate, ""/*date_joined*/, chart_no, official_lang, spoken_lang, primaryPhysician, sex, ""/*end_date*/, ""/*eff_date*/, ""/*pcn_indicator*/, hc_type, hc_renew_date, ""/*family_doctor*/, email, ""/*pin*/, ""/*alias*/, ""/*previousAddress*/, ""/*children*/, ""/*sourceOfIncome*/, ""/*citizenship*/, sin,"",0,"",0);
             demographicNo = demoRes.getId();
 /*        }
 
