@@ -185,9 +185,7 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 	// @Column(name = "gender")
 	private String gender;
 	// @Column(name = "pronoun")
-	private String pronoun;		
-	// @Column(name = "prefName")
-	private String prefName;	
+	private String pronoun;			
 	
 	private String sexDesc;
 	private String cellPhone;
