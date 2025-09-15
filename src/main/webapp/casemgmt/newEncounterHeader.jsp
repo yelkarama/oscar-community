@@ -43,7 +43,7 @@
 <%@ page import="org.oscarehr.common.dao.SystemPreferencesDao" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="org.owasp.encoder.Encode" %>
- 
+
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security" %>
 <%
@@ -54,7 +54,7 @@
         response.sendRedirect("error.jsp");
         return;
     }
-    
+
     Facility facility = loggedInInfo.getCurrentFacility();
 
     String demoNo = bean.demographicNo;
@@ -64,7 +64,7 @@
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
     ProviderColourUpdater colourUpdater = new ProviderColourUpdater(user);
     userColour = colourUpdater.getColour();
-    
+
 	String privateConsentEnabledProperty = OscarProperties.getInstance().getProperty("privateConsentEnabled");
     String help_url = (OscarProperties.getInstance().getProperty("HELP_SEARCH_URL","https://oscargalaxy.org/knowledge-base/")).trim();
 	boolean privateConsentEnabled = privateConsentEnabledProperty != null && privateConsentEnabledProperty.equals("true");
@@ -108,7 +108,7 @@
     SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
     Map<String, Boolean> echartPreferences = systemPreferencesDao.findByKeysAsMap(SystemPreferences.ECHART_PREFERENCE_KEYS);
     Map<String, Boolean> generalSettingsMap = systemPreferencesDao.findByKeysAsMap(SystemPreferences.GENERAL_SETTINGS_KEYS);
-    
+
     boolean replaceNameWithPreferred = generalSettingsMap.getOrDefault("replace_demographic_name_with_preferred", false);
     boolean showEmailIndicator = echartPreferences.getOrDefault("echart_email_indicator", true) && StringUtils.isNotEmpty(bean.email);
     boolean showOLIS = echartPreferences.getOrDefault("echart_show_OLIS", false);
@@ -120,14 +120,16 @@
     patientName.append(demographic.getLastName())
                .append(", ");
     if (replaceNameWithPreferred && StringUtils.isNotEmpty(demographic.getAlias())) {
-        patientName.append(demographic.getAlias());
+        patientName.append(demographic.getPrefName());
     } else {
         patientName.append(demographic.getFirstName());
         if (StringUtils.isNotEmpty(demographic.getAlias())) {
             patientName.append(" (").append(demographic.getAlias()).append(")");
         }
-    } 
-
+    }
+    if (StringUtils.isNotEmpty(demographic.getPronoun())) {
+        patientName.append("; ").append(demographic.getPronoun());
+    }
     %>
 <link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 
@@ -143,7 +145,7 @@
 </script>
 
     <c:set var="ctx" value="${pageContext.request.contextPath}" scope="request"/>
-    
+
 <div style="float:left; width: 99.8%; padding-left:2px; text-align:left; font-size: 12px; color:<%=inverseUserColour%>; background-color:<%=userColour%>" id="encounterHeader">
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
 <tr>
@@ -153,18 +155,18 @@
     <%=Encode.forHtml(famDocName.toUpperCase()+" "+famDocSurname.toUpperCase())%>  </span>
 	</security:oscarSec>
     <span class="Header" style="color:<%=inverseUserColour%>; background-color:<%=userColour%>">
-        <%   
+        <%
             String appointmentNo = request.getParameter("appointmentNo");
             String winName = "Master" + bean.demographicNo;
             String url = "/demographic/demographiccontrol.jsp?demographic_no=" + bean.demographicNo + "&amp;displaymode=edit&amp;dboperation=search_detail&appointment="+appointmentNo;
         %>
-        
+
         &nbsp;
         <a href="#" onClick="popupPage(913,1386,'<%=winName%>','<c:out value="${ctx}"/><%=url%>'); return false;" title="<bean:message key="provider.appointmentProviderAdminDay.msgMasterFile"/>"><%=Encode.forHtmlContent(patientName.toString()) %></a>
-         
-        <%=bean.patientSex%> 
-        
-        <% if (showDOB) { %> 
+
+        <%=bean.patientSex%>
+
+        <% if (showDOB) { %>
 	        <span id="age" title="<%=bean.patientAge%>" onclick="copySpanToClipboard(this.id)"><%=bean.yearOfBirth%>-<%=bean.monthOfBirth%>-<%=bean.dateOfBirth%></span>
         <% } else { %>
         	<span id="dob" title="<%=bean.yearOfBirth%>-<%=bean.monthOfBirth%>-<%=bean.dateOfBirth%>" onclick="copySpanToClipboard(this.id)"><%=bean.patientAge%></span>
@@ -173,11 +175,11 @@
 
 
 
-        <% if (showHIN) { %> 
+        <% if (showHIN) { %>
 	        <bean:message key="oscarencounter.header.hin"/>&nbsp;<span id="hin" onclick="copySpanToClipboard(this.id)"><%=bean.hin%></span>
 	        &nbsp;
-        <% } %>  
-        <oscar:phrverification demographicNo="<%=demoNo%>"><bean:message key="phr.verification.link"/></oscar:phrverification> 
+        <% } %>
+        <oscar:phrverification demographicNo="<%=demoNo%>"><bean:message key="phr.verification.link"/></oscar:phrverification>
         &nbsp;
 
        <% String STAR="*";
@@ -199,16 +201,16 @@
                     <% }
                     if ( StringUtils.endsWith(StringUtils.trimToEmpty(demographic.getPhone2()),STAR)) { %>
                             <i class="icon-briefcase" title="<bean:message key="demographic.demographicaddrecordhtm.formPhoneWork"/>"></i>&nbsp;<span id="tel" title="<bean:message key="oscarencounter.header.cell"/>&nbsp;<%=StringUtils.trimToEmpty(demoExt.get("demo_cell"))%>" onclick="copySpanToClipboard(this.id)"><%=demographic.getPhone2()%></span>
-                    <% }              
+                    <% }
                 }
         %>
-        &nbsp;            
+        &nbsp;
         <% if (showEmailIndicator) { %>
         	<% if (demographic.getConsentToUseEmailForCare() != null && demographic.getConsentToUseEmailForCare()){ %>
 	        	<a href="mailto:<%=bean.email%>?subject=Message from your Doctors Office" target="_blank" rel="noopener noreferrer" ><%=bean.email%></a>
         	<% } else { %>
         		<span id="email" onclick="copySpanToClipboard(this.id)"><%=bean.email%></span>
-        	<% }  %>       	
+        	<% }  %>
             &nbsp;
         <% }  %>
 
@@ -216,7 +218,7 @@
 		<security:oscarSec roleName="<%=roleName$%>" objectName="_newCasemgmt.apptHistory" rights="r">
 		<a href="javascript:popupPage(555,1000,'ApptHist','<c:out value="${ctx}"/>/demographic/demographiccontrol.jsp?demographic_no=<%=bean.demographicNo%>&amp;last_name=<%=bean.patientLastName.replaceAll("'", "\\\\'")%>&amp;first_name=<%=bean.patientFirstName.replaceAll("'", "\\\\'")%>&amp;orderby=appointment_date&amp;displaymode=appt_history&amp;dboperation=appt_history&amp;limit1=0&amp;limit2=25')" style="font-size: 11px;text-decoration:none;" title="<bean:message key="oscarEncounter.Header.nextApptMsg"/>"><span style="margin-left:20px;"><bean:message key="oscarEncounter.Header.nextAppt"/>: <oscar:nextAppt demographicNo="<%=bean.demographicNo%>"/></span></a>
 		</security:oscarSec>
-        &nbsp;        
+        &nbsp;
 		<% if(oscar.OscarProperties.getInstance().hasProperty("ONTARIO_MD_INCOMINGREQUESTOR")){%>
            <a href="javascript:void(0)" onClick="popupPage(600,175,'Calculators','<c:out value="${ctx}"/>/common/omdDiseaseList.jsp?sex=<%=bean.patientSex%>&age=<%=pAge%>'); return false;" ><bean:message key="oscarEncounter.Header.OntMD"/></a>
            &nbsp;
@@ -225,18 +227,18 @@
             <a href="javascript:void(0)" id="work_lab_button" title='Lab Queue' onclick="popupPage(700, 1215,'work_queue', '<%=OscarProperties.getInstance().getProperty("kaiemr_lab_queue_url")%>?demographicNo=<%=bean.demographicNo%>')">Lab Queue</a>
             &nbsp;
 		<%}%>
-		
+
         <%=getEChartLinks() %>
         &nbsp;
-        <% if (showOLIS) { %> 
+        <% if (showOLIS) { %>
 			<a href="javascript:popupPage(800,1000, 'olis_search', '<%=request.getContextPath()%>/olis/Search.jsp?demographicNo=<%=demoNo%>')">OLIS Search</a>
         	&nbsp;        <% } %>
-        
+
         <% if (OscarProperties.getInstance().isPropertyActive("moh_file_management_enabled")) { %>
         <a href="javascript:popupPage(900,1100, 'outside_use_report', '<%=request.getContextPath()%>/billing/CA/ON/outsideUse.jsp?demographic_no=<%=demoNo%>')">OU</a>
         &nbsp;
         <% } %>
-        
+
 		<%
 		if (facility.isIntegratorEnabled()){
 			int secondsTillConsideredStale = -1;
@@ -246,18 +248,18 @@
 				MiscUtils.getLogger().error("OSCAR Property: seconds_till_considered_stale did not parse to an int",e);
 				secondsTillConsideredStale = -1;
 			}
-			
+
 			boolean allSynced = true;
-			
+
 			try{
-				allSynced  = CaisiIntegratorManager.haveAllRemoteFacilitiesSyncedIn(loggedInInfo, loggedInInfo.getCurrentFacility(), secondsTillConsideredStale,false); 
-				CaisiIntegratorManager.setIntegratorOffline(session, false);	
+				allSynced  = CaisiIntegratorManager.haveAllRemoteFacilitiesSyncedIn(loggedInInfo, loggedInInfo.getCurrentFacility(), secondsTillConsideredStale,false);
+				CaisiIntegratorManager.setIntegratorOffline(session, false);
 			}catch(Exception remoteFacilityException){
 				MiscUtils.getLogger().error("Error checking Remote Facilities Sync status",remoteFacilityException);
 				CaisiIntegratorManager.checkForConnectionError(session, remoteFacilityException);
 			}
-			if(secondsTillConsideredStale == -1){  
-				allSynced = true; 
+			if(secondsTillConsideredStale == -1){
+				allSynced = true;
 			}
 		%>
 			<%if (CaisiIntegratorManager.isIntegratorOffline(session)) {%>
@@ -270,7 +272,7 @@
 	    	<%}else{%>
 	    		<a href="javascript:void(0)" onClick="popupPage(233,600,'ViewICommun','<c:out value="${ctx}"/>/admin/viewIntegratedCommunity.jsp'); return false;" >I</a>
 	    	<%}%>
-	  <%}%>    
+	  <%}%>
    </span>
 </td>
 <td align=right>
@@ -291,7 +293,7 @@ String getEChartLinks(){
 			return "";
 		}
 		try{
-			String[] httpLink = str.split("\\|"); 
+			String[] httpLink = str.split("\\|");
  			return "<a target=\"_blank\" href=\""+httpLink[1]+"\">"+httpLink[0]+"</a>";
 		}catch(Exception e){
 			MiscUtils.getLogger().error("ECHART_LINK is not in the correct format. title|url :"+str, e);
