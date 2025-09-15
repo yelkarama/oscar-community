@@ -182,6 +182,12 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 	private String residentialPostal;
 	// @Column(name = "roster_enrolled_to")
     private String rosterEnrolledTo;
+	// @Column(name = "gender")
+	private String gender;
+	// @Column(name = "pronoun")
+	private String pronoun;		
+	// @Column(name = "prefName")
+	private String prefName;	
 	
 	private String sexDesc;
 	private String cellPhone;
@@ -1476,5 +1482,37 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 		this.consentToUseEmailForCare = consentToUseEmailForCare;
 	}
 	
-	
+	public String getGender() {
+		if(gender == null) {
+			return "";
+		}
+		return gender;
+	}
+
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
+
+	public String getPronoun() {
+		if(pronoun == null) {
+			return "";
+		}
+		return pronoun;
+	}
+
+	public void setPronoun(String pronoun) {
+		this.pronoun = pronoun;
+	}	
+
+	public String getPrefname() {
+		if(prefName == null) {
+			return "";
+		}
+		return prefName;
+	}
+
+	public void setPrefname(String prefName) {
+		this.prefName = prefName;
+	}
+
 }
