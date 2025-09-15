@@ -326,7 +326,7 @@ public class DemographicData {
 			String official_lang,String spoken_lang, String provider_no, String sex, String end_date,
 			String eff_date, String pcn_indicator, String hc_type, String hc_renew_date, String family_doctor,
 			String email, String myOscarUserName, String alias, String previousAddress, String children,
-			String sourceOfIncome, String citizenship, String sin, String pronoun, String pronounId, String gender, String genderId) throws Exception {
+			String sourceOfIncome, String citizenship, String sin, String pronoun, Integer pronounId, String gender, Integer genderId) throws Exception {
 
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 
