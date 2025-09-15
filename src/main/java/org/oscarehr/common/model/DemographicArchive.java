@@ -238,8 +238,11 @@ public class DemographicArchive extends AbstractModel<Long> implements Serializa
 		this.residentialPostal = demographic.getResidentialPostal();
 		this.prefName = demographic.getPrefName();
 		this.familyPhysician = demographic.getFamilyPhysician();		
-		this.consentToUseEmailForCare = demographic.getConsentToUseEmailForCare();
-		
+		this.consentToUseEmailForCare = demographic.getConsentToUseEmailForCare();		
+		this.gender = demographic.getGender();
+		this.genderId = demographic.getGenderId();
+		this.pronoun = demographic.getPronoun();
+		this.pronounId = demographic.getPronounId();			
 	}
 
 	public Integer getDemographicNo() {
