@@ -245,7 +245,7 @@
 	demographic.setSpokenLanguage(request.getParameter("spoken_lang"));
 	demographic.setLastUpdateUser(curUser_no);
 	demographic.setLastUpdateDate(new java.util.Date());
-
+    demographic.setPronoun(request.getParameter("pronoun"));
 	
 	
 	
