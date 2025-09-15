@@ -127,6 +127,14 @@ public class DemographicArchive extends AbstractModel<Long> implements Serializa
 	Date hcRenewDate = null;
 	@Column(name = "family_doctor")
 	private String familyDoctor = null;
+	@Column(name="genderId")
+	private Integer genderId;
+	@Column(name="gender")
+	private String gender;
+	@Column(name="pronounId")
+	private Integer pronounId;
+	@Column(name="pronoun")
+	private String pronoun;
 
 
 	@Column(name = "previousAddress")
