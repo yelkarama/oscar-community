@@ -1495,6 +1495,14 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 	public void setGender(String gender) {
 		this.gender = gender;
 	}
+	
+	public String getGenderId() {
+		return genderId;
+	}
+
+	public void setGenderId(String genderId) {
+		this.gender = genderId;
+	}
 
 	public String getPronoun() {
 		if(pronoun == null) {
@@ -1506,6 +1514,14 @@ public class Demographic extends AbstractModel<Integer> implements Serializable 
 	public void setPronoun(String pronoun) {
 		this.pronoun = pronoun;
 	}	
+	
+	public String getPronounId() {
+		return pronounId;
+	}
+
+	public void setPronounId(String pronounId) {
+		this.pronounId = pronounId;
+	}
 
 	public String getPrefname() {
 		if(prefName == null) {
