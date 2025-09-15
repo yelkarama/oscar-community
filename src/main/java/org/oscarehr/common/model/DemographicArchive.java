@@ -637,6 +637,44 @@ public class DemographicArchive extends AbstractModel<Long> implements Serializa
 			this.consentToUseEmailForCare = consentToUseEmailForCare;
 		}
 		
+		public void setResidentialProvince(String residentialProvince) {
+			this.residentialProvince = residentialProvince;
+		}
+
+		public String getGender() {
+			return gender;
+		}
+
+		public void setGender(String gender) {
+			this.gender = gender;
+		}
+		
+		public String getGenderId() {
+			return genderId;
+		}
+
+		public void setGenderId(String genderId) {
+			this.genderId = genderId;
+		}
+
+
+		public String getPronoun() {
+			return pronoun;
+		}
+
+		public void setPronoun(String pronoun) {
+			this.pronoun = pronoun;
+		}
+		
+		public String getPronounId() {
+			return pronounId;
+		}
+
+		public void setPronounId(String pronounId) {
+			this.pronounId = pronounId;
+		}
+
+
 		/**
 		 * Gets demographic's preferred name.
 		 *
