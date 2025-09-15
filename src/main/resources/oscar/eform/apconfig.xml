@@ -285,6 +285,11 @@
         <ap-output>${sex}</ap-output>
     </databaseap>
     <databaseap>
+        <ap-name>pronoun</ap-name>
+        <ap-sql>SELECT pronoun FROM demographic WHERE demographic_no=${demographic}</ap-sql>
+        <ap-output>${pronoun}</ap-output>
+    </databaseap>
+    <databaseap>
         <ap-name>She_He</ap-name>
         <ap-sql>SELECT IF(sex='M', 'He', 'She') as sex FROM demographic WHERE demographic_no=${demographic}</ap-sql>
         <ap-output>${sex}</ap-output>
