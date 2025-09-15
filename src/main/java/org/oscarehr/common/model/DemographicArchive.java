@@ -636,10 +636,6 @@ public class DemographicArchive extends AbstractModel<Long> implements Serializa
 		public void setConsentToUseEmailForCare(Boolean consentToUseEmailForCare) {
 			this.consentToUseEmailForCare = consentToUseEmailForCare;
 		}
-		
-		public void setResidentialProvince(String residentialProvince) {
-			this.residentialProvince = residentialProvince;
-		}
 
 		public String getGender() {
 			return gender;
@@ -649,11 +645,11 @@ public class DemographicArchive extends AbstractModel<Long> implements Serializa
 			this.gender = gender;
 		}
 		
-		public String getGenderId() {
+		public Integer getGenderId() {
 			return genderId;
 		}
 
-		public void setGenderId(String genderId) {
+		public void setGenderId(Integer genderId) {
 			this.genderId = genderId;
 		}
 
@@ -666,11 +662,11 @@ public class DemographicArchive extends AbstractModel<Long> implements Serializa
 			this.pronoun = pronoun;
 		}
 		
-		public String getPronounId() {
+		public Integer getPronounId() {
 			return pronounId;
 		}
 
-		public void setPronounId(String pronounId) {
+		public void setPronounId(Integer pronounId) {
 			this.pronounId = pronounId;
 		}
 
