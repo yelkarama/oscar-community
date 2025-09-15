@@ -1069,6 +1069,14 @@ legend {
             </select>
             </div>
         </div>
+       <div class="control-group span5">
+            <label class="control-label" for="inputPronoun"><bean:message
+					key="global.Pronoun" /></label>
+            <div class="controls">
+              <input type="text" id="inputPronoun" name="pronoun" placeholder="<bean:message
+					key="global.Pronoun" />">
+            </div>
+        </div>
         <div class="control-group span5">
             <label class="control-label" for="inputAlias"><bean:message
 					key="demographic.demographiceditdemographic.alias" /></label>
