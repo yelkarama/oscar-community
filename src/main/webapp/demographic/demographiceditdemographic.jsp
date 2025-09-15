@@ -2923,6 +2923,16 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
             </div>
         </div>
         <div class="control-group span5">
+            <label class="control-label" for="inputPronoun"><bean:message
+					key="global.Pronoun" /></label>
+            <div class="controls">
+              <input type="text" id="inputPronoun" placeholder="<bean:message
+					key="global.Pronoun" />"
+                    name="pronoun" <%=getDisabled("pronoun")%>
+					value="<%=StringUtils.trimToEmpty(demographic.getPronoun())%>">
+            </div>
+        </div>
+        <div class="control-group span5">
             <label class="control-label" for="inputAlias"><bean:message
 					key="demographic.demographiceditdemographic.alias" /></label>
             <div class="controls">
