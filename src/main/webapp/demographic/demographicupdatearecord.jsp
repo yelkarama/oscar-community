@@ -91,10 +91,10 @@
 	WaitingListDao waitingListDao = (WaitingListDao)SpringUtils.getBean("waitingListDao");
 	OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
 
-	
+
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-	
-	
+
+
 %>
 
 <html:html locale="true">
@@ -113,9 +113,9 @@
 
 	ResultSet rs = null;
 	java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.struts.Globals.LOCALE_KEY);
-	
+
 	Demographic demographic = demographicDao.getDemographic(request.getParameter("demographic_no"));
-	Demographic oldDemographic = demographic; 
+	Demographic oldDemographic = demographic;
 
 	boolean updateFamily = false;
 	if (request.getParameter("submit")!=null&&request.getParameter("submit").equalsIgnoreCase("Save & Update Family Members")){
@@ -126,7 +126,7 @@
 	if (updateFamily){
 		 family = demographicDao.getDemographicFamilyMembers(String.valueOf(demographic.getDemographicNo()));
 	}
-	
+
 	demographic.setLastName(request.getParameter("last_name").trim());
 	demographic.setFirstName(request.getParameter("first_name").trim());
 	demographic.setMiddleNames(request.getParameter("middleNames").trim());
@@ -147,7 +147,7 @@
 	}else if("no".equals(request.getParameter("consentToUseEmailForCare"))){
 		demographic.setConsentToUseEmailForCare(Boolean.FALSE);
 	}else{
-		demographic.setConsentToUseEmailForCare(null);		
+		demographic.setConsentToUseEmailForCare(null);
 	}
 	demographic.setMyOscarUserName(StringUtils.trimToNull(request.getParameter("myOscarUserName")));
 	demographic.setYearOfBirth(request.getParameter("year_of_birth"));
@@ -173,7 +173,8 @@
 	demographic.setRosterTerminationReason(request.getParameter("roster_termination_reason"));
 	demographic.setLastUpdateUser((String)session.getAttribute("user"));
 	demographic.setLastUpdateDate(new java.util.Date());
-	
+	demographic.setPronoun(request.getParameter("pronoun"));
+
 	String yearTmp=StringUtils.trimToNull(request.getParameter("date_joined_year"));
 	String monthTmp=StringUtils.trimToNull(request.getParameter("date_joined_month"));
 	String dayTmp=StringUtils.trimToNull(request.getParameter("date_joined_date"));
@@ -195,7 +196,7 @@
 	} else {
 		demographic.setEffDate(null);
 	}
-	
+
 	if (StringUtils.trimToNull(request.getParameter("hc_renew_date"))!=null) {
 		demographic.setHcRenewDate(MyDateFormat.getSysDate(StringUtils.trimToNull(request.getParameter("hc_renew_date"))));
 	} else {
@@ -221,14 +222,14 @@
 	}
 
 
-	
+
 	if( OscarProperties.getInstance().getBooleanProperty("USE_NEW_PATIENT_CONSENT_MODULE", "true") ) {
 		// Retrieve and set patient consents.
 		PatientConsentManager patientConsentManager = SpringUtils.getBean( PatientConsentManager.class );
-		List<ConsentType> consentTypes = patientConsentManager.getActiveConsentTypes();			
-		boolean explicitConsent = Boolean.TRUE;	
-				
-		for( ConsentType consentType : consentTypes ) 
+		List<ConsentType> consentTypes = patientConsentManager.getActiveConsentTypes();
+		boolean explicitConsent = Boolean.TRUE;
+
+		for( ConsentType consentType : consentTypes )
 		{
 			String type = consentType.getType();
 			String consentRecord = request.getParameter(type);
@@ -236,20 +237,20 @@
 			if(!StringUtils.isEmpty(request.getParameter("deleteConsent_" + type))) {
 				deleteme = Integer.parseInt(request.getParameter("deleteConsent_" + type));
 			}
-			
+
 			if( consentRecord != null )
 			{
 				//either opt-in or opt-out is selected
 				boolean optOut = Integer.parseInt(consentRecord) == 1;
 				patientConsentManager.addEditConsentRecord(loggedInInfo, demographic.getDemographicNo(), consentType.getId(), explicitConsent, optOut);
-			} 
+			}
 			else if(deleteme == 1)
 			{
 				patientConsentManager.deleteConsent(loggedInInfo, demographic.getDemographicNo(), consentType.getId());
 			}
 		}
 	}
-	
+
 	//DemographicExt
 	String proNo = (String) session.getValue("user");
 	String demoNo = request.getParameter("demographic_no");
@@ -275,12 +276,12 @@
 	extensions.add(new DemographicExt(request.getParameter("paper_chart_archived_id"), proNo, demographicNo, "paper_chart_archived", request.getParameter("paper_chart_archived")));
 	extensions.add(new DemographicExt(request.getParameter("paper_chart_archived_date_id"), proNo, demographicNo, "paper_chart_archived_date", request.getParameter("paper_chart_archived_date")));
 	extensions.add(new DemographicExt(request.getParameter("paper_chart_archived_program_id"), proNo, demographicNo, "paper_chart_archived_program", request.getParameter("paper_chart_archived_program")));
-	
+
 	extensions.add(new DemographicExt(request.getParameter("HasPrimaryCarePhysician_id"), proNo, demographicNo, "HasPrimaryCarePhysician", request.getParameter("HasPrimaryCarePhysician")));
 	extensions.add(new DemographicExt(request.getParameter("EmploymentStatus_id"), proNo, demographicNo, "EmploymentStatus", request.getParameter("EmploymentStatus")));
-	
+
 	extensions.add(new DemographicExt(request.getParameter("PHU_id"), proNo, demographicNo, "PHU", request.getParameter("PHU")));
-	
+
 	// customized key
 	if(oscarVariables.getProperty("demographicExt") != null) {
 	   String [] propDemoExt = oscarVariables.getProperty("demographicExt","").split("\\|");
@@ -288,14 +289,14 @@
                    extensions.add(new DemographicExt(request.getParameter(propDemoExt[k].replace(' ','_')+"_id"),proNo, demographicNo, propDemoExt[k].replace(' ','_'), request.getParameter(propDemoExt[k].replace(' ','_'))));
 	   }
 	}
-        
+
         for (DemographicExt extension : extensions) {
 	    demographicExtDao.saveEntity(extension);
 	}
-	
+
 	// for the IBD clinic
 	OtherIdManager.saveIdDemographic(demographicNo, "meditech_id", request.getParameter("meditech_id"));
-	
+
      // added check to see if patient has a bc health card and has a version code of 66, in this case you are aloud to have dup hin
      boolean hinDupCheckException = false;
      String hcType = request.getParameter("hc_type");
@@ -307,51 +308,51 @@
      if(request.getParameter("hin")!=null && request.getParameter("hin").length()>5 && !hinDupCheckException) {
 		String paramNameHin =new String();
 		paramNameHin=request.getParameter("hin").trim();
-		
+
 		boolean outOfDomain = true;
-		
+
 		List<Demographic> hinDemoList = demographicDao.searchDemographicByHIN(paramNameHin, 100, 0, loggedInInfo.getLoggedInProviderNo(),outOfDomain);
 		for(Demographic hinDemo : hinDemoList) {
-        
+
             if (!(hinDemo.getDemographicNo().toString().equals(request.getParameter("demographic_no")))) {
                 if (hinDemo.getVer() != null && !hinDemo.getVer().equals("66")){
 
 %>
 				***<font color='red'><bean:message key="demographic.demographicaddarecord.msgDuplicatedHIN" /></font>
-				***<br><br><a href=# onClick="history.go(-1);return false;"><b>&lt;-<bean:message key="global.btnBack" /></b></a> 
-<% 
+				***<br><br><a href=# onClick="history.go(-1);return false;"><b>&lt;-<bean:message key="global.btnBack" /></b></a>
+<%
 				return;
 	            }
 	        }
 	    }
 	}
-     
-    if(demographic.getMyOscarUserName() != null && !demographic.getMyOscarUserName().trim().isEmpty()){ 
+
+    if(demographic.getMyOscarUserName() != null && !demographic.getMyOscarUserName().trim().isEmpty()){
      	Demographic myoscarDemographic = demographicDao.getDemographicByMyOscarUserName(demographic.getMyOscarUserName());
      	if(myoscarDemographic != null && !myoscarDemographic.getDemographicNo().equals(demographic.getDemographicNo())){
 
 %>
 			***<font color='red'><bean:message key="demographic.demographicaddarecord.msgDuplicatedPHR" /></font>
-			***<br><br><a href=# onClick="history.go(-1);return false;"><b>&lt;-<bean:message key="global.btnBack" /></b></a> 
-<% 
+			***<br><br><a href=# onClick="history.go(-1);return false;"><b>&lt;-<bean:message key="global.btnBack" /></b></a>
+<%
 			return;
      	}
 
-    } 
+    }
     Long archiveId = demographicArchiveDao.archiveRecord(demographic);
 	for (DemographicExt extension : extensions) {
 		DemographicExtArchive archive = new DemographicExtArchive(extension);
 		archive.setArchiveId(archiveId);
 		//String oldValue = request.getParameter(archive.getKey() + "Orig");
 		archive.setValue(request.getParameter(archive.getKey()));
-		demographicExtArchiveDao.saveEntity(archive);	
+		demographicExtArchiveDao.saveEntity(archive);
 	}
 
 	List<ChangedField> changedFields = new ArrayList<ChangedField>(ChangedField.getChangedFieldsAndValues(oldDemographic, demographic));
 	String keyword = "demographicNo=" + demographic.getDemographicNo();
 	if (request.getParameter("keyword") != null) { keyword += "\n" + request.getParameter("keyword"); }
 	LogAction.addChangeLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.UPDATE, "demographic", keyword, demographic.getDemographicNo().toString(), changedFields);
-	
+
     demographicDao.save(demographic);
 	if(family!=null && !family.isEmpty()){
 	    List<String> members = new ArrayList<String>();
@@ -366,7 +367,7 @@
 		}
 		session.setAttribute("updatedFamily", members);
 	}
-    
+
     try{
     	oscar.oscarDemographic.data.DemographicNameAgeString.resetDemographic(request.getParameter("demographic_no"));
     }catch(Exception nameAgeEx){
@@ -399,16 +400,16 @@
 	AdmissionManager am = SpringUtils.getBean(AdmissionManager.class);
     gieat.setAdmissionManager(am);
     gieat.setProgramManager(pm);
-    
+
 	String bedP = request.getParameter("rps");
     if(bedP != null && bedP.length()>0) {
 	    try {
 	   	 gieat.admitBedCommunityProgram(demographic.getDemographicNo(), (String)session.getAttribute("user"), Integer.parseInt(bedP), "", "(Master record change)", new java.util.Date());
 	    }catch(Exception e) {
-	    	
+
 	    }
     }
-    
+
     String[] servP = request.getParameterValues("sp");
     if(servP!=null&&servP.length>0){
     	Set<Integer> s = new HashSet<Integer>();
@@ -418,7 +419,7 @@
    	    }catch(Exception e) {
    	 }
     }
-    
+
     String _pvid = loggedInInfo.getLoggedInProviderNo();
     Set<Program> pset = gieat.getActiveProviderProgramsInFacility(loggedInInfo,_pvid,loggedInInfo.getCurrentFacility().getId());
     List<Program> allServiceProgramsShown = gieat.getServicePrograms(pset,_pvid);
@@ -429,8 +430,8 @@
     		}catch(org.oscarehr.PMmodule.exception.AdmissionException e) {}
     	}
     }
-    
-    
+
+
     //add to waiting list if the waiting_list parameter in the property file is set to true and a waiting list is found
     oscar.oscarWaitingList.WaitingList wL = oscar.oscarWaitingList.WaitingList.getInstance();
     if(oscarVariables.getProperty("DEMOGRAPHIC_WAITING_LIST").equals("true") && wL.getFound()){
@@ -441,24 +442,24 @@
 %>
 
 		<form name="add2WLFrm" action="../oscarWaitingList/Add2WaitingList.jsp">
-		<input type="hidden" name="listId" value="<%=request.getParameter("list_id")%>" /> 
-		<input type="hidden" name="demographicNo" value="<%=request.getParameter("demographic_no")%>" /> 
-		<input type="hidden" name="demographic_no" value="<%=request.getParameter("demographic_no")%>" /> 
-		<input type="hidden" name="waitingListNote" value="<%=request.getParameter("waiting_list_note")%>" /> 
-		<input type="hidden" name="onListSince" value="<%=request.getParameter("waiting_list_referral_date")%>" /> 
-		<input type="hidden" name="displaymode" value="edit" /> 
-		<input type="hidden" name="dboperation" value="search_detail" /> 
+		<input type="hidden" name="listId" value="<%=request.getParameter("list_id")%>" />
+		<input type="hidden" name="demographicNo" value="<%=request.getParameter("demographic_no")%>" />
+		<input type="hidden" name="demographic_no" value="<%=request.getParameter("demographic_no")%>" />
+		<input type="hidden" name="waitingListNote" value="<%=request.getParameter("waiting_list_note")%>" />
+		<input type="hidden" name="onListSince" value="<%=request.getParameter("waiting_list_referral_date")%>" />
+		<input type="hidden" name="displaymode" value="edit" />
+		<input type="hidden" name="dboperation" value="search_detail" />
 
 <%
 	if(!request.getParameter("list_id").equalsIgnoreCase("0")){
 		String wlDemoId = request.getParameter("demographic_no");
 		String wlId = request.getParameter("list_id");
-	
+
         List<WaitingList> waitingListList = waitingListDao.findByWaitingListIdAndDemographicId(new Integer(wlId), new Integer(wlDemoId));
 
 		//check if patient has already added to the waiting list and check if the patient already has an appointment in the future
 		if(waitingListList.isEmpty()){
-			
+
 			List<Appointment> apptList = appointmentDao.findNonCancelledFutureAppointments(new Integer(wlDemoId));
 			if(!apptList.isEmpty()){
 %>
@@ -471,15 +472,15 @@
 					document.add2WLFrm.action ="demographiccontrol.jsp?demographic_no=<%=request.getParameter("demographic_no")%>&displaymode=edit&dboperation=search_detail";
 				}
 				document.add2WLFrm.submit();
-		</script> 
+		</script>
 <%
 			}
 			else{
-%> 
+%>
 			<script language="JavaScript">
 				document.add2WLFrm.action = "../oscarWaitingList/Add2WaitingList.jsp?demographicNo=<%=request.getParameter("demographic_no")%>&listId=<%=request.getParameter("list_id")%>&waitingListNote=<%=request.getParameter("waiting_list_note")==null?"":request.getParameter("waiting_list_note")%>&onListSince=<%=request.getParameter("waiting_list_referral_date")==null?"":request.getParameter("waiting_list_referral_date")%>";
 				document.add2WLFrm.submit();
-			</script> 
+			</script>
 <%
 			}
 		}
