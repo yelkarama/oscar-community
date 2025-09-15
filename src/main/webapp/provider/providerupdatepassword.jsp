@@ -47,7 +47,7 @@
 <%@ page import="org.oscarehr.myoscar.utils.MyOscarLoggedInInfo" %>
 <%@ page import="org.oscarehr.phr.util.MyOscarUtils" %>
 
-<%@ errorPage="errorpage.jsp"%>
+
 <%
 	LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
 	SecurityManager securityManager = SpringUtils.getBean(SecurityManager.class);
