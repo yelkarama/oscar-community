@@ -67,6 +67,8 @@
 		<property name="anonymous" type="string" />
 		<property column="spoken_lang" name="spokenLanguage" />
 		<property column="official_lang" name="officialLanguage" type="string" />
+		<property column="gender" length="255" name="gender" type="string" />
+		<property column="pronoun" length="255" name="pronoun" type="string" />
 
 		<property name="HeadRecord" type="integer" formula="(select d.merged_to from demographic_merged d where d.deleted = 0 and d.demographic_no = demographic_no)" />
 
