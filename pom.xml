@@ -611,7 +611,7 @@
       <dependency>
          <groupId>com.sun.mail</groupId>
          <artifactId>jakarta.mail</artifactId>
-         <version>1.6.2</version>
+         <version>1.6.8</version>
       </dependency>
       <!--<dependency>
          <groupId>org.apache.commons</groupId>
