@@ -25,7 +25,7 @@ pipelines:
               caches:
                 - maven
               script:
-                - mvn -B -Dmaven.test.skip=True  package  # Builds the WAR
+                - mvn -e -B -Dmaven.test.skip=True  package  # Builds the WAR
                                 
 
         
