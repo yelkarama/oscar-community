@@ -21,8 +21,10 @@
  * Toronto, Ontario, Canada
  */
  
+
 import java.io.ByteArrayOutputStream;
 import org.oscarehr.util.PDFGenerationException;
+import org.oscarehr.managers.NioFileManager;
 import oscar.util.ConcatPDF;
 import java.io.IOException;
 
@@ -30,9 +32,10 @@ import java.nio.file.Path;
 import java.util.*;
 import org.springframework.stereotype.Service;
 
+
 @Service
 public class DocumentAttachmentManager {
-	@Autowired
+
 	private NioFileManager nioFileManager;
     
 	public Path concatPDF(ArrayList<Object> pdfDocumentList) throws PDFGenerationException {
