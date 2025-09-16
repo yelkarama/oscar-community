@@ -23,6 +23,7 @@
  
 import java.io.ByteArrayOutputStream;
 import org.oscarehr.util.PDFGenerationException;
+import oscar.util.ConcatPDF;
 import java.io.IOException;
 
 import java.nio.file.Path;
@@ -31,7 +32,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class DocumentAttachmentManager {
-
+	@Autowired
+	private NioFileManager nioFileManager;
+    
 	public Path concatPDF(ArrayList<Object> pdfDocumentList) throws PDFGenerationException {
 		Path path = null;
 		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
