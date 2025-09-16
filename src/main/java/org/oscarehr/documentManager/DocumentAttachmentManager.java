@@ -27,6 +27,7 @@ import java.io.IOException;
 
 import java.nio.file.Path;
 import java.util.*;
+import org.springframework.stereotype.Service;
 
 @Service
 public class DocumentAttachmentManager {
