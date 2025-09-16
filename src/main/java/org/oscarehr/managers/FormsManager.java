@@ -172,6 +172,35 @@ public class FormsManager {
     	
     	return patientFormList;
 	}
+	
+	private List<PatientForm> processEncounterForms(LoggedInInfo loggedInInfo, Integer demographicId, boolean getAllVersions, boolean getOnlyPDFReadyForms) {
+		List<PatientForm> patientFormList = new ArrayList<PatientForm>();
+		List<EncounterForm> encounterFormList = getAllEncounterForms();
+		List<String> pdfReadyFormList = getPDFReadyFormNames();
+
+		for (EncounterForm encounterForm : encounterFormList) {
+			String formName = encounterForm.getFormName();
+			if (getOnlyPDFReadyForms && !pdfReadyFormList.contains(formName)) { continue; }
+
+			String table = encounterForm.getFormTable();
+			PatientForm[] patientFormArray = EctFormData.getPatientForms(demographicId + "", table);
+			int maxFormsToProcess = getAllVersions ? patientFormArray.length : Math.min(1, patientFormArray.length);
+			for (int i = 0; i < maxFormsToProcess; i++) {
+				PatientForm patientForm = patientFormArray[i];
+				patientForm.setTable(table);
+				patientForm.setFormName(formName);
+				patientFormList.add(patientForm);
+			}
+		}
+
+		return patientFormList;
+	}
+
+	private List<String> getPDFReadyFormNames() {
+		List<String> pdfReadyFormList = new ArrayList<>();
+		pdfReadyFormList.add("Annual");
+		return pdfReadyFormList;
+	}
 		
 	/**
 	 * Saves a form as PDF EDoc. 
@@ -196,7 +225,27 @@ public class FormsManager {
 		
 		return documentId;
 	}
-	
+
+	public Path renderForm(HttpServletRequest request, HttpServletResponse response, String formId) throws PDFGenerationException {
+		EctFormData.PatientForm patientForm = null;
+		List<EncounterForm> encounterFormList = getAllEncounterForms();
+		List<String> pdfReadyFormList = getPDFReadyFormNames();
+
+		for (EncounterForm encounterForm : encounterFormList) {
+			String formName = encounterForm.getFormName();
+			String table = encounterForm.getFormTable();
+			if (!pdfReadyFormList.contains(formName)) { continue; }
+			patientForm = EctFormData.getPatientFormByFormId(formId, formName, table);
+			if (patientForm == null) { continue; }
+		}
+
+		if (patientForm == null) {
+			throw new PDFGenerationException("Error Details: Form with id: " + formId + " is not a PDF-ready form");
+		} 
+
+		return renderForm(request, response, patientForm);
+	}
+
 	public Path saveFormAsTempPdf( LoggedInInfo loggedInInfo, FormTransportContainer formTransportContainer ) {
   		if (!securityInfoManager.hasPrivilege(loggedInInfo, "_edoc", SecurityInfoManager.WRITE, null)) {
 			throw new RuntimeException("missing required security object (_edoc)");
