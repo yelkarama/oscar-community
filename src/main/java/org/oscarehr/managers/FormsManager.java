@@ -259,5 +259,58 @@ public class FormsManager {
 		return ConvertToEdoc.saveAsTempPDF(formTransportContainer);
 	}
 
+	public Path renderForm(LoggedInInfo loggedInInfo, FormTransportContainer formTransportContainer) {
+  		if (!securityInfoManager.hasPrivilege(loggedInInfo, "_form", SecurityInfoManager.READ, null)) {
+			throw new RuntimeException("missing required security object (_form)");
+		}
+  		
+  		LogAction.addLogSynchronous(loggedInInfo, "FormsManager.saveFormAsTempPdf", "" );
+  		
+		return ConvertToEdoc.saveAsTempPDF(formTransportContainer);
+	}
+
+	/**
+	 * This method processes a PatientForm, which can be null, and retrieves data using the 'formId', 'formName',
+	 * and 'demographicNo' parameters from the HttpServletRequest request.
+	 *
+	 * @param form The PatientForm to process (can be null).
+	 * @param request The HttpServletRequest containing the parameters.
+	 */
+	public Path renderForm(HttpServletRequest request, HttpServletResponse response, EctFormData.PatientForm form) throws PDFGenerationException {
+		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+		if (!securityInfoManager.hasPrivilege(loggedInInfo, "_form", SecurityInfoManager.READ, null)) {
+			throw new RuntimeException("missing required security object (_form)");
+		}
+
+		FormTransportContainer formTransportContainer = getFormTransportContainer(request, response, form);
+		Path path = null;
+		try {
+			path = ConvertToEdoc.saveAsTempPDF(formTransportContainer);
+		} catch (Exception e) {
+			throw new PDFGenerationException("Error Details: Form [" + formTransportContainer.getFormName() + "] could not be converted into a PDF", e);
+		}
+		return path;
+	}
+
+	private FormTransportContainer getFormTransportContainer(HttpServletRequest request, HttpServletResponse response, EctFormData.PatientForm form) throws PDFGenerationException {
+		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+		String formId = request.getParameter("formId") != null ? request.getParameter("formId") : form.getFormId();
+		String formName = request.getParameter("formName") != null ? request.getParameter("formName") : form.getFormName();
+		String demographicNo = request.getParameter("demographicNo") != null ? request.getParameter("demographicNo") : form.getDemoNo();
+		String formPath = "/form/forwardshortcutname.jsp?method=fetch&formname=" + formName + "&demographic_no=" + demographicNo + "&formId=" + formId;
+		FormTransportContainer formTransportContainer = null;
+		try {
+			formTransportContainer = new FormTransportContainer(response, request, formPath);
+			formTransportContainer.setDemographicNo(demographicNo);
+			formTransportContainer.setProviderNo(loggedInInfo.getLoggedInProviderNo());
+			formTransportContainer.setSubject(formName + " Form ID " + formId);
+			formTransportContainer.setFormName(formName);
+			formTransportContainer.setRealPath(request.getServletContext().getRealPath(File.separator));
+		} catch (ServletException | IOException e) {
+			throw new PDFGenerationException("An error occurred while processing the form. " + "Form name: " + formName, e);
+		}
+		return formTransportContainer;
+	}
+
 	
 }
