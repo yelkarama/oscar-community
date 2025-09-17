@@ -23,7 +23,8 @@
  */
 package org.oscarehr.managers;
 
-
+import java.io.File;
+import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,6 +52,7 @@ import oscar.oscarEncounter.data.EctFormData.PatientForm;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.ServletException;
 /**
  * 
  * This class will change soon to incorporate dealing with forms
@@ -305,7 +307,7 @@ public class FormsManager {
 			formTransportContainer.setProviderNo(loggedInInfo.getLoggedInProviderNo());
 			formTransportContainer.setSubject(formName + " Form ID " + formId);
 			formTransportContainer.setFormName(formName);
-			formTransportContainer.setRealPath(request.getServletContext().getRealPath(File.separator));
+			formTransportContainer.setRealPath(getServlet().getServletContext().getRealPath( File.separator ));
 		} catch (ServletException | IOException e) {
 			throw new PDFGenerationException("An error occurred while processing the form. " + "Form name: " + formName, e);
 		}
