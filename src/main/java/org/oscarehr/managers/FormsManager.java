@@ -49,6 +49,7 @@ import oscar.log.LogAction;
 import oscar.oscarEncounter.data.EctFormData;
 import oscar.oscarEncounter.data.EctFormData.PatientForm;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 /**
  * 
