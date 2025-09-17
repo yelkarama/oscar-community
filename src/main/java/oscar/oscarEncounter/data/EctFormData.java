@@ -26,6 +26,7 @@
 package oscar.oscarEncounter.data;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -304,9 +305,9 @@ public class EctFormData {
 				try (ResultSet rs = ps.executeQuery()) {
 					if (rs.next()) {
 						if (!table.equals("form")) {
-							patientForm = new PatientForm(table, formName, rs.getInt("ID"), rs.getInt("demographic_no"), rs.getDate("formCreated"), rs.getTimestamp("formEdited"));
+							patientForm = new PatientForm(formName, rs.getInt("ID"), rs.getInt("demographic_no"), rs.getDate("formCreated"), rs.getTimestamp("formEdited"));
 						} else {
-							patientForm = new PatientForm(table, formName, rs.getInt("form_no"), rs.getInt("demographic_no"), rs.getDate("form_date"), rs.getDate("form_date"));
+							patientForm = new PatientForm(formName, rs.getInt("form_no"), rs.getInt("demographic_no"), rs.getDate("form_date"), rs.getDate("form_date"));
 						}
 					}
 				}
