@@ -1702,7 +1702,7 @@ data-validation-pattern-message="<bean:message key="demographic.demographiceditd
 					class="input-medium" >
             <bean:message key="demographic.demographiceditdemographic.formVer" />
             <input type="text" placeholder="<bean:message key="demographic.demographiceditdemographic.formVer" />"
-                    name="ver" style="width: 40px;"
+                    name="ver" style="width: 40px;" maxlength="2"
                     value="<%=Encode.forHtmlAttribute(ver)%>"
 					onBlur="upCaseCtrl(this)" id="verBox">
 					<%if("online".equals(oscarProps.getProperty("hcv.type", "simple"))) { %>
