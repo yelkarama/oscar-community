@@ -3560,7 +3560,7 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
             <bean:message key="demographic.demographiceditdemographic.formVer" />
             <input type="text" placeholder="<bean:message key="demographic.demographiceditdemographic.formVer" />"
                     name="ver" <%=getDisabled("ver")%>
-									value="<%=StringUtils.trimToEmpty(demographic.getVer())%>" style="width: 20px;"
+									value="<%=StringUtils.trimToEmpty(demographic.getVer())%>" style="width: 20px;" maxlength="2"
 									onBlur="upCaseCtrl(this)" id="verBox">
 									<%if("online".equals(oscarProps.getProperty("hcv.type", "simple"))) { %>
 										<input type="button" class="btn" value="Validate" onClick="validateHC()"/>
