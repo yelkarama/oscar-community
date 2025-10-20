@@ -3555,7 +3555,7 @@ demographicContacts = linkedHealthCareTeam ? ContactAction.getDemographicContact
             <label class="control-label" for="hinBox"><bean:message key="demographic.demographiceditdemographic.formHin" /></label>
             <div class="controls">
               <input type="text" placeholder="<bean:message key="demographic.demographiceditdemographic.formHin" />"
-                    name="hin" id="hinBox" <%=getDisabled("hin")%>
+                    name="hin" id="hinBox" onBlur="stripSpaces(this)" <%=getDisabled("hin")%>
 					value="<%=StringUtils.trimToEmpty(demographic.getHin())%>" class="input-medium">
             <bean:message key="demographic.demographiceditdemographic.formVer" />
             <input type="text" placeholder="<bean:message key="demographic.demographiceditdemographic.formVer" />"
