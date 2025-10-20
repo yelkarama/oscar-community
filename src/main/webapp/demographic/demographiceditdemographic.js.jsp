@@ -63,6 +63,9 @@ function setfocus() {
   document.titlesearch.keyword.focus();
   document.titlesearch.keyword.select();
 }
+function stripSpaces(ctrl) {
+	ctrl.value = ctrl.value.replaceAll(" ", "");
+}
 function upCaseCtrl(ctrl) {
 	ctrl.value = ctrl.value.toUpperCase();
 }
