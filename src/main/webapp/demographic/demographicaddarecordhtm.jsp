@@ -348,6 +348,9 @@ function upCaseCtrl(ctrl) {
 	ctrl.value = ctrl.value.toUpperCase();
 }
 
+function stripSpaces(ctrl) {
+	ctrl.value = ctrl.value.replaceAll(" ", "");
+}
 
 function checkTypeIn() {
   var dob = document.titlesearch.keyword; typeInOK = false;
@@ -1697,7 +1700,7 @@ data-validation-pattern-message="<bean:message key="demographic.demographiceditd
             <label class="control-label" for="hin"><bean:message key="demographic.demographiceditdemographic.formHin" /></label>
             <div class="controls">
               <input type="text" placeholder="<bean:message key="demographic.demographiceditdemographic.formHin" />"
-                    name="hin" id="hin"
+                    name="hin" id="hin" onBlur="stripSpaces(this)"
                     value="<%=Encode.forHtmlAttribute(hin)%>"
 					class="input-medium" >
             <bean:message key="demographic.demographiceditdemographic.formVer" />
@@ -1734,6 +1737,7 @@ function parsedob_date(){
         document.getElementById('month_of_birth').value = month
         document.getElementById('date_of_birth').value = day
 }
+
 
 function parseeff_date(){
     var input=document.getElementById('eff_date').value;
