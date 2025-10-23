@@ -735,7 +735,7 @@ function init() {
 	
 	var updated = "<%=props.getProperty("updated","")%>";
 	if( updated == "true" ) {
-	       alert("Synchronizing demographic information\nRemember to save changes");
+	       console.log("Synchronizing demographic information\nRemember to save changes");
 	}
 }
 
