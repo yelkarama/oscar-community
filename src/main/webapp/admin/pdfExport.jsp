@@ -83,7 +83,11 @@ function printPage(theWindow) {
         setTimeout(()=>{
             console.log("clicking print submit");
             $(theWindow.document).ready(function(){
-                $(theWindow.document).find('input[type="submit"][value="Print"]').first().trigger("click");
+                if ($(theWindow.document).find('input[type="submit"][value="Print All"]').length) {
+                    $(theWindow.document).find('input[type="submit"][value="Print All"]').first().trigger("click");
+                } else {
+                    $(theWindow.document).find('input[type="submit"][value="Print"]').first().trigger("click");
+                }
                 onarenhanced(theWindow);
                 resolve(theWindow);
             });
@@ -178,6 +182,7 @@ function process(){
                 <label for="formset">Form Set:</label>
                 <select name="formset" id="formset">
                     <option value="../form/forwardshortcutname.jsp?formname=Rourke2009&formId=">Rourke 2009</option>
+                    <option value="../form/forwardshortcutname.jsp?formname=Rourke2006&formId=">Rourke 2006</option>
                     <option value="../form/formonarpg2.jsp?view=1&user=<%=user%>&formId=">AR2005 p1</option>
                     <option value="../form/formonarpg3.jsp?view=1&user=<%=user%>&formId=">AR2005 p2</option>
                     <option value="../form/forwardshortcutname.jsp?formname=ON AR Enhanced&formId=">ON AR Enhanced</option>
